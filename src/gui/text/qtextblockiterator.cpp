@@ -59,7 +59,7 @@ QTextLayout *QTextBlockIterator::layout() const
     const QTextBlock *b = pt->blockMap().fragment(n);
     if (!b->layout) {
         b->layout = new QTextLayout();
-        b->layout->setFormatCollection(const_cast<QTextPieceTable *>(pt)->formatCollection());
+        b->layout->setFormatCollection(pt->formatCollection());
         b->layout->setDocumentLayout(pt->layout());
     }
     if (b->textDirty) {

@@ -171,3 +171,20 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
     int idx = pieceTable->find(pos).value()->format;
     return pieceTable->formatCollection()->charFormat(idx);
 }
+
+
+QTextFormatObject *QAbstractTextDocumentLayout::object(int objectIndex) const
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+        return 0;
+    return pieceTable->objectForIndex(objectIndex);
+}
+
+QTextFormatObject *QAbstractTextDocumentLayout::objectForFormat(const QTextFormat &f) const
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+        return 0;
+    return pieceTable->objectForFormat(f);
+}

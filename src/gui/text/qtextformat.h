@@ -134,9 +134,6 @@ public:
 
     int type() const;
 
-    QTextFormatObject *object() const;
-    void setObject(QTextFormatObject *object);
-
     int objectIndex() const;
     void setObjectIndex(int object);
 
@@ -178,9 +175,7 @@ public:
     inline bool operator!=(const QTextFormat &rhs) const { return !operator==(rhs); }
 
 private:
-    Q_EXPLICIT QTextFormat(QTextFormatCollection *c, QTextFormatPrivate *p);
     QSharedDataPointer<QTextFormatPrivate> d;
-    QTextFormatCollection *collection;
 };
 
 QDataStream &operator<<(QDataStream &stream, const QTextFormat &format);
@@ -260,9 +255,6 @@ public:
     inline bool nonDeletable() const
     { return boolProperty(NonDeletable); }
 
-    // ####### extra format?
-    QTextTableFormat tableFormat() const;
-
     inline void setTableCellRowSpan(int tableCellRowSpan)
     { setProperty(TableCellRowSpan, tableCellRowSpan); }
     inline int tableCellRowSpan() const
@@ -291,8 +283,6 @@ public:
     { setProperty(BlockAlignment, int(alignment)); }
     inline Qt::Alignment alignment() const
     { return QFlag(intProperty(BlockAlignment)); }
-
-    QTextListFormat listFormat() const;
 
     inline void setTopMargin(int margin)
     { setProperty(BlockTopMargin, margin); }
@@ -465,6 +455,8 @@ public:
     int formatType() const;
     QTextFormat format() const;
     void setFormat(const QTextFormat &format);
+
+    int objectIndex() const;
 
 private:
     friend class QTextPieceTable;

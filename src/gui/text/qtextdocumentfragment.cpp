@@ -46,7 +46,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         pos += charsToCopy;
     }
 
-    readFormatCollection(pieceTable->formatCollection(), usedFormats);
+    formatCollection = *pieceTable->formatCollection();
 }
 
 void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
@@ -101,56 +101,23 @@ void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx
     fragments.append(f);
 }
 
-// need this to make sure our copied format doesn't hold a reference
-// to the original format collection anymore
-static QTextFormat cloneFormat(const QTextFormat &fmt)
-{
-    QTextFormat result(fmt.type());
-    result.merge(fmt);
-    return result;
-}
-
-void QTextDocumentFragmentPrivate::readFormatCollection(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices)
-{
-    formats.clear();
-    formatGroups.clear();
-
-    for (int i = 0; i < formatIndices.size(); ++i) {
-        const int formatIdx = formatIndices[i];
-        if (formatIdx == -1)
-            continue;
-
-        QTextFormat format = collection->format(formatIdx);
-
-        QTextFormatObject *obj = format.object();
-        if (obj) {
-            QTextFormat objFormat = obj->format();
-            Q_ASSERT(collection->hasFormatCached(objFormat));
-            const int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(objFormat);
-
-            formats[idx] = cloneFormat(objFormat);
-            formatGroups[format.objectIndex()] = idx;
-        }
-
-        formats[formatIdx] = cloneFormat(format);
-    }
-}
-
 QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCollection *collection) const
 {
     QMap<int, int> formatIndexMap;
 
     // maps from object index used in formats to real object index
+    typedef QMap<int, int> GroupMap;
     GroupMap insertedGroups;
 
-    for (GroupMap::ConstIterator it = formatGroups.begin(); it != formatGroups.end(); ++it) {
-        QTextFormat format = formats[it.value()];
-
-        insertedGroups[it.key()] = collection->indexForObject(collection->createObject(format));
+    const QVector<int> &objFormats = formatCollection.objFormats;
+    for (int i = 0; i < objFormats.size(); ++i) {
+        int objFormat = objFormats.at(i);
+        insertedGroups[i] = collection->createObjectIndex(formatCollection.format(objFormat));
     }
 
-    for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
-        QTextFormat format = it.value();
+    const QVector<QTextFormat> &formats = formatCollection.formats;
+    for (int i = 0; i < formats.size(); ++i) {
+        QTextFormat format = formats.at(i);
 
         int objectIndex = format.objectIndex();
         if (objectIndex != -1) {
@@ -158,7 +125,7 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
             format.setObjectIndex(objectIndex);
         }
 
-        formatIndexMap[it.key()] = collection->indexForFormat(format);
+        formatIndexMap[i] = collection->indexForFormat(format);
     }
 
     return formatIndexMap;
@@ -318,8 +285,6 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QString &html)
     : d(_d), indent(0)
 {
-    ++formats.ref;
-
     parse(html);
     //dumpHtml();
 }
@@ -347,9 +312,9 @@ void QTextHTMLImporter::import()
             ++indent;
             listFmt.setIndent(indent);
 
-            listReferences.append(formats.indexForObject(formats.createObject(listFmt)));
+            listReferences.append(d->formatCollection.createObjectIndex(listFmt));
         } else if (node->tag == QLatin1String("table")) {
-            tableIndices.append(formats.indexForObject(formats.createObject(QTextTableFormat())));
+            tableIndices.append(d->formatCollection.createObjectIndex(QTextTableFormat()));
         } else if (node->isTableCell) {
             Q_ASSERT(!tableIndices.isEmpty());
 
@@ -411,8 +376,8 @@ void QTextHTMLImporter::import()
             }
             QTextFrameFormat ffmt;
             ffmt.setPosition(f);
-            QTextFormatObject *obj = formats.createObject(ffmt);
-            fmt.setObject(obj);
+            int objIndex = d->formatCollection.createObjectIndex(ffmt);
+            fmt.setObjectIndex(objIndex);
 
             appendImage(fmt);
             continue;
@@ -451,15 +416,6 @@ void QTextHTMLImporter::import()
     if (listReferences.size() || tableIndices.size())
         closeTag(count() - 1);
 
-    QVarLengthArray<int> usedFormats;
-
-    Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, d->fragments) {
-        usedFormats.append(f.charFormat);
-        if (f.blockFormat >= 0)
-            usedFormats.append(f.blockFormat);
-    }
-
-    d->readFormatCollection(&formats, usedFormats);
 }
 
 void QTextHTMLImporter::closeTag(int i)
@@ -503,12 +459,12 @@ void QTextHTMLImporter::closeTag(int i)
 
 void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt, const QChar &separator)
 {
-    d->appendText(QString(separator), formats.indexForFormat(charFmt), formats.indexForFormat(format));
+    d->appendText(QString(separator), d->formatCollection.indexForFormat(charFmt), d->formatCollection.indexForFormat(format));
 }
 
 void QTextHTMLImporter::appendText(const QString &text, const QTextFormat &format)
 {
-    d->appendText(text, formats.indexForFormat(format));
+    d->appendText(text, d->formatCollection.indexForFormat(format));
 }
 
 /*!

@@ -323,13 +323,7 @@ public:
 
     void setText(const QString &str);
     void setFormatCollection(const QTextFormatCollection *fmts) {
-        // ##### atomic!
-        if (fmts != formats) {
-            if (fmts) ++fmts->ref;
-            if (formats && !--formats->ref)
-                    delete formats;
-            formats = fmts;
-        }
+        formats = fmts;
     }
     void setDocumentLayout(QAbstractTextDocumentLayout *layout) { docLayout = layout; }
 

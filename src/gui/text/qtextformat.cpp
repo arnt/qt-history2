@@ -328,7 +328,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     \sa FormatType
 */
 QTextFormat::QTextFormat()
-    : d(new QTextFormatPrivate), collection(0)
+    : d(new QTextFormatPrivate)
 {
     d->type = InvalidFormat;
 }
@@ -339,15 +339,9 @@ QTextFormat::QTextFormat()
     \sa FormatType
 */
 QTextFormat::QTextFormat(int type)
-    : d(new QTextFormatPrivate), collection(0)
+    : d(new QTextFormatPrivate)
 {
     d->type = type;
-}
-
-QTextFormat::QTextFormat(QTextFormatCollection *c, QTextFormatPrivate *p)
-    : d(p), collection(c)
-{
-    ++collection->ref;
 }
 
 
@@ -358,9 +352,6 @@ QTextFormat::QTextFormat(QTextFormatCollection *c, QTextFormatPrivate *p)
 QTextFormat::QTextFormat(const QTextFormat &rhs)
 {
     d = rhs.d;
-    collection = rhs.collection;
-    if (collection)
-        ++collection->ref;
 }
 
 /*!
@@ -370,12 +361,6 @@ QTextFormat::QTextFormat(const QTextFormat &rhs)
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 {
     d = rhs.d;
-    QTextFormatCollection *x = rhs.collection;
-    if (x)
-        ++x->ref;
-    x = qAtomicSetPtr(&collection, x);
-    if (x && !--x->ref)
-        delete x;
     return *this;
 }
 
@@ -384,10 +369,6 @@ QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 */
 QTextFormat::~QTextFormat()
 {
-    if (collection && !--collection->ref) {
-        qDebug("deleting collection %p", collection);
-        delete collection;
-    }
 }
 
 /*!
@@ -581,44 +562,6 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 }
 
 /*!
-    Return's the text format's format object or 0 if there isn't one.
-
-    \sa setObject() ObjectTypes
-*/
-QTextFormatObject *QTextFormat::object() const
-{
-    const QTextFormatProperty prop = d->properties.value(ObjectIndex);
-    if (!collection || prop.type != QTextFormat::FormatObject)
-        return 0;
-    return collection->object(prop.data.intValue);
-}
-
-/*!
-    Sets the text format's format object to \a object.
-
-    \sa object() ObjectTypes
-*/
-void QTextFormat::setObject(QTextFormatObject *object)
-{
-    if (!object) {
-        setObjectIndex(-1);
-        return;
-    }
-
-    QTextFormatCollection *c = object->d_func()->collection;
-    Q_ASSERT(c);
-    ++c->ref;
-    c = qAtomicSetPtr(&collection, c);
-    if (c && !--c->ref)
-        delete c;
-
-    QTextFormatProperty prop;
-    prop.type = FormatObject;
-    prop.data.intValue = collection->indexForObject(object);
-    d->properties.insert(ObjectIndex, prop);
-}
-
-/*!
     \fn void QTextFormat::setObjectType(int type)
 
     Set's the text format's object type to \a type. See
@@ -712,6 +655,8 @@ QList<int> QTextFormat::allPropertyIds() const
 */
 bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
+    if (d == rhs.d)
+        return true;
     if (!d)
         return !rhs.d;
     if (!rhs.d)
@@ -1328,24 +1273,6 @@ QFont QTextCharFormat::font() const
 */
 
 
-/*!
-    Returns the list format for this character format.
-*/
-QTextListFormat QTextBlockFormat::listFormat() const
-{
-    QTextFormatObject *obj = object();
-    return (obj ? obj->format() : QTextFormat()).toListFormat();
-}
-
-/*!
-    Returns the table format for this character format.
-*/
-QTextTableFormat QTextCharFormat::tableFormat() const
-{
-    QTextFormatObject *obj = object();
-    return (obj ? obj->format() : QTextFormat()).toTableFormat();
-}
-
 
 /*!
     \class QTextListFormat qtextformat.h
@@ -1555,110 +1482,75 @@ QTextTableFormat QTextCharFormat::tableFormat() const
 
 // ------------------------------------------------------
 
-QTextFormatObject *QTextFormatCollection::createObject(int index)
-{
-    QTextFormat f = format(index);
-
-    QTextFormatObject *obj;
-    if (f.isListFormat())
-        obj = new QTextList(pieceTable);
-    else if (f.isTableFormat())
-        obj = new QTextTable(pieceTable);
-    else if (f.isFrameFormat())
-        obj = new QTextFrame(pieceTable);
-    else
-        obj = new QTextFormatObject(pieceTable);
-    obj->d_func()->collection = this;
-    obj->d_func()->index = index;
-
-    return obj;
-}
-
 
 QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
 {
-    // ref == 1 just during construction, to avoid the formats begin created
-    // in the loop below ref and then derefing this collection (and then
-    // deleting it)
-    ref = 1;
-    pieceTable = 0;
     formats = rhs.formats;
-    for (int i = 0; i < rhs.objs.size(); ++i) {
-        QTextFormatObject *o = rhs.objs.at(i);
-        objs.append(createObject(o->d_func()->index));
-    }
-    ref = 0;
+    objFormats = rhs.objFormats;
 }
+
 QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollection &rhs)
 {
-    if (this == &rhs)
-        return *this;
-
-    for (int i = 0; i < objs.size(); ++i)
-        delete objs[i];
-    objs.clear();
-
     formats = rhs.formats;
-    for (int i = 0; i < rhs.objs.size(); ++i) {
-        QTextFormatObject *o = rhs.objs.at(i);
-        objs.append(createObject(o->d_func()->index));
-    }
+    objFormats = rhs.objFormats;
     return *this;
 }
 
 QTextFormatCollection::~QTextFormatCollection()
 {
-    for (int i = 0; i < objs.size(); ++i)
-        delete objs[i];
 }
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
-    Q_ASSERT(format.d);
-    // certainly need speedup
+    // ### certainly need speedup
     for (int i = 0; i < formats.size(); ++i) {
-        Q_ASSERT(formats.at(i));
-        if (formats.at(i) == format.d || (*formats.at(i)) == (*format.d))
+        if (formats.at(i) == format)
             return i;
     }
 
     int idx = formats.size();
-    formats.append(format.d);
+    formats.append(format);
     return idx;
 }
 
 bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
 {
     for (int i = 0; i < formats.size(); ++i)
-        if (formats.at(i) == format.d || (*formats.at(i)) == (*format.d))
+        if (formats.at(i) == format)
             return true;
     return false;
 }
 
-QTextFormatObject *QTextFormatCollection::createObject(const QTextFormat &format)
-{
-    int formatIdx = indexForFormat(format);
-
-    QTextFormatObject *o = createObject(formatIdx);
-    objs.append(o);
-    return o;
-}
-
-QTextFormatObject *QTextFormatCollection::object(int objectIndex) const
+QTextFormat QTextFormatCollection::objectFormat(int objectIndex) const
 {
     if (objectIndex == -1)
-        return 0;
-    return objs.at(objectIndex);
+        return QTextFormat();
+    return format(objFormats.at(objectIndex));
 }
 
-int QTextFormatCollection::indexForObject(QTextFormatObject *o)
+void QTextFormatCollection::setObjectFormat(int objectIndex, const QTextFormat &f)
 {
-    Q_ASSERT(o->d_func()->collection == this);
-    for (int i = 0; i < objs.size(); ++i)
-        if (objs.at(i) == o)
-            return i;
-    Q_ASSERT(false);
-    return -1;
+    int formatIndex = indexForFormat(f);
+    objFormats[objectIndex] = formatIndex;
+}
+
+int QTextFormatCollection::objectFormatIndex(int objectIndex) const
+{
+    if (objectIndex == -1)
+        return -1;
+    return objFormats.at(objectIndex);
+}
+
+void QTextFormatCollection::setObjectFormatIndex(int objectIndex, int formatIndex)
+{
+    objFormats[objectIndex] = formatIndex;
+}
+
+int QTextFormatCollection::createObjectIndex(const QTextFormat &f)
+{
+    int objectIndex = objFormats.size();
+    objFormats.append(indexForFormat(f));
+    return objectIndex;
 }
 
 QTextFormat QTextFormatCollection::format(int idx) const
@@ -1666,9 +1558,20 @@ QTextFormat QTextFormatCollection::format(int idx) const
     if (idx == -1 || idx > formats.count())
         return QTextFormat();
 
-    Q_ASSERT(formats.at(idx));
-    // ##### does this detach the formatprivate?
-    return QTextFormat(const_cast<QTextFormatCollection *>(this), formats[idx]);
+    return formats.at(idx);
+}
+
+
+QDataStream &operator<<(QDataStream &stream, const QTextFormatCollection &collection)
+{
+    return stream << collection.formats
+                  << collection.objFormats;
+}
+
+QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection)
+{
+    return stream >> collection.formats
+                  >> collection.objFormats;
 }
 
 
@@ -1693,18 +1596,20 @@ QTextFormatObject::~QTextFormatObject()
 
 QTextFormat QTextFormatObject::format() const
 {
-    return d->collection->format(d->index);
+    return d->pieceTable->formatCollection()->objectFormat(d->objectIndex);
 }
 
 void QTextFormatObject::setFormat(const QTextFormat &format)
 {
-    int idx = d->collection->indexForFormat(format);
-    QTextPieceTable *pt = d->collection->pieceTable;
-    if (pt)
-        pt->changeObjectFormat(this, idx);
-    else
-        d->index = idx;
+    int idx = d->pieceTable->formatCollection()->indexForFormat(format);
+    d->pieceTable->changeObjectFormat(this, idx);
 }
+
+int QTextFormatObject::objectIndex() const
+{
+    return d->objectIndex;
+}
+
 
 
 QTextBlockGroup::QTextBlockGroup(QObject *parent)
@@ -1789,7 +1694,7 @@ QTextFrame *QTextFrame::parent()
 */
 QTextCursor QTextFrame::start()
 {
-    return QTextCursor(d->pieceTable(), startPosition());
+    return QTextCursor(d->pieceTable, startPosition());
 }
 
 /*!
@@ -1797,21 +1702,21 @@ QTextCursor QTextFrame::start()
 */
 QTextCursor QTextFrame::end()
 {
-    return QTextCursor(d->pieceTable(), endPosition());
+    return QTextCursor(d->pieceTable, endPosition());
 }
 
 int QTextFrame::startPosition()
 {
     if (!d->fragment_start)
         return 0;
-    return d->pieceTable()->fragmentMap().position(d->fragment_start) + 1;
+    return d->pieceTable->fragmentMap().position(d->fragment_start) + 1;
 }
 
 int QTextFrame::endPosition()
 {
     if (!d->fragment_end)
-        return d->pieceTable()->length();
-    return d->pieceTable()->fragmentMap().position(d->fragment_end);
+        return d->pieceTable->length();
+    return d->pieceTable->fragmentMap().position(d->fragment_end);
 }
 
 QTextFrameLayoutData *QTextFrame::layoutData() const

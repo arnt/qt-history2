@@ -868,8 +868,8 @@ QTextCharFormat QTextCursor::charFormat() const
 
     QTextCharFormat cfmt = d->pieceTable->formatCollection()->charFormat(idx);
     // ##### we miss a clearProperty here
-    if (cfmt.object())
-        cfmt.setObject(0);
+    if (cfmt.objectIndex() != -1)
+        cfmt.setObjectIndex(-1);
     Q_ASSERT(cfmt.isValid());
     return cfmt;
 }
@@ -1017,10 +1017,9 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
     if (!d)
         return 0;
 
-    QTextFormatCollection *c = d->pieceTable->formatCollection();
-    QTextList *list = static_cast<QTextList *>(c->createObject(format));
+    QTextList *list = static_cast<QTextList *>(d->pieceTable->createObject(format));
     QTextBlockFormat modifier;
-    modifier.setObject(list);
+    modifier.setObjectIndex(list->objectIndex());
     mergeBlockFormat(modifier);
     return list;
 }
@@ -1052,7 +1051,7 @@ QTextList *QTextCursor::currentList() const
         return 0;
 
     QTextBlockFormat b = blockFormat();
-    QTextFormatObject *o = b.object();
+    QTextFormatObject *o = d->pieceTable->objectForFormat(b);
     return qt_cast<QTextList *>(o);
 }
 

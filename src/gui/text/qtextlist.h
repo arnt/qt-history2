@@ -35,7 +35,7 @@ private:
     QTextList(QObject *parent);
     ~QTextList();
 
-    friend class QTextFormatCollection;
+    friend class QTextPieceTable;
 
 #if defined(Q_DISABLE_COPY)
     QTextList(const QTextList &rhs);

@@ -23,7 +23,6 @@ public:
 
     void appendText(const QString &text, int formatIdx, int blockIdx = -2);
 
-    void readFormatCollection(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices);
     QMap<int, int> fillFormatCollection(QTextFormatCollection *collection) const;
 
     // ### TODO: merge back into one big vector.
@@ -44,12 +43,7 @@ public:
 
     QString localBuffer;
 
-    typedef QMap<Q_INT32, QTextFormat> FormatMap;
-    typedef QMap<Q_INT32, Q_INT32> GroupMap;
-
-    FormatMap formats;
-    // maps from group index to index (key) in 'formats' map
-    GroupMap formatGroups;
+    QTextFormatCollection formatCollection;
 
     Q_INT8 hasTitle;
     QString title;
@@ -77,8 +71,7 @@ inline QDataStream &operator>>(QDataStream &stream,
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate &priv)
 {
-    return stream << priv.formats
-                  << priv.formatGroups
+    return stream << priv.formatCollection
                   << priv.fragments
                   << priv.localBuffer
                   << priv.hasTitle
@@ -87,8 +80,7 @@ inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentP
 
 inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate &priv)
 {
-    return stream >> priv.formats
-                  >> priv.formatGroups
+    return stream >> priv.formatCollection
                   >> priv.fragments
                   >> priv.localBuffer
                   >> priv.hasTitle
@@ -114,8 +106,6 @@ private:
     QVarLengthArray<int> listReferences;
     int indent;
     QVarLengthArray<int> tableIndices;
-
-    QTextFormatCollection formats;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

@@ -70,26 +70,27 @@ public:
     }
 };
 
-
 class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
-    QTextFormatCollection( QTextPieceTable *_pieceTable = 0 ) : pieceTable(_pieceTable) { ref = 0; }
+    QTextFormatCollection() {}
     ~QTextFormatCollection();
 
     QTextFormatCollection(const QTextFormatCollection &rhs);
     QTextFormatCollection &operator=(const QTextFormatCollection &rhs);
 
+    QTextFormat objectFormat(int objectIndex) const;
+    void setObjectFormat(int objectIndex, const QTextFormat &format);
 
-    QTextFormatObject *createObject(const QTextFormat &newFormat);
-    QTextFormatObject *object(int objectIndex) const;
-    int indexForObject(QTextFormatObject *object);
+    int objectFormatIndex(int objectIndex) const;
+    void setObjectFormatIndex(int objectIndex, int formatIndex);
+
+    int createObjectIndex(const QTextFormat &f);
 
     int indexForFormat(const QTextFormat &f);
     bool hasFormatCached(const QTextFormat &format) const;
 
     QTextFormat format(int idx) const;
-
     inline QTextBlockFormat blockFormat(int index) const
     { return format(index).toBlockFormat(); }
     inline QTextCharFormat charFormat(int index) const
@@ -103,25 +104,22 @@ public:
 
     inline int numFormats() const { return formats.count(); }
 
-    QTextFormatObject *createObject(int index);
+    typedef QVector<QTextFormat> FormatVector;
 
-    mutable QAtomic ref;
-
-    QTextPieceTable *pieceTable;
-    const QVector<QTextFormatObject *> &objects() const { return objs; }
-private:
-
-    mutable QVector<QSharedDataPointer<QTextFormatPrivate> > formats;
-    QVector<QTextFormatObject *> objs;
+    FormatVector formats;
+    QVector<int> objFormats;
 };
+
+
+QDataStream &operator<<(QDataStream &stream, const QTextFormatCollection &collection);
+QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection);
 
 class QTextFormatObjectPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTextFormatObject)
 public:
-    QTextPieceTable *pieceTable() const { return collection->pieceTable; }
-    QTextFormatCollection *collection;
-    int index;
+    QTextPieceTable *pieceTable;
+    int objectIndex;
 };
 
 class QTextBlockGroupPrivate : public QTextFormatObjectPrivate

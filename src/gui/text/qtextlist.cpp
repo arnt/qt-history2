@@ -147,6 +147,6 @@ void QTextList::removeItem(int i)
     QTextBlockIterator block = d->blocks.at(i);
     QTextBlockFormat fmt = block.blockFormat();
     fmt.setIndent(fmt.indent() + format().indent());
-    fmt.setObject(0);
+    fmt.setObjectIndex(-1);
     const_cast<QTextPieceTable *>(block.pieceTable())->setBlockFormat(block, block, fmt, QTextPieceTable::SetFormat);
 }

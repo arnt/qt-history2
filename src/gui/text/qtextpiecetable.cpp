@@ -9,6 +9,7 @@
 #include "qtextimagehandler_p.h"
 #include "qtextcursor_p.h"
 #include "qtextdocumentlayout_p.h"
+#include "qtexttable.h"
 
 #include <stdlib.h>
 #include <new>
@@ -80,11 +81,9 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
 
     undoPosition = 0;
 
-    formats = new QTextFormatCollection(this);
-    ++formats->ref;
     if (!layout)
         layout = new QTextDocumentLayout();
-    frame = qt_cast<QTextFrame *>(formats->createObject(QTextFrameFormat()));
+    frame = qt_cast<QTextFrame *>(createObject(QTextFrameFormat()));
     framesDirty = false;
 
     lout = layout;
@@ -92,7 +91,7 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
     lout->setParent(this);
 
     undoEnabled = false;
-    insertBlock(0, formats->indexForFormat(QTextBlockFormat()), formats->indexForFormat(QTextCharFormat()));
+    insertBlock(0, formats.indexForFormat(QTextBlockFormat()), formats.indexForFormat(QTextCharFormat()));
     undoEnabled = true;
 }
 
@@ -101,8 +100,6 @@ QTextPieceTable::~QTextPieceTable()
     undoPosition = 0;
     undoEnabled = true;
     truncateUndoStack();
-    if (!--formats->ref)
-        delete formats;
 }
 
 
@@ -125,7 +122,7 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(format).object());
+    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(format));
     if (frame) {
         frame->d_func()->fragmentAdded(text.at(strPos), x);
         framesDirty = true;
@@ -166,11 +163,11 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(formats->format(blockFormat).object());
+    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blockFormat));
     if (group)
         group->insertBlock(QTextBlockIterator(this, b));
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(format).object());
+    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(formats.format(format)));
     if (frame) {
         frame->d_func()->fragmentAdded(text.at(strPos), x);
         framesDirty = true;
@@ -182,8 +179,8 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
 void QTextPieceTable::insertBlock(const QChar &blockSeparator,
                                   int pos, int blockFormat, int charFormat, UndoCommand::Operation op)
 {
-    Q_ASSERT(formats->format(blockFormat).isBlockFormat());
-    Q_ASSERT(formats->format(charFormat).isCharFormat());
+    Q_ASSERT(formats.format(blockFormat).isBlockFormat());
+    Q_ASSERT(formats.format(charFormat).isCharFormat());
     Q_ASSERT(pos >= 0 && (pos < fragments.length() || (pos == 0 && fragments.length() == 0)));
     Q_ASSERT(isValidBlockSeparator(blockSeparator));
 
@@ -215,7 +212,7 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
         return;
 
     Q_ASSERT(pos >= 0 && pos < fragments.length());
-    Q_ASSERT(formats->format(format).isCharFormat());
+    Q_ASSERT(formats.format(format).isCharFormat());
 
     insert_string(pos, strPos, strLength, format, UndoCommand::MoveCursor);
 
@@ -256,7 +253,7 @@ int QTextPieceTable::remove_string(int pos, uint length, UndoCommand::Operation 
 
     blocks.setSize(b, blocks.size(b)-length);
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(fragments.fragment(x)->format).object());
+    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
     if (frame) {
         frame->d_func()->fragmentRemoved(text.at(fragments.fragment(x)->stringPosition), x);
         framesDirty = true;
@@ -297,11 +294,11 @@ int QTextPieceTable::remove_block(int pos, int *blockFormat, int command, UndoCo
     }
     *blockFormat = blocks.fragment(b)->format;
 
-    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(formats->format(blocks.fragment(b)->format).object());
+    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blocks.fragment(b)->format));
     if (group)
         group->removeBlock(QTextBlockIterator(this, b));
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(formats->format(fragments.fragment(x)->format).object());
+    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
     if (frame) {
         frame->d_func()->fragmentRemoved(text.at(fragments.fragment(x)->stringPosition), x);
         framesDirty = true;
@@ -371,7 +368,7 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
 
     int newFormatIdx = -1;
     if (mode == SetFormat)
-        newFormatIdx = formats->indexForFormat(newFormat);
+        newFormatIdx = formats.indexForFormat(newFormat);
 
     const int startPos = pos;
     const int endPos = pos + length;
@@ -385,16 +382,16 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
 
         QTextFragment *fragment = it.value();
 
-        Q_ASSERT(formats->format(fragment->format).type() == QTextFormat::CharFormat);
+        Q_ASSERT(formats.format(fragment->format).type() == QTextFormat::CharFormat);
 
         int offset = pos - it.position();
         int length = qMin(endPos - pos, int(fragment->size - offset));
         int oldFormat = fragment->format;
 
         if (mode == MergeFormat) {
-            QTextFormat format = formats->format(fragment->format);
+            QTextFormat format = formats.format(fragment->format);
             format.merge(newFormat);
-            fragment->format = formats->indexForFormat(format);
+            fragment->format = formats.indexForFormat(format);
         } else {
             fragment->format = newFormatIdx;
         }
@@ -437,8 +434,8 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
 
     int newFormatIdx = -1;
     if (mode == SetFormat)
-        newFormatIdx = formats->indexForFormat(newFormat);
-    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(newFormat.object());
+        newFormatIdx = formats.indexForFormat(newFormat);
+    QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(newFormat));
 
     QTextBlockIterator it = from;
     QTextBlockIterator end = to;
@@ -447,12 +444,12 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
 
     for (; it != end; ++it) {
         int oldFormat = block(it)->format;
-        QTextBlockFormat format = formats->blockFormat(oldFormat);
-        QTextBlockGroup *oldGroup = qt_cast<QTextBlockGroup *>(format.object());
+        QTextBlockFormat format = formats.blockFormat(oldFormat);
+        QTextBlockGroup *oldGroup = qt_cast<QTextBlockGroup *>(objectForFormat(format));
         if (mode == MergeFormat) {
             format.merge(newFormat);
-            newFormatIdx = formats->indexForFormat(format);
-            group = qt_cast<QTextBlockGroup *>(format.object());
+            newFormatIdx = formats.indexForFormat(format);
+            group = qt_cast<QTextBlockGroup *>(objectForFormat(format));
         }
         block(it)->format = newFormatIdx;
 
@@ -573,7 +570,7 @@ void QTextPieceTable::undoRedo(bool undo)
             Q_ASSERT(!it.atEnd());
 
             int oldFormat = it.value()->format;
-            setCharFormat(c.pos, c.length, formats->charFormat(c.format));
+            setCharFormat(c.pos, c.length, formats.charFormat(c.format));
             c.format = oldFormat;
 	    break;
 	}
@@ -584,8 +581,8 @@ void QTextPieceTable::undoRedo(bool undo)
 
             int oldFormat = block(it)->format;
             block(it)->format = c.format;
-            QTextBlockGroup *oldGroup = qt_cast<QTextBlockGroup *>(formats->blockFormat(oldFormat).object());
-            QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(formats->blockFormat(c.format).object());
+            QTextBlockGroup *oldGroup = qt_cast<QTextBlockGroup *>(objectForFormat(formats.blockFormat(oldFormat)));
+            QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(formats.blockFormat(c.format)));
             c.format = oldFormat;
             if (group != oldGroup) {
                 if (oldGroup)
@@ -601,8 +598,7 @@ void QTextPieceTable::undoRedo(bool undo)
 	case UndoCommand::GroupFormatChange: {
             PMDEBUG("   group format change");
             QTextFormatObject *object = c.object;
-            int oldFormat = object->d_func()->index;
-            object->d_func()->index = c.format;
+            int oldFormat = formats.objectFormatIndex(object->objectIndex());
             changeObjectFormat(object, c.format);
             c.format = oldFormat;
 	    break;
@@ -819,8 +815,9 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
 void QTextPieceTable::changeObjectFormat(QTextFormatObject *obj, int format)
 {
     beginEditBlock();
-    int oldFormatIndex = obj->d_func()->index;
-    obj->d_func()->index = format;
+    int objectIndex = obj->objectIndex();
+    int oldFormatIndex = formats.objectFormatIndex(objectIndex);
+    formats.setObjectFormatIndex(objectIndex, format);
 
     QTextBlockGroup *b = qt_cast<QTextBlockGroup *>(obj);
     if (b) {
@@ -890,8 +887,8 @@ void QTextPieceTable::scan_frames(int pos, int charsRemoved, int charsAddded)
     clearFrame(f);
 
     for (FragmentIterator it = begin(); it != end(); ++it) {
-        QTextFormat fmt = formats->format(it->format);
-        QTextFrame *frame = qt_cast<QTextFrame *>(fmt.object());
+        QTextFormat fmt = formats.format(it->format);
+        QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(it->format));
         if (!frame)
             continue;
 
@@ -901,19 +898,19 @@ void QTextPieceTable::scan_frames(int pos, int charsRemoved, int charsAddded)
         if (ch == QTextBeginningOfFrame) {
             if (f != frame) {
                 // f == frame happens for tables
-                Q_ASSERT(frame->d->fragment_start == it.n);
+                Q_ASSERT(frame->d->fragment_start == it.n || frame->d->fragment_start == 0);
                 frame->d->parentFrame = f;
                 f->d->childFrames.append(frame);
                 f = frame;
             }
         } else if (ch == QTextEndOfFrame) {
             Q_ASSERT(f == frame);
-            Q_ASSERT(frame->d->fragment_end == it.n);
+            Q_ASSERT(frame->d->fragment_end == it.n || frame->d->fragment_end == 0);
             f = frame->d->parentFrame;
         } else if (ch == QChar::ObjectReplacementCharacter) {
             Q_ASSERT(f != frame);
-            Q_ASSERT(frame->d->fragment_start == it.n);
-            Q_ASSERT(frame->d->fragment_end == it.n);
+            Q_ASSERT(frame->d->fragment_start == it.n || frame->d->fragment_start == 0);
+            Q_ASSERT(frame->d->fragment_end == it.n || frame->d->fragment_end == 0);
             frame->d->parentFrame = f;
             f->d->childFrames.append(frame);
         } else {
@@ -963,14 +960,14 @@ QTextFrame *QTextPieceTable::insertFrame(int start, int end, const QTextFrameFor
 
     beginEditBlock();
 
-    QTextFrame *frame = qt_cast<QTextFrame *>(formats->createObject(format));
+    QTextFrame *frame = qt_cast<QTextFrame *>(createObject(format));
     Q_ASSERT(frame);
 
     // #### using the default block and char format below might be wrong
-    int idx = formats->indexForFormat(QTextBlockFormat());
+    int idx = formats.indexForFormat(QTextBlockFormat());
     QTextCharFormat cfmt;
-    cfmt.setObject(frame);
-    int charIdx = formats->indexForFormat(cfmt);
+    cfmt.setObjectIndex(frame->objectIndex());
+    int charIdx = formats.indexForFormat(cfmt);
 
     insertBlock(QTextBeginningOfFrame, start, idx, charIdx, UndoCommand::MoveCursor);
     insertBlock(QTextEndOfFrame, ++end, idx, charIdx, UndoCommand::KeepCursor);
@@ -1004,3 +1001,49 @@ void QTextPieceTable::removeFrame(QTextFrame *frame)
 
     endEditBlock();
 }
+
+QTextFormatObject *QTextPieceTable::objectForIndex(int objectIndex) const
+{
+    if (objectIndex < 0)
+        return 0;
+
+    QTextFormatObject *object = objects.value(objectIndex, 0);
+    if (!object) {
+        QTextPieceTable *that = const_cast<QTextPieceTable *>(this);
+        QTextFormat fmt = formats.objectFormat(objectIndex);
+        object = that->createObject(fmt, objectIndex);
+    }
+    return object;
+}
+
+QTextFormatObject *QTextPieceTable::objectForFormat(int formatIndex) const
+{
+    int objectIndex = formats.format(formatIndex).objectIndex();
+    return objectForIndex(objectIndex);
+}
+
+QTextFormatObject *QTextPieceTable::objectForFormat(const QTextFormat &f) const
+{
+    return objectForIndex(f.objectIndex());
+}
+
+QTextFormatObject *QTextPieceTable::createObject(const QTextFormat &f, int objectIndex)
+{
+    QTextFormatObject *obj;
+    if (f.isListFormat())
+        obj = new QTextList(this);
+    else if (f.isTableFormat())
+        obj = new QTextTable(this);
+    else if (f.isFrameFormat())
+        obj = new QTextFrame(this);
+    else
+        obj = new QTextFormatObject(this);
+
+    obj->d_func()->pieceTable = this;
+    obj->d_func()->objectIndex = objectIndex == -1 ? formats.createObjectIndex(f) : objectIndex;
+
+    objects[obj->d_func()->objectIndex] = obj;
+
+    return obj;
+}
+

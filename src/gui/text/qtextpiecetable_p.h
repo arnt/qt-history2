@@ -140,8 +140,8 @@ public:
     QString plainText() const;
     inline int length() const { return fragments.length(); }
 
-    inline QTextFormatCollection *formatCollection() { return formats; }
-    inline const QTextFormatCollection *formatCollection() const { return formats; }
+    inline QTextFormatCollection *formatCollection() { return &formats; }
+    inline const QTextFormatCollection *formatCollection() const { return &formats; }
     inline QAbstractTextDocumentLayout *layout() const { return lout; }
 
     inline FragmentIterator find(int pos) const { return fragments.find(pos); }
@@ -195,6 +195,12 @@ public:
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const { return frame; }
 
+    QTextFormatObject *objectForIndex(int objectIndex) const;
+    QTextFormatObject *objectForFormat(int formatIndex) const;
+    QTextFormatObject *objectForFormat(const QTextFormat &f) const;
+
+    QTextFormatObject *createObject(const QTextFormat &newFormat, int objectIndex = -1);
+
 private:
     QTextPieceTable(const QTextPieceTable& m);
     QTextPieceTable& operator= (const QTextPieceTable& m);
@@ -213,13 +219,14 @@ private:
     int docChangeLength;
     bool framesDirty;
 
-    QTextFormatCollection *formats;
+    QTextFormatCollection formats;
     QTextFrame *frame;
     QAbstractTextDocumentLayout *lout;
     FragmentMap fragments;
     BlockMap blocks;
 
     QList<QTextCursorPrivate*> cursors;
+    QMap<int, QTextFormatObject *> objects;
 
     QTextDocumentConfig docConfig;
 };

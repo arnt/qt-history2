@@ -65,6 +65,9 @@ protected:
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;
 
+    QTextFormatObject *object(int objectIndex) const;
+    QTextFormatObject *objectForFormat(const QTextFormat &) const;
+
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
 

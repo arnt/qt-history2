@@ -118,7 +118,7 @@ public:
 #endif
 
     QTextDocumentLayoutPrivate()
-        : widthUsed(0) 
+        : widthUsed(0)
     { }
 
     QSize pageSize;
@@ -131,7 +131,7 @@ public:
     mutable QString debug_indent;
 #endif
 
-    static int indent(QTextBlockIterator bl);
+    int indent(QTextBlockIterator bl) const;
 
     void drawFrame(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                    QTextFrame *f) const;
@@ -249,10 +249,14 @@ int QTextDocumentLayoutPrivate::hitTest(QTextBlockIterator bl, const QPoint &poi
 }
 
 // ### could be moved to QTextBlockIterator
-int QTextDocumentLayoutPrivate::indent(QTextBlockIterator bl)
+int QTextDocumentLayoutPrivate::indent(QTextBlockIterator bl) const
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
-    int indent = blockFormat.listFormat().indent() + blockFormat.indent();
+    int indent = blockFormat.indent();
+
+    QTextFormatObject *object = q->objectForFormat(blockFormat);
+    if (object)
+        indent += object->format().toListFormat().indent();
 
     return indent * TextIndentValue;
 }
@@ -335,7 +339,8 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         ++nSel;
     }
 
-    if (bl.blockFormat().listFormat().style() != QTextListFormat::ListStyleUndefined)
+    QTextFormatObject *object = q->objectForFormat(bl.blockFormat());
+    if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, s);
 
     if (tl->numLines() == 0) {
@@ -365,7 +370,9 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextCharFormat charFormat = bl.charFormat();
     QFontMetrics fontMetrics(charFormat.font());
-    const int style = bl.blockFormat().listFormat().style();
+    QTextFormatObject *object = q->objectForFormat(blockFormat);
+    QTextListFormat lf = object->format().toListFormat();
+    const int style = lf.style();
     QString itemText;
     QPoint pos = bl.layout()->rect().topLeft() + offset;
     QSize size;
@@ -374,7 +381,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
         case QTextListFormat::ListDecimal:
         case QTextListFormat::ListLowerAlpha:
         case QTextListFormat::ListUpperAlpha:
-            itemText = static_cast<QTextList *>(blockFormat.object())->itemText(bl);
+            itemText = static_cast<QTextList *>(object)->itemText(bl);
             size.setWidth(fontMetrics.width(itemText));
             size.setHeight(fontMetrics.height());
             break;
@@ -745,7 +752,7 @@ void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
     if (!handler.component)
         return;
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qt_cast<QTextFrame *>(f.object());
+    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(f));
     if (frame)
         pos = frame->format().position();
 
@@ -766,7 +773,7 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     if (!handler.component)
         return;
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qt_cast<QTextFrame *>(f.object());
+    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(f));
     if (frame)
         pos = frame->format().position();
     if (pos == QTextFrameFormat::InFlow)
@@ -809,7 +816,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qt_cast<QTextFrame *>(f.object());
+    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(f));
     QRect r = rect;
     if (frame) {
 #if 0
