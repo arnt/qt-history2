@@ -619,6 +619,9 @@ void ImageViewer::setImage(const QImage& newimage)
     int w = image.width();
     int h = image.height();
 
+    if ( !w )
+	return;
+
     const int reasonable_width = 128;
     if ( w < reasonable_width ) {
 	// Integer scale up to something reasonable
