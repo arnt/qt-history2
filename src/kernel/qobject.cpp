@@ -1558,7 +1558,11 @@ QCString QObject::normalizeSignalSlot( const char *signalSlot )
     \endcode
 
     This example ensures that the label always displays the current
-    scroll bar value.
+    scroll bar value. Note that the signal and slots parameters must not
+    contain any variable names, only the type. E.g. the following would
+    not work and return FALSE:
+    QObject::connect( scroll, SIGNAL(valueChanged(int v)),
+                      label,  SLOT(setNum(int v)) );
 
     A signal can also be connected to another signal:
 
