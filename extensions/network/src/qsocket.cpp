@@ -735,6 +735,8 @@ bool QSocket::at( int index )
 
 bool QSocket::atEnd() const
 {
+    if ( d->socket == 0 )
+	return TRUE;
     QSocket * that = (QSocket *)this;
     if ( that->d->socket->bytesAvailable() )	// a little slow, perhaps...
 	that->sn_read();
@@ -750,6 +752,8 @@ bool QSocket::atEnd() const
 
 int QSocket::bytesAvailable() const
 {
+    if ( d->socket == 0 )
+	return 0;
     QSocket * that = (QSocket *)this;
     if ( that->d->socket->bytesAvailable() ) // a little slow, perhaps...
 	(void)that->sn_read();
@@ -768,6 +772,8 @@ int QSocket::bytesAvailable() const
 
 int QSocket::waitForMore( int msecs )
 {
+    if ( d->socket == 0 )
+	return 0;
     QSocket * that = (QSocket *)this;
     if ( that->d->socket->waitForMore( msecs ) > 0 )
 	(void)that->sn_read();
@@ -1089,6 +1095,8 @@ void QSocket::tryConnection()
 
 int QSocket::socket() const
 {
+    if ( d->socket == 0 )
+	return 0;
     return d->socket->socket();
 }
 
@@ -1113,6 +1121,8 @@ void QSocket::setSocket( int socket )
 
 uint QSocket::port() const
 {
+    if ( d->socket == 0 )
+	return 0;
     return d->socket->port();
 }
 
@@ -1124,6 +1134,8 @@ uint QSocket::port() const
 
 uint QSocket::peerPort() const
 {
+    if ( d->socket == 0 )
+	return 0;
     return d->socket->peerPort();
 }
 
@@ -1134,6 +1146,10 @@ uint QSocket::peerPort() const
 
 QHostAddress QSocket::address() const
 {
+    if ( d->socket == 0 ) {
+	QHostAddress tmp;
+	return tmp;
+    }
     return d->socket->address();
 }
 
@@ -1145,6 +1161,10 @@ QHostAddress QSocket::address() const
 
 QHostAddress QSocket::peerAddress() const
 {
+    if ( d->socket == 0 ) {
+	QHostAddress tmp;
+	return tmp;
+    }
     return d->socket->peerAddress();
 }
 
