@@ -37,31 +37,30 @@
 #include <propertysheet.h>
 #include <qextensionmanager.h>
 
-#include <QActionGroup>
-#include <QApplication>
-#include <QBuffer>
-#include <QDesktopWidget>
-#include <QFileDialog>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QTimer>
-#include <QToolBar>
-#include <QVBoxWidget>
-#include <QVariant>
-#include <QStatusBar>
-#include <QSettings>
-#include <QPixmap>
-
-#include <qevent.h>
-#include <qdebug.h>
+#include <QtCore/QBuffer>
+#include <QtCore/QEvent>
+#include <QtCore/QSettings>
+#include <QtCore/QTimer>
+#include <QtGui/QActionGroup>
+#include <QtGui/QApplication>
+#include <QtGui/QCloseEvent>
+#include <QtGui/QDesktopWidget>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMenu>
+#include <QtGui/QMenuBar>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPixmap>
+#include <QtGui/QStatusBar>
+#include <QtGui/QToolBar>
+#include <QtGui/QVBoxWidget>
+#include <QtGui/QVariant>
 
 #define IDE_NO_DEBUGVIEWS
 
 MainWindow::MainWindow()
     : QMainWindow(0),
-      mCloseForm(true), mSettingsSaved(false),
-      mNewFormDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0)
+      m_closeForm(true), m_settingsSaved(false),
+      m_newFormDialog(0), m_preferenceDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0)
 {
     invisibleParent = new QWidget(0);
     setWindowTitle(tr("Qt Designer"));
@@ -119,7 +118,7 @@ void MainWindow::setupFormEditor()
 
 void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
 {
-    mCloseForm = true;
+    m_closeForm = true;
     if (fw->isDirty()) {
         fw->raise();
         QMessageBox box(tr("Save Form?"),
@@ -142,10 +141,10 @@ void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
             *accept = false;
             break;
         }
-        mCloseForm = *accept;
+        m_closeForm = *accept;
     }
 
-    //if (m_formWindowManager->formWindowCount() == 1 && mCloseForm)
+    //if (m_formWindowManager->formWindowCount() == 1 && m_closeForm)
     //    QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
 }
 
@@ -337,6 +336,14 @@ void MainWindow::setupMenuBar()
     act->setShortcut(Qt::CTRL + Qt::Key_A);
     act->setShortcutContext(Qt::ShortcutOnApplication);
     menu->addAction(act);
+    act = new QAction(tr("Preferences..."), this);
+    act->setEnabled(true);
+    connect(act, SIGNAL(triggered()), this, SLOT(showPreferenceDialog()));
+#ifndef Q_WS_MAC
+    menu->addSeparator();
+#endif
+    menu->addAction(act);
+
 
     menu = mb->addMenu(tr("F&orm"));
     m_formWindowManager->actionHorizontalLayout()
@@ -476,16 +483,16 @@ void MainWindow::editMode(QAction *action)
 
 void MainWindow::newForm()
 {
-    if (!mNewFormDialog) {
-        mNewFormDialog = new NewFormDialog(this);
-        connect(mNewFormDialog, SIGNAL(needOpen()), this, SLOT(openForm()));
-        connect(mNewFormDialog, SIGNAL(itemPicked(const QString &)),
+    if (!m_newFormDialog) {
+        m_newFormDialog = new NewFormDialog(this);
+        connect(m_newFormDialog, SIGNAL(needOpen()), this, SLOT(openForm()));
+        connect(m_newFormDialog, SIGNAL(itemPicked(const QString &)),
                 this, SLOT(newForm(const QString &)));
     }
-    mNewFormDialog->show();
-    mNewFormDialog->raise();
-    mNewFormDialog->setFocus();
-    mNewFormDialog->setActiveWindow();
+    m_newFormDialog->show();
+    m_newFormDialog->raise();
+    m_newFormDialog->setFocus();
+    m_newFormDialog->setActiveWindow();
 }
 
 void MainWindow::newForm(const QString &widgetClass)
@@ -594,8 +601,8 @@ bool MainWindow::readInForm(const QString &fileName)
     fw->setContents(&f);
     fw->setFileName(fileName);
     fw->setWindowTitle(QString("%1 - (%2)").arg(fw->mainContainer()->windowTitle()).arg(fileName));
-    if (mNewFormDialog)
-        mNewFormDialog->close();
+    if (m_newFormDialog)
+        m_newFormDialog->close();
     fw->show();
     m_formWindowManager->setActiveFormWindow(fw);
     addRecentFile(fileName);
@@ -676,7 +683,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
     if (dirtyForms.size()) {
         if (dirtyForms.size() == 1) {
             dirtyForms.at(0)->close();
-            if (!mCloseForm) {
+            if (!m_closeForm) {
                 ev->ignore();
                 return;
             }
@@ -700,7 +707,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
                         fw->show();
                         fw->raise();
                         fw->close();
-                        if (!mCloseForm) {
+                        if (!m_closeForm) {
                             ev->ignore();
                             return;
                         }
@@ -806,7 +813,7 @@ void MainWindow::readSettings()
 
 void MainWindow::saveSettings()
 {
-    if (mSettingsSaved)
+    if (m_settingsSaved)
         return;
 
     QSettings settings;
@@ -824,7 +831,7 @@ void MainWindow::saveSettings()
         settings.setValue(it.key() + "/geometry", geom);
         settings.setValue(it.key() + "/visible", it.value()->isVisible());
     }
-    mSettingsSaved = true;
+    m_settingsSaved = true;
 }
 
 void MainWindow::setupFormWindow(AbstractFormWindow *fw)
@@ -1018,4 +1025,14 @@ void MainWindow::aboutDesigner()
     mb.setText(text);
     mb.setIconPixmap(QPixmap(":/images/designer.png"));
     mb.exec();
+}
+
+void MainWindow::showPreferenceDialog()
+{
+    if (!m_preferenceDialog) {
+        m_preferenceDialog = new PreferenceDialog(this);
+        m_preferenceDialog->setAttribute(Qt::WA_DeleteOnClose, true);
+    }
+    m_preferenceDialog->show();
+    m_preferenceDialog->raise();
 }

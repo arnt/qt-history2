@@ -14,8 +14,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QHash>
+#include <QtGui/QMainWindow>
+#include <QtCore/QHash>
+#include <QtCore/QPointer>
+
+#include "preferencedialog.h"
 
 class QActionGroup;
 class QMenu;
@@ -25,6 +28,7 @@ class AbstractFormEditor;
 class AbstractFormWindowManager;
 class AbstractFormWindow;
 class NewFormDialog;
+class PreferenceDialog;
 
 class MainWindow: public QMainWindow
 {
@@ -32,7 +36,7 @@ class MainWindow: public QMainWindow
 public:
     MainWindow();
     virtual ~MainWindow();
-    
+
     bool readInForm(const QString &fileName);
     bool writeOutForm(AbstractFormWindow *fw, const QString &saveFile);
 
@@ -73,6 +77,7 @@ private slots:
     void showTheNewStuff();
     void aboutDesigner();
     void editMode(QAction *action);
+    void showPreferenceDialog();
 
 private:
     void setupWidgetBox();
@@ -101,9 +106,10 @@ private:
     QAction *m_connectionEditMode;
     QAction *m_tabOrderEditMode;
     QMenu *m_menuWindow;
-    bool mCloseForm;
-    bool mSettingsSaved;
-    NewFormDialog *mNewFormDialog;
+    bool m_closeForm;
+    bool m_settingsSaved;
+    NewFormDialog *m_newFormDialog;
+    QPointer<PreferenceDialog> m_preferenceDialog;
 
     enum { MaxRecentFiles = 10 };
     QAction *recentFilesActs[MaxRecentFiles];
