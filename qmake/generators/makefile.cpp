@@ -807,10 +807,9 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
     QRegExp regexpObj("\\$obj");
 
     QString uidir;
-    if(!project->variables()["UI_DIR"].isEmpty())
-	uidir = project->first("UI_DIR");
     for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
-	t << (*oit) << ": " << project->first("QMAKE_IMAGE_FILE");
+        QString src(project->first("QMAKE_IMAGE_FILE"));
+	t << (*oit) << ": " << src;
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["UI_DIR"].isEmpty() ||
 	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
