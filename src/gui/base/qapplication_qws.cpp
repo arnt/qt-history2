@@ -608,7 +608,7 @@ QWSEvent* QWSDisplay::Data::readMore()
     return incoming ? incoming.takeFirst() : 0;
 #else
     if ( !csocket )
-	return incoming ? incoming.takeFirst() : 0;
+	return incoming.isEmpty() ? 0 : incoming.takeFirst();
     // read next event
     if ( !current_event ) {
 	int event_type = qws_read_uint( csocket );
