@@ -99,7 +99,8 @@ workspace:SUBDIRS+= mdi
 
 table:SUBDIRS +=    table/statistics \
 		    table/small-table-demo \
-		    table/bigtable
+		    table/bigtable \
+			helpsystem
 
 tablet:SUBDIRS += tablet
 
