@@ -37,11 +37,9 @@
 #include "qstyle.h"
 #ifndef QT_NO_STYLE
 #include "qapplication.h"
-#include "qnamespace.h"
 #include "qpainter.h"
-#include "qdrawutil.h" // for now
-#include "qwidget.h"
-#include "qimage.h"
+#include "qbitmap.h"
+#include "qpixmapcache.h"
 
 #include <limits.h>
 
@@ -436,9 +434,36 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
 			int flags, bool enabled, const QPixmap *pixmap,
 			const QString& text, int len ) const
 {
-    return qItemRect( p, (Qt::GUIStyle) styleHint(SH_GUIStyle),
-		      r.x(), r.y(), r.width(), r.height(),
-		      flags, enabled, pixmap, text, len );
+    QRect result;
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
+
+    if ( pixmap ) {
+	if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
+	    y += h/2 - pixmap->height()/2;
+	else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
+	    y += h - pixmap->height();
+	if ( (flags & Qt::AlignRight) == Qt::AlignRight )
+	    x += w - pixmap->width();
+	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
+	    x += w/2 - pixmap->width()/2;
+	else if ( (flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() )
+	    x += w - pixmap->width();
+	result = QRect(x, y, pixmap->width(), pixmap->height());
+    } else if ( !text.isNull() && p ) {
+	result = p->boundingRect( x, y, w, h, flags, text, len );
+	if ( gs == Qt::WindowsStyle && !enabled ) {
+	    result.setWidth(result.width()+1);
+	    result.setHeight(result.height()+1);
+	}
+    } else {
+	result = QRect(x, y, w, h);
+    }
+
+    return result;
 }
 
 
@@ -460,9 +485,74 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 		       const QPixmap *pixmap, const QString& text, int len,
 		       const QColor* penColor ) const
 {
-    qDrawItem( p, (Qt::GUIStyle) styleHint(SH_GUIStyle),
-	       r.x(), r.y(), r.width(), r.height(),
-	       flags, g, enabled, pixmap, text, len, penColor );
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
+
+    p->setPen( penColor?*penColor:g.foreground() );
+    if ( pixmap ) {
+	QPixmap  pm( *pixmap );
+	bool clip = (flags & Qt::DontClip) == 0;
+	if ( clip ) {
+	    if ( pm.width() < w && pm.height() < h )
+		clip = FALSE;
+	    else
+		p->setClipRect( x, y, w, h );
+	}
+	if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
+	    y += h/2 - pm.height()/2;
+	else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
+	    y += h - pm.height();
+	if ( (flags & Qt::AlignRight) == Qt::AlignRight )
+	    x += w - pm.width();
+	else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
+	    x += w/2 - pm.width()/2;
+	else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
+	    x += w - pm.width();
+
+	if ( !enabled ) {
+	    if ( pm.mask() ) {			// pixmap with a mask
+		if ( !pm.selfMask() ) {		// mask is not pixmap itself
+		    QPixmap pmm( *pm.mask() );
+		    pmm.setMask( *((QBitmap *)&pmm) );
+		    pm = pmm;
+		}
+	    } else if ( pm.depth() == 1 ) {	// monochrome pixmap, no mask
+		pm.setMask( *((QBitmap *)&pm) );
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
+	    } else {				// color pixmap, no mask
+		QString k;
+		k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
+		QPixmap *mask = QPixmapCache::find(k);
+		bool del=FALSE;
+		if ( !mask ) {
+		    mask = new QPixmap( pm.createHeuristicMask() );
+		    mask->setMask( *((QBitmap*)mask) );
+		    del = !QPixmapCache::insert( k, mask );
+		}
+		pm = *mask;
+		if (del) delete mask;
+#endif
+	    }
+	    if ( gs == Qt::WindowsStyle ) {
+		p->setPen( g.light() );
+		p->drawPixmap( x+1, y+1, pm );
+		p->setPen( g.text() );
+	    }
+	}
+	p->drawPixmap( x, y, pm );
+	if ( clip )
+	    p->setClipping( FALSE );
+    } else if ( !text.isNull() ) {
+	if ( gs == Qt::WindowsStyle && !enabled ) {
+	    p->setPen( g.light() );
+	    p->drawText( x+1, y+1, w, h, flags, text, len );
+	    p->setPen( g.text() );
+	}
+	p->drawText( x, y, w, h, flags, text, len );
+    }
 }
 
 /*!
