@@ -240,7 +240,8 @@ enum genProxyLanguage {
 enum inlineExpansionOption {
     expandDisable,
     expandOnlyInline,
-    expandAnySuitable
+    expandAnySuitable,
+    expandDefault // Not useful number, but stops the output
 };
 enum linkIncrementalType {
     linkIncrementalDefault,
@@ -296,7 +297,8 @@ enum optimizeOption {
     optimizeMinSpace,
     optimizeMaxSpeed,
     optimizeFull,
-    optimizeCustom
+    optimizeCustom,
+    optimizeDefault // Not useful number, but stops the output
 };
 enum optRefType {
     optReferencesDefault,

@@ -334,7 +334,7 @@ VCCLCompilerTool::VCCLCompilerTool()
     :	AssemblerOutput( asmListingNone ),
 	BasicRuntimeChecks( runtimeBasicCheckNone ),
 	BrowseInformation( brInfoNone ),
-	BufferSecurityCheck( unset ),
+	BufferSecurityCheck( _False ),
 	CallingConvention( callConventionDefault ),
 	CompileAs( compileAsDefault ),
 	CompileAsManaged( managedDefault ),
@@ -346,7 +346,7 @@ VCCLCompilerTool::VCCLCompilerTool()
 	EnableFiberSafeOptimizations( unset ),
 	EnableFunctionLevelLinking( unset ),
 	EnableIntrinsicFunctions( unset ),
-	ExceptionHandling( unset ),
+	ExceptionHandling( _False ),
 	ExpandAttributedSource( unset ),
 	FavorSizeOrSpeed( favorNone ),
 	ForceConformanceInForLoopScope( unset ),
@@ -354,11 +354,11 @@ VCCLCompilerTool::VCCLCompilerTool()
 	GlobalOptimizations( unset ),
 	IgnoreStandardIncludePath( unset ),
 	ImproveFloatingPointConsistency( unset ),
-	InlineFunctionExpansion( expandOnlyInline ),
+	InlineFunctionExpansion( expandDefault ),
 	KeepComments( unset ),
 	MinimalRebuild( unset ),
 	OmitFramePointers( unset ),
-	Optimization( optimizeDisabled ),
+	Optimization( optimizeCustom ),
 	OptimizeForProcessor( procOptimizeBlended ),
 	OptimizeForWindowsApplication( unset ),
 	RuntimeLibrary( rtMultiThreaded ),
@@ -371,7 +371,7 @@ VCCLCompilerTool::VCCLCompilerTool()
 	TreatWChar_tAsBuiltInType( unset ),
 	TurnOffAssemblyGeneration( unset ),
 	UndefineAllPreprocessorDefinitions( unset ),
-	UsePrecompiledHeader( pchGenerateAuto ),
+	UsePrecompiledHeader( pchNone ),
 	WarnAsError( unset ),
 	WarningLevel( warningLevel_0 ),
 	WholeProgramOptimization( unset )
@@ -413,19 +413,19 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
     strm << TPair( _GlobalOptimizations, tool.GlobalOptimizations );
     strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
     strm << TPair( _ImproveFloatingPointConsistency, tool.ImproveFloatingPointConsistency );
-    strm << EPair( _InlineFunctionExpansion, tool.InlineFunctionExpansion );
+    if ( tool.InlineFunctionExpansion != expandDefault ) strm << EPair( _InlineFunctionExpansion, tool.InlineFunctionExpansion );
     strm << TPair( _KeepComments, tool.KeepComments );
     strm << TPair( _MinimalRebuild, tool.MinimalRebuild );
     strm << SPair( _ObjectFile, tool.ObjectFile );
     strm << TPair( _OmitFramePointers, tool.OmitFramePointers );
-    strm << EPair( _Optimization, tool.Optimization );
+    if ( tool.Optimization != optimizeDefault ) strm << EPair( _Optimization, tool.Optimization );
     if ( tool.OptimizeForProcessor != procOptimizeBlended ) strm << EPair( _OptimizeForProcessor, tool.OptimizeForProcessor );
     strm << TPair( _OptimizeForWindowsApplication, tool.OptimizeForWindowsApplication );
     strm << SPair( _OutputFile, tool.OutputFile );
     strm << SPair( _PrecompiledHeaderFile, tool.PrecompiledHeaderFile );
     strm << SPair( _PrecompiledHeaderThrough, tool.PrecompiledHeaderThrough );
     strm << XPair( _PreprocessorDefinitions, tool.PreprocessorDefinitions );
-    strm << SPair( _ProgramDataBaseFileName, tool.ProgramDataBaseFileName );
+    strm << _ProgramDataBaseFileName << tool.ProgramDataBaseFileName.latin1() << "\"";
     strm << EPair( _RuntimeLibrary, tool.RuntimeLibrary );
     strm << TPair( _RuntimeTypeInfo, tool.RuntimeTypeInfo );
     strm << TPair( _ShowIncludes, tool.ShowIncludes );
