@@ -14,6 +14,7 @@
 #ifndef QDESIGNER_ACTIONS_H
 #define QDESIGNER_ACTIONS_H
 
+#include <QtCore/QPointer>
 #include <QtCore/QObject>
 
 class QDesignerMainWindow;
@@ -23,6 +24,7 @@ class QAction;
 class QActionGroup;
 class AbstractFormEditor;
 class AbstractFormWindow;
+class PreferenceDialog;
 
 class QDesignerActions: public QObject
 {
@@ -65,6 +67,9 @@ public:
     QAction *sendToBackAction() const;
     QAction *bringToFrontAction() const;
 
+    QAction *preferencesSeparator() const;
+    QAction *preferences() const;
+
 //
 // edit mode actions
 //
@@ -98,6 +103,7 @@ private slots:
     void saveForm();
     void saveFormAs();
     void notImplementedYet();
+    void editPreferences();
 
 private:
     bool readInForm(const QString &fileName);
@@ -133,10 +139,14 @@ private:
     QAction *m_bringToFrontAction;
     QAction *m_selectAllAction;
 
+    QAction *m_preferencesSeparator;
+    QAction *m_preferences;
+
     QAction *m_editWidgets;
     QAction *m_editTabOrders;
     QAction *m_editConnections;
     QAction *m_editBuddies;
+
 
     QAction *m_layoutHorizontallyAction;
     QAction *m_layoutVerticallyAction;
@@ -148,6 +158,8 @@ private:
     QAction *m_previewFormAction;
 
     QAction *m_showWorkbenchAction;
+
+    QPointer<PreferenceDialog> m_preferenceDialog;
 };
 
 #endif // QDESIGNER_ACTIONS_H

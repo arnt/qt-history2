@@ -16,6 +16,7 @@
 #include "qdesigner_mainwindow.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
+#include "preferencedialog.h"
 
 // sdk
 #include <abstractformeditor.h>
@@ -131,6 +132,14 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 
     m_bringToFrontAction = formWindowManager->actionRaise();
     m_editActions->addAction(m_bringToFrontAction);
+
+    m_preferencesSeparator = new QAction(this);
+    m_preferencesSeparator->setSeparator(true);
+    m_editActions->addAction(m_preferencesSeparator);
+
+    m_preferences = new QAction(tr("Preferences"), this);
+    connect(m_preferences, SIGNAL(triggered()), this, SLOT(editPreferences()));
+    m_editActions->addAction(m_preferences);
 
 //
 // edit mode actions
@@ -273,6 +282,12 @@ QAction *QDesignerActions::sendToBackAction() const
 
 QAction *QDesignerActions::bringToFrontAction() const
 { return m_bringToFrontAction; }
+
+QAction *QDesignerActions::preferences() const
+{ return m_preferences; }
+
+QAction *QDesignerActions::preferencesSeparator() const
+{ return m_preferencesSeparator; }
 
 QAction *QDesignerActions::layoutHorizontallyAction() const
 { return m_layoutHorizontallyAction; }
@@ -520,7 +535,14 @@ void QDesignerActions::notImplementedYet()
     QMessageBox::information(core()->topLevel(), tr("Designer"), tr("Feature not implemented yet!"));
 }
 
-
-
+void QDesignerActions::editPreferences()
+{
+    if (!m_preferenceDialog) {
+        m_preferenceDialog = new PreferenceDialog(core(), core()->topLevel());
+        m_preferenceDialog->setAttribute(Qt::WA_DeleteOnClose, true);
+    }
+    m_preferenceDialog->show();
+    m_preferenceDialog->raise();
+}
 
 

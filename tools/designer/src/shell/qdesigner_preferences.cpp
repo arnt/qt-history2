@@ -31,11 +31,9 @@ QWidget *DesignerPreferences::createPreferenceWidget(QWidget *parent)
     if (!m_prefWidget) {
         m_prefWidget = new QWidget(parent);
         QVBoxLayout *layout = new QVBoxLayout(m_prefWidget);
-        QLabel *lbl = new QLabel(tr("Designer Preferences"), m_prefWidget);
+        layout->setMargin(0);
         optShowNewDialog = new QCheckBox(tr("&Show \"New Form\" dialog on startup"), m_prefWidget);
         optShowNewDialog->setChecked(m_showNewDialog);
-        layout->addWidget(lbl);
-        layout->addStretch();
         layout->addWidget(optShowNewDialog);
         layout->addStretch();
         connect(optShowNewDialog, SIGNAL(toggled(bool)), this, SLOT(setShowDialog(bool)));

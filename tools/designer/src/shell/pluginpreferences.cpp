@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include <QtCore/QSettings>
-
 #include <QtGui/QApplication>
 #include <QtGui/QCheckBox>
 #include <QtGui/QHBoxLayout>
@@ -41,12 +40,12 @@ public:
 public slots:
     void addPath();
     void removePath();
-
+    
 private slots:
     void populateTree();
     void updateButtons();
 
-private:
+private:        
     QTreeWidget *m_tree;
     QPushButton *m_add_path_button, *m_remove_path_button;
     PluginManager *m_pluginManager;
@@ -58,43 +57,44 @@ PluginPreferenceWidget::PluginPreferenceWidget(PluginManager *pluginManager, QWi
     : QWidget(parent)
 {
     m_pluginManager = pluginManager;
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setMargin(0);
     m_tree = new QTreeWidget(this);
     mainLayout->addWidget(m_tree);
-
-    QVBoxLayout *vLayout = new QVBoxLayout(mainLayout);
+    
+    QHBoxLayout *hLayout = new QHBoxLayout(mainLayout);
     m_add_path_button = new QPushButton(tr("Add path..."), this);
     connect(m_add_path_button, SIGNAL(clicked()), this, SLOT(addPath()));
-    vLayout->addWidget(m_add_path_button);
+    hLayout->addWidget(m_add_path_button);
     m_remove_path_button = new QPushButton(tr("Remove path"), this);
     connect(m_remove_path_button, SIGNAL(clicked()), this, SLOT(removePath()));
-    vLayout->addWidget(m_remove_path_button);
+    hLayout->addWidget(m_remove_path_button);
     m_remove_path_button->setEnabled(false);
-
+    
     connect(m_tree, SIGNAL(itemSelectionChanged()),
                 this, SLOT(updateButtons()));
-
+    
     populateTree();
 }
 
 void PluginPreferenceWidget::populateTree()
 {
     m_tree->clear();
-
+    
     m_tree->setColumnCount(2);
     m_tree->setHeaderLabels(QStringList() << tr("Path") << tr("Enabled"));
-
+    
     QStringList plugin_list = m_pluginManager->registeredPlugins();
     plugin_list.sort();
-
+    
     QStringList path_list = m_pluginManager->pluginPaths();
-
+    
     QTreeWidgetItem *cur_item = 0;
     foreach (QString plugin, plugin_list) {
         QFileInfo fi(plugin);
         QString path = fi.absolutePath();
         QString file = fi.fileName();
-
+        
         if (cur_item == 0 || cur_item->text(0) != path) {
             cur_item = new QTreeWidgetItem(m_tree);
             cur_item->setText(0, path);
@@ -102,12 +102,12 @@ void PluginPreferenceWidget::populateTree()
             m_tree->setItemOpen(cur_item, true);
             path_list.removeAll(path);
         }
-
+        
         QTreeWidgetItem *item = new QTreeWidgetItem(cur_item);
         item->setText(0, file);
         item->setData(1, QAbstractItemModel::CheckStateRole, true);
     }
-
+    
     foreach (QString path, path_list) {
         QTreeWidgetItem *item = new QTreeWidgetItem(m_tree);
         item->setText(0, path);
@@ -136,7 +136,7 @@ void PluginPreferenceWidget::addPath()
         return;
 
     m_pluginManager->addPluginPath(path);
-
+    
     populateTree();
 }
 
@@ -150,7 +150,7 @@ void PluginPreferenceWidget::removePath()
         return;
     QString path = item->text(0);
     m_pluginManager->removePluginPath(path);
-
+    
     populateTree();
 }
 
