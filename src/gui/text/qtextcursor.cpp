@@ -218,9 +218,10 @@ void QTextCursorPrivate::adjustCursor(int dir)
 bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
 {
     bool adjustX = true;
+    QTextPieceTable::BlockIterator blockIt = block();
 
     if (op >= QTextCursor::Left && op <= QTextCursor::WordRight
-	&& blockFormat().direction() == QTextBlockFormat::RightToLeft) {
+	&& blockIt.blockFormat().direction() == QTextBlockFormat::RightToLeft) {
 	if (op == QTextCursor::Left)
 	    op = QTextCursor::NextCharacter;
 	else if (op == QTextCursor::Right)
@@ -231,7 +232,6 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 	    op = QTextCursor::PreviousWord;
     }
 
-    QTextPieceTable::BlockIterator blockIt = block();
     const QTextLayout *layout = blockIt.layout();
     int relativePos = position - blockIt.start();
     QTextLine line = layout->findLine(relativePos);
