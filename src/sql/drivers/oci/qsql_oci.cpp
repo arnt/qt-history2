@@ -724,7 +724,6 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                     (dvoid *) &(fieldInf[idx].ind),
                                     0, 0, OCI_DYNAMIC_FETCH);
             } else if (ofi.oraType == SQLT_CLOB) {
-                qDebug("BINDING CLOB");
                 r = OCIDefineByPos(d->sql, &dfn, d->err, count, createLobLocator(idx, d->env),
                                    (sb4)-1, SQLT_CLOB, (dvoid *) &(fieldInf[idx].ind), 0,
                                    0, OCI_DEFAULT);
@@ -947,7 +946,7 @@ int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob, const int sz)
 int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
 {
     OCILobLocator *lob;
-    int r;
+    int r = OCI_SUCCESS;
 
     for (int i = 0; i < size(); ++i) {
         if (isNull(i) || !(lob = fieldInf.at(i).lob))
@@ -1605,7 +1604,6 @@ void qSplitTableAndOwner(const QString & tname, QString * tbl,
 
 QSqlRecord QOCIDriver::record(const QString& tablename) const
 {
-//    qDebug("*** recordInfo QString");
     QSqlRecord fil;
     if (!isOpen())
         return fil;
