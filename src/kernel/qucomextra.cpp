@@ -97,3 +97,55 @@ int QUType_QVariant::serializeFrom( QUObject *, QUBuffer * )
 
 #endif
 
+const QUuid TID_QUType_varptr( 0x8d48b3a8, 0xbd7f, 0x11d5, 0x8d, 0x74, 0x00, 0xc0, 0xf0, 0x3b, 0xc0, 0xf3 );
+QUType_varptr static_QUType_varptr;
+const QUuid *QUType_varptr::uuid() const  { return &TID_QUType_varptr; }
+const char *QUType_varptr::desc() const { return "varptr"; }
+
+void QUType_varptr::set( QUObject *o, const void* v )
+{
+    o->payload.ptr = (void*) v;
+    o->type = this;
+}
+
+bool QUType_varptr::canConvertFrom( QUObject *o, QUType *t )
+{
+     if ( isEqual( t, &static_QUType_ptr ) )
+	return TRUE;
+   return t->canConvertTo( o, this );
+}
+
+bool QUType_varptr::canConvertTo( QUObject *, QUType * t)
+{
+    return isEqual( t, &static_QUType_ptr );
+}
+
+bool QUType_varptr::convertFrom( QUObject *o, QUType *t )
+{
+     if ( isEqual( t, &static_QUType_ptr ) )
+	;
+    else
+	return t->convertTo( o, this );
+
+    o->type = this;
+    return TRUE;
+}
+
+bool QUType_varptr::convertTo( QUObject *o, QUType * t)
+{
+    if ( isEqual( t,  &static_QUType_ptr ) ) {
+	o->type = &static_QUType_ptr;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+int QUType_varptr::serializeTo( QUObject *, QUBuffer * )
+{
+    return 0;
+}
+
+int QUType_varptr::serializeFrom( QUObject *, QUBuffer * )
+{
+    return 0;
+}

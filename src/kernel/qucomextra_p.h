@@ -68,5 +68,26 @@ struct Q_EXPORT QUType_QVariant : public QUType
 extern Q_EXPORT QUType_QVariant static_QUType_QVariant;
 #endif //QT_NO_VARIANT
 
+
+// {0x8d48b3a8, 0xbd7f, 0x11d5, 0x8d, 0x74, 0x00, 0xc0, 0xf0, 0x3b, 0xc0, 0xf3 }
+extern Q_EXPORT const QUuid TID_QUType_varptr;
+struct Q_EXPORT QUType_varptr : public QUType
+{
+    const QUuid *uuid() const;
+    const char *desc() const;
+
+    void set( QUObject *, const void* );
+    void* &get( QUObject * o ) { return o->payload.ptr; }
+    bool canConvertFrom( QUObject *, QUType * );
+    bool canConvertTo( QUObject *, QUType * );
+    bool convertFrom( QUObject *, QUType * );
+    bool convertTo( QUObject *, QUType * );
+    void clear( QUObject * ) {}
+    int serializeTo( QUObject *, QUBuffer * );
+    int serializeFrom( QUObject *, QUBuffer * );
+};
+extern Q_EXPORT QUType_varptr static_QUType_varptr;
+
+
 #endif // QUCOMEXTRA_H
 

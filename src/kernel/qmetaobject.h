@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 19
+#define Q_MOC_OUTPUT_REVISION 20
 #endif
 
 class QObject;
@@ -116,14 +116,14 @@ public:
     bool testFlags( uint f ) const;	// internal
     bool stdSet() const; 		// internal
     int id() const; 			// internal
-    
+
     QMetaObject** meta; 		// internal
     const QMetaEnum* enumData;		// internal
     int _id; 				// internal
     void clear(); 			// internal
 };
 
-inline bool QMetaProperty::testFlags( uint f ) const 
+inline bool QMetaProperty::testFlags( uint f ) const
 { return (flags & (uint)f) != (uint)0; }
 
 #endif // QT_NO_PROPERTIES

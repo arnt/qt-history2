@@ -63,6 +63,44 @@
 // Uncomment to test for memory leaks or to run qt/test/qvariant/main.cpp
 // #define QVARIANT_DEBUG
 
+extern Q_EXPORT const int qt_variant_types[];
+
+const int qt_variant_types[]  = {
+	QVariant::Invalid,
+	QVariant::Map,
+	QVariant::List,
+	QVariant::String,
+	QVariant::StringList,
+	QVariant::Font,
+	QVariant::Pixmap,
+	QVariant::Brush,
+	QVariant::Rect,
+	QVariant::Size,
+	QVariant::Color,
+	QVariant::Palette,
+	QVariant::ColorGroup,
+	QVariant::IconSet,
+	QVariant::Point,
+	QVariant::Image,
+	QVariant::Int,
+	QVariant::UInt,
+	QVariant::Bool,
+	QVariant::Double,
+	QVariant::CString,
+	QVariant::PointArray,
+	QVariant::Region,
+	QVariant::Bitmap,
+	QVariant::Cursor,
+	QVariant::SizePolicy,
+	QVariant::Date,
+	QVariant::Time,
+	QVariant::DateTime,
+	QVariant::ByteArray,
+	QVariant::BitArray,
+	QVariant::KeySequence
+};
+
+
 #ifdef QVARIANT_DEBUG
 int qv_count = 0;
 int get_qv_count() { return qv_count; }

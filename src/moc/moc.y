@@ -78,6 +78,9 @@ void yyerror( const char *msg );
 
 bool isEnumType( const char* type );
 int enumIndex( const char* type );
+bool isVariantType( const char* type );
+int qvariant_nameToType( const char* name );
+
 
 static const char* const utype_map[] =
 {
@@ -118,8 +121,12 @@ QCString referencePlainUType( QCString ctype )
 
 QCString uType( QCString ctype )
 {
-    if ( !validUType( ctype ) )
-	return "ptr";
+    if ( !validUType( ctype ) ) {
+	if ( isVariantType( ctype ) )
+	    return "varptr";
+	else
+	    return "ptr";
+    }
     if ( ctype.left(6) == "const " )
 	ctype = ctype.mid( 6, ctype.length() - 6 );
     if ( ctype.right(1) == "&" ) {
@@ -133,6 +140,8 @@ QCString uType( QCString ctype )
 	    ctype = "iface";
 	else if ( raw == "QDispatchInterface" )
 	    ctype = "idisp";
+	else if ( isVariantType( raw ) )
+	    ctype = "varptr";
     }
     if ( isEnumType( ctype ) )
 	ctype = "enum";
@@ -152,7 +161,10 @@ QCString uTypeExtra( QCString ctype )
 {
     QCString typeExtra = "0";
     if ( !validUType( ctype ) ) {
-	typeExtra.sprintf( "\"%s\"", ctype.data() );
+	if ( isVariantType( ctype ) )
+	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( ctype ) );
+	else
+	    typeExtra.sprintf( "\"%s\"", ctype.data() );
 	return typeExtra;
     }
     if ( ctype.left(6) == "const " )
@@ -164,6 +176,8 @@ QCString uTypeExtra( QCString ctype )
 	ctype = "ptr";
 	if ( raw == "char" )
 	    ;
+	else if ( isVariantType( raw ) )
+	    typeExtra.sprintf(" %d", qvariant_nameToType( raw ) );
 	else
 	    typeExtra.sprintf( "\"%s\"", raw.stripWhiteSpace().data() );
 
@@ -502,7 +516,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 19;		// moc output format revision
+const int formatRevision = 20;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
@@ -2879,6 +2893,7 @@ void generateClass()		      // generate C++ source code for a class
 		 " this version of Qt.\"\n#error \"(The moc has changed too"
 		 " much.)\"\n", QT_VERSION_STR );
 	fprintf( out, "#endif\n\n" );
+	fprintf( out, "extern Q_EXPORT const int qt_variant_types[];\n" );
     } else {
 	fprintf( out, "\n\n" );
     }
@@ -3190,7 +3205,7 @@ void generateClass()		      // generate C++ source code for a class
 		type = type.simplifyWhiteSpace();
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
-		    if ( utype == "ptr" || utype == "enum" )
+		    if ( utype == "ptr" || utype == "varptr" || utype == "enum" )
 			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
 			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
@@ -3257,7 +3272,7 @@ void generateClass()		      // generate C++ source code for a class
 		type = type.simplifyWhiteSpace();
 		if ( validUType( type ) ) {
 		    QCString utype = uType( type );
-		    if ( utype == "ptr" || utype == "enum" )
+		    if ( utype == "ptr" || utype == "varptr" || utype == "enum" )
 			fprintf( out, "(%s)static_QUType_%s.get(_o+%d)", type.data(), utype.data(), offset+1 );
 		    else
 			fprintf( out, "static_QUType_%s.get(_o+%d)", utype.data(), offset+1 );
