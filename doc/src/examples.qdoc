@@ -25,7 +25,6 @@
     \list
     \o \l{widgets/analogclock}{Analog Clock}\raisedaster
     \o \l{widgets/charactermap}{Character Map}\raisedaster
-    \o \l{widgets/configwidget}{Config Widget}
     \o \l{widgets/digitalclock}{Digital Clock}
     \o \l{widgets/groupbox}{Group Box}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
@@ -39,6 +38,7 @@
 
     \list
     \o \l{dialogs/complexwizard}{Complex Wizard}\raisedaster
+    \o \l{dialogs/configdialog}{Configuration Dialog}
     \o \l{dialogs/extension}{Extension}
     \o \l{dialogs/simplewizard}{Simple Wizard}\raisedaster
     \o \l{dialogs/standarddialogs}{Standard Dialogs}
