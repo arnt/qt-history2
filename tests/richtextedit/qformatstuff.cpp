@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#16 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#17 $
 **
 ** Definition of the QtTextView class
 **
@@ -59,12 +59,17 @@ QtTextCharFormat::~QtTextCharFormat()
 
 void QtTextCharFormat::createKey()
 {
-    //TODO speedup avoiding argv
-    key = QString( "%1_%2_%3_%4_%5_%6_%7_%8_%9_%10_%11" ).
-	  arg(anchor_href).arg(anchor_name).
-	  arg( color_.red() ).arg( color_.green() ).arg( color_.blue() ).
-	  arg( font_.family() ).arg( font_.pointSize() ).arg( font_.weight() ).
-	  arg( (int)font_.underline() ).arg( (int)font_.italic()).arg((ulong)custom);
+    QTextOStream ts( &key );
+    ts 
+	<< font_.pointSize() << "_"  
+	<< font_.weight() << "_"  
+	<< (int)font_.underline() 
+	<< (int) font_.italic() 
+	<< anchor_href << "_" 
+	<< anchor_name << "_" 
+	<< color_.pixel()
+	<< font_.family() << "_"  
+	<<(ulong) custom;
 }
 
 QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
@@ -101,9 +106,11 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 {
     QtTextCharFormat format(*this);
     format.custom = item;
+    bool changed = FALSE;
     if ( style->isAnchor() ) {
 	format.anchor_href = attr["href"];
 	format.anchor_name = attr["name"];
+	changed = TRUE;
     }
 
     if ( style->fontWeight() != QStyleSheetItem::Undefined )
@@ -123,8 +130,9 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
         format.font_.setItalic( style->fontItalic() );
     if ( style->definesFontUnderline() )
         format.font_.setUnderline( style->fontUnderline() );
-
-    format.createKey();
+    
+    if ( item || font_ != format.font_ || changed || color_ != format.color_) // slight performance improvement
+	format.createKey();
     return format;
 }
 
@@ -144,18 +152,18 @@ QtTextFormatCollection::QtTextFormatCollection()
 
 QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
-    if ( lastRegisterFormat ) {
-        if ( format.key == lastRegisterFormat->key ) {
-	    lastRegisterFormat->addRef();
-	    return lastRegisterFormat;
-        }
-    }
-
     if ( format.parent == this ) {
 	QtTextCharFormat* f = ( QtTextCharFormat*) &format;
 	f->addRef();
 	lastRegisterFormat = f;
 	return f;
+    }
+
+    if ( lastRegisterFormat ) {
+        if ( format.key == lastRegisterFormat->key ) {
+	    lastRegisterFormat->addRef();
+	    return lastRegisterFormat;
+        }
     }
 
     QtTextCharFormat *fc = cKey[ format.key ];

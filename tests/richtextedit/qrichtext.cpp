@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#15 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#16 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -39,6 +39,7 @@
 #include <qtimer.h>
 #include <qimage.h>
 #include <qdragobject.h>
+#include <qdatetime.h>
 
 
 
@@ -196,7 +197,13 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
 
     valid = TRUE;
     int pos = 0;
+    
+    QTime before = QTime::currentTime();
     parse(this, base, 0, format, doc, pos);
+    qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
+    exit(0);
+    
+    
 }
 
 QtRichText::~QtRichText()
@@ -340,7 +347,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		QtTextParagraph* subparagraph = new QtTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
 		
 		bool recover = FALSE;
-		if (parse( subparagraph, nstyle, 0, fmt.makeTextFormat( nstyle, attr ), doc, pos) ) {
+		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -1101,7 +1108,7 @@ void QtTextRichString::setLength( int l )
 	len = l; // TODO shrinking
 	return;
     } else {
-	store = l*2;
+	store = QMAX( l*2, 40 );
 	Item* newitems = new Item[store]; // TODO speedup using new char(....)
 // 	if ( items )
 // 	    memcpy( newitems, items, sizeof(Item)*len );
@@ -1121,8 +1128,8 @@ QtTextRichString::QtTextRichString( const QtTextRichString &other )
     items = 0;
     store = 0;
     if ( len ) {
-	items = new Item[ len ];
-	store = len;
+	store = QMAX( len, 40 );
+	items = new Item[ store ];
 // 	memcpy( items, other.items, sizeof(Item)*len );
 	for (int i = 0; i < len; ++i ) {
 	    items[i] = other.items[i];

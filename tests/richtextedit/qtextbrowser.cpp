@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#2 $
 **
 ** Implementation of the QtTextView class
 **
@@ -510,9 +510,8 @@ void QtTextBrowser::scrollToAnchor(const QString& name)
     tc.gotoLineStart( &p, fm );
     do {
 	if ( !tc.currentFormat()->anchorName().isEmpty() )
-	    qDebug("compare with %s", tc.currentFormat()->anchorName().latin1() );
 	if ( tc.currentFormat()->anchorName() == name ) {
-	    qDebug("yep, got it, scroll");
+	    resizeContents( viewport()->width(), richText().flow( viewId)->height );
 	    setContentsPos( contentsX(), tc.lineGeometry().top() );
 	    return;
 	}
