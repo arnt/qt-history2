@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#27 $
 **
 ** Global functions
 **
@@ -14,8 +14,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <qdict.h>
+#include <qstring.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------
@@ -326,10 +328,35 @@ bool chk_pointer( bool c, const char *n, int l )
 }
 
 
+declare(QDictM,int);
+
+static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
+{
+    static QDictM(int) obsoleteDict;
+    QString s( obj );
+    s += "::";
+    s += oldfunc;
+    if ( obsoleteDict.find(s) == 0 ) {
+	obsoleteDict.insert( s, (int*) 666 );   // anything different from 0.
+	return TRUE;
+    } else {
+	return FALSE;
+    }
+}
+
 void qObsolete(  const char *obj, const char *oldfunc, const char *newfunc )
 {
+    if ( !firstObsoleteWarning(obj, oldfunc) )
+	return;
     debug( "%s::%s: This function is obsolete, use %s instead",
 	   obj, oldfunc, newfunc );
+}
+
+void qObsolete(  const char *obj, const char *oldfunc )
+{
+    if ( !firstObsoleteWarning(obj, oldfunc) )
+	return;
+    debug( "%s::%s: This function is obsolete.", obj, oldfunc );
 }
 
 

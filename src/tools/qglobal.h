@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#47 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#48 $
 **
 ** Global type declarations and definitions
 **
@@ -316,6 +316,7 @@ bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
 #endif
 
 void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
+void qObsolete( const char *obj, const char *oldfunc );
 
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
