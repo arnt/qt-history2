@@ -939,11 +939,11 @@ void QHeader::setLabel( int section, const QString &s, int size )
 }
 
 
+bool qt_qheader_label_return_null_strings = FALSE;
 /*!
   Returns the text for section \a section.
   If the section does not exist, a null string is returned.
 */
-bool qt_qheader_label_return_null_strings = FALSE;
 QString QHeader::label( int section ) const
 {
     if ( section < 0 || section >= count() )

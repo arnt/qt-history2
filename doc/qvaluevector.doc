@@ -536,6 +536,11 @@
   Inserts a copy of \a x at the position immediately before \a pos.
 */
 
+/*! \fn void detachInternal()
+    
+    \internal
+*/
+
 /*! \fn iterator QValueVector::insert( iterator pos, size_type n, const T& x )
     \overload
   Inserts \a n copies of \a x immediately before position x.
