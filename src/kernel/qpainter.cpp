@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#103 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include "qwidget.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#103 $");
 
 
 /*!
@@ -103,7 +103,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#102 $");
 
 
 /*!
-  \overload bool QPainter::begin( QPaintDevice *pd, const QWidget *copyAttributes )
+  \overload bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
 
   This version opens the painter on a paint device \a pd and sets the initial
   pen, background color and font from \a copyAttributes.  This is equivalent
