@@ -6,7 +6,7 @@ DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 
 target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins/designer
 INSTALLS += target
 FORMS	= projectsettings.ui mainfilesettings.ui 
 TEMPLATE	=lib

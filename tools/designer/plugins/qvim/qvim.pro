@@ -61,5 +61,5 @@ unix:LIBS	+= -leditor
 INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces $(QTDIR)/tools/designer/editor
 
 target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins/designer
 INSTALLS += target

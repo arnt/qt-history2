@@ -6,7 +6,7 @@ sql {
 DESTDIR		= ../../../../plugins/designer
 
 target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins/designer
 INSTALLS += target
 IMAGEFILE	= images.cpp
 PROJECTNAME	= Wizards
