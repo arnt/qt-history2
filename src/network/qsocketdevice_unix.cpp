@@ -996,7 +996,7 @@ void QSocketDevice::fetchConnectionParameters()
 
     sz = sizeof( sa );
     if ( !::getpeername( socket(), (struct sockaddr *)(&sa), &sz ) )
-	setProtocol( qt_socket_getportaddr( (struct sockaddr *)&sa, &p, &a ) );
+	setProtocol( qt_socket_getportaddr( (struct sockaddr *)&sa, &pp, &pa ) );
 }
 
 

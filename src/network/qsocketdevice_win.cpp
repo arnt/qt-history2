@@ -976,18 +976,18 @@ void QSocketDevice::fetchPeerConnectionParameters()
 	struct sockaddr *sa4 = (struct sockaddr *)&sa;
 	if (sa4->sa_family == AF_INET6) {
 	    struct alt_sockaddr_in6 *sa6 = (struct alt_sockaddr_in6 *)&sa;
-	    p = ntohs( sa6->sin6_port );
+	    pp = ntohs( sa6->sin6_port );
 	    Q_IPV6ADDR tmp;
 	    for ( int i = 0; i < 16; ++i )
 		tmp.c[i] = sa6->sin6_addr.alt_s6_addr[i];
 
-	    a = QHostAddress(tmp);
+	    pa = QHostAddress(tmp);
 	} else
 #endif
 	{
 	    struct sockaddr_in *sa4 = (struct sockaddr_in *)&sa;
-	    p = ntohs( sa4->sin_port );
-	    a = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
+	    pp = ntohs( sa4->sin_port );
+	    pa = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
 	}
     }
 }
