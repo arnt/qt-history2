@@ -47,66 +47,36 @@ static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
     return docu;
 }
 
-static QString namedPrototype(const QString &signature, const QString &names, int numDefArgs = 0)
+static QByteArray namedPrototype(const QList<QByteArray> &parameterTypes, const QList<QByteArray> &parameterNames, int numDefArgs = 0)
 {
-    QString prototype;
-    if (names.isEmpty()) {
-        prototype = signature;
-        prototype.replace(',', ", ");
-    } else {
-        prototype = signature.left(signature.indexOf('(') + 1);
+    QByteArray prototype("(");
+    for (int p = 0; p < parameterTypes.count(); ++p) {
+        QByteArray type(parameterTypes.at(p));
+        prototype += type;
 
-        QString sigTypes(signature);
-        sigTypes = sigTypes.mid(prototype.length());
-        sigTypes.truncate(sigTypes.length() - 1);
-
-        QString paramNames(names);
-
-        while (!paramNames.isEmpty()) {
-            QString paramName = paramNames.left(paramNames.indexOf(','));
-            if (paramName.isEmpty())
-                paramName = paramNames;
-            paramNames = paramNames.mid(paramName.length() + 1);
-            QString sigType = sigTypes.left(sigTypes.indexOf(','));
-            if (sigType.isEmpty())
-                sigType = sigTypes;
-            sigTypes = sigTypes.mid(sigType.length() + 1);
-
-            prototype += sigType + " " + paramName;
-            if (!paramNames.isEmpty())
-                prototype += ", ";
-        }
-        prototype += ")";
+        if (p < parameterNames.count())
+            prototype += " " + parameterNames.at(p);
+         
+        if (numDefArgs >= parameterTypes.count() - p)
+            prototype += " = 0";
+        if (p < parameterTypes.count() - 1)
+            prototype += ", ";
     }
-
-    // no default arguments
-    if (!numDefArgs)
-        return prototype;
-
-    // default arguments
-    int comma = -1;
-    while (numDefArgs > 1) {
-        comma = prototype.lastIndexOf(',', comma);
-        prototype.replace(comma, 1, " = 0,");
-        --numDefArgs;
-    }
-
-    // last argument
-    prototype.replace(')', " = 0)");
+    prototype += ")";
 
     return prototype;
 }
 
-static QString toType(const QString &t)
+static QByteArray toType(const QByteArray &t)
 {
-    QString type = t;
-    int vartype = QVariant::nameToType(type.latin1());
+    QByteArray type = t;
+    int vartype = QVariant::nameToType(type);
     if (vartype == QVariant::Invalid)
         type = "int";
     
-    if (type.startsWith("Q"))
+    if (type.at(0) == 'Q')
         type = type.mid(1);
-    type[0] = type[0].toUpper();
+    type[0] = toupper(type.at(0));
     if (type == "VariantList")
         type = "List";
     else if (type == "Map<QVariant,QVariant>")
@@ -159,7 +129,7 @@ QString qax_generateDocumentation(QAxBase *that)
     }
     stream << "</ul>" << endl;
 
-    QStringList methodDetails, propDetails;
+    QList<QByteArray> methodDetails, propDetails;
 
     const int slotCount = mo->memberCount();
     if (slotCount) {
@@ -177,37 +147,37 @@ QString qax_generateDocumentation(QAxBase *that)
                 continue;
             }
 
-	    QString returntype(slot.typeName());
+	    QByteArray returntype(slot.typeName());
             if (returntype.isEmpty())
                 returntype = "void";
-            QString prototype = namedPrototype(slot.signature(), slot.parameters(), defArgCount);
-            QString signature = slot.signature();
-	    QString name = signature.left(signature.indexOf('('));
-	    QString params = prototype.mid(name.length());
-	    stream << "<li>" << returntype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
+            QByteArray prototype = namedPrototype(slot.parameterTypes(), slot.parameterNames(), defArgCount);
+            QByteArray signature = slot.signature();
+	    QByteArray name = signature.left(signature.indexOf('('));
+	    stream << "<li>" << returntype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << prototype << ";</li>" << endl;
             
-            params = signature.mid(name.length());
-	    QString detail = "<h3><a name=" + name + "></a>" + returntype + " " + prototype + "<tt> [slot]</tt></h3>\n";
+            prototype = namedPrototype(slot.parameterTypes(), slot.parameterNames());
+	    QByteArray detail = "<h3><a name=" + name + "></a>" + returntype + " " + name + " " + prototype + "<tt> [slot]</tt></h3>\n";
+            prototype = namedPrototype(slot.parameterTypes(), QList<QByteArray>());
 	    detail += docuFromName(typeInfo, name);
 	    detail += "<p>Connect a signal to this slot:<pre>\n";
-	    detail += "\tQObject::connect(sender, SIGNAL(someSignal" + params + "), object, SLOT(" + name + params + "));";
+	    detail += "\tQObject::connect(sender, SIGNAL(someSignal" + prototype + "), object, SLOT(" + name + prototype + "));";
 	    detail += "</pre>\n";
 
             if (1) {
                 detail += "<p>Or call the function directly:<pre>\n";
 
-                bool hasParams = params != "()";
+                bool hasParams = slot.parameterTypes().count() != 0;
                 if (hasParams)
                     detail += "\tQVariantList params = ...\n";
                 detail += "\t";
-                QString functionToCall = "dynamicCall";
+                QByteArray functionToCall = "dynamicCall";
                 if (returntype == "IDispatch*" || returntype == "IUnknown*") {
                     functionToCall = "querySubObject";
                     returntype = "QAxObject *";
                 }
                 if (returntype != "void")
                     detail += returntype + " result = ";
-                detail += "object->" + functionToCall + "(\"" + name + params + "\"";
+                detail += "object->" + functionToCall + "(\"" + name + prototype + "\"";
                 if (hasParams)
                     detail += ", params";
                 detail += ")";
@@ -242,14 +212,12 @@ QString qax_generateDocumentation(QAxBase *that)
             if (signal.memberType() != QMetaMember::Signal)
                 continue;
 
-            QString prototype = namedPrototype(signal.signature(), signal.parameters());
-	    QString signature = signal.signature();
-	    QString name = signature.left(signature.indexOf('('));
-	    QString params = prototype.mid(name.length());
-	    stream << "<li>void <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
+            QByteArray prototype = namedPrototype(signal.parameterTypes(), signal.parameterNames());
+	    QByteArray signature = signal.signature();
+	    QByteArray name = signature.left(signature.indexOf('('));
+	    stream << "<li>void <a href=\"#" << name << "\"><b>" << name << "</b></a>" << prototype << ";</li>" << endl;
 
-            params = signature.mid(name.length());
-	    QString detail = "<h3><a name=" + name + "></a>void " + prototype + "<tt> [signal]</tt></h3>\n";
+            QByteArray detail = "<h3><a name=" + name + "></a>void " + name + " " + prototype + "<tt> [signal]</tt></h3>\n";
             if (typeLib) {
                 interCount = 0;
                 do {
@@ -264,8 +232,9 @@ QString qax_generateDocumentation(QAxBase *that)
                     }
                 } while (typeInfo);
             }
+            prototype = namedPrototype(signal.parameterTypes(), QList<QByteArray>());
 	    detail += "<p>Connect a slot to this signal:<pre>\n";
-	    detail += "\tQObject::connect(object, SIGNAL(" + name + params + "), receiver, SLOT(someSlot" + params + "));";
+	    detail += "\tQObject::connect(object, SIGNAL(" + name + prototype + "), receiver, SLOT(someSlot" + prototype + "));";
 	    detail += "</pre>\n";
 
 	    methodDetails << detail;
@@ -288,13 +257,13 @@ QString qax_generateDocumentation(QAxBase *that)
 
 	for (int iprop = 0; iprop < propCount; ++iprop) {
 	    const QMetaProperty prop = mo->property(iprop);
-	    QString name(prop.name());
-	    QString type(prop.typeName());
+	    QByteArray name(prop.name());
+	    QByteArray type(prop.typeName());
 
 	    stream << "<li>" << type << " <a href=\"#" << name << "\"><b>" << name << "</b></a>;</li>" << endl;
-	    QString detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
+	    QByteArray detail = "<h3><a name=" + name + "></a>" + type + " " + name + "</h3>\n";
 	    detail += docuFromName(typeInfo, name);
-	    QVariant::Type vartype = QVariant::nameToType(type.latin1());
+	    QVariant::Type vartype = QVariant::nameToType(type);
 	    if (!prop.isReadable())
 		continue;
 
@@ -326,12 +295,12 @@ QString qax_generateDocumentation(QAxBase *that)
 		detail += "\tobject->setProperty(\"" + name + "\", newValue);\n";
 		detail += "</pre>\n";
 		detail += "Or using the ";
-		QString setterSlot;
-                if (name[0].category() & QChar::Letter_Uppercase) {
+		QByteArray setterSlot;
+                if (isupper(name.at(0))) {
 		    setterSlot = "Set" + name;
 		} else {
-		    QString nameUp = name;
-		    nameUp[0] = nameUp[0].toUpper();
+		    QByteArray nameUp = name;
+		    nameUp[0] = toupper(nameUp.at(0));
 		    setterSlot = "set" + nameUp;
 		}
 		detail += "<a href=\"#" + setterSlot + "\">" + setterSlot + "</a> slot.\n";
@@ -360,15 +329,13 @@ QString qax_generateDocumentation(QAxBase *that)
     }
     if (methodDetails.count()) {
 	stream << "<hr><h2>Member Function Documentation</h2>" << endl;
-	for (QStringList::Iterator it = methodDetails.begin(); it != methodDetails.end(); ++it) {
-	    stream << (*it) << endl;
-	}
+	for (int i = 0; i < methodDetails.count(); ++i)
+	    stream << methodDetails.at(i) << endl;
     }
     if (propDetails.count()) {
 	stream << "<hr><h2>Property Documentation</h2>" << endl;
-	for (QStringList::Iterator it = propDetails.begin(); it != propDetails.end(); ++it) {
-	    stream << (*it) << endl;
-	}
+	for (int i = 0; i < propDetails.count(); ++i)
+	    stream << propDetails.at(i) << endl;
     }
 
     if (typeInfo)
