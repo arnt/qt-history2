@@ -534,7 +534,10 @@ void qt_mac_internal_select_callbk(int sock, int type, QEventLoop *eloop)
 		eloop->setSocketNotifierPending(sn->obj);
 	}
     }
-    qt_event_request_sockact(eloop);
+     if(QMacBlockingFunction::blocking()) //just send it immediately
+	 eloop->activateSocketNotifiers();
+     else
+	 qt_event_request_sockact(eloop);
 }
 static void qt_mac_select_callbk(CFSocketRef s, CFSocketCallBackType t, CFDataRef, const void *, void *me)
 {
