@@ -105,35 +105,45 @@ namespace QMsNet
 	    try {
 		handled = false;
 		if( executeOption == EnvDTE.vsCommandExecOption.vsCommandExecOptionDoDefault ) {
-		    if ( commandName == Resource.NewQtProjectFullCommand ) {
-			handled = true;
-			QMNCommands.newQtProject();
-		    } else if ( commandName == Resource.MakeQtProjectFullCommand ) {
-			handled = true;
-			QMNCommands.newQtProject();
-		    } else if ( commandName == Resource.LoadDesignerFullCommand ) {
-			handled = true;
-			extLoader.loadDesigner( "", true );
-		    } else if ( commandName == Resource.LoadQtProjectFullCommand ) {
-			handled = true;
-			extLoader.loadProject();
-		    } else if ( commandName == Resource.SaveQtProjectFullCommand ) {
-			handled = true;
-			MessageBox.Show( "Save Qt Project", "Command" );
-			extLoader.saveProject();
-		    } else if ( commandName == Resource.DLLQtProjectFullCommand ) {
-			handled = true;
-			QMNCommands.makeProjectDll();
-		    } else if ( commandName == Resource.AddMocStepFullCommand ) {
-			handled = true;
-			QMNCommands.addMocStep();
-		    } else if ( commandName == Resource.mntEventsFullCommand ) {
-			MonitorEvents();
-		    } else if ( commandName == Resource.unmntEventsFullCommand ) {
-			StopMonitoringEvents();
+		    switch ( commandName ) {
+			case Resource.NewQtProjectFullCommand:
+			    handled = true;
+			    QMNCommands.newQtProject();
+			    break;
+			case Resource.MakeQtProjectFullCommand:
+			    handled = true;
+			    QMNCommands.newQtProject();
+			    break;
+			case Resource.LoadDesignerFullCommand:
+			    handled = true;
+			    extLoader.loadDesigner( "", true );
+			    break;
+			case Resource.LoadQtProjectFullCommand:
+			    handled = true;
+			    extLoader.loadProject();
+			    break;
+			case Resource.SaveQtProjectFullCommand:
+			    handled = true;
+			    extLoader.saveProject();
+			    break;
+			case Resource.DLLQtProjectFullCommand:
+			    handled = true;
+			    QMNCommands.makeProjectDll();
+			    break;
+			case Resource.AddMocStepFullCommand:
+			    handled = true;
+			    QMNCommands.addMocStep();
+			    break;
+			case Resource.mntEventsFullCommand:
+			    handled = true;
+			    MonitorEvents();
+			    break;
+			case Resource.unmntEventsFullCommand:
+			    handled = true;
+			    StopMonitoringEvents();
+			    break;
 		    }
-
-	    }
+		}
 	    }
 	    catch( System.Exception e ) {
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
