@@ -89,8 +89,8 @@ distclean:: clean
 .cpp.obj:
 	$(CXX) $(CXXFLAGS) $<
 
-qconfig.obj: ..\src\core\base\qconfig.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\base\qconfig.cpp
+qconfig.obj: ..\src\core\global\qconfig.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
 
 qlibrary.obj: ..\src\core\library\qlibrary.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\library\qlibrary.cpp
