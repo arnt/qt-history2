@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#58 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -398,11 +398,13 @@ void QHeader::paintCell( QPainter *p, int row, int col )
     QRect fr( 0, 0, orient == Horizontal ?  size : width(),
 	      orient == Horizontal ?  height() : size );
 
-    if ( style() == WindowsStyle )
-	qDrawWinButton( p, fr, colorGroup(), down );
-    else
-	qDrawShadePanel( p, fr, colorGroup(), down );
+//     if ( style() == WindowsStyle )
+// 	qDrawWinButton( p, fr, colorGroup(), down );
+//     else
+// 	qDrawShadePanel( p, fr, colorGroup(), down );
 
+    style().drawBevelButton(p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down);
+    
     int logIdx = mapToLogical(i);
 
     QString s;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#81 $
 **
 ** Implementation of QCheckBox class
 **
@@ -295,7 +295,7 @@ void QCheckBox::updateMask()
 	bm.fill(color0);
 	QPainter p(&bm);
 
-	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1, color0);
+	QColorGroup cg(color1,color1,color1,color1,color1, color1, color1, color1, color0);
 	QFontMetrics fm = fontMetrics();
 	QSize lsz = fm.size(ShowPrefix, text());
 	QSize sz = sizeOfBitmap( gs );

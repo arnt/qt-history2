@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#343 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#344 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -537,12 +537,12 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	else
 	    btn = bg;
 	QColorGroup cg( fg, btn, btn.light(),
-			btn.dark(), btn.dark(150), fg, white, bg );
+			btn.dark(), btn.dark(150), fg, white, white, bg );
 	QColor disabled( (fg.red()+btn.red())/2,
 			 (fg.green()+btn.green())/2,
 			 (fg.blue()+btn.blue())/2);
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
-			 disabled, white, bg );
+			 disabled, white, white, bg );
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal, TRUE );
     }
@@ -555,7 +555,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 
 static void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
-    
+
     if ( display ) {
       // Qt part of other application	
 
@@ -617,20 +617,20 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( arg == "-iconic" ) {
 		mwIconic = !mwIconic;
 	    } else if ( stricmp(arg, "-style=windows") == 0 ) {
-		qApp->setStyle( new QStyle(WindowsStyle) );
+		qApp->setStyle( new QWindowsStyle );
 	    } else if ( stricmp(arg, "-style=motif") == 0 ) {
-		qApp->setStyle( new QStyle(MotifStyle) );
+		qApp->setStyle( new QMotifStyle );
 	    } else if ( stricmp(arg, "-style=hwindows") == 0 ) {
-		qApp->setStyle( new QHStyle(WindowsStyle) );
+		qApp->setStyle( new QHWindowsStyle() );
 	    } else if ( stricmp(arg, "-style=hmotif") == 0 ) {
-		qApp->setStyle( new QHStyle(MotifStyle) );
+		qApp->setStyle( new QHMotifStyle() );
 	    } else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 		Q1String s = argv[++i];
 		s = s.lower();
 		if ( s == "windows" )
-		    qApp->setStyle( new QStyle(WindowsStyle) );
+		    qApp->setStyle( new QWindowsStyle() );
 		else if ( s == "motif" )
-		    qApp->setStyle( new QStyle(MotifStyle) );
+		    qApp->setStyle( new QMotifStyle() );
 #if defined(DEBUG)
 	    } else if ( arg == "-qdebug" ) {
 		debug_level++;
@@ -737,13 +737,13 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     qApp->setName( appName );
 
-    XSelectInput( appDpy, appRootWin, 
+    XSelectInput( appDpy, appRootWin,
 		  KeyPressMask | KeyReleaseMask |
 		  KeymapStateMask |
 		  EnterWindowMask | LeaveWindowMask |
 		  FocusChangeMask | PropertyChangeMask
 		  );
-    
+
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 
 #if !defined(NO_XIM)
@@ -2948,8 +2948,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		XUngrabPointer( dpy, CurrentTime );
 		XFlush( dpy );
 	    }
-	    
-	    
+	
+	
 	    bool unexpected = FALSE;
 	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
 		unexpected = TRUE;

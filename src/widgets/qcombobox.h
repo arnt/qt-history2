@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#60 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#61 $
 **
 ** Definition of QComboBox class
 **
@@ -93,7 +93,7 @@ public:
 
     virtual void	setListBox( QListBox * );
     QListBox * 	listBox() const;
-    
+
     virtual void	setAutoCompletion( bool );
     bool	autoCompletion() const;
 
@@ -127,6 +127,7 @@ protected:
     void	focusInEvent( QFocusEvent *e );
 
     void	popup();
+    void updateMask();
 
 private:
     void	popDownListBox();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#33 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#34 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -39,49 +39,49 @@ public:
     QColorGroup( const QColor &foreground, const QColor &button,
 		 const QColor &light, const QColor &dark, const QColor &mid,
 		 const QColor &text, const QColor &base );
-    QColorGroup( const QColor &foreground, const QColor &button,
-		 const QColor &light, const QColor &dark, const QColor &mid,
-		 const QColor &text, const QColor &base, const QColor &background );
-    QColorGroup( const QColor &foreground, const QColor &button,
-		 const QColor &light, const QColor &dark, const QColor &mid,
-		 const QColor &text, const QColor &base, const QColor &background,
-		 const QPixmap& button_pixmap, 
-		 const QPixmap& light_pixmap, 
-		 const QPixmap& mid_pixmap, 
-		 const QPixmap& base_pixmap);
+
+    QColorGroup( const QBrush &foreground, const QBrush &button,
+		 const QBrush &light, const QBrush &dark, const QBrush &mid,
+		 const QBrush &text,  const QBrush &bright_text, const QBrush &base,
+		 const QBrush &background);
    ~QColorGroup();
 
-    const QColor &foreground()	const	{ return fg_col; }
-    const QColor &button()	const	{ return button_col; }
-    const QColor &light()	const	{ return light_col; }
-          QColor midlight()	const	{ return bg_col.light( 115 ); }
-    const QColor &dark()	const	{ return dark_col; }
-    const QColor &mid()		const	{ return mid_col; }
-    const QColor &text()	const	{ return text_col; }
-    const QColor &base()	const	{ return base_col; }
-    const QColor &background()	const	{ return bg_col; }
+    const QColor &foreground()	const	{ return foreground_brush.color(); }
+    const QColor &button()	const	{ return button_brush.color(); }
+    const QColor &light()	const	{ return light_brush.color(); }
+    const QColor &midlight()	const	{ return midlight_brush.color(); }
+    const QColor &dark()	const	{ return dark_brush.color(); }
+    const QColor &mid()		const	{ return mid_brush.color(); }
+    const QColor &text()	const	{ return text_brush.color(); }
+    const QColor &brightText()	const	{ return bright_text_brush.color(); }
+    const QColor &base()	const	{ return base_brush.color(); }
+    const QColor &background()	const	{ return background_brush.color(); }
 
+    const QBrush &fillForeground() const {return foreground_brush; }
     const QBrush &fillButton() const {return button_brush; }
-    const QBrush &fillMid() const {return mid_brush; }
     const QBrush &fillLight() const {return light_brush; }
+    const QBrush &fillMidlight() const {return midlight_brush; }
+    const QBrush &fillDark() const {return dark_brush; }
+    const QBrush &fillMid() const {return mid_brush; }
+    const QBrush &fillText() const {return text_brush; }
+    const QBrush &fillBrightText() const {return bright_text_brush; }
     const QBrush &fillBase() const {return base_brush; }
-    
+    const QBrush &fillBackground() const {return background_brush; }
+
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
 					{ return !(operator==(g)); }
 private:
-    QColor fg_col;
-    QColor button_col;
-    QColor light_col;
-    QColor dark_col;
-    QColor mid_col;
-    QColor text_col;
-    QColor base_col;
-    QColor bg_col;
+    QBrush foreground_brush;
     QBrush button_brush;
     QBrush light_brush;
+    QBrush dark_brush;
     QBrush mid_brush;
+    QBrush text_brush;
+    QBrush bright_text_brush;
     QBrush base_brush;
+    QBrush background_brush;
+    QBrush midlight_brush;
 };
 
 

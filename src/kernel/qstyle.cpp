@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#6 $
 **
 ** Implementation of QStyle class
 **
@@ -18,6 +18,7 @@
 #include "qwidget.h"
 #include "qlabel.h"
 #include "qimage.h"
+#include "qpushbutton.h"
 
 /* XPM */
 static const char *polish_xpm[] = {
@@ -832,9 +833,9 @@ QStyle::itemRect( QPainter *p, int x, int y, int w, int h,
 void
 QStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 		int flags, const QColorGroup &g, bool enabled,
-		const QPixmap *pixmap, const QString& text, int len )
+		const QPixmap *pixmap, const QString& text, int len, bool bright_text )
 {
-    qDrawItem( p, gs, x, y, w, h, flags, g, enabled, pixmap, text, len );
+    qDrawItem( p, gs, x, y, w, h, flags, g, enabled, pixmap, text, len, bright_text );
 }
 
 
@@ -875,31 +876,49 @@ QStyle::drawRectStrong( QPainter *p, int x, int y, int w, int h,
 /*!
   Draws a press-sensitive shape.
 */
-void
-QStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-		 const QColorGroup &g, bool sunken,
-		 const QBrush *fill )
+void QStyle::drawButton( QPainter *, int , int , int , int ,
+			     const QColorGroup &, bool, const QBrush* )
 {
-    if ( gs == WindowsStyle ) {
-	qDrawWinButton( p, x, y, w, h, g, sunken, fill );
-    } else {
-	// move code here ...
-    }
 }
+
+void QStyle::drawBevelButton( QPainter *, int , int , int , int ,
+			     const QColorGroup &, bool, const QBrush* )
+{
+}
+
+void QStyle::drawToolButton( QPainter *, int , int , int , int ,
+			     const QColorGroup &, bool , const QBrush*)
+{
+}
+
+QRect QStyle::buttonRect( int x, int y, int w, int h){
+    return QRect(x, y, w, h);
+}
+
+void QStyle::drawButtonMask( QPainter *, int , int , int , int )
+{
+}
+
+
+void
+QStyle::drawPushButton( QPushButton* , QPainter *)
+{
+}
+
+void 
+QStyle::drawPushButtonLabel( QPushButton*, QPainter *)
+{
+}
+
 
 /*!
   Draws a panel to separate parts of the visual interface.
 */
 void
-QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
-		const QColorGroup &g, bool sunken,
-		int lineWidth, const QBrush *fill )
+QStyle::drawPanel( QPainter *, int , int , int , int ,
+		const QColorGroup &, bool ,
+		int, const QBrush* )
 {
-    if ( gs == WindowsStyle ) {
-	qDrawWinPanel( p, x, y, w, h, g, sunken, fill );
-    } else {
-	qDrawShadePanel( p, x, y, w, h, g, sunken, lineWidth, fill );
-    }
 }
 
 /*!
@@ -972,18 +991,270 @@ QStyle::drawFocusRect( QPainter* p,
 }
 
 
-QHStyle::QHStyle(GUIStyle s) : QStyle(s)
+QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 {
 }
 
-void QHStyle::initialize( QApplication *app)
+
+void QWindowsStyle::drawWinShades( QPainter *p,
+				   int x, int y, int w, int h,
+				   const QColor &c1, const QColor &c2,
+				   const QColor &c3, const QColor &c4,
+				   const QBrush *fill )
+{
+    if ( w < 2 || h < 2 )			// nothing to draw
+	return;
+    QPen oldPen = p->pen();
+    QPointArray a( 3 );
+    a.setPoint( 0, x, y+h-2 );
+    a.setPoint( 1, x, y );
+    a.setPoint( 2, x+w-2, y );
+    p->setPen( c1 );
+    p->drawPolyline( a );
+    a.setPoint( 0, x, y+h-1 );
+    a.setPoint( 1, x+w-1, y+h-1 );
+    a.setPoint( 2, x+w-1, y );
+    p->setPen( c2 );
+    p->drawPolyline( a );
+    if ( w > 4 && h > 4 ) {
+	a.setPoint( 0, x+1, y+h-3 );
+	a.setPoint( 1, x+1, y+1 );
+	a.setPoint( 2, x+w-3, y+1 );
+	p->setPen( c3 );
+	p->drawPolyline( a );
+	a.setPoint( 0, x+1, y+h-2 );
+	a.setPoint( 1, x+w-2, y+h-2 );
+	a.setPoint( 2, x+w-2, y+1 );
+	p->setPen( c4 );
+	p->drawPolyline( a );
+	if ( fill ) {
+	    QBrush oldBrush = p->brush();
+	    p->setBrush( *fill );
+	    p->setPen( NoPen );
+	    p->drawRect( x+2, y+2, w-4, h-4 );
+	    p->setBrush( oldBrush );
+	}
+    }
+    p->setPen( oldPen );
+}
+
+
+/*!
+  Draws a press-sensitive shape.
+*/
+void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    if (sunken)
+	drawWinShades( p, x, y, w, h,
+		       black, g.light(), g.dark(), g.button(), fill?fill:&g.fillButton() );
+    else
+	drawWinShades( p, x, y, w, h,
+		       g.light(), black, g.midlight(), g.dark(), fill?fill:&g.fillButton() );
+
+}
+
+void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    QWindowsStyle::drawButton(p, x, y, w, h, g, sunken, fill);
+}
+
+
+void
+QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
+{
+    QColorGroup g = btn->colorGroup();
+    int x1, y1, x2, y2;
+
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    int w = x2 + 1;
+    int h = y2 + 1;
+
+    p->setPen( g.foreground() );
+    p->setBrush( QBrush(g.button(),NoBrush) );
+
+    bool clearButton = TRUE;
+    if ( btn->isDown() ) {
+	if ( btn->isDefault() ) {
+	    p->setPen( black );
+	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+	    p->setPen( g.dark() );
+	    p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
+	} else {
+	    drawButton( p, x1, y1, w, h, g, TRUE, &g.fillButton() );
+	}
+    } else {
+	if ( btn->isDefault() ) {
+	    p->setPen( black );
+	    p->drawRect( x1, y1, w, h );
+	    x1++; y1++;
+	    x2--; y2--;
+	}
+	if ( btn->isToggleButton() && btn->isOn() && btn->isEnabled() ) {
+	    QBrush fill(white, Dense4Pattern );
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
+	    clearButton = FALSE;
+	} else {
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn(), &g.fillButton() );
+	}
+    }
+    if ( clearButton ) {
+	if (btn->isDown())
+	    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+	p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.fillButton() );
+	if (btn->isDown())
+	    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+    }
+    if ( btn->isMenuButton() ) {
+	int dx = (y2-y1) / 3;
+	qDrawArrow( p, ::DownArrow, guiStyle(), FALSE,
+		    x2 - dx, y1, dx, y2 - y1,
+		    g, btn->isEnabled() );
+    }
+
+    if ( p->brush().style() != NoBrush )
+	p->setBrush( NoBrush );
+
+}
+
+void QWindowsStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
+{
+    QRect r = btn->rect();
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
+    
+    int x1, y1, x2, y2;
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    int dx = 0;
+    int dy = 0;
+    if ( btn->isMenuButton() ) 
+	dx = (y2-y1) / 3;
+    if ( dx || dy )
+	p->translate( dx, dy );
+
+    if ( btn->isDown() || btn->isOn()) {
+        // shift pixmap/text
+	x++;
+	y++;
+    }
+    x += 2;  y += 2;  w -= 4;  h -= 4;
+    drawItem( p, x, y, w, h,
+	       AlignCenter|ShowPrefix,
+	       btn->colorGroup(), btn->isEnabled(),
+	       btn->pixmap(), btn->text() );
+
+    if ( dx || dy )
+	p->translate( -dx, -dy );
+}
+
+
+QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
+{
+}
+
+/*!
+  Draws a press-sensitive shape.
+*/
+void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    qDrawShadePanel( p, x, y, w, h, g, sunken,
+		     2, fill?fill:(sunken?&g.fillMid():&g.fillButton()));
+}
+
+void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    QMotifStyle::drawButton(p, x, y, w, h, g, sunken, fill);
+}
+
+void
+QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
+{
+    GUIStyle gs   = guiStyle();
+    QColorGroup g = btn->colorGroup();
+    int x1, y1, x2, y2;
+
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+
+    p->setPen( g.foreground() );
+    p->setBrush( QBrush(g.button(),NoBrush) );
+
+    QBrush fill;
+    if ( btn->isDown() )
+	fill = g.fillMid();
+    else if ( btn->isOn() )
+	fill = QBrush( g.mid(), Dense4Pattern );
+    else
+	fill = g.fillButton();	
+
+    if ( btn->isDefault() ) {
+	QPointArray a;
+	a.setPoints( 9,
+		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+	p->setPen( black );
+	p->drawPolyline( a );
+	x1 += 2;
+	y1 += 2;
+	x2 -= 2;
+	y2 -= 2;
+    }
+	
+    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+		&fill );
+	
+
+    if ( btn->isMenuButton() ) {
+	int dx = (y1-y2-4)/3;
+	qDrawArrow( p, ::DownArrow, gs, FALSE,
+		    x2 - dx, dx, y1, y2 - y1,
+		    g, btn->isEnabled() );
+    }
+
+    if ( p->brush().style() != NoBrush )
+	p->setBrush( NoBrush );
+}
+
+void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
+{
+    QRect r = btn->rect();
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
+
+    int x1, y1, x2, y2;
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    int dx = 0;
+    int dy = 0;
+    if ( btn->isMenuButton() ) 
+	dx = (y2-y1) / 3;
+    if ( dx || dy )
+	p->translate( dx, dy );
+
+    x += 2;  y += 2;  w -= 4;  h -= 4;
+    drawItem( p, x, y, w, h,
+	      AlignCenter|ShowPrefix,
+	      btn->colorGroup(), btn->isEnabled(),
+	      btn->pixmap(), btn->text() );
+    if ( dx || dy )
+	p->translate( -dx, -dy );
+
+}
+
+
+QHMotifStyle::QHMotifStyle() : QMotifStyle()
+{
+}
+
+void QHMotifStyle::initialize( QApplication *app)
 {
     QImage img(button_xpm);
     QImage orig = img;
     orig.detach();
     QPixmap button;
     button.convertFromImage(img);
-    
+
     for (int i=0; i<img.numColors(); i++) {
 	QRgb rgb = img.color(i);
 	QColor c(rgb);
@@ -1003,57 +1274,44 @@ void QHStyle::initialize( QApplication *app)
     QPixmap light;
     light.convertFromImage(img);
 
-    QPixmap base; //null
-    
+
     QPalette op(QColor(212,140,95));
     // QPalette op(white);
     QColorGroup nor (op.normal().foreground(),
-		     op.normal().button(),
-		     op.normal().light(),
+		     QBrush(op.normal().button(),button),
+		     QBrush(op.normal().light(), light),
 		     op.normal().dark(),
-		     op.normal().mid(),
+		     QBrush(op.normal().mid(), mid),
 		     op.normal().text(),
+		     white,
 		     QColor(236,182,120),
-		     //op.disabled().base(),
-		     op.normal().background(),
-		     button,
-		     light,
-		     mid,
-		     base
+		     op.normal().background()
 		     );
     QColorGroup disabled (op.disabled().foreground(),
-		     op.disabled().button(),
-		     op.disabled().light(),
+		     QBrush(op.disabled().button(),button),
+		     QBrush(op.disabled().light(), light),
 		     op.disabled().dark(),
-		     op.disabled().mid(),
+		     QBrush(op.disabled().mid(), mid),
 		     op.disabled().text(),
+		     white,
 		     QColor(236,182,120),
-		 //   op.disabled().base(),
-		     op.disabled().background(),
-		     button,
-		     light,
-		     mid,
-		     base
+		     op.disabled().background()
+		     );
+    QColorGroup active (op.active().foreground(),
+		     QBrush(op.active().button(),button),
+		     QBrush(op.active().light(), light),
+		     op.active().dark(),
+		     QBrush(op.active().mid(), mid),
+		     op.active().text(),
+		     white,
+		      QColor(236,182,120),
+		     op.active().background()
 		     );
 
-    QColorGroup active (op.active().foreground(),
-		     op.active().button(),
-		     op.active().light(),
-		     op.active().dark(),
-		     op.active().mid(),
-		     op.active().text(),
-		     QColor(236,182,120),
-			//		     op.active().base(),
-		     op.active().background(),
-		     button,
-		     light,
-		     mid,
-		     base
-		     );
    app->setPalette(QPalette(nor, disabled, active), TRUE );
 }
 
-void QHStyle::polish( QWidget* w)
+void QHMotifStyle::polish( QWidget* w)
 {
     static QPixmap* pixmap = 0;
     static QPixmap* darkpixmap = 0;
@@ -1076,6 +1334,9 @@ void QHStyle::polish( QWidget* w)
     if (w->inherits("QTipLabel")){
 	return;
     }
+    if (w->inherits("QLCDNumber")){
+	return;
+    }
 
 //     if (w->inherits("QScrollBar") ){
 // 	w->setBackgroundPixmap( *darkpixmap );
@@ -1089,6 +1350,7 @@ void QHStyle::polish( QWidget* w)
 
     if ( !w->isTopLevel() ) {
  	if (w->inherits("QLabel") || w->inherits("QButton")
+	    || w->inherits("QComboBox")
 	
 	    ){
 	    w->setAutoMask( TRUE );
@@ -1111,3 +1373,138 @@ void QHStyle::polish( QWidget* w)
 	break;
     }
 }
+
+
+void QHMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    qDrawShadePanel( p, x, y, w, h, g, sunken, 5);
+	
+    QBrush oldBrush = p->brush();
+    p->setPen( NoPen );
+    p->setBrush( fill?*fill:(sunken?g.fillMid():g.fillButton()));
+    p->drawRoundRect( x+3, y+3, w-6, h-6, 5, 50 ); 
+    p->setBrush( oldBrush );
+
+    p->setPen( g.foreground() );
+    p->drawRoundRect( x, y, w, h, 10, 50 );
+}
+
+void QHMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g, bool sunken, const QBrush* fill)
+{
+    QMotifStyle::drawBevelButton(p, x, y, w, h, g, sunken, fill);
+}
+
+void QHMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
+{
+    GUIStyle gs   = guiStyle();
+    QColorGroup g = btn->colorGroup();
+    int x1, y1, x2, y2;
+    
+//     if (!btn->autoMask())
+// 	btn->setAutoMask( TRUE );
+
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+
+    p->setPen( g.foreground() );
+    p->setBrush( QBrush(g.button(),NoBrush) );
+
+    QBrush fill;
+    if ( btn->isDown() )
+	fill = g.fillMid();
+    else if ( btn->isOn() )
+	fill = QBrush( g.mid(), Dense4Pattern );
+    else
+	fill = g.fillButton();	
+
+    if ( btn->isDefault() ) {
+	QPointArray a;
+	a.setPoints( 9,
+		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+	p->setPen( black );
+	p->drawPolyline( a );
+	x1 += 2;
+	y1 += 2;
+	x2 -= 2;
+	y2 -= 2;
+    }
+	
+    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill);
+	
+
+    if ( btn->isMenuButton() ) {
+	int dx = (y1-y2-4)/3;
+	qDrawArrow( p, ::DownArrow, gs, FALSE,
+		    x2 - dx, dx, y1, y2 - y1,
+		    g, btn->isEnabled() );
+    }
+
+    if ( p->brush().style() != NoBrush )
+	p->setBrush( NoBrush );
+
+}
+
+
+void QHMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
+{
+    QRect r = btn->rect();
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
+    
+    int x1, y1, x2, y2;
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    int dx = 0;
+    int dy = 0;
+    if ( btn->isMenuButton() ) 
+	dx = (y2-y1) / 3;
+    if ( dx || dy )
+	p->translate( dx, dy );
+    
+    x += 2;  y += 2;  w -= 4;  h -= 4;
+    QColorGroup g = btn->colorGroup();
+    drawItem( p, x, y, w, h,
+	      AlignCenter|ShowPrefix,
+	      g, btn->isEnabled(),
+	      btn->pixmap(), btn->text(), -1, 
+	      btn->isDown() || btn->isOn() );
+
+    if ( dx || dy )
+	p->translate( -dx, -dy );
+}
+
+QRect QHMotifStyle::buttonRect( int x, int y, int w, int h){
+    return QRect(x+3, y+2, w-6, h-4);
+}
+
+void QHMotifStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
+{
+    p->drawRoundRect( x, y, w, h, 10, 50 );
+}
+
+
+
+QHWindowsStyle::QHWindowsStyle() : QWindowsStyle()
+{
+}
+
+void QHWindowsStyle::initialize( QApplication* app)
+{
+    proxy.initialize( app );
+}
+void QHWindowsStyle::polish( QWidget* w)
+{
+    proxy.polish( w );
+}
+
+QRect QHWindowsStyle::buttonRect( int x, int y, int w, int h){
+    return QRect(x, y, w, h );
+}
+
+void QHWindowsStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
+{
+    p->fillRect( x, y, w, h, color1 );
+}
+
+

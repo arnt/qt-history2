@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#6 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#7 $
 **
 ** Definition of QStyle class
 **
@@ -17,6 +17,7 @@
 #include "qobject.h"
 #endif // QT_H
 
+class QPushButton;
 
 class Q_EXPORT QStyle
 {
@@ -44,7 +45,8 @@ public:
 
     virtual void drawItem( QPainter *p, int x, int y, int w, int h,
 		    int flags, const QColorGroup &g, bool enabled,
-		    const QPixmap *pixmap, const QString& text, int len=-1 );
+		    const QPixmap *pixmap, const QString& text, 
+			   int len=-1, bool bright_text = FALSE );
 
 
     virtual void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
@@ -61,6 +63,18 @@ public:
 		     const QBrush *fill = 0 );
 
     virtual void drawButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken = FALSE,
+		     const QBrush *fill = 0 );
+    
+    virtual QRect buttonRect( int x, int y, int w, int h);
+    
+    virtual void drawButtonMask( QPainter *p, int x, int y, int w, int h);
+			     
+    virtual void drawBevelButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken = FALSE,
+		     const QBrush *fill = 0 );
+
+    virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
 
@@ -84,16 +98,91 @@ public:
     virtual void drawIndicator( QPainter* /*translated*/,
 		    const QColorGroup &g, bool on, bool down );
 
+    // focus
     virtual void drawFocusRect( QPainter*,
 		    const QRect&, const QColorGroup & );
+    
+    
+    // push buttons
+    virtual void drawPushButton( QPushButton* btn, QPainter *p);
+    virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+
+
+    
 };
 
-class Q_EXPORT QHStyle : public QStyle
+class Q_EXPORT QWindowsStyle : public QStyle
 {
 public:
-    QHStyle(GUIStyle);
+    QWindowsStyle();
+    void drawButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken = FALSE,
+		     const QBrush *fill = 0 );
+    void drawBevelButton( QPainter *p, int x, int y, int w, int h,
+			  const QColorGroup &g, bool sunken = FALSE,
+			  const QBrush *fill = 0 );
+
+    void drawPushButton( QPushButton* btn, QPainter *p);
+    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+protected:
+    void drawWinShades( QPainter *p,
+			int x, int y, int w, int h,
+			const QColor &c1, const QColor &c2,
+			const QColor &c3, const QColor &c4,
+			const QBrush *fill );
+    
+//     void initialize( QApplication*);
+//     void polish( QWidget* );
+};
+
+class Q_EXPORT QMotifStyle : public QStyle
+{
+public:
+    QMotifStyle();
+    void drawButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool sunken = FALSE,
+		     const QBrush *fill = 0 );
+    void drawBevelButton( QPainter *p, int x, int y, int w, int h,
+			  const QColorGroup &g, bool sunken = FALSE,
+			  const QBrush *fill = 0 );
+    void drawPushButton( QPushButton* btn, QPainter *p);
+    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+//     void initialize( QApplication*);
+//     void polish( QWidget* );
+};
+
+
+class Q_EXPORT QHMotifStyle : public QMotifStyle
+{
+public:
+    QHMotifStyle();
     void initialize( QApplication*);
     void polish( QWidget* );
+    
+    void drawButton( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g, bool sunken = FALSE,
+			     const QBrush *fill = 0 );
+    void drawBevelButton( QPainter *p, int x, int y, int w, int h,
+			  const QColorGroup &g, bool sunken = FALSE,
+			  const QBrush *fill = 0 );
+    QRect buttonRect( int x, int y, int w, int h);
+    void drawButtonMask( QPainter *p, int x, int y, int w, int h);
+
+    
+    void drawPushButton( QPushButton* btn, QPainter *p);
+    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+};
+
+class Q_EXPORT QHWindowsStyle : public QWindowsStyle
+{
+public:
+    QHWindowsStyle();
+    void initialize( QApplication*);
+    void polish( QWidget* );
+    void drawButtonMask( QPainter *p, int x, int y, int w, int h);
+    QRect buttonRect( int x, int y, int w, int h);
+private:
+    QHMotifStyle proxy;
 };
 
 #endif // QSTYLE_H

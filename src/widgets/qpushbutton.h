@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#41 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#42 $
 **
 ** Definition of QPushButton class
 **
@@ -46,7 +46,7 @@ public:
 
     virtual void	setIsMenuButton( bool );
     bool	isMenuButton() const;
-    
+
     QSize	sizeHint() const;
 
     void	move( int x, int y );
@@ -65,6 +65,7 @@ protected:
     void	drawButtonLabel( QPainter * );
     void	focusInEvent( QFocusEvent * );
     void	resizeEvent( QResizeEvent * );
+    void updateMask();
 
 private:
     void	init();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#61 $
 **
 ** Implementation of QSlider class
 **
@@ -667,7 +667,7 @@ void QSlider::updateMask()
     {
 	QPainter p( &bm, this );
 	QRect sliderR = sliderRect();
-	QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color0);
+	QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
 	QBrush fill (color1);
 	switch ( style() ) {
 	case WindowsStyle:

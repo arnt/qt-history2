@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#23 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -75,63 +75,23 @@ QColorGroup::QColorGroup()
 {						// all colors become black
 }
 
-QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
-			  const QColor &light, const QColor &dark,
-			  const QColor &mid,
-			  const QColor &text, const QColor &base, const QColor &background,
-			  const QPixmap& button_pixmap, 
-			  const QPixmap& light_pixmap, 
-			  const QPixmap& mid_pixmap, 
-			  const QPixmap& base_pixmap )
+QColorGroup::QColorGroup( const QBrush &foreground, const QBrush &button,
+			  const QBrush &light, const QBrush &dark, const QBrush &mid,
+			  const QBrush &text,  const QBrush &bright_text, const QBrush &base,
+			  const QBrush &background)
 {
-    fg_col    = foreground;
-    button_col    = button;
-    light_col = light;
-    dark_col  = dark;
-    mid_col   = mid;
-    text_col  = text;
-    base_col  = base;
-    bg_col    = background;
-    
-    if (button_pixmap.isNull())
-	button_brush = QBrush( button);
-    else
-	button_brush = QBrush(button, button_pixmap);
-    
-    if (light_pixmap.isNull())
-	light_brush = QBrush( light);
-    else
-	light_brush = QBrush(light, light_pixmap);
-    
-    if (mid_pixmap.isNull())
-	mid_brush = QBrush( mid);
-    else
-	mid_brush = QBrush(mid, mid_pixmap);
-    
-    if (base_pixmap.isNull())
-	base_brush = QBrush( base);
-    else
-	base_brush = QBrush(base, base_pixmap);
+    foreground_brush = foreground;
+    button_brush = button;
+    light_brush = light;
+    dark_brush = dark;
+    mid_brush = mid;
+    text_brush = text;
+    bright_text_brush = bright_text;
+    base_brush = base;
+    background_brush = background;
+    midlight_brush = QBrush(button_brush.color().light(115));
 }
 
-QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
-			  const QColor &light, const QColor &dark,
-			  const QColor &mid,
-			  const QColor &text, const QColor &base, const QColor &background)
-{
-    fg_col    = foreground;
-    button_col    = button;
-    light_col = light;
-    dark_col  = dark;
-    mid_col   = mid;
-    text_col  = text;
-    base_col  = base;
-    bg_col    = background;
-    button_brush = QBrush( button);
-    light_brush = QBrush( light);
-    mid_brush = QBrush( mid);
-    base_brush = QBrush( base);
-}
 
 /*!\obsolete
   Constructs a color group with the specified colors. The background
@@ -143,18 +103,16 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
 			  const QColor &mid,
 			  const QColor &text, const QColor &base )
 {
-    fg_col    = foreground;
-    button_col    = button;
-    light_col = light;
-    dark_col  = dark;
-    mid_col   = mid;
-    text_col  = text;
-    base_col  = base;
-    bg_col    = button;
+    foreground_brush    = QBrush(foreground);
+    dark_brush  = QBrush(dark);
+    text_brush  = QBrush(text);
+    bright_text_brush  = text_brush;
+    background_brush    = QBrush(button);
     button_brush = QBrush( button);
     light_brush = QBrush( light);
     mid_brush = QBrush( mid);
     base_brush = QBrush( base);
+    midlight_brush = QBrush(button_brush.color().light(115));
 }
 
 /*!
@@ -229,10 +187,11 @@ QColorGroup::~QColorGroup()
 
 bool QColorGroup::operator==( const QColorGroup &g ) const
 {
-    return fg_col    == g.fg_col    && bg_col	== g.bg_col   &&
-	   light_col == g.light_col && dark_col == g.dark_col &&
-	   mid_col   == g.mid_col   && text_col == g.text_col &&
-	   base_col  == g.base_col;
+    return foreground_brush    == g.foreground_brush    && 
+	background_brush	== g.background_brush   &&
+	light_brush == g.light_brush && dark_brush == g.dark_brush &&
+	mid_brush   == g.mid_brush   && text_brush == g.text_brush &&
+	bright_text_brush == g.bright_text_brush && base_brush  == g.base_brush;
 }
 
 
@@ -308,10 +267,10 @@ QPalette::QPalette( const QColor &button )
 	disfg = darkGray;
     }
     data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, base, bg );
+				  btn.dark(150), fg, white, base, bg );
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, base, bg );
+				  btn.dark(150), disfg, white, base, bg );
 }
 
 /*!
@@ -337,10 +296,10 @@ QPalette::QPalette( const QColor &button, const QColor &background )
 	disfg = darkGray;
     }
     data->normal   = QColorGroup( fg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), fg, base, bg );
+				  btn.dark(150), fg, white, base, bg );
     data->active   = data->normal;
     data->disabled = QColorGroup( disfg, btn, btn.light(150), btn.dark(),
-				  btn.dark(150), disfg, base, bg );
+				  btn.dark(150), disfg, white, base, bg );
 }
 
 /*!
@@ -555,10 +514,11 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
     QColor dark;
     QColor mid;
     QColor text;
+    QColor bright_text;
     QColor base;
     QColor bg;
-    s >> fg >> button >> light >> dark >> mid >> text >> base >> bg;
-    QColorGroup newcg( fg, button, light, dark, mid, text, base, bg );
+    s >> fg >> button >> light >> dark >> mid >> text >> bright_text >> base >> bg;
+    QColorGroup newcg( fg, button, light, dark, mid, text, bright_text, base, bg );
     g = newcg;
     return s;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#85 $
 **
 ** Implementation of QRadioButton class
 **
@@ -379,7 +379,7 @@ void QRadioButton::updateMask()
 	w = width() - x;
 	h = height();
 
-	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1, color0);
+	QColorGroup cg(color1,color1, color1,color1,color1,color1,color1,color1, color0);
 
 	qDrawItem( &p, gs, x, y, w, h,
 		   AlignLeft|AlignVCenter|ShowPrefix,

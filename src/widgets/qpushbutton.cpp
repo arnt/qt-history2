@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#122 $
 **
 ** Implementation of QPushButton class
 **
@@ -278,6 +278,8 @@ void QPushButton::resizeEvent( QResizeEvent *e )
 {
     updateResizedBorder( e, 2 );
     repaint( 2, 2, width()-4, height()-4 );
+    if ( autoMask())
+	updateMask();
 }
 
 /*!
@@ -287,113 +289,14 @@ void QPushButton::resizeEvent( QResizeEvent *e )
 
 void QPushButton::drawButton( QPainter *paint )
 {
-    register QPainter *p = paint;
-    GUIStyle gs   = style();
-    QColorGroup g = colorGroup();
+    style().drawPushButton(this, paint);
+    drawButtonLabel( paint );
     int x1, y1, x2, y2;
-
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-
-    int w = x2 + 1;
-    int h = y2 + 1;
-    int dx = 0;
-    int dy = 0;
-
-    p->setPen( g.foreground() );
-    p->setBrush( QBrush(g.button(),NoBrush) );
-
-    if ( gs == WindowsStyle ) {		// Windows push button
-	bool clearButton = TRUE;
-	if ( isDown() ) {
-	    if ( defButton ) {
-		p->setPen( black );
-		p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-		p->setPen( g.dark() );
-		p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
-	    } else {
-		qDrawWinButton( p, x1, y1, w, h, g, TRUE, &g.fillButton() );
-	    }
-	} else {
-	    if ( defButton ) {
-		p->setPen( black );
-		p->drawRect( x1, y1, w, h );
-		x1++; y1++;
-		x2--; y2--;
-	    }
-	    if ( isToggleButton() && isOn() && isEnabled() ) {
-		QBrush fill(white, Dense4Pattern );
-		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
-		clearButton = FALSE;
-	    } else {
-		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn(), &g.fillButton() );
-	    }
-	}
-	if ( clearButton ) {
-	    if (isDown())
-		p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.fillButton() );
-	    if (isDown())
-		p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
-	}
-	if ( hasMenuArrow ) {
-	    dx = (y2-y1) / 3;
-	    qDrawArrow( p, DownArrow, style(), FALSE,
-			x2 - dx, y1, dx, y2 - y1,
-			g, isEnabled() );
-	}
-    } else if ( gs == MotifStyle ) {		// Motif push button
-	QBrush fill;
-	if ( isDown() )
-	    fill = g.fillMid();
-	else if ( isOn() )
-	    fill = QBrush( g.mid(), Dense4Pattern );
-	else
-	    fill = g.fillButton();	
-
-	if ( defButton ) {
-	    QPointArray a;
-	    a.setPoints( 9,
-			 x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-			 x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-	    p->setPen( black );
-	    p->drawPolyline( a );
-	    x1 += 2;
-	    y1 += 2;
-	    x2 -= 2;
-	    y2 -= 2;
-	}
-	
-	qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() || isDown(),
-			 2, &fill );
-	
-
-	if ( hasMenuArrow ) {
-	    dx = (y1-y2-4)/3;
-	    qDrawArrow( p, DownArrow, style(), FALSE,
-			x2 - dx, dx, y1, y2 - y1,
-			g, isEnabled() );
-	}
-    }
-
-    if ( p->brush().style() != NoBrush )
-	p->setBrush( NoBrush );
-
-    if ( dx || dy )
-	p->translate( dx, dy );
-    drawButtonLabel( p );
-    if ( dx || dy )
-	p->translate( -dx, -dy );
-
-    if ( hasFocus() ) {
-	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5,
-				 g.button() );
-	} else {
-	    p->setPen( black );
-	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
-	}
-    }
-
+     if ( hasFocus() ) {
+ 	QRect r(x1+3, y1+3, x2-x1-5, y2-y1-5);
+ 	style().drawFocusRect( paint, r , colorGroup() );
+     }
     lastDown = isDown();
     lastDef = defButton;
     lastEnabled = isEnabled();
@@ -407,23 +310,23 @@ void QPushButton::drawButton( QPainter *paint )
 
 void QPushButton::drawButtonLabel( QPainter *paint )
 {
-    register QPainter *p = paint;
-
-    QRect r = rect();
-    int x, y, w, h;
-    r.rect( &x, &y, &w, &h );
-    if ( (isDown() || isOn()) && style() == WindowsStyle ) {
-        // shift pixmap/text
-	x++;
-	y++;
-    }
-    x += 2;  y += 2;  w -= 4;  h -= 4;
-    qDrawItem( p, style(), x, y, w, h,
-	       AlignCenter|ShowPrefix,
-	       colorGroup(), isEnabled(),
-	       pixmap(), text() );
+    style().drawPushButtonLabel( this, paint );
 }
 
+
+void QPushButton::updateMask()
+{
+    QBitmap bm( size() );
+    bm.fill( color0 );
+
+    {
+	QPainter p( &bm, this );
+	p.setPen( color1 );
+	p.setBrush( color1 );
+	style().drawButtonMask( &p, 0, 0, width(), height() );
+    }
+    setMask( bm );
+}
 
 /*!
   Handles focus in events for the push button.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#185 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -362,7 +362,7 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 /*!
   \fn int QImage::width() const
   Returns the width of the image.
-  \sa heigth(), size(), rect()
+  \sa height(), size(), rect()
 */
 
 /*!

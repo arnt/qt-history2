@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#65 $
 **
 ** Implementation of QFrame widget class
 **
@@ -592,9 +592,11 @@ void QFrame::updateMask()
 {
     QBitmap bm( size() );
     bm.fill( color0 );
-    
+
     {
 	QPainter p( &bm, this );
+	p.setPen( color1 );
+	p.setBrush( color1 );
 	drawFrameMask( &p );
 	drawContentsMask( &p );
     }
@@ -609,7 +611,7 @@ void QFrame::drawFrameMask( QPainter* p )
     int		type  = fstyle & MShape;
     int		style = fstyle & MShadow;
 
-    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color0);
+    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
 
     switch ( type ) {
 

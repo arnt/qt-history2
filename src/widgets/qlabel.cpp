@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#89 $
 **
 ** Implementation of QLabel widget class
 **
@@ -29,6 +29,8 @@
 #include "qkeycode.h"
 #include "qmovie.h"
 #include <ctype.h>
+#include "qimage.h"
+#include "qbitmap.h"
 
 class QLabelExtra
 {
@@ -514,11 +516,11 @@ void QLabel::drawContents( QPainter *p )
     QMovie *mov = movie();
     if ( mov ) {
 	// ### should add movie to qDrawItem
-	QRect r = qItemRect( p, style(),
-			cr.x(), cr.y(), cr.width(), cr.height(),
-			align, isEnabled(), &(mov->framePixmap()), ltext );
+ 	QRect r = qItemRect( p, style(),
+ 			cr.x(), cr.y(), cr.width(), cr.height(),
+ 			align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
-	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );;
+	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );
 	return;
     }
 
@@ -567,14 +569,16 @@ void QLabel::drawContentsMask( QPainter *p )
 			align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
 	QPixmap pm = mov->framePixmap();
-	if ( FALSE && pm.mask() ) // TODO broken with trolltech.gif
+	if ( pm.mask() ) {
+	    p->setPen( color1);
 	    p->drawPixmap(r.x(), r.y(), *pm.mask() );
+	}
 	else
 	    p->fillRect( r, color1 );
 	return;
     }
 
-    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color0);
+    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
 	       align, g, isEnabled(), lpixmap, ltext );
 }
@@ -677,7 +681,7 @@ void QLabel::movieUpdated(const QRect& rect)
     if ( mov && !mov->isNull() ) {
 	QRect r = contentsRect();
 	r = qItemRect( 0, style(), r.x(), r.y(), r.width(), r.height(),
-		   align, isEnabled(), &(mov->framePixmap()), ltext );
+		       align, isEnabled(), &(mov->framePixmap()), ltext );
 	r.moveBy(rect.x(), rect.y());
 	r.setWidth(QMIN(r.width(), rect.width()));
 	r.setHeight(QMIN(r.height(), rect.height()));

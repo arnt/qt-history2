@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#146 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#147 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -33,6 +33,7 @@
 #include "qtimer.h"
 #include "qapplication.h"
 #include "qlineedit.h"
+#include "qbitmap.h"
 #include <limits.h>
 
 /*!
@@ -906,10 +907,11 @@ void QComboBox::resizeEvent( QResizeEvent *e )
 {
     int xw = QMAX(0,width()-e->oldSize().width());
     if ( d->ed ) {
+	QRect r = style().buttonRect( 0, 0, width(), height() );
 	if ( style() == WindowsStyle ) {
-	    d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
+	    d->ed->setGeometry( r.x()+2, r.y()+2, r.width() - 2 - 2 - 16, r.height() - 2 - 2 );
 	} else {
-	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+	    d->ed->setGeometry( r.x()+3, r.y()+3, r.width() - 3 - 3 - 21, r.height() - 3 - 3 );
 	}
     }
     if ( style() == WindowsStyle ) {
@@ -919,6 +921,8 @@ void QComboBox::resizeEvent( QResizeEvent *e )
 	updateResizedBorder( e, 3 );
 	update( 2, 2, width()-4, height()-4 );
     }
+    if ( autoMask())
+	updateMask();
 }
 
 
@@ -996,7 +1000,8 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	if ( ax + awh + 2 < width() )
 	    ax += ( width() - 2 - ax - awh ) / 2;
 
-	qDrawShadePanel( &p, rect(), g, FALSE, d->ed ? 1 : 2, &fill );
+	//qDrawShadePanel( &p, rect(), g, FALSE, d->ed ? 1 : 2, &fill );
+	style().drawButton( &p, 0, 0, width(), height(), g, FALSE, &fill );
 
 	qDrawArrow( &p, DownArrow, MotifStyle, FALSE,
 		    ax, ay, awh, awh, g );
@@ -1255,6 +1260,21 @@ void QComboBox::popup()
 	d->popup->popup( mapToGlobal( QPoint(0,0) ), d->current );
     }
     d->poppedUp = TRUE;
+}
+
+
+void QComboBox::updateMask()
+{
+    QBitmap bm( size() );
+    bm.fill( color0 );
+
+    {
+	QPainter p( &bm, this );
+	p.setPen( color1 );
+	p.setBrush( color1 );
+	style().drawButtonMask(&p, 0, 0, width(), height() );
+    }
+    setMask( bm );
 }
 
 /*!
