@@ -1442,7 +1442,8 @@ QCString QObject::normalizeSignalSlot( const char *signalSlot )
   If a signal is connected to several slots, the slots are activated
   in arbitrary order when the signal is emitted.
 
-  This function can return FALSE if QObject is unable to verify the
+  The function returns TRUE if it successfully connects the signal to
+  the slot.  It will return FALSE if QObject is unable to verify the
   existence of either \a signal or \a member, or if their signatures
   aren't compatible.
 
@@ -1958,6 +1959,36 @@ void QObject::activate_signal( int signal )
 */
 
 
+#ifdef Q_FP_CCAST_BROKEN
+#define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
+void QObject::FNAME( const char *signal, TYPE param )			      \
+{									      \
+    if ( !connections )							      \
+        return;								      \
+    QConnectionList *clist = connections->find( signal );		      \
+    if ( !clist || signalsBlocked() )					      \
+        return;								      \
+    typedef void (QObject::*RT0)();					      \
+    typedef void (QObject::*RT1)( TYPE );				      \
+    RT0 r0;								      \
+    RT1 r1;								      \
+    QConnectionListIt it(*clist);					      \
+    register QConnection *c;						      \
+    register QObject *object;						      \
+    while ( (c=it.current()) ) {					      \
+        ++it;								      \
+        object = c->object();						      \
+        object->sigSender = this;					      \
+        if ( c->numArgs() ) {						      \
+            r1 = reinterpret_cast<RT1>(*(c->member()));			      \
+            (object->*r1)( param );					      \
+        } else {							      \
+            r0 = reinterpret_cast<RT0>(*(c->member()));			      \
+            (object->*r0)();						      \
+        }								      \
+    }									      \
+}
+#else
 #define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
 void QObject::FNAME( int signal, TYPE param )				      \
 {									      \
@@ -1977,8 +2008,7 @@ void QObject::FNAME( int signal, TYPE param )				      \
 	object = c->object(); 						      \
 	sigSender = this;					      	      \
 	if ( c->numArgs() ) {						      \
-	    QMember m = *(c->member());					      \
-	    r1 = (RT1)m;						      \
+	    r1 = (RT1)*(c->member());					      \
 	    (object->*r1)( param );					      \
 	} else {							      \
 	    r0 = (RT0)*(c->member());					      \
@@ -2001,6 +2031,7 @@ void QObject::FNAME( int signal, TYPE param )				      \
         } 								      \
     } 									      \
 }
+#endif
 
 // We don't want to duplicate too much text so...
 
