@@ -4073,13 +4073,13 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
-	    painter.drawText( startX, lastY + baseLine - ( h - painter.fontMetrics().height() ),
+	    painter.drawText( startX, lastY + baseLine - ( painter.fontMetrics().height() / 2 ),
 			      str, start, len, dir );
 	} else if ( lastFormat->vAlign() == QTextFormat::AlignSubScript ) {
 	    QFont f( painter.font() );
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
 	    painter.setFont( f );
-	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
+	    painter.drawText( startX, lastY + baseLine + painter.fontMetrics().height() / 6, str, start, len, dir );
 	}
     }
     if ( i + 1 < length() && at( i + 1 )->lineStart && at( i )->c.unicode() == 0xad ) {
