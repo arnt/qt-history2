@@ -55,13 +55,11 @@
 
 #include <ctype.h>
 
-// BEING REVISED: hanord
 /*!
   \class QFontDialog qfontdialog.h
   \brief The QFontDialog class provides a dialog widget for selecting a text font.
-  \ingroup dialogs
 
-  This dialog can be used to let the user choose a font with attributes and so on.
+  This dialog can be used to let the user choose a font with attributes, etc.
   Normally you may use the static convenience function getFont().
 
   <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
@@ -304,7 +302,7 @@ QFontDialog::~QFontDialog()
   The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
   the user clicked Cancel.
 
-  If the user clicks Cancel the \a initial font is returned.
+  If the user clicks Cancel, the \a initial font is returned.
 
   This static function is less capable than the full QFontDialog object,
   but is convenient and easy to use.
@@ -338,7 +336,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont &initial,
   The \a ok parameter is set to TRUE if the user clicked OK, and FALSE if
   the user clicked Cancel.
 
-  If the user clicks Cancel the Qt default font is returned.
+  If the user clicks Cancel, the Qt default font is returned.
 
   This static function is less capable than the full QFontDialog object,
   but is convenient and easy to use.
@@ -495,7 +493,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 
 
 
-/*!  Update the contents of the "font family" list box.  This
+/*!  Updates the contents of the "font family" list box.  This
   function can be reimplemented if you have special requirements.
 */
 
@@ -524,7 +522,7 @@ void QFontDialog::updateFamilies()
     d->familyList->insertStringList( newList );
 }
 
-/*!  Update the contents of the "font script" combo box.  This
+/*!  Updates the contents of the "font script" combo box.  This
   function can be reimplemented if you have special requirements.
 */
 
@@ -546,7 +544,7 @@ void QFontDialog::updateScripts()
 	d->scriptCombo->insertItem( d->fdb.verboseCharSetName(*it) );
 }
 
-/*!  Update the contents of the "font style" list box.  This
+/*!  Updates the contents of the "font style" list box.  This
   function can be reimplemented if you have special requirements.
 */
 
@@ -566,7 +564,7 @@ void QFontDialog::updateStyles()
     d->styleList->insertStringList( styles );
 }
 
-/*!  Update the contents of the "font size" list box.  This
+/*!  Updates the contents of the "font size" list box.  This
   function can be reimplemented if you have special requirements.
 */
 
@@ -773,13 +771,13 @@ void QFontDialog::emitSelectedFont()
 /*!
   \fn void QFontDialog::fontSelected( const QFont & )
 
-  This signal is emitted, when the user has chosen a font and clicked ok.
+  This signal is emitted when the user has chosen a font and clicked ok.
 */
 
 /*!
   \fn void QFontDialog::fontHighlighted( const QFont & )
 
-  This signal is emitted, when the user changed a setting in the dialog.
+  This signal is emitted when the user changed a setting in the dialog.
 */
 
 #endif

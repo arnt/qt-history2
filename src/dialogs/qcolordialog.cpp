@@ -529,7 +529,7 @@ QRgb QColorDialog::customColor( int i )
     if ( i < 0 || i >= customCount() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QColorDialog::customColor() index %d out of range", i );
-#endif	
+#endif
 	i = 0;
     }
     return cusrgb[i];
@@ -544,7 +544,7 @@ void QColorDialog::setCustomColor( int i, QRgb c )
     if ( i < 0 || i >= customCount() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QColorDialog::customColor() index %d out of range", i );
-#endif	
+#endif
 	return;
     }
     cusrgb[i] = c;
@@ -1465,15 +1465,15 @@ void QColorDialogPrivate::addCustom()
   for instance, you might use this in a drawing program to allow the
   user to set the brush color.
 
-  This version of Qt only provides modal color dialogs. The static
+  This version of Qt provides only modal color dialogs. The static
   getColor() function shows the dialog and allows the user to specify a color,
-  while getRgba() does the same but allows the user to specify a color with an
+  whereas getRgba() does the same but allows the user to specify a color with an
   alpha channel (transparency) value.
 
   The user can store customCount() different custom colors. The custom
   colors are shared by all color dialogs, and remembered during the
   execution of the program. Use setCustomColor() to set the
-  custom colors, and customColor() to get them.
+  custom colors, and use customColor() to get them.
 
   <img src=qcolordlg-m.png> <img src=qcolordlg-w.png>
 */
@@ -1493,10 +1493,10 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 
 
 /*!
-  Pops up a modal color dialog letting the user choose a color and returns
-  that color. The color is initially set to \a initial. Returns an  \link QColor::isValid() invalid\endlink color if the user cancels
-  the dialog. All colors allocated by the dialog will be deallocated
-  before this function returns.
+  Pops up a modal color dialog, lets the user choose a color, and returns
+  that color. The color is initially set to \a initial. Returns an invalid
+  (see QColor::isValid()) color if the user cancels the dialog. All colors
+  allocated by the dialog will be deallocated before this function returns.
 */
 
 QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
@@ -1529,7 +1529,7 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
   If \a ok is non-null, \c *ok is set to TRUE if the user clicked OK,
   and FALSE if the user clicked Cancel.
 
-  If the user clicks Cancel the \a initial value is returned.
+  If the user clicks Cancel, the \a initial value is returned.
 */
 
 QRgb QColorDialog::getRgba( QRgb initial, bool *ok,

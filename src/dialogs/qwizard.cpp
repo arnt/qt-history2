@@ -59,7 +59,7 @@
 
   A wizard is a dialog that consists of a sequential number of steps,
   each consisting of a single page.  QWizard provides a title for each
-  page, and "Next", "Back", "Finish", "Cancel" and "Help" buttons, as
+  page and includes the Next, Back, Finish, Cancel, and Help buttons, as
   appropriate.
 
 */
@@ -257,8 +257,8 @@ int QWizard::pageCount() const
 
 
 /*!
-  Called when the user clicks the Back button, this function shows
-  the page which the user saw prior to the current one.
+  Called when the user clicks the Back button; this function shows
+  the page that the user saw prior to the current one.
 */
 void QWizard::back()
 {
@@ -293,10 +293,10 @@ void QWizard::next()
 
 /*!
   \fn void QWizard::helpClicked()
-  This signal is emitted when the user clicks on the help button.
+  This signal is emitted when the user clicks on the Help button.
 */
 
-/*!  This slot either makes the wizard help you, if it can.  The only
+/*!  This slot makes the wizard help you if it can.  The only
 way it knows is to emit the helpClicked() signal.
 */
 
@@ -340,8 +340,8 @@ void QWizard::setHelpEnabled( bool enable )
 */
 
 /*!
-  Enables or disables the "Back" button for pages \a w in the wizard.
-  By default, all pages have this button.
+  Enables or disables the Back button for pages \a w in the wizard.
+  By default all pages have this button.
 */
 void QWizard::setBackEnabled( QWidget * w, bool enable )
 {
@@ -355,8 +355,8 @@ void QWizard::setBackEnabled( QWidget * w, bool enable )
 
 
 /*!
-  Enables or disables the "Next" button for pages \a w in the wizard.
-  By default, all pages have this button.
+  Enables or disables the Next button for pages \a w in the wizard.
+  By default all pages have this button.
 */
 void QWizard::setNextEnabled( QWidget * w, bool enable )
 {
@@ -370,8 +370,8 @@ void QWizard::setNextEnabled( QWidget * w, bool enable )
 
 
 /*!
-  Enables or disables the "Finish" button for pages \a w in the wizard.
-  By default, \e no pages have this button.
+  Enables or disables the Finish button for pages \a w in the wizard.
+  By default \e no pages have this button.
 */
 void QWizard::setFinishEnabled( QWidget * w, bool enable )
 {
@@ -385,8 +385,8 @@ void QWizard::setFinishEnabled( QWidget * w, bool enable )
 
 
 /*!
-  Enables or disables the "Help" button for pages \a w in the wizard.
-  By default, all pages have this button.
+  Enables or disables the Help button for pages \a w in the wizard.
+  By default all pages have this button.
 */
 void QWizard::setHelpEnabled( QWidget * w, bool enable )
 {
@@ -406,7 +406,7 @@ should go on.
 It is called when the Next button is clicked.
 
 \warning The last page of a wizard will be displayed if nothing else wants
-to, and the Next button was enabled when the user clicked.
+to, and if the Next button was enabled when the user clicked.
 
 The default implementation returns whatever was set using
 setAppropriate().  The ultimate default is TRUE.
@@ -452,8 +452,8 @@ void QWizard::updateButtons()
 
 
 /*!  Returns a pointer to the page currently being displayed by the
-wizard.  The wizard does its best to make sure that this value is
-never 0, but if you try hard enough it can be.
+wizard.  Although the wizard does its best to make sure that this value is
+never 0, it can be if you try hard enough.
 */
 
 QWidget * QWizard::currentPage() const
@@ -623,8 +623,8 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 
 /*!  This virtual function is responsible for laying out the title row
 and adding the vertical divider between the title and the wizard page.
-\a layout is the vertical layout for the wizard, \a title is the title
-for this page, and this function is called every time \a title
+\a layout is the vertical layout for the wizard, and \a title is the title
+for this page. This function is called every time \a title
 changes.
 */
 
