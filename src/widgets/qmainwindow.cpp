@@ -1227,7 +1227,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 {
     d = new QMainWindowPrivate;
     d->hideDock = new HideDock( this, d );
-    d->opaque = FALSE;
+    d->opaque = TRUE;
 }
 
 
@@ -2388,14 +2388,16 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	}
 	
 	// create the painter for our rects
-	uint flags = getWFlags();
-	setWFlags( WPaintUnclipped );
-	d->rectPainter = new QPainter;
-	setWFlags( flags );
-	d->rectPainter->begin( this );
-	d->rectPainter->setPen( QPen( color0, 2 ) );
-	d->rectPainter->setRasterOp( NotROP );
-
+	if ( !d->opaque ) {
+	    uint flags = getWFlags();
+	    setWFlags( WPaintUnclipped );
+	    d->rectPainter = new QPainter;
+	    setWFlags( flags );
+	    d->rectPainter->begin( this );
+	    d->rectPainter->setPen( QPen( color0, 2 ) );
+	    d->rectPainter->setRasterOp( NotROP );
+	}
+	
 	// init some stuff
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
@@ -2418,13 +2420,16 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    return;
 	}
 	// delete the rect painter
-	if ( d->rectPainter ) {
+	if ( d->rectPainter && !d->opaque ) {
 	    if ( d->oldPosRectValid )
 		d->rectPainter->drawRect( d->oldPosRect );
 	    d->rectPainter->end();
 	}
-	delete d->rectPainter;
-	d->rectPainter = 0;
+	
+	if ( !d->opaque ) {
+	    delete d->rectPainter;
+	    d->rectPainter = 0;
+	}
 	
 	// allow repaints in central widget again
 	if ( d->mc ) {
@@ -2492,17 +2497,19 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	if ( !d->oldPosRectValid || d->oldPosRect != r )
 	    d->rectPainter->drawRect( r );
     } else if ( d->opaque ) {
-	if ( dock == Unmanaged )
+	if ( dock == Unmanaged ) {
 	    dock = d->origDock;
-	int ipos;
-	QToolBar *relative;
-	QRect r, r2;
-	findDockArea( pos, r, t, &r2 );
-	if ( dock != d->origDock ) {
-	    saveToolLayout( d, d->origDock, t );
+	} else {
+	    int ipos;
+	    QToolBar *relative;
+	    QRect r, r2;
+	    findDockArea( pos, r, t, &r2 );
+	    if ( dock != d->origDock ) {
+		saveToolLayout( d, d->origDock, t );
+	    }S
+	    findNewToolbarPlace( d, t, dock, r2, relative, ipos );
+	    moveToolBar( t, dock, relative, ipos );
 	}
-	findNewToolbarPlace( d, t, dock, r2, relative, ipos );
-	moveToolBar( t, dock, relative, ipos );
     }
     d->oldPosRect = r;
     d->oldPosRectValid = TRUE;
