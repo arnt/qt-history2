@@ -10,13 +10,14 @@
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/#ifdef QT_COMPAT
-#include "qmenudata.h"
+****************************************************************************/#include "qmenudata.h"
 
+#ifdef QT_COMPAT
+#include <qaction.h>
 #include <private/qaction_p.h>
 #define d d_func()
 
-QMenuItem::QMenuItem() : QAction(0)
+QMenuItem::QMenuItem() : QAction((QWidget*)0)
 {
 }
  
