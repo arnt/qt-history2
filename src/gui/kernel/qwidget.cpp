@@ -6139,11 +6139,12 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         else
             data->widget_attributes &= ~(1<<attribute);
     } else {
-        int x = attribute - 8*sizeof(uint);
+        const int x = attribute - 8*sizeof(uint);
+        const int int_off = x / (8*sizeof(uint));
         if (on)
-            d->high_attributes[x / (8*sizeof(uint))] |= (1<<x);
+            d->high_attributes[int_off] |= (1<<(x-(int_off*8*sizeof(uint))));
         else
-            d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
+            d->high_attributes[int_off] &= ~(1<<(x-(int_off*8*sizeof(uint))));
     }
     switch (attribute) {
     case Qt::WA_NoChildEventsForParent:
@@ -6181,8 +6182,9 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
 bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
 {
     Q_D(const QWidget);
-    int x = attribute - 8*sizeof(uint);
-    return (d->high_attributes[x / (8*sizeof(uint))] & (1<<x));
+    const int x = attribute - 8*sizeof(uint);
+    const int int_off = x / (8*sizeof(uint));
+    return (d->high_attributes[int_off] & (1<<(x-(int_off*8*sizeof(uint)))));
 }
 
 /*!
