@@ -212,7 +212,7 @@ QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString 
 
 /*!  Removes the database connection \a name from the SQL connection manager.
   Note that there should be no open queries on the database connection when this
-  method is called, otherwise a resource leak will occur.
+  function is called, otherwise a resource leak will occur.
 
 */
 
@@ -244,13 +244,13 @@ public:
     \class QSqlDatabase qsqldatabase.h
     \brief Class used to create SQL database connections and provide transaction handling
 
-    \module database
+    \module sql
 
     This class is used to create connections to SQL databases. It also
     provides transaction handling functions for those database drivers
     that support transactions. The QSqlDatabase class
     itself provides an abstract interface for accessing many types of
-    database backend.
+    database backends.
 
      Database-specific drivers are used internally to actually access
      and manipulate data, (see QSqlDriver). Result set objects provide
@@ -260,11 +260,15 @@ public:
 */
 
 /*!  Adds a database to the list of database connections.  The
-  database connection is referred to by \a name.  A pointer to the newly added
-  database connection is returned.  This pointer is owned by QSqlDatabase and
-  will be deleted on program exit or when removeDatabase() is called.
+  database connection is referred to by \name.  A pointer to the newly
+  added database connection is returned.  This pointer is owned by
+  QSqlDatabase and will be deleted on program exit or when
+  removeDatabase() is called.  If \a name is not specified, the newly
+  added database connection becomes the default database connection
+  for the application, and subsequent calls to database() (without a
+  database name parameter) will return a pointer to it.
 
-  \sa removeDatabase()
+  \sa database() removeDatabase()
 
 */
 QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name )
@@ -288,7 +292,7 @@ QSqlDatabase* QSqlDatabase::database( const QString& name, bool open )
 
 /*!  Removes the database connection \a name from the list of database
   connections.  Note that there should be no open queries on the
-  database connection when this method is called, otherwise a resource leak will
+  database connection when this function is called, otherwise a resource leak will
   occur.
 
 */
@@ -445,7 +449,7 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
 
 /*! Opens the database connection using the current connection values.  Returns
     TRUE on success, and FALSE if there was an error.  Error
-    information can be retrieved using the lastError() method.
+    information can be retrieved using lastError().
 
     \sa lastError()
 */
@@ -460,7 +464,7 @@ bool QSqlDatabase::open()
 
 /*! Opens the database connection using \a user name and \a password.  Returns
  TRUE on success, and FALSE if there was an error.  Error information
- can be retrieved using the lastError() method.
+ can be retrieved using lastError().
 
     \sa lastError()
 */
@@ -493,7 +497,7 @@ bool QSqlDatabase::isOpen() const
 
 /*! Return TRUE if there was an error opening the database connection,
     otherwise returns FALSE. Error information can be retrieved
-    using the lastError() method.
+    using lastError().
 
 */
 
@@ -680,7 +684,7 @@ QSqlRecord QSqlDatabase::record( const QString& tablename ) const
 /*!
   Returns a QSqlRecord populated with the names of all the fields used
   in the SQL \a query. If the query is a "SELECT *" the order in which
-  fields are returned is undefined. 
+  fields are returned is undefined.
 
 */
 
