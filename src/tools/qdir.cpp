@@ -384,14 +384,15 @@ QString QDir::absFilePath( const QString &fileName,
     QString tmp = absPath();
 #ifdef Q_OS_WIN32
     if ( fileName[0].isLetter() && fileName[1] == ':' ) {
-	if ( _getdrive() != (fileName[0].latin1() - 'A' + 1) ) {
+	int drv = fileName.upper()[0].latin1() - 'A' + 1;
+	if ( _getdrive() != drv ) {
 	    if ( qt_winunicode ) {
 		TCHAR buf[PATH_MAX];
-		::_tgetdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
-		tmp = QString().setUnicodeCodes( (ushort*)buf, ::wcslen(buf) );
+		::_tgetdcwd( drv, buf, PATH_MAX );
+		tmp = QString().setUnicodeCodes( buf, ::wcslen(buf) );
 	    } else {
 		char buf[PATH_MAX];
-		::_getdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
+		::_getdcwd( drv, buf, PATH_MAX );
 		tmp = buf;
 	    }
 	    if ( !tmp.endsWith("\\") )
