@@ -177,7 +177,7 @@ void QSqlForm::remove( const QString& field )
     int i = d->fld.indexOf( field );
     if (i >= 0)
 	d->fld.removeAt(i);
-    d->wgt.erase( field );
+    d->wgt.remove( field );
 }
 
 /*!
@@ -199,7 +199,7 @@ void QSqlForm::insert( QWidget * widget, QSqlField * field )
 
 void QSqlForm::remove( QWidget * widget )
 {
-    d->map.erase( widget );
+    d->map.remove( widget );
 }
 
 /*!

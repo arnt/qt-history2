@@ -241,7 +241,7 @@ public:
 
     void remove( QTab * tab )
     {
-	tabTips.erase( tab );
+	tabTips.remove( tab );
     }
 
     QString tipForTab( QTab * tab ) const

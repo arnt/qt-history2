@@ -180,9 +180,7 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
 
     inline int size() const { return d->size; }
-#ifdef QT_COMPAT
-    inline QT_COMPAT int count() const { return d->size; }
-#endif
+    inline int count() const { return d->size; }
     inline bool isEmpty() const { return !d->size; }
     int count(const Key &key) const;
 
@@ -195,10 +193,9 @@ public:
 #endif
     Iterator insertMulti(const Key &key, const T &value);
 
-    int erase(const Key &key);
     Iterator erase(Iterator it);
+    inline int remove(const Key &key);
 #ifdef QT_COMPAT
-    inline QT_COMPAT int remove(const Key &key) { return erase(key); }
     inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
 #endif
 
@@ -421,7 +418,7 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *d)
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::erase(const Key &key)
+Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
 {
     detach();
 
@@ -436,12 +433,16 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::erase(const Key &key)
 	update[i] = cur;
     }
 
-    while (next != e && !(key < concrete(next)->key)) {
-	cur = next;
-        next = cur->forward[0];
-	concrete(cur)->key.~Key();
-	concrete(cur)->value.~T();
-	d->node_delete(update, offset(), cur);
+    if (next != e && !(key < concrete(next)->key)) {
+	bool deleteNext = true;
+	do {
+	    cur = next;
+	    next = cur->forward[0];
+	    deleteNext = (next != e && !(concrete(cur)->key < concrete(next)->key));
+	    concrete(cur)->key.~Key();
+	    concrete(cur)->value.~T();
+	    d->node_delete(update, offset(), cur);
+	} while (deleteNext);
     }
     return oldSize - d->size;
 }
@@ -451,7 +452,7 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::erase(Iterator i
 {
     Iterator n = it;
     ++n;
-    erase(it.key()); // ### wrong implementation
+    remove(it.key()); // ### wrong implementation
     return n;
 }
 
@@ -499,7 +500,7 @@ QMap<Key, T>::mutableFindNode(QMapData::Node *update[], const Key &key)
 	    cur = next;
 	update[i] = cur;
     }
-    if (next != e && key == concrete(next)->key) {
+    if (next != e && !(key < concrete(next)->key)) {
 	return next;
     } else {
 	return e;

@@ -733,7 +733,7 @@ void QColor::destroyAllocContext( int context )
 		    freeing[d.pix] = TRUE;
 		}
 		// remove from dict
-		screendata[screen]->colorHash.erase(rgbv);
+		screendata[screen]->colorHash.remove(rgbv);
 	    }
 	}
 	if ( i )

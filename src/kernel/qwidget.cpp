@@ -881,7 +881,7 @@ void QWidget::setWinId( WId id )		// set widget identifier
     if ( !mapper )				// mapper destroyed
 	return;
     if ( winid )
-	mapper->erase( winid );
+	mapper->remove( winid );
 
     winid = id;
 #if defined(Q_WS_X11)
@@ -3682,7 +3682,7 @@ void QWidget::hide_helper()
 
     if (wasVisible) {
 	clearWState( WState_Visible );
-	
+
 	// next bit tries to move the focus if the focus widget is now
 	// hidden.
 	if (qApp) {

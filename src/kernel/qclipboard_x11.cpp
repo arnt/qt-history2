@@ -296,7 +296,7 @@ QClipboardINCRTransaction::~QClipboardINCRTransaction(void)
 
     XSelectInput(QX11Info::appDisplay(), window, NoEventMask);
 
-    transactions->erase(window);
+    transactions->remove(window);
     if (transactions->isEmpty()) {
 	VDEBUG("QClipboard: no more INCR transactions");
 	delete transactions;

@@ -2703,7 +2703,7 @@ void qPRCleanup( QWidget *widget )
 	int key = it.key();
 	if ( w == etw ) {                       // found widget
 	    etw->clearWState( Qt::WState_Reparented ); // clear flag
-	    wPRmapper->erase( key );// old window no longer needed
+	    wPRmapper->remove( key );// old window no longer needed
 	    if ( wPRmapper->size() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
 		wPRmapper = 0;

@@ -283,9 +283,7 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
 
     inline int size() const { return d->size; }
-#ifdef QT_COMPAT
-    inline QT_COMPAT int count() const { return d->size; }
-#endif
+    inline int count() const { return d->size; }
     inline bool isEmpty() const { return !d->size; }
     int count(const Key &key) const;
 
@@ -295,10 +293,9 @@ public:
     Iterator insert(const Key &key, const T &value);
     Iterator insertMulti(const Key &key, const T &value);
 
-    int erase(const Key &key);
+    int remove(const Key &key);
     Iterator erase(Iterator it);
 #ifdef QT_COMPAT
-    inline QT_COMPAT int remove(const Key &key) { return erase(key); }
     inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
 #endif
 
@@ -528,7 +525,7 @@ Q_INLINE_TEMPLATE typename QHash<Key, T>::Iterator QHash<Key, T>::insertMulti(co
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::erase(const Key &key)
+Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::remove(const Key &key)
 {
     detach();
 

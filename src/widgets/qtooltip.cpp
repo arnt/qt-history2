@@ -1232,7 +1232,7 @@ void QToolTip::setWakeUpDelay ( int i )
 // Dummy implementations to compile on windows..
 void Q4ToolTip::showText(int, int, const QString &s, QWidget *w)
 {
-    qDebug() << "Q4ToolTip::showText" << s << "for" << w;
+//    qDebug() << "Q4ToolTip::showText" << s << "for" << w;
 }
 
 

@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include "qbuffer.h"
-#include <stdlib.h>
 
 /* The two macros below are to conserve the QBuffer semantics. The old
  * bytearray had explicit sharing making it easy to write to it. Since
