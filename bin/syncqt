@@ -53,6 +53,7 @@ $includedir =~ s=\\=/=g;
 # Params:  -none-
 #
 # Purpose: Show the usage of the script.
+# Returns: -none-
 ######################################################################
 sub showUsage
 {
@@ -71,9 +72,9 @@ sub showUsage
 # Syntax:  checkUnix()
 # Params:  -none-
 #
-# Purpose: Check if script runs on a Unix system or not, and sets the
-#          global variable $isunix to the result. Cygwin systems are
-#          _not_ ounted as Unix systems.
+# Purpose: Check if script runs on a Unix system or not. Cygwin
+#          systems are _not_ detected as Unix systems.
+# Returns: 1 if a unix system, else 0.
 ######################################################################
 sub checkUnix {
     my ($r) = 0;
@@ -97,7 +98,9 @@ sub checkUnix {
 # Syntax:  shouldMasterInclude(iheader)
 # Params:  iheader, string, filename to verify inclusion
 #
-# Purpose: Determines if header should be in the master include file
+# Purpose: Determines if header should be in the master include file.
+# Returns: 0 if file contains "#pragma qt_no_master_include" or not
+#          able to open, else 1.
 ######################################################################
 sub shouldMasterInclude {
     my ($iheader) = @_;
@@ -120,7 +123,8 @@ sub shouldMasterInclude {
 # Params:  iheader, string, filename to parse for classname "symlinks"
 #
 # Purpose: Scans through iheader to find all classnames that should be
-#          synced into library's include structure
+#          synced into library's include structure.
+# Returns: List of all class names in a file.
 ######################################################################
 sub classNames {
     my @ret;
@@ -222,6 +226,7 @@ sub classNames {
 #          copy, forces header to be a copy of iheader
 #
 # Purpose: Syncronizes header to iheader
+# Returns: 1 if successful, else 0.
 ######################################################################
 sub syncHeader {
     my ($header, $iheader, $copy) = @_;
@@ -251,7 +256,8 @@ sub syncHeader {
 # Params:  file1, string, filepath to be made relative to POO
 #          file2, string, filepath for point of origin (POO)
 #
-# Purpose: file1 is made relative (if possible) of file2 and returned
+# Purpose: file1 is made relative (if possible) of file2.
+# Returns: String with the above applied conversion.
 ######################################################################
 sub fixPaths {
     my ($file1, $file2) = @_;
@@ -303,9 +309,10 @@ sub fixPaths {
 # Syntax:  fileContents(filename)
 # Params:  filename, string, filename of file to return contents
 #
-# Purpose: Returns the contents of a file as a string.
-#          Returns empty string if file doens't exist, and dies if it
-#          does exist but we cannot get read access.
+# Purpose: Get the contents of a file.
+# Returns: String with contents of the file, or empty string if file
+#          doens't exist.
+# Warning: Dies if it does exist but script cannot get read access.
 ######################################################################
 sub fileContents {
     my ($filename) = @_;
@@ -326,8 +333,8 @@ sub fileContents {
 #          file2, string, filename of second file
 #
 # Purpose: Determines if files are equal, and which one is newer.
-#          Returns 0 if files are equal no matter the timestamp, -1
-#          if file1 is newer, 1 if file2 is newer.
+# Returns: 0 if files are equal no matter the timestamp, -1 if file1
+#          is newer, 1 if file2 is newer.
 ######################################################################
 sub fileCompare {
     my ($file1, $file2) = @_;
@@ -338,13 +345,15 @@ sub fileCompare {
     return $file1contents ne $file2contents ? (stat("$file2"))[9] <=> (stat("$file1"))[9] : 0;
 }
 
-
 ######################################################################
 # Syntax:  copyFile(file, ifile)
 # Params:  file, string, filename to create duplicate for
 #          ifile, string, destination name of duplicate
 #
-# Purpose: Keeps files in sync so changes in either will be written to the other
+# Purpose: Keeps files in sync so changes in the newer file will be
+#          written to the other.
+# Returns: 1 if files were synced, else 0.
+# Warning: Dies if script cannot get write access.
 ######################################################################
 sub copyFile
 {
@@ -376,6 +385,7 @@ sub copyFile
 	    binmode O;
 	    print O $ifilecontents;
 	    close O;
+	    return 1;
 	} elsif ( $copy < 0 ) {
 	    my $ifile_dir = dirname($ifile);
 	    mkpath $ifile_dir, 0777 unless(-e "$ifile_dir");
@@ -384,9 +394,10 @@ sub copyFile
 	    binmode O;
 	    print O $filecontents;
 	    close O;
+	    return 1;
 	}
     }
-    return 1;
+    return 0;
 }
 
 ######################################################################
@@ -395,11 +406,12 @@ sub copyFile
 #          ifile, string, destination name of symlink
 #
 # Purpose: File is symlinked to ifile (or copied if filesystem doesn't
-#          support symlink)
+#          support symlink).
+# Returns: 1 on success, else 0.
 ######################################################################
 sub symlinkFile
 {
-    my ($file,$ifile, $copy,$knowdiff,$filecontents,$ifilecontents) = @_;
+    my ($file,$ifile) = @_;
 
     if ($isunix) {
         print "symlink created for $file ";
@@ -413,10 +425,9 @@ sub symlinkFile
             print " ($file)\n";
         }
         print "\n";
-        symlink($file, $ifile);
-    } else {
-	copyFile($file, $ifile);
+        return symlink($file, $ifile);
     }
+    return copyFile($file, $ifile);
 }
 
 ######################################################################
@@ -427,6 +438,7 @@ sub symlinkFile
 #                            1 = recurse search into subdirectories
 #
 # Purpose: Finds files matching a regular expression.
+# Returns: List of matching files.
 #
 # Examples:
 #   findFiles("/usr","\.cpp$",1)  - finds .cpp files in /usr and below
