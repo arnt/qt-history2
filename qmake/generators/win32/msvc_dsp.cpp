@@ -433,6 +433,19 @@ DspMakefileGenerator::init()
         project->variables()["MSVCDSP_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
 
+    // start temp fix
+    if (!project->variables()["VERSION"].isEmpty()) {
+        QStringList l = project->first("VERSION").split('.');
+        project->variables()["VER_MAJ"].append(l[0]);
+        project->variables()["VER_MIN"].append(l[1]);
+    }
+
+    // TARGET_VERSION_EXT will be used to add a version number onto the target name
+    if (project->variables()["TARGET_VERSION_EXT"].isEmpty()
+        && !project->variables()["VER_MAJ"].isEmpty())
+        project->variables()["TARGET_VERSION_EXT"].append(project->variables()["VER_MAJ"].first());
+    // end temp fix
+
     if(project->isActiveConfig("qt")) {
         if(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
         } else {
@@ -479,7 +492,7 @@ DspMakefileGenerator::init()
     if(project->variables()["TARGET"].count())
         msvcdsp_project = project->variables()["TARGET"].first();
 
-    project->variables()["TARGET"].first() += project->first("TARGET_EXT");
+   // project->variables()["TARGET"].first() += project->first("TARGET_EXT");
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     processFileTagsVar();
@@ -599,11 +612,13 @@ DspMakefileGenerator::init()
     if(!project->variables()["QMAKE_POST_LINK"].isEmpty())
         postLinkStep += var("QMAKE_POST_LINK");
 
+    // dont destroy the target, it is used by prl writer.
     if(!project->variables()["DESTDIR"].isEmpty()) {
-        project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
-        Option::fixPathToTargetOS(project->first("TARGET"));
-        dest = project->first("TARGET");
-        if(project->first("TARGET").startsWith("$(QTDIR)"))
+        dest = project->variables()["TARGET"].first() + project->first("TARGET_EXT");
+        dest.prepend(project->first("DESTDIR"));
+        Option::fixPathToTargetOS(dest);
+        dest;
+        if(dest.startsWith("$(QTDIR)"))
             dest.replace("$(QTDIR)", qgetenv("QTDIR"));
         project->variables()["MSVCDSP_TARGET"].append(
             QString("/out:\"") + dest + "\"");
