@@ -88,8 +88,10 @@ static int my_res_init()
 	return (*ptrRes_init)();
     else
 	return -1;
-#else
+#elif Q_OS_UNIX
     return res_init();
+#else
+    return 0; // not called at all on Windows.
 #endif
 }
 
