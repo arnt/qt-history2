@@ -102,6 +102,18 @@ void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray
     // don't close on purpose
 }
 
+static QByteArray joinParameterNames(const QList<QByteArray> &parameterNames)
+{
+    QByteArray slotParameters;
+    for (int p = 0; p < parameterNames.count(); ++p) {
+        slotParameters += parameterNames.at(p);
+        if (p < parameterNames.count() - 1)
+            slotParameters += ',';
+    }
+
+    return slotParameters;
+}
+
 void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaObject *mo, const QByteArray &className, const QByteArray &nameSpace, ObjectCategory category)
 {
     QList<QByteArray> functions;
@@ -215,7 +227,8 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         QByteArray slotSignature(slot.signature());
         if (functions.contains(slotSignature.left(slotSignature.indexOf('('))))
             continue;
-        QByteArray slotParameters(slot.parameters());
+
+        QByteArray slotParameters(joinParameterNames(slot.parameterNames()));
         QByteArray slotTag(slot.tag());
         QByteArray slotType(slot.typeName());
 
@@ -356,7 +369,7 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
                 continue;
             out << "       ";
             addString(signal.signature());
-            addString(signal.parameters());
+            addString(joinParameterNames(signal.parameterNames()));
             addString(signal.typeName());
             addString(signal.tag());
             out << (AccessProtected | signal.attributes() | MemberSignal) << "," << endl;
@@ -372,7 +385,7 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
                 continue;
             out << "       ";
             addString(slot.signature());
-            addString(slot.parameters());
+            addString(joinParameterNames(slot.parameterNames()));
             addString(slot.typeName());
             addString(slot.tag());
             out << (0x01 | slot.attributes() | MemberSlot) << "," << endl;
