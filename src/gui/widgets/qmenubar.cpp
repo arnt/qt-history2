@@ -977,7 +977,8 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
         } else {         // Got other key, no need to wait for Alt release
             d->altPressed = false;
         }
-        d->setCurrentAction(0);
+        if (!d->popupState)
+            d->setCurrentAction(0);
         return false;
     }
 #endif
