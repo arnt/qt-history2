@@ -5441,6 +5441,7 @@ QTableHeader::QTableHeader( int i, QTable *t,
     : QHeader( i, parent, name ), startPos(-1),
       table( t ), caching( FALSE ), numStretches( 0 )
 {
+    setIsATableHeader( TRUE );
     d = 0;
     states.resize( i );
     stretchable.resize( i );

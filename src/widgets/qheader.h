@@ -53,6 +53,7 @@ class QTable;
 class Q_EXPORT QHeader : public QWidget
 {
     friend class QTable;
+    friend class QTableHeader;
 
     Q_OBJECT
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
@@ -166,6 +167,7 @@ private:
 					 const QString& s );
 
     void resizeArrays( int size );
+    void setIsATableHeader( bool b );
     int		offs;
     int		handleIdx;
     int		oldHIdxSize;

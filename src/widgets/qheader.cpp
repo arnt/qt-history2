@@ -86,6 +86,7 @@ public:
 	lastPos = 0;
 	fullSize = -2;
 	pos_dirty = FALSE;
+	is_a_table_header = FALSE;
     }
 
 
@@ -103,6 +104,7 @@ public:
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
     uint pos_dirty : 1;
+    uint is_a_table_header : 1;
     bool sortDirection;
     bool positionsDirty;
     int sortColumn;
@@ -996,10 +998,10 @@ int QHeader::addLabel( const QString &s, int size )
 	d->resize.resize( n );
     }
     int section = d->count - 1;
-    if ( !s.isNull() )
+    if ( !d->is_a_table_header || !s.isNull() )
 	d->labels.insert( section, new QString( s ) );
 
-    if ( size >= 0 && s.isNull() ) {
+    if ( size >= 0 && s.isNull() && d->is_a_table_header ) {
 	d->sizes[section] = size;
     } else {
 	d->sizes[section] = -1;
@@ -1032,6 +1034,11 @@ void QHeader::resizeArrays( int size )
     d->s2i.resize( size );
     d->clicks.resize( size );
     d->resize.resize( size );
+}
+
+void QHeader::setIsATableHeader( bool b )
+{
+    d->is_a_table_header = b;
 }
 
 /*! \reimp */
