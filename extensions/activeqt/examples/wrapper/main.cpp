@@ -56,17 +56,17 @@ public:
 	list << "QToolButton";
 	return list;
     }
-    QWidget *create( const QString &key, QWidget *parent, const char *name )
+    QObject *createObject(const QString &key)
     {
 	if ( key == "QCheckBox" )
-	    return new QCheckBox( parent, name );
+	    return new QCheckBox(0);
 	if ( key == "QRadioButton" )
-	    return new QRadioButton( parent, name );
+	    return new QRadioButton(0);
 	if ( key == "QPushButton" )
-	    return new QPushButton( parent );
+	    return new QPushButton(0 );
 	if ( key == "QToolButton" ) {
-	    QToolButton *tb = new QToolButton( parent, name );
-	    tb->setPixmap( QPixmap(fileopen) );
+	    QToolButton *tb = new QToolButton(0);
+	    tb->setIcon( QPixmap(fileopen) );
 	    return tb;
 	}
 
