@@ -36,6 +36,7 @@
 #include "pixmapcollection.h"
 #include "hierarchyview.h"
 #include <stdlib.h>
+#include <qmetaobject.h>
 
 DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
     : mainWindow( mw )
@@ -736,8 +737,9 @@ void DesignerFormWindowImpl::addFunction( const QCString &function, const QStrin
 
 void DesignerFormWindowImpl::setProperty( QObject *o, const char *property, const QVariant &value )
 {
-    QVariant v = o->property( property );
-    if ( v.isValid() )
+    int id = o->metaObject()->findProperty( property, TRUE );
+    const QMetaProperty* p = o->metaObject()->property( id, TRUE );
+    if ( p && p->isValid() )
 	o->setProperty( property, value );
     else
 	MetaDataBase::setFakeProperty( o, property, value );
@@ -745,9 +747,10 @@ void DesignerFormWindowImpl::setProperty( QObject *o, const char *property, cons
 
 QVariant DesignerFormWindowImpl::property( QObject *o, const char *prop ) const
 {
-    QVariant v = o->property( prop );
-    if ( v.isValid() )
-	return v;
+    int id = o->metaObject()->findProperty( prop, TRUE );
+    const QMetaProperty* p = o->metaObject()->property( id, TRUE );
+    if ( p && p->isValid() )
+	return o->property( prop );
     return MetaDataBase::fakeProperty( o, prop );
 }
 
