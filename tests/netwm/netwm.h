@@ -142,7 +142,7 @@ public:
     void setPid(CARD32 /* pid */);
     void setHandledIcons(Bool /* handled */);
     void setKDEDockWinFor(Window /* window */);
-    void setKDEFrameStrut( NETStrut );
+    void setKDEFrameStrut(NETStrut);
 
     NETIcon icon(int = -1, int = -1) const;
 
@@ -157,7 +157,7 @@ public:
     inline Bool handledIcons() const;
     inline Window kdeDockWinFor() const;
     inline MappingState mappingState() const;
-    void kdeGeometry( NETRect& frame, NETRect& window);
+    void kdeGeometry(NETRect &frame, NETRect &window);
 
     // This function takes the pass XEvent and returns an ORed list of NETWinInfo
     // properties that have changed.  The new information will be read

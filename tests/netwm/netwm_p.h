@@ -74,13 +74,14 @@ struct NETWinInfoPrivate {
     Display *display;
     Window window, root;
     NET::MappingState mapping_state;
+    Bool mapping_state_dirty;
 
     RArray<NETIcon> icons;
     int icon_count;
 
-    NETRect icon_geom;
+    NETRect icon_geom, win_geom, frame_geom;
     unsigned long state;
-    NETStrut strut;
+    NETStrut strut, frame_strut;
     NET::WindowType type;
     char *name, *visible_name;
     CARD32 desktop;
@@ -89,8 +90,6 @@ struct NETWinInfoPrivate {
     Window kde_dockwin_for;
 
     unsigned long properties;
-
-    Bool managed;
 
     int ref;
 };

@@ -130,9 +130,9 @@ public:
 	WMHandledIcons      = 1<<24,
 	WMPing              = 1<<25,
 	WMKDEDockWinFor     = 1<<26, // NOT STANDARD
-	XAWMState  = 1<<27,  // NOT STANDARD
-	WMKDEGeometry = 1 << 29 // NOT STANDARD
-
+	XAWMState           = 1<<27,  // NOT STANDARD
+	WMKDEFrameStrut     = 1<<28 // NOT STANDARD
+	
     };
 };
 
