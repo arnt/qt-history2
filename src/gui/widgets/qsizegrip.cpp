@@ -44,7 +44,7 @@ public:
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 {
     QWidget *p = w->parentWidget();
-    while (!w->isTopLevel() && p && !p->inherits("QWorkspace")) {
+    while (!w->isWindow() && p && !p->inherits("QWorkspace")) {
         w = p;
         p = p->parentWidget();
     }
@@ -54,7 +54,7 @@ static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 static QWidget* qt_sizegrip_workspace(QWidget* w)
 {
     while (w && !w->inherits("QWorkspace")) {
-        if (w->isTopLevel())
+        if (w->isWindow())
             return 0;
         w = w->parentWidget();
     }
@@ -132,7 +132,7 @@ void QSizeGripPrivate::init()
 #if defined(Q_WS_X11)
     if (!qt_sizegrip_workspace(q)) {
         WId id = q->winId();
-        XChangeProperty(X11->display, q->topLevelWidget()->winId(),
+        XChangeProperty(X11->display, q->window()->winId(),
                         ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
                         (unsigned char *)&id, 1);
     }
@@ -151,7 +151,7 @@ QSizeGrip::~QSizeGrip()
 #if defined(Q_WS_X11)
     if (!QApplication::closingDown() && parentWidget()) {
         WId id = XNone;
-        XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+        XChangeProperty(qt_xdisplay(), window()->winId(),
                         ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
                         (unsigned char *)&id, 1);
     }
@@ -245,7 +245,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         h = ms.height();
 
     if (isRightToLeft()) {
-        if (d->tlw->isTopLevel()) {
+        if (d->tlw->isWindow()) {
             int x = d->tlw->geometry().x() + (np.x() - d->p.x());
             int y = d->tlw->geometry().y();
             d->tlw->setGeometry(x, y, w, h);
@@ -314,7 +314,7 @@ bool QSizeGrip::event(QEvent *e)
     case QEvent::Show:
         if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
             if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
-                if(w->isTopLevel())
+                if(w->isWindow())
                     QWidgetPrivate::qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
             }
         }

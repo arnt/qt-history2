@@ -722,7 +722,7 @@ HRESULT WINAPI QAxClientSite::Invoke(DISPID dispIdMember,
 #if defined(QT_PLUGIN)
         pVarResult->vt = VT_BOOL;
         if (runsInDesignMode) {
-            bool isPreview = !host->topLevelWidget()->inherits("MainWindow");
+            bool isPreview = !host->window()->inherits("MainWindow");
             pVarResult->boolVal = isPreview;
         } else {
             pVarResult->boolVal = true;
@@ -943,7 +943,7 @@ HRESULT WINAPI QAxClientSite::GetWindowContext(IOleInPlaceFrame **ppFrame, IOleI
     lpFrameInfo->fMDIApp = false;
     lpFrameInfo->haccel = 0;
     lpFrameInfo->cAccelEntries = 0;
-    lpFrameInfo->hwndFrame = widget ? widget->topLevelWidget()->winId() : 0;
+    lpFrameInfo->hwndFrame = widget ? widget->window()->winId() : 0;
     
     return S_OK;
 }
@@ -1000,7 +1000,7 @@ HRESULT WINAPI QAxClientSite::InsertMenus(HMENU /*hmenuShared*/, LPOLEMENUGROUPW
     AX_DEBUG(QAxClientSite::InsertMenus);
     QMenuBar *mb = menuBar;
     if (!mb)
-	mb = qFindChild<QMenuBar*>(widget->topLevelWidget());
+	mb = qFindChild<QMenuBar*>(widget->window());
     if (!mb)
 	return E_NOTIMPL;
     menuBar = mb;
@@ -1138,7 +1138,7 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU holemenu, HWND
 	m_menuOwner = hwndActiveObject;
 	QMenuBar *mb = menuBar;
 	if (!mb)
-	    mb = qFindChild<QMenuBar*>(widget->topLevelWidget());
+	    mb = qFindChild<QMenuBar*>(widget->window());
 	if (!mb)
 	    return E_NOTIMPL;
 	menuBar = mb;
@@ -1206,7 +1206,7 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU holemenu, HWND
 	menuItemMap.clear();
     }
 
-    OleSetMenuDescriptor(holemenu, widget->topLevelWidget()->winId(), m_menuOwner, this, m_spInPlaceActiveObject);
+    OleSetMenuDescriptor(holemenu, widget->window()->winId(), m_menuOwner, this, m_spInPlaceActiveObject);
     return S_OK;
 }
 
@@ -1274,7 +1274,7 @@ HRESULT WINAPI QAxClientSite::GetBorder(LPRECT lprectBorder)
 {
     AX_DEBUG(QAxClientSite::GetBorder);
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(widget->topLevelWidget());
+    QMainWindow *mw = qt_cast<QMainWindow*>(widget->window());
     if (!mw)
         return INPLACE_E_NOTOOLSPACE;
 
@@ -1287,7 +1287,7 @@ HRESULT WINAPI QAxClientSite::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths
 {
     AX_DEBUG(QAxClientSite::RequestBorderSpace);
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(widget->topLevelWidget());
+    QMainWindow *mw = qt_cast<QMainWindow*>(widget->window());
     if (!mw)
         return INPLACE_E_NOTOOLSPACE;
 
@@ -1302,7 +1302,7 @@ HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
     if (!pborderwidths)
         return S_OK;
 
-    QMainWindow *mw = qt_cast<QMainWindow*>(widget->topLevelWidget());
+    QMainWindow *mw = qt_cast<QMainWindow*>(widget->window());
     if (!mw)
         return OLE_E_INVALIDRECT;
 
@@ -1537,7 +1537,7 @@ bool QAxHostWidget::eventFilter(QObject *o, QEvent *e)
     // focus goes to Qt while ActiveX still has it - deactivate
     QWidget *newFocus = qt_cast<QWidget*>(o);
     if (e->type() == QEvent::FocusIn && hasFocus 
-        && newFocus && newFocus->topLevelWidget() == topLevelWidget()) {
+        && newFocus && newFocus->window() == window()) {
         if (axhost && axhost->m_spInPlaceActiveObject && axhost->m_spInPlaceObject)
             axhost->m_spInPlaceObject->UIDeactivate();
         qApp->removeEventFilter(this);

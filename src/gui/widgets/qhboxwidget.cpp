@@ -102,7 +102,7 @@ QHBoxWidget::QHBoxWidget(Qt::Orientation orientation, QWidget *parent , Qt::WFla
 void QHBoxWidget::childEvent(QChildEvent *e)
 {
     QWidget *child = qt_cast<QWidget*>(e->child());
-    if (!child || child->isTopLevel())
+    if (!child || child->isWindow())
         return;
     if (e->added()) {
         lay->addWidget(child);

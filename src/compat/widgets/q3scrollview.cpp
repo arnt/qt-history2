@@ -864,7 +864,7 @@ void Q3ScrollView::updateScrollBars()
         if(!parentWidget()) {
             mac_need_scroll = true;
         } else {
-            QWidget *tlw = topLevelWidget();
+            QWidget *tlw = window();
             QPoint tlw_br = QPoint(tlw->width(), tlw->height()),
                     my_br = posInWindow(this) + QPoint(w, h);
             if(my_br.x() >= tlw_br.x() - 3 && my_br.y() >= tlw_br.y() - 3)
@@ -2483,7 +2483,7 @@ bool Q3ScrollView::focusNextPrevChild(bool next)
     //  necessary by scrolling the scroll view.
     bool retval = Q3Frame::focusNextPrevChild(next);
     if (retval) {
-        QWidget *w = topLevelWidget()->focusWidget();
+        QWidget *w = window()->focusWidget();
         if (isAncestorOf(w)) {
             QSVChildRec *r = d->ancestorRec(w);
            if (r && (r->child == w || w->isVisibleTo(r->child))) {

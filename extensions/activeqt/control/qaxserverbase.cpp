@@ -3276,7 +3276,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 	    bool giveUp = true;
             QWidget *curFocus = qt.widget->focusWidget();
 	    if (shift) {
-                if (!curFocus->isTopLevel()) {
+                if (!curFocus->isWindow()) {
                     QWidget *nextFocus = curFocus->nextInFocusChain();
                     QWidget *prevFocus = 0;
                     QWidget *topLevel = 0;
@@ -3284,7 +3284,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
                         if (nextFocus->focusPolicy() & Qt::TabFocus) {
                             prevFocus = nextFocus;
                             topLevel = 0;
-                        } else if (nextFocus->isTopLevel()) {
+                        } else if (nextFocus->isWindow()) {
                             topLevel = nextFocus;
                         }
                         nextFocus = nextFocus->nextInFocusChain();
@@ -3299,7 +3299,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
                 QWidget *nextFocus = curFocus;
                 while (1) {
                     nextFocus = nextFocus->nextInFocusChain();
-                    if (nextFocus->isTopLevel())
+                    if (nextFocus->isWindow())
                         break;
                     if (nextFocus->focusPolicy() & Qt::TabFocus) {
                         giveUp = false;

@@ -67,7 +67,7 @@ static QWidget *childOf(QWidget *w, QWidget *child)
     while (child) {
         if (child == w)
             return child;
-        if (child->isTopLevel())
+        if (child->isWindow())
             break;
         child = child->parentWidget();
     }
@@ -188,9 +188,9 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
         return;
 
 
-    QPoint globalPos = (!widget->isTopLevel() && widget->parentWidget()) ?
+    QPoint globalPos = (!widget->isWindow() && widget->parentWidget()) ?
                        widget->parentWidget()->mapFromGlobal(e->globalPos()) : e->globalPos();
-    if (!widget->isTopLevel() && !widget->parentWidget()->rect().contains(globalPos)) {
+    if (!widget->isWindow() && !widget->parentWidget()->rect().contains(globalPos)) {
         if (globalPos.x() < 0)
             globalPos.rx() = 0;
         if (globalPos.y() < 0)
@@ -268,7 +268,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
                              .boundedTo(maxsize));
 
     if (geom != widget->geometry() &&
-        (widget->isTopLevel() || widget->parentWidget()->rect().intersects(geom))) {
+        (widget->isWindow() || widget->parentWidget()->rect().intersects(geom))) {
         if (widget->isMinimized())
             widget->move(geom.topLeft());
         else

@@ -110,7 +110,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
     QPoint tl(qr.topLeft());
     if (pd && pd->devType() == QInternal::Widget) {
         QWidget *w = (QWidget*)pd;
-        tl = w->mapTo(w->topLevelWidget(), tl);
+        tl = w->mapTo(w->window(), tl);
     }
     if (use_rect)
         tl += rect.topLeft();
@@ -336,7 +336,7 @@ static inline bool qt_mac_is_metal(const QWidget *w)
     for (; w; w = w->parentWidget()) {
         if (w->testAttribute(Qt::WA_MacMetalStyle))
             return true;
-        if (w->isTopLevel())
+        if (w->isWindow())
             break;
     }
     return false;
@@ -581,7 +581,7 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     }
 
 #ifndef QT_NO_MAINWINDOW
-    if (qt_cast<QDockWindow *>(widg->topLevelWidget()) || qgetenv("QWIDGET_ALL_SMALL")) {
+    if (qt_cast<QDockWindow *>(widg->window()) || qgetenv("QWIDGET_ALL_SMALL")) {
         //if (small.width() != -1 || small.height() != -1)
         return QAquaSizeSmall;
     } else if (qgetenv("QWIDGET_ALL_MINI")) {
@@ -887,7 +887,7 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
     else if (fp == QMacStyle::FocusDisabled)
         return false;
     const QLineEdit *le = qt_cast<const QLineEdit *>(w);
-    return (w && !w->isTopLevel() && w->parentWidget() &&
+    return (w && !w->isWindow() && w->parentWidget() &&
             (qt_cast<const QAbstractSpinBox *>(w))
              || (le && qt_cast<const QAbstractSpinBox*>(le->parentWidget()))
              || (le && !qt_cast<const QComboBox *>(le->parentWidget()))
@@ -1225,7 +1225,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
         case QEvent::MouseButtonRelease:
         case QEvent::FocusOut:
         case QEvent::Show: {
-            QList<QPushButton *> list = qFindChildren<QPushButton *>(btn->topLevelWidget());
+            QList<QPushButton *> list = qFindChildren<QPushButton *>(btn->window());
             for (int i = 0; i < list.size(); ++i) {
                 QPushButton *pBtn = list.at(i);
                 if ((e->type() == QEvent::FocusOut
@@ -1233,7 +1233,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
                      && pBtn != btn)
                     || ((e->type() == QEvent::Show || e->type() == QEvent::MouseButtonRelease)
                         && pBtn->isDefault())) {
-                    if (pBtn->topLevelWidget()->isActiveWindow())
+                    if (pBtn->window()->isActiveWindow())
                         startAnimate(AquaPushButton, pBtn);
                     break;
                 }
@@ -4751,7 +4751,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         break;
     case PM_DefaultFrameWidth:
 #ifndef QT_NO_MAINWINDOW
-        if (widget && (widget->isTopLevel() || !widget->parentWidget()
+        if (widget && (widget->isWindow() || !widget->parentWidget()
                 || (qt_cast<const QMainWindow*>(widget->parentWidget())
                    && static_cast<QMainWindow *>(widget->parentWidget())->centralWidget() == widget))
                 && (qt_cast<const QViewport *>(widget)
@@ -4950,7 +4950,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         ret = Qt::AlignTop;
         break;
     case SH_ScrollView_FrameOnlyAroundContents:
-        if (w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
+        if (w && (w->isWindow() || !w->parentWidget() || w->parentWidget()->isWindow())
             && (qt_cast<const QViewport *>(w)
 #ifdef QT3_SUPPORT
                 || w->inherits("QScrollView")
@@ -5174,7 +5174,7 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
                     if (ret != SizeDefault)
                         break;
                 }
-                if (p->isTopLevel())
+                if (p->isWindow())
                     break;
             }
         }
@@ -5627,7 +5627,7 @@ QMacStyle::event(QEvent *e)
            d->focusable(QApplication::focusWidget())) {
             f = QApplication::focusWidget();
             QWidget *top = f->parentWidget();
-            while (top && !top->isTopLevel() && !top->testWFlags(Qt::WSubWindow))
+            while (top && !top->isWindow() && !top->testWFlags(Qt::WSubWindow))
                 top = top->parentWidget();
 #ifndef QT_NO_MAINWINDOW
             if (qt_cast<QMainWindow *>(top)) {
@@ -5637,7 +5637,7 @@ QMacStyle::event(QEvent *e)
                         top = central;
                         break;
                     }
-                    if (par->isTopLevel())
+                    if (par->isWindow())
                         break;
                 }
             }

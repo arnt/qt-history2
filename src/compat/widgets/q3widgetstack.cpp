@@ -212,7 +212,7 @@ static bool isChildOf(QWidget* child, QWidget *parent)
         if (!obj->isWidgetType())
             continue;
         QWidget *widget = static_cast<QWidget *>(obj);
-        if (!widget->isTopLevel())
+        if (!widget->isWindow())
             continue;
         if (widget == child || isChildOf(child, widget))
             return true;
@@ -254,7 +254,7 @@ void Q3WidgetStack::raiseWidget(QWidget *w)
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
     if (topWidget) {
-        QWidget * fw = topLevelWidget()->focusWidget();
+        QWidget * fw = window()->focusWidget();
         if (topWidget->isAncestorOf(fw)) { // focus was on old page
             // look for the best focus widget we can find
             QWidget *p = w->focusWidget();

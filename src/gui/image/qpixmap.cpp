@@ -1000,7 +1000,7 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
     const QObjectList children = widget->children();
     for (int i = 0; i < children.size(); ++i) {
         QWidget *child = static_cast<QWidget*>(children.at(i));
-        if (!child->isWidgetType() || child->isTopLevel()
+        if (!child->isWidgetType() || child->isWindow()
             || child->isHidden() || !child->geometry().intersects(r))
             continue;
         QRect cr = r & child->geometry();

@@ -146,7 +146,7 @@ static OPENFILENAMEA *qt_win_make_OFNA(QWidget *parent,
 				       QFileDialog::FileMode mode)
 {
     if (parent)
-        parent = parent->topLevelWidget();
+        parent = parent->window();
     else
         parent = qApp->mainWidget();
 
@@ -215,7 +215,7 @@ static OPENFILENAME* qt_win_make_OFN(QWidget *parent,
                                      QFileDialog::FileMode mode)
 {
     if (parent)
-        parent = parent->topLevelWidget();
+        parent = parent->window();
     else
         parent = qApp->mainWidget();
 
@@ -622,7 +622,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
     QString result;
     QWidget *parent = args.parent;
     if (parent)
-        parent = parent->topLevelWidget();
+        parent = parent->window();
     else
         parent = qApp->mainWidget();
     QString title = args.caption;

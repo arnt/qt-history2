@@ -1079,7 +1079,7 @@ void QGLWidget::setContext(QGLContext *context,
     Window *cmw;
     Window *cmwret;
     int count;
-    if (XGetWMColormapWindows(X11->display, topLevelWidget()->winId(),
+    if (XGetWMColormapWindows(X11->display, window()->winId(),
                                 &cmwret, &count)) {
         cmw = new Window[count+1];
         memcpy((char *)cmw, (char *)cmwret, sizeof(Window)*count);
@@ -1109,7 +1109,7 @@ void QGLWidget::setContext(QGLContext *context,
 
     create(w);
 
-    XSetWMColormapWindows(X11->display, topLevelWidget()->winId(), cmw,
+    XSetWMColormapWindows(X11->display, window()->winId(), cmw,
                            count);
     delete [] cmw;
 
@@ -1159,7 +1159,7 @@ static bool qCanAllocColors(QWidget * w)
     long mask;
     XVisualInfo templ;
     XVisualInfo * visuals;
-    VisualID id = XVisualIDFromVisual((Visual *) w->topLevelWidget()->x11Info().visual());
+    VisualID id = XVisualIDFromVisual((Visual *) w->window()->x11Info().visual());
 
     mask = VisualScreenMask;
     templ.screen = w->x11Info().screen();
@@ -1192,7 +1192,7 @@ static bool qCanAllocColors(QWidget * w)
 
 void QGLWidget::setColormap(const QGLColormap & c)
 {
-    QWidget * tlw = topLevelWidget(); // must return a valid widget
+    QWidget * tlw = window(); // must return a valid widget
 
     d->cmap = c;
     if (!d->cmap.handle())

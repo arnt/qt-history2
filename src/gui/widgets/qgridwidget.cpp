@@ -104,7 +104,7 @@ QGridWidget::QGridWidget(int n, QWidget *parent, const char *name, Qt::WFlags f)
 void QGridWidget::childEvent(QChildEvent *e)
 {
     QWidget *child = qt_cast<QWidget*>(e->child());
-    if (!child || child->isTopLevel())
+    if (!child || child->isWindow())
         return;
     if (e->added()) {
         lay->addWidget(child);

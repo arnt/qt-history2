@@ -205,7 +205,7 @@ bool FormWindow::hasFeature(Feature f) const
 int FormWindow::widgetDepth(QWidget *w)
 {
     int d = -1;
-    while (w && !w->isTopLevel()) {
+    while (w && !w->isWindow()) {
         d++;
         w = w->parentWidget();
     }
@@ -215,7 +215,7 @@ int FormWindow::widgetDepth(QWidget *w)
 
 bool FormWindow::isChildOf(QWidget *c, const QWidget *p)
 {
-    while (c /*&& !c->isTopLevel()*/) {
+    while (c /*&& !c->isWindow()*/) {
         if (c == p)
             return true;
         c = c->parentWidget();
@@ -991,12 +991,12 @@ QWidget *FormWindow::containerAt(const QPoint &pos, QWidget *notParentOf)
 
         // the rectangles of all ancestors of the container must contain the insert position
         QWidget *w = wit;
-        while (w && !w->isTopLevel()) {
+        while (w && !w->isWindow()) {
             if (!w->rect().contains((w->mapFromGlobal(pos))))
                 break;
             w = w->parentWidget();
         }
-        if (!(w == 0 || w->isTopLevel()))
+        if (!(w == 0 || w->isWindow()))
             continue; // we did not get through the full while loop
 
         int wd = widgetDepth(wit);
@@ -1817,7 +1817,7 @@ QPoint FormWindow::mapToForm(const QWidget *w, const QPoint &pos) const
 {
     QPoint p = pos;
     const QWidget* i = w;
-    while (i && !i->isTopLevel() && !isMainContainer(i)) {
+    while (i && !i->isWindow() && !isMainContainer(i)) {
         p = i->mapToParent(p);
         i = i->parentWidget();
     }
@@ -1893,7 +1893,7 @@ FormWindow *FormWindow::findFormWindow(QWidget *w)
             return fw;
         } else if (qt_cast<QMainWindow*>(w)) {
             /* skip me */
-        } else if (w->isTopLevel())
+        } else if (w->isWindow())
             break;
 
         w = w->parentWidget();

@@ -22,7 +22,7 @@ public:
     CheckListItem( Q3ListView *parent, const QString &text )
 	    : Q3CheckListItem( parent, text, CheckBox )
     {
-	dialog = (ChangeProperties*)parent->topLevelWidget()->qt_metacast( "ChangeProperties" );
+	dialog = (ChangeProperties*)parent->window()->qt_metacast( "ChangeProperties" );
     }
     
 protected:

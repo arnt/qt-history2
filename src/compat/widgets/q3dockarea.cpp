@@ -886,7 +886,7 @@ void Q3DockArea::removeDockWindow(Q3DockWindow *w, bool makeFloating, bool swap,
     if (fixNewLines && lineStarts.contains(dockWindow) && i < dockWindows.count())
         dockWindows.at(i)->setNewLine(true);
     if (makeFloating) {
-        QWidget *p = parentWidget() ? parentWidget() : topLevelWidget();
+        QWidget *p = parentWidget() ? parentWidget() : window();
         dockWindow->setParent(p, Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool);
         dockWindow->move(0, 0);
     }

@@ -197,7 +197,7 @@ int QAccessibleWidget::childAt(int x, int y) const
     QPoint rp = w->mapFromGlobal(QPoint(x, y));
     for (int i = 0; i<list.size(); ++i) {
         QWidget *child = list.at(i);
-        if (!child->isTopLevel() && !child->isHidden() && child->geometry().contains(rp)) {
+        if (!child->isWindow() && !child->isHidden() && child->geometry().contains(rp)) {
             return i + 1;
         }
     }
@@ -727,7 +727,7 @@ QString QAccessibleWidget::text(Text t, int child) const
             str = d->name;
         else if (!widget()->accessibleName().isEmpty())
             str = widget()->accessibleName();
-        else if (!child && widget()->isTopLevel())
+        else if (!child && widget()->isWindow())
             str = widget()->windowTitle();
         else
             str = qt_accStripAmp(buddyString(widget()));
@@ -778,7 +778,7 @@ bool QAccessibleWidget::doAction(int action, int child, const QVariantList &para
             return false;
         if (widget()->focusPolicy() != Qt::NoFocus)
             widget()->setFocus();
-        else if (widget()->isTopLevel())
+        else if (widget()->isWindow())
             widget()->activateWindow();
         else
             return false;
@@ -812,7 +812,7 @@ QAccessible::State QAccessibleWidget::state(int child) const
         state |= Focused;
     if (!w->isEnabled())
         state |= Unavailable;
-    if (w->isTopLevel()) {
+    if (w->isWindow()) {
         if (w->testWFlags(Qt::WStyle_Title))
             state |= Movable;
         if (w->minimumSize() != w->maximumSize())

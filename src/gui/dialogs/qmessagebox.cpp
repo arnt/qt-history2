@@ -1282,7 +1282,7 @@ void QMessageBox::about(QWidget *parent, const QString &caption,
     if (!pm.isNull())
         mb.setIconPixmap(pm);
     else {
-        pm = parent ? parent->topLevelWidget()->windowIcon() : QPixmap();
+        pm = parent ? parent->window()->windowIcon() : QPixmap();
         if (!pm.isNull())
             mb.setIconPixmap(pm);
         else {

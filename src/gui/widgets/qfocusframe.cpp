@@ -136,7 +136,7 @@ QFocusFrame::setWidget(QWidget *widget)
 
     if(d->widget)
         d->widget->removeEventFilter(this);
-    if(widget && !widget->isTopLevel()) {
+    if(widget && !widget->isWindow()) {
         d->widget = widget;
         widget->installEventFilter(this);
         d->update();

@@ -367,7 +367,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 #if 0
             int height = 0;
             if(widget)
-                height = widget->topLevelWidget()->height();
+                height = widget->window()->height();
             else
                 height = device->metric(QPaintDevice::PdmHeight);
             tf = CGAffineTransformTranslate(tf, 0, height);
@@ -557,7 +557,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         if(ctx_port) {
             int height = 0;
             if(widget)
-                height = widget->topLevelWidget()->height();
+                height = widget->window()->height();
             else
                 height = device->metric(QPaintDevice::PdmHeight);
 #if 0

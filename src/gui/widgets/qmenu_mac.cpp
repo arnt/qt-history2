@@ -760,7 +760,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
             QMacMenuBarPrivate::fallback = q;
             mac_menubar = new QMacMenuBarPrivate;
         } else {
-            QWidget *tlw = q->topLevelWidget();
+            QWidget *tlw = q->window();
             if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.contains(tlw)) &&
                (((parent->isDialog()
 #ifndef QT_NO_MAINWINDOW
@@ -778,7 +778,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 void QMenuBarPrivate::macDestroyMenuBar()
 {
     delete mac_menubar;
-    QWidget *tlw = q->topLevelWidget();
+    QWidget *tlw = q->window();
     QMacMenuBarPrivate::menubars.remove(tlw);
     mac_menubar = 0;
 }

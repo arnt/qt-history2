@@ -259,9 +259,9 @@ public:
         { setFont(font, className); }
 
     static inline QT3_SUPPORT QWidget *widgetAt(int x, int y, bool child)
-        { QWidget *w = widgetAt(x, y); return child ? w : (w ? w->topLevelWidget() : 0); }
+        { QWidget *w = widgetAt(x, y); return child ? w : (w ? w->window() : 0); }
     static inline QT3_SUPPORT QWidget *widgetAt(const QPoint &p, bool child)
-        { QWidget *w = widgetAt(p); return child ? w : (w ? w->topLevelWidget() : 0); }
+        { QWidget *w = widgetAt(p); return child ? w : (w ? w->window() : 0); }
 #endif // QT3_SUPPORT
 
 private:

@@ -212,10 +212,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     }
     if (testWFlags(Qt::WStyle_Title)) {
         QT_WA({
-            title = isTopLevel() ? qAppName() : objectName();
+            title = isWindow() ? qAppName() : objectName();
             ttitle = (TCHAR*)title.utf16();
         } , {
-            title95 = isTopLevel() ? qAppName().toLocal8Bit() : objectName().toLatin1();
+            title95 = isWindow() ? qAppName().toLocal8Bit() : objectName().toLatin1();
         });
     }
 
@@ -402,7 +402,7 @@ void QWidgetPrivate::reparentChildren()
             QWidget *w = (QWidget *)obj;
             if (w->isPopup()) {
                 ;
-            } else if (w->isTopLevel()) {
+            } else if (w->isWindow()) {
                 bool showIt = w->isShown();
                 QPoint old_pos = w->pos();
                 w->setParent(q, w->getWFlags());
@@ -439,14 +439,14 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize s = q->size();
     QString capt = q->windowTitle();
-    data.window_type = f;
+    data.window_flags = f;
     q->setAttribute(Qt::WA_WState_Created, false);
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, false);
     q->create();
 
-    if (q->isTopLevel() || (!parent || parent->isVisible()))
+    if (q->isWindow() || (!parent || parent->isVisible()))
         q->setAttribute(Qt::WA_WState_Hidden);
 
     d->reparentChildren();
@@ -477,8 +477,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 QPoint QWidget::mapToGlobal(const QPoint &pos) const
 {
     if (!isVisible() || isMinimized())
-        return mapTo(topLevelWidget(), pos) + topLevelWidget()->pos() +
-        (topLevelWidget()->geometry().topLeft() - topLevelWidget()->frameGeometry().topLeft());
+        return mapTo(window(), pos) + window()->pos() +
+        (window()->geometry().topLeft() - window()->frameGeometry().topLeft());
     POINT p;
     QPoint tmp = d->mapToWS(pos);
     p.x = tmp.x();
@@ -490,7 +490,7 @@ QPoint QWidget::mapToGlobal(const QPoint &pos) const
 QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 {
     if (!isVisible() || isMinimized())
-        return mapFrom(topLevelWidget(), pos - topLevelWidget()->pos());
+        return mapFrom(window(), pos - window()->pos());
     POINT p;
     p.x = pos.x();
     p.y = pos.y();
@@ -533,7 +533,7 @@ void QWidget::unsetCursor()
         delete d->extra->curs;
         d->extra->curs = 0;
     }
-    if (!isTopLevel())
+    if (!isWindow())
         setAttribute(Qt::WA_SetCursor, false);
     qt_set_cursor(this, cursor());
 }
@@ -744,7 +744,7 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::activateWindow()
 {
-    SetForegroundWindow(topLevelWidget()->winId());
+    SetForegroundWindow(window()->winId());
 }
 
 
@@ -1057,7 +1057,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         normal = SW_SHOWNORMAL;
     }
 
-    if (isTopLevel()) {
+    if (isWindow()) {
 
         // Ensure the initial size is valid, since we store it as normalGeometry below.
         if (!testAttribute(Qt::WA_Resized) && !isVisible())
@@ -1166,7 +1166,7 @@ void QWidgetPrivate::show_sys()
     q->setAttribute(Qt::WA_Mapped);
 
     int sm = SW_SHOWNORMAL;
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         if (q->isMinimized())
             sm = SW_SHOWMINIMIZED;
         else if (q->isMinimized())
@@ -1199,7 +1199,7 @@ void QWidget::show_sys()
         return;
     setAttribute(Qt::WA_Mapped);
     uint sm = SW_SHOW;
-    if (isTopLevel()) {
+    if (isWindow()) {
         switch (d->topData()->showMode) {
         case 1:
             sm = SW_HIDE;
@@ -1221,7 +1221,7 @@ void QWidget::show_sys()
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(winId(), sm);
-    if (isTopLevel() && sm == SW_SHOW)
+    if (isWindow() && sm == SW_SHOW)
         SetForegroundWindow(winId());
     UpdateWindow(winId());
 }
@@ -1230,7 +1230,7 @@ void QWidget::show_sys()
 #if 0
 void QWidget::showMinimized()
 {
-    if (isTopLevel()) {
+    if (isWindow()) {
         if (d->topData()->fullscreen) {
             reparent(0, d->topData()->savedFlags, d->topData()->normalGeometry.topLeft());
             d->topData()->fullscreen = 0;
@@ -1253,7 +1253,7 @@ void QWidget::showMinimized()
 
 void QWidget::showMaximized()
 {
-    if (isTopLevel()) {
+    if (isWindow()) {
         if (d->topData()->normalGeometry.width() < 0) {
             d->topData()->savedFlags = getWFlags();
             d->topData()->normalGeometry = geometry();
@@ -1282,7 +1282,7 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     d->topData()->showMode = 0;
-    if (isTopLevel()) {
+    if (isWindow()) {
         if (d->topData()->normalGeometry.width() > 0) {
             int val = d->topData()->savedFlags;
             int style = WS_OVERLAPPED,
@@ -1440,7 +1440,7 @@ void QWidgetPrivate::setWSGeometry()
         QObject *object = children.at(i);
         if (object->isWidgetType()) {
             QWidget *w = static_cast<QWidget *>(object);
-            if (!w->isTopLevel())
+            if (!w->isWindow())
                 w->d->setWSGeometry();
         }
     }
@@ -1471,7 +1471,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         w = qMax(w,d->extra->minw);
         h = qMax(h,d->extra->minh);
     }
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         d->topData()->normalGeometry = QRect(0, 0, -1, -1);
         w = qMax(1, w);
         h = qMax(1, h);
@@ -1480,7 +1480,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     QSize  oldSize(q->size());
     QPoint oldPos(q->pos());
 
-    if (!q->isTopLevel())
+    if (!q->isWindow())
         isMove = (data.crect.topLeft() != QPoint(x, y));
     bool isResize = w != oldSize.width() || h != oldSize.height();
 
@@ -1505,7 +1505,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         qWinRequestConfig(q->winId(), isMove ? 2 : 1, x, y, w, h);
     } else {
         q->setAttribute(Qt::WA_WState_ConfigPending);
-        if (q->isTopLevel()) {
+        if (q->isWindow()) {
             QRect fr(q->frameGeometry());
             if (d->extra) {
                 fr.setLeft(fr.left() + x - data.crect.left());
@@ -1748,7 +1748,7 @@ void QWidget::setMask(const QRegion &region)
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
 
     int fleft = 0, ftop = 0;
-    if (isTopLevel()) {
+    if (isWindow()) {
         ftop = d->topData()->ftop;
         fleft = d->topData()->fleft;
     }
@@ -1765,7 +1765,7 @@ void QWidget::setMask(const QBitmap &bitmap)
     HRGN wr = qt_win_bitmapToRegion(bitmap);
 
     int fleft = 0, ftop = 0;
-    if (isTopLevel()) {
+    if (isWindow()) {
         ftop = d->topData()->ftop;
         fleft = d->topData()->fleft;
     }
@@ -1811,7 +1811,7 @@ void QWidgetPrivate::updateFrameStrut() const
 
 void QWidget::setWindowOpacity(qreal level)
 {
-    if(!isTopLevel())
+    if(!isWindow())
         return;
 
     static bool function_resolved = false;
@@ -1841,7 +1841,7 @@ void QWidget::setWindowOpacity(qreal level)
 
 qreal QWidget::windowOpacity() const
 {
-    return isTopLevel() ? (d->topData()->opacity / 255.0) : 0.0;
+    return isWindow() ? (d->topData()->opacity / 255.0) : 0.0;
 }
 
 #ifdef QT_RASTER_PAINTENGINE

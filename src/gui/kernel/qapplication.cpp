@@ -1488,7 +1488,7 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
         for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
              it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
-            if (all || (!className && w->isTopLevel()) || w->inherits(className)) // matching class
+            if (all || (!className && w->isWindow()) || w->inherits(className)) // matching class
                 sendEvent(w, &e);
         }
     }
@@ -1557,7 +1557,7 @@ void QApplication::setFont(const QFont &font, const char* className)
         for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
              it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
-            if (all || (!className && w->isTopLevel()) || w->inherits(className)) // matching class
+            if (all || (!className && w->isWindow()) || w->inherits(className)) // matching class
                 sendEvent(w, &e);
         }
     }
@@ -1595,7 +1595,7 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
         for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
              it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
-            if (w->isTopLevel())
+            if (w->isWindow())
                 sendEvent(w, &e);
         }
     }
@@ -1619,7 +1619,7 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
     }
   \endcode
 
-  \sa allWidgets(), QWidget::isTopLevel(), QWidget::isHidden(),
+  \sa allWidgets(), QWidget::isWindow(), QWidget::isHidden(),
       QList::isEmpty()
 */
 QWidgetList QApplication::topLevelWidgets()
@@ -1629,7 +1629,7 @@ QWidgetList QApplication::topLevelWidgets()
         for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
              it != QWidgetPrivate::mapper->constEnd(); ++it) {
             QWidget *w = *it;
-            if (w->isTopLevel())
+            if (w->isWindow())
                 list.append(w);
         }
     }
@@ -1742,7 +1742,7 @@ QFontMetrics QApplication::fontMetrics()
   accept the close event.
 
   \sa QWidget::close(), QWidget::closeEvent(), lastWindowClosed(),
-  quit(), topLevelWidgets(), QWidget::isTopLevel()
+  quit(), topLevelWidgets(), QWidget::isWindow()
 
  */
 void QApplication::closeAllWindows()
@@ -1795,7 +1795,7 @@ void QApplication::aboutQt()
   For convenience, this signal is \e not emitted for transient top level
   widgets such as popup menus and dialogs.
 
-  \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel(), QWidget::close()
+  \sa mainWidget(), topLevelWidgets(), QWidget::isWindow(), QWidget::close()
 */
 
 #ifndef QT_NO_TRANSLATION
@@ -1936,7 +1936,7 @@ void QApplication::syncX()        {}                // do nothing
  */
 void QApplication::setActiveWindow(QWidget* act)
 {
-    QWidget* window = act?act->topLevelWidget():0;
+    QWidget* window = act?act->window():0;
 
     if (QApplicationPrivate::active_window == window)
         return;
@@ -2037,27 +2037,27 @@ void qt_dispatchEnterLeave(QWidget* enter, QWidget* leave) {
     QWidgetList leaveList;
     QWidgetList enterList;
 
-    bool sameWindow = leave && enter && leave->topLevelWidget() == enter->topLevelWidget();
+    bool sameWindow = leave && enter && leave->window() == enter->window();
     if (leave && !sameWindow) {
         w = leave;
         do {
             leaveList.append(w);
-        } while (!w->isTopLevel() && (w = w->parentWidget()));
+        } while (!w->isWindow() && (w = w->parentWidget()));
     }
     if (enter && !sameWindow) {
         w = enter;
         do {
             enterList.prepend(w);
-        } while (!w->isTopLevel() && (w = w->parentWidget()));
+        } while (!w->isWindow() && (w = w->parentWidget()));
     }
     if (sameWindow) {
         int enterDepth = 0;
         int leaveDepth = 0;
         w = enter;
-        while (!w->isTopLevel() && (w = w->parentWidget()))
+        while (!w->isWindow() && (w = w->parentWidget()))
             enterDepth++;
         w = leave;
-        while (!w->isTopLevel() && (w = w->parentWidget()))
+        while (!w->isWindow() && (w = w->parentWidget()))
             leaveDepth++;
         QWidget* wenter = enter;
         QWidget* wleave = leave;
@@ -2069,7 +2069,7 @@ void qt_dispatchEnterLeave(QWidget* enter, QWidget* leave) {
             wleave = wleave->parentWidget();
             leaveDepth--;
         }
-        while (!wenter->isTopLevel() && wenter != wleave) {
+        while (!wenter->isWindow() && wenter != wleave) {
             wenter = wenter->parentWidget();
             wleave = wleave->parentWidget();
         }
@@ -2124,7 +2124,7 @@ bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
 #endif
 
     QWidget* groupLeader = widget;
-    widget = widget->topLevelWidget();
+    widget = widget->window();
 
     if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
         modal = widget;
@@ -2138,7 +2138,7 @@ bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
         p = p->parentWidget();
     }
 
-    while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
+    while (groupLeader && !groupLeader->testAttribute(Qt::WA_GroupLeader))
         groupLeader = groupLeader->parentWidget();
 
     if (groupLeader) {
@@ -2147,7 +2147,7 @@ bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
         for (int i = 0; unrelated && i < qt_modal_stack->size(); ++i) {
             modal = qt_modal_stack->at(i);
             QWidget* p = modal->parentWidget();
-            while (p && p != groupLeader && !p->testWFlags(Qt::WGroupLeader)) {
+            while (p && p != groupLeader && !p->testAttribute(Qt::WA_GroupLeader)) {
                 p = p->parentWidget();
             }
             if (p == groupLeader) unrelated = false;
@@ -2683,8 +2683,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
                 // next lines are for compatibility with Qt <= 3.0.x: old
                 // QAccel was listening on toplevel widgets
-                if (!res && !key->isAccepted() && !static_cast<QWidget *>(receiver)->isTopLevel())
-                    res = notify_helper(static_cast<QWidget *>(receiver)->topLevelWidget(), e);
+                if (!res && !key->isAccepted() && !static_cast<QWidget *>(receiver)->isWindow())
+                    res = notify_helper(static_cast<QWidget *>(receiver)->window(), e);
             }
             break;
         }
@@ -2711,7 +2711,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 else
                     key->ignore();
                 res = notify_helper(w, e);
-                if ((res && key->isAccepted()) || w->isTopLevel() || !w->parentWidget())
+                if ((res && key->isAccepted()) || w->isWindow() || !w->parentWidget())
                     break;
                 w = w->parentWidget();
             }
@@ -2735,7 +2735,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                             fw->setFocus(Qt::MouseFocusReason);
                             break;
                         }
-                        if (fw->isTopLevel())
+                        if (fw->isWindow())
                             break;
                         fw = fw->parentWidget();
                     }
@@ -2769,7 +2769,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 res = notify_helper(w, w == receiver ? mouse : &me);
                 e->spont = false;
                 if ((res && (w == receiver ? mouse : &me)->isAccepted())
-                    || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+                    || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation))
                     break;
 
                 relpos += w->pos();
@@ -2795,7 +2795,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                         fw->setFocus(Qt::MouseFocusReason);
                         break;
                     }
-                    if (fw->isTopLevel())
+                    if (fw->isWindow())
                         break;
                     fw = fw->parentWidget();
                 }
@@ -2808,7 +2808,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 res = notify_helper(w,  w == receiver ? wheel : &we);
                 e->spont = false;
                 if ((res && (w == receiver ? wheel : &we)->isAccepted())
-                    || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+                    || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation))
                     break;
 
                 relpos += w->pos();
@@ -2833,7 +2833,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 e->spont = false;
 
                 if ((res && (w == receiver ? context : &ce)->isAccepted())
-                    || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+                    || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation))
                     break;
 
                 relpos += w->pos();
@@ -2861,7 +2861,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 res = notify_helper(w, w == receiver ? tablet : &te);
                 e->spont = false;
                 if ((res && (w == receiver ? tablet : &te)->isAccepted()
-                     || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)))
+                     || w->isWindow() || w->testWFlags(Qt::WNoMousePropagation)))
                     break;
 
                 relpos += w->pos();
@@ -2887,7 +2887,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 he.spont = e->spontaneous();
                 res = notify_helper(w,  w == receiver ? help : &he);
                 e->spont = false;
-                if ((res && (w == receiver ? help : &he)->isAccepted()) || w->isTopLevel())
+                if ((res && (w == receiver ? help : &he)->isAccepted()) || w->isWindow())
                     break;
 
                 relpos += w->pos();
@@ -2902,7 +2902,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QWidget *w = static_cast<QWidget *>(receiver);
             while (w) {
                 res = notify_helper(w, e);
-                if ((res && e->isAccepted()) || w->isTopLevel())
+                if ((res && e->isAccepted()) || w->isWindow())
                     break;
                 w = w->parentWidget();
             }
@@ -3535,7 +3535,7 @@ void QSessionManager::requestPhase2()
     \code
     QWidget *widget = qApp->widgetAt(x, y);
     if (widget)
-        widget = widget->topLevelWidget();
+        widget = widget->window();
     \endcode
 */
 
@@ -3547,7 +3547,7 @@ void QSessionManager::requestPhase2()
     \code
     QWidget *widget = qApp->widgetAt(point);
     if (widget)
-        widget = widget->topLevelWidget();
+        widget = widget->window();
     \endcode
 */
 

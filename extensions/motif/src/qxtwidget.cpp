@@ -346,7 +346,7 @@ bool QXtWidget::isActiveWindow() const
     QWidget *w = find( (WId)win );
     if ( w ) {
 	// We know that window
-	return w->topLevelWidget() == topLevelWidget();
+	return w->window() == window();
     } else {
 	// Window still may be a parent (if top-level is foreign window)
 	Window root, parent;

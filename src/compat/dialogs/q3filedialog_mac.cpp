@@ -233,11 +233,11 @@ QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pw
     static const int w = 450, h = 350;
     options.location.h = options.location.v = -1;
     if(parent && parent->isVisible()) {
-        if(!parent->topLevelWidget()->isDesktop()) {
+        if(!parent->window()->isDesktop()) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
-            parent = parent->topLevelWidget();
+            parent = parent->window();
             QString s = parent->windowTitle();
             options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
             options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
@@ -410,11 +410,11 @@ QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &fi
         options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(),
                                                            caption.length());
     if(parent && parent->isVisible()) {
-        if(!parent->topLevelWidget()->isDesktop()) {
+        if(!parent->window()->isDesktop()) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
-            parent = parent->topLevelWidget();
+            parent = parent->window();
             QString s = parent->windowTitle();
             options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
             options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);

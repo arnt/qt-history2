@@ -159,8 +159,8 @@ void QDesignerWorkbench::switchToNeutralMode()
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         if (tw->isVisible()) {
             // use the actual geometry
-            QPoint pos = tw->topLevelWidget()->pos();
-            if (!tw->isTopLevel())
+            QPoint pos = tw->window()->pos();
+            if (!tw->isWindow())
                 if (QWidget *p = tw->parentWidget())
                     if (QWidget *pp = p->parentWidget())
                         pos = tw->mapTo(pp, pos); // in workspace
@@ -174,8 +174,8 @@ void QDesignerWorkbench::switchToNeutralMode()
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         if (fw->isVisible()) {
             // use the actual geometry
-            QPoint pos = fw->topLevelWidget()->pos();
-            if (!fw->isTopLevel())
+            QPoint pos = fw->window()->pos();
+            if (!fw->isWindow())
                 if (QWidget *p = fw->parentWidget())
                     if (QWidget *pp = p->parentWidget())
                         pos = fw->mapTo(pp, pos); // in workspace

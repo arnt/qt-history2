@@ -1075,7 +1075,7 @@ void Q3MainWindow::addDockWindow(Q3DockWindow *dockWindow,
 {
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
-    if(isTopLevel() && edge == Qt::DockTop)
+    if(isWindow() && edge == Qt::DockTop)
         ChangeWindowAttributes(qt_mac_window_for(this), kWindowToolbarButtonAttribute, 0);
 #endif
     moveDockWindow(dockWindow, edge);
@@ -1244,7 +1244,7 @@ void Q3MainWindow::removeDockWindow(Q3DockWindow * dockWindow)
 {
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
-    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows(Qt::DockTop).count())
+    if(isWindow() && dockWindow->area() == topDock() && !dockWindows(Qt::DockTop).count())
         ChangeWindowAttributes(qt_mac_window_for(this), 0, kWindowToolbarButtonAttribute);
 #endif
 
@@ -1330,7 +1330,7 @@ void Q3MainWindow::show()
     if (!isVisible()) {
         for (int i = 0; i < d->dockWindows.size(); ++i) {
             Q3DockWindow *dw = d->dockWindows.at(i);
-            if (dw->isTopLevel() && !dw->isVisible() && !dw->testAttribute(Qt::WA_WState_Hidden)) {
+            if (dw->isWindow() && !dw->isVisible() && !dw->testAttribute(Qt::WA_WState_Hidden)) {
                 reinterpret_cast<Q3MainWindow *>(dw)->setAttribute(Qt::WA_WState_Hidden);
                 dw->show();
             }
@@ -1349,7 +1349,7 @@ void Q3MainWindow::hide()
     if (isVisible()) {
         for (int i = 0; i < d->dockWindows.size(); ++i) {
             Q3DockWindow *dw = d->dockWindows.at(i);
-            if (dw->isTopLevel() && dw->isVisible()) {
+            if (dw->isWindow() && dw->isVisible()) {
                 dw->hide(); // implicit hide, so clear forcehide
                 reinterpret_cast<Q3MainWindow *>(dw)->setAttribute(Qt::WA_WState_Hidden, false);
             }

@@ -304,14 +304,14 @@ void QGLContext::updatePaintDevice()
 #endif
 
         //update drawable
-        if(w->isTopLevel() && w->isFullScreen()) {
+        if(w->isWindow() && w->isFullScreen()) {
             aglSetFullScreen((AGLContext)d->cx, w->width(), w->height(), 0, QApplication::desktop()->screenNumber(w));
             w->hide();
         } else {
             aglSetDrawable((AGLContext)d->cx, GetWindowPort(window));
         }
 
-        if(!w->isTopLevel()) {
+        if(!w->isWindow()) {
             QRegion clp = qt_mac_get_widget_rgn(w); //get drawable area
 
 #ifdef DEBUG_WINDOW_UPDATE
@@ -329,7 +329,7 @@ void QGLContext::updatePaintDevice()
                     aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
             } else {
                 QPoint wpos = posInWindow(w);
-                const GLint offs[4] = { wpos.x(), w->topLevelWidget()->height() - (wpos.y() + w->height()),
+                const GLint offs[4] = { wpos.x(), w->window()->height() - (wpos.y() + w->height()),
                                         w->width(), w->height() };
                 aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
                 aglSetInteger((AGLContext)d->cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));

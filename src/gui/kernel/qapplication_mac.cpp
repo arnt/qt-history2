@@ -188,7 +188,7 @@ void qt_mac_unicode_init(QWidget *w)
 }
 void qt_mac_unicode_cleanup(QWidget *w)
 {
-    if(w && w->isTopLevel()) {
+    if(w && w->isWindow()) {
         delete qt_mac_tsm_hash()->take(qt_mac_window_for(w));
     }
 }
@@ -687,7 +687,7 @@ void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *)
     EventLoopTimerRef otc = request_activate_pending.timer;
     qt_event_remove_activate();
     if(r == otc && !request_activate_pending.widget.isNull()) {
-        const QWidget *tlw = request_activate_pending.widget->topLevelWidget();
+        const QWidget *tlw = request_activate_pending.widget->window();
         if(tlw->isVisible() && !tlw->isDesktop() && !tlw->isPopup() && !tlw->testWFlags(Qt::WStyle_Tool)) {
             CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
                         kEventAttributeUserEvent, &request_activate_pending.event);
@@ -1432,7 +1432,7 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             set_active = !(GetCurrentKeyModifiers() & cmdKey);
         if(set_active) {
             widget->raise();
-            if(!widget->isActiveWindow() && widget->isTopLevel() && !widget->isDesktop()
+            if(!widget->isActiveWindow() && widget->isWindow() && !widget->isDesktop()
                && !widget->isPopup() && !qt_mac_is_macsheet(widget)
                && (widget->isModal() || !::qt_cast<QDockWindow *>(widget))) {
                 widget->activateWindow();
@@ -1632,12 +1632,12 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
         break;
     }
 
-    if(top->isTopLevel() && (block_event || paint_event))
+    if(top->isWindow() && (block_event || paint_event))
         top->raise();
 #if 0 //This is really different than Qt behaves, but it is correct for Aqua, what do I do? -Sam
     if(block_event && qt_mac_is_macsheet(top)) {
         for(QWidget *w = top->parentWidget(); w; w = w->parentWidget()) {
-            w = w->topLevelWidget();
+            w = w->window();
             if(w == widget || w->isModal()) {
 #ifdef DEBUG_MODAL_EVENTS
                 qDebug("%s:%d -- modal (false)", __FILE__, __LINE__);
@@ -1737,7 +1737,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventQtRequestActivate) {
             qt_mac_event_release(request_activate_pending.event);
             if(request_activate_pending.widget) {
-                QWidget *tlw = request_activate_pending.widget->topLevelWidget();
+                QWidget *tlw = request_activate_pending.widget->window();
                 request_activate_pending.widget = 0;
                 tlw->activateWindow();
                 SelectWindow((WindowPtr)tlw->handle());
@@ -1901,7 +1901,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         //figure out which widget to send it to
         if(app->inPopupMode()) {
             QWidget *popup = qApp->activePopupWidget();
-            if (qt_button_down && qt_button_down->topLevelWidget() == popup) {
+            if (qt_button_down && qt_button_down->window() == popup) {
                 widget = qt_button_down;
             } else {
                 QPoint pos = popup->mapFromGlobal(QPoint(where.h, where.v));
@@ -2457,9 +2457,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(app_do_modal && !qt_try_modal(widget, event))
                 break;
 
-            if(widget && widget->topLevelWidget()->isVisible()) {
-                QWidget *tlw = widget->topLevelWidget();
-		if(tlw->isTopLevel() && !tlw->isPopup()
+            if(widget && widget->window()->isVisible()) {
+                QWidget *tlw = widget->window();
+		if(tlw->isWindow() && !tlw->isPopup()
                    && !qt_mac_is_macdrawer(tlw)
                    && (!tlw->parentWidget() || tlw->isModal()
                        || !tlw->testWFlags(Qt::WStyle_Tool))) {

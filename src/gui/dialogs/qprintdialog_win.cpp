@@ -71,7 +71,7 @@ int QPrintDialog::exec()
 
     QWidget *parent = parentWidget();
     if (parent)
-        parent = parent->topLevelWidget();
+        parent = parent->window();
     else
         parent = qApp->mainWidget();
 

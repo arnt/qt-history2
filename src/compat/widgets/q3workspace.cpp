@@ -351,14 +351,14 @@ Q3WorkspacePrivate::init()
     q->setAttribute(Qt::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    d->topTitle = q->topLevelWidget()->windowTitle();
+    d->topTitle = q->window()->windowTitle();
     d->hbar = d->vbar = 0;
     d->corner = 0;
     d->xoffset = d->yoffset = 0;
 
     updateWorkspace();
 
-    q->topLevelWidget()->installEventFilter(q);
+    q->window()->installEventFilter(q);
 }
 
 /*!
@@ -835,7 +835,7 @@ void Q3WorkspacePrivate::minimizeWindow(QWidget* w)
             d->maxWindow = 0;
             inTitleChange = true;
             if (d->topTitle.size())
-                q->topLevelWidget()->setWindowTitle(d->topTitle);
+                q->window()->setWindowTitle(d->topTitle);
             inTitleChange = false;
             if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
                 hideMaximizeControls();
@@ -887,7 +887,7 @@ void Q3WorkspacePrivate::normalizeWindow(QWidget* w)
             d->maxWindow = 0;
             inTitleChange = true;
             if (d->topTitle.size())
-                q->topLevelWidget()->setWindowTitle(d->topTitle);
+                q->window()->setWindowTitle(d->topTitle);
             inTitleChange = false;
         } else {
             if (c->iconw)
@@ -952,7 +952,7 @@ void Q3WorkspacePrivate::maximizeWindow(QWidget* w)
     }
     inTitleChange = true;
     if (d->topTitle.size())
-        q->topLevelWidget()->setWindowTitle(q->tr("%1 - [%2]")
+        q->window()->setWindowTitle(q->tr("%1 - [%2]")
                                             .arg(d->topTitle).arg(c->windowTitle()));
     inTitleChange = false;
 
@@ -1067,7 +1067,7 @@ bool Q3Workspace::eventFilter(QObject *o, QEvent * e)
             break;
 
         inTitleChange = true;
-        if (o == topLevelWidget()) {
+        if (o == window()) {
             QWidget *tlw = (QWidget*)o;
             if (!d->maxWindow
                 || tlw->windowTitle() != tr("%1 - [%2]").arg(d->topTitle).arg(d->maxWindow->windowTitle()))
@@ -1075,13 +1075,13 @@ bool Q3Workspace::eventFilter(QObject *o, QEvent * e)
         }
 
         if (d->maxWindow && d->topTitle.size())
-            topLevelWidget()->setWindowTitle(tr("%1 - [%2]")
+            window()->setWindowTitle(tr("%1 - [%2]")
                 .arg(d->topTitle).arg(d->maxWindow->windowTitle()));
         inTitleChange = false;
 
         break;
     case QEvent::Close:
-        if (o == topLevelWidget())
+        if (o == window())
         {
             QList<Q3WorkspaceChild *>::Iterator it(d->windows.begin());
             while (it != d->windows.end()) {
@@ -1124,7 +1124,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
 
     // and query recursively if nothing is found.
     if (!l.size())
-        l = qFindChildren<QMenuBar*>(q->topLevelWidget());
+        l = qFindChildren<QMenuBar*>(q->window());
     if (l.size())
         b = l.at(0);
 
@@ -1133,7 +1133,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
 
     if (!d->maxcontrols) {
         d->maxmenubar = b;
-        d->maxcontrols = new QFrame(q->topLevelWidget());
+        d->maxcontrols = new QFrame(q->window());
         d->maxcontrols->setObjectName("qt_maxcontrols");
         QHBoxLayout* l = new QHBoxLayout(d->maxcontrols);
         l->setMargin(d->maxcontrols->frameWidth());
@@ -1188,7 +1188,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
     }
     if (d->active) {
         if (!d->maxtools) {
-            d->maxtools = new QLabel(q->topLevelWidget());
+            d->maxtools = new QLabel(q->window());
             d->maxtools->setObjectName("qt_maxtools");
             d->maxtools->installEventFilter(q);
         }
@@ -2090,7 +2090,7 @@ void Q3WorkspaceChild::setActive(bool b)
     if (!childWidget)
         return;
 
-    bool hasFocus = isChildOf(topLevelWidget()->focusWidget(), this);
+    bool hasFocus = isChildOf(window()->focusWidget(), this);
     if (act == b && hasFocus)
         return;
 

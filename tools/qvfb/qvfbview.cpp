@@ -308,7 +308,7 @@ void QVFbView::setZoom( double z )
         contentsWidth = int(hdr->width*z);
         contentsHeight = int(hdr->height*z);
         resize(contentsWidth, contentsHeight);
-////        topLevelWidget()->adjustSize();
+////        window()->adjustSize();
         drawScreen();
     }
 }

@@ -328,7 +328,7 @@ QMotifWidget::QMotifWidget(const char *name, WidgetClass widgetClass, QWidget *p
 	    // keep an eye on the position of the toplevel widget, so that we
 	    // can tell our hidden shell its real on-screen position
             QWidget *tlw = parent;
-            while (!tlw->isTopLevel()) {
+            while (!tlw->isWindow()) {
                 if (tlw->parentWidget()->inherits("QWorkspace")) {
                     d->filter2 = tlw;
                     d->filter2->installEventFilter(this);
@@ -509,7 +509,7 @@ void QMotifWidget::realize( Widget w )
 	QObjectList list = children();
 	for (int i = 0; i < list.size(); ++i) {
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
-	    if (!widget || widget->isTopLevel()) continue;
+	    if (!widget || widget->isWindow()) continue;
 
 	    XReparentWindow(x11Info().display(), widget->winId(), newid,
 			    widget->x(), widget->y());
@@ -615,7 +615,7 @@ void qmotif_widget_shell_change_managed( Widget w )
 	// ### initial size of the QMotifWidget should be taken from
 	// ### the motif widget, otherwise use the size from the
 	// ### parent widget (i.e. we are in a layout)"
-	if ((! widget->isTopLevel() && widget->parentWidget() && widget->parentWidget()->layout())
+	if ((! widget->isWindow() && widget->parentWidget() && widget->parentWidget()->layout())
 	    || widget->testAttribute(Qt::WA_Resized)) {
 	    // the widget is most likely resized a) by a layout or b) explicitly
 	    XtMoveWidget( w, x.x(), x.y() );
@@ -657,7 +657,7 @@ bool QMotifWidget::eventFilter( QObject *, QEvent *event )
 
             QWidget *tlw = parentWidget();
             if (tlw) {
-                while (!tlw->isTopLevel()) {
+                while (!tlw->isWindow()) {
                     if (tlw->parentWidget()->inherits("QWorkspace")) {
                         d->filter2 = tlw;
                         d->filter2->installEventFilter(this);
@@ -680,8 +680,8 @@ bool QMotifWidget::eventFilter( QObject *, QEvent *event )
             // the motif widget is embedded in our special shell, so when the
             // top-level widget moves, we need to inform the special shell
             // about our new position
-            QPoint p = topLevelWidget()->geometry().topLeft() +
-                       mapTo( topLevelWidget(), QPoint( 0, 0 ) );
+            QPoint p = window()->geometry().topLeft() +
+                       mapTo( window(), QPoint( 0, 0 ) );
             d->shell->core.x = p.x();
             d->shell->core.y = p.y();
             break;
@@ -701,8 +701,8 @@ bool QMotifWidget::x11Event(XEvent *event)
         // the motif widget is embedded in our special shell, so when the
         // top-level widget moves, we need to inform the special shell
         // about our new position
-        QPoint p = topLevelWidget()->geometry().topLeft() +
-                   mapTo( topLevelWidget(), QPoint( 0, 0 ) );
+        QPoint p = window()->geometry().topLeft() +
+                   mapTo( window(), QPoint( 0, 0 ) );
         d->shell->core.x = p.x();
         d->shell->core.y = p.y();
     }

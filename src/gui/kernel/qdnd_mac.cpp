@@ -339,7 +339,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 
     if(qt_modal_state()) {
         for(QWidget *modal = q; modal; modal = modal->parentWidget()) {
-            if(modal->isTopLevel()) {
+            if(modal->isWindow()) {
                 if(modal != QApplication::activeModalWidget())
                     return noErr;
                 break;

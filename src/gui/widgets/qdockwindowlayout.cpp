@@ -1113,7 +1113,7 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
             return;
         } else if (dockwindow == info.item->widget()) {
             // placed back at original position
-            if (dockwindow->isTopLevel()) {
+            if (dockwindow->isWindow()) {
                 dockwindow->setTopLevel(false);
                 dockwindow->show();
             }
@@ -1165,7 +1165,7 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
     relayout(QInternal::RelayoutDropped);
     info.is_dropped = false;
 
-    if (dockwindow->isTopLevel()) {
+    if (dockwindow->isWindow()) {
         // reparent the dock window into the main window
         dockwindow->setTopLevel(false);
         dockwindow->show();

@@ -1170,7 +1170,7 @@ static void objSearch(QObjectList &result,
     window:
 
     \code
-        QList<QObject *> list = topLevelWidget()->queryList("QAbstractButton"));
+        QList<QObject *> list = window()->queryList("QAbstractButton"));
         foreach (QObject *obj, list)
             static_cast<QAbstractButton *>(obj)->setEnabled(false);
     \endcode

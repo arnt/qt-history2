@@ -35,7 +35,7 @@ QStyleOptionMenuItem MenuDelegate::getStyleOption(const QStyleOptionViewItem &op
 
     menuOption.palette = QApplication::palette("QMenu");
     menuOption.state = QStyle::State_None;
-    if (mCombo->topLevelWidget()->isActiveWindow())
+    if (mCombo->window()->isActiveWindow())
         menuOption.state = QStyle::State_Active;
     if (option.state & QStyle::State_Enabled)
         menuOption.state |= QStyle::State_Enabled;

@@ -161,7 +161,7 @@ public:
     QWidget *menuBar() const;
 
     QWidget *parentWidget() const;
-    bool isTopLevel() const;
+    bool isWindow() const;
 
     void invalidate();
     QRect geometry() const;

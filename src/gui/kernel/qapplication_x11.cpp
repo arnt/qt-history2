@@ -2298,7 +2298,7 @@ Window QX11Data::findClientWindow(Window win, Atom property, bool leaf)
 QWidget *QApplication::topLevelAt(const QPoint &p)
 {
     QWidget *c = widgetAt_sys(p.x(), p.y());
-    return c ? c->topLevelWidget() : 0;
+    return c ? c->window() : 0;
 }
 
 QWidget *QApplication::widgetAt_sys(int x, int y)
@@ -2451,7 +2451,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
                     X11->time = event->xclient.data.l[1];
                 if (amw && amw != widget) {
                     QWidget* groupLeader = widget;
-                    while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader)
+                    while (groupLeader && !groupLeader->testAttribute(Qt::WA_GroupLeader)
                            && groupLeader != amw)
                         groupLeader = groupLeader->parentWidget();
                     if (!groupLeader) {
@@ -2575,7 +2575,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             else if (QApplicationPrivate::focus_widget)
                 keywidget = (QETWidget*)QApplicationPrivate::focus_widget;
             else if (widget)
-                keywidget = (QETWidget*)widget->topLevelWidget();
+                keywidget = (QETWidget*)widget->window();
         }
     }
 
@@ -2717,7 +2717,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             return 1;
         }
         if (event->type == ButtonPress)
-            qt_net_update_user_time(widget->topLevelWidget());
+            qt_net_update_user_time(widget->window());
         // fall through intended
     case MotionNotify:
 #if !defined(QT_NO_TABLET_SUPPORT)
@@ -2732,7 +2732,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case XKeyPress:                                // keyboard event
-        qt_net_update_user_time(widget->topLevelWidget());
+        qt_net_update_user_time(widget->window());
         // fallthrough intended
     case XKeyRelease:
         {
@@ -2758,7 +2758,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
         if (inPopupMode()) // some delayed focus event to ignore
             break;
-        if (!widget->isTopLevel())
+        if (!widget->isWindow())
             break;
         if (event->xfocus.detail != NotifyAncestor &&
             event->xfocus.detail != NotifyInferior &&
@@ -2777,7 +2777,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     case XFocusOut:                                // lost focus
         if (widget->isDesktop())
             break;
-        if (!widget->isTopLevel())
+        if (!widget->isWindow())
             break;
         if (event->xfocus.mode == NotifyGrab)
             qt_xfocusout_grab_counter++;
@@ -2794,7 +2794,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     case EnterNotify: {                        // enter window
         if (QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber())
             break;
-        if (inPopupMode() && widget->topLevelWidget() != activePopupWidget())
+        if (inPopupMode() && widget->window() != activePopupWidget())
             break;
         if (event->xcrossing.mode != NotifyNormal ||
             event->xcrossing.detail == NotifyVirtual  ||
@@ -2866,7 +2866,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case UnmapNotify:                                // window hidden
-        if (widget->isTopLevel() && !widget->isPopup()) {
+        if (widget->isWindow() && !widget->isPopup()) {
             widget->setAttribute(Qt::WA_Mapped, false);
             if (widget->isShown()) {
                 widget->d->topData()->spont_unmapped = 1;
@@ -2878,7 +2878,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case MapNotify:                                // window shown
-        if (widget->isTopLevel() && !widget->isPopup()) {
+        if (widget->isWindow() && !widget->isPopup()) {
             widget->setAttribute(Qt::WA_Mapped);
             if (widget->d->topData()->spont_unmapped) {
                 widget->d->topData()->spont_unmapped = 0;
@@ -2899,7 +2899,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                                       event))
             ;        // skip old reparent events
         if (event->xreparent.parent == QX11Info::appRootWindow()) {
-            if (widget->isTopLevel()) {
+            if (widget->isWindow()) {
                 widget->d->topData()->parentWinId = event->xreparent.parent;
                 int idx = X11->deferred_map.indexOf(widget);
                 if (idx != -1) {
@@ -2910,7 +2910,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         } else
             // store the parent. Useful for many things, embedding for instance.
             widget->d->topData()->parentWinId = event->xreparent.parent;
-        if (widget->isTopLevel()) {
+        if (widget->isWindow()) {
             // the widget frame strut should also be invalidated
             widget->d->topData()->fleft = widget->d->topData()->fright =
              widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
@@ -3595,7 +3595,7 @@ bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta,
     // send the event to the widget or its ancestors
     {
         QWidget* popup = qApp->activePopupWidget();
-        if (popup && topLevelWidget() != popup)
+        if (popup && window() != popup)
             popup->close();
         QWheelEvent e(mapFromGlobal(QPoint(global_x, global_y)),
                        QPoint(global_x, global_y), delta, buttons, modifiers, orient);
@@ -3761,7 +3761,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
 
 bool QETWidget::translatePropertyEvent(const XEvent *event)
 {
-    if (!isTopLevel()) return true;
+    if (!isWindow()) return true;
 
     Atom ret;
     int format, e;
@@ -4340,7 +4340,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     KeySym key = 0;
 
     // ###
-    // QWidget* tlw = topLevelWidget();
+    // QWidget* tlw = window();
 
     XKeyEvent xkeyevent = event->xkey;
 
@@ -4953,7 +4953,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
 {
     setAttribute(Qt::WA_WState_ConfigPending, false);
 
-    if (isTopLevel()) {
+    if (isWindow()) {
         QPoint newCPos(geometry().topLeft());
         QSize  newSize(event->xconfigure.width, event->xconfigure.height);
 

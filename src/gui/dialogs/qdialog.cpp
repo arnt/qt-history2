@@ -241,7 +241,7 @@ void QDialogPrivate::setDefault(QPushButton *pushButton)
     QList<QPushButton*> list = qFindChildren<QPushButton*>(q);
     for (int i=0; i<list.size(); ++i) {
         QPushButton *pb = list.at(i);
-        if (pb->topLevelWidget() == q) {
+        if (pb->window() == q) {
             if (pb == d->mainDef)
                 hasMain = true;
             if (pb != pushButton)
@@ -448,7 +448,7 @@ void QDialog::contextMenuEvent(QContextMenuEvent *e)
             return;
     }
     while (w && w->whatsThis().size() == 0 && !w->testAttribute(Qt::WA_CustomWhatsThis))
-        w = w->isTopLevel() ? 0 : w->parentWidget();
+        w = w->isWindow() ? 0 : w->parentWidget();
     if (w) {
         QMenu p;
         QAction *wt = p.addAction(tr("What's This?"));
@@ -595,7 +595,7 @@ void QDialog::show()
     }
     QWidget::show();
     showExtension(d->doShowExtension);
-    QWidget *fw = topLevelWidget()->focusWidget();
+    QWidget *fw = window()->focusWidget();
     if (!fw)
         fw = this;
 
@@ -616,7 +616,7 @@ void QDialog::show()
         if (first != d->mainDef && qt_cast<QPushButton*>(first))
             d->mainDef->setFocus();
     }
-    if (!d->mainDef && isTopLevel()) {
+    if (!d->mainDef && isWindow()) {
         QWidget *w = fw;
         while ((w = w->nextInFocusChain()) != fw) {
             QPushButton *pb = qt_cast<QPushButton *>(w);
@@ -654,7 +654,7 @@ void QDialog::adjustPosition(QWidget* w)
     QPoint p(0, 0);
     int extraw = 0, extrah = 0, scrn = 0;
     if (w)
-        w = w->topLevelWidget();
+        w = w->window();
     QRect desk;
     if (w) {
         scrn = QApplication::desktop()->screenNumber(w);

@@ -62,7 +62,7 @@ void QWSInputContext::update()
 
     QPoint p = w->inputMethodQuery(Qt::ImMicroFocus).toRect().bottomLeft();
 
-    QWidget *tlw = w->topLevelWidget();
+    QWidget *tlw = w->window();
     int winid = tlw->winId();
     QPoint gp = w->mapToGlobal( p );
 

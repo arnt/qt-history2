@@ -334,7 +334,7 @@ void Q3TabDialog::show()
     //   Reimplemented in order to delay show()'ing of every page
     //   except the initially visible one, and in order to emit the
     //   aboutToShow() signal.
-    if (topLevelWidget() == this)
+    if (window() == this)
 	d->tw->setFocus();
     emit aboutToShow();
     setSizes();

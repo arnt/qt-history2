@@ -761,7 +761,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
             if (c)
                 p = c->mapFromGlobal(p);
 
-            while (c && !c->acceptDrops() && !c->isTopLevel()) {
+            while (c && !c->acceptDrops() && !c->isWindow()) {
                 p = c->mapToParent(p);
                 c = c->parentWidget();
             }

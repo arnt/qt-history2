@@ -205,6 +205,8 @@ public:
         WMouseNoMask = 0x00010000,
         WDestructiveClose = 0x00020000,
         WStaticContents = 0x00040000,
+        WGroupLeader = 0x00080000,
+        WShowModal = 0x00100000,
 
         WType_TopLevel = Window,
         WType_Dialog = Dialog
@@ -233,9 +235,6 @@ public:
         WWinOwnDC               = 0,
         WMacSheet               = Sheet,
         WMacDrawer              = Drawer,
-
-        WGroupLeader            = 0,
-        WShowModal              = 0x04000000,
 
         WStyle_Splash           = SplashScreen,
         WStyle_ToolTip          = ToolTip,
@@ -402,8 +401,9 @@ public:
         WA_WState_OwnSizePolicy = 68,
         WA_WState_ExplicitShowHide = 69,
 
-        WA_ShowModal = 70,
+        WA_ShowModal = 70, // ## for now, need mode (application modal, modal to parent, ...)
         WA_MouseNoMask = 71,
+        WA_GroupLeader = 72, // ## for now, might go away.
 
         // Add new attributes above this!
         WA_AttributeCount

@@ -220,7 +220,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
             if (!d->usesWidgetDC) {
                 if (w->testAttribute(Qt::WA_PaintUnclipped)) {
                     d->hdc = GetWindowDC(w->winId());
-                    if (w->isTopLevel()) {
+                    if (w->isWindow()) {
                         int dx = w->geometry().x() - w->frameGeometry().x();
                         int dy = w->geometry().y() - w->frameGeometry().y();
 #ifndef Q_OS_TEMP

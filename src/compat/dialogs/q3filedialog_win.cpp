@@ -158,7 +158,7 @@ OPENFILENAMEA* makeOFNA(QWidget* parent,
                          Q3FileDialog::Mode mode)
 {
     if (parent)
-        parent = parent->topLevelWidget();
+        parent = parent->window();
     else
         parent = qApp->mainWidget();
 
@@ -223,7 +223,7 @@ OPENFILENAME* makeOFN(QWidget* parent,
                        Q3FileDialog::Mode mode)
 {
     if (parent)
-        parent = parent->topLevelWidget();
+        parent = parent->window();
     else
         parent = qApp->mainWidget();
 
@@ -629,7 +629,7 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
     QString currentDir = QDir::currentDirPath();
     QString result;
     if (parent)
-        parent = parent->topLevelWidget();
+        parent = parent->window();
     else
         parent = qApp->mainWidget();
     QString title = caption;

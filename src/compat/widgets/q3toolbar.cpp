@@ -473,7 +473,7 @@ bool Q3ToolBar::event(QEvent * e)
     // After the event filters have dealt with it, do our stuff.
     if (e->type() == QEvent::ChildInserted) {
         QObject * child = ((QChildEvent*)e)->child();
-        if (child && child->isWidgetType() && !((QWidget*)child)->isTopLevel()
+        if (child && child->isWidgetType() && !((QWidget*)child)->isWindow()
              && child->parent() == this
             && QLatin1String("qt_dockwidget_internal") != child->objectName()) {
             boxLayout()->addWidget((QWidget*)child);

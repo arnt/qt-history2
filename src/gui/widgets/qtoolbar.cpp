@@ -655,7 +655,7 @@ void QToolBar::childEvent(QChildEvent *event)
     QWidget *widget = qt_cast<QWidget *>(event->child());
     if (widget) {
 #if !defined(QT_NO_DEBUG)
-        if (!widget->isTopLevel() && event->type() == QEvent::ChildPolished) {
+        if (!widget->isWindow() && event->type() == QEvent::ChildPolished) {
             bool found = (d->handle == widget || d->extension == widget);
             for (int i = 0; !found && i < d->items.size(); ++i) {
                 const QToolBarItem &item = d->items.at(i);

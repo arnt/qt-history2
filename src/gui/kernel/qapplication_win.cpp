@@ -1005,7 +1005,7 @@ void qt_set_cursor(QWidget *w, const QCursor& /* c */)
     if (!curWin)
         return;
     QWidget* cW = QWidget::find(curWin);
-    if (!cW || cW->topLevelWidget() != w->topLevelWidget() ||
+    if (!cW || cW->window() != w->window() ||
          !cW->isVisible() || !cW->underMouse())
         return;
 
@@ -1038,7 +1038,7 @@ static QWidget *findChildWidget(const QWidget *p, const QPoint &pos)
 QWidget *QApplication::topLevelAt(const QPoint &p)
 {
     QWidget *c = widgetAt_sys(p.x(), p.y());
-    return c ? c->topLevelWidget() : 0;
+    return c ? c->window() : 0;
 }
 
 QWidget *QApplication::widgetAt_sys(int x, int y)
@@ -1146,7 +1146,7 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
             // raise the entire application, not just the dialog
             QWidget* mw = QApplicationPrivate::active_window;
             while(mw->parentWidget() && mw->testWFlags(Qt::WType_Dialog))
-                mw = mw->parentWidget()->topLevelWidget();
+                mw = mw->parentWidget()->window();
             if (mw != QApplicationPrivate::active_window)
                 SetWindowPos(mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
         }
@@ -1447,7 +1447,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             else if (qApp->focusWidget())
                 widget = (QETWidget*)qApp->focusWidget();
             else if (!widget || widget->winId() == GetFocus()) // We faked the message to go to exactly that widget.
-                widget = (QETWidget*)widget->topLevelWidget();
+                widget = (QETWidget*)widget->window();
             if (widget->isEnabled())
                 result = widget->translateKeyEvent(msg, g != 0);
             break;
@@ -1554,7 +1554,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                             else if (qApp->focusWidget())
                                 widget = (QETWidget*)qApp->focusWidget();
                             else
-                                widget = (QETWidget*)widget->topLevelWidget();
+                                widget = (QETWidget*)widget->window();
                             if (widget->isEnabled())
                                 res = ((QETWidget*)widget)->sendKeyEvent(QEvent::KeyPress, key, state, false, QString::null, g != 0);
                             if (res)
@@ -1573,7 +1573,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
 #ifndef Q_OS_TEMP
         case WM_NCHITTEST:
-            if (widget->isTopLevel()) {
+            if (widget->isWindow()) {
                 QPoint pos = widget->mapFromGlobal(QPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
                 // don't show resize-cursors for fixed-size widgets
                 int fleft = widget->topData()->fleft;
@@ -1751,7 +1751,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 #ifndef Q_OS_TEMP
             case WM_MOUSEACTIVATE:
                 {
-                    const QWidget *tlw = widget->topLevelWidget();
+                    const QWidget *tlw = widget->window();
                     // Do not change activation if the clicked widget is inside a floating dock window
                     if (tlw->inherits("QDockWindow") && qApp->activeWindow()
                          && !qApp->activeWindow()->inherits("QDockWindow"))
@@ -1979,7 +1979,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 // so test if it is actually up-to-date
                 if (!dispatch) {
                     QRect geom = widget->geometry();
-                    if (widget->parentWidget() && !widget->isTopLevel()) {
+                    if (widget->parentWidget() && !widget->isWindow()) {
                         QPoint gp = widget->parentWidget()->mapToGlobal(widget->pos());
                         geom.setX(gp.x());
                         geom.setY(gp.y());
@@ -2108,7 +2108,7 @@ static bool qt_blocked_modal(QWidget *widget)
 
     QWidget *modal=0, *top=qt_modal_stack->first();
 
-    widget = widget->topLevelWidget();
+    widget = widget->window();
     if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
         modal = widget;
     if (!top || modal == top)                                // don't block event
@@ -2462,7 +2462,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             SetCursor(c->handle());
         else {
             QWidget *w = this; // use  widget cursor if widget is enabled
-            while (!w->isTopLevel() && !w->isEnabled())
+            while (!w->isWindow() && !w->isEnabled())
                 w = w->parentWidget();
             SetCursor(w->cursor().handle());
         }
@@ -2956,7 +2956,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                     return false;                // Send the event on to Windows
                 case Qt::Key_Space:
                     // do not pass this key to windows, we will process it ourselves
-                    qt_show_system_menu(topLevelWidget());
+                    qt_show_system_menu(window());
                     return true;
                 default:
                     break;
@@ -3070,7 +3070,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     // send the event to the widget or its ancestors
     {
         QWidget* popup = qApp->activePopupWidget();
-        if (popup && w->topLevelWidget() != popup)
+        if (popup && w->window() != popup)
             popup->close();
         QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta,
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
@@ -3082,7 +3082,7 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     // send the event to the widget that has the focus or its ancestors, if different
     if (w != qApp->focusWidget() && (w = qApp->focusWidget())) {
         QWidget* popup = qApp->activePopupWidget();
-        if (popup && w->topLevelWidget() != popup)
+        if (popup && w->window() != popup)
             popup->close();
         QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta,
                       Qt::MouseButtons(state & Qt::MouseButtonMask),
@@ -3321,7 +3321,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         return true;
     if (testAttribute(Qt::WA_WState_ConfigPending))
         return true;
-    if (!isTopLevel())
+    if (!isWindow())
         return true;
     setAttribute(Qt::WA_WState_ConfigPending);                // set config flag
     QRect cr = geometry();
@@ -3333,7 +3333,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         cr.setSize(newSize);
         if (msg.wParam != SIZE_MINIMIZED)
             data->crect = cr;
-        if (isTopLevel()) {                        // update title/icon text
+        if (isWindow()) {                        // update title/icon text
             d->createTLExtra();
             // Capture SIZE_MINIMIZED without preceding WM_SYSCOMMAND
             // (like Windows+M)

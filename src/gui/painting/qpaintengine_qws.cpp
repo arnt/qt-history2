@@ -160,15 +160,15 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
 
         QPoint offset=w->mapToGlobal(QPoint(0,0));
         QRegion r; // empty if not visible
-        if (w->isVisible() && w->topLevelWidget()->isVisible()) {
-            int rgnIdx = w->topLevelWidget()->data->alloc_region_index;
+        if (w->isVisible() && w->window()->isVisible()) {
+            int rgnIdx = w->window()->data->alloc_region_index;
             if (rgnIdx >= 0) {
                 r = w->testAttribute(Qt::WA_PaintUnclipped) ? w->d->allocatedRegion() : w->d->paintableRegion();
                 QRegion req;
                 bool changed = false;
                 QWSDisplay::grab();
                 const int *rgnRev = QPaintDevice::qwsDisplay()->regionManager()->revision(rgnIdx);
-                if (w->topLevelWidget()->data->alloc_region_revision != *rgnRev) {
+                if (w->window()->data->alloc_region_revision != *rgnRev) {
                     // The TL region has changed, so we better make sure we're
                     // not writing to any regions we don't own anymore.
                     // We'll get a RegionModified event soon that will get our

@@ -674,7 +674,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     opt.palette = q->palette();
     opt.state = QStyle::State_None;
 
-    if (q->topLevelWidget()->isActiveWindow())
+    if (q->window()->isActiveWindow())
         opt.state |= QStyle::State_Active;
     if (q->isEnabled() && action->isEnabled()
             && (!action->menu() || action->menu()->isEnabled()))

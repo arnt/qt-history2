@@ -213,14 +213,14 @@ bool Q3AccelManager::correctSubWindow(QWidget* w, Q3AccelPrivate* d) {
     if (!d->watch || (!d->watch->isVisible() && !d->watch->inherits("QMenuBar")) || !d->watch->isEnabled())
 #endif
 	return false;
-    QWidget* tlw = w->topLevelWidget();
-    QWidget* wtlw = d->watch->topLevelWidget();
+    QWidget* tlw = w->window();
+    QWidget* wtlw = d->watch->window();
 
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
 #ifndef QT_NO_MAINWINDOW
     if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
-	return tlw->parentWidget()->topLevelWidget() == wtlw;
+	return tlw->parentWidget()->window() == wtlw;
 
     if (wtlw  != tlw)
 	return false;
@@ -450,7 +450,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     } while (hasShift-- && !matchFound && !identicalDisabled);
 
 #ifndef QT_NO_STATUSBAR
-    mainStatusBar = (QStatusBar*) w->topLevelWidget()->child(0, "QStatusBar");
+    mainStatusBar = (QStatusBar*) w->window()->child(0, "QStatusBar");
 #endif
     if (n < 0) { // no match found
 	currentState = partial.count() ? QKeySequence::PartialMatch : QKeySequence::NoMatch;
@@ -493,7 +493,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
  doclash: // found more than one match
 #ifndef QT_NO_STATUSBAR
     if (!mainStatusBar) // if "goto doclash", we need to get statusbar again.
-	mainStatusBar = (QStatusBar*) w->topLevelWidget()->child(0, "QStatusBar");
+	mainStatusBar = (QStatusBar*) w->window()->child(0, "QStatusBar");
 #endif
 
     QString message = Q3Accel::tr("Ambiguous \"%1\" not handled").arg((QString)tocheck);

@@ -586,7 +586,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             CFArrayAppendValue(attrs, kAXFocusedAttribute);
             CFArrayAppendValue(attrs, kAXSelectedChildrenAttribute);
             if(!req_child && req_iface->object() && req_iface->object()->isWidgetType() 
-               && ((QWidget*)req_iface->object())->isTopLevel()) {
+               && ((QWidget*)req_iface->object())->isWindow()) {
                 CFArrayAppendValue(attrs, kAXMainAttribute);
                 CFArrayAppendValue(attrs, kAXMinimizedAttribute);
                 CFArrayAppendValue(attrs, kAXCloseButtonAttribute);
@@ -658,7 +658,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 #endif
                 if(role == kAXUnknownRole && !req_child && req_iface->object() 
                    && req_iface->object()->isWidgetType() 
-                   && static_cast<QWidget*>(req_iface->object())->isTopLevel())
+                   && static_cast<QWidget*>(req_iface->object())->isWindow())
                     role = kAXWindowRole;
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, 
                                   sizeof(role), &role);

@@ -206,7 +206,7 @@ QWidgetPrivate::~QWidgetPrivate()
         isEnabledTo(),
         isModal(),
         isPopup(),
-        isTopLevel(),
+        isWindow(),
         setEnabled(),
         hasMouseTracking(),
         setMouseTracking(),
@@ -274,7 +274,7 @@ QWidgetPrivate::~QWidgetPrivate()
 
     \row \i System functions \i
         parentWidget(),
-        topLevelWidget(),
+        window(),
         setParent(),
         winId(),
         find(),
@@ -458,7 +458,7 @@ QWidgetMapper *QWidgetPrivate::mapper = 0;                // app global widget m
 
 static QFont qt_naturalWidgetFont(QWidget* w) {
     QFont naturalfont = QApplication::font(w);
-    if (! w->isTopLevel()) {
+    if (! w->isWindow()) {
         if (! naturalfont.isCopyOf(QApplication::font()))
             naturalfont = naturalfont.resolve(w->parentWidget()->font());
         else
@@ -470,7 +470,7 @@ static QFont qt_naturalWidgetFont(QWidget* w) {
 
 static QPalette qt_naturalWidgetPalette(QWidget* w) {
     QPalette naturalpalette = QApplication::palette(w);
-    if (! w->isTopLevel()) {
+    if (! w->isWindow()) {
         if (! naturalpalette.isCopyOf(QApplication::palette()))
             naturalpalette = naturalpalette.resolve(w->parentWidget()->palette());
         else
@@ -801,8 +801,11 @@ void QWidgetPrivate::init(Qt::WFlags f)
 	q->setAttribute(Qt::WA_ShowModal);
     if (f & Qt::WMouseNoMask)
 	q->setAttribute(Qt::WA_MouseNoMask);
+    if (f & Qt::WGroupLeader)
+	q->setAttribute(Qt::WA_GroupLeader);
 #endif
-    data.window_type = f;
+    data.window_flags = f;
+    data.window_type = 0;
     data.window_state = 0;
     data.focus_policy = 0;
     data.context_menu_policy = Qt::DefaultContextMenu;
@@ -819,7 +822,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
 
     if (!q->isDesktop())
         updateSystemBackground();
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         if (QApplication::isRightToLeft())
             q->setAttribute(Qt::WA_RightToLeft);
 #ifdef Q_WS_MAC
@@ -852,11 +855,11 @@ void QWidgetPrivate::init(Qt::WFlags f)
             q->setAttribute(Qt::WA_WState_Hidden);
     }
 
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         focus_next = q;
     } else {
         // insert at the end of the focus chain
-        QWidget *focus_handler = q->topLevelWidget();
+        QWidget *focus_handler = q->window();
         QWidget *w = focus_handler;
         while (w->d_func()->focus_next != focus_handler)
             w = w->d_func()->focus_next;
@@ -930,7 +933,7 @@ QWidget::~QWidget()
 
     clearFocus();
 
-    if (isTopLevel() && isShown() && winId())
+    if (isWindow() && isShown() && winId())
         hide();
 
     // A parent widget must destroy all its children before destroying itself
@@ -1168,7 +1171,7 @@ void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
 {
     Q_Q(QWidget);
 
-    if (enable && !q->isTopLevel() && q->parentWidget() && !q->parentWidget()->isUpdatesEnabled())
+    if (enable && !q->isWindow() && q->parentWidget() && !q->parentWidget()->isUpdatesEnabled())
         return; // nothing we can do
 
     if (enable != q->testAttribute(Qt::WA_UpdatesDisabled))
@@ -1195,7 +1198,7 @@ void QWidgetPrivate::propagatePaletteChange()
     if(!children.isEmpty()) {
         for(int i = 0; i < children.size(); ++i) {
             QWidget *w = static_cast<QWidget*>(children.at(i));
-            if(!w->isWidgetType() || w->isTopLevel())
+            if(!w->isWidgetType() || w->isWindow())
                 continue;
             w->d_func()->resolvePalette();
         }
@@ -1218,7 +1221,7 @@ QRect QWidgetPrivate::clipRect() const
     int oy = 0;
     while (w
             && w->isVisible()
-            && !w->isTopLevel()
+            && !w->isWindow()
             && w->parentWidget()) {
         ox -= w->x();
         oy -= w->y();
@@ -1431,7 +1434,7 @@ QStyle* QWidget::setStyle(const QString &style)
 #endif
 
 /*!
-    \property QWidget::isTopLevel
+    \property QWidget::isWindow
     \brief whether the widget is a top-level widget
 
     A top-level widget is a widget which usually has a frame and a
@@ -1449,7 +1452,7 @@ QStyle* QWidget::setStyle(const QString &style)
     a parent widget is specified in the constructor. This behavior is
     specified by the \c Qt::WType_TopLevel widget flag.
 
-    \sa topLevelWidget(), isDialog(), isModal(), isPopup(), isDesktop(), parentWidget()
+    \sa window(), isDialog(), isModal(), isPopup(), isDesktop(), parentWidget()
 */
 
 /*!
@@ -1459,7 +1462,7 @@ QStyle* QWidget::setStyle(const QString &style)
     A dialog widget is a secondary top-level widget, i.e. a top-level
     widget with a parent.
 
-    \sa isTopLevel(), QDialog
+    \sa isWindow(), QDialog
 */
 
 /*!
@@ -1470,7 +1473,7 @@ QStyle* QWidget::setStyle(const QString &style)
     Qt::WType_Popup to the widget constructor. A popup widget is also a
     top-level widget.
 
-    \sa isTopLevel()
+    \sa isWindow()
 */
 
 /*!
@@ -1479,7 +1482,7 @@ QStyle* QWidget::setStyle(const QString &style)
 
     A desktop widget is also a top-level widget.
 
-    \sa isTopLevel(), QApplication::desktop()
+    \sa isWindow(), QApplication::desktop()
 */
 
 /*!
@@ -1490,7 +1493,7 @@ QStyle* QWidget::setStyle(const QString &style)
     widget prevents widgets in all other top-level widgets from
     getting any input.
 
-    \sa isTopLevel(), isDialog(), QDialog
+    \sa isWindow(), isDialog(), QDialog
 */
 
 /*!
@@ -1519,7 +1522,7 @@ bool QWidget::isMinimized() const
 /*!
     Shows the widget minimized, as an icon.
 
-    Calling this function only affects \link isTopLevel() top-level
+    Calling this function only affects \link isWindow() top-level
     widgets\endlink.
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible(),
@@ -1669,7 +1672,7 @@ void QWidget::showFullScreen()
 /*!
     Shows the widget maximized.
 
-    Calling this function only affects \link isTopLevel() top-level
+    Calling this function only affects \link isWindow() top-level
     widgets\endlink.
 
     On X11, this function may not work properly with certain window
@@ -1696,7 +1699,7 @@ void QWidget::showMaximized()
 /*!
     Restores the widget after it has been maximized or minimized.
 
-    Calling this function only affects \link isTopLevel() top-level
+    Calling this function only affects \link isWindow() top-level
     widgets\endlink.
 
     \sa setWindowState(), showMinimized(), showMaximized(), show(), hide(), isVisible()
@@ -1731,7 +1734,7 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 {
     const QWidget * w = this;
     while (w && !w->testAttribute(Qt::WA_ForceDisabled)
-            && !w->isTopLevel()
+            && !w->isWindow()
             && w->parentWidget()
             && w->parentWidget() != ancestor)
         w = w->parentWidget();
@@ -1873,7 +1876,7 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
 {
     Q_Q(QWidget);
 
-    if (enable && !q->isTopLevel() && q->parentWidget() && !q->parentWidget()->isEnabled())
+    if (enable && !q->isWindow() && q->parentWidget() && !q->parentWidget()->isEnabled())
         return; // nothing we can do
 
     if (enable != q->testAttribute(Qt::WA_Disabled))
@@ -1882,7 +1885,7 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
     q->setAttribute(Qt::WA_Disabled, !enable);
     updateSystemBackground();
 
-    if (!enable && q->topLevelWidget()->focusWidget() == q) {
+    if (!enable && q->window()->focusWidget() == q) {
         bool parentIsEnabled = (!q->parentWidget() || q->parentWidget()->isEnabled());
         if (!parentIsEnabled || !q->focusNextPrevChild(true))
             q->clearFocus();
@@ -1980,7 +1983,7 @@ void QWidget::setDisabled(bool disable)
 QRect QWidget::frameGeometry() const
 {
     Q_D(const QWidget);
-    if (isTopLevel() && ! isPopup()) {
+    if (isWindow() && ! isPopup()) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         QTLWExtra *top = d->topData();
@@ -2006,7 +2009,7 @@ QRect QWidget::frameGeometry() const
 int QWidget::x() const
 {
     Q_D(const QWidget);
-    if (isTopLevel() && ! isPopup()) {
+    if (isWindow() && ! isPopup()) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         return data->crect.x() - d->topData()->fleft;
@@ -2027,7 +2030,7 @@ int QWidget::x() const
 int QWidget::y() const
 {
     Q_D(const QWidget);
-    if (isTopLevel() && ! isPopup()) {
+    if (isWindow() && ! isPopup()) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         return data->crect.y() - d->topData()->ftop;
@@ -2061,7 +2064,7 @@ int QWidget::y() const
 QPoint QWidget::pos() const
 {
     Q_D(const QWidget);
-    if (isTopLevel() && ! isPopup()) {
+    if (isWindow() && ! isPopup()) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         QTLWExtra *top = d->topData();
@@ -2505,30 +2508,35 @@ QPoint QWidget::mapFromParent(const QPoint &pos) const
 
 
 /*!
-    Returns the top-level widget for this widget, i.e. the next
-    ancestor widget that has (or could have) a window-system frame.
+    Returns the window for this widget, i.e. the next ancestor widget
+    that has (or could have) a window-system frame.
 
     If the widget is a top-level, the widget itself is returned.
 
     Typical usage is changing the window title:
 
     \code
-        aWidget->topLevelWidget()->setWindowTitle("New Window Title");
+        aWidget->window()->setWindowTitle("New Window Title");
     \endcode
 
-    \sa isTopLevel()
+    \sa isWindow()
 */
 
-QWidget *QWidget::topLevelWidget() const
+QWidget *QWidget::window() const
 {
     QWidget *w = (QWidget *)this;
     QWidget *p = w->parentWidget();
-    while (!w->testWFlags(Qt::WType_TopLevel) && p) {
+    while (!w->isWindow() && p) {
         w = p;
         p = p->parentWidget();
     }
     return w;
 }
+
+/*! \obsolete \fn QWidget *QWidget::topLevelWidget() const
+
+    use window() instead
+*/
 
 #ifdef QT3_SUPPORT
 /*!
@@ -2847,7 +2855,7 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
 #endif
     for (int i = 0; i < children.size(); ++i) {
         QWidget *w = static_cast<QWidget*>(children.at(i));
-        if (!w->isWidgetType() || w->isTopLevel())
+        if (!w->isWidgetType() || w->isWindow())
             continue;
         w->d_func()->resolveFont();
     }
@@ -2870,7 +2878,7 @@ void QWidgetPrivate::setLayoutDirection_helper(Qt::LayoutDirection direction)
     if (!children.isEmpty()) {
         for (int i = 0; i < children.size(); ++i) {
             QWidget *w = static_cast<QWidget*>(children.at(i));
-            if (!w->isWidgetType() || w->isTopLevel() || w->testAttribute(Qt::WA_SetLayoutDirection))
+            if (!w->isWidgetType() || w->isWindow() || w->testAttribute(Qt::WA_SetLayoutDirection))
                 continue;
             w->d_func()->setLayoutDirection_helper(direction);
         }
@@ -2883,7 +2891,7 @@ void QWidgetPrivate::resolveLayoutDirection()
 {
     Q_Q(const QWidget);
     if (!q->testAttribute(Qt::WA_SetLayoutDirection))
-        setLayoutDirection_helper(q->isTopLevel() ? QApplication::layoutDirection() : q->parentWidget()->layoutDirection());
+        setLayoutDirection_helper(q->isWindow() ? QApplication::layoutDirection() : q->parentWidget()->layoutDirection());
 }
 
 /*!\property QWidget::layoutDirection
@@ -2959,7 +2967,7 @@ QCursor QWidget::cursor() const
         return (d->extra && d->extra->curs)
             ? *d->extra->curs
             : QCursor(Qt::ArrowCursor);
-    if (isTopLevel() || !parentWidget())
+    if (isWindow() || !parentWidget())
         return QCursor(Qt::ArrowCursor);
     return parentWidget()->cursor();
 }
@@ -3178,12 +3186,12 @@ void QWidget::setFocus(Qt::FocusReason reason)
     if (isHidden()) {
         while (w && w->isHidden()) {
             w->d_func()->focus_child = f;
-            w = w->isTopLevel() ? 0 : w->parentWidget();
+            w = w->isWindow() ? 0 : w->parentWidget();
         }
     } else {
         while (w) {
             w->d_func()->focus_child = f;
-            w = w->isTopLevel() ? 0 : w->parentWidget();
+            w = w->isWindow() ? 0 : w->parentWidget();
         }
     }
 
@@ -3217,7 +3225,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
 #endif
 
 #if defined(Q_WS_WIN)
-        if (!f->topLevelWidget()->isPopup())
+        if (!f->window()->isPopup())
             SetFocus(f->winId());
         else {
 #endif
@@ -3249,7 +3257,7 @@ void QWidget::clearFocus()
     QWidget *w = this;
     while (w && w->d_func()->focus_child == this) {
         w->d_func()->focus_child = 0;
-        w = w->isTopLevel() ? 0 : w->parentWidget();
+        w = w->isWindow() ? 0 : w->parentWidget();
     }
     if (hasFocus()) {
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
@@ -3295,7 +3303,7 @@ void QWidget::clearFocus()
 bool QWidget::focusNextPrevChild(bool next)
 {
     QWidget* p = parentWidget();
-    if (!isTopLevel() && p)
+    if (!isWindow() && p)
         return p->focusNextPrevChild(next);
 
     extern bool qt_tab_all_widgets;
@@ -3370,9 +3378,9 @@ QWidget *QWidget::nextInFocusChain() const
 */
 bool QWidget::isActiveWindow() const
 {
-    QWidget *tlw = topLevelWidget();
+    QWidget *tlw = window();
     if(testWFlags(Qt::WSubWindow) && parentWidget())
-        tlw = parentWidget()->topLevelWidget();
+        tlw = parentWidget()->window();
     if(tlw == qApp->activeWindow() || (isVisible() && tlw->isPopup()))
         return true;
 #ifdef Q_WS_MAC
@@ -3396,11 +3404,11 @@ bool QWidget::isActiveWindow() const
            return true;
         QWidget *w = qApp->activeWindow();
         if(!testWFlags(Qt::WSubWindow) && w && w->testWFlags(Qt::WSubWindow) &&
-            w->parentWidget()->topLevelWidget() == tlw)
+            w->parentWidget()->window() == tlw)
             return true;
         while(w && (tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) &&
               !w->testAttribute(Qt::WA_ShowModal) && w->parentWidget()) {
-            w = w->parentWidget()->topLevelWidget();
+            w = w->parentWidget()->window();
             if(w == tlw)
                 return true;
         }
@@ -3459,7 +3467,7 @@ void QWidget::setTabOrder(QWidget* first, QWidget *second)
         QList<QWidget *> l = qFindChildren<QWidget *>(first);
         for (int i = l.size()-1; i >= 0; --i) {
             QWidget * next = l.at(i);
-            if (next->topLevelWidget() == fp->topLevelWidget()) {
+            if (next->window() == fp->window()) {
                 fp = next;
                 if (fp->focusPolicy() != Qt::NoFocus)
                     break;
@@ -3495,14 +3503,14 @@ void QWidget::setTabOrder(QWidget* first, QWidget *second)
 void QWidgetPrivate::reparentFocusWidgets(QWidget * oldtlw)
 {
     Q_Q(QWidget);
-    if (oldtlw == q->topLevelWidget())
+    if (oldtlw == q->window())
         return; // nothing to do
 
     if(focus_child)
         focus_child->clearFocus();
 
     // seperate the focus chain
-    QWidget *topLevel = q->topLevelWidget();
+    QWidget *topLevel = q->window();
     QWidget *w = q;
     QWidget *firstOld = 0;
     QWidget *firstNew = 0;
@@ -3528,7 +3536,7 @@ void QWidgetPrivate::reparentFocusWidgets(QWidget * oldtlw)
     if(n)
         n->d_func()->focus_next = firstNew;
 
-    if (!q->isTopLevel()) {
+    if (!q->isWindow()) {
         //insert chain
         w = topLevel;
         while (w->d_func()->focus_next != topLevel)
@@ -3569,7 +3577,7 @@ int QWidgetPrivate::pointToRect(const QPoint &p, const QRect &r)
 QSize QWidget::frameSize() const
 {
     Q_D(const QWidget);
-    if (isTopLevel() && !isPopup()) {
+    if (isWindow() && !isPopup()) {
         if (data->fstrut_dirty)
             d->updateFrameStrut();
         QWidget *that = (QWidget *) this;
@@ -3872,7 +3880,7 @@ void QWidget::show()
     Qt::WindowStates initialWindowState = windowState();
 
     Q_D(QWidget);
-    if (isTopLevel()
+    if (isWindow()
         && !testAttribute(Qt::WA_SetWindowIcon)
         && (!d->extra || !d->extra->topextra || !d->extra->topextra->icon))
         d->setWindowIcon_sys(qApp->windowIcon());
@@ -3883,7 +3891,7 @@ void QWidget::show()
     // remember that show was called explicitly
     setAttribute(Qt::WA_WState_ExplicitShowHide);
     // whether we need to inform the parent widget immediately
-    bool needUpdateGeometry = !isTopLevel() && testAttribute(Qt::WA_WState_Hidden);
+    bool needUpdateGeometry = !isWindow() && testAttribute(Qt::WA_WState_Hidden);
     // we are no longer hidden
     setAttribute(Qt::WA_WState_Hidden, false);
 
@@ -3894,7 +3902,7 @@ void QWidget::show()
     QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
 #ifndef QT_NO_LAYOUT
-    if (!isTopLevel() && parentWidget()->d_func()->layout)
+    if (!isWindow() && parentWidget()->d_func()->layout)
         parentWidget()->d_func()->layout->activate();
 #endif
 #ifndef QT_NO_LAYOUT
@@ -3905,8 +3913,8 @@ void QWidget::show()
 
     // adjust size if necessary
     if (!wasResized
-        && (isTopLevel() || !parentWidget()->d_func()->layout))  {
-        if (isTopLevel()) {
+        && (isWindow() || !parentWidget()->d_func()->layout))  {
+        if (isWindow()) {
             adjustSize();
             if (windowState() != initialWindowState)
                 setWindowState(initialWindowState);
@@ -3916,7 +3924,7 @@ void QWidget::show()
         setAttribute(Qt::WA_Resized, false);
     }
 
-    if (isTopLevel() || parentWidget()->isVisible())
+    if (isWindow() || parentWidget()->isVisible())
         d->show_helper();
 
     QEvent showToParentEvent(QEvent::ShowToParent);
@@ -3939,7 +3947,7 @@ void QWidgetPrivate::show_recursive()
         QApplication::sendPostedEvents(q, QEvent::ChildInserted);
 #endif
 #ifndef QT_NO_LAYOUT
-    if (!q->isTopLevel() && q->parentWidget()->d_func()->layout)
+    if (!q->isWindow() && q->parentWidget()->d_func()->layout)
         q->parentWidget()->d_func()->layout->activate();
 #endif
 #ifndef QT_NO_LAYOUT
@@ -3982,7 +3990,7 @@ void QWidgetPrivate::show_helper()
 
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         if (q->testWFlags(Qt::WStyle_Tool|q->testWFlags(Qt::WType_Popup)))
             q->raise();
         else
@@ -4007,7 +4015,7 @@ void QWidgetPrivate::show_helper()
 #ifndef QT_NO_WIDGET_TOPEXTRA
     // make sure toplevels have an icon
     //#### just use application icon instead
-    if (q->isTopLevel()){
+    if (q->isWindow()){
         QPixmap pm = q->windowIcon();
         if (!pm.isNull()) {
             QWidget *mw = (QWidget *)q->parent();
@@ -4016,7 +4024,7 @@ void QWidgetPrivate::show_helper()
             if (!pm.isNull())
                 q->setWindowIcon(pm);
             else {
-                mw = mw ? mw->topLevelWidget() : 0;
+                mw = mw ? mw->window() : 0;
                 if (mw)
                     pm = mw->windowIcon();
                 if (!pm.isNull())
@@ -4092,7 +4100,7 @@ void QWidgetPrivate::hide_helper()
         qt_leave_modal(q);
 
 #if defined(Q_WS_WIN)
-    if (q->isTopLevel() && !q->isPopup() && q->parentWidget() && q->isActiveWindow())
+    if (q->isWindow() && !q->isPopup() && q->parentWidget() && q->isActiveWindow())
         q->parentWidget()->activateWindow();        // Activate parent
 #endif
 
@@ -4120,7 +4128,7 @@ void QWidgetPrivate::hide_helper()
 #endif
 #ifndef QT_NO_LAYOUT
     // invalidate layout similar to updateGeometry()
-    if (!q->isTopLevel() && q->parentWidget()) {
+    if (!q->isWindow() && q->parentWidget()) {
         if (q->parentWidget()->d_func()->layout)
             q->parentWidget()->d_func()->layout->update();
         if (wasVisible)
@@ -4153,7 +4161,7 @@ void QWidgetPrivate::showChildren(bool spontaneous)
         if (!object->isWidgetType())
             continue;
         QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isTopLevel() )
+        if (widget->isWindow() )
             continue;
         if (widget->testAttribute(Qt::WA_WState_Hidden))
             continue;
@@ -4179,7 +4187,7 @@ void QWidgetPrivate::hideChildren(bool spontaneous)
         if (!object->isWidgetType())
             continue;
         QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isTopLevel() || widget->testAttribute(Qt::WA_WState_Hidden))
+        if (widget->isWindow() || widget->testAttribute(Qt::WA_WState_Hidden))
             continue;
         if (spontaneous)
             widget->setAttribute(Qt::WA_Mapped, false);
@@ -4203,7 +4211,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     Q_Q(QWidget);
     data.is_closing = 1;
     bool isMain = qApp->mainWidget() == q;
-    bool checkLastWindowClosed = q->isTopLevel() && !q->isPopup();
+    bool checkLastWindowClosed = q->isWindow() && !q->isPopup();
     bool wasDeleted = false;
 
     if (mode != CloseNoEvent) {
@@ -4339,7 +4347,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
     const QWidget * w = this;
     while (w
             && w->isShown()
-            && !w->isTopLevel()
+            && !w->isWindow()
             && w->parentWidget()
             && w->parentWidget() != ancestor)
         w = w->parentWidget();
@@ -4408,7 +4416,7 @@ void QWidget::adjustSize()
 
     QSize s = sizeHint();
 
-    if (isTopLevel()) {
+    if (isWindow()) {
         QSizePolicy::ExpandData exp;
 #ifndef QT_NO_LAYOUT
         if (QLayout *l = layout()) {
@@ -4655,7 +4663,7 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::ApplicationWindowIconChange:
-        if (isTopLevel() && !testAttribute(Qt::WA_SetWindowIcon))
+        if (isWindow() && !testAttribute(Qt::WA_SetWindowIcon))
             d->setWindowIcon_sys(qApp->windowIcon());
         break;
 
@@ -4801,7 +4809,7 @@ bool QWidget::event(QEvent *e)
             QObject *o = childList.at(i);
             if (o->isWidgetType()
                 && static_cast<QWidget*>(o)->isVisible()
-                && !static_cast<QWidget*>(o)->isTopLevel())
+                && !static_cast<QWidget*>(o)->isWindow())
                 QApplication::sendEvent(o, e);
         }
         break; }
@@ -5146,7 +5154,7 @@ void QWidget::keyReleaseEvent(QKeyEvent *e)
 
 void QWidget::focusInEvent(QFocusEvent *)
 {
-    if (focusPolicy() != Qt::NoFocus || !isTopLevel()) {
+    if (focusPolicy() != Qt::NoFocus || !isWindow()) {
         update();
         if (testAttribute(Qt::WA_WState_AutoMask))
             updateMask();
@@ -5174,7 +5182,7 @@ void QWidget::focusInEvent(QFocusEvent *)
 
 void QWidget::focusOutEvent(QFocusEvent *)
 {
-    if (focusPolicy() != Qt::NoFocus || !isTopLevel()){
+    if (focusPolicy() != Qt::NoFocus || !isWindow()){
         update();
         if (testAttribute(Qt::WA_WState_AutoMask))
             updateMask();
@@ -5837,7 +5845,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
     for (int i = d->children.size(); i > 0 ;) {
         --i;
         QWidget *w = static_cast<QWidget *>(d->children.at(i));
-        if (w->isWidgetType() && !w->isTopLevel() && !w->isHidden() && w->geometry().contains(p)) {
+        if (w->isWidgetType() && !w->isWindow() && !w->isHidden() && w->geometry().contains(p)) {
             if (QWidget *t = w->childAt(p.x() - w->x(), p.y() - w->y()))
                 return t;
             // if WMouseNoMask is set the widget mask is ignored, if
@@ -5865,7 +5873,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
 void QWidget::updateGeometry()
 {
 #ifndef QT_NO_LAYOUT
-    if (!isTopLevel() && isShown() && parentWidget()) {
+    if (!isWindow() && isShown() && parentWidget()) {
         if (parentWidget()->d_func()->layout)
             parentWidget()->d_func()->layout->update();
         else if (parentWidget()->isVisible())
@@ -5874,6 +5882,13 @@ void QWidget::updateGeometry()
 #endif
 }
 
+/*!
+  \sa setParent()
+ */
+void QWidget::setWindowType(Qt::WindowType type)
+{
+    setParent(parentWidget(), 0 /*#### FIXME type */);
+}
 
 
 /*!
@@ -5920,7 +5935,7 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
 {
     Q_D(QWidget);
     bool resized = testAttribute(Qt::WA_Resized);
-    QWidget *oldtlw = topLevelWidget();
+    QWidget *oldtlw = window();
     d->setParent_sys(parent, f);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
@@ -6513,7 +6528,7 @@ void QWidget::stackUnder(QWidget* w)
     QWidget *p = parentWidget();
     int from;
     int to;
-    if (!w || isTopLevel() || p != w->parentWidget() || this == w)
+    if (!w || isWindow() || p != w->parentWidget() || this == w)
         return;
     if (p && (to = p->d_func()->children.indexOf(w)) >= 0 && (from = p->d_func()->children.indexOf(this)) >= 0) {
         if (from < to)

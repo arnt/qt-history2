@@ -436,8 +436,8 @@ void QMenuBarPrivate::init()
 #endif
     q->setBackgroundRole(QPalette::Button);
     if(parent) {
-        q->topLevelWidget()->installEventFilter(q); //grab shortcuts (and maybe resizes)
-        if(!parent->isTopLevel())
+        q->window()->installEventFilter(q); //grab shortcuts (and maybe resizes)
+        if(!parent->isWindow())
             parent->installEventFilter(q); //handle resizes
     }
     q->setMouseTracking(q->style()->styleHint(QStyle::SH_MenuBar_MouseTracking, 0, q));

@@ -237,7 +237,7 @@ static bool xdndEnable(QWidget* w, bool on)
 
             XUngrabServer(X11->display);
         } else {
-            xdnd_widget = w->topLevelWidget();
+            xdnd_widget = w->window();
         }
         if (xdnd_widget) {
             Atom atm = (Atom)xdnd_version;
@@ -320,7 +320,7 @@ static QWidget *find_child(QWidget *tlw, QPoint & p)
                     continue;
                 if (w->isVisible() &&
                      w->geometry().contains(p) &&
-                     !w->isTopLevel()) {
+                     !w->isWindow()) {
                     widget = w;
                     done = false;
                     p = widget->mapFromParent(p);
@@ -441,7 +441,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
     response.data.l[4] = 0; // action
 
     if (!passive) { // otherwise just reject
-        while (c && !c->acceptDrops() && !c->isTopLevel()) {
+        while (c && !c->acceptDrops() && !c->isWindow()) {
             p = c->mapToParent(p);
             c = c->parentWidget();
         }
@@ -596,7 +596,7 @@ void QX11Data::xdndHandleLeave(QWidget *w, const XEvent * xe, bool /*passive*/)
 {
     DEBUG("xdnd leave");
     if (!qt_xdnd_current_widget ||
-         w->topLevelWidget() != qt_xdnd_current_widget->topLevelWidget()) {
+         w->window() != qt_xdnd_current_widget->window()) {
         return; // sanity
     }
 
@@ -698,7 +698,7 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
         finished.window = qt_xdnd_dragsource_xid;
         finished.format = 32;
         finished.message_type = ATOM(XdndFinished);
-        finished.data.l[0] = qt_xdnd_current_widget?qt_xdnd_current_widget->topLevelWidget()->winId():0;
+        finished.data.l[0] = qt_xdnd_current_widget?qt_xdnd_current_widget->window()->winId():0;
         finished.data.l[1] = de.isAccepted() ? 1 : 0; // flags
         finished.data.l[2] = qtaction_to_xdndaction(global_accepted_action);
         XSendEvent(X11->display, qt_xdnd_dragsource_xid, False,
@@ -1219,7 +1219,7 @@ static QByteArray xdndObtainData(const char *format)
 */
 bool QX11Data::dndEnable(QWidget* w, bool on)
 {
-    w = w->topLevelWidget();
+    w = w->window();
 
     if (on) {
         if (((QExtraWidget*)w)->topData()->dnd)
@@ -1276,7 +1276,7 @@ QDrag::DropAction QDragManager::drag(QDrag * o)
     updatePixmap();
 
     qApp->installEventFilter(this);
-    XSetSelectionOwner(X11->display, ATOM(XdndSelection), dragPrivate()->source->topLevelWidget()->winId(), X11->time);
+    XSetSelectionOwner(X11->display, ATOM(XdndSelection), dragPrivate()->source->window()->winId(), X11->time);
     global_accepted_action = QDrag::CopyAction;
     qt_xdnd_source_sameanswer = QRect();
     move(QCursor::pos());

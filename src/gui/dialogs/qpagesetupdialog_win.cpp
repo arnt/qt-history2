@@ -46,7 +46,7 @@ int QPageSetupDialog::exec()
     psd.hDevNames = tempDevNames;
 
     QWidget *parent = parentWidget();
-    parent = parent ? parent->topLevelWidget() : qApp->mainWidget();
+    parent = parent ? parent->window() : qApp->mainWidget();
     psd.hwndOwner = parent ? parent->winId() : 0;
 
     QRect paperRect = d->printer->paperRect();

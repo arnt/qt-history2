@@ -143,7 +143,7 @@ void Q3DockWindowResizeHandle::mouseMoveEvent(QMouseEvent *e)
                     return;
             }
         } else {
-            QWidget *w = dockWindow->area()->topLevelWidget();
+            QWidget *w = dockWindow->area()->window();
             if (w) {
                 if (orientation() == Qt::Horizontal) {
                     int minpos = w->mapToGlobal(QPoint(0, 0)).y();
@@ -1152,7 +1152,7 @@ QWidget *Q3DockWindow::areaAt(const QPoint &gp)
             if (a && a->isDockWindowAccepted(this))
                 return a;
         }
-        w = w->isTopLevel() ? 0 : (QWidget *)w->parent();
+        w = w->isWindow() ? 0 : (QWidget *)w->parent();
     }
     return 0;
 }
@@ -1387,7 +1387,7 @@ void Q3DockWindow::updatePosition(const QPoint &globalPos)
             adjustSize();
         setAttribute(Qt::WA_Resized, false); // Ensures size is recalculated (non-opaque).
         show();
-        if (parentWidget() && isTopLevel())
+        if (parentWidget() && isWindow())
             parentWidget()->setActiveWindow();
 
     }
@@ -1806,8 +1806,8 @@ void Q3DockWindow::undock(QWidget *w)
         return;
 
     QPoint p(50, 50);
-    if (topLevelWidget())
-        p = topLevelWidget()->pos() + QPoint(20, 20);
+    if (window())
+        p = window()->pos() + QPoint(20, 20);
     if (dockArea) {
         delete (Q3DockArea::DockWindowData*)dockWindowData;
         dockWindowData = dockArea->dockWindowData(this);
@@ -1837,7 +1837,7 @@ void Q3DockWindow::undock(QWidget *w)
         resize(1, 1);
         show();
     }
-    if (parentWidget() && isTopLevel())
+    if (parentWidget() && isWindow())
         parentWidget()->setActiveWindow();
     emit placeChanged(place());
 }
@@ -1980,7 +1980,7 @@ bool Q3DockWindow::eventFilter(QObject * o, QEvent *e)
             qApp->removeEventFilter(this);
             return true;
         }
-    } else if (((QWidget*)o)->topLevelWidget() != this && place() == OutsideDock && isTopLevel()) {
+    } else if (((QWidget*)o)->window() != this && place() == OutsideDock && isWindow()) {
         if ((e->type() == QEvent::WindowDeactivate ||
             e->type() == QEvent::WindowActivate))
             event(e);
@@ -1993,7 +1993,7 @@ bool Q3DockWindow::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::WindowDeactivate:
-        if (place() == OutsideDock && isTopLevel() && parentWidget()
+        if (place() == OutsideDock && isWindow() && parentWidget()
              && parentWidget()->isActiveWindow())
             return true;
     case QEvent::HideToParent:

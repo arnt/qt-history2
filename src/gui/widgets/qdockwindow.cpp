@@ -230,7 +230,7 @@ void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
     Q_ASSERT(!state);
     state = new DragState;
 
-    const int screen_number = QApplication::desktop()->screenNumber(topLevelWidget());
+    const int screen_number = QApplication::desktop()->screenNumber(window());
     state->rubberband = new QRubberBand(QRubberBand::Rectangle,
                                         QApplication::desktop()->screen(screen_number));
 
@@ -239,7 +239,7 @@ void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
     state->current = state->origin;
 
     // like the above, except using the tool window's size hint
-    state->floating = dockwindow->isTopLevel()
+    state->floating = dockwindow->isWindow()
                       ? state->current
                       : QRect(state->current.topLeft(), dockwindow->sizeHint());
 
@@ -262,7 +262,7 @@ void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
     QWidget *widget = QApplication::widgetAt(event->globalPos());
     if (widget) {
 	while (widget && !qt_cast<QMainWindow *>(widget)) {
-	    if (widget->isTopLevel()) {
+	    if (widget->isWindow()) {
 		widget = 0;
 		break;
 	    }
@@ -333,7 +333,7 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
     bool dropped = false;
     if (state->canDrop && widget) {
         while (widget && !qt_cast<QMainWindow *>(widget)) {
-            if (widget->isTopLevel()) {
+            if (widget->isWindow()) {
                 widget = 0;
                 break;
             }
@@ -358,7 +358,7 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
         target = state->floating;
         target.moveTopLeft(event->globalPos() - state->offset);
 
-        if (!dockwindow->isTopLevel()) {
+        if (!dockwindow->isWindow()) {
             dockwindow->hide();
             dockwindow->setTopLevel();
             dockwindow->setGeometry(target);
@@ -445,8 +445,8 @@ void QDockWindowTitle::toggleTopLevel()
     bool visible = dockwindow->isVisible();
     if (visible)
         dockwindow->hide();
-    dockwindow->setTopLevel(!dockwindow->isTopLevel());
-    if (dockwindow->isTopLevel())
+    dockwindow->setTopLevel(!dockwindow->isWindow());
+    if (dockwindow->isWindow())
         dockwindow->move(p);
     if (visible)
         dockwindow->show();
@@ -655,7 +655,7 @@ QDockWindow::DockWindowFeatures QDockWindow::features() const
 void QDockWindow::setTopLevel(bool topLevel)
 {
     Q_D(QDockWindow);
-    if (topLevel == isTopLevel())
+    if (topLevel == isWindow())
         return;
 
     const bool visible = isVisible();
@@ -675,7 +675,7 @@ void QDockWindow::setTopLevel(bool topLevel)
     if (visible)
         show();
 
-    emit topLevelChanged(isTopLevel());
+    emit topLevelChanged(isWindow());
 }
 
 /*!

@@ -105,7 +105,7 @@ bool CheckListItem::testAndWarn()
 {
     if (!warning_text.isEmpty()) {
 	if (!conflict_with || conflict_with->isOn()) {
-	    int r = QMessageBox::warning(listView()->topLevelWidget(), "Warning",
+	    int r = QMessageBox::warning(listView()->window(), "Warning",
 			warning_text + "<br>Select anyway?", "Yes", "No" );
 	    return r == 0;
 	} else {
@@ -131,7 +131,7 @@ bool CheckListItem::testAndWarn()
 		               "in the INCLUDE, PATH and LIBS environment as appropriate.").arg(file_location);
 	}
 
-	int r = QMessageBox::warning(listView()->topLevelWidget(), "Option not Verified",
+	int r = QMessageBox::warning(listView()->window(), "Option not Verified",
 		    message + "<p>Select anyway?", "Yes", "No" );
 	return r == 0;
     }
@@ -155,7 +155,7 @@ void CheckListItem::setOn(bool on)
 	return;
     QCheckListItem::setOn(on);
 
-    SetupWizardImpl* wizard = qt_cast<SetupWizardImpl*>(listView()->topLevelWidget());
+    SetupWizardImpl* wizard = qt_cast<SetupWizardImpl*>(listView()->window());
     if (wizard && listView()->isVisible() && listView()->isUpdatesEnabled())
 	wizard->optionClicked(this);
 }

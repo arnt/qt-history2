@@ -556,7 +556,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         // real parent
         QWidget *p = parentWidget();
         if (p)
-            p = p->topLevelWidget();
+            p = p->window();
 
         if (dialog || testWFlags(Qt::WStyle_DialogBorder) || testWFlags(Qt::WStyle_Tool)) {
             if (p) {
@@ -717,7 +717,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             releaseMouse();
         if (keyboardGrb == this)
             releaseKeyboard();
-        if (isTopLevel())
+        if (isWindow())
             X11->deferred_map.removeAll(this);
         if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
             qt_leave_modal(this);
@@ -785,7 +785,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     XUnmapWindow(X11->display, old_winid);
     XReparentWindow(X11->display, old_winid, RootWindow(X11->display, xinfo.screen()), 0, 0);
 
-    if (q->isTopLevel() || !parent) // we are toplevel, or reparenting to toplevel
+    if (q->isWindow() || !parent) // we are toplevel, or reparenting to toplevel
         topData()->parentWinId = 0;
 
     QObjectPrivate::setParent_helper(parent);
@@ -793,13 +793,13 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize    s            = q->size();
     QString capt = q->windowTitle();
-    data.window_type = f;
+    data.window_flags = f;
     q->setAttribute(Qt::WA_WState_Created, false);
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, false);
     q->create();
-    if (q->isTopLevel() || (!parent || parent->isVisible()))
+    if (q->isWindow() || (!parent || parent->isVisible()))
         q->setAttribute(Qt::WA_WState_Hidden);
 
     QObjectList chlist = q->children();
@@ -807,7 +807,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         QObject *obj = chlist.at(i);
         if (obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
-            if (!w->isTopLevel()) {
+            if (!w->isWindow()) {
                 XReparentWindow(X11->display, w->winId(), q->winId(),
                                 w->geometry().x(), w->geometry().y());
             } else if (w->isPopup()
@@ -831,7 +831,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     qPRCreate(q, old_winid);
     updateSystemBackground();
 
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         uint window_state = data.window_state;
         const QRect r = topData()->normalGeometry;
         q->setGeometry(0, 0, s.width(), s.height());
@@ -953,7 +953,7 @@ void QWidget::unsetCursor()
         delete d->extra->curs;
         d->extra->curs = 0;
     }
-    if (!isTopLevel())
+    if (!isWindow())
         setAttribute(Qt::WA_SetCursor, false);
     qt_x11_enforce_cursor(this);
     XFlush(X11->display);
@@ -1291,12 +1291,12 @@ QWidget *QWidget::keyboardGrabber()
     allow an application to interrupt what the user is currently doing
     in another application.
 
-    \sa isActiveWindow(), topLevelWidget(), show()
+    \sa isActiveWindow(), window(), show()
 */
 
 void QWidget::activateWindow()
 {
-    QWidget *tlw = topLevelWidget();
+    QWidget *tlw = window();
     if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
         XSetInputFocus(X11->display, tlw->winId(), XRevertToParent, X11->time);
  	d->focusInputContext();
@@ -1590,7 +1590,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     Qt::WindowStates oldstate = windowState();
     if (oldstate == newstate)
         return;
-    if (isTopLevel()) {
+    if (isWindow()) {
         // Ensure the initial size is valid, since we store it as normalGeometry below.
         if (!testAttribute(Qt::WA_Resized) && !isVisible())
             adjustSize();
@@ -1716,7 +1716,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 
 void QWidgetPrivate::show_sys()
 {
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         XWMHints *h = XGetWMHints(X11->display, q->winId());
         XWMHints  wm_hints;
         bool got_hints = h != 0;
@@ -1849,7 +1849,7 @@ void QWidgetPrivate::show_sys()
         return;
     q->setAttribute(Qt::WA_Mapped);
 
-    if (!q->isTopLevel()
+    if (!q->isWindow()
         && (q->testAttribute(Qt::WA_NoBackground)
             || q->palette().brush(q->backgroundRole()).style() == Qt::LinearGradientPattern)) {
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
@@ -1869,7 +1869,7 @@ void QWidgetPrivate::show_sys()
 void QWidgetPrivate::hide_sys()
 {
     deactivateWidgetCleanup();
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         X11->deferred_map.removeAll(q);
         if (q->winId()) // in nsplugin, may be 0
             XWithdrawWindow(X11->display, q->winId(), xinfo.screen());
@@ -2057,7 +2057,7 @@ void QWidgetPrivate::setWSGeometry()
         QObject *object = children.at(i);
         if (object->isWidgetType()) {
             QWidget *w = static_cast<QWidget *>(object);
-            if (!w->isTopLevel())
+            if (!w->isWindow())
                 w->d->setWSGeometry();
         }
     }
@@ -2084,7 +2084,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     if (q->testWFlags(Qt::WType_Desktop))
         return;
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         if (!qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
             && !qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ)))
             data.window_state &= ~Qt::WindowMaximized;
@@ -2111,13 +2111,13 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     // We only care about stuff that changes the geometry, or may
     // cause the window manager to change its state
-    if (!q->isTopLevel() && oldGeom == r)
+    if (!q->isWindow() && oldGeom == r)
         return;
 
     data.crect = r;
     bool isResize = q->size() != oldSize;
 
-    if (q->isTopLevel()) {
+    if (q->isWindow()) {
         if (isMove)
             topData()->uspos = 1;
         if (isResize)
@@ -2349,7 +2349,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             register QObject *object = d->children.at(i);
             if (object->isWidgetType()) {
                 QWidget *w = static_cast<QWidget *>(object);
-                if (!w->isTopLevel())
+                if (!w->isWindow())
                     w->move(w->pos() + pd);
             }
         }

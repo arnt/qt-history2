@@ -65,7 +65,8 @@ class QWidgetData
 public:
     WId winid;
     uint widget_attributes;
-    uint window_type;
+    uint window_flags;
+    Qt::WindowType window_type;
     uint window_state : 4;
     uint focus_policy : 4;
     uint sizehint_forced :1;
@@ -143,11 +144,11 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QSize sizeHint READ sizeHint)
     Q_PROPERTY(QSize minimumSizeHint READ minimumSizeHint)
     Q_PROPERTY(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
-    Q_PROPERTY(QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isTopLevel)
-    Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isTopLevel)
-    Q_PROPERTY(QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isTopLevel)
+    Q_PROPERTY(QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isWindow)
+    Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isWindow)
+    Q_PROPERTY(QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isWindow)
     Q_PROPERTY(double windowOpacity READ windowOpacity WRITE setWindowOpacity DESIGNABLE false)
-    Q_PROPERTY(bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isTopLevel)
+    Q_PROPERTY(bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isWindow)
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
@@ -174,6 +175,7 @@ public:
     // Widget types and states
 
     bool isTopLevel() const;
+    bool isWindow() const;
     bool isDialog() const;
     bool isPopup() const;
     bool isDesktop() const;
@@ -241,7 +243,8 @@ public:
     QPoint mapTo(QWidget *, const QPoint &) const;
     QPoint mapFrom(QWidget *, const QPoint &) const;
 
-    QWidget *topLevelWidget() const;
+    QWidget *window() const;
+    inline QWidget *topLevelWidget() const { return window(); }
 
     // Widget appearance functions
     const QPalette &palette() const;
@@ -450,6 +453,10 @@ public:
     bool autoMask() const;
 
     QWidget *parentWidget() const;
+
+    Qt::WindowType windowType() const;
+    void setWindowType(Qt::WindowType type);
+    Qt::WindowType windowHints() const;
 
     Qt::WFlags testWFlags(Qt::WFlags f) const;
     static QWidget *find(WId);
@@ -719,13 +726,21 @@ template <> inline const QWidget *qt_cast<const QWidget*>(const QObject *o)
 }
 #endif
 
+inline Qt::WindowType QWidget::windowType() const
+{ return data->window_type & Qt::WindowType_Mask; }
+inline Qt::WindowType QWidget::windowHints() const
+{ return data->window_type & ~Qt::WindowType_Mask; }
+
 inline Qt::WFlags QWidget::testWFlags(Qt::WFlags f) const
-{ return QFlag(data->window_type & f); }
+{ return QFlag(data->window_flags & f); }
 
 inline WId QWidget::winId() const
 { return data->winid; }
 
 inline bool QWidget::isTopLevel() const
+{ return testWFlags(Qt::WType_TopLevel); }
+
+inline bool QWidget::isWindow() const
 { return testWFlags(Qt::WType_TopLevel); }
 
 inline bool QWidget::isDialog() const
@@ -831,13 +846,13 @@ inline QWidget *QWidget::parentWidget() const
 { return static_cast<QWidget *>(QObject::parent()); }
 
 inline Qt::WFlags QWidget::getWFlags() const
-{ return QFlag(data->window_type); }
+{ return QFlag(data->window_flags); }
 
 inline void QWidget::setWFlags(Qt::WFlags f)
-{ data->window_type |= f; }
+{ data->window_flags |= f; }
 
 inline void QWidget::clearWFlags(Qt::WFlags f)
-{ data->window_type &= ~f; }
+{ data->window_flags &= ~f; }
 
 inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver)
 { setSizePolicy(QSizePolicy(hor, ver)); }
@@ -854,7 +869,7 @@ inline bool QWidget::isVisibleToTLW() const
 { return isVisible(); }
 inline QWidget *QWidget::parentWidget(bool sameWindow) const
 {
-    if (sameWindow && isTopLevel())
+    if (sameWindow && isWindow())
         return 0;
     return static_cast<QWidget *>(QObject::parent());
 }

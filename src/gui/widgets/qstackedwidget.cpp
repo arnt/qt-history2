@@ -209,6 +209,6 @@ void QStackedWidget::childEvent(QChildEvent *e)
         return;
     QWidget *w = static_cast<QWidget*>(e->child());
 
-    if (e->added() && !d->blockChildAdd && !w->isTopLevel() && d->layout->indexOf(w) < 0)
+    if (e->added() && !d->blockChildAdd && !w->isWindow() && d->layout->indexOf(w) < 0)
         d->layout->addWidget(w);
 }

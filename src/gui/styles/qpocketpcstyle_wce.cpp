@@ -297,11 +297,11 @@
 
             // Find main window, so we can determine where it's docked.
 #ifndef Q_OS_TEMP
-            if (::qt_cast<QMainWindow*>(dw->topLevelWidget())) {
-                QMainWindow *mw = ::qt_cast<QMainWindow*>(dw->topLevelWidget());
+            if (::qt_cast<QMainWindow*>(dw->window())) {
+                QMainWindow *mw = ::qt_cast<QMainWindow*>(dw->window());
 #else
-            if (::qt_cast<QCEMainWindow*>(dw->topLevelWidget())) {
-                QCEMainWindow *mw = ::qt_cast<QCEMainWindow*>(dw->topLevelWidget());
+            if (::qt_cast<QCEMainWindow*>(dw->window())) {
+                QCEMainWindow *mw = ::qt_cast<QCEMainWindow*>(dw->window());
 #endif // Q_OS_TEMP
                 if (mw) {
                     bool nl;
@@ -313,11 +313,11 @@
             QDockArea *da = ::qt_cast<QDockArea*>(p);
             // Find main window, so we can determine where it's docked.
 #ifndef Q_OS_TEMP
-            if (::qt_cast<QMainWindow*>(da->topLevelWidget())) {
-                QMainWindow *mw = ::qt_cast<QMainWindow*>(da->topLevelWidget());
+            if (::qt_cast<QMainWindow*>(da->window())) {
+                QMainWindow *mw = ::qt_cast<QMainWindow*>(da->window());
 #else
-            if (::qt_cast<QCEMainWindow*>(da->topLevelWidget())) {
-                QCEMainWindow *mw = ::qt_cast<QCEMainWindow*>(da->topLevelWidget());
+            if (::qt_cast<QCEMainWindow*>(da->window())) {
+                QCEMainWindow *mw = ::qt_cast<QCEMainWindow*>(da->window());
 #endif // Q_OS_TEMP
                 if (mw) {
                     if (da == mw->topDock()) return Qt::DockTop;

@@ -146,7 +146,7 @@ void ColorSwatch::polishEvent(QEvent *)
         movableAction->setEnabled(false);
     } else {
         floatableAction->setChecked(features() & QDockWindow::DockWindowFloatable);
-        topLevelAction->setChecked(isTopLevel());
+        topLevelAction->setChecked(isWindow());
         // done after topLevel, to get 'floatable' correctly initialized
         movableAction->setChecked(features() & QDockWindow::DockWindowMovable);
     }

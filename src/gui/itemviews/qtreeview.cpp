@@ -663,7 +663,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     QStyle::State extraFlags = QStyle::State_None;
     if (isEnabled())
         extraFlags |= QStyle::State_Enabled;
-    if (topLevelWidget()->isActiveWindow())
+    if (window()->isActiveWindow())
         extraFlags |= QStyle::State_Active;
     if (level >= outer) {
         // start with the innermost branch

@@ -1292,7 +1292,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     if (isEnabled())
         state |= QStyle::State_Enabled;
 
-    if (topLevelWidget()->isActiveWindow())
+    if (window()->isActiveWindow())
         state |= QStyle::State_Active;
 
     if (d->clickableSections) {

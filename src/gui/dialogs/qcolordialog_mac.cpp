@@ -27,7 +27,7 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent)
     qt_mac_to_pascal_string("Choose a color", title);
     static const int sw = 420, sh = 300;
     if(parent) {
-        parent = parent->topLevelWidget();
+        parent = parent->window();
         p.h = (parent->x() + (parent->width() / 2)) - (sw / 2);
         p.v = (parent->y() + (parent->height() / 2)) - (sh / 2);
         QRect r = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(parent));

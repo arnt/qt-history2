@@ -78,7 +78,7 @@ public:
     HRESULT WINAPI EnableModeless(BOOL fEnable);
     
 protected:
-    QWidget *topLevelWidget() const;
+    QWidget *window() const;
     
 private:
     QAxScript *script;
@@ -277,7 +277,7 @@ HRESULT WINAPI QAxScriptSite::OnStateChange(SCRIPTSTATE ssScriptState)
     Returns the toplevel widget parent of this script, or
     the application main widget if there is no widget parent.
 */
-QWidget *QAxScriptSite::topLevelWidget() const
+QWidget *QAxScriptSite::window() const
 {
     QWidget *w = 0;
     QObject *p = script->parent();
@@ -287,7 +287,7 @@ QWidget *QAxScriptSite::topLevelWidget() const
     }
     
     if (w)
-        w = w->topLevelWidget();
+        w = w->window();
     if (!w && qApp)
         w = qApp->mainWidget();
     
@@ -306,7 +306,7 @@ HRESULT WINAPI QAxScriptSite::GetWindow(HWND *phwnd)
         return E_POINTER;
     
     *phwnd = 0;
-    QWidget *w = topLevelWidget();
+    QWidget *w = window();
     if (!w)
         return E_FAIL;
     
@@ -322,7 +322,7 @@ HRESULT WINAPI QAxScriptSite::GetWindow(HWND *phwnd)
 */
 HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 {
-    QWidget *w = topLevelWidget();
+    QWidget *w = window();
     if (!w)
         return E_FAIL;
     

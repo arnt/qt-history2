@@ -76,7 +76,7 @@ QWindowsStyle::Private::Private(QWindowsStyle *parent)
 // Returns true if the toplevel parent of \a widget has seen the Alt-key
 bool QWindowsStyle::Private::hasSeenAlt(const QWidget *widget) const
 {
-    widget = widget->topLevelWidget();
+    widget = widget->window();
     return seenAlt.contains(widget);
 }
 
@@ -91,13 +91,13 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
     switch(e->type()) {
     case QEvent::KeyPress:
         if (static_cast<QKeyEvent *>(e)->key() == Qt::Key_Alt) {
-            widget = widget->topLevelWidget();
+            widget = widget->window();
 
             // Alt has been pressed - find all widgets that care
             QList<QWidget *> l = qFindChildren<QWidget *>(widget);
             for (int pos=0; pos<l.size(); ++pos) {
                 QWidget *w = l.at(pos);
-                if (w->isTopLevel() || !w->isVisible() ||
+                if (w->isWindow() || !w->isVisible() ||
                     w->style()->styleHint(SH_UnderlineShortcut, 0, w))
                     l.removeAt(pos);
             }
@@ -112,7 +112,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
         break;
     case QEvent::KeyRelease:
 	if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Alt) {
-	    widget = widget->topLevelWidget();
+	    widget = widget->window();
 
 	    // Update state and repaint the menubars.
 	    alt_down = false;
@@ -124,7 +124,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
     case QEvent::Close:
         // Reset widget when closing
         seenAlt.removeAll(widget);
-        seenAlt.removeAll(widget->topLevelWidget());
+        seenAlt.removeAll(widget->window());
         break;
     default:
         break;

@@ -1259,7 +1259,7 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 
 void QWSDisplay::setWindowCaption(QWidget *w, const QString &c)
 {
-    if (w->isTopLevel()) {
+    if (w->isWindow()) {
         nameRegion(w->winId(), w->objectName(), c);
         static_cast<QETWidget *>(w)->repaintDecoration(qApp->desktop()->rect(), true);
     }
@@ -1269,7 +1269,7 @@ void QWSDisplay::selectCursor(QWidget *w, unsigned int cursId)
 {
     if (cursId != qt_last_cursor)
     {
-        QWidget *top = w->topLevelWidget();
+        QWidget *top = w->window();
         qt_last_cursor = cursId;
         QWSSelectCursorCommand cmd;
         cmd.simpleData.windowid = top->winId();
@@ -1290,7 +1290,7 @@ void QWSDisplay::setCursorPosition(int x, int y)
 
 void QWSDisplay::grabMouse(QWidget *w, bool grab)
 {
-    QWidget *top = w->topLevelWidget();
+    QWidget *top = w->window();
     QWSGrabMouseCommand cmd;
 #ifdef QT_DEBUG
     memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
@@ -1303,7 +1303,7 @@ void QWSDisplay::grabMouse(QWidget *w, bool grab)
 
 void QWSDisplay::grabKeyboard(QWidget *w, bool grab)
 {
-    QWidget *top = w->topLevelWidget();
+    QWidget *top = w->window();
     QWSGrabKeyboardCommand cmd;
 #ifdef QT_DEBUG
     memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
@@ -2092,7 +2092,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             if (QApplicationPrivate::focus_widget && QApplicationPrivate::focus_widget->isVisible())
                 keywidget = static_cast<QETWidget*>(QApplicationPrivate::focus_widget);
             else if (widget)
-                keywidget = static_cast<QETWidget*>(widget->topLevelWidget());
+                keywidget = static_cast<QETWidget*>(widget->window());
         }
     } else if (event->type==QWSEvent::MaxWindowRect) {
         servermaxrect=true;
@@ -2305,7 +2305,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                     if (widget->focusWidget())
                         widget->focusWidget()->setFocus();
                     else
-                        widget->topLevelWidget()->setFocus();
+                        widget->window()->setFocus();
                 }
             }
         } else {        // lost focus
@@ -2651,7 +2651,7 @@ bool QETWidget::translateWheelEvent(const QWSMouseEvent *me)
 
     // send the event to the widget or its ancestors
     QWidget* popup = qApp->activePopupWidget();
-    if (popup && topLevelWidget() != popup)
+    if (popup && window() != popup)
         popup->close();
     QWheelEvent we(mapFromGlobal(mousePoint), mousePoint, mouse.delta,
                    Qt::MouseButtons(mouse.state & Qt::MouseButtonMask),
@@ -2849,7 +2849,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 
         QMouseEvent e(type, pos, globalPos, Qt::MouseButton(button), buttonstate, keystate);
 #ifndef QT_NO_QWS_MANAGER
-        if (widget->isTopLevel() && widget->d->topData()->qwsManager
+        if (widget->isWindow() && widget->d->topData()->qwsManager
             && (widget->d->topData()->qwsManager->region().contains(globalPos)
                 || QWSManager::grabbedMouse() )) {
             if ((*mouseInWidget)) {

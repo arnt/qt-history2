@@ -394,11 +394,11 @@ void QSplitterPrivate::recalc(bool update)
     if (update) {
         if (orient == Qt::Horizontal) {
             q->setMaximumSize(maxl, maxt);
-            if (q->isTopLevel())
+            if (q->isWindow())
                 q->setMinimumSize(minl,mint);
         } else {
             q->setMaximumSize(maxt, maxl);
-            if (q->isTopLevel())
+            if (q->isWindow())
                 q->setMinimumSize(mint,minl);
         }
         doResize();
@@ -1167,7 +1167,7 @@ void QSplitter::childEvent(QChildEvent *c)
         return;
     QWidget *w = static_cast<QWidget*>(c->child());
 
-    if (c->added() && !d->blockChildAdd && !w->isTopLevel() && !d->findWidget(w)) {
+    if (c->added() && !d->blockChildAdd && !w->isWindow() && !d->findWidget(w)) {
         addWidget(w);
     } else  if (c->type() == QEvent::ChildRemoved) {
         for (int i = 0; i < d->list.size(); ++i) {
