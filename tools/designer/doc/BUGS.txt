@@ -4,7 +4,7 @@ Critical
 Severe
 ------
 
-Accelerators that have been set in a form can't be used in
+Accelerators set in a form can't be used in
 designer anymore (e.g. a Alt-P in a form inhibits the Alt-P-
 accelerator for the Preview menu).
 
@@ -24,7 +24,11 @@ Edit Connections dialog:
 
     To be consistent with the mouse way, marking signal and slot
     by keyboard must not require pressing Connect additionally
-    to actually create the connection
+    to actually create the connection.
+
+    When the latter will be fixed it will be unclear why there
+    is a Connect button at all (neither the signals nor the slots
+    listbox allows multiple selections). 
 
 Corrupted designerrc (Reggie)
     When the .designerrc is empty or corrupted designer crashes on
@@ -43,6 +47,14 @@ to override the existing file.
 
 Cosmetic
 --------
+
+Double-clicked tools should be be distinguishable from single-clicked
+tools (e.g. get a darker icon).
+
+From the ergonomic point of view, the Pointer, Signals/Slots and
+Tab Order tools are considerred an entity, thus should behave
+the same way all three. From this follows that the Signals/Slots tool should
+not switch off after the Edit Connections dialog is finished. 
 
 The File menu should have a Close entry for the current form
 
