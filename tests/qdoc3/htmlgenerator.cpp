@@ -391,9 +391,10 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 		    out() << (*s).pluralMember;
 		}
 		out() << " inherited from <a href=\"" << fileName( (*p).first )
-		      << "#" << cleanRef( (*s).name ) << "\">";
-		generateFullName( (*p).first, classe, marker );
-		out() << "</a></li>\n";
+		      << "#" << cleanRef( (*s).name ) << "\">"
+		      << protect( plainCode(marker->markedUpFullName(
+						    (*p).first, classe)) )
+		      << "</a></li>\n";
 		++p;
 	    }
 	    out() << "</ul>\n";
