@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QProcess class for Unix
+** Implementation of Q3Process class for Unix
 **
 ** Created : 20000905
 **
@@ -42,13 +42,14 @@
 #undef connect
 #endif
 
-#include "qprocess.h"
+#include "q3process.h"
 
 #ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
-#include "qptrqueue.h"
-#include "qptrlist.h"
+#include "q3cstring.h"
+#include "q3ptrqueue.h"
+#include "q3ptrlist.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qcleanuphandler.h"
@@ -68,7 +69,7 @@
 # endif
 #endif
 
-//#define QT_QPROCESS_DEBUG
+//#define QT_Q3PROCESS_DEBUG
 
 
 #ifdef Q_C_CALLBACKS
@@ -83,20 +84,20 @@ extern "C" {
 
 
 class QProc;
-class QProcessManager;
-class QProcessPrivate
+class Q3ProcessManager;
+class Q3ProcessPrivate
 {
 public:
-    QProcessPrivate();
-    ~QProcessPrivate();
+    Q3ProcessPrivate();
+    ~Q3ProcessPrivate();
 
     void closeOpenSocketsForChild();
-    void newProc( pid_t pid, QProcess *process );
+    void newProc( pid_t pid, Q3Process *process );
 
     QMembuf bufStdout;
     QMembuf bufStderr;
 
-    QPtrQueue<QByteArray> stdinBuf;
+    Q3PtrQueue<QByteArray> stdinBuf;
 
     QSocketNotifier *notifierStdin;
     QSocketNotifier *notifierStdout;
@@ -108,7 +109,7 @@ public:
     bool exitValuesCalculated;
     bool socketReadCalled;
 
-    static QProcessManager *procManager;
+    static Q3ProcessManager *procManager;
 };
 
 
@@ -118,9 +119,9 @@ public:
  *
  **********************************************************************/
 /*
-  The class QProcess does not necessarily map exactly to the running
-  child processes: if the process is finished, the QProcess class may still be
-  there; furthermore a user can use QProcess to start more than one process.
+  The class Q3Process does not necessarily map exactly to the running
+  child processes: if the process is finished, the Q3Process class may still be
+  there; furthermore a user can use Q3Process to start more than one process.
 
   The helper-class QProc has the semantics that one instance of this class maps
   directly to a running child process.
@@ -128,10 +129,10 @@ public:
 class QProc
 {
 public:
-    QProc( pid_t p, QProcess *proc=0 ) : pid(p), process(proc)
+    QProc( pid_t p, Q3Process *proc=0 ) : pid(p), process(proc)
     {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProc: Constructor for pid %d and QProcess %p", pid, process );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "QProc: Constructor for pid %d and Q3Process %p", pid, process );
 #endif
 	socketStdin = 0;
 	socketStdout = 0;
@@ -139,8 +140,8 @@ public:
     }
     ~QProc()
     {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProc: Destructor for pid %d and QProcess %p", pid, process );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "QProc: Destructor for pid %d and Q3Process %p", pid, process );
 #endif
 	if ( process ) {
 	    if ( process->d->notifierStdin )
@@ -163,21 +164,21 @@ public:
     int socketStdin;
     int socketStdout;
     int socketStderr;
-    QProcess *process;
+    Q3Process *process;
 };
 
 /***********************************************************************
  *
- * QProcessManager
+ * Q3ProcessManager
  *
  **********************************************************************/
-class QProcessManager : public QObject
+class Q3ProcessManager : public QObject
 {
     Q_OBJECT
 
 public:
-    QProcessManager();
-    ~QProcessManager();
+    Q3ProcessManager();
+    ~Q3ProcessManager();
 
     void append( QProc *p );
     void remove( QProc *p );
@@ -191,17 +192,17 @@ public slots:
 public:
     struct sigaction oldactChld;
     struct sigaction oldactPipe;
-    QPtrList<QProc> *procList;
+    Q3PtrList<QProc> *procList;
     int sigchldFd[2];
 
 private:
     QSocketNotifier *sn;
 };
 
-static void qprocess_cleanup()
+static void q3process_cleanup()
 {
-    delete QProcessPrivate::procManager;
-    QProcessPrivate::procManager = 0;
+    delete Q3ProcessPrivate::procManager;
+    Q3ProcessPrivate::procManager = 0;
 }
 
 #ifdef Q_OS_QNX6
@@ -253,9 +254,9 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
 #undef BAILOUT
 #endif
 
-QProcessManager::QProcessManager() : sn(0)
+Q3ProcessManager::Q3ProcessManager() : sn(0)
 {
-    procList = new QPtrList<QProc>;
+    procList = new Q3PtrList<QProc>;
     procList->setAutoDelete( TRUE );
 
     // The SIGCHLD handler writes to a socket to tell the manager that
@@ -269,8 +270,8 @@ QProcessManager::QProcessManager() : sn(0)
 	sigchldFd[0] = 0;
 	sigchldFd[1] = 0;
     } else {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcessManager: install socket notifier (%d)", sigchldFd[1] );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3ProcessManager: install socket notifier (%d)", sigchldFd[1] );
 #endif
 	sn = new QSocketNotifier( sigchldFd[1],
 		QSocketNotifier::Read, this );
@@ -282,8 +283,8 @@ QProcessManager::QProcessManager() : sn(0)
     // install a SIGCHLD handler and ignore SIGPIPE
     struct sigaction act;
 
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: install a SIGCHLD handler" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessManager: install a SIGCHLD handler" );
 #endif
     act.sa_handler = qt_C_sigchldHnd;
     sigemptyset( &(act.sa_mask) );
@@ -295,8 +296,8 @@ QProcessManager::QProcessManager() : sn(0)
     if ( sigaction( SIGCHLD, &act, &oldactChld ) != 0 )
 	qWarning( "Error installing SIGCHLD handler" );
 
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: install a SIGPIPE handler (SIG_IGN)" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessManager: install a SIGPIPE handler (SIG_IGN)" );
 #endif
     act.sa_handler = QT_SIGNAL_IGNORE;
     sigemptyset( &(act.sa_mask) );
@@ -306,7 +307,7 @@ QProcessManager::QProcessManager() : sn(0)
 	qWarning( "Error installing SIGPIPE handler" );
 }
 
-QProcessManager::~QProcessManager()
+Q3ProcessManager::~Q3ProcessManager()
 {
     delete procList;
 
@@ -316,53 +317,53 @@ QProcessManager::~QProcessManager()
 	::close( sigchldFd[1] );
 
     // restore SIGCHLD handler
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: restore old sigchild handler" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessManager: restore old sigchild handler" );
 #endif
     if ( sigaction( SIGCHLD, &oldactChld, 0 ) != 0 )
 	qWarning( "Error restoring SIGCHLD handler" );
 
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: restore old sigpipe handler" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessManager: restore old sigpipe handler" );
 #endif
     if ( sigaction( SIGPIPE, &oldactPipe, 0 ) != 0 )
 	qWarning( "Error restoring SIGPIPE handler" );
 }
 
-void QProcessManager::append( QProc *p )
+void Q3ProcessManager::append( QProc *p )
 {
     procList->append( p );
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: append process (procList.count(): %d)", procList->count() );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessManager: append process (procList.count(): %d)", procList->count() );
 #endif
 }
 
-void QProcessManager::remove( QProc *p )
+void Q3ProcessManager::remove( QProc *p )
 {
     procList->remove( p );
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: remove process (procList.count(): %d)", procList->count() );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessManager: remove process (procList.count(): %d)", procList->count() );
 #endif
     cleanup();
 }
 
-void QProcessManager::cleanup()
+void Q3ProcessManager::cleanup()
 {
     if ( procList->count() == 0 ) {
 	QTimer::singleShot( 0, this, SLOT(removeMe()) );
     }
 }
 
-void QProcessManager::removeMe()
+void Q3ProcessManager::removeMe()
 {
     if ( procList->count() == 0 ) {
-	qRemovePostRoutine(qprocess_cleanup);
-	QProcessPrivate::procManager = 0;
+	qRemovePostRoutine(q3process_cleanup);
+	Q3ProcessPrivate::procManager = 0;
 	delete this;
     }
 }
 
-void QProcessManager::sigchldHnd( int fd )
+void Q3ProcessManager::sigchldHnd( int fd )
 {
     // Disable the socket notifier to make sure that this function is not
     // called recursively -- this can happen, if you enter the event loop in
@@ -377,11 +378,11 @@ void QProcessManager::sigchldHnd( int fd )
 
     char tmp;
     ::read( fd, &tmp, sizeof(tmp) );
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager::sigchldHnd()" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessManager::sigchldHnd()" );
 #endif
     QProc *proc;
-    QProcess *process;
+    Q3Process *process;
     bool removeProc;
     proc = procList->first();
     while ( proc != 0 ) {
@@ -389,8 +390,8 @@ void QProcessManager::sigchldHnd( int fd )
 	process = proc->process;
 	if ( process != 0 ) {
 	    if ( !process->isRunning() ) {
-#if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess available)", proc->pid );
+#if defined(QT_Q3PROCESS_DEBUG)
+		qDebug( "Q3ProcessManager::sigchldHnd() (PID: %d): process exited (Q3Process available)", proc->pid );
 #endif
 		/*
 		  Apparently, there is not consistency among different
@@ -411,15 +412,15 @@ void QProcessManager::sigchldHnd( int fd )
 		size_t nbytes = 0;
 		// read pending data
 		if ( proc->socketStdout && ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
-#if defined(QT_QPROCESS_DEBUG)
-		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
+#if defined(QT_Q3PROCESS_DEBUG)
+		    qDebug( "Q3ProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
 #endif
 		    process->socketRead( proc->socketStdout );
 		}
 		nbytes = 0;
 		if ( proc->socketStderr && ::ioctl(proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
-#if defined(QT_QPROCESS_DEBUG)
-		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
+#if defined(QT_Q3PROCESS_DEBUG)
+		    qDebug( "Q3ProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
 #endif
 		    process->socketRead( proc->socketStderr );
 		}
@@ -446,8 +447,8 @@ void QProcessManager::sigchldHnd( int fd )
 	} else {
 	    int status;
 	    if ( ::waitpid( proc->pid, &status, WNOHANG ) == proc->pid ) {
-#if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess not available)", proc->pid );
+#if defined(QT_Q3PROCESS_DEBUG)
+		qDebug( "Q3ProcessManager::sigchldHnd() (PID: %d): process exited (Q3Process not available)", proc->pid );
 #endif
 		removeProc = TRUE;
 	    }
@@ -464,20 +465,20 @@ void QProcessManager::sigchldHnd( int fd )
 	sn->setEnabled( TRUE );
 }
 
-#include "qprocess_unix.moc"
+#include "q3process_unix.moc"
 
 
 /***********************************************************************
  *
- * QProcessPrivate
+ * Q3ProcessPrivate
  *
  **********************************************************************/
-QProcessManager *QProcessPrivate::procManager = 0;
+Q3ProcessManager *Q3ProcessPrivate::procManager = 0;
 
-QProcessPrivate::QProcessPrivate()
+Q3ProcessPrivate::Q3ProcessPrivate()
 {
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessPrivate: Constructor" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessPrivate: Constructor" );
 #endif
     stdinBufRead = 0;
 
@@ -491,10 +492,10 @@ QProcessPrivate::QProcessPrivate()
     proc = 0;
 }
 
-QProcessPrivate::~QProcessPrivate()
+Q3ProcessPrivate::~Q3ProcessPrivate()
 {
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessPrivate: Destructor" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3ProcessPrivate: Destructor" );
 #endif
 
     if ( proc != 0 ) {
@@ -518,7 +519,7 @@ QProcessPrivate::~QProcessPrivate()
   process. Otherwise one child may have an open socket on standard input, etc.
   of another child.
 */
-void QProcessPrivate::closeOpenSocketsForChild()
+void Q3ProcessPrivate::closeOpenSocketsForChild()
 {
     if ( procManager != 0 ) {
 	if ( procManager->sigchldFd[0] != 0 )
@@ -526,7 +527,7 @@ void QProcessPrivate::closeOpenSocketsForChild()
 	if ( procManager->sigchldFd[1] != 0 )
 	    ::close( procManager->sigchldFd[1] );
 
-	// close also the sockets from other QProcess instances
+	// close also the sockets from other Q3Process instances
 	for ( QProc *p=procManager->procList->first(); p!=0; p=procManager->procList->next() ) {
 	    ::close( p->socketStdin );
 	    ::close( p->socketStdout );
@@ -535,14 +536,14 @@ void QProcessPrivate::closeOpenSocketsForChild()
     }
 }
 
-void QProcessPrivate::newProc( pid_t pid, QProcess *process )
+void Q3ProcessPrivate::newProc( pid_t pid, Q3Process *process )
 {
     proc = new QProc( pid, process );
     if ( procManager == 0 ) {
-	procManager = new QProcessManager;
-	qAddPostRoutine(qprocess_cleanup);
+	procManager = new Q3ProcessManager;
+	qAddPostRoutine(q3process_cleanup);
     }
-    // the QProcessManager takes care of deleting the QProc instances
+    // the Q3ProcessManager takes care of deleting the QProc instances
     procManager->append( proc );
 }
 
@@ -553,27 +554,27 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
  **********************************************************************/
 QT_SIGNAL_RETTYPE qt_C_sigchldHnd( QT_SIGNAL_ARGS )
 {
-    if ( QProcessPrivate::procManager == 0 )
+    if ( Q3ProcessPrivate::procManager == 0 )
 	return;
-    if ( QProcessPrivate::procManager->sigchldFd[0] == 0 )
+    if ( Q3ProcessPrivate::procManager->sigchldFd[0] == 0 )
 	return;
 
     char a = 1;
-    ::write( QProcessPrivate::procManager->sigchldFd[0], &a, sizeof(a) );
+    ::write( Q3ProcessPrivate::procManager->sigchldFd[0], &a, sizeof(a) );
 }
 
 
 /***********************************************************************
  *
- * QProcess
+ * Q3Process
  *
  **********************************************************************/
 /*
   This private class does basic initialization.
 */
-void QProcess::init()
+void Q3Process::init()
 {
-    d = new QProcessPrivate();
+    d = new Q3ProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
 }
@@ -582,17 +583,17 @@ void QProcess::init()
   This private class resets the process variables, etc. so that it can be used
   for another process to start.
 */
-void QProcess::reset()
+void Q3Process::reset()
 {
     delete d;
-    d = new QProcessPrivate();
+    d = new Q3ProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
     d->bufStdout.clear();
     d->bufStderr.clear();
 }
 
-QMembuf* QProcess::membufStdout()
+QMembuf* Q3Process::membufStdout()
 {
     if ( d->proc && d->proc->socketStdout ) {
 	/*
@@ -617,7 +618,7 @@ QMembuf* QProcess::membufStdout()
     return &d->bufStdout;
 }
 
-QMembuf* QProcess::membufStderr()
+QMembuf* Q3Process::membufStderr()
 {
     if ( d->proc && d->proc->socketStderr ) {
 	/*
@@ -655,7 +656,7 @@ QMembuf* QProcess::membufStderr()
 
     \sa tryTerminate() kill()
 */
-QProcess::~QProcess()
+Q3Process::~Q3Process()
 {
     delete d;
 }
@@ -686,7 +687,7 @@ QProcess::~QProcess()
 
     You can call this function even if you've used this instance to
     create a another process which is still running. In such cases,
-    QProcess closes the old process's standard input and deletes
+    Q3Process closes the old process's standard input and deletes
     pending data, i.e., you lose all control over the old process, but
     the old process is not terminated. This applies also if the
     process could not be started. (On operating systems that have
@@ -694,10 +695,10 @@ QProcess::~QProcess()
 
     \sa launch() closeStdin()
 */
-bool QProcess::start( QStringList *env )
+bool Q3Process::start( QStringList *env )
 {
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::start()" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3Process::start()" );
 #endif
     reset();
 
@@ -750,27 +751,27 @@ bool QProcess::start( QStringList *env )
     }
 
     // construct the arguments for exec
-    QCString *arglistQ = new QCString[ _arguments.count() + 1 ];
+    Q3CString *arglistQ = new Q3CString[ _arguments.count() + 1 ];
     const char** arglist = new const char*[ _arguments.count() + 1 ];
     int i = 0;
     for ( QStringList::Iterator it = _arguments.begin(); it != _arguments.end(); ++it ) {
 	arglistQ[i] = (*it).local8Bit();
 	arglist[i] = arglistQ[i];
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::start(): arg %d = %s", i, arglist[i] );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::start(): arg %d = %s", i, arglist[i] );
 #endif
 	i++;
     }
 #ifdef Q_OS_MACX
     if(i) {
-	QCString arg_bundle = arglistQ[0];
+	Q3CString arg_bundle = arglistQ[0];
 	QFileInfo fi(arg_bundle);
 	if(fi.exists() && fi.isDir() && arg_bundle.right(4) == ".app") {
-	    QCString exe = arg_bundle;
+	    Q3CString exe = arg_bundle;
 	    int lslash = exe.findRev('/');
 	    if(lslash != -1)
 		exe = exe.mid(lslash+1);
-	    exe = QCString(arg_bundle + "/Contents/MacOS/" + exe);
+	    exe = Q3CString(arg_bundle + "/Contents/MacOS/" + exe);
 	    exe = exe.left(exe.length() - 4); //chop off the .app
 	    if(QFile::exists(exe)) {
 		arglistQ[0] = exe;
@@ -784,8 +785,8 @@ bool QProcess::start( QStringList *env )
     // Must make sure signal handlers are installed before exec'ing
     // in case the process exits quickly.
     if ( d->procManager == 0 ) {
-	d->procManager = new QProcessManager;
-	qAddPostRoutine(qprocess_cleanup);
+	d->procManager = new Q3ProcessManager;
+	qAddPostRoutine(q3process_cleanup);
     }
 
     // fork and exec
@@ -832,9 +833,9 @@ bool QProcess::start( QStringList *env )
 	    }
 #endif
 #ifndef Q_OS_QNX4
-	    ::execvp( command, (char*const*)arglist ); // ### cast not nice
+	    ::execvp( command.local8Bit(), (char*const*)arglist ); // ### cast not nice
 #else
-	    ::execvp( command, (char const*const*)arglist ); // ### cast not nice
+	    ::execvp( command.local8Bit(), (char const*const*)arglist ); // ### cast not nice
 #endif
 	} else { // start process with environment settins as specified in env
 	    // construct the environment for exec
@@ -846,14 +847,14 @@ bool QProcess::start( QStringList *env )
 #endif
 	    bool setLibraryPath =
 		env->grep( QRegExp( "^" + ld_library_path + "=" ) ).empty() &&
-		getenv( ld_library_path ) != 0;
+		getenv( ld_library_path.local8Bit() ) != 0;
 	    if ( setLibraryPath )
 		numEntries++;
-	    QCString *envlistQ = new QCString[ numEntries + 1 ];
+	    Q3CString *envlistQ = new Q3CString[ numEntries + 1 ];
 	    const char** envlist = new const char*[ numEntries + 1 ];
 	    int i = 0;
 	    if ( setLibraryPath ) {
-		envlistQ[i] = QString( ld_library_path + "=%1" ).arg( getenv( ld_library_path ) ).local8Bit();
+		envlistQ[i] = QString( ld_library_path + "=%1" ).arg( getenv( ld_library_path.local8Bit() ) ).local8Bit();
 		envlist[i] = envlistQ[i];
 		i++;
 	    }
@@ -995,8 +996,8 @@ bool QProcess::start( QStringList *env )
     return TRUE;
 
 error:
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::start(): error starting process" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3Process::start(): error starting process" );
 #endif
     if ( d->procManager )
 	d->procManager->cleanup();
@@ -1031,7 +1032,7 @@ error:
 
     \sa kill() processExited()
 */
-void QProcess::tryTerminate() const
+void Q3Process::tryTerminate() const
 {
     if ( d->proc != 0 )
 	::kill( d->proc->pid, SIGTERM );
@@ -1062,7 +1063,7 @@ void QProcess::tryTerminate() const
 
     \sa tryTerminate() processExited()
 */
-void QProcess::kill() const
+void Q3Process::kill() const
 {
     if ( d->proc != 0 )
 	::kill( d->proc->pid, SIGKILL );
@@ -1073,11 +1074,11 @@ void QProcess::kill() const
 
     \sa normalExit() exitStatus() processExited()
 */
-bool QProcess::isRunning() const
+bool Q3Process::isRunning() const
 {
     if ( d->exitValuesCalculated ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::isRunning(): FALSE (already computed)" );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::isRunning(): FALSE (already computed)" );
 #endif
 	return FALSE;
     }
@@ -1086,7 +1087,7 @@ bool QProcess::isRunning() const
     int status;
     if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid ) {
 	// compute the exit values
-	QProcess *that = (QProcess*)this; // mutable
+	Q3Process *that = (Q3Process*)this; // mutable
 	that->exitNormal = WIFEXITED( status ) != 0;
 	if ( exitNormal ) {
 	    that->exitStat = (char)WEXITSTATUS( status );
@@ -1106,13 +1107,13 @@ bool QProcess::isRunning() const
 		d->procManager->sigchldHnd( d->procManager->sigchldFd[1] );
 	}
 
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::isRunning() (PID: %d): FALSE", d->proc->pid );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::isRunning() (PID: %d): FALSE", d->proc->pid );
 #endif
 	return FALSE;
     }
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::isRunning() (PID: %d): TRUE", d->proc->pid );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3Process::isRunning() (PID: %d): TRUE", d->proc->pid );
 #endif
     return TRUE;
 }
@@ -1123,12 +1124,12 @@ bool QProcess::isRunning() const
 
     \sa readLineStdout() canReadLineStderr()
 */
-bool QProcess::canReadLineStdout() const
+bool Q3Process::canReadLineStdout() const
 {
     if ( !d->proc || !d->proc->socketStdout )
 	return d->bufStdout.size() != 0;
 
-    QProcess *that = (QProcess*)this;
+    Q3Process *that = (Q3Process*)this;
     return that->membufStdout()->scanNewline( 0 );
 }
 
@@ -1138,12 +1139,12 @@ bool QProcess::canReadLineStdout() const
 
     \sa readLineStderr() canReadLineStdout()
 */
-bool QProcess::canReadLineStderr() const
+bool Q3Process::canReadLineStderr() const
 {
     if ( !d->proc || !d->proc->socketStderr )
 	return d->bufStderr.size() != 0;
 
-    QProcess *that = (QProcess*)this;
+    Q3Process *that = (Q3Process*)this;
     return that->membufStderr()->scanNewline( 0 );
 }
 
@@ -1151,7 +1152,7 @@ bool QProcess::canReadLineStderr() const
     Writes the data \a buf to the process's standard input. The
     process may or may not read this data.
 
-    This function returns immediately; the QProcess class might write
+    This function returns immediately; the Q3Process class might write
     the data at a later point (you must enter the event loop for this
     to occur). When all the data is written to the process, the signal
     wroteToStdin() is emitted. This does not mean that the process
@@ -1160,10 +1161,10 @@ bool QProcess::canReadLineStderr() const
 
     \sa wroteToStdin() closeStdin() readStdout() readStderr()
 */
-void QProcess::writeToStdin( const QByteArray& buf )
+void Q3Process::writeToStdin( const QByteArray& buf )
 {
-#if defined(QT_QPROCESS_DEBUG)
-//    qDebug( "QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin );
+#if defined(QT_Q3PROCESS_DEBUG)
+//    qDebug( "Q3Process::writeToStdin(): write to stdin (%d)", d->socketStdin );
 #endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
@@ -1179,7 +1180,7 @@ void QProcess::writeToStdin( const QByteArray& buf )
 
     \sa wroteToStdin()
 */
-void QProcess::closeStdin()
+void Q3Process::closeStdin()
 {
     if ( d->proc == 0 )
 	return;
@@ -1192,8 +1193,8 @@ void QProcess::closeStdin()
 	if ( ::close( d->proc->socketStdin ) != 0 ) {
 	    qWarning( "Could not close stdin of child process" );
 	}
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->proc->socketStdin );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::closeStdin(): stdin (%d) closed", d->proc->socketStdin );
 #endif
 	d->proc->socketStdin = 0;
     }
@@ -1204,7 +1205,7 @@ void QProcess::closeStdin()
   This private slot is called when the process has outputted data to either
   standard output or standard error.
 */
-void QProcess::socketRead( int fd )
+void Q3Process::socketRead( int fd )
 {
     if ( d->socketReadCalled ) {
 	// the slots that are connected to the readyRead...() signals might
@@ -1213,8 +1214,8 @@ void QProcess::socketRead( int fd )
 	return;
     }
 
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::socketRead(): %d", fd );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3Process::socketRead(): %d", fd );
 #endif
     if ( fd == 0 )
 	return;
@@ -1230,7 +1231,7 @@ void QProcess::socketRead( int fd )
 	// this case should never happen, but just to be safe
 	return;
     }
-#if defined(QT_QPROCESS_DEBUG)
+#if defined(QT_Q3PROCESS_DEBUG)
     uint oldSize = buffer->size();
 #endif
 
@@ -1249,8 +1250,8 @@ void QProcess::socketRead( int fd )
     // eof or error?
     if ( n == 0 || n == -1 ) {
 	if ( fd == d->proc->socketStdout ) {
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
+#if defined(QT_Q3PROCESS_DEBUG)
+	    qDebug( "Q3Process::socketRead(): stdout (%d) closed", fd );
 #endif
 	    d->notifierStdout->setEnabled( FALSE );
 	    delete d->notifierStdout;
@@ -1259,8 +1260,8 @@ void QProcess::socketRead( int fd )
 	    d->proc->socketStdout = 0;
 	    return;
 	} else if ( fd == d->proc->socketStderr ) {
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
+#if defined(QT_Q3PROCESS_DEBUG)
+	    qDebug( "Q3Process::socketRead(): stderr (%d) closed", fd );
 #endif
 	    d->notifierStderr->setEnabled( FALSE );
 	    delete d->notifierStderr;
@@ -1299,14 +1300,14 @@ void QProcess::socketRead( int fd )
 
     d->socketReadCalled = TRUE;
     if ( fd == d->proc->socketStdout ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::socketRead(): %d bytes read from stdout (%d)",
 		buffer->size()-oldSize, fd );
 #endif
 	emit readyReadStdout();
     } else if ( fd == d->proc->socketStderr ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::socketRead(): %d bytes read from stderr (%d)",
 		buffer->size()-oldSize, fd );
 #endif
 	emit readyReadStderr();
@@ -1319,7 +1320,7 @@ void QProcess::socketRead( int fd )
   This private slot is called when the process tries to read data from standard
   input.
 */
-void QProcess::socketWrite( int fd )
+void Q3Process::socketWrite( int fd )
 {
     while ( fd == d->proc->socketStdin && d->proc->socketStdin != 0 ) {
 	if ( d->stdinBuf.isEmpty() ) {
@@ -1329,8 +1330,8 @@ void QProcess::socketWrite( int fd )
 	ssize_t ret = ::write( fd,
 		d->stdinBuf.head()->data() + d->stdinBufRead,
 		d->stdinBuf.head()->size() - d->stdinBufRead );
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketWrite(): wrote %d bytes to stdin (%d)", ret, fd );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::socketWrite(): wrote %d bytes to stdin (%d)", ret, fd );
 #endif
 	if ( ret == -1 )
 	    return;
@@ -1346,12 +1347,12 @@ void QProcess::socketWrite( int fd )
 
 /*!
   \internal
-  Flushes standard input. This is useful if you want to use QProcess in a
+  Flushes standard input. This is useful if you want to use Q3Process in a
   synchronous manner.
 
   This function should probably go into the public API.
 */
-void QProcess::flushStdin()
+void Q3Process::flushStdin()
 {
     if (d->proc)
         socketWrite(d->proc->socketStdin);
@@ -1361,7 +1362,7 @@ void QProcess::flushStdin()
   This private slot is only used under Windows (but moc does not know about #if
   defined()).
 */
-void QProcess::timeout()
+void Q3Process::timeout()
 {
 }
 
@@ -1370,7 +1371,7 @@ void QProcess::timeout()
   This private function is used by connectNotify() and disconnectNotify() to
   change the value of ioRedirection (and related behaviour)
 */
-void QProcess::setIoRedirection( bool value )
+void Q3Process::setIoRedirection( bool value )
 {
     ioRedirection = value;
     if ( ioRedirection ) {
@@ -1391,7 +1392,7 @@ void QProcess::setIoRedirection( bool value )
   disconnectNotify() to change the value of notifyOnExit (and related
   behaviour)
 */
-void QProcess::setNotifyOnExit( bool value )
+void Q3Process::setNotifyOnExit( bool value )
 {
     notifyOnExit = value;
 }
@@ -1400,12 +1401,12 @@ void QProcess::setNotifyOnExit( bool value )
   This private function is used by connectNotify() and disconnectNotify() to
   change the value of wroteToStdinConnected (and related behaviour)
 */
-void QProcess::setWroteStdinConnected( bool value )
+void Q3Process::setWroteStdinConnected( bool value )
 {
     wroteToStdinConnected = value;
 }
 
-/*! \enum QProcess::PID
+/*! \enum Q3Process::PID
   \internal
 */
 /*!
@@ -1420,7 +1421,7 @@ void QProcess::setWroteStdinConnected( bool value )
 
     Use of this function's return value is likely to be non-portable.
 */
-QProcess::PID QProcess::processIdentifier()
+Q3Process::PID Q3Process::processIdentifier()
 {
     if ( d->proc == 0 )
 	return -1;

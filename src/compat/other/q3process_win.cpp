@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QProcess class for Win32
+** Implementation of Q3Process class for Win32
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
@@ -26,28 +26,29 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
-#include "qprocess.h"
+#include "q3process.h"
 
 #ifndef QT_NO_PROCESS
 
 #include "qapplication.h"
-#include "qptrqueue.h"
+#include "q3cstring.h"
+#include "q3ptrqueue.h"
 #include "qtimer.h"
 #include "qregexp.h"
 #include "private/qinternal_p.h"
 #include "qt_windows.h"
 
-//#define QT_QPROCESS_DEBUG
+//#define QT_Q3PROCESS_DEBUG
 
 /***********************************************************************
  *
- * QProcessPrivate
+ * Q3ProcessPrivate
  *
  **********************************************************************/
-class QProcessPrivate
+class Q3ProcessPrivate
 {
 public:
-    QProcessPrivate( QProcess *proc )
+    Q3ProcessPrivate( Q3Process *proc )
     {
 	stdinBufRead = 0;
 	pipeStdin[0] = 0;
@@ -65,7 +66,7 @@ public:
 	pid = 0;
     }
 
-    ~QProcessPrivate()
+    ~Q3ProcessPrivate()
     {
 	reset();
     }
@@ -124,7 +125,7 @@ public:
     QMembuf bufStdout;
     QMembuf bufStderr;
 
-    QPtrQueue<QByteArray> stdinBuf;
+    Q3PtrQueue<QByteArray> stdinBuf;
 
     HANDLE pipeStdin[2];
     HANDLE pipeStdout[2];
@@ -140,17 +141,17 @@ public:
 
 /***********************************************************************
  *
- * QProcess
+ * Q3Process
  *
  **********************************************************************/
-void QProcess::init()
+void Q3Process::init()
 {
-    d = new QProcessPrivate( this );
+    d = new Q3ProcessPrivate( this );
     exitStat = 0;
     exitNormal = FALSE;
 }
 
-void QProcess::reset()
+void Q3Process::reset()
 {
     d->reset();
     exitStat = 0;
@@ -159,29 +160,29 @@ void QProcess::reset()
     d->bufStderr.clear();
 }
 
-QMembuf* QProcess::membufStdout()
+QMembuf* Q3Process::membufStdout()
 {
     if( d->pipeStdout[0] != 0 )
 	socketRead( 1 );
     return &d->bufStdout;
 }
 
-QMembuf* QProcess::membufStderr()
+QMembuf* Q3Process::membufStderr()
 {
     if( d->pipeStderr[0] != 0 )
 	socketRead( 2 );
     return &d->bufStderr;
 }
 
-QProcess::~QProcess()
+Q3Process::~Q3Process()
 {
     delete d;
 }
 
-bool QProcess::start( QStringList *env )
+bool Q3Process::start( QStringList *env )
 {
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::start()" );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3Process::start()" );
 #endif
     reset();
 
@@ -280,8 +281,8 @@ bool QProcess::start( QStringList *env )
 	    args += ' ' + tmp;
 	}
     }
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::start(): args [%s]", args.latin1() );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3Process::start(): args [%s]", args.latin1() );
 #endif
 
     // CreateProcess()
@@ -357,7 +358,7 @@ bool QProcess::start( QStringList *env )
 	    // add PATH if necessary (for DLL loading)
 	    char *path = getenv( "PATH" );
 	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && path ) {
-		QCString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) ).local8Bit();
+		Q3CString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) ).local8Bit();
 		uint tmpSize = tmp.length() + 1;
 		envlist.resize( envlist.size() + tmpSize );
 		memcpy( envlist.data()+pos, tmp.data(), tmpSize );
@@ -365,7 +366,7 @@ bool QProcess::start( QStringList *env )
 	    }
 	    // add the user environment
 	    for ( QStringList::Iterator it = env->begin(); it != env->end(); it++ ) {
-		QCString tmp = (*it).local8Bit();
+		Q3CString tmp = (*it).local8Bit();
 		uint tmpSize = tmp.length() + 1;
 		envlist.resize( envlist.size() + tmpSize );
 		memcpy( envlist.data()+pos, tmp.data(), tmpSize );
@@ -420,26 +421,26 @@ static BOOL CALLBACK qt_terminateApp( HWND hwnd, LPARAM procId )
     return TRUE;
 }
 
-void QProcess::tryTerminate() const
+void Q3Process::tryTerminate() const
 {
     if ( d->pid )
 	EnumWindows( qt_terminateApp, (LPARAM)d->pid->dwProcessId );
 }
 
-void QProcess::kill() const
+void Q3Process::kill() const
 {
     if ( d->pid )
 	TerminateProcess( d->pid->hProcess, 0xf291 );
 }
 
-bool QProcess::isRunning() const
+bool Q3Process::isRunning() const
 {
     if ( !d->pid )
 	return FALSE;
 
     if ( WaitForSingleObject( d->pid->hProcess, 0) == WAIT_OBJECT_0 ) {
 	// there might be data to read
-	QProcess *that = (QProcess*)this;
+	Q3Process *that = (Q3Process*)this;
 	that->socketRead( 1 ); // try stdout
 	that->socketRead( 2 ); // try stderr
 	// compute the exit values
@@ -461,31 +462,31 @@ bool QProcess::isRunning() const
     }
 }
 
-bool QProcess::canReadLineStdout() const
+bool Q3Process::canReadLineStdout() const
 {
     if( !d->pipeStdout[0] )
 	return d->bufStdout.size() != 0;
 
-    QProcess *that = (QProcess*)this;
+    Q3Process *that = (Q3Process*)this;
     return that->membufStdout()->scanNewline( 0 );
 }
 
-bool QProcess::canReadLineStderr() const
+bool Q3Process::canReadLineStderr() const
 {
     if( !d->pipeStderr[0] )
 	return d->bufStderr.size() != 0;
 
-    QProcess *that = (QProcess*)this;
+    Q3Process *that = (Q3Process*)this;
     return that->membufStderr()->scanNewline( 0 );
 }
 
-void QProcess::writeToStdin( const QByteArray& buf )
+void Q3Process::writeToStdin( const QByteArray& buf )
 {
     d->stdinBuf.enqueue( new QByteArray(buf) );
     socketWrite( 0 );
 }
 
-void QProcess::closeStdin( )
+void Q3Process::closeStdin( )
 {
     if ( d->pipeStdin[1] != 0 ) {
 	CloseHandle( d->pipeStdin[1] );
@@ -493,7 +494,7 @@ void QProcess::closeStdin( )
     }
 }
 
-void QProcess::socketRead( int fd )
+void Q3Process::socketRead( int fd )
 {
     // fd == 1: stdout, fd == 2: stderr
     HANDLE dev;
@@ -538,7 +539,7 @@ void QProcess::socketRead( int fd )
     }
 }
 
-void QProcess::socketWrite( int )
+void Q3Process::socketWrite( int )
 {
     DWORD written;
     while ( !d->stdinBuf.isEmpty() && isRunning() ) {
@@ -559,7 +560,7 @@ void QProcess::socketWrite( int )
     }
 }
 
-void QProcess::flushStdin()
+void Q3Process::flushStdin()
 {
     socketWrite( 0 );
 }
@@ -567,7 +568,7 @@ void QProcess::flushStdin()
 /*
   Use a timer for polling misc. stuff.
 */
-void QProcess::timeout()
+void Q3Process::timeout()
 {
     // Disable the timer temporary since one of the slots that are connected to
     // the readyRead...(), etc. signals might trigger recursion if
@@ -595,7 +596,7 @@ void QProcess::timeout()
 /*
   read on the pipe
 */
-uint QProcess::readStddev( HANDLE dev, char *buf, uint bytes )
+uint Q3Process::readStddev( HANDLE dev, char *buf, uint bytes )
 {
     if ( bytes > 0 ) {
 	ulong r;
@@ -609,7 +610,7 @@ uint QProcess::readStddev( HANDLE dev, char *buf, uint bytes )
   Used by connectNotify() and disconnectNotify() to change the value of
   ioRedirection (and related behaviour)
 */
-void QProcess::setIoRedirection( bool value )
+void Q3Process::setIoRedirection( bool value )
 {
     ioRedirection = value;
     if ( !ioRedirection && !notifyOnExit )
@@ -624,7 +625,7 @@ void QProcess::setIoRedirection( bool value )
   Used by connectNotify() and disconnectNotify() to change the value of
   notifyOnExit (and related behaviour)
 */
-void QProcess::setNotifyOnExit( bool value )
+void Q3Process::setNotifyOnExit( bool value )
 {
     notifyOnExit = value;
     if ( !ioRedirection && !notifyOnExit )
@@ -639,12 +640,12 @@ void QProcess::setNotifyOnExit( bool value )
   Used by connectNotify() and disconnectNotify() to change the value of
   wroteToStdinConnected (and related behaviour)
 */
-void QProcess::setWroteStdinConnected( bool value )
+void Q3Process::setWroteStdinConnected( bool value )
 {
     wroteToStdinConnected = value;
 }
 
-QProcess::PID QProcess::processIdentifier()
+Q3Process::PID Q3Process::processIdentifier()
 {
     return d->pid;
 }

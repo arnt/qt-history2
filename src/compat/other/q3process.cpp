@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QProcess class
+** Implementation of Q3Process class
 **
 ** Created : 20000905
 **
@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "qprocess.h"
+#include "q3process.h"
 
 #ifndef QT_NO_PROCESS
 
@@ -46,13 +46,13 @@
 #include "private/qinternal_p.h"
 
 
-//#define QT_QPROCESS_DEBUG
+//#define QT_Q3PROCESS_DEBUG
 
 
 /*!
-    \class QProcess qprocess.h
+    \class Q3Process q3process.h
 
-    \brief The QProcess class is used to start external programs and
+    \brief The Q3Process class is used to start external programs and
     to communicate with them.
 
     \ingroup io
@@ -118,14 +118,14 @@
 
     \quotefile process/process.cpp
 
-    A code snippet for this with the QProcess class might look like
+    A code snippet for this with the Q3Process class might look like
     this:
 
     \skipto UicManager::UicManager()
     \printline UicManager::UicManager()
     \printline {
-    \skipto proc = new QProcess( this );
-    \printline proc = new QProcess( this );
+    \skipto proc = new Q3Process( this );
+    \printline proc = new Q3Process( this );
     \skipto proc->addArgument( "uic" );
     \printuntil this, SLOT(readFromStdout()) );
     \skipto if ( !proc->start() ) {
@@ -159,17 +159,17 @@
     readyReadStdout() and readyReadStderr() signals and read the data
     as soon as it becomes available.
 
-    Please note that QProcess does not emulate a shell. This means that
-    QProcess does not do any expansion of arguments: a '*' is passed as a '*'
+    Please note that Q3Process does not emulate a shell. This means that
+    Q3Process does not do any expansion of arguments: a '*' is passed as a '*'
     to the program and is \e not replaced by all the files, a '$HOME' is also
     passed literally and is \e not replaced by the environment variable HOME
     and the special characters for IO redirection ('>', '|', etc.) are also
     passed literally and do \e not have the special meaning as they have in a
     shell.
 
-    Also note that QProcess does not emulate a terminal. This means that
+    Also note that Q3Process does not emulate a terminal. This means that
     certain programs which need direct terminal control, do not work as
-    expected with QProcess. Such programs include console email programs (like
+    expected with Q3Process. Such programs include console email programs (like
     pine and mutt) but also programs which require the user to enter a password
     (like su and ssh).
 
@@ -177,7 +177,7 @@
 
     Some Windows commands, for example, \c dir, are not provided by
     separate applications, but by the command interpreter.
-    If you attempt to use QProcess to execute these commands directly
+    If you attempt to use Q3Process to execute these commands directly
     it won't work. One possible solution is to execute the command
     interpreter itself (\c cmd.exe on some Windows systems), and ask
     the interpreter to execute the desired command.
@@ -190,7 +190,7 @@
 */
 
 /*!
-    \enum QProcess::Communication
+    \enum Q3Process::Communication
 
     This enum type defines the communication channels connected to the
     process.
@@ -216,12 +216,12 @@
 */
 
 /*!
-    Constructs a QProcess object. The \a parent and \a name parameters
+    Constructs a Q3Process object. The \a parent and \a name parameters
     are passed to the QObject constructor.
 
     \sa setArguments() addArgument() start()
 */
-QProcess::QProcess( QObject *parent, const char *name )
+Q3Process::Q3Process( QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
     wroteToStdinConnected( FALSE ),
     readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
@@ -231,7 +231,7 @@ QProcess::QProcess( QObject *parent, const char *name )
 }
 
 /*!
-    Constructs a QProcess with \a arg0 as the command to be executed.
+    Constructs a Q3Process with \a arg0 as the command to be executed.
     The \a parent and \a name parameters are passed to the QObject
     constructor.
 
@@ -240,7 +240,7 @@ QProcess::QProcess( QObject *parent, const char *name )
 
     \sa setArguments() addArgument() start()
 */
-QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
+Q3Process::Q3Process( const QString& arg0, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
     wroteToStdinConnected( FALSE ),
     readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
@@ -251,7 +251,7 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 }
 
 /*!
-    Constructs a QProcess with \a args as the arguments of the
+    Constructs a Q3Process with \a args as the arguments of the
     process. The first element in the list is the command to be
     executed. The other elements in the list are the arguments to this
     command. The \a parent and \a name parameters are passed to the
@@ -262,7 +262,7 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 
     \sa setArguments() addArgument() start()
 */
-QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
+Q3Process::Q3Process( const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
     wroteToStdinConnected( FALSE ),
     readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
@@ -291,7 +291,7 @@ QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
 
     \sa setArguments() addArgument()
 */
-QStringList QProcess::arguments() const
+QStringList Q3Process::arguments() const
 {
     return _arguments;
 }
@@ -301,7 +301,7 @@ QStringList QProcess::arguments() const
 
     \sa setArguments() addArgument()
 */
-void QProcess::clearArguments()
+void Q3Process::clearArguments()
 {
     _arguments.clear();
 }
@@ -312,7 +312,7 @@ void QProcess::clearArguments()
     the list are the arguments to the command. Any previous arguments
     are deleted.
 
-    QProcess does not perform argument substitutions; for example, if you
+    Q3Process does not perform argument substitutions; for example, if you
     specify "*" or "$DISPLAY", these values are passed to the process
     literally. If you want to have the same behavior as the shell
     provides, you must do the substitutions yourself; i.e. instead of
@@ -331,7 +331,7 @@ void QProcess::clearArguments()
 
     \sa arguments() addArgument()
 */
-void QProcess::setArguments( const QStringList& args )
+void Q3Process::setArguments( const QStringList& args )
 {
     _arguments = args;
 }
@@ -344,7 +344,7 @@ void QProcess::setArguments( const QStringList& args )
 
     \sa arguments() setArguments()
 */
-void QProcess::addArgument( const QString& arg )
+void Q3Process::addArgument( const QString& arg )
 {
     _arguments.append( arg );
 }
@@ -357,7 +357,7 @@ void QProcess::addArgument( const QString& arg )
 
     \sa setWorkingDirectory() QDir::current()
 */
-QDir QProcess::workingDirectory() const
+QDir Q3Process::workingDirectory() const
 {
     return workingDir;
 }
@@ -372,7 +372,7 @@ QDir QProcess::workingDirectory() const
 
     \sa workingDirectory() start()
 */
-void QProcess::setWorkingDirectory( const QDir& dir )
+void Q3Process::setWorkingDirectory( const QDir& dir )
 {
     workingDir = dir;
 }
@@ -384,7 +384,7 @@ void QProcess::setWorkingDirectory( const QDir& dir )
 
     \sa setCommunication()
 */
-int QProcess::communication() const
+int Q3Process::communication() const
 {
     return comms;
 }
@@ -399,7 +399,7 @@ int QProcess::communication() const
 
     \sa communication()
 */
-void QProcess::setCommunication( int commFlags )
+void Q3Process::setCommunication( int commFlags )
 {
     comms = commFlags;
 }
@@ -411,7 +411,7 @@ void QProcess::setCommunication( int commFlags )
 
     \sa isRunning() exitStatus() processExited()
 */
-bool QProcess::normalExit() const
+bool Q3Process::normalExit() const
 {
     // isRunning() has the side effect that it determines the exit status!
     if ( isRunning() )
@@ -431,7 +431,7 @@ bool QProcess::normalExit() const
 
     \sa normalExit() processExited()
 */
-int QProcess::exitStatus() const
+int Q3Process::exitStatus() const
 {
     // isRunning() has the side effect that it determines the exit status!
     if ( isRunning() )
@@ -451,7 +451,7 @@ int QProcess::exitStatus() const
 
     \sa readyReadStdout() readLineStdout() readStderr() writeToStdin()
 */
-QByteArray QProcess::readStdout()
+QByteArray Q3Process::readStdout()
 {
     if ( readStdoutCalled ) {
 	return QByteArray();
@@ -473,7 +473,7 @@ QByteArray QProcess::readStdout()
 
     \sa readyReadStderr() readLineStderr() readStdout() writeToStdin()
 */
-QByteArray QProcess::readStderr()
+QByteArray Q3Process::readStderr()
 {
     if ( readStderrCalled ) {
 	return QByteArray();
@@ -496,7 +496,7 @@ QByteArray QProcess::readStderr()
 
     \sa canReadLineStdout() readyReadStdout() readStdout() readLineStderr()
 */
-QString QProcess::readLineStdout()
+QString Q3Process::readLineStdout()
 {
     QByteArray a( 256 );
     QMembuf *buf = membufStdout();
@@ -514,9 +514,9 @@ QString QProcess::readLineStdout()
     // get rid of terminating \n or \r\n
     if ( size>0 && a.at( size - 1 ) == '\n' ) {
       if ( size>1 && a.at( size - 2 ) == '\r' )
-	a.at( size - 2 ) = '\0';
+	a[size - 2] = '\0';
       else
-	a.at( size - 1 ) = '\0';
+	a[size - 1] = '\0';
     }
     return QString( a );
 }
@@ -532,7 +532,7 @@ QString QProcess::readLineStdout()
 
     \sa canReadLineStderr() readyReadStderr() readStderr() readLineStdout()
 */
-QString QProcess::readLineStderr()
+QString Q3Process::readLineStderr()
 {
     QByteArray a( 256 );
     QMembuf *buf = membufStderr();
@@ -550,15 +550,15 @@ QString QProcess::readLineStderr()
     // get rid of terminating \n or \r\n
     if ( size>0 && a.at( size - 1 ) == '\n' ) {
       if ( size>1 && a.at( size - 2 ) == '\r' )
-	a.at( size - 2 ) = '\0';
+	a[size - 2] = '\0';
       else
-	a.at( size - 1 ) = '\0';
+	a[size - 1] = '\0';
     }
     return QString( a );
 }
 
 /*!
-    \fn void QProcess::launchFinished()
+    \fn void Q3Process::launchFinished()
 
     This signal is emitted when the process was started with launch().
     If the start was successful, this signal is emitted after all the
@@ -566,7 +566,7 @@ QString QProcess::readLineStderr()
     this signal is emitted immediately.
 
     This signal is especially useful if you want to know when you can
-    safely delete the QProcess object when you are not interested in
+    safely delete the Q3Process object when you are not interested in
     reading from standard output or standard error.
 
     \sa launch() QObject::deleteLater()
@@ -614,7 +614,7 @@ QString QProcess::readLineStderr()
 
     \sa start() launchFinished();
 */
-bool QProcess::launch( const QByteArray& buf, QStringList *env )
+bool Q3Process::launch( const QByteArray& buf, QStringList *env )
 {
     if ( start( env ) ) {
 	if ( !buf.isEmpty() ) {
@@ -638,7 +638,7 @@ bool QProcess::launch( const QByteArray& buf, QStringList *env )
     The data \a buf is written to standard input with writeToStdin()
     using the QString::local8Bit() representation of the strings.
 */
-bool QProcess::launch( const QString& buf, QStringList *env )
+bool Q3Process::launch( const QString& buf, QStringList *env )
 {
     if ( start( env ) ) {
 	if ( !buf.isEmpty() ) {
@@ -659,7 +659,7 @@ bool QProcess::launch( const QString& buf, QStringList *env )
 /*
   This private slot is used by the launch() functions to close standard input.
 */
-void QProcess::closeStdinLaunch()
+void Q3Process::closeStdinLaunch()
 {
     disconnect( this, SIGNAL(wroteToStdin()),
 	    this, SLOT(closeStdinLaunch()) );
@@ -669,7 +669,7 @@ void QProcess::closeStdinLaunch()
 
 
 /*!
-    \fn void QProcess::readyReadStdout()
+    \fn void Q3Process::readyReadStdout()
 
     This signal is emitted when the process has written data to
     standard output. You can read the data with readStdout().
@@ -683,7 +683,7 @@ void QProcess::closeStdinLaunch()
 */
 
 /*!
-    \fn void QProcess::readyReadStderr()
+    \fn void Q3Process::readyReadStderr()
 
     This signal is emitted when the process has written data to
     standard error. You can read the data with readStderr().
@@ -697,7 +697,7 @@ void QProcess::closeStdinLaunch()
 */
 
 /*!
-    \fn void QProcess::processExited()
+    \fn void Q3Process::processExited()
 
     This signal is emitted when the process has exited.
 
@@ -705,7 +705,7 @@ void QProcess::closeStdinLaunch()
 */
 
 /*!
-    \fn void QProcess::wroteToStdin()
+    \fn void Q3Process::wroteToStdin()
 
     This signal is emitted if the data sent to standard input (via
     writeToStdin()) was actually written to the process. This does not
@@ -724,7 +724,7 @@ void QProcess::closeStdinLaunch()
     The string \a buf is handled as text using the
     QString::local8Bit() representation.
 */
-void QProcess::writeToStdin( const QString& buf )
+void Q3Process::writeToStdin( const QString& buf )
 {
     QByteArray tmp = buf.local8Bit();
     tmp.resize( buf.length() );
@@ -742,31 +742,31 @@ void QProcess::writeToStdin( const QString& buf )
  */
 /*!  \reimp
 */
-void QProcess::connectNotify( const char * signal )
+void Q3Process::connectNotify( const char * signal )
 {
-#if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::connectNotify(): signal %s has been connected", signal );
+#if defined(QT_Q3PROCESS_DEBUG)
+    qDebug( "Q3Process::connectNotify(): signal %s has been connected", signal );
 #endif
     if ( !ioRedirection )
 	if ( qstrcmp( signal, SIGNAL(readyReadStdout()) )==0 ||
 		qstrcmp( signal, SIGNAL(readyReadStderr()) )==0
 	   ) {
-#if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::connectNotify(): set ioRedirection to TRUE" );
+#if defined(QT_Q3PROCESS_DEBUG)
+	    qDebug( "Q3Process::connectNotify(): set ioRedirection to TRUE" );
 #endif
 	    setIoRedirection( TRUE );
 	    return;
 	}
     if ( !notifyOnExit && qstrcmp( signal, SIGNAL(processExited()) )==0 ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::connectNotify(): set notifyOnExit to TRUE" );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::connectNotify(): set notifyOnExit to TRUE" );
 #endif
 	setNotifyOnExit( TRUE );
 	return;
     }
     if ( !wroteToStdinConnected && qstrcmp( signal, SIGNAL(wroteToStdin()) )==0 ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::connectNotify(): set wroteToStdinConnected to TRUE" );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::connectNotify(): set wroteToStdinConnected to TRUE" );
 #endif
 	setWroteStdinConnected( TRUE );
 	return;
@@ -775,26 +775,26 @@ void QProcess::connectNotify( const char * signal )
 
 /*!  \reimp
 */
-void QProcess::disconnectNotify( const char * )
+void Q3Process::disconnectNotify( const char * )
 {
     if ( ioRedirection &&
 	    receivers( SIGNAL(readyReadStdout()) ) ==0 &&
 	    receivers( SIGNAL(readyReadStderr()) ) ==0
 	    ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::disconnectNotify(): set ioRedirection to FALSE" );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::disconnectNotify(): set ioRedirection to FALSE" );
 #endif
 	setIoRedirection( FALSE );
     }
     if ( notifyOnExit && receivers( SIGNAL(processExited()) ) == 0 ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::disconnectNotify(): set notifyOnExit to FALSE" );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::disconnectNotify(): set notifyOnExit to FALSE" );
 #endif
 	setNotifyOnExit( FALSE );
     }
     if ( wroteToStdinConnected && receivers( SIGNAL(wroteToStdin()) ) == 0 ) {
-#if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::disconnectNotify(): set wroteToStdinConnected to FALSE" );
+#if defined(QT_Q3PROCESS_DEBUG)
+	qDebug( "Q3Process::disconnectNotify(): set wroteToStdinConnected to FALSE" );
 #endif
 	setWroteStdinConnected( FALSE );
     }

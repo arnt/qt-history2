@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QProcess class
+** Implementation of Q3Process class
 **
 ** Created : 20000905
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QPROCESS_H
-#define QPROCESS_H
+#ifndef Q3PROCESS_H
+#define Q3PROCESS_H
 
 #ifndef QT_H
 #include "qobject.h"
@@ -46,18 +46,17 @@
 
 #ifndef QT_NO_PROCESS
 
-class QProcessPrivate;
+class Q3ProcessPrivate;
 class QMembuf;
 
-
-class Q_COMPAT_EXPORT QProcess : public QObject
+class Q_COMPAT_EXPORT Q3Process : public QObject
 {
     Q_OBJECT
 public:
-    QProcess( QObject *parent=0, const char *name=0 );
-    QProcess( const QString& arg0, QObject *parent=0, const char *name=0 );
-    QProcess( const QStringList& args, QObject *parent=0, const char *name=0 );
-    ~QProcess();
+    Q3Process( QObject *parent=0, const char *name=0 );
+    Q3Process( const QString& arg0, QObject *parent=0, const char *name=0 );
+    Q3Process( const QStringList& args, QObject *parent=0, const char *name=0 );
+    ~Q3Process();
 
     // set and get the arguments and working directory
     QStringList arguments() const;
@@ -142,7 +141,7 @@ private slots:
     void closeStdinLaunch();
 
 private:
-    QProcessPrivate *d;
+    Q3ProcessPrivate *d;
 #ifndef QT_NO_DIR
     QDir        workingDir;
 #endif
@@ -158,18 +157,18 @@ private:
     bool readStderrCalled;
     int comms;
 
-    friend class QProcessPrivate;
+    friend class Q3ProcessPrivate;
 #if defined(Q_OS_UNIX)
-    friend class QProcessManager;
+    friend class Q3ProcessManager;
     friend class QProc;
 #endif
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QProcess( const QProcess & );
-    QProcess &operator=( const QProcess & );
+    Q3Process( const Q3Process & );
+    Q3Process &operator=( const Q3Process & );
 #endif
 };
 
 #endif // QT_NO_PROCESS
 
-#endif // QPROCESS_H
+#endif // Q3PROCESS_H
