@@ -32,7 +32,6 @@
     \o \l{widgets/sliders}{Sliders}
     \o \l{widgets/spinboxes}{Spin Boxes}
     \o \l{widgets/tetrix}{Tetrix}
-    \o \l{widgets/transformations}{Transformations}
     \o \l{widgets/wiggly}{Wiggly}
     \endlist
 
@@ -61,6 +60,14 @@
     \o \l{layouts/basiclayouts}{Basic Layouts}
     \o \l{layouts/borderlayout}{Border Layout}
     \o \l{layouts/flowlayout}{Flow Layout}
+    \endlist
+
+    \section1 Painting Examples
+
+    \list
+    \o \l{painting/basicdrawing}{Basic Drawing}
+    \o \l{painting/painterpaths}{Painter Paths}
+    \o \l{painting/transformations}{Transformations}
     \endlist
 
     \section1 Item View Examples
