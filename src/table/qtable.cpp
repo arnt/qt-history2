@@ -55,6 +55,7 @@
 #include "qevent.h"
 #include <stdlib.h>
 #include <limits.h>
+#include <wchar.h>
 
 class Q_EXPORT QTableHeader : public QHeader
 {
@@ -73,6 +74,7 @@ public:
     void addLabel( const QString &s , int size );
 
     void setSectionState( int s, SectionState state );
+    void setSectionStateToAll( SectionState state );
     SectionState sectionState( int s ) const;
 
     int sectionSize( int section ) const;
@@ -4004,32 +4006,12 @@ void QTable::clearSelection( bool repaint )
     if ( needRepaint && repaint )
 	repaintContents( r, FALSE );
 
-    int i;
-    bool b = topHeader->isUpdatesEnabled();
-    topHeader->setUpdatesEnabled( FALSE );
-    for ( i = 0; i <= numCols(); ++i ) {
-	if ( !isColumnSelected( i ) && i != curCol )
-	    topHeader->setSectionState( i, QTableHeader::Normal );
-	else if ( isColumnSelected( i, TRUE ) )
-	    topHeader->setSectionState( i, QTableHeader::Selected );
-	else
-	    topHeader->setSectionState( i, QTableHeader::Bold );
-    }
-    topHeader->setUpdatesEnabled( b );
-    topHeader->repaint( FALSE );
-
-    b = leftHeader->isUpdatesEnabled();
-    leftHeader->setUpdatesEnabled( FALSE );
-    for ( i = 0; i <= numRows(); ++i ) {
-	if ( !isRowSelected( i ) && i != curRow )
-	    leftHeader->setSectionState( i, QTableHeader::Normal );
-	else if ( isRowSelected( i, TRUE ) )
-	    leftHeader->setSectionState( i, QTableHeader::Selected );
-	else
-	    leftHeader->setSectionState( i, QTableHeader::Bold );
-    }
-    leftHeader->setUpdatesEnabled( b );
+    leftHeader->setSectionStateToAll( QTableHeader::Normal );
     leftHeader->repaint( FALSE );
+    topHeader->setSectionStateToAll( QTableHeader::Normal );
+    topHeader->repaint( FALSE );
+    topHeader->setSectionState( curCol, QTableHeader::Bold );
+    leftHeader->setSectionState( curRow, QTableHeader::Bold );
     emit selectionChanged();
 }
 
@@ -4876,6 +4858,16 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 	    repaint( sectionPos( s ) - offset(), 0, sectionSize( s ), height(), FALSE );
 	else
 	    repaint( 0, sectionPos( s ) - offset(), width(), sectionSize( s ), FALSE );
+    }
+}
+
+void QTableHeader::setSectionStateToAll( SectionState state )
+{
+    if ( sizeof( int ) == sizeof( wchar_t ) ) {
+	wmemset( (wchar_t*)states.data(), (int)state, states.count() );
+    } else {
+	for ( int i = 0; i < count(); ++i )
+	    states[ i ] = state;
     }
 }
 
