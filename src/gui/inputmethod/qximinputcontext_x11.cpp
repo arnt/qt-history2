@@ -717,7 +717,7 @@ void QXIMInputContext::mouseHandler(int, QMouseEvent *) {}
 void QXIMInputContext::setFocusWidget(QWidget *) {}
 void QXIMInputContext::reset() {}
 void QXIMInputContext::update() {}
-XIMInputContext::~QXIMInputContext() {}
+QXIMInputContext::~QXIMInputContext() {}
 void QXIMInputContext::widgetDestroyed(QWidget *) {}
 QString QXIMInputContext::language() { return QString(); }
 bool QXIMInputContext::x11FilterEvent(QWidget *, XEvent *) { return true; }
