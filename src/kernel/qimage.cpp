@@ -4020,6 +4020,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
     char buf[buflen];
     char buf2[buflen];
     qt_init_image_handlers();
+    qt_init_image_plugins();
     int pos = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
 
@@ -4158,11 +4159,6 @@ bool QImageIO::read()
     if (frmt.isEmpty()) {
 	// Try to guess format
 	image_format = imageFormat( iodev );	// get image format
-	if ( !image_format && !plugin_manager ) {
-	    qt_init_image_plugins();
-	    image_format = imageFormat( iodev );
-	}
-
 	if ( !image_format ) {
 	    if ( file.isOpen() ) {			// unknown format
 		file.close();
