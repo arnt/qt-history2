@@ -375,7 +375,7 @@ void MainWindow::showLink( const QString &link )
     int find = link.find( '#' );
     QString name = find >= 0 ? link.left( find ) : link;
 
-    QFileInfo fi( link );
+    QFileInfo fi( name );
     if( fi.exists() ) {
 	tabs->setSource( link );
     } else {
