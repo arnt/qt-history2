@@ -119,6 +119,7 @@ private:
 QAxHostWidget::QAxHostWidget(QWidget *parent, QAxHostWindow *ax)
 : QWidget(parent), axhost(ax)
 {
+    setAttribute(Qt::WA_NoSystemBackground);
     setObjectName("QAxHostWidget");
     setFocusTimer = 0;
 }
