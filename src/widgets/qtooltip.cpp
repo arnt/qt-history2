@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#15 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -13,8 +13,9 @@
 #include "qcolor.h"
 #include "qlabel.h"
 #include "qpoint.h"
+#include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#15 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -268,6 +269,10 @@ void QTipManager::showTip()
 	label->setAutoResize( TRUE );
 	label->setBackgroundColor( QColor(255,255,220) );
     }
+    if ( pos.x() + label->width() > QApplication::desktop()->width() )
+	pos.setX( QApplication::desktop()->width() - label->width() );
+    if ( pos.y() + label->height() > QApplication::desktop()->height() )
+	pos.setY( pos.y() - 20 - label->height() );
     label->move( pos );
     label->show();
     label->raise();
@@ -314,11 +319,11 @@ void QTipManager::hideTip()
   dormant mode the tips are not shown, and in active mode they are.
   The mode is global, not particular to any one widget.
 
-  QToolTip swittches from dormant to active mode when the user lets
-  the mouse rest on a tip-equipped region for a second or so, and
-  remains in active mode until the user either clicks a mouse button,
-  lets the mouse rest for five seconds, or moves the mouse outside \e
-  all tip-equpped regions for at least a second.
+  QToolTip switches from dormant to active mode when the user lets the
+  mouse rest on a tip-equipped region for a second or so, and remains
+  in active mode until the user either clicks a mouse button, presses
+  a key, lets the mouse rest for five seconds, or moves the mouse
+  outside \e all tip-equpped regions for at least a second.
 
   There are no less than three APIs for QToolTip: <ol> <li> Adding a
   tip to an entire widget. <li> Adding a tip to a fixed rectangle
@@ -340,9 +345,9 @@ void QTipManager::hideTip()
   QToolTip::remove( quitButton );
   \endcode
 
-  You can also give the user another text, typically displayed in a
-  status bar, courtesy of QToolTipGroup.  This example assumes that \e
-  g is a <code>QToolTipGroup *</code> and already connected to the
+  You can also display another text (typically in a status bar),
+  courtesy of QToolTipGroup.  This example assumes that \e g is a
+  <code>QToolTipGroup *</code> and already connected to the
   appropriate status bar:
 
   \code
@@ -375,12 +380,13 @@ void QTipManager::hideTip()
 */
 
 
-/*!  Creates a tool tip object.	 This is necessary only if you need
-  tool tips on regions that can move within the widget (most often
-  because the widget's contents can scroll).
+/*!
+  Creates a tool tip object.  This is necessary only if you need tool
+  tips on regions that can move within the widget (most often because
+  the widget's contents can scroll).
 
   \a parent is widget you want to add dynamic tool tips to and \a
-  group is the tool tip group they should belong to, if any.
+  group (optional) is the tool tip group they should belong to.
 
   \sa maybeTip().
 */
@@ -392,11 +398,13 @@ QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
 }
 
 
-/*!  Adds a tool tip to the entire \e widget.  \e text is the text to
-  be shown in the tool tip.  QToolTip makes a deep copy of this
-  string.
+/*!
+  Adds a tool tip to \e widget.  \e text is the text to be shown in
+  the tool tip.  QToolTip makes a deep copy of this string.
 
-  This is the most common entry point to the QToolTip class.
+  This is the most common entry point to the QToolTip class; it is
+  suitable for adding tool tips to buttons, check boxes, combo boxes
+  and so on.
 */
 void QToolTip::add( QWidget * widget, const char * text )
 {
@@ -406,8 +414,8 @@ void QToolTip::add( QWidget * widget, const char * text )
 }
 
 
-/*!  Adds a tool tip to an entire \a widget, and to tool tip group \a
-  group.
+/*!
+  Adds a tool tip to \a widget, and to tool tip group \a group.
 
   \e text is the text shown in the tool tip and \a longText is the
   text emitted from \a group.  QToolTip makes deep copies of both
@@ -424,7 +432,8 @@ void QToolTip::add( QWidget * widget, const char * text,
     tipManager->add( widget, entireWidget(), text, group, longText, FALSE );
 }
 
-/*! Remove the tool tip from \e widget.
+/*!
+  Remove the tool tip from \e widget.
 
   If there are more than one tool tip on \a widget, only the one
   covering the entire widget is removed.
@@ -436,7 +445,8 @@ void QToolTip::remove( QWidget * widget )
 	tipManager->remove( widget, entireWidget() );
 }
 
-/*! Adds a tool tip to a fixed rectangle within \a widget.  \a text is
+/*!  
+  Adds a tool tip to a fixed rectangle within \a widget.  \a text is
   the text shown in the tool tip.  QToolTip makes a deep copy of this
   string.
 */
@@ -449,7 +459,8 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 }
 
 
-/*!  Adds a tool tip to an entire \a widget, and to tool tip group \a
+/*!
+  Adds a tool tip to an entire \a widget, and to tool tip group \a
   group.
 
   \e text is the text shown in the tool tip and \a longText is the
@@ -468,7 +479,8 @@ void QToolTip::add( QWidget * widget, const QRect & rect,
     tipManager->add( widget, rect, text, group, groupText, FALSE );
 }
 
-/*! Remove the tool tip for \e rect from \e widget.
+/*!
+  Remove the tool tip for \e rect from \e widget.
 
   If there are more than one tool tip on \a widget, only the one
   covering rectangle \e rect is removed.
@@ -481,10 +493,16 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 }
 
 
-/*! \fn virtual void QToolTip::maybeTip( const QPoint &);
+/*! \fn virtual void QToolTip::maybeTip( const QPoint & p);
 
   This pure virtual function is half of the most versatile interface
   QToolTip offers.
+
+  It is called when there is a chance that a tool tip should be shown,
+  and must decide whether there is a tool tip for the point \a p and
+  what rectangle
+
+
 */
 
 
