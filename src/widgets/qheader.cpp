@@ -749,7 +749,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 		 (c > d->positions[index] + d->sizes[section] - GripMargin) ) {
 		if ( index > 0 && c < d->positions[index]  + GripMargin )
 		    section = d->i2s[--index];
-		if ( d->resize.testBit(section) ) {
+                // dont show icon if streaching is enabled it is at the end of the last section
+		if ( d->resize.testBit(section) && (d->fullSize == -2 || index != count() - 1)) {
 		    hit = TRUE;
 #ifndef QT_NO_CURSOR
 		    if ( orient == Horizontal )
