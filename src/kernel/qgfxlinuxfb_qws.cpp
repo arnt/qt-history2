@@ -341,7 +341,7 @@ bool QLinuxFbScreen::initCard()
 	screencols=256;
 	fb_cmap cmap;
 	cmap.start=0;
-	int rbits,gbits,bbits;
+	int rbits=0,gbits=0,bbits=0;
 	qDebug("Directcolor visual");
 	switch (vinfo.bits_per_pixel) {
 	  case 8:
