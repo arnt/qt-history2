@@ -737,7 +737,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
 		<< "all:" << "\n\t" 
 		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild") << "\n"
-		<< "install:" << "\n\t" 
+		<< "install: all" << "\n\t" 
 		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild install") << "\n"
 		<< "distclean clean: preprocess_clean" << "\n\t" 
 		<< "cd " << (project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild clean") << "\n"
