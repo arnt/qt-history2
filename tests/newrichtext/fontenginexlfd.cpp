@@ -283,7 +283,7 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
     }
 
     if ( _codec ) {
-	_codec->fromUnicode( str, glyphs, len );
+	_codec->fromUnicodeInternal( str, glyphs, len );
     } else {
 	for ( int i = 0; i < len; i++ )
 	    glyphs[i] = str[i].unicode();
