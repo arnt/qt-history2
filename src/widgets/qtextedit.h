@@ -94,6 +94,7 @@ public slots:
     virtual void resetFormat();
     virtual void setUndoDepth( int d );
     virtual void save( const QString &fn = QString::null );
+    virtual void removeSelectedText();
 
 signals:
     void undoAvailable( bool yes );
@@ -129,7 +130,6 @@ protected:
     void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
     void moveCursor( MoveDirection direction, bool shift, bool control );
     void moveCursor( MoveDirection direction, bool control );
-    void removeSelectedText();
     void doKeyboardAction( KeyboardAction action );
     QTextCursor *textCursor() const;
 
