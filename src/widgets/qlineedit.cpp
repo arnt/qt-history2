@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#47 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#47 $")
 
 
 /*----------------------------------------------------------------------------
@@ -466,7 +466,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	return;
     }
     markAnchor = cursorPos;
-    newMark( markAnchor );
+    newMark( markAnchor, FALSE );
     cursorOn      = TRUE;
     dragScrolling = FALSE;
     startTimer( blinkTime );
@@ -479,9 +479,9 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	scrollingLeft =  ( e->pos().x() < LEFT_MARGIN );
 	if ( !dragScrolling ) {
 	    if ( scrollingLeft )
-		newMark( offset );
+		newMark( offset, FALSE );
 	    else
-		newMark( lastCharVisible() );
+		newMark( lastCharVisible(), FALSE );
 	    killTimers();
 	    dragScrolling = TRUE;
 	    cursorOn      = TRUE;
@@ -502,7 +502,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	    xPosToCursorPos( &tbuf[(int)offset], fontMetrics(),
 			     e->pos().x() - LEFT_MARGIN,
 			     width() - LEFT_MARGIN - RIGHT_MARGIN );
-	newMark( mousePos );
+	newMark( mousePos, FALSE );
 	cursorOn  = TRUE;
 	killTimers();
 	startTimer( blinkTime );
@@ -516,6 +516,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 
 void QLineEdit::mouseReleaseEvent( QMouseEvent * )
 {
+    copyText();
     if ( dragScrolling ) {
 	dragScrolling = FALSE;
 	killTimers();
@@ -658,18 +659,6 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
     }
 }
 
-/*----------------------------------------------------------------------------
-  Sets a new marked text limit, does not repaint the widget.
- ----------------------------------------------------------------------------*/
-
-void QLineEdit::newMark( int pos )
-{
-    markDrag  = pos;
-    cursorPos = pos;
-    QString t = markedText();
-    if ( !t.isEmpty() )
-	QApplication::clipboard()->setText( t );    
-}
 
 /*----------------------------------------------------------------------------
   Moves the cursor leftwards one or more characters.
@@ -691,7 +680,7 @@ void QLineEdit::cursorLeft( bool mark, int steps )
 	if ( mark ) {
 	    newMark( cursorPos );
 	} else {
-	    markAnchor = cursorPos;
+ 	    markAnchor = cursorPos;
 	    markDrag   = markAnchor;
 	}
 	if ( cursorPos < offset )
@@ -836,6 +825,20 @@ void QLineEdit::end( bool mark )
     }
 }
 
+
+/*----------------------------------------------------------------------------
+  Sets a new marked text limit, does not repaint the widget.
+ ----------------------------------------------------------------------------*/
+
+void QLineEdit::newMark( int pos, bool copy )
+{
+    markDrag  = pos;
+    cursorPos = pos;
+    if ( copy )
+	copyText();
+}
+
+
 void QLineEdit::markWord( int pos )
 {
     int i = pos;
@@ -864,7 +867,46 @@ void QLineEdit::markWord( int pos )
     } else {
 	cursorPos = markBegin;
     }
+    copyText();
 }
+
+
+/*----------------------------------------------------------------------------
+  Copies the marked text to the clipboard.
+ ----------------------------------------------------------------------------*/
+
+void QLineEdit::copyText()
+{
+    QString t = markedText();
+    if ( !t.isEmpty() ) {
+#if defined(_WS_X11_)
+	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
+#endif
+	QApplication::clipboard()->setText( t );
+#if defined(_WS_X11_)
+	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
+		 this, SLOT(clipboardChanged()) );
+#endif
+    }
+}
+
+
+/*----------------------------------------------------------------------------
+  This private slot is activated when this line edit owns the clipboard and
+  some other widget/application takes over the clipboard. (X11 only)
+ ----------------------------------------------------------------------------*/
+
+void QLineEdit::clipboardChanged()
+{
+#if defined(_WS_X11_)
+    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
+		this, SLOT(clipboardChanged()) ); 
+    markDrag = markAnchor = cursorPos;
+    paint();
+#endif
+}
+
+
 
 int QLineEdit::lastCharVisible() const
 {

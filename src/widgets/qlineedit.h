@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#21 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#22 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -51,18 +51,22 @@ protected:
     bool        hasMarkedText() const;
     QString     markedText() const;
 
+private slots:
+    void	clipboardChanged();
+
 private:
     void	paint( bool frame = FALSE );
     void	pixmapPaint();
     void	paintText( QPainter *, const QSize &, bool frame = FALSE );
-    void        newMark( int pos );
     void	cursorLeft( bool mark, int steps = 1 );
     void	cursorRight( bool mark, int steps = 1 );
     void	backspace();
     void	del();
     void	home( bool mark );
     void	end( bool mark );
+    void        newMark( int pos, bool copy=TRUE );
     void	markWord( int pos );
+    void	copyText();
     int		lastCharVisible() const;
     int		minMark() const;
     int		maxMark() const;
