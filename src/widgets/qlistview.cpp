@@ -190,6 +190,7 @@ struct QListViewPrivate
     QTimer *scrollTimer;
 
     bool clearing;
+    bool inserting;
     bool makeCurrentVisibleOnUpdate;
     bool pressedSelected;
 
@@ -291,6 +292,10 @@ QListViewItem::QListViewItem( QListView * parent )
 {
     init();
     parent->insertItem( this );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 
@@ -301,6 +306,10 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 {
     init();
     parent->insertItem( this );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 
@@ -314,6 +323,10 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after )
     init();
     parent->insertItem( this );
     moveToJustAfter( after );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 
@@ -325,6 +338,10 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
     init();
     parent->insertItem( this );
     moveToJustAfter( after );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 
@@ -360,6 +377,10 @@ QListViewItem::QListViewItem( QListView * parent,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 
@@ -395,6 +416,10 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 /*!  Constructs a new list view item in the QListView \a parent,
@@ -429,6 +454,10 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 
@@ -465,6 +494,10 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after,
     setText( 5, label6 );
     setText( 6, label7 );
     setText( 7, label8 );
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = FALSE;
 }
 
 /*!
@@ -565,6 +598,9 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     newChild->ownHeight = 0;
     newChild->configured = FALSE;
     QListView *lv = listView();
+    if ( !lv )
+	return;
+    lv->d->inserting = TRUE;
     lv->d->makeCurrentVisibleOnUpdate = FALSE;
     if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
@@ -1160,7 +1196,7 @@ void QListViewItem::setText( int column, const QString &text )
     widthChanged( column );
     if ( !lv )
 	return;
-    if ( oldW != lv->columnWidth( column ) )
+    if ( oldW != lv->columnWidth( column ) || lv->d->inserting )
 	listView()->triggerUpdate();
     else
 	repaint();
@@ -1747,6 +1783,9 @@ void QListViewPrivate::Root::setup()
   provide a usable keyboard interface and to make the list view look
   better with a white background.
 
+  \warning The list view assumes ownership of all list view items
+  and will delete them when it does not need them any more.
+
   <img src=qlistview-m.png> <img src=qlistview-w.png>
 
   \internal
@@ -1800,6 +1839,7 @@ void QListView::init()
     d->scrollTimer = 0;
     d->sortIndicator = FALSE;
     d->clearing = FALSE;
+    d->inserting = FALSE;
     d->minLeftBearing = fontMetrics().minLeftBearing();
     d->minRightBearing = fontMetrics().minRightBearing();
     d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
