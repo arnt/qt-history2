@@ -329,7 +329,7 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 	// asian line breaking rules. This part has to be done here, as we don't want a softbreak
 	// after some asian char in case we have eg. closing braces following
 	unsigned short ch = text.unicode()[from-1].unicode();
-	if ((ch > 0x2dff && ch < 0xfb00) || (ch & 0xff00 == 0x1100) ) {
+	if ((ch > 0x2dff && ch < 0xfb00) || ((ch & 0xff00) == 0x1100) ) {
 	    noSoftBreak = FALSE;
 
 	    ch = text.unicode()[from].unicode();
@@ -951,7 +951,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 static inline bool asianBreakForbiddenAfter(unsigned short uc)
 {
     bool forbidden = FALSE;
-    if ( uc & 0xff00 == 0x3000 ) {
+    if ( (uc & 0xff00) == 0x3000 ) {
 	// line breaking is forbidden after the following characters:
 	forbidden |= (uc == 0x3008); // left angle bracket
 	forbidden |= (uc == 0x300a); // double left angle bracket
@@ -965,7 +965,7 @@ static inline bool asianBreakForbiddenAfter(unsigned short uc)
 static inline bool asianBreakForbiddenBefore(unsigned short uc)
 {
     bool forbidden = FALSE;
-    if ( uc & 0xff00 == 0x3000 ) {
+    if ( (uc & 0xff00) == 0x3000 ) {
 	// line breaking is forbidden before the following characters:
 	forbidden |= (uc == 0x3001); // Ideographic comma
 	forbidden |= (uc == 0x3002); // Ideographic full stop
