@@ -151,7 +151,7 @@ public:
 
 #endif // Q_WS_WIN
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
 
 #include "qt_mac.h"
 
@@ -308,7 +308,7 @@ public:
 
 	charsetcompat = QFont::Unicode;
 
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MACX) || defined(Q_WS_MAC9)
 	fin = 0;
 #endif // Q_WS_WIN
 
@@ -321,7 +321,7 @@ public:
 
 	charsetcompat = fp.charsetcompat;
 
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MACX) || defined(Q_WS_MAC9)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
 
@@ -489,7 +489,7 @@ public:
     void drawText( QGfx *gfx, int x, int y, const TextRun *cache );
 #endif
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
     ~QFontPrivate() { if( fin ) fin->deref(); }
     void macSetFont(QPaintDevice *);
     void load();

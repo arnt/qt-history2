@@ -300,7 +300,7 @@ private:
 					    const char* name = 0,
 					    const QString& caption = QString::null);
 #endif
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     static QString macGetOpenFileName( const QString &initialSelection,
 				       const QString &filter,
 				       QString* workingDirectory,

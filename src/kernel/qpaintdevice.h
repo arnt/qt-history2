@@ -91,7 +91,7 @@ public:
     HDC		handle() const;
 #elif defined(Q_WS_X11)
     Qt::HANDLE	handle() const;
-#elif defined(Q_WS_MAC)
+#elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     Qt::HANDLE      handle() const;
 #elif defined(Q_WS_QWS)
     Qt::HANDLE      handle() const;
@@ -194,7 +194,7 @@ protected:
     void		 copyX11Data( const QPaintDevice * );
     virtual void	 setX11Data( const QPaintDeviceX11Data* );
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
-#elif defined(Q_WS_MAC)
+#elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     void * hd;
 #elif defined(Q_WS_QWS)
     Qt::HANDLE hd;
@@ -210,7 +210,7 @@ protected:
 
     friend class QPainter;
     friend class QPaintDeviceMetrics;
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     friend Q_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
 					  const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool );
 #else

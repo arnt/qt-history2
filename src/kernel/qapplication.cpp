@@ -427,7 +427,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	}
     }
 
-#ifdef Q_WS_MAC
+#ifdef Q_WS_MACX
     static char* empty = "\0";
     argv[j] = empty;
 #else
@@ -673,9 +673,10 @@ void QApplication::initialize( int argc, char **argv )
 	style = "SGI";			// default comment
 #elif defined(Q_WS_X11)
 	style = "Motif";		// default style for X11
-#elif defined(Q_WS_MAC)
+#elif defined(Q_WS_MAC9)
 	style = "Platinum";		// round style for round devices
-//	style = "Aqua";
+#elif defined( Q_WS_MACX)
+	style = "Aqua";
 #elif defined(Q_WS_QWS)
 	style = "Compact";		// default style for small devices
 #endif

@@ -241,7 +241,7 @@ private:
     void detach();
 
 
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     void macSetFont(QPaintDevice *);
 #endif
 

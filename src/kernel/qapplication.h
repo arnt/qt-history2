@@ -213,10 +213,10 @@ public:
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     bool	     do_mouse_down(Point *);
     virtual bool     macEventFilter( EventRef );
-    static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    static pascal OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
     friend void qt_mac_destroy_widget(QWidget *);
 #elif defined(Q_WS_WIN)
     virtual bool     winEventFilter( MSG * );

@@ -312,8 +312,10 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 #else
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
     if(0 && pix.mask() && !pix.mask()->isNull()) {
-	SetDragImageWithAlpha(theDrag,  GetGWorldPixMap((GWorldPtr)pix.handle()), 
+#ifdef Q_WS_MACX    
+		SetDragImageWithAlpha(theDrag,  GetGWorldPixMap((GWorldPtr)pix.handle()), 
 			       GetGWorldPixMap((GWorldPtr)pix.mask()->handle()), boundsPoint, 0);
+#endif
     } else {
 	QRegion r(0, 0, pix.width(), pix.height());
 	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), (RgnHandle)r.handle(), boundsPoint, 0);
@@ -342,7 +344,7 @@ struct QMacDndExtra {
 };
 
 
-OSErr MyReceiveHandler(WindowPtr, void *handlerRefCon,
+pascal OSErr MyReceiveHandler(WindowPtr, void *handlerRefCon,
 		       DragReference theDrag)
 { 
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
@@ -394,7 +396,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
     return widg;
 }
 
-OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
+pascal OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
 			 void *handlerRefCon, DragReference theDrag )
 {
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
@@ -459,8 +461,8 @@ void qt_macdnd_unregister( QWidget *widget, QWExtra *extra )
     if ( extra && extra->macDndExtra ) {
 	extra->macDndExtra->ref--;
 	if ( extra->macDndExtra->ref == 0 ) {
-	    RemoveTrackingHandler( MyTrackingHandler, (WindowPtr)widget->winId() );
-	    RemoveReceiveHandler( MyReceiveHandler, (WindowPtr)widget->winId() );
+	    RemoveTrackingHandler( NewDragTrackingHandlerUPP(MyTrackingHandler), (WindowPtr)widget->winId() );
+	    RemoveReceiveHandler( NewDragReceiveHandlerUPP(MyReceiveHandler), (WindowPtr)widget->winId() );
 	    delete extra->macDndExtra;
 	    extra->macDndExtra = 0;
 	}
@@ -474,11 +476,11 @@ void qt_macdnd_register( QWidget *widget, QWExtra *extra )
 	extra->macDndExtra = new QMacDndExtra;
 	extra->macDndExtra->ref = 1;
 	extra->macDndExtra->widget = widget->topLevelWidget();
-	if ( (result = InstallTrackingHandler( MyTrackingHandler, 
+	if ( (result = InstallTrackingHandler( NewDragTrackingHandlerUPP(MyTrackingHandler), 
 					      (WindowPtr)widget->winId(),
 					      extra->macDndExtra )))
 	    return;
-	if ( (result = InstallReceiveHandler( MyReceiveHandler,
+	if ( (result = InstallReceiveHandler( NewDragReceiveHandlerUPP(MyReceiveHandler),
 					     (WindowPtr)widget->winId(),
 					     extra->macDndExtra )))
 	    return;

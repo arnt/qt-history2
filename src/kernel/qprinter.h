@@ -131,7 +131,7 @@ private:
     QPaintDevice *pdrv;
     int		pid;
 #endif
-#if defined(Q_WS_MAC)
+#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     PMPageFormat pformat;
     PMPrintSettings psettings;
     PMPrintSession psession;

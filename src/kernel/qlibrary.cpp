@@ -190,6 +190,24 @@ static void* qt_resolve_symbol( void *, const char *symbol)
 #endif
 }
 
+#elif defined(Q_OS_MAC9)
+
+static void* qt_load_library( const QString &file )
+{
+    return NULL;
+}
+
+static bool qt_free_library( void *handle )
+{
+    return FALSE;
+}
+
+static void* qt_resolve_symbol( void *, const char *symbol)
+{
+    return NULL;
+}
+
+
 #else
 // Something else, assuming POSIX
 #include <dlfcn.h>

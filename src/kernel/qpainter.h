@@ -54,7 +54,7 @@ class QGfx;
 class QTextCodec;
 class QTextParag;
 class QPaintDevice;
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined(Q_WS_MAC9 )
 class QMacSavedPortInfo;
 #endif
 
@@ -371,7 +371,7 @@ protected:
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
-#elif defined(Q_WS_MAC)
+#elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     QRegion clippedreg;
     QMacSavedPortInfo *saved;
     

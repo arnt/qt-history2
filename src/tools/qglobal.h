@@ -46,8 +46,8 @@
 //
 // The operating system, must be one of: (Q_OS_x)
 //
-//   MAC	- Mac OS
 //   MACX	- Mac OS X
+//   MAC9   - Mac OS 9
 //   MSDOS	- MS-DOS and Windows
 //   OS2	- OS/2
 //   OS2EMX	- XFree86 on OS/2 (not PM)
@@ -74,7 +74,7 @@
 #if defined(__APPLE__) && defined(__GNUC__)
 #  define Q_OS_MACX
 #elif defined(macintosh)
-#  define Q_OS_MAC
+#  define Q_OS_MAC9
 #elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
 #  define Q_OS_MSDOS
 #elif defined(OS2) || defined(_OS2) || defined(__OS2__)
@@ -136,6 +136,10 @@
 #  define Q_OS_UNIXWARE7
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
+#endif
+
+#if defined(Q_OS_MAC9) || defined(Q_OS_MACX)
+#  define Q_OS_MAC
 #endif
 
 #if defined(Q_OS_MAC) || defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN32)
@@ -262,7 +266,8 @@
 //
 // The window system, must be one of: (Q_WS_x)
 //
-//   MAC	- Mac OS
+//   MACX	- Mac OS X
+//   MAC9   - Mac OS 9
 //   QWS	- Qt/Embedded
 //   WIN32	- Windows
 //   X11	- X Window System
@@ -270,8 +275,10 @@
 //   WIN16	- unsupported
 //
 
-#if defined(Q_OS_MAC) || defined( Q_OS_MACX )
-#  define Q_WS_MAC
+#if defined( Q_OS_MACX )
+#  define Q_WS_MACX
+#elif defined( Q_OS_MAC9 )
+#  define Q_WS_MAC9
 #elif defined(Q_OS_MSDOS)
 #  define Q_WS_WIN16
 #  error "Qt requires Win32 and does not work with Windows 3.x"

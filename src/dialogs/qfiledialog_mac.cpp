@@ -53,7 +53,7 @@ static QList<QRegExp> makeFiltersList( const QString &filter )
     return ret;
 }
 
-static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info, 
+pascal static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info, 
 				 void *myd, NavFilterModes)
 {	
     QList<QRegExp> *filt = (QList<QRegExp> *)myd;
@@ -147,7 +147,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
     NavReplyRecord ret;
     QList<QRegExp> filts = makeFiltersList(filter);
     NavGetFile(use_initial ? &initial : NULL, &ret, &options, NULL, NULL, 
-	       qt_mac_nav_filter, NULL, (void *) filts.isEmpty() ? NULL : &filts);
+	       NewNavObjectFilterUPP(qt_mac_nav_filter), NULL, (void *) (filts.isEmpty() ? NULL : &filts));
     filts.setAutoDelete(TRUE);
     filts.clear();
 

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qglobal.h"
-
+#include "qt_mac.h"
 #include "qfile.h"
 #include "qfiledefs_p.h"
 

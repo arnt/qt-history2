@@ -44,7 +44,7 @@
 #ifdef Q_WS_QWS
 #include "qfontmanager_qws.h"
 #endif // Q_WS_QWS
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
 #include "qt_mac.h"
 #endif
 
@@ -60,7 +60,7 @@
 
 
 // NOT REVISED
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
 
 extern int qFontGetWeight( const QCString &weightString, bool adjustScore=FALSE );
 
@@ -99,7 +99,7 @@ static void add_style( QtFontFamily *family, const QString& styleName,
 		       bool italic, bool lesserItalic, int weight );
 
 #endif // Q_WS_WIN
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
 static void add_style( QtFontFamily *family, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
 #endif
@@ -185,7 +185,7 @@ private:
 
 #endif // Q_WS_WIN
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
     friend void add_style( QtFontFamily *family, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
 #endif
@@ -248,7 +248,7 @@ private:
     friend void add_style( QtFontFamily *family, const QString& styleName,
 			   bool italic, bool lesserItalic, int weight );
 #endif
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
     friend void add_style( QtFontFamily *family, const QString& styleName,
                 bool italic, bool lesserItalic, int weight );
 #endif
@@ -1199,7 +1199,7 @@ void QFontDatabase::createDatabase()
 #endif // Q_WS_WIN
 
 
-#ifdef Q_WS_MAC
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
 
 static
 void add_style( QtFontFamily *family, const QString& styleName,

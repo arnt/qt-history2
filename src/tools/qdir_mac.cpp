@@ -4,6 +4,7 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "qt_mac.h"
 
 static QString qt_cwd;
 
@@ -305,34 +306,38 @@ const QFileInfoList * QDir::drives()
 {
     static QFileInfoList * knownMemoryLeak=0;
     if(!knownMemoryLeak) {
-	knownMemoryLeak=new QFileInfoList;
-        QElemPtr drivep;
-	QHdrPtr headerp;
-	headerp=GetDrvQHdr();
-	drivep=headerp->qHead;
-	char somebuf[257];
-	short int refnum;
-	long int freebytes;
-	while(drivep) {
-	    DrvQEl * el=(DrvQEl *)drivep;
-	    drivep=el->qLink;
-	    short int drivenum=el->dQDrive;
-	    int driveref=el->dQRefNum;
-	    int driveid=el->dQFSID;
-	    refnum=driveref;
-	    OSErr ret=GetVInfo(drivenum,(unsigned char *)somebuf,&refnum,
-			       &freebytes);
-	    if(ret!=noErr) {
-		if(ret==nsvErr) {
-		    qWarning("QDir::drives, no such volume");
-		} else {
-		    qWarning("QDir::drives unknown error");
-		}
-	    }
-	    somebuf[somebuf[0]+1]=0;
-	    knownMemoryLeak->append( new QFileInfo(
+		knownMemoryLeak=new QFileInfoList;
+        	QElemPtr drivep;
+#if 0
+		QHdrPtr headerp;
+		headerp=GetDrvQHdr();
+		drivep=headerp->qHead;
+		char somebuf[257];
+		short int refnum;
+		long int freebytes;
+		while(drivep) {
+	   		DrvQEl * el=(DrvQEl *)drivep;
+	    	drivep=el->qLink;
+	    	short int drivenum=el->dQDrive;
+	    	int driveref=el->dQRefNum;
+	    	int driveid=el->dQFSID;
+	    	refnum=driveref;
+	    	OSErr ret=GetVInfo(drivenum,(unsigned char *)somebuf,&refnum,
+				       &freebytes);
+	    	if(ret!=noErr) {
+				if(ret==nsvErr) {
+		    		qWarning("QDir::drives, no such volume");
+				} else {
+		    		qWarning("QDir::drives unknown error");
+				}
+	    	}
+	    	somebuf[somebuf[0]+1]=0;
+	    	knownMemoryLeak->append( new QFileInfo(
 				       QString::fromLatin1 ( somebuf+1 ) ) );
-	}
+		}
+#else
+	qDebug("oops..");
+#endif
     }
     return knownMemoryLeak;
 }

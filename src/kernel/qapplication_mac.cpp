@@ -69,9 +69,11 @@
 #include "qpaintdevicemetrics.h"
 #include "qmenubar.h"
 
+#ifdef Q_WS_MACX
 #include <sys/time.h>
 #include <sys/select.h>
 #include <unistd.h>
+#endif
 
 #define	 GC GC_QQQ
 
@@ -79,6 +81,9 @@
 #include "qthread.h"
 #endif
 
+#if defined( Q_WS_MAC9 ) && 0
+extern "C" int main(int argc, char **argv) { return 0; }
+#endif
 
 /*****************************************************************************
   Internal variables and functions
@@ -204,14 +209,14 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassWindow, kEventWindowUpdate },
 	    { kEventClassWindow, kEventWindowActivated },
 	    { kEventClassWindow, kEventWindowDeactivated },
-	    { kEventClassWindow, kEventWindowShown },
-	    { kEventClassWindow, kEventWindowHidden },
+//	    { kEventClassWindow, kEventWindowShown },
+//	    { kEventClassWindow, kEventWindowHidden },
 
 	    { kEventClassApplication, kEventAppActivated }, 
 	    { kEventClassApplication, kEventAppDeactivated }
 	};
 	InstallEventHandler( GetApplicationEventTarget(), 
-			     QApplication::globalEventProcessor, 
+			     NewEventHandlerUPP(QApplication::globalEventProcessor), 
 			     GetEventTypeCount(events), events, 
 			     (void *)qApp, NULL);
     }
@@ -431,7 +436,7 @@ typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
 static TimerList *timerList	= 0;		// timer list
 
 /* timer call back */
-static void qt_activate_timers(EventLoopTimerRef, void *data)
+pascal static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
     TimerInfo *t = (TimerInfo *)data;
     QTimerEvent e( (int)t->id );
@@ -466,8 +471,8 @@ int qStartTimer( int interval, QObject *obj )
     TimerInfo *t = new TimerInfo;		// create timer
     Q_CHECK_PTR( t );
     EventTimerInterval mint = (((EventTimerInterval)interval) / 1000) + 0.00001;
-    if(! InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
-			       qt_activate_timers, t, &t->id) ) {
+if(! InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
+			       NewEventLoopTimerUPP(qt_activate_timers), t, &t->id) ) {
 	t->obj = obj;
 	timerList->append(t);
 	return (int)t->id;
@@ -642,13 +647,6 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 
     return TRUE;
 }
-#else
-bool qt_set_socket_handler( int, int, QObject *, bool )
-{
-    return FALSE;
-}
-#warning "need to implement sockets on mac9"
-#endif
 
 //
 // We choose a random activation order to be more fair under high load.
@@ -697,6 +695,14 @@ static int sn_activate()
     }
     return n_act;
 }
+#else
+bool qt_set_socket_handler( int, int, QObject *, bool )
+{
+    return FALSE;
+}
+#warning "need to implement sockets on mac9"
+#endif
+
 
 bool QApplication::processNextEvent( bool canWait )
 {
@@ -977,6 +983,7 @@ void qt_leave_modal( QWidget *widget )
 
 static bool qt_try_modal( QWidget *widget, EventRef event )
 {
+	return TRUE;
     if ( qApp->activePopupWidget() )
 	return TRUE;
     // a bit of a hack: use WStyle_Tool as a general ignore-modality
@@ -1037,8 +1044,8 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
 }
 
 
-OSStatus 
-QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
+pascal OSStatus 
+QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
     if ( app->macEventFilter( event ) )
@@ -1295,8 +1302,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	widget = QWidget::find( (WId)wid );
 	if(!widget) {
 	    qWarning("Couldn't find EventClasWindow widget for %d", (int)wid);
-
-	    if(ekind == kEventWindowUpdate) {
+        break;
+    }
+    
+	if(ekind == kEventWindowUpdate) {
 		int metricWidth = widget->metric (QPaintDeviceMetrics::PdmWidth );
 		int metricHeight = widget->metric( QPaintDeviceMetrics::PdmHeight );
 		widget->crect.setWidth( metricWidth - 1 );
@@ -1306,36 +1315,36 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		BeginUpdate((WindowPtr)widget->handle());
 		widget->propagateUpdates();
 		EndUpdate((WindowPtr)widget->handle());
-	    } else if(ekind == kEventWindowActivated) {
+	} else if(ekind == kEventWindowActivated) {
 		if(widget) {
 		    widget->raise();
 		    QWidget *tlw = widget->topLevelWidget();
 		    if(tlw->isTopLevel() && !tlw->isPopup() && 
 		       (tlw->isModal() || !tlw->isDialog())) {
-			if(IsMenuBarVisible()) {
-			    if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
-				QMenuBar *bar = (QMenuBar *)mb;
-				if(bar->isTopLevel() && bar->isVisible()) 
-				    HideMenuBar();	
-			    }
+				if(IsMenuBarVisible()) {
+			    	if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
+						QMenuBar *bar = (QMenuBar *)mb;
+						if(bar->isTopLevel() && bar->isVisible()) 
+				   		 	HideMenuBar();	
+			    	}
+				}
+				app->setActiveWindow(tlw);
 			}
-			app->setActiveWindow(tlw);
-		    }
-		    if (widget->focusWidget())
-			widget->focusWidget()->setFocus();
-		    else
-			widget->setFocus();
+			if (widget->focusWidget())
+				widget->focusWidget()->setFocus();
+			else
+				widget->setFocus();
 		}
-	    } else if(ekind == kEventWindowDeactivated) {
+	} else if(ekind == kEventWindowDeactivated) {
 		if(active_window && widget == active_window) 
 		    app->setActiveWindow(NULL);
 		while(app->inPopupMode())
 		    app->activePopupWidget()->close();
-	    } else if(ekind == kEventWindowShown || ekind == kEventWindowHidden) {
-	    }
-
-	    break;
+	} else if(ekind == kEventWindowShown || ekind == kEventWindowHidden) {
+		return CallNextEventHandler(ref, event);
+		return eventNotHandledErr; //hack
 	}
+    break;
     case kEventClassApplication:
 	if(ekind == kEventAppActivated)
 	    app->clipboard()->loadScrap(FALSE);
@@ -1665,7 +1674,7 @@ void QSmSocketReceiver::socketActivated(int)
 {
 }
 
-#include "qapplication_mac.moc"
+#include <qapplication_mac.moc>
 
 class QSessionManagerData
 {
