@@ -25,29 +25,6 @@ class QResizeEvent;
 
 /*****************************************************************************
  *
- * Class QtFileIconDragItem
- *
- *****************************************************************************/
-
-class QtFileIconDragItem : public QIconDragItem
-{
-public:
-    QtFileIconDragItem();
-    QtFileIconDragItem( const QRect &ir, const QRect &tr, const QString &u );
-    ~QtFileIconDragItem();
-	
-    QString url() const;
-    void setURL( const QString &u );
-
-protected:
-    void makeKey();
-
-    QString url_;
-
-};
-
-/*****************************************************************************
- *
  * Class QtFileIconDrag
  *
  *****************************************************************************/
@@ -57,24 +34,17 @@ class QtFileIconDrag : public QIconDrag
     Q_OBJECT
 
 public:
-    typedef QValueList<QtFileIconDragItem> QtFileIconList;
-
     QtFileIconDrag( QWidget * dragSource, const char* name = 0 );
-    ~QtFileIconDrag();
 
     const char* format( int i ) const;
     QByteArray encodedData( const char* mime ) const;
-
-    void append( const QtFileIconDragItem &icon_ );
-
     static bool canDecode( QMimeSource* e );
-
-    static bool decode( QMimeSource *e, QValueList<QtFileIconDragItem> &list_ );
     static bool decode( QMimeSource *e, QStringList &uris );
+    void append( const QIconDragItem &item, const QRect &pr, const QRect &tr, const QString &url );
 
-protected:
-    QtFileIconList icons;
-
+private:
+    QStringList urls;
+    
 };
 
 /*****************************************************************************
@@ -130,7 +100,6 @@ protected slots:
 protected:
     void readDir( const QDir &dir );
     virtual QDragObject *dragObject();
-    void initDragEnter( QDropEvent *e );
 
     virtual void keyPressEvent( QKeyEvent *e );
 

@@ -125,7 +125,7 @@ struct QIconViewPrivate
     QIconView::Arrangement arrangement;
     QIconView::ResizeMode resizeMode;
     QSize oldSize;
-    QValueList<QIconDragItem> iconDragData;
+    QValueList<QIconDrag::Item> iconDragData;
     bool isIconDrag;
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
@@ -297,111 +297,24 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
   (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
 */
 
-/*!
-  Constructs and empty QIconDragItem.
-*/
-
 QIconDragItem::QIconDragItem()
-    : iconRect_(), textRect_()
+    : ba( strlen( "no data" ) )
 {
-    makeKey();
+    memcpy( ba.data(), "no data", strlen( "no data" ) );
 }
-
-/*!
-  Constructs and QIconDragItem. \a ir is the icon rectangle and
-  \a tr the bounding rectangle of the icon text.
-*/
-
-QIconDragItem::QIconDragItem( const QRect &ir, const QRect &tr )
-    : iconRect_( ir ), textRect_( tr )
-{
-    makeKey();
-}
-
-/*!
-  Destructor.
-*/
 
 QIconDragItem::~QIconDragItem()
 {
 }
 
-/*!
-  Returns TRUE if \a icon is smaller than this item, else
-  FALSE.
-*/
-
-bool QIconDragItem::operator<( const QIconDragItem &icon ) const
+QByteArray QIconDragItem::data() const
 {
-    return key_ < icon.key_;
+    return ba;
 }
 
-/*!
-  Returns TRUE if \a icon is equal to this item.
-*/
-
-bool QIconDragItem::operator==( const QIconDragItem &icon ) const
+void QIconDragItem::setData( const QByteArray &d )
 {
-    return key_ == icon.key_;
-}
-
-/*!
-  Generates a unique key which describes this item.
-*/
-
-void QIconDragItem::makeKey()
-{
-    QString k( "%1 %2 %3 %4 %5 %6 %7 %8" );
-    k = k.arg( pixmapRect().x() ).arg( pixmapRect().y() ).arg( pixmapRect().width() ).
-	arg( pixmapRect().height() ).arg( textRect().x() ).arg( textRect().y() ).
-	arg( textRect().width() ).arg( textRect().height() );
-}
-
-/*!
-  Returns the bounding rectangle of the text of the icon which
-  data is stored in this item.
-*/
-
-QRect QIconDragItem::textRect() const
-{
-    return textRect_;
-}
-
-/*!
-  Returns the bounding rectangle of the  icon which
-  data is stored in this item.
-*/
-
-QRect QIconDragItem::pixmapRect() const
-{
-    return iconRect_;
-}
-
-/*!
-  Returns the key of this item.
-*/
-
-QString QIconDragItem::key() const
-{
-    return key_;
-}
-
-/*!
-  Sets \a r as the rectangle of the icon.
-*/
-
-void QIconDragItem::setPixmapRect( const QRect &r )
-{
-    iconRect_ = r;
-}
-
-/*!
-  Sets \a r as the rectangle of the text.
-*/
-
-void QIconDragItem::setTextRect( const QRect &r )
-{
-    textRect_ = r;
+    ba = d;
 }
 
 /*****************************************************************************
@@ -431,18 +344,6 @@ void QIconDragItem::setTextRect( const QRect &r )
 */
 
 /*!
-  Constructs a icon dragobject which contains a list of \a icons (list of QIconDragItems).
-  \a dragSource  is the widget which started the dragand \a name the name of the object.
-
-  \sa QIconDragItem
-*/
-
-QIconDrag::QIconDrag( const QIconList &icons_, QWidget * dragSource, const char* name )
-    : QDragObject( dragSource, name ), icons( icons_ )
-{
-}
-
-/*!
   \reimp
 */
 
@@ -460,27 +361,15 @@ QIconDrag::~QIconDrag()
 }
 
 /*!
-  Sets the \a list of icon drag items which should be stored in this
-  dragobject.
-
-  \sa QIconDragItem
-*/
-
-void QIconDrag::setIcons( const QIconList &list_ )
-{
-    icons = list_;
-}
-
-/*!
   Appends an icon drag item which should be stored in this
   dragobject.
 
   \sa QIconDragItem
 */
 
-void QIconDrag::append( const QIconDragItem &icon_ )
+void QIconDrag::append( const QIconDragItem &i, const QRect &pr, const QRect &tr )
 {
-    icons.append( icon_ );
+    items.append( Item( i, IconDragItem( pr, tr ) ) );
 }
 
 /*!
@@ -503,20 +392,18 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 {
     QByteArray a;
     if ( QString( mime ) == "application/x-qiconlist" ) {
-	int c = 0;
-	QIconList::ConstIterator it = icons.begin();
-	for ( ; it != icons.end(); ++it ) {
-	    QString k( "%1 %2 %3 %4 %5 %6 %7 %8" );
-	    k = k.arg( (*it).pixmapRect().x() ).arg( (*it).pixmapRect().y() ).arg( (*it).pixmapRect().width() ).
-		arg( (*it).pixmapRect().height() ).arg( (*it).textRect().x() ).arg( (*it).textRect().y() ).
-		arg( (*it).textRect().width() ).arg( (*it).textRect().height() );
-	    int l = k.length();
-	    a.resize( c + l + 1 );
-	    memcpy( a.data() + c , k.latin1(), l );
-	    a[ c + l ] = 0;
-	    c += l + 1;
+	QValueList<Item>::ConstIterator it = items.begin();
+	QString s;
+	for ( ; it != items.end(); ++it ) {
+	    QString k( "%1$@@$%2$@@$%3$@@$%4$@@$%5$@@$%6$@@$%7$@@$%8$@@$" );
+	    k = k.arg( (*it).item.pixmapRect().x() ).arg( (*it).item.pixmapRect().y() ).arg( (*it).item.pixmapRect().width() ).
+		arg( (*it).item.pixmapRect().height() ).arg( (*it).item.textRect().x() ).arg( (*it).item.textRect().y() ).
+		arg( (*it).item.textRect().width() ).arg( (*it).item.textRect().height() );
+	    k += (*it).data.data() + "$@@$";
+	    s += k;
 	}
-	a.resize( c - 1 );
+	a.resize( s.length() );
+	memcpy( a.data(), s.latin1(), s.length() );
     }
 
     return a;
@@ -539,70 +426,82 @@ bool QIconDrag::canDecode( QMimeSource* e )
   fills the \a list of icon drag items with the decoded data.
 */
 
-bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
+bool QIconDrag::decode( QMimeSource* e, QValueList<Item> &lst )
 {
     QByteArray ba = e->encodedData( "application/x-qiconlist" );
     if ( ba.size() ) {
-	list_.clear();
-	uint c = 0;
+	lst.clear();
+	QString s = ba.data();
+	Item item;
+	QRect ir, tr;
+	QByteArray d;
+	QStringList l = QStringList::split( "$@@$", s );
 	
-	char* d = ba.data();
-	
-	while ( c < ba.size() ) {
-	    uint f = c;
-	    while ( c < ba.size() && d[ c ] )
-		c++;
-	    QString s;
-	    if ( c < ba.size() ) {
-		s = d + f ;
-		c++;
-	    } else  {
-		QString tmp( QString(d + f).left( c - f + 1 ) );
-		s = tmp;
+	int i = 0;
+	QStringList::Iterator it = l.begin();
+	for ( ; it != l.end(); ++it ) {
+	    if ( i == 0 ) {
+		ir.setX( ( *it ).toInt() );
+	    } else if ( i == 1 ) { 
+		ir.setY( ( *it ).toInt() );
+	    } else if ( i == 2 ) { 
+		ir.setWidth( ( *it ).toInt() );
+	    } else if ( i == 3 ) { 
+		ir.setHeight( ( *it ).toInt() );
+	    } else if ( i == 4 ) { 
+		tr.setX( ( *it ).toInt() );
+	    } else if ( i == 5 ) { 
+		tr.setY( ( *it ).toInt() );
+	    } else if ( i == 6 ) { 
+		tr.setWidth( ( *it ).toInt() );
+	    } else if ( i == 7 ) { 
+		tr.setHeight( ( *it ).toInt() );
+	    } else if ( i == 8 ) {
+		d.resize( ( *it ).length() );
+		memcpy( d.data(), ( *it ).latin1(), ( *it ).length() );
+		item.item.setPixmapRect( ir );
+		item.item.setTextRect( tr );
+		item.data.setData( d );
+		lst.append( item );
 	    }
-
-	    QIconDragItem icon;
-	    QRect ir, tr;
-	
-	    ir.setX( atoi( s.latin1() ) );
-	    int pos = s.find( ' ' );
-	    if ( pos == -1 )
-		return FALSE;
-	    ir.setY( atoi( s.latin1() + pos + 1 ) );
-	    pos = s.find( ' ', pos + 1 );
-	    if ( pos == -1 )
-		return FALSE;
-	    ir.setWidth( atoi( s.latin1() + pos + 1 ) );
-	    pos = s.find( ' ', pos + 1 );
-	    if ( pos == -1 )
-		return FALSE;
-	    ir.setHeight( atoi( s.latin1() + pos + 1 ) );
-
-	    pos = s.find( ' ', pos + 1 );
-	    if ( pos == -1 )
-		return FALSE;
-	    tr.setX( atoi( s.latin1() + pos + 1 ) );
-	    pos = s.find( ' ', pos + 1 );
-	    if ( pos == -1 )
-		return FALSE;
-	    tr.setY( atoi( s.latin1() + pos + 1 ) );
-	    pos = s.find( ' ', pos + 1 );
-	    if ( pos == -1 )
-		return FALSE;
-	    tr.setWidth( atoi( s.latin1() + pos + 1 ) );
-	    pos = s.find( ' ', pos + 1 );
-	    if ( pos == -1 )
-		return FALSE;
-	    tr.setHeight( atoi( s.latin1() + pos + 1 ) );
-	
-	    icon.setPixmapRect( ir );
-	    icon.setTextRect( tr );
-	    list_.append( icon );
+	    ++i;
+	    if ( i > 8 )
+		i = 0;
 	}
 	return TRUE;
     }
 
     return FALSE;
+}
+
+QIconDrag::IconDragItem::IconDragItem()
+    : iconRect_(), textRect_()
+{
+}
+
+QIconDrag::IconDragItem::IconDragItem( const QRect &ir, const QRect &tr )
+    : iconRect_( ir ), textRect_( tr )
+{
+}
+
+QRect QIconDrag::IconDragItem::textRect() const
+{
+    return textRect_;
+}
+
+QRect QIconDrag::IconDragItem::pixmapRect() const
+{
+    return iconRect_;
+}
+
+void QIconDrag::IconDragItem::setPixmapRect( const QRect &r )
+{
+    iconRect_ = r;
+}
+
+void QIconDrag::IconDragItem::setTextRect( const QRect &r )
+{
+    textRect_ = r;
 }
 
 /*****************************************************************************
@@ -4169,15 +4068,18 @@ QDragObject *QIconView::dragObject()
     drag->setPixmap( *d->currentItem->pixmap(),
  		     QPoint( d->currentItem->pixmapRect().width() / 2,
 			     d->currentItem->pixmapRect().height() / 2 ) );
-    for ( QIconViewItem *item = d->firstItem; item; item = item->next )
-	if ( item->isSelected() )
-	    drag->append( QIconDragItem( QRect( item->pixmapRect( FALSE ).x() - orig.x(),
-						item->pixmapRect( FALSE ).y() - orig.y(),
-						item->pixmapRect().width(), item->pixmapRect().height() ),
-					 QRect( item->textRect( FALSE ).x() - orig.x(),
-						item->textRect( FALSE ).y() - orig.y(), 	
-						item->textRect().width(), item->textRect().height() ) ) );
-
+    for ( QIconViewItem *item = d->firstItem; item; item = item->next ) {
+	if ( item->isSelected() ) {
+	    drag->append( QIconDragItem(),
+			  QRect( item->pixmapRect( FALSE ).x() - orig.x(),
+				 item->pixmapRect( FALSE ).y() - orig.y(),
+				 item->pixmapRect().width(), item->pixmapRect().height() ),
+			  QRect( item->textRect( FALSE ).x() - orig.x(),
+				 item->textRect( FALSE ).y() - orig.y(), 	
+				 item->textRect().width(), item->textRect().height() ) );
+	}
+    }
+    
     return drag;
 }
 
@@ -4318,10 +4220,10 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	p.setRasterOp( NotROP );
 	p.setPen( QPen( color0 ) );
 	
-	QValueList<QIconDragItem>::Iterator it = d->iconDragData.begin();
+	QValueList<QIconDrag::Item>::Iterator it = d->iconDragData.begin();
 	for ( ; it != d->iconDragData.end(); ++it ) {
-	    QRect ir = (*it).pixmapRect();
-	    QRect tr = (*it).textRect();
+	    QRect ir = (*it).item.pixmapRect();
+	    QRect tr = (*it).item.textRect();
 	    tr.moveBy( pos.x(), pos.y() );
 	    ir.moveBy( pos.x(), pos.y() );
 	    style().drawFocusRect( &p, ir, colorGroup() );
@@ -4381,43 +4283,14 @@ void QIconView::initDragEnter( QDropEvent *e )
     if ( QIconDrag::canDecode( e ) ) {
 	QIconDrag::decode( e, d->iconDragData );
 	d->isIconDrag = TRUE;
-    } else
+    } else if ( QUriDrag::canDecode( e ) ) {
+	QStringList lst;
+	QUriDrag::decodeToUnicodeUris( e, lst );
+	d->numDragItems = lst.count();
+    } else {
 	d->numDragItems = 0;
+    }
 
-}
-
-/*!
-  Using this function it's possible to tell the iconview, that a
-  drag contains known data, which may be encoded to display
-  correct drag shapes.
-  This method is normally called from QIconView::initDragEnter(),
-  \a e is the argument which you got in this method.
-
-  \sa QIconView::initDragEnter()
-*/
-
-void QIconView::setDragObjectIsKnown( QDropEvent *e )
-{
-    d->isIconDrag = TRUE;
-    if ( QIconDrag::canDecode( e ) )
-	QIconDrag::decode( e, d->iconDragData );
-}
-
-/*!
-  If a drag is unknown (you have no information about how to draw the drag
-  shapes), but you know enough about it, to know the number of items which
-  are dragged around, it's possible to specify using this method the number of items
-  of the drag (e.g. the number of URLs), so that the iconview can draw
-  some (not totally correcty) drag shapes.
-  This method is normally called fro QIconView::initDragEnter()
-
-  \sa QIconView::initDragEnter()
-*/
-
-void QIconView::setNumDragItems( int num )
-{
-    d->isIconDrag = FALSE;
-    d->numDragItems = num;
 }
 
 /*!
