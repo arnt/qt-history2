@@ -1849,7 +1849,7 @@ variable if you prefix that version of qmake to VARIABLE, as in:
 
 \code
 qmake -query "1.06a/VARIABLE"
-\encode
+\endcode
 
 qmake also has the notion of 'builtin' properties, for example you can
 query the installation of Qt for this version of qmake with the
@@ -1857,19 +1857,17 @@ QT_INSTALL_PREFIX property:
 
 \code
 qmake -query "QT_INSTALL_PREFIX"
-\encode
+\endcode
 
 These builtin properties cannot have a version prefixed to them as
 they are not versioned and each qmake will have its own notion of
-these values. The table below outlines the builtin properties:
+these values. The list below outlines the builtin properties:
 
-\table
-\header \i Property
-	\i Description
-\row \i QT_INSTALL_PREFIX \i Where the version of Qt this qmake is built for resides
-\row \i QT_INSTALL_DATA \i Where data for this version of Qt resides
-\row \i QMAKE_VERSION \i The current version of qmake
-\endtable
+\list
+\i QT_INSTALL_PREFIX - Where the version of Qt this qmake is built for resides
+\i QT_INSTALL_DATA - Where data for this version of Qt resides
+\i QMAKE_VERSION - The current version of qmake
+\endlist
 
 Finally, these values can be queried in a project file with a special
 notation such as:
