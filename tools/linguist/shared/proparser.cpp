@@ -156,6 +156,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 		    else if (invocation.lower() == "pwd")
 			after = QDir::currentDirPath();
 		    (*it).replace( i, len, after );
+		    i += after.length();
 		}
 	    }
 	}
