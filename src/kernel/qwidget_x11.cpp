@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#30 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#30 $";
 #endif
 
 
@@ -150,7 +150,8 @@ bool QWidget::create()				// create widget
 
     if ( overlap ) {
 	curs = arrowCursor;
-	XDefineCursor( dpy, ident, curs.handle() );
+	XDefineCursor( dpy, ident, QApplication::appCursorDefined ?
+		       QApplication::cursor().handle() : curs.handle() );
 	setFlag( WCursorSet );
     }
     return TRUE;
@@ -289,7 +290,8 @@ QCursor QWidget::cursor() const			// get cursor
 void QWidget::setCursor( const QCursor &cursor )// set cursor
 {
     curs = cursor;
-    XDefineCursor( dpy, ident, curs.handle() );
+    XDefineCursor( dpy, ident, QApplication::appCursorDefined ?
+		   QApplication::cursor().handle() : curs.handle() );
     setFlag( WCursorSet );
     XFlush( dpy );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#35 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -13,7 +13,7 @@
 #include "qapp.h"
 #include "qevent.h"
 #include "qwidget.h"
-#include "qlist.h"
+#include "qwidcoll.h"
 #include <stdlib.h>
 #include <signal.h>
 #define	 GC GC_QQQ
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#35 $";
 #endif
 
 
@@ -310,6 +310,44 @@ QWidget *QApplication::desktop()
 }
 
 
+void QApplication::setCursor( const QCursor &c )// set application cursor
+{
+    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+    register QWidget *w;
+    appCursor = c;
+    appCursorDefined = TRUE;
+    while ( (w=it.current()) ) {
+	if ( w->testFlag(WCursorSet) )
+	    XDefineCursor( w->display(), w->id(), c.handle() );
+	++it;
+    }
+    XFlush( appDpy );
+}
+
+void QApplication::restoreCursor()		// restore application cursor
+{
+    if ( !appCursorDefined )
+	return;
+    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+    register QWidget *w;
+    while ( (w=it.current()) ) {
+	if ( w->testFlag(WCursorSet) )
+	    XDefineCursor( w->display(), w->id(), w->cursor().handle() );
+	++it;
+    }
+    XFlush( appDpy );
+    appCursor = arrowCursor;
+    appCursorDefined = FALSE;
+}
+
+
+void QApplication::setFont( const QFont &f )	// set application cursor
+{
+    appFont = f;
+    warning( "QApplication::setFont: NOT IMPLEMENTED" );
+}
+
+
 void QApplication::flushX()			// flush X output buffer
 {
     XFlush( appDpy );
@@ -421,16 +459,12 @@ static void cleanupPostedEvents()		// cleanup list
 // Special lookup functions for windows that have been recreated recently
 //
 
-#include "qintdict.h"
-
-declare(QIntDictM,QWidget);
-declare(QIntDictIteratorM,QWidget);
-static QIntDictM(QWidget) *wPRmapper = 0;	// alternative widget mapper
+static QWidgetIntDict *wPRmapper = 0;		// alternative widget mapper
 
 void qPRCreate( const QWidget *widget, Window oldwin )
 {						// QWidget::recreate mechanism
     if ( !wPRmapper ) {
-	wPRmapper = new QIntDictM(QWidget);
+	wPRmapper = new QWidgetIntDict;
 	CHECK_PTR( wPRmapper );
     }
     wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
@@ -440,10 +474,9 @@ void qPRCreate( const QWidget *widget, Window oldwin )
 
 void qPRCleanup( QETWidget *widget )
 {
-    if ( !(wPRmapper && widget->testFlag(WRecreated)) ) {
+    if ( !(wPRmapper && widget->testFlag(WRecreated)) )
 	return;					// not a recreated widget
-    }
-    QIntDictIteratorM(QWidget) it(*wPRmapper);
+    QWidgetIntDictIt it(*wPRmapper);
     QWidget *w;
     while ( (w=it.current()) ) {
 	if ( w == widget ) {			// found widget
@@ -671,13 +704,13 @@ int qXEnterModal( QWidget *widget )
 //	    QWidget *widget	The popup widget to be removed
 //
 
-declare(QListM,QWidget) *popupWidgets = 0;	// list of popup widgets
+QWidgetList *popupWidgets = 0;			// list of popup widgets
 bool popupCloseDownMode = FALSE;
 
 void qXOpenPopup( QWidget *popup )		// add popup widget
 {
     if ( !popupWidgets ) {			// create list
-	popupWidgets = new QListM(QWidget);
+	popupWidgets = new QWidgetList;
 	CHECK_PTR( popupWidgets );
     }
     popupWidgets->append( popup );		// add to end of list
