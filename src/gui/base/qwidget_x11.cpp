@@ -1728,9 +1728,10 @@ void QWidget::showWindow()
 			    32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
 	}
 
-	if ( d->d->topData()->parentWinId &&
-	     d->topData()->parentWinId != QX11Info::appRootWindow(d->xinfo->screen()) &&
-	     !isMinimized() ) {
+	if (!d->topData()->embedded
+	    && d->topData()->parentWinId
+	    && d->topData()->parentWinId != QX11Info::appRootWindow(d->xinfo->screen())
+	    && !isMinimized() ) {
 	    X11->deferred_map.append(this);
 	    return;
 	}
