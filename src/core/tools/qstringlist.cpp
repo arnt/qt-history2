@@ -111,8 +111,6 @@
     one or some other list referencing the same shared data is
     modified, the modifying list first makes a copy, i.e.
     copy-on-write.
-    In a threaded environment you may require a real deep copy
-    \omit see \l QDeepCopy\endomit.
 */
 
 /*!
