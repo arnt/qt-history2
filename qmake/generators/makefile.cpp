@@ -50,7 +50,7 @@ QString mkdir_p_asstring(const QString &dir)
 
 static bool createDir(QString path)
 {
-    if(QFile::exists(path))
+    if(QFile::exists(path)) 
         return true;
 
     QDir d;
@@ -71,8 +71,9 @@ static bool createDir(QString path)
             driveExists = false;
         }
     }
-    if(driveExists) {
+    if(driveExists) 
 #endif
+    {
         QStringList subs = path.split(Option::dir_sep);
         for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
             if(!d.cd(*subit)) {
@@ -85,9 +86,7 @@ static bool createDir(QString path)
                 }
             }
         }
-#ifdef Q_WS_WIN
     }
-#endif
     return ret;
 }
 
@@ -157,7 +156,7 @@ MakefileGenerator::initOutPaths()
                 continue;
 
             QString path = project->first(dirs[x]); //not to be changed any further
-            path = Option::fixPathToLocalOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
+            path = Option::fixPathToLocalOS(fileFixify(path, currentDir, Option::output_dir));
             debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].latin1(), orig_path.latin1(),
                       v[dirs[x]].join("::").latin1(), path.latin1());
             if(!createDir(path))

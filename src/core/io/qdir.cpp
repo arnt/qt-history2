@@ -725,7 +725,7 @@ QDir::convertSeparators(const QString &pathName)
 */
 
 bool
-QDir::cd(const QString &dirName, bool acceptAbsPath )
+QDir::cd(const QString &dirName, bool acceptAbsPath)
 {
     if (dirName.isEmpty() || dirName == QString::fromLatin1(".")) 
         return true;
@@ -754,14 +754,13 @@ QDir::cd(const QString &dirName, bool acceptAbsPath )
                       ;
             */
             if (newPath[0] == QChar('.') && newPath[1] == QChar('.') &&
-                 (newPath.length() == 2 || newPath[2] == QChar('/')))
-                convertToAbs();
+                (newPath.length() == 2 || newPath[2] == QChar('/'))) 
+                newPath = QFileInfo(newPath).absFilePath();
         }
     }
-
     {
         QFileInfo fi(newPath);
-        if(!fi.exists() || !fi.isDir())
+        if(!fi.exists() || !fi.isDir()) 
             return false;
     }
 
@@ -1567,7 +1566,6 @@ QDir::match(const QString &filter, const QString &fileName)
     \sa absPath() canonicalPath()
 */
 
-
 QString
 QDir::cleanDirPath(const QString &in)
 {
@@ -1579,10 +1577,12 @@ QDir::cleanDirPath(const QString &in)
 
     int used = 0, levels = 0;
     const int len = name.length();
-    QChar *out = new QChar[len];
+    QVector<QChar> out(len);
     const QChar *p = name.unicode();
     for(int i = 0, last = -1, iwrite = 0; i < len; i++) {
         if(p[i] == '/') {
+            while(i < len-1 && p[i+1] == '/')
+                i++;
             bool eaten = false;
             if(i < len - 1 && p[i+1] == '.') {
                 int dotcount = 1;
@@ -1591,8 +1591,10 @@ QDir::cleanDirPath(const QString &in)
                 if(i == len - dotcount - 1) {
                     if(last == -1) {
                         for(int i2 = iwrite-1; i2 >= 0; i2--) {
-                            if(out[i2] == '/') 
+                            if(out[i2] == '/') {
                                 last = i2;
+                                break;
+                            }
                         }
                     }
                     used -= iwrite - last - 1;
@@ -1629,6 +1631,7 @@ QDir::cleanDirPath(const QString &in)
 #else
                 eaten = true;
 #endif
+                last = -1;
             } else if(i == len-1) {
                 eaten = true;
             } else {
@@ -1656,8 +1659,7 @@ QDir::cleanDirPath(const QString &in)
     if(used == len)
         ret = name;
     else
-	ret = QString(out, used);
-    delete [] out;
+	ret = QString(out.data(), used);
     return ret;
 }
 
