@@ -28,6 +28,7 @@ class QAction;
 class QDialog;
 class QLabel;
 class QMenu;
+class QAssistantClient;
 template <typename T> class QList;
 class QIcon;
 
@@ -158,6 +159,7 @@ private:
     bool searchItem(const QString &searchWhat, int c, int m);
     void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
 
+    QAssistantClient *ac;
     QTreeView *tv;
     ContextModel *cmdl;
     QTreeView *stv;

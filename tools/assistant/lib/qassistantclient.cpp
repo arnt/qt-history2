@@ -13,9 +13,8 @@
 
 #include "qassistantclient.h"
 
-#include <q3socket.h>
+#include <qtcpsocket.h>
 #include <qtextstream.h>
-#include <q3process.h>
 #include <qtimer.h>
 #include <qfileinfo.h>
 #include <qmap.h>
@@ -131,18 +130,18 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     assistantCommand += ".app/Contents/MacOS/assistant";
 #endif
 
-    socket = new Q3Socket( this );
+    socket = new QTcpSocket( this );
     connect( socket, SIGNAL( connected() ),
             SLOT( socketConnected() ) );
-    connect( socket, SIGNAL( connectionClosed() ),
+    connect( socket, SIGNAL( closed() ),
             SLOT( socketConnectionClosed() ) );
     connect( socket, SIGNAL( error( int ) ),
             SLOT( socketError( int ) ) );
     opened = FALSE;
-    proc = new Q3Process( this );
+    proc = new QProcess( this );
     port = 0;
     pageBuffer = "";
-    connect( proc, SIGNAL( readyReadStderr() ),
+    connect( proc, SIGNAL( readyReadStandardError() ),
              this, SLOT( readStdError() ) );
 }
 
@@ -151,10 +150,8 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
 */
 QAssistantClient::~QAssistantClient()
 {
-    if ( proc && proc->isRunning() ) {
-        proc->tryTerminate();
+    if ( proc->processState() && QProcess::Running )
         proc->kill();
-    }
 
     if( dpointers ) {
         QAssistantClientPrivate *d = (*dpointers)[ this ];
@@ -179,44 +176,58 @@ QAssistantClient::~QAssistantClient()
 */
 void QAssistantClient::openAssistant()
 {
-    if ( proc->isRunning() )
+    if ( proc->processState() && QProcess::Running )
         return;
-    proc->clearArguments();
-    proc->addArgument( assistantCommand );
-    proc->addArgument( "-server" );
+
+    QStringList args;
+    args.append("-server");
     if( !pageBuffer.isEmpty() ) {
-        proc->addArgument( "-file" );
-        proc->addArgument( pageBuffer );
+        args.append( "-file" );
+        args.append( pageBuffer );
     }
 
     QAssistantClientPrivate *d = data( this );
     if( d ) {
         QStringList::ConstIterator it = d->arguments.begin();
         while( it!=d->arguments.end() ) {
-            proc->addArgument( *it );
+            args.append( *it );
             ++it;
         }
     }
 
-    if ( !proc->launch( QString() ) ) {
-        emit error( tr( "Cannot start Qt Assistant '%1'" )
-                    .arg( proc->arguments().join( " " ) ) );
-        return;
+    connect( proc, SIGNAL( readyReadStandardOutput() ),
+        this, SLOT( readPort() ) );
+    connect( proc, SIGNAL( error(QProcess::ProcessError) ),
+        this, SLOT( procError(QProcess::ProcessError) ) );                            
+
+    proc->start(assistantCommand, args);
+}
+
+void QAssistantClient::procError(QProcess::ProcessError err)
+{
+    switch (err)
+    {
+    case QProcess::FailedToStart:
+        emit error( tr( "Failed to start Qt Assistant." ) );
+        break;
+    case QProcess::Crashed:
+        emit error( tr( "Qt Assistant crashed." ) );
+        break;
+    default:
+        emit error( tr( "Error while running Qt Assistant." ) );
     }
-    connect( proc, SIGNAL( readyReadStdout() ),
-             this, SLOT( readPort() ) );
 }
 
 void QAssistantClient::readPort()
 {
-    QString p = proc->readLineStdout();
+    QString p = proc->readAllStandardOutput();
     Q_UINT16 port = p.toUShort();
     if ( port == 0 ) {
         emit error( tr( "Cannot connect to Qt Assistant." ) );
         return;
     }
     socket->connectToHost( host, port );
-    disconnect( proc, SIGNAL( readyReadStdout() ),
+    disconnect( proc, SIGNAL( readyReadStandardOutput() ),
                 this, SLOT( readPort() ) );
 }
 
@@ -229,7 +240,6 @@ void QAssistantClient::closeAssistant()
 {
     if ( !opened )
         return;
-    proc->tryTerminate();
     proc->kill();
 }
 
@@ -280,9 +290,9 @@ void QAssistantClient::socketConnectionClosed()
 
 void QAssistantClient::socketError( int i )
 {
-    if ( i == Q3Socket::ErrConnectionRefused )
+    if ( i == Qt::ConnectionRefusedError )
         emit error( tr( "Could not connect to Assistant: Connection refused" ) );
-    else if ( i == Q3Socket::ErrHostNotFound )
+    else if ( i == Qt::HostNotFoundError )
         emit error( tr( "Could not connect to Assistant: Host not found" ) );
     else
         emit error( tr( "Communication error" ) );
@@ -290,11 +300,8 @@ void QAssistantClient::socketError( int i )
 
 void QAssistantClient::readStdError()
 {
-    QString errmsg;
-    while ( proc->canReadLineStderr() ) {
-        errmsg += proc->readLineStderr();
-        errmsg += "\n";
-    }
+    QString errmsg = proc->readAllStandardError();
+
     if (!errmsg.isEmpty())
         emit error( tr( errmsg.simplified() ) );
 }

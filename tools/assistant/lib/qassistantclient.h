@@ -16,9 +16,9 @@
 
 #include <qobject.h>
 #include <qstringlist.h>
+#include <qprocess.h>
 
-class Q3Socket;
-class Q3Process;
+class QTcpSocket;
 
 class QAssistantClient : public QObject
 {
@@ -47,12 +47,13 @@ private slots:
     void socketConnected();
     void socketConnectionClosed();
     void readPort();
+    void procError(QProcess::ProcessError err);
     void socketError( int );
     void readStdError();
 
 private:
-    Q3Socket *socket;
-    Q3Process *proc;
+    QTcpSocket *socket;
+    QProcess *proc;
     Q_UINT16 port;
     QString host, assistantCommand, pageBuffer;
     bool opened;

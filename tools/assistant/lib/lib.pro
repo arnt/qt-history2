@@ -9,7 +9,7 @@ CONFIG                -= dll
 HEADERS         = qassistantclient.h
 SOURCES         = qassistantclient.cpp
 
-QT += network compat
+QT += network
 include( ../../../src/qt_professional.pri )
 
 DESTDIR                = ../../../lib

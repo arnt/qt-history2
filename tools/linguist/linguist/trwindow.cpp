@@ -45,7 +45,7 @@
 #include <qstatusbar.h>
 #include <qtoolbar.h>
 #include <QWhatsThis>
-//#include <qassistantclient.h>
+#include <qassistantclient.h>
 #include <qdesktopwidget.h>
 #include <qprintdialog.h>
 
@@ -154,6 +154,7 @@ TrWindow::TrWindow()
     : QMainWindow(0, Qt::WType_TopLevel)
 {
     setAttribute(Qt::WA_DeleteOnClose);
+    ac = 0;
 
 #ifndef Q_WS_MAC
     setWindowIcon(QPixmap(":/images/appicon.png" ));
@@ -832,9 +833,10 @@ void TrWindow::manual()
 #if defined(Q_OS_MAC)
     path += QDir::separator() + ".app/Contents/MacOS/";
 #endif
-	// TODO -> enable!
-    /*QAssistantClient *ac = new QAssistantClient(path, this);
-    ac->showPage(QString(qInstallPath()) + "/doc/html/linguist-manual.html");*/
+    if (ac == 0)
+        ac = new QAssistantClient(path, this);
+    
+    ac->showPage(QString(qInstallPath()) + "/doc/html/linguist-manual.html");
 }
 
 void TrWindow::about()
