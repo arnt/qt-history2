@@ -108,6 +108,8 @@ Funksjonalitet:
     legge inn signalet lastTopLevelWindowClosed (ellernoesåntnoe) i
     QApplication
 
+    setFont og setPalette &Co. bør ha propagateToChildren argumenter
+
 Bugs:
 -----
     QComboBox resize
