@@ -14,11 +14,12 @@ Printing History:
 2nd Edition, 2002
 }
 @DP @DP @DP @DP 
-No part of this book may be reproduced, in any form or by any means,
-without permission in writing from the copyright holder.
 Trolltech{@TradeMark}, Qt{@TradeMark} and the Trolltech logo are
-registered trademarks of Trolltech. All other products named are
-trademarks of their respective owners.
+registered trademarks of Trolltech AS. Linux is a registered
+trademark of Linus Torvalds. UNIX is a registered trademark of
+X"/"Open Company Ltd. Mac is a registered trademark of Apple Computer
+Inc. MS Windows is a registered trademark of Microsoft Corporation.
+All other products named are trademarks of their respective owners.
 @DP
 The software described in this book is furnished under a license
 agreement or non-disclosure agreement. The software may be used or
@@ -27,6 +28,9 @@ information in this book is furnished for informational use only, is
 subject to change without notice, and does not represent a  commitment
 on the part of Trolltech AS. Trolltech AS assumes no responsibility or
 liability for any errors or inaccuracies that may appear in this book.
+No part of this book may be reproduced or retransmitted in any form or
+by any means, electronic, mechanical, recording, or otherwise, without
+the prior written permission of Trolltech AS.
 @DP @DP @DP @DP 
 @Http{www.trolltech.com} 
 @LP
