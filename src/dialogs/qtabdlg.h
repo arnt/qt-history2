@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#16 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#17 $
 **
 ** Definition of QTabDialog class
 **
@@ -17,10 +17,10 @@
 
 struct QTabPrivate;
 
+
 class QTabDialog : public QDialog
 {
     Q_OBJECT
-
 public:
     QTabDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		WFlags f=0 );
