@@ -39,21 +39,6 @@ static void qt_sa_sigchld_handler(int signum)
         qt_sa_old_sigchld_handler(signum);
 }
 
-/*
-    QProcessMananger is a singleton manager object that catches all
-    child processes when they die. To achieve this, the manager
-    listens to one end of a pipe called
-    "qt_qprocess_deadChild_pipe". This pipe is used to get a
-    notification when a process dies. The other end is controlled by a
-    SIGCHLD handler, which writes a single '\0' to the pipe when a
-    child dies. This triggers a socket notifier in QProcessManager,
-    which wakes up deadChildNotification().
-
-    QProcessManager loops on wait() to catch all dead children. In
-    order to distinguish between processes started with QProcess and
-    those started separately, it maintains a record of the pids of its
-    own children.
-*/
 class QProcessManager : public QObject
 {
     Q_OBJECT
@@ -70,15 +55,15 @@ public:
     void initialize();
 
     inline void add(pid_t pid, QProcess *process)
-    {
+        {
             QMutexLocker lock(&mutex);
             children[pid] = process;
-    }
+        }
 
     inline bool has(pid_t pid)
-    {
+        {
             return children.contains(pid);
-    }
+        }
 
 public slots:
     void deadChildNotification(int);
@@ -100,11 +85,6 @@ QProcessManager::~QProcessManager()
 {
 }
 
-/*! \internal
-
-    This function initializes QProcessManager's SIGCHLD handler and
-    the dead child pipe.
-*/
 void QProcessManager::initialize()
 {
     QMutexLocker lock(&mutex);
@@ -131,13 +111,6 @@ void QProcessManager::initialize()
     }
 }
 
-/*! \internal
-
-    This slot is called once every time at least one child has
-    died. Because of known reentrancy problems with SIGCHLD handlers,
-    it reads only one byte from the dead child pipe and loops on
-    wait() for as long as there are dead children.
-*/
 void QProcessManager::deadChildNotification(int)
 {
     char c;
@@ -154,17 +127,12 @@ void QProcessManager::deadChildNotification(int)
         if (child) {
             ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
             ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
-            qInvokeMetaMember(child, "processDied", Qt::QueuedConnection);
+            qInvokeMetaMember(child, "processDied");
             children.remove(childpid);
         }
     }
 }
 
-/*! \internal
-
-    A simple wrapper class that creates a pipe or a socket pair,
-    depending on what the operating system supports.
-*/
 static void qt_create_pipe(int *pipe)
 {
     if (pipe[0] != -1)
@@ -184,10 +152,6 @@ static void qt_create_pipe(int *pipe)
 #endif
 }
 
-/*! \internal
-
-    A simple class for closing and resetting a pipe.
-*/
 void QProcessPrivate::destroyPipe(int *pipe)
 {
     if (pipe[0] != -1) {
@@ -200,11 +164,6 @@ void QProcessPrivate::destroyPipe(int *pipe)
     }
 }
 
-/*! \internal
-
-    This function initializes socket notifiers and pipes, creates a
-    new process and invokes the program.
-*/
 void QProcessPrivate::startProcess()
 {
     Q_Q(QProcess);
@@ -275,11 +234,6 @@ void QProcessPrivate::startProcess()
     ::fcntl(writePipe[1], F_SETFL, ::fcntl(writePipe[1], F_GETFL) | O_NONBLOCK);
 }
 
-/*! \internal
-
-    This function is responsible for invoking QProcess' program. It is
-    run in the child process context.
-*/
 void QProcessPrivate::execChild()
 {
     QByteArray prog = QFile::encodeName(program);
@@ -388,10 +342,6 @@ void QProcessPrivate::execChild()
     childStartedPipe[1] = -1;
 }
 
-/*! \internal
-
-    Returns true if the process has started; otherwise returns false.
-*/
 bool QProcessPrivate::processStarted()
 {
     char c;
@@ -406,11 +356,6 @@ bool QProcessPrivate::processStarted()
     return i <= 0;
 }
 
-/*! \internal
-
-    Returns the number of bytes available from the process' stdout, as
-    reported by the OS.
-*/
 Q_LONGLONG QProcessPrivate::bytesAvailableFromStdout() const
 {
     size_t nbytes = 0;
@@ -420,11 +365,6 @@ Q_LONGLONG QProcessPrivate::bytesAvailableFromStdout() const
     return available;
 }
 
-/*! \internal
-
-    Returns the number of bytes available from the process' stderr, as
-    reported by the OS.
-*/
 Q_LONGLONG QProcessPrivate::bytesAvailableFromStderr() const
 {
     size_t nbytes = 0;
@@ -434,40 +374,21 @@ Q_LONGLONG QProcessPrivate::bytesAvailableFromStderr() const
     return available;
 }
 
-/*! \internal
-
-    An internal function for doing a native ::read() on the process'
-    stdout.
-*/
 Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
 {
     return Q_LONGLONG(::read(standardReadPipe[0], data, maxlen));
 }
 
-/*! \internal
-
-    An internal function for doing a native ::read() on the process'
-    stderr.
-*/
 Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
 {
     return Q_LONGLONG(::read(errorReadPipe[0], data, maxlen));
 }
 
-/*! \internal
-
-    An internal function for doing a native ::write() to the process'
-    stdin.
-*/
 Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
 {
     return Q_LONGLONG(::write(writePipe[1], data, maxlen));
 }
 
-/*! \internal
-
-    Kills the child process with SIGTERM.
-*/
 void QProcessPrivate::killProcess()
 {
     ::kill(pid, SIGTERM);
@@ -503,8 +424,6 @@ static int qt_native_select(const QList<int> &fd, int timeout, bool selectForRea
     return ret;
 }
 
-/*! \internal
-*/
 bool QProcessPrivate::waitForStarted(int msecs)
 {
     Q_Q(QProcess);
@@ -518,8 +437,6 @@ bool QProcessPrivate::waitForStarted(int msecs)
     return processStarted();
 }
 
-/*! \internal
-*/
 bool QProcessPrivate::waitForReadyRead(int msecs)
 {
     Q_Q(QProcess);
@@ -554,8 +471,6 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     return false;
 }
 
-/*! \internal
-*/
 bool QProcessPrivate::waitForBytesWritten(int msecs)
 {
     Q_Q(QProcess);
@@ -573,8 +488,6 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     return true;
 }
 
-/*! \internal
-*/
 bool QProcessPrivate::waitForFinished(int msecs)
 {
     Q_Q(QProcess);
@@ -601,21 +514,15 @@ bool QProcessPrivate::waitForFinished(int msecs)
     return false;
 }
 
-/*! \internal
-*/
 bool QProcessPrivate::waitForWrite(int msecs)
 {
     return qt_native_select(QList<int>() << writePipe[1], msecs < 0 ? 0 : msecs, false) == 1;
 }
 
-/*! \internal
-*/
 void QProcessPrivate::findExitCode()
 {
 }
 
-/*! \internal
-*/
 void QProcessPrivate::notified()
 {
 }
