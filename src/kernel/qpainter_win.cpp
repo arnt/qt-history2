@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#122 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1883,7 +1883,7 @@ static void drawTile( QPainter *p, int x, int y, int w, int h,
 
 /* These functions are implemented in qtmain_win.cpp */
 void qt_fill_tile( QPixmap *, const QPixmap & );
-void qt_draw_tiled_pixmap( HANDLE, int, int, int, int,
+void qt_draw_tiled_pixmap( HDC, int, int, int, int,
 			   const QPixmap *, int, int );
 
 

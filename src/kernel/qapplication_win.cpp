@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#225 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#226 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1327,7 +1327,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		return 0;
 	    }
 	    break;
-#endif
 
 	case WM_CHANGECBCHAIN:
 	case WM_DRAWCLIPBOARD:
