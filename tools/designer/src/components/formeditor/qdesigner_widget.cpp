@@ -191,7 +191,7 @@ void QLayoutWidget::updateMargin()
 bool QLayoutWidget::event(QEvent *e)
 {
     switch (e->type()) {
-        case QEvent::ChildAdded:
+        case QEvent::ChildPolished:
         case QEvent::ChildRemoved: {
             QChildEvent *ev = static_cast<QChildEvent*>(e);
             if (QWidget *widget = qt_cast<QWidget*>(ev->child())) {
@@ -208,15 +208,14 @@ bool QLayoutWidget::event(QEvent *e)
             break;
 
         case QEvent::LayoutRequest: {
-            bool rtn = QWidget::event(e);
+            (void) QWidget::event(e);
 
-#if 0
             if (LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout)
                 resize(layout()->sizeHint());
-#endif
 
             update();
-            return rtn;
+
+            return true;
         }
 
         default:
@@ -234,6 +233,7 @@ bool QLayoutWidget::event(QEvent *e)
 */
 void QLayoutWidget::updateSizePolicy()
 {
+    qDebug() << "QLayoutWidget::updateSizePolicy()";
     QList<QWidget*> l = widgets(layout());
     if (l.isEmpty()) {
         sp = QWidget::sizePolicy();
@@ -332,8 +332,6 @@ void QLayoutWidget::updateSizePolicy()
             ht = QSizePolicy::Expanding;
         if (layout()->expanding() & QSizePolicy::Vertically)
             vt = QSizePolicy::Expanding;
-
-        layout()->invalidate();
     }
 
     sp = QSizePolicy((QSizePolicy::SizeType) ht, (QSizePolicy::SizeType) vt);
