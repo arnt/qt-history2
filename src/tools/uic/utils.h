@@ -13,14 +13,17 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "ui4.h"
+
 #include <qstring.h>
 #include <qlist.h>
 #include <qhash.h>
 
-class DomProperty;
-
 inline bool toBool(const QString &str)
 { return str.toLower() == QLatin1String("true"); }
+
+inline QString toString(const DomString *str)
+{ return str ? str->text() : QString::null; }
 
 inline QString fixString(const QString &str, bool encode=false)
 {

@@ -44,6 +44,7 @@ class DomDate;
 class DomTime;
 class DomDateTime;
 class DomStringList;
+class DomString;
 class DomProperty;
 
 
@@ -1500,6 +1501,37 @@ private:
     QStringList m_eString;
 };
 
+class DomString
+{
+    DomString(const DomString &other);
+    void operator = (const DomString &other);
+
+public:
+    DomString();
+    ~DomString();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
+
+    inline QString attributeNotr() const { return m_aNotr; }
+    inline bool hasAttributeNotr() const { return m_hasNotr; }
+    inline void setAttributeNotr(const QString & a) { m_aNotr = a; m_hasNotr = true; }
+    inline void clearAttributeNotr() { m_hasNotr = false; }
+
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &text) { m_text = text; }
+private:
+    QString m_text;
+
+    inline void reset(bool full=true);
+
+    // attributes
+    QString m_aNotr;
+    bool m_hasNotr;
+
+    // elements
+};
+
 class DomProperty
 {
     DomProperty(const DomProperty &other);
@@ -1533,8 +1565,7 @@ public:
         Number,
         Date,
         Time,
-        DateTime,
-        Shortcut
+        DateTime
     };
 
     inline Kind kind() const { return m_kind; }
@@ -1591,8 +1622,8 @@ public:
     inline DomSize * elementSize() const { return m_eSize; }
     inline void setElementSize(DomSize * a) { reset(false); m_eSize = a; m_kind = Size; };
 
-    inline QString elementString() const { return m_eString; }
-    inline void setElementString(const QString & a) { reset(false); m_eString = a; m_kind = String; };
+    inline DomString * elementString() const { return m_eString; }
+    inline void setElementString(DomString * a) { reset(false); m_eString = a; m_kind = String; };
 
     inline DomStringList * elementStringList() const { return m_eStringList; }
     inline void setElementStringList(DomStringList * a) { reset(false); m_eStringList = a; m_kind = StringList; };
@@ -1608,9 +1639,6 @@ public:
 
     inline DomDateTime * elementDateTime() const { return m_eDateTime; }
     inline void setElementDateTime(DomDateTime * a) { reset(false); m_eDateTime = a; m_kind = DateTime; };
-
-    inline QString elementShortcut() const { return m_eShortcut; }
-    inline void setElementShortcut(const QString & a) { reset(false); m_eShortcut = a; m_kind = Shortcut; };
 
     inline QString text() const { return m_text; }
     inline void setText(const QString &text) { m_text = text; }
@@ -1641,13 +1669,12 @@ private:
     QString m_eSet;
     DomSizePolicy * m_eSizePolicy;
     DomSize * m_eSize;
-    QString m_eString;
+    DomString * m_eString;
     DomStringList * m_eStringList;
     int m_eNumber;
     DomDate * m_eDate;
     DomTime * m_eTime;
     DomDateTime * m_eDateTime;
-    QString m_eShortcut;
 };
 
 
@@ -1881,6 +1908,11 @@ inline DomStringList::DomStringList()
 {
 }
 
+inline DomString::DomString()
+{
+    m_hasNotr = false;
+}
+
 inline DomProperty::DomProperty()
 {
     m_kind = Unknown;
@@ -1895,6 +1927,7 @@ inline DomProperty::DomProperty()
     m_eRect = 0;
     m_eSizePolicy = 0;
     m_eSize = 0;
+    m_eString = 0;
     m_eStringList = 0;
     m_eNumber = 0;
     m_eDate = 0;
@@ -2085,6 +2118,11 @@ inline DomDateTime::~DomDateTime()
 }
 
 inline DomStringList::~DomStringList()
+{
+    reset();
+}
+
+inline DomString::~DomString()
 {
     reset();
 }
@@ -2736,6 +2774,21 @@ inline void DomStringList::read(const QDomElement &node)
     m_text = node.firstChild().toText().data();
 }
 
+inline void DomString::read(const QDomElement &node)
+{
+    // attributes
+    if (node.hasAttribute(QString("notr").toLower())) setAttributeNotr(node.attribute(QString("notr").toLower()));
+
+    // elements
+    QDomElement e = node.firstChild().toElement();
+    while (!e.isNull()) {
+        QString tag = e.tagName().toLower();
+
+        e = e.nextSibling().toElement();
+    }
+    m_text = node.firstChild().toText().data();
+}
+
 inline void DomProperty::read(const QDomElement &node)
 {
     m_kind = Unknown;
@@ -2762,13 +2815,12 @@ inline void DomProperty::read(const QDomElement &node)
         else if (tag == QLatin1String("set")) { m_eSet = e.firstChild().toText().data(); m_kind = Set; }
         else if (tag == QLatin1String("sizepolicy")) { DomSizePolicy* v = new DomSizePolicy(); v->read(e); m_eSizePolicy = v; m_kind = SizePolicy; }
         else if (tag == QLatin1String("size")) { DomSize* v = new DomSize(); v->read(e); m_eSize = v; m_kind = Size; }
-        else if (tag == QLatin1String("string")) { m_eString = e.firstChild().toText().data(); m_kind = String; }
+        else if (tag == QLatin1String("string")) { DomString* v = new DomString(); v->read(e); m_eString = v; m_kind = String; }
         else if (tag == QLatin1String("stringlist")) { DomStringList* v = new DomStringList(); v->read(e); m_eStringList = v; m_kind = StringList; }
         else if (tag == QLatin1String("number")) { m_eNumber = e.firstChild().toText().data().toInt(); m_kind = Number; }
         else if (tag == QLatin1String("date")) { DomDate* v = new DomDate(); v->read(e); m_eDate = v; m_kind = Date; }
         else if (tag == QLatin1String("time")) { DomTime* v = new DomTime(); v->read(e); m_eTime = v; m_kind = Time; }
         else if (tag == QLatin1String("datetime")) { DomDateTime* v = new DomDateTime(); v->read(e); m_eDateTime = v; m_kind = DateTime; }
-        else if (tag == QLatin1String("shortcut")) { m_eShortcut = e.firstChild().toText().data(); m_kind = Shortcut; }
 
         e = e.nextSibling().toElement();
     }
@@ -3706,6 +3758,20 @@ inline QDomElement DomStringList::write(QDomDocument &doc, const QString &tagNam
     return node;
 }
 
+inline QDomElement DomString::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("String").toLower());
+    if (m_hasNotr)
+        node.setAttribute(QString("notr").toLower(), m_aNotr);
+
+
+    QDomElement child;
+    QDomText t;
+
+    if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
+    return node;
+}
+
 inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
 {
     QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString("Property").toLower());
@@ -3831,12 +3897,8 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     break;
 
     case DomProperty::String: {
-    if (m_eString.size()) {
-        child = doc.createElement(QString("string").toLower());
-        t = doc.createTextNode(m_eString);
-        child.appendChild(t);
-        node.appendChild(child);
-    }
+    if (m_eString)
+        node.appendChild(m_eString->write(doc, QString("string").toLower()));
     }
     break;
 
@@ -3869,16 +3931,6 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     case DomProperty::DateTime: {
     if (m_eDateTime)
         node.appendChild(m_eDateTime->write(doc, QString("dateTime").toLower()));
-    }
-    break;
-
-    case DomProperty::Shortcut: {
-    if (m_eShortcut.size()) {
-        child = doc.createElement(QString("shortcut").toLower());
-        t = doc.createTextNode(m_eShortcut);
-        child.appendChild(t);
-        node.appendChild(child);
-    }
     }
     break;
 
@@ -4261,6 +4313,15 @@ inline void DomStringList::reset(bool full)
     m_text = QString::null;
 }
 
+inline void DomString::reset(bool full)
+{
+    if (full) {
+    m_hasNotr = false;
+    }
+
+    m_text = QString::null;
+}
+
 inline void DomProperty::reset(bool full)
 {
     m_kind = Unknown;
@@ -4277,6 +4338,7 @@ inline void DomProperty::reset(bool full)
     delete m_eRect; m_eRect = 0;
     delete m_eSizePolicy; m_eSizePolicy = 0;
     delete m_eSize; m_eSize = 0;
+    delete m_eString; m_eString = 0;
     delete m_eStringList; m_eStringList = 0;
     delete m_eDate; m_eDate = 0;
     delete m_eTime; m_eTime = 0;

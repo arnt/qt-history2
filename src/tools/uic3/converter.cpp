@@ -16,6 +16,7 @@
 #include "ui4.h"
 #include "widgetinfo.h"
 #include "globaldefs.h"
+#include "utils.h"
 
 #include <qdebug.h>
 #include <qfile.h>
@@ -308,20 +309,22 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         if (name == QLatin1String("name")) {
             objectName = prop->elementCstring();
             prop->setAttributeName("objectName");
+            DomString *str = new DomString();
+            str->setText(objectName);
+            prop->setElementString(str);
         } else if (name == QLatin1String("menuText")) {
-            text = prop->elementString();
+            text = toString(prop->elementString());
             it.remove();
             delete prop;
         } else if (name == QLatin1String("text")) {
             if (text.isEmpty())
-                text = prop->elementString();
+                text = toString(prop->elementString());
             it.remove();
             delete prop;
         } else if (name == QLatin1String("iconSet")) {
             prop->setAttributeName("icon");
         } else if (name == QLatin1String("accel")) {
             prop->setAttributeName("shortcut");
-            prop->setElementShortcut(prop->elementString());
         } else if (!isActionGroup && name == QLatin1String("toggleAction")) {
             prop->setAttributeName("checkable");
         } else if (!isActionGroup && name == QLatin1String("on")) {
@@ -336,7 +339,9 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
     if (!isActionGroup && text.size()) {
         DomProperty *ptext = new DomProperty();
         ptext->setAttributeName("text");
-        ptext->setElementString(text);
+        DomString *str = new DomString();
+        str->setText(text);
+        ptext->setElementString(str);
         properties.append(ptext);
     }
 
@@ -474,12 +479,17 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomProperty *ptext = new DomProperty();
             ptext = new DomProperty();
             ptext->setAttributeName("objectName");
-            ptext->setElementCstring(name);
+            DomString *objName = new DomString();
+            objName->setText(name);
+            objName->setAttributeNotr("true");
+            ptext->setElementString(objName);
             properties.append(ptext);
 
             DomProperty *atitle = new DomProperty();
             atitle->setAttributeName("title");
-            atitle->setElementString(text);
+            DomString *str = new DomString();
+            str->setText(text);
+            atitle->setElementString(str);
             attributes.append(atitle);
 
             DomWidget *menu = createWidget(e, "QMenu");
@@ -708,11 +718,14 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             if (name == QLatin1String("name")) {
                 prop->setAttributeName("objectName");
+                DomString *str = new DomString();
+                str->setText(prop->elementCstring());
+                str->setAttributeNotr("true");
+                prop->setElementString(str);
             }
 
             if (name == QLatin1String("accel")) {
                 prop->setAttributeName("shortcut");
-                prop->setElementShortcut(prop->elementString());
             }
 
             CONVERT_PROPERTY("pixmap", "icon");

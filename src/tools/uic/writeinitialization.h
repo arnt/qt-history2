@@ -65,6 +65,7 @@ private:
 
     QString pixCall(const QString &pix) const;
     QString trCall(const QString &str, const QString &className) const;
+    QString trCall(const DomString *str, const QString &className) const;
 
     void writeProperties(const QString &varName, const QString &className,
                          const QList<DomProperty*> &lst);

@@ -158,7 +158,7 @@ void WriteInitialization::accept(DomWidget *node)
         QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
         if (attributes.contains("buttonGroup")) {
             DomProperty *prop = attributes.value("buttonGroup");
-            QString groupName = prop->elementString();
+            QString groupName = toString(prop->elementString());
             if (!m_buttonGroups.contains(groupName)) {
                 m_buttonGroups.insert(groupName, driver->findOrInsertName(groupName));
                 QString g = m_buttonGroups.value(groupName);
@@ -189,11 +189,11 @@ void WriteInitialization::accept(DomWidget *node)
 
     QString title = QLatin1String("Page");
     if (attributes.contains("title"))
-        title = attributes.value("title")->elementString();
+        title = toString(attributes.value("title")->elementString());
 
     QString label = QLatin1String("Page");
     if (attributes.contains("label"))
-        label = attributes.value("label")->elementString();
+        label = toString(attributes.value("label")->elementString());
 
     int id = -1;
     if (attributes.contains("id"))
@@ -447,7 +447,7 @@ void WriteInitialization::writeProperties(const QString &varName,
         if (properties.contains("control")) {
             DomProperty *p = properties.value("control");
             output << option.indent << varName << "->setControl("
-                   << fixString(p->elementString()) << ");\n";
+                   << fixString(toString(p->elementString())) << ");\n";
         }
     }
 
@@ -607,7 +607,14 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         }
         case DomProperty::String: {
-            propertyValue = trCall(p->elementString(), className);
+            if (p->elementString()->hasAttributeNotr() 
+                    && toBool(p->elementString()->attributeNotr())) {
+                propertyValue = QLatin1String("QString::fromUtf8(") 
+                        + fixString(p->elementString()->text()) 
+                        + QLatin1String(")");
+            } else {
+                propertyValue = trCall(p->elementString(), className);
+            }
             break;
         }
         case DomProperty::Number:
@@ -640,11 +647,6 @@ void WriteInitialization::writeProperties(const QString &varName,
                             .arg(dt->elementSecond());
             break;
         }
-        case DomProperty::Shortcut:
-            propertyValue = QString("QKeySequence(%1)")
-                            .arg(fixString(p->elementShortcut()));
-            break;
-
         case DomProperty::StringList:
             propertyValue = QLatin1String("QStringList()");
             if (p->elementStringList()->elementString().size()) {
@@ -660,7 +662,12 @@ void WriteInitialization::writeProperties(const QString &varName,
         }
 
         if (propertyValue.size()) {
-            QTextStream *o = (p->kind() == DomProperty::String) ? &refreshOut : &output;
+            QTextStream *o = &output;
+            
+            if (p->kind() == DomProperty::String 
+                    && (!p->elementString()->hasAttributeNotr() || !toBool(p->elementString()->attributeNotr())))
+                o = &refreshOut;
+                
             (*o) << option.indent << varName << setFunction << propertyValue;
             if (!stdset)
                 (*o) << ")";
@@ -730,7 +737,7 @@ QString WriteInitialization::translate(const QString &text, const QString &class
 
     Q_UNUSED(className);
 
-    return QLatin1String("qApp->translate(\"") + m_generatedClass + QLatin1String("\", ") + text + QLatin1String(")");
+    return QLatin1String("QApplication::translate(\"") + m_generatedClass + QLatin1String("\", ") + text + QLatin1String(")");
 }
 
 void WriteInitialization::accept(DomLayoutDefault *node)
@@ -1047,7 +1054,7 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidg
 
     QString title = QLatin1String("Menu");
     if (attributes.contains("title"))
-        title = attributes.value("title")->elementString();
+        title = toString(attributes.value("title")->elementString());
 
     QString menuName = driver->findOrInsertWidget(w);
     QString menuAction = menuName + QLatin1String("Action");
@@ -1060,5 +1067,10 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidg
 
         output << option.indent << menuAction << "->setMenu(" << menuName << ");\n";
     }
+}
+
+QString WriteInitialization::trCall(const DomString *str, const QString &className) const
+{ 
+    return trCall(toString(str), className); 
 }
 

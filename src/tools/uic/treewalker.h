@@ -43,6 +43,7 @@ class DomImage;
 class DomItem;
 class DomIncludes;
 class DomInclude;
+class DomString;
 
 struct TreeWalker
 {
