@@ -337,7 +337,7 @@ bool QFtpPI::processReply()
 
     // process 226 replies ("Closing Data Connection") only when the data
     // connection is really closed to avoid short reads of the DTP
-    if ( 100*replyCode[0]+10*replyCode[1]+replyCode[2] == 227 ) {
+    if ( 100*replyCode[0]+10*replyCode[1]+replyCode[2] == 226 ) {
 	if ( dtp.state() != QSocket::Idle ) {
 	    waitForDtpToClose = TRUE;
 	    return FALSE;
@@ -442,10 +442,16 @@ bool QFtpPI::startNextCmd()
 
 void QFtpPI::dtpConnected()
 {
+#if defined(QFTPDTP_DEBUG)
+    qDebug( "QFtpPI DTP connected" );
+#endif
 }
 
 void QFtpPI::dtpConnectionClosed()
 {
+#if defined(QFTPDTP_DEBUG)
+    qDebug( "QFtp DTP connection closed: %d '%d %s'", waitForDtpToClose, 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.latin1() );
+#endif
     if ( waitForDtpToClose ) {
 	// there is an unprocessed reply
 	if ( processReply() )
