@@ -397,7 +397,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, gly
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
-		advances[i] = (int)(advances[i]*_scale);
+		advances[i] = qRound(advances[i]*_scale);
 	}
     }
     return NoError;
@@ -713,12 +713,12 @@ glyph_metrics_t QFontEngineXLFD::boundingBox( const glyph_t *glyphs, const advan
     overall.width = xmax - overall.x;
 
     if ( _scale != 1. ) {
-	overall.x = (int)(overall.x * _scale);
-	overall.y = (int)(overall.y * _scale);
-	overall.height = (int)(overall.height * _scale);
-	overall.width = (int)(overall.width * _scale);
-	overall.xoff = (int)(overall.xoff * _scale);
-	overall.yoff = (int)(overall.yoff * _scale);
+	overall.x = qRound(overall.x * _scale);
+	overall.y = qRound(overall.y * _scale);
+	overall.height = qRound(overall.height * _scale);
+	overall.width = qRound(overall.width * _scale);
+	overall.xoff = qRound(overall.xoff * _scale);
+	overall.yoff = qRound(overall.yoff * _scale);
     }
     return overall;
 }
@@ -735,12 +735,12 @@ glyph_metrics_t QFontEngineXLFD::boundingBox( glyph_t glyph )
 	gm = glyph_metrics_t( 0, size, size, size, size, 0 );
     }
     if ( _scale != 1. ) {
-	gm.x = (int)(gm.x * _scale);
-	gm.y = (int)(gm.y * _scale);
-	gm.height = (int)(gm.height * _scale);
-	gm.width = (int)(gm.width * _scale);
-	gm.xoff = (int)(gm.xoff * _scale);
-	gm.yoff = (int)(gm.yoff * _scale);
+	gm.x = qRound(gm.x * _scale);
+	gm.y = qRound(gm.y * _scale);
+	gm.height = qRound(gm.height * _scale);
+	gm.width = qRound(gm.width * _scale);
+	gm.xoff = qRound(gm.xoff * _scale);
+	gm.yoff = qRound(gm.yoff * _scale);
     }
     return gm;
 }
@@ -748,12 +748,12 @@ glyph_metrics_t QFontEngineXLFD::boundingBox( glyph_t glyph )
 
 int QFontEngineXLFD::ascent() const
 {
-    return (int)(_fs->ascent*_scale);
+    return qRound(_fs->ascent*_scale);
 }
 
 int QFontEngineXLFD::descent() const
 {
-    return (int)((_fs->descent-1)*_scale);
+    return qRound((_fs->descent-1)*_scale);
 }
 
 int QFontEngineXLFD::leading() const
@@ -765,7 +765,7 @@ int QFontEngineXLFD::leading() const
 
 int QFontEngineXLFD::maxCharWidth() const
 {
-    return (int)(_fs->max_bounds.width*_scale);
+    return qRound(_fs->max_bounds.width*_scale);
 }
 
 
@@ -801,7 +801,7 @@ int QFontEngineXLFD::minLeftBearing() const
 	} else
 	    ((QFontEngineXLFD *)this)->lbearing = _fs->min_bounds.lbearing;
     }
-    return (int) (lbearing*_scale);
+    return qRound (lbearing*_scale);
 }
 
 int QFontEngineXLFD::minRightBearing() const
@@ -829,7 +829,7 @@ int QFontEngineXLFD::minRightBearing() const
 	} else
 	    ((QFontEngineXLFD *)this)->rbearing = _fs->min_bounds.rbearing;
     }
-    return (int) (rbearing*_scale);
+    return qRound (rbearing*_scale);
 }
 
 int QFontEngineXLFD::cmap() const
@@ -1481,7 +1481,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
-		advances[i] = (int)(advances[i]*_scale);
+		advances[i] = qRound(advances[i]*_scale);
 	}
     }
 #else
@@ -1547,7 +1547,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
-		advances[i] = (int)(advances[i]*_scale);
+		advances[i] = qRound(advances[i]*_scale);
 	}
     }
 #endif // QT_XFT2
@@ -1573,7 +1573,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
-		advances[i] = (int)(advances[i]*_scale);
+		advances[i] = qRound(advances[i]*_scale);
 	}
     }
 #else
@@ -1590,7 +1590,7 @@ void QFontEngineXft::recalcAdvances( int len, glyph_t *glyphs, advance_t *advanc
     }
     if ( _scale != 1. ) {
 	for ( int i = 0; i < len; i++ )
-	    advances[i] = (int)(advances[i]*_scale);
+	    advances[i] = qRound(advances[i]*_scale);
     }
 #endif // QT_XFT2
 }
@@ -1903,12 +1903,12 @@ glyph_metrics_t QFontEngineXft::boundingBox( const glyph_t *glyphs, const advanc
     overall.width = xmax - overall.x;
 
     if ( _scale != 1. ) {
-	overall.x = (int)(overall.x * _scale);
-	overall.y = (int)(overall.y * _scale);
-	overall.height = (int)(overall.height * _scale);
-	overall.width = (int)(overall.width * _scale);
-	overall.xoff = (int)(overall.xoff * _scale);
-	overall.yoff = (int)(overall.yoff * _scale);
+	overall.x = qRound(overall.x * _scale);
+	overall.y = qRound(overall.y * _scale);
+	overall.height = qRound(overall.height * _scale);
+	overall.width = qRound(overall.width * _scale);
+	overall.xoff = qRound(overall.xoff * _scale);
+	overall.yoff = qRound(overall.yoff * _scale);
     }
     return overall;
 }
@@ -1919,12 +1919,12 @@ glyph_metrics_t QFontEngineXft::boundingBox( glyph_t glyph )
     getGlyphInfo( &xgi, _font, glyph );
     glyph_metrics_t gm = glyph_metrics_t( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
     if ( _scale != 1. ) {
-	gm.x = (int)(gm.x * _scale);
-	gm.y = (int)(gm.y * _scale);
-	gm.height = (int)(gm.height * _scale);
-	gm.width = (int)(gm.width * _scale);
-	gm.xoff = (int)(gm.xoff * _scale);
-	gm.yoff = (int)(gm.yoff * _scale);
+	gm.x = qRound(gm.x * _scale);
+	gm.y = qRound(gm.y * _scale);
+	gm.height = qRound(gm.height * _scale);
+	gm.width = qRound(gm.width * _scale);
+	gm.xoff = qRound(gm.xoff * _scale);
+	gm.yoff = qRound(gm.yoff * _scale);
     }
     return gm;
 }
@@ -1933,19 +1933,19 @@ glyph_metrics_t QFontEngineXft::boundingBox( glyph_t glyph )
 
 int QFontEngineXft::ascent() const
 {
-    return (int)(_font->ascent*_scale);
+    return qRound(_font->ascent*_scale);
 }
 
 int QFontEngineXft::descent() const
 {
-    return (int)((_font->descent-1)*_scale);
+    return qRound((_font->descent-1)*_scale);
 }
 
 // #### use Freetype to determine this
 int QFontEngineXft::leading() const
 {
-    int l = qMin(_font->height - (_font->ascent + _font->descent),
-		 int(((_font->ascent + _font->descent) >> 4)*_scale));
+    int l = qRound(qMin(_font->height - (_font->ascent + _font->descent),
+			int(((_font->ascent + _font->descent) >> 4)*_scale)));
     return (l > 0) ? l : 1;
 }
 
@@ -1972,7 +1972,7 @@ int QFontEngineXft::underlinePosition() const
 
 int QFontEngineXft::maxCharWidth() const
 {
-    return (int)(_font->max_advance_width*_scale);
+    return qRound(_font->max_advance_width*_scale);
 }
 
 static const ushort char_table[] = {
@@ -2576,14 +2576,14 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 // 		   positions[i].back, positions[i].new_advance );
 	    // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
 	    if ( positions[i].new_advance ) {
-		advances[i] = (int)((positions[i].x_advance >> 6)*scale);
+		advances[i] = qRound((positions[i].x_advance >> 6)*scale);
 		//advances[i].y = -positions[i].y_advance >> 6;
 	    } else {
-		advances[i] += (int)((positions[i].x_advance >> 6)*scale);
+		advances[i] += qRound((positions[i].x_advance >> 6)*scale);
 		//advances[i].y -= positions[i].y_advance >> 6;
 	    }
-	    offsets[i].x = (int)((positions[i].x_pos >> 6)*scale);
-	    offsets[i].y = -(int)((positions[i].y_pos >> 6)*scale);
+	    offsets[i].x = qRound((positions[i].x_pos >> 6)*scale);
+	    offsets[i].y = -qRound((positions[i].y_pos >> 6)*scale);
 	    int back = positions[i].back;
 	    if ( si->analysis.bidiLevel % 2 ) {
 		while ( back-- )

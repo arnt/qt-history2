@@ -396,8 +396,8 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    lf.lfEscapement = -angle;
 	}
 	if ( scale != 1. ) {
-	    lf.lfHeight = (int) (lf.lfHeight*scale);
-	    lf.lfWidth = (int) (lf.lfWidth*scale);
+	    lf.lfHeight = qRound(lf.lfHeight*scale);
+	    lf.lfWidth = qRound(lf.lfWidth*scale);
 	}
 	HFONT hf = QT_WA_INLINE( CreateFontIndirectW( &lf ), CreateFontIndirectA( (LOGFONTA*)&lf ) );
 	SelectObject( hdc, hf );

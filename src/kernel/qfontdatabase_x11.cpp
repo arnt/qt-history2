@@ -1321,7 +1321,7 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
 	    size_value = MAXFONTSIZE_XFT;
 	}
 
-	size_value = qt_pointSize(size_value, 0, fp->screen);
+	size_value = size_value*72./QPaintDevice::x11AppDpiY(fp->screen);
 	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 #  ifdef XFT_MATRIX
