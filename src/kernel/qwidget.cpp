@@ -577,16 +577,19 @@ results in a borderless window for sure, but also in a window that is
 not managed at all (i.e. for example no keyboard input unless you call
 setActiveWindow() manually )
 
-
 <li> \c WStyle_Title - gives the window a title bar.
 
 <li> \c WStyle_SysMenu - adds a window system menu.
 
-<li> \c WStyle_Minimize - adds a minimize button.
+<li> \c WStyle_Minimize - adds a minimize button.  Note that on Windows
+this has to be combined with WStyle_SysMenu for it to work.
 
-<li> \c WStyle_Maximize - adds a maximize button.
+<li> \c WStyle_Maximize - adds a maximize button.  Note that on Windows
+this has to be combined with WStyle_SysMenu for it to work.
 
-<li> \c WStyle_MinMax - is equal to \c WStyle_Minimize|WStyle_Maximize
+<li> \c WStyle_MinMax - is equal to \c WStyle_Minimize|WStyle_Maximize.  
+Note that on Windows this has to be combined with WStyle_SysMenu for 
+it to work.
 
 <li> \c WStyle_ContextHelp - adds a context help button to dialogs.
 
