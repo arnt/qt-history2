@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#213 $
 **
 ** Implementation of QApplication class
 **
@@ -498,6 +498,14 @@ void QApplication::setStyle( QStyle *style )
 	}
     }
     delete old;
+    
+    // take care of possible palette requirements of certain gui
+    // styles
+    QPalette tmpPal = *app_pal;
+    app_style->polish( tmpPal );
+    if ( tmpPal != *app_pal )
+	setPalette( tmpPal, TRUE );
+	
 }
 
 
@@ -1285,7 +1293,7 @@ void QApplication::removeTranslator( QTranslator * mf )
 
   Note also that some Qt built-in classes call tr() with various
   strings.  These strings are in English, so for a full translation, a
-  codec would be required for these strings.  
+  codec would be required for these strings.
 */
 void QApplication::setDefaultCodec( QTextCodec* codec )
 {
