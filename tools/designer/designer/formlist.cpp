@@ -152,11 +152,13 @@ void FormList::addForm( FormWindow *fw )
 	    project->setFormWindow( fw->fileName(), fw );
 	return;
     }
-    FormListItem *i = new FormListItem( this, fw->name(), fw->fileName(), 0 );
+    
+    QString fn = project->makeRelative( fw->fileName() );
+    FormListItem *i = new FormListItem( this, fw->name(), fn, 0 );
     i->setFormWindow( fw );
     if ( !project )
 	return;
-    project->addUiFile( fw->fileName(), fw );
+    project->addUiFile( fn, fw );
     updateHeader();
 }
 
@@ -173,8 +175,9 @@ void FormList::modificationChanged( bool m, FormWindow *fw )
     }
 }
 
-void FormList::fileNameChanged( const QString &s, FormWindow *fw )
+void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
 {
+    QString s = project->makeRelative( fn );
     FormListItem *i = findItem( fw );
     if ( !i )
 	return;
@@ -183,7 +186,7 @@ void FormList::fileNameChanged( const QString &s, FormWindow *fw )
     else
 	i->setText( 1, s );
     if ( project )
-	project->setFormWindowFileName( fw, fw->fileName() );
+	project->setFormWindowFileName( fw, s );
 }
 
 void FormList::activeFormChanged( FormWindow *fw )

@@ -73,6 +73,7 @@ public:
     void setFormWindowFileName( FormWindow *fw, const QString &f );
 
     QString makeAbsolute( const QString &f );
+    QString makeRelative( const QString &f );
 
     void save();
 
@@ -86,11 +87,11 @@ public:
     QStringList databaseFieldList( const QString &connection, const QString &table );
     void saveConnections();
     void loadConnections();
-    
+
 private:
     void parse();
     void clear();
-    
+
 private:
     QString filename;
     QStringList uifiles;

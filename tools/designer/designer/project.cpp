@@ -235,6 +235,15 @@ QString Project::makeAbsolute( const QString &f )
     return u.path();
 }
 
+QString Project::makeRelative( const QString &f )
+{
+    QString p = QFileInfo( filename ).dirPath( TRUE );
+    QString f2 = f;
+    if ( f2.left( p.length() ) == p )
+	f2.remove( 0, p.length() + 1 );
+    return f2;
+}
+
 void Project::save()
 {
     QFile f( filename );
@@ -398,15 +407,15 @@ void Project::saveConnections()
 {
     if ( !QFile::exists( dbFile ) )
 	setDatabaseDescription( QFileInfo( filename ).dirPath( TRUE ) + "/" + "database.db" );
-    
+
     Config conf( dbFile );
     conf.setGroup( "Connections" );
     conf.writeEntry( "Connections", databaseConnectionList(), ',' );
-    
+
     for ( Project::DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
 	conf.setGroup( conn->name );
 	conf.writeEntry( "Tables", conn->tables, ',' );
-	for ( QStringList::Iterator it = conn->tables.begin(); it != conn->tables.end(); ++it ) 
+	for ( QStringList::Iterator it = conn->tables.begin(); it != conn->tables.end(); ++it )
 	    conf.writeEntry( "Fields[" + *it + "]", conn->fields[ *it ], ',' );
 	conf.writeEntry( "Driver", conn->driver );
 	conf.writeEntry( "DatabaseName", conn->dbName );
@@ -414,7 +423,7 @@ void Project::saveConnections()
 	conf.writeEntry( "Password", conn->password ); // ##################### Critical: figure out how to save passwd
 	conf.writeEntry( "Hostname", conn->hostname );
     }
-    
+
     conf.write();
 }
 
@@ -422,10 +431,10 @@ void Project::loadConnections()
 {
     if ( !QFile::exists( dbFile ) )
 	return;
-    
+
     Config conf( dbFile );
     conf.setGroup( "Connections" );
-    
+
     QStringList conns = conf.readListEntry( "Connections", ',' );
     for ( QStringList::Iterator it = conns.begin(); it != conns.end(); ++it ) {
 	DatabaseConnection *conn = new DatabaseConnection( this );
