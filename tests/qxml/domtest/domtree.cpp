@@ -5,6 +5,7 @@
 #include <qsizepolicy.h>
 
 #include "domtree.h"
+#include "nodeedit.h"
 
 //
 // DomTree
@@ -50,6 +51,8 @@ DomTree::DomTree( const QString &fileName, QWidget *parent, const char *name )
     tree->setSorting( -1 );
     connect( tree, SIGNAL(selectionChanged(QListViewItem*)),
 	    this, SLOT(selectionChanged(QListViewItem*)) );
+    connect( tree, SIGNAL(doubleClicked(QListViewItem*)),
+	    this, SLOT(editNode(QListViewItem*)) );
 
     setContent( fileName, TRUE );
 
@@ -127,6 +130,16 @@ void DomTree::buildTree( bool namespaces, QListViewItem *parentItem, const QDomN
 void DomTree::selectionChanged( QListViewItem *it )
 {
     text->setText( ((DomTreeItem*)it)->contentString() );
+}
+
+void DomTree::editNode( QListViewItem *it )
+{
+    NodeEdit ne(  ((DomTreeItem*)it)->domNode() );
+    if ( ne.exec() ) {
+	// update values
+	((DomTreeItem*)it)->init();
+	selectionChanged( it );
+    }
 }
 
 void DomTree::withNSProc()
@@ -416,4 +429,9 @@ QString DomTreeItem::contentString()
 	    break;
     }
     return s;
+}
+
+QDomNode DomTreeItem::domNode()
+{
+    return _node;
 }

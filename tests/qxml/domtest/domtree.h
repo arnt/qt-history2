@@ -18,6 +18,7 @@ public:
 
 private slots:
     void selectionChanged( QListViewItem *it );
+    void editNode( QListViewItem *it );
     void withNSProc();
     void withoutNSProc();
 
@@ -51,12 +52,15 @@ public:
     ~DomTreeItem();
 
     QString contentString();
+    QDomNode domNode();
 
 private:
     QDomNode _node;
 
     void init();
     bool namespaces;
+
+    friend class DomTree;
 };
 
 #endif // DOMTREE_H
