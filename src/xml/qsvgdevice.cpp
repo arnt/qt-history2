@@ -1023,7 +1023,11 @@ void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
 		pen->setWidth( 1 );
 	}
     } else if ( prop == "stroke-width" ) {
-	pen->setWidth( int(parseLen( val )) );
+	double w = parseLen( val );
+	if ( w > 0.0001 )
+	    pen->setWidth( int(w) );
+	else
+	    pen->setStyle( Qt::NoPen );
     } else if ( prop == "stroke-linecap" ) {
 	if ( val == "butt" )
 	    pen->setCapStyle( Qt::FlatCap );
@@ -1298,7 +1302,10 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
     } else {
 	s += QString( "stroke:rgb(%1,%2,%3);" )
 	     .arg( pcol.red() ).arg( pcol.green() ).arg( pcol.blue() );
-	s += QString( "stroke-width:%1;" ).arg( pt->pen().width() );
+	int pw = pt->pen().width();
+	if ( pw == 0 && pt->pen().style() != Qt::NoPen )
+	    pw = 1;
+	s += QString( "stroke-width:%1;" ).arg( pw );
 	if ( pt->brush().style() != Qt::NoBrush ) {
 	    s += QString( "fill:rgb(%1,%2,%3);" )
 		 .arg( bcol.red() ).arg( bcol.green() ).arg( bcol.blue() );
