@@ -1362,11 +1362,16 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     QStringList changed;
     changed = MetaDataBase::changedProperties( w );
     if ( w->isWidgetType() ) {
-	if ( w->inherits( "Spacer" ) ) {
+	if ( ::qt_cast<Spacer*>(w) ) {
 	    if ( !changed.contains( "sizeHint" ) )
 		changed << "sizeHint";
 	    if ( !changed.contains( "geometry" ) )
 		changed << "geometry";
+ 	} else {
+	    QToolButton *tb = ::qt_cast<QToolButton*>(w);
+	    if ( tb && !tb->iconSet().isNull() ) {
+		changed << "iconSet";
+	    }
 	}
     } else if ( w->inherits( "QLayout" ) ) {
 	if ( MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
