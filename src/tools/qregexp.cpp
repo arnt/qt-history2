@@ -11,6 +11,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qregexp.h"
 
 #include "qbitarray.h"
@@ -750,19 +751,6 @@ static void mergeInto(QMap<int, int> *a, const QMap<int, int>& b)
     QMap<int, int>::ConstIterator it;
     for (it = b.begin(); it != b.end(); ++it)
 	a->insert(it.key(), *it);
-}
-
-/*
-  Returns the value associated to key k in QMap m of (int, int)
-  pairs, or 0 if no such value is explicitly present.
-*/
-static int at(const QMap<int, int>& m, int k)
-{
-    QMap<int, int>::ConstIterator it = m.find(k);
-    if (it == m.end())
-	return 0;
-    else
-	return *it;
 }
 
 #ifndef QT_NO_REGEXP_WILDCARD
@@ -1507,7 +1495,7 @@ void QRegExpEngine::dump() const
 	    qDebug("    -> %d", next);
 	    if (s[i]->reenter != 0 && s[i]->reenter->contains(next))
 		qDebug("       [reenter %d]", (*s[i]->reenter)[next]);
-	    if (s[i]->anchors != 0 && at(*s[i]->anchors, next) != 0)
+	    if (s[i]->anchors != 0 && s[i]->anchors->value(next, 0) != 0)
 		qDebug("       [anchors 0x%.8x]", (*s[i]->anchors)[next]);
 	}
     }
@@ -1833,7 +1821,7 @@ bool QRegExpEngine::matchHere()
 		  First, check if the anchors are anchored properly.
 		*/
 		if (scur->anchors != 0) {
-		    int a = at(*scur->anchors, next);
+		    int a = scur->anchors->value(next, 0);
 		    if (a != 0 && !testAnchor(i, a, mmCurCapBegin + j * ncap))
 			in = false;
 		}
@@ -1974,7 +1962,7 @@ bool QRegExpEngine::matchHere()
 			  capture zones inside it.
 			*/
 			if (scur->reenter != 0 &&
-			     (q = at(*scur->reenter, next)) != 0) {
+			     (q = scur->reenter->value(next, 0)) != 0) {
 			    QBitArray b(nf, false);
 			    b.setBit(q, true);
 			    for (int ell = q + 1; ell < nf; ell++) {
@@ -2343,8 +2331,7 @@ void QRegExpEngine::Box::cat(const Box& b)
 	mergeInto(&lanchors, b.lanchors);
 	if (skipanchors != 0) {
 	    for (int i = 0; i < (int) b.ls.size(); i++) {
-		int a = eng->anchorConcatenation(at(lanchors, b.ls[i]),
-						  skipanchors);
+		int a = eng->anchorConcatenation(lanchors.value(b.ls[i], 0), skipanchors);
 		lanchors.insert(b.ls[i], a);
 	    }
 	}
@@ -2354,8 +2341,7 @@ void QRegExpEngine::Box::cat(const Box& b)
 	mergeInto(&ranchors, b.ranchors);
 	if (b.skipanchors != 0) {
 	    for (int i = 0; i < (int) rs.size(); i++) {
-		int a = eng->anchorConcatenation(at(ranchors, rs[i]),
-						  b.skipanchors);
+		int a = eng->anchorConcatenation(ranchors.value(rs[i], 0), b.skipanchors);
 		ranchors.insert(rs[i], a);
 	    }
 	}
@@ -2471,7 +2457,7 @@ void QRegExpEngine::Box::catAnchor(int a)
 {
     if (a != 0) {
 	for (int i = 0; i < (int) rs.size(); i++) {
-	    a = eng->anchorConcatenation(at(ranchors, rs[i]), a);
+	    a = eng->anchorConcatenation(ranchors.value(rs[i], 0), a);
 	    ranchors.insert(rs[i], a);
 	}
 	if (minl == 0)
@@ -2517,14 +2503,14 @@ void QRegExpEngine::Box::dump() const
     qDebug("Box of at least %d character%s", minl, minl == 1 ? "" : "s");
     qDebug("  Left states:");
     for (i = 0; i < (int) ls.size(); i++) {
-	if (at(lanchors, ls[i]) == 0)
+	if (lanchors.value(ls[i], 0) == 0)
 	    qDebug("    %d", ls[i]);
 	else
 	    qDebug("    %d [anchors 0x%.8x]", ls[i], lanchors[ls[i]]);
     }
     qDebug("  Right states:");
     for (i = 0; i < (int) rs.size(); i++) {
-	if (at(ranchors, rs[i]) == 0)
+	if (ranchors.value(rs[i], 0) == 0)
 	    qDebug("    %d", rs[i]);
 	else
 	    qDebug("    %d [anchors 0x%.8x]", rs[i], ranchors[rs[i]]);
@@ -2537,8 +2523,8 @@ void QRegExpEngine::Box::addAnchorsToEngine(const Box& to) const
 {
     for (int i = 0; i < (int) to.ls.size(); i++) {
 	for (int j = 0; j < (int) rs.size(); j++) {
-	    int a = eng->anchorConcatenation(at(ranchors, rs[j]),
-					      at(to.lanchors, to.ls[i]));
+	    int a = eng->anchorConcatenation(ranchors.value(rs[j], 0),
+					     to.lanchors.value(to.ls[i], 0));
 	    eng->addAnchors(rs[j], to.ls[i], a);
 	}
     }
