@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.1 1996/10/28 10:57:15 paul Exp $
+** $Id: qlist.doc,v 2.2 1997/06/15 18:28:28 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -834,6 +834,12 @@
   \fn type *QListIterator::operator-=( uint jump )
   Returns the item \e jump positions before the current item, or null if
   it is beyond the first item.  Makes this the current item.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QListIterator<type> QListIterator::operator=( const QListIterator<type> &it )
+  Assignment.  Makes a copy of the iterator \a it and returns a reference
+  to this iterator.
  ----------------------------------------------------------------------------*/
 
 
