@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#244 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#245 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1678,6 +1678,6 @@ void QWidget::deleteSysExtra()
 void QWidget::registerDropType( const char * mimeType )
 {
     // ### set some flags in extraData()?
-
+    extern void qt_xdnd_add_type( const char * );
     qt_xdnd_add_type( mimeType );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#22 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -108,7 +108,7 @@ QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 // first drag object, or 0
 QDragObject * qt_xdnd_source_object = 0;
 
-static void qt_xdnd_add_type( const char * mimeType )
+void qt_xdnd_add_type( const char * mimeType )
 {
     if ( !mimeType || !*mimeType )
 	return;
