@@ -45,6 +45,8 @@
 
 #ifndef QT_NO_SQL
 
+class QSqlFieldPrivate;
+
 class Q_EXPORT QSqlField
 {
 public:
@@ -90,6 +92,7 @@ private:
     bool          iv;
     bool          cf;
     Qt::AlignmentFlags af;
+    QSqlFieldPrivate* d;
 };
 
 #endif	// QT_NO_SQL

@@ -59,6 +59,15 @@ QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type 
     : nm(fieldName), num(fieldNumber), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
 {
     val.cast( type );
+    switch( type ) {
+    case QVariant::String:
+    case QVariant::CString:
+	af = Qt::AlignLeft;
+	break;
+    default:
+	af = Qt::AlignRight;
+	break;
+    }
 }
 
 QSqlField::QSqlField( const QSqlField& other )
@@ -119,7 +128,7 @@ QVariant QSqlField::value() const
   to cast it to the proper type.  This preserves the data type of the
   field in the face of assigning, e.g. a QString to an integer data
   type.  For example:
-  
+
   QSqlCursor myCursor( "classroom" );                     // classroom table
   QSqlField* myField = myCursor.field( "student_count" ); // an integer field
   ...
