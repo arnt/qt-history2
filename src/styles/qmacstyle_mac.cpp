@@ -282,7 +282,7 @@ void QMacStyle::polish(QWidget* w)
             w->setBackgroundOrigin(QWidget::WindowOrigin);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && 
+    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && !w->ownPalette() && 
        w->parentWidget()->parentWidget() && w->parentWidget()->parentWidget()->inherits("QGroupBox")) {
 	QPalette pal = w->palette();
 	QPixmap px(200, 200, 32);
@@ -322,13 +322,22 @@ void QMacStyle::polish(QWidget* w)
 	QLabel *label = (QLabel*)w;
 	label->setFrameStyle(QFrame::NoFrame);
 	label->setLineWidth(1);
-    }
+    } else if(w->inherits("QPopupMenu")) {
 #ifdef Q_WS_MAC
-    else if(w->inherits("QPopupMenu")) {
 	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
-    }
+	if(!w->ownPalette()) {
+	    RGBColor c;
+	    QPalette pal = w->palette();
+	    GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
+	    pal.setBrush(QColorGroup::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+	    GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
+	    pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+	    GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
+	    pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
+	    w->setPalette(pal);
+	}
 #endif
-    else if(w->inherits("QTitleBar")) {
+    } else if(w->inherits("QTitleBar")) {
 //	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
     }
@@ -734,13 +743,11 @@ void QMacStyle::drawControl(ControlElement element,
 	    }
 	}
 
-	p->setPen(act ? Qt::white/*g.highlightedText()*/ : g.buttonText());
-
-	QColor discol;
-	if(dis) {
-	    discol = itemg.text();
-	    p->setPen(discol);
-	}
+	QColor textclr(g.buttonText());
+	if(dis)
+	    textclr = itemg.text();
+	else if(act)
+	    textclr = g.highlightedText();
 
 	int xm = macItemFrame + checkcol + macItemHMargin;
 	if(reverse)
@@ -755,8 +762,8 @@ void QMacStyle::drawControl(ControlElement element,
 		p->setPen(g.light());
 		mi->custom()->paint(p, itemg, act, !dis,
 				     xpos+1, y+m+1, w-xm-tab+1, h-2*m);
-		p->setPen(discol);
 	    }
+	    p->setPen(textclr);
 	    mi->custom()->paint(p, itemg, act, !dis,
 				 x+xm, y+m, w-xm-tab+1, h-2*m);
 	    p->restore();
@@ -775,18 +782,19 @@ void QMacStyle::drawControl(ControlElement element,
 		if(dis && !act) {
 		    p->setPen(g.light());
 		    p->drawText(xp, y+m+1, tab, h-2*m, text_flags, s.mid(t+1));
-		    p->setPen(discol);
 		}
+		p->setPen(textclr);
 		p->drawText(xp, y+m, tab, h-2*m, text_flags, s.mid(t+1));
 		s = s.left(t);
 	    }
 	    if(dis && !act) {
 		p->setPen(g.light());
 		p->drawText(xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t);
-		p->setPen(discol);
 	    }
+	    p->setPen(textclr);
 	    p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
 	} else if(mi->pixmap()) {                        // draw pixmap
+	    p->setPen(textclr);
 	    QPixmap *pixmap = mi->pixmap();
 	    if(pixmap->depth() == 1)
 		p->setBackgroundMode(OpaqueMode);
