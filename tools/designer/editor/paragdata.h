@@ -27,18 +27,24 @@
 struct ParagData : public QTextParagData
 {
 public:
-    enum MarkerType { NoMarker, Error, Breakpoint, Bookmark, Step };
+    enum MarkerType { NoMarker, Error, Breakpoint, Bookmark };
+    enum LineState { FunctionStart, InFunction, FunctionEnd, Invalid };
 
-    ParagData() : lastLengthForCompletion( -1 ), marker( NoMarker ) {}
+    ParagData() : lastLengthForCompletion( -1 ), marker( NoMarker ),
+	lineState( Invalid ), functionOpen( TRUE ), step( FALSE ) {}
     ~ParagData() {}
     void join( QTextParagData *data ) {
 	ParagData *d = (ParagData*)data;
 	if ( marker == NoMarker )
 	    marker = d->marker;
+	lineState = d->lineState;
     }
     ParenList parenList;
     int lastLengthForCompletion;
     MarkerType marker;
+    LineState lineState;
+    bool functionOpen;
+    bool step;
 
 };
 

@@ -62,6 +62,7 @@ public:
 
     virtual bool supportsErrors() const { return TRUE; }
     virtual bool supportsBreakPoints() const { return TRUE; }
+    virtual void makeFunctionVisible( QTextParag * ) {}
 
 signals:
     void clearErrorMarker();

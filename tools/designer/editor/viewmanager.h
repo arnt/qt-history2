@@ -29,6 +29,7 @@ class QChildEvent;
 class MarkerWidget;
 class QHBoxLayout;
 class QDockArea;
+class QTextParag;
 
 class EDITOR_EXPORT ViewManager : public QWidget
 {
@@ -39,6 +40,7 @@ public:
 
     void addView( QWidget *view );
     QWidget *currentView() const;
+    void showMarkerWidget( bool );
 
     void setError( int line );
     void setStep( int line );
@@ -48,6 +50,10 @@ public:
 
 signals:
     void markersChanged();
+    void expandFunction( QTextParag *p );
+    void collapseFunction( QTextParag *p );
+    void collapse( bool all /*else only functions*/ );
+    void expand( bool all /*else only functions*/ );
 
 protected slots:
     void clearErrorMarker();

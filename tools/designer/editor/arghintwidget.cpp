@@ -159,8 +159,10 @@ ArgHintWidget::ArgHintWidget( QWidget *parent )
 void ArgHintWidget::setFunctionText( int func, const QString &text )
 {
     funcs.replace( func, text );
-    if ( func == curFunc )
+    if ( func == curFunc ) {
+	funcLabel->clear();
 	funcLabel->setText( text );
+    }
 }
 
 void ArgHintWidget::setNumFunctions( int num )

@@ -34,7 +34,15 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     markerWidget = new MarkerWidget( this );
     connect( markerWidget, SIGNAL( markersChanged() ),
 	     this, SIGNAL( markersChanged() ) );
-    markerWidget->setFixedWidth( 20 );
+    connect( markerWidget, SIGNAL( collapseFunction( QTextParag * ) ),
+	     this, SIGNAL( collapseFunction( QTextParag * ) ) );
+    connect( markerWidget, SIGNAL( expandFunction( QTextParag * ) ),
+	     this, SIGNAL( expandFunction( QTextParag * ) ) );
+    connect( markerWidget, SIGNAL( collapse( bool ) ),
+	     this, SIGNAL( collapse( bool ) ) );
+    connect( markerWidget, SIGNAL( expand( bool ) ),
+	     this, SIGNAL( expand( bool ) ) );
+    markerWidget->setFixedWidth( 35 );
     dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
     layout->addWidget( dockArea );
     dockArea->setMinimumWidth( 5 );
@@ -78,6 +86,7 @@ void ViewManager::setError( int line )
 {
     QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
     if ( p ) {
+	( (Editor*)curView )->makeFunctionVisible( p );
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
 	    paragData = new ParagData;
@@ -92,13 +101,19 @@ void ViewManager::setError( int line )
 
 void ViewManager::setStep( int line )
 {
-    QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
+    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    while ( p ) {
+	if ( p->extraData() )
+	    ( (ParagData*)p->extraData() )->step = FALSE;
+	p = p->next();
+    }
+    p = ( (Editor*)curView )->document()->paragAt( line );
     if ( p ) {
+	( (Editor*)curView )->makeFunctionVisible( p );
 	ParagData *paragData = (ParagData*)p->extraData();
 	if ( !paragData )
 	    paragData = new ParagData;
-	// #### we should set an arrow as Setp here, but have a stack of markers, so that breakpoints do not get lost
-	// 	paragData->marker = ParagData::Step;
+ 	paragData->step = TRUE;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
 	( (Editor*)curView )->setStepSelection( line );
@@ -110,6 +125,13 @@ void ViewManager::setStep( int line )
 void ViewManager::clearStep()
 {
     ( (Editor*)curView )->clearStepSelection();
+    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    while ( p ) {
+	if ( p->extraData() )
+	    ( (ParagData*)p->extraData() )->step = FALSE;
+	p = p->next();
+    }
+    markerWidget->doRepaint();
 }
 
 void ViewManager::resizeEvent( QResizeEvent *e )
@@ -164,4 +186,12 @@ QValueList<int> ViewManager::breakPoints() const
 	++i;
     }
     return l;
+}
+
+void ViewManager::showMarkerWidget( bool b )
+{
+    if ( b )
+	markerWidget->show();
+    else
+	markerWidget->hide();
 }
