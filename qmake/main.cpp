@@ -51,7 +51,6 @@
 #include <qnamespace.h>
 #include <qregexp.h>
 #include <qdir.h>
-#include <qfiledefs_p.h>
 
 extern int line_count;
 extern "C" void yyerror(const char *foo)
@@ -139,7 +138,7 @@ main(int argc, char **argv)
 	    }
 	    if(!mkfile->write()) {
 		fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
-		if(Option::output.handle() != FILENO(stdout))
+		if(Option::output.handle() != fileno(stdout))
 		    QFile::remove(Option::output.name());
 	    }
 	    delete mkfile;
