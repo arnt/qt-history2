@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#72 $
 **
 ** Implementation of layout classes
 **
@@ -53,7 +53,7 @@ public:
 
     bool hasHeightForWidth() const { return item->hasHeightForWidth(); }
     int heightForWidth( int w ) const { return item->heightForWidth(w); }
-    
+
     void setAlignment( int a ) { item->setAlignment( a ); }
     void setGeometry( const QRect &r ) { item->setGeometry( r ); }
     int alignment() const { return item->alignment(); }
@@ -517,7 +517,7 @@ void QLayoutArray::setupLayoutData()
 }
 
 /*
-  similar to setupLayoutData, but uses 
+  similar to setupLayoutData, but uses
   heightForWidth( colData ) instead of sizeHint
   assumes that setupLayoutData and qGeomCalc( colData ) has been called
  */
@@ -527,17 +527,18 @@ void QLayoutArray::setupHfwLayoutData()
     int i;
     for ( i = 0; i < rr; i++ ) {
 	rData[i] = rowData[i];
-	rData[i].sizeHint = 0;
     }
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
-	int hint = box->sizeHint().height();
-	if ( box->hasHeightForWidth() )
-	    hint = box->heightForWidth( colData[box->col].size );
-	rData[box->row].sizeHint = QMAX( hint,
-					 rData[box->row].sizeHint );
+	if ( box->hasHeightForWidth() ) {
+	    int hint = box->heightForWidth( colData[box->col].size );
+	    rData[box->row].sizeHint = QMAX( hint,
+					     rData[box->row].sizeHint );
+	    rData[box->row].minimumSize = QMAX( hint,
+						rData[box->row].minimumSize );
+	}
     }
 
     if ( multi ) {
@@ -586,7 +587,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	rDataPtr = &rowData;
     }
     QArray<QLayoutStruct> &rData = *rDataPtr; //cannot assign to reference
-    
+
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
@@ -892,7 +893,8 @@ bool QGridLayout::hasHeightForWidth() const
 
 int QGridLayout::heightForWidth( int w ) const
 {
-    return ((QGridLayout*)this)->array->heightForWidth( w, defaultBorder() );
+    return ((QGridLayout*)this)->array->heightForWidth( w, defaultBorder() ) 
+	+ 2*margin();
 }
 
 
