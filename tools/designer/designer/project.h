@@ -205,11 +205,8 @@ private:
 
 private:
     QString filename;
-    QStringList uifiles;
     QString proName;
-    QStringList loadedForms;
     QString desc;
-//     QMap<FormWindow*, QString> formWindows;
     QString dbFile;
 #ifndef QT_NO_SQL
     QPtrList<DatabaseConnection> dbConnections;

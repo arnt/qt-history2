@@ -267,22 +267,6 @@ QString Project::projectName() const
     return proName;
 }
 
-/*
-QString Project::fixedProjectName() const
-{
-    QString s = proName;
-    for ( int i = 0; i < (int)s.length(); ++i ) {
-	uchar r = s[i].row();
-	uchar c = s[i].cell();
-	if ( r == 0 && ( ( c >= '0' && c <= '9' ) ||
-			 ( c >= 'a' && c <= 'z' ) ||
-			 ( c >= 'A' && c <= 'Z' ) ) )
-	    continue;
-	s[i] = '_';
-    }
-    return s;
-}
-*/
 static QString parse_part( const QString &part )
 {
     QString res;
@@ -451,10 +435,8 @@ void Project::parse()
 
 void Project::clear()
 {
-    uifiles.clear();
     dbFile = "";
     proName = "unnamed";
-    loadedForms.clear();
     desc = "";
 }
 

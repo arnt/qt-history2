@@ -2784,11 +2784,14 @@ void MainWindow::recentlyProjectsMenuActivated( int id )
 
 void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
 {
-    if ( lst.find( fn ) != lst.end() )
-	lst.remove( fn );
+    QFileInfo fi( fn );
+    fi.convertToAbs();
+    QString f = fi.filePath();
+    if ( lst.find( f ) != lst.end() )
+	lst.remove( f );
     if ( lst.count() >= 10 )
 	lst.remove( lst.begin() );
-    lst << fn;
+    lst << f;
 }
 
 TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& className )
