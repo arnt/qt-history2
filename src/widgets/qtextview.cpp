@@ -811,6 +811,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
     QTextCursor c = *cursor;
     mousePos = e->pos();
     mightStartDrag = FALSE;
+    pressedLink = QString::null;
 
     if ( !isReadOnly() && e->button() == RightButton ) {
 	QPopupMenu *popup = new QPopupMenu( this );
@@ -864,6 +865,17 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	placeCursor( e->pos() );
 	ensureCursorVisible();
 
+	if ( isReadOnly() && linksEnabled() ) {
+	    QTextCursor c = *cursor;
+	    placeCursor( e->pos(), &c );
+#ifndef QT_NO_NETWORKPROTOCOL
+	    if ( c.parag() && c.parag()->at( c.index() ) &&
+		 c.parag()->at( c.index() )->format()->isAnchor() ) {
+#endif
+		pressedLink = c.parag()->at( c.index() )->format()->anchorHref();
+	    }
+	}
+	
 #ifndef QT_NO_DRAGANDDROP
 	if ( doc->inSelection( QTextDocument::Standard, e->pos() ) ) {
 	    mightStartDrag = TRUE;
@@ -974,7 +986,7 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
     inDoubleClick = FALSE;
 
 #ifndef QT_NO_NETWORKPROTOCOL
-    if ( !onLink.isEmpty() && linksEnabled() ) {
+    if ( !onLink.isEmpty() && onLink == pressedLink && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
 	emitLinkClicked( u.toString( FALSE, FALSE ) );
     }

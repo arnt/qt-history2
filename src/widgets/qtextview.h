@@ -323,6 +323,7 @@ private:
     WrapPolicy wPolicy;
     int wrapWidth;
     QScrollView::ScrollBarMode setMode;
+    QString pressedLink;
 
 };
 
