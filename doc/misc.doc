@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.31 1996/09/23 08:46:14 paul Exp $
+** $Id: misc.doc,v 1.32 1996/09/23 10:26:04 paul Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.31 1996/09/23 08:46:14 paul Exp $";
+static char ident[] = "$Id: misc.doc,v 1.32 1996/09/23 10:26:04 paul Exp $";
 #endif
 
 
@@ -32,14 +32,14 @@ What kind of licenses exist for Qt?
 <p>
 A: The Qt toolkit is available under several licenses; the free license
 for X, a license for shareware developers for X and a fully-fledged
-commercial license.
+professional license.
 <p>
 <li>
 What are the differences between the free and commercial versions of Qt?
 <p> 
-A: You can write commercial software using the commercial license.
+A: You can write commercial software using the professional license.
 The library itself is the same. You also get one year of free support
-when you buy a commercial license.
+when you buy a professional license.
 <p>
 <li>
 Can I write software for internal use in my company/organization using
@@ -61,13 +61,13 @@ A: Yes.
 Really? Your additional requirements seem to conflict with the GPL.
 <p>
 A: Really yes. We require cooperation from you, in return you can use
-Qt. We could have demanded money (actually, we do for the commercial
+Qt. We could have demanded money (actually, we do for the professional
 licence) and still not have been in conflict with the GPL.
 <p>
 <li>
 I want to use Qt to develop free software on Windows. 
 <p>
-A: Qt is not free for Windows.  We do however sell commercial licenses. 
+A: Qt is not free for Windows.  We do however sell professional licenses. 
 <p>
 <li>
 When will 1.0 be released? 
@@ -77,12 +77,12 @@ A: Now!
 <li>
 I don't want to give away my source. What do I do? 
 <p>
-A: Then you need a shareware or commercial license. 
+A: Then you need a shareware or professional license. 
 <p>
 <li>
 Can I charge for my application? 
 <p>
-A: If you have a commercial license; of course. If you have a free
+A: If you have a professional license; of course. If you have a free
 license your software must be freely distributable and you must
 include the source.
 <p>
@@ -218,7 +218,7 @@ it.)
 
 <p>
 
-The <a href="/pricing.html">commercial</a> and <a
+The <a href="/pricing.html">professional</a> and <a
 href="/shareware.html">shareware</a> licenses are much less restrictive
 than this one.
 

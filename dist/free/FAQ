@@ -12,13 +12,13 @@
 
     A: The Qt toolkit is available under several licenses; the free license
        for X, a license for shareware developers for X and a fully-fledged
-       commercial license.
+       professional license.
 
 3:  What are the differences between the free and commercial versions of Qt?
 
-    A: You can write commercial software using the commercial license.
+    A: You can write commercial software using the professional license.
        The library itself is the same. You also get 1 year of free support
-       when you buy a commercial license.
+       when you buy a professional license.
 
 4:  Can I write software for internal use in my company/organization using
     the free license?
@@ -37,12 +37,12 @@
 6:  Really? Your additional requirements seem to conflict with the GPL.
 
     A: Really yes. We require cooperation from you, in return you can use
-       Qt. We could have demanded money (actually, we do for the commercial
+       Qt. We could have demanded money (actually, we do for the professional
        license) and still not have been in conflict with the GPL.
 
 7:  I want to use Qt to develop free software on Windows.
 
-    A: Qt is not free for Windows.  We do however sell commercial licenses.
+    A: Qt is not free for Windows.  We do however sell professional licenses.
 
 8:  When will 1.0 be released?
 
@@ -50,11 +50,11 @@
 
 9:  I don't want to give away my source. What do I do?
 
-    A: Then you need a shareware or commercial license.
+    A: Then you need a shareware or professional license.
 
 10: Can I charge for my application?
 
-    A: If you have a commercial license; of course. If you have a free
+    A: If you have a professional license; of course. If you have a free
        license your software must be freely distributable and you must
        make the source available.
 
