@@ -34,7 +34,7 @@ class QCategoryButton : public QToolButton
 public:
     QCategoryButton( QWidget *parent, const char *name ) :
 	QToolButton( parent, name ), selected( FALSE )
-	{ setBackgroundMode( PaletteMid ); }
+	{ setBackgroundMode( PaletteLight ); }
 
     void setSelected( bool b ) { selected = b; update(); }
 
@@ -67,7 +67,7 @@ void QCategoryButton::drawButton( QPainter *p )
 
 
     if ( selected )
-	p->setBrush( colorGroup().mid() );
+	p->setBrush( colorGroup().light() );
     else
 	p->setBrush( colorGroup().background() );
 
@@ -139,7 +139,7 @@ void QCategoryWidget::addCategory( const QString &name, QWidget *page )
 	lastTab = button;
 	lastTab->setSelected( TRUE );
 	sv->show();
-	set_background_mode( currentPage, PaletteMid );
+	set_background_mode( currentPage, PaletteLight );
     } else {
 	sv->hide();
     }
@@ -160,7 +160,7 @@ void QCategoryWidget::buttonClicked()
 	currentPage->hide();
     currentPage = page;
     currentPage->show();
-    set_background_mode( currentPage, PaletteMid );
+    set_background_mode( currentPage, PaletteLight );
     updateTabs();
 }
 
@@ -168,7 +168,7 @@ void QCategoryWidget::updateTabs()
 {
     bool after = FALSE;
     for ( QWidget *w = buttons->first(); w; w = buttons->next() ) {
-	w->setBackgroundMode( !after ? PaletteBackground : PaletteMid );
+	w->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
 	w->update();
 	after = w == lastTab;
     }

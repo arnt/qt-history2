@@ -40,6 +40,7 @@
 #include <qradiobutton.h>
 #include <qbuttongroup.h>
 #include <qwidgetstack.h>
+#include <qguardedptr.h>
 
 #include "metadatabase.h"
 #include "qwidgetfactory.h"
@@ -106,6 +107,8 @@ private:
 				  const QRect *r = 0, Qt::Orientation orient = Qt::Horizontal );
     static QWidget *createCustomWidget( QWidget *parent, const char *name, MetaDataBase::CustomWidget *w );
 
+    static QGuardedPtr<QObject> *lastPassiveInteractor;
+    static bool lastWasAPassiveInteractor;
 };
 
 

@@ -83,6 +83,7 @@
 
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
+#include <qobject.h>
 
 FormWindow *find_formwindow( QWidget *w )
 {
@@ -1042,6 +1043,23 @@ QWidget* WidgetFactory::containerOfWidget( QWidget *w )
 	return ((QWidgetStack*)w)->visibleWidget();
     if ( w->inherits( "QMainWindow" ) )
 	return ((QMainWindow*)w)->centralWidget();
+#if CONTAINER_CUSTOM_WIDGETS
+    if ( !WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) )
+	return w;
+    WidgetInterface *iface = 0;
+    widgetManager()->queryInterface( classNameOf( w ), &iface );
+    if ( !iface )
+	return w;
+    QWidgetContainerInterfacePrivate *iface2 = 0;
+    iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
+    if ( !iface2 )
+	return w;
+    QWidget *c = iface2->containerOfWidget( w );
+    iface2->release();
+    iface->release();
+    if ( c )
+	return c;
+#endif
     return w;
 }
 
@@ -1058,7 +1076,8 @@ QWidget* WidgetFactory::widgetOfContainer( QWidget *w )
     if ( w->parentWidget() && w->parentWidget()->inherits( "QWidgetStack" ) )
 	w = w->parentWidget();
     while ( w ) {
-	if ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ||
+	int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) );
+	if ( WidgetDatabase::isContainer( id ) ||
 	     w && w->parentWidget() && w->parentWidget()->inherits( "FormWindow" ) )
 	    return w;
 	w = w->parentWidget();
@@ -1069,29 +1088,56 @@ QWidget* WidgetFactory::widgetOfContainer( QWidget *w )
 /*!
   Returns whether \a o is a passive interactor or not.
  */
+
+bool WidgetFactory::lastWasAPassiveInteractor = FALSE;
+QGuardedPtr<QObject> *WidgetFactory::lastPassiveInteractor = new QGuardedPtr<QObject>();
+
 bool WidgetFactory::isPassiveInteractor( QObject* o )
 {
+    if ( lastPassiveInteractor && *lastPassiveInteractor && (QObject*)(*lastPassiveInteractor) == o )
+	return lastWasAPassiveInteractor;
+    lastWasAPassiveInteractor = FALSE;
+    (*lastPassiveInteractor) = o;
     if ( QApplication::activePopupWidget() ) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
 
     if ( o->inherits( "QTabBar" ) )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->inherits( "QSizeGrip" ) )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->inherits( "QToolButton" ) && o->parent() && o->parent()->inherits( "QTabBar" ) )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->parent() && o->parent()->inherits( "QWizard" ) && o->inherits( "QPushButton" ) )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->parent() && o->parent()->inherits( "QMainWindow" ) && o->inherits( "QMenuBar" ) )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->inherits( "QDockWindowHandle" ) )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->inherits( "QHideDock" ) )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
-	return TRUE;
+	return ( lastWasAPassiveInteractor = TRUE );
 
-    return FALSE;
+#if CONTAINER_CUSTOM_WIDGETS
+    if ( !o->isWidgetType() )
+	return ( lastWasAPassiveInteractor = FALSE );
+    WidgetInterface *iface = 0;
+    QWidget *w = (QWidget*)o;
+    while ( !iface && w && !w->inherits( "FormWindow" ) ) {
+	widgetManager()->queryInterface( classNameOf( w ), &iface );
+	w = w->parentWidget();
+    }
+    if ( !iface )
+	return ( lastWasAPassiveInteractor = FALSE );
+    QWidgetContainerInterfacePrivate *iface2 = 0;
+    iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
+    if ( !iface2 )
+	return ( lastWasAPassiveInteractor = FALSE );
+    lastWasAPassiveInteractor = iface2->isPassiveInteractor( (QWidget*)o );
+    iface2->release();
+    iface->release();
+#endif
+    return lastWasAPassiveInteractor;
 }
 
 

@@ -650,8 +650,8 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
     if ( obj && obj->isWidgetType() && ( (QWidget*)obj )->isHidden() )
 	return;
     QString closeTag;
+    const char* className = WidgetFactory::classNameOf( obj );
     if ( obj->isWidgetType() ) {
-	const char* className = WidgetFactory::classNameOf( obj );
 	if ( obj->isA( "CustomWidget" ) )
 	    usedCustomWidgets << QString( className );
 	if ( WidgetDatabase::
@@ -776,7 +776,44 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
     } else if ( obj->inherits( "QMainWindow" ) ) {
 	saveChildrenOf( ( (QMainWindow*)obj )->centralWidget(), ts, indent );
     } else {
-	saveChildrenOf( obj, ts, indent );
+	bool saved = FALSE;
+#if CONTAINER_CUSTOM_WIDGETS
+	if ( WidgetDatabase::isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) ) {
+	    WidgetInterface *iface = 0;
+	    widgetManager()->queryInterface( className, &iface );
+	    if ( iface ) {
+		QWidgetContainerInterfacePrivate *iface2 = 0;
+		iface->queryInterface( IID_QWidgetContainer, (QUnknownInterface**)&iface2 );
+		if ( iface2 ) {
+		    QWidgetList containers = iface2->containersOf( (QWidget*)obj );
+		    if ( !containers.isEmpty() ) {
+			saved = TRUE;
+			for ( QWidget *w = containers.first(); w; w = containers.next() ) {
+			    if ( WidgetDatabase::
+				 idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
+				continue; // we don't know this widget
+			    ts << makeIndent( indent ) << "<widget class=\"" << w->className()
+			       << "\">" << endl;
+			    ++indent;
+			    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
+			    indent++;
+			    ts << makeIndent( indent ) << "<cstring>" << entitize( w->name() )
+			       << "</cstring>" << endl;
+			    indent--;
+			    ts << makeIndent( indent ) << "</property>" << endl;
+			    saveChildrenOf( w, ts, indent );
+			    --indent;
+			    ts << makeIndent( indent ) << "</widget>" << endl;
+			}
+		    }
+		    iface2->release();
+		    iface->release();
+		}
+	    }
+	}
+#endif
+	if ( !saved )
+	    saveChildrenOf( obj, ts, indent );
     }
 
     indent--;

@@ -518,6 +518,15 @@ void WidgetDatabase::setupDataBase( int id )
 
     append( r );
 
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "";
+    r->name = "QScrollView";
+    r->includeFile = "qscrollview.h";
+    r->group = widgetGroup( "Temp" );
+    r->isContainer = TRUE;
+
+    append( r );
+
 #ifndef QT_NO_SQL
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
@@ -614,6 +623,8 @@ QIconSet WidgetDatabase::iconSet( int id )
 	return QIconSet();
 #if !defined(UIC) && !defined(RESOURCE)
     if ( !r->icon ) {
+	if ( r->iconSet.isEmpty() )
+	    return QIconSet();
 	QPixmap pix = QPixmap::fromMimeSource( r->iconSet );
 	if ( pix.isNull() )
 	    pix = QPixmap( r->iconSet );

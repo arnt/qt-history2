@@ -291,8 +291,7 @@ void MainWindow::setupMDI()
     vbox->setMargin( 1 );
     vbox->setLineWidth( 1 );
     qworkspace = new QWorkspace( vbox );
-    qworkspace->setBackgroundMode( PaletteDark );
-    qworkspace->setBackgroundColor( Qt::darkGray );
+    qworkspace->setPaletteBackgroundPixmap( QPixmap::fromMimeSource( "background.png" ) );
     qworkspace->setScrollBarsEnabled( TRUE );
     connect( qworkspace, SIGNAL( windowActivated( QWidget * ) ),
 	     this, SLOT( activeWindowChanged( QWidget * ) ) );
@@ -888,7 +887,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	return QMainWindow::eventFilter( o, e );
 
     QWidget *w = 0;
-    bool passiveInteractor = WidgetFactory::isPassiveInteractor( o );
+    bool passiveInteractor;
     switch ( e->type() ) {
     case QEvent::AccelOverride:
 	if ( ( (QKeyEvent*)e )->key() == Key_F1 &&
@@ -950,6 +949,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( !w->hasFocus() )
 	    w->setFocus();
+	passiveInteractor = WidgetFactory::isPassiveInteractor( o );
 	if ( !passiveInteractor || currentTool() != ORDER_TOOL ) {
 	    if( e->type() == QEvent::ContextMenu ) {
 		( (FormWindow*)w )->handleContextMenu( (QContextMenuEvent*)e,
@@ -974,6 +974,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
+	passiveInteractor = WidgetFactory::isPassiveInteractor( o );
 	if ( !passiveInteractor )
 	    ( (FormWindow*)w )->handleMouseRelease( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	if ( passiveInteractor ) {
@@ -995,6 +996,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( lastPressWidget != (QWidget*)o ||
 	     ( !w || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) )
 	    break;
+	passiveInteractor = WidgetFactory::isPassiveInteractor( o );
 	if ( !passiveInteractor )
 	    ( (FormWindow*)w )->handleMouseMove( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	return !passiveInteractor;
