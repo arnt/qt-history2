@@ -269,7 +269,7 @@ If all the out-transitions of the initial state bear a {\tt\^}-anchor, we know t
 
 \beginsection 12. Back References
 
-With back-references, we leave the realm of regular expressions.  Indeed, even context-free grammars cannot handle back-references.  Still, back-references are easy to support, one we've got this far.
+With back-references, we leave the realm of regular expressions.  Indeed, even context-free grammars cannot handle back-references.  Still, back-references are easy to support, once we've got this far.
 
 The basic idea is to unify back-references with the rest of the regular expression engine.  Let's consider the regular expression \rx{(a*)b\\1}.  We construct the following automaton:  $$\epsfbox{qregexp.3}$$  State 2 represents the {\tt a} of \rx{(a*)b\\1}, state 3 the {\tt b}, and state 4 the {\tt \\1}.  The label `$(\backslash1 = \epsilon)$' is an assertion that {\tt \\1} is empty, and `$\backslash1$' represents the whole of {\tt \\1}, if it's non-empty.
 
