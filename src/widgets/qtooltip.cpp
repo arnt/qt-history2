@@ -152,7 +152,7 @@ QTipManager::~QTipManager()
 	qApp->removeEventFilter( tipManager );
 
     if ( tips ) {
-	QHash<void*,QTipManager::Tip*>::Iterator it(tips);
+	QHash<void*,QTipManager::Tip*>::Iterator it = tips->begin();
 	QTipManager::Tip *t, *n;
 	void *k;
 	while ( (t = it.value()) != 0 ) {
@@ -315,7 +315,7 @@ void QTipManager::remove( QWidget *w )
 
 void QTipManager::removeFromGroup( QToolTipGroup *g )
 {
-    QHash<void*,QTipManager::Tip*>::Iterator it(tips);
+    QHash<void*,QTipManager::Tip*>::Iterator it = tips->begin();
     QTipManager::Tip *t;
     while( (t = it.value()) != 0 ) {
 	++it;
