@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#117 $
+** $Id: //depot/qt/main/src/tools/qstring.h#118 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -121,7 +121,7 @@ public:
     Joining joining() const;
     bool mirrored() const;
     QString decomposition() const;
-    Decomposition decompositionTag() const;                                    
+    Decomposition decompositionTag() const;
 
     char latin1() const { return rw ? 0 : cl; }
     ushort unicode() const { return (rw << 8) | cl; }
@@ -269,7 +269,7 @@ public:
     QString arg(char a, int fieldwidth=0) const;
     QString arg(QChar a, int fieldwidth=0) const;
     QString arg(const QString& a, int fieldwidth=0) const;
-    QString arg(double a, int fieldwidth=0, char fmt='g', int prec=-1);
+    QString arg(double a, int fieldwidth=0, char fmt='g', int prec=-1) const;
 
     QString    &sprintf( const char* format, ... )
 #if defined(_CC_GNU_)
@@ -393,7 +393,7 @@ public:
     // new functions for BiDi
     void compose();
     QChar::Direction basicDirection();
-    QString visual(int index = 0, int len = -1);                              
+    QString visual(int index = 0, int len = -1);
 
 #ifndef QT_NO_COMPAT
     const char* data() const { return latin1(); }
