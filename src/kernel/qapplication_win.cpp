@@ -43,6 +43,7 @@
 #include "qmime.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"
+#include "qthread.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qt_windows.h"
 
