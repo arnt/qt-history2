@@ -830,27 +830,31 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->h=h;
 
 #ifndef QMAC_VIRTUAL_PIXMAP_SUPPORT
+    Rect rect;
+    SetRect(&rect,0,0,w,h);
     QDErr e = 0;
     const int params = alignPix | stretchPix | newDepth;
 #if 0    
     if(w <= 300 && h <= 100) //try to get it into distant memory
-	e = NewGWorld((GWorldPtr *)&pm->hd, 32, &rect, 
-		      pm->data->clut ? &pm->data->clut : NULL, 0, useDistantHdwrMem | params);
+	e = NewGWorld((GWorldPtr *)&hd, 32, &rect, 
+		      data->clut ? &data->clut : NULL, 0, useDistantHdwrMem | params);
     if(e != noErr) //oh well I tried
 #endif  
-	e = NewGWorld((GWorldPtr *)&pm->hd, 32, &rect, 
-		      pm->data->clut ? &pm->data->clut : NULL, 0, params);
+	e = NewGWorld((GWorldPtr *)&hd, 32, &rect, 
+		      data->clut ? &data->clut : NULL, 0, params);
 
     /* error? */
     if(e != noErr) {
 	data->w = data->h = 0;
-	pm->hd=0; //just to be sure
+	hd=0; //just to be sure
 	qDebug( "QPixmap::init Something went wrong");
 	Q_ASSERT(0);
     } else {
 #ifdef ONE_PIXEL_LOCK
-	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->data->cache.gworld)));
+	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
+	data->w=w;
+	data->h=h;
     }
 #endif
 }
