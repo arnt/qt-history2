@@ -265,8 +265,12 @@ void QLabel::setText( const QString &text )
 #endif
     clearContents();
     ltext = text;
+#ifndef QT_NO_RICHTEXT
     bool useRichText = (textformat == RichText ||
       ( ( textformat == AutoText ) && QStyleSheet::mightBeRichText(ltext) ) );
+#else
+    bool useRichText = TRUE;
+#endif
 #ifndef QT_NO_ACCEL
     // ### Setting accelerators for rich text labels will not work.
     // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly
