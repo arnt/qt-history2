@@ -203,6 +203,10 @@ static void bidiItemize( const QString &text, QScriptItemArray &items, bool righ
     bool first = TRUE;
 
     int length = text.length();
+
+    if ( !length )
+	return;
+
     const QChar *unicode = text.unicode();
     int current = 0;
 
