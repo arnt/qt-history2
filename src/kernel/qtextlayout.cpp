@@ -193,12 +193,12 @@ QTextLayout::QTextLayout()
 QTextLayout::QTextLayout( const QString& string, QPainter *p )
 {
     QFontPrivate *f = p ? ( p->pfont ? p->pfont->d : p->cfont.d ) : QApplication::font().d;
-    d = new QTextEngine( (string.isNull() ? QString::fromLatin1("") : string), f );
+    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), f );
 }
 
 QTextLayout::QTextLayout( const QString& string, const QFont& fnt )
 {
-    d = new QTextEngine( (string.isNull() ? QString::fromLatin1("") : string), fnt.d );
+    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d );
 }
 
 QTextLayout::~QTextLayout()
@@ -209,7 +209,7 @@ QTextLayout::~QTextLayout()
 void QTextLayout::setText( const QString& string, const QFont& fnt )
 {
     delete d;
-    d = new QTextEngine( (string.isNull() ? QString::fromLatin1("") : string), fnt.d );
+    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d );
 }
 
 /* add an additional item boundary eg. for style change */
@@ -353,7 +353,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     if ( d->firstItemInLine == -1 )
 	goto end;
 
-    if ( !(alignment & Qt::SingleLine) && d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
+    if ( !(alignment & (Qt::SingleLine|Qt::IncludeTrailingSpaces)) && d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
 	int i = d->currentItem-1;
 	while ( i > d->firstItemInLine && d->items[i].isSpace ) {
 	    numSpaceItems++;
@@ -590,7 +590,7 @@ bool QTextLayout::validCursorPosition( int pos ) const
 {
     const QCharAttributes *attributes = d->attributes();
     if ( pos < 0 || pos > (int)d->string.length() )
-	return false;
+	return FALSE;
     return attributes[pos].charStop;
 }
 

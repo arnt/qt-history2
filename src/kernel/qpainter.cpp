@@ -2945,14 +2945,14 @@ void qt_format_text( const QFont& font, const QRect &_r,
 
 	    int ascent, descent, lineLeft, lineRight;
 	    textLayout.setLineWidth( r.width() + add );
-	    int state = textLayout.endLine( 0, height, tf, &ascent, &descent,
+	    int state = textLayout.endLine( 0, height, tf|Qt::IncludeTrailingSpaces, &ascent, &descent,
 					    &lineLeft, &lineRight );
 
 	    if ( state != QTextLayout::LineEmpty || linesep ) {
 		//qDebug("finalizing line: ascent = %d, descent=%d lineleft=%d lineright=%d", ascent, descent,lineLeft, lineRight  );
 		left = QMIN( left, lineLeft );
 		right = QMAX( right, lineRight );
-		height += ascent + descent + 1;
+		height += ascent + descent;
 		add = 0;
 		if ( linesep )
 		    textLayout.nextItem();
