@@ -19,6 +19,9 @@
 
 	QTDIR=c:\qt
 
+    Note: The path must not include directories that contain space(s)
+    in their names, like e.g. "Program Files".
+
     You must also set the PATH to locate the moc.exe program:
 
 	PATH=%QTDIR%\bin;%PATH%
