@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#198 $
 **
 ** Implementation of QApplication class
 **
@@ -1579,3 +1579,4 @@ void QApplication::removePostedEvent( QEvent *  event )
 	}
     }
 }
+

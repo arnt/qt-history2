@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#41 $
 **
 ** Implementation of QTextCodec class
 **
@@ -1292,3 +1292,4 @@ static void setupBuiltinCodecs()
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
 }
+
