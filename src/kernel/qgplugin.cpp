@@ -23,3 +23,7 @@ QUnknownInterface* QGPlugin::iface()
     return i;
 }
 
+void QGPlugin::setIface( QUnknownInterface *iface )
+{
+    _iface = iface;
+}

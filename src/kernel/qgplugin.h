@@ -84,6 +84,7 @@ public:
     ~QGPlugin();
 
     QUnknownInterface* iface();
+    void setIface( QUnknownInterface *iface );
 
 private:
     QGPlugin();
