@@ -623,8 +623,6 @@ public:
     int length(int i);
     QVariant value(int i);
 
-    QVector<QVariant> fs;
-
 private:
     char* create(int position, int size);
     OCILobLocator ** createLobLocator(int position, OCIEnv* env);
@@ -659,7 +657,7 @@ QOCIResultPrivate::OraFieldInf::~OraFieldInf()
 }
 
 QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
-    : fs(size), fieldInf(size), d(dp)
+    : fieldInf(size), d(dp)
 {
     ub4 dataSize(0);
     OCIDefine* dfn = 0;
@@ -1030,6 +1028,9 @@ QVariant QOCIResultPrivate::value(int i)
         v = QVariant(QString::fromUtf16((const short unsigned int*)at(i)));
         break;
     case QVariant::ByteArray: {
+        ub4 oraType = fieldInf.at(i).oraType;
+        if (oraType == SQLT_BIN || oraType == SQLT_LBI)
+            return QVariant(); // must be fetched piecewise
         int len = length(i);
         if (len > 0)
             return QByteArray(at(i), len);
@@ -1080,32 +1081,40 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
 {
     if (at() == QSql::AfterLastRow)
         return false;
-    int r = 0;
-    r = OCIStmtFetch (d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT);
 
-    if (r == OCI_SUCCESS_WITH_INFO) {
-        qOraWarning("QOCIResult::gotoNext: ", d);
-        r = 0; //ignore it
-    } else if (r == OCI_NEED_DATA) { /* piecewise */
-        if (index < 0)
-            r = cols->readPiecewise(cols->fs);
-        else
-            r = cols->readPiecewise(values, index);
-    }
-    if (r == OCI_ERROR) {
-        switch (qOraErrorNumber(d)) {
-        case 1406:
-            qWarning("QOCI Warning: data truncated for %s", lastQuery().toLocal8Bit().constData());
-            r = 0; /* ignore it */
-            break;
-        default:
-            qOraWarning("QOCIResult::gotoNext: ", d);
-        }
-    }
+    bool piecewise = false;
+    int r = OCI_SUCCESS;
+    r = OCIStmtFetch(d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT);
+
     if (index < 0) //not interested in values
-        return r == 0;
-    // fetch LOBs
-    if (r == 0) {
+        return r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO;
+
+    switch (r) {
+    case OCI_SUCCESS:
+        break;
+    case OCI_SUCCESS_WITH_INFO:
+        qOraWarning("QOCIResult::gotoNext: ", d);
+        r = OCI_SUCCESS; //ignore it
+        break;
+    case OCI_NO_DATA:
+        // end of rowset
+        return false;
+    case OCI_NEED_DATA:
+        piecewise = true;
+        r = OCI_SUCCESS;
+        break;
+    case OCI_ERROR:
+        if (qOraErrorNumber(d) == 1406) {
+            qWarning("QOCI Warning: data truncated for %s", lastQuery().toLocal8Bit().constData());
+            r = OCI_SUCCESS; /* ignore it */
+            break;
+        }
+        // fall through
+    default:
+        qOraWarning("QOCIResult::gotoNext: ", d);
+        break;
+    }
+    if (r == OCI_SUCCESS) {
         for (int i = 0; i < cols->size(); ++i) {
             if (cols->isNull(i))
                 values[i + index] = QVariant(cols->type(i));
@@ -1113,11 +1122,13 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
                 values[i + index] = cols->value(i);
         }
     }
-    if (r == 0)
+    if (r == OCI_SUCCESS && piecewise)
+        r = cols->readPiecewise(values, index);
+    if (r == OCI_SUCCESS)
         r = cols->readLOBs(values, index);
-    if (r != 0)
+    if (r != OCI_SUCCESS)
         setAt(QSql::AfterLastRow);
-    return r == 0;
+    return r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO;
 }
 
 int QOCIResult::size()
