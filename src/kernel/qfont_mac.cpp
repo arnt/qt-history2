@@ -225,7 +225,12 @@ void QFont::initialize()
 
 void QFont::setPixelSizeFloat( float pixelSize )
 {
-  //    setPointSizeFloat( pixelSize * 72.0 / QPaintDevice::x11AppDpiY() );
+    setPointSizeFloat( pixelSize );
+}
+
+int QFont::pixelSize() const
+{
+    return d->req.pointSize;
 }
 
 //
