@@ -46,7 +46,7 @@
 
 static const int motifBorder = 2;
 static const int thresholdTime = 500;
-static const int repeatTime    = 100;
+static const int repeatTime = 100;
 
 static const bool funnyWindowsStyle = FALSE;
 
@@ -1014,7 +1014,10 @@ void QSlider::styleChange( QStyle& old )
   \property QSlider::minValue
   \brief the current minimum value of the slider
 
-  \sa setRange() maxValue
+  When setting this property, the \l maxValue is adjusted so that the
+  range remains valid if necessary.
+
+  \sa setRange()
 */
 int QSlider::minValue() const
 {
@@ -1025,21 +1028,24 @@ int QSlider::minValue() const
   \property QSlider::maxValue
   \brief the current maximum value of the slider
 
-  \sa setRange() minValue
+  When setting this property, the \l minValue is adjusted so that the
+  range remains valid if necessary.
+
+  \sa setRange()
 */
 int QSlider::maxValue() const
 {
     return QRangeControl::maxValue();
 }
 
-void QSlider::setMinValue( int i )
+void QSlider::setMinValue( int minVal )
 {
-    setRange( i, maxValue() );
+    QRangeControl::setMinValue( minVal );
 }
 
-void QSlider::setMaxValue( int i )
+void QSlider::setMaxValue( int maxVal )
 {
-    setRange( minValue(), i );
+    QRangeControl::setMaxValue( maxVal );
 }
 
 /*!

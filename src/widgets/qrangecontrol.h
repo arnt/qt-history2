@@ -66,6 +66,8 @@ public:
     int		minValue()	const;
     int		maxValue()	const;
     void	setRange( int minValue, int maxValue );
+    void	setMinValue( int minVal );
+    void	setMaxValue( int minVal );
 
     int		lineStep()	const;
     int		pageStep()	const;

@@ -855,6 +855,9 @@ void QDial::calcLines()
   \property QDial::minValue
   \brief the current minimum value
 
+  When setting this property, the \l maxValue is adjusted so that the
+  range remains valid if necessary.
+
   \sa setRange()
 */
 int QDial::minValue() const
@@ -866,6 +869,9 @@ int QDial::minValue() const
   \property QDial::maxValue
   \brief the current maximum value
 
+  When setting this property, the \l minValue is adjusted so that the
+  range remains valid if necessary.
+
   \sa setRange()
 */
 int QDial::maxValue() const
@@ -873,14 +879,14 @@ int QDial::maxValue() const
     return QRangeControl::maxValue();
 }
 
-void QDial::setMinValue( int i )
+void QDial::setMinValue( int minVal )
 {
-    setRange( i, maxValue() );
+    QRangeControl::setMinValue( minVal );
 }
 
-void QDial::setMaxValue( int i )
+void QDial::setMaxValue( int maxVal )
 {
-    setRange( minValue(), i );
+    QRangeControl::setMaxValue( maxVal );
 }
 
 /*!

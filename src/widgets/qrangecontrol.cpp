@@ -48,48 +48,51 @@
 
   It was originally designed for the QScrollBar widget, but it can
   also be practical for other purposes such as QSlider and QSpinBox.
-  Here are the five main concepts in the class: <ul>
+  Here are the five main concepts in the class:
 
-  <li> The current value.  This is the bounded integer that
+  \list
+
+  \i The current value.  This is the bounded integer that
   QRangeControl maintains.  value() returns this and several
   functions, including setValue(), set it.
 
-  <li> The minimum.  This is the lowest value that value() can ever return.
-  Returned by minValue() and set by setRange() or one of the
+  \i The minimum.  This is the lowest value that value() can ever
+  return. Returned by minValue() and set by setRange() or one of the
   constructors.
 
-  <li> The maximum.  This is the highest value that value() can ever return.
-  Returned by maxValue() and set by setRange() or one of the
+  \i The maximum.  This is the highest value that value() can ever
+  return. Returned by maxValue() and set by setRange() or one of the
   constructors.
 
-  <li> The line step.  This is the smaller of two natural steps that
+  \i The line step.  This is the smaller of two natural steps that
   QRangeControl provides and typically corresponds to the user
-  pressing an arrow key.  The line step is returned by lineStep()
-  and set using setSteps(). The functions addLine() and subtractLine() allow easy
-  movement of the current value by lineStep().
+  pressing an arrow key.  The line step is returned by lineStep() and
+  set using setSteps(). The functions addLine() and subtractLine()
+  allow easy movement of the current value by lineStep().
 
-  <li> The page step.  This is the larger of two natural steps that
+  \i The page step.  This is the larger of two natural steps that
   QRangeControl provides and typically corresponds to the user
   pressing one of the PageUp and PageDown keys.  The page step is
-  returned by pageStep() and set using setSteps().
-  The functions addPage() and substractPage() allow easy movement
-  of the current value by pageStep().
+  returned by pageStep() and set using setSteps(). The functions
+  addPage() and substractPage() allow easy movement of the current
+  value by pageStep().
 
-  </ul>
+  \endlist
 
-  Note that unity (1) may be viewed as a third step size.  setValue()
-  lets you set the current value to any integer in the allowed range,
-  not just minValue()+n*lineStep() for integer values of n.  Some
+  Unity (1) may be viewed as a third step size.  setValue() lets you
+  set the current value to any integer in the allowed range, not just
+  minValue() + \e n * lineStep() for integer values of \e n.  Some
   widgets may allow the user to set any value at all; others may just
-  provide multiples of lineStep()/pageStep().
+  provide multiples of lineStep() or pageStep().
 
   QRangeControl provides three virtual functions that are well-suited
   for updating the on-screen representation of range controls and
   emitting signals, namely valueChange(), rangeChange() and
   stepChange().
 
-  Finally, QRangeControl provides a function called bound() which lets you
-  force arbitrary integers to be within the allowed range of the range control.
+  Finally, QRangeControl provides a function called bound() which
+  lets you force arbitrary integers to be within the allowed range of
+  the range control.
 
   We recommend that all widgets that inherit QRangeControl provide at
   least a signal called valueChanged(); many widgets will want to
@@ -109,12 +112,12 @@
 
 QRangeControl::QRangeControl()
 {
-    minVal  = 0;
-    maxVal  = 99;
-    line    = 1;
-    page    = 10;
-    val	    = prevVal = 0;
-    d       = 0;
+    minVal = 0;
+    maxVal = 99;
+    line = 1;
+    page = 10;
+    val	= prevVal = 0;
+    d = 0;
 }
 
 /*!
@@ -130,21 +133,18 @@ QRangeControl::QRangeControl( int minValue, int maxValue,
 {
     minVal = minValue;
     maxVal = maxValue;
-    line   = QABS( lineStep );
-    page   = QABS( pageStep );
-    val	   = prevVal = bound( value );
-    d       = 0;
+    line = QABS( lineStep );
+    page = QABS( pageStep );
+    val	= prevVal = bound( value );
+    d = 0;
 }
 
 /*!
-
   Destroys the range control
-
 */
 
 QRangeControl::~QRangeControl()
 {
-
 }
 
 
@@ -152,7 +152,7 @@ QRangeControl::~QRangeControl()
   \fn int QRangeControl::value() const
 
   Returns the current range control value.  This is guaranteed to be
-  within the range [ minValue() ... maxValue() ].
+  within the range [minValue(), maxValue()].
 
   \sa setValue() prevValue()
 */
@@ -166,10 +166,10 @@ QRangeControl::~QRangeControl()
   the specified range. When the range
   control is initially created, this is the same as value().
 
-  Note that prevValue() can be outside the current legal range if a call to
-  setRange() causes the current value to change.  (For example, if the
-  range was 0-1000 and the current value is 500, setRange(0, 400) makes
-  value() return 400 and prevValue() 500.)
+  prevValue() can be outside the current legal range if a call to
+  setRange() causes the current value to change.  For example, if the
+  range was [0, 1000] and the current value is 500, setRange(0, 400)
+  makes value() return 400 and prevValue() return 500.
 
   \sa value() setRange()
 */
@@ -286,7 +286,7 @@ void QRangeControl::subtractLine()
 
   Returns the current minimum value of the range.
 
-  \sa setRange() maxValue()
+  \sa setMinValue() setRange() maxValue()
 */
 
 /*!
@@ -294,8 +294,40 @@ void QRangeControl::subtractLine()
 
   Returns the current maximum value of the range.
 
-  \sa setRange() minValue()
+  \sa setMaxValue() setRange() minValue()
 */
+
+/*!
+  Sets the current minimum value of the range to \a minVal.
+
+  If necessary, the maxValue() is adjusted so that the range remains
+  valid.
+
+  \sa minValue() setMaxValue()
+*/
+void QRangeControl::setMinValue( int minVal )
+{
+    int maxVal = maxValue();
+    if ( maxVal < minVal )
+	maxVal = minVal;
+    setRange( minVal, maxVal );
+}
+
+/*!
+  Sets the current minimum value of the range to \a maxVal.
+
+  If necessary, the minValue() is adjusted so that the range remains
+  valid.
+
+  \sa maxValue() setMinValue()
+*/
+void QRangeControl::setMaxValue( int maxVal )
+{
+    int minVal = minValue();
+    if ( minVal > maxVal )
+	minVal = maxVal;
+    setRange( minVal, maxVal );
+}
 
 /*!
   Sets the range min value to \e minValue and the max value to \e
@@ -360,11 +392,11 @@ void QRangeControl::setRange( int minValue, int maxValue )
   \sa lineStep() pageStep() setRange()
 */
 
-void QRangeControl::setSteps(int lineStep,int pageStep)
+void QRangeControl::setSteps( int lineStep, int pageStep )
 {
-    if (lineStep != line || pageStep != page) {
-	line = QABS(lineStep);
-	page = QABS(pageStep);
+    if ( lineStep != line || pageStep != page ) {
+	line = QABS( lineStep );
+	page = QABS( pageStep );
 	stepChange();
     }
 }

@@ -925,6 +925,9 @@ QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 
   \brief the minimum value of the spin box
 
+  When setting this property, the \l maxValue is adjusted so that the
+  range remains valid if necessary.
+
   \sa setRange()
 */
 
@@ -933,15 +936,17 @@ int QSpinBox::minValue() const
     return QRangeControl::minValue();
 }
 
-void QSpinBox::setMinValue( int i )
+void QSpinBox::setMinValue( int minVal )
 {
-    setRange( i, maxValue() );
+    QRangeControl::setMinValue( minVal );
 }
 
 /*!
   \property QSpinBox::maxValue
-
   \brief the maximum value of the spin box
+
+  When setting this property, the \l minValue is adjusted so that the
+  range remains valid if necessary.
 
   \sa setRange()
 */
@@ -951,9 +956,9 @@ int QSpinBox::maxValue() const
     return QRangeControl::maxValue();
 }
 
-void QSpinBox::setMaxValue( int i )
+void QSpinBox::setMaxValue( int maxVal )
 {
-    setRange( minValue(), i );
+    QRangeControl::setMaxValue( maxVal );
 }
 
 /*!
