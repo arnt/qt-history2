@@ -295,58 +295,39 @@ QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, voi
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
 	widget = QWidget::find( (WId)wid );
-	if(ekind == kEventWindowGetRegion) {
-	    if(widget) {
-		CallNextEventHandler(er, event);
-		WindowRegionCode wcode;
-		GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
-				  sizeof(wcode), NULL, &wcode);
-		RgnHandle rgn;
-		GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
-				  sizeof(rgn), NULL, &rgn);
-
-		qDebug("happend for %s %s %d", widget->name(), widget->className(), wcode);
-		switch(wcode) {
-		case kWindowOpaqueRgn: 
-		    EmptyRgn(rgn);
-		    break; 
-		case kWindowStructureRgn: {
-		    QRegion cr;
-		    if(widget->extra && !widget->extra->mask.isNull()) {
-			QRegion rin;
-			CopyRgn(rgn, rin.handle(TRUE));
-			qDebug("first..");
-			QArray<QRect> rs = rin.rects();
-			for(int i = 0; i < rs.count(); i++)
-			    qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), 
-				   rs[i].width(), rs[i].height());
-
-			QRect rin_br = rin.boundingRect();y
-			rin -= QRegion(widget->geometry());
-			qDebug("second..");
-			rs = rin.rects();
-			for(int i = 0; i < rs.count(); i++)
-			    qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), 
-				   rs[i].width(), rs[i].height());
-#if 0
-			QRegion rpm = widget->extra->mask;
-			rpm.translate(widget->x() - rin_br.x(), widget->y() - rin_br.y());
-			rin += rpm;
-#endif
-			CopyRgn(rin.handle(TRUE), rgn);
-		    }
-		    break; }
-		case kWindowContentRgn: {
-		    QRegion cr;
-		    if(widget->extra && !widget->extra->mask.isNull()) {
-			cr = widget->extra->mask;
-			cr.translate(widget->x(), widget->y());
-		    } else {
-			cr = QRegion(widget->geometry());
-		    }
-		    CopyRgn(cr.handle(TRUE), rgn);
-		    break; }
+	if(ekind == kEventWindowGetRegion && widget) {
+	    CallNextEventHandler(er, event);
+	    WindowRegionCode wcode;
+	    GetEventParameter(event, kEventParamWindowRegionCode, typeWindowRegionCode, NULL,
+			      sizeof(wcode), NULL, &wcode);
+	    RgnHandle rgn;
+	    GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL,
+			      sizeof(rgn), NULL, &rgn);
+	    switch(wcode) {
+	    case kWindowOpaqueRgn: 
+		EmptyRgn(rgn);
+		break; 
+	    case kWindowStructureRgn: {
+		QRegion cr;
+		if(widget->extra && !widget->extra->mask.isNull()) {
+		    QRegion rin;
+		    CopyRgn(rgn, rin.handle(TRUE));
+		    QRegion rpm = widget->extra->mask;
+		    QRect rpm_br = rpm.boundingRect();
+		    rin -= QRegion(widget->x() + rpm_br.x(), widget->y() + rpm_br.y(), 
+				   widget->width(), widget->height());
+		    rpm.translate(widget->x(), widget->y());
+		    rin += rpm;
+		    CopyRgn(rin.handle(TRUE), rgn);
 		}
+		break; }
+	    case kWindowContentRgn: {
+		if(widget->extra && !widget->extra->mask.isNull()) {
+		    QRegion cr = widget->extra->mask;
+		    cr.translate(widget->x(), widget->y());
+		    CopyRgn(cr.handle(TRUE), rgn);
+		}
+		break; }
 	    }
 	} else {
 	    handled_event = FALSE;
@@ -527,13 +508,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	//wattr |= kWindowLiveResizeAttribute;
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
 	    wattr |= kWindowNoActivatesAttribute;
-
 	if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
 	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
-	//setup an event callback handler on the window
-	InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(), 
-				  GetEventTypeCount(window_events),
-				  window_events, (void *)qApp, &window_event);
+	if(!desktop) { 	//setup an event callback handler on the window
+	    InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(), 
+				      GetEventTypeCount(window_events),
+				      window_events, (void *)qApp, &window_event);
+	}
 
 	if(wclass == kFloatingWindowClass)
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute);
@@ -624,9 +605,11 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qApp->closePopup( this );
 	if ( destroyWindow && isTopLevel() && hd && own_id) {
 	    mac_window_count--;
-	    DisposeWindow( (WindowPtr)hd );
-	    if(window_event)
+	    if(window_event) {
 		RemoveEventHandler( window_event );
+		window_event = NULL;
+	    }
+	    DisposeWindow( (WindowPtr)hd );
 	}
     }
     hd=0;
@@ -647,7 +630,12 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 	unsetCursor();
     }
 
-    WindowPtr old_hd = testWFlags(WType_Desktop) ? NULL : (WindowPtr)hd;
+    EventHandlerRef old_window_event = NULL;
+    WindowPtr old_hd = NULL;
+    if(!isDesktop()) {
+	old_hd = (WindowPtr)hd;
+	old_window_event = window_event;
+    }
     QWidget* oldtlw = topLevelWidget();
     reparentFocusWidgets( parent );		// fix focus chains
 
@@ -739,6 +727,10 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     //send the reparent event
     if ( old_hd && owned ) { //don't need old window anymore
 	mac_window_count--;
+	if(old_window_event) {
+	    RemoveEventHandler( old_window_event );
+	    old_window_event = NULL;
+	}
 	DisposeWindow( old_hd );
     }
 }
