@@ -137,12 +137,12 @@ static void readLocaleSettings()
 	*lDateSep = data;
 	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_STIME, (char*)&data, 10 );
 	*lTimeSep = data;
-	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ITIME, (TCHAR*)&data, 10 );
+	GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_ITIME, (char*)&data, 10 );
 	lAMPM = QString( data ).toInt()==0;
 	if ( lAMPM ) {
-	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S1159, (TCHAR*)&data, 10 );
+	    GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_S1159, (char*)&data, 10 );
 	    lAM = new QString( data );
-	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_S2359, (TCHAR*)&data, 10 );
+	    GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_S2359, (char*)&data, 10 );
 	    lPM = new QString( data );
 	}
     }
@@ -2230,7 +2230,7 @@ QSize QTimeEdit::sizeHint() const
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
     int h = fm.height();
     int w = 2 + fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
-	    d->controls->upRect().width() + fw * 4;
+		d->controls->upRect().width() + fw * 4 + (lAMPM ? fm.width( *lAM ) + 4 : 0 );
 
     return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
