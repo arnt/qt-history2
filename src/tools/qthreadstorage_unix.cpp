@@ -218,12 +218,13 @@ void QThreadStoragePrivate::finish( void **thread_storage )
     data either when the thread exits or when setLocalData() is called
     multiple times.
 
-    \i Threads started using platform-specific API cannot use
-    QThreadStorage. QThreadStorage can only be used in threads started
-    using QThread.
+    \i Threads started using platform-specific API can use
+    QThreadStorage, but all per-thread data will be leaked.  Use
+    QThread instead.
 
     \i As a corollary to the above, platform-specific API cannot be
-    used to exit or terminate a QThread using QThreadStorage.  See
+    used to exit or terminate a QThread using QThreadStorage.  Doing
+    so will cause all per-thread data to be leaked. See
     QThread::exit() and QThread::terminate().
 
     \i QThreadStorage can be used to store data for the \e main()
