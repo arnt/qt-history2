@@ -609,7 +609,7 @@ QString QAccessibleTitleBar::text(Text t, int child) const
         break;
     case Value:
         if (!child || child == 2)
-            return titleBar()->window()->windowTitle();
+            return window ? window->windowTitle() : QString();
         break;
 /*
     case DefaultAction:
