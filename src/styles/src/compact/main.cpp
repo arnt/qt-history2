@@ -7,7 +7,7 @@ class CompactStyle : public QStyleInterface, public QLibraryInterface
 public:
     CompactStyle();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -29,21 +29,21 @@ CompactStyle::CompactStyle()
 {
 }
 
-QUnknownInterface *CompactStyle::queryInterface( const QUuid &uuid )
+QRESULT CompactStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
-    if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(QStyleInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleInterface )
-	iface = (QStyleInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+    *iface = 0;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( uuid == IID_QUnknownInterface )
+	*iface = (QUnknownInterface*)(QStyleInterface*)this;
+    else if ( uuid == IID_QFeatureListInterface )
+	*iface = (QFeatureListInterface*)this;
+    else if ( uuid == IID_QStyleInterface )
+	*iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	*iface = (QLibraryInterface*)this;
+
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long CompactStyle::addRef()
