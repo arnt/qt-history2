@@ -165,6 +165,8 @@ private:
 #if defined(Q_WS_WIN)
     void        readPdlg( void* );
     void        readPdlgA( void* );
+    void	writeDevmode( HANDLE );
+    void	writeDevmodeA( HANDLE );
     void	reinit();
 
     bool        viewOffsetDone;

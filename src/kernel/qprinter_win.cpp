@@ -415,7 +415,7 @@ void QPrinter::readPdlg( void* pdv )
             else
                 orient = Landscape;
             setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
-            setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
+            paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
             	ncopies = dm->dmCopies;
             if ( dm->dmCollate == DMCOLLATE_TRUE )
@@ -481,7 +481,7 @@ void QPrinter::readPdlgA( void* pdv )
 	    else
 		orient = Landscape;
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
-            setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
+            paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
             	ncopies = dm->dmCopies;
             if ( dm->dmCollate == DMCOLLATE_TRUE )
@@ -615,6 +615,75 @@ void QPrinter::setPrinterName( const QString &name )
     setDefaultPrinter( name, &hdevmode, &hdevnames );
 }
 
+void QPrinter::writeDevmode( HANDLE hdm )
+{
+#if defined(UNICODE)
+    if ( hdm ) {
+	DEVMODE* dm = (DEVMODE*)GlobalLock( hdm );
+	if ( dm ) {
+	    if ( orient == Portrait )
+		dm->dmOrientation = DMORIENT_PORTRAIT;
+	    else
+		dm->dmOrientation = DMORIENT_LANDSCAPE;
+	    if ( color_mode == Color )
+		dm->dmColor = DMCOLOR_COLOR;
+	    else
+		dm->dmColor = DMCOLOR_MONOCHROME;
+	    dm->dmCopies = ncopies;
+	    if ( usercolcopies )
+		dm->dmCollate = DMCOLLATE_TRUE;
+	    else
+		dm->dmCollate = DMCOLLATE_FALSE;
+	    dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
+	    int winPageSize = mapPageSizeDevmode( pageSize() );
+	    if ( winPageSize != 0 ) {
+		dm->dmPaperSize = winPageSize;
+	    } else if ( pageSize() < Custom ) {
+		dm->dmPaperSize = 0;
+		dm->dmPaperLength = paperSizes[ pageSize() ].height;
+		dm->dmPaperWidth = paperSizes[ pageSize() ].width;
+	    }            if ( colorMode() == Color )
+	    dm->dmColor = DMCOLOR_COLOR;
+	    else
+		dm->dmColor = DMCOLOR_MONOCHROME;
+	    GlobalUnlock( hdm );
+	}
+    }
+#endif
+}
+
+void QPrinter::writeDevmodeA( HANDLE hdm )
+{
+    if ( hdm ) {
+	DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdm );
+	if ( dm ) {
+	    if ( orient == Portrait )
+		dm->dmOrientation = DMORIENT_PORTRAIT;
+	    else
+		dm->dmOrientation = DMORIENT_LANDSCAPE;
+	    dm->dmCopies = ncopies;
+	    if ( usercolcopies )
+		dm->dmCollate = DMCOLLATE_TRUE;
+	    else
+		dm->dmCollate = DMCOLLATE_FALSE;
+	    dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
+	    int winPageSize = mapPageSizeDevmode( pageSize() );
+	    if ( winPageSize != 0 ) {
+		dm->dmPaperSize = winPageSize;
+	    } else if ( pageSize() < Custom ) {
+		dm->dmPaperSize = 0;
+		dm->dmPaperLength = paperSizes[ pageSize() ].height;
+		dm->dmPaperWidth = paperSizes[ pageSize() ].width;
+	    }
+	    if ( colorMode() == Color )
+		dm->dmColor = DMCOLOR_COLOR;
+	    else
+		dm->dmColor = DMCOLOR_MONOCHROME;
+	    GlobalUnlock( hdm );
+	}
+    }
+}
+
 bool QPrinter::setup( QWidget *parent )
 {
     if ( parent )
@@ -674,37 +743,7 @@ bool QPrinter::setup( QWidget *parent )
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
 
-            if ( pd.hDevMode ) {
-                DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
-                if ( dm ) {
-                    if ( orient == Portrait )
-			dm->dmOrientation = DMORIENT_PORTRAIT;
-		    else
-			dm->dmOrientation = DMORIENT_LANDSCAPE;
-		    if ( color_mode == Color )
-			dm->dmColor = DMCOLOR_COLOR;
-		    else
-			dm->dmColor = DMCOLOR_MONOCHROME;
-		    dm->dmCopies = ncopies;
-		    if ( usercolcopies )
-			dm->dmCollate = DMCOLLATE_TRUE;
-		    else
-			dm->dmCollate = DMCOLLATE_FALSE;
-		    dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-		    int winPageSize = mapPageSizeDevmode( pageSize() );
-		    if ( winPageSize != 0 ) {
-			dm->dmPaperSize = winPageSize;
-		    } else if ( pageSize() < Custom ) {
-			dm->dmPaperSize = 0;
-			dm->dmPaperLength = paperSizes[ pageSize() ].height;
-			dm->dmPaperWidth = paperSizes[ pageSize() ].width;
-		    }            if ( colorMode() == Color )
-			dm->dmColor = DMCOLOR_COLOR;
-		    else
-			dm->dmColor = DMCOLOR_MONOCHROME;
-		    GlobalUnlock( pd.hDevMode );
-                }
-            }
+	    writeDevmode( pd.hDevMode );
             // } writePdlg
             result = PrintDlg( &pd );
             if ( result && pd.hDC == 0 )
@@ -763,34 +802,7 @@ bool QPrinter::setup( QWidget *parent )
             pd.nMaxPage  = max_pg;
             pd.nCopies   = ncopies;
 
-        if ( pd.hDevMode ) {
-            DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
-            if ( dm ) {
-                if ( orient == Portrait )
-                    dm->dmOrientation = DMORIENT_PORTRAIT;
-                else
-                    dm->dmOrientation = DMORIENT_LANDSCAPE;
-                dm->dmCopies = ncopies;
-		if ( usercolcopies )
-		    dm->dmCollate = DMCOLLATE_TRUE;
-		else
-		    dm->dmCollate = DMCOLLATE_FALSE;
-                dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-		int winPageSize = mapPageSizeDevmode( pageSize() );
-		if ( winPageSize != 0 ) {
-		    dm->dmPaperSize = winPageSize;
-		} else if ( pageSize() < Custom ) {
-		    dm->dmPaperSize = 0;
-		    dm->dmPaperLength = paperSizes[ pageSize() ].height;
-		    dm->dmPaperWidth = paperSizes[ pageSize() ].width;
-		}
-		if ( colorMode() == Color )
-                    dm->dmColor = DMCOLOR_COLOR;
-                else
-                    dm->dmColor = DMCOLOR_MONOCHROME;
-                GlobalUnlock( pd.hDevMode );
-            }
-        }
+	    writeDevmodeA( pd.hDevMode );
             result = PrintDlgA( &pd );
             if ( result && pd.hDC == 0 )
                 result = FALSE;
