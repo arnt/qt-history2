@@ -32,10 +32,9 @@
 
 class QColorDialogPrivate;
 
-class Q_EXPORT QColorDialog : public QDialog 
+class Q_EXPORT QColorDialog : public QDialog
 {
     Q_OBJECT
-    Q_PROPERTY( QColor color READ color WRITE setColor )
 
 public:
     static QColor getColor( QColor, QWidget *parent=0, const char* name=0 );
@@ -47,6 +46,7 @@ public:
     static QRgb customColor( int );
     static void setCustomColor( int, QRgb );
 
+private:
     ~QColorDialog();
 
     QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
