@@ -347,7 +347,6 @@ void FormWindowManager::setupActions()
     m_actionShowResourceEditor = new QAction(createIconSet("resourceeditortool.png"), tr("Edit &resources"));
     m_actionShowResourceEditor->setStatusTip(tr("Display the resource editor dialog"));
     m_actionShowResourceEditor->setWhatsThis(tr("Display the resource editor dialog"));
-    m_actionShowResourceEditor->setShortcut(Qt::CTRL + Qt::Key_R);
     connect(m_actionShowResourceEditor, SIGNAL(triggered()), this, SLOT(slotActionShowResourceEditorActivated()));
     m_actionShowResourceEditor->setEnabled(false);
 }
