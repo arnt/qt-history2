@@ -45,7 +45,8 @@ HEADERS	= command.h \
 		  actioneditorimpl.h \
 		  actionlistview.h \
 		  actiondnd.h \
-		  database.h
+		  database.h \
+		  project.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -89,7 +90,8 @@ SOURCES	= command.cpp \
 		  actioneditorimpl.cpp \
 		  actionlistview.cpp \
 		  actiondnd.cpp \
-		  database.cpp
+		  database.cpp \
+		  project.cpp
 
 INTERFACES	= listboxeditor.ui \
 		  connectioneditor.ui \

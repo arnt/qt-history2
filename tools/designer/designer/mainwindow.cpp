@@ -93,6 +93,7 @@
 #include <qregexp.h>
 #include "actioneditorimpl.h"
 #include "actiondnd.h"
+#include "project.h"
 
 static int forms = 0;
 
@@ -719,6 +720,21 @@ void MainWindow::setupFileActions()
 
     menu->insertSeparator();
 
+    QActionGroup *ag = new QActionGroup( this, 0 );
+    ag->setText( tr( "Project" ) );
+    ag->setMenuText( tr( "&Project" ) );
+    ag->setExclusive( TRUE );
+    ag->setUsesDropDown( TRUE );
+    connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
+    a = new QAction( tr( "No Project" ), tr( "No Project" ), 0, ag, 0, TRUE );
+    projects.insert( a, new Project( "", tr( "No Project" ) ) );
+    a->setOn( TRUE );
+    ag->addTo( menu );
+    ag->addTo( tb );
+    actionGroupProjects = ag;
+    
+    menu->insertSeparator();
+
     a = new QAction( this, 0 );
     a->setText( tr( "Create Template" ) );
     a->setMenuText( tr( "&Create Template..." ) );
@@ -1201,11 +1217,7 @@ void MainWindow::fileOpen()
 	    QFileInfo fi( filename );
 
 	    if ( fi.extension() == "pro" ) {
-		QStringList lst = getUiFiles( filename );
-		for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-		    QString fn = QUrl( QFileInfo( filename ).dirPath(), *it ).path();
-		    openFile( fn );
-		}
+		openProject( filename );
 	    } else if ( fi.extension() == "ui" ) {
 		openFile( filename );
 	    } else {
@@ -3345,41 +3357,17 @@ void MainWindow::createNewTemplate()
     f.close();
 }
 
-QStringList MainWindow::getUiFiles( const QString &profile )
+void MainWindow::projectSelected( QAction *a )
 {
-    QFile f( profile );
-    if ( !f.exists() || !f.open( IO_ReadOnly ) )
-	return QStringList();
-    QTextStream ts( &f );
-    QString contents = ts.read();
-    f.close();
+}
 
-    int i = contents.find( "INTERFACES" );
-    if ( i == -1 )
-	return QStringList();
-	
-    QString part = contents.mid( i + QString( "INTERFACES" ).length() );
-    QStringList lst;
-    bool inName = FALSE;
-    QString currName;
-    for ( i = 0; i < (int)part.length(); ++i ) {
-	QChar c = part[ i ];
-	if ( ( c.isLetter() || c.isDigit() || c == '.' ) &&
-	     c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
-	    if ( !inName )
-		currName = QString::null;
-	    currName += c;
-	    inName = TRUE;
-	} else {
-	    if ( inName ) {
-		inName = FALSE;
-		if ( currName.right( 3 ).lower() == ".ui" )
-		    lst.append( currName );
-	    }
-	}
-    }
-
-    return lst;
+void MainWindow::openProject( const QString &fn )
+{
+    Project *pro = new Project( fn );
+    QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
+    projects.insert( a, pro );
+    a->setOn( TRUE );
+    projectSelected( a );
 }
 
 void MainWindow::checkTempFiles()

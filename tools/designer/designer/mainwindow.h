@@ -46,6 +46,7 @@ class FormList;
 class Help;
 class ActionEditor;
 class ActionInterface;
+class Project;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -192,7 +193,8 @@ private slots:
 
     void closeAllForms();
     void createNewTemplate();
-
+    void projectSelected( QAction *a );
+    
 private:
     void setupMDI();
     void setupMenuBar();
@@ -228,13 +230,10 @@ private:
 
     bool openEditor( QWidget *w );
     void rebuildCustomWidgetGUI();
-
-    QStringList getUiFiles( const QString &profile );
-
     void checkTempFiles();
-
     void openHelpForDialog( const QString &dia );
-
+    void openProject( const QString &fn );
+    
 private:
     PropertyEditor *propertyEditor;
     HierarchyView *hierarchyView;
@@ -256,6 +255,7 @@ private:
     bool splashScreen;
     QString docPath;
 
+    QMap<QAction*, Project*> projects;
     QAction *actionWindowPropertyEditor;
     QAction *actionEditUndo, *actionEditRedo, *actionEditCut, *actionEditCopy,
     *actionEditPaste, *actionEditDelete,
@@ -263,7 +263,7 @@ private:
     *actionEditHLayout, *actionEditVLayout, *actionEditGridLayout,
     *actionEditSelectAll, *actionEditBreakLayout, *actionEditSlots, *actionEditConnections,
     *actionEditLower, *actionEditRaise;
-    QActionGroup *actionGroupTools;
+    QActionGroup *actionGroupTools, *actionGroupProjects;
     QAction* actionPointerTool, *actionConnectTool, *actionOrderTool;
     QAction* actionCurrentTool;
     QAction *actionHelpContents, *actionHelpAbout, *actionHelpAboutQt, *actionHelpWhatsThis;
