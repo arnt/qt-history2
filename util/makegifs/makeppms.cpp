@@ -1,5 +1,3 @@
-#warning "If you get a compile error, because of QFontDialog or QColorDialog, make EgQColorDialog a friend of QColorDialog and EgQFontDialog a friend of QFontDialog!"
-
 #include <stdlib.h>
 #include <unistd.h> // for sleep()
 

@@ -994,6 +994,12 @@ void QColorDialogPrivate::addCustom()
   <img src=qcolordlg-m.png> <img src=qcolordlg-w.png>
 */
 
+/*!
+  Constructs a default color dialog. Use setColor() for setting an initial value.
+
+  \sa getColor()
+*/
+
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
     QDialog(parent, name, modal )
 {
@@ -1015,12 +1021,12 @@ QColor QColorDialog::getColor( QColor initial, QWidget *parent,
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
     dlg->setCaption( QColorDialog::tr( "Select color" ) );
-    dlg->setSelectedColor( initial );
+    dlg->setColor( initial );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();
     QColor result;
     if ( resultCode == QDialog::Accepted )
-	result = dlg->selectedColor();
+	result = dlg->color();
     QColor::destroyAllocContext(allocContext);
     delete dlg;
     return result;
@@ -1044,13 +1050,13 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 {
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
-    dlg->setSelectedColor( initial );
+    dlg->setColor( initial );
     dlg->setSelectedAlpha( qAlpha(initial) );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();
     QRgb result = initial;
     if ( resultCode == QDialog::Accepted ) {
-	QRgb c = dlg->selectedColor().rgb();
+	QRgb c = dlg->color().rgb();
 	int alpha = dlg->selectedAlpha();
 	result = qRgba( qRed(c), qGreen(c), qBlue(c), alpha );
     }
@@ -1068,9 +1074,11 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
 
 /*!
   Returns the color currently selected in the dialog.
+  
+  \sa setColor()
 */
 
-QColor QColorDialog::selectedColor() const
+QColor QColorDialog::color() const
 {
     return QColor(d->currentColor());
 }
@@ -1088,9 +1096,11 @@ QColorDialog::~QColorDialog()
 
 /*!
   Sets the color shown in the dialog to \a c.
+  
+  \sa color()
 */
 
-void QColorDialog::setSelectedColor( QColor c )
+void QColorDialog::setColor( QColor c )
 {
     d->setCurrentColor( c.rgb() );
 }

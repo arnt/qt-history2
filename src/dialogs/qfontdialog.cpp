@@ -42,22 +42,14 @@
 
 #include <ctype.h>
 
-//
-//  W A R N I N G
-//  -------------
-//
-//  This class is under development and is currently unstable.
-//
-//
-
 // BEING REVISED: hanord
 /*!
   \class QFontDialog qfontdialog.h
   \brief The QFontDialog provides a dialog widget for selecting a text font
   \ingroup dialogs
 
-  Used for allowing the user to select a font among the available fonts
-  on the underlying window system.
+  This dialog can be used to let the user choose a font with attributes and so on.
+  Normally you may use the static convenience function getFont().
 
   <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
 */
@@ -145,7 +137,10 @@ public:
 
 
 /*!
-  Constructs a default font dialog.
+  Constructs a default font dialog. Use setFont() for setting
+  the initial values.
+  
+  \sa getFont()
 */
 
 QFontDialog::QFontDialog( QWidget *parent, const char *name,
@@ -690,6 +685,13 @@ void QFontDialog::sizeHighlighted( const QString &s )
     updateSample();
 }
 
+/*!
+  Sets the \a f to the font which values should be set
+  in the QFontDialog.
+  
+  \sa font()
+*/
+
 void QFontDialog::setFont( const QFont &f )
 {
     QString famNam = f.family().lower();
@@ -735,6 +737,12 @@ void QFontDialog::setFont( const QFont &f )
 	d->sizeList->setCurrentItem( i );
     }
 }
+
+/*!
+  Returns the font which the user has chosen.
+  
+  \sa setFont()
+*/
 
 QFont QFontDialog::font() const
 {

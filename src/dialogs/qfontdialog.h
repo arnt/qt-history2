@@ -51,17 +51,18 @@ class QFontDialogPrivate;
 class Q_EXPORT QFontDialog: public QDialog
 {
     Q_OBJECT
+    Q_PROPERTY( QFont font READ font WRITE setFont )
+    
 public:
     static QFont getFont( bool *ok, const QFont &def,
     			  QWidget *parent = 0, const char* name = 0);
 
     static QFont getFont( bool *ok, QWidget *parent = 0, const char* name = 0);
-private:
+
     QFontDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		 WFlags f=0 );
    ~QFontDialog();
 
-private:
     QFont font() const;
     void setFont( const QFont &font );
 

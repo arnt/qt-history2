@@ -32,30 +32,35 @@
 
 class QColorDialogPrivate;
 
-class Q_EXPORT QColorDialog : public QDialog {
+class Q_EXPORT QColorDialog : public QDialog 
+{
     Q_OBJECT
+    Q_PROPERTY( QColor color READ color WRITE setColor )
+
 public:
     static QColor getColor( QColor, QWidget *parent=0, const char* name=0 );
     static QRgb getRgba( QRgb, bool* ok = 0,
 			 QWidget *parent=0, const char* name=0 );
 
-    
+
     static int customCount();
     static QRgb customColor( int );
     static void setCustomColor( int, QRgb );
-    
-    ~QColorDialog();
-private:
-    QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
-    void setSelectedColor( QColor );
-    QColor selectedColor() const;
 
+    ~QColorDialog();
+
+    QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
+    void setColor( QColor );
+    QColor color() const;
+
+private:
     void setSelectedAlpha( int );
     int selectedAlpha() const;
 
     void showCustom( bool=TRUE );
 private:
      QColorDialogPrivate *d;
+
 };
 
 #endif //QCOLORDIALOG_H
