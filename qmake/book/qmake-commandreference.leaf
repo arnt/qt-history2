@@ -222,6 +222,14 @@ These options define the application/library type:
 \i plugin - The target is a plugin (lib only). This enables dll as well.
 \endlist
 
+These following options are used to set the compiler flags:
+
+\list
+\i exceptions - Exception support is enabled
+\i rtti - RTTI support is enabled
+\i stl - STL support is enabled
+\endlist
+
 The \c CONFIG variable will also be checked when resolving
 scopes.  You may assign anything to this variable.  
 
