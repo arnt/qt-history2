@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#46 $
 **
 ** Implementation of QMetaObject class
 **
@@ -290,6 +290,7 @@ int QMetaObjectInit::init()
 	i++;
     }
     delete functions_head;
+    functions_head = 0;
     return i;
 }
 
