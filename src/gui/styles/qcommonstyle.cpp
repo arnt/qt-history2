@@ -1314,16 +1314,16 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         break; }
     case CE_DockWindowTitle:
         if (const QStyleOptionDockWindow *dwOpt = qt_cast<const QStyleOptionDockWindow *>(opt)) {
+            QRect r = dwOpt->rect.adjusted(0, 0, -1, -1);
             if (dwOpt->moveable) {
                 p->setPen(dwOpt->palette.color(QPalette::Dark));
-                p->drawRect(dwOpt->rect.adjusted(0,0,-1,-1));
+                p->drawRect(r);
             }
             if (!dwOpt->title.isEmpty()) {
-                QRect r = dwOpt->rect;
                 const int indent = p->fontMetrics().descent();
-                r.addCoords(indent, 0, -indent, 0);
-                drawItem(p, r, Qt::AlignLeft, dwOpt->palette, dwOpt->state & Style_Enabled,
-                         dwOpt->title);
+                drawItem(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
+                         Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
+                         dwOpt->state & Style_Enabled, dwOpt->title);
             }
         }
         break;
