@@ -252,57 +252,72 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
     return mime_registry[mime];
 }
 #else
-bool QMacMimeAnyMime::loadMimeRegistry()
+bool openMimeRegistry(bool global, int mode, QFile &file)
 {
-    const QString mimeTypeDir = "/Library/Qt";
-    if(!library_file.isOpen()) {
-        if(!QFile::exists(mimeTypeDir)) {
+    QString dir = "/Library/Qt";
+    if(!global)
+        dir.prepend(QDir::homeDirPath());
+    file.setName(dir + "/.mime_types");
+    if(mode != IO_ReadOnly) {
+        if(!QFile::exists(dir)) {
             // Do it with a system call as I don't see much worth in
             // doing it with QDir since we have to chmod anyway.
-            bool success = ::mkdir(mimeTypeDir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR) == 0;
+            bool success = ::mkdir(dir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR) == 0;
             if (success)
-                success = ::chmod(mimeTypeDir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR
-                                  | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH) == 0;
-            if (!success) {
-                qWarning("Problem creating %s: %s", mimeTypeDir.latin1(), strerror(errno));
+                success = ::chmod(dir.local8Bit(), S_IRUSR | S_IWUSR | S_IXUSR 
+                                      | S_IRGRP | S_IWGRP | S_IXGRP | S_IROTH | S_IWOTH | S_IXOTH) == 0;
+            if (!success) 
                 return false;
-            }
         }
-        library_file.setName(mimeTypeDir + "/.mime_types");
-        if (!library_file.exists()) {
+        if (!file.exists()) {
             // Create the file and chmod it so that everyone can write to it.
-            int fd = ::open(library_file.name().local8Bit(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+            int fd = ::open(file.name().local8Bit(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
             bool success = fd != -1;
             if (success)
                 success = ::fchmod(fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) == 0;
-            int olderrno = errno;
             if (fd != -1)
                 ::close(fd);
-            if (!success) {
-                qWarning("Problem creating %s: %s", library_file.name().latin1(), strerror(olderrno));
+            if(!success)
                 return false;
+        }
+    }
+    return file.open(mode);
+}
+void loadMimeRegistry(QFile &file, QMap<QString, int> &registry, int &max)
+{
+    file.reset();
+    QTextStream stream(&file);
+    while(!stream.atEnd()) {
+	QString mime = stream.readLine();
+	int mactype = stream.readLine().toInt();
+	if(mactype > max)
+	    max = mactype;
+	registry.insert(mime, mactype);
+    }
+}
+bool QMacMimeAnyMime::loadMimeRegistry()
+{
+    if(!library_file.isOpen()) {
+        if(!openMimeRegistry(true, IO_ReadWrite, library_file)) {
+            QFile global;
+            if(openMimeRegistry(true, IO_ReadOnly, global)) {
+                ::loadMimeRegistry(global, mime_registry, current_max);
+                global.close();
+            }
+            if(!openMimeRegistry(false, IO_ReadWrite, library_file)) {
+                qWarning("Failure to open mime resources %s -- %s", library_file.name().latin1(),
+                         library_file.errorString().latin1());
+                return FALSE;
             }
         }
-        if(!library_file.open(IO_ReadWrite)) {
-            qWarning("Failure to open %s -- %s", library_file.name().latin1(),
-                     library_file.errorString().latin1());
-            return false;
-        }
-        library_file.reset();
     }
+ 
     QFileInfo fi(library_file);
-    if(!mime_registry_loaded.isNull() && mime_registry_loaded == fi.lastModified())
-        return true;
+    if(!mime_registry_loaded.isNull() && mime_registry_loaded == fi.lastModified()) 
+        return TRUE;
     mime_registry_loaded = fi.lastModified();
-    QTextStream stream(&library_file);
-    while(!stream.atEnd()) {
-        QString mime = stream.readLine();
-        int mactype = stream.readLine().toInt();
-        if(mactype > current_max)
-            current_max = mactype;
-        mime_registry.insert(mime, mactype);
-    }
-    return true;
+    ::loadMimeRegistry(library_file, mime_registry, current_max);
+    return TRUE;
 }
 
 int QMacMimeAnyMime::registerMimeType(const char *mime)
