@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#22 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#23 $
 **
 ** Definition of QProgressBar class
 **
@@ -47,7 +47,8 @@ public:
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
-
+    QSize	minimumSizeHint() const;
+    
     void	setCenterIndicator( bool on );
     bool	centerIndicator() const;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#271 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#272 $
 **
 ** Implementation of QListView widget class
 **
@@ -3942,6 +3942,18 @@ QSize QListView::sizeHint() const
 }
 
 
+/*!
+  \reimp
+*/
+
+QSize QListView::minimumSizeHint() const
+{
+    //###should be implemented
+    return QScrollView::minimumSizeHint();
+}
+
+
+
 /*!  Sets \a item to be open if \a open is TRUE and \a item is
   expandable, and to be closed if \a open is FALSE.  Repaints
   accordingly.
@@ -4570,4 +4582,5 @@ void QListViewItemIterator::currentRemoved()
     else
         curr = 0L;
 }
+
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#277 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#278 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1808,6 +1808,18 @@ QSize QListBox::sizeHint() const
     int y = d->rowPos[i];
 
     return QSize( QMAX( 40, x ), QMAX( 40, y ) );
+}
+
+
+
+/*!
+  \reimp
+*/
+
+QSize QListBox::minimumSizeHint() const
+{
+    //###should be implemented
+    return QScrollView::minimumSizeHint();
 }
 
 

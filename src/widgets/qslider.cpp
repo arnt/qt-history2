@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#92 $
 **
 ** Implementation of QSlider class
 **
@@ -860,8 +860,7 @@ int QSlider::goodPart( const QPoint &p ) const
 }
 
 /*!
-  Returns the recommended size of the slider. Only the thickness is
-  relevant.
+  Returns the recommended size of the slider.
 */
 
 QSize QSlider::sizeHint() const
@@ -881,6 +880,25 @@ QSize QSlider::sizeHint() const
     else
 	return QSize( thick, length );
 }
+
+
+
+/*!
+  \reimp
+*/
+
+QSize QSlider::minimumSizeHint() const
+{
+    QSize s = sizeHint();
+    int length = style().sliderLength();
+    if ( orient == Horizontal )
+	s.setWidth( length );
+    else
+	s.setHeight( length );
+
+    return s;
+}
+
 
 
 /*!
@@ -1049,3 +1067,4 @@ void QSlider::styleChange( QStyle& old )
 	setBackgroundMode( PaletteBackground );
     QWidget::styleChange( old );
 }
+

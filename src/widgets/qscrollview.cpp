@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#110 $
 **
 ** Implementation of QScrollView class
 **
@@ -2007,6 +2007,15 @@ QSizePolicy QScrollView::sizePolicy() const
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
+
+/*!
+  \reimp
+*/
+QSize	QScrollView::minimumSizeHint() const
+{
+    //so we can implement it later
+    return QWidget::minimumSizeHint();
+}
 
 
 /*!

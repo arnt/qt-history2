@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#47 $
 **
 ** Implementation of QProgressBar class
 **
@@ -178,6 +178,18 @@ QSize QProgressBar::sizeHint() const
     QFontMetrics fm = fontMetrics();
     return QSize( fm.height()*4, fm.height()+8);
 }
+
+
+
+/*!
+  \reimp
+*/
+QSize QProgressBar::minimumSizeHint() const
+{
+    //so we can implement it later
+    return QWidget::minimumSizeHint();
+}
+
 
 /*!
   Specifies that this widget can use more, but is able to survive on

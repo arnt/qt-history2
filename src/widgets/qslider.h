@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#38 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#39 $
 **
 ** Definition of QSlider class
 **
@@ -57,7 +57,8 @@ public:
     QRect	sliderRect() const;
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
-
+    QSize	minimumSizeHint() const;
+    
     virtual void setTickmarks( TickSetting );
     TickSetting tickmarks() const { return ticks; }
 
