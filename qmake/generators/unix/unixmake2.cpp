@@ -592,6 +592,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "-rm -f $(OBJECTS) " << "\n\t";
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-rm -f ", " ", "") << "\n\t";
+    if(do_incremental)
+	t << "-rm -f $(INCREMENTAL_OBJECTS)";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
       << "-rm -f *~ core *.core" << "\n"
       << varGlue("CLEAN_FILES","\t-rm -f "," ","") << endl << endl;
