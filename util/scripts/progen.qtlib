@@ -3,7 +3,7 @@
 #
 # Generates a tmake project file for the Qt library
 #
-# Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1996,1997 by Troll Tech AS.  All rights reserved.
 #
 ############################################################################
 
@@ -16,17 +16,14 @@ if ( check_unix() ) {
 while ( @ARGV ) {			# parse command line args
     $_ = shift @ARGV;
     if ( s/^-// ) {
-	if ( /^(win|x11)$/ ) {
-	    $platform = $1;
-	} elsif ( /^nobeta$/ ) {
-	    $nobeta = 1;
-	} elsif ( /^o(.*)/ ) {
+	if ( /^o(.*)/ ) {
 	    $outfile = ($1 eq "") ? shift @ARGV : $1;
-	} elsif ( /^t(.*)/ ) {
-	    $templatefile = ($1 eq "") ? shift @ARGV : $1;
-	    $templatefile =~ s/\.t$//i;
 	} elsif ( /lower/ ) {
 	    $tolower = 1;
+	} elsif ( /^(win|x11)$/ ) {
+	    $platform = $1;
+	} elsif ( /^public$/ ) {
+	    $public = 1;
 	} else {
 	    &progen_usage;
 	}
@@ -51,9 +48,13 @@ foreach $m ( @makefiles ) {
 	$dirpre = "";
     }
     %v = &scan_makefile($m);
-    if ( $nobeta ) {
-	$v{"SOURCES"} = &subtract_array( $v{"SOURCES"}, $v{"BETA"} );
-	$v{"HEADERS"} = &subtract_array( $v{"HEADERS"}, $v{"BETA"} );
+    if ( $public ) {
+	$v{"SOURCES"} = &subtract_array( $v{"SOURCES"}, $v{"INTERNAL"} );
+	$v{"HEADERS"} = &subtract_array( $v{"HEADERS"}, $v{"INTERNAL"} );
+    }
+    if ( $platform ne "x11" ) {
+	$v{"SOURCES"} = &subtract_array( $v{"SOURCES"}, $v{"X11ONLY"} );
+	$v{"HEADERS"} = &subtract_array( $v{"HEADERS"}, $v{"X11ONLY"} );
     }
     @s = sort split(/\s+/,$v{"SOURCES"});
     @h = sort split(/\s+/,$v{"HEADERS"});
@@ -73,6 +74,7 @@ while ( <F> ) {
 }
 close(F);
 ($qt_version eq "") && die "Can't find the Qt version in qglobal.h";
+$qt_version =~ s/[^\d\.]//g;
 
 $headers  = join(" \\\n\t\t",sort @hdr);
 $sources  = join(" \\\n\t\t",sort @src);
@@ -80,24 +82,28 @@ if ( $tolower ) {
     $headers =~ tr/A-Z/a-z/;
     $sources =~ tr/A-Z/a-z/;
 }
-$headers  = "HEADERS     =\t" . $headers;
-$sources  = "SOURCES     =\t" . $sources;
 if ( $platform ne "x11" ) {
+    $headers =~ s-\w+/-../include/-g;
     $headers =~ s/_x11/_$platform/g;
     $sources =~ s/_x11/_$platform/g;
 }
+$headers  = "HEADERS     =\t" . $headers;
+$sources  = "SOURCES     =\t" . $sources;
 
-($templatefile eq "") && ($templatefile = "qtlib");
-$template = "TEMPLATE    =\t" . $templatefile;
+$template = "TEMPLATE    =\t" . "lib";
+$config   = "CONFIG      =\t" . "qt warn_on release";
 $target   = "TARGET      =\t" . "qt";
 $version  = "VERSION     =\t" . $qt_version;
 
-print $template . "\n";
+print "TEMPLATE    =\t" . "lib" . "\n";
+print "CONFIG      =\t" . "qt warn_on release" . "\n";
 print $headers  . "\n";
 print $sources  . "\n";
-print $target   . "\n";
-print $version  . "\n";
-exit 0;						# successfully done
+print "TARGET      =\t" . "qt" . "\n";
+print "VERSION     =\t" . $qt_version . "\n";
+print "DESTDIR     =\t../lib" . "\n";
+
+exit 0;
 
 
 #
@@ -109,13 +115,11 @@ exit 0;						# successfully done
 sub progen_usage {
     print STDERR "Usage:\n    progen-qtlib [options] [makefiles]\n";
     print STDERR "Options:\n";
-    print STDERR "    -lower   Lower-case letters filenames\n";
-    print STDERR "    -n name  Specify a project name (= TARGET)\n";
     print STDERR "    -o file  Write output to \"file\"\n";
-    print STDERR "    -t file  Specify a template file other than qtapp\n";
+    print STDERR "    -lower   Lower-case letters filenames\n";
     print STDERR "    -win     Generate a project file for Windows\n";
     print STDERR "    -x11     Generate a project file for X11\n";
-    print STDERR "    -nobeta  Remove beta code\n";
+    print STDERR "    -public  Remove internal code\n";
     exit 1;
 }
 
