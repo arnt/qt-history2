@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#17 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#18 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -942,5 +942,3 @@ void QSocketDevice::fetchConnectionParameters()
     }
 }
 #endif //QT_NO_NETWORK
-
-
