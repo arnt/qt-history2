@@ -8,9 +8,9 @@ custom database drivers, image formats, text codecs, styles and
 widgets as stand-alone components.
 
 \warning Qt 3.0.5 introduces changes into some aspects of plugins, in
-particular regarding loading, path handling and library versions.  As
-a result of this change, \e ALL plugins compiled with Qt 3.0.4 and
-earlier will \e NOT work with Qt 3.0.5 and later.
+particular regarding loading, path handling and library versions. As
+a result of this change, <b>\e{no}</b> plugins compiled with Qt 3.0.4 and
+earlier will work with Qt 3.0.5 and later.
 
 Writing a plugin is achieved by subclassing the appropriate plugin
 base clase, implementing a few functions, and adding a macro. 
@@ -119,7 +119,7 @@ appdir/plugins/designer, and place the plugin in that directory.
 \section1 Loading and Verifying Plugins. 
 
 When loading plugins, the Qt library does some sanity checking to
-determine whether or not the plugin can be loaded and used.  This
+determine whether or not the plugin can be loaded and used. This
 provides the ability to have multiple versions and configurations of
 the Qt library installed side by side.
 \list
@@ -127,39 +127,46 @@ the Qt library installed side by side.
    minor version number will not be loaded by a library with a lower
    major and/or minor version number.
 
-   Rationale:
-   A plugin linked against a newer Qt library will possibly use new
-   features that are not available in older versions.  Trolltech
+   \e Rationale:
+
+   A plugin linked against a newer Qt library may use new
+   features that are not available in older versions. Trolltech
    has a policy of adding new features and APIs only between minor
    releases, which is why this test only looks at the major and minor
    version numbers, and not at the patchlevel version number.
-\i Plugins linked against a Qt library \e WITH thread support can only be
-   loaded by libraries that are built \e WITH thread support.
+
+\i Plugins linked against a Qt library \e with thread support can only be
+   loaded by libraries that are built \e with thread support.
 
    \e Rationale:
+
    The threaded and non-threaded Qt libraries have different names.
-   A library \e WITH thread support that loads a plugin linked against a
-   Qt library \e WITHOUT thread support will cause 2 versions of the same
-   library to be in memory at the same time.  On UNIX systems, this
-   causes the non-threaded Qt library to be loaded.  When this
+   A library \e with thread support that loads a plugin linked against a
+   Qt library \e without thread support will cause two versions of the same
+   library to be in memory at the same time. On UNIX systems, this
+   causes the non-threaded Qt library to be loaded. When this
    happens, the constructors for all static objects in the Qt library
-   will be called a 2nd time, but they will operate on the objects
-   already in memory.  There is no way to work around this, as this is
+   will be called a second time, but they will operate on the objects
+   already in memory. There is no way to work around this, as this is
    a feature of the object binary format: the static symbols already
-   defined by the threaded Qt library will not be replaced or copied
+   defined by the threaded Qt library cannot be replaced or copied
    when the non-threaded Qt library is loaded.
-\i Plugins linked against a Qt library \e WITHOUT thread support can only
-   be loaded by libraries that are built \e WITHOUT thread support.
+
+\i Plugins linked against a Qt library \e without thread support can only
+   be loaded by libraries that are built \e without thread support.
 
    \e Rationale: 
+
    See the Rationale above.
+
 \i Starting with Qt 3.0.5, both the Qt library and all plugins are
-   built using a \e {build key}.  The build key in the Qt library is
+   built using a \e {build key}. The build key in the Qt library is
    examined against the build key in the plugin, and if they match,
-   the plugin is loaded.  If the build keys do not match, then the Qt
+   the plugin is loaded. If the build keys do not match, then the Qt
    library refuses to load the plugin.
 
    \e Rationale:
+
    See the Rationale for the build key below.
 \endlist
 
@@ -170,33 +177,38 @@ The build key contains the following information:
 \i Architecture, operating system and compiler.
 
    \e Rationale:
+
    In cases where different versions of the same compiler do not
    produce binary compatible code, the version of the compiler is
    also present in the build key.
-\i Configuration of the Qt library.  The configuration is a list
+
+\i Configuration of the Qt library. The configuration is a list
    of the missing features that affect the available API in the
    library. 
 
    \e Rationale:
+
    Two different configurations of the same version of
-   the Qt library are not binary compatible.  The Qt library that
+   the Qt library are not binary compatible. The Qt library that
    loads the plugin uses the list of (missing) features to
    determine if the plugin is binary compatible.
 
-   \e NOTE: There are cases where a plugin can use features that are
-   available in 2 different configurations.  However, the
+   \e note: There are cases where a plugin can use features that are
+   available in two different configurations. However, the
    developer writing plugins would need to know which features are
-   in use, both in his plugin and internally by the utility
-   classes in Qt.  The Qt library would require complex feature
+   in use, both in their plugin and internally by the utility
+   classes in Qt. The Qt library would require complex feature
    and dependency queries and verification when loading plugins.
-   Requiring this would unnecessary burden on the developer, and
-   increase the overhead of loading a plugin.  To reduce both
+   Requiring this would place an unnecessary burden on the developer, and
+   increase the overhead of loading a plugin. To reduce both
    development time and application runtime costs, a simple string
    comparision of the build keys is used.
+
 \i Optionally, an extra string may be specified on the configure
    script command line.
  
    \e Rationale:
+
    When distributing binaries of the Qt library with an
    application, this provides a way for developers to write
    plugins that can only be loaded by the library with which the
