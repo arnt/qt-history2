@@ -214,7 +214,7 @@ void QProcessPrivate::execChild()
     // copy the stdout, stderr and stdin sockets
     ::dup2(standardReadPipe[1], fileno(stdout));
     ::dup2(errorReadPipe[1], fileno(stderr));
-    ::dup2(writePipe[1], fileno(stdin));
+    ::dup2(writePipe[0], fileno(stdin));
 
     // make sure this fd is closed if execvp() succeeds
     ::close(childStartedPipe[0]);
@@ -263,16 +263,12 @@ void QProcessPrivate::execChild()
                     QByteArray tmp = QFile::encodeName(pathEntries.at(k));
                     if (!tmp.endsWith('/')) tmp += '/';
                     tmp += program;
-
-                    if (QFile::exists(tmp)) {
-                        program = tmp;
-                        break;
-                    }
+                    ::execve(tmp.data(), argv, envp);
                 }
             }
+        } else {
+            ::execve(program.data(), argv, envp);
         }
-
-        ::execve(program.data(), argv, envp);
     }
 
     // notify failure
@@ -321,6 +317,11 @@ Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
 Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
 {
     return Q_LONGLONG(::read(errorReadPipe[0], data, maxlen));
+}
+
+Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
+{
+    return Q_LONGLONG(::write(writePipe[1], data, maxlen));
 }
 
 void QProcessPrivate::killProcess()
@@ -398,6 +399,11 @@ bool QProcessPrivate::waitForFinished(int msecs)
     }
 
     return false;
+}
+
+bool QProcessPrivate::waitForWrite(int msecs)
+{
+    return qt_native_select(QList<int>() << writePipe[1], msecs, false) == 1;
 }
 
 #include "qprocess_unix.moc"

@@ -74,6 +74,7 @@ public:
     Q_LONGLONG bytesAvailable() const;
     bool canReadLine() const;
     void close();
+    bool flush();
 
 signals:
     void started();

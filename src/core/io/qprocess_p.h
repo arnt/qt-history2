@@ -74,11 +74,13 @@ public:
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
+    bool waitForWrite(int msecs = 30000);
 
     Q_LONGLONG bytesAvailableFromStdout() const;
     Q_LONGLONG bytesAvailableFromStderr() const;
     Q_LONGLONG readFromStdout(char *data, Q_LONGLONG maxlen);
     Q_LONGLONG readFromStderr(char *data, Q_LONGLONG maxlen);
+    Q_LONGLONG writeToStdin(const char *data, Q_LONGLONG maxlen);
 
     void cleanup();
 };

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QPROCESS_DEBUG
+
 #include "qprocess.h"
 #include "qprocess_p.h"
 
@@ -59,6 +61,9 @@ QProcessPrivate::~QProcessPrivate()
 
 void QProcessPrivate::cleanup()
 {
+    Q_Q(QProcess);
+
+    q->setOpenMode(QIODevice::NotOpen);
     processChannel = QProcess::StandardOutput;
     processError = QProcess::UnknownError;
     processState = QProcess::NotRunning;
@@ -96,6 +101,11 @@ void QProcessPrivate::readyReadStandardOutput(int)
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStdout();
+#if defined QPROCESS_DEBUG
+    qDebug("QProcessPrivate::readyReadStandardOutput(), %lld bytes available",
+           available);
+#endif
+
     if (available == 0)
         return;
 
@@ -142,9 +152,23 @@ void QProcessPrivate::readyReadStandardError(int)
 
 void QProcessPrivate::readyWrite(int)
 {
+    Q_Q(QProcess);
     writeSocketNotifier->setEnabled(false);
 
-    qDebug("QProcess::readyWrite()");
+    if (writeBuffer.isEmpty())
+        return;
+
+    Q_LONGLONG written = writeToStdin(writeBuffer.readPointer(),
+                                      writeBuffer.nextDataBlockSize());
+    if (written < 0) {
+        processError = QProcess::WriteError;
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error writing to process"));
+        emit q->error(processError);
+        return;
+    }
+
+    writeBuffer.free(written);
+    writeSocketNotifier->setEnabled(true);
 }
 
 void QProcessPrivate::processDied()
@@ -185,6 +209,7 @@ void QProcessPrivate::startupNotification(int)
         processState = QProcess::NotRunning;
         processError = QProcess::FailedToStart;
         emit q->error(processError);
+        cleanup();
     }
 }
 
@@ -245,6 +270,19 @@ bool QProcess::canReadLine() const
 
 void QProcess::close()
 {
+}
+
+bool QProcess::flush()
+{
+    Q_D(QProcess);
+
+    while (!d->writeBuffer.isEmpty()) {
+        if (!d->waitForWrite()) {
+            return false;
+        }
+        d->readyWrite(0);
+    }
+    return true;
 }
 
 Q_LONGLONG QProcess::bytesAvailable() const
@@ -356,28 +394,27 @@ Q_LONGLONG QProcess::readData(char *data, Q_LONGLONG maxlen)
 
 Q_LONGLONG QProcess::writeData(const char *data, Q_LONGLONG len)
 {
+#if defined QPROCESS_DEBUG
+    qDebug("QProcess::writeData(%s, %lld)", data, len);
+#endif
+
     Q_D(QProcess);
     if (len == 1) {
         d->writeBuffer.putChar(*data);
+        d->writeSocketNotifier->setEnabled(true);
         return 1;
     }
 
     char *dest = d->writeBuffer.reserve(len);
     memcpy(dest, data, len);
+    d->writeSocketNotifier->setEnabled(true);
     return len;
 }
 
 void QProcess::start(const QString &program, const QStringList &arguments)
 {
     Q_D(QProcess);
-
-    // Catch this error as soon as we can. It represents 95% of the
-    // reasons for the process failing.
-    if (false && !QFile::exists(program)) {
-        setErrorString(tr("%1 does not exist").arg(program));
-        emit error(QProcess::FailedToStart);
-        return;
-    }
+    setOpenMode(QIODevice::ReadWrite);
 
     d->arguments = arguments;
     d->program = QFile::encodeName(program);
