@@ -2049,4 +2049,8 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     Q_UNUSED(e);
 #endif
 }
+
+QClipboardEvent::QClipboardEvent(QEventPrivate *data)
+    : QEvent(QEvent::Clipboard)
+{ d = data; }
 #endif

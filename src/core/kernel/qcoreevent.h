@@ -222,12 +222,13 @@ protected:
     QObject *c;
 };
 
+#ifdef QT_COMPAT
 class Q_CORE_EXPORT QCustomEvent : public QEvent
 {
 public:
-    QCustomEvent(int type, void *data = 0);
-    void *data()  const { return d; }
-    void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
+    QT_COMPAT_CONSTRUCTOR QCustomEvent(int type, void *data = 0);
+    QT_COMPAT void *data()  const { return d; }
+    QT_COMPAT void setData(void* data) { d = reinterpret_cast<QEventPrivate *>(data); }
 };
-
+#endif
 #endif // QCOREEVENT_H

@@ -512,6 +512,13 @@ protected:
     int  sid;
 };
 
+class Q_GUI_EXPORT QClipboardEvent : public QEvent
+{
+public:
+    QClipboardEvent(QEventPrivate *data);
+    QEventPrivate *data() { return d; };
+};
+
 #ifndef QT_NO_DEBUG
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QEvent *);
 #endif

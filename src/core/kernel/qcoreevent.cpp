@@ -426,21 +426,25 @@ QChildEvent::QChildEvent(Type type, QObject *child)
 /*!
     \fn QCustomEvent::QCustomEvent(int type, void *data)
 
+    \compat
+
     Constructs a custom event object with the event \a type and a
     pointer to \a data. The value of \a type must be at least as
     large as QEvent::User. By default, the data pointer is set to 0.
 
 
 */
-
+#ifdef QT_COMPAT
 QCustomEvent::QCustomEvent(int type, void *data)
     : QEvent(static_cast<Type>(type))
 {
     d = reinterpret_cast<QEventPrivate *>(data);
 }
-
+#endif
 /*!
     \fn void QCustomEvent::setData(void *data)
+
+    \compat
 
     Sets the generic data pointer to \a data.
 
@@ -450,6 +454,8 @@ QCustomEvent::QCustomEvent(int type, void *data)
 /*!
     \fn void *QCustomEvent::data() const
 
+    \compat
+
     Returns a pointer to the generic event data.
 
     \sa setData()
@@ -457,6 +463,8 @@ QCustomEvent::QCustomEvent(int type, void *data)
 
 /*!
     \fn bool QChildEvent::inserted() const
+
+    \compat
 
     A child has been inserted if the event's type() is ChildInserted.
 */

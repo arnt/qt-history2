@@ -189,7 +189,7 @@ bool QClipboard::event(QEvent *e)
 
     QClipboardData *d = clipboardData();
 
-    MSG *m = (MSG *)((QCustomEvent*)e)->data();
+    MSG *m = (MSG *)((QClipboardEvent*)e)->data();
     if (!m) {
         // this is sent to render all formats at app shut down
         if (ownsClipboard()) {
