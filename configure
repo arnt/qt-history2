@@ -151,52 +151,6 @@ then
     fi
     Edition=free
     Licensee=you
-    while true
-    do
-	echo
-	echo "This is the Qt$EMB Free Edition."
-	echo
-	if [ -n "$EMB" ]
-	then
-	    echo "You are licensed to use this software under the terms of"
-	    echo "the GNU General Public License (GPL)."
-	    echo
-	    QWS_EITHER="the"
-	else
-	    echo "You are licensed to use this software under the terms of either"
-	    echo "the Q Public License (QPL) or the GNU General Public License (GPL)."
-	    echo
-	    echo "Type 'Q' to view the Q Public License."
-	    QWS_EITHER="either"
-	fi
-	echo "Type 'G' to view the GNU General Public License."
-	echo "Type 'yes' to accept this license offer."
-	echo "Type 'no' to decline this license offer."
-	echo
-	echo "Do you accept the terms of $QWS_EITHER license?"
-	read acceptance
-	if [ "$acceptance" = yes ]
-	then
-	    break
-	else
-	    if [ "$acceptance" = no ]
-	    then
-		echo
-		echo "You are not licensed to use this software."
-		echo
-		exit 0
-	    elif [ "$acceptance" = G -o "$acceptance" = g ]
-	    then
-		more $relpath/LICENSE.GPL
-	    elif [ "$acceptance" = Q -o "$acceptance" = q ]
-	    then
-		if [ -z "$EMB" ]
-		    then
-			more $relpath/LICENSE.QPL
-		    fi
-	    fi
-	fi
-    done
     Licensee="Non-Commercial"
     Products="qt-free"
 # Internal Trolltech edition.
@@ -213,17 +167,11 @@ then
 else
     if [ -f $relpath/LICENSE ]
     then
-	if [ "$QWS_CANDIDATE" = "yes" ]
-	then
-	    EMB="/Embedded"
-	    QWS_PLATFORM=yes
-	else
-	    EMB=""
-	fi
 	echo
 	if [ "$QWS_PLATFORM" = "yes" ]
 	then
 	    EMB="/Embedded"
+	    QWS_PLATFORM=yes
 	else
 	    EMB=""
 	fi
@@ -240,29 +188,7 @@ else
 		Desc=Professional
 		Edition=pro
 	    fi
-	    ExpiryDate=`echo $ExpiryDate | sed -e "s,-,,g"`
-	    NOW=`date +%Y%m%d`
-	    if [ "$NOW" -gt "0$ExpiryDate" ]
-	    then
-		echo
-		echo "WARNING  WARNING  WARNING  WARNING"
-		echo
-		echo "  Your support and upgrade period has expired."
-		echo
-		echo "  You may continue to use your last licensed release"
-		echo "  of Qt under the terms of your existing license"
-		echo "  agreement, but you are not entitled to technical"
-		echo "  support, nor are you entitled to use any more recent"
-		echo "  Qt releases."
-		echo
-		echo "  Please contact sales@trolltech.com to renew your"
-		echo "  support and upgrades for this license."
-		echo
-		echo "WARNING  WARNING  WARNING  WARNING"
-		echo
-		sleep 3
-	    fi
-	else
+        else
 	    echo
 	    echo "\"$HOME/.qt-license\" not found"
 	    echo
@@ -272,34 +198,7 @@ else
 	    echo "or install the Qt Free Edition if you intend to develop"
 	    echo "free software."
 	    exit 1
-	fi
-	E="Qt$EMB $Desc Edition"
-	echo
-	echo "This is the $E."
-	echo
-	while true
-	do
-	    echo
-	    echo "Type '?' to view the $E License."
-	    echo "Type 'yes' to accept this license offer."
-	    echo "Type 'no' to decline this license offer."
-	    echo
-	    echo "Do you accept the terms of the $E License?"
-	    read acceptance
-	    if [ "$acceptance" = yes ]
-	    then
-		break
-	    else
-		if [ "$acceptance" = no ]
-		then
-		    echo
-		    echo "You are not licensed to use this software."
-		    echo
-		    exit 0
-		fi
-		more $relpath/LICENSE
-	    fi
-	done
+	 fi
     else
 	echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
 	echo "this software has disappeared."
@@ -1204,10 +1103,6 @@ Installation options:
     -system-zlib ....... Use zlib from the operating system
 			 See http://www.info-zip.org/pub/infozip/zlib
 
- *  -no-nas-sound ...... Do not compile in NAS sound support.
-    -system-nas-sound .. Use NAS libaudio from the operating system.
-			 See http://radscan.com/nas.html
-
     -make directory .... This will generate makefiles for all project files
 			 in directory. You can specify this option multiple
 			 times so as to only make specific directories.
@@ -1342,6 +1237,10 @@ if [ "$X11_PLATFORM" = "yes" ]; then
 
 Qt/X11 only:
 
+ *  -no-nas-sound ...... Do not compile in NAS sound support.
+    -system-nas-sound .. Use NAS libaudio from the operating system.
+			 See http://radscan.com/nas.html
+
  $SMN  -no-sm ............. Do not support X Session Management.
  $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
 
@@ -1400,8 +1299,111 @@ fi
    exit 0
 fi
 
-#do the qmake..
+#check for license confirmation
+if [ "$Edition" = "free" ]; then
+    while true
+    do
+	echo
+	echo "This is the Qt$EMB Free Edition."
+	echo
+	if [ -n "$EMB" ]
+	then
+	    echo "You are licensed to use this software under the terms of"
+	    echo "the GNU General Public License (GPL)."
+	    echo
+	    QWS_EITHER="the"
+	else
+	    echo "You are licensed to use this software under the terms of either"
+	    echo "the Q Public License (QPL) or the GNU General Public License (GPL)."
+	    echo
+	    echo "Type 'Q' to view the Q Public License."
+	    QWS_EITHER="either"
+	fi
+	echo "Type 'G' to view the GNU General Public License."
+	echo "Type 'yes' to accept this license offer."
+	echo "Type 'no' to decline this license offer."
+	echo
+	echo "Do you accept the terms of $QWS_EITHER license?"
+	read acceptance
+	if [ "$acceptance" = yes ]
+	then
+	    break
+	else
+	    if [ "$acceptance" = no ]
+	    then
+		echo
+		echo "You are not licensed to use this software."
+		echo
+		exit 0
+	    elif [ "$acceptance" = G -o "$acceptance" = g ]
+	    then
+		more $relpath/LICENSE.GPL
+	    elif [ "$acceptance" = Q -o "$acceptance" = q ]
+	    then
+		if [ -z "$EMB" ]
+		    then
+			more $relpath/LICENSE.QPL
+		    fi
+	    fi
+	fi
+    done
+elif [ "$Edition" != "troll" ]
+then
+    if [ -f $HOME/.qt-license ]
+    then
+	ExpiryDate=`echo $ExpiryDate | sed -e "s,-,,g"`
+	NOW=`date +%Y%m%d`
+	if [ "$NOW" -gt "0$ExpiryDate" ]
+	then
+	    echo
+	    echo "WARNING  WARNING  WARNING  WARNING"
+	    echo
+	    echo "  Your support and upgrade period has expired."
+	    echo
+	    echo "  You may continue to use your last licensed release"
+	    echo "  of Qt under the terms of your existing license"
+	    echo "  agreement, but you are not entitled to technical"
+	    echo "  support, nor are you entitled to use any more recent"
+	    echo "  Qt releases."
+	    echo
+	    echo "  Please contact sales@trolltech.com to renew your"
+	    echo "  support and upgrades for this license."
+	    echo
+	    echo "WARNING  WARNING  WARNING  WARNING"
+	    echo
+	    sleep 3
+	fi
+    fi
+    E="Qt$EMB $Desc Edition"
+    echo
+    echo "This is the $E."
+    echo
+    while true
+    do
+	echo
+	echo "Type '?' to view the $E License."
+	echo "Type 'yes' to accept this license offer."
+	echo "Type 'no' to decline this license offer."
+	echo
+	echo "Do you accept the terms of the $E License?"
+	read acceptance
+	if [ "$acceptance" = yes ]
+	then
+	    break
+	else
+	    if [ "$acceptance" = no ]
+	    then
+		echo
+		echo "You are not licensed to use this software."
+		echo
+		exit 0
+	    fi
+	    more $relpath/LICENSE
+	fi
+    done
+fi
 
+#do the qmake..
 if [ -x "$relpath/bin/syncqt" ]
 then
     QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
