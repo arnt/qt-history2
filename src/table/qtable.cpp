@@ -5624,11 +5624,11 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 	return;
     autoScrollTimer->stop();
     mousePressed = FALSE;
-    bool hasCached = resizedSection != -1;
-    setCaching( FALSE );
     QHeader::mouseReleaseEvent( e );
     line1->hide();
     line2->hide();
+    bool hasCached = resizedSection != -1;
+    setCaching( FALSE );
     if ( hasCached ) {
 	emit sectionSizeChanged( resizedSection );
 	updateStretches();
