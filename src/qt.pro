@@ -101,6 +101,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
 		  $$TOOLS_H/qcollection.h \
+		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
 		  $$TOOLS_H/qdict.h \
@@ -215,6 +216,7 @@ unix:SOURCES   += dialogs/qprintdialog.cpp \
 SOURCES	       += tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
 		  tools/qcollection.cpp \
+		  tools/qcstring.cpp \
 		  tools/qdatastream.cpp \
 		  tools/qdatetime.cpp \
 		  tools/qdir.cpp \

@@ -8,28 +8,27 @@
 #include <qdatastream.h>
 #include <qtextstream.h>
 
+//#define USE_QCSTRING
+
+#if QT_VERSION < 200
+#define TESTING_1XSTRING
+#else
+#ifdef USE_QCSTRING
+#define QString QCString
+#define TESTING_1XSTRING
+#endif
+#endif
+
 main(int argc, char** argv)
 {
     // Tests every QString function.
-    //#define USE_Qt100_QString // or Q1String if you prefer
-
     int err=0;
     #define TEST(A,E) /*printf("%d\n",__LINE__);*/\
 	if ( (A)!=(E) ) { err++; printf("TEST(%s,%s) failed at %d\n",#A,#E,__LINE__); }
 
     // In a perfect world, these would all be defined, and QString would work.
     //
-    #ifndef USE_Qt100_QString
-	#define IMPLICIT
-	//#define MAXLEN_EXCLUDES_NULL   // Needs discussion
-	#define RELATIONS_WORK
-	#define TOSHORT_WORKS          // Needs discussion
-	#define TOUINT_WORKS           // Needs discussion
-	#define SAFE_INDEXING
-	#define SELF_INSERT_WORKS
-	//#define FINDREV_INDEX_CHECK
-    #else
-	#define QString Q1String
+    #ifdef TESTING_1XSTRING
 	//#define IMPLICIT
 	//#define MAXLEN_EXCLUDES_NULL
 	//#define RELATIONS_WORK
@@ -38,15 +37,26 @@ main(int argc, char** argv)
 	//#define SAFE_INDEXING
 	//#define SELF_INSERT_WORKS
 	//#define FINDREV_INDEX_CHECK
+    #else
+	#define IMPLICIT
+	//#define MAXLEN_EXCLUDES_NULL   // Needs discussion
+	#define RELATIONS_WORK
+	#define TOSHORT_WORKS          // Needs discussion
+	#define TOUINT_WORKS           // Needs discussion
+	#define SAFE_INDEXING
+	#define SELF_INSERT_WORKS
+	//#define FINDREV_INDEX_CHECK
     #endif
 
     #ifndef IMPLICIT
 	printf("WARNING: Testing assuming EXPLICIT SHARING\n");
     #endif
     #ifndef MAXLEN_EXCLUDES_NULL
-	printf("WARNING: Testing assuming maxlen constructor includes NULL in maxlen\n");
-	// Let's just SCRAP this constructor - it's TOO DANGEROUS, as it acts as
-	// a CAST from int!
+	printf("WARNING: Assuming (char*,size) constructor includes \\0 in size (as in Qt 1.x)\n");
+	// Let's just SCRAP this constructor - it's TOO DANGEROUS, as it acts
+	// as a CAST from int!
+	// No it doesn't - you're thinking of the QString( int ) constructor,
+	// which _is_ evil.
     #endif
     #ifndef RELATIONS_WORK
 	printf("WARNING: Not testing <, <=, etc, because they don't compile\n");
@@ -64,7 +74,7 @@ main(int argc, char** argv)
 	printf("WARNING: Not inserting into self - it's broken\n");
     #endif
     #ifndef FINDREV_INDEX_CHECK
-	printf("WARNING: findRev('c',length()) succeeds\n");
+	printf("WARNING: Expecting findRev('c',length()) to succeed (as in Qt 1.x)\n");
     #endif
 
     QString a;
@@ -123,16 +133,13 @@ main(int argc, char** argv)
     f.fill('f',3);
     TEST(f,"fff")
     f.fill('F');
-    TEST(f,"FFF")
-    e.simplifyWhiteSpace();
-    e.setLength(0);
-    e.setLength(0);
-    e.setLength(0);
-    e.setLength(0);
+    TEST(f,"FFF");
 
     e = "String E";
     e.truncate(0);
     TEST(e,"")
+    TEST(e.isEmpty(),TRUE)
+    TEST(e.isNull(),FALSE)
     e = "String E";
     QString ce = e.copy();
     e = "XXX";
@@ -148,7 +155,10 @@ main(int argc, char** argv)
     TEST(a,"%1")
     TEST(a.sprintf("X%dY",2),"X2Y")
     TEST(a.sprintf("X%sY","hello"),"XhelloY");
-    TEST(a.sprintf("X%-10sY","hello"),"X     helloY");
+    TEST(a.sprintf("X%9sY","hello"),"X    helloY");
+    TEST(a.sprintf("X%9iY", 50000 ),"X    50000Y");
+    TEST(a.sprintf("X%-9sY","hello"),"Xhello    Y");
+    TEST(a.sprintf("X%-9iY", 50000 ),"X50000    Y");
     //QString fmt("X%-10SY");
     //QString txt("hello");
     //TEST(a.sprintf(fmt,&txt),"X     helloY");
@@ -197,6 +207,9 @@ main(int argc, char** argv)
     TEST(a.findRev('G'),14)
     TEST(a.findRev('G',14),14)
     TEST(a.findRev('G',13),11)
+    TEST(a.findRev('B'),1)
+    TEST(a.findRev('B',1),1)
+    TEST(a.findRev('B',0),-1)
     TEST(a.findRev("efg",99,FALSE),-1)
 #ifdef FINDREV_INDEX_CHECK
     TEST(a.findRev("efg",15,FALSE),-1)
@@ -286,7 +299,12 @@ main(int argc, char** argv)
     TEST(a.simplifyWhiteSpace(),"a");
     a=" a   b ";
     TEST(a.simplifyWhiteSpace(),"a b");
-
+    
+    a = "Ys";
+    TEST(a.insert(1,'e'),"Yes")
+    TEST(a.insert(3,'!'),"Yes!")
+    TEST(a.insert(5,'?'),"Yes! ?")
+    
     a="ABC";
     TEST(a.insert(5,"DEF"),"ABC  DEF");
     a="ABC";
@@ -297,7 +315,7 @@ main(int argc, char** argv)
     #else
 	a="ABCABCABCABC";
     #endif
-
+	
     TEST(a,"ABCABCABCABC");
     TEST(a.insert(0,'<'),"<ABCABCABCABC");
     TEST(a.insert(1,'>'),"<>ABCABCABCABC");
@@ -457,13 +475,18 @@ main(int argc, char** argv)
     }
     {
 	QTextStream out(ar,IO_WriteOnly);
+#ifndef TESTING_1XSTRING
 	out << QString("This is Test Text");
+#else
+	out << (const char*)QString("This is Test Text");
+#endif
     }
     {
 	QTextStream in(ar,IO_ReadOnly);
 	in >> a;
 	TEST(a,"This");
     }
+#if QT_VERSION >= 200
     {
 	a="";
 	QTextOStream ts(a);
@@ -484,8 +507,11 @@ main(int argc, char** argv)
 	ts.setEncoding(QTextStream::Unicode);
 	ts << "Abc";
     }
+#endif
 
     printf("\n%d error%s\n",err,"s"+(err==1));
+
+#if 0 //QT_VERSION >= 200
 
     QApplication app(argc,argv);
 
@@ -503,4 +529,8 @@ main(int argc, char** argv)
     app.setMainWidget(&m);
     m.show();
     return app.exec();
+#else
+    argc = 0;
+    argv = 0;
+#endif
 }

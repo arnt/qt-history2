@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#15 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#16 $
 **
 ** Definition of QRegExp class
 **
@@ -54,15 +54,16 @@ public:
 
     QString	pattern()	const	{ return rxstring; }
 
-    int		match( const QString &str, int index=0, int *len=0 ) const;
+    int		match( const QString &str, int index=0, int *len=0,
+		       bool indexIsStart = TRUE ) const;
 
 protected:
     void	compile();
-    const char *matchstr( ushort *, const char *, const char * ) const;
+    const QChar *matchstr( uint *, const QChar *, uint, const QChar * ) const;
 
 private:
     QString	rxstring;			// regular expression pattern
-    ushort     *rxdata;				// compiled regexp pattern
+    uint	*rxdata;			// compiled regexp pattern
     int		error;				// error status
     bool	cs;				// case sensitive
     bool	wc;				// wildcard

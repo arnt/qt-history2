@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#59 $
 **
 ** Implementation of QRegExp class
 **
@@ -51,8 +51,9 @@
   <li><dfn>\022</dfn> matches the character 022 (18 decimal, 22 octal).
   </ul>
 
-  In wildcard mode, it only knows three primitives:
+  In wildcard mode, it only knows four primitives:
   <ul plain>
+  <li><dfn>c</dfn> matches the character 'c'
   <li><dfn>?</dfn> matches any character
   <li><dfn>*</dfn> matches any sequence of characters
   <li><dfn>[]</dfn> matches a defined set of characters,
@@ -61,27 +62,40 @@
   </ul>
   
   When writing regular expressions in C++ code, remember that the C++
-  preprocessor processes \ characters.  So in order to match a "."
+  preprocessor processes \ characters.  So in order to match e.g. a "."
   character, you must write "\\." in C++ source, not "\.".
 */
 
 
 //
-// The regexp pattern is internally represented as an array of ushorts,
-// each element containing an 8-bit character or a 16-bit code (listed below).
-// Character classes are encoded as 256 bits, i.e. 16*16 bits.
+// The regexp pattern is internally represented as an array of uints,
+// each element containing an 16-bit character or a 32-bit code
+// (listed below).  User-defined character classes (e.g. [a-zA-Z])
+// are encoded as this:
+// uint no:	1		2		3		...
+// value:	CCL | n		from | to	from | to
 //
+// where n is the (16-bit) number of following range definitions, and
+// from and to define the ranges inclusive. from <= to is always
+// true. Single characters in the class are coded as from==to.
+// Negated classes (e.g. [^a-z]) use CCN instead of CCL.
 
-const ushort CHR	= 0x4000;		// character
-const ushort BOL	= 0x8001;		// beginning of line	^
-const ushort EOL	= 0x8002;		// end of line		$
-const ushort BOW	= 0x8003;		// beginning of word	\<
-const ushort EOW	= 0x8004;		// end of word		\>
-const ushort ANY	= 0x8005;		// any character	.
-const ushort CCL	= 0x8006;		// character class	[]
-const ushort CLO	= 0x8007;		// Kleene closure	*
-const ushort OPT	= 0x8008;		// Optional closure	?
-const ushort END	= 0x0000;
+const uint END	= 0x00000000;
+const uint PWS	= 0x10010000;		// predef whitespace charclass \s
+const uint CCL	= 0x20010000;		// character class	[]
+const uint CCN	= 0x20020000;		// neg character class	[^]
+const uint CHR	= 0x40000000;		// character
+const uint BOL	= 0x80010000;		// beginning of line	^
+const uint EOL	= 0x80020000;		// end of line		$
+const uint BOW	= 0x80030000;		// beginning of word	\<
+const uint EOW	= 0x80040000;		// end of word		\>
+const uint ANY	= 0x80050000;		// any character	.
+const uint CLO	= 0x80070000;		// Kleene closure	*
+const uint OPT	= 0x80080000;		// Optional closure	?
+
+const uint MCC  = 0x20000000;		// character class bitmask
+const uint MCD  = 0xffff0000;		// code mask
+const uint MVL  = 0x0000ffff;		// value mask
 
 //
 // QRegExp::error codes (internal)
@@ -281,6 +295,10 @@ void QRegExp::setCaseSensitive( bool enable )
   If \e len is not a null pointer, the length of the match is stored in
   \e *len.
 
+  If \e indexIsStart is TRUE (the default), the position \e index in
+  the string will match the start-of-input primitive (^) in the
+  regexp, if present. Otherwise, position 0 in \e str will match.
+
   Example:
   \code
     QRegExp r("[0-9]*\.[0-9]+");		// matches floating point
@@ -289,39 +307,46 @@ void QRegExp::setCaseSensitive( bool enable )
   \endcode
 */
 
-int QRegExp::match( const QString &str, int index, int *len ) const
+int QRegExp::match( const QString &str, int index, int *len,
+		    bool indexIsStart ) const
 {
-    // #### should use Unicode
-
-    if ( error || str == 0 )			// cannot match
+    if ( error )			// cannot match ##null strings?
 	return -1;
-    const char *start = str.ascii();
-    const char *p = start + index;
-    ushort *d  = rxdata;
-    const char *ep = 0;
+    if ( str.length() < (uint)index )
+	return -1;
+    const QChar *start = str.unicode();
+    const QChar *p = start + index;
+    uint pl = str.length() - index;
+    uint *d  = rxdata;
+    const QChar *ep = 0;
 
     if ( *d == BOL ) {				// match from beginning of line
-	ep = matchstr( d, p, p );
+	ep = matchstr( d, p, pl, indexIsStart ? p : start );
     } else {
 	if ( *d & CHR ) {
 	    if ( cs ) {				// case sensitive
-		while ( *p && *p != (char)*d )
+		while ( pl && *p != (QChar)*d ) {
 		    p++;
+		    pl--;
+		}
 	    } else {				// case insensitive
-		while ( *p && tolower(*p) != (char)*d )
+		while ( pl && tolower(*p) != (QChar)*d ) {
 		    p++;
+		    pl--;
+		}
 	    }
 	}
-	while ( *p ) {				// regular match
-	    if ( (ep=matchstr(d,p,start+index)) )
+	while ( pl ) {				// regular match
+	    if ( (ep=matchstr(d,p,pl, indexIsStart ? start+index : start )) )
 		break;
 	    p++;
+	    pl--;
 	}
     }
     if ( ep ) {					// match
 	if ( len )
 	    *len = ep - p;
-	return (int)((long)p - (long)start);	// return index
+	return (int)(p - start);		// return index
     } else {					// no match
 	if ( len )
 	    *len = 0;
@@ -329,9 +354,49 @@ int QRegExp::match( const QString &str, int index, int *len ) const
     }
 }
 
-static inline bool iswordchar( int x )
+static inline bool iswordchar( int x ) //###
 {
     return isalnum(x) || x == '_';
+}
+
+
+/*!
+  \internal
+  Match character class 
+*/
+
+bool matchcharclass( uint *rxd, QChar c )
+{
+    uint *d = rxd;
+    uint clcode = *d & MCD;
+    bool neg;
+    if ( clcode == CCL )
+	neg = FALSE;
+    else if ( clcode == CCN )
+	neg = TRUE;
+    else
+	warning("QRegExp: coding error!");
+    uint numFields = *d & MVL;
+    uint cval = (((uint)(c.row)) << 8) | ((uint)c.cell);
+    bool found = FALSE;
+    for ( int i = 0; i < (int)numFields; i++ ) {
+	d++;
+	if ( *d == PWS ) {
+	    if ( isspace( c ) ) {
+		found = TRUE;
+		break;
+	    }
+	}
+	else {
+	    uint from = ( *d & MCD ) >> 16;
+	    uint to = *d & MVL;
+	    if ( (cval >= from) && (cval <= to) ) {
+		found = TRUE;
+		break;
+	    }
+	}
+    }
+    return neg ? !found : found;
 }
 
 
@@ -340,39 +405,59 @@ static inline bool iswordchar( int x )
   Recursively match string.
 */
 
-const char *QRegExp::matchstr( ushort *rxd, const char *str, const char *bol ) const
+const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength, 
+				const QChar *bol ) const
 {
-    const char *p = str;
-    ushort *d = rxd;
+    const QChar *p = str;
+    uint pl = strlength;
+    uint *d = rxd;
+
+    //### in all cases here: handle pl == 0! (don't read past strlen)
     while ( *d ) {
 	if ( *d & CHR ) {			// match char
+	    if ( !pl )
+		return 0;
 	    if ( cs ) {				// case sensitive
-		if ( *p != (char)*d )
+		if ( *p != (QChar)*d )
 		    return 0;
 		p++;
+		pl--;
 	    } else {				// case insensitive
-		if ( tolower(*p) != (char)*d )
+		if ( tolower(*p) != (QChar)*d )
 		    return 0;
 		p++;
+		pl--;
 	    }
 	    d++;
-	} else switch ( *d++ ) {
-	    case ANY:				// match anything
-		if ( !*p++ )
-		    return 0;
-		break;
-	    case CCL:				// match char class
-		if ( (d[(uchar)*p >> 4] & (1 << ((uchar)*p & 0xf))) == 0 )
+	}
+	else if ( *d & MCC ) {			// match char class
+	    if ( !pl )
+		return 0;
+	    if ( !matchcharclass( d, *p ) )
+		return 0;
+	    p++;
+	    pl--;
+	    d += (*d & MVL) + 1;
+	}
+	else switch ( *d++ ) {
+	    case PWS:				// match whitespace
+		if ( !pl || !isspace( *p ) )
 		    return 0;
 		p++;
-		d += 16;
+		pl--;
+		break;
+	    case ANY:				// match anything
+		if ( !pl )
+		    return 0;
+		p++;
+		pl--;
 		break;
 	    case BOL:				// match beginning of line
 		if ( p != bol )
 		    return 0;
 		break;
 	    case EOL:				// match end of line
-		if ( *p )
+		if ( pl )
 		    return 0;
 		break;
 	    case BOW:				// match beginning of word
@@ -385,78 +470,107 @@ const char *QRegExp::matchstr( ushort *rxd, const char *str, const char *bol ) c
 		break;
 	    case CLO:				// Kleene closure
 		{
-		const char *first_p = p;
+		const QChar *first_p = p;
 		if ( *d & CHR ) {		// match char
 		    if ( cs ) {			// case sensitive
-			while ( *p && *p == (char)*d )
+			while ( pl && *p == (QChar)*d ) {
 			    p++;
+			    pl--;
+			}
 		    }
 		    else {			// case insensitive
-			while ( *p && tolower(*p) == (char)*d )
+			while ( pl && tolower(*p) == (QChar)*d ) {
 			    p++;
+			    pl--;
+			}
 		    }
-		} else switch ( *d ) {
-		    case ANY:
-			while ( *p )
-			    p++;
-			break;
-		    case CCL:
-			d++;
-			while ( *p && d[(uchar)*p >> 4] &
-				(1 << ((uchar)*p & 0xf)) )
-			    p++;
-			d += 15;
-			break;
-		    default:			// error
-			return 0;
+		    d++;
 		}
-		d++;
-		d++;
-		const char *end;
+		else if ( *d & MCC ) {			// match char class
+		    while( pl && matchcharclass( d, *p ) ) {
+			p++;
+			pl--;
+		    }
+		    d += (*d & MVL) + 1;
+		}
+		else if ( *d == PWS ) {
+		    while ( pl && isspace( *p ) ) {
+			p ++;
+			pl--;
+		    }
+		    d++;
+		}
+		else if ( *d == ANY ) {
+		    p += pl;
+		    pl = 0;
+		    d++;
+		}
+		else {
+		    return 0;			// error
+		}
+		d++;				// skip CLO's END
+		const QChar *end;
 		while ( p >= first_p ) {	// go backwards
-		    if ( (end = matchstr(d,p,bol)) )
+		    if ( (end = matchstr(d,p,pl,bol)) )
 			return end;
 		    --p;
+		    ++pl;
 		}
 		}
 		return 0;
 	    case OPT:				// optional closure
 		{
-		const char *first_p = p;
+		const QChar *first_p = p;
 		if ( *d & CHR ) {		// match char
 		    if ( cs ) {			// case sensitive
-			if ( *p && *p == (char)*d )
+			if ( pl && *p == (QChar)*d ) {
 			    p++;
-		    } else {			// case insensitive
-			if ( *p && tolower(*p) == (char)*d )
-			    p++;
+			    pl--;
+			}
 		    }
-		}
-		else switch ( *d ) {
-		    case ANY:
-			if ( *p )
+		    else {			// case insensitive
+			if ( pl && tolower(*p) == (QChar)*d ) {
 			    p++;
-			break;
-		    case CCL:
-			d++;
-			if ( *p &&
-			     d[(uchar)*p >> 4] & (1 << ((uchar)*p & 0xf)) )
-			    p++;
-			d += 15;
-			break;
-		    default:			// error
-			return 0;
+			    pl--;
+			}
+		    }
+		    d++;
 		}
-		d++;
-		d++;
-		const char *end;
+		else if ( *d & MCC ) {			// match char class
+		    if ( pl && matchcharclass( d, *p ) ) {
+			p++;
+			pl--;
+		    }
+		    d += (*d & MVL) + 1;
+		}
+		else if ( *d == PWS ) {
+		    if ( pl && isspace( *p ) ) {
+			p ++;
+			pl--;
+		    }
+		    d++;
+		}
+		else if ( *d == ANY ) {
+		    if ( pl ) {
+			p++;
+			pl--;
+		    }
+		    d++;
+		}
+		else {
+		    return 0;			// error
+		}
+		d++;				// skip OPT's END
+		const QChar *end;
 		while ( p >= first_p ) {	// go backwards
-		    if ( (end = matchstr(d,p,bol)) )
+		    if ( (end = matchstr(d,p,pl,bol)) )
 			return end;
 		    --p;
+		    ++pl;
 		}
 		}
 		return 0;
+
 	    default:				// error
 		return 0;
 	}
@@ -472,13 +586,15 @@ const char *QRegExp::matchstr( ushort *rxd, const char *str, const char *bol ) c
 
 static QString wc2rx( const QString &pattern )
 {
-    // #### Should use unicode
-
-    register const char *p = pattern.ascii();
+    //const QChar *p = pattern.unicode();
+    int patlen = (int)pattern.length();
     QString wcpattern = "^";
-    char c;
-    while ( (c=*p++) ) {
-	switch ( c ) {
+
+    QChar c;
+    //while ( (c=*p++) ) {
+    for( int i = 0; i < patlen; i++ ) {
+	c = pattern[i];
+	switch ( (char)c ) {
 	case '*':				// '*' ==> '.*'
 	    wcpattern += '.';
 	    break;
@@ -493,13 +609,15 @@ static QString wc2rx( const QString &pattern )
 	    wcpattern += '\\';
 	    break;
 	case '[':
-	    if ( *p == '^' ) {
+	    if ( (char)pattern[i+1] == '^' ) { // don't quote '^' after '['
 		wcpattern += '[';
-		c = *p++;
+		c = pattern[i+1];
+		i++;
 	    }
 	    break;
 	}
 	wcpattern += c;
+
     }
     wcpattern += '$';
     return wcpattern;				// return new regexp pattern
@@ -510,74 +628,124 @@ static QString wc2rx( const QString &pattern )
 // Internal: Get char value and increment pointer.
 //
 
-static int char_val( const char **str )		// get char value
+static uint char_val( const QChar **str, uint *strlength )   // get char value
 {
-    register const char *p = *str;
-    int len = 1;
-    int v = 0;
-    if ( *p == '\\' ) {				// escaped code
+    const QChar *p = *str;
+    uint pl = *strlength;
+    uint len = 1;
+    uint v = 0;
+    if ( (char)*p == '\\' ) {			// escaped code
 	p++;
-	if ( *p == 0 ) {			// it is just a '\'
+	pl--;
+	if ( !pl ) {				// it is just a '\'
 	    (*str)++;
+	    (*strlength)--;
 	    return '\\';
 	}
 	len++;					// length at least 2
-	switch ( tolower(*p) ) {
+	int i = 0;
+	char c;
+	char ch = tolower((char)*p);
+	switch ( ch ) {
 	    case 'b':  v = '\b';  break;	// bell
 	    case 'f':  v = '\f';  break;	// form feed
 	    case 'n':  v = '\n';  break;	// newline
 	    case 'r':  v = '\r';  break;	// return
 	    case 't':  v = '\t';  break;	// tab
+	    case 's':  v = PWS; break;		// whitespace charclass
+	    case '<':  v = BOW; break;		// word beginning matcher
+	    case '>':  v = EOW; break;		// word ending matcher
 
 	    case 'x': {				// hex code
 		p++;
-		int  c = tolower(*p);
-		bool a = c >= 'a' && c <= 'f';
-		if ( isdigit(c) || a ) {	// hex digit?
-		    v = a ? 10 + c - 'a' : c - '0';
-		    len++;
+		pl--;
+		for ( i = 0; (i < 4) && pl; i++ ) {	//up to 4 hex digits
+		    c = tolower((char)*p);
+		    bool a = ( c >= 'a' && c <= 'f' );
+		    if ( (c >= '0' && c <= '9') || a ) {
+			v <<= 4;
+			v += a ? 10 + c - 'a' : c - '0';
+			len++;
+		    }
+		    else {
+			break;
+		    }
+		    p++;
+		    pl--;
 		}
-		p++;
-		c = tolower(*p);
-		a = c >= 'a' && c <= 'f';
-		if ( isdigit(c) || a ) {	// another hex digit?
-		    v *= 16;
-		    v += a ? 10 + c - 'a' : c - '0';
-		    len++;
-		}
-		}
-		break;
+	    }
+	    break;
 
 	    default: {
-		int i;
-		--len;				// first check if octal
-		for ( i=0; i<3 && *p >= '0' && *p <= '7'; i++ ) {
-		    v *= 8;
-		    v += *p++ - '0';
-		    len++;
+		if ( ch >= '0' && ch <= '7' ) {	//octal code
+		    len--;
+		    for ( i = 0; (i < 3) && pl; i++ ) {	// up to 3 oct digits
+			c = tolower((char)*p);
+			if ( c >= '0' && c <= '7' ) {
+			    v <<= 3;
+			    v += c - '0';
+			    len++;
+			}
+			else {
+			    break;
+			}
+			p++;
+			pl--;
+		    }
 		}
-		if ( i == 0 ) {			// not an octal number
-		    v = *p;
-		    len++;
+		else {				// not an octal number
+		    v = (((uint)(p->row)) << 8) | ((uint)p->cell);
 		}
 	    }
 	}
     } else {
-	v = (uchar)*p;
+	v = (((uint)(p->row)) << 8) | ((uint)p->cell);
     }
     *str += len;
+    *strlength -= len;
     return v;
 }
 
 
 #if defined(DEBUG)
-static ushort *dump( ushort *p )
+static uint *dump( uint *p )
 {
     while ( *p != END ) {
 	if ( *p & CHR ) {
-	    debug( "\tCHR\t%c (%d)", *p&0xff, *p&0xff );
+	    QChar uc = (QChar)*p;
+	    char c = (char)uc;
+	    uint u = (((uint)(uc.row)) << 8) | ((uint)uc.cell);
+	    debug( "\tCHR\tU%04x (%c)", u, (c ? c : ' '));
 	    p++;
-	} else switch ( *p++ ) {
+	}
+	else if ( *p & MCC ) {
+	    uint clcode = *p & MCD;
+	    uint numFields = *p & MVL;
+	    if ( clcode == CCL )
+		debug( "\tCCL\t%i", numFields );
+	    else if ( clcode == CCN )
+		debug( "\tCCN\t%i", numFields );
+	    else
+		debug("coding error!");
+	    for ( int i = 0; i < (int)numFields; i++ ) {
+		p++;
+		if ( *p == PWS )
+		    debug( "\t\tPWS" );
+		else {
+		    uint from = ( *p & MCD ) >> 16;
+		    uint to = *p & MVL;
+		    char fc = (char)QChar(from);
+		    char tc = (char)QChar(to);
+		    debug( "\t\tU%04x (%c) - U%04x (%c)", from,
+			   (fc ? fc : ' '), to, (tc ? tc : ' ') );
+		}
+	    }
+	    p++;
+	}
+	else switch ( *p++ ) {
+	    case PWS:
+		debug( "\tPWS" );
+		break;
 	    case BOL:
 		debug( "\tBOL" );
 		break;
@@ -592,23 +760,6 @@ static ushort *dump( ushort *p )
 		break;
 	    case ANY:
 		debug( "\tANY" );
-		break;
-	    case CCL: {
-		QString s = "";
-		QString buf;
-		for ( int n=0; n<256; n++ ) {
-		    if ( p[n >> 4] & (1 << (n & 0xf)) ) {
-			if ( isgraph(n) )
-			    s += (char)n;
-			else {
-			    buf.sprintf( "\\x%.2X", n );
-			    s += buf;
-			}
-		    }
-		}
-		debug( "\tCCL\t%s", s.ascii() );
-		p += 16;
-		}
 		break;
 	    case CLO:
 		debug( "\tCLO" );
@@ -627,7 +778,7 @@ static ushort *dump( ushort *p )
 
 
 static const int maxlen = 1024;			// max length of regexp array
-static ushort rxarray[ maxlen ];		// tmp regexp array
+static uint rxarray[ maxlen ];			// tmp regexp array
 
 /*!
   \internal
@@ -654,101 +805,96 @@ void QRegExp::compile()
 	pattern = wc2rx(rxstring);
     else
 	pattern = rxstring;
-    const char *start = pattern.ascii();	// pattern pointer
-    const char *p = start;			// pattern pointer
-    ushort *d = rxarray;			// data pointer
-    ushort *prev_d = 0;
+    const QChar *start = pattern.unicode();	// pattern pointer
+    const QChar *p = start;			// pattern pointer
+    uint pl = pattern.length();
+    uint *d = rxarray;				// data pointer
+    uint *prev_d = 0;
 
 #define GEN(x)	*d++ = (x)
 
-    while ( *p ) {
-	switch ( *p ) {
+    while ( pl ) {
+	char ch = (char)*p;
+	switch ( ch ) {
 
 	    case '^':				// beginning of line
 		prev_d = d;
-		GEN( p == start ? BOL : *p );
+		GEN( p == start ? BOL : (CHR | ch) );
 		p++;
+		pl--;
 		break;
 
 	    case '$':				// end of line
 		prev_d = d;
-		GEN( *(p+1) == 0 ? EOL : *p );
+		GEN( pl == 1 ? EOL : (CHR | ch) );
 		p++;
+		pl--;
 		break;
 
 	    case '.':				// any char
 		prev_d = d;
 		GEN( ANY );
 		p++;
+		pl--;
 		break;
 
 	    case '[':				// character class
 		{
-		char cc[256];
-		char neg;			// mask for CCL
 		prev_d = d;
-		GEN( CCL );
 		p++;
-		memset( cc, 0, 256 );		// reset char class array
-		if ( *p == '^' ) {		// negate!
-		    neg = 1;
-		    p++;
-		} else {
-		    neg = 0;
-		}
-		if ( *p == ']' )		// bracket, not end
-		    cc[(uchar)(*p++)] = 1;
-		int prev_c = -1;
-		while ( *p && *p != ']' ) {	// scan the char set
-		    if ( *p == '-' && *(p+1) && *(p+1) != ']' ) {
-			p++;			// range!
-			if ( prev_c == -1 ) {	// no previous char
-			    cc[(uchar)'-'] = 1;
-			} else {
-			    int start = prev_c;
-			    int stop = char_val( &p );
-			    if ( start > stop ) { // swap start and stop
-				int tmp = start;
-				start = stop;
-				stop = tmp;
-			    }
-			    while ( start++ < stop )
-				cc[start] = 1;
-			}
-		    } else if ( *p == '\\' && *(p+1) && *(p+1) == 's' ) {
-			// white space primitive
-			cc[9] = 1;
-			cc[10] = 1;
-			cc[11] = 1;
-			cc[12] = 1;
-			cc[13] = 1;
-			cc[32] = 1;
-			p++;
-			p++;
-		    } else {			// normal char
-			cc[(prev_c=char_val(&p))] = 1;
-		    }
-		}
-		if ( *p != ']' ) {		// missing close bracket
+		pl--;
+		if ( !pl ) {
 		    error = PatSyntax;
 		    return;
 		}
-		if ( d + 16 >= rxarray + maxlen ) {
-		    error = PatOverflow;	// pattern too long
-		    return;
-		}
-		memset( d, 0, 16*sizeof(ushort) );
-		for ( int i=0; i<256; i++ ) {	// set bits
-		    if ( cc[i] ^ neg ) {
-			d[i >> 4] |= (1 << (i & 0xf));
-			if ( !cs && isalpha(i) ) {
-			    int j = islower(i) ? toupper(i) : tolower(i);
-			    d[j >> 4] |= (1 << (j & 0xf));
-			}
+		bool firstIsEscaped = ( (char)*p == '\\' );
+		uint cch = char_val( &p, &pl );
+		if ( cch == '^' && !firstIsEscaped ) {	// negate!
+		    GEN( CCN );
+		    if ( !pl ) {
+			error = PatSyntax;
+			return;
 		    }
+		    cch = char_val( &p, &pl );
+		} else {
+		    GEN( CCL );
 		}
-		d += 16;
-		p++;
+		uint numFields = 0;
+		while ( pl ) {
+		    if ( ( pl>2 ) && ((char)*p == (uint)'-') && 
+			 ((char)*(p+1) != (uint)']') ) {
+			// Found a range
+			uint cch2 = char_val( &p, &pl ); // Read the '-'
+			cch2 = char_val( &p, &pl ); // Read the range end
+			if ( cch > cch2 ) { 		// swap start and stop
+			    int tmp = cch;
+			    cch = cch2;
+			    cch2 = tmp;
+			}
+			GEN( (cch << 16) | cch2 );	// from < to
+			numFields++;
+		    }
+		    else {
+			// Found a single character
+			if ( cch & MCD ) // It's a code; will not be mistaken
+			    GEN( cch );	 // for a range, since from > to
+			else
+			    GEN( (cch << 16) | cch ); // from == to range
+			numFields++;
+		    }
+		    if ( !pl ) {		// At least ']' should be left
+			error = PatSyntax;
+			return;
+		    }
+		    if ( d >= rxarray + maxlen ) {	// pattern too long
+			error = PatOverflow;		
+			return;
+		    }
+		    cch = char_val( &p, &pl );
+		    if ( cch == (uint)']' )
+			break;
+		}
+		*prev_d |= numFields;		// Store number of fields
 		}
 		break;
 
@@ -775,45 +921,31 @@ void QRegExp::compile()
 			error = PatOverflow;	// pattern too long
 			return;
 		    }
-		    memcpy( d, prev_d, ddiff*sizeof(ushort) );
+		    memcpy( d, prev_d, ddiff*sizeof(uint) );
 		    d += ddiff;
 		    prev_d += ddiff;
 		}
-		memmove( prev_d+1, prev_d, ddiff*sizeof(ushort) );
-		*prev_d = *p == '?' ? OPT : CLO;
+		memmove( prev_d+1, prev_d, ddiff*sizeof(uint) );
+		*prev_d = ch == '?' ? OPT : CLO;
 		d++;
 		GEN( END );
 		p++;
+		pl--;
 		}
 		break;
 
 	    default:
 		{
 		prev_d = d;
-		if ( *p == '\\' ) {
-		    if ( *(p+1) == 's' ) {	// white space
-			GEN( CCL );		//   represent as char class
-			if ( d + 16 >= rxarray + maxlen ) {
-			    error = PatOverflow;// pattern too long
-			    return;
-			}
-			memset( d, 0, 16*sizeof(ushort) );
-			d[0] |= 0x3e00;		// 9, 10, 11, 12, 13
-			d[32 >> 4] |= (1 << (32 & 0xf)); // 32
-			d += 16;
-			p++;
-			p++;
-			break;
-		    } else if ( *(p+1) == '<' || *(p+1) == '>' ) {
-			GEN( *++p == '<' ? BOW : EOW );
-			p++;
-			break;
-		    }
+		uint c = char_val( &p, &pl );
+		if ( c & MCD ) {			// It's a code
+		    GEN( c );
 		}
-		int c = char_val(&p);
-		if ( !cs )
-		    c = tolower( c );
-		GEN( CHR | c );
+		else {
+		    if ( !cs && c < 256 )	//### uctolower?
+			c = tolower( c );
+		    GEN( CHR | c );
+		}
 		}
 	}
 	if ( d >= rxarray + maxlen ) {		// oops!
@@ -823,236 +955,10 @@ void QRegExp::compile()
     }
     GEN( END );
     int len = d - rxarray;
-    rxdata = new ushort[ len ];			// copy from rxarray to rxdata
+    rxdata = new uint[ len ];			// copy from rxarray to rxdata
     CHECK_PTR( rxdata );
-    memcpy( rxdata, rxarray, len*sizeof(ushort) );
+    memcpy( rxdata, rxarray, len*sizeof(uint) );
 #if defined(DEBUG)
-//  dump( rxdata );	// uncomment this line for debugging
+    //dump( rxdata );	// uncomment this line for debugging
 #endif
-}
-
-
-/*****************************************************************************
-  QString member functions that use QRegExp
- *****************************************************************************/
-
-/*!
-  Finds the first occurrence of the regular expression \e rx, starting at
-  position \e index.
-
-  Returns the position of the next match, or -1 if \e rx was not found.
-*/
-
-int QString::find( const QRegExp &rx, int index ) const
-{
-    QString a = ascii();
-    int r = (uint)index >= length() ? -1 : rx.match( a, index );
-    return r;
-}
-
-/*!
-  Finds the first occurrence of the regular expression \e rx, starting at
-  position \e index and searching backwards.
-
-  The search will start from the end of the string if \e index is negative.
-
-  Returns the position of the next match (backwards), or -1 if \e rx was not
-  found.
-*/
-
-int QString::findRev( const QRegExp &rx, int index ) const
-{
-    QString a = ascii();
-    if ( index < 0 ) {				// neg index ==> start from end
-	if ( length() ) {
-	    index = strlen( a );
-	} else {				// empty string
-	    return -1;
-	}
-    }
-    else if ( (uint)index >= length() ) {		// bad index
-	return -1;
-    }
-    while( index >= 0 ) {
-	if ( rx.match(a,index) == index )
-	    return index;
-	index--;
-    }
-    return -1;
-}
-
-/*!
-  Counts the number of overlapping occurrences of \e rx in the string.
-
-  Example:
-  \code
-    QString s = "banana and panama";
-    QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
-    s.contains( r );				// 4 matches
-  \endcode
-
-  \sa find(), findRev()
-*/
-
-int QString::contains( const QRegExp &rx ) const
-{
-    if ( isEmpty() )
-	return 0;
-    QString a = ascii();
-    int count = 0;
-    int index = -1;
-    int len = length();
-    while ( index < len ) {			// count overlapping matches
-	index = rx.match( a, index+1 );
-	if ( index < 0 )
-	    break;
-	count++;
-    }
-    return count;
-}
-
-
-/*!
-  Replaces every occurrence of \e rx in the string with \e str.
-  Returns a reference to the string.
-
-  Example:
-  \code
-    QString s = "banana";
-    s.replace( QRegExp("a.*a"), "" );		// becomes "b"
-
-    QString s = "banana";
-    s.replace( QRegExp("^[bn]a"), " " );	// becomes " nana"
-
-    QString s = "banana";
-    s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
-  \endcode
-  
-*/
-
-QString &QString::replace( const QRegExp &rx, const QString &str )
-{
-    if ( isEmpty() )
-	return *this;
-    int index = 0;
-    int slen  = str.length();
-    int len;
-    QString a=ascii();
-    while ( index < (int)length()-1 ) {
-	if ( (index = rx.match(a, index, &len)) >= 0 ) {
-	    remove( index, len );
-	    insert( index, str );
-	    index += slen;
-	}
-	else
-	    break;
-    }
-    return *this;
-}
-
-/*!
-  Finds the first occurrence of the regular expression \e rx, starting at
-  position \e index.
-
-  Returns the position of the next match, or -1 if \e rx was not found.
-*/
-
-int QCString::find( const QRegExp &rx, int index ) const
-{
-    return (uint)index >= size() ? -1 : rx.match( data(), index );
-}
-
-/*!
-  Finds the first occurrence of the regular expression \e rx, starting at
-  position \e index and searching backwards.
-
-  The search will start from the end of the string if \e index is negative.
-
-  Returns the position of the next match (backwards), or -1 if \e rx was not
-  found.
-*/
-
-int QCString::findRev( const QRegExp &rx, int index ) const
-{
-    if ( index < 0 ) {				// neg index ==> start from end
-	if ( size() )
-	    index = strlen( data() );
-	else					// empty string
-	    return -1;
-    }
-    else if ( (uint)index >= size() )		// bad index
-	return -1;
-    while( index >= 0 ) {
-	if ( rx.match(data(),index) == index )
-	    return index;
-	index--;
-    }
-    return -1;
-}
-
-/*!
-  Counts the number of overlapping occurrences of \e rx in the string.
-
-  Example:
-  \code
-    QString s = "banana and panama";
-    QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
-    s.contains( r );				// 4 matches
-  \endcode
-
-  \sa find(), findRev()
-*/
-
-int QCString::contains( const QRegExp &rx ) const
-{
-    if ( isEmpty() )
-	return 0;
-    int count = 0;
-    int index = -1;
-    int len = length();
-    while ( index < len ) {			// count overlapping matches
-	index = rx.match( data(), index+1 );
-	if ( index < 0 )
-	    break;
-	count++;
-    }
-    return count;
-}
-
-
-/*!
-  Replaces every occurrence of \e rx in the string with \e str.
-  Returns a reference to the string.
-
-  Example:
-  \code
-    QString s = "banana";
-    s.replace( QRegExp("a.*a"), "" );		// becomes "b"
-
-    QString s = "banana";
-    s.replace( QRegExp("^[bn]a"), " " );	// becomes " nana"
-
-    QString s = "banana";
-    s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
-  \endcode
-  
-*/
-
-QCString &QCString::replace( const QRegExp &rx, const char *str )
-{
-    if ( isEmpty() )
-	return *this;
-    int index = 0;
-    int slen  = strlen( str );
-    int len;
-    while ( index < (int)size()-1 ) {
-	if ( (index = rx.match(data(), index, &len)) >= 0 ) {
-	    remove( index, len );
-	    insert( index, str );
-	    index += slen;
-	}
-	else
-	    break;
-    }
-    return *this;
 }
