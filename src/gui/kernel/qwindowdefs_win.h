@@ -14,13 +14,6 @@
 #ifndef QWINDOWDEFS_WIN_H
 #define QWINDOWDEFS_WIN_H
 
-
-#if defined(Q_CC_BOR) && !defined(__CONSOLE__)
-#define NEEDS_QMAIN
-#elif defined(Q_CC_WAT)
-#define NEEDS_QMAIN
-#endif
-
 #if !defined(Q_NOWINSTRICT)
 #define Q_WINSTRICT
 #endif

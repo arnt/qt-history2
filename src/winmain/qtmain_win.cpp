@@ -30,8 +30,9 @@ extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pc
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 #endif
 
-#if defined(NEEDS_QMAIN)
+#if defined(QT_NEEDS_QMAIN)
 int qMain(int, char **);
+#define main qMain
 #else
 #ifdef Q_OS_TEMP
 extern "C" int __cdecl main(int, char **);
@@ -97,11 +98,4 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance,
     if (cmdp) free(cmdp);
     return result;
 }
-
-
-// untill such time as mingw runtime calls winmain instead of main
-// in a GUI app we need this.
-#if defined(Q_OS_WIN32) && defined(Q_CC_GNU)
-#include <qtcrtentrypoint.cpp>
-#endif
 
