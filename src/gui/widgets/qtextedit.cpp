@@ -120,9 +120,6 @@ public:
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0)
     {}
 
-    inline ~QTextEditPrivate()
-    { delete doc; }
-
     bool cursorMoveKeyEvent(QKeyEvent *e);
 
     inline void updateCurrentCharFormat() { updateCurrentCharFormat(cursor.charFormat()); }
