@@ -2792,8 +2792,9 @@ bool QString::endsWith(const QString& s, Qt::CaseSensitivity cs) const
     return true;
 }
 
-/* \overload
- */
+/*!
+    \overload
+*/
 bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
 {
     if (d == &shared_null)
@@ -3333,7 +3334,7 @@ QString QString::fromUtf8(const char *str, int size)
 
     QString makes a deep copy of the Unicode data.
 
-    \sa utf16(), setUtf16(), setRawData()
+    \sa utf16(), setUtf16()
 */
 QString QString::fromUtf16(const ushort *unicode, int size)
 {
@@ -5083,8 +5084,8 @@ QString &QString::setNum(qulonglong n, int base)
     format \a f with precision \a prec, and returns a reference to the
     string.
 
-    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See \link
-    #arg-formats arg \endlink() for an explanation of the formats.
+    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'.
+    See \l{#arg-formats}{arg()} for an explanation of the formats.
 */
 
 QString &QString::setNum(double n, char f, int prec)
@@ -5127,8 +5128,8 @@ QString &QString::setNum(double n, char f, int prec)
     \a f with precision \a prec, and returns a reference to the
     string.
 
-    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See \link
-    #arg-formats arg \endlink() for an explanation of the formats.
+    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'.
+    See \l{#arg-formats}{arg()} for an explanation of the formats.
 */
 
 
@@ -5212,8 +5213,8 @@ QString QString::number(qulonglong n, int base)
 
     Argument \a n is formatted according to the format \a f, and the
     precision \a prec. The format \a f can be 'f', 'F', 'e', 'E', 'g'
-    or 'G'. See \link #arg-formats arg \endlink() for an explanation
-    of the formats.
+    or 'G'. See \l{#arg-formats}{arg()} for an explanation of the
+    formats.
 
     \sa setNum()
 */
@@ -6185,7 +6186,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
         QLabel *label = new QLabel(QLatin1String("MOD"), this);
     \endcode
 
-    \sa QString, QString::setRawData()
+    \sa QString
 */
 
 /*! \fn QLatin1String::QLatin1String(const char *str)
