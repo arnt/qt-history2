@@ -108,7 +108,7 @@ void WriteIncludes::add(const QString &className)
         m_includes.insert(header, true);
     }
 
-    if (className == QLatin1String("Q3ListView")) {
+    if (uic->customWidgetsInfo()->extends(className, "Q3ListView")) {
         m_includes.insert("q3header.h", true);
     }
 }
