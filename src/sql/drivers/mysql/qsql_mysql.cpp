@@ -336,10 +336,30 @@ int QMYSQLResult::numRowsAffected()
 
 /////////////////////////////////////////////////////////
 
+static void qServerInit()
+{
+#if MYSQL_VERSION_ID >= 40000
+    static bool init = FALSE;
+    if ( init )
+	return;
+
+    // this should only be called once
+    // has no effect on client/server library
+    // but is vital for the embedded lib
+    if ( mysql_server_init( 0, 0, 0 ) ) {
+# ifdef QT_CHECK_RANGE
+	qWarning( "QMYSQLDriver::qServerInit: unable to start server." );
+# endif
+    }
+    init = TRUE;    
+#endif
+}
+
 QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
     : QSqlDriver( parent, name ? name : QMYSQL_DRIVER_NAME )
 {
     init();
+    qServerInit();
 }
 
 /*!
@@ -354,6 +374,8 @@ QMYSQLDriver::QMYSQLDriver( MYSQL * con, QObject * parent, const char * name )
 	d->mysql = (MYSQL *) con;
 	setOpen( TRUE );
 	setOpenError( FALSE );
+    } else {
+	qServerInit();
     }
 }
 
@@ -371,6 +393,9 @@ QMYSQLDriver::~QMYSQLDriver()
 	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
 	delete ext;
     }
+#if MYSQL_VERSION_ID > 40000
+    mysql_server_end();
+#endif
 }
 
 bool QMYSQLDriver::hasFeature( DriverFeature f ) const
@@ -415,7 +440,7 @@ bool QMYSQLDriver::open( const QString& db,
 {
     if ( isOpen() )
 	close();
-    
+ 
     unsigned int optionFlags = 0;
     
     QStringList raw = QStringList::split( ';', connOpts );
