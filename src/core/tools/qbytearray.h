@@ -79,7 +79,7 @@ public:
     QByteArray(const QByteArray &);
     ~QByteArray();
 
-    inline QByteArray &operator=(const QByteArray &);
+    QByteArray &operator=(const QByteArray &);
     QByteArray &operator=(const char *str);
 
     inline int size() const;
@@ -133,8 +133,8 @@ public:
     bool endsWith(char c) const;
     bool endsWith(const char *c) const;
 
-    inline void truncate(int pos) { if (pos < d->size) resize(pos); }
-    inline void chop(int n) { if (n > 0) resize(d->size - n); }
+    void truncate(int pos);
+    void chop(int n);
 
     QByteArray toLower() const;
     QByteArray toUpper() const;
@@ -289,7 +289,7 @@ private:
     static Data shared_null;
     static Data shared_empty;
     Data *d;
-    QByteArray(Data *dd, int /* dummy */) : d(dd) {}
+    explicit QByteArray(Data *dd, int /*dummy*/, int /*dummy*/) : d(dd) {}
     void realloc(int alloc);
     void expand(int i);
 
@@ -321,8 +321,6 @@ inline void QByteArray::detach()
 { if (d->ref != 1 || d->data != d->array) realloc(d->size); }
 inline bool QByteArray::isDetached() const
 { return d->ref == 1; }
-inline QByteArray::~QByteArray()
-{ if (!d) return; if (!--d->ref) qFree(d); }
 inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 { ++d->ref; }
 #ifdef QT_COMPAT
@@ -406,14 +404,6 @@ inline QBool QByteArray::contains(const QByteArray &a) const
 { return QBool(indexOf(a) != -1); }
 inline QBool QByteArray::contains(char c) const
 { return QBool(indexOf(c) != -1); }
-inline QByteArray &QByteArray::operator=(const QByteArray & a)
-{
-    Data *x = a.d; ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref) qFree(x);
-    return *this;
-}
-
 inline bool operator==(const QByteArray &a1, const QByteArray &a2)
 { return (a1.size() == a2.size()) && (memcmp(a1, a2, a1.size())==0); }
 inline bool operator==(const QByteArray &a1, const char *a2)

@@ -52,7 +52,7 @@ public:
     QString(int size, QChar c);
     QString(const QLatin1String &latin1);
     QString(const QString &);
-    ~QString() { if (!d) return; if (!--d->ref) free(d); }
+    ~QString();
     QString &operator=(QChar c);
     inline QString &operator=(const QString &);
     inline QString &operator=(const QLatin1String &);
@@ -65,7 +65,7 @@ public:
 
     QString &fill(QChar c, int size = -1);
     void truncate(int pos);
-    inline void chop(int n) { if (n > 0) resize(d->size - n); }
+    void chop(int n);
 
     int capacity() const;
     inline void reserve(int size) { if (d->ref != 1 || size > d->alloc) realloc(size); }
@@ -197,7 +197,7 @@ public:
     inline const char *latin1() const { return toLatin1(); }
     inline const char *utf8() const { return toUtf8(); }
     inline const char *local8Bit() const{ return toLocal8Bit(); }
-    inline const ushort *utf16() const;
+    const ushort *utf16() const;
 
     QByteArray toAscii() const;
     QByteArray toLatin1() const;
@@ -446,13 +446,13 @@ private:
         ushort array[1];
         enum { Latin1, Ascii, Local8Bit, Utf8 };
     };
-    explicit QString(Data *dd) : d(dd) {}
     static Data shared_null;
     static Data shared_empty;
+    Data *d;
+    explicit QString(Data *dd, int /*dummy*/):d(dd){}
 #ifndef QT_NO_TEXTCODEC
     static QTextCodec *codecForCStrings;
 #endif
-    Data *d;
     static int grow(int);
     static void free(Data *);
     void realloc();
@@ -494,8 +494,6 @@ inline QString::QString(const QLatin1String &latin1) : d(&shared_null)
 { ++d->ref; *this = fromLatin1(latin1.latin1()); }
 inline int QString::length() const
 { return d->size; }
-inline void QString::truncate(int pos)
-{ if (pos < d->size) resize(pos); }
 inline const QChar QString::at(int i) const
 { Q_ASSERT(i >= 0 && i < size()); return d->data[i]; }
 inline const QChar QString::operator[](int i) const
@@ -512,19 +510,10 @@ inline QChar *QString::data()
 { detach(); return (QChar*) d->data; }
 inline const QChar *QString::constData() const
 { return (const QChar*) d->data; }
-inline const ushort *QString::utf16() const
-{ d->data[d->size] = 0; return d->data; } //###
 inline void QString::detach()
 { if (d->ref != 1 || d->data != d->array) realloc(); }
 inline bool QString::isDetached() const
 { return d->ref == 1; }
-inline QString &QString::operator=(const QString & a)
-{
-    Data *x = a.d; ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref) free(x);
-    return *this;
-}
 inline QString &QString::operator=(const QLatin1String &s)
 {
     *this = fromLatin1(s.latin1());
@@ -767,8 +756,8 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QString &);
 class QT_COMPAT QConstString : public QString
 {
 public:
-    inline QConstString(const QChar *unicode, int length)
-    { QString::operator=(QString::fromRawData(unicode, length)); }
+    inline QConstString(const QChar *unicode, int size)
+        :QString(unicode, size){} // cannot use fromRawData() due to changed semantics
     inline const QString &string() const { return *this; }
 };
 #endif

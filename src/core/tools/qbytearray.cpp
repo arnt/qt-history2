@@ -438,7 +438,7 @@ static inline char qToLower(char c)
 Q_CORE_EXPORT QByteArray::Data QByteArray::shared_null = {Q_ATOMIC_INIT(1), 0, 0, shared_null.array, {0} };
 QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_empty.array, {0} };
 
-/*! 
+/*!
     \class QByteArray
     \brief The QByteArray class provides an array of bytes.
 
@@ -693,16 +693,31 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     \sa operator=()
 */
 
-/*! \fn QByteArray::~QByteArray()
-
+/*!
     Destroys the byte array.
 */
+QByteArray::~QByteArray()
+{
+    if (!d)
+        return;
+    if (!--d->ref)
+        qFree(d);
+}
 
-/*! \fn QByteArray &QByteArray::operator=(const QByteArray &other)
-
+/*!
     Assigns \a other to this byte array and returns a reference to
     this byte array.
 */
+QByteArray &QByteArray::operator=(const QByteArray & other)
+{
+    Data *x = other.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+        qFree(x);
+    return *this;
+}
+
 
 /*!
     \overload
@@ -972,7 +987,7 @@ QByteArray &QByteArray::operator=(const char *str)
     otherwise returns false.
 */
 
-/*! \fn void QByteArray::truncate(int pos)
+/*!
 
     Truncates the byte array at index position \a pos.
 
@@ -986,8 +1001,13 @@ QByteArray &QByteArray::operator=(const char *str)
 
     \sa chop(), resize(), left()
 */
+void QByteArray::truncate(int pos)
+{
+    if (pos < d->size)
+        resize(pos);
+}
 
-/*! \fn void QByteArray::chop(int n)
+/*!
 
     Removes \a n bytes from the end of the byte array.
 
@@ -1002,6 +1022,13 @@ QByteArray &QByteArray::operator=(const char *str)
 
     \sa truncate(), resize(), left()
 */
+
+void QByteArray::chop(int n)
+{
+    if (n > 0)
+        resize(d->size - n);
+}
+
 
 /*! \fn QByteArray &QByteArray::operator+=(const QByteArray &ba)
 
@@ -2787,8 +2814,10 @@ QByteArray QByteArray::trimmed() const
             end--;
     }
     int l = end - start + 1;
-    if (l <= 0)
-        return QByteArray();
+    if (l <= 0) {
+        ++shared_empty.ref;
+        return QByteArray(&shared_empty, 0, 0);
+    }
     return QByteArray(s+start, l);
 }
 
@@ -3477,27 +3506,40 @@ QByteArray QByteArray::number(double n, char f, int prec)
     QByteArray:
 
     \code
-	static const char mydata[] = {
+         static const char mydata[] = {
             0x00, 0x00, 0x03, 0x84, 0x78, 0x9c, 0x3b, 0x76,
             0xec, 0x18, 0xc3, 0x31, 0x0a, 0xf1, 0xcc, 0x99,
-	    ...
+            ...
             0x6d, 0x5b
         };
 
-	QByteArray data = QByteArray::fromRawData(mydata, sizeof(mydata));
+        QByteArray data = QByteArray::fromRawData(mydata, sizeof(mydata));
         QDataStream in(&data, IO_ReadOnly);
-	...
+        ...
     \endcode
+
+    \warning A byte array created with fromRawData() is \e not
+    null-terminated, unless the raw data contains a 0 character at
+    position \a size. While that does not matter for QDataStream or
+    functions like indexOf(), passing the byte array to a function
+    that accepts a \c{const char *} and expects it to be
+    '\\0'-terminated leads into trouble.
+
 */
 
 QByteArray QByteArray::fromRawData(const char *data, int size)
 {
     Data *x = static_cast<Data *>(qMalloc(sizeof(Data)));
+    if (data) {
+        x->data = const_cast<char *>(data);
+    } else {
+        x->data = x->array;
+        size = 0;
+    }
     x->ref = 1;
     x->alloc = x->size = size;
-    x->data = data ? const_cast<char *>(data) : x->array;
     *x->array = '\0';
-    return QByteArray(x, 0);
+    return QByteArray(x, 0, 0);
 }
 
 /*!

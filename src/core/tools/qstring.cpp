@@ -647,10 +647,19 @@ QString::QString(QChar ch)
     \internal
 */
 
-/*! \fn QString::~QString()
+/*!
 
     Destroys the string.
 */
+
+QString::~QString()
+{
+    if (!d)
+        return;
+    if (!--d->ref)
+        free(d);
+}
+
 
 /*! \fn void QString::detach()
 
@@ -723,8 +732,11 @@ void QString::resize(int size)
     } else {
         if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
             realloc(grow(size));
-        d->array[size] = '\0';
-        d->size = size;
+        if (d->alloc >= size) {
+            d->size = size;
+            d->data = d->array;
+            d->array[size] = '\0';
+        }
     }
 }
 
@@ -790,11 +802,11 @@ void QString::realloc(int alloc)
 {
     if (d->ref != 1 || d->data != d->array) {
         Data *x = static_cast<Data *>(qMalloc(sizeof(Data) + alloc * sizeof(QChar)));
-        *x = *d;
-        if (alloc < x->size)
-            x->size = alloc;
+        if (!x)
+            return;
+        x->size = qMin(alloc, d->size);
         ::memcpy(x->array, d->data, x->size * sizeof(QChar));
-        x->array[x->size] = QChar::Null;
+        x->array[x->size] = '\0';
         x->c = 0;
         x->cache = 0;
         x->ref = 1;
@@ -804,9 +816,12 @@ void QString::realloc(int alloc)
         if (!--x->ref)
             free(x);
     } else {
-        d = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc * sizeof(QChar)));
-        d->alloc = alloc;
-        d->data = d->array;
+        Data *x = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc * sizeof(QChar)));
+        if (!x)
+            return;
+        x->alloc = alloc;
+        x->data = x->array;
+        d = x;
     }
 }
 
@@ -839,6 +854,17 @@ void QString::expand(int i)
     Assigns \a other to this string and returns a reference to this
     string.
 */
+
+QString &QString::operator=(const QString &other)
+{
+    Data *x = other.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+        free(x);
+    return *this;
+}
+
 
 /*! \fn QString &QString::operator=(const QLatin1String &str)
 
@@ -2943,10 +2969,11 @@ QString QString::fromLatin1(const char *str, int size)
         d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
         d->data = d->array;
         ushort *i = d->data;
+        d->array[size] = '\0';
         while (size--)
            *i++ = (uchar)*str++;
     }
-    return QString(d);
+    return QString(d, 0);
 }
 
 #ifdef Q_OS_WIN32
@@ -3307,7 +3334,7 @@ QString QString::trimmed() const
     int l = end - start + 1;
     if (l <= 0) {
         ++shared_empty.ref;
-        return QString(&shared_empty);
+        return QString(&shared_empty, 0);
     }
     return QString(s + start, l);
 }
@@ -3358,7 +3385,7 @@ QString QString::trimmed() const
     \overload
 */
 
-/*! \fn void QString::truncate(int pos)
+/*!
 
     Truncates the string at index position \a pos.
 
@@ -3374,7 +3401,14 @@ QString QString::trimmed() const
     \sa chop(), resize(), left()
 */
 
-/*! \fn void QString::chop(int n)
+void QString::truncate(int pos)
+{
+    if (pos < d->size)
+        resize(pos);
+}
+
+
+/*!
 
     Removes \a n characters from the end of the string.
 
@@ -3389,6 +3423,11 @@ QString QString::trimmed() const
 
     \sa truncate(), resize()
 */
+void QString::chop(int n)
+{
+    if (n > 0)
+        resize(d->size - n);
+}
 
 /*!
     Sets every character in the string to character \a ch. If \a size
@@ -3826,11 +3865,21 @@ int QString::localeAwareCompare(const QString &other) const
 /*!
     \fn const ushort *QString::utf16() const
 
-    Returns the QString as a zero-terminated array of unsigned
+    Returns the QString as a '\\0\'-terminated array of unsigned
     shorts. The result remains valid until the string is modified.
 
     \sa unicode()
 */
+
+const ushort *QString::utf16() const
+{
+    if (d->data != d->array) {
+        QString *that = const_cast<QString*>(this);
+        that->realloc();   // ensure '\\0'-termination for ::fromRawData strings
+        return that->d->data;
+    }
+    return d->array;
+}
 
 /*!
     Returns a string of size() \a width that contains this string
@@ -5878,12 +5927,18 @@ void QString::updateProperties() const
             ...
             0x0020
         };
-        int len = sizeof(unicode) / sizeof(QChar);
+        int size = sizeof(unicode) / sizeof(QChar);
 
-        QString str = QString::fromRawData(unicode, len);
+        QString str = QString::fromRawData(unicode, size);
         if (str.contains(QRegExp(pattern)))
-            ...
+        ...
     \endcode
+
+    \warning A string created with fromRawData() is \e not
+    '\\0'-terminated, unless the raw data contains a '\\0' character
+    at position \a size. This means unicode() will \e not return a
+    '\\0'-terminated string (although utf16() does, at the cost of
+    copying the raw data).
 
     \sa fromUtf16()
 */
@@ -5899,9 +5954,9 @@ QString QString::fromRawData(const QChar *unicode, int size)
     x->ref = 1;
     x->alloc = x->size = size;
     x->c = 0;
-    *x->array = 0;
+    *x->array = '\0';
     x->clean = x->encoding = x->cache = x->simpletext = x->righttoleft = 0;
-    return QString(x);
+    return QString(x, 0);
 }
 
 /*! \class QLatin1String
