@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#5 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#6 $
 **
 ** Definition of date and time classes
 **
 ** Author  : Haavard Nord
 ** Created : 940124
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -26,25 +26,25 @@ friend QDataStream &operator<<( QDataStream &, const QDate & );
 friend QDataStream &operator>>( QDataStream &, QDate & );
 public:
     QDate()  { jd=0; }				// set null date
-    QDate( uint y, uint m, uint d );		// set date
+    QDate( int y, int m, int d );		// set date
 
     bool   isNull()	 const { return jd == 0; }
     bool   isValid()	 const;			// valid date
 
-    uint   year()	 const;			// 1752..
-    uint   month()	 const;			// 1..12
-    uint   day()	 const;			// 1..31
-    uint   dayOfWeek()	 const;			// 1..7 (monday==1)
-    uint   dayOfYear()	 const;			// 1..365
-    uint   daysInMonth() const;			// 1..31
-    uint   daysInYear()	 const;			// 1..365
+    int    year()	 const;			// 1752..
+    int    month()	 const;			// 1..12
+    int    day()	 const;			// 1..31
+    int    dayOfWeek()	 const;			// 1..7 (monday==1)
+    int    dayOfYear()	 const;			// 1..365
+    int    daysInMonth() const;			// 1..31
+    int    daysInYear()	 const;			// 1..365
 
-    virtual const char *monthName( uint month ) const;
-    virtual const char *dayName( uint weekday ) const;
+    virtual const char *monthName( int month ) const;
+    virtual const char *dayName( int weekday ) const;
 
     QString toString()	 const;			// date to string
 
-    bool   setYMD( uint y, uint m, uint d );	// set year, month, day
+    bool   setYMD( int y, int m, int d );	// set year, month, day
 
     QDate  addDays( long days )		const;	// add days
     long   daysTo( const QDate & )	const;	// days difference
@@ -57,12 +57,12 @@ public:
     bool   operator>=( const QDate &d ) const { return jd >= d.jd; }
 
     static QDate currentDate();			// get current date
-    static bool	 isValid( uint y, uint m, uint d );
-    static bool	 leapYear( uint year );
+    static bool	 isValid( int y, int m, int d );
+    static bool	 leapYear( int year );
 
 protected:
-    static ulong greg2jul( uint y, uint m, uint d );
-    static void	 jul2greg( ulong jd, uint &y, uint &m, uint &d );
+    static ulong greg2jul( int y, int m, int d );
+    static void	 jul2greg( ulong jd, int &y, int &m, int &d );
     ulong  jd;					// julian date
     static const char *monthNames[];
     static const char *weekdayNames[];
@@ -80,19 +80,19 @@ friend QDataStream &operator<<( QDataStream &, const QTime & );
 friend QDataStream &operator>>( QDataStream &, QTime & );
 public:
     QTime() { ds=0; }				// set null time
-    QTime( uint h, uint m, uint s=0, uint ms=0);// set time
+    QTime( int h, int m, int s=0, int ms=0 );	// set time
 
     bool   isNull()	 const { return ds == 0; }
     bool   isValid()	 const;			// valid time
 
-    uint   hour()	 const;			// 0..23
-    uint   minute()	 const;			// 0..59
-    uint   second()	 const;			// 0..59
-    uint   msec()	 const;			// 0..999
+    int    hour()	 const;			// 0..23
+    int    minute()	 const;			// 0..59
+    int    second()	 const;			// 0..59
+    int    msec()	 const;			// 0..999
 
     QString toString()	 const;			// time to string
 
-    bool   setHMS( uint h, uint m, uint s, uint ms=0 );	// set time of day
+    bool   setHMS( int h, int m, int s, int ms=0 ); // set time of day
 
     QTime  addSecs( long secs )		const;	// add seconds
     long   secsTo( const QTime & )	const;	// seconds difference
@@ -107,7 +107,7 @@ public:
     bool   operator>=( const QTime &d ) const { return ds >= d.ds; }
 
     static QTime currentTime();			// get current time
-    static bool	 isValid( uint h, uint m, uint s, uint ms=0 );
+    static bool	 isValid( int h, int m, int s, int ms=0 );
 
 protected:
     ulong  ds;					// seconds

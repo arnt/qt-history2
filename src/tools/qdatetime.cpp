@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#7 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#7 $";
 #endif
 
 
@@ -51,11 +51,11 @@ const char *QDate::weekdayNames[] ={
 // QDate member functions
 //
 
-QDate::QDate( uint y, uint m, uint d )		// set date and time
+QDate::QDate( int y, int m, int d )		// set date and time
 {
 #if defined(CHECK_RANGE)
     if ( !isValid(y,m,d) )
-	 warning( "QDate: Invalid date" );
+	warning( "QDate: Invalid date" );
 #endif
     jd = greg2jul( y, m, d );
 #if defined(DEBUG)
@@ -72,40 +72,40 @@ bool QDate::isValid() const			// valid date
 }
 
 
-uint QDate::year() const			// 1752..
+int QDate::year() const				// 1752..
 {
-    uint y, m, d;
+    int y, m, d;
     jul2greg( jd, y, m, d );
     return y;
 }
 
-uint QDate::month() const			// 1..12
+int QDate::month() const			// 1..12
 {
-    uint y, m, d;
+    int y, m, d;
     jul2greg( jd, y, m, d );
     return m;
 }
 
-uint QDate::day() const				// 1..31
+int QDate::day() const				// 1..31
 {
-    uint y, m, d;
+    int y, m, d;
     jul2greg( jd, y, m, d );
     return d;
 }
 
-uint QDate::dayOfWeek() const			// 1..7 (monday==1)
+int QDate::dayOfWeek() const			// 1..7 (monday==1)
 {
-    return (uint)((((jd+1) % 7) + 6)%7) + 1;
+    return (int)((((jd+1) % 7) + 6)%7) + 1;
 }
 
-uint QDate::dayOfYear() const			// 1..365
+int QDate::dayOfYear() const			// 1..365
 {
-    return (uint)(jd - greg2jul( year(), 1, 1 )) + 1;
+    return (int)(jd - greg2jul( year(), 1, 1 )) + 1;
 }
 
-uint QDate::daysInMonth() const			// 1..31
+int QDate::daysInMonth() const			// 1..31
 {
-    uint y, m, d;
+    int y, m, d;
     jul2greg( jd, y, m, d );
     if ( m == 2 && leapYear(y) )
 	return 29;
@@ -113,15 +113,15 @@ uint QDate::daysInMonth() const			// 1..31
 	return monthDays[m];
 }
 
-uint QDate::daysInYear() const			// 1..365
+int QDate::daysInYear() const			// 1..365
 {
-    uint y, m, d;
+    int y, m, d;
     jul2greg( jd, y, m, d );
     return leapYear(y) ? 366 : 365;
 }
 
 
-const char *QDate::monthName( uint month) const // name of month
+const char *QDate::monthName( int month) const	// name of month
 {
 #if defined(DEBUG)
     ASSERT( month > 0 && month <= 12 );
@@ -129,7 +129,7 @@ const char *QDate::monthName( uint month) const // name of month
     return monthNames[month-1];
 }
 
-const char *QDate::dayName( uint weekday) const // name of week day
+const char *QDate::dayName( int weekday) const	// name of week day
 {
 #if defined(DEBUG)
     ASSERT( weekday > 0 && weekday <= 7 );
@@ -141,14 +141,14 @@ const char *QDate::dayName( uint weekday) const // name of week day
 QString QDate::toString() const			// date to string
 {
     QString buf;
-    uint y, m, d;
+    int y, m, d;
     jul2greg( jd, y, m, d );
     buf.sprintf( "%s %s %d %d", dayName(dayOfWeek()), monthName(m), d, y);
     return buf;
 }
 
 
-bool QDate::setYMD( uint y, uint m, uint d )	// set year, month, day
+bool QDate::setYMD( int y, int m, int d )	// set year, month, day
 {
     if ( !isValid(y,m,d) ) {
 #if defined(CHECK_RANGE)
@@ -184,23 +184,23 @@ QDate QDate::currentDate()			// get current date
     return d;
 }
 
-bool QDate::isValid( uint y, uint m, uint d )	// is valid date?
+bool QDate::isValid( int y, int m, int d )	// is valid date?
 {
     if ( y <= 99 )
 	y += 1900;
-    else
-    if ( y < FIRST_YEAR || y == FIRST_YEAR && (m < 9 || (m == 9 && d < 14)) )
+    else if ( y < FIRST_YEAR || (y == FIRST_YEAR && (m < 9 ||
+						    (m == 9 && d < 14))) )
 	return FALSE;
     return (d > 0 && m > 0 && m <= 12) &&
 	   (d <= monthDays[m] || (d == 29 && m == 2 && leapYear(y)));
 }
 
-bool QDate::leapYear( uint y )			// is leap year (from K&R)
+bool QDate::leapYear( int y )			// is leap year (from K&R)
 {
     return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
 }
 
-ulong QDate::greg2jul( uint y, uint m, uint d ) // Gregorian date -> Julian day
+ulong QDate::greg2jul( int y, int m, int d )	// Gregorian date -> Julian day
 {
     ulong c, ya;
     if ( y <= 99 )
@@ -217,20 +217,20 @@ ulong QDate::greg2jul( uint y, uint m, uint d ) // Gregorian date -> Julian day
     return (146097L*c)/4 + (1461*ya)/4 + (153*m+2)/5 + d + 1721119L;
 }
 
-void QDate::jul2greg( ulong jd, uint &y, uint &m, uint &d )
+void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 {						// Julian day -> Gregorian date
     ulong x;
     ulong j = jd - 1721119L;
-    y = (uint) ((j*4 - 1) / 146097L);
+    y = (int) ((j*4 - 1) / 146097L);
     j = j*4 - 1 - 146097L*y;
     x = j/4;
     j = (x*4 + 3) / 1461;
     x = (x*4) + 3 - 1461*j;
     x = (x + 4)/4;
-    m = (uint)(5*x - 3)/153;
+    m = (int)(5*x - 3)/153;
     x = 5*x - 3 - 153*m;
-    d = (uint)((x + 5)/5);
-    y = (uint)(100*y + j);
+    d = (int)((x + 5)/5);
+    y = (int)(100*y + j);
     if ( m < 10 )
 	m += 3;
     else {
@@ -244,7 +244,7 @@ void QDate::jul2greg( ulong jd, uint &y, uint &m, uint &d )
 // QTime class member functions
 //
 
-QTime::QTime( uint h, uint m, uint s, uint ms )	// set time
+QTime::QTime( int h, int m, int s, int ms )	// set time
 {
 #if defined(CHECK_RANGE)
     if ( !isValid(h,m,s,ms) )
@@ -266,24 +266,24 @@ bool QTime::isValid() const			// valid time
 }
 
 
-uint QTime::hour() const			// 0..23
+int QTime::hour() const				// 0..23
 {
-    return (uint)(ds / MSECS_PER_HOUR);
+    return (int)(ds / MSECS_PER_HOUR);
 }
 
-uint QTime::minute() const			// 0..59
+int QTime::minute() const			// 0..59
 {
-    return (uint)((ds % MSECS_PER_HOUR)/MSECS_PER_MIN);
+    return (int)((ds % MSECS_PER_HOUR)/MSECS_PER_MIN);
 }
 
-uint QTime::second() const			// 0..59
+int QTime::second() const			// 0..59
 {
-    return (uint)((ds / 1000)%SECS_PER_MIN);
+    return (int)((ds / 1000)%SECS_PER_MIN);
 }
 
-uint QTime::msec() const			// 0..999
+int QTime::msec() const				// 0..999
 {
-    return (uint)(ds % 1000);
+    return (int)(ds % 1000);
 }
 
 
@@ -295,7 +295,7 @@ QString QTime::toString() const			// time to string
 }
 
 
-bool QTime::setHMS( uint h, uint m, uint s, uint ms ) // set time of day
+bool QTime::setHMS( int h, int m, int s, int ms ) // set time of day
 {
     if ( !isValid(h,m,s,ms) ) {
 #if defined(CHECK_RANGE)
@@ -381,9 +381,9 @@ QTime QTime::currentTime()			// get current time
 #endif
 }
 
-bool QTime::isValid( uint h, uint m, uint s, uint ms ) // is valid time?
+bool QTime::isValid( int h, int m, int s, int ms ) // is valid time?
 {
-    return h < 24 && m < 60 && s < 60 && ms < 1000;
+    return (uint)h < 24 && (uint)m < 60 && (uint)s < 60 && (uint)ms < 1000;
 }
 
 
