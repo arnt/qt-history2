@@ -243,7 +243,10 @@ void QSlider::setTracking( bool enable )
 int QSlider::positionFromValue( int v ) const
 {
     int  a = available();
-    return QRangeControl::positionFromValue( v, a );
+    int x = QRangeControl::positionFromValue( v, a );
+    if ( orient == Horizontal && QApplication::reverseLayout() )
+	x = a - x;
+    return x;
 }
 
 /*!
@@ -274,8 +277,10 @@ int QSlider::available() const
 int QSlider::valueFromPosition( int p ) const
 {
     int a = available();
-    return QRangeControl::valueFromPosition( p, a );
-
+    int x = QRangeControl::valueFromPosition( p, a );
+    if ( orient == Horizontal && QApplication::reverseLayout() )
+	x = maxValue() + minValue() - x;
+    return x;
 }
 
 /*!
