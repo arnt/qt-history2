@@ -59,6 +59,7 @@
 #include "qwidget.h"
 extern int mac_window_count; //qwidget_mac.cpp
 #ifdef QT_THREAD_SUPPORT
+#include "qmutex.h"
 #include "qthread.h"
 extern QMutex *qt_mac_port_mutex; //qapplication_mac.cpp
 #endif
