@@ -2,6 +2,8 @@
 #include <unistd.h> // for sleep()
 
 #include <qapplication.h>
+#include <qmotifstyle.h>
+#include <qwindowsstyle.h>
 
 #include <qmainwindow.h>
 #include <qtoolbutton.h>
@@ -32,6 +34,10 @@
 #include <qtabbar.h>
 #include <qscrollview.h>
 #include <qsplitter.h>
+#include <qhbox.h>
+#include <qvbox.h>
+#include <qgrid.h>
+
 
 #include <life.h>
 
@@ -153,7 +159,7 @@ public:
 class EgQPushButton : public QPushButton {
 public:
     EgQPushButton() :
-	QPushButton( "Press Me" )
+	QPushButton( "Press Me", 0 )
     {
 	resize(80,25);
     }
@@ -323,7 +329,7 @@ public:
 class EgQLabel : public QLabel {
 public:
     EgQLabel() :
-	QLabel("This is a &Label\nit spans\nmultiple lines")
+	QLabel("This is a &Label\nit spans\nmultiple lines", 0)
     {
 	setAlignment(AlignCenter);
 	setBuddy(this);
@@ -445,10 +451,10 @@ public:
     }
     void paint(QPainter* p)
     {
-	p->setBrush(green);
+	p->setBrush(Qt::green);
 	QRect r(3,3,width(0)-3*2,height(0)-3*2);
 	p->drawEllipse(r);
-	p->drawText(r,AlignCenter,"Anything!");
+	p->drawText(r,Qt::AlignCenter,"Anything!");
     }
     int width(const QListBox*) const
     {
@@ -501,7 +507,7 @@ class EgQPopupMenu : public QPopupMenu {
     QPushButton btn;
 public:
     EgQPopupMenu() :
-	QPopupMenu()
+	QPopupMenu(), btn(0)
     {
 	insertItem("&New",&btn,SIGNAL(clicked()),CTRL+Key_N);
 	insertItem("&Open",&btn,SIGNAL(clicked()),CTRL+Key_O);
@@ -557,7 +563,7 @@ public:
 
 class EgQLineEdit : public QLineEdit {
 public:
-    EgQLineEdit()
+    EgQLineEdit() : QLineEdit(0)
     {
 	setText("Hello");
 	resize(200,30);
@@ -568,7 +574,7 @@ public:
 class EgQScrollBar : public QScrollBar {
 public:
     EgQScrollBar() :
-	QScrollBar( QScrollBar::Horizontal )
+	QScrollBar( QScrollBar::Horizontal,0 )
     {
 	resize(160,20);
     }
@@ -594,11 +600,51 @@ public:
 class EgQSlider : public QSlider {
 public:
     EgQSlider() :
-	QSlider( QSlider::Horizontal )
+	QSlider( QSlider::Horizontal,0 )
     {
 	setTickmarks( QSlider::Below );
 	resize(160,26);
     }
+};
+
+
+class EgQHBox : public QHBox {
+public:
+    EgQHBox() :
+	QHBox()
+	{
+	    (new QLabel( "One", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Two", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Three", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Four", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Five", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	}
+};
+
+class EgQVBox : public QVBox {
+public:
+    EgQVBox() :
+	QVBox()
+	{
+	    (new QLabel( "One", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Two", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Three", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Four", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Five", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	}
+};
+
+class EgQGrid : public QGrid {
+public:
+    EgQGrid() :
+	QGrid( 2 )
+	{
+	    (new QLabel( "One", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Two", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Three", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Four", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	    (new QLabel( "Five", this ) )->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
+	}
 };
 
 
@@ -653,7 +699,7 @@ int main( int argc, char **argv )
 
     bool first = true;
     QString suffix = "-m.ppm";
-    QApplication::setStyle( MotifStyle );
+    QApplication::setStyle( new QMotifStyle );
 
     while ( 1 ) {
 	WidgetDepicter wd(suffix);
@@ -696,11 +742,14 @@ int main( int argc, char **argv )
 	//DEPICT( EgQToolBar, "qtoolbar", "QToolBar" );
 	//DEPICT( EgQToolButton, "qtoolbutton", "QToolButton" );
 	DEPICT( EgQStatusBar, "qstatusbar", "QStatusBar" );
+	DEPICT( EgQGrid, "qgrid", "QGrid" );
+	DEPICT( EgQHBox, "qhbox", "QHBox" );
+	DEPICT( EgQVBox, "qvbox", "QVBox" );
 
 	if ( !first ) break;
 
 	first = false;
-	QApplication::setStyle( WindowsStyle );
+	QApplication::setStyle( new QWindowsStyle );
 	suffix = "-w.ppm";
     }
 
