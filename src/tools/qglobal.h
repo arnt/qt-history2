@@ -616,7 +616,7 @@ extern bool qt_winunicode;
 
 
 #ifndef QT_BUILD_KEY
-#define QT_BUILD_KEY "*"
+#define QT_BUILD_KEY "unspecified"
 #endif
 
 // prune to local config

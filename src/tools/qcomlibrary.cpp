@@ -79,11 +79,11 @@ bool QComLibrary::unload()
 }
 
 
-static bool verify( const QString& library, uint version, uint flags, const char* key, bool didLoad = 
-#ifndef QT_DEBUG_PLUGINS		    
-		    FALSE 
-#else		    
-		    TRUE 
+static bool verify( const QString& library, uint version, uint flags, const char* key, bool didLoad =
+#ifndef QT_DEBUG_PLUGINS
+		    FALSE
+#else
+		    TRUE
 #endif
 		    )
 {
@@ -91,14 +91,14 @@ static bool verify( const QString& library, uint version, uint flags, const char
 #if defined(QT_THREAD_SUPPORT)
     our_flags |= 2;
 #endif
-    
+
     if ( (flags & 1) == 0 ) {
 	if ( didLoad )
-	    qWarning( "Conflict in %s:\n Plugin cannot be queried successfully!", 
+	    qWarning( "Conflict in %s:\n Plugin cannot be queried successfully!",
 		      (const char*) QFile::encodeName(library) );
-    } else if ( qstrcmp( key, QT_BUILD_KEY ) && qstrcmp( QT_BUILD_KEY, "*" )  && qstrcmp( key, "*" ) ) {
+    } else if ( qstrcmp( key, QT_BUILD_KEY ) ) {
 	if ( didLoad )
-	    qWarning( "Conflict in %s:\n Plugin uses incompatible Qt library (expected build key \"%s\", got \"%s\")!", 
+	    qWarning( "Conflict in %s:\n Plugin uses incompatible Qt library (expected build key \"%s\", got \"%s\")!",
 		      (const char*) QFile::encodeName(library),
 		      QT_BUILD_KEY, key ? key : "<null>" );
     } else if ( (version >  QT_VERSION)  ||
@@ -135,13 +135,12 @@ void QComLibrary::createInstanceInternal()
 	version = reg[0].toUInt(0, 16);
 	flags = reg[1].toUInt(0, 16);
 	key = reg[2].latin1();
-	
 	// check timestamp
 	if ( lastModified == reg[3] &&
 	     !verify( library(), version, flags, key ) )
 	    return;
     }
-	
+
     if ( !isLoaded() ) {
 	Q_ASSERT( entry == 0 );
 	if ( !load() )
@@ -156,7 +155,7 @@ void QComLibrary::createInstanceInternal()
 	UCMQueryProc ucmQueryProc;
 	ucmQueryProc = (UCMQueryProc) resolve( "qt_ucm_query" );
 	if ( !ucmQueryProc  || ucmQueryProc( &version, &flags, &key ) != 0 ) {
-	    version = 0; 
+	    version = 0;
 	    flags = 0;
 	    key = "unknown";
 	}
