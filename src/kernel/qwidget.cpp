@@ -4801,8 +4801,8 @@ void QWidget::showFullScreen()
 
 /*!
   \fn bool QWidget::ownCursor() const
-  Unsets the palette for this widget. The widget will use its natural
-  default palette from now on.
+  Returns whether the widget uses its own cursor or its parent
+  widget's cursor
  */
 
 /*!
