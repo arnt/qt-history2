@@ -946,6 +946,7 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	} else if ( res == ID_SEP ) {
+	    QPoint p( pos() );
 	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	    QAction *a = new QSeparatorAction( 0 );
 	    AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Separator to the Popup Menu '%1'" ).
@@ -955,6 +956,7 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	    cmd->execute();
 	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
 	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+	    popup( p );
 	}
 	return;
     }
@@ -1051,6 +1053,7 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
     else
 	return;
 
+    QPoint p = pos();
     QAction *a = 0;
     if ( e->provides( "application/x-designer-actiongroup" ) ) {
 	QString s( e->encodedData( "application/x-designer-actiongroup" ) );
@@ -1075,6 +1078,7 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
     ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
     ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
     indicator->hide();
+    popup( p );
 }
 
 #endif
