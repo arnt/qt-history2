@@ -119,7 +119,7 @@ QEucJpCodec::QEucJpCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
 
 QEucJpCodec::~QEucJpCodec()
 {
-    delete conv;
+    // delete conv;
 }
 
 /*!
