@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#59 $
 **
 ** Implementation of QTabBar class
 **
@@ -296,22 +296,19 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
     QRect r( t->r );
     int o = style().defaultFrameWidth() > 1 ? 1 : 0;
-    
+
     if ( d->s == RoundedAbove ) {
-	if ( t == l->getFirst() ) {
-	    p->drawLine( r.left(), r.bottom()-o, r.right(), r.bottom()-o );
-	    if ( o ) {
-		p->setPen( style() == MotifStyle ? colorGroup().light() : colorGroup().midlight() );
-		p->drawLine( rect().left(), rect().bottom(), rect().right(), rect().bottom() );
-		p->setPen( colorGroup().light() );
-		p->drawLine( rect().left(), rect().bottom()-1, rect().right(), rect().bottom()-1 );
+	if ( o ) {
+	    p->setPen( style() == MotifStyle ? colorGroup().light() : colorGroup().midlight() );
+	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	    p->setPen( colorGroup().light() );
+	    p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
+	    if ( r.left() == 0 )
 		p->drawPoint( rect().bottomLeft() );
-		//p->drawPoint( rect().bottomRight() );
-	    }
-	    else {
-		p->setPen( colorGroup().light() );
-		p->drawLine( rect().left(), rect().bottom(), rect().right(), rect().bottom() );
-	    }
+	}
+	else {
+	    p->setPen( colorGroup().light() );
+	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
 	}
 
 	if ( selected ) {
@@ -533,7 +530,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	    paint( &p, t, n == 0 );
 	t = n;
     } while ( t != 0 );
-    
+
 }
 
 
