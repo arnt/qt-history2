@@ -378,11 +378,12 @@ QSqlRecord QPSQLResult::record() const
 
     int count = PQnfields(d->result);
     for (int i = 0; i < count; ++i) {
-        QString name;
+        QSqlField f;
         if (d->isUtf8)
-            name = QString::fromUtf8(PQfname(d->result, i));
+            f.setName(QString::fromUtf8(PQfname(d->result, i)));
         else
-            name = QString::fromLocal8Bit(PQfname(d->result, i));
+            f.setName(QString::fromLocal8Bit(PQfname(d->result, i)));
+        f.setType(qDecodePSQLType(PQftype(d->result, i)));
         int len = PQfsize(d->result, i);
         int precision = PQfmod(d->result, i);
         // swap length and precision if length == -1
@@ -390,13 +391,10 @@ QSqlRecord QPSQLResult::record() const
             len = precision - 4;
             precision = -1;
         }
-        info.append(QSqlField(name,
-                                qDecodePSQLType(PQftype(d->result, i)),
-                                -1,
-                                len,
-                                precision,
-                                QCoreVariant(),
-                                PQftype(d->result, i)));
+        f.setLength(len);
+        f.setPrecision(precision);
+        f.setSqlType(PQftype(d->result, i));
+        info.append(f);
     }
     return info;
 }
@@ -776,13 +774,13 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
             QString defVal = query.value(5).toString();
             if (!defVal.isEmpty() && defVal.startsWith("'"))
                 defVal = defVal.mid(1, defVal.length() - 2);
-            info.append(QSqlField(query.value(0).toString(),
-                                    qDecodePSQLType(query.value(1).toInt()),
-                                    query.value(2).toBool(),
-                                    len,
-                                    precision,
-                                    defVal,
-                                    query.value(1).toInt()));
+            QSqlField f(query.value(0).toString(), qDecodePSQLType(query.value(1).toInt()));
+            f.setRequired(query.value(2).toBool());
+            f.setLength(len);
+            f.setPrecision(precision);
+            f.setDefaultValue(defVal);
+            f.setSqlType(query.value(1).toInt());
+            info.append(f);
         }
     } else {
         // Postgres < 7.1 cannot handle outer joins
@@ -803,13 +801,13 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
                 len = precision - 4;
                 precision = -1;
             }
-            info.append(QSqlField(query.value(0).toString(),
-                                    qDecodePSQLType(query.value(1).toInt()),
-                                    query.value(2).toBool(),
-                                    len,
-                                    precision,
-                                    defVal,
-                                    query.value(1).toInt()));
+            QSqlField f(query.value(0).toString(), qDecodePSQLType(query.value(1).toInt()));
+            f.setRequired(query.value(2).toBool());
+            f.setLength(len);
+            f.setPrecision(precision);
+            f.setDefaultValue(defVal);
+            f.setSqlType(query.value(1).toInt());
+            info.append(f);
         }
     }
 

@@ -377,8 +377,12 @@ bool QTDSResult::reset (const QString& query)
         init(numCols);
     }
     for (int i = 0; i < numCols; ++i) {
-        QCoreVariant::Type vType = qDecodeTDSType(dbcoltype(d->dbproc, i+1));
-        d->rec.append(QSqlField(dbcolname(d->dbproc, i+1), vType, -1, dbcollen(d->dbproc, i+1)));
+        int dbType = dbcoltype(d->dbproc, i+1);
+        QCoreVariant::Type vType = qDecodeTDSType(dbType);
+        QSqlField f(dbcolname(d->dbproc, i+1), vType);
+        f.setSqlType(dbType);
+        f.setLength(dbcollen(d->dbproc, i+1));
+        d->rec.append(f);
 
         RETCODE ret = -1;
         void* p = 0;
@@ -649,13 +653,11 @@ QSqlRecord QTDSDriver::record(const QString& tablename) const
                    "where id = (select id from sysobjects where name = '%1')");
     t.exec(stmt.arg(tablename));
     while (t.next()) {
-        info.append(QSqlField(t.value(0).toString().simplified(),
-                                qDecodeTDSType(t.value(1).toInt()),
-                                -1,
-                                t.value(2).toInt(),
-                                t.value(3).toInt(),
-                                QCoreVariant(),
-                                t.value(1).toInt()));
+        QSqlField f(t.value(0).toString().simplified(), qDecodeTDSType(t.value(1).toInt()));
+        f.setLength(t.value(2).toInt());
+        f.setPrecision(t.value(3).toInt());
+        f.setSqlType(t.value(1).toInt());
+        info.append(f);
     }
     return info;
 }

@@ -39,13 +39,14 @@ class QMYSQLResultPrivate : public QMYSQLDriverPrivate
 {
 public:
     QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0), tc(QTextCodec::codecForLocale()) {}
+
     MYSQL_RES* result;
     MYSQL_ROW  row;
     QVector<QCoreVariant::Type> fieldTypes;
     QTextCodec *tc;
 };
 
-QTextCodec* codec(MYSQL* mysql)
+static QTextCodec* codec(MYSQL* mysql)
 {
     QTextCodec* heuristicCodec = QTextCodec::codecForName(mysql_character_set_name(mysql), 2);
     if (heuristicCodec)
@@ -53,12 +54,12 @@ QTextCodec* codec(MYSQL* mysql)
     return QTextCodec::codecForLocale();
 }
 
-QSqlError qMakeError(const QString& err, int type, const QMYSQLDriverPrivate* p)
+static QSqlError qMakeError(const QString& err, int type, const QMYSQLDriverPrivate* p)
 {
     return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error(p->mysql)), type, mysql_errno(p->mysql));
 }
 
-QCoreVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
+static QCoreVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
 {
     QCoreVariant::Type type;
     switch (mysqltype) {
@@ -104,6 +105,17 @@ QCoreVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
         break;
     }
     return type;
+}
+
+static QSqlField qToField(MYSQL_FIELD *field, QTextCodec *tc)
+{
+    QSqlField f(tc->toUnicode(field->name),
+                qDecodeMYSQLType((int)field->type, field->flags));
+    f.setRequired(IS_NOT_NULL(field->flags));
+    f.setLength(field->length);
+    f.setPrecision(field->decimals);
+    f.setSqlType(field->type);
+    return f;
 }
 
 QMYSQLResult::QMYSQLResult(const QMYSQLDriver* db)
@@ -310,13 +322,7 @@ QSqlRecord QMYSQLResult::record() const
     if (!mysql_errno(d->mysql)) {
         MYSQL_FIELD* field = mysql_fetch_field(d->result);
         while(field) {
-            info.append (QSqlField(d->tc->toUnicode(field->name),
-                                         qDecodeMYSQLType((int)field->type, field->flags),
-                                         IS_NOT_NULL(field->flags),
-                                         (int)field->length,
-                                         (int)field->decimals,
-                                         QCoreVariant(),
-                                         (int)field->type));
+            info.append(qToField(field, d->tc));
             field = mysql_fetch_field(d->result);
         }
     }
@@ -555,15 +561,8 @@ QSqlRecord QMYSQLDriver::record(const QString& tablename) const
         return info;
     }
     MYSQL_FIELD* field;
-    while ((field = mysql_fetch_field(r))) {
-        info.append (QSqlField(d->tc->toUnicode(field->name),
-                                qDecodeMYSQLType((int)field->type, field->flags),
-                                IS_NOT_NULL(field->flags),
-                                (int)field->length,
-                                (int)field->decimals,
-                                QString(field->def),
-                                (int)field->type));
-    }
+    while ((field = mysql_fetch_field(r)))
+        info.append(qToField(field, d->tc));
     mysql_free_result(r);
     return info;
 }

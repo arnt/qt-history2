@@ -873,8 +873,10 @@ QSqlRecord QIBaseResult::record() const
     for (int i = 0; i < d->sqlda->sqld; ++i) {
         v = d->sqlda->sqlvar[i];
         QSqlField f(QString::fromLatin1(v.sqlname, v.sqlname_length).simplified(),
-                    qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype),
-                    -1, v.sqllen, QABS(v.sqlscale), QCoreVariant(), v.sqltype);
+                    qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
+        f.setLength(v.sqllen);
+        f.setPrecision(v.sqlscale);
+        f.setSqlType(v.sqltype);
         rec.append(f);
     }
     return rec;
@@ -1066,11 +1068,14 @@ QSqlRecord QIBaseDriver::record(const QString& tablename) const
            "ORDER BY a.RDB$FIELD_POSITION");
 
     while (q.next()) {
-        QCoreVariant::Type type = qIBaseTypeName(q.value(1).toInt());
-        QSqlField field(q.value(0).toString().simplified(), type, q.value(5).toInt(),
-                             q.value(2).toInt(), q.value(4).toInt(), QCoreVariant());
+        int type = q.value(1).toInt();
+        QSqlField f(q.value(0).toString().simplified(), qIBaseTypeName(type));
+        f.setLength(q.value(5).toInt());
+        f.setPrecision(q.value(2).toInt());
+        f.setRequired(q.value(4).toInt() > 0 ? true : false);
+        f.setSqlType(type);
 
-        rec.append(field);
+        rec.append(f);
     }
 
     return rec;

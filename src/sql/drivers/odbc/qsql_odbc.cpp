@@ -377,20 +377,20 @@ static QSqlField qMakeFieldInfo(const SQLHANDLE hStmt, const QODBCDriverPrivate*
 {
     QString fname = qGetStringData(hStmt, 3, -1, p->unicode);
     int type = qGetIntData(hStmt, 4).toInt(); // column type
+    QSqlField f(qGetStringData(hStmt, 3, -1, p->unicode), qDecodeODBCType(type, p));
     int required = qGetIntData(hStmt, 10).toInt(); // nullable-flag
     // required can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
-    if (required == SQL_NO_NULLS) {
-        required = 1;
-    } else if (required == SQL_NULLABLE) {
-        required = 0;
-    } else {
-        required = -1;
-    }
+    if (required == SQL_NO_NULLS)
+        f.setRequired(true);
+    else if (required == SQL_NULLABLE)
+        f.setRequired(false);
+    // else we don't know
     QCoreVariant var = qGetIntData(hStmt, 6);
-    int size = var.isNull() ? -1 : var.toInt(); // column size
+    f.setLength(var.isNull() ? -1 : var.toInt()); // column size
     var = qGetIntData(hStmt, 8).toInt();
-    int prec = var.isNull() ? -1 : var.toInt(); // precision
-    return QSqlField(fname, qDecodeODBCType(type, p), required, size, prec, QCoreVariant(), type);
+    f.setPrecision(var.isNull() ? -1 : var.toInt()); // precision
+    f.setSqlType(type);
+    return f;
 }
 
 static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
@@ -429,13 +429,16 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
         required = 0;
     }
     QCoreVariant::Type type = qDecodeODBCType(colType, p);
-    return QSqlField(qColName,
-                      type,
-                      required,
-                      (int)colSize == 0 ? -1 : (int)colSize,
-                      (int)colScale == 0 ? -1 : (int)colScale,
-                      QCoreVariant(),
-                      (int)colType);
+    QSqlField f(qColName, type);
+    f.setSqlType(colType);
+    f.setLength(colSize == 0 ? -1 : (int)colSize);
+    f.setPrecision(colScale == 0 ? -1 : (int)colSize);
+    if (nullable == SQL_NO_NULLS)
+        f.setRequired(true);
+    else if (nullable == SQL_NULLABLE)
+        f.setRequired(false);
+    // else we don't know
+    return f;
 }
 
 bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)

@@ -921,9 +921,12 @@ void QOCIResultPrivate::getOraFields(QSqlRecord &rinf)
 
     while (parmStatus == OCI_SUCCESS) {
         OraFieldInfo ofi = qMakeOraField(d, param);
-        QSqlField inf(ofi.name, ofi.type, (int)ofi.oraIsNull == 0 ? 1 : 0, (int)ofi.oraFieldLength,
-                           (int)ofi.oraPrecision, QCoreVariant(), (int)ofi.oraType);
-        rinf.append(inf);
+        QSqlField f(ofi.name, ofi.type);
+        f.setRequired(ofi.oraIsNull == 0);
+        f.setLength((int)ofi.oraFieldLength);
+        f.setPrecision(ofi.oraPrecision);
+        f.setSqlType((int)ofi.oraType);
+        rinf.append(f);
         count++;
         parmStatus = OCIParamGet(d->sql,
                                   OCI_HTYPE_STMT,
@@ -1870,17 +1873,16 @@ QSqlRecord QOCIDriver::record(const QString& tablename) const
         do {
             QCoreVariant::Type ty = qDecodeOCIType(t.value(1).toString(), t.value(2).toInt(),
                             t.value(3).toInt(), t.value(4).toInt());
-            bool required = t.value(5).toString() == "N";
-            int prec = -1;
-            if (!t.isNull(3)) {
-                prec = t.value(3).toInt();
-            }
-            int size = t.value(2).toInt();
+            QSqlField f(t.value(0).toString(), ty);
+            f.setRequired(t.value(5).toString() == QLatin1String("N"));
+            if (!t.isNull(3))
+                f.setPrecision(t.value(3).toInt());
+            f.setLength(t.value(2).toInt());
             if (d->serverVersion >= 9 && (ty == QCoreVariant::String)) {
                 // Oracle9: data_length == size in bytes, char_length == amount of characters
-                size = t.value(7).toInt();
+                f.setLength(t.value(7).toInt());
             }
-            QSqlField f(t.value(0).toString(), ty, required, size, prec, t.value(6));
+            f.setDefaultValue(t.value(6));
             fil.append(f);
         } while (t.next());
     }

@@ -210,22 +210,17 @@ static QSqlField qMakeFieldInfo(const QDB2ResultPrivate* d, int i)
         qSqlWarning(QString("qMakeFieldInfo: Unable to describe column %1").arg(i), d);
         return QSqlField();
     }
-    QString qColName(qFromTChar(colName));
+    QSqlField f(qFromTChar(colName), qDecodeDB2Type(colType));
     // nullable can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
-    int required = -1;
-    if (nullable == SQL_NO_NULLS) {
-        required = 1;
-    } else if (nullable == SQL_NULLABLE) {
-        required = 0;
-    }
-    QCoreVariant::Type type = qDecodeDB2Type(colType);
-    return QSqlField(qColName,
-                      type,
-                      required,
-                      (int) colSize == 0 ? -1 : (int) colSize,
-                      (int) colScale == 0 ? -1 : (int) colScale,
-                      QCoreVariant(),
-                      (int) colType);
+    if (nullable == SQL_NO_NULLS)
+        f.setRequired(true);
+    else if (nullable == SQL_NULLABLE)
+        f.setRequired(false);
+    // else required is unknown
+    f.setLength(colSize == 0 ? -1 : (int)colSize);
+    f.setPrecision(colScale == 0 ? -1 : (int)colScale);
+    f.setSqlType((int)colType);
+    return f;
 }
 
 static int qGetIntData(SQLHANDLE hStmt, int column, bool& isNull)
@@ -418,20 +413,19 @@ static void qSplitTableQualifier(const QString & qualifier, QString * catalog,
 static QSqlField qMakeFieldInfo(const SQLHANDLE hStmt)
 {
     bool isNull;
-    QString fname = qGetStringData(hStmt, 3, -1, isNull);
-    int type = qGetIntData(hStmt, 4, isNull); // column type
+    int type = qGetIntData(hStmt, 4, isNull);
+    QSqlField f(qGetStringData(hStmt, 3, -1, isNull), qDecodeDB2Type(type));
     int required = qGetIntData(hStmt, 10, isNull); // nullable-flag
     // required can be SQL_NO_NULLS, SQL_NULLABLE or SQL_NULLABLE_UNKNOWN
-    if (required == SQL_NO_NULLS) {
-        required = 1;
-    } else if (required == SQL_NULLABLE) {
-        required = 0;
-    } else {
-        required = -1;
-    }
-    int size = qGetIntData(hStmt, 6, isNull); // column size
-    int prec = qGetIntData(hStmt, 8, isNull); // precision
-    return QSqlField(fname, qDecodeDB2Type(type), required, size, prec, QCoreVariant(), type);
+    if (required == SQL_NO_NULLS)
+        f.setRequired(true);
+    else if (required == SQL_NULLABLE)
+        f.setRequired(false);
+    // else we don't know.
+    f.setLength(qGetIntData(hStmt, 6, isNull)); // column size
+    f.setPrecision(qGetIntData(hStmt, 8, isNull)); // precision
+    f.setSqlType(type);
+    return f;
 }
 
 static bool qMakeStatement(QDB2ResultPrivate* d, bool forwardOnly, bool setForwardOnly = true)
