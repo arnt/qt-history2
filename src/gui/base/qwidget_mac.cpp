@@ -350,8 +350,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		    qt_set_paintevent_clipping(widget, qrgn);
 
 		    if(!widget->testAttribute(QWidget::WA_NoBackground) && 
-		       //#### FIXME, I can do something smarter here, I just know it!! --SAM
-		       (true || widget->testAttribute(QWidget::WA_ContentsPropagated) || widget->isTopLevel())) {
+		       !widget->d->isBackgroundInherited()) {
 			QBrush bg = widget->palette().brush(widget->d->bg_role);
 			QRect rr = qrgn.boundingRect();
 			bool was_unclipped = widget->testWFlags(Qt::WPaintUnclipped);
