@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#55 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#56 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -117,11 +117,7 @@ HAB qPMAppInst();
 #if defined(_WS_X11_)
 
 typedef unsigned long WId;
-typedef unsigned long Atom;
-typedef unsigned long Window;
-typedef unsigned long Pixmap;
-typedef unsigned long Cursor;
-typedef unsigned long Font;
+typedef unsigned long HANDLE;
 typedef struct _XDisplay Display;
 typedef union  _XEvent XEvent;
 typedef struct _XGC *GC;
