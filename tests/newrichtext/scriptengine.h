@@ -7,7 +7,7 @@ struct QCharAttributes;
 struct QScriptItem;
 
 typedef void (*ShapeFunction)( int script, const QString &, int, int, QScriptItem * );
-typedef void (*AttributeFunction)( const QString &, int, int, QCharAttributes * );
+typedef void (*AttributeFunction)( int script, const QString &, int, int, QCharAttributes * );
 
 struct q_scriptEngine {
     ShapeFunction shape;

@@ -286,7 +286,7 @@ static void basic_shape( int /*script*/, const QString &string, int from, int le
     heuristicPosition( item );
 }
 
-static void basic_attributes( const QString &text, int from, int len, QCharAttributes *attributes )
+static void basic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
     attributes += from;
@@ -870,7 +870,7 @@ static void openTypeShape( int script, const QOpenType *openType, const QString 
 }
 
 
-static void arabic_attributes( const QString &text, int from, int len, QCharAttributes *attributes )
+static void arabic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
     attributes += from;
@@ -2683,18 +2683,15 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 }
 
 
-static void indic_attributes( const QString &text, int from, int len, QCharAttributes *attributes )
+static void indic_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
 {
-    qDebug("indic_attribtues: from=%d, len=%d", from, len );
     int end = from + len;
     const QChar *uc = text.unicode() + from;
     attributes += from;
     int i = 0;
     while ( i < len ) {
-	// ### fix script
 	bool invalid;
-	int boundary = nextSyllableBoundary( QFont::Devanagari, text, from+i, end, &invalid ) - from;
-	qDebug("next boundary at %d", boundary );
+	int boundary = nextSyllableBoundary( script, text, from+i, end, &invalid ) - from;
 
 	attributes[i].whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
 	attributes[i].softBreak = FALSE;

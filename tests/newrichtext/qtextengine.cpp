@@ -768,8 +768,9 @@ const QCharAttributes *QTextEngine::attributes()
 	QScriptItem &si = items[i];
 	int from = si.position;
 	int len = length( i );
-	assert( si.analysis.script <= QFont::Unicode );
-	scriptEngines[si.analysis.script].charAttributes( string, from, len, charAttributes );
+	int script = si.analysis.script;
+	assert( script <= QFont::Unicode );
+	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
     }
     return charAttributes;
 }
