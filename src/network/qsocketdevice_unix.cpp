@@ -36,6 +36,14 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
+
+// UnixWare 7 redefines listen -> _listen
+static inline int qt_socket_listen(int s, int backlog)
+{ return ::listen(s, backlog); }
+#if defined(listen)
+# undef listen
+#endif
+
 #include "qsocketdevice.h"
 
 #ifndef QT_NO_NETWORK
@@ -76,13 +84,6 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 { return ::socket(domain, type, protocol); }
 #if defined(socket)
 # undef socket
-#endif
-
-// UnixWare 7 redefines listen() to _listen().  This breaks our sources.
-static inline int qt_socket_listen(int s, int backlog)
-{ return ::listen(s, backlog); }
-#if defined(listen)
-# undef listen
 #endif
 
 #include <errno.h>
