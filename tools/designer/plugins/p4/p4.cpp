@@ -113,6 +113,8 @@ bool P4FStat::execute()
     list << "p4";
     list << "fstat";
     list << fileName();
+    if ( QFile::exists( fileName() + ".qs" ) )
+	list << fileName() + ".qs";
 
     return run( list );
 }
@@ -206,6 +208,8 @@ bool P4Sync::execute()
     list << "p4";
     list << "sync";
     list << fileName();
+    if ( QFile::exists( fileName() + ".qs" ) )
+	list << fileName() + ".qs";
     return run( list );
 }
 
@@ -246,7 +250,7 @@ void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
 	if ( silent )
 	    QMessageBox::information( 0, tr( "P4 Edit" ), tr( "Opening the file<pre>%1</pre>for edit failed!" ).arg( fileName() ) );
 	return;
-    } 
+    }
     if ( p4i->action == P4Info::None ) {
 	if ( !p4i->uptodate ) {
 	    /*
@@ -283,6 +287,8 @@ void P4Edit::fSyncResults( const QString &filename, P4Info *p4i )
     list << "p4";
     list << "edit";
     list << filename;
+    if ( QFile::exists( filename + ".qs" ) )
+	list << filename + ".qs";
     run( list );
 }
 
@@ -299,16 +305,29 @@ bool P4Submit::execute()
     while ( it.current() ) {
 	if ( it.current()->controlled && it.current()->action != P4Info::None ) {
 	    QCheckListItem* item = new QCheckListItem( dialog.fileList, it.currentKey(), QCheckListItem::CheckBox );
+	    QCheckListItem* item2 = 0;
+	    QString qsfn( it.currentKey() );
+	    qsfn.append( ".qs" );
+	    if ( QFile::exists( qsfn ) )
+		item2 = new QCheckListItem( dialog.fileList, qsfn, QCheckListItem::CheckBox );
 	    item->setText( 1, it.current()->depotFile );
+	    if ( item2 )
+		item2->setText( 1, it.current()->depotFile + ".qs" );
 	    switch ( it.current()->action ) {
 	    case P4Info::Edit:
 		item->setText( 2, "Edit" );
+		if ( item2 )
+		    item2->setText( 2, "Edit" );
 		break;
 	    case P4Info::Add:
 		item->setText( 2, "Add" );
+		if ( item2 )
+		    item2->setText( 2, "Add" );
 		break;
 	    case P4Info::Delete:
 		item->setText( 2, "Delete" );
+		if ( item2 )
+		    item2->setText( 2, "Delete" );
 		break;
 	    default:
 		break;
@@ -333,15 +352,19 @@ bool P4Submit::execute()
 
     bool haveFile = FALSE;
     QListViewItemIterator lvit( dialog.fileList );
+    P4Info *last = 0;
     while ( lvit.current() ) {
 	QCheckListItem* item = (QCheckListItem*)lvit.current();
 	++lvit;
 	if ( !item->isOn() )
 	    continue;
 	P4Info* p4i = P4Info::files()->find( item->text( 0 ) );
-	if ( !p4i )
-	    continue;
-	buffer += "\t" + p4i->depotFile + "\n";
+	if ( !p4i && last ) // qs file
+	    buffer += "\t" + last->depotFile + ".qs\n";
+	else
+	    buffer += "\t" + p4i->depotFile + "\n";
+	if ( p4i )
+	    last = p4i;
 	haveFile = TRUE;
     }
 
@@ -380,6 +403,8 @@ bool P4Revert::execute()
     list << "p4";
     list << "revert";
     list << fileName();
+    if ( QFile::exists( fileName() + ".qs" ) )
+	list << fileName() + ".qs";
     return run( list );
 }
 
@@ -400,6 +425,8 @@ bool P4Add::execute()
     list << "p4";
     list << "add";
     list << fileName();
+    if ( QFile::exists( fileName() + ".qs" ) )
+	list << fileName() + ".qs";
     return run( list );
 }
 
@@ -429,6 +456,8 @@ bool P4Delete::execute()
     list << "p4";
     list << "delete";
     list << fileName();
+    if ( QFile::exists( fileName() + ".qs" ) )
+	list << fileName() + ".qs";
 
     return run( list );
 }
@@ -450,6 +479,8 @@ bool P4Diff::execute()
     list << "diff";
     list << "-du";
     list << fileName();
+    if ( QFile::exists( fileName() + ".qs" ) )
+	list << fileName() + ".qs";
     return run( list );
 }
 
@@ -459,18 +490,26 @@ void P4Diff::processExited()
 	int fstEndl = data().find( '\n' );
 	QString caption = data().mid( 4, fstEndl-9 );
 	caption = caption.replace( QRegExp("===="), "" );
-	QString diff = data().mid( fstEndl+1 );
-	if ( !!diff ) {
-	    diff = diff.replace( QRegExp( "<" ), "&lt;" );
-	    diff = diff.replace( QRegExp( ">"), "&gt;" );
-	    diff = diff.replace( QRegExp( "\\n\\&lt;" ), "</pre><font color=\"red\"><pre>" );
-	    diff = diff.replace( QRegExp( "\\n\\&gt;" ), "</pre><font color=\"blue\"><pre>" );
-	    diff = "<font face=\"Courier\">" + diff + "</font>";
-	    DiffDialog* dialog = new DiffDialog( qApp->mainWidget(), 0, TRUE );
-	    dialog->setCaption( caption );
-	    dialog->view->setText( diff );
-	    dialog->exec();
+	QString diff = data();
+	QStringList lst = QStringList::split( '\n', diff );
+	diff = "";
+	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	    QString s( *it );
+	    s = s.replace( QRegExp( "<" ), "&lt;" );
+	    s = s.replace( QRegExp( ">"), "&gt;" );
+	    if ( s[ 0 ] == '-' )
+		s = "<font color=\"red\">" + s + "</font>";
+	    else if ( s[ 0 ] == '+' )
+		s = "<font color=\"blue\">" + s + "</font>";
+	    else if ( s.left( 4 ) == "====" )
+		s = "<b>" + s + "</b>";
+	    s += "<br>";
+	    diff += s;
 	}
+	DiffDialog* dialog = new DiffDialog( qApp->mainWidget(), 0, TRUE );
+	dialog->setCaption( caption );
+	dialog->view->setText( diff );
+	dialog->exec();
     }
 
     delete this;
