@@ -1352,6 +1352,7 @@ void QWidget::setStyle(QStyle *style)
 #endif
 }
 
+#ifdef QT_COMPAT
 /*!
     \overload
 
@@ -1363,7 +1364,7 @@ QStyle* QWidget::setStyle(const QString &style)
     setStyle(s);
     return s;
 }
-
+#endif
 #endif
 
 /*!
