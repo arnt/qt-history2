@@ -468,14 +468,12 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_
 	return OutOfMemory;
     }
 
-    for ( int i = 0; i < len; i++ )
-	*(glyphs++) = 0;
+    memset( glyphs, 0, len * sizeof(glyph_t) );
     *nglyphs = len;
 
-    if ( advances ) {
-	for ( int i = 0; i < len; i++ )
-	    *(advances++) = _size;
-    }
+    if ( advances )
+	memset( advances, _size, len * sizeof(advance_t) );
+
     return NoError;
 }
 
