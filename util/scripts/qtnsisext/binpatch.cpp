@@ -51,33 +51,38 @@ bool BinPatch::patchFile(const char *fileName, const char *qtPath)
     steps[0].done = false;
 
     steps[1].key = "qt_binpath=";
-    steps[1].value = new char[strlen(qtPath) + 4];
+    steps[1].value = new char[strlen(qtPath) + 5];
     strcpy(steps[1].value, qtPath);
-    strcat(steps[1].value, "\\bin");    
+    strcat(steps[1].value, "\\bin");
+    steps[1].value[strlen(steps[1].value)] = '\0';
     steps[1].done = false;
 
     steps[2].key = "qt_docpath=";
-    steps[2].value = new char[strlen(qtPath) + 4];
+    steps[2].value = new char[strlen(qtPath) + 5];
     strcpy(steps[2].value, qtPath);
     strcat(steps[2].value, "\\doc");
+    steps[2].value[strlen(steps[2].value)] = '\0';
     steps[2].done = false;
 
     steps[3].key = "qt_hdrpath=";
-    steps[3].value = new char[strlen(qtPath) + 8];
+    steps[3].value = new char[strlen(qtPath) + 9];
     strcpy(steps[3].value, qtPath);
     strcat(steps[3].value, "\\include");
+    steps[3].value[strlen(steps[3].value)] = '\0';
     steps[3].done = false;
 
     steps[4].key = "qt_libpath=";
-    steps[4].value = new char[strlen(qtPath) + 4];
+    steps[4].value = new char[strlen(qtPath) + 5];
     strcpy(steps[4].value, qtPath);
     strcat(steps[4].value, "\\lib");
+    steps[4].value[strlen(steps[4].value)] = '\0';
     steps[4].done = false;
 
     steps[5].key = "qt_plgpath=";
-    steps[5].value = new char[strlen(qtPath) + 8];
+    steps[5].value = new char[strlen(qtPath) + 9];
     strcpy(steps[5].value, qtPath);
     strcat(steps[5].value, "\\plugins");
+    steps[5].value[strlen(steps[5].value)] = '\0';
     steps[5].done = false;
 
     steps[6].key = "qt_datpath=";
@@ -85,9 +90,10 @@ bool BinPatch::patchFile(const char *fileName, const char *qtPath)
     steps[6].done = false;
 
     steps[7].key = "qt_trnpath=";
-    steps[7].value = new char[strlen(qtPath) + 13];
+    steps[7].value = new char[strlen(qtPath) + 14];
     strcpy(steps[7].value, qtPath);
     strcat(steps[7].value, "\\translations");
+    steps[7].value[strlen(steps[7].value)] = '\0';
     steps[7].done = false;
 
     uint completed = 0;
