@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#10 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#11 $
 **
 ** Definition of QScrollBar class
 **
@@ -38,6 +38,14 @@ public:
 
 signals:
     void	newValue( long value );
+    void	sliderPressed();
+    void	sliderMoved( long value );
+    void	sliderReleased();
+    void        nextLine();
+    void        previousLine();
+    void        nextPage();
+    void        previousPage();
+    
 
 protected:
     void	timerEvent( QTimerEvent *e );
@@ -68,6 +76,7 @@ private:
     uint     	thresholdReached : 1;
     uint     	isTiming	 : 1;
 
+    long        slidePreviousVal;
     QCOORD    	sliderPos;
     QCOORD    	clickOffset;
 };
