@@ -30,15 +30,16 @@
 #include "qfontmetrics.h"
 #endif
 
-class QPaintDevice;
-class QPainterPrivate;
-class QPointArray;
-class QPen;
 class QBrush;
-class QWMatrix;
 class QFontInfo;
 class QFontMetrics;
+class QPaintDevice;
+class QPainterPath;
+class QPainterPrivate;
+class QPen;
+class QPointArray;
 class QTextItem;
+class QWMatrix;
 
 class Q_GUI_EXPORT QPainter : public Qt
 {
@@ -125,6 +126,8 @@ public:
     double translationY() const;
 
     // drawing functions
+    void drawPath(const QPainterPath &path);
+   
     void drawLine(int x1, int y1, int x2, int y2);
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(int x1, int y1, int w, int h);

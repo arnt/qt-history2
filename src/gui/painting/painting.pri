@@ -1,7 +1,6 @@
 # Qt gui library, paint module
 
 HEADERS += \
-	painting/qpaintengine.h \
 	painting/qbrush.h \
 	painting/qcolor.h \
 	painting/qcolor_p.h \
@@ -9,8 +8,11 @@ HEADERS += \
 	painting/qpaintdevice.h \
 	painting/qpaintdevicedefs.h \
 	painting/qpaintdevicemetrics.h \
+	painting/qpaintengine.h \
 	painting/qpainter.h \
 	painting/qpainter_p.h \
+	painting/qpainterpath.h \
+	painting/qpainterpath_p.h \
 	painting/qpen.h \
 	painting/qpoint.h \
 	painting/qpointarray.h \
@@ -23,13 +25,14 @@ HEADERS += \
 
 
 SOURCES += \
-	painting/qpaintengine.cpp \
 	painting/qbrush.cpp \
 	painting/qcolor.cpp \
 	painting/qcolor_p.cpp \
 	painting/qdrawutil.cpp \
 	painting/qpaintdevicemetrics.cpp \
+	painting/qpaintengine.cpp \
 	painting/qpainter.cpp \
+	painting/qpainterpath.cpp \
 	painting/qpen.cpp \
 	painting/qpoint.cpp \
 	painting/qpointarray.cpp \

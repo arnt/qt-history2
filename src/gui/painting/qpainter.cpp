@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+// QtGui
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdevice.h"
@@ -19,14 +20,19 @@
 #include "qpaintengine.h"
 #include "qpainter.h"
 #include "qpainter_p.h"
+#include "qpainterpath.h"
 #include "qpicture.h"
+#include "qtextlayout.h"
 #include "qwidget.h"
 #include <private/qfontengine_p.h>
+#include <private/qpainterpath_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qwidget_p.h>
-#include <qdebug.h>
-#include <qtextlayout.h>
 
+// QtCore
+#include <qdebug.h>
+
+// Other
 #include <math.h>
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
@@ -1093,6 +1099,35 @@ double QPainter::translationY() const
 #endif
 }
 
+
+void QPainter::drawPath(const QPainterPath &path)
+{
+    if (!isActive())
+	return;
+
+    d->engine->updateState(d->state);
+
+    QPainterPathPrivate *pd = path.d;
+    QList<QPointArray> polygons;
+    for (int i=0; i<pd->subpaths.size(); ++i) {
+	polygons.append(pd->subpaths.at(i).toPolygon());
+    }
+
+    if (d->state->brush.style() != NoBrush) {
+	save();
+	setPen(NoPen);
+	for (int i=0; i<polygons.size(); ++i)
+	    drawPolygon(polygons.at(i));
+	restore();
+    }
+
+    if (d->state->pen.style() != NoPen) {
+	for (int i=0; i<polygons.size(); ++i)
+	    drawPolyline(polygons.at(i));
+    }
+}
+
+
 /*!
     \fn void QPainter::drawLine(int x1, int y1, int x2, int y2)
     \overload
@@ -1817,6 +1852,9 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
         return;
     d->engine->updateState(d->state);
 
+    if (a.isEmpty())
+	return;
+    
     if (npoints < 0)
         npoints = a.size() - index;
     if (index + npoints > (int)a.size())
@@ -1853,9 +1891,13 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
 void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
+    printf(" -> QPainter::drawPolygon...\n");
     if (!isActive())
         return;
     d->engine->updateState(d->state);
+
+    if (a.isEmpty())
+	return;
 
     if (npoints < 0)
         npoints = a.size() - index;
