@@ -14,6 +14,7 @@
 #ifndef QT_NO_PRINTDIALOG
 
 #include <private/qabstractprintdialog_p.h>
+#include "qprintdialog.h"
 
 #include "qfiledialog.h"
 #include "qdir.h"
@@ -89,7 +90,7 @@ private:
 QPrintDialogButtonGroup::QPrintDialogButtonGroup(QObject *parent)
     :QObject(parent)
 {
-    connect(&mapper, SIGNAL(mapped(int)), this, SIGNAL(clicked(int)));
+    QObject::connect(&mapper, SIGNAL(mapped(int)), this, SIGNAL(clicked(int)));
 }
 
 void QPrintDialogButtonGroup::setButton(int id)
@@ -102,7 +103,7 @@ void QPrintDialogButtonGroup::insert(QAbstractButton *button, int id)
 {
     group.addButton(button);
     mapper.setMapping(button, id);
-    connect(button, SIGNAL(clicked()), &mapper, SLOT(map()));
+    QObject::connect(button, SIGNAL(clicked()), &mapper, SLOT(map()));
 }
 
 enum { Success = 's', Unavail = 'u', NotFound = 'n', TryAgain = 't' };
@@ -229,8 +230,28 @@ public:
     QPrinter::PageSize indexToPageSize[QPrinter::NPageSize];
 
     void init();
-};
 
+    void browseClicked();
+    void okClicked();
+    void printerOrFileSelected(int);
+    void landscapeSelected(int);
+    void paperSizeSelected(int);
+    void orientSelected(int);
+    void pageOrderSelected(int);
+    void colorModeSelected(int);
+    void setNumCopies(int);
+    void printRangeSelected(int);
+    void setFirstPage(int);
+    void setLastPage(int);
+    void fileNameEditChanged(const QString &text);
+
+    QGroupBox *setupDestination();
+    QGroupBox *setupOptions();
+    QGroupBox *setupPaper();
+    QGroupBox *setupPrinterSettings();
+
+    void setPrinter(QPrinter *p, bool pickUpSettings);
+};
 
 static void isc(QPrintDialogPrivate *d, const QString & text,
                  QPrinter::PageSize ps);
@@ -926,45 +947,45 @@ QPrintDialog::~QPrintDialog()
 }
 
 
-QGroupBox *QPrintDialog::setupPrinterSettings()
+QGroupBox *QPrintDialogPrivate::setupPrinterSettings()
 {
-    QGroupBox *g = new QGroupBox(tr("Printer settings"), this);
+    QGroupBox *g = new QGroupBox(q->tr("Printer settings"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-    d->colorMode = new QPrintDialogButtonGroup(this);
-    d->colorMode->hide();
-    connect(d->colorMode, SIGNAL(clicked(int)),
-            this, SLOT(colorModeSelected(int)));
+    colorMode = new QPrintDialogButtonGroup(q);
+    colorMode->hide();
+    QObject::connect(colorMode, SIGNAL(clicked(int)),
+                     q, SLOT(colorModeSelected(int)));
 
     QRadioButton *rb;
-    rb = new QRadioButton(tr("Print in color if available"), g);
-    d->colorMode->insert(rb, QPrinter::Color);
+    rb = new QRadioButton(q->tr("Print in color if available"), g);
+    colorMode->insert(rb, QPrinter::Color);
     rb->setChecked(true);
     tll->addWidget(rb);
 
-    rb = new QRadioButton(tr("Print in grayscale"), g);
-    d->colorMode->insert(rb, QPrinter::GrayScale);
+    rb = new QRadioButton(q->tr("Print in grayscale"), g);
+    colorMode->insert(rb, QPrinter::GrayScale);
     tll->addWidget(rb);
 
     return g;
 }
 
-QGroupBox *QPrintDialog::setupDestination()
+QGroupBox *QPrintDialogPrivate::setupDestination()
 {
-    QGroupBox *g = new QGroupBox(tr("Print destination"), this);
+    QGroupBox *g = new QGroupBox(q->tr("Print destination"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-    d->printerOrFile = new QPrintDialogButtonGroup(this);
-    d->printerOrFile->hide();
-    connect(d->printerOrFile, SIGNAL(clicked(int)),
-             this, SLOT(printerOrFileSelected(int)));
+    printerOrFile = new QPrintDialogButtonGroup(q);
+    printerOrFile->hide();
+    QObject::connect(printerOrFile, SIGNAL(clicked(int)),
+             q, SLOT(printerOrFileSelected(int)));
 
     // printer radio button, list
-    QRadioButton *rb = new QRadioButton(tr("Print to printer:"), g);
+    QRadioButton *rb = new QRadioButton(q->tr("Print to printer:"), g);
     tll->addWidget(rb);
-    d->printerOrFile->insert(rb, 0);
+    printerOrFile->insert(rb, 0);
     rb->setChecked(true);
-    d->outputToFile = false;
+    outputToFile = false;
 
     QBoxLayout *horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz, 3);
@@ -973,20 +994,20 @@ QGroupBox *QPrintDialog::setupDestination()
     char *etcLpDefault = 0;
 
 #ifndef QT_NO_CUPS
-    etcLpDefault = parseCupsOutput(&d->printers);
+    etcLpDefault = parseCupsOutput(&printers);
 #endif
-    if (d->printers.size() == 0) {
+    if (printers.size() == 0) {
         // we only use other schemes when cups fails.
 
-        parsePrintcap(&d->printers, QLatin1String("/etc/printcap"));
-        parseEtcLpMember(&d->printers);
-        parseSpoolInterface(&d->printers);
-        parseQconfig(&d->printers);
+        parsePrintcap(&printers, QLatin1String("/etc/printcap"));
+        parseEtcLpMember(&printers);
+        parseSpoolInterface(&printers);
+        parseQconfig(&printers);
 
         QFileInfo f;
         f.setFile(QLatin1String("/etc/lp/printers"));
         if (f.isDir()) {
-            parseEtcLpPrinters(&d->printers);
+            parseEtcLpPrinters(&printers);
             QFile def(QLatin1String("/etc/lp/default"));
             if (def.open(IO_ReadOnly)) {
                 if (etcLpDefault)
@@ -1006,11 +1027,11 @@ QGroupBox *QPrintDialog::setupDestination()
         char *def = 0;
         f.setFile(QLatin1String("/etc/nsswitch.conf"));
         if (f.isFile()) {
-            def = parseNsswitchConf(&d->printers);
+            def = parseNsswitchConf(&printers);
         } else {
             f.setFile(QLatin1String("/etc/printers.conf"));
             if (f.isFile())
-                def = parsePrintersConf(&d->printers);
+                def = parsePrintersConf(&printers);
         }
 
         if (def) {
@@ -1028,27 +1049,27 @@ QGroupBox *QPrintDialog::setupDestination()
             t = qgetenv("LPDEST");
         dollarPrinter = QLatin1String(t);
         if (!dollarPrinter.isEmpty())
-            perhapsAddPrinter(&d->printers, dollarPrinter,
+            perhapsAddPrinter(&printers, dollarPrinter,
                                QPrintDialog::tr("unknown"),
                               QLatin1String(""));
     }
 
 
-    d->model = new QPrinterModel(d->printers, this);
-    d->view = new QTreeView(g);
-    d->view->setModel(d->model);
-    d->view->setRootIsDecorated(false);
-    d->view->header()->setResizeMode(QHeaderView::Stretch, 2);
+    model = new QPrinterModel(printers, q);
+    view = new QTreeView(g);
+    view->setModel(model);
+    view->setRootIsDecorated(false);
+    view->header()->setResizeMode(QHeaderView::Stretch, 2);
 
     // bang the best default into the listview
     int quality = 0;
     int best = 0;
-    for (int i = 0; i < d->printers.size(); ++i) {
+    for (int i = 0; i < printers.size(); ++i) {
         QRegExp ps(QLatin1String("[^a-z]ps(?:[^a-z]|$)"));
         QRegExp lp(QLatin1String("[^a-z]lp(?:[^a-z]|$)"));
 
-        QString name = d->printers.at(i).name;
-        QString comment = d->printers.at(i).comment;
+        QString name = printers.at(i).name;
+        QString comment = printers.at(i).comment;
         if (quality < 4 && name == dollarPrinter) {
             best = i;
             quality = 4;
@@ -1068,115 +1089,115 @@ QGroupBox *QPrintDialog::setupDestination()
             quality = 1;
         }
     }
-    d->view->setCurrentIndex(static_cast<QAbstractItemModel*>(d->model)->index(best, 0));
+    view->setCurrentIndex(static_cast<QAbstractItemModel*>(model)->index(best, 0));
 
     if (etcLpDefault)                 // Avoid purify complaint
         delete[] etcLpDefault;
 
 //     int h = fontMetrics().height();
-//     if (d->printers.size())
-//         h = d->view->itemViewportRect(d->model->index(0, 0)).height();
-//     d->view->setMinimumSize(d->view->sizeHint().width(),
-//                                  d->printers->header()->height() +
+//     if (printers.size())
+//         h = view->itemViewportRect(model->index(0, 0)).height();
+//     view->setMinimumSize(view->sizeHint().width(),
+//                                  printers->header()->height() +
 //                                  3 * h);
-    horiz->addWidget(d->view, 3);
+    horiz->addWidget(view, 3);
 
     // file radio button, edit/browse
-    d->printToFileButton = new QRadioButton(tr("Print to file:"), g);
-    tll->addWidget(d->printToFileButton);
-    d->printerOrFile->insert(d->printToFileButton, 1);
+    printToFileButton = new QRadioButton(q->tr("Print to file:"), g);
+    tll->addWidget(printToFileButton);
+    printerOrFile->insert(printToFileButton, 1);
 
     horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz);
     horiz->addSpacing(19);
 
-    d->fileName = new QLineEdit(g);
-    connect(d->fileName, SIGNAL(textChanged(QString)),
-             this, SLOT(fileNameEditChanged(QString)));
-    horiz->addWidget(d->fileName, 1);
-    d->browse = new QPushButton(tr("Browse..."), g);
-    d->browse->setAutoDefault(false);
+    fileName = new QLineEdit(g);
+    QObject::connect(fileName, SIGNAL(textChanged(QString)),
+                     q, SLOT(fileNameEditChanged(QString)));
+    horiz->addWidget(fileName, 1);
+    browse = new QPushButton(q->tr("Browse..."), g);
+    browse->setAutoDefault(false);
 #ifdef QT_NO_FILEDIALOG
-    d->browse->setEnabled(false);
+    browse->setEnabled(false);
 #endif
-    connect(d->browse, SIGNAL(clicked()),
-             this, SLOT(browseClicked()));
-    horiz->addWidget(d->browse);
+    QObject::connect(browse, SIGNAL(clicked()),
+                     q, SLOT(browseClicked()));
+    horiz->addWidget(browse);
 
-    d->fileName->setEnabled(false);
-    d->browse->setEnabled(false);
+    fileName->setEnabled(false);
+    browse->setEnabled(false);
 
     return g;
 }
 
 
-QGroupBox *QPrintDialog::setupOptions()
+QGroupBox *QPrintDialogPrivate::setupOptions()
 {
-    QGroupBox *g = new QGroupBox(tr("Options"), this);
+    QGroupBox *g = new QGroupBox(q->tr("Options"), q);
 
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, lay);
 
-    d->printRange = new QPrintDialogButtonGroup(this);
-    d->printRange->hide();
-    connect(d->printRange, SIGNAL(clicked(int)), this, SLOT(printRangeSelected(int)));
+    printRange = new QPrintDialogButtonGroup(q);
+    printRange->hide();
+    QObject::connect(printRange, SIGNAL(clicked(int)), q, SLOT(printRangeSelected(int)));
 
-    d->pageOrder = new QPrintDialogButtonGroup(this);
-    d->pageOrder->hide();
-    connect(d->pageOrder, SIGNAL(clicked(int)), this, SLOT(pageOrderSelected(int)));
+    pageOrder = new QPrintDialogButtonGroup(q);
+    pageOrder->hide();
+    QObject::connect(pageOrder, SIGNAL(clicked(int)), q, SLOT(pageOrderSelected(int)));
 
-    d->printAllButton = new QRadioButton(tr("Print all"), g);
-    d->printRange->insert(d->printAllButton, 0);
-    tll->addWidget(d->printAllButton);
+    printAllButton = new QRadioButton(q->tr("Print all"), g);
+    printRange->insert(printAllButton, 0);
+    tll->addWidget(printAllButton);
 
-    d->printSelectionButton = new QRadioButton(tr("Print selection"), g);
-    d->printRange->insert(d->printSelectionButton, 1);
-    tll->addWidget(d->printSelectionButton);
+    printSelectionButton = new QRadioButton(q->tr("Print selection"), g);
+    printRange->insert(printSelectionButton, 1);
+    tll->addWidget(printSelectionButton);
 
-    d->printRangeButton = new QRadioButton(tr("Print range"), g);
-    d->printRange->insert(d->printRangeButton, 2);
-    tll->addWidget(d->printRangeButton);
+    printRangeButton = new QRadioButton(q->tr("Print range"), g);
+    printRange->insert(printRangeButton, 2);
+    tll->addWidget(printRangeButton);
 
     QBoxLayout *horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz);
 
-    d->firstPageLabel = new QLabel(tr("From page:"), g);
+    firstPageLabel = new QLabel(q->tr("From page:"), g);
     horiz->addSpacing(19);
-    horiz->addWidget(d->firstPageLabel);
+    horiz->addWidget(firstPageLabel);
 
-    d->firstPage = new QSpinBox(g);
-    d->firstPage->setRange(1, 9999);
-    d->firstPage->setValue(1);
-    horiz->addWidget(d->firstPage, 1);
-    connect(d->firstPage, SIGNAL(valueChanged(int)),
-             this, SLOT(setFirstPage(int)));
+    firstPage = new QSpinBox(g);
+    firstPage->setRange(1, 9999);
+    firstPage->setValue(1);
+    horiz->addWidget(firstPage, 1);
+    QObject::connect(firstPage, SIGNAL(valueChanged(int)),
+             q, SLOT(setFirstPage(int)));
 
     horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz);
 
-    d->lastPageLabel = new QLabel(tr("To page:"), g);
+    lastPageLabel = new QLabel(q->tr("To page:"), g);
     horiz->addSpacing(19);
-    horiz->addWidget(d->lastPageLabel);
+    horiz->addWidget(lastPageLabel);
 
-    d->lastPage = new QSpinBox(g);
-    d->lastPage->setRange(1, 9999);
-    d->lastPage->setValue(9999);
-    horiz->addWidget(d->lastPage, 1);
-    connect(d->lastPage, SIGNAL(valueChanged(int)),
-             this, SLOT(setLastPage(int)));
+    lastPage = new QSpinBox(g);
+    lastPage->setRange(1, 9999);
+    lastPage->setValue(9999);
+    horiz->addWidget(lastPage, 1);
+    QObject::connect(lastPage, SIGNAL(valueChanged(int)),
+             q, SLOT(setLastPage(int)));
 
     lay->addSpacing(25);
     tll = new QBoxLayout(QBoxLayout::Down, lay);
 
     // print order
-    QRadioButton *rb = new QRadioButton(tr("Print first page first"), g);
+    QRadioButton *rb = new QRadioButton(q->tr("Print first page first"), g);
     tll->addWidget(rb);
-    d->pageOrder->insert(rb, QPrinter::FirstPageFirst);
+    pageOrder->insert(rb, QPrinter::FirstPageFirst);
     rb->setChecked(true);
 
-    rb = new QRadioButton(tr("Print last page first"), g);
+    rb = new QRadioButton(q->tr("Print last page first"), g);
     tll->addWidget(rb);
-    d->pageOrder->insert(rb, QPrinter::LastPageFirst);
+    pageOrder->insert(rb, QPrinter::LastPageFirst);
 
     tll->addStretch();
 
@@ -1185,21 +1206,21 @@ QGroupBox *QPrintDialog::setupOptions()
     horiz = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(horiz);
 
-    QLabel *l = new QLabel(tr("Number of copies:"), g);
+    QLabel *l = new QLabel(q->tr("Number of copies:"), g);
     horiz->addWidget(l);
 
-    d->copies = new QSpinBox(g);
-    d->copies->setRange(1,99);
-    d->copies->setValue(1);
-    horiz->addWidget(d->copies, 1);
-    connect(d->copies, SIGNAL(valueChanged(int)),
-             this, SLOT(setNumCopies(int)));
+    copies = new QSpinBox(g);
+    copies->setRange(1,99);
+    copies->setValue(1);
+    horiz->addWidget(copies, 1);
+    QObject::connect(copies, SIGNAL(valueChanged(int)),
+             q, SLOT(setNumCopies(int)));
 
-    QSize s = d->firstPageLabel->sizeHint()
-              .expandedTo(d->lastPageLabel->sizeHint())
+    QSize s = firstPageLabel->sizeHint()
+              .expandedTo(lastPageLabel->sizeHint())
               .expandedTo(l->sizeHint());
-    d->firstPageLabel->setMinimumSize(s);
-    d->lastPageLabel->setMinimumSize(s);
+    firstPageLabel->setMinimumSize(s);
+    lastPageLabel->setMinimumSize(s);
     l->setMinimumSize(s.width() + 19, s.height());
 
     return g;
@@ -1216,77 +1237,77 @@ void isc(QPrintDialogPrivate *ptr, const QString & text, QPrinter::PageSize ps)
     }
 }
 
-QGroupBox *QPrintDialog::setupPaper()
+QGroupBox *QPrintDialogPrivate::setupPaper()
 {
-    QGroupBox *g = new QGroupBox(tr("Paper format"), this);
+    QGroupBox *g = new QGroupBox(q->tr("Paper format"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-    d->pageSize = QPrinter::A4;
+    pageSize = QPrinter::A4;
 
     // page orientation
-    d->orientationCombo = new QComboBox(g);
-    d->orientationCombo->insertItem(tr("Portrait"), -1);
-    d->orientationCombo->insertItem(tr("Landscape"), -1);
-    tll->addWidget(d->orientationCombo);
+    orientationCombo = new QComboBox(g);
+    orientationCombo->insertItem(q->tr("Portrait"), -1);
+    orientationCombo->insertItem(q->tr("Landscape"), -1);
+    tll->addWidget(orientationCombo);
 
-    d->orientation = QPrinter::Portrait;
+    orientation = QPrinter::Portrait;
 
-    connect(d->orientationCombo, SIGNAL(activated(int)),
-             this, SLOT(orientSelected(int)));
+    QObject::connect(orientationCombo, SIGNAL(activated(int)),
+             q, SLOT(orientSelected(int)));
 
     // paper size
-    d->sizeCombo = new QComboBox(g);
-    tll->addWidget(d->sizeCombo);
+    sizeCombo = new QComboBox(g);
+    tll->addWidget(sizeCombo);
 
     int n;
     for(n=0; n<QPrinter::NPageSize; n++)
-        d->indexToPageSize[n] = QPrinter::A4;
+        indexToPageSize[n] = QPrinter::A4;
 
-    isc(d, tr("A0 (841 x 1189 mm)"), QPrinter::A0);
-    isc(d, tr("A1 (594 x 841 mm)"), QPrinter::A1);
-    isc(d, tr("A2 (420 x 594 mm)"), QPrinter::A2);
-    isc(d, tr("A3 (297 x 420 mm)"), QPrinter::A3);
-    isc(d, tr("A4 (210x297 mm, 8.26x11.7 inches)"), QPrinter::A4);
-    isc(d, tr("A5 (148 x 210 mm)"), QPrinter::A5);
-    isc(d, tr("A6 (105 x 148 mm)"), QPrinter::A6);
-    isc(d, tr("A7 (74 x 105 mm)"), QPrinter::A7);
-    isc(d, tr("A8 (52 x 74 mm)"), QPrinter::A8);
-    isc(d, tr("A9 (37 x 52 mm)"), QPrinter::A9);
-    isc(d, tr("B0 (1000 x 1414 mm)"), QPrinter::B0);
-    isc(d, tr("B1 (707 x 1000 mm)"), QPrinter::B1);
-    isc(d, tr("B2 (500 x 707 mm)"), QPrinter::B2);
-    isc(d, tr("B3 (353 x 500 mm)"), QPrinter::B3);
-    isc(d, tr("B4 (250 x 353 mm)"), QPrinter::B4);
-    isc(d, tr("B5 (176 x 250 mm, 6.93x9.84 inches)"), QPrinter::B5);
-    isc(d, tr("B6 (125 x 176 mm)"), QPrinter::B6);
-    isc(d, tr("B7 (88 x 125 mm)"), QPrinter::B7);
-    isc(d, tr("B8 (62 x 88 mm)"), QPrinter::B8);
-    isc(d, tr("B9 (44 x 62 mm)"), QPrinter::B9);
-    isc(d, tr("B10 (31 x 44 mm)"), QPrinter::B10);
-    isc(d, tr("C5E (163 x 229 mm)"), QPrinter::C5E);
-    isc(d, tr("DLE (110 x 220 mm)"), QPrinter::DLE);
-    isc(d, tr("Executive (7.5x10 inches, 191x254 mm)"), QPrinter::Executive);
-    isc(d, tr("Folio (210 x 330 mm)"), QPrinter::Folio);
-    isc(d, tr("Ledger (432 x 279 mm)"), QPrinter::Ledger);
-    isc(d, tr("Legal (8.5x14 inches, 216x356 mm)"), QPrinter::Legal);
-    isc(d, tr("Letter (8.5x11 inches, 216x279 mm)"), QPrinter::Letter);
-    isc(d, tr("Tabloid (279 x 432 mm)"), QPrinter::Tabloid);
-    isc(d, tr("US Common #10 Envelope (105 x 241 mm)"), QPrinter::Comm10E);
+    isc(d, q->tr("A0 (841 x 1189 mm)"), QPrinter::A0);
+    isc(d, q->tr("A1 (594 x 841 mm)"), QPrinter::A1);
+    isc(d, q->tr("A2 (420 x 594 mm)"), QPrinter::A2);
+    isc(d, q->tr("A3 (297 x 420 mm)"), QPrinter::A3);
+    isc(d, q->tr("A4 (210x297 mm, 8.26x11.7 inches)"), QPrinter::A4);
+    isc(d, q->tr("A5 (148 x 210 mm)"), QPrinter::A5);
+    isc(d, q->tr("A6 (105 x 148 mm)"), QPrinter::A6);
+    isc(d, q->tr("A7 (74 x 105 mm)"), QPrinter::A7);
+    isc(d, q->tr("A8 (52 x 74 mm)"), QPrinter::A8);
+    isc(d, q->tr("A9 (37 x 52 mm)"), QPrinter::A9);
+    isc(d, q->tr("B0 (1000 x 1414 mm)"), QPrinter::B0);
+    isc(d, q->tr("B1 (707 x 1000 mm)"), QPrinter::B1);
+    isc(d, q->tr("B2 (500 x 707 mm)"), QPrinter::B2);
+    isc(d, q->tr("B3 (353 x 500 mm)"), QPrinter::B3);
+    isc(d, q->tr("B4 (250 x 353 mm)"), QPrinter::B4);
+    isc(d, q->tr("B5 (176 x 250 mm, 6.93x9.84 inches)"), QPrinter::B5);
+    isc(d, q->tr("B6 (125 x 176 mm)"), QPrinter::B6);
+    isc(d, q->tr("B7 (88 x 125 mm)"), QPrinter::B7);
+    isc(d, q->tr("B8 (62 x 88 mm)"), QPrinter::B8);
+    isc(d, q->tr("B9 (44 x 62 mm)"), QPrinter::B9);
+    isc(d, q->tr("B10 (31 x 44 mm)"), QPrinter::B10);
+    isc(d, q->tr("C5E (163 x 229 mm)"), QPrinter::C5E);
+    isc(d, q->tr("DLE (110 x 220 mm)"), QPrinter::DLE);
+    isc(d, q->tr("Executive (7.5x10 inches, 191x254 mm)"), QPrinter::Executive);
+    isc(d, q->tr("Folio (210 x 330 mm)"), QPrinter::Folio);
+    isc(d, q->tr("Ledger (432 x 279 mm)"), QPrinter::Ledger);
+    isc(d, q->tr("Legal (8.5x14 inches, 216x356 mm)"), QPrinter::Legal);
+    isc(d, q->tr("Letter (8.5x11 inches, 216x279 mm)"), QPrinter::Letter);
+    isc(d, q->tr("Tabloid (279 x 432 mm)"), QPrinter::Tabloid);
+    isc(d, q->tr("US Common #10 Envelope (105 x 241 mm)"), QPrinter::Comm10E);
 
-    connect(d->sizeCombo, SIGNAL(activated(int)),
-             this, SLOT(paperSizeSelected(int)));
+    QObject::connect(sizeCombo, SIGNAL(activated(int)),
+             q, SLOT(paperSizeSelected(int)));
 
     return g;
 }
 
 
-void QPrintDialog::printerOrFileSelected(int id)
+void QPrintDialogPrivate::printerOrFileSelected(int id)
 {
-    d->outputToFile = id ? true : false;
-    if (d->outputToFile) {
-        d->ok->setEnabled(true);
-        fileNameEditChanged(d->fileName->text());
-        if (!d->fileName->isModified() && d->fileName->text().isEmpty()) {
+    outputToFile = id ? true : false;
+    if (outputToFile) {
+        ok->setEnabled(true);
+        fileNameEditChanged(fileName->text());
+        if (!fileName->isModified() && fileName->text().isEmpty()) {
             QString home = QLatin1String(::qgetenv("HOME"));
             QString cur = QDir::currentPath();
             if (home.at(home.length()-1) != '/')
@@ -1298,242 +1319,133 @@ void QPrintDialog::printerOrFileSelected(int id)
 #ifdef Q_WS_X11
             cur += "print.ps";
 #endif
-            d->fileName->setText(cur);
-            d->fileName->setCursorPosition(cur.length());
-            d->fileName->selectAll();
+            fileName->setText(cur);
+            fileName->setCursorPosition(cur.length());
+            fileName->selectAll();
         }
-        d->browse->setEnabled(true);
-        d->fileName->setEnabled(true);
-        d->fileName->setFocus();
-        d->view->setEnabled(false);
+        browse->setEnabled(true);
+        fileName->setEnabled(true);
+        fileName->setFocus();
+        view->setEnabled(false);
     } else {
-        d->ok->setEnabled(d->printers.count() != 0);
-        d->view->setEnabled(true);
-        if (d->fileName->hasFocus() || d->browse->hasFocus())
-            d->view->setFocus();
-        d->browse->setEnabled(false);
-        d->fileName->setEnabled(false);
+        ok->setEnabled(printers.count() != 0);
+        view->setEnabled(true);
+        if (fileName->hasFocus() || browse->hasFocus())
+            view->setFocus();
+        browse->setEnabled(false);
+        fileName->setEnabled(false);
     }
 }
 
 
-void QPrintDialog::landscapeSelected(int id)
+void QPrintDialogPrivate::landscapeSelected(int id)
 {
-    d->orientation = (QPrinter::Orientation)id;
+    orientation = (QPrinter::Orientation)id;
 }
 
 
-void QPrintDialog::paperSizeSelected(int id)
+void QPrintDialogPrivate::paperSizeSelected(int id)
 {
     if (id < QPrinter::NPageSize)
-        d->pageSize = QPrinter::PageSize(d->indexToPageSize[id]);
+        pageSize = QPrinter::PageSize(indexToPageSize[id]);
 }
 
 
-void QPrintDialog::orientSelected(int id)
+void QPrintDialogPrivate::orientSelected(int id)
 {
-    d->orientation = (QPrinter::Orientation)id;
+    orientation = (QPrinter::Orientation)id;
 }
 
 
-void QPrintDialog::pageOrderSelected(int id)
+void QPrintDialogPrivate::pageOrderSelected(int id)
 {
-    d->pageOrder2 = (QPrinter::PageOrder)id;
+    pageOrder2 = (QPrinter::PageOrder)id;
 }
 
 
-void QPrintDialog::setNumCopies(int copies)
+void QPrintDialogPrivate::setNumCopies(int copies)
 {
-    d->numCopies = copies;
+    numCopies = copies;
 }
 
 
-void QPrintDialog::browseClicked()
+void QPrintDialogPrivate::browseClicked()
 {
 #if 0 // ### Fix before 4.0
 #ifndef QT_NO_FILEDIALOG
-    QString fn = QFileDialog::getSaveFileName(d->fileName->text(), tr("PostScript Files (*.ps);;All Files (*)"), this);
+    QString fn = QFileDialog::getSaveFileName(fileName->text(), q->tr("PostScript Files (*.ps);;All Files (*)"), q);
     if (!fn.isNull())
-        d->fileName->setText(fn);
+        fileName->setText(fn);
 #endif
 #endif
 }
 
 
-void QPrintDialog::okClicked()
+void QPrintDialogPrivate::okClicked()
 {
-    d->lastPage->interpretText();
-    d->firstPage->interpretText();
-    d->copies->interpretText();
-    if (d->outputToFile) {
-        d->printer->setOutputToFile(true);
-        d->printer->setOutputFileName(d->fileName->text());
+    lastPage->interpretText();
+    firstPage->interpretText();
+    copies->interpretText();
+    if (outputToFile) {
+        printer->setOutputToFile(true);
+        printer->setOutputFileName(fileName->text());
     } else {
-        d->printer->setOutputToFile(false);
-        QModelIndex current = d->view->currentIndex();
+        printer->setOutputToFile(false);
+        QModelIndex current = view->currentIndex();
         if (current.isValid())
-            d->printer->setPrinterName(d->printers.at(current.row()).name);
+            printer->setPrinterName(printers.at(current.row()).name);
     }
 
-    d->printer->setOrientation(d->orientation);
-    d->printer->setPageSize(d->pageSize);
-    d->printer->setPageOrder(d->pageOrder2);
-    d->printer->setColorMode(d->colorMode2);
-    d->printer->setNumCopies(d->numCopies);
-    if (d->printAllButton->isChecked()) {
-        setPrintRange(AllPages);
-        setFromTo(minPage(), maxPage());
+    printer->setOrientation(orientation);
+    printer->setPageSize(pageSize);
+    printer->setPageOrder(pageOrder2);
+    printer->setColorMode(colorMode2);
+    printer->setNumCopies(numCopies);
+    if (printAllButton->isChecked()) {
+        q->setPrintRange(QPrintDialog::AllPages);
+        q->setFromTo(q->minPage(), q->maxPage());
     } else {
-        if (d->printSelectionButton->isChecked()) {
-            setPrintRange(Selection);
-            setFromTo(0, 0);
+        if (printSelectionButton->isChecked()) {
+            q->setPrintRange(QPrintDialog::Selection);
+            q->setFromTo(0, 0);
         } else {
-            setPrintRange(PageRange);
-            setFromTo(d->firstPage->value(), d->lastPage->value());
+            q->setPrintRange(QPrintDialog::PageRange);
+            q->setFromTo(firstPage->value(), lastPage->value());
         }
     }
-    accept();
+    q->accept();
 }
 
 
-void QPrintDialog::printRangeSelected(int id)
+void QPrintDialogPrivate::printRangeSelected(int id)
 {
     bool enable = id == 2 ? true : false;
-    d->firstPage->setEnabled(enable);
-    d->lastPage->setEnabled(enable);
-    d->firstPageLabel->setEnabled(enable);
-    d->lastPageLabel->setEnabled(enable);
+    firstPage->setEnabled(enable);
+    lastPage->setEnabled(enable);
+    firstPageLabel->setEnabled(enable);
+    lastPageLabel->setEnabled(enable);
 }
 
 
-void QPrintDialog::setFirstPage(int fp)
+void QPrintDialogPrivate::setFirstPage(int fp)
 {
-    if (d->printer) {
-        d->lastPage->setMinimum(fp);
-        d->lastPage->setMaximum(qMax(fp, maxPage()));
+    if (printer) {
+        lastPage->setMinimum(fp);
+        lastPage->setMaximum(qMax(fp, q->maxPage()));
     }
 }
 
 
-void QPrintDialog::setLastPage(int lp)
+void QPrintDialogPrivate::setLastPage(int lp)
 {
-    if (d->printer) {
-        d->firstPage->setMinimum(qMin(lp, minPage()));
-        d->firstPage->setMaximum(lp);
+    if (printer) {
+        firstPage->setMinimum(qMin(lp, q->minPage()));
+        firstPage->setMaximum(lp);
     }
 }
 
 
-/*!
-  Sets this dialog to configure printer \a p, or no printer if \a p
-  is null. If \a pickUpSettings is true, the dialog reads most of
-  its settings from \a p. If \a pickUpSettings is false (the
-  default) the dialog keeps its old settings.
-*/
-
-void QPrintDialog::setPrinter(QPrinter *p, bool pickUpSettings)
-{
-    d->printer = p;
-
-    if (p && pickUpSettings) {
-        // top to botton in the old dialog.
-        // printer or file
-        d->printerOrFile->setButton(p->outputToFile());
-        printerOrFileSelected(p->outputToFile());
-
-        // printer name
-        if (!p->printerName().isEmpty()) {
-            for (int i = 0; i < d->printers.size(); ++i) {
-                if (d->printers.at(i).name == p->printerName()) {
-                    // ###############
-//                    d->printers->setSelected(i, true);
-                    d->ok->setEnabled(true);
-                } else if (d->fileName->text().isEmpty()) {
-                    d->ok->setEnabled(d->model->rowCount() != 0);
-                }
-            }
-        }
-
-        // print command does not exist any more
-
-        // file name
-        d->printToFileButton->setEnabled(isOptionEnabled(PrintToFile));
-        d->fileName->setText(p->outputFileName());
-
-        // orientation
-        d->orientationCombo->setCurrentItem((int)p->orientation());
-        orientSelected(p->orientation());
-
-        // page size
-        int n = 0;
-        while (n < QPrinter::NPageSize &&
-                d->indexToPageSize[n] != p->pageSize())
-            n++;
-        d->sizeCombo->setCurrentItem(n);
-        paperSizeSelected(n);
-
-        // New stuff (Options)
-
-        // page order
-        d->pageOrder->setButton((int)p->pageOrder());
-        pageOrderSelected(p->pageOrder());
-
-        // color mode
-        d->colorMode->setButton((int)p->colorMode());
-        colorModeSelected(p->colorMode());
-
-        // number of copies
-        d->copies->setValue(p->numCopies());
-        setNumCopies(p->numCopies());
-    }
-
-    if(p) {
-        d->printAllButton->setEnabled(true);
-        d->printSelectionButton->setEnabled(isOptionEnabled(PrintSelection));
-        d->printRangeButton->setEnabled(isOptionEnabled(PrintPageRange));
-
-        switch (printRange()) {
-        case AllPages:
-            d->printAllButton->click();
-            break;
-        case Selection:
-            d->printSelectionButton->click();
-            break;
-        case PageRange:
-            d->printRangeButton->click();
-            break;
-        }
-    }
-
-    if (p && maxPage()) {
-        d->firstPage->setMinimum(minPage());
-        d->firstPage->setMaximum(maxPage());
-        d->lastPage->setMinimum(minPage());
-        d->lastPage->setMaximum(maxPage());
-        if (fromPage() || toPage()) {
-            setFirstPage(fromPage());
-            setLastPage(toPage());
-            d->firstPage->setValue(fromPage());
-            d->lastPage->setValue(toPage());
-        }
-    }
-}
-
-
-/*!  Returns a pointer to the printer this dialog configures, or 0 if
-  this dialog does not operate on any printer. */
-QPrinter *QPrintDialog::printer() const
-{
-    return d->printer;
-}
-
-
-void QPrintDialog::colorModeSelected(int id)
-{
-    d->colorMode2 = (QPrinter::ColorMode)id;
-}
-
-
+#ifdef QT_COMPAT
 /*!
   Adds the button \a but to the layout of the print dialog. The added
   buttons are arranged from the left to the right below the
@@ -1544,10 +1456,123 @@ void QPrintDialog::addButton(QPushButton *but)
     d->customLayout->addWidget(but);
 }
 
-void QPrintDialog::fileNameEditChanged(const QString &text)
+/*!  Returns a pointer to the printer this dialog configures, or 0 if
+  this dialog does not operate on any printer. */
+QPrinter *QPrintDialog::printer() const
 {
-    if (d->fileName->isEnabled())
-        d->ok->setEnabled(!text.isEmpty());
+    return d->printer;
+}
+
+/*!
+  Sets this dialog to configure printer \a p, or no printer if \a p
+  is null. If \a pickUpSettings is true, the dialog reads most of
+  its settings from \a p. If \a pickUpSettings is false (the
+  default) the dialog keeps its old settings.
+*/
+
+void QPrintDialog::setPrinter(QPrinter *p, bool pickUpSettings)
+{
+    d->setPrinter(p, pickUpSettings);
+}
+#endif
+
+void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
+{
+    printer = p;
+
+    if (p && pickUpSettings) {
+        // top to botton in the old dialog.
+        // printer or file
+        printerOrFile->setButton(p->outputToFile());
+        printerOrFileSelected(p->outputToFile());
+
+        // printer name
+        if (!p->printerName().isEmpty()) {
+            for (int i = 0; i < printers.size(); ++i) {
+                if (printers.at(i).name == p->printerName()) {
+                    // ###############
+//                    printers->setSelected(i, true);
+                    ok->setEnabled(true);
+                } else if (fileName->text().isEmpty()) {
+                    ok->setEnabled(model->rowCount() != 0);
+                }
+            }
+        }
+
+        // print command does not exist any more
+
+        // file name
+        printToFileButton->setEnabled(q->isOptionEnabled(QPrintDialog::PrintToFile));
+        fileName->setText(p->outputFileName());
+
+        // orientation
+        orientationCombo->setCurrentItem((int)p->orientation());
+        orientSelected(p->orientation());
+
+        // page size
+        int n = 0;
+        while (n < QPrinter::NPageSize &&
+                indexToPageSize[n] != p->pageSize())
+            n++;
+        sizeCombo->setCurrentItem(n);
+        paperSizeSelected(n);
+
+        // New stuff (Options)
+
+        // page order
+        pageOrder->setButton((int)p->pageOrder());
+        pageOrderSelected(p->pageOrder());
+
+        // color mode
+        colorMode->setButton((int)p->colorMode());
+        colorModeSelected(p->colorMode());
+
+        // number of copies
+        copies->setValue(p->numCopies());
+        setNumCopies(p->numCopies());
+    }
+
+    if(p) {
+        printAllButton->setEnabled(true);
+        printSelectionButton->setEnabled(q->isOptionEnabled(QPrintDialog::PrintSelection));
+        printRangeButton->setEnabled(q->isOptionEnabled(QPrintDialog::PrintPageRange));
+
+        switch (q->printRange()) {
+        case QPrintDialog::AllPages:
+            printAllButton->click();
+            break;
+        case QPrintDialog::Selection:
+            printSelectionButton->click();
+            break;
+        case QPrintDialog::PageRange:
+            printRangeButton->click();
+            break;
+        }
+    }
+
+    if (p && q->maxPage()) {
+        firstPage->setMinimum(q->minPage());
+        firstPage->setMaximum(q->maxPage());
+        lastPage->setMinimum(q->minPage());
+        lastPage->setMaximum(q->maxPage());
+        if (q->fromPage() || q->toPage()) {
+            setFirstPage(q->fromPage());
+            setLastPage(q->toPage());
+            firstPage->setValue(q->fromPage());
+            lastPage->setValue(q->toPage());
+        }
+    }
+}
+
+void QPrintDialogPrivate::colorModeSelected(int id)
+{
+    colorMode2 = (QPrinter::ColorMode)id;
+}
+
+void QPrintDialogPrivate::fileNameEditChanged(const QString &text)
+{
+    if (fileName->isEnabled())
+        ok->setEnabled(!text.isEmpty());
 }
 
 int QPrintDialog::exec()
@@ -1563,21 +1588,21 @@ void QPrintDialogPrivate::init()
 
     // destination
     QGroupBox *g;
-    g = q->setupDestination();
+    g = setupDestination();
     tll->addWidget(g, 1);
 
     // printer and paper settings
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight);
     tll->addLayout(lay);
 
-    g = q->setupPrinterSettings();
+    g = setupPrinterSettings();
     lay->addWidget(g, 1);
 
-    g = q->setupPaper();
+    g = setupPaper();
     lay->addWidget(g);
 
     // options
-    g = q->setupOptions();
+    g = setupOptions();
     tll->addWidget(g);
 
     QBoxLayout *l = new QBoxLayout(QBoxLayout::LeftToRight);
@@ -1605,8 +1630,8 @@ void QPrintDialogPrivate::init()
     QPushButton *cancel = new QPushButton(q->tr("Cancel"), q);
     horiz->addWidget(cancel);
 
-    QObject::connect(ok, SIGNAL(clicked()), q, SLOT(okClicked()));
-    QObject::connect(cancel, SIGNAL(clicked()), q,  SLOT(reject()));
+    q->connect(ok, SIGNAL(clicked()), q, SLOT(okClicked()));
+    q->connect(cancel, SIGNAL(clicked()), q,  SLOT(reject()));
 
     QSize ms(q->minimumSize());
     QSize ss(QApplication::desktop()->screenGeometry(q->pos()).size());
@@ -1620,5 +1645,6 @@ void QPrintDialogPrivate::init()
     view->setFocus();
 }
 
+#include "moc_qprintdialog.cpp"
 #include "qprintdialog_unix.moc"
 #endif

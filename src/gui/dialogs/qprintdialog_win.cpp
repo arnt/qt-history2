@@ -44,6 +44,11 @@ QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     d->ep = static_cast<QWin32PrintEngine *>(printer->paintEngine())->d;
 }
 
+QPrintDialog::~QPrintDialog()
+{
+    //nothing
+}
+
 int QPrintDialog::exec()
 {
     QWidget *parent = parentWidget();

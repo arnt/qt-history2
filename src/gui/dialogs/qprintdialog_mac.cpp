@@ -34,6 +34,11 @@ QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     d->ep = static_cast<QMacPrintEngine *>(printer->paintEngine())->d;
 }
 
+QPrintDialog::~QPrintDialog()
+{
+    //nothing
+}
+
 int QPrintDialog::exec()
 {
     QMacBlockingFunction func;
