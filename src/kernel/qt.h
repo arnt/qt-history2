@@ -305,7 +305,6 @@
 
 
 #ifdef Q_WS_MAC
-#include <qmacstyle_mac.h>
 #include <qaquastyle.h>
 #include <private/qaquastyle_p.h>
 #endif // Q_WS_MAC
