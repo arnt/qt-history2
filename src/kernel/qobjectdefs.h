@@ -166,5 +166,12 @@ Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
 #define Q_CHILD(parent,type,name) \
 	((type*)qt_find_obj_child(parent,#type,name))
 
+Q_EXPORT void *qt_inheritedBy( QMetaObject *super, const QObject *cls );
+
+template <class Type>
+Q_INLINE_TEMPLATES Type *qt_cast(const QObject *object)
+{
+    return (Type*)qt_inheritedBy( Type::staticMetaObject(), object );
+}
 
 #endif // QOBJECTDEFS_H

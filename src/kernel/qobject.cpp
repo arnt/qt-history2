@@ -581,6 +581,27 @@ bool QObject::inherits( const char *clname ) const
     return metaObject()->inherits( clname );
 }
 
+/*! 
+    \internal
+
+    Returns TRUE if \a object inherits \a superClass within
+    the meta object inheritance chain; otherwise returns FALSE.
+
+    \sa inherits()
+*/
+void *qt_inheritedBy( QMetaObject *superClass, const QObject *object )
+{
+    if (!object) 
+	return 0;
+    register QMetaObject *mo = object->metaObject();
+    while (mo) {
+	if (mo == superClass)
+	    return (void*)object;
+	mo = mo->superClass();
+    }
+    return 0;
+}
+
 /*!
     \property QObject::name
 
