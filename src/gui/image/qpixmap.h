@@ -1,15 +1,15 @@
 /****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
+ **
+ ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+ **
+ ** This file is part of the $MODULE$ of the Qt Toolkit.
+ **
+ ** $LICENSE$
+ **
+ ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ **
+ ****************************************************************************/
 
 #ifndef QPIXMAP_H
 #define QPIXMAP_H
@@ -82,8 +82,7 @@ public:
     QBitmap createHeuristicMask(bool clipTight = true) const;
 #endif
     static QPixmap grabWindow(WId, int x=0, int y=0, int w=-1, int h=-1);
-    static QPixmap grabWidget(QWidget * widget,
-                              int x=0, int y=0, int w=-1, int h=-1);
+    static QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     QPixmap xForm(const QMatrix &) const;
@@ -94,16 +93,11 @@ public:
     bool convertFromImage(const QImage &, ColorMode mode=Auto);
     bool convertFromImage(const QImage &, int conversion_flags);
 #ifndef QT_NO_IMAGEIO
-    bool load(const QString& fileName, const char *format=0,
-              ColorMode mode=Auto);
-    bool load(const QString& fileName, const char *format,
-              int conversion_flags);
-    bool loadFromData(const uchar *buf, uint len,
-                      const char* format=0, ColorMode mode=Auto);
-    bool loadFromData(const uchar *buf, uint len,
-                      const char* format, int conversion_flags);
-    bool loadFromData(const QByteArray &data,
-                      const char* format=0, int conversion_flags=0);
+    bool load(const QString& fileName, const char *format=0, ColorMode mode=Auto);
+    bool load(const QString& fileName, const char *format, int conversion_flags);
+    bool loadFromData(const uchar *buf, uint len, const char* format=0, ColorMode mode=Auto);
+    bool loadFromData(const uchar *buf, uint len, const char* format, int conversion_flags);
+    bool loadFromData(const QByteArray &data, const char* format=0, int conversion_flags=0);
     bool save(const QString& fileName, const char* format, int quality = -1) const;
     bool save(QIODevice* device, const char* format, int quality = -1) const;
 #endif
@@ -160,7 +154,7 @@ public:
 
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 
-protected:
+        protected:
     QPixmap(int w, int h, const uchar *data, bool isXbitmap);
     int metric(int) const;
 
@@ -316,7 +310,7 @@ inline Qt::HANDLE QPixmap::handle() const
 
 /*****************************************************************************
  QPixmap stream functions
- *****************************************************************************/
+*****************************************************************************/
 
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPixmap &);
@@ -325,10 +319,10 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 
 /*****************************************************************************
  QPixmap (and QImage) helper functions
- *****************************************************************************/
+*****************************************************************************/
 #ifdef QT_COMPAT
-QT_COMPAT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
-                                    const QPixmap *src, int sx=0, int sy=0, int sw=-1, int sh=-1);
+QT_COMPAT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap *src,
+                                    int sx=0, int sy=0, int sw=-1, int sh=-1);
 #endif // QT_COMPAT
 
 

@@ -155,13 +155,10 @@ public:
 
 #ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
-    bool loadFromData(const uchar *buf, uint len,
-                      const char *format=0);
+    bool loadFromData(const uchar *buf, uint len, const char *format=0);
     bool loadFromData(QByteArray data, const char* format=0);
-    bool save(const QString &fileName, const char* format,
-              int quality=-1) const;
-    bool save(QIODevice * device, const char* format,
-              int quality=-1) const;
+    bool save(const QString &fileName, const char* format, int quality=-1) const;
+    bool save(QIODevice * device, const char* format, int quality=-1) const;
 #endif //QT_NO_IMAGEIO
 
     bool valid(int x, int y) const;
