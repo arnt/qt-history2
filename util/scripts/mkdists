@@ -717,7 +717,6 @@ for plat in mac win x11 embedded; do
 	    rm -rf $PLATDIR/mkspecs/qws
 	fi
 	rm -rf "$PLATDIR/examples/kiosk"
-	rm -rf "$PLATDIR/src/3rdparty/libmng"
 	rm -f "$PLATDIR/etc/fonts/unifont.bdf"
 	rm -rf "$PLATDIR/tmake"
 	rm -rf "$PLATDIR/util"
