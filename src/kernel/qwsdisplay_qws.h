@@ -43,6 +43,7 @@
 // Class forward definitions
 class QWSRegionManager;
 class QWSEvent;
+class QWSMouseEvent;
 class QWSQCopMessageEvent;
 class QGfx;
 
@@ -125,6 +126,8 @@ public:
     static void grab( bool write )
 	{ lock->lock( write ? QLock::Write : QLock::Read ); }
     static void ungrab() { lock->unlock(); }
+
+    static void setRawMouseEventFilter( void (*filter)(QWSMouseEvent *) );
 
 private:
     friend class QApplication;

@@ -390,6 +390,7 @@ public:
 	    csocket->flush(); // may be pending QCop message, eg.
 	    delete csocket;
 	}
+	delete connected_event;
 #endif
     }
 
@@ -427,6 +428,7 @@ private:
     QWSEvent* current_event;
     QValueList<int> unused_identifiers;
     int mouse_event_count;
+    void (*mouseFilter)(QWSMouseEvent *);
 
     enum { VariableEvent=-1 };
 public:
@@ -507,6 +509,11 @@ public:
 	unused_identifiers.remove(head);
 	return i;
     }
+
+    void setMouseFilter( void (*filter)(QWSMouseEvent*) )
+    {
+	mouseFilter = filter;
+    }
 };
 
 void QWSDisplay::Data::init()
@@ -521,6 +528,7 @@ void QWSDisplay::Data::init()
     current_event = 0;
     mouse_event_count = 0;
     ramid = -1;
+    mouseFilter = 0;
 
     QString pipe = qws_qtePipeFilename();
 
@@ -673,6 +681,8 @@ void QWSDisplay::Data::fillQueue()
 		delete e;
 	    } else {
 		QWSMouseEvent *me = (QWSMouseEvent*)e;
+		if ( mouseFilter )
+		    mouseFilter(me);
 		if ( mouse_event ) {
 		    if ( (mouse_event->window() != e->window ()
 			  || mouse_event->simpleData.state !=
@@ -1235,6 +1245,12 @@ QPtrList<QWSWindowInfo> * QWSDisplay::windowList()
 	delete qin;
     }
     return ret;
+}
+
+void QWSDisplay::setRawMouseEventFilter( void (*filter)(QWSMouseEvent *) )
+{
+    if (qt_fbdpy)
+	qt_fbdpy->d->setMouseFilter(filter);
 }
 
 static bool	qt_try_modal( QWidget *, QWSEvent * );
