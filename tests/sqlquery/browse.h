@@ -52,7 +52,7 @@ protected:
     {
         QTable::paintCell(p,row,col,cr,selected);
 	if ( res->seek(row) ) {
- 	    QString text = (*res)[col].toString();
+ 	    QString text = res->value(col).toString();
  	    if ( res->isNull(col) )
  		text = "<null>";
              p->drawText( 0,0, cr.width(), cr.height(), AlignLeft + AlignVCenter, text );
