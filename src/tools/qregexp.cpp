@@ -42,11 +42,12 @@
 #include "qmemarray.h"
 #include "qbitarray.h"
 #include "qcache.h"
+#include "qcleanuphandler.h"
 #include "qintdict.h"
 #include "qmap.h"
+#include "qptrvector.h"
 #include "qstring.h"
 #include "qtl.h"
-#include "qptrvector.h"
 
 #ifdef QT_THREAD_SUPPORT
 #include "qmutexpool_p.h"
@@ -3138,17 +3139,16 @@ struct QRegExpPrivate
 
 #ifndef QT_NO_REGEXP_OPTIM
 static QCache<QRegExpEngine> *engineCache = 0;
+static QSingleCleanupHandler<QCache<QRegExpEngine> > cleanup_cache;
 #endif
 
 static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
 {
 #ifndef QT_NO_REGEXP_OPTIM
     if ( engineCache != 0 ) {
-
-#  ifdef QT_THREAD_SUPPORT
+#ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( qt_global_mutexpool->get( &engineCache ) );
-#  endif // QT_THREAD_SUPPORT
-
+#endif
 	QRegExpEngine *eng = engineCache->take( pattern );
 	if ( eng == 0 || eng->caseSensitive() != caseSensitive ) {
 	    delete eng;
@@ -3165,14 +3165,13 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 {
     if ( eng != 0 && eng->deref() ) {
 #ifndef QT_NO_REGEXP_OPTIM
-
-#  ifdef QT_THREAD_SUPPORT
+#ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( qt_global_mutexpool->get( &engineCache ) );
-#  endif // QT_THREAD_SUPPORT
-
+#endif
 	if ( engineCache == 0 ) {
 	    engineCache = new QCache<QRegExpEngine>;
 	    engineCache->setAutoDelete( TRUE );
+	    cleanup_cache.set( &engineCache );
 	}
 	if ( !pattern.isNull() &&
 	     engineCache->insert(pattern, eng, 4 + pattern.length() / 4) )
