@@ -41,8 +41,8 @@ extern QByteArray qt_win95Name(const QString s);
 
 bool QFSDirEnginePrivate::sysExists(const QString &dirName) const 
 {
-    int ret = 0;
-    struct stat st;
+    int r = 0;
+    QT_STATBUF st;
     QT_WA({
         r = QT_TSTAT((TCHAR*)dirName.utf16(), (QT_STATBUF4TSTAT*)&st);
     } , {
