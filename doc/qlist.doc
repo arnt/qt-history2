@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.9 1998/02/19 22:52:28 agulbra Exp $
+** $Id: qlist.doc,v 2.10 1998/03/19 17:47:33 agulbra Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -563,7 +563,7 @@
 
 /*!
   \fn type *QList::getLast() const
-  Returns a pointer to the first item in the list, or null if the
+  Returns a pointer to the last item in the list, or null if the
   list is empty.
 
   Does not affect the current list item.
