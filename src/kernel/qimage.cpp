@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#89 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#89 $");
 
 
 /*!
@@ -922,9 +922,9 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   corners, then chipping away pixels of that color, starting at all
   the edges.
 
-  The four corners \"vote\" over which color is to be masked away.  In
-  case of a draw (ie. if the function is not applicable to this image)
-  the results are unpredictable.
+  The four corners vote over which color is to be masked away.  In
+  case of a draw (this generally means that this function is not
+  applicable to the image) the voting results are undocumented.
 
   This function is much slower than it might have been, and not as
   flexible - it always returns a little-endian mask (which you can
