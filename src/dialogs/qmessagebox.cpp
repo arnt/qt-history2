@@ -41,7 +41,7 @@ class QMessageBoxLabel : public QLabel
 public:
     QMessageBoxLabel( QWidget* parent ) : QLabel( parent, "messageBoxText")
     {
-	setAlignment( AlignAuto );
+	setAlignment( AlignAuto|ExpandTabs );
     }
 };
 #include "qmessagebox.moc"
