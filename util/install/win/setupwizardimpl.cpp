@@ -921,21 +921,6 @@ void SetupWizardImpl::doFinalIntegration()
 	    installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
 	}
     }
-    /*
-    ** Then record the installation in the registry, and set up the uninstallation
-    */
-    QStringList uninstaller;
-    uninstaller << ( QString("\"") + shell.windowsFolderName + "\\quninstall.exe" + QString("\"") );
-    uninstaller << optionsPage->installPath->text();
-
-    if( common )
-	uninstaller << ( QString("\"") + shell.commonProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
-    else
-	uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
-
-    uninstaller << ( QString("\"") + globalInformation.qtVersionStr() + QString("\"") );
-
-    QEnvironment::recordUninstall( QString( "Qt " ) + globalInformation.qtVersionStr(), uninstaller.join( " " ) );
 #endif
     buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 }
@@ -1082,8 +1067,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 			"that contains a '-' in its name.\n"
 			"Please correct your selection before going on."),
 		    tr("Ok"),
-		    tr("Continue anyway")
-		    );
+		    tr("Continue anyway") );
 	    if ( ret == 0 )
 		return;
 	}
@@ -1113,45 +1097,31 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 void SetupWizardImpl::showPageLicense()
 {
-    QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make" );
-#if defined(Q_OS_WIN32)
-    QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
-#elif defined(Q_OS_UNIX)
-    QStringList paths = QStringList::split( QRegExp("[:]"), QEnvironment::getEnv( "PATH" ) );
-#endif
-#if defined(Q_OS_WIN32)
-    if( !findFileInPaths( "nmake.exe", paths ) && !findFileInPaths( "make.exe", paths ) ) {
-#else
-    if( !findFileInPaths( makeCmds[ globalInformation.sysId() ], paths ) ) {
-#endif
+    if ( !findFile( "string.h" ) ) {
 	QMessageBox::critical( this, "Environment problems",
-				     "The installation program can't find the make command '"
-#if defined(Q_WS_WIN)
-				     "'nmake.exe' or 'make.exe"
-#else
-				     + makeCmds[ globalInformation.sysId() ] +
-#endif
-				     "'.\nMake sure the path to it "
-				     "is present in the PATH environment variable\n"
-				     "and restart the installation.\n\n"
-#if defined(Q_WS_WIN)
-				     "You can find the path to the tool using the 'Find' tool "
-				     "and add the location to the environment settings of your "
-				     "system. Please contact your local system administration if "
-				     "you have difficulties finding the files, or if you don't "
-				     "know how to modifiy the environment settings of your system."
-#endif
-				     );
+			      "The file 'string.h' could not be located in any directory\n"
+			      "listed in the 'INCLUDE' environment variable.\n"
+			      "You might have to install the platform headers, or adjust\n"
+			      "the environment variables of your system, and restart the\n"
+			      "installation.\n\n"
+			      "Please contact your local system administration if you have\n"
+			      "difficulties finding the file, or if you don't know how to\n"
+			      "modify the environment settings on your system." );
+	qApp->quit();
     }
     licenseChanged();
 }
 
 void SetupWizardImpl::showPageOptions()
 {
+    static bool firstTime = FALSE;
+    if ( firstTime )
+	return;
+    firstTime = TRUE;
+
     // First make sure that the current license information is saved
-    if( !globalInformation.reconfig() ) {
+    if( !globalInformation.reconfig() )
 	writeLicense( QDir::homeDirPath() + "/.qt-license" );
-    }
 
     // ### unsupported
     optionsPage->installDocs->hide();
@@ -1178,10 +1148,36 @@ void SetupWizardImpl::showPageOptions()
     optionsPage->sysMsvc->setEnabled( FALSE );
     optionsPage->sysBorland->setEnabled( FALSE );
 #endif
+
+    if ( !QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine ).isEmpty() ) {
+	globalInformation.setSysId( GlobalInformation::MSVCNET );
+	optionsPage->sysMsvcNet->setChecked( TRUE );
+    } else if ( !QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ).isEmpty() ) {
+	optionsPage->sysMsvc->setChecked( TRUE );
+	globalInformation.setSysId( GlobalInformation::MSVC );
+    } else {
+	optionsPage->sysBorland->setChecked( TRUE );
+	globalInformation.setSysId( GlobalInformation::Borland );
+    }
 }
 
 void SetupWizardImpl::showPageFolders()
 {
+    QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe make nmake.exe" );
+    QString makeCmd = makeCmds[ globalInformation.sysId() ];
+    if( !findFile( makeCmd ) ) {
+	QMessageBox::critical( this, "Environment problems",
+				     "The installation program can't find the make tool '"
+				     + makeCmd + "'.\n"
+				     "Make sure the path to it is present in the PATH environment\n"
+				     "variable and restart the installation.\n\n"
+				     "You can find the path to the tool using the 'Find' tool "
+				     "and add the location to the environment settings of your "
+				     "system. Please contact your local system administration if "
+				     "you have difficulties finding the files, or if you don't "
+				     "know how to modifiy the environment settings of your system." );
+    }
+
     QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio 6.0 path;Borland C++ Builder path;GNU C++ path;MAC X buildtool path;Microsoft Visual Studio .NET path" );
 
     foldersPage->devSysLabel->setText( devSys[ globalInformation.sysId() ] );
@@ -1437,8 +1433,26 @@ void SetupWizardImpl::showPageProgress()
 			 "Please review the log and try to amend the situation.\n"), true );
 	}
     }
-    if ( copySuccessful )
+    if ( copySuccessful ) {
+#if defined(Q_OS_WIN32)
+    /*
+    ** Then record the installation in the registry, and set up the uninstallation
+    */
+    QStringList uninstaller;
+    uninstaller << ( QString("\"") + shell.windowsFolderName + "\\quninstall.exe" + QString("\"") );
+    uninstaller << optionsPage->installPath->text();
+
+    if( foldersPage->folderGroups->currentItem() == 0 )
+	uninstaller << ( QString("\"") + shell.commonProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
+    else
+	uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
+
+    uninstaller << ( QString("\"") + globalInformation.qtVersionStr() + QString("\"") );
+
+    QEnvironment::recordUninstall( QString( "Qt " ) + globalInformation.qtVersionStr(), uninstaller.join( " " ) );
+#endif
 	autoContTimer.start( 1000 );
+    }
     else
 	emit wizardPageFailed( indexOf(currentPage()) );
     setNextEnabled( progressPage, copySuccessful );
@@ -2083,10 +2097,29 @@ void SetupWizardImpl::clickedLicenseFile()
 
 }
 
-bool SetupWizardImpl::findFileInPaths( QString fileName, QStringList paths )
+bool SetupWizardImpl::findFile( const QString &fileName )
+{
+    QString file = fileName.lower();
+    QStringList paths;
+#if defined(Q_OS_WIN32)
+    QRegExp split( "[;,]" );
+#else
+    QRegExp split( "[:]" );
+#endif
+    if ( file.endsWith( ".exe" ) || file.endsWith( ".dll" ) )
+	paths = QStringList::split( split, QEnvironment::getEnv( "PATH" ) );
+    else if ( file.endsWith( ".h" ) )
+	paths = QStringList::split( split, QEnvironment::getEnv( "INCLUDE" ) );
+    else if ( file.endsWith( ".lib" ) )
+	paths = QStringList::split( split, QEnvironment::getEnv( "LIB" ) );
+
+    return findFileInPaths( file, paths );
+}
+
+bool SetupWizardImpl::findFileInPaths( const QString &fileName, const QStringList &paths )
 {
 	QDir d;
-	for( QStringList::Iterator it = paths.begin(); it != paths.end(); ++it ) {
+	for( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
 	    if( d.exists( (*it) +QDir::separator() + fileName ) )
 		return true;
 	}
@@ -2120,11 +2153,8 @@ void SetupWizardImpl::readLicenseAgreement()
 
 bool SetupWizardImpl::findXPSupport()
 {
-    if ( globalInformation.sysId() == GlobalInformation::MSVCNET ) {
-	return findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
-	    findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
-	    findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) );
-    }
+    if ( ( globalInformation.sysId() == GlobalInformation::MSVCNET ) || ( globalInformation.sysId() == GlobalInformation::MSVC ) )
+	return findFile( "uxtheme.h" );
     return FALSE;
 }
 

@@ -83,7 +83,9 @@ private:
 
     void prepareEnvironment();
 
-    bool findFileInPaths( QString fileName, QStringList paths );
+    bool findFile( const QString &fileName );
+    bool findFileInPaths( const QString &fileName, const QStringList &paths );
+
     void setStaticEnabled( bool se );
     void setJpegDirect( bool jd );
     void readLicenseAgreement();
