@@ -16,7 +16,7 @@
 #include <qheaderview.h>
 #include "plasmamodel.h"
 #include "plasmadelegate.h"
-//|#include "colorfilter.h"
+#include "colorfilter.h"
 
 int main(int argc, char *argv[])
 {
@@ -27,18 +27,20 @@ int main(int argc, char *argv[])
     int cc = 160;
  
     QAbstractItemModel *data = new PlasmaModel(rc, cc, &splitter);
+    //QItemSelectionModel *selections = new QItemSelectionModel(data, data);
 
     // 1st view
 
     QTableView *view = new QTableView(&splitter);
     QAbstractItemDelegate *delegate = new PlasmaDelegate(view);
 
-    //ColorFilter *filter = new ColorFilter(&splitter);
-    //filter->setModel(data);
-    //filter->setFilter(0x00f0f0f0);
+    ColorFilter *filter = new ColorFilter(&splitter);
+    filter->setModel(data);
+    filter->setFilter(0x00f00000);
 
-    view->setModel(/*filter*/data);
+    view->setModel(filter);
     view->setItemDelegate(delegate);
+    //view->setSelectionModel(selections);
     view->setShowGrid(false);
     view->horizontalHeader()->hide();
     view->verticalHeader()->hide();
@@ -54,6 +56,7 @@ int main(int argc, char *argv[])
     delegate = new PlasmaDelegate(view);
     view->setModel(data);
     view->setItemDelegate(delegate);
+    //view->setSelectionModel(selections);
     view->setShowGrid(false);
     view->horizontalHeader()->hide();
     view->verticalHeader()->hide();
@@ -62,6 +65,11 @@ int main(int argc, char *argv[])
         view->resizeColumnToContents(c);
     for (int r = 0; r < rc; ++r)
         view->resizeRowToContents(r);
+
+    // 3rd view
+    view = new QTableView(&splitter);
+    view->setModel(data);
+    //view->setSelectionModel(selections);
     
     app.setMainWidget(&splitter);
     splitter.show();
