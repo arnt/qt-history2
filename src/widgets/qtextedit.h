@@ -237,6 +237,7 @@ public slots:
     virtual void zoomIn() { zoomIn( 1 ); }
     virtual void zoomOut( int range );
     virtual void zoomOut() { zoomOut( 1 ); }
+    virtual void zoomTo( int size );
 
     virtual void sync();
     virtual void setReadOnly( bool b );

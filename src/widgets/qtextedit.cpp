@@ -4038,6 +4038,18 @@ void QTextEdit::zoomOut( int range )
     setFont( f );
 }
 
+/*! Zooms the text by making the base font size \a size points and
+  recalculating all font sizes. This does not change the size of any
+  images.
+*/
+
+void QTextEdit::zoomTo( int size )
+{
+    QFont f( QScrollView::font() );
+    f.setPointSize( size );
+    setFont( f );
+}
+
 /*!
     \internal
 
