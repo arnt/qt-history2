@@ -970,6 +970,7 @@ void QLineEdit::insert(const QString &newText)
     int priorState = d->undoState;
     d->removeSelectedText();
     d->insert(newText);
+    d->finishChange(priorState);
 }
 
 /*!
@@ -2159,7 +2160,6 @@ void QLineEditPrivate::insert(const QString& s)
             addCommand(Command(Insert, cursor++, s.at(i)));
     }
     textDirty = true;
-    emitCursorPositionChanged();
 }
 
 void QLineEditPrivate::del(bool wasBackspace)
