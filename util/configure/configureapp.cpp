@@ -30,10 +30,10 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "DEBUG" ] = "no";
     dictionary[ "SHARED" ] = "yes";
     dictionary[ "GIF" ] = "no";
-    dictionary[ "THREAD" ] = "yes";
+    dictionary[ "THREAD" ] = "no";
     dictionary[ "ZLIB" ] = "yes";
     dictionary[ "LIBPNG" ] = "yes";
-    dictionary[ "JPEG" ] = "yes";
+    dictionary[ "JPEG" ] = "no";
     dictionary[ "MNG" ] = "no";
     dictionary[ "BUILD_QMAKE" ] = "yes";
     dictionary[ "DSPFILES" ] = "yes";
@@ -230,8 +230,16 @@ void ConfigureApp::parseCmdLine()
 	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
 	    qmakeConfig += "internal";
     }
-    else
-	qmakeConfig += enabledModules;
+    else {
+	qmakeConfig += modules;
+	for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
+	    qmakeConfig.remove( (*dis) );
+	}
+	for( QStringList::Iterator ena = enabledModules.begin(); ena != enabledModules.end(); ++ena ) {
+	    if( qmakeConfig.findIndex( (*ena) ) == -1 )
+		qmakeConfig += (*ena);
+	}
+    }
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
 	qmakeConfig.remove( (*it) );
@@ -268,8 +276,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-release          * Disable debug information." << endl;
 	cout << "-shared           * Build Qt as a shared library." << endl;
 	cout << "-static             Build Qt as a static library." << endl;
-	cout << "-thread           * Configure Qt with thread support." << endl;
-	cout << "-no-thread          Configure Qt without thread support." << endl;
+	cout << "-thread             Configure Qt with thread support." << endl;
+	cout << "-no-thread        * Configure Qt without thread support." << endl;
 	cout << "-platform           Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
