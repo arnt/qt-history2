@@ -1299,9 +1299,6 @@ QString QTextEdit::plainText() const
 
 void QTextEdit::setHtml(const QString &text)
 {
-    if (text.isEmpty())
-        return;
-
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     d->init(fragment);
 }
@@ -1319,9 +1316,6 @@ void QTextEdit::setHtml(const QString &text)
 
 void QTextEdit::setHtml(const QByteArray &text)
 {
-    if (text.isEmpty())
-	return;
-
     // use QByteArray overload that obeys html content encoding
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     d->init(fragment);
