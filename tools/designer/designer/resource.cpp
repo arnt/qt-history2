@@ -179,6 +179,7 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
     DomTool::fixDocument( doc );
 
     toplevel = formwindow = new FormWindow( mainwindow->qWorkspace(), 0 );
+    formwindow->setProject( MainWindow::self->currProject() );
     formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
     FormFile *ff = new FormFile( filename, FALSE, MainWindow::self->currProject() );
