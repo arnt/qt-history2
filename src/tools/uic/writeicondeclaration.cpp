@@ -31,6 +31,11 @@ void WriteIconDeclaration::accept(DomImages *images)
 
 void WriteIconDeclaration::accept(DomImage *image)
 {
-    output << option.indent << option.indent << image->attributeName() << "_ID,\n";
+    QString name = image->attributeName();
+    if (name.isEmpty())
+        return;
+
+    driver->insertPixmap(name);
+    output << option.indent << option.indent << name << "_ID,\n";
 }
 

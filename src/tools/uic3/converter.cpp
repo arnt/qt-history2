@@ -204,11 +204,13 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
         ui->setElementTabStops(tabStops);
     }
 
+#if 0 // ### enable me?
     if (ui_include_hits.size()) {
         DomIncludeHints *includeHints = new DomIncludeHints();
         includeHints->setElementIncludeHint(ui_include_hits);
         ui->setElementIncludeHints(includeHints);
     }
+#endif
 
     ui->setAttributeStdSetDef(stdsetdef);
 

@@ -62,6 +62,10 @@ public:
     QString findOrInsertActionGroup(DomActionGroup *ui_group);
     QString findOrInsertAction(DomAction *ui_action);
 
+    // pixmap
+    void insertPixmap(const QString &pixmap);
+    bool containsPixmap(const QString &pixmap) const;
+
 private:
     Option m_option;
     QTextStream *m_output;
@@ -75,6 +79,7 @@ private:
     QHash<DomActionGroup*, QString> m_actionGroups;
     QHash<DomAction*, QString> m_actions;
     QHash<QString, bool> m_nameRepository;
+    QHash<QString, bool> m_pixmaps;
 };
 
 #endif // DRIVER_H

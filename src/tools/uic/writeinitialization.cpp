@@ -381,6 +381,9 @@ void WriteInitialization::accept(DomActionRef *node)
         if (parentClass == QLatin1String("QMenu") || parentClass == QLatin1String("QToolBar")) {
             output << option.indent << varName << "->addSeparator();\n";
             return;
+        } else if (parentClass == QLatin1String("QMenuBar")) {
+            // ### separator in menubar are not supported!
+            return;
         }
     }
 
@@ -749,8 +752,9 @@ QString WriteInitialization::pixCall(const QString &pix) const
 {
     QString s = pix;
 
-    if (s.isEmpty() || m_externPixmap || m_pixmapFunction.size()) {
-        if (m_externPixmap)
+    bool declaredPix = driver->containsPixmap(pix);
+    if (s.isEmpty() || m_externPixmap || m_pixmapFunction.size() || !declaredPix) {
+        if (m_externPixmap || !declaredPix)
             s = "\"" + s + "\"";
 
         if (m_pixmapFunction.size())
