@@ -23,4 +23,5 @@ void ItemTextView::setIndex( int i )
 void ItemTextView::change( QListViewItem* lvi )
 {
     setText( lvi->text( index ) );
+
 }
