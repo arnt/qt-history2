@@ -34,6 +34,13 @@
 
 #include <stdlib.h>
 
+class QCanvasData {
+public:
+    QList<QCanvasView> viewList;
+    QPtrDict<void> itemDict;
+    QPtrDict<void> animDict;
+};
+
 // clusterizer
 
 class QCanvasClusterizer {
@@ -410,6 +417,7 @@ You can also test for item-to-item collisions with QCanvasItem::collisions().
 
 void QCanvas::init(int w, int h, int chunksze, int mxclusters)
 {
+    d = new QCanvasData;
     awidth=w;
     aheight=h;
     chunksize=chunksze;
@@ -466,7 +474,7 @@ QCanvas::QCanvas( QPixmap p,
 
 void qt_unview(QCanvas* c)
 {
-    for (QCanvasView* view=c->viewList.first(); view != 0; view=c->viewList.next()) {
+    for (QCanvasView* view=c->d->viewList.first(); view != 0; view=c->d->viewList.next()) {
 	view->viewing = 0;
     }
 }
@@ -499,7 +507,7 @@ Returns a list of all items in the canvas.
 QCanvasItemList QCanvas::allItems()
 {
     QCanvasItemList list;
-    for (QPtrDictIterator<void> it=itemDict; it.currentKey(); ++it) {
+    for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
 	list.prepend((QCanvasItem*)it.currentKey());
     }
     return list;
@@ -516,7 +524,7 @@ void QCanvas::resize(int w, int h)
 
     QCanvasItem* item;
     QList<QCanvasItem> hidden;
-    for (QPtrDictIterator<void> it=itemDict; it.currentKey(); ++it) {
+    for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
 	if (((QCanvasItem*)it.currentKey())->visible()) {
 	    ((QCanvasItem*)it.currentKey())->hide();
 	    hidden.append(((QCanvasItem*)it.currentKey()));
@@ -576,7 +584,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
 
     if ( chunksize!=chunksze ) {
 	QList<QCanvasItem> hidden;
-	for (QPtrDictIterator<void> it=itemDict; it.currentKey(); ++it) {
+	for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
 	    if (((QCanvasItem*)it.currentKey())->visible()) {
 		((QCanvasItem*)it.currentKey())->hide();
 		hidden.append(((QCanvasItem*)it.currentKey()));
@@ -639,7 +647,7 @@ in this QCanvas.  The QCanvasItem class calls this.
 */
 void QCanvas::addItem(QCanvasItem* item)
 {
-    itemDict.insert(item,(void*)1);
+    d->itemDict.insert(item,(void*)1);
 }
 
 /*!
@@ -649,7 +657,7 @@ to be animated. The QCanvasItem class calls this.
 */
 void QCanvas::addAnimation(QCanvasItem* item)
 {
-    animDict.insert(item,(void*)1);
+    d->animDict.insert(item,(void*)1);
 }
 
 /*!
@@ -659,7 +667,7 @@ which are no longer to be animated. The QCanvasItem class calls this.
 */
 void QCanvas::removeAnimation(QCanvasItem* item)
 {
-    animDict.remove(item);
+    d->animDict.remove(item);
 }
 
 /*!
@@ -669,7 +677,7 @@ in this QCanvas.  The QCanvasItem class calls this.
 */
 void QCanvas::removeItem(QCanvasItem* item)
 {
-    itemDict.remove(item);
+    d->itemDict.remove(item);
 }
 
 /*!
@@ -679,7 +687,7 @@ viewing this QCanvas.  The QCanvasView class calls this.
 */
 void QCanvas::addView(QCanvasView* view)
 {
-    viewList.append(view);
+    d->viewList.append(view);
 }
 
 /*!
@@ -689,7 +697,7 @@ viewing this QCanvas.  The QCanvasView class calls this.
 */
 void QCanvas::removeView(QCanvasView* view)
 {
-    viewList.removeRef(view);
+    d->viewList.removeRef(view);
 }
 
 /*!
@@ -750,13 +758,13 @@ void QCanvas::setUpdatePeriod(int ms)
 */
 void QCanvas::advance()
 {
-    for (QPtrDictIterator<void> it=animDict; it.current(); ) {
+    for (QPtrDictIterator<void> it=d->animDict; it.current(); ) {
 	QCanvasItem* i = (QCanvasItem*)it.currentKey();
 	++it;
 	if ( i )
 	    i->advance(0);
     }
-    for (QPtrDictIterator<void> it2=animDict; it2.current(); ) {
+    for (QPtrDictIterator<void> it2=d->animDict; it2.current(); ) {
 	QCanvasItem* i = (QCanvasItem*)it2.currentKey();
 	++it2;
 	if ( i )
@@ -772,9 +780,9 @@ void QCanvas::advance()
 */
 void QCanvas::update()
 {
-    QCanvasClusterizer clusterizer(viewList.count());
+    QCanvasClusterizer clusterizer(d->viewList.count());
 
-    for (QCanvasView* view=viewList.first(); view != 0; view=viewList.next()) {
+    for (QCanvasView* view=d->viewList.first(); view != 0; view=d->viewList.next()) {
 	QRect area(view->contentsX(),view->contentsY(),
 		view->contentsWidth(),view->contentsHeight());
 	if (area.width()>0 && area.height()>0) {
@@ -869,7 +877,7 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
     if ( !dblbuf )
 	double_buffer = FALSE;
 
-    if (!viewList.first() && !p) return; // Nothing to do.
+    if (!d->viewList.first() && !p) return; // Nothing to do.
 
     int lx=area.x()/chunksize;
     int ly=area.y()/chunksize;
@@ -927,7 +935,7 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 
     QPoint trtr; // keeps track of total translation of rgn
 
-    for (QCanvasView* view=viewList.first(); view; view=viewList.next()) {
+    for (QCanvasView* view=d->viewList.first(); view; view=d->viewList.next()) {
 	QPainter painter(view->viewport());
 	QPoint tr = view->contentsToViewport(area.topLeft());
 	QPoint nrtr = view->contentsToViewport(QPoint(0,0)); // new translation
@@ -1381,7 +1389,7 @@ void QCanvasItem::moveBy(double dx, double dy)
 */
 bool QCanvasItem::animated() const
 {
-    return ani;
+    return (bool)ani;
 }
 
 /*!
@@ -1391,8 +1399,8 @@ bool QCanvasItem::animated() const
 */
 void QCanvasItem::setAnimated(bool y)
 {
-    if ( y != ani ) {
-	ani = y;
+    if ( y != (bool)ani ) {
+	ani = (uint)y;
 	if ( y ) {
 	    cnv->addAnimation(this);
 	} else {
@@ -1513,13 +1521,13 @@ void QCanvasItem::hide()
 */
 void QCanvasItem::setVisible(bool yes)
 {
-    if (vis!=yes) {
+    if ((bool)vis!=yes) {
 	if (yes) {
-	    vis=yes;
+	    vis=(uint)yes;
 	    addToChunks();
 	} else {
 	    removeFromChunks();
-	    vis=yes;
+	    vis=(uint)yes;
 	}
     }
 }
@@ -1552,8 +1560,8 @@ void QCanvasItem::setVisible(bool yes)
 */
 void QCanvasItem::setSelected(bool yes)
 {
-    if (sel!=yes) {
-	sel=yes;
+    if ((bool)sel!=yes) {
+	sel=(uint)yes;
 	changeChunks();
     }
 }
@@ -1578,8 +1586,8 @@ void QCanvasItem::setSelected(bool yes)
 */
 void QCanvasItem::setEnabled(bool yes)
 {
-    if (ena!=yes) {
-	ena=yes;
+    if (ena!=(uint)yes) {
+	ena=(uint)yes;
 	changeChunks();
     }
 }
@@ -1604,8 +1612,8 @@ void QCanvasItem::setEnabled(bool yes)
 */
 void QCanvasItem::setActive(bool yes)
 {
-    if (act!=yes) {
-	act=yes;
+    if (act!=(uint)yes) {
+	act=(uint)yes;
 	changeChunks();
     }
 }

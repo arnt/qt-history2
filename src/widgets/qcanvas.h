@@ -41,6 +41,7 @@ class QCanvasText;
 class QCanvasLine;
 class QCanvasChunk;
 class QCanvas;
+class QCanvasData;
 class QCanvasItem;
 class QCanvasView;
 class QCanvasPixmap;
@@ -237,9 +238,7 @@ private:
     int chwidth,chheight;
     QCanvasChunk* chunks;
 
-    QList<QCanvasView> viewList;
-    QPtrDict<void> itemDict;
-    QPtrDict<void> animDict;
+    QCanvasData* d;
 
     void initTiles(QPixmap p, int h, int v, int tilewidth, int tileheight);
     void setTiles( QPixmap tiles, int h, int v, int tilewidth, int tileheight );
