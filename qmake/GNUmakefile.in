@@ -14,11 +14,12 @@ LFLAGS=@QMAKE_LIBRARIES@
 
 #if cc isn't gcc I need to use the bad makefile
 ifeq ($(CC),gcc)
-TOBUILD=qmake
+all: qmake
+DEPDIR:=$(shell [ -d .deps/ ] || mkdir -p .deps/)
+-include $(OBJS:.o=.dep)
 else
-TOBUILD=uqmake
+all: uqmake
 endif
-all: $(TOBUILD)
 
 uqmake:
 	$(MAKE) -f Makefile qmake
@@ -26,9 +27,6 @@ uqmake:
 qmake: $(OBJS) $(QTOBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
 	ln -s -f $(shell pwd)/$@ @OUT_QTDIR@/bin/$@
-
-DEPDIR:=$(shell [ -d .deps/ ] || mkdir -p .deps/)
--include $(OBJS:.o=.dep)
 
 clean::
 	rm -f $(OBJS) $(QTOBJS)
