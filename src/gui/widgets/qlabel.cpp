@@ -108,10 +108,12 @@ public:
     The look of a QLabel can be tuned in several ways. All the
     settings of QFrame are available for specifying a widget frame.
     The positioning of the content within the QLabel widget area can
-    be tuned with setAlignment() and setIndent(). For example, this
-    code sets up a sunken panel with a two-line text in the bottom
-    right corner (both lines being flush with the right side of the
-    label):
+    be tuned with setAlignment() and setIndent(). Text content can
+    also wrap lines along word bounderies with setWordWrap(). For
+    example, this code sets up a sunken panel with a two-line text in
+    the bottom right corner (both lines being flush with the right
+    side of the label):
+
     \code
     QLabel *label = new QLabel(this);
     label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -312,36 +314,17 @@ void QLabel::setText(const QString &text)
 {
     if (d->ltext == text)
         return;
-#ifndef QT_NO_RICHTEXT
-    bool hadRichtext = d->doc != 0;
-#endif
     d->clearContents();
     d->ltext = text;
 #ifndef QT_NO_RICHTEXT
-    bool useRichText = (d->textformat == Qt::RichText ||
-      ((d->textformat == Qt::AutoText) && QText::mightBeRichText(d->ltext)));
-#else
-    bool useRichText = true;
-#endif
-#ifndef QT_NO_ACCEL
-    // ### Setting shortcuts for rich text labels will not work.
-    // Eg. <b>&gt;Hello</b> will return Qt::ALT+G which is clearly
-    // not intended.
-    if (!useRichText) {
-        releaseShortcut(d->shortcutId);
-        d->shortcutId = grabShortcut(QKeySequence::mnemonic(d->ltext));
-    }
-#endif
-#ifndef QT_NO_RICHTEXT
-    if (useRichText) {
-        if (!hadRichtext)
-            d->align |= Qt::TextWordBreak;
+    if (d->textformat == Qt::RichText
+        || ((d->textformat == Qt::AutoText) && QText::mightBeRichText(d->ltext))) {
         QString t = d->ltext;
         if (d->align & Qt::AlignRight)
             t.prepend("<div d->align=\"right\">");
         else if (d->align & Qt::AlignHCenter)
             t.prepend("<div d->align=\"center\">");
-        if ((d->align & Qt::TextWordBreak) == 0 )
+        if ((d->align & Qt::TextWordWrap) == 0 )
             t.prepend("<nobr>");
         d->doc = new QTextDocument();
         d->doc->setUndoRedoEnabled(false);
@@ -458,49 +441,50 @@ void QLabel::setNum(double num)
     \property QLabel::alignment
     \brief the alignment of the label's contents
 
-    The alignment is a bitwise OR of \c Qt::AlignmentFlag and \c
-    Qt::TextFlag values. The \c Qt::TextExpandTabs, \c Qt::TextSingleLine and \c
-    Qt::TextShowMnemonic flags apply only if the label contains plain text;
-    otherwise they are ignored. The \c Qt::TextDontClip flag is always
-    ignored. \c Qt::TextWordBreak applies to both rich text and plain text
-    labels. The \c Qt::TextBreakAnywhere flag is not supported in QLabel.
-
-    If the label has a buddy, the \c Qt::TextShowMnemonic flag is forced to
-    true.
-
-    The default alignment is \c{Qt::AlignAuto | Qt::AlignVCenter | Qt::TextExpandTabs}
-    if the label doesn't have a buddy and \c{Qt::AlignAuto | Qt::AlignVCenter
-    | Qt::TextExpandTabs | Qt::TextShowMnemonic} if the label has a buddy. If the label
-    contains rich text, additionally \c Qt::TextWordBreak is turned on.
-
-    \sa Qt::Alignment, alignment, setBuddy(), text
+    \sa text
 */
 
-void QLabel::setAlignment(int alignment)
+void QLabel::setAlignment(Qt::Alignment alignment)
 {
-    if (alignment == d->align)
+    if (alignment == d->align & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask))
         return;
-#ifndef QT_NO_ACCEL
-    if (d->lbuddy)
-        d->align = alignment | Qt::TextShowMnemonic;
-    else
-#endif
-        d->align = alignment;
-
-#ifndef QT_NO_RICHTEXT
-    QString t = d->ltext;
-    if (!t.isNull()) {
-        d->ltext = QString::null;
-        setText(t);
-    }
-#endif
+    d->align = (d->align & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask))
+               | (alignment & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask));
 
     d->updateLabel();
 }
 
-int QLabel::alignment() const
+#ifdef QT_COMPAT
+void QLabel::setAlignment(int alignment)
 {
-    return d->align;
+    d->align = alignment & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask);
+#ifndef QT_NO_ACCEL
+    if (d->lbuddy)
+        d->align |= Qt::TextShowMnemonic;
+#endif
+    setAlignment(Qt::Alignment(QFlag(alignment)));
+}
+#endif
+
+Qt::Alignment QLabel::alignment() const
+{
+    return QFlag(d->align & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask));
+}
+
+
+void QLabel::setWordWrap(bool on)
+{
+    if (on)
+        d->align |= Qt::TextWordWrap;
+    else
+        d->align &= ~Qt::TextWordWrap;
+
+    d->updateLabel();
+}
+
+bool QLabel::wordWrap() const
+{
+    return d->align & Qt::TextWordWrap;
 }
 
 /*!
@@ -610,7 +594,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
         Q_ASSERT(layout);
         int oldW = layout->pageSize().width();
-        if (d->align & Qt::TextWordBreak) {
+        if (d->align & Qt::TextWordWrap) {
             if (w < 0)
                 layout->adjustSize();
             else
@@ -621,7 +605,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
     }
 #endif
     else {
-        bool tryWidth = (w < 0) && (d->align & Qt::TextWordBreak);
+        bool tryWidth = (w < 0) && (d->align & Qt::TextWordWrap);
         if (tryWidth)
             w = xw * 80;
         else if (w < 0)
@@ -651,7 +635,7 @@ int QLabel::heightForWidth(int w) const
 #ifndef QT_NO_RICHTEXT
         d->doc ||
 #endif
-        (d->align & Qt::TextWordBreak))
+        (d->align & Qt::TextWordWrap))
         return d->sizeForWidth(w).height();
     return QWidget::heightForWidth(w);
 }
@@ -685,7 +669,7 @@ QSize QLabel::minimumSizeHint() const
 #ifndef QT_NO_RICHTEXT
          !d->doc &&
 #endif
-         (d->align & Qt::TextWordBreak) == 0) {
+         (d->align & Qt::TextWordWrap) == 0) {
         sz = d->sh;
     } else {
         // think about caching these for performance
@@ -709,7 +693,19 @@ bool QLabel::event(QEvent *e)
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
-            mnemonicSlot();
+            if (d->lbuddy) {
+                QWidget * w = d->lbuddy;
+                while (w->focusProxy())
+                    w = w->focusProxy();
+                if (!w->hasFocus() &&
+                    w->isEnabled() &&
+                    w->isVisible() &&
+                    w->focusPolicy() != Qt::NoFocus) {
+                    QFocusEvent::setReason(QFocusEvent::Shortcut);
+                    w->setFocus();
+                    QFocusEvent::resetReason();
+                }
+            }
             return true;
         }
     }
@@ -865,38 +861,21 @@ void QLabelPrivate::updateLabel()
 {
     valid_hints = false;
     QSizePolicy policy = q->sizePolicy();
-    bool wordBreak = align & Qt::TextWordBreak;
-    policy.setHeightForWidth(wordBreak);
+    bool wordWrap = align & Qt::TextWordWrap;
+    policy.setHeightForWidth(wordWrap);
     if (policy != q->sizePolicy())
         q->setSizePolicy(policy);
+    q->releaseShortcut(shortcutId);
+    if (lbuddy
+#ifndef QT_NO_RICHTEXT
+        && !doc
+#endif
+        )
+        shortcutId = q->grabShortcut(QKeySequence::mnemonic(ltext));
+
     q->updateGeometry();
     q->update(q->contentsRect());
 }
-
-
-/*!
-  \internal
-
-  Internal slot, used to set focus for shortcut labels.
-*/
-#ifndef QT_NO_ACCEL
-void QLabel::mnemonicSlot()
-{
-    if (!d->lbuddy)
-        return;
-    QWidget * w = d->lbuddy;
-    while (w->focusProxy())
-        w = w->focusProxy();
-    if (!w->hasFocus() &&
-         w->isEnabled() &&
-         w->isVisible() &&
-         w->focusPolicy() != Qt::NoFocus) {
-        QFocusEvent::setReason(QFocusEvent::Shortcut);
-        w->setFocus();
-        QFocusEvent::resetReason();
-    }
-}
-#endif
 
 /*!
     Sets this label's buddy to \a buddy.
@@ -936,14 +915,13 @@ void QLabel::mnemonicSlot()
 void QLabel::setBuddy(QWidget *buddy)
 {
     if (buddy)
-        setAlignment(alignment() | Qt::TextShowMnemonic);
+        d->align |= Qt::TextShowMnemonic;
     else
-        setAlignment(alignment() & ~Qt::TextShowMnemonic);
+        d->align &= ~Qt::TextShowMnemonic;
 
     d->lbuddy = buddy;
 
-    if (!d->lbuddy)
-        return;
+    d->updateLabel();
 }
 
 

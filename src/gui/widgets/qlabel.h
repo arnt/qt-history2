@@ -31,19 +31,13 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
     Q_PROPERTY(bool scaledContents READ hasScaledContents WRITE setScaledContents)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
     Q_DECLARE_PRIVATE(QLabel)
 
 public:
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QLabel(const QString &text, QWidget *parent, const char* name,
-           Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *buddy, const QString &,
-           QWidget *parent=0, const char* name=0, Qt::WFlags f=0);
-#endif
     QLabel(QWidget *parent=0, Qt::WFlags f=0);
     QLabel(const QString &text, QWidget *parent=0, Qt::WFlags f=0);
     ~QLabel();
@@ -60,8 +54,11 @@ public:
     Qt::TextFormat textFormat() const;
     void setTextFormat(Qt::TextFormat);
 
-    int alignment() const;
-    void setAlignment(int);
+    Qt::Alignment alignment() const;
+    void setAlignment(Qt::Alignment);
+
+    void setWordWrap(bool on);
+    bool wordWrap() const;
 
     int indent() const;
     void setIndent(int);
@@ -100,12 +97,18 @@ protected:
     void changeEvent(QEvent *);
 
 private slots:
-#ifndef QT_NO_ACCEL
-    void mnemonicSlot();
-#endif
 #ifndef QT_NO_MOVIE
     void movieUpdated(const QRect&);
     void movieResized(const QSize&);
+#endif
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR QLabel(const QString &text, QWidget *parent, const char* name,
+           Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *buddy, const QString &,
+           QWidget *parent=0, const char* name=0, Qt::WFlags f=0);
+    void setAlignment(int alignment);
 #endif
 
 private: // Disabled copy constructor and operator=

@@ -122,8 +122,8 @@ public:
         TextDontClip = 0x0100,
         TextExpandTabs = 0x0200,
         TextShowMnemonic = 0x0400,
-        TextWordBreak = 0x0800,
-        TextBreakAnywhere = 0x1000,
+        TextWordWrap = 0x0800,
+        TextWrapAnywhere = 0x1000,
 #ifndef Q_QDOC
         TextDontPrint = 0x2000,
         TextUnderline = 0x01000000,
@@ -138,8 +138,8 @@ public:
         DontClip = TextDontClip,
         ExpandTabs = TextExpandTabs,
         ShowPrefix = TextShowMnemonic,
-        WordBreak = TextWordBreak,
-        BreakAnywhere = TextBreakAnywhere,
+        WordBreak = TextWordWrap,
+        BreakAnywhere = TextWrapAnywhere,
 #ifndef Q_QDOC
         DontPrint = TextDontPrint,
         Underline = TextUnderline,

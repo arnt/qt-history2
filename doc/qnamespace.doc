@@ -171,21 +171,6 @@
 */
 
 /*!
-    \enum Qt::StringComparisonFlags
-
-    Many Qt string functions accept a StringComparisonFlags argument
-    which can be the OR of these values. (A flag value of 0 signifies
-    a case-insensitive match anywhere in the string.)
-
-    \value IgnoreCase The strings are compared case-insensitively.
-    \value ExactMatch The strings must be the same apart from case, or
-    exactly the same if CaseSensitive is also used.
-    \value BeginsWith The target string starts with the given string.
-    \value EndsWith The target string ends with the given string.
-
-*/
-
-/*!
     \enum Qt::TextFlags
 
     This enum type is used to define some modifier flags. Some of

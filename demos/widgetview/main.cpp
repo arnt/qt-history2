@@ -56,7 +56,7 @@ int main( int argc, char ** argv ) {
 
     QLabel * label = new QLabel(view->widget());
     label->setPalette(Qt::yellow);
-    label->setAlignment(Qt::AlignCenter | Qt::TextWordBreak);
+    label->setWordWrap(true);
     label->setText(
         "This is an example for QWidgetView. "
         "It shows that you can have Qt widgets that exceed the "

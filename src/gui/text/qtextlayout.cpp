@@ -1023,7 +1023,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 
     Q_ASSERT(line.from < eng->string.length());
 
-    bool breakany = eng->textFlags & Qt::TextBreakAnywhere;
+    bool breakany = eng->textFlags & Qt::TextWrapAnywhere;
 
     // #### binary search!
     int item;

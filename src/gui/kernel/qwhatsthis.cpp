@@ -198,7 +198,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
 
         r = fontMetrics().boundingRect(0, 0, sw, 1000,
                                         Qt::AlignAuto + Qt::AlignTop
-                                        + Qt::TextWordBreak + Qt::TextExpandTabs,
+                                        + Qt::TextWordWrap + Qt::TextExpandTabs,
                                         text);
     }
 #if defined(Q_WS_WIN)
@@ -330,7 +330,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     else
 #endif
     {
-        p.drawText(r, Qt::AlignAuto + Qt::AlignTop + Qt::TextWordBreak + Qt::TextExpandTabs, text);
+        p.drawText(r, Qt::AlignAuto + Qt::AlignTop + Qt::TextWordWrap + Qt::TextExpandTabs, text);
     }
 }
 

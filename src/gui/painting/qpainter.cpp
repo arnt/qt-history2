@@ -3315,7 +3315,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
     QRect r(_r);
 
     bool dontclip  = (tf & Qt::TextDontClip);
-    bool wordbreak  = (tf & Qt::TextWordBreak);
+    bool wordwrap  = (tf & Qt::TextWordWrap);
     bool singleline = (tf & Qt::TextSingleLine);
     bool showmnemonic = (tf & Qt::TextShowMnemonic);
     bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
@@ -3412,8 +3412,8 @@ void qt_format_text(const QFont& font, const QRect &_r,
         width = 0;
         tf |= Qt::TextDontPrint;
     } else {
-        int lineWidth = wordbreak ? qMax(0, r.width()) : 0x01000000;
-        if(!wordbreak)
+        int lineWidth = wordwrap ? qMax(0, r.width()) : 0x01000000;
+        if(!wordwrap)
             tf |= Qt::TextIncludeTrailingSpaces;
         textLayout.beginLayout((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
 
