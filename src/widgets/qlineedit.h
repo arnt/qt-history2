@@ -221,10 +221,6 @@ private:
     void delOrBackspace( bool backspace );
     // mask functions
     void parseMaskFields( const QString & );
-    int nextSeparator( uint pos ) const;
-    int nextSeparator( uint pos, QChar sep ) const;
-    int nextBlank( uint pos ) const;
-    int prevBlank( uint pos ) const;
     bool isValidInput( QChar key, QChar mask ) const;
     QString maskString( uint pos, const QString &str, bool clear = FALSE ) const;
     QString clearString( uint pos, uint len ) const;

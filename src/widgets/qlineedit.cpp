@@ -202,6 +202,28 @@ struct QLineEditPrivate {
 	}
     }
 
+    /* searches forward/backward in maskData for either a separator or a blank */
+    int findInMask( int pos, bool forward, bool findSeparator, ushort sep = 0 ) {
+	if ( pos >= maxLen || pos < 0 )
+	    return -1;
+
+	int end = forward ? maxLen : -1;
+	int step = forward ? 1 : -1;
+	int i = pos;
+
+	while ( i != end ) {
+	    if ( findSeparator ) {
+		if ( maskData[ i ].separator && maskData[ i ].maskChar == sep )
+		    return i;
+	    } else {
+		if ( !maskData[ i ].separator )
+		    return i;
+	    }
+	    i += step;
+	}
+	return -1;
+    }
+
     bool readonly : 1;
     bool cursorOn : 1;
     bool inDoubleClick : 1;
@@ -2663,7 +2685,7 @@ void QLineEdit::delOrBackspace( bool backspace )
 
 	if ( backspace ) {
 	    if ( d->maskData && ( oldPos > 0 ) )
-		newPos = prevBlank( oldPos-1 );
+		newPos = d->findInMask( oldPos-1, FALSE, FALSE );
 	    else
 		newPos--;
 	}
@@ -2834,74 +2856,6 @@ void QLineEdit::parseMaskFields( const QString &maskFields )
     setText( clearString( 0, d->maxLen ) );
 }
 
-
-/*
-  Finds position of next separator (inclusive).
-  Calling this when no inputMask is set is undefined.
-*/
-int QLineEdit::nextSeparator( uint pos ) const
-{
-    if ( pos >= (uint)d->maxLen )
-	return -1;
-
-    for ( int i=pos; i < d->maxLen; i++ ) {
-	if ( d->maskData[ i ].separator )
-	    return i;
-    }
-    return -1;
-}
-
-/*
-  Finds position of next separator of the specified char.
-  Calling this when no inputMask is set is undefined.
-*/
-int QLineEdit::nextSeparator( uint pos, QChar sep ) const
-{
-    if ( pos >= (uint)d->maxLen )
-	return -1;
-
-    int p = nextSeparator( pos );
-    if ( p == -1 )
-	return -1;
-
-    if ( d->maskData[ p ].maskChar == sep.unicode() )
-	return p;
-    else
-	return nextSeparator( p + 1, sep );
-}
-
-/*
-  Finds position of next blank (inclusive)
-  Calling this when no inputMask is set is undefined.
-*/
-int QLineEdit::nextBlank( uint pos ) const
-{
-    if ( pos >= (uint)d->maxLen )
-	return -1;
-
-    for ( int i=pos; i < d->maxLen; i++) {
-	if ( !d->maskData[ i ].separator )
-	    return i;
-    }
-    return -1;
-}
-
-/*
-  Finds position of previous blank (inclusive)
-  Calling this when no inputMask is set is undefined.
-*/
-int QLineEdit::prevBlank( uint pos ) const
-{
-    if ( pos >= (uint)d->maxLen )
-	return -1;
-
-    for ( int i=pos; i >= 0; i--) {
-	if ( !d->maskData[ i ].separator )
-	    return i;
-    }
-    return -1;
-}
-
 /* checks if the key is valid compared to the inputMask */
 bool QLineEdit::isValidInput(QChar key, QChar mask) const
 {
@@ -2988,7 +2942,7 @@ QString QLineEdit::maskString( uint pos, const QString &str, bool clear) const
 			s += str[(int)strIndex];
 		    }
 		} else {
-		    int n = nextSeparator( i, str[(int)strIndex] );
+		    int n = d->findInMask( i, TRUE, TRUE, str[(int)strIndex].unicode() );
 		    if (n != -1 ) {
 			s += t1.mid( i, n-i+1 );
 			i = n; // updates new pos since we might have advanced more then one char
@@ -3027,7 +2981,7 @@ QString QLineEdit::clearString( uint pos, uint len ) const
 }
 
 /*
-  Strips blank parts of the input in a QLineEdit when a inputMask is set,
+  Strips blank parts of the input in a QLineEdit when an inputMask is set,
   separators are still included. Typically "127.0__.0__.1__" becomes "127.0.0.1".
 */
 QString QLineEdit::stripString( const QString &str ) const
@@ -3183,7 +3137,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
     // check if the nextblank is the current char, otherwise jump to blank one
     if ( d->maskData ) {
-	int nb = nextBlank( newPos );
+	int nb = d->findInMask( newPos, TRUE, FALSE );
 	if ( nb != -1 && nb != newPos)
 	    d->cursor->setIndex( nb );
     }
