@@ -1,0 +1,59 @@
+/****************************************************************************
+** Interface definition generated for ActiveQt project
+**
+**     'C:\depot\qt\3.3\extensions\activeqt\tools\testcon\testcon.exe'
+**
+** Created:  Fr 31. Okt 15:33:50 2003
+**
+** WARNING! All changes made in this file will be lost!
+****************************************************************************/
+
+import "ocidl.idl";
+#include <olectl.h>
+
+[
+	uuid(4A43E44D-9D1D-47E5-A1E5-58FE6F7BE0A4),
+	version(1.0),
+	helpstring("testcon 1.0 Type Library")
+]
+library testconLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(3FC86F5F-8B15-4428-8F6B-482BAE91F1AE),
+		helpstring("MainWindow Interface")
+	]
+	dispinterface IMainWindow
+	{
+	properties:
+	methods:
+		[id(1)] void changeProperties();
+		[id(2)] void clearControl();
+		[id(3)] void containerProperties();
+		[id(4)] void invokeMethods();
+		[id(5)] void logPropertyChanged( [in] BSTR p_prop);
+		[id(6)] void logException( [in] int p_code,  [in] BSTR p_source_,  [in] BSTR p_desc,  [in] BSTR p_help);
+		[id(7)] void logMacro( [in] int p_code,  [in] BSTR p_description,  [in] int p_sourcePosition,  [in] BSTR p_sourceText);
+		[id(8)] void setControl();
+		[id(9)] void controlInfo();
+		[id(10)] void fileLoad();
+		[id(11)] void fileSave();
+		[id(12)] void fileNew();
+		[id(13)] void showDocumentation();
+		[id(14)] void renderPixmap();
+		[id(15)] void runMacro();
+		[id(16)] void loadScript();
+	};
+
+	[
+		aggregatable,
+		helpstring("MainWindow Class"),
+		uuid(5F5CE700-48A8-47B1-9B06-3B7F79E41D7C)
+	]
+	coclass MainWindow
+	{
+		[default] dispinterface IMainWindow;
+	};
+};
