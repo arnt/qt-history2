@@ -14,12 +14,14 @@
 #include "newform.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
+#include "qdesigner_settings.h"
 
 #include <qdesigner_formbuilder.h>
 #include <sheet_delegate.h>
 
 #include <abstractformwindow.h>
 
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QHeaderView>
@@ -56,8 +58,13 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
         item->setData(0, TemplateNameRole, formTemplateName);
         item->setIcon(0, formPreviewIcon(formTemplateName));
     }
+    QDesignerSettings settings;
+    foreach(QString path, settings.formTemplatePaths())
+        loadFrom(path);
 
     ui.treeWidget->setItemExpanded(trolltech, true);
+    ui.closeButton->setDefault(false);
+    ui.createButton->setDefault(true);
 }
 
 NewForm::~NewForm()
@@ -120,8 +127,28 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
         return pix;
     }
-
     return QIcon();
 }
 
+void NewForm::loadFrom(const QString &path)
+{
+    if (!QFile::exists(path))
+        return;
+    // Iterate through the directory and add the templates
+    QDir dir(path);
+    QFileInfoList list = dir.entryInfoList(QDir::Files);
+    if (list.isEmpty())
+        return;
+
+    QTreeWidgetItem *root = new QTreeWidgetItem(ui.treeWidget);
+    root->setText(0, path);
+    QTreeWidgetItem *item;
+    foreach(QFileInfo fi, list) {
+        item = new QTreeWidgetItem(root);
+        item->setText(0, fi.baseName());
+        item->setData(0, TemplateNameRole, fi.absoluteFilePath());
+        item->setIcon(0, formPreviewIcon(fi.absoluteFilePath()));
+    }
+    ui.treeWidget->setItemExpanded(root, true);
+}
 

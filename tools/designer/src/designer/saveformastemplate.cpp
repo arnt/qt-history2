@@ -20,7 +20,7 @@
 #include <abstractformwindow.h>
 
 SaveFormAsTemplate::SaveFormAsTemplate(AbstractFormWindow *formWindow, QWidget *parent)
-    : QDialog(parent),
+    : QDialog(parent, Qt::Sheet),
       m_formWindow(formWindow)
 {
     ui.setupUi(this);
@@ -43,9 +43,7 @@ SaveFormAsTemplate::~SaveFormAsTemplate()
 
 void SaveFormAsTemplate::on_okButton_clicked()
 {
-    QString templateFileName = ui.categoryCombo->currentText() + QLatin1Char('/')
-                                    + ui.templateNameEdit->text()
-                                    + QLatin1String("_template.ui");
+    QString templateFileName = ui.categoryCombo->currentText() + QLatin1Char('/') + ui.templateNameEdit->text();
     QFile file(templateFileName);
     if (file.exists()) {
         if (QMessageBox::information(m_formWindow, tr("Template Exists"),
