@@ -62,7 +62,7 @@ private slots:
 private:
     QGuardedCleanupHandler<QAction> actions;
     QActionGroup *styleGroup;
-    QSignalMapper styleMapper;
+    QSignalMapper *styleMapper;
 
     TestThread* thread;
     QDialog* dialog;
@@ -70,9 +70,8 @@ private:
 };
 
 TestInterface::TestInterface( QUnknownInterface *parent, const char *name )
-: ActionInterface( parent, name ), styleMapper( this ), thread( 0 ), dialog( 0 )
+: ActionInterface( parent, name ), styleMapper( 0 ), thread( 0 ), dialog( 0 )
 {
-    connect( &styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( setStyle( const QString& ) ) );
 }
 
 TestInterface::~TestInterface()
@@ -142,12 +141,17 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 	QStringList list = QStyleFactory::styles();
 	list.sort();
 
+	if ( !styleMapper ) {
+	    styleMapper = new QSignalMapper( this );
+	    connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( setStyle( const QString& ) ) );
+	}
+
 	QAction *a;
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	    QString style = *it;
 	    a = new QAction( style, QIconSet(), "&"+style, 0, ag, 0, ag->isExclusive() );
-	    connect( a, SIGNAL( activated() ), &styleMapper, SLOT(map()) );
-	    styleMapper.setMapping( a, a->text() );
+	    connect( a, SIGNAL( activated() ), styleMapper, SLOT(map()) );
+	    styleMapper->setMapping( a, a->text() );
 	}
 
 	actions.add( ag );
