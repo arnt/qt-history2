@@ -24,7 +24,6 @@
 #define BORDER_WIDTH  4
 #define BOTTOM_BORDER_WIDTH BORDER_WIDTH
 
-
 class QDecorationDefault : public QDecoration
 {
 public:
@@ -36,6 +35,8 @@ public:
                        DecorationState state = Normal);
 
 protected:
+    virtual void paintButton(QPainter *painter, const QWidget *widget, int buttonRegion,
+                             DecorationState state, const QPalette &pal);
     virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, bool on, int &xoff,
                               int &yoff);
 
@@ -43,23 +44,21 @@ protected:
     virtual int getTitleWidth(const QWidget *widget);
     virtual int getTitleHeight(const QWidget *widget);
 
-#ifndef QT_NO_IMAGEIO_XPM
     virtual const char **helpPixmap();
     virtual const char **menuPixmap();
     virtual const char **closePixmap();
     virtual const char **minimizePixmap();
     virtual const char **maximizePixmap();
     virtual const char **normalizePixmap();
-#endif
 
 private:
 
-    static QPixmap * staticHelpPixmap;
-    static QPixmap * staticMenuPixmap;
-    static QPixmap * staticClosePixmap;
-    static QPixmap * staticMinimizePixmap;
-    static QPixmap * staticMaximizePixmap;
-    static QPixmap * staticNormalizePixmap;
+    static QPixmap *staticHelpPixmap;
+    static QPixmap *staticMenuPixmap;
+    static QPixmap *staticClosePixmap;
+    static QPixmap *staticMinimizePixmap;
+    static QPixmap *staticMaximizePixmap;
+    static QPixmap *staticNormalizePixmap;
 
 };
 #endif // QT_NO_QWS_DECORATION_DEFAULT
