@@ -58,7 +58,7 @@ PimEditor::PimEditor(QWidget *parent)
     grid->addWidget(cancelButton, 8, 0, 1, 2);
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(cancel()));
 
-    grid->setResizeMode(QLayout::Fixed);
+    grid->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 PimEditor::~PimEditor()
