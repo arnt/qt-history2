@@ -18,6 +18,7 @@
 
 #include "qapplication.h"
 #include "qapplication_p.h"
+#include "qeventloop.h"
 #include "qwidget.h"
 #include "qevent.h"
 #include "qpixmap.h"
@@ -462,11 +463,12 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
 		for (int j = 0; j < c->countCf(); j++) {
 		    UINT cf = c->cf(j);
 		    if ( c->canConvert(mime,cf) ) {
-			if ( !qApp || !qApp->loopLevel() ) { // write now if we can't process data requests
-			    setClipboardData( cf, mime, c, src );
-			} else {
+#ifndef Q_OS_TEMP
+			if ( qApp && qApp->eventLoop()->loopLevel() )
 			    SetClipboardData( cf, 0 ); // 0 == ask me later
-			}
+			else // write now if we can't process data requests
+#endif
+			    setClipboardData( cf, mime, c, src );
 		    }
 		}
 	    }
