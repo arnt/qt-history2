@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#4 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#4 $";
 #endif
 
 
@@ -40,6 +40,8 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
 
 QButtonGroup::~QButtonGroup()
 {
+    for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
+	i->button->inGroup = 0;
     delete buttons;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#15 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#15 $";
 #endif
 
 
@@ -37,8 +37,9 @@ QButton::QButton( QWidget *parent, const char *name ) : QWidget( parent, name )
 
 QButton::~QButton()
 {
-    if ( inGroup )				// remove from buttongrp parent
-	((QButtonGroup*)parent())->remove( this );
+    QButtonGroup *p = (QButtonGroup *)parent();
+    if ( inGroup && p )				// remove from buttongrp parent
+	p->remove( this );
 }
 
 
