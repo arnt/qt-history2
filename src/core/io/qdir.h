@@ -86,9 +86,11 @@ public:
     bool cdUp();
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT QString nameFilter() const { return nameFilts.join(" "); }
+    inline QT_COMPAT QString nameFilter() const 
+    { return nameFilts.join(QString(filterSepChar)); }
 #ifndef QT_NO_REGEXP
-    inline QT_COMPAT void setNameFilter(const QString &nameFilter) { setNameFilters(nameFilter); }
+    inline QT_COMPAT void setNameFilter(const QString &nameFilter) 
+    { filterSepChar = getFilterSepChar(nameFilter); setNameFilters(nameFilter.split(filterSepChar)); }
 #endif
 #endif
     QStringList nameFilters() const;
@@ -99,42 +101,30 @@ public:
     SortSpec sorting() const;
     void setSorting(int sortSpec);
 
-    bool        matchAllDirs() const;
+    bool matchAllDirs() const;
     void setMatchAllDirs(bool);
 
     uint count() const;
-    QString        operator[](int) const;
+    QString operator[](int) const;
 
     QStringList entryList(int filterSpec = DefaultFilter,
-                                   int sortSpec   = DefaultSort ) const;
+                          int sortSpec = DefaultSort) const;
 #ifdef QT_COMPAT
     inline QT_COMPAT QStringList entryList(const QString &nameFilter,
                                            int filterSpec = DefaultFilter,
                                            int sortSpec = DefaultSort) const
-    {
-        QChar sep(';');
-        int i = nameFilter.indexOf(sep, 0);
-        if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
-            sep = QChar(' ');
-        return entryList(nameFilter.split(sep), filterSpec, sortSpec);
-    }
+    { return entryList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec); }
 #endif
     QStringList entryList(const QStringList &nameFilters, int filterSpec = DefaultFilter, 
                           int sortSpec = DefaultSort) const;
 
     QFileInfoList entryInfoList(int filterSpec = DefaultFilter,
-                                                int sortSpec = DefaultSort) const;
+                                int sortSpec = DefaultSort) const;
 #ifdef QT_COMPAT
     inline QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter,
                                                  int filterSpec = DefaultFilter,
                                                  int sortSpec = DefaultSort) const
-    {     
-        QChar sep(';');
-        int i = nameFilter.indexOf(sep, 0);
-        if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
-            sep = QChar(' ');
-        return entryInfoList(nameFilter.split(sep), filterSpec, sortSpec);
-    }
+    { return entryInfoList(nameFilter.split(getFilterSepChar(nameFilter)), filterSpec, sortSpec); }
 #endif
     QFileInfoList entryInfoList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
                                 int sortSpec = DefaultSort) const;
@@ -142,13 +132,13 @@ public:
     static QFileInfoList drives();
 
     bool mkdir(const QString &dirName,
-                        bool acceptAbsPath = true) const;
+               bool acceptAbsPath = true) const;
     bool rmdir(const QString &dirName,
-                        bool acceptAbsPath = true) const;
+               bool acceptAbsPath = true) const;
 
     bool isReadable() const;
-    bool exists()   const;
-    bool isRoot()   const;
+    bool exists() const;
+    bool isRoot() const;
 
     bool isRelative() const;
     void convertToAbs();
@@ -156,12 +146,9 @@ public:
     bool operator==(const QDir &) const;
     bool operator!=(const QDir &) const;
 
-    bool remove(const QString &fileName,
-                         bool acceptAbsPath = true);
-    bool rename(const QString &name, const QString &newName,
-                         bool acceptAbsPaths = true );
-    bool exists(const QString &name,
-                         bool acceptAbsPath = true) const;
+    bool remove(const QString &fileName, bool acceptAbsPath = true);
+    bool rename(const QString &name, const QString &newName, bool acceptAbsPaths = true);
+    bool exists(const QString &name, bool acceptAbsPath = true) const;
 
     static char separator();
 
@@ -189,7 +176,17 @@ private:
     void init();
     void readDirEntries(const QStringList &nameFilters,
                         int FilterSpec, int SortSpec) const;
-
+#ifdef QT_COMPAT
+    inline QT_COMPAT QChar getFilterSepChar(const QString &nameFilter) const
+    {
+        QChar sep(';');
+        int i = nameFilter.indexOf(sep, 0);
+        if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
+            sep = QChar(' ');
+        return sep;
+    }
+    QChar filterSepChar;
+#endif
     static void slashify(QString &);
 
     QString dPath;
