@@ -264,7 +264,7 @@ protected:
 	    return;
 	mouseMoveEvent( e );
 	pressedHandle = -1;
-	
+
 	if ( e->button() == RightButton && win->isDockMenuEnabled() ) {
 	    qDebug( "todo: hidedock menu" );
 	} else {
@@ -360,11 +360,11 @@ protected:
 		break;
 	    }
 	}
-	
+
 	if ( visible )
 	    show();
 	else
-	    hide();	
+	    hide();
 	win->triggerLayout( FALSE );
 	update();
     }
@@ -735,7 +735,7 @@ QStatusBar * QMainWindow::statusBar() const
     }
     delete l;
     ((QMainWindow *)this)->setStatusBar( s );
-    triggerLayout( TRUE );
+    ((QMainWindow *)this)->triggerLayout( TRUE );
     return s;
 }
 
@@ -1206,7 +1206,7 @@ bool QMainWindow::event( QEvent * e )
 	d->mc->removeEventFilter( this );
 	d->mc = 0;
     }
-	
+
     return QWidget::event( e );
 }
 
