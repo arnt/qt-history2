@@ -65,6 +65,9 @@ public:
     void setTearOffEnabled(bool);
     bool isTearOffEnabled() const;
 
+    bool isTearOffMenuVisible() const;
+    void hideTearOffMenu();
+
     void setDefaultAction(QAction *);
     QAction *defaultAction() const;
 

@@ -931,6 +931,32 @@ bool QMenu::isTearOffEnabled() const
 }
 
 /*!
+  When a menu is torn off a second menu is shown to display the menu
+  contents in a new window. When the menu is in this mode and the menu
+  is visible returns true; otherwise false.
+
+  \sa hideTearOffMenu() isTearOffEnabled()
+*/
+bool QMenu::isTearOffMenuVisible() const
+{
+    if(d->tornPopup)
+        return d->tornPopup->isVisible();
+    return false;
+}
+
+/*!
+   This function will forcibly hide the torn off menu making it
+   disappear from the users desktop.
+
+   \sa isTearOffMenuVisible() isTearOffEnabled()
+*/
+void QMenu::hideTearOffMenu()
+{
+    if(d->tornPopup)
+        d->tornPopup->close();
+}
+
+/*!
     \property QMenu::checkable
     \brief whether the display of check marks on menu items is enabled
 
