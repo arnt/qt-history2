@@ -5,7 +5,7 @@
 **
 ** Created : 0108007
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -219,7 +219,7 @@ QKeySequence::QKeySequence( int key )
 }
 
 /*!
-    Constructs a key sequence with upto 4 keys \a k1, \a k2,
+    Constructs a key sequence with up to 4 keys \a k1, \a k2,
     \a k3 and \a k4.
 
     The key codes are listed in \c{qnamespace.h} and can be
