@@ -1218,6 +1218,7 @@ void TrWindow::openFile( const QString& name )
 	    numFinished = 0;
 	    numNonobsolete = 0;
 	    numMessages = 0;
+	    foundScope = 0;
 
 	    TML all = tor.messages();
 	    TML::Iterator it;
