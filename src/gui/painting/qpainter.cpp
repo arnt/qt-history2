@@ -1343,7 +1343,7 @@ void QPainter::translate(double dx, double dy)
 
     The clip path is specified in logical (painter) coordinates.
 
-
+    \warning This function is not yet implemented.
 */
 void QPainter::setClipPath(const QPainterPath &path)
 {
