@@ -20,9 +20,9 @@
  * class QLine
  *******************************************************************************/
 
-class Q_CORE_EXPORT QLine {
+class Q_CORE_EXPORT QLine
+{
 public:
-
     inline QLine();
     inline QLine(const QPoint &pt1, const QPoint &pt2);
     inline QLine(int x1, int y1, int x2, int y2);
@@ -40,8 +40,6 @@ public:
 
     inline int dx() const;
     inline int dy() const;
-
-    int manhattanLenth();
 
     inline void translate(const QPoint &p);
     inline void translate(int dx, int dy);
