@@ -181,8 +181,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     var = UN_TMAKEIFY(var.stripWhiteSpace()); //backwards compatability
 
     QStringList vallist;  /* vallist is the broken up list of values */
-    qDebug("**** %s ***** ", vals.latin1());
-    QRegExp quoted("[^\\\\]\"([^\"]*[^\\\\])\"");
+    QRegExp quoted("[^\\\\](\"[^\"]*[^\\\\]\")");
     for(int x = 0; (x = quoted.search(vals, x)) != -1; ) {
 	vallist += QStringList::split(' ', vals.left(x));
 	vallist.append(quoted.cap(1));
