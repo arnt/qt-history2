@@ -512,4 +512,40 @@ also check out how this is done in the SQL plugins that is provided
 with Qt in \c{QTDIR/plugins/src/sqldrivers} and
 \c{QTDIR/src/sql/drivers}.
 
+The following code can be used as a skeleton for a SQL driver:
+
+\code
+class QNullResult : public QSqlResult
+{
+public:
+    QNullResult( const QSqlDriver* d ): QSqlResult( d ) {}
+    ~QNullResult() {}
+protected:
+    QVariant    data( int ) { return QVariant(); }
+    bool        reset ( const QString& ) { return FALSE; }
+    bool        fetch( int ) { return FALSE; }
+    bool        fetchFirst() { return FALSE; }
+    bool        fetchLast() { return FALSE; }
+    bool        isNull( int ) { return FALSE; }
+    QSqlRecord  record() { return QSqlRecord(); }
+    int         size()  { return 0; }
+    int         numRowsAffected() { return 0; }
+};
+
+class QNullDriver : public QSqlDriver
+{
+public:
+    QNullDriver(): QSqlDriver() {}
+    ~QNullDriver() {}
+    bool    hasFeature( DriverFeature ) const { return FALSE; }
+    bool    open( const QString&,
+                  const QString&,
+                  const QString&,
+                  const QString&,
+                  int ) { return FALSE; }
+    void    close() {}
+    QSqlQuery createQuery() const { return QSqlQuery( new QNullResult( this ) ); }
+};
+\endcode
+
 */
