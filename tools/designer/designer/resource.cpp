@@ -1128,7 +1128,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 
 void Resource::createColumn( const QDomElement &e, QWidget *widget )
 {
-    if ( widget->inherits( "QListView" ) ) {
+    if ( widget->inherits( "QListView" ) && e.tagName() == "column" ) {
 	QListView *lv = (QListView*)widget;
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;

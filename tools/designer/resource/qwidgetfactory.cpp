@@ -1019,7 +1019,7 @@ void QWidgetFactory::loadTabOrder( const QDomElement &e )
 
 void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 {
-    if ( widget->inherits( "QListView" ) ) {
+    if ( widget->inherits( "QListView" ) && e.tagName() == "column" ) {
 	QListView *lv = (QListView*)widget;
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
