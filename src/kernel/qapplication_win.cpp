@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#107 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#107 $");
 
 
 /*****************************************************************************
@@ -762,14 +762,8 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
     } else {					// disable notifier
 	if ( dict == 0 )
 	    return FALSE;
-	if ( dict->remove(sockfd) ) {		// found and removed fd
-	    if ( dict->isEmpty() ) {		// no more notifiers
-		delete dict;			// delete dict
-		*sn_vec[type] = 0;
-	    }
-	} else {
+	if ( !dict->remove(sockfd) )		// did not find sockfd
 	    return FALSE;
-	}
     }
     int sn_event = 0;
     if ( sn_read && sn_read->find(sockfd) )
