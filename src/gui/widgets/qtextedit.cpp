@@ -1226,10 +1226,12 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
     if (!d->mousePressed)
         return;
 
-    if (d->mightStartDrag
-        && (ev->globalPos() - d->dragStartPos).manhattanLength() > QApplication::startDragDistance()) {
+    if (d->mightStartDrag) {
         d->dragStartTimer.stop();
-        d->startDrag();
+
+        if ((ev->globalPos() - d->dragStartPos).manhattanLength() > QApplication::startDragDistance())
+            d->startDrag();
+
         return;
     }
 
