@@ -93,21 +93,19 @@ QSql::QSql( QSqlResult * r )
     d = new QSqlResultShared( r );
 }
 
-/*!
-    Creates a QSql object which uses database \a databaseName.
+/*!  
+  
+  Creates a QSql object using the SQL query \a query and which uses
+  database \a databaseName.
+
 */
-QSql::QSql( const QString& databaseName )
+QSql::QSql( const QString& query = QString::null, const QString& databaseName = QSqlConnection::defaultDatabase )
 {
     d = new QSqlResultShared( 0 );
     *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
+    if ( !query.isNull() )
+	setQuery( query );
 }
-
-//QSql::QSql( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase )
-//{
-//    d = new QSqlResultShared( 0 );
-//    *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
-//    *this << query;
-//}
 
 /*!
     Assigns \a other.

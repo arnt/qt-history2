@@ -29,7 +29,7 @@ class Q_EXPORT QSql
 {
 public:
     QSql( QSqlResult * r );
-    QSql( const QString& databaseName = QSqlConnection::defaultDatabase );
+    QSql( const QString& query = QString::null, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSql( const QSql& other );
     virtual ~QSql();
     QSql& operator=( const QSql& other );
