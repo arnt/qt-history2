@@ -126,7 +126,7 @@ or Qt/Windows if we wish.
 <h3>Creating a suitable Qt/Embedded Library</h3>
 
 Since our application is quite simple we can remove some unneeded features
-from Qt/Embedded.  Edit $(QTDIR)/src/tools/qfeatures.h and disable the
+from Qt/Embedded.  Edit $QTDIR/src/tools/qfeatures.h and disable the
 following features:
 <ul>
 <li>QT_FEATURE_IMAGEIO_BMP
@@ -165,8 +165,10 @@ that can be disabled.  This leaves us with a small set of widgets and
 dialogs necessary for our application.  Compile the library for the mips
 target:
 <pre>
-make linux-mips-release
-mipsel-linux-strip $QTDIR/lib-e-mips/libqt.so.2.2.0
+cd $QTDIR
+./configure linux-mips-g++
+make
+mipsel-linux-strip $QTDIR/lib/libqt.so.2.2.0
 </pre>
 The library is stripped to conserve ramdisk space.
 
@@ -174,14 +176,15 @@ The library is stripped to conserve ramdisk space.
 
 Compile the application:
 <pre>
-make linux-mips-release
+cd examples/notepad
+make
 mipsel-linux-strip notepad
 </pre>
 We have chosen to link the application dynamically.  While this is important
 if we plan to run multiple applications, it is a waste of space in an
 application such as notepad that is supposed to be the only application
-running.  You can link statically by compiling both the library and
-application with: <pre>make mips-static-release</pre>
+running.  You can link statically by configuring with:
+<pre>./configure -static linux-mips-g++</pre>
 <p>
 We must install our application and its support files in the ramdisk.  Mount
 the ramdisk using loopback device (you will need loopback device support
@@ -195,7 +198,7 @@ Copy the Qt/Embedded library to the ramdisk /lib directory and make the
 necessary links:
 <pre>
 cd /mnt/ramdisk/lib
-cp $QTDIR/lib-e-mips/libqt.so.2.2.0 .
+cp $QTDIR/lib/libqt.so.2.2.0 .
 ln -s libqt.so.2.2.0 libqt.so.2.2
 ln -s libqt.so.2.2.0 libqt.so.2
 </pre>
