@@ -87,7 +87,6 @@ When compiling for this platform, the macro \c{Q_WS_QWS} is defined
  \i \link emb-charinput.html Character input (keyboard, pen, ...)\endlink
  \i \link emb-pointer.html Pointer handling (mouse, pen, ...)\endlink
  \i \link emb-features.html Reduce memory use with the feature definition file\endlink
- \i \link emb-casestudy.html A case study embedding on Cassiopeia\endlink
 \endlist
 
 */

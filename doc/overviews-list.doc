@@ -87,7 +87,6 @@
     \i \link emb-features.html The Feature Definition File \endlink
     \i \link emb-classes.html The Qt/Embedded-specific classes \endlink
     \i \link emb-accel.html Adding an accelerated graphics driver to Qt/Embedded \endlink
-    \i \link emb-casestudy.html Qt/Embedded Case Study - Cassiopeia E-100 \endlink
     \i \link emb-framebuffer-howto.html Enabling the Linux Framebuffer \endlink
     \i \link emb-running.html Running Qt/Embedded applications \endlink
     \i \link emb-charinput.html Character input in Qt/Embedded \endlink
