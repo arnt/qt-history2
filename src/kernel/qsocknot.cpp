@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#7 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -96,7 +96,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   The socket notifier is initially enabled.  It is generally advisable to
   explicitly enable or disable it, especially for write notifiers.
 
-  \sa setEnabled(), enabled()
+  \sa setEnabled(), isEnabled()
  ----------------------------------------------------------------------------*/
 
 QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
@@ -157,7 +157,7 @@ QSocketNotifier::~QSocketNotifier()
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QSocketNotifier::enabled() const
+  \fn bool QSocketNotifier::isEnabled() const
   Returns TRUE if the notifier is enabled, or FALSE if it is disabled.
   \sa setEnabled()
  ----------------------------------------------------------------------------*/
@@ -176,7 +176,7 @@ QSocketNotifier::~QSocketNotifier()
   Disable the socket notifier for writes if there is nothing to be
   written, otherwise your program hogs the CPU.
 
-  \sa enabled(), activated()
+  \sa isEnabled(), activated()
  ----------------------------------------------------------------------------*/
 
 void QSocketNotifier::setEnabled( bool enable )
