@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#309 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#310 $
 **
 ** Implementation of QWidget class
 **
@@ -677,10 +677,6 @@ QWidget::~QWidget()
 	clearFocus();
     if ( QApplication::focus_widget == this )
 	QApplication::focus_widget = 0;
-    if ( testWFlags(WExportFontMetrics) )	// remove references to this
-	QFontMetrics::reset( this );
-    if ( testWFlags(WExportFontInfo) )		// remove references to this
-	QFontInfo::reset( this );
 
     if ( isTopLevel() && isVisible() && winId() )
 	hide();					// emit lastWindowClosed?
@@ -1870,7 +1866,6 @@ void QWidget::paletteChange( const QPalette & )
   \sa setFont(), fontInfo(), fontMetrics(), QApplication::font()
 */
 
-
 const QFont &QWidget::font() const
 {
     if (!fontState) {
@@ -1964,18 +1959,17 @@ void QWidget::fontChange( const QFont & )
 /*!
   \fn QFontMetrics QWidget::fontMetrics() const
 
-  Returns the font metrics for the widget.
+  Returns the font metrics for the widget's current font.
+  Equivalent to QFontMetrics(widget->font()).
 
   \sa font(), fontInfo(), setFont()
 */
 
 /*!
   \fn QFontInfo QWidget::fontInfo() const
-  Returns the font info for the widget.
 
-  The font info object is automatically updated if somebody sets a new
-  widget font. We have decided to change this policy in Qt 2.0: setting
-  a new font for a widget should not affect existing QFontInfo objects.
+  Returns the font info for the widget's current font.
+  Equivalent to QFontInto(widget->font()).
 
   \sa font(), fontMetrics(), setFont()
 */
@@ -2058,9 +2052,9 @@ QString QWidget::iconText() const
 void QWidget::setMouseTracking( bool enable )
 {
     if ( enable )
-	setWFlags( WState_TrackMouse );
+	setWFlags( WState_MouseTracking );
     else
-	clearWFlags( WState_TrackMouse );
+	clearWFlags( WState_MouseTracking );
     return;
 }
 #endif // _WS_X11_
@@ -2715,7 +2709,7 @@ void QWidget::show()
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->testWFlags(WState_DoHide) && !widget->isTopLevel() )
+		if ( !widget->testWFlags(WState_ForceHide) && !widget->isTopLevel() )
 		    widget->show();
 	    }
 	}
@@ -2756,7 +2750,7 @@ void QWidget::show()
 
 void QWidget::hide()
 {
-    setWFlags( WState_DoHide );
+    setWFlags( WState_ForceHide );
     if ( !testWFlags(WState_Visible) )
 	return;
 
@@ -2998,11 +2992,11 @@ QSize QWidget::sizeHint() const
   <dt>WState_Created<dd> The widget has a valid winId().
   <dt>WState_Disabled<dd> Disables mouse and keyboard events.
   <dt>WState_Visible<dd> show() has been called.
-  <dt>WState_DoHide<dd> hide() has been called before first show().
+  <dt>WState_ForceHide<dd> hide() has been called before first show().
   <dt>WState_AcceptFocus<dd> The widget can take keyboard focus.
-  <dt>WState_TrackMouse<dd> Mouse tracking is enabled.
+  <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
   <dt>WState_BlockUpdates<dd> Repaints and updates are disabled.
-  <dt>WState_PaintEvent<dd> Currently processing a paint event.
+  <dt>WState_InPaintEvent<dd> Currently processing a paint event.
   </dl>
 
   Widget type flags:
@@ -3030,15 +3024,15 @@ QSize QWidget::sizeHint() const
 
   Misc. flags:
   <dl compact>
-  <dt>WCursorSet<dd> Flags that a cursor has been set.
+  <dt>WState_OwnCursor<dd> Flags that a cursor has been set.
   <dt>WDestructiveClose<dd> The widget is deleted when its closed.
   <dt>WPaintDesktop<dd> The widget wants desktop paint events.
   <dt>WPaintUnclipped<dd> Paint without clipping child widgets.
   <dt>WPaintClever<dd> The widget wants every update rectangle.
-  <dt>WConfigPending<dd> Config (resize,move) event pending.
+  <dt>WState_ConfigPending<dd> Config (resize,move) event pending.
   <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
 			This allows smart-repainting to avoid flicker.
-  <dt>WReparented<dd> The widget has been reparented.
+  <dt>WState_Reparented<dd> The widget has been reparented.
   <dt>WExportFontMetrics<dd> Somebody refers the font's metrics.
   <dt>WExportFontInfo<dd> Somebody refers the font's info.
   </dl>

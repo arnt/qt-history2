@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#289 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#290 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -281,7 +281,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
 
-    setWFlags( WState_TrackMouse );
+    setWFlags( WState_MouseTracking );
     setMouseTracking( FALSE );			// also sets event mask
     if ( desktop ) {
 	setWFlags( WState_Visible );
@@ -289,7 +289,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	QCursor *oc = QApplication::overrideCursor();
 	if ( initializeWindow )
 	    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
-	setWFlags( WCursorSet );
+	setWFlags( WState_OwnCursor );
     }
 
     if ( window ) {				// got window from outside
@@ -614,7 +614,7 @@ void QWidget::setCursor( const QCursor &cursor )
     extra->curs = new QCursor(cursor);
     QCursor *oc = QApplication::overrideCursor();
     XDefineCursor( dpy, winid, oc ? oc->handle() : cursor.handle() );
-    setWFlags( WCursorSet );
+    setWFlags( WState_OwnCursor );
     XFlush( dpy );
 }
 
@@ -690,13 +690,13 @@ void QWidget::setIconText( const QString &iconText )
 void QWidget::setMouseTracking( bool enable )
 {
     bool gmt = QApplication::hasGlobalMouseTracking();
-    if ( enable == testWFlags(WState_TrackMouse) && !gmt )
+    if ( enable == testWFlags(WState_MouseTracking) && !gmt )
 	return;
     uint m = (enable || gmt) ? (uint)PointerMotionMask : 0;
     if ( enable )
-	setWFlags( WState_TrackMouse );
+	setWFlags( WState_MouseTracking );
     else
-	clearWFlags( WState_TrackMouse );
+	clearWFlags( WState_MouseTracking );
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
 	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
 	    XSelectInput( dpy, winid, stdDesktopEventMask|ExposureMask );
@@ -1033,7 +1033,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 void QWidget::showWindow()
 {
     setWFlags( WState_Visible );
-    clearWFlags( WState_DoHide );
+    clearWFlags( WState_ForceHide );
 
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );

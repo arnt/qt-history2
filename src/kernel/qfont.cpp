@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#111 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -800,6 +800,19 @@ bool QFont::operator!=( const QFont &f ) const
     return !(operator==( f ));
 }
 
+/*!
+  Returns TRUE if this font and \a f are copies of each other,
+  i.e. one of them was created as a copy of the other and neither was
+  subsequently modified.  This is much stricter than equality.
+
+  \sa operator=, operator==
+*/
+
+bool QFont::isCopyOf( const QFont & f ) const
+{
+    return d && d == f.d;
+}
+
 
 /*!
   Returns the system default font.
@@ -838,7 +851,7 @@ typedef QDict<char> QFontSubst;
 typedef QDictIterator<char> QFontSubstIt;
 static QFontSubst *fontSubst = 0;
 
-static void cleanup()
+static void cleanupFontSubst()
 {
     delete fontSubst;
     fontSubst = 0;
@@ -861,7 +874,7 @@ static void initFontSubst()			// create substitution dict
     CHECK_PTR( fontSubst );
     for ( int i=0; initTbl[i] != 0; i += 2 )
 	fontSubst->insert( initTbl[i], initTbl[i+1] );
-    qAddPostRoutine( cleanup );
+    qAddPostRoutine( cleanupFontSubst );
 }
 
 
@@ -1092,11 +1105,18 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 typedef QList<QFontMetrics> QFontMetricsList;
 static QFontMetricsList *fm_list = 0;
 
+static void cleanupFontMetricsList()
+{
+    delete fm_list;
+    fm_list = 0;
+}
+
 static void insertFontMetrics( QFontMetrics *fm )
 {
     if ( !fm_list ) {
 	fm_list = new QFontMetricsList;
 	CHECK_PTR( fm_list );
+	qAddPostRoutine( cleanupFontMetricsList );
     }
     fm_list->append( fm );
 }
@@ -1109,42 +1129,22 @@ static void removeFontMetrics( QFontMetrics *fm )
 #endif
 	return;
     }
-    if ( fm_list->removeRef(fm) && fm_list->isEmpty() ) {
-	delete fm_list;
-	fm_list = 0;
-    }
+    fm_list->removeRef( fm );
 }
 
 
 /*!
-  Resets all pointers to \e w in all font metrics objects in the
+  Resets all pointers to \a painter in all font metrics objects in the
   application.
 */
 
-void QFontMetrics::reset( const QWidget *w )
+void QFontMetrics::reset( const QPainter *painter )
 {
     if ( fm_list ) {
 	QFontMetrics *fm = fm_list->first();
 	while ( fm ) {
-	    if ( fm->type() == Widget && fm->u.w == w )
-		fm->u.w = 0;			// detach from widget
-	    fm = fm_list->next();
-	}
-    }
-}
-
-/*!
-  Resets all pointers to \e p in all font metrics objects in the
-  application.
-*/
-
-void QFontMetrics::reset( const QPainter *p )
-{
-    if ( fm_list ) {
-	QFontMetrics *fm = fm_list->first();
-	while ( fm ) {
-	    if ( fm->type() == Painter && fm->u.p == p )
-		fm->u.p = 0;			// detach from painter
+	    if ( fm->painter == painter )
+		fm->painter = 0;		// detach from painter
 	    fm = fm_list->next();
 	}
     }
@@ -1162,17 +1162,17 @@ void QFontMetrics::reset( const QPainter *p )
 
   There are three ways you can create a QFontMetrics object:
   <ol>
-  <li> The QFontMetrics constructor with a QFont
-  creates a font metrics object for a screen-compatible font,
-  i.e. the font must not be a printer font.
-  <li> QWidget::fontMetrics() returns the font metrics for a
-  widget's current font. The font metrics object is automatically
-  updated if somebody sets a new widget font.
-  <em>Please read the note below.</em>
+  <li> The QFontMetrics constructor with a QFont creates a font metrics
+  object for a screen-compatible font, i.e. the font must not be a
+  printer font.
+  <li> QWidget::fontMetrics() returns the font metrics for a widget's
+  font.  This is equivalent to QFontMetrics(widget->font()).
+  Setting a new font for the widget later will not affect the font
+  metrics object.
   <li> QPainter::fontMetrics() returns the font metrics for a
   painter's current font. The font metrics object is automatically
-  updated if somebody sets a new painter font.
-  <em>Please read the note below.</em>
+  updated if somebody sets a new painter font (unlike the two above
+  cases, which take a "snapshot" of a font).
   </ol>
 
   Example:
@@ -1183,20 +1183,9 @@ void QFontMetrics::reset( const QPainter *p )
     int h = fm.height();
   \endcode
 
-  <strong>NOTE: In Qt 2.0 the font metrics object will no longer be
-  automatically updated when the widget or painter gets a new font.</strong>
-  Make sure you program does not depend on this feature.
-
-  <strong>About efficiency:</strong> We recommend that you use
-  the QFontMetrics constructor if you can. This is more efficient
-  than getting the font metrics from a widget or a painter. The
-  QWidget::fontMetrics() and QPainter::fontMetrics() will become faster
-  in Qt 2.0, when we have removed the automatic update policy.
-
   \sa QFont, QFontInfo
 */
 
-//#warning "Fix doc above. No longer automatic font metrics update"
 
 /*!
   Constructs a font metrics object for \a font.
@@ -1212,29 +1201,9 @@ void QFontMetrics::reset( const QPainter *p )
 
 QFontMetrics::QFontMetrics( const QFont &font )
 {
-    t.flags = FontInternal;
     font.handle();
-    if ( font.underline() )
-	setUnderlineFlag();
-    if ( font.strikeOut() )
-	setStrikeOutFlag();
-    u.f = font.d->fin;
-}
-
-/*!
-  \internal
-  Constructs a font metrics object for a widget.
-*/
-
-QFontMetrics::QFontMetrics( const QWidget *widget )
-{
-#if defined(CHECK_NULL)
-    ASSERT( widget != 0 );
-#endif
-    t.flags = Widget;
-    u.w = (QWidget *)widget;
-    u.w->setWFlags( WExportFontMetrics );
-    insertFontMetrics( this );
+    fin = font.d->fin;
+    painter = 0;
 }
 
 /*!
@@ -1242,20 +1211,17 @@ QFontMetrics::QFontMetrics( const QWidget *widget )
   Constructs a font metrics object for a painter.
 */
 
-QFontMetrics::QFontMetrics( const QPainter *painter )
+QFontMetrics::QFontMetrics( const QPainter *p )
 {
-#if defined(CHECK_NULL)
-    ASSERT( painter != 0 );
-#endif
-    t.flags = Painter;
-    u.p = (QPainter *)painter;
+    painter = (QPainter *)p;
 #if defined(CHECK_STATE)
-    if ( !u.p->isActive() )
+    if ( !painter->isActive() )
 	warning( "QFontMetrics: Get font metrics between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    u.p->updateFont(); //### does this break any optimizations? Was necessary for Windows  (M)
-    u.p->setf( QPainter::FontMet );
+    painter->updateFont();
+    painter->setf( QPainter::FontMet );
+    fin = painter->cfont.d->fin;
     insertFontMetrics( this );
 }
 
@@ -1264,9 +1230,9 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 */
 
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
-    : t(fm.t), u(fm.u)
+    : fin(fm.fin), painter(fm.painter)
 {
-    if ( type() != FontInternal )
+    if ( painter )
 	insertFontMetrics( this );
 }
 
@@ -1276,7 +1242,7 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 
 QFontMetrics::~QFontMetrics()
 {
-    if ( type() != FontInternal )
+    if ( painter )
 	removeFontMetrics( this );
 }
 
@@ -1287,11 +1253,11 @@ QFontMetrics::~QFontMetrics()
 
 QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
-    if ( type() != FontInternal )
+    if ( painter )
 	removeFontMetrics( this );
-    t.flags = fm.t.flags;
-    u = fm.u;
-    if ( type() != FontInternal )
+    fin = fm.fin;
+    painter = fm.painter;
+    if ( painter )
 	insertFontMetrics( this );
     return *this;
 }
@@ -1320,27 +1286,114 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
 
 /*!
-  Returns the font currently set for the widget or painter.
+  Returns the bounding rectangle of the first \e len characters of \e str,
+  which is the set of pixels the text would cover if drawn at (0,0).
+
+  If \a len is negative (default value), the whole string is used.
+
+  The \a flags argument is
+  the bitwise OR of the following flags:  <ul>
+  <li> \c AlignLeft aligns to the left border.
+  <li> \c AlignRight aligns to the right border.
+  <li> \c AlignHCenter aligns horizontally centered.
+  <li> \c AlignTop aligns to the top border.
+  <li> \c AlignBottom aligns to the bottom border.
+  <li> \c AlignVCenter aligns vertically centered
+  <li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+  <li> \c SingleLine ignores newline characters in the text.
+  <li> \c ExpandTabs expands tabulators.
+  <li> \c ShowPrefix interprets "&x" as "x" underlined.
+  <li> \c WordBreak breaks the text to fit the rectangle.
+  </ul>
+
+  Horizontal alignment defaults to AlignLeft and vertical alignment
+  defaults to AlignTop.
+
+  If several of the horizontal or several of the vertical alignment flags
+  are set, the resulting alignment is undefined.
+
+  These flags are defined in qwindowdefs.h.
+
+  If \c ExpandTabs is set in \a flags, then:
+  if \a tabarray is non.zero, it specifies a 0-terminated sequence
+  of pixel-positions for tabs; otherwise
+  if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
+
+  Note that the bounding rectangle may extend to the left of (0,0),
+  e.g. for italicized fonts, and that the text output may cover \e all
+  pixels in the bounding rectangle.
+
+  Newline characters are processed as linebreaks.
+
+  Despite the different actual character heights, the heights of the
+  bounding rectangles of "Yes" and "yes" are the same.
+
+  The bounding rectangle given by this function is somewhat larger
+  than that calculated by the simpler boundingRect() function.  This
+  function uses the \link minLeftBearing() maximum left \endlink and
+  \link minRightBearing() right \endlink font bearings as is necessary
+  for multi-line text to align correctly.  Also, fontHeight() and
+  lineSpacing() are used to calculate the height, rather than
+  individual character heights.
+
+  The \a internal argument is for internal purposes.
+
+  \sa width(), QPainter::boundingRect()
 */
 
-const QFont &QFontMetrics::font() const
+QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
+				  const QString& str, int len, int tabstops,
+				  int *tabarray, char **intern ) const
 {
-    switch ( type() ) {
-    case Widget:
-	return u.w->font();
-    case Painter:
-	return u.p->font();
-    default:
-#if defined(CHECK_STATE)
-	warning( "QFontMetrics::font: You can only get the font "
-		 "when you get the QFontMetrics from either "
-		 "QWidget::fontMetrics() or QPainter::fontMetrics()\n"
-		 "\tAvoid this function. It will be removed in a "
-		 "future version of Qt" );
-#endif
-    }
-    static QFont f;
-    return f;
+    if ( len < 0 )
+	len = str.length();
+
+    int tabarraylen=0;
+    if (tabarray)
+	while (tabarray[tabarraylen])
+	    tabarraylen++;
+
+    QRect r;
+    qt_format_text( *this, x, y, w, h, flags, str, len, &r,
+		    tabstops, tabarray, tabarraylen, intern, 0 );
+
+    return r;
+}
+
+/*!
+  Returns the size in pixels of the first \e len characters of \e str.
+
+  If \a len is negative (default value), the whole string is used.
+
+  The \a flags argument is
+  the bitwise OR of the following flags:  <ul>
+  <li> \c SingleLine ignores newline characters in the text.
+  <li> \c ExpandTabs expands tabulators.
+  <li> \c ShowPrefix interprets "&x" as "x" underlined.
+  <li> \c WordBreak breaks the text to fit the rectangle.
+  </ul>
+
+  These flags are defined in qwindowdefs.h.
+
+  If \c ExpandTabs is set in \a flags, then:
+  if \a tabarray is non.zero, it specifies a 0-terminated sequence
+  of pixel-positions for tabs; otherwise
+  if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
+
+  Newline characters are processed as linebreaks.
+
+  Despite the different actual character heights, the heights of the
+  bounding rectangles of "Yes" and "yes" are the same.
+
+  The \a internal argument is for internal purposes.
+
+  \sa boundingRect()
+*/
+
+QSize QFontMetrics::size( int flags, const QString &str, int len, int tabstops,
+			  int *tabarray, char **intern ) const
+{
+    return boundingRect(0,0,1,1,flags,str,len,tabstops,tabarray,intern).size();
 }
 
 
@@ -1351,11 +1404,18 @@ const QFont &QFontMetrics::font() const
 typedef QList<QFontInfo> QFontInfoList;
 static QFontInfoList *fi_list = 0;
 
+static void cleanupFontInfoList()
+{
+    delete fi_list;
+    fi_list = 0;
+}
+
 static void insertFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
 	fi_list = new QFontInfoList;
 	CHECK_PTR( fi_list );
+	qAddPostRoutine( cleanupFontInfoList );
     }
     fi_list->append( fi );
 }
@@ -1368,42 +1428,22 @@ static void removeFontInfo( QFontInfo *fi )
 #endif
 	return;
     }
-    if ( fi_list->removeRef(fi) && fi_list->isEmpty() ) {
-	delete fi_list;
-	fi_list = 0;
-    }
+    fi_list->removeRef( fi );
 }
 
 
 /*!
-  Resets all pointers to \e w in all font info objects in the
+  Resets all pointers to \a painter in all font metrics objects in the
   application.
 */
 
-void QFontInfo::reset( const QWidget *w )
+void QFontInfo::reset( const QPainter *painter )
 {
     if ( fi_list ) {
 	QFontInfo *fi = fi_list->first();
 	while ( fi ) {
-	    if ( fi->type() == Widget && fi->u.w == w )
-		fi->u.w = 0;			// detach from widget
-	    fi = fi_list->next();
-	}
-    }
-}
-
-/*!
-  Resets all pointers to \e p in all font metrics objects in the
-  application.
-*/
-
-void QFontInfo::reset( const QPainter *p )
-{
-    if ( fi_list ) {
-	QFontInfo *fi = fi_list->first();
-	while ( fi ) {
-	    if ( fi->type() == Painter && fi->u.p == p )
-		fi->u.p = 0;			// detach from painter
+	    if ( fi->painter == painter )
+		fi->painter = 0;		// detach from painter
 	    fi = fi_list->next();
 	}
     }
@@ -1423,45 +1463,33 @@ void QFontInfo::reset( const QPainter *p )
 
   There are three ways you can create a QFontInfo object:
   <ol>
-  <li> The QFontInfo constructor with a QFont
-  creates a font info object for a screen-compatible font,
-  i.e. the font must not be a printer font.
-  <li> QWidget::fontInfo() returns the font info for a
-  widget's current font. The font info object is automatically
-  updated if somebody sets a new widget font.
-  <em>Please read the note below.</em>
+  <li> The QFontInfo constructor with a QFont creates a font info
+  object for a screen-compatible font, i.e. the font must not be a
+  printer font.
+  <li> QWidget::fontInfo() returns the font info for a widget's
+  font.  This is equivalent to QFontInfo(widget->font()).
+  Setting a new font for the widget later will not affect the font
+  info object.
   <li> QPainter::fontInfo() returns the font info for a
   painter's current font. The font info object is automatically
-  updated if somebody sets a new painter font.
-  <em>Please read the note below.</em>
+  updated if somebody sets a new painter font (unlike the two above
+  cases, which take a "snapshot" of a font).
   </ol>
 
   Example:
   \code
     QFont font("reykjavik",24);
     QFontInfo fi(font);
-    if ( strcmp(font.family(),fi.family()) == 0 ) {
+    if ( font.family() == fi.family() ) {
 	; // got this font
     } else {
 	; // got fi.family() instead
     }
   \endcode
 
-  <strong>In Qt 2.0 the font info object will no longer be
-  automatically updated when the widget or painter gets a new font.</strong>
-  Make sure you program does not depend on this feature.
-
-  <strong>About efficiency:</strong> We recommend that you use
-  the QFontInfo constructor if you can. This is more efficient
-  than getting the font info from a widget or a painter. The
-  QWidget::fontInfo() and QPainter::fontInfo() will become faster
-  in Qt 2.0, when we have removed the automatic update policy.
-
   \sa QFont, QFontMetrics
 */
 
-//#warning "Fix doc above. No longer automatic font info update"
-//#warning "Get rid of FontInternalExactMatch"
 
 /*!
   Constructs a font info object for \a font.
@@ -1477,31 +1505,16 @@ void QFontInfo::reset( const QPainter *p )
 
 QFontInfo::QFontInfo( const QFont &font )
 {
-    t.flags = FontInternal;
     font.handle();
+    fin = font.d->fin;
+    painter = 0;
+    flags = 0;
     if ( font.underline() )
 	setUnderlineFlag();
     if ( font.strikeOut() )
 	setStrikeOutFlag();
     if ( font.exactMatch() )
 	setExactMatchFlag();
-    u.f = font.d->fin;
-}
-
-/*!
-  \internal
-  Constructs a font info object for a widget.
-*/
-
-QFontInfo::QFontInfo( const QWidget *widget )
-{
-#if defined(CHECK_NULL)
-    ASSERT( widget != 0 );
-#endif
-    t.flags = Widget;
-    u.w = (QWidget *)widget;
-    u.w->setWFlags( WExportFontInfo );
-    insertFontInfo( this );
 }
 
 /*!
@@ -1509,20 +1522,19 @@ QFontInfo::QFontInfo( const QWidget *widget )
   Constructs a font info object for a painter.
 */
 
-QFontInfo::QFontInfo( const QPainter *painter )
+QFontInfo::QFontInfo( const QPainter *p )
 {
-#if defined(CHECK_NULL)
-    ASSERT( painter != 0 );
-#endif
-    t.flags = Painter;
-    u.p = (QPainter *)painter;
+    painter = (QPainter *)p;
 #if defined(CHECK_STATE)
-    if ( !u.p->isActive() )
+    if ( !painter->isActive() )
 	warning( "QFontInfo: Get font info between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    u.p->setf( QPainter::FontInf );
-    insertFontInfo( this );			// register this object
+    painter->updateFont();
+    painter->setf( QPainter::FontInf );
+    fin = painter->cfont.d->fin;
+    flags = 0;
+    insertFontInfo( this );
 }
 
 /*!
@@ -1530,9 +1542,9 @@ QFontInfo::QFontInfo( const QPainter *painter )
 */
 
 QFontInfo::QFontInfo( const QFontInfo &fi )
-    : t(fi.t), u(fi.u)
+    : fin(fi.fin), painter(fi.painter), flags(fi.flags)
 {
-    if ( type() != FontInternal )
+    if ( painter )
 	insertFontInfo( this );
 }
 
@@ -1542,7 +1554,7 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 
 QFontInfo::~QFontInfo()
 {
-    if ( type() != FontInternal )
+    if ( painter )
 	removeFontInfo( this );
 }
 
@@ -1553,11 +1565,12 @@ QFontInfo::~QFontInfo()
 
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
-    if ( type() != FontInternal )
+    if ( painter )
 	removeFontInfo( this );
-    t.flags = fi.t.flags;
-    u = fi.u;
-    if ( type() != FontInternal )
+    fin = fi.fin;
+    painter = fi.painter;
+    flags = fi.flags;
+    if ( painter )
 	insertFontInfo( this );
     return *this;
 }
@@ -1617,46 +1630,26 @@ int QFontInfo::weight() const
   Returns the underline value of the matched window system font.
   \sa QFont::underline()
 
-  \internal Here we read the underline flag directly from the QFont.  This
-  is ok for X11 and for Windows because we always get what we want.
+  \internal Here we read the underline flag directly from the QFont.
+  This is OK for X11 and for Windows because we always get what we want.
 */
 
 bool QFontInfo::underline() const
 {
-    if ( type() == FontInternal ) {
-	return underlineFlag();
-    } else if ( type() == Widget && u.w ) {
-	return u.w->font().underline();
-    } else if ( type() == Painter && u.p ) {
-	return u.p->font().underline();
-    }
-#if defined(CHECK_NULL)
-    warning( "QFontInfo::underline: Invalid font info" );
-#endif
-    return FALSE;
+    return painter ? painter->font().underline() : underlineFlag();
 }
 
 /*!
   Returns the strike out value of the matched window system font.
   \sa QFont::strikeOut()
 
-  \internal Here we read the strikeOut flag directly from the QFont.  This
-  is ok for X11 and for Windows because we always get what we want.
+  \internal Here we read the strikeOut flag directly from the QFont.
+  This is OK for X11 and for Windows because we always get what we want.
 */
 
 bool QFontInfo::strikeOut() const
 {
-    if ( type() == FontInternal ) {
-	return strikeOutFlag();
-    } else if ( type() == Widget && u.w ) {
-	return u.w->font().strikeOut();
-    } else if ( type() == Painter && u.p ) {
-	return u.p->font().strikeOut();
-    }
-#if defined(CHECK_NULL)
-    warning( "QFontInfo::strikeOut: Invalid font info" );
-#endif
-    return FALSE;
+    return painter ? painter->font().strikeOut() : strikeOutFlag();
 }
 
 /*!
@@ -1716,166 +1709,5 @@ bool QFontInfo::rawMode() const
 
 bool QFontInfo::exactMatch() const
 {
-    bool m;
-    switch ( type() ) {
-    case FontInternal:
-	m = exactMatchFlag();
-	break;
-    case Widget:
-	m = u.w->font().exactMatch();
-	break;
-    case Painter:
-	m = u.p->font().exactMatch();
-	break;
-    default:
-	m = FALSE;
-    }
-    return m;
-}
-
-
-/*!
-  Returns the font currently set for the widget or painter.
-*/
-
-const QFont &QFontInfo::font() const
-{
-    switch ( type() ) {
-    case Widget:
-	return u.w->font();
-    case Painter:
-	return u.p->font();
-    default:
-#if defined(CHECK_STATE)
-	warning( "QFontInfo::font: You can only get the font "
-		 "when you get the QFontInfo from either "
-		 "QWidget::fontInfo() or QPainter::fontInfo()\n"
-		 "\tAvoid this function. It will be removed in a "
-		 "future version of Qt" );
-#endif
-    }
-    static QFont f;
-    return f;
-}
-
-/*!
-  Returns the bounding rectangle of the first \e len characters of \e str,
-  which is the set of pixels the text would cover if drawn at (0,0).
-
-  If \a len is negative (default value), the whole string is used.
-
-  The \a flags argument is
-  the bitwise OR of the following flags:  <ul>
-  <li> \c AlignLeft aligns to the left border.
-  <li> \c AlignRight aligns to the right border.
-  <li> \c AlignHCenter aligns horizontally centered.
-  <li> \c AlignTop aligns to the top border.
-  <li> \c AlignBottom aligns to the bottom border.
-  <li> \c AlignVCenter aligns vertically centered
-  <li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
-  <li> \c SingleLine ignores newline characters in the text.
-  <li> \c ExpandTabs expands tabulators.
-  <li> \c ShowPrefix interprets "&x" as "x" underlined.
-  <li> \c WordBreak breaks the text to fit the rectangle.
-  </ul>
-
-  Horizontal alignment defaults to AlignLeft and vertical alignment
-  defaults to AlignTop.
-
-  If several of the horizontal or several of the vertical alignment flags
-  are set, the resulting alignment is undefined.
-
-  These flags are defined in qwindowdefs.h.
-
-  If \c ExpandTabs is set in \a flags, then:
-  if \a tabarray is non.zero, it specifies a 0-terminated sequence
-  of pixel-positions for tabs; otherwise
-  if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
-
-  Note that the bounding rectangle may extend to the left of (0,0),
-  e.g. for italicized fonts, and that the text output may cover \e all
-  pixels in the bounding rectangle.
-
-  Newline characters are processed as linebreaks.
-
-  Despite the different actual character heights, the heights of the
-  bounding rectangles of "Yes" and "yes" are the same.
-
-  The bounding rectangle given by this function is somewhat larger
-  than that calculated by the simpler boundingRect() function.  This
-  function uses the \link minLeftBearing() maximum left \endlink and
-  \link minRightBearing() right \endlink font bearings as is necessary
-  for multi-line text to align correctly.  Also, fontHeight() and
-  lineSpacing() are used to calculate the height, rather than
-  individual character heights.
-
-  The \a internal argument is for internal purposes.
-
-  \sa width(), QPainter::boundingRect() */
-
-QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
-				  const QString& str, int len, int tabstops,
-				  int *tabarray, char **intern ) const
-{
-    if ( len < 0 )
-	len = str.length();
-
-    int tabarraylen=0;
-    if (tabarray)
-	while (tabarray[tabarraylen])
-	    tabarraylen++;
-
-    QRect r;
-    qt_format_text( *this, x, y, w, h, flags, str, len, &r,
-		    tabstops, tabarray, tabarraylen, intern, 0 );
-
-    return r;
-}
-
-/*!
-  Returns the size in pixels of the first \e len characters of \e str.
-
-  If \a len is negative (default value), the whole string is used.
-
-  The \a flags argument is
-  the bitwise OR of the following flags:  <ul>
-  <li> \c SingleLine ignores newline characters in the text.
-  <li> \c ExpandTabs expands tabulators.
-  <li> \c ShowPrefix interprets "&x" as "x" underlined.
-  <li> \c WordBreak breaks the text to fit the rectangle.
-  </ul>
-
-  These flags are defined in qwindowdefs.h.
-
-  If \c ExpandTabs is set in \a flags, then:
-  if \a tabarray is non.zero, it specifies a 0-terminated sequence
-  of pixel-positions for tabs; otherwise
-  if \a tabstops is non-zero, it is used as the tab spacing (in pixels).
-
-  Newline characters are processed as linebreaks.
-
-  Despite the different actual character heights, the heights of the
-  bounding rectangles of "Yes" and "yes" are the same.
-
-  The \a internal argument is for internal purposes.
-
-  \sa boundingRect() */
-
-QSize QFontMetrics::size( int flags, const QString &str, int len, int tabstops,
-			  int *tabarray, char **intern ) const
-{
-    return boundingRect(0,0,1,1,flags,str,len,tabstops,tabarray,intern).size();
-}
-
-
-/*!  Returns TRUE if this font and \a f are copies of each other,
-  ie. one of them was created as a copy of the other and neither was
-  subsequently modified.  This is much stricter than equality.
-
-  \sa operator=, operator==
-*/
-
-bool QFont::isCopyOf( const QFont & f ) const
-{
-    return d && d == f.d;
+    return painter ? painter->font().exactMatch() : exactMatchFlag();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#26 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#27 $
 **
 ** Definition of QFontInfo class
 **
@@ -57,30 +57,20 @@ public:
 #endif
 
 private:
-    QFontInfo( const QWidget * );
     QFontInfo( const QPainter * );
-    static void reset( const QWidget * );
     static void reset( const QPainter * );
     const QFontDef *spec() const;
 
-    enum Type { FontInternal, Widget, Painter };
-    union {
-	int   flags;
-	void *dummy;
-    } t;
-    union {
-	QFontInternal *f;
-	QWidget	      *w;
-	QPainter      *p;
-    } u;
+    QFontInternal *fin;
+    QPainter      *painter;
+    int		   flags;
 
-    int	    type()	     const { return t.flags & 0xff; }
-    bool    underlineFlag()  const { return (t.flags & 0x100) != 0; }
-    bool    strikeOutFlag()  const { return (t.flags & 0x200) != 0; }
-    bool    exactMatchFlag() const { return (t.flags & 0x400) != 0; }
-    void    setUnderlineFlag()	   { t.flags |= 0x100; }
-    void    setStrikeOutFlag()	   { t.flags |= 0x200; }
-    void    setExactMatchFlag()	   { t.flags |= 0x400; }
+    bool    underlineFlag()  const { return (flags & 0x1) != 0; }
+    bool    strikeOutFlag()  const { return (flags & 0x2) != 0; }
+    bool    exactMatchFlag() const { return (flags & 0x4) != 0; }
+    void    setUnderlineFlag()	   { flags |= 0x1; }
+    void    setStrikeOutFlag()	   { flags |= 0x2; }
+    void    setExactMatchFlag()	   { flags |= 0x4; }
 
     friend class QWidget;
     friend class QPainter;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#47 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#48 $
 **
 ** Definition of QFontMetrics class
 **
@@ -30,6 +30,7 @@
 #endif // QT_H
 
 class QTextCodec;
+
 
 class Q_EXPORT QFontMetrics
 {
@@ -69,42 +70,22 @@ public:
     int		strikeOutPos()	const;
     int		lineWidth()	const;
 
-#if 1	/* OBSOLETE */
-    const QFont &font() const;
-#endif
-
 private:
-    QFontMetrics( const QWidget * );
     QFontMetrics( const QPainter * );
-    static void reset( const QWidget * );
     static void reset( const QPainter * );
     const QFontDef *spec() const;
 #if defined(_WS_WIN_)
-    void *textMetric() const;
-    HDC hdc() const;
+    void   *textMetric() const;
+    HDC	    hdc() const;
 #elif defined(_WS_X11_)
-    void *fontStruct() const;
-    void *fontSet() const;
+    void   *fontStruct() const;
+    void   *fontSet() const;
     const QTextCodec *mapper() const;
-    int printerAdjusted(int) const;
+    int	    printerAdjusted(int) const;
 #endif
 
-    enum Type { FontInternal, Widget, Painter };
-    union {
-	int   flags;
-	void *dummy;
-    } t;
-    union {
-	QFontInternal *f;
-	QWidget	      *w;
-	QPainter      *p;
-    } u;
-
-    int	    type()	     const { return t.flags & 0xff; }
-    bool    underlineFlag()  const { return (t.flags & 0x100) != 0; }
-    bool    strikeOutFlag()  const { return (t.flags & 0x200) != 0; }
-    void    setUnderlineFlag()	   { t.flags |= 0x100; }
-    void    setStrikeOutFlag()	   { t.flags |= 0x200; }
+    QFontInternal *fin;
+    QPainter      *painter;
 
     friend class QWidget;
     friend class QPainter;

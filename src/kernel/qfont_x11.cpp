@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#131 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1044,89 +1044,46 @@ debug("Font set: %s",s.data());
 
 const QFontDef *QFontMetrics::spec() const
 {
-    const QFontDef *s;
-    if ( type() == FontInternal ) {
-	s = u.f->spec();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	s = f->d->fin->spec();
-    } else if ( type() == Painter && u.p ) {
-	QFont *f = (QFont *)&u.p->font();
-	f->handle();
-	s = f->d->fin->spec();
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont.d->fin->spec();
     } else {
-	s = 0;
+	return fin->spec();
     }
-#if defined(CHECK_NULL)
-    if ( !s )
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-    return s;
 }
 
 void *QFontMetrics::fontStruct() const
 {
-    if ( type() == FontInternal ) {
-	return u.f->fontStruct();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	return f->d->fin->fontStruct();
-    } else if ( type() == Painter && u.p ) {
-	QFont *f = (QFont *)&u.p->font();
-	f->handle();
+    if ( painter ) {
+	painter->cfont.handle();
 	return f->d->fin->fontStruct();
     } else {
-#if defined(CHECK_NULL)
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-	return 0;
+	return fin->fontStruct();
     }
 }
 
 void *QFontMetrics::fontSet() const
 {
-    if ( type() == FontInternal ) {
-	return u.f->fontSet();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	return f->d->fin->fontSet();
-    } else if ( type() == Painter && u.p ) {
-	QFont *f = (QFont *)&u.p->font();
-	f->handle();
-	return f->d->fin->fontSet();
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont->d->fin->fontSet();
     } else {
-#if defined(CHECK_NULL)
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-	return 0;
+	return fin->fontSet();
     }
 }
 
 const QTextCodec *QFontMetrics::mapper() const
 {
-    if ( type() == FontInternal ) {
-	return u.f->mapper();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	return f->d->fin->mapper();
-    } else if ( type() == Painter && u.p ) {
-	QFont *f = (QFont *)&u.p->font();
-	f->handle();
-	return f->d->fin->mapper();
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont->d->fin->mapper();
     } else {
-#if defined(CHECK_NULL)
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-	return 0;
+	return fin->mapper();
     }
 }
 
 #undef  FS
-#define FS (type() == FontInternal ? u.f->fontStruct() : (XFontStruct*)fontStruct())
+#define FS (painter ? (XFontStruct*)fontStruct() : fin->fontStruct)
 #undef  SET
 #define SET ((XFontSet)fontSet())
 
@@ -1139,15 +1096,14 @@ const QTextCodec *QFontMetrics::mapper() const
 
 int QFontMetrics::printerAdjusted(int val) const
 {
-    if ( type() == Painter && u.p->device() &&        	
-	 u.p->device()->devType() == PDT_PRINTER ) {	
-	QFont fnt =  u.p->font();				
-	fnt.handle();					
-	int xres = fnt.d->fin->xResolution();		
-	return qRound(val*75.0/(xres*1.0));		
-    } else {						
+    if ( painter && painter->device() &&
+	 painter->device()->devType() == PDT_PRINTER) {
+	painter->cfont.handle();
+	int xres = painter->cfont.fin->xResolution();
+	return qRound((val*0.75)/(xres*1.0));
+    } else {
 	return val;
-    }							
+    }
 }
 
 /*!
@@ -1166,7 +1122,7 @@ int QFontMetrics::ascent() const
 	return printerAdjusted(f->max_bounds.ascent);
     XFontSetExtents *ext = XExtentsOfFontSet(SET);
     return printerAdjusted(ASCENT(ext->max_ink_extent,
-		ext->max_logical_extent));
+				  ext->max_logical_extent));
 }
 
 
@@ -1658,12 +1614,11 @@ int QFontMetrics::strikeOutPos() const
 
 int QFontMetrics::lineWidth() const
 {
-    if ( type() == FontInternal ) {
-	return u.f->lineWidth();
+    if ( painter ) {
+	painter->cfont.handle();
+	return printerAdjusted(painter->cfont.d->fin->lineWidth());
     } else {
-	QFont f = font();
-	f.handle();
-	return printerAdjusted(f.d->fin->lineWidth());
+	return fin->lineWidth();
     }
 }
 
@@ -1674,25 +1629,27 @@ int QFontMetrics::lineWidth() const
 
 const QFontDef *QFontInfo::spec() const
 {
-    const QFontDef *s;
-    if ( type() == FontInternal ) {
-	s = u.f->spec();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	s = f->d->fin->spec();
-    } else if ( type() == Painter && u.p ) {
-	QFont *f = (QFont *)&u.p->font();
-	f->handle();
-	s = f->d->fin->spec();
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont.d->fin->spec();
     } else {
-	s = 0;
+	return fin->spec();
     }
-#if defined(CHECK_NULL)
-    if ( !s )
-	warning( "QFontInfo: Invalid font info" );
-#endif
-    return s;
+}
+
+
+/*****************************************************************************
+  QFontData member functions
+ *****************************************************************************/
+
+const QTextCodec* QFontData::mapper() const
+{
+    return fin ? fin->mapper() : 0;
+}
+
+void* QFontData::fontSet() const
+{
+    return fin ? fin->fontSet() : 0;
 }
 
 
@@ -1843,14 +1800,3 @@ static int getWeight( const QString &weightString, bool adjustScore )
 
     return (int) QFont::Normal;
 }
-
-const QTextCodec* QFontData::mapper() const
-{
-    return fin ? fin->mapper() : 0;
-}
-
-void* QFontData::fontSet() const
-{
-    return fin ? fin->fontSet() : 0;
-}
-

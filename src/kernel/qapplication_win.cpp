@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#207 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -970,7 +970,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	r = configRequests->dequeue();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
-	    if ( w->testWFlags( WConfigPending ) ) // biting our tail
+	    if ( w->testWFlags( WState_ConfigPending ) ) // biting our tail
 		return;
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
@@ -2476,12 +2476,12 @@ bool QETWidget::translatePaintEvent( const MSG & )
     QPaintEvent e( reg );
 #endif
 
-    setWFlags( WState_PaintEvent );
+    setWFlags( WState_InPaintEvent );
     hdc = BeginPaint( winId(), &ps );
     QApplication::sendEvent( this, (QEvent*) &e );
     EndPaint( winId(), &ps );
     hdc = 0;
-    clearWFlags( WState_PaintEvent );
+    clearWFlags( WState_InPaintEvent );
     return TRUE;
 }
 
@@ -2493,7 +2493,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 {
     if ( !testWFlags(WState_Created) )		// in QWidget::create()
 	return TRUE;
-    setWFlags( WConfigPending );		// set config flag
+    setWFlags( WState_ConfigPending );		// set config flag
     QRect r = geometry();
     WORD a = LOWORD(msg.lParam);
     WORD b = HIWORD(msg.lParam);
@@ -2552,7 +2552,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    }
 	}
     }
-    clearWFlags( WConfigPending );		// clear config flag
+    clearWFlags( WState_ConfigPending );		// clear config flag
     return TRUE;
 }
 

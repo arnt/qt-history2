@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#380 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#381 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1236,7 +1236,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	if ( w->testWFlags(WCursorSet) )	//   set a cursor
+	if ( w->testWFlags(WState_OwnCursor) )	//   set a cursor
 	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
 	++it;
     }
@@ -1268,7 +1268,7 @@ void QApplication::restoreOverrideCursor()
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// set back to original cursors
-	if ( w->testWFlags(WCursorSet) )
+	if ( w->testWFlags(WState_OwnCursor) )
 	    XDefineCursor( w->x11Display(), w->winId(),
 			   app_cursor ? app_cursor->handle()
 			   : w->cursor().handle() );
@@ -1322,13 +1322,13 @@ void QApplication::setGlobalMouseTracking( bool enable )
 	register QWidget *w;
 	while ( (w=it.current()) ) {
 	    if ( app_tracking > 0 ) {		// switch on
-		if ( !w->testWFlags(WState_TrackMouse) ) {
+		if ( !w->testWFlags(WState_MouseTracking) ) {
 		    w->setMouseTracking( TRUE );
-		    w->clearWFlags(WState_TrackMouse);
+		    w->clearWFlags(WState_MouseTracking);
 		}
 	    } else {				// switch off
-		if ( !w->testWFlags(WState_TrackMouse) ) {
-		    w->setWFlags(WState_TrackMouse);
+		if ( !w->testWFlags(WState_MouseTracking) ) {
+		    w->setWFlags(WState_MouseTracking);
 		    w->setMouseTracking( FALSE );
 		}
 	    }
@@ -1741,18 +1741,18 @@ void qPRCreate( const QWidget *widget, Window oldwin )
     }
     wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
     QETWidget *w = (QETWidget *)widget;
-    w->setWFlags( WReparented );			// set reparented flag
+    w->setWFlags( WState_Reparented );			// set reparented flag
 }
 
 void qPRCleanup( QETWidget *widget )
 {
-    if ( !(wPRmapper && widget->testWFlags(WReparented)) )
+    if ( !(wPRmapper && widget->testWFlags(WState_Reparented)) )
 	return;					// not a reparented widget
     QWidgetIntDictIt it(*wPRmapper);
     QWidget *w;
     while ( (w=it.current()) ) {
 	if ( w == widget ) {			// found widget
-	    widget->clearWFlags( WReparented );	// clear reparented flag
+	    widget->clearWFlags( WState_Reparented );	// clear reparented flag
 	    wPRmapper->remove( it.currentKey());// old window no longer needed
 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
@@ -2103,7 +2103,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		break;
 	    }
 	}
-	else if ( widget->testWFlags(WReparented) )
+	else if ( widget->testWFlags(WState_Reparented) )
 	    qPRCleanup( widget );		// remove from alt mapper
     }
 
@@ -2173,7 +2173,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case GraphicsExpose:
     case Expose:				// paint event
-	if ( widget->testWFlags( WState_DoHide ) ) {
+	if ( widget->testWFlags( WState_ForceHide ) ) {
 	    widget->setWFlags( WState_Visible );
 	    widget->hide();
 	} else {
@@ -3665,9 +3665,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     }
 
     QPaintEvent e( paintRegion );
-    setWFlags( WState_PaintEvent );
+    setWFlags( WState_InPaintEvent );
     QApplication::sendEvent( this, &e );
-    clearWFlags( WState_PaintEvent );
+    clearWFlags( WState_InPaintEvent );
     return TRUE;
 }
 

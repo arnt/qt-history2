@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#79 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -489,57 +489,24 @@ void *QFont::textMetric() const
   QFontMetrics member functions
  *****************************************************************************/
 
-class QPainter_Protected : public QPainter	// access to textMetric()
-{
-public:
-    void *tm() { return textMetric(); }
-};
-
-
 const QFontDef *QFontMetrics::spec() const
 {
-    const QFontDef *s;
-    if ( type() == FontInternal ) {
-	s = u.f->spec();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	s = f->d->fin->spec();
-    } else if ( type() == Painter && u.p ) {
-	QFont *f = (QFont *)&u.p->font();
-	f->handle();
-	s = f->d->fin->spec();
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont.d->fin->spec();
     } else {
-	s = 0;
+	return fin->spec();
     }
-#if defined(CHECK_NULL)
-    if ( !s )
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-    return s;
 }
 
 void *QFontMetrics::textMetric() const
 {
-    if ( type() == FontInternal ) {
-	if ( qt_winver == WV_NT )
-	    return u.f->textMetricW();
-	else
-	    return u.f->textMetricA();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	if ( qt_winver == WV_NT )
-	    return f->d->fin->textMetricW();
-	else
-	    return f->d->fin->textMetricA();
-    } else if ( type() == Painter && u.p ) {
-	return ((QPainter_Protected*)u.p)->tm();
+    if ( painter ) {
+	return painter->textMetric();
+    } else if ( qt_winver == WV_NT ) {
+	return fin->textMetricW();
     } else {
-#if defined(CHECK_NULL)
-	warning( "QFontMetrics: Invalid font metrics" );
-#endif
-	return 0;
+	return fin->textMetricA();
     }
 }
 
@@ -547,8 +514,8 @@ void *QFontMetrics::textMetric() const
 #undef  TMX
 #undef  TMA
 #undef  TMW
-#define TMA (type() == FontInternal ? u.f->textMetricA() : (TEXTMETRICA*)textMetric())
-#define TMW (type() == FontInternal ? u.f->textMetricW() : (TEXTMETRICW*)textMetric())
+#define TMA (painter ? (TEXTMETRICA*)painter->textMetric() : fin->textMetricA())
+#define TMW (painter ? (TEXTMETRICW*)painter->textMetric() : fin->textMetricW())
 #define TM(F) ( qt_winver == WV_NT ? TMW->F : TMA->F )
 #define TMX TMA // Initial metrix align
 
@@ -764,22 +731,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 HDC QFontMetrics::hdc() const
 {
-    if ( type() == FontInternal ) {
-	return u.f->dc();
-    } else {
-	if ( type() == Widget && u.w ) {
-	    QFont *f = (QFont *)&u.w->font();
-	    f->handle();	
-	    return f->d->fin->dc();
-	} else if ( type() == Painter && u.p ) {
-	    return u.p->handle();
-	} else {
-#if defined(CHECK_NULL)
-	    warning( "QFontMetrics: Invalid font metrics" );
-#endif
-	    return 0;
-	}
-    }
+    return painter ? painter->handle() : fin->dc();
 }
 
 int QFontMetrics::maxWidth() const
@@ -790,23 +742,22 @@ int QFontMetrics::maxWidth() const
 int QFontMetrics::underlinePos() const
 {
     int pos = (lineWidth()*2 + 3)/6;
-    return pos ? pos : 1;
+    return QMIN(pos,1);
 }
 
 int QFontMetrics::strikeOutPos() const
 {
     int pos = TMX->tmAscent/3;
-    return pos ? pos : 1;
+    return QMIN(pos,1);
 }
 
 int QFontMetrics::lineWidth() const
 {
-    if ( type() == FontInternal ) {
-	return u.f->lineWidth();
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont.d->fin->lineWidth();
     } else {
-	QFont f = font();
-	f.handle();
-	return f.d->fin->lineWidth();
+	return fin->lineWidth();
     }
 }
 
@@ -817,27 +768,18 @@ int QFontMetrics::lineWidth() const
 
 const QFontDef *QFontInfo::spec() const
 {
-    const QFontDef *s;
-    if ( type() == FontInternal ) {
-	s = u.f->spec();
-    } else if ( type() == Widget && u.w ) {
-	QFont *f = (QFont *)&u.w->font();
-	f->handle();
-	s = f->d->fin->spec();
-    } else if ( type() == Painter && u.p ) {
-	QFont *f = (QFont *)&u.p->font();
-	f->handle();
-	s = f->d->fin->spec();
+    if ( painter ) {
+	painter->cfont.handle();
+	return painter->cfont.d->fin->spec();
     } else {
-	s = 0;
+	return fin->spec();
     }
-#if defined(CHECK_NULL)
-    if ( !s )
-	warning( "QFontInfo: Invalid font info" );
-#endif
-    return s;
 }
 
+
+/*****************************************************************************
+  QFontData member functions
+ *****************************************************************************/
 
 const QTextCodec* QFontData::mapper() const
 {
@@ -848,4 +790,3 @@ void* QFontData::fontSet() const
 {
     return 0;
 }
-
