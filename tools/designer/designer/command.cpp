@@ -2296,7 +2296,7 @@ void AddToolBoxPageCommand::execute()
     toolBox->insertPage( toolBoxLabel,toolBoxPage, index );
     toolBox->setCurrentPage( toolBoxPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
-    // ### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void AddToolBoxPageCommand::unexecute()
@@ -2304,7 +2304,7 @@ void AddToolBoxPageCommand::unexecute()
     toolBox->removePage( toolBoxPage );
     toolBoxPage->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
-    // ### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 // ------------------------------------------------------------
@@ -2322,7 +2322,7 @@ void DeleteToolBoxPageCommand::execute()
     toolBox->removePage( toolBoxPage );
     toolBoxPage->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
-    // #### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void DeleteToolBoxPageCommand::unexecute()
@@ -2330,6 +2330,6 @@ void DeleteToolBoxPageCommand::unexecute()
     toolBox->insertPage( toolBoxLabel, toolBoxPage, index );
     toolBox->setCurrentPage( toolBoxPage );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
-    // ### formWindow()->mainWindow()->objectHierarchy()->tabsChanged( toolBox );
+    formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 

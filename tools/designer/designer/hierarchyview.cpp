@@ -427,6 +427,12 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    name = ( (QWizard*)o->parent()->parent() )->title( (QWidget*)o );
     }
 
+    if ( o->parent() && o->parent()->parent() &&
+	 o->parent()->parent()->parent() &&
+	 o->parent()->parent()->parent()->inherits( "QToolBox" ) )
+	name = ( (QToolBox*)o->parent()->parent()->parent() )->pageLabel( (QWidget*)o );
+
+
     if ( fakeMainWindow ) {
 	name = o->parent()->name();
 	className = "QMainWindow";
@@ -436,6 +442,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	item = new HierarchyItem( HierarchyItem::Widget, this, 0, name, className, dbInfo );
     else
 	item = new HierarchyItem( HierarchyItem::Widget, parent, 0, name, className, dbInfo );
+    item->setOpen( TRUE );
     if ( !parent )
 	item->setPixmap( 0, QPixmap::fromMimeSource( "designer_form.png" ) );
     else if ( o->inherits( "QLayoutWidget") )
@@ -454,7 +461,8 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	QObjectListIt it( *l );
 	it.toLast();
 	for ( ; it.current(); --it ) {
-	    if ( !it.current()->isWidgetType() || ( (QWidget*)it.current() )->isHidden() )
+	    if ( !it.current()->isWidgetType() ||
+		 ( (QWidget*)it.current() )->isHidden() )
 		continue;
 	    if ( !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
 		if ( it.current()->parent() &&
@@ -489,6 +497,13 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 			insertObject( obj, item );
 		    }
 		    delete l2;
+		} else if ( it.current()->parent() &&
+			    it.current()->parent()->inherits( "QToolBox" ) ) {
+		    if ( !it.current()->inherits( "QScrollView" ) )
+			continue;
+		    QToolBox *tb = (QToolBox*)it.current()->parent();
+		    for ( int i = tb->count() - 1; i >= 0; --i )
+			insertObject( tb->page( i ), item );
 		}
 		continue;
 	    }
@@ -510,7 +525,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    actions = ( (QDesignerToolBar*)o )->insertedActions();
 	else
 	    ( (PopupMenuEditor*)o )->insertedActions( actions );
-	    
+
 	QPtrListIterator<QAction> it( actions );
 	it.toLast();
 	while ( it.current() ) {
@@ -547,7 +562,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		continue;
 	    insertObject( md->menu(), item );
 	}
-    }    
+    }
 }
 
 void HierarchyList::setCurrent( QObject *o )
