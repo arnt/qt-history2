@@ -202,7 +202,6 @@ public:
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);
     static bool fillFontDef(const QCString &, QFontDef *, QCString *);
-    static int getFontWeight(const QCString &, bool = FALSE);
 
     static inline bool isZero(char *x)
     {
@@ -247,7 +246,7 @@ public:
     QCString bestMatch(const char *, int *) const;
     int fontMatchScore(const char *, QCString &, float *, int *, bool *, bool *) const;
     void initFontInfo(QFontPrivate::Script);
-    void load(QFontPrivate::Script, bool = TRUE);
+    void load(QFontPrivate::Script = QFontPrivate::defaultScript, bool = TRUE);
     void computeLineWidth();
 
     class QFontX11Data {
@@ -280,6 +279,12 @@ public:
     static QFontPrivate::Script defaultScript;
 
 #endif // Q_WS_X11
+
+#if defined(Q_WS_WIN)
+    void load();
+#endif
+    
+	static int getFontWeight(const QCString &, bool = FALSE);
 
 
 #ifndef QT_NO_COMPAT
