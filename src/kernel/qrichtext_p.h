@@ -286,6 +286,8 @@ public:
 
     void gotoLeft();
     void gotoRight();
+    void gotoNextLetter();
+    void gotoPreviousLetter();
     void gotoUp();
     void gotoDown();
     void gotoLineEnd();

@@ -640,6 +640,14 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 
 void QTextCursor::gotoLeft()
 {
+    if ( string->string()->isRightToLeft() )
+	gotoNextLetter();
+    else
+	gotoPreviousLetter();
+}
+
+void QTextCursor::gotoPreviousLetter()
+{
     tmpIndex = -1;
 
     if ( idx > 0 ) {
@@ -829,6 +837,14 @@ void QTextCursor::processNesting( Operation op )
 }
 
 void QTextCursor::gotoRight()
+{
+    if ( string->string()->isRightToLeft() )
+	gotoPreviousLetter();
+    else
+	gotoNextLetter();
+}
+
+void QTextCursor::gotoNextLetter()
 {
     tmpIndex = -1;
 #ifndef QT_NO_TEXTCUSTOMITEM
