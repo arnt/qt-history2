@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -1210,6 +1210,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	break;
     case QVariant::Int:
 	if ( w && w->inherits( "QLayout" ) ) {
+	    num = -1;
 	    if ( name == "spacing" )
 		num = MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
 	    else if ( name == "margin" )
