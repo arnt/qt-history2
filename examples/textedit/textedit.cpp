@@ -104,7 +104,7 @@ void TextEdit::setupEditActions()
     connect( a, SIGNAL( activated() ), this, SLOT( editCut() ) );
     a->addTo( tb );
     a->addTo( menu );
-    a = new QAction( tr( "Copy" ), QPixmap( "editcopy.xpm" ), tr( "C&opy" ), CTRL + Key_Z, this, "editCopy" );
+    a = new QAction( tr( "Copy" ), QPixmap( "editcopy.xpm" ), tr( "C&opy" ), CTRL + Key_C, this, "editCopy" );
     connect( a, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     a->addTo( tb );
     a->addTo( menu );
