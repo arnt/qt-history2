@@ -5879,6 +5879,7 @@ QCheckListItem::~QCheckListItem()
     d->exclusive = 0; // so the children won't try to access us.
     if ( d->statesDict )
 	delete d->statesDict;
+    delete d;
 }
 
 /*!
