@@ -2543,7 +2543,8 @@ QString QString::section(const QRegExp &reg, int start, int end, int flags) cons
     Returns a substring that contains the \a len leftmost characters
     of the string.
 
-    The entire string is returned if \a len is greater than size().
+    The entire string is returned if \a len is greater than size() or
+    less than zero.
 
     \code
         QString x = "Pineapple";
@@ -2559,7 +2560,7 @@ QString QString::left(int len)  const
     if (len > d->size)
         return *this;
     if (len < 0)
-        len = 0;
+        len = d->size;
     return QString((const QChar*) d->data, len);
 }
 
@@ -2567,7 +2568,8 @@ QString QString::left(int len)  const
     Returns a substring that contains the \a len rightmost characters
     of the string.
 
-    The entire string is returned if \a len is greater than size().
+    The entire string is returned if \a len is greater than size() or
+    less than zero.
 
     \code
         QString x = "Pineapple";
@@ -2583,7 +2585,7 @@ QString QString::right(int len) const
     if (len > d->size)
         return *this;
     if (len < 0)
-        len = 0;
+        len = d->size;
     return QString((const QChar*) d->data + d->size - len, len);
 }
 
