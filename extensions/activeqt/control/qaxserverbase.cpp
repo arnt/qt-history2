@@ -1843,7 +1843,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
     QSize oldSizeHint = activeqt->sizeHint();
 
     switch ( wFlags ) {
-    case 3:
+    case DISPATCH_PROPERTYGET|DISPATCH_METHOD:
     case DISPATCH_PROPERTYGET:
 	{
 	    const QMetaProperty *property = proplist->find( dispidMember );
@@ -1866,7 +1866,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		break;
 	    }
 	}
-	// FALLTHROUGH if wFlags == 3 AND not a property.
+	// FALLTHROUGH if wFlags == DISPATCH_PROPERTYGET|DISPATCH_METHOD AND not a property.
     case DISPATCH_METHOD:
 	{
 	    const QMetaData *slot = slotlist->find( dispidMember );
