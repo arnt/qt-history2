@@ -77,8 +77,7 @@ then
     done
 
     # symlink the mkspecs directory
-    rm -f $outpath/mkspecs
-    ln -s $relpath/mkspecs $outpath/mkspecs
+    [ -e "$relpath/mkspecs $outpath/mkspecs" ] || ln -s $relpath/mkspecs $outpath/mkspecs
 
     # symlink the linguist/doc directory (to make the assistant happy)
     if [ ! -d $outpath/tools ]
@@ -877,8 +876,16 @@ if [ "x$CONCURRENT" = "x0" ] && echo $MAKEFLAGS | grep '.* *-j[0-9]* *.*' >/dev/
 fi
 
 [ -z "$XPLATFORM" ] && XPLATFORM="$PLATFORM"
-QMAKESPEC="$relpath/mkspecs/${PLATFORM}"
-XQMAKESPEC="$relpath/mkspecs/${XPLATFORM}"
+if [ -d "$PLATFORM" ]; then
+  QMAKESPEC="$PLATFORM"
+else
+  QMAKESPEC="$relpath/mkspecs/${PLATFORM}"
+fi
+if [ -d "$XPLATFORM" ]; then
+  XQMAKESPEC="$XPLATFORM"
+else
+  XQMAKESPEC="$relpath/mkspecs/${XPLATFORM}"
+fi
 if [ '!' -d "$QMAKESPEC" ]
 then
     echo
