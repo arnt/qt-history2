@@ -76,6 +76,8 @@ opengl {
 }
 
 sql {
+	HEADERS += sql/sqlsyntaxhighlighter.h
+	SOURCES += sql/sqlsyntaxhighlighter.cpp
 	FORMS += sql/connect.ui \
 		      sql/sqlex.ui
 }

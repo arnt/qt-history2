@@ -15,7 +15,9 @@
 #include <qsqlcursor.h>
 #include <qsqlselectcursor.h>
 #include <qdatatable.h>
+
 #include "connect.h"
+#include "sqlsyntaxhighlighter.h"
 
 static void showError( const QSqlError& err, QWidget* parent = 0 )
 {
@@ -34,7 +36,8 @@ void SqlEx::init()
     hsplit->setResizeMode( lv, QSplitter::KeepSize );
     vsplit->setResizeMode( gb, QSplitter::KeepSize );
     submitBtn->setEnabled( FALSE );
-    conDiag = new ConnectDialog( this, "Connection Dialog", TRUE );    
+    conDiag = new ConnectDialog( this, "Connection Dialog", TRUE );
+    (void) new SqlSyntaxHighlighter( te );
 }
 
 void SqlEx::dbConnect()
