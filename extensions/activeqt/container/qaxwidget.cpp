@@ -1273,7 +1273,8 @@ void QAxHostWidget::paintEvent( QPaintEvent* )
 	return;
     
     IViewObject *view = 0;
-    axhost->widget->queryInterface( IID_IViewObject, (void**)&view );
+    if (axhost)
+	axhost->widget->queryInterface( IID_IViewObject, (void**)&view );
     if ( !view )
 	return;
 
