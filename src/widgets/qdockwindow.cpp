@@ -507,7 +507,7 @@ QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
       closeButton( 0 ), opaque( FALSE )
 {
     setMouseTracking( TRUE );
-    setMinimumHeight( 13 );
+    setFixedHeight( 13 );
 }
 
 void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
