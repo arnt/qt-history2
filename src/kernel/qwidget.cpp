@@ -5152,7 +5152,7 @@ void QWidget::showFullScreen()
     }
     if ( topData()->normalGeometry.width() < 0 )
 	topData()->normalGeometry = QRect( pos(), size() );
-    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
+    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorderEx,
 	      QPoint(0,0) );
     topData()->fullscreen = 1;
     move(0, 0);
