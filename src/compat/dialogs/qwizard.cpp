@@ -580,9 +580,8 @@ void QWizard::updateButtons()
 
 
 /*!
-    Returns a pointer to the current page in the sequence. Although
-    the wizard does its best to make sure that this value is never 0,
-    it can be if you try hard enough.
+Returns a pointer to the current page in the sequence.
+
 */
 
 QWidget * QWizard::currentPage() const
@@ -592,7 +591,8 @@ QWidget * QWizard::currentPage() const
 
 
 /*!
-    Returns the title of page \a page.
+    Returns the title of page \a page, or an empty string if the page widget
+    is not part of the wizard.
 */
 
 QString QWizard::title(QWidget * page) const
