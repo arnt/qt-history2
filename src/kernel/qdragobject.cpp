@@ -675,7 +675,9 @@ void QTextDrag::setSubtype( const QCString & st)
     \ingroup draganddrop
 
     Plain text is passed in a QString which may contain multiple lines
-    (i.e. may contain newline characters).
+    (i.e. may contain newline characters). The drag target will receive
+    the newlines according to the runtime environment, e.g. LF on Unix,
+    and CRLF on Windows.
 
     Qt provides no built-in mechanism for delivering only a single-line.
 
