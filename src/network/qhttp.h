@@ -14,6 +14,8 @@ class QTimerEvent;
 class QTextStream;
 class QIODevice;
 
+class QHttpHeaderPrivate;
+
 class Q_EXPORT QHttpHeader
 {
 public:
@@ -55,8 +57,7 @@ protected:
     void parse( const QString& str );
 
 private:
-    QMap<QString,QString> m_values;
-
+    QHttpHeaderPrivate *d;
     bool m_bValid;
 };
 

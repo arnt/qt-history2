@@ -8,24 +8,35 @@
 #include "qsocket.h"
 #include "qtextstream.h"
 
+class QHttpHeaderPrivate
+{
+public:
+    QMap<QString,QString> m_values;
+};
+
 QHttpHeader::QHttpHeader()
     : m_bValid( TRUE )
 {
+    d = new QHttpHeaderPrivate;
 }
 
 QHttpHeader::QHttpHeader( const QHttpHeader& header )
-    : m_values( header.m_values ), m_bValid( header.m_bValid )
+    : m_bValid( header.m_bValid )
 {
+    d = new QHttpHeaderPrivate;
+    d->m_values = header.d->m_values;
 }
 
 QHttpHeader::QHttpHeader( const QString& str )
     : m_bValid( TRUE )
 {	
+    d = new QHttpHeaderPrivate;
     parse( str );
 }
 
 QHttpHeader::~QHttpHeader()
 {
+    delete d;
 }
 
 void QHttpHeader::parse( const QString& str )
@@ -107,15 +118,15 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
 
 QString QHttpHeader::value( const QString& key ) const
 {
-    return m_values[ key.lower() ];
+    return d->m_values[ key.lower() ];
 }
 
 QStringList QHttpHeader::keys() const
 {
     QStringList lst;
 
-    QMap<QString,QString>::ConstIterator it = m_values.begin();
-    for( ; it != m_values.end(); ++it )
+    QMap<QString,QString>::ConstIterator it = d->m_values.begin();
+    for( ; it != d->m_values.end(); ++it )
 	lst.append( *it );
 
     return lst;
@@ -123,17 +134,17 @@ QStringList QHttpHeader::keys() const
 
 bool QHttpHeader::hasKey( const QString& key ) const
 {
-    return m_values.contains( key.lower() );
+    return d->m_values.contains( key.lower() );
 }
 
 void QHttpHeader::setValue( const QString& key, const QString& value )
 {
-    m_values[ key.lower() ] = value;
+    d->m_values[ key.lower() ] = value;
 }
 
 void QHttpHeader::removeValue( const QString& key )
 {
-    m_values.remove( key.lower() );
+    d->m_values.remove( key.lower() );
 }
 
 bool QHttpHeader::parseLine( const QString& line, int )
@@ -142,7 +153,7 @@ bool QHttpHeader::parseLine( const QString& line, int )
     if ( i == -1 )
 	return FALSE;
 
-    m_values[ line.left( i ).stripWhiteSpace() ] = line.mid( i + 1 ).stripWhiteSpace();
+    d->m_values[ line.left( i ).stripWhiteSpace() ] = line.mid( i + 1 ).stripWhiteSpace();
 
     return TRUE;
 }
@@ -151,8 +162,8 @@ QString QHttpHeader::toString() const
 {
     QString ret = "";
 
-    QMap<QString,QString>::ConstIterator it = m_values.begin();
-    for( ; it != m_values.end(); ++it )
+    QMap<QString,QString>::ConstIterator it = d->m_values.begin();
+    for( ; it != d->m_values.end(); ++it )
 	ret += it.key() + ": " + it.data() + "\r\n";
 
     return ret;
@@ -166,12 +177,12 @@ QTextStream& QHttpHeader::write( QTextStream& stream ) const
 
 uint QHttpHeader::contentLength() const
 {
-    return m_values[ "content-length" ].toUInt();
+    return d->m_values[ "content-length" ].toUInt();
 }
 
 QString QHttpHeader::contentType() const
 {
-    QString type = m_values[ "content-type" ];
+    QString type = d->m_values[ "content-type" ];
     if ( type.isEmpty() )
 	return QString::null;
     
@@ -184,12 +195,12 @@ QString QHttpHeader::contentType() const
 
 void QHttpHeader::setContentLength( int len )
 {
-    m_values[ "content-length" ] = QString::number( len );
+    d->m_values[ "content-length" ] = QString::number( len );
 }
 
 void QHttpHeader::setContentType( const QString& type )
 {
-    m_values[ "content-type" ] = type;
+    d->m_values[ "content-type" ] = type;
 }
 
 void QHttpHeader::setConnection( QHttpHeader::Connection con )
@@ -197,24 +208,26 @@ void QHttpHeader::setConnection( QHttpHeader::Connection con )
     switch( con )
     {
     case Close:
-	m_values[ "connection" ] = "close";
+	d->m_values[ "connection" ] = "close";
 	break;
     case KeepAlive:
-	m_values[ "connection" ] = "Keep-Alive";
+	d->m_values[ "connection" ] = "Keep-Alive";
 	break;
     }
 }
 
 QHttpHeader::Connection QHttpHeader::connection() const
 {
-    if ( !m_values.contains( "connection" ) )
+    if ( !d->m_values.contains( "connection" ) )
 	return Close;
 
-    const char* c = m_values[ "connection" ].latin1();
+    const char* c = d->m_values[ "connection" ].latin1();
 
-    if ( strcasecmp( c, "close" ) == 0 )
+//    if ( strcasecmp( c, "close" ) == 0 ) ### correct change?
+    if ( qstrcmp( c, "close" ) == 0 )
 	return Close;
-    if ( strcasecmp( c, "keep-alive" ) == 0 )
+//    if ( strcasecmp( c, "keep-alive" ) == 0 ) ### correct change?
+    if ( qstrcmp( c, "keep-alive" ) == 0 )
 	return KeepAlive;
 
     return Close;
@@ -351,7 +364,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& str )
     parse( str );
 }
 
-void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int version = 10 )
+void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int version )
 {
     m_method = method;
     m_path = path;
@@ -423,7 +436,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
  *
  ****************************************************/
 
-QHttpClient::QHttpClient( QObject* parent = 0, const char* name = 0 )
+QHttpClient::QHttpClient( QObject* parent, const char* name )
     : QObject( parent, name ), m_state( QHttpClient::Idle ), m_idleTimer( 0 ),
       m_device( 0 ), m_postDevice( 0 )
 {
@@ -855,7 +868,7 @@ QHttpServer::QHttpServer( int port, QObject* parent, const char* name )
  *
  ****************************************************/
 
-QHttpConnection::QHttpConnection( int socket, QObject* parent = 0, const char* name = 0 )
+QHttpConnection::QHttpConnection( int socket, QObject* parent, const char* name )
     : QObject( parent, name ), m_bytesToWrite( 0 ), m_state( Created ), m_killTimer( 0 ),
       m_allowKeepAlive( TRUE ), m_keepAliveTimeout( 10000 )
 {
