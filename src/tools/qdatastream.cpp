@@ -503,35 +503,37 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
 }
 
 /*!
-  \fn QDataStream &QDataStream::operator>>( Q_UINT64 &i )
-  Reads an unsigned 64-bit integer from the stream and returns a reference to
-  the stream, or uses the Q_UINT32 operator if 64 bit is not available.
+  \fn QDataStream &QDataStream::operator>>( Q_ULONG &i )
+  Reads an unsigned integer of the systems word length 
+  from the stream and returns a reference to the stream.
 */
 
 /*!
-  Reads a signed 64-bit integer from the stream and returns a reference to
-  the stream, or uses the Q_UINT32 operator if 64 bit is not available.
+  Reads a signed integer of the systems word length 
+  from the stream and returns a reference to the stream.
 */
 
-QDataStream &QDataStream::operator>>( Q_INT64 &i )
+QDataStream &QDataStream::operator>>( Q_LONG &i )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	i = read_int_ascii( this );
     } else if ( noswap ) {			// no conversion needed
-	dev->readBlock( (char *)&i, sizeof(Q_INT64) );
+	dev->readBlock( (char *)&i, sizeof(Q_LONG) );
     } else {					// swap bytes
 	register uchar *p = (uchar *)(&i);
-	char b[sizeof(Q_INT64)];
-	dev->readBlock( b, sizeof(Q_INT64) );
-	if ( sizeof(Q_INT64) == 8 ) {
+	char b[sizeof(Q_LONG)];
+	dev->readBlock( b, sizeof(Q_LONG) );
+	if ( sizeof(Q_LONG) == 8 ) {
 	    *p++ = b[7];
 	    *p++ = b[6];
 	    *p++ = b[5];
 	    *p++ = b[4];
 	}
-	*p++ = b[3];
-	*p++ = b[2];
+	if ( sizeof(Q_LONG) >= 4 ) {
+	    *p++ = b[3];
+	    *p++ = b[2];
+	}
 	*p++ = b[1];
 	*p   = b[0];
     }
@@ -777,17 +779,17 @@ QDataStream &QDataStream::operator<<( Q_INT32 i )
 }
 
 /*!
-  \fn QDataStream &QDataStream::operator<<( Q_UINT64 i )
-  Writes an unsigned 64-bit integer to the stream and returns a reference to
-  the stream, or uses the Q_UINT32-operator if 64 bit is not available.
+  \fn QDataStream &QDataStream::operator<<( Q_ULONG i )
+  Writes an unsigned integer of system word length to the 
+  stream and returns a reference to the stream.
 */
 
 /*!
-  Writes a signed 64-bit integer to the stream and returns a reference to
-  the stream, or calls the Q_INT32-operator if 64 bit is not available.
+  Writes a signed integer of system word length to the stream and 
+  returns a reference to the stream.
 */
 
-QDataStream &QDataStream::operator<<( Q_INT64 i )
+QDataStream &QDataStream::operator<<( Q_LONG i )
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
@@ -795,21 +797,23 @@ QDataStream &QDataStream::operator<<( Q_INT64 i )
 	sprintf( buf, "%ld\n", i );
 	dev->writeBlock( buf, strlen(buf) );
     } else if ( noswap ) {			// no conversion needed
-	dev->writeBlock( (char *)&i, sizeof(Q_INT64) );
+	dev->writeBlock( (char *)&i, sizeof(Q_LONG) );
     } else {					// swap bytes
 	register uchar *p = (uchar *)(&i);
-	char b[sizeof(Q_INT64)];
-	if ( sizeof(Q_INT64) == 8 ) {
+	char b[sizeof(Q_LONG)];
+	if ( sizeof(Q_LONG) == 8 ) {
 	    b[7] = *p++;
 	    b[6] = *p++;
 	    b[5] = *p++;
 	    b[4] = *p++;
 	}
-	b[3] = *p++;
-	b[2] = *p++;
+	if ( sizeof(Q_LONG) >= 4 ) {
+	    b[3] = *p++;
+	    b[2] = *p++;
+	}
 	b[1] = *p++;
 	b[0] = *p;
-	dev->writeBlock( b, sizeof(Q_INT64) );
+	dev->writeBlock( b, sizeof(Q_LONG) );
     }
     return *this;
 }

@@ -450,15 +450,14 @@ typedef unsigned short		Q_UINT16;	// 16 bit unsigned
 typedef int			Q_INT32;	// 32 bit signed
 typedef unsigned int		Q_UINT32;	// 32 bit unsigned
 #if defined(Q_OS_WIN64)
-// P64 64-bit model on Windows
-typedef	__int64			Q_INT64;
-typedef unsigned __int64	Q_UINT64;
+// LLP64 64-bit model on Windows
+typedef	__int64			Q_LONG;		// word up to 64 bit signed
+typedef unsigned __int64	Q_ULONG;	// word up to 64 bit unsigned
 #else
 // LP64 64-bit model on Linux
-typedef long			Q_INT64;	// up to 64 bit signed
-typedef unsigned long		Q_UINT64;	// up to 64 bit unsigned
+typedef long			Q_LONG;		
+typedef unsigned long		Q_ULONG;
 #endif
-
 
 //
 // Data stream functions is provided by many classes (defined in qdatastream.h)

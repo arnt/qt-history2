@@ -75,8 +75,8 @@ public:
     QDataStream &operator>>( Q_UINT16 &i );
     QDataStream &operator>>( Q_INT32 &i );
     QDataStream &operator>>( Q_UINT32 &i );
-    QDataStream &operator>>( Q_INT64 &i );
-    QDataStream &operator>>( Q_UINT64 &i );
+    QDataStream &operator>>( Q_LONG &i );
+    QDataStream &operator>>( Q_ULONG &i );
 
     QDataStream &operator>>( float &f );
     QDataStream &operator>>( double &f );
@@ -88,8 +88,8 @@ public:
     QDataStream &operator<<( Q_UINT16 i );
     QDataStream &operator<<( Q_INT32 i );
     QDataStream &operator<<( Q_UINT32 i );
-    QDataStream &operator<<( Q_INT64 i );
-    QDataStream &operator<<( Q_UINT64 i );
+    QDataStream &operator<<( Q_LONG i );
+    QDataStream &operator<<( Q_ULONG i );
     QDataStream &operator<<( float f );
     QDataStream &operator<<( double f );
     QDataStream &operator<<( const char *str );
@@ -153,8 +153,8 @@ inline QDataStream &QDataStream::operator>>( Q_UINT16 &i )
 inline QDataStream &QDataStream::operator>>( Q_UINT32 &i )
 { return *this >> (Q_INT32&)i; }
 
-inline QDataStream &QDataStream::operator>>( Q_UINT64 &i )
-{ return *this >> (Q_INT64&)i; }
+inline QDataStream &QDataStream::operator>>( Q_ULONG &i )
+{ return *this >> (Q_LONG&)i; }
 
 inline QDataStream &QDataStream::operator<<( Q_UINT8 i )
 { return *this << (Q_INT8)i; }
@@ -165,8 +165,8 @@ inline QDataStream &QDataStream::operator<<( Q_UINT16 i )
 inline QDataStream &QDataStream::operator<<( Q_UINT32 i )
 { return *this << (Q_INT32)i; }
 
-inline QDataStream &QDataStream::operator<<( Q_UINT64 i )
-{ return *this << (Q_INT64)i; }
+inline QDataStream &QDataStream::operator<<( Q_ULONG i )
+{ return *this << (Q_LONG)i; }
 
 
 #endif // QT_NO_DATASTREAM
