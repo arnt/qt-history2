@@ -3,9 +3,9 @@
 HEADERS +=      itemviews/qiconview.h \
 		itemviews/qlistbox.h \
 		itemviews/q3listview.h \
-        	itemviews/qtable.h
+        	itemviews/q3table.h
 
 SOURCES +=      itemviews/qiconview.cpp \
 		itemviews/qlistbox.cpp \
 		itemviews/q3listview.cpp \
-        	itemviews/qtable.cpp
+        	itemviews/q3table.cpp

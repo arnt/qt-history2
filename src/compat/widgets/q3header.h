@@ -22,13 +22,13 @@
 
 class QShowEvent;
 class Q3HeaderData;
-class QTable;
+class Q3Table;
 class Q3ListView;
 
 class Q_COMPAT_EXPORT Q3Header : public QWidget
 {
-    friend class QTable;
-    friend class QTableHeader;
+    friend class Q3Table;
+    friend class Q3TableHeader;
     friend class Q3ListView;
 
     Q_OBJECT
