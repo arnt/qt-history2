@@ -220,7 +220,7 @@ QVariant QPSQLResult::data( int i )
     switch ( type ) {
     case QVariant::Bool:
 	{
-	    QVariant b ( (bool)(val == "t"), 0 );
+	    QVariant b ( (bool)(val == "t") );
 	    return ( b );
 	}
     case QVariant::String:

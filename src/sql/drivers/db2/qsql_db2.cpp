@@ -585,7 +585,7 @@ bool QDB2Result::exec()
 		dt->day = qdt.day();
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_DATE,
 				      SQL_DATE,
 				      0,
@@ -603,7 +603,7 @@ bool QDB2Result::exec()
 		dt->second = qdt.second();
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_TIME,
 				      SQL_TIME,
 				      0,
@@ -625,7 +625,7 @@ bool QDB2Result::exec()
 		dt->fraction = qdt.time().msec() * 1000000;
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_TIMESTAMP,
 				      SQL_TIMESTAMP,
 				      0,
@@ -639,7 +639,7 @@ bool QDB2Result::exec()
 		tmpStorage.append( qAutoDeleter(v) );
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_SLONG,
 				      SQL_INTEGER,
 				      0,
@@ -653,7 +653,7 @@ bool QDB2Result::exec()
 		tmpStorage.append( qAutoDeleter(v) );
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_DOUBLE,
 				      SQL_DOUBLE,
 				      0,
@@ -668,7 +668,7 @@ bool QDB2Result::exec()
 		}
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_BINARY,
 				      SQL_LONGVARBINARY,
 				      val.asByteArray().size(),
@@ -686,7 +686,7 @@ bool QDB2Result::exec()
 		tmpStorage.append( qAutoDeleter(str) );
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_WCHAR,
 				      SQL_WVARCHAR,
 				      str->length(),
@@ -703,7 +703,7 @@ bool QDB2Result::exec()
 		tmpStorage.append( qAutoDeleter(str) );
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
-				      qParamType[ (int)(QFlagInternal)(bindValueType(i)) & 3 ],
+				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_CHAR,
 				      SQL_VARCHAR,
 				      str->length() + 1,
