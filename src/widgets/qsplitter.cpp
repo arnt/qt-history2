@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#20 $
 **
 **  Splitter widget
 **
@@ -238,6 +238,14 @@ void QSplitter::init()
     else
 	bord = 5;
 }
+
+/*!
+  \fn void QSplitter::refresh()
+  
+  Updates the splitter state. You should not need to call this
+  function during normal operations.  
+*/
+
 
 /*!  Sets the orientation to \a o.  By default the orientation is
   horizontal (the two widgets are side by side).
