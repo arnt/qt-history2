@@ -18,6 +18,8 @@
 #include "qsizepolicy.h"
 #include "qrect.h"
 
+#include "limits.h"
+
 static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
 
 class QLayout;
