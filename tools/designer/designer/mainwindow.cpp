@@ -2111,7 +2111,7 @@ bool MainWindow::closeForm( FormWindow *fw )
     modified = fw->commandHistory()->isModified();
     if ( modified ) {
 	switch ( QMessageBox::warning( this, tr( "Save Form" ),
-				       tr( "Save changes of form '%1'?" ).arg( fw->name() ),
+				       tr( "Save changes to the form '%1'?" ).arg( fw->name() ),
 				       tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
 	case 0: // save
 	    fw->setFocus();
