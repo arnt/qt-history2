@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#88 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#89 $
 **
 ** Implementation of QFileDialog class
 **
@@ -40,7 +40,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#89 $");
 
 
 static QFileIconProvider * fileIconProvider = 0;
@@ -241,19 +241,10 @@ const char * QFileDialogPrivate::File::text( int column ) const
 	}
 	break;
     case 4:
-	if ( info.isReadable() ) {
-	    if ( info.isWritable() ) {
-		r = "Readable, writable";
-	    } else {
-		r = "Readable";
-	    }
-	} else {
-	    if ( info.isWritable() ) {
-		r = "Writable";
-	    } else {
-		r = "Not accessible";
-	    }
-	}
+	if ( info.isReadable() )
+	    r = info.isWritable() ? "Read-write" : "Read-only";
+	else
+	    r = info.isWritable() ? "Write-only" : "Inaccessible";
 	break;
     default:
 	r = "<--->";
@@ -283,8 +274,10 @@ const char * QFileDialogPrivate::File::key( int column, bool ascending ) const
     static QDateTime epoch( QDate( 1968, 6, 19 ) );
 
     char majorkey = ascending == info.isDir() ? '0' : '1';
-
-    if ( column == 1 ) {
+    
+    if ( info.fileName() == ".." ) {
+	r = ascending ? "0" : "a"; // a > 9
+    } else if ( column == 1 ) {
 	r.sprintf( "%c%08d", majorkey, info.size() );
     } else if ( column == 3 ) {
 	r.sprintf( "%c%08d", majorkey, epoch.secsTo( info.lastModified() ) );
@@ -949,7 +942,7 @@ const char *QFileDialog::dirPath() const
 
 
 /*!  Sets the filter spec in use to \a newFilter.
-  
+
   If \a newFilter matches the regular expression
   <tt>([a-zA-Z0-9\.\*\?]*)$</tt> (ie. it ends with a normal wildcard
   expression enclosed in parentheses), only the parenthesized is used.
@@ -1040,6 +1033,8 @@ void QFileDialog::rereadDir()
 	    d->paths->insertItem( cwd.canonicalPath(), i );
 	d->paths->setCurrentItem( i );
     }
+    
+    d->cdToParent->setEnabled( !cwd.isRoot() );
 
     const QFileInfoList *filist = 0;
 
@@ -1757,10 +1752,10 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 
 void QFileDialog::keyPressEvent( QKeyEvent * ke )
 {
-    if ( ke && 
+    if ( ke &&
 	 ( ke->key() == Key_Enter ||
 	   ke->key() == Key_Return ) &&
-	 ( focusWidget() == d->paths || 
+	 ( focusWidget() == d->paths ||
 	   focusWidget() == d->types ) )
 	ke->accept();
     else
@@ -1769,22 +1764,22 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 
 
 /*! \class QFileIconProvider qfiledlg.h
-  
+
   \brief The QFileIconProvider class provides icons for QFileDialog to
   use.
-  
+
   By default, QFileIconProvider is not used, but any application or
   library can subclass it, reimplement pixmap() to return a suitable
   icon, and make all QFileDialog objects use it by calling the static
   function QFileDialog::setIconProvider().
-  
+
   It's advisable to make all the icons QFileIconProvider returns be of
   the same size, or at least the same width.  This makes the list view
   look much better.
-  
+
   \sa QFileDialog
 */
-  
+
 
 /*!  Constructs an empty file icon provider. */
 
@@ -1814,7 +1809,7 @@ const QPixmap * QFileIconProvider::pixmap( const QFileInfo & )
   for each file.  By default there is no icon provider, and
   QFileDialog simply draws a "folder" icon next to each directory and
   nothing next to the files.
-  
+
   \sa QFileIconProvider iconProvider()
 */
 
