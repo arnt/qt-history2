@@ -507,7 +507,7 @@ QThreadPrivate::QThreadPrivate()
 
 QThreadPrivate::~QThreadPrivate()
 {
-    if ( !finished ) {
+    if ( running && !finished ) {
 	qWarning("QThread object destroyed while thread is still running. Terminating thread...");
 	TerminateThread( handle, 0 );
 	finished = TRUE;
