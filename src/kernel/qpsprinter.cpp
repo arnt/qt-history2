@@ -2061,6 +2061,9 @@ QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
       i++;
     }
   }
+  
+  if ( ps.isEmpty() )
+      ps = "Helvetica";
 
   // see if the table has a better name
   i = 0;
