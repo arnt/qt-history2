@@ -1098,16 +1098,18 @@ QApplication::~QApplication()
 
 /*!
   \fn int QApplication::argc() const
+
   Returns the number of command line arguments.
 
-  The documentation for argv() contains a detailed description of how to
-  process command line arguments.
+  The documentation for argv() describes how to process command line
+  arguments.
 
   \sa argv(), QApplication::QApplication()
 */
 
 /*!
   \fn char **QApplication::argv() const
+
   Returns the command line argument vector.
 
   \c argv()[0] is the program name, \c argv()[1] is the first argument and
@@ -1131,16 +1133,16 @@ QApplication::~QApplication()
 	QApplication a( argc, argv );
 	QListBox b;
 	a.setMainWidget( &b );
-	for ( int i=0; i<a.argc(); i++ )	// a.argc() == argc
-	    b.insertItem( a.argv()[i] );	// a.argv()[i] == argv[i]
+	for ( int i = 0; i < a.argc(); i++ )  // a.argc() == argc
+	    b.insertItem( a.argv()[i] );      // a.argv()[i] == argv[i]
 	b.show();
 	return a.exec();
     }
   \endcode
 
-  If you run <tt>showargs -display unix:0 -font 9x15bold hello
-  world</tt> under X11, the list box contains the three strings
-  "showargs", "hello" and "world".
+  If you run \c{showargs -display unix:0 -font 9x15bold hello world}
+  under X11, the list box contains the three strings "showargs",
+  "hello" and "world".
 
   \sa argc(), QApplication::QApplication()
 */
@@ -1152,7 +1154,8 @@ QApplication::~QApplication()
 static QString *qt_style_override = 0;
 
 /*!
-  Returns the style object of the application.
+  Returns the application's style object.
+
   \sa setStyle(), QStyle
 */
 QStyle& QApplication::style()
@@ -1216,7 +1219,7 @@ QStyle& QApplication::style()
 }
 
 /*!
-  Sets the application GUI style to \a style. Ownership of the style
+  Sets the application's GUI style to \a style. Ownership of the style
   object is transferred to QApplication, so QApplication will delete
   the style object on application exit or when a new style is set.
 
@@ -1342,42 +1345,41 @@ int QApplication::colorSpec()
 /*!
   Sets the color specification for the application to \a spec.
 
-  The color specification controls how your application allocates colors
-  when run on a display with a limited amount of colors, i.e. 8 bit / 256
+  The color specification controls how the application allocates colors
+  when run on a display with a limited amount of colors, e.g. 8 bit / 256
   color displays.
 
   The color specification must be set before you create the QApplication
   object.
 
-  The choices are:
+  The options are:
   \list
   \i QApplication::NormalColor.
-    This is the default color allocation strategy. Use this choice if
+    This is the default color allocation strategy. Use this option if
     your application uses buttons, menus, texts and pixmaps with few
-    colors. With this choice, the application uses system global
+    colors. With this option, the application uses system global
     colors. This works fine for most applications under X11, but on
     Windows machines it may cause dithering of non-standard colors.
   \i QApplication::CustomColor.
-    Use this choice if your application needs a small number of custom
-    colors. On X11, this choice is the same as NormalColor. On Windows, Qt
+    Use this option if your application needs a small number of custom
+    colors. On X11, this option is the same as NormalColor. On Windows, Qt
     creates a Windows palette, and allocates colors to it on demand.
   \i QApplication::ManyColor.
-    Use this choice if your application is very color hungry
-    (e.g. it wants thousands of colors).
-    Under X11 the effect is: \list
-      \i For 256-color displays which have at best a 256 color true color
-	    visual, the default visual is used, and colors are allocated
-	    from a color cube.
-	    The color cube is the 6x6x6 (216 color) "Web palette", but the
-	    number of colors can be changed by the \e -ncols option.
-	    The user can force the application to use the true color visual by
-	    the \link QApplication::QApplication() -visual \endlink
-	    option.
-      \i For 256-color displays which have a true color visual with more
-	    than 256 colors, use that visual.  Silicon Graphics X
-	    servers have this feature, for example.  They provide an 8
-	    bit visual by default but can deliver true color when
-	    asked.
+    Use this option if your application is very color hungry
+    (e.g. it requires thousands of colors).
+    Under X11 the effect is:
+    \list
+    \i For 256-color displays which have at best a 256 color true color
+       visual, the default visual is used, and colors are allocated
+       from a color cube. The color cube is the 6x6x6 (216 color) "Web
+       palette"<sup>*</sup>, but the number of colors can be changed
+       by the \e -ncols option. The user can force the application to
+       use the true color visual with the \link
+       QApplication::QApplication() -visual \endlink option.
+    \i For 256-color displays which have a true color visual with more
+       than 256 colors, use that visual. Silicon Graphics X servers
+       have this feature, for example. They provide an 8 bit visual
+       by default but can deliver true color when asked.
     \endlist
     On Windows, Qt creates a Windows palette, and fills it with a color cube.
   \endlist
@@ -1400,12 +1402,13 @@ int QApplication::colorSpec()
   freeing up certain colors. See QColor::enterAllocContext() for more
   information.
 
-  To see what mode you end up with, you can call QColor::numBitPlanes()
-  once the QApplication object exists.  A value greater than 8 (typically
+  To check what mode you end up with, call QColor::numBitPlanes() once
+  the QApplication object exists. A value greater than 8 (typically
   16, 24 or 32) means true color.
 
-  The color cube used by Qt has all those colors with red, green, and blue
-  components of either 0x00, 0x33, 0x66, 0x99, 0xCC, or 0xFF.
+  <sup>*</sup> The color cube used by Qt has 216 colors whose red,
+  green, and blue components always have one of the following values:
+  0x00, 0x33, 0x66, 0x99, 0xCC, or 0xFF.
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext() */
 
@@ -1422,6 +1425,7 @@ void QApplication::setColorSpec( int spec )
 
 /*!
   \fn QSize QApplication::globalStrut()
+
   Returns the application's global strut.
 
   The strut is a size object whose dimensions are the minimum that any
@@ -1461,10 +1465,11 @@ void QApplication::setGlobalStrut( const QSize& strut )
 /*!
   Returns a list of paths that the application will search when
   dynamically loading libraries.
-  Returns $QTDIR/plugins as the only entry if no paths have been set explicitely.
+  Returns \c $QTDIR/plugins as the only entry if no paths have been
+  set.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
+  If you want to iterate over the list, you should iterate over a
+  copy, e.g.
     \code
     QStringList list = app.libraryPaths();
     QStringList::Iterator it = list.begin();
@@ -1517,8 +1522,7 @@ void QApplication::setLibraryPaths( const QStringList &paths )
 /*!
   Append \a path to the end of the library path list.  If \a path is
   empty or already in the path list, the path list is not changed.
-  $QTDIR/plugins is a default entry in the path list unless you call
-  setLibraryPaths() to set a different list of paths.
+  The default path list consists of a single entry, \c $QTDIR/plugins.
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
@@ -1535,7 +1539,7 @@ void QApplication::addLibraryPath( const QString &path )
 }
 
 /*!
-  Removes \a path from the library path list.  If \a path is empty or not
+  Removes \a path from the library path list. If \a path is empty or not
   in the path list, the list is not changed.
 
   \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
@@ -1558,7 +1562,7 @@ void QApplication::removeLibraryPath( const QString &path )
   always an application palette, i.e. the returned pointer is
   guaranteed to be non-null.
 
-  If a widget is passed at \a w, the default palette for the
+  If a widget is passed in \a w, the default palette for the
   widget's class is returned. This may or may not be the application
   palette. In most cases there isn't a special palette for certain
   types of widgets, but one notable exception is the popup menu under
@@ -1601,9 +1605,10 @@ QPalette QApplication::palette(const QWidget* w)
   Changes the default application palette to \a palette. If \a
   informWidgets is TRUE, then existing widgets are informed about the
   change and may adjust themselves to the new application
-  setting. Otherwise the change only affects newly created widgets. If
-  \a className is passed, the change applies only to classes that
-  inherit \a className (as reported by QObject::inherits()).
+  setting. If \a informWidgets is FALSE, the change only affects newly
+  created widgets. If \a className is passed, the change applies only
+  to classes that inherit \a className (as reported by
+  QObject::inherits()).
 
   The palette may be changed according to the current GUI style in
   QStyle::polish().
@@ -1654,10 +1659,8 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 #endif // QT_NO_PALETTE
 
 /*!
-  Returns the default font for the widget. Basically this function uses
-  \link QObject::className() w->className() \endlink to find the font.
-
-  If \a w is 0 the default application font is returned.
+  Returns the default font for the widget \a w, or the default
+  application font if \a w is 0.
 
   \sa setFont(), fontMetrics(), QWidget::font()
 */
@@ -1686,15 +1689,16 @@ QFont QApplication::font( const QWidget *w )
 /*! Changes the default application font to \a font. If \a
   informWidgets is TRUE, then existing widgets are informed about the
   change and may adjust themselves to the new application
-  setting. Otherwise the change only affects newly created widgets. If
-  \a className is passed, the change applies only to classes that
-  inherit \a className (as reported by QObject::inherits()).
+  setting. If \a informWidgets is FALSE, the change only affects newly
+  created widgets. If \a className is passed, the change applies only
+  to classes that inherit \a className (as reported by
+  QObject::inherits()).
 
   On application start-up, the default font depends on the window
-  system.  It can vary both with window system version and with locale.
-  This function lets you override the default font; but overriding may
-  be a bad idea, for example some locales need extra-large fonts to
-  support their special characters.
+  system.  It can vary depending on both the window system version and
+  the locale. This function lets you override the default font; but
+  overriding may be a bad idea because, for example, some locales need
+  extra-large fonts to support their special characters.
 
   \sa font(), fontMetrics(), QWidget::setFont()
 */
@@ -1737,8 +1741,8 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 
 
 /*!
-    Initialization of the appearance of the widget \a w \e before it is first
-    shown.
+  Initialization of the appearance of the widget \a w \e before it is first
+  shown.
 
   Usually widgets call this automatically when they are polished. It
   may be used to do some style-based central customization of widgets.
@@ -1820,7 +1824,8 @@ QWidgetList *QApplication::topLevelWidgets()
     delete list;                      // delete the list, not the widgets
   \endcode
 
-  The QWidgetList class is defined in the qwidgetlist.h header file.
+  The QWidgetList class is defined in the \c qwidgetlist.h header
+  file.
 
   \warning Delete the list as soon as you have finished using it.
   The widgets in the list may be deleted by someone else at any time.
@@ -1837,7 +1842,7 @@ QWidgetList *QApplication::allWidgets()
   \fn QWidget *QApplication::focusWidget() const
 
   Returns the application widget that has the keyboard input focus, or
-  null if no widget in this application has the focus.
+  0 if no widget in this application has the focus.
 
   \sa QWidget::setFocus(), QWidget::hasFocus(), activeWindow()
 */
@@ -1846,8 +1851,8 @@ QWidgetList *QApplication::allWidgets()
   \fn QWidget *QApplication::activeWindow() const
 
   Returns the application top-level window that has the keyboard input
-  focus, or null if no application window has the focus. Note that
-  there might be an activeWindow even if there is no focusWidget(),
+  focus, or 0 if no application window has the focus. Note that
+  there might be an activeWindow() even if there is no focusWidget(),
   for example if no widget in that window accepts key events.
 
   \sa QWidget::setFocus(), QWidget::hasFocus(), focusWidget()
@@ -1872,11 +1877,11 @@ QFontMetrics QApplication::fontMetrics()
   event loop and returns from the call to exec(). The exec() function
   returns \a retcode.
 
-  By convention, \a retcode 0 means success. Any non-zero value
-  indicates an error.
+  By convention, a \a retcode of 0 means success, and any non-zero
+  value indicates an error.
 
   Note that unlike the C library function of the same name, this
-  function \e does return to the caller - it is event processing that
+  function \e does return to the caller -- it is event processing that
   stops.
 
   \sa quit(), exec()
@@ -1921,7 +1926,7 @@ void QApplication::quit()
   Closes all top-level windows.
 
   This function is particularly useful for applications with many
-  top-level windows. It could for example be connected to a "Quit"
+  top-level windows. It could, for example, be connected to a "Quit"
   entry in the file menu as shown in the following code example:
 
   \code
@@ -1984,7 +1989,7 @@ void QApplication::closeAllWindows()
   desktop session.
 
   The signal is particularly useful if your application has to do some
-  last-second cleanups. Note that no user interaction is possible in
+  last-second cleanup. Note that no user interaction is possible in
   this state.
 
   \sa quit()
