@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.10 1996/06/10 15:23:48 agulbra Exp $
+** $Id: indices.doc,v 1.11 1996/06/22 15:42:25 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.10 1996/06/10 15:23:48 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.11 1996/06/22 15:42:25 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -24,36 +24,37 @@ static char ident[] = "$Id: indices.doc,v 1.10 1996/06/10 15:23:48 agulbra Exp $
 
 Here are the main index pages:
 <ul>
-<li><a href=hierarchy.html>Class overview</a>
-<li><a href=classes.html>Alphabetical list</a>
-<li><a href=annotated.html>Annotated list</a>
+<li><a href="hierarchy.html">Class overview</a>
+<li><a href="classes.html">Alphabetical list</a>
+<li><a href="annotated.html">Annotated list</a>
 </ul>
 
 <p>
 
 Here is a tutorial and other documentation:
 <ul>
-<li><a href=tutorial.html>Tutorial</a>
-<li><a href=metaobjects.html>Signals and slots</a>
-<li><a href=debug.html>Debugging aids</a>
-<li><a href=headers.html>Header files</a>
-<li><a href=topicals.html>Other index pages</a>
+<li><a href="tutorial.html">Tutorial</a>
+<li><a href="metaobjects.html">Signals and slots</a>
+<li><a href="debug.html">Debugging aids</a>
+<li><a href="headers.html">Header files</a>
+<li><a href="functions.html">Functions (long)</a>
+<li><a href="topicals.html">Other index pages</a>
 </ul>
 
 <p>
 
 And, finally, some meta-information:
 <ul>
-<li><a href=faq.html>FAQ</a>
-<li><a href=troll.html>Troll Tech contact information</a>
-<li><a href=license.html>License statement for Qt</a>
+<li><a href="faq.html">FAQ</a>
+<li><a href="troll.html">Troll Tech contact information</a>
+<li><a href="license.html">License statement for Qt</a>
 </ul>
 
 <p>
 
 There is a mailing list for Qt users.  Send a message containing the
 single word "subscribe" to <a
-href=mailto:qt-interest-request@nvg.unit.no>qt-interest-request@nvg.unit.no</a>
+href="mailto:qt-interest-request@nvg.unit.no>qt-interest-request@nvg.unit.no</a>
 to join the list.  You will receive a receipt from the list server
 within a few minutes.
 */
@@ -67,14 +68,14 @@ within a few minutes.
 <h1>Topical Index pages</h1>
 
 <ul>
-<li><a href=tools.html>General utility classes</a>
-<li><a href=fonts.html>Classes related to fonts</a>
-<li><a href=realwidgets.html>Widgets</a>
-<li><a href=abstractwidgets.html>Abstract widget classes</a>
-<li><a href=drawing.html>Low-level drawing classes</a>
-<li><a href=headers.html>Header files</a>
-<li><a href=enums.html>enum types</a>
-<li><a href=examples.html>Example programs</a>
+<li><a href="tools.html">General utility classes</a>
+<li><a href="fonts.html">Classes related to fonts</a>
+<li><a href="realwidgets.html">Widgets</a>
+<li><a href="abstractwidgets.html">Abstract widget classes</a>
+<li><a href="drawing.html">Low-level drawing classes</a>
+<li><a href="headers.html">Header files</a>
+<li><a href="enums.html">enum types</a>
+<li><a href="examples.html">Example programs</a>
 </ul>
 
 */
@@ -93,7 +94,7 @@ independently of the GUI classes.
 <h1>Font-related Classes</h1>
 
 These classes are used to manipulate fonts.  See also <a
-href=fontmatch.html>Font matching.</a>
+href="fontmatch.html">Font matching.</a>
 
 */
 
@@ -111,8 +112,8 @@ so on.
 <h1>Widgets</h1>
 
 These widgets are meant for direct use.  There are also some <a
-href=abstractwidgets.html>abstract widget classes,</a> meant for
-subclassing, and some <a href=dialogs.html>more complex widgets.</a>
+href="abstractwidgets.html">abstract widget classes,</a> meant for
+subclassing, and some <a href="dialogs.html">more complex widgets.</a>
 
 */
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#105 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#106 $
 #
 # this is a massive hack, written very quickly
 #
@@ -126,7 +126,7 @@ sub processcode {
     # label include files
     s@(\n\043include\s+(?:\042|(?:&lt;)))(.*?.h)((?:\042|(?:&gt;)))@
        if ( defined( $anchor{$2} ) ) {
-	   sprintf("%s<a href=%s>%s</a>%s", $1, $anchor{$2}, $2, $3);
+	   sprintf("%s<a href=\"%s\">%s</a>%s", $1, $anchor{$2}, $2, $3);
        } else {
 	   sprintf("%s%s%s", $1, $2, $3);
        }
@@ -151,14 +151,14 @@ sub processcode {
     s@\b([A-Za-z0-9_]+)(\s*(?:(?:\.)|(?:-&gt;))\s*)([A-Za-z0-9_]+)@
     {
 	if (defined($anchor{$types{$1} . "::" . $3})) {
-	    sprintf("%s%s<a href=%s>%s</a>", $1, $2,
+	    sprintf("%s%s<a href=\"%s\">%s</a>", $1, $2,
 		    $anchor{$types{$1} . "::" . $3}, $3);
 	} elsif (defined($myfunctions{$1."::".$3})) {
 	    sprintf("%s%s<a href=\043%s>%s</a>", $1, $2,
 		    $myfunctions{$1."::".$3}, $3);
 	} elsif (defined($inheritedtypes{$1}) && 
 		 defined($anchor{$types{$inheritedtypes{$1}} . "::" . $3})) {
-	    sprintf("%s%s<a href=%s>%s</a>", $1, $2,
+	    sprintf("%s%s<a href=\"%s\">%s</a>", $1, $2,
 		    $anchor{$types{$inheritedtypes{$1}} . "::" . $3}, $3);
 	} else {
 	    sprintf("%s%s%s", $1, $2, $3);
@@ -171,7 +171,7 @@ sub processcode {
     s@((?:(?:^)|(?:[\n;\{\(]))\s*)\b([A-Za-z0-9_]+::[A-Za-z0-9_]+)\b@
     {
 	if (defined($anchor{$2})) {
-	    sprintf("%s<a href=%s>%s</a>", $1, $anchor{$2}, $2);
+	    sprintf("%s<a href=\"%s\">%s</a>", $1, $anchor{$2}, $2);
 	} elsif (defined($myfunctions{$2})) {
 	    sprintf("%s<a href=\043%s>%s</a>", $1, $myfunctions{$2}, $2);
 	} else {
@@ -184,7 +184,7 @@ sub processcode {
     s@((?:(?:^)|(?:[:\n;\{\(])|(?:\bnew))\s*)([A-Za-z0-9_]+)\b(?!::)@
     {
 	if ((defined($anchor{$2})) && ($type{$anchor{$2}} eq "class")) {
-	    sprintf("%s<a href=%s>%s</a>", $1, $anchor{$2}, $2);
+	    sprintf("%s<a href=\"%s\">%s</a>", $1, $anchor{$2}, $2);
 	} else {
 	    sprintf("%s%s", $1, $2);
 	}
@@ -207,10 +207,10 @@ sub processcode {
 		    $2, $myfunctions{$myclass . "::" . $3}, $3, $4 );
 	} elsif ( $myclass ne "" &&
 		 $type{$anchor{$inheritedtypes{$myclass}."::".$3}} eq "fn" ) {
-	    sprintf( "%s<a href=%s>%s</a>%s", 
+	    sprintf( "%s<a href=\"%s\">%s</a>%s", 
 		    $2, $anchor{$inheritedtypes{$myclass}."::".$3}, $3, $4 );
 	} elsif ( $type{$anchor{"::".$3}} eq "fn" ) {
-	    sprintf( "%s<a href=%s>%s</a>%s", $2, $anchor{"::".$3}, $3, $4 );
+	    sprintf( "%s<a href=\"%s\">%s</a>%s", $2, $anchor{"::".$3}, $3, $4 );
 	} else {
 #	    print "VOLD: ",$myclass," ",$inheritedtypes{$myclass},"::",$3,
 #	          " ", $anchor{$inheritedtypes{$myclass}."::".$3}, "\n";
@@ -222,10 +222,10 @@ sub processcode {
     # add anchors to locally defined functions
     foreach $myclass ( keys %myfunctions ) {
 	s@(\b$myclass\b)@
-	    sprintf("<a name=%s></a>%s", $myfunctions{$myclass}, $1);
+	    sprintf("<a name=\"%s\"></a>%s", $myfunctions{$myclass}, $1);
 	@esg;
-	s@<a href=.*?><a name=.*?></a>$myclass</a>@
-	    sprintf("<a name=%s></a>%s", $myfunctions{$myclass}, $1);
+	s@<a href=\".*?\"><a name=.*?></a>$myclass</a>@
+	    sprintf("<a name=\"%s\"></a>%s", $myfunctions{$myclass}, $1);
 	@esg;
     }
 
@@ -239,13 +239,13 @@ sub findlink {
     local ($_, $class, $url, $ismethod) = @_;
 
     if (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
-	sprintf("<a href=%s>%s</a>", $anchor{$_}, &html($_));
+	sprintf("<a href=\"%s\">%s</a>", $anchor{$_}, &html($_));
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
 	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
-	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, &html($_));
+	sprintf("<a href=\"%s\">%s</a>", $anchor{$class . $_}, &html($_));
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
 	     defined($anchor{"::" . $_}) && $anchor{"::" . $_} ne $url) {
-	sprintf("<a href=%s>%s</a>", $anchor{"::" . $_}, &html($_));
+	sprintf("<a href=\"%s\">%s</a>", $anchor{"::" . $_}, &html($_));
     } else {
 	sprintf("%s", $_);
     }
@@ -298,8 +298,8 @@ sub handlecodeincludes {
     }
 
     if ( $cmd eq "include" || $cmd eq "dontinclude" ) {
-	$basefile = "/local/qt/tutorial/" . $arg;
-	$basefile = "/local/qt/examples/" . $arg unless ( -f $basefile );
+	$basefile = $ENV{"QTDIR"} . "/tutorial/" . $arg;
+	$basefile = $ENV{"QTDIR"} . "/examples/" . $arg unless ( -f $basefile );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
 	$slash = $/;
@@ -313,8 +313,8 @@ sub handlecodeincludes {
 	$arg =~ s-</pre>$--;
 	$arg =~ s-\n-\n    -g;
 	if ( $cmd eq "dontinclude" ) {
-	    $arg =~ s-<a href=#\d+>(.*?)</a>-$1-gs;
-	    $arg =~ s-<a name=\d+>(.*?)</a>-$1-gs;
+	    $arg =~ s-<a href=\"?#\d+\"?>(.*?)</a>-$1-gs;
+	    $arg =~ s-<a name=\"?\d+\"?>(.*?)</a>-$1-gs;
 	    $res = "";
 	}
 	@code = split( /\n+/, $arg );
@@ -456,7 +456,7 @@ sub processdocs {
 	    $tryagain = $&;
 	    $_ = &manglefn( $1, $2, $3, $4, $5);
 	    if ($type{$_} eq "fn") {
-		sprintf("<a href=%s>%s</a>", $_, $string);
+		sprintf("<a href=\"%s\">%s</a>", $_, $string);
 	    } else {
 		sprintf("%s", $tryagain);
 	    }
@@ -466,13 +466,13 @@ sub processdocs {
 	# try normal class::member, just class or member
 	$doc =~ s-\\link\s+([^\s\(]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
-		sprintf("<a href=%s>%s</a>", $anchor{$1}, &html($2));
+		sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, &html($2));
 	    } else {
 		if (defined($anchor{$class . $1})) {
-		    sprintf("<a href=%s>%s</a>", 
+		    sprintf("<a href=\"%s\">%s</a>", 
 			    $anchor{$class . $1}, &html($2));
 		} elsif (defined($anchor{"::".$1})) {
-		    sprintf("<a href=%s>%s</a>", 
+		    sprintf("<a href=\"%s\">%s</a>", 
 			    $anchor{"::" . $1}, &html($2));
 		} else {
 		    print "No link to '", $1, "' for '", $2, "'\n";
@@ -508,6 +508,8 @@ sub processdocs {
 	$doc .= $_ if (/<li>/s);
 
 	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
+
+	$doc =~ s@\\version\b@$version@gs;
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
@@ -586,7 +588,7 @@ sub writepages {
 	$doc = $pages{$file};
 	$doc =~ s-\\link\s+([^\s\(]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
-		sprintf("<a href=%s>%s</a>", $anchor{$1}, $2);
+		sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, $2);
 	    } else {
 		print "No link to '", $1, "' for '", $2, "'\n";
 		sprintf("%s", $2);
@@ -596,13 +598,13 @@ sub writepages {
 	# refer to function or class by name
 	$doc =~ s-\\l\s+([^\s\(]+)((?:[\(\)]*))-
 	    if (defined($anchor{$1})) {
-		sprintf("<a href=%s>%s</a>", $anchor{$1}, &html($1 . $2));
+		sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, &html($1 . $2));
 	    } else {
 		if (defined($anchor{$class . $1})) {
-		    sprintf("<a href=%s>%s</a>", 
+		    sprintf("<a href=\"%s\">%s</a>", 
 			    $anchor{$class . $1}, &html($1 . $2));
 		} elsif (defined($anchor{"::".$1})) {
-		    sprintf("<a href=%s>%s</a>", 
+		    sprintf("<a href=\"%s\">%s</a>", 
 			    $anchor{"::" . $1}, &html($1 . $2));
 		} else {
 		    print "No link to '", $1, "'\n";
@@ -621,6 +623,8 @@ sub writepages {
 
 	$doc = &codeincludes($doc);
 
+	$doc =~ s@\\version\b@$version@gs;
+
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
 
@@ -636,7 +640,7 @@ sub writepages {
 	    $e = "";
 	    foreach ( sort split(/:+/, $classes{$file}) ) {
 		if (defined($anchor{$_})) {
-		    print O $p, "<li><a href=", $anchor{$_}, ">", $_, "</a>\n";
+		    print O $p, "<li><a href=\"",$anchor{$_},"\">",$_,"</a>\n";
 		    $p = "";
 		    print O "    (", $capt{$anchor{$_}}, ")\n" 
 			if (defined($capt{$anchor{$_}}));
@@ -836,7 +840,7 @@ sub readfiles {
 	    $_ = "";
 	    foreach $w (split(/\b/, $&)) {
 		if (defined($anchor{$w})) {
-		    $_ = join("", $_, "<a href=", $anchor{$w}, ">", $w, "</a>");
+		    $_ = join("", $_, "<a href=\"", $anchor{$w}, "\">", $w, "</a>");
 		} else {
 		    $_ = join("", $_, $w);
 		}
@@ -845,7 +849,7 @@ sub readfiles {
 	@egsx;
 	$h =~ s@(\n#include\s+[\<\x22])([\w\.]+)([\>\x22])@
 	    if (defined($headerfiles{$2})) {
-		sprintf("%s<a href=%s>%s</a>%s", $1, $headerfiles{$2}, $2, $3);
+		sprintf("%s<a href=\"%s\">%s</a>%s", $1, $headerfiles{$2}, $2, $3);
 	    } else {
 		sprintf("%s%s%s", $1, $2, $3);
 	    }
@@ -855,7 +859,7 @@ sub readfiles {
 Qt Toolkit - ", $filename, " include file
 </title></head><body>
 <p>This is the verbatim text of the ", $filename," include file.  It is is
-provided only for illustration; the <a href=license.html>copyright</a>
+provided only for illustration; the <a href=\"license.html\">copyright</a>
 remains with Troll Tech.
 <hr>
 <pre>
@@ -869,8 +873,8 @@ remains with Troll Tech.
 	$doc = &codeincludes($examples{$filename});
 	$doc =~ s/<linebreak>//gs;
 	
-	open(F, "expand < /local/qt/examples/$filename |")
-	    || open(F, "expand < /local/qt/tutorial/$filename |")
+	open(F, "expand < " . $ENV{"QTDIR"} . "/examples/$filename |")
+	    || open(F, "expand < " . $ENV{"QTDIR"} . "/tutorial/$filename |")
 		|| die "can't open $filename for reading";
 	$htmlfilename = $filename;
 	$htmlfilename =~ s@/@-@;
@@ -879,27 +883,28 @@ remains with Troll Tech.
 	    || die "can't open $outputdir/$htmlfilename for writing";
 	$h = <F>;
 	close F;
-	$h = &processcode($h, "/local/qt/examples/$filename" );
+	$h = &processcode($h, "" . $ENV{"QTDIR"} . "/examples/$filename" );
 	$h =~ s/<linebreak>//gs;
 
-	while ( $h =~ m@<a href=(.*?)>(.*?)</a>@gs ) {
+	while ( $h =~ m@<a href=\"?(.*?)\"?>(.*?)</a>@gs ) {
 	    $a{$1} = $2;
 	}
 
 	foreach ( keys %a ) {
 	    $a = $a{$_};
 	    $doc{$_} .= "<p>Examples:\n" unless ($doc{$_} =~ /\bExamples:\s/);
-	    $doc{$_} .= " <a href=$htmlfilename>$filename</a>\n";
-	    $doc{$_} =~ s/<a href=$htmlfilename>/<a href=$htmlfilename\#$a>/gs;
+	    $doc{$_} .= " <a href=\"$htmlfilename\">$filename</a>\n";
+	    $doc{$_} =~ s/<a href=\"$htmlfilename\">/<a href=\"$htmlfilename\#$a\">/gs;
 	}
 	foreach ( keys %a ) {
 	    $a = $a{$_};
-	    $h =~ s@<a href=$_>@<a name=$a></a><a href=$_>@s;
+	    $h =~ s@<a href=\"?$_\"?>@<a name=\"$a\"></a><a href=\"$_\">@s;
 	}
 
 	$h =~ s@(\n#include\s+\&lt;)([\w\.]+)(\&gt;)@
 	    if (defined($headerfiles{$2})) {
-		sprintf("%s<a href=%s>%s</a>%s", $1, $headerfiles{$2}, $2, $3);
+		sprintf("%s<a href=\"%s\">%s</a>%s", 
+			$1, $headerfiles{$2}, $2, $3);
 	    } else {
 		sprintf("%s%s%s", $1, $2, $3);
 	    }
@@ -1302,13 +1307,14 @@ sub al {
     {
 	if (defined($anchor{$class . "::" . $&}) &&
 	    $type{$anchor{$class."::".$&}} ne "fn") {
-	    sprintf("<a href=%s>%s</a>", $anchor{$class."::".$&}, &html($&));
+	    sprintf("<a href=\"%s\">%s</a>",
+		    $anchor{$class."::".$&}, &html($&));
 	} elsif (defined($anchor{"::" . $&}) &&
 	    $type{$anchor{"::".$&}} ne "fn") {
-	    sprintf("<a href=%s>%s</a>", $anchor{"::".$&}, &html($&));
+	    sprintf("<a href=\"%s\">%s</a>", $anchor{"::".$&}, &html($&));
 	} elsif (defined($anchor{$&}) &&
 		 $type{$anchor{$&}}) {
-	    sprintf("<a href=%s>%s</a>", $anchor{$&}, &html($&));
+	    sprintf("<a href=\"%s\">%s</a>", $anchor{$&}, &html($&));
 	} else {
 	    &html($&);
 	}
@@ -1462,7 +1468,7 @@ sub printclass {
     $documented{$url}++;
 
     $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
-    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=license.html>copyright &copy;</a> 1995-96\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
+    $tail = "<hr><p>\nThis file is part of the <a href=\"qt.html\">Qt toolkit</a>,\n<a href=\"license.html\">copyright &copy;</a> 1995-96\n<a href=\"troll.html\">Troll Tech</a>, all rights reserved.\n";
     if (defined ($cfiles{$includefile{$url}})) {
 	my(%files);
 	$files{$includefile{$url}}++;
@@ -1497,10 +1503,10 @@ sub printclass {
     my ($i, $family);
     if (defined($brief{$url})) {
 	print O "<p>\n", $brief{$url}, "\n";
-	print O "<a href=#details>More...</a>\n"
+	print O "<a href=\"#details\">More...</a>\n"
 	    if ($doc{$url} ne "");
     }
-    print O "<p>\n<code>#include &lt;<a href=", $headerfiles{$includefile{$url}}, ">", $includefile{$url}, "</a>&gt;</code>\n" if (defined($includefile{$url}));
+    print O "<p>\n<code>#include &lt;<a href=\"", $headerfiles{$includefile{$url}}, "\">", $includefile{$url}, "</a>&gt;</code>\n" if (defined($includefile{$url}));
     if ($relations{$name{$url}} =~ /\S/s) {
 	my($relatives, $name, $header);
 	$relatives = "<hr><h2>Related Functions</h2>\n";
@@ -1510,13 +1516,13 @@ sub printclass {
 	    $documented{$_}++;
 	    $name =~ s/^[^\#]*\#//;
 	    $header = $def{$_};
-	    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
+	    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=\"$name\">$2</a>;s;
 	    $relatives = join ("", $relatives, "<h3>", $header,
 			       "</h3>\n<p>", $doc{$_}, "\n");
 	    $header = $def{$_};
 	    $header =~ s@</?a.*?>@@gs; #okok, so it is stupid
 	    $header =~ 
-		s;([^\(]*\s)\b(\S+);$1<a href=$url#$name><strong>$2</strong></a>;s;
+		s;([^\(]*\s)\b(\S+);$1<a href=\"$url#$name\"><strong>$2</strong></a>;s;
 	    $family = join( "\n<li>", $family, $header);
 	}
 	$tail = join("", $relatives, $tail);
@@ -1564,7 +1570,7 @@ sub printclass {
 
     $_ = $file;
     s/\.html/-members.html/;
-    print O "<p><a href=", $_, ">List of all member functions.</a>\n";
+    print O "<p><a href=\"", $_, "\">List of all member functions.</a>\n";
 
     die "no members in class $class" unless (defined($members{$url}));
 
@@ -1637,13 +1643,13 @@ sub printclass {
 			$a =~ s/^.*?\((\)\()?\s*//s;
 			$a =~ s/\s*\).*?$//s;
 			$a =~ s-<a href=.*?>(.*?)</a>-$1-g;
-			$_ = join("", &html($t), "<a href=", $u,
-				  "><strong>", &html($f), 
+			$_ = join("", &html($t), "<a href=\"", $u,
+				  "\"><strong>", &html($f), 
 				  "</strong></a> (", $a, 
 				  ") ", $c);
 		    } else {
-			$_ = join("", &html($t), "<a href=", $u,
-				  "><strong>", &html($f), 
+			$_ = join("", &html($t), "<a href=\"", $u,
+				  "\"><strong>", &html($f), 
 				  "</strong></a> (", &html($a), 
 				  ") ", $c);
 		    }
@@ -1662,7 +1668,7 @@ sub printclass {
 		my($name);
 		$name = $1;
 		$_ = &html($_);
-		s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+		s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=\"$name\">$2</a></strong>;s;
 	    } elsif (/^\s*enum\s*\{/s) {
 		$_ = &html($_); # don't do anything, but it's legal
 	    } elsif (/^operator\s+([\w\s\*\&]+?)\s*\(\s*\)\s*((?:const)?)\s*$/s) {
@@ -1699,7 +1705,7 @@ sub printclass {
     }
 
     if ($brief{$url} =~ /\S/s) {
-	print O "<hr><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+	print O "<hr><h2><a name=\"details\">Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
     } else {
 	print O "<hr><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
     }
@@ -1729,7 +1735,7 @@ sub printclass {
 	    print O $fnheader;
 	    $fnheader = "";
 	    $fntail = "\n";
-	    s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
+	    s;([^\(]*\s)\b(\S+);$1<a name=\"$name\">$2</a>;s;
 	    print O "<h3>", $_, $protection, "</h3>\n<p>", $doc{$url};
 
 	    $p = "<p>";
@@ -1739,8 +1745,8 @@ sub printclass {
 		    $name = $name{$virtual{$url}};
 		    $class = $name;
 		    $class =~ s/::.*//;
-		    print O $p, "Reimplemented from <a href="
-			, $virtual{$url}, ">", $class, ".</a>  ";
+		    print O $p, "Reimplemented from <a href=\""
+			, $virtual{$url}, "\">", $class, ".</a>  ";
 		    $p = "";
 		}
 		if ( defined($reimplementations{$url}) ) {
@@ -1766,7 +1772,7 @@ sub reimplementations {
 	    $n = $name{$r};
 	    $n =~ s/::.*//;
 	    $reimplementations{$virtual{$r}} .= 
-		", <a href=" . $r . ">" . $n . "</a>";
+		", <a href=\"" . $r . "\">" . $n . "</a>";
 	}
     }
 
@@ -1799,9 +1805,10 @@ sub classindex {
 ";
     foreach $url ( sort keys %type ) {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
-	    print O "<li><a href=", $url, ">", $name{$url}, "</a>\n";
-	    print P "<li><strong><a href=", $url, ">", $name{$url}, "</a></strong> (" 
-		, $capt{$url}, ")\n" if ( $capt{$url} =~ /\S/ );
+	    print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n";
+	    print P "<li><strong><a href=\"", $url, "\">", $name{$url}
+	        , "</a></strong> (", $capt{$url}, ")\n"
+		    if ( $capt{$url} =~ /\S/ );
 	}
     }
     print O "</ul>\n", $address;
@@ -1816,7 +1823,7 @@ sub enumindex {
 	|| die "can't open $outputdir/enums.html for writing";
     print O $doctype, "<html><head><title>Qt toolkit, enum type indexe</title></head><body>\n<h1>Qt enum type index</h1>\n<p>Here are the enums defined in the Qt toolkit:\n<ul compact>";
     foreach $url ( sort keys %type ) {
-	print O "<li><a href=", $url, ">", $name{$url}, "</a>\n"
+	print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "enum");
     }
     print O "</ul>\n", $address;
@@ -1834,7 +1841,7 @@ sub headerindex {
 	$_ = $filename;
 	s/\./-/;
 	s/$/.html/;
-	print O "<li><a href=", $_, ">", $filename, "</a>\n";
+	print O "<li><a href=\"", $_, "\">", $filename, "</a>\n";
     }
     print O "</ul>\n", $address;
 
@@ -1853,7 +1860,7 @@ sub exampleindex {
 	$htmlfilename = $filename;
 	$htmlfilename =~ s@/@-@;
 	$htmlfilename =~ s/\.cpp/-cpp.html/;
-	print O "<li><a href=", $htmlfilename, ">", $filename, "</a>\n";
+	print O "<li><a href=\"", $htmlfilename, "\">", $filename, "</a>\n";
     }
     print O 
 "</ul>
@@ -1913,13 +1920,13 @@ sub doclassinheritance {
 
     unless (defined($classtree{$class}) || $doc{$anchor{$class}} =~ /^\s*$/s) {
 	$classtree{$class}++;
-	print O "<li><a href=", $anchor{$class}, ">", $class, "</a>\n";
+	print O "<li><a href=\"", $anchor{$class}, "\">", $class, "</a>\n";
 	if ($subclasses{$class} =~ /\S/s) {
 	    print O "<ul plain>\n";
 	    foreach ( sort split(/\s+/, $subclasses{$class} ) ) {
 		if ($inheritance{$anchor{$_}} =~ /,.*$class/s) {
-		    print O "<li><a href=", $anchor{$_}, 
-			    ">", $_, "</a>\n";
+		    print O "<li><a href=\"", $anchor{$_}, 
+			    "\">", $_, "</a>\n";
 		} else {
 		    &doclassinheritance( $_ );
 		}
@@ -1954,7 +1961,7 @@ Qt toolkit - ", $_, " member list
 </title></head><body>
 <h1>Complete Member List for ", $_, "</h1>
 <p>This is the complete list of member functions and enum types for 
-<a href=", $anchor{$_}, ">", $_, "</a>, including all inherited members.
+<a href=\"", $anchor{$_}, "\">", $_, "</a>, including all inherited members.
 
 <p>
 
@@ -1963,19 +1970,76 @@ Qt toolkit - ", $_, " member list
 	} elsif ( $type{$anchor{$_}} eq "fn" && !($_ =~ /::_cast/)) {
 	    $member = $_;
 	    $member =~ s/.*:://;
-	    print O "<li><a href=", $anchor{$_}, ">", &html($member), "</a>\n"
+	    print O "<li><a href=\"",$anchor{$_},"\">",&html($member),"</a>\n"
 		if ( $documented{$anchor{$_}} );
 	} elsif ( $type{$anchor{$_}} eq "enum" ) {
 	    $member = $_;
 	    $member =~ s/.*:://;
 	    print O
-		"<li>enum <a href=", $anchor{$_}, ">", &html($member), "</a>\n"
+		"<li>enum <a href=\"",$anchor{$_},"\">",&html($member),"</a>\n"
 		if ( $documented{$anchor{$_}} );
 	}
     }
     print O $tail;
     close O;
 }
+
+
+
+sub byfunction {
+    local ($aa, $bb);
+
+    $aa = $a;
+    $aa =~ s/.*:://;
+    $bb = $b;
+    $bb =~ s/.*:://;
+    return $aa cmp $bb;
+}
+
+
+
+sub functionlist {
+    local( $a, $b, $c );
+
+    open(O, "> $outputdir/functions.html") || die "can't open functions.html";
+    print O $doctype, "
+<html>
+<head><title>Qt Toolkit - Member Function Index</title></head>
+<body>
+<h1>Qt Member Function Index</h1>
+
+bla bla
+
+<ul plain>";
+
+    $a = "sex";
+
+    foreach ( sort byfunction keys %anchor ) {
+	if ( $type{$anchor{$_}} eq "fn" && $documented{$anchor{$_}} &&
+	     $name{$anchor{$_}} eq $_ ) {
+	    $b = $_;
+	    $b =~ s/.*:://;
+	    next if ( $b eq "_cast" || $b =~ /^~/ );
+	    $c = $_;
+	    $c =~ s/::.*//;
+	    next if ( $b eq $c );
+	    if ( $c eq "" ) {
+		print O "\n<li><a href=\"",$anchor{$_},"\">",&html($b),"</a>";
+	    } else {
+		if ( $a ne $b ) {
+		    $a = $b;
+		    print O "\n<li>", &html($b), ": ";
+		} else {
+		    print O ", ";
+		}
+		print O "<a href=\"", $anchor{$_}, "\">", $c, "</a>";
+	    }
+	}
+    }
+    print O "\n</ul>\n", $address;
+    close O;
+}
+
 
 
 
@@ -1991,7 +2055,7 @@ if ($0 =~ /gendoc/) {
     $outputdir = "/tmp/qdoc";
 } else {
     $internal = 0;
-    $outputdir = "/local/qt/doc/html";
+    $outputdir = "" . $ENV{"QTDIR"} . "/doc/html";
 }
 
 if ( open( I, "< " . $ENV{"QTDIR"} . "/src/tools/qglobal.cpp" ) ) {
@@ -2009,7 +2073,7 @@ if ( open( I, "< " . $ENV{"QTDIR"} . "/src/tools/qglobal.cpp" ) ) {
 
 
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
-$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d for Qt version %s by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday, $version );
+$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d for Qt version %s by the <a href=\"mailto:www\@troll.no\">webmaster</a> at <a href=\"http://www.troll.no/\">Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday, $version );
 $doctype = "<!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
 
 if ($#ARGV > -1) {
@@ -2064,6 +2128,7 @@ if ($#ARGV > 4 || $#ARGV < 0) {
     &headerindex();
     &exampleindex();
     &memberlists();
+    &functionlist();
 }
 
 if ( $internal ) {

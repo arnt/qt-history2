@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#75 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#76 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#75 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#76 $")
 
 
 /*****************************************************************************
@@ -1088,6 +1088,12 @@ QString QString::simplifyWhiteSpace() const
     return result;
 }
 
+
+/*! \fn QString &QString::prepend( const char * s )
+
+  Prepend \s to the string.
+
+  \sa insert() */
 
 /*----------------------------------------------------------------------------
   Insert \e s into the string before position \e index.

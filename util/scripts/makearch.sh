@@ -113,11 +113,18 @@ moc: FORCE
 	cd \$@; \$(MAKE)
 	cp moc/moc ../../bin/moc
 
-clean depend:
-	cd moc; \$(MAKE) \$@
-	cd library; \$(MAKE) \$@
-	cd tutorial; \$(MAKE) \$@
-	cd tutorial; \$(MAKE) \$@
+clean:
+	rm variables
+	cd moc; \$(MAKE) clean
+	cd library; \$(MAKE) clean
+	cd tutorial; \$(MAKE) clean
+	cd tutorial; \$(MAKE) clean
+
+depend:
+	cd moc; \$(MAKE) depend
+	cd library; \$(MAKE) depend
+	cd tutorial; \$(MAKE) depend
+	cd tutorial; \$(MAKE) depend
 
 variables: Makefile
 	CFLAGS="\$(CFLAGS)" CC="\$(CC)" LFLAGS="\$(LFLAGS)" ./propagate
