@@ -136,6 +136,10 @@ bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
     if (stmt.isEmpty())
         return false;
 
+    // lazy initialization of editQuery
+    if (editQuery.driver() != d->db.driver())
+        editQuery = QSqlQuery(d->db);
+
     if (prepStatement) {
         if (editQuery.lastQuery() != stmt) {
             if (!editQuery.prepare(stmt)) {
