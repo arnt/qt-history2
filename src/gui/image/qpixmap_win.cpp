@@ -21,7 +21,11 @@
 #include "qt_windows.h"
 #include <limits.h>
 
+#ifdef QT_RASTER_PAINTENGINE
+#include "qpaintengine_raster_p.h"
+#else
 #include <private/qpaintengine_win_p.h>
+#endif
 
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
 
@@ -1411,11 +1415,15 @@ bool QPixmap::hasAlphaChannel() const
     return data->realAlphaBits != 0;
 }
 
-
 QPaintEngine *QPixmap::paintEngine() const
 {
-    if (!data->paintEngine)
+    if (!data->paintEngine) {
+#ifdef QT_RASTER_PAINTENGINE
+        data->paintEngine = new QRasterPaintEngine();
+#else
         data->paintEngine = new QWin32PaintEngine();
+#endif
+    }
     return data->paintEngine;
 }
 
