@@ -681,7 +681,8 @@ static QString groupKey( const QString &group, const QString &key )
 
 /*!
   Inserts \a path into the settings search path. The semantics of \a
-  path depends on the system \a s.
+  path depends on the system \a s. It is usually easier and better to
+  use setPath() instead of this function.
 
   When \a s is \e Windows and the execution environment is \e not
   Windows the function does nothing. Similarly when \a s is \e Unix and
@@ -751,6 +752,9 @@ static QString groupKey( const QString &group, const QString &key )
     which the user doesn't have read permission are ignored. When saving
     settings QSettings works in the order shown above, writing
     to the first settings file for which the user has write permission.
+
+    Note that paths in the file system are not created by this
+    function, so they must already exist to be useful.
 
   Settings under Unix are stored in files whose names are based on the
   first subkey of the key (not including the search path). The algorithm

@@ -3,10 +3,9 @@
     \title The ActiveQt framework
     \keyword ActiveQt
 
-\if defined(commercial)
     These modules are part of the \link commercialeditions.html Qt
-    Enterprise Edition \endlink.
-\endif
+    Enterprise Edition \endlink and are \e not part of the Free or
+    Non-Commercial Editions.
 
     Qt's ActiveX support allows Qt/Windows developers to:
     \list 1

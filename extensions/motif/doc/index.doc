@@ -5,10 +5,9 @@
 \title Qt Motif Extension
 \keyword Motif
 
-\if defined(commercial)
-This module is part of the \link commercialeditions.html Qt Enterprise Edition
-\endlink.
-\endif
+This module is part of the \link commercialeditions.html Qt Enterprise
+Edition \endlink and is \e not part of the Free or Non-Commercial
+Editions.
 
 \section1 Introduction
 
