@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef RESOURCEEDITOR_H
 #define RESOURCEEDITOR_H
 
@@ -14,7 +27,7 @@ class FormTab;
 class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     ResourceEditor(AbstractFormEditor *core, QWidget *parent = 0);
 
@@ -34,7 +47,7 @@ public slots:
     void saveQrc();
     void removeQrc();
     void reloadQrc();
-        
+
 private:
     QAction *m_new_qrc_action;
     QAction *m_open_qrc_action;
@@ -44,12 +57,12 @@ private:
 
     QTabWidget *m_tabs;
     QList<ResourceModel*> m_model_list;
-    
+
     int indexOfForm(AbstractFormWindow *form);
     ResourceModel *model(const QString &file);
-    
+
     FormTab *currentFormTab() const;
-    
+
     friend class FormTab;
 };
 

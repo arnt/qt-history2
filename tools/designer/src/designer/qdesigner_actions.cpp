@@ -38,6 +38,7 @@
 #include <QtGui/QIcon>
 
 #include <QtCore/QPluginLoader>
+#include <QtCore/qdebug.h>
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
@@ -602,7 +603,16 @@ void QDesignerActions::shutdown()
 
 void QDesignerActions::activeFormWindowChanged(AbstractFormWindow *formWindow)
 {
-    m_editWidgetsAction->setEnabled(formWindow != 0);
+    bool enable = formWindow != 0;
+
+    m_saveFormAction->setEnabled(enable);
+    m_saveFormAsAction->setEnabled(enable);
+    m_saveFormAsTemplateAction->setEnabled(enable);
+    m_closeFormAction->setEnabled(enable);
+
+    m_editWidgetsAction->setEnabled(enable);
+
+    m_previewFormAction->setEnabled(enable);
 }
 
 void QDesignerActions::updateRecentFileActions()
