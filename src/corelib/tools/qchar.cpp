@@ -33,8 +33,6 @@
 /*! \class QLatin1Char
     \brief The QLatin1Char class provides an 8-bit ASCII/Latin-1 character.
 
-    \internal
-
     This class is only useful to avoid the codec for C strings business
     in the QChar(ch) constructor. You can avoid it by writing
     QChar(ch, 0).
@@ -42,8 +40,27 @@
     \ingroup text
 */
 
-/*! \fn QLatin1Char::QLatin1Char(char ch)
+/*!
+    \fn const char QLatin1Char::toLatin1() const
 
+    Converts a Latin-1 character to an 8-bit ASCII representation of
+    the character.
+*/
+
+/*!
+    \fn const ushort QLatin1Char::unicode() const
+
+    Converts a Latin-1 character to an 16-bit-encoded Unicode representation
+    of the character.
+*/
+
+/*!
+    \fn QLatin1Char::QLatin1Char(char c)
+
+    Constructs a Latin-1 character for \a c. This constructor should be
+    used when the encoding of the input character is known to be Latin-1.
+
+    \sa QChar::QChar(QLatin1Char)
 */
 
 /*!
