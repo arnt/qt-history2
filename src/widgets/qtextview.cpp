@@ -2355,7 +2355,19 @@ void QTextView::scrollToAnchor( const QString& name )
 {
     if ( name.isEmpty() )
 	return;
+
     QTextParag *p = doc->firstParag();
+
+    if ( !doc->lastParag()->isValid() ) {
+	while ( p ) {
+	    if ( !p->isValid() )
+		p->format();
+	    p = p->next();
+	}
+	resizeContents( contentsWidth(), doc->height() );
+    }
+
+    p = doc->firstParag();
     while ( p ) {
 	for ( int i = 0; i < p->length(); ++i ) {
 	    if ( p->at( i )->format()->isAnchor() &&
