@@ -1603,66 +1603,13 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-/*!  Returns a copy of the pixmap that is transformed using \a matrix.
+/*!
+  Returns a copy of the pixmap that is transformed using \a matrix. The
+  original pixmap is not changed.
 
-  Qt uses this function to implement rotated text on window systems
-  that do not support such complex features.
-
-  Example of how to manually draw a rotated text at (100,200) in a widget:
-  \code
-    char    *str = "Trolls R Qt";	// text to be drawn
-    QFont    f( "Charter", 24 );	// use Charter 24pt font
-    QPixmap  pm( 8, 8 );
-    QPainter p;
-    QRect    r;				// text bounding rectangle
-    QPoint   bl;			// text baseline position
-
-    p.begin( &pm );			// first get the bounding
-    p.setFont( f );			//   text rectangle
-    r = p.fontMetrics().boundingRect(str);
-    bl = -r.topLeft();			// get baseline position
-    p.end();
-
-    pm.resize( r.size() );		// resize to fit the text
-    pm.fill( white );			// fills pm with white
-    p.begin( &pm );			// begin painting pm
-    p.setFont( f );			// set the font
-    p.setPen( blue );			// set blue text color
-    p.drawText( bl, str );		// draw the text
-    p.end();				// painting done
-
-    QWMatrix m;				// transformation matrix
-    m.rotate( -33.4 );			// rotate coordinate system
-    QPixmap rp = pm.xForm( m );		// rp is rotated pixmap
-
-    QWMatrix t = QPixmap::trueMatrix( m, pm.width(), pm.height() );
-    int x, y;
-    t.map( bl.x(),bl.y(), &x,&y );	// get pm's baseline pos in rp
-
-    bitBlt( myWidget, 100-x, 200-y,	// blt rp into a widget
-	    &rp, 0, 0, -1, -1 );
-  \endcode
-
-  This example outlines how Qt implements rotated text under X11.
-  The font calculation is the most tedious part. The rotation itself is
-  only 3 lines of code.
-
-  If you want to draw rotated text, you do not have to implement all the
-  code above. The code below does exactly the same thing as the example
-  above, except that it uses a QPainter:
-
-  \code
-    char    *str = "Trolls R Qt";	// text to be drawn
-    QFont    f( "Charter", 24 );	// use Charter 24pt font
-    QPainter p;
-
-    p.begin( myWidget );
-    p.translate( 100, 200 );		// translates coord system
-    p.rotate( -33.4 );			// rotates it counterclockwise
-    p.setFont( f );
-    p.drawText( 0, 0, str );
-    p.end();
-  \endcode
+  The transformation \a matrix is internally adjusted to compensate
+  for unwanted translation, i.e. xForm() returns the smallest image
+  that contains all the transformed points of the original image.
 
   \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix() QImage::xForm()
 */

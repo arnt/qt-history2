@@ -113,9 +113,9 @@
   This enum type defines the color modes that exist for converting
   QImage objects to QPixmap.  The current values are:
 
-  \value Auto  select \c Color or \c Mono on a case-by-case basis.
-  \value Color  always create colored pixmaps.
-  \value Mono  always create bitmaps.
+  \value Auto  Select \c Color or \c Mono on a case-by-case basis.
+  \value Color  Always create colored pixmaps.
+  \value Mono  Always create bitmaps.
 */
 
 /*! \enum QPixmap::Optimization
@@ -126,20 +126,20 @@
   of optimization modes you can set for any pixmap to tweak the
   speed/memory tradeoffs:
 
-  \value DefaultOptim  whatever QPixmap::defaultOptimization()
+  \value DefaultOptim  Whatever QPixmap::defaultOptimization()
   returns.  A pixmap with this optimization will have whatever the current
   default optimization is.  If the default optimization is changed using 
   setDefaultOptimization, then this will not effect any pixmaps that have
   already been created.
 
-  \value NoOptim  no optimization (currently the same as \c MemoryOptim).
+  \value NoOptim  No optimization (currently the same as \c MemoryOptim).
 
-  \value MemoryOptim  optimize for minimal memory use.
+  \value MemoryOptim  Optimize for minimal memory use.
 
-  \value NormalOptim  optimize for typical usage.  Often uses more
+  \value NormalOptim  Optimize for typical usage.  Often uses more
   memory than \c MemoryOptim, and is often faster.
 
-  \value BestOptim  optimize for pixmaps that are drawn very often
+  \value BestOptim  Optimize for pixmaps that are drawn very often
   and where performance is critical.  Generally uses more memory than
   \c NormalOptim and may provide a little better speed.
 
