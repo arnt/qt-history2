@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#79 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -400,6 +400,44 @@ QSize QSpinBox::sizeHint() const
     return r;
 }
 
+
+// Does the layout of the lineedit and the buttons
+
+void QSpinBox::arrangeWidgets()
+{
+    if ( !up || !down ) // may happen if the application has a pointer error
+	return;
+
+    QSize bs; // no, it's short for 'button size'
+    if ( style() == WindowsStyle )
+	bs.setHeight( height()/2 - frameWidth() );
+    else
+	bs.setHeight( height()/2 );
+    if ( bs.height() < 8 )
+	bs.setHeight( 8 );
+    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
+    if ( style() == WindowsStyle )
+	setFrameRect( QRect( 0, 0, 0, 0 ) );
+    else
+	setFrameRect( QRect( 0, 0, width() - bs.width(), height() ) );
+
+    if ( up->size() != bs || down->size() != bs ) {
+	up->resize( bs );
+	down->resize( bs );
+	updateButtonSymbols();
+    }
+    
+    int y = style() == WindowsStyle ? frameWidth() : 0;
+    int x = width() - y - bs.width();
+    up->move( x, y );
+    down->move( x, height() - y - up->height() );
+    if ( style() == WindowsStyle )
+	vi->setGeometry( frameWidth(), frameWidth(),
+			 x - frameWidth(), height() - 2*frameWidth() );
+    else
+	vi->setGeometry( contentsRect() );
+}
+
 /*!
   Specifies that this widget may stretch horizontally, but is fixed
   vertically.
@@ -407,7 +445,9 @@ QSize QSpinBox::sizeHint() const
 
 QSizePolicy QSpinBox::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    //return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    //############### test
+return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
 }
 
 
@@ -526,38 +566,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 
 void QSpinBox::resizeEvent( QResizeEvent* )
 {
-    if ( !up || !down ) // may happen if the application has a pointer error
-	return;
-
-    QSize bs; // no, it's short for 'button size'
-    if ( style() == WindowsStyle )
-	bs.setHeight( height()/2 - frameWidth() );
-    else
-	bs.setHeight( height()/2 );
-    if ( bs.height() < 8 )
-	bs.setHeight( 8 );
-    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
-    if ( style() == WindowsStyle )
-	setFrameRect( QRect( 0, 0, 0, 0 ) );
-    else
-	setFrameRect( QRect( 0, 0, width() - bs.width(), height() ) );
-
-    if ( up->size() != bs || down->size() != bs ) {
-	up->resize( bs );
-	down->resize( bs );
-	updateButtonSymbols();
-    }
-    repaint( );
-
-    int y = style() == WindowsStyle ? frameWidth() : 0;
-    int x = width() - y - bs.width();
-    up->move( x, y );
-    down->move( x, height() - y - up->height() );
-    if ( style() == WindowsStyle )
-	vi->setGeometry( frameWidth(), frameWidth(),
-			 x - frameWidth(), height() - 2*frameWidth() );
-    else
-	vi->setGeometry( contentsRect() );
+    arrangeWidgets();
 }
 
 /*!
@@ -816,16 +825,13 @@ void QSpinBox::setEnabled( bool on )
 
 /*! \reimp */
 
-void QSpinBox::styleChange( QStyle& old )
+void QSpinBox::styleChange( QStyle& )
 {
-//#####    vi->setStyle( style() );
-//#####    up->setStyle( style() );
-//#####    down->setStyle( style() );
     if ( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
 	setFrameStyle( Panel | Sunken );
-    QFrame::styleChange( old );
+    arrangeWidgets();
 }
 
 
@@ -882,78 +888,67 @@ QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 void QSpinBox::updateButtonSymbols()
 {
     QString key( QString::fromLatin1( "$qt$qspinbox$" ) );
-    bool good = buttonSymbols() == PlusMinus;
+    bool pmSym = buttonSymbols() == PlusMinus;
+    key += QString::fromLatin1( pmSym ? "+-" : "^v" );
+    key += QString::number( down->height() );
+    QString upKey = key + QString::fromLatin1( "$up" );
+    QString dnKey = key + QString::fromLatin1( "$down" );
+    QBitmap upBm;
+    QBitmap dnBm;
+    
+    bool found = QPixmapCache::find( dnKey, dnBm )
+		 && QPixmapCache::find( upKey, upBm );
 
-    key += QString::fromLatin1( good ? "+-" : "^v" );
-    key += QString::number( height() );
-
-    QBitmap bm;
-    // do up.
-    if ( !QPixmapCache::find( key + QString::fromLatin1( "$up" ), bm ) ) {
-	if ( good ) {
-	    int magic = up->height()-6;
-	    if (magic & 1)
-		magic--;
-	    bm.resize( magic, magic );
-	    magic = magic/2;
-	    QPainter p( &bm );
-	    p.eraseRect( 0, 0, bm.width(), bm.height() );
+    if ( !found ) {
+	QPainter p;
+	if ( pmSym ) {
+	    int h = down->height()-4;
+	    if ( h < 3 )
+		return;
+	    else if ( h == 4 )
+		h = 3;
+	    else if ( (h > 6) && (h & 1) )
+		h--;
+	    h -= ( h / 8 ) * 2;		// Empty border 
+	    dnBm.resize( h, h );
+	    p.begin( &dnBm );
+	    p.eraseRect( 0, 0, h, h );
 	    p.setBrush( color1 );
-	    p.drawLine( 0, magic, bm.width()-1, magic );
-	    p.drawLine( 0, magic-1, bm.width()-1, magic-1 );
-	    p.drawLine( magic, 0, magic, bm.height()-1 );
-	    p.drawLine( magic-1, 0, magic-1, bm.height()-1 );
-	} else {
-	    bm.resize( (up->height()-4)*2-1, up->height()-4 );
-	    QPainter p( &bm );
+	    int c = h/2;
+	    p.drawLine( 0, c, h, c );
+	    if ( !(h & 1) )
+		p.drawLine( 0, c-1, h, c-1 );
+	    p.end();
+	    upBm = dnBm;
+	    p.begin( &upBm );
+	    p.drawLine( c, 0, c, h );
+	    if ( !(h & 1) )
+		p.drawLine( c-1, 0, c-1, h );
+	    p.end();
+	}
+	else {
+	    int w = down->width()-4;
+	    if ( w < 3 )
+		return;
+	    else if ( !(w & 1) )
+		w--;
+	    w -= ( w / 7 ) * 2;		// Empty border 
+	    int h = w/2 + 2;        // Must have empty row at foot of arrow
+	    dnBm.resize( w, h );
+	    p.begin( &dnBm );
+	    p.eraseRect( 0, 0, w, h );
 	    QPointArray a;
-	    a.setPoints( 3,
-			 bm.height()-2, 0,
-			 0, bm.height()-2,
-			 bm.width()-1, bm.height()-2 );
-	    p.eraseRect( 0, 0, bm.width(), bm.height() );
+	    a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
 	    p.setBrush( color1 );
 	    p.drawPolygon( a );
+	    p.end();
+	    QWMatrix wm;
+	    wm.scale( 1, -1 );
+	    upBm = dnBm.xForm( wm );
 	}
-	QPixmapCache::insert( key + QString::fromLatin1( "$up" ), bm );
+	QPixmapCache::insert( dnKey, dnBm );
+	QPixmapCache::insert( upKey, upBm );
     }
-
-    up->setPixmap( bm );
-
-    // do down.
-    if ( !QPixmapCache::find( key + QString::fromLatin1( "$down" ), bm ) ) {
-	if ( good ) {
-	    int magic = up->height()-6;
-	    if (magic & 1)
-		magic--;
-	    bm.resize( magic, magic );
-	    magic = magic/2;
-	    QPainter p( &bm );
-	    p.eraseRect( 0, 0, bm.width(), bm.height() );
-	    p.setBrush( color1 );
-	    p.drawLine( 0, magic, bm.width()-1, magic );
-	    p.drawLine( 0, magic-1, bm.width()-1, magic-1 );
-
-	    p.drawLine( magic-1, 0, magic, 0 );
-	    p.drawLine( magic-1, bm.height()-1, magic, bm.height()-1 );
-	    if ( magic > 3 ) {
-		p.drawLine( magic-1, 1, magic, 1 );
-		p.drawLine( magic-1, bm.height()-2, magic, bm.height()-2 );
-	    }
-	} else {
-	    bm.resize( (down->height()-4)*2-1, down->height()-4 );
-	    QPainter p( &bm );
-	    QPointArray a;
-	    a.setPoints( 3,
-			 bm.height()-2, 0,
-			 0, bm.height()-2,
-			 bm.width()-1, bm.height()-2 );
-	    p.eraseRect( 0, 0, bm.width(), bm.height() );
-	    p.setBrush( color1 );
-	    p.drawPolygon( a );
-	}
-	QPixmapCache::insert( key + QString::fromLatin1( "$down" ), bm );
-    }
-
-    down->setPixmap( bm );
+    down->setPixmap( dnBm );
+    up->setPixmap( upBm );
 }

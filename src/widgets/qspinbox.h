@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#34 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#35 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -118,6 +118,7 @@ private:
     bool wrap;
     bool edited;
 
+    void arrangeWidgets();
     void updateButtonSymbols();
 
 private:	// Disabled copy constructor and operator=
