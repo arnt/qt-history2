@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#12 $
 **
 ** Implementation of QCursor class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#12 $")
 
 
 // --------------------------------------------------------------------------
@@ -246,10 +246,10 @@ void QCursor::update() const			// update/load cursor
 	    sh = IDC_IBEAM;
 	    break;
 	case SizeVerCursor:
-	    sh = IDC_SIZEWE;
+	    sh = IDC_SIZENS;
 	    break;
 	case SizeHorCursor:
-	    sh = IDC_SIZENS;
+	    sh = IDC_SIZEWE;
 	    break;
 	case SizeBDiagCursor:
 	    sh = IDC_SIZENESW;
