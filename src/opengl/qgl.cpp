@@ -1872,7 +1872,7 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
 	    uint *p = (uint*)res.scanLine( i );
 	    uint *end = p + res.width();
 	    while ( p < end ) {
-		*p <<= 8;
+		*p = (*p << 8) | ((*p >> 24) & 0xFF);
 		p++;
 	    }
 	}
