@@ -4656,8 +4656,18 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 	    if ( (uint)idx < contents.size() &&
 		 it->row() == idx /  nCols && it->col() == idx % nCols ) {
 		contents.insert( idx, it );
-		if ( it->rowSpan() > 1 || it->colSpan() > 1 )
-		    it->setSpan( it->rowSpan(), it->colSpan() );
+		if ( it->rowSpan() > 1 || it->colSpan() > 1 ) {
+		    int ridx, iidx;
+		    for ( int irow = 0; irow < it->rowSpan(); irow++ ) {
+			ridx = idx + irow * nCols;
+			for ( int icol = 0; icol < it->colSpan(); icol++ ) {
+			    iidx = ridx + icol;
+			    if ( idx != iidx && (uint)iidx < contents.size() )
+				contents.insert( iidx, it );
+			}
+		    }
+		  
+		}
 	    } else {
 		delete it;
 	    }
