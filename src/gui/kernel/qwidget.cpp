@@ -507,7 +507,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     for the widget. They are fairly unusual but necessary in a few
     cases. Some of these flags depend on whether the underlying window
     manager supports them. (See the \link toplevel-example.html
-    toplevel example\endlink for an explanation and example of their
+    top-level example\endlink for an explanation and example of their
     use.)
 
     The main types are
@@ -2008,7 +2008,7 @@ QPoint QWidget::pos() const
     visible, it is guaranteed to receive an event before it is shown.
 
     The size is adjusted if it lies outside the range defined by
-    minimumSize() and maximumSize(). For toplevel widgets, the minimum size
+    minimumSize() and maximumSize(). For top-level widgets, the minimum size
     is always at least QSize(1, 1), and it might be larger, depending on
     the window manager.
 
@@ -5047,7 +5047,7 @@ void QWidget::keyReleaseEvent(QKeyEvent *e)
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
-    The default implementation updates the widget (except for toplevel
+    The default implementation updates the widget (except for top-level
     widgets that do not specify a focusPolicy()). It also calls
     setMicroFocusHint(), hinting any system-specific input tools about
     the focus of the user's attention.
@@ -5075,7 +5075,7 @@ void QWidget::focusInEvent(QFocusEvent *)
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
-    The default implementation updates the widget (except for toplevel
+    The default implementation updates the widget (except for top-level
     widgets that do not specify a focusPolicy()). It also calls
     setMicroFocusHint(), hinting any system-specific input tools about
     the focus of the user's attention.
