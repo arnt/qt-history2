@@ -953,7 +953,7 @@ void QPopupMenu::updateSize()
 			      (ncols*(max_width + tab)) + 2*frameWidth() ),
 			QMAX( minimumHeight(), dh ) );
     }
-
+    resize( maximumSize() );
     badSize = FALSE;
 
     if ( hasWidgetItems ) {
