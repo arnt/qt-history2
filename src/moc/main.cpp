@@ -216,6 +216,29 @@ int main(int argc, char **argv)
         }
         moc.filename = filename;
     }
+
+    // 1. preprocess
+    QByteArray input = Preprocessor::preprocessed(moc.filename, in);
+    fclose(in);
+
+    if (onlyPreprocess) {
+        fprintf(out, "%s\n", input.constData());
+        return 0;
+    }
+
+    // 2. tokenize
+    moc.symbols = Scanner::scan(input);
+
+    // 3. parse
+    moc.parse();
+
+    if (moc.classList.isEmpty()) {
+        moc.warning("No relevant classes found. No output generated.");
+        return 0;
+    }
+
+    // 4. and output meta object code
+
     if (output.size()) { // output file specified
         out = fopen(output.data(), "w"); // create output file
         if (!out) {
@@ -226,21 +249,10 @@ int main(int argc, char **argv)
         out = stdout;
     }
 
-    // 1. preprocess
-    QByteArray input = Preprocessor::preprocessed(moc.filename, in);
-    fclose(in);
-
-    if (onlyPreprocess) {
-        fprintf(out, "%s\n", input.constData());
-    } else {
-        // 2. tokenize
-        moc.symbols = Scanner::scan(input);
-
-        // 3. and moc
-        moc.moc(out);
-    }
+    moc.generate(out);
 
     if (output.size())
         fclose(out);
+
     return 0;
 }

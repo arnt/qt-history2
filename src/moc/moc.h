@@ -106,6 +106,7 @@ public:
     bool generatedCode;
     QByteArray includePath;
     QList<QByteArray> includeFiles;
+    QList<ClassDef> classList;
 
     inline bool hasNext() const { return (index < symbols.size()); }
     inline Token next() { return symbols.at(index++).token; }
@@ -125,7 +126,8 @@ public:
     void error(const char *msg = 0);
     void warning(const char * = 0);
 
-    void moc(FILE *out);
+    void parse();
+    void generate(FILE *out);
 
     bool parseClassHead(ClassDef *def);
     inline bool inClass(const ClassDef *def) const {

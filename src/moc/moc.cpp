@@ -408,10 +408,9 @@ bool Moc::parsePropertyCandidate(FunctionDef *def)
 }
 
 
-void Moc::moc(FILE *out)
+void Moc::parse()
 {
     QList<NamespaceDef> namespaceList;
-    QList<ClassDef> classList;
     while (hasNext()) {
         Token t = next();
         if (t == NAMESPACE) {
@@ -532,13 +531,10 @@ void Moc::moc(FILE *out)
         }
     }
 
+}
 
-    if (classList.isEmpty()) {
-        warning("No relevant classes found. No output generated.");
-        return;
-    }
-
-
+void Moc::generate(FILE *out)
+{
 
     QDateTime dt = QDateTime::currentDateTime();
     QByteArray dstr = dt.toString().ascii();
