@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#91 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#91 $");
 
 
 /*!
@@ -312,68 +312,19 @@ void QPushButton::drawButton( QPainter *paint )
     register QPainter *p = paint;
     GUIStyle	gs = style();
     QColorGroup g  = colorGroup();
-    bool	updated = isDown() != (bool)lastDown ||
-			  lastDef != defButton ||
-			  isEnabled() != (bool)lastEnabled;
-    QColor	fillcol = gs==MotifStyle && isToggleButton() && isOn() 
-			  ? g.mid() : g.background();
+    bool	updated = ( isDown() != (bool)lastDown ||
+			    lastDef != defButton ||
+			    isEnabled() != (bool)lastEnabled);
+    QColor	fillcol = gs==MotifStyle && 
+			  isToggleButton() &&
+			  isOn() ? g.mid() : g.background();
 
     int		x1, y1, x2, y2;
 
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
 
-#define SAVE_PUSHBUTTON_PIXMAPS
-#if defined(SAVE_PUSHBUTTON_PIXMAPS)
-    QString pmkey;				// pixmap key
-    int kf = 0;
-    if ( isDown() )
-	kf |= 1;
-    if ( isOn() )
-	kf |= 2;
-    if ( isEnabled() )
-	kf |= 4;
-    if ( isToggleButton() )
-	kf |= 8;
-    if ( isDefault() )
-	kf |= 16;
     int w = x2 + 1;
     int h = y2 + 1;
-    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d", gs, palette().serialNumber(),
-		   kf, w, h );
-    QPixmap *pm = QPixmapCache::find( pmkey );
-    QPainter pmpaint;
-    if ( pm ) {					// pixmap exists
-	QPixmap pm_direct = *pm;
-	pmpaint.begin( &pm_direct );
-	pmpaint.drawPixmap( 0, 0, *pm );
-	if ( text() )
-	    pmpaint.setFont( font() );
-	drawButtonLabel( &pmpaint );
-	pmpaint.end();
-	p->drawPixmap( 0, 0, pm_direct );
-	lastDown = isDown();
-	lastDef = defButton;
-	lastEnabled = isEnabled();
-	if ( hasFocus() ) {
-	    if ( style() == WindowsStyle ) {
-		p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
-	    } else {
-		p->setPen( black );
-		p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
-	    }
-	}
-	return;
-    }
-    bool use_pm = w * h < 8000;
-    if ( use_pm ) {
-	pm = new QPixmap( w, h );		// create new pixmap
-	CHECK_PTR( pm );
-	pmpaint.begin( pm );
-	p = &pmpaint;				// draw in pixmap
-	p->setBackgroundColor( fillcol );
-	p->eraseRect( 0, 0, w, h );
-    }
-#endif
 
     p->setPen( g.foreground() );
     p->setBrush( QBrush(fillcol,NoBrush) );
@@ -403,6 +354,7 @@ void QPushButton::drawButton( QPainter *paint )
 		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() );
 	    }
 	}
+	// ### next two lines ignore backgroundPixmap()
 	if ( updated )
 	    p->fillRect( x1+1, y1+1, x2-x1-2, y2-y1-2, g.background() );
     } else if ( gs == MotifStyle ) {		// Motif push button
@@ -428,20 +380,17 @@ void QPushButton::drawButton( QPainter *paint )
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
 
-#if defined(SAVE_PUSHBUTTON_PIXMAPS)
-    if ( use_pm ) {
-	pmpaint.end();
-	p = paint;				// draw in default device
-	p->drawPixmap( 0, 0, *pm );
-	if (!QPixmapCache::insert( pmkey, pm ))	// save for later use
-	    delete pm; // Too big
-    }
-#endif
     drawButtonLabel( p );
-    if ( gs == MotifStyle && hasFocus() ) {
-	p->setPen( black );
-	p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+
+    if ( hasFocus() ) {
+	if ( style() == WindowsStyle ) {
+	    p->drawWinFocusRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+	} else {
+	    p->setPen( black );
+	    p->drawRect( x1+3, y1+3, x2-x1-5, y2-y1-5 );
+	}
     }
+
     lastDown = isDown();
     lastDef = defButton;
     lastEnabled = isEnabled();

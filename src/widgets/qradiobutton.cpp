@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#54 $
 **
 ** Implementation of QRadioButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#54 $");
 
 
 /*!
@@ -159,37 +159,6 @@ void QRadioButton::drawButton( QPainter *paint )
     x = 0;
     y = height()/2 - w/2;
 
-#define SAVE_RADIOBUTTON_PIXMAPS
-#if defined(SAVE_RADIOBUTTON_PIXMAPS)
-    QString pmkey;				// pixmap key
-    int kf = 0;
-    if ( isDown() )
-	kf |= 1;
-    if ( isOn() )
-	kf |= 2;
-    if ( isEnabled() )
-	kf |= 4;
-    pmkey.sprintf( "$qt_radio_%d_%d_%d", gs, palette().serialNumber(), kf );
-    QPixmap *pm = QPixmapCache::find( pmkey );
-    if ( pm ) {					// pixmap exists
-	p->drawPixmap( x, y, *pm );
-	drawButtonLabel( p );
-	return;
-    }
-    bool use_pm = w * h < 8000;
-    QPainter pmpaint;
-    int wx, wy;
-    if ( use_pm ) {
-	pm = new QPixmap( w, h );		// create new pixmap
-	CHECK_PTR( pm );
-	pmpaint.begin( pm );
-	p = &pmpaint;				// draw in pixmap
-	wx=x;  wy=y;				// save x,y coords
-	x = y = 0;
-	p->setBackgroundColor( g.background() );
-    }
-#endif
-
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 
     if ( gs == WindowsStyle ) {			// Windows radio button
@@ -256,16 +225,6 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->drawPolyline( a );			// draw bottom part
     }
 
-#if defined(SAVE_RADIOBUTTON_PIXMAPS)
-    if ( use_pm ) {
-	pmpaint.end();
-	p = paint;				// draw in default device
-	p->drawPixmap( wx, wy, *pm );
-	w += wx;
-	if (!QPixmapCache::insert( pmkey, pm ))	// save for later use
-	    delete pm;
-    }
-#endif
     drawButtonLabel( p );
 }
 

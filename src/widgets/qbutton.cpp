@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#71 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#71 $");
 
 
 static const int autoRepeatPeriod = 200;
@@ -288,7 +288,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     if ( oldAccelChar )
 	setAccel( 0 );
-    repaint( FALSE );
+    update();
 }
 
 
@@ -436,7 +436,7 @@ void QButton::setDown( bool enable )
     mlbDown = FALSE;				// the safe setting
     if ( (bool)buttonDown != enable ) {
 	buttonDown = enable;
-	repaint( FALSE );
+	update();
     }
 }
 
@@ -462,7 +462,7 @@ void QButton::setOn( bool enable )
 #endif
     if ( (bool)buttonOn != enable ) {		// changed state
 	buttonOn = enable;
-	repaint( FALSE );
+	update();
 	emit toggled( buttonOn );
     }
 }
@@ -540,7 +540,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
     if ( hit ) {				// mouse press on button
 	mlbDown = TRUE;				// left mouse button down
 	buttonDown = TRUE;
-	repaint( FALSE );
+	update();
 	emit pressed();
 	if ( repeat )
 	    QTimer::singleShot( autoRepeatPeriod,
@@ -563,13 +563,13 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     if ( hit ) {				// mouse release on button
 	if ( toggleBt )
 	    buttonOn = !buttonOn;
-	repaint( FALSE );
+	update();
 	if ( toggleBt )
 	    emit toggled( buttonOn );
 	emit released();
 	emit clicked();
     } else {
-	repaint( FALSE );
+	update();
 	emit released();
     }
 }
@@ -587,13 +587,13 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
     if ( hit ) {				// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
-	    repaint( FALSE );
+	    update();
 	    emit pressed();
 	}
     } else {					// mouse move outside button
 	if ( buttonDown ) {
 	    buttonDown = FALSE;
-	    repaint( FALSE );
+	    update();
 	    emit released();
 	}
     }
@@ -612,27 +612,6 @@ void QButton::paintEvent( QPaintEvent * )
     paint.begin( this );
     drawButton( &paint );
     paint.end();
-}
-
-
-/*!
-  Handles focus in events for the button.
-  \sa focusOutEvent()
-*/
-
-void QButton::focusInEvent( QFocusEvent * )
-{
-    repaint( FALSE );
-}
-
-/*!
-  Handles focus out events for the button.
-  \sa focusInEvent()
-*/
-
-void QButton::focusOutEvent( QFocusEvent * )
-{
-    repaint();
 }
 
 
@@ -662,7 +641,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	    timer->start( autoRepeatPeriod, TRUE );
 	}
 	buttonDown = TRUE;
-	repaint( FALSE );
+	update();
 	emit pressed();
     } else {
 	e->ignore();
@@ -684,7 +663,7 @@ void QButton::timerSlot()
     delete timer;
     if ( toggleBt )
 	buttonOn = !buttonOn;
-    repaint( FALSE );
+    update();
     if ( toggleBt )
 	emit toggled( buttonOn );
     emit released();
@@ -734,7 +713,7 @@ void QButton::animateClick()
     if ( !isEnabled() )
 	return;
     buttonDown = TRUE;
-    repaint( FALSE );
+    update();
     buttonDown = FALSE;
     if ( isToggleButton() ) {
 	buttonOn = !buttonOn;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#48 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#49 $
 **
 ** Definition of QButton widget class
 **
@@ -67,8 +67,6 @@ protected:
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
     void	paintEvent( QPaintEvent * );
-    void	focusInEvent( QFocusEvent * );
-    void	focusOutEvent( QFocusEvent * );
 
     void	enabledChange( bool );
 
