@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "docuwindow.h"
-#include <q3textbrowser.h>
+#include <qtextbrowser.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qfiledialog.h>
@@ -70,73 +70,63 @@ static const char *fileprint[] = {
 };
 
 
-DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
-    : QMainWindow( parent )
+DocuWindow::DocuWindow(const QString& docu, QWidget *parent, QWidget *source)
+    : QMainWindow(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowTitle( source->windowTitle() + " - Documentation" );
+    setWindowTitle(source->windowTitle() + " - Documentation");
 
-    browser = new Q3TextBrowser( this );
-    browser->setSource( docu );
-    browser->setText( docu );
-    browser->setLinkUnderline( TRUE );
+    browser = new QTextBrowser(this);
+    browser->setSource(docu);
+    browser->setText(docu);
 
-    setCentralWidget( browser );
+    setCentralWidget(browser);
 
-    QToolBar *fileTools = new QToolBar( this, "file operations" );
-    fileTools->setLabel( "File" );
+    QToolBar *fileTools = new QToolBar(this, "file operations");
+    fileTools->setLabel("File");
+    fileTools->addAction(QPixmap(filesave), "Save File", this, SLOT(save()));
+    fileTools->addAction(QPixmap(fileprint), "Print", this, SLOT(print()));
 
-    QToolButton * fileSave
-	= new QToolButton( QPixmap(filesave), "Save File", QString::null,
-			   this, SLOT(save()), fileTools, "save file" );
-
-    QToolButton * filePrint
-	= new QToolButton( QPixmap(fileprint), "Print File", QString::null,
-			   this, SLOT(print()), fileTools, "print file" );
-
-    fileTools->addWidget(fileSave);
-    fileTools->addWidget(filePrint);
-
+    addToolBar(fileTools);
     statusBar();
 }
 
 void DocuWindow::save()
 {
-    QString filename = QFileDialog::getSaveFileName( QString::null, QString::null,
-					       this );
+    QString filename = QFileDialog::getSaveFileName(QString::null, QString::null, this);
 
-    if ( filename.isEmpty() )
+    if (filename.isEmpty())
 	return;
 
     QString text = browser->text();
-    QFile f( filename );
-    if ( !f.open( IO_WriteOnly ) ) {
-	statusBar()->message( QString("Could not write to %1").arg(filename), 2000 );
+    QFile f(filename);
+    if (!f.open(IO_WriteOnly)) {
+	statusBar()->message(QString("Could not write to %1").arg(filename), 2000);
 	return;
     }
 
-    QTextStream t( &f );
+    QTextStream t(&f);
     t << text;
     f.close();
 
-    statusBar()->message( QString( "File %1 saved" ).arg(filename), 2000 );
+    statusBar()->message(QString("File %1 saved").arg(filename), 2000);
 }
 
 void DocuWindow::print()
 {
     QPrinter printer;
-    if ( printer.printerName().isEmpty() ) {
-	statusBar()->message( QString("No printer installed"), 2000 );
+    if (printer.printerName().isEmpty()) {
+	statusBar()->message(QString("No printer installed"), 2000);
 	return;
     }
-    if ( !printer.setup( this ) ) {
-	statusBar()->message( QString("Printing aborted"), 2000 );
+    if (!printer.setup(this)) {
+	statusBar()->message(QString("Printing aborted"), 2000);
 	return;
     }
 
     QPainter painter;
-    if ( !painter.begin( &printer ) ) {
-	statusBar()->message( QString("Printing aborted"), 2000 );
+    if (!painter.begin(&printer)) {
+	statusBar()->message(QString("Printing aborted"), 2000);
 	return;
     }
 
@@ -146,19 +136,19 @@ void DocuWindow::print()
     const int margin = 72; // pt
     QRect body(margin*dpix/72, margin*dpiy/72,
 	       metrics.width()-margin*dpix/72*2,
-	       metrics.height()-margin*dpiy/72*2 );
-    QSimpleRichText richText( browser->text(), QFont(), browser->context(), browser->styleSheet(),
-			      browser->mimeSourceFactory(), body.height() );
-    richText.setWidth( &painter, body.width() );
-    QRect view( body );
+	       metrics.height()-margin*dpiy/72*2);
+
+    QSimpleRichText richText(browser->text(), QFont());
+    richText.setWidth(&painter, body.width());
+    QRect view(body);
     int page = 1;
     do {
-	richText.draw( &painter, body.left(), body.top(), view, palette() );
-	view.moveBy( 0, body.height() );
-	painter.translate( 0 , -body.height() );
-	painter.drawText( view.right() - painter.fontMetrics().width( QString::number(page) ),
-		    view.bottom() + painter.fontMetrics().ascent() + 5, QString::number(page) );
-	if ( view.top()  >= richText.height() )
+	richText.draw(&painter, body.left(), body.top(), view, palette());
+	view.moveBy(0, body.height());
+	painter.translate(0 , -body.height());
+	painter.drawText(view.right() - painter.fontMetrics().width(QString::number(page)),
+		    view.bottom() + painter.fontMetrics().ascent() + 5, QString::number(page));
+	if (view.top() >= richText.height())
 	    break;
 	printer.newPage();
 	page++;
