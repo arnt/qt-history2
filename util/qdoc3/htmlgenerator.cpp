@@ -18,7 +18,7 @@
 static bool showBrokenLinks = false;
 
 HtmlGenerator::HtmlGenerator()
-    : inLink(false), inContents(false), inTableHeader(false), numTableRows(0), threeColumnEnumValueTable(true),
+    : inLink(false), inContents(false), inSectionHeading(false), inTableHeader(false), numTableRows(0), threeColumnEnumValueTable(true),
       funcLeftParen("\\S(\\()"), tre(0)
 {
 }
@@ -100,6 +100,7 @@ void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marke
 {
     inLink = false;
     inContents = false;
+    inSectionHeading = false;
     inTableHeader = false;
     numTableRows = 0;
     threeColumnEnumValueTable = true;
@@ -118,7 +119,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::AbstractRight:
 	break;
     case Atom::AutoLink:
-        if (!inLink && !inContents) {
+        if (!inLink && !inContents && !inSectionHeading) {
             link = linkForNode(marker->resolveTarget(atom->string(), tre, relative), relative);
 	    if (!link.isEmpty()) {
 	        out() << "<a href=\"" << link << "\">";
@@ -457,16 +458,18 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	break;
     case Atom::SectionHeadingLeft:
 	out() << "<h" + QString::number(atom->string().toInt() + hOffset(relative)) + ">";
+        inSectionHeading = true;
 	break;
     case Atom::SectionHeadingRight:
 	out() << "</h" + QString::number(atom->string().toInt() + hOffset(relative)) + ">\n";
+        inSectionHeading = false;
 	break;
     case Atom::SidebarLeft:
 	break;
     case Atom::SidebarRight:
 	break;
     case Atom::String:
-	if (inLink && !inContents) {
+	if (inLink && !inContents && !inSectionHeading) {
             generateLink(atom, relative, marker);
 	} else {
 	    out() << protect( atom->string() );

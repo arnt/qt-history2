@@ -101,6 +101,7 @@ private:
     DcfSection dcfRoot;
     bool inLink;
     bool inContents;
+    bool inSectionHeading;
     bool inTableHeader;
     int numTableRows;
     bool threeColumnEnumValueTable;
