@@ -24,6 +24,24 @@ private:
 };
 
 
+class Q_EXPORT QXPathFunction
+{
+public:
+    QXPathFunction();
+    ~QXPathFunction();
+};
+
+
+class Q_EXPORT QXPathFunctionFactory
+{
+public:
+    QXPathFunctionFactory();
+    ~QXPathFunctionFactory();
+};
+
+
+#if 0
+// old stuff that I probably don't need
 class Q_EXPORT QXPathStep
 {
 public:
@@ -54,5 +72,6 @@ public:
 private:
     Axis stepAxis;
 };
+#endif
 
 #endif // QXPATH_H

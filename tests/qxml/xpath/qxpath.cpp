@@ -672,6 +672,8 @@ bool QXPath::isValid() const
 }
 
 
+#if 0
+// old stuff that I probably don't need
 /***************************************************************
  *
  * QXPathStep
@@ -721,3 +723,4 @@ QXPathStep::Axis QXPathStep::axis() const
 {
     return stepAxis;
 }
+#endif
