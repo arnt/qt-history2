@@ -1921,7 +1921,7 @@ void QSettings::setPath(const QString &domain, const QString &product, Scope sco
     insertSearchPath(Mac, actualSearchPath);
 #else
     if (scope == User)
-        actualSearchPath = QDir::homeDirPath() + "/.";
+        actualSearchPath = QDir::homePath() + "/.";
     else
         actualSearchPath = QString(qInstallPathSysconf()) + "/";
     actualSearchPath += domain.mid(0, lastDot) + "/" + product;
