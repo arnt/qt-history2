@@ -29,9 +29,9 @@ class PieView : public QAbstractItemView
 public:
     PieView(QWidget *parent = 0);
 
-    QRect viewportRectForIndex(const QModelIndex &index) const;
-    void ensureVisible(const QModelIndex &index);
-    QModelIndex indexAt(int x, int y) const;
+    QRect visualRect(const QModelIndex &index) const;
+    void scrollTo(const QModelIndex &index);
+    QModelIndex indexAt(const QPoint &point) const;
 
 protected slots:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -41,7 +41,7 @@ protected slots:
 protected:
     bool isIndexHidden(const QModelIndex &index) const;
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
-    QRect selectionViewportRect(const QItemSelection &selection) const;
+    QRect visualRectForSelection(const QItemSelection &selection) const;
     QRect itemRect(const QModelIndex &item) const;
     int horizontalOffset() const;
     int verticalOffset() const;

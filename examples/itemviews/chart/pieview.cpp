@@ -48,7 +48,7 @@ bool PieView::isIndexHidden(const QModelIndex & /*index*/) const
     Returns the position of the item in viewport coordinates.
 */
 
-QRect PieView::viewportRectForIndex(const QModelIndex &index) const
+QRect PieView::visualRect(const QModelIndex &index) const
 {
     QRect rect = itemRect(index);
     if (rect.isValid())
@@ -110,10 +110,10 @@ QRect PieView::itemRect(const QModelIndex &index) const
     return QRect();
 }
 
-void PieView::ensureVisible(const QModelIndex &index)
+void PieView::scrollTo(const QModelIndex &index)
 {
     QRect area = viewport()->rect();
-    QRect rect = viewportRectForIndex(index);
+    QRect rect = visualRect(index);
 
     if (rect.left() < area.left())
         horizontalScrollBar()->setValue(
@@ -134,14 +134,14 @@ void PieView::ensureVisible(const QModelIndex &index)
     Returns the item that covers the coordinate given in the view.
 */
 
-QModelIndex PieView::indexAt(int x, int y) const
+QModelIndex PieView::indexAt(const QPoint &point) const
 {
     if (m_validItems == 0)
         return QModelIndex();
 
     // Transform the view coordinates into contents widget coordinates.
-    int wx = x + horizontalScrollBar()->value();
-    int wy = y + verticalScrollBar()->value();
+    int wx = point.x() + horizontalScrollBar()->value();
+    int wy = point.y() + verticalScrollBar()->value();
 
     if (wx < m_size) {
         double cx = wx - m_size/2;
@@ -256,8 +256,8 @@ void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlag
 {
     // Use viewport coordinates because the itemRect() function will transform
     // them into widget coordinates.
-    QModelIndex firstIndex = indexAt(rect.left(), rect.top());
-    QModelIndex lastIndex = indexAt(rect.right(), rect.bottom());
+    QModelIndex firstIndex = indexAt(rect.topLeft());
+    QModelIndex lastIndex = indexAt(rect.bottomRight());
 
     QItemSelection selection(firstIndex, lastIndex);
 
@@ -303,7 +303,7 @@ int PieView::verticalOffset() const
     Returns a rectangle corresponding to the selection in viewport coordinates.
 */
 
-QRect PieView::selectionViewportRect(const QItemSelection &selection) const
+QRect PieView::visualRectForSelection(const QItemSelection &selection) const
 {
     int ranges = selection.count();
 
@@ -324,8 +324,8 @@ QRect PieView::selectionViewportRect(const QItemSelection &selection) const
     QModelIndex firstItem = model()->index(qMin(firstRow, lastRow), 0, rootIndex());
     QModelIndex lastItem = model()->index(qMax(firstRow, lastRow), 0, rootIndex());
 
-    QRect firstRect = viewportRectForIndex(firstItem);
-    QRect lastRect = viewportRectForIndex(lastItem);
+    QRect firstRect = visualRect(firstItem);
+    QRect lastRect = visualRect(lastItem);
 
     return firstRect.unite(lastRect);
 }
