@@ -369,15 +369,19 @@ void qt_server_enqueue( const QWSCommand *command )
     outgoing.enqueue( copy );
 }
 
-class QWSDisplay::Data {
+class QWSDisplay::Data : public QObject {
+    Q_OBJECT
 public:
     Data( QObject* parent, bool singleProcess = FALSE )
     {
 #ifndef QT_NO_QWS_MULTIPROCESS
 	if ( singleProcess )
 	    csocket = 0;
-	else
+	else {
 	    csocket = new QWSSocket(parent);
+	    connect( csocket, SIGNAL(connectionClosed()),
+		     this, SLOT(connectionClosed()) );
+	}
 #endif
 	init();
     }
@@ -517,9 +521,10 @@ public:
 	unused_identifiers.remove(head);
 	return i;
     }
+
+private slots:
+    void connectionClosed();
 };
-
-
 
 void QWSDisplay::Data::init()
 {
@@ -838,6 +843,11 @@ void QWSDisplay::Data::waitForQCopResponse()
     qcop_response = 0;
 }
 #endif
+
+void QWSDisplay::Data::connectionClosed()
+{
+    qApp->quit();
+}
 
 /*!
     \class QWSDisplay qwsdisplay_qws.h
@@ -3586,3 +3596,5 @@ void QApplication::flush()
     sendPostedEvents();
     (void)qt_fbdpy->eventPending(); // flush
 }
+
+#include "qapplication_qws.moc"
