@@ -133,8 +133,10 @@ private:
   QRegion stream functions
  *****************************************************************************/
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
+#endif
 
 
 #endif // QREGION_H

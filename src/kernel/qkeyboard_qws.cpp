@@ -761,7 +761,7 @@ void QWSVFbKeyboardHandler::readKeyboardData()
     } while ( n > 0 );
 
     int idx = 0;
-    while ( kbdIdx - idx >= sizeof( QVFbKeyData ) ) {
+    while ( kbdIdx - idx >= (int)sizeof( QVFbKeyData ) ) {
 	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
 	if ( kd->unicode == 0 ) {
 	    // magic exit key

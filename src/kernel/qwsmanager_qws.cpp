@@ -227,7 +227,7 @@ void QWSDecoration::close( QWidget *widget )
 
   The default behaviour is to ignore this action.
 */
-void QWSDecoration::minimize( QWidget *widget )
+void QWSDecoration::minimize( QWidget * )
 {
     qDebug("No minimize functionality provided");
 }

@@ -975,6 +975,9 @@ void QPNGFormat::end(png_structp png, png_infop info)
     unused_data = png->buffer_size; // Since libpng doesn't tell us
 }
 
+#ifdef PNG_USER_CHUNK_SUPPORTED
+
+#ifndef QT_NO_IMAGE_TEXT
 static bool skip(png_uint_32& max, png_bytep& data)
 {
     while (*data) {
@@ -987,8 +990,8 @@ static bool skip(png_uint_32& max, png_bytep& data)
     data++; // skip to after NUL
     return TRUE;
 }
+#endif
 
-#ifdef PNG_USER_CHUNK_SUPPORTED
 int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    png_bytep data, png_uint_32 length)
 {

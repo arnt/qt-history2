@@ -632,7 +632,7 @@ void QVFbMouseHandlerPrivate::readMouseData()
     } while ( n > 0 );
 
     int idx = 0;
-    while ( mouseIdx-idx >= sizeof( QPoint ) + sizeof( int ) ) {
+    while ( mouseIdx-idx >= int(sizeof( QPoint ) + sizeof( int )) ) {
 	uchar *mb = mouseBuf+idx;
 	QPoint *p = (QPoint *) mb;
 	mb += sizeof( QPoint );

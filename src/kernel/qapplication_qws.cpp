@@ -648,7 +648,7 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
 
 void QWSDisplay::moveRegion( int winId, int dx, int dy )
 {
-    QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
+    //UNUSED QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
 
     QWSRegionMoveCommand cmd;
     cmd.simpleData.windowid = winId;

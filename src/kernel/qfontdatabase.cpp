@@ -1355,6 +1355,7 @@ static const QString getCharSet( QFont::CharSet set)
     return "Unknown";
 }
 
+#ifdef _WS_X11_
 static QString getCharSetName( const char * registry, const char *encoding )
 {
     QString tmp = registry;
@@ -1362,6 +1363,7 @@ static QString getCharSetName( const char * registry, const char *encoding )
     tmp += encoding;
     return tmp.lower();
 }
+#endif
 
 static QString getCharSetName( QFont::CharSet cs )
 {

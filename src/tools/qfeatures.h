@@ -40,8 +40,20 @@
 //#define QT_NO_STRINGLIST
 
 // File I/O
-//#define QT_NO_DIR
+#if defined(QT_NO_STRINGLIST)
+    /*!
+	QDir
+    */
+    #define QT_NO_DIR
+#endif
+
+/*!
+    QTextStream
+*/
 //#define QT_NO_TEXTSTREAM
+/*!
+    QDataStream
+*/
 //#define QT_NO_DATASTREAM
 
 // Images
@@ -51,7 +63,9 @@
     <p>This is an uncompressed image format
     offering few advantages over PNG or JPEG.
 */
-//#define QT_NO_IMAGEIO_BMP
+#if defined(QT_NO_DATASTREAM)
+    #define QT_NO_IMAGEIO_BMP
+#endif
 /*!
     PPM image I/O
     <p>The Portable PixMap (PPM) image format is common on Unix.
@@ -96,7 +110,7 @@
     <p><b>Note: this currently also requires <tt>QT_JPEG_SUPPORT</tt> to
 	be defined when building Qt.</b>
 */
-//#define QT_NO_IMAGEIO_JPEG // currently also requires QT_JPEG_SUPPORT
+//#define QT_NO_IMAGEIO_JPEG
 
 /*!
     Asynchronous I/O
@@ -131,7 +145,9 @@
 	on Unix.
     <p>Only supported on Qt/Embedded.
 */
-//#define QT_NO_BDF
+#if defined(QT_NO_TEXTSTREAM)
+    #define QT_NO_BDF
+#endif
 /*!
     QFontDatabase
 */
@@ -168,7 +184,9 @@
 /*!
     MIME
 */
-//#define QT_NO_MIME
+#if defined(QT_NO_DIR)
+    #define QT_NO_MIME
+#endif
 #if defined(QT_NO_MIME)
     /*!
 	RichText (HTML) display
@@ -288,9 +306,11 @@
 /*!
     Image file text strings
 */
-//#define QT_NO_IMAGE_TEXT
+#if defined(QT_NO_STRINGLIST)
+    #define QT_NO_IMAGE_TEXT
+#endif
 
-#if defined QT_NO_IMAGE_TRUECOLOR
+#if defined(QT_NO_IMAGE_TRUECOLOR)
     /*!
 	16-bit QImage
     */
@@ -340,7 +360,7 @@
     Printing
 */
 //#define QT_NO_PRINTER
-#if defined(QT_NO_PRINTER)
+#if defined(QT_NO_PRINTER) || defined(QT_NO_TEXTSTREAM)
     /*!
 	PostScript printing
     */
@@ -534,7 +554,7 @@
     #define QT_NO_STYLE_PLATINUM
 #endif
 
-#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX)
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR)
     /*!
 	QFileDialog
     */
@@ -548,7 +568,7 @@
     #define QT_NO_FONTDIALOG
 #endif
 
-#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX)
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_PRINTER) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR)
     /*!
 	QPrintDialog
     */

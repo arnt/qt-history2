@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#ifdef QT_JPEG_SUPPORT
+#ifndef QT_NO_IMAGEIO_JPEG
 
 #include <qimage.h>
 #include <qiodevice.h>
@@ -434,7 +434,7 @@ void write_jpeg_image(QImageIO* iio)
 
 void qInitJpegIO()
 {
-#ifdef QT_JPEG_SUPPORT
+#ifndef QT_NO_IMAGEIO_JPEG
     // Not much to go on - just 3 bytes: 0xFF, M_SOI, 0xFF
     // Even the third is not strictly specified as required.
     QImageIO::defineIOHandler("JPEG", "^\377\330\377", 0, read_jpeg_image, write_jpeg_image);

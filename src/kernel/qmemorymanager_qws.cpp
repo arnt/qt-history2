@@ -545,9 +545,10 @@ QGlyphMetrics* QMemoryManager::lockGlyphMetrics(FontID id, const QChar& ch)
     return g.metrics;
 }
 
-void QMemoryManager::unlockGlyph(FontID id, const QChar& ch)
+void QMemoryManager::unlockGlyph(FontID, const QChar&)
 {
 }
+
 #ifndef QT_NO_QWS_SAVEFONTS
 void QMemoryManager::savePrerenderedFont(const QFontDef& f, bool all)
 {

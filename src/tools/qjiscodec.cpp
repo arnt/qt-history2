@@ -168,10 +168,10 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	    j = '?';
 	}
 	if (state != prev) {
-	    if (state >= MinState && state <= MaxState) {
-		result += Esc_SEQ[state - MinState];
-	    } else {
+	    if (state == Unknown) {
 		result += Esc_Ascii;
+	    } else {
+		result += Esc_SEQ[state - MinState];
 	    }
 	    prev = state;
 	}

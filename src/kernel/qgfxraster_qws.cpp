@@ -1376,6 +1376,8 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
+    ASSERT(!reverse); // not implemented
+
     unsigned int ret;
 
     if(sdepth==1) {
@@ -3674,7 +3676,7 @@ bool QScreen::initCard()
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;
-	    qDebug("Physical framebuffer address %p",finfo.smem_start);
+	    qDebug("Physical framebuffer address %08lx",finfo.smem_start);
 	    // Size needs to be in 4k chunks, but that's not always
 	    // what we get thanks to graphics card registers. Write combining
 	    // these is Not Good, so we write combine what we can

@@ -432,8 +432,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     return QPoint( x, y );
 }
 
-void QWidget::setMicroFocusHint( int x, int y, int width, int height, 
-				 bool text)
+void QWidget::setMicroFocusHint( int /*x*/, int /*y*/, int /*width*/, int /*height*/, 
+				 bool /*text*/)
 {
     //XXX not implemented
 #if 0    

@@ -1270,7 +1270,7 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 }
 
 #ifndef QT_NO_SOUND
-void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client )
+void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient * )
 {
     soundserver->playFile(cmd->filename);
 }
