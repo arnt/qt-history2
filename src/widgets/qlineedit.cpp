@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#128 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#127 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#128 $");
 
 
 struct QLineEditPrivate {
@@ -648,14 +648,6 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 					  width() - 2*margin );
     if ( e->button() == MidButton ) {
 	insert( QApplication::clipboard()->text() );
-	return;
-    } else if ( hasMarkedText() &&
-		e->button() == LeftButton &&
-		( (markAnchor > cursorPos && markDrag < cursorPos) ||
-		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
-	QTextDragObject * tdo = new QTextDragObject( this );
-	tdo->setText( markedText() );
-	tdo->startDrag();
 	return;
     }
 
