@@ -576,9 +576,13 @@ bool QPopupMenu::tryMenuBar( QMouseEvent *e )
     register QMenuData *top = this;		// find top level
     while ( top->parentMenu )
 	top = top->parentMenu;
+#ifndef QT_NO_MENUBAR
     return top->isMenuBar ?
 	((QMenuBar *)top)->tryMouseEvent( this, e ) :
 			      ((QPopupMenu*)top)->tryMouseEvent(this, e );
+#else
+    return ((QPopupMenu*)top)->tryMouseEvent(this, e );
+#endif
 }
 
 
@@ -604,12 +608,14 @@ bool QPopupMenu::tryMouseEvent( QPopupMenu *p, QMouseEvent * e)
 
 void QPopupMenu::byeMenuBar()
 {
+#ifndef QT_NO_MENUBAR
     hideAllPopups();
     register QMenuData *top = this;		// find top level
     while ( top->parentMenu )
 	top = top->parentMenu;
     if ( top->isMenuBar )
 	((QMenuBar *)top)->goodbye();
+#endif
 }
 
 
@@ -1259,8 +1265,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	}
 	// just hide one
 	hide();
+#ifndef QT_NO_MENUBAR
   	if ( parentMenu && parentMenu->isMenuBar )
 	    ((QMenuBar*) parentMenu)->goodbye( TRUE );
+#endif
 	break;
 
     case Key_Left:
@@ -1390,6 +1398,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
+#ifndef QT_NO_MENUBAR
     if ( !ok_key ) {				// send to menu bar
 	register QMenuData *top = this;		// find top level
 	while ( top->parentMenu )
@@ -1397,7 +1406,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	if ( top->isMenuBar )
 	    ((QMenuBar*)top)->tryKeyEvent( this, e );
     }
-
+#endif
     if ( dy && actItem < 0 ) {
 	setFirstItemActive();
     } else if ( dy ) {				// highlight next/prev
@@ -1850,4 +1859,4 @@ void QPopupMenu::toggleTearOff()
     }
 }
 
-#endif
+#endif // QT_NO_WIDGETS

@@ -373,13 +373,18 @@
     #define QT_NO_TEXTBROWSER
 #endif
 
-#if defined(QT_NO_WIDGETS) || defined(QT_NO_DRAGANDDROP)
+#if defined(QT_NO_WIDGETS) || defined(QT_NO_DRAGANDDROP) || defined(QT_NO_HEADER)
     /*!
 	QIconView
     */
     #define QT_NO_ICONVIEW
 #endif
-
+#if defined(QT_NO_HEADER)
+    /*!
+	QListView
+    */
+    #define QT_NO_LISTVIEW
+#endif
 #if defined(QT_NO_WIDGETS)
     /*!
 	Windows style
@@ -402,9 +407,17 @@
     */
     #define QT_NO_SIZEGRIP
     /*!
-	QListView
+	QHeader
     */
-    #define QT_NO_LISTVIEW
+    #define QT_NO_HEADER
+    /*!
+	QIconView
+    */
+    #define QT_NO_ICONVIEW
+    /*!
+	QMenuBar
+    */
+    #define QT_NO_MENUBAR
     /*!
 	QCanvas
     */

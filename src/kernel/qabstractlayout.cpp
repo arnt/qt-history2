@@ -671,7 +671,7 @@ void QLayout::init()
     activated = FALSE;
     marginImpl = FALSE;
     extraData = 0;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     menubar = 0;
 #endif
     enabled = TRUE;
@@ -980,7 +980,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	if ( activated ) {
 	    QResizeEvent *r = (QResizeEvent*)e;
 	    int mbh = 0;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
 	    if ( menubar && !menubar->isHidden() )
 		mbh = menubar->heightForWidth( r->size().width() );
 #endif
@@ -995,7 +995,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	QChildEvent *c = (QChildEvent*)e;
 	if ( c->child()->isWidgetType() ) {
 	    QWidget *w = (QWidget*)c->child();
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
 	    if ( w == menubar )
 		menubar = 0;
 #endif
@@ -1012,7 +1012,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	    if ( c->child()->isWidgetType() ) {
 		QWidget *w = (QWidget*)c->child();
 		if ( !w->isTopLevel() ) {
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
 		    if ( w->inherits( "QMenuBar" ) && ( !w->parent() || !w->parent()->inherits( "QToolBar" ) ) )
 			menubar = (QMenuBar*)w;
 		    else
@@ -1054,7 +1054,7 @@ int QLayout::totalHeightForWidth( int w ) const
     }
     int b = (topLevel && !marginImpl) ? 2*outsideBorder : 0;
     int h = heightForWidth( w - b ) + b;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     if ( menubar )
 	h += menubar->heightForWidth( w );
 #endif
@@ -1078,7 +1078,7 @@ QSize QLayout::totalMinimumSize() const
 
     QSize s = minimumSize();
     int h = b;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     if ( menubar )
 	h += menubar->heightForWidth( s.width() );
 #endif
@@ -1104,7 +1104,7 @@ QSize QLayout::totalSizeHint() const
 
     QSize s = sizeHint();
     int h = b;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     if ( menubar )
 	h += menubar->heightForWidth( s.width() );
 #endif
@@ -1129,7 +1129,7 @@ QSize QLayout::totalMaximumSize() const
 
     QSize s = maximumSize();
     int h = b;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     if ( menubar )
 	h += menubar->heightForWidth( s.width() );
 #endif
@@ -1219,7 +1219,7 @@ void QLayout::freeze( int w, int h )
     }
 }
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
 
 /*!
   Makes the geometry manager take account of the menu bar \a w. All
@@ -1335,7 +1335,7 @@ bool QLayout::activate()
     activated = TRUE;
     QSize s = mainWidget()->size();
     int mbh = 0;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
 #endif
     int b = marginImpl ? 0 : outsideBorder;

@@ -946,7 +946,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 
 void QWorkspace::showMaximizeControls()
 {
-
+#ifndef QT_NO_MENUBAR
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
 						   FALSE, TRUE );
     QMenuBar * b = 0;
@@ -1016,11 +1016,13 @@ void QWorkspace::showMaximizeControls()
 	    d->menuId = b->insertItem( pm, pu, -1, 0 );
 	}
     }
+#endif
 }
 
 
 void QWorkspace::hideMaximizeControls()
 {
+#ifndef QT_NO_MENUBAR
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0, FALSE, TRUE );
     QMenuBar * b = 0;
     if ( l && l->count() )
@@ -1037,6 +1039,7 @@ void QWorkspace::hideMaximizeControls()
     d->maxcontrols = 0;
     d->menuId = -1;
     d->controlId = -1;
+#endif
 }
 
 void QWorkspace::closeActiveWindow()

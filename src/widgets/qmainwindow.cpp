@@ -223,7 +223,11 @@ public:
     ToolBarDock * top, * left, * right, * bottom, * tornOff, * unmanaged, *hidden;
     QToolLayout *lLeft, *lRight, *lTop, *lBottom;
 
+#ifndef QT_NO_MENUBAR
     QMenuBar * mb;
+#else
+    QWidget * mb;
+#endif
     QStatusBar * sb;
     QToolTipGroup * ttg;
 
@@ -1392,7 +1396,7 @@ QMainWindow::~QMainWindow()
     delete d;
 }
 
-
+#ifndef QT_NO_MENUBAR
 /*!  Sets this main window to use the menu bar \a newMenuBar.
 
   The old menu bar, if there was any, is deleted along with its
@@ -1439,7 +1443,7 @@ QMenuBar * QMainWindow::menuBar() const
     ((QMainWindow *)this)->triggerLayout();
     return b;
 }
-
+#endif // QT_NO_MENUBAR
 
 /*!  Sets this main window to use the status bar \a newStatusBar.
 
@@ -2082,6 +2086,7 @@ void QMainWindow::removeToolBar( QToolBar * toolBar )
 void QMainWindow::setUpLayout()
 {
     //### Must rewrite!
+#ifndef QT_NO_MENUBAR
     if ( !d->mb ) {
 	// slightly evil hack here.  reconsider this after 2.0
 	QObjectList * l
@@ -2090,6 +2095,7 @@ void QMainWindow::setUpLayout()
 	    d->mb = menuBar();
 	delete l;
     }
+#endif
     if ( !d->sb ) {
 	// as above.
 	QObjectList * l
@@ -2102,9 +2108,11 @@ void QMainWindow::setUpLayout()
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
 
+#ifndef QT_NO_MENUBAR
     if ( d->mb && d->mb->isVisibleTo( this ) ) {
 	d->tll->setMenuBar( d->mb );
     }
+#endif
 
     d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
 

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qheader.h"
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_HEADER
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qbitmap.h"
@@ -1439,4 +1439,4 @@ bool QHeader::isMovingEnabled() const
 }
 
 //#### what about lastSectionCoversAll?
-#endif
+#endif // QT_NO_HEADER

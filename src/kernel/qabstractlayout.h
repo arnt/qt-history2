@@ -185,7 +185,7 @@ public:
     void setResizeMode( ResizeMode );
     ResizeMode resizeMode() const;
 
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     virtual void  setMenuBar( QMenuBar *w );
     QMenuBar *menuBar() const { return menubar; }
 #endif
@@ -242,7 +242,7 @@ private:
     uint enabled : 1;
     QRect rect;
     QLayoutData *extraData;
-#ifndef QT_NO_WIDGETS
+#ifndef QT_NO_MENUBAR
     QMenuBar *menubar;
 #endif
 private:	// Disabled copy constructor and operator=
