@@ -3923,7 +3923,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 
   \brief The QFileIconProvider class provides icons for QFileDialog to
   use.
-  
+
   \ingroup misc
 
   By default, QFileIconProvider is not used, but any application or
@@ -4070,6 +4070,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 	    p.end();
 	    defaultFolder.setMask( defaultFolder.createHeuristicMask() );
 	    *closedFolderIcon = defaultFolder;
+	    DestroyIcon( si );
 	} else {
 	    defaultFolder = *closedFolderIcon;
 	}
@@ -4094,11 +4095,12 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 	p.end();
 	defaultFile.setMask( defaultFile.createHeuristicMask() );
 	*fileIcon = defaultFile;
+	DestroyIcon( si );
     } else {
 	defaultFile = *fileIcon;
     }
 
-    //------------------------------- get default file pixmap
+    //------------------------------- get default exe pixmap
     if ( qt_winunicode ) {
 	res = ExtractIconEx( (TCHAR*)qt_winTchar( QString::fromLatin1( "shell32.dll" ), TRUE ),
 			     2, 0, &si, 1 );
@@ -4114,6 +4116,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 	DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
 	p.end();
 	defaultExe.setMask( defaultExe.createHeuristicMask() );
+	DestroyIcon( si );
     } else {
 	defaultExe = *fileIcon;
     }
@@ -4184,6 +4187,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
 	    p.end();
 	    pix.setMask( pix.createHeuristicMask() );
+	    DestroyIcon( si );
 	} else {
 	    pix = defaultFile;
 	}
@@ -4224,6 +4228,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
 	    p.end();
 	    pix.setMask( pix.createHeuristicMask() );
+	    DestroyIcon( si );
 	} else {
 	    pix = defaultExe;
 	}
@@ -4991,14 +4996,18 @@ void QFileDialog::doMimeTypeLookup()
 	} else
 	    fi.setFile( item->info.name() ); // #####
 	const QPixmap *p = iconProvider()->pixmap( fi );
-	if ( p && p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
+	if ( p && p != item->pixmap( 0 ) && 
+	     ( !item->pixmap( 0 ) || p->serialNumber() != item->pixmap( 0 )->serialNumber() ) && 
+	     p != fifteenTransparentPixels ) {
 	    item->hasMimePixmap = TRUE;
 
 	    // evil hack to avoid much too much repaints!
 	    qApp->processEvents();
+	    files->setUpdatesEnabled( FALSE );
 	    files->viewport()->setUpdatesEnabled( FALSE );
 	    item->setPixmap( 0, *p );
 	    qApp->processEvents();
+	    files->setUpdatesEnabled( TRUE );
 	    files->viewport()->setUpdatesEnabled( TRUE );
 
 	    if ( files->isVisible() ) {
