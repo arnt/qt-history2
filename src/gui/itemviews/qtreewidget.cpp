@@ -612,7 +612,9 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
     \fn void QTreeWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
 
     Sets the \a flags for this item. These determine whether the item can be
-    selected, modified
+    selected or modified.
+
+    \sa flags()
 */
 
 /*!
@@ -625,6 +627,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setText(int column, const QString &text)
+
+    Sets the \a text to be displayed in the given \a column.
+
+    \sa text() setFont() setTextColor()
 */
 
 /*!
@@ -637,6 +643,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setIcon(int column, const QIcon &icon)
+
+    Sets the \a icon to be displayed in the given \a column.
+
+    \sa icon() setText()
 */
 
 /*!
@@ -649,6 +659,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setStatusTip(int column, const QString &statusTip)
+
+    Sets the \a statusTip for the given \a column.
+
+    \sa statusTip() setToolTip() setWhatsThis()
 */
 
 /*!
@@ -661,6 +675,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setToolTip(int column, const QString &toolTip)
+
+    Sets the \a toolTip for the given \a column.
+
+    \sa toolTip() setStatusTip() setWhatsThis()
 */
 
 /*!
@@ -673,6 +691,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setWhatsThis(int column, const QString &whatsThis)
+
+    Sets the \a whatsThis help for the given \a column.
+
+    \sa whatsThis() setStatusTip() setToolTip()
 */
 
 /*!
@@ -685,6 +707,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setFont(int column, const QFont &font)
+
+    Sets the \a font used to display the text in the given \a column.
+
+    \sa font() setText() setTextColor()
 */
 
 /*!
@@ -697,6 +723,11 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setBackgroundColor(int column, const QColor &color)
+
+    Sets the background color of the label in the given \a column to the
+    specified \a color.
+
+    \sa backgroundColor() setTextColor()
 */
 
 /*!
@@ -709,6 +740,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setTextColor(int column, const QColor &color)
+
+    Sets the \a color used to display the text in the given \a column.
+
+    \sa textColor() setFont() setText()
 */
 
 /*!
@@ -717,6 +752,12 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn void QTreeWidgetItem::setCheckedState(int column, bool state)
+
+    If \a state is true, the label in the given \a column is checked; otherwise
+    it is unchecked. The item must be checkable for this function to have an
+    effect.
+
+    \sa checkedState() QAbstractItemModel::ItemFlag
 */
 
 /*!
@@ -971,7 +1012,8 @@ void QTreeWidgetItem::setHidden(bool hide)
 }
 
 /*!
-  Sorts the children by the value in the given \a column, in the given \a order.
+  Sorts the children by the value in the given \a column, in the \a order
+  specified.
 */
 
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
@@ -1206,7 +1248,7 @@ void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 }
 
 /*!
-  Appends the \a item as a toplevel item in the view.
+  Appends the \a item as a top-level item in the view.
 
   \sa insertToplevelItem()
 */
@@ -1254,9 +1296,9 @@ void QTreeWidget::setHeaderLabels(const QStringList &labels)
 }
 
 /*!
-  Returns the pointer to the current item in the view.
+    Returns the current item in the tree widget. This is usually highlighted.
 
-  \sa setCurrentItem()
+    \sa setCurrentItem()
 */
 
 QTreeWidgetItem *QTreeWidget::currentItem() const
