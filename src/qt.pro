@@ -672,6 +672,7 @@ opengl:SOURCES    += $$OPENGL_SOURCES
 
 network:HEADERS += $$NETWORK_H/qdns.h \
 		    $$NETWORK_H/qftp.h \
+		    $$NETWORK_H/qhttp.h \
 		    $$NETWORK_H/qhostaddress.h \
 		    $$NETWORK_H/qnetwork.h \
 		    $$NETWORK_H/qserversocket.h \
@@ -679,6 +680,7 @@ network:HEADERS += $$NETWORK_H/qdns.h \
 		    $$NETWORK_H/qsocketdevice.h
 NETWORK_SOURCES	= network/qdns.cpp \
 		    network/qftp.cpp \
+		    network/qhttp.cpp \
 		    network/qhostaddress.cpp \
 		    network/qnetwork.cpp \
 		    network/qserversocket.cpp \
