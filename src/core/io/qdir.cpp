@@ -1318,11 +1318,7 @@ bool QDir::operator==(const QDir &dir) const
 QDir &QDir::operator=(const QDir &dir)
 {
     Q_D(QDir);
-    if (!--d->data->ref)
-        delete d->data;
-    d->data = dir.d_func()->data;
-    ++ d->data->ref;
-
+    qAtomicAssign(d->data, dir.d_func()->data);
     return *this;
 }
 
