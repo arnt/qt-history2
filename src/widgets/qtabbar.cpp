@@ -567,9 +567,10 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
 */
 void QTabBar::mousePressEvent( QMouseEvent * e )
 {
-    e->accept();
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton ) {
+	e->ignore();
 	return;
+    }
     QTab * t = selectTab( e->pos() );
     if ( t != 0 && t == selectTab( e->pos() ) && t->enabled ) {
 	setCurrentTab( t );
@@ -582,7 +583,8 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
 
 void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 {
-    e->accept();
+    if ( e->button() != LeftButton )
+	e->ignore();
 }
 
 /*!\reimp
@@ -590,7 +592,8 @@ void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 
 void QTabBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    e->accept();
+    if ( e->button() != LeftButton )
+	e->ignore();
 }
 
 
