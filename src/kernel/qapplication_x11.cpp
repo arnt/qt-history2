@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#29 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,12 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#28 $";
+#define  TRACE_FS
+#include <qtracefs.h>
+#endif
+
+#if defined(DEBUG)
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#29 $";
 #endif
 
 
@@ -31,6 +36,12 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#28 $
 //
 
 static char    *appName;			// application name
+static char    *appFont = 0;			// application font
+static char    *appBGCol = 0;			// application bg color
+static char    *appFGCol = 0;			// application fg color
+static char    *tlwGeometry = 0;		// top level widget geometry
+static char    *tlwTitle = 0;			// top level widget title
+static bool     tlwIconic = FALSE;		// top level widget iconified
 static int	appArgc;			// argument count
 static char   **appArgv;			// argument vector
 static Display *appDpy;				// X11 application display
@@ -39,6 +50,9 @@ static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static QWidget *desktopWidget = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
+#if defined(DEBUG)
+static bool	appTraceMem = FALSE;		// memory tracing (debugging)
+#endif
 
 static Window	mouseActWindow = 0;		// window where mouse is
 static int	mouseButtonPressed = 0;		// last mouse button pressed
@@ -93,8 +107,16 @@ public:
 
 int main( int argc, char **argv )
 {
-#if defined(TRACE_FS)
-    startFSTrace();
+    int i;
+#if defined(DEBUG)
+    for ( i=1; i<argc; i++ ) {
+	if ( *argv[i] != '-' )
+	    break;
+	if ( strcmp(argv[i],"-tracemem") == 0 )
+	    appTraceMem = !appTraceMem;
+    }
+    if ( appTraceMem )
+	startFSTrace( 32768 );
 #endif
 
     appArgc = argc;				// save arguments
@@ -126,6 +148,35 @@ int main( int argc, char **argv )
 	appDpyName = argv[2];
 	argc -= 2;
 	argv += 2;
+    }
+
+    for ( i=1; i<argc; i++ ) {
+	QString arg = argv[i];
+	if ( arg[0] != '-' )
+	    ;
+	else if ( arg == "-display" ) {
+	    if ( ++i < argc ) appDpyName = argv[i];
+	}
+	else if ( arg == "-font" || arg == "-fn" ) {
+	    if ( ++i < argc ) appFont = argv[i];
+	}
+	else if ( arg == "-bg" || arg == "-background" ) {
+	    if ( ++i < argc ) appBGCol = argv[i];
+	}
+	else if ( arg == "-fg" || arg == "-foreground" ) {
+	    if ( ++i < argc ) appFGCol = argv[i];
+	}
+	else if ( arg == "-name" ) {
+	    if ( ++i < argc ) appName = argv[i];
+	}
+	else if ( arg == "-title" ) {
+	    if ( ++i < argc ) tlwTitle = argv[i];
+	}
+	else if ( arg == "-geometry" ) {
+	    if ( ++i < argc ) tlwGeometry = argv[i];
+	}
+	else if ( arg == "-iconic" )
+	    tlwIconic = !tlwIconic;
     }
 
   // Connect to X server
@@ -180,8 +231,9 @@ int main( int argc, char **argv )
 
     XCloseDisplay( appDpy );			// close X display
 
-#if defined(TRACE_FS)
-    stopFSTrace();
+#if defined(DEBUG)
+    if ( appTraceMem )
+	stopFSTrace();				// end memory tracing
 #endif
     return returnCode;
 }
@@ -1015,7 +1067,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	}
 	else {					// mouse button released
 	    if ( manualGrab ) {			// release manual grab
-		debug( "grab released" );
 		manualGrab = FALSE;
 		XUngrabPointer( display(), CurrentTime );
 	    }
