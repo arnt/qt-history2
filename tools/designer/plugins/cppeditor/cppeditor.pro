@@ -9,7 +9,7 @@ TARGET		= cppeditor
 DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 
-INCLUDEPATH	+= ../../interfaces ../../editor
+INCLUDEPATH	+= ../../interfaces ../../editor $$QT_BUILD_TREE/tools/designer/editor
 win32{
     LIBS	+= $$QT_BUILD_TREE/lib/editor.lib
 } else {
