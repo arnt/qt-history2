@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#4 $
 **
 ** Definition of QPixMap class
 **
 ** Author  : Haavard Nord
 ** Created : 940501
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@ class QPixMap : public QPaintDevice		// pixmap class
 friend class QPaintDevice;
 friend class QPainter;
 public:
-    QPixMap( const QSize &size, int nPlanes=-1 );
+    QPixMap( int w, int h, int nPlanes=-1 );
    ~QPixMap();
 
     QSize  size()   const { return sz; }
@@ -35,8 +35,10 @@ public:
 #endif
 
 protected:
+    QPixMap( int w, int h, const char *data );
     QSize  sz;					// size of pixmap
     int	   bitPlanes;				// # bit planes
+    bool   dirty;				// dirty/needs reconfig
 #if defined(_WS_WIN_)
     HANDLE allocMemDC();
     void   freeMemDC();
@@ -44,6 +46,8 @@ protected:
 #elif defined(_WS_PM_)
     HANDLE hdcmem;
     HANDLE hbm;
+#elif defined(_WS_X11_)
+
 #endif
 };
 
