@@ -56,6 +56,8 @@ static QMutexPool *qt_thread_mutexpool = 0;
 static DWORD qt_tls_index = 0;
 static void create_tls()
 {
+    if ( qt_tls_index ) return;
+
     static QCriticalSection cs;
     cs.enter();
     if ( ! qt_tls_index )
@@ -70,12 +72,23 @@ static void create_tls()
 
 QThreadInstance *QThreadInstance::current()
 {
+    create_tls();
     QThreadInstance *ret = (QThreadInstance *) TlsGetValue( qt_tls_index );
     if ( ! ret ) {
-	qFatal( "QThread: ERROR: unknown thread %lx\n"
-		"QThreadStorage can only be used with QThreads.",
-		QThread::currentThread() );
-	// not reached
+	if ( main_instance ) {
+	    qWarning( "QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
+		      "This instance and all per-thread data will be leaked.",
+		      QThread::currentThread() );
+	}
+
+	ret = new QThreadInstance;
+	ret->args[1] = ret;
+	ret->running = TRUE;
+	ret->orphan = TRUE;
+	ret->handle = GetCurrentThread();
+	ret->id = GetCurrentThreadId();
+
+	TlsSetValue( qt_tls_index, ret );
     }
     return ret;
 }
@@ -171,10 +184,8 @@ void QThread::initialize()
 
     // get a QThreadInstance for the main() thread
     create_tls();
-    QThreadInstance *inst = (QThreadInstance *) TlsGetValue( qt_tls_index );
-
-    if ( ! inst ) {
-	// create a new QThreadInstance
+    main_instance = (QThreadInstance *) TlsGetValue( qt_tls_index );
+    if ( ! main_instance ) {
 	main_instance = new QThreadInstance;
 	main_instance->args[1] = main_instance;
 	main_instance->running = TRUE;
@@ -183,13 +194,6 @@ void QThread::initialize()
 	main_instance->id = GetCurrentThreadId();
 
 	TlsSetValue( qt_tls_index, main_instance );
-    } else {
-	/*
-	  It seems that someone did something to make Qt create a
-	  QThreadInstance before the QApplication constructor.  We
-	  take over control of said QThreadInstance.
-	*/
-	main_instance = inst;
     }
 }
 

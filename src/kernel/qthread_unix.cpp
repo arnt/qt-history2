@@ -69,6 +69,7 @@ static void create_storage_key()
 
 QThreadInstance *QThreadInstance::current()
 {
+    pthread_once( &storage_key_once, create_storage_key );
     QThreadInstance *ret = (QThreadInstance *) pthread_getspecific( storage_key );
     if ( ! ret ) {
 	if ( main_instance ) {
@@ -76,14 +77,13 @@ QThreadInstance *QThreadInstance::current()
 		      "This instance and all per-thread data will be leaked.",
 		      QThread::currentThread() );
 	}
-	
+
 	ret = new QThreadInstance;
-	ret->args[1] = main_instance;
+	ret->args[1] = ret;
 	ret->running = TRUE;
 	ret->orphan = TRUE;
 	ret->thread_id = pthread_self();
 
-	pthread_once( &storage_key_once, create_storage_key );
 	pthread_setspecific( storage_key, ret );
     }
     return ret;
@@ -244,7 +244,6 @@ void QThread::initialize()
 	main_instance->orphan = TRUE;
 	main_instance->thread_id = pthread_self();
 
-	pthread_once( &storage_key_once, create_storage_key );
 	pthread_setspecific( storage_key, main_instance );
     }
 }
