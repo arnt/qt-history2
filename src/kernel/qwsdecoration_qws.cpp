@@ -33,6 +33,7 @@
 
 #ifndef QT_NO_QWS_MANAGER
 
+#include "qapplication.h"
 #include "qdrawutil.h"
 #include "qpopupmenu.h"
 #include "qpainter.h"
