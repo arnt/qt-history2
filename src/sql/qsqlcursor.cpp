@@ -284,8 +284,8 @@ QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
 
 /*!  Returns the primary index associated with the cursor as defined
   in the database, or an empty index if there is no primary index.  If
-  \a prime is TRUE (the default), the index fields are set to the current value of
-  the cursor fields they correspond to.
+  \a prime is TRUE (the default), the index fields are set to the
+  current value of the cursor fields they correspond to.
 
 */
 
@@ -294,7 +294,8 @@ QSqlIndex QSqlCursor::primaryIndex( bool prime ) const
     if ( prime ) {
 	for ( uint i = 0; i < d->priIndx.count(); ++i ) {
 	    const QString fn = d->priIndx.fieldName( i );
-	    d->priIndx.setValue( i, value( fn ) );
+	    if ( contains( fn ) )
+		d->priIndx.setValue( i, value( fn ) );
 	}
     }
     return d->priIndx;
