@@ -64,6 +64,7 @@ public:
     int	   dayOfYear()	 const;			// 1..365
     int	   daysInMonth() const;			// 28..31
     int	   daysInYear()	 const;			// 365 or 366
+    bool   weekNumber( int *weekNum, int *yearNum ) const;  // See Docs
 
 #ifndef QT_NO_TEXTDATE
 #ifndef QT_NO_COMPAT
@@ -76,7 +77,7 @@ public:
     static QString longDayName( int weekday );
 #endif //QT_NO_TEXTDATE
 #ifndef QT_NO_TEXTSTRING
-#if !defined(QT_NO_SPRINTF) 
+#if !defined(QT_NO_SPRINTF)
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 #endif
     QString toString( const QString& format ) const;

@@ -394,6 +394,64 @@ int QDate::daysInYear() const
 }
 
 /*!
+  If it returns TRUE, then the ISO 8601 week number in \a *week and year number in
+  \a *year for this date.  Otherwise it returns FALSE, and \a *week and \a *year are
+  undefined.
+
+  ISO 8601 defines weeks that start on Monday, and the first week on the first Thursday
+  on the year and an implied maximum of 53 weeks.  That's why the year is also returned.
+  (For example, 2000 January 1 has week number 52 in the year 1999.  And 2002 December 31
+  has week number 1 in the year 2003.)
+*/
+
+bool QDate::weekNumber( int *weekNumber, int *yearNumber ) const
+{
+    int weekNum,
+	yearNum,
+	jan1WeekDay,
+	dow,
+	doy,
+	currYear;
+
+    if ( !isValid() )
+	return FALSE;
+
+    currYear = year();
+    jan1WeekDay = QDate( currYear, 1, 1 ).dayOfWeek();
+    dow = dayOfWeek();
+    doy = dayOfYear();
+
+    // find the Jan1Weekday;
+    if ( doy <= ( 8 - jan1WeekDay) && jan1WeekDay > 4 ) {
+	yearNum = currYear - 1;
+	if ( jan1WeekDay == 5 || (jan1WeekDay == 6 && QDate::leapYear(yearNum)) )
+	    weekNum = 53;
+	else
+	    weekNum = 52;
+    } else
+	yearNum = currYear;
+    if ( yearNum == currYear ) {
+	int totalDays = 365;
+	if ( QDate::leapYear(yearNum) )
+	    totalDays++;
+	if ( ((totalDays - doy) < (4 - dow) )
+	     || (jan1WeekDay == 7) && (totalDays - doy) < 3) {
+	    yearNum++;
+	    weekNum = 1;
+	}
+    }
+    if ( yearNum == currYear ) {
+	int j = doy + (7 - dow) + (jan1WeekDay - 1);
+	weekNum = j / 7;
+	if ( jan1WeekDay > 4 )
+	    weekNum--;
+    }
+    *weekNumber = weekNum;
+    *yearNumber = yearNum;
+    return TRUE;
+}
+
+/*!
   \fn QString QDate::monthName( int month )
   \obsolete
 
@@ -504,7 +562,7 @@ QString QDate::longMonthName( int month )
     }
 #endif
 #endif
-    
+
     return QString::null;
 }
 
@@ -868,7 +926,7 @@ QDate QDate::addMonths( int nmonths ) const
     }
 
     QDate tmp(y,m,1);
-    
+
     if( d > tmp.daysInMonth() )
 	d = tmp.daysInMonth();
 
