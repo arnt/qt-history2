@@ -220,9 +220,16 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	break;
     case Ancestor:
 	{
+	    if (entry < 0) {
+		return -1;
+	    } else if (entry == 0) {
+		//return ourself
+		const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
+		return 0;
+	    }
 	    targetObject = widget()->parentWidget();
 	    int i;
-	    for (i = entry; i > 1; --i)
+	    for (i = entry; i > 1 && targetObject; --i)
 		targetObject = targetObject->parent();
 	    if (!targetObject && i == 1)
 		targetObject = qApp;
