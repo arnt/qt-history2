@@ -167,8 +167,6 @@ ProjectGenerator::init()
 				if(file_no_path == "qthread.h")
 				    addConfig("thread");
 			    }
-
-			    bool found_src = FALSE;
 			    QString c_ext[] = { Option::cpp_ext, Option::cxx_ext, Option::cc_ext, 
 						       QString::null };
 			    for(int i = 0; !c_ext[i].isNull(); i++) {
