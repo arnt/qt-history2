@@ -286,7 +286,7 @@ void QSettingsPrivate::sysInsertSearchPath(QSettings::System s, const QString &p
 {
     if(s != QSettings::Mac)
 	return;
-    if ( !qt_verify_key( path ) ) {
+    if ( !path.isEmpty() && !qt_verify_key( path ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
 #endif
