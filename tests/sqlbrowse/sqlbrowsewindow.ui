@@ -29,7 +29,7 @@
             <number>6</number>
         </property>
         <widget row="2"  column="0" >
-            <class>DataGrid</class>
+            <class>QSqlViewTable</class>
             <property stdset="1">
                 <name>name</name>
                 <cstring>dataGrid</cstring>
@@ -127,8 +127,8 @@
 </widget>
 <customwidgets>
     <customwidget>
-        <class>DataGrid</class>
-        <header location="local">datagrid.h</header>
+        <class>QSqlViewTable</class>
+        <header location="global">qsqlviewtable.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>

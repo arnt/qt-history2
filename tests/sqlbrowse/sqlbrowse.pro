@@ -4,11 +4,9 @@ win32:DEFINES	+= QT_DLL
 
 INTERFACES 	+= sqlbrowsewindow.ui
 
-HEADERS     	= resultwindow.h \
-		datagrid.h
+HEADERS     	= resultwindow.h 
 
 SOURCES     	= resultwindow.cpp \
-		datagrid.cpp \
 		main.cpp
 
 unix:OBJECTS_DIR		= .obj
