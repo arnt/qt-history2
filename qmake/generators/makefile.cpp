@@ -1021,8 +1021,8 @@ MakefileGenerator::init()
 			decl = fi.dirPath() + Option::dir_sep;
 		}
 	    }
-	    impl += fi.baseName(TRUE) + Option::cpp_ext.first(),
-	    decl += fi.baseName(TRUE) + Option::h_ext.first();
+	    impl = fileFixify(impl + fi.baseName(TRUE) + Option::cpp_ext.first());
+	    decl = fileFixify(decl + fi.baseName(TRUE) + Option::h_ext.first());
 	    logicWarn(impl, "SOURCES");
 	    logicWarn(decl, "HEADERS");
 	    decls.append(decl);
