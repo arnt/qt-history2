@@ -5,7 +5,7 @@
 #include <qabstractspinbox.h>
 
 class QDateTimeEditPrivate;
-class QDateTimeEdit : public QAbstractSpinBox
+class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 {
     Q_OBJECT
 

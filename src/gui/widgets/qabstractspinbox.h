@@ -7,7 +7,7 @@
 class QLineEdit;
 
 class QAbstractSpinBoxPrivate;
-class QAbstractSpinBox : public QWidget
+class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractSpinBox);

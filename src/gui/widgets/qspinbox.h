@@ -3,7 +3,7 @@
 
 #include <qabstractspinbox.h>
 class QSpinBoxPrivate;
-class QSpinBox : public QAbstractSpinBox
+class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSpinBox);
@@ -70,7 +70,7 @@ signals:
 };
 
 class QDoubleSpinBoxPrivate;
-class QDoubleSpinBox : public QAbstractSpinBox
+class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDoubleSpinBox);
