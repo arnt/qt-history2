@@ -1753,11 +1753,15 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 bool QDockWindow::event( QEvent *e )
 {
     if ( e->type() == QEvent::WindowDeactivate ) {
-	titleBar->setActive( FALSE );
-	update();
+	if ( place() == OutsideDock ) {
+	    titleBar->setActive( FALSE );
+	    update();
+	}
     } else if ( e->type() == QEvent::WindowActivate ) {
-	titleBar->setActive( TRUE );
-	update();
+	if ( place() == OutsideDock ) {
+	    titleBar->setActive( TRUE );
+	    update();
+	}
     }
     return QFrame::event( e );
 }
