@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#179 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1208,42 +1208,44 @@ QCString QFont_Private::findFont( bool *exact )
 	const char* slant2 = italic() ? "o" : "r";
 	int size = pointSize()*10;
 	QCString s( 512 + 3*familyName.length() );
+	int xdpi = QPaintDevice::x11AppDpiX();
+	int ydpi = QPaintDevice::x11AppDpiY();
 	if ( foundry.isEmpty() ) {
 	    s.sprintf(
-		      "-*-%s-%s-%s-normal-*-*-%d-*-*-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-helvetica-%s-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-*-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
-		      familyName.ascii(), wt, slant, size,
-		      familyName.ascii(), slant, size,
-		      familyName.ascii(), slant2, size,
-		      slant, wt, size,
-		      slant, size,
-		      size );
+		      "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
+		      familyName.ascii(), wt, slant, size, xdpi, ydpi,
+		      familyName.ascii(), slant, size, xdpi, ydpi,
+		      familyName.ascii(), slant2, size, xdpi, ydpi,
+		      slant, wt, size, xdpi, ydpi,
+		      slant, size, xdpi, ydpi,
+		      size, xdpi, ydpi );
 	} else {
 	    s.sprintf(
-		      "-%s-%s-%s-%s-normal-*-*-%d-*-*-*-*-*-*,"
-		      "-%s-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-%s-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-%s-%s-%s-normal-*-*-%d-*-*-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-helvetica-%s-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-*-*-%s-*-*-*-%d-*-*-*-*-*-*,"
-		      "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
-		      foundry.ascii(), familyName.ascii(), wt, slant, size,
-		      foundry.ascii(), familyName.ascii(), slant, size,
-		      foundry.ascii(), familyName.ascii(), slant2, size,
-		      familyName.ascii(), wt, slant, size,
-		      familyName.ascii(), slant, size,
-		      familyName.ascii(), slant2, size,
-		      slant, wt, size,
-		      slant, size,
-		      size );
+		      "-%s-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
+		      "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		      "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
+		      foundry.ascii(), familyName.ascii(), wt, slant, size, xdpi, ydpi,
+		      foundry.ascii(), familyName.ascii(), slant, size, xdpi, ydpi,
+		      foundry.ascii(), familyName.ascii(), slant2, size, xdpi, ydpi,
+		      familyName.ascii(), wt, slant, size, xdpi, ydpi,
+		      familyName.ascii(), slant, size, xdpi, ydpi,
+		      familyName.ascii(), slant2, size, xdpi, ydpi,
+		      slant, wt, size, xdpi, ydpi,
+		      slant, size, xdpi, ydpi,
+		      size, xdpi, ydpi );
 	}
-
+debug("fontset:\n%s",s.data());
 
 	return s;
     } else {
