@@ -194,7 +194,7 @@ protected:
 
 private:
     QWidget* childWidget;
-    QWidget* lastfocusw;
+    QGuardedPtr<QWidget> lastfocusw;
     QWidgetResizeHandler *widgetResizeHandler;
     QTitleBar* titlebar;
     QGuardedPtr<QStatusBar> statusbar;
@@ -495,6 +495,8 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	return;
     }
 
+    d->active = 0;
+    // First deactivate all other workspace clients
     QPtrListIterator<QWorkspaceChild> it( d->windows );
     while ( it.current () ) {
      	QWorkspaceChild* c = it.current();
@@ -502,13 +504,17 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	if(windowMode() == QWorkspace::TopLevel && c->isTopLevel() &&
 	    c->windowWidget() == w && !c->isActive())
 	    c->setActiveWindow();
-	c->setActive( c->windowWidget() == w );
 	if (c->windowWidget() == w)
 	    d->active = c;
+	else
+	    c->setActive( FALSE );
     }
 
     if (!d->active)
 	return;
+
+    // Then activate the new one, so the focus is stored correctly
+    d->active->setActive( TRUE );
 
     if ( d->maxWindow && d->maxWindow != d->active && d->active->windowWidget() &&
 	 d->active->windowWidget()->testWFlags( WStyle_MinMax ) &&
@@ -2183,7 +2189,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	activate();
     }
 
-    // for all widgets except the window, we that's the only thing we
+    // for all widgets except the window, that's the only thing we
     // process, and if we have no childWidget we skip totally
     if ( o != childWidget || childWidget == 0 )
 	return FALSE;
@@ -2457,7 +2463,6 @@ void QWorkspaceChild::setActive( bool b )
 	    }
 	}
     } else {
-	lastfocusw = 0;
 	if ( isChildOf( focusWidget(), childWidget ) )
 	    lastfocusw = focusWidget();
 	QObject * o;
