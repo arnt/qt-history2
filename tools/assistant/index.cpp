@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include <qtextstream.h>
 #include <qalgorithms.h>
+#include <qurl.h>
 
 struct Term {
     Term() : frequency(-1) {}
@@ -97,7 +98,8 @@ int Index::makeIndex()
         if ( lastWindowClosed ) {
             return -1;
         }
-        parseDocument( *it, i );
+        QUrl url(*it);
+        parseDocument( url.toLocalFile(), i );
         if ( i%steps == 0 ) {
             prog++;
             emit indexingProgress( prog );
@@ -114,7 +116,7 @@ void Index::setupDocumentList()
     QStringList lst = d.entryList(filters);
     QStringList::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it )
-        docList.append( docPath + QLatin1String("/") + *it );
+        docList.append( "file:" + docPath + QLatin1String("/") + *it );
 }
 
 void Index::insertInDict( const QString &str, int docNum )
@@ -282,7 +284,7 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
     qHeapSort( minDocs );
     if ( termSeq.isEmpty() ) {
         for(QList<Document>::Iterator it = minDocs.begin(); it != minDocs.end(); ++it)
-            results << docList[ (int)(*it).docNumber ];
+            results << docList.at((int)(*it).docNumber);
         return results;
     }
 
@@ -295,8 +297,10 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
     return results;
 }
 
-QString Index::getDocumentTitle( const QString &fileName )
+QString Index::getDocumentTitle( const QString &fullFileName )
 {
+    QUrl url(fullFileName);
+    QString fileName = url.toLocalFile();
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
         qWarning( (QLatin1String("cannot open file ") + fileName).ascii() );

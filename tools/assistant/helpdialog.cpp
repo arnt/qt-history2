@@ -912,7 +912,7 @@ void HelpDialog::setupFullTextIndex()
     QStringList documentList;
     for (; it != titleMap.end(); ++it)
         documentList << it.key();
-
+    
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index(documentList, QDir::homePath()); // ### Is this correct ?
     if (!verifyDirectory(cacheFilesPath)) {
