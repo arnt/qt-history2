@@ -82,7 +82,8 @@ extern DrawHelper qDrawHelper[DrawHelper::Layout_Count];
 
 void qInitDrawhelperAsm();
 
-inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
+inline int qt_div_255(int x) { return (x + (x>>8) + 0x1) >> 8; }
+inline int qt_div_255x255(int x) { return (x + (x>>7) + (x>>14)) >> 16; }
 #define qt_alpha_pixel(s, t, a, ra) { int tmp = s*a + t*ra; t = qt_div_255(tmp); }
 #define qt_alpha_pixel_pm(s, t, ra) { int tmp = s + t*ra; t = qt_div_255(tmp); }
 
