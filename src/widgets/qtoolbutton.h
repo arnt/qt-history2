@@ -79,6 +79,7 @@ public:
     ~QToolButton();
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
 #ifndef QT_NO_COMPAT
     void setOnIconSet( const QIconSet& );

@@ -313,6 +313,13 @@ QSize QToolButton::sizeHint() const
 	    expandedTo(QApplication::globalStrut()));
 }
 
+/*! \reimp
+ */
+QSize QToolButton::minimumSizeHint() const
+{
+    return sizeHint();
+}
+
 /*!
   \property QToolButton::usesBigPixmap
   \brief whether this toolbutton uses big pixmaps.
