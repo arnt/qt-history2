@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#14 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#15 $
 **
 ** Definition of event classes
 **
@@ -34,8 +34,6 @@
 #define Event_Resize		   14		// resize widget
 #define Event_Create		   15		// after object creation
 #define Event_Destroy		   16		// during object destruction
-#define Event_Show		   17		// before widget is displayed
-#define Event_Hide		   18		// before widget is hidden
 #define Event_Close		   19		// request to close widget
 #define Event_Quit		   20		// request to quit application
 #define Event_AccelInserted	   50		// internal
@@ -163,24 +161,6 @@ protected:
 };
 
 #define Q_RESIZE_EVENT(x)	((QResizeEvent*)x)
-
-
-class QShowEvent : public QEvent		// widget show event
-{
-public:
-    QShowEvent() : QEvent(Event_Show)	{}
-};
-
-#define Q_SHOW_EVENT(x)		((QShowEvent*)x)
-
-
-class QHideEvent : public QEvent		// widget hide event
-{
-public:
-    QHideEvent() : QEvent(Event_Hide)	{}
-};
-
-#define Q_HIDE_EVENT(x)		((QHideEvent*)x)
 
 
 class QCloseEvent : public QEvent		// widget close event
