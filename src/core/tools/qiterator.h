@@ -167,7 +167,7 @@ public: \
     inline Item next() { n = i++; return n; } \
     inline Item peekNext() const { return i; } \
     inline bool hasPrevious() const { return i != c->constBegin(); } \
-    inline Item previous() const { n = --i; return n; } \
+    inline Item previous() { n = --i; return n; } \
     inline Item peekPrevious() const { iterator p = i; return --p; } \
     inline void remove() \
     { if (n != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
