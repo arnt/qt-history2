@@ -29,9 +29,8 @@ static char ident[] = "$Id: annotated.doc,v 1.7 1999/04/28 09:53:41 aavit Exp $"
 /*!
 \page annotated.html
 
-\title Qt Documentation (Classes, Annotated)
+\title Annotated Class Index
 
-<h1 align=center>Annotated Class Index</h1><br clear="all">
 <p>Here are the classes in Qt, with brief descriptions:
 
 \annotatedclasslist(<table>
