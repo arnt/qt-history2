@@ -106,12 +106,10 @@ void QTextPieceTable::insert_string(int pos, uint strPos, uint length, int forma
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    emit textChanged(pos, length);
     for (int i = 0; i < cursors.size(); ++i)
         cursors.at(i)->adjustPosition(pos, length, op);
-    emit contentsChanged();
-
     adjustDocumentChanges(pos, length);
+    emit contentsChanged();
 }
 
 void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFormat, UndoCommand::Operation op, int command)
@@ -153,14 +151,11 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
     QTextFormatGroup *group = formats->format(blockFormat).group();
     if (group)
         group->insertBlock(QTextBlockIterator(this, b));
-    emit blockChanged(block_pos, QText::Insert);
 
-    emit textChanged(pos, 1);
     for (int i = 0; i < cursors.size(); ++i)
         cursors.at(i)->adjustPosition(pos, 1, op);
-    emit contentsChanged();
-
     adjustDocumentChanges(pos, 1);
+    emit contentsChanged();
 }
 
 void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
@@ -337,12 +332,10 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    emit textChanged(pos, -length);
     for (int i = 0; i < cursors.size(); ++i)
         cursors.at(i)->adjustPosition(pos, -length, op);
-    emit contentsChanged();
-
     adjustDocumentChanges(pos, -length);
+    emit contentsChanged();
 
     endEditBlock();
 }
@@ -405,8 +398,6 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
     if (n)
         unite(n);
 
-    endEditBlock();
-
     QTextBlockIterator blockIt = blocksFind(startPos);
     QTextBlockIterator endIt = blocksFind(endPos);
     if (!endIt.atEnd())
@@ -414,8 +405,9 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt)
         QTextPieceTable::block(blockIt)->invalidate();
 
-    emit formatChanged(startPos, length);
     emit contentsChanged();
+
+    endEditBlock();
 }
 
 void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
@@ -436,9 +428,6 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
     QTextBlockIterator end = to;
     if (!end.atEnd())
 	++end;
-
-    const int startPos = from.position();
-    const int endPos = to.position() + to.length();
 
     for (; it != end; ++it) {
         int oldFormat = block(it)->format;
@@ -469,10 +458,9 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
 	}
     }
 
-    endEditBlock();
-
-    emit formatChanged(startPos, endPos - startPos);
     emit contentsChanged();
+
+    endEditBlock();
 }
 
 
@@ -577,16 +565,25 @@ void QTextPieceTable::undoRedo(bool undo)
 
             int oldFormat = block(it)->format;
             block(it)->format = c.format;
+            QTextFormatGroup *oldGroup = formats->blockFormat(oldFormat).group();
+            QTextFormatGroup *group = formats->blockFormat(c.format).group();
             c.format = oldFormat;
-            // ########### emit doc changed signal
+            if (group != oldGroup) {
+                if (oldGroup)
+                    oldGroup->removeBlock(it);
+                if (group)
+                    group->insertBlock(it);
+            } else if (group) {
+                group->blockFormatChanged(it);
+            }
 	    break;
 	}
 	case UndoCommand::GroupFormatChange: {
             QTextFormatGroup *group = c.group;
             int oldFormat = group->d_func()->index;
             group->d_func()->index = c.format;
+            changeGroupFormat(group, c.format);
             c.format = oldFormat;
-            // ########### emit doc changed signal
 	    break;
 	}
 	case UndoCommand::Custom:

@@ -163,9 +163,6 @@ public:
 
 signals:
     void contentsChanged();
-    void textChanged(int positionOfChange, int charsAddedOrRemoved);
-    void formatChanged(int position, int length);
-    void blockChanged(int blockPosition, QText::ChangeOperation);
 
 private:
     bool split(int pos);
