@@ -326,6 +326,14 @@ public:
     connection for the application, and subsequent calls to database()
     (without a database name parameter) will return a pointer to it.
 
+    If \a connectionName is not specified, the newly added database
+    connection becomes the default database connection for the
+    application, and subsequent calls to database() (without a
+    database name parameter) will return a pointer to it. If \a
+    connectionName is given, use \link QSqlDatabase::database()
+    database(connectionName)\endlink to retrieve a pointer to the
+    database connection.
+
     \sa database() removeDatabase()
 */
 QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& connectionName )
