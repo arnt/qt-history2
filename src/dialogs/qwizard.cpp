@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QWizard class.
 **
@@ -160,6 +160,7 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     d = new QWizardPrivate();
     d->current = 0; // not quite true, but...
     d->ws = new QWidgetStack( this, "qt_widgetstack" );
+    d->pages.setAutoDelete( TRUE );
     d->title = new QLabel( this, "title label" );
 
     // create in nice tab order
@@ -288,8 +289,8 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
     p->backEnabled = ( index > 0 );
     p->nextEnabled = ( index < (int)d->pages.count() );
 
-    d->pages.insert( index, p );
     d->ws->addWidget( page, index );
+    d->pages.insert( index, p );
 }
 
 /*!
@@ -817,7 +818,6 @@ void QWizard::removePage( QWidget * page )
 	return;
     QWizardPrivate::Page * p = d->pages.at( i );
     d->pages.removeRef( p );
-    delete p;
     d->ws->removeWidget( page );
 
     if( cp == page ) {

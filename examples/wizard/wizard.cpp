@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -117,6 +117,7 @@ void Wizard::setupPage2()
 	     this, SLOT( dataChanged( const QString & ) ) );
 
     addPage( page2, "Personal Data" );
+
     setHelpEnabled( page2, FALSE );
 }
 
@@ -224,4 +225,3 @@ void Wizard::dataChanged( const QString & )
     else
         nextButton()->setEnabled( FALSE );
 }
-
