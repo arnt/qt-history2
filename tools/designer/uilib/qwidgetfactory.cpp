@@ -78,6 +78,7 @@
 #include <qslider.h>
 #include <qframe.h>
 #include <qwidgetstack.h>
+#include <qtoolbox.h>
 #include <qtextedit.h>
 #include <qscrollbar.h>
 #include <qmainwindow.h>
@@ -86,7 +87,6 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
-#include <qwidgetstack.h>
 #include <qdatetimeedit.h>
 #include <qvbox.h>
 #include <qhbox.h>
@@ -142,7 +142,7 @@ static void setupWidgetListAndMap()
 			   << "QDateEdit" << "QTimeEdit" << "QDateTimeEdit" << "QScrollBar"
 			   << "QPopupMenu" << "QWidgetStack" << "QMainWindow"
 			   << "QDataTable" << "QDataBrowser" << "QDataView"
-			   << "QVBox" << "QHBox" << "QGrid";
+			   << "QVBox" << "QHBox" << "QGrid" << "QToolBox";
 
     if ( !widgetInterfaceManager )
 	widgetInterfaceManager =
@@ -1506,6 +1506,8 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return new QPopupMenu( parent, name );
     } else if ( className == "QWidgetStack" ) {
 	return new QWidgetStack( parent, name );
+    } else if ( className == "QToolBox" ) {
+	return new QToolBox( parent, name );
     } else if ( className == "QVBox" ) {
 	return new QVBox( parent, name );
     } else if ( className == "QHBox" ) {
@@ -1700,6 +1702,9 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 		} else if ( parent->inherits( "QWidgetStack" ) ) {
 		    if ( attrib == "id" )
 			( (QWidgetStack*)parent )->addWidget( w, v.toInt() );
+		} else if ( parent->inherits( "QToolBox" ) ) {
+		    if ( attrib == "label" )
+			( (QToolBox*)parent )->addPage( v.toString(), w );
 		} else if ( parent->inherits( "QWizard" ) ) {
 		    if ( attrib == "title" )
 			( (QWizard*)parent )->addPage( w, v.toString() );
@@ -1753,6 +1758,9 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout,
 
     if ( !layout && widget && widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
+
+    if ( !layout && widget && widget->inherits( "QToolBox" ) )
+	widget = ((QToolBox*)widget)->currentPage();
 
     QLayout *l = 0;
     int align = 0;
@@ -2526,7 +2534,7 @@ void QWidgetFactory::loadPopupMenu( QPopupMenu *p, const QDomElement &e )
 	    p->insertSeparator();
 	}
 	n = n.nextSibling().toElement();
-    }    
+    }
 }
 
 // compatibility with early 3.0 betas
