@@ -2469,10 +2469,10 @@ int QLatin1Codec::heuristicContentMatch(const char* chars, int len) const
 static void setupBuiltinCodecs()
 {
     (void)new QLatin1Codec;
-
-#ifndef QT_NO_CODECS
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
+
+#ifndef QT_NO_CODECS
 
     int i = 0;
     do {
