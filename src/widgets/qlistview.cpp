@@ -7825,7 +7825,7 @@ void QListView::hideColumn( int column )
 
 void QListView::adjustColumn( int col )
 {
-    if ( d->h->isStretchEnabled( col ) )
+    if ( col < 0 || col > (int)d->column.count() - 1 || d->h->isStretchEnabled( col ) )
 	return;
 
     int oldw = d->h->sectionSize( col );
