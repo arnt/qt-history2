@@ -23,9 +23,9 @@ void NorwegianWoodStyle::polish(QPalette &palette)
     palette.setBrush(QPalette::BrightText, Qt::white);
     palette.setBrush(QPalette::Base, beige);
     palette.setBrush(QPalette::Highlight, Qt::darkGreen);
-    setBrushPixmap(palette, QPalette::Button, buttonImage);
-    setBrushPixmap(palette, QPalette::Mid, midImage);
-    setBrushPixmap(palette, QPalette::Background, backgroundImage);
+    setTexture(palette, QPalette::Button, buttonImage);
+    setTexture(palette, QPalette::Mid, midImage);
+    setTexture(palette, QPalette::Background, backgroundImage);
 
     QBrush brush = palette.background();
     brush.setColor(brush.color().dark());
@@ -52,40 +52,51 @@ int NorwegianWoodStyle::pixelMetric(PixelMetric metric,
     }
 }
 
+int NorwegianWoodStyle::styleHint(StyleHint hint, const QStyleOption *option,
+                                  const QWidget *widget,
+                                  QStyleHintReturn *returnData) const
+{
+    switch (hint) {
+    case SH_DitherDisabledText:
+        return int(false);
+    case SH_EtchDisabledText:
+        return int(true);
+    default:
+        return QMotifStyle::styleHint(hint, option, widget, returnData);
+    }
+}
+
 void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
                                        const QStyleOption *option,
                                        QPainter *painter,
                                        const QWidget *widget) const
 {
-    int x, y, width, height;
-    option->rect.getRect(&x, &y, &width, &height);
-
     switch (element) {
     case PE_PanelButtonCommand:
         {
-            const QStyleOptionButton *buttonOption =
-                    qstyleoption_cast<const QStyleOptionButton *>(option);
-            int radius = qMin(width, height) / 2;
-            QPainterPath roundRect = roundRectPath(option->rect);
-
             QColor slightlyOpaqueBlack(0, 0, 0, 63);
             QColor halfTransparentWhite(255, 255, 255, 127);
             QColor halfTransparentBlack(0, 0, 0, 127);
 
-            painter->save();
-            painter->setRenderHint(QPainter::Antialiasing, true);
+            int x, y, width, height;
+            option->rect.getRect(&x, &y, &width, &height);
+
+            QPainterPath roundRect = roundRectPath(option->rect);
+            int radius = qMin(width, height) / 2;
 
             QBrush brush;
             bool darker;
 
+            const QStyleOptionButton *buttonOption =
+                    qstyleoption_cast<const QStyleOptionButton *>(option);
             if (buttonOption
                     && (buttonOption->features & QStyleOptionButton::Flat)) {
                 brush = option->palette.background();
-                darker = (option->state & (State_Down | State_On));
+                darker = (option->state & (State_Sunken | State_On));
             } else {
-                if (option->state & (State_Down | State_On)) {
+                if (option->state & (State_Sunken | State_On)) {
                     brush = option->palette.mid();
-                    darker = !(option->state & State_Down);
+                    darker = !(option->state & State_Sunken);
                 } else {
                     brush = option->palette.button();
                     darker = false;
@@ -93,6 +104,8 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
             }
 
             // ### replace with fillPath()
+            painter->save();
+            painter->setRenderHint(QPainter::Antialiasing, true);
             painter->setClipPath(roundRect);
             painter->fillRect(option->rect, brush);
             if (darker)
@@ -109,7 +122,7 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
             QPen topLeftPen(halfTransparentWhite, penWidth);
             QPen bottomRightPen(halfTransparentBlack, penWidth);
 
-            if (option->state & (State_Down | State_On))
+            if (option->state & (State_Sunken | State_On))
                 qSwap(topLeftPen, bottomRightPen);
 
             QPolygon topLeftHalf;
@@ -157,7 +170,7 @@ void NorwegianWoodStyle::drawControl(ControlElement element,
                     qstyleoption_cast<const QStyleOptionButton *>(option);
             if (buttonOption) {
                 myButtonOption = *buttonOption;
-                if (myButtonOption.state & (State_Down | State_On)) {
+                if (myButtonOption.state & (State_Sunken | State_On)) {
                     myButtonOption.palette.setBrush(QPalette::ButtonText,
                             myButtonOption.palette.brightText());
                 }
@@ -170,23 +183,8 @@ void NorwegianWoodStyle::drawControl(ControlElement element,
     }
 }
 
-int NorwegianWoodStyle::styleHint(StyleHint hint, const QStyleOption *option,
-                                  const QWidget *widget,
-                                  QStyleHintReturn *returnData) const
-{
-    switch (hint) {
-    case SH_DitherDisabledText:
-        return int(false);
-    case SH_EtchDisabledText:
-        return int(true);
-    default:
-        return QMotifStyle::styleHint(hint, option, widget, returnData);
-    }
-}
-
-void NorwegianWoodStyle::setBrushPixmap(QPalette &palette,
-                                        QPalette::ColorRole role,
-                                        const QPixmap &pixmap)
+void NorwegianWoodStyle::setTexture(QPalette &palette, QPalette::ColorRole role,
+                                    const QPixmap &pixmap)
 {
     for (int i = 0; i < QPalette::NColorGroups; ++i) {
         QColor color = palette.brush(QPalette::ColorGroup(i), role).color();
