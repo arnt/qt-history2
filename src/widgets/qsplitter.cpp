@@ -691,6 +691,30 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     if ( id <= 0 || id >= n - 1 )
 	return;
 
+    int leftMinSize = 0;
+    int leftId = id - 1;
+    do {
+	QWidget *w = data->list.at( leftId )->wid;
+	if ( !w->isHidden() ) {
+	    if ( collapsible(data->list.at(rightId) )
+		leftMinSize = pick( qSmartMinSize(w) );
+	    break;
+	}
+	leftId -= 2; // go to previous widget, skip the handle
+    } while ( leftId >= 0 );
+
+    int rightMinSize = 0;
+    int rightId = id + 1;
+    do {
+	QWidget *w = data->list.at( rightId )->wid;
+	if ( !w->isHidden() ) {
+	    if ( collapsible(data->list.at(rightId) )
+		rightMinSize = pick( qSmartMinSize(w) );
+	    break;
+	}
+	rightId += 2; // go to next widget, skip the handle
+    } while ( rightId < n );
+
     int minBefore = 0;
     int minAfter = 0;
     int maxBefore = 0;
@@ -698,9 +722,9 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     int i;
 
     for ( i = 0; i < id; i++ )
-	addContribution( i, &minBefore, &maxBefore, i == id - 1 );
+	addContribution( i, &minBefore, &maxBefore, i == leftId );
     for ( i = id; i < n; i++ )
-	addContribution( i, &minAfter, &maxAfter, i == id + 1 );
+	addContribution( i, &minAfter, &maxAfter, i == rightId );
 
     QRect r = contentsRect();
     int minVal;
@@ -717,24 +741,15 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
 		 + QMIN( maxBefore, pick(r.size()) - minAfter );
     }
 
-    if ( farMin ) {
-	QSplitterLayoutStruct *s = d->list.at( id - 1 );
-	*farMin = minVal;
-	if ( collapsible(s) )
-	    *farMin -= pick( qSmartMinSize(s->wid) );
-    }
+    if ( farMin )
+	*farMin = minVal - leftMinSize;
     if ( min )
 	*min = minVal;
     if ( max )
 	*max = maxVal;
-    if ( farMax ) {
-	QSplitterLayoutStruct *s = d->list.at( id + 1 );
-	*farMax = maxVal;
-	if ( collapsible(s) )
-	    *farMax += pick( qSmartMinSize(s->wid) );
-    }
+    if ( farMax )
+	*farMax = maxVal + rightMinSize;
 }
-
 
 /*!
     Returns the valid range of the splitter with ID \a id in \a *min
