@@ -1,7 +1,8 @@
 @SysInclude { tbl }
 @SysInclude { picture }
 @Illustration 16c @Wide {
-@Tbl
+@Box paint { black } linewidth { 0.01c } @Tbl
+    paint { white }
     rule { yes }
     rulecolor { darkgrey }
     width { expand }
