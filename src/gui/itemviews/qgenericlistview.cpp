@@ -442,7 +442,7 @@ void QGenericListView::mouseMoveEvent(QMouseEvent *e)
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
         d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible()) {
+        if (!d->rubberBand->isVisible() && d->size == Large) {
             d->rubberBand->show();
             d->rubberBand->raise();
         }
@@ -1094,7 +1094,7 @@ QGenericListViewPrivate::QGenericListViewPrivate()
       resizeMode(QGenericListView::Fixed),
       layoutMode(QGenericListView::Instant),
       wrap(false),
-      spacing(5),
+      spacing(3),
       arrange(false),
       layoutStart(0),
       translate(0),

@@ -174,7 +174,6 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 {
     QItemOptions options;
     getViewOptions(&options);
-    //d->backBuffer.fill(options.palette.base());
 
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();

@@ -9,7 +9,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
-static const int border = 0;
+static const int border = 1;
 
 static const char * const unchecked_xpm[] = {
 "16 16 2 1",
@@ -76,9 +76,8 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options,
     b += 10;
     painter->drawRect(options.itemRect);
 #endif
-
     static QPoint pt(0, 0);
-    static QSize sz(border << 1, border << 1);
+    static QSize sz(border * 2, border * 2);
     QVariant variant = model()->data(item, QAbstractItemModel::Decoration);
     QPixmap pixmap = decoration(options, variant);
     QString text = model()->data(item, QAbstractItemModel::Display).toString();
@@ -97,7 +96,7 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
                               const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
-    static QSize sz(border << 1, border << 1);
+    static QSize sz(border * 2, border * 2);
 
     QVariant variant = model()->data(index, QAbstractItemModel::Decoration);
     QPixmap pixmap = decoration(options, variant);
@@ -170,7 +169,9 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QItemOptions &options, 
 {
     QPen old = painter->pen();
     if (options.selected) {
-        painter->fillRect(rect, options.palette.highlight());
+        QRect fill(rect.x() - border, rect.y() - border,
+                   rect.width() + border * 2, rect.height() + border * 2);
+        painter->fillRect(fill, options.palette.highlight());
         painter->setPen(options.palette.highlightedText());
     } else {
         painter->setPen(options.palette.text());
@@ -189,7 +190,7 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QItemOptions &option
                                    const QRect &rect, const QPixmap &pixmap) const
 {
     if (options.selected && !options.smallItem)
-        painter->fillRect(rect, QBrush(options.palette.highlight(), QBrush::Dense4Pattern));
+        painter->fillRect(rect,QBrush(options.palette.highlight(), QBrush::Dense4Pattern));
     painter->drawPixmap(rect.topLeft(), pixmap);
 }
 
@@ -210,34 +211,37 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect,
     if (pixmapRect && textRect) {
         int x = options.itemRect.left();
         int y = options.itemRect.top();
+        int b = border * 2;
         int w, h;
         if (hint) {
-            w = qMax(textRect->width(), pixmapRect->width());
-            h = qMax(textRect->height(), pixmapRect->height());
+            w = qMax(textRect->width(), pixmapRect->width()) + b;
+            h = qMax(textRect->height(), pixmapRect->height()) + b;
         } else {
-            w = options.itemRect.width();
-            h = options.itemRect.height();
+            x += border;
+            y += border;
+            w = options.itemRect.width() - b;
+            h = options.itemRect.height() - b;
         }
         QRect decoration;
         switch (options.decorationPosition) {
         case QItemOptions::Top: {
             decoration.setRect(x, y, w, pixmapRect->height());
-            h = hint ? textRect->height() : options.itemRect.height() - pixmapRect->height();
-            textRect->setRect(x, y + pixmapRect->height(),w, h);
+            h = hint ? textRect->height() : h - pixmapRect->height();
+            textRect->setRect(x, y + pixmapRect->height(), w, h);
             break;}
         case QItemOptions::Bottom: {
             textRect->setRect(x, y, w, textRect->height());
-            h = hint ? pixmapRect->height() : options.itemRect.height() - textRect->height();
+            h = hint ? pixmapRect->height() : h - textRect->height();
             decoration.setRect(x, y + textRect->height(), w, h);
             break;}
         case QItemOptions::Left: {
             decoration.setRect(x, y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : options.itemRect.width() - pixmapRect->width();
+            w = hint ? textRect->width() : w - pixmapRect->width();
             textRect->setRect(x + pixmapRect->width(), y, w, h);
             break;}
         case QItemOptions::Right: {
             textRect->setRect(x, y, textRect->width(), h);
-            w = hint ? pixmapRect->width() : options.itemRect.width() - textRect->width();
+            w = hint ? pixmapRect->width() : w - textRect->width();
             decoration.setRect(x + textRect->width(), y, w, h);
             break;}
         default:

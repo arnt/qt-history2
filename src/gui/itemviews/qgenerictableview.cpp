@@ -453,7 +453,7 @@ int QGenericTableView::columnSizeHint(int column) const
 
     int hint = 0;
     QModelIndex index;
-    for (int row = rowfirst; row < rowlast; ++row) {
+    for (int row = rowfirst; row <= rowlast; ++row) {
         index = model()->index(row, column, root());
         hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), options, index).width());
     }
