@@ -1906,8 +1906,7 @@ QSize QCheckTableItem::sizeHint() const
 
     \value Multi The user may select multiple ranges of cells.
 
-    \value SingleRow The user may select one row at once (the current
-    item's row is always selected).
+    \value SingleRow The user may select one row at once.
 
     \value MultiRow The user may select multiple rows.
 */
@@ -5266,9 +5265,6 @@ void QTable::clearSelection( bool repaint )
 
     currentSel = 0;
     selections.clear();
-
-    if ( isRowSelection( selectionMode() ) )
-	selectRow( curRow ); // the current row should always be selected in this mode
 
     if ( needRepaint && repaint )
 	repaintContents( r, FALSE );
