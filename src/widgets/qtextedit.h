@@ -69,7 +69,7 @@ public:
     int alignment() const;
     bool isOverwriteMode() const;
     int undoDepth() const;
-    virtual void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
+    virtual void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE, bool removeSelected = TRUE );
     virtual bool getFormat( int parag, int index, QFont &font, QColor &color );
 
 public slots:
@@ -212,9 +212,9 @@ inline int QTextEdit::undoDepth() const
     return QTextView::undoDepth();
 }
 
-inline void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
+inline void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
 {
-    QTextView::insert( text, indent, checkNewLine );
+    QTextView::insert( text, indent, checkNewLine, removeSelected );
 }
 
 inline void QTextEdit::setOverwriteMode( bool b )

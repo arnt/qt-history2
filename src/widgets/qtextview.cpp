@@ -1165,8 +1165,13 @@ void QTextView::contentsDropEvent( QDropEvent *e )
 	       e->source() == viewport() ) &&
 	     e->action() == QDropEvent::Move ) {
 	    removeSelectedText();
+	} else {
+	    doc->removeSelection( QTextDocument::Standard );
 	}
-	insert( text, FALSE, TRUE );
+	drawCursor( FALSE );
+	placeCursor( e->pos(),  cursor );
+	drawCursor( TRUE );
+	insert( text, FALSE, TRUE, FALSE );
     }
 }
 
@@ -1313,14 +1318,14 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
     return QScrollView::eventFilter( o, e );
 }
 
-void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
+void QTextView::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
 {
     if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
 	return;
     QTextCursor c2 = *cursor;
     QString txt( text );
     drawCursor( FALSE );
-    if ( doc->hasSelection( QTextDocument::Standard ) ) {
+    if ( doc->hasSelection( QTextDocument::Standard ) && removeSelected ) {
 	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
 	if ( !undoRedoInfo.valid() ) {
 	    doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
@@ -1339,7 +1344,12 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
     lastFormatted = checkNewLine && cursor->parag()->prev() ?
 		    cursor->parag()->prev() : cursor->parag();
     int idx = cursor->index();
+    QTextCursor oldCursor = *cursor;
     cursor->insert( txt, checkNewLine );
+    if ( !removeSelected ) {
+	doc->setSelectionStart( QTextDocument::Standard, &oldCursor );
+	doc->setSelectionEnd( QTextDocument::Standard, cursor );
+    }
     if ( doc->useFormatCollection() )
 	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
 
@@ -2083,7 +2093,7 @@ void QTextView::startDrag()
     if ( isReadOnly() ) {
 	drag->dragCopy();
     } else {
-	if ( drag->drag() && QDragObject::target() != this ) {
+	if ( drag->drag() && QDragObject::target() != this && QDragObject::target() != viewport() ) {
 	    doc->removeSelectedText( QTextDocument::Standard, cursor );
 	    repaintChanged();
 	}

@@ -247,12 +247,14 @@
   Returns how many steps the undo/redo history can maximally store.
 */
 
-/*! \fn void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
+/*! \fn void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
 
   Inserts \a text at the current cursor position. If \a indent is
   TRUE, the paragraph is re-indented. If \a checkNewLine is TRUE,
   newline characters in \a text result in hard breaks. Otherwise, the
-  result of newlines is not defined.
+  result of newlines is not defined. If \ removeSelected is TRUE,
+  selected text is removed before the text is inserted, else the
+  inserted text gets selected.
 */
 
 /*! \fn void QTextEdit::setOverwriteMode( bool b )
@@ -325,7 +327,7 @@
 
   Sets the point size of the current format and the selected text (if
   there is any) to \a s.
-  
+
   Note that if \a s is zero or negative, the behaviour of this
   function is not defined.
 */
