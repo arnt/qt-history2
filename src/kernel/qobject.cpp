@@ -1896,11 +1896,33 @@ QMetaObject* QObject::staticMetaObject()
 	{ "RichText", (int) Qt::RichText },
 	{ "AutoText", (int) Qt::AutoText }
     };
-
+    
+    static const QMetaEnum::Item enum_3[] = {
+        { "FixedColor",  (int) Qt::FixedColor },
+        { "FixedPixmap",  (int) Qt::FixedPixmap },
+        { "NoBackground",  (int) Qt::NoBackground },
+        { "PaletteForeground",  (int) Qt::PaletteForeground },
+        { "PaletteButton",  (int) Qt::PaletteButton },
+        { "PaletteLight",  (int) Qt::PaletteLight },
+        { "PaletteMidlight",  (int) Qt::PaletteMidlight },
+        { "PaletteDark",  (int) Qt::PaletteDark },
+        { "PaletteMid",  (int) Qt::PaletteMid },
+        { "PaletteText",  (int) Qt::PaletteText },
+        { "PaletteBrightText",  (int) Qt::PaletteBrightText },
+        { "PaletteBase",  (int) Qt::PaletteBase },
+        { "PaletteBackground",  (int) Qt::PaletteBackground },
+        { "PaletteShadow",  (int) Qt::PaletteShadow },
+        { "PaletteHighlight",  (int) Qt::PaletteHighlight },
+        { "PaletteHighlightedText",  (int) Qt::PaletteHighlightedText },
+        { "PaletteButtonText",  (int) Qt::PaletteButtonText },
+        { "X11ParentRelative",  (int) Qt::X11ParentRelative }
+    };
+	
     static const QMetaEnum enum_tbl[] = {
 	{ "Alignment", 10, enum_0, TRUE },
 	{ "Orientation", 2, enum_1, FALSE },
-	{ "TextFormat", 3, enum_2, FALSE }
+	{ "TextFormat", 3, enum_2, FALSE },
+	{ "BackgroundMode", 18, enum_3, FALSE }
     };
 
     QMetaData *slot_tbl = new QMetaData[1];
@@ -1927,7 +1949,7 @@ QMetaObject* QObject::staticMetaObject()
 	signal_tbl, 1,
 	props_tbl, 1,
 #ifndef QT_NO_PROPERTIES
-        enum_tbl, 3,
+        enum_tbl, 4,
 #endif
         0, 0 );
 
