@@ -869,7 +869,7 @@ bool QClipboard::event(QEvent *e)
         return QObject::event(e);
     }
 
-    XEvent *xevent = (XEvent *)(((QCustomEvent *)e)->data());
+    XEvent *xevent = (XEvent *)(((QClipboardEvent *)e)->data());
     Display *dpy = X11->display;
 
     if (!xevent)

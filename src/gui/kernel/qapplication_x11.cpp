@@ -2912,7 +2912,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             X11->xdndHandleSelectionRequest(req);
 
         } else if (qt_clipboard) {
-            QCustomEvent e(QEvent::Clipboard, event);
+            QClipboardEvent e(reinterpret_cast<QEventPrivate*>(event));
             QApplication::sendSpontaneousEvent(qt_clipboard, &e);
         }
         break;
@@ -2924,7 +2924,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
 
         if (qt_clipboard) {
-            QCustomEvent e(QEvent::Clipboard, event);
+            QClipboardEvent e(reinterpret_cast<QEventPrivate*>(event));
             QApplication::sendSpontaneousEvent(qt_clipboard, &e);
         }
         break;
@@ -2937,7 +2937,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
 
         if (qt_clipboard) {
-            QCustomEvent e(QEvent::Clipboard, event);
+            QClipboardEvent e(reinterpret_cast<QEventPrivate*>(event));
             QApplication::sendSpontaneousEvent(qt_clipboard, &e);
         }
         break;
@@ -3969,16 +3969,16 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XK_Up,                Qt::Key_Up,
     XK_Right,                Qt::Key_Right,
     XK_Down,                Qt::Key_Down,
-    XK_Prior,                Qt::Key_Prior,
-    XK_Next,                Qt::Key_Next,
+    XK_Prior,                Qt::Key_PageUp,
+    XK_Next,                Qt::Key_PageDown,
     XK_KP_Home,                Qt::Key_Home,
     XK_KP_End,                Qt::Key_End,
     XK_KP_Left,                Qt::Key_Left,
     XK_KP_Up,                Qt::Key_Up,
     XK_KP_Right,        Qt::Key_Right,
     XK_KP_Down,                Qt::Key_Down,
-    XK_KP_Prior,        Qt::Key_Prior,
-    XK_KP_Next,                Qt::Key_Next,
+    XK_KP_Prior,        Qt::Key_PageUp,
+    XK_KP_Next,                Qt::Key_PageDown,
     XK_Shift_L,                Qt::Key_Shift,                // modifiers
     XK_Shift_R,                Qt::Key_Shift,
     XK_Shift_Lock,        Qt::Key_Shift,
@@ -4007,7 +4007,7 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XK_Hyper_L,                Qt::Key_Hyper_L,
     XK_Hyper_R,                Qt::Key_Hyper_R,
     XK_Help,                Qt::Key_Help,
-    0x1000FF74,         Qt::Key_BackTab,     // hardcoded HP backtab
+    0x1000FF74,         Qt::Key_Backtab,     // hardcoded HP backtab
 
     // International input method support keys
 
@@ -4656,7 +4656,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
          // do not compress keys if the key event we just got above matches
          // one of the key ranges used to compute stopCompression
          !((code >= Qt::Key_Escape && code <= Qt::Key_SysReq)
-            || (code >= Qt::Key_Home && code <= Qt::Key_Next)
+            || (code >= Qt::Key_Home && code <= Qt::Key_PageDown)
             || (code >= Qt::Key_Super_L && code <= Qt::Key_Direction_R)
             || (code == 0)
             || (text.length() == 1 && text.unicode()->unicode() == '\n'))) {
@@ -4689,7 +4689,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
                 // 1) misc keys
                 (codeIntern >= Qt::Key_Escape && codeIntern <= Qt::Key_SysReq)
                 // 2) cursor movement
-                || (codeIntern >= Qt::Key_Home && codeIntern <= Qt::Key_Next)
+                || (codeIntern >= Qt::Key_Home && codeIntern <= Qt::Key_PageDown)
                 // 3) extra keys
                 || (codeIntern >= Qt::Key_Super_L && codeIntern <= Qt::Key_Direction_R)
                 // 4) something that a) doesn't translate to text or b) translates

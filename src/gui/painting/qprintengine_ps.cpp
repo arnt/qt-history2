@@ -4540,13 +4540,13 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
                     f.setFileName("/usr/X11/lib/X11/fs/config");
                 if (f.exists()) {
                     f.open(QIODevice::ReadOnly);
-                    while (f.error()==IO_Ok && !finished) {
+                    while (f.error()==QFile::NoError && !finished) {
                         QString fs = f.readLine(1024);
                         fs=fs.trimmed();
                         if (fs.left(9)=="catalogue" && fs.contains('=')) {
                             fs = fs.mid(fs.indexOf('=') + 1).trimmed();
                             bool end = false;
-                            while (f.error()==IO_Ok && !end) {
+                            while (f.error()==QFile::NoError && !end) {
                                 if (fs[int(fs.length())-1] == ',')
                                     fs = fs.left(fs.length()-1);
                                 else
