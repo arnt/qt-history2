@@ -121,7 +121,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 */
 QAssistantClient::~QAssistantClient()
 {
-    if ( proc ) {
+    if ( proc && proc->isRunning() ) {
 	proc->tryTerminate();
 	proc->kill();
     }
