@@ -408,55 +408,65 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 #ifndef QT_NO_DATASTREAM
 
 /*!
-  Reads the item from the \a stream.
+    Reads the item from stream \a in.
+
+    \sa write()
 */
-void QListWidgetItem::read(QDataStream &stream)
+void QListWidgetItem::read(QDataStream &in)
 {
     int count;
     int role;
     QVariant value;
-    stream >> count;
+    in >> count;
     for (int i = 0; i < count; ++i) {
-        stream >> role;
-        stream >> value;
+        in >> role;
+        in >> value;
         values.append(Data(role, value));
     }
 }
 
 /*!
-  Writes the item to the \a stream.
+    Writes the item to stream \a out.
+
+    \sa read()
 */
-void QListWidgetItem::write(QDataStream &stream) const
+void QListWidgetItem::write(QDataStream &out) const
 {
-    stream << values.count();
+    out << values.count();
     for (int i = 0; i < values.count(); ++i) {
-        stream << values.at(i).role;
-        stream << values.at(i).value;
+        out << values.at(i).role;
+        out << values.at(i).value;
     }
 }
 
-QDataStream &operator<<(QDataStream &stream, QListWidgetItem &item)
+/*!
+    \relates QListWidgetItem
+
+    Writes the list widget item \a item to stream \a out.
+
+    This operator uses QListWidgetItem::write().
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator<<(QDataStream &out, const QListWidgetItem &item)
 {
-    item.read(stream);
-    return stream;
+    item.write(out);
+    return out;
 }
 
-QDataStream &operator<<(QDataStream &stream, const QListWidgetItem &item)
-{
-    item.write(stream);
-    return stream;
-}
+/*!
+    \relates QListWidgetItem
 
-QDataStream &operator>>(QDataStream &stream, QListWidgetItem &item)
-{
-    item.read(stream);
-    return stream;
-}
+    Reads a list widget item from stream \a in into \a item.
 
-QDataStream &operator>>(QDataStream &stream, const QListWidgetItem &item)
+    This operator uses QListWidgetItem::read().
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 {
-    item.write(stream);
-    return stream;
+    item.read(in);
+    return in;
 }
 
 #endif // QT_NO_DATASTREAM

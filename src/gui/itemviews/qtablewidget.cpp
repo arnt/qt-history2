@@ -841,55 +841,65 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 #ifndef QT_NO_DATASTREAM
 
 /*!
-  Reads the item from the \a stream.
+    Reads the item from stream \a in.
+
+    \sa write()
 */
-void QTableWidgetItem::read(QDataStream &stream)
+void QTableWidgetItem::read(QDataStream &in)
 {
     int count;
     int role;
     QVariant value;
-    stream >> count;
+    in >> count;
     for (int i = 0; i < count; ++i) {
-        stream >> role;
-        stream >> value;
+        in >> role;
+        in >> value;
         values.append(Data(role, value));
     }
 }
 
 /*!
-  Writes the item to the \a stream.
+    Writes the item to stream \a out.
+
+    \sa read()
 */
-void QTableWidgetItem::write(QDataStream &stream) const
+void QTableWidgetItem::write(QDataStream &out) const
 {
-    stream << values.count();
+    out << values.count();
     for (int i = 0; i < values.count(); ++i) {
-        stream << values.at(i).role;
-        stream << values.at(i).value;
+        out << values.at(i).role;
+        out << values.at(i).value;
     }
 }
 
-QDataStream &operator<<(QDataStream &stream, QTableWidgetItem &item)
+/*!
+    \relates QTableWidgetItem
+
+    Writes the table widget item \a item to stream \a out.
+
+    This operator uses QTableWidgetItem::write().
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 {
-    item.read(stream);
-    return stream;
+    item.write(out);
+    return out;
 }
 
-QDataStream &operator<<(QDataStream &stream, const QTableWidgetItem &item)
-{
-    item.write(stream);
-    return stream;
-}
+/*!
+    \relates QTableWidgetItem
 
-QDataStream &operator>>(QDataStream &stream, QTableWidgetItem &item)
-{
-    item.read(stream);
-    return stream;
-}
+    Reads a table widget item from stream \a in into \a item.
 
-QDataStream &operator>>(QDataStream &stream, const QTableWidgetItem &item)
+    This operator uses QTableWidgetItem::read().
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator>>(QDataStream &in, QTableWidgetItem &item)
 {
-    item.write(stream);
-    return stream;
+    item.read(in);
+    return in;
 }
 
 #endif // QT_NO_DATASTREAM

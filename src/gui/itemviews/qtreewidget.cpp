@@ -1148,38 +1148,42 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 #ifndef QT_NO_DATASTREAM
 
 /*!
-  Reads the item from the \a stream.
+    Reads the item from stream \a in.
+
+    \sa write()
 */
-void QTreeWidgetItem::read(QDataStream &stream)
+void QTreeWidgetItem::read(QDataStream &in)
 {
     int columnCount;
     int valueCount;
     int role;
     QVariant value;
-    stream >> columnCount;
+    in >> columnCount;
     for (int i = 0; i < columnCount; ++i) {
-        stream >> valueCount;
+        in >> valueCount;
         values.append(QVector<Data>());
         for (int j = 0; j < valueCount; ++j) {
-            stream >> role;
-            stream >> value;
+            in >> role;
+            in >> value;
             values[i].append(Data(role, value));
         }
     }
 }
 
 /*!
-  Writes the item to the \a stream.
+    Writes the item to stream \a out.
+
+    \sa read()
 */
-void QTreeWidgetItem::write(QDataStream &stream) const
+void QTreeWidgetItem::write(QDataStream &out) const
 {
-    stream << values.count(); // column count
+    out << values.count(); // column count
     for (int i = 0; i < values.count(); ++i) {
         QVector<Data> column = values.at(i);
-        stream << column.count(); // number of values in the column
+        out << column.count(); // number of values in the column
         for (int j = 0; j < column.count(); ++j) {
-            stream << column.at(j).role;
-            stream << column.at(j).value;
+            out << column.at(j).role;
+            out << column.at(j).value;
         }
     }
 }
@@ -1263,31 +1267,35 @@ QVariant QTreeWidgetItem::childrenCheckState(int column) const
 }
 
 #ifndef QT_NO_DATASTREAM
+/*!
+    \relates QTreeWidgetItem
 
-QDataStream &operator<<(QDataStream &stream, QTreeWidgetItem &item)
+    Writes the tree widget item \a item to stream \a out.
+
+    This operator uses QTreeWidgetItem::write().
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem &item)
 {
-    item.read(stream);
-    return stream;
+    item.write(out);
+    return out;
 }
 
-QDataStream &operator<<(QDataStream &stream, const QTreeWidgetItem &item)
-{
-    item.write(stream);
-    return stream;
-}
+/*!
+    \relates QTreeWidgetItem
 
-QDataStream &operator>>(QDataStream &stream, QTreeWidgetItem &item)
-{
-    item.read(stream);
-    return stream;
-}
+    Reads a tree widget item from stream \a in into \a item.
 
-QDataStream &operator>>(QDataStream &stream, const QTreeWidgetItem &item)
-{
-    item.write(stream);
-    return stream;
-}
+    This operator uses QTreeWidgetItem::read().
 
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator>>(QDataStream &in, QTreeWidgetItem &item)
+{
+    item.read(in);
+    return in;
+}
 #endif // QT_NO_DATASTREAM
 
 class QTreeWidgetPrivate : public QTreeViewPrivate

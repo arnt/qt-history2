@@ -94,8 +94,8 @@ public:
     virtual bool operator<(const QTreeWidgetItem &other) const;
 
 #ifndef QT_NO_DATASTREAM
-    virtual void read(QDataStream &stream);
-    virtual void write(QDataStream &stream) const;
+    virtual void read(QDataStream &in);
+    virtual void write(QDataStream &out) const;
 #endif
 
     inline QTreeWidgetItem *parent() const { return par; }
@@ -131,10 +131,8 @@ private:
 };
 
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, QTreeWidgetItem &item);
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QTreeWidgetItem &item);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTreeWidgetItem &item);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, const QTreeWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QTreeWidgetItem &item);
 #endif
 
 class QTreeWidgetPrivate;

@@ -92,8 +92,8 @@ public:
     virtual bool operator<(const QListWidgetItem &other) const;
 
 #ifndef QT_NO_DATASTREAM
-    virtual void read(QDataStream &stream);
-    virtual void write (QDataStream &stream) const;
+    virtual void read(QDataStream &in);
+    virtual void write(QDataStream &out) const;
 #endif
 
 private:
@@ -111,10 +111,8 @@ private:
 };
 
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, QListWidgetItem &item);
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QListWidgetItem &item);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QListWidgetItem &item);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, const QListWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QListWidgetItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QListWidgetItem &item);
 #endif
 
 class QListWidgetPrivate;
