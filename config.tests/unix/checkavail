@@ -46,7 +46,6 @@ then
 #    echo "and $INCLUDES in $INCLUDEDIRS"
 fi
 
-
 # check for lib
 for LIBNAME in $LIBNAMES
 do
@@ -86,12 +85,27 @@ then
 	    FOUND_INC=`ls $INCLUDEDIR/$INCLUDE 2>/dev/null`
 	    if [ ! -z "$FOUND_INC" ]
 	    then
-		SUCCESS=yes
-		if [ "$VERBOSE" = "yes" ]
+		# version check for the png lib
+		if [ "$MODULE_NAME" = "libpng" ]
 		then
-		    echo "  Found $INCLUDE in $INCLUDEDIR"
+		    PNG_VERSION=`grep "#define PNG_LIBPNG_VER " $FOUND_INC | awk '{print $3}'`
+		    if [ $PNG_VERSION -ge "10017" ]
+		    then
+			SUCCESS=yes
+			if [ "$VERBOSE" = "yes" ]
+			then
+			    echo "  Found png.h (>= v1.0.17) in $INCLUDEDIR"
+			fi
+			break
+		    fi
+		else 
+		    SUCCESS=yes
+		    if [ "$VERBOSE" = "yes" ]
+		    then
+			echo "  Found $INCLUDE in $INCLUDEDIR"
+		    fi
+		    break
 		fi
-		break
 	    fi
 	done
 	if [ -z "$SUCCESS" ]
@@ -99,7 +113,12 @@ then
 	    SUCCESS=no
 	    if [ "$VERBOSE" = "yes" ]
 	    then
-		echo "  Could not find $INCLUDE anywhere in $INCLUDEDIRS"
+		if [ "$MODULE_NAME" = "libpng" ]
+		then 
+		    echo "  Could not find png.h >= v1.0.17 anywhere in $INCLUDEDIRS"
+		else
+		    echo "  Could not find $INCLUDE anywhere in $INCLUDEDIRS"
+		fi
 	    fi
 	    break
 	fi
