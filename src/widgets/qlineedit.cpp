@@ -2445,7 +2445,7 @@ void QLineEdit::redo()
 QPopupMenu *QLineEdit::createPopupMenu()
 {
 #ifndef QT_NO_POPUPMENU
-    QPopupMenu *popup = new QPopupMenu( 0, "qt_edit_menu" );
+    QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     if ( !hasMask() ) {
     d->id[ IdUndo ] = popup->insertItem( tr( "&Undo" ) + ACCEL_KEY( Z ) );
     d->id[ IdRedo ] = popup->insertItem( tr( "&Redo" ) + ACCEL_KEY( Y ) );
