@@ -52,7 +52,7 @@ bool UType_enum::canConvertFrom( UObject *o, UType *t )
     return t->canConvertTo( o, this );
 }
 
-bool UType_enum::canConvertTo( UObject *o, UType *t )
+bool UType_enum::canConvertTo( UObject */*o*/, UType *t )
 {
     return isEqual( t, pUType_int );
 }
@@ -165,7 +165,7 @@ bool UType_idisp::canConvertFrom( UObject *o, UType *t )
     return t->canConvertTo( o, this );
 }
 
-bool UType_idisp::canConvertTo( UObject *o, UType *t )
+bool UType_idisp::canConvertTo( UObject */*o*/, UType *t )
 {
     return isEqual( t, pUType_iface );
 }
@@ -242,7 +242,7 @@ bool UType_int::canConvertFrom( UObject *o, UType *t )
     return t->canConvertTo( o, this );
 }
 
-bool UType_int::canConvertTo( UObject *o, UType *t )
+bool UType_int::canConvertTo( UObject */*o*/, UType *t )
 {
     return isEqual( t,  pUType_double );
 }
@@ -290,7 +290,7 @@ bool UType_double::canConvertFrom( UObject *o, UType *t )
     return t->canConvertTo( o, this );
 }
 
-bool UType_double::canConvertTo( UObject *o, UType *t )
+bool UType_double::canConvertTo( UObject */*o*/, UType *t )
 {
     return isEqual( t,  pUType_int );
 }

@@ -24,7 +24,7 @@ bool UType_QString::canConvertFrom( UObject *o, UType *t )
     return t->canConvertTo( o, this );
 }
 
-bool UType_QString::canConvertTo( UObject *o, UType *t )
+bool UType_QString::canConvertTo( UObject */*o*/, UType *t )
 {
     return isEqual( t, pUType_charstar ) ||
 	isEqual( t,  pUType_int ) ||
