@@ -68,6 +68,8 @@ QIOEngine::~QIOEngine()
 
   Many QIOEngine subclasses can be optimized for this function, the
   base implementation will simply read a single character at a time.
+
+  \sa readBlock
  */
 Q_LONG QIOEngine::readLine(char *data, Q_LONG maxlen)
 {
@@ -84,6 +86,53 @@ Q_LONG QIOEngine::readLine(char *data, Q_LONG maxlen)
     } 
     return -1;
 }
+
+/*!
+   Reads all the remaining data from the source and returns it in a
+   QByteArray this can be optimized in many subclasses but the base
+   implementation will just read a block at a time.
+
+   \sa readBlock
+ */
+QByteArray QIOEngine::readAll()
+{
+    if (!isSequential()) {     // read until we reach the end
+        const int blocksize = 512;
+        int nread = 0;
+        QByteArray ba;
+        while (!atEnd()) {
+            ba.resize(nread + blocksize);
+            int r = readBlock(ba.data()+nread, blocksize);
+            if (r < 0)
+                return QByteArray();
+            nread += r;
+        }
+        ba.resize(nread);
+        return ba;
+    }
+    // we know the size
+    int n = size() - at(); // ### fix for 64-bit or large files?
+    int totalRead = 0;
+    QByteArray ba;
+    ba.resize(n);
+    char* c = ba.data();
+    while (n) {
+        int r = readBlock(c, n);
+        if (r < 0)
+            return QByteArray();
+        n -= r;
+        c += r;
+        totalRead += r;
+        // If we have a translated file, then it is possible that
+        // we read less bytes than size() reports
+        if (atEnd()) {
+            ba.resize(totalRead);
+            break;
+        }
+    }
+    return ba;
+}
+
 
 /*!
   Gets a single character from a QIODevice, if the end of the file is

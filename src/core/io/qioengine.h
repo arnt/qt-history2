@@ -54,6 +54,7 @@ public:
 
     virtual Q_LONG readBlock(char *data, Q_LONG maxlen) = 0;
     virtual Q_LONG writeBlock(const char *data, Q_LONG len) = 0;
+    virtual QByteArray readAll();
     virtual Q_LONG readLine(char *data, Q_LONG maxlen);
 
     virtual int getch();

@@ -754,43 +754,15 @@ QIODevice::readBlock(char *data, Q_LONG len)
 */
 QByteArray QIODevice::readAll()
 {
-    if (isDirectAccess()) {
-        // we know the size
-        int n = size() - at(); // ### fix for 64-bit or large files?
-        int totalRead = 0;
-        QByteArray ba;
-        ba.resize(n);
-        char* c = ba.data();
-        while (n) {
-            int r = readBlock(c, n);
-            if (r < 0)
-                return QByteArray();
-            n -= r;
-            c += r;
-            totalRead += r;
-            // If we have a translated file, then it is possible that
-            // we read less bytes than size() reports
-            if (atEnd()) {
-                ba.resize(totalRead);
-                break;
-            }
-        }
-        return ba;
-    } else {
-        // read until we reach the end
-        const int blocksize = 512;
-        int nread = 0;
-        QByteArray ba;
-        while (!atEnd()) {
-            ba.resize(nread + blocksize);
-            int r = readBlock(ba.data()+nread, blocksize);
-            if (r < 0)
-                return QByteArray();
-            nread += r;
-        }
-        ba.resize(nread);
-        return ba;
+    if (!isOpen()) {
+        qWarning("QIODevice::readBlock: File not open");
+        return QByteArray();
     }
+    if (!isReadable()) {
+        qWarning("QIODevice::readBlock: Read operation not permitted");
+        return QByteArray();
+    }
+    return ioEngine()->readAll();
 }
 
 /*!
