@@ -31,6 +31,7 @@ public:
 
     virtual AbstractFormEditor *core() const = 0;
     virtual AbstractFormWindow *formWindow() const = 0;
+    virtual QWidget *createEditor() const = 0;
 
     virtual bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event) = 0;
 };

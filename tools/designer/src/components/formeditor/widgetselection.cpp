@@ -506,7 +506,7 @@ void WidgetSelection::show()
         WidgetHandle *h = handles[ i ];
         if (h) {
             if (i == WidgetHandle::TaskMenu) {
-                h->setShown(taskMenuExtension() != 0);
+                h->setVisible(taskMenuExtension() != 0);
                 h->raise();
             } else {
                 h->show();

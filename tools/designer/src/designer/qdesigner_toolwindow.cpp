@@ -26,7 +26,7 @@ QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget 
     m_action = new QAction(this);
     m_action->setText(windowTitle());
     m_action->setCheckable(true);
-    connect(m_action, SIGNAL(checked(bool)), this, SLOT(setShown(bool)));
+    connect(m_action, SIGNAL(checked(bool)), this, SLOT(setVisible(bool)));
 }
 
 QDesignerToolWindow::~QDesignerToolWindow()

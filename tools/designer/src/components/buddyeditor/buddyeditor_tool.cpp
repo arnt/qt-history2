@@ -45,3 +45,7 @@ bool BuddyEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEven
     return false;
 }
 
+QWidget *BuddyEditorTool::createEditor() const
+{
+    return 0;
+}

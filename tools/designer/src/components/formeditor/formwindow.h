@@ -22,12 +22,12 @@
 #include <abstractformwindow.h>
 
 // Qt
-#include <QWidget>
-#include <QPixmap>
-#include <QHash>
-#include <QList>
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QMap>
 
-#include <QMap>
+#include <QtGui/QWidget>
+#include <QtGui/QPixmap>
 
 class FormWindowCursor;
 class DomConnections;
@@ -361,6 +361,8 @@ private:
 
     QString m_comment;
     QString m_author;
+
+    QStackedWidget *m_widgetStack;
 
 #ifdef DESIGNER_VIEW3D
     View3D *m_view_3d;

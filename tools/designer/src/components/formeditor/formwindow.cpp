@@ -48,29 +48,7 @@
 #include <propertysheet.h>
 #include <qextensionmanager.h>
 
-#include <qstackedlayout.h>
-#include <qabstractbutton.h>
-#include <qgroupbox.h>
-#include <qdebug.h>
-#include <qrubberband.h>
-#include <qmainwindow.h>
-#include <qdockwindow.h>
-#include <qlayout.h>
-#include <qpainter.h>
-#include <qevent.h>
-#include <qpixmap.h>
-#include <qpixmapcache.h>
-#include <qlabel.h>
-#include <qtimer.h>
-#include <qmenu.h>
-#include <qtooltip.h>
-#include <qsplitter.h>
-#include <qwhatsthis.h>
-#include <qmessagebox.h>
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qmetaobject.h>
-#include <qbuffer.h>
+#include <QtGui/QtGui>
 
 FormWindowDnDItem::FormWindowDnDItem(QWidget *widget, const QPoint &pos)
 {
@@ -279,6 +257,10 @@ void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
 
 void FormWindow::init()
 {
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    m_widgetStack = new QStackedWidget(this);
+    layout->addWidget(m_widgetStack);
+
     m_currentTool = -1;
     m_editMode = WidgetEditMode;
     m_feature = DefaultFeature;
@@ -2096,7 +2078,13 @@ AbstractFormWindowTool *FormWindow::tool(int index) const
 
 void FormWindow::registerTool(AbstractFormWindowTool *tool)
 {
-    qDebug() << "FormWindow::registerTool:" << tool << "-- not implemented yet!";
+    Q_ASSERT(tool != 0);
+
+    m_tools.append(tool);
+
+    if (QWidget *editor = tool->createEditor()) {
+        m_widgetStack->addWidget(editor);
+    }
 }
 
 int FormWindow::currentTool() const
@@ -2117,10 +2105,11 @@ bool FormWindow::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *ev
 
 void FormWindow::initializeCoreTools()
 {
+    qDebug() << "FormWindow::initializeCoreTools()";
     ToolWidgetEditor *widgetEditor = new ToolWidgetEditor(this);
-    m_tools.append(widgetEditor);
+    registerTool(widgetEditor);
 
-    m_currentTool = m_tools.indexOf(widgetEditor);
+    m_currentTool = m_tools.indexOf(widgetEditor); // ### generalize
 }
 
 void FormWindow::checkSelection()

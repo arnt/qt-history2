@@ -174,3 +174,8 @@ bool ToolWidgetEditor::handlePaintEvent(QWidget *widget, QWidget *managedWidget,
     return false;
 }
 
+QWidget *ToolWidgetEditor::createEditor() const
+{
+    return 0;
+}
+
