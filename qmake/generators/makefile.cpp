@@ -332,6 +332,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
 		   ((Option::target_mode == Option::TARG_UNIX_MODE || 
+		     Option::target_mode == Option::TARG_QNX6_MODE ||
 		     Option::target_mode == Option::TARG_MACX_MODE) &&
 		    inc[0] != '/')) {
 		    for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
@@ -755,7 +756,7 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    if(fi.dirPath() != ".")
 		dir = fi.dirPath() + Option::dir_sep;
-	    QString impl = dir + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
+	    QString impl = dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
 	    logicWarn(impl, "SOURCES");
 	    impls.append(impl);
@@ -783,9 +784,9 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    if(fi.dirPath() != ".")
 		dir = fi.dirPath() + Option::dir_sep;
-	    QString impl = dir + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
+	    QString impl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
-	    QString decl = dir + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
+	    QString decl = dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
 	    logicWarn(decl, "HEADERS");
 
 	    decls.append(decl);
@@ -801,11 +802,11 @@ MakefileGenerator::init()
 	    }
 	    if( project->isActiveConfig("lex_included")) {
 		// is there a matching lex file ? Transfer its dependencies.
-		QString lexsrc = fi.baseName() + Option::lex_ext;
+		QString lexsrc = fi.baseName(TRUE) + Option::lex_ext;
 		if(fi.dirPath() != ".")
 		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
 		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
-		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + 
+		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + 
 				  Option::lex_mod + Option::cpp_ext.first();
 		    impldeps.append(trg);
 		    impldeps += findDependencies(lexsrc);
@@ -827,8 +828,8 @@ MakefileGenerator::init()
 	    QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	    QString impl, decl;
 	    if ( !project->isEmpty("UI_DIR") ) {
-		impl = project->first("UI_DIR") + fi.baseName() + Option::cpp_ext.first();
-		decl = project->first("UI_DIR") + fi.baseName() + Option::h_ext.first();
+		impl = project->first("UI_DIR") + fi.baseName(TRUE) + Option::cpp_ext.first();
+		decl = project->first("UI_DIR") + fi.baseName(TRUE) + Option::h_ext.first();
 
 		QString d = fi.dirPath();
 		if( d == ".")
@@ -837,11 +838,11 @@ MakefileGenerator::init()
 		if( !project->variables()["INCLUDEPATH"].contains(d))
 		    project->variables()["INCLUDEPATH"].append(d);
 	    } else if ( fi.dirPath() == "." ) {
-	    	impl = fi.baseName() + Option::cpp_ext.first();
-                decl = fi.baseName() + Option::h_ext.first();
+	    	impl = fi.baseName(TRUE) + Option::cpp_ext.first();
+                decl = fi.baseName(TRUE) + Option::h_ext.first();
 	    } else {
-	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext.first();
-                decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext.first();
+	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::cpp_ext.first();
+                decl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::h_ext.first();
 	    }
 	    logicWarn(impl, "SOURCES");
 	    logicWarn(decl, "HEADERS");
@@ -849,7 +850,7 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    findDependencies(impl).append(decl);
 
-	    QString mocable = Option::moc_mod + fi.baseName() + Option::cpp_ext.first();
+	    QString mocable = Option::moc_mod + fi.baseName(TRUE) + Option::cpp_ext.first();
 	    if(!v["MOC_DIR"].isEmpty())
 		mocable.prepend(v["MOC_DIR"].first());
 	    else if(fi.dirPath() != ".")
@@ -1194,7 +1195,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	    dirName = mocdir;
 	else if(!fi.dirPath().isEmpty() && fi.dirPath() != "." && project->isEmpty("OBJECTS_DIR"))
 	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
-	QString src(dirName + fi.baseName() + Option::cpp_ext.first() );
+	QString src(dirName + fi.baseName(TRUE) + Option::cpp_ext.first() );
 
 	QString hdr = findMocSource(src);
 	t << (*oit) << ": " << src << " "
@@ -1232,12 +1233,12 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
-	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
+	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
+	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
 
 	QString yaccflags = "$(YACCFLAGS)";
 	if(!project->isActiveConfig("yacc_no_name_mangle"))
-	    yaccflags += " -p " + fi.baseName();
+	    yaccflags += " -p " + fi.baseName(TRUE);
 	t << impl << ": " << (*it) << "\n\t"
 	  << ( "$(YACC) " + yaccflags + " " ) << (*it) << "\n\t"
 	  << "-$(DEL_FILE) " << impl << " " << decl << "\n\t"
@@ -1256,11 +1257,11 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
+	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
 
 	QString lexflags = "$(LEXFLAGS)", stub="yy";
 	if(!project->isActiveConfig("yacc_no_name_mangle")) {
-	    stub = fi.baseName();
+	    stub = fi.baseName(TRUE);
 	    lexflags += " -P" + stub;
 	}
 	t << impl << ": " << (*it) << " " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
@@ -1471,7 +1472,7 @@ MakefileGenerator::createObjectList(const QString &var)
 	else
 	    dirName = dir;
 
-	file = dirName + fi.baseName() + Option::obj_ext;
+	file = dirName + fi.baseName(TRUE) + Option::obj_ext;
 	fileFixify(file);
 	ret.append( file );
     }

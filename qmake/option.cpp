@@ -390,12 +390,12 @@ Option::fixPathToTargetOS(const QString& in, bool fix_env)
 	fixEnvVariables(tmp);
     tmp = fixPath(tmp);
     QString rep;
-    if(Option::target_mode == TARG_UNIX_MODE || Option::target_mode == TARG_MACX_MODE)
-	rep = "[\\\\]";
-    else if(Option::target_mode == TARG_MAC9_MODE)
+    if(Option::target_mode == TARG_MAC9_MODE)
 	rep = "[/\\\\]";
     else if(Option::target_mode == TARG_WIN_MODE)
 	rep = "[/]";
+    else
+	rep = "[\\\\]";
     return tmp.replace(QRegExp(rep), Option::dir_sep);
 }
 
