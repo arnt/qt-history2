@@ -41,12 +41,15 @@ exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {  #qconfig.cpp
 
 #where to find the Qt code, and platform dependant SOURCES
 unix {
-   VPATH = $$QT_SOURCE_TREE/src/tools
+   VPATH += $$QT_SOURCE_TREE/src/tools
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp
-   mac:SOURCES += qsettings_mac.cpp
+   mac {
+     VPATH += $$QT_SOURCE_TREE/src/kernel
+     SOURCES += qsettings_mac.cpp qurl.cpp
+   }
 }
 win32 {
-   VPATH = $$QT_SOURCE_TREE/src/tools
+   VPATH += $$QT_SOURCE_TREE/src/tools
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp qsettings_win.cpp
    *-msvc:LIBS += ole32.lib
 }
