@@ -109,14 +109,14 @@ public:
     inline void clearAttributeStdSetDef() { m_has_attr_stdSetDef = false; }
 
     // child element accessors
-    inline DomString* elementAuthor() { return m_author; }
-    void setElementAuthor(DomString* a);
+    inline QString elementAuthor() { return m_author; }
+    void setElementAuthor(const QString& a);
 
     inline QString elementComment() { return m_comment; }
     void setElementComment(const QString& a);
 
-    inline DomString* elementExportMacro() { return m_exportMacro; }
-    void setElementExportMacro(DomString* a);
+    inline QString elementExportMacro() { return m_exportMacro; }
+    void setElementExportMacro(const QString& a);
 
     inline QString elementClass() { return m_class; }
     void setElementClass(const QString& a);
@@ -163,9 +163,9 @@ private:
     bool m_has_attr_stdSetDef;
 
     // child element data
-    DomString* m_author;
+    QString m_author;
     QString m_comment;
-    DomString* m_exportMacro;
+    QString m_exportMacro;
     QString m_class;
     DomWidget* m_widget;
     DomLayoutDefault* m_layoutDefault;
@@ -628,8 +628,8 @@ public:
     inline DomSizePolicyData* elementSizePolicy() { return m_sizePolicy; }
     void setElementSizePolicy(DomSizePolicyData* a);
 
-    inline DomString* elementPixmap() { return m_pixmap; }
-    void setElementPixmap(DomString* a);
+    inline QString elementPixmap() { return m_pixmap; }
+    void setElementPixmap(const QString& a);
 
     inline DomProperties* elementProperties() { return m_properties; }
     void setElementProperties(DomProperties* a);
@@ -646,7 +646,7 @@ private:
     DomSize* m_sizeHint;
     int m_container;
     DomSizePolicyData* m_sizePolicy;
-    DomString* m_pixmap;
+    QString m_pixmap;
     DomProperties* m_properties;
 
     DomCustomWidget(const DomCustomWidget &other);
