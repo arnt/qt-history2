@@ -3743,11 +3743,11 @@ QTextParag::~QTextParag()
     delete str;
     if ( hasdoc ) {
 	register QTextDocument *doc = document();
-	if ( p == doc->minwParag ) {
+	if ( this == doc->minwParag ) {
 	    doc->minwParag = 0;
 	    doc->minw = 0;
 	}
-	if ( p == doc->curParag )
+	if ( this == doc->curParag )
 	    doc->curParag = 0;
     } else {
 	delete pseudoDocument();
