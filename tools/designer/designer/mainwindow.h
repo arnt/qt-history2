@@ -364,7 +364,6 @@ private:
 
     Preferences *prefDia;
     QMap<QString,QString> propertyDocumentation;
-    QRect propGeom, flGeom, hvGeom;
     bool client;
     QString templPath;
     ActionEditor *actionEditor;

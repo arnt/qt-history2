@@ -118,6 +118,7 @@ extern QMap<QWidget*, QString> *qwf_forms;
 extern QString *qwf_language;
 extern bool qwf_execute_code;
 extern bool qwf_stays_on_top;
+static bool tbSettingsRead = FALSE;
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -240,7 +241,7 @@ MainWindow::MainWindow( bool asClient )
 
     QSize as( qApp->desktop()->size() );
     as -= QSize( 30, 30 );
-    resize( QSize( 1000, 800 ).boundedTo( as ) );
+    resize( QSize( 1200, 1000 ).boundedTo( as ) );
 
     connect( qApp->clipboard(), SIGNAL( dataChanged() ),
 	     this, SLOT( clipboardChanged() ) );
@@ -1190,7 +1191,6 @@ void MainWindow::setupPropertyEditor()
 					"Use <b>F1</b> to get detailed help for the selected property.</p>"
 					"<p>You can resize the columns of the editor by dragging the separators of the list "
 					"header.</p>" ) );
-    propGeom = QRect( 0, 0, 300, 600 );
     dw->show();
 }
 
@@ -1220,14 +1220,13 @@ void MainWindow::setupHierarchyView()
 
     dw->setCaption( tr( "Object Explorer" ) );
     dw->setFixedExtentWidth( 300 );
-    hvGeom = QRect( -1, -1, 300, 500 );
     QWhatsThis::add( hierarchyView, tr("<b>The Object Explorer</b>"
 				      "<p>The object explorer gives a quick overview about the relations "
 				      "between the widgets in your form. You can use the clipboard functions using "
 				      "a context menu for each item in the view.</p>"
 				      "<p>The columns can be resized by dragging the separator in the list header.</p>"
 				       "<p>On the second tab you can see all the declared slots, variables, includes, etc. of the form.</p>") );
-    dw->hide();
+    dw->show();
 }
 
 void MainWindow::setupFormList()
@@ -1240,9 +1239,9 @@ void MainWindow::setupFormList()
     dw->setWidget( formList );
 
     dw->setCaption( tr( "Files" ) );
-    flGeom = QRect( -1, -1, 300, 600 );
     QWhatsThis::add( formList, tr("<b>The File List</b>"
 				  "<p>The File List displays all files of the project, including forms and pixmaps</p>") );
+    dw->setFixedExtentHeight( 100 );
     dw->show();
 }
 
@@ -2564,22 +2563,6 @@ void MainWindow::previewForm( const QString & style )
     w->show();
 }
 
-static void correctGeometry( QWidget *wid, QWidget *workspace )
-{
-    int x = wid->parentWidget()->x(), y = wid->parentWidget()->y();
-    if ( wid->parentWidget()->x() > workspace->width() )
-	x = QMAX( 0, workspace->width() - wid->parentWidget()->width() );
-    if ( wid->parentWidget()->y() > workspace->height() )
-	x = QMAX( 0, workspace->height() - wid->parentWidget()->height() );
-    wid->parentWidget()->move( x, y );
-    int w = wid->parentWidget()->width(), h = wid->parentWidget()->height();
-    if ( x + w > workspace->width() )
-	w = workspace->width() - x;
-    if ( h + y > workspace->height() )
-	h = workspace->height() - y;
-    wid->parentWidget()->resize( w, h );
-}
-
 void MainWindow::toolsCustomWidget()
 {
     statusBar()->message( tr( "Edit custom widgets..." ) );
@@ -2877,20 +2860,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	QApplication::sendPostedEvents( workspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
-	if ( hvGeom.topLeft() == QPoint( -1, -1 ) ) {
-	    hvGeom.setX( workSpace()->width() - hierarchyView->width() - 5 );
-	    hvGeom.setY( 0 );
-	}
-	if ( flGeom.topLeft() == QPoint( -1, -1 ) ) {
-	    flGeom.setX( workSpace()->width() - formList->width() - 5 );
-	    flGeom.setY( workSpace()->height() - formList->height() - 30 );
-	}
-	hierarchyView->parentWidget()->setGeometry( hvGeom );
-	formList->parentWidget()->setGeometry( flGeom );
-	propertyEditor->parentWidget()->setGeometry( propGeom );
-	correctGeometry( propertyEditor, workspace );
-	correctGeometry( hierarchyView, workspace );
-	correctGeometry( formList, workspace );
+ 	if ( !tbSettingsRead)
+	    ( (QDockWindow*)formlist()->parentWidget() )->setFixedExtentHeight( 150 );
 	checkTempFiles();
 	return TRUE;
     case QEvent::Wheel:
@@ -3675,24 +3646,6 @@ void MainWindow::readConfig()
 	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
 	    move( r.topLeft() );
 	}
-	r.setX( config.readNumEntry( keybase + "Geometries/PropertyEditorX" ) );
-	r.setY( config.readNumEntry( keybase + "Geometries/PropertyEditorY" ) );
-	r.setWidth( config.readNumEntry( keybase + "Geometries/PropertyEditorWidth" ) );
-	r.setHeight( config.readNumEntry( keybase + "Geometries/PropertyEditorHeight" ) );
-	propertyEditor->parentWidget()->setGeometry( r );
-	propGeom = r;
-	r.setX( config.readNumEntry( keybase + "Geometries/HierarchyViewX" ) );
-	r.setY( config.readNumEntry( keybase + "Geometries/HierarchyViewY" ) );
-	r.setWidth( config.readNumEntry( keybase + "Geometries/HierarchyViewWidth" ) );
-	r.setHeight( config.readNumEntry( keybase + "Geometries/HierarchyViewHeight" ) );
-	hierarchyView->parentWidget()->setGeometry( r );
-	hvGeom = r;
-	r.setX( config.readNumEntry( keybase + "Geometries/FormListX" ) );
-	r.setY( config.readNumEntry( keybase + "Geometries/FormListY" ) );
-	r.setWidth( config.readNumEntry( keybase + "Geometries/FormListWidth" ) );
-	r.setHeight( config.readNumEntry( keybase + "Geometries/FormListHeight" ) );
-	formList->parentWidget()->setGeometry( r );
-	flGeom = r;
 
 	setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", FALSE ) );
 	setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
@@ -3759,6 +3712,7 @@ void MainWindow::readConfig()
     QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
     QFile f( fn );
     if ( f.open( IO_ReadOnly ) ) {
+	tbSettingsRead = TRUE;
 	QTextStream ts( &f );
 	ts >> *this;
 	f.close();
@@ -3816,25 +3770,6 @@ void MainWindow::readOldConfig()
 	    move( r.topLeft() );
 	}
 
-	config.setGroup( "Geometries" );
-	r.setX( config.readNumEntry( "PropertyEditorX", r.x() ) );
-	r.setY( config.readNumEntry( "PropertyEditorY", r.y() ) );
-	r.setWidth( config.readNumEntry( "PropertyEditorWidth", r.width() ) );
-	r.setHeight( config.readNumEntry( "PropertyEditorHeight", r.height() ) );
-	propertyEditor->parentWidget()->setGeometry( r );
-	propGeom = r;
-	r.setX( config.readNumEntry( "HierarchyViewX", r.x() ) );
-	r.setY( config.readNumEntry( "HierarchyViewY", r.y() ) );
-	r.setWidth( config.readNumEntry( "HierarchyViewWidth", r.width() ) );
-	r.setHeight( config.readNumEntry( "HierarchyViewHeight", r.height() ) );
-	hierarchyView->parentWidget()->setGeometry( r );
-	hvGeom = r;
-	r.setX( config.readNumEntry( "FormListX", r.x() ) );
-	r.setY( config.readNumEntry( "FormListY", r.y() ) );
-	r.setWidth( config.readNumEntry( "FormListWidth", r.width() ) );
-	r.setHeight( config.readNumEntry( "FormListHeight", r.height() ) );
-	formList->parentWidget()->setGeometry( r );
-	flGeom = r;
 	config.setGroup( "View" );
 	setUsesTextLabel( config.readBoolEntry( "TextLabels", FALSE ) );
 	setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
