@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qregexp.h"
+
 #ifndef QT_NO_REGEXP
 
 #include "qmemarray.h"
@@ -47,7 +48,21 @@
 #include "qtl.h"
 #include "qptrvector.h"
 
+// needed for QT_TRANSLATE_NOOP
+#include "qobject.h"
+
 #include <limits.h>
+
+// error strings for the regexp parser
+#define RXERR_OK         QT_TRANSLATE_NOOP( "QRegExp", "no error occurred" )
+#define RXERR_DISABLED   QT_TRANSLATE_NOOP( "QRegExp", "disabled feature used" )
+#define RXERR_CHARCLASS  QT_TRANSLATE_NOOP( "QRegExp", "bad char class syntax" )
+#define RXERR_LOOKAHEAD  QT_TRANSLATE_NOOP( "QRegExp", "bad lookahead syntax" )
+#define RXERR_REPETITION QT_TRANSLATE_NOOP( "QRegExp", "bad repetition syntax" )
+#define RXERR_OCTAL      QT_TRANSLATE_NOOP( "QRegExp", "invalid octal value" )
+#define RXERR_LEFTDELIM  QT_TRANSLATE_NOOP( "QRegExp", "missing left delim" )
+#define RXERR_END        QT_TRANSLATE_NOOP( "QRegExp", "unexpected end" )
+#define RXERR_LIMIT      QT_TRANSLATE_NOOP( "QRegExp", "met internal limit" )
 
 /*
   WARNING! Be sure to read qregexp.tex before modifying this file.
@@ -863,6 +878,7 @@ public:
 #endif
 
     bool isValid() const { return valid; }
+    const QString& errorString() const { return yyError; }
     bool caseSensitive() const { return cs; }
     int numCaptures() const { return officialncap; }
     QMemArray<int> match( const QString& str, int pos, bool minimal,
@@ -1126,6 +1142,7 @@ private:
 #ifndef QT_NO_REGEXP_LOOKAHEAD
     void skipChars( int n );
 #endif
+    void error( const char *msg );
     void startTokenizer( const QChar *rx, int len );
     int getToken();
 
@@ -1137,7 +1154,7 @@ private:
     CharClass *yyCharClass; // attribute for Tok_CharClass tokens
     int yyMinRep; // attribute for Tok_Quantifier
     int yyMaxRep; // ditto
-    bool yyError; // syntax error or overflow during parsing?
+    QString yyError; // syntax error or overflow during parsing?
 
     /*
       This is the syntactic analyzer for regular expressions.
@@ -1189,6 +1206,8 @@ QRegExpEngine::QRegExpEngine( const QString& rx, bool caseSensitive )
 {
     setup( caseSensitive );
     valid = ( parse(rx.unicode(), rx.length()) == (int) rx.length() );
+    if ( !valid )
+	error( RXERR_LEFTDELIM );
 }
 
 #ifndef QT_NO_REGEXP_OPTIM
@@ -1285,7 +1304,7 @@ int QRegExpEngine::createState( int bref )
     if ( bref > nbrefs ) {
 	nbrefs = bref;
 	if ( nbrefs > MaxBackRefs ) {
-	    yyError = TRUE;
+	    error( RXERR_LIMIT );
 	    return 0;
 	}
     }
@@ -1583,7 +1602,7 @@ int QRegExpEngine::addLookahead( QRegExpEngine *eng, bool negative )
 {
     int n = ahead.size();
     if ( n == MaxLookaheads ) {
-	yyError = TRUE;
+	error( RXERR_LIMIT );
 	return 0;
     }
     ahead.resize( n + 1 );
@@ -2532,7 +2551,7 @@ int QRegExpEngine::getEscape()
     int prevCh = yyCh;
 
     if ( prevCh == EOS ) {
-	yyError = TRUE;
+	error( RXERR_END );
 	return Tok_Char | '\\';
     }
     yyCh = getChar();
@@ -2556,7 +2575,7 @@ int QRegExpEngine::getEscape()
 	    yyCh = getChar();
 	}
 	if ( (val & ~0377) != 0 )
-	    yyError = TRUE;
+	    error( RXERR_OCTAL );
 	return Tok_Char | val;
 #endif
 #ifndef QT_NO_REGEXP_ESCAPE
@@ -2624,7 +2643,7 @@ int QRegExpEngine::getEscape()
 	    }
 	    return Tok_BackRef | val;
 #else
-	    yyError = TRUE;
+	    error( RXERR_DISABLED );
 #endif
 	}
 	return Tok_Char | prevCh;
@@ -2639,7 +2658,7 @@ int QRegExpEngine::getRep( int def )
 	do {
 	    rep = 10 * rep + yyCh - '0';
 	    if ( rep >= InftyRep ) {
-		yyError = TRUE;
+		error( RXERR_REPETITION );
 		rep = def;
 	    }
 	    yyCh = getChar();
@@ -2661,6 +2680,12 @@ void QRegExpEngine::skipChars( int n )
 }
 #endif
 
+void QRegExpEngine::error( const char *msg )
+{
+    if ( yyError.isEmpty() )
+	yyError = QString::fromLatin1( msg );
+}
+
 void QRegExpEngine::startTokenizer( const QChar *rx, int len )
 {
     yyIn = rx;
@@ -2671,7 +2696,7 @@ void QRegExpEngine::startTokenizer( const QChar *rx, int len )
     yyCharClass = new CharClass;
     yyMinRep = 0;
     yyMaxRep = 0;
-    yyError = FALSE;
+    yyError = QString();
 }
 
 int QRegExpEngine::getToken()
@@ -2711,7 +2736,7 @@ int QRegExpEngine::getToken()
 	    case ':':
 		return Tok_MagicLeftParen;
 	    default:
-		yyError = TRUE;
+		error( RXERR_LOOKAHEAD );
 		return Tok_MagicLeftParen;
 	    }
 	} else {
@@ -2779,7 +2804,7 @@ int QRegExpEngine::getToken()
 			charPending = TRUE;
 		    }
 		} else {
-		    yyError = TRUE;
+		    error( RXERR_CHARCLASS );
 		}
 	    }
 	}  while ( yyCh != ']' && yyCh != EOS );
@@ -2788,18 +2813,18 @@ int QRegExpEngine::getToken()
 	if ( charPending )
 	    yyCharClass->addSingleton( pendingCh );
 	if ( yyCh == EOS )
-	    yyError = TRUE;
+	    error( RXERR_END );
 	else
 	    yyCh = getChar();
 	return Tok_CharClass;
 #else
-	yyError = TRUE;
+	error( RXERR_END );
 	return Tok_Char | '[';
 #endif
     case '\\':
 	return getEscape();
     case ']':
-	yyError = TRUE;
+	error( RXERR_LEFTDELIM );
 	return Tok_Char | ']';
     case '^':
 	return Tok_Caret;
@@ -2814,17 +2839,17 @@ int QRegExpEngine::getToken()
 	if ( yyMaxRep < yyMinRep )
 	    qSwap( yyMinRep, yyMaxRep );
 	if ( yyCh != '}' )
-	    yyError = TRUE;
+	    error( RXERR_REPETITION );
 	yyCh = getChar();
 	return Tok_Quantifier;
 #else
-	yyError = TRUE;
+	error( RXERR_DISABLED );
 	return Tok_Char | '{';
 #endif
     case '|':
 	return Tok_Bar;
     case '}':
-	yyError = TRUE;
+	error( RXERR_LEFTDELIM );
 	return Tok_Char | '}';
     default:
 	return Tok_Char | prevCh;
@@ -2901,7 +2926,7 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
 
     mmSlideTab = mmTempCapBegin + 4 * ncap;
 
-    if ( yyError )
+    if ( !yyError.isEmpty() )
 	return -1;
 
 #ifndef QT_NO_REGEXP_OPTIM
@@ -2949,11 +2974,11 @@ void QRegExpEngine::parseAtom( Box *box )
 	if ( len >= 0 )
 	    skipChars( len );
 	else
-	    yyError = TRUE;
+	    error( RXERR_LOOKAHEAD );
 	box->catAnchor( addLookahead(eng, neg) );
 	yyTok = getToken();
 	if ( yyTok != Tok_RightParen )
-	    yyError = TRUE;
+	    error( RXERR_LOOKAHEAD );
 	break;
 #endif
 #ifndef QT_NO_REGEXP_ESCAPE
@@ -2969,7 +2994,7 @@ void QRegExpEngine::parseAtom( Box *box )
 	yyTok = getToken();
 	parseExpression( box );
 	if ( yyTok != Tok_RightParen )
-	    yyError = TRUE;
+	    error( RXERR_END );
 	break;
     case Tok_CharClass:
 	box->set( *yyCharClass );
@@ -2982,7 +3007,7 @@ void QRegExpEngine::parseAtom( Box *box )
 	    box->set( yyTok ^ Tok_BackRef );
 #endif
 	else
-	    yyError = TRUE;
+	    error( RXERR_DISABLED );
     }
     yyTok = getToken();
 }
@@ -3150,7 +3175,7 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 /*!
   Constructs an empty regexp.
 
-  \sa isValid()
+  \sa isValid() errorString()
 */
 QRegExp::QRegExp()
 {
@@ -3284,6 +3309,8 @@ bool QRegExp::isEmpty() const
   Note that the validity of a regexp may also depend on the setting
   of the wildcard flag, for example <b>*.html</b> is a valid wildcard
   regexp but an invalid full regexp.
+
+  \sa errorString()
 */
 bool QRegExp::isValid() const
 {
@@ -3738,7 +3765,54 @@ int QRegExp::pos( int nth )
     else
 	return priv->captured[2 * nth];
 }
+
+/*!
+  Returns a text string that explains why a regexp pattern is
+  invalid the case being; otherwise returns "no error occurred".
+
+  \sa isValid()
+*/
+QString QRegExp::errorString()
+{
+    if ( isValid() ) {
+	return QString( RXERR_OK );
+    } else {
+	return eng->errorString();
+    }
+}
 #endif
+
+/*!
+  Returns the string \a str with every regexp special character
+  escaped with a backslash. The special characters are $, (, ), *, +,
+  ., ?, [, \, ], ^, {, | and }.
+
+  Example:
+  \code
+     s1 = QRegExp::literal( "bingo" );  // s1 == "bingo"
+     s2 = QRegExp::literal( "f(x)" );   // s2 == "f\\(x\\)"
+  \endcode
+
+  This function is useful to construct regexp patterns dynamically:
+
+  \code
+    QRegExp rx( "(" + QRegExp::literal(username) +
+		"|" + QRegExp::literal(password) + ")" );
+  \endcode
+*/
+QString QRegExp::literal( const QString& str )
+{
+    static const char meta[] = "$()*+.?[\\]^{|}";
+    QString quoted = str;
+    int i = 0;
+ 
+    while ( i < (int) quoted.length() ) {
+	if ( strchr(meta, quoted[i].latin1()) != 0 )
+	    quoted.insert( i++, "\\" );
+	i++;
+    }
+    return quoted;
+}
 
 void QRegExp::compile( bool caseSensitive )
 {

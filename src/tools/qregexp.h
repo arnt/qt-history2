@@ -84,7 +84,10 @@ public:
     QStringList capturedTexts();
     QString cap( int nth = 0 );
     int pos( int nth = 0 );
+    QString errorString();
 #endif
+
+    static QString literal( const QString& str );
 
 private:
     void compile( bool caseSensitive );
