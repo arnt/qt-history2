@@ -95,8 +95,8 @@ int main( int argc, char **argv )
     l << "one" << "two" << "three" << "four";
     for ( int i = 0; i < numRows; ++i )
 	v.setItem( i, 5, new QComboTableItem( &v, l, TRUE ) );
-    for ( int i = 0; i < numRows; ++i )
-	v.setItem( i, 1, new QCheckTableItem( &v, "Check me" ) );
+    for ( int j = 0; j < numRows; ++j )
+	v.setItem( j, 1, new QCheckTableItem( &v, "Check me" ) );
 
     a.setMainWidget( &v );
     v.show();

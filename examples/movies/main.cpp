@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 			  "then left-click to Step,\n"
 			  "control-left-click to Step 10,\n"
 			  "right-click to Unpause\n\n"
-			  "Windows may be resized to enlarge movie.", 0 );
+			  "Windows may be resized to enlarge movie.", 0, 0, Qt::WDestructiveClose );
         help->setCaption( "movies - Help" );
         help->setIndent( 10 );
         help->show();

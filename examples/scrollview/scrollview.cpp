@@ -205,12 +205,12 @@ public:
 	QMenuBar* menubar = new QMenuBar(this);
 	Q_CHECK_PTR( menubar );
 
-	QPopupMenu* file = new QPopupMenu();
+	QPopupMenu* file = new QPopupMenu( menubar );
 	Q_CHECK_PTR( file );
 	menubar->insertItem( "&File", file );
 	file->insertItem( "Quit", qApp,  SLOT(quit()) );
 
-	vp_options = new QPopupMenu();
+	vp_options = new QPopupMenu( menubar );
 	Q_CHECK_PTR( vp_options );
 	vp_options->setCheckable( TRUE );
 	menubar->insertItem( "&ScrollView", vp_options );
@@ -248,7 +248,7 @@ public:
 	    vp->viewport()->setBackgroundMode(NoBackground);
 	}
 
-	f_options = new QPopupMenu();
+	f_options = new QPopupMenu( menubar );
 	Q_CHECK_PTR( f_options );
 	f_options->setCheckable( TRUE );
 	menubar->insertItem( "&Frame", f_options );
@@ -265,7 +265,7 @@ public:
 	f_laststyle = f_options->indexOf(
 	    f_options->insertItem( "Sunken", style_id|QFrame::Sunken ));
 	f_options->insertSeparator();
-	lw_options = new QPopupMenu;
+	lw_options = new QPopupMenu( menubar );
 	Q_CHECK_PTR( lw_options );
 	lw_options->setCheckable( TRUE );
 	for (int lw = 1; lw <= max_lw; lw++) {
@@ -276,7 +276,7 @@ public:
 	f_options->insertItem( "Line width", lw_options );
 	connect( lw_options, SIGNAL(activated(int)),
 	    this, SLOT(doFMenuItem(int)) );
-	mlw_options = new QPopupMenu;
+	mlw_options = new QPopupMenu( menubar );
 	Q_CHECK_PTR( mlw_options );
 	mlw_options->setCheckable( TRUE );
 	for (int mlw = 0; mlw <= max_mlw; mlw++) {
@@ -287,7 +287,7 @@ public:
 	f_options->insertItem( "Midline width", mlw_options );
 	connect( mlw_options, SIGNAL(activated(int)),
 	    this, SLOT(doFMenuItem(int)) );
-	mw_options = new QPopupMenu;
+	mw_options = new QPopupMenu( menubar );
 	Q_CHECK_PTR( mw_options );
 	mw_options->setCheckable( TRUE );
 	for (int mw = 0; mw <= max_mw; mw++) {

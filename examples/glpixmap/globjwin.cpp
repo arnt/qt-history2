@@ -35,7 +35,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     : QWidget( parent, name )
 {
     // Create a menu
-    file = new QPopupMenu();
+    file = new QPopupMenu( this );
     file->setCheckable( TRUE );
     file->insertItem( "Grab Frame Buffer", this, SLOT(grabFrameBuffer()) );
     file->insertItem( "Render Pixmap", this, SLOT(makePixmap()) );

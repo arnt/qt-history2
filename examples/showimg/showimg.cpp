@@ -44,8 +44,8 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     menubar->setSeparator( QMenuBar::InWindowsStyle );
 
     QStrList fmt = QImage::outputFormats();
-    saveimage = new QPopupMenu();
-    savepixmap = new QPopupMenu();
+    saveimage = new QPopupMenu( menubar );
+    savepixmap = new QPopupMenu( menubar );
     for (const char* f = fmt.first(); f; f = fmt.next()) {
 	saveimage->insertItem( f );
 	savepixmap->insertItem( f );
@@ -53,7 +53,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     connect( saveimage, SIGNAL(activated(int)), this, SLOT(saveImage(int)) );
     connect( savepixmap, SIGNAL(activated(int)), this, SLOT(savePixmap(int)) );
 
-    file = new QPopupMenu();
+    file = new QPopupMenu( menubar );
     menubar->insertItem( "&File", file );
     file->insertItem( "&New window", this,  SLOT(newWindow()), CTRL+Key_N );
     file->insertItem( "&Open...", this,  SLOT(openFile()), CTRL+Key_O );
@@ -62,7 +62,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     file->insertSeparator();
     file->insertItem( "E&xit", qApp,  SLOT(quit()), CTRL+Key_Q );
 
-    edit =  new QPopupMenu();
+    edit =  new QPopupMenu( menubar );
     menubar->insertItem( "&Edit", edit );
     edit->insertItem("&Copy", this, SLOT(copy()), CTRL+Key_C);
     edit->insertItem("&Paste", this, SLOT(paste()), CTRL+Key_V);
@@ -77,7 +77,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     t8 = edit->insertItem( "Convert to &8 bit", this, SLOT(to8Bit()) );
     t32 = edit->insertItem( "Convert to &32 bit", this, SLOT(to32Bit()) );
 
-    options =  new QPopupMenu();
+    options =  new QPopupMenu( menubar );
     menubar->insertItem( "&Options", options );
     ac = options->insertItem( "AutoColor" );
     co = options->insertItem( "ColorOnly" );
@@ -103,7 +103,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
 
     menubar->insertSeparator();
 
-    QPopupMenu* help = new QPopupMenu();
+    QPopupMenu* help = new QPopupMenu( menubar );
     menubar->insertItem( "&Help", help );
     help->insertItem( "Help!", this, SLOT(giveHelp()), CTRL+Key_H );
 

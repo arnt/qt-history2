@@ -330,7 +330,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     editor = new FigureEditor(canvas,this);
     QMenuBar* menu = menuBar();
 
-    QPopupMenu* file = new QPopupMenu;
+    QPopupMenu* file = new QPopupMenu( menu );
     file->insertItem("&Fill canvas", this, SLOT(init()), CTRL+Key_F);
     file->insertItem("&Erase canvas", this, SLOT(clear()), CTRL+Key_E);
     file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
@@ -340,7 +340,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     file->insertItem("E&xit", qApp, SLOT(quit()), CTRL+Key_Q);
     menu->insertItem("&File", file);
 
-    QPopupMenu* edit = new QPopupMenu;
+    QPopupMenu* edit = new QPopupMenu( menu );
     edit->insertItem("Add &Circle", this, SLOT(addCircle()), ALT+Key_C);
     edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), ALT+Key_H);
     edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), ALT+Key_P);
@@ -353,7 +353,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), ALT+Key_A);
     menu->insertItem("&Edit", edit);
 
-    QPopupMenu* view = new QPopupMenu;
+    QPopupMenu* view = new QPopupMenu( menu );
     view->insertItem("&Enlarge", this, SLOT(enlarge()), SHIFT+CTRL+Key_Plus);
     view->insertItem("Shr&ink", this, SLOT(shrink()), SHIFT+CTRL+Key_Minus);
     view->insertSeparator();
@@ -368,14 +368,14 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     view->insertItem("&Mirror", this, SLOT(mirror()), CTRL+Key_Home);
     menu->insertItem("&View", view);
 
-    options = new QPopupMenu;
+    options = new QPopupMenu( menu );
     dbf_id = options->insertItem("Double buffer", this, SLOT(toggleDoubleBuffer()));
     options->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Options",options);
 
     menu->insertSeparator();
 
-    QPopupMenu* help = new QPopupMenu;
+    QPopupMenu* help = new QPopupMenu( menu );
     help->insertItem("&About", this, SLOT(help()), Key_F1);
     help->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Help",help);

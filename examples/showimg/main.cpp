@@ -32,7 +32,8 @@ int main( int argc, char **argv )
     QApplication::setFont( QFont("Helvetica", 12) );
     QApplication a( argc, argv );
 
-    QFileDialog::setIconProvider(new ImageIconProvider);
+    ImageIconProvider iip;
+    QFileDialog::setIconProvider( &iip );
 
     if ( argc <= 1 ) {
 	// Create a window which looks after its own existence.

@@ -5,6 +5,8 @@
 #include <qbitmap.h>
 #include <qfile.h> 
 
+#include <process.h>
+
 class MoveMe : public QWidget
 {
 public:
