@@ -88,7 +88,7 @@
     docking (floating and inside a dockarea) like in Visual
     Studio. Also have resizeable dockwindows and all that
     stuff. Toolbars will then be just such
-    toolwindows/dockwidgets.</DD> 
+    toolwindows/dockwidgets.</DD>
 
     <DT><B>Plugin System</B> (Volker)</DT>
     <DD>System for dynamically loading plugins. First used by designer
@@ -123,12 +123,12 @@
     actions in a special mode between the actin editor (which shows
     all available actios) and the menus and toolbars. Allows also
     creating new toolbars and menus (?) on the fly. Like you can doe
-    in Visual Studio and MS-Office</DD> 
+    in Visual Studio and MS-Office</DD>
 
     <DT><B>QTextView, QTextBrowser, QTextEdit, QRichText</B> (Matthias, Reggie)</DT>
     <DD>Merge the old QRichText engine with the new one from QTextEdit
-    (done already), and make QTextView,QTextBrowser and QTextEdit
-    using this engine. Then get rid of QMultiLineEdit</DD>
+    (done already), and make QTextView,QTextBrowser, QTextEdit and
+    QSimpleRichText using this engine. Then get rid of QMultiLineEdit</DD>
 
 </DL>
 
