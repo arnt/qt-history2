@@ -1517,7 +1517,7 @@ if true #[ '!' -f "$outpath/bin/qmake" ]
 then
     echo "Creating qmake. Please wait..."
     rm -f mkspecs/default
-    ln -s $QMAKESPEC mkspecs/default
+    ln -sf `basename $QMAKESPEC` mkspecs/default
     #fix makefiles
     for mkfile in GNUmakefile Makefile
     do
@@ -2208,6 +2208,7 @@ FAST_PROJECTS=0
 echo "  `expr $NORM_PROJECTS + $FAST_PROJECTS` projects found."
 echo
 
+BASE_SPEC=`basename $QMAKESPEC`
 echo "Creating makefiles. Please wait..."
 for file in .projects .projects.3
 do
@@ -2235,7 +2236,7 @@ do
 	    [ "x$VERBOSE" = "xyes" ] && echo "  skipping $a"
 	    continue;
 	fi
-	if [ "$SPEC" != "$QMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $QMAKESPEC`" ]
+	if [ "$SPEC" != "$QMAKESPEC" ] || [ -z "`ls -l mkspecs/default | grep $BASE_SPEC`" ]
 	then
 	    echo "USING $SPEC FOR QMAKE"
 	    QMAKE_EXTRA_ARGS="-spec $SPEC $QMAKE_EXTRA_ARGS"
