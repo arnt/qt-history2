@@ -40,16 +40,16 @@ public:
                         QPainter *p,
                         const QRect &r,
                         const QPalette &pal,
-                        SFlags flags = Style_Default,
-                        const Q3StyleOption& = Q3StyleOption::Default) const;
+                        SFlags flags = Style_Default
+                        /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     void drawControl(ControlElement element,
                       QPainter *p,
                       const QWidget *widget,
                       const QRect &r,
                       const QPalette &pal,
-                      SFlags how = Style_Default,
-                      const Q3StyleOption& = Q3StyleOption::Default) const;
+                      SFlags how = Style_Default
+                      /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     void drawComplexControl(ComplexControl control,
                              QPainter *p,
@@ -58,13 +58,13 @@ public:
                              const QPalette &pal,
                              SFlags how = Style_Default,
                              SCFlags sub = SC_All,
-                             SCFlags subActive = SC_None,
-                             const Q3StyleOption& = Q3StyleOption::Default) const;
+                             SCFlags subActive = SC_None
+                             /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     QRect querySubControlMetrics(ComplexControl control,
                                   const QWidget *widget,
-                                  SubControl sc,
-                                  const Q3StyleOption& = Q3StyleOption::Default) const;
+                                  SubControl sc
+                                  /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 

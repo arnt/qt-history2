@@ -57,10 +57,8 @@ public:
     int styleHint(StyleHint hint, const QStyleOption *opt = 0, const QWidget *widget = 0,
                   QStyleHintReturn *returnData = 0) const;
 
-    QPixmap stylePixmap(StylePixmap stylepixmap,
-                         const QWidget *widget = 0,
-                         const Q3StyleOption& = Q3StyleOption::Default) const;
-
+    QPixmap stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt,
+                         const QWidget *widget = 0) const;
 private:
     class Private;
     Private *d;

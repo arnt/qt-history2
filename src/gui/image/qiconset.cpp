@@ -16,12 +16,13 @@
 #ifndef QT_NO_ICONSET
 
 #include "qapplication.h"
-#include "qstyle.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qimage.h"
 #include "qpainter.h"
 #include "qpalette.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
 
 enum { NumSizes = 2, NumModes = 3, NumStates = 2 };
 
@@ -773,10 +774,11 @@ QPixmap *QIconSet::createIcon(Size size, Mode mode, State state) const
     if (normalPix.isNull())
         return 0;
 
+    QStyleOption opt(0);
+    opt.palette = QApplication::palette();
     QPixmap pix = QApplication::style().stylePixmap(mode == Disabled
                                                     ? QStyle::PT_Disabled
-                                                    : QStyle::PT_Active, normalPix,
-                                                    QApplication::palette());
+                                                    : QStyle::PT_Active, normalPix, &opt);
     return new QPixmap(pix);
 }
 

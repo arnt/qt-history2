@@ -46,16 +46,16 @@ public:
                         QPainter *p,
                         const QRect &r,
                         const QPalette &pal,
-                        SFlags flags = Style_Default,
-                        const Q3StyleOption& = Q3StyleOption::Default) const;
+                        SFlags flags = Style_Default
+                        /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     void drawControl(ControlElement element,
                       QPainter *p,
                       const QWidget *widget,
                       const QRect &r,
                       const QPalette &pal,
-                      SFlags how = Style_Default,
-                      const Q3StyleOption& = Q3StyleOption::Default) const;
+                      SFlags how = Style_Default
+                      /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     QRect subRect(SubRect r, const QWidget *widget) const;
 
@@ -66,17 +66,17 @@ public:
                             const QPalette &pal,
                             SFlags how = Style_Default,
                             SCFlags controls = SC_All,
-                            SCFlags active = SC_None,
-                            const Q3StyleOption& = Q3StyleOption::Default) const;
+                            SCFlags active = SC_None
+                            /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     QRect querySubControlMetrics(ComplexControl control,
                                  const QWidget *widget,
-                                 SubControl subcontrol,
-                                 const Q3StyleOption& = Q3StyleOption::Default) const;
+                                 SubControl subcontrol
+                                 /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint sh, const QWidget *, const Q3StyleOption & = Q3StyleOption::Default,
+    int styleHint(StyleHint sh, const QWidget * /*const Q3StyleOption & = Q3StyleOption::Default*/,
                   QStyleHintReturn* = 0) const;
 
 protected:

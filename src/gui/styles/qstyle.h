@@ -28,67 +28,6 @@ class QTab;
 class QCheckListItem;
 class QFontMetrics;
 
-// This class goes away after the tech preview
-class Q3StyleOption {
-public:
-    enum StyleOptionDefault { Default };
-
-    Q3StyleOption(StyleOptionDefault=Default) : def(true) {}
-    // Note: we don't use default arguments since that is unnecessary
-    // initialization.
-    Q3StyleOption(int in1) : def(false), i1(in1) {}
-    Q3StyleOption(int in1, int in2) : def(false), i1(in1), i2(in2) {}
-    Q3StyleOption(int in1, int in2, int in3, int in4) :
-        def(false), i1(in1), i2(in2), i3(in3), i4(in4) {}
-    Q3StyleOption(QAction *a) : def(false), act(a) {}
-    Q3StyleOption(QAction *a, int in1) : def(false), act(a), i1(in1) {}
-    Q3StyleOption(QAction *a, int in1, int in2) : def(false), act(a), i1(in1), i2(in2) {}
-    Q3StyleOption(const QColor& c) : def(false), cl(&c) {}
-    Q3StyleOption(QTab *t) : def(false), tb(t) {}
-    Q3StyleOption(QCheckListItem *i) : def(false), cli(i) {}
-    Q3StyleOption(Qt::ArrowType a) : def(false), i1(a) {}
-    Q3StyleOption(const QRect &r) : def(false), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
-    Q3StyleOption(QWidget *w) : def(false), p1(w) {}
-
-    bool isDefault() const { return def; }
-
-    int day() const { return i1; }
-
-    int lineWidth() const { return i1; }
-    int midLineWidth() const { return i2; }
-    int frameShape() const { return i3; }
-    int frameShadow() const { return i4; }
-
-    int titleBarState() const { return i1; }
-
-    int headerSection() const { return i1; }
-    QAction *action() const { return act; }
-    int maxIconWidth() const { return i1; }
-    int tabWidth() const { return i2; }
-
-    const QColor &color() const { return *cl; }
-
-    QTab *tab() const { return tb; }
-
-    QCheckListItem *checkListItem() const { return cli; }
-
-    Qt::ArrowType arrowType() const { return static_cast<Qt::ArrowType>(i1); }
-    QRect rect() const { return QRect(i1, i2, i3, i4); }
-    QWidget *widget() const { return static_cast<QWidget*>(p1); }
-
-private:
-    // NOTE: none of these components have constructors.
-    bool def;
-    bool b1,b2,b3; // reserved
-    QAction *act;
-    QTab* tb;
-    const QColor* cl;
-    int i1, i2, i3, i4, i5, i6; // reserved
-    QCheckListItem* cli;
-    void *p1, *p2, *p3, *p4; // reserved
-    // (padded to 64 bytes on some architectures)
-};
-
 class QStyleHintReturn; // not defined yet
 
 struct QStyleOption;
@@ -733,9 +672,8 @@ public:
         SP_CustomBase = 0xf0000000
     };
 
-    virtual QPixmap stylePixmap(StylePixmap stylepixmap,
-                                const QWidget *widget = 0,
-                                const Q3StyleOption& = Q3StyleOption::Default) const = 0;
+    virtual QPixmap stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt = 0,
+                                const QWidget *widget = 0) const = 0;
 
     enum PixmapType {
         PT_Disabled,
@@ -746,8 +684,7 @@ public:
     };
 
     virtual QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                const QPalette &pal,
-                                const Q3StyleOption& = Q3StyleOption::Default) const = 0;
+                                const QStyleOption *opt) const = 0;
 
     static QRect visualRect(const QRect &logical, const QWidget *w);
     static QRect visualRect(const QRect &logical, const QRect &bounding);

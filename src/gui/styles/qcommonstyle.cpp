@@ -1659,9 +1659,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                      || qt_cast<const QDockWindow *>(widget)
 #endif
                    )
-                    pm = stylePixmap(SP_DockWindowCloseButton, widget);
+                    pm = stylePixmap(SP_DockWindowCloseButton, &tool, widget);
                 else
-                    pm = stylePixmap(SP_TitleBarCloseButton, widget);
+                    pm = stylePixmap(SP_TitleBarCloseButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1679,7 +1679,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                        widget), widget);
 
                 down = tb->activeParts & SC_TitleBarMaxButton;
-                pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
+                pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, &tool, widget));
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1702,7 +1702,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                SP_TitleBarNormalButton :
                                                SP_TitleBarMinButton);
                 down = tb->activeParts & ctrl;
-                pm = QPixmap(stylePixmap(spixmap, widget));
+                pm = QPixmap(stylePixmap(spixmap, &tool, widget));
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1720,7 +1720,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                        widget), widget);
 
                 down = tb->activeParts & SC_TitleBarShadeButton;
-                pm = QPixmap(stylePixmap(SP_TitleBarShadeButton, widget));
+                pm = QPixmap(stylePixmap(SP_TitleBarShadeButton, &tool, widget));
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -1737,7 +1737,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                        widget), widget);
 
                 down = tb->activeParts & SC_TitleBarUnshadeButton;
-                pm = QPixmap(stylePixmap(SP_TitleBarUnshadeButton, widget));
+                pm = QPixmap(stylePixmap(SP_TitleBarUnshadeButton, &tool, widget));
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
                 drawPrimitive(PE_ButtonTool, &tool, p, widget);
@@ -2588,14 +2588,14 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
 }
 
 /*! \reimp */
-QPixmap QCommonStyle::stylePixmap(StylePixmap, const QWidget *, const Q3StyleOption&) const
+QPixmap QCommonStyle::stylePixmap(StylePixmap, const QStyleOption *, const QWidget *) const
 {
     return QPixmap();
 }
 
 /*! \reimp */
 QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                                   const QPalette &pal, const Q3StyleOption &) const
+                                  const QStyleOption *opt) const
 {
     switch(pixmaptype) {
     case PT_Disabled: {
@@ -2607,13 +2607,13 @@ QPixmap QCommonStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
             pixmapMask.fromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
         }
         QPixmap ret(pixmap.width() + 1, pixmap.height() + 1);
-        ret.fill(pal.color(QPalette::Disabled, QPalette::Background));
+        ret.fill(opt->palette.color(QPalette::Disabled, QPalette::Background));
 
         QPainter painter;
         painter.begin(&ret);
-        painter.setPen(pal.color(QPalette::Disabled, QPalette::Light));
+        painter.setPen(opt->palette.color(QPalette::Disabled, QPalette::Light));
         painter.drawPixmap(1, 1, pixmapMask);
-        painter.setPen(pal.color(QPalette::Disabled, QPalette::Foreground));
+        painter.setPen(opt->palette.color(QPalette::Disabled, QPalette::Foreground));
         painter.drawPixmap(0, 0, pixmapMask);
         painter.end();
 

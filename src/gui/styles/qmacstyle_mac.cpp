@@ -4888,7 +4888,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
 
 /*! \reimp */
 QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                               const QPalette &pal, const Q3StyleOption &opt) const
+                               const QStyleOption *opt) const
 {
     QPixmap px = pixmap;
     switch (pixmaptype) {
@@ -4930,14 +4930,14 @@ QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
         px = img;
         break; }
     default:
-        px = QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
+        px = QCommonStyle::stylePixmap(pixmaptype, pixmap, opt);
     }
     return px;
 }
 
 /*! \reimp */
-QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
-                               const Q3StyleOption &opt) const
+QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt,
+                               const QWidget *widget) const
 {
     IconRef icon = 0;
     switch (stylepixmap) {
@@ -4959,7 +4959,7 @@ QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QWidget *widget,
         ReleaseIconRef(icon);
         return ret;
     }
-    return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
+    return QWindowsStyle::stylePixmap(stylepixmap, opt, widget);
 }
 
 /*!

@@ -831,9 +831,8 @@ static char * trashcan_xpm[] = {
 /*!
  \reimp
  */
-QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
-                                   const QWidget *widget,
-                                   const Q3StyleOption& opt) const
+QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt,
+                                   const QWidget *widget) const
 {
 #ifndef QT_NO_IMAGEIO_XPM
     switch (stylepixmap) {
@@ -886,7 +885,7 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
         break;
     }
 #endif //QT_NO_IMAGEIO_XPM
-    return QCommonStyle::stylePixmap(stylepixmap, widget, opt);
+    return QCommonStyle::stylePixmap(stylepixmap, opt, widget);
 }
 
 /*! \reimp */

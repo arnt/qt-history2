@@ -51,12 +51,11 @@ public:
     int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
                   QStyleHintReturn *shret = 0) const;
 
-    QPixmap stylePixmap(StylePixmap sp,
-                         const QWidget *widget = 0,
-                         const Q3StyleOption& = Q3StyleOption::Default) const;
+    QPixmap stylePixmap(StylePixmap sp, const QStyleOption *opt = 0,
+                        const QWidget *widget = 0) const;
 
     QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-                         const QPalette &pal, const Q3StyleOption& = Q3StyleOption::Default) const;
+                        const QStyleOption *opt) const;
 
 private:
     // Disabled copy constructor and operator=

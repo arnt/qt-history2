@@ -42,15 +42,15 @@ public:
                       const QWidget *widget,
                       const QRect &r,
                       const QPalette &pal,
-                      SFlags how = Style_Default,
-                      const Q3StyleOption& = Q3StyleOption::Default) const;
+                      SFlags how = Style_Default
+                      /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
     void drawPrimitive(PrimitiveElement pe,
                         QPainter *p,
                         const QRect &r,
                         const QPalette &pal,
-                        SFlags flags = Style_Default,
-                        const Q3StyleOption& = Q3StyleOption::Default) const;
+                        SFlags flags = Style_Default
+                        /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
 
 };
 

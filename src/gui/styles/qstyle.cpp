@@ -18,261 +18,9 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
+#include "qstyleoption.h"
 
 #include <limits.h>
-
-
-/*!
-    \class Q3StyleOption qstyle.h
-    \brief The Q3StyleOption class specifies optional parameters for QStyle functions.
-    \ingroup appearance
-
-    \compat
-    \warning This class will be removed for Qt 4.0.
-
-    The majority of the functionality can be found in the new
-    QStyleOption class.
-
-    Some QStyle functions take an optional argument specifying extra
-    information that is required for a particular primitive or control.
-    So that the QStyle class can be extended, Q3StyleOption is used to
-    provide a variable-argument for these options.
-
-    The Q3StyleOption class has constructors for each type of optional
-    argument, and this set of constructors may be extended in future
-    Qt releases. There are also corresponding access functions that
-    return the optional arguments: these too may be extended.
-
-    For each constructor, you should refer to the documentation of the
-    QStyle functions to see the meaning of the arguments.
-
-    When calling QStyle functions from your own widgets, you must only
-    pass the default Q3StyleOption or the argument that QStyle is
-    documented to accept. For example, if the function expects
-    Q3StyleOption(Q3MenuItem *, int), passing Q3StyleOption(Q3MenuItem *)
-    leaves the optional integer argument uninitialized.
-
-    When subclassing QStyle, you must similarly only expect the
-    default or documented arguments. The other arguments will have
-    uninitialized values.
-
-    If you make your own QStyle subclasses and your own widgets, you
-    can make a subclass of Q3StyleOption to pass additional arguments
-    to your QStyle subclass. You will need to cast the "const
-    Q3StyleOption&" argument to your subclass, so be sure that your
-    style has been called from your widget.
-*/
-
-/*!
-    \enum Q3StyleOption::StyleOptionDefault
-
-    This enum value can be passed as the optional argument to any
-    QStyle function.
-
-    \value Default
-*/
-
-/*!
-    \fn int Q3StyleOption::titleBarState() const
-
-    \internal
-
-    Returns the title bar's state flags.
-*/
-
-/*!
-    \fn QAction* Q3StyleOption::action() const
-
-    \internal
-
-    Returns the action associated with this style option.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(StyleOptionDefault default)
-
-    The \a default option. This can always be passed as the optional
-    argument to QStyle functions.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(int)
-
-    Pass one integer, \a in1. For example, headerSection.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(int, int)
-
-    Pass two integers, \a in1 and \a in2. For example, linewidth and
-    midlinewidth.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(QAction* a)
-
-    Pass an action, \a a.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(QAction* a, int in1)
-
-    Pass an action \a a, and an integer \a in1.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(QAction* a, int in1, int in2)
-
-    Pass an action \a a, and two integers \a in1 and \a in2.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(int, int, int, int)
-
-    Pass four integers, \a in1, \a in2, \a in3 and \a in4.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(const QColor&)
-
-    Pass a color, \a c.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(QTab*)
-
-    Pass a QTab, \a t.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(Qt::ArrowType)
-
-    Pass a Qt::ArrowType, \a a.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(QCheckListItem* i)
-
-    Pass a QCheckListItem, \a i.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(const QRect &r)
-
-    Pass a QRect, \a r.
-*/
-
-/*!
-    \fn Q3StyleOption::Q3StyleOption(QWidget *w)
-
-    Pass a QWidget, \a w.
-*/
-
-/*!
-    \fn bool Q3StyleOption::isDefault() const
-
-    Returns true if the option was constructed with the default
-    constructor; otherwise returns false.
-*/
-
-/*!
-    \fn int Q3StyleOption::day() const
-
-    Returns the index of the day in the month if the appropriate
-    constructor was called; otherwise the return value is undefined.
-*/
-
-/*!
-    \fn int Q3StyleOption::lineWidth() const
-
-    Returns the line width if the appropriate constructor was called;
-    otherwise the return value is undefined.
-*/
-
-/*!
-    \fn int Q3StyleOption::midLineWidth() const
-
-    Returns the mid-line width if the appropriate constructor was
-    called; otherwise the return value is undefined.
-*/
-
-/*!
-    \fn int Q3StyleOption::frameShape() const
-
-    Returns a QFrame::Shape value if the appropriate constructor was
-    called; otherwise the return value is undefined.
-*/
-
-/*!
-    \fn int Q3StyleOption::frameShadow() const
-
-    Returns a QFrame::Shadow value if the appropriate constructor was
-    called; otherwise the return value is undefined.
-*/
-
-/*!
-    \fn int Q3StyleOption::maxIconWidth() const
-
-    Returns the maximum width of the menu item check area if the
-    appropriate constructor was called; otherwise the return value is
-    undefined.
-*/
-
-/*!
-    \fn int Q3StyleOption::tabWidth() const
-
-    Returns the tab indent width if the appropriate constructor was
-    called; otherwise the return value is undefined.
-*/
-
-/*!
-    \fn int Q3StyleOption::headerSection() const
-
-    Returns the header section if the appropriate constructor was
-    called; otherwise the return value is undefined.
-*/
-
-/*!
-    \fn const QColor& Q3StyleOption::color() const
-
-    Returns a color if the appropriate constructor was called;
-    otherwise the return value is undefined.
-*/
-
-/*!
-    \fn QTab* Q3StyleOption::tab() const
-
-    Returns a QTabBar tab if the appropriate constructor was called;
-    otherwise the return value is undefined.
-*/
-
-/*!
-    \fn Qt::ArrowType Q3StyleOption::arrowType() const
-
-    Returns an arrow type if the appropriate constructor was called;
-    otherwise the return value is undefined.
-*/
-
-/*!
-    \fn QCheckListItem* Q3StyleOption::checkListItem() const
-
-    Returns a check list item if the appropriate constructor was
-    called; otherwise the return value is undefined.
-*/
-
-/*!
-    \fn QRect Q3StyleOption::rect() const
-
-    Returns a rectangle if the appropriate constructor was called;
-    otherwise the return value is undefined.
-*/
-
-/*!
-    \fn QWidget* Q3StyleOption::widget() const
-
-    Returns a pointer to a widget if the appropriate constructor was called;
-    otherwise the return value is undefined.
-*/
 
 /*!
     \class QStyle qstyle.h
@@ -601,8 +349,10 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // Qt::AlignAuto && rightToLeft
         x += w - pm.width();
 
+    QStyleOption opt(0);
+    opt.palette = pal;
     if (!enabled)
-        pm = stylePixmap(PT_Disabled, pm, pal);
+        pm = stylePixmap(PT_Disabled, pm, &opt);
 
     int fillX = qMax(r.x(), x);
     int fillY = qMax(r.y(), y);
@@ -1628,6 +1378,10 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value SH_TipLabel_Opacity An integer indicating the opacity for
     the tip label, 0 is completely transparent, 255 is completely
     opaque.
+    \value SH_DrawMenuBarSeparator indicates whether or not the menubar draws separators.
+    \value SH_TitlebarModifyNotification indicates if the titlebar should show
+    a '*' for windows that are modified.
+
 
     \value SH_CustomBase  base value for custom ControlElements.
     Custom values must be greater than this value.
@@ -1706,48 +1460,30 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap, const QPalette &pal, const Q3StyleOption& opt) const
+    \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap, const QStyleOption *opt) const
 
     \overload
 
     Returns a pixmap styled to conform to \a pixmaptype description
     out of \a pixmap, and taking into account the palette specified by
-    \a pal.
+    \a opt.
 
-    The \a opt argument can be used to pass extra information required
-    when drawing the ControlElement. Note that \a opt may be the
-    default value even for StylePixmaps that can make use of the extra
-    options. Currently, the \a opt argument is unused.
+    The \a opt can pass extra information, but it must contain a palette.
 
     Not all types of pixmaps will change from their input in which
     case the result will simply be the pixmap passed in.
 */
 
 /*!
-    \fn QPixmap QStyle::stylePixmap(StylePixmap stylepixmap, const QWidget *widget, const Q3StyleOption& opt) const
+    \fn QPixmap QStyle::stylePixmap(StylePixmap stylepixmap, const QStyleOption *opt, const QWidget *widget) const
 
     Returns a pixmap for \a stylepixmap.
 
     The \a opt argument can be used to pass extra information required
-    when drawing the ControlElement. Note that \a opt may be the
-    default value even for StylePixmaps that can make use of the extra
-    options. Currently, the \a opt argument is unused.
+    when drawing the ControlElement. Currently, the \a opt argument is unused.
 
-    The \a widget argument is a pointer to a QWidget or one of its
-    subclasses. The widget can be cast to the appropriate type based
-    on the value of \a stylepixmap. See the table below for the
-    appropriate \a widget casts:
-
-    \table
-    \header \i StylePixmap \i Widget Cast
-    \row \i \l SP_TitleBarMinButton     \i (const \l QWidget *)
-    \row \i \l SP_TitleBarMaxButton     \i (const \l QWidget *)
-    \row \i \l SP_TitleBarCloseButton   \i (const \l QWidget *)
-    \row \i \l SP_TitleBarNormalButton  \i (const \l QWidget *)
-    \row \i \l SP_TitleBarShadeButton   \i (const \l QWidget *)
-    \row \i \l SP_TitleBarUnshadeButton \i (const \l QWidget *)
-    \row \i \l SP_DockWindowCloseButton \i (const \l QDockWindow *)
-    \endtable
+    The \a widget argument is optional and may contain a widget that
+    may aid in drawing the control.
 
     \sa StylePixmap
 */
