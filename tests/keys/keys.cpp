@@ -139,7 +139,7 @@ T(QWExtra)
     T("e");
 
     m = new Main;
-    qInstallMsgHandler(myout);
+//    qInstallMsgHandler(myout);
     m->setCaption("Test");
     a.setMainWidget( m );
     m->show();
