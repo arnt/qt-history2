@@ -43,6 +43,46 @@ static void qmake_error_msg(const char *msg)
     fprintf(stderr, "%s:%d: %s\n", parser.file.latin1(), parser.line_no, msg);
 }
 
+QStringList qmake_mkspec_paths()
+{
+    QStringList ret;
+    const QString concat = QDir::separator() + QString("mkspecs");
+    if(const char *qmakepath = getenv("QMAKEPATH")) {
+#ifdef Q_OS_WIN
+	QStringList lst = QStringList::split(';', qmakepath);
+	for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+	    QStringList lst2 = QStringList::split(':', (*it));
+	    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
+		ret << ((*it2) + concat);
+	}
+#else
+	QStringList lst = QStringList::split(':', qmakepath);
+	for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+	    ret << ((*it) + concat);
+#endif
+    }
+    if(const char *qtdir = getenv("QTDIR"))
+	ret << (QString(qtdir) + concat);
+#ifdef QT_INSTALL_PREFIX
+    ret << (QT_INSTALL_PREFIX + concat);
+#endif
+#if defined(HAVE_QCONFIG_CPP)
+    ret << (qInstallPath() + concat);
+#endif
+#ifdef QT_INSTALL_DATA
+    ret << (QT_INSTALL_DATA + concat);
+#endif
+#if defined(HAVE_QCONFIG_CPP)
+    ret << (qInstallPathData() + concat);
+#endif
+
+    /* prefer $QTDIR if it is set */
+    if (getenv("QTDIR"))
+	ret << getenv("QTDIR");
+    ret << qInstallPathData();
+    return ret;
+}
+
 static QString varMap(const QString &x)
 {
     QString ret(x);
@@ -489,41 +529,7 @@ QMakeProject::read(uchar cmd)
 	    }
 	}
 	if(cmd & ReadConf) { 	    /* parse mkspec */
-	    const QString concat = QDir::separator() + QString("mkspecs");
-	    QStringList mkspec_roots;
-	    if(const char *qmakepath = getenv("QMAKEPATH")) {
-#ifdef Q_OS_WIN
-		QStringList lst = QStringList::split(';', qmakepath);
-		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-		    QStringList lst2 = QStringList::split(':', (*it));
-		    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
-			mkspec_roots << ((*it2) + concat);
-		}
-#else
-		QStringList lst = QStringList::split(':', qmakepath);
-		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-		    mkspec_roots << ((*it) + concat);
-#endif
-	    }
-	    if(const char *qtdir = getenv("QTDIR"))
-		mkspec_roots << (QString(qtdir) + concat);
-#ifdef QT_INSTALL_PREFIX
-	    mkspec_roots << (QT_INSTALL_PREFIX + concat);
-#endif
-#if defined(HAVE_QCONFIG_CPP)
-	    mkspec_roots << (qInstallPath() + concat);
-#endif
-#ifdef QT_INSTALL_DATA
-	    mkspec_roots << (QT_INSTALL_DATA + concat);
-#endif
-#if defined(HAVE_QCONFIG_CPP)
-	    mkspec_roots << (qInstallPathData() + concat);
-#endif
-
-	    /* prefer $QTDIR if it is set */
-	    if (getenv("QTDIR"))
-		mkspec_roots << getenv("QTDIR");
-	    mkspec_roots << qInstallPathData();
+	    QStringList mkspec_roots = qmake_mkspec_paths();
 	    if(Option::mkfile::qmakespec.isEmpty()) {
 		for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
 		    QString mkspec = (*it) + QDir::separator() + "default";
