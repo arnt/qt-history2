@@ -237,7 +237,7 @@ QDataStream &operator>>(QDataStream &s, QPolygon &a)
     uint i;
 
     s >> len;
-    a.resize((int)len);
+    a.reserve(a.size() + (int)len);
     QPointF p;
     for (i = 0; i < len; ++i) {
         s >> p;
