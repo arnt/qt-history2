@@ -35,9 +35,25 @@ QSqlField::~QSqlField()
 }
 
 /*!
+  Returns the value of the field.  If the field is null, a QVariant 
+  of type QVariant::Invalid is returned.
+  
+  \sa isNull() setIsNull()
+
+*/
+
+QVariant QSqlField::value() const
+{
+    if ( !nul )
+	return val;
+    return QVariant();
+}
+
+/*!
   If isReadOnly() is FALSE, this method sets the internal value
   of the field to \a v.  Otherwise, this method has no effect.
 
+  \sa setReadOnly() isReadOnly()
 */
 
 void QSqlField::setValue( const QVariant& v )

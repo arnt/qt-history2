@@ -15,7 +15,7 @@ public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     virtual ~QSqlField();
 
-    QVariant      value() const {return val;}
+    QVariant      value() const;
     void          setValue( const QVariant& v );
 
     void          setName( const QString& name ) { nm = name; }
@@ -26,6 +26,8 @@ public:
     int           fieldNumber() const { return num; }
     void          setReadOnly( bool readOnly ) { ro = readOnly; }
     bool          isReadOnly() const { return ro; }
+    void          setIsNull( bool n ) { nul = n; }
+    bool          isNull() const { return nul; }
     QVariant::Type type() const { return val.type(); }
 
 private:
@@ -34,6 +36,7 @@ private:
     int           num;
     QString       label;
     bool          ro;
+    bool          nul;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QSqlField& ) const { return FALSE; }
