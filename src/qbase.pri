@@ -6,7 +6,7 @@ VERSION		= 4.0.0
 #exported symbol table (for linux only now)
 sam_version_map:shared {
    macx-g++ {
-       !isEmpty(QPRO_PWD) { 
+       !isEmpty(QPRO_PWD) {
            TARGET_MAP = lib$${TARGET}.symbols
            exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
 	       TARGET_MAP_IN = $${TARGET_MAP}.in
@@ -28,7 +28,7 @@ sam_version_map:shared {
        0:exists($(QTDIR)/src/libqt.map) {
          QMAKE_LFLAGS += -Wl,--version-script=$(QTDIR)/src/libqt.map
          TARGETDEPS += $(QTDIR)/src/libqt.map
-       } else:!isEmpty(QPRO_PWD) { 
+       } else:!isEmpty(QPRO_PWD) {
           TARGET_MAP = lib$${TARGET}.map
           exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
               QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
@@ -45,7 +45,7 @@ sam_version_map:shared {
    }
 }
 
-#version overriding 
+#version overriding
 win32 {
     #because libnetwork.pro could be qmake'd (qmade?) before libqcore.pro we
     #need to override the version of libq* in all other libq*'s just to be
@@ -107,7 +107,7 @@ embedded {
 
 DEPENDPATH += ;$$NETWORK_H;$$KERNEL_H;$$WIDGETS_H;$$SQL_H;$$TABLE_H;$$DIALOGS_H;
 DEPENDPATH += $$ICONVIEW_H;$$OPENGL_H;$$THREAD_H;$$TOOLS_H;$$CODECS_H;
-DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$CANVAS_H;$$STYLES_H;$$COMPAT_H
+DEPENDPATH += $$WORKSPACE_H;$$XML_H;$$STYLES_H;$$COMPAT_H
 embedded:DEPENDPATH += ;$$EMBEDDED_H
 
 !staticlib:PRL_EXPORT_DEFINES += QT_SHARED

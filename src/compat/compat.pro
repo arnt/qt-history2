@@ -5,7 +5,7 @@ include(../qbase.pri)
 
 PRECOMPILED_HEADER = other/qt_compat_pch.h
 
-DEFINES += QT_BUILD_COMPAT_LIB 
+DEFINES += QT_BUILD_COMPAT_LIB
 
 include(tools/tools.pri)
 include(sql/sql.pri)
@@ -14,6 +14,7 @@ include(itemviews/itemviews.pri)
 include(widgets/widgets.pri)
 include(dialogs/dialogs.pri)
 include(text/text.pri)
+include(canvas/canvas.pri)
 
 mac:LIBS += -framework Carbon
 

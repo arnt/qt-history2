@@ -8,11 +8,11 @@
 	unix {
 		XML_H		= $$XML_CPP
 		#needed for svg
-		LIBS            += -lm  
+		LIBS            += -lm
 	}
 	INCLUDEPATH += $$QT_SOURCE_TREE/src/xml
 	include( $$QT_SOURCE_TREE/src/xml/qt_xml.pri )
-	DEFINES     *= QT_MODULE_XML 
+	DEFINES     *= QT_MODULE_XML
 }
 
 !network:contains( DEFINES, QT_INTERNAL_NETWORK) {
@@ -44,21 +44,6 @@
 	INCLUDEPATH += $$QT_SOURCE_TREE/src/iconview
 	include( $$QT_SOURCE_TREE/src/iconview/qt_iconview.pri )
 	DEFINES     *= QT_MODULE_ICONVIEW
-}
-
-!canvas:contains( DEFINES, QT_INTERNAL_CANVAS ) {
-	CONFIG += canvas
-	CANVAS_CPP = $$QT_SOURCE_TREE/src/canvas
-	win32 {
-		WIN_ALL_H = $$QT_SOURCE_TREE/include
-		CANVAS_H = $$WIN_ALL_H
-	}
-	unix {
-		CANVAS_H = $$CANVAS_CPP
-	}
-	INCLUDEPATH += $$QT_SOURCE_TREE/src/canvas
-	include( $$QT_SOURCE_TREE/src/canvas/qt_canvas.pri )
-	DEFINES     *= QT_MODULE_CANVAS
 }
 
 contains(QT_PRODUCT,qt-professional) {
