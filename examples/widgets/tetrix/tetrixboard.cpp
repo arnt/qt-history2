@@ -1,7 +1,5 @@
 #include <QtGui>
 
-#include <cstdlib>
-
 #include "tetrixboard.h"
 
 TetrixBoard::TetrixBoard(QWidget *parent)
@@ -12,7 +10,6 @@ TetrixBoard::TetrixBoard(QWidget *parent)
     isPaused = false;
     clearBoard();
 
-    std::srand(QTime::currentTime().secsTo(QTime()));
     nextPiece.setRandomShape();
 }
 

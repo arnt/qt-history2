@@ -1,12 +1,10 @@
 #include <QtCore>
 
-#include <cstdlib>
-
 #include "tetrixpiece.h"
 
 void TetrixPiece::setRandomShape()
 {
-    setShape(TetrixShape(std::rand() % 7 + 1));
+    setShape(TetrixShape(qRand() % 7 + 1));
 }
 
 void TetrixPiece::setShape(TetrixShape shape)
