@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#52 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -443,7 +443,7 @@ QWidget * QDragObject::source()
 
   <h3>Inter-operating with existing applications</h3>
   On X11, the public 
-  <a href=http://www.cco.caltech.edu/~jafl/xdnd2/>XDND protocol</a>
+  <a href=http://www.cco.caltech.edu/~jafl/xdnd/>XDND protocol</a>
   is used, while on Windows Qt uses the OLE standard.  On X11,
   XDND uses MIME, so no translation is necessary.  On Windows, 
   MIME-aware applications can communicate by using clipboard
