@@ -724,6 +724,11 @@
                 $$CODEWARRIOR_LIBRARIES_LINKORDER
                 $$CODEWARRIOR_SOURCES_LINKORDER
                 $$CODEWARRIOR_HEADERS_LINKORDER
+                <FILEREF>
+                   <PATHTYPE>Name</PATHTYPE>
+                   <PATH>MW_Runtime.a</PATH>
+                   <PATHFORMAT>MacOS</PATHFORMAT>
+                </FILEREF>
             </LINKORDER>
             <FRAMEWORKLIST>
                 $$CODEWARRIOR_FRAMEWORKS
@@ -743,6 +748,12 @@
         </GROUP>
         <GROUP><NAME>Libraries</NAME>
             $$CODEWARRIOR_LIBRARIES_GROUP
+            <FILEREF>
+                <TARGETNAME>$$TARGET_STEM</TARGETNAME>
+                <PATHTYPE>Name</PATHTYPE>
+                <PATH>MW_Runtime.a</PATH>
+                <PATHFORMAT>MacOS</PATHFORMAT>
+            </FILEREF>
         </GROUP>
     </GROUPLIST>
 </PROJECT>

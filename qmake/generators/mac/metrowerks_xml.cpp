@@ -285,11 +285,10 @@ MetrowerksMakefileGenerator::init()
     init_flag = TRUE;
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->first("TEMPLATE") == "app" ) {
+    if(project->first("TEMPLATE") == "app" ) 
 	project->variables()["MWERKS_XML_TEMPLATE"].append("mwerksapp.xml");
-    } else if(project->first("TEMPLATE") == "lib") {
+    else if(project->first("TEMPLATE") == "lib") 
 	project->variables()["MWERKS_XML_TEMPLATE"].append("mwerkslib.xml");
-    }
     
     QStringList &configs = project->variables()["CONFIG"];
     if(project->isActiveConfig("qt")) {
@@ -302,6 +301,8 @@ MetrowerksMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) 
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
     }
+    if( !project->isEmpty("QMAKE_LIBS") )
+	project->variables()["LIBS"] += project->variables()["QMAKE_LIBS"];
     if( project->variables()["QMAKE_EXTENTION_SHLIB"].isEmpty() )
 	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "lib" );
 
