@@ -2499,18 +2499,30 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             const int delta = controlHeight + controlMargin;
             int offset = 0;
 
+            if (sc == SC_TitleBarMinButton && !(tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
+                break;
+            if (sc == SC_TitleBarMaxButton && !(tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
+                break;
+            if (sc == SC_TitleBarCloseButton && !(tb->titleBarFlags & Qt::WindowSystemMenuHint))
+                break;
+            if (sc == SC_TitleBarShadeButton && !(tb->titleBarFlags & Qt::WindowShadeButtonHint))
+                break;
+            if (sc == SC_TitleBarUnshadeButton && !(tb->titleBarFlags & Qt::WindowShadeButtonHint))
+                break;
+
             switch (sc) {
             case SC_TitleBarLabel:
-                ret = tb->rect;
-                ret.addCoords(0, 0, -delta, 0); // Close button always there
-                if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
-                    ret.addCoords(delta, 0, -delta, 0);
-                if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
-                    ret.addCoords(0, 0, -delta, 0);
-                if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
-                    ret.addCoords(0, 0, -delta, 0);
-                if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
-                    ret.addCoords(0, 0, -delta, 0);
+                if (tb->titleBarFlags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint)) {
+                    ret = tb->rect;
+                    if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
+                        ret.addCoords(delta, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
+                        ret.addCoords(0, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                        ret.addCoords(0, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
+                        ret.addCoords(0, 0, -delta, 0);
+                }
                 break;
             case SC_TitleBarContextHelpButton:
                 if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
@@ -2532,8 +2544,10 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                             controlHeight, controlHeight);
                 break;
             case SC_TitleBarSysMenu:
-                ret.setRect(tb->rect.left() + controlMargin, tb->rect.top() + controlMargin,
-                            controlHeight, controlHeight);
+                if (tb->titleBarFlags & Qt::WindowSystemMenuHint) {
+                    ret.setRect(tb->rect.left() + controlMargin, tb->rect.top() + controlMargin,
+                                controlHeight, controlHeight);
+                }
                 break;
             default:
                 break;
