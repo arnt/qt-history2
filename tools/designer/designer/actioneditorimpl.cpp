@@ -122,9 +122,11 @@ void ActionEditor::deleteAction()
 	}
 	++it;
     }
-    formWindow->formFile()->setModified( TRUE );
-    if ( formWindow )
+    if ( formWindow ) {
 	formWindow->setActiveObject( formWindow->mainContainer() );
+	if ( formWindow->formFile() )
+	    formWindow->formFile()->setModified( TRUE );
+    }
 }
 
 void ActionEditor::newAction()
@@ -157,6 +159,8 @@ void ActionEditor::newAction()
     listActions->setCurrentItem( i );
     if ( !actionParent )
 	formWindow->actionList().append( i->action() );
+    if ( formWindow->formFile() )
+	formWindow->formFile()->setModified( TRUE );
 }
 
 void ActionEditor::newActionGroup()
@@ -187,6 +191,8 @@ void ActionEditor::newActionGroup()
     i->setOpen( TRUE );
     if ( !actionParent )
 	formWindow->actionList().append( i->actionGroup() );
+    if ( formWindow->formFile() )
+	formWindow->formFile()->setModified( TRUE );
 }
 
 void ActionEditor::newDropDownActionGroup()
