@@ -104,6 +104,11 @@ main(int argc, char *argv[])
     printf("OpenGL version string: %s\n", glGetString(GL_VERSION));
     if (glXIsDirect(dpy, context))
       printf("direct rendering: supported\n");
+    printf( "GL extensions: '%s'\n\n", glGetString(GL_EXTENSIONS) );
+#if defined(GLX_VERSION_1_1)
+    printf( "GLX extensions: '%s'\n\n", glXQueryExtensionsString( dpy, visualToTry->screen ) );
+#endif
+
   } else
     printf("No GLX-capable visuals!\n");
   XFree(visualList);
