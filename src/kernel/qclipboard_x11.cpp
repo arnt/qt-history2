@@ -863,7 +863,7 @@ bool QClipboard::event( QEvent *e )
 		    qWarning("QClipboard: cannot transfer data, no data available");
 #endif // QT_CHECK_STATE
 		} else if (target == xa_targets) {
-		    int atoms = 3; // TARGETS, MULTIPLE and TIMESTAMP
+		    int atoms = 0;
 		    while (d->source()->format(atoms)) atoms++;
 		    if (d->source()->provides("image/ppm")) atoms++;
 		    if (d->source()->provides("image/pbm")) atoms++;
@@ -875,7 +875,7 @@ bool QClipboard::event( QEvent *e )
 
 		    // for 64 bit cleanness... XChangeProperty expects long* for data
 		    // with format == 32
-		    data = QByteArray(atoms * sizeof(long));
+		    data = QByteArray((atoms+3) * sizeof(long));  // plus TARGETS, MULTIPLE and TIMESTAMP
 		    long *atarget = (long *) data.data();
 
 		    int n = 0;
