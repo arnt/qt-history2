@@ -65,7 +65,7 @@
        \l{QMetaObject}{meta-object} for the class.
     \endlist
 
-    \target qtcast
+    \target qobjectcast
     It is also possible to perform dynamic casts using qobject_cast<T>()
     on QObject classes. The qobject_cast<T>() function behaves similarly
     to the standard C++ \c dynamic_cast<T>(), with the advantages
