@@ -288,7 +288,6 @@ struct QSqlFieldInfoPrivate
     \class QSqlFieldInfo qsqlfield.h
     \ingroup database
     \brief The QSqlFieldInfo class stores meta data associated with a SQL field.
-    \preliminary
     \module sql
 
     QSqlFieldInfo objects only store meta data; field values are

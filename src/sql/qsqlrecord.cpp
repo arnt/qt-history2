@@ -632,7 +632,6 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
     \class QSqlRecordInfo qsqlrecord.h
     \ingroup database
     \brief The QSqlRecordInfo class encapsulates a set of database field meta data.
-    \preliminary
     \module sql
 
     This class is a QValueList that holds a set of database field meta
