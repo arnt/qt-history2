@@ -148,8 +148,7 @@ QTextCodecCleanup::~QTextCodecCleanup()
     destroying_is_ok = false;
 }
 
-static QTextCodecCleanup qtextcodec_cleanup;
-
+Q_GLOBAL_STATIC(QTextCodecCleanup, createQTextCodecCleanup)
 
 #ifdef Q_OS_WIN32
 class QWindowsLocalCodec: public QTextCodec
@@ -430,19 +429,21 @@ static void setup()
 
 #ifdef QT_THREAD_SUPPORT
     QMutexLocker locker(qt_global_mutexpool ?
-                         qt_global_mutexpool->get(&all) : 0);
+                        qt_global_mutexpool->get(&all) : 0);
     if (all) return;
 #endif
 
     if (destroying_is_ok)
         qWarning("QTextCodec: Creating new codec during codec cleanup");
     all = new QList<QTextCodec*>;
+    // create the cleanup object to cleanup all codecs on exit
+    (void) createQTextCodecCleanup();
 
 #ifdef Q_WS_X11
     (void)new QFontLaoCodec;
 #endif
 #ifndef QT_NO_CODECS
-     (void)new QTsciiCodec;
+    (void)new QTsciiCodec;
 
     for (int i = 0; i < 9; ++i)
         (void)new QIsciiCodec(i);
