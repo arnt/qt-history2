@@ -407,7 +407,7 @@ QApplicationInterface* QUnknownInterface::applicationInterface() const
 
 
 /*!
-  \class QPlugInInterface qcomponentinterface.h
+  \class QComponentInterface qcomponentinterface.h
 
   \brief This class provides a top level interface for modules.
 
@@ -415,10 +415,10 @@ QApplicationInterface* QUnknownInterface::applicationInterface() const
 */
 
 /*!
-  Creates a QPlugInInterface. This is always a toplevel interface.
+  Creates a QComponentInterface. This is always a toplevel interface.
 */
 
-QPlugInInterface::QPlugInInterface( const char* name )
+QComponentInterface::QComponentInterface( const char* name )
 : QUnknownInterface( 0, name )
 {
 }
@@ -427,9 +427,9 @@ QPlugInInterface::QPlugInInterface( const char* name )
   \reimp
 */
 
-QString QPlugInInterface::interfaceId() const
+QString QComponentInterface::interfaceId() const
 {
-    return createId( QUnknownInterface::interfaceId(), "QPlugInInterface" );
+    return createId( QUnknownInterface::interfaceId(), "QComponentInterface" );
 }
 
 /*!
@@ -437,7 +437,7 @@ QString QPlugInInterface::interfaceId() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::brief() const
+QString QComponentInterface::brief() const
 {
     return QString::null;
 }
@@ -447,7 +447,7 @@ QString QPlugInInterface::brief() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::description() const
+QString QComponentInterface::description() const
 {
     return QString::null;
 }
@@ -457,7 +457,7 @@ QString QPlugInInterface::description() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::author() const
+QString QComponentInterface::author() const
 {
     return QString::null;
 }
@@ -467,7 +467,7 @@ QString QPlugInInterface::author() const
   The default implementation returns QString::null.
 */
 
-QString QPlugInInterface::version() const
+QString QComponentInterface::version() const
 {
     return QString::null;
 }
@@ -477,14 +477,14 @@ QString QPlugInInterface::version() const
 
   \brief This class provides a top level interface for application modules.
 
-  \sa QPlugInInterface
+  \sa QComponentInterface
 */
 
 /*!
   Creates an QApplicationInterface. This is always a toplevel interface.
 */
 QApplicationInterface::QApplicationInterface( const char* name )
-: QPlugInInterface( name )
+: QComponentInterface( name )
 {
     appInterface = this;
 }
@@ -495,7 +495,7 @@ QApplicationInterface::QApplicationInterface( const char* name )
 
 QString QApplicationInterface::interfaceId() const
 {
-    return createId( QPlugInInterface::interfaceId(), "QApplicationInterface" );
+    return createId( QComponentInterface::interfaceId(), "QApplicationInterface" );
 }
 
 /*!

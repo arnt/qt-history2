@@ -15,7 +15,7 @@ class QRegExp;
 
 class Q_EXPORT QUnknownInterface
 {
-    friend class QPlugIn;
+    friend class QLibrary;
     friend class QApplicationInterface;
 public:
     QUnknownInterface( QUnknownInterface *parent = 0, const char* name = 0 );
@@ -54,10 +54,10 @@ private:
     const char* objname;
 };
 
-class Q_EXPORT QPlugInInterface : public QUnknownInterface
+class Q_EXPORT QComponentInterface : public QUnknownInterface
 {
 public:
-    QPlugInInterface( const char* name = 0 );
+    QComponentInterface( const char* name = 0 );
 
     QString interfaceId() const;
 
@@ -67,7 +67,7 @@ public:
     virtual QString version() const;
 };
 
-class Q_EXPORT QApplicationInterface : public QPlugInInterface
+class Q_EXPORT QApplicationInterface : public QComponentInterface
 {
 public:
     QApplicationInterface( const char* name = 0 );
@@ -111,10 +111,10 @@ private:
 #ifndef Q_EXPORT_INTERFACE
     #ifdef Q_WS_WIN
 	#define Q_EXPORT_INTERFACE( IMPLEMENTATION ) \
-	    extern "C" __declspec(dllexport) QPlugInInterface *qt_load_interface() { return new IMPLEMENTATION; }
+	    extern "C" __declspec(dllexport) QComponentInterface *qt_load_interface() { return new IMPLEMENTATION; }
     #else
 	#define Q_EXPORT_INTERFACE( IMPLEMENTATION ) \
-	    extern "C" QPlugInInterface *qt_load_interface() { return new IMPLEMENTATION; }
+	    extern "C" QComponentInterface *qt_load_interface() { return new IMPLEMENTATION; }
     #endif
 #endif
 
