@@ -13,7 +13,7 @@ MTL=midl.exe
 RSC=rc.exe
 LINK=link.exe
 CPP=cl.exe
-
+COPY=copy
 
 
 ALL : qmsdev.dll QMsDev.tlb QMsDevTypes.h
@@ -35,7 +35,7 @@ CLEAN :
 
 qmsdev.dll: $(DEF_FILE) $(OBJS)
    $(LINK) $(LINKOPTS) $(OBJS)
-
+   $(COPY) qmsdev.dll "$(MSVCADDINS)"
 
 QMsDev.tlb: QMsDev.odl
 	$(MTL) $(MTLOPTIONS) QMsDev.odl
