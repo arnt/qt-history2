@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#41 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#41 $")
 
 
 /*****************************************************************************
@@ -1478,7 +1478,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
     else if ( msg.message == WM_MOVE ) {	// move event
 	QPoint oldPos = pos();
 	QPoint newPos( a, b );
-	r.setTopLeft( newPos );
+	r.moveTopLeft( newPos );
 	setCRect( r );
 	QMoveEvent e( newPos, oldPos );
 	QApplication::sendEvent( this, &e );

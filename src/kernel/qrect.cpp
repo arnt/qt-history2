@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#31 $
 **
 ** Implementation of QRect class
 **
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#31 $")
 
 
 /*----------------------------------------------------------------------------
@@ -283,31 +283,31 @@ QRect QRect::normalize() const
 /*----------------------------------------------------------------------------
   \fn QPoint QRect::topLeft() const
   Returns the top left position of the rectangle.
-  \sa setTopLeft(), topRight(), bottomLeft(), bottomRight(), left(), top()
+  \sa moveTopLeft(), topRight(), bottomLeft(), bottomRight(), left(), top()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QPoint QRect::bottomRight() const
   Returns the bottom right position of the rectangle.
-  \sa setBottomRight(), bottomLeft(), topLeft(), topRight(), bottom(), right()
+  \sa moveBottomRight(), bottomLeft(), topLeft(), topRight(), bottom(), right()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QPoint QRect::topRight() const
   Returns the top right position of the rectangle.
-  \sa setTopRight(), topLeft(), bottomLeft(), bottomRight(), top(), right()
+  \sa moveTopRight(), topLeft(), bottomLeft(), bottomRight(), top(), right()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QPoint QRect::bottomLeft() const
   Returns the bottom left position of the rectangle.
-  \sa setBottomLeft(), bottomRight(), topLeft(), topRight(), bottom(), left()
+  \sa moveBottomLeft(), bottomRight(), topLeft(), topRight(), bottom(), left()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QPoint QRect::center() const
   Returns the center point of the rectangle.
-  \sa setCenter(), topLeft(), topRight(), bottomLeft(), bottomRight()
+  \sa moveCenter(), topLeft(), topRight(), bottomLeft(), bottomRight()
  ----------------------------------------------------------------------------*/
 
 
@@ -341,11 +341,11 @@ void QRect::coords( int *xp1, int *yp1, int *xp2, int *yp2 ) const
 /*----------------------------------------------------------------------------
   Sets the top left position of the rectangle to \e p, leaving the
   size unchanged.
-  \sa topLeft(), setTopRight(), setBottomLeft(), setBottomRight(),
+  \sa topLeft(), moveTopRight(), moveBottomLeft(), moveBottomRight(),
   setTop(), setLeft()
  ----------------------------------------------------------------------------*/
 
-void QRect::setTopLeft( const QPoint &p )
+void QRect::moveTopLeft( const QPoint &p )
 {
     x2 += (QCOORD)(p.x() - x1);
     y2 += (QCOORD)(p.y() - y1);
@@ -356,11 +356,11 @@ void QRect::setTopLeft( const QPoint &p )
 /*----------------------------------------------------------------------------
   Sets the bottom right position of the rectangle to \e p, leaving the size
   unchanged.
-  \sa bottomRight(), setBottomLeft(), setTopLeft(), setTopRight(),
+  \sa bottomRight(), moveBottomLeft(), moveTopLeft(), moveTopRight(),
   setBottom(), setRight()
  ----------------------------------------------------------------------------*/
 
-void QRect::setBottomRight( const QPoint &p )
+void QRect::moveBottomRight( const QPoint &p )
 {
     x1 += (QCOORD)(p.x() - x2);
     y1 += (QCOORD)(p.y() - y2);
@@ -371,11 +371,11 @@ void QRect::setBottomRight( const QPoint &p )
 /*----------------------------------------------------------------------------
   Sets the top right position of the rectangle to \e p, leaving the
   size unchanged.
-  \sa topRight(), setTopLeft(), setBottomLeft(), setBottomRight(),
+  \sa topRight(), moveTopLeft(), moveBottomLeft(), moveBottomRight(),
   setTop(), setRight()
  ----------------------------------------------------------------------------*/
 
-void QRect::setTopRight( const QPoint &p )
+void QRect::moveTopRight( const QPoint &p )
 {
     x1 += (QCOORD)(p.x() - x2);
     y2 += (QCOORD)(p.y() - y1);
@@ -386,11 +386,11 @@ void QRect::setTopRight( const QPoint &p )
 /*----------------------------------------------------------------------------
   Sets the bottom left position of the rectangle to \e p, leaving
   the size unchanged.
-  \sa bottomLeft(), setBottomRight(), setTopLeft(), setTopRight(),
+  \sa bottomLeft(), moveBottomRight(), moveTopLeft(), moveTopRight(),
   setBottom(), setLeft()
  ----------------------------------------------------------------------------*/
 
-void QRect::setBottomLeft( const QPoint &p )
+void QRect::moveBottomLeft( const QPoint &p )
 {
     x2 += (QCOORD)(p.x() - x1);
     y1 += (QCOORD)(p.y() - y2);
@@ -402,10 +402,10 @@ void QRect::setBottomLeft( const QPoint &p )
 /*----------------------------------------------------------------------------
   Sets the center point of the rectangle to \e p, leaving the size
   unchanged.
-  \sa center(), setTopLeft(), setTopRight(), setBottomLeft(), setBottomRight()
+  \sa center(), moveTopLeft(), moveTopRight(), moveBottomLeft(), moveBottomRight()
  ----------------------------------------------------------------------------*/
 
-void QRect::setCenter( const QPoint &p )
+void QRect::moveCenter( const QPoint &p )
 {
     QCOORD w = x2 - x1;
     QCOORD h = y2 - y1;
@@ -417,11 +417,13 @@ void QRect::setCenter( const QPoint &p )
 
 
 /*----------------------------------------------------------------------------
-  Translates the rectangle \e dx along the X axis and \e dy along the Y
-  axis. (Positive values translates the rectangle rightwards and/or downwards.)
- ----------------------------------------------------------------------------*/
+  Moves the rectangle \e dx along the X axis and \e dy along the Y
+  axis, relative to the current position. (Positive values moves the
+  rectangle rightwards and/or downwards.)
+ --------------------------------------------------------------------------*/
+  
 
-void QRect::translate( int dx, int dy )
+void QRect::moveBy( int dx, int dy )
 {
     x1 += (QCOORD)dx;
     y1 += (QCOORD)dy;

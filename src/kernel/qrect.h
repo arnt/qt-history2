@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#20 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#21 $
 **
 ** Definition of QRect class
 **
@@ -50,14 +50,23 @@ public:
 
     void   rect( int *x, int *y, int *w, int *h ) const;
     void   coords( int *x1, int *y1, int *x2, int *y2 ) const;
+
+    void   moveTopLeft( const QPoint &p );
+    void   moveBottomRight( const QPoint &p );
+    void   moveTopRight( const QPoint &p );
+    void   moveBottomLeft( const QPoint &p );
+    void   moveCenter( const QPoint &p );
+    void   moveBy( int dx, int dy );
+
+
+#if defined(OBSOLETE)
     void   setTopLeft( const QPoint &p );
     void   setBottomRight( const QPoint &p );
     void   setTopRight( const QPoint &p );
     void   setBottomLeft( const QPoint &p );
     void   setCenter( const QPoint &p );
     void   translate( int dx, int dy );
-#if defined(OBSOLETE)
-    void   move( int dx, int dy ) { translate( dx, dy ); }
+    void   move( int dx, int dy );
 #endif
     void   setRect( int x, int y, int w, int h );
     void   setCoords( int x1, int y1, int x2, int y2 );
@@ -181,6 +190,29 @@ inline int QRect::height() const
 
 inline QSize QRect::size() const
 { return QSize(x2-x1+1, y2-y1+1); }
+
+#if defined(OBSOLETE)
+void   QRect::setTopLeft( const QPoint &p )
+{ qObsolete("QRect", "setTopLeft" , "moveTopLeft" ); moveTopLeft( p ); }
+void   QRect::setBottomRight( const QPoint &p )
+{ 
+    qObsolete("QRect", "setBottomRight" , "moveBottomRight" ); 
+    moveBottomRight( p ); 
+}
+void   QRect::setTopRight( const QPoint &p )
+{ qObsolete("QRect", "setTopRight" , "moveTopRight" ); moveTopRight( p ); }
+void   QRect::setBottomLeft( const QPoint &p )
+{ 
+    qObsolete("QRect", "setBottomLeft" , "moveBottomLeft" ); 
+    moveBottomLeft( p ); 
+}
+void   QRect::setCenter( const QPoint &p )
+{ qObsolete("QRect", "setCenter" , "moveCenter" ); moveCenter( p ); }
+void   QRect::translate( int dx, int dy )
+{ qObsolete("QRect", "translate" , "moveBy" ); moveBy( dx, dy ); }
+void   QRect::move( int dx, int dy ) 
+{ qObsolete("QRect", "move" , "moveBy" ); moveBy( dx, dy ); }
+#endif
 
 
 #endif // QRECT_H

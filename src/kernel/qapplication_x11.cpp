@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#153 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#152 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#153 $")
 
 
 /*****************************************************************************
@@ -2229,7 +2229,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     }
     if ( newPos != geometry().topLeft() ) {
 	QPoint oldPos = pos();
-	r.setTopLeft( newPos );
+	r.moveTopLeft( newPos );
 	setCRect( r );
 	QMoveEvent e( frameGeometry().topLeft(), oldPos );
 	QApplication::sendEvent( this, &e );

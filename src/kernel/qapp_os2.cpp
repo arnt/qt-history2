@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#10 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -20,7 +20,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#10 $")
 
 
 // --------------------------------------------------------------------------
@@ -797,7 +797,7 @@ bool QETWidget::translateConfigEvent( const QMSG &msg )
 	SWP p;
 	WinQueryWindowPos( id(), &p );
 	QPoint newPos( p.cx, p.cy );
-	r.setTopLeft( newPos );
+	r.moveTopLeft( newPos );
 //	setRect( r );
 	QMoveEvent evt( geometry().topLeft() );
 	SEND_EVENT( this, &evt );
