@@ -54,6 +54,8 @@ public:
 #endif
 #ifndef QT_NO_MOVIE
     QMovie *lmovie;
+    void movieUpdated(const QRect&);
+    void movieResized(const QSize&);
 #endif
     QPointer<QWidget> lbuddy;
     int shortcutId;
@@ -955,25 +957,23 @@ QWidget * QLabel::buddy() const
 
 
 #ifndef QT_NO_MOVIE
-void QLabel::movieUpdated(const QRect& rect)
+void QLabelPrivate::movieUpdated(const QRect& rect)
 {
-    const QMovie *mov = movie();
-    if (mov && !mov->isNull()) {
-        QRect r = contentsRect();
-        r = style()->itemRect(0, r, d->align, isEnabled(), mov->framePixmap(),
-                              QString::null);
+    if (lmovie && !lmovie->isNull()) {
+        QRect r = q->contentsRect();
+        r = q->style()->itemRect(0, r, align, q->isEnabled(), lmovie->framePixmap(), QString::null);
         r.translate(rect.x(), rect.y());
         r.setWidth(qMin(r.width(), rect.width()));
         r.setHeight(qMin(r.height(), rect.height()));
-        repaint(r);
+        q->repaint(r);
     }
 }
 
-void QLabel::movieResized(const QSize& size)
+void QLabelPrivate::movieResized(const QSize& size)
 {
-    d->valid_hints = false;
+    valid_hints = false;
     movieUpdated(QRect(QPoint(0,0), size));
-    updateGeometry();
+    q->updateGeometry();
 }
 
 /*!
@@ -1150,5 +1150,7 @@ void QLabel::setScaledContents(bool enable)
     results in the QT_COMPAT function setAlignment(int) being called,
     rather than setAlignment(Qt::Alignment).
 */
+
+#include "moc_qlabel.cpp"
 
 #endif // QT_NO_LABEL

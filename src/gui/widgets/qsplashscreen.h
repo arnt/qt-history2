@@ -45,6 +45,7 @@ protected:
     void mousePressEvent(QMouseEvent *);
 
 private:
+    Q_DISABLE_COPY(QSplashScreen)
     void drawContents();
 
     QSplashScreenPrivate *d;

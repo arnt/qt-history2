@@ -21,7 +21,7 @@ class QStackedWidgetPrivate;
 class Q_GUI_EXPORT QStackedWidget : public QFrame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QStackedWidget)
+
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     Q_PROPERTY(int count READ count)
 public:
@@ -51,6 +51,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QStackedWidget)
+    Q_DECLARE_PRIVATE(QStackedWidget)
 };
 
 

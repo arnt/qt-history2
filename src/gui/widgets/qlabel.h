@@ -32,7 +32,6 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
-    Q_DECLARE_PRIVATE(QLabel)
 
 public:
     QLabel(QWidget *parent=0, Qt::WFlags f=0);
@@ -93,12 +92,6 @@ protected:
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
 
-private slots:
-#ifndef QT_NO_MOVIE
-    void movieUpdated(const QRect&);
-    void movieResized(const QSize&);
-#endif
-
 #ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
@@ -114,6 +107,11 @@ public:
 
 private:
     Q_DISABLE_COPY(QLabel)
+    Q_DECLARE_PRIVATE(QLabel)
+#ifndef QT_NO_MOVIE
+    Q_PRIVATE_SLOT(d, void movieUpdated(const QRect&));
+    Q_PRIVATE_SLOT(d, void movieResized(const QSize&));
+#endif
 
     friend class QTipLabel;
 };

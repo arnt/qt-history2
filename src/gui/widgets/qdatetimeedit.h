@@ -88,6 +88,16 @@ public:
     QString format() const;
     bool setFormat(const QString &format);
 
+signals:
+    void dateTimeChanged(const QDateTime &date);
+    void timeChanged(const QTime &date);
+    void dateChanged(const QDate &date);
+
+public slots:
+    void setDateTime(const QDateTime &dateTime);
+    void setDate(const QDate &date);
+    void setTime(const QTime &time);
+
 protected:
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void wheelEvent(QWheelEvent *e);
@@ -98,18 +108,9 @@ protected:
     virtual void stepBy(int steps);
     virtual StepEnabled stepEnabled() const;
 
-public slots:
-    void setDateTime(const QDateTime &dateTime);
-    void setDate(const QDate &date);
-    void setTime(const QTime &time);
-
-signals:
-    void dateTimeChanged(const QDateTime &date);
-    void timeChanged(const QTime &date);
-    void dateChanged(const QDate &date);
-
 private:
     Q_DECLARE_PRIVATE(QDateTimeEdit)
+    Q_DISABLE_COPY(QDateTimeEdit)
 };
 
 #endif

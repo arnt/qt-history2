@@ -22,7 +22,7 @@ class QMenu;
 class Q_GUI_EXPORT QPushButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QPushButton)
+
     Q_PROPERTY(bool autoDefault READ autoDefault WRITE setAutoDefault)
     Q_PROPERTY(bool default READ isDefault WRITE setDefault)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
@@ -57,10 +57,6 @@ protected:
     void focusOutEvent(QFocusEvent *);
     void updateMask();
 
-private:
-    Q_DISABLE_COPY(QPushButton)
-    Q_PRIVATE_SLOT(d, void popupPressed())
-
 public:
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QPushButton(QWidget *parent, const char* name);
@@ -71,6 +67,11 @@ public:
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
 #endif
+
+private:
+    Q_DISABLE_COPY(QPushButton)
+    Q_DECLARE_PRIVATE(QPushButton)
+    Q_PRIVATE_SLOT(d, void popupPressed())
 };
 
 #endif
