@@ -141,6 +141,10 @@ public:
     QT_COMPAT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
         { return fromImage(img, flags); }
     inline QT_COMPAT operator QImage() const { return toImage(); }
+#elif defined (Q_WS_QWS)
+    // Keep constructor on Qt/Embedded until we
+    // have a better solution to pixmap resources
+    QPixmap(const char * const xpm[]);
 #endif
 
 protected:
