@@ -25,34 +25,33 @@ class QKeyEvent;
 
 class QMotifWidget : public QWidget
 {
-Q_OBJECT
-Q_DECLARE_PRIVATE(QMotifWidget);
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QMotifWidget)
 
 public:
-QMotifWidget(const char *name, WidgetClass widgetClass, QWidget *parent,
-ArgList args = NULL, Cardinal argCount = 0,
-Qt::WFlags flags = 0);
-~QMotifWidget();
+    QMotifWidget(const char *name, WidgetClass widgetClass, QWidget *parent,
+                 ArgList args = NULL, Cardinal argCount = 0,
+                 Qt::WFlags flags = 0);
+    ~QMotifWidget();
 
-Widget motifWidget() const;
-
-void show();
-void hide();
+    Widget motifWidget() const;
 
 protected:
-bool event(QEvent *);
-bool eventFilter(QObject *object, QEvent *event);
-bool x11Event(XEvent *event);
+    bool event(QEvent *);
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
+    bool eventFilter(QObject *object, QEvent *event);
+    bool x11Event(XEvent *event);
 
 private:
-void realize(Widget);
+    void realize(Widget);
 
-friend void qmotif_widget_shell_destroy(Widget w);
-friend void qmotif_widget_shell_realize(Widget, XtValueMask *,
-XSetWindowAttributes *);
-friend void qmotif_widget_shell_change_managed(Widget);
-static bool dispatchQEvent(QEvent*, QWidget*);
-friend class QMotifDialog;
+    friend void qmotif_widget_shell_destroy(Widget w);
+    friend void qmotif_widget_shell_realize(Widget, XtValueMask *,
+                                            XSetWindowAttributes *);
+    friend void qmotif_widget_shell_change_managed(Widget);
+    static bool dispatchQEvent(QEvent*, QWidget*);
+    friend class QMotifDialog;
 };
 
 #endif // QMOTIFWIDGET_H

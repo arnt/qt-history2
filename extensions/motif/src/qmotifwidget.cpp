@@ -435,22 +435,23 @@ Widget QMotifWidget::motifWidget() const
 
     Manages the embedded Xt/Motif widget and shows the widget.
 */
-void QMotifWidget::show()
+void QMotifWidget::showEvent(QShowEvent *event)
 {
-    if ( d->shell ) {
-	// since we have a shell, we need to manage it's children
-	XtManageChildren( ((CompositeWidget) d->shell)->composite.children,
-			  ((CompositeWidget) d->shell)->composite.num_children );
-	if ( ! XtIsRealized( d->shell ) )
-	    XtRealizeWidget( d->shell );
+    if (!event->spontaneous()) {
+        if ( d->shell ) {
+            // since we have a shell, we need to manage it's children
+            XtManageChildren( ((CompositeWidget) d->shell)->composite.children,
+                              ((CompositeWidget) d->shell)->composite.num_children );
+            if ( ! XtIsRealized( d->shell ) )
+                XtRealizeWidget( d->shell );
 
-	XSync(x11Info().display(), FALSE);
-	XSync(QMotif::display(), FALSE);
+            XSync(x11Info().display(), FALSE);
+            XSync(QMotif::display(), FALSE);
 
-	XtMapWidget(d->shell);
+            XtMapWidget(d->shell);
+        }
     }
-
-    QWidget::show();
+    QWidget::showEvent(event);
 }
 
 /*!
@@ -458,15 +459,16 @@ void QMotifWidget::show()
 
     Unmanages the embedded Xt/Motif widget and hides the widget.
 */
-void QMotifWidget::hide()
+void QMotifWidget::hideEvent(QHideEvent *event)
 {
-    if ( d->shell ) {
-	// since we have a shell, we need to manage it's children
-	XtUnmanageChildren( ((CompositeWidget) d->shell)->composite.children,
-			    ((CompositeWidget) d->shell)->composite.num_children );
+    if (!event->spontaneous()) {
+        if ( d->shell ) {
+            // since we have a shell, we need to manage it's children
+            XtUnmanageChildren( ((CompositeWidget) d->shell)->composite.children,
+                                ((CompositeWidget) d->shell)->composite.num_children );
+        }
     }
-
-    QWidget::hide();
+    QWidget::hideEvent(event);
 }
 
 

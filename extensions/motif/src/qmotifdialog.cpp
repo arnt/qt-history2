@@ -328,41 +328,40 @@ void QMotifDialog::reject()
 
     Manages the dialog widget and shows the dialog.
 */
-void QMotifDialog::show()
+void QMotifDialog::showEvent(QShowEvent *event)
 {
-    // tell motif about modality
-    Arg args[1];
-    XtSetArg( args[0], XmNdialogStyle,
-              (testAttribute(Qt::WA_ShowModal)
-               ? XmDIALOG_FULL_APPLICATION_MODAL :
-               XmDIALOG_MODELESS));
-    XtSetValues( d->shell, args, 1 );
+    if (!event->spontaneous()) {
+        // tell motif about modality
+        Arg args[1];
+        XtSetArg( args[0], XmNdialogStyle,
+                  (testAttribute(Qt::WA_ShowModal)
+                   ? XmDIALOG_FULL_APPLICATION_MODAL :
+                   XmDIALOG_MODELESS));
+        XtSetValues( d->shell, args, 1 );
+        XtSetMappedWhenManaged( d->shell, False );
+        if ( d->dialog ) {
+            XtManageChild( d->dialog );
 
-    XtSetMappedWhenManaged( d->shell, False );
+            XSync(x11Info().display(), FALSE);
+            XSync(QMotif::display(), FALSE);
+        } else if ( !parentWidget() ) {
+            adjustSize();
+            QApplication::sendPostedEvents(this, QEvent::Resize);
 
-    if ( d->dialog ) {
-	XtManageChild( d->dialog );
+            Widget p = XtParent( d->shell ), s = p;
+            while ( s != NULL && !XtIsShell( s ) ) // find the shell
+                s = XtParent( s );
 
-	XSync(x11Info().display(), FALSE);
-	XSync(QMotif::display(), FALSE);
-    } else if ( !parentWidget() ) {
-	adjustSize();
-	QApplication::sendPostedEvents(this, QEvent::Resize);
-
-	Widget p = XtParent( d->shell ), s = p;
-	while ( s != NULL && !XtIsShell( s ) ) // find the shell
-	    s = XtParent( s );
-
-	if ( p && s ) {
-	    int offx = ( (  XtWidth( p ) -  width() ) / 2 );
-	    int offy = ( ( XtHeight( p ) - height() ) / 2 );
-	    move( XtX ( s ) + offx, XtY( s ) + offy );
-	}
+            if ( p && s ) {
+                int offx = ( (  XtWidth( p ) -  width() ) / 2 );
+                int offy = ( ( XtHeight( p ) - height() ) / 2 );
+                move( XtX ( s ) + offx, XtY( s ) + offy );
+            }
+        }
+        XtSetMappedWhenManaged( d->shell, True );
     }
+    QDialog::showEvent(event);
 
-    QDialog::show();
-
-    XtSetMappedWhenManaged( d->shell, True );
 }
 
 /*!
@@ -370,12 +369,13 @@ void QMotifDialog::show()
 
     Unmanages the dialog and hides the dialog.
 */
-void QMotifDialog::hide()
+void QMotifDialog::hideEvent(QHideEvent *event)
 {
-    if ( d->dialog )
-	XtUnmanageChild( d->dialog );
-
-    QDialog::hide();
+    if (!event->spontaneous()) {
+        if ( d->dialog )
+            XtUnmanageChild( d->dialog );
+    }
+    QDialog::hideEvent(event);
 }
 
 /*!

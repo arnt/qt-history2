@@ -25,41 +25,40 @@ class QMotifDialogPrivate;
 
 class QMotifDialog : public QDialog
 {
-Q_OBJECT
-Q_DECLARE_PRIVATE(QMotifDialog);
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QMotifDialog)
 
 public:
-QMotifDialog(Widget parent, Qt::WFlags flags = 0);
-QMotifDialog(QWidget *parent, Qt::WFlags flags = 0);
-~QMotifDialog();
+    QMotifDialog(Widget parent, Qt::WFlags flags = 0);
+    QMotifDialog(QWidget *parent, Qt::WFlags flags = 0);
+    ~QMotifDialog();
 
-Widget shell() const;
-Widget dialog() const;
+    Widget shell() const;
+    Widget dialog() const;
 
-void show();
-void hide();
-
-static void acceptCallback(Widget, XtPointer, XtPointer);
-static void rejectCallback(Widget, XtPointer, XtPointer);
+    static void acceptCallback(Widget, XtPointer, XtPointer);
+    static void rejectCallback(Widget, XtPointer, XtPointer);
 
 public slots:
-void accept();
-void reject();
+    void accept();
+    void reject();
 
 protected:
-bool event(QEvent *);
+    bool event(QEvent *);
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
 
 private:
-void init(Widget parent = NULL, ArgList args = NULL, Cardinal argcount = 0);
+    void init(Widget parent = NULL, ArgList args = NULL, Cardinal argcount = 0);
 
-void realize(Widget w);
-void insertChild(Widget w);
-void deleteChild(Widget w);
+    void realize(Widget w);
+    void insertChild(Widget w);
+    void deleteChild(Widget w);
 
-friend void qmotif_dialog_realize(Widget, XtValueMask *, XSetWindowAttributes *);
-friend void qmotif_dialog_insert_child(Widget);
-friend void qmotif_dialog_delete_child(Widget);
-friend void qmotif_dialog_change_managed(Widget);
+    friend void qmotif_dialog_realize(Widget, XtValueMask *, XSetWindowAttributes *);
+    friend void qmotif_dialog_insert_child(Widget);
+    friend void qmotif_dialog_delete_child(Widget);
+    friend void qmotif_dialog_change_managed(Widget);
 };
 
 #endif // QMOTIFDIALOG_H
