@@ -34,7 +34,6 @@
 #include <qcursor.h>
 #include <qcheckbox.h>
 #include <qwidgetview.h>
-//#include <yet.h>
 
 QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidget *parent,
             const char *name, Qt::WFlags flags )

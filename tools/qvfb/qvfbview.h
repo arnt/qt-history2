@@ -65,6 +65,7 @@ protected:
     void sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
 			   bool press, bool repeat );
     virtual void paintEvent( QPaintEvent *pe );
+    virtual void contextMenuEvent( QContextMenuEvent *e );
     virtual void mousePressEvent( QMouseEvent *e );
     virtual void mouseDoubleClickEvent( QMouseEvent *e );
     virtual void mouseReleaseEvent( QMouseEvent *e );

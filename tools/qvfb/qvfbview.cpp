@@ -550,6 +550,10 @@ void QVFbView::mousePressEvent( QMouseEvent *e )
     sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
 }
 
+void QVFbView::contextMenuEvent( QContextMenuEvent *e )
+{
+}
+
 void QVFbView::mouseDoubleClickEvent( QMouseEvent *e )
 {
     sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
