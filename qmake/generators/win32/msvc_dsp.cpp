@@ -213,22 +213,27 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + (*it) + "...\n"
 			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= \\\n\t" + uicpath + (*it) +
-		     " -o " + fpath + fname + ".h \\\n" "\t" + uicpath  + (*it) +
-		     " -i " + fpath + fname + ".h -o " + fpath + fname + ".cpp \\\n"
-		     "\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n" +
-		     "\t" + uicpath + " -embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
-		     + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n\n" 
-		     "\"" + fpath + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
-		     "\t$(BuildCmds)\n\n"
-		     "\"" + fpath + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		     "\t$(BuildCmds)\n\n"
-		     "\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		     "\t$(BuildCmds)\n\n";
-
-		    if ( imagesBuild.isNull() ) {
+			" -o " + fpath + fname + ".h \\\n" "\t" + uicpath  + (*it) +
+			" -i " + fpath + fname + ".h -o " + fpath + fname + ".cpp \\\n"
+			"\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
+		    
+		    if ( !project->variables()["IMAGES"].isEmpty() ) {
+			build.append("\t" + uicpath + " -embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
+			    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
+		    } 
+		    
+		    build.append("\n\"" + fpath + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
+			"\t$(BuildCmds)\n\n"
+			"\"" + fpath + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+			"\t$(BuildCmds)\n\n"
+			"\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+			"\t$(BuildCmds)\n\n");
+		    
+		    if ( !project->variables()["IMAGES"].isEmpty() ) {
 			build.append("\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" 
 			    "\n" "\t$(BuildCmds)\n\n");
 		    }
+		    
 		    build.append("# End Custom Build\n\n");
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
