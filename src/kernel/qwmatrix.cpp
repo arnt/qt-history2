@@ -307,7 +307,7 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 {
     QRect result;
     if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	result = QRect( map(rect.topLeft()), map(rect.bottomRight()) );
+	result = QRect( map(rect.topLeft()), map(rect.bottomRight()) ).normalize();
     } else {
 	QPointArray a( rect );
 	a = map( a );
