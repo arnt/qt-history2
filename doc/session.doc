@@ -1,0 +1,82 @@
+/****************************************************************************
+** $Id: session.doc,v 1.1 1999/05/11 22:48:17 ettrich Exp $
+**
+** Qt collection classes documentation
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+/*!
+\page session.html
+
+<title>Session Management</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Session Management</h1><br clear="all">
+
+<h2> Definitions </h2>
+
+A \e session is a group of applications running, each of which has a
+particular state. The session is controlled by a service called the \e
+session \e manager. The applications participating in the session are
+called \e session \e clients.
+
+The session manager issues commands to its clients on behalf of the
+user. These commands may cause clients to commit unsaved changes (for
+example by saving open files), to preserve their state for future
+sessions or to terminate gracefully. The set of these operations are
+called \e session \e management.
+
+In the common case, a session consists of all applications that a
+users runs on his desktop at a time. Under Unix/X11, however, a
+session may as well run on different computers, span multiple displays
+or just consists of a few applications.
+
+<h2> Shutting a session down </h2>
+
+A session is shut down by the session manager, usually on behalf of
+the user when she wants to log out. A system might, however, also
+perform an automatic shutdown in an emergency case, when for example
+the power is about to be lost. Clearly there is one big difference
+between both shutdowns. During the first, the user may want to
+interact with the application, telling exactely which files should be
+saved and which should be discarded. In the latter case, there's no
+time for interaction. There may not even be a user sitting in front of
+the machine!
+
+TODO
+
+
+<center><img src="session.gif" alt="A typical dialog on shutdown"></center>
+
+TODO
+
+<h2> Protocols and support on different plattforms</h2>
+
+TODO
+
+<h2> Getting session management to work with Qt </h2>
+
+TODO
+
+<h2> Testing and debugging session management </h2>
+
+TODO
+*/
