@@ -581,7 +581,7 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
 #ifdef QFTP_DEBUG
 	qDebug( "QFtp: write password" );
 #endif
-	QString pass = url()->pass().isEmpty() ? QString( "info@troll.no" ) : url()->pass();
+	QString pass = url()->password().isEmpty() ? QString( "info@troll.no" ) : url()->password();
 	QString cmd = "PASS " + pass + "\r\n";
 #ifdef QFTP_DEBUG
 	qDebug( "QFtp: write to command socket: \"%s\"", cmd.latin1() );

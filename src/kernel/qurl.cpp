@@ -120,7 +120,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
 
 /*!
-  Constructs an empty URL which is invalid.
+  Constructs an empty URL which, is invalid.
 */
 
 QUrl::QUrl()
@@ -147,7 +147,7 @@ QUrl::QUrl( const QString& url )
 }
 
 /*!
-  Copy constructor. Copies the data or \a url.
+  Copy constructor. Copies the data of \a url.
 */
 
 QUrl::QUrl( const QUrl& url )
@@ -169,8 +169,8 @@ bool QUrl::isRelativeUrl( const QString &url )
 }
 
 /*!
-  Constructs and URL taking \a url as base and \a relUrl as
-  relative URL to \a url. If \a relUrl is not relative,
+  Constructs and URL taking \a url as base (context) and 
+  \a relUrl as relative URL to \a url. If \a relUrl is not relative,
   \a relUrl is taken as new URL.
 
   For example, the path of
@@ -189,12 +189,12 @@ bool QUrl::isRelativeUrl( const QString &url )
 
   will result in a new URL, with "/usr/local" as path
   and "file" as protocol.
-  
+
   Normally it is expected that the path of \a url points to
-  a directory, even if the path has no leading slash. But
+  a directory, even if the path has no  slash at the end. But
   if you want that the constructor handles the last
-  part of the path as filename, if there is no leading
-  slash and let it replace by the filename of \a relUrl
+  part of the path as filename, if there is no slash at the end,
+  and let it replace by the filename of \a relUrl
   (if it contains one), set \a checkSlash to TRUE.
 */
 
@@ -251,7 +251,7 @@ QUrl::~QUrl()
 }
 
 /*!
-  Returns the protocol of the URL. Is something like
+  Returns the protocol of the URL. It is something like
   "file" or "ftp".
 */
 
@@ -262,7 +262,7 @@ QString QUrl::protocol() const
 
 /*!
   Sets the protocol of the URL. This could be e.g.
-  "file", "ftp" or something similar.
+  "file", "ftp", or something similar.
 */
 
 void QUrl::setProtocol( const QString& protocol )
@@ -302,7 +302,7 @@ bool QUrl::hasUser() const
   Returns the password of the URL.
 */
 
-QString QUrl::pass() const
+QString QUrl::password() const
 {
     return d->pass;
 }
@@ -311,7 +311,7 @@ QString QUrl::pass() const
   Sets the password of the URL.
 */
 
-void QUrl::setPass( const QString& pass )
+void QUrl::setPassword( const QString& pass )
 {
     d->pass = pass;
 }
@@ -321,7 +321,7 @@ void QUrl::setPass( const QString& pass )
   else FALSE;
 */
 
-bool QUrl::hasPass() const
+bool QUrl::hasPassword() const
 {
     return !d->pass.isEmpty();
 }
@@ -774,7 +774,11 @@ bool QUrl::operator==( const QString& url ) const
 }
 
 /*!
-  Sets the filename of the URL to \a name.
+  Sets the filename of the URL to \a name. If this
+  url contains a fileName(), this is replaced by
+  \a name. See the documentation of fileName()
+  for a more detail discussion, about what is handled
+  as file name and what as directory path.
 */
 
 void QUrl::setFileName( const QString& name )
@@ -791,7 +795,7 @@ void QUrl::setFileName( const QString& name )
 	int slash = p.findRev( QChar( '/' ) );
 	if ( slash == -1 ) {
 	    p = "/";
-    } else if ( p.right( 1 ) != "/" )
+    } else if ( p[ (int)p.length() - 1 ] != '/' )
 	p.truncate( slash + 1 );
     }
 
@@ -886,7 +890,7 @@ QString QUrl::path( bool correct ) const
 		}
 	    }
 	} else {
-	    if ( d->path != "/" && d->path.right( 1 ) == "/" )
+	    if ( d->path != "/" && d->path[ (int)d->path.length() - 1 ] == '/' )
 		d->cleanPath = QDir::cleanDirPath( d->path ) + "/";
 	    else
 		d->cleanPath = QDir::cleanDirPath( d->path );
@@ -915,7 +919,10 @@ bool QUrl::isLocalFile() const
 }
 
 /*!
-  Returns the filename of the URL.
+  Returns the filename of the URL. If the path of the URL
+  doesn't have a slash at the end, the part between the last slash
+  and the end of the path string is handled as filename. If the
+  path has a  slash at the end, an empty string is returned here.
 */
 
 QString QUrl::fileName() const
@@ -938,14 +945,13 @@ void QUrl::addPath( const QString& pa )
     QString p( pa );
     slashify( p );
 
-    d->cleanPathDirty = TRUE;
-    if ( d->path.isEmpty() ) {
+    if ( path().isEmpty() ) {
 	if ( p[ 0 ] != QChar( '/' ) )
 	    d->path = "/" + p;
 	else
 	    d->path = p;
     } else {
-	if ( p[ 0 ] != QChar( '/' ) && d->path.right( 1 ) != "/" )
+	if ( p[ 0 ] != QChar( '/' ) && path()[ (int)path().length() - 1 ] != '/' )
 	    d->path += "/" + p;
 	else
 	    d->path += p;
@@ -954,7 +960,10 @@ void QUrl::addPath( const QString& pa )
 }
 
 /*!
-  Returns the directory path of the URL.
+  Returns the directory path of the URL. This is the part
+  of the path of this URL without the fileName(). See
+  the documentation of fileName() for a discussion
+  what is handled as file and what as directory path.
 */
 
 QString QUrl::dirPath() const

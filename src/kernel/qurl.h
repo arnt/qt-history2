@@ -49,9 +49,9 @@ public:
     virtual void setUser( const QString& user );
     bool hasUser() const;
 
-    QString pass() const;
-    virtual void setPass( const QString& pass );
-    bool hasPass() const;
+    QString password() const;
+    virtual void setPassword( const QString& pass );
+    bool hasPassword() const;
 
     QString host() const;
     virtual void setHost( const QString& user );
