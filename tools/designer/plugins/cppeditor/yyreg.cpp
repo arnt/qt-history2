@@ -29,7 +29,7 @@
 /*
   First comes the tokenizer. We don't need something that knows much
   about C++. However, we need something that give tokens from the end
-  of the file to the start.
+  of the file to the start, which is a bit tricky.
 */
 
 enum { Tok_Boi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
@@ -50,6 +50,9 @@ static int yyCh;
 
 static inline void readChar()
 {
+    /*
+      Everything is backwards here.
+    */
     if ( yyCh == EOF )
 	return;
 
@@ -271,25 +274,8 @@ static int getToken()
 }
 
 /*
-  Follow a few member functions of CppFunction.
+  Follow the member function(s) of CppFunction.
 */
-
-CppFunction::CppFunction( const CppFunction& f )
-    : ret( f.ret ), nam( f.nam ), params( f.params ), cnst( f.cnst ),
-      bod( f.bod ), doc( f.doc )
-{
-}
-
-CppFunction& CppFunction::operator=( const CppFunction& f )
-{
-    ret = f.ret;
-    nam = f.nam;
-    params = f.params;
-    cnst = f.cnst;
-    bod = f.bod;
-    doc = f.doc;
-    return *this;
-}
 
 QString CppFunction::prototype() const
 {
@@ -588,7 +574,18 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	startBody = yyPos;
 	CppFunction func = matchFunctionPrototype( FALSE );
 	if ( !func.scopedName().isEmpty() ) {
-	    setBody( &func, yyIn.mid(startBody, endBody - startBody) );
+	    QString body = yyIn.mid( startBody, endBody - startBody );
+	    setBody( &func, body );
+	    body = func.body(); // setBody() can change the body
+
+	    int functionStartLineNo = 1 + QConstString( yyIn.unicode(), yyPos )
+					  .string().contains( QChar('\n') );
+	    int startLineNo = functionStartLineNo +
+		    QConstString( yyIn.unicode() + yyPos, startBody - yyPos )
+		    .string().contains( QChar('\n') );
+	    int endLineNo = startLineNo + body.contains( QChar('\n') );
+
+	    func.setLineNums( functionStartLineNo, startLineNo, endLineNo );
 	    flist->prepend( func );
 	    endBody = -1;
 	}

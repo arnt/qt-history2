@@ -22,16 +22,13 @@
 #ifndef YYREG_H
 #define YYREG_H
 
-#include <qstring.h>
+#include <qstringlist.h>
 #include <qvaluelist.h>
 
 class CppFunction
 {
 public:
-    CppFunction() : cnst( FALSE ) { }
-    CppFunction( const CppFunction& f );
-
-    CppFunction& operator=( const CppFunction& f );
+    CppFunction() : cnst( FALSE ), lineno1( 0 ), lineno2( 0 ) { }
 
     void setReturnType( const QString& r ) { ret = r; }
     void setScopedName( const QString& n ) { nam = n; }
@@ -39,6 +36,11 @@ public:
     void setConst( bool c ) { cnst = c; }
     void setBody( const QString& b ) { bod = b; }
     void setDocumentation( const QString& d ) { doc = d; }
+    void setLineNums( int functionStart, int openingBrace, int closingBrace ) {
+	lineno0 = functionStart;
+	lineno1 = openingBrace;
+	lineno2 = closingBrace;
+    }
 
     const QString& returnType() const { return ret; }
     const QString& scopedName() const { return nam; }
@@ -47,6 +49,9 @@ public:
     QString prototype() const;
     const QString& body() const { return bod; }
     const QString& documentation() const { return doc; }
+    int functionStartLineNum() const { return lineno0; }
+    int openingBraceLineNum() const { return lineno1; }
+    int closingBraceLineNum() const { return lineno2; }
 
 private:
     QString ret;
@@ -55,6 +60,9 @@ private:
     bool cnst;
     QString bod;
     QString doc;
+    int lineno0;
+    int lineno1;
+    int lineno2;
 };
 
 void extractCppFunctions( const QString& code, QValueList<CppFunction> *flist );
