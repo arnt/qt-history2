@@ -162,7 +162,7 @@ static bool block_set_alignment = FALSE;
     <li><i> Up Arrow </i> Move one line up
     <li><i> Down Arrow </i> Move one line down
     <li><i> Left Arrow </i> Move one column left
-    <li><i> Right Arrow </i> Move one column right 
+    <li><i> Right Arrow </i> Move one column right
     <li><i> Page Up </i> Move one (viewport) page up
     <li><i> Page Down </i> Move one (viewport) page down
     <li><i> Home </i> Move to the beginning of the text
@@ -181,8 +181,8 @@ static bool block_set_alignment = FALSE;
     path which the text view's QMimeSourceFactory uses to resolve the
     locations of files and images. It is passed to the
     mimeSourceFactory() when quering data. (See QTextView::QTextView()
-    and context().) 
-    
+    and context().)
+
   Note that we do not intend to add a full-featured web browser widget
   to Qt (because that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
@@ -262,16 +262,16 @@ QTextView::QTextView( QWidget *parent, const char *name )
 
     The \a context is a path which the text view's QMimeSourceFactory
     uses to resolve the locations of files and images. It is passed to
-    the mimeSourceFactory() when quering data. 
-    
-    For example if the text contains an image tag, 
+    the mimeSourceFactory() when quering data.
+
+    For example if the text contains an image tag,
     \c{<img src="image.png">}, and the context is "path/to/look/in", the
     QMimeSourceFactory will try to load the image from
-    "path/to/look/in/image.png". If the tag was 
+    "path/to/look/in/image.png". If the tag was
     \c{<img src="/image.png">}, the context will not be used (because
     QMimeSourceFactory recognizes that we have given an absolute path)
     and will try to load "/image.png". The context is applied in exactly
-    the same way to \e hrefs, for example, 
+    the same way to \e hrefs, for example,
     \c{<a href="target.html">Target</a>}, would resolve to
     "path/to/look/in/target.html".
 
@@ -1537,7 +1537,6 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
 {
     if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
 	return;
-    QTextCursor c2 = *cursor;
     QString txt( text );
     drawCursor( FALSE );
     if ( !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) && removeSelected ) {
@@ -1549,6 +1548,7 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine, boo
 	undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
 	doc->removeSelectedText( QTextDocument::Standard, cursor );
     }
+    QTextCursor c2 = *cursor;
     checkUndoRedoInfo( UndoRedoInfo::Insert );
     if ( !undoRedoInfo.valid() ) {
 	undoRedoInfo.id = cursor->parag()->paragId();
@@ -2632,9 +2632,9 @@ void QTextView::handleReadOnlyKeyEvent( QKeyEvent *e )
 
 /*!  Returns the context of the view.
 
-    The context is a path which the text view's QMimeSourceFactory 
-    uses to resolve the locations of files and images. 
-    
+    The context is a path which the text view's QMimeSourceFactory
+    uses to resolve the locations of files and images.
+
   \sa text(), setText()
 */
 
