@@ -45,7 +45,7 @@ public:
 
     QCoreVariant value(int i) const;
     inline QCoreVariant value(const QString &name) const { return value(indexOf(name)); }
-    void setValue(int i, const QCoreVariant &val);
+    virtual void setValue(int i, const QCoreVariant &val);
     inline void setValue(const QString &name, const QCoreVariant &val) { setValue(indexOf(name), val); }
     virtual QSqlIndex primaryIndex(bool prime = true) const;
     virtual QSqlIndex index(const QStringList& fieldNames) const;
@@ -54,10 +54,10 @@ public:
 
     virtual void append(const QSqlFieldInfo& fieldInfo);
     virtual void insert(int pos, const QSqlFieldInfo &fieldInfo);
-    void remove(int pos);
-    void clear();
-    void setGenerated(const QString& name, bool generated);
-    void setGenerated(int i, bool generated);
+    virtual void remove(int pos);
+    virtual void clear();
+    virtual void setGenerated(const QString& name, bool generated);
+    virtual void setGenerated(int i, bool generated);
 
     virtual QSqlRecord*        editBuffer(bool copy = false);
     virtual QSqlRecord*        primeInsert();
