@@ -24,7 +24,7 @@
 #include <qobjectlist.h>
 #include <qtimer.h>
 #include <qdragobject.h>
-
+#include <qfontinfo.h>
 
 QPtrList<MainWindow> *MainWindow::windows = 0;
 
@@ -120,8 +120,9 @@ void MainWindow::setup()
     QString keybase("/Qt Assistant/3.1/");
 
     QFont fnt( browser->QWidget::font() );
-    fnt.setFamily( settings.readEntry( keybase + "Family", fnt.family() ) );
-    fnt.setPointSize( settings.readNumEntry( keybase + "Size", fnt.pointSize() ) );
+    QFontInfo fntInfo( fnt );
+    fnt.setFamily( settings.readEntry( keybase + "Family", fntInfo.family() ) );
+    fnt.setPointSize( settings.readNumEntry( keybase + "Size", fntInfo.pointSize() ) );
     browser->setFont( fnt );
     browser->setLinkUnderline( settings.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
 
