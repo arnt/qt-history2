@@ -425,8 +425,10 @@ QObject::~QObject()
 		QObjectPrivate::Connections::Connection &c = d->connections->connections[i];
 		if (c.receiver) {
 		    RELEASE(1);
-		    S_LOCK(2, &c.receiver->d->spinlock);
-		    c.receiver->d->removeSender(this);
+		    {
+			S_LOCK(2, &c.receiver->d->spinlock);
+			c.receiver->d->removeSender(this);
+		    }
 		    ACQUIRE(1);
 		}
 		if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
@@ -444,8 +446,10 @@ QObject::~QObject()
 		QObjectPrivate::Senders::Sender &sender = d->senders->senders[i];
 		if (sender.sender) {
 		    RELEASE(1);
-		    S_LOCK(3, &sender.sender->d->spinlock);
-		    sender.sender->d->removeReceiver(this);
+		    {
+			S_LOCK(3, &sender.sender->d->spinlock);
+			sender.sender->d->removeReceiver(this);
+		    }
 		    ACQUIRE(1);
 		}
 	    }
@@ -2158,8 +2162,10 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 			   && (member_index < 0
 			       || (member_index<<1)+membcode-1 == c.member)))) {
 	    RELEASE(1);
-	    S_LOCK(2, &c.receiver->d->spinlock);
-	    c.receiver->d->derefSender(s);
+	    {
+		S_LOCK(2, &c.receiver->d->spinlock);
+		c.receiver->d->derefSender(s);
+	    }
 	    ACQUIRE(1);
 	    c.receiver = 0;
 	    if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
