@@ -38,6 +38,7 @@ public:
     bool createIndex( const QSqlRecord* index, bool unique );
     bool drop();
     bool fieldDescription( const QString& name, QVariant& v );
+    bool fieldDescription( int i, QVariant& v );
     bool clearMarked();
 
 protected:

@@ -331,13 +331,19 @@ bool FileDriver::fieldDescription( const QString& name, QVariant& v )
     if ( !isOpen() )
 	return FALSE;
     int i = d->file.GetFieldNo( name.latin1() );
-    if ( i == -1 ) {
-	ERROR_RETURN( "FileDriver::field: field does not exist" );
+    return fieldDescription( i, v );
+}
+
+bool FileDriver::fieldDescription( int i, QVariant& v )
+{
+    if ( !isOpen() )
+	return FALSE;
+    if ( i == -1 || i > d->file.FieldCount()-1 ) {
+	ERROR_RETURN( "FileDriver::fieldDescription: field does not exist" );
     }
     QValueList<QVariant> field;
-    QVariant nm = name;
     QVariant val;
-    switch ( d->file.GetFieldType(i) ) {
+    switch ( d->file.GetFieldType( i ) ) {
     case 'N': /* numeric */
 	val.cast( QVariant::Int );
 	break;
@@ -355,8 +361,12 @@ bool FileDriver::fieldDescription( const QString& name, QVariant& v )
 	val.cast( QVariant::String );
 	break;
     }
+    int len = d->file.GetFieldLen( i );
+    int prec = d->file.GetFieldDecimal( i );
     field.append( nm );
     field.append( val );
+    field.append( len );
+    field.append( prec );
     v = field;
     return TRUE;
 }

@@ -57,6 +57,7 @@ namespace qdb {
 	virtual bool createIndex( const QSqlRecord* index, bool unique ) = 0;
 	virtual bool drop() = 0;
 	virtual bool fieldDescription( const QString& name, QVariant& v ) = 0;
+	virtual bool fieldDescription( int i, QVariant& v ) = 0;
 	virtual bool clearMarked() = 0;
     };
 
