@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#196 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -10,6 +10,7 @@
 *****************************************************************************/
 
 #define select		_qt_hide_select
+#define bzero		_qt_hide_bzero
 #define gettimeofday	_qt_hide_gettimeofday
 #include "qapp.h"
 #include "qwidget.h"
@@ -38,16 +39,14 @@
 #include <unistd.h>
 #endif
 
-#if defined(_OS_IRIX_) || defined(_OS_AIX_)
-#include <bstring.h>				// bzero
-#endif
-
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
+#undef bzero
+extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#195 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#196 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -827,7 +826,11 @@ struct QPostEvent {
 };
 
 Q_DECLARE(QListM,QPostEvent);
-static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
+Q_DECLARE(QListIteratorM,QPostEvent);
+typedef QListM(QPostEvent)	   QPostEventList;
+typedef QListIteratorM(QPostEvent) QPostEventListIt;
+static QPostEventList *postedEvents = 0;	// list of posted events
+
 
 /*!
   Stores the event in a queue and returns immediatly.
@@ -858,15 +861,22 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 
 static void sendPostedEvents()			// transmit posted events
 {
-    int count = postedEvents ? postedEvents->count() : 0;
-    while ( count-- ) {				// just send to existing recvs
-	register QPostEvent *pe = postedEvents->first();
-	if ( pe->event ) {			// valid event
+    if ( !postedEvents )
+	return;
+    QPostEventListIt it(*postedEvents);
+    QPostEvent *pe;
+    while ( (pe=it.current()) ) {
+	if ( pe->event ) {
 	    QApplication::sendEvent( pe->receiver, pe->event );
-	    ((QPEvent*)pe->event)->clearPostedFlag();
+	    if ( pe == it.current() ) {
+		((QPEvent*)pe->event)->clearPostedFlag();
+	    }
 	}
-	((QPEObject*)pe->receiver)->clearPendEventFlag();
-	postedEvents->remove( (uint)0 );
+	if ( pe == it.current() ) {
+	    ++it;
+	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
+	    postedEvents->removeRef( pe );
+	}
     }
 }
 

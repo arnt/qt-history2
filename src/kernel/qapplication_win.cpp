@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#77 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#77 $");
 
 
 /*****************************************************************************
@@ -503,7 +503,10 @@ struct QPostEvent {
 };
 
 Q_DECLARE(QListM,QPostEvent);
-static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
+Q_DECLARE(QListIteratorM,QPostEvent);
+typedef QListM(QPostEvent)	   QPostEventList;
+typedef QListIteratorM(QPostEvent) QPostEventListIt;
+static QPostEventList *postedEvents = 0;	// list of posted events
 
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
@@ -513,10 +516,12 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	CHECK_PTR( postedEvents );
 	postedEvents->setAutoDelete( TRUE );
     }
+    if ( receiver == 0 ) {
 #if defined(CHECK_NULL)
-    if ( receiver == 0 )
-	warning( "QApplication::postEvent: Unexpeced NULL receiver" );
+	warning( "QApplication::postEvent: Unexpeced null receiver" );
 #endif
+	return;
+    }
     ((QPEObject*)receiver)->setPendEventFlag();
     ((QPEvent*)event)->setPostedFlag();
     postedEvents->append( new QPostEvent(receiver,event) );
@@ -524,15 +529,22 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 
 static void sendPostedEvents()			// transmit posted events
 {
-    int count = postedEvents ? postedEvents->count() : 0;
-    while ( count-- ) {				// just send to existing recvs
-	register QPostEvent *pe = postedEvents->first();
-	if ( pe->event ) {			// valid event
+    if ( !postedEvents )
+	return;
+    QPostEventListIt it(*postedEvents);
+    QPostEvent *pe;
+    while ( (pe=it.current()) ) {
+	if ( pe->event ) {
 	    QApplication::sendEvent( pe->receiver, pe->event );
-	    ((QPEvent*)pe->event)->clearPostedFlag();
+	    if ( pe == it.current() ) {
+		((QPEvent*)pe->event)->clearPostedFlag();
+	    }
 	}
-	((QPEObject*)pe->receiver)->clearPendEventFlag();
-	postedEvents->remove( (uint)0 );
+	if ( pe == it.current() ) {
+	    ++it;
+	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
+	    postedEvents->removeRef( pe );
+	}
     }
 }
 
