@@ -398,9 +398,6 @@ QString QTextString::toString() const
 
 void QTextParag::setSelection( int id, int start, int end )
 {
-    if ( !mSelections )
-	return;
-
     QMap<int, QTextParagSelection>::ConstIterator it = selections().find( id );
     if ( it != mSelections->end() ) {
 	if ( start == ( *it ).start && end == ( *it ).end )
