@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#41 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -14,6 +14,7 @@
 #include "qevent.h"
 #include "qwidget.h"
 #include "qwidcoll.h"
+#include "qpainter.h"
 #include <stdlib.h>
 #include <signal.h>
 #define	 GC GC_QQQ
@@ -27,7 +28,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#41 $";
 #endif
 
 
@@ -219,6 +220,7 @@ int main( int argc, char **argv )
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
+    QPainter::initialize();
     gettimeofday( &watchtime, 0 );
 
   // Call user-provided main routine
@@ -245,6 +247,7 @@ int main( int argc, char **argv )
     QFont::cleanup();
     QColor::cleanup();
     cleanupTimers();
+    QPainter::cleanup();
 
     if ( app_gc1 )
 	XFreeGC( appDpy, app_gc1 );
@@ -383,6 +386,7 @@ void QApplication::setFont( const QFont &f,  bool forceAllWidgets )
     if ( appFont )
 	delete appFont;
     appFont = new QFont( f );
+    CHECK_PTR( appFont );
     QFont::setDefaultFont( *appFont );
     if ( forceAllWidgets ) {			// set for all widgets now
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
@@ -1048,6 +1052,7 @@ int qStartTimer( long interval, QObject *obj )	// start timer
 	return 0;
     setTimerBit( id );				// set timer active
     TimerInfo *t = new TimerInfo;		// create timer
+    CHECK_PTR( t );
     t->id = id;
     t->interval.tv_sec = interval/1000;
     t->interval.tv_usec = (interval%1000)*1000;
