@@ -480,20 +480,20 @@ SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal,
     if (!regValue.isEmpty())
 	globalInformation.setSysId(GlobalInformation::MSVCNET);
 
-//     while (globalInformation.sysId() == GlobalInformation::Other) {
-// 	globalInformation.setSysId(GlobalInformation::Borland);
-// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-// 	    break;
-// 	globalInformation.setSysId(GlobalInformation::MSVCNET);
-// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-// 	    break;
-// 	globalInformation.setSysId(GlobalInformation::MinGW);
-// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-// 	    break;
-// 	globalInformation.setSysId(GlobalInformation::Watcom);
-// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-// 	    break;
-//     }
+    while (globalInformation.sysId() == GlobalInformation::Other) {
+ 	globalInformation.setSysId(GlobalInformation::Borland);
+ 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+ 	    break;
+ 	globalInformation.setSysId(GlobalInformation::MSVCNET);
+ 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+ 	    break;
+ 	globalInformation.setSysId(GlobalInformation::MinGW);
+ 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+ 	    break;
+ 	globalInformation.setSysId(GlobalInformation::Watcom);
+ 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+ 	    break;
+     }
 #endif
 
     if ( archiveHeader ) {
@@ -502,8 +502,8 @@ SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal,
 	    globalInformation.setQtVersionStr( qt_version_str );
 
 #if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
-	if ( archiveHeader->findExtraData( "compiler" ) != "borland" )
-	    globalInformation.setSysId(GlobalInformation::MSVC);
+	if ( archiveHeader->findExtraData( "compiler" ) == "borland" )
+	    globalInformation.setSysId(GlobalInformation::Borland);
 #endif
 	delete archiveHeader;
     }
@@ -726,7 +726,7 @@ void SetupWizardImpl::clickedDevSysPath()
 	foldersPage->devSysPath->setText( dest );
 }
 
-void SetupWizardImpl::sysOtherComboChanged(int index)
+void SetupWizardImpl::sysOtherComboChanged(int)
 {
     clickedSystem(GlobalInformation::Other);
 }
@@ -1438,13 +1438,17 @@ void SetupWizardImpl::showPageOptions()
     if ( globalInformation.sysId()==GlobalInformation::Borland ) {
 	optionsPage->sysMsvcNet->setEnabled( FALSE );
 	optionsPage->sysMsvc->setEnabled( FALSE );
-	optionsPage->sysBorland->setEnabled( FALSE );
+	optionsPage->sysBorland->setEnabled( TRUE );
+	optionsPage->sysMinGW->setEnabled( FALSE );
+	optionsPage->sysIntel->setEnabled( FALSE );
 	optionsPage->sysOther->setEnabled( FALSE );
     } else {
 	optionsPage->sysMsvcNet->setEnabled( TRUE );
 	optionsPage->sysMsvc->setEnabled( TRUE );
 	optionsPage->sysBorland->setEnabled( FALSE );
 	optionsPage->sysOther->setEnabled( FALSE );
+	optionsPage->sysIntel->setEnabled( FALSE );
+	optionsPage->sysMinGW->setEnabled( FALSE );
     }
 #  if defined(Q_OS_WIN32)
     optionsPage->installExamples->setEnabled( TRUE );
