@@ -48,7 +48,7 @@ appropriate plugin base class, implementing a few simple functions,
 and adding a macro.
 
 For example, if a developer has created a \Class QStyle subclass
-called 'CopperStyle' that they want to make available as a plugin,
+called \Class CopperStyle that they want to make available as a plugin,
 they would create a subclass like this: 
 \code
     class CopperStylePlugin : public QStylePlugin

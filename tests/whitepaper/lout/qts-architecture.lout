@@ -1,0 +1,237 @@
+@Section
+    @Title { Qt's Architecture }
+    @Tag { qts.architecture }
+@Begin
+@QuotedDisplay { @I {
+Qt's functionality is built on the low-level APIs of the platforms it
+supports. This makes Qt flexible and efficient.
+} }
+@PP
+Qt is an `emulating' cross-platform toolkit. All widgets are drawn by
+Qt, and programmers can extend or customize them by reimplementing
+virtual functions. Qt's widgets accurately emulate the look and feel
+of the supported platforms, as described in Styles and Themes
+@Xref{styles.and.themes}. This technique also enables developers to
+derive their own custom styles to provide a distinct look for their
+applications.
+emulatingtoolkits @Index { Emulating toolkits }
+lookandfeel @Index { Look and feel }
+@Figure
+    @Caption { Qt's Architecture }
+@Tbl
+    paint { white }
+    rule { yes }
+    rulecolor { darkgrey }
+    width { expand }
+    indent { ctr }
+    font { Helvetica Base }
+    aformat { @StartHSpan @Cell paint { darkgrey } white @Color A | 
+	      @HSpan | @HSpan | @HSpan }
+    bformat { @StartHSpan @Cell paint { grey } A | @HSpan | @HSpan | @HSpan }
+    cformat { @Cell paint { lightgrey } A | @Cell paint { lightgrey } B | 
+	      @Cell paint { lightgrey } C | @Cell paint { lightgrey } D }
+    dformat { @Cell A | @Cell B | @Cell C | @StartVSpan @Cell D }
+    eformat { @Cell A | @Cell B | @Cell C | @VSpan }
+{
+    @Rowa
+	A { Qt Application Source Code }
+    @Rowb
+	A { Qt API }
+    @Rowc
+	A { "Qt/Windows" }
+	B { "Qt/X11" }
+	C { "Qt/Macintosh" }
+	D { "Qt/Embedded" }
+    @Rowd
+	A { GDI }
+	B { Xlib }
+	C { Carbon }
+	D { @LP Embedded Linux }
+    @Rowe
+	A { Windows }
+	B { X11 }
+	C { Mac OS X }
+}
+#@IncludeGraphic { "../images/architecture-diag.eps" }
+@PP
+Qt uses the low-level APIs of the different platforms it supports.
+This differs from traditional 'layered' cross-platform toolkits that
+are thin wrappers over single-platform toolkits (e.g. MFC on Windows
+and Motif on X11). Layered toolkits are usually slow, since every
+function call to the library results in many additional calls down
+through the different API layers. Layered toolkits are limited by the
+inflexibilities of the underlying toolkits, and usually behave
+slightly differently on the different platforms they support, leading
+to obscure bugs in applications.
+mfc @Index { MFC }
+motif @Index { Motif }
+layeredtoolkits @Index { Layered toolkits }
+@PP
+Qt is professionally supported, and takes advantage of the available
+platforms: Windows, X11, Mac OS X and Embedded Linux. Using a single
+source tree, a Qt application can be converted into an executable
+simply by recompiling on the target platforms. Although Qt is a
+cross-platform toolkit, customers have found it to be easier to learn
+and more productive than platform-specific toolkits. Many customers
+use Qt for single-platform development, both on Windows and on Unix,
+preferring Qt's fully object-oriented approach.
+embeddedlinux @Index { Embedded Linux }
+macosx @Index { Mac OS X }
+windows @Index { Windows }
+xwindowsystem @Index { X Window System }
+platforms @Index { Platforms }
+@BeginSubSections
+@SubSection
+    @Title { Windows }
+    @Tag { windows }
+@Begin
+@PP
+"Qt/Windows" uses the Win32 API and GDI for events and drawing
+primitives. Qt does not use MFC or any other toolkit. In particular,
+Qt does not use the inflexible 'common controls', but rather provides
+its own more powerful, customizable widgets. (For non-specialized
+uses, Qt uses the native Windows file and print dialogs.)
+gdi @Index { GDI }
+commoncontrols @Index { Common controls }
+filedialog @Index { File dialog }
+printdialog @Index { Print dialog }
+@PP
+With Qt, the same executable works on Windows "95/98/NT4/ME/2000". Qt
+performs a run-time check for the Windows version, and uses the most
+advanced capabalities available. For example, only Windows NT4 and
+2000 support rotated text natively; Qt renders rotated text on all
+Windows versions, and uses the native support where available. As
+this example demonstrates, Qt developers are insulated from changes
+in the Windows API.
+transformations @Index { Transformations }
+@PP
+Qt supports the Microsoft accessibility interfaces. Unlike Windows's
+common controls, Qt widgets can be extended without losing the
+accessibility information of the base widget. Custom widgets can also
+provide accessibility.
+accessibility @Index { Accessibility }
+@PP
+Qt also supports multiple screens on Windows.
+multiplescreens @Index { Multiple screens }
+@End @SubSection
+@SubSection
+    @Title { X11 }
+    @Tag { x11 }
+@Begin
+@PP
+"Qt/X11" uses Xlib to communicate with the X server directly. Qt does
+not use Xt (X Toolkit), Motif, Athena or any other toolkit.
+athena @Index { Athena }
+xlib @Index { Xlib }
+xt @Index { Xt }
+@PP
+Qt applications automatically adapt to the user's window manager or
+desktop environment, and have a native look and feel under Motif,
+SGI, CDE, GNOME and KDE. This contrasts with other Unix toolkits,
+which lock users into their own look and feel.
+lookandfeel @Index { Look and feel }
+@PP
+Qt provides full Unicode support @Xref{unicode}. Qt applications
+automatically support both Unicode and non-Unicode fonts. Qt combines
+multiple X fonts to render multi-lingual text. Qt's font handling is
+intelligent enough to search all the installed fonts for characters
+unavailable in the current font.
+unicode @Index { Unicode }
+codecs @Index { Codecs }
+fonts @Index { Fonts }
+@PP
+Qt takes advantage of X extensions where they are available. Qt
+supports the RENDER extension for anti-aliased fonts and
+alpha-blending. Qt provides on-the-spot editing for X Input Methods. 
+Qt supports multiple screens both with traditional multi-head and
+with Xinerama.
+render @Index { RENDER }
+xextensions @Index { X extensions }
+xim @Index { XIM }
+xinerama @Index { Xinerama }
+alphablending @Index { Alpha-blending }
+antialiasedfonts @Index { Anti-aliased fonts }
+multiplescreens @Index { Multiple screens }
+@End @SubSection
+@SubSection
+    @Title { Mac OS X }
+    @Tag { mac.os.x }
+@Begin
+@PP
+New in version 3.0, Qt supports Mac OS X using the Carbon API.
+"Qt/Mac" creates a new market for customers who sell Qt applications.
+carbon @Index { Carbon }
+@PP
+For Macintosh developers, the availability of "Qt/Mac" opens up a new
+world of possibilities. Macintosh developers can create applications
+on their favorite platform, using a fully object-oriented toolkit,
+and broaden their market hugely simply by recompiling on, for
+example, Windows.
+@PP
+"Qt/Mac" also brings some technical benefits to Macintosh development,
+for example, standard OpenGL, straightforward internationalization and
+powerful visual design with @QDR.
+opengl @Index { OpenGL }
+@End @SubSection
+@SubSection
+    @Title { Embedded Linux }
+    @Tag { embedded.linux }
+@Begin
+@PP
+"Qt/Embedded" provides its own windowing environment and writes
+directly to the Linux frame buffer. "Qt/Embedded" eliminates the need
+for an X server, and runs faster and with a lower memory footprint
+than X11-based embedded Linux devices.
+framebuffer @Index { Frame buffer }
+@PP
+"Qt/Embedded" uses alpha-blending for image painting and anti-aliased
+scalable TrueType and Type1 fonts. "Qt/Embedded" has flexible input
+handling, including hand-writing recognition, a pickboard and a
+virtual keyboard; it is easy to write new input methods. By
+selectively choosing features, the memory demands of "Qt/Embedded" can
+be tuned to between 800 KB and 3 MB in ROM.
+alphablending @Index { Alpha-blending }
+antialiasedfonts @Index { Anti-aliased fonts }
+fonts @Index { Fonts }
+inputmethods @Index { Input methods }
+memory @Index { Memory }
+@PP
+See the "Qt/Embedded" whitepaper for a complete technical overview.
+@End @SubSection
+@SubSection
+    @Title { Qt's Development World }
+    @Tag { qts.development.world }
+@Begin
+@PP
+Companies and developers from around the world are joining the Qt
+development community every day. They have recognized that Qt's
+architecture lends itself to rapid application development. These
+developers, whether they are targeting one or many platforms, are
+benefiting from Qt's consistent and straightforward API, and from
+Qt's powerful supporting tools such as @Cmd qmake and @QDR.
+rad @Index { RAD }
+rapidapplicationdevelopment @Index { Rapid application development }
+@PP
+Qt has an active and helpful user community who communicate using the
+@F qt-interest mailing list. See @Href{"http://qt-interest.trolltech.com"}
+to subscribe or browse the archive.
+mailinglist @Index { Mailing list }
+@PP
+Qt's extensive documentation is available on-line
+at @Href{"http://doc.trolltech.com"}.
+documentation @Index { Documentation }
+guide @Index { Guide }
+manual @Index { Manual }
+referencedocumentation @Index { Reference documentation }
+@PP
+Developers can evaluate Qt, with support, for 30 days on their
+preferred platform. See @Href{"http://www.trolltech.com"} for details.
+evaluation @Index { Evaluation }
+support @Index { Support }
+@PP
+For further information, email @F{"info@trolltech.com"}.
+@PP
+@End @SubSection
+@EndSubSections
+@End @Section
+

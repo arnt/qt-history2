@@ -1,0 +1,225 @@
+@Section
+    @Title { "Input/Output and Networking" }
+    @Tag { input.output.and.networking }
+@Begin
+@QuotedDisplay { @I {
+Qt can load and save data in plain text, XML and binary format. Qt
+handles local files using its own classes, and remote files using the
+FTP and HTTP protocols. Inter-process communication and socket-based
+TCP and UDP networking are also fully supported.
+} }
+@BeginSubSections
+@SubSection
+    @Title { "Input/Output" }
+    @Tag { input.output }
+@Begin
+@PP
+Qt provides classes to perform advanced "I/O" on multiple platforms.
+The @Class QTextStream class has a similar interface to the standard
+@F{<iostream>} classes, and supports the encodings provided by @Class
+QTextCodec. The @Class QDataStream class is used to serialize the
+basic C++ types and many Qt types in a platform-independent binary
+format. For example, the following code writes a Unicode string, a
+font and a color to the file @File splash.dat:
+unicode @Index { Unicode }
+binaryserialization @Index { Binary serialization }
+inputoutput @Index { "Input/Output" }
+serialization @Index { Serialization }
+@IndentedDisplay @CP @Begin
+QFile file( "splash.dat" );
+if ( file.open(IO_WriteOnly) ) {
+    QDataStream out( &file );
+    out << QString( "SplashWidgetStyle" )
+	<< QFont( "Times", 18, QFont::Bold )
+	<< QColor( "skyblue" );
+}
+@End @CP
+@PP
+The data can easily be retrieved and used, for example:
+@IndentedDisplay @CP @Begin
+QString str;
+QFont font;
+QColor color;
+
+QFile file( "splash.dat" );
+if ( file.open(IO_ReadOnly) ) {
+    QDataStream in( &file );
+    in >> str >> font >> color;
+
+    if ( str == "SplashWidgetStyle" ) {
+	splashWidget->setFont( font );
+	splashWidget->setColor( color );
+    }
+}
+@End @CP
+In practice, the above example would be written more concisely and
+easily using settings @Xref{settings}.
+@PP
+@Class QTextStream and @Class QDataStream operate on any @Class
+QIODevice subclass. Qt includes the @Class QFile, @Class QBuffer,
+@Class QSocket and @Class QSocketDevice subclasses, and programmers
+can implement their own custom devices. @Class QIODevice also
+provides low-level functions such as @Func readLine() and @Func
+writeBlock() that can be used independently of any stream.
+@PP
+Directories are read and traversed using @Class QDir. @Class QDir can
+be used to manipulate path names and access the underlying file
+system (e.g. create a directory or delete a file). @Class QFileInfo
+provides more detailed information about a file, such as its size,
+permissions, creation time, last modification time, etc.
+@PP
+The following example lists the hidden files in the user's home
+directory along with their size, in decreasing size order:
+@IndentedDisplay @CP @Begin
+QDir dir = QDir::home();
+dir.setFilter( QDir::Files | QDir::Hidden );
+dir.setSorting( QDir::Size | QDir::Reversed );
+QStringList names = dir.entryList();
+
+for ( int i = 0; i < names.count(); i++ ) {
+    QFileInfo info( dir, names[i] );
+    cout << names[i].latin1() << " "
+	    << info.size() << endl;
+}
+@End @CP
+@PP
+Transparent access to remote files is provided by @Class
+QUrlOperator. In addition to local file system access, Qt supports
+the the FTP and HTTP protocols and can be extended to support other
+protocols. For example, files can be downloaded using FTP like this:
+ftp @Index { FTP }
+http @Index { HTTP }
+url @Index { URL }
+networking @Index { Networking }
+@IndentedDisplay @CP @Begin
+QUrlOperator op;
+op.copy( QString("ftp://ftp.trolltech.com/qt/INSTALL"),
+	    QString("file:/tmp") );
+@End @CP
+@PP
+URLs can easily be parsed and recomposed using @Class QUrl.
+@PP
+Image files are usually read by creating a @Class QImage with the
+file name as argument. Printing text and images is handled by @Class
+QPainter. These classes are described in 2D Graphics
+@Xref{2d.graphics}.
+@End @SubSection
+@SubSection
+    @Title { XML }
+    @Tag { xml }
+@Begin
+@PP
+Qt's XML module provides a SAX parser and a DOM parser, both of which
+read well-formed XML and are non-validating. The SAX (Simple API for
+XML) implementation follows the design of the SAX2 Java
+implementation, with adapted naming conventions. The DOM (Document
+Object Model) Level 2 implementation follows the W3C recommendation
+and includes namespace support.
+dom @Index { DOM }
+java @Index { Java }
+sax @Index { SAX }
+w3c @Index { W3C }
+xml @Index { XML }
+@PP
+Many Qt applications use XML format to store their persistent data.
+The SAX parser is used for reading data incrementally and is
+especially suitable for simple parsing requirements and for very
+large files. The DOM parser reads the entire file into a tree
+structure in memory that can be traversed at will.
+@End @SubSection
+@SubSection
+    @Title { Inter-Process Communication }
+    @Tag { inter.process.communication }
+@Begin
+@PP
+The @Class QProcess class is used to start external programs and to
+communicate with them from a Qt application in a platform-independent
+way. Communication is achieved by writing to the external program's
+standard input and potentially by reading its standard output and
+standard error.
+ipc @Index { IPC }
+asynchronousio @Index { Asynchronous "I/O" }
+processes @Index { Processes }
+@PP
+@Class QProcess works asynchronously, reporting the availability of
+data by emitting signals. Qt applications can connect to the signals
+to retrieve and process the data, and optionally respond by sending
+data back to the external program.
+@End @SubSection
+@SubSection
+    @Title { Networking }
+    @Tag { networking }
+@Begin
+@PP
+Qt provides a cross-platform interface for writing "TCP/IP" clients
+and servers.
+networking @Index { Networking }
+@PP
+The @Class QSocket class provides an asynchronous buffered TCP
+connection. @Class QSocket is a @Class QIODevice, making it easy to
+use @Class QTextStream and @Class QDataStream on a socket.
+@PP
+@Class QSocket is designed to work well within a GUI application. A
+live currency converter application illustrates this:
+@Figure
+    @Caption { Live currency converter }
+@IncludeGraphic { "../images/converter.eps" }
+@PP
+The application uses the fictional protocol CCP (Currency Conversion
+Protocol) to access the latest exchange rates from a server. Only
+lines related to networking are presented.
+@IndentedDisplay @CP @Begin
+socket = new QSocket( this );
+connect( socket, SIGNAL(readyRead()),
+	    this, SLOT(updateTargetAmount()) );
+@End @CP
+The socket is created in the @Class Converter constructor. Socket
+communication is asynchronous, and the socket emits the @Func
+readyRead() signal when there is data available to read.
+@PP
+@IndentedDisplay @CP @Begin
+void Converter::convert()
+{
+    QString command = "CONV " + sourceAmount->text() + " " +
+			sourceCurrency->currentText() + " " +
+			targetCurrency->currentText() + "\r\n";
+    socket->connectToHost( "ccp.banca-monica.nu", 123 );
+    socket->writeBlock( command.latin1(), command.length() );
+}
+@End @CP
+The @Func convert() slot is called when the user clicks the @Button
+Convert button. It opens the connection and sends a @F CONV request
+(e.g. @F CONV @F 100 @F EUR @F USD) to port 123 on the server @F
+ccp.banca-monica.nu. @Class QSocket automatically uses @Class QDns to
+resolve @F cpp.banca-monica.nu to its IP address. All these
+operations are non-blocking to keep the user interface responsive.
+@PP
+@IndentedDisplay @CP @Begin
+void Converter::updateTargetAmount()
+{
+    if ( socket->canReadLine() ) {
+	targetAmount->setText( socket->readLine() );
+	socket->close();
+    }
+}
+@End @CP
+The @Func updateTargetAmount() function is called when the server
+replies to the @F CONV request. It reads the reply, updates the
+display and closes the connection.
+@PP
+Simple TCP servers can be implemented by subclassing @Class
+QServerSocket, which works asynchronously like @Class QSocket. @Class
+QServerSocket sets up a listening socket that accepts incoming
+connections, and calls a virtual function to serve the client.
+@PP
+The @Class QSocketDevice class provides a platform-independent
+wrapper for the native socket APIs. It provides the underlying
+functionality for @Class QSocket and @Class QServerSocket, and can be
+used for UDP.
+@DP
+@OLREF @LP
+@Href{"http://www.trolltech.com/3.0/xml.html"}@LLP
+@Href{"http://www.trolltech.com/3.0/datastreamformat.html"}@LLP
+@End @SubSection
+@EndSubSections
+@End @Section

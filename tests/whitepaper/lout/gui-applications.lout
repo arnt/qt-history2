@@ -1,0 +1,480 @@
+@Section
+    @Title { GUI Applications }
+    @Tag { gui.applications }
+@Begin
+@QuotedDisplay { @I {
+Building modern GUI applications with Qt is fast and simple, and can
+be achieved by hand coding or by using @QDR, Qt's visual
+design tool.
+} }
+@PP
+Qt provides all the classes and functions necessary to create modern
+GUI applications. Qt can be used to create both `main window' style
+applications with a menu bar, toolbars and status bar surrounding a
+central area, and dialog style applications that use buttons and
+possibly tabs to present options and information. Qt supports both
+SDI (single document interface) and MDI (multiple document
+interface). Qt also supports drag-and-drop and the clipboard.
+clipboard @Index { Clipboard }
+draganddrop @Index { Drag and drop }
+@PP
+Tool bars can be moved around within the toolbar area (called the
+`dock area'), dragged to other dock areas, or floated as tool
+palettes. This functionality is built in and requires no additional
+code, although programmers can apply constraints to toolbar behavior
+if they wish.
+toolbars @Index { Toolbars }
+@PP
+Qt simplifies programming. For example, if a menu option, a toolbar
+button and a keyboard accelerator all perform the same action, the
+action need only be coded once.
+@PP
+Qt also provides message boxes and a full set of standard dialogs to
+make it easy for applications to ask the user questions, and to get
+the user to choose files, folders, fonts and colors. In practice, a
+one-line statement using one of Qt's static convenience functions is
+all that is necessary to present a message box or a standard dialog.
+@PP
+Qt can platform-independently store application settings, such as
+user preferences, most recently used files, window and toolbar
+positions and sizes, etc.
+@BeginSubSections
+@SubSection
+    @Title { Main Window Classes }
+    @Tag { main.window.classes }
+@Begin
+@BeginSubSubSections
+@SubSubSection
+    @Title { The Main Window }
+    @Tag { the.main.window }
+@Begin
+@PP
+The @Class QMainWindow class lays out a set of related widgets to
+provide a framework for typical application main windows.
+guiapplications @Index { GUI applications }
+mainwindow @Index { Main window }
+@Figure
+    @Caption { An application main window }
+@IncludeGraphic { "../images/mainwindow.eps" }
+@PP
+A main window contains a set of standard widgets. The top of the main
+window contains a menu bar, beneath which toolbars are laid out. The
+toolbars can be moved to any dock area; main windows have dock areas
+at the top, left, right and bottom. Toolbars can also be dragged out
+of a dock area and floated as independent tool palettes. The bottom
+of the main window, below the bottom dock area, is occupied by a
+status bar. The central area contains any widget for SDI applications
+or a @Class QWorkspace for MDI applications. Tooltips and ``What's
+this?'' help provide balloon help for the user-interface elements.
+sizegrip @Index { Size grip }
+mdi @Index { MDI }
+sdi @Index { SDI }
+centralarea @Index { Central area }
+statusbar @Index { Status bar }
+toolbars @Index { Toolbars }
+@End @SubSubSection
+@SubSubSection
+    @Title { Menus }
+    @Tag { menus }
+@Begin
+@PP
+The @Class QPopupMenu widget presents menu items to the user in a
+vertical list. Pop-up menus can be standalone (e.g. a context menu),
+can appear in a menu bar, or can be a sub-menu of another popup menu.
+Menus can also have tear-off handles.
+contextmenu @Index { Context menu }
+menu @Index { Menu }
+popupmenu @Index { Popup menu }
+submenu @Index { Sub-menu }
+tearoffhandle @Index { Tear-off handle }
+@PP
+Each menu item can have an icon, a checkbox and an accelerator. Menu
+items usually correspond to actions (e.g. Save). Separator items are
+displayed as a line and are used to group related actions visually.
+icons @Index { Icons }
+separatoritems @Index { Separator items }
+@PP
+Here's an example that creates a @Menu File menu with 
+@I{@Underline{N}ew}, @I{@Underline{O}pen} and
+@I{E{@Underline{x}}it} menu items:
+@IndentedDisplay @CP @Begin
+QPopupMenu *fileMenu = new QPopupMenu( this );
+fileMenu->insertItem( "&New", this, SLOT(newFile()),
+                      CTRL+Key_N );
+fileMenu->insertItem( "&Open...", this, SLOT(open()),
+                      CTRL+Key_O );
+fileMenu->insertSeparator();
+fileMenu->insertItem( "E&xit", qApp, SLOT(quit()),
+                      CTRL+Key_Q );
+@End @CP
+When a menu item is chosen, the corresponding slot is executed.
+@PP
+The @Class QMenuBar class implements a menu bar. It automatically
+sets its geometry to the top of its parent widget (typically a @Class
+QMainWindow). It splits its contents across multiple lines if the
+parent window is not wide enough. Qt's built-in layout managers
+automatically take the menu bar into consideration. On the Macintosh,
+the menu bar appears at the top of the screen as expected.
+macintosh @Index { Macintosh }
+menubar @Index { Menu bar }
+@PP
+Here's how to create a menu bar with 
+@I{@Underline{F}ile}, @I{@Underline{E}dit} and @I{@Underline{H}elp} menus:
+@IndentedDisplay @CP @Begin
+QMenuBar *bar = new QMenuBar( this );
+bar->insertItem( "&File", fileMenu );
+bar->insertItem( "&Edit", editMenu );
+bar->insertItem( "&Help", helpMenu );
+@End @CP
+@PP
+Qt's menu system is very flexible. Menu items can be enabled,
+disabled, added or removed dynamically. Menu items with customized
+appearance and behavior can be created by subclassing @Class
+QCustomMenuItem.
+@End @SubSubSection
+@SubSubSection
+    @Title { Toolbars }
+    @Tag { toolbars }
+@Begin
+@PP
+The @Class QToolButton class implements a toolbar button with an
+icon, a 3D frame and an optional label. Toggle toolbar buttons turn
+features on and off. Other toolbar buttons execute a command.
+Different icons can be provided for the active, disabled and enabled
+modes, and for the on and off states. If only one icon is provided,
+Qt automatically distinguishes the state using visual cues, for
+example graying out disabled buttons. Pressing a toolbar button can
+also be used to trigger a popup menu.
+icons @Index { Icons }
+toolbars @Index { Toolbars }
+togglebuttons @Index { Toggle buttons }
+@PP
+@Class{QToolButton}s usually appear side-by-side within a @Class
+QToolBar. An application can have any number of toolbars, and the
+user is free to move them around. Toolbars can contain widgets of
+almost any type, for example @Class {QComboBox}es and @Class
+{QSpinBox}es.
+@End @SubSubSection
+@SubSubSection
+    @Title { Balloon Help }
+    @Tag { balloon.help }
+@Begin
+@PP
+Modern applications use balloon help to briefly explain the purpose
+of user-interface elements. Qt provides two mechanisms for balloon
+help: tooltips and ``What's this?'' help.
+balloonhelp @Index { Balloon help }
+hoverhelp @Index { Hover help }
+@PP
+Tooltips are small, usually yellow, rectangles that appear
+automatically when the mouse pointer hovers over a widget. Tooltips
+are often used to explain a toolbar button, since toolbar buttons are
+rarely displayed with text labels. Here's how to set the tooltip of a
+`Save' toolbar button:
+tooltips @Index { Tooltips }
+@IndentedDisplay @CP @Begin
+QToolTip::add( saveButton, "Save" );
+@End @CP
+It is also possible to set a longer text to be displayed in
+the status bar when the tooltip is shown.
+@PP
+``What's this?'' help is similar to tooltips, except that the user must
+request it, for example by pressing @Key{Shift+F1} and then clicking a
+widget or menu item. ``What's this?'' help is typically longer than a
+tooltip. Here's how to set the ``What's this?'' text for a `Save'
+toolbar button:
+whatsthis @Index { What's this? }
+@IndentedDisplay @CP @Begin
+QWhatsThis::add( saveButton, "Saves the current file." );
+@End @CP
+@PP
+The @Class QToolTip and @Class QWhatsThis classes provide virtual
+functions that can be reimplemented for more specialized behavior,
+for example to display different text according to the position
+of the mouse within the widget.
+@End @SubSubSection
+@SubSubSection
+    @Title { The Status Bar }
+    @Tag { the.status.bar }
+@Begin
+@PP
+@Class QStatusBar implements a status bar. The status bar displays
+three kinds of indicators:
+statusbar @Index { Status bar }
+@BulletList
+@ListItem { @I{Temporary messages.} These are displayed at the left.
+Temporary messages vanish after a definable amount of time, or when
+another message is shown. }
+@ListItem { @I{Standard indicators.} These can be almost any widget
+and appear on the right. Long messages may hide them temporarily. }
+@ListItem { @I{Permanent indicators.} These appear to the right of
+standard indicators and are never hidden. }
+@EndList
+@End @SubSubSection
+@SubSubSection
+    @Title { Actions }
+    @Tag { actions }
+@Begin
+@PP
+Applications usually provide the user with several different ways to
+perform a particular action. For example, most applications provide a
+`Save' action available from the menu (@Menu{"File|Save"}), from the
+toolbar (the `floppy disk' toolbar button) and as an accelerator
+(@Key{Ctrl+S}). The @Class QAction class encapsulates this concept. It
+allows programmers to define an action in one place and then add that
+action to a menu or toolbar. Actions that only make sense as menu
+options can be added to menus directly.
+qaction @Index { QAction }
+accelerators @Index { Accelerators }
+actions @Index { Actions }
+commands @Index { Commands }
+connections @Index { Connections }
+@PP
+The following code implements a `Save' menu item, a `Save' toolbar
+button and a `Save' accelerator, all with balloon help:
+menubar @Index { Menu bar }
+toolbars @Index { Toolbars }
+@IndentedDisplay @CP @Begin
+QAction *saveAct = new QAction( "Save", saveIcon, "&Save",
+				CTRL+Key_S, this );
+connect( saveAct, SIGNAL(activated()), this, SLOT(save()) );
+saveAct->setWhatsThis( "Saves the current file." );
+saveAct->addTo( fileMenu );
+saveAct->addTo( toolbar );
+@End @CP
+@PP
+In addition to avoiding duplication, using a @Class QAction ensures
+that the state of menu items stays in sync with the state of toolbar
+buttons, and that status tips are displayed when necessary. Disabling
+an action will disable any corresponding menu items and toolbar
+buttons. Similarly, if the user clicks a toggle toolbar button, the
+corresponding menu item will be checked or unchecked accordingly.
+@End @SubSubSection
+@SubSubSection
+    @Title { The Central Widget }
+    @Tag { the.central.widget }
+@Begin
+@PP
+The central area of a @Class QMainWindow can contain any widget. For
+example, a text editor could use a @Class QTextEdit as its central
+widget:
+centralwidget @Index { Central widget }
+@IndentedDisplay @CP @Begin
+QTextEdit *editor = new QTextEdit( mainWindow );
+mainWindow->setCentralWidget( editor );
+@End @CP
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { Multiple Document Interface }
+    @Tag { multiple.document.interface }
+@Begin
+@PP
+The @Class QWorkspace class provides multiple document interface
+(MDI). @Class QWorkspace is typically used as the central widget of
+a @Class QMainWindow, but it can be used like any other widget.
+mdi @Index { MDI }
+workspace @Index { Workspace }
+@PP
+Child widgets of @Class QWorkspace are also ordinary widgets of any
+type. They are rendered with a frame similar to the frame around
+top-level widgets. Functions such as @Func show(), @Func hide(),
+@Func showMaximized() and @Func setCaption() work in the same way for
+child MDI widgets as for ordinary top-level widgets.
+captions @Index { Captions }
+frames @Index { Frames }
+@PP
+@Class QWorkspace provides positioning strategies such as cascade
+and tile. If the child widgets extend outside the MDI area, scroll
+bars can be set to appear automatically. If a child widget is
+maximized, the frame buttons (e.g. @Button Minimize) are shown in the
+menu bar.
+cascade @Index { Cascade }
+tile @Index { Tile }
+@End @SubSection
+@SubSection
+    @Title { Dialogs }
+    @Tag { dialogs }
+@Begin
+@PP
+Most GUI applications use dialog boxes to interact with the user for
+certain operations. Qt includes ready-made dialog classes with
+convenience functions for the most common tasks. Many aspects of the
+dialogs can be configured, for example the buttons and labels in a
+@Class QMessageBox.
+windows @Index { Windows }
+dialogs @Index { Dialogs }
+nativedialogs @Index { Native dialogs }
+@PP
+Screenshots of some of Qt's standard dialogs are presented below.
+aboutboxes @Index { About boxes }
+errors @Index { Errors }
+fatalerrors @Index { Fatal errors }
+information @Index { Information }
+messagebox @Index { Message box }
+warnings @Index { Warnings }
+@PP
+@Figure
+    @Caption { QMessageBox }
+@IncludeGraphic { "../images/qmessagebox.eps" }
+@PP
+@Class QMessageBox is used to provide the user with information or to
+present the user with simple choices (e.g. `Yes' or `No').
+@PP
+@Figure
+    @Caption { QFileDialog }
+@IncludeGraphic { "../images/qfiledialog.eps" }
+@PP
+@Class QFileDialog is a sophisticated file selection dialog. It can
+be used to select single or multiple local or remote files (e.g.
+using FTP), and includes functionality such as directory and file
+renaming and directory creation. Like most Qt dialogs, @Class
+QFileDialog is resizable, which makes it easy to view long file
+names and large directories.
+filedialog @Index { File dialog }
+directories @Index { Directories }
+@PP
+@Figure
+    @Caption { QProgressDialog }
+@IncludeGraphic { "../images/qprogressdialog.eps" }
+@PP
+@Class QProgressDialog displays a progress bar and a `Cancel' button.
+progressbars @Index { progress bars }
+@PP
+@Figure
+    @Caption { QTabDialog }
+@IncludeGraphic { "../images/qtabdialog.eps" }
+@PP
+@Class QTabDialog provides a framework for settings dialogs.
+notebooks @Index { Notebooks }
+propertyboxes @Index { Property boxes }
+tabwidgets @Index { Tab widgets }
+@PP
+@Figure
+    @Caption { QWizard }
+@Scale @IncludeGraphic { "../images/qwizard.eps" }
+@PP
+@Class QWizard provides a framework for wizard dialogs.
+assistants @Index { Assistants }
+druids @Index { Druids }
+wizards @Index { Wizards }
+@PP
+@Figure
+    @Caption { QFontDialog }
+@IncludeGraphic { "../images/qfontdialog-etc.eps" }
+@PP
+@Class QFontDialog is used to select a font.
+fontdialog @Index { Font fialog }
+@PP
+Qt also provides standard dialogs for color selection and printing
+options.
+@PP
+Dialogs operate in one of three ways:
+modaldialogs @Index { Modal dialogs }
+semimodaldialogs @Index { Semi-modal dialogs}
+@BulletList
+@ListItem { A @I modal dialog blocks input to the other visible
+windows in the same application. Users must close the dialog before
+they can access any other window in the application. }
+@ListItem { A @I modeless dialog operates independently of other
+windows. There is little difference between a modeless @Class QDialog
+and a @Class QWidget. }
+@ListItem { A @I semi-modal dialog returns control to the caller
+immediately. These dialogs behave like modal dialogs from the user's
+point of view, but allow the application to continue processing. This
+is particularly useful for progress dialogs. }
+@EndList
+@PP
+Modal dialogs are typically used like this:
+@IndentedDisplay @CP @Begin
+QFileDialog dialog( workingDirectory, "", 0, 0, TRUE );
+dialog.setFilter( "Text files (*.txt)" );
+if ( dialog.exec() == QDialog::Accepted ) {
+    do_something_with_file( dialog.selectedFile() );
+}
+@End @CP
+@PP
+Programmers can create their own dialogs by subclassing @Class
+QDialog, which inherits @Class QWidget.
+@End @SubSection
+@SubSection
+    @Title { Dock Windows }
+    @Tag { dock.windows }
+@Begin
+@PP
+Dock windows are windows that the user can move inside a dock area or
+from one dock area to another. The user can undock a dock window and
+make it float on top of the application or minimize it. Dock windows
+and areas are provided by the @Class QDockWindow and @Class QDockArea
+classes.
+dockwindows @Index { Dock windows }
+@PP
+Qt provides one @Class QDockWindow subclass, @Class QToolBar. @Class
+QMainWindow automatically provides four dock areas, one on each side
+of the central widget.
+centralwidget @Index { Central widget }
+toolbars @Index { Toolbars }
+@PP
+Developers can create custom dock windows by instantiating a @Class
+QDockWindow object and by adding widgets to it. The widgets are laid
+out side-by-side if the dock area is horizontal (e.g. at the top of
+the main window) and above each other if the area is vertical (e.g.
+at the left of the main window).
+@PP
+Dock areas are not bound to @Class QMainWindow; developers can use
+@Class QDockArea in any custom widget. Toolbars and other dock
+windows can be used with any dock area.
+@PP
+Some applications, including @QDR @Xref{qt.designer} and Qt Linguist
+@Xref{qt.linguist}, use dock windows extensively. @Class QDockArea
+provides operators to save and restore the position of dock windows,
+so that applications can easily restore the user's preferred
+positions.
+designer @Index { Designer }
+linguist @Index { Linguist }
+qtdesigner @Index { Qt Designer }
+qtlinguist @Index { Qt Linguist }
+@End @SubSection
+@SubSection
+    @Title { Settings }
+    @Tag { settings }
+@Begin
+@PP
+User settings and other application settings can easily be stored on
+disk using the @Class QSettings class. On Windows, @Class QSettings
+makes use of the system registry; on other platforms, settings are
+stored in text files.
+configuration @Index { Configuration }
+defaults @Index { Defaults }
+preferences @Index { Preferences }
+registry @Index { Registry }
+settings @Index { Settings }
+systemregistry @Index { System registry }
+usersettings @Index { User settings }
+@PP
+A particular setting is stored using a key. For example, the key
+@F{"/SoftwareInc/"}&-@F{"Zoomer/RecentFiles"} could contain a list of
+recently used files. Booleans, numbers, Unicode strings and lists of
+Unicode strings can be stored.
+unicode @Index { Unicode }
+@End @SubSection
+@SubSection
+    @Title { Multi-Threading }
+    @Tag { multi.threading }
+@Begin
+@PP
+GUI applications often use multiple threads: one thread to keep the
+user interface responsive, and one or many other threads to perform
+time-consuming activities such as reading large files and performing
+complex calculations. Qt can be configured to support
+multi-threading, and provides three threading classes: @Class
+QThread, @Class QMutex and @Class QWaitCondition.
+multithreading @Index { Multi-threading }
+@DP
+@OLREF @LP
+@Href{"http://www.trolltech.com/3.0/threads.html"}@LLP
+@End @SubSection
+@EndSubSections
+@End @Section
+

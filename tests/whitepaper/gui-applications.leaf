@@ -342,16 +342,12 @@ names and large directories.
   \index color dialog
   \index font dialog
 
-  \img qfontdialog-etc.png QFontDialog and QColorDialog
+  \img qfontdialog-etc.png QFontDialog 
 
-\Class QFontDialog and \Class QColorDialog are used to select a font
-and a color.
+\Class QFontDialog is used to select a font.
 
-  \index print dialog
-
-  \img qprintdialog.png QPrintDialog
-
-\Class QPrintDialog allows the user to select printing options.
+Qt also provides standard dialogs for color selection and printing
+options.
 
   \index modal dialogs
   \index semi-modal dialogs

@@ -1,0 +1,135 @@
+@Section
+    @Title { Styles and Themes }
+    @Tag { styles.and.themes }
+@Begin
+@QuotedDisplay { @I {
+Qt automatically uses the native style for look and feel. Qt
+applications respect user preferences for colors, fonts, sounds, etc.
+Qt programmers are free to use any of the supplied styles and can
+override any preferences. Programmers can modify existing styles or
+implement their own styles using Qt's powerful style engine.
+} }
+@PP
+A style implements the `look and feel' of the user interface on a
+particular platform. A style is a @Class QStyle subclass that
+implements basic drawing functions such as `draw a frame', `draw a
+button', etc. Qt performs all the widget drawing itself for maximum
+speed and flexibility.
+lookandfeel @Index { Look and feel }
+styles @Index { Styles }
+themes @Index { Themes }
+widgetstyle @Index { Widget style }
+colors @Index { Colors }
+fonts @Index { Fonts }
+preferences @Index { Preferences }
+settings @Index { Settings }
+sounds @Index { Sounds }
+styles @Index { Styles }
+systemsounds @Index { System sounds }
+themes @Index { Themes }
+userpreferences @Index { User preferences }
+drawing @Index { Drawing }
+emulation @Index { Emulation }
+interfaceemulation @Index { Interface emulation }
+@BeginSubSections
+@SubSection
+    @Title { Built-in Styles }
+    @Tag { built.in.styles }
+@Begin
+@PP
+Qt provides the following built-in styles: Windows, Motif, MotifPlus,
+CDE, Platinum, SGI and Aqua (on the Macintosh). By default, Qt uses
+the appropriate style for the user's platform and desktop
+environment. The style can also be chosen programmatically, or with
+the @F -style command-line option on Unix.
+aqua @Index { Aqua }
+cde @Index { CDE }
+macintosh @Index { Macintosh }
+motif @Index { Motif }
+motifplus @Index { MotifPlus }
+platinum @Index { Platinum }
+sgi @Index { SGI }
+windows @Index { Windows }
+@Figure
+    @Caption { Comboboxes in the different built-in styles }
+@IncludeGraphic { "../images/combobox-style.eps" }
+@PP
+A style is complemented by a theme, which encapsulates the user's
+preferences for colors, fonts, sounds, etc. Qt automatically adapts
+to the computer's active theme. For example, Qt supports scroll and
+fade transition effects for menus and tooltips on Windows.
+fadeeffect @Index { Fade effect }
+menus @Index { Menus }
+palette @Index { Palette }
+scroll effect @Index { Scroll effect }
+tooltips @Index { Tooltips }
+transition effects @Index { Transition effects }
+@End @SubSection
+@SubSection
+    @Title { Styles-aware Widgets }
+    @Tag { style.aware.widgets }
+@Begin
+@PP
+Qt's built-in widgets are style aware. Custom widgets and dialogs are
+almost always combinations of built-in widgets and layouts, and are
+automatically style aware. On the rare occasions when it is necessary
+to write a custom widget from scratch, developers can use @Class
+QStyle to draw primitive user-interface elements rather than drawing
+raw rectangles directly.
+@End @SubSection
+@SubSection
+    @Title { Custom Styles }
+    @Tag { custom.styles }
+@Begin
+@PP
+Custom styles are used to provide a distinct look to an application
+or family of applications. Custom styles can be defined by
+subclassing @Class QStyle, @Class QCommonStyle or any other
+descendent of @Class QCommonStyle. It is easy to make small
+modifications to existing styles by reimplementing one or two virtual
+functions from the appropriate base class.
+@Figure
+    @Caption { The full @Class QStyle class hierarchy }
+@Scale @Diag 
+    font { Helvetica Base }
+{
+@Tree 
+{
+    @CurveBox QStyle 
+    @FirstSub {
+	@CurveBox QCommonStyle
+	@LeftSub {
+	    @CurveBox QMotifStyle
+	    @FirstSub @CurveBox QCDEStyle
+	    @NextSub @CurveBox QMotifPlusStyle
+	    @NextSub @CurveBox QSGIStyle
+	}
+	@RightSub {
+	    @CurveBox QWindowsStyle
+	    @LeftSub @CurveBox QAquaStyle
+	    @RightSub @CurveBox QPlatinumStyle
+	}
+    }
+}
+}
+#@IncludeGraphic { "../images/qstyle-diag.eps" }
+@PP
+An application's style can be set like this:
+@IndentedDisplay @CP @Begin
+QApplication::setStyle( new MyCustomStyle );
+@End @CP
+@PP
+A style can also be compiled as a plugin. Plugins make it possible to
+preview a form in a custom style in @QDR without recompiling Qt or
+@QDR. The style of an existing Qt application can be changed using a
+style plugin without recompiling the application.
+designer @Index { Designer }
+qtdesigner @Index { Qt Designer }
+plugins @Index { Plugins }
+@DP
+@OLREF @LP
+@Href{"http://www.trolltech.com/3.0/customstyle.html"}@LLP
+@End @SubSection
+@EndSubSections
+@End @Section
+

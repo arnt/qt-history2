@@ -1,0 +1,118 @@
+@Section
+    @Title { Qt Designer }
+    @Tag { qt.designer }
+@Begin
+@QuotedDisplay { @I {
+@QDR is written in Qt and provides visual user-interface design. Qt
+applications can be written entirely as source code, or using @QDR to
+speed up development.
+} }
+@Figure
+    @Caption { @QDR }
+@Scale @IncludeGraphic { "../images/designer-wp.eps" }
+@PP
+Designing a form with @QDR is a simple process. Developers click a
+toolbar button representing the widget they want, then click on a
+form to place the widget. The widget's properties can then be changed
+using the property editor. The precise positions and sizes of the
+widgets does not matter. Developers select widgets and apply layouts
+to them. For example, some button widgets could be selected and laid
+out side-by-side by choosing the 'lay out horizontally' option. This
+approach makes design very fast, and the finished forms will scale
+properly to fit whatever window size the end-user prefers. See 
+Layouts @Xref{layouts} for information about Qt's automatic layouts.
+designer @Index { Designer }
+qtdesigner @Index { Qt Designer }
+@PP
+@QDR eliminates the time consuming compile, link and run cycle, and
+makes it easy to correct or change designs. @QDR's preview options let
+developers see their forms in any style, for example, a Windows
+developer can preview a form in Motif style. @QDR provides live
+preview and editing of database data through its tight integration
+with Qt's database classes. See Databases @Xref{databases} for more
+about Qt's database support.
+@PP
+Developers can create both dialog-style applications and main
+window-style applications with menus, toolbars, balloon help, etc.
+Several form templates are supplied, and developers can create their
+own templates to ensure consistency across an application or family of
+applications. @QDR uses wizards to make creating toolbars, menus and
+database applications as fast and easy as possible. Programmers can
+create their own custom widgets that can easily be integrated with
+@QDR. 
+@PP
+@QDR supports a project-based approach to application development. A
+project is represented by a @File .pro file, which @Cmd qmake can use
+to generate Makefiles. Developers create a new project and then add
+forms and source files as required. Developers can completely separate
+the user interface from the underlying functionality by subclassing,
+or they can keep their source code and forms together by editing the
+form's source directly in @QDR. 
+@PP
+Icons and other images used in the application are automatically
+shared across all forms in a project to reduce executable size and
+speed up loading.
+@PP
+Form designs are stored in XML format in @File .ui files and
+converted into C++ header and source files by the @Cmd uic (User
+Interface Compiler). The @Cmd qmake build tool automatically
+includes build rules for @Cmd uic in the Makefiles it generates, so
+developers do not need to invoke @Cmd uic themselves.
+xml @Index { XML }
+@PP
+Usually forms are compiled into the executable, but in some
+situations customers need to modify the appearance of an application
+without accessing the source code. Qt supports 'dynamic dialogs':
+@File .ui files that can be loaded at run-time and dynamically
+converted into fully functional forms. Companies can supply
+application executables along with the customer-modifiable forms in
+@File .ui format, and the customer can use @QDR to customize the
+appearance of the application's forms. Loading a dynamic dialog is
+trivial:
+@IndentedDisplay @CP @Begin
+QDialog *creditForm = (QDialog *)
+                      QWidgetFactory::create( "creditform.ui" );
+@End @CP
+@BeginSubSections
+@SubSection
+    @Title { Qt Assistant }
+    @Tag { qt.assistant }
+@Begin
+@PP
+@QDR's on-line help is provided by the Qt Assistant application. Qt
+Assistant displays Qt's entire documentation set, and works in a
+similar way to a web browser. Unlike web browsers, Qt Assistant
+applies an intelligent indexing algorithm to provide fast searching
+for words and phrases that occur in the documentation.
+@Figure
+    @Caption { Qt Assistant }
+@Scale @IncludeGraphic { "../images/assistant-wp.eps" }
+@PP
+Qt's reference documentation consists of around 1,500 HTML pages (over
+2,500 US letter sized pages), which document Qt's classes and tools,
+and which include overviews and introductions to various aspects of Qt
+programming.
+htmlviewer @Index { HTML viewer }
+@PP
+Qt Assistant is a Qt application that renders Qt's HTML reference
+documentation using @Class QTextEdit. The @Class QTextEdit class
+supports a subset of HTML 3.2, and can also use custom tags that are
+created with the @Class QStyleSheet class.
+@End @SubSection
+@BeginSubSections
+@SubSection
+    @Title { GUI Application Example }
+    @Tag { gui.application.example }
+@Begin
+@PP
+@Figure
+    @Caption { Class Hierarchy application }
+@IncludeGraphic { "../images/hierarchy.eps" }
+# TODO
+@DP
+@OLREF @LP
+@Href{"http://www.trolltech.com/3.0/designer-manual.html"}@LLP
+@End @SubSection
+@EndSubSections
+@End @Section
+

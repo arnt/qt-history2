@@ -1,5 +1,15 @@
 \chapter 2D and 3D Graphics
 
+\quote
+Qt provides excellent support for 2D and 3D graphics. Qt's 2D graphics
+classes support painting (bitmapped graphics) and drawing (vector
+graphics). Animation and collision detection are also supported. Qt
+can load and save a wide and extensible range of image formats. Qt can
+draw Unicode rich text, rotated and sheared as required. Qt is the
+de-facto standard GUI toolkit for platform-independent OpenGL
+programming.
+\endquote
+
 \section1 2D Graphics
 
 \section2 Images

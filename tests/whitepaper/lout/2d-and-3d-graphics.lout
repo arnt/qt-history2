@@ -1,0 +1,433 @@
+@Section
+    @Title { 2D and 3D Graphics }
+    @Tag { 2d.and.3d.graphics }
+@Begin
+@QuotedDisplay { @I {
+Qt provides excellent support for 2D and 3D graphics. Qt's 2D graphics
+classes support painting (bitmapped graphics) and drawing (vector
+graphics). Animation and collision detection are also supported. Qt
+can load and save a wide and extensible range of image formats. Qt can
+draw Unicode @Xref{unicode} rich text, rotated and sheared as
+required. Qt is the de-facto standard GUI toolkit for
+platform-independent OpenGL programming.
+} }
+@BeginSubSections
+@SubSection
+    @Title { 2D Graphics }
+    @Tag { 2d.graphics }
+@Begin
+@BeginSubSubSections
+@SubSubSection
+    @Title { Images }
+    @Tag { images }
+@Begin
+@PP
+The @Class QImage class supports the input, output and manipulation of
+images in several formats, including BMP, GIF @FootNote { If you are
+in a country that recognizes software patents and where Unisys holds a
+patent on LZW decompression, Unisys may require you to license the
+technology to use GIF. }, JPEG, MNG, PNG, PNM, XBM and XPM.
+bmp @Index { BMP }
+gif @Index { GIF }
+jpeg @Index { JPEG }
+mng @Index { MNG }
+png @Index { PNG }
+pnm @Index { PNM }
+unisys @Index { Unisys }
+xbm @Index { XBM }
+xpm @Index { XPM }
+bitmaps @Index { Bitmaps }
+graphics @Index { Graphics }
+icons @Index { Icons }
+images @Index { Images }
+pictures @Index { Pictures }
+@PP
+Many of Qt's built-in widgets can display images, for example
+buttons, labels, menu items, etc. Here's how to display an icon on a
+push button:
+@IndentedDisplay @CP @Begin
+QPushButton *button = new QPushButton( "&Find Address", parent );
+button->setIconSet( QIconSet(QImage("find.bmp")) );
+@End @CP
+@Figure
+    @Caption { An icon on a button }
+@IncludeGraphic { "../images/icon.eps" }
+@PP
+@Class QImage supports images with color depths of 1, 8 and 32 bits.
+Programmers can manipulate the pixel and palette data, apply
+transformations (e.g. rotations, shears, etc.) and reduce the color
+depth with dithering if desired. Applications can store an `alpha
+channel' in a @Class QImage along with the color data for their own
+purposes (e.g. transparency and alpha-blending).
+alpha channel @Index { Alpha channel }
+palette @Index { Palette }
+transformations @Index { Transformations }
+transparency @Index { Transparency }
+@PP
+The @Class QMovie class can be used to display animated images.
+animations @Index { animations }
+movies @Index { movies }
+@End @SubSubSection
+@SubSubSection
+    @Title { Painting }
+    @Tag { painting }
+@Begin
+@PP
+The @Class QPainter provides a platform-independent API for painting
+widgets. It provides primitives as well as advanced functionality
+such as transformations and clipping. All Qt's built-in widgets paint
+themselves using @Class QPainter. Programmers invariably use @Class
+QPainter when implementing their own custom widgets.
+painting @Index { Painting }
+@PP
+@Class QPainter provides standard functions to draw points, lines,
+polygons, ellipses, arcs, Bezier curves, etc. The following command
+draws a 120 x 60 rectangle whose top-left point is at (25, 15), with
+a 2-pixel wide dashed red outline:
+beziercurves @Index { Bezier curves }
+@IndentedDisplay @CP @Begin
+painter.setPen( QPen(red, 2, DashLine) );
+painter.drawRect( 25, 15, 120, 60 );
+@End @CP
+@PP
+By default, the top-left corner of a widget is located at coordinates
+(0, 0), and the bottom-right corner is located at (@Func width() - 1,
+@Func height() - 1). The coordinate system of a @Class QPainter
+object can be translated, scaled, rotated and sheared. The objects to
+be drawn can be clipped according to a `window', and positioned on
+the widget using a `viewport'.
+clipping @Index { Clipping }
+coordinates @Index { Coordinates }
+model @Index { Model }
+rotations @Index { Rotations }
+scales @Index { Scales }
+shears @Index { Shears }
+transformations @Index { Transformations }
+viewport @Index { Viewport }
+window @Index { Window }
+worldmatrix @Index { World matrix }
+@Figure
+    @Caption { Qt's @F xform example showing rotated text }
+@IncludeGraphic { "../images/xform.eps" }
+@PP
+The code below draws a bar-graph custom widget. It uses a @Class
+QPainter in the reimplementation of @Func paintEvent(), with the
+default coordinate system.
+events @Index { Events }
+@IndentedDisplay @CP @Begin
+void BarGraph::paintEvent( QPaintEvent * )
+{
+    QPainter painter( this );
+
+    draw_bar( &painter, 0, 39, Qt::DiagCrossPattern );
+    draw_bar( &painter, 1, 31, Qt::BDiagPattern );
+    draw_bar( &painter, 2, 44, Qt::FDiagPattern );
+    draw_bar( &painter, 3, 68, Qt::SolidPattern );
+
+    painter.setPen( black );
+    painter.drawLine( 0, 0, 0, height() - 1 );
+    painter.drawLine( 0, height() - 1, width() - 1, height() - 1 );
+
+    painter.setFont( QFont("Helvetica", 18) );
+    painter.drawText( rect(), AlignHCenter | AlignTop, "Sales" );
+}
+
+void BarGraph::draw_bar( QPainter *painter, int month, int barHeight,
+			    BrushStyle pattern )
+{
+    painter->setPen( blue );
+    painter->setBrush( QBrush(darkGreen, pattern) );
+    painter->drawRect( 10 + 30 * month, height() - barHeight, 20,
+		       barHeight );
+}
+@End @CP
+@PP
+The widget is drawn correctly at different sizes because the code
+uses the @Func width(), @Func height() and @Func rect() functions.
+The widget produced by this code is shown below.
+clipping @Index { Clipping }
+flicker @Index { Flicker }
+@Figure
+    @Caption { Custom widget }
+@IncludeGraphic { "../images/painting.eps" }
+@PP
+@Class QPainter supports clipping using a region composed of
+rectangles, polygons, ellipses and bitmaps. Complex regions may be
+created by uniting, intersecting, subtracting and XOR'ing simple
+regions. Clipping can be used to reduce flicker when repainting.
+@PP
+The @Class QColor class stores a color specified by a RGB or HSV
+triple, or by a name (e.g. `skyblue'). Qt programmers can specify any
+24-bit color; Qt automatically allocates the requested color in the
+system's palette, or uses a similar color on color-limited displays.
+Commonly used colors, e.g. @F red, @F green, @F blue, etc., are
+predefined in Qt.
+hsv @Index { HSV }
+rgb @Index { RGB }
+colors @Index { Colors }
+palette @Index { Palette }
+@End @SubSubSection
+@SubSubSection
+    @Title { Paint Devices }
+    @Tag { paint.devices }
+@Begin
+@PP
+@Class QPainter can operate on any `paint device'. The code
+required to paint on any supported device is the same, regardless of
+the device. Qt supports the following paint devices:
+@PP
+@BulletList
+bitmaps @Index { Bitmaps }
+double buffering @Index { Double buffering }
+flicker @Index { Flicker }
+images @Index { Images }
+pixmaps @Index { Pixmaps }
+@ListItem { A @Class QPixmap is essentially an `off-screen widget'. Graphics
+can be painted on a @Class QPixmap first, and then bit-blitted to a
+@Class QWidget to reduce flicker. This technique is called `double
+buffering'. }
+@ListItem { 
+A @Class {QPicture} is a vector image that can be scaled, rotated
+and sheared gracefully. The @Class QPicture class stores an image as
+a list of paint commands rather than as pixel data. It supports the
+SVG (W3C's Scalable Vector Graphics) XML format for input and output. 
+svg @Index { SVG }
+xml @Index { XML }
+metafiles @Index { Meta-files }
+pictures @Index { Pictures }
+rotations @Index { Rotations }
+scales @Index { Scales }
+shears @Index { Shears } }
+@ListItem { 
+A @Class QPrinter represents a physical printer. On Windows, the
+paint commands are sent to the Windows print engine, which uses the
+installed printer drivers. On Unix, PostScript is output and sent to
+the appropriate print daemon.
+printers @Index { Printers } }
+@ListItem { A @Class QWidget is also a paint device, as shown in the earlier
+bar-graph example. }
+@EndList
+@End @SubSubSection
+@SubSubSection
+    @Title { Canvas }
+    @Tag { canvas }
+@Begin
+@PP
+The @Class QCanvas class provides a high-level interface to 2D
+graphics. It can handle a very large number of `canvas items' that
+represent lines, rectangles, ellipses, texts, pixmaps, animated
+sprites, etc.
+canvas @Index { Canvas }
+animations @Index { Animations }
+sprites @Index { Sprites }
+@PP
+Canvas items are instances of @Class QCanvasItem subclasses. They are
+more lightweight than widgets, and they can be quickly moved, hidden,
+and shown. @Class QCanvas has efficient support for collision
+detection, and can list all the canvas items in a given area. @Class
+QCanvasItem can be subclassed to provide custom item types and to
+extend the functionality of existing types.
+collisiontesting @Index { Collision testing }
+@PP
+@Class QCanvas objects are rendered by the @Class QCanvasView class.
+Many @Class QCanvasView objects can show the same @Class QCanvas, but
+with different translations, scales, rotations and shears.
+rotations @Index { Rotations }
+scales @Index { Scales }
+shears @Index { Shears }
+transformations @Index { Transformations }
+@PP
+@Class QCanvas is ideal for data visualisation. It has been used by
+customers for drawing road maps and for presenting graphs. It is also
+suitable for 2D games.
+datavisualisation @Index { Data visualisation }
+games @Index { Games }
+graphs @Index { Graphs }
+visualisation @Index { Visualisation }
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { 3D Graphics }
+    @Tag { 3d.graphics }
+@Begin
+@PP
+OpenGL is a standard API for rendering 3D graphics. Qt developers can
+use OpenGL to draw 3D graphics in their GUI applications. This is
+achieved by subclassing @Class QGLWidget, a @Class QWidget subclass,
+and drawing with standard OpenGL functions rather than with @Class
+QPainter.
+gl @Index { GL }
+opengl @Index { OpenGL }
+@PP
+Qt's OpenGL module is available on Windows, X11 and Macintosh, and
+uses the system's OpenGL library (including Mesa).
+mesa @Index { Mesa }
+@Figure
+    @Caption { Brain Innovation's BrainVoyager Qt application }
+@Scale @IncludeGraphic { "../images/brain-innovation.eps" }
+@PP
+Qt developers can set the display format of an OpenGL rendering
+context: single or double buffering, depth buffer, RGBA or color
+index mode, alpha channel, overlays, etc. They can also set the
+colormap manually in color index mode.
+alphachannel @Index { Alpha channel }
+colormap @Index { Colormap }
+double buffering @Index { Double buffering }
+overlays @Index { Overlays }
+@PP
+When using Qt, developers write in pure OpenGL. Qt also provides two
+convenience functions, @Func qglClearColor() and @Func qglColor(),
+that accept a @Class QColor argument and work in any mode.
+@End @SubSection
+@SubSection
+    @Title { A 3D Example }
+    @Tag { a.3d.example }
+@Begin
+@PP
+@Figure
+    @Caption { 3D Box }
+@IncludeGraphic { "../images/box3d.eps" }
+@PP
+The complete code for an application that draws a 3D box, with
+sliders to rotate the box around the X, Y and Z axes, is presented
+below.
+@PP
+In @File box3d.h, @Class Box3D is defined like this:
+@IndentedDisplay @CP @Begin
+#include <qgl.h>
+
+class Box3D : public QGLWidget
+{
+    Q_OBJECT
+public:
+    Box3D( QWidget *parent = 0, const char *name = 0 );
+    ~Box3D();
+
+public slots:
+    void setRotationX( int deg ) { rotX = deg; updateGL(); }
+    void setRotationY( int deg ) { rotY = deg; updateGL(); }
+    void setRotationZ( int deg ) { rotZ = deg; updateGL(); }
+
+protected:
+    virtual void initializeGL();
+    virtual void paintGL();
+    virtual void resizeGL( int w, int h );
+    virtual GLuint makeObject();
+
+private:
+    GLuint object;
+    GLfloat rotX, rotY, rotZ;
+};
+@End @CP
+@PP
+In @File box3d.cpp, the functions declared in @File box3d.h are
+implemented:
+@IndentedDisplay @CP @Begin
+#include "box3d.h"
+
+Box3D::Box3D( QWidget *parent, const char *name )
+    : QGLWidget( parent, name )
+{
+    object = 0;
+    rotX = rotY = rotZ = 0.0;
+}
+
+Box3D::~Box3D()
+{
+    makeCurrent();
+    glDeleteLists( object, 1 );
+}
+
+void Box3D::initializeGL()
+{
+    qglClearColor( darkBlue );
+    object = makeObject();
+    glShadeModel( GL_FLAT );
+}
+
+void Box3D::paintGL()
+{
+    glClear( GL_COLOR_BUFFER_BIT );
+    glLoadIdentity();
+    glTranslatef( 0.0, 0.0, -10.0 );
+    glRotatef( rotX, 1.0, 0.0, 0.0 );
+    glRotatef( rotY, 0.0, 1.0, 0.0 );
+    glRotatef( rotZ, 0.0, 0.0, 1.0 );
+    glCallList( object );
+}
+
+void Box3D::resizeGL( int w, int h )
+{
+    glViewport( 0, 0, w, h );
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    glFrustum( -1.0, 1.0, -1.0, 1.0, 5.0, 15.0 );
+    glMatrixMode( GL_MODELVIEW );
+}
+
+GLuint Box3D::makeObject()
+{
+    GLuint list = glGenLists( 1 );
+    glNewList( list, GL_COMPILE );
+    qglColor( yellow );
+    glLineWidth( 2.0 );
+
+    glBegin( GL_LINE_LOOP );
+    glVertex3f( +1.5, +1.0, +0.8 );
+    glVertex3f( +1.5, +1.0, -0.8 );
+    /* ... */
+    glEnd();
+
+    glEndList();
+    return list;
+}
+@End @CP
+@PP
+In @File main.cpp, a @Class Box3D instance and three sliders are
+created:
+@IndentedDisplay @CP @Begin
+#include <qapplication.h>
+#include <qslider.h>
+#include <qvbox.h>
+
+#include "box3d.h"
+
+void create_slider( QWidget *parent, Box3D *box3d, const char *slot )
+{
+    QSlider *slider = new QSlider( 0, 360, 60, 0,
+	    QSlider::Horizontal, parent );
+    slider->setTickmarks( QSlider::Below );
+    QObject::connect( slider, SIGNAL(valueChanged(int)), box3d, slot );
+}
+
+int main( int argc, char **argv )
+{
+    QApplication::setColorSpec( QApplication::CustomColor );
+    QApplication app( argc, argv );
+    if ( !QGLFormat::hasOpenGL() )
+	qFatal( "This system has no OpenGL support" );
+
+    QVBox *parent = new QVBox;
+    parent->setCaption( "OpenGL Box" );
+    parent->setMargin( 11 );
+    parent->setSpacing( 6 );
+    Box3D *box3d = new Box3D( parent );
+    create_slider( parent, box3d, SLOT(setRotationX(int)) );
+    create_slider( parent, box3d, SLOT(setRotationY(int)) );
+    create_slider( parent, box3d, SLOT(setRotationZ(int)) );
+
+    app.setMainWidget( parent );
+    parent->resize( 250, 250 );
+    parent->show();
+    return app.exec();
+}
+@End @CP
+@DP
+@OLREF @LP
+@Href{"http://www.trolltech.com/3.0/coordsys.html"}@LLP
+@Href{"http://www.trolltech.com/3.0/canvas.html"}@LLP
+@Href{"http://www.trolltech.com/3.0/opengl.html"}@LLP
+@End @SubSection
+@EndSubSections
+@End @Section

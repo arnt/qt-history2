@@ -1,0 +1,34 @@
+import @BasicSetup
+def @Button right x { darkgray @Colour x }
+
+import @BasicSetup
+def @Class right x { darkblue @Colour @B x }
+
+import @BasicSetup
+def @Cmd right x { { Courier Base } @Font x }
+
+import @BasicSetup
+def @File right x { { Courier Base } @Font x }
+
+import @BasicSetup
+def @Func right x { darkblue @Colour x }
+
+import @BasicSetup
+def @Href right x { darkgreen @Colour x }
+
+import @BasicSetup
+def @Key right x { darkcyan @Colour x }
+
+import @BasicSetup
+def @Menu right x { darkmagenta @Colour x }
+
+import @BasicSetup
+def @OLREF { @B{On-line References} }
+
+import @BasicSetup
+# Can't use @QD since that's short for @QuotedDisplay!
+def @QDR { @I{Qt Designer} }
+
+import @BasicSetup
+def @Xref right x { x @CrossLink { [p. @PageOf{ x }] } }
+

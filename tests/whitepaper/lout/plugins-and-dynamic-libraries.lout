@@ -1,0 +1,98 @@
+@Section
+    @Title { Plugins and Dynamic Libraries }
+    @Tag { plugins.and.dynamic.libraries }
+@Begin
+@QuotedDisplay { @I {
+codecs @Index { Codecs }
+databasedrivers @Index { Database drivers }
+imageformats @Index { Image formats }
+styles @Index { Styles }
+Qt can access functions from dynamic libraries platform-independently.
+Qt also supports plugins, which allow developers to create and
+distribute Qt codecs, database drivers, image format converters,
+styles and custom widgets as independent components. 
+} }
+@BeginSubSections
+@SubSection
+    @Title { Dynamic Libraries }
+    @Tag { dynamic.libraries }
+@Begin
+@PP
+The @Class QLibrary class provides cross-platform dynamic library
+loading, a more powerful mechanism than the more restrictive
+build-time linking.
+dll @Index { DLL }
+dynamiclibraries @Index { Dynamic libraries }
+libraries @Index { Libraries }
+linking @Index { Linking }
+sharedlibraries @Index { Shared libraries }
+@PP
+Below is an example of the most basic way to dynamically load and use
+a library. The example attempts to obtain a pointer to the @F
+print_str symbol from the @F mylib library (@File mylib.dll on Windows,
+@File mylib.so on Unix).
+@IndentedDisplay @CP @Begin
+typedef void (StrFunc)( const char *str );
+
+QLibrary lib( "mylib" );
+StrFunc *func = (StrFunc *) lib.resolve( "print_str" );
+if ( func )
+    func( "Hello world!" );
+@End @CP
+Calling a function this way is not type safe, and only symbols with C
+linkage are supported (due to C++ name mangling). These limitations
+do not apply to Qt plugins.
+@End @SubSection
+@SubSection
+    @Title { Plugins }
+    @Tag { plugins }
+@Begin
+@PP
+Converting a Qt codec, database driver, image format converter, style
+or custom widget into a plugin is achieved by subclassing the
+appropriate plugin base class, implementing a few simple functions,
+and adding a macro.
+@PP
+For example, if a developer has created a @Class QStyle subclass
+called @Class CopperStyle that they want to make available as a plugin,
+they would create a subclass like this: 
+@IndentedDisplay @CP @Begin
+class CopperStylePlugin : public QStylePlugin
+{
+public:
+    CopperStylePlugin() { }
+    ~CopperStylePlugin() { }
+
+    QStringList keys() const {
+	return QStringList() << "CopperStyle"; 
+    }
+
+    QStyle *create( const QString& key ) { 
+	if ( key == "CopperStyle" ) 
+	    return new CopperStyle;
+	return 0;
+    }
+};
+
+Q_EXPORT_PLUGIN( CopperStylePlugin )
+@End @CP
+@PP
+The new style can be set like this:
+@IndentedDisplay @CP @Begin
+QApplication::setStyle( QStyleFactory::create("CopperStyle") );
+@End @CP
+@PP
+Database drivers, codecs, custom widgets and image formats that are
+supplied as plugins are detected and used by the application
+automatically.
+@PP
+Companies already provide Qt components in source form, as
+precompiled dynamic libraries or as plugins.
+@Figure
+    @Caption { One of Karl{@Char{adieresis}}lvdalens Datakonsult's
+	       many commercial components }
+@IncludeGraphic { "../images/klaralvdalen.eps" }
+@End @SubSection
+@EndSubSections
+@End @Section
+

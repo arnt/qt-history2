@@ -1,0 +1,298 @@
+@Section
+    @Title { Widgets }
+    @Tag { widgets }
+@Begin
+@QuotedDisplay { @I {
+Qt has a rich set of widgets (buttons, scroll bars, etc.) that cater
+for most situations. Qt's widgets are flexible and easy to subclass
+for special requirements.
+} }
+@PP
+Qt provides a full set of widgets. Widgets are visual elements that
+are combined to create user interfaces. Buttons, menus, scroll bars,
+message boxes, application windows, etc., are all examples of
+widgets. Qt's widgets are not arbitrarily divided between 'controls'
+and `containers'; all widgets can be used both as controls and as
+containers. Custom widgets can easily be created by subclassing
+existing Qt widgets, or created from scratch on the rare occasions
+when this is necessary.
+controls @Index { Controls }
+widgets @Index { Widgets }
+@PP
+Widgets are instances of @Class QWidget or one of its subclasses, and
+custom widgets are created by subclassing.
+@Figure
+    @Caption { An extract from the @Class QWidget class hierarchy }
+@Diag
+    font { Helvetica Base }
+{
+@Tree {
+    @CurveBox QObject
+    @LeftSub @CurveBox QTimer
+    @RightSub {
+	@CurveBox QWidget
+	@FirstSub @CurveBox QDialog
+	@NextSub {
+	    @CurveBox QFrame
+	    @LeftSub @CurveBox QLabel
+	    @RightSub @CurveBox QLineEdit
+	}
+	@NextSub @CurveBox QSpinBox
+    }
+}
+}
+#@IncludeGraphic{ "../images/qwidget-diag.eps" }
+@PP
+A widget may contain any number of child widgets. Child widgets are
+shown within the parent widget's area. A widget with no visible
+parent is a top-level widget (a `window'), and usually has its own
+entry in the desktop environment's task bar. Qt imposes no arbitrary
+limitations on widgets. Any widget can be a top-level widget; any
+widget can be a child of any other widget. The position of child
+widgets within the parent's area can be set automatically using 
+layout managers @Xref{layouts}, or manually if preferred. When
+a parent widget is disabled, hidden or deleted, the same action is
+applied to all its child widgets recursively.
+childwidgets @Index { Child Widgets }
+parentwidgets @Index { Parent Widgets }
+html @Index { HTML }
+richtext @Index { Rich Text }
+@PP
+Labels, message boxes, tooltips, etc., are not confined to using a
+single color, font and language. Qt's text-rendering widgets can
+display multi-language rich text using a subset of HTML. See Text
+Rendering @Xref{text.rendering}.
+@BeginSubSections
+@SubSection
+    @Title { A `Hello' Example }
+    @Tag { a.hello.example }
+@Begin
+@PP
+@Figure
+    @Caption { Hello Qt! }
+@IncludeGraphic { "../images/hello.eps" }
+@PP
+The complete source code for a program that displays ``Hello Qt!''
+follows:
+@IndentedDisplay @CP @Begin
+#include <qapplication.h>
+#include <qlabel.h>
+
+int main( int argc, char **argv )
+{
+    QApplication app( argc, argv );
+    QLabel *hello = new QLabel( "<font color=blue>Hello <i>Qt!</i>"
+				"</font>", 0 );
+    app.setMainWidget( hello );
+    hello->show();
+    return app.exec();
+}
+@End @CP
+@End @SubSection
+@SubSection
+    @Title { Built-in Widgets }
+    @Tag { built.in.widgets }
+@Begin
+@PP
+The screenshots below present the main Qt widgets. They are shown
+using the Windows style.
+buttons @Index { Buttons }
+hbox @Index { Hbox }
+horizontalboxlayout @Index { Horizontal box layout }
+labels @Index { Labels }
+pushbuttons @Index { Push Buttons }
+@Figure
+    @Caption { A @Class QLabel and a @Class QPushButton laid out with
+	       a @Class QHBox }
+@IncludeGraphic { "../images/qlabel-etc.eps" }
+checkboxes @Index { Checkboxes }
+radiobuttons @Index { Radio buttons }
+@Figure
+    @Caption { Two @Class{QRadioButton}s and two @Class{QCheckBox}es
+	       laid out with a @Class QButtonGroup }
+@IncludeGraphic { "../images/qradiobutton-etc.eps" }
+comboboxes @Index { Comboboxes }
+date @Index { Date }
+lineeditors @Index { Line editors }
+multilineeditors @Index { Multi-line editors}
+texteditors @Index { Text editors }
+time @Index { Time }
+@Figure
+    @Caption { A @Class QDateTimeEdit, a @Class QLineEdit, a @Class
+	       QTextEdit and a @Class QComboBox laid out with a
+	       @Class QGroupBox }
+@IncludeGraphic { "../images/qdatetimeedit-etc.eps" }
+dials @Index { Dials }
+lcd @Index { LCD }
+progressbar @Index { Progress bar }
+scrollbar @Index { Scroll bar }
+scrollview @Index { Scroll view }
+sliders @Index { Sliders }
+spinboxes @Index { Spin boxes }
+@Figure
+    @Caption { A @Class QDial, a @Class QProgressBar, a @Class QSpinBox,
+	       a @Class QScrollBar, a @Class QLCDNumber and a @Class
+	       QSlider laid out with a @Class QGrid }
+@IncludeGraphic { "../images/qdial-etc.eps" }
+hierarchicaltreeview @Index { Hierarchical tree view }
+iconview @Index { Icon view }
+inputvalidation @Index { Input validation }
+listbox @Index { List box }
+listview @Index { List view }
+spreadsheet @Index { Spreadsheet }
+table @Index { Table }
+treeview @Index { Tree view }
+userinputvalidation @Index { User input }
+validation @Index { Validation }
+@Figure
+    @Caption { A @Class QIconView, a @Class QListView, a @Class QListBox
+	       and a @Class QTable laid out with a @Class QGrid }
+@IncludeGraphic { "../images/qiconview-etc.eps" }
+@PP
+@Class QComboBox, @Class QLineEdit and @Class QSpinBox's input can be
+constrained or validated using a @Class QValidator subclass. Qt
+regular expressions can be used for validation.
+@PP
+Widgets that are used to display large amounts of data (e.g. @Class
+QTable, @Class QListView and @Class QTextEdit) inherit @Class
+QScrollView and can display scroll bars automatically.
+@PP
+@Class QMenuBar, @Class QStatusBar, @Class QToolBar and related
+widgets are presented in GUI Applications @Xref{gui.applications}.
+@Class QMessageBox, @Class QFileDialog, @Class QTabDialog, @Class
+QWizard and other dialogs are presented in Dialogs @Xref{dialogs}.
+@Class QSplitter is covered in Layouts @Xref{layouts}. @Class QCanvas
+and @Class QGLWidget are presented in 3D Graphics @Xref{3d.graphics}.
+@PP
+The screenshot that shows the @Class{QRadioButton}s and
+@Class{QCheckBox}es was produced with the following code:
+@IndentedDisplay @CP @Begin
+parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
+radio1 = new QRadioButton( "&Radio 1", parent );
+radio2 = new QRadioButton( "R&adio 2", parent );
+radio1->setChecked( TRUE );
+check1 = new QCheckBox( "&Check 1", parent );
+check2 = new QCheckBox( "C&heck 2", parent );
+check2->setChecked( TRUE );
+@End @CP
+@End @SubSection
+@SubSection
+    @Title { Custom Widgets }
+    @Tag { custom.widgets }
+@Begin
+@PP
+Developers can create their own widgets and dialogs by subclassing
+@Class QWidget or one of its subclasses. To illustrate subclassing,
+the complete code for a digital clock widget is presented.
+@Figure
+    @Caption { Clock widget }
+@IncludeGraphic { "../images/clock.eps" }
+@PP
+The @Class Clock widget is a LCD that displays the current time and
+updates itself automatically. A colon separator blinks to indicate
+the passing seconds.
+clock @Index { Clock }
+lcd @Index { LCD }
+@PP
+In @File clock.h, @Class Clock is defined like this:
+@IndentedDisplay @CP @Begin
+#include <qlcdnumber.h>
+
+class Clock : public QLCDNumber
+{
+public:
+    Clock( QWidget *parent = 0, const char *name = 0 );
+
+protected:
+    void timerEvent( QTimerEvent *event );
+
+private:
+    void showTime();
+
+    bool showingColon;
+};
+@End @CP
+nameofwidget @Index { name (of widget) }
+parentwidgets @Index { parent }
+timers @Index { timers }
+@PP
+@Class Clock inherits its LCD functionality from the @Class
+QLCDNumber widget. It has a constructor typical of widget classes,
+with optional @F parent and @F name parameters. (Testing and
+debugging are easier if @F name is set.) The @Func timerEvent()
+function is inherited from @Class QObject and is called at regular
+intervals by the system.
+@PP
+In @File clock.cpp, the functions declared in @File clock.h are
+implemented:
+@IndentedDisplay @CP @Begin
+#include <qdatetime.h>
+
+#include "clock.h"
+
+Clock::Clock( QWidget *parent, const char *name )
+    : QLCDNumber( parent, name ), showingColon( TRUE )
+{
+    showTime();
+    startTimer( 1000 );
+}
+
+void Clock::timerEvent( QTimerEvent * )
+{
+    showTime();
+}
+
+void Clock::showTime()
+{
+    QString time = QTime::currentTime().toString().left( 5 );
+    if ( !showingColon )
+	time[2] = ' ';
+    display( time );
+    showingColon = !showingColon;
+}
+@End @CP
+@PP
+The constructor calls @Func showTime() to initialize the clock with
+the current time, and tells the system to call @Func timerEvent()
+every 1000 milliseconds to refresh the LCD display.
+@PP
+In @Func showTime(), @Func QLCDNumber::display() is called with the
+current time. The colon is replaced by a space every other time @Func
+showTime() is called to make the colon blink.
+@PP
+The @File clock.h and @File clock.cpp files completely define and
+implement the @Class Clock custom widget. This widget can be used
+straight away in a simple program:
+@IndentedDisplay @CP @Begin
+#include <qapplication.h>
+
+#include "clock.h"
+
+int main( int argc, char **argv )
+{
+    QApplication app( argc, argv );
+    Clock *clock = new Clock;
+    app.setMainWidget( clock );
+    clock->resize( 140, 60 );
+    clock->show();
+    return app.exec();
+}
+@End @CP
+@PP
+This example program contains a single widget (the @Class Clock) and
+no child widgets. Complex widgets are built by combining widgets in
+layouts.
+designer @Index { Designer }
+qtdesigner @Index { Qt Designer }
+@PP
+Developers can also write custom widgets from scratch. For example,
+to create an analog clock, it would be necessary to draw the clock's
+face and hands in code rather than relying on the functionality
+implemented in a base class. This approach is covered in 2D
+Graphics @Xref{2d.graphics}.
+@DP
+@OLREF @LP
+@Href{"http://www.trolltech.com/3.0/qwidget.html"}@LLP
+@End @SubSection
+@EndSubSections
+@End @Section

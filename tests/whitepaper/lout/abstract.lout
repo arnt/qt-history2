@@ -1,0 +1,12 @@
+This whitepaper describes the Qt C++ toolkit. Qt supports the
+development of cross-platform GUI applications with its `write once,
+compile anywhere' approach. Using a single source tree and a simple
+recompilation, applications can be written for
+Windows~"95/98/NT4/ME/2000", Mac OS X, Linux, Solaris, HP-UX and many
+other versions of Unix with X11. Qt applications can also be compiled
+to run on "Qt/Embedded". Qt introduces a unique inter-object
+communication mechanism called `signals and slots'. Qt has excellent
+support for many programming domains: 2D and 3D graphics,
+internationalization, XML, etc. Qt applications can be built visually
+using @QDR.
+
