@@ -1506,22 +1506,18 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
 {
     d->setCursorVisible( TRUE );
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
-#ifdef QT_NO_VALIDATOR
-	emit returnPressed();
-#else
 	const QValidator * v = d->validator;
-	if ( !v || v->validate( d->text, d->cursor ) == QValidator::Acceptable ) {
+	if ( hasAcceptableInput() ) {
 	    emit returnPressed();
-	} else {
+	} else if ( v && v->validate( d->text, d->cursor ) != QValidator::Acceptable ) {
 	    QString vstr = d->text;
 	    v->fixup( vstr );
 	    if ( vstr != d->text ) {
 		setText( vstr );
-		if ( v->validate( d->text, d->cursor ) == QValidator::Acceptable )
+		if ( hasAcceptableInput() )
 		    emit returnPressed();
 	    }
 	}
-#endif
 	e->ignore();
 	return;
     }
