@@ -30,11 +30,11 @@ public:
     void clearBit(int i);
     bool toggleBit(int i);
 
-    const bool at(int i) const;
+    bool at(int i) const;
     QBitRef operator[](int i);
-    const bool operator[](int i) const;
+    bool operator[](int i) const;
     QBitRef operator[](uint i);
-    const bool operator[](uint i) const;
+    bool operator[](uint i) const;
 
     QBitArray& operator&=(const QBitArray &);
     QBitArray& operator|=(const QBitArray &);
@@ -78,9 +78,9 @@ inline bool QBitArray::toggleBit(int i)
  uchar b = 1<< (i&7); uchar* p = (uchar*)d.data()+1+(i>>3);
  uchar c = *p&b; *p^=b; return c!=0; }
 
-inline const bool QBitArray::operator[](int i) const { return testBit(i); }
-inline const bool QBitArray::operator[](uint i) const { return testBit(i); }
-inline const bool QBitArray::at(int i) const { return testBit(i); }
+inline bool QBitArray::operator[](int i) const { return testBit(i); }
+inline bool QBitArray::operator[](uint i) const { return testBit(i); }
+inline bool QBitArray::at(int i) const { return testBit(i); }
 
 class Q_EXPORT QBitRef
 {
