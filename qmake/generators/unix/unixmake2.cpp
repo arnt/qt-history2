@@ -658,15 +658,20 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "@$(DEL_FILE) " << dir << "application.icns" << "\n\t"
               << "@$(COPY_FILE) " << var("RC_FILE") << " " << dir << "application.icns" << endl;
         }
-        if(!project->isEmpty("ICONS")) {
-            QString dir = destdir + "../Resources/";
-            const QStringList &icons = project->variables()["ICONS"];
-            for(int i = 0; i < icons.count(); i++) {
-                QString icon = icons[i];
-                t << dir << icon << ": " << var("RC_FILE") << "\n\t"
-                  << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
-                  << "@$(DEL_FILE) " << dir << icon << "\n\t"
-                  << "@$(COPY_FILE) " << icon << " " << dir << endl;
+        if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
+            const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
+            for(int i = 0; i < bundle_data.count(); i++) {
+                const QStringList &files = project->variables()[bundle_data[i] + ".files"];
+                QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
+                                                         "../" + project->variables()[bundle_data[i] + 
+                                                                                      ".path"].first());
+                for(int file = 0; file < files.count(); file++) {
+                    QString dst = path + Option::dir_sep + QFileInfo(files[file]).fileName();
+                    t << dst << ": " << files[file] << "\n\t"
+                      << "@test -d " << path << " || mkdir -p " << path << "\n\t"
+                      << "@$(DEL_FILE) " << dst << "\n\t"
+                      << "@$(COPY_FILE) " << files[file] << " " << dst << endl;
+                }
             }
         }
     }

@@ -169,11 +169,17 @@ UnixMakefileGenerator::init()
                 if(!project->isEmpty("RC_FILE"))
                     project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
                                                         "../Resources/application.icns";
-                if(!project->isEmpty("ICONS")) {
-                    const QStringList &icons = project->variables()["ICONS"];
-                    for(int i = 0; i < icons.count(); i++) 
-                        project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
-                                                            "../Resources/" + icons[i];
+                if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
+                    const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
+                    for(int i = 0; i < bundle_data.count(); i++) {
+                        const QStringList &files = project->variables()[bundle_data[i] + ".files"];
+                        QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
+                                                                 "../" + project->variables()[bundle_data[i] + 
+                                                                                              ".path"].first());
+                        for(int file = 0; file < files.count(); file++) 
+                            project->variables()["ALL_DEPS"] += path + Option::dir_sep + 
+                                                                QFileInfo(files[file]).fileName();
+                    }
                 }
             }
         }
