@@ -1914,7 +1914,7 @@ void Q_GUI_EXPORT qt_enter_modal(QWidget *widget)
 
 void Q_GUI_EXPORT qt_leave_modal(QWidget *widget)
 {
-    if (qt_modal_stack && qt_modal_stack->remove(widget)) {
+    if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
             delete qt_modal_stack;
             qt_modal_stack = 0;
@@ -2053,7 +2053,7 @@ void QApplication::closePopup(QWidget *popup)
 {
     if (!popupWidgets)
         return;
-    popupWidgets->remove(popup);
+    popupWidgets->removeAll(popup);
     POINT curPos;
     GetCursorPos(&curPos);
     replayPopupMouseEvent = !popup->geometry().contains(QPoint(curPos.x, curPos.y));

@@ -90,7 +90,7 @@ QWindowsMime::QWindowsMime()
 */
 QWindowsMime::~QWindowsMime()
 {
-    mimes.remove(this);
+    mimes.removeAll(this);
 }
 
 

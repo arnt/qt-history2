@@ -1299,10 +1299,9 @@ void QWidget::showNormal()
 void QWidget::raise()
 {
     QWidget *p = parentWidget();
-    if (p && p->d->children.indexOf(this) >= 0) {
-        p->d->children.remove(this);
-        p->d->children.append(this);
-    }
+    int from;
+    if (p && (from = p->d->children.indexOf(this)) >= 0)
+        p->d->children.move(from, p->d->children.size() - 1);
     uint f = (isPopup() || testWFlags(WStyle_Tool)) ? SWP_NOACTIVATE : 0;
     SetWindowPos(winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE);
 }
@@ -1310,10 +1309,9 @@ void QWidget::raise()
 void QWidget::lower()
 {
     QWidget *p = parentWidget();
-    if (p && p->d->children.indexOf(this) >= 0) {
-        p->d->children.remove(this);
-        p->d->children.prepend(this);
-    }
+    int from;
+    if (p && (from = p->d->children.indexOf(this)) >= 0)
+        p->d->children.move(from, 0);
     uint f = (isPopup() || testWFlags(WStyle_Tool)) ? SWP_NOACTIVATE : 0;
     SetWindowPos(winId(), HWND_BOTTOM, 0, 0, 0, 0, f | SWP_NOMOVE |
                   SWP_NOSIZE);
@@ -1324,12 +1322,15 @@ void QWidget::stackUnder(QWidget* w)
     QWidget *p = parentWidget();
     if (!w || isTopLevel() || p != w->parentWidget() || this == w)
         return;
-    if (p && p->d->children.indexOf(w) >= 0 && p->d->children.indexOf(this) >= 0) {
-        p->d->children.remove(this);
-        p->d->children.insert(p->d->children.indexOf(w), this);
+
+    int from;
+    int to;
+    if (p && (to = p->d->children.indexOf(w)) >= 0 && (from = p->d->children.indexOf(this)) >= 0) {
+        if (from < to)
+            --to;
+        p->d->children.move(from, to);
     }
-    SetWindowPos(winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE |
-                  SWP_NOSIZE);
+    SetWindowPos(winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 
