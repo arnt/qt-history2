@@ -1098,7 +1098,8 @@ void QTreeView::verticalScrollbarAction(int action)
     int verticalFactor = d->verticalFactor;
     int scrollbarValue = verticalScrollBar()->value();
     int viewItemIndex = scrollbarValue / verticalFactor;
-    int viewItemHeight = delegate->sizeHint(option, model, d->modelIndex(viewItemIndex)).height();
+    QModelIndex index = d->modelIndex(viewItemIndex);
+    int viewItemHeight = delegate->sizeHint(option, model, index).height();
     int aboveViewport = (scrollbarValue % verticalFactor) * viewItemHeight;
     int y = -(aboveViewport / verticalFactor); // starting above the viewport
 
@@ -1108,8 +1109,10 @@ void QTreeView::verticalScrollbarAction(int action)
         // go down to the bottom of the viewport
         int itemsCount = d->items.count();
         int viewportHeight = d->viewport->height();
-        while(y < viewportHeight && viewItemIndex < itemsCount) {
-            QModelIndex index = d->modelIndex(viewItemIndex);
+        if (items.at(viewItemIndex).hidden)
+            viewItemIndex = d->below(viewItemIndex);
+        while (y < viewportHeight && viewItemIndex < itemsCount) {
+            index = d->modelIndex(viewItemIndex);
             y += delegate->sizeHint(option, model, index).height();
             viewItemIndex = d->below(viewItemIndex);
         }
@@ -1117,9 +1120,9 @@ void QTreeView::verticalScrollbarAction(int action)
         // viewItemIndex is now the last item in the viewport
         scrollbarValue = viewItemIndex * verticalFactor;
         if (y > viewportHeight && viewItemIndex > 0) {
-            QModelIndex index = d->modelIndex(viewItemIndex - 1);
-            int hint = delegate->sizeHint(option, model, index).height();
-            scrollbarValue -= verticalFactor * (y - viewportHeight) / hint;
+            index = d->modelIndex(viewItemIndex - 1);
+            viewItemHeight = delegate->sizeHint(option, model, index).height();
+            scrollbarValue -= verticalFactor * (y - viewportHeight) / viewItemHeight;
         }
         verticalScrollBar()->setSliderPosition(scrollbarValue);
     } else if (action == QScrollBar::SliderPageStepSub) {
@@ -1127,16 +1130,16 @@ void QTreeView::verticalScrollbarAction(int action)
         // go up to the top of the viewport
         while (y > 0 && viewItemIndex > 0) {
             viewItemIndex = d->above(viewItemIndex);
-            QModelIndex index = d->modelIndex(viewItemIndex);
-            int hint = delegate->sizeHint(option, model, index).height();
-            y -= hint;
+            index = d->modelIndex(viewItemIndex);
+            viewItemHeight = delegate->sizeHint(option, model, index).height();
+            y -= viewItemHeight;
         }
         // viewItemIndex  is now the first item in the viewport
         scrollbarValue = viewItemIndex * verticalFactor;
         if (y < 0) {
-            QModelIndex index = d->modelIndex(viewItemIndex);
-            int hint = delegate->sizeHint(option, model, index).height();
-            scrollbarValue += verticalFactor * -y / hint;
+            index = d->modelIndex(viewItemIndex);
+            viewItemHeight = delegate->sizeHint(option, model, index).height();
+            scrollbarValue += verticalFactor * -y / viewItemHeight;
         }
         verticalScrollBar()->setSliderPosition(scrollbarValue);
     }
@@ -1151,35 +1154,38 @@ Moves the horizontal scroll bar in the way described by the \a action.
 void QTreeView::horizontalScrollbarAction(int action)
 {
     // horizontal
-    int factor = d->horizontalFactor;
-    int value = horizontalScrollBar()->value();
-    int column = value / factor;
-    int above = (value % factor) * d->header->sectionSize(column); // what's left; in "item units"
-    int x = -(above / factor); // left of the page
+    int horizontalFactor = d->horizontalFactor;
+    int scrollbarValue = horizontalScrollBar()->value();
+    int column = scrollbarValue / horizontalFactor;
+    int columnWidth = d->header->sectionSize(column);
+    int leftOfViewport = (scrollbarValue % horizontalFactor) * columnWidth; // what's left; in "item units"
+    int x = -(leftOfViewport / horizontalFactor); // left of the viewport
 
     if (action == QScrollBar::SliderPageStepAdd) {
-
         // go down to the right of the page
-        int w = d->viewport->width();
-        while (x < w && column < d->model->columnCount(root()))
-            x += d->header->sectionSize(column++);
-        value = column * factor; // i is now the last item on the page
-        if (x > w && column)
-            value -= factor * (x - w) / d->header->sectionSize(column - 1);
-        horizontalScrollBar()->setSliderPosition(value);
-
+        int viewportWidth = d->viewport->width();
+        int columnCount = d->header->count();
+        while (x < viewportWidth && column < columnCount)
+            x += d->header->sectionSize(column++); // hidden sections have size 0
+         // column is now the last column in the viewport
+        scrollbarValue = column * horizontalFactor;
+        if (x > viewportWidth && column) {
+            columnWidth = d->header->sectionSize(column - 1);
+            scrollbarValue -= horizontalFactor * (x - viewportWidth) / columnWidth;
+        }
+        horizontalScrollBar()->setSliderPosition(scrollbarValue);
     } else if (action == QScrollBar::SliderPageStepSub) {
-
+        // go up to the left of the viewport
         x += d->viewport->width();
-
-        // go up to the left of the page
         while (x > 0 && column > 0)
-            x -= d->header->sectionSize(--column);
-        value = column * factor; // i is now the first item in the page
-
-        if (x < 0)
-            value += factor * -x / d->header->sectionSize(column);
-        horizontalScrollBar()->setSliderPosition(value);
+            x -= d->header->sectionSize(--column); // hidden sections have size 0
+        // column is now the first item in the viewport
+        scrollbarValue = column * horizontalFactor;
+        if (x < 0) {
+            columnWidth = d->header->sectionSize(column);
+            scrollbarValue += horizontalFactor * -x / columnWidth;
+        }
+        horizontalScrollBar()->setSliderPosition(scrollbarValue);
     }
 }
 
