@@ -937,13 +937,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << var("QMAKE_PBX_LIBPATHS") << "\";" << "\n"
       << "\t\t\t\t" << "OPTIMIZATION_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "OTHER_CFLAGS = \"" <<
-        fixEnvsList("QMAKE_CFLAGS") << varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") <<
-        varGlue("DEFINES"," -D"," -D","") << "\";" << "\n"
+	fixEnvsList("QMAKE_CFLAGS") << fixQuotes(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
+	fixQuotes(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
       << "\t\t\t\t" << "LEXFLAGS = \"" << var("QMAKE_LEXFLAGS") << "\";" << "\n"
       << "\t\t\t\t" << "YACCFLAGS = \"" << var("QMAKE_YACCFLAGS") << "\";" << "\n"
       << "\t\t\t\t" << "OTHER_CPLUSPLUSFLAGS = \"" <<
-        fixEnvsList("QMAKE_CXXFLAGS") << varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") <<
-        varGlue("DEFINES"," -D"," -D","") << "\";" << "\n"
+	fixEnvsList("QMAKE_CXXFLAGS") << fixQuotes(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
+	fixQuotes(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
       << "\t\t\t\t" << "OTHER_REZFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
@@ -1182,6 +1182,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 }
 
 QString
+ProjectBuilderMakefileGenerator::fixQuotes(const QString &val)
+{
+    QString ret(val);
+    ret = ret.replace(QRegExp("('|\")"), "\\\\1");
+    return ret;
+}
+
+QString
 ProjectBuilderMakefileGenerator::fixEnvs(const QString &file)
 {
     QRegExp reg_var("\\$\\((.*)\\)");
@@ -1351,3 +1359,4 @@ ProjectBuilderMakefileGenerator::pbxbuild()
        return "xcodebuild";
     return (ideType() == MAC_XCODE ? "xcodebuild" : "pbxbuild");
 }
+
