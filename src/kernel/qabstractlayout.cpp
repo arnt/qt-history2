@@ -424,16 +424,26 @@ QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
     if ( isEmpty() )
 	return QSizePolicy::NoDirection;
-    if ( (align & Qt::AlignHorizontal_Mask) &&
-	 (align & Qt::AlignVertical_Mask) )
-	return QSizePolicy::NoDirection;
 
-    int e = wid->layout() ? wid->layout()->expanding()
-	     : wid->sizePolicy().expanding();
+    int e = wid->sizePolicy().expanding();
+    /*
+      If the layout is expanding, we make the widget expanding, even if
+      its own size policy isn't expanding. This behavior should be
+      reconsidered in Qt 4.0. (###)
+    */
+    if ( wid->layout() ) {
+	if ( wid->sizePolicy().mayGrowHorizontally()
+		&& (wid->layout()->expanding() & QSizePolicy::Horizontally) )
+	    e |= QSizePolicy::Horizontally;
+	if ( wid->sizePolicy().mayGrowVertically()
+		&& (wid->layout()->expanding() & QSizePolicy::Vertically) )
+	    e |= QSizePolicy::Vertically;
+    }
+
     if ( align & Qt::AlignHorizontal_Mask )
-	e = e & ~QSizePolicy::Horizontally;
-    else if ( align & Qt::AlignVertical_Mask)
-	e = e & ~QSizePolicy::Vertically;
+	e &= ~QSizePolicy::Horizontally;
+    if ( align & Qt::AlignVertical_Mask)
+	e &= ~QSizePolicy::Vertically;
     return (QSizePolicy::ExpandData)e;
 }
 
