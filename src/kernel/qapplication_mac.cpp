@@ -2410,13 +2410,20 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 void QApplication::flush()
 {
-    sendPostedEvents();
-    if(QWidgetList *list = qApp->topLevelWidgets()) {
-	for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
-	    widget->propagateUpdates();
-	    QMacSavedPortInfo::flush(widget);
+    if(qApp) {
+	// ugh - I think this will cause problems, but it seems
+	// windows aren't becoming visible without it..
+	qApp->processNextEvent(FALSE); 
+
+	if(QWidgetList *list = qApp->topLevelWidgets()) {
+	    for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
+		if(widget->isVisible()) {
+		    widget->propagateUpdates();
+		    QMacSavedPortInfo::flush(widget);
+		}
+	    }
+	    delete list;
 	}
-	delete list;
     }
 }
 
