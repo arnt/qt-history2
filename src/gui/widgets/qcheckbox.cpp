@@ -74,8 +74,8 @@ public:
     pressed(), released(), clicked(), toggled(), state(), and
     stateChanged().
 
-    \inlineimage qchkbox-m.png Screenshot in Motif style
-    \inlineimage qchkbox-w.png Screenshot in Windows style
+    \inlineimage macintosh-checkbox.png Screenshot in Macintosh style
+    \inlineimage windows-checkbox.png Screenshot in Windows style
 
     \sa QAbstractButton QRadioButton
     \link guibooks.html#fowler Fowler: Check Box \endlink

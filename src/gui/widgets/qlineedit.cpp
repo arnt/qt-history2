@@ -150,8 +150,8 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     Any other key sequence that represents a valid character, will
     cause the character to be inserted into the line edit.
 
-    \inlineimage qlined-m.png Screenshot in Motif style
-    \inlineimage qlined-w.png Screenshot in Windows style
+    \inlineimage macintosh-lineedit.png Screenshot in Macintosh style
+    \inlineimage windows-lineedit.png Screenshot in Windows style
 
     \sa QTextEdit QLabel QComboBox
         \link guibooks.html#fowler GUI Design Handbook: Field, Entry\endlink

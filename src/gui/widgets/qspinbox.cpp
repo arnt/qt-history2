@@ -153,6 +153,12 @@ public:
             }
         }
     \endcode
+
+    \inlineimage macintosh-spinbox.png Screenshot in Macintosh style
+    \inlineimage windows-spinbox.png Screenshot in Windows style
+
+    \sa QDoubleSpinBox QSlider
+    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */
 
 /*!
@@ -579,6 +585,9 @@ int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
     It is often desirable to give the user a special (often default)
     choice in addition to the range of numeric values. See
     setSpecialValueText() for how to do this with QDoubleSpinBox.
+
+    \sa QSpinBox QSlider
+    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */
 
 /*!

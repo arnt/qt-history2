@@ -52,8 +52,8 @@
     setDown(), isDown(), autoRepeat(), group(), setAutoRepeat(),
     toggle(), pressed(), released(), clicked(), and toggled().
 
-    \inlineimage qradiobt-m.png Screenshot in Motif style
-    \inlineimage qradiobt-w.png Screenshot in Windows style
+    \inlineimage macintosh-radiobutton.png Screenshot in Macintosh style
+    \inlineimage windows-radiobutton.png Screenshot in Windows style
 
     \sa QPushButton QToolButton QCheckBox
     \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink

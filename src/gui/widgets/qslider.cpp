@@ -163,8 +163,8 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
         \i End moves to the end (maximum).
     \endlist
 
-    \inlineimage qslider-m.png Screenshot in Motif style
-    \inlineimage qslider-w.png Screenshot in Windows style
+    \inlineimage macintosh-slider.png Screenshot in Macintosh style
+    \inlineimage windows-slider.png Screenshot in Windows style
 
     \sa QScrollBar QSpinBox
     \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
