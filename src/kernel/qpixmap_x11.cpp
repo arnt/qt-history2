@@ -1896,8 +1896,8 @@ void QPixmap::x11SetScreen( int screen )
   helper for blitting alpha data into another pixmap
 */
 void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
-			      const QPixmap *src, int sx = 0, int sy = 0,
-			      int sw = -1, int sh = -1)
+			      const QPixmap *src, int sx, int sy,
+			      int sw, int sh)
 {
     if (! dst || ! src || ! src->data->alphapm)
 	return;
