@@ -444,6 +444,7 @@ void QDirModel::sort(int column, SortOrder order)
         spec |= QDir::Size;
         break;
     case 2:
+        // FIXME: we should sort on the type string
         spec |= QDir::DirsFirst;
         break;
     case 3:
@@ -479,7 +480,7 @@ bool QDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) cons
         return (l->info.fileName() < r->info.fileName());
     if (spec & QDir::Size) // col 1
         return (l->info.size() < r->info.size());
-    if (QDir::DirsFirst) // col 2
+    if (spec & QDir::DirsFirst) // col 2
         return !l->info.isDir();
     if (spec & QDir::Time) // col 3
         return l->info.lastModified() < r->info.lastModified();
