@@ -500,10 +500,6 @@ QChar QChar::mirroredChar() const
     return ::mirroredChar(*this);
 }
 
-#ifndef QT_NO_UNICODETABLES
-// ### REMOVE ME 4.0
-static QString shared_decomp;
-#endif
 /*!
     Decomposes a character into its parts. Returns an empty string if
     no decomposition exists.
