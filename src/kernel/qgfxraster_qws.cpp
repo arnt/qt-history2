@@ -3541,6 +3541,7 @@ bool QScreen::connect()
 {
     fd=open("/dev/fb0",O_RDWR);
     if(fd<0) {
+	perror("openning framebuffer device /dev/fb0");
 	qFatal("Can't open framebuffer device");
     }
 
@@ -3549,11 +3550,13 @@ bool QScreen::connect()
 
     /* Get fixed screen information */
     if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
+	perror("reading /dev/fb0");
 	qFatal("Error reading fixed information");
     }
 
     /* Get variable screen information */
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
+	perror("reading /dev/fb0");
 	qFatal("Error reading variable information");
     }
 
@@ -3576,6 +3579,7 @@ bool QScreen::connect()
     data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
 				 MAP_SHARED, fd, 0);
     if ((int)data == -1) {
+	perror("mapping /dev/fb0");
 	qFatal("Error: failed to map framebuffer device to memory.");
     }
 
