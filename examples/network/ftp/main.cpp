@@ -1,12 +1,12 @@
-#include <QtGui>
+#include <QApplication>
 
-#include "ftp.h"
+#include "ftpwindow.h"
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Ftp ftp;
-    app.setMainWidget(&ftp);
-    ftp.show();
+    FtpWindow ftpWin;
+    app.setMainWidget(&ftpWin);
+    ftpWin.show();
     return app.exec();
 }
