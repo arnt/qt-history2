@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "private/qlibrary_p.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 /*

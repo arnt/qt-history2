@@ -38,6 +38,7 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 #include "qt_mac.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 

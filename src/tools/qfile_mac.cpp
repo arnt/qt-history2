@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <string.h>
+#include <stdio.h>
 
 const unsigned char * p_str(const char * c, int len=-1); //qglobal.cpp
 

@@ -19,7 +19,6 @@
 
 #include <fcntl.h>
 #include <signal.h>
-#include <stdio.h>
 #include <stat.h>
 
 #define QT_STATBUF		struct stat

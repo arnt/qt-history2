@@ -1,10 +1,5 @@
 #ifdef MOC_MWERKS_PLUGIN
 
-/* standard headers */
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "mwerks_mac.h"
 #ifdef Q_OS_MAC9
 using namespace std;
@@ -21,6 +16,11 @@ using namespace std;
 #include "DropInCompilerLinker.h"
 #include "CompilerMapping.h"
 #include "CWPluginErrors.h"
+
+/* standard headers */
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
 //qglobal.cpp
 const unsigned char * p_str(const char * c);

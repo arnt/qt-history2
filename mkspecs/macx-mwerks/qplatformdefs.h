@@ -19,7 +19,6 @@
 
 #include <fcntl.h>
 #include <signal.h>
-#include <stdio.h>
 #include <stat.h>
 #include <socket.h>
 #include <ioctl.h>

@@ -68,10 +68,10 @@
 #  include "qmenubar.h"
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 
 /*****************************************************************************
