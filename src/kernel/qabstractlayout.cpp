@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#76 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -326,12 +326,13 @@ static QSize smartMinSize( QWidget *w )
 	else
 	    s.setHeight( w->sizeHint().height() );
     }
+    s = s.boundedTo( w->maximumSize() );
     QSize min = w->minimumSize();
     if ( min.width() > 0 )
 	s.setWidth( min.width() );
     if ( min.height() > 0 )
 	s.setHeight( min.height() );
-    
+
     s = s.expandedTo( QSize(1,1) );
     return s;
 }
