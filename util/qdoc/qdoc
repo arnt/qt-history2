@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#147 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#148 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1010,14 +1010,12 @@ sub readh {
 	    $sig =~ s/^(\w+)T\b/$1/gs;
 	    $_ = $sig;
 	    s/[:\s].*//;
-	    print "in $_:\n", $def,"\n";
 	    $def =~ s/\b(?:(?:$_)T)\b/$_/gs;
 	    if ( /Iterator$/ ) { # magic qt hack alert
 		s/Iterator$//;
 		$def =~ s/\b(?:(?:$_)T)\b/$_/gs;
 	    }
 	    $def =~ s/\b(?:(?:$_)T)\b/$_/gs;
-	    print "out $_:\n", $def,"\n";
 	    $templatecookie{&mangleclass($sig)} = $cookie;
 	    &storeclass( $filename, $sig, $def );
 	}
@@ -2389,7 +2387,7 @@ if ( $internal ) {
 }
 
 print "Documented ", $countdoc, " member functions, left out ",
-    $errmsg, " undocumented member functions and ", 
+    0+$errmsg, " undocumented member functions and ", 
     $countall-$countdoc-$errmsg, " (", $countall,
     ") private or non-function members\n";
 
