@@ -655,9 +655,9 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 	}
 	if ( doHide ) {
 	    if ( orientation() == Horizontal )
-		d->extension->setGeometry( width() - 20, 1, 19, height() - 2 );
+		d->extension->setGeometry( width() - 20, 1, 20, height() - 2 );
 	    else
-		d->extension->setGeometry( 1, height() - 20, width() - 2, 19 );
+		d->extension->setGeometry( 1, height() - 20, width() - 2, 20 );
 	    d->extension->show();
 	    d->extension->raise();
 	} else {
