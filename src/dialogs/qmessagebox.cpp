@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#8 $
 **
 ** Implementation of QMessageBox class
 **
@@ -17,43 +17,44 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#8 $";
 #endif
 
 
 /*!
-\class QMessageBox qmsgbox.h
-\brief The QMessageBox widget provides a modal message box.
+  \class QMessageBox qmsgbox.h
+  \brief The QMessageBox widget provides a modal message box.
 
-A message box is a modal view that displays a text and contains a push button.
+  A message box is a modal dialog that displays a text and a push button.
 
-The default push button text is "Ok". This can be changed with setButtonText().
+  The default push button text is "Ok". This can be changed with
+  setButtonText().
 
-Enabling auto-resizing will make a message box resize itself whenever
-the contents change.
+  Enabling auto-resizing will make a message box resize itself whenever
+  the contents change.
 
-Example of use:
-\code
-  QMessageBox mb;
-  mb.setText( "This program may crash your hardware!!!\nLet's start..." );
-  mb.setButtonText( "Yes!" );
-  mb.exec();
-\endcode
+  Example of use:
+  \code
+    QMessageBox mb;
+    mb.setText( "This program may crash your hardware!!!\nLet's start..." );
+    mb.setButtonText( "Yes!" );
+    mb.exec();
+  \endcode
 */
 
 
 /*!
-Constructs a message box with no text and a button with the text "Ok".
+  Constructs a message box with no text and a button with the text "Ok".
 
-If \e parent is 0, then the message box becomes an application-global
-modal dialog box.  If \e parent is a real widget, the message
-box becomes modal relative to \e parent.
+  If \e parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \e parent is a widget, the message
+  box becomes modal relative to \e parent.
 
-The \e parent and \e name arguments are passed to the QDialog constructor.
+  The \e parent and \e name arguments are passed to the QDialog constructor.
 */
 
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
-	: QDialog( parent, name )
+	: QDialog( parent, name, TRUE )
 {
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
@@ -66,8 +67,8 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 
 
 /*!
-Returns the message box text currently set, or null if no text has been set.
-\sa setText().
+  Returns the message box text currently set, or null if no text has been set.
+  \sa setText()
 */
 
 const char *QMessageBox::text() const
@@ -76,8 +77,8 @@ const char *QMessageBox::text() const
 }
 
 /*!
-Sets the message box text to be displayed.
-\sa text().
+  Sets the message box text to be displayed.
+  \sa text()
 */
 
 void QMessageBox::setText( const char *text )
@@ -86,8 +87,8 @@ void QMessageBox::setText( const char *text )
 }
 
 /*!
-Returns the push button text currently set, or null if no text has been set.
-\sa setButtonText().
+  Returns the push button text currently set, or null if no text has been set.
+  \sa setButtonText()
 */
 
 const char *QMessageBox::buttonText() const
@@ -96,11 +97,11 @@ const char *QMessageBox::buttonText() const
 }
 
 /*!
-Sets the push button text to be displayed.
+  Sets the push button text to be displayed.
 
-The default push button text is "Ok".
+  The default push button text is "Ok".
 
-\sa buttonText().
+  \sa buttonText()
 */
 
 void QMessageBox::setButtonText( const char *text )
@@ -110,11 +111,11 @@ void QMessageBox::setButtonText( const char *text )
 
 
 /*!
-Adjusts the size of the message box to fit the contents just before
-QDialog::exec() or QDialog::show() is called.
+  Adjusts the size of the message box to fit the contents just before
+  QDialog::exec() or QDialog::show() is called.
 
-This function will not be called if the message box has been explicitly
-resized before showing it.
+  This function will not be called if the message box has been explicitly
+  resized before showing it.
 */
 
 void QMessageBox::adjustSize()
@@ -128,7 +129,7 @@ void QMessageBox::adjustSize()
 
 
 /*!
-Internal geometry management.
+  Internal geometry management.
 */
 
 void QMessageBox::resizeEvent( QResizeEvent * )
@@ -147,12 +148,12 @@ void QMessageBox::resizeEvent( QResizeEvent * )
 //
 
 /*!
-Opens a message box directly using the specified parameters.
+  Opens a message box directly using the specified parameters.
 
-Example of use:
-\code
-  QMessageBox::message( "Warning", "Did you feed the giraffe", "Sorry" );
-\endcode
+  Example of use:
+  \code
+    QMessageBox::message( "Warning", "Did you feed the giraffe", "Sorry" );
+  \endcode
 */
 
 int QMessageBox::message( const char *caption,
