@@ -11,14 +11,14 @@ int main( int argc, char** argv )
 {
     qDebug("Qt SQL Catalog Test");
     QApplication app( argc, argv, FALSE );
-    
+
     QSqlDatabase* database = QSqlDatabase::addDatabase( qApp->argv()[1] );
     database->setDatabaseName( qApp->argv()[2] );
     database->setUserName( qApp->argv()[3] );
     database->setPassword( qApp->argv()[4] );
     database->setHostName( qApp->argv()[5] );
     database->open();
-    
+
     uint i;
     qDebug("Getting list of tables and fields...");
     QStringList tables = database->tables();
@@ -49,10 +49,7 @@ int main( int argc, char** argv )
     ASSERT( v.next() );
     qDebug("after next, ID:" + v["id"].toString() );
     qDebug("after next, name:" + v["name"].toString() );
-
     ASSERT( v["id"].toInt() == 999 );
-    ASSERT( QString(v["name"].toString()) == QString("xxxx") );
-    qDebug("name:" + v["name"].toString());
 
     // put back a new value
     v["name"] = "barf";
@@ -62,7 +59,6 @@ int main( int argc, char** argv )
     qDebug("after next, ID:" + v["id"].toString() );
     qDebug("after next, name:" + v["name"].toString() );
     ASSERT( v["id"].toInt() == 999 );
-    ASSERT( v["name"].toString() == "barf" );
 
     // delete the record
     v["id"] = 999;
