@@ -18,18 +18,8 @@
                         <key>CFBundleTypeExtensions</key>
                         <array>
                                 <string>ui</string>
-                        </array>
-			<key>CFBundleTypeIconFile</key>
-			<string>@ICON@</string>
-                        <key>CFBundleTypeRole</key>
-                        <string>Editor</string>
-                        <key>LSIsAppleDefaultForType</key>
-                        <true/>
-                </dict>
-                <dict>
-                        <key>CFBundleTypeExtensions</key>
-                        <array>
-                                <string>pro</string>
+				<string>pro</string>
+				<string>pri</string>
                         </array>
 			<key>CFBundleTypeIconFile</key>
 			<string>@ICON@</string>

@@ -30,7 +30,7 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     QString keyFor(const QString &file);
     QString fixEnvs(const QString &file);
     QString fixEnvsList(const QString &where);
-    QString reftypeForFile(const QString &where);
+    int     reftypeForFile(const QString &where);
     QString projectSuffix() const;
 
     enum IDE_TYPE { MAC_XCODE, MAC_PBUILDER };

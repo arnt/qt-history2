@@ -298,80 +298,105 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     //DUMP SOURCES
     QMap<QString, QStringList> groups;
-    QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", "QMAKE_IMAGE_COLLECTION", "FORMS", QString::null };
+    QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", "QMAKE_IMAGE_COLLECTION", 
+		       "FORMS", "QMAKE_INTERNAL_INCLUDED_FILES", QString::null };
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
+	if(srcs[i] == "QMAKE_INTERNAL_INCLUDED_FILES") {
+	    QString pfile = project->projectFile();
+	    if(pfile != "(stdin)")
+		tmp.prepend(pfile);
+	}
 	QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
+	QStringList &root_group_list = project->variables()["QMAKE_PBX_GROUPS"];
+
+	//hard coded groups..
+	QString src_group;
+	if(srcs[i] == "SOURCES") 
+	    src_group = "Sources";
+	else if(srcs[i] == "HEADERS")
+	    src_group = "Headers";
+	else if(srcs[i] == "SRCMOC")
+	    src_group = "Sources [moc]";
+	else if(srcs[i] == "UICIMPLS" || srcs[i] == "FORMS")
+	    src_group = "Sources [uic]";
+	else if(srcs[i] == "QMAKE_IMAGE_COLLECTION")
+	    src_group = "Sources [images]";
+	else if(srcs[i] == "QMAKE_INTERNAL_INCLUDED_FILES")
+	    src_group = "Sources [qmake]";
+
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
-	    QString file = (*it);
+	    QStringList files = (*it);
 	    bool buildable = TRUE;
 	    if(srcs[i] == "FORMS") {
-		file += Option::h_ext.first();
-		if(!QFile::exists(file))
-		    continue;
+		QString form_dot_h = (*it) + Option::h_ext.first();
+		if(QFile::exists(form_dot_h))
+		    files += form_dot_h;
 		buildable = FALSE;
 	    } else if(srcs[i] == "HEADERS") {
 		buildable = FALSE;
 	    }
 
-	    file = fileFixify(file);
-	    if(file.endsWith(Option::cpp_moc_ext)) 
-		continue;
-	    bool in_root = TRUE;
-	    QString src_key = keyFor(file), name = file;
-	    if(project->isActiveConfig("flat")) {
-		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, FileFixifyRelative);
-		if(flat_file.indexOf(Option::dir_sep) != -1) {
-		    QStringList dirs = flat_file.split(Option::dir_sep);
-		    name = dirs.back();
-		}
-	    } else {
-		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, FileFixifyRelative);
-		if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
-		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
-		    QStringList dirs = flat_file.split(Option::dir_sep);
-		    name = dirs.back();
-		    dirs.pop_back(); //remove the file portion as it will be added via src_key
-		    for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
-			QString new_grp(last_grp + Option::dir_sep + (*dir_it)), new_grp_key(keyFor(new_grp));
-			if(dir_it == dirs.begin()) {
-			    if(!groups.contains(new_grp)) 
-				project->variables()["QMAKE_PBX_" + srcs[i]].append(new_grp_key);
-			} else {
-			    if(!groups[last_grp].contains(new_grp_key))
-				groups[last_grp] += new_grp_key;
-			}
-			last_grp = new_grp;
+	    files = fileFixify(files);
+	    for(QStringList::Iterator file_it = files.begin(); file_it != files.end(); ++file_it) {
+		QString file = (*file_it);
+		if(file.endsWith(Option::cpp_moc_ext) || file.endsWith(Option::prl_ext)) 
+		    continue;
+		bool in_root = TRUE;
+		QString src_key = keyFor(file), name = file;
+		if(project->isActiveConfig("flat")) {
+		    QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, FileFixifyRelative);
+		    if(flat_file.indexOf(Option::dir_sep) != -1) {
+			QStringList dirs = flat_file.split(Option::dir_sep);
+			name = dirs.back();
 		    }
-		    groups[last_grp] += src_key;
-		    in_root = FALSE;
+		} else {
+		    QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, FileFixifyRelative);
+		    if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
+			QString last_grp("QMAKE_PBX_" + src_group + "_HEIR_GROUP");
+			QStringList dirs = flat_file.split(Option::dir_sep);
+			name = dirs.back();
+			dirs.pop_back(); //remove the file portion as it will be added via src_key
+			for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
+			    QString new_grp(last_grp + Option::dir_sep + (*dir_it)), new_grp_key(keyFor(new_grp));
+			    if(dir_it == dirs.begin()) {
+				if(!src_list.contains(new_grp_key)) 
+				    src_list.append(new_grp_key);
+			    } else {
+				if(!groups[last_grp].contains(new_grp_key))
+				    groups[last_grp] += new_grp_key;
+			    }
+			    last_grp = new_grp;
+			}
+			groups[last_grp] += src_key;
+			in_root = FALSE;
+		    }
 		}
-	    }
-	    if(in_root)
-		src_list.append(src_key);
-	    //source reference
-	    t << "\t\t" << src_key << " = {" << "\n"
-	      << "\t\t\t" << "isa = PBXFileReference;" << "\n"
-	      << "\t\t\t" << "name = \"" << name << "\";" << "\n"
-	      << "\t\t\t" << "path = \"" << file << "\";" << "\n"
-	      << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n"
-	      << "\t\t" << "};" << "\n";
-	    if(buildable) { //build reference
-		QString obj_key = file + ".o";
-		obj_key = keyFor(obj_key);
-		t << "\t\t" << obj_key << " = {" << "\n"
-		  << "\t\t\t" << "fileRef = " << src_key << ";" << "\n"
-		  << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
-		  << "\t\t\t" << "settings = {" << "\n"
-		  << "\t\t\t\t" << "ATTRIBUTES = (" << "\n"
-		  << "\t\t\t\t" << ");" << "\n"
-		  << "\t\t\t" << "};" << "\n"
+		if(in_root) 
+		    src_list.append(src_key);
+		//source reference
+		t << "\t\t" << src_key << " = {" << "\n"
+		  << "\t\t\t" << "isa = PBXFileReference;" << "\n"
+		  << "\t\t\t" << "name = \"" << name << "\";" << "\n"
+		  << "\t\t\t" << "path = \"" << file << "\";" << "\n"
+		  << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n"
 		  << "\t\t" << "};" << "\n";
-		project->variables()["QMAKE_PBX_OBJ"].append(obj_key);
+		if(buildable) { //build reference
+		    QString obj_key = file + ".o";
+		    obj_key = keyFor(obj_key);
+		    t << "\t\t" << obj_key << " = {" << "\n"
+		      << "\t\t\t" << "fileRef = " << src_key << ";" << "\n"
+		      << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
+		      << "\t\t\t" << "settings = {" << "\n"
+		      << "\t\t\t\t" << "ATTRIBUTES = (" << "\n"
+		      << "\t\t\t\t" << ");" << "\n"
+		      << "\t\t\t" << "};" << "\n"
+		      << "\t\t" << "};" << "\n";
+		    project->variables()["QMAKE_PBX_OBJ"].append(obj_key);
+		}
 	    }
 	}
 	if(!src_list.isEmpty()) {
-	    QString grp;
 	    if(srcs[i] == "SOURCES") {
 		if(project->first("TEMPLATE") == "app" && !project->isEmpty("RC_FILE")) { //Icon
 		    QString icns_file = keyFor("ICNS_FILE");
@@ -388,25 +413,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		      << "\t\t\t" << "};" << "\n"
 		      << "\t\t" << "};" << "\n";
 		}
-		grp = "Sources";
-	    } else if(srcs[i] == "HEADERS") {
-		grp = "Headers";
-	    } else if(srcs[i] == "SRCMOC") {
-		grp = "Sources [moc]";
-	    } else if(srcs[i] == "UICIMPLS" || srcs[i] == "FORMS") {
-		grp = "Sources [uic]";
-	    } else if(srcs[i] == "QMAKE_IMAGE_COLLECTION") {
-		grp = "Sources [images]";
 	    }
-	    QString grp_key = keyFor(grp);
-	    QStringList &grp_list = project->variables()["QMAKE_PBX_GROUPS"];
-	    if(grp_list.indexOf(grp_key) == -1)
-		grp_list += grp_key;
-	    groups[grp] += src_list;
+
+	    QString src_group_key = keyFor(src_group);
+	    if(root_group_list.indexOf(src_group_key) == -1) 
+		root_group_list += src_group_key;
+	    groups[src_group] += src_list;
 	}
     }
-    for(QMap<QString, QStringList>::Iterator grp_it = groups.begin(); 
-	grp_it != groups.end(); ++grp_it) {
+    for(QMap<QString, QStringList>::Iterator grp_it = groups.begin(); grp_it != groups.end(); ++grp_it) {
 	t << "\t\t" << keyFor(grp_it.key()) << " = {" << "\n"
 	  << "\t\t\t" << "isa = PBXGroup;" << "\n"
 	  << "\t\t\t" << "children = (" << "\n"
@@ -1273,12 +1288,13 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
     return 34; //my fallback
 }
 
-QString
+int
 ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
 {
+    int ret = 0; //absolute is the default..
     if(QDir::isRelativePath(where))
-	return "4"; //relative
-    return "0"; //absolute
+	ret = 4; //relative
+    return ret; 
 }
 
 ProjectBuilderMakefileGenerator::IDE_TYPE
