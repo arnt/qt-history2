@@ -42,12 +42,11 @@ symlinks: .qmake.cache
 
 sub-src: src-qmake .qmake.cache $(FORCEDEP)
 	cd src
-	$(MAKE) -f Makefile.main
 	$(MAKE)
 	cd ..
 
 sub-plugins: sub-src .qmake.cache $(FORCEDEP)
-	cd plugins\src
+	cd src\plugins
 	$(MAKE)
 	cd ..\..
 
