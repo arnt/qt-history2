@@ -57,7 +57,6 @@ typedef unsigned int __u32;
 #include <sys/io.h>
 #endif
 
-
 #ifndef QT_NO_QWS_GFX_SPEED
  #define QWS_EXPERIMENTAL_FASTPATH
  #define GFX_INLINE inline
@@ -1313,7 +1312,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_15(
     return ret;
 }
 
-inline unsigned int QGfxRasterBase::get_value_8(
+GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
@@ -1327,9 +1326,9 @@ inline unsigned int QGfxRasterBase::get_value_8(
 	    ret=transclut[val];
 	}
 	if(reverse) {
-	    (*srcdata)-=1;
+	    (*srcdata)--;
 	} else {
-	    (*srcdata)+=1;
+	    (*srcdata)++;
 	}
     } else if(sdepth==1) {
 	if(monobitcount<8) {
@@ -1372,7 +1371,7 @@ inline unsigned int QGfxRasterBase::get_value_8(
     return ret;
 }
 
-inline unsigned int QGfxRasterBase::get_value_1(
+GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
@@ -1504,7 +1503,7 @@ QGfxRaster<depth,type>::~QGfxRaster()
 // Calculate packing values for 64-bit writes
 
 template<const int depth,const int type>
-inline void QGfxRaster<depth,type>::calcPacking(
+GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
 			  void * m,int x1,int x2,
 			  int & frontadd,int & backadd,int & count)
 {
@@ -1710,7 +1709,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 
 //screen coordinates
 template <const int depth, const int type>
-inline void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
+GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
 {
     if ( depth == 32 )
 	((QRgb*)l)[x] = pixel;
@@ -1976,7 +1975,7 @@ void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
 
 //screen coordinates, clipped, x1<=x2
 template <const int depth, const int type>
-inline void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
+GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 {
     unsigned char *l=scanLine(y);
     QRect cr;
@@ -1997,11 +1996,10 @@ inline void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 
 //screen coordinates, unclipped, x1<=x2, x1>=0
 template <const int depth, const int type>
-inline void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
+GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
 {
     if ( depth == 32 ) {
-	unsigned int *myptr=(unsigned int *)l;
-	myptr+=x1;
+	unsigned int *myptr=(unsigned int *)l + x1;
 	int w = x2-x1+1;
 	while ( w-- )
 	    *(myptr++) = pixel;
@@ -2009,6 +2007,7 @@ inline void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char*
 	unsigned short int *myptr=(unsigned short int *)l;
 #ifdef QWS_NO_WRITE_PACKING
 	int w = x2-x1+1;
+	myptr+=x1;
 	while ( w-- )
 	    *(myptr++) = pixel;
 #else
@@ -2192,6 +2191,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		if ( frontadd )
 		    *(myptr--)=get_value_16(srcdepth,&srcdata,TRUE);
 	    } else {
+#ifdef QWS_NO_WRITE_PACKING
+		while ( w-- )
+		    *(myptr++)=get_value_16(srcdepth,&srcdata);
+#else
 		// 64-bit writes
 		int frontadd;
 		int backadd;
@@ -2215,6 +2218,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		}
 		while ( backadd-- )
 		    *(myptr++)=get_value_16(srcdepth,&srcdata);
+#endif
 	    }
 	} else {
 	    // Probably not worth trying to pack writes if there's a mask
@@ -2260,14 +2264,14 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    srcdata+=((srcdepth*(w-1))/8);
 	}
 	if(!ismasking) {
-	    unsigned int put;
-	    unsigned char *fun = (unsigned char *)&put;
 	    if(reverse) {
 		// 64-bit writes
 #ifdef QWS_NO_WRITE_PACKING
 		while ( w-- )
 		    *(myptr--)=get_value_8(srcdepth,&srcdata,true);
 #else
+		unsigned int put;
+		unsigned char *fun = (unsigned char *)&put;
 		int frontadd;
 		int backadd;
 		int count;
@@ -2310,7 +2314,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
 		QuadByte dput;
-		fun=(unsigned char *)&dput;
+		unsigned char *fun = (unsigned char *)&dput;
 
 		while ( frontadd-- )
 		    *(myptr++)=get_value_8(srcdepth,&srcdata);
@@ -2425,9 +2429,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 {
     if ( depth == 32 ) {
 	// First read in the destination line
-	unsigned int * myptr;
-	myptr=(unsigned int *)l;
+	unsigned int *myptr = (unsigned int *)l;
+	unsigned int *alphaptr = (unsigned int *)alphabuf;
+	unsigned char * avp=alphas;
+	int w=x2-x1+1;
+	int loopc;
 
+#ifdef QWS_NO_WRITE_PACKING
+	unsigned int *temppos = myptr+x1;
+	for ( int i = 0; i < w; i++ )
+	    *(alphaptr++) = *(temppos++);
+#else
 	int frontadd;
 	int backadd;
 	int count;
@@ -2435,14 +2447,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	int w=x2-x1+1;
 	myptr+=x1;
-	int loopc;
 
-	unsigned char * avp=alphas;
-
-	int myp=0;
 	unsigned int * temppos=myptr;
+	int myp=0;
 
 	QuadByte temp2;
 
@@ -2465,6 +2473,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    alphabuf[myp++]=*temppos;
 	    temppos++;
 	}
+#endif
 
 	// Now blend with source data
 	unsigned char * srcptr=srcdata;
@@ -2483,6 +2492,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    g=g >> 8;
 	    srcval=(r << 16) | (g << 8) | b;
 	}
+
+	alphaptr = (unsigned int *)alphabuf;
 	for(loopc=0;loopc<w;loopc++) {
 	    int r,g,b;
 	    if(srctype==SourceImage)
@@ -2519,13 +2530,17 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        g+=*(tmp+1);
 	        b+=*(tmp+0);
 	    }
-	    alphabuf[loopc]=(r << 16) | (g << 8) | b;
+	    *(alphaptr++) = (r << 16) | (g << 8) | b;
 	}
 
 	// Now write it all out
+	alphaptr = (unsigned int *)alphabuf;
 
-	unsigned int * putdata=&alphabuf[0];
-
+#ifdef QWS_NO_WRITE_PACKING
+	myptr += x1;
+	while ( w-- )
+	    *(myptr++)=*(alphaptr++);
+#else
 	QuadByte put;
 	unsigned int *fun = (unsigned int*)&put;
 
@@ -2536,27 +2551,33 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	myptr+=x1;
 
 	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
-	    *(myptr++)=*(putdata++);
-	    w--;
+	    *(myptr++)=*(alphaptr++);
 	}
 
 	for ( loopc2=0;loopc2<count;loopc2++ ) {
-	    *(fun) = *(putdata++);
-	    *(fun+1) = *(putdata++);
+	    *(fun) = *(alphaptr++);
+	    *(fun+1) = *(alphaptr++);
 	    *((QuadByte*)myptr) = put;
 	    myptr += 2;
-	    w-=2;
 	}
 
 	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
-	    *(myptr++)=*(putdata++);
-	    w--;
+	    *(myptr++)=*(alphaptr++);
 	}
+#endif
     } else if ( depth == 16 ) {
         // First read in the destination line
-	unsigned short int * myptr;
-	myptr=(unsigned short int *)l;
+	unsigned short int *myptr = (unsigned short int *)l;
+	unsigned int *alphaptr = (unsigned int *)alphabuf;
+	unsigned char * avp=alphas;
+	int w=x2-x1+1;
+	int loopc;
 
+#ifdef QWS_NO_WRITE_PACKING
+	unsigned short int *temppos = myptr + x1;
+	for ( int i = 0; i < w; i++ )
+	    *(alphaptr++) = get_value_32(16,(unsigned char **)&temppos);
+#else
 	int frontadd;
 	int backadd;
 	int count;
@@ -2564,11 +2585,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	int w=x2-x1+1;
 	myptr+=x1;
-	int loopc;
-
-	unsigned char * avp=alphas;
 
 	int myp=0;
 	unsigned short int * temppos=myptr;
@@ -2594,6 +2611,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	for( loopc2=0;loopc2<backadd;loopc2++ ) {
 	    alphabuf[myp++]=get_value_32(16,(unsigned char **)&temppos);
 	}
+#endif
 
 	// Now blend with source data
 	unsigned char * srcptr=srcdata;
@@ -2615,6 +2633,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    b=b << 3;
 	    srcval=(r << 16) | (g << 8) | b;
 	}
+	alphaptr = (unsigned int *)alphabuf;
 	for(loopc=0;loopc<w;loopc++) {
 	    int r,g,b;
 	    if(srctype==SourceImage)
@@ -2654,13 +2673,18 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    r=r >> 3;
 	    g=g >> 2;
 	    b=b >> 3;
-	    alphabuf[loopc]=(r << 11) | (g << 5) | b;
+	    *(alphaptr++) = (r << 11) | (g << 5) | b;
 	}
 
 	// Now write it all out
 
-	unsigned int * putdata=&alphabuf[0];
+	alphaptr = (unsigned int *)alphabuf;
 
+#ifdef QWS_NO_WRITE_PACKING
+	myptr += x1;
+	while ( w-- )
+	    *(myptr++) = *(alphaptr++);
+#else
 	QuadByte put;
 	unsigned short int *fun = (unsigned short int*)&put;
 
@@ -2671,25 +2695,22 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	myptr+=x1;
 
 	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
-	    *(myptr++)=*(putdata++);
-	    w--;
+	    *(myptr++)=*(alphaptr++);
 	}
 
 	for ( loopc2=0;loopc2<count;loopc2++ ) {
-	    *(fun) = *(putdata++);
-	    *(fun+1) = *(putdata++);
-	    *(fun+2) = *(putdata++);
-	    *(fun+3) =  *(putdata++);
+	    *(fun) = *(alphaptr++);
+	    *(fun+1) = *(alphaptr++);
+	    *(fun+2) = *(alphaptr++);
+	    *(fun+3) =  *(alphaptr++);
 	    *((QuadByte*)myptr) = put;
 	    myptr += 4;
-	    w-=4;
 	}
 
 	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
-	    *(myptr++)=*(putdata++);
-	    w--;
+	    *(myptr++)=*(alphaptr++);
 	}
-
+#endif
     } else if ( depth == 8 ) {
         // First read in the destination line
 	unsigned char * myptr;
@@ -3631,7 +3652,7 @@ bool QScreen::initCard()
 	} else {
 	    mtrr_sentry sentry;
 	    sentry.base=(unsigned long int)finfo.smem_start;
-	    qDebug("Physical framebuffer address %lx",finfo.smem_start);
+	    qDebug("Physical framebuffer address %p",finfo.smem_start);
 	    // Size needs to be in 4k chunks, but that's not always
 	    // what we get thanks to graphics card registers. Write combining
 	    // these is Not Good, so we write combine what we can
