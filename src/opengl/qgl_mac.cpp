@@ -67,6 +67,7 @@ void qgl_delete_d(const QGLWidget *); //qgl.cpp
 QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
+    cx = NULL;
     GDHandle dev = GetMainDevice(); //doesn't handle multiple heads, fixme!
     vi = chooseMacVisual(dev);
     if(!vi)
@@ -105,6 +106,21 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if(shareContext && ( format().rgba() != shareContext->format().rgba()))
 	shareContext = 0;
     AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
+    if(!ctx) {
+	GLenum err = aglGetError();
+	if(err == AGL_BAD_MATCH || err == AGL_BAD_CONTEXT) {
+	    if(shareContext && shareContext->cx) {
+		qWarning("QOpenGL: context sharing mismatch!");
+		if(!(ctx = aglCreateContext(fmt, NULL)))
+		    return FALSE;
+		shareContext = NULL;
+	    }
+	}
+	if(!ctx) {
+	    qDebug("QOpenGL: unable to create QGLContext");
+	    return FALSE;
+	}
+    }
     d->sharing = shareContext && shareContext->cx;
 
     if((cx = (void *)ctx)) {
