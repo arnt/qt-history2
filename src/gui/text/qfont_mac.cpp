@@ -27,6 +27,7 @@
 #include <qdict.h>
 #include <qpainter.h>
 #include "qtextengine_p.h"
+#include "qcfhelper_mac.h"
 #include <stdlib.h>
 
 QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
@@ -191,23 +192,19 @@ void QFontPrivate::load(QFont::Script script)
         // previous versions
         family_list << QApplication::font().defaultFamily();
         for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
-            CFStringRef cfstr = qstring2cfstring(*it);
+            QCFStringHelper cfstr(*it);
             if(ATSFontRef fontref = ATSFontFindFromName(cfstr, kATSOptionFlagsDefault)) {
-                CFStringRef actualName;
-                if(ATSFontGetName(fontref, kATSOptionFlagsDefault, &actualName) == noErr) {
-                    if(cfstring2qstring(actualName) == (*it)) {
-                        // We're leaving, so clean here too.
-                        CFRelease(cfstr);
-                        CFRelease(actualName);
+                QCFStringHelper actualName;
+                if(ATSFontGetName(fontref, kATSOptionFlagsDefault,
+                                  &actualName.dataRef()) == noErr) {
+                    if(static_cast<QString>(actualName) == (*it)) {
                         engine->fontref = fontref;
                         break;
                     }
-                    CFRelease(actualName);
                 }
                 if(!engine->fontref) //just take one if it isn't set yet
                     engine->fontref = fontref;
             }
-            CFRelease(cfstr);
         }
     }
     { //fill in the engine's font definition
@@ -217,11 +214,11 @@ void QFontPrivate::load(QFont::Script script)
         else
             engine->fontDef.pixelSize = qt_mac_pixelsize(engine->fontDef, paintdevice);
         {
-            CFStringRef actualName;
+            QCFStringHelper actualName;
             Q_ASSERT(engine->type() == QFontEngine::Mac);
-            if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr) {
-                engine->fontDef.family = cfstring2qstring(actualName);
-                CFRelease(actualName);
+            if (ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName.dataRef())
+                == noErr) {
+                engine->fontDef.family = actualName;
             }
         }
     }
