@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#9 $
+** $Id: //depot/qt/main/src/tools/qlist.h#10 $
 **
 ** Definition of QList template/macro class
 **
@@ -48,10 +48,12 @@ public:									      \
     bool  remove( uint i )		{ return QGList::removeAt(i); }	      \
     bool  remove()			{ return QGList::remove((GCI)0); }    \
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }    \
+    bool  removeNode( QLNode *n )	{ return QGList::removeNode(n); }     \
     bool  removeFirst()			{ return QGList::removeFirst(); }     \
     bool  removeLast()			{ return QGList::removeLast(); }      \
     type *take( uint i )		{ return (type *)QGList::takeAt(i); } \
     type *take()			{ return (type *)QGList::take(); }    \
+    type *takeNode( QLNode *n )		{ return (type *)QGList::takeNode(n);}\
     void  clear()			{ QGList::clear(); }		      \
     int	  find( const type *d )		{ return QGList::find((GCI)d); }      \
     int	  findNext( const type *d )	{ return QGList::find((GCI)d,FALSE);} \
@@ -63,6 +65,7 @@ public:									      \
     uint  at() const			{ return QGList::at(); }	      \
 	  operator type *() const	{ return (type *)QGList::get(); }     \
     type *current()  const		{ return (type *)QGList::get(); }     \
+    QLNode *currentNode()  const	{ return QGList::currentNode(); }     \
     type *getFirst() const		{ return (type *)QGList::cfirst(); }  \
     type *getLast()  const		{ return (type *)QGList::clast(); }   \
     type *first()			{ return (type *)QGList::first(); }   \
@@ -128,10 +131,12 @@ public:
     bool  remove( uint i )		{ return QGList::removeAt(i); }
     bool  remove()			{ return QGList::remove((GCI)0); }
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }
+    bool  removeNode( QLNode *n )	{ return QGList::removeNode(n); }
     bool  removeFirst()			{ return QGList::removeFirst(); }
     bool  removeLast()			{ return QGList::removeLast(); }
     type *take( uint i )		{ return (type *)QGList::takeAt(i); }
     type *take()			{ return (type *)QGList::take(); }
+    type *takeNode( QLNode *n )		{ return (type *)QGList::takeNode(n); }
     void  clear()			{ QGList::clear(); }
     int	  find( const type *d )		{ return QGList::find((GCI)d); }
     int	  findNext( const type *d )	{ return QGList::find((GCI)d,FALSE); }
@@ -143,6 +148,7 @@ public:
     uint  at() const			{ return QGList::at(); }
 	  operator type *() const	{ return (type *)QGList::get(); }
     type *current()  const		{ return (type *)QGList::get(); }
+    QLNode *currentNode()  const	{ return QGList::currentNode(); }
     type *getFirst() const		{ return (type *)QGList::cfirst(); }
     type *getLast()  const		{ return (type *)QGList::clast(); }
     type *first()			{ return (type *)QGList::first(); }
