@@ -30,7 +30,7 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 \title Windowsystem-specific Notes
 
 Qt is a cross-platform GUI toolkit, so almost the entire API is the
-same on all platforms and windowsystems. However some tasks
+same on all platforms and windowsystems. However some development tasks
 may require you to write small windowsystem-specific tasks.
 This page documents the windowsystem-specific parts of the Qt API.
 Note that any use of these features renders your application non-portable

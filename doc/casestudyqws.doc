@@ -120,50 +120,51 @@ or Qt/Windows if we wish.
 <h3>Creating a suitable Qt/Embedded Library</h3>
 
 Since our application is quite simple we can remove some unneeded features
-from Qt/Embedded.  Edit $QTDIR/src/tools/qconfig.h and disable the
-following features:
-<table border=0><tr><td valign=top><ul>
-<li>QT_NO_IMAGEIO_BMP
-<li>QT_NO_IMAGEIO_PPM
-<li>QT_NO_IMAGEIO_XBM
-<li>QT_NO_IMAGEIO_PNG
-<li>QT_NO_ASYNC_IO
-<li>QT_NO_ASYNC_IMAGE_IO
-<li>QT_NO_TRUETYPE
-<li>QT_NO_BDF
-<li>QT_NO_FONTDATABASE
-<li>QT_NO_MIME
-<li>QT_NO_SOUND
-<li>QT_NO_PROPERTIES
-<li>QT_NO_CURSOR
-<li>QT_NO_NETWORKPROTOCOL
-<li>QT_NO_COLORNAMES
-</ul></td><td valign=top><ul>
-<li>QT_NO_TRANSFORMATIONS
-<li>QT_NO_PSPRINTER
-<li>QT_NO_PICTURE
-<li>QT_NO_LISTVIEW
-<li>QT_NO_CANVAS
-<li>QT_NO_DIAL
-<li>QT_NO_WORKSPACE
-<li>QT_NO_LCDNUMBER
-<li>QT_NO_STYLE_MOTIF
-<li>QT_NO_STYLE_PLATINUM
-<li>QT_NO_COLORDIALOG
-<li>QT_NO_PROGRESSDIALOG
-<li>QT_NO_TABDIALOG
-<li>QT_NO_WIZARD
-</ul></td></tr></table>
+from Qt/Embedded.  Edit $QTDIR/src/tools/qconfig.h and disable unneeded
+features as follows:
+<p>
+<pre>
+    #define QT_NO_IMAGEIO_BMP
+    #define QT_NO_IMAGEIO_PPM
+    #define QT_NO_IMAGEIO_XBM
+    #define QT_NO_IMAGEIO_PNG
+    #define QT_NO_ASYNC_IO
+    #define QT_NO_ASYNC_IMAGE_IO
+    #define QT_NO_TRUETYPE
+    #define QT_NO_BDF
+    #define QT_NO_FONTDATABASE
+    #define QT_NO_MIME
+    #define QT_NO_SOUND
+    #define QT_NO_PROPERTIES
+    #define QT_NO_CURSOR
+    #define QT_NO_NETWORKPROTOCOL
+    #define QT_NO_COLORNAMES
+    #define QT_NO_TRANSFORMATIONS
+    #define QT_NO_PSPRINTER
+    #define QT_NO_PICTURE
+    #define QT_NO_LISTVIEW
+    #define QT_NO_CANVAS
+    #define QT_NO_DIAL
+    #define QT_NO_WORKSPACE
+    #define QT_NO_LCDNUMBER
+    #define QT_NO_STYLE_MOTIF
+    #define QT_NO_STYLE_PLATINUM
+    #define QT_NO_COLORDIALOG
+    #define QT_NO_PROGRESSDIALOG
+    #define QT_NO_TABDIALOG
+    #define QT_NO_WIZARD
+</pre>
 
+<p>
 See <a href=features.html>Qt Features</a> for a description of the features
 that can be disabled.  This leaves us with a small set of widgets and
 dialogs necessary for our application.  Cross-compile the library for the mips
 target on the x86 platform:
 <pre>
-cd $QTDIR
-./configure -xplatform linux-mips-g++ -platform linux-x86-g++
-make
-mipsel-linux-strip $QTDIR/lib/libqt.so.2.2.0
+    cd $QTDIR
+    ./configure -xplatform linux-mips-g++ -platform linux-x86-g++
+    make
+    mipsel-linux-strip $QTDIR/lib/libqt.so.2.2.0
 </pre>
 The library is stripped to conserve ramdisk space.
 
@@ -171,50 +172,52 @@ The library is stripped to conserve ramdisk space.
 
 Compile the application:
 <pre>
-cd examples/notepad
-make
-mipsel-linux-strip notepad
+    cd examples/notepad
+    make
+    mipsel-linux-strip notepad
 </pre>
 We have chosen to link the application dynamically.  While this is important
 if we plan to run multiple applications, it is a waste of space in an
 application such as notepad that is supposed to be the only application
 running.  You can link statically by configuring with:
-<pre>./configure -static -xplatform linux-mips-g++ -platform linux-x86-g++</pre>
+<pre>
+    ./configure -static -xplatform linux-mips-g++ -platform linux-x86-g++
+</pre>
 <p>
 We must install our application and its support files in the ramdisk.  Mount
 the ramdisk using loopback device (you will need loopback device support
 in your kernel):
 <pre>
-mkdir /mnt/ramdisk
-mount -o loop ~/ramdisk /mnt/ramdisk
+    mkdir /mnt/ramdisk
+    mount -o loop ~/ramdisk /mnt/ramdisk
 </pre>
 
 Copy the Qt/Embedded library to the ramdisk /lib directory and make the
 necessary links:
 <pre>
-cd /mnt/ramdisk/lib
-cp $QTDIR/lib/libqt.so.2.2.0 .
-ln -s libqt.so.2.2.0 libqt.so.2.2
-ln -s libqt.so.2.2.0 libqt.so.2
+    cd /mnt/ramdisk/lib
+    cp $QTDIR/lib/libqt.so.2.2.0 .
+    ln -s libqt.so.2.2.0 libqt.so.2.2
+    ln -s libqt.so.2.2.0 libqt.so.2
 </pre>
 
 The fonts must be installed in /usr/local/qt-embedded/etc/fonts:
 <pre>
-cd /mnt/ramdisk
-mkdir usr/local
-mkdir usr/local/qt-embedded
-mkdir usr/local/qt-embedded/etc
-mkdir usr/local/qt-embedded/etc/fonts
-cp helvetica_100_50.qpf helvetica_120_50.qpf usr/local/qt-embedded/etc/fonts
+    cd /mnt/ramdisk
+    mkdir usr/local
+    mkdir usr/local/qt-embedded
+    mkdir usr/local/qt-embedded/etc
+    mkdir usr/local/qt-embedded/etc/fonts
+    cp helvetica_100_50.qpf helvetica_120_50.qpf usr/local/qt-embedded/etc/fonts
 </pre>
 
 When the kernel boots it looks for several files to run.  In order to have
 our application run when the kernel boots, we rename it to /bin/sh.  A /tmp
 directory is also used by Qt/Embedded:
 <pre>
-cp $QTDIR/examples/notepad/notepad /mnt/ramdisk/bin/sh
-mkdir /mnt/ramdisk/tmp
-umount /mnt/ramdisk
+    cp $QTDIR/examples/notepad/notepad /mnt/ramdisk/bin/sh
+    mkdir /mnt/ramdisk/tmp
+    umount /mnt/ramdisk
 </pre>
 
 Create a ramdisk object, link it with the kernel, copy it to the compact flash

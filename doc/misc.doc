@@ -239,7 +239,7 @@ you have to explicitly mark a window as active \e after showing it:
 \endcode
 
 Note that setActiveWindow() won't work if the widget does not become
-phyiscally visible during this event cycle. However, without a window
+physically visible during this event cycle. However, without a window
 manager running, this is guaranteed to happen. For the curious reader:
 setActiveWindow() emulates a window manager by explicitly setting the
 X Input Focus to a widget's toplevel window.
