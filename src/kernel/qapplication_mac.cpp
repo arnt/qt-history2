@@ -790,8 +790,6 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 QMAC_PASCAL void 
 QApplication::qt_idle_timer_callbk(EventLoopTimerRef, void *)
 {
-    QApplication::sendPostedEvents();
-
     if ( qt_preselect_handler ) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
 	for ( QVFuncList::Iterator it = qt_preselect_handler->begin();

@@ -56,9 +56,8 @@
 #  include <qmenubar.h>
 #endif
 
-
 /*****************************************************************************
-  QWidget member functions
+  QWidget utility functions
  *****************************************************************************/
 
 QPoint posInWindow(QWidget *w)
@@ -86,7 +85,8 @@ enum paint_children_ops {
     PC_None = 0x00,
     PC_Now = 0x01,
     PC_ForceErase = 0x02,
-    PC_NoPaint = 0x04
+    PC_NoPaint = 0x04,
+    PC_NoErase = 0x08
 };
 static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 {
@@ -117,7 +117,7 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
     }
 
     if(!r_is_empty) {
-	bool erase = (ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase);
+	bool erase = !(ops & PC_NoErase) && ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
 	if((ops & PC_NoPaint)) {
 	    if(erase)
 		p->erase(r);
@@ -179,6 +179,10 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
     }
     return 0;
 }
+
+/*****************************************************************************
+  QWidget member functions
+ *****************************************************************************/
 
 //FIXME How can I create translucent windows? (Need them for pull down menus)
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
@@ -1372,8 +1376,9 @@ void QWidget::propagateUpdates()
     if(!EmptyRgn(r)) {
 	QRegion rgn(r);
 	rgn.translate(-x(), -y());
-	ValidWindowRgn((WindowPtr)hd, (RgnHandle)rgn.handle()); 
-	paint_children( this, rgn, PC_Now );
+	BeginUpdate((WindowPtr)hd);
+	paint_children( this, rgn );
+	EndUpdate((WindowPtr)hd);
     }
     DisposeRgn(r);
 }
