@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#20 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#20 $")
 
 
 bool QPixmap::optimAll = TRUE;
@@ -411,7 +411,7 @@ QImage QPixmap::convertToImage() const
 extern bool qt_image_did_turn_scanlines();	// defined in qpixmap.cpp
 
 
-bool QPixmap::convertFromImage( const QImage &img )
+bool QPixmap::convertFromImage( const QImage &img, int depth )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -420,15 +420,28 @@ bool QPixmap::convertFromImage( const QImage &img )
 	return FALSE;
     }
     QImage image = img;
-    int d = image.depth();
+    int    d = image.depth();
+    bool   force_mono = (isQBitmap() || depth == 1);
 
-    if ( isQBitmap() && d != 1 ) {		// force to bitmap
-	image = image.convertDepth( 1 );	// dither
-	d = 1;
+    if ( force_mono ) {				// must be monochrome
+	if ( d != 1 ) {
+	    image = image.convertDepth( 1 );	// dither
+	    d = 1;
+	}
     }
-    else if ( !isQBitmap() && d == 1 ) {	// convert to color image
-	image = image.convertDepth( 8 );
-	d = 8;
+    else {					// can be both
+	bool conv8 = FALSE;
+	if ( depth > 1 )			// native depth wanted
+	    conv8 = d == 1;
+	else if ( d == 1 && image.numColors() == 2 ) {
+	    ulong c0 = image.color(0);		// convert to best
+	    ulong c1 = image.color(1);
+	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != QRGB(255,255,255);
+	}
+	if ( conv8 ) {
+	    image = image.convertDepth( 8 );
+	    d = 8;
+	}
     }
 
     if ( d == 1 )				// 1 bit pixmap (bitmap)
@@ -451,7 +464,7 @@ bool QPixmap::convertFromImage( const QImage &img )
     int	   ibpl = image.bytesPerLine();
     bool   newBits = bpl != ibpl;
     int	   numBytes;
-    bool   turn = !qt_image_did_turn_scanlines();
+    bool   turn = qt_image_did_turn_scanlines();
 
     if ( newBits ) {				// must align to 32 bits
 	numBytes = bpl*h;
@@ -473,7 +486,7 @@ bool QPixmap::convertFromImage( const QImage &img )
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
     bmh->biWidth	  = w;
-    bmh->biHeight	  = turn ? -h : h;
+    bmh->biHeight	  = turn ? h : -h;
     bmh->biPlanes	  = 1;
     bmh->biBitCount	  = d;
     bmh->biCompression	  = BI_RGB;

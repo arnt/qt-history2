@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#60 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#59 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#60 $")
 
 
 /*****************************************************************************
@@ -391,6 +391,8 @@ long QPixmap::metric( int m ) const		// get metric information
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
+
+  \sa convertFromImage()
  ----------------------------------------------------------------------------*/
 
 QImage QPixmap::convertToImage() const
@@ -590,22 +592,35 @@ QImage QPixmap::convertToImage() const
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QPixmap::convertFromImage( const QImage &image )
-  Converts an image and sets this pixmap. Returns TRUE if
-  successful.
+  \fn bool QPixmap::convertFromImage( const QImage &image, int depth )
+  Converts an image and sets this pixmap. Returns TRUE if successful.
 
   If \e image has more colors than the number of available colors, we
   try to pick the most important colors.
 
-  If this pixmap is an instance of QBitmap and \e image has 8 or 24
-  bits depth, then the image will be dithered using the
-  Floyd-Steinberg dithering algorithm.
+  The \e depth is the desired depth of the resulting pixmap. This argument
+  is ignored if this pixmap is a QBitmap.
+
+  If this pixmap is a QBitmap or \e depth == 1, the pixmap becomes
+  monochrome.  If necessary, it is dithered using the Floyd-Steinberg
+  dithering algorithm.
+
+  If \e depth \< 0 (default) and the \e image contains only black and
+  white pixels, then the pixmap becomes monochrome, as above.
+
+  Otherwise, the pixmap is dithered/converted to the \link defaultDepth()
+  native display depth\endlink.
+
+  Note that even though a QPixmap with depth 1 behaves much like a
+  QBitmap, isQBitmap() returns FALSE.
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
+
+  \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth()
  ----------------------------------------------------------------------------*/
 
-bool QPixmap::convertFromImage( const QImage &img )
+bool QPixmap::convertFromImage( const QImage &img, int depth )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -620,20 +635,32 @@ bool QPixmap::convertFromImage( const QImage &img )
     int  d   = image.depth();
     int  scr = qt_xscreen();
     int  dd  = DefaultDepth(dpy,scr);
-    bool make_mono = (dd == 1 || isQBitmap());
+    bool force_mono = (dd == 1 || isQBitmap() || depth == 1);
 
     if ( data->ximage ) {			// throw old image data
 	XDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
     }
 
-    if ( make_mono && d > 1 ) {			// force to bitmap
-	image = image.convertDepth( 1 );	// dither
-	d = 1;
+    if ( force_mono ) {				// must be monochrome
+	if ( d != 1 ) {
+	    image = image.convertDepth( 1 );	// dither
+	    d = 1;
+	}
     }
-    else if ( !make_mono && d == 1 ) {		// convert to color image
-	image = image.convertDepth( 8 );
-	d = 8;
+    else {					// can be both
+	bool conv8 = FALSE;
+	if ( depth > 1 )			// native depth wanted
+	    conv8 = d == 1;
+	else if ( d == 1 && image.numColors() == 2 ) {
+	    ulong c0 = image.color(0);		// convert to best
+	    ulong c1 = image.color(1);
+	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != QRGB(255,255,255);
+	}
+	if ( conv8 ) {
+	    image = image.convertDepth( 8 );
+	    d = 8;
+	}
     }
 
     if ( d == 1 ) {				// 1 bit pixmap (bitmap)
@@ -900,7 +927,7 @@ bool QPixmap::convertFromImage( const QImage &img )
 	xi->data = (char *)newbits;
     }
 
-    if ( hd && (width() != w || height() != h || depth() != dd) ) {
+    if ( hd && (width() != w || height() != h || this->depth() != dd) ) {
 	XFreePixmap( dpy, hd );			// don't reuse old pixmap
 	hd = 0;
     }
