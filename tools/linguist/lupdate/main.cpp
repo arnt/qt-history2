@@ -15,13 +15,13 @@
 **********************************************************************/
 
 #include <qfile.h>
-#include <qregexp.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
 
 #include <errno.h>
 #include <metatranslator.h>
+#include <proparser.h>
 #include <string.h>
 
 // defined in fetchtr.cpp
@@ -83,47 +83,36 @@ int main( int argc, char **argv )
 	QString fullText = t.read();
 	f.close();
 
-	/*
-	  Strip comments, merge lines ending with backslash, add
-	  spaces around '=', replace '\n' with ';', and simplify
-	  white spaces.
-	*/
-	fullText.replace( QRegExp(QString("#[^\n]$")), QString(" ") );
-	fullText.replace( QRegExp(QString("\\\\\\s*\n")), QString(" ") );
-	fullText.replace( QRegExp(QString("\\+?=")), QString(" = ") );
-	fullText.replace( QRegExp(QString("\n")), QString(";") );
-	fullText = fullText.simplifyWhiteSpace();
-
 	MetaTranslator fetchedTor;
 	QString defaultContext = "@default";
 	QCString codec;
 	QStringList translatorFiles;
 	QStringList::Iterator tf;
 
-	QStringList lines = QStringList::split( QChar(';'), fullText );
-	QStringList::Iterator line;
-	for ( line = lines.begin(); line != lines.end(); ++line ) {
-	    QStringList toks = QStringList::split( QChar(' '), *line );
+	QMap<QString, QString> tagMap = proFileTagMap( fullText );
+	QMap<QString, QString>::Iterator it;
 
-	    if ( toks.count() >= 3 && toks[1] == QString("=") ) {
-		QStringList::Iterator t;
-		for ( t = toks.at(2); t != toks.end(); ++t ) {
-		    if ( toks.first() == QString("HEADERS") ||
-			 toks.first() == QString("SOURCES") ) {
-			fetchtr_cpp( *t, &fetchedTor, defaultContext );
-			metSomething = TRUE;
-		    } else if ( toks.first() == QString("INTERFACES") ) {
-			fetchtr_ui( *t, &fetchedTor, defaultContext );
-			metSomething = TRUE;
-		    } else if ( toks.first() == QString("TRANSLATIONS") ) {
-			translatorFiles.append( *t );
-			metSomething = TRUE;
-		    } else if ( toks.first() == QString("CODEC") ) {
-			codec = (*t).latin1();
-		    }
-		}
-	    }
-	}
+	for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+            QStringList toks = QStringList::split( QChar(' '), it.data() );
+	    QStringList::Iterator t;
+
+            for ( t = toks.begin(); t != toks.end(); ++t ) {
+                if ( it.key() == QString("HEADERS") ||
+                     it.key() == QString("SOURCES") ) {
+                    fetchtr_cpp( *t, &fetchedTor, defaultContext );
+                    metSomething = TRUE;
+                } else if ( it.key() == QString("INTERFACES") ) {
+                    fetchtr_ui( *t, &fetchedTor, defaultContext );
+                    metSomething = TRUE;
+                } else if ( it.key() == QString("TRANSLATIONS") ) {
+                    translatorFiles.append( *t );
+                    metSomething = TRUE;
+                } else if ( it.key() == QString("CODEC") ) {
+                    codec = (*t).latin1();
+                }
+            }
+        }
+
 	for ( tf = translatorFiles.begin(); tf != translatorFiles.end(); ++tf ) {
 	    MetaTranslator tor;
 	    tor.load( *tf );
@@ -143,8 +132,8 @@ int main( int argc, char **argv )
 	    qWarning( "lupdate warning: File '%s' does not look like a project"
 		      " file", argv[i] );
 	} else if ( translatorFiles.isEmpty() ) {
-	    if ( verbose )
-		qWarning( "No translation files specified in '%s'", argv[i] );
+	    qWarning( "lupdate warning: Met no 'TRANSLATIONS' entry in project"
+		      " file '%s'", argv[i] );
 	}
     }
 

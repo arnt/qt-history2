@@ -381,8 +381,8 @@ bool MetaTranslator::release( const QString& filename, bool verbose ) const
 
     bool saved = tor.save( filename, QTranslator::Stripped );
     if ( saved && verbose )
-	qDebug( " %d finished, %d unfinished and %d untranslated messages",
-		finished, unfinished, untranslated );
+	qWarning( " %d finished, %d unfinished and %d untranslated messages",
+		  finished, unfinished, untranslated );
 		
     return saved;
 }

@@ -1,8 +1,10 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on console
-HEADERS		= ../shared/metatranslator.h
+HEADERS		= ../shared/metatranslator.h \
+		  ../shared/proparser.h
 SOURCES		= main.cpp \
-		  ../shared/metatranslator.cpp
-include( ../../../src/qt_professional.pri )
+		  ../shared/metatranslator.cpp \
+		  ../shared/proparser.cpp
 INCLUDEPATH	= ../shared
-DESTDIR	= ../../../bin
+include( ../../../src/qt_professional.pri )
+DESTDIR		= ../../../bin

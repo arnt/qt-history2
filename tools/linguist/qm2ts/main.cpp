@@ -31,7 +31,7 @@ typedef QValueList<QTranslatorMessage> TML;
 int main( int argc, char **argv )
 {
     if ( argc < 2 ) {
-	qWarning( "Usage:\n    qm2ts file.qm..." );
+	qWarning( "Usage: qm2ts file.qm..." );
 	return 1;
     }
 

@@ -22,6 +22,7 @@
 
 #include <errno.h>
 #include <metatranslator.h>
+#include <proparser.h>
 
 typedef QValueList<MetaTranslatorMessage> TML;
 
@@ -66,42 +67,32 @@ int main( int argc, char **argv )
 	QString fullText = t.read();
 	f.close();
 
-	/*
-	  Strip comments, merge lines ending with backslash, add
-	  spaces around '=', replace '\n' with ';', and simplify
-	  white spaces.
-	*/
-	fullText.replace( QRegExp(QString("#[^\n]$")), QString(" ") );
-	fullText.replace( QRegExp(QString("\\\\\\s*\n")), QString(" ") );
-	fullText.replace( QRegExp(QString("\\+?=")), QString(" = ") );
-	fullText.replace( QRegExp(QString("\n")), QString(";") );
-	fullText = fullText.simplifyWhiteSpace();
+	QMap<QString, QString> tagMap = proFileTagMap( fullText );
+	QMap<QString, QString>::Iterator it;
 
-	QStringList lines = QStringList::split( QChar(';'), fullText );
-	QStringList::Iterator line;
-	for ( line = lines.begin(); line != lines.end(); ++line ) {
-	    QStringList toks = QStringList::split( QChar(' '), *line );
+	for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+            QStringList toks = QStringList::split( QChar(' '), it.data() );
+	    QStringList::Iterator t;
 
-	    if ( toks.count() >= 3 && toks[1] == QString("=") ) {
-		if ( toks.first() == QString("TRANSLATIONS") ) {
+            for ( t = toks.begin(); t != toks.end(); ++t ) {
+		if ( it.key() == QString("TRANSLATIONS") ) {
 		    metTranslations = TRUE;
-		    QStringList::Iterator t;
-		    for ( t = toks.at(2); t != toks.end(); ++t ) {
-			MetaTranslator tor;
-			QString f = *t;
-			QString g = *t;
-			g.replace( QRegExp(QString(".ts$")), QString("") );
-			g += QString( ".qm" );
-			if ( tor.load(f) ) {
-			    if ( verbose )
-				qWarning( "Updating '%s'...", g.latin1() );
-			    if ( !tor.release(g, verbose) )
-				qWarning( "lrelease warning: For some reason, I"
-					  " cannot save '%s'", g.latin1() );
-			} else {
+
+		    MetaTranslator tor;
+		    QString f = *t;
+		    QString g = *t;
+		    g.replace( QRegExp(QString(".ts$")), QString("") );
+		    g += QString( ".qm" );
+
+		    if ( tor.load(f) ) {
+			if ( verbose )
+			    qWarning( "Updating '%s'...", g.latin1() );
+			if ( !tor.release(g, verbose) )
 			    qWarning( "lrelease warning: For some reason, I"
-				      " cannot load '%s'", f.latin1() );
-			}
+				      " cannot save '%s'", g.latin1() );
+		    } else {
+			qWarning( "lrelease warning: For some reason, I"
+				  " cannot load '%s'", f.latin1() );
 		    }
 		}
 	    }
