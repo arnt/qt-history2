@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#27 $
 **
 ** Implementation of QRect class
 **
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------
@@ -180,6 +180,7 @@ QRect QRect::normalize() const
 	r.y1 = y1;
 	r.y2 = y2;
     }
+    return r;
 }
 
 
