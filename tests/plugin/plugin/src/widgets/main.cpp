@@ -77,16 +77,17 @@ LIBEXPORT QWidgetInterface* loadInterface()
 
 LIBEXPORT bool onConnect( QApplication* theApp )
 {
-    qDebug("I've been loaded by %p!", theApp );
+    qDebug("Widget-Plugin: I've been loaded by %p", theApp );
     return TRUE;
 }
 
 LIBEXPORT bool onDisconnect( QApplication* theApp )
 {
     if ( theApp && !widgets->clean() ) {
-	qDebug("I don't want to be unloaded when there is something left!" );
+	qDebug("Widget-Plugin: Can't be unloaded. Library is still use!" );
 	return FALSE;
     }
+    qDebug("Widget-Plugin: I've been unloaded by %p", theApp);
 
     return TRUE;
 }
