@@ -33,6 +33,7 @@
 
 #include "qpainter.h"
 #include "qpixmap.h"
+#include "qbitmap.h"
 #include "qimage.h"
 #include "qwidget.h"
 #include "qapplication.h"
@@ -889,19 +890,13 @@ bool QPrinter::setup( QWidget *parent )
 
 
 
-static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
-					const QImage &image )
+static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 {
     int w, h, d, ncols=2;
-    if ( !pixmap.isNull() ) {
-        w = pixmap.width();
-        h = pixmap.height();
-        d = pixmap.depth();
-    } else {
-        w = image.width();
-        h = image.height();
-        d = image.depth();
-    }
+
+    w = image.width();
+    h = image.height();
+    d = image.depth();
 
     if ( w == 0 || h == 0 || d == 0 )           // invalid image or pixmap
         return 0;
@@ -923,10 +918,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize           = sizeof(BITMAPINFOHEADER);
     bmh->biWidth          = w;
-    if ( !pixmap.isNull() && pixmap.isQBitmap() )
-	bmh->biHeight       = h;
-    else
-	bmh->biHeight       = -h;
+    bmh->biHeight	  = -h;
     bmh->biPlanes         = 1;
     bmh->biBitCount       = d;
     bmh->biCompression    = BI_RGB;
@@ -1031,26 +1023,22 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
         if ( c == PdcDrawPixmap || c == PdcDrawImage ) {
             QRect rect    = *p[0].rect;
 	    QPoint pos( rect.x(), rect.y() );
-	    QPixmap pixmap;
             QImage  image;
 
             int w;
             int h;
 
             if ( c == PdcDrawPixmap ) {
-                pixmap = *p[1].pixmap;
+                QPixmap pixmap = *p[1].pixmap;
                 w = pixmap.width();
                 h = pixmap.height();
+                image = pixmap;
                 if ( pixmap.isQBitmap() ) {
                     QColor bg = paint->backgroundColor();
                     QColor fg = paint->pen().color();
-                    if ( (bg != Qt::white) || (fg != Qt::black) ) {
-                        image = pixmap;
-                        image.convertDepth( 8 );
-                        image.setColor( 0, bg.rgb() );
-                        image.setColor( 1, fg.rgb() );
-                        pixmap = QPixmap();
-                    }
+                    image.convertDepth( 8 );
+                    image.setColor( 0, bg.rgb() );
+                    image.setColor( 1, fg.rgb() );
                 }
             } else {
                 image = *p[1].image;
@@ -1071,10 +1059,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 		    complexWxf = m.m12() != 0 || m.m21() != 0;
 		    if ( complexWxf ) {
-			if ( image.isNull() ) {
-			    image = pixmap;
-			    pixmap = QPixmap();
-			}
 			image.setAlphaBuffer( TRUE );
 
 			image = image.xForm( m );
@@ -1084,19 +1068,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			h = image.height();
 			rect.setWidth( rect.width() * w / origW );
 			rect.setHeight( rect.height() * h / origH );
-
-			// Qt does not support printing images with
-			// transparency, so convert it at least to white.
-			if ( image.depth() == 32 ) {
-			    for( int y=0; y < image.height(); y++ ) {
-				QRgb *s = (QRgb*)(image.scanLine( y ));
-				for( int x=0; x < image.width(); x++ ) {
-				    if ( qAlpha( *s ) < 0x40 ) // 25% alpha, convert to white
-					*s = qRgb( 0xff, 0xff, 0xff );
-				    s++;
-				}
-			    }
-			}
 
 			// The image is already transformed. For the transformation
 			// of pos, we need a modified world matrix:
@@ -1136,19 +1107,30 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             }
             int dw = qRound( xs * rect.width() );
             int dh = qRound( ys * rect.height() );
-            BITMAPINFO *bmi = getWindowsBITMAPINFO( pixmap, image );
+            BITMAPINFO *bmi = getWindowsBITMAPINFO( image );
             BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
             uchar *bits;
 
-            if ( image.isNull() ) {
-                bits = new uchar[bmh->biSizeImage];
-                // We are guaranteed that the QPainter does not pass
-                // a multi cell pixmap, therefore we can access hbm().
-                GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
-		    bits, bmi, DIB_RGB_COLORS );
-            } else {
-                bits = image.bits();
-            }
+
+	    if ( paint && image.hasAlphaBuffer() ) {
+		QImage mask = image.createAlphaMask();
+		QBitmap bm;
+		bm = mask;
+		QRegion r( bm );
+		r.translate( pos.x(), pos.y() );
+#ifndef QT_NO_TRANSFORMATIONS
+		r = paint->xmat * r;
+#else
+		r.translate( painter->xlatex, painter->xlatey );
+#endif
+		if ( paint->hasClipping() )
+		    r &= paint->clipRegion();
+		paint->save();
+		paint->setClipRegion( r );
+	    }
+
+            bits = image.bits();
+
             int rc = GetDeviceCaps(hdc,RASTERCAPS);
 	    int bpp = GetDeviceCaps(hdc,BITSPIXEL);
 	    if ( (rc & RC_STRETCHBLT) != 0 && ( bpp >= 8  || !( rc & RC_STRETCHDIB) ) ) {
@@ -1171,6 +1153,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 delete [] bits;
             }
             free( bmi );
+
+	    if ( paint && image.hasAlphaBuffer() )
+		paint->restore();
+
             return FALSE;                       // don't bitblt
         }
     }

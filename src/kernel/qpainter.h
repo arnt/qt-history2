@@ -399,6 +399,7 @@ protected:
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     QTextParag **internal, QPainter* painter );
+    friend class QPrinter;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
