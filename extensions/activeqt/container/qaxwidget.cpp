@@ -392,7 +392,7 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, bool bInited )
 	
 	m_spOleObject->Advise( this, &m_dwOleObject );
 	IAdviseSink *spAdviseSink = 0;
-	QueryInterface( IID_IAdviseSink, (void**)&spAdviseSink );	
+	QueryInterface( IID_IAdviseSink, (void**)&spAdviseSink );
 	if ( spAdviseSink && spViewObject ) {
 	    if ( spViewObject )
 		spViewObject->SetAdvise( DVASPECT_CONTENT, 0, spAdviseSink );
@@ -514,6 +514,8 @@ HRESULT WINAPI QAxHostWindow::QueryInterface( REFIID iid, void **iface )
 	*iface = (IOleInPlaceFrame*)this;
     else if ( iid == IID_IOleInPlaceUIWindow )
 	*iface = (IOleInPlaceUIWindow*)this;
+    else if ( iid == IID_IAdviseSink )
+	*iface = (IAdviseSink*)this;
     else
 	return E_NOINTERFACE;
 
@@ -1013,13 +1015,6 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
     return S_OK;
 }
 
-bool QAxHostWidget::qt_emit( int isignal, QUObject *obj )
-{
-    if ( axhost )
-	return axhost->qt_emit( isignal, obj );
-    return FALSE;
-}
-
 bool QAxHostWindow::qt_emit( int isignal, QUObject *obj )
 {
     if ( !m_spOleObject )
@@ -1126,20 +1121,6 @@ HRESULT WINAPI QAxHostWindow::SetActiveObject( IOleInPlaceActiveObject *pActiveO
     return S_OK;
 }
 
-//**** QWidget
-
-void QAxHostWidget::show()
-{
-    if ( axhost && axhost->invisibleAtRuntime() ) {
-	QWidget::show();
-	QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
-	int w = width();
-	int h = height();
-	resize( w-1, h-1 );
-	resize( w, h );
-    }
-}
-
 bool QAxHostWindow::invisibleAtRuntime() const
 {
     if ( m_spOleObject ) {
@@ -1151,26 +1132,9 @@ bool QAxHostWindow::invisibleAtRuntime() const
     return TRUE;
 }
 
-QSize QAxHostWidget::sizeHint() const
-{
-    if ( axhost )
-	return axhost->sizeHint();
-    return QWidget::sizeHint();
-}
-
 QSize QAxHostWindow::sizeHint() const
 {
     return sizehint;
-}
-
-QSize QAxHostWidget::minimumSizeHint() const
-{
-    QSize size;
-    if ( axhost )
-	size = axhost->minimumSizeHint();
-    if ( size.isValid() )
-	return size;
-    return QWidget::minimumSizeHint();
 }
 
 QSize QAxHostWindow::minimumSizeHint() const
@@ -1187,6 +1151,60 @@ QSize QAxHostWindow::minimumSizeHint() const
 		      MAP_LOGHIM_TO_PIX( sz.cy, pmetric.logicalDpiY() ) );
     }
     return QSize();
+}
+
+void QAxHostWindow::windowActivationChange( bool /*oldActive*/ )
+{
+    if ( m_spInPlaceActiveObject ) {
+	QWidget *modal = QApplication::activeModalWidget();
+	if ( modal && inPlaceModelessEnabled ) {
+	    m_spInPlaceActiveObject->EnableModeless( FALSE );
+	    inPlaceModelessEnabled = FALSE;
+	} else if ( !inPlaceModelessEnabled ) {
+	    m_spInPlaceActiveObject->EnableModeless( TRUE );
+	    inPlaceModelessEnabled = TRUE;
+	}
+	m_spInPlaceActiveObject->OnFrameWindowActivate( widget->isActiveWindow() );
+    }
+}
+
+
+//**** QWidget
+
+bool QAxHostWidget::qt_emit( int isignal, QUObject *obj )
+{
+    if ( axhost )
+	return axhost->qt_emit( isignal, obj );
+    return FALSE;
+}
+
+void QAxHostWidget::show()
+{
+    if ( axhost && axhost->invisibleAtRuntime() ) {
+	QWidget::show();
+	QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
+	int w = width();
+	int h = height();
+	resize( w-1, h-1 );
+	resize( w, h );
+    }
+}
+
+QSize QAxHostWidget::sizeHint() const
+{
+    if ( axhost )
+	return axhost->sizeHint();
+    return QWidget::sizeHint();
+}
+
+QSize QAxHostWidget::minimumSizeHint() const
+{
+    QSize size;
+    if ( axhost )
+	size = axhost->minimumSizeHint();
+    if ( size.isValid() )
+	return size;
+    return QWidget::minimumSizeHint();
 }
 
 void QAxHostWidget::resizeEvent( QResizeEvent *e )
@@ -1270,20 +1288,6 @@ void QAxHostWidget::windowActivationChange( bool oldActive )
 	axhost->windowActivationChange( oldActive );
 }
 
-void QAxHostWindow::windowActivationChange( bool /*oldActive*/ )
-{
-    if ( m_spInPlaceActiveObject ) {
-	QWidget *modal = QApplication::activeModalWidget();
-	if ( modal && inPlaceModelessEnabled ) {
-	    m_spInPlaceActiveObject->EnableModeless( FALSE );
-	    inPlaceModelessEnabled = FALSE;
-	} else if ( !inPlaceModelessEnabled ) {
-	    m_spInPlaceActiveObject->EnableModeless( TRUE );
-	    inPlaceModelessEnabled = TRUE;
-	}
-	m_spInPlaceActiveObject->OnFrameWindowActivate( widget->isActiveWindow() );
-    }
-}
 
 /*!
     \class QAxWidget qaxwidget.h
