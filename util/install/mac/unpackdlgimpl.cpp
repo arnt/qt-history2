@@ -1,5 +1,6 @@
 #include "unpackdlgimpl.h"
 #include "licensedlgimpl.h"
+#include "keyinfo.h"
 #include <qdir.h>
 #include <qfiledialog.h>
 #include <qlineedit.h>
@@ -9,7 +10,6 @@
 #include <qmessagebox.h>
 #include <qregexp.h>
 #include <qapplication.h>
-#include "keyinfo.h"
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -19,8 +19,8 @@ UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, 
     destPath->setText( QDir::currentDirPath() );
     if(!key.isNull()) {
 	srcKey->setText(key);
-    } else if(QFile::exists( QDir::homeDirPath() + "/" + ".qt-license")) {
-	QFile lic( QDir::homeDirPath() + "/" + ".qt-license");
+    } else if(QFile::exists( QDir::homeDirPath() + "/.qt-license")) {
+	QFile lic( QDir::homeDirPath() + "/.qt-license");
 	if( lic.open( IO_ReadOnly ) ) {
 	    QString buffer;
 	    while( lic.readLine( buffer, 1024 ) != -1 ) {
@@ -149,9 +149,9 @@ void UnpackDlgImpl::licenseKeyChanged()
     QRegExp keyExpr("^....-....-....");
     if ((keyExpr.search( srcKey->text() ) != -1) && 
 	(featuresForKey( srcKey->text() ) & Feature_Mac))
-	unpackButton->setEnabled( TRUE );
+	unpackButton->setEnabled( true );
     else
-	unpackButton->setEnabled( FALSE );
+	unpackButton->setEnabled( false );
 }
 
 void UnpackDlgImpl::reject()

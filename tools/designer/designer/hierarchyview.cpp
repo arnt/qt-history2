@@ -29,6 +29,7 @@
 #include "popupmenueditor.h"
 #include "menubareditor.h"
 
+#include "../interfaces/languageinterface.h"
 #include <qpalette.h>
 #include <qheader.h>
 #include <qpopupmenu.h>
@@ -39,7 +40,6 @@
 #include <qfeatures.h>
 #include <qapplication.h>
 #include <qtimer.h>
-#include "../interfaces/languageinterface.h"
 #include <qworkspace.h>
 #include <qaccel.h>
 #include <qmessagebox.h>
@@ -72,14 +72,14 @@ void HierarchyItem::paintCell( QPainter *p, const QPalette &pal, int column, int
     if ( rtti() == Function &&
 	 MainWindow::self->currProject()->isCpp() &&
 	 ( txt == "init()" || txt == "destroy()" ) ) {
-	listView()->setUpdatesEnabled( FALSE );
+	listView()->setUpdatesEnabled( false );
 	if ( txt == "init()" )
-	    setText( 0, txt + " " + "(Constructor)" );
+	    setText( 0, txt + " (Constructor)" );
 	else
-	    setText( 0, txt + " " + "(Destructor)" );
+	    setText( 0, txt + " (Destructor)" );
 	QListViewItem::paintCell( p, pal2, column, width, align );
 	setText( 0, txt );
-	listView()->setUpdatesEnabled( TRUE );
+	listView()->setUpdatesEnabled( true );
     } else {
 	QListViewItem::paintCell( p, pal2, column, width, align );
     }
@@ -160,8 +160,8 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
     init_colors();
 
     setDefaultRenameAction( Accept );
-    header()->setMovingEnabled( FALSE );
-    header()->setStretchEnabled( TRUE );
+    header()->setMovingEnabled( false );
+    header()->setStretchEnabled( true );
     normalMenu = 0;
     tabWidgetMenu = 0;
     addColumn( tr( "Name" ) );
@@ -185,31 +185,31 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
 	connect( this, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint&, int ) ),
 		 this, SLOT( showRMBMenu( QListViewItem *, const QPoint & ) ) );
     }
-    deselect = TRUE;
+    deselect = true;
     setColumnWidthMode( 1, Manual );
 }
 
 void HierarchyList::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Shift || e->key() == Key_Control )
-	deselect = FALSE;
+	deselect = false;
     else
-	deselect = TRUE;
+	deselect = true;
     QListView::keyPressEvent( e );
 }
 
 void HierarchyList::keyReleaseEvent( QKeyEvent *e )
 {
-    deselect = TRUE;
+    deselect = true;
     QListView::keyReleaseEvent( e );
 }
 
 void HierarchyList::viewportMousePressEvent( QMouseEvent *e )
 {
     if ( e->state() & ShiftButton || e->state() & ControlButton )
-	deselect = FALSE;
+	deselect = false;
     else
-	deselect = TRUE;
+	deselect = true;
     QListView::viewportMousePressEvent( e );
 }
 
@@ -228,7 +228,7 @@ QObject *HierarchyList::handleObjectClick( QListViewItem *i )
 	return 0;
     if ( formWindow == o ) {
 	if ( deselect )
-	    formWindow->clearSelection( FALSE );
+	    formWindow->clearSelection( false );
 	formWindow->emitShowProperties( formWindow );
 	return 0;
     }
@@ -260,11 +260,11 @@ QObject *HierarchyList::handleObjectClick( QListViewItem *i )
 	}
     } else if ( qt_cast<QAction*>(o) ) {
 	MainWindow::self->actioneditor()->setCurrentAction( (QAction*)o );
-	deselect = TRUE;
+	deselect = true;
     }
 
     if ( deselect )
-	formWindow->clearSelection( FALSE );
+	formWindow->clearSelection( false );
 
     return o;
 }
@@ -280,7 +280,7 @@ void HierarchyList::objectDoubleClicked( QListViewItem *i )
 	if ( !w->parentWidget() ||
 	     WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout )
 	    w->raise();
-	formWindow->selectWidget( w, TRUE );
+	formWindow->selectWidget( w, true );
     }
 }
 
@@ -291,7 +291,7 @@ void HierarchyList::objectClicked( QListViewItem *i )
 	return;
     if ( o->isWidgetType() && ( (QWidget*)o )->isVisibleTo( formWindow ) ) {
 	QWidget *w = (QWidget*)o;
-	formWindow->selectWidget( w, TRUE );
+	formWindow->selectWidget( w, true );
     }
 }
 
@@ -378,12 +378,12 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 {
     if ( QString( o->name() ).startsWith( "qt_dead_widget_" ) )
 	return;
-    bool fakeMainWindow = FALSE;
+    bool fakeMainWindow = false;
     if ( qt_cast<QMainWindow*>(o) ) {
 	QObject *cw = ( (QMainWindow*)o )->centralWidget();
 	if ( cw ) {
 	    o = cw;
-	    fakeMainWindow = TRUE;
+	    fakeMainWindow = true;
 	}
     }
     QListViewItem *item = 0;
@@ -431,7 +431,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	item = new HierarchyItem( HierarchyItem::Widget, this, 0, name, className, dbInfo );
     else
 	item = new HierarchyItem( HierarchyItem::Widget, parent, 0, name, className, dbInfo );
-    item->setOpen( TRUE );
+    item->setOpen( true );
     if ( !parent )
 	item->setPixmap( 0, QPixmap::fromMimeSource( "designer_form.png" ) );
     else if ( qt_cast<QLayoutWidget*>(o) )
@@ -463,7 +463,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		if ( widgetStacks->findIndex( stack ) != -1 )
 		    continue;
 		widgetStacks->append( stack );
-		QObjectList l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );
+		QObjectList l2 = stack->queryList( "QWidget", 0, true, false );
 		for (int j = l2.size(); j >0; ) {
 		    --j;
 		    QObject* obj = l.at(j);
@@ -546,10 +546,10 @@ void HierarchyList::setCurrent( QObject *o )
     QListViewItemIterator it( this );
     while ( it.current() ) {
 	if ( ( (HierarchyItem*)it.current() )->object() == o ) {
-	    blockSignals( TRUE );
+	    blockSignals( true );
 	    setCurrentItem( it.current() );
 	    ensureItemVisible( it.current() );
-	    blockSignals( FALSE );
+	    blockSignals( false );
 	    return;
 	}
 	++it;
@@ -634,7 +634,7 @@ void HierarchyList::removeTabPage()
 		new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" ).
 					     arg( dw->pageTitle() ).arg( wiz->name() ),
 					     formWindow, wiz,
-					     wiz->indexOf( wiz->currentPage() ), TRUE );
+					     wiz->indexOf( wiz->currentPage() ), true );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	}
@@ -644,13 +644,13 @@ void HierarchyList::removeTabPage()
 // ------------------------------------------------------------
 
 FormDefinitionView::FormDefinitionView( QWidget *parent, FormWindow *fw )
-    : HierarchyList( parent, fw, TRUE )
+    : HierarchyList( parent, fw, true )
 {
     header()->hide();
     removeColumn( 1 );
     connect( this, SIGNAL( itemRenamed( QListViewItem *, int, const QString & ) ),
 	     this, SLOT( renamed( QListViewItem * ) ) );
-    popupOpen = FALSE;
+    popupOpen = false;
 }
 
 void FormDefinitionView::setup()
@@ -677,14 +677,14 @@ void FormDefinitionView::setup()
 	    HierarchyItem *itemDef = new HierarchyItem( HierarchyItem::DefinitionParent, this, 0,
 							tr( *dit ), QString::null, QString::null );
 	    itemDef->setPixmap( 0, QPixmap::fromMimeSource( "designer_folder.png" ) );
-	    itemDef->setOpen( TRUE );
+	    itemDef->setOpen( true );
 	    QStringList entries =
 		lIface->definitionEntries( *dit, formWindow->mainWindow()->designerInterface() );
 	    HierarchyItem *item = 0;
 	    for ( QStringList::Iterator eit = entries.begin(); eit != entries.end(); ++eit ) {
 		item = new HierarchyItem( HierarchyItem::Definition,
 					  itemDef, item, *eit, QString::null, QString::null );
-		item->setRenameEnabled( 0, TRUE );
+		item->setRenameEnabled( 0, true );
 	    }
 	}
 	lIface->release();
@@ -696,7 +696,7 @@ void FormDefinitionView::setup()
 void FormDefinitionView::setupVariables()
 {
     bool pubOpen, protOpen, privOpen;
-    pubOpen = protOpen = privOpen = TRUE;
+    pubOpen = protOpen = privOpen = true;
     QListViewItem *i = firstChild();
     while ( i ) {
 	if ( i->rtti() == HierarchyItem::VarParent ) {
@@ -720,7 +720,7 @@ void FormDefinitionView::setupVariables()
     HierarchyItem *itemVar = new HierarchyItem( HierarchyItem::VarParent, this, 0, tr( "Class Variables" ),
 						QString::null, QString::null );
     itemVar->setPixmap( 0, QPixmap::fromMimeSource( "designer_folder.png" ) );
-    itemVar->setOpen( TRUE );
+    itemVar->setOpen( true );
 
     itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, 0, tr( "private" ),
 				     QString::null, QString::null );
@@ -749,7 +749,7 @@ void FormDefinitionView::setupVariables()
 	    --it;
 	}
     }
-    itemVar->setOpen( TRUE );
+    itemVar->setOpen( true );
     itemVarPriv->setOpen( privOpen );
     itemVarProt->setOpen( protOpen );
     itemVarPubl->setOpen( pubOpen );
@@ -761,7 +761,7 @@ void FormDefinitionView::refresh()
 	return;
 
     bool fuPub, fuProt, fuPriv, slPub, slProt, slPriv;
-    fuPub = fuProt = fuPriv = slPub = slProt = slPriv = TRUE;
+    fuPub = fuProt = fuPriv = slPub = slProt = slPriv = true;
     QListViewItem *i = firstChild();
     while ( i ) {
         if ( i->rtti() == HierarchyItem::SlotParent ||
@@ -852,12 +852,12 @@ void FormDefinitionView::refresh()
 	}
     }
 
-    itemFunct->setOpen( TRUE );
+    itemFunct->setOpen( true );
     itemFunctPubl->setOpen( fuPub );
     itemFunctProt->setOpen( fuProt );
     itemFunctPriv->setOpen( fuPriv );
 
-    itemSlots->setOpen( TRUE );
+    itemSlots->setOpen( true );
     itemPublic->setOpen( slPub );
     itemProtected->setOpen( slProt );
     itemPrivate->setOpen( slPriv );
@@ -919,7 +919,7 @@ void HierarchyList::insertEntry( QListViewItem *i, const QPixmap &pix, const QSt
 					     QString::null, QString::null );
     if ( !pix.isNull() )
 	item->setPixmap( 0, pix );
-    item->setRenameEnabled( 0, TRUE );
+    item->setRenameEnabled( 0, true );
     setCurrentItem( item );
     ensureItemVisible( item );
     qApp->processEvents();
@@ -944,22 +944,22 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
     if ( formWindow->project()->isCpp() )
 	switch( i->rtti() ) {
 	case HierarchyItem::FunctPublic:
-	    execFunctionDialog( "public", "function", TRUE );
+	    execFunctionDialog( "public", "function", true );
 	    break;
 	case HierarchyItem::FunctProtected:
-	    execFunctionDialog( "protected", "function", TRUE );
+	    execFunctionDialog( "protected", "function", true );
 	    break;
 	case HierarchyItem::FunctPrivate:
-	    execFunctionDialog( "private", "function", TRUE );
+	    execFunctionDialog( "private", "function", true );
 	    break;
 	case HierarchyItem::SlotPublic:
-	    execFunctionDialog( "public", "slot", TRUE );
+	    execFunctionDialog( "public", "slot", true );
 	    break;
 	case HierarchyItem::SlotProtected:
-	    execFunctionDialog( "protected", "slot", TRUE );
+	    execFunctionDialog( "protected", "slot", true );
 	    break;
 	case HierarchyItem::SlotPrivate:
-	    execFunctionDialog( "private", "slot", TRUE );
+	    execFunctionDialog( "private", "slot", true );
 	    break;
 	case HierarchyItem::VarPublic:
 	case HierarchyItem::VarProtected:
@@ -986,7 +986,7 @@ void FormDefinitionView::execFunctionDialog( const QString &access, const QStrin
     // refresh the functions list in the metadatabase
     SourceEditor *editor = formFile->editor();
     if ( editor )
-	editor->refresh( TRUE );
+	editor->refresh( true );
 
     EditFunctions dlg( this, formWindow );
     if ( addFunc )
@@ -1006,7 +1006,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     const int GOIMPL = 5;
 
     QPopupMenu menu;
-    bool insertDelete = FALSE;
+    bool insertDelete = false;
 
     if ( i->rtti() == HierarchyItem::FunctParent || i->rtti() == HierarchyItem::SlotParent ||
 	 i->rtti() == HierarchyItem::VarParent ) {
@@ -1022,7 +1022,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    menu.insertItem( QPixmap::fromMimeSource( "designer_editslots.png" ), tr( "Properties..." ), PROPS );
 	if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
 	    menu.insertItem( tr( "Goto Implementation" ), GOIMPL );
-	insertDelete = TRUE;
+	insertDelete = true;
     }
     if ( insertDelete || i->rtti() == HierarchyItem::Variable ||
 	 i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ||
@@ -1030,19 +1030,19 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	menu.insertSeparator();
 	menu.insertItem( QPixmap::fromMimeSource( "designer_editcut.png" ), tr( "Delete..." ), DEL );
     }
-    popupOpen = TRUE;
+    popupOpen = true;
     int res = menu.exec( pos );
-    popupOpen = FALSE;
+    popupOpen = false;
     if ( res == -1 )
 	return;
 
     if ( res == EDIT ) {
 	switch( i->rtti() ) {
 	case HierarchyItem::FunctParent:
-	    execFunctionDialog( "public", "function", FALSE );
+	    execFunctionDialog( "public", "function", false );
 	    break;
 	case HierarchyItem::SlotParent:
-	    execFunctionDialog( "public", "slot", FALSE );
+	    execFunctionDialog( "public", "slot", false );
 	    break;
 	case HierarchyItem::VarParent:
 	case HierarchyItem::VarPublic:
@@ -1054,7 +1054,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    if ( i )
 		varDia.setCurrentItem( i->text( 0 ) );
 	    if ( varDia.exec() == QDialog::Accepted )
-		formWindow->commandHistory()->setModified( TRUE );
+		formWindow->commandHistory()->setModified( true );
 	    break;
 	}
 	case HierarchyItem::Definition:
@@ -1064,7 +1064,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 		return;
 	    if ( i->rtti() == HierarchyItem::Definition )
 		i = i->parent();
-	    ListEditor dia( this, 0, TRUE );
+	    ListEditor dia( this, 0, true );
 	    dia.setCaption( tr( "Edit %1" ).arg( i->text( 0 ) ) );
 	    QStringList entries = lIface->definitionEntries( i->text( 0 ), MainWindow::self->designerInterface() );
 	    dia.setList( entries );
@@ -1080,22 +1080,22 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    i = i->parent();
 	switch( i->rtti() ) {
 	case HierarchyItem::SlotPublic:
-	    execFunctionDialog( "public", "slot", TRUE );
+	    execFunctionDialog( "public", "slot", true );
 	    break;
 	case HierarchyItem::SlotProtected:
-	    execFunctionDialog( "protected", "slot", TRUE );
+	    execFunctionDialog( "protected", "slot", true );
 	    break;
 	case HierarchyItem::SlotPrivate:
-	    execFunctionDialog( "private" , "slot", TRUE );
+	    execFunctionDialog( "private" , "slot", true );
 	    break;
 	case HierarchyItem::FunctPublic:
-	    execFunctionDialog( "public", "function", TRUE );
+	    execFunctionDialog( "public", "function", true );
 	    break;
 	case HierarchyItem::FunctProtected:
-	    execFunctionDialog( "protected", "function", TRUE );
+	    execFunctionDialog( "protected", "function", true );
 	    break;
 	case HierarchyItem::FunctPrivate:
-	    execFunctionDialog( "private" , "function", TRUE );
+	    execFunctionDialog( "private" , "function", true );
 	    break;
     	default:
 	    insertEntry( i );
@@ -1153,7 +1153,7 @@ void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
     }
 
     if ( i && i->rtti() == HierarchyItem::Variable ) {
-	i->setRenameEnabled( 0, FALSE );
+	i->setRenameEnabled( 0, false );
 	QString varName = i->text( 0 );
 	varName = varName.simplifyWhiteSpace();
 	if ( varName[(int)varName.length() - 1] != ';' )
@@ -1231,7 +1231,7 @@ HierarchyView::HierarchyView( QWidget *parent )
 	    setTabToolTip( cb.lv, tr( "List of all classes and its declarations of the current source file" ) );
 	    ciface->onClick( this, SLOT( jumpTo( const QString &, const QString &, int ) ) );
 	    classBrowsers->insert( *it, cb );
-	    setTabEnabled( cb.lv, FALSE );
+	    setTabEnabled( cb.lv, false );
 	}
     }
 }
@@ -1262,7 +1262,7 @@ void HierarchyView::setFormWindow( FormWindow *fw, QObject *o )
 	editor = 0;
     }
 
-    setTabEnabled( listview, TRUE );
+    setTabEnabled( listview, true );
     setTabEnabled( fView, fw && fw->project()->isCpp() );
 
     if ( fw == formwindow ) {
@@ -1335,7 +1335,7 @@ void HierarchyView::showClassesTimeout()
     }
 
     setTabEnabled( listview, !!se->formWindow() && !se->formWindow()->isFake() );
-    setTabEnabled( fView, FALSE );
+    setTabEnabled( fView, false );
 
     formwindow = 0;
     listview->setFormWindow( 0 );
@@ -1350,10 +1350,10 @@ void HierarchyView::showClassesTimeout()
 	  it != classBrowsers->end(); ++it ) {
 	if ( it.key() == se->project()->language() ) {
 	    (*it).iface->update( se->text() );
-	    setTabEnabled( (*it).lv, TRUE );
+	    setTabEnabled( (*it).lv, true );
 	    showPage( (*it).lv );
 	} else {
-	    setTabEnabled( (*it).lv, FALSE );
+	    setTabEnabled( (*it).lv, false );
 	    (*it).iface->clear();
 	}
     }

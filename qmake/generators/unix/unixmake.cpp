@@ -654,7 +654,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         if(!ret.isEmpty())
             ret += "\n\t";
         if(resource)
-            ret += "$(DEL_FILE) -r \"" + dst_targ + "\"" + "\n\t";
+            ret += "$(DEL_FILE) -r \"" + dst_targ + "\"\n\t";
         if(!ret.isEmpty())
             ret += "\n\t";
         ret += QString(resource ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +

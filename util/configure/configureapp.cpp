@@ -1,16 +1,15 @@
+#include "configureapp.h"
 #include <qdir.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
 #include <qregexp.h>
 #include <qhash.h>
-#include "configureapp.h"
 
 #if defined (QT4_TECH_PREVIEW)
 #include "keyinfo.h"
 #endif
 
 #include <iostream>
-
 #include <windows.h>
 #include <conio.h>
 
@@ -1782,7 +1781,7 @@ void Configure::readLicense()
             return;
         }
 
-        QString toLicenseFile = dictionary["QT_SOURCE_TREE"] + "/" + "LICENSE";
+        QString toLicenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE";
         QString usLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-US";
         QString norLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE";
 
@@ -1893,4 +1892,3 @@ bool Configure::isOk()
 {
     return( dictionary[ "DONE" ] != "error" );
 }
-

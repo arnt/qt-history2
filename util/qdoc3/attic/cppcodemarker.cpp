@@ -162,7 +162,7 @@ QString CppCodeMarker::markedUpIncludes( const QStringList& includes ) const
 
     QStringList::ConstIterator inc = includes.begin();
     while ( inc != includes.end() ) {
-	code += "#include &lt;<@include>" + *inc + "</@include>" + "&gt;\n";
+	code += "#include &lt;<@include>" + *inc + "</@include>&gt;\n";
 	++inc;
     }
     return addMarkUp( code, 0, "" );
@@ -176,7 +176,7 @@ const Node *CppCodeMarker::resolveTarget( const QString& /* target */,
 
 bool CppCodeMarker::recognizeCode( const QString& /* code */ ) const
 {
-    return FALSE;
+    return false;
 }
 
 bool CppCodeMarker::recognizeExtension( const QString& ext ) const
@@ -194,7 +194,7 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode,
 				  const Node * /* relative */,
 				  const QString& /* dirPath */ ) const
 {
-    QStringList lines = QStringList::split( "\n", protectedCode, TRUE );
+    QStringList lines = QStringList::split( "\n", protectedCode, true );
     QStringList::Iterator li = lines.begin();
     while ( li != lines.end() ) {
 	QString s = *li;

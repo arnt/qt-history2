@@ -52,12 +52,10 @@
 #include "qcompletionedit.h"
 #include "sourcefile.h"
 #include "orderindicator.h"
-#include <qtoolbox.h>
 #include "widgetaction.h"
 #include "propertyobject.h"
 #include "popupmenueditor.h"
 #include "menubareditor.h"
-
 #include "startdialog.h"
 #include "createtemplate.h"
 #include "editfunctions.h"
@@ -80,6 +78,7 @@
 #include "replacedialog.h"
 #include "gotolinedialog.h"
 
+#include <qtoolbox.h>
 #include <qinputdialog.h>
 #include <qtoolbar.h>
 #include <qfeatures.h>
@@ -114,7 +113,7 @@
 #include <qassistantclient.h>
 #include <stdlib.h>
 
-static bool mblockNewForms = FALSE;
+static bool mblockNewForms = false;
 extern QMap<QWidget*, QString> *qwf_forms;
 extern QString *qwf_language;
 extern bool qwf_execute_code;
@@ -146,9 +145,9 @@ static QString textNoAccel( const QString& text)
 
 MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | WGroupLeader ),
-      grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
+      grd( 10, 10 ), sGrid( true ), snGrid( true ), restoreConfig( true ), splashScreen( true ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
-      previewing( FALSE ), databaseAutoEdit( FALSE ), autoSaveEnabled( FALSE ), autoSaveInterval( 1800 )
+      previewing( false ), databaseAutoEdit( false ), autoSaveEnabled( false ), autoSaveInterval( 1800 )
 {
     setAttribute(Qt::WA_DeleteOnClose, !single);
     extern void qInitImages_designercore();
@@ -157,16 +156,16 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     self = this;
     setPluginDirectory( plgDir );
     customWidgetToolBar = customWidgetToolBar2 = 0;
-    guiStuffVisible = TRUE;
-    editorsReadOnly = FALSE;
-    sSignalHandlers = TRUE;
+    guiStuffVisible = true;
+    editorsReadOnly = false;
+    sSignalHandlers = true;
     init_colors();
-    shStartDialog = TRUE;
+    shStartDialog = true;
 
     desInterface = new DesignerInterfaceImpl( this );
     desInterface->addRef();
-    inDebugMode = FALSE;
-    savePluginPaths = FALSE;
+    inDebugMode = false;
+    savePluginPaths = false;
 
     updateFunctionsTimer = new QTimer( this );
     connect( updateFunctionsTimer, SIGNAL( timeout() ),
@@ -238,8 +237,8 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     connect( this, SIGNAL( projectChanged() ), this, SLOT( emitProjectSignals() ) );
     connect( this, SIGNAL( hasActiveWindow(bool) ), this, SLOT( emitProjectSignals() ) );
 
-    emit hasActiveForm( FALSE );
-    emit hasActiveWindow( FALSE );
+    emit hasActiveForm( false );
+    emit hasActiveWindow( false );
 
     lastPressWidget = 0;
     qApp->installEventFilter( this );
@@ -251,30 +250,30 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     connect( qApp->clipboard(), SIGNAL( dataChanged() ),
 	     this, SLOT( clipboardChanged() ) );
     clipboardChanged();
-    layoutChilds = FALSE;
-    layoutSelected = FALSE;
-    breakLayout = FALSE;
-    backPix = TRUE;
+    layoutChilds = false;
+    layoutSelected = false;
+    breakLayout = false;
+    backPix = true;
 
     set_splash_status( "Loading User Settings..." );
     readConfig();
     // hack to make WidgetFactory happy (so it knows QWidget and QDialog for resetting properties)
-    QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ), this, 0, FALSE );
+    QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ), this, 0, false );
     delete w;
-    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QDialog" ), this, 0, FALSE );
+    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QDialog" ), this, 0, false );
     delete w;
-    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QLabel" ), this, 0, FALSE );
+    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QLabel" ), this, 0, false );
     delete w;
-    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QTabWidget" ), this, 0, FALSE );
+    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QTabWidget" ), this, 0, false );
     delete w;
-    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QFrame" ), this, 0, FALSE );
+    w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QFrame" ), this, 0, false );
     delete w;
-    setAppropriate( (QDockWindow*)actionEditor->parentWidget(), FALSE );
+    setAppropriate( (QDockWindow*)actionEditor->parentWidget(), false );
     actionEditor->parentWidget()->hide();
 
     assistant = new QAssistantClient( assistantPath(), this );
 
-    statusBar()->setSizeGripEnabled( TRUE );
+    statusBar()->setSizeGripEnabled( true );
     set_splash_status( "Initialization Done." );
     if ( shStartDialog ) 
 	QTimer::singleShot( 100, this, SLOT( showStartDialog() ));
@@ -331,11 +330,11 @@ void MainWindow::setupMDI()
     vbox->setLineWidth( 1 );
     qworkspace = new QWorkspace( vbox );
     qworkspace->setPaletteBackgroundPixmap( QPixmap::fromMimeSource( "designer_background.png" ) );
-    qworkspace->setScrollBarsEnabled( TRUE );
+    qworkspace->setScrollBarsEnabled( true );
     connect( qworkspace, SIGNAL( windowActivated( QWidget * ) ),
 	     this, SLOT( activeWindowChanged( QWidget * ) ) );
     lastActiveFormWindow = 0;
-    qworkspace->setAcceptDrops( TRUE );
+    qworkspace->setAcceptDrops( true );
 }
 
 void MainWindow::setupMenuBar()
@@ -346,7 +345,7 @@ void MainWindow::setupMenuBar()
 void MainWindow::setupPropertyEditor()
 {
     QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
-    dw->setResizeEnabled( TRUE );
+    dw->setResizeEnabled( true );
     dw->setCloseMode( QDockWindow::Always );
     propertyEditor = new PropertyEditor( dw );
     addToolBar( dw, Qt::DockRight );
@@ -375,7 +374,7 @@ void MainWindow::setupPropertyEditor()
 void MainWindow::setupOutputWindow()
 {
     QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
-    dw->setResizeEnabled( TRUE );
+    dw->setResizeEnabled( true );
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockBottom );
     oWindow = new OutputWindow( dw );
@@ -389,7 +388,7 @@ void MainWindow::setupHierarchyView()
     if ( hierarchyView )
 	return;
     QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
-    dw->setResizeEnabled( TRUE );
+    dw->setResizeEnabled( true );
     dw->setCloseMode( QDockWindow::Always );
     hierarchyView = new HierarchyView( dw );
     addToolBar( dw, Qt::DockRight );
@@ -411,7 +410,7 @@ void MainWindow::setupHierarchyView()
 void MainWindow::setupWorkspace()
 {
     QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
-    dw->setResizeEnabled( TRUE );
+    dw->setResizeEnabled( true );
     dw->setCloseMode( QDockWindow::Always );
     QVBox *vbox = new QVBox( dw );
     QCompletionEdit *edit = new QCompletionEdit( vbox );
@@ -437,7 +436,7 @@ void MainWindow::setupActionEditor()
 {
     QDockWindow *dw = new QDockWindow( QDockWindow::OutsideDock, this, 0 );
     addDockWindow( dw, Qt::DockTornOff );
-    dw->setResizeEnabled( TRUE );
+    dw->setResizeEnabled( true );
     dw->setCloseMode( QDockWindow::Always );
     actionEditor = new ActionEditor( dw );
     dw->setWidget( actionEditor );
@@ -451,13 +450,13 @@ void MainWindow::setupActionEditor()
 				      "these are displayed on toolbar buttons and besides their names in "
 				      "menus.</p>" ) );
     dw->hide();
-    setAppropriate( dw, FALSE );
+    setAppropriate( dw, false );
 }
 
 void MainWindow::setupToolbox()
 {
     QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
-    dw->setResizeEnabled( TRUE );
+    dw->setResizeEnabled( true );
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockLeft );
     toolBox = new QToolBox( dw );
@@ -465,9 +464,9 @@ void MainWindow::setupToolbox()
     dw->setFixedExtentWidth( 160 );
     dw->setCaption( tr( "Toolbox" ) );
     dw->show();
-    setDockEnabled( dw, Qt::DockTop, FALSE );
-    setDockEnabled( dw, Qt::DockBottom, FALSE );
-    commonWidgetsToolBar = new QToolBar( "Common Widgets", 0, toolBox, FALSE, "Common Widgets" );
+    setDockEnabled( dw, Qt::DockTop, false );
+    setDockEnabled( dw, Qt::DockBottom, false );
+    commonWidgetsToolBar = new QToolBar( "Common Widgets", 0, toolBox, false, "Common Widgets" );
     commonWidgetsToolBar->setFrameStyle( QFrame::NoFrame );
     commonWidgetsToolBar->setOrientation( Qt::Vertical );
     commonWidgetsToolBar->setBackgroundMode(PaletteBase);
@@ -547,14 +546,14 @@ void MainWindow::runProjectPrecondition()
     oWindow->clearErrorMessages();
     oWindow->clearDebug();
     oWindow->showDebugTab();
-    previewing = TRUE;
+    previewing = true;
 }
 
 void MainWindow::runProjectPostcondition( QObjectList *l )
 {
-    inDebugMode = TRUE;
+    inDebugMode = true;
     debuggingForms = *l;
-    enableAll( FALSE );
+    enableAll( false );
     for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
 	if ( (*it)->project() == currentProject )
 	    (*it)->editorInterface()->setMode( EditorInterface::Debugging );
@@ -563,7 +562,7 @@ void MainWindow::runProjectPostcondition( QObjectList *l )
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 {
-    qwf_execute_code = FALSE;
+    qwf_execute_code = false;
     for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it)
 	(*it)->save();
     if ( currentTool() == ORDER_TOOL )
@@ -584,7 +583,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     if ( fw->project() ) {
 	QStringList::ConstIterator it;
 	for ( it = databases.begin(); it != databases.end(); ++it )
-	    fw->project()->openDatabase( *it, FALSE );
+	    fw->project()->openDatabase( *it, false );
     }
     QApplication::setOverrideCursor( WaitCursor );
 
@@ -620,9 +619,9 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
 	w->setAttribute(Qt::WA_DeleteOnClose);
-	previewing = TRUE;
+	previewing = true;
 	w->show();
-	previewing = FALSE;
+	previewing = false;
 	QApplication::restoreOverrideCursor();
 	return w;
     }
@@ -729,10 +728,10 @@ void MainWindow::previewForm( const QString & style )
 void MainWindow::helpContents()
 {
     QWidget *focusWidget = qApp->focusWidget();
-    bool showClassDocu = TRUE;
+    bool showClassDocu = true;
     while ( focusWidget ) {
 	if ( focusWidget->isA( "PropertyList" ) ) {
-	    showClassDocu = FALSE;
+	    showClassDocu = false;
 	    break;
 	}
 	focusWidget = focusWidget->parentWidget();
@@ -806,7 +805,7 @@ void MainWindow::helpManual()
 
 void MainWindow::helpAbout()
 {
-    AboutDialog dlg( this, 0, TRUE );
+    AboutDialog dlg( this, 0, true );
     if ( singleProjectMode() ) {
 	dlg.aboutPixmap->setText( "" );
 	dlg.aboutVersion->setText( "" );
@@ -911,7 +910,7 @@ void MainWindow::showProperties( QObject *o )
 
 void MainWindow::resetTool()
 {
-    actionPointerTool->setOn( TRUE );
+    actionPointerTool->setOn( true );
 }
 
 void MainWindow::updateProperties( QObject * )
@@ -924,7 +923,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 {
     if( o == qApp && e->type() == QEvent::FileOpen ) {
 	fileOpen("", "", ((QFileOpenEvent*)e)->file());
-	return FALSE;
+	return false;
     }
 
     if ( ::qt_cast<MenuBarEditor*>(o) || ::qt_cast<PopupMenuEditor*>(o) ||
@@ -933,7 +932,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	     ::qt_cast<PopupMenuEditor*>(o->parent()) ) ) ) {
 
 	if ( e->type() == QEvent::Accel && ::qt_cast<PopupMenuEditor*>(o) ) {
-	    return TRUE; // consume accel events
+	    return true; // consume accel events
  	} else if ( e->type() == QEvent::MouseButtonPress && ::qt_cast<MenuBarEditor*>(o) ) {
 	    QPoint pos = ((QMouseEvent*)e)->pos();
 	    MenuBarEditor *m = ::qt_cast<MenuBarEditor*>(o);
@@ -962,12 +961,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    while ( w ) {
 		if ( ::qt_cast<PropertyList*>(w) )
 		    break;
-		w = w->parentWidget( TRUE );
+		w = w->parentWidget( true );
 	    }
 	    if ( w ) {
 		propertyEditor->propertyList()->showCurrentWhatsThis();
 		( (QKeyEvent*)e )->accept();
-		return TRUE;
+		return true;
 	    }
 	}
 	break;
@@ -978,7 +977,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    if ( qWorkspace()->activeWindow() &&
 		 ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 		( (QKeyEvent*)e )->ignore();
-		return TRUE;
+		return true;
 	    }
 	}
 	break;
@@ -1031,7 +1030,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    if( e->type() == QEvent::ContextMenu ) {
 		( (FormWindow*)w )->handleContextMenu( (QContextMenuEvent*)e,
 						       ( (FormWindow*)w )->designerWidget( o ) );
-		return TRUE;
+		return true;
 	    } else {
 		( (FormWindow*)w )->handleMousePress( (QMouseEvent*)e,
 						      ( (FormWindow*)w )->designerWidget( o ) );
@@ -1041,7 +1040,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( passiveInteractor )
 	    QTimer::singleShot( 0, formWindow(), SLOT( visibilityChanged() ) );
 	if ( currentTool() == CONNECT_TOOL || currentTool() == BUDDY_TOOL )
-	    return TRUE;
+	    return true;
 	return !passiveInteractor;
     case QEvent::MouseButtonRelease:
 	lastPressWidget = 0;
@@ -1070,7 +1069,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	     !::qt_cast<SizeHandle*>(o) && !::qt_cast<OrderIndicator*>(o) &&
 	     !::qt_cast<PopupMenuEditor*>(o) && !::qt_cast<QMenuBar*>(o) &&
 	     !::qt_cast<QSizeGrip*>(o) )
-	    return TRUE;
+	    return true;
 	if ( o && ::qt_cast<QSizeGrip*>(o) )
 	    break;
 	if ( lastPressWidget != (QWidget*)o ||
@@ -1085,12 +1084,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::KeyPress:
 	if ( ( (QKeyEvent*)e )->key() == Key_Escape && currentTool() != POINTER_TOOL ) {
 	    resetTool();
-	    return FALSE;
+	    return false;
 	}
 	if ( ( (QKeyEvent*)e )->key() == Key_Escape && incrementalSearch->hasFocus() ) {
 	    if ( ::qt_cast<SourceEditor*>(qWorkspace()->activeWindow()) ) {
 		qWorkspace()->activeWindow()->setFocus();
-		return TRUE;
+		return true;
 	    }
 	}
 	if ( !( w = isAFormWindowChild( o ) ) ||
@@ -1099,7 +1098,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	( (FormWindow*)w )->handleKeyPress( (QKeyEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	if ( ((QKeyEvent*)e)->isAccepted() )
-	    return TRUE;
+	    return true;
 	break;
     case QEvent::MouseButtonDblClick:
 	if ( !( w = isAFormWindowChild( o ) ) ||
@@ -1113,11 +1112,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( currentTool() == ORDER_TOOL ) {
 	    ( (FormWindow*)w )->handleMouseDblClick( (QMouseEvent*)e,
 						     ( (FormWindow*)w )->designerWidget( o ) );
-	    return TRUE;
+	    return true;
 	}
 	if ( !WidgetFactory::isPassiveInteractor( o ) && ( (FormWindow*)w )->formFile() )
 	    return openEditor( ( (FormWindow*)w )->designerWidget( o ), (FormWindow*)w );
-	return TRUE;
+	return true;
     case QEvent::KeyRelease:
 	if ( !( w = isAFormWindowChild( o ) ) ||
 	     ::qt_cast<SizeHandle*>(o) ||
@@ -1125,7 +1124,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	( (FormWindow*)w )->handleKeyRelease( (QKeyEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	if ( ((QKeyEvent*)e)->isAccepted() )
-	    return TRUE;
+	    return true;
 	break;
     case QEvent::Hide:
 	if ( !( w = isAFormWindowChild( o ) ) ||
@@ -1133,7 +1132,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
 	if ( ( (FormWindow*)w )->isWidgetSelected( (QWidget*)o ) )
-	    ( (FormWindow*)w )->selectWidget( (QWidget*)o, FALSE );
+	    ( (FormWindow*)w )->selectWidget( (QWidget*)o, false );
 	break;
     case QEvent::Enter:
     case QEvent::Leave:
@@ -1142,7 +1141,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	     ::qt_cast<OrderIndicator*>(o) ||
 	     ::qt_cast<MenuBarEditor*>(o) )
 	    break;
-	return TRUE;
+	return true;
     case QEvent::Resize:
     case QEvent::Move:
 	if ( !( w = isAFormWindowChild( o ) ) ||
@@ -1167,19 +1166,19 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::DragEnter:
 	if ( o == qWorkspace() || o == workspace() || o == workspace()->viewport() ) {
 	    workspace()->contentsDragEnterEvent( (QDragEnterEvent*)e );
-	    return TRUE;
+	    return true;
 	}
 	break;
     case QEvent::DragMove:
 	if ( o == qWorkspace() || o == workspace() || o == workspace()->viewport() ) {
 	    workspace()->contentsDragMoveEvent( (QDragMoveEvent*)e );
-	    return TRUE;
+	    return true;
 	}
 	break;
     case QEvent::Drop:
 	if ( o == qWorkspace() || o == workspace() || o == workspace()->viewport() ) {
 	    workspace()->contentsDropEvent( (QDropEvent*)e );
-	    return TRUE;
+	    return true;
 	}
 	break;
     case QEvent::Show:
@@ -1190,16 +1189,16 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	QApplication::sendPostedEvents( qworkspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
 	checkTempFiles();
-	return TRUE;
+	return true;
     case QEvent::Wheel:
 	if ( !( w = isAFormWindowChild( o ) ) ||
 	     ::qt_cast<SizeHandle*>(o) ||
 	     ::qt_cast<OrderIndicator*>(o) )
 	    break;
-	return TRUE;
+	return true;
     case QEvent::FocusIn:
 	if ( !::qt_cast<FormWindow*>(o) && isAFormWindowChild( o ) )
-	    return TRUE; //FIXME
+	    return true; //FIXME
 	if ( hierarchyView->formDefinitionView()->isRenaming()
 	     && ( o->inherits( "Editor" ) || ::qt_cast<FormWindow*>(o) ) )
 		QApplication::sendPostedEvents();
@@ -1208,7 +1207,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    while ( w ) {
 		if ( ::qt_cast<SourceEditor*>(w) )
 		    break;
-		w = w->parentWidget( TRUE );
+		w = w->parentWidget( true );
 	    }
 	    if ( ::qt_cast<SourceEditor*>(w) )
 		( (SourceEditor*)w )->checkTimeStamp();
@@ -1220,7 +1219,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::FocusOut:
 	if ( !::qt_cast<FormWindow*>(o) && isAFormWindowChild( o ) )
-	    return TRUE;
+	    return true;
 	break;
     default:
 	return QMainWindow::eventFilter( o, e );
@@ -1337,7 +1336,7 @@ void MainWindow::createNewProject( const QString &lang )
     }
 
     QAction *a = new QAction( pro->makeRelative( pro->fileName() ),
-			      pro->makeRelative( pro->fileName() ), 0, actionGroupProjects, 0, TRUE );
+			      pro->makeRelative( pro->fileName() ), 0, actionGroupProjects, 0, true );
     projects.insert( a, pro );
     addRecentlyOpened( pro->makeAbsolute( pro->fileName() ), recentlyProjects );
     projectSelected( a );
@@ -1365,7 +1364,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
     while (!waitingForDelete.isEmpty())
 	delete waitingForDelete.takeFirst();
 
-    return TRUE;
+    return true;
 }
 
 void MainWindow::activeWindowChanged( QWidget *w )
@@ -1376,7 +1375,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	FormWindow *ofw = lastActiveFormWindow;
 	lastActiveFormWindow = fw;
 	lastActiveFormWindow->updateUndoInfo();
-	emit hasActiveForm( TRUE );
+	emit hasActiveForm( true );
 	if ( formWindow() ) {
 	    formWindow()->emitShowProperties();
 	    emit formModified( formWindow()->commandHistory()->isModified() );
@@ -1411,17 +1410,17 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	propertyEditor->resetFocus();
     } else if ( !lastActiveFormWindow ) {
 	emit formWindowChanged();
-	emit hasActiveForm( FALSE );
-	actionEditUndo->setEnabled( FALSE );
-	actionEditRedo->setEnabled( FALSE );
+	emit hasActiveForm( false );
+	actionEditUndo->setEnabled( false );
+	actionEditRedo->setEnabled( false );
     }
 
     if ( !w ) {
 	emit formWindowChanged();
-	emit hasActiveForm( FALSE );
+	emit hasActiveForm( false );
 	propertyEditor->clear();
 	hierarchyView->clear();
-	updateUndoRedo( FALSE, FALSE, QString::null, QString::null );
+	updateUndoRedo( false, false, QString::null, QString::null );
     }
 
     selectionChanged();
@@ -1433,18 +1432,18 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	     lastActiveFormWindow != fw ) {
 	    activeWindowChanged( se->formWindow() );
 	}
-	actionSearchFind->setEnabled( TRUE );
-	actionSearchIncremetal->setEnabled( TRUE );
-	actionSearchReplace->setEnabled( TRUE );
-	actionSearchGotoLine->setEnabled( TRUE );
-	incrementalSearch->setEnabled( TRUE );
+	actionSearchFind->setEnabled( true );
+	actionSearchIncremetal->setEnabled( true );
+	actionSearchReplace->setEnabled( true );
+	actionSearchGotoLine->setEnabled( true );
+	incrementalSearch->setEnabled( true );
 
-	actionEditUndo->setEnabled( FALSE );
-	actionEditRedo->setEnabled( FALSE );
-	actionEditCut->setEnabled( TRUE );
-	actionEditCopy->setEnabled( TRUE );
-	actionEditPaste->setEnabled( TRUE );
-	actionEditSelectAll->setEnabled( TRUE );
+	actionEditUndo->setEnabled( false );
+	actionEditRedo->setEnabled( false );
+	actionEditCut->setEnabled( true );
+	actionEditCopy->setEnabled( true );
+	actionEditPaste->setEnabled( true );
+	actionEditSelectAll->setEnabled( true );
 	actionEditUndo->setMenuText( tr( "&Undo" ) );
 	actionEditUndo->setToolTip( textNoAccel( actionEditUndo->menuText()) );
 	actionEditRedo->setMenuText( tr( "&Redo" ) );
@@ -1462,11 +1461,11 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	}
 	workspace()->activeEditorChanged( se );
     } else {
-	actionSearchFind->setEnabled( FALSE );
-	actionSearchIncremetal->setEnabled( FALSE );
-	actionSearchReplace->setEnabled( FALSE );
-	actionSearchGotoLine->setEnabled( FALSE );
-	incrementalSearch->setEnabled( FALSE );
+	actionSearchFind->setEnabled( false );
+	actionSearchIncremetal->setEnabled( false );
+	actionSearchReplace->setEnabled( false );
+	actionSearchGotoLine->setEnabled( false );
+	incrementalSearch->setEnabled( false );
     }
 
     if ( currentTool() == ORDER_TOOL && w != old )
@@ -1496,8 +1495,8 @@ void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
     actionEditRedo->setToolTip( textNoAccel( actionEditRedo->menuText()) );
 
     if ( currentTool() == ORDER_TOOL ) {
-	actionEditUndo->setEnabled( FALSE );
-	actionEditRedo->setEnabled( FALSE );
+	actionEditUndo->setEnabled( false );
+	actionEditRedo->setEnabled( false );
     }
 }
 
@@ -1712,12 +1711,12 @@ void MainWindow::setupRMBSpecialCommands( QList<uint> &ids,
 void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget *w )
 {
     if ( id == props[ "text" ] ) {
-	bool ok = FALSE;
-	bool oldDoWrap = FALSE;
+	bool ok = false;
+	bool oldDoWrap = false;
 	if ( ::qt_cast<QLabel*>(w) ) {
 	    int align = w->property( "alignment" ).toInt();
 	    if ( align & WordBreak )
-		oldDoWrap = TRUE;
+		oldDoWrap = true;
 	}
 	bool doWrap = oldDoWrap;
 
@@ -1737,7 +1736,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 								  QVariant( doWrap ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
-		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
+		MetaDataBase::setPropertyChanged( w, "wordwrap", true );
 	    }
 
 	    QString pn( tr( "Set the 'text' of '%1'" ).arg( w->name() ) );
@@ -1746,10 +1745,10 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 							      text, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "text", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "text", true );
 	}
     } else if ( id == props[ "title" ] ) {
-	bool ok = FALSE;
+	bool ok = false;
 	QString title = QInputDialog::getText( tr("Title"), tr( "New title" ),
 			       QLineEdit::Normal, w->property("title").toString(), &ok, this );
 	if ( ok ) {
@@ -1759,10 +1758,10 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 							      title, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "title", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "title", true );
 	}
     } else if ( id == props[ "pagetitle" ] ) {
-	bool ok = FALSE;
+	bool ok = false;
 	QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ),
 			      QLineEdit::Normal, w->property("pageTitle").toString(), &ok, this );
 	if ( ok ) {
@@ -1773,7 +1772,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 							      text, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "pageTitle", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "pageTitle", true );
 	}
     } else if ( id == props[ "pixmap" ] ) {
 	QPixmap oldPix = QVariant(w->property( "pixmap" )).toPixmap();
@@ -1785,7 +1784,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 							      pix, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "pixmap", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "pixmap", true );
 	}
     }
 }
@@ -1857,7 +1856,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 					currentPage + 1, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "currentPage", true );
 	} else if ( id == commands[ "prevpage" ] ) {
 	    int currentPage = w->property( "currentPage" ).toInt();
 	    QString pn( tr( "Raise previous page of '%2'" ).arg( w->name() ) );
@@ -1867,7 +1866,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 					currentPage -1, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "currentPage", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "currentPage", true );
 	}
     } else if ( WidgetDatabase::
 		isCustomPluginWidget( WidgetDatabase::
@@ -1896,7 +1895,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	} else if ( id == commands[ "rename" ] ) {
 	    QWidgetContainerInterfacePrivate *iface = containerWidgetInterface( w );
 	    if ( iface ) {
-		bool ok = FALSE;
+		bool ok = false;
 		QString wClassName = WidgetFactory::classNameOf( w );
 		int index = iface->currentIndex( wClassName, w );
 		QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ),
@@ -1955,7 +1954,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	    delete e;
 	} else if ( id == commands[ "rename" ] ) {
 
-	    bool ok = FALSE;
+	    bool ok = false;
 	    QDesignerWizard *dw = (QDesignerWizard*)wiz;
 	    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ),
 					  QLineEdit::Normal, dw->pageTitle(), &ok, this );
@@ -1995,23 +1994,23 @@ void MainWindow::clipboardChanged()
 
 void MainWindow::selectionChanged()
 {
-    layoutChilds = FALSE;
-    layoutSelected = FALSE;
-    breakLayout = FALSE;
+    layoutChilds = false;
+    layoutSelected = false;
+    breakLayout = false;
     if ( !formWindow() ) {
-	actionEditCut->setEnabled( FALSE );
-	actionEditCopy->setEnabled( FALSE );
-	actionEditDelete->setEnabled( FALSE );
-	actionEditAdjustSize->setEnabled( FALSE );
-	actionEditHLayout->setEnabled( FALSE );
-	actionEditVLayout->setEnabled( FALSE );
-	actionEditSplitHorizontal->setEnabled( FALSE );
-	actionEditSplitVertical->setEnabled( FALSE );
-	actionEditGridLayout->setEnabled( FALSE );
-	actionEditBreakLayout->setEnabled( FALSE );
-	actionEditLower->setEnabled( FALSE );
-	actionEditRaise->setEnabled( FALSE );
-	actionEditAdjustSize->setEnabled( FALSE );
+	actionEditCut->setEnabled( false );
+	actionEditCopy->setEnabled( false );
+	actionEditDelete->setEnabled( false );
+	actionEditAdjustSize->setEnabled( false );
+	actionEditHLayout->setEnabled( false );
+	actionEditVLayout->setEnabled( false );
+	actionEditSplitHorizontal->setEnabled( false );
+	actionEditSplitVertical->setEnabled( false );
+	actionEditGridLayout->setEnabled( false );
+	actionEditBreakLayout->setEnabled( false );
+	actionEditLower->setEnabled( false );
+	actionEditRaise->setEnabled( false );
+	actionEditAdjustSize->setEnabled( false );
 	return;
     }
 
@@ -2023,11 +2022,11 @@ void MainWindow::selectionChanged()
     actionEditLower->setEnabled( enable );
     actionEditRaise->setEnabled( enable );
 
-    actionEditAdjustSize->setEnabled( FALSE );
-    actionEditSplitHorizontal->setEnabled( FALSE );
-    actionEditSplitVertical->setEnabled( FALSE );
+    actionEditAdjustSize->setEnabled( false );
+    actionEditSplitHorizontal->setEnabled( false );
+    actionEditSplitVertical->setEnabled( false );
 
-    enable = FALSE;
+    enable = false;
     QWidgetList widgets = formWindow()->selectedWidgets();
     if ( selectedWidgets > 1 ) {
 	int unlaidout = 0;
@@ -2056,69 +2055,69 @@ void MainWindow::selectionChanged()
 					  WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout );
 
 	if ( !isContainer ) {
-	    actionEditHLayout->setEnabled( FALSE );
-	    actionEditVLayout->setEnabled( FALSE );
-	    actionEditGridLayout->setEnabled( FALSE );
+	    actionEditHLayout->setEnabled( false );
+	    actionEditVLayout->setEnabled( false );
+	    actionEditGridLayout->setEnabled( false );
 	    if ( w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout ) {
 		actionEditBreakLayout->setEnabled( !isAToolBarChild( w ) );
-		breakLayout = TRUE;
+		breakLayout = true;
 	    } else {
-		actionEditBreakLayout->setEnabled( FALSE );
+		actionEditBreakLayout->setEnabled( false );
 	    }
 	} else {
 	    if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout ) {
 		if ( !formWindow()->hasInsertedChildren( w ) ) {
-		    actionEditHLayout->setEnabled( FALSE );
-		    actionEditVLayout->setEnabled( FALSE );
-		    actionEditGridLayout->setEnabled( FALSE );
-		    actionEditBreakLayout->setEnabled( FALSE );
+		    actionEditHLayout->setEnabled( false );
+		    actionEditVLayout->setEnabled( false );
+		    actionEditGridLayout->setEnabled( false );
+		    actionEditBreakLayout->setEnabled( false );
 		} else {
-		    actionEditHLayout->setEnabled( TRUE );
-		    actionEditVLayout->setEnabled( TRUE );
-		    actionEditGridLayout->setEnabled( TRUE );
-		    actionEditBreakLayout->setEnabled( FALSE );
-		    layoutChilds = TRUE;
+		    actionEditHLayout->setEnabled( true );
+		    actionEditVLayout->setEnabled( true );
+		    actionEditGridLayout->setEnabled( true );
+		    actionEditBreakLayout->setEnabled( false );
+		    layoutChilds = true;
 		}
 		if ( w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout ) {
 		    actionEditBreakLayout->setEnabled( !isAToolBarChild( w ) );
-		    breakLayout = TRUE;
+		    breakLayout = true;
 		}
 	    } else {
-		actionEditHLayout->setEnabled( FALSE );
-		actionEditVLayout->setEnabled( FALSE );
-		actionEditGridLayout->setEnabled( FALSE );
+		actionEditHLayout->setEnabled( false );
+		actionEditVLayout->setEnabled( false );
+		actionEditGridLayout->setEnabled( false );
 		actionEditBreakLayout->setEnabled( !isAToolBarChild( w ) );
-		breakLayout = TRUE;
+		breakLayout = true;
 	    }
 	}
     } else if ( selectedWidgets == 0 ) {
-	actionEditAdjustSize->setEnabled( TRUE );
+	actionEditAdjustSize->setEnabled( true );
 	QWidget *w = formWindow()->mainContainer();
 	if ( WidgetFactory::layoutType( w ) == WidgetFactory::NoLayout ) {
 	    if ( !formWindow()->hasInsertedChildren( w ) ) {
-		actionEditHLayout->setEnabled( FALSE );
-		actionEditVLayout->setEnabled( FALSE );
-		actionEditGridLayout->setEnabled( FALSE );
-		actionEditBreakLayout->setEnabled( FALSE );
+		actionEditHLayout->setEnabled( false );
+		actionEditVLayout->setEnabled( false );
+		actionEditGridLayout->setEnabled( false );
+		actionEditBreakLayout->setEnabled( false );
 	    } else {
-		actionEditHLayout->setEnabled( TRUE );
-		actionEditVLayout->setEnabled( TRUE );
-		actionEditGridLayout->setEnabled( TRUE );
-		actionEditBreakLayout->setEnabled( FALSE );
-		layoutChilds = TRUE;
+		actionEditHLayout->setEnabled( true );
+		actionEditVLayout->setEnabled( true );
+		actionEditGridLayout->setEnabled( true );
+		actionEditBreakLayout->setEnabled( false );
+		layoutChilds = true;
 	    }
 	} else {
-	    actionEditHLayout->setEnabled( FALSE );
-	    actionEditVLayout->setEnabled( FALSE );
-	    actionEditGridLayout->setEnabled( FALSE );
-	    actionEditBreakLayout->setEnabled( TRUE );
-	    breakLayout = TRUE;
+	    actionEditHLayout->setEnabled( false );
+	    actionEditVLayout->setEnabled( false );
+	    actionEditGridLayout->setEnabled( false );
+	    actionEditBreakLayout->setEnabled( true );
+	    breakLayout = true;
 	}
     } else {
-	actionEditHLayout->setEnabled( FALSE );
-	actionEditVLayout->setEnabled( FALSE );
-	actionEditGridLayout->setEnabled( FALSE );
-	actionEditBreakLayout->setEnabled( FALSE );
+	actionEditHLayout->setEnabled( false );
+	actionEditVLayout->setEnabled( false );
+	actionEditGridLayout->setEnabled( false );
+	actionEditBreakLayout->setEnabled( false );
     }
 }
 
@@ -2163,7 +2162,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Background/UsePixmap", backPix );
     config.writeEntry( keybase + "Background/Color", (int)qworkspace->backgroundColor().rgb() );
     if ( qworkspace->backgroundPixmap() )
-	qworkspace->backgroundPixmap()->save( QDir::home().absPath() + "/.designer/" + "background.xpm", "PNG" );
+	qworkspace->backgroundPixmap()->save( QDir::home().absPath() + "/.designer/background.xpm", "PNG" );
 
     config.writeEntry( keybase + "Geometries/MainwindowX", x() );
     config.writeEntry( keybase + "Geometries/MainwindowY", y() );
@@ -2246,12 +2245,12 @@ void MainWindow::readConfig()
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     bool ok;
-    bool readPreviousConfig = FALSE;
-    QString backPixName( QDir::home().absPath() + "/.designer/" + "background.xpm" );
-    restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", TRUE, &ok );
+    bool readPreviousConfig = false;
+    QString backPixName( QDir::home().absPath() + "/.designer/background.xpm" );
+    restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", true, &ok );
     if ( !ok ) {
 	keybase = DesignerApplication::oldSettingsKey();
-	restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", TRUE, &ok );
+	restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", true, &ok );
 	if ( !ok ) {
 	    if ( oWindow ) {
 		oWindow->shuttingDown();
@@ -2263,7 +2262,7 @@ void MainWindow::readConfig()
 		qworkspace->setBackgroundPixmap( pix );
 	    return;
 	}
-	readPreviousConfig = TRUE;
+	readPreviousConfig = true;
     }
     if ( !readPreviousConfig ) {
 	fileFilter = config.readEntry( keybase + "FileFilter", fileFilter );
@@ -2285,7 +2284,7 @@ void MainWindow::readConfig()
 	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
 	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
 
-	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", TRUE ) | readPreviousConfig;
+	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", true ) | readPreviousConfig;
 	if ( backPix ) {
 	    QPixmap pix;
 	    pix.load( backPixName );
@@ -2296,14 +2295,14 @@ void MainWindow::readConfig()
 	}
 
 	if ( !readPreviousConfig ) {
-	    splashScreen = config.readBoolEntry( keybase + "SplashScreen", TRUE );
+	    splashScreen = config.readBoolEntry( keybase + "SplashScreen", true );
 
-	    sGrid = config.readBoolEntry( keybase + "Grid/Show", TRUE );
-	    snGrid = config.readBoolEntry( keybase + "Grid/Snap", TRUE );
+	    sGrid = config.readBoolEntry( keybase + "Grid/Show", true );
+	    snGrid = config.readBoolEntry( keybase + "Grid/Snap", true );
 	    grd.setX( config.readNumEntry( keybase + "Grid/x", 10 ) );
 	    grd.setY( config.readNumEntry( keybase + "Grid/y", 10 ) );
 
-	    if ( !config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) ) {
+	    if ( !config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", false ) ) {
 		QRect r( pos(), size() );
 		r.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", r.x() ) );
 		r.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", r.y() ) );
@@ -2317,8 +2316,8 @@ void MainWindow::readConfig()
 		    move( r.topLeft() );
 		}
 	    }
-	    setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", FALSE ) );
-	    setUsesBigPixmaps( FALSE /*config.readBoolEntry( "BigIcons", FALSE )*/ ); // ### disabled for now
+	    setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", false ) );
+	    setUsesBigPixmaps( false /*config.readBoolEntry( "BigIcons", false )*/ ); // ### disabled for now
 	}
     }
     int num = config.readNumEntry( keybase + "CustomWidgets/num" );
@@ -2575,13 +2574,13 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 			    new AddConnectionCommand( tr( "Add connection" ), f, conn );
 			f->commandHistory()->addCommand( cmd );
 			cmd->execute();
-			f->formFile()->setModified( TRUE );
+			f->formFile()->setModified( true );
 		    }
 		}
 	    }
-	    editFunction( s, TRUE );
+	    editFunction( s, true );
 	}
-	return TRUE;
+	return true;
     }
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::
 					  idFromClassName( WidgetFactory::classNameOf( w ) ), w ) ) {
@@ -2589,18 +2588,18 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	WidgetFactory::editWidget( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ),
 				   this, w, formWindow() );
 	statusBar()->clear();
-	return TRUE;
+	return true;
     }
 
     QMetaProperty text = w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
     QMetaProperty title = w->metaObject()->property( w->metaObject()->indexOfProperty( "title" ) );
     if ( text.isDesignable(w) ) {
-	bool ok = FALSE;
-	bool oldDoWrap = FALSE;
+	bool ok = false;
+	bool oldDoWrap = false;
 	if ( ::qt_cast<QLabel*>(w) ) {
 	    int align = w->property( "alignment" ).toInt();
 	    if ( align & WordBreak )
-		oldDoWrap = TRUE;
+		oldDoWrap = true;
 	}
 	bool doWrap = oldDoWrap;
 
@@ -2621,7 +2620,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 								  QVariant( doWrap ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
-		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
+		MetaDataBase::setPropertyChanged( w, "wordwrap", true );
 	    }
 
 	    QString pn( tr( "Set the 'text' of '%1'" ).arg( w->name() ) );
@@ -2630,12 +2629,12 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 							      text, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "text", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "text", true );
 	}
-	return TRUE;
+	return true;
     }
     if ( title.isDesignable(w) ) {
-	bool ok = FALSE;
+	bool ok = false;
 	QString text;
 	text = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );
 	if ( ok ) {
@@ -2645,15 +2644,15 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 							      text, QString::null, QString::null );
 	    cmd->execute();
 	    formWindow()->commandHistory()->addCommand( cmd );
-	    MetaDataBase::setPropertyChanged( w, "title", TRUE );
+	    MetaDataBase::setPropertyChanged( w, "title", true );
 	}
-	return TRUE;
+	return true;
     }
 
     if ( !WidgetFactory::isPassiveInteractor( w ) )
 	editSource();
 
-    return TRUE;
+    return true;
 }
 
 void MainWindow::rebuildCustomWidgetGUI()
@@ -2676,7 +2675,7 @@ void MainWindow::rebuildCustomWidgetGUI()
     for(QList<MetaDataBase::CustomWidget *>::Iterator it = lst->begin(); it != lst->end(); ++it) {
 	MetaDataBase::CustomWidget *w = (*it);
 	WidgetAction* a = new WidgetAction( "Custom Widgets", actionGroupTools, QString::number( w->id ).latin1() );
-	a->setToggleAction( TRUE );
+	a->setToggleAction( true );
 	a->setText( w->className );
 	a->setIconSet( *w->pixmap );
 	a->setStatusTip( tr( "Insert a " +w->className + " (custom widget)" ) );
@@ -2703,16 +2702,16 @@ void MainWindow::rebuildCustomWidgetGUI()
 
 void MainWindow::rebuildCommonWidgetsToolBoxPage()
 {
-    toolBox->setUpdatesEnabled( FALSE );
-    commonWidgetsToolBar->setUpdatesEnabled( FALSE );
+    toolBox->setUpdatesEnabled( false );
+    commonWidgetsToolBar->setUpdatesEnabled( false );
     commonWidgetsToolBar->clear();
     for( QList<QAction*>::Iterator it = commonWidgetsPage.begin(); it != commonWidgetsPage.end(); ++it)
 	(*it)->addTo( commonWidgetsToolBar );
     QWidget *w;
     commonWidgetsToolBar->setStretchableWidget( ( w = new QWidget( commonWidgetsToolBar ) ) );
     w->setBackgroundMode( commonWidgetsToolBar->backgroundMode() );
-    toolBox->setUpdatesEnabled( TRUE );
-    commonWidgetsToolBar->setUpdatesEnabled( TRUE );
+    toolBox->setUpdatesEnabled( true );
+    commonWidgetsToolBar->setUpdatesEnabled( true );
 }
 
 bool MainWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *wid )
@@ -2722,10 +2721,10 @@ bool MainWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *wid )
 	QWidget *w = windows.at(i);
 	if ( ::qt_cast<FormWindow*>(w) ) {
 	    if ( ( (FormWindow*)w )->isCustomWidgetUsed( wid ) )
-		return TRUE;
+		return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 void MainWindow::setGrid( const QPoint &p )
@@ -2777,11 +2776,11 @@ void MainWindow::windowsMenuActivated( int id )
 
 void MainWindow::projectSelected( QAction *a )
 {
-    a->setOn( TRUE );
+    a->setOn( true );
     if ( currentProject )
-	currentProject->setActive( FALSE );
+	currentProject->setActive( false );
     Project *p = *projects.find( a );
-    p->setActive( TRUE );
+    p->setActive( true );
     if ( currentProject == p )
 	return;
     currentProject = p;
@@ -2799,8 +2798,8 @@ void MainWindow::openProject( const QString &fn )
     }
     QApplication::setOverrideCursor( waitCursor );
     Project *pro = new Project( fn, "", projectSettingsPluginManager );
-    pro->setModified( FALSE );
-    QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
+    pro->setModified( false );
+    QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, true );
     projects.insert( a, pro );
     projectSelected( a );
     QApplication::restoreOverrideCursor();
@@ -2824,7 +2823,7 @@ void MainWindow::checkTempFiles()
     QApplication::setOverrideCursor( waitCursor );
     for ( QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it ) {
 	if ( load )
-	    openFormWindow( s + "/" + *it, FALSE );
+	    openFormWindow( s + "/" + *it, false );
 	d.remove( *it );
     }
 }
@@ -2936,7 +2935,7 @@ void MainWindow::editFunction( const QString &func, bool rereadSource )
 	return;
 
     if ( formWindow()->formFile()->codeFileState() != FormFile::Ok )
-	if ( !formWindow()->formFile()->setupUihFile(FALSE) )
+	if ( !formWindow()->formFile()->setupUihFile(false) )
 	    return;
 
     QString lang = currentProject->language();
@@ -3178,7 +3177,7 @@ void MainWindow::setModified( bool b, QWidget *window )
 	    }
 	    return;
 	}
-	w = w->parentWidget( TRUE );
+	w = w->parentWidget( true );
     }
 }
 
@@ -3189,13 +3188,13 @@ void MainWindow::editorClosed( SourceEditor *e )
 
 void MainWindow::functionsChanged()
 {
-    updateFunctionsTimer->start( 0, TRUE );
+    updateFunctionsTimer->start( 0, true );
 }
 
 void MainWindow::doFunctionsChanged()
 {
     for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it)
-	(*it)->refresh( FALSE );
+	(*it)->refresh( false );
     hierarchyView->formDefinitionView()->refresh();
 }
 
@@ -3250,17 +3249,17 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
 	ol.append( o );
 	QStringList ll;
 	ll << currentProject->locationOfObject( o );
-	oWindow->setErrorMessages( l2, l, TRUE, ll, ol );
+	oWindow->setErrorMessages( l2, l, true, ll, ol );
 	showSourceLine( o, errorLine, Error );
     }
 }
 
 void MainWindow::finishedRun()
 {
-    inDebugMode = FALSE;
-    previewing = FALSE;
+    inDebugMode = false;
+    previewing = false;
     debuggingForms.clear();
-    enableAll( TRUE );
+    enableAll( true );
     for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
 	if ( (*it)->project() == currentProject )
 	    (*it)->editorInterface()->setMode( EditorInterface::Editing );
@@ -3395,11 +3394,11 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	return;
     }
 
-    mblockNewForms = TRUE;
+    mblockNewForms = true;
     if ( !fw )
 	openFormWindow( currentProject->makeAbsolute( *qwf_forms->find( (QWidget*)o ) ) );
     else
-	fw->formFile()->showEditor( FALSE );
+	fw->formFile()->showEditor( false );
     qApp->processEvents(); // give all views the chance to get the formwindow
     SourceEditor *se = editSource();
     if ( se ) {
@@ -3415,7 +3414,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	    break;
 	}
     }
-    mblockNewForms = FALSE;
+    mblockNewForms = false;
 }
 
 
@@ -3440,7 +3439,7 @@ void MainWindow::formNameChanged( FormWindow *fw )
 {
     for( QList<SourceEditor*>::Iterator it = sourceEditors.begin(); it != sourceEditors.end(); ++it) {
 	if ( (*it)->object() == fw )
-	    (*it)->refresh( TRUE );
+	    (*it)->refresh( true );
 	if ( (*it)->project() == fw->project() )
 	    (*it)->resetContext();
     }
@@ -3535,7 +3534,7 @@ SourceFile *MainWindow::sourceFile()
 
 bool MainWindow::openProjectSettings( Project *pro )
 {
-    ProjectSettings dia( pro, this, 0, TRUE );
+    ProjectSettings dia( pro, this, 0, true );
     SenderObject *senderObject = new SenderObject( designerInterface() );
     QList<Tab>::ConstIterator it;
     for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
@@ -3553,7 +3552,7 @@ bool MainWindow::openProjectSettings( Project *pro )
     }
 
     if ( singleProject )
-	dia.tabWidget->setTabEnabled( dia.tabSettings, FALSE );
+	dia.tabWidget->setTabEnabled( dia.tabSettings, false );
 
     int res = dia.exec();
 
@@ -3562,7 +3561,7 @@ bool MainWindow::openProjectSettings( Project *pro )
     for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
 	Tab t = *it;
 	dia.tabWidget->removePage( t.w );
-	t.w->reparent( 0, QPoint(0,0), FALSE );
+	t.w->reparent( 0, QPoint(0,0), false );
     }
 
     return res == QDialog::Accepted;
@@ -3613,7 +3612,7 @@ void MainWindow::setSingleProject( Project *pro )
 	Project *pro = eProject;
 	pro->save();
 	QWidgetList windows = qWorkspace()->windowList();
-	qWorkspace()->blockSignals( TRUE );
+	qWorkspace()->blockSignals( true );
 	for (int i = 0; i < windows.size(); ++i) {
 	    QWidget *w = windows.at(i);
 	    if ( ::qt_cast<FormWindow*>(w) ) {
@@ -3628,18 +3627,18 @@ void MainWindow::setSingleProject( Project *pro )
 	}
 	hierarchyView->clear();
 	windows = qWorkspace()->windowList();
-	qWorkspace()->blockSignals( FALSE );
+	qWorkspace()->blockSignals( false );
 	currentProject = 0;
-	updateUndoRedo( FALSE, FALSE, QString::null, QString::null );
+	updateUndoRedo( false, false, QString::null, QString::null );
     }
 
-    singleProject = TRUE;
+    singleProject = true;
     projects.clear();
     QAction *a = new QAction( tr( pro->name() ), tr( pro->name() ), 0,
-			      actionGroupProjects, 0, TRUE );
+			      actionGroupProjects, 0, true );
     eProject = pro;
     projects.insert( a, eProject );
-    a->setOn( TRUE );
+    a->setOn( true );
     actionGroupProjects->removeFrom( projectMenu );
     actionGroupProjects->removeFrom( projectToolBar );
     currentProject = eProject;
@@ -3657,16 +3656,16 @@ void MainWindow::showGUIStuff( bool b )
 	return;
     guiStuffVisible = b;
     if ( !b ) {
-	setAppropriate( (QDockWindow*)toolBox->parentWidget(), FALSE );
+	setAppropriate( (QDockWindow*)toolBox->parentWidget(), false );
 	toolBox->parentWidget()->hide();
 	for( QList<QToolBar*>::Iterator it = widgetToolBars.begin(); it != widgetToolBars.end(); ++it) {
 	    (*it)->hide();
-	    setAppropriate( (*it), FALSE );
+	    setAppropriate( (*it), false );
 	}
-	propertyEditor->setPropertyEditorEnabled( FALSE );
-	setAppropriate( layoutToolBar, FALSE );
+	propertyEditor->setPropertyEditorEnabled( false );
+	setAppropriate( layoutToolBar, false );
 	layoutToolBar->hide();
-	setAppropriate( toolsToolBar, FALSE );
+	setAppropriate( toolsToolBar, false );
 	toolsToolBar->hide();
 	menubar->removeItem( toolsMenuId );
 	menubar->removeItem( toolsMenuId + 1 );
@@ -3676,11 +3675,11 @@ void MainWindow::showGUIStuff( bool b )
 	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
 	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
 	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
-	actionEditFormSettings->setEnabled( FALSE );
-	actionEditSource->setEnabled( FALSE );
-	actionEditConnections->setEnabled( FALSE );
-	actionEditFunctions->setEnabled( FALSE );
-	actionEditAccels->setEnabled( FALSE );
+	actionEditFormSettings->setEnabled( false );
+	actionEditSource->setEnabled( false );
+	actionEditConnections->setEnabled( false );
+	actionEditFunctions->setEnabled( false );
+	actionEditAccels->setEnabled( false );
 	( (QDockWindow*)propertyEditor->parentWidget() )->
 	    setCaption( tr( "Signal Handlers" ) );
 	actionGroupNew->removeFrom( fileMenu );
@@ -3694,16 +3693,16 @@ void MainWindow::showGUIStuff( bool b )
 	actionFileSave->addTo( projectToolBar );
 	actionFileExit->addTo( fileMenu );
     } else {
-	setAppropriate( (QDockWindow*)toolBox->parentWidget(), TRUE );
+	setAppropriate( (QDockWindow*)toolBox->parentWidget(), true );
 	toolBox->parentWidget()->show();
 	for( QList<QToolBar*>::Iterator it = widgetToolBars.begin(); it != widgetToolBars.end(); ++it) {
-	    setAppropriate( (*it), TRUE );
+	    setAppropriate( (*it), true );
 	    (*it)->hide();
 	}
-	propertyEditor->setPropertyEditorEnabled( TRUE );
-	setAppropriate( layoutToolBar, TRUE );
+	propertyEditor->setPropertyEditorEnabled( true );
+	setAppropriate( layoutToolBar, true );
 	layoutToolBar->show();
-	setAppropriate( toolsToolBar, TRUE );
+	setAppropriate( toolsToolBar, true );
 	toolsToolBar->show();
 	menubar->insertItem( tr( "&Tools" ), toolsMenu, toolsMenuId, toolsMenuIndex );
 	menubar->insertItem( tr( "&Layout" ), layoutMenu, toolsMenuId + 1, toolsMenuIndex + 1 );
@@ -3713,11 +3712,11 @@ void MainWindow::showGUIStuff( bool b )
 	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
 	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
 	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
-	actionEditFormSettings->setEnabled( TRUE );
-	actionEditSource->setEnabled( TRUE );
-	actionEditConnections->setEnabled( TRUE );
-	actionEditFunctions->setEnabled( TRUE );
-	actionEditAccels->setEnabled( TRUE );
+	actionEditFormSettings->setEnabled( true );
+	actionEditSource->setEnabled( true );
+	actionEditConnections->setEnabled( true );
+	actionEditFunctions->setEnabled( true );
+	actionEditAccels->setEnabled( true );
 	( (QDockWindow*)propertyEditor->parentWidget() )->
 	    setCaption( tr( "Property Editor/Signal Handlers" ) );
 	actionFileSave->removeFrom( fileMenu );

@@ -25,7 +25,6 @@
 
 Win32MakefileGenerator::Win32MakefileGenerator() : MakefileGenerator()
 {
-
 }
 
 int
@@ -126,7 +125,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                 file = file.left(file.length() - 4);
                 if(!file.at(file.length()-1).isNumber()) {
                     for(QList<QMakeLocalFileName>::Iterator dep_it = lib_dirs.begin(); dep_it != lib_dirs.end(); ++dep_it) {
-                        QString lib_tmpl(file + "%1" + ".lib");
+                        QString lib_tmpl(file + "%1.lib");
                         int ver = findHighestVersion((*dep_it).local(), file);
                         if(ver != -1) {
                             if(ver)

@@ -16,7 +16,7 @@ CppCodeMarker::~CppCodeMarker()
 
 bool CppCodeMarker::recognizeCode(const QString & /* code */)
 {
-    return FALSE;
+    return false;
 }
 
 bool CppCodeMarker::recognizeExtension(const QString& ext)
@@ -254,7 +254,7 @@ QString CppCodeMarker::markedUpIncludes( const QStringList& includes )
 
     QStringList::ConstIterator inc = includes.begin();
     while ( inc != includes.end() ) {
-	code += "#include &lt;<@include>" + *inc + "</@include>" + "&gt;\n";
+	code += "#include &lt;<@include>" + *inc + "</@include>&gt;\n";
 	++inc;
     }
     return addMarkUp( code, 0, "" );
@@ -319,9 +319,9 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 
 	        NodeList::ConstIterator c = ancestorClass->childNodes().begin();
 	        while ( c != ancestorClass->childNodes().end() ) {
-	            bool isSlot = FALSE;
-	            bool isSignal = FALSE;
-	            bool isStatic = FALSE;
+	            bool isSlot = false;
+	            bool isSignal = false;
+	            bool isStatic = false;
 	            if ( (*c)->type() == Node::Function ) {
 		        const FunctionNode *func = (const FunctionNode *) *c;
 		        isSlot = ( func->metaness() == FunctionNode::Slot );
