@@ -152,7 +152,6 @@ Profile *Profile::createDefaultProfile()
     QString path = QString( qInstallPathDocs() ) + "/html/";
     Profile *profile = new Profile;
     profile->valid = TRUE;
-    profile->defProf = TRUE;
     profile->changed = TRUE;
     profile->props["name"] = "default";
     profile->props["applicationicon"] = "appicon.png";
@@ -191,7 +190,7 @@ Profile *Profile::createDefaultProfile()
 
 
 Profile::Profile()
-    : valid( FALSE ), defProf( FALSE ), changed( FALSE )
+    : valid( FALSE ), changed( FALSE )
 {
 }
 
@@ -203,7 +202,6 @@ Profile::Profile( const Profile *p )
     titles = p->titles;
     imageDirs = p->imageDirs;
     valid = p->valid;
-    defProf = p->defProf;
     changed = p->changed;
 }
 

@@ -34,7 +34,6 @@ class Profile
     friend class ProfileDialog;
 
 public:
-    inline bool isDefaultProfile() const;
     inline bool isValid() const;
 
     inline void addDocFile( const QString &docfile );
@@ -55,7 +54,6 @@ private:
 
 private:
     int valid:1;
-    int defProf:1;
     bool changed;
     QMap<QString,QString> props;
     QMap<QString,QString> icons;
@@ -97,11 +95,6 @@ inline void Profile::addProperty( const QString &name,
 				  const QString &value )
 {
     props[name] = value;
-}
-
-inline bool Profile::isDefaultProfile() const
-{
-    return defProf;
 }
 
 #endif

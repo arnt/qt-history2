@@ -41,7 +41,6 @@ public:
     void save();
     Profile *profile() const { return profil; }
     QString profileName() const { return profil->props["name"]; }
-    bool isDefaultProfile() const { return profil->isDefaultProfile(); }
     bool setCurrentProfile( const QString &name );
     bool startedWithProfile() const;
     bool validProfileName() const;
