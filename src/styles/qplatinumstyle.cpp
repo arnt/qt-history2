@@ -783,7 +783,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		    myFlags ^= Style_Down;
 		if ( myFlags & Style_Sunken )
 		    myFlags ^= Style_Sunken;
-		     
+		
 		cg2.setColor( QColorGroup::Button, cg.mid() );
 		if ( useBevelButton ) {
 		    drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1,
@@ -815,7 +815,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 							     y2 - y1 + 1 ),
 				   myCg, flags, data );
 		} else {
-		    
+		
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
@@ -917,12 +917,8 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		w,
 		h;
 	    r.rect( &x, &y, &w, &h );
-	    const QComboBox *cmb;
-	    cmb = (const QComboBox*)widget;
-	    QBrush fill;
-	    fill = cg.brush(QColorGroup::Button);
 	    p->fillRect( x + 2,  y + 2, w - 4,
-			 h - 4, fill );
+			 h - 4, cg.brush(QColorGroup::Button) );
 	    // the bright side
 	    p->setPen(cg.shadow());
 	    p->drawLine( x, y, x + w - 1, y );
@@ -983,14 +979,12 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	    p->drawPoint( x + w - 3, y + h - 3 );
 	
 	    if ( sub & SC_ComboBoxArrow ) {
-		int xx;
-		if( QApplication::reverseLayout() )
-		    xx = x;
-		else
-		    xx = x + w - 20;
-		int yy = y;
-		int ww = 20;
-		int hh = h;
+		QRect rTmp = querySubControlMetrics( CC_ComboBox, widget,
+						     SC_ComboBoxArrow, data );
+		int xx = rTmp.x(),
+		    yy = rTmp.y(),
+		    ww = rTmp.width(),
+		    hh = rTmp.height();
 		// the bright side
 		
 		p->setPen( cg.mid() );
@@ -1052,12 +1046,41 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		
 	    }	
 	    if ( sub & SC_ComboBoxEditField ) {
-		QWindowsStyle::drawComplexControl( CC_ComboBox, p,
-						   widget, r, cg, how,
-						   SC_ComboBoxEditField,
-						   subActive, data );
+		const QComboBox *cmb;
+		cmb = (const QComboBox*)widget;
+		// sadly this is pretty much the windows code, except
+		// for the first fillRect call...
+		QRect re =
+		    QStyle::visualRect( querySubControlMetrics( CC_ComboBox,
+								widget,
+								SC_ComboBoxEditField ),
+					widget );
+		if ( cmb->hasFocus() && !cmb->editable() )
+		    p->fillRect( re.x() + 1, re.y() + 1,
+				 re.width() - 2, re.height() - 2,
+				 cg.brush( QColorGroup::Highlight ) );
+
+		if ( cmb->hasFocus() ) {
+		    p->setPen( cg.highlightedText() );
+		    p->setBackgroundColor( cg.highlight() );
+		} else {
+		    p->setPen( cg.text() );
+		    p->setBackgroundColor( cg.background() );
+		}
+
+		if ( cmb->hasFocus() && !cmb->editable() ) {
+		    QRect re =
+			QStyle::visualRect( subRect( SR_ComboBoxFocusRect, 
+						     cmb ),
+					   widget );
+		    void *pdata[1];
+		    pdata[0] = (void *) &cg.highlight();
+		    drawPrimitive( PE_FocusRect, p, re, cg,
+				   Style_FocusAtBorder, pdata);
+		}
 		if ( cmb->editable() ) {
-		    // need this for the moment... was the code in comboButton rect
+		    // need this for the moment...
+		    // was the code in comboButton rect
 		    QRect ir( x + 3, y + 3,
 			      w - 6 - 16, h - 6 );
 		    if ( QApplication::reverseLayout() )
@@ -1070,194 +1093,194 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	    }
 	    break;
 	}
-	case CC_Slider:
-	    {
+    case CC_Slider:
+	{
 	
-		const QSlider *slide;
-		slide = (const QSlider*)widget;
+	    const QSlider *slide;
+	    slide = (const QSlider*)widget;
+	
+	    if ( sub & SC_SliderGroove ) {
+		int thickness = pixelMetric( PM_SliderControlThickness,
+					     slide );
+		int mid = thickness / 2;	
+		int ticks = slide->tickmarks();
+		int len = pixelMetric( PM_SliderLength, slide );
+		int x, y, wi, he;
 		
-		if ( sub & SC_SliderGroove ) {
-		    int thickness = pixelMetric( PM_SliderControlThickness,
-						 slide );
-		    int mid = thickness / 2;
-		    int ticks = slide->tickmarks();
-		    int len = pixelMetric( PM_SliderLength, slide );
-		    int x, y, wi, he;
-
-		    if ( ticks & QSlider::Above )
-			mid += len / 8;
-		    if ( ticks & QSlider::Below )
-			mid -= len / 8;
+		if ( ticks & QSlider::Above )
+		    mid += len / 8;
+		if ( ticks & QSlider::Below )
+		    mid -= len / 8;
 		
-
-		    QRect ir = querySubControlMetrics( control, widget,
- 						       SC_SliderGroove, data );
 		
-		    p->fillRect( ir, cg.brush(QColorGroup::Background) );
-		    if ( slide->orientation() == Horizontal ) {
-			x = 0;
-			y = r.y() + mid - 3;
-			wi = slide->width();
-			he = 7;
-		    } else {
-			x = r.x()+ mid - 3;
-			y = 0;
-			wi = 7;
-			he = slide->height();		
-		    }
+		QRect ir = querySubControlMetrics( control, widget,
+						   SC_SliderGroove, data );
 		
-		    p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Dark ));
-		    // the dark side
-		    p->setPen( cg.dark() );
-		    p->drawLine( x, y, x + wi - 1, y );
-		    p->drawLine( x, y, x, y + he - 1);
-		    p->setPen( cg.shadow() );
-		    p->drawLine( x + 1, y + 1, x + wi - 2, y + 1 );
-		    p->drawLine( x + 1, y + 1, x + 1, y + he - 2 );
-		    // the bright side!
-		    p->setPen(cg.shadow());
-		    p->drawLine( x + 1,  y + he - 2, x + wi - 2,  y + he - 2 );
-		    p->drawLine( x + wi - 2, y + 1, x + wi - 2, y + he - 2 );
-		    p->setPen( cg.light() );
-		    p->drawLine( x, y + he - 1, x + wi - 1, y + he - 1 );
-		    p->drawLine( x + wi - 1, y, x + wi - 1, y + he - 1 );
-		    // top left corner:
-		    p->setPen(cg.background());
-		    p->drawPoint( x, y );
-		    p->drawPoint( x + 1, y );
-		    p->drawPoint( x, y + 1 );
-		    p->setPen(cg.shadow());
-		    p->drawPoint( x + 1, y + 1 );
-		    // bottom left corner:
-		    p->setPen( cg.background() );
-		    p->drawPoint( x, y + he - 1 );
-		    p->drawPoint( x + 1, y + he - 1 );
-		    p->drawPoint( x, y + he - 2 );
-		    p->setPen( cg.light() );
-		    p->drawPoint( x + 1, y + he - 2 );
-		    // top right corner:
-		    p->setPen( cg.background() );
-		    p->drawPoint( x + wi - 1, y );
-		    p->drawPoint( x + wi - 2, y );
-		    p->drawPoint( x + wi - 1, y + 1 );
-		    p->setPen( cg.dark() );
-		    p->drawPoint( x + wi - 2, y + 1 );
-		    // bottom right corner:
-		    p->setPen( cg.background() );
-		    p->drawPoint( x + wi - 1, y + he - 1 );
-		    p->drawPoint( x + wi - 2, y + he - 1 );
-		    p->drawPoint( x + wi - 1, y + he - 2 );
-		    p->setPen( cg.light() );
-		    p->drawPoint( x + wi - 2, y + he - 2 );
-		    p->setPen( cg.dark() );
-		    p->drawPoint( x + wi - 3, y + he - 3 );
-		    // ### end slider groove
-		    if ( slide->hasFocus() )
-			drawPrimitive( PE_FocusRect, p, ir, cg );
-
+		p->fillRect( ir, cg.brush(QColorGroup::Background) );
+		if ( slide->orientation() == Horizontal ) {
+		    x = 0;
+		    y = r.y() + mid - 3;
+		    wi = slide->width();
+		    he = 7;
+		} else {
+		    x = r.x()+ mid - 3;
+		    y = 0;
+		    wi = 7;
+		    he = slide->height();		
 		}
 		
-		if ( sub & SC_SliderTickmarks )
-		    QCommonStyle::drawComplexControl( control, p, widget, r,
-						      cg,
-						      how, SC_SliderTickmarks,
-						      subActive, data );
-		if ( sub & SC_SliderHandle ) {
-		    const QColor c0 = cg.shadow();
-		    const QColor c1 = cg.dark();
-		    const QColor c3 = cg.light();
+		p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Dark ));
+		// the dark side
+		p->setPen( cg.dark() );
+		p->drawLine( x, y, x + wi - 1, y );
+		p->drawLine( x, y, x, y + he - 1);
+		p->setPen( cg.shadow() );
+		p->drawLine( x + 1, y + 1, x + wi - 2, y + 1 );
+		p->drawLine( x + 1, y + 1, x + 1, y + he - 2 );
+		// the bright side!
+		p->setPen(cg.shadow());
+		p->drawLine( x + 1,  y + he - 2, x + wi - 2,  y + he - 2 );
+		p->drawLine( x + wi - 2, y + 1, x + wi - 2, y + he - 2 );
+		p->setPen( cg.light() );
+		p->drawLine( x, y + he - 1, x + wi - 1, y + he - 1 );
+		p->drawLine( x + wi - 1, y, x + wi - 1, y + he - 1 );
+		// top left corner:
+		p->setPen(cg.background());
+		p->drawPoint( x, y );
+		p->drawPoint( x + 1, y );
+		p->drawPoint( x, y + 1 );
+		p->setPen(cg.shadow());
+		p->drawPoint( x + 1, y + 1 );
+		// bottom left corner:
+		p->setPen( cg.background() );
+		p->drawPoint( x, y + he - 1 );
+		p->drawPoint( x + 1, y + he - 1 );
+		p->drawPoint( x, y + he - 2 );
+		p->setPen( cg.light() );
+		p->drawPoint( x + 1, y + he - 2 );
+		// top right corner:
+		p->setPen( cg.background() );
+		p->drawPoint( x + wi - 1, y );
+		p->drawPoint( x + wi - 2, y );
+		p->drawPoint( x + wi - 1, y + 1 );
+		p->setPen( cg.dark() );
+		p->drawPoint( x + wi - 2, y + 1 );
+		// bottom right corner:
+		p->setPen( cg.background() );
+		p->drawPoint( x + wi - 1, y + he - 1 );
+		p->drawPoint( x + wi - 2, y + he - 1 );
+		p->drawPoint( x + wi - 1, y + he - 2 );
+		p->setPen( cg.light() );
+		p->drawPoint( x + wi - 2, y + he - 2 );
+		p->setPen( cg.dark() );
+		p->drawPoint( x + wi - 3, y + he - 3 );
+		// ### end slider groove
+		if ( slide->hasFocus() )
+		    drawPrimitive( PE_FocusRect, p, ir, cg );
 		
-		    QRect re = querySubControlMetrics( CC_Slider, widget,
-						       SC_SliderHandle, data );
-		
-		    int x1 = re.x();
-		    int x2 = re.x() + re.width() - 1;
-		    int y1 = re.y();
-		    int y2 = re.y() + re.height() - 1;
-		    int mx = re.width() / 2;
-		    int my = re.height() / 2;
-		
-		
-		
-		    if ( slide->orientation() == Vertical ) {
-			// Background
-			QBrush oldBrush = p->brush();
-			p->setBrush( cg.brush( QColorGroup::Button ) );
-			p->setPen( NoPen );
-			QPointArray a(6);
-			a.setPoint( 0, x1 + 1, y1 + 1 );
-			a.setPoint( 1, x2 - my + 2, y1 + 1 );
-			a.setPoint( 2, x2 - 1, y1 + my - 1 );
-			a.setPoint( 3, x2 - 1, y2 - my + 1 );
-			a.setPoint( 4, x2 - my + 2, y2 - 1 );
-			a.setPoint( 5, x1 + 1, y2 - 1 );
-			p->drawPolygon( a );
-			p->setBrush( oldBrush );
-			
-			// shadow border
-			p->setPen( c0 );
-			p->drawLine( x1, y1 + 1, x1,y2 - 1 );
-			p->drawLine( x2 - my + 2, y1, x2, y1 + my - 2 );
-			p->drawLine( x2 - my + 2, y2, x2, y1 + my + 2 );
-			p->drawLine( x2, y1 + my - 2, x2, y1 + my + 2 );
-			p->drawLine( x1 + 1, y1, x2 - my + 2, y1 );
-			p->drawLine( x1 + 1, y2, x2 - my + 2, y2 );
-			
-			// light shadow
-			p->setPen( c3 );
-			p->drawLine( x1 + 1, y1 + 2, x1 + 1, y2 - 2 );
-			p->drawLine( x1 + 1, y1 + 1, x2 - my + 2, y1 + 1 );
-			p->drawLine( x2 - my + 2, y1 + 1, x2 - 1, y1 + my - 2 );
-			
-			// dark shadow
-			p->setPen(c1);
-			p->drawLine( x2 - 1, y1 + my - 2, x2 - 1, y1 + my + 2 );
-			p->drawLine( x2 - my + 2, y2 - 1, x2 - 1, y1 + my + 2 );
-			p->drawLine( x1 + 1, y2 - 1, x2 -my + 2, y2 - 1 );
-			
-			drawRiffles( p, r.x(), r.y() + 2, r.width() - 3,
-				     r.height() - 4, cg, TRUE );
-		    } else {  // Horizontal
-			QBrush oldBrush = p->brush();
-			p->setBrush( cg.brush( QColorGroup::Button ) );
-			p->setPen( NoPen );
-			QPointArray a(6);
-			a.setPoint( 0, x2 - 1, y1 + 1 );
-			a.setPoint( 1, x2 - 1, y2 - mx + 2 );
-			a.setPoint( 2, x2 - mx + 1, y2 - 1 );
-			a.setPoint( 3, x1 + mx - 1, y2 - 1 );
-			a.setPoint( 4, x1 + 1, y2 - mx + 2 );
-			a.setPoint( 5, x1 + 1, y1 + 1 );
-			p->drawPolygon( a );
-			p->setBrush( oldBrush );
-			
-			// shadow border
-			p->setPen( c0 );
-			p->drawLine( x1 + 1, y1, x2 - 1, y1 );
-			p->drawLine( x1, y2 - mx + 2, x1 + mx - 2, y2 );
-			p->drawLine( x2, y2 - mx + 2, x1 + mx + 2, y2 );
-			p->drawLine( x1 + mx - 2, y2, x1 + mx + 2, y2 );
-			p->drawLine( x1, y1 + 1, x1, y2 - mx + 2 );
-			p->drawLine( x2, y1 + 1, x2, y2 - mx + 2 );
-			
-			// light shadow
-			p->setPen(c3);
-			p->drawLine( x1 + 1, y1 + 1, x2 - 1, y1 + 1 );
-			p->drawLine( x1 + 1, y1 + 1, x1 + 1, y2 - mx + 2 );
-			
-			// dark shadow
-			p->setPen(c1);
-			p->drawLine( x2 - 1, y1 + 1, x2 - 1, y2 - mx + 2 );
-			p->drawLine( x1 + 1, y2 - mx + 2, x1 + mx - 2, y2 - 1 );
-			p->drawLine( x2 - 1, y2 - mx + 2, x1 + mx + 2, y2 - 1 );
-			p->drawLine( x1 + mx - 2, y2 - 1, x1 + mx + 2, y2 - 1 );
-			
-			drawRiffles( p, re.x() + 2, re.y(), re.width() - 4,
-				     re.height() - 5, cg, FALSE );
-		    }
-		}
-		break;
 	    }
+	
+	    if ( sub & SC_SliderTickmarks )
+		QCommonStyle::drawComplexControl( control, p, widget, r,
+						  cg,
+						  how, SC_SliderTickmarks,
+						  subActive, data );
+	    if ( sub & SC_SliderHandle ) {
+		const QColor c0 = cg.shadow();
+		const QColor c1 = cg.dark();
+		const QColor c3 = cg.light();
+		
+		QRect re = querySubControlMetrics( CC_Slider, widget,
+						   SC_SliderHandle, data );
+		
+		int x1 = re.x();
+		int x2 = re.x() + re.width() - 1;
+		int y1 = re.y();
+		int y2 = re.y() + re.height() - 1;
+		int mx = re.width() / 2;
+		int my = re.height() / 2;
+		
+		
+		
+		if ( slide->orientation() == Vertical ) {
+		    // Background
+		    QBrush oldBrush = p->brush();
+		    p->setBrush( cg.brush( QColorGroup::Button ) );
+		    p->setPen( NoPen );
+		    QPointArray a(6);
+		    a.setPoint( 0, x1 + 1, y1 + 1 );
+		    a.setPoint( 1, x2 - my + 2, y1 + 1 );
+		    a.setPoint( 2, x2 - 1, y1 + my - 1 );
+		    a.setPoint( 3, x2 - 1, y2 - my + 1 );
+		    a.setPoint( 4, x2 - my + 2, y2 - 1 );
+		    a.setPoint( 5, x1 + 1, y2 - 1 );
+		    p->drawPolygon( a );
+		    p->setBrush( oldBrush );
+		
+		    // shadow border
+		    p->setPen( c0 );
+		    p->drawLine( x1, y1 + 1, x1,y2 - 1 );
+		    p->drawLine( x2 - my + 2, y1, x2, y1 + my - 2 );
+		    p->drawLine( x2 - my + 2, y2, x2, y1 + my + 2 );
+		    p->drawLine( x2, y1 + my - 2, x2, y1 + my + 2 );
+		    p->drawLine( x1 + 1, y1, x2 - my + 2, y1 );
+		    p->drawLine( x1 + 1, y2, x2 - my + 2, y2 );
+		
+		    // light shadow
+		    p->setPen( c3 );
+		    p->drawLine( x1 + 1, y1 + 2, x1 + 1, y2 - 2 );
+		    p->drawLine( x1 + 1, y1 + 1, x2 - my + 2, y1 + 1 );
+		    p->drawLine( x2 - my + 2, y1 + 1, x2 - 1, y1 + my - 2 );
+		
+		    // dark shadow
+		    p->setPen(c1);
+		    p->drawLine( x2 - 1, y1 + my - 2, x2 - 1, y1 + my + 2 );
+		    p->drawLine( x2 - my + 2, y2 - 1, x2 - 1, y1 + my + 2 );
+		    p->drawLine( x1 + 1, y2 - 1, x2 -my + 2, y2 - 1 );
+		
+		    drawRiffles( p, r.x(), r.y() + 2, r.width() - 3,
+				 r.height() - 4, cg, TRUE );
+		} else {  // Horizontal
+		    QBrush oldBrush = p->brush();
+		    p->setBrush( cg.brush( QColorGroup::Button ) );
+		    p->setPen( NoPen );
+		    QPointArray a(6);
+		    a.setPoint( 0, x2 - 1, y1 + 1 );
+		    a.setPoint( 1, x2 - 1, y2 - mx + 2 );
+		    a.setPoint( 2, x2 - mx + 1, y2 - 1 );
+		    a.setPoint( 3, x1 + mx - 1, y2 - 1 );
+		    a.setPoint( 4, x1 + 1, y2 - mx + 2 );
+		    a.setPoint( 5, x1 + 1, y1 + 1 );
+		    p->drawPolygon( a );
+		    p->setBrush( oldBrush );
+		
+		    // shadow border
+		    p->setPen( c0 );
+		    p->drawLine( x1 + 1, y1, x2 - 1, y1 );
+		    p->drawLine( x1, y2 - mx + 2, x1 + mx - 2, y2 );
+		    p->drawLine( x2, y2 - mx + 2, x1 + mx + 2, y2 );
+		    p->drawLine( x1 + mx - 2, y2, x1 + mx + 2, y2 );
+		    p->drawLine( x1, y1 + 1, x1, y2 - mx + 2 );
+		    p->drawLine( x2, y1 + 1, x2, y2 - mx + 2 );
+		
+		    // light shadow
+		    p->setPen(c3);
+		    p->drawLine( x1 + 1, y1 + 1, x2 - 1, y1 + 1 );
+		    p->drawLine( x1 + 1, y1 + 1, x1 + 1, y2 - mx + 2 );
+		
+		    // dark shadow
+		    p->setPen(c1);
+		    p->drawLine( x2 - 1, y1 + 1, x2 - 1, y2 - mx + 2 );
+		    p->drawLine( x1 + 1, y2 - mx + 2, x1 + mx - 2, y2 - 1 );
+		    p->drawLine( x2 - 1, y2 - mx + 2, x1 + mx + 2, y2 - 1 );
+		    p->drawLine( x1 + mx - 2, y2 - 1, x1 + mx + 2, y2 - 1 );
+		
+		    drawRiffles( p, re.x() + 2, re.y(), re.width() - 4,
+				 re.height() - 5, cg, FALSE );
+		}
+	    }
+	    break;
+	}
     default:
 	QWindowsStyle::drawComplexControl( control, p, widget, r, cg,
 					   how, sub, subActive, data );
@@ -1276,6 +1299,34 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 {
     QRect rect;
     switch( control ) {
+    case CC_ComboBox:
+	const QComboBox *cb;
+	cb = (const QComboBox *)widget;
+	switch( sc ) {
+	case SC_ComboBoxArrow:
+	    {
+		rect = cb->rect();
+		int xx,
+		    yy,
+		    ww,
+		    hh;
+
+		if( QApplication::reverseLayout() )
+		    xx = rect.x();
+		else
+		    xx = rect.x() + rect.width() - 20;
+		yy = rect.y();
+		ww = 20;
+		hh = rect.height();
+		rect.setRect( xx, yy, ww, hh );
+		break;
+	    }
+	default:
+	    rect = QWindowsStyle::querySubControlMetrics( control, widget, sc,
+							  data );
+	    break;
+	}
+	break;	
     case CC_ScrollBar:
 	{
 	    const QScrollBar *sb;
