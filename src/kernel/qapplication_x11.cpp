@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#492 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#493 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -48,6 +48,7 @@
 #include "qsocketnotifier.h"
 #include "qsessionmanager.h"
 #include "qvaluelist.h"
+#include "qdict.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -441,11 +442,11 @@ static void qt_x11_process_intern_atoms()
 	free( resp );
 	free( names );
 #else
-	QDictIterator<Atom> it( *atoms_to_be_created );
+	QAsciiDictIterator<Atom> it( *atoms_to_be_created );
 	Atom * result;
 	const char * name;
 	while( (result = it.current()) != 0 ) {
-	    name = (const char*)(void*)it.currentKeyLong();
+	    name = it.currentKey();
 	    ++it;
 	    *result = XInternAtom(appDpy, name, FALSE );
 	}
@@ -1002,6 +1003,7 @@ void qt_cleanup()
 	    f = (VFPTR)postRList->first();
 	}
 	delete postRList;
+	postRList = 0;
     }
 
     if ( app_save_rootinfo )			// root window must keep state
