@@ -230,6 +230,8 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
     bool patternBrush = false;
     bool xform = false;
 
+    bool skip = true;
+
     // Pen properties
     if (s->state() & QPaintEngine::DirtyPen) {
         // Check Brush stroke emulation
@@ -238,6 +240,7 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         else
             s->emulationSpecifier &= ~QPaintEngine::BrushStroke;
 
+        skip = false;
 
         QBrush penBrush = s->pen.brush();
         alpha |= !penBrush.isOpaque();
@@ -245,18 +248,41 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         radialGradient |= (penBrush.style() == Qt::RadialGradientPattern);
         conicalGradient |= (penBrush.style() == Qt::ConicalGradientPattern);
         patternBrush |= (penBrush.style() > Qt::SolidPattern
-                         && penBrush.style() < Qt::LinearGradientPattern);
+                         && penBrush.style() < Qt::LinearGradientPattern)
+                        || s->brush.style() == Qt::TexturePattern;
     }
 
     // Brush properties
     if (s->state() & QPaintEngine::DirtyBrush) {
+        skip = false;
+
         alpha |= !s->brush.isOpaque();
         linearGradient |= (s->brush.style() == Qt::LinearGradientPattern);
         radialGradient |= (s->brush.style() == Qt::RadialGradientPattern);
         conicalGradient |= (s->brush.style() == Qt::ConicalGradientPattern);
         patternBrush |= (s->brush.style() > Qt::SolidPattern
-                         && s->brush.style() < Qt::LinearGradientPattern);
+                         && s->brush.style() < Qt::LinearGradientPattern)
+                        || s->brush.style() == Qt::TexturePattern;
     }
+
+    if (skip)
+        return;
+
+#if 0
+    printf("QPainterPrivate::updateEmulationSpecifier\n"
+           " - alpha: %d\n"
+           " - linearGradient: %d\n"
+           " - radialGradient: %d\n"
+           " - conicalGradient: %d\n"
+           " - patternBrush: %d\n"
+           " - xform: %d\n",
+           alpha,
+           linearGradient,
+           radialGradient,
+           conicalGradient,
+           patternBrush,
+           xform);
+#endif
 
     // XForm properties
     if (s->state() & QPaintEngine::DirtyTransform) {
@@ -3458,10 +3484,10 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawTiledPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], offset=[%.2f,%.2f], mode=%d\n",
+        printf("QPainter::drawTiledPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], offset=[%.2f,%.2f]\n",
            r.x(), r.y(), r.width(), r.height(),
            pixmap.width(), pixmap.height(),
-           sp.x(), sp.y(), mode);
+           sp.x(), sp.y());
 #endif
 
     if (!isActive())
