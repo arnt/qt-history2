@@ -1851,7 +1851,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         mask = const_cast<QBitmap *>(pixmap.mask());
     bool mono = pixmap.depth() == 1;
 
-    if (mono && mode == Qt::CopyPixmapNoMask) {
+    if (mono && mode == Qt::CopyPixmap) {
 	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, true);
         return;
     }
