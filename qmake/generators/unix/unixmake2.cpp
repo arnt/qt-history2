@@ -446,7 +446,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "clean:" << clean_targets << "\n\t"
       << "-rm -f $(OBJECTS) $(TARGET)" << "\n\t";
-    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty())
+    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
+       !project->isActiveConfig("plugin"))
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
       << "-rm -f *~ core *.core" << "\n"
