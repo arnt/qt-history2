@@ -5,7 +5,6 @@ SUBDIRS       = analogclock \
                 digitalclock \
                 groupbox \
                 lineedits \
-                simplecharactermap \
                 sliders \
                 spinboxes \
                 tetrix \
