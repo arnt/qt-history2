@@ -1,0 +1,24 @@
+/*! 
+
+\page qmotif-customwidget-example.html
+
+\ingroup qmotif-examples  
+
+\title Using the Motif Event Loop 
+
+
+<hr>
+
+Header
+
+\include customwidget/mainwindow.h
+
+<hr>
+
+Implementation:
+
+\include customwidget/main.cpp
+
+\include customwidget/mainwindow.cpp
+
+*/

@@ -211,22 +211,27 @@ public:
 */
 
 /*!
-    Creates a predefined Motif dialog with a Motif widget parent.
+    Creates a predefined Motif dialog of type \a dtype with a Motif
+    widget \a parent.
+
+    The arguments are passed in \a args, and the number of arguments
+    in \a argcount. The \a name, \a modal and \a flags arguments are
+    passed on to the QDialog constructor.
 
     Creates a Shell widget which is a special subclass of
-    XmDialogShell.  This allows applications to use the QDialog API
-    with existing Motif dialogs.  This allows appilications to have
-    proper modality handling through the QMotif extension.  You can
+    XmDialogShell. This allows applications to use the QDialog API
+    with existing Motif dialogs. This allows appilications to have
+    proper modality handling through the QMotif extension. You can
     access the Shell widget with the shell() member function.
 
-    Creates a dialog widget with the Shell widget as it's parent.  The
-    type of the dialog created is specified by the dialogtype
-    argument.  see the DialogType enum for a list of available dialog
-    types.  You can access the dialog widget with the dialog() member
+    Creates a dialog widget with the Shell widget as it's parent. The
+    type of the dialog created is specified by the \a dtype
+    argument. See the \c DialogType enum for a list of available dialog
+    types. You can access the dialog widget with the dialog() member
     function.
 
-    NOTE: When QMotifDialog is destroyed, the Shell widget and the
-    dialog widget are destroyed.  You should not destroy the dialog
+    \warning When QMotifDialog is destroyed, the Shell widget and the
+    dialog widget are destroyed. You should not destroy the dialog
     widget yourself.
 */
 QMotifDialog::QMotifDialog( DialogType dtype, Widget parent,
@@ -319,19 +324,24 @@ QMotifDialog::QMotifDialog( DialogType dtype, Widget parent,
 /*!
     Creates a QMotifDialog for use in a custom Motif dialog.
 
+    The dialog's parent is \a parent. The arguments are passed in \a
+    args and the number of arguments in \a argcount. The \a name, \a
+    modal and \a flags arguments are passed on to the QDialog
+    constructor.
+
     Creates a Shell widget which is a special subclass of
-    XmDialogShell.  This allows applications to use the QDialog API
-    with existing Motif dialogs.  This allows appilications to have
-    proper modality handling through the QMotif extension.  You can
+    XmDialogShell. This allows applications to use the QDialog API
+    with existing Motif dialogs. This allows appilications to have
+    proper modality handling through the QMotif extension. You can
     access the Shell widget with the shell() member function.
 
-    A dialog widget is not created by this constructor.  Instead, you
-    should create the dialog widget as a child of this dialog.  Once
+    A dialog widget is not created by this constructor. Instead, you
+    should create the dialog widget as a child of this dialog. Once
     you do this, QMotifDialog will take over ownership of your custom
     dialog, and you can access it with the dialog() member function.
 
-    NOTE: When QMotifDialog is destroyed, the Shell widget and the
-    dialog widget are destroyed.  You should not destroy the dialog
+    \warning When QMotifDialog is destroyed, the Shell widget and the
+    dialog widget are destroyed. You should not destroy the dialog
     widget yourself.
 */
 QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
@@ -428,7 +438,9 @@ void QMotifDialog::hide()
 }
 
 /*!
-  Convenient Xt/Motif callback to accept the QMotifDialog.
+    Convenient Xt/Motif callback to accept the QMotifDialog.
+
+    The widget is passed in \a widget and the data in \a client_data.
 */
 void QMotifDialog::acceptCallback( Widget widget, XtPointer client_data, XtPointer )
 {
@@ -445,7 +457,9 @@ void QMotifDialog::acceptCallback( Widget widget, XtPointer client_data, XtPoint
 }
 
 /*!
-  Convenient Xt/Motif callback to reject the QMotifDialog.
+    Convenient Xt/Motif callback to reject the QMotifDialog.
+
+    The widget is passed in \a widget and the data in \a client_data.
 */
 void QMotifDialog::rejectCallback( Widget widget, XtPointer client_data, XtPointer )
 {

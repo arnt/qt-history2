@@ -8,17 +8,18 @@
 \keyword QMotif
 
 The QMotif Extension assists the migration of old Xt and Motif based
-code to the more comfortable Qt toolkit.  This extension replaces the
+code to the more comfortable Qt toolkit. This extension replaces the
 older Qt Xt/Motif Supprt Extension included with earlier versions of
 Qt.
 
 \section1 Information
+
 The QMotif Extension consists of the follow classes:
 \list
-\i QMotif
-\i QMotifWidget
-\i QMotifDialog
-\i QMotifEventLoop
+\i \l QMotif
+\i \l QMotifWidget
+\i \l QMotifDialog
+\i \l QMotifEventLoop
 \endlist
 
 \section1 How-to
@@ -29,5 +30,8 @@ The QMotif Extension consists of the follow classes:
 compiler, or at least that this is the case for the parts which
 need migration.
 \endlist
+
+
+See also the \link qmotif-examples.html QMotif Examples\endlink.
 
 */

@@ -1,0 +1,24 @@
+/*! 
+
+\page qmotif-dialog-example.html
+
+\ingroup qmotif-examples  
+
+\title A Motif Dialog
+
+<hr>
+
+Header
+
+\include dialog/mainwindow.h
+
+<hr>
+
+Implementation:
+
+\include dialog/main.cpp
+
+\include dialog/mainwindow.cpp
+
+
+*/

@@ -244,7 +244,7 @@ XtAppContext QMotif::applicationContext() const
 }
 
 /*!
-  Sets the application context.
+    Sets the application context to \a appContext.
 */
 void QMotif::setApplicationContext( XtAppContext appContext )
 {
@@ -256,8 +256,9 @@ void QMotif::setApplicationContext( XtAppContext appContext )
 }
 
 /*!
-  Initialize the application context.  All arguments passed to this
-  function are used to call XtDisplayInitialize().
+    Initialize the application context. All arguments passed to this
+    function (\a argc, \a argv, \a applicationClass, \a options and \a
+    numOptions) are used to call XtDisplayInitialize().
 */
 void QMotif::initialize( int *argc, char **argv, char *applicationClass,
 			      XrmOptionDescRec *options, int numOptions )
