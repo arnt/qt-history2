@@ -49,9 +49,9 @@ int main( int argc, char *argv[] )
 
 	app.setMainWidget( invoiceItemTable );
 
-	invoiceItemTable->addColumn( invoiceItemCursor.field( "productname" ) );
-	invoiceItemTable->addColumn( invoiceItemCursor.field( "quantity" ) );
-	invoiceItemTable->addColumn( invoiceItemCursor.field( "paiddate" ) );
+	invoiceItemTable->addColumn( "productname" );
+	invoiceItemTable->addColumn( "quantity" );
+	invoiceItemTable->addColumn( "paiddate" );
 
 	invoiceItemTable->refresh();
 	invoiceItemTable->show();
