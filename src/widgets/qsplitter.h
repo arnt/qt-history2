@@ -103,7 +103,7 @@ private:
     void recalcId();
     void moveBefore( int pos, int id, bool upLeft );
     void moveAfter( int pos, int id, bool upLeft );
-    void setG( QWidget *w, int p, int s, bool isSplitter = false );
+    void setG( QWidget *w, int p, int s, bool isSplitter = FALSE );
 
     QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }

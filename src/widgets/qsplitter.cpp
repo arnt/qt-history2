@@ -558,11 +558,11 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 	    pos1 = pos2 + 1;
 	}
 	if ( upLeft ) {
-	    setG( w, pos1, dd, true );
+	    setG( w, pos1, dd, TRUE );
 	    moveBefore( pos2, id-1, upLeft );
 	} else {
 	    moveBefore( pos2, id-1, upLeft );
-	    setG( w, pos1, dd, true );
+	    setG( w, pos1, dd, TRUE );
 	}
     } else {
 	int dd, newLeft, nextPos;
@@ -577,7 +577,7 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 	    newLeft = pos-dd+1;
 	    nextPos = newLeft - 1;
 	}
-	setG( w, newLeft, dd, true );
+	setG( w, newLeft, dd, TRUE );
 	moveBefore( nextPos, id-1, upLeft );
     }
 }
@@ -612,11 +612,11 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	    pos2 = pos + dd;
 	}
 	if ( upLeft ) {
-	    setG( w, pos1, dd, true );
+	    setG( w, pos1, dd, TRUE );
 	    moveAfter( pos2, id+1, upLeft );
 	} else {
 	    moveAfter( pos2, id+1, upLeft );
-	    setG( w, pos1, dd, true );
+	    setG( w, pos1, dd, TRUE );
 	}
     } else {
 	int left = pick( w->pos() );
@@ -634,7 +634,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	    newLeft = pos;
 	    nextPos = newLeft + dd;
 	}
-	setG( w, newLeft, dd, true );
+	setG( w, newLeft, dd, TRUE );
 	/*if( right != newRight )*/
 	moveAfter( nextPos, id+1, upLeft );
     }
