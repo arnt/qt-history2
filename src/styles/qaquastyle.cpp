@@ -8147,6 +8147,395 @@ static const char * const aqua_radio_psh_t_xpm[] = {
 ". # $ *.}.- [.[.- }.*.$ + . ",
 "/ / . + $ g > > g $ f . / / ",
 ". . . . # + + + + # . . . . "};
+/* XPM */
+static const char * aqua_toolbtn_psh_mid_xpm[] = {
+"23 21 14 1",
+"       c None",
+".      c #636363",
+"+      c #737373",
+"@      c #BDBDBD",
+"#      c #B5B5B5",
+"$      c #C6C6C6",
+"%      c #CECECE",
+"&      c #A5A5A5",
+"*      c #9C9C9C",
+"=      c #D6D6D6",
+"-      c #ADADAD",
+";      c #DEDEDE",
+">      c #E7E7E7",
+",      c #6B6B6B",
+"......................+",
+"@@@@@@#@@@@@@@@@#@@@@@@",
+"$$%%%%%%%%%%%$%%%%%%%%%",
+"%%%%%%%%%%%%%%%%%%%%%%$",
+"%%%$$$$$$$$$$$$$$$$$%%@",
+"$$$$$$$$$$$$$$$$$$$$$$&",
+"$$$$$$$$$$$$$$$$$$$$$$*",
+"$$$$$$$$$$$$$$$$$$$$$$*",
+"%%$$$$$$$$$$$$%%%%%%%%&",
+"%%%%%%%%%%%%%%========-",
+"=%%%%%%%%%%%%%========#",
+"======================@",
+";;============;;;;;;;;$",
+";;;;;;;;;;;;;;;;;;;;;;%",
+">>;;;;;;;;;;;;>>>>>>>>%",
+">>>>>>>>>>>>>>>>>>>>>>;",
+">>>>>>>>>>>>>>>>>>>>>>;",
+">>>>>>>>>>>>>>>>>>>>>>;",
+">>>>>>>>>>>>>>>>>>>>>>;",
+">>>>>>>>>>>>>>>>>>>>>>;",
+",,,,,,,,,,,,,,+++++++,,"};
+/* XPM */
+static const char * aqua_toolbtn_psh_right_xpm[] = {
+"23 21 18 1",
+"       c None",
+".      c #636363",
+"+      c #737373",
+"@      c #9C9C9C",
+"#      c #DEDEDE",
+"$      c #BDBDBD",
+"%      c #B5B5B5",
+"&      c #ADADAD",
+"*      c #7B7B7B",
+"=      c #A5A5A5",
+"-      c #C6C6C6",
+";      c #CECECE",
+">      c #6B6B6B",
+",      c #848484",
+"'      c #949494",
+")      c #8C8C8C",
+"!      c #D6D6D6",
+"~      c #E7E7E7",
+"....................+@#",
+"$$$$$$%$$$$$$$$$$%&@*.=",
+"--;;;;;;;;;;;-;;;--$=+>",
+";;;;;;;;;;;;;;;;;;;-%,.",
+";;;-----------------$'*",
+"--------------------$=)",
+"--------------------$&'",
+"--------------------$&'",
+";;-------------------%=",
+";;;;;;;;;;;;;;;;;;;;;$=",
+"!;;;;;;;;;;;;;;;;;;;;-&",
+"!!!!!!!!!!!!!!!!!!;!!-&",
+"##!!!!!!!!!!!!!!!!!!!;&",
+"#####################;&",
+"~~#################~#;%",
+"~~~~~~~~~~~~~~~~~~~~#!%",
+"~~~~~~~~~~~~~~~~~~~~~!@",
+"~~~~~~~~~~~~~~~~~~~~~!*",
+"~~~~~~~~~~~~~~~~~~~~~&+",
+"~~~~~~~~~~~~~~~~~~~-,.&",
+">>>>>>>>>>>>>>>>>>++)&-"};
+/* XPM */
+static const char * aqua_toolbtn_psh_left_xpm[] = {
+"23 21 18 1",
+"       c None",
+".      c #DEDEDE",
+"+      c #9C9C9C",
+"@      c #737373",
+"#      c #636363",
+"$      c #A5A5A5",
+"%      c #7B7B7B",
+"&      c #ADADAD",
+"*      c #B5B5B5",
+"=      c #BDBDBD",
+"-      c #6B6B6B",
+";      c #C6C6C6",
+">      c #CECECE",
+",      c #848484",
+"'      c #949494",
+")      c #8C8C8C",
+"!      c #D6D6D6",
+"~      c #E7E7E7",
+".+@###################@",
+"$#%+&*==========*======",
+"-@$=;;>>>;>>>>>>>>>>>>>",
+"#,*;>>>>>>>>>>>>>>>>>>;",
+"%'=;>;;;;;;;;;;;;;;;>>=",
+")$=;;;;;;;;;;;;;;;;;;;$",
+"'&=;;;;;;;;;;;;;;;;;;;+",
+"'&=;;;;;;;;;;;;;;;;;;;+",
+"$*;;;>>>>>>>>>>>>>>>>>$",
+"$=>>>>!!!!!!!!!!!!!!!!&",
+"&;>!!!!!!!!!!!!!!!!!!!*",
+"&;!!!!!!!!!!!!!!!!!!!!=",
+"&>!!.!................;",
+"&>....................>",
+"*>.~~~~~~~~~~~~~~~~~~~>",
+"*!.~~~~~~~~~~~~~~~~~~~.",
+"+!~~~~~~~~~~~~~~~~~~~~.",
+"%!~~~~~~~~~~~~~~~~~~~~.",
+"@&~~~~~~~~~~~~~~~~~~~~.",
+"&#,;~~~~~~~~~~~~~~~~~~.",
+";&)@@@@@@@@@@@@@@@@@@--"};
+/* XPM */
+static const char * aqua_toolbtn_act_left_xpm[] = {
+"23 21 109 2",
+"       c None",
+".      c #DEDEDE",
+"+      c #9C9CB5",
+"@      c #52639C",
+"#      c #184294",
+"$      c #08429C",
+"%      c #084AA5",
+"&      c #0852A5",
+"*      c #1052A5",
+"=      c #1052AD",
+"-      c #737373",
+";      c #9C9CBD",
+">      c #294294",
+",      c #215AAD",
+"'      c #528CC6",
+")      c #84ADD6",
+"!      c #94BDDE",
+"~      c #9CBDE7",
+"{      c #9CC6E7",
+"]      c #BDBDBD",
+"^      c #4A5A94",
+"/      c #00429C",
+"(      c #5A8CC6",
+"_      c #ADCEE7",
+":      c #B5CEE7",
+"<      c #BDCEEF",
+"[      c #BDD6EF",
+"}      c #CECECE",
+"|      c #103994",
+"1      c #0852AD",
+"2      c #7BA5DE",
+"3      c #A5C6E7",
+"4      c #B5CEEF",
+"5      c #C6C6C6",
+"6      c #00399C",
+"7      c #2163BD",
+"8      c #73A5DE",
+"9      c #0042A5",
+"0      c #216BBD",
+"a      c #5A94D6",
+"b      c #6BA5DE",
+"c      c #7BADDE",
+"d      c #84B5E7",
+"e      c #84B5DE",
+"f      c #A5A5A5",
+"g      c #3173C6",
+"h      c #4A8CD6",
+"i      c #5A9CDE",
+"j      c #73ADDE",
+"k      c #73ADE7",
+"l      c #9C9C9C",
+"m      c #105AB5",
+"n      c #397BCE",
+"o      c #5294DE",
+"p      c #639CDE",
+"q      c #6BA5E7",
+"r      c #7BB5EF",
+"s      c #428CD6",
+"t      c #639CE7",
+"u      c #73ADEF",
+"v      c #7BB5E7",
+"w      c #84BDF7",
+"x      c #ADADAD",
+"y      c #296BC6",
+"z      c #6BA5EF",
+"A      c #84BDEF",
+"B      c #8CBDF7",
+"C      c #8CC6FF",
+"D      c #B5B5B5",
+"E      c #317BCE",
+"F      c #5A9CE7",
+"G      c #73B5F7",
+"H      c #84BDFF",
+"I      c #94CEFF",
+"J      c #63A5EF",
+"K      c #7BBDFF",
+"L      c #9CCEFF",
+"M      c #9CD6FF",
+"N      c #3984D6",
+"O      c #6BADF7",
+"P      c #84C6FF",
+"Q      c #A5DEFF",
+"R      c #428CDE",
+"S      c #6BADFF",
+"T      c #A5D6FF",
+"U      c #ADDEFF",
+"V      c #73BDFF",
+"W      c #8CCEFF",
+"X      c #9CDEFF",
+"Y      c #A5E7FF",
+"Z      c #A5DEF7",
+"`      c #B5E7FF",
+" .     c #4A94D6",
+"..     c #94D6FF",
+"+.     c #ADE7FF",
+"@.     c #B5EFFF",
+"#.     c #5A84B5",
+"$.     c #ADEFFF",
+"%.     c #BDEFFF",
+"&.     c #BDF7FF",
+"*.     c #8494A5",
+"=.     c #94DEFF",
+"-.     c #B5F7FF",
+";.     c #BDFFFF",
+">.     c #7B8C9C",
+",.     c #7BA5BD",
+"'.     c #94CEEF",
+").     c #8C8C8C",
+"!.     c #6B6B6B",
+". + @ # $ % & * = = = = * = = = = = = = = = - ",
+"; > , ' ) ! ~ ~ ~ ~ ~ { { { { { { { { ~ { { ] ",
+"^ / ( ~ _ : < [ [ [ [ [ [ [ [ [ [ [ [ [ [ [ } ",
+"| 1 2 3 _ _ : 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 5 ",
+"6 7 8 ! ~ ~ { ~ ~ ~ ~ 3 3 3 ~ ~ ~ ~ 3 3 3 3 ] ",
+"9 0 a b 8 c c d d d d d d d d d d d d e d d f ",
+"1 g h i b b b b b b b b b b b b b b b j k k l ",
+"1 g h i b b b b b b b b b b b b b b b b k k l ",
+"m n o p q k r r r r r r r r r r r r r r r r f ",
+"0 s t u r r v v v v v v v v v v v v v w w w x ",
+"y o z r w w A B B B B B B B B B B B B B C C D ",
+"E F G H C C I I I I I I I I I I I I I I I I ] ",
+"E J K C I L M M M M M M M M M M M M M M M M 5 ",
+"N O P I M M Q Q Q Q Q Q Q Q Q Q Q Q Q Q Q Q } ",
+"R S C M M T Q Q Q Q Q Q Q Q Q Q Q Q Q Q U U } ",
+"R V W X Y Q Z ` ` ` ` ` ` ` ` ` ` ` ` ` ` ` . ",
+" .V ..Y +.` ` @.@.@.@.@.@.@.@.@.@.@.@.@.@.@.. ",
+"#.K ..+.$.@.@.@.@.@.@.%.&.%.@.@.@.@.%.&.&.&.. ",
+"*.b =.+.-.-.&.;.&.&.&.&.&.&.&.&.&.&.&.;.&.&.. ",
+"x >.,.'.$.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.&.. ",
+"5 x ).- - !.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!.!."};
+/* XPM */
+static const char * aqua_toolbtn_act_right_xpm[] = {
+"23 21 110 2",
+"       c None",
+".      c #1052AD",
+"+      c #1052A5",
+"@      c #0852A5",
+"#      c #084AA5",
+"$      c #08429C",
+"%      c #184294",
+"&      c #52639C",
+"*      c #9C9CB5",
+"=      c #DEDEDE",
+"-      c #9CC6E7",
+";      c #9CBDE7",
+">      c #94BDDE",
+",      c #84ADD6",
+"'      c #528CC6",
+")      c #215AAD",
+"!      c #294294",
+"~      c #9C9CBD",
+"{      c #BDD6EF",
+"]      c #BDCEEF",
+"^      c #B5CEE7",
+"/      c #ADCEE7",
+"(      c #5A8CC6",
+"_      c #00429C",
+":      c #4A5A94",
+"<      c #B5CEEF",
+"[      c #A5C6E7",
+"}      c #7BA5DE",
+"|      c #0852AD",
+"1      c #103994",
+"2      c #9CBDDE",
+"3      c #94BDE7",
+"4      c #73A5DE",
+"5      c #2163BD",
+"6      c #00399C",
+"7      c #84ADE7",
+"8      c #84B5E7",
+"9      c #84B5DE",
+"0      c #7BA5D6",
+"a      c #6BA5DE",
+"b      c #5A94D6",
+"c      c #216BBD",
+"d      c #0042A5",
+"e      c #73ADE7",
+"f      c #73ADDE",
+"g      c #6BA5D6",
+"h      c #639CD6",
+"i      c #5A9CDE",
+"j      c #4A8CD6",
+"k      c #3173C6",
+"l      c #6394C6",
+"m      c #639CCE",
+"n      c #7BB5EF",
+"o      c #6B9CD6",
+"p      c #639CDE",
+"q      c #5294DE",
+"r      c #397BCE",
+"s      c #105AB5",
+"t      c #84BDF7",
+"u      c #84B5EF",
+"v      c #73ADEF",
+"w      c #639CE7",
+"x      c #428CD6",
+"y      c #8CC6FF",
+"z      c #8CBDF7",
+"A      c #7BADE7",
+"B      c #6BA5EF",
+"C      c #296BC6",
+"D      c #94CEFF",
+"E      c #84BDFF",
+"F      c #73B5F7",
+"G      c #5A9CE7",
+"H      c #317BCE",
+"I      c #9CD6FF",
+"J      c #94C6FF",
+"K      c #7BBDFF",
+"L      c #63A5EF",
+"M      c #A5DEFF",
+"N      c #8CCEFF",
+"O      c #84C6FF",
+"P      c #6BADF7",
+"Q      c #3984D6",
+"R      c #ADDEFF",
+"S      c #94D6FF",
+"T      c #6BADFF",
+"U      c #428CDE",
+"V      c #B5E7FF",
+"W      c #ADE7FF",
+"X      c #9CDEFF",
+"Y      c #73BDFF",
+"Z      c #BDEFFF",
+"`      c #B5EFFF",
+" .     c #ADE7F7",
+"..     c #A5E7FF",
+"+.     c #4A94D6",
+"@.     c #BDF7FF",
+"#.     c #ADEFFF",
+"$.     c #5A84B5",
+"%.     c #BDFFFF",
+"&.     c #B5F7FF",
+"*.     c #94DEFF",
+"=.     c #8494A5",
+"-.     c #94CEEF",
+";.     c #7BA5BD",
+">.     c #7B8C9C",
+",.     c #ADADAD",
+"'.     c #6B6B6B",
+").     c #737373",
+"!.     c #8C8C8C",
+"~.     c #C6C6C6",
+". . . . . . . . . . + . . . . + @ # $ % & * = ",
+"- - - ; - - - - - - - - ; ; ; ; ; > , ' ) ! ~ ",
+"{ { { { { { { { { { { { { { { { ] ^ / ; ( _ : ",
+"< < < < < < < < < < < < < < < < ^ / / [ } | 1 ",
+"[ [ [ [ ; ; ; ; 2 ; ; ; 2 ; ; ; ; ; 3 > 4 5 6 ",
+"7 8 9 4 4 4 4 4 4 4 4 4 4 4 4 4 4 0 4 a b c d ",
+"e e f g h h h h h h h h h h h h h h h i j k | ",
+"e e 4 h h h h h h h h h h h h l h m h i j k | ",
+"n n 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 o a p q r s ",
+"t t u u u u u u u u u u u u u u u u e v w x c ",
+"y y z 8 A 8 u 8 A 8 u 8 A 8 u 8 A A n n B q C ",
+"D D D D D D D D D D D D D D D D E E E E F G H ",
+"I I I I I I I I I I I I I I I J J J J J K L H ",
+"M M M M M M M M M M M M M M M M N N D N O P Q ",
+"R R R R R R R R R R R R R R R R R S I S y T U ",
+"V V W W W W W W W W W W W W W W W W M X N Y U ",
+"Z `  . . . . . . . . . . . . . . . .W ..S Y +.",
+"@.@.@.Z ` ` ` ` ` ` ` ` ` ` ` ` ` ` #.W S K $.",
+"@.@.@.%.@.@.@.@.@.@.@.@.@.@.@.%.@.&.&.W *.a =.",
+"@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.@.#.-.;.>.,.",
+"'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.).).!.,.~."};
 
 
 #include "qapplication.h"
@@ -8166,6 +8555,7 @@ static const char * const aqua_radio_psh_t_xpm[] = {
 #include "qtoolbar.h"
 #include "qobjcoll.h"
 #include "qlayout.h"
+#include "qbuttongroup.h"
 #include <limits.h>
 #define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
@@ -8173,7 +8563,7 @@ static const char * const aqua_radio_psh_t_xpm[] = {
 class QAquaStylePrivate
 {
 public:
-    class buttonState {
+    struct buttonState {
     public:
         buttonState() : frame(0), dir(1) {}
         int frame;
@@ -8647,10 +9037,18 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     // Tool buttons
     if( s.contains("toolbtn_") ){
+        // Normal state buttons
         QPixmap right((const char **) aqua_toolbtn_nrm_right_xpm);
         QPixmap left((const char **) aqua_toolbtn_nrm_left_xpm);
         QPixmap mid((const char **) aqua_toolbtn_nrm_mid_xpm);
+        // Toggle buttons that are turned on
+        QPixmap act_left((const char **) aqua_toolbtn_act_left_xpm);
+        QPixmap act_right((const char **) aqua_toolbtn_act_right_xpm);
         QPixmap act_mid((const char **) aqua_toolbtn_act_mid_xpm);
+        // Any button that is pushed down
+        QPixmap psh_left((const char **) aqua_toolbtn_psh_left_xpm);
+        QPixmap psh_right((const char **) aqua_toolbtn_psh_right_xpm);
+        QPixmap psh_mid((const char **) aqua_toolbtn_psh_mid_xpm);
 
         int width = 0, height = 0, j;
         i = s.findRev( '_' );
@@ -8679,6 +9077,26 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         im = act_mid;
         px = im.smoothScale( width, height );
         QPixmapCache::insert( "$qt_aqua_toolbtn_act_mid_" + wstr + "_" + hstr,
+                              px );
+        im = act_left;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_act_left_" + wstr + "_" + hstr,
+                              px );
+        im = act_right;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_act_right_" + wstr + "_" +hstr,
+                              px );
+        im = psh_mid;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_mid_" + wstr + "_" + hstr,
+                              px );
+        im = psh_left;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_left_" + wstr + "_" + hstr,
+                              px );
+        im = psh_right;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_toolbtn_psh_right_" + wstr + "_" +hstr,
                               px );
     }
 
@@ -8710,7 +9128,6 @@ void QAquaStyle::polish( QPalette & pal )
     QPixmap px;
     qAquaPixmap( "gen_back", px );
     QBrush background( Qt::black, px );
-    QBrush highlight( QColor( 49,255,255 ) );
 
     pal.setBrush( QPalette::Active, QColorGroup::Background, background );
     pal.setBrush( QPalette::Inactive, QColorGroup::Background, background );
@@ -8720,20 +9137,21 @@ void QAquaStyle::polish( QPalette & pal )
     pal.setBrush( QPalette::Inactive, QColorGroup::Button, background );
     pal.setBrush( QPalette::Disabled, QColorGroup::Button, background );
 
-    pal.setBrush( QPalette::Inactive, QColorGroup::ButtonText,
+    pal.setColor( QPalette::Inactive, QColorGroup::ButtonText,
                   QColor( 148,148,148 ));
-    pal.setBrush( QPalette::Disabled, QColorGroup::ButtonText,
-                  QColor( 148,148,148 ));
-
-    pal.setBrush( QPalette::Active, QColorGroup::Highlight, highlight );
-    pal.setBrush( QPalette::Inactive, QColorGroup::Highlight,
-                  QColor( 148,148,148 ));
-    pal.setBrush( QPalette::Disabled, QColorGroup::Highlight,
+    pal.setColor( QPalette::Disabled, QColorGroup::ButtonText,
                   QColor( 148,148,148 ));
 
-    pal.setBrush( QPalette::Active, QColorGroup::HighlightedText, Qt::black);
-    pal.setBrush( QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
-    pal.setBrush( QPalette::Disabled, QColorGroup::HighlightedText, Qt::black);
+    pal.setColor( QPalette::Active, QColorGroup::Highlight,
+                  QColor( 49,255,255 ) );
+    pal.setColor( QPalette::Inactive, QColorGroup::Highlight,
+                  QColor( 148,148,148 ));
+    pal.setColor( QPalette::Disabled, QColorGroup::Highlight,
+                  QColor( 148,148,148 ));
+
+    pal.setColor( QPalette::Active, QColorGroup::HighlightedText, Qt::black);
+    pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
+    pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, Qt::black);
 }
 
 /*! \reimp
@@ -8741,6 +9159,7 @@ void QAquaStyle::polish( QPalette & pal )
 void QAquaStyle::unPolish( QPalette & pal )
 {
     pal = oldPalette;
+    qApp->setPalette( pal, TRUE );
 }
 
 /*! \reimp
@@ -8760,19 +9179,18 @@ void QAquaStyle::polish( QWidget * w )
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
+//         if( btn->group() ){
+//             btn->group()->setMargin( 0 );
+//             btn->group()->setInsideSpacing( 0 );
+//         }
     }
 
-    if( w->inherits("QToolBar") ){
-        QToolBar * bar = (QToolBar *) w;
-        QBoxLayout * layout = bar->boxLayout();
-        layout->setSpacing( 0 );
-        layout->setMargin( 0 );
-    }
-
-    if( w->inherits("QDockWindow") ){
-        QDockWindow * win = (QDockWindow *) w;
-        win->setFrameStyle( QFrame::NoFrame );
-    }
+//     if( w->inherits("QToolBar") ){
+//         QToolBar * bar = (QToolBar *) w;
+//         QBoxLayout * layout = bar->boxLayout();
+//         layout->setSpacing( 0 );
+//         layout->setMargin( 0 );
+//     }
 
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
@@ -8804,11 +9222,6 @@ void QAquaStyle::unPolish( QWidget * w )
         btn->setAutoRaise( TRUE );
     }
 
-    if( w->inherits("QDockWindow") ){
-        QDockWindow * win = (QDockWindow *) w;
-        win->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    }
-
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
             (w->backgroundMode() == QWidget::PaletteBackground) )
@@ -8818,7 +9231,7 @@ void QAquaStyle::unPolish( QWidget * w )
 
 /*! \reimp
   Called to animate the default buttons (emulates the pulsing effect found
-  in on the Mac).
+  on the Mac).
 */
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
@@ -8864,6 +9277,7 @@ void QAquaStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
                                const QColorGroup &g,  int lineWidth,
                                const QBrush *fill )
 {
+//    QMotifStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
     QWindowsStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
 }
 
@@ -9038,36 +9452,41 @@ void QAquaStyle::drawToolButton ( QToolButton * btn, QPainter * p )
     QObject * obj = btn->parent();
     int x = 0;
     int y = 0;
-    int w = btn->width();
-    int h = btn->height();
+    QString w = QString::number( btn->width() );
+    QString h = QString::number( btn->height() );
 
     if( obj && obj->inherits("QToolBar") ){
         QToolBar * bar  = (QToolBar *) obj;
         QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
         QObjectListIt it( *l );
         if( it.toFirst() == btn ){
-            qAquaPixmap( "toolbtn_nrm_left_"+ QString::number(w) +
-                         "_" + QString::number(h), px );
-        } else if( it.toLast() == btn ){
-            qAquaPixmap( "toolbtn_nrm_right_" + QString::number(w) +
-                         "_" + QString::number(h), px );
-        } else {
-            if( btn->isDown() || btn->isOn() )
-                qAquaPixmap( "toolbtn_act_mid_" + QString::number(w) +
-                             "_" + QString::number(h), px );
+            if( btn->isOn() )
+                qAquaPixmap( "toolbtn_nrm_left_"+ w + "_" + h, px );
+            else if( btn->isDown() )
+                qAquaPixmap( "toolbtn_psh_left_"+ w + "_" + h, px );
             else
-                qAquaPixmap( "toolbtn_nrm_mid_" + QString::number(w) +
-                             "_" + QString::number(h), px );
+                qAquaPixmap( "toolbtn_nrm_left_"+ w + "_" + h, px );
+        } else if( it.toLast() == btn ){
+            if( btn->isOn() )
+                qAquaPixmap( "toolbtn_psh_right_" + w + "_" + h, px );
+            else if( btn->isDown() )
+                qAquaPixmap( "toolbtn_psh_right_" + w + "_" + h, px );
+            else
+                qAquaPixmap( "toolbtn_nrm_right_" + w + "_" + h, px );
+        } else {
+            if( btn->isOn() )
+                qAquaPixmap( "toolbtn_act_mid_" + w + "_" + h, px );
+            else if( btn->isDown() )
+                qAquaPixmap( "toolbtn_psh_mid_" + w + "_" + h, px );
+            else
+                qAquaPixmap( "toolbtn_nrm_mid_"+ w + "_" + h, px );
         }
         delete l;
     } else {
-        if( !btn->isDown() ){
-            qAquaPixmap( "bvlbtn_small_off_" + QString::number(w) +
-                         "_" + QString::number(h), px );
-        } else {
-            qAquaPixmap( "bvlbtn_small_on_"+QString::number(w) +
-                         "_" + QString::number(h), px );
-        }
+        if( btn->isDown() || btn->isOn() )
+            qAquaPixmap( "bvlbtn_small_on_"+ w + "_" + h, px );
+        else
+            qAquaPixmap( "bvlbtn_small_off_" + w + "_" + h, px );
     }
     p->drawPixmap( x, y, px );
 }
@@ -9507,7 +9926,7 @@ void QAquaStyle::drawIndicator( QPainter* p, int x, int y, int /*w*/, int/*h*/,
 {
     QPixmap px;
     bool on = (s == QButton::On);
-    if( enabled || qAquaActive( g ) ){
+    if( enabled && qAquaActive( g ) ){
         if( down && on )
             qAquaPixmap("chk_psh_t", px);
         else if( on )
@@ -9547,7 +9966,7 @@ void QAquaStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int /*w*/,
                                          bool enabled )
 {
     QPixmap px;
-    if( enabled  || qAquaActive( g ) ){
+    if( enabled  && qAquaActive( g ) ){
         if( down && on )
             qAquaPixmap("radio_psh_t", px);
         else if( on )
@@ -9694,6 +10113,7 @@ int QAquaStyle::maximumSliderDragDistance() const
 */
 void QAquaStyle::polishPopupMenu( QPopupMenu* p)
 {
+//    QMotifStyle::polishPopupMenu( p );
     QWindowsStyle::polishPopupMenu( p );
 }
 
@@ -9705,6 +10125,7 @@ void QAquaStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
                                 const QColorGroup &g,
                                 bool act, bool dis )
 {
+    //QMotifStyle::drawCheckMark( p, x, y, w, h, g, act, dis );
     QWindowsStyle::drawCheckMark( p, x, y, w, h, g, act, dis );
 }
 
@@ -10006,6 +10427,123 @@ void QAquaStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
                             const QColorGroup & g, bool sunken,
                             int lineWidth, const QBrush * fill )
 {
+//    QMotifStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
     QWindowsStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
+
+/*
+  !\reimp
+ */
+void QAquaStyle::drawToolBarPanel( QPainter * p, int x, int y,
+                                   int w, int h, const QColorGroup & g,
+                                   const QBrush * /*fill*/ )
+{
+    p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
+}
+
+/*
+  !\reimp
+ */
+void QAquaStyle::drawMenuBarPanel( QPainter * p, int x, int y,
+                                   int w, int h, const QColorGroup & g,
+                                   const QBrush * /*fill*/ )
+{
+    p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
+}
+
+/*!\reimp
+ */
+void QAquaStyle::drawToolBarHandle( QPainter *p, const QRect &r,
+                                    Qt::Orientation orientation,
+                                    bool highlight, const QColorGroup &cg,
+                                    bool drawBorder )
+{
+    p->save();
+    p->translate( r.x(), r.y() );
+
+    QColor dark( cg.dark() );
+    QColor light( cg.light() );
+    unsigned int i;
+    if ( orientation == Qt::Vertical ) {
+        int w = r.width();
+        if ( w > 6 ) {
+            if ( highlight )
+                p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
+            QPointArray a( 2 * ((w-6)/3) );
+
+            int x = 3 + (w%3)/2;
+            p->setPen( dark );
+            p->drawLine( 1, 8, w-2, 8 );
+            for( i=0; 2*i < a.size(); i ++ ) {
+                a.setPoint( 2*i, x+1+3*i, 6 );
+                a.setPoint( 2*i+1, x+2+3*i, 3 );
+            }
+            p->drawPoints( a );
+            p->setPen( light );
+            p->drawLine( 1, 9, w-2, 9 );
+            for( i=0; 2*i < a.size(); i++ ) {
+                a.setPoint( 2*i, x+3*i, 5 );
+                a.setPoint( 2*i+1, x+1+3*i, 2 );
+            }
+            p->drawPoints( a );
+            if ( drawBorder ) {
+                p->setPen( QPen( Qt::darkGray ) );
+                p->drawLine( r.width() - 1, 0,
+                             r.width() - 1, toolBarHandleExtent() );
+            }
+        }
+    } else {
+        int h = r.height();
+        if ( h > 6 ) {
+            if ( highlight )
+                p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
+            QPointArray a( 2 * ((h-6)/3) );
+            int y = 3 + (h%3)/2;
+            p->setPen( dark );
+            p->drawLine( 8, 1, 8, h-2 );
+            for( i=0; 2*i < a.size(); i ++ ) {
+                a.setPoint( 2*i, 5, y+1+3*i );
+                a.setPoint( 2*i+1, 2, y+2+3*i );
+            }
+            p->drawPoints( a );
+            p->setPen( light );
+            p->drawLine( 9, 1, 9, h-2 );
+            for( i=0; 2*i < a.size(); i++ ) {
+                a.setPoint( 2*i, 4, y+3*i );
+                a.setPoint( 2*i+1, 1, y+1+3*i );
+            }
+            p->drawPoints( a );
+            if ( drawBorder ) {
+                p->setPen( QPen( Qt::darkGray ) );
+                p->drawLine( 0, r.height() - 1,
+                             toolBarHandleExtent(), r.height() - 1 );
+            }
+        }
+    }
+    p->restore();
+}
+
+void QAquaStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+                                  QMenuItem* mi, QColorGroup& g,
+                                  bool active, bool down, bool )
+{
+    if( down && active ){
+        QPixmap px;
+        qAquaPixmap( "sel_back", px );
+        p->fillRect( x,y,w,h, QBrush( black, px ) );
+    } else {
+        p->fillRect( x,y,w,h, g.brush( QColorGroup::Button ) );
+    }
+    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
+              g, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
+              (down && active) ? &white : &g.buttonText() );
+}
+
+void  QAquaStyle::drawFocusRect( QPainter * p, const QRect & r,
+                                 const QColorGroup & g, const QColor* bg,
+                                 bool atBorder)
+{
+    QWindowsStyle::drawFocusRect( p, r, g, bg, atBorder );
+}
+
 #endif

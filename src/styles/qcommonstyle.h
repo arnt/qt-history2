@@ -71,15 +71,16 @@ public:
     // toolbars
     virtual void drawToolButton( QToolButton* btn, QPainter *p);
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool sunken = FALSE,
-		     const QBrush *fill = 0 );
+                     const QColorGroup &g, bool sunken = FALSE,
+                     const QBrush *fill = 0 );
 
     //menubars
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-			  QMenuItem* mi, QColorGroup& g,
-			  bool enabled, bool );
-    
-private:	// Disabled copy constructor and operator=
+                          QMenuItem* mi, QColorGroup& g,
+                          bool active, bool down, bool hasFocus );
+
+    int menuBarFrameWidth() const { return 2; }
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );
     QCommonStyle &operator=( const QCommonStyle & );

@@ -1272,17 +1272,20 @@ void QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 */
 void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                                  QMenuItem* mi, QColorGroup& g,
-                                 bool enabled, bool active )
+                                 bool active, bool, bool )
 {
     if ( active ) {
         p->setPen( QPen( g.shadow(), 1) );
         p->drawRect( x, y, w, h );
         qDrawShadePanel( p, QRect(x+1,y+1,w-2,h-2), g, FALSE, 2,
                          &g.brush( QColorGroup::Light ));
+    } else {
+        p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ));
     }
+
     if ( mi->pixmap() )
         drawItem( p, x, y, w, h, AlignCenter|DontClip|SingleLine,
-                g, enabled, mi->pixmap(), "", -1, &g.buttonText() );
+                g, mi->isEnabled(), mi->pixmap(), "", -1, &g.buttonText() );
 
     if ( !!mi->text() ) {
         QString* text = new QString(mi->text());

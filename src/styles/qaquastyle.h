@@ -38,6 +38,7 @@
 #define QAQUASTYLE_H
 
 #ifndef QT_H
+//#include "qmotifstyle.h"
 #include "qwindowsstyle.h"
 #include "qpalette.h"
 #include "qvaluelist.h"
@@ -72,9 +73,6 @@ public:
     void drawButton( QPainter *p, int x, int y, int w, int h,
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
-//     void drawToolButton ( QPainter * p, int x, int y, int w, int h,
-//                           const QColorGroup & g, bool sunken = FALSE,
-//                           const QBrush * fill = 0 );
     void drawToolButton( QToolButton * btn, QPainter * p );
 
     QRect buttonRect( int x, int y, int w, int h) const;
@@ -92,8 +90,8 @@ public:
     void  drawIndicator( QPainter* p, int x, int y, int w, int h,
                          const QColorGroup &g, int state, bool down = FALSE,
                          bool enabled = TRUE );
-    void drawIndicatorMask( QPainter *p, int x, int y, int w, int h,
-                            int state );
+    void  drawIndicatorMask( QPainter *p, int x, int y, int w, int h,
+                             int state );
 
     QSize exclusiveIndicatorSize() const;
     void  drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h,
@@ -110,7 +108,7 @@ public:
     QRect comboButtonRect( int x, int y, int w, int h) const;
     QRect comboButtonFocusRect( int x, int y, int w, int h) const;
 
-    int sliderLength() const;
+    int  sliderLength() const;
     void drawSlider( QPainter *p,
                      int x, int y, int w, int h,
                      const QColorGroup &g,
@@ -124,8 +122,7 @@ public:
                            Orientation );
 
 
-    int maximumSliderDragDistance() const;
-
+    int  maximumSliderDragDistance() const;
     void drawCheckMark( QPainter *p, int x, int y, int w, int h,
                         const QColorGroup &g, bool act, bool dis );
     void drawPanel( QPainter *p, int x, int y, int w, int h,
@@ -133,18 +130,36 @@ public:
                     int lineWidth = 1, const QBrush *fill = 0 );
     void polishPopupMenu( QPopupMenu * );
 
-    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
-                                 const QFontMetrics& fm ) const;
-    int popupMenuItemHeight( bool checkable, QMenuItem* mi,
-                             const QFontMetrics& fm ) const;
+    int  extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
+                                  const QFontMetrics& fm ) const;
+    int  popupMenuItemHeight( bool checkable, QMenuItem* mi,
+                              const QFontMetrics& fm ) const;
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab,
                             QMenuItem* mi, const QPalette& pal, bool act,
                             bool enabled, int x, int y, int w, int h);
+    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+                          QMenuItem* mi, QColorGroup& g, bool active,
+                          bool down, bool hasFocus );
 
     int buttonDefaultIndicatorWidth() const;
 
     void  drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool selected );
     QRect pushButtonContentsRect( QPushButton* btn ) const;
+
+    void  drawToolBarHandle( QPainter *p, const QRect &r,
+                             Qt::Orientation orientation,
+                             bool highlight, const QColorGroup &cg,
+                             bool drawBorder );
+
+    void  drawToolBarPanel( QPainter *p, int x, int y, int w, int h,
+                            const QColorGroup &, const QBrush * fill = 0 );
+
+    void  drawMenuBarPanel( QPainter *p, int x, int y, int w, int h,
+                            const QColorGroup &, const QBrush * fill = 0 );
+    void  drawFocusRect( QPainter*, const QRect &,
+                         const QColorGroup &, const QColor* bg = 0,
+                         bool = FALSE );
+
 
 protected:
     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,

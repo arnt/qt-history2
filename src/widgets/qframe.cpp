@@ -79,8 +79,8 @@
   \link QFrame::Shadow shadow style\endlink.
   The frame shapes are \c NoFrame, \c Box, \c Panel,
   \c StyledPanel, \c PopupPanel,
-  \c WinPanel, \c HLine and \c VLine; the shadow styles are \c Plain,
-  \c Raised and \c Sunken.
+  \c WinPanel, \c ToolBarPanel, \c MenuBarPanel, \c HLine and \c VLine;
+  the shadow styles are \c Plain, \c Raised and \c Sunken.
 
   The line width is the width of the frame border.
 
@@ -109,6 +109,8 @@
   <li> \c Panel - QFrame draws a panel such that the contents appear raised or sunken
   <li> \c WinPanel - like \c Panel, but QFrame draws the 3D effects
   the way Microsoft Windows 95 (etc.) does
+  <li> \c ToolBarPanel - QFrame calls QStyle::drawToolBarPanel()
+  <li> \c MenuBarPanel - QFrame calls QStyle::drawMenuBarPanel()
   <li> \c HLine - QFrame draws a horizontal line that frames nothing
   (useful as separator)
   <li> \c VLine - QFrame draws a vertical line that frames nothing
@@ -222,6 +224,10 @@ static const int wpwidth = 2; // WinPanel lwidth
   <li> \c PopupPanel is used to draw a frame suitable for popup windows.
   Its look also depends on the current GUI style,  usually the same as
   \c StyledPanel.
+  <li> \c ToolBarPanel is used to draw a frame suitable for tool bars. The
+  look depends upon the current GUI style.
+  <li> \c MenuBarPanel is used to draw a frame suitable for menu bars. The
+  look depends upon the current GUI style.
   <li> \c WinPanel draws a rectangular panel that can be raised or
   sunken like those in Windows 95.  Specifying this shape sets
   the line width to 2 pixels.  WinPanel is provided for compatibility.
@@ -256,15 +262,15 @@ void QFrame::setFrameStyle( int style )
     //   normal frame, use QWidget's default behavior.
     switch (style & MShape) {
     case HLine:
-	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
-	break;
+        setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+        break;
     case VLine:
-	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
-	break;
+        setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+        break;
     default:
-	// only reset if it was hline or vline
-	if ( (fstyle & MShape) == HLine || (fstyle & MShape) == VLine )
-	    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+        // only reset if it was hline or vline
+        if ( (fstyle & MShape) == HLine || (fstyle & MShape) == VLine )
+            setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
     }
     fstyle = (short)style;
     updateFrameWidth();
@@ -347,67 +353,72 @@ void QFrame::setMargin( int w )
 
 void QFrame::updateFrameWidth()
 {
-    int type  = fstyle & MShape;
-    int style = fstyle & MShadow;
+    int frameType  = fstyle & MShape;
+    int frameStyle = fstyle & MShadow;
 
     fwidth = -1;
 
-    switch ( type ) {
+    switch ( frameType ) {
 
     case NoFrame:
-	fwidth = 0;
-	break;
+        fwidth = 0;
+        break;
 
     case Box:
-	switch ( style ) {
-	case Plain:
-	    fwidth = lwidth;
-	    break;
-	case Raised:
-	case Sunken:
-	    fwidth = (short)(lwidth*2 + midLineWidth() );
-	    break;
-	}
-	break;
+        switch ( frameStyle ) {
+        case Plain:
+            fwidth = lwidth;
+            break;
+        case Raised:
+        case Sunken:
+            fwidth = (short)(lwidth*2 + midLineWidth() );
+            break;
+        }
+        break;
 
     case Panel:
     case StyledPanel:
     case PopupPanel:
-	switch ( style ) {
-	case Plain:
-	case Raised:
-	case Sunken:
-	    fwidth = lwidth;
-	    break;
-	}
-	break;
+        switch ( frameStyle ) {
+        case Plain:
+        case Raised:
+        case Sunken:
+            fwidth = lwidth;
+            break;
+        }
+        break;
 
     case WinPanel:
-	switch ( style ) {
-	case Plain:
-	case Raised:
-	case Sunken:
-	    fwidth =  wpwidth; //WinPanel does not use lwidth!
-	    break;
-	}
-	break;
-
+        switch ( frameStyle ) {
+        case Plain:
+        case Raised:
+        case Sunken:
+            fwidth =  wpwidth; //WinPanel does not use lwidth!
+            break;
+        }
+        break;
+    case MenuBarPanel:
+        fwidth = style().menuBarFrameWidth();
+        break;
+    case ToolBarPanel:
+        fwidth = style().toolBarFrameWidth();
+        break;
     case HLine:
     case VLine:
-	switch ( style ) {
-	case Plain:
-	    fwidth = lwidth;
-	    break;
-	case Raised:
-	case Sunken:
-	    fwidth = (short)(lwidth*2 + midLineWidth());
-	    break;
-	}
-	break;
+        switch ( frameStyle ) {
+        case Plain:
+            fwidth = lwidth;
+            break;
+        case Raised:
+        case Sunken:
+            fwidth = (short)(lwidth*2 + midLineWidth());
+            break;
+        }
+        break;
     }
 
-    if ( fwidth == -1 )				// invalid style
-	fwidth = 0;
+    if ( fwidth == -1 )                         // invalid style
+        fwidth = 0;
 
     fwidth += margin();
 
@@ -441,9 +452,9 @@ void QFrame::updateFrameWidth()
 QRect QFrame::frameRect() const
 {
     if ( frect.isNull() )
-	return rect();
+        return rect();
     else
-	return frect;
+        return frect;
 }
 
 
@@ -475,7 +486,7 @@ void QFrame::setFrameRect( const QRect &r )
 QRect QFrame::contentsRect() const
 {
     QRect r = frameRect();
-    int	  w = frameWidth();			// total width
+    int   w = frameWidth();                     // total width
     r.setRect( r.x()+w, r.y()+w, r.width()-w*2, r.height()-w*2 );
     return r;
 }
@@ -489,11 +500,11 @@ QSize QFrame::sizeHint() const
     //   other.  For other shapes, QWidget::sizeHint() is used.
     switch (fstyle & MShape) {
     case HLine:
-	return QSize(-1,3);
+        return QSize(-1,3);
     case VLine:
-	return QSize(3,-1);
+        return QSize(3,-1);
     default:
-	return QWidget::sizeHint();
+        return QWidget::sizeHint();
     }
 }
 
@@ -511,15 +522,15 @@ void QFrame::paintEvent( QPaintEvent *event )
     QPainter paint( this );
 
     if ( !contentsRect().contains( event->rect() ) ) {
-	paint.save();
-	paint.setClipRegion( event->region().intersect(frameRect()) );
-	drawFrame( &paint );
-	paint.restore();
+        paint.save();
+        paint.setClipRegion( event->region().intersect(frameRect()) );
+        drawFrame( &paint );
+        paint.restore();
     }
     if ( event->rect().intersects( contentsRect() ) &&
-	 (fstyle & MShape) != HLine && (fstyle & MShape) != VLine ) {
-	paint.setClipRegion( event->region().intersect( contentsRect() ) );
-	drawContents( &paint );
+         (fstyle & MShape) != HLine && (fstyle & MShape) != VLine ) {
+        paint.setClipRegion( event->region().intersect( contentsRect() ) );
+        drawContents( &paint );
     }
 }
 
@@ -540,14 +551,14 @@ void QFrame::paintEvent( QPaintEvent *event )
 void QFrame::resizeEvent( QResizeEvent *e )
 {
     if ( !frect.isNull() ) {
-	QRect r( frect.x(), frect.y(),
-		 width()  - (e->oldSize().width()  - frect.width()),
-		 height() - (e->oldSize().height() - frect.height()) );
-	setFrameRect( r );
+        QRect r( frect.x(), frect.y(),
+                 width()  - (e->oldSize().width()  - frect.width()),
+                 height() - (e->oldSize().height() - frect.height()) );
+        setFrameRect( r );
     }
 
     if ( autoMask())
-	updateMask();
+        updateMask();
 }
 
 
@@ -564,79 +575,83 @@ void QFrame::resizeEvent( QResizeEvent *e )
 
 void QFrame::drawFrame( QPainter *p )
 {
-    QPoint	p1, p2;
-    QRect	r     = frameRect();
-    int		type  = fstyle & MShape;
-    int		cstyle = fstyle & MShadow;
+    QPoint      p1, p2;
+    QRect       r     = frameRect();
+    int         type  = fstyle & MShape;
+    int         cstyle = fstyle & MShadow;
 #ifdef QT_NO_DRAWUTIL
     p->setPen( black ); // ####
     p->drawRect( r ); //### a bit too simple
 #else
-
     const QColorGroup & g = colorGroup();
 
     switch ( type ) {
 
     case Box:
-	if ( cstyle == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
-	else
-	    qDrawShadeRect( p, r, g, cstyle == Sunken, lwidth,
-			    midLineWidth() );
-	break;
+        if ( cstyle == Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            qDrawShadeRect( p, r, g, cstyle == Sunken, lwidth,
+                            midLineWidth() );
+        break;
 
     case StyledPanel:
 #ifndef QT_NO_STYLE
-	if ( cstyle == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
-	else
-	    style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == Sunken, lwidth );
-	break;
+        if ( cstyle == Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            style().drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == Sunken, lwidth );
+        break;
 #endif // fall through to Panel if QT_NO_STYLE
 
     case PopupPanel:
 #ifndef QT_NO_STYLE
-	if ( cstyle == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
-	else
-	    style().drawPopupPanel( p, r.x(), r.y(), r.width(), r.height(), g, lwidth );
-	break;
+        if ( cstyle == Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            style().drawPopupPanel( p, r.x(), r.y(), r.width(), r.height(), g, lwidth );
+        break;
 #endif // fall through to Panel if QT_NO_STYLE
 
     case Panel:
-	if ( cstyle == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
-	else
-	    qDrawShadePanel( p, r, g, cstyle == Sunken, lwidth );
-	break;
+        if ( cstyle == Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            qDrawShadePanel( p, r, g, cstyle == Sunken, lwidth );
+        break;
 
     case WinPanel:
-	if ( cstyle == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), wpwidth );
-	else
-	    qDrawWinPanel( p, r, g, cstyle == Sunken );
-	break;
-
+        if ( cstyle == Plain )
+            qDrawPlainRect( p, r, g.foreground(), wpwidth );
+        else
+            qDrawWinPanel( p, r, g, cstyle == Sunken );
+        break;
+    case MenuBarPanel:
+        style().drawMenuBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
+        break;
+    case ToolBarPanel:
+        style().drawToolBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
+        break;
     case HLine:
     case VLine:
-	if ( type == HLine ) {
-	    p1 = QPoint( r.x(), r.height()/2 );
-	    p2 = QPoint( r.x()+r.width(), p1.y() );
-	}
-	else {
-	    p1 = QPoint( r.x()+r.width()/2, 0 );
-	    p2 = QPoint( p1.x(), r.height() );
-	}
-	if ( cstyle == Plain ) {
-	    QPen oldPen = p->pen();
-	    p->setPen( QPen(g.foreground(),lwidth) );
-	    p->drawLine( p1, p2 );
-	    p->setPen( oldPen );
-	}
-	else
-	    qDrawShadeLine( p, p1, p2, g, cstyle == Sunken,
-			    lwidth, midLineWidth() );
-	break;
+        if ( type == HLine ) {
+            p1 = QPoint( r.x(), r.height()/2 );
+            p2 = QPoint( r.x()+r.width(), p1.y() );
+        }
+        else {
+            p1 = QPoint( r.x()+r.width()/2, 0 );
+            p2 = QPoint( p1.x(), r.height() );
+        }
+        if ( cstyle == Plain ) {
+            QPen oldPen = p->pen();
+            p->setPen( QPen(g.foreground(),lwidth) );
+            p->drawLine( p1, p2 );
+            p->setPen( oldPen );
+        }
+        else
+            qDrawShadeLine( p, p1, p2, g, cstyle == Sunken,
+                            lwidth, midLineWidth() );
+        break;
     }
 #endif // QT_NO_DRAWUTIL
 }
@@ -715,10 +730,10 @@ void QFrame::updateMask()
 */
 void QFrame::drawFrameMask( QPainter* p )
 {
-    QPoint	p1, p2;
-    QRect	r     = frameRect();
-    int		type  = fstyle & MShape;
-    int		style = fstyle & MShadow;
+    QPoint      p1, p2;
+    QRect       r     = frameRect();
+    int         type  = fstyle & MShape;
+    int         style = fstyle & MShadow;
 #ifdef QT_NO_DRAWUTIL
     p->setPen( color1 );
     p->drawRect( r ); //### a bit too simple
@@ -728,47 +743,46 @@ void QFrame::drawFrameMask( QPainter* p )
     switch ( type ) {
 
     case Box:
-	if ( style == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
-	else
-	    qDrawShadeRect( p, r, g, style == Sunken, lwidth,
-			    midLineWidth() );
-	break;
+        if ( style == Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            qDrawShadeRect( p, r, g, style == Sunken, lwidth,
+                            midLineWidth() );
+        break;
 
     case Panel:
-	if ( style == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), lwidth );
-	else
-	    qDrawShadePanel( p, r, g, style == Sunken, lwidth );
-	break;
+        if ( style == Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            qDrawShadePanel( p, r, g, style == Sunken, lwidth );
+        break;
 
     case WinPanel:
-	if ( style == Plain )
-	    qDrawPlainRect( p, r, g.foreground(), wpwidth );
-	else
-	    qDrawWinPanel( p, r, g, style == Sunken );
-	break;
-
+        if ( style == Plain )
+            qDrawPlainRect( p, r, g.foreground(), wpwidth );
+        else
+            qDrawWinPanel( p, r, g, style == Sunken );
+        break;
     case HLine:
     case VLine:
-	if ( type == HLine ) {
-	    p1 = QPoint( r.x(), r.height()/2 );
-	    p2 = QPoint( r.x()+r.width(), p1.y() );
-	}
-	else {
-	    p1 = QPoint( r.x()+r.width()/2, 0 );
-	    p2 = QPoint( p1.x(), r.height() );
-	}
-	if ( style == Plain ) {
-	    QPen oldPen = p->pen();
-	    p->setPen( QPen(g.foreground(),lwidth) );
-	    p->drawLine( p1, p2 );
-	    p->setPen( oldPen );
-	}
-	else
-	    qDrawShadeLine( p, p1, p2, g, style == Sunken,
-			    lwidth, midLineWidth() );
-	break;
+        if ( type == HLine ) {
+            p1 = QPoint( r.x(), r.height()/2 );
+            p2 = QPoint( r.x()+r.width(), p1.y() );
+        }
+        else {
+            p1 = QPoint( r.x()+r.width()/2, 0 );
+            p2 = QPoint( p1.x(), r.height() );
+        }
+        if ( style == Plain ) {
+            QPen oldPen = p->pen();
+            p->setPen( QPen(g.foreground(),lwidth) );
+            p->drawLine( p1, p2 );
+            p->setPen( oldPen );
+        }
+        else
+            qDrawShadeLine( p, p1, p2, g, style == Sunken,
+                            lwidth, midLineWidth() );
+        break;
     }
 #endif // QT_NO_DRAWUTIL
 }
@@ -788,7 +802,7 @@ void QFrame::drawContentsMask( QPainter* p)
 {
     int type  = fstyle & MShape;
     if ( type == HLine || type == VLine )
-	return;
+        return;
     QBrush oldBrush = p->brush();
 
     p->fillRect( contentsRect(), QBrush( color1 ) );

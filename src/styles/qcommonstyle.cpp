@@ -81,12 +81,12 @@ QCommonStyle::~QCommonStyle()
 /*!\reimp
 */
 void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled, bool )
+                                    QMenuItem* mi, QColorGroup& g,
+                                    bool, bool, bool )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
+            g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.buttonText() );
 #endif
 }
 
@@ -99,38 +99,38 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 #ifndef QT_NO_PUSHBUTTON
     QRect r = pushButtonContentsRect( btn );
     if ( btn->isDown() || btn->isOn() ){
-	int sx = 0;
-	int sy = 0;
-	getButtonShift(sx, sy);
-	r.moveBy( sx, sy );
+        int sx = 0;
+        int sy = 0;
+        getButtonShift(sx, sy);
+        r.moveBy( sx, sy );
     }
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
     if ( btn->isMenuButton() ) {
-	int dx = menuButtonIndicatorWidth( btn->height() );
- 	drawArrow( p, DownArrow, FALSE,
- 	 	   x+w-dx, y+2, dx-4, h-4,
- 		   btn->colorGroup(),
- 		   btn->isEnabled() );
-	w -= dx;
+        int dx = menuButtonIndicatorWidth( btn->height() );
+        drawArrow( p, DownArrow, FALSE,
+                   x+w-dx, y+2, dx-4, h-4,
+                   btn->colorGroup(),
+                   btn->isEnabled() );
+        w -= dx;
     }
 
     if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
-	QIconSet::Mode mode = btn->isEnabled()
-			      ? QIconSet::Normal : QIconSet::Disabled;
-	if ( mode == QIconSet::Normal && btn->hasFocus() )
-	    mode = QIconSet::Active;
-	QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
-	int pixw = pixmap.width();
-	int pixh = pixmap.height();
-	p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
-	x += pixw + 4;
-	w -= pixw + 4;
+        QIconSet::Mode mode = btn->isEnabled()
+                              ? QIconSet::Normal : QIconSet::Disabled;
+        if ( mode == QIconSet::Normal && btn->hasFocus() )
+            mode = QIconSet::Active;
+        QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
+        int pixw = pixmap.width();
+        int pixh = pixmap.height();
+        p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
+        x += pixw + 4;
+        w -= pixw + 4;
     }
     drawItem( p, x, y, w, h,
-	      AlignCenter | ShowPrefix,
-	      btn->colorGroup(), btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
+              AlignCenter | ShowPrefix,
+              btn->colorGroup(), btn->isEnabled(),
+              btn->pixmap(), btn->text(), -1, &btn->colorGroup().buttonText() );
 #endif
 }
 
@@ -141,14 +141,14 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 /*!\reimp
  */
 void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
-				  int& overlap) const
+                                  int& overlap) const
 {
 #ifndef QT_NO_TABBAR
     overlap = 3;
     hframe = 24;
     vframe = 0;
     if ( t->shape() == QTabBar::RoundedAbove || t->shape() == QTabBar::RoundedBelow )
-	vframe += 10;
+        vframe += 10;
 #endif
 }
 
@@ -158,39 +158,39 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 {
 #ifndef QT_NO_TABBAR
     if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
-	// triangular, above or below
-	int y;
-	int x;
-	QRect r = t->rect();
-	QPointArray a( 10 );
-	a.setPoint( 0, 0, -1 );
-	a.setPoint( 1, 0, 0 );
-	y = r.height()-2;
-	x = y/3;
-	a.setPoint( 2, x++, y-1 );
-	a.setPoint( 3, x++, y );
-	a.setPoint( 3, x++, y++ );
-	a.setPoint( 4, x, y );
+        // triangular, above or below
+        int y;
+        int x;
+        QRect r = t->rect();
+        QPointArray a( 10 );
+        a.setPoint( 0, 0, -1 );
+        a.setPoint( 1, 0, 0 );
+        y = r.height()-2;
+        x = y/3;
+        a.setPoint( 2, x++, y-1 );
+        a.setPoint( 3, x++, y );
+        a.setPoint( 3, x++, y++ );
+        a.setPoint( 4, x, y );
 
-	int i;
-	int right = r.width() - 1;
-	for ( i = 0; i < 5; i++ )
-	    a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
+        int i;
+        int right = r.width() - 1;
+        for ( i = 0; i < 5; i++ )
+            a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
 
-	if ( tb->shape() == QTabBar::TriangularAbove )
-	    for ( i = 0; i < 10; i++ )
-		a.setPoint( i, a.point(i).x(),
-			    r.height() - 1 - a.point( i ).y() );
+        if ( tb->shape() == QTabBar::TriangularAbove )
+            for ( i = 0; i < 10; i++ )
+                a.setPoint( i, a.point(i).x(),
+                            r.height() - 1 - a.point( i ).y() );
 
-	a.translate( r.left(), r.top() );
+        a.translate( r.left(), r.top() );
 
-	if ( selected )
-	    p->setBrush( tb->colorGroup().base() );
-	else
-	    p->setBrush( tb->colorGroup().background() );
-	p->setPen( tb->colorGroup().foreground() );
-	p->drawPolygon( a );
-	p->setBrush( NoBrush );
+        if ( selected )
+            p->setBrush( tb->colorGroup().base() );
+        else
+            p->setBrush( tb->colorGroup().background() );
+        p->setPen( tb->colorGroup().foreground() );
+        p->drawPolygon( a );
+        p->setBrush( NoBrush );
     }
 #endif
 }
@@ -210,18 +210,18 @@ QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, in
 {
 #ifndef QT_NO_SCROLLBAR
     if ( !sb->rect().contains( p ) )
-	return NoScroll;
+        return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
     pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
     if ( pos < sliderMin )
-	return SubLine;
+        return SubLine;
     if ( pos < sliderStart )
-	return SubPage;
+        return SubPage;
     if ( pos < sliderStart + sliderLength )
-	return Slider;
+        return Slider;
     if ( pos < sliderMax + sliderLength )
-	return AddPage;
+        return AddPage;
     return AddLine;
 #endif
 }
@@ -233,7 +233,7 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 #ifndef QT_NO_PUSHBUTTON
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
-	fw = buttonDefaultIndicatorWidth();
+        fw = buttonDefaultIndicatorWidth();
 
     return buttonRect( fw, fw, btn->width()-2*fw, btn->height()-2*fw );
 #endif
@@ -242,8 +242,8 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 
 
 void QCommonStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool sunken,
-		     const QBrush *fill )
+                     const QColorGroup &g, bool sunken,
+                     const QBrush *fill )
 {
     QStyle::drawToolButton( p, x, y, w, h, g, sunken, fill );
 }
@@ -253,7 +253,7 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
 {
 #ifndef QT_NO_TOOLBUTTON
     if ( !btn )
-	return;
+        return;
 
     int x = 0;
     int y = 0;
@@ -262,48 +262,48 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
     const QColorGroup &g = btn->colorGroup();
     bool sunken = ( btn->isOn() && !btn->son ) || btn->isDown();
     QBrush fill = btn->colorGroup().brush( btn->backgroundMode() == QToolButton::PaletteBackground ?
-					   QColorGroup::Background : QColorGroup::Button );
+                                           QColorGroup::Background : QColorGroup::Button );
     if ( guiStyle() == WindowsStyle && btn->isOn() )
-	fill = QBrush( g.light(), Dense4Pattern );
+        fill = QBrush( g.light(), Dense4Pattern );
 #if defined(Q_WS_WIN)
     if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
-	// WIN2000 is really tricky here!
-	bool drawRect = btn->isOn();
-	if ( guiStyle() == WindowsStyle && btn->isOn() &&
-	     ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
-	     btn->uses3D() ) {
-	    fill = btn->colorGroup().brush( QColorGroup::Button );
-	    drawRect = FALSE;
-	}
-	if ( guiStyle() == WindowsStyle &&
-	     ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
-	     btn->autoRaise() ) {
-	    drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
-	    if ( drawRect ) {
-		p->setPen( QPen( g.color( QColorGroup::Button ) ) );
-		p->drawRect( x + 1, y + 1, w - 2, h - 2 );
-	    }
-	} else {
-	    drawToolButton( p, x, y, w, h, g, sunken, &fill );
-	}
+        // WIN2000 is really tricky here!
+        bool drawRect = btn->isOn();
+        if ( guiStyle() == WindowsStyle && btn->isOn() &&
+             ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+             btn->uses3D() ) {
+            fill = btn->colorGroup().brush( QColorGroup::Button );
+            drawRect = FALSE;
+        }
+        if ( guiStyle() == WindowsStyle &&
+             ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) &&
+             btn->autoRaise() ) {
+            drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
+            if ( drawRect ) {
+                p->setPen( QPen( g.color( QColorGroup::Button ) ) );
+                p->drawRect( x + 1, y + 1, w - 2, h - 2 );
+            }
+        } else {
+            drawToolButton( p, x, y, w, h, g, sunken, &fill );
+        }
     } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
-		!btn->parentWidget()->backgroundPixmap()->isNull() ) {
- 	p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
-			    *btn->parentWidget()->backgroundPixmap(),
-			    btn->x(), btn->y() );
+                !btn->parentWidget()->backgroundPixmap()->isNull() ) {
+        p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
+                            *btn->parentWidget()->backgroundPixmap(),
+                            btn->x(), btn->y() );
     }
 #else
     if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
-	drawToolButton( p, x, y, w, h, g, sunken, &fill );
+        drawToolButton( p, x, y, w, h, g, sunken, &fill );
     } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
-	      !btn->parentWidget()->backgroundPixmap()->isNull() ) {
- 	p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
-			    *btn->parentWidget()->backgroundPixmap(),
-			    btn->x(), btn->y() );
+              !btn->parentWidget()->backgroundPixmap()->isNull() ) {
+        p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
+                            *btn->parentWidget()->backgroundPixmap(),
+                            btn->x(), btn->y() );
     } else {
-	if ( btn->parentWidget() )
-	    fill = QBrush( btn->parentWidget()->backgroundColor() );
-	drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
+        if ( btn->parentWidget() )
+            fill = QBrush( btn->parentWidget()->backgroundColor() );
+        drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
     }
 #endif
 #endif

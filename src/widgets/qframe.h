@@ -60,71 +60,73 @@ class Q_EXPORT QFrame : public QWidget
 public:
     QFrame( QWidget *parent=0, const char *name=0, WFlags f=0 );
 
-    int		frameStyle()	const;
+    int         frameStyle()    const;
     virtual void setFrameStyle( int );
 
-    int		frameWidth()	const;
-    QRect	contentsRect()	const;
+    int         frameWidth()    const;
+    QRect       contentsRect()  const;
 
 #if 1 // ### OBSOLETE, provided for compatibility
-    bool	lineShapesOk()	const { return TRUE; }
+    bool        lineShapesOk()  const { return TRUE; }
 #endif
 
-    QSize	sizeHint() const;
+    QSize       sizeHint() const;
 
-    enum Shape { NoFrame  = 0,			// no frame
-		 Box	  = 0x0001,		// rectangular box
-		 Panel    = 0x0002,		// rectangular panel
-		 WinPanel = 0x0003,		// rectangular panel (Windows)
-		 HLine    = 0x0004,		// horizontal line
-		 VLine    = 0x0005,		// vertical line
-		 StyledPanel = 0x0006,		// rectangular panel depending on the GUI style
-		 PopupPanel = 0x0007,		// rectangular panel depending on the GUI style
-		 MShape   = 0x000f		// mask for the shape
+    enum Shape { NoFrame  = 0,                  // no frame
+                 Box      = 0x0001,             // rectangular box
+                 Panel    = 0x0002,             // rectangular panel
+                 WinPanel = 0x0003,             // rectangular panel (Windows)
+                 HLine    = 0x0004,             // horizontal line
+                 VLine    = 0x0005,             // vertical line
+                 StyledPanel = 0x0006,          // rectangular panel depending on the GUI style
+                 PopupPanel = 0x0007,           // rectangular panel depending on the GUI style
+                 MenuBarPanel = 0x0008,
+                 ToolBarPanel = 0x0009,
+                 MShape   = 0x000f              // mask for the shape
     };
-    enum Shadow { Plain    = 0x0010,		// plain line
-		  Raised   = 0x0020,		// raised shadow effect
-		  Sunken   = 0x0030,		// sunken shadow effect
-		  MShadow  = 0x00f0 };		// mask for the shadow
+    enum Shadow { Plain    = 0x0010,            // plain line
+                  Raised   = 0x0020,            // raised shadow effect
+                  Sunken   = 0x0030,            // sunken shadow effect
+                  MShadow  = 0x00f0 };          // mask for the shadow
 
-    Shape	frameShape()	const;
-    void	setFrameShape( Shape );
-    Shadow	frameShadow()	const;
-    void	setFrameShadow( Shadow );
+    Shape       frameShape()    const;
+    void        setFrameShape( Shape );
+    Shadow      frameShadow()   const;
+    void        setFrameShadow( Shadow );
 
-    int		lineWidth()	const;
+    int         lineWidth()     const;
     virtual void setLineWidth( int );
 
-    int		margin()	const;
+    int         margin()        const;
     virtual void setMargin( int );
 
-    int		midLineWidth()	const;
+    int         midLineWidth()  const;
     virtual void setMidLineWidth( int );
 
-    QRect	frameRect()	const;
+    QRect       frameRect()     const;
     virtual void setFrameRect( const QRect & );
 
 protected:
-    void	paintEvent( QPaintEvent * );
-    void	resizeEvent( QResizeEvent * );
+    void        paintEvent( QPaintEvent * );
+    void        resizeEvent( QResizeEvent * );
     virtual void drawFrame( QPainter * );
     virtual void drawContents( QPainter * );
     virtual void frameChanged();
-    void	updateMask();
+    void        updateMask();
     virtual void drawFrameMask( QPainter * );
     virtual void drawContentsMask( QPainter * );
 
 private:
-    void	updateFrameWidth();
-    QRect	frect;
-    int		fstyle;
-    short	lwidth;
-    short	mwidth;
-    short	mlwidth;
-    short	fwidth;
+    void        updateFrameWidth();
+    QRect       frect;
+    int         fstyle;
+    short       lwidth;
+    short       mwidth;
+    short       mlwidth;
+    short       fwidth;
 
     void * d;
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QFrame( const QFrame & );
     QFrame &operator=( const QFrame & );

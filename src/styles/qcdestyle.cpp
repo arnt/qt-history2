@@ -48,7 +48,7 @@
 /*!
   \class QCDEStyle qcdestyle.h
   \brief CDE Look and Feel
-  
+
   \ingroup appearance
 
   This style provides a slightly improved Motif look similar to some
@@ -91,118 +91,118 @@ int QCDEStyle::defaultFrameWidth() const
   */
 
 void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
-		 int x, int y, int w, int h,
-		 const QColorGroup &g, bool enabled, const QBrush * /* fill */ )
+                 int x, int y, int w, int h,
+                 const QColorGroup &g, bool enabled, const QBrush * /* fill */ )
 {
-    QPointArray bFill;				// fill polygon
-    QPointArray bTop;				// top shadow.
-    QPointArray bBot;				// bottom shadow.
-    QPointArray bLeft;				// left shadow.
-    QWMatrix	matrix;				// xform matrix
+    QPointArray bFill;                          // fill polygon
+    QPointArray bTop;                           // top shadow.
+    QPointArray bBot;                           // bottom shadow.
+    QPointArray bLeft;                          // left shadow.
+    QWMatrix    matrix;                         // xform matrix
     bool vertical = type == UpArrow || type == DownArrow;
     bool horizontal = !vertical;
-    int	 dim = w < h ? w : h;
-    int	 colspec = 0x0000;			// color specification array
+    int  dim = w < h ? w : h;
+    int  colspec = 0x0000;                      // color specification array
 
-    if ( dim < 2 )				// too small arrow
-	return;
+    if ( dim < 2 )                              // too small arrow
+        return;
 
     // adjust size and center (to fix rotation below)
     if ( w >  dim ) {
-	x += (w-dim)/2;
-	w = dim;
+        x += (w-dim)/2;
+        w = dim;
     }
     if ( h > dim ) {
-	y += (h-dim)/2;
-	h = dim;
+        y += (h-dim)/2;
+        h = dim;
     }
 
     if ( dim > 3 ) {
-	bFill.resize( dim & 1 ? 3 : 4 );
-	bTop.resize( 2 );
-	bBot.resize( 2 );
-	bLeft.resize( 2 );
-	bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
-	bTop.putPoints( 0, 2, 1,0, dim-1, dim/2);
-	bBot.putPoints( 0, 2, 1,dim-1, dim-1, dim/2);
+        bFill.resize( dim & 1 ? 3 : 4 );
+        bTop.resize( 2 );
+        bBot.resize( 2 );
+        bLeft.resize( 2 );
+        bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
+        bTop.putPoints( 0, 2, 1,0, dim-1, dim/2);
+        bBot.putPoints( 0, 2, 1,dim-1, dim-1, dim/2);
 
-	if ( dim > 6 ) {			// dim>6: must fill interior
-	    bFill.putPoints( 0, 2, 1,dim-1, 1,1 );
-	    if ( dim & 1 )			// if size is an odd number
-		bFill.setPoint( 2, dim - 2, dim / 2 );
-	    else
-		bFill.putPoints( 2, 2, dim-2,dim/2-1, dim-2,dim/2 );
-	}
+        if ( dim > 6 ) {                        // dim>6: must fill interior
+            bFill.putPoints( 0, 2, 1,dim-1, 1,1 );
+            if ( dim & 1 )                      // if size is an odd number
+                bFill.setPoint( 2, dim - 2, dim / 2 );
+            else
+                bFill.putPoints( 2, 2, dim-2,dim/2-1, dim-2,dim/2 );
+        }
     }
     else {
-	if ( dim == 3 ) {			// 3x3 arrow pattern
-	    bLeft.setPoints( 4, 0,0, 0,2, 1,1, 1,1 );
-	    bTop .setPoints( 2, 1,0, 1,0 );
-	    bBot .setPoints( 2, 1,2, 2,1 );
-	}
-	else {					// 2x2 arrow pattern
-	    bLeft.setPoints( 2, 0,0, 0,1 );
-	    bTop .setPoints( 2, 1,0, 1,0 );
-	    bBot .setPoints( 2, 1,1, 1,1 );
-	}
+        if ( dim == 3 ) {                       // 3x3 arrow pattern
+            bLeft.setPoints( 4, 0,0, 0,2, 1,1, 1,1 );
+            bTop .setPoints( 2, 1,0, 1,0 );
+            bBot .setPoints( 2, 1,2, 2,1 );
+        }
+        else {                                  // 2x2 arrow pattern
+            bLeft.setPoints( 2, 0,0, 0,1 );
+            bTop .setPoints( 2, 1,0, 1,0 );
+            bBot .setPoints( 2, 1,1, 1,1 );
+        }
     }
 
     if ( type == UpArrow || type == LeftArrow ) {
-	matrix.translate( x, y );
-	if ( vertical ) {
-	    matrix.translate( 0, h - 1 );
-	    matrix.rotate( -90 );
-	} else {
-	    matrix.translate( w - 1, h - 1 );
-	    matrix.rotate( 180 );
-	}
-	if ( down )
-	    colspec = horizontal ? 0x2334 : 0x2343;
-	else
-	    colspec = horizontal ? 0x1443 : 0x1434;
+        matrix.translate( x, y );
+        if ( vertical ) {
+            matrix.translate( 0, h - 1 );
+            matrix.rotate( -90 );
+        } else {
+            matrix.translate( w - 1, h - 1 );
+            matrix.rotate( 180 );
+        }
+        if ( down )
+            colspec = horizontal ? 0x2334 : 0x2343;
+        else
+            colspec = horizontal ? 0x1443 : 0x1434;
     }
     else if ( type == DownArrow || type == RightArrow ) {
-	matrix.translate( x, y );
-	if ( vertical ) {
-	    matrix.translate( w-1, 0 );
-	    matrix.rotate( 90 );
-	}
-	if ( down )
-	    colspec = horizontal ? 0x2443 : 0x2434;
-	else
-	    colspec = horizontal ? 0x1334 : 0x1343;
+        matrix.translate( x, y );
+        if ( vertical ) {
+            matrix.translate( w-1, 0 );
+            matrix.rotate( 90 );
+        }
+        if ( down )
+            colspec = horizontal ? 0x2443 : 0x2434;
+        else
+            colspec = horizontal ? 0x1334 : 0x1343;
     }
 
     QColor *cols[5];
     if ( enabled ) {
-	cols[0] = 0;
-	cols[1] = (QColor *)&g.button();
-	cols[2] = (QColor *)&g.mid();
-	cols[3] = (QColor *)&g.light();
-	cols[4] = (QColor *)&g.dark();
+        cols[0] = 0;
+        cols[1] = (QColor *)&g.button();
+        cols[2] = (QColor *)&g.mid();
+        cols[3] = (QColor *)&g.light();
+        cols[4] = (QColor *)&g.dark();
     } else {
-	cols[0] = 0;
-	cols[1] = (QColor *)&g.button();
-	cols[2] = (QColor *)&g.button();
-	cols[3] = (QColor *)&g.button();
-	cols[4] = (QColor *)&g.button();
+        cols[0] = 0;
+        cols[1] = (QColor *)&g.button();
+        cols[2] = (QColor *)&g.button();
+        cols[3] = (QColor *)&g.button();
+        cols[4] = (QColor *)&g.button();
     }
-#define CMID	*cols[ (colspec>>12) & 0xf ]
-#define CLEFT	*cols[ (colspec>>8) & 0xf ]
-#define CTOP	*cols[ (colspec>>4) & 0xf ]
-#define CBOT	*cols[ colspec & 0xf ]
+#define CMID    *cols[ (colspec>>12) & 0xf ]
+#define CLEFT   *cols[ (colspec>>8) & 0xf ]
+#define CTOP    *cols[ (colspec>>4) & 0xf ]
+#define CBOT    *cols[ colspec & 0xf ]
 
-    QPen     savePen   = p->pen();		// save current pen
-    QBrush   saveBrush = p->brush();		// save current brush
+    QPen     savePen   = p->pen();              // save current pen
+    QBrush   saveBrush = p->brush();            // save current brush
     QWMatrix wxm = p->worldMatrix();
     QPen     pen( NoPen );
     QBrush brush = g.brush( enabled?QColorGroup::Button:QColorGroup::Mid );
 
     p->setPen( pen );
     p->setBrush( brush );
-    p->setWorldMatrix( matrix, TRUE );		// set transformation matrix
-    p->drawPolygon( bFill );			// fill arrow
-    p->setBrush( NoBrush );			// don't fill
+    p->setWorldMatrix( matrix, TRUE );          // set transformation matrix
+    p->drawPolygon( bFill );                    // fill arrow
+    p->setBrush( NoBrush );                     // don't fill
 
     p->setPen( CLEFT );
     p->drawLineSegments( bLeft );
@@ -212,8 +212,8 @@ void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     p->drawLineSegments( bTop );
 
     p->setWorldMatrix( wxm );
-    p->setBrush( saveBrush );			// restore brush
-    p->setPen( savePen );			// restore pen
+    p->setBrush( saveBrush );                   // restore brush
+    p->setPen( savePen );                       // restore pen
 
 #undef CMID
 #undef CLEFT
@@ -225,35 +225,35 @@ void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 /*!\reimp
   */
 void QCDEStyle::drawIndicator( QPainter* p,
-			       int x, int y, int w, int h, const QColorGroup &g,
-			       int s, bool down, bool /* enabled */ )
+                               int x, int y, int w, int h, const QColorGroup &g,
+                               int s, bool down, bool /* enabled */ )
 {
     bool showUp = !down && s == QButton::Off;
     QBrush fill =  down ? g.brush( QColorGroup::Mid )   :
-			  g.brush( QColorGroup::Button );
+                          g.brush( QColorGroup::Button );
     qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
 
     if (s != QButton::Off) {
-	QPointArray a( 7*2 );
-	int i, xx, yy;
-	xx = x+3;
-	yy = y+5;
-	for ( i=0; i<3; i++ ) {
-	    a.setPoint( 2*i,   xx, yy );
-	    a.setPoint( 2*i+1, xx, yy+2 );
-	    xx++; yy++;
-	}
-	yy -= 2;
-	for ( i=3; i<7; i++ ) {
-	    a.setPoint( 2*i,   xx, yy );
-	    a.setPoint( 2*i+1, xx, yy+2 );
-	    xx++; yy--;
-	}
-	if ( s == QButton::NoChange )
-	    p->setPen( g.dark() );
-	else
-	    p->setPen( g.foreground() );
-	p->drawLineSegments( a );
+        QPointArray a( 7*2 );
+        int i, xx, yy;
+        xx = x+3;
+        yy = y+5;
+        for ( i=0; i<3; i++ ) {
+            a.setPoint( 2*i,   xx, yy );
+            a.setPoint( 2*i+1, xx, yy+2 );
+            xx++; yy++;
+        }
+        yy -= 2;
+        for ( i=3; i<7; i++ ) {
+            a.setPoint( 2*i,   xx, yy );
+            a.setPoint( 2*i+1, xx, yy+2 );
+            xx++; yy--;
+        }
+        if ( s == QButton::NoChange )
+            p->setPen( g.dark() );
+        else
+            p->setPen( g.foreground() );
+        p->drawLineSegments( a );
     }
 }
 
@@ -263,16 +263,16 @@ void QCDEStyle::drawIndicator( QPainter* p,
 /*!\reimp
   */
 void QCDEStyle::drawExclusiveIndicator( QPainter* p,
-				   int x, int y, int w, int h, const QColorGroup &g,
-				   bool on, bool down, bool /* enabled */ )
+                                   int x, int y, int w, int h, const QColorGroup &g,
+                                   bool on, bool down, bool /* enabled */ )
 {
-    static const QCOORD pts1[] = {		// up left  lines
-	1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-    static const QCOORD pts4[] = {		// bottom right  lines
-	2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-	11,4, 10,3, 10,2 };
-    static const QCOORD pts5[] = {		// inner fill
-	4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+    static const QCOORD pts1[] = {              // up left  lines
+        1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+    static const QCOORD pts4[] = {              // bottom right  lines
+        2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+        11,4, 10,3, 10,2 };
+    static const QCOORD pts5[] = {              // inner fill
+        4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
 
     p->eraseRect( x, y, w, h );
     QPointArray a( QCOORDARRLEN(pts1), pts1 );
@@ -288,8 +288,28 @@ void QCDEStyle::drawExclusiveIndicator( QPainter* p,
     QColor fillColor = on ? g.dark() : g.background();
     p->setPen( fillColor );
     p->setBrush( on ?  g.brush( QColorGroup::Dark )        :
-		       g.brush( QColorGroup::Background ) );
+                       g.brush( QColorGroup::Background ) );
     p->drawPolygon( a );
+}
+
+int QCDEStyle::menuBarFrameWidth() const
+{
+    return 1;
+}
+
+void QCDEStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+                                 QMenuItem* mi, QColorGroup& g, bool active,
+                                 bool down, bool hasFocus )
+{
+    QRect r( x, y, w, h);
+
+    if ( active ) // active item
+        qDrawShadePanel( p, r, g, TRUE, 1, &g.brush( QColorGroup::Button ));
+    else // other item
+        p->fillRect(r, g.brush( QColorGroup::Button ));
+
+    QCommonStyle::drawMenuBarItem( p, r.left(), r.top(), r.width(), r.height(),
+                                   mi, g, active, down, hasFocus );
 }
 
 #endif

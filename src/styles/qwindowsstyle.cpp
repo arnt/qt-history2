@@ -89,46 +89,46 @@ int QWindowsStyle::buttonDefaultIndicatorWidth() const
 /*! \reimp */
 
 void QWindowsStyle::drawIndicator( QPainter* p,
-				   int x, int y, int w, int h, const QColorGroup &g,
-				   int s, bool down, bool enabled )
+                                   int x, int y, int w, int h, const QColorGroup &g,
+                                   int s, bool down, bool enabled )
 {
 #ifndef QT_NO_BUTTON
     QBrush fill;
     if ( s == QButton::NoChange ) {
-	QBrush b = p->brush();
-	QColor c = p->backgroundColor();
-	p->setBackgroundMode( TransparentMode );
-	p->setBackgroundColor( green );
-	fill = QBrush(g.base(), Dense4Pattern);
-	p->setBackgroundColor( c );
-	p->setBrush( b );
+        QBrush b = p->brush();
+        QColor c = p->backgroundColor();
+        p->setBackgroundMode( TransparentMode );
+        p->setBackgroundColor( green );
+        fill = QBrush(g.base(), Dense4Pattern);
+        p->setBackgroundColor( c );
+        p->setBrush( b );
     } else if ( down )
-	fill = g.brush( QColorGroup::Button );
+        fill = g.brush( QColorGroup::Button );
     else
-	fill = g.brush( enabled ? QColorGroup::Base : QColorGroup::Background );
+        fill = g.brush( enabled ? QColorGroup::Base : QColorGroup::Background );
     qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
     if ( s != QButton::Off ) {
-	QPointArray a( 7*2 );
-	int i, xx, yy;
-	xx = x+3;
-	yy = y+5;
-	for ( i=0; i<3; i++ ) {
-	    a.setPoint( 2*i,   xx, yy );
-	    a.setPoint( 2*i+1, xx, yy+2 );
-	    xx++; yy++;
-	}
-	yy -= 2;
-	for ( i=3; i<7; i++ ) {
-	    a.setPoint( 2*i,   xx, yy );
-	    a.setPoint( 2*i+1, xx, yy+2 );
-	    xx++; yy--;
-	}
-	if ( s == QButton::NoChange ) {
-	    p->setPen( g.dark() );
-	} else {
-	    p->setPen( g.text() );
-	}
-	p->drawLineSegments( a );
+        QPointArray a( 7*2 );
+        int i, xx, yy;
+        xx = x+3;
+        yy = y+5;
+        for ( i=0; i<3; i++ ) {
+            a.setPoint( 2*i,   xx, yy );
+            a.setPoint( 2*i+1, xx, yy+2 );
+            xx++; yy++;
+        }
+        yy -= 2;
+        for ( i=3; i<7; i++ ) {
+            a.setPoint( 2*i,   xx, yy );
+            a.setPoint( 2*i+1, xx, yy+2 );
+            xx++; yy--;
+        }
+        if ( s == QButton::NoChange ) {
+            p->setPen( g.dark() );
+        } else {
+            p->setPen( g.text() );
+        }
+        p->drawLineSegments( a );
     }
 #endif
 }
@@ -138,12 +138,12 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 /*! \reimp */
 
 void QWindowsStyle::drawFocusRect( QPainter* p,
-			      const QRect& r, const QColorGroup &, const QColor* bg, bool)
+                              const QRect& r, const QColorGroup &, const QColor* bg, bool)
 {
     if (!bg)
-	p->drawWinFocusRect( r );
+        p->drawWinFocusRect( r );
     else
-	p->drawWinFocusRect( r, *bg );
+        p->drawWinFocusRect( r, *bg );
 }
 
 
@@ -162,48 +162,48 @@ void QWindowsStyle::drawFocusRect( QPainter* p,
     2 2 2 2 2 2
 */
 void QWindowsStyle::drawWinShades( QPainter *p,
-				   int x, int y, int w, int h,
-				   const QColor &c1, const QColor &c2,
-				   const QColor &c3, const QColor &c4,
-				   const QBrush *fill )
+                                   int x, int y, int w, int h,
+                                   const QColor &c1, const QColor &c2,
+                                   const QColor &c3, const QColor &c4,
+                                   const QBrush *fill )
 {
-    if ( w < 2 || h < 2 )			// can't do anything with that
-	return;
+    if ( w < 2 || h < 2 )                       // can't do anything with that
+        return;
     bool reverse = QApplication::reverseLayout();
     QPen oldPen = p->pen();
     QPointArray a( 3 );
     if ( reverse )
-	a.setPoints( 3, x+w-1, y+h-2, x+w-1, y, x+1, y );
+        a.setPoints( 3, x+w-1, y+h-2, x+w-1, y, x+1, y );
     else
-	a.setPoints( 3, x, y+h-2, x, y, x+w-2, y );
+        a.setPoints( 3, x, y+h-2, x, y, x+w-2, y );
     p->setPen( c1 );
     p->drawPolyline( a );
     if ( reverse )
-	a.setPoints( 3, x+w-1, y+h-1, x, y+h-1, x, y );
+        a.setPoints( 3, x+w-1, y+h-1, x, y+h-1, x, y );
     else
-	a.setPoints( 3, x, y+h-1, x+w-1, y+h-1, x+w-1, y );
+        a.setPoints( 3, x, y+h-1, x+w-1, y+h-1, x+w-1, y );
     p->setPen( c2 );
     p->drawPolyline( a );
     if ( w > 4 && h > 4 ) {
-	if ( reverse )
-	    a.setPoints( 3, x+w-2, y+h-3, x+w-2, y+1, x+2, y+1 );
-	else
-	    a.setPoints( 3, x+1, y+h-3, x+1, y+1, x+w-3, y+1 );
-	p->setPen( c3 );
-	p->drawPolyline( a );
-	if ( reverse )
-	    a.setPoints( 3, x+w-2, y+h-2, x+1, y+h-2, x+1, y+1 );
-	else
-	    a.setPoints( 3, x+1, y+h-2, x+w-2, y+h-2, x+w-2, y+1 );
-	p->setPen( c4 );
-	p->drawPolyline( a );
-	if ( fill ) {
-	    QBrush oldBrush = p->brush();
-	    p->setBrush( *fill );
-	    p->setPen( Qt::NoPen );
-	    p->drawRect( x+2, y+2, w-4, h-4 );
-	    p->setBrush( oldBrush );
-	}
+        if ( reverse )
+            a.setPoints( 3, x+w-2, y+h-3, x+w-2, y+1, x+2, y+1 );
+        else
+            a.setPoints( 3, x+1, y+h-3, x+1, y+1, x+w-3, y+1 );
+        p->setPen( c3 );
+        p->drawPolyline( a );
+        if ( reverse )
+            a.setPoints( 3, x+w-2, y+h-2, x+1, y+h-2, x+1, y+1 );
+        else
+            a.setPoints( 3, x+1, y+h-2, x+w-2, y+h-2, x+w-2, y+1 );
+        p->setPen( c4 );
+        p->drawPolyline( a );
+        if ( fill ) {
+            QBrush oldBrush = p->brush();
+            p->setBrush( *fill );
+            p->setPen( Qt::NoPen );
+            p->drawRect( x+2, y+2, w-4, h-4 );
+            p->setBrush( oldBrush );
+        }
     }
     p->setPen( oldPen );
 }
@@ -213,29 +213,29 @@ void QWindowsStyle::drawWinShades( QPainter *p,
 
 void
 QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
-		const QColorGroup &g, bool sunken,
-		   int lineWidth, const QBrush* fill)
+                const QColorGroup &g, bool sunken,
+                   int lineWidth, const QBrush* fill)
 {
     if ( lineWidth == 2 ) {
-	if (sunken)
-	    drawWinShades( p, x, y, w, h,
-			   g.dark(), g.light(), g.shadow(), g.midlight(),
-			   fill );
-	else
-	    drawWinShades( p, x, y, w, h,
-			   g.light(), g.shadow(), g.midlight(), g.dark(),
-			   fill );
+        if (sunken)
+            drawWinShades( p, x, y, w, h,
+                           g.dark(), g.light(), g.shadow(), g.midlight(),
+                           fill );
+        else
+            drawWinShades( p, x, y, w, h,
+                           g.light(), g.shadow(), g.midlight(), g.dark(),
+                           fill );
     }
     else
-	QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
+        QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
 
 
 /*! \reimp */
 void
 QWindowsStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-			       const QColorGroup &g,  int /* lineWidth */,
-			       const QBrush *fill )
+                               const QColorGroup &g,  int /* lineWidth */,
+                               const QBrush *fill )
 {
     qDrawWinPanel( p, x, y,  w, h, g, FALSE, fill );
 }
@@ -245,55 +245,55 @@ QWindowsStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 
 void
 QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
-		 int x, int y, int w, int h,
-		 const QColorGroup &g, bool enabled, const QBrush *fill )
+                 int x, int y, int w, int h,
+                 const QColorGroup &g, bool enabled, const QBrush *fill )
 {
-    QPointArray a;				// arrow polygon
+    QPointArray a;                              // arrow polygon
     switch ( type ) {
     case UpArrow:
-	a.setPoints( 7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2 );
-	break;
+        a.setPoints( 7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2 );
+        break;
     case DownArrow:
-	a.setPoints( 7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1 );
-	break;
+        a.setPoints( 7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1 );
+        break;
     case LeftArrow:
-	a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
-	break;
+        a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
+        break;
     case RightArrow:
-	a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
-	break;
+        a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
+        break;
     }
     if ( a.isNull() )
-	return;
+        return;
 
     if ( down ) {
-	x++;
-	y++;
+        x++;
+        y++;
     }
 
-    QPen savePen = p->pen();			// save current pen
+    QPen savePen = p->pen();                    // save current pen
     if (down)
-	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+        p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
     if ( fill )
-	p->fillRect( x, y, w, h, *fill );
+        p->fillRect( x, y, w, h, *fill );
     if (down)
-	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+        p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if ( enabled ) {
-	a.translate( x+w/2, y+h/2 );
-	p->setPen( g.buttonText() );
-	p->drawLineSegments( a, 0, 3 );		// draw arrow
-	p->drawPoint( a[6] );
+        a.translate( x+w/2, y+h/2 );
+        p->setPen( g.buttonText() );
+        p->drawLineSegments( a, 0, 3 );         // draw arrow
+        p->drawPoint( a[6] );
     } else {
-	a.translate( x+w/2+1, y+h/2+1 );
-	p->setPen( g.light() );
-	p->drawLineSegments( a, 0, 3 );		// draw arrow
-	p->drawPoint( a[6] );
-	a.translate( -1, -1 );
-	p->setPen( g.mid() );
-	p->drawLineSegments( a, 0, 3 );		// draw arrow
-	p->drawPoint( a[6] );
+        a.translate( x+w/2+1, y+h/2+1 );
+        p->setPen( g.light() );
+        p->drawLineSegments( a, 0, 3 );         // draw arrow
+        p->drawPoint( a[6] );
+        a.translate( -1, -1 );
+        p->setPen( g.mid() );
+        p->drawLineSegments( a, 0, 3 );         // draw arrow
+        p->drawPoint( a[6] );
     }
-    p->setPen( savePen );			// restore pen
+    p->setPen( savePen );                       // restore pen
 
 }
 
@@ -310,79 +310,79 @@ QWindowsStyle::indicatorSize() const
 /*! \reimp */
 
 void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
-				   int x, int y, int w, int h, const QColorGroup &g,
-				   bool on, bool down, bool enabled )
+                                   int x, int y, int w, int h, const QColorGroup &g,
+                                   bool on, bool down, bool enabled )
 {
 
-    static const QCOORD pts1[] = {		// dark lines
-	1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-    static const QCOORD pts2[] = {		// black lines
-	2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-    static const QCOORD pts3[] = {		// background lines
-	2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-    static const QCOORD pts4[] = {		// white lines
-	2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-	11,4, 10,3, 10,2 };
-    static const QCOORD pts5[] = {		// inner fill
-	4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+    static const QCOORD pts1[] = {              // dark lines
+        1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+    static const QCOORD pts2[] = {              // black lines
+        2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+    static const QCOORD pts3[] = {              // background lines
+        2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+    static const QCOORD pts4[] = {              // white lines
+        2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+        11,4, 10,3, 10,2 };
+    static const QCOORD pts5[] = {              // inner fill
+        4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
     // in right to left mode, we need it reversed
-    static const QCOORD rpts1[] = {		// dark lines
-	11-1,9, 11-1,8, 11-0,7, 11-0,4, 11-1,3, 11-1,2, 11-2,1, 11-3,1, 11-4,0, 11-7,0, 11-8,1, 11-9,1 };
-    static const QCOORD rpts2[] = {		// black lines
-	11-2,8, 11-1,7, 11-1,4, 11-2,3, 11-2,2, 11-3,2, 11-4,1, 11-7,1, 11-8,2, 11-9,2 };
-    static const QCOORD rpts3[] = {		// background lines
-	11-2,9, 11-3,9, 11-4,10, 11-7,10, 11-8,9, 11-9,9, 11-9,8, 11-10,7, 11-10,4, 11-9,3 };
-    static const QCOORD rpts4[] = {		// white lines
-	11-2,10, 11-3,10, 11-4,11, 11-7,11, 11-8,10, 11-9,10, 11-10,9, 11-10,8, 11-11,7,
-	    11-11,4, 11-10,3, 11-10,2 };
-    static const QCOORD rpts5[] = {		// inner fill
-	11-4,2, 11-7,2, 11-9,4, 11-9,7, 11-7,9, 11-4,9, 11-2,7, 11-2,4 };
+    static const QCOORD rpts1[] = {             // dark lines
+        11-1,9, 11-1,8, 11-0,7, 11-0,4, 11-1,3, 11-1,2, 11-2,1, 11-3,1, 11-4,0, 11-7,0, 11-8,1, 11-9,1 };
+    static const QCOORD rpts2[] = {             // black lines
+        11-2,8, 11-1,7, 11-1,4, 11-2,3, 11-2,2, 11-3,2, 11-4,1, 11-7,1, 11-8,2, 11-9,2 };
+    static const QCOORD rpts3[] = {             // background lines
+        11-2,9, 11-3,9, 11-4,10, 11-7,10, 11-8,9, 11-9,9, 11-9,8, 11-10,7, 11-10,4, 11-9,3 };
+    static const QCOORD rpts4[] = {             // white lines
+        11-2,10, 11-3,10, 11-4,11, 11-7,11, 11-8,10, 11-9,10, 11-10,9, 11-10,8, 11-11,7,
+            11-11,4, 11-10,3, 11-10,2 };
+    static const QCOORD rpts5[] = {             // inner fill
+        11-4,2, 11-7,2, 11-9,4, 11-9,7, 11-7,9, 11-4,9, 11-2,7, 11-2,4 };
 
     p->eraseRect( x, y, w, h );
     bool reverse = QApplication::reverseLayout();
     QPointArray a;
     if( reverse )
-	a.setPoints( QCOORDARRLEN(rpts1), rpts1 );
+        a.setPoints( QCOORDARRLEN(rpts1), rpts1 );
     else
-	a.setPoints( QCOORDARRLEN(pts1), pts1 );
+        a.setPoints( QCOORDARRLEN(pts1), pts1 );
     a.translate( x, y );
     p->setPen( g.dark() );
     p->drawPolyline( a );
     if( reverse )
-	a.setPoints( QCOORDARRLEN(rpts2), rpts2 );
+        a.setPoints( QCOORDARRLEN(rpts2), rpts2 );
     else
-	a.setPoints( QCOORDARRLEN(pts2), pts2 );
+        a.setPoints( QCOORDARRLEN(pts2), pts2 );
     a.translate( x, y );
     p->setPen( g.shadow() );
     p->drawPolyline( a );
     if( reverse )
-	a.setPoints( QCOORDARRLEN(rpts3), rpts3 );
+        a.setPoints( QCOORDARRLEN(rpts3), rpts3 );
     else
-	a.setPoints( QCOORDARRLEN(pts3), pts3 );
+        a.setPoints( QCOORDARRLEN(pts3), pts3 );
     a.translate( x, y );
     p->setPen( g.midlight() );
     p->drawPolyline( a );
     if( reverse )
-	a.setPoints( QCOORDARRLEN(rpts4), rpts4 );
+        a.setPoints( QCOORDARRLEN(rpts4), rpts4 );
     else
-	a.setPoints( QCOORDARRLEN(pts4), pts4 );
+        a.setPoints( QCOORDARRLEN(pts4), pts4 );
     a.translate( x, y );
     p->setPen( g.light() );
     p->drawPolyline( a );
     if( reverse )
-	a.setPoints( QCOORDARRLEN(rpts5), rpts5 );
+        a.setPoints( QCOORDARRLEN(rpts5), rpts5 );
     else
-	a.setPoints( QCOORDARRLEN(pts5), pts5 );
+        a.setPoints( QCOORDARRLEN(pts5), pts5 );
     a.translate( x, y );
     QColor fillColor = ( down || !enabled ) ? g.button() : g.base();
     p->setPen( fillColor );
     p->setBrush( fillColor  ) ;
     p->drawPolygon( a );
     if ( on ) {
-	p->setPen( NoPen );
-	p->setBrush( g.text() );
-	p->drawRect( x+5, y+4, 2, 4 );
-	p->drawRect( x+4, y+5, 4, 2 );
+        p->setPen( NoPen );
+        p->setBrush( g.text() );
+        p->drawRect( x+5, y+4, 2, 4 );
+        p->drawRect( x+4, y+5, 4, 2 );
     }
 
 }
@@ -413,23 +413,23 @@ QWindowsStyle::exclusiveIndicatorSize() const
 /*!\reimp
 */
 void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &g, bool sunken, const QBrush* fill)
+                                const QColorGroup &g, bool sunken, const QBrush* fill)
 {
     if (sunken)
-	drawWinShades( p, x, y, w, h,
-		       g.shadow(), g.light(), g.dark(), g.button(),
-		       fill?fill: &g.brush( QColorGroup::Button ) );
+        drawWinShades( p, x, y, w, h,
+                       g.shadow(), g.light(), g.dark(), g.button(),
+                       fill?fill: &g.brush( QColorGroup::Button ) );
     else
-	drawWinShades( p, x, y, w, h,
-		       g.light(), g.shadow(), g.button(), g.dark(),
-		       fill?fill:&g.brush( QColorGroup::Button ) );
+        drawWinShades( p, x, y, w, h,
+                       g.light(), g.shadow(), g.button(), g.dark(),
+                       fill?fill:&g.brush( QColorGroup::Button ) );
 
 }
 
 /*!\reimp
  */
 void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &g, bool sunken, const QBrush* fill)
+                                const QColorGroup &g, bool sunken, const QBrush* fill)
 {
     QWindowsStyle::drawButton(p, x, y, w, h, g, sunken, fill);
 }
@@ -444,54 +444,54 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
     QColorGroup g = btn->colorGroup();
     int x1, y1, x2, y2;
 
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    btn->rect().coords( &x1, &y1, &x2, &y2 );   // get coordinates
 
     p->setPen( g.foreground() );
     p->setBrush( QBrush(g.button(),NoBrush) );
 
     int diw = buttonDefaultIndicatorWidth();
     if ( btn->isDefault() || btn->autoDefault() ) {
-	if ( btn->isDefault() ) {
-	    p->setPen( g.shadow() );
-	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-	}
-	x1 += diw;
-	y1 += diw;
-	x2 -= diw;
-	y2 -= diw;
+        if ( btn->isDefault() ) {
+            p->setPen( g.shadow() );
+            p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+        }
+        x1 += diw;
+        y1 += diw;
+        x2 -= diw;
+        y2 -= diw;
     }
 
     bool clearButton = TRUE;
     if ( btn->isDown() ) {
-	if ( btn->isDefault() ) {
-	    p->setPen( g.dark() );
-	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-	} else {
-	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE,
-			&g.brush( QColorGroup::Button ) );
-	}
+        if ( btn->isDefault() ) {
+            p->setPen( g.dark() );
+            p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+        } else {
+            drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE,
+                        &g.brush( QColorGroup::Button ) );
+        }
     } else {
-	if ( btn->isToggleButton() && btn->isOn() && btn->isEnabled() ) {
-	    QBrush fill(g.light(), Dense4Pattern );
-	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
-	    clearButton = FALSE;
-	} else {
-	    if ( !btn->isFlat() )
-		drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn(),
-			&g.brush( QColorGroup::Button ) );
-	}
+        if ( btn->isToggleButton() && btn->isOn() && btn->isEnabled() ) {
+            QBrush fill(g.light(), Dense4Pattern );
+            drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
+            clearButton = FALSE;
+        } else {
+            if ( !btn->isFlat() )
+                drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn(),
+                        &g.brush( QColorGroup::Button ) );
+        }
     }
     if ( clearButton ) {
-	if (btn->isDown())
-	    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-	p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3,
-		     g.brush( QColorGroup::Button ) );
-	if (btn->isDown())
-	    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+        if (btn->isDown())
+            p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+        p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3,
+                     g.brush( QColorGroup::Button ) );
+        if (btn->isDown())
+            p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     }
 
     if ( p->brush().style() != NoBrush )
-	p->setBrush( NoBrush );
+        p->setBrush( NoBrush );
 
 #endif
 }
@@ -508,33 +508,33 @@ void QWindowsStyle::getButtonShift( int &x, int &y ) const
 /*!\reimp
  */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-				     const QColorGroup &g, bool sunken ,
-				     bool /* editable */,
-				     bool enabled,
-				     const QBrush *fill )
+                                     const QColorGroup &g, bool sunken ,
+                                     bool /* editable */,
+                                     bool enabled,
+                                     const QBrush *fill )
 {
     qDrawWinPanel(p, x, y, w, h, g, TRUE,
-		   fill?fill:(enabled?&g.brush( QColorGroup::Base ):
-				      &g.brush( QColorGroup::Background )));
+                   fill?fill:(enabled?&g.brush( QColorGroup::Base ):
+                                      &g.brush( QColorGroup::Background )));
     // the special reversed left shadow panel ( slightly different from drawPanel() )
     //qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     // #### DO SUNKEN!
     int xpos = x;
     if( !QApplication::reverseLayout() )
-	xpos += w - 2 - 16;
+        xpos += w - 2 - 16;
 
     if ( sunken )
-	drawWinShades( p, xpos, y+2, 16, h-4,
-		       g.dark(), g.dark(), g.button(), g.button(),
-		       fill ? fill : &g.brush( QColorGroup::Button ) );
+        drawWinShades( p, xpos, y+2, 16, h-4,
+                       g.dark(), g.dark(), g.button(), g.button(),
+                       fill ? fill : &g.brush( QColorGroup::Button ) );
     else
-	drawWinShades( p, xpos, y+2, 16, h-4,
-		       g.midlight(), g.shadow(), g.light(), g.dark(),
-		       fill ? fill : &g.brush( QColorGroup::Button ) );
+        drawWinShades( p, xpos, y+2, 16, h-4,
+                       g.midlight(), g.shadow(), g.light(), g.dark(),
+                       fill ? fill : &g.brush( QColorGroup::Button ) );
 
     drawArrow( p, QStyle::DownArrow, sunken,
-	       xpos + 2, y+2+ 2, 16- 4, h-4- 4, g, enabled,
-	       fill ? fill : &g.brush( QColorGroup::Button ) );
+               xpos + 2, y+2+ 2, 16- 4, h-4- 4, g, enabled,
+               fill ? fill : &g.brush( QColorGroup::Button ) );
 
 }
 
@@ -544,7 +544,7 @@ QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h ) const
 {
     QRect r(x+2, y+2, w-4-16, h-4);
     if( QApplication::reverseLayout() )
-	r.moveBy( 2 + 16, 0 );
+        r.moveBy( 2 + 16, 0 );
     return r;
 }
 
@@ -555,14 +555,14 @@ QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h ) const
 {
     QRect r(x+3, y+3, w-6-16, h-6);
     if( QApplication::reverseLayout() )
-	r.moveBy( 2 + 16, 0 );
+        r.moveBy( 2 + 16, 0 );
     return r;
 }
 
 
 /*! \reimp */
 void QWindowsStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
-				   int& overlap ) const
+                                   int& overlap ) const
 {
     QCommonStyle::tabbarMetrics( t, hframe, vframe, overlap );
 }
@@ -574,119 +574,119 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
     QRect r( t->rect() );
     bool reverse = QApplication::reverseLayout();
     if ( tb->shape()  == QTabBar::RoundedAbove ) {
-	p->setPen( tb->colorGroup().midlight() );
-	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-	p->setPen( tb->colorGroup().light() );
-	p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
-	if ( r.left() == 0 )
-	    p->drawPoint( tb->rect().bottomLeft() );
-//	else {
-//	    p->setPen( tb->colorGroup().midlight() );
-//	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-//	}
+        p->setPen( tb->colorGroup().midlight() );
+        p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+        p->setPen( tb->colorGroup().light() );
+        p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
+        if ( r.left() == 0 )
+            p->drawPoint( tb->rect().bottomLeft() );
+//      else {
+//          p->setPen( tb->colorGroup().midlight() );
+//          p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+//      }
 
-	if ( selected ) {
-	    p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, 2),
-			 tb->colorGroup().brush( QColorGroup::Background ));
-	    p->setPen( tb->colorGroup().background() );
-	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
-	    p->setPen( tb->colorGroup().light() );
-	} else {
-	    p->setPen( tb->colorGroup().light() );
-	    r.setRect( r.left() + 2, r.top() + 2,
-		       r.width() - 4, r.height() - 2 );
-	}
+        if ( selected ) {
+            p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, 2),
+                         tb->colorGroup().brush( QColorGroup::Background ));
+            p->setPen( tb->colorGroup().background() );
+            p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
+            p->setPen( tb->colorGroup().light() );
+        } else {
+            p->setPen( tb->colorGroup().light() );
+            r.setRect( r.left() + 2, r.top() + 2,
+                       r.width() - 4, r.height() - 2 );
+        }
 
-	int x1, x2;
-	if( reverse ) {
-	    x2 = r.left() + 2;
-	    x1 = r.right();
-	} else {
-	    x1 = r.left();
-	    x2 = r.right() - 2;
-	}
-	p->drawLine( x1, r.bottom()-1, x1, r.top() + 2 );
-	if ( reverse )
-	    x1--;
-	else
-	    x1++;
-	p->drawPoint( x1, r.top() + 1 );
-	if ( reverse )
-	    x1--;
-	else
-	    x1++;
-	p->drawLine( x1, r.top(), x2, r.top() );
-	if ( r.left() > 0 ) {
-	    p->setPen( tb->colorGroup().midlight() );
-	}
-	if ( reverse )
-	    x1 = r.right();
-	else
-	    x1 = r.left();
-	p->drawPoint( x1, r.bottom());
+        int x1, x2;
+        if( reverse ) {
+            x2 = r.left() + 2;
+            x1 = r.right();
+        } else {
+            x1 = r.left();
+            x2 = r.right() - 2;
+        }
+        p->drawLine( x1, r.bottom()-1, x1, r.top() + 2 );
+        if ( reverse )
+            x1--;
+        else
+            x1++;
+        p->drawPoint( x1, r.top() + 1 );
+        if ( reverse )
+            x1--;
+        else
+            x1++;
+        p->drawLine( x1, r.top(), x2, r.top() );
+        if ( r.left() > 0 ) {
+            p->setPen( tb->colorGroup().midlight() );
+        }
+        if ( reverse )
+            x1 = r.right();
+        else
+            x1 = r.left();
+        p->drawPoint( x1, r.bottom());
 
-	p->setPen( tb->colorGroup().midlight() );
-	if ( reverse )
-	    x1--;
-	else
-	    x1++;
-	p->drawLine( x1, r.bottom(), x1, r.top() + 2 );
-	if ( reverse )
-	    x1--;
-	else
-	    x1++;
-	p->drawLine( x1, r.top()+1, x2, r.top()+1 );
+        p->setPen( tb->colorGroup().midlight() );
+        if ( reverse )
+            x1--;
+        else
+            x1++;
+        p->drawLine( x1, r.bottom(), x1, r.top() + 2 );
+        if ( reverse )
+            x1--;
+        else
+            x1++;
+        p->drawLine( x1, r.top()+1, x2, r.top()+1 );
 
-	p->setPen( tb->colorGroup().dark() );
-	if( reverse ) {
-	    x2 = r.left() + 1;
-	} else {
-	    x2 = r.right() - 1;
-	}
-	p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 + (selected?1:-1));
-	p->setPen( tb->colorGroup().shadow() );
-	p->drawPoint( x2, r.top() + 1 );
-	p->drawPoint( x2, r.top() + 1 );
-	if ( reverse )
-	    x2--;
-	else
-	    x2++;
-	p->drawLine( x2, r.top() + 2, x2, r.bottom() - (selected?1:2));
+        p->setPen( tb->colorGroup().dark() );
+        if( reverse ) {
+            x2 = r.left() + 1;
+        } else {
+            x2 = r.right() - 1;
+        }
+        p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 + (selected?1:-1));
+        p->setPen( tb->colorGroup().shadow() );
+        p->drawPoint( x2, r.top() + 1 );
+        p->drawPoint( x2, r.top() + 1 );
+        if ( reverse )
+            x2--;
+        else
+            x2++;
+        p->drawLine( x2, r.top() + 2, x2, r.bottom() - (selected?1:2));
     } else if ( tb->shape() == QTabBar::RoundedBelow ) {
-	if ( selected ) {
-	    // ### add right to left support here!!!!
-	    p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
-			 tb->palette().active().brush( QColorGroup::Background ));
-	    p->setPen( tb->colorGroup().background() );
-	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
-	    p->setPen( tb->colorGroup().dark() );
-	} else {
-	    p->setPen( tb->colorGroup().dark() );
-	    p->drawLine( r.left(), r.top(), r.right(), r.top() );
-	    r.setRect( r.left() + 2, r.top(),
-		       r.width() - 4, r.height() - 2 );
-	}
+        if ( selected ) {
+            // ### add right to left support here!!!!
+            p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
+                         tb->palette().active().brush( QColorGroup::Background ));
+            p->setPen( tb->colorGroup().background() );
+            p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
+            p->setPen( tb->colorGroup().dark() );
+        } else {
+            p->setPen( tb->colorGroup().dark() );
+            p->drawLine( r.left(), r.top(), r.right(), r.top() );
+            r.setRect( r.left() + 2, r.top(),
+                       r.width() - 4, r.height() - 2 );
+        }
 
-	p->drawLine( r.right() - 1, r.top(),
-		     r.right() - 1, r.bottom() - 2 );
-	p->drawPoint( r.right() - 2, r.bottom() - 2 );
-	p->drawLine( r.right() - 2, r.bottom() - 1,
-		     r.left() + 1, r.bottom() - 1 );
-	p->drawPoint( r.left() + 1, r.bottom() - 2 );
+        p->drawLine( r.right() - 1, r.top(),
+                     r.right() - 1, r.bottom() - 2 );
+        p->drawPoint( r.right() - 2, r.bottom() - 2 );
+        p->drawLine( r.right() - 2, r.bottom() - 1,
+                     r.left() + 1, r.bottom() - 1 );
+        p->drawPoint( r.left() + 1, r.bottom() - 2 );
 
-	p->setPen( tb->colorGroup().shadow() );
-	p->drawLine( r.right(), r.top(),
-		     r.right(), r.bottom() - 1 );
-	p->drawPoint( r.right() - 1, r.bottom() - 1 );
-	p->drawLine( r.right() - 1, r.bottom(),
-		     r.left() + 2, r.bottom() );
+        p->setPen( tb->colorGroup().shadow() );
+        p->drawLine( r.right(), r.top(),
+                     r.right(), r.bottom() - 1 );
+        p->drawPoint( r.right() - 1, r.bottom() - 1 );
+        p->drawLine( r.right() - 1, r.bottom(),
+                     r.left() + 2, r.bottom() );
 
-	p->setPen( tb->colorGroup().light() );
-	p->drawLine( r.left(), r.top(),
-		     r.left(), r.bottom() - 2 );
+        p->setPen( tb->colorGroup().light() );
+        p->drawLine( r.left(), r.top(),
+                     r.left(), r.bottom() - 2 );
 
     } else {
-	QCommonStyle::drawTab( p, tb, t, selected );
+        QCommonStyle::drawTab( p, tb, t, selected );
     }
 #endif
 }
@@ -697,16 +697,16 @@ void QWindowsStyle::drawTabMask( QPainter* p,  const QTabBar* tb, QTab* t, bool 
     QCommonStyle::drawTabMask(p, tb, t, selected );
 }
 
-#define HORIZONTAL	(sb->orientation() == QScrollBar::Horizontal)
-#define VERTICAL	!HORIZONTAL
-#define WINDOWS_BORDER	2
-#define SLIDER_MIN	9 // ### wtf does this have to do with windows?
+#define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
+#define VERTICAL        !HORIZONTAL
+#define WINDOWS_BORDER  2
+#define SLIDER_MIN      9 // ### wtf does this have to do with windows?
 
 /*!\reimp
  */
 void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb,
-				      int &sliderMin, int &sliderMax,
-				      int &sliderLength, int&buttonDim ) const
+                                      int &sliderMin, int &sliderMax,
+                                      int &sliderLength, int&buttonDim ) const
 {
 #ifndef QT_NO_SCROLLBAR
     int maxLength;
@@ -715,23 +715,23 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb,
     int extent = HORIZONTAL ? sb->height() : sb->width();
 
     if ( length > ( extent - b*2 - 1 )*2 + b*2  )
-	buttonDim = extent - b*2;
+        buttonDim = extent - b*2;
     else
-	buttonDim = ( length - b*2 )/2 - 1;
+        buttonDim = ( length - b*2 )/2 - 1;
 
     sliderMin = b + buttonDim;
     maxLength  = length - b*2 - buttonDim*2;
 
     if ( sb->maxValue() == sb->minValue() ) {
-	sliderLength = maxLength;
+        sliderLength = maxLength;
     } else {
-	sliderLength = (sb->pageStep()*maxLength)/
-			(sb->maxValue()-sb->minValue()+sb->pageStep());
-	uint range = sb->maxValue()-sb->minValue();
-	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
-	    sliderLength = SLIDER_MIN;
-	if ( sliderLength > maxLength )
-	    sliderLength = maxLength;
+        sliderLength = (sb->pageStep()*maxLength)/
+                        (sb->maxValue()-sb->minValue()+sb->pageStep());
+        uint range = sb->maxValue()-sb->minValue();
+        if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
+            sliderLength = SLIDER_MIN;
+        if ( sliderLength > maxLength )
+            sliderLength = maxLength;
     }
     sliderMax = sliderMin + maxLength - sliderLength;
 #endif
@@ -751,7 +751,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
 
     if (sliderStart > sliderMax) { // sanity check
-	sliderStart = sliderMax;
+        sliderStart = sliderMax;
     }
 
     int b = 0;
@@ -766,13 +766,13 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     int extent = HORIZONTAL ? sb->height() : sb->width();
 
     if ( HORIZONTAL ) {
-	subY = addY = ( extent - dimB ) / 2;
-	subX = b;
-	addX = length - dimB - b;
+        subY = addY = ( extent - dimB ) / 2;
+        subX = b;
+        addX = length - dimB - b;
     } else {
-	subX = addX = ( extent - dimB ) / 2;
-	subY = b;
-	addY = length - dimB - b;
+        subX = addX = ( extent - dimB ) / 2;
+        subY = b;
+        addY = length - dimB - b;
     }
 
     subB.setRect( subX,subY,dimB,dimB );
@@ -781,75 +781,75 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     int sliderEnd = sliderStart + sliderLength;
     int sliderW = extent - b*2;
     if ( HORIZONTAL ) {
-	subPageR.setRect( subB.right() + 1, b,
-			  sliderStart - subB.right() - 1 , sliderW );
-	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+        subPageR.setRect( subB.right() + 1, b,
+                          sliderStart - subB.right() - 1 , sliderW );
+        addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+        sliderR .setRect( sliderStart, b, sliderLength, sliderW );
     } else {
-	subPageR.setRect( b, subB.bottom() + 1, sliderW,
-			  sliderStart - subB.bottom() - 1 );
-	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
+        subPageR.setRect( b, subB.bottom() + 1, sliderW,
+                          sliderStart - subB.bottom() - 1 );
+        addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+        sliderR .setRect( b, sliderStart, sliderW, sliderLength );
     }
 
     bool maxedOut = (sb->maxValue() == sb->minValue());
     if ( controls & AddLine ) {
-	qDrawWinPanel( p, addB.x(), addB.y(),
-		       addB.width(), addB.height(), g,
-		       ADD_LINE_ACTIVE, &g.brush( QColorGroup::Button ) );
-	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-		   addB.width()-4, addB.height()-4, g, !maxedOut );
+        qDrawWinPanel( p, addB.x(), addB.y(),
+                       addB.width(), addB.height(), g,
+                       ADD_LINE_ACTIVE, &g.brush( QColorGroup::Button ) );
+        drawArrow( p, VERTICAL ? DownArrow : RightArrow,
+                   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+                   addB.width()-4, addB.height()-4, g, !maxedOut );
     }
     if ( controls & SubLine ) {
-	qDrawWinPanel( p, subB.x(), subB.y(),
-		       subB.width(), subB.height(), g,
-		       SUB_LINE_ACTIVE, &g.brush( QColorGroup::Button )  );
-	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-		   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-		   subB.width()-4, subB.height()-4, g, !maxedOut );
+        qDrawWinPanel( p, subB.x(), subB.y(),
+                       subB.width(), subB.height(), g,
+                       SUB_LINE_ACTIVE, &g.brush( QColorGroup::Button )  );
+        drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+                   SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+                   subB.width()-4, subB.height()-4, g, !maxedOut );
     }
     QBrush br =
-	g.brush( QColorGroup::Light ).pixmap() ?
-		 g.brush( QColorGroup::Light )     :
-		 QBrush(g.light(), Dense4Pattern);
+        g.brush( QColorGroup::Light ).pixmap() ?
+                 g.brush( QColorGroup::Light )     :
+                 QBrush(g.light(), Dense4Pattern);
     p->setBrush( br );
     p->setPen( NoPen );
     p->setBackgroundMode( OpaqueMode );
     if ( maxedOut ) {
-	p->drawRect( sliderR );
+        p->drawRect( sliderR );
     } else {
-	if ( (controls & SubPage && SubPage == activeControl) ||
-	     (controls  & AddPage && AddPage == activeControl) ) {
-	    QBrush b = p->brush();
-	    QColor c = p->backgroundColor();
-// 	    p->fillRect( AddPage == activeControl? addPageR : subPageR, g.fillDark() );
-	    p->setBackgroundColor( g.dark() );
-	    p->setBrush( QBrush(g.shadow(), Dense4Pattern) );
-	    p->drawRect( AddPage == activeControl? addPageR : subPageR );
-	    p->setBackgroundColor( c );
-	    p->setBrush( b );
-	}
-	if ( controls & SubPage && SubPage != activeControl)
-	    p->drawRect( subPageR );
-	if ( controls & AddPage && AddPage != activeControl)
-	    p->drawRect( addPageR );
-	if ( controls & Slider ) {
-	    if ( !maxedOut ) {
-		QPoint bo = p->brushOrigin();
-		p->setBrushOrigin(sliderR.topLeft());
-		qDrawWinPanel( p, sliderR.x(), sliderR.y(),
-				 sliderR.width(), sliderR.height(), g,
-				 FALSE, &g.brush( QColorGroup::Button ) );
-		p->setBrushOrigin(bo);
-	    }
-	}
+        if ( (controls & SubPage && SubPage == activeControl) ||
+             (controls  & AddPage && AddPage == activeControl) ) {
+            QBrush b = p->brush();
+            QColor c = p->backgroundColor();
+//          p->fillRect( AddPage == activeControl? addPageR : subPageR, g.fillDark() );
+            p->setBackgroundColor( g.dark() );
+            p->setBrush( QBrush(g.shadow(), Dense4Pattern) );
+            p->drawRect( AddPage == activeControl? addPageR : subPageR );
+            p->setBackgroundColor( c );
+            p->setBrush( b );
+        }
+        if ( controls & SubPage && SubPage != activeControl)
+            p->drawRect( subPageR );
+        if ( controls & AddPage && AddPage != activeControl)
+            p->drawRect( addPageR );
+        if ( controls & Slider ) {
+            if ( !maxedOut ) {
+                QPoint bo = p->brushOrigin();
+                p->setBrushOrigin(sliderR.topLeft());
+                qDrawWinPanel( p, sliderR.x(), sliderR.y(),
+                                 sliderR.width(), sliderR.height(), g,
+                                 FALSE, &g.brush( QColorGroup::Button ) );
+                p->setBrushOrigin(bo);
+            }
+        }
     }
     // ### perhaps this should not be able to accept focus if maxedOut?
     if ( sb->hasFocus() && (controls & Slider) )
-	drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
-			       sliderR.width()-5, sliderR.height()-5), g,
-		      &sb->backgroundColor());
+        drawFocusRect(p, QRect(sliderR.x()+2, sliderR.y()+2,
+                               sliderR.width()-5, sliderR.height()-5), g,
+                      &sb->backgroundColor());
 #endif
 }
 
@@ -863,9 +863,9 @@ int QWindowsStyle::sliderLength() const
 /*!\reimp
  */
 void QWindowsStyle::drawSlider( QPainter *p,
-			     int x, int y, int w, int h,
-			     const QColorGroup &g,
-			     Orientation orient, bool tickAbove, bool tickBelow )
+                             int x, int y, int w, int h,
+                             const QColorGroup &g,
+                             Orientation orient, bool tickAbove, bool tickBelow )
 {
 #ifndef QT_NO_SLIDER
     // 4444440
@@ -897,49 +897,49 @@ void QWindowsStyle::drawSlider( QPainter *p,
     p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
 
     if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
-	qDrawWinButton( p, QRect(x,y,w,h), g, FALSE,
-			&g.brush( QColorGroup::Button ) );
-	return;
+        qDrawWinButton( p, QRect(x,y,w,h), g, FALSE,
+                        &g.brush( QColorGroup::Button ) );
+        return;
     }
 
 
     enum  { SlUp, SlDown, SlLeft, SlRight } dir;
 
     if ( orient == Horizontal )
-	if ( tickAbove )
-	    dir = SlUp;
-	else
-	    dir = SlDown;
+        if ( tickAbove )
+            dir = SlUp;
+        else
+            dir = SlDown;
     else
-	if ( tickAbove )
-	    dir = SlLeft;
-	else
-	    dir = SlRight;
+        if ( tickAbove )
+            dir = SlLeft;
+        else
+            dir = SlRight;
 
     QPointArray a;
 
     int d = 0;
     switch ( dir ) {
     case SlUp:
-	y1 = y1 + w/2;
-	d =  (w + 1) / 2 - 1;
-	a.setPoints(5, x1,y1, x1,y2, x2,y2, x2,y1, x1+d,y1-d );
-	break;
+        y1 = y1 + w/2;
+        d =  (w + 1) / 2 - 1;
+        a.setPoints(5, x1,y1, x1,y2, x2,y2, x2,y1, x1+d,y1-d );
+        break;
     case SlDown:
-	y2 = y2 - w/2;
-	d =  (w + 1) / 2 - 1;
-	a.setPoints(5, x1,y1, x1,y2, x1+d,y2+d, x2,y2, x2,y1 );
-	break;
+        y2 = y2 - w/2;
+        d =  (w + 1) / 2 - 1;
+        a.setPoints(5, x1,y1, x1,y2, x1+d,y2+d, x2,y2, x2,y1 );
+        break;
     case SlLeft:
-	d =  (h + 1) / 2 - 1;
-	x1 = x1 + h/2;
-	a.setPoints(5, x1,y1, x1-d,y1+d, x1,y2, x2,y2, x2,y1);
-	break;
+        d =  (h + 1) / 2 - 1;
+        x1 = x1 + h/2;
+        a.setPoints(5, x1,y1, x1-d,y1+d, x1,y2, x2,y2, x2,y1);
+        break;
     case SlRight:
-	d =  (h + 1) / 2 - 1;
-	x2 = x2 - h/2;
-	a.setPoints(5, x1,y1, x1,y2, x2,y2, x2+d,y1+d, x2,y1 );
-	break;
+        d =  (h + 1) / 2 - 1;
+        x2 = x2 - h/2;
+        a.setPoints(5, x1,y1, x1,y2, x2,y2, x2+d,y1+d, x2,y1 );
+        break;
     }
 
 
@@ -953,115 +953,115 @@ void QWindowsStyle::drawSlider( QPainter *p,
 
 
     if ( dir != SlUp ) {
-	p->setPen( c4 );
-	p->drawLine( x1, y1, x2, y1 );
-	p->setPen( c3 );
-	p->drawLine( x1, y1+1, x2, y1+1 );
+        p->setPen( c4 );
+        p->drawLine( x1, y1, x2, y1 );
+        p->setPen( c3 );
+        p->drawLine( x1, y1+1, x2, y1+1 );
     }
     if ( dir != SlLeft ) {
-	if ( reverse )
-	    p->setPen( c1 );
-	else
-	    p->setPen( c3 );
-	p->drawLine( x1+1, y1+1, x1+1, y2 );
-	if ( reverse )
-	    p->setPen( c0 );
-	else
-	    p->setPen( c4 );
-	p->drawLine( x1, y1, x1, y2 );
+        if ( reverse )
+            p->setPen( c1 );
+        else
+            p->setPen( c3 );
+        p->drawLine( x1+1, y1+1, x1+1, y2 );
+        if ( reverse )
+            p->setPen( c0 );
+        else
+            p->setPen( c4 );
+        p->drawLine( x1, y1, x1, y2 );
     }
     if ( dir != SlRight ) {
-	if ( reverse )
-	    p->setPen( c4 );
-	else
-	    p->setPen( c0 );
-	p->drawLine( x2, y1, x2, y2 );
-	if ( reverse )
-	    p->setPen( c3 );
-	else
-	    p->setPen( c1 );
-	p->drawLine( x2-1, y1+1, x2-1, y2-1 );
+        if ( reverse )
+            p->setPen( c4 );
+        else
+            p->setPen( c0 );
+        p->drawLine( x2, y1, x2, y2 );
+        if ( reverse )
+            p->setPen( c3 );
+        else
+            p->setPen( c1 );
+        p->drawLine( x2-1, y1+1, x2-1, y2-1 );
     }
     if ( dir != SlDown ) {
-	p->setPen( c0 );
-	p->drawLine( x1, y2, x2, y2 );
-	p->setPen( c1 );
-	p->drawLine( x1+1, y2-1, x2-1, y2-1 );
+        p->setPen( c0 );
+        p->drawLine( x1, y2, x2, y2 );
+        p->setPen( c1 );
+        p->drawLine( x1+1, y2-1, x2-1, y2-1 );
     }
 
     switch ( dir ) {
-	case SlUp:
-	    if ( reverse )
-		p->setPen( c0 );
-	    else
-		p->setPen( c4 );
-	    p->drawLine( x1, y1, x1+d, y1-d);
-	    if ( reverse )
-		p->setPen( c4 );
-	    else
-		p->setPen( c0 );
-	    d = w - d - 1;
-	    p->drawLine( x2, y1, x2-d, y1-d);
-	    d--;
-	    if ( reverse )
-		p->setPen( c1 );
-	    else
-		p->setPen( c3 );
-	    p->drawLine( x1+1, y1, x1+1+d, y1-d );
-	    if ( reverse )
-		p->setPen( c3 );
-	    else
-		p->setPen( c1 );
-	    p->drawLine( x2-1, y1, x2-1-d, y1-d);
-	    break;
-	case SlDown:
-	    if ( reverse )
-		p->setPen( c0 );
-	    else
-		p->setPen( c4 );
-	    p->drawLine( x1, y2, x1+d, y2+d);
-	    if ( reverse )
-		p->setPen( c4 );
-	    else
-		p->setPen( c0 );
-	    d = w - d - 1;
-	    p->drawLine( x2, y2, x2-d, y2+d);
-	    d--;
-	    if ( reverse )
-		p->setPen( c1 );
-	    else
-		p->setPen( c3 );
-	    p->drawLine( x1+1, y2, x1+1+d, y2+d );
-	    if ( reverse )
-		p->setPen( c3 );
-	    else
-		p->setPen( c1 );
-	    p->drawLine( x2-1, y2, x2-1-d, y2+d);
-	    break;
-	case SlLeft:
-	    p->setPen( c4 );
-	    p->drawLine( x1, y1, x1-d, y1+d);
-	    p->setPen( c0 );
-	    d = h - d - 1;
-	    p->drawLine( x1, y2, x1-d, y2-d);
-	    d--;
-	    p->setPen( c3 );
-	    p->drawLine( x1, y1+1, x1-d, y1+1+d );
-	    p->setPen( c1 );
-	    p->drawLine( x1, y2-1, x1-d, y2-1-d);
-	    break;
-	case SlRight:
-	    p->setPen( c4 );
-	    p->drawLine( x2, y1, x2+d, y1+d);
-	    p->setPen( c0 );
-	    d = h - d - 1;
-	    p->drawLine( x2, y2, x2+d, y2-d);
-	    d--;
-	    p->setPen( c3 );
-	    p->drawLine(  x2, y1+1, x2+d, y1+1+d );
-	    p->setPen( c1 );
-	    p->drawLine( x2, y2-1, x2+d, y2-1-d);
-	    break;
+        case SlUp:
+            if ( reverse )
+                p->setPen( c0 );
+            else
+                p->setPen( c4 );
+            p->drawLine( x1, y1, x1+d, y1-d);
+            if ( reverse )
+                p->setPen( c4 );
+            else
+                p->setPen( c0 );
+            d = w - d - 1;
+            p->drawLine( x2, y1, x2-d, y1-d);
+            d--;
+            if ( reverse )
+                p->setPen( c1 );
+            else
+                p->setPen( c3 );
+            p->drawLine( x1+1, y1, x1+1+d, y1-d );
+            if ( reverse )
+                p->setPen( c3 );
+            else
+                p->setPen( c1 );
+            p->drawLine( x2-1, y1, x2-1-d, y1-d);
+            break;
+        case SlDown:
+            if ( reverse )
+                p->setPen( c0 );
+            else
+                p->setPen( c4 );
+            p->drawLine( x1, y2, x1+d, y2+d);
+            if ( reverse )
+                p->setPen( c4 );
+            else
+                p->setPen( c0 );
+            d = w - d - 1;
+            p->drawLine( x2, y2, x2-d, y2+d);
+            d--;
+            if ( reverse )
+                p->setPen( c1 );
+            else
+                p->setPen( c3 );
+            p->drawLine( x1+1, y2, x1+1+d, y2+d );
+            if ( reverse )
+                p->setPen( c3 );
+            else
+                p->setPen( c1 );
+            p->drawLine( x2-1, y2, x2-1-d, y2+d);
+            break;
+        case SlLeft:
+            p->setPen( c4 );
+            p->drawLine( x1, y1, x1-d, y1+d);
+            p->setPen( c0 );
+            d = h - d - 1;
+            p->drawLine( x1, y2, x1-d, y2-d);
+            d--;
+            p->setPen( c3 );
+            p->drawLine( x1, y1+1, x1-d, y1+1+d );
+            p->setPen( c1 );
+            p->drawLine( x1, y2-1, x1-d, y2-1-d);
+            break;
+        case SlRight:
+            p->setPen( c4 );
+            p->drawLine( x2, y1, x2+d, y1+d);
+            p->setPen( c0 );
+            d = h - d - 1;
+            p->drawLine( x2, y2, x2+d, y2-d);
+            d--;
+            p->setPen( c3 );
+            p->drawLine(  x2, y1+1, x2+d, y1+1+d );
+            p->setPen( c1 );
+            p->drawLine( x2, y2-1, x2+d, y2-1-d);
+            break;
     }
 #endif
 }
@@ -1070,13 +1070,13 @@ void QWindowsStyle::drawSlider( QPainter *p,
 */
 void
 QWindowsStyle::drawSliderMask( QPainter *p,
-			int x, int y, int w, int h,
-			Orientation orient, bool tickAbove, bool tickBelow )
+                        int x, int y, int w, int h,
+                        Orientation orient, bool tickAbove, bool tickBelow )
 {
 
     if ( tickAbove && tickBelow || !tickAbove && !tickBelow ) {
-	p->fillRect(x, y, w, h, color1);
-	return;
+        p->fillRect(x, y, w, h, color1);
+        return;
     }
 
     int x1 = x;
@@ -1087,29 +1087,29 @@ QWindowsStyle::drawSliderMask( QPainter *p,
     enum  { SlUp, SlDown, SlLeft, SlRight } dir;
 
     if ( orient == Horizontal )
-	if ( tickAbove )
-	    dir = SlUp;
-	else
-	    dir = SlDown;
+        if ( tickAbove )
+            dir = SlUp;
+        else
+            dir = SlDown;
     else
-	if ( tickAbove )
-	    dir = SlLeft;
-	else
-	    dir = SlRight;
+        if ( tickAbove )
+            dir = SlLeft;
+        else
+            dir = SlRight;
 
     switch ( dir ) {
     case SlUp:
-	y1 = y1 + w/2;
-	break;
+        y1 = y1 + w/2;
+        break;
     case SlDown:
-	y2 = y2 - w/2;
-	break;
+        y2 = y2 - w/2;
+        break;
     case SlLeft:
-	x1 = x1 + h/2;
-	break;
+        x1 = x1 + h/2;
+        break;
     case SlRight:
-	x2 = x2 - h/2;
-	break;
+        x2 = x2 - h/2;
+        break;
     }
 
     QPointArray a;
@@ -1117,16 +1117,16 @@ QWindowsStyle::drawSliderMask( QPainter *p,
     switch ( dir ) {
     case SlUp:
     a.setPoints(5, x1,y1, x1 + w/2, y1 - w/2, x2,y1, x2,y2, x1,y2);
-	break;
+        break;
     case SlDown:
     a.setPoints(5, x1,y1, x2,y1,  x2,y2,  x1 + w/2, y2 + w/2, x1,y2);
-	break;
+        break;
     case SlLeft:
     a.setPoints(5, x1,y1, x2,y1, x2,y2, x1,y2, x1 - h/2, y1 + h/2 );
-	break;
+        break;
     case SlRight:
     a.setPoints(5, x1,y1, x2,y1, x2 + h/2, y1 + h/2,  x2,y2, x1,y2);
-	break;
+        break;
     }
 
 
@@ -1140,19 +1140,19 @@ QWindowsStyle::drawSliderMask( QPainter *p,
 /*!\reimp
  */
 void QWindowsStyle::drawSliderGroove( QPainter *p,
-				      int x, int y, int w, int h,
-				      const QColorGroup& g, QCOORD c,
-				      Orientation orient )
+                                      int x, int y, int w, int h,
+                                      const QColorGroup& g, QCOORD c,
+                                      Orientation orient )
 {
 
     if ( orient == Horizontal ) {
-	qDrawWinPanel( p, x, y + c - 2,  w, 4, g, TRUE );
-	p->setPen( g.shadow() );
-	p->drawLine( x+1, y + c - 1, x + w - 3, y + c - 1 );
+        qDrawWinPanel( p, x, y + c - 2,  w, 4, g, TRUE );
+        p->setPen( g.shadow() );
+        p->drawLine( x+1, y + c - 1, x + w - 3, y + c - 1 );
     } else {
-	qDrawWinPanel( p, x + c - 2, y, 4, h, g, TRUE );
-	p->setPen( g.shadow() );
-	p->drawLine( x + c - 1, y + 1, x + c - 1, y + h - 3 );
+        qDrawWinPanel( p, x + c - 2, y, 4, h, g, TRUE );
+        p->setPen( g.shadow() );
+        p->drawLine( x + c - 1, y + 1, x + c - 1, y + h - 3 );
     }
 
 }
@@ -1177,21 +1177,21 @@ int QWindowsStyle::splitterWidth() const
 */
 
 void QWindowsStyle::drawSplitter( QPainter *p,  int x, int y, int w, int h,
-				  const QColorGroup &g,  Orientation)
+                                  const QColorGroup &g,  Orientation)
 {
-	qDrawWinPanel( p, x, y, w, h, g );
+        qDrawWinPanel( p, x, y, w, h, g );
 }
 
 
 
-static const int windowsItemFrame		= 2;	// menu item frame width
-static const int windowsSepHeight		= 2;	// separator item height
-static const int windowsItemHMargin	= 3;	// menu item hor text margin
-static const int windowsItemVMargin	= 2;	// menu item ver text margin
-static const int windowsArrowHMargin	= 6;	// arrow horizontal margin
-static const int windowsTabSpacing	= 12;	// space between text and tab
-static const int windowsCheckMarkHMargin	= 2;	// horiz. margins of check mark
-static const int windowsRightBorder	= 12;       // right border on windows
+static const int windowsItemFrame               = 2;    // menu item frame width
+static const int windowsSepHeight               = 2;    // separator item height
+static const int windowsItemHMargin     = 3;    // menu item hor text margin
+static const int windowsItemVMargin     = 2;    // menu item ver text margin
+static const int windowsArrowHMargin    = 6;    // arrow horizontal margin
+static const int windowsTabSpacing      = 12;   // space between text and tab
+static const int windowsCheckMarkHMargin        = 2;    // horiz. margins of check mark
+static const int windowsRightBorder     = 12;       // right border on windows
 static const int windowsCheckMarkWidth = 12;       // checkmarks width on windows
 
 /*! \reimp
@@ -1201,7 +1201,7 @@ void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 #ifndef QT_NO_POPUPMENU
     p->setMouseTracking( TRUE );
     if ( !p->testWState( WState_Polished ) )
-	p->setCheckable( TRUE );
+        p->setCheckable( TRUE );
     p->setLineWidth( 2 );
 #endif
 }
@@ -1211,8 +1211,8 @@ void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 /*! \reimp
 */
 void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
-				   const QColorGroup &g,
-				   bool act, bool dis )
+                                   const QColorGroup &g,
+                                   bool act, bool dis )
 {
     const int markW = w > 7 ? 7 : w;
     const int markH = markW;
@@ -1225,25 +1225,25 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
     xx = posX;
     yy = 3 + posY;
     for ( i=0; i<markW/2; i++ ) {
-	a.setPoint( 2*i,   xx, yy );
-	a.setPoint( 2*i+1, xx, yy+2 );
-	xx++; yy++;
+        a.setPoint( 2*i,   xx, yy );
+        a.setPoint( 2*i+1, xx, yy+2 );
+        xx++; yy++;
     }
     yy -= 2;
     for ( ; i<markH; i++ ) {
-	a.setPoint( 2*i,   xx, yy );
-	a.setPoint( 2*i+1, xx, yy+2 );
-	xx++; yy--;
+        a.setPoint( 2*i,   xx, yy );
+        a.setPoint( 2*i+1, xx, yy+2 );
+        xx++; yy--;
     }
     if ( dis && !act ) {
-	int pnt;
-	p->setPen( g.highlightedText() );
-	QPoint offset(1,1);
-	for ( pnt = 0; pnt < (int)a.size(); pnt++ )
-	    a[pnt] += offset;
-	p->drawLineSegments( a );
-	for ( pnt = 0; pnt < (int)a.size(); pnt++ )
-	    a[pnt] -= offset;
+        int pnt;
+        p->setPen( g.highlightedText() );
+        QPoint offset(1,1);
+        for ( pnt = 0; pnt < (int)a.size(); pnt++ )
+            a[pnt] += offset;
+        p->drawLineSegments( a );
+        for ( pnt = 0; pnt < (int)a.size(); pnt++ )
+            a[pnt] -= offset;
     }
     p->setPen( g.text() );
     p->drawLineSegments( a );
@@ -1253,33 +1253,33 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 /*! \reimp
 */
 int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
-					    QMenuItem* mi,
-					    const QFontMetrics& /*fm*/ ) const
+                                            QMenuItem* mi,
+                                            const QFontMetrics& /*fm*/ ) const
 {
 #ifndef QT_NO_POPUPMENU
     int w = 2*windowsItemHMargin + 2*windowsItemFrame; // a little bit of border can never harm
 
     if ( mi->isSeparator() )
-	return 10; // arbitrary
+        return 10; // arbitrary
     else if ( mi->pixmap() )
-	w += mi->pixmap()->width();	// pixmap only
+        w += mi->pixmap()->width();     // pixmap only
 
     if ( !mi->text().isNull() ) {
-	if ( mi->text().find('\t') >= 0 )	// string contains tab
-	    w += windowsTabSpacing;
+        if ( mi->text().find('\t') >= 0 )       // string contains tab
+            w += windowsTabSpacing;
     }
 
     if ( maxpmw ) { // we have iconsets
-	w += maxpmw;
-	w += 6; // add a little extra border around the iconset
+        w += maxpmw;
+        w += 6; // add a little extra border around the iconset
     }
 
     if ( checkable && maxpmw < windowsCheckMarkWidth ) {
-	w += windowsCheckMarkWidth - maxpmw; // space for the checkmarks
+        w += windowsCheckMarkWidth - maxpmw; // space for the checkmarks
     }
 
     if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
-	w += windowsCheckMarkHMargin; // add space to separate the columns
+        w += windowsCheckMarkHMargin; // add space to separate the columns
 
     w += windowsRightBorder; // windows has a strange wide border on the right side
 
@@ -1290,22 +1290,22 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
 /*! \reimp
 */
 int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi,
-					const QFontMetrics& fm ) const
+                                        const QFontMetrics& fm ) const
 {
 #ifndef QT_NO_POPUPMENU
     int h = 0;
-    if ( mi->isSeparator() )			// separator height
-	h = windowsSepHeight;
-    else if ( mi->pixmap() )		// pixmap height
-	h = mi->pixmap()->height() + 2*windowsItemFrame;
-    else					// text height
-	h = fm.height() + 2*windowsItemVMargin + 2*windowsItemFrame;
+    if ( mi->isSeparator() )                    // separator height
+        h = windowsSepHeight;
+    else if ( mi->pixmap() )            // pixmap height
+        h = mi->pixmap()->height() + 2*windowsItemFrame;
+    else                                        // text height
+        h = fm.height() + 2*windowsItemVMargin + 2*windowsItemFrame;
 
     if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
-	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*windowsItemFrame );
+        h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*windowsItemFrame );
     }
     if ( mi->custom() )
-	h = QMAX( h, mi->custom()->sizeHint().height() + 2*windowsItemVMargin + 2*windowsItemFrame );
+        h = QMAX( h, mi->custom()->sizeHint().height() + 2*windowsItemVMargin + 2*windowsItemFrame );
     return h;
 #endif
 }
@@ -1313,10 +1313,10 @@ int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi,
 /*! \reimp
 */
 void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
-				       int tab, QMenuItem* mi,
-				       const QPalette& pal, bool act,
-				       bool enabled,
-				       int x, int y, int w, int h)
+                                       int tab, QMenuItem* mi,
+                                       const QPalette& pal, bool act,
+                                       bool enabled,
+                                       int x, int y, int w, int h)
 {
 #ifndef QT_NO_POPUPMENU
     const QColorGroup & g = pal.active();
@@ -1325,173 +1325,203 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 
     if ( checkable ) {
 #if defined(Q_WS_WIN32)
-	if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 )
-	    maxpmw = QMAX( maxpmw, 16);
+        if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 )
+            maxpmw = QMAX( maxpmw, 16);
 #endif
-	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
+        maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     }
 
-    int checkcol	  =     maxpmw;
+    int checkcol          =     maxpmw;
 
-    if ( mi && mi->isSeparator() ) {			// draw separator
-	p->setPen( g.dark() );
-	p->drawLine( x, y, x+w, y );
-	p->setPen( g.light() );
-	p->drawLine( x, y+1, x+w, y+1 );
-	return;
+    if ( mi && mi->isSeparator() ) {                    // draw separator
+        p->setPen( g.dark() );
+        p->drawLine( x, y, x+w, y );
+        p->setPen( g.light() );
+        p->drawLine( x, y+1, x+w, y+1 );
+        return;
     }
 
     QBrush fill = act? g.brush( QColorGroup::Highlight ) :
-			    g.brush( QColorGroup::Button );
+                            g.brush( QColorGroup::Button );
     p->fillRect( x, y, w, h, fill);
 
     if ( !mi )
-	return;
+        return;
 
     bool reverse = QApplication::reverseLayout();
 
     int xpos = x;
     if ( reverse )
-	xpos += w - checkcol;
+        xpos += w - checkcol;
     if ( mi->isChecked() ) {
-	if ( act && !dis ) {
-	    qDrawShadePanel( p, xpos, y, checkcol, h,
-			     g, TRUE, 1, &g.brush( QColorGroup::Button ) );
-	} else {
-	    qDrawShadePanel( p, xpos, y, checkcol, h,
-			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
-	}
+        if ( act && !dis ) {
+            qDrawShadePanel( p, xpos, y, checkcol, h,
+                             g, TRUE, 1, &g.brush( QColorGroup::Button ) );
+        } else {
+            qDrawShadePanel( p, xpos, y, checkcol, h,
+                             g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
+        }
     } else if ( !act ) {
-	p->fillRect(xpos, y, checkcol , h,
-		    g.brush( QColorGroup::Button ));
+        p->fillRect(xpos, y, checkcol , h,
+                    g.brush( QColorGroup::Button ));
     }
 
-    if ( mi->iconSet() ) {		// draw iconset
-	QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
-	if (act && !dis )
-	    mode = QIconSet::Active;
-	QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
-	int pixw = pixmap.width();
-	int pixh = pixmap.height();
-	if ( act && !dis ) {
-	    if ( !mi->isChecked() )
-		qDrawShadePanel( p, xpos, y, checkcol, h, g, FALSE, 1,
-				 &g.brush( QColorGroup::Button ) );
-	}
-	QRect cr( xpos, y, checkcol, h );
-	QRect pmr( 0, 0, pixw, pixh );
-	pmr.moveCenter( cr.center() );
-	p->setPen( itemg.text() );
-	p->drawPixmap( pmr.topLeft(), pixmap );
+    if ( mi->iconSet() ) {              // draw iconset
+        QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+        if (act && !dis )
+            mode = QIconSet::Active;
+        QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+        int pixw = pixmap.width();
+        int pixh = pixmap.height();
+        if ( act && !dis ) {
+            if ( !mi->isChecked() )
+                qDrawShadePanel( p, xpos, y, checkcol, h, g, FALSE, 1,
+                                 &g.brush( QColorGroup::Button ) );
+        }
+        QRect cr( xpos, y, checkcol, h );
+        QRect pmr( 0, 0, pixw, pixh );
+        pmr.moveCenter( cr.center() );
+        p->setPen( itemg.text() );
+        p->drawPixmap( pmr.topLeft(), pixmap );
 
-	QBrush fill = act? g.brush( QColorGroup::Highlight ) :
-			      g.brush( QColorGroup::Button );
-	int xp;
-	if ( reverse )
-	    xp = x;
-	else
-	    xp = xpos + checkcol + 1;
-	p->fillRect( xp, y, w - checkcol - 1, h, fill);
-    } else  if ( checkable ) {	// just "checking"...
-	int mw = checkcol + windowsItemFrame;
-	int mh = h - 2*windowsItemFrame;
-	if ( mi->isChecked() ) {
-	    int xp = xpos;
-	    if( reverse )
-		xp -= windowsItemFrame;
-	    else
-		xp += windowsItemFrame;
-	    drawCheckMark( p, xp, y+windowsItemFrame, mw, mh, itemg, act, dis );
-	}
+        QBrush fill = act? g.brush( QColorGroup::Highlight ) :
+                              g.brush( QColorGroup::Button );
+        int xp;
+        if ( reverse )
+            xp = x;
+        else
+            xp = xpos + checkcol + 1;
+        p->fillRect( xp, y, w - checkcol - 1, h, fill);
+    } else  if ( checkable ) {  // just "checking"...
+        int mw = checkcol + windowsItemFrame;
+        int mh = h - 2*windowsItemFrame;
+        if ( mi->isChecked() ) {
+            int xp = xpos;
+            if( reverse )
+                xp -= windowsItemFrame;
+            else
+                xp += windowsItemFrame;
+            drawCheckMark( p, xp, y+windowsItemFrame, mw, mh, itemg, act, dis );
+        }
     }
 
     p->setPen( act ? g.highlightedText() : g.buttonText() );
 
     QColor discol;
     if ( dis ) {
-	discol = itemg.text();
-	p->setPen( discol );
+        discol = itemg.text();
+        p->setPen( discol );
     }
 
     int xm = windowsItemFrame + checkcol + windowsItemHMargin;
     if ( reverse )
-	xpos = windowsItemFrame + tab;
+        xpos = windowsItemFrame + tab;
     else
-	xpos += xm;
+        xpos += xm;
 
     if ( mi->custom() ) {
-	int m = windowsItemVMargin;
-	p->save();
-	if ( dis && !act ) {
-	    p->setPen( g.light() );
-	    mi->custom()->paint( p, itemg, act, enabled,
-				 xpos+1, y+m+1, w-xm-tab+1, h-2*m );
-	    p->setPen( discol );
-	}
-	mi->custom()->paint( p, itemg, act, enabled,
-			     x+xm, y+m, w-xm-tab+1, h-2*m );
-	p->restore();
+        int m = windowsItemVMargin;
+        p->save();
+        if ( dis && !act ) {
+            p->setPen( g.light() );
+            mi->custom()->paint( p, itemg, act, enabled,
+                                 xpos+1, y+m+1, w-xm-tab+1, h-2*m );
+            p->setPen( discol );
+        }
+        mi->custom()->paint( p, itemg, act, enabled,
+                             x+xm, y+m, w-xm-tab+1, h-2*m );
+        p->restore();
     }
     QString s = mi->text();
-    if ( !s.isNull() ) {			// draw text
-	int t = s.find( '\t' );
-	int m = windowsItemVMargin;
-	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-	if ( t >= 0 ) {				// draw tab text
-	    int xp;
-	    if( reverse )
-		xp = x + windowsRightBorder+windowsItemHMargin+windowsItemFrame - 1;
-	    else
-		xp = x + w - tab - windowsRightBorder-windowsItemHMargin-windowsItemFrame+1;
-	    if ( dis && !act ) {
-		p->setPen( g.light() );
-		p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
-		p->setPen( discol );
-	    }
-	    p->drawText( xp, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
-	    s = s.left( t );
-	}
-	if ( dis && !act ) {
-	    p->setPen( g.light() );
-	    p->drawText( xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t );
-	    p->setPen( discol );
-	}
-	p->drawText( xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
-    } else if ( mi->pixmap() ) {			// draw pixmap
-	QPixmap *pixmap = mi->pixmap();
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( OpaqueMode );
-	p->drawPixmap( xpos, y+windowsItemFrame, *pixmap );
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( TransparentMode );
+    if ( !s.isNull() ) {                        // draw text
+        int t = s.find( '\t' );
+        int m = windowsItemVMargin;
+        const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+        if ( t >= 0 ) {                         // draw tab text
+            int xp;
+            if( reverse )
+                xp = x + windowsRightBorder+windowsItemHMargin+windowsItemFrame - 1;
+            else
+                xp = x + w - tab - windowsRightBorder-windowsItemHMargin-windowsItemFrame+1;
+            if ( dis && !act ) {
+                p->setPen( g.light() );
+                p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
+                p->setPen( discol );
+            }
+            p->drawText( xp, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+            s = s.left( t );
+        }
+        if ( dis && !act ) {
+            p->setPen( g.light() );
+            p->drawText( xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t );
+            p->setPen( discol );
+        }
+        p->drawText( xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+    } else if ( mi->pixmap() ) {                        // draw pixmap
+        QPixmap *pixmap = mi->pixmap();
+        if ( pixmap->depth() == 1 )
+            p->setBackgroundMode( OpaqueMode );
+        p->drawPixmap( xpos, y+windowsItemFrame, *pixmap );
+        if ( pixmap->depth() == 1 )
+            p->setBackgroundMode( TransparentMode );
     }
-    if ( mi->popup() ) {			// draw sub menu arrow
-	int dim = (h-2*windowsItemFrame) / 2;
-	ArrowType arrow;
-	if ( reverse ) {
-	    arrow = LeftArrow;
-	    xpos = x + windowsArrowHMargin + windowsItemFrame;
-	} else {
-	    arrow = RightArrow;
-	    xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
-	}
-	if ( act ) {
-	    if ( !dis )
-		discol = white;
-	    QColorGroup g2( discol, g.highlight(),
-			    white, white,
-			    dis ? discol : white,
-			    discol, white );
-	    drawArrow( p, arrow, FALSE,
-			       xpos,  y+h/2-dim/2,
-			       dim, dim, g2, TRUE );
-	} else {
-	    drawArrow( p, arrow, FALSE,
-			       xpos,  y+h/2-dim/2,
-			       dim, dim, g, mi->isEnabled() );
-	}
+    if ( mi->popup() ) {                        // draw sub menu arrow
+        int dim = (h-2*windowsItemFrame) / 2;
+        ArrowType arrow;
+        if ( reverse ) {
+            arrow = LeftArrow;
+            xpos = x + windowsArrowHMargin + windowsItemFrame;
+        } else {
+            arrow = RightArrow;
+            xpos = x+w - windowsArrowHMargin - windowsItemFrame - dim;
+        }
+        if ( act ) {
+            if ( !dis )
+                discol = white;
+            QColorGroup g2( discol, g.highlight(),
+                            white, white,
+                            dis ? discol : white,
+                            discol, white );
+            drawArrow( p, arrow, FALSE,
+                               xpos,  y+h/2-dim/2,
+                               dim, dim, g2, TRUE );
+        } else {
+            drawArrow( p, arrow, FALSE,
+                               xpos,  y+h/2-dim/2,
+                               dim, dim, g, mi->isEnabled() );
+        }
     }
 #endif
 }
 
+void QWindowsStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+                                     QMenuItem* mi, QColorGroup& g,
+                                     bool active, bool down, bool hasFocus )
+{
+    QRect r( x, y, w, h );
+    p->fillRect( r, g.brush( QColorGroup::Button ) );
+
+    if ( active || hasFocus ) {
+        QBrush b = g.brush( QColorGroup::Button );
+        if ( active && down )
+            p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+        if ( active && hasFocus )
+            qDrawShadeRect( p, x, y, w, h, g, active && down, 1, 0, &b );
+        if ( active && down ) {
+            r.setRect( x+2, y+2, w-2, h-2 );
+            p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+        }
+    }
+    QCommonStyle::drawMenuBarItem( p, r.left(), r.top(), r.width(), r.height(),
+                                   mi, g, active, down, hasFocus );
+}
+
+/*!
+  \reimpl
+ */
+int QWindowsStyle::menuBarFrameWidth() const
+{
+    return 0;
+}
 #endif
+

@@ -60,15 +60,18 @@ public:
     int defaultFrameWidth() const;
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
-		    int x, int y, int w, int h,
-		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
+                    int x, int y, int w, int h,
+                    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
 
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
-		       int state, bool down = FALSE, bool enabled = TRUE );
+                       int state, bool down = FALSE, bool enabled = TRUE );
 
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
-				 bool on, bool down = FALSE, bool enabled = TRUE );
-    
+                                 bool on, bool down = FALSE, bool enabled = TRUE );
+    int  menuBarFrameWidth() const;
+    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+                          QMenuItem* mi, QColorGroup& g, bool active,
+                          bool down, bool hasFocus );
 };
 
 #endif // QT_NO_STYLE_CDE

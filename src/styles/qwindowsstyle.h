@@ -58,46 +58,46 @@ public:
     virtual ~QWindowsStyle();
 
     void drawButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool sunken = FALSE,
-		     const QBrush *fill = 0 );
+                     const QColorGroup &g, bool sunken = FALSE,
+                     const QBrush *fill = 0 );
     void drawBevelButton( QPainter *p, int x, int y, int w, int h,
-			  const QColorGroup &g, bool sunken = FALSE,
-			  const QBrush *fill = 0 );
+                          const QColorGroup &g, bool sunken = FALSE,
+                          const QBrush *fill = 0 );
 
     void drawFocusRect( QPainter*,
-			const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
+                        const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
 
     void drawPushButton( QPushButton* btn, QPainter *p);
 
     void getButtonShift( int &x, int &y) const;
 
     void drawPanel( QPainter *p, int x, int y, int w, int h,
-		    const QColorGroup &, bool sunken=FALSE,
-		    int lineWidth = 1, const QBrush *fill = 0 );
+                    const QColorGroup &, bool sunken=FALSE,
+                    int lineWidth = 1, const QBrush *fill = 0 );
 
     void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-			 const QColorGroup &,  int lineWidth = 2,
-			 const QBrush *fill = 0 );
+                         const QColorGroup &,  int lineWidth = 2,
+                         const QBrush *fill = 0 );
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
-		    int x, int y, int w, int h,
-		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
+                    int x, int y, int w, int h,
+                    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
 
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
-			int s, bool down = FALSE, bool enabled = TRUE );
+                        int s, bool down = FALSE, bool enabled = TRUE );
 
     QSize exclusiveIndicatorSize() const;
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
-				 bool on, bool down = FALSE, bool enabled = TRUE );
+                                 bool on, bool down = FALSE, bool enabled = TRUE );
     void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
 
 
     void drawComboButton( QPainter *p, int x, int y, int w, int h,
-			  const QColorGroup &g, bool sunken = FALSE,
-			  bool editable = FALSE,
-			  bool enabled = TRUE,
-			  const QBrush *fill = 0 );
+                          const QColorGroup &g, bool sunken = FALSE,
+                          bool editable = FALSE,
+                          bool enabled = TRUE,
+                          const QBrush *fill = 0 );
     QRect comboButtonRect( int x, int y, int w, int h) const;
     QRect comboButtonFocusRect( int x, int y, int w, int h) const;
 
@@ -107,51 +107,55 @@ public:
 
     void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) const;
     void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart,
-				uint controls, uint activeControl );
+                                uint controls, uint activeControl );
 
 
     int sliderLength() const;
     void drawSlider( QPainter *p,
-			     int x, int y, int w, int h,
-			     const QColorGroup &g,
-			     Orientation, bool tickAbove, bool tickBelow);
+                             int x, int y, int w, int h,
+                             const QColorGroup &g,
+                             Orientation, bool tickAbove, bool tickBelow);
     void drawSliderMask( QPainter *p,
-			 int x, int y, int w, int h,
-			 Orientation, bool tickAbove, bool tickBelow);
+                         int x, int y, int w, int h,
+                         Orientation, bool tickAbove, bool tickBelow);
     void drawSliderGroove( QPainter *p,
-			   int x, int y, int w, int h,
-			   const QColorGroup& g, QCOORD c,
-			   Orientation );
+                           int x, int y, int w, int h,
+                           const QColorGroup& g, QCOORD c,
+                           Orientation );
 
     int maximumSliderDragDistance() const;
 
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, Orientation);
+                             const QColorGroup &g, Orientation);
 
     void drawCheckMark( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g,
-			     bool act, bool dis );
+                             const QColorGroup &g,
+                             bool act, bool dis );
     void polishPopupMenu( QPopupMenu* );
 
     int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
-				 const QFontMetrics& fm ) const;
+                                 const QFontMetrics& fm ) const;
     int popupMenuItemHeight( bool checkable, QMenuItem* mi,
-			     const QFontMetrics& fm ) const;
+                             const QFontMetrics& fm ) const;
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab,
-			    QMenuItem* mi, const QPalette& pal, bool act,
-			    bool enabled, int x, int y, int w, int h);
+                            QMenuItem* mi, const QPalette& pal, bool act,
+                            bool enabled, int x, int y, int w, int h);
+
+    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+                          QMenuItem* mi, QColorGroup& g,
+                          bool active, bool down, bool hasFocus = FALSE );
 
     int buttonDefaultIndicatorWidth() const;
-
+    int menuBarFrameWidth() const;
 protected:
     void drawWinShades( QPainter *p,
-			int x, int y, int w, int h,
-			const QColor &c1, const QColor &c2,
-			const QColor &c3, const QColor &c4,
-			const QBrush *fill );
+                        int x, int y, int w, int h,
+                        const QColor &c1, const QColor &c2,
+                        const QColor &c3, const QColor &c4,
+                        const QBrush *fill );
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QWindowsStyle( const QWindowsStyle & );
     QWindowsStyle& operator=( const QWindowsStyle & );
