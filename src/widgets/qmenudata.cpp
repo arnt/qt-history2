@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#97 $
 **
 ** Implementation of QMenuData class
 **
@@ -309,7 +309,7 @@ void QMenuData::setAllDirty( bool dirty )
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that keyboard accerlators in Qt are not application global, but
+  Note that keyboard accelerators in Qt are not application global, but
   bound to a certain toplevel window. Accelerators in QPopupMenu items
   therefore only work for menus that are associated with a certain
   window. This is true for popup menus that live in a menu bar, for
@@ -351,7 +351,7 @@ int QMenuData::insertItem( const QString &text,
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that keyboard accerlators in Qt are not application global, but
+  Note that keyboard accelerators in Qt are not application global, but
   bound to a certain toplevel window. Accelerators in QPopupMenu items
   therefore only work for menus that are associated with a certain
   window. This is true for popup menus that live in a menu bar, for
@@ -393,7 +393,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that keyboard accerlators in Qt are not application global, but
+  Note that keyboard accelerators in Qt are not application global, but
   bound to a certain toplevel window. Accelerators in QPopupMenu items
   therefore only work for menus that are associated with a certain
   window. This is true for popup menus that live in a menu bar, for
@@ -436,7 +436,7 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that keyboard accerlators in Qt are not application global, but
+  Note that keyboard accelerators in Qt are not application global, but
   bound to a certain toplevel window. Accelerators in QPopupMenu items
   therefore only work for menus that are associated with a certain
   window. This is true for popup menus that live in a menu bar, for
@@ -795,7 +795,7 @@ int QMenuData::accel( int id ) const
   menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
   text is formatted differently for different platforms.
 
-  Note that keyboard accerlators in Qt are not application global, but
+  Note that keyboard accelerators in Qt are not application global, but
   bound to a certain toplevel window. Accelerators in QPopupMenu items
   therefore only work for menus that are associated with a certain
   window. This is true for popup menus that live in a menu bar, for
