@@ -783,7 +783,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	doDrag();
 	return;
     }
-    
+
     if ( !(e->state() & LeftButton) )
 	return;
 
@@ -816,8 +816,6 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
     dragScrolling = FALSE;
     if ( d->dndTimer.isActive() || !d->mousePressed ) {
-	deselect();
-	setCursorPosition( xPosToCursorPos( e->x() ) );
 	d->dndTimer.stop();
 	return;
     }
@@ -829,7 +827,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     if ( !d->mousePressed )
 	return;
     d->mousePressed = FALSE;
-    
+
 #if defined(_WS_X11_)
     copy();
 #else
