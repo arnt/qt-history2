@@ -1,11 +1,17 @@
-#include "qbytearray.h"
-#include "qplatformdefs.h"
-
-#ifndef QT_VSNPRINTF
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 /*
- * Revision 12: http://theos.com/~deraadt/snprintf.c
- *
  * Copyright (c) 1997 Theo de Raadt
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +34,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "qbytearray.h"
+#include "qplatformdefs.h"
+
+#ifndef QT_VSNPRINTF
 
 #include <sys/param.h>
 #include <sys/types.h>
@@ -167,4 +178,3 @@ int qsnprintf(char *str, size_t n, const char *fmt, ...)
 
     return ret;
 }
-
