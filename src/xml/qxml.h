@@ -19,6 +19,7 @@
 #include "qfile.h"
 #include "qstring.h"
 #include "qstringlist.h"
+#include "qlist.h"
 #endif // QT_H
 
 #if defined(QT_LICENSE_PROFESSIONAL)
@@ -80,6 +81,8 @@ public:
 
 private:
     QXmlNamespaceSupportPrivate *d;
+
+    friend class QXmlSimpleReader;
 };
 
 
@@ -111,10 +114,11 @@ public:
     void append(const QString &qName, const QString &uri, const QString &localPart, const QString &value);
 
 private:
-    QStringList qnameList;
-    QStringList uriList;
-    QStringList localnameList;
-    QStringList valueList;
+    struct Attribute {
+        QString qname, uri, localname, value;
+    };
+    typedef QList<Attribute> AttributeList;
+    AttributeList attList;
 
     QXmlAttributesPrivate *d;
 };
@@ -265,35 +269,34 @@ private:
     int   lineNr; // number of line
     int   columnNr; // position in line
 
-    int     namePos;
     QChar   nameArray[256]; // only used for names
     QString nameValue; // only used for names
-    int     refPos;
+    int     nameArrayPos;
+    int     nameValueLen;
     QChar   refArray[256]; // only used for references
     QString refValue; // only used for references
-    int     stringPos;
+    int     refArrayPos;
+    int     refValueLen;
     QChar   stringArray[256]; // used for any other strings that are parsed
     QString stringValue; // used for any other strings that are parsed
+    int     stringArrayPos;
+    int     stringValueLen;
+    QString emptyStr;
 
     QXmlSimpleReaderPrivate* d;
 
-    // inlines
-    bool is_S(const QChar&);
-    bool is_NameBeginning(const QChar&);
-    bool is_NameChar(const QChar&);
-
-    QString& string();
+    const QString &string();
     void stringClear();
     void stringAddC();
-    void stringAddC(const QChar&);
-    QString& name();
+    void stringAddC(QChar);
+    const QString &name();
     void nameClear();
     void nameAddC();
-    void nameAddC(const QChar&);
-    QString& ref();
+    void nameAddC(QChar);
+    const QString &ref();
     void refClear();
     void refAddC();
-    void refAddC(const QChar&);
+    void refAddC(QChar);
 
     // used by parseReference() and parsePEReference()
     enum EntityRecognitionContext { InContent, InAttributeValue, InEntityValue, InDTD };
@@ -302,7 +305,7 @@ private:
     bool eat_ws();
     bool next_eat_ws();
 
-    void next();
+    void QT_FASTCALL next();
     bool atEnd();
 
     void init(const QXmlInputSource* i);
@@ -492,38 +495,15 @@ private:
 // inlines
 //
 
-inline bool QXmlSimpleReader::is_S(const QChar& ch)
-{
-    return ch == QLatin1Char(' ') 
-        || ch == QLatin1Char('\t') 
-        || ch == QLatin1Char('\n') 
-        || ch == QLatin1Char('\r');
-}
-inline bool QXmlSimpleReader::is_NameBeginning(const QChar& ch)
-{
-    return ch == QLatin1Char('_') || ch == QLatin1Char(':') ||
-        ch.isLetter() || // ### Category Lm is not allowed
-        ch.category()==QChar::Number_Letter;
-}
-inline bool QXmlSimpleReader::is_NameChar(const QChar& ch)
-{
-    return ch == QLatin1Char('.') 
-        || ch == QLatin1Char('-') 
-        || ch == QLatin1Char('_') 
-        || ch == QLatin1Char(':')
-        || ch.isLetterOrNumber() // ### Category No is not allowed
-        || ch.isMark();
-}
-
 inline bool QXmlSimpleReader::atEnd()
 { return (c.unicode()|0x0001) == 0xffff; }
 
 inline void QXmlSimpleReader::stringClear()
-{ stringValue = QString::null; stringPos = 0; }
+{ stringValueLen = 0; stringArrayPos = 0; }
 inline void QXmlSimpleReader::nameClear()
-{ nameValue = QString::null; namePos = 0; }
+{ nameValueLen = 0; nameArrayPos = 0; }
 inline void QXmlSimpleReader::refClear()
-{ refValue = QString::null; refPos = 0; }
+{ refValueLen = 0; refArrayPos = 0; }
 
 inline int QXmlAttributes::count() const
 { return length(); }
