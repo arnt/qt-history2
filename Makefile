@@ -64,7 +64,7 @@ sub-examples: sub-src $(FORCEDEP)
 
 clean:
 	cd qmake
-	$(MAKE) clean
+	$(MAKE) -f $(QMFILE) clean
 	cd ..\tools
 	$(MAKE) clean
 	cd ..\src
