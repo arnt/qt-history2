@@ -21,24 +21,26 @@ class QPlugIn : public QObject, public QPlugInInterface
 
 public:
     enum LibraryPolicy
-    { DefaultPolicy,
-      OptimizeSpeed,
-      OptimizeMemory,
-      ManualPolicy
+    { 
+	Default,
+	OptimizeSpeed,
+	OptimizeMemory,
+	Manual
     };
 
-    QPlugIn( const QString& filename, LibraryPolicy = DefaultPolicy );
+    QPlugIn( const QString& filename, LibraryPolicy = Default );
     virtual ~QPlugIn();
 
     bool load();
-    void unload( bool = FALSE );
+    bool unload( bool = FALSE );
 
     void setPolicy( LibraryPolicy pol );
     LibraryPolicy policy() const;
 
     QString library() const;
     QString name();
-    QString description();    
+    QString description();
+    QString author();
 
 signals:
     void loaded();
@@ -81,8 +83,8 @@ template<class Type>
 class QPlugInManager : public QObject
 {
 public:
-    QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::DefaultPolicy )
-    : QObject( qApp, "qt_plugin_manager_"+path.utf8() ), defPol( pol )
+    QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
+    : QObject( qApp, path ), defPol( pol )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );

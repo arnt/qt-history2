@@ -53,9 +53,12 @@ QPlugIn::~QPlugIn()
 }
 
 /*!
-  Loads the shared library and initializes function pointers. This function
-  gets called automatically if the policy is not ManualPolicy. Otherwise you
-  have to make sure that the library has been loaded before usage.
+  Loads the shared library and initializes function pointers. Calls the
+  onConnect routine and returns TRUE if the library was loaded successfully,
+  otherwise does nothing and returns FALSE.
+
+  This function gets called automatically if the policy is not ManualPolicy. 
+  Otherwise you have to make sure that the library has been loaded before usage.
 
   \sa setPolicy()
 */
@@ -67,17 +70,19 @@ bool QPlugIn::load()
     if ( !pHnd ) {
 #if defined(_WS_WIN_)
 	pHnd = LoadLibraryA( libfile );  //### use LoadLibrary for NT_based systems
-	ConnectProc c = (ConnectProc) GetProcAddress( pHnd, "onConnect" );
-	if ( c )
-	    if ( !c( qApp ) )
-		return FALSE;
 #elif defined(_WS_X11_)
-	pHnd = dlopen( libfile, (libPol == DefaultPolicy) ? RTLD_LAZY : RTLD_NOW );
+	pHnd = dlopen( libfile, RTLD_NOW );
+#endif
+	if ( !pHnd )
+	    return FALSE;
+#if defined(_WS_WIN_)
+	ConnectProc c = (ConnectProc) GetProcAddress( pHnd, "onConnect" );
+#elif defined(_WS_X11_)
 	ConnectProc c = (ConnectProc) dlsym( pHnd, "onConnect" );
+#endif
 	if( c )
 	    if ( !c(  qApp ) )
 		return FALSE;
-#endif
 	emit loaded();
     }
 
@@ -87,14 +92,17 @@ bool QPlugIn::load()
 }
 
 /*!
-  Unloads the library if there are no more references.
+  Unloads the library if there are no more references. Calls the library's
+  onDisconnect routine and returns TRUE if the library was unloaded. Does
+  nothing and returns FALSE otherwise.
+
   If \a force is set to TRUE, the library gets unloaded
   at any cost, which is in most cases a segmentation fault,
   so you should know what you're doing!
 
   \sa load, guard
 */
-void QPlugIn::unload( bool force )
+bool QPlugIn::unload( bool force )
 {
     if ( pHnd ) {
 	if ( count ) {
@@ -102,7 +110,7 @@ void QPlugIn::unload( bool force )
 	    qWarning("Library is still used!");
 #endif
 	    if ( !force )
-		return;
+		return FALSE;
 	}
 	delete ifc;
 	ifc = 0;
@@ -111,18 +119,19 @@ void QPlugIn::unload( bool force )
 	ConnectProc dc = (ConnectProc) GetProcAddress( pHnd, "onDisconnect" );
 	if ( dc )
 	    if ( !dc( qApp ) )
-		return;
+		return FALSE;
 	FreeLibrary( pHnd );
 #else
 	ConnectProc dc = (ConnectProc) dlsym( pHnd, "onDisconnect" );
 	if ( dc )
 	    if( !dc( qApp ) )
-		return;
+		return FALSE;
 	dlclose( pHnd );
 #endif	
 	emit unloaded();
     }
     pHnd = 0;
+    return TRUE;
 }
 
 /*! \internal
@@ -199,10 +208,12 @@ QString QPlugIn::library() const
 bool QPlugIn::use()
 {
     if ( !pHnd ) {
-	if ( libPol != ManualPolicy )
+	if ( libPol != Manual )
 	    return load();
+#ifdef CHECK_RANGE
 	else
 	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
+#endif
     }
 
     return TRUE;
@@ -215,7 +226,7 @@ bool QPlugIn::use()
 */
 void QPlugIn::unuse()
 {
-    if ( libPol == OptimizeMemory  && !count )
+    if ( libPol == OptimizeMemory && !count )
 	unload();
 }
 
@@ -259,6 +270,18 @@ QString QPlugIn::name()
   Calls the library's description() function and returns the result.
 */
 QString QPlugIn::description()
+{
+    use();
+    QString str = iface()->description();
+    unuse();
+
+    return str;
+}
+
+/*!
+  Calls the library's author() function and returns the result.
+*/
+QString QPlugIn::author()
 {
     use();
     QString str = iface()->description();

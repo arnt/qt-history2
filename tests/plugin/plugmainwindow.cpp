@@ -1,7 +1,5 @@
 #include "plugmainwindow.h"
-#include "qwidgetfactory.h"
-#include "qactionfactory.h"
-#include "qdefaultplugin.h"
+#include "qwidgetplugin.h"
 
 #include <qpopupmenu.h>
 #include <qmenubar.h>
@@ -12,6 +10,7 @@
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
+#include <qstatusbar.h>
 
 PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 : QMainWindow( parent, name, f ), menuIDs( 53 )
@@ -61,9 +60,9 @@ void PlugMainWindow::fileOpen()
 	return;
 
     // creating all available widgets and adding them to the little test scenario
-    QDefaultPlugIn* plugin = 0;
+    QWidgetPlugIn* plugin = 0;
     if ( !manager ) {
-	manager = new QDefaultPlugInManager();
+	manager = new QWidgetPlugInManager( QString::null, QPlugIn::OptimizeMemory );
 	plugin = manager->addLibrary( file );
 	if ( plugin ) {
 	    QWidgetFactory::installWidgetFactory( manager );
@@ -78,6 +77,8 @@ void PlugMainWindow::fileOpen()
     if ( !plugin ) {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;
+    } else {
+	statusBar()->message( tr("Plugin \"%1\" loaded").arg( ((QPlugIn*)plugin)->name() ), 3000 );
     }
 
     QStringList wl = plugin->widgets();
@@ -112,7 +113,13 @@ void PlugMainWindow::fileClose()
     QHBoxLayout hl( &dialog );
     hl.setSpacing( 6 );
     hl.setMargin( 10 );
-    QListBox box( &dialog );
+    QListView box( &dialog );
+    box.setRootIsDecorated( TRUE );
+    box.addColumn( "Name" );
+    box.addColumn( "Description" );
+    box.addColumn( "Author" );
+    box.addColumn( "File" );
+
     QVBox v( &dialog );
     ((QVBoxLayout*)v.layout())->addStretch();
     hl.addWidget( &box );
@@ -120,23 +127,50 @@ void PlugMainWindow::fileClose()
     QPushButton ok( "&Ok", &v );
     connect( &ok, SIGNAL( clicked() ), &dialog, SLOT( accept() ) );
 
-    box.insertStringList( manager->libraryList() );
+    QList<QPlugIn> pl = manager->plugInList();
+    QListIterator<QPlugIn> it( pl );
+    while ( it.current() ) {
+	QWidgetPlugIn* p = (QWidgetPlugIn*)pl.current();
+	QListViewItem* item = new QListViewItem( &box, ((QPlugIn*)p)->name(), ((QPlugIn*)p)->description(), 
+	    ((QPlugIn*)p)->author(), ((QPlugIn*)p)->library() );
+	QStringList wl = p->widgets();
+	for ( uint i = 0; i < wl.count(); i++ ) {
+	    new QListViewItem( item, wl[i] );
+	}
+	++it;
+    }    
 
-    if ( dialog.exec() ) {
-	QString file = box.currentText();
-	QDefaultPlugIn* plugin = (QDefaultPlugIn*)manager->plugInFromFile( file );
+    if ( dialog.exec() && box.currentItem() ) {
+	QListViewItem* item = box.currentItem();
+	while ( item->parent() ) 
+	    item = item->parent();
+
+	QString file = item->text( 3 );
+	QWidgetPlugIn* plugin = (QWidgetPlugIn*)manager->plugInFromFile( file );
+        QString info;
 	if ( plugin ) {
-	    QStringList wl = plugin->widgets();
-	    for ( uint i = 0; i < wl.count(); i++ ) {
-		QString w = wl[i];
-		int* id = menuIDs[w];
-		if ( id )
-		    widgetMenu->removeItem( *id );
-		menuIDs.remove( w );
+	    // Make sure to have a deep copy of the string, else it
+	    // would be corrupted with the unloading of the library
+	    // Also make sure the stringlist is deleted before the
+	    // plugin is unloaded for the same reason 
+	    // (the data is part of the library)
+	    info = QString( "\"%1\"").arg( ((QPlugIn*)plugin)->name() );
+	    {
+		QStringList wl = plugin->widgets();
+		for ( uint i = 0; i < wl.count(); i++ ) {
+		    QString w = wl[i];
+		    int* id = menuIDs[w];
+		    if ( id )
+			widgetMenu->removeItem( *id );
+		    menuIDs.remove( w );
+		}
 	    }
 	}
-	if ( !manager->removeLibrary( file ) )
+	if ( !manager->removeLibrary( file ) ) {
 	    QMessageBox::information( this, "Error", tr("Couldn't unload library\n%1").arg( file ) );
+	} else {
+	    statusBar()->message( tr("Plugin %1 unloaded").arg( info ), 3000 );
+	}
     }
 }
 

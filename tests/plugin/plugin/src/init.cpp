@@ -1,10 +1,12 @@
 #include "previewstack.h"
 #include "styledbutton.h"
-#include "../../qdefaultinterface.h"
+#include "../../qwidgetinterface.h"
+#include <qapplication.h>
 
 #include <qworkspace.h>
 #include <qscrollview.h>
 #include <qtable.h>
+#include <qiconview.h>
 
 #ifdef _WS_WIN_
 #undef LIBEXPORT
@@ -13,7 +15,7 @@
 #define LIBEXPORT
 #endif
 
-class TestInterface : public QDefaultInterface
+class TestInterface : public QWidgetInterface
 {
 public:
     QString name() { return "Test Interface"; }
@@ -35,26 +37,32 @@ QStringList TestInterface::widgets()
     QStringList w;
 
     w << "StyledButton";
-    w << "QTable";
+    w << "MyTable";
     w << "MyScrollView";
     w << "MyWorkspace";
+    w << "MyIconView";
     
     return w;
 }
+
+QObject cleanupHandler;
 
 QWidget* TestInterface::create( const QString &classname, QWidget* parent, const char* name )
 {
     if ( classname == "StyledButton" )
 	return new StyledButton( parent, name );
-    else if ( classname == "QTable" )
+    else if ( classname == "MyTable" )
 	return new QTable( parent, name );
     else if ( classname == "MyScrollView" )
 	return new QScrollView( parent, name );
-    else if (classname == "MyWorkspace" )
+    else if ( classname == "MyWorkspace" )
 	return new QWorkspace( parent, name );
+    else if ( classname == "MyIconView" )
+	return new QIconView( parent, name );
     else
 	return 0;
 }
+
 /*
 QString TestInterface::iconSet( const QString& classname )
 {
@@ -115,7 +123,7 @@ extern "C"
 {
 #endif
 
-LIBEXPORT QDefaultInterface* loadInterface()
+LIBEXPORT QWidgetInterface* loadInterface()
 {
     return new TestInterface();
 }

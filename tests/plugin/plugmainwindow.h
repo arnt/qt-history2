@@ -6,7 +6,7 @@
 
 class QHBox;
 class QScrollView;
-class QDefaultPlugInManager;
+class QWidgetPlugInManager;
 class QPopupMenu;
 
 class PlugMainWindow : public QMainWindow
@@ -26,7 +26,7 @@ protected:
     QPopupMenu* widgetMenu;
     QHBox *box;
     QScrollView *sv;
-    QDefaultPlugInManager* manager;
+    QWidgetPlugInManager* manager;
 
 private:
     QDict<int> menuIDs;
