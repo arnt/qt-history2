@@ -94,6 +94,7 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(const QPaintDevice *pdev)
+    : QPaintEngine(GCCaps(CoordTransform | PenWidthTransform | PixmapTransform | UsesFontEngine))
 {
     d = new QQuickDrawPaintEnginePrivate;
     d->pdev = const_cast<QPaintDevice*>(pdev);
@@ -713,12 +714,6 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     if(d->clip.paintable.isEmpty())
 	return;
     unclippedBitBlt(d->pdev, r.x(), r.y(), &pixmap, sr.x(), sr.y(), sr.width(), sr.height(), (RasterOp)d->current.rop, false, false);
-}
-
-void
-QQuickDrawPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
-{
-    ti.fontEngine->draw(this, p.x(), p.y(), ti, textflags);
 }
 
 Qt::HANDLE
@@ -1680,12 +1675,6 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
 	return;
     qDebug("Must implement (correct) drawPixmap!!");
     bitBlt(d->pdev, r.x(), r.y(), &pm, sr.x(), sr.y(), sr.width(), sr.height(), CopyROP, false);
-}
-
-void
-QCoreGraphicsPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
-{
-    ti.fontEngine->draw(this, p.x(), p.y(), ti, textflags);
 }
 
 Qt::HANDLE
