@@ -150,6 +150,8 @@ public:
     QRect cursorRect(const QTextCursor &cursor) const;
     QRect cursorRect() const;
 
+    QString anchorAt(const QPoint& pos) const;
+
 public slots:
     void setFontPointSize(qreal s);
     void setFontFamily(const QString &fontFamily);

@@ -2119,6 +2119,17 @@ QRect QTextEdit::cursorRect() const
     return cursorRect(d->cursor);
 }
 
+
+/*!
+    Returns the reference of the anchor at the given \a position, or an empty
+    string if no anchor exists at that point.
+*/
+QString QTextEdit::anchorAt(const QPoint& pos) const
+{
+    Q_D(const QTextEdit);
+    return d->doc->documentLayout()->anchorAt(d->translateCoordinates(pos));
+}
+
 /*!
     This function returns a new MIME data object to represent the contents
     of the text edit's current selection. It is called when the selection needs
