@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#369 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#370 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3127,11 +3127,11 @@ void QFileDialog::newFolderClicked()
 
 void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 {
+    resortDir();
     if ( d->moreFiles->isVisible() ) {
 	for ( uint i = 0; i < d->moreFiles->count(); ++i ) {
 	    if ( d->moreFiles->text( i ) == info.name() ) {
 		d->moreFiles->setCurrentItem( i );
-		resortDir();
 		d->moreFiles->startRename( FALSE );
 		break;
 	    }
@@ -3142,7 +3142,6 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 	    if ( item->text( 0 ) == info.name() ) {
 		files->setSelected( item, TRUE );
 		files->setCurrentItem( item );
-		resortDir();
 		files->startRename( FALSE );
 		break;
 	    }
