@@ -332,12 +332,13 @@ bool P4Interface::initialize( QApplicationInterface* appIface )
     DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
 
-    if ( ( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) &&
-	( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) ) {
-	flIface->requestConnect( SIGNAL( selectionChanged() ), this, SLOT(formChanged() ) );
-	fwIface->requestConnect( SIGNAL( modificationChanged( bool, const QString & ) ), 
-				 this, SLOT( p4MightEdit( bool, const QString & ) ) );
-    }
+    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
+	!( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+	return FALSE;
+
+    flIface->requestConnect( SIGNAL( selectionChanged() ), this, SLOT(formChanged() ) );
+    fwIface->requestConnect( SIGNAL( modificationChanged( bool, const QString & ) ), 
+			     this, SLOT( p4MightEdit( bool, const QString & ) ) );
     P4Init* init = new P4Init;
     return init->execute();
 }
@@ -422,10 +423,8 @@ void P4Interface::p4Sync()
 {
     if ( !appInterface )
 	return;
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Sync *sync = new P4Sync( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -438,10 +437,8 @@ void P4Interface::p4Edit()
 {
     if ( !appInterface )
 	return;
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), TRUE );
@@ -454,10 +451,8 @@ void P4Interface::p4Submit()
 {
     if ( !appInterface )
 	return;
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Submit *submit = new P4Submit( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -470,10 +465,8 @@ void P4Interface::p4Revert()
 {
     if ( !appInterface )
 	return;
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Revert *revert = new P4Revert( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -487,10 +480,8 @@ void P4Interface::p4Add()
 {
     if ( !appInterface )
 	return;
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Add *add = new P4Add( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -503,10 +494,8 @@ void P4Interface::p4Delete()
 {
     if ( !appInterface )
 	return;
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Delete *del = new P4Delete( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -519,10 +508,8 @@ void P4Interface::p4Diff()
 {
     if ( !appInterface )
 	return;
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     P4Diff *diff = new P4Diff( fwIface->requestProperty( "fileName" ).toString().latin1() );
@@ -570,10 +557,8 @@ void P4Interface::p4MightEdit( bool b, const QString &filename )
 
 void P4Interface::formChanged()
 {
-    DesignerFormListInterface *flIface = 0;
     DesignerActiveFormWindowInterface *fwIface = 0;
-    if ( !( flIface = (DesignerFormListInterface*)appInterface->queryInterface( "DesignerFormListInterface" ) ) ||
-	 !( fwIface = (DesignerActiveFormWindowInterface*)flIface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
+    if ( !( fwIface = (DesignerActiveFormWindowInterface*)appInterface->queryInterface( "DesignerActiveFormWindowInterface" ) ) )
 	return;
 
     QString filename = fwIface->requestProperty( "fileName" ).toString();
@@ -686,10 +671,8 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 
 void P4Interface::statusMessage( const QString &text )
 {
-    DesignerStatusBarInterface *mwIface = 0;
     DesignerStatusBarInterface *sbIface = 0;
-    if ( ( mwIface = (DesignerMainWindowInterface*)appInterface->queryInterface( "DesignerMainWindowInterface" ) ) &&
-	 ( sbIface = (DesignerStatusBarInterface*)mwIface->queryInterface( "DesignerStatusBarInterface" ) ) )
+    if ( ( sbIface = (DesignerStatusBarInterface*)appInterface->queryInterface( "DesignerStatusBarInterface" ) ) )
 	sbIface->requestSetProperty( "message", text );
 }
 
