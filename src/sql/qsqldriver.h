@@ -58,8 +58,6 @@
 
 class QSqlDriverExtension;
 
-extern QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
-
 class QSqlDatabase;
 
 class QM_EXPORT_SQL QSqlDriver : public QObject

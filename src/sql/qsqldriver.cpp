@@ -47,7 +47,7 @@
 #define DBState_OpenError	0x0002
 
 // ### This needs to go in 4.0!
-QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
+Q_EXPORT QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict = 0;
 
 /*!
     \class QSqlDriver qsqldriver.h

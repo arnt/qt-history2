@@ -56,6 +56,12 @@
 #endif
 #include <math.h>
 
+extern
+#if defined (QT_PLUGIN)
+Q_EXPORT
+#endif
+QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
+
 class QPSQLPrivate
 {
 public:
