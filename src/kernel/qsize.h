@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#13 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#14 $
 **
 ** Definition of QSize class
 **
@@ -33,6 +33,7 @@ public:
     int	   height()	const;
     void   setWidth( int w );
     void   setHeight( int h );
+    void   transpose();
 
     QCOORD &rwidth();
     QCOORD &rheight();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#19 $
 **
 ** Implementation of QSize class
 **
@@ -13,7 +13,7 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#19 $");
 
 
 /*!
@@ -84,6 +84,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#18 $");
   Sets the height to \e h.
   \sa height(), setWidth()
 */
+
+/*!
+  Swaps the values of width and height.
+*/
+
+void QSize::transpose()
+{
+    QCOORD tmp = wd;
+    wd = ht;
+    ht = tmp;
+}
 
 /*!
   \fn QCOORD &QSize::rwidth()
@@ -295,3 +306,5 @@ QDataStream &operator>>( QDataStream &s, QSize &sz )
     s >> h;  sz.rheight() = h;
     return s;
 }
+
+
