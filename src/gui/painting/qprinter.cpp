@@ -34,6 +34,12 @@
 
 #define d d_func()
 
+#define ABORT_IF_ACTIVE(location) \
+    if (d->printEngine->printerState() != QPrinter::Active) { \
+        qWarning("%s, cannot be changed while printer is active", location); \
+        return; \
+    }
+
 /*!
   \class QPrinter qprinter.h
   \brief The QPrinter class is a paint device that paints on a printer.
@@ -372,6 +378,7 @@ QString QPrinter::printerName() const
 */
 void QPrinter::setPrinterName(const QString &name)
 {
+    ABORT_IF_ACTIVE("QPrinter::setPrinterName()");
     d->printEngine->setProperty(QPrintEngine::PPK_PrinterName, name);
 }
 
@@ -426,7 +433,7 @@ QString QPrinter::outputFileName() const
 
 void QPrinter::setOutputFileName(const QString &fileName)
 {
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
+    ABORT_IF_ACTIVE("QPrinter::setOutputFileName()");
     d->printEngine->setProperty(QPrintEngine::PPK_OutputFileName, fileName);
 }
 
@@ -460,7 +467,7 @@ QString QPrinter::printProgram() const
 */
 void QPrinter::setPrintProgram(const QString &printProg)
 {
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
+    ABORT_IF_ACTIVE("QPrinter::setPrintProgram()");
     d->printEngine->setProperty(QPrintEngine::PPK_PrinterProgram, printProg);
 }
 
@@ -481,7 +488,7 @@ QString QPrinter::docName() const
 */
 void QPrinter::setDocName(const QString &name)
 {
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
+    ABORT_IF_ACTIVE("QPrinter::setDocName()");
     d->printEngine->setProperty(QPrintEngine::PPK_DocumentName, name);
 }
 
@@ -509,7 +516,7 @@ QString QPrinter::creator() const
 */
 void QPrinter::setCreator(const QString &creator)
 {
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
+    ABORT_IF_ACTIVE("QPrinter::setCreator");
     d->printEngine->setProperty(QPrintEngine::PPK_Creator, creator);
 }
 
@@ -574,15 +581,12 @@ QPrinter::PageSize QPrinter::pageSize() const
 
 void QPrinter::setPageSize(PageSize newPageSize)
 {
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
+    ABORT_IF_ACTIVE("QPrinter::setPageSize()");
     if (newPageSize > NPageSize) {
         qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize);
         return;
     }
     d->printEngine->setProperty(QPrintEngine::PPK_PageSize, newPageSize);
-    // #if defined(Q_WS_WIN)
-    //     reinit();
-    // #endif
 }
 
 /*!
@@ -598,11 +602,8 @@ void QPrinter::setPageSize(PageSize newPageSize)
 
 void QPrinter::setPageOrder(PageOrder pageOrder)
 {
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
+    ABORT_IF_ACTIVE("QPrinter::setPageOrder()");
     d->printEngine->setProperty(QPrintEngine::PPK_PageOrder, pageOrder);
-    // #if defined(Q_WS_WIN)
-    //     reinit();
-    // #endif
 }
 
 
@@ -627,7 +628,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 
 void QPrinter::setColorMode(ColorMode newColorMode)
 {
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
+    ABORT_IF_ACTIVE("QPrinter::setColorMode()");
     d->printEngine->setProperty(QPrintEngine::PPK_ColorMode, newColorMode);
 }
 
@@ -674,7 +675,8 @@ int QPrinter::numCopies() const
 
 void QPrinter::setNumCopies(int numCopies)
 {
-   d->printEngine->setProperty(QPrintEngine::PPK_NumberOfCopies, numCopies);
+    ABORT_IF_ACTIVE("QPrinter::setNumCopies()");
+    d->printEngine->setProperty(QPrintEngine::PPK_NumberOfCopies, numCopies);
 }
 
 
@@ -704,6 +706,7 @@ bool QPrinter::collateCopies() const
 */
 void QPrinter::setCollateCopies(bool collate)
 {
+    ABORT_IF_ACTIVE("QPrinter::setCollateCopies()");
     d->printEngine->setProperty(QPrintEngine::PPK_CollateCopies, collate);
 }
 
@@ -768,7 +771,7 @@ bool QPrinter::fullPage() const
 
 void QPrinter::setResolution(int dpi)
 {
-    Q_ASSERT(d->printEngine->printerState() != Active);
+    ABORT_IF_ACTIVE("QPrinter::setResolution()");
     d->printEngine->setProperty(QPrintEngine::PPK_Resolution, dpi);
 }
 
@@ -872,6 +875,7 @@ QPaintEngine *QPrinter::paintEngine() const
 */
 void QPrinter::setWinPageSize(int pageSize)
 {
+    ABORT_IF_ACTIVE("QPrinter::setWinPageSize()");
     d->printEngine->setProperty(QPrintEngine::PPK_WindowsPageSize, pageSize);
 }
 
@@ -1090,7 +1094,7 @@ HDC QPrinter::getDC() const
 
     \internal
 */
-void QPrinter::releaseDC(HDC hdc)
+void QPrinter::releaseDC(HDC hdc) const
 {
     d->printEngine->releaseDC(hdc);
 }

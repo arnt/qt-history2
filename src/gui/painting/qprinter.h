@@ -137,7 +137,7 @@ public:
 
 #ifdef Q_WS_WIN
     HDC getDC() const;
-    void releaseDC(HDC hdc);
+    void releaseDC(HDC hdc) const;
 #endif
 
 #if defined (QT3_SUPPORT)
