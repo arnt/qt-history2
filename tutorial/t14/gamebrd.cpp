@@ -79,7 +79,7 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     hits->setGeometry( 130, 10, 40, 30 );
     hitsL->setGeometry( hits->x() + hits->width() + 5, 10, 60, 30 );
     shotsLeft->setGeometry( 240, 10, 40, 30 );
-    shotsLeftL->setGeometry( shotsLeft->x()+shotsLeft->width()+5, 10, 60, 30 );
+    shotsLeftL->setGeometry( shotsLeft->x()+shotsLeft->width()+5, 10, 70, 30 );
 
     newGame();
 }
