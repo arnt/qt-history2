@@ -484,7 +484,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     QtTextOptions to(&paper() );
     to.offsetx = ox;
     to.offsety = oy;
-    
+
     QRegion r(cx-ox, cy-oy, cw, ch);
 
     QtTextCursor tc( richText() );
@@ -803,184 +803,20 @@ void QtTextEdit::keyPressEvent( QKeyEvent * e )
     ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
     showCursor();
 
-//     if (e->key() == Key_Plus)
-// 	exit(2); // profiling
-
-    /*
-    hideCursor();
-    bool select = e->state() & Qt::ShiftButton;
-#define CLEARSELECT if (!select) {cursor->clearSelection();updateSelection();}
-
-
-    if (e->key() == Key_Right
-	|| e->key() == Key_Left
-	|| e->key() == Key_Up
-	|| e->key() == Key_Down
-	|| e->key() == Key_Home
-	|| e->key() == Key_End
-	|| e->key() == Key_PageUp
-	|| e->key() == Key_PageDown
-	) {
-	// cursor movement
-	CLEARSELECT
-	    QtTextRow*  oldCursorRow = cursor->row;
-	bool ensureVisibility = TRUE;
-	{
-	    QPainter p( viewport() );
-	    switch (e->key()) {
-	    case Key_Right:
-		cursor->right(&p, select);
-		p.end();
-		break;
-	    case Key_Left:
-		cursor->left(&p, select);
-		p.end();
-		break;
-	    case Key_Up:
-		cursor->up(&p, select);
-		p.end();
-		break;
-	    case Key_Down:
-		cursor->down(&p, select);
-		p.end();
-		break;
-	    case Key_Home:
-		cursor->home(&p, select);
-		p.end();
-		break;
-	    case Key_End:
-		cursor->last(&p, select);
-		p.end();
-		break;
-	    case Key_PageUp:
-		p.end();
-		ensureVisibility = FALSE;
-		{
-		    int oldContentsY = contentsY();
-		    if (!cursor->ylineOffsetClean)
-			cursor->yline-=oldContentsY;
-		    scrollBy( 0, -visibleHeight() );
-		    if (oldContentsY == contentsY() )
-			break;
-		    p.begin(viewport());
-		    int oldXline = cursor->xline;
-		    int oldYline = cursor->yline;
-		    cursor->goTo( &p, oldXline, oldYline +  1 + contentsY(), select);
-		    cursor->xline = oldXline;
-		    cursor->yline = oldYline;
-		    cursor->ylineOffsetClean = TRUE;
-		    p.end();
-		}
-		break;
-	    case Key_PageDown:
-		p.end();
-		ensureVisibility = FALSE;
-		{
-		    int oldContentsY = contentsY();
-		    if (!cursor->ylineOffsetClean)
-			cursor->yline-=oldContentsY;
-		    scrollBy( 0, visibleHeight() );
-		    if (oldContentsY == contentsY() )
-			break;
-		    p.begin(viewport());
-		    int oldXline = cursor->xline;
-		    int oldYline = cursor->yline;
-		    cursor->goTo( &p, oldXline, oldYline + 1 + contentsY(), select);
-		    cursor->xline = oldXline;
-		    cursor->yline = oldYline;
-		    cursor->ylineOffsetClean = TRUE;
-		    p.end();
-		}
-		break;
-	    }
-	}
-	if (cursor->row == oldCursorRow)
-	    updateSelection(cursor->rowY, cursor->rowY);
-	else
-	    updateSelection();
-	if (ensureVisibility) {
-	    ensureVisible(cursor->x, cursor->y);
-	}
-	showCursor();
-    }
-    else {
-	
-	if (e->key() == Key_Return || e->key() == Key_Enter ) {
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    for (int i = 0; i < QMIN(4, e->count()); i++)
-			cursor->enter( &p ); // can be optimized
-		}
-	    updateScreen();
-	}
-	else if (e->key() == Key_Delete) {
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    cursor->del( &p, QMIN(4, e->count() ));
-		}
-	    updateScreen();
-	}
-	else if (e->key() == Key_Backspace) {
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    cursor->backSpace( &p, QMIN(4, e->count() ) );
-		}
-	    updateScreen();
-	}
-	else if (!e->text().isEmpty() ){
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    cursor->insert( &p, e->text() );
-		}
-	    updateScreen();
-	}
-    }
-    */
 }
 
 
-/* Updates the visible selection according to the internal
-  selection. If oldY and newY is defined, then only the area between
-  both horizontal lines is taken into account. */
-void QtTextEdit::updateSelection(int oldY, int newY)
-{
-    oldY = newY = 0; // shut up.
-//     if (!cursor || !cursor->selectionDirty)
-// 	return;
-
-//     if (oldY > newY) {
-// 	int tmp = oldY;
-// 	oldY = newY;
-// 	newY = tmp;
-//     }
-
-//     QPainter p(viewport());
-//     int minY = oldY>=0?QMAX(QMIN(oldY, newY), contentsY()):contentsY();
-//     int maxY = newY>=0?QMIN(QMAX(oldY, newY), contentsY()+visibleHeight()):contentsY()+visibleHeight();
-//     QRegion r;
-//     richText().draw(&p, 0, 0, contentsX(), contentsY(),
-// 			   contentsX(), minY,
-// 			   visibleWidth(), maxY-minY,
-// 			   r, paperColorGroup(), QtTextOptions(&paper()), FALSE, TRUE);
-//     cursor->selectionDirty = FALSE;
-}
 
 void QtTextEdit::viewportMousePressEvent( QMouseEvent * e )
 {
     if ( !d->cursor )
 	return;
-     hideCursor();
-//      cursor->clearSelection();
-//      updateSelection();
-     {
-	 QPainter p( viewport() );
-	 d->cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
-     }
-     showCursor();
+    hideCursor();
+    {
+	QPainter p( viewport() );
+	d->cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+    }
+    showCursor();
 }
 
 void QtTextEdit::viewportMouseReleaseEvent( QMouseEvent * )
@@ -1044,9 +880,6 @@ void QtTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
     QtTextView::drawContentsOffset(p, ox, oy, cx, cy, cw, ch);
-    return;
-//     if (!d->cursor_hidden)
-//  	cursor->draw(p, ox, oy, cx, cy, cw, ch);
 }
 
 void QtTextEdit::cursorTimerDone()
@@ -1087,32 +920,6 @@ void QtTextEdit::hideCursor()
 }
 
 
-
-/*!  Updates the visible screen according to the (changed) internal
-  data structure.
-*/
-void QtTextEdit::updateScreen()
-{
-    /*
-    {
-	QPainter p( viewport() );
-	QRegion r(0, 0, visibleWidth(), visibleHeight());
-	richText().draw(&p, 0, 0, contentsX(), contentsY(),
-			       contentsX(), contentsY(),
-			       visibleWidth(), visibleHeight(),
-			       r, paperColorGroup(), QtTextOptions( &paper() ), TRUE);
-	p.setClipRegion(r);
-	if ( paper().pixmap() )
-	    p.drawTiledPixmap(0, 0, visibleWidth(), visibleHeight(),
-			      *paperColorGroup().brush( QColorGroup::Base ).pixmap(), contentsX(), contentsY());
-	else
-	    p.fillRect(0, 0, visibleWidth(), visibleHeight(), paper());
-    }
-    showCursor();
-    resizeContents( QMAX( richText().widthUsed, richText().width ), richText().height );
-    ensureVisible(cursor->x, cursor->y);
-    */
-}
 
 void QtTextEdit::resizeEvent( QResizeEvent* e )
 {

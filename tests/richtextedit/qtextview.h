@@ -143,9 +143,6 @@ private slots:
     void cursorTimerDone();
 
 private:
-    void updateSelection(int oldY=-1, int newY=-1);
-
-    void updateScreen();
     QtTextEditData* d;
 };
 
