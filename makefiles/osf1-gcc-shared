@@ -1,17 +1,12 @@
-diff -ur template/library/Makefile osf1-gcc-shared/library/Makefile
---- template/library/Makefile	Fri Jul  5 16:51:39 1996
-+++ osf1-gcc-shared/library/Makefile	Sun Jul  7 18:35:52 1996
-@@ -88,10 +88,12 @@
- # the "proper" rules of library numbering.
+diff -uwr template/library/Makefile osf1-gcc-shared/library/Makefile
+--- template/library/Makefile	Thu Aug 22 20:31:45 1996
++++ osf1-gcc-shared/library/Makefile	Fri Aug 23 07:39:53 1996
+@@ -76,7 +76,7 @@
+ .SUFFIXES: .cpp
  
- library: $(OBJECTS) $(METAOBJ)
--	-rm -f ../../lib/libqt.so.${VERSION}
-+	-rm -f ../../../lib/libqt.so*
- 	$(CC) -shared -Wl,-soname,libqt.so.0 \
- 		-o ../../../lib/libqt.so.${VERSION} \
- 		$(OBJECTS) $(METAOBJ) -lX11 -lgcc -lc
-+	ln -s libqt.so.${VERSION} ../../../lib/libqt.so.0
-+	ln -s libqt.so.${VERSION} ../../../lib/libqt.so
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
  
- depend:
- 	makedepend $(SOURCES) 2> /dev/null
+ # VERSION - the version number of the shared library, where applicable
+ 
