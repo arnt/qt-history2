@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: fontmatch.doc,v 1.1 1995/08/02 17:22:50 agulbra Exp $
+** $Id: fontmatch.doc,v 1.2 1995/08/02 17:25:27 agulbra Exp $
 **
 ** Explanation of font matching
 **
@@ -12,6 +12,8 @@
 <title>Qt Font Matching</title></head><body>
 <h1> Qt Font Matching </h1>
 
+<p>
+
 The QFont class is an abstract specification of an ideal font. This
 font must be matched to fit an actual window system font when drawing
 is to be done. This is not a trivial operation since there are no
@@ -19,6 +21,8 @@ fonts that we can be sure will be available on all window systems at all
 times, or even on a single window system at all times. Qt queries the
 window system for available fonts and uses a font matching algorithm to
 decide which one of the available fonts closely matches the QFont settings.
+
+<p>
 
 In this version Qt has a single built-in font matching mechanism. In
 general it is difficult to make a matching algorithm that fits the
@@ -28,13 +32,19 @@ release. We believe that the algorithm selected will fit the needs of
 all but the most highly specialized feinschmecker word processing
 applications.
 
+<p>
+
 The current matching algorithm works as follows:
+
+<p>
 
 First an available font family is found. If the requested is not
 available the \link QFont::setStyleHint() style hint \endlink is
 used to select a replacement family. If the style hint has not been
 set, "helvetica" will be used (this is not optimal and a table of
 common font types will be added to Qt before the 1.0 release).
+
+<p>
 
 If even the replacement family is not found, "helvetica" is searched
 for, if that too is not found Qt will search for a last resort font,
@@ -47,6 +57,8 @@ happens. Please <a href=mailto:qt-bugs@troll.no>mail us</a> if you
 do, preferably with a list of the fonts you have installed (under X
 windows, type "xlsfonts").
 
+<p>
+
 The following attributes are then matched, in order of priority:
 
 <ol>
@@ -57,13 +69,19 @@ The following attributes are then matched, in order of priority:
 <li> \link QFont::setItalic() italic \endlink
 </ol>
 
+<p>
+
 If, for example, a font with the correct character set is found, but
 with all other attributes in the list unmatched, it will be chosen before
 a font with the wrong character set but with all other attributes correct.
 
+<p>
+
 The point size is defined to match if it is within 20% of the requested
 point size. Of course, when several fonts match and only point size
 differs the closest point size to the one requested will be chosen.
+
+<p>
 
 Currently using the correct font family has higher priority than
 using the correct character set. We are not certain if this should
