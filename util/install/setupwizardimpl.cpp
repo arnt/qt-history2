@@ -565,7 +565,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    QStringList sqlList = QStringList::split( " ", "mysql oci odbc psql" );
 	    for( QStringList::Iterator it2 = sqlList.begin(); it2 != sqlList.end(); ++it2 ) {
 		item = new QCheckListItem( sqldrivers, (*it2), QCheckListItem::CheckBox );
-		item->setOn( true );
+		item->setOn( false );
 	    }
 	    // We have items on the advanced tab, so enable it
 	    configTabs->setTabEnabled( advancedTab, true );
