@@ -156,6 +156,8 @@ public:
         float adjust;
     };
     QVector<KernPair> kerning_pairs;
+    float designToDevice;
+    int unitsPerEm;
 #endif // Q_WS_WIN
 };
 
@@ -340,6 +342,7 @@ class QFontEngineWin : public QFontEngine
 {
 public:
     QFontEngineWin(const QString &name, HFONT, bool, LOGFONT);
+    ~QFontEngineWin();
 
     FECaps capabilites() const;
 
@@ -348,6 +351,7 @@ public:
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
+    HGDIOBJ selectDesignFont(float *) const;
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -367,6 +371,8 @@ public:
 
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];
+    mutable float *designAdvances;
+    mutable int designAdvancesSize;
 };
 
 #endif // Q_WS_WIN

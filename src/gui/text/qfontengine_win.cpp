@@ -43,7 +43,7 @@ typedef void *SCRIPT_CACHE;
 typedef HRESULT (WINAPI *fScriptFreeCache)(SCRIPT_CACHE *);
 extern fScriptFreeCache ScriptFreeCache;
 
-static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc);
+static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, float factor);
 static unsigned char *getCMap(HDC hdc, bool &);
 static quint16 getGlyphIndex(unsigned char *table, unsigned short unicode);
 
@@ -106,8 +106,22 @@ void QFontEngine::getCMap()
     }
     symbol = symb;
     script_cache = 0;
-    if(cmap)
-        kerning_pairs = getKerning(hdc);
+    designToDevice = 1.;
+    unitsPerEm = tm.w.tmHeight;
+    if(cmap) {
+        QT_WA( {
+            OUTLINETEXTMETRICW metric;
+            GetOutlineTextMetricsW(hdc, sizeof(OUTLINETEXTMETRICW), &metric);
+            designToDevice = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
+            unitsPerEm = metric.otmEMSquare;
+        }, {
+            OUTLINETEXTMETRICA metric;
+            GetOutlineTextMetricsA(hdc, sizeof(OUTLINETEXTMETRICA), &metric);
+            designToDevice = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
+            unitsPerEm = metric.otmEMSquare;
+        } )
+        kerning_pairs = getKerning(hdc, designToDevice);
+    }
 }
 
 void QFontEngine::getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const
@@ -196,6 +210,14 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
             useTextOutA = true;
 #endif
     memset(widthCache, 0, sizeof(widthCache));
+    designAdvances = 0;
+    designAdvancesSize = 0;
+}
+
+QFontEngineWin::~QFontEngineWin()
+{
+    if(designAdvances)
+        free(designAdvances);
 }
 
 QFontEngine::FECaps QFontEngineWin::capabilites() const
@@ -204,6 +226,25 @@ QFontEngine::FECaps QFontEngineWin::capabilites() const
         (tm.w.tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE) ? FullTransformations : NoTransformations),
         (tm.a.tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE) ? RotScale : NoTransformations)
        );
+}
+
+HGDIOBJ QFontEngineWin::selectDesignFont(float *overhang) const
+{
+    LOGFONT f = logfont;
+    f.lfHeight = unitsPerEm;
+    HFONT designFont = CreateFontIndirect(&f);
+    HGDIOBJ oldFont = SelectObject(shared_dc, designFont);
+
+    if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+        TEXTMETRICA tm;
+        BOOL res = GetTextMetricsA(shared_dc, &tm);
+        if (!res)
+            qErrnoWarning("QFontEngineWin: GetTextMetrics failed");
+        *overhang = tm.tmOverhang * designToDevice;
+    } else {
+        *overhang = 0;
+    }
+    return oldFont;
 }
 
 bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
@@ -215,31 +256,55 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
     getGlyphIndexes(str, len, glyphs, flags & QTextEngine::RightToLeft);
 
-    HDC hdc = shared_dc;
-    HGDIOBJ oldFont = SelectObject(hdc, hfont);
-    unsigned int glyph;
-    int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
-    for(register int i = 0; i < len; i++) {
-        glyph = glyphs[i].glyph;
-        glyphs[i].advance.setX((glyph < widthCacheSize) ? widthCache[glyph] : 0);
-        glyphs[i].advance.setY(0);
-        // font-width cache failed
-        if (!glyphs[i].advance.x()) {
-            SIZE size = {0, 0};
-            GetTextExtentPoint32W(hdc, (wchar_t *)str, 1, &size);
-            glyphs[i].advance.setX(size.cx - overhang);
-            // if glyph's within cache range, store it for later
-            if (glyph < widthCacheSize && glyphs[i].advance.x() > 0 && glyphs[i].advance.x() < 0x100)
-                widthCache[glyph] = size.cx - overhang;
-        }
-        str++;
-    }
-
     *nglyphs = len;
-    SelectObject(hdc, oldFont);
+    HDC hdc = shared_dc;
+    if (flags & QTextEngine::DesignMetrics) {
+        HGDIOBJ oldFont = 0;
+        float overhang = 0;
+
+        for(register int i = 0; i < len; i++) {
+            unsigned int glyph = glyphs[i].glyph;
+            if(glyph >= designAdvancesSize) {
+                int newSize = (glyph + 256) >> 8 << 8;
+                designAdvances = (float *)realloc(designAdvances, newSize*sizeof(float));
+                for(int i = designAdvancesSize; i < newSize; ++i)
+                    designAdvances[i] = -1000000;
+                designAdvancesSize = newSize;
+            }
+            if(designAdvances[glyph] < -999999) {
+                if(!oldFont)
+                    oldFont = selectDesignFont(&overhang);
+                SIZE size = {0, 0};
+                GetTextExtentPoint32W(hdc, (wchar_t *)(str+i), 1, &size);
+                designAdvances[glyph] = size.cx*designToDevice;
+            }
+            glyphs[i].advance.setX(designAdvances[glyph]);
+            glyphs[i].advance.setY(0);
+        }
+        if(oldFont)
+            DeleteObject(SelectObject(hdc, oldFont));
+    } else {
+        HGDIOBJ oldFont = SelectObject(hdc, hfont);
+        int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
+        for(register int i = 0; i < len; i++) {
+            unsigned int glyph = glyphs[i].glyph;
+            glyphs[i].advance.setX((glyph < widthCacheSize) ? widthCache[glyph] : 0);
+            glyphs[i].advance.setY(0);
+            // font-width cache failed
+            if (!glyphs[i].advance.x()) {
+                SIZE size = {0, 0};
+                GetTextExtentPoint32W(hdc, (wchar_t *)str, 1, &size);
+                glyphs[i].advance.setX(size.cx - overhang);
+                // if glyph's within cache range, store it for later
+                if (glyph < widthCacheSize && glyphs[i].advance.x() > 0 && glyphs[i].advance.x() < 0x100)
+                    widthCache[glyph] = size.cx - overhang;
+            }
+            str++;
+        }
+        SelectObject(hdc, oldFont);
+    }
     return true;
 }
-
 
 glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
@@ -798,19 +863,8 @@ bool operator<(const QFontEngineWin::KernPair &p1, const QFontEngineWin::KernPai
     return p1.left_right < p2.left_right;
 }
 
-static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc)
+static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, float factor)
 {
-    float factor;
-    QT_WA( {
-        OUTLINETEXTMETRICW metric;
-        GetOutlineTextMetricsW(hdc, sizeof(OUTLINETEXTMETRICW), &metric);
-        factor = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
-    }, {
-        OUTLINETEXTMETRICA metric;
-        GetOutlineTextMetricsA(hdc, sizeof(OUTLINETEXTMETRICA), &metric);
-        factor = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
-    } )
-
     const DWORD KERN = MAKE_TAG('k', 'e', 'r', 'n');
 
     QVector<QFontEngineWin::KernPair> pairs;
