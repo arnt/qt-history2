@@ -106,14 +106,12 @@ public:
     int autoScrollInterval;
     int autoScrollCount;
 
-    bool dragEnabled;
     bool layoutPosted;
 
     bool alternatingColors;
     QColor oddColor;
     QColor evenColor;
 
-    bool draggableItems;
     QRubberBand *dropIndicator;
 };
 

@@ -968,8 +968,7 @@ void QTreeModel::emitRowsAboutToBeRemoved(QTreeWidgetItem *item)
 QTreeWidgetItem::QTreeWidgetItem()
     : view(0), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled
-                |QAbstractItemModel::ItemIsDragEnabled)
+                |QAbstractItemModel::ItemIsEnabled)
 {
 }
 
@@ -983,8 +982,7 @@ QTreeWidgetItem::QTreeWidgetItem()
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
     : view(view), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled
-                |QAbstractItemModel::ItemIsDragEnabled)
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
         model = ::qt_cast<QTreeModel*>(view->model());
@@ -1005,8 +1003,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
     : view(0), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled
-                |QAbstractItemModel::ItemIsDragEnabled)
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
         model = ::qt_cast<QTreeModel*>(view->model());
@@ -1025,8 +1022,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
     : view(0), model(0), par(parent),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled
-                |QAbstractItemModel::ItemIsDragEnabled)
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent)
         parent->appendChild(this);
@@ -1042,8 +1038,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after)
     : view(0), model(0), par(parent),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled
-                |QAbstractItemModel::ItemIsDragEnabled)
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent) {
         int i = parent->indexOfChild(after) + 1;

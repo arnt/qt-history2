@@ -60,12 +60,10 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollMargin(16),
         autoScrollInterval(50),
         autoScrollCount(0),
-        dragEnabled(false),
         layoutPosted(false),
         alternatingColors(false),
         oddColor(Qt::lightGray),
         evenColor(Qt::white),
-        draggableItems(true),
         dropIndicator(0)
 {
 }
@@ -818,20 +816,6 @@ void QAbstractItemView::setEvenRowColor(const QColor &even)
 }
 
 /*!
-  \property QAbstractItemView::draggableItems
-  \brief whether the items in the view are draggable
-*/
-bool QAbstractItemView::draggableItems() const
-{
-    return d->draggableItems;
-}
-
-void QAbstractItemView::setDraggableItems(bool draggable)
-{
-    d->draggableItems = draggable;
-}
-
-/*!
     \fn bool QAbstractItemView::event(QEvent *event)
 
     This function is used to handle tool tips, status tips, and What's
@@ -971,7 +955,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         if (state() != SelectingState) {
             bool dragging = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
             bool selected = selectionModel()->isSelected(index);
-            if (dragging && selected && d->draggableItems) {
+            if (dragging && selected) {
                 setState(DraggingState);
                 return;
             }

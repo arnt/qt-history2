@@ -303,8 +303,7 @@ void QListModel::itemChanged(QListWidgetItem *item)
 QListWidgetItem::QListWidgetItem(QListWidget *view)
     : view(view), model(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled
-                |QAbstractItemModel::ItemIsDragEnabled)
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
@@ -322,8 +321,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : view(view), model(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsEnabled
-                |QAbstractItemModel::ItemIsDragEnabled)
+                |QAbstractItemModel::ItemIsEnabled)
 {
     setData(QAbstractItemModel::DisplayRole, text);
     if (view)

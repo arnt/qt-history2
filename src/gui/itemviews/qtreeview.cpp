@@ -95,7 +95,6 @@ QTreeView::QTreeView(QWidget *parent)
 {
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
-    setDraggableItems(false);
 
     QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
     header->setModel(model());
@@ -112,7 +111,6 @@ QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
 {
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
-    setDraggableItems(false);
 
     QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
     header->setModel(model());
