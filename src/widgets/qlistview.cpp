@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#59 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#59 $");
 
 
 const int Unsorted = 32767;
@@ -2511,15 +2511,9 @@ void QCheckListItem::turnOffChild()
 void QCheckListItem::activate()
 {
     if ( myType == CheckBox ) {
-	on = !on;
-	stateChange( on );
+	setOn( !on );
     } else if ( myType == RadioButton ) {
-	if ( exclusive && exclusive->exclusive != this )
-	    exclusive->turnOffChild();
-	on = TRUE;
-	if ( exclusive )
-	    exclusive->exclusive = this;
-	stateChange( on );
+	setOn( TRUE );
     }
 }
 
