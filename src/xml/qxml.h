@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#35 $
+** $Id: //depot/qt/main/src/xml/qxml.h#36 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -55,8 +55,6 @@
 #endif
 
 #ifndef QT_NO_XML
-
-//#define XML_INPUT_SOURCE_CLASSIC
 
 class QXmlNamespaceSupport;
 class QXmlAttributes;
@@ -159,17 +157,17 @@ public:
     QXmlInputSource( QTextStream& stream ); // obsolete
     virtual ~QXmlInputSource();
 
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-#else
-    virtual QChar next();
-#endif
-    virtual QString data();
     virtual void setData( const QString& dat );
     virtual void setData( const QByteArray& dat );
     virtual void fetchData();
+    virtual QString data();
+    virtual QChar next();
+
+    static const QChar EndOfData;
+    static const QChar EndOfDocument;
 
 protected:
-    virtual QString fromRawData( QByteArray *data, bool beginning = FALSE );
+    virtual QString fromRawData( const QByteArray &data, bool beginning = FALSE );
 
 private:
     void init();
@@ -177,16 +175,10 @@ private:
     QIODevice *inputDevice;
     QTextStream *inputStream;
 
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    QString *userStringData;
-    QByteArray *userRawData;
-    QByteArray *rawData;
-#else
     QString str;
     int pos;
     int length;
-    bool nextReturnedEof;
-#endif
+    bool nextReturnedEndOfData;
     QTextDecoder *encMapper;
 
     QXmlInputSourcePrivate *d;
@@ -293,7 +285,6 @@ private:
     QChar c; // the character at reading position
     int   lineNr; // number of line
     int   columnNr; // position in line
-    int   pos; // position in string
 
     int     namePos;
     QChar   nameArray[256]; // only used for names
@@ -305,13 +296,9 @@ private:
     QChar   stringArray[256]; // used for any other strings that are parsed
     QString stringValue; // used for any other strings that are parsed
 
-    QString xml;
-    int xmlLength;
     QString xmlRef; // used for parsing of entity references
 
     QXmlSimpleReaderPrivate* d;
-
-    static const QChar QEOF;
 
     // inlines
     bool is_S( const QChar& );
@@ -548,7 +535,7 @@ inline bool QXmlSimpleReader::is_NameChar( const QChar& ch )
 }
 
 inline bool QXmlSimpleReader::atEnd()
-{ return c == QEOF; }
+{ return (c.unicode()|0x0001) == 0xffff; }
 
 inline void QXmlSimpleReader::stringClear()
 { stringValue = ""; stringPos = 0; }

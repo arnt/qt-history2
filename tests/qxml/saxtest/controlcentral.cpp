@@ -153,17 +153,22 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 	QStringList steps = QStringList::split( ",", incrementalSteps );
 
 	QStringList::Iterator it = steps.begin();
-	while ( it != steps.end() ) {
-	    int size = (*it).toInt();
-	    rawData.resize( size );
-	    size = file.readBlock( rawData.data(), size );
-	    rawData.resize( size );
-	    source.setData( rawData );
-	    QString tmp = source.data();
-	    src->append( "---------------------------------------------------------" );
-	    src->append( tmp );
-	    source.setData( tmp );
+	while ( TRUE ) {
+	    if ( it != steps.end() ) {
+		int size = (*it).toInt();
+		rawData.resize( size );
+		size = file.readBlock( rawData.data(), size );
+		rawData.resize( size );
+		source.setData( rawData );
+		QString tmp = source.data();
+		src->append( "---------------------------------------------------------" );
+		src->append( tmp );
+		source.setData( tmp );
+	    }
+	    // last parse is on empty input, so that we really get the end of
+	    // the document
 	    if ( first ) {
+qDebug( "*** parse" );
 		first = FALSE;
 		if ( parser.parse( source, TRUE ) ) {
 		    errorStatus = "Ok";
@@ -172,12 +177,16 @@ void ControlCentral::parse( const QString& filename, const QString& incrementalS
 		    break;
 		}
 	    } else {
+qDebug( "*** parse continue" );
 		if ( parser.parseContinue() ) {
 		    errorStatus = "Ok";
 		} else {
 		    errorStatus = "Error";
 		    break;
 		}
+	    }
+	    if ( it == steps.end() ) {
+		break;
 	    }
 	    ++it;
 	}

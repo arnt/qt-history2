@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#73 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#74 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -756,6 +756,10 @@ QString QXmlAttributes::value( const QString& uri, const QString& localName ) co
   \sa QXmlReader QXmlSimpleReader
 */
 
+// the following two are guaranteed not to be a character
+const QChar QXmlInputSource::EndOfData = QChar((ushort)0xfffe);
+const QChar QXmlInputSource::EndOfDocument = QChar((ushort)0xffff);
+
 /*!
   Common part of the constructors.
 */
@@ -764,16 +768,10 @@ void QXmlInputSource::init()
     inputDevice = 0;
     inputStream = 0;
 
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    userStringData = 0;
-    userRawData = 0;
-    rawData = 0;
-#else
     str = QString::null;
     pos = 0;
     length = str.length();
-    nextReturnedEof = FALSE;
-#endif
+    nextReturnedEndOfData = FALSE;
     encMapper = 0;
 }
 
@@ -828,32 +826,42 @@ QXmlInputSource::QXmlInputSource( QFile& file )
 QXmlInputSource::~QXmlInputSource()
 {
     delete encMapper;
-
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    delete userStringData;
-    delete userRawData;
-    delete rawData;
-#endif
 }
 
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-#else
-static const QChar QEOF = QChar((ushort)0xffff); // ### change this
+/*!
+  Returns the next character of the input source. If this funciton reaches the
+  end of available data, it returns QXmlInputSource::EndOfData. If you call next()
+  after that, it tries to fetch more data by calling fetchData(). If this call
+  results in new data, this function returns the first character of that data;
+  otherwise it returns QXmlInputSource::EndOfDocument.
+
+  This function can have the two special return values QXmlInputSource::EndOfData and
+  QXmlInputSource::EndOfDocument. This destinction is especially useful for incremental
+  parsing: QXmlInputSource::EndOfData means that the input source ran out of data,
+  but may be able to deliver more data at a later point. QXmlInputSource::EndOfDocument
+  on the other hand means, that the input source really run out of data and
+  can't provide more data at a later point. The non-incremental parsing mode
+  does not distinguish between the two values - they mean that the end of the
+  data was reached.
+
+  \sa fetchData() QXmlSimpleReader::prarse() QXmlSimpleReader::parseContinue()
+*/
 QChar QXmlInputSource::next()
 {
-//qDebug( "ere I m jh foo" );
     if ( pos >= length ) {
-	if ( nextReturnedEof ) {
-	    nextReturnedEof = FALSE;
+	if ( nextReturnedEndOfData ) {
+	    nextReturnedEndOfData = FALSE;
 	    fetchData();
+	    if ( pos >= length ) {
+		return EndOfDocument;
+	    }
 	    return next();
 	}
-	nextReturnedEof = TRUE;
-	return QEOF;
+	nextReturnedEndOfData = TRUE;
+	return EndOfData;
     }
     return str[pos++];
 }
-#endif
 
 /*!
   Returns the data the input source contains or QString::null if the input
@@ -876,35 +884,7 @@ QChar QXmlInputSource::next()
 */
 QString QXmlInputSource::data()
 {
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    QString str;
-    if ( rawData!=0  && encMapper==0 ) {
-	// first call of data()
-	str = fromRawData( rawData );
-	return str;
-    } else {
-	if ( userStringData != 0 ) {
-	    str = *userStringData;
-	    delete userStringData;
-	    userStringData = 0;
-	    return str;
-	} else if ( userRawData != 0 ) {
-	    str = fromRawData( userRawData );
-	    delete userRawData;
-	    userRawData = 0;
-	    return str;
-	} else {
-	    fetchData();
-	    if ( rawData->size() > 0 ) {
-		str = fromRawData( rawData );
-		return str;
-	    }
-	}
-    }
-    return QString::null;
-#else
     return str;
-#endif
 }
 
 /*!
@@ -917,34 +897,22 @@ QString QXmlInputSource::data()
 */
 void QXmlInputSource::setData( const QString& dat )
 {
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    delete userStringData;
-    delete userRawData;
-    userStringData = new QString( dat );
-#else
     str = dat;
     pos = 0;
     length = str.length();
-    nextReturnedEof = FALSE;
-#endif
+    nextReturnedEndOfData = FALSE;
 }
 
 /*! \overload
-  This function sets the raw data of the input source to \a det. If you get the
+  This function sets the raw data of the input source to \a dat. If you get the
   data with data(), it is sent through the right text-codec.
 */
 void QXmlInputSource::setData( const QByteArray& dat )
 {
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    delete userStringData;
-    delete userRawData;
-    userRawData = new QByteArray( dat );
-#else
-    str = fromRawData( (QByteArray*)&dat ); // ### change the cast
+    str = fromRawData( dat );
     pos = 0;
     length = str.length();
-    nextReturnedEof = FALSE;
-#endif
+    nextReturnedEndOfData = FALSE;
 }
 
 /*!
@@ -954,37 +922,28 @@ void QXmlInputSource::setData( const QByteArray& dat )
 */
 void QXmlInputSource::fetchData()
 {
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    if ( rawData == 0 ) {
-	rawData = new QByteArray;
-    }
-#else
-    QByteArray *rawData = new QByteArray; // ### change this
-#endif
+    QByteArray rawData;
 
     if ( inputDevice != 0 ) {
 	if ( inputDevice->isOpen() || inputDevice->open( IO_ReadOnly )  )
-	    *rawData = inputDevice->readAll();
+	    rawData = inputDevice->readAll();
     } else if ( inputStream != 0 ) {
 	if ( inputStream->device()->isDirectAccess() ) {
-	    *rawData = inputStream->device()->readAll();
+	    rawData = inputStream->device()->readAll();
 	} else {
 	    int nread = 0;
 	    const int bufsize = 512;
 	    while ( !inputStream->device()->atEnd() ) {
-		rawData->resize( nread + bufsize );
-		nread += inputStream->device()->readBlock( rawData->data()+nread, bufsize );
+		rawData.resize( nread + bufsize );
+		nread += inputStream->device()->readBlock( rawData.data()+nread, bufsize );
 	    }
-	    rawData->resize( nread );
+	    rawData.resize( nread );
 	}
     }
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-#else
     str = fromRawData( rawData );
     pos = 0;
     length = str.length();
-    nextReturnedEof = FALSE;
-#endif
+    nextReturnedEndOfData = FALSE;
 }
 
 /*!
@@ -998,7 +957,7 @@ void QXmlInputSource::fetchData()
   useful if you do incremental parsing, i.e., when one XML document is parsed
   in chunks.
 */
-QString QXmlInputSource::fromRawData( QByteArray *data, bool beginning )
+QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 {
     if ( beginning ) {
 	delete encMapper;
@@ -1007,11 +966,11 @@ QString QXmlInputSource::fromRawData( QByteArray *data, bool beginning )
     if ( encMapper == 0 ) {
 	QTextCodec *codec = 0;
 	// look for byte order mark and read the first 5 characters
-	if ( data->size() >= 2 &&
-		( ((uchar)data->at(0)==(uchar)0xfe &&
-		   (uchar)data->at(1)==(uchar)0xff ) ||
-		  ((uchar)data->at(0)==(uchar)0xff &&
-		   (uchar)data->at(1)==(uchar)0xfe ) )) {
+	if ( data.size() >= 2 &&
+		( ((uchar)data.at(0)==(uchar)0xfe &&
+		   (uchar)data.at(1)==(uchar)0xff ) ||
+		  ((uchar)data.at(0)==(uchar)0xff &&
+		   (uchar)data.at(1)==(uchar)0xfe ) )) {
 	    codec = QTextCodec::codecForMib( 1000 ); // UTF-16
 	} else {
 	    codec = QTextCodec::codecForMib( 106 ); // UTF-8
@@ -1020,7 +979,7 @@ QString QXmlInputSource::fromRawData( QByteArray *data, bool beginning )
 	    return QString::null;
 
 	encMapper = codec->makeDecoder();
-	QString input = encMapper->toUnicode( data->data(), data->size() );
+	QString input = encMapper->toUnicode( data.data(), data.size() );
 	// ### unexpected EOF? (for incremental parsing)
 	// starts the document with an XML declaration?
 	if ( input.find("<?xml") == 0 ) {
@@ -1050,12 +1009,12 @@ QString QXmlInputSource::fromRawData( QByteArray *data, bool beginning )
 		}
 		delete encMapper;
 		encMapper = codec->makeDecoder();
-		return encMapper->toUnicode( data->data(), data->size() );
+		return encMapper->toUnicode( data.data(), data.size() );
 	    }
 	}
 	return input;
     }
-    return encMapper->toUnicode( data->data(), data->size() );
+    return encMapper->toUnicode( data.data(), data.size() );
 }
 
 
@@ -2174,8 +2133,6 @@ private:
   \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
 */
 
-//guaranteed not to be a character
-const QChar QXmlSimpleReader::QEOF = QChar((ushort)0xffff);
 
 /*!
   Constructs a simple XML reader with the following feature settings:
@@ -3632,7 +3589,6 @@ bool QXmlSimpleReader::parsePI()
 		    }
 		} else if ( name() == "encoding" ) {
 		    d->encoding = string();
-		    xmlLength = xml.length();
 		} else {
 		    reportParseError( XMLERR_EDECLORSDDECLEXPECTED );
 		    return FALSE;
@@ -6706,18 +6662,8 @@ void QXmlSimpleReader::next()
 	    lineNr++;
 	    columnNr = -1;
 	}
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-	if ( pos >= xmlLength ) {
-	    c = QEOF;
-	} else {
-	    c = xml[pos];
-	    columnNr++;
-	    pos++;
-	}
-#else
 	c = inputSource->next();
 	columnNr++;
-#endif
     }
 }
 
@@ -6740,7 +6686,7 @@ bool QXmlSimpleReader::eat_ws()
 	next();
     }
     if ( d->parseStack != 0 ) {
-	pushParseState( &QXmlSimpleReader::eat_ws, 0 );
+	unexpectedEof( &QXmlSimpleReader::eat_ws, 0 );
 	return FALSE;
     }
     return TRUE;
@@ -6784,12 +6730,7 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
 */
 void QXmlSimpleReader::initData()
 {
-#if defined(XML_INPUT_SOURCE_CLASSIC)
-    xml = inputSource->data();
-    xmlLength = xml.length();
-    pos = 0;
-#endif
-    c = QEOF;
+    c = QXmlInputSource::EndOfData;
     xmlRef = "";
     next();
 }
@@ -6831,7 +6772,11 @@ void QXmlSimpleReader::unexpectedEof( ParseFunction where, int state )
     if ( d->parseStack == 0 ) {
 	reportParseError( XMLERR_UNEXPECTEDEOF );
     } else {
-	pushParseState( where, state );
+	if ( c == QXmlInputSource::EndOfDocument ) {
+	    reportParseError( XMLERR_UNEXPECTEDEOF );
+	} else {
+	    pushParseState( where, state );
+	}
     }
 }
 
