@@ -248,22 +248,32 @@ bool QAbstractItemView::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ToolTip: {
-        QPoint pos = QPoint(0, 0); // FIXME: get mouse pos
+        if (!isActiveWindow())
+            break;
+        QPoint pos = static_cast<QHelpEvent*>(e)->globalPos();
         QModelIndex index = itemAt(pos);
+        if (!index.isValid())
+            break;
         QString tooltip = model()->data(index, QAbstractItemModel::ToolTip).toString();
         QToolTip::showText(pos, tooltip, this);
         return true; }
     case QEvent::WhatsThis: {
-        QPoint pos = QPoint(0, 0); // FIXME: get mouse pos
+        QPoint pos = static_cast<QHelpEvent*>(e)->globalPos();
         QModelIndex index = itemAt(pos);
+        if (!index.isValid())
+            break;
         QString whatsthis = model()->data(index, QAbstractItemModel::ToolTip).toString();
         QWhatsThis::showText(pos, whatsthis, this);
         return true; }
-//     case QEvent::StatusTip: {
-//         QPoint pos = QPoint(0, 0); // FIXME: get mouse pos
-//         QModelIndex index = itemAt(pos);
-//        QString statustip = model()->data(index, QAbstractItemModel::ToolTip).toString();
-//         return true; }
+    case QEvent::StatusTip: {
+        QPoint pos = static_cast<QHelpEvent*>(e)->globalPos();
+        QModelIndex index = itemAt(pos);
+        if (!index.isValid())
+            break;
+        QString statustip = model()->data(index, QAbstractItemModel::ToolTip).toString();
+        if (!statustip.isEmpty())
+            setStatusTip(statustip);
+        return true; }
     default:
         break;
     }
