@@ -91,23 +91,29 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QSlider") {
 	iface = new QAccessibleSlider(widget);
     } else if (classname == "QToolButton") {
+	Role role = NoRole;
 	QToolButton *tb = qt_cast<QToolButton*>(widget);
 	if (!tb->popup())
-	    iface = new QAccessibleToolButton(widget, PushButton);
+	    role = tb->isToggleButton() ? CheckBox : PushButton;
 	else if (!tb->popupDelay())
-	    iface = new QAccessibleToolButton(widget, ButtonDropDown);
+	    role = ButtonDropDown;
 	else
-	    iface = new QAccessibleToolButton(widget, ButtonMenu);
+	    role = ButtonMenu;
+	iface = new QAccessibleToolButton(widget, role);
     } else if (classname == "QCheckBox") {
 	iface = new QAccessibleButton(widget, CheckBox);
     } else if (classname == "QRadioButton") {
 	iface = new QAccessibleButton(widget, RadioButton);
     } else if (classname == "QPushButton") {
+	Role role = NoRole;
 	QPushButton *pb = qt_cast<QPushButton*>(widget);
 	if (pb->popup())
-	    iface = new QAccessibleButton(widget, ButtonMenu);
+	    role = ButtonMenu;
+	else if (pb->isToggleButton())
+	    role = CheckBox;
 	else
-	    iface = new QAccessibleButton(widget, PushButton);
+	    role = PushButton;
+	iface = new QAccessibleButton(widget, role);
     } else if (classname == "QButton") {
 	iface = new QAccessibleButton(widget, PushButton);
     } else if (classname == "QViewportWidget") {
