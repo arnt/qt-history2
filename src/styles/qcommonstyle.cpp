@@ -2188,6 +2188,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_DialogButtonsButtonHeight:
 	ret = 30;
 	break;
+    case PM_CheckListControllerSize:
     case PM_CheckListButtonSize:
 	ret = 16;
 	break;

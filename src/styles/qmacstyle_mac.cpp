@@ -644,22 +644,8 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), kThemeListHeaderButton, 
 			&info, NULL, NULL, NULL, 0);
 	break; }
-    case PE_CheckListController: {
-	ThemeButtonDrawInfo info = { tds, kThemeDisclosureRight, kThemeAdornmentDrawIndicatorOnly };
-	((QMacPainter *)p)->setport();
-	if(QListViewItem *item = opt.checkListItem()) {
-	    if(QListView *lv = item->listView()) {
-		::RGBColor f;
-		f.red = lv->paletteBackgroundColor().red()*256;
-		f.green = lv->paletteBackgroundColor().green()*256;
-		f.blue = lv->paletteBackgroundColor().blue()*256;
-		RGBBackColor(&f);
-	    }
-	    if(item->isOpen())
-		info.value = kThemeDisclosureDown;
-	}
-	DrawThemeButton(qt_glb_mac_rect(r, p), kThemeDisclosureButton, &info, NULL, NULL, NULL, 0);
-	break; }
+    case PE_CheckListController: 
+	break;
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
     case PE_ExclusiveIndicator: {
@@ -1502,6 +1488,8 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     switch(metric) {
     case PM_TabBarTabVSpace:
 	ret = 4; 
+	break;
+    case PM_CheckListControllerSize:
 	break;
     case PM_CheckListButtonSize: {
 	ThemeMetric tm = kThemeMetricCheckBoxWidth;

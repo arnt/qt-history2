@@ -6556,7 +6556,8 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     QFontMetrics fm( lv->fontMetrics() );
     const QPixmap * icon = pixmap( column );
-    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv);
+    int boxsize = lv->style().pixelMetric( myType == RadioButtonController ? QStyle::PM_CheckListControllerSize :
+					   QStyle::PM_CheckListButtonSize, lv);
     int marg = lv->itemMargin();
     int r = marg;
     int iconWidth = 0;
