@@ -1036,10 +1036,10 @@ void QWorkspace::hideMaximizeControls()
 
 void QWorkspace::closeActiveWindow()
 {
-    if ( d->maxWindow )
-    	d->maxWindow->close();
-    else if ( d->active )
-	    d->active->close();
+    if ( d->maxWindow && d->maxWindow->windowWidget() )
+    	d->maxWindow->windowWidget()->close();
+    else if ( d->active && d->active->windowWidget() )
+	    d->active->windowWidget()->close();
 }
 
 void QWorkspace::closeAllWindows()
@@ -1525,16 +1525,19 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     iconB->move( maxB->x() - iconB->width(), maxB->y() );
     shadeB->move( closeB->x() - shadeB->width(), closeB->y() );
 
-    iconL->setGeometry( 0, 0, BUTTON_WIDTH, height() );
+    iconL->setGeometry( 0, 0, BUTTON_WIDTH, height()-1 );
     int left = iconL->isVisibleTo( this ) ? iconL->width() : 0;
     int right = closeB->isVisibleTo( this ) ? closeB->x() : width();
     if ( iconB->isVisibleTo( this ) )
 	right = iconB->x();
     if ( shadeB->isVisibleTo( this ) )
 	right = shadeB->x();
-	
-    if ( window && !window->testWFlags( WStyle_Tool ) )
+
+    int bottom = rect().bottom();
+    if ( window && !window->testWFlags( WStyle_Tool ) ) {
         left+=2;
+	bottom--;
+    }
 
     right-=2;
 
@@ -1543,10 +1546,10 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 	
     if ( win32 || (imode && !isActive()) ) {
 	titleL->setGeometry( QRect( QPoint( win32 ? 0 : left, 0 ),
-				    QPoint( win32 ? rect().right() : right, rect().bottom()-1 ) ) );
+				    QPoint( win32 ? rect().right() : right, bottom ) ) );
     } else {
 	titleL->setGeometry( QRect( QPoint( left, 0 ),
-				    QPoint( right, rect().bottom() ) ) );
+				    QPoint( right, bottom ) ) );
     }
 }
 
