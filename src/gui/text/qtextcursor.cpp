@@ -94,7 +94,7 @@ void QTextCursorPrivate::remove()
     int pos2 = adjusted_anchor;
     QTextUndoCommand::Operation op = QTextUndoCommand::KeepCursor;
     if (pos1 > pos2) {
-        pos1 = anchor;
+        pos1 = adjusted_anchor;
         pos2 = position;
         op = QTextUndoCommand::MoveCursor;
     }
@@ -1016,7 +1016,7 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
     int pos1 = d->position;
     int pos2 = d->adjusted_anchor;
     if (pos1 > pos2) {
-        pos1 = d->anchor;
+        pos1 = d->adjusted_anchor;
         pos2 = d->position;
     }
 
@@ -1039,7 +1039,7 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
     int pos1 = d->position;
     int pos2 = d->adjusted_anchor;
     if (pos1 > pos2) {
-        pos1 = d->anchor;
+        pos1 = d->adjusted_anchor;
         pos2 = d->position;
     }
 
