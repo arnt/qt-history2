@@ -10,9 +10,24 @@ int main( int /*argc*/, char** /*argv*/ )
     Environment env;
 
 #if 0
-    /* create a table */
-    env.program().append( new PushField( "id", QVariant::Int ) );
-    env.program().append( new PushField( "name", QVariant::String ) );
+    /* create a table :
+
+       create table test(
+       id numeric(10),
+       name character(30)
+       );
+
+     */
+    env.program().append( new Push( "id" ) );
+    env.program().append( new Push( QVariant::Int ) );
+    env.program().append( new Push( 10 ) );
+    env.program().append( new Push( 0 ) );
+    env.program().append( new PushList( 4 ) );
+    env.program().append( new Push( "name" ) );
+    env.program().append( new Push( QVariant::String ) );
+    env.program().append( new Push( 30 ) );
+    env.program().append( new Push( 0 ) );
+    env.program().append( new PushList( 4 ) );
     env.program().append( new PushList( 2 ) );
     env.program().append( new Create( FILENAME ) );
 #endif
