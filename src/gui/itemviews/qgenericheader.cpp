@@ -69,15 +69,13 @@ static const int default_height = 30;
 
 QGenericHeader::QGenericHeader(QAbstractItemModel *model, Orientation o, QWidget *parent)
     : QAbstractItemView(*new QGenericHeaderPrivate, model, parent)
-{
+{   
     setVerticalScrollBarPolicy(ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(ScrollBarAlwaysOff);
     d->orientation = o;
     setFrameStyle(NoFrame);
 
-    d->viewport->setMouseTracking(true);
-    d->viewport->setBackgroundRole(QPalette::Background);
-    d->viewport->setFocusPolicy(NoFocus);
+    setMouseTracking(true);
     setFocusPolicy(NoFocus);
 
     // FIXME: this should also be called in setModel()
