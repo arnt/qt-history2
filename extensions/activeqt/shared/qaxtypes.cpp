@@ -38,7 +38,7 @@ GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5,
 extern void *qax_createObjectWrapper(int metaType, IUnknown *iface);
 #endif
 
-IFontDisp *QFontToIFont(const QFont &font)
+static IFontDisp *QFontToIFont(const QFont &font)
 {
     FONTDESC fdesc;
     memset(&fdesc, 0, sizeof(fdesc));
@@ -62,7 +62,7 @@ IFontDisp *QFontToIFont(const QFont &font)
     return f;
 }
 
-QFont IFontToQFont(IFont *f)
+static QFont IFontToQFont(IFont *f)
 {
     BSTR name;
     BOOL bold;
@@ -89,7 +89,7 @@ QFont IFontToQFont(IFont *f)
     return font;
 }
 
-IPictureDisp *QPixmapToIPicture(const QPixmap &pixmap)
+static IPictureDisp *QPixmapToIPicture(const QPixmap &pixmap)
 {
     IPictureDisp *pic = 0;
     
@@ -101,37 +101,10 @@ IPictureDisp *QPixmapToIPicture(const QPixmap &pixmap)
     desc.bmp.hpal = QColormap::hPal();
     
     if (!pixmap.isNull()) {
-		HDC pmHdc = pixmap.getDC();
-        HDC hdc = ::CreateCompatibleDC(pmHdc);
-        if (!hdc) {
-#if defined(QT_CHECK_STATE)
-            qSystemWarning("QPixmapToIPicture: Failed to create compatible device context");
-#endif
-            return 0;
-        }
-        HBITMAP hbm = ::CreateCompatibleBitmap(pmHdc, pixmap.width(), pixmap.height());
-        if (!hbm) {
-#if defined(QT_CHECK_STATE)
-            qSystemWarning("QPixmapToIPicture: Failed to create compatible bitmap");
-#endif
-            return 0;
-        }
-        ::SelectObject(hdc, hbm);
-        BOOL res = ::BitBlt(hdc, 0, 0, pixmap.width(), pixmap.height(), pmHdc, 0, 0, SRCCOPY);
-        
-        ::DeleteObject(hdc);
-		pixmap.releaseDC(pmHdc);
-        
-        if (!res) {
-#if defined(QT_CHECK_STATE)
-            qSystemWarning("QPixmapToIPicture: Failed to BitBlt bitmap");
-#endif
-            return 0;
-        }
-        
-        desc.bmp.hbitmap = hbm;
+        desc.bmp.hbitmap = pixmap.toWinHBITMAP();
+        Q_ASSERT(desc.bmp.hbitmap);
     }
-    
+
     HRESULT res = OleCreatePictureIndirect(&desc, IID_IPictureDisp, true, (void**)&pic);
     if (res != S_OK) {
         if (pic) pic->Release();
@@ -143,29 +116,22 @@ IPictureDisp *QPixmapToIPicture(const QPixmap &pixmap)
     return pic;
 }
 
-QPixmap IPictureToQPixmap(IPicture *ipic)
+static QPixmap IPictureToQPixmap(IPicture *ipic)
 {
     SHORT type;
     ipic->get_Type(&type);
     if (type != PICTYPE_BITMAP)
         return QPixmap();
-    
-    QPixmap pm(1,1);
-    OLE_XSIZE_HIMETRIC pWidth, pHeight;
-    ipic->get_Width(&pWidth);
-    ipic->get_Height(&pHeight);
-    QSize sz(MAP_LOGHIM_TO_PIX(pWidth, pm.logicalDpiX()),
-        MAP_LOGHIM_TO_PIX(pHeight, pm.logicalDpiY()));
-    
-    pm = QPixmap(sz);
-    HDC hdc = pm.getDC();
-    ipic->Render(hdc, 0, 0, pm.width(), pm.height(), 0, pHeight, pWidth, -pHeight, 0);
-    pm.releaseDC(hdc);
 
-    return pm;
+    HBITMAP hbm = 0;
+    ipic->get_Handle((OLE_HANDLE*)&hbm);
+    if (!hbm)
+        return QPixmap();
+
+    return QPixmap::fromWinHBITMAP(hbm);
 }
 
-QDateTime DATEToQDateTime(DATE ole)
+static QDateTime DATEToQDateTime(DATE ole)
 {
     SYSTEMTIME stime;
     if (ole >= 949998 || VariantTimeToSystemTime(ole, &stime) == false)
@@ -176,7 +142,7 @@ QDateTime DATEToQDateTime(DATE ole)
     return QDateTime(date, time);
 }
 
-DATE QDateTimeToDATE(const QDateTime &dt)
+static DATE QDateTimeToDATE(const QDateTime &dt)
 {
     if (!dt.isValid() || dt.isNull())
         return 949998;
@@ -201,11 +167,6 @@ DATE QDateTimeToDATE(const QDateTime &dt)
     SystemTimeToVariantTime(&stime, &vtime);
     
     return vtime;
-}
-
-uint QColorToOLEColor(const QColor &col)
-{
-    return qRgba(col.blue(), col.green(), col.red(), 0x00);
 }
 
 QColor OLEColorToQColor(uint col)

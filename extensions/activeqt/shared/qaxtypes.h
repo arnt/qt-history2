@@ -38,16 +38,11 @@ static inline BSTR QStringToBSTR(const QString &str)
     return SysAllocStringLen((OLECHAR*)str.unicode(), str.length());
 }
 
-extern QDateTime DATEToQDateTime(DATE ole);
-extern DATE QDateTimeToDATE(const QDateTime &dt);
+static inline uint QColorToOLEColor(const QColor &col)
+{
+    return qRgba(col.blue(), col.green(), col.red(), 0x00);
+}
 
-struct IFont;
-struct IFontDisp;
-
-extern IFontDisp *QFontToIFont(const QFont &font);
-extern QFont IFontToQFont(IFont *f);
-
-extern uint QColorToOLEColor(const QColor &col);
 extern QColor OLEColorToQColor(uint col);
 
 extern bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &typeName = 0, bool out = false);
