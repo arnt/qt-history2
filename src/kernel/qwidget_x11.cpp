@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#278 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#279 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1218,10 +1218,6 @@ void QWidget::resize( int w, int h )
 	return;
     if ( testWFlags(WType_Desktop) )
 	return;
-    if ( w < 1 )				// invalid size
-	w = 1;
-    if ( h < 1 )
-	h = 1;
 #ifndef QT_NO_LAYOUT_COMPAT
     if ( w <= 1 && h <= 1 && layout() ) {
 	QSize s = layout()->sizeHint();
@@ -1235,6 +1231,10 @@ void QWidget::resize( int w, int h )
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }
+    if ( w < 1 )				// invalid size
+	w = 1;
+    if ( h < 1 )
+	h = 1;
     QRect r = crect;
     QSize s(w,h);
     QSize olds = size();
@@ -1293,16 +1293,16 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 {
     if ( testWFlags(WType_Desktop) )
 	return;
-    if ( w < 1 )				// invalid size
-	w = 1;
-    if ( h < 1 )
-	h = 1;
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }
+    if ( w < 1 )				// invalid size
+	w = 1;
+    if ( h < 1 )
+	h = 1;
     QPoint oldp = pos();
     QSize  olds = size();
     QRect  r( x, y, w, h );

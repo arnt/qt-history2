@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#138 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -770,6 +770,10 @@ void QWidget::resize( int w, int h )
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }
+    if ( w < 1 )				// invalid size
+	w = 1;
+    if ( h < 1 )
+	h = 1;
     if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 1, 0, 0, w, h );
     } else {
@@ -807,6 +811,10 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }
+    if ( w < 1 )				// invalid size
+	w = 1;
+    if ( h < 1 )
+	h = 1;
     QPoint oldp( pos() );
     QSize  olds( size() );
     if ( oldp.x()==x && oldp.y()==y && olds.width()==w && olds.height()==h )
