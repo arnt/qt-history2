@@ -641,6 +641,8 @@ static void qgl_draw_poly(const QPolygon &pa)
 
 void QOpenGLPaintEngine::drawPolygon(const QPolygon &pa, PolygonDrawMode mode)
 {
+    if(pa.isEmpty())
+        return;
     dgl->makeCurrent();
     dgl->qglColor(d->cbrush.color());
     qgl_draw_poly(pa);
