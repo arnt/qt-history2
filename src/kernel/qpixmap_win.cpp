@@ -623,17 +623,23 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
 #ifndef Q_OS_TEMP
-    data->hasRealAlpha = //FALSE && // ### there are some problems with alpha, so don't do it at the moment
+#if 0
+    // ### use this if you encounter problems related alpha blending:
+    data->hasRealAlpha = FALSE;
+#else
+    data->hasRealAlpha =
 	img.hasAlphaBuffer() &&
 	d==32 && // ### can we have alpha channel with depth<32bpp?
 	( QApplication::winVersion() == Qt::WV_98 ||
 	  QApplication::winVersion() == Qt::WV_2000 ||
 	  QApplication::winVersion() == Qt::WV_XP );
+#endif
 
     if ( data->hasRealAlpha ) {
 	// Windows expects premultiplied alpha
 	int l = image.numBytes();
-	uchar *b = new uchar[l];
+	uchar *b;
+	HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, (void**)&b, NULL, 0 );
 	memcpy( b, image.bits(), l );
 	bool hasRealAlpha = FALSE;
 	for ( int i=0; i+3<l; i+=4 ) {
@@ -645,16 +651,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    b[i+2] = (b[i+2]*b[i+3]) / 255;
 	}
 	if ( hasRealAlpha ) {
-	    void *ppvBits;
-	    HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, &ppvBits, NULL, 0 );
 	    // ### the old DATA_HBM should probably be deleted with a DeleteObject() call
 	    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
-	    memcpy( ppvBits, b, l );
-	    DeleteObject( hBitmap );
 	} else {
 	    data->hasRealAlpha = FALSE;
 	}
-	delete [] b;
+	DeleteObject( hBitmap );
     }
 #else
     data->hasRealAlpha = FALSE;
