@@ -365,8 +365,8 @@ static int qt_activate_timers(TimerInfo::TimerType types = TimerInfo::TIMER_ANY)
 	    } else if ( begin == t ) {
 		// avoid sending the same timer multiple times
 		break;
-	    } else if ( t->interval <  begin->interval ||
-			t->interval == begin->interval ) {
+	    } else if ( t->u.qt_timer.interval <  begin->u.qt_timer.interval ||
+			t->u.qt_timer.interval == begin->u.qt_timer.interval ) {
 		begin = t;
 	    }
 	    timerList->take();			// unlink from list
