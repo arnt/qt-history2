@@ -350,7 +350,7 @@ QIODevice::~QIODevice()
   \keyword IO_ConnectError
   \keyword IO_AbortError
   \keyword IO_TimeOutError
-  \keyword IO_OnCloseError
+  \keyword IO_UnspecifiedError
 
   The status codes are:
   \list
@@ -362,7 +362,7 @@ QIODevice::~QIODevice()
   \i \c IO_ConnectError - Could not connect to the device.
   \i \c IO_AbortError - The operation was unexpectedly aborted.
   \i \c IO_TimeOutError - The operation timed out.
-  \i \c IO_OnCloseError - An unspecified error happened on close.
+  \i \c IO_UnspecifiedError - An unspecified error happened on close.
   \endlist
 
   \sa resetStatus()
