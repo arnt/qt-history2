@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#12 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#12 $";
 #endif
 
 
@@ -205,14 +205,14 @@ QIODevice::~QIODevice()
 
   The status codes are:
   <ul>
-  <li>IO_Ok</li> The operation was successful.
-  <li>IO_ReadError</li> Could not read from the device.
-  <li>IO_WriteError</li> Could not write to the device.
-  <li>IO_FatalError</li> A fatal unrecoverable error occurred.
-  <li>IO_OpenError</li> Could not open the device.
-  <li>IO_ConnectError</li> Could not connect to the device.
-  <li>IO_AbortError</li> The operation was unexpectedly aborted.
-  <li>IO_TimeOutError</li> The operation timed out.
+  <li>\c IO_Ok The operation was successful.
+  <li>\c IO_ReadError Could not read from the device.
+  <li>\c IO_WriteError Could not write to the device.
+  <li>\c IO_FatalError A fatal unrecoverable error occurred.
+  <li>\c IO_OpenError Could not open the device.
+  <li>\c IO_ConnectError Could not connect to the device.
+  <li>\c IO_AbortError The operation was unexpectedly aborted.
+  <li>\c IO_TimeOutError The operation timed out.
   </ul>
 
   \sa resetStatus()
