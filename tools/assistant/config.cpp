@@ -107,7 +107,7 @@ void Config::load()
 
         fontFix = settings.value( key + QLatin1String("FixedFamily"), QVariant("courier") ).toString();
         fontSiz = settings.value( key + QLatin1String("Size"), -1 ).toInt();
-        if ( fontSiz == -1 ) {
+        if ( fontSiz < 6 ) {
             QFontInfo fi( qApp->font() );
             fontSiz = fi.pointSize();
         }
