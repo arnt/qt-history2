@@ -7694,7 +7694,7 @@ void Q3TextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch
                 if (is_printer(p)) {
                     QPen oldPen = p->pen();
                     QRect r2 = r;
-                    r2.addCoords(innerborder/2, innerborder/2, -innerborder/2, -innerborder/2);
+                    r2.adjust(innerborder/2, innerborder/2, -innerborder/2, -innerborder/2);
                     p->setPen(QPen(pal.text().color(), innerborder));
                     p->drawRect(r2);
                     p->setPen(oldPen);
@@ -7715,7 +7715,7 @@ void Q3TextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch
         QRect r (x, y, width, height);
         if (is_printer(p)) {
             QRect r2 = r;
-            r2.addCoords(border/2, border/2, -border/2, -border/2);
+            r2.adjust(border/2, border/2, -border/2, -border/2);
             QPen oldPen = p->pen();
             p->setPen(QPen(pal.text().color(), border));
             p->drawRect(r2);

@@ -105,7 +105,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->setPen(opt->palette.dark().color());
         p->drawArc(opt->rect, 0, 5760);
         if (opt->state & (State_Sunken | State_On)) {
-            ir.addCoords(2, 2, -2, -2);
+            ir.adjust(2, 2, -2, -2);
             p->setBrush(opt->palette.foreground());
             p->drawEllipse(ir);
         }
@@ -862,14 +862,14 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 
                         if (toolbutton->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
                             int fh = p->fontMetrics().height();
-                            pr.addCoords(0, 3, 0, -fh - 3);
-                            tr.addCoords(0, pr.bottom(), 0, -3);
+                            pr.adjust(0, 3, 0, -fh - 3);
+                            tr.adjust(0, pr.bottom(), 0, -3);
                             pr.translate(shiftX, shiftY);
                             drawItemPixmap(p, pr, Qt::AlignCenter, pm);
                             alignment |= Qt::AlignCenter;
                         } else {
                             pr.setWidth(pm.width() + 8);
-                            tr.addCoords(pr.right(), 0, 0, 0);
+                            tr.adjust(pr.right(), 0, 0, 0);
                             pr.translate(shiftX, shiftY);
                             drawItemPixmap(p, pr, Qt::AlignCenter, pm);
                             alignment |= Qt::AlignLeft | Qt::AlignVCenter;
@@ -1107,7 +1107,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         p->setPen(opt->palette.color(QPalette::Active, QPalette::Foreground));
         p->drawRect(r);
         if (opt->state & State_Rectangle) {
-            r.addCoords(3,3, -3,-3);
+            r.adjust(3,3, -3,-3);
             p->drawRect(r);
         }
         p->restore();
@@ -1208,7 +1208,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             if (btn->text.isEmpty()) {
                 r = subElementRect(SE_CheckBoxIndicator, opt, widget);
-                r.addCoords(1, 1, -1, -1);
+                r.adjust(1, 1, -1, -1);
                 break;
             }
             QRect cr = subElementRect(SE_CheckBoxContents, opt, widget);
@@ -1220,7 +1220,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                 r = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                  | Qt::TextShowMnemonic, btn->state & State_Enabled, btn->text);
             }
-            r.addCoords(-3, -2, 3, 2);
+            r.adjust(-3, -2, 3, 2);
             r = r.intersect(btn->rect);
         }
         break;
@@ -1245,7 +1245,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             if (!btn->icon.isNull() && btn->text.isEmpty()) {
                 r = subElementRect(SE_RadioButtonIndicator, opt, widget);
-                r.addCoords(1, 1, -1, -1);
+                r.adjust(1, 1, -1, -1);
                 break;
             }
             QRect cr = subElementRect(SE_RadioButtonContents, opt, widget);
@@ -1257,7 +1257,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                 r = itemTextRect(opt->fontMetrics, cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                  | Qt::TextShowMnemonic, btn->state & State_Enabled, btn->text);
             }
-            r.addCoords(-3, -2, 3, 2);
+            r.adjust(-3, -2, 3, 2);
             r = r.intersect(btn->rect);
         }
         break;
@@ -1309,7 +1309,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         break;
     case SE_ToolBoxTabContents:
         r = opt->rect;
-        r.addCoords(0, 0, -30, 0);
+        r.adjust(0, 0, -30, 0);
         break;
     case SE_HeaderLabel: {
         int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
@@ -1445,7 +1445,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                   break;
                }
             if (sr == SE_TabWidgetTabContents)
-                   r.addCoords(2, 2, -2, -2);
+                   r.adjust(2, 2, -2, -2);
         }
         break;
     case SE_TabWidgetLeftCorner:
@@ -1679,7 +1679,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                        subControlRect(CC_SpinBox, sb, SC_SpinBoxUp,
                                                               widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
-                copy.rect.addCoords(3, 0, -4, 0);
+                copy.rect.adjust(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -1706,7 +1706,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                        subControlRect(CC_SpinBox, sb, SC_SpinBoxDown,
                                                               widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
-                copy.rect.addCoords(3, 0, -4, 0);
+                copy.rect.adjust(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -1765,9 +1765,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (toolbutton->state & State_HasFocus) {
                 QStyleOptionFocusRect fr;
                 fr.rect = toolbutton->rect;
-                fr.rect.addCoords(3, 3, -3, -3);
+                fr.rect.adjust(3, 3, -3, -3);
                 if (toolbutton->features & QStyleOptionToolButton::Menu)
-                    fr.rect.addCoords(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
+                    fr.rect.adjust(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
                                                          toolbutton, widget), 0);
                 fr.palette = toolbutton->palette;
                 fr.state = State_None;
@@ -2219,13 +2219,13 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 if ((tb->features
                      & (QStyleOptionToolButton::Menu | QStyleOptionToolButton::PopupDelay))
                     == QStyleOptionToolButton::Menu)
-                    ret.addCoords(0, 0, -mbi, 0);
+                    ret.adjust(0, 0, -mbi, 0);
                 break;
             case SC_ToolButtonMenu:
                 if ((tb->features
                      & (QStyleOptionToolButton::Menu | QStyleOptionToolButton::PopupDelay))
                     == QStyleOptionToolButton::Menu)
-                    ret.addCoords(ret.width() - mbi, 0, 0, 0);
+                    ret.adjust(ret.width() - mbi, 0, 0, 0);
                 break;
             default:
                 break;
@@ -2273,15 +2273,15 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 if (tb->titleBarFlags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint)) {
                     ret = tb->rect;
                     if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
-                        ret.addCoords(delta, 0, -delta, 0);
+                        ret.adjust(delta, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
-                        ret.addCoords(0, 0, -delta, 0);
+                        ret.adjust(0, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
-                        ret.addCoords(0, 0, -delta, 0);
+                        ret.adjust(0, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowShadeButtonHint)
-                        ret.addCoords(0, 0, -delta, 0);
+                        ret.adjust(0, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
-                        ret.addCoords(0, 0, -delta, 0);
+                        ret.adjust(0, 0, -delta, 0);
                 }
                 break;
             case SC_TitleBarContextHelpButton:

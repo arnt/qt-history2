@@ -292,7 +292,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
 
     QRect r = rect();
     if (drawShadow)
-        r.addCoords(0, 0, -shadowWidth, -shadowWidth);
+        r.adjust(0, 0, -shadowWidth, -shadowWidth);
     QPainter p(this);
     p.setPen(palette().foreground().color());
     p.drawRect(r);
@@ -315,7 +315,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
             p.drawLine(6, h + 6 - i, i + 5, h + 5);
     }
     p.setPen(palette().foreground().color());
-    r.addCoords(hMargin, vMargin, -hMargin, -vMargin);
+    r.adjust(hMargin, vMargin, -hMargin, -vMargin);
 
 #ifndef QT_NO_RICHTEXT
     if (doc) {

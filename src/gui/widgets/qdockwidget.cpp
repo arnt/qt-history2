@@ -173,7 +173,7 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
         opt.state |= QStyle::State_Down;
     style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
 
-    r.addCoords(2, 2, -2, -2);
+    r.adjust(2, 2, -2, -2);
     QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ? QIcon::Normal : QIcon::Disabled);
     style()->drawItemPixmap(&p, r, Qt::AlignCenter, pm);
 }

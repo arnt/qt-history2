@@ -1039,7 +1039,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_FrameDefaultButton: {
         p->setPen(opt->palette.shadow().color());
         QRect rect = opt->rect;
-        rect.addCoords(0, 0, -1, -1);
+        rect.adjust(0, 0, -1, -1);
         p->drawRect(rect);
         break;
     }
@@ -2225,7 +2225,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                                   &cmb->palette.brush(QPalette::Button));
                 }
 
-                ar.addCoords(2, 2, -2, -2);
+                ar.adjust(2, 2, -2, -2);
                 if (opt->state & State_Enabled)
                     flags |= State_Enabled;
 

@@ -575,7 +575,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     QRegion sysClip = systemClip();
     if (!sysClip.isEmpty()) {
         devClipRect = sysClip.boundingRect();
-        devClipRect.addCoords(-BUFFERZONE, -BUFFERZONE, 2*BUFFERZONE, 2*BUFFERZONE);
+        devClipRect.adjust(-BUFFERZONE, -BUFFERZONE, 2*BUFFERZONE, 2*BUFFERZONE);
     } else {
         devClipRect.setRect(-BUFFERZONE, -BUFFERZONE,
                             pdev->width() + 2*BUFFERZONE, pdev->height() + 2 * BUFFERZONE);

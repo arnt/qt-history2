@@ -658,7 +658,7 @@ void QMotifPlusStyle::drawControl(ControlElement element,
             }
 
             if (flags & State_HasFocus)
-                br.addCoords(1, 1, -1, -1);
+                br.adjust(1, 1, -1, -1);
             p->save();
             drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
             p->restore();
@@ -1170,7 +1170,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget
 
             rect = button->rect();
             if (button->isDefault() || button->autoDefault())
-                rect.addCoords(dfi, dfi, -dfi, -dfi);
+                rect.adjust(dfi, dfi, -dfi, -dfi);
 #endif
             break;
         }
@@ -1206,7 +1206,7 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget
             if (combobox->editable()) {
                 rect = subControlRect(CC_ComboBox, widget,
                                               SC_ComboBoxEditField);
-                rect.addCoords(-3, -3, 3, 3);
+                rect.adjust(-3, -3, 3, 3);
             } else
                 rect = combobox->rect();
 #endif
@@ -1389,9 +1389,9 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
             if (combobox->editable()) {
                 if (controls & SC_ComboBoxEditField && editfield.isValid()) {
-                    editfield.addCoords(-3, -3, 3, 3);
+                    editfield.adjust(-3, -3, 3, 3);
                     if (combobox->hasFocus())
-                        editfield.addCoords(1, 1, -1, -1);
+                        editfield.adjust(1, 1, -1, -1);
                     drawMotifPlusShade(p, editfield, pal, true, false,
                                        (widget->isEnabled() ?
                                         &pal.brush(QPalette::Base) :
@@ -1403,7 +1403,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                                        (flags & State_MouseOver));
 
                     int space = (r.height() - 13) / 2;
-                    arrow.addCoords(space, space, -space, -space);
+                    arrow.adjust(space, space, -space, -space);
 
                     if (active == SC_ComboBoxArrow)
                         flags |= State_Sunken;
@@ -1411,9 +1411,9 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                 }
             } else {
                 if (controls & SC_ComboBoxEditField && editfield.isValid()) {
-                    editfield.addCoords(-3, -3, 3, 3);
+                    editfield.adjust(-3, -3, 3, 3);
                     if (combobox->hasFocus())
-                        editfield.addCoords(1, 1, -1, -1);
+                        editfield.adjust(1, 1, -1, -1);
                     drawMotifPlusShade(p, editfield, pal, false,
                                        (flags & State_MouseOver));
                 }
@@ -1590,7 +1590,7 @@ QRect QMotifPlusStyle::subControlRect(ComplexControl control,
             case SC_ComboBoxEditField: {
                 QRect rect = widget->rect();
                 rect.setWidth(rect.width() - 13 - space * 2);
-                rect.addCoords(3, 3, -3, -3);
+                rect.adjust(3, 3, -3, -3);
                 return rect; }
             case SC_ComboBoxArrow:
                 return QRect(combobox->width() - 13 - space * 2, 0,
@@ -1605,7 +1605,7 @@ QRect QMotifPlusStyle::subControlRect(ComplexControl control,
                 return QRect();
             case SC_ComboBoxEditField: {
                 QRect rect = widget->rect();
-                rect.addCoords(3, 3, -3, -3);
+                rect.adjust(3, 3, -3, -3);
                 return rect; }
             case SC_ComboBoxArrow:                // 12 wide, 7 tall
                 return QRect(combobox->width() - 12 - space, space, 12, 7);

@@ -718,7 +718,7 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
         {
             rect = QWindowsStyle::subElementRect(sr, option, widget);
             if (sr == SE_TabWidgetTabContents)
-                   rect.addCoords(0, 0, -2, -2);
+                   rect.adjust(0, 0, -2, -2);
         }
         break;
     default:
@@ -960,7 +960,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     //    name = "STATUS";
     //    partId = SP_GRIPPER;
     //    // empiric correction values...
-    //    rect.addCoords(-4, -8, 0, 0);
+    //    rect.adjust(-4, -8, 0, 0);
     //    mirror = qApp->reverseLayout();
     //    break;
 
@@ -1152,16 +1152,16 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 break;
             case QTabBar::RoundedNorth:
                 if (selected)
-                    rect.addCoords(!firstTab ? -tabOverlap : 0, 0, !lastTab ? tabOverlap : 0, borderThickness);
+                    rect.adjust(!firstTab ? -tabOverlap : 0, 0, !lastTab ? tabOverlap : 0, borderThickness);
                 else
-                    rect.addCoords(0, tabOverlap, 0, -borderThickness);
+                    rect.adjust(0, tabOverlap, 0, -borderThickness);
                 break;
             case QTabBar::RoundedSouth:
                 vMirrored = true;
                 if (selected)
-                    rect.addCoords(!firstTab ? -tabOverlap : 0, -borderThickness, !lastTab ? tabOverlap : 0, 0);
+                    rect.adjust(!firstTab ? -tabOverlap : 0, -borderThickness, !lastTab ? tabOverlap : 0, 0);
                 else
-                    rect.addCoords(0, borderThickness, 0, -tabOverlap);
+                    rect.adjust(0, borderThickness, 0, -tabOverlap);
                 break;
             }
 
@@ -1171,26 +1171,26 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             //case QTabBar::RoundedNorth:
             //case QTabBar::TriangularNorth:
             //    if ((flags & State_Selected) || (flags & State_HasFocus)) {
-            //        rect.addCoords(0, 0, 0, 1);
+            //        rect.adjust(0, 0, 0, 1);
             //    } else {
-            //        rect.addCoords(0, 1, 0, 0);
+            //        rect.adjust(0, 1, 0, 0);
             //        if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
-            //            rect.addCoords(1, 0, 0, 0);
+            //            rect.adjust(1, 0, 0, 0);
             //        if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
-            //            rect.addCoords(0, 0, -1, 0);
+            //            rect.adjust(0, 0, -1, 0);
             //    }
             //    break;
             //case QTabBar::RoundedSouth:
             //case QTabBar::TriangularSouth:
             //    rotate = 180;
             //    if ((flags & State_Selected) || (flags & State_HasFocus)) {
-            //        rect.addCoords(0, -1, 0, 0);
+            //        rect.adjust(0, -1, 0, 0);
             //    } else {
-            //        rect.addCoords(0, 0, 0, -1);
+            //        rect.adjust(0, 0, 0, -1);
             //        if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
-            //            rect.addCoords(1, 0, 0, 0);
+            //            rect.adjust(1, 0, 0, 0);
             //        if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
-            //            rect.addCoords(0, 0, -1, 0);
+            //            rect.adjust(0, 0, -1, 0);
             //    }
             //    break;
             //case QTabBar::RoundedEast:
@@ -1201,13 +1201,13 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             //case QTabBar::TriangularWest:
             //    rotate = 270;
             //    if ((flags & State_Selected) || (flags & State_HasFocus)) {
-            //        rect.addCoords(0, 0, 1, 0);
+            //        rect.adjust(0, 0, 1, 0);
             //    } else {
-            //        rect.addCoords(1, 0, -5, 0);
+            //        rect.adjust(1, 0, -5, 0);
             //        if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
-            //            rect.addCoords(0, 1, 0, 0);
+            //            rect.adjust(0, 1, 0, 0);
             //        if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
-            //            rect.addCoords(0, 0, 0, -1);
+            //            rect.adjust(0, 0, 0, -1);
             //    }
             //    break;
             //}
@@ -1216,19 +1216,19 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             //    switch (tab->shape) {
             //    case QTabBar::RoundedNorth:
             //    case QTabBar::TriangularNorth:
-            //        rect.addCoords(0,0, 0,-1);
+            //        rect.adjust(0,0, 0,-1);
             //        break;
             //    case QTabBar::RoundedSouth:
             //    case QTabBar::TriangularSouth:
-            //        rect.addCoords(0,1, 0,0);
+            //        rect.adjust(0,1, 0,0);
             //        break;
             //    case QTabBar::RoundedEast:
             //    case QTabBar::TriangularEast:
-            //        rect.addCoords(1,0, 0,0);
+            //        rect.adjust(1,0, 0,0);
             //        break;
             //    case QTabBar::RoundedWest:
             //    case QTabBar::TriangularWest:
-            //        rect.addCoords(0,0, -1,0);
+            //        rect.adjust(0,0, -1,0);
             //        break;
             //    }
             //}
@@ -1888,7 +1888,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             //if (tb->hasFocus() && !tb->focusProxy()) {
             //    Q3StyleOptionFocusRect option(0);
             //    option.rect = tb->rect();
-            //    option.rect.addCoords(3, 3, -3, -3);
+            //    option.rect.adjust(3, 3, -3, -3);
             //    option.palette = pal;
             //    option.state = State_Default;
             //    drawPrimitive(PE_FrameFocusRect, &option, p, tb);
@@ -2371,16 +2371,16 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 //            QRect ir(0, 0, titlebar->width(), titlebar->height());
 //            if (titlebar->testWFlags(Qt::WA_WState_Tool)) {
 //                if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
-//                    ir.addCoords(0, 0, -controlHeight-3, 0);
+//                    ir.adjust(0, 0, -controlHeight-3, 0);
 //                if (titlebar->testWFlags(Qt::WA_WState_MinMax))
-//                    ir.addCoords(0, 0, -controlHeight-2, 0);
+//                    ir.adjust(0, 0, -controlHeight-2, 0);
 //            } else {
 //                if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
-//                    ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
+//                    ir.adjust(controlHeight+3, 0, -controlHeight-3, 0);
 //                if (titlebar->testWFlags(Qt::WA_WState_Minimize))
-//                    ir.addCoords(0, 0, -controlHeight-2, 0);
+//                    ir.adjust(0, 0, -controlHeight-2, 0);
 //                if (titlebar->testWFlags(Qt::WA_WState_Maximize))
-//                    ir.addCoords(0, 0, -controlHeight-2, 0);
+//                    ir.adjust(0, 0, -controlHeight-2, 0);
 //            }
 //            return ir; }
 //

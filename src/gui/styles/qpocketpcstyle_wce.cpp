@@ -898,7 +898,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
     case SR_SliderFocusRect:
         {
             rect = widget->rect();
-            rect.addCoords(2, 2, -2, -2);
+            rect.adjust(2, 2, -2, -2);
             break;
         }
 #endif // QT_NO_SLIDER
@@ -998,7 +998,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             if (button->isDefault() || button->autoDefault())
                 ++dx;
             rect = wrect;
-            rect.addCoords(dx, dx, -dx, -dx);
+            rect.adjust(dx, dx, -dx, -dx);
             break;
         }
 
@@ -1009,7 +1009,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             if (button->isDefault() || button->autoDefault())
                 ++dx;
             rect = wrect;
-            rect.addCoords(dx, dx, -dx, -dx);
+            rect.adjust(dx, dx, -dx, -dx);
             break;
         }
 #endif // QT_NO_PUSHBUTTON
@@ -1036,7 +1036,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             const QCheckBox *checkbox = (const QCheckBox *) widget;
             if (!checkbox->pixmap() && checkbox->text().isEmpty()) {
                 rect = subRect(SR_CheckBoxIndicator, widget);
-                rect.addCoords(1, 1, -1, -1);
+                rect.adjust(1, 1, -1, -1);
                 break;
             }
             QRect cr = subRect(SR_CheckBoxContents, widget);
@@ -1050,7 +1050,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
                             checkbox->text());
             delete p;
 
-            rect.addCoords(-1, -1, 1, 2);
+            rect.adjust(-1, -1, 1, 2);
             rect = rect.intersect(wrect);
             break;
         }
@@ -1079,7 +1079,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
             // If only the radio button, with no extra pixmap, or text
             if (!radiobutton->pixmap() && radiobutton->text().isEmpty()) {
                 rect = subRect(SR_RadioButtonIndicator, widget);
-                rect.addCoords(1, 1, -1, -2);
+                rect.adjust(1, 1, -1, -2);
                 break;
             }
 
@@ -1094,7 +1094,7 @@ QRect QPocketPCStyle::subRect(SubRect             subrect,
                             radiobutton->text());
             delete p;
 
-            rect.addCoords(-2, -1, 1, 2);
+            rect.adjust(-2, -1, 1, 2);
             rect = rect.intersect(wrect);
             break;
         }
@@ -1596,16 +1596,16 @@ QRect QPocketPCStyle::subControlRect(ComplexControl         complex,
             int mbi = PM_MENUBUTTONINDICATOR; // pixelMetric(PM_MenuButtonIndicator, widget);
 
             QRect rect = toolbutton->rect();
-            //rect.addCoords(0, 2, 0, -4);
+            //rect.adjust(0, 2, 0, -4);
             switch (sc) {
             case SC_ToolButton:
                 if (toolbutton->popup() && ! toolbutton->popupDelay())
-                    rect.addCoords(0, 0, -mbi, 0);
+                    rect.adjust(0, 0, -mbi, 0);
                 return rect;
 
             case SC_ToolButtonMenu:
                 if (toolbutton->popup() && ! toolbutton->popupDelay())
-                    rect.addCoords(rect.width() - mbi, 0, 0, 0);
+                    rect.adjust(rect.width() - mbi, 0, 0, 0);
                 return rect;
             }
             break;
@@ -1625,16 +1625,16 @@ QRect QPocketPCStyle::subControlRect(ComplexControl         complex,
                 QRect ir(0, 0, titlebar->width(), titlebar->height());
                 if (titlebar->testWFlags(Qt::WA_WState_Tool)) {
                     if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
-                        ir.addCoords(0, 0, -controlHeight-3, 0);
+                        ir.adjust(0, 0, -controlHeight-3, 0);
                     if (titlebar->testWFlags(Qt::WA_WState_MinMax))
-                        ir.addCoords(0, 0, -controlHeight-2, 0);
+                        ir.adjust(0, 0, -controlHeight-2, 0);
                 } else {
                     if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
-                        ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
+                        ir.adjust(controlHeight+3, 0, -controlHeight-3, 0);
                     if (titlebar->testWFlags(Qt::WA_WState_Minimize))
-                        ir.addCoords(0, 0, -controlHeight-2, 0);
+                        ir.adjust(0, 0, -controlHeight-2, 0);
                     if (titlebar->testWFlags(Qt::WA_WState_Maximize))
-                        ir.addCoords(0, 0, -controlHeight-2, 0);
+                        ir.adjust(0, 0, -controlHeight-2, 0);
                 }
                 return ir; }
 
@@ -2259,7 +2259,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
             if (button->isDefault()) {
                 drawPrimitive(PE_ButtonDefault, p, br, pal, flags);
-                br.addCoords(1, 1, -1, -1);
+                br.adjust(1, 1, -1, -1);
             }
             drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
             break;
@@ -2858,8 +2858,8 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
                             QRect pr = rect, tr = rect;
                             int fh = p->fontMetrics().height();
-                            pr.addCoords(0, 1, 0, -fh-3);
-                            tr.addCoords(0, pr.bottom(), 0, -3);
+                            pr.adjust(0, 1, 0, -fh-3);
+                            tr.adjust(0, pr.bottom(), 0, -3);
                             drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
                             drawItem(p, tr, Qt::AlignCenter | Qt::TextShowMnemonic, pal,
                                       flags & State_Enabled, 0, toolbutton->textLabel(),
@@ -2869,7 +2869,7 @@ void QPocketPCStyle::drawControl(ControlElement             control,
 
                             QRect pr = rect, tr = rect;
                             pr.setWidth(pm.width() + 8);
-                            tr.addCoords(pr.right(), 0, 0, 0);
+                            tr.adjust(pr.right(), 0, 0, 0);
                             drawItem(p, pr, Qt::AlignCenter, pal, true, &pm, QString::null);
                             drawItem(p, tr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, pal,
                                       flags & State_Enabled, 0, toolbutton->textLabel(),
@@ -3674,7 +3674,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
 
             if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
                 QRect fr = toolbutton->rect();
-                fr.addCoords(2, 2, -2, -2);
+                fr.adjust(2, 2, -2, -2);
                 drawPrimitive(PE_FocusRect, p, fr, c);
             }
 

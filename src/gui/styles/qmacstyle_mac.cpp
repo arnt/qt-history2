@@ -3285,7 +3285,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                     p->drawPixmap(wholePane, pix);
                     p->restore();
                 } else {
-                    wholePane.addCoords(TabPaneShadowWidth, 0,
+                    wholePane.adjust(TabPaneShadowWidth, 0,
                                         -TabPaneShadowWidth, -TabPaneShadowHeight);
                     qt_mac_set_port(p);
                     DrawThemeTabPane(qt_glb_mac_rect(wholePane, p), tds);
@@ -5282,18 +5282,18 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                             int alignment = 0;
                             if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
                                 int fh = p->fontMetrics().height();
-                                pr.addCoords(0, 3, 0, -fh - 3);
-                                cr.addCoords(0, pr.bottom(), 0, -3);
+                                pr.adjust(0, 3, 0, -fh - 3);
+                                cr.adjust(0, pr.bottom(), 0, -3);
                                 alignment |= Qt::AlignCenter;
                             } else {
                                 pr.setWidth(pixmap.width() + 8);
-                                cr.addCoords(pr.right(), 0, 0, 0);
+                                cr.adjust(pr.right(), 0, 0, 0);
                                 alignment |= Qt::AlignLeft | Qt::AlignVCenter;
                             }
                             cr.translate(shiftX, shiftY);
                             drawItemText(p, cr, alignment, tb->palette,
                                          tb->state & QStyle::State_Enabled, tb->text);
-                            cr.addCoords(0, 3, 0, -3); // the drop shadow
+                            cr.adjust(0, 3, 0, -3); // the drop shadow
                             drawItemText(p, cr, alignment, tb->palette,
                                          tb->state & QStyle::State_Enabled, tb->text);
                         }
@@ -5373,16 +5373,16 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
                    = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
                 switch (getTabDirection(twf->shape)) {
                 case kThemeTabNorth:
-                    rect.addCoords(0, 8, 0, 0);
+                    rect.adjust(0, 8, 0, 0);
                     break;
                 case kThemeTabSouth:
-                    rect.addCoords(0, 0, 0, -8);
+                    rect.adjust(0, 0, 0, -8);
                     break;
                 case kThemeTabWest:
-                    rect.addCoords(8, 0, 0, 0);
+                    rect.adjust(8, 0, 0, 0);
                     break;
                 case kThemeTabEast:
-                    rect.addCoords(0, 0, -8, 0);
+                    rect.adjust(0, 0, -8, 0);
                     break;
                 }
             }

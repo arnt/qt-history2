@@ -336,7 +336,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
     int m = style()->pixelMetric(QStyle::PM_MaximumDragDistance, &opt, this);
     if (m >= 0) {
         QRect r = rect();
-        r.addCoords(-m, -m, m, m);
+        r.adjust(-m, -m, m, m);
         if (!r.contains(ev->pos()))
             newPosition = d->snapBackPosition;
     }

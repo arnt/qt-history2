@@ -735,7 +735,7 @@ void QLabel::paintEvent(QPaintEvent *)
     QPainter paint(this);
     drawFrame(&paint);
     QRect cr = contentsRect();
-    cr.addCoords(d->margin, d->margin, -d->margin, -d->margin);
+    cr.adjust(d->margin, d->margin, -d->margin, -d->margin);
 
     QPixmap pix;
     if (pixmap())

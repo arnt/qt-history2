@@ -1206,7 +1206,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             if ((toolbutton->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fr;
                 fr.rect = toolbutton->rect;
-                fr.rect.addCoords(3, 3, -3, -3);
+                fr.rect.adjust(3, 3, -3, -3);
                 fr.palette = toolbutton->palette;
                 fr.state = State_None;
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
@@ -1356,7 +1356,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 drawPrimitive(PE_PanelButtonCommand, &btn, p, widget);
 
                 QRect tr = opt->rect;
-                tr.addCoords(fw, fw, -fw, -fw);
+                tr.adjust(fw, fw, -fw, -fw);
                 get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
 
                 QRect ar = QStyle::visualRect(opt->direction, opt->rect, QRect(ax,ay,awh,awh));
@@ -1388,7 +1388,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 if (cb->editable) {
                     QRect er = QStyle::visualRect(opt->direction, opt->rect,
                                                   subControlRect(CC_ComboBox, opt, SC_ComboBoxEditField, widget));
-                    er.addCoords(-1, -1, 1, 1);
+                    er.adjust(-1, -1, 1, 1);
                     qDrawShadePanel(p, er, opt->palette, true, 1,
                                     &opt->palette.brush(QPalette::Button));
                 }
@@ -1673,14 +1673,14 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
             QRect rect =  QCommonStyle::subControlRect(cc, scrollbar, sc, widget);
             if (sc == SC_ScrollBarSlider) {
                 if (scrollbar->orientation == Qt::Horizontal)
-                    rect.addCoords(-dfw, dfw, dfw, -dfw);
+                    rect.adjust(-dfw, dfw, dfw, -dfw);
                 else
-                    rect.addCoords(dfw, -dfw, -dfw, dfw);
+                    rect.adjust(dfw, -dfw, -dfw, dfw);
             } else if (sc != SC_ScrollBarGroove)
                 if (scrollbar->orientation == Qt::Horizontal)
-                    rect.addCoords(0, dfw, 0, -dfw);
+                    rect.adjust(0, dfw, 0, -dfw);
                 else
-                    rect.addCoords(dfw, 0, -dfw, 0);
+                    rect.adjust(dfw, 0, -dfw, 0);
             return rect;
         }
         break;
@@ -1691,16 +1691,16 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
             int ew, awh, sh, dh, ax, ay, sy;
             int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
             QRect cr = opt->rect;
-            cr.addCoords(fw, fw, -fw, -fw);
+            cr.adjust(fw, fw, -fw, -fw);
             get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
             return QRect(QPoint(ax, ay), cr.bottomRight()); }
 
         case SC_ComboBoxEditField: {
             int fw = pixelMetric(PM_ComboBoxFrameWidth, opt, widget);
             QRect rect = opt->rect;
-            rect.addCoords(fw, fw, -fw, -fw);
+            rect.adjust(fw, fw, -fw, -fw);
             int ew = get_combo_extra_width(rect.height(), rect.width());
-            rect.addCoords(1, 1, -1-ew, -1);
+            rect.adjust(1, 1, -1-ew, -1);
             return rect; }
 
         default:
@@ -1803,14 +1803,14 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
     switch (sr) {
     case SE_SliderFocusRect:
         rect = QCommonStyle::subElementRect(sr, opt, widget);
-        rect.addCoords(2, 2, -2, -2);
+        rect.adjust(2, 2, -2, -2);
         break;
 
     case SE_CheckBoxIndicator:
     case SE_RadioButtonIndicator:
         {
             rect = QCommonStyle::subElementRect(sr, opt, widget);
-            rect.addCoords(motifItemFrame,0, motifItemFrame,0);
+            rect.adjust(motifItemFrame,0, motifItemFrame,0);
         }
         break;
 
@@ -1820,7 +1820,7 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
         int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
         QRect tr = opt->rect;
 
-        tr.addCoords(fw, fw, -fw, -fw);
+        tr.adjust(fw, fw, -fw, -fw);
         get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
         rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
         break;

@@ -672,12 +672,12 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     case PE_Indicator:
         {
             QRect er = r;
-            er.addCoords(1, 1, -1, -1);
+            er.adjust(1, 1, -1, -1);
             int iflags = flags & ~State_On;
             drawPrimitive(PE_ButtonBevel, p, er, pal, iflags, opt);
             if (!(flags & QStyle::State_Off)) {
                 er = r;
-                er.addCoords(1, 2, 1, 1);
+                er.adjust(1, 2, 1, 1);
                 drawPrimitive(PE_CheckMark, p, er, pal, flags, opt);
             }
         }
@@ -692,12 +692,12 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             p->setBrush(Qt::color1);
             p->fillRect(x, y, w, h, QBrush(Qt::color0));
             QRect er = r;
-            er.addCoords(1, 1, -1, -1);
+            er.adjust(1, 1, -1, -1);
             p->fillRect(er, QBrush(Qt::color1));
 
             if (!(flags & QStyle::State_Off)) {
                 er = r;
-                er.addCoords(1, 2, 1, 1);
+                er.adjust(1, 2, 1, 1);
                 static const int check_mark[] = {
                         14,0,  10,0,  11,1,  8,1,  9,2,         7,2,  8,3,  6,3,
                         7,4,  1,4,  6,5,  1,5,        6,6,  3,6,  5,7,  4,7,
@@ -1061,9 +1061,9 @@ void QSGIStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
                         QRect er(x+sgiItemFrame+1, y+sgiItemFrame+3,
                                   pixelMetric(PM_IndicatorWidth),
                                   pixelMetric(PM_IndicatorHeight));
-                        er.addCoords(1, 1, -1, -1);
+                        er.adjust(1, 1, -1, -1);
                         drawPrimitive(PE_ButtonBevel, p, er, pal, cflags, opt);
-                        er.addCoords(0, 1, 1, 1);
+                        er.adjust(0, 1, 1, 1);
                         drawPrimitive(PE_CheckMark, p, er, pal, cflags | State_On, opt);
                     }
                 }
@@ -1191,9 +1191,9 @@ void QSGIStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
                         QRect er(x+sgiItemFrame+1, y+sgiItemFrame+3,
                                   pixelMetric(PM_IndicatorWidth),
                                   pixelMetric(PM_IndicatorHeight));
-                        er.addCoords(1, 1, -1, -1);
+                        er.adjust(1, 1, -1, -1);
                         drawPrimitive(PE_ButtonBevel, p, er, pal, cflags, opt);
-                        er.addCoords(0, 1, 1, 1);
+                        er.adjust(0, 1, 1, 1);
                         drawPrimitive(PE_CheckMark, p, er, pal, cflags | State_On, opt);
                     }
                 }
@@ -1383,7 +1383,7 @@ void QSGIStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 p->setClipRegion(region);
 
                 QRect grooveTop = groove;
-                grooveTop.addCoords(1, 1, -1, -1);
+                grooveTop.adjust(1, 1, -1, -1);
                 drawPrimitive(PE_ButtonBevel, p, grooveTop, pal, flags & ~State_MouseOver, opt);
 
                 if (flags & State_HasFocus) {
@@ -1446,7 +1446,7 @@ void QSGIStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                 QRect er =
                     QStyle::visualRect(subControlRect(CC_ComboBox, cb, SC_ComboBoxArrow), cb);
 
-                er.addCoords(0, 3, 0, 0);
+                er.adjust(0, 3, 0, 0);
 
                 drawPrimitive(PE_ArrowDown, p, er, pal, flags | State_Enabled, opt);
 
@@ -1467,7 +1467,7 @@ void QSGIStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                     QRect er =
                         QStyle::visualRect(subControlRect(CC_ComboBox, cb,
                                                                     SC_ComboBoxEditField), cb);
-                    er.addCoords(-1, -1, 1, 1);
+                    er.adjust(-1, -1, 1, 1);
                     qDrawShadePanel(p, QRect(er.x()-1, er.y()-1,
                                                er.width()+2, er.height()+2),
                                      pal, true, 1, &pal.brush(QPalette::Button));
@@ -1652,7 +1652,7 @@ QRect QSGIStyle::subRect(SubRect r, const QStyleOption *opt, const QWidget *widg
             int fw = pixelMetric(PM_DefaultFrameWidth, widget);
             QRect tr = widget->rect();
 
-            tr.addCoords(fw, fw, -fw, -fw);
+            tr.adjust(fw, fw, -fw, -fw);
             get_combo_parameters(tr, ew, awh, ax, ay, sh, dh, sy);
             rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
         }
@@ -1687,16 +1687,16 @@ QRect QSGIStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             int ew, awh, sh, dh, ax, ay, sy;
             int fw = pixelMetric(PM_DefaultFrameWidth, widget);
             QRect cr = widget->rect();
-            cr.addCoords(fw, fw, -fw, -fw);
+            cr.adjust(fw, fw, -fw, -fw);
             get_combo_parameters(cr, ew, awh, ax, ay, sh, dh, sy);
             return QRect(ax, ay, awh, awh); }
 
         case SC_ComboBoxEditField: {
             int fw = pixelMetric(PM_DefaultFrameWidth, widget);
             QRect rect = widget->rect();
-            rect.addCoords(fw, fw, -fw, -fw);
+            rect.adjust(fw, fw, -fw, -fw);
             int ew = get_combo_extra_width(rect.height());
-            rect.addCoords(1, 1, -1-ew, -1);
+            rect.adjust(1, 1, -1-ew, -1);
             return rect; }
 
         default:

@@ -409,14 +409,14 @@ int QFrame::frameWidth() const
 QRect QFrame::frameRect() const
 {
     QRect fr = contentsRect();
-    fr.addCoords(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
+    fr.adjust(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
     return fr;
 }
 
 void QFrame::setFrameRect(const QRect &r)
 {
     QRect cr = r;
-    cr.addCoords(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
+    cr.adjust(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
     setContentsMargins(cr.left(), cr.top(), rect().right() - cr.right(), rect().bottom() - cr.bottom());
 }
 

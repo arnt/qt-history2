@@ -189,7 +189,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     int ih = 0;
     if (pm.isNull()) {
         tr = cr;
-        tr.addCoords(4, 0, -8, 0);
+        tr.adjust(4, 0, -8, 0);
     } else {
         int iw = pm.width() + 4;
         ih = pm.height();

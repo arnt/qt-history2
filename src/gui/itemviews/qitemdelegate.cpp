@@ -406,7 +406,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     int bb = border * 2;
     int w, h;
 
-    textRect->addCoords(-textMargin, 0, textMargin, 0);
+    textRect->adjust(-textMargin, 0, textMargin, 0);
 
     if (hint) {
         w = qMax(textRect->width(), pixmapRect->width()) + bb;

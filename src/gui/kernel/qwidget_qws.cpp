@@ -245,7 +245,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             extra->topextra->ftop = cr.y() - br.y();
             extra->topextra->fright = br.right() - cr.right();
             extra->topextra->fbottom = br.bottom() - cr.bottom();
-            data.crect.addCoords(extra->topextra->fleft, extra->topextra->ftop,
+            data.crect.adjust(extra->topextra->fleft, extra->topextra->ftop,
                                   -extra->topextra->fright, -extra->topextra->fbottom);
             topData()->qwsManager = new QWSManager(q);
         } else if (topData()->qwsManager) {

@@ -1844,7 +1844,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         opt.state |= QStyle::State_Sunken;
         style()->drawPrimitive(QStyle::PE_FrameLineEdit, &opt, &p, this);
 
-        r.addCoords(frameWidth, frameWidth, -frameWidth, -frameWidth);
+        r.adjust(frameWidth, frameWidth, -frameWidth, -frameWidth);
     }
     p.setClipRect(r);
 

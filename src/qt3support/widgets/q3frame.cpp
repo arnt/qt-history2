@@ -155,7 +155,7 @@ void Q3Frame::setMargin(int w)
 QRect Q3Frame::contentsRect() const
 {
     QRect cr(QFrame::contentsRect());
-    cr.addCoords(marg, marg, -marg, -marg);
+    cr.adjust(marg, marg, -marg, -marg);
     return cr;
 }
 
