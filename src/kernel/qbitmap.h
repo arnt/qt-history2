@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#1 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#2 $
 **
 ** Definition of QBitMap class
 **
@@ -15,13 +15,16 @@
 
 #include "qpixmap.h"
 
+class QWXFMatrix;
 
 class QBitMap : public QPixMap			// bitmap class
 {
+friend class QBrush;
+friend class QCursor;
 public:
     QBitMap( int w, int h ) : QPixMap(w,h,1) {}
     QBitMap( int w, int h, const char *data ) : QPixMap(w,h,data) {}
-    ~QBitMap() {}
+   ~QBitMap() {}
 
     bool   testBit( int x, int y ) const;	// test if bit set
     void   setBit( int x, int y );		// set bit
@@ -30,7 +33,9 @@ public:
     void   clearBit( int x, int y );		// clear bit
     bool   toggleBit( int x, int y );		// toggle/invert bit
 
-    QBitMap *rotate( int degrees );
+    QBitMap *wxform( const QWXFMatrix & );	// world xform bitmap
+    static QWXFMatrix wxfTrueMatrix( const QWXFMatrix &, int w, int h );
+    QBitMap *rotate( int a );			// !!!NOTE: remove later
 
 protected:
     char  *data;
