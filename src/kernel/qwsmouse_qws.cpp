@@ -61,8 +61,11 @@
 
 //#define QWS_CUSTOMTOUCHPANEL
 
-enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1,
-                     Microsoft = 2, QVFBMouse = 3, TPanel = 4 };
+enum MouseProtocol { Unknown = -1, Auto = 0,
+		     MouseMan, IntelliMouse, Microsoft,
+		     QVFBMouse, TPanel,
+		     FirstAuto = MouseMan,
+		     LastAuto = Microsoft };
 
 typedef struct {
     char *name;
@@ -70,6 +73,7 @@ typedef struct {
 } MouseConfig;
 
 static const MouseConfig mouseConfig[] = {
+    { "Auto",		Auto },
     { "MouseMan",	MouseMan },
     { "IntelliMouse",	IntelliMouse },
     { "Microsoft",      Microsoft },
@@ -78,9 +82,450 @@ static const MouseConfig mouseConfig[] = {
     { 0,		Unknown }
 };
 
+static void limitToScreen( QPoint &pt )
+{
+    static int w = -1;
+    static int h;
+    if ( w < 0 ) {
+	w = qt_screen->deviceWidth();
+	h = qt_screen->deviceHeight();
+    }
 
-static const int mouseBufSize = 100;
+    pt.setX( QMIN( w-1, QMAX( 0, pt.x() )));
+    pt.setY( QMIN( h-1, QMAX( 0, pt.y() )));
+}
+
 static QPoint mousePos;
+
+/*
+ * Automatic-detection mouse driver
+ */
+
+class QAutoMouseSubHandler {
+protected:
+    enum { max_buf=32, gracious_goodness=10 };
+
+    int fd;
+
+    uchar buffer[max_buf];
+    int nbuf;
+
+    QPoint motion;
+    int bstate;
+
+    int goodness;
+    int badness;
+
+    virtual int tryData()=0;
+
+public:
+    QAutoMouseSubHandler(int f) : fd(f)
+    {
+	nbuf = bstate = goodness = badness = 0;
+    }
+
+    int file() const { return fd; }
+
+    void closeIfNot(int& f)
+    {
+	if ( fd != f ) {
+	    f = fd;
+	    close(fd);
+	}
+    }
+
+    void worse(int by=1) { badness+=by; }
+    bool reliable() const { return goodness >= 20 && badness < 20; }
+    int buttonState() const { return bstate; }
+    bool motionPending() const { return motion!=QPoint(0,0); }
+    QPoint takeMotion() { QPoint r=motion; motion=QPoint(0,0); return r; }
+
+    void appendData(uchar* data, int length)
+    {
+	memcpy(buffer+nbuf, data, length);
+	nbuf += length;
+    }
+
+    enum UsageResult { Insufficient, Motion, Button };
+
+    UsageResult useData()
+    {
+	int pbstate = bstate;
+	int n = tryData();
+	if ( n > 0 ) {
+	    if ( n<nbuf )
+		memcpy( buffer, buffer+n, nbuf-n );
+	    nbuf -= n;
+	    return pbstate == bstate ? Motion : Button;
+	}
+	return Insufficient;
+    }
+};
+
+class QAutoMouseSubHandler_psaux : public QAutoMouseSubHandler {
+    int packetsize;
+public:
+    QAutoMouseSubHandler_psaux(int f) : QAutoMouseSubHandler(f)
+    {
+	init();
+    }
+
+    void init()
+    {
+	int n;
+	uchar reply[20];
+
+	tcflush(fd,TCIOFLUSH);
+	static const uchar initseq[] = { 243, 200, 243, 100, 243, 80 };
+	static const uchar query[] = { 0xf2 };
+	if (write(fd, initseq, sizeof(initseq))!=sizeof(initseq)) {
+	    badness = 100;
+	    return;
+	}
+	usleep(10000);
+	tcflush(fd,TCIOFLUSH);
+	if (write(fd, query, sizeof(query))!=sizeof(query)) {
+	    badness = 100;
+	    return;
+	}
+	usleep(10000);
+	n = read(fd, reply, 20);
+	if ( n > 0 ) {
+	    goodness = 10;
+	    switch ( reply[n-1] ) {
+	      case 3:
+	      case 4:
+		packetsize = 4;
+		break;
+	     default:
+		packetsize = 3;
+	    }
+	} else {
+	    badness = 100;
+	}
+    }
+
+    int tryData()
+    {
+	if ( nbuf >= packetsize ) {
+	    //int overflow = (buffer[0]>>6 )& 0x03;
+
+	    if ( /*overflow ||*/ !(buffer[0] & 8) ) {
+		badness++;
+		return 1;
+	    } else {
+		motion +=
+		    QPoint((buffer[0] & 0x10) ? buffer[1]-256 : buffer[1],
+			   (buffer[0] & 0x20) ? 256-buffer[2] : -buffer[2]);
+		int nbstate = buffer[0] & 0x7;
+		if ( motion.x() || motion.y() || bstate != nbstate ) {
+		    bstate = nbstate;
+		    goodness++;
+		} else {
+		    badness++;
+		    return 1;
+		}
+	    }
+	    return packetsize;
+	}
+	return 0;
+    }
+};
+
+class QAutoMouseSubHandler_serial : public QAutoMouseSubHandler {
+public:
+    QAutoMouseSubHandler_serial(int f) : QAutoMouseSubHandler(f)
+    {
+	initSerial();
+    }
+
+protected:
+    void setflags(int f)
+    {
+	termios tty;
+	tcgetattr(f, &tty);
+	tty.c_iflag     = IGNBRK | IGNPAR;
+	tty.c_oflag     = 0;
+	tty.c_lflag     = 0;
+	tty.c_cflag     = f | CREAD | CLOCAL | HUPCL;
+	tty.c_line      = 0;
+	tty.c_cc[VTIME] = 0;
+	tty.c_cc[VMIN]  = 1;
+	tcsetattr(f, TCSAFLUSH, &tty);
+    }
+
+private:
+    void initSerial()
+    {
+	int speed[4] = { B9600, B4800, B2400, B1200 };
+ 
+        for (int n = 0; n < 4; n++) {
+	    setflags(CSTOPB | speed[n]);
+	    write(fd, "*q", 2);
+	    usleep(10000);
+        }
+    }
+};
+
+class QAutoMouseSubHandler_mousesystems : public QAutoMouseSubHandler_serial {
+public:
+    // ##### This driver has not been tested
+
+    QAutoMouseSubHandler_mousesystems(int f) : QAutoMouseSubHandler_serial(f)
+    {
+	init();
+    }
+
+    void init()
+    {
+	setflags(B1200|CS8|CSTOPB);
+	// 60Hz
+	if (write(fd, "R", 1)!=1) {
+	    badness = 100;
+	    return;
+	}
+	tcflush(fd,TCIOFLUSH);
+    }
+
+    int tryData()
+    {
+	if ( nbuf >= 5 ) {
+	    if ( (buffer[0] & 0xf8) != 0x80 ) {
+		badness++;
+		return 1;
+	    }
+	    motion +=
+		QPoint((signed char)buffer[1] + (signed char)buffer[3],
+		       -(signed char)buffer[2] + (signed char)buffer[4]);
+	    int nbstate = ~buffer[0] & 0x7;
+	    if ( motion.x() || motion.y() || bstate != nbstate ) {
+		bstate = nbstate;
+		goodness++;
+	    } else {
+		badness++;
+		return 1;
+	    }
+	    return 5;
+	}
+	return 0;
+    }
+};
+
+class QAutoMouseSubHandler_ms : public QAutoMouseSubHandler_serial {
+public:
+    QAutoMouseSubHandler_ms(int f) : QAutoMouseSubHandler_serial(f)
+    {
+	init();
+    }
+
+    void init()
+    {
+	setflags(B1200|CS7);
+	// 60Hz
+	if (write(fd, "R", 1)!=1) {
+	    badness = 100;
+	    return;
+	}
+	tcflush(fd,TCIOFLUSH);
+    }
+
+    int tryData()
+    {
+	int mman=0;
+	if ( (buffer[0] & 0x40) != 0x40 ) {
+	    if ( buffer[0] == 0x20 && (bstate & Qt::MidButton ) )
+		mman=1; // mouseman extension
+	}
+//qDebug("%d/%d",nbuf,3+mman);
+	if ( nbuf >= 3+mman ) {
+	    int nbstate = 0;
+	    if ( buffer[0] & 0x40 && !bstate && !buffer[1] && !buffer[2] ) {
+		nbstate = Qt::MidButton;
+	    } else {
+		nbstate = ((buffer[0] & 0x20) >> 3)
+			| ((buffer[0] & 0x10) >> 4);
+		if ( mman && buffer[3] == 0x20 )
+		    nbstate = Qt::MidButton;
+	    }
+
+	    motion +=
+		QPoint((signed char)((buffer[0]&0x3)<<6)
+			|(signed char)(buffer[1]&0x3f),
+		       (signed char)((buffer[0]&0xc)<<4)
+			|(signed char)(buffer[2]&0x3f));
+	    if ( motion.x() || motion.y() || bstate != nbstate ) {
+		bstate = nbstate;
+		goodness++;
+	    } else {
+		badness++;
+		return 1;
+	    }
+	    return 3+mman;
+	}
+	return 0;
+    }
+};
+
+/*
+QAutoMouseHandler::UsageResult QAutoMouseHandler::useDev(Dev& d)
+{
+    if ( d.nbuf >= mouseData[d.protocol].bytesPerPacket ) {
+	uchar *mb = d.buf;
+	int bstate = 0;
+	int dx = 0;
+	int dy = 0;
+
+	switch (mouseProtocol) {
+	    case MouseMan:
+	    case IntelliMouse:
+	    {
+		bstate = mb[0] & 0x7; // assuming Qt::*Button order
+
+		int overflow = (mb[0]>>6 )& 0x03;
+		if (mouseProtocol == MouseMan && overflow) {
+		    //### wheel events signalled with overflow bit, ignore for now
+		}
+		else {
+		    bool xs = mb[0] & 0x10;
+		    bool ys = mb[0] & 0x20;
+		    dx = xs ? mb[1]-256 : mb[1];
+		    dy = ys ? mb[2]-256 : mb[2];
+		}
+		break;
+	    }
+	    case Microsoft:
+		if ( ((mb[0] & 0x20) >> 3) ) {
+		    bstate |= Qt::LeftButton;
+		}
+		if ( ((mb[0] & 0x10) >> 4) ) {
+		    bstate |= Qt::RightButton;
+		}
+
+		dx=(signed char)(((mb[0] & 0x03) << 6) | (mb[1] & 0x3f));
+		dy=-(signed char)(((mb[0] & 0x0c) << 4) | (mb[2] & 0x3f));
+
+		break;
+	}
+    }
+    }
+*/
+
+class QAutoMouseHandler : public QMouseHandler {
+    Q_OBJECT
+public:
+    QAutoMouseHandler();
+    ~QAutoMouseHandler();
+
+private:
+    enum { max_dev=32 };
+    QAutoMouseSubHandler *sub[max_dev];
+    int nsub;
+
+private slots:
+    void readMouseData(int);
+
+private:
+    void notify(int fd);
+    bool sendEvent(QAutoMouseSubHandler& h)
+    {
+	if ( h.reliable() ) {
+	    mousePos += h.takeMotion();
+	    limitToScreen( mousePos );
+	    emit mouseChanged(mousePos,h.buttonState());
+	    return TRUE;
+	} else {
+	    h.takeMotion();
+	    if ( h.buttonState() & (Qt::RightButton|Qt::MidButton) ) {
+		// Strange for the user to press right or middle without
+		// a moving mouse!
+		h.worse();
+	    }
+	    return FALSE;
+	}
+    }
+};
+
+QAutoMouseHandler::QAutoMouseHandler()
+{
+    nsub=0;
+    int fd;
+
+    fd = open( "/dev/psaux", O_RDWR | O_NDELAY );
+    if ( fd >= 0 ) {
+	sub[nsub++] = new QAutoMouseSubHandler_psaux(fd);
+	notify(fd);
+    }
+
+    char fn[] = "/dev/ttyS?";
+    for (int ch='0'; ch<='3'; ch++) {
+	fn[9] = ch;
+	fd = open( fn, O_RDWR | O_NDELAY );
+	if ( fd >= 0 ) {
+	    sub[nsub++] = new QAutoMouseSubHandler_mousesystems(fd);
+	    sub[nsub++] = new QAutoMouseSubHandler_ms(fd);
+	    notify(fd);
+	}
+    }
+
+    // ...
+}
+
+QAutoMouseHandler::~QAutoMouseHandler()
+{
+    int pfd=-1;
+    for (int i=0; i<nsub; i++) {
+	sub[i]->closeIfNot(pfd);
+	delete sub[i];
+    }
+}
+
+void QAutoMouseHandler::notify(int fd)
+{
+    QSocketNotifier *mouseNotifier
+	= new QSocketNotifier( fd, QSocketNotifier::Read, this );
+    connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData(int)));
+}
+
+void QAutoMouseHandler::readMouseData(int fd)
+{
+    while(1) {
+	uchar buf[8];
+	int n = read(fd, buf, 8);
+	if ( n<=0 )
+	    break;
+	for (int i=0; i<nsub; i++) {
+	    QAutoMouseSubHandler& h = *sub[i];
+	    if ( h.file() == fd ) {
+		h.appendData(buf,n);
+		while (1) {
+		    switch ( h.useData() ) {
+		      case QAutoMouseSubHandler::Button:
+			sendEvent(h);
+		      case QAutoMouseSubHandler::Insufficient:
+			goto breakbreak;
+		      case QAutoMouseSubHandler::Motion:
+			break;
+		    }
+		}
+		breakbreak:
+		    ;
+	    }
+	}
+    }
+    bool any_reliable=FALSE;
+    for (int i=0; i<nsub; i++) {
+	QAutoMouseSubHandler& h = *sub[i];
+	if ( h.motionPending() )
+	    sendEvent(h);
+	any_reliable = any_reliable || h.reliable();
+    }
+    if ( any_reliable ) {
+	// ... get rid of all unreliable ones?  All bad ones?
+    }
+}
+
+
+
 
 /*
  * Standard mouse driver
@@ -96,6 +541,8 @@ static const MouseData mouseData[] = {
     { 3 }   // Microsoft
 };
 
+
+static const int mouseBufSize = 100;
 
 class QMouseHandlerPrivate : public QMouseHandler {
     Q_OBJECT
@@ -117,19 +564,6 @@ private:
     int obstate;
 };
 
-
-static void limitToScreen( QPoint &pt )
-{
-    static int w = -1;
-    static int h;
-    if ( w < 0 ) {
-	w = qt_screen->deviceWidth();
-	h = qt_screen->deviceHeight();
-    }
-
-    pt.setX( QMIN( w-1, QMAX( 0, pt.x() )));
-    pt.setY( QMIN( h-1, QMAX( 0, pt.y() )));
-}
 
 void QMouseHandlerPrivate::readMouseData()
 {
@@ -262,13 +696,6 @@ QMouseHandlerPrivate::QMouseHandlerPrivate( MouseProtocol protocol,
 
     if ( mouseDev.isEmpty() )
 	mouseDev = "/dev/mouse";
-
-    static int init=0;
-    if ( !init && qt_screen ) {
-	init = 1;
-	mousePos = QPoint(qt_screen->width()/2,
-			  qt_screen->height()/2);
-    }
 
     obstate = -1;
     if ((mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
@@ -712,13 +1139,6 @@ QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDe
     if ( mouseDev.isEmpty() )
 	mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(qws_display_id);
 
-    static int init=0;
-    if ( !init && qt_screen ) {
-	init = 1;
-	mousePos = QPoint(qt_screen->width()/2,
-			  qt_screen->height()/2);
-    }
-
     if ((mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
 	qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
 		strerror(errno));
@@ -779,6 +1199,13 @@ void QVFbMouseHandlerPrivate::readMouseData()
 
 QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 {
+    static int init=0;
+    if ( !init && qt_screen ) {
+	init = 1;
+	mousePos = QPoint(qt_screen->width()/2,
+			  qt_screen->height()/2);
+    }
+
     int c = spec.find(':');
     QString mouseProto;
     QString mouseDev;
@@ -812,6 +1239,10 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 #ifndef QWS_CUSTOMTOUCHPANEL
 #ifndef QT_QWS_IPAQ
     switch ( mouseProtocol ) {
+	case Auto:
+	    handler = new QAutoMouseHandler();
+	    break;
+
 	case MouseMan:
 	case IntelliMouse:
 	case Microsoft:
