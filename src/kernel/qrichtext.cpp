@@ -3822,6 +3822,11 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     if ( parag->next() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
+    if ( parag->painter() && parag->painter()->device()->devType() == QInternal::Printer ) {
+	QPaintDeviceMetrics metrics( parag->painter()->device() );
+	double xscale = scale_factor( metrics.logicalDpiX() );
+	m = (int)( (double)m * xscale );
+    }
     y += h + m;
     return y;
 }
@@ -4000,6 +4005,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( parag->next() )
 	m = QMAX( m, parag->next()->topMargin() );
     parag->setFullWidth( fullWidth );
+    if ( parag->painter() && parag->painter()->device()->devType() == QInternal::Printer ) {
+	QPaintDeviceMetrics metrics( parag->painter()->device() );
+	double xscale = scale_factor( metrics.logicalDpiX() );
+	m = (int)( (double)m * xscale );
+    }
     y += h + m;
 
     if ( doc )
