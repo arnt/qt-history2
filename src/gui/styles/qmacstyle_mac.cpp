@@ -221,7 +221,7 @@ bool QAquaFocusWidget::eventFilter(QObject *o, QEvent *e)
             setMask(QRegion(rect()) - focusRegion());
             break;
         }
-        case QEvent::Reparent: {
+        case QEvent::ParentChange: {
             QWidget *newp = FOCUS_WIDGET_PARENT(mFocusedWidget);
             QPoint p(mFocusedWidget->mapTo(newp, QPoint(0, 0)));
             newp->installEventFilter(this);
@@ -631,21 +631,21 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         if(sz == QAquaSizeLarge) {
             if(sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricHSliderHeight);
-                if(sld->tickPosition() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricVSliderWidth);
-                if(sld->tickPosition() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
             }
         } else if(sz == QAquaSizeSmall) {
             if(sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricSmallHSliderHeight);
-                if(sld->tickPosition() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricSmallVSliderWidth);
-                if(sld->tickPosition() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
             }
         }
@@ -653,11 +653,11 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         else if(sz == QAquaSizeMini) {
             if(sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricMiniHSliderHeight);
-                if(sld->tickPosition() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricMiniHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricMiniVSliderWidth);
-                if(sld->tickPosition() != QSlider::NoMarks)
+                if(sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricMiniVSliderTickWidth);
             }
         }
@@ -886,9 +886,9 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
     if (!isScrollbar) {
         if (slider->state & QStyle::QStyle::Style_HasFocus)
             tdi->attributes |= kThemeTrackHasFocus;
-        if (slider->tickPosition == QSlider::NoMarks || slider->tickPosition == QSlider::Both)
+        if (slider->tickPosition == QSlider::NoTicks || slider->tickPosition == QSlider::TicksBothSides)
             tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
-        else if (slider->tickPosition == QSlider::Above)
+        else if (slider->tickPosition == QSlider::TicksAbove)
             tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
         else
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
@@ -950,9 +950,9 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
     if (!(slider->state & QStyle::Style_Active))
         tdi->enableState = kThemeTrackDisabled;
     if (!isScrollbar) {
-        if (slider->tickPosition == QSlider::NoMarks || slider->tickPosition == QSlider::Both)
+        if (slider->tickPosition == QSlider::NoTicks || slider->tickPosition == QSlider::TicksBothSides)
             tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
-        else if (slider->tickPosition == QSlider::Above)
+        else if (slider->tickPosition == QSlider::TicksAbove)
             tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
         else
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
@@ -4896,8 +4896,9 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 // If it's a table, use the bright text instead.
                 if (!(w && (qt_cast<QTreeView *>(w->parentWidget())
 #ifdef QT_COMPAT
-                            || w->parentWidget()->inherits("Q3ListView"))))
+                            || w->parentWidget()->inherits("Q3ListView")
 #endif
+                          )))
                     penColor = header->palette.color(QPalette::BrightText);
             }
             drawItem(p, textr, Qt::AlignVCenter, header->palette,
@@ -5180,7 +5181,8 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 void QMacStyle::drawItem(QPainter *p, const QRect &r, int flags, const QPalette &pal, bool enabled,
                          const QString &text, int len, const QColor *penColor) const
 {
-    QWindowsStyle::drawItem(p, r, flags | Qt::NoAccel, pal, enabled, text, len, penColor);
+    QWindowsStyle::drawItem(p, r, flags | Qt::TextHideMnemonic, 
+                            pal, enabled, text, len, penColor);
 }
 
 #endif

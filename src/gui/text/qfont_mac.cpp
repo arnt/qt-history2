@@ -62,8 +62,8 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 
     if (script >= QFont::Arabic && script <= QFont::Khmer) {
         // complex script shaping. Have to do some hard work
-        int from = QMAX(0,  pos - 8);
-        int to = QMIN(str.length(), pos + 8);
+        int from = qMax(0,  pos - 8);
+        int to = qMin(str.length(), pos + 8);
         QString cstr(str.unicode() + from, to - from);
         QTextEngine layout(cstr, d);
         layout.itemize(QTextEngine::WidthOnly);

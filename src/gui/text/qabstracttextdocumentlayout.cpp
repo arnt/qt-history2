@@ -240,8 +240,9 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
 #elif defined (Q_WS_MAC)
         QColor hl = item.engine()->pal->highlight().color();
         QBrush brush(QColor(hl.red(), hl.green(), hl.blue(), 127));
-        if(QPixmap *pm = item.engine()->pal->highlight().pixmap())
-            brush.setPixmap(*pm);
+        QPixmap texture = item.engine()->pal->highlight().texture();
+        if(!texture.isNull())
+            brush.setTexture(texture);
         p->fillRect(rect, brush);
 #else
         QBrush brush(item.engine()->pal->highlight().color(), Qt::Dense4Pattern);
