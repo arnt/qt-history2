@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#42 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#42 $");
 
 
 /*!
@@ -664,9 +664,9 @@ void QRegExp::compile()
 		if ( *p == '^' ) {		// negate!
 		    neg = 1;
 		    p++;
-		}
-		else
+		} else {
 		    neg = 0;
+		}
 		if ( *p == ']' )		// bracket, not end
 		    cc[(unsigned char)(*p++)] = 1;
 		int prev_c = -1;
@@ -686,9 +686,9 @@ void QRegExp::compile()
 			    while ( start++ < stop )
 				cc[start] = 1;
 			}
-		    }
-		    else			// normal char
+		    } else {			// normal char
 			cc[(prev_c=char_val(&p))] = 1;
+		    }
 		}
 		if ( *p != ']' ) {		// missing close bracket
 		    error = PatSyntax;
@@ -765,8 +765,7 @@ void QRegExp::compile()
 			p++;
 			p++;
 			break;
-		    }
-		    else if ( *(p+1) == '<' || *(p+1) == '>' ) {
+		    } else if ( *(p+1) == '<' || *(p+1) == '>' ) {
 			GEN( *++p == '<' ? BOW : EOW );
 			p++;
 			break;
