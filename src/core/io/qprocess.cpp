@@ -675,22 +675,12 @@ bool QProcess::waitForReadyRead(int msecs)
 {
     Q_D(QProcess);
 
-    if (d->processState == QProcess::Starting) {
-        QTime stopWatch;
-        stopWatch.start();
-        bool started = waitForStarted(msecs);
-        if (!started)
-            return false;
-        msecs -= stopWatch.elapsed();
-    } else if (d->processState != Running)
-        return (bytesAvailable() > 0);
-
     if (d->processChannel == QProcess::StandardOutput && d->standardOutputClosed)
         return false;
     if (d->processChannel == QProcess::StandardError && d->standardErrorClosed)
         return false;
 
-    if (d->waitForReadyRead(msecs) || (bytesAvailable() > 0))
+    if (d->waitForReadyRead(msecs))
         return true;
 
     emit error(d->processError);
