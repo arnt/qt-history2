@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#28 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#28 $";
 #endif
 
 
@@ -149,9 +149,10 @@ bool QWidget::create()				// create widget
 	XSetSubwindowMode( dpy, gc, IncludeInferiors );
 
     if ( !desktop ) {
-	arrowCursor->update();			// default cursor
-	XDefineCursor( dpy, ident, arrowCursor.cursor );
-	curs = arrowCursor;
+	QCursor *c = (QCursor *)&arrowCursor;	// default cursor
+	c->update();
+	XDefineCursor( dpy, ident, c->cursor );
+	curs = *c;
     }
     return TRUE;
 }
