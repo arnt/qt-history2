@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#19 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,15 +25,19 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#19 $");
 
-/*notready
-  \class QMainWindow
-  \brief ...
+/*! \class QMainWindow qmainwindow.h
+
+  \brief The QMainWindow class provides a typical application window,
+  with a menu bar, some tool bars and a status bar.
+
   \ingroup realwidgets
   \ingroup application
 
-  ...
+  In addition, you need the large central widget, which you supply and
+  tell QMainWindow about using setCentralWidget(), and perhaps a few
+  tool bars, which you can add using addToolBar().
 */
 
 class QMainWindowPrivate {
@@ -129,7 +133,7 @@ QMainWindow::~QMainWindow()
   The old menu bar, if there was any, is deleted along with its
   contents.
 
-  \sa setStatusBar() menuBar()
+  \sa menuBar()
 */
 
 void QMainWindow::setMenuBar( QMenuBar * newMenuBar )
@@ -147,7 +151,7 @@ void QMainWindow::setMenuBar( QMenuBar * newMenuBar )
 /*!  Returns the menu bar for this window.  If there isn't any,
   menuBar() creates an empty menu bar on the fly.
 
-  \sa setMenuBar() statusBar()
+  \sa statusBar()
 */
 
 QMenuBar * QMainWindow::menuBar() const
@@ -247,7 +251,7 @@ void QMainWindow::setToolTipGroup( QToolTipGroup * newToolTipGroup )
 /*!  Returns the tool tip group for this window.  If there isn't any,
   menuBar() creates an empty tool tip group on the fly.
 
-  \sa setMenuBar() setStatusBar()
+  \sa menuBar() statusBar()
 */
 
 QToolTipGroup * QMainWindow::toolTipGroup() const
@@ -267,7 +271,6 @@ QToolTipGroup * QMainWindow::toolTipGroup() const
   available if \a enable is FALSE.
 
   The user can drag a toolbar to any enabled dock.
-
 */
 
 void QMainWindow::setDockEnabled( ToolBarDock dock, bool enable )
@@ -466,7 +469,7 @@ void QMainWindow::setUpLayout()
     d->timer->stop();
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
-    if ( d->mb )
+    if ( d->mb && !d->mb->testWFlags( WState_DoHide ) )
 	d->tll->setMenuBar( d->mb );
     if ( style() == WindowsStyle )
 	d->tll->addSpacing( 1 );
@@ -478,7 +481,7 @@ void QMainWindow::setUpLayout()
     addToolBarToLayout( d->left, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
 			d->justify, style() );
-    if ( centralWidget() )
+    if ( centralWidget() && !centralWidget()->testWFlags( WState_DoHide ) )
 	mwl->addWidget( centralWidget(), 1 );
     else
 	mwl->addStretch( 1 );
@@ -488,7 +491,7 @@ void QMainWindow::setUpLayout()
     addToolBarToLayout( d->bottom, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
 			d->justify, style() );
-    if ( d->sb )
+    if ( d->sb && !d->sb->testWFlags( WState_DoHide ) )
 	d->tll->addWidget( d->sb, 0 );
     d->tll->activate();
 }
@@ -542,19 +545,18 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 
 /*!
-  Monitors events to ensure layout is updated.  
+  Monitors events to ensure layout is updated.
 */
 
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
-    if ( e->type() == Event_Show
-      || e->type() == Event_Hide )
+    if ( e->type() == Event_Show || e->type() == Event_Hide )
 	triggerLayout();
     return QWidget::eventFilter(o,e);
 }
 
 /*!
-  Monitors events to ensure layout is updated.  
+  Monitors events to ensure layout is updated.
 */
 
 bool QMainWindow::event( QEvent * e )

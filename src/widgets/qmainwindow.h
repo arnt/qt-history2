@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#13 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#14 $
 **
 ** Definition of QMainWindow class
 **
@@ -31,17 +31,12 @@ public:
     QMainWindow( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
     ~QMainWindow();
 
+    QMenuBar * menuBar() const;
+    QStatusBar * statusBar() const;
+    QToolTipGroup * toolTipGroup() const;
+
     virtual void setCentralWidget( QWidget * );
     QWidget * centralWidget() const;
-
-    virtual void setMenuBar( QMenuBar * );
-    QMenuBar * menuBar() const;
-
-    virtual void setStatusBar( QStatusBar * );
-    QStatusBar * statusBar() const;
-
-    virtual void setToolTipGroup( QToolTipGroup * );
-    QToolTipGroup * toolTipGroup() const;
 
     enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left };
 
@@ -59,6 +54,8 @@ public:
 
     bool usesBigPixmaps() const;
 
+    bool eventFilter( QObject*, QEvent* );
+
 public slots:
     void setUsesBigPixmaps( bool );
 
@@ -71,11 +68,14 @@ protected slots:
 protected:
     void paintEvent( QPaintEvent * );
     bool event( QEvent * );
-    bool eventFilter( QObject*, QEvent* );
-    
+
 private:
     QMainWindowPrivate * d;
     void triggerLayout();
+
+    virtual void setMenuBar( QMenuBar * );
+    virtual void setStatusBar( QStatusBar * );
+    virtual void setToolTipGroup( QToolTipGroup * );
 };
 
 
