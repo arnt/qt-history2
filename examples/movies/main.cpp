@@ -19,10 +19,11 @@
 #include <qmessagebox.h>
 #include <qmovie.h>
 #include <qvbox.h>
+#include <q3frame.h>
 
 using namespace Qt;
 
-class MovieScreen : public QFrame {
+class MovieScreen : public Q3Frame {
     Q_OBJECT
     QMovie movie;
     QString filename;
@@ -30,7 +31,7 @@ class MovieScreen : public QFrame {
 
 public:
     MovieScreen(const char* fname, QMovie m, QWidget* p=0, const char* name=0, WFlags f=0) :
-        QFrame(p, name, f),
+        Q3Frame(p, name, f),
 	sh(100,100)
     {
         setWindowTitle(fname);
@@ -38,7 +39,7 @@ public:
         movie = m;
 
         // Set a frame around the movie.
-        setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
+        setFrameStyle(Q3Frame::WinPanel|Q3Frame::Sunken);
 
         // No background needed, since we draw on the whole widget.
         movie.setBackgroundColor(backgroundColor());
