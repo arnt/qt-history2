@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#54 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#54 $")
 
 
 /*----------------------------------------------------------------------------
@@ -234,12 +234,11 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
   \arg \e sw and \e sh is the width and height of the block to be copied.
   \arg \e rop defines the raster operation to be used when copying.
 
-  If \e sw is 0 or \e sh is 0, then bitBlt will do nothing.<br>
+  If \e sw is 0 or \e sh is 0, then bitBlt will do nothing.
 
-  If \e sw is negative, then bitBlt calculates
-  <code>sw = src->width - sx.</code><br>
-  If \e sh is negative, then bitBlt calculates
-  <code>sh = src->height - sy.</code><br>
+  If \e sw is negative, then bitBlt calculates <code>sw = src->width -
+  sx.</code> If \e sh is negative, then bitBlt calculates <code>sh =
+  src->height - sy.</code>
 
   The \e rop argument can be one of:
   <ul>
