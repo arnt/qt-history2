@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#4 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -23,7 +23,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#4 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -402,7 +402,7 @@ void QDragManager::cancel()
 	QApplication::restoreOverrideCursor();
 	restoreCursor = FALSE;
     }
-    
+
     qt_xdnd_source_object = 0;
 }
 
@@ -466,10 +466,8 @@ void QDragManager::move( const QPoint & globalPos )
     move.data.l[4] = 0;
 
     if ( w ) {
-	debug( "3" );
 	qt_handle_xdnd_position( w, (const XEvent *)&move );
     } else {
-	debug( "4" );
 	XSendEvent( qt_xdisplay(), target, FALSE, NoEventMask,
 		    (XEvent*)&move );
     }
@@ -498,8 +496,6 @@ void QDragManager::drop()
     else
 	XSendEvent( qt_xdisplay(), qt_xdnd_current_target, FALSE, NoEventMask,
 		    (XEvent*)&drop );
-
-    qt_xdnd_source_object = 0;
 }
 
 
@@ -531,7 +527,8 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
     if ( !req || !qt_xdnd_drag_types )
 	return;
     QString * format = qt_xdnd_drag_types->find( req->target );
-    debug ( "format %08lx string <%s>", req->target, format->data() );
+    debug ( "format %08lx string <%s> %p", req->target, format->data(),
+	    qt_xdnd_source_object );
     if ( format && qt_xdnd_source_object ) {
 	XEvent evt;
 	evt.xselection.type = SelectionNotify;
@@ -544,8 +541,15 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 	QDragObject * o = qt_xdnd_source_object;
 	while( o && *format != o->format() )
 	    o = o->alternative();
-	debug ("%p", o );
-	//XSendEvent( qt_xdisplay(), req->requestor, False, 0, &evt );
+	if ( o ) {
+	    XChangeProperty ( qt_xdisplay(), req->requestor, req->property,
+			      req->target, 8,
+			      PropModeReplace,
+			      (unsigned char *)(o->encodedData().data()),
+			      o->encodedData().size() );
+	    debug ("%d", o->encodedData().size() );
+	}
+	XSendEvent( qt_xdisplay(), req->requestor, False, 0, &evt );
     }
 }
 
@@ -561,7 +565,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 {
     debug ( "xdnd od %s", format );
     QByteArray result;
-    
+
     if ( qt_xdnd_dragsource_xid && qt_xdnd_source_object &&
 	 QWidget::find( qt_xdnd_dragsource_xid ) ) {
 	QDragObject * o = qt_xdnd_source_object;
@@ -572,13 +576,13 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 	}
 	return result;
     }
-    
+
     Atom * a = qt_xdnd_atom_numbers.find( format );
     if ( !a || !*a )
 	return result;
 
-    if ( qt_xdnd_target_data.find( (int)a ) ) {
-	result = *qt_xdnd_target_data.find( (int)a );
+    if ( qt_xdnd_target_data.find( (int)*a ) ) {
+	result = *qt_xdnd_target_data.find( (int)*a );
     } else {
 	if ( XGetSelectionOwner( qt_xdnd_current_widget->x11Display(),
 				 qt_xdnd_selection ) == None )
@@ -586,7 +590,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 
 	XConvertSelection( qt_xdnd_current_widget->x11Display(),
 			   qt_xdnd_selection, *a,
-			   qt_selection_property,
+			   qt_xdnd_selection,
 			   qt_xdnd_current_widget->winId(), CurrentTime );
 	XFlush( qt_xdnd_current_widget->x11Display() );
 
@@ -663,14 +667,16 @@ void QDragManager::startDrag( QDragObject * o )
 	dragSource->removeEventFilter( this );
 	beingCancelled = FALSE;
     }
-    
+
     qt_xdnd_source_object = o;
+    debug( "non-0 %p", o );
 
     object = o;
     dragSource = (QWidget *)(object->parent());
     dragSource->installEventFilter( this );
-    XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection, 
-			dragSource->winId(), qt_x_clipboardtime );
+    XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
+			dragSource->topLevelWidget()->winId(),
+			qt_x_clipboardtime );
     debug( "started drag" );
 }
 

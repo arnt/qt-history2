@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#7 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#8 $
 **
 ** Definition of QDragObject
 **
@@ -85,7 +85,6 @@ private:
     void drop();
 
 private:
-    QByteArray enc;
     QDragObject * object;
 
     QWidget * dragSource;
