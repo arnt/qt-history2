@@ -20,6 +20,7 @@
 #include "qmutex.h"
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/types.h>
 #define d d_func()
 #define q q_func()
 
@@ -268,7 +269,7 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 {
     int sockfd = notifier->socket();
     int type = notifier->type();
-    if ( sockfd < 0 || type < 0 || type > 2 || notifier == 0 ) {
+    if ( sockfd < 0 || sockfd >= FD_SETSIZE || type < 0 || type > 2 || notifier == 0 ) {
 	qWarning( "QSocketNotifier: Internal error" );
 	return;
     }

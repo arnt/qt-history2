@@ -61,6 +61,7 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 #include "qwindowdefs.h"
 
 #include <errno.h>
+#include <sys/types.h>
 
 static inline void qt_socket_getportaddr( struct sockaddr *sa, Q_UINT16 *port, QHostAddress *addr )
 {
@@ -672,6 +673,8 @@ Q_LONG QSocketDevice::bytesAvailable() const
 Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
+	return -1;
+    if ( fd >= FD_SETSIZE )
 	return -1;
 
     fd_set fds;

@@ -16,6 +16,8 @@
 #include "qkernelapplication.h"
 #include "qeventloop.h"
 
+#include <sys/types.h>
+
 
 /*!
     \class QSocketNotifier qsocketnotifier.h
@@ -129,6 +131,8 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
 {
     if ( socket < 0 )
 	qWarning( "QSocketNotifier: Invalid socket specified" );
+    if ( socket >= FD_SETSIZE )
+	qWarning( "QSocketNotifier: Socket descriptor too large for select()" );
     sockfd = socket;
     sntype = type;
     snenabled = TRUE;

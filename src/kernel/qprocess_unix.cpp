@@ -34,6 +34,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/types.h>
 
 #ifdef __MIPSEL__
 # ifndef SOCK_DGRAM
@@ -1050,7 +1051,7 @@ bool QProcess::isRunning() const
 
 	// On heavy processing, the socket notifier for the sigchild might not
 	// have found time to fire yet.
-	if ( d->procManager ) {
+	if ( d->procManager && d->procManager->sigchldFd[1] < FD_SETSIZE ) {
 	    fd_set fds;
 	    struct timeval tv;
 	    FD_ZERO( &fds );
@@ -1226,27 +1227,29 @@ void QProcess::socketRead( int fd )
 	}
     }
 
-    fd_set fds;
-    struct timeval tv;
-    FD_ZERO( &fds );
-    FD_SET( fd, &fds );
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    while ( ::select( fd+1, &fds, 0, 0, &tv ) > 0 ) {
-	// prepare for the next round
+    if ( fd < FD_SETSIZE ) {
+	fd_set fds;
+	struct timeval tv;
 	FD_ZERO( &fds );
 	FD_SET( fd, &fds );
-	// read data
-	ba = new QByteArray( basize );
-	n = ::read( fd, ba->data(), basize );
-	if ( n > 0 ) {
-	    ba->resize( n );
-	    buffer->append( ba );
-	    ba = 0;
-	} else {
-	    delete ba;
-	    ba = 0;
-	    break;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	while ( ::select( fd+1, &fds, 0, 0, &tv ) > 0 ) {
+	    // prepare for the next round
+	    FD_ZERO( &fds );
+	    FD_SET( fd, &fds );
+	    // read data
+	    ba = new QByteArray( basize );
+	    n = ::read( fd, ba->data(), basize );
+	    if ( n > 0 ) {
+		ba->resize( n );
+		buffer->append( ba );
+		ba = 0;
+	    } else {
+		delete ba;
+		ba = 0;
+		break;
+	    }
 	}
     }
 
