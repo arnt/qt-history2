@@ -462,7 +462,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 {
     const QTextBlockFormat blockFormat = bl.blockFormat();
     const QTextCharFormat charFormat = bl.charFormat();
-    const QFontMetrics fontMetrics(charFormat.font());
+    const QFont font = charFormat.font();
+    const QFontMetrics fontMetrics(font);
     QTextObject * const object = q->document()->objectForFormat(blockFormat);
     const QTextListFormat lf = object->format().toListFormat();
     const int style = lf.style();
@@ -506,6 +507,10 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
         painter->setPen(context.palette.highlightedText());
 
         painter->fillRect(r, context.palette.highlight());
+    } else {
+        QColor col = charFormat.color();
+        if (col.isValid())
+            painter->setPen(col);
     }
 
     QBrush brush = context.palette.brush(QPalette::Text);
@@ -514,7 +519,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
         case QTextListFormat::ListDecimal:
         case QTextListFormat::ListLowerAlpha:
         case QTextListFormat::ListUpperAlpha:
-            painter->drawText(r.left(), r.top() + fontMetrics.height() - fontMetrics.descent(), itemText);
+            painter->setFont(font);
+            painter->drawText(r.left(), pos.y() + blockFormat.topMargin() + fontMetrics.ascent(), itemText);
             break;
         case QTextListFormat::ListSquare:
             painter->fillRect(r, brush);
