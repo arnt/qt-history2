@@ -281,6 +281,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 
 QPopupMenu::~QPopupMenu()
 {
+    hidePopups();
+
     if ( syncMenu == this ) {
 	qApp->exit_loop();
 	syncMenu = 0;
