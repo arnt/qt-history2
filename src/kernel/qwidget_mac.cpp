@@ -483,7 +483,10 @@ QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, voi
 	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 			  sizeof(where), NULL, &where);
 	bool ok;
-	if(!qApp->do_mouse_down(&where, &ok)) {
+	UInt32 count;
+	GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
+			  sizeof(count), NULL, &count);
+	if(count == 1 && !qApp->do_mouse_down(&where, &ok)) {
 	    if(!ok)
 		return noErr;
 	}
@@ -1302,7 +1305,7 @@ void QWidget::setActiveWindow()
 	if(IsWindowActive((WindowPtr)tlw->handle())) {
 	    ActivateWindow((WindowPtr)tlw->handle(), true);
 	    qApp->setActiveWindow(tlw);
-	} else {
+	} else if (!isMinimized()){
 	    SelectWindow((WindowPtr)tlw->handle());
 	}
     }
