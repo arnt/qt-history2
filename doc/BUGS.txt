@@ -39,12 +39,6 @@ QWorkspace
 WType_Popup
     Children don't get enter/leave events.
 
-Accelerator eating broken, this time on Unix
-    Ref. support/arc-08/16327
-
-QMultiLineEdit doesn't show scrollbars in MDI
-    Ref. qt-bugs/arc-07/15500
-
 QUrl
     Directories that contain the '\' character cannot be read properly by QUrl (it
     hoses the name in slashify()) (qt-bugs/arc-07/15583)
