@@ -66,12 +66,28 @@ int TableModel::columnCount() const
     string to be returned.
 */
 
-QVariant TableModel::data(const QModelIndex &index, int /* role */) const
+QVariant TableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    return rowList[index.row()][index.column()];
+    if (role == DisplayRole)
+        return rowList[index.row()][index.column()];
+    else
+        return QVariant();
+}
+
+/*!
+    Returns an appropriate value for the item's flags. Valid items are
+    enabled, selectable, and editable.
+*/
+
+QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return ItemIsEnabled;
+
+    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
 }
 
 /*!
