@@ -41,7 +41,6 @@
 
 #ifndef QT_H
 #include "qobjectdefs.h"
-#include "qstring.h"
 #include "qnamespace.h"
 #endif // QT_H
 
@@ -79,6 +78,8 @@ class QAccel;
 class QTimer;
 class QTime;
 class QClipboard;
+class QString;
+class QByteArray;
 
 
 // Widget list (defined in qwidgetlist.h)

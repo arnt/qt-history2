@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include "qglobal.h"
-#include "qbytearray.h"
 #endif // QT_H
 
 
@@ -84,6 +83,7 @@
 #define IO_TimeOutError		7		// time out
 #define IO_UnspecifiedError	8		// unspecified error
 
+class QByteArray;
 
 class Q_EXPORT QIODevice
 {

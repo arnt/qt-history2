@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qiodevice.h"
+#include "qbytearray.h"
 
 /*!
     \class QIODevice qiodevice.h

@@ -35,10 +35,11 @@
 **
 **********************************************************************/
 
-#include "qdeepcopy.h"
-
 /*!
     \class QDeepCopy qdeepcopy.h
+
+    \obsolete
+
     \brief The QDeepCopy class is a template class which ensures that
     implicitly shared and explicitly shared classes reference unique
     data.

@@ -729,6 +729,11 @@ bool qt_check_pointer( bool c, const char *n, int l )
     return TRUE;
 }
 
+void q_assert(const char *assertion, const char *file, int line)
+{
+    qFatal("ASSERT: \"%s\" in file %s, line %d", assertion, file, line);
+}
+
 
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {

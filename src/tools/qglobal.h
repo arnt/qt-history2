@@ -974,14 +974,11 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 
 #endif // QT_CLEAN_NAMESPACE
 
+void q_assert(const char *assertion, const char *file, int line);
 
 #if !defined(Q_ASSERT)
-#  if defined(QT_CHECK_STATE)
-#    if defined(QT_FATAL_ASSERT)
-#      define Q_ASSERT(x)  ((x) ? (void)0 : qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__))
-#    else
-#      define Q_ASSERT(x)  ((x) ? (void)0 : qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__))
-#    endif
+#  if defined(QT_CHECK_STATE) && !defined(NDEBUG)
+#    define Q_ASSERT(x)  ((x) ? (void)0 : q_assert(#x,__FILE__,__LINE__))
 #  else
 #    define Q_ASSERT(x)
 #  endif

@@ -42,6 +42,7 @@
 #  include "qglobal.h"
 #endif // QT_H
 
+#ifndef QT_NO_COMPAT
 template <class T>
 class QDeepCopy
 {
@@ -53,25 +54,22 @@ public:
     inline QDeepCopy( const T &t )
 	: deepcopy( t )
     {
-	deepcopy.detach();
     }
 
     inline QDeepCopy<T> &operator=( const T &t )
     {
 	deepcopy = t;
-	deepcopy.detach();
 	return *this;
     }
 
     inline operator T ()
     {
-	T tmp = deepcopy;
-	tmp.detach();
-	return tmp;
+	return deepcopy;
     }
 
 private:
     T deepcopy;
 };
+#endif
 
 #endif // QDEEPCOPY_H

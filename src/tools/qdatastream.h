@@ -40,7 +40,6 @@
 
 #ifndef QT_H
 #include "qiodevice.h"
-#include "qstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_DATASTREAM

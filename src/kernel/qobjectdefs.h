@@ -39,8 +39,10 @@
 #define QOBJECTDEFS_H
 
 #ifndef QT_H
-#include "qstring.h"
-#endif // QT_H
+#include "qglobal.h"
+#endif
+class QString;
+class QByteArray;
 
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.

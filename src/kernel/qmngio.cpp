@@ -39,10 +39,9 @@
 #define QT_CLEAN_NAMESPACE
 #endif
 
-#include "qdatetime.h"
-
 #ifndef QT_NO_IMAGEIO_MNG
 
+#include "qdatetime.h"
 #include "qimage.h"
 #include "qasyncimageio.h"
 #include "qiodevice.h"
