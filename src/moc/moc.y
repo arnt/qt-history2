@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#115 $
+** $Id: //depot/qt/main/src/moc/moc.y#116 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -267,7 +267,7 @@ namespace_alias_def:      NAMESPACE IDENTIFIER '=' complete_class_name ';'
                         ;
 
 
-using_directive:          USING NAMESPACE   { selectOutsideClassState(); }// Skip namespace
+using_directive:          USING NAMESPACE   { selectOutsideClassState(); } /* Skip namespace */
                         ;
 
 using_declaration:        USING IDENTIFIER  { selectOutsideClassState(); }
@@ -1469,7 +1469,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.49 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.50 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
