@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#44 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#45 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -12,11 +12,15 @@
 #ifndef QLINED_H
 #define QLINED_H
 
-#include "qwidget.h"
-#include "qstring.h"
+struct QLineEditPrivate;
 
 class QComboBox;
 class QValidator;
+
+
+#include "qwidget.h"
+#include "qstring.h"
+
 
 class QLineEdit : public QWidget
 {
@@ -68,20 +72,32 @@ protected:
 
     bool	hasMarkedText() const;
     QString	markedText() const;
+    
+    bool	validateAndSet( const char *, int, int, int );
+    
+    void	insert( const char * );
+
+    void	repaintArea( int, int );
 
 private slots:
     void	clipboardChanged();
+    void	blinkSlot();
+    void	dragScrollSlot();
 
 private:
+    // obsolete
     void	paint( const QRect& clip, bool frame = FALSE );
     void	pixmapPaint( const QRect& clip );
+    // kept
     void	paintText( QPainter *, const QSize &, bool frame = FALSE );
+    // to be replaced by publics
     void	cursorLeft( bool mark, int steps = 1 );
     void	cursorRight( bool mark, int steps = 1 );
     void	backspace();
     void	del();
     void	home( bool mark );
     void	end( bool mark );
+    // kept
     void	newMark( int pos, bool copy=TRUE );
     void	markWord( int pos );
     void	copyText();
@@ -90,7 +106,7 @@ private:
     int		maxMark() const;
 
     QString	tbuf;
-    QPixmap    *pm;
+    QLineEditPrivate * d;
     int		cursorPos;
     int		offset;
     int		maxLen;
