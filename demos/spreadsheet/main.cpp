@@ -180,7 +180,7 @@ public slots:
     void updateStatus(QTableWidgetItem *item);
     void updateColor(QTableWidgetItem *item);
     void updateLineEdit(QTableWidgetItem *item);
-    void contextActions(QMenu *menu, QTableWidgetItem *item);
+    void contextActions(QMenu *menu);
     void keyPressed(QTableWidgetItem *item, Qt::Key key);
     void returnPressed();
     void selectColor();
@@ -198,7 +198,6 @@ private:
     QAction *sumAction;
     QAction *clearAction;
     QTableWidget *table;
-    QTableWidgetItem *contextItem;
     QLineEdit *lineEdit;
 };
 
@@ -250,7 +249,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     connect(table, SIGNAL(keyPressed(QTableWidgetItem*, Qt::Key, Qt::ButtonState)),
             this, SLOT(keyPressed(QTableWidgetItem*, Qt::Key)));
     connect(table, SIGNAL(aboutToShowContextMenu(QMenu*, QTableWidgetItem*)),
-            this, SLOT(contextActions(QMenu*, QTableWidgetItem*)));
+            this, SLOT(contextActions(QMenu*)));
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
@@ -284,7 +283,7 @@ void SpreadSheet::updateLineEdit(QTableWidgetItem *item)
         lineEdit->clear();
 }
 
-void SpreadSheet::contextActions(QMenu *menu, QTableWidgetItem *item)
+void SpreadSheet::contextActions(QMenu *menu)
 {
     if (table->selectedItems().count() > 0) {
         menu->addAction(sumAction);
@@ -294,7 +293,6 @@ void SpreadSheet::contextActions(QMenu *menu, QTableWidgetItem *item)
         menu->addSeparator();
         menu->addAction(clearAction);
     }
-    contextItem = item;
 }
 
 void SpreadSheet::keyPressed(QTableWidgetItem *item, Qt::Key key)
@@ -349,12 +347,13 @@ void SpreadSheet::sum()
     QList<QTableWidgetItem*> selected = table->selectedItems();
     QTableWidgetItem *first = selected.first();
     QTableWidgetItem *last = selected.last();
-    if (first && last && contextItem)
-        contextItem->setText(QString("sum %1%2 %3%4").
-                             arg(QChar('A' + (table->column(first)))).
-                             arg((table->row(first) + 1)).
-                             arg(QChar('A' + (table->column(last)))).
-                             arg((table->row(last) + 1)));
+    QTableWidgetItem *current = table->currentItem();
+    if (first && last && current)
+        current->setText(QString("sum %1%2 %3%4").
+                         arg(QChar('A' + (table->column(first)))).
+                         arg((table->row(first) + 1)).
+                         arg(QChar('A' + (table->column(last)))).
+                         arg((table->row(last) + 1)));
 }
 
 void SpreadSheet::clear()
