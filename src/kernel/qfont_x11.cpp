@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#25 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#25 $";
 #endif
 
 // #define DEBUG_FONT
@@ -1027,7 +1027,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
                 ascent = soTop;
         }
     }
-    return QRect( startX - 1, -ascent - 1, width + 2, descent + ascent + 2 );
+    return QRect( startX, -ascent, width, descent + ascent );
 }
 
 int QFontMetrics::maxWidth() const
