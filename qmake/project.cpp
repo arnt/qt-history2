@@ -228,7 +228,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			    return TRUE;  /* assume we are done */
 			}
 		    } else {
-			test = isActiveConfig(comp_scope.stripWhiteSpace());
+			test = isActiveConfig(comp_scope.stripWhiteSpace(), TRUE);
 		    }
 		    if(invert_test)
 			test = !test;
@@ -594,12 +594,11 @@ QMakeProject::read(const QString &project, const QString &, bool just_project)
 }
 
 bool
-QMakeProject::isActiveConfig(const QString &x)
+QMakeProject::isActiveConfig(const QString &x, bool regex)
 {
     if(x.isEmpty())
 	return TRUE;
 
-    QRegExp re(x, FALSE, TRUE);
     if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_QNX6_MODE ||
 	Option::target_mode == Option::TARG_UNIX_MODE) && x == "unix")
 	return TRUE;
@@ -616,9 +615,10 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
 
 
+    QRegExp re(x, FALSE, TRUE);
     QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() -
 						   (Option::mkfile::qmakespec.findRev(QDir::separator())+1));
-    if(re.exactMatch(spec))
+    if((regex && re.exactMatch(spec)) || (!regex && spec == x))
 	return TRUE;
 #ifdef Q_OS_UNIX
     else if(spec == "default") {
@@ -631,7 +631,7 @@ QMakeProject::isActiveConfig(const QString &x)
 	    QString r = buffer;
 	    if(r.findRev('/') != -1)
 		r = r.mid(r.findRev('/') + 1);
-	    if(re.exactMatch(r))
+	    if((regex && re.exactMatch(r)) || (!regex && r == x))
 		return TRUE;
 	}
     }
@@ -640,6 +640,7 @@ QMakeProject::isActiveConfig(const QString &x)
 
     QStringList &configs = vars["CONFIG"];
     for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
+	if((regex && re.exactMatch((*it))) || (!regex && (*it) == x))
 	if(re.exactMatch((*it)))
 	    return TRUE;
     }
@@ -890,7 +891,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 		test = doProjectTest(func, chk.mid(lparen+1, rparen - lparen - 1), place);
 	    }
 	} else {
-	    test = isActiveConfig(chk);
+	    test = isActiveConfig(chk, TRUE);
 	}
 	if(invert_test) {
 	    chk.prepend("!");
