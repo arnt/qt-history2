@@ -200,17 +200,17 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-  \enum QAbstractItemView::BeginEditAction
+  \enum QAbstractItemView::EditTrigger
 
   This enum describes actions which will initiate item editing.
 
-  \value NeverEdit       No editing possible.
+  \value NoEditTriggers  No editing possible.
   \value CurrentChanged  Editing start whenever current item changes.
   \value DoubleClicked   Editing starts when an item is double clicked.
   \value SelectedClicked Editing starts when clicking on an already selected item.
   \value EditKeyPressed  Editing starts when an edit key has been pressed over an item.
   \value AnyKeyPressed   Editing starts when any key is pressed over an item.
-  \value AlwaysEdit      Editing starts for all above actions.
+  \value AllEditTriggers Editing starts for all above actions.
 */
 
 /*!
@@ -718,7 +718,7 @@ void QAbstractItemView::doItemsLayout()
     \brief which actions will initiate item editing
 
     This property is a selection of flags defined by
-    \l{BeginEditAction}, combined using the OR
+    \l{EditTrigger}, combined using the OR
     operator. The view will only initiate the editing of an item if the
     action performed is set in this property.
 */
