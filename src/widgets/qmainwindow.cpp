@@ -2054,7 +2054,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
 }
 
 /*!
-  Removes \a toolBar from this main window, if \a toolBar is
+  Removes \a toolBar from this main window's docking area, if \a toolBar is
   non-null and known by this main window.
 */
 
