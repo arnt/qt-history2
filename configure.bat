@@ -18,7 +18,7 @@ set DELEXP=yes
 if not %DELEXP%==!DELEXP! (
 	echo Delayed variable expansion is not enabled.
 	echo Spawning a new shell with delayed expansion enabled...
-	cmd /V:ON /C call configure.bat
+	cmd /V:ON /C call configure.bat %*
 	goto :end)
 
 rem **************************************
@@ -187,7 +187,7 @@ set QMAKE_VARS=%QMAKE_VARS% "OBJECTS_DIR=tmp\obj\%QMAKE_OUTDIR%" "MOC_DIR=tmp\mo
 if x%SHARED%==xyes (
 set QMAKE_CONFIG=%QMAKE_CONFIG% dll
 set QMAKE_OUTDIR=%QMAKE_OUTDIR%-shared
-set QMAKE_VARS=%QMAKE_VARS% "DEFINES+=QT_DLL")
+set QMAKE_VARS=%QMAKE_VARS% "DEFINES+=QT_DLL QT_MAKEDLL")
 if x%SHARED%==xno (
 set QMAKE_CONFIG=%QMAKE_CONFIG% staticlib
 set QMAKE_OUTDIR=%QMAKE_OUTDIR%-static)
