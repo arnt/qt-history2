@@ -31,12 +31,12 @@
 
 
 #ifndef QT_H
-#include "qprinter.h"
-#include "qtextstream.h"
+#include "qpaintdevice.h"
 #endif // QT_H
 
 #ifndef QT_NO_PRINTER
 
+class QPrinter;
 class QPSPrinterPrivate;
 
 class Q_GUI_EXPORT QPSPrinter : public QPaintDevice
