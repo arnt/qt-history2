@@ -1261,13 +1261,15 @@ void QColorDialogPrivate::newCustom(int r, int c)
     int i = r+2*c;
     setCurrentColor(cusrgb[i]);
     nextCust = i;
-    standard->setSelected(-1,-1);
+    if (standard)
+        standard->setSelected(-1,-1);
 }
 
 void QColorDialogPrivate::newStandard(int r, int c)
 {
     setCurrentColor(stdrgb[r+c*6]);
-    custom->setSelected(-1,-1);
+    if (custom)
+        custom->setSelected(-1,-1);
 }
 
 QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
@@ -1321,6 +1323,8 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
         // better color picker size for small displays
         pWidth = 150;
         pHeight = 100;
+        custom = 0;
+        standard = 0;
     }
 
     QVBoxLayout *rightLay = new QVBoxLayout(topLay);
@@ -1374,7 +1378,8 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
 void QColorDialogPrivate::addCustom()
 {
     cusrgb[nextCust] = cs->currentColor();
-    custom->update();
+    if (custom)
+        custom->update();
     nextCust = (nextCust+1) % 16;
 }
 
@@ -1596,26 +1601,30 @@ bool QColorDialog::selectColor(const QColor& col)
     QRgb color = col.rgb();
     int i = 0, j = 0;
     // Check standard colors
-    for (i = 0; i < 6; i++) {
-        for (j = 0; j < 8; j++) {
-            if (color == stdrgb[i + j*6]) {
-                d->newStandard(i, j);
-                d->standard->setCurrent(i, j);
-                d->standard->setSelected(i, j);
-                d->standard->setFocus();
-                return true;
+    if (d->standard) {
+        for (i = 0; i < 6; i++) {
+            for (j = 0; j < 8; j++) {
+                if (color == stdrgb[i + j*6]) {
+                    d->newStandard(i, j);
+                    d->standard->setCurrent(i, j);
+                    d->standard->setSelected(i, j);
+                    d->standard->setFocus();
+                    return true;
+                }
             }
         }
     }
     // Check custom colors
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 8; j++) {
-            if (color == cusrgb[i + j*2]) {
-                d->newCustom(i, j);
-                d->custom->setCurrent(i, j);
-                d->custom->setSelected(i, j);
-                d->custom->setFocus();
-                return true;
+    if (d->custom) {
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 8; j++) {
+                if (color == cusrgb[i + j*2]) {
+                    d->newCustom(i, j);
+                    d->custom->setCurrent(i, j);
+                    d->custom->setSelected(i, j);
+                    d->custom->setFocus();
+                    return true;
+                }
             }
         }
     }
