@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#72 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#73 $
 **
 ** Implementation of QTextCodec class
 **
@@ -363,8 +363,21 @@ static const char * iso8859_2locales[] = {
     "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
 
 static const char * iso8859_5locales[] = {
-    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
+    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", /*"ru",*/ "ru_RU", "ru_SU",
     "russian", "sp", "sp_YU", 0 };
+
+// This is NOT CORRECT.  But so many Russians use this rather than the
+// ISO standard that we default to this.  Russian users SHOULD set their
+// $LANG to ru_RU.KOI8-R if they are not using the X default, but since
+// they DON'T, we work around it, forcing the small number of iso8859-5
+// users to set THEIR LANG to ru_RU.iso8859-5.  If you read the history,
+// it seems that many Russians blame ISO and Peristroika for the confusion.
+//
+// The real bug is that some programs break if the user specifies
+// ru_RU.KOI8-R
+//
+static const char * koi8_rlocales[] = {
+    "ru", 0 };
 
 static const char * iso8859_6locales[] = {
     "ar_AA", "ar_SA", "arabic", 0 };
@@ -446,6 +459,8 @@ QTextCodec* QTextCodec::codecForLocale()
 	    localeMapper = codecForName( "ISO 8859-9" );
 	else if ( try_locale_list( iso8859_15locales, lang ) )
 	    localeMapper = codecForName( "ISO 8859-15" );
+	else if ( try_locale_list( koi8_rlocales, lang ) )
+	    localeMapper = codecForName( "KOI8-R" );
 	else
 	    localeMapper = codecForName( "ISO 8859-1" );
     }
