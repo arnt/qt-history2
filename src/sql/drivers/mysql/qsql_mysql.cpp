@@ -35,11 +35,12 @@
 class QMYSQLDriverPrivate
 {
 public:
-    QMYSQLDriverPrivate() : mysql(0), tc(0), preparedQuerys(false) {}
+    QMYSQLDriverPrivate() : mysql(0), tc(0), preparedQuerys(false), preparedQuerysEnabled(false) {}
     MYSQL *mysql;
     QTextCodec *tc;
 
     bool preparedQuerys;
+    bool preparedQuerysEnabled;
 };
 
 class QMYSQLResultPrivate : public QMYSQLDriverPrivate
@@ -262,7 +263,7 @@ QMYSQLResult::QMYSQLResult(const QMYSQLDriver* db)
     d = new QMYSQLResultPrivate();
     d->mysql = db->d->mysql;
     d->tc = db->d->tc;
-    d->preparedQuerys = db->d->preparedQuerys;
+    d->preparedQuerysEnabled = db->d->preparedQuerysEnabled;
 }
 
 QMYSQLResult::~QMYSQLResult()
@@ -316,6 +317,8 @@ void QMYSQLResult::cleanup()
     d->row = NULL;
     setAt(-1);
     setActive(false);
+
+    d->preparedQuerys = d->preparedQuerysEnabled;
 }
 
 bool QMYSQLResult::fetch(int i)
@@ -496,6 +499,8 @@ bool QMYSQLResult::reset (const QString& query)
         return false;
 
     cleanup();
+    d->preparedQuerys = false;
+
     const QByteArray encQuery(d->tc->fromUnicode(query));
     if (mysql_real_query(d->mysql, encQuery.data(), encQuery.length())) {
         setLastError(qMakeError(QCoreApplication::tr("QMYSQLResult", "Unable to execute query"),
@@ -598,11 +603,11 @@ static MYSQL_TIME *toMySqlDate(QDate date, QTime time, QCoreVariant::Type type)
 
 bool QMYSQLResult::prepare(const QString& query)
 {
+    cleanup();
     if (!d->preparedQuerys)
         return QSqlResult::prepare(query);
 
     int r;
-    cleanup();
 
     if (query.isEmpty())
         return false;
@@ -874,7 +879,7 @@ bool QMYSQLDriver::hasFeature(DriverFeature f) const
 #if MYSQL_VERSION_ID >= 40108
     case PreparedQueries:
     case PositionalPlaceholders:
-        return d->preparedQuerys;
+        return d->preparedQuerysEnabled;
 #endif
     default:
         return false;
@@ -957,10 +962,10 @@ bool QMYSQLDriver::open(const QString& db,
     d->tc = codec(d->mysql);
 
 #if MYSQL_VERSION_ID >= 40108
-    d->preparedQuerys = mysql_get_client_version() >= 40108
+    d->preparedQuerysEnabled = mysql_get_client_version() >= 40108
                         && mysql_get_server_version(d->mysql) >= 40100;
 #else
-    d->preparedQuerys = false;
+    d->preparedQuerysEnabled = false;
 #endif
 
     setOpen(true);
