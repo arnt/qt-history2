@@ -1111,6 +1111,10 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
             return;
         } else if (dockwindow == info.item->widget()) {
             // placed back at original position
+            if (dockwindow->isTopLevel()) {
+                dockwindow->setTopLevel(false);
+                dockwindow->show();
+            }
             DEBUG("END of drop (shortcut - dropped at original position)");
             return;
         }
