@@ -240,11 +240,7 @@ QVariant QSqlRecord::value( int i ) const
 
 QVariant  QSqlRecord::value( const QString& name ) const
 {
-    const QSqlField * f = field( name );
-
-    if( f )
-	return f->value();
-    return QVariant();
+    return value(position(name));
 }
 
 /*!

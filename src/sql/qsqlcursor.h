@@ -49,22 +49,24 @@ public:
 	Writable = 7
     };
 
-    QVariant		value( int i ) const;
-    QVariant		value( const QString& name ) const;
-    void         	setValue( int i, const QVariant& val );
-    void         	setValue( const QString& name, const QVariant& val );
-    virtual QSqlIndex	primaryIndex( bool prime = TRUE ) const;
-    virtual QSqlIndex	index( const QStringList& fieldNames ) const;
-    QSqlIndex		index( const QString& fieldName ) const;
-    QSqlIndex		index( const char* fieldName ) const;
-    virtual void	setPrimaryIndex( const QSqlIndex& idx );
+    QVariant value(int i) const;
+    inline QVariant value(const QString &name) const { return value(position(name)); }
+    void setValue(int i, const QVariant &val);
+    inline void setValue(const QString &name, const QVariant &val) { setValue(position(name), val); }
+    virtual QSqlIndex primaryIndex( bool prime = TRUE ) const;
+    virtual QSqlIndex index( const QStringList& fieldNames ) const;
+    QSqlIndex index( const QString& fieldName ) const;
+    virtual void setPrimaryIndex( const QSqlIndex& idx );
 
-    virtual void	append( const QSqlFieldInfo& fieldInfo );
-    virtual void	insert( int pos, const QSqlFieldInfo& fieldInfo );
-    void		remove( int pos );
-    void		clear();
-    void		setGenerated( const QString& name, bool generated );
-    void		setGenerated( int i, bool generated );
+    virtual void append( const QSqlFieldInfo& fieldInfo );
+#ifndef QT_NO_COMPAT
+    inline void insert(int pos, const QSqlFieldInfo &fieldInfo) { replace(pos, fieldInfo); }
+#endif
+    virtual void replace(int pos, const QSqlFieldInfo &fieldInfo);
+    void remove( int pos );
+    void clear();
+    void setGenerated( const QString& name, bool generated );
+    void setGenerated( int i, bool generated );
 
     virtual QSqlRecord*	editBuffer( bool copy = FALSE );
     virtual QSqlRecord*	primeInsert();
@@ -122,7 +124,6 @@ private:
     int			applyPrepared( const QString& q, bool invalidate );
     QSqlRecord&		operator=( const QSqlRecord & list );
     void 		append( const QSqlField& field );
-    void 		insert( int pos, const QSqlField& field );
 
     QSqlCursorPrivate*	d;
 };

@@ -452,11 +452,11 @@ void QSqlCursor::clear()
     to the cursor edit buffer become invalidated.
 */
 
-void  QSqlCursor::insert( int pos, const QSqlFieldInfo& fieldInfo )
+void  QSqlCursor::replace( int pos, const QSqlFieldInfo& fieldInfo )
 {
-    d->editBuffer.insert( pos, fieldInfo.toField() );
+    d->editBuffer.replace( pos, fieldInfo.toField() );
     d->infoBuffer[ pos ] = fieldInfo;
-    QSqlRecord::insert( pos, fieldInfo.toField() );
+    QSqlRecord::replace( pos, fieldInfo.toField() );
 }
 
 /*!
@@ -521,7 +521,7 @@ QSqlIndex QSqlCursor::primaryIndex( bool setFromCursor ) const
 	for ( int i = 0; i < d->priIndx.count(); ++i ) {
 	    const QString fn = d->priIndx.fieldName( i );
 	    if ( contains( fn ) )
-		d->priIndx.setValue( i, value( fn ) );
+		d->priIndx.setValue( i, QSqlRecord::value( fn ) );
 	}
     }
     return d->priIndx;
@@ -574,17 +574,6 @@ QSqlIndex QSqlCursor::index( const QString& fieldName ) const
 {
     QStringList fl( fieldName );
     return index( fl );
-}
-
-/*!
-    \overload
-
-    Returns an index based on \a fieldName.
-*/
-
-QSqlIndex QSqlCursor::index( const char* fieldName ) const
-{
-    return index( QStringList( QString( fieldName ) ) );
 }
 
 /*!
@@ -1452,30 +1441,12 @@ QVariant QSqlCursor::value( int i ) const
     return QSqlRecord::value( i );
 }
 
-/*!
-    \reimp
-
-    Returns the value of the field called \a name.
-*/
-
-QVariant QSqlCursor::value( const QString& name ) const
-{
-    return QSqlRecord::value( name );
-}
-
 /*! \internal
   cursors should be filled with QSqlFieldInfos...
 */
 void QSqlCursor::append( const QSqlField& field )
 {
     append( QSqlFieldInfo( field ) );
-}
-/*! \internal
-  cursors should be filled with QSqlFieldInfos...
-*/
-void QSqlCursor::insert( int pos, const QSqlField& field )
-{
-    insert( pos, QSqlFieldInfo( field ) );
 }
 
 /*!
@@ -1510,12 +1481,4 @@ void QSqlCursor::setValue( int i, const QVariant& val )
     QSqlRecord::setValue( i, val );
 }
 
-/*! \reimp */
-void QSqlCursor::setValue( const QString& name, const QVariant& val )
-{
-#ifdef QT_DEBUG
-    qDebug("QSqlCursor::setValue(): This will not affect actual database values. Use primeInsert(), primeUpdate() or primeDelete().");
-#endif
-    QSqlRecord::setValue( name, val );
-}
 #endif
