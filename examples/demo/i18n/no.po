@@ -110,7 +110,7 @@ msgstr "Velg Alle"
 
 #: none:0
 msgid "Line up"
-msgstr "Anordne"
+msgstr "Ordne"
 
 #: none:0
 msgid "For&mat"
@@ -182,23 +182,23 @@ msgstr "&Farge..."
 
 #: none:0
 msgid "Standard"
-msgstr "Standard"
+msgstr "Vanlig tekst"
 
 #: none:0
 msgid "Bullet List (Disc)"
-msgstr "Kuleliste ()"
+msgstr "Liste (kule)"
 
 #: none:0
 msgid "Bullet List (Circle)"
-msgstr "Kuleliste ()"
+msgstr "Liste (sirkel)"
 
 #: none:0
 msgid "Bullet List (Square)"
-msgstr "Kuleliste ()"
+msgstr "Liste (firkant)"
 
 #: none:0
 msgid "Ordered List (Decimal)"
-msgstr "Sortert liste (desimal)"
+msgstr "Sortert liste (tall)"
 
 #: none:0
 msgid "Ordered List (Alpha lower)"
@@ -258,7 +258,7 @@ msgstr "Skriv ut i farger hvis mulig"
 
 #: none:0
 msgid "Print in grayscale"
-msgstr "Skriv ut i gråsoner"
+msgstr "Skriv ut i gråtoner"
 
 #: none:0
 msgid "Print destination"
@@ -490,7 +490,7 @@ msgstr "A&lfakanal:"
 
 #: none:0
 msgid "&Basic colors"
-msgstr "&Grunnfarger"
+msgstr "&Standardfarger"
 
 #: none:0
 msgid "&Custom colors"
@@ -502,7 +502,7 @@ msgstr "&Definer egne farger >>""
 
 #: none:0
 msgid "&Add To Custom Colors"
-msgstr "&Tilføy til egendefinerte farger"
+msgstr "&Føy til egendefinerte farger"
 
 #: none:0
 msgid "Select color"
@@ -834,7 +834,7 @@ msgid ""
 ".</p><p>See <tt>http://www.trolltech.com/qt/</tt> for more information.</p>"
 msgstr ""
 "<h3>Om Qt</h3><p>Dette programmet bruker Qt versjon %1, et multiplatform C++ "
-"GUI-verkty fra Trolltech. Kode skrevet for Qt gir portabel kode for Windows 9"
+"GUI-verktøy fra Trolltech. Kode skrevet for Qt gir portabel kode for Windows 9"
 "5/98/NT/2000, Linux, Solaris, HP-UX og mange andre versjoner av Unix med X11."
 "</p><p>Se <tt>http://www.trolltech.com/qt/</tt> for mer informasjon.</p>"
 

@@ -126,9 +126,6 @@ void I18nDemo::newSlot(int id)
     wrapper->setCaption(tr("--language--"));
 
     TextEdit *te = new TextEdit(wrapper);
-
-    qApp->removeTranslator(&wrapper->translator);
-
     te->setMinimumSize(500, 400);
     te->fileNew();
     te->currentEditor()->
@@ -139,6 +136,9 @@ void I18nDemo::newSlot(int id)
 		   "HP-UX and many other versions of Unix with X11.</p>"
 		   "<p>See <tt>http://www.trolltech.com/qt/</tt> for more "
 		   "information.</p>").arg(QT_VERSION_STR));
+
+    qApp->removeTranslator(&wrapper->translator);
+
     te->show();
     wrapper->show();
 
