@@ -10,6 +10,7 @@
 static Config *static_configuration = 0;
 
 Config::Config( const QString &name )
+    : startWithProfile( FALSE )
 {
     if( !static_configuration ) {
 	static_configuration = this;
@@ -21,6 +22,7 @@ Config::Config( const QString &name )
 }
 
 Config::Config()
+    : startWithProfile( FALSE )
 {
     profil = new Profile();
 }
@@ -59,6 +61,8 @@ void Config::load( const QString &name )
     QString profName = name;
     if ( profName.isEmpty() )
 	profName = settings.readEntry( key + "LastProfile", "" );
+    else
+	startWithProfile = TRUE;
     if ( profName.isEmpty() ) {
 	profil = Profile::createDefaultProfile();
 	saveProfile( profil, TRUE );
@@ -297,4 +301,9 @@ QString Config::docBasePath() const
 bool Config::needsNewDoc() const
 {
     return profil->changed;
+}
+
+bool Config::startedWithProfile() const
+{
+    return startWithProfile;
 }

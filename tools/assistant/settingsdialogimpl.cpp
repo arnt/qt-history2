@@ -38,6 +38,7 @@
 #include <qsettings.h>
 #include <qtimer.h>
 #include <qtoolbutton.h>
+#include <qtabwidget.h>
 #include <qmap.h>
 
 int ProfileCheckItem::RTTI = 7391;
@@ -75,6 +76,9 @@ QString ProfileCheckItem::profileName() const
 SettingsDialog::SettingsDialog( QWidget *parent, const char* name )
     : SettingsDialogBase( parent, name )
 {
+    if ( Config::configuration()->startedWithProfile() )
+	settingsTab->removePage( settingsTab->page( settingsTab->count()-1 ) );
+
     init();
 }
 

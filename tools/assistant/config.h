@@ -23,6 +23,7 @@ public:
     QString profileName() const { return profil->props["name"]; }
     bool isDefaultProfile() const { return profil->isDefaultProfile(); }
     bool setCurrentProfile( const QString &name );
+    bool startedWithProfile() const;
 
     // From profile, read only
     QStringList profiles() const;
@@ -112,6 +113,7 @@ private:
     bool maximized;
     bool linkUnder;
     bool profDiffer;
+    bool startWithProfile;
 };
 
 #endif
