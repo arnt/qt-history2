@@ -2004,6 +2004,24 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
 	}
 #endif
 	return QRect(); } //are you sure you want to do this? ###
+    case CC_ComboBox: {
+	int x = 0, y = 0, wi = widget->width(), he = widget->height();
+	int xpos = x;
+	xpos += wi - 1 - 16;
+
+	switch ( sc ) {
+	case SC_ComboBoxFrame:
+	    return widget->rect();
+	case SC_ComboBoxArrow:
+	    return QRect(xpos, y+1, 16, he-2);
+	case SC_ComboBoxEditField:
+	    return QRect(x+2, y+2, wi-2-16, he-4);
+	case SC_ComboBoxListBoxPopup:
+	    return option.rect();
+	default:
+	    break;
+	}
+	break; }
     default:
 	break;
     }
