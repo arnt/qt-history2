@@ -394,7 +394,7 @@ QSettingsPrivate::QSettingsPrivate()
 	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, FALSE );
 	    defPath = qt_winQString( path );
 	}
-    } else 
+    } else
 #endif
     {
 	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
@@ -911,19 +911,19 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 	}
 	if ( array.size() != sizeof(double) )
 	    return def;
-	
+
 	if ( ok )
 	    *ok = TRUE;
-	
+
 	double res = 0;
 	char* data = (char*)&res;
 	for ( int i = 0; i < sizeof(double); ++i )
 	    data[i] = array[ i ];
-	
+
 	char *adata = array.data();
 	array.resetRawData( adata, array.size() );
 	delete[] adata;
-	return res;    
+	return res;
     }
 #endif
     QString value = readEntry( key, QString::number(def), ok );
@@ -960,21 +960,21 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 	    char *data = array.data();
 	    array.resetRawData( data, array.size() );
 	    delete[] data;
-	    
+
 	    return def;
 	}
-	
+
 	if ( array.size() != sizeof(int) )
 	    return def;
-	
+
 	if ( ok )
 	    *ok = TRUE;
-	
+
 	int res = 0;
 	char* data = (char*)&res;
 	for ( int i = 0; i < sizeof(int); ++i )
 	    data[i] = array[ i ];
-	
+
 	char *adata = array.data();
 	array.resetRawData( adata, array.size() );
 	delete[] adata;
@@ -1018,11 +1018,11 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 	    delete[] data;
 	    return def;
 	}
-	
+
 	if ( ok )
 	    *ok = TRUE;
 	QString result = QString::null;
-	
+
 #if defined(UNICODE)
 #ifndef Q_OS_TEMP
 	if ( qWinVersion() & Qt::WV_NT_based ) {
@@ -1040,21 +1040,21 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 #ifndef Q_OS_TEMP
 	    result = QString::fromLocal8Bit( array );
 #endif
-	
+
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
 	delete[] data;
-	
-	return result;    
+
+	return result;
     }
 #endif
 
-#ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
+#ifdef QT_CHECK_STATE
 	qWarning("QSettings::readEntry: invalid null/empty key.");
+#endif // QT_CHECK_STATE
 	return def;
     }
-#endif // QT_CHECK_STATE
 
     QString realkey;
 
@@ -1062,14 +1062,14 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 	// parse our key
 	QStringList list(QStringList::split('/', key));
 
-#ifdef QT_CHECK_STATE
 	if (list.count() < 2) {
+#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::readEntry: invalid key '%s'", key.latin1());
+#endif // QT_CHECK_STATE
 	    if ( ok )
 		*ok = FALSE;
 	    return def;
 	}
-#endif // QT_CHECK_STATE
 
 	if (list.count() == 2) {
 	    d->heading = list[0];
@@ -1143,7 +1143,7 @@ bool QSettings::writeEntry(const QString &key, double value)
 	for ( int i = 0; i < sizeof(double); ++i )
 	    array[i] = data[i];
 
-	return d->win->writeKey( key, array, REG_BINARY );    
+	return d->win->writeKey( key, array, REG_BINARY );
     }
 #endif
     QString s(QString::number(value));
@@ -1229,7 +1229,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 		array[ 2*i ] = data[ i ].cell();
 		array[ (2*i)+1 ] = data[ i ].row();
 	    }
-	    
+
 	    array[ (2*i) ] = 0;
 	    array[ (2*i)+1 ] = 0;
 #ifndef Q_OS_TEMP
@@ -1242,19 +1242,19 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 	    array = value.local8Bit();
 	}
 #endif
-	
+
 	return d->win->writeKey( key, array, REG_SZ );
     }
 #endif
     // NOTE: we *do* allow value to be a null/empty string
 
-#ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
+#ifdef QT_CHECK_STATE
 	qWarning("QSettings::writeEntry: invalid null/empty key.");
+#endif // QT_CHECK_STATE
 
 	return FALSE;
     }
-#endif // QT_CHECK_STATE
 
     QString realkey;
 
@@ -1262,14 +1262,13 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 	// parse our key
 	QStringList list(QStringList::split('/', key));
 
-#ifdef QT_CHECK_STATE
 	if (list.count() < 2) {
+#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::writeEntry: invalid key '%s'", key.latin1());
-
+#endif // QT_CHECK_STATE
 
 	    return FALSE;
 	}
-#endif // QT_CHECK_STATE
 
 	if (list.count() == 2) {
 	    d->heading = list[0];
@@ -1307,7 +1306,7 @@ bool QSettings::removeEntry(const QString &key)
     if ( d->win ) {
 	QString e;
 	LONG res;
-	
+
 	HKEY handle = 0;
 	for ( QStringList::Iterator it = d->win->paths.fromLast(); it != d->win->paths.end(); --it ) {
 	    QString k = (*it).isEmpty() ? key : *it + "/" + key;
@@ -1330,7 +1329,7 @@ bool QSettings::removeEntry(const QString &key)
 #endif
 	    res = RegDeleteValueA( handle, e.local8Bit() );
 #endif
-	
+
 	if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
 #if defined(QT_CHECK_STATE)
 	    qSystemWarning( "Error deleting value " + key, res );
@@ -1358,13 +1357,13 @@ bool QSettings::removeEntry(const QString &key)
 	return TRUE;
     }
 #endif
-#ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
+#ifdef QT_CHECK_STATE
 	qWarning("QSettings::removeEntry: invalid null/empty key.");
+#endif // QT_CHECK_STATE
 
 	return FALSE;
     }
-#endif // QT_CHECK_STATE
 
     QString realkey;
 
@@ -1372,13 +1371,13 @@ bool QSettings::removeEntry(const QString &key)
 	// parse our key
 	QStringList list(QStringList::split('/', key));
 
-#ifdef QT_CHECK_STATE
 	if (list.count() < 2) {
+#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::removeEntry: invalid key '%s'", key.latin1());
+#endif // QT_CHECK_STATE
 
 	    return FALSE;
 	}
-#endif // QT_CHECK_STATE
 
 	if (list.count() == 2) {
 	    d->heading = list[0];
@@ -1433,16 +1432,16 @@ QStringList QSettings::entryList(const QString &key) const
 {
 #ifdef Q_WS_WIN
     if ( d->win ) {
-#ifdef QT_CHECK_STATE
 	if ( key.isNull() || key.isEmpty() ) {
+#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::entryList: invalid null/empty key.");
-	    
+#endif // QT_CHECK_STATE
+
 	    return QStringList();
 	}
-#endif // QT_CHECK_STATE
-	
+
 	QStringList result;
-	
+
 	HKEY handle = 0;
 	for ( QStringList::Iterator it = d->win->paths.fromLast(); it != d->win->paths.end(); --it ) {
 	    QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
@@ -1452,7 +1451,7 @@ QStringList QSettings::entryList(const QString &key) const
 	}
 	if ( !handle )
 	    return result;
-	
+
 	DWORD count;
 	DWORD maxlen;
 #ifdef Q_OS_TEMP
@@ -1465,19 +1464,19 @@ QStringList QSettings::entryList(const QString &key) const
 #endif
 	    RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
 #endif
-	
+
 	if ( qWinVersion() & Qt::WV_NT_based )
 	    maxlen++;
-	
+
 	DWORD index = 0;
-	
+
 	TCHAR *vnameT = new TCHAR[ maxlen ];
 	char *vnameA = new char[ maxlen ];
 	QString qname;
-	
+
 	DWORD vnamesz = 0;
 	LONG res = ERROR_SUCCESS;
-	
+
 	while ( res != ERROR_NO_MORE_ITEMS ) {
 	    vnamesz = maxlen;
 #if defined(UNICODE)
@@ -1506,35 +1505,35 @@ QStringList QSettings::entryList(const QString &key) const
 		result.append( qname );
 	    ++index;
 	}
-	
+
 	delete [] vnameA;
 	delete [] vnameT;
-	
+
 	RegCloseKey( handle );
 	return result;
     }
 #endif
 
-#ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
+#ifdef QT_CHECK_STATE
 	qWarning("QSettings::listEntries: invalid null/empty key.");
+#endif // QT_CHECK_STATE
 
 	return QStringList();
     }
-#endif // QT_CHECK_STATE
 
     QString realkey;
     if (key[0] == '/') {
 	// parse our key
 	QStringList list(QStringList::split('/', key));
 
-#ifdef QT_CHECK_STATE
 	if (list.count() < 1) {
+#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::listEntries: invalid key '%s'", key.latin1());
+#endif // QT_CHECK_STATE
 
 	    return QStringList();
 	}
-#endif // QT_CHECK_STATE
 
 	if (list.count() == 1) {
 	    d->heading = list[0];
@@ -1608,16 +1607,16 @@ QStringList QSettings::subkeyList(const QString &key) const
 {
 #ifdef Q_WS_WIN
     if ( d->win ) {
-#ifdef QT_CHECK_STATE
 	if ( key.isNull() || key.isEmpty() ) {
+#ifdef QT_CHECK_STATE
 	    qWarning( "QSettings::subkeyList: invalid null/empty key." );
-	    
+#endif // QT_CHECK_STATE
+
 	    return QStringList();
 	}
-#endif // QT_CHECK_STATE
-	
+
 	QStringList result;
-	
+
 	HKEY handle = 0;
 	for ( QStringList::Iterator it = d->win->paths.fromLast(); it != d->win->paths.end(); --it ) {
 	    QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
@@ -1627,7 +1626,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 	}
 	if ( !handle )
 	    return result;
-	
+
 	DWORD count;
 	DWORD maxlen;
 #ifdef Q_OS_TEMP
@@ -1640,20 +1639,20 @@ QStringList QSettings::subkeyList(const QString &key) const
 #endif
 	    RegQueryInfoKeyA( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
 #endif
-	
+
 	if ( qWinVersion() & Qt::WV_NT_based )
 	    maxlen++;
-	
+
 	DWORD index = 0;
 	FILETIME lastWrite;
-	
+
 	TCHAR *vnameT = new TCHAR[ maxlen ];
 	char *vnameA = new char[ maxlen ];
 	QString qname;
-	
+
 	DWORD vnamesz = 0;
 	LONG res = ERROR_SUCCESS;
-	
+
 	while ( res != ERROR_NO_MORE_ITEMS ) {
 	    vnamesz = maxlen;
 #if defined(UNICODE)
@@ -1674,41 +1673,41 @@ QStringList QSettings::subkeyList(const QString &key) const
 		    qname = vnameA;
 	    }
 #endif
-	    
+
 	    if ( res == ERROR_NO_MORE_ITEMS )
 		break;
 	    result.append( qname );
 	    ++index;
 	}
-	
+
 	delete [] vnameA;
 	delete [] vnameT;
-	
+
 	RegCloseKey( handle );
 	return result;
     }
 #endif
 
-#ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
+#ifdef QT_CHECK_STATE
 	qWarning("QSettings::listSubkeys: invalid null/empty key.");
+#endif // QT_CHECK_STATE
 
 	return QStringList();
     }
-#endif // QT_CHECK_STATE
 
     QString realkey;
     if (key[0] == '/') {
 	// parse our key
 	QStringList list(QStringList::split('/', key));
 
-#ifdef QT_CHECK_STATE
 	if (list.count() < 1) {
+#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::listSubkeys: invalid key '%s'", key.latin1());
+#endif // QT_CHECK_STATE
 
 	    return QStringList();
 	}
-#endif // QT_CHECK_STATE
 
 	if (list.count() == 1) {
 	    d->heading = list[0];
@@ -1767,25 +1766,25 @@ QDateTime QSettings::lastModficationTime(const QString &key)
 	return QDateTime();
 #endif
 
-#ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
+#ifdef QT_CHECK_STATE
 	qWarning("QSettings::lastModficationTime: invalid null/empty key.");
+#endif // QT_CHECK_STATE
 
 	return QDateTime();
     }
-#endif // QT_CHECK_STATE
 
     if (key[0] == '/') {
 	// parse our key
 	QStringList list(QStringList::split('/', key));
 
-#ifdef QT_CHECK_STATE
 	if (list.count() < 2) {
+#ifdef QT_CHECK_STATE
 	    qWarning("QSettings::lastModficationTime: invalid key '%s'", key.latin1());
+#endif // QT_CHECK_STATE
 
 	    return QDateTime();
 	}
-#endif // QT_CHECK_STATE
 
 	if (list.count() == 2) {
 	    d->heading = list[0];
