@@ -4,6 +4,9 @@ Getting Started with Qt/Mac Evaluation version
 
 Thank you for choosing to evaluate Qt/Mac for Mac OS X!
 
+Please read the file LICENSE.txt and agree to its contents before 
+you start using the Qt/Mac Evaluation version.
+
 This Qt/Mac Evaluation version has the following limitations compared
 to the full Qt/Mac Professional and Enterprise Editions:
 
@@ -16,8 +19,6 @@ precompiled.
 debugging information. In the full versions, you may choose to build it as
 a static, and/or in single-threaded mode, and/or build it with debugging
 information included as an assistance during application development.
-
-* Applications display an information window on startup
 
 * Database drivers are not included.
 
