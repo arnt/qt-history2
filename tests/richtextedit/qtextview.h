@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.h#2 $
 **
 ** Definition of the QtTextView class
 **
@@ -134,7 +134,7 @@ private slots:
 private:
     bool cursor_hidden;
     QTimer* cursorTimer;
-    QtTextCursor* cursor;
+//     QtTextCursor* cursor;
 
     void updateSelection(int oldY=-1, int newY=-1);
 

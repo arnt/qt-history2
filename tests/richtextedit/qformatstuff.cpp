@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#11 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#12 $
 **
 ** Definition of the QtTextView class
 **
@@ -43,13 +43,17 @@ QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
 QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c, QtTextCustomItem *ci )
     : font_( f ), color_( c ), ref( 1 ), customItem_( ci ), logicalFontSize( 3 )
 {
-    key = QString( "%1_%2_%3_%4_%5_%6_%7_%8" ).
-          arg( c.red() ).arg( c.green() ).arg( c.blue() ).
-          arg( f.family() ).arg( f.pointSize() ).arg( f.weight() ).
-          arg( (int)f.underline() ).arg( (int)f.italic() );
-    qDebug( "create key: %s", key.latin1() );
+    createKey();
 }
 
+
+void QtTextCharFormat::createKey()
+{
+    key = QString( "%1_%2_%3_%4_%5_%6_%7_%8" ).
+          arg( color_.red() ).arg( color_.green() ).arg( color_.blue() ).
+          arg( font_.family() ).arg( font_.pointSize() ).arg( font_.weight() ).
+          arg( (int)font_.underline() ).arg( (int)font_.italic() );
+}
 
 QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
 {
@@ -114,6 +118,7 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *item )
     if ( item->definesFontUnderline() )
         format.font_.setUnderline( item->fontUnderline() );
 
+    format.createKey();
     return format;
 }
 
@@ -135,7 +140,6 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
     if ( cKey.contains( format.key ) ) {
         QtTextCharFormat *f = cKey[ format.key ];
         f->addRef();
-        qDebug( "registerFormat (%s): found at index %d", format.key.latin1(), cKeyIndex[ format.key ] );
         int i = cKeyIndex[ format.key ];
         lastRegisterFormat = f;
         lastRegisterIndex = i;
@@ -146,7 +150,6 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
         int i = cIndex.count();
         cIndex[ i ] = f;
         cKeyIndex[ f->key ] = i;
-        qDebug( "registerFormat (%s): added at index %d", format.key.latin1(), i );
         lastRegisterFormat = f;
         lastRegisterIndex = i;
         return i;
@@ -159,8 +162,6 @@ void QtTextFormatCollection::unregisterFormat( ushort index )
         QString key = cIndex[ index ]->key;
         QtTextCharFormat *f = cKey[ key ];
         int ref = f->removeRef();
-        qDebug( "unregisterFormat (%s): removed index %d, refcount of format: %d",
-                f->key.latin1(), index, ref );
         if ( ref <= 0 ) {
             delete f;
             cKey.remove( key );
@@ -175,6 +176,11 @@ QtTextCharFormat QtTextFormatCollection::format( ushort index )
 {
     if ( lastFormatIndex == index && lastFormatFormat )
         return *lastFormatFormat;
+
+    if ( !cIndex[index] ) {
+	QtTextCharFormat result;
+	return result;
+    }
 
     lastFormatFormat = cIndex[ index ];
     lastFormatIndex = index;

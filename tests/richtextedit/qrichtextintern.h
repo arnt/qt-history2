@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#3 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#4 $
 **
 ** Internal rich text classes
 **
@@ -27,15 +27,13 @@
 #include "qstylesheet.h"
 #include "qapplication.h"
 #include "qmime.h"
+#include "qformatstuff.h"
 
 class QtTextContainer;
 class QtTextBox;
 class QtTextIterator;
 class QtRichText;
-
-class QtTextCharFormat;
-class QtTextFormatCollection;
-class QtTextCustomItem;
+class QtTextRow;
 
 
 class QtStyleSheet : public QStyleSheet
@@ -59,10 +57,16 @@ public:
 
     int length() const;
     void remove( int index, int len );
-    void insert( int index, const QChar& c, QtTextCharFormat* fmt );
+    void insert( int index, const QChar& c, QtTextCharFormat fmt );
+    inline void append( const QChar& c, QtTextCharFormat fmt )
+    {
+	insert( length(), c, fmt);
+    }
 
     QChar charAt( int index ) const;
-    QtTextCharFormat* formatAt( int index ) const;
+    QtTextCharFormat formatAt( int index ) const;
+    
+    bool haveSameFormat( int index1, int index2 ) const;
 
     bool isCustomItem( int index ) const;
     QtTextCustomItem* customItemAt( int index ) const;
@@ -71,7 +75,6 @@ private:
     ushort formatIndexAt( int index ) const;
     QtTextFormatCollection* format;
 };
-
 
 class QtTextOptions {
 public:
@@ -83,6 +86,81 @@ public:
     QColor linkColor;
     bool linkUnderline;
 };
+
+
+class QtBox 
+{
+public:
+    QtBox( QtBox* p, QtTextFormatCollection* formatCol, 
+	   const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
+    : parent( p ), formats( formatCol ), text( formats ), style ( stl ), attributes_( attr )
+    {
+	boxes.setAutoDelete( TRUE );
+	rows.setAutoDelete( TRUE );
+	width = widthUsed = height = 0;
+    };
+    
+    QtBox( QtBox* p, QtTextFormatCollection* formatCol, 
+	   const QStyleSheetItem *stl )
+    : parent( p ), formats( formatCol ), text( formats ), style ( stl )
+    {
+	boxes.setAutoDelete( TRUE );
+	rows.setAutoDelete( TRUE );
+	width = widthUsed = height = 0;
+    };
+
+    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion,
+	      const QColorGroup& cg, const QtTextOptions& ,
+	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
+    void setWidth (QPainter* p, int newWidth, bool forceResize = FALSE);
+    
+    QtBox* parent;
+    QtTextFormatCollection* formats;
+    QtTextRichString text;
+    const QStyleSheetItem* style;
+    QMap<QString, QString> attributes_;
+    
+    QList<QtBox> boxes;
+    QList<QtTextRow> rows;
+    
+    inline QMap<QString, QString> attributes()  const
+    {
+	return attributes_;
+    }
+    
+    int width;
+    int widthUsed;
+    int height;
+
+    inline int margin(QStyleSheetItem::Margin m) const
+    {
+	if (style->margin(m) != QStyleSheetItem::Undefined)
+	    return style->margin(m);
+	return 0;
+    }
+
+    inline QStyleSheetItem::WhiteSpaceMode  whiteSpaceMode() const
+    {
+	if ( style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal )
+	    return style->whiteSpaceMode();
+	return parent?parent->whiteSpaceMode():QStyleSheetItem::WhiteSpaceNormal;
+    }
+
+    int numberOfSubBox( QtBox* subbox, bool onlyListItems)
+    {
+	return 1;
+    }
+    QStyleSheetItem::ListStyle listStyle();
+    inline int alignment() const
+    {
+	if ( style->alignment() != QStyleSheetItem::Undefined )
+	    return style->alignment();
+	return parent?parent->alignment():QStyleSheetItem::AlignLeft;
+    }
+    
+};
+
 
 class QtTextNode
 {
@@ -175,8 +253,10 @@ class QtTextRow
 {
 public:
     QtTextRow();
-    QtTextRow(QPainter* p, QFontMetrics &fm,
-	     QtTextIterator& it, int w, int& min, int align = QStyleSheetItem::AlignLeft);
+    QtTextRow( QPainter* p, QFontMetrics &fm,
+	       QtBox* b, int w, int& min, int align);
+    QtTextRow( QPainter* p, QFontMetrics &fm,
+	       QtTextRichString* t, int &index, int w, int& min, int align);
     ~QtTextRow();
     int x;
     int y;
@@ -188,20 +268,17 @@ public:
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions&,
 	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-    QtTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
+//     QtTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
 
 
-    bool locate(QPainter* p, QtTextNode* node, int &lx, int &ly, int &lh);
+//     bool locate(QPainter* p, QtTextNode* node, int &lx, int &ly, int &lh);
 
     bool dirty;
 
-    QtTextIterator begin() const;
-    QtTextIterator end() const;
-
-    QtTextNode* first;
-    QtTextNode* last;
-    QtTextContainer* parent;
-
+    QtBox* box;
+    QtTextRichString* text;
+    int first;
+    int last;
 };
 
 
@@ -339,41 +416,9 @@ public:
 
 
 
-class QtTextBox : public QtTextContainer
-{
-public:
-    QtTextBox( const QStyleSheetItem *stl);
-    QtTextBox( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
-    ~QtTextBox();
-
-    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion,
-	      const QColorGroup& cg, const QtTextOptions& ,
-	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-    void setWidth (QPainter* p, int newWidth, bool forceResize = FALSE);
-
-    void update(QPainter* p, QtTextRow* r = 0);
-
-    QtTextContainer* copy() const;
-
-    QList<QtTextRow> rows;
-
-    int width;
-    int widthUsed;
-    int height;
-
-    //    QtTextNode* locate(int x, int y);
-    QtTextRow*  locate(QPainter* p, QtTextNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh);
-
-    QtTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
-
-    int numberOfSubBox( QtTextBox* subbox, bool onlyListItems);
-    QStyleSheetItem::ListStyle listStyle();
-
-};
 
 
-class QtRichText : public QtTextBox
+class QtRichText : public QtBox
 {
 public:
     QtRichText( const QString &doc, const QFont& fnt = QApplication::font(),
@@ -390,7 +435,7 @@ public:
 private:
     void init( const QString& doc, const QFont& fnt, int margin = 8 );
 
-    bool parse (QtTextContainer* current, QtTextNode* lastChild, const QString& doc, int& pos);
+    bool parse (QtBox* current, QtTextCharFormat fmt, const QString& doc, int& pos);
     bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);
