@@ -1,6 +1,7 @@
 TEMPLATE 	= app
 CONFIG		+= qt warn_on debug
 HEADERS		= frame.h \
+		  qthumbwheel.h \
 		  graph.h \
                   display.h \
 		  textdrawing/textedit.h \
@@ -12,6 +13,7 @@ HEADERS		= frame.h \
 		  i18n/i18n.h \
 		  i18n/wrapper.h
 SOURCES		= frame.cpp \
+		  qthumbwheel.cpp \
 		  graph.cpp \
                	  display.cpp \
 		  textdrawing/textedit.cpp \
