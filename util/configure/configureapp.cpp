@@ -11,12 +11,11 @@
 Configure::Configure( int& argc, char** argv )
 {
     int i;
-    qtDir = getenv( "QTDIR" );
+    installDir = QDir::currentDirPath();
 
-    if( !qtDir.length() ) {
-	cout << "QTDIR is not defined, defaulting to current directory." << endl;
-	qtDir = QDir::currentDirPath();
-	putenv( QString( "QTDIR=%1" ).arg( qtDir ).latin1() );
+    const char *qtdirenv = getenv( "QTDIR" );
+    if ( qtdirenv ) {
+	installDir = QString( qtdirenv );
     }
 
     /*
@@ -89,7 +88,7 @@ Configure::Configure( int& argc, char** argv )
 
 void Configure::buildModulesList()
 {
-    QDir dir( qtDir + "/src" );
+    QDir dir( installDir + "/src" );
     const QFileInfoList* fiList = dir.entryInfoList();
     if ( !fiList )
 	return;
@@ -422,7 +421,7 @@ void Configure::parseCmdLine()
 
     if( !qmakeConfig.contains("opengl") )
 	dictionary[ "OPENGL" ] = "no";
-    
+
     if( ( dictionary[ "REDO" ] != "yes" ) && ( dictionary[ "HELP" ] != "yes" ) )
 	saveCmdLine();
 }
@@ -606,7 +605,7 @@ void Configure::generateOutputVars()
 	qmakeConfig += "jpeg";
     else if( dictionary[ "JPEG" ] == "plugin" )
 	qmakeFormatPlugins += "jpeg";
-    
+
     if( dictionary[ "LIBJPEG" ] == "system" )
 	qmakeConfig += "system-jpeg";
 
@@ -616,7 +615,7 @@ void Configure::generateOutputVars()
 	qmakeConfig += "mng";
     else if( dictionary[ "MNG" ] == "plugin" )
 	qmakeFormatPlugins += "mng";
-    
+
     if( dictionary[ "LIBMNG" ] == "system" )
 	qmakeConfig += "system-mng";
 
@@ -626,7 +625,7 @@ void Configure::generateOutputVars()
 	qmakeConfig += "png";
     else if( dictionary[ "PNG" ] == "plugin" )
 	qmakeFormatPlugins += "png";
-    
+
     if( dictionary[ "LIBPNG" ] == "system" )
 	qmakeConfig += "system-png";
 
@@ -724,7 +723,7 @@ void Configure::generateOutputVars()
 	dictionary[ "HELP" ] = "yes";
 
 	QStringList winPlatforms;
-	QDir mkspecsDir( qtDir + "\\mkspecs" );
+	QDir mkspecsDir( installDir + "\\mkspecs" );
 	const QFileInfoList* specsList = mkspecsDir.entryInfoList();
 	QFileInfoListIterator it( *specsList );
 	QFileInfo* fi;
@@ -742,7 +741,7 @@ void Configure::generateOutputVars()
 void Configure::generateCachefile()
 {
     // Generate .qmake.cache
-    QFile cacheFile( qtDir + "\\.qmake.cache" );
+    QFile cacheFile( installDir + "\\.qmake.cache" );
     if( cacheFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
 	QTextStream cacheStream( &cacheFile );
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
@@ -750,9 +749,18 @@ void Configure::generateCachefile()
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl" << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
+	cacheStream << "QT_BUILD_TREE=" << installDir << endl;
+	cacheStream << "QT_SOURCE_TREE=" << installDir << endl;
+	cacheStream << "QT_INSTALL_PREFIX=" << installDir << endl;
+	cacheStream << "docs.path=" << installDir << "/doc" << endl;
+	cacheStream << "headers.path=" << installDir << "/include" << endl;
+	cacheStream << "plugins.path=" << installDir << "/plugins" << endl;
+	cacheStream << "libs.path=" << installDir << "/lib" << endl;
+	cacheStream << "bins.path=" << installDir << "/bin" << endl;
+	cacheStream << "data.path=" << installDir << endl;
 	cacheFile.close();
     }
-    QFile configFile( qtDir + "\\.qtwinconfig" );
+    QFile configFile( installDir + "\\.qtwinconfig" );
     if( configFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
 	QTextStream configStream( &configFile );
 	configStream << "CONFIG+=";
@@ -773,11 +781,11 @@ void Configure::generateCachefile()
 
 void Configure::generateConfigfiles()
 {
-    QString outDir( qtDir + "/include" );
+    QString outDir( installDir + "/include" );
 
 
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
-	outDir = qtDir + "/src/tools";
+	outDir = installDir + "/src/tools";
 
     QString outName( outDir + "/qconfig.h" );
 
@@ -799,7 +807,7 @@ void Configure::generateConfigfiles()
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "// Copied from " << configName << endl;
 
-	    QFile inFile( qtDir + "/src/tools/" + configName );
+	    QFile inFile( installDir + "/src/tools/" + configName );
 	    if( inFile.open( IO_ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
 		outFile.writeBlock( buffer.data(), buffer.size() );
@@ -807,12 +815,22 @@ void Configure::generateConfigfiles()
 	    }
 	}
 	outStream << endl;
+	outStream << "/* Install paths from configure */" << endl;
+	outStream << "#define QT_INSTALL_PREFIX  \"" << installDir << "\"" << endl;
+	outStream << "#define QT_INSTALL_DOCS    \"" << installDir << "/doc\"" << endl;
+	outStream << "#define QT_INSTALL_HEADERS \"" << installDir << "\"/include\"" << endl;
+	outStream << "#define QT_INSTALL_PLUGINS \"" << installDir << "\"/plugins\"" << endl;
+	outStream << "#define QT_INSTALL_LIBS    \"" << installDir << "\"/lib\"" << endl;
+	outStream << "#define QT_INSTALL_BINS    \"" << installDir << "\"/bin\"" << endl;
+	outStream << "#define QT_INSTALL_DATA    \"" << installDir << "\"" << endl;
+	outStream << endl;
+	outStream << "/* License information */" << endl;
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
 
 	outFile.close();
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	    if ( !CopyFileA( outName, qtDir + "/include/qconfig.h", FALSE ) )
+	    if ( !CopyFileA( outName, installDir + "/include/qconfig.h", FALSE ) )
 		qDebug("Couldn't copy %s to include", outName.latin1() );
 	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
 	}
@@ -839,7 +857,7 @@ void Configure::generateConfigfiles()
 	}
 	outFile.close();
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	    if ( !CopyFileA( outName, qtDir + "/include/qmodules.h", FALSE ) )
+	    if ( !CopyFileA( outName, installDir + "/include/qmodules.h", FALSE ) )
 		qDebug("Couldn't copy %s to include", outName.latin1() );
 	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
 	}
@@ -849,8 +867,8 @@ void Configure::generateConfigfiles()
 void Configure::displayConfig()
 {
     // Give some feedback
-    if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
-	cout << "Trolltech license file used." << qtDir + "/LICENSE.TROLL" << endl;
+    if( QFile::exists( installDir + "/LICENSE.TROLL" ) ) {
+	cout << "Trolltech license file used." << installDir + "/LICENSE.TROLL" << endl;
     } else if ( QFile::exists( QDir::homeDirPath() + "/.qt-license" ) ) {
 	QString l1 = licenseInfo[ "LICENSEE" ];
 	QString l2 = licenseInfo[ "LICENSEID" ];
@@ -945,7 +963,7 @@ void Configure::buildQmake()
 	// Build qmake
 	cout << "Creating qmake..." << endl;
 	QString pwd = QDir::currentDirPath();
-	QDir::setCurrent( qtDir + "/qmake" );
+	QDir::setCurrent( installDir + "/qmake" );
 	args += dictionary[ "MAKE" ];
 	args += "-f";
 	args += dictionary[ "QMAKEMAKEFILE" ];
@@ -1002,25 +1020,25 @@ void Configure::generateMakefiles()
 	    dictionary[ "DSPFILES" ] = "no";
 
 	if( dictionary[ "LEAN" ] == "yes" ) {
-	    makeList += qtDir + "/src";
+	    makeList += installDir + "/src";
 	    makeList += "qt.pro";
 	    makeList += "Makefile";
 	    if( dictionary[ "DSPFILES" ] == "yes" ) {
-		makeList += qtDir + "/src";
+		makeList += installDir + "/src";
 		makeList += "qt.pro";
 		makeList += "qt.dsp";
 	    }
-	    makeList += qtDir + "/src";
+	    makeList += installDir + "/src";
 	    makeList += "qtmain.pro";
 	    makeList += "Makefile.main";
 	    if( dictionary[ "DSPFILES" ] == "yes" ) {
-		makeList += qtDir + "/src";
+		makeList += installDir + "/src";
 		makeList += "qtmain.pro";
 		makeList += "qtmain.dsp";
 	    }
 	}
 	else
-	    findProjects( qtDir );
+	    findProjects( installDir );
 
 	makeListIterator = makeList.begin();
 
@@ -1045,7 +1063,7 @@ void Configure::generateMakefiles()
 	    case Lib:
 		qmakeTemplate = "vclib";
 	    }
-	    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
+	    args << QDir::convertSeparators( installDir + "/bin/qmake" );
 	    args << projectName;
 	    args << dictionary[ "QMAKE_ALL_ARGS" ];
 	    if ( makefileName.right( 4 ) != ".dsp" ) {
@@ -1062,7 +1080,7 @@ void Configure::generateMakefiles()
 	    else
 		cout << "For " << projectName.latin1() << endl;
 
-	    
+
 
 	    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
 	    if ( !( qmakeTemplate == "subdirs" && makefileName.right( 4 ) == ".dsp" ) ) {
@@ -1135,7 +1153,7 @@ void Configure::readLicense()
 	}
 	licenseFile.close();
     }
-    if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
+    if( QFile::exists( installDir + "/LICENSE.TROLL" ) ) {
 	licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 	dictionary[ "QMAKE_INTERNAL" ] = "yes";
     } else if ( !licenseFile.exists() ) {
@@ -1151,7 +1169,7 @@ void Configure::readLicense()
 void Configure::reloadCmdLine()
 {
     if( dictionary[ "REDO" ] == "yes" ) {
-	QFile inFile( qtDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
+	QFile inFile( installDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
 	if( inFile.open( IO_ReadOnly ) ) {
 	    QTextStream inStream( &inFile );
 	    QString buffer;
@@ -1168,7 +1186,7 @@ void Configure::reloadCmdLine()
 void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
-	QFile outFile( qtDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
+	QFile outFile( installDir + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
 	if( outFile.open( IO_WriteOnly ) ) {
 	    QTextStream outStream( &outFile );
 	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it ) {

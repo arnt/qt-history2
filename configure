@@ -781,6 +781,19 @@ while [ -n "$1" ]; do
     fi
 done
 
+# post initalize variables used for installation
+# default PREFIX/doc
+[ -z "$QT_INSTALL_DOCS" ]    && QT_INSTALL_DOCS=$QT_INSTALL_PREFIX/doc
+# default PREFIX/include
+[ -z "$QT_INSTALL_HEADERS" ] && QT_INSTALL_HEADERS=$QT_INSTALL_PREFIX/include
+# default PREFIX/lib
+[ -z "$QT_INSTALL_LIBS" ]    && QT_INSTALL_LIBS=$QT_INSTALL_PREFIX/lib
+# default PREFIX/bin
+[ -z "$QT_INSTALL_BINS" ]    && QT_INSTALL_BINS=$QT_INSTALL_PREFIX/bin
+# default PREFIX/plugins
+[ -z "$QT_INSTALL_PLUGINS" ] && QT_INSTALL_PLUGINS=$QT_INSTALL_PREFIX/plugins
+# default PREFIX
+[ -z "$QT_INSTALL_DATA" ]    && QT_INSTALL_DATA=$QT_INSTALL_PREFIX
 
 #-------------------------------------------------------------------------------
 # build tree initialization
@@ -797,7 +810,18 @@ mkdir -p $outpath/include
 if [ -f $outpath/include/qconfig.h ]; then
     mv -f $outpath/include/qconfig.h qconfig.h-hold
 fi
-echo "// All features enabled while building qmake" >$outpath/include/qconfig.h
+cat >> $outpath/include/qconfig.h <<EOF
+/* All features enabled while building qmake */
+
+/* Install paths from configure */
+#define QT_INSTALL_PREFIX   "$QT_INSTALL_PREFIX"
+#define QT_INSTALL_DOCS     "$QT_INSTALL_DOCS"
+#define QT_INSTALL_HEADERS  "$QT_INSTALL_HEADERS"
+#define QT_INSTALL_LIBS     "$QT_INSTALL_LIBS"
+#define QT_INSTALL_BINS     "$QT_INSTALL_BINS"
+#define QT_INSTALL_PLUGINS  "$QT_INSTALL_PLUGINS"
+#define QT_INSTALL_DATA     "$QT_INSTALL_DATA"
+EOF
 
 # create temporary qmodules.h for compiling qmake
 # the original file will be restored after qmake is built
@@ -830,42 +854,6 @@ if [ "$OPT_SHADOW" = "maybe" ]; then
 fi
 if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]; then
     echo "Performing shadow build..."
-fi
-
-# we may write in the build tree, let's take advantage of this
-# to test that QTDIR is correctly set to be the build tree
-touch .test.qt.
-if [ '!' -f ${QTDIR}/.test.qt. ]; then
-    rm -f .test.qt.
-    echo
-    echo
-    echo '   The environment variable $QTDIR is not set correctly. It is currently'
-    echo '   set to "'$QTDIR'", but it should be set to this directory,'
-    echo '   which is "'`/bin/pwd`'".'
-    echo
-    echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
-    echo '   correctly. If you have set $QTDIR in your .profile or .login, you'
-    echo '   will need to log out and log in again to make the setting effective.'
-    echo
-    echo
-    exit 1
-fi
-rm -f .test.qt.
-
-# let's also test that $QTDIR/bin is in the PATH
-if echo "$PATH" | grep $QTDIR/bin >/dev/null; then
-    # do something to prevent the shell from giving us an error about an
-    # empty then block
-    true
-else
-    echo '   The environment variable $PATH is not set correctly. It should'
-    echo '   include $QTDIR/bin.'
-    echo
-    echo '   Please read the INSTALL file for instructions on how to set $PATH'
-    echo '   correctly. If you have set $PATH in your .profile or .login, you'
-    echo '   will need to log out and log in again to make the setting effective.'
-    echo
-    exit 1
 fi
 
 # if the source tree is different from the build tree,
@@ -1841,12 +1829,12 @@ fi
 # symlink includes
 if [ -x "$relpath/bin/syncqt" ]; then
     QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
-    # when doing shadow builds, make sure we symlink includes there too
-    [ "$OPT_SHADOW" = "yes" ] && QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
-elif [ "$OPT_SHADOW" = "yes" ]; then
-    # syncqt doesn't exist, but we are doing a shadow build, so we need to use
-    # the includes from $relpath/include
-    I_FLAGS="$I_FLAGS -I${relpath}/include"
+fi
+
+if [ "$OPT_SHADOW" = "yes" ]; then
+    # we are doing a shadow build, so we need to use the includes from
+    # $outpath/include as well
+    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=${outpath}/include\""
 fi
 
 # build qmake
@@ -1892,10 +1880,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	[ -z "$QMAKE_BIN_DIR" ] && QMAKE_BIN_DIR="${QT_INSTALL_PREFIX}/bin"
 	QMAKE_DATA_DIR="$QT_INSTALL_DATA"
 	[ -z "$QMAKE_DATA_DIR" ] && QMAKE_DATA_DIR="${QT_INSTALL_PREFIX}"
-	QMAKE_OUT_QTDIR=".."
-	[ "$OPT_SHADOW" = "yes" ] && QMAKE_OUT_QTDIR="${outpath}"
         echo >>$mkfile
-	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$QMAKE_OUT_QTDIR,g" \
+	sed -e "s,@SOURCE_PATH@,$relpath,g" -e "s,@BUILD_PATH@,$outpath,g" \
 	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS," -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS," \
 	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
 	    -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
@@ -2022,15 +2008,22 @@ full)
 esac
 cat >> $outpath/include/qconfig.h.new <<EOF
 
-/* From configure */
-#define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
+/* Install paths from configure */
+#define QT_INSTALL_PREFIX   "$QT_INSTALL_PREFIX"
+#define QT_INSTALL_DOCS     "$QT_INSTALL_DOCS"
+#define QT_INSTALL_HEADERS  "$QT_INSTALL_HEADERS"
+#define QT_INSTALL_LIBS     "$QT_INSTALL_LIBS"
+#define QT_INSTALL_BINS     "$QT_INSTALL_BINS"
+#define QT_INSTALL_PLUGINS  "$QT_INSTALL_PLUGINS"
+#define QT_INSTALL_DATA     "$QT_INSTALL_DATA"
+
+/* License information */
 #define QT_PRODUCT_LICENSEE "$Licensee"
-#define QT_PRODUCT_LICENSE "$Products"
+#define QT_PRODUCT_LICENSE  "$Products"
 
 /* Compile time features */
 EOF
-[ '!' -z "$QT_INSTALL_PLUGINS" ] && echo "$define QT_INSTALL_PLUGINS ${QT_INSTALL_PLUGINS}" >>qconfig.h.new
-[ '!' -z "$QT_INSTALL_DATA" ]    && echo "$define QT_INSTALL_DATA    ${QT_INSTALL_DATA}"    >>qconfig.h.new
+[ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/include/qconfig.h.new
 if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
 else
@@ -2092,13 +2085,8 @@ if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
 fi
-### couldn't we use something like
-### 	QMAKE_OUT_QTDIR=".."
-### 	[ "$OPT_SHADOW" = "yes" ] && QMAKE_OUT_QTDIR="${outpath}"
-### instead of the line below like it's done later on?
-qdir="\$(QTDIR)"
-[ "$OPT_SHADOW" = "yes" ] && qdir="$outpath"
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$qdir/lib\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_INCDIR_QT=$relpath/include\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
 if [ "$CFG_SHARED" = "no" ]; then
@@ -2200,13 +2188,13 @@ if [ '!' -z "$I_FLAGS" ]; then
 fi
 
 # install things
-QMAKE_VARS="$QMAKE_VARS \"QT_PREFIX=${QT_INSTALL_PREFIX}\""
-[ '!' -z "$QT_INSTALL_DOCS" ] && QMAKE_VARS="$QMAKE_VARS \"docs.path=${QT_INSTALL_DOCS}\""
-[ '!' -z "$QT_INSTALL_HEADERS" ] && QMAKE_VARS="$QMAKE_VARS \"headers.path=${QT_INSTALL_HEADERS}\""
-[ '!' -z "$QT_INSTALL_PLUGINS" ] && QMAKE_VARS="$QMAKE_VARS \"plugins.path=${QT_INSTALL_PLUGINS}\""
-[ '!' -z "$QT_INSTALL_LIBS" ] && QMAKE_VARS="$QMAKE_VARS \"libs.path=${QT_INSTALL_LIBS}\""
-[ '!' -z "$QT_INSTALL_BINS" ] && QMAKE_VARS="$QMAKE_VARS \"bins.path=${QT_INSTALL_BINS}\""
-[ '!' -z "$QT_INSTALL_DATA" ] && QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
+QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_PREFIX=${QT_INSTALL_PREFIX}\""
+QMAKE_VARS="$QMAKE_VARS \"docs.path=${QT_INSTALL_DOCS}\""
+QMAKE_VARS="$QMAKE_VARS \"headers.path=${QT_INSTALL_HEADERS}\""
+QMAKE_VARS="$QMAKE_VARS \"plugins.path=${QT_INSTALL_PLUGINS}\""
+QMAKE_VARS="$QMAKE_VARS \"libs.path=${QT_INSTALL_LIBS}\""
+QMAKE_VARS="$QMAKE_VARS \"bins.path=${QT_INSTALL_BINS}\""
+QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
 
 #-------------------------------------------------------------------------------
 # part of configuration information goes into qmodules.h
@@ -2531,7 +2519,7 @@ for file in .projects .projects.3; do
 	dir=`dirname $a | sed -e "s;$sepath;.;g"`
 	test -d $dir || mkdir -p $dir
 	N=$outpath/$dir/Makefile
-	if [ -f "$N" ]; then
+	if [ -f "$N" ] && [ "$OPT_FAST" = "yes" ]; then
 	    # fast configure - the makefile exists, skip it
 	    # since the makefile exists, it was generated by qmake, which means we
 	    # can skip it, since qmake has a rule to regenerate the makefile if the .pro
@@ -2539,8 +2527,7 @@ for file in .projects .projects.3; do
 	    [ "$OPT_VERBOSE" = "yes" ] && echo "  skipping $a"
 	    continue;
 	fi
-	QMAKE_SPEC_ARGS= 
-	[ "$SPEC" != "$XQMAKESPEC" ] && QMAKE_SPEC_ARGS="-spec $SPEC"
+	QMAKE_SPEC_ARGS="-spec $SPEC"
 	if echo '\c' | grep '\c' >/dev/null; then
 	    echo -n "  for $a"
 	else
@@ -2601,18 +2588,6 @@ done
 # this is just in case the concurrent task is not a multiple of the number of tasks
 [ '!' -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
 
-if echo "$LD_LIBRARY_PATH" | grep >/dev/null $outpath/lib; then
-    echo
-else
-    if grep QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null; then
-	echo # Using -R/-rpath, so no need to warn
-    else
-	echo
-	echo "WARNING: \$LD_LIBRARY_PATH does not contain $outpath/lib"
-	echo "         You will need to add it to correctly compile Qt."
-	echo
-    fi
-fi
 rm -f .projects .projects.3
 
 
