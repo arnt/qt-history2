@@ -112,7 +112,15 @@ elfdbg:
 	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
 		-o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lgcc -lc
 
-dist: include depend elf aout # be careful :)
+dist: clean include depend
+	make lib 'CFLAGS=-DLINUX_RESTRICTED $(CFLAGS) $(ELFCFLAGS)' 'OBJDIR=obj/elf'
+	/bin/rm -f $(ELFTARGET)
+	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
+		-o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lgcc -lc
+	make lib 'CFLAGS=-DLINUX_RESTRICTED $(CFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aout'
+	/bin/rm -f $(AOUTTARGET)
+	ar q $(AOUTTARGET) obj/aout/*/*.o
+	ranlib $(AOUTTARGET)
 	-$(RM) -rf $(DISTDIR)
 	find /local/qt/examples -type d -print \
 	    | grep -v RCS \
