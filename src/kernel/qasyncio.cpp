@@ -259,7 +259,7 @@ void QIODeviceSource::enableRewind(bool on)
     rew = on;
 }
 
-/*
+/*!
   Calls reset() on the QIODevice.
 */
 void QIODeviceSource::rewind()

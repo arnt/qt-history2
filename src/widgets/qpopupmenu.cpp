@@ -238,6 +238,11 @@ QPopupMenu::~QPopupMenu()
 }
 
 
+/*!
+  Updates the item with identity \a id.
+
+  \sa updateRow()
+*/
 void QPopupMenu::updateItem( int id )		// update popup menu item
 {
     updateRow( indexOf(id) );
@@ -999,6 +1004,14 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 }
 
 
+/*!
+  Draws item \a mi in the area \a x, \a y, \a w, \a h,
+  using painter \a p.  The item is drawn active or inactive according
+  to \a act, and using the rightmost \a tab_ pixels for accelerator
+  text.
+
+  \sa QStyle::drawPopupMenuItem()
+*/
 void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
@@ -1015,6 +1028,9 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 }
 
 
+/*!
+  Draws all menu items.
+*/
 void QPopupMenu::drawContents( QPainter* p )
 {
     QMenuItemListIt it(*mitems);

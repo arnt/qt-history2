@@ -1264,6 +1264,9 @@ void QLineEdit::clearValidator()
 
 
 
+/*!
+  Reimplemented to accept text drags entering the line edit.
+*/
 void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 {
     if ( QTextDrag::canDecode(e) )
@@ -1271,6 +1274,9 @@ void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 }
 
 
+/*!
+  Reimplemented to accept text drops into the line edit.
+*/
 void QLineEdit::dropEvent( QDropEvent *e )
 {
     QString str;
