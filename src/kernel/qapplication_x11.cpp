@@ -310,7 +310,7 @@ Atom            qt_net_wm_window_type_override	= 0;
 Atom		qt_net_wm_frame_strut	= 0;	// KDE extension
 Atom		qt_net_wm_state_stays_on_top	= 0;	// KDE extension
 // Enlightenment support
-Atom		qt_enligtenment_desktop	= 0;
+Atom		qt_enlightenment_desktop	= 0;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -1807,7 +1807,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_KDE_NET_WM_FRAME_STRUT", &qt_net_wm_frame_strut );
 	qt_x11_intern_atom( "_NET_WM_STATE_STAYS_ON_TOP",
 			    &qt_net_wm_state_stays_on_top );
-	qt_x11_intern_atom( "ENLIGHTENMENT_DESKTOP", &qt_enligtenment_desktop );
+	qt_x11_intern_atom( "ENLIGHTENMENT_DESKTOP", &qt_enlightenment_desktop );
 
 	qt_xdnd_setup();
 	qt_x11_motifdnd_init();
