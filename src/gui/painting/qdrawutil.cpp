@@ -293,7 +293,9 @@ void qDrawShadePanel(QPainter *p, int x, int y, int w, int h,
             light = pal.midlight().color();
     }
     QPen oldPen = p->pen();                        // save pen
-    QVector<QLineF> lines(2 * lineWidth);
+    QVector<QLineF> lines;
+    lines.reserve(2*lineWidth);
+
     if (sunken)
         p->setPen(shade);
     else
@@ -768,7 +770,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     QPen     savePen   = p->pen();                // save current pen
     QBrush   saveBrush = p->brush();                // save current brush
 #ifndef QT_NO_TRANSFORMATIONS
-    QMatrix wxm = p->worldMatrix();
+    QMatrix wxm = p->matrix();
 #endif
     QPen     pen(Qt::NoPen);
     const QBrush &brush = pal.brush(QPalette::Button);
@@ -776,7 +778,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     p->setPen(pen);
     p->setBrush(brush);
 #ifndef QT_NO_TRANSFORMATIONS
-    p->setWorldMatrix(matrix, true);                // set transformation matrix
+    p->setMatrix(matrix, true);                // set transformation matrix
 #endif
     p->drawPolygon(bFill);                        // fill arrow
     p->setBrush(Qt::NoBrush);                        // don't fill
@@ -789,7 +791,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     p->drawLines(bBot);
 
 #ifndef QT_NO_TRANSFORMATIONS
-    p->setWorldMatrix(wxm);
+    p->setMatrix(wxm);
 #endif
     p->setBrush(saveBrush);                        // restore brush
     p->setPen(savePen);                        // restore pen
