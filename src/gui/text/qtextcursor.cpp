@@ -582,8 +582,10 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
     Text strings can be inserted into the document with the insertText()
     function, blocks (representing new paragraphs) can be inserted with
     insertBlock().
-    Fragments of text can be inserted with insertFragment(), but it is
-    sometimes simpler to use insertText() and supply a character format.
+
+    Existing fragments of text can be inserted with insertFragment() but,
+    if you want to insert pieces of text in various formats, it is usually
+    still easier to use insertText() and supply a character format.
 
     Various types of higher-level structure can also be inserted into the
     document with the cursor:
