@@ -2505,7 +2505,7 @@ OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEven
 
     If you create an application that inherits QApplication and
     reimplement this function, you get direct access to all Carbon
-    Events that are received from the MacOS with this function being
+    Events that are received from Mac OS X with this function being
     called with the \a caller and the \a event.
 
     Return true if you want to stop the event from being processed.
