@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#130 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#129 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#130 $");
 
 
 /*!
@@ -1436,22 +1436,19 @@ QRgb QImage::pixel( int x, int y ) const
 	return 12345;
     }
 #endif
+    uchar * s = scanLine( y );
     switch( depth() ) {
-      case 1: {
-	uchar * s = scanLine( y );
-	if ( bitOrder() == QImage::LittleEndian ) {
+    case 1:
+	if ( bitOrder() == QImage::LittleEndian )
 	    return color( (*(s + (x >> 3)) >> (x & 7)) & 1 );
-	} else {
+	else
 	    return color( (*(s + (x >> 3)) >> (7- (x & 7))) & 1 );
-	}
-    } case 8: {
-	uchar * s = scanLine( y );
+    case 8:
 	return color( (int)s[x] );
-    } case 32: {
-	QRgb * s = (QRgb*)scanLine( y );
-	return s[x];
-    } default:
-        return 12345;
+    case 32:
+	return ((QRgb*)s)[x];
+    default:
+        return 100367;
     }
 }
 
@@ -1479,18 +1476,16 @@ int QImage::pixelIndex( int x, int y ) const
 	return -12345;
     }
 #endif
+    uchar * s = scanLine( y );
     switch( depth() ) {
-      case 1: {
-	uchar * s = scanLine( y );
-	if ( bitOrder() == QImage::LittleEndian ) {
+    case 1:
+	if ( bitOrder() == QImage::LittleEndian )
 	    return (*(s + (x >> 3)) >> (x & 7)) & 1;
-	} else {
+	else
 	    return (*(s + (x >> 3)) >> (7- (x & 7))) & 1;
-	}
-    } case 8: {
-	uchar * s = scanLine( y );
+    case 8:
 	return (int)s[x];
-    } case 32:
+    case 32:
 	warning("QImage::index used on 32-bit (paletteless) image");
 	return 0;
     }
@@ -1502,54 +1497,45 @@ int QImage::pixelIndex( int x, int y ) const
   Sets the pixel index or color at the given coordinates.
   If (x,y) is not \link valid() valid\endlink, or if
   the image is a paletted image (depth() \<= 8) and \a index_or_rgb
-  \>= numColors(), the results
-  are undefined.
+  \>= numColors(), the results are undefined.
 */
 void QImage::setPixel( int x, int y, uint index_or_rgb )
 {
-#if defined(CHECK_RANGE)
     if ( x < 0 || x > width() ) {
+#if defined(CHECK_RANGE)
 	warning( "QImage::setPixel: x=%d out of range", x );
+#endif
 	return;
     }
-#endif
-    switch( depth() ) {
-      case 1: {
+    if ( depth() == 1 ) {
 	uchar * s = scanLine( y );
-	if ( bitOrder() == QImage::LittleEndian ) {
-	    if (index_or_rgb==0) {
+	if ( index_or_rgb > 1) {
+#if defined(CHECK_RANGE)
+		warning( "QImage::setPixel: index=%d out of range",
+			 index_or_rgb );
+#endif
+	} else if ( bitOrder() == QImage::LittleEndian ) {
+	    if (index_or_rgb==0)
 		*(s + (x >> 3)) &= ~(1 << (x & 7));
-#if defined(CHECK_RANGE)
-	    } else if (index_or_rgb > 1) {
-		warning( "QImage::setPixel: index=%d out of range",
-		    index_or_rgb );
-#endif
-	    } else {
+	    else
 		*(s + (x >> 3)) |= (1 << (x & 7));
-	    }
 	} else {
-	    if (index_or_rgb==0) {
+	    if (index_or_rgb==0)
 		*(s + (x >> 3)) &= ~(1 << (7-(x & 7)));
-#if defined(CHECK_RANGE)
-	    } else if (index_or_rgb > 1) {
-		warning( "QImage::setPixel: index=%d out of range",
-		    index_or_rgb );
-#endif
-	    } else {
+	    else
 		*(s + (x >> 3)) |= (1 << (7-(x & 7)));
-	    }
 	}
-    } case 8: {
-#if defined(CHECK_RANGE)
+    } else if ( depth() == 8 ) {
 	if (index_or_rgb > (uint)numColors()) {
+#if defined(CHECK_RANGE)
 	    warning( "QImage::setPixel: index=%d out of range",
-		index_or_rgb );
+		     index_or_rgb );
+#endif
 	    return;
 	}
-#endif
 	uchar * s = scanLine( y );
 	s[x] = index_or_rgb;
-    } case 32:
+    } else if ( depth() == 32 ) {
 	QRgb * s = (QRgb*)scanLine( y );
 	s[x] = index_or_rgb;
     }
