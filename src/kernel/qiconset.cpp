@@ -155,9 +155,12 @@ public:
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QIconSetPrivate& ) const { return FALSE; }
 #endif
-#if defined(Q_CC_HPACC)
-    // workaround for "implicit copy ctor for multi dimension array"
-    // bug (CR JAGad01979) in HP-UX aCC (up to A.03.30 at least)
+#if defined(Q_CC_HPACC) || defined(Q_CC_GNU) && defined(__arch64__)
+    // * workaround for "implicit copy ctor for multi dimension array"
+    //   bug (CR JAGad01979) in HP-UX aCC (up to A.03.30 at least)
+    // * workaround for "sorry, not implemented: cannot initialize
+    //   multi-dimensional array with initializer" in GCC 3.1 / 64-bit
+    //   on Solaris
     QIconSetPrivate( const QIconSetPrivate& other ) : QShared() {
 	count = other.count;
 	for ( int i = 0; i < NumSizes; i++ )
