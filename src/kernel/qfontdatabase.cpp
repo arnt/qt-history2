@@ -55,11 +55,7 @@
 class QtFontFamily;
 class QtFontFoundry;
 
-#ifdef Q_WS_WIN
-static void newWinFont( void * p );
-static void add_style( QtFontFamily *family, const QString& styleName,
-		       bool italic, bool lesserItalic, int weight );
-#elif defined( Q_WS_MAC )
+#if defined( Q_WS_MAC )
 static void add_style( QtFontFamily *family, const QString& styleName,
 		       bool italic, bool lesserItalic, int weight );
 #endif
