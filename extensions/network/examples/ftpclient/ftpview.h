@@ -1,0 +1,55 @@
+/****************************************************************************
+** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#10 $
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of an example program for Qt.  This example
+** program may be used, distributed and modified without limitation.
+**
+*****************************************************************************/
+
+#ifndef FTPVIEW_H
+#define FTPVIEW_H
+
+#include <qlistview.h>
+#include <qvaluelist.h>
+#include <qurlinfo.h>
+
+class FtpViewItem : public QListViewItem
+{
+public:
+    FtpViewItem( QListView *parent, const QUrlInfo &i );
+    
+    QString key( int c, bool ) const;
+    QString text( int c ) const;
+    QPixmap* pixmap( int c ) const;
+    
+    QUrlInfo entryInfo() {
+	return info;
+    }
+    
+private:
+    QUrlInfo info;
+    
+};
+
+class FtpView : public QListView
+{
+    Q_OBJECT
+    
+public:
+    FtpView( QWidget *parent );
+    QValueList<QUrlInfo> selectedItems() const;
+    
+public slots:
+    void slotInsertEntry( const QUrlInfo &info );
+    
+signals:
+    void itemSelected( const QUrlInfo &info );
+    
+private slots:
+    void slotSelected( QListViewItem *item );
+    
+};
+
+#endif
