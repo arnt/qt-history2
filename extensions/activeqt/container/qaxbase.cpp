@@ -1084,7 +1084,7 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
 	param->type = &static_QUType_ptr;
 	QString ptype = type;
 	if ( ptype.right(1) == "*" )
-	    ptype.remove( ptype.length()-1, 1 );
+	    ptype.truncate( ptype.length()-1 );
 	param->typeExtra = new char[ ptype.length() + 1 ];
 	param->typeExtra = qstrcpy( (char*)param->typeExtra, ptype );
     }
@@ -1477,7 +1477,7 @@ QMetaObject *QAxBase::metaObject() const
 			paramTypes << ptype;
 			parameters << paramName;
 		    }
-		    if ( p < funcdesc->cParams )
+		    if ( p < funcdesc->cParams && !(pdesc.wParamFlags & PARAMFLAG_FRETVAL) )
 			prototype += ",";
 		}
 
@@ -1528,7 +1528,7 @@ QMetaObject *QAxBase::metaObject() const
 			    prop->n = new char[function.length()+1];
 			    prop->n = qstrcpy( (char*)prop->n, function );
 
-			    if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE ) {
+			    if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE && prop->t ) {
 				prop->flags |= PropBindable;
 				QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
 				if ( !eventSink && d->useEventSink ) {
@@ -1575,8 +1575,9 @@ QMetaObject *QAxBase::metaObject() const
 			}
 			if ( !prop->t )
 			    break;
-			// fall through to generate put function as slot
 		    }
+		    // break for getters, and if we can support the property,
+		    // otherwise fall through to generate property put as slot
 		    if ( funcdesc->invkind != INVOKE_PROPERTYPUT && paramTypes.count() <= 1 )
 			break;
 
@@ -1607,6 +1608,7 @@ QMetaObject *QAxBase::metaObject() const
 				break;
 			}
 			bool defargs;
+
 			QString defprototype = prototype;
 			do {
 			    defargs = FALSE;
@@ -1686,29 +1688,19 @@ QMetaObject *QAxBase::metaObject() const
 		}
 
 		// get variable name
-		QString variableName;
-
-		BSTR bstrNames[2];
-		UINT maxNames = 2;
+		BSTR bstrName;
+		UINT maxNames = 1;
 		UINT maxNamesOut;
-		info->GetNames( vardesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-		for ( int v = 0; v < (int)maxNamesOut; ++v ) {
-		    QString varName = BSTRToQString( bstrNames[v] );
-		    SysFreeString( bstrNames[v] );
+		info->GetNames( vardesc->memid, &bstrName, maxNames, &maxNamesOut );
+		if ( maxNamesOut != 1 )
+		    continue;
+		QString variableName = BSTRToQString( bstrName );
+		SysFreeString( bstrName );
 
-		    if ( !v ) {
-			variableName = varName;
-			continue;
-		    }
-		}
 		// get variable type
 		TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
 		QString variableType = guessTypes( typedesc, info, enumDict, variableName );
 		
-		// trim any '&' added to types dispatched by pointers, e.g. QFont and QPixmap (IFont* resp. IPicture*)
-		if ( variableType.right(1) == "&" )
-		    variableType = variableType.left( variableType.length() - 1 );
-
 		if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 		    // generate meta property
 		    QMetaProperty *prop = proplist[variableName];
