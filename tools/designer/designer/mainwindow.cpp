@@ -2586,6 +2586,16 @@ void MainWindow::showDialogHelp()
 	link += "dialog-replace-text";
     else if ( w->inherits( "GotoLineDialog" ) )
 	link += "dialog-go-to-line";
+    else if ( w->inherits( "ConnectionEditorBase" ) )
+	link += "dialog-edit-connections";
+    else if ( w->inherits( "CustomWidgetEditorBase" ) )
+	link += "dialog-edit-custom-widgets";
+    else if ( w->inherits( "PaletteEditorBase" ) )
+	link += "dialog-edit-palette";
+    else if ( w->inherits( "ListBoxEditorBase" ) )
+	link += "dialog-edit-listbox";
+    else if ( w->inherits( "ListViewEditorBase" ) )
+	link += "dialog-edit-listview";
 
     else {
 	QMessageBox::information( this, tr( "Help" ),
