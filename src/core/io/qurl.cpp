@@ -1358,13 +1358,9 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl)
     The scheme describes the type (or protocol) of the URL. It's
     represented by one or more ASCII characters at the start the URL,
     and is followed by a ':'. The following example shows a URL where
-    the scheme is "http":
+    the scheme is "ftp":
 
-    \code
-        http://www.trolltech.com/
-        \__/
-        scheme
-    \endcode
+    \img qurl-authority2.png
 
     The scheme can also be empty, in which case the URL is interpreted
     as relative.
@@ -1381,8 +1377,8 @@ void QUrl::setScheme(const QString &scheme)
 }
 
 /*!
-    Returns the scheme of the URL. If QString::null is returned, this
-    means the scheme is undefined and the URL is then relative.
+    Returns the scheme of the URL. If an empty string is returned,
+    this means the scheme is undefined and the URL is then relative.
 
     \sa setScheme(), isRelative()
 */
@@ -1407,13 +1403,7 @@ QString QUrl::scheme() const
 
     The following example shows a valid authority string:
 
-    \code
-        ftp://tray:5uQQo_f@ftp.example.com:2021
-              \__________/ \_____________/ \__/
-                user info       host       port
-              \_______________________________/
-                          authority
-    \endcode
+    \img qurl-authority.png
 */
 void QUrl::setAuthority(const QString &authority)
 {
@@ -1426,7 +1416,7 @@ void QUrl::setAuthority(const QString &authority)
 
 /*!
     Returns the authority of the URL if it is defined; otherwise
-    QString::null is returned.
+    an empty string is returned.
 
     \sa setAuthority()
 */
@@ -1446,13 +1436,7 @@ QString QUrl::authority() const
     separated by a ':'. If the password is empty, the colon must be
     omitted. The following example shows a valid user info string:
 
-    \code
-        ftp://tray:5uQQo_f@ftp.example.com/
-              \__/ \_____/
-              user password
-              \__________/
-                user info
-    \encode
+    \img qurl-authority3.png
 
     \sa userInfo(), setUserName(), setPassword(), setAuthority()
 */
@@ -1466,7 +1450,7 @@ void QUrl::setUserInfo(const QString &userInfo)
 }
 
 /*!
-    Returns the user info of the URL, or QString::null if the user
+    Returns the user info of the URL, or an empty string if the user
     info is undefined.
 */
 QString QUrl::userInfo() const
@@ -1494,7 +1478,7 @@ void QUrl::setUserName(const QString &userName)
 
 /*!
     Returns the user name of the URL if it is defined; otherwise
-    QString::null is returned.
+    an empty string is returned.
 
     \sa setUserName()
 */
@@ -1523,7 +1507,7 @@ void QUrl::setPassword(const QString &password)
 
 /*!
     Returns the password of the URL if it is defined; otherwise
-    QString::null is returned.
+    an empty string is returned.
 
     \sa setUserName()
 */
@@ -1551,7 +1535,7 @@ void QUrl::setHost(const QString &host)
 
 /*!
     Returns the host of the URL if it is defined; otherwise
-    QString::null is returned.
+    an empty string is returned.
 */
 QString QUrl::host() const
 {
@@ -1596,20 +1580,12 @@ int QUrl::port() const
     Sets the path of the URL to \a path. The path is the part of the
     URL that comes after the authority but before the query string.
 
-    \code
-        ftp://ftp.example.com/pub/something/
-                             \_____________/
-                                   path
-    \endcode
+    \img qurl-ftppath.png
 
     For non-hierarchical schemes, the path will be everything
     following the scheme declaration, as in the following example:
 
-    \code
-        mailto:postmaster@example.com
-               \____________________/
-                       path
-    \endcode
+    \img qurl-mailtopath.png
 
     \sa path()
 */
@@ -1639,11 +1615,7 @@ QString QUrl::path() const
     and between key-value pairs in the URL's query string. The default
     value delimiter is '=' and the default pair delimiter is '&'.
 
-    \code
-        http://www.example.com/cgi-bin/drawgraph.cgi?type=pie&color=green
-                                                     \__________________/
-                                                        query string
-    \endcode
+    \img qurl-querystring.png
 
     \a valueDelimiter will be used for separating keys from values,
     and \a pairDelimiter will be used to separate key-value pairs.
@@ -1816,11 +1788,7 @@ QByteArray QUrl::encodedQuery() const
     characters. It is typically used in HTTP for referring to a
     certain link or point on a page:
 
-    \code
-        http://www.example.net/faq.html?#question13
-                                         \________/
-                                          fragment
-    \endcode
+    \img qurl-fragment.png
 
     The fragment is sometimes also referred to as the URL "reference".
 
