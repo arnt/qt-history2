@@ -138,10 +138,12 @@ protected:
     virtual void	paintSection( QPainter *p, int index, const QRect& fr);
     virtual void	paintSectionLabel( QPainter* p, int index, const QRect& fr );
 
+    void fontChange( const QFont & );
+
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
-    
+
 private:
     void adjustHeaderSize( int diff );
     void	init( int );

@@ -1397,7 +1397,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	    flags |= QStyle::Style_Down;
 	else
 	    flags |= QStyle::Style_Up;
-	style().drawPrimitive( QStyle::PE_HeaderArrow, p, 
+	style().drawPrimitive( QStyle::PE_HeaderArrow, p,
 			       QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
 			       colorGroup(), flags );
     }
@@ -1786,4 +1786,17 @@ bool QHeader::isStretchEnabled( int section ) const
 {
     return d->fullSize == section;
 }
+
+/*!
+  \reimp
+*/
+void QHeader::fontChange( const QFont &oldFont )
+{
+    QFontMetrics fm = fontMetrics();
+    for ( int i = 0; i < count(); i++ )
+	d->heights[i] =
+	    ( orient == Horizontal ) ? fm.lineSpacing() + 6 : fm.width( ' ' );
+    QWidget::fontChange( oldFont );
+}
+
 #endif // QT_NO_HEADER
