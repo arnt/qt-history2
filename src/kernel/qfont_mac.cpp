@@ -402,12 +402,12 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
     ByteCount valueSizes[arr_guess];
     ATSUAttributeValuePtr values[arr_guess];
     tags[arr] = kATSULineLayoutOptionsTag;
-    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineFractDisable;
+    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading;
 
-#ifndef MACOSX_102
-    layopts |= kATSLineIsDisplayOnly;
+#ifdef MACOSX_102
+    layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
 #else
-    layopts |= kATSLineDisableAutoAdjustDisplayPos;
+    layopts |= kATSLineIsDisplayOnly;
 #endif
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
