@@ -529,8 +529,6 @@ void QMoviePrivate::pollForData()
                 if (!loop)
                     return;
             }
-            delete decoder;
-            decoder = new QImageDecoder(this);
             source->reset();
             framenumber = 0;
             movie_ended = false;
