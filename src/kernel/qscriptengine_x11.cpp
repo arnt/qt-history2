@@ -1510,7 +1510,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
 
-	where[0] = (from == 0 || !string.unicode()[from-1].isLetter());
+	where[0] = TRUE;
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'i', 'n', 'i', 't' ), where);
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'n', 'u', 'k', 't' ));
 
