@@ -61,4 +61,4 @@ QStringList RCInterface::import( const QString &, const QString& filename )
     return c.targetFiles;
 }
 
-QtExportInterface(FilterInterface, RCInterface)
+Q_EXPORT_INTERFACE(FilterInterface, RCInterface)
