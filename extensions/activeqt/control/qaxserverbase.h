@@ -70,14 +70,18 @@ class QAxPropertyPage;
 class QAxServerBase : 
     public QObject,
     public IAxServerBase,
-    public CComObjectRootEx<CComSingleThreadModel>,
     public IDispatch,
+    public CComObjectRootEx<CComSingleThreadModel>,
     public CComControl<QAxServerBase>,
+
+    public IOleObject,
     public IOleControl,
-    public IOleObjectImpl<QAxServerBase>,
-    public IViewObjectExImpl<QAxServerBase>,
-    public IOleInPlaceObjectWindowlessImpl<QAxServerBase>,
-    public IOleInPlaceActiveObjectImpl<QAxServerBase>,
+#ifdef QAX_VIEWOBJECTEX
+    public IViewObjectEx,
+#else
+    public IViewObject2,
+#endif
+    public IOleInPlaceObject,
     public IProvideClassInfo2,
     public IConnectionPointContainer,
     public IPersistPropertyBag,
@@ -97,15 +101,16 @@ BEGIN_COM_MAP(QAxServerBase)
     {&IID_IAxServerBase,
     offsetofclass(IAxServerBase, _ComMapClass),
     _ATL_SIMPLEMAPENTRY},
-    COM_INTERFACE_ENTRY_IMPL(IViewObjectEx)
-    COM_INTERFACE_ENTRY_IMPL_IID(IID_IViewObject2, IViewObjectEx)
-    COM_INTERFACE_ENTRY_IMPL_IID(IID_IViewObject, IViewObjectEx)
-    COM_INTERFACE_ENTRY_IMPL(IOleInPlaceObjectWindowless)
-    COM_INTERFACE_ENTRY_IMPL_IID(IID_IOleInPlaceObject, IOleInPlaceObjectWindowless)
-    COM_INTERFACE_ENTRY_IMPL_IID(IID_IOleWindow, IOleInPlaceObjectWindowless)
-    COM_INTERFACE_ENTRY_IMPL(IOleInPlaceActiveObject)
-    COM_INTERFACE_ENTRY_IMPL(IOleObject)
+
+    COM_INTERFACE_ENTRY(IOleObject)
+    COM_INTERFACE_ENTRY(IViewObject)
+    COM_INTERFACE_ENTRY(IViewObject2)
+#ifdef QAX_VIEWOBJECTEX
+    COM_INTERFACE_ENTRY(IViewObjectEx)
+#endif
     COM_INTERFACE_ENTRY(IOleControl)
+    COM_INTERFACE_ENTRY(IOleWindow)
+    COM_INTERFACE_ENTRY(IOleInPlaceObject)
     COM_INTERFACE_ENTRY(IConnectionPointContainer)
     COM_INTERFACE_ENTRY(IProvideClassInfo)
     COM_INTERFACE_ENTRY(IProvideClassInfo2)
@@ -157,9 +162,6 @@ END_MSG_MAP()
 	return activeqt;
     }
 
-// IViewObjectEx
-    DECLARE_VIEW_STATUS(VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE)
-
 // IDispatch
     CComTypeInfoHolder *_tih;
 
@@ -195,8 +197,7 @@ END_MSG_MAP()
 	if (pGUID == NULL)
 	    return E_POINTER;
 	
-	if ( dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID )
-	{
+	if ( dwGuidKind == GUIDKIND_DEFAULT_SOURCE_DISP_IID ) {
 	    *pGUID = _Module.factory()->eventsID( class_name );
 	    return S_OK;
 	}
@@ -204,6 +205,52 @@ END_MSG_MAP()
 	return E_FAIL;
     }
 
+// IOleObject
+    STDMETHOD(Advise)( IAdviseSink* pAdvSink, DWORD* pdwConnection );
+    STDMETHOD(Close)( DWORD dwSaveOption );
+    STDMETHOD(DoVerb)( LONG iVerb, LPMSG lpmsg, IOleClientSite* pActiveSite, LONG lindex, HWND hwndParent, LPCRECT lprcPosRect );
+    STDMETHOD(EnumAdvise)( IEnumSTATDATA** ppenumAdvise );
+    STDMETHOD(EnumVerbs)( IEnumOLEVERB** ppEnumOleVerb );
+    STDMETHOD(GetClientSite)( IOleClientSite** ppClientSite );
+    STDMETHOD(GetClipboardData)( DWORD dwReserved, IDataObject** ppDataObject );
+    STDMETHOD(GetExtent)( DWORD dwDrawAspect, SIZEL* psizel );
+    STDMETHOD(GetMiscStatus)(DWORD dwAspect, DWORD *pdwStatus);
+    STDMETHOD(GetMoniker)( DWORD dwAssign, DWORD dwWhichMoniker, IMoniker** ppmk );
+    STDMETHOD(GetUserClassID)( CLSID* pClsid );
+    STDMETHOD(GetUserType)(DWORD dwFormOfType, LPOLESTR *pszUserType);
+    STDMETHOD(InitFromData)( IDataObject* pDataObject, BOOL fCreation, DWORD dwReserved );
+    STDMETHOD(IsUpToDate)();
+    STDMETHOD(SetClientSite)( IOleClientSite* pClientSite );
+    STDMETHOD(SetColorScheme)( LOGPALETTE* pLogPal );
+    STDMETHOD(SetExtent)( DWORD dwDrawAspect, SIZEL* psizel );
+    STDMETHOD(SetHostNames)( LPCOLESTR szContainerApp, LPCOLESTR szContainerObj );
+    STDMETHOD(SetMoniker)( DWORD dwWhichMoniker, IMoniker* ppmk );
+    STDMETHOD(Unadvise)( DWORD dwConnection );
+    STDMETHOD(Update)();
+
+// IViewObject
+    STDMETHOD(Draw)( DWORD dwAspect, LONG lIndex, void *pvAspect, DVTARGETDEVICE *ptd, 
+		    HDC hicTargetDevice, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
+		    BOOL(__stdcall*pfnContinue)(DWORD), DWORD dwContinue );
+    STDMETHOD(GetColorSet)( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
+		    HDC hicTargetDev, LOGPALETTE **ppColorSet );
+    STDMETHOD(Freeze)( DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze );
+    STDMETHOD(Unfreeze)( DWORD dwFreeze );
+    STDMETHOD(SetAdvise)( DWORD aspects, DWORD advf, IAdviseSink *pAdvSink );
+    STDMETHOD(GetAdvise)( DWORD *aspects, DWORD *advf, IAdviseSink **pAdvSink );
+
+// IViewObject2
+    STDMETHOD(GetExtent)( DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, LPSIZEL lpsizel );
+
+#ifdef QAX_VIEWOBJECTEX
+    // IViewObjectEx
+    STDMETHOD(GetRect)( DWORD dwAspect, LPRECTL pRect );
+    STDMETHOD(GetViewStatus)( DWORD *pdwStatus );
+    STDMETHOD(QueryHitPoint)( DWORD dwAspect, LPCRECT pRectBounds, POINT ptlLoc, LONG lCloseHint, DWORD *pHitResult );
+    STDMETHOD(QueryHitRect)( DWORD dwAspect, LPCRECT pRectBounds, LPCRECT prcLoc, LONG lCloseHint, DWORD *pHitResult );
+    STDMETHOD(GetNaturalExtent)( DWORD dwAspect, LONG lindex, DVTARGETDEVICE *ptd, HDC hicTargetDev, DVEXTENTINFO *pExtentInfo, LPSIZEL pSizel );
+    DECLARE_VIEW_STATUS()
+#endif
 
 // IOleControl
     STDMETHOD(FreezeEvents)(BOOL);
@@ -211,9 +258,16 @@ END_MSG_MAP()
     STDMETHOD(OnAmbientPropertyChange)(DISPID);
     STDMETHOD(OnMnemonic)(LPMSG);
 
-// IOleObject
-    STDMETHOD(GetUserType)(DWORD dwFormOfType, LPOLESTR *pszUserType);
-    STDMETHOD(GetMiscStatus)(DWORD dwAspect, DWORD *pdwStatus);
+// IOleWindow
+    STDMETHOD(GetWindow)(HWND *pHwnd);
+    STDMETHOD(ContextSensitiveHelp)(BOOL fEnterMode);
+
+// IOleInPlaceObject
+    STDMETHOD(InPlaceDeactivate)();
+    STDMETHOD(UIDeactivate)();
+    STDMETHOD(SetObjectRects)(LPCRECT lprcPosRect, LPCRECT lprcClipRect);
+    STDMETHOD(ReactivateAndUndo)();
+
 
 // IConnectionPointContainer
     STDMETHOD(EnumConnectionPoints)(IEnumConnectionPoints**);
@@ -269,19 +323,15 @@ END_MSG_MAP()
 
     static QPtrList<CComTypeInfoHolder> *typeInfoHolderList;
 
-    // required for IOleObjectImpl or whatever to compile
-    static const CLSID& WINAPI GetObjectCLSID()
-    {
-	return CLSID_NULL;
-    }
-
     bool eventFilter( QObject *o, QEvent *e );
 private:
     bool internalCreate();
+    HRESULT internalActivate();
 
     LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
     LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
     LRESULT ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    
 
     friend class QAxBindable;
     friend class QAxPropertyPage;

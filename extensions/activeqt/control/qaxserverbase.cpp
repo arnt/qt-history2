@@ -29,6 +29,9 @@
 #include "qaxbindable.h"
 
 #include <qapplication.h>
+#include <qwhatsthis.h>
+#include <qpainter.h>
+#include <qpaintdevicemetrics.h>
 
 #include "../shared/types.h"
 
@@ -151,6 +154,12 @@ public:
 	it = old.it;
 	that = old.that;
 	iid = old.iid;
+	QValueList<CONNECTDATA>::Iterator it = connections.begin();
+	while ( it != connections.end() ) {
+	    CONNECTDATA connection = *it;
+	    ++it;
+	    connection.pUnk->AddRef();
+	}
     }
 
     unsigned long __stdcall AddRef() 
@@ -191,11 +200,10 @@ public:
     }
     STDMETHOD(Advise)(IUnknown*pUnk, DWORD *pdwCookie)
     {
-	IUnknown *checkImpl = 0;
+	CComPtr<IDispatch> checkImpl;
 	pUnk->QueryInterface( iid, (void**)&checkImpl );
 	if ( !checkImpl )
 	    return CONNECT_E_CANNOTCONNECT;
-	checkImpl->Release();
 
 	CONNECTDATA cd;
 	cd.dwCookie = connections.count()+1;
@@ -208,13 +216,15 @@ public:
     }
     STDMETHOD(Unadvise)(DWORD dwCookie)
     {
-	for ( QValueList<CONNECTDATA>::Iterator i = connections.begin(); i != connections.end(); ++i ) {
-	    CONNECTDATA cd = *i;
+	QValueList<CONNECTDATA>::Iterator it = connections.begin();
+	while ( it != connections.end() ) {
+	    CONNECTDATA cd = *it;
 	    if ( cd.dwCookie == dwCookie ) {
 		cd.pUnk->Release();
-		connections.remove(i);
+		connections.remove(it);
 		return S_OK;
 	    }
+	    ++it;
 	}
 	return CONNECT_E_NOCONNECTION;
     }
@@ -291,6 +301,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
   propPageSite( 0 ), propPage( 0 )
 {
     m_bWindowOnly = TRUE;
+    m_bAutoSize = TRUE;
     _Module.Lock();
     if ( !typeInfoHolderList ) {
 	typeInfoHolderList = new QPtrList<CComTypeInfoHolder>;
@@ -303,8 +314,8 @@ QAxServerBase::QAxServerBase( const QString &classname )
     _tih->m_wMajor = 1;
     _tih->m_wMinor = 0;
     _tih->m_dwRef = 0;
-    _tih->m_pInfo = NULL;
-    _tih->m_pMap = NULL;
+    _tih->m_pInfo = 0;
+    _tih->m_pMap = 0;
     _tih->m_nCount = 0;
     typeInfoHolderList->append( _tih );
 
@@ -314,8 +325,8 @@ QAxServerBase::QAxServerBase( const QString &classname )
     _tih2->m_wMajor = 1;
     _tih2->m_wMinor = 0;
     _tih2->m_dwRef = 0;
-    _tih2->m_pInfo = NULL;
-    _tih2->m_pMap = NULL;
+    _tih2->m_pInfo = 0;
+    _tih2->m_pMap = 0;
     _tih2->m_nCount = 0;
     typeInfoHolderList->append( _tih2 );
 
@@ -371,6 +382,10 @@ class HackWidget : public QWidget
     friend class QAxServerBase;
 };
 
+#define HIMETRIC_PER_INCH   2540
+#define PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
+#define LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )
+
 /*!
     Creates the QWidget for the classname passed to the c'tor.
 
@@ -397,6 +412,15 @@ bool QAxServerBase::internalCreate()
 	((HackWidget*)activeqt)->topData()->fleft = 0;
 	((HackWidget*)activeqt)->topData()->fbottom = 0;
 	::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+    }
+
+    QSize sizeHint = activeqt->sizeHint();
+    if ( sizeHint.isValid() ) {
+	QPaintDeviceMetrics pmetric( activeqt );
+
+	m_sizeExtent.cx = PIX_TO_LOGHIM( sizeHint.width(), pmetric.logicalDpiX() );
+	m_sizeExtent.cy = PIX_TO_LOGHIM( sizeHint.height(), pmetric.logicalDpiY() );
+	m_sizeNatural = m_sizeExtent;
     }
 
     // connect the generic slot to all signals of activeqt
@@ -646,10 +670,9 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		    if ( c->pUnk ) {
 			CComPtr<IDispatch> disp;
 			c->pUnk->QueryInterface( IID_QAxEvents, (void**)&disp );
-			if ( disp ) {
+			if ( disp ) 
 			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
-			}
-			c->pUnk->Release();
+			c->pUnk->Release(); // AddRef'ed by clist->Next implementation
 		    }
 		    clist->Next( cc, (CONNECTDATA*)&c, &cc );
 		}
@@ -660,7 +683,7 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 			SysFreeString( dispParams.rgvarg[p].bstrVal );
 		}
 		delete [] dispParams.rgvarg;
-	    }	    
+	    }
 	}
     }
     return TRUE;
@@ -818,7 +841,6 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    }
 
 	    emitPropertyChanged( dispidMember );
-
 	    res = S_OK;
 	}
 	break;
@@ -971,9 +993,193 @@ HRESULT QAxServerBase::IsDirty()
     return dirtyflag ? S_OK : S_FALSE;
 }
 
+
+//**** IViewObject
+class HackPainter : public QPainter
+{
+    friend class QAxServerBase;
+};
+
+/*!
+    Draws the widget into the provided device context.
+*/
+HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd, 
+		HDC hicTargetDev, HDC hdcDraw, LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
+		BOOL(__stdcall* /*pfnContinue*/)(DWORD), DWORD /*dwContinue*/ )
+{
+    if ( !lprcBounds )
+	return E_INVALIDARG;
+
+    if ( !activeqt )
+        return OLE_E_BLANK;
+
+    switch ( dwAspect ) {
+    case DVASPECT_CONTENT:
+    case DVASPECT_OPAQUE:
+    case DVASPECT_TRANSPARENT:
+	break;
+    default:
+	return DV_E_DVASPECT;
+    }
+    if (!ptd)
+	hicTargetDev = 0;
+
+    bool bDeleteDC = FALSE;
+    if ( !hicTargetDev ) {
+	AtlCreateTargetDC(hdcDraw, ptd);
+	bDeleteDC = (hicTargetDev != hdcDraw);
+    }
+
+    RECTL rectBoundsDP = *lprcBounds;
+    bool bMetaFile = GetDeviceCaps(hdcDraw, TECHNOLOGY) == DT_METAFILE;
+    if ( !bMetaFile  ) {
+	::LPtoDP(hicTargetDev, (LPPOINT)&rectBoundsDP, 2);
+	SaveDC(hdcDraw);
+	SetMapMode(hdcDraw, MM_TEXT);
+	SetWindowOrgEx(hdcDraw, 0, 0, 0);
+	SetViewportOrgEx(hdcDraw, 0, 0, 0);
+    }
+    lprcBounds = &rectBoundsDP;
+    RECTL rc = *lprcBounds;
+
+    {
+	QPainter painter( activeqt );
+	HDC oldDC = ((HackPainter*)&painter)->hdc;
+	((HackPainter*)&painter)->hdc = hdcDraw;
+
+	painter.drawText( rc.left, rc.top, "I don't know how to draw myself!" );
+	
+	((HackPainter*)&painter)->hdc = oldDC;
+    }
+
+    if ( bDeleteDC )
+	DeleteDC( hicTargetDev );
+    if (!bMetaFile)
+	RestoreDC( hdcDraw, -1 );
+
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::GetColorSet( DWORD dwDrawAspect, LONG lindex, void *pvAspect, DVTARGETDEVICE *ptd,
+		HDC hicTargetDev, LOGPALETTE **ppColorSet )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::Freeze( DWORD dwAspect, LONG lindex, void *pvAspect, DWORD *pdwFreeze )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::Unfreeze( DWORD dwFreeze )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Stores the provided advise sink.
+*/
+HRESULT QAxServerBase::SetAdvise( DWORD /*aspects*/, DWORD /*advf*/, IAdviseSink *pAdvSink )
+{
+    m_spAdviseSink = pAdvSink;
+    return S_OK;
+}
+
+/*!
+    Returns the advise sink.
+*/
+HRESULT QAxServerBase::GetAdvise( DWORD* /*aspects*/, DWORD* /*advf*/, IAdviseSink **ppAdvSink )
+{
+    if ( !ppAdvSink )
+	return E_POINTER;
+
+    *ppAdvSink = m_spAdviseSink;
+    if ( *ppAdvSink )
+	(*ppAdvSink)->AddRef();
+    return S_OK;
+}
+
+//**** IViewObject2
+/*!
+    Returns the current size.
+*/
+HRESULT QAxServerBase::GetExtent( DWORD /*dwAspect*/, LONG /*lindex*/, DVTARGETDEVICE* /*ptd*/, LPSIZEL lpsizel )
+{
+    *lpsizel = m_sizeExtent;
+    return S_OK;
+}
+
+#ifdef QAX_VIEWOBJECTEX
+//**** IViewObjectEx
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::GetRect( DWORD dwAspect, LPRECTL pRect )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Returns the default value.
+*/
+HRESULT QAxServerBase::GetViewStatus( DWORD *pdwStatus )
+{
+    *pdwStatus = VIEWSTATUS_SOLIDBKGND | VIEWSTATUS_OPAQUE;
+    return S_OK;
+}
+
+/*!
+    Tests whether ptlLoc is in pRectBounds.
+*/
+HRESULT QAxServerBase::QueryHitPoint( DWORD dwAspect, LPCRECT pRectBounds, POINT ptlLoc, LONG /*lCloseHint*/, DWORD *pHitResult )
+{
+    if (dwAspect != DVASPECT_CONTENT)
+	return E_FAIL;
+
+    *pHitResult = PtInRect(pRectBounds, ptlLoc) ? HITRESULT_HIT : HITRESULT_OUTSIDE;
+    return S_OK;
+}
+
+/*!
+    Tests whether prcLoc intersects with pRectBounds.
+*/
+HRESULT QAxServerBase::QueryHitRect( DWORD dwAspect, LPCRECT pRectBounds, LPCRECT prcLoc, LONG /*lCloseHint*/, DWORD *pHitResult )
+{
+    if (dwAspect != DVASPECT_CONTENT)
+	return E_FAIL;
+
+    RECT rc;
+    *pHitResult = UnionRect(&rc, pRectBounds, prcLoc) ? HITRESULT_HIT : HITRESULT_OUTSIDE;
+    return S_OK;
+}
+
+/*!
+    Provides the "size hint".
+*/
+HRESULT QAxServerBase::GetNaturalExtent( DWORD dwAspect, LONG lindex, DVTARGETDEVICE* /*ptd*/, HDC /*hicTargetDev*/, DVEXTENTINFO *pExtentInfo, LPSIZEL pSizel )
+{
+    if ( pExtentInfo == 0 || pSizel == 0 )
+	return E_POINTER;
+    if ( dwAspect != DVASPECT_CONTENT || pExtentInfo->dwExtentMode != DVEXTENT_CONTENT )
+	return E_FAIL;
+
+    *pSizel = m_sizeNatural;
+    return S_OK;
+}
+#endif
+
 //**** IOleControl
 /*!
-    Return E_NOTIMPL
+    Not implemented.
 */
 HRESULT QAxServerBase::GetControlInfo( LPCONTROLINFO )
 {
@@ -995,12 +1201,13 @@ HRESULT QAxServerBase::FreezeEvents( BOOL bFreeze )
 }
 
 /*!
-    Return E_NOTIMPL
+    Not implemented.
 */
 HRESULT QAxServerBase::OnMnemonic( LPMSG )
 {
     return E_NOTIMPL;
 }
+
 /*!
     Update the ambient properties of the Qt widget.
 */
@@ -1098,6 +1305,129 @@ HRESULT QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
     return S_OK;
 }
 
+//**** IOleWindow
+/*!
+    Returns the HWND of the control.
+*/
+HRESULT QAxServerBase::GetWindow( HWND *pHwnd )
+{
+    if ( !pHwnd )
+	return E_POINTER;
+    *pHwnd = m_hWnd;
+    return S_OK;
+}
+
+/*!
+    Enters What's This mode.
+*/
+HRESULT QAxServerBase::ContextSensitiveHelp( BOOL fEnterMode )
+{
+    if ( fEnterMode )
+	QWhatsThis::enterWhatsThisMode();
+    else
+	QWhatsThis::leaveWhatsThisMode();
+    return S_OK;
+}
+
+//**** IOleInPlaceObject
+/*!
+    Deactivates the control in place.
+*/
+HRESULT QAxServerBase::InPlaceDeactivate()
+{
+    if ( !m_bInPlaceActive )
+	return S_OK;
+    UIDeactivate();
+    
+    m_bInPlaceActive = FALSE;
+    
+    // if we have a window, tell it to go away.
+    //
+    if (m_hWndCD) {
+	if (::IsWindow(m_hWndCD))
+	    ::DestroyWindow(m_hWndCD);
+	m_hWndCD = 0;
+    }
+    
+    if (m_spInPlaceSite)
+	m_spInPlaceSite->OnInPlaceDeactivate();
+
+    return S_OK;
+}
+
+/*!
+    Deactivates the control's user interface.
+*/
+HRESULT QAxServerBase::UIDeactivate()
+{
+    // if we're not UIActive, not much to do.
+    if (!m_bUIActive)
+	return S_OK;
+    
+    m_bUIActive = FALSE;
+    
+    // notify frame windows, if appropriate, that we're no longer ui-active.
+    CComPtr<IOleInPlaceFrame> spInPlaceFrame;
+    CComPtr<IOleInPlaceUIWindow> spInPlaceUIWindow;
+    OLEINPLACEFRAMEINFO frameInfo;
+    frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
+    RECT rcPos, rcClip;
+    
+    HWND hwndParent; 
+    // This call to GetWindow is a fix for Delphi
+    if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
+	m_spInPlaceSite->GetWindowContext(&spInPlaceFrame,
+	    &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+	if (spInPlaceUIWindow)
+	    spInPlaceUIWindow->SetActiveObject(0, 0);
+	if (spInPlaceFrame)
+	    spInPlaceFrame->SetActiveObject(0, 0);
+    }
+    // we don't need to explicitly release the focus here since somebody
+    // else grabbing the focus is what is likely to cause us to get lose it
+    m_spInPlaceSite->OnUIDeactivate(FALSE);
+    
+    return S_OK;
+}
+
+/*!
+    Positions the control, and applies requested clipping.
+*/
+HRESULT QAxServerBase::SetObjectRects(LPCRECT prcPos, LPCRECT prcClip)
+{
+    if ( prcPos == 0 || prcClip == 0 )
+	return E_POINTER;
+    
+    m_rcPos = *prcPos;
+    if (m_hWndCD) {
+	// the container wants us to clip, so figure out if we really need to
+	RECT rcIXect;
+	BOOL b = IntersectRect(&rcIXect, prcPos, prcClip);
+	HRGN tempRgn = 0;
+	if (b && !EqualRect(&rcIXect, prcPos)) {
+	    OffsetRect(&rcIXect, -(prcPos->left), -(prcPos->top));
+	    tempRgn = CreateRectRgnIndirect(&rcIXect);
+	}
+	
+	::SetWindowRgn(m_hWndCD, tempRgn, TRUE);
+	::SetWindowPos(m_hWndCD, 0, prcPos->left,
+	    prcPos->top, prcPos->right - prcPos->left, prcPos->bottom - prcPos->top, 
+	    SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+    
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::ReactivateAndUndo()
+{
+    return E_NOTIMPL;
+}
+
+//**** IOleObject
+
 static inline LPOLESTR QStringToOLESTR( const QString &qstring )
 {
     LPOLESTR olestr = (wchar_t*)CoTaskMemAlloc(qstring.length()*2+2);
@@ -1106,7 +1436,6 @@ static inline LPOLESTR QStringToOLESTR( const QString &qstring )
     return olestr;
 }
 
-//**** IOleObject
 /*!
     \reimp
 
@@ -1136,14 +1465,395 @@ HRESULT QAxServerBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserType)
 }
 
 /*!
-    \reimp
-
-    See documentation of IOleObject::GetMiscStatus.
+    Returns the status flags registered for this control.
 */
 HRESULT QAxServerBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
 {
-    ATLTRACE2(atlTraceControls,2,_T("IOleObjectImpl::GetMiscStatus\n"));
     return OleRegGetMiscStatus( _Module.factory()->classID( class_name ), dwAspect, pdwStatus);
+}
+
+/*!
+    Stores the provided advise sink.
+*/
+HRESULT QAxServerBase::Advise( IAdviseSink* pAdvSink, DWORD* pdwConnection )
+{
+    HRESULT hr = S_OK;
+    if ( m_spOleAdviseHolder == 0 )
+	hr = CreateOleAdviseHolder(&m_spOleAdviseHolder);
+    if (SUCCEEDED(hr))
+	hr = m_spOleAdviseHolder->Advise(pAdvSink, pdwConnection);
+    return hr;
+}
+
+/*!
+    Closes the control.
+*/
+HRESULT QAxServerBase::Close( DWORD dwSaveOption )
+{
+    if (m_hWndCD) {
+	if (m_spClientSite)
+	    m_spClientSite->OnShowWindow(FALSE);
+    }
+    if (m_bInPlaceActive) {
+	HRESULT hr = InPlaceDeactivate();
+	if (FAILED(hr))
+	    return hr;
+    }
+    if (m_hWndCD) {
+	if (::IsWindow(m_hWndCD))
+	    ::DestroyWindow(m_hWndCD);
+	m_hWndCD = 0;
+    }
+    if ((dwSaveOption == OLECLOSE_SAVEIFDIRTY || dwSaveOption == OLECLOSE_PROMPTSAVE) && m_bRequiresSave) {
+	if (m_spClientSite)
+	    m_spClientSite->SaveObject();
+	if (m_spOleAdviseHolder)
+	    m_spOleAdviseHolder->SendOnSave();
+    }
+
+    m_spInPlaceSite.Release();
+    m_bNegotiatedWnd = FALSE;
+    m_bWndLess = FALSE;
+    m_bInPlaceSiteEx = FALSE;
+    m_spAdviseSink.Release();
+    return S_OK;
+}
+
+/*!
+    Executes the steps to activate the control.
+*/
+HRESULT QAxServerBase::internalActivate()
+{
+    HRESULT hr;
+    
+    if ( !m_spClientSite )
+	return S_OK;
+    
+    if (!m_bNegotiatedWnd) {
+	if (!m_bWindowOnly) // Try for windowless site
+	    hr = m_spClientSite->QueryInterface(IID_IOleInPlaceSiteWindowless, (void **)&m_spInPlaceSite);
+	
+	if (m_spInPlaceSite) {
+	    m_bInPlaceSiteEx = TRUE;
+	    // CanWindowlessActivate returns S_OK or S_FALSE
+	    if ( m_spInPlaceSite->CanWindowlessActivate() == S_OK ) {
+		m_bWndLess = TRUE;
+		m_bWasOnceWindowless = TRUE;
+	    } else {
+		m_bWndLess = FALSE;
+	    }
+	} else {
+	    m_spClientSite->QueryInterface(IID_IOleInPlaceSiteEx, (void **)&m_spInPlaceSite);
+	    if (m_spInPlaceSite)
+		m_bInPlaceSiteEx = TRUE;
+	    else
+		hr = m_spClientSite->QueryInterface(IID_IOleInPlaceSite, (void **)&m_spInPlaceSite);
+	}
+    }
+    
+    if (!m_spInPlaceSite)
+	return E_FAIL;
+    
+    m_bNegotiatedWnd = TRUE;
+    
+    if (!m_bInPlaceActive) {
+	BOOL bNoRedraw = FALSE;
+	if (m_bWndLess) {
+	    m_spInPlaceSite->OnInPlaceActivateEx(&bNoRedraw, ACTIVATE_WINDOWLESS);
+	} else {
+	    if (m_bInPlaceSiteEx) {
+		m_spInPlaceSite->OnInPlaceActivateEx(&bNoRedraw, 0);
+	    } else {
+		hr = m_spInPlaceSite->CanInPlaceActivate();
+		if (FAILED(hr)) // CanInPlaceActivate returns anything but S_FALSE or S_OK
+		    return hr;
+		if ( hr != S_OK ) // CanInPlaceActivate returned S_FALSE.
+		    return E_FAIL;
+		m_spInPlaceSite->OnInPlaceActivate();
+	    }
+	}
+    }
+    
+    m_bInPlaceActive = TRUE;
+    
+    // get location in the parent window,
+    // as well as some information about the parent
+    OLEINPLACEFRAMEINFO frameInfo;
+    RECT rcPos, rcClip;
+    CComPtr<IOleInPlaceFrame> spInPlaceFrame;
+    CComPtr<IOleInPlaceUIWindow> spInPlaceUIWindow;
+    frameInfo.cb = sizeof(OLEINPLACEFRAMEINFO);
+    HWND hwndParent;
+    if (m_spInPlaceSite->GetWindow(&hwndParent) == S_OK) {
+	m_spInPlaceSite->GetWindowContext(&spInPlaceFrame,
+	    &spInPlaceUIWindow, &rcPos, &rcClip, &frameInfo);
+	
+	if (!m_bWndLess) {
+	    if (m_hWndCD) {
+		::ShowWindow(m_hWndCD, SW_SHOW);
+		if (!::IsChild(m_hWndCD, ::GetFocus()))
+		    ::SetFocus(m_hWndCD);
+	    } else {
+		CreateControlWindow(hwndParent, rcPos); //###!
+	    }
+	}
+	
+	SetObjectRects(&rcPos, &rcClip);
+    }
+    
+    CComPtr<IOleInPlaceActiveObject> spActiveObject;
+    ControlQueryInterface(IID_IOleInPlaceActiveObject, (void**)&spActiveObject);
+    
+    // Gone active by now, take care of UIACTIVATE
+    if (!m_bUIActive) {
+	m_bUIActive = TRUE;
+	hr = m_spInPlaceSite->OnUIActivate();
+	if (FAILED(hr))
+	    return hr;
+	
+	SetControlFocus(TRUE);
+	// set ourselves up in the host.
+	if (spActiveObject) {
+	    if (spInPlaceFrame)
+		spInPlaceFrame->SetActiveObject(spActiveObject, 0);
+	    if (spInPlaceUIWindow)
+		spInPlaceUIWindow->SetActiveObject(spActiveObject, 0);
+	}
+	
+	if (spInPlaceFrame)
+	    spInPlaceFrame->SetBorderSpace(0);
+	if (spInPlaceUIWindow)
+	    spInPlaceUIWindow->SetBorderSpace(0);
+    }
+    
+    m_spClientSite->ShowObject();
+    
+    return S_OK;
+}
+
+/*!
+    Executes the "verb" \a iVerb.
+*/
+HRESULT QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pActiveSite*/, LONG /*lindex*/, 
+			       HWND /*hwndParent*/, LPCRECT /*prcPosRect*/ )
+{
+    HRESULT hr = E_NOTIMPL;
+    switch (iVerb)
+    {
+    case OLEIVERB_SHOW:
+	hr = internalActivate();
+	if (SUCCEEDED(hr))
+	    hr = S_OK;
+	break;
+
+    case OLEIVERB_PRIMARY:
+    case OLEIVERB_INPLACEACTIVATE:
+	hr = internalActivate();
+	if (SUCCEEDED(hr)) {
+	    hr = S_OK;
+	    FireViewChange();
+	}
+	break;
+
+    case OLEIVERB_UIACTIVATE:
+	if (!m_bUIActive) {
+	    hr = internalActivate();
+	    if (SUCCEEDED(hr))
+		hr = S_OK;
+	}
+	break;
+
+    case OLEIVERB_HIDE:
+	UIDeactivate();
+	if ( m_hWnd )
+	    ShowWindow(SW_HIDE);
+	hr = S_OK;
+	return hr;
+
+    default:
+	break;
+    }
+    return hr;
+}
+
+/*!
+    Returns the list of advise connections.
+*/
+HRESULT QAxServerBase::EnumAdvise( IEnumSTATDATA** ppenumAdvise )
+{
+    HRESULT hRes = E_FAIL;
+    if ( m_spOleAdviseHolder )
+	hRes = m_spOleAdviseHolder->EnumAdvise(ppenumAdvise);
+    return hRes;
+}
+
+/*!
+    Returns an enumerator for the verbs registered for this class.
+*/
+HRESULT QAxServerBase::EnumVerbs( IEnumOLEVERB** ppEnumOleVerb )
+{
+    if ( !ppEnumOleVerb )
+	return E_POINTER;
+    return OleRegEnumVerbs(_Module.factory()->classID( class_name ), ppEnumOleVerb);
+}
+
+/*!
+    Returns the current client site..
+*/
+HRESULT QAxServerBase::GetClientSite( IOleClientSite** ppClientSite )
+{
+    if ( !ppClientSite )
+	return E_POINTER;
+    *ppClientSite = m_spClientSite;
+    if ( *ppClientSite )
+	(*ppClientSite)->AddRef();
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::GetClipboardData( DWORD, IDataObject** )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Returns the current size.
+*/
+HRESULT QAxServerBase::GetExtent( DWORD dwDrawAspect, SIZEL* psizel )
+{
+    if ( dwDrawAspect != DVASPECT_CONTENT )
+	return E_FAIL;
+    if ( !psizel )
+	return E_POINTER;
+    *psizel = m_sizeExtent;
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::GetMoniker( DWORD, DWORD, IMoniker**  )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Returns the CLSID of this class.
+*/
+HRESULT QAxServerBase::GetUserClassID( CLSID* pClsid )
+{
+    if ( !pClsid )
+	return E_POINTER;
+    *pClsid = _Module.factory()->classID( class_name );
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::InitFromData( IDataObject*, BOOL, DWORD )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::IsUpToDate()
+{
+    return S_OK;
+}
+
+/*!
+    Stores the client site.
+*/
+HRESULT QAxServerBase::SetClientSite( IOleClientSite* pClientSite )
+{
+    m_spClientSite = pClientSite;
+    m_spAmbientDispatch.Release();
+    if ( m_spClientSite )
+	m_spClientSite->QueryInterface(IID_IDispatch, (void**) &m_spAmbientDispatch.p);
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::SetColorScheme( LOGPALETTE* )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Tries to set the size of the control.
+*/
+HRESULT QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
+{
+    if ( dwDrawAspect != DVASPECT_CONTENT )
+	return DV_E_DVASPECT;
+    if ( !psizel )
+	return E_POINTER;
+    
+    QSize minSizeHint = activeqt->minimumSizeHint();
+    if ( minSizeHint.isValid() ) {
+	QPaintDeviceMetrics pmetric( activeqt );
+
+	SIZEL minSize;
+	minSize.cx = PIX_TO_LOGHIM( minSizeHint.width(), pmetric.logicalDpiX() );
+	minSize.cy = PIX_TO_LOGHIM( minSizeHint.height(), pmetric.logicalDpiY() );
+
+	if ( minSize.cx > psizel->cx || minSize.cy > psizel->cy )
+	    return E_FAIL;
+    }
+    
+    BOOL bResized = FALSE;
+    if ( psizel->cx != m_sizeExtent.cx || psizel->cy != m_sizeExtent.cy ) {
+	m_sizeExtent = *psizel;
+	bResized = TRUE;
+    }
+
+    if (m_bRecomposeOnResize && bResized) {
+	SendOnDataChange();
+	FireViewChange();
+    }
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::SetHostNames( LPCOLESTR szContainerApp, LPCOLESTR szContainerObj )
+{
+    return S_OK;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::SetMoniker( DWORD, IMoniker* )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Disconnects an advise sink.
+*/
+HRESULT QAxServerBase::Unadvise( DWORD dwConnection )
+{
+    HRESULT hRes = E_FAIL;
+    if ( m_spOleAdviseHolder )
+	hRes = m_spOleAdviseHolder->Unadvise(dwConnection);
+    return hRes;
+}
+
+/*!
+    Not implemented.
+*/
+HRESULT QAxServerBase::Update()
+{
+    return S_OK;
 }
 
 //**** ISpecifyPropertyPages
@@ -1533,7 +2243,7 @@ HRESULT QAxServerBase::Apply()
 }
 
 /*!
-    \reimp
+    Not implemented.
 */
 HRESULT QAxServerBase::Help( LPCOLESTR pszHelpDir )
 {
@@ -1541,7 +2251,15 @@ HRESULT QAxServerBase::Help( LPCOLESTR pszHelpDir )
 }
 
 /*!
-    \reimp
+    Not implemented.
+*/
+HRESULT QAxServerBase::EditProperty( DISPID dispID )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    Not implemented.
 */
 HRESULT QAxServerBase::TranslateAccelerator( MSG *pMsg )
 {
@@ -1551,13 +2269,6 @@ HRESULT QAxServerBase::TranslateAccelerator( MSG *pMsg )
     return E_NOTIMPL;
 }
 
-/*!
-    \reimp
-*/
-HRESULT QAxServerBase::EditProperty( DISPID dispID )
-{
-    return E_NOTIMPL;
-}
 
 static int mapModifiers( int state )
 {
