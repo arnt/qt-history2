@@ -1,5 +1,4 @@
 # qdb project file
 TEMPLATE	= subdirs
-SUBDIRS		= src \
-		  bin
+SUBDIRS		= src
 CONFIG += ordered
