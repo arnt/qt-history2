@@ -255,7 +255,6 @@
 #include <qapplication.h>
 #include <qwidgetintdict.h>
 #include <qfocusdata.h>
-#include <qwidgetresizehandler.h>
 #include <qwidgetstack.h>
 #include <qcheckbox.h>
 #include <qcompactstyle.h>
@@ -278,6 +277,8 @@
 #include "../kernel/qpsprinter_p.h"
 #include "../widgets/qtitlebar_p.h"
 #include "../kernel/qrichtext_p.h"
+#include "../widgets/qwidgetresizehandler_p.h"
+#include "../widgets/qrangecontrolwidget_p.h"
 #endif // Private headers
 
 
