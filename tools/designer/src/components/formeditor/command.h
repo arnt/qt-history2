@@ -17,7 +17,7 @@
 #include <qtundo.h>
 #include <ui4.h>
 #include <layoutinfo.h>
-#include <layoutdecoration.h>
+#include "layoutdecoration.h"
 
 #include <QPointer>
 #include <QVariant>
