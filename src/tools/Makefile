@@ -38,6 +38,9 @@ OBJECTS		= qbitarry.o	qbuffer.o	qcollect.o	qdatetm.o     \
 		  qstring.o	qtcomm.o	qtcpcomm.o	qtstream.o    \
 		  qudpcomm.o	qregexp.o       qgcache.o
 TARGET		= $(LIBDIR)/libqtools.a
+MOCSUPPORT	= $(LIBDIR)/libmocsupport.a
+MOCOBJECTS	= qcollect.o	qdatetm.o     	qgarray.o	qglist.o \
+		  qglobal.o	qstring.o
 
 ####### Implicit rules
 
@@ -55,6 +58,11 @@ $(TARGET): $(OBJECTS)
 	/bin/rm -f $(TARGET)
 	ar q $(TARGET) $(OBJECTS)
 	ranlib $(TARGET)
+
+mocsupport: $(MOCOBJECTS)
+	/bin/rm -f $(MOCSUPPORT)
+	ar q $(MOCSUPPORT) $(MOCOBJECTS)
+	ranlib $(MOCSUPPORT)
 
 rcs:: ./RCS/$$@,v
 
