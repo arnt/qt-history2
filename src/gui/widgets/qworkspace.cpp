@@ -2468,7 +2468,7 @@ QRect QWorkspacePrivate::updateWorkspace()
 
     QList<QWidget *>::Iterator ii(d->icons.begin());
     while (ii != d->icons.end()) {
-        QWorkspaceChild* w = (QWorkspaceChild*) *ii;
+        QWidget* w = *ii;
         ++ii;
         int x = w->x();
         int y = w->y();
@@ -2481,8 +2481,12 @@ QRect QWorkspacePrivate::updateWorkspace()
             y =  cr.height() - w->height();
             m = true;
         }
-        if (m)
-            w->move(x, y);
+        if (m) {
+            if (QWorkspaceChild *child = qt_cast<QWorkspaceChild*>(w))
+                child->move(x, y);
+            else
+                w->move(x, y);
+        }
     }
 
     return cr;
