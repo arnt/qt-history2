@@ -455,16 +455,16 @@ void QProcess::socketRead( int fd )
 	*/
     }
 
+    buffer[n] = 0;
+    QString str( QString::fromLocal8Bit( buffer ) );
     QByteArray buf;
     buf.assign( buffer, n );
+
     if ( fd == socketStdout[0] ) {
 	emit dataStdout( buf );
     } else {
 	emit dataStderr( buf );
     }
-
-    buffer[n] = 0;
-    QString str( buffer );
     if ( fd == socketStdout[0] ) {
 	emit dataStdout( str );
     } else {
