@@ -3289,7 +3289,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 		state |= Qt::AltButton;
 
 	    int key = qt_translateKeyCode(pMsg->wParam);
-	    QKeyEvent override(QEvent::ShortcutOverride, key, state);
+	    QKeyEvent override(QEvent::ShortcutOverride, key, (Qt::KeyboardModifiers)state);
 	    override.ignore();
 	    QApplication::sendEvent(qt.widget->focusWidget(), &override);
 	    if (override.isAccepted())
@@ -3952,7 +3952,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 	if (o == qt.object && hasStockEvents) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    int key = ke->key();
-	    int state = ke->state();
+	    int state = ke->modifiers();
 	    void *argv[] = {
 		0,
 		&key,
@@ -3967,7 +3967,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 	if (o == qt.object && hasStockEvents) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    int key = ke->key();
-	    int state = ke->state();
+	    int state = ke->modifiers();
 	    void *argv[] = {
 		0,
 		&key,
@@ -3979,8 +3979,8 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseMove:
 	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->state() & Qt::MouseButtonMask;
-	    int state = mapModifiers(me->state());
+	    int button = me->modifiers() & Qt::MouseButtonMask;
+	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();
 	    void *argv[] = {
@@ -3996,8 +3996,8 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonRelease:
 	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->state() & Qt::MouseButtonMask;
-	    int state = mapModifiers(me->state());
+	    int button = me->modifiers() & Qt::MouseButtonMask;
+	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();
 	    void *argv[] = {
@@ -4019,8 +4019,8 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseButtonPress:
 	if (o == qt.widget && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->state() & Qt::MouseButtonMask;
-	    int state = mapModifiers(me->state());
+	    int button = me->modifiers() & Qt::MouseButtonMask;
+	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();
 	    void *argv[] = {
