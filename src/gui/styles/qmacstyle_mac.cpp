@@ -119,7 +119,7 @@ void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
 
     \value SizeSmall
     \value SizeLarge
-    \value SizeNone
+    \value SizeMini
     \value SizeDefault
 */
 
@@ -147,7 +147,7 @@ QMacStyle::~QMacStyle()
 void QMacStyle::polish(QApplication* app)
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && QT_MACOSX_VERSION >= 0x1030
-    if(!getenv("QT_MAC_USE_APPMANAGER")) {
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER && !getenv("QT_MAC_USE_APPMANAGER")) {
         if(!cg_style)
             cg_style = new QMacStyleCG();
         cg_style->polish(app);
@@ -351,8 +351,8 @@ QStyle *QMacStyle::correctStyle(const QPainter *p) const
 QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && QT_MACOSX_VERSION >= 0x1030
-    bool ret_cg_style = true; //default to true when using CORE_GRAPHICS if there is no pdev
-    if(pdev && pdev->engine())
+    bool ret_cg_style = QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER;
+    if(ret_cg_style && pdev && pdev->engine())
         ret_cg_style = (pdev->engine()->type() == QPaintEngine::CoreGraphics);
     if(ret_cg_style && !getenv("QT_MAC_USE_APPMANAGER")) {
         if(!cg_style)

@@ -109,7 +109,7 @@ static inline bool qAquaActive(const QPalette &pal)
 /*
    Detects sizes to comply with Aqua Style Guidelines
 */
-enum QAquaWidgetSize { QAquaSizeLarge, QAquaSizeSmall, QAquaSizeUnknown };
+enum QAquaWidgetSize { QAquaSizeLarge, QAquaSizeSmall, QAquaSizeMini, QAquaSizeUnknown };
 QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
                                        QStyle::ContentsType ct=QStyle::CT_CustomBase,
                                        QSize szHint=QSize(-1, -1), QSize *insz=NULL);
