@@ -19,25 +19,28 @@
 /*!
     \class QItemSelectionRange
 
-    \brief The QItemSelectionRange class manages information about ranges of selected items in a model.
+    \brief The QItemSelectionRange class manages information about a
+    range of selected items in a model.
 
     \ingroup model-view
 
-    A QItemSelectionRange contains information about ranges of selected items
-    in a model. A range of items is a contiguous array of model items, extending
-    to cover a number of adjacent rows and columns with a common parent item;
-    this can be visualized as a two-dimensional block of cells in a table.
+    A QItemSelectionRange contains information about a range of
+    selected items in a model. A range of items is a contiguous array
+    of model items, extending to cover a number of adjacent rows and
+    columns with a common parent item; this can be visualized as a
+    two-dimensional block of cells in a table. A selection range has a
+    top(), left() a bottom(), right() and a parent().
 
-    Selection ranges perform most of the management functions associated with
-    item selections, with the QItemSelection class providing a higher-level
-    interface for manipulating selections.
+    The model items contained in the selection range can be obtained
+    by using the items() function. Use
+    QItemSelectionModel::selectedIndexes() to get a list of all
+    selected items for a view.
 
-    The model items contained in the selection range can be obtained by using
-    the items() function.
-    You can determine whether a given model item lies within a particular
-    range by using the contains() function. Ranges can also be compared using
-    the overloaded operators for equality and inequality, and the intersects()
-    function allows you to determine whether two ranges overlap.
+    You can determine whether a given model item lies within a
+    particular range by using the contains() function. Ranges can also
+    be compared using the overloaded operators for equality and
+    inequality, and the intersects() function allows you to determine
+    whether two ranges overlap.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QItemSelection QItemSelectionModel
 
@@ -201,9 +204,11 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
 
   \ingroup model-view
 
-  A QItemSelection describes the items in a model that have been selected
-  by the user. It provides functions for creating and manipulating
-  selections, and selecting a range of items from a model.
+  A QItemSelection describes the items in a model that have been
+  selected by the user. A QItemSelection is basically a list of
+  selection ranges, see QItemSelectionRange. It provides functions for
+  creating and manipulating selections, and selecting a range of items
+  from a model.
 
   An item selection can be constructed and initialized to contain a
   range of items from an existing model. The following example constructs
@@ -230,8 +235,9 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
   item in the selection. Generally, an instance of this class will contain
   a list of non-overlapping selection ranges.
 
-  Use merge() to merge two item selections, split() to
-   that include merging (), splitting (split()) (select())
+  Use merge() to merge one item selection into another without making
+  overlapping ranges. Use split() to split one selection range into
+  smaller ranges based on a another selection range.
 
   \sa \link model-view-programming.html Model/View Programming\endlink QItemSelectionModel
 
