@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#39 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -174,14 +174,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
   The pixmap depth is also called bits per pixel (bpp) or bit planes
   of a pixmap.	A null pixmap has depth 0.
 
-  \sa numColors() isNull() QImage::convertDepth() convertToImage()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn int QPixmap::numColors() const
-  Returns the maximum number of colors that can be used for the pixmap.
-  Equivalent to 2^depth().
-  \sa depth()
+  \sa defaultDepth(), isNull(), QImage::convertDepth()
  ----------------------------------------------------------------------------*/
 
 

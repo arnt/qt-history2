@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#15 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,28 +17,8 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#15 $")
 
-
-// --------------------------------------------------------------------------
-// Internal functions
-//
-
-static int defaultPixmapDepth()
-{
-    static int defDepth = 0;
-    if ( defDepth == 0 ) {
-	HANDLE hdc = GetDC( 0 );
-	defDepth = GetDeviceCaps( hdc, BITSPIXEL );
-	ReleaseDC( 0, hdc );
-    }
-    return defDepth;
-}
-
-
-// --------------------------------------------------------------------------
-// QPixmap member functions
-//
 
 bool QPixmap::optimAll = TRUE;
 
@@ -67,7 +47,7 @@ QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
     init();
-    int dd = defaultPixmapDepth();
+    int dd = defaultDepth();
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( depth == 1 )				// monocrome pixmap
 	data->d = 1;
@@ -103,7 +83,7 @@ QPixmap::QPixmap( const QSize &size, int depth )
     int w = size.width();
     int h = size.height();
     init();
-    int dd = defaultPixmapDepth();
+    int dd = defaultDepth();
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( depth == 1 )				// monocrome pixmap
 	data->d = 1;
@@ -245,6 +225,18 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     devFlags = pixmap.devFlags;			// copy QPaintDevice flags
     hdc = pixmap.hdc;				// copy QPaintDevice drawable
     return *this;
+}
+
+
+int QPixmap::defaultDepth()
+{
+    static int dd = 0;
+    if ( dd == 0 ) {
+	HANDLE hdc = GetDC( 0 );
+	dd = GetDeviceCaps( hdc, BITSPIXEL );
+	ReleaseDC( 0, hdc );
+    }
+    return dd;
 }
 
 

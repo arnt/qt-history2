@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#46 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#47 $
 **
 ** Definition of QPixmap class
 **
@@ -39,7 +39,7 @@ public:
     QSize	size()		const { return QSize(data->w,data->h); }
     QRect	rect()		const { return QRect(0,0,data->w,data->h); }
     int		depth()		const { return data->d; }
-    int		numColors()	const { return (1 << data->d); }
+    static int  defaultDepth();
 
     void	fill( const QColor &fillColor=white );
     void	resize( int width, int height );

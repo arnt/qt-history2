@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#54 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#54 $")
 
 
 /*
@@ -270,6 +270,21 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     dpy = pixmap.dpy;				// copy QPaintDevice display
     hd	= pixmap.hd;				// copy QPaintDevice drawable
     return *this;
+}
+
+
+/*!
+  Returns the default pixmap depth, i.e. the depth a pixmap gets
+  if -1 is specified.
+  \sa depth()
+*/
+
+int QPixmap::defaultDepth()
+{
+    static int dd = 0;
+    if ( dd == 0 && qApp )
+	dd = DefaultDepth( qt_xdisplay(), qt_xscreen() );
+    return dd;
 }
 
 
