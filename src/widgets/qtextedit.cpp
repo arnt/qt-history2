@@ -346,7 +346,7 @@ static bool block_set_alignment = FALSE;
     efficient way to add reasonable online help facilities to
     applications, and to provide a basis for rich text editors.
 
-    Setting the text fromat in a QTextEdit to \c LogText, it puts the
+    Setting the text format in a QTextEdit to \c LogText puts the
     widget in a special mode which is optimized for very large
     texts. In this mode editing (the widget is explicitly set to
     read-only mode) and rich text support is disabled, which allows
@@ -381,10 +381,10 @@ static bool block_set_alignment = FALSE;
     widget is in this mode:
     \list
     \i Functions that deal with rich text formatting will not work or
-    return anything valid when QTextEdit is in this mode.
-    \i Lines are equivalent to paragraphs in this mode.    
+    return anything valid.
+    \i Lines are equivalent to paragraphs.
     \i Inserting lines is not supported. It is only possible to append
-    lines to the widget in this mode.
+    lines.
     \endlist
 */
 
