@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#34 $
 **
 **  Splitter widget
 **
@@ -663,4 +663,26 @@ void QSplitter::moveToLast( QWidget *w )
     }
 	
     recalc( isVisible() );
+}
+
+/*!
+  Returns a size based on the child widgets.
+*/
+QSize QSplitter::sizeHint() const
+{
+    QSize s1 = w1 ? w1->sizeHint() : QSize(0,0);
+    QSize s2 = w2 ? w2->sizeHint() : QSize(0,0);
+    if ( orient == Horizontal ) {
+	return QSize(s1.width()+s2.width(),QMAX(s1.height(),s2.height()));
+    } else {
+	return QSize(QMAX(s1.width(),s2.width()),s1.height()+s2.height());
+    }
+}
+
+/*!
+  Returns a size based on the child widgets.
+*/
+QSizePolicy QSplitter::sizePolicy() const
+{
+    return QFrame::sizePolicy();
 }
