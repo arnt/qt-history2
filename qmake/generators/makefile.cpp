@@ -1029,8 +1029,9 @@ MakefileGenerator::processPrlFile(QString &file)
 	}
     }
     QString real_prl_file = Option::fixPathToLocalOS(prl_file);
-    if(!real_prl_file.isEmpty() && QFile::exists(real_prl_file) &&
-       project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(prl_file) == -1) {
+    if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(prl_file) != -1) {
+	ret = TRUE;
+    } else if(!real_prl_file.isEmpty() && QFile::exists(real_prl_file)) {
 	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(prl_file);
 	QMakeProject proj;
 	debug_msg(1, "Processing PRL file: %s", real_prl_file.latin1());
@@ -1080,6 +1081,7 @@ MakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 void
 MakefileGenerator::processPrlFiles()
 {
+    QDict<void> processed;
     for(bool ret = FALSE; TRUE; ret = FALSE) {
 	//read in any prl files included..
 	QStringList l_out;
@@ -1089,8 +1091,10 @@ MakefileGenerator::processPrlFiles()
 	QStringList &l = project->variables()[where];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QString file = (*it);
-	    if(processPrlFile(file))
+	    if(!processed[file] && processPrlFile(file)) {
+		processed.insert(file, (void*)1);
 		ret = TRUE;
+	    }
 	    if(!file.isEmpty())
 		l_out.append(file);
 	}

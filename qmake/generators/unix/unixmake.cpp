@@ -39,6 +39,7 @@
 #include "option.h"
 #include <qregexp.h>
 #include <qfile.h>
+#include <qdict.h>
 #include <qdir.h>
 #include <time.h>
 
@@ -276,6 +277,7 @@ UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList 
 void
 UnixMakefileGenerator::processPrlFiles()
 {
+    QDict<void> processed;
     QPtrList<MakefileDependDir> libdirs;
     libdirs.setAutoDelete(TRUE);
     const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
@@ -291,7 +293,7 @@ UnixMakefileGenerator::processPrlFiles()
 			fixEnvVariables(l);
 			libdirs.append(new MakefileDependDir(r.replace(QRegExp("\""),""),
 							     l.replace(QRegExp("\""),"")));
-		    } else if(opt.left(2) == "-l") {
+		    } else if(opt.left(2) == "-l" && !processed[opt]) {
 			QString lib = opt.right(opt.length() - 2), prl;
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
@@ -302,6 +304,7 @@ UnixMakefileGenerator::processPrlFiles()
 				if(reg.exactMatch(prl))
 				    prl = "-l" + reg.cap(1);
 				opt = prl;
+				processed.insert(opt, (void*)1);
 				ret = TRUE;
 				break;
 			    }
@@ -318,13 +321,15 @@ UnixMakefileGenerator::processPrlFiles()
 		    if(!opt.isEmpty())
 			l_out.append(opt);
 		} else {
-		    if(processPrlFile(opt))
+		    if(!processed[opt] && processPrlFile(opt)) {
+			processed.insert(opt, (void*)1);
 			ret = TRUE;
+		    }
 		    if(!opt.isEmpty())
 			l_out.append(opt);
 		}
 	    }
-	    if(ret)
+	    if(ret && l != l_out)
 		l = l_out;
 	    else
 		break;
