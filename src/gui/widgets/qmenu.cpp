@@ -463,14 +463,14 @@ void Q4MenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_
 
     for(QWidget *caused = q; caused; ) {
 	if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
-	    if(action_e == QAction::Trigger) 
+	    if(action_e == QAction::Trigger)
 		emit mb->activated(action);
 	    else if(action_e == QAction::Hover)
 		emit mb->highlighted(action);
 	    caused = 0;
 	} else if(Q4Menu *m = qt_cast<Q4Menu*>(caused)) {
 	    caused = m->d->causedPopup;
-	    if(action_e == QAction::Trigger) 
+	    if(action_e == QAction::Trigger)
 		emit m->activated(action);
 	    else if(action_e == QAction::Hover)
 		emit m->highlighted(action);
@@ -1859,13 +1859,7 @@ QSize Q4MenuBar::sizeHint() const
 }
 
 QSize Q4MenuBar::minimumSizeHint() const
-{
-#ifndef QT_NO_TOOLBAR
-    if(qt_cast<QToolBar*>(parentWidget()))
-	return sizeHint();
-#endif
-    return QWidget::minimumSizeHint();
-}
+{ return sizeHint(); }
 
 int Q4MenuBar::heightForWidth(int max_width) const
 {
