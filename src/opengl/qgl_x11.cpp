@@ -256,9 +256,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
     if ( deviceIsPixmap() &&
 	 (((XVisualInfo*)vi)->depth != d->paintDevice->x11Depth() ||
-	  ((XVisualInfo*)vi)->screen != d->paintDevice->x11Screen() ||
-	  ((XVisualInfo*)vi)->visualid !=
-	        XVisualIDFromVisual( (Visual*)d->paintDevice->x11Visual() )) )
+	  ((XVisualInfo*)vi)->screen != d->paintDevice->x11Screen()) )
     {
 	XFree( vi );
 	XVisualInfo appVisInfo;
