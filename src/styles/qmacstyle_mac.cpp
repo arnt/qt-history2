@@ -119,7 +119,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
-//utility to figure out the size
+//utility to figure out the size (from the painter)
 QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 {
     if(p && p->device()->devType() == QInternal::Widget)
@@ -229,7 +229,7 @@ void QMacStylePrivate::doFocus(QWidget *w)
 static int mac_count = 0;
 
 /*!
-    \class QMacStyle qaquastyle.h
+    \class QMacStyle qmacstyle_mac.h
     \brief The QMacStyle class implements an Appearance Manager style.
 
     \ingroup appearance
@@ -258,7 +258,7 @@ QMacStyle::QMacStyle()  : QWindowsStyle()
 }
 
 /*!
-    Destructs a QAquaStyle object.
+    Destructs a QMacStyle object.
 */
 QMacStyle::~QMacStyle()
 {
@@ -492,7 +492,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 				   kThemeStateActive);
 	break; }
     case PE_FocusRect:
-	break;     //This is not used because of the QAquaFocusRect things..
+	break;     //This is not used because of the QAquaFocusWidget thingie..
     case PE_TabBarBase:
 	DrawThemeTabPane(qt_glb_mac_rect(r, p), tds);
 	break;
@@ -937,25 +937,6 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 		if(toolbutton->isOn() || toolbutton->isDown())
 		    info.value |= kThemeStatePressed;
-#if 0
-		QWidget *btn_prnt = toolbutton->parentWidget();
-		if(btn_prnt && btn_prnt->inherits("QToolBar")) {
-		    QToolBar * bar  = (QToolBar *) btn_prnt;
-		    if(bar->orientation() == Qt::Vertical)
-			mod += "v";
-		    QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
-		    QObjectListIt it(*l);
-		    if(it.toFirst() == toolbutton)
-			mod += "left";
-		    else if(it.toLast() == toolbutton && !toolbutton->popup())
-			mod += "right";
-		    else
-			mod += "mid";
-		    delete l;
-		} else {
-		    mod += "mid";
-		}
-#endif
 		((QMacPainter *)p)->setport();
 		DrawThemeButton(qt_glb_mac_rect(button, p),
 				kThemeBevelButton, &info, NULL, NULL, NULL, 0);
@@ -971,28 +952,6 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	    if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
 		info.value |= kThemeStatePressed;
-#if 0
-	    QWidget *btn_prnt = toolbutton->parentWidget();
-	    if(btn_prnt && btn_prnt->inherits("QToolBar")) {
-		QToolBar * bar  = (QToolBar *) btn_prnt;
-		if(bar->orientation() == Qt::Vertical)
-		    mod += "v";
-		QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
-		QObjectListIt it(*l);
-		if(it.toFirst() == toolbutton) {
-		    if(bar->orientation() == Qt::Horizontal)
-			mod += "left";
-		} else if(it.toLast() == toolbutton && !toolbutton->popup()) {
-		    if(bar->orientation() == Qt::Horizontal)
-			mod += "right";
-		} else {
-		    mod += "mid";
-		}
-		delete l;
-	    } else {
-		mod += "mid";
-	    }
-#endif
 	    ((QMacPainter *)p)->setport();
 	    DrawThemeButton(qt_glb_mac_rect(menuarea, p),
 			    kThemeBevelButton, &info, NULL, NULL, NULL, 0);
@@ -1061,7 +1020,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
 	else if(tbar->testWFlags(WStyle_SysMenu))
 	    twa |= kThemeWindowHasCloseBox;
-	if(flags & Style_MouseOver) //nah I like my State better
+	if(flags & Style_MouseOver)
 	    tds = kThemeStateRollover;
 	//AppMan paints outside the given rectangle, so I have to adjust for the height properly!
 	QRegion treg;
@@ -1638,7 +1597,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents,
     }
     {
 	QSize macsz;
-	if(qt_aqua_size_constrain(widget, contents, &macsz) != QAquaSizeUnknown && macsz != QSize(-1, -1)) {
+	if(qt_aqua_size_constrain(widget, contents, &macsz) != QAquaSizeUnknown) {
 	    if(macsz.width() != -1)
 		sz.setWidth(macsz.width());
 	    if(macsz.height() != -1)
