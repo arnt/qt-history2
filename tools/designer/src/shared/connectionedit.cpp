@@ -1,17 +1,30 @@
-#include <math.h>
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "connectionedit.h"
 
 #include <QMouseEvent>
 #include <QPainter>
 #include <QApplication>
 
-#include "connectionedit.h"
+#include <math.h>
 
 #define LOOP_MARGIN 30
 #define SELECTION_ALPHA 32
 #define ENDPOINT_RADIUS 3
 
 #ifndef M_PI
-#define M_PI 3.14159265358979
+#define M_PI 3.14159265358979323846
 #endif
 
 static QRect expand(const QRect &r, int i)

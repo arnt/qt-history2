@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "ui4.h"
 #include <QtXml/QDomDocument>
 
@@ -4774,5 +4775,3 @@ void DomConnectionHint::setElementY(int a)
 {
     m_y = a;
 }
-
-

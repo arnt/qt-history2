@@ -10,12 +10,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef UI4_H
 #define UI4_H
 
 #include <QList>
 #include <QString>
 #include <QStringList>
+
 class QDomDocument;
 class QDomElement;
 
@@ -1918,4 +1920,3 @@ private:
 };
 
 #endif // UI4_H
-

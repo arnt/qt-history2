@@ -1,14 +1,26 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include <container.h>
 #include <customwidget.h>
 #include <abstractformeditor.h>
 #include <qextensionmanager.h>
 
+#include <qplugin.h>
+
 #include <QObject>
 #include <QIcon>
 #include <Q3ListView>
-
-#include <qplugin.h>
 
 
 class Q3ListViewPlugin: public QObject, public ICustomWidget
