@@ -202,3 +202,14 @@ void QTextList::remove(const QTextBlock &block)
     fmt.setObjectIndex(-1);
     block.docHandle()->setBlockFormat(block, block, fmt, QTextDocumentPrivate::SetFormat);
 }
+
+/*!
+    Makes the given \a block part of the list.
+*/
+void QTextList::add(const QTextBlock &block)
+{
+    QTextBlockFormat fmt = block.blockFormat();
+    fmt.setObjectIndex(objectIndex());
+    block.docHandle()->setBlockFormat(block, block, fmt, QTextDocumentPrivate::SetFormat);
+}
+

@@ -40,6 +40,8 @@ public:
     void removeItem(int i);
     void remove(const QTextBlock &);
 
+    void add(const QTextBlock &block);
+
     void setFormat(const QTextListFormat &format) { QTextObject::setFormat(format); }
     QTextListFormat format() const { return QTextObject::format().toListFormat(); }
 
