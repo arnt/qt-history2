@@ -49,7 +49,7 @@ protected:
 
 protected:
     virtual void paintEvent(QPaintEvent *) = 0;
-    virtual int focusOutset() const { return 3; }
+    virtual int focusOutset() const;
     virtual QRegion focusRegion() const { return QRegion(focusOutset() + 2, focusOutset() + 2,
                                                     width() - ((focusOutset() + 2) * 2),
                                                     height() - ((focusOutset() + 2) * 2)); }

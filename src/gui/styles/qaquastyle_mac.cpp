@@ -129,6 +129,13 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
     return false;
 }
 
+int QAquaFocusWidget::focusOutset() const
+{
+    SInt32 ret = 0;
+    GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
+    return ret;
+}
+
 struct QAquaAnimatePrivate
 {
     QPointer<QWidget> focus; //the focus widget

@@ -162,7 +162,6 @@ protected:
 
     virtual QRegion focusRegion() const;
     virtual void paintEvent(QPaintEvent *);
-    virtual int focusOutset() const;
 };
 QRegion QMacStyleCGFocusWidget::focusRegion() const
 {
@@ -196,19 +195,13 @@ void QMacStyleCGFocusWidget::paintEvent(QPaintEvent *)
 }
 void QMacStyleCGFocusWidget::drawFocusRect(QPainter *p) const
 {
-#if 1
+#if 0
     p->fillRect(0, 0, width(), height(), QColor(192, 191, 190));
 #else
-    HIRect rect = CGRectMake(0, 0, width(), height());
-    HIThemeDrawFocusRect(&rect, true, cg,
-                         kHIThemeOrientationNormal);
+    int fo = focusOutset();
+    HIRect rect = CGRectMake(fo, fo, width() - 2 * fo, height() - 2 * fo);
+    HIThemeDrawFocusRect(&rect, true, qt_macCGHandle(p->device()), kHIThemeOrientationNormal);
 #endif
-}
-int QMacStyleCGFocusWidget::focusOutset() const
-{
-    SInt32 ret = 0;
-    GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
-    return ret;
 }
 
 class QMacStyleCGPrivate : public QAquaAnimate
