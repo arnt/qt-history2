@@ -1577,7 +1577,7 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 	}
 	emitCurrentFontChanged( currentFormat->font() );
 	emitCurrentColorChanged( currentFormat->color() );
-	if ( cursor->index() == cursor->parag()->length() < 1 ) {
+	if ( cursor->index() == cursor->parag()->length() - 1 ) {
 	    currentFormat->addRef();
 	    cursor->parag()->string()->setFormat( cursor->index(), currentFormat, TRUE );
 	}
