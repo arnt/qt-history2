@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#10 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#10 $";
 #endif
 
 
@@ -158,6 +158,11 @@ void QPrinter::setOutputToFile( bool enable )
 /*----------------------------------------------------------------------------
   Sets the name of the output file.
 
+  Setting a null name (0 or "") disables output to a file, i.e.
+  calls setOutputToFile(FALSE);
+  Setting non-null name enables output to a file, i.e. calls
+  setOutputToFile(TRUE).
+
   This function is currently only supported under X-Windows.
 
   \sa outputFileName(), setOutputToFile()
@@ -172,6 +177,7 @@ void QPrinter::setOutputFileName( const char *fileName )
 	return;
     }
     output_filename = fileName;
+    output_file = !output_filename.isEmpty();
 }
 
 
