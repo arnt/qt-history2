@@ -817,6 +817,7 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
 }
 
 
+#if !defined(Q_NO_BOOL_TYPE)
 /*!
     Writes the boolean entry \a value into key \a key. The \a key is
     created if it doesn't exist. Any previous value is overwritten by \a
@@ -832,6 +833,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
     QString s(value ? "true" : "false");
     return writeEntry(key, s);
 }
+#endif
 
 
 /*!

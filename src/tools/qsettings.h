@@ -48,7 +48,9 @@ public:
 	Mac
     };
 
+#if !defined(Q_NO_BOOL_TYPE)
     bool	writeEntry( const QString &, bool );
+#endif
     bool	writeEntry( const QString &, double );
     bool	writeEntry( const QString &, int );
     bool	writeEntry( const QString &, const char * );
