@@ -32,7 +32,7 @@ class QTreeViewPrivate: public QAbstractItemViewPrivate
 public:
 
     QTreeViewPrivate()
-        : QAbstractItemViewPrivate(), header(0), indent(20), itemHeight(-1) { }
+        : QAbstractItemViewPrivate(), header(0), indent(20), itemHeight(-1), reopen(-1) { }
 
     ~QTreeViewPrivate() {}
 
@@ -80,6 +80,7 @@ public:
 
     // used when opening and closing items
     QVector<QModelIndex> opened;
+    int reopen;
 };
 
 #endif

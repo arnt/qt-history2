@@ -899,8 +899,18 @@ void QTreeView::dataChanged()
 }
 
 /*!
-  \fn void QTreeView::rowsInserted(const QModelIndex &parent, int first, int last)
+###
+*/
 
+void QTreeView::reopen()
+{
+    if (d->reopen == -1)
+        return;
+    d->open(d->reopen, true);
+    d->reopen = -1;
+}
+
+/*!
   Informs the view that the rows from the \a first to the \a last
   inclusive have been inserted into the \a parent model item.
 */
@@ -912,10 +922,10 @@ void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
 }
 
 /*!
-  \fn void QTreeView::rowsRemoved(const QModelIndex &parent, int first, int last)
-
   Informs the view that the rows from the \a first to the \a last
-  inclusive have been removed from the given \a parent model item.*/
+  inclusive have been removed from the given \a parent model item.
+*/
+
 void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 {
     if (d->items.isEmpty())
@@ -925,15 +935,15 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
         QModelIndex idx = model()->index(i, 0, parent);
         close(model()->index(i, 0, parent));
     }
-    int offset = parent.isValid() ? d->viewIndex(parent) : 0;
-    qCollapse<QTreeViewItem>(d->items, offset + start, end - start + 1);
 
-    d->opened.clear(); // ### FIXME: do not collapse everything
+    int p = d->viewIndex(parent);
+    d->close(p, false);
+
+    int slot = metaObject()->indexOfSlot("reopen()");
+    QApplication::postEvent(this, new QMetaCallEvent(slot, this));
 }
 
 /*!
-  \fn void QTreeView::columnCountChanged(int first, int last)
-
   Informs the tree view that the columns from the \a first to the
   \a last inclusive as changed.
 */
@@ -958,8 +968,6 @@ void QTreeView::resizeColumnToContents(int column, bool checkHeader)
 }
 
 /*!
-    \fn void QTreeView::columnWidthChanged(int column, int oldSize, int newSize)
-
   Changes the \a column's width from the size specified by \a oldSize to
   the size specified by \a newSize.
 */

@@ -73,6 +73,7 @@ protected slots:
     void columnWidthChanged(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
     void dataChanged();
+    void reopen();
 
 protected:
     QTreeView(QTreeViewPrivate &dd, QWidget *parent = 0);

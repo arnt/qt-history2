@@ -209,18 +209,16 @@ QTableWidgetItem *QTableModel::verticalHeaderItem(int section)
 
 QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 {
-    // ### slow but will be fixed when table is not a vector anymore
     int i = table.indexOf(const_cast<QTableWidgetItem*>(item));
     int row = i / columnCount();
     int col = i % columnCount();
     return index(row, col);
 }
 
-
 QModelIndex QTableModel::index(int row, int column, const QModelIndex &) const
 {
     if (row >= 0 && row < r && column >= 0 && column < c) {
-        QTableWidgetItem *item = table.at(tableIndex(row, column)); // FIXME: headers ?
+        QTableWidgetItem *item = table.at(tableIndex(row, column));
         return createIndex(row, column, item);
     }
     return QModelIndex::Null;
@@ -240,7 +238,7 @@ void QTableModel::setRowCount(int rows)
     if (r < _r)
         emit rowsRemoved(QModelIndex::Null, top, bottom);
 
-    table.resize(s); // FIXME: this will destroy the layout and leak memory
+    table.resize(s); // FIXME: this will destroy the layout
     verticalHeader.resize(r);
     for (int j = _r; j < r; ++j)
         verticalHeader[j] = 0;
@@ -263,7 +261,7 @@ void QTableModel::setColumnCount(int columns)
     if (c < _c)
         emit columnsRemoved(QModelIndex::Null, left, right);
 
-    table.resize(s); // FIXME: this will destroy the layout and leak memory
+    table.resize(s); // FIXME: this will destroy the layout
     horizontalHeader.resize(c);
     for (int j = _c; j < c; ++j)
         horizontalHeader[j] = 0;
