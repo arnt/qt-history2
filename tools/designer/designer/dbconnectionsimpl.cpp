@@ -20,6 +20,8 @@
 
 #include "dbconnectionsimpl.h"
 #include <qlist.h>
+#include <qgroupbox.h>
+#include <qlayout.h>
 #include "project.h"
 #include <qlistbox.h>
 #include <qcombobox.h>
@@ -39,11 +41,13 @@ static bool blockChanges = FALSE;
 DatabaseConnectionEditor::DatabaseConnectionEditor( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : DatabaseConnectionBase( parent, name, modal, fl ), project( pro )
 {
+    connectionWidget = new DatabaseConnectionWidget( grp );
+    grpLayout->addWidget( connectionWidget, 0, 0 );
 #ifndef QT_NO_SQL
     QList<DatabaseConnection> lst = project->databaseConnections();
     for ( DatabaseConnection *conn = lst.first(); conn; conn = lst.next() )
 	listConnections->insertItem( conn->name() );
-    comboDriver->insertStringList( QSqlDatabase::drivers() );
+    connectionWidget->comboDriver->insertStringList( QSqlDatabase::drivers() );
 #endif
     enableAll( FALSE );
 }
@@ -79,7 +83,7 @@ void DatabaseConnectionEditor::newConnection()
 	    ++i;
 	n = n + QString::number( i );
     }
-    editName->setText( n );
+    connectionWidget->editName->setText( n );
     listConnections->clearSelection();
     blockChanges = FALSE;
 }
@@ -91,12 +95,12 @@ void DatabaseConnectionEditor::doConnect()
 	 !listConnections->item( listConnections->currentItem() )->selected() ) { // new connection
 	// ### do error checking for duplicated connection names
 	DatabaseConnection *conn = new DatabaseConnection( project );
-	conn->setName( editName->text() );
-	conn->setDriver( comboDriver->lineEdit()->text() );
-	conn->setDatabase( comboDatabase->lineEdit()->text() );
-	conn->setUsername( editUsername->text() );
-	conn->setPassword( editPassword->text() );
-	conn->setHostname( editHostname->text() );
+	conn->setName( connectionWidget->editName->text() );
+	conn->setDriver( connectionWidget->comboDriver->lineEdit()->text() );
+	conn->setDatabase( connectionWidget->comboDatabase->lineEdit()->text() );
+	conn->setUsername( connectionWidget->editUsername->text() );
+	conn->setPassword( connectionWidget->editPassword->text() );
+	conn->setHostname( connectionWidget->editHostname->text() );
 	if ( conn->refreshCatalog() ) {
 	    project->addDatabaseConnection( conn );
 	    listConnections->insertItem( conn->name() );
@@ -108,12 +112,12 @@ void DatabaseConnectionEditor::doConnect()
 	}
     } else { // sync // ### should this do something else? right now it just overwrites all info about the connection...
 	DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
-	conn->setName( editName->text() );
-	conn->setDriver( comboDriver->lineEdit()->text() );
-	conn->setDatabase( comboDatabase->lineEdit()->text() );
-	conn->setUsername( editUsername->text() );
-	conn->setPassword( editPassword->text() );
-	conn->setHostname( editHostname->text() );
+	conn->setName( connectionWidget->editName->text() );
+	conn->setDriver( connectionWidget->comboDriver->lineEdit()->text() );
+	conn->setDatabase( connectionWidget->comboDatabase->lineEdit()->text() );
+	conn->setUsername( connectionWidget->editUsername->text() );
+	conn->setPassword( connectionWidget->editPassword->text() );
+	conn->setHostname( connectionWidget->editHostname->text() );
 	conn->refreshCatalog();
 	project->saveConnections();
     }
@@ -126,18 +130,18 @@ void DatabaseConnectionEditor::currentConnectionChanged( const QString &s )
     DatabaseConnection *conn = project->databaseConnection( s );
     blockChanges = TRUE;
     enableAll( (bool)conn );
-    editName->setEnabled( FALSE );
+    connectionWidget->editName->setEnabled( FALSE );
     blockChanges = FALSE;
     if ( !conn )
 	return;
     blockChanges = TRUE;
-    editName->setText( conn->name() );
+    connectionWidget->editName->setText( conn->name() );
     blockChanges = FALSE;
-    comboDriver->lineEdit()->setText( conn->driver() );
-    comboDatabase->lineEdit()->setText( conn->database() );
-    editUsername->setText( conn->username() );
-    editPassword->setText( conn->password() );
-    editHostname->setText( conn->hostname() );
+    connectionWidget->comboDriver->lineEdit()->setText( conn->driver() );
+    connectionWidget->comboDatabase->lineEdit()->setText( conn->database() );
+    connectionWidget->editUsername->setText( conn->username() );
+    connectionWidget->editPassword->setText( conn->password() );
+    connectionWidget->editHostname->setText( conn->hostname() );
 #endif
 }
 
@@ -150,17 +154,17 @@ void DatabaseConnectionEditor::connectionNameChanged( const QString &s )
 
 void DatabaseConnectionEditor::enableAll( bool b )
 {
-    editName->setEnabled( b );
-    editName->setText( "" );
-    comboDriver->setEnabled( b );
-    comboDriver->lineEdit()->setText( "" );
-    comboDatabase->setEnabled( b );
-    comboDatabase->clear();
-    editUsername->setEnabled( b );
-    editUsername->setText( "" );
-    editPassword->setEnabled( b );
-    editPassword->setText( "" );
-    editHostname->setEnabled( b );
-    editHostname->setText( "" );
+    connectionWidget->editName->setEnabled( b );
+    connectionWidget->editName->setText( "" );
+    connectionWidget->comboDriver->setEnabled( b );
+    connectionWidget->comboDriver->lineEdit()->setText( "" );
+    connectionWidget->comboDatabase->setEnabled( b );
+    connectionWidget->comboDatabase->clear();
+    connectionWidget->editUsername->setEnabled( b );
+    connectionWidget->editUsername->setText( "" );
+    connectionWidget->editPassword->setEnabled( b );
+    connectionWidget->editPassword->setText( "" );
+    connectionWidget->editHostname->setEnabled( b );
+    connectionWidget->editHostname->setText( "" );
     buttonConnect->setEnabled( b );
 }

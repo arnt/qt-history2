@@ -111,7 +111,7 @@ PROJECTNAME	= Designer
 sql {
 	SOURCES  +=		  database.cpp		  dbconnectionsimpl.cpp
 	HEADERS += 		  database.h		  dbconnectionsimpl.h   propertyeditorsql.h
-	INTERFACES	+= dbconnections.ui
+	INTERFACES	+= dbconnections.ui dbconnection.ui
 }
 table {
 	HEADERS += tableeditorimpl.h

@@ -22,6 +22,7 @@
 #define DATABASECONNECTION_H
 
 #include "dbconnections.h"
+#include "dbconnection.h"
 
 class Project;
 
@@ -45,6 +46,7 @@ private:
 
 private:
     Project *project;
+    DatabaseConnectionWidget* connectionWidget;
 
 };
 
