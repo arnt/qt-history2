@@ -1017,7 +1017,7 @@ MakefileGenerator::init()
     }
 
     if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
-	project->variables()["INCLUDEPATH"].append(project->first("QMAKE_ABSOLUTE_SOURCE_PATH"));
+	project->variables()["INCLUDEPATH"].append(Option::output_dir);
 
     //moc files
     if ( mocAware() ) {
