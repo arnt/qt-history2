@@ -395,6 +395,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int section
     style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == section) {
+        opt.rect = rect;
         opt.rect = style().subRect(QStyle::SR_HeaderArrow, &opt, fontMetrics(), this);
         opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
                      ? QStyle::Style_Down : QStyle::Style_Up) | QStyle::Style_Off;
