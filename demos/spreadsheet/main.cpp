@@ -164,6 +164,7 @@ public slots:
     void updateStatus(QTableWidgetItem *item);
     void updateColor(QTableWidgetItem *item);
     void contextActions(QMenu *menu, QTableWidgetItem *item);
+    void keyPressed(QTableWidgetItem *item, Qt::Key key);
 
     void selectColor();
     void selectFont();
@@ -211,6 +212,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
         table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));
         table->horizontalHeaderItem(c)->setTextAlignment(Qt::AlignCenter);
     }
+    table->setKeyTracking(true);
 
     setupContents();
 
@@ -222,6 +224,8 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
             this, SLOT(updateColor(QTableWidgetItem*)));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateStatus(QTableWidgetItem*)));
+    connect(table, SIGNAL(keyPressed(QTableWidgetItem*, Qt::Key, Qt::ButtonState)),
+            this, SLOT(keyPressed(QTableWidgetItem*, Qt::Key)));
     connect(table, SIGNAL(aboutToShowContextMenu(QMenu*, QTableWidgetItem*)),
             this, SLOT(contextActions(QMenu*, QTableWidgetItem*)));
 }
@@ -257,14 +261,22 @@ void SpreadSheet::contextActions(QMenu *menu, QTableWidgetItem *item)
     contextItem = item;
 }
 
+void SpreadSheet::keyPressed(QTableWidgetItem *item, Qt::Key key)
+{
+    if (key == Qt::Key_Delete && item)
+        item->clear();
+}
+
 void SpreadSheet::selectColor()
 {
     QList<QTableWidgetItem*> selected = table->selectedItems();
     if (selected.count() == 0)
         return;
-    QColor bgc = QColorDialog::getColor(Qt::white, this);
+    QColor col = QColorDialog::getColor(selected.last()->backgroundColor(), this);
+    if (!col.isValid())
+        return;
     foreach(QTableWidgetItem *i, selected)
-        if (i) i->setBackgroundColor(bgc);
+        if (i) i->setBackgroundColor(col);
     updateColor(table->currentItem());
 }
 
@@ -298,7 +310,7 @@ void SpreadSheet::clear()
 {
     QList<QTableWidgetItem*> selected = table->selectedItems();
     foreach (QTableWidgetItem *i, selected)
-        if (i) i->setText(QString::null);
+        if (i) i->clear();
 }
 
 void SpreadSheet::setupContents()
