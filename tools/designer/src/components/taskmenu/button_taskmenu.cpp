@@ -84,7 +84,7 @@ void ButtonTaskMenu::editText()
         QStyleOptionButton opt;
         opt.init(m_button);
         QRect r = m_button->style()->subRect(QStyle::SR_PushButtonContents, &opt, m_button);
-        m_editor->setParent(m_button->parentWidget(), Qt::WStyle_ToolTip);
+        m_editor->setParent(m_button->parentWidget(), Qt::ToolTip);
         m_editor->setGeometry(QRect(m_button->mapToParent(r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();

@@ -28,7 +28,7 @@ public:
 ListWidgetEditor::ListWidgetEditor(QListWidget *listWidget)
     : QListWidget(listWidget)
 {
-    setParent(listWidget, Qt::WStyle_Tool | Qt::WType_TopLevel);
+    setParent(listWidget, Qt::Tool | Qt::Window);
 
     setDragEnabled(true);
     setAcceptDrops(false);

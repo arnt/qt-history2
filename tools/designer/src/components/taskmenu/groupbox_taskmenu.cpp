@@ -92,7 +92,7 @@ void GroupBoxTaskMenu::editTitle()
         opt.init(m_groupbox);
         QRect r = QRect(QPoint(), m_groupbox->size()); // ### m_groupbox->style()->subRect(QStyle::SR_GroupBoxTitle, &opt, m_groupbox);
         r.setHeight(20);
-        m_editor->setParent(m_groupbox->parentWidget(), Qt::WStyle_ToolTip);
+        m_editor->setParent(m_groupbox->parentWidget(), Qt::ToolTip);
         m_editor->setGeometry(QRect(m_groupbox->mapToParent(r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();
