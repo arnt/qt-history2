@@ -89,11 +89,11 @@ public:
     bool    hasQuerySizeSupport() const { return FALSE;} ;
     bool    canEditBinaryFields() const { return FALSE;} ;
     bool    open( const QString & ,
-                        const QString & ,
-                        const QString & ,
-                        const QString &  ) {
-                                return FALSE;
-                        }
+			const QString & ,
+			const QString & ,
+			const QString &  ) {
+				return FALSE;
+			}
     void    close() {}
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
@@ -132,8 +132,8 @@ QSqlDatabaseManager::~QSqlDatabaseManager()
 {
     QDictIterator< QSqlDatabase > it( dbDict );
     while ( it.current() ) {
-        it.current()->close();
-        ++it;
+	it.current()->close();
+	++it;
     }
 	dbDict.setAutoDelete( TRUE );
 }
@@ -148,8 +148,8 @@ static QCleanupHandler< QSqlDatabaseManager > qsql_cleanup_database_manager;
 QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
     if ( !sqlConnection ) {
-        sqlConnection = new QSqlDatabaseManager();
-        qsql_cleanup_database_manager.add( sqlConnection );
+	sqlConnection = new QSqlDatabaseManager();
+	qsql_cleanup_database_manager.add( sqlConnection );
     }
     return sqlConnection;
 }
@@ -163,17 +163,17 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 {
     if ( !contains( name ) ) {
-        qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
-        return 0;
+	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
+	return 0;
     }
 
     QSqlDatabaseManager* sqlConnection = instance();
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
     if ( db && !db->isOpen() && open ) {
-        db->open();
+	db->open();
 #ifdef QT_CHECK_RANGE
-        if ( !db->isOpen() )
-            qWarning("Warning: QSqlDatabaseManager unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
+	if ( !db->isOpen() )
+	    qWarning("Warning: QSqlDatabaseManager unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
 #endif
     }
     return db;
@@ -322,7 +322,7 @@ QStringList QSqlDatabase::drivers()
 #endif
 #ifndef QT_NO_COMPONENT
     QInterfaceManager<QSqlDriverInterface> *plugIns;
-    plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/lib" ); //###
+    plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" );
     l += plugIns->featureList();
     delete plugIns;
 #endif
@@ -374,45 +374,45 @@ void QSqlDatabase::init( const QString& type, const QString&  )
     if ( !d->driver ) {
 
 #ifdef QT_SQL_POSTGRES
-        if ( type == "QPSQL6" )
-            d->driver = new QPSQLDriver( QPSQLDriver::Version6 );
-        if ( type == "QPSQL7" )
-            d->driver = new QPSQLDriver( QPSQLDriver::Version7 );
+	if ( type == "QPSQL6" )
+	    d->driver = new QPSQLDriver( QPSQLDriver::Version6 );
+	if ( type == "QPSQL7" )
+	    d->driver = new QPSQLDriver( QPSQLDriver::Version7 );
 #endif
 
 #ifdef QT_SQL_MYSQL
-        if ( type == "QMYSQL" )
-            d->driver = new QMYSQLDriver();
+	if ( type == "QMYSQL" )
+	    d->driver = new QMYSQLDriver();
 #endif
 
 #ifdef QT_SQL_ODBC
-        if ( type == "QODBC" )
-            d->driver = new QODBCDriver();
+	if ( type == "QODBC" )
+	    d->driver = new QODBCDriver();
 #endif
 
 #ifdef QT_SQL_OCI
-        if ( type == "QOCI" )
-            d->driver = new QOCIDriver();
+	if ( type == "QOCI" )
+	    d->driver = new QOCIDriver();
 #endif
 
     }
 
 #ifndef QT_NO_COMPONENT
     if ( !d->driver ) {
-        d->plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" ); // ###
-        QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
-        d->driver = iface ? iface->create( type ) : 0;
+	d->plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" ); // ###
+	QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
+	d->driver = iface ? iface->create( type ) : 0;
     }
 #endif
 
     if ( !d->driver ) {
 
 #ifdef QT_CHECK_RANGE
-        qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
+	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
 #endif
 
-        d->driver = new QNullDriver();
-        d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
+	d->driver = new QNullDriver();
+	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
 
     }
 
@@ -441,8 +441,8 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
 {
     QSqlQuery r = d->driver->createQuery();
     if ( !query.isNull() ) {
-        r.exec( query );
-        d->driver->setLastError( r.lastError() );
+	r.exec( query );
+	d->driver->setLastError( r.lastError() );
     }
     return r;
 }
@@ -457,9 +457,9 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
 bool QSqlDatabase::open()
 {
     return d->driver->open( d->dbname,
-                                d->uname,
-                                d->pword,
-                                d->hname);
+				d->uname,
+				d->pword,
+				d->hname);
 }
 
 /*! Opens the database connection using \a user name and \a password.  Returns
@@ -515,7 +515,7 @@ bool QSqlDatabase::isOpenError() const
 bool QSqlDatabase::transaction()
 {
    if ( !d->driver->hasTransactionSupport() )
-        return FALSE;
+	return FALSE;
     return d->driver->beginTransaction();
 }
 
@@ -528,7 +528,7 @@ bool QSqlDatabase::transaction()
 bool QSqlDatabase::commit()
 {
     if ( !d->driver->hasTransactionSupport() )
-        return FALSE;
+	return FALSE;
     return d->driver->commitTransaction();
 }
 
@@ -541,7 +541,7 @@ bool QSqlDatabase::commit()
 bool QSqlDatabase::rollback()
 {
     if ( !d->driver->hasTransactionSupport() )
-        return FALSE;
+	return FALSE;
     return d->driver->rollbackTransaction();
 }
 
