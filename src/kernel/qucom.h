@@ -30,6 +30,9 @@ struct Q_EXPORT QUType
 
     virtual void clear( QUObject * );
 
+    virtual bool serializeTo( QUObject *, void * );
+    virtual bool serializeFrom( QUObject *, void * );
+
     static bool isEqual( const QUType *t1, const QUType *t2 );
     static bool check( QUObject* o, QUType* t );
 };

@@ -5,6 +5,16 @@ void QUType::clear( QUObject* )
 {
 }
 
+bool QUType::serializeTo( QUObject *, void * )
+{
+    return FALSE;
+}
+
+bool QUType::serializeFrom( QUObject *, void * )
+{
+    return FALSE;
+}
+
 // Standard types
 
 // {DE56510E-4E9F-4b76-A3C2-D1E2EF42F1AC}
