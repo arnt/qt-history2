@@ -2242,8 +2242,17 @@ void QApplication::setActiveWindow( QWidget* act )
     while ( (w=it.current()) ) {		// for all widgets...
 	++it;
 	if ( (w->topLevelWidget() == old_active || w->topLevelWidget()==active_window )
-	     && w->palette().active() != w->palette().inactive() )
-	    w->update();
+	    && w->palette().active() != w->palette().inactive() ) {
+	    if ( w->palette().active() != w->palette().inactive() &&
+		( w->inherits( "QPopupMenu" ) || w->inherits( "QMenuBar" ) ||
+		  w->parentWidget() && 
+		( qstrcmp( w->name(), "qt_clipped_viewport" ) == 0 || 
+		  qstrcmp( w->name(), "qt_viewport" ) == 0 ) &&
+		( w->parentWidget()->inherits( "QListView" ) || 
+		  w->parentWidget()->inherits( "QIconView" ) || 
+		  w->parentWidget()->inherits( "QListBox" ) ) ) )
+		    w->update();
+	}
     }
 
     // then focus events
