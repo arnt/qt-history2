@@ -619,12 +619,8 @@ void QLayoutSupport::insertWidget(QWidget *widget)
 
                 case ILayoutDecoration::InsertWidgetMode: {
                     insertWidget(index, widget);
-                    return;
                 } break;
             }
-
-            //QMessageBox::information(m_widget, tr("Information"), tr("not implemented yet!"));
-            //widget->setParent(formWindow()->mainContainer());
         } break;
 
         default:
