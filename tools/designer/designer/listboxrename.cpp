@@ -69,6 +69,7 @@ bool ListBoxRename::eventFilter( QObject *, QEvent * event )
     } else if ( (event->type() == QEvent::KeyPress ) &&
 		( ((QKeyEvent *) event)->key() == Qt::Key_F2 ) ) {
 	activity = FALSE;
+	clickedItem = src->item( src->currentItem() );
 	showLineEdit();
     }
     return FALSE;
