@@ -23,7 +23,7 @@ for PARAM in $PARAMS; do
         IN_INCDIRS="$IN_INCDIRS $CINCDIR"
         ;;
     *) ;;
-    esac 
+    esac
 done
 
 # debuggery
@@ -57,7 +57,7 @@ if [ -z "$F" ]; then
     [ "$VERBOSE" = "yes" ] && echo "  Could not find Xft lib anywhere in $LIBDIRS"
 fi
 LIBXFT="-l$F -lfreetype"
-    
+
 # check for X11/Xft/Xft.h
 XFT_H=
 if [ "$XFT" = "yes" ]; then
@@ -129,7 +129,7 @@ if [ "$XFT" = "yes" ]; then
 	    FREETYPE_PATCH=`grep "#define FREETYPE_PATCH" $INCDIR/$INC | head -n 1 | awk '{ print \$3 }'`
 	    [ "$VERBOSE" = "yes" ] && \
 		echo "  Found Freetype version $FREETYPE_MAJOR.$FREETYPE_MINOR.$FREETYPE_PATCH"
-	    if [ "$FREETYPE_MAJOR" -eq "2" -a "$FREETYPE_MINOR" -ge "1" ]; then
+	    if [ "$FREETYPE_MAJOR" -eq "2" -a "$FREETYPE_MINOR" -ge "0" -a "$FREETYPE_PATCH" -ge "9" ]; then
 		F=yes
 		FREETYPE2_INCDIR=$INCDIR/freetype2
 		[ "$VERBOSE" = "yes" ] && echo "  Found $INC in $INCDIR"
@@ -140,7 +140,7 @@ if [ "$XFT" = "yes" ]; then
     if [ -z "$F" ]; then
 	XFT=no
 	[ "$VERBOSE" = "yes" ] && echo "  Could not find $INC anywhere in $INCDIRS"
-    fi    
+    fi
 fi
 
 # check for fontconfig headers when using Xft2
@@ -160,7 +160,7 @@ if [ "$XFT" = "yes" ] && [ "$XFT2" = "yes" ]; then
     if [ -z "$F" ]; then
 	XFT=no
 	[ "$VERBOSE" = "yes" ] && echo "  Could not find $INC anywhere in $INCDIRS"
-    fi    
+    fi
 fi
 
 # done
