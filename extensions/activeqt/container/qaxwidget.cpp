@@ -30,10 +30,8 @@
 #include <atlbase.h>
 extern CComModule _Module;
 #include <atlcom.h>
-#include <atlwin.h>
 #include <atlhost.h>
 
-extern int moduleLockCount;
 extern void moduleLock();
 extern void moduleUnlock();
 
@@ -281,6 +279,7 @@ bool QAxWidget::initialize( IUnknown **ptr )
 
     *ptr = 0;
 
+#if defined(__ATLHOST_H__)
     AtlAxWinInit();
     HRESULT hr;
     CComPtr<IUnknown> spUnkContainer;
@@ -325,6 +324,7 @@ bool QAxWidget::initialize( IUnknown **ptr )
 	moduleUnlock();
 	return FALSE;
     }
+#endif
 
     if ( !hhook )
 	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );

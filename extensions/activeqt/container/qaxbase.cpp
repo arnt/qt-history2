@@ -36,16 +36,22 @@
 #include <qmetaobject.h>
 #include <qcache.h>
 
-#include <ctype.h>
-
+#include <qt_windows.h>
+#include <ocidl.h>
 #include <atlbase.h>
+
+#ifdef __ATLBASE_H__
 CComModule _Module;
-int moduleLockCount = 0;
+#endif
+
+static int moduleLockCount = 0;
 void moduleLock()
 {
     if ( !moduleLockCount ) {
 	CoInitialize(0);
+#ifdef __ATLBASE_H__
 	_Module.Init( 0, GetModuleHandle(0) );
+#endif
     }
     ++moduleLockCount;
 }
@@ -58,7 +64,9 @@ void moduleUnlock()
 	return;
     }
     if ( !--moduleLockCount ) {
+#ifdef __ATLBASE_H__
 	_Module.Term();
+#endif
 	CoUninitialize();
     }
 }
@@ -881,10 +889,11 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
     if ( tdesc.vt != VT_USERDEFINED || !usertype )
 	return QString::null;
 
-    CComPtr<ITypeInfo> usertypeinfo;
+    QString typeName;
+    ITypeInfo *usertypeinfo = 0;
     info->GetRefTypeInfo( usertype, &usertypeinfo );
     if ( usertypeinfo ) {
-	CComPtr<ITypeLib> usertypelib;
+	ITypeLib *usertypelib = 0;
 	UINT index;
 	usertypeinfo->GetContainingTypeLib( &usertypelib, &index );
 	if ( usertypelib ) {
@@ -893,24 +902,30 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 	    usertypelib->GetDocumentation( index, &usertypename, 0, 0, 0 );
 	    QString userTypeName = BSTRToQString( usertypename );
 	    SysFreeString( usertypename );
+	    
 	    // known enum?
 	    QMetaEnum *metaEnum = enumlist.find( userTypeName );
 	    if ( metaEnum )
-		return userTypeName;
-	    if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
-		return "QColor";
-	    if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" )
-		return "QFont";
-	    TYPEATTR *typeattr = 0;
-	    usertypeinfo->GetTypeAttr( &typeattr );
-	    if ( typeattr && typeattr->typekind == TKIND_ALIAS )
-		userTypeName = guessTypes( typeattr->tdescAlias, info, enumlist, function );
+		typeName = userTypeName;
+	    else if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
+		typeName = "QColor";
+	    else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" )
+		typeName = "QFont";
 
-	    usertypeinfo->ReleaseTypeAttr( typeattr );
-	    return userTypeName;
+	    if ( typeName.isEmpty() ) {
+		TYPEATTR *typeattr = 0;
+		usertypeinfo->GetTypeAttr( &typeattr );
+		if ( typeattr && typeattr->typekind == TKIND_ALIAS )
+		    userTypeName = guessTypes( typeattr->tdescAlias, info, enumlist, function );
+
+		usertypeinfo->ReleaseTypeAttr( typeattr );
+		typeName = userTypeName;
+	    }
+	    usertypelib->Release();
 	}
+	usertypeinfo->Release();
     }
-    return QString::null;
+    return typeName;
 }
 
 static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<QMetaEnum>& enumlist, const QString &function )
@@ -1145,12 +1160,11 @@ QMetaObject *QAxBase::metaObject() const
     QCString debugInfo;
 
     // create class information
-    CComPtr<IProvideClassInfo> classinfo;
-    CComPtr<ITypeLib> typelib;
+    IProvideClassInfo *classinfo = 0;
     d->ptr->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
     QString coClassID;
     if ( classinfo ) {
-	CComPtr<ITypeInfo> info;
+	ITypeInfo *info = 0;
 	classinfo->GetClassInfo( &info );
 	TYPEATTR *typeattr = 0;
 	if ( info )
@@ -1160,7 +1174,7 @@ QMetaObject *QAxBase::metaObject() const
 	    QUuid clsid( typeattr->guid );
 	    coClassID = clsid.toString().upper();
 #ifndef QAX_NO_CLASSINFO
-	// UUID
+	    // UUID
 	    if ( d->useClassInfo && !infolist.find( "CoClass" ) ) {
 		QString coClassIDstr = iidnames.readEntry( "/CLSID/" + coClassID + "/Default", coClassID );
 		infolist.insert( "CoClass", new QString( coClassIDstr ) );
@@ -1171,6 +1185,9 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 	    info->ReleaseTypeAttr( typeattr );
 	}
+	if ( info ) info->Release();
+	classinfo->Release();
+	classinfo = 0;
     }
 
     if ( mo_cache && !coClassID.isEmpty() ) {
@@ -1183,10 +1200,12 @@ QMetaObject *QAxBase::metaObject() const
     d->metaobj = new QAxMetaObject;
 
     IDispatch *disp = d->dispatch();
+    ITypeLib *typelib = 0;
     if ( disp ) {
-	CComPtr<ITypeInfo> info;
+	ITypeInfo *info = 0;
 	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
-	info->GetContainingTypeLib( &typelib, &index );
+	if ( info )
+	    info->GetContainingTypeLib( &typelib, &index );
 	// Read enum information from type library
 	if ( typelib ) {
 	    index = typelib->GetTypeInfoCount();
@@ -1195,7 +1214,7 @@ QMetaObject *QAxBase::metaObject() const
 		typelib->GetTypeInfoType( i, &typekind );
 		if ( typekind == TKIND_ENUM ) {
 		    // Get the type information for the enum
-		    CComPtr<ITypeInfo> enuminfo;
+		    ITypeInfo *enuminfo = 0;
 		    typelib->GetTypeInfo( i, &enuminfo );
 		    if ( !enuminfo )
 			continue;
@@ -1252,6 +1271,7 @@ QMetaObject *QAxBase::metaObject() const
 			enumlist.insert( enumName, metaEnum );
 		    }
 		    enuminfo->ReleaseTypeAttr( typeattr );
+		    enuminfo->Release();
 		}
 	    }
 	}
@@ -1697,31 +1717,39 @@ QMetaObject *QAxBase::metaObject() const
 		info->ReleaseVarDesc( vardesc );
 	    }
 
-	    if ( !nImpl )
+	    if ( !nImpl ) {
+		info->Release();
 		break;
+	    }
 
 	    // go up one base class
 	    HREFTYPE pRefType;
 	    info->GetRefTypeOfImplType( 0, &pRefType );
-	    CComPtr<ITypeInfo> baseInfo;
+	    ITypeInfo *baseInfo = 0;
 	    info->GetRefTypeInfo( pRefType, &baseInfo );
-	    if ( info == baseInfo ) // IUnknown inherits IUnknown ???
+	    info->Release();
+	    if ( info == baseInfo ) { // IUnknown inherits IUnknown ???
+		baseInfo->Release();
 		break;
+	    }
 	    info = baseInfo;
 	}
     }
 
-    CComPtr<IConnectionPointContainer> cpoints;
-    d->ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-    if ( cpoints && d->useEventSink ) {
+    IConnectionPointContainer *cpoints = 0;
+    if ( d->useEventSink )
+	d->ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
+    if ( cpoints ) {
 	// Get connection point enumerator
-	CComPtr<IEnumConnectionPoints> epoints;
+	IEnumConnectionPoints *epoints = 0;
 	cpoints->EnumConnectionPoints( &epoints );
 	if ( epoints ) {
 	    ULONG c = 1;
+	    IConnectionPoint *cpoint = 0;
 	    epoints->Reset();
 	    do {
-		CComPtr<IConnectionPoint> cpoint;
+		if ( cpoint ) cpoint->Release();
+		cpoint = 0;
 		epoints->Next( c, &cpoint, &c );
 		if ( !c )
 		    break;
@@ -1739,18 +1767,17 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 
 		// get information about type
-		CComPtr<ITypeInfo> eventinfo;
 		if ( conniid == IID_IPropertyNotifySink ) {
 		    // test whether property notify sink has been created already, and advise on it
 		    QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
 		    if ( eventSink )
 			eventSink->advise( cpoint, conniid );
 		    continue;
-		} else if ( typelib ) {
+		} 
+		ITypeInfo *eventinfo = 0;
+		if ( typelib )
 		    typelib->GetTypeInfoOfGuid( conniid, &eventinfo );
-		}
 
-		// what about other event interfaces?
 		if ( eventinfo ) {
 		    TYPEATTR *eventattr;
 		    eventinfo->GetTypeAttr( &eventattr );
@@ -1865,10 +1892,15 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 			eventinfo->ReleaseFuncDesc( funcdesc );
 		    }
+		    eventinfo->Release();
 		}
 	    } while ( c );
+	    if ( cpoint ) cpoint->Release();
+	    epoints->Release();
 	}
+	cpoints->Release();
     }
+    if ( typelib ) typelib->Release();
 
 #ifndef QAX_NO_CLASSINFO
     if ( !!debugInfo && d->useClassInfo )
@@ -2600,7 +2632,7 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
     PropertyBag result;
     if ( isNull() )
 	return result;
-    CComPtr<IPersistPropertyBag> persist;
+    IPersistPropertyBag *persist = 0;
     d->ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
     if ( persist ) {
 	QtPropertyBag *pbag = new QtPropertyBag();
@@ -2608,6 +2640,7 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
 	persist->Save( pbag, FALSE, TRUE );
 	result = pbag->map;
 	pbag->Release();
+	persist->Release();
 	return result;
     } else {
 	QAxBase *that = (QAxBase*)this;
@@ -2636,7 +2669,7 @@ void QAxBase::setPropertyBag( const PropertyBag &bag )
 {
     if ( isNull() )
 	return;
-    CComPtr<IPersistPropertyBag> persist;
+    IPersistPropertyBag *persist = 0;
     d->ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
     if ( persist ) {
 	QtPropertyBag *pbag = new QtPropertyBag();
@@ -2644,6 +2677,7 @@ void QAxBase::setPropertyBag( const PropertyBag &bag )
 	pbag->AddRef();
 	persist->Load( pbag, 0 );
 	pbag->Release();
+	persist->Release();
     } else {
 	QAxBase *that = (QAxBase*)this;
 	for ( int p = 1; p < metaObject()->numProperties( FALSE ); ++p ) {
