@@ -93,7 +93,7 @@ public:
     void setBufferEdit( QCompletionEdit *edit );
 
 public slots:
-    void modificationChanged( bool m, FormWindow *fw );
+    void modificationChanged( bool m, QObject *obj );
     void fileNameChanged( const QString &s, FormWindow *fw );
     void activeFormChanged( FormWindow *fw );
     void nameChanged( FormWindow *fw );
@@ -111,6 +111,7 @@ private slots:
 
 private:
     FormListItem *findItem( FormWindow *fw );
+    FormListItem *findItem( SourceFile *sf );
 
 private:
     MainWindow *mainWindow;

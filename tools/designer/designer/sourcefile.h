@@ -24,6 +24,7 @@
 #include <qobject.h>
 
 struct DesignerSourceFile;
+class SourceEditor;
 
 class SourceFile : public QObject
 {
@@ -47,11 +48,15 @@ public:
     void setOriginalFileName( const QString &f ) { ofn = f; }
     QString originalFileName() const { return ofn.isEmpty() ? filename : ofn; }
 
+    void setEditor( SourceEditor *e );
+    bool isModified() const;
+
 private:
     QString filename;
     QString txt;
     DesignerSourceFile *iface;
     QString ofn;
+    SourceEditor *editor;
 
 };
 

@@ -66,10 +66,14 @@ SourceEditor::~SourceEditor()
     editor = 0;
     if ( formWindow && formWindow->inherits( "FormWindow" ) )
 	MetaDataBase::setEdited( formWindow, FALSE );
+    if ( formWindow->inherits( "SourceFile" ) )
+	( (SourceFile*)(QObject*)formWindow )->setEditor( 0 );
 }
 
 void SourceEditor::setObject( QObject *fw, Project *p )
 {
+    if ( formWindow && formWindow->inherits( "SourceFile" ) )
+	( (SourceFile*)(QObject*)formWindow )->setEditor( 0 );
     if ( formWindow && formWindow->inherits( "FormWindow" ) )
 	MetaDataBase::setEdited( formWindow, FALSE );
     if ( fw && fw->inherits( "FormWindow" ) )
@@ -83,6 +87,8 @@ void SourceEditor::setObject( QObject *fw, Project *p )
     formWindow = fw;
     pro = p;
     setCaption( tr( "Edit %1" ).arg( ( formWindow->inherits( "FormWindow" ) ? QString( formWindow->name() ) : ( (SourceFile*)fw )->fileName() ) ) );
+    if ( formWindow->inherits( "SourceFile" ) )
+	( (SourceFile*)(QObject*)formWindow )->setEditor( this );
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
     if ( pro && fw->inherits( "FormWindow" ) )
 	iFace->setContext( pro->formList(), ( (FormWindow*)fw )->mainContainer() );
@@ -153,6 +159,9 @@ void SourceEditor::setClass( const QString &clss )
 
 void SourceEditor::closeEvent( QCloseEvent *e )
 {
+    // this function is only called for source editors where
+    // object()->inheres( "FormWindow" ), else
+    // MainWindow::closeEditor() is called
     save();
     MainWindow::self->updateFunctionList();
     emit hidden();
@@ -354,4 +363,9 @@ void SourceEditor::updateTimeStamp()
 	QString fn = MetaDataBase::formSourceFile( formWindow );
 	lastTimeStamp = QFileInfo( fn ).lastModified();
     }
+}
+
+void SourceEditor::emitHidden()
+{
+    emit hidden();
 }

@@ -22,9 +22,10 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include "designerappiface.h"
+#include "sourceeditor.h"
 
 SourceFile::SourceFile( const QString &fn )
-    : filename( fn )
+    : filename( fn ), editor( 0 )
 {
     load();
     iface = 0;
@@ -70,4 +71,16 @@ DesignerSourceFile *SourceFile::iFace()
     if ( !iface )
 	iface = new DesignerSourceFileImpl( this );
     return iface;
+}
+
+void SourceFile::setEditor( SourceEditor *e )
+{
+    editor = e;
+}
+
+bool SourceFile::isModified() const
+{
+    if ( !editor )
+	return FALSE;
+    return editor->isModified();
 }

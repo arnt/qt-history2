@@ -2272,6 +2272,8 @@ bool MainWindow::closeForm( FormWindow *fw )
 
 bool MainWindow::closeEditor( SourceEditor *se )
 {
+    se->save();
+    se->emitHidden();
     bool modified = FALSE;
     modified = se->isModified();
     QString fn = ( (SourceFile*)se->object() )->fileName();
@@ -2289,6 +2291,8 @@ bool MainWindow::closeEditor( SourceEditor *se )
 	default:
 	    break;
 	}
+	se->setModified( FALSE );
+	setModified( FALSE, se );
     }
 
     return TRUE;
@@ -2923,10 +2927,10 @@ void MainWindow::setModified( bool b, QWidget *window )
 		fw->commandHistory()->setModified( b );
 		fw->modificationChanged( b );
 	    } else {
-		// ############# for outher source files
+		formList->modificationChanged( b, w );
 	    }
 	}
-	w = w->parentWidget();
+	w = w->parentWidget( TRUE );
     }
 }
 

@@ -70,7 +70,7 @@ static QPixmap *folderPixmap = 0;
 static bool blockNewForms = FALSE;
 
 FormListItem::FormListItem( QListView *parent )
-    : QListViewItem( parent ), formwindow( 0 )
+    : QListViewItem( parent ), formwindow( 0 ), sourcefile( 0 )
 {
 }
 
@@ -95,6 +95,10 @@ void FormListItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
     p->save();
 
     if ( formWindow() && formWindow()->commandHistory()->isModified() ) {
+	QFont f = p->font();
+	f.setBold( TRUE );
+	p->setFont( f );
+    } else if ( sourcefile && sourcefile->isModified() ) {
 	QFont f = p->font();
 	f.setBold( TRUE );
 	p->setFont( f );
@@ -335,11 +339,17 @@ void FormList::removeForm( FormWindow *fw )
     delete i;
 }
 
-void FormList::modificationChanged( bool, FormWindow *fw )
+void FormList::modificationChanged( bool, QObject *obj )
 {
-    FormListItem *i = findItem( fw );
-    if ( i )
-	i->repaint();
+    if ( obj->inherits( "FormWindow" ) ) {
+	FormListItem *i = findItem( (FormWindow*)obj );
+	if ( i )
+	    i->repaint();
+    } else if ( obj->inherits( "SourceEditor" ) ) {
+	FormListItem *i = findItem( (SourceFile*)( (SourceEditor*)obj )->object() );
+	if ( i )
+	    i->repaint();
+    }
 }
 
 void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
@@ -389,6 +399,16 @@ FormListItem *FormList::findItem( FormWindow *fw )
     QListViewItemIterator it( this );
     for ( ; it.current(); ++it ) {
 	if ( ( (FormListItem*)it.current() )->formWindow() == fw )
+	    return (FormListItem*)it.current();
+    }
+    return 0;
+}
+
+FormListItem *FormList::findItem( SourceFile *sf )
+{
+    QListViewItemIterator it( this );
+    for ( ; it.current(); ++it ) {
+	if ( ( (FormListItem*)it.current() )->sourceFile() == sf )
 	    return (FormListItem*)it.current();
     }
     return 0;
