@@ -166,7 +166,7 @@ static bool updateMenuBar(QMenuBar *mbar)
 
 	MenuRef mp = createPopup(item->popup(), FALSE);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
-	InsertMenu(mp, 666);
+	InsertMenu(mp, x);
     }
     InvalMenuBar();
     return TRUE;
