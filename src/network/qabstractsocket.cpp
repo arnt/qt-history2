@@ -579,12 +579,10 @@ bool QAbstractSocketPrivate::flush()
     if (written > 0)
         emit q->bytesWritten(written);
 
-    if (writeBuffer.isEmpty()) {
-        if (d->writeSocketNotifier && d->writeSocketNotifier->isEnabled())
-            d->writeSocketNotifier->setEnabled(false);
-    } else if (state == QAbstractSocket::ClosingState) {
+    if (writeBuffer.isEmpty() && d->writeSocketNotifier && d->writeSocketNotifier->isEnabled())
+        d->writeSocketNotifier->setEnabled(false);
+    if (state == QAbstractSocket::ClosingState)
         q->close();
-    }
 
     return true;
 }
