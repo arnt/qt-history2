@@ -62,7 +62,7 @@ struct Q4StyleOptionTab : public Q4StyleOption {
 
 struct Q4StyleOptionMenuItem : public Q4StyleOption {
     enum { Type = MenuItem };
-    enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, EmptyArea };
+    enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, EmptyArea, Q3Custom };
     enum CheckState { NotCheckable, Checked, Unchecked };
     MenuItemType menuItemType;
     CheckState checkState;
@@ -71,6 +71,8 @@ struct Q4StyleOptionMenuItem : public Q4StyleOption {
     QIconSet icon;
     int maxIconWidth;
     int tabWidth;
+    QSize q3CustomItemSizeHint;
+    bool q3CustomItemFullSpan;
     Q4StyleOptionMenuItem(int version) : Q4StyleOption(version, MenuItem) {}
 };
 

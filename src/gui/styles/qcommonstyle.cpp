@@ -1143,27 +1143,6 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 
-#if 0 // For now..
-#ifdef QT_COMPAT
-    case CE_Q3MenuBarItem:
-        {
-#ifndef QT_NO_MENUDATA
-            if (opt.isDefault())
-                break;
-
-            Q3MenuItem *mi = opt.menuItem();
-            int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
-            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
-                alignment |= NoAccel;
-            drawItem(p, r, alignment, pal,
-                      flags & Style_Enabled, *mi->pixmap(), mi->text(),
-                      -1, &pal.buttonText().color());
-#endif
-            break;
-        }
-#endif
-#endif // For now..
-
 #ifndef QT_NO_TOOLBUTTON
     case CE_ToolButtonLabel:
         {
@@ -3381,58 +3360,6 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
             break;
         }
 
-#if 0 // For now..
-#ifdef QT_COMPAT
-    case CT_Q3PopupMenuItem: {
-#ifndef QT_NO_POPUPMENU
-            if (opt.isDefault())
-                break;
-
-            const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
-            bool checkable = popup->isCheckable();
-            Q3MenuItem *mi = opt.menuItem();
-            int maxpmw = opt.maxIconWidth();
-            int w = sz.width(), h = sz.height();
-
-            if (mi->custom()) {
-                w = mi->custom()->sizeHint().width();
-                h = mi->custom()->sizeHint().height();
-                if (! mi->custom()->fullSpan())
-                    h += 8;
-            } else if (mi->widget()) {
-            } else if (mi->isSeparator()) {
-                w = 10;
-                h = 2;
-            } else {
-                if (mi->pixmap())
-                    h = qMax(h, mi->pixmap()->height() + 4);
-                else
-                    h = qMax(h, popup->fontMetrics().height() + 8);
-
-                if (mi->iconSet() != 0)
-                    h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
-                                                      QIconSet::Normal).height() + 4);
-            }
-
-            if (! mi->text().isNull()) {
-                if (mi->text().contains('\t'))
-                    w += 12;
-            }
-
-            if (maxpmw)
-                w += maxpmw + 6;
-            if (checkable && maxpmw < 20)
-                w += 20 - maxpmw;
-            if (checkable || maxpmw > 0)
-                w += 2;
-            w += 12;
-
-            sz = QSize(w, h);
-#endif
-            break;
-        }
-#endif
-#endif // For now..
     case CT_SpinBox:
         sz.setWidth(qMin(sz.height(), int(sz.width() * 0.2)));
         break;
@@ -3493,7 +3420,12 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, 
             int maxpmw = mi->maxIconWidth;
             int w = sz.width(),
                 h = sz.height();
-            if (mi->menuItemType & Q4StyleOptionMenuItem::Separator) {
+            if (mi->menuItemType == Q4StyleOptionMenuItem::Q3Custom) {
+                w = mi->q3CustomItemSizeHint.width();
+                h = mi->q3CustomItemSizeHint.height();
+                if (!mi->q3CustomItemFullSpan)
+                    h += 8;
+            } else if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
                 w = 10;
                 h = 2;
             } else {

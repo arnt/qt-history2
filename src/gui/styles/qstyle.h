@@ -312,15 +312,6 @@ public:
         CE_ToolBoxTab,
         CE_HeaderLabel,
 
-#ifdef QT_COMPAT
-        CE_Q3PopupMenuItem,
-        CE_Q3PopupMenuScroller,
-        CE_Q3MenuBarItem,
-        CE_Q3MenuBarEmptyArea,
-        CE_PopupMenuVerticalExtra = CE_MenuVMargin,
-        CE_PopupMenuHorizontalExtra = CE_MenuHMargin,
-#endif
-
         // do not add any values below/greater than this
         CE_CustomBase =                0xf0000000
     };
@@ -550,13 +541,6 @@ public:
 
         PM_ToolBarItemSpacing,
 
-#ifdef QT_COMPAT
-        PM_Q3PopupMenuScrollerHeight = PM_MenuScrollerHeight,
-        PM_Q3MenuBarItemSpacing = PM_MenuBarItemSpacing,
-        PM_PopupMenuFrameHorizontalExtra = PM_MenuHMargin,
-        PM_PopupMenuFrameVerticalExtra = PM_MenuVMargin,
-#endif
-
         // do not add any values below/greater than this
         PM_CustomBase =                0xf0000000
     };
@@ -584,12 +568,6 @@ public:
         CT_SizeGrip,
         CT_TabWidget,
         CT_DialogButtons,
-
-#ifdef QT_COMPAT
-        CT_Q3MenuBar,
-        CT_Q3PopupMenuItem,
-#endif
-
         // do not add any values below/greater than this
         CT_CustomBase =                0xf0000000
     };
@@ -761,12 +739,6 @@ public:
 
 #ifdef QT_COMPAT
         SH_UnderlineAccelerator = SH_UnderlineShortcut,
-        SH_Q3PopupMenu_SpaceActivatesItem = SH_Menu_SpaceActivatesItem,
-        SH_Q3PopupMenu_SubMenuPopupDelay = SH_Menu_SubMenuPopupDelay,
-        SH_Q3PopupMenu_AllowActiveAndDisabled = SH_Menu_AllowActiveAndDisabled,
-        SH_Q3PopupMenu_MouseTracking = SH_Menu_MouseTracking,
-        SH_Q3PopupMenu_SloppySubMenus = SH_Menu_SloppySubMenus,
-        SH_Q3PopupMenu_Scrollable = SH_Menu_Scrollable,
 #endif
 
         // do not add any values below/greater than this

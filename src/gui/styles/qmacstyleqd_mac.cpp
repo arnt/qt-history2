@@ -734,9 +734,6 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_ToolBoxTab:
         QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
         break;
-#ifdef QT_COMPAT
-    case CE_Q3PopupMenuScroller:
-#endif
     case CE_MenuTearoff:
     case CE_MenuHMargin:
     case CE_MenuVMargin:
@@ -908,160 +905,6 @@ void QMacStyleQD::drawControl(ControlElement element,
             }
         }
         break; }
-#ifdef QT_COMPAT
-    case CE_Q3PopupMenuItem: {
-                                 /*
-        if(!widget || opt.isDefault())
-            break;
-        Q3PopupMenu *popupmenu = (Q3PopupMenu *)widget;
-        Q3MenuItem *mi = opt.menuItem();
-
-        bool dis = mi ? !mi->isEnabled() : false;
-        int tab = opt.tabWidth();
-        int maxpmw = opt.maxIconWidth();
-        bool checked = mi ? mi->isChecked() : false;
-        bool checkable = popupmenu->isCheckable();
-        bool act = how & Style_Active;
-        Rect mrect = *qt_glb_mac_rect(popupmenu->rect(), p),
-             irect = *qt_glb_mac_rect(r, p, false);
-
-        if(checkable)
-            maxpmw = qMax(maxpmw, 12); // space for the checkmarks
-
-        ThemeMenuState tms = kThemeMenuActive;
-        if(dis)
-            tms |= kThemeMenuDisabled;
-        if(how & Style_Active)
-            tms |= kThemeMenuSelected;
-        ThemeMenuItemType tmit = kThemeMenuItemPlain;
-        if(mi && mi->popup())
-            tmit |= kThemeMenuItemHierarchical;
-        if(mi && mi->iconSet())
-            tmit |= kThemeMenuItemHasIcon;
-        ((QMacStyleQDPainter *)p)->setport();
-        DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
-
-        if(mi && mi->isSeparator()) {
-            ((QMacStyleQDPainter *)p)->setport();
-            DrawThemeMenuSeparator(&irect);
-            return;
-        }
-
-        int x, y, w, h;
-        r.rect(&x, &y, &w, &h);
-        int checkcol = maxpmw;
-        bool reverse = QApplication::reverseLayout();
-        int xpos = x;
-        if(reverse)
-            xpos += w - checkcol;
-        if(mi && mi->iconSet()) {              // draw iconset
-            if(checked) {
-                QRect vrect = visualRect(QRect(xpos, y, checkcol, h), r);
-                if(act && !dis) {
-                    qDrawShadePanel(p, vrect.x(), y, checkcol, h,
-                                     pal, true, 1, &pal.brush(QPalette::Button));
-                } else {
-                    QBrush fill(pal.light(), Dense4Pattern);
-                    // set the brush origin for the hash pattern to the x/y coordinate
-                    // of the menu item's checkmark... this way, the check marks have
-                    // a consistent look
-                    QPoint origin = p->brushOrigin();
-                    p->setBrushOrigin(vrect.x(), y);
-                    qDrawShadePanel(p, vrect.x(), y, checkcol, h, pal, true, 1,
-                                     &fill);
-                    // restore the previous brush origin
-                    p->setBrushOrigin(origin);
-                }
-            }
-
-            QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
-            if(act && !dis)
-                mode = QIconSet::Active;
-            QPixmap pixmap;
-            if(mi) {
-                if(checkable && checked)
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode, QIconSet::On);
-                else
-                    pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
-            }
-            int pixw = pixmap.width();
-            int pixh = pixmap.height();
-            if(act && !dis && checked)
-                qDrawShadePanel(p, xpos, y, checkcol, h, pal, false, 1, &pal.brush(QPalette::Button));
-            QRect cr(xpos, y, checkcol, h);
-            QRect pmr(0, 0, pixw, pixh);
-            pmr.moveCenter(cr.center());
-            p->setPen(pal.text());
-            p->drawPixmap(pmr.topLeft(), pixmap);
-        } else  if(checkable && checked) {  // just "checking"...
-            int mw = checkcol + macItemFrame;
-            int mh = h - 2*macItemFrame;
-            int xp = xpos;
-            if(reverse)
-                xp -= macItemFrame;
-            else
-                xp += macItemFrame;
-
-            SFlags cflags = Style_Default;
-            if(!dis)
-                cflags |= Style_Enabled;
-            if(act)
-                cflags |= Style_On;
-            drawPrimitive(PE_CheckMark, p, QRect(xp, y+macItemFrame, mw, mh), pal, cflags);
-        }
-
-        if(dis)
-            p->setPen(pal.text());
-        else if(act)
-            p->setPen(pal.highlightedText());
-        else
-            p->setPen(pal.buttonText());
-
-        int xm = macItemFrame + checkcol + macItemHMargin;
-        if(reverse)
-            xpos = macItemFrame + tab;
-        else
-            xpos += xm;
-
-        if(mi && mi->custom()) {
-            int m = macItemVMargin;
-            mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
-        }
-        if(mi) {
-            QString s = mi->text();
-            if(!s.isNull()) {                        // draw text
-                int t = s.indexOf('\t');
-                int m = macItemVMargin;
-                int text_flags = AlignRight | AlignVCenter | NoAccel | DontClip | SingleLine;
-                if(t >= 0) {                         // draw tab text
-                    int xp;
-                    if(reverse)
-                        xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
-                    else
-                        xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame + 1;
-                    QFont font(p->font());
-                    int oldWeight = font.weight();
-                    font.setWeight(QFont::Bold);
-                    p->setFont(font);
-                    p->drawText(xp, y + m, tab, h - 2 * m, text_flags, s.mid(t + 1));
-                    s = s.left(t);
-                    font.setWeight(oldWeight);
-                    p->setFont(font);
-                }
-                text_flags ^= AlignRight;
-                p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
-            } else if(mi->pixmap()) {                        // draw pixmap
-                QPixmap *pixmap = mi->pixmap();
-                if(pixmap->depth() == 1)
-                    p->setBackgroundMode(OpaqueMode);
-                p->drawPixmap(xpos, y+macItemFrame, *pixmap);
-                if(pixmap->depth() == 1)
-                    p->setBackgroundMode(TransparentMode);
-            }
-        }
-        */
-        break; }
-#endif
     case CE_MenuBarItem: {
         if(!widget)
             break;
@@ -1077,23 +920,6 @@ void QMacStyleQD::drawControl(ControlElement element,
         DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
         QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
         break; }
-#ifdef QT_COMPAT
-    case CE_Q3MenuBarItem: {
-        if(!widget)
-            break;
-        QRect ir(r.x(), 0, r.width(), widget->height());
-        Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
-             irect = *qt_glb_mac_rect(ir, p, false);
-        ThemeMenuState tms = kThemeMenuActive;
-        if(!(how & Style_Active))
-            tms |= kThemeMenuDisabled;
-        if(how & Style_Down)
-            tms |= kThemeMenuSelected;
-        ((QMacStyleQDPainter *)p)->setport();
-        DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
-        QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
-        break; }
-#endif
     case CE_ProgressBarContents: {
         if(!widget)
             break;
@@ -2616,62 +2442,6 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
             w += 12;
         sz = QSize(w, h);
         break; }
-#ifdef QT_COMPAT
-    case CT_Q3PopupMenuItem: {
-                                 /*
-        if(!widget || opt.isDefault())
-            break;
-        const Q3PopupMenu *popup = (const Q3PopupMenu *) widget;
-        bool checkable = popup->isCheckable();
-        Q3MenuItem *mi = opt.menuItem();
-        int maxpmw = opt.maxIconWidth();
-        int w = sz.width(), h = sz.height();
-
-        if(mi->custom()) {
-            w = mi->custom()->sizeHint().width();
-            h = mi->custom()->sizeHint().height();
-            if(! mi->custom()->fullSpan())
-                h += 8;
-        } else if(mi->widget()) {
-        } else if(mi->isSeparator()) {
-            w = 10;
-            SInt16 ash;
-            GetThemeMenuSeparatorHeight(&ash);
-            h = ash;
-        } else {
-            if(mi->pixmap())
-                h = qMax(h, mi->pixmap()->height() + 4);
-            else
-                h = qMax(h, popup->fontMetrics().height() + 2);
-
-            if(mi->iconSet() != 0)
-                h = qMax(h, mi->iconSet()->pixmap(QIconSet::Small,
-                                                  QIconSet::Normal).height() + 4);
-        }
-
-        if(! mi->text().isNull()) {
-            if(mi->text().indexOf('\t') >= 0)
-                w += 12;
-        }
-        if (mi->popup())
-            w += 20;
-
-        if(maxpmw)
-            w += maxpmw + 6;
-        if(checkable && maxpmw < 20)
-            w += 20 - maxpmw;
-        if(checkable || maxpmw > 0)
-            w += 2;
-        if(::qt_cast<QComboBox*>(widget->parentWidget())
-            && widget->parentWidget()->isVisible())
-            w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
-                        SC_ComboBoxEditField).width());
-        else
-            w += 12;
-        sz = QSize(w, h);
-        */
-        break; }
-#endif
     case CT_PushButton:
         sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
         sz = QSize(sz.width() + 16, sz.height()); //##
@@ -2967,7 +2737,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             if (act)
                 tms |= kThemeMenuSelected;
             ThemeMenuItemType tmit = kThemeMenuItemPlain;
-            if (mi->menuItemType & Q4StyleOptionMenuItem::SubMenu)
+            if (mi->menuItemType == Q4StyleOptionMenuItem::SubMenu)
                 tmit |= kThemeMenuItemHierarchical;
             if (!mi->icon.isNull())
                 tmit |= kThemeMenuItemHasIcon;
@@ -3055,6 +2825,13 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 xpos = macItemFrame + tab;
             else
                 xpos += xm;
+            if (mi->menuItemType == Q4StyleOptionMenuItem::Q3Custom) {
+                // ### hmmm...
+                /*
+                int m = macItemVMargin;
+                mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
+                */
+            }
             if (mi) {
                 QString s = mi->text;
                 if (!s.isEmpty()) {                        // draw text

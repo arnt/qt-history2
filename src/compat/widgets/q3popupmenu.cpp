@@ -15,26 +15,26 @@
 #include "q3popupmenu.h"
 #ifndef QT_NO_POPUPMENU
 #include "q3menubar.h"
-#include "qevent.h"
-#include "qdesktopwidget.h"
 #include "qaccel.h"
-#include "qpainter.h"
-#include "qdrawutil.h"
 #include "qapplication.h"
+#include "qcursor.h"
+#include "qdatetime.h"
+#include "qdesktopwidget.h"
+#include "qdrawutil.h"
+#include "qevent.h"
+#include "qpainter.h"
 #include "qpixmap.h"
-#include "qpixmapcache.h"
+#include "qpointer.h"
+#include "qsignal.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
 #include "qtimer.h"
 #include "qwhatsthis.h"
-#include "qpointer.h"
 #include <private/qeffects_p.h>
-#include "qcursor.h"
-#include "qstyle.h"
-#include "qtimer.h"
-#include "qdatetime.h"
+
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
-#include "qsignal.h"
 
 //#define ANIMATED_POPUP
 //#define BLEND_POPUP
@@ -96,6 +96,41 @@ static void popupSubMenuLater(int msec, Q3PopupMenu * receiver) {
 }
 
 static bool preventAnimation = false;
+
+static Q4StyleOptionMenuItem getStyleOption(const Q3PopupMenu *pop, const Q3MenuItem *mi)
+{
+    Q4StyleOptionMenuItem opt(0);
+    opt.palette = pop->palette();
+    opt.state = QStyle::Style_Default;
+    opt.menuRect = pop->rect();
+    if (mi->isSeparator()) {
+        opt.menuItemType = Q4StyleOptionMenuItem::Separator;
+    } else if (mi->popup()) {
+        opt.menuItemType = Q4StyleOptionMenuItem::SubMenu;
+    } else if (mi->custom()) {
+        opt.menuItemType = Q4StyleOptionMenuItem::Q3Custom;
+        opt.q3CustomItemSizeHint = mi->custom()->sizeHint();
+        opt.q3CustomItemFullSpan = mi->custom()->fullSpan();
+    } else {
+        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+    }
+    if (pop->isCheckable()) {
+        if (mi->isChecked())
+            opt.checkState = Q4StyleOptionMenuItem::Checked;
+        else
+            opt.checkState = Q4StyleOptionMenuItem::Unchecked;
+    } else {
+        opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    }
+    opt.text = mi->text();
+    if (mi->iconSet())
+        opt.icon = *mi->iconSet();
+    else if (mi->pixmap())
+        opt.icon = *mi->pixmap();
+    if (pop->isEnabled() && mi->isEnabledAndVisible())
+        opt.state |= QStyle::Style_Enabled;
+    return opt;
+}
 
 
 /*!
@@ -275,7 +310,7 @@ Q3PopupMenu::Q3PopupMenu(QWidget *parent, const char *name)
     tab = 0;
     ncols = 1;
     setFrameStyle(Q3Frame::PopupPanel | Q3Frame::Raised);
-    setMouseTracking(style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this));
+    setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking, this));
     setBackgroundRole(QPalette::Button);
     connectModalRecursionSafety = 0;
 
@@ -552,7 +587,7 @@ void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
             y = sy;
     }
 
-    if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this)) {
+    if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
         int off_top = 0, off_bottom = 0;
         if(y+h > sy+sh)
             off_bottom = (y+h) - (sy+sh);
@@ -560,7 +595,7 @@ void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
             off_top = sy - y;
         if(off_bottom || off_top) {
             int ch = updateSize().height(); //store the old height, before setting scrollable --Sam
-            const int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
+            const int vextra = style().pixelMetric(QStyle::PM_MenuVMargin, this);
             d->scroll.scrollableSize = h - off_top - off_bottom - 2*vextra;
             if(off_top) {
                 move(x, y = sy);
@@ -585,9 +620,13 @@ void Q3PopupMenu::popup(const QPoint &pos, int indexAtPoint)
                     if (tmp_y >= off_top)
                         break;
                     Q3MenuItem *mi = mitems->at(i);
-                    QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
-                                                        QSize(0, itemHeight(mi)),
-                                                        QStyleOption(mi,maxPMWidth,0));
+                    Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                    opt.rect = rect();
+                    opt.tabWidth = 0;
+                    opt.maxIconWidth = maxPMWidth;
+                    QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt,
+                                                        QSize(0, itemHeight(mi)), fontMetrics(),
+                                                        this);
                     tmp_y += sz.height();
                     d->scroll.topScrollableIndex++;
                 }
@@ -756,7 +795,7 @@ void Q3PopupMenu::setFirstItemActive()
     for (int i = ai; i < mitems->size(); ++i) {
         Q3MenuItem *mi = mitems->at(i);
         if (!mi->isSeparator() && mi->id() != Q3MenuData::d->aInt &&
-           (style().styleHint(QStyle::SH_Q3PopupMenu_AllowActiveAndDisabled, this) || mi->isEnabledAndVisible())) {
+           (style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this) || mi->isEnabledAndVisible())) {
             setActiveItem(ai);
             return;
         }
@@ -804,7 +843,7 @@ void Q3PopupMenu::hidePopups()
             mi->popup()->hide();
     }
     popupActive = -1;                                // no active sub menu
-    if(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this))
+    if(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this))
         d->mouseMoveBuffer = QRegion();
 
     QRect mfrect = itemGeometry(actItem);
@@ -885,7 +924,7 @@ int Q3PopupMenu::itemAtPos(const QPoint &pos, bool ignoreSeparator) const
         if(d->scroll.topScrollableIndex) {
             if (d->scroll.topScrollableIndex < mitems->size())
                 row = d->scroll.topScrollableIndex;
-            y += style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+            y += style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
         }
     }
     int itemw = contentsRect().width() / ncols;
@@ -894,15 +933,17 @@ int Q3PopupMenu::itemAtPos(const QPoint &pos, bool ignoreSeparator) const
     for (; row < mitems->size(); ++row) {
         mi = mitems->at(row);
         if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
-           y >= contentsRect().height() - style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this))
+           y >= contentsRect().height() - style().pixelMetric(QStyle::PM_MenuScrollerHeight, this))
             return -1;
         if (!mi->isVisible())
             continue;
         int itemh = itemHeight(mi);
-
-        sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
-                                      QSize(0, itemh),
-                                      QStyleOption(mi,maxPMWidth));
+        Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+        opt.rect = rect();
+        opt.maxIconWidth = maxPMWidth;
+        opt.tabWidth = 0;
+        sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt, QSize(0, itemh),
+                                      fontMetrics(), this);
         sz = sz.expandedTo(QSize(itemw, sz.height()));
         itemw = sz.width();
         itemh = sz.height();
@@ -933,7 +974,7 @@ QRect Q3PopupMenu::itemGeometry(int index)
     int x = contentsRect().x();
     int y = contentsRect().y();
     if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) {
-        scrollh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+        scrollh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
         y += scrollh;
         if(d->scroll.topScrollableIndex < mitems->size())
             row = d->scroll.topScrollableIndex;
@@ -948,9 +989,12 @@ QRect Q3PopupMenu::itemGeometry(int index)
             continue;
         int itemh = itemHeight(mi);
 
-        sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
-                                      QSize(0, itemh),
-                                      QStyleOption(mi,maxPMWidth));
+        Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+        opt.rect = rect();
+        opt.maxIconWidth = maxPMWidth;
+        opt.tabWidth = 0;
+        sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt, QSize(0, itemh),
+                                      fontMetrics(), this);
         sz = sz.expandedTo(QSize(itemw, sz.height()));
         itemw = sz.width();
         itemh = sz.height();
@@ -990,9 +1034,9 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
     int scrheight = 0;
     if(d->scroll.scrollableSize) {
         if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp)
-            scrheight += style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+            scrheight += style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
         if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown)
-            scrheight += style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+            scrheight += style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
     }
 
     if(badSize || force_update) {
@@ -1081,9 +1125,12 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
                     }
                 }
 
-                QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
-                                                    QSize(w, itemHeight),
-                                                    QStyleOption(mi,maxPMWidth));
+                Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                opt.rect = rect();
+                opt.maxIconWidth = maxPMWidth;
+                opt.tabWidth = 0;
+                QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt,
+                                                    QSize(w, itemHeight), fontMetrics(), this);
 
                 w = sz.width();
                 itemHeight = sz.height();
@@ -1094,7 +1141,7 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
                               objectName().local8Bit());
             }
             height += itemHeight;
-            if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this)) {
+            if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
                 if(scrheight && height >= d->scroll.scrollableSize)
                     break;
             } else if(height + 2*frameWidth() >= dh) {
@@ -1108,7 +1155,7 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
         if(ncols == 1 && !max_height)
             max_height = height;
 
-        if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this)) {
+        if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
             height += scrheight;
             setMouseTracking(true);
         }
@@ -1122,8 +1169,8 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
             max_width = maxWidgetWidth - tab;
 
         const int fw = frameWidth();
-        int extra_width = (fw+style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this)) * 2,
-           extra_height = (fw+style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra,   this)) * 2;
+        int extra_width = (fw+style().pixelMetric(QStyle::PM_MenuHMargin, this)) * 2,
+           extra_height = (fw+style().pixelMetric(QStyle::PM_MenuVMargin, this)) * 2;
         if (ncols == 1)
             d->calcSize = QSize(qMax(minimumWidth(), max_width + tab + extra_width),
                               qMax(minimumHeight() , height + extra_height));
@@ -1133,7 +1180,7 @@ QSize Q3PopupMenu::updateSize(bool force_update, bool do_resize)
         badSize = false;
     }
 
-if(do_resize) {
+    if(do_resize) {
         setMaximumSize(d->calcSize);
         resize(d->calcSize);
 
@@ -1159,8 +1206,12 @@ if(do_resize) {
 
                 int itemh = itemHeight(mi);
 
-                sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
-                                              QSize(0, itemh), QStyleOption(mi,maxPMWidth));
+                Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                opt.rect = rect();
+                opt.maxIconWidth = maxPMWidth;
+                opt.tabWidth = 0;
+                sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt, QSize(0, itemh),
+                                              fontMetrics(), this);
                 sz = sz.expandedTo(QSize(itemw, sz.height()));
                 itemw = sz.width();
                 itemh = sz.height();
@@ -1318,7 +1369,7 @@ void Q3PopupMenu::show()
     updateSize(true);
     QWidget::show();
     popupActive = -1;
-    if(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this))
+    if(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this))
         d->mouseMoveBuffer = QRegion();
 }
 
@@ -1340,7 +1391,7 @@ void Q3PopupMenu::hide()
     emit aboutToHide();
 
     actItem = popupActive = -1;
-    if(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this))
+    if(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this))
         d->mouseMoveBuffer = QRegion();
     mouseBtDn = false;                                // mouse button up
 #ifndef QT_NO_ACCESSIBILITY
@@ -1402,28 +1453,33 @@ int Q3PopupMenu::itemHeight(Q3MenuItem *mi) const
 void Q3PopupMenu::drawItem(QPainter* p, int tab_, Q3MenuItem* mi,
                            bool act, int x, int y, int w, int h)
 {
-    QStyle::SFlags flags = QStyle::Style_Default;
+    // This call is a waste, but we want people to not use this class, right :)
+    Q4StyleOptionMenuItem menuOpt = getStyleOption(this, mi);
+    menuOpt.state = QStyle::Style_Default;
+    menuOpt.maxIconWidth = maxPMWidth;
+    menuOpt.tabWidth = tab_;
     if (isEnabled() && mi->isEnabledAndVisible() && (!mi->popup() || mi->popup()->isEnabled()))
-        flags |= QStyle::Style_Enabled;
+        menuOpt.state |= QStyle::Style_Enabled;
     if (act)
-        flags |= QStyle::Style_Active;
+        menuOpt.state |= QStyle::Style_Active;
     if (mouseBtDn)
-        flags |= QStyle::Style_Down;
+        menuOpt.state |= QStyle::Style_Down;
 
-    QPalette pal = palette();
-    if(!(flags & QStyle::Style_Enabled))
-        pal.setCurrentColorGroup(QPalette::Disabled);
+    if (!(menuOpt.state & QStyle::Style_Enabled))
+        menuOpt.palette.setCurrentColorGroup(QPalette::Disabled);
 
+    menuOpt.rect.setRect(x, y, w, h);
     if (mi->custom() && mi->custom()->fullSpan()) {
-        Q3MenuItem dummy;
-        style().drawControl(QStyle::CE_Q3PopupMenuItem, p, this, QRect(x, y, w, h), pal,
-                            flags, QStyleOption(&dummy,maxPMWidth,tab_));
-        mi->custom()->paint(p, pal, act, flags&QStyle::Style_Enabled, x, y, w, h);
-    } else
-        style().drawControl(QStyle::CE_Q3PopupMenuItem, p, this, QRect(x, y, w, h), pal,
-                            flags, QStyleOption(mi,maxPMWidth,tab_));
+        // the custom item will paint it all, so just do the background.
+        menuOpt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        menuOpt.text = "";
+        menuOpt.icon = QIconSet();
+        style().drawControl(QStyle::CE_MenuItem, &menuOpt, p, this);
+        mi->custom()->paint(p, palette(), act, menuOpt.state & QStyle::Style_Enabled, x, y, w, h);
+    } else {
+        style().drawControl(QStyle::CE_MenuItem, &menuOpt, p, this);
+    }
 }
-
 
 /*!
     Draws all menu items using painter \a p.
@@ -1433,53 +1489,58 @@ void Q3PopupMenu::drawContents(QPainter* p)
     int row = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();
-    if(d->scroll.scrollable) {
-        if(d->scroll.topScrollableIndex < mitems->size())
+    Q4StyleOptionMenuItem opt(0);
+    opt.menuRect = rect();
+    opt.state = QStyle::Style_Default;
+    opt.palette = palette();
+    opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    opt.menuItemType = Q4StyleOptionMenuItem::Scroller;
+    opt.tabWidth = 0;
+    opt.maxIconWidth = maxPMWidth;
+    if (d->scroll.scrollable) {
+        if (d->scroll.topScrollableIndex < mitems->size())
             row = d->scroll.topScrollableIndex;
 
-        if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) {
-            QRect rect(x, y, contentsRect().width(),
-                       style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this));
-            if(!p->hasClipping() || p->clipRegion().contains(rect)) {
-                QStyle::SFlags flags = QStyle::Style_Up;
+        if (d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) {
+            opt.rect.setRect(x, y, contentsRect().width(),
+                             style().pixelMetric(QStyle::PM_MenuScrollerHeight, this));
+            if (!p->hasClipping() || p->clipRegion().contains(opt.rect)) {
+                opt.state = QStyle::Style_Up;
                 if (isEnabled())
-                    flags |= QStyle::Style_Enabled;
-                style().drawControl(QStyle::CE_Q3PopupMenuScroller, p, this, rect,
-                                    palette(), flags, QStyleOption(maxPMWidth));
+                    opt.state |= QStyle::Style_Enabled;
+                style().drawControl(QStyle::CE_MenuScroller, &opt, p, this);
             }
-            y += rect.height();
+            y += opt.rect.height();
         }
     }
 
     int itemw = contentsRect().width() / ncols;
     QSize sz;
-    QStyle::SFlags flags;
     for (; row < mitems->size(); ++row) {
         Q3MenuItem *mi = mitems->at(row);
         if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
-           y >= contentsRect().height() - style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this))
+           y >= contentsRect().height() - style().pixelMetric(QStyle::PM_MenuScrollerHeight, this))
             break;
         if (!mi->isVisible())
             continue;
-
+        Q4StyleOptionMenuItem menuOpt = getStyleOption(this, mi);
+        menuOpt.tabWidth = 0;
+        menuOpt.maxIconWidth = maxPMWidth;
         int itemh = itemHeight(mi);
-        sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
-                                      QSize(0, itemh),
-                                      QStyleOption(mi,maxPMWidth,0)
-                               );
+        sz = style().sizeFromContents(QStyle::CT_MenuItem, &menuOpt,
+                                      QSize(0, itemh), fontMetrics(), this);
         sz = sz.expandedTo(QSize(itemw, sz.height()));
         itemw = sz.width();
         itemh = sz.height();
 
         if (ncols > 1 && y + itemh > contentsRect().bottom()) {
             if (y < contentsRect().bottom()) {
-                QRect rect(x, y, itemw, contentsRect().bottom() - y);
-                if(!p->hasClipping() || p->clipRegion().contains(rect)) {
-                    flags = QStyle::Style_Default;
+                menuOpt.rect.setRect(x, y, itemw, contentsRect().bottom() - y);
+                if(!p->hasClipping() || p->clipRegion().contains(menuOpt.rect)) {
+                    menuOpt.state = QStyle::Style_Default;
                     if (isEnabled() && mi->isEnabledAndVisible())
-                        flags |= QStyle::Style_Enabled;
-                    style().drawControl(QStyle::CE_Q3PopupMenuItem, p, this, rect,
-                                        palette(), flags, QStyleOption((Q3MenuItem*)0,maxPMWidth));
+                        menuOpt.state |= QStyle::Style_Enabled;
+                    style().drawControl(QStyle::CE_MenuItem, &menuOpt, p, this);
                 }
             }
             y = contentsRect().y();
@@ -1490,28 +1551,32 @@ void Q3PopupMenu::drawContents(QPainter* p)
         y += itemh;
     }
     if (y < contentsRect().bottom()) {
-        QRect rect(x, y, itemw, contentsRect().bottom() - y);
-        if(!p->hasClipping() || p->clipRegion().contains(rect)) {
-            flags = QStyle::Style_Default;
+        opt.rect.setRect(x, y, itemw, contentsRect().bottom() - y);
+        if(!p->hasClipping() || p->clipRegion().contains(opt.rect)) {
+            opt.state = QStyle::Style_Default;
             if (isEnabled())
-                flags |= QStyle::Style_Enabled;
-            style().drawControl(QStyle::CE_Q3PopupMenuItem, p, this, rect,
-                                palette(), flags, QStyleOption((Q3MenuItem*)0,maxPMWidth));
+                opt.state |= QStyle::Style_Enabled;
+            opt.icon = QIconSet();
+            opt.text = "";
+            opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+            style().drawControl(QStyle::CE_MenuItem, &opt, p, this);
         }
     }
-    if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown) {
-        int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
-        QRect rect(x, contentsRect().height() - sh, contentsRect().width(), sh);
-        if(!p->hasClipping() || p->clipRegion().contains(rect)) {
-            QStyle::SFlags flags = QStyle::Style_Down;
+    if (d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown) {
+        int sh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
+        opt.icon = QIconSet();
+        opt.text = "";
+        opt.menuItemType = Q4StyleOptionMenuItem::Scroller;
+        opt.rect.setRect(x, contentsRect().height() - sh, contentsRect().width(), sh);
+        if (!p->hasClipping() || p->clipRegion().contains(opt.rect)) {
+            opt.state = QStyle::Style_Down;
             if (isEnabled())
-                flags |= QStyle::Style_Enabled;
-            style().drawControl(QStyle::CE_Q3PopupMenuScroller, p, this, rect,
-                                palette(), flags, QStyleOption(maxPMWidth));
+                opt.state |= QStyle::Style_Enabled;
+            style().drawControl(QStyle::CE_MenuScroller, &opt, p, this);
         }
     }
 #if defined(DEBUG_SLOPPY_SUBMENU)
-    if (style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this)) {
+    if (style().styleHint(QStyle::SH_Menu_SloppySubMenus, this)) {
         p->setClipRegion(d->mouseMoveBuffer);
         p->fillRect(d->mouseMoveBuffer.boundingRect(), palette().brush(QPalette::Highlight));
     }
@@ -1578,7 +1643,7 @@ void Q3PopupMenu::closeEvent(QCloseEvent * e) {
 
 void Q3PopupMenu::mousePressEvent(QMouseEvent *e)
 {
-    int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+    int sh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
     if (rect().contains(e->pos()) &&
         ((d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
          (d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown &&
@@ -1628,7 +1693,7 @@ void Q3PopupMenu::mouseReleaseEvent(QMouseEvent *e)
 
     // if the user released the mouse outside the menu, pass control
     // to the menubar or our parent menu
-    int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+    int sh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
     if (!rect().contains(e->pos()) && tryMenuBar(e))
         return;
     else if((d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp && e->pos().y() <= sh) || //up
@@ -1704,7 +1769,7 @@ void Q3PopupMenu::mouseMoveEvent(QMouseEvent *e)
         if (p->actItem != myIndex && !p->rect().contains(pPos))
             p->setActiveItem(myIndex);
 
-        if (style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this)) {
+        if (style().styleHint(QStyle::SH_Menu_SloppySubMenus, this)) {
             p->d->mouseMoveBuffer = QRegion();
 #ifdef DEBUG_SLOPPY_SUBMENU
             p->repaint();
@@ -1733,7 +1798,7 @@ void Q3PopupMenu::mouseMoveEvent(QMouseEvent *e)
                 d->scroll.scrolltimer->start(40);
         } else if (lastActItem > 0 ||
                     (!rect().contains(e->pos()) && !tryMenuBar(e))) {
-            popupSubMenuLater(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay,
+            popupSubMenuLater(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay,
                                                 this), this);
         }
     } else {                                        // mouse on valid item
@@ -1755,16 +1820,16 @@ void Q3PopupMenu::mouseMoveEvent(QMouseEvent *e)
         if (actItem == item)
             return;
 
-        if (style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this) &&
+        if (style().styleHint(QStyle::SH_Menu_SloppySubMenus, this) &&
              d->mouseMoveBuffer.contains(e->pos())) {
             actItem = item;
-            popupSubMenuLater(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this) * 6,
+            popupSubMenuLater(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this) * 6,
                                this);
             return;
         }
 
         if (mi->popup() || (popupActive >= 0 && popupActive != item))
-            popupSubMenuLater(style().styleHint(QStyle::SH_Q3PopupMenu_SubMenuPopupDelay, this),
+            popupSubMenuLater(style().styleHint(QStyle::SH_Menu_SubMenuPopupDelay, this),
                                this);
         else if (singleSingleShot)
             singleSingleShot->stop();
@@ -1896,7 +1961,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
         break;
 
     case Key_Space:
-        if (! style().styleHint(QStyle::SH_Q3PopupMenu_SpaceActivatesItem, this))
+        if (! style().styleHint(QStyle::SH_Menu_SpaceActivatesItem, this))
             break;
         // for motif, fall through
 
@@ -2075,7 +2140,7 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
                 continue;
 
             if (!mi->isSeparator() &&
-                 (style().styleHint(QStyle::SH_Q3PopupMenu_AllowActiveAndDisabled, this)
+                 (style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this)
                    || mi->isEnabledAndVisible()))
                 break;
         }
@@ -2091,13 +2156,22 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
                         refresh = true;
                     }
                 } else if(d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollDown) { //down
-                    int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+                    int sh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
                     int y = (d->scroll.scrollable & Q3PopupMenuPrivate::Scroll::ScrollUp) ? sh : 0;
                     for (int i = 0; i < mitems->size(); ++i) {
                         Q3MenuItem *mi = mitems->at(i);
                         if(i >= d->scroll.topScrollableIndex) {
                             int itemh = itemHeight(mi);
-                            QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
+                            Q4StyleOptionMenuItem opt(0);
+                            opt.palette = palette();
+                            opt.rect = rect();
+                            opt.menuRect = rect();
+                            opt.state = QStyle::Style_Default;
+                            opt.checkState = isCheckable() ? Q4StyleOptionMenuItem::Unchecked
+                                                           : Q4StyleOptionMenuItem::NotCheckable;
+                            opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+                            opt.text = mi->text();
+                            QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, this,
                                                                 QSize(0, itemh),
                                                                 QStyleOption(mi,maxPMWidth,0));
                             y += sz.height();
@@ -2140,7 +2214,7 @@ void Q3PopupMenu::timerEvent(QTimerEvent *e)
 */
 void Q3PopupMenu::leaveEvent(QEvent *)
 {
-    if (testWFlags(WStyle_Tool) && style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this)) {
+    if (testWFlags(WStyle_Tool) && style().styleHint(QStyle::SH_Menu_MouseTracking, this)) {
         int lastActItem = actItem;
         actItem = -1;
         if (lastActItem >= 0)
@@ -2154,7 +2228,7 @@ void Q3PopupMenu::leaveEvent(QEvent *)
 void Q3PopupMenu::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange) {
-        setMouseTracking(style().styleHint(QStyle::SH_Q3PopupMenu_MouseTracking, this));
+        setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking, this));
         updateSize(true);
     } else if(ev->type() == QEvent::EnabledChange) {
         if (Q3MenuData::d->aPopup) // torn-off menu
@@ -2186,7 +2260,7 @@ void Q3PopupMenu::subScrollTimer() {
     } else if(pos.x() > x() + width() || pos.x() < x()) {
         return;
     }
-    int sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+    int sh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
     if(!d->scroll.lastScroll.isValid()) {
         d->scroll.lastScroll = QTime::currentTime();
     } else {
@@ -2213,7 +2287,7 @@ void Q3PopupMenu::subScrollTimer() {
             Q3MenuItem *mi = mitems->at(i);
             if(i >= d->scroll.topScrollableIndex) {
                 int itemh = itemHeight(mi);
-                QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this, QSize(0, itemh),
+                QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, this, QSize(0, itemh),
                                                     QStyleOption(mi, maxPMWidth, 0));
                 y += sz.height();
                 if(y > contentsRect().height() - sh) {
@@ -2297,7 +2371,7 @@ void Q3PopupMenu::subMenuTimer() {
         p.y() - ps.height() + (QCOORD) pr.height() >= 0)
         p.setY(p.y() - ps.height() + (QCOORD) pr.height());
 
-    if (style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this)) {
+    if (style().styleHint(QStyle::SH_Menu_SloppySubMenus, this)) {
          QPoint cur = QCursor::pos();
          if (r.contains(mapFromGlobal(cur))) {
              QPoint pts[4];
@@ -2495,7 +2569,7 @@ void Q3PopupMenu::setActiveItem(int i)
 QSize Q3PopupMenu::sizeHint() const
 {
     ensurePolished();
-    if(style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this))
+    if(style().styleHint(QStyle::SH_Menu_Scrollable, this))
         return minimumSize(); //can be any size..
 
     Q3PopupMenu* that = (Q3PopupMenu*) this;
@@ -2547,7 +2621,7 @@ bool Q3PopupMenu::focusNextPrevChild(bool next)
                 i = c - 1;
             mi = mitems->at(i);
             if (mi && !mi->isSeparator() &&
-                 (style().styleHint(QStyle::SH_Q3PopupMenu_AllowActiveAndDisabled, this)
+                 (style().styleHint(QStyle::SH_Menu_AllowActiveAndDisabled, this)
                    || mi->isEnabledAndVisible()))
                 break;
         }
@@ -2736,14 +2810,14 @@ Q3PopupMenu::updateScrollerState()
 {
     uint old_scrollable = d->scroll.scrollable;
     d->scroll.scrollable = Q3PopupMenuPrivate::Scroll::ScrollNone;
-    if(!style().styleHint(QStyle::SH_Q3PopupMenu_Scrollable, this))
+    if(!style().styleHint(QStyle::SH_Menu_Scrollable, this))
         return;
 
     int row = 0;
     if(d->scroll.topScrollableIndex < mitems->size())
         row = d->scroll.topScrollableIndex;
 
-    int y = 0, sh = style().pixelMetric(QStyle::PM_Q3PopupMenuScrollerHeight, this);
+    int y = 0, sh = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
     if(row) {
         // can't use |= because of a bug/feature in IBM xlC 5.0.2
         d->scroll.scrollable = d->scroll.scrollable | Q3PopupMenuPrivate::Scroll::ScrollUp;
@@ -2753,7 +2827,7 @@ Q3PopupMenu::updateScrollerState()
         Q3MenuItem *mi = mitems->at(row);
 
         int myheight = contentsRect().height();
-        QSize sz = style().sizeFromContents(QStyle::CT_Q3PopupMenuItem, this,
+        QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, this,
                                             QSize(0, itemHeight(mi)),
                                             QStyleOption(mi,maxPMWidth));
         if(y + sz.height() >= myheight) {

@@ -766,84 +766,6 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                  &(pal.buttonText().color()));
 #endif
         break; }
-    case CE_Q3PopupMenuItem: {
-        /*
-        if (!widget || opt.isDefault())
-            break;
-        const Q3PopupMenu *popup = static_cast<const Q3PopupMenu *>(widget);
-        const Q3MenuItem *mi = opt.menuItem();
-        bool disabled = mi ? !mi->isEnabled() : false;
-        bool itemSelected = how & Style_Active;
-        // Draw the background and then the text and stuff.
-        HIRect menuRect = *qt_glb_mac_rect(popup->rect(), popup);
-        HIRect itemRect = *qt_glb_mac_rect(r, popup);
-        HIThemeMenuItemDrawInfo mdi;
-        mdi.version = qt_mac_hitheme_version;
-        mdi.itemType = kThemeMenuItemPlain;
-        if (mi && mi->iconSet())
-            mdi.itemType |= kThemeMenuItemHasIcon;
-        if (mi && mi->popup())
-            mdi.itemType |= kThemeMenuItemHierarchical | kThemeMenuItemHierBackground;
-        else
-            mdi.itemType |= kThemeMenuItemPopUpBackground;
-        mdi.state = (disabled) ? kThemeMenuDisabled : kThemeMenuActive;
-        if (itemSelected)
-            mdi.state |= kThemeMenuSelected;
-        HIRect contentRect;
-        if (mi && mi->isSeparator()) {
-            // ### The first argument should be menuRect, but it seems to
-            // seriously make things not look very good.
-            HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
-                                     static_cast<CGContextRef>(p->handle()),
-                                     kHIThemeOrientationNormal);
-            break;
-        } else {
-            HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi, static_cast<CGContextRef>(p->handle()),
-                                kHIThemeOrientationNormal, &contentRect);
-        }
-        bool checkable = popup->isCheckable();
-        bool itemChecked = mi->isChecked();
-        bool reverse = QApplication::reverseLayout();
-        int maxIW = opt.maxIconWidth();
-        if (checkable)
-            maxIW += 12;
-        QRect qtContentRect = qrectForHIRect(contentRect);
-        int xpos = qtContentRect.x() + 2;
-        if (reverse)
-            xpos = qtContentRect.width() - maxIW - 2;
-        // Draw checks
-        if (checkable && itemChecked) {
-            int mw = maxIW;
-            int mh = qtContentRect.height();
-            int xp = xpos;
-            SFlags myflags = Style_DefaultThemeMenuState;
-            if (!disabled)
-                myflags |= Style_Enabled;
-            if (itemSelected)
-                myflags |= Style_On;
-            // ### Need to implement PE_CheckMark, commonstyle doesn't look correct for Mac OS X.
-            // It should also change color when it is selected.
-            drawPrimitive(PE_CheckMark, p, QRect(xp, qtContentRect.y(), mw, mh), pal, myflags);
-        }
-        if (disabled)
-            p->setPen(pal.text());
-        else if (itemSelected)
-            p->setPen(pal.highlightedText());
-        else
-            p->setPen(pal.buttonText());
-        // All Mac popups appear to have a space for a check.
-        xpos += maxIW + 5;
-        // Draw text
-        if (mi) {
-            QString str = mi->text();
-            if (!str.isEmpty()) {
-                int text_flags = AlignVCenter | NoAccel | DontClip | SingleLine;
-                p->drawText(xpos, qtContentRect.y(), qtContentRect.width(), qtContentRect.height(),
-                            text_flags, str);
-            }
-        }
-                             */
-        break; }
     case CE_ProgressBarContents: {
         const QProgressBar *progressbar = static_cast<const QProgressBar *>(widget);
         HIThemeTrackDrawInfo tdi;
@@ -1889,7 +1811,8 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                     mdi.state |= kThemeMenuSelected;
                 HIRect contentRect;
                 if (mi->menuItemType == Q4StyleOptionMenuItem::Separator) {
-                    HIThemeDrawMenuSeparator(&menuRect, &itemRect, &mdi,
+                    // First arg should be &menurect, but wacky stuff happens then.
+                    HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
                                              static_cast<CGContextRef>(p->handle()),
                                              kHIThemeOrientationNormal);
                     break;
@@ -1955,6 +1878,13 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                     pmr.moveCenter(cr.center());
                     p->drawPixmap(pmr.topLeft(), pixmap);
                     xpos += pixw + 6;
+                }
+
+                if (mi->menuItemType == Q4StyleOptionMenuItem::Q3Custom) {
+                    /*
+                    int m = macItemVMargin;
+                    mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
+                    */
                 }
                 // ### Must come back here, we don't draw accels correct.
                 QString s = mi->text;

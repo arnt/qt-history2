@@ -12,24 +12,21 @@
 **
 ****************************************************************************/
 
-// qmainwindow.h before q3menubar.h because of GCC-2.7.* compatibility
-// ### could be reorganised by discarding INCLUDE_MENUITEM_DEF and put
-// the relevant declarations in a private header?
-#include "qmainwindow.h"
 #ifndef QT_NO_MENUBAR
 #include "q3menubar.h"
-#include "qdesktopwidget.h"
-#include "qevent.h"
 #include "q3popupmenu.h"
 #include "qaccel.h"
-#include "qpainter.h"
-#include "qdrawutil.h"
 #include "qapplication.h"
-#include "qpointer.h"
-#include "qlayout.h"
 #include "qcleanuphandler.h"
-#include <private/qinternal_p.h>
+#include "qdesktopwidget.h"
+#include "qdrawutil.h"
+#include "qevent.h"
+#include "qlayout.h"
+#include "qmainwindow.h"
+#include "qpainter.h"
+#include "qpointer.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #include "qtimer.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -884,7 +881,7 @@ int Q3MenuBar::calculateRects(int max_width)
 
     int i = 0;
     int separator = -1;
-    const int itemSpacing = style().pixelMetric(QStyle::PM_Q3MenuBarItemSpacing);
+    const int itemSpacing = style().pixelMetric(QStyle::PM_MenuBarItemSpacing);
     const int lastItem = reverse ? 0 : mitems->count() - 1;
 
     while (i < (int)mitems->count()) {        // for each menu item...
@@ -1082,46 +1079,57 @@ Q3MenuBar::Separator Q3MenuBar::separator() const
     Called from Q3Frame::paintEvent(). Draws the menu bar contents
     using painter \a p.
 */
-
 void Q3MenuBar::drawContents(QPainter *p)
 {
     performDelayedChanges();
     QRegion reg(contentsRect());
     QPalette pal = palette();
-    bool e;
 
     // this shouldn't happen
     if (!irects)
         return;
 
-    for (int i=0; i<(int)mitems->count(); i++) {
+    Q4StyleOptionMenuItem opt(0);
+    for (int i = 0; i < mitems->count(); ++i) {
         Q3MenuItem *mi = mitems->at(i);
-        if (!mi->text().isNull() || mi->pixmap()) {
+        if (!mi->text().isEmpty() || mi->pixmap()) {
             QRect r = irects[i];
             if(r.isEmpty() || !mi->isVisible())
                 continue;
-            e = mi->isEnabledAndVisible();
-            if (!e)
-                pal.setCurrentColorGroup(QPalette::Disabled);
             reg = reg.subtract(r);
-
-            QStyle::SFlags flags = QStyle::Style_Default;
-            if (isEnabled() && e)
-                flags |= QStyle::Style_Enabled;
+            opt.rect = r;
+            opt.state = QStyle::Style_Default;
+            opt.palette = pal;
+            opt.menuRect = rect();
+            opt.text = mi->text();
+            if (mi->pixmap())
+                opt.icon = *mi->pixmap();
+            opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+            opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+            opt.maxIconWidth = 0;
+            opt.tabWidth = 0;
+            bool eav = mi->isEnabledAndVisible();
+            if (!eav)
+                opt.palette.setCurrentColorGroup(QPalette::Disabled);
+            if (isEnabled() && eav)
+                opt.state |= QStyle::Style_Enabled;
             if (i == actItem)
-                flags |= QStyle::Style_Active;
+                opt.state |= QStyle::Style_Active;
             if (actItemDown)
-                flags |= QStyle::Style_Down;
+                opt.state |= QStyle::Style_Down;
             if (hasFocus() || hasmouse || popupvisible)
-                flags |= QStyle::Style_HasFocus;
-            style().drawControl(QStyle::CE_Q3MenuBarItem, p, this,
-                                r, pal, flags, QStyleOption(mi));
+                opt.state |= QStyle::Style_HasFocus;
+            style().drawControl(QStyle::CE_MenuBarItem, &opt, p, this);
         }
     }
 
     p->save();
     p->setClipRegion(reg);
-    style().drawControl(QStyle::CE_Q3MenuBarEmptyArea, p, this, contentsRect(), pal);
+    opt.state = QStyle::Style_Default;
+    opt.rect = contentsRect();
+    opt.text = "";
+    opt.icon = QIconSet();
+    style().drawControl(QStyle::CE_MenuBarEmptyArea, &opt, p, this);
     p->restore();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_Q3MENUBAR_NO_NATIVE)
@@ -1541,8 +1549,16 @@ QSize Q3MenuBar::sizeHint() const
             s.setWidth(s.width() + irects[i].width() + 2);
     }
     s.setHeight(h);
-    return (style().sizeFromContents(QStyle::CT_Q3MenuBar, this, s.
-                                     expandedTo(QApplication::globalStrut())));
+    Q4StyleOptionMenuItem opt(0);
+    opt.rect = rect();
+    opt.menuRect = rect();
+    opt.state = QStyle::Style_Default;
+    opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+    opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    opt.palette = palette();
+    return (style().sizeFromContents(QStyle::CT_MenuBar, &opt,
+                                     s.expandedTo(QApplication::globalStrut()),
+                                     fontMetrics(), this));
 }
 
 /*!

@@ -129,6 +129,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
 
         //let the style modify the above size..
         Q4StyleOptionMenuItem opt = getStyleOption(action);
+        opt.rect = q->rect();
         sz = q->style().sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q->fontMetrics(), q);
 
         if(!sz.isEmpty()) {
@@ -1727,7 +1728,7 @@ void QMenu::internalDelayedPopup()
         pos.setX(-menuSize.width());
 
     //calc sloppy focus buffer
-    if(style().styleHint(QStyle::SH_Q3PopupMenu_SloppySubMenus, this)) {
+    if(style().styleHint(QStyle::SH_Menu_SloppySubMenus, this)) {
         QPoint cur = QCursor::pos();
         if(actionRect.contains(mapFromGlobal(cur))) {
             QPoint pts[4];
