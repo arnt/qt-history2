@@ -8,6 +8,7 @@
 #include "proparser.h"
 #include "textreplacement.h"
 #include "fileporter.h"
+#include "logger.h"
 
 using std::cout;
 using std::endl;
@@ -61,6 +62,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
     portFiles(basePath, sources, FilePorter::Source);
     portFiles(basePath, headers, FilePorter::Header);
     
+    Logger::instance()->setFileState(fullInFileName); 
     QString portedProFile = portProFile(proFileContents, proFileMap);
     FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.latin1());
 }
@@ -93,6 +95,8 @@ void ProjectPorter::portFiles(QString basePath, QStringList fileNames, FilePorte
 QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagMap)
 {
    
+    Logger *logger = Logger::instance();
+    
     //add compat to the Qt tag
     QStringList QTTagAdd;
     QStringList config = tagMap["QT"].split(" ", QString::SkipEmptyParts);
@@ -101,7 +105,10 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
 
     if (!QTTagAdd.isEmpty()) {
         contents += "\n#The following line was inserted by the Qt porting tool\n";
-        contents += "QT += " + QTTagAdd.join(" ");
+        QString insertText = "QT += " + QTTagAdd.join(" ");
+        contents += insertText;
+        QString logText = "Added entry to .pro file: " + insertText;
+        logger->addEntry("profile", logText,  QString() , -2, -1); //TODO get line/column here
     }
  
     //comment out any REQUIRES tag
@@ -111,6 +118,7 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
         int j=0;
         while ((j = contents.indexOf("REQUIRES", j)) != -1) {
             QString insertText("#The following line was commented out by the Qt Porting tool\n#");
+            logger->addEntry("profile", "Commented out REQUIRES in .pro file",  QString(), -2, -1); //TODO get line/column here
             contents.insert(j, insertText);
             j+=insertText.size() + 1;
         }
