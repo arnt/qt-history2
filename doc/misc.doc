@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.44 1999/09/29 15:49:32 arnt Exp $
+** $Id: misc.doc,v 2.45 1999/10/05 12:12:08 arnt Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -497,18 +497,19 @@ links, Amazon.com gives about 15% of the purchase price to
 
 /*! \page qnetworkegg.html
 
+<title>Food-for-thought Easter Egg</title></head><body bgcolor="#ffffff">
+
 <h1 align="center">The Twelve Networking Truths</h1>
 
-<title>Food-for-thought Easter Egg</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
 <p>This is <a href="http://info.internet.isi.edu/1/in-notes/rfc">RFC
-1925</a> - copied in here since its trush are even less limited than
-the author says.
+1925</a> - copied in here since its truths are even less limited than
+the author says.  5, 6, 6a and 7 in particular can often be quoted
+during software development discussions.
 
-<table cellspacing=0 cellpadding=0 width="100%"><tr>
-<td align=left valign=top>
+<hr>
+
+<table cellspacing="0" cellpadding="0" width="100%"><tr>
+<td align="left" valign="top">
 Network Working Group<br>
 Request for Comments: 1925<br>
 Category: Informational<br>
@@ -557,8 +558,8 @@ IOOF<br>
 
 	<ol type="a"> <li> (corollary). No matter how hard you try, you
 	can't make a baby in much less than 9 months. Trying to speed
-	this up *might* make it slower, but it won't make it happen
-	any quicker. </ol>
+	this up <em>might</em> make it slower, but it won't make it
+	happen any quicker. </ol>
 
    <li> With sufficient thrust, pigs fly just fine. However, this is
         not necessarily a good idea. It is hard to be sure where they
@@ -582,7 +583,7 @@ IOOF<br>
         <ol type="a"> <li> (corollary). It is always possible to add
         another level of indirection. </ol>
 
-   <li> It is always something
+   <li> It is always something.
 
         <ol type="a"> <li> (corollary). Good, Fast, Cheap: Pick any two
         (you can't have all three). </ol>
@@ -627,5 +628,11 @@ IOOF<br>
    <br>
    Phone: 508-436-3936<br>
    EMail: rcallon@baynetworks.com<br>
+
+
+<hr>
+
+(Note that the RFC is covered by its own copyright notice; the one
+below just covers this HTML page.)
 
 */

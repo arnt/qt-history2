@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.28 1999/10/01 11:38:14 arnt Exp $
+** $Id: qlist.doc,v 2.29 1999/10/05 12:12:09 arnt Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -161,13 +161,15 @@
 
 /*!
   \fn void QList::sort() const
-  Sorts the list. The Heap-Sort algorithm is used for sorting. It sorts
-  n items with O(n*logn) compares. This is the asympthotic optimal
-  solution of the sorting problem.
 
-  The sort order depends on the virtual QGList::compareItems() function.
+/*! Sorts the list by the result of the virtual compareItems() function.
+
+  The Heap-Sort algorithm is used for sorting.  It sorts n items with
+  O(n*log n) compares.  This is the asymptotic optimal solution of the
+  sorting problem.
+
   If the items in your list support operator< and operator== then you
-  should better use QSortedList since it implements the compareItems
+  might be better off with QSortedList since it implements the compareItems
   function for you using these two operators.
 
   \sa inSort()
