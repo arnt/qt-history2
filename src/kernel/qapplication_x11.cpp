@@ -1003,16 +1003,22 @@ bool QApplication::x11_apply_settings()
     	settings.readBoolEntry("/qt/useRtlExtensions", FALSE);
 
 #ifndef QT_NO_XFTFREETYPE
-    // defined in qfont_x11.cpp
-    extern bool qt_has_xft;
-    extern bool qt_use_antialiasing;
+    // we can only do this once at application startup, otherwise we'd
+    // have Xft fonts trying to access non existing drawables.
+    static bool xftDone = FALSE;
+    if ( !xftDone ) {
+	// defined in qfont_x11.cpp
+	extern bool qt_has_xft;
+	extern bool qt_use_antialiasing;
 
-    qt_has_xft = FALSE;
-    qt_use_antialiasing = FALSE;
-    if (qt_use_xrender &&
-	XftInit(0) && XftInitFtLibrary()) {
-	qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
-	qt_use_antialiasing = settings.readBoolEntry( "/qt/useXft", TRUE );
+	xftDone = TRUE;
+	qt_has_xft = FALSE;
+	qt_use_antialiasing = FALSE;
+	if (qt_use_xrender &&
+	    XftInit(0) && XftInitFtLibrary()) {
+	    qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
+	    qt_use_antialiasing = settings.readBoolEntry( "/qt/useXft", TRUE );
+	}
     }
 #endif // QT_NO_XFTFREETYPE
 
