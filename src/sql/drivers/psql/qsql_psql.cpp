@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include "qsql_psql.h"
-#include <private/qsqlextension_p.h>
 
 #include <math.h>
 
@@ -36,9 +35,6 @@
 #include <catalog/pg_type.h>
 #undef errno
 
-QPtrDict<QSqlDriverExtension> *qSqlDriverExtDict();
-QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
-
 class QPSQLPrivate
 {
 public:
@@ -47,50 +43,6 @@ public:
     PGresult	*result;
     bool        isUtf8;
 };
-
-class QPSQLDriverExtension : public QSqlDriverExtension
-{
-public:
-    QPSQLDriverExtension( QPSQLDriver *dri )
-	: QSqlDriverExtension(), driver(dri) { }
-    ~QPSQLDriverExtension() {}
-
-    bool isOpen() const;
-private:
-    QPSQLDriver *driver;
-};
-
-bool QPSQLDriverExtension::isOpen() const
-{
-    return PQstatus( driver->connection() ) == CONNECTION_OK;
-}
-
-class QPSQLOpenExtension : public QSqlOpenExtension
-{
-public:
-    QPSQLOpenExtension( QPSQLDriver *dri )
-	: QSqlOpenExtension(), driver(dri) { }
-    ~QPSQLOpenExtension() {}
-
-    bool open( const QString& db,
-	       const QString& user,
-	       const QString& password,
-	       const QString& host,
-	       int port,
-	       const QString& connOpts );
-private:
-    QPSQLDriver *driver;
-};
-
-bool QPSQLOpenExtension::open( const QString& db,
-			       const QString& user,
-			       const QString& password,
-			       const QString& host,
-			       int port,
-			       const QString& connOpts )
-{
-    return driver->open( db, user, password, host, port, connOpts );
-}
 
 static QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
 {
@@ -557,9 +509,6 @@ QPSQLDriver::QPSQLDriver( PGconn * conn, QObject * parent, const char * name )
 
 void QPSQLDriver::init()
 {
-    qSqlDriverExtDict()->insert( this, new QPSQLDriverExtension(this) );
-    qSqlOpenExtDict()->insert( this, new QPSQLOpenExtension(this) );
-
     d = new QPSQLPrivate();
 }
 
@@ -568,14 +517,6 @@ QPSQLDriver::~QPSQLDriver()
     if ( d->connection )
 	PQfinish( d->connection );
     delete d;
-    if ( !qSqlDriverExtDict()->isEmpty() ) {
-	QSqlDriverExtension *ext = qSqlDriverExtDict()->take( this );
-	delete ext;
-    }
-    if ( !qSqlOpenExtDict()->isEmpty() ) {
-	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
-	delete ext;
-    }
 }
 
 PGconn* QPSQLDriver::connection()
@@ -598,16 +539,6 @@ bool QPSQLDriver::hasFeature( DriverFeature f ) const
     default:
 	return FALSE;
     }
-}
-
-bool QPSQLDriver::open( const QString&,
-			const QString&,
-			const QString&,
-			const QString&,
-			int )
-{
-    qWarning("QPSQLDriver::open(): This version of open() is no longer supported." );
-    return FALSE;
 }
 
 bool QPSQLDriver::open( const QString & db,
@@ -1079,4 +1010,9 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	}
     }
     return r;
+}
+
+bool QPSQLDriver::isOpen() const
+{
+    return PQstatus( d->connection ) == CONNECTION_OK;
 }
