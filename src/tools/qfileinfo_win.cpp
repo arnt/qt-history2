@@ -436,6 +436,7 @@ bool QFileInfo::permission( int p ) const
 
 	return result;
     }
+#endif // !Q_OS_TEMP
     // just check if it's ReadOnly
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
