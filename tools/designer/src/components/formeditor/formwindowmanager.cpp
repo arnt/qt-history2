@@ -151,7 +151,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         } break;
 
         case QEvent::Hide:
-            if (fw->isWidgetSelected(w))
+            if (w == o && fw->isWidgetSelected(w))
                 fw->hideSelection(w);
             break;
 
