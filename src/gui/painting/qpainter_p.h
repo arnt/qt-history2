@@ -142,8 +142,8 @@ public:
     void draw_helper_fill_gradient(const QPainterPath &path);
     void draw_helper_fill_alpha(const QPainterPath &path);
     void draw_helper_fill_pattern(const QPainterPath &path);
-    void draw_helper_stroke_normal(const QPainterPath &path, uint emulate);
-    void draw_helper_stroke_pathbased(const QPainterPath &path);
+    void draw_helper_stroke_normal(const QPainterPath &path, uint emulationSpecifier);
+    void draw_helper_stroke_pathbased(const QPainterPath &path, uint emulationSpecifier);
 
     void updateMatrix();
     void updateInvMatrix();

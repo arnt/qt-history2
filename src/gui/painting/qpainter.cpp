@@ -312,7 +312,7 @@ void QPainterPrivate::draw_helper_stroke_normal(const QPainterPath &path, uint e
   Fallback implementation for path based stroking. This function is used to emulate
   pen width transformation.
 */
-void QPainterPrivate::draw_helper_stroke_pathbased(const QPainterPath &input)
+void QPainterPrivate::draw_helper_stroke_pathbased(const QPainterPath &input, uint emulationSpecifier)
 {
     QPainterPath path = input;
 #ifdef QT_DEBUG_DRAW
@@ -355,12 +355,20 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const QPainterPath &input)
     q->setBrush(state->pen.brush());
     q->setPen(Qt::NoPen);
     engine->syncState();
-    if (engine->hasFeature(QPaintEngine::PainterPaths)) {
-        engine->drawPath(stroke);
+    if (emulationSpecifier & QPaintEngine::BrushStroke) {
+        QPoint tmpRedir = redirection_offset;
+        redirection_offset = QPoint();
+        q->resetMatrix();
+        draw_helper(stroke);
+        redirection_offset = tmpRedir;
     } else {
-        QList<QPolygonF> polygons = stroke.toFillPolygons();
-        for (int i=0; i<polygons.size(); ++i)
-            engine->drawPolygon(polygons.at(i).data(), polygons.at(i).size(), QPaintEngine::WindingMode);
+        if (engine->hasFeature(QPaintEngine::PainterPaths)) {
+            engine->drawPath(stroke);
+        } else {
+            QList<QPolygonF> polygons = stroke.toFillPolygons();
+            for (int i=0; i<polygons.size(); ++i)
+                engine->drawPolygon(polygons.at(i).data(), polygons.at(i).size(), QPaintEngine::WindingMode);
+        }
     }
     q->restore();
 }
@@ -494,7 +502,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
         if (outlineMode == Normal && state->pen.style() != Qt::NoPen) {
             draw_helper_stroke_normal(path, emulationSpecifier);
         } else if (outlineMode == PathBased) {
-            draw_helper_stroke_pathbased(path);
+            draw_helper_stroke_pathbased(path, emulationSpecifier);
         }
     } // end of stroking
 }
@@ -2037,7 +2045,8 @@ void QPainter::drawLine(const QLineF &l)
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
                             | QPaintEngine::AlphaStroke
-                            | QPaintEngine::LineAntialiasing);
+                            | QPaintEngine::LineAntialiasing
+                            | QPaintEngine::BrushStroke);
     QLineF line(l);
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::CoordTransform
@@ -3001,7 +3010,8 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
                             | QPaintEngine::AlphaStroke
-                            | QPaintEngine::LineAntialiasing);
+                            | QPaintEngine::LineAntialiasing
+                            | QPaintEngine::BrushStroke);
 
     if (lineEmulation) {
         // ###
@@ -3703,7 +3713,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawTextItem(), pos=[%.f,%.f], str='%s'\n",
-               p.x(), p.y(), ti.text().latin1());
+               p.x(), p.y(), qPrintable(ti.text()));
 #endif
     if (!isActive())
         return;
