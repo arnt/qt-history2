@@ -34,6 +34,11 @@
 #include <qvaluestack.h>
 #include <qvaluelist.h>
 #include <qtextstream.h>
+#include <qpoint.h>
+
+
+#define LOCALSQL_NULL QVariant(QPoint(0,0))
+#define LOCALSQL_NULL_TYPE QVariant::Point
 
 class QIODevice;
 

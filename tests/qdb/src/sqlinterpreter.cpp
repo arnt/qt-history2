@@ -211,6 +211,10 @@ static QString asListing( const QVariant& v )
     case QVariant::Bool:
 	s = v.toBool() ? "true" : "false";
 	break;
+    case QVariant::Point:
+	if ( v.toPoint() == QPoint(0,0) )
+	    s = "NULL";
+	break;
     default:
 	s = v.toString();
 	break;
@@ -365,7 +369,7 @@ bool ResultSet::isNull( uint i, bool& v )
     QVariant var;
     if ( !field( i, var ) )
 	return FALSE;
-    v = ( var.type() == QVariant::Invalid );
+    v = ( var.type() == LOCALSQL_NULL_TYPE );
     return TRUE;
 }
 
@@ -428,7 +432,7 @@ bool ResultSet::append( const Record& buf )
 	return FALSE;
     }
     for ( uint j = 0; j < buf.count(); ++j ) {
-	if ( buf[j].type() != head->fields[j].type && buf[j].type() != QVariant::Invalid ) {
+	if ( buf[j].type() != head->fields[j].type && buf[j].type() != LOCALSQL_NULL_TYPE ) {
 	    QVariant v;
 	    v.cast( head->fields[j].type );
 	    env->setLastError( "Unable to save result data, incorrect field type: " +

@@ -289,7 +289,7 @@ public:
 	case 'N': { /* numeric */
 	    QString d( buf );
 	    if ( d.simplifyWhiteSpace().length() == 0 ) /* null? */
-		v = QVariant();
+		v = LOCALSQL_NULL;
 	    else
 		v = d.toInt();
 	    break;
@@ -297,7 +297,7 @@ public:
 	case 'F': { /* float */
 	    QString d( buf );
 	    if ( d.simplifyWhiteSpace().length() == 0 ) /* null? */
-		v = QVariant();
+		v = LOCALSQL_NULL;
 	    else
 		v = d.toDouble();
 	    break;
@@ -308,7 +308,7 @@ public:
 	    int m = date.mid( 4, 2 ).toInt();
 	    int d = date.mid( 6, 2 ).toInt();
 	    if ( !QDate::isValid( y, m, d ) ) /* null? */
-		v = QVariant();
+		v = LOCALSQL_NULL;
 	    else
 		v = QDate( y, m, d );
 	    break;
@@ -316,7 +316,7 @@ public:
 	case 'L': { /* logical */
 	    QString d(buf);
 	    if ( d == "?" ) /* null? */
-		v = QVariant();
+		v = LOCALSQL_NULL;
 	    else
 		v = QVariant( QString(buf).toInt(), 1 );
 	    break;
