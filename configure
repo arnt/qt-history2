@@ -254,7 +254,6 @@ CFG_MNG=auto
 CFG_LIBMNG=qt
 CFG_XRENDER=auto
 CFG_FREETYPE=auto
-CFG_FONTCONFIG=no
 CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
 CFG_SQL_AUTODETECTED=
@@ -1552,20 +1551,20 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	fi
     fi
     # add freetype2 include path
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xfreetype.inc ];then
-	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $outpath/config.tests/x11/xfreetype.inc`\""
+    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft.inc ];then
+	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $outpath/config.tests/x11/xft.inc`\""
     fi
-    rm -f $outpath/config.tests/x11/xfreetype.inc
+    rm -f $outpath/config.tests/x11/xft.inc
     # add Xft specific libraries
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft2 ]; then
-	CFG_FONTCONFIG="yes"
+    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft.lib ]; then
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=`cat $outpath/config.tests/x11/xft.lib` \$\$QMAKE_LIBS_X11\""
     fi
-    rm -f $outpath/config.tests/x11/xft2
+    rm -f $outpath/config.tests/x11/xft.lib
     # add Xft specific config options
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xfreetype.cfg ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG `cat $outpath/config.tests/x11/xfreetype.cfg`"
+    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft.cfg ]; then
+	QMAKE_CONFIG="$QMAKE_CONFIG `cat $outpath/config.tests/x11/xft.cfg`"
     fi
-    rm -f $outpath/config.tests/x11/xfreetype.cfg
+    rm -f $outpath/config.tests/x11/xft.cfg
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
 	if $x11tests/sm.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
@@ -2483,15 +2482,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     if [ "$CFG_FREETYPE" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
-	# libXft uses libfreetype to do all the work, BUT libfreetype isn't picked
-	# up as a dependency if libXft isn't a shared library, so we have to add
-	# libfreetype as well as libXt to the program/lib link command
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXft -lfreetype \$\$QMAKE_LIBS_X11\""
-    fi
-    if [ "$CFG_FONTCONFIG" = "yes" ]; then
-	# the new Xft2 library has a dependency on libfontconfig, so we need to
-	# add it for the same reasons that we add -lfreetype above.
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lfontconfig\""
     fi
     if [ "$CFG_TABLET" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG tablet"

@@ -28,26 +28,31 @@ done
 [ "$VERBOSE" = "yes" ] && echo "Xft auto-detection... ($*)"
 
 # cleanup...
-rm -f $OUTDIR/config.tests/x11/xfreetype.cfg
-rm -f $OUTDIR/config.tests/x11/xfreetype.inc
-rm -f $OUTDIR/config.tests/x11/xft2
+rm -f $OUTDIR/config.tests/x11/xft.cfg
+rm -f $OUTDIR/config.tests/x11/xft.inc
+rm -f $OUTDIR/config.tests/x11/xft.lib
 
-# check for the XftFreeType library
+# check for the Xft library
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
 LIBDIRS="$IN_LIBDIRS $XDIRS /usr/shlib /usr/lib /lib"
 F=
 for LIBDIR in $LIBDIRS; do
-    FOUND_LIB=`ls $LIBDIR/libXft.* 2>/dev/null`
-    if [ ! -z "$FOUND_LIB" ]; then
-	F=yes
-	[ "$VERBOSE" = "yes" ] && echo "  Found Xft lib in $LIBDIR"
-	break
-    fi
+    LIBS="Xft2 Xft"
+    for LIB in $LIBS; do
+	FOUND_LIB=`ls ${LIBDIR}/lib${LIB}.* 2>/dev/null`
+	if [ ! -z "$FOUND_LIB" ]; then
+	    F="$LIB"
+ 	    [ "$VERBOSE" = "yes" ] && echo "  Found lib$LIB in $LIBDIR"
+	    break
+	fi
+    done
+    [ -n "$F" ] && break
 done
 if [ -z "$F" ]; then
     XFREETYPE=no
     [ "$VERBOSE" = "yes" ] && echo "  Could not find Xft lib anywhere in $LIBDIRS"
 fi
+LIBXFT="-l$F -lfreetype"
     
 # check for X11/Xft/Xft.h
 XFT_H=
@@ -78,7 +83,7 @@ if [ "$XFREETYPE" = "yes" ]; then
     for INCDIR in $INCDIRS; do
 	if [ -f $INCDIR/$INC ]; then
 	    XFTCOMPAT_H=$INCDIR/$INC
-	    [ "$XFTNAMEUNPARSE" = "no" ] && echo "yes" > $OUTDIR/config.tests/x11/xft2
+	    [ "$XFTNAMEUNPARSE" = "no" ] && LIBXFT="$LIBXFT -lfontconfig"
 	    [ "$VERBOSE" = "yes" ] && echo "  Found $INC in $INCDIR"
 	    break
 	fi
@@ -111,7 +116,6 @@ if [ "$XFREETYPE" = "yes" ] && [ -f "$XFTCOMPAT_H" ]; then
 else
     if [ "$XFREETYPE" = "yes" ] && [ -f "$XFT_H" ]; then
         grep XftNameUnparse $XFT_H >/dev/null || XFTNAMEUNPARSE=no
-        [ "$XFTNAMEUNPARSE" = "no" ] && echo "xftnameunparse" > $OUTDIR/config.tests/x11/xfreetype.cfg
     fi
 fi
 
@@ -144,6 +148,9 @@ if [ "$XFREETYPE" != "yes" ]; then
     exit 0
 else
     [ "$VERBOSE" = "yes" ] && echo "Xft enabled."
-    echo "$FREETYPE2_INCDIR" > $OUTDIR/config.tests/x11/xfreetype.inc
+     [ "$XFTNAMEUNPARSE" = "no" ] && \
+	echo "xftnameunparse" > $OUTDIR/config.tests/x11/xft.cfg
+    echo "$FREETYPE2_INCDIR" > $OUTDIR/config.tests/x11/xft.inc
+    echo "$LIBXFT" > $OUTDIR/config.tests/x11/xft.lib
     exit 1
 fi
