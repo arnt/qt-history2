@@ -38,7 +38,7 @@ struct QIconSetPrivate: public QShared
 	{
 	    delete pm;
 	}
-	void clear()
+	void clearGenerate()
 	{
 	    if ( generated ) {
 		delete pm;
@@ -304,12 +304,12 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
 {
     detach();
     if ( d ) {
-	d->small.clear();
-	d->large.clear();
-	d->smallDisabled.clear();
-	d->largeDisabled.clear();
-	d->smallActive.clear();
-	d->largeActive.clear();
+	d->small.clearGenerate();
+	d->large.clearGenerate();
+	d->smallDisabled.clearGenerate();
+	d->largeDisabled.clearGenerate();
+	d->smallActive.clearGenerate();
+	d->largeActive.clearGenerate();
     } else {
 	d = new QIconSetPrivate;
     }
