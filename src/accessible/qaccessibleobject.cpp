@@ -252,7 +252,7 @@ int QAccessibleApplication::childAt( int x, int y ) const
 }
 
 /*! \reimp */
-QAccessible::Relation QAccessibleApplication::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+int QAccessibleApplication::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
 {
     QObject *o = other ? other->object() : 0;
     if (!o)

@@ -33,7 +33,7 @@ public:
 
     int		childCount() const;
     int		indexOfChild(const QAccessibleInterface*) const;
-    Relation	relationTo(int, const QAccessibleInterface *, int) const;
+    int		relationTo(int, const QAccessibleInterface *, int) const;
 
     int		childAt(int x, int y) const;
     QRect	rect(int control) const;

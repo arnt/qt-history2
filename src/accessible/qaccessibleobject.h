@@ -70,7 +70,7 @@ public:
     // relations
     int		childCount() const;
     int		indexOfChild(const QAccessibleInterface*) const;
-    Relation	relationTo(int, const QAccessibleInterface *, int) const;
+    int		relationTo(int, const QAccessibleInterface *, int) const;
 
     // navigation
     int		childAt(int x, int y) const;

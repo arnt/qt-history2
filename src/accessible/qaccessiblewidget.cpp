@@ -141,60 +141,71 @@ QRect	QAccessibleWidget::rect( int control ) const
 }
 
 /*! \reimp */
-QAccessible::Relation QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
 {
+    int relation = Unrelated;
     QObject *o = other ? other->object() : 0;
     if (!o || !o->isWidgetType())
-	return Unrelated;
+	return relation;
+
+    if (other->relationTo(otherChild, this, child) & Label)
+	relation |= Buddy;
+    if (other->relationTo(otherChild, this, child) & Controller)
+	relation |= Controlled;
 
     if(o == object()) {
 	if (child && !otherChild)
-	    return Child;
+	    return relation | Child;
 	if (!child && otherChild)
-	    return Ancestor;
+	    return relation | Ancestor;
 	if (!child && !otherChild)
-	    return Self;
+	    return relation | Self;
     }
 
     QObject *parent = object()->parent();
     if (o == parent)
-	return Child;
+	return relation | Child;
 
     if (o->parent() == parent) {
-	int relation = Sibling;
+	relation |= Sibling;
 	QWidget *sibling = static_cast<QWidget*>(o);
-	QPoint wc = widget()->geometry().center();
-	QPoint sc = sibling->geometry().center();
-	if (wc.x() < sc.x())
-	    relation |= QAccessible::Left;
-	else
-	    relation |= QAccessible::Right;
-	if (wc.y() < sc.y())
-	    relation |= QAccessible::Up;
-	else
-	    relation |= QAccessible::Down;
+	QRect wg = widget()->geometry();
+	QRect sg = sibling->geometry();
+	if (wg.intersects(sg)) {
+	    int wi = parent->children().indexOf(widget());
+	    int si = parent->children().indexOf(sibling);
 
-	return (Relation)relation;
+	    if (wi < si)
+		relation |= QAccessible::Covers;
+	    else
+		relation |= QAccessible::Covered;
+	} else {
+	    QPoint wc = wg.center();
+	    QPoint sc = sg.center();
+	    if (wc.x() < sc.x())
+		relation |= QAccessible::Left;
+	    else if(wc.x() > sc.x())
+		relation |= QAccessible::Right;
+	    if (wc.y() < sc.y())
+		relation |= QAccessible::Up;
+	    else if (wc.y() > sc.y())
+		relation |= QAccessible::Down;
+	}
+
+	return relation;
     }
 
     while(parent) {
 	if (parent == o)
-	    return Descendent;
+	    return relation | Descendent;
 	parent = parent->parent();
     }
 
-    QObjectList cl(object()->queryList("QWidget", 0, 0, FALSE));
-    if (cl.contains(o))
-	return Ancestor;
+    int inverse = other->relationTo(otherChild, this, child);
+    if ((inverse & Descendent) || (inverse & Child))
+	return relation | Ancestor;
 
-    for (int i = 0; i < cl.count(); ++i) {
-	QObject *co = cl.at(i);
-	QObjectList scl(co->queryList("QWidget", 0, 0, FALSE));
-	if (scl.contains(o))
-	    return Ancestor;
-    }
-
-    return Unrelated;
+    return relation;
 }
 
 /*! \reimp */

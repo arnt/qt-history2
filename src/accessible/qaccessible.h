@@ -252,7 +252,7 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     virtual int		indexOfChild(const QAccessibleInterface *) const = 0;
 
     // relations
-    virtual Relation	relationTo(int child, const QAccessibleInterface *other, int otherChild) const = 0;
+    virtual int		relationTo(int child, const QAccessibleInterface *other, int otherChild) const = 0;
     virtual int		childAt(int x, int y) const = 0;
 
     // navigation
