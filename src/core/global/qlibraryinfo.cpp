@@ -39,10 +39,15 @@ private:
 #endif
     static QSettings *findConfiguration();
 public:
-    ~QLibraryInfoPrivate() { if(qt_library_settings) { delete qt_library_settings; qt_library_settings = 0; } }
+    //~QLibraryInfoPrivate() { cleanup(); }
+    static void cleanup() { if(qt_library_settings) { delete qt_library_settings; qt_library_settings = 0; } }
     static QSettings *configuration() {
-        if(!qt_library_settings)
+        if(!qt_library_settings) {
+#ifndef QT_NO_QOBJECT
+            qAddPostRoutine(QLibraryInfoPrivate::cleanup);
+#endif
             qt_library_settings = findConfiguration();
+        }
         return qt_library_settings;
     }
 };
@@ -162,7 +167,7 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
 #endif
     return 0;     //no luck
 }
-QLibraryInfoPrivate d_data;
+static QLibraryInfoPrivate qt_library_data;
 
 /*! \class QLibraryInfo
     \brief The QLibraryInfo class provides information about the Qt library.
@@ -266,7 +271,7 @@ QLibraryInfo::buildKey()
 QSettings
 *QLibraryInfo::configuration()
 {
-    return QLibraryInfoPrivate::configuration();
+    return qt_library_data.configuration();
 }
 
 /*!
