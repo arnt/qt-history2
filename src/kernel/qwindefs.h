@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#50 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#51 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -170,6 +170,7 @@ public:						//    routines
 enum GUIStyle {
     MacStyle,
     WindowsStyle,
+    Win3Style,
     PMStyle,
     MotifStyle
 };
