@@ -47,7 +47,7 @@
 #include "qaccessible.h"
 #endif
 
-static const int thresholdTime = 500;
+static const int thresholdTime = 300;
 static const int repeatTime = 100;
 
 static int sliderStartVal = 0; //##### class member?
