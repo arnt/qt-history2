@@ -11,6 +11,8 @@
 #include <qradiobutton.h>
 #include <qmultilineedit.h>
 #include <qtabwidget.h>
+#include <qvalidator.h>
+#include <qmessagebox.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -132,6 +134,18 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
 #endif
 }
 
+QValidator::State InstallPathValidator::validate( QString& input, int& ) const
+{
+    if ( input.contains( QRegExp("\\s") ) ) {
+	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name" );
+	return Intermediate;
+    } else if ( input.contains( "-" ) ) {
+	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name" );
+    	return Intermediate;
+    }
+    return Acceptable;
+}
+
 OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
     : OptionsPage( parent, name, fl )
 {
@@ -140,6 +154,7 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 	    QString( "C:\\Qt\\" ) +
 	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
 	    );
+    installPath->setValidator( new InstallPathValidator( this ) );
 #elif defined(Q_OS_MACX)
     // ### the replace for Windows is done because qmake has problems with
     // spaces and Borland has problems with "-" in the filenames -- I don't

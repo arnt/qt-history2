@@ -1,6 +1,8 @@
 #ifndef PAGES_H
 #define PAGES_H
 
+#include <qvalidator.h>
+
 #include "buildpage.h"
 #include "configpage.h"
 #include "finishpage.h"
@@ -115,6 +117,14 @@ public:
     QLineEdit* university;
     QLineEdit* serialNumber;
 #endif
+};
+
+class InstallPathValidator : public QValidator
+{
+public:
+    InstallPathValidator( QObject* parent = 0, const char* name = 0 ) : QValidator( parent, name ) {}
+    ~InstallPathValidator() {}
+    QValidator::State validate( QString& input, int& ) const;
 };
 
 class OptionsPageImpl : public OptionsPage, public Page

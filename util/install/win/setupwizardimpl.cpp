@@ -598,8 +598,14 @@ void SetupWizardImpl::clickedPath()
 	dest = "C:\\Qt";
     if ( dest.right(1) == "\\" )
 	dest += "Qt";
-    dir.setPath( dest );
-    optionsPage->installPath->setText( QDir::convertSeparators(dir.absPath()) );
+    if ( dest.contains( QRegExp( "\\s" ) ) )
+	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name" );
+    else if ( dest.contains( "-" ) )
+	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name" );
+    else {
+	dir.setPath( dest );
+	optionsPage->installPath->setText( QDir::convertSeparators(dir.absPath()) );
+    }
 #elif defined(Q_OS_MACX)
     if( !dir.exists() )
 	dir.setPath( "/" );
