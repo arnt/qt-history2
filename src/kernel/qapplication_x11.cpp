@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#483 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#484 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -341,7 +341,7 @@ static bool x11_badwindow;
 
 
     // starts to ignore bad window errors from X
-static void qt_ignore_badwindow()
+void qt_ignore_badwindow()
 {
     x11_ignore_badwindow = TRUE;
     x11_badwindow = FALSE;
@@ -349,7 +349,7 @@ static void qt_ignore_badwindow()
 
     // ends ignoring bad window errors and returns whether an error
     // had happen.
-static bool qt_badwindow()
+bool qt_badwindow()
 {
     x11_ignore_badwindow = FALSE;
     return x11_badwindow;
