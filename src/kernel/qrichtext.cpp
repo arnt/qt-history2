@@ -3872,14 +3872,13 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 
 bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 {
-    int len = string->length();
-    const QChar &c = string->at(pos).c;
+    const QChar &c = string->at( pos ).c;
     char ch = c.latin1();
-    if( c.isSpace() && !ch == '\n' )
+    if ( c.isSpace() && ch != '\n' )
 	return TRUE;
     if ( !ch ) {
 	// not latin1, need to do more sophisticated checks for other scripts
-	unsigned char row = c.row();
+	uchar row = c.row();
 	if ( row == 0x0e ) {
 	    // 0e00 - 0e7f == Thai
 	    if ( c.cell() < 0x80 ) {
@@ -3891,7 +3890,7 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 		    if ( !cachedString )
 			cachedString = new QCString;
 		    if ( !thaiIt )
-			thaiIt = ThBreakIterator::createWordInstance(); 
+			thaiIt = ThBreakIterator::createWordInstance();
 		    *cachedString = thaiCodec->fromUnicode( QConstString( s, len ).string() );
 		}
 		thaiIt->setText(buf);
@@ -3907,7 +3906,7 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 		// breaks everywhere except directly before punctuation.
 		return TRUE;
 #endif
-	    } else 
+	    } else
 		return FALSE;
 	}
 	if ( row < 0x11 ) // no asian font
@@ -3915,7 +3914,7 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 	if ( row > 0x2d && row < 0xfb || row == 0x11 )
 	    // asian line breaking. Everywhere allowed except directly
 	    // in front of a punctuation character.
-	    return true;
+	    return TRUE;
     }
     return FALSE;
 }
