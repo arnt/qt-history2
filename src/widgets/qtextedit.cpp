@@ -5219,6 +5219,7 @@ int QTextEdit::undoDepth() const
 /*!
     \property QTextEdit::length
     \brief the number of characters in the text
+    This function ignores newlines.
 */
 
 int QTextEdit::length() const
