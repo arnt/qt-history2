@@ -35,7 +35,7 @@ mkdir -p ${DISTDIR}
 cd ${DISTDIR}
 
 echo "Exporting the entire Qt archive"
-cvs checkout qt > /dev/null
+cvs -Q checkout qt
 
 echo "Removing references to CVS and other local files.."
 find qt -name CVS | xargs rm -rf
@@ -95,7 +95,7 @@ fi
 echo "Finally copy the README, LICENSE etc. files"
 cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null
-cp ${freecomm}/* ..
-cp ${platform}/* ..
+cp -f ${freecomm}/* ..
+cp -f ${platform}/* ..
 cd ${DISTDIR}
 rm -rf qt/dist
