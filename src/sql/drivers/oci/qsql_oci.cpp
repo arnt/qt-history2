@@ -77,6 +77,7 @@ public:
 
     void setCharset( OCIBind* hbnd )
     {
+#ifdef QOCI_USES_VERSION_9
 	int r = 0;
 
 	if ( serverVersion < 9 )
@@ -104,6 +105,11 @@ public:
 	if ( r != 0 )
 	    qWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: " + qOraWarn( this ) );
 #endif
+
+#else
+	Q_UNUSED( hbnd );
+#endif //QOCI_USES_VERSION_9
+
     }
     
     int bindValues( QSqlExtension * ext, QPtrList<QVirtualDestructor> & tmpStorage )
