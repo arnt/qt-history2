@@ -21,7 +21,7 @@
 #include "qpushbutton.h"
 
 // Disabled untill we have support for papersources on unix
-#define PSD_ENABLE_PAPERSOURCE
+// #define PSD_ENABLE_PAPERSOURCE
 
 static const char *pageSizeNames[] = {
     "A4 (210x297 mm, 8.26x11.7 inches)",

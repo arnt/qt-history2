@@ -38,8 +38,8 @@ private:
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QPrintDialog(const QPrintDialog &);
-    QPrintDialog &operator=(const QPrintDialog &);
+    QPageSetupDialog(const QPageSetupDialog &);
+    QPageSetupDialog &operator=(const QPageSetupDialog &);
 #endif
 };
 
