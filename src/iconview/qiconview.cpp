@@ -293,13 +293,13 @@ public:
 		new QPtrList<QIconViewPrivate::ItemContainer>();
 
 	    if ( arrangement == QIconView::LeftToRight ) {
-		if ( dir == QIconView::Left || dir == QIconView::RRight ) {
+		if ( dir == QIconView::DirLeft || dir == QIconView::DirRight ) {
 		    ItemContainer *c = firstContainer;
 		    for ( ; c; c = c->n )
 			if ( c->rect.intersects( searchRect ) )
 			    list->append( c );
 		} else {
-		    if ( dir == QIconView::Down ) {
+		    if ( dir == QIconView::DirDown ) {
 			ItemContainer *c = firstContainer;
 			for ( ; c; c = c->n )
 			    if ( c->rect.intersects( searchRect ) &&
@@ -314,13 +314,13 @@ public:
 		    }
 		}
 	    } else {
-		if ( dir == QIconView::Up || dir == QIconView::Down ) {
+		if ( dir == QIconView::DirUp || dir == QIconView::DirDown ) {
 		    ItemContainer *c = firstContainer;
 		    for ( ; c; c = c->n )
 			if ( c->rect.intersects( searchRect ) )
 			    list->append( c );
 		} else {
-		    if ( dir == QIconView::RRight ) {
+		    if ( dir == QIconView::DirRight ) {
 			ItemContainer *c = firstContainer;
 			for ( ; c; c = c->n )
 			    if ( c->rect.intersects( searchRect ) &&
@@ -4951,7 +4951,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
-	Direction dir = RRight;
+	Direction dir = DirRight;
 
 	QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
 	item = findItem( dir, d->currentItem->rect().center(), r );
@@ -4971,7 +4971,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
-	Direction dir = Left;
+	Direction dir = DirLeft;
 
 	QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
 	item = findItem( dir, d->currentItem->rect().center(), r );
@@ -5002,7 +5002,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
-	Direction dir = Down;
+	Direction dir = DirDown;
 
 	QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
 	item = findItem( dir, d->currentItem->rect().center(), r );
@@ -5023,7 +5023,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	selectCurrent = FALSE;
-	Direction dir = Up;
+	Direction dir = DirUp;
 
 	QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
 	item = findItem( dir, d->currentItem->rect().center(), r );
@@ -5201,19 +5201,19 @@ bool QIconView::neighbourItem( Direction dir,
 			       const QIconViewItem *item ) const
 {
     switch ( dir ) {
-    case Up:
+    case DirUp:
 	if ( item->rect().center().y() < relativeTo.y() )
 	    return TRUE;
 	break;
-    case Down:
+    case DirDown:
 	if ( item->rect().center().y() > relativeTo.y() )
 	    return TRUE;
 	break;
-    case Left:
+    case DirLeft:
 	if ( item->rect().center().x() < relativeTo.x() )
 	    return TRUE;
 	break;
-    case RRight:
+    case DirRight:
 	if ( item->rect().center().x() > relativeTo.x() )
 	    return TRUE;
 	break;

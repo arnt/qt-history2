@@ -483,10 +483,10 @@ private:
     void appendItemContainer();
     void rebuildContainers();
     enum Direction {
-	Up = 0,
-	Down,
-	Left,
-	RRight
+	DirUp = 0,
+	DirDown,
+	DirLeft,
+	DirRight
     };
     QIconViewItem* findItem( Direction dir,
 			     const QPoint &relativeTo,
