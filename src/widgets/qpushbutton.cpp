@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#11 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#11 $";
 #endif
 
 
@@ -312,12 +312,7 @@ void QPushButton::drawButtonFace( QPainter *paint )
     if ( !label() )
 	return;
     register QPainter *p = paint;
-    QFontMetrics fm( font() );
-    QSize sz = clientSize();
-    int w = sz.width();
     GUIStyle gs = style();
-    QPoint pos( w/2 - fm.width(label())/2, sz.height()/2 + fm.height()/2 -
-		fm.descent() );
     int dt;
     switch ( gs ) {
 	case MacStyle:
@@ -328,12 +323,16 @@ void QPushButton::drawButtonFace( QPainter *paint )
 	case WindowsStyle:
 	case PMStyle:
 	    p->pen().setColor( black );
-	    dt = gs == WindowsStyle ? 2 : 1;
+	    dt = gs == WindowsStyle ? 2 : 0;
 	    break;
     }
+    QRect r = clientRect();
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
     if ( isDown() || isOn() ) {			// shift text
-	pos.rx() += dt;
-	pos.ry() += dt;
+	x += dt;
+	y += dt;
     }
-    p->drawText( pos, label() );
+    p->drawText( x+2, y+2, w-4, h-4,
+		 AlignCenter|AlignVCenter|SingleLine|ShowPrefix, label() );
 }
