@@ -4,4 +4,4 @@ HEADERS		= buttongroups.h
 SOURCES		= buttongroups.cpp \
 		  main.cpp
 TARGET		= buttongroups
-REQUIRES=small-config
+QTDIR_build:REQUIRES=small-config

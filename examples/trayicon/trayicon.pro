@@ -6,7 +6,7 @@ SOURCES		= main.cpp \
 INTERFACES	= 
 
 TARGET		= trayicon
-REQUIRES	= large-config
+QTDIR_build:REQUIRES	= large-config
 
 win32 {
    SOURCES  += trayicon_win.cpp

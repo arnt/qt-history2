@@ -3,7 +3,7 @@ CONFIG   += qt dll plugin
 TARGET   += qtwidgets
 VERSION   = 1.0.0
 DESTDIR   = ../../../accessible
-REQUIRES += accessibility
+QTDIR_build:REQUIRES += accessibility
 
 SOURCES  += main.cpp \
 	    simplewidgets.cpp \

@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= process.cpp
 INTERFACES	= 
 TARGET		= process
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

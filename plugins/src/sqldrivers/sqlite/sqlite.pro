@@ -16,7 +16,7 @@ win32 {
 	LIBS	*= sqlite.lib
 }
 
-REQUIRES	= sql
+QTDIR_build:REQUIRES	= sql
 
 TARGET		= qsqlite
 DESTDIR		= ../../../sqldrivers

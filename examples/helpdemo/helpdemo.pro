@@ -11,4 +11,4 @@ unix {
 }
 
 LIBS   += -lqassistantclient
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

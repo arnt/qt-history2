@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= desktop.cpp
 TARGET		= desktop
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

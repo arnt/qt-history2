@@ -6,4 +6,4 @@ SUBDIRS		= assistant/lib \
 unix:SUBDIRS	+= qtconfig
 
 CONFIG+=ordered
-REQUIRES=full-config nocrosscompiler
+QTDIR_build:REQUIRES=full-config nocrosscompiler

@@ -5,4 +5,4 @@ SOURCES		= hello.cpp \
 		  main.cpp
 TARGET		= hello
 DEPENDPATH=../../include
-REQUIRES=
+QTDIR_build:REQUIRES=

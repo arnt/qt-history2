@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= main.cpp
 INTERFACES	= 
 TARGET          = sqltable
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

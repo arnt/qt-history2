@@ -13,4 +13,4 @@ SOURCES		= gtetrix.cpp \
 		  tpiece.cpp
 TARGET		= tetrix
 DEPENDPATH=../../include
-REQUIRES=small-config
+QTDIR_build:REQUIRES=small-config

@@ -3,5 +3,5 @@ CONFIG		+= qt warn_on
 SOURCES		= prodcons.cpp
 TARGET		= prodcons
 CLEAN_FILES	= prodcons.out
-REQUIRES	= thread
-REQUIRES	= large-config
+QTDIR_build:REQUIRES	= thread
+QTDIR_build:REQUIRES	= large-config

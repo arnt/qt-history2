@@ -7,4 +7,4 @@ SOURCES		= life.cpp \
 		  main.cpp
 TARGET		= life
 DEPENDPATH=../../include
-REQUIRES=medium-config
+QTDIR_build:REQUIRES=medium-config

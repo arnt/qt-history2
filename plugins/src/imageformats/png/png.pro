@@ -2,7 +2,7 @@ TEMPLATE = lib
 CONFIG += qt plugin
 TARGET += qpng
 VERSION = 1.0.0
-REQUIRES = !no-png !png
+QTDIR_build:REQUIRES = !no-png !png
 DESTDIR = ../../../imageformats
 
 SOURCES += main.cpp

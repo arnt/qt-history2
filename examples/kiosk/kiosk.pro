@@ -1,4 +1,4 @@
-REQUIRES        = embedded
+QTDIR_build:REQUIRES        = embedded
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 TMAKE_CC = g++

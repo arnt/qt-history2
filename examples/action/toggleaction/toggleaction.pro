@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= toggleaction.cpp 
 TARGET		= toggleaction
 DEPENDPATH=../../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

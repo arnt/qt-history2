@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= splitter.cpp
 TARGET		= splitter
 DEPENDPATH=../../include
-REQUIRES=medium-config
+QTDIR_build:REQUIRES=medium-config

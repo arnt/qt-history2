@@ -5,4 +5,4 @@ HEADERS		= widgets.h ../aclock/aclock.h ../dclock/dclock.h
 SOURCES		= main.cpp widgets.cpp ../aclock/aclock.cpp ../dclock/dclock.cpp
 TARGET		= widgets
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

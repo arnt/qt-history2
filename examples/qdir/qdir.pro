@@ -4,4 +4,4 @@ HEADERS		= qdir.h ../dirview/dirview.h
 SOURCES		= qdir.cpp ../dirview/dirview.cpp
 TARGET		= qdir
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= progress.cpp
 TARGET		= progress
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

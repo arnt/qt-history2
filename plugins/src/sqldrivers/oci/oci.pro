@@ -28,7 +28,7 @@ macx {
         QMAKE_LFLAGS += -Wl,-flat_namespace,-U,_environ
 }
 
-REQUIRES	= sql
+QTDIR_build:REQUIRES	= sql
 
 DESTDIR		= ../../../sqldrivers
 TARGET		= qsqloci

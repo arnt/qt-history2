@@ -2,7 +2,7 @@ TEMPLATE = lib
 CONFIG += qt plugin
 TARGET += qmng
 VERSION = 1.0.0
-REQUIRES = !no-mng !mng
+QTDIR_build:REQUIRES = !no-mng !mng
 DESTDIR = ../../../imageformats
 
 SOURCES += main.cpp

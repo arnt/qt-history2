@@ -4,4 +4,4 @@ HEADERS		= lcdrange.h
 SOURCES		= lcdrange.cpp \
 		  main.cpp
 TARGET		= t7
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

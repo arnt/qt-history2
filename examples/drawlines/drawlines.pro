@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= connect.cpp
 TARGET		= drawlines
 DEPENDPATH=../../include
-REQUIRES=
+QTDIR_build:REQUIRES=

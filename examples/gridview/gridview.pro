@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= gridview.cpp
 TARGET		= gridview
 DEPENDPATH=../../include
-REQUIRES=medium-config
+QTDIR_build:REQUIRES=medium-config

@@ -5,4 +5,4 @@ SOURCES		= fontdisplayer.cpp \
 		  qfd.cpp
 TARGET		= qfd
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

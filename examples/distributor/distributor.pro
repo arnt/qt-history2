@@ -5,4 +5,4 @@ FORMS	= distributor.ui
 TEMPLATE	=app
 CONFIG	+= qt warn_on
 LANGUAGE	= C++
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

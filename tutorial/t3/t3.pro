@@ -3,4 +3,4 @@ CONFIG		+= qt warn_on release
 HEADERS		= 
 SOURCES		= main.cpp
 TARGET		= t3
-REQUIRES=small-config
+QTDIR_build:REQUIRES=small-config

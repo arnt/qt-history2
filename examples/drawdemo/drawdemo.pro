@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= drawdemo.cpp
 TARGET		= drawdemo
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

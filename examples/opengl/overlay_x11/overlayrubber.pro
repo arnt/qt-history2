@@ -1,4 +1,4 @@
-REQUIRES        = opengl full-config
+QTDIR_build:REQUIRES        = opengl full-config
 TEMPLATE	= app
 CONFIG		+= qt opengl warn_on release
 HEADERS		= gearwidget.h \

@@ -11,4 +11,4 @@ SOURCES		= main.cpp \
 		  controlcentral.cpp
 INTERFACES	=
 TARGET		= domtest
-REQUIRES	= xml
+QTDIR_build:REQUIRES	= xml

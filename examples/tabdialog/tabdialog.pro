@@ -5,4 +5,4 @@ SOURCES		= main.cpp \
 		  tabdialog.cpp
 TARGET		= tabdialog
 DEPENDPATH=../../include
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

@@ -5,4 +5,4 @@ HEADERS		=
 SOURCES		= main.cpp
 INTERFACES	= 
 TARGET          = blob
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

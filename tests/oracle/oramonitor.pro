@@ -1,6 +1,6 @@
 SOURCES	+= main.cpp oramonitorimpl.cpp 
 HEADERS	+= oramonitorimpl.h 
-REQUIRES += sql
+QTDIR_build:REQUIRES += sql
 TARGET = oramonitor
 FORMS	= oramonitor.ui configdialog.ui 
 TEMPLATE	=app

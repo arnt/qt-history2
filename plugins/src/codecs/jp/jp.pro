@@ -1,6 +1,6 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on plugin
-REQUIRES	= !bigcodecs
+QTDIR_build:REQUIRES	= !bigcodecs
 
 HEADERS		= ../../../../include/qeucjpcodec.h \
 		  ../../../../include/qjiscodec.h \

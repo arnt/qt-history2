@@ -1,4 +1,4 @@
-REQUIRES	= canvas full-config
+QTDIR_build:REQUIRES	= canvas full-config
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 HEADERS		= canvas.h

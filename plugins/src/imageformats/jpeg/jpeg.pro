@@ -2,7 +2,7 @@ TEMPLATE = lib
 CONFIG += qt plugin
 TARGET += qjpeg
 VERSION = 1.0.0
-REQUIRES = !no-jpeg !jpeg
+QTDIR_build:REQUIRES = !no-jpeg !jpeg
 DESTDIR = ../../../imageformats
 
 SOURCES += main.cpp

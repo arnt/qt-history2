@@ -25,7 +25,7 @@ win32 {
 	win32-borland:LIBS	*= $(BCB)/lib/PSDK/odbc32.lib
 }
 
-REQUIRES	= sql
+QTDIR_build:REQUIRES	= sql
 
 TARGET		= qsqlodbc
 DESTDIR		= ../../../sqldrivers

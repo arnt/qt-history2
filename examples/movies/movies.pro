@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= main.cpp
 TARGET		= movies
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

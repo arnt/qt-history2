@@ -4,4 +4,4 @@ HEADERS		= listboxcombo.h
 SOURCES		= listboxcombo.cpp \
 		  main.cpp
 TARGET		= listboxcombo
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

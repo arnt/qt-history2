@@ -5,4 +5,4 @@ SOURCES		= main.cpp \
 		  tooltip.cpp
 TARGET		= tooltip
 DEPENDPATH=../../include
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

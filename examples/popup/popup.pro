@@ -4,4 +4,4 @@ HEADERS		= popup.h
 SOURCES		= popup.cpp
 TARGET		= popup
 DEPENDPATH=../../include
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

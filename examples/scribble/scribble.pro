@@ -5,4 +5,4 @@ SOURCES		= main.cpp \
 		  scribble.cpp
 TARGET		= scribble
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

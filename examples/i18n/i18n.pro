@@ -17,4 +17,4 @@ TRANSLATIONS	= mywidget_cs.ts \
 		  mywidget_ru.ts \
 		  mywidget_zh.ts
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

@@ -1,4 +1,4 @@
-REQUIRES        = workspace full-config
+QTDIR_build:REQUIRES        = workspace full-config
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 HEADERS		= application.h 

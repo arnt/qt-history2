@@ -5,4 +5,4 @@ SOURCES		= listbox.cpp \
 		  main.cpp
 TARGET		= listbox
 DEPENDPATH	= ../../include 
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

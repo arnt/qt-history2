@@ -4,4 +4,4 @@ HEADERS		= menu.h
 SOURCES		= menu.cpp
 TARGET		= menu
 DEPENDPATH=../../include
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

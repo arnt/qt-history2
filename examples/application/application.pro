@@ -5,4 +5,4 @@ SOURCES		= application.cpp \
 		  main.cpp
 TARGET		= application
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

@@ -5,4 +5,4 @@ SOURCES		= dclock.cpp \
 		  main.cpp
 TARGET		= dclock
 DEPENDPATH=../../include
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

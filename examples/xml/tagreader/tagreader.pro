@@ -5,4 +5,4 @@ SOURCES		= tagreader.cpp \
                   structureparser.cpp
 INTERFACES	=
 TARGET          = tagreader
-REQUIRES	= xml large-config
+QTDIR_build:REQUIRES	= xml large-config

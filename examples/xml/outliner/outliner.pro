@@ -5,4 +5,4 @@ SOURCES		= main.cpp \
 		  outlinetree.cpp
 INTERFACES	=
 TARGET		= outliner
-REQUIRES	= xml large-config
+QTDIR_build:REQUIRES	= xml large-config

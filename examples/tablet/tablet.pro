@@ -4,7 +4,7 @@
 
 TEMPLATE += app
 TARGET += tablet
-REQUIRES = tablet
+QTDIR_build:REQUIRES = tablet
 
 # Input
 HEADERS += canvas.h scribble.h tabletstats.h

@@ -28,7 +28,7 @@ win32 {
 #	}		
 }
 
-REQUIRES	= sql
+QTDIR_build:REQUIRES	= sql
 
 TARGET		= qsqltds
 DESTDIR		= ../../../sqldrivers

@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= cursor.cpp
 TARGET		= cursor
 DEPENDPATH=../../include
-REQUIRES=small-config
+QTDIR_build:REQUIRES=small-config

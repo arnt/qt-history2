@@ -4,4 +4,4 @@ HEADERS		= forever.h
 SOURCES		= forever.cpp
 TARGET		= forever
 DEPENDPATH=../../include
-REQUIRES=small-config
+QTDIR_build:REQUIRES=small-config

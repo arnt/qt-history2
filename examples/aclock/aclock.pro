@@ -5,4 +5,4 @@ SOURCES		= aclock.cpp \
 		  main.cpp
 TARGET		= aclock
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

@@ -23,7 +23,7 @@ win32 {
 #	}		
 }
 
-REQUIRES	= sql
+QTDIR_build:REQUIRES	= sql
 
 TARGET		= qsqlmysql
 DESTDIR		= ../../../sqldrivers

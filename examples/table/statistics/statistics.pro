@@ -4,4 +4,4 @@ HEADERS	= statistics.h
 SOURCES	= statistics.cpp main.cpp
 TARGET		= statistics
 DEPENDPATH	= ../../include
-REQUIRES=table full-config
+QTDIR_build:REQUIRES=table full-config

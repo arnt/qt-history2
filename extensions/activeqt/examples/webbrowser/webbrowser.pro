@@ -1,4 +1,4 @@
-REQUIRES    = shared
+QTDIR_build:REQUIRES    = shared
 TEMPLATE    = app
 CONFIG	    += qt warn_off
 

@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= tux.cpp
 INTERFACES	= 
 TARGET		= tux
-REQUIRES=small-config
+QTDIR_build:REQUIRES=small-config

@@ -1,4 +1,4 @@
-REQUIRES        = opengl
+QTDIR_build:REQUIRES        = opengl
 TEMPLATE	= app
 CONFIG		+= qt opengl warn_on release
 HEADERS		= 

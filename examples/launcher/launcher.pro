@@ -1,8 +1,8 @@
-REQUIRES        = embedded
+QTDIR_build:REQUIRES        = embedded
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 DEPENDPATH	= ../../include
 HEADERS		= 
 SOURCES		= launcher.cpp
 TARGET		= launcher
-REQUIRES=large-config
+QTDIR_build:REQUIRES=large-config

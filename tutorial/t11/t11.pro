@@ -6,6 +6,6 @@ SOURCES		= cannon.cpp \
 		  lcdrange.cpp \
 		  main.cpp
 TARGET		= t11
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config
 unix:LIBS += -lm
 

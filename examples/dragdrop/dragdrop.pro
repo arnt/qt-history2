@@ -7,4 +7,4 @@ SOURCES		= dropsite.cpp \
 		  secret.cpp
 TARGET		= dragdrop
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

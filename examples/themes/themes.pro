@@ -25,4 +25,4 @@ SOURCES		= themes.cpp \
 
 TARGET		= themes
 DEPENDPATH=../../include
-REQUIRES=full-config
+QTDIR_build:REQUIRES=full-config

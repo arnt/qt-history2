@@ -98,4 +98,4 @@ TARGET		= demo
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
 unix:LIBS	+= -lm
-REQUIRES	= full-config nocrosscompiler
+QTDIR_build:REQUIRES	= full-config nocrosscompiler
