@@ -1064,10 +1064,14 @@ void QTabBar::layoutTabs()
     overlap = style().pixelMetric( QStyle::PM_TabBarTabOverlap, this );
 
     QFontMetrics fm = fontMetrics();
-    int x = 0;
     QRect r;
     QTab *t = 0;
     bool reverse = QApplication::reverseLayout();
+    if ( reverse )
+	t = d->lstatic.last();
+    else
+	t = d->lstatic.first();
+    int x = t ? t->r.x() : 0;
     for (int i=0; i<d->lstatic.size(); ++i) {
 	t = d->lstatic.at(reverse ? d->lstatic.size() - 1 - i : i );
 	int lw = fm.width( t->label );
@@ -1195,16 +1199,18 @@ void QTabBar::makeVisible( QTab* tab  )
 
     int offset = 0;
 
-    if ( tooFarLeft )
-	offset = tab == d->lstatic.first() ? 0 : tab->r.left() - 8;
-    else if ( tooFarRight ) {
+    if ( tooFarLeft ) {
+	offset = tab->r.left();
+	if (tab != d->lstatic.first())
+	    offset -= 8;
+    } else if ( tooFarRight ) {
 	offset = tab->r.right() - d->leftB->x() + 1;
     }
 
     for (int i=0; i<d->lstatic.size(); ++i)
 	d->lstatic.at(i)->r.moveBy( -offset, 0 );
 
-    d->leftB->setEnabled( offset != 0 );
+    d->leftB->setEnabled( d->lstatic.first()->r.left() < 0);
     d->rightB->setEnabled( d->lstatic.last()->r.right() >= d->leftB->x() );
 
     // Make sure disabled buttons pop up again
