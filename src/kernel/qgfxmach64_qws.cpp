@@ -1487,12 +1487,35 @@ public:
 
     static bool enabled() { return false; }
 
+    inline unsigned int regr(volatile unsigned int);
+    inline void regw(volatile unsigned int,unsigned long);
+    
+    unsigned char * regbase;
+    unsigned char * regbase2;
+    
 private:
 
     int hotx;
     int hoty;
 
 };
+
+// Read a 32-bit graphics card register from 2d engine register block
+inline unsigned int QMachCursor::regr(volatile unsigned int
+						 regindex)
+{
+    unsigned long int val;
+    val=*((volatile unsigned long *)(regbase+regindex));
+    return val;
+}
+
+// Write a 32-bit graphics card register to 2d engine register block
+inline void QMachCursor::regw(volatile unsigned int regindex,
+					 unsigned long val)
+{
+    *((volatile unsigned long int *)(regbase+regindex))=val;
+}
+
 #endif // QT_NO_QWS_CURSOR
 
 QMachScreen::QMachScreen( int display_id )
@@ -1736,6 +1759,8 @@ int QMachScreen::initCursor(void* e, bool init)
     }
     qt_screencursor=new QMachCursor();
     qt_screencursor->init(0,false);
+    ((QMachCursor *)qt_screencursor)->regbase=regbase;
+    ((QMachCursor *)qt_screencursor)->regbase2=regbase2;
 #endif
     return 0;
 }
@@ -1804,6 +1829,8 @@ void QMachCursor::init(SWCursorData *,bool)
     myoffset=(qt_screen->width()*qt_screen->height()*qt_screen->depth())/8;
     myoffset+=8;
     fb_start=qt_screen->base();
+    regbase=::regbase;
+    regbase2=::regbase2;
 }
 
 // Set a new cursor image, with hotspot

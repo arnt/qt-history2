@@ -67,12 +67,13 @@ public:
     virtual uchar * cache(int,int);
     virtual void uncache(uchar *);
     virtual int sharedRamSize(void *);
+
+    QLinuxFb_Shared * shared;
     
 protected:
 
     bool canaccel;
     int dataoffset;
-    QLinuxFb_Shared * shared;
 
 private:
 
