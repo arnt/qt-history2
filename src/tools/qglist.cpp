@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#55 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -1043,14 +1043,9 @@ QGListIterator::QGListIterator( const QGListIterator &it )
 
 QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 {
-    if ( list ) {				// detach from old list
-	if ( list->iterators->removeRef(this) ){
-	    if ( list->iterators->count() == 0 ) {
-		delete list->iterators;		// this was the last iterator
-		list->iterators = 0;
-	    }
-	}
-    }
+    if ( list )					// detach from old list
+	list->iterators->removeRef(this);
+
     list = it.list;
     curNode = it.curNode;
     if ( list )
@@ -1069,12 +1064,7 @@ QGListIterator::~QGListIterator()
 #if defined(DEBUG)
 	ASSERT( list->iterators );
 #endif
-	if ( list->iterators->removeRef(this) ) {
-	    if ( list->iterators->count() == 0 ) {
-		delete list->iterators;		// this was the last iterator
-		list->iterators = 0;
-	    }
-	}
+	list->iterators->removeRef(this);
     }
 }
 
