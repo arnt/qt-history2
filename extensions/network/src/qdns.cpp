@@ -1499,7 +1499,10 @@ QValueList<QHostAddress> QDns::addresses() const
 }
 
 
+// ### the \fn in the docu is not nice but qdoc wants it...
 /*!
+  \fn QValueList<MailServer> QDns::mailServers() const
+
   Returns a list of mail servers if the record type is \c Mx. The struct
   \c QDns::MailServer contains the following variables:
   <ul>
@@ -1531,7 +1534,10 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 }
 
 
+// ### the \fn in the docu is not nice but qdoc wants it...
 /*!
+  \fn QValueList<Server> QDns::servers() const
+
   Returns a list of servers if the record type is \c Srv. The struct \c
   QDns::Server contains the following variables:
   <ul>
