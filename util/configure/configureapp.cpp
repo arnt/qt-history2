@@ -1063,7 +1063,7 @@ void Configure::generateConfigfiles()
     QString outDir( dictionary[ "QT_INSTALL_HEADERS" ] );
 
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
-	outDir = dictionary[ "QT_SOURCE_TREE" ] + "/src/tools";
+	outDir = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/base";
 
     QString outName( outDir + "/qconfig.h" );
 
@@ -1085,7 +1085,7 @@ void Configure::generateConfigfiles()
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "// Copied from " << configName << endl;
 
-	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/tools/" + configName );
+	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/core/base/" + configName );
 	    if( inFile.open( IO_ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
 		outFile.writeBlock( buffer.data(), buffer.size() );
@@ -1189,7 +1189,7 @@ void Configure::generateConfigfiles()
     }
 
     outDir = dictionary[ "QT_SOURCE_TREE" ];
-    outName = outDir + "/src/tools/qconfig.cpp";
+    outName = outDir + "/src/core/base/qconfig.cpp";
     ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
     QFile::remove( outName );
     outFile.setName( outName );
