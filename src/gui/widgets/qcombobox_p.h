@@ -163,7 +163,7 @@ public:
           model(0),
           lineEdit(0),
           container(0),
-          insertPolicy(QComboBox::AtBottom),
+          insertPolicy(QComboBox::InsertAtBottom),
           autoCompletion(true),
           duplicatesEnabled(false),
           autoHide(true),

@@ -72,8 +72,9 @@ int QPrintDialog::exec()
         PMSetLastPage(d->ep->settings, d->toPage, false);
     }
     { //simulate modality
-	QWidget modal_widg(0, __FILE__ "__modal_dlg",
+	QWidget modal_widg(0,
 			   Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
+        modal_widg.setObjectName(QLatin1String(__FILE__ "__modal_dlg"));
 	qt_enter_modal(&modal_widg);
         PMSessionPrintDialog(d->ep->session, d->ep->settings, d->ep->format, &result);
 	qt_leave_modal(&modal_widg);

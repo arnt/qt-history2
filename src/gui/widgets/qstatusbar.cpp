@@ -111,6 +111,7 @@ public:
     \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink
 */
 
+#ifdef QT_COMPAT
 /*!
     Constructs a status bar called \a name with parent \a parent and
     with a size grip.
@@ -132,7 +133,7 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
     reformat();
 #endif
 }
-
+#endif
 
 /*!
     Constructs a status bar with a size grip with the given \a parent.

@@ -755,7 +755,7 @@ QQuickDrawPaintEngine::setupQDBrush()
         d->brush_style_pix = new QPixmap(8, 8);
         d->brush_style_pix->setMask(qt_pixmapForBrush(bs, true));
         d->brush_style_pix->fill(d->current.brush.color());
-    } else if(bs == Qt::CustomPattern) {
+    } else if(bs == Qt::TexturePattern) {
         QPixmap texture = d->current.brush.texture();
         if(texture.isQBitmap()) {
             d->brush_style_pix = new QPixmap(texture.width(), texture.height());
@@ -1251,7 +1251,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
         QMacPattern *qpattern = new QMacPattern;
         float components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
-        if (bs == Qt::CustomPattern) {
+        if (bs == Qt::TexturePattern) {
             qpattern->data.pixmap = brush.texture();
             if(qpattern->data.pixmap.isQBitmap()) {
                 const QColor &col = brush.color();

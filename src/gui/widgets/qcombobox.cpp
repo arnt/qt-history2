@@ -571,22 +571,22 @@ void QComboBoxPrivate::returnPressed()
             }
         }
         switch (insertPolicy) {
-        case QComboBox::AtTop:
+        case QComboBox::InsertAtTop:
             index = 0;
             break;
-        case QComboBox::AtBottom:
+        case QComboBox::InsertAtBottom:
             index = q->count();
             break;
-        case QComboBox::AtCurrent:
-        case QComboBox::AfterCurrent:
-        case QComboBox::BeforeCurrent:
+        case QComboBox::InsertAtCurrent:
+        case QComboBox::InsertAfterCurrent:
+        case QComboBox::InsertBeforeCurrent:
             if (!q->count() || !currentIndex.isValid())
                 index = 0;
-            else if (insertPolicy == QComboBox::AtCurrent)
+            else if (insertPolicy == QComboBox::InsertAtCurrent)
                 q->setItemText(q->currentItem(), text);
-            else if (insertPolicy == QComboBox::AfterCurrent)
+            else if (insertPolicy == QComboBox::InsertAfterCurrent)
                 index = q->currentItem() + 1;
-            else if (insertPolicy == QComboBox::BeforeCurrent)
+            else if (insertPolicy == QComboBox::InsertBeforeCurrent)
                 index = q->currentItem();
             break;
         case QComboBox::NoInsert:

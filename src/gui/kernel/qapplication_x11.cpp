@@ -4667,7 +4667,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
         curr_autorep = autor ? event->xkey.keycode : 0;
     }
 
-#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+#if defined QT_COMPAT && !defined(QT_NO_ACCEL)
     // process accelerators before doing key compression
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
