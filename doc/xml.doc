@@ -49,8 +49,14 @@ specification of DOM Level 2 can be found at
 More information about the DOM classes in Qt is provided in the
 \link #dom Qt DOM classes \endlink.
 
+In addition to SAX and DOM support, Qt's QPicture class can read and
+write SVG. Additional XML support is provided by the \link
+http://www.trolltech.com/products/solutions/index.html Qt Solutions
+group\endlink, for example, through classes that provide SOAP and MML
+support.
 
-Qt provides the following XML related classes:
+
+Qt provides the following SAX and DOM classes:
 
 \table
 \header \i Class \i Short description

@@ -109,14 +109,22 @@ public:
     \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
     \ingroup accessibility
 
-    This class is convenient to use as a base class for custom implementations of
-    QAccessibleInterfaces that provide information about widget objects.
+    This class is convenient to use as a base class for custom
+    implementations of QAccessibleInterfaces that provide information
+    about widget objects.
+
+    The class provides functions to retrieve the parentObject() (the
+    widget's parent widget), and the associated widget(). Controlling
+    signals can be added with addControllingSignal(), and setters are
+    provided for various aspects of the interface implementation, for
+    example setValue(), setDescription(), setAccelerator(), and
+    setHelp().
 */
 
 /*!
-    Creates a QAccessibleWidget object for \a w.
-    \a role and \a name are optional parameters for static values
-    of the object's respective property.
+    Creates a QAccessibleWidget object for widget \a w.
+    \a role and \a name are optional parameters that set the object's
+    role and name properties.
 */
 QAccessibleWidget::QAccessibleWidget(QWidget *w, Role role, const QString &name)
 : QAccessibleObject(w)
@@ -137,7 +145,7 @@ QAccessibleWidget::~QAccessibleWidget()
 }
 
 /*!
-    Returns the widget.
+    Returns the associated widget.
 */
 QWidget *QAccessibleWidget::widget() const
 {
@@ -145,8 +153,8 @@ QWidget *QAccessibleWidget::widget() const
 }
 
 /*!
-    Returns the parent object, which is either the parent widget, or
-    qApp for toplevel widgets.
+    Returns the associated widget's parent object, which is either the
+    parent widget, or qApp for toplevel widgets.
 */
 QObject *QAccessibleWidget::parentObject() const
 {
@@ -254,7 +262,8 @@ QList<QObject*> ConnectionObject::senders() const
 /*!
     Registers \a signal as a controlling signal.
 
-    An object is a Controller to any other object connected to a controlling signal.
+    An object is a Controller to any other object connected to a
+    controlling signal.
 */
 void QAccessibleWidget::addControllingSignal(const QString &signal)
 {
@@ -267,7 +276,7 @@ void QAccessibleWidget::addControllingSignal(const QString &signal)
 /*!
     Sets the value of this interface implementation to \a value.
 
-    The default implementation of text() return the set value for
+    The default implementation of text() returns the set value for
     the Value text.
 
     Note that the object wrapped by this interface is not modified.
@@ -280,7 +289,7 @@ void QAccessibleWidget::setValue(const QString &value)
 /*!
     Sets the description of this interface implementation to \a desc.
 
-    The default implementation of text() return the set value for
+    The default implementation of text() returns the set value for
     the Description text.
 
     Note that the object wrapped by this interface is not modified.
@@ -293,7 +302,7 @@ void QAccessibleWidget::setDescription(const QString &desc)
 /*!
     Sets the help of this interface implementation to \a help.
 
-    The default implementation of text() return the set value for
+    The default implementation of text() returns the set value for
     the Help text.
 
     Note that the object wrapped by this interface is not modified.
@@ -306,7 +315,7 @@ void QAccessibleWidget::setHelp(const QString &help)
 /*!
     Sets the accelerator of this interface implementation to \a accel.
 
-    The default implementation of text() return the set value for
+    The default implementation of text() returns the set value for
     the Accelerator text.
 
     Note that the object wrapped by this interface is not modified.

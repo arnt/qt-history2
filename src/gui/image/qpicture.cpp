@@ -46,6 +46,15 @@
     painted can also be stored in a picture, e.g. fonts, pixmaps,
     regions, transformed graphics, etc.
 
+    QPicture can also read and write SVG (Scalable Vector Graphics)
+    files; these files are in an XML format specified by \link
+    http://www.w3.org/Graphics/SVG/ W3C\endlink. (See the load() and
+    save() functions.)
+\if defined(commercial)
+    The SVG capability requires Qt's XML module which is part of
+    \link commercialeditions.html Qt Enterprise Edition\endlink.
+\endif
+
     QPicture is an \link shclass.html implicitly shared\endlink class.
 
     Example of how to record a picture:
@@ -54,7 +63,7 @@
     QPainter  p;
     p.begin(&pic);               // paint in picture
     p.drawEllipse(10,20, 80,70); // draw an ellipse
-    p.end();                       // painting done
+    p.end();                     // painting done
     pic.save("drawing.pic");     // save picture
     \endcode
 
@@ -65,7 +74,7 @@
     QPainter  p;
     p.begin(&myWidget);          // paint in myWidget
     p.drawPicture(pic);          // draw the picture
-    p.end();                       // painting done
+    p.end();                     // painting done
     \endcode
 
     Pictures can also be drawn using play(). Some basic data about a
@@ -202,9 +211,12 @@ void QPicture::setData(const char* data, uint size)
     format.
 
     Currently, the only external format supported is the \link
-    http://www.w3.org/Graphics/SVG/ W3C SVG \endlink format which
-    requires the \link xml.html Qt XML module \endlink. The
+    http://www.w3.org/Graphics/SVG/ W3C SVG\endlink format. The
     corresponding \a format string is "svg".
+\if defined(commercial)
+    The SVG capability requires Qt's XML module which is part of
+    \link commercialeditions.html Qt Enterprise Edition\endlink.
+\endif
 
     \sa save()
 */
@@ -265,11 +277,15 @@ bool QPicture::load(QIODevice *dev, const char *format)
     Saves a picture to the file specified by \a fileName and returns
     true if successful; otherwise returns false.
 
-    Specifying the file \a format string is optional. It's not
-    recommended unless you intend to export the picture data for
-    use by a third party reader. By default the data will be saved in
-    the native QPicture file format.
-
+    Specifying the file \a format string is optional. By default the
+    data will be saved in the native QPicture file format. Currently
+    the only other format that you can save in is \link
+    http://www.w3.org/Graphics/SVG/ W3C's SVG format\endlink; use a
+    \a format name of "svg" to save in SVG format.
+\if defined(commercial)
+    The SVG capability requires Qt's XML module which is part of
+    \link commercialeditions.html Qt Enterprise Edition\endlink.
+\endif
     \sa load()
 */
 
@@ -1308,8 +1324,12 @@ QList<QByteArray> QPicture::outputFormats()
     I/O. The programmer can install new picture file formats in addition
     to those that Qt provides.
 
-    Qt currently supports only \link http://www.w3.org/Graphics/SVG/
+    Qt currently only supports \link http://www.w3.org/Graphics/SVG/
     W3C SVG \endlink picture file formats (with type string svg).
+\if defined(commercial)
+    The SVG capability requires Qt's XML module which is part of
+    \link commercialeditions.html Qt Enterprise Edition\endlink.
+\endif
 
     You don't normally need to use this class; QPicture::load(),
     QPiicture::save().
