@@ -555,17 +555,8 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 
     QPixmap::x11SetDefaultScreen(d->xinfo->screen());
 
-    assignf(IsActive | DirtyFont);
-
-    if (d->xinfo->depth() != QX11Info::appDepth(d->scrn)) { // non-standard depth
-        setf(NoCache);
-        setf(UsePrivateCx);
-    }
-
     QWidget *w = d->pdev->devType() == QInternal::Widget ? static_cast<QWidget *>(d->pdev) : 0;
     if (w && w->testAttribute(Qt::WA_PaintUnclipped)) {  // paint direct on device
-        setf(NoCache);
-        setf(UsePrivateCx);
  	updatePen(QPen(Qt::black));
  	updateBrush(QBrush(Qt::white), QPoint());
         XSetSubwindowMode(d->dpy, d->gc, IncludeInferiors);
@@ -582,8 +573,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
             end();
             return false;
         }
-        if (pm->depth() == 1)
-            setf(MonoDev);
     }
 
     setDirty(QPaintEngine::DirtyPen);
@@ -656,7 +645,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     ::Picture pict = d->picture;
 
-    if (X11->use_xrender && !testf(MonoDev) && pict && d->cbrush.style() != Qt::NoBrush
+    if (X11->use_xrender && (d->pdev->depth() != 1) && pict && d->cbrush.style() != Qt::NoBrush
         && d->cbrush.color().alpha() != 255)
     {
         XRenderColor xc;
@@ -1305,7 +1294,6 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
 
 void QX11PaintEngine::updateFont(const QFont &)
 {
-    clearf(DirtyFont);
 }
 
 Qt::HANDLE QX11PaintEngine::handle() const

@@ -508,37 +508,7 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 */
 
 /*!
-    \fn bool QPaintEngine::testf(uint b) const
-
-    \internal
-*/
-
-/*!
-    \fn void QPaintEngine::setf(uint b)
-
-    \internal
-*/
-
-/*!
-    \fn void QPaintEngine::clearf(uint b)
-
-    \internal
-*/
-
-/*!
-    \fn void QPaintEngine::assignf(uint b)
-
-    \internal
-*/
-
-/*!
     \fn void QPaintEngine::fix_neg_rect(int *x, int *y, int *w, int *h);
-
-    \internal
-*/
-
-/*!
-    \fn bool QPaintEngine::hasClipping() const
 
     \internal
 */

@@ -54,7 +54,6 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
     d->state = QPrinter::Active;
     d->newPage_helper();
     setActive(true);
-    assignf(IsActive | DirtyFont);
     return true;
 }
 

@@ -168,7 +168,7 @@ public:
 
     int offx, offy;
     QPixmap *brush_style_pix;
-    uint unclipped : 1, locked : 1;
+    uint unclipped : 1, locked : 1, has_clipping : 1;
     QMacSavedPortInfo *saved;
     QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 

@@ -108,10 +108,10 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
                                             pdev->width() + 2*BUFFERZONE,
                                             pdev->height() + 2 * BUFFERZONE));
 
+    d->has_clipping = false;
     d->saved = new QMacSavedPortInfo;     //save the gworld now, we'll reset it in end()
     d->pdev = pdev;
     setActive(true);
-    assignf(IsActive | DirtyFont);
 
     d->clip.serial = 0;
     d->clip.dirty = false;
@@ -194,7 +194,6 @@ QQuickDrawPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 void
 QQuickDrawPaintEngine::updateFont(const QFont &)
 {
-    clearf(DirtyFont);
     updatePen(d->current.pen);
 }
 
@@ -216,10 +215,10 @@ QQuickDrawPaintEngine::setClippedRegionInternal(QRegion *rgn)
 {
     if(rgn) {
         d->current.clip = *rgn;
-        setf(ClipOn);
+        d->has_clipping = true;
     } else {
         d->current.clip = QRegion();
-        clearf(ClipOn);
+        d->has_clipping = false;
     }
     d->clip.dirty = 1;
 }
@@ -232,7 +231,7 @@ QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation
         setClippedRegionInternal(0);
     } else {
         QRegion clip = region;
-        if(testf(ClipOn)) {
+        if(d->has_clipping) {
             if(op == Qt::IntersectClip)
                 clip = d->current.clip.intersect(clip);
             else if(op == Qt::UniteClip)
@@ -276,12 +275,11 @@ void QQuickDrawPaintEngine::drawRects(const QRectF *rects, int rectCount)
                 }
                 if(!pm.isNull()) {
                     //save the clip
-                    bool clipon = testf(ClipOn);
                     QRegion clip = d->current.clip;
 
                     //create the region
                     QRegion newclip(r);
-                    if(clipon)
+                    if(d->has_clipping)
                         newclip &= clip;
                     setClippedRegionInternal(&newclip);
 
@@ -289,7 +287,7 @@ void QQuickDrawPaintEngine::drawRects(const QRectF *rects, int rectCount)
                     drawTiledPixmap(r, pm, QPoint(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
                     //restore the clip
-                    setClippedRegionInternal(clipon ? &clip : 0);
+                    setClippedRegionInternal(d->has_clipping ? &clip : 0);
                 }
             }
         }
@@ -352,12 +350,11 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &in_r)
             }
             if(!pm.isNull()) {
                 //save the clip
-                bool clipon = testf(ClipOn);
                 QRegion clip = d->current.clip;
 
                 //create the region
                 QRegion newclip(r, QRegion::Ellipse);
-                if(clipon)
+                if(d->has_clipping)
                     newclip &= clip;
                 setClippedRegionInternal(&newclip);
 
@@ -365,7 +362,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &in_r)
                 drawTiledPixmap(r, pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
-                setClippedRegionInternal(clipon ? &clip : 0);
+                setClippedRegionInternal(d->has_clipping ? &clip : 0);
             }
         }
     }
@@ -472,7 +469,6 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
 
                 if(!pm.isNull()) {
                     //save the clip
-                    bool clipon = testf(ClipOn);
                     QRegion clip = d->current.clip;
 
                     QPolygon pa;
@@ -482,7 +478,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
 
                     //create the region
                     QRegion newclip(pa);
-                    if(clipon)
+                    if(d->has_clipping)
                         newclip &= clip;
                     setClippedRegionInternal(&newclip);
 
@@ -491,7 +487,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
                     drawTiledPixmap(r, pm, r.topLeft() - d->current.bg.origin, Qt::ComposePixmap);
 
                     //restore the clip
-                    setClippedRegionInternal(clipon ? &clip : 0);
+                    setClippedRegionInternal(d->has_clipping ? &clip : 0);
                 }
             }
         }
@@ -756,7 +752,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
     }
     if(remade_clip || d->clip.dirty) {         //update clipped region
         remade_clip = true;
-        if(!d->clip.pdev.isEmpty() && testf(ClipOn)) {
+        if(!d->clip.pdev.isEmpty() && d->has_clipping) {
             d->clip.paintable = d->current.clip;
             d->clip.paintable.translate(d->offx, d->offy);
             d->clip.paintable &= d->clip.pdev;
@@ -1017,6 +1013,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     }
 
     //initialization
+    d->has_clipping = false;
     d->offx = d->offy = 0; // (quickdraw compat!!)
     d->pdev = pdev;
     d->hd = qt_mac_cg_context(pdev);
@@ -1030,7 +1027,6 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     }
 
     setActive(true);
-    assignf(IsActive | DirtyFont);
 
     if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         QWidget *w = (QWidget*)d->pdev;
@@ -1234,7 +1230,6 @@ void
 QCoreGraphicsPaintEngine::updateFont(const QFont &)
 {
     Q_ASSERT(isActive());
-    clearf(DirtyFont);
     updatePen(d->current.pen);
 }
 
@@ -1258,13 +1253,13 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
 {
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
-        clearf(ClipOn);
+        d->has_clipping = false;
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
-        if(!testf(ClipOn))
+        if(!d->has_clipping)
             op = Qt::ReplaceClip;
-        setf(ClipOn);
+        d->has_clipping = true;
         QRegion clipRegion(p.toFillPolygon().toPolygon(), p.fillRule());
         if(op == Qt::ReplaceClip) {
             d->current.clip = clipRegion;
@@ -1290,13 +1285,13 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOp
 {
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
-        clearf(ClipOn);
+        d->has_clipping = false;
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
-        if(!testf(ClipOn))
+        if(!d->has_clipping)
             op = Qt::ReplaceClip;
-        setf(ClipOn);
+        d->has_clipping = true;
         if(op == Qt::IntersectClip)
             d->current.clip = d->current.clip.intersect(clipRegion);
         else if(op == Qt::ReplaceClip)

@@ -147,13 +147,11 @@ QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr,
                                      PaintEngineFeatures caps)
     : QPaintEngine(dptr, caps)
 {
-    d->flags |= IsStartingUp;
 }
 
 QWin32PaintEngine::QWin32PaintEngine()
     : QPaintEngine(*(new QWin32PaintEnginePrivate), qt_decide_paintengine_features())
 {
-    d->flags |= IsStartingUp;
 }
 
 QWin32PaintEngine::~QWin32PaintEngine()

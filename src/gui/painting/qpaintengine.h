@@ -178,34 +178,7 @@ public:
     };
     virtual Type type() const = 0;
 
-    enum {
-        IsActive     = 0x00000001,
-        ExtDev       = 0x00000002,
-        IsStartingUp = 0x00000004,
-        NoCache      = 0x00000008,
-        VxF          = 0x00000010,
-        WxF          = 0x00000020,
-        ClipOn       = 0x00000040,
-        SafePolygon  = 0x00000080,
-        MonoDev      = 0x00000100,
-//        DirtyFont    = 0x00000200,
-//        DirtyPen     = 0x00000400,
-//        DirtyBrush   = 0x00000800,
-        RGBColor     = 0x00001000,
-        FontMet      = 0x00002000,
-        FontInf      = 0x00004000,
-        CtorBegin    = 0x00008000,
-        UsePrivateCx = 0x00010000,
-        VolatileDC   = 0x00020000,
-        Qt2Compat    = 0x00040000
-    };
-    inline bool testf(uint b) const { return (flags&b)!=0; }
-    inline void setf(uint b) { flags |= b; }
-    inline void clearf(uint b) { flags &= (~b); }
-    inline void assignf(uint b) { flags = b; }
     inline void fix_neg_rect(int *x, int *y, int *w, int *h);
-    inline bool hasClipping() const { return testf(ClipOn); }
-
     inline bool testDirty(DirtyFlags df) { return (dirtyFlag & df) != 0; }
     inline void setDirty(DirtyFlags df) { dirtyFlag |= df; }
     inline void clearDirty(DirtyFlags df) { dirtyFlag &= ~static_cast<uint>(df); }
@@ -222,7 +195,6 @@ protected:
     uint dirtyFlag;
     uint active : 1;
     uint selfDestruct : 1;
-    uint flags;
     QPainterState *state;
     PaintEngineFeatures gccaps;
 

@@ -302,7 +302,7 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
     bool eventClip = !sysClip.isEmpty();
 
 /*
-  if (enable == testf(ClipOn)
+  if (enable == testf(ClipOn) // ### note testf() is gone - use a bool if it's still needed
   && (paintEventDevice != device() || !enable
   || !paintEventSaveRegion || paintEventSaveRegion->isNull()))
   return;
@@ -322,11 +322,6 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
     } else {
         d->gfx->setClipping(false);
     }
-
-    if (clipEnabled)
-        setf(ClipOn);
-    else
-        clearf(ClipOn);
 }
 
 void QWSPaintEngine::drawLines(const QLineF *lines, int lineCount)
