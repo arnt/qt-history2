@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#9 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#10 $
 **
 ** Definition of QFileInfo class
 **
@@ -35,7 +35,7 @@ public:
     QFileInfo( const QFileInfo & );
    ~QFileInfo();
 
-    QFileInfo &operator=( const QFileInfo & );
+    QFileInfo  &operator=( const QFileInfo & );
 
     void	setFile( const char *file );
     void	setFile( const QFile & );
@@ -73,7 +73,7 @@ public:
 
     bool	permission( int permissionSpec ) const;
 
-    long	size()		const;
+    uint	size()		const;
 
     QDateTime	lastModified()	const;
     QDateTime	lastRead()	const;

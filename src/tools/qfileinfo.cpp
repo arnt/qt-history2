@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#15 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#15 $")
 
 
 struct QFileInfoCache
@@ -666,7 +666,7 @@ bool QFileInfo::permission( int permissionSpec ) const
     if ( !fic || !cache )
 	doStat();
     if ( fic ) {
-	ulong mask = 0;
+	uint mask = 0;
 	if ( permissionSpec & ReadUser)
 	    mask |= S_IRUSR;
 	if ( permissionSpec & WriteUser)
@@ -703,18 +703,18 @@ bool QFileInfo::permission( int permissionSpec ) const
 
 
 /*----------------------------------------------------------------------------
-  Returns the file size in bytes. If the file does not exist, or the size
-  cannot be fetched, this function returns -1.
+  Returns the file size in bytes, or 0 if the file does not exist if the size
+  cannot be fetched.
  ----------------------------------------------------------------------------*/
 
-long QFileInfo::size() const
+uint QFileInfo::size() const
 {
     if ( !fic || !cache )
 	doStat();
     if ( fic )
-	return fic->st.st_size;
+	return (uint)fic->st.st_size;
     else
-	return -1;
+	return 0;
 }
 
 
