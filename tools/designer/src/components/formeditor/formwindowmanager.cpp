@@ -188,7 +188,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             return true;
 
         case QEvent::KeyPress:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
                 break;
             fw->handleKeyPressEvent(w, static_cast<QKeyEvent*>(e));
             if (static_cast<QKeyEvent*>(e)->isAccepted())
@@ -196,7 +196,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             break;
 
         case QEvent::KeyRelease:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
                 break;
             fw->handleKeyReleaseEvent(w, static_cast<QKeyEvent*>(e));
             if (static_cast<QKeyEvent*>(e)->isAccepted())
@@ -204,31 +204,31 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             break;
 
         case QEvent::MouseMove:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
                 return false;
             fw->handleMouseMoveEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonPress:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
                 return false;
             fw->handleMousePressEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonRelease:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
                 return false;
             fw->handleMouseReleaseEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonDblClick:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
                 return false;
             fw->handleMouseButtonDblClickEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::ContextMenu:
-            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
+            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
                 return true;
             fw->handleContextMenu(w, static_cast<QContextMenuEvent*>(e));
             return true;
@@ -300,12 +300,12 @@ void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
     if (m_activeFormWindow) {
         m_activeFormWindow->emitSelectionChanged();
     }
-    
+
     if (old != 0) {
         disconnect(m_actionUndo, 0, old->commandHistory(), 0);
         disconnect(m_actionRedo, 0, old->commandHistory(), 0);
     }
-    
+
     if (m_activeFormWindow != 0) {
         connect(m_actionUndo, SIGNAL(triggered()), m_activeFormWindow->commandHistory(), SLOT(undo()));
         connect(m_actionRedo, SIGNAL(triggered()), m_activeFormWindow->commandHistory(), SLOT(redo()));
@@ -421,7 +421,7 @@ void FormWindowManager::setupActions()
     m_actionBreakLayout->setWhatsThis(whatsThisFrom("Layout|Break Layout"));
     connect(m_actionBreakLayout, SIGNAL(triggered()), this, SLOT(slotActionBreakLayoutActivated()));
     m_actionBreakLayout->setEnabled(false);
-    
+
     m_actionUndo = new QAction(tr("Undo"));
     m_actionUndo->setShortcut(Qt::CTRL + Qt::Key_Z);
     m_actionUndo->setEnabled(false);
@@ -682,7 +682,7 @@ void FormWindowManager::slotUpdateActions()
         m_actionGridLayout->setEnabled(false);
         m_actionBreakLayout->setEnabled(false);
     }
-    
+
     m_actionUndo->setEnabled(m_activeFormWindow->commandHistory()->canUndo());
     m_actionUndo->setText(tr("Undo ") + m_activeFormWindow->commandHistory()->undoDescription());
     m_actionRedo->setEnabled(m_activeFormWindow->commandHistory()->canRedo());
