@@ -5053,6 +5053,12 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     while ( col == c || ( c < 0 && col < d->h->count() ) ) {
 	if ( d->column[col]->wmode == Maximum ) {
 	    int w = item->width( fm, this, col );
+	    if ( showSortIndicator() && d->sortcolumn == col ) {
+		QString title = header()->label( col );
+		int tw = fm.width( title );
+		tw += 40;
+		w = QMAX( w, tw );
+	    }
 	    if ( col == 0 ) {
 		int indent = treeStepSize() * item->depth();
 		if ( rootIsDecorated() )
