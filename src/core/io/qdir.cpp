@@ -1546,8 +1546,9 @@ QDir::cleanDirPath(const QString &in)
                 }
                 if(p[i+dotcount+1] == '/') {
                     if(dotcount == 2 && levels) {
-                        if(last == -1) {
-                            for(int i2 = iwrite-1; i2 >= 0; i2--) {
+                        if(last == -1 || iwrite - last == 1) {
+                            qDebug("searching..");
+                            for(int i2 = (last == -1) ? (iwrite-1) : (last-1); i2 >= 0; i2--) {
                                 if(out[i2] == '/') {
                                     eaten = true;
                                     last = i2;
