@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#72 $
 **
 ** Implementation of date and time classes
 **
@@ -602,7 +602,7 @@ int QTime::secsTo( const QTime &t ) const
 QTime QTime::addMSecs( int ms ) const
 {
     QTime t;
-    if ( nsecs < 0 ) {
+    if ( ms < 0 ) {
 	// % not well-defined for -ve, but / is.
 	int negdays = (MSECS_PER_DAY-ms) / MSECS_PER_DAY;
 	t.ds = ((int)ds + ms + negdays*MSECS_PER_DAY)
