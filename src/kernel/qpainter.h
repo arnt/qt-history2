@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#60 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#61 $
 **
 ** Definition of QPainter class
 **
@@ -195,7 +195,8 @@ private:
 
     enum { IsActive=0x01, DirtyFont=0x02, DirtyPen=0x04, DirtyBrush=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100,
-	   FontMet=0x200, FontInf=0x400, IsStartingUp=0x800 };
+	   OptPen=0x200, OptBrush=0x400, FontMet=0x800, FontInf=0x1000,
+	   IsStartingUp=0x2000 };
     ushort	flags;
     bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
@@ -231,8 +232,6 @@ protected:
     HANDLE	hpen;				// current pen
     HANDLE	hbrush;				// current brush
     HANDLE	hbrushbm;			// current brush bitmap
-    uint	stockPen	: 1;
-    uint	stockBrush	: 1;
     uint	pixmapBrush	: 1;
     uint	nocolBrush	: 1;
     uint	xfFont		: 1;
