@@ -19,17 +19,12 @@
 #include <qdatetime.h>
 #include <qhash.h>
 #include <qthread.h>
-#include <qthreadstorage.h>
-#include <private/qmutexpool_p.h>
-#define M_LOCK(x) \
-    QMutexLocker locker(qt_global_mutexpool \
-			? qt_global_mutexpool->get(x) \
-			: 0)
+#include <private/qspinlock_p.h>
 
 #define d d_func()
 #define q q_func()
 
-
+static QStaticSpinLock spinlock;
 static QHash<Qt::HANDLE, QEventLoop *> eventloops;
 
 QEventLoopPrivate::QEventLoopPrivate()
@@ -105,15 +100,16 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate(), parent)
 {
-    M_LOCK(&eventloops);
-    eventloops.ensure_constructed();
-    const Qt::HANDLE thr = thread();
-    Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
-	       "Cannot have more than one event loop per thread.");
-    eventloops.insert(thr, this);
+    {
+	QSpinLockLocker locker(::spinlock);
+	eventloops.ensure_constructed();
+	const Qt::HANDLE thr = thread();
+	Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
+		   "Cannot have more than one event loop per thread.");
+	eventloops.insert(thr, this);
+    }
 
     init();
-    qt_setEventLoop(this, this);
 }
 
 
@@ -122,15 +118,16 @@ QEventLoop::QEventLoop(QObject *parent)
 QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
     : QObject(priv, parent)
 {
-    M_LOCK(&eventloops);
-    eventloops.ensure_constructed();
-    const Qt::HANDLE thr = thread();
-    Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
-	       "Cannot have more than one event loop per thread.");
-    eventloops.insert(thr, this);
+    {
+	QSpinLockLocker locker(::spinlock);
+	eventloops.ensure_constructed();
+	const Qt::HANDLE thr = thread();
+	Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
+		   "Cannot have more than one event loop per thread.");
+	eventloops.insert(thr, this);
+    }
 
     init();
-    qt_setEventLoop(this, this);
 }
 
 
@@ -139,11 +136,12 @@ QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
 */
 QEventLoop::~QEventLoop()
 {
-    qt_setEventLoop(this, 0);
     cleanup();
 
-    M_LOCK(&eventloops);
-    eventloops.remove(thread());
+    {
+	QSpinLockLocker locker(::spinlock);
+	eventloops.remove(thread());
+    }
 }
 
 /*!
@@ -159,9 +157,8 @@ QEventLoop::~QEventLoop()
  */
 QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
 {
-    if (thread == 0)
-	thread = QThread::currentThread();
-    M_LOCK(&eventloops);
+    if (thread == 0) thread = QThread::currentThread();
+    QSpinLockLocker locker(::spinlock);
     eventloops.ensure_constructed();
     return eventloops.value(thread);
 }

@@ -7,7 +7,7 @@
 #include "qmetaobject.h"
 
 #include <qvector.h>
-#include <qmutex.h>
+#include <private/qspinlock_p.h>
 
 struct QPostEvent
 {
@@ -24,13 +24,11 @@ struct QPostEvent
 class QPostEventList : public QVector<QPostEvent>
 {
 public:
-    QEventLoop *eventloop;
-
     int offset;
-    QMutex mutex;
+    QSpinLock spinlock;
 
     inline QPostEventList()
-	: QVector<QPostEvent>(), eventloop(0), offset(0)
+	: QVector<QPostEvent>(), offset(0)
     { }
     ~QPostEventList();
 };

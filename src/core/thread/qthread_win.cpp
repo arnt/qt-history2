@@ -15,6 +15,9 @@
 #include "qmutexpool_p.h"
 #include "qthreadstorage.h"
 
+#include <qcoreapplication.h>
+#include <qpointer.h>
+
 #include <windows.h>
 
 
@@ -64,7 +67,7 @@ QThreadInstance *QThreadInstance::current()
 void QThreadInstance::init(unsigned int stackSize)
 {
     stacksize = stackSize;
-    args[0] = args[1] = 0;
+    args[0] = args[1] = args[2] = 0;
     thread_storage = 0;
     finished = FALSE;
     running = FALSE;
@@ -88,7 +91,17 @@ unsigned int __stdcall QThreadInstance::start( void *_arg )
 
     TlsSetValue( qt_tls_index, arg[1] );
 
-    ( (QThread *) arg[0] )->run();
+    QPointer<QThread> thr = reinterpret_cast<QThread *>(arg[0]);
+    arg[2] = reinterpret_cast<Qt::HANDLE>(thr->thread());
+    thr->QObject::setThread(QThread::currentThread());
+    emit thr->started();
+    thr->run();
+    if (thr) {
+	emit thr->finished();
+	QCoreApplication::sendPostedEvents();
+	thr->QObject::setThread(reinterpret_cast<Qt::HANDLE>(arg[2]));
+	arg[0] = arg[1] = arg[2] = 0;
+    }
 
     finish( (QThreadInstance *) arg[1] );
 
@@ -105,7 +118,7 @@ void QThreadInstance::finish( QThreadInstance *d )
     QMutexLocker locker( d->mutex() );
     d->running = FALSE;
     d->finished = TRUE;
-    d->args[0] = d->args[1] = 0;
+    d->args[0] = d->args[1] = d->args[2] = 0;
 
     QThreadStorageData::finish( d->thread_storage );
     d->thread_storage = 0;
@@ -138,9 +151,16 @@ void QThreadInstance::terminate()
     void **storage = thread_storage;
     thread_storage = 0;
 
+    if (args[0] && args[1] && args[2]) {
+	QThread *thr = reinterpret_cast<QThread *>(args[0]);
+	Qt::HANDLE old = reinterpret_cast<Qt::HANDLE>(args[2]);
+	emit thr->terminated();
+	thr->QObject::setThread(old);
+    }
+
     running = FALSE;
     finished = TRUE;
-    args[0] = args[1] = 0;
+    args[0] = args[1] = args[2] = 0;
     id = 0;
 
     if ( orphan ) {
@@ -213,6 +233,7 @@ void QThread::start(Priority priority)
     d->finished = FALSE;
     d->args[0] = this;
     d->args[1] = d;
+    d->args[2] = 0;
 
     /*
       NOTE: we create the thread in the suspended state, set the
@@ -232,7 +253,7 @@ void QThread::start(Priority priority)
 
 	d->running = FALSE;
 	d->finished = TRUE;
-	d->args[0] = d->args[1] = 0;
+	d->args[0] = d->args[1] = d->args[2] = 0;
 	return;
     }
 
