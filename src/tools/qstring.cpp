@@ -13508,7 +13508,7 @@ QString QString::fields( QChar sep, int field, int count, int flags ) const
 
 	if(field < 0) {
 	    if(match) {
-		if(m != count) {
+		if(count < 0 && m != count) {
 		    m--;
 		    end = start;
 		}
@@ -13517,14 +13517,8 @@ QString QString::fields( QChar sep, int field, int count, int flags ) const
 	    }
 	    start--;
 	} else {
-	    if(match) {
-		if(count > 0) {
-		    m++;
-		    end = start;
-		}
-		if(!--field)
+	    if(match && !--field)
 		    break;
-	    }
 	    start++;
 	}
 	if(start > uc + n || start < uc)
@@ -13617,10 +13611,6 @@ QString QString::fields( QString sep, int field, int count, int flags ) const
 
 	if(field < 0) {
 	    if(match) {
-		if(m != count) {
-		    m--;
-		    end = start;
-		}
 		if(!++field)
 		    break;
 		start -= sep_len;
@@ -13629,10 +13619,6 @@ QString QString::fields( QString sep, int field, int count, int flags ) const
 	    }
 	} else {
 	    if(match) {
-		if(count > 0) {
-		    m++;
-		    end = start;
-		}
 		if(!--field) 
 		    break;
 		start += sep_len;
@@ -13743,7 +13729,7 @@ QString QString::fields( const QRegExp &sep, int field, int count, int flags ) c
 
 	if(field < 0) {
 	    if(match) {
-		if(m != count) {
+		if(count < 0 && m != count) {
 		    m--;
 		    end = start;
 		}
@@ -13755,10 +13741,6 @@ QString QString::fields( const QRegExp &sep, int field, int count, int flags ) c
 	    }
 	} else {
 	    if(match) {
-		if(count > 0) {
-		    m++;
-		    end = start;
-		}
 		if(!--field)
 		    break;
 		start += match_len;
