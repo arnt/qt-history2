@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#168 $
 **
 ** Implementation of QApplication class
 **
@@ -511,7 +511,7 @@ int QApplication::colorSpec()
   \endcode
 
   QColor provides more functionality for controlling color allocation and
-  freeing up certains colors. See QColor::enterAllocContext() for more
+  freeing up certain colors. See QColor::enterAllocContext() for more
   information.
 
   To see what mode you end up with, you can call QColor::numBitPlanes()
@@ -629,10 +629,10 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   may be used to do some style-based central customization of widgets.
 
   Note that you are not limited to public functions of \llink QWidget.
-  Instead, based on meta informations like \link QObject::className()
+  Instead, based on meta information like \link QObject::className()
   you are able to customize any kind of widgets.
 
-  The default implemention calls QStyle::polish().
+  The default implementation calls QStyle::polish().
 
   \sa QStyle::polish(), QWidget::polish()
 */
@@ -849,7 +849,7 @@ void QApplication::quit()
   gets all the events except Tab and Shift-Tab key presses.
 
   <li> Finally, reimplementing paintEvent(), mousePressEvent() and so
-  on.  This is the normal, easist and least powerful way. </ol>
+  on.  This is the normal, easiest and least powerful way. </ol>
 
   \sa QObject::event(), installEventFilter()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.4 1998/06/30 16:47:08 aavit Exp $
+** $Id: index.doc,v 1.5 1998/10/31 02:27:25 agulbra Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.4 1998/06/30 16:47:08 aavit Exp $";
+static char ident[] = "$Id: index.doc,v 1.5 1998/10/31 02:27:25 agulbra Exp $";
 #endif
 
 /*! \page xt.html
@@ -27,7 +27,7 @@ Xt and Motif based code to the more comfortable Qt toolkit.
 
 <h2>Information</h2>
 
-The Qt Xt/Motif Extension consistsw of the following classes:
+The Qt Xt/Motif Extension consists of the following classes:
 <ul>
   <li><a href=qxtapplication.html>QXtApplication</a> Allows mixing of Xt/Motif and Qt widgets
   <li><a href=qxtwidget.html>QXtWidget</a> Base widget for Xt/Motif and Qt combination

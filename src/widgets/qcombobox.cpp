@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#155 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1698,7 +1698,7 @@ void QComboBox::clearValidator()
 
   \warning QComboBox assumes that newListBox->text(n) returns
   non-null for 0 \<= n \< newListbox->count().  This assumption is
-  necessary becuase of the line edit in QComboBox.
+  necessary because of the line edit in QComboBox.
 */
 
 void QComboBox::setListBox( QListBox * newListBox )

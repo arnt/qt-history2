@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.16 1998/08/20 21:26:53 agulbra Exp $
+** $Id: examples.doc,v 2.17 1998/10/31 02:27:23 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.16 1998/08/20 21:26:53 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 2.17 1998/10/31 02:27:23 agulbra Exp $";
 #endif
 
 
@@ -37,7 +37,7 @@ static char ident[] = "$Id: examples.doc,v 2.16 1998/08/20 21:26:53 agulbra Exp 
 
   \include biff/main.cpp
 
-  biff.h is the declaratin for the custom widget which does all the
+  biff.h is the declaration for the custom widget which does all the
   work:
 
   \include biff/biff.h

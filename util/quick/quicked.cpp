@@ -77,7 +77,7 @@ QuickEditedWidget::~QuickEditedWidget()
 
 /*!
   Flags \a w to be monitored.  The widget must be a subwidget of
-  this QuickEditedWidget.  \a top is for inernal use and should
+  this QuickEditedWidget.  \a top is for internal use and should
   always be TRUE.  The monitored widget is resized to its sizeHint(),
   in preparation for editing <b>(this may be inappropriate)</b>.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#23 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -735,7 +735,7 @@ QWhatsThis::~QWhatsThis()
 /*!  Enters What's This? question mode and returns immediately.
   
   What's This will install a special cursor and take over mouse input
-  until the user click somewhere, then show any help avaiable and
+  until the user click somewhere, then show any help available and
   switch out of What's This mode.  Finally, What's This removes its
   cursor and help window and restores ordinary event processing.  At
   this point the left mouse button is not pressed.

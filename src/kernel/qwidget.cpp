@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#297 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#298 $
 **
 ** Implementation of QWidget class
 **
@@ -3093,7 +3093,7 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
   underlying window system (or X11 window manager), the widgets'
   location and maybe more.
 
-  The default implemenattion implements the closing of popup widgets
+  The default implementation implements the closing of popup widgets
   when you click outside the window. For other widget types it does
   nothing.
 

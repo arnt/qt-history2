@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#74 $
 **
 ** Implementation of event classes
 **
@@ -836,7 +836,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn void *QCustomEvent::data() const
   Returns a pointer to the event data (specified in the constructor).
 
-  The event data can be anything and must be casted to something useful
+  The event data can be anything and must be cast to something useful
   based on the \link type() event type\endlink. Again, it is not
   recommended to use custom events unless you are implementing Qt kernel
   enhancements.
@@ -952,7 +952,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \class QDragEnterEvent qevent.h
   \brief The event sent to widgets when a drag-and-drop first drags onto it.
 
-  This event is always immediated followed by a QDragMoveEvent, thus you need
+  This event is always immediate followed by a QDragMoveEvent, thus you need
   only respond to one or the other event.
 
   \sa QDragLeaveEvent, QDragMoveEvent, QDropEvent

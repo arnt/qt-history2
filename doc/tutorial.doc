@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.14 1998/06/16 15:41:10 agulbra Exp $
+** $Id: tutorial.doc,v 2.15 1998/10/31 02:27:24 agulbra Exp $
 **
 ** Tutorial
 **
@@ -1116,7 +1116,7 @@ and adjust the given number of degrees accordingly.
 We have chosen not to issue a warning if the new angle is out of range.
 
 If the new angle equals the old one, we return immediately.
-It is impotrant to only emit the signal angleChanged() when the
+It is important to only emit the signal angleChanged() when the
 angle \e really has changed.
 
 Then we set the new angle value and repaint our widget. The
@@ -1576,7 +1576,7 @@ The interface to the force follows the same practice as for angle.
 \until cannonRect
 
 We have moved the painting of the cannon to a separate function and have
-also put the defintion of the cannon's enclosing rectangle in a separate
+also put the definition of the cannon's enclosing rectangle in a separate
 function.
 
 \skip ang
@@ -1980,7 +1980,7 @@ We calculate the center point in a coordinate system where y coordinates
 increase upwards.  After we have calculated the center point, we construct
 a QRect with size 6x6 and move its center point to the point calculated
 above. In the same operation, we convert the point into the widget's
-coodinate system (see \link coordsys.html The Coordinate System\endlink).
+coordinate system (see \link coordsys.html The Coordinate System\endlink).
 
 The qRound() function is an inline function defined in qglobal.h (included
 by all other Qt header files).  qRound() rounds a double to the closest

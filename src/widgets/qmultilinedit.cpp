@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#118 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1934,7 +1934,7 @@ void QMultiLineEdit::markWord( int posx, int posy )
 /*!
   This may become a protected virtual member in a future Qt.
   This implementation is an example of a useful classification
-  that aides selection of common units like filenames and URLs.
+  that aids selection of common units like filenames and URLs.
 */
 int QMultiLineEdit::charClass( char ch )
 {

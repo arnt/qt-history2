@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qdict.doc,v 2.5 1998/06/25 00:54:39 agulbra Exp $
+** $Id: qdict.doc,v 2.6 1998/10/31 02:27:24 agulbra Exp $
 **
 ** QDict and QDictIterator class documentation
 **
@@ -154,7 +154,7 @@
 
   Setting \e caseSensitive to TRUE will treat "abc" and "Abc" as different
   keys.  Setting it to FALSE will make the dictionary ignore case.
-  Case insensitive comparision includes only the 26 standard letters A..Z,
+  Case insensitive comparison includes only the 26 standard letters A..Z,
   not French or German accents or Scandinavian letters.
 
   Setting \e copyKeys to TRUE will make the dictionary copy the key

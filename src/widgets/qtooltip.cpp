@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#66 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -845,7 +845,7 @@ void QToolTip::clear()
   isn't a member of any group.
 
   The tool tip group is the object responsible for relaying contact
-  betweeen tool tips and a status bar or something else which can show
+  between tool tips and a status bar or something else which can show
   a longer help text.
 
   \sa parentWidget(), QToolTipGroup
@@ -930,7 +930,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.60 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.61 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

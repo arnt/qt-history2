@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#33 $
 **
 ** Implementation of QToolBar class
 **
@@ -69,7 +69,7 @@
 */
 
 
-/*!  Constructs an empty tool bar which is a chilf od \a parent and
+/*!  Constructs an empty tool bar which is a child od \a parent and
   managed by \a parent, initially in \a dock, labelled \a and starting
   a new line in the dock if \a newLine is TRUE.  \a name is the object
   name, as usual.

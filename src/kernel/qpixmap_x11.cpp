@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#133 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -957,7 +957,7 @@ QImage QPixmap::convertToImage() const
 		This is the default when converting to a pixmap.
      <li> \c AvoidDither - only dither 32-bit images if
 		the image
-		has more than 256 colours and it
+		has more than 256 colors and it
 		is being converted to 8-bits.
 		This is the default when an image is converted
 		for the purpose of saving to a file.
@@ -1348,7 +1348,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   Grabs the contents of a window and makes a pixmap out of it.
   Returns the pixmap.
 
-  The argments \e (x,y) specify the offset in the window, while
+  The arguments \e (x,y) specify the offset in the window, while
   \e (w,h) specify the width and height of the area to be copied.
 
   If \e w is negative, the function copies everything to the right

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#124 $
 **
 ** Implementation of QMenuBar class
 **
@@ -1036,7 +1036,7 @@ void QMenuBar::setActItem( int i, bool clear )
 /*!  Sets the windows alt-key mode to \a enable, optionally setting
   item \a index to be the active item.
 
-  Windows alt-key mode lets the user use the keys to move alond the
+  Windows alt-key mode lets the user use the keys to move along the
   menu bar.  You get into this mode by pressing and releasing alt or
   by moving the mouse onto the menu bar.
 */

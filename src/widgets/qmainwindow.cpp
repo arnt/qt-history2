@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#36 $
 **
 ** Implementation of QMainWindow class
 **
@@ -55,7 +55,7 @@
 
   The central widget is not touched by QMainWindow.  QMainWindow
   manages its geometry, and that is all.  For example, the
-  application/application.cpp exmple (an editor) sets a QMultiLineEdit
+  application/application.cpp example (an editor) sets a QMultiLineEdit
   to be the central widget.
 
   QMainWindow automatically detects the creation of a menu bar or
@@ -592,7 +592,7 @@ void QMainWindow::show()
 }
 
 
-/*!  Sets the central widget for this window to \a w.  The centail
+/*!  Sets the central widget for this window to \a w.  The central
   widget is the one around which the toolbars etc. are arranged.
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#110 $
 **
 ** Implementation of QScrollBar class
 **
@@ -300,7 +300,7 @@ void QScrollBar::setOrientation( Orientation orientation )
 
 /*!
   Returns TRUE if the user has clicked the mouse on the slider
-  and is currenly dragging it, or FALSE if not.
+  and is currently dragging it, or FALSE if not.
 */
 
 bool QScrollBar::draggingSlider() const

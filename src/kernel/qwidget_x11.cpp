@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#282 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#283 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -762,7 +762,7 @@ void QWidget::grabMouse()
 }
 
 /*!
-  Grabs the mouse intput and changes the cursor shape.
+  Grabs the mouse input and changes the cursor shape.
 
   The cursor will assume shape \e cursor (for as long as the mouse focus is
   grabbed) and this widget will be the only one to receive mouse events

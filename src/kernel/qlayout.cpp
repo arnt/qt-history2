@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#63 $
 **
 ** Implementation of layout classes
 **
@@ -950,7 +950,7 @@ void QGridLayout::invalidate()
   The easiest way to create a QBoxLayout is to use one of the
   convenience classes QHBoxLayout (for \c Horizontal boxes) or
   QVBoxLayout (for \c Vertical boxes). You can also use the QBoxLayout
-  constuctor directly, specifying its direction as \c LeftToRight, \c
+  constructor directly, specifying its direction as \c LeftToRight, \c
   Down, \c RightToLeft or \c Up.
 
   If the QBoxLayout is not the top-level layout (ie. is not managing

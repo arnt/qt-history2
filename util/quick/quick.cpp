@@ -230,7 +230,7 @@ void Quick::flagChange()
 }
 
 /*!
-  Reads the widget hierarchy from \a filename, dicarding any current
+  Reads the widget hierarchy from \a filename, discarding any current
   contents without confirmation.  If the file cannot be read, and
   \a complain is TRUE, the user is informed, otherwise the filename for
   the contents is changed to \a filename.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#42 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -90,7 +90,7 @@
   is called.  Of course, the image may not have been decoded by then, in
   which case the frame should not be displayed until it is complete.
   A value of -1 (the assumed default) indicates that the image should
-  be diplayed even while it is only partially loaded.
+  be displayed even while it is only partially loaded.
 */
 
 /*!
@@ -179,7 +179,7 @@ QImageDecoder::~QImageDecoder()
   returns FALSE.
 
   Returns the number of bytes consumed, 0 if consumption is complete,
-  and -1 if decoding fails dur to invalid data.
+  and -1 if decoding fails due to invalid data.
 */
 int QImageDecoder::decode(const uchar* buffer, int length)
 {
@@ -385,7 +385,7 @@ QImageFormat::~QImageFormat()
 	    uchar* buffer, int length)
 
   Returns a decoder for decoding an image which starts with the give bytes.
-  This function should only return a decoder if it is definate that the
+  This function should only return a decoder if it is definite that the
   decoder applies to data with the given header.  Returns 0 if there is
   insufficient data in the header to make a positive identification,
   or if the data is not recognized.

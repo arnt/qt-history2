@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.30 1998/08/20 21:27:02 agulbra Exp $
+** $Id: misc.doc,v 2.31 1998/10/31 02:27:24 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.30 1998/08/20 21:27:02 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.31 1998/10/31 02:27:24 agulbra Exp $";
 #endif
 
 
@@ -267,7 +267,7 @@ encourage you to use this mailing list in stead of
 <tt>qt-interest</tt> for snapshot-specific issues.
 
 <small>Troll Tech does not sell or in any way redistribute the
-adresses on our mailing lists. We also employ active filtering to
+addresses on our mailing lists. We also employ active filtering to
 ensure the mailing lists are virtually free from spam.</small>
 
 */

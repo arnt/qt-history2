@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#53 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -60,7 +60,7 @@
   circular behavior.
 
   The displayed value can be appended and/or prepended with an
-  arbitray string indicating for example the unit of measurement. See
+  arbitrary string indicating for example the unit of measurement. See
   setPrefix() and setSuffix().
 
   It is often desirable to give the user a special, often default,

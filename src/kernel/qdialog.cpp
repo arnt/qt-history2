@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#61 $
 **
 ** Implementation of QDialog class
 **
@@ -93,7 +93,7 @@
   Constructs a dialog named \e name, which has a parent widget \e parent.
 
   The dialog will by default be modeless, unless you set \e modal to
-  TRUE to contruct a modal dialog.
+  TRUE to construct a modal dialog.
 
   The \a f argument is the \link QWidget::QWidget() widget flags,
   \endlink which can be used to customize the window frame style.

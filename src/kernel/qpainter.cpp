@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#156 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2826,7 +2826,7 @@ void QBrush::setColor( const QColor &c )
 /*!
   Sets the brush pixmap.  The style is set to \c CustomPattern.
 
-  The curren brush color will only have an effect for monochrome pixmaps,
+  The current brush color will only have an effect for monochrome pixmaps,
   i.e.	QPixmap::depth() == 1.
 
   \sa pixmap(), color()

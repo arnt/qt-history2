@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#10 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#11 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -878,7 +878,7 @@ void QGLContext::swapBuffers()
   when you are finished.
 
   Like QGLContext, QGLWidget has advanced functions for requesting
-  a new contex format and you can even set a new context.
+  a new context format and you can even set a new context.
 */
 
 

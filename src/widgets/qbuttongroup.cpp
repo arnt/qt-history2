@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#49 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -173,7 +173,7 @@ void QButtonGroup::setExclusive( bool enable )
   negative integer, for instance -2, a unique identifier (negative
   integer \<= -2) is generated.
 
-  Inserting several buttons with \e id = -1 assigns the identifers 0,
+  Inserting several buttons with \e id = -1 assigns the identifiers 0,
   1, 2, etc.
 
   This function calls setExclusive(TRUE) if \e button is a

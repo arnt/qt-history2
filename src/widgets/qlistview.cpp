@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#169 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#170 $
 **
 ** Implementation of QListView widget class
 **
@@ -643,7 +643,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 }
 
 
-/*!  Sets this item's own height to \a height pixels.  This implictly
+/*!  Sets this item's own height to \a height pixels.  This implicitly
   changes totalHeight() too.
 
   Note that e.g. a font change causes this height to be overwitten
@@ -1000,7 +1000,7 @@ const QPixmap * QListViewItem::pixmap( int column ) const
 
   This function may use QListView::itemMargin() for readability
   spacing on the left and right sides of information such as text,
-  and should honour isSelected() and QListView::allColumnsShowFocus().
+  and should honor isSelected() and QListView::allColumnsShowFocus().
 
   If you reimplement this function, you should also reimplement
   width().
@@ -1378,7 +1378,7 @@ void QListViewPrivate::Root::setup()
 
   <img src="treeview.gif" width="256" height="216" alt="Example Tree View">
   <br clear="all">
-  Motif style, hierarchial (from the dirview/dirview.cpp example)
+  Motif style, hierarchical (from the dirview/dirview.cpp example)
 
   \internal
 
@@ -1647,7 +1647,7 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 }
 
 
-/*! Rebuilds the lis of drawable QListViewItems.  This function is
+/*! Rebuilds the list of drawable QListViewItems.  This function is
   const so that const functions can call it without requiring
   d->drawables to be mutable */
 
@@ -2033,7 +2033,7 @@ void QListView::enabledChange( bool )
 }
 
 
-/*!  Triggers a size, geometry and contentual update during the next
+/*!  Triggers a size, geometry and content update during the next
   iteration of the event loop.  Cleverly makes sure that there'll be
   just one update, to avoid flicker. */
 
@@ -3000,7 +3000,7 @@ void QListView::setPalette( const QPalette & p )
 
 
 /*!  Ensures that setup() are called for all currently visible items,
-  and that it will be called for currently invisuble items as soon as
+  and that it will be called for currently invisible items as soon as
   their parents are opened.
 
   (A visible item, here, is an item whose parents are all open.  The
@@ -3615,7 +3615,7 @@ bool QListView::rootIsDecorated() const
 }
 
 
-/*!  Ensures that \a i is makde visible, scrolling the list view
+/*!  Ensures that \a i is made visible, scrolling the list view
   vertically as required.
 
   \sa itemRect() QSCrollView::ensureVisible()

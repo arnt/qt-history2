@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#64 $
 **
 ** Implementation of QDir class
 **
@@ -927,7 +927,7 @@ QDir &QDir::operator=( const QString &path )
 
 /*!
   \fn bool QDir::operator!=( const QDir &d ) const
-  Returns TRUE if the \e d and this dir havee different path or
+  Returns TRUE if the \e d and this dir have different path or
   different sort/filter settings, otherwise FALSE.
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#182 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#183 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -113,7 +113,7 @@ static void popupSubMenuLater( int msec, QObject * receiver ) {
 
 /*! \fn void QPopupMenu::aboutToShow()
 
-  This signal is emited just before the popup menu is displayed.  You
+  This signal is emitted just before the popup menu is displayed.  You
   can connect it to any slot that sets up the menu contents (e.g. to
   ensure that the right items are enabled).
 
