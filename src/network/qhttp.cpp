@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#31 $
+** $Id: //depot/qt/main/src/network/qhttp.cpp#32 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -907,8 +907,10 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
 */
 QString QHttpRequestHeader::toString() const
 {
-    QString ret( "%1 %2 HTTP/%3.%4\r\n%5\r\n" );
-    return ret.arg( m_method ).arg( m_path ).arg( m_version / 10 ).arg ( m_version % 10 ).arg( QHttpHeader::toString() );
+    QString first( "%1 %2");
+    QString last(" HTTP/%3.%4\r\n%5\r\n" );
+    return first.arg( m_method ).arg( m_path ) +
+	last.arg( m_version / 10 ).arg( m_version % 10 ).arg( QHttpHeader::toString());
 }
 
 /*!
