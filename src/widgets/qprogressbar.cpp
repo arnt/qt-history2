@@ -183,7 +183,7 @@ void QProgressBar::setProgress( int progress )
 
     if ( setIndicator( progress_str, progress_val, total_steps ) )
 	needClearing = TRUE;
-    repaint( needClearing );
+    repaint( contentsRect(), needClearing );
     if ( autoMask() )
 	updateMask();
 }
