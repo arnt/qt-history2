@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#13 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#14 $
 **
 ** Implementation of QFileDialog class
 **
@@ -134,7 +134,7 @@ public:
 
     virtual QUrlInfo info( const QString &entry ) const;
     operator QString() const;
-    virtual QString toString() const;
+    virtual QString toString( bool encodedPath = FALSE ) const;
 
     virtual bool cdUp();
 
@@ -172,7 +172,7 @@ protected:
     virtual void clearEntries();
     void getNetworkProtocol();
     bool checkValid();
-    
+
 private:
     QUrlPrivate *d;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#34 $
 **
 ** Implementation of QFileDialog class
 **
@@ -279,6 +279,7 @@ QUrl::QUrl()
     d->isValid = FALSE;
     d->nameFilter = "*";
     d->networkProtocol = 0;
+    d->port = -1;
 }
 
 /*!
@@ -604,7 +605,7 @@ void QUrl::parse( const QString& url )
     d->isValid = TRUE;
     QString oldProtocol = d->protocol;
     d->protocol = QString::null;
-    
+
     const int Init 	= 0;
     const int Protocol 	= 1;
     const int Separator1= 2; // :
@@ -764,12 +765,6 @@ void QUrl::parse( const QString& url )
 
     if ( d->networkProtocol )
  	delete d->networkProtocol;
-    if ( d->port == -1 ) {
-	if ( d->protocol == "ftp" )
-	    d->port = 21;
-	else if ( d->protocol == "http" )
-	    d->port = 80;
-    }
     getNetworkProtocol();
 
 #if 0
@@ -1290,7 +1285,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec 
 {
     if ( !checkValid() )
 	return;
-    
+
     clearEntries();
     if ( isLocalFile() ) {
 	d->dir = QDir( d->path );
@@ -1569,15 +1564,20 @@ QString QUrl::nameFilter() const
   Composes a string of the URL and returns it.
 */
 
-QString QUrl::toString() const
+QString QUrl::toString( bool encodedPath ) const
 {
+    QString res, p = path();
+    if ( encodedPath )
+	encode( p ); 
+    
     if ( isLocalFile() ) {
 	if ( !qNetworkProtocolRegister || ( qNetworkProtocolRegister &&
 					    qNetworkProtocolRegister->count() == 0 ) )
-	    return path();
-	return d->protocol + ":" + path();
+	    res = p;
+	else
+	    res = d->protocol + ":" + p;
     } else {
-	QString res = d->protocol + "://";
+	res = d->protocol + "://";
 	if ( !d->user.isEmpty() || !d->pass.isEmpty() ) {
 	    if ( !d->user.isEmpty() )
 		res += d->user;
@@ -1585,12 +1585,20 @@ QString QUrl::toString() const
 		res += ":" + d->pass;
 	    res += "@";
 	}
-	res += d->host + path();
-	
-	// #### todo better way to compose an URL
-	
-	return res;
+	res += d->host;
+	if ( d->port != -1 )
+	    res += ":" + QString( "%1" ).arg( d->port );
+	res += p;
     }
+    
+    if ( qNetworkProtocolRegister && qNetworkProtocolRegister->count() > 0 ) {
+	if ( !d->refEncoded.isEmpty() )
+	    res += "#" + d->refEncoded;
+	if ( !d->queryEncoded.isEmpty() )
+	    res += "?" + d->queryEncoded;
+    }
+    
+    return res;
 }
 
 /*!
