@@ -138,6 +138,10 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 	    d->startTimer( TRUE, 300 );
 	}
     }
+
+    if (!oldButtonDown && !d->buttonDown)
+	e->ignore();
+
 }
 
 /*!
@@ -219,6 +223,9 @@ void QSpinWidget::mouseReleaseEvent( QMouseEvent *e )
     }
     d->stopTimer();
     d->buttonDown = 0;
+
+    if (!oldButtonDown && !d->buttonDown)
+	e->ignore();
 }
 
 
@@ -249,6 +256,9 @@ void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
 	d->theButton = 1;
 	repaint( d->down, FALSE );
     }
+
+    if (!oldButtonDown && !d->buttonDown)
+	e->ignore();
 }
 
 

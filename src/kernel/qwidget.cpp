@@ -2780,7 +2780,16 @@ bool QWidget::hasFocus() const
     const QWidget* w = this;
     while ( w->d->extra && w->d->extra->focus_proxy )
 	w = w->d->extra->focus_proxy;
-    return qApp->focus_widget == w;
+    if (w->testAttribute(WA_CompositeChild)
+	&& w->parentWidget()
+	&& w->parentWidget()->testAttribute(WA_CompositeParent)) {
+	while (w->testAttribute(WA_CompositeChild)
+	       && w->parentWidget()
+	       && w->parentWidget()->testAttribute(WA_CompositeParent))
+	    w = w->parentWidget();
+	return (qApp->focus_widget == w && w->focusProxy() == this);
+    }
+    return (qApp->focus_widget == w);
 }
 
 /*!
@@ -2816,6 +2825,11 @@ void QWidget::setFocus()
     QWidget *f = this;
     while (f->d->extra && f->d->extra->focus_proxy)
 	f = f->d->extra->focus_proxy;
+
+    while (f->testAttribute(WA_CompositeChild)
+	   && f->parentWidget()
+	   && f->parentWidget()->testAttribute(WA_CompositeParent))
+	f = f->parentWidget();
 
     if (qApp->focus_widget == f
 #if defined(Q_WS_WIN)
@@ -2959,7 +2973,12 @@ bool QWidget::focusNextPrevChild( bool next )
     QWidget *test = f->d->focus_next;
     while (test != f) {
 	if ((test->focusPolicy() & focus_flag) == focus_flag
-	    && !(test->d->extra && test->d->extra->focus_proxy)
+	    && !(test->d->extra && test->d->extra->focus_proxy
+		 && !(test->testAttribute(WA_CompositeParent)
+		      && test->d->extra->focus_proxy->testAttribute(WA_CompositeChild)))
+	    && !(test->testAttribute(WA_CompositeChild)
+		 && test->parentWidget()
+		 && test->parentWidget()->testAttribute(WA_CompositeParent))
 	    && test->isVisibleTo(this) && test->isEnabled()) {
 	    w = test;
 	    if (next)
@@ -3121,28 +3140,31 @@ bool QWidget::isActiveWindow() const
 */
 void QWidget::setTabOrder( QWidget* first, QWidget *second )
 {
-    if ( !first || !second ||
-	first->focusPolicy() == NoFocus || second->focusPolicy() == NoFocus )
+    if (!first || !second || first->focusPolicy() == NoFocus || second->focusPolicy() == NoFocus)
 	return;
 
-    // If first is redirected, set first to the last child of first
-    // that can take keyboard focus so that second is inserted after
-    // that last child, and the focus order within first is (more
-    // likely to be) preserved.
-    if ( first->focusProxy() ) {
-	QObjectList l = first->queryList( "QWidget" );
-	if ( l.size() ) {
-            for (int i = l.size()-1; i >= 0; --i) {
-		first = static_cast<QWidget*>(l.at(i));
-		if (first->focusPolicy() != NoFocus)
-		    break;
-	    }
+    QWidget *fp = first->focusProxy();
+    if (fp && !(first->testAttribute(WA_CompositeParent)
+		&& fp->testAttribute(WA_CompositeChild))) {
+
+	// If first is redirected, set first to the last child of first
+	// that can take keyboard focus so that second is inserted after
+	// that last child, and the focus order within first is (more
+	// likely to be) preserved.
+	QObjectList l = first->queryList("QWidget");
+	for (int i = l.size()-1; i >= 0; --i) {
+	    fp = static_cast<QWidget*>(l.at(i));
+	    if (fp->focusPolicy() != NoFocus)
+		break;
 	}
+
+	first = fp;
     }
-    while ( first->focusProxy() )
-	first = first->focusProxy();
-    while ( second->focusProxy() )
-	second = second->focusProxy();
+
+    QWidget *sp = second->focusProxy();
+    if (sp && !(second->testAttribute(WA_CompositeParent)
+		&& sp->testAttribute(WA_CompositeChild)))
+	second = sp;
 
     QWidget *p = second;
     while (p->d->focus_next != second)
@@ -3722,6 +3744,101 @@ void QWidget::hideChildren(bool spontaneous)
     }
 }
 
+bool QWidgetPrivate::compositeEvent(QEvent *e)
+{
+    if (!q->testAttribute(QWidget::WA_CompositeParent))
+	return false;
+
+    QWidget *w = 0;
+    QPoint pos;
+    switch (e->type()) {
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::MouseMove:
+	if ((w = compositeChildGrab))
+	    goto subwidget;
+	pos = ((QMouseEvent*)e)->pos();
+	break;
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+	pos = ((QWheelEvent*)e)->pos();
+	break;
+#endif
+    case QEvent::TabletMove:
+    case QEvent::TabletPress:
+    case QEvent::TabletRelease:
+	pos = ((QTabletEvent*)e)->pos();
+	break;
+    case QEvent::ContextMenu:
+	if (((QContextMenuEvent*)e)->reason() == QContextMenuEvent::Mouse) {
+	    pos = ((QContextMenuEvent*)e)->pos();
+	    break;
+	}
+	// fall through
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+	if (q->testAttribute(QWidget::WA_CompositeParent) && (w = q->focusProxy())
+	    && w->testAttribute(QWidget::WA_CompositeChild)) {
+	    ((QInputEvent *)e)->accept();
+	    return QApplication::sendEvent(w, e);
+	}
+	return false;
+    default:
+	return false;
+    }
+
+    for (int i = children.size()-1; i >= 0 ; --i) {
+	w = static_cast<QWidget *>(children.at(i));
+	if (!w->isWidgetType())
+	    continue;
+	if (w->testAttribute(QWidget::WA_CompositeChild) && w->crect.contains(pos))
+	    goto subwidget;
+    }
+    return false;
+ subwidget:
+    switch (e->type()) {
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+	if ((((QMouseEvent*)e)->state() & MouseButtonMask) == 0)
+	    compositeChildGrab = w;
+	else if ((((QMouseEvent*)e)->stateAfter() & MouseButtonMask) == 0)
+	    compositeChildGrab = 0;
+	// fall through
+    case QEvent::MouseButtonDblClick:
+    case QEvent::MouseMove:
+    {
+	QMouseEvent *c = (QMouseEvent*)e;
+	QMouseEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->button(), c->state());
+	return QApplication::sendEvent(w, &s);
+    }
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+    {
+	QWheelEvent *c = (QWheelEvent*)e;
+	QWheelEvent s(c->pos() - w->pos(), c->globalPos(), c->delta(), c->state(), c->orientation());
+	return QApplication::sendEvent(w, &s);
+    }
+#endif
+    case QEvent::TabletMove:
+    case QEvent::TabletPress:
+    case QEvent::TabletRelease:
+    {
+	QTabletEvent *c = (QTabletEvent*)e;
+	QTabletEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->device(), c->pressure(),
+		       c->xTilt(), c->yTilt(), c->uniqueId());
+	return QApplication::sendEvent(w, &s);
+    }
+    case QEvent::ContextMenu:
+    {
+	QContextMenuEvent *c = (QContextMenuEvent*)e;
+	QContextMenuEvent s(c->reason(), c->pos() - w->pos(), c->globalPos(), c->state());
+	return QApplication::sendEvent(w, &s);
+    }
+    default:
+	return false;
+    }
+}
 
 bool QWidgetPrivate::close_helper(CloseMode mode)
 {
@@ -4088,32 +4205,32 @@ bool QWidget::event( QEvent *e )
     case QEvent::MouseMove:
 	mouseMoveEvent( (QMouseEvent*)e );
 	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
 	break;
 
     case QEvent::MouseButtonPress:
 	resetInputContext();
 	mousePressEvent( (QMouseEvent*)e );
 	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
 	break;
 
     case QEvent::MouseButtonRelease:
 	mouseReleaseEvent( (QMouseEvent*)e );
 	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
 	break;
 
     case QEvent::MouseButtonDblClick:
 	mouseDoubleClickEvent( (QMouseEvent*)e );
 	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
 	break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
 	wheelEvent( (QWheelEvent*)e );
 	if ( ! ((QWheelEvent*)e)->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
 	break;
 #endif
     case QEvent::TabletMove:
@@ -4121,7 +4238,7 @@ bool QWidget::event( QEvent *e )
     case QEvent::TabletRelease:
 	tabletEvent( (QTabletEvent*)e );
 	if ( ! ((QTabletEvent*)e)->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
 	break;
     case QEvent::Accel:
 	((QKeyEvent*)e)->ignore();
@@ -4147,14 +4264,14 @@ bool QWidget::event( QEvent *e )
 	}
 	keyPressEvent( k );
 	if ( !k->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
     }
 	break;
 
     case QEvent::KeyRelease:
 	keyReleaseEvent( (QKeyEvent*)e );
 	if ( ! ((QKeyEvent*)e)->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent(e);
 	break;
 
     case QEvent::IMStart: {
@@ -4181,13 +4298,25 @@ bool QWidget::event( QEvent *e )
     }
 	break;
 
-    case QEvent::FocusIn:
+    case QEvent::FocusIn: {
+	QWidget *f;
+	if (testAttribute(WA_CompositeParent) && (f = focusProxy())
+	    && f->testAttribute(WA_CompositeChild)) {
+	    QApplication::sendEvent(focusProxy(), e);
+	}
 	focusInEvent( (QFocusEvent*)e );
 	d->setFont_syshelper();
+    }
 	break;
 
-    case QEvent::FocusOut:
+    case QEvent::FocusOut: {
+	QWidget *f;
+	if (testAttribute(WA_CompositeParent) && (f = focusProxy())
+	    && f->testAttribute(WA_CompositeChild)) {
+	    QApplication::sendEvent(focusProxy(), e);
+	}
 	focusOutEvent( (QFocusEvent*)e );
+    }
 	break;
 
     case QEvent::Enter:
@@ -4225,7 +4354,7 @@ bool QWidget::event( QEvent *e )
 	QContextMenuEvent *c = (QContextMenuEvent *)e;
 	contextMenuEvent( c );
 	if ( !c->isAccepted() )
-	    return FALSE;
+	    return d->compositeEvent((QContextMenuEvent*)e);
     }
 	break;
 
@@ -5615,9 +5744,17 @@ const QPixmap *QWidget::icon() const
     \row \i WA_Mapped \i Indicates that the widget is mapped on screen.
     \i Qt kernel.
 
-    \row \i WA_MacMetalStyle \i Indicates the the widget should be drawn 
+    \row \i WA_MacMetalStyle \i Indicates the the widget should be drawn
     in metal style as supported by the windowing system (only meaningfull on Mac OS X).
     \i Set by widget author
+
+    \row \i WA_CompositeParent/WA_CompositeChild \i Makes a child
+    widget form a single 'composite' unit with its parent widget. User
+    events such as mouse and keyboard events are always handled by the
+    composite parent first and then forwarded to the composite child
+    by the parent's QWidget::event() function. This makes it possible
+    to intercept events meant for the child widget in a subclass of
+    the parent widget. \i Widget author.
 
     \endtable
 */

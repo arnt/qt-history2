@@ -301,33 +301,23 @@ bool QCoreApplication::notify( QObject *receiver, QEvent *e )
  */
 bool QCoreApplication::notify_helper( QObject *receiver, QEvent * e)
 {
-    bool consumed = false;
-
     // send to all application event filters
     for (int i = 0; i < d->eventFilters.size(); ++i) {
 	register QObject *obj = d->eventFilters.at(i);
-	if ( obj && obj->eventFilter(receiver,e) ) {
-	    consumed = true;
-	    goto handled;
-	}
+	if ( obj && obj->eventFilter(receiver,e) )
+	    return true;
     }
 
     // send to all receiver event filters
     if (receiver != this) {
 	for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
 	    register QObject *obj = receiver->d->eventFilters.at(i);
-	    if ( obj && obj->eventFilter(receiver,e) ) {
-		consumed = true;
-		goto handled;
-	    }
+	    if ( obj && obj->eventFilter(receiver,e) )
+		return true;
 	}
     }
 
-    consumed = receiver->event( e );
-
- handled:
-    e->spont = false;
-    return consumed;
+    return receiver->event( e );
 }
 
 /*!

@@ -440,7 +440,9 @@ public:
 	WA_Moved,
 	WA_PendingUpdate,
 	WA_InvalidSize,
-	WA_MacMetalStyle //mac only
+	WA_MacMetalStyle, //mac only
+	WA_CompositeParent,
+	WA_CompositeChild
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;

@@ -240,9 +240,12 @@ void QSpinBox::initSpinBox()
 
     validate = new QSpinBoxValidator( this, "validator" );
     vi = new QLineEdit( this, "qt_spinbox_edit" );
+    vi->setAttribute(WA_CompositeChild);
+    setAttribute(WA_CompositeParent);
     d->controls->setEditWidget( vi );
+    d->controls->setAttribute(WA_CompositeParent);
+    d->controls->setAttribute(WA_CompositeChild);
     vi->setValidator( validate );
-    vi->installEventFilter( this );
     vi->setFrame( FALSE );
     setFocusProxy( vi );
 
@@ -599,6 +602,7 @@ void QSpinBox::stepDown()
 
 
 
+#if 0
 /*!
     Intercepts and handles the events coming to the embedded QLineEdit
     that have special meaning for the QSpinBox. The object is passed
@@ -641,6 +645,27 @@ bool QSpinBox::eventFilter( QObject* o, QEvent* ev )
     }
     return FALSE;
 }
+#endif
+
+
+void QSpinBox::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Key_Up) {
+	stepUp();
+    } else if (e->key() == Key_Down) {
+	stepDown();
+    } else if (e->key() == Key_Enter || e->key() == Key_Return) {
+	interpretText();
+    } else {
+	e->ignore();
+    }
+}
+
+void QSpinBox::focusOutEvent(QFocusEvent *)
+{
+    if (edited)
+	interpretText();
+}
 
 /*!
     \reimp
@@ -650,14 +675,6 @@ void QSpinBox::setEnabled( bool enabled )
     QWidget::setEnabled( enabled );
     updateDisplay();
 }
-
-/*!
-    \reimp
-*/
-void QSpinBox::leaveEvent( QEvent* )
-{
-}
-
 
 /*!
     \reimp
@@ -937,7 +954,7 @@ QString QSpinBox::currentValueText()
 */
 void QSpinBox::changeEvent( QEvent *ev )
 {
-    if(ev->type() == QEvent::StyleChange) 
+    if(ev->type() == QEvent::StyleChange)
 	arrangeWidgets();
     QWidget::changeEvent(ev);
 }

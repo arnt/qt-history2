@@ -107,12 +107,12 @@ protected:
     virtual void	valueChange();
     virtual void	rangeChange();
 
-    bool		eventFilter( QObject* obj, QEvent* ev );
+    void keyPressEvent(QKeyEvent *);
+    void focusOutEvent(QFocusEvent *);
     void		resizeEvent( QResizeEvent* ev );
 #ifndef QT_NO_WHEELEVENT
     void		wheelEvent( QWheelEvent * );
 #endif
-    void		leaveEvent( QEvent* );
 
     void                changeEvent( QEvent * );
 

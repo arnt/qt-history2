@@ -184,6 +184,8 @@ public:
     };
     bool close_helper(CloseMode mode);
 
+    bool compositeEvent(QEvent *e);
+
 #if defined(Q_WS_X11)
     void createInputContext();
     void destroyInputContext();
@@ -199,6 +201,7 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
+    QPointer<QWidget> compositeChildGrab;
 #ifndef QT_NO_PALETTE
     QPalette::ColorRole fg_role : 8;
     QPalette::ColorRole bg_role : 8;

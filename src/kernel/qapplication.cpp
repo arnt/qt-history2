@@ -2591,11 +2591,62 @@ extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
  */
 bool QApplication::notify(QObject *receiver, QEvent *e)
 {
-    bool res = QCoreApplication::notify(receiver, e);
+    // no events are delivered after ~QCoreApplication() has started
+    if ( is_app_closing )
+	return TRUE;
 
-    if (res)
-	return res;
+    if ( receiver == 0 ) {			// serious error
+	qWarning( "QCoreApplication::notify: Unexpected null receiver" );
+	return TRUE;
+    }
 
+#if defined(QT_THREAD_SUPPORT)
+    Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
+	       "QCoreApplication::sendEvent",
+	       QString("Cannot send events to objects owned by a different thread (%1).  "
+		       "Receiver '%2' (of type '%3') was created in thread %4")
+	       .arg(QString::number((ulong) QThread::currentThread(), 16))
+	       .arg(receiver->objectName())
+	       .arg(receiver->className())
+	       .arg(QString::number((ulong) receiver->thread(), 16)));
+#endif
+
+#ifndef QT_NO_COMPAT
+    if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
+	QEventLoop *eventloop = QEventLoop::instance();
+	QPostEventList *postedEvents = eventloop->d->postedEvents;
+
+#if defined(QT_THREAD_SUPPORT)
+	QMutexLocker locker(&postedEvents->mutex);
+#endif // QT_THREAD_SUPPORT
+
+	// the QObject destructor calls QObject::removeChild, which calls
+	// QCoreApplication::sendEvent() directly.  this can happen while the event
+	// loop is in the middle of posting events, and when we get here, we may
+	// not have any more posted events for this object.
+	bool postedChildInsertEventsRemaining = false;
+	// if this is a child remove event and the child insert
+	// hasn't been dispatched yet, kill that insert
+	QObject * c = ((QChildEvent*)e)->child();
+	for (int i = 0; i < postedEvents->size(); ++i) {
+	    const QPostEvent &pe = postedEvents->at(i);
+	    if (pe.event && pe.receiver == receiver) {
+		if (pe.event->type() == QEvent::ChildInserted
+		    && ((QChildEvent*)pe.event)->child() == c ) {
+		    pe.event->posted = false;
+		    delete pe.event;
+		    const_cast<QPostEvent &>(pe).event = 0;
+		    const_cast<QPostEvent &>(pe).receiver = 0;
+		} else {
+		    postedChildInsertEventsRemaining = true;
+		}
+	    }
+	    receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
+	}
+    }
+#endif // QT_NO_COMPAT
+
+    bool res;
     switch ( e->type() ) {
 #ifndef QT_NO_ACCEL
     case QEvent::Accel:
@@ -2632,22 +2683,16 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	    res = notify_helper( w, e );
 	    if ( res || key->isAccepted() )
 		break;
-	    w = w->parentWidget( TRUE );
+	    if (w->isTopLevel() || !w->parentWidget()
+		|| (w->testAttribute(QWidget::WA_CompositeChild)
+		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent))
+		)
+		break;
+	    w = w->parentWidget();
 	}
     }
     break;
     case QEvent::MouseButtonPress:
-	if ( e->spontaneous() ) {
-	    QWidget* fw = (QWidget*)receiver;
-	    while ( fw->focusProxy() )
-		fw = fw->focusProxy();
-	    if ( fw->isEnabled() && fw->focusPolicy() & QWidget::ClickFocus ) {
-		QFocusEvent::setReason( QFocusEvent::Mouse);
-		fw->setFocus();
-		QFocusEvent::resetReason();
-	    }
-	}
-	// fall through intended
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
@@ -2655,12 +2700,32 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	QWidget* w = (QWidget*)receiver;
 	QMouseEvent* mouse = (QMouseEvent*) e;
 	QPoint relpos = mouse->pos();
+
+	if (e->spontaneous()) {
+	    while (w->testAttribute(QWidget::WA_CompositeChild)
+		   && w->parentWidget()
+		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+		relpos += w->pos();
+		w = w->parentWidget();
+	    }
+
+	    if (e->type() == QEvent::MouseButtonPress
+		&& w->isEnabled() && w->focusPolicy() & QWidget::ClickFocus ) {
+		QFocusEvent::setReason( QFocusEvent::Mouse);
+		w->setFocus();
+		QFocusEvent::resetReason();
+	    }
+	}
+
 	while ( w ) {
 	    QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
 	    me.spont = mouse->spontaneous();
 	    res = notify_helper( w, w == receiver ? mouse : &me );
 	    e->spont = FALSE;
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+		|| (w->testAttribute(QWidget::WA_CompositeChild)
+		    && w->parentWidget()
+		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
 		break;
 
 	    relpos += w->pos();
@@ -2675,26 +2740,34 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
     {
-	if ( e->spontaneous() ) {
-	    QWidget* fw = (QWidget*)receiver;
-	    while ( fw->focusProxy() )
-		fw = fw->focusProxy();
-	    if ( fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus ) {
+	QWidget* w = (QWidget*)receiver;
+	QWheelEvent* wheel = (QWheelEvent*) e;
+	QPoint relpos = wheel->pos();
+
+	if (e->spontaneous()) {
+	    while (w->testAttribute(QWidget::WA_CompositeChild)
+		   && w->parentWidget()
+		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+		relpos += w->pos();
+		w = w->parentWidget();
+	    }
+
+	    if ( w->isEnabled() && (w->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus ) {
 		QFocusEvent::setReason( QFocusEvent::Mouse);
-		fw->setFocus();
+		w->setFocus();
 		QFocusEvent::resetReason();
 	    }
 	}
 
-	QWidget* w = (QWidget*)receiver;
-	QWheelEvent* wheel = (QWheelEvent*) e;
-	QPoint relpos = wheel->pos();
 	while ( w ) {
 	    QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
 	    we.spont = wheel->spontaneous();
 	    res = notify_helper( w,  w == receiver ? wheel : &we );
 	    e->spont = FALSE;
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+		|| (w->testAttribute(QWidget::WA_CompositeChild)
+		    && w->parentWidget()
+		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
 		break;
 
 	    relpos += w->pos();
@@ -2712,13 +2785,24 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	QWidget* w = (QWidget*)receiver;
 	QContextMenuEvent *context = (QContextMenuEvent*) e;
 	QPoint relpos = context->pos();
+	if (e->spontaneous())
+	    while (w->testAttribute(QWidget::WA_CompositeChild)
+		   && w->parentWidget()
+		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+		relpos += w->pos();
+		w = w->parentWidget();
+	    }
+
 	while ( w ) {
 	    QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
 	    ce.spont = e->spontaneous();
 	    res = notify_helper( w,  w == receiver ? context : &ce );
 	    e->spont = FALSE;
 
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+		|| (w->testAttribute(QWidget::WA_CompositeChild)
+		    && w->parentWidget()
+		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
 		break;
 
 	    relpos += w->pos();
@@ -2738,6 +2822,15 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	QWidget *w = (QWidget*)receiver;
 	QTabletEvent *tablet = (QTabletEvent*)e;
 	QPoint relpos = tablet->pos();
+	if (e->spontaneous()) {
+	    while (w->testAttribute(QWidget::WA_CompositeChild)
+		   && w->parentWidget()
+		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+		relpos += w->pos();
+		w = w->parentWidget();
+	    }
+	}
+
 	while ( w ) {
 	    QTabletEvent te(tablet->pos(), tablet->globalPos(), tablet->device(),
 			    tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
@@ -2745,7 +2838,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	    te.spont = e->spontaneous();
 	    res = notify_helper( w, w == receiver ? tablet : &te );
 	    e->spont = FALSE;
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
+	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+		|| (w->testAttribute(QWidget::WA_CompositeChild)
+		    && w->parentWidget()
+		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
 		break;
 
 	    relpos += w->pos();
