@@ -459,7 +459,7 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
 		if ( n2.attribute( "class" ) != "Spacer" ) {
 		    createObjectImpl( n2, "QToolBar", objName );
 		} else {
-		    QString child = createSpacerImpl( n, parentClass, parent, objName );
+		    QString child = createSpacerImpl( n2, parentClass, parent, objName );
 		    out << indent << "QApplication::sendPostedEvents( " << objName
 			<< ", QEvent::ChildInserted );" << endl;
 		    out << indent << objName << "->boxLayout()->addItem( " << child << " );" << endl;

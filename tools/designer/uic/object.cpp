@@ -50,6 +50,8 @@ void Uic::createObjectDecl( const QDomElement& e )
 	objName = registerObject( objName );
 	if ( objClass == "Line" )
 	    objClass = "QFrame";
+	else if (objClass == "Spacer")
+	    objClass = "QSpacerItem";
 	out << "    " << objClass << "* " << objName << ";" << endl;
     }
 }
