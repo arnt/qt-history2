@@ -791,7 +791,7 @@ static QTextCodec *codecForHTML(const QByteArray &ba)
 static
 QTextCodec* findcodec(const QMimeSource* e)
 {
-    QTextCodec* r;
+    QTextCodec* r = 0;
     const char* f;
     int i;
     for ( i=0; (f=e->format(i)); i++ ) {
