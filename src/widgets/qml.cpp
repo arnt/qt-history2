@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#17 $
 **
 ** Implementation of QML classes
 **
@@ -1148,7 +1148,7 @@ QMLHorizontalLine::~QMLHorizontalLine()
 
 void QMLHorizontalLine::draw(QPainter* p, int x, int y,
 			     int ox, int oy, int cx, int cy, int cw, int /* ch */ ,
-			    QRegion& , const QColorGroup& , const QBrush* paper = 0)
+			     QRegion&, const QColorGroup&, const QBrush* paper)
 {
     QRect rm( x-ox, y-oy, width, height);
     QRect ra( cx-ox, cy-oy, cw,  cw);
@@ -2809,7 +2809,7 @@ void QMLProvider::setPath( const QString &path )
     if ( searchPath.left(6) == "file:/") {
 	searchPath = searchPath.right( searchPath.length()-5);
     }
-    if (!searchPath.isEmpty() && searchPath[searchPath.length()-1]!='/')
+    if (!searchPath.isEmpty() && searchPath[(int)searchPath.length()-1]!='/')
 	searchPath += '/';
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#4 $
 **
 ** Implementation of QColorDialog class
 **
@@ -187,7 +187,8 @@ void QColorLuminancePicker::paintEvent( QPaintEvent * )
     int w = width() - 5;
 
     QRect r( 0, 0, w, height() );
-    for ( int y = r.top() + 2; y < r.bottom() - 2; y++ ) {
+    int y;
+    for ( y = r.top() + 2; y < r.bottom() - 2; y++ ) {
 	p.setPen( QColor( hue, sat, y2val(y), QColor::Hsv ) );
 	p.drawLine( r.left()+2, y, r.right()-2,  y );
     }
@@ -196,7 +197,7 @@ void QColorLuminancePicker::paintEvent( QPaintEvent * )
     p.setPen( g.foreground() );
     p.setBrush( g.foreground() );
     QPointArray a;
-    int y = val2y(val);
+    y = val2y(val);
     a.setPoints( 3, w, y, w+5, y+5, w+5, y-5 );
     erase( w, 0, 5, height() );//###
     p.drawPolygon( a );
@@ -219,7 +220,7 @@ int QColorPicker::satPt( const QPoint &pt )
 void QColorPicker::setCol( const QPoint &pt )
 { setCol( huePt(pt), satPt(pt) ); }
 
-QColorPicker::QColorPicker(QWidget* parent=0, const char* name=0)
+QColorPicker::QColorPicker(QWidget* parent, const char* name )
     : QFrame( parent, name )
 {
     setCol( 150, 255 );
@@ -363,7 +364,7 @@ void QColorShowLabel::drawContents( QPainter *p )
     p->fillRect( contentsRect(), col );
 }
 
-QColorShower::QColorShower( QWidget *parent, const char *name = 0 )
+QColorShower::QColorShower( QWidget *parent, const char *name )
     :QWidget( parent, name)
 {
     QGridLayout *gl = new QGridLayout( this, 1, 1, 6 );
