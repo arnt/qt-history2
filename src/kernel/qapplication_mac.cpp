@@ -404,6 +404,10 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	if(rfork != -1)
 	    QDir::setCurrent(path.left(rfork+1));
     }
+
+    ProcessSerialNumber psn;
+    GetCurrentProcess(&psn);
+    SetFrontProcess(&psn);
 #endif
 
     qApp->setName( appName );
