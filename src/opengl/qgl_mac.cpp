@@ -58,7 +58,7 @@ bool QGLFormat::hasOpenGL()
 
 bool QGLFormat::hasOpenGLOverlays()
 {
-    return FALSE;
+    return TRUE;
 }
 
 
