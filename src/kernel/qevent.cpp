@@ -1948,8 +1948,8 @@ QDebug operator<<(QDebug dbg, QEvent *e) {
 	n = "Quit";
 	break;
     default:
-	n = "<other>";
-	break;
+	dbg.nospace() << "QEvent(" << (void *)e << ", type = " << e->type() << ')';
+	return dbg.space();
     }
 
     dbg.nospace() << 'Q' << n << "Event(" << (void *)e << ')';
