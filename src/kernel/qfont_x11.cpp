@@ -1079,34 +1079,33 @@ void QFont::initFontInfo() const
 	if ( PRIV->needsSet() ) {
 	    QCString locale = setlocale(LC_CTYPE, 0);
 	    bool useLocale = FALSE;
-	    
+	
 	    switch (charSet()) {
 	    case Set_Ja:
+		// In case the user has set a locale, we want to use codecForLocale(), 
+		// and only use codecForName if the locale is something different (as eg "de").
 		if (locale.left(2) != "ja")
 		    f->cmapper = QTextCodec::codecForName("eucJP");
 		break;
-		
 	    case Set_Ko:
 		if (locale.left(2) != "ko")
 		    f->cmapper = QTextCodec::codecForName("eucKR");
 		break;
-
 	    case Set_Zh:
 		if (locale.left(2) != "zh")
 		    f->cmapper = QTextCodec::codecForName("GBK");
 		break;
-		
 	    case Set_Zh_TW:
 		if (locale.left(5) != "zh_TW")
 		    f->cmapper = QTextCodec::codecForName("Big5");
 		break;
-		
 	    case Set_Th_TH: // ### need a codec?
 	    default:
 		useLocale = TRUE;
 	    }
 	    
-	    if (useLocale) f->cmapper = QTextCodec::codecForLocale();
+	    if ( useLocale || !f->cmapper ) 
+		f->cmapper = QTextCodec::codecForLocale();
 #ifndef QT_NO_CODECS
 	} else if ( charSet() == JIS_X_0208 ) {
 	    f->cmapper = new QFontJis0208Codec;
@@ -1177,13 +1176,13 @@ static QCString setLocaleForCharSet(QFont::CharSet charset)
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
 	    if (oldlocale.left(2) == "ja") return (const char *) 0;
-	    
+	
 	    const char *locales[] =
 	    { "ja", "ja_JP", "ja_JP.EUC", "ja_JP.sjis", "ja_JP.ujis", "ja_JP.PCK",
 		  "ja_JP.UTF-8", "ja_JP.SJIS", "ja_JP.Shift_JIS", 0 };
-	    
+	
 	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-	    
+	
 	    break;
 	}
 	
@@ -1191,38 +1190,40 @@ static QCString setLocaleForCharSet(QFont::CharSet charset)
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
 	    if (oldlocale.left(2) == "ko") return (const char *) 0;
-	    
+	
 	    const char *locales[] =
 	    { "ko", "ko_KR", "ko_KR.EUC", 0 };
-	    
+	
 	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
 		
-	    break;   
+	    break;
 	}
 	
     case QFont::Set_Zh: // assume GBK and/or EUC
+    case QFont::Set_GBK: // assume GBK and/or EUC
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
 	    if (oldlocale.left(2) == "zh") return (const char *) 0;
-	    
+	
 	    const char *locales[] =
 	    { "zh", "zh_CN", "zh.GBK", "zh_CN.GBK", "zh_CN.GB2312", "zh_CN.EUC", 0 };
-	    
+	
 	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-	    
+	
 	    break;
 	}
 	
     case QFont::Set_Zh_TW: // assume Big5 and/or EUC
+    case QFont::Set_Big5: // assume Big5 and/or EUC
 	{
 	    oldlocale = setlocale(LC_CTYPE, NULL);
 	    if (oldlocale.left(5) == "zh_TW") return (const char *) 0;
-	    
+	
 	    const char *locales[] =
-	    { "zh_TW", "zh_TW.BIG5", "zh_TW.Big5", "zh_TW.EUC", 0 };
-	    
+	    { "zh_TW.Big5", "zh_TW.BIG5", "zh_TW", "zh_TW.EUC", 0 };
+	
 	    while (setlocale(LC_CTYPE, locales[i]) == NULL) i++;
-	    
+	
 	    break;
 	}
 	
@@ -1230,7 +1231,7 @@ static QCString setLocaleForCharSet(QFont::CharSet charset)
     default:
 	;
     }
-    
+
     return oldlocale;
 }
 
@@ -1300,13 +1301,22 @@ void QFont::load() const
 #endif
 		XFreeStringList(missing);
 	    }
-            
+
 	    // restore locale for application
 	    if (! oldlocale.isNull() && ! oldlocale.isEmpty()) {
 		// qDebug("restoring locale '%s'", (const char *) oldlocale);
 		setlocale(LC_CTYPE, (const char *) oldlocale);
 	    }
-	    
+	    if ( !s ) {
+		d->fin->f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
+				    lastResortFont().ascii() );
+		fn->exactMatch = FALSE;
+#if defined(CHECK_NULL)
+		if ( !d->fin->f )
+		    qFatal( "QFont::load: Internal error" );
+#endif
+	    }
+	
 	    d->fin->set = s;
 	    // [not cached]
 	    initFontInfo();
@@ -1314,7 +1324,7 @@ void QFont::load() const
     } else {
 	XFontStruct *f = d->fin->f;
 	if ( !f ) {					// font not loaded
-	    //debug("font : %s\n",n.data());
+	    //qDebug("font : %s\n",n.data());
 	    f = XLoadQueryFont( QPaintDevice::x11AppDisplay(), n );
 	    if ( !f ) {
 		f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),

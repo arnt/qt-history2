@@ -450,6 +450,9 @@ static const char * const iso8859_2locales[] = {
 static const char * const iso8859_3locales[] = {
     "eo", 0 };
 
+static const char * const iso8859_4locales[] = {
+    "ee", "ee_EE", "lt", "lt_LT", "lv", "lv_LV", 0 };
+
 static const char * const iso8859_5locales[] = {
     "bg", "bg_BG", "bulgarian", "mk", "mk_MK",
     "sp", "sp_YU", 0 };
@@ -467,10 +470,13 @@ static const char * const iso8859_9locales[] = {
     "tr", "tr_TR", "turkish", 0 };
 
 static const char * const iso8859_15locales[] = {
-    "fr", "fi", "french", "finnish", 0 };
+    "fr", "fi", "french", "finnish", "et", "et_EE", 0 };
 
 static const char * const koi8_ulocales[] = {
-    "uk", "uk_UA", "ukrainian", 0 };
+    "uk", "uk_UA", "ru_UA", "ukrainian", 0 };
+
+static const char * const tis_620locales[] = {
+    "th", "th_TH", "thai", 0 };
 
 
 static bool try_locale_list( const char * const locale[], const char * lang )
@@ -575,10 +581,12 @@ QTextCodec* QTextCodec::codecForLocale()
             localeMapper = codecForName( "ISO 8859-2" );
         else if ( try_locale_list( iso8859_3locales, lang ) )
             localeMapper = codecForName( "ISO 8859-3" );
+        else if ( try_locale_list( iso8859_4locales, lang ) )
+            localeMapper = codecForName( "ISO 8859-4" );
         else if ( try_locale_list( iso8859_5locales, lang ) )
             localeMapper = codecForName( "ISO 8859-5" );
         else if ( try_locale_list( iso8859_6locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-6" );
+            localeMapper = codecForName( "ISO 8859-6-I" );
         else if ( try_locale_list( iso8859_7locales, lang ) )
             localeMapper = codecForName( "ISO 8859-7" );
         else if ( try_locale_list( iso8859_8locales, lang ) )
@@ -587,6 +595,8 @@ QTextCodec* QTextCodec::codecForLocale()
             localeMapper = codecForName( "ISO 8859-9" );
         else if ( try_locale_list( iso8859_15locales, lang ) )
             localeMapper = codecForName( "ISO 8859-15" );
+        else if ( try_locale_list( tis_620locales, lang ) )
+            localeMapper = codecForName( "ISO 8859-11" );
         else if ( try_locale_list( koi8_ulocales, lang ) )
             localeMapper = codecForName( "KOI8-U" );
          else if ( try_locale_list( probably_koi8_rlocales, lang ) )
