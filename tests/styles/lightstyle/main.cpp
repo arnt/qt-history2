@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include "lightstyle.h"
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 
 class LightStyleIface : public QStyleFactoryInterface, public QLibraryInterface
 {
@@ -20,7 +20,7 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedCleanupHandler<QStyle> styles;
+    QObjectCleanupHandler styles;
 
     unsigned long ref;
 };

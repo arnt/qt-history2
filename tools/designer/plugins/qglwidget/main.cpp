@@ -1,6 +1,6 @@
 #include <widgetinterface.h>
 
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 
 #include "glwidget.h"
 
@@ -17,15 +17,14 @@ public:
 
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& ) const;
-    QString iconSet( const QString& ) const;
-    QIconSet iconset( const QString& ) const;
+    QIconSet iconSet( const QString& ) const;
     QString includeFile( const QString& ) const;
     QString toolTip( const QString& ) const;
     QString whatsThis( const QString& ) const;
     bool isContainer( const QString& ) const;
 
 private:
-    QGuardedCleanupHandler<QObject> objects;
+    QObjectCleanupHandler objects;
 
     unsigned long ref;
 };
@@ -62,14 +61,7 @@ QString OpenGLWidgetInterface::group( const QString& description ) const
     return QString::null;
 }
 
-QString OpenGLWidgetInterface::iconSet( const QString& description ) const
-{
-    if ( description == "QGLWidget" )
-	return "pushbutton.xpm";
-    return QString::null;
-}
-
-QIconSet OpenGLWidgetInterface::iconset( const QString& ) const
+QIconSet OpenGLWidgetInterface::iconSet( const QString& ) const
 {
     return QIconSet();
 }
@@ -104,11 +96,11 @@ QRESULT OpenGLWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterf
 {
     *iface = 0;
 
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_WidgetInterface )
+    else if ( uuid == IID_Widget )
 	*iface = (WidgetInterface*)this;
 
     if ( *iface )

@@ -1,5 +1,5 @@
 #include <widgetinterface.h>
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 
 class CustomWidgetInterface : public WidgetInterface
 {
@@ -24,7 +24,7 @@ public:
     bool isContainer( const QString& ) const;
 
 private:
-    QGuardedCleanupHandler<QObject> objects;
+    QObjectCleanupHandler objects;
 
     ulong ref;
 };

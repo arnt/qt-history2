@@ -1,5 +1,5 @@
 #include <qstyleinterface.h>
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 
 #include "windowsxpstyle.h"
 
@@ -20,7 +20,7 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedCleanupHandler<QStyle> styles;
+    QObjectCleanupHandler<QStyle> styles;
 
     unsigned long ref;
 };

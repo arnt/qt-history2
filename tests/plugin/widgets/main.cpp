@@ -1,7 +1,7 @@
 #include "../tools/designer/plugins/designerinterface.h"
 
 #include <qapplication.h>
-#include <qcleanuphandler.h>
+#include <qobjectcleanuphandler.h>
 
 #include <qcanvas.h>
 
@@ -109,7 +109,7 @@ public:
     bool isContainer( const QString& ) const;
 
 private:
-    QGuardedCleanupHandler<QObject> objects;
+    QObjectCleanupHandler<QObject> objects;
 };
 
 ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent )
