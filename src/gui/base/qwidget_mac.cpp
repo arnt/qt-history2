@@ -104,7 +104,12 @@ QWidget *qt_mac_find_window(WindowPtr window)
 {
     //There is a better way to do it, but at the moment I just want to see if my hacks work.. FIXME ###
     HIViewRef hiview = 0;
-    if(HIViewFindByID(HIViewGetRoot(window), kHIViewWindowContentID, &hiview) == noErr) {
+    OSStatus err = HIViewFindByID(HIViewGetRoot(window), kHIViewWindowContentID, &hiview);
+    if(err == errUnknownControl)
+	hiview = HIViewGetRoot(window);
+    else if(err != noErr)
+	qWarning("That cannot happen! %d [%ld]", __LINE__, err);
+    if(hiview) {
 	QWidgetList list = QApplication::topLevelWidgets();
 	for (int i = 0; i < list.size(); ++i) {
 	    QWidget *w = list.at(i);
