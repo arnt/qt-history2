@@ -261,35 +261,39 @@ MakefileGenerator::generateMocList(QString fn_target)
 
     QString fn_local = Option::fixPathToLocalOS(fn_target);
     QFile file(fn_local);
-    QString stringObj("Q_OBJECT");
+    const QString stringObj( "Q_OBJECT" );
     if ( file.open(IO_ReadOnly) ) {
 	QTextStream t( &file );
 	QString s;
 	while ( !t.eof() ) {
 	    s = t.readLine();
-	    if(s.find(stringObj) != -1) {
+	    if( s.find(stringObj) != -1 ) {
+		int ext_pos = fn_target.findRev('.');
+		int ext_len = fn_target.length() - ext_pos;
+		int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
 		QString mocFile;
 		QFileInfo fi(fn_local);
-
 		if(!project->variables()["MOC_DIR"].isEmpty())
 		    mocFile = project->variables()["MOC_DIR"].first();
 		else
 		    mocFile = fi.dirPath() + Option::dir_sep;
-		mocFile = Option::fixPathToTargetOS(mocFile);
 
-		if(fi.extension(FALSE) == (Option::cpp_ext.latin1()+1)) {
-		    mocFile += fi.baseName() + Option::moc_ext;
+		if(fn_target.right(ext_len) == Option::cpp_ext) {
+		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
 		    depends[fn_target].append(mocFile);
 		    project->variables()["_SRCMOC"].append(mocFile);
 		}
-		else if(fi.extension(FALSE) == (Option::h_ext.latin1()+1) &&
+		else if(fn_target.right(ext_len) == Option::h_ext &&
 			project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		    mocFile += Option::moc_mod + fi.baseName() + Option::cpp_ext;
+		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
 		}
-		else break;
-		mocablesToMOC[fn_target] = mocFile;
-		mocablesFromMOC[mocFile] = fn_target;
+
+		if(!mocFile.isEmpty()) {
+		    mocFile = Option::fixPathToTargetOS(mocFile);
+		    mocablesToMOC[fn_target] = mocFile;
+		    mocablesFromMOC[mocFile] = fn_target;
+		}
 		file.close();
 		return TRUE;
 	    }
@@ -308,10 +312,16 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
     int l;
     const QString stringInc( "#include" );
     QChar term;
+
     QStringList &fndeps = depends[fn];
     if(!fndeps.isEmpty())
 	return TRUE;
     fn = Option::fixPathToLocalOS(fn);
+
+    QString fndir;
+    int dl = fn.findRev(Option::dir_sep);
+    if(dl != -1)
+	fndir = fn.left(dl+1);
 
     QFile file(fn);
     if ( file.open(IO_ReadOnly) ) {
@@ -348,14 +358,34 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	    if( QFile::exists(inc) )
 		fqn = inc;
 	    else if( QDir::isRelativePath(inc) ) {
-		bool found=false;
+		bool found = FALSE;
 		for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
-		    found = QFile::exists((fqn = ((*it) + QDir::separator() + inc)));
+		    QString dep = (*it) + QDir::separator() + inc;
+		    if((found = QFile::exists(dep)))
+			fqn = dep;
 		}
-		if(!found)
+	    }
+	    if(fqn.isEmpty()) {
+		//these are some hacky heuristics it will try to do on an
+		//include however these can be turned off at runtime, I'm not
+		//sure how reliable these will be, most likely when problems
+		//arise turn it off and see if they go away..
+		if(Option::do_dep_heuristics) { //some heuristics..
+		    //is it a file from a .ui?
+		    int extn = inc.findRev('.');
+		    if(extn != -1) {
+			QString uip = inc.left(extn) + Option::ui_ext + "$";
+			QStringList uil = project->variables()["INTERFACES"];
+			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
+			    if((*it).find(QRegExp(uip)) != -1) { 
+				fqn = (*it).left((*it).length()-3) + inc.right(inc.length()-extn);
+				break;
+			    }
+			}
+		    }
+		}
+		if(!Option::do_dep_heuristics || fqn.isEmpty()) //I give up
 		    continue;
-	    } else {
-		continue;
 	    }
 	    fqn = Option::fixPathToTargetOS(fqn);
 
