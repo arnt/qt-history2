@@ -139,7 +139,7 @@ public:
     inline QT_COMPAT QString ref() const { return fragment(); }
     inline QT_COMPAT void setRef(const QString &txt) { setFragment(txt); }
     inline QT_COMPAT bool hasRef() const { return !fragment().isEmpty(); }
-    inline QT_COMPAT void addPath(const QString &p) { setPath(path() + "/" + p); }
+    inline QT_COMPAT void addPath(const QString &p) { setPath(path() + QLatin1String("/") + p); }
     inline QT_COMPAT void setFileName(const QString &txt)
     {
         QFileInfo fileInfo(path());
@@ -164,10 +164,14 @@ public:
     }
     static inline QT_COMPAT void encode(QString &url)
     {
-        url = QUrl::toPercentEncoding(url);
+        url = QString::fromLatin1(QUrl::toPercentEncoding(url));
     }
     inline QT_COMPAT operator QString() const { return toString(); }
-    inline QT_COMPAT bool cdUp() { *this = resolved(QUrl("..")); return true; }
+    inline QT_COMPAT bool cdUp()
+    {
+        *this = resolved(QUrl(QLatin1String("..")));
+        return true;
+    }
     static inline QT_COMPAT bool isRelativeUrl(const QString &url)
     {
         return QUrl(url).isRelative();

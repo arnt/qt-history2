@@ -38,13 +38,13 @@ protected:
     inline QFileEngine *getFileEngine() const { return static_cast<QFileEngine*>(q->ioEngine()); }
 
 private:
-    inline static QByteArray locale_encode(const QString &f) 
+    inline static QByteArray locale_encode(const QString &f)
            { return f.toLocal8Bit(); }
     static QFile::EncoderFn encoder;
-    inline static QString locale_decode(const QByteArray &f) 
+    inline static QString locale_decode(const QByteArray &f)
            { return QString::fromLocal8Bit(f); }
     static QFile::DecoderFn decoder;
-    
+
     QString fileName;
     mutable QFileEngine *fileEngine;
 };
@@ -53,7 +53,7 @@ QFile::EncoderFn QFilePrivate::encoder = QFilePrivate::locale_encode;
 QFile::DecoderFn QFilePrivate::decoder = QFilePrivate::locale_decode;
 
 QFilePrivate::QFilePrivate() : fileEngine(0)
-{ 
+{
 }
 
 QFilePrivate::~QFilePrivate()
@@ -367,7 +367,7 @@ QFile::exists() const
 bool
 QFile::exists(const QString &fileName)
 {
-    return QFileInfo(fileName).exists();    
+    return QFileInfo(fileName).exists();
 }
 
 /*!
@@ -505,7 +505,7 @@ QFile::link(const QString &oldName, const QString &newName)
     \sa setFileName()
 */
 
-bool 
+bool
 QFile::copy(const QString &newName)
 {
     if (d->fileName.isEmpty()) {
@@ -517,13 +517,15 @@ QFile::copy(const QString &newName)
         bool error = false;
         if(!open(QFile::ReadOnly)) {
             error = true;
-            setStatus(QIODevice::CopyError, QString("Cannot open %1 for input").arg(d->fileName));
+            QString errorMessage = QLatin1String("Cannot open %1 for input");
+            setStatus(QIODevice::CopyError, errorMessage.arg(d->fileName));
         } else {
             QTemporaryFile out;
             if(!out.open()) {
                 close();
                 error = true;
-                setStatus(QIODevice::CopyError, "Cannot open for output");
+                setStatus(QIODevice::CopyError,
+                          QLatin1String("Cannot open for output"));
             } else {
                 char block[1024];
                 while(!atEnd()) {
@@ -531,14 +533,16 @@ QFile::copy(const QString &newName)
                     if(in == -1)
                         break;
                     if(in != out.writeBlock(block, in)) {
-                        setStatus(QIODevice::CopyError, "Failure to write block");
+                        setStatus(QIODevice::CopyError,
+                                  QLatin1String("Failure to write block"));
                         error = true;
                         break;
                     }
                 }
                 if(!error && !QFile::rename(out.fileName(), newName)) {
                     error = true;
-                    setStatus(QIODevice::CopyError, QString("Cannot create %1 for output").arg(newName));
+                    QString errorMessage = QLatin1String("Cannot create %1 for output");
+                    setStatus(QIODevice::CopyError, errorMessage.arg(newName));
                 }
             }
         }
@@ -560,7 +564,7 @@ QFile::copy(const QString &newName)
     \sa rename()
 */
 
-bool 
+bool
 QFile::copy(const QString &fileName, const QString &newName)
 {
     return QFile(fileName).copy(newName);
@@ -706,10 +710,10 @@ QFile::handle() const
 /*!
   \reimp
 */
-QIOEngine 
+QIOEngine
 *QFile::ioEngine() const
 {
-    if(!d->fileEngine) 
+    if(!d->fileEngine)
         d->fileEngine = QFileEngine::createFileEngine(d->fileName);
     return d->fileEngine;
 }
@@ -735,7 +739,7 @@ QIOEngine
     \sa QFile::size(), setFileName()
 */
 
-bool 
+bool
 QFile::resize(QIODevice::Offset sz)
 {
     if(d->getFileEngine()->setSize(sz)) {
@@ -757,7 +761,7 @@ QFile::resize(QIODevice::Offset sz)
     \sa resize()
 */
 
-bool 
+bool
 QFile::resize(const QString &fileName, QIODevice::Offset sz)
 {
     return QFile(fileName).resize(sz);
@@ -770,7 +774,7 @@ QFile::resize(const QString &fileName, QIODevice::Offset sz)
     \sa QFile::setPermissions, QFile::PermissionSpec, setFileName()
 */
 
-uint 
+uint
 QFile::permissions() const
 {
     return (d->getFileEngine()->fileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask);
@@ -785,7 +789,7 @@ QFile::permissions() const
     \sa permissions(), QFile::PermissionSpec
 */
 
-uint 
+uint
 QFile::permissions(const QString &fileName)
 {
     return QFile(fileName).permissions();
@@ -799,7 +803,7 @@ QFile::permissions(const QString &fileName)
     \sa permissions(), QFile::PermissionSpec, setFileName()
 */
 
-bool 
+bool
 QFile::setPermissions(uint permissionSpec)
 {
     if(d->getFileEngine()->chmod(permissionSpec)) {
@@ -820,7 +824,7 @@ QFile::setPermissions(uint permissionSpec)
     \sa setPermissions()
 */
 
-bool 
+bool
 QFile::setPermissions(const QString &fileName, uint permissionSpec)
 {
     return QFile(fileName).setPermissions(permissionSpec);

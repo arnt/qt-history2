@@ -44,18 +44,18 @@ QTemporaryFileEngine::open(int flags)
     Q_ASSERT((flags & QIODevice::ReadWrite) == QIODevice::ReadWrite);
 
     QString qfilename = d->file;
-    if(!qfilename.endsWith("XXXXXX"))
-        qfilename += ".XXXXXX";
+    if(!qfilename.endsWith(QLatin1String("XXXXXX")))
+        qfilename += QLatin1String(".XXXXXX");
     d->external_file = 0;
     char *filename = strdup(qfilename.latin1());
 #ifdef HAS_MKSTEMP
     d->fd = mkstemp(filename);
 #else
-    if(mktemp(filename)) 
+    if(mktemp(filename))
         d->fd = d->sysOpen(filename, QT_OPEN_RDWR | QT_OPEN_CREAT);
 #endif
     if(d->fd != -1) {
-        d->file = filename; //changed now!
+        d->file = QString::fromLatin1(filename); //changed now!
         free(filename);
         d->sequential = 0;
         return true;
@@ -82,7 +82,7 @@ protected:
 };
 
 QTemporaryFilePrivate::QTemporaryFilePrivate() : autoRemove(true), fileEngine(0)
-{ 
+{
 }
 
 QTemporaryFilePrivate::~QTemporaryFilePrivate()
@@ -122,7 +122,7 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
 */
 QTemporaryFile::QTemporaryFile() : QIODevice(*new QTemporaryFilePrivate)
 {
-    d->templateName = QDir::tempPath() + "qt_temp.XXXXXX";
+    d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
 }
 
 /*!
@@ -131,7 +131,7 @@ QTemporaryFile::QTemporaryFile() : QIODevice(*new QTemporaryFilePrivate)
     create a unique filename. If the \a templateName does end in
     XXXXXX it will automatically be appended and used as the dynamic
     portion of the filename.
-    
+
     \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
 */
 QTemporaryFile::QTemporaryFile(const QString &templateName) : QIODevice(*new QTemporaryFilePrivate)
@@ -149,7 +149,7 @@ QTemporaryFile::QTemporaryFile(const QString &templateName) : QIODevice(*new QTe
 QTemporaryFile::~QTemporaryFile()
 {
     close();
-    if(d->autoRemove) 
+    if(d->autoRemove)
         remove();
 }
 
@@ -159,7 +159,7 @@ QTemporaryFile::~QTemporaryFile()
   A QTemporaryFile will always be opened in QIODevice::ReadWrite mode,
   this allows easy access to the data in the file. This function will
   return true upon success and will set the fileName() to the unique
-  filename used. 
+  filename used.
 
   \sa QTemporaryFile::fileName()
 */
@@ -202,7 +202,7 @@ QTemporaryFile::setAutoRemove(bool b)
 bool
 QTemporaryFile::remove()
 {
-    close();    
+    close();
     if(status() == QIODevice::Ok) {
         if(d->getFileEngine()->remove()) {
             resetStatus();
@@ -232,7 +232,7 @@ QTemporaryFile::fileName() const
 
 /*!
   Returns the set file template. The default file template will be
-  called qt_temp and be placed in QDir::tempPath(). 
+  called qt_temp and be placed in QDir::tempPath().
 
   \sa QTemporaryFile::setFileTemplate()
 */

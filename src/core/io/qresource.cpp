@@ -223,9 +223,9 @@ QResource
         return QResourcePrivate::locateResource(resource);
     QStringList searchPaths = qt_resource_search_paths;
     if(searchPaths.isEmpty())
-        searchPaths = QString("/");
+        searchPaths << QLatin1String("/");
     for(int i = 0; i < searchPaths.count(); i++) {
-        if(QResource *ret = QResourcePrivate::locateResource(searchPaths.at(i) + "/" + resource))
+        if(QResource *ret = QResourcePrivate::locateResource(searchPaths.at(i) + QLatin1String("/") + resource))
             return ret;
     }
     return 0;
