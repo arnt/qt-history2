@@ -73,28 +73,28 @@ comeau:
 	$(MAKE) lib CC=como CFLAGS="--strict_warnings -a" OBJDIR=obj/comeau
 
 static:
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
 	/bin/rm -f $(STATICTARGET)
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
 	ar q $(STATICTARGET) obj/static/*/*.o
 	ranlib $(STATICTARGET)
 
 staticdbg:
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
 	/bin/rm -f $(STATICTARGET)
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
 	ar q $(STATICTARGET) obj/staticdbg/*/*.o
 	ranlib $(STATICTARGET)
 
 shared:
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
 	/bin/rm -f $(SHAREDTARGET)
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
 	$(CC) -shared -Wl,-soname,libqt.so.1 -o $(SHAREDTARGET) \
-		obj/shared/*/*.o -L/usr/X11R6/lib -lX11 -lc
+		obj/shared/*/*.o -L/usr/X11R6/lib -lX11 -ldl -lc -lgcc
 
 shareddbg:
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
 	/bin/rm -f $(SHAREDTARGET)
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
 	$(CC) -shared -Wl,-soname,libqt.so.1 -o $(SHAREDTARGET) \
-		obj/shareddbg/*/*.o -L/usr/X11R6/lib -lX11 -lgcc -lc
+		obj/shareddbg/*/*.o -L/usr/X11R6/lib -lX11 -ldl -lc -lgcc
 
 showdirs:
 	@echo $(DIRS)
