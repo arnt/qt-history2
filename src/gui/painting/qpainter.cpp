@@ -2986,7 +2986,7 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
     Sets the render hints supplied in \a hints. Several render hints
     can be OR'ed together in \a hints.
 */
-void QPainter::setRenderHints(RenderHint hints)
+void QPainter::setRenderHints(RenderHints hints)
 {
 #ifdef QT_DEBUG_DRAW
     printf("QPainter::setRenderHints(), hint=%x\n", hints);
@@ -3004,7 +3004,7 @@ void QPainter::setRenderHints(RenderHint hints)
     Clears the render hints supplied in \a hints. Several render hints
     can be OR'ed together in \a hints.
 */
-void QPainter::clearRenderHints(RenderHint hints)
+void QPainter::clearRenderHints(RenderHints hints)
 {
 #ifdef QT_DEBUG_DRAW
     printf("QPainter::clearRenderHints(), hint=%x\n", hints);
