@@ -906,13 +906,11 @@ void QGLWidget::init( QGLContext *ctx, const QGLWidget* shareWidget )
 }
 
 
-void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
-			  bool showIt )
+bool QGLWidget::event(QEvent *e)
 {
-    QWidget::reparent( parent, f, p, FALSE );
-    setContext( new QGLContext( glcx->requestedFormat(), this ) );
-    if ( showIt )
-	show();
+    if (e->type() == QEvent::Reparent)
+	setContext( new QGLContext( glcx->requestedFormat(), this ) );
+    return QWidget::event(e);
 }
 
 

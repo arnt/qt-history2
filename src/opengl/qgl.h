@@ -252,7 +252,7 @@ class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
 public:
     QGLWidget( QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
-    QGLWidget( QGLContext *context, QWidget* parent, const char* name=0,
+    QGLWidget( QGLContext *context, QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
     QGLWidget( const QGLFormat& format, QWidget* parent=0, const char* name=0,
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
@@ -265,7 +265,7 @@ public:
     bool isSharing() const;
     virtual void makeCurrent();
     void doneCurrent();
-    
+
     bool doubleBuffer() const;
     virtual void swapBuffers();
 
@@ -291,8 +291,6 @@ public:
     static QImage convertToGLFormat( const QImage& img );
 
     void setMouseTracking( bool enable );
-    virtual void  reparent( QWidget* parent, WFlags f, const QPoint& p,
-			    bool showIt = FALSE );
 
     const QGLColormap & colormap() const;
     void  setColormap( const QGLColormap & map );
@@ -306,6 +304,7 @@ public slots:
     virtual void updateOverlayGL();
 
 protected:
+    bool event(QEvent *);
     virtual void initializeGL();
     virtual void resizeGL( int w, int h );
     virtual void paintGL();

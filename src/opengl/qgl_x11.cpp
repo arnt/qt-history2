@@ -723,12 +723,9 @@ void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
 }
 
 /*! \reimp */
-void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
-			  bool showIt )
+bool QGLWidget::event(QEvent *e)
 {
-    QWidget::reparent( parent, f, p, FALSE );
-    if ( showIt )
-	show();
+    return QWidget::event(e);
 }
 
 

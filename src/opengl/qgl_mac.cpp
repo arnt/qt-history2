@@ -381,15 +381,9 @@ void QGLWidget::init(QGLContext *ctx, const QGLWidget* shareWidget)
 }
 
 
-void QGLWidget::reparent(QWidget* parent, WFlags f, const QPoint& p,
-			  bool showIt)
+bool QGLWidget::event(QEvent *e)
 {
-    QWidget::reparent(parent, f, p, showIt);
-#if 0
-    fixReparented();
-    if(showIt)
-	show();
-#endif
+    return QWidget::event(e);
 }
 
 void QGLWidget::macWidgetChangedWindow()
