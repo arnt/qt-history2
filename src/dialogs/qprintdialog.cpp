@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#19 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#20 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#20 $");
 
 
 struct QPrintDialogPrivate
@@ -205,9 +205,8 @@ static void parseEtcLp( QListView * printers )
 				s = *e;
 				*e = '\0';
 				if ( !qstrcmp( p, "postscript" ) ||
-				     !qstrcmp( p, "any" ) ) {
+				     !qstrcmp( p, "any" ) )
 				    canPrintPostscript = TRUE;
-				}
 				*e = s;
 				if ( s == ',' )
 				    e++;
@@ -220,6 +219,7 @@ static void parseEtcLp( QListView * printers )
 		    perhapsAddPrinter( printers, printer->fileName().data(),
 				       printerHost, 0 );
 	    }
+	    delete[] line;
 	}
     }
 }
