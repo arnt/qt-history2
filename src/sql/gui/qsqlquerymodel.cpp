@@ -55,31 +55,42 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
 
 /*!
     \class QSqlQueryModel
-    \brief The QSqlQueryModel class provides a read only data model for SQL
+    \brief The QSqlQueryModel class provides a read-only data model for SQL
     result sets.
 
     \ingroup database
     \module sql
 
-    QSqlQueryModel is a data model that provides data from a QSqlQuery.
-    The QSqlQuery has to be valid and may not be forward-only.
+    QSqlQueryModel is a high-level interface for executing SQL
+    statements and traversing the result set. It is built on top of
+    the lower-level QSqlQuery and can be used to provide data to a
+    view class such as QTableView.
 
-    \code
-    QSqlQueryModel model;
-    model.setQuery("SELECT FORENAME, SURNAME, ID FROM TEST");
-    \endcode
+    QSqlQueryModel can also be used to access a database
+    programmatically, without binding it to a view:
 
-    The model is read-only by default, to make it read-write, it is
-    neccessary to reimplement the setData() and isEditable() methods.
+    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
+    \skipto QSqlQueryModel_snippets
+    \skipto QSqlQueryModel model;
+    \printuntil int age =
 
-    QSqlTableModel is a convenience subclass which allows manipulating
-    a database table.
+    The code snippet above extracts the \c age field from record 4 in
+    the result set of the query \c{SELECT * from employee}. Assuming
+    that \c age is column 3, we can rewrite the last line as follows:
 
-    \sa QSqlTableModel QSqlQuery
+    \skipto int age =
+    \printline int age =
+
+    The model is read-only by default. To make it read-write, you
+    must subclass it and reimplement setData() and flags(). Another
+    option is to use QSqlTableModel, which provides a read-write
+    model based on a single database table.
+
+    \sa QSqlTableModel, QSqlRelationalTableModel, QSqlQuery
 */
 
 /*!
-    Creates an empty QSqlQueryModel and sets the parent to \a parent.
+    Creates an empty QSqlQueryModel with the given \a parent.
  */
 QSqlQueryModel::QSqlQueryModel(QObject *parent)
     : QAbstractTableModel(*new QSqlQueryModelPrivate, parent)
@@ -127,17 +138,10 @@ int QSqlQueryModel::columnCount(const QModelIndex &) const
 /*!
     Returns the value for the specified \a item and \a role.
 
-    For items with type \c QModelIndex::HorizontalHeader, the name of
-    the database field is returned. This can be overridden by
-    setData().
-
-    For items with type \c QModelIndex::VerticalHeader, the index of the
-    row is returned.
-
     An invalid QVariant is returned if \a item is out of bounds or if
     an error occured.
 
-    \sa setData(), lastError()
+    \sa lastError()
 */
 QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 {
@@ -150,7 +154,7 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 
     if (!d->rec.isGenerated(item.column()))
         return v;
-    QModelIndex dItem = dataIndex(item);
+    QModelIndex dItem = indexInQuery(item);
     if (dItem.row() > d->bottom.row())
         const_cast<QSqlQueryModelPrivate *>(d)->prefetch(dItem.row());
 
@@ -246,8 +250,9 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
 }
 
 /*! \overload
-    Convenience method, executes the query \a query for the given connection \a db.
-    If no database is specified, the default connection is used.
+
+    Executes the query \a query for the given connection \a db. If no
+    database is specified, the default connection is used.
  */
 void QSqlQueryModel::setQuery(const QString &query, const QSqlDatabase &db)
 {
@@ -269,11 +274,13 @@ void QSqlQueryModel::clear()
 }
 
 /*!
-    Sets the caption for the header with the given \a orientation to the
-    specified \a value.
+    Sets the caption for the header with the given \a orientation to
+    the specified \a value. This is useful if the model is used to
+    display data in a view (e.g., QTableView).
 
-    It returns true if \a role is \c QAbstractItemModel::DisplayRole and
-    the \a section refers to a valid section; otherwise returns false.
+    Returns true if \a role is \c QAbstractItemModel::DisplayRole and
+    the \a section refers to a valid section; otherwise returns
+    false.
 
     Note that this function cannot be used to modify values in the
     database since the model is read-only.
@@ -293,7 +300,7 @@ bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
 }
 
 /*!
-    Returns the QSqlQuery that is associated with this model.
+    Returns the QSqlQuery associated with this model.
 
     \sa setQuery()
 */
@@ -323,12 +330,14 @@ void QSqlQueryModel::setLastError(const QSqlError &error)
 }
 
 /*!
-    Returns the record containing information about the fields
-    of the current query. If \a row points to a valid row, the
-    record will be populated with values from that row.
+    Returns the record containing information about the fields of the
+    current query. If \a row is the index of a valid row, the record
+    will be populated with values from that row.
 
-    If the model is not initialized, an invalid record will be
+    If the model is not initialized, an empty record will be
     returned.
+
+    \sa QSqlRecord::isEmpty()
 */
 QSqlRecord QSqlQueryModel::record(int row) const
 {
@@ -342,11 +351,14 @@ QSqlRecord QSqlQueryModel::record(int row) const
 }
 
 /* \overload
+
     Returns an empty record containing information about the fields
     of the current query.
 
-    If the model is not initialized, an invalid record will be
+    If the model is not initialized, an empty record will be
     returned.
+
+    \sa QSqlRecord::isEmpty()
  */
 QSqlRecord QSqlQueryModel::record() const
 {
@@ -358,22 +370,22 @@ QSqlRecord QSqlQueryModel::record() const
     \a parent parameter must always be an invalid QModelIndex, since
     the model does not support parent-child relationships.
 
-    To populate the newly inserted columns with data, you must
-    reimplement QSqlQueryModel::data().
+    By default, inserted columns are empty. To fill them with data,
+    reimplement data() and handle any inserted column separately:
 
-    Example:
     \code
     QVariant MyModel::data(const QModelIndex &item, int role) const
     {
-        if (item.column() == myNewlyInsertedColumn) {
-            return "My calculated value";
-        }
+        if (item.column() == extraColumnNo)
+            return myExtraColumnData(item, role);
         return QSqlQueryModel::data(item, role);
     }
     \endcode
 
     Returns true if \a column is within bounds; otherwise returns false.
- */
+
+    \sa removeColumns()
+*/
 bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
     if (count <= 0 || parent.isValid() || column < 0 || column > d->rec.count())
@@ -402,8 +414,8 @@ bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &par
     QModelIndex, since the model does not support parent-child
     relationships.
 
-    Note that removing columns does not affect the underlying
-    QSqlQuery, it will just hide the columns.
+    Removing columns effectively hides them. It does not affect the
+    underlying QSqlQuery.
 
     Returns true if the columns were removed; otherwise returns false.
  */
@@ -423,18 +435,20 @@ bool QSqlQueryModel::removeColumns(int column, int count, const QModelIndex &par
 
 /*!
     Returns the index of the value in the database result set for the
-    given \a item for situations where the row and column of an item
-    in the model does not map to the same row and column in the
-    database result set.
+    given \a item in the model.
+    
+    The return value is identical to \a item if no columns or rows
+    have been inserted, removed, or moved around.
 
     Returns an invalid model index if \a item is out of bounds or if
     \a item does not point to a value in the result set.
+
+    \sa QSqlTableModel::indexInQuery(), insertColumns(), removeColumns()
 */
-QModelIndex QSqlQueryModel::dataIndex(const QModelIndex &item) const
+QModelIndex QSqlQueryModel::indexInQuery(const QModelIndex &item) const
 {
     if (item.column() < 0 || item.column() >= d->rec.count()
         || !d->rec.isGenerated(item.column()))
         return QModelIndex();
     return createIndex(item.row(), item.column() - d->colOffsets[item.column()], item.data());
 }
-

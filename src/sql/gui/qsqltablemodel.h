@@ -98,7 +98,7 @@ protected:
 
     void setPrimaryKey(const QSqlIndex &key);
     void setQuery(const QSqlQuery &query);
-    QModelIndex dataIndex(const QModelIndex &item) const;
+    QModelIndex indexInQuery(const QModelIndex &item) const;
 };
 
 #endif

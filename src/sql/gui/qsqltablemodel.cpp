@@ -297,7 +297,7 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
     if (!idx.isValid() || role & ~(DisplayRole | EditRole))
         return QVariant();
 
-    QModelIndex item = dataIndex(idx);
+    QModelIndex item = indexInQuery(idx);
 
     switch (d->strategy) {
     case OnFieldChange:
@@ -988,9 +988,9 @@ int QSqlTableModel::rowCount(const QModelIndex &) const
   Returns an invalid model index if \a item is out of bounds or if
   \a item does not point to a value in the result set.
  */
-QModelIndex QSqlTableModel::dataIndex(const QModelIndex &item) const
+QModelIndex QSqlTableModel::indexInQuery(const QModelIndex &item) const
 {
-    const QModelIndex it = QSqlQueryModel::dataIndex(item);
+    const QModelIndex it = QSqlQueryModel::indexInQuery(item);
     if (d->strategy == OnManualSubmit) {
         int rowOffset = 0;
         QSqlTableModelPrivate::CacheMap::ConstIterator i = d->cache.constBegin();

@@ -50,7 +50,7 @@ public:
     QSqlRecord rec;
     uint atEnd : 1;
     QVector<QVariant> headers;
-    QVarLengthArray<int, 56> colOffsets; // used to calculate dataIndex of columns
+    QVarLengthArray<int, 56> colOffsets; // used to calculate indexInQuery of columns
 };
 
 #endif

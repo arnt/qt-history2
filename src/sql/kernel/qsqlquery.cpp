@@ -225,7 +225,7 @@ QSqlQuery::QSqlQuery(const QSqlQuery& other)
 
 /*!
     Constructs a QSqlQuery object using the SQL \a query and the
-    database \a db. If \a db is 0 (the default), the application's
+    database \a db. If \a db is not specified, the application's
     default database is used. If \a query is not an empty string, it
     will be executed.
 
@@ -237,8 +237,7 @@ QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase db)
 }
 
 /*!
-    Constructs a QSqlQuery object using the database \a db. If \a db
-    is 0, the application's default database is used.
+    Constructs a QSqlQuery object using the database \a db.
 
     \sa QSqlDatabase
 */
@@ -277,10 +276,10 @@ QSqlQuery& QSqlQuery::operator=(const QSqlQuery& other)
 /*!
     Returns true if the query is active and positioned on a valid
     record and the \a field is NULL; otherwise returns false. Note
-    that for some drivers isNull() will not return accurate
+    that for some drivers, isNull() will not return accurate
     information until after an attempt is made to retrieve data.
 
-    \sa isActive() isValid() value()
+    \sa isActive(), isValid(), value()
 */
 
 bool QSqlQuery::isNull(int field) const
@@ -293,13 +292,12 @@ bool QSqlQuery::isNull(int field) const
 /*!
     Executes the SQL in \a query. Returns true and sets the query
     state to active if the query was successful; otherwise returns
-    false and sets the query state to inactive. The \a query string
-    must use syntax appropriate for the SQL database being queried
-    (for example, standard SQL).
+    false. The \a query string must use syntax appropriate for the
+    SQL database being queried (for example, standard SQL).
 
     After the query is executed, the query is positioned on an \e
     invalid record and must be navigated to a valid record before
-    data values can be retrieved, e.g. using next().
+    data values can be retrieved (for example, using next()).
 
     Note that the last error for this query is reset when exec() is
     called.
@@ -687,7 +685,7 @@ bool QSqlQuery::last()
 }
 
 /*!
-    Returns the size of the result, (number of rows returned), or -1
+    Returns the size of the result (number of rows returned), or -1
     if the size cannot be determined or if the database does not
     support reporting information about query sizes. Note that for
     non-\c SELECT statements (isSelect() returns false), size() will
@@ -765,10 +763,10 @@ bool QSqlQuery::isSelect() const
 }
 
 /*!
-    Returns true if you can only scroll \e forward through a result
-    set; otherwise returns false.
+    Returns true if you can only scroll forward through a result set;
+    otherwise returns false.
 
-    \sa setForwardOnly()
+    \sa setForwardOnly(), next()
 */
 bool QSqlQuery::isForwardOnly() const
 {
@@ -776,16 +774,12 @@ bool QSqlQuery::isForwardOnly() const
 }
 
 /*!
-    Sets forward only mode to \a forward. If forward is true only
-    next(), and seek() with positive values, are allowed for
+    Sets forward only mode to \a forward. If \a forward is true, only
+    next() and seek() with positive values, are allowed for
     navigating the results. Forward only mode needs far less memory
     since results do not need to be cached.
 
     Forward only mode is off by default.
-
-    Forward only mode cannot be used with data aware widgets or with
-    any of the model/view classes, since they must to be able to
-    scroll backward as well as forward.
 
     \sa isForwardOnly(), next(), seek()
 */
@@ -797,8 +791,8 @@ void QSqlQuery::setForwardOnly(bool forward)
 /*!
     Returns a QSqlRecord containing the data for the query's current
     record; the query must be active (isActive() returns true), and there
-    must be a current record, i.e. a navigation function (e.g. next())
-    must have been called and isValid() must return true. Normally
+    must be a current record, i.e. a navigation function (e.g., next())
+    must have been called and isValid() must return true. Normally,
     data is retrieved field-by-field using value() or boundValue().
 */
 QSqlRecord QSqlQuery::record() const
@@ -807,6 +801,8 @@ QSqlRecord QSqlQuery::record() const
 }
 
 /*!
+    \internal
+
     Protected virtual function called before the internal record
     pointer is moved to a new record. The default implementation does
     nothing.
@@ -817,6 +813,8 @@ void QSqlQuery::beforeSeek()
 
 
 /*!
+    \internal
+
     Protected virtual function called after the internal record
     pointer is moved to a new record. The default implementation does
     nothing.
@@ -837,7 +835,7 @@ void QSqlQuery::clear()
 /*!
     Prepares the SQL query \a query for execution. The query may
     contain placeholders for binding values. Both Oracle style
-    colon-name (e.g. \c{:surname}), and ODBC style (e.g. \c{?})
+    colon-name (e.g., \c{:surname}), and ODBC style (\c{?})
     placeholders are supported; but they cannot be mixed in the same
     query. See the \link #details Description\endlink for examples.
 
@@ -895,7 +893,8 @@ bool QSqlQuery::exec()
 
     \sa addBindValue(), prepare(), exec(), boundValue() boundValues()
 */
-void QSqlQuery::bindValue(const QString& placeholder, const QCoreVariant& val, QSql::ParamType paramType
+void QSqlQuery::bindValue(const QString& placeholder, const QCoreVariant& val,
+                          QSql::ParamType paramType
 )
 {
     d->sqlResult->bindValue(placeholder, val, paramType);
