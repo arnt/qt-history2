@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#24 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#24 $";
 #endif
 
 // #define DEBUG_FONT
@@ -1011,14 +1011,20 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
         else
            width =  overall.rbearing - startX;
         if ( f.d->act.underline ) {
-            int ulPos = underlinePos() + lineWidth(); // X descent is 1 
-            if ( descent < ulPos ) // more than logical descent, so don't
-                descent = ulPos;   // subtract 1 here!
+            int ulTop = underlinePos();
+            int ulBot = ulTop + lineWidth(); // X descent is 1 
+            if ( descent < ulBot ) // more than logical descent, so don't
+                descent = ulBot;   // subtract 1 here!
+            if ( ascent < -ulTop )
+                ascent = -ulTop;
         }
         if ( f.d->act.strikeOut ) {
-            int soPos = strikeOutPos();
-            if ( ascent < soPos )
-                ascent = soPos;
+            int soTop = strikeOutPos();
+            int soBot = soTop - lineWidth(); // --- "" ---
+            if ( descent < -soBot )
+                descent = -soBot;
+            if ( ascent < soTop )
+                ascent = soTop;
         }
     }
     return QRect( startX - 1, -ascent - 1, width + 2, descent + ascent + 2 );
