@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#18 $
 **
 ** Implementation of QFileDialog class
 **
@@ -25,7 +25,7 @@
 
 #include "qurl.h"
 #include "qurlinfo.h"
-#include "qnetprotocol.h"
+#include "qnetworkprotocol.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -50,7 +50,7 @@ struct QUrlPrivate
     QString nameFilter;
     QDir dir;
     QMap<QString, QUrlInfo> entryMap;
-    QNetworkProtocol *networkProtocol;
+    QNetworkFileAccess *networkProtocol;
 };
 
 /*!
@@ -1526,7 +1526,7 @@ bool QUrl::isDir()
 	else
 	    emit urlIsFile();
     } else if ( d->networkProtocol ) {
-	d->networkProtocol->isDir();
+	d->networkProtocol->isUrlDir();
     } else {
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
@@ -1547,7 +1547,7 @@ bool QUrl::isFile()
 	else
 	    emit urlIsDir();
     } else if ( d->networkProtocol ) {
-	d->networkProtocol->isFile();
+	d->networkProtocol->isUrlFile();
     } else {
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
@@ -1560,7 +1560,7 @@ bool QUrl::isFile()
   #### todo
 */
 
-void QUrl::put( const QString &data )
+void QUrl::put( const QCString &data )
 {
     if ( d->networkProtocol )
 	d->networkProtocol->put( data );
@@ -1671,12 +1671,15 @@ void QUrl::getNetworkProtocol()
 	return;
     }
 
-    QNetworkProtocol *p = qGetNetworkProtocol( d->protocol );
+    QNetworkProtocol *p = QNetworkProtocol::getNetworkProtocol( d->protocol );
     if ( !p ) {
 	d->networkProtocol = 0;
 	return;
     }
 
-    d->networkProtocol = p;
-    d->networkProtocol->setUrl( this );
+    if ( p->inherits( "QNetworkFileAccess" ) ) {
+	d->networkProtocol = (QNetworkFileAccess*)p;
+	d->networkProtocol->setUrl( this );
+    } else
+	d->networkProtocol = 0;
 }

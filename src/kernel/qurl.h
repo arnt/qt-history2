@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#8 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#9 $
 **
 ** Implementation of QFileDialog class
 **
@@ -33,7 +33,6 @@
 
 struct QUrlPrivate;
 class QUrlInfo;
-class QNetworkProtocol;
 
 class QUrl : public QObject
 {
@@ -132,7 +131,7 @@ public:
     virtual void copy( const QStringList &files, const QString &dest, bool move );
     virtual bool isDir();
     virtual bool isFile();
-    virtual void put( const QString &data );
+    virtual void put( const QCString &data );
 
 
     virtual void setNameFilter( const QString &nameFilter );
@@ -151,7 +150,7 @@ public:
     void emitRemoved( const QString & );
     void emitItemChanged( const QString &oldname, const QString &newname );
     void emitError( int ecode, const QString &msg );
-    void emitData( const QString &d );
+    void emitData( const QCString &d );
     void emitUrlIsDir();
     void emitUrlIsFile();
     void emitPutSuccessful( const QString &d );
@@ -166,7 +165,7 @@ signals:
     void removed( const QString & );
     void itemChanged( const QString &oldname, const QString &newname );
     void error( int ecode, const QString &msg );
-    void data( const QString & );
+    void data( const QCString & );
     void putSuccessful( const QString & );
     void urlIsDir();
     void urlIsFile();
@@ -223,7 +222,7 @@ inline void QUrl::emitError( int ecode, const QString &msg )
     emit error( ecode, msg );
 }
 
-inline void QUrl::emitData( const QString &d )
+inline void QUrl::emitData( const QCString &d )
 {
     emit data( d );
 }
