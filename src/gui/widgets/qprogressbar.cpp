@@ -225,11 +225,12 @@ void QProgressBar::setProgress(int progress)
          progress < 0 || ((progress > total_steps) && total_steps))
         return;
 
+    int old_progress_val = progress_val;
     progress_val = progress;
 
-    setIndicator(progress_str, progress_val, total_steps);
-
-    repaint();
+    if (setIndicator(progress_str, progress_val, total_steps)
+        || (old_progress_val / width() != progress_val / width()))
+        repaint();
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
@@ -424,10 +425,10 @@ void QProgressBar::paintEvent(QPaintEvent *)
     QPainter paint(this);
     QPainter *p = &paint;
     drawFrame(p);
-    
+
     QStyleOptionProgressBar opt = getStyleOption(this);
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, &opt, this), this);
-    
+
     style().drawControl(QStyle::CE_ProgressBarGroove, &opt, p, this);
     opt.rect = rect();
     opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, &opt, this),
