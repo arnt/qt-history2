@@ -250,6 +250,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, Eve
 	break;
     case kEventClassMouse:
 	if(ekind == kEventMouseDown) {
+	    handled_event = false;
 	    UInt32 count;
 	    GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
 			      sizeof(count), 0, &count);
@@ -257,9 +258,9 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, Eve
 		Point where;
 		GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
 				  sizeof(where), 0, &where);
-		bool ok;
-		if(qApp->do_mouse_down(&where, &ok) || ok)
-		    handled_event = false;
+		bool unhandled_widget;
+		if(!qApp->do_mouse_down(&where, &unhandled_widget) && !unhandled_widget)
+		    handled_event = true;
 	    }
 	} else {
 	    handled_event = false;
