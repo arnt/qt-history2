@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#271 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#272 $
 **
 ** Implementation of QWidget class
 **
@@ -1756,15 +1756,10 @@ void QWidget::fontChange( const QFont & )
 }
 
 
-//#warning "Fix doc below. No longer automatic font metrics update"
-
 /*!
   \fn QFontMetrics QWidget::fontMetrics() const
-  Returns the font metrics for the widget.
 
-  The font metrics object is automatically updated if somebody sets a new
-  widget font. We have decided to change this policy in Qt 2.0: setting
-  a new font for a widget should not affect existing QFontMetrics objects.
+  Returns the font metrics for the widget.
 
   \sa font(), fontInfo(), setFont()
 */
@@ -2442,7 +2437,7 @@ bool qt_modal_state();				// --- "" ---
 
   If its size or position has changed, Qt guarantees that a widget gets
   move and resize events just before the widget is shown.
-  
+
   You almost never have to reimplement this function. If you need to
   change some settings before a widget is shown, use \link showEvent()
   instead. If you need to do some delayed initialization use \link
@@ -2504,7 +2499,7 @@ void QWidget::show()
 
   You almost never have to reimplement this function. If you need to
   do something after a widget is hidden, use \link hideEvent()
-  instead. 
+  instead.
 
   \sa \hideEvent(), show(), iconify(), isVisible()
 */
@@ -2553,9 +2548,9 @@ void QWidget::hide()
   instantiated widget. This is something a constructor cannot
   guarantee since the initialization of the subclasses might not be
   finished.
-  
+
   The default implementation calls \link QApplication::polishWidget()
-  
+
   \sa QApplication::polishWidget()
 */
 
