@@ -1632,10 +1632,10 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	const int spinner_w = 15, spinner_h = 10; //isn't there some way to get this from the AppMan?
 	int fw = pixelMetric(PM_SpinBoxFrameWidth, w), y = fw, x = w->width() - fw - spinner_w;
 	switch(sc) {
-	case SC_SpinWidgetUp:
-	    return QRect(x, y + ((w->height() / 2) - spinner_h), spinner_w, spinner_h);
-	case SC_SpinWidgetDown:
-	    return QRect(x, y + (w->height() / 2), spinner_w, spinner_h);
+	case SC_SpinWidgetUp: 
+	    return QRect(x, y + (((w->height()-(fw*2)) / 2) - spinner_h), spinner_w, spinner_h);
+	case SC_SpinWidgetDown: 
+	    return QRect(x, y + ((w->height()-(fw*2)) / 2), spinner_w, spinner_h);
 	case SC_SpinWidgetButtonField:
 	    return QRect(x, y, spinner_w, w->height() - (fw*2));
 	case SC_SpinWidgetEditField:
