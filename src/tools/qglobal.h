@@ -290,7 +290,7 @@
 // The window system, must be one of: (Q_WS_x)
 //
 //   MACX	- Mac OS X
-//   MAC9   - Mac OS 9
+//   MAC9	- Mac OS 9
 //   QWS	- Qt/Embedded
 //   WIN32	- Windows
 //   X11	- X Window System
