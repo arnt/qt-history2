@@ -2524,7 +2524,9 @@ void QWidget::setMask(const QRegion& region)
     Note that this effect can be slow if the region is particularly
     complex.
 
+    \omit
     See \c examples/tux for an example of masking for transparency.
+    \endomit
 
     \sa setMask(), clearMask()
 */
