@@ -197,11 +197,9 @@
 #include "qeditorfactory.h"
 #include "qsqlindex.h"
 #include <qsqldriver.h>
-#include <qsqldataview.h>
+#include <qdataview.h>
 #include <qsqlform.h>
 #include "qsqlcursor.h"
-#include "qsqlnavigator.h"
-#include <qsqldataform.h>
 #include <qsqlpropertymap.h>
 #include <qsqldatabase.h>
 #include <qsqlresult.h>
@@ -243,7 +241,6 @@
 #include <qdatetimeedit.h>
 #include <qfontdatabase.h>
 #include <qvaluestack.h>
-#include <qsqltable.h>
 #include <qvbox.h>
 #include <qvbuttongroup.h>
 #include <qtextbrowser.h>
