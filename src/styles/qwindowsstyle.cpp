@@ -37,6 +37,8 @@
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qdockwindow.h"
+#include "qobjectlist.h"
+#include "qmenubar.h"
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -59,6 +61,114 @@ static bool use2000style = TRUE;
 
 enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
+// A friendly class providing access to QMenuData's protected member.
+class FriendlyMenuData : public QMenuData
+{
+    friend class QWindowsStyle;
+};
+
+// Private class
+class QWindowsStyle::Private : public QObject
+{
+public:
+    Private(QWindowsStyle *parent);
+
+    bool hasSeenAlt(const QWidget *widget) const;
+    bool altDown() const { return alt_down; }
+
+protected:
+    bool eventFilter(QObject *o, QEvent *e);
+
+private:
+    QPtrList<QWidget> seenAlt;
+    bool alt_down;
+};
+
+QWindowsStyle::Private::Private(QWindowsStyle *parent)
+: QObject(parent, "QWindowsStylePrivate"), alt_down(FALSE)
+{
+}
+
+// Returns true if the toplevel parent of \a widget has seen the Alt-key
+bool QWindowsStyle::Private::hasSeenAlt(const QWidget *widget) const
+{
+    widget = widget->topLevelWidget();
+    return seenAlt.contains(widget);
+}
+
+// Records Alt- and Focus events
+bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
+{
+    if (!o->isWidgetType())
+	return QObject::eventFilter(o, e);
+
+    QWidget *widget = ::qt_cast<QWidget*>(o);
+
+    switch(e->type()) {
+    case QEvent::KeyPress:
+	if (((QKeyEvent*)e)->key() == Key_Alt) {
+	    widget = widget->topLevelWidget();
+
+	    // Alt has been pressed - find all widgets that care
+	    QObjectList *l = widget->queryList("QWidget");
+	    QObjectListIt it( *l );
+	    QWidget *w;
+	    while ( (w = (QWidget*)it.current()) != 0 ) {
+		++it;
+		if (w->isTopLevel() || !w->isVisible() ||
+		    w->style().styleHint(SH_UnderlineAccelerator, w))
+		    l->removeRef(w);
+	    }
+	    // Update states before repainting
+	    seenAlt.append(widget);
+	    alt_down = TRUE;
+
+	    // Repaint all relevant widgets
+	    it.toFirst();
+	    while ( (w = (QWidget*)it.current()) != 0 ) {
+		++it;
+		w->repaint(FALSE);
+	    }
+	    delete l;
+	}
+	break;
+    case QEvent::KeyRelease:
+	if (((QKeyEvent*)e)->key() == Key_Alt) {
+	    widget = widget->topLevelWidget();
+
+	    // Update state
+	    alt_down = FALSE;
+	    // Repaint only menubars
+	    QObjectList *l = widget->queryList("QMenuBar");
+	    QObjectListIt it( *l );
+	    QMenuBar *menuBar;
+	    while ( (menuBar = (QMenuBar*)it.current()) != 0) {
+		++it;
+		menuBar->repaint(FALSE);
+	    }
+	}
+	break;
+    case QEvent::FocusIn:
+    case QEvent::FocusOut:
+	{
+	    // Menubars toggle based on focus
+	    QMenuBar *menuBar = ::qt_cast<QMenuBar*>(o);
+	    if (menuBar)
+		menuBar->repaint(FALSE);
+	}
+	break;
+    case QEvent::Close:
+	// Reset widget when closing
+	seenAlt.removeRef(widget);
+	seenAlt.removeRef(widget->topLevelWidget());
+	break;
+    default:
+	break;
+    }
+
+    return QObject::eventFilter(o, e);
+}
+
 /*!
     \class QWindowsStyle qwindowsstyle.h
     \brief The QWindowsStyle class provides a Microsoft Windows-like look and feel.
@@ -71,7 +181,7 @@ enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 /*!
     Constructs a QWindowsStyle
 */
-QWindowsStyle::QWindowsStyle() : QCommonStyle()
+QWindowsStyle::QWindowsStyle() : QCommonStyle(), d(0)
 {
 #if defined(Q_OS_WIN32)
     use2000style = qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95;
@@ -81,6 +191,42 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle()
 /*! \reimp */
 QWindowsStyle::~QWindowsStyle()
 {
+    delete d;
+}
+
+/*! \reimp */
+void QWindowsStyle::polish(QApplication *app)
+{
+    // We only need the overhead when shortcuts are sometimes hidden
+    if (!styleHint(SH_UnderlineAccelerator, 0)) {
+	d = new Private(this);
+	app->installEventFilter(d);
+    }
+}
+
+/*! \reimp */
+void QWindowsStyle::unPolish(QApplication *app)
+{
+    delete d;
+    d = 0;
+}
+
+/*! \reimp */
+void QWindowsStyle::polish(QWidget *widget)
+{
+    QCommonStyle::polish(widget);
+}
+
+/*! \reimp */
+void QWindowsStyle::unPolish(QWidget *widget)
+{
+    QCommonStyle::polish(widget);
+}
+
+/*! \reimp */
+void QWindowsStyle::polish( QPalette &pal )
+{
+    QCommonStyle::polish(pal);
 }
 
 /*! \reimp */
@@ -780,6 +926,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if ( !s.isNull() ) {                        // draw text
 		int t = s.find( '\t' );
 		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		if (!styleHint(SH_UnderlineAccelerator, widget))
+		    text_flags |= NoAccel;
 		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft );
 		if ( t >= 0 ) {                         // draw tab text
 		    int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
@@ -1875,6 +2023,57 @@ int QWindowsStyle::styleHint( StyleHint hint,
     case SH_ToolBox_SelectedPageTitleBold:
 	ret = 0;
 	break;
+
+#if defined(Q_WS_WIN)
+    case SH_UnderlineAccelerator:
+	ret = 1;
+	if ( qWinVersion() != WV_95 && qWinVersion() != WV_NT ) {
+	    BOOL cues;
+	    SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &cues, 0);
+	    ret = cues ? 1 : 0;
+	    // Do nothing if we always paint underlines
+	    if (!ret && widget && d) {
+		QMenuBar *menuBar = ::qt_cast<QMenuBar*>(widget);
+		QPopupMenu *popupMenu = 0;
+		if (!menuBar)
+		    popupMenu = ::qt_cast<QPopupMenu*>(widget);
+
+		// If we paint a menubar draw underlines if it has focus, or if alt is down,
+		// or if a popup menu belonging to the menubar is active and paints underlines
+		if (menuBar) {
+		    if (menuBar->hasFocus()) {
+			ret = 1;
+		    } else if (d->altDown()) {
+			ret = 1;
+		    } else if (qApp->focusWidget() && qApp->focusWidget()->isPopup()) {
+			popupMenu = ::qt_cast<QPopupMenu*>(qApp->focusWidget());
+			QMenuData *pm = popupMenu ? (QMenuData*)popupMenu->qt_cast("QMenuData") : 0;
+			if (pm && ((FriendlyMenuData*)pm)->parentMenu == menuBar) {
+			    if (d->hasSeenAlt(menuBar))
+				ret = 1;
+			}
+		    }
+		// If we paint a popup menu draw underlines if the respective menubar does
+		} else if (popupMenu) {
+		    QMenuData *pm = (QMenuData*)popupMenu->qt_cast("QMenuData");
+		    while (pm) {
+			if (((FriendlyMenuData*)pm)->isMenuBar) {
+			    menuBar = (QMenuBar*)pm;
+			    if (d->hasSeenAlt(menuBar))
+				ret = 1;
+			    break;
+			}
+			pm = ((FriendlyMenuData*)pm)->parentMenu;
+		    }
+		// Otherwise draw underlines if the toplevel widget has seen an alt-press
+		} else if (d->hasSeenAlt(widget)) {
+		    ret = 1;
+		}
+	    }
+	    
+	}
+	break;
+#endif
 
     default:
 	ret = QCommonStyle::styleHint(hint, widget, opt, returnData);

@@ -637,6 +637,9 @@ void QCommonStyle::drawControl( ControlElement element,
 	    }
 
 	    int tf=AlignVCenter | ShowPrefix;
+	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+		tf |= NoAccel;
+
 #ifndef QT_NO_ICONSET
 	    if ( button->iconSet() && ! button->iconSet()->isNull() ) {
 		QIconSet::Mode mode =
@@ -689,6 +692,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
+	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+		alignment |= NoAccel;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
 		     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
@@ -710,6 +715,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
+	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+		alignment |= NoAccel;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
 		     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
@@ -777,7 +784,10 @@ void QCommonStyle::drawControl( ControlElement element,
 		tr.setBottom( tr.bottom() -
 			      pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
 
-	    drawItem( p, tr, AlignCenter | ShowPrefix, pal,
+	    int alignment = AlignCenter | ShowPrefix;
+	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+		alignment |= NoAccel;
+	    drawItem( p, tr, alignment, pal,
 		      flags & Style_Enabled, 0, t->text() );
 
 	    if ( (flags & Style_HasFocus) && !t->text().isEmpty() )
@@ -913,7 +923,10 @@ void QCommonStyle::drawControl( ControlElement element,
 		break;
 
 	    QMenuItem *mi = opt.menuItem();
-	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, pal,
+	    int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
+	    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+		alignment |= NoAccel;
+	    drawItem( p, r, alignment, pal,
 		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
 		      &pal.buttonText().color() );
 #endif
@@ -949,7 +962,10 @@ void QCommonStyle::drawControl( ControlElement element,
 		if (toolbutton->iconSet().isNull() &&
 		    ! toolbutton->text().isNull() &&
 		    ! toolbutton->usesTextLabel()) {
-		    drawItem(p, rect, AlignCenter | ShowPrefix, pal,
+		    int alignment = AlignCenter | ShowPrefix;
+		    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+			alignment |= NoAccel;
+		    drawItem(p, rect, alignment, pal,
 			     flags & Style_Enabled, 0, toolbutton->text(),
 			     toolbutton->text().length(), &btext);
 		} else {
@@ -976,7 +992,10 @@ void QCommonStyle::drawControl( ControlElement element,
 			    pr.addCoords( 0, 1, 0, -fh-3 );
 			    tr.addCoords( 0, pr.bottom(), 0, -3 );
 			    drawItem( p, pr, AlignCenter, pal, TRUE, &pm, QString::null );
-			    drawItem( p, tr, AlignCenter | ShowPrefix, pal,
+			    int alignment = AlignCenter | ShowPrefix;
+			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+				alignment |= NoAccel;
+			    drawItem( p, tr, alignment, pal,
 				      flags & Style_Enabled, 0, toolbutton->textLabel(),
 				      toolbutton->textLabel().length(), &btext);
 			} else {
@@ -986,7 +1005,10 @@ void QCommonStyle::drawControl( ControlElement element,
 			    pr.setWidth( pm.width() + 8 );
 			    tr.addCoords( pr.right(), 0, 0, 0 );
 			    drawItem( p, pr, AlignCenter, pal, TRUE, &pm, QString::null );
-			    drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, pal,
+			    int alignment = AlignLeft | AlignVCenter | ShowPrefix;
+			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+				alignment |= NoAccel;
+			    drawItem( p, tr, alignment, pal,
 				      flags & Style_Enabled, 0, toolbutton->textLabel(),
 				      toolbutton->textLabel().length(), &btext);
 			}
@@ -2632,6 +2654,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	break;
 
     case SH_ToolBox_SelectedPageTitleBold:
+	ret = 1;
+	break;
+
+    case SH_UnderlineAccelerator:
 	ret = 1;
 	break;
 
