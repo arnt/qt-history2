@@ -41,8 +41,20 @@
 #define q q_func()
 
 // For alpha blending, we must load the AlphaBlend() function at run time.
-#if !defined(AC_SRC_ALPHA)
+#if !defined (AC_SRC_ALPHA)
 #define AC_SRC_ALPHA 0x01
+#endif
+
+#if !defined (SHADEBLENDCAPS)
+#define SHADEBLENDCAPS 120
+#endif
+
+#if !defined (SB_CONST_ALPHA)
+#define SB_CONST_ALPHA 0x00000001
+#endif
+
+#if !defined (SB_GRAD_TRI)
+#define SB_GRAD_TRI         0x00000020
 #endif
 
 // True if GDI+ and its function could be resolved...
@@ -1775,23 +1787,19 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r)
     Q_ASSERT(brush.style() == Qt::SolidPattern);
     Q_ASSERT(brush.color().alpha() != 255);
 
-    TRIVERTEX polygon[4];
-    polygon[0] = createVertex(0, 0, brush.color());
-    polygon[1] = createVertex(r.width(), 0, brush.color());
-    polygon[2] = createVertex(r.width(), r.height(), brush.color());
-    polygon[3] = createVertex(0, r.height(), brush.color());
-
-    GRADIENT_TRIANGLE gTri[] = { { 0, 1, 2 }, { 2, 3, 0 } };
-
     HDC memdc = CreateCompatibleDC(hdc);
     HBITMAP bitmap = CreateCompatibleBitmap(hdc, r.width(), r.height());
     SelectObject(memdc, bitmap);
+    SelectObject(memdc, CreateSolidBrush(bColor));
+    SelectObject(memdc, stock_nullPen);
 
-    GradientFill(memdc, polygon, 4, gTri, 2, GRADIENT_FILL_TRIANGLE);
+    Rectangle(memdc, 0, 0, r.width() + 1, r.height() + 1);
 
-    BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-    AlphaBlend(hdc, r.x(), r.y(), r.width(), r.height(), memdc, 0, 0, r.width(), r.height(), bf);
+    BLENDFUNCTION bf = { AC_SRC_OVER, 0, brush.color().alpha(), 0 };
+    if (!AlphaBlend(hdc, r.x(), r.y(), r.width(), r.height(), memdc, 0, 0, r.width(), r.height(), bf))
+        qSystemWarning("Alphablending failed...");
 
+    DeleteObject(SelectObject(memdc, stock_nullBrush));
     DeleteObject(bitmap);
     DeleteDC(memdc);
 }
@@ -1895,12 +1903,16 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::ClipTransform
 #endif
         | QPaintEngine::PainterPaths
-        | QPaintEngine::UsesFontEngine
-        | QPaintEngine::LinearGradients;
-
-    commonFeatures |= QPaintEngine::SolidAlphaFill;
+        | QPaintEngine::UsesFontEngine;
 
 
+    int shadeCaps = GetDeviceCaps(qt_display_dc(), SHADEBLENDCAPS);
+
+    if (shadeCaps & SB_GRAD_TRI)
+        commonFeatures |= QPaintEngine::LinearGradients;
+
+    if ((shadeCaps & SB_CONST_ALPHA) || qt_gdiplus_support)
+        commonFeatures |= QPaintEngine::SolidAlphaFill;
 
     return commonFeatures;
 }
