@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#316 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#317 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -318,6 +318,7 @@ static void qt_set_windows_resources()
 {
     QFont menuFont;
     QFont messageFont;
+    QFont statusFont;
 
     if ( qt_winver == Qt::WV_NT ) {
 	// W or A version
@@ -327,6 +328,7 @@ static void qt_set_windows_resources()
 			      sizeof( ncm ), &ncm, NULL);
 	menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,TRUE);
+	statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,TRUE);
     } else {
 	// A version
 	NONCLIENTMETRICSA ncm;
@@ -335,15 +337,14 @@ static void qt_set_windows_resources()
 			      sizeof( ncm ), &ncm, NULL);
 	menuFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMenuFont,TRUE);
 	messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,TRUE);
+	statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,TRUE);
     }
 
     QApplication::setFont( menuFont, TRUE, "QPopupMenu");
     QApplication::setFont( menuFont, TRUE, "QMenuBar");
     QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
-
-    // Same technique could apply to set the statusbar or tooltip
-    // font, but since windows does not allow to change them, we do
-    // not care for now.
+    QApplication::setFont( statusFont, TRUE, "QTipLabel");
+    QApplication::setFont( statusFont, TRUE, "QStatusBar");
 
     // Do the color settings
 
@@ -406,6 +407,23 @@ static void qt_set_windows_resources()
  	QApplication::setPalette( pal, TRUE, "QMenuBar");
     }
 
+    QColor ttip(colorref2qrgb(GetSysColor(COLOR_INFOBK)));
+    QColor ttipText(colorref2qrgb(GetSysColor(COLOR_INFOTEXT)));
+    {
+	cg.setColor( QColorGroup::Button, ttip );
+	cg.setColor( QColorGroup::Background, ttip );
+	cg.setColor( QColorGroup::Text, ttipText );
+	//cg.setColor( QColorGroup::Foreground, ttipText );
+	cg.setColor( QColorGroup::ButtonText, ttipText );
+	QColor disabled( (cg.foreground().red()+cg.button().red())/2,
+			 (cg.foreground().green()+cg.button().green())/2,
+			 (cg.foreground().blue()+cg.button().blue())/2);
+	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
+			 disabled, Qt::white, Qt::white, cg.background() );
+	
+	QPalette pal(cg, dcg, cg);
+ 	QApplication::setPalette( pal, TRUE, "QTipLabel");
+    }
 }
 
 /*****************************************************************************

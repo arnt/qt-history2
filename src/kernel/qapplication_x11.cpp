@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#539 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#540 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -996,6 +996,15 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	f=QFont( "Helvetica", 11 ); // default font
     f.setCharSet( QFont::charSetForLocale() ); // must come after locale_init()
     QApplication::setFont( f );
+
+    {
+	// No resources for this yet (unlike on Windows).
+	QColorGroup cg( Qt::black, QColor(255,255,220),
+			QColor(96,96,96), Qt::black, Qt::black,
+			Qt::black, QColor(255,255,220) );
+	QPalette pal( cg, cg, cg );
+	QApplication::setPalette( pal, TRUE, "QTipLabel");
+    }
 
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
 }

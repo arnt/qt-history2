@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#90 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -36,6 +36,7 @@ static inline QRect entireWidget()
 		  2*QWIDGETSIZE_MAX, 2*QWIDGETSIZE_MAX );
 }
 
+static bool use_style_override=FALSE;
 
 // Internal class - don't touch
 
@@ -43,13 +44,24 @@ class QTipLabel : public QLabel
 {
     Q_OBJECT
 public:
-    QTipLabel() : QLabel( 0, "toolTipTip",
+    QTipLabel(const QString& text) : QLabel( 0, "toolTipTip",
 			  WStyle_StaysOnTop +
 			  WStyle_Customize + WStyle_NoBorder + WStyle_Tool )
     {
+	setMargin(1);
+	setIndent(0);
 	setAutoMask( FALSE );
+	if ( use_style_override ) {
+	    setFont( QToolTip::font() );
+	    setPalette( QToolTip::palette(), TRUE );
+	}
+	setFrameStyle( QFrame::Plain | QFrame::Box );
+	setLineWidth( 1 );
+	setAlignment( AlignLeft | AlignTop );
+	setText(text);
+	polish();
+	adjustSize();
     }
-
 };
 
 // Internal class - don't touch
@@ -426,21 +438,11 @@ void QTipManager::showTip()
 
     if ( label ) {
 	label->setText( t->text );
+	label->adjustSize();
     } else {
-	label = new QTipLabel;
+	label = new QTipLabel(t->text);
 	CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
-	label->setFont( QToolTip::font() );
-	label->setPalette( QToolTip::palette(), TRUE );
-	label->setText( t->text );
-	if ( qApp->style() == MotifStyle )
-	    label->setFrameStyle( QFrame::Plain | QFrame::Box );
-	else
-	    label->setFrameStyle( QFrame::Raised | QFrame::Panel );
-	label->setLineWidth( 1 );
-	label->setMargin( 3 );
-	label->setAlignment( AlignLeft | AlignTop );
-	label->setAutoResize( TRUE );
     }
     QPoint p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
     if ( p.x() + label->width() > QApplication::desktop()->width() )
@@ -453,7 +455,7 @@ void QTipManager::showTip()
 	label->raise();
     }
 
-    if ( !label->text() && !label->text().contains( '\n' ) )
+    if ( !label->text() && label->text().length() < 25 )
 	fallAsleep.start( 5000, TRUE );
     leaveWindow.stop();
 
@@ -589,14 +591,14 @@ void QToolTip::initialize()
 {
     if ( ttFont )				// already initialized
 	return;
+
     qAddPostRoutine( cleanup );
-    ttFont = new QFont;
-    CHECK_PTR( ttFont );
-    QColorGroup cg( black, QColor(255,255,220),
-		    QColor(96,96,96), black, black,
-		    black, QColor(255,255,220) );
-    ttPalette = new QPalette( cg, cg, cg );
-    CHECK_PTR( ttPalette );
+
+    QTipLabel t("");
+    ttFont = new QFont(QApplication::font(&t));
+    ttPalette = new QPalette(QApplication::palette(&t));
+
+    use_style_override = TRUE;
 }
 
 
@@ -632,6 +634,7 @@ void QToolTip::setFont( const QFont &font )
     if ( !ttFont )
 	initialize();
     *ttFont = font;
+    use_style_override = TRUE;
 }
 
 
@@ -658,6 +661,7 @@ void QToolTip::setPalette( const QPalette &palette )
     if ( !ttPalette )
 	initialize();
     *ttPalette = palette;
+    use_style_override = TRUE;
 }
 
 
@@ -981,7 +985,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.84 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.85 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
