@@ -434,6 +434,8 @@ static bool skipWidget(QWidget *w)
         return true;
     if (name == "FormWindow")
         return true;
+    if (name == "Spacer")
+        return true;
     return false;
 }
 
