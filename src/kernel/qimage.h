@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#13 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#14 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -24,7 +24,7 @@ public:
 
     QImage();
     QImage( int width, int height, int depth, int numColors=0,
-	    int bitOrder=IgnoreEndian );
+	    QImage::Endian bitOrder=IgnoreEndian );
     QImage( const QImage & );
    ~QImage();
 
@@ -41,7 +41,7 @@ public:
     QRect	rect()		const	{ return QRect(0,0,data->w,data->h); }
     int		depth()		const	{ return data->d; }
     int		numColors()	const	{ return data->ncols; }
-    int		bitOrder()	const	{ return data->bitordr; }
+    QImage::Endian bitOrder()	const	{ return (Endian) data->bitordr; }
 
     ulong	color( int i )	const;
     void	setColor( int i, ulong c );
@@ -56,14 +56,14 @@ public:
     int		bytesPerLine()	const;
 
     bool	create( int width, int height, int depth, int numColors=0,
-			int bitOrder=IgnoreEndian );
+			QImage::Endian bitOrder=IgnoreEndian );
     void	reset();
 
     QImage	convertDepth( int )	const;
-    QImage	convertBitOrder( int )	const;
+    QImage	convertBitOrder( QImage::Endian )	const;
 
-    static int	systemBitOrder();
-    static int	systemByteOrder();
+    static QImage::Endian systemBitOrder();
+    static QImage::Endian systemByteOrder();
 
 private:
     void	init();
