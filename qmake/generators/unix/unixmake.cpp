@@ -716,7 +716,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
-		ret += "\n\tln -sf " + targetdir + target +  + " " + targetdir + link;
+		ret += "\n\tln -sf " + targetdir + target + " " + targetdir + link;
 	    }
 	}
     }
