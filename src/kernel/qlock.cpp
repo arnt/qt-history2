@@ -34,16 +34,16 @@
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
-#ifdef Q_OS_MACX
-#define Q_NO_SEMAPHORE
 #include <unistd.h>
+#include <sys/types.h>
+#if defined(Q_OS_MACX)
+#define Q_NO_SEMAPHORE
 #include <sys/stat.h>
 #include <sys/file.h>
 #else
-#include <sys/types.h>
 #include <sys/sem.h>
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
-    || defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI)
+    || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_BSDI)
 /* union semun is defined by including <sys/sem.h> */
 #else
 /* according to X/OPEN we have to define it ourselves */
@@ -54,8 +54,6 @@ union semun {
 };
 #endif
 #endif
-
-#include <sys/types.h>
 #include <sys/ipc.h>
 #include <string.h>
 #include <errno.h>
@@ -291,4 +289,3 @@ bool QLock::locked() const
     return FALSE;
 #endif
 }
-
