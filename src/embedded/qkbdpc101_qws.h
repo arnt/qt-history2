@@ -60,7 +60,7 @@ protected:
     bool alt;
     bool ctrl;
     bool caps;
-    bool extended;
+    int extended;
     int modifiers;
     int prevuni;
     int prevkey;

@@ -83,7 +83,7 @@ static const QWSKeyMap pc101KeyM[] = {
     {   Qt::Key_O,      'o'     , 'O'     , 'O'-64  },
     {   Qt::Key_P,      'p'     , 'P'     , 'P'-64  },
     {   Qt::Key_BraceLeft,  '['     , '{'     , 0xffff  },
-    {   Qt::Key_Escape,     ']'     , '}'     , 0xffff  },
+    {   Qt::Key_BraceRight, ']'     , '}'     , 0xffff  },
     {   Qt::Key_Return,     13      , 13      , 0xffff  },
     {   Qt::Key_Control,    0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_A,      'a'     , 'A'     , 'A'-64  },  // 30
@@ -163,7 +163,7 @@ QWSPC101KeyboardHandler::QWSPC101KeyboardHandler()
     shift = false;
     alt   = false;
     ctrl  = false;
-    extended = false;
+    extended = 0;
     prevuni = 0;
     prevkey = 0;
     caps = FALSE;
@@ -190,10 +190,13 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     int keypad = 0;
     bool softwareRepeat = FALSE;
 
+    // extended?
     if (code == 224) {
-	// extended
-	extended = true;
+	extended = 1;
 	return;
+    } else if (code == 225) {
+    	extended = 2;
+    	return;
     }
 
     if (code & 0x80) {
@@ -201,7 +204,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	code &= 0x7f;
     }
 
-    if (extended) {
+    if (extended == 1) {
 	switch (code) {
 	case 72:
 	    keyCode = Qt::Key_Up;
@@ -238,6 +241,32 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	    break;
 	case 53:
 	    keyCode = Qt::Key_Slash;
+	    break;
+	case 0x1d:
+	    keyCode = Qt::Key_Control;
+	    break;
+	case 0x2a:
+	    keyCode = Qt::Key_SysReq;
+	    break;
+	case 0x38:
+	    keyCode = Qt::Key_Alt;
+	    break;
+	case 0x5b:
+	    keyCode = Qt::Key_Super_L;
+	    break;
+	case 0x5c:
+	    keyCode = Qt::Key_Super_R;
+	    break;
+	case 0x5d:
+	    keyCode = Qt::Key_Menu;
+	    break;
+	}
+    } else if ( extended == 2 ) {
+	switch (code) {
+	case 0x1d: 
+	    return;
+	case 0x45:
+	    keyCode = Qt::Key_Pause;
 	    break;
 	}
     } else {
@@ -288,13 +317,18 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	    keyCode = transformDirKey(keyCode);
 	}
 #endif
+	/*
+	  Translate shift+Key_Tab to Key_Backtab
+	*/
+	if (( keyCode == Key_Tab ) && shift )
+	    keyCode = Key_Backtab;
     }
 
     /*
       Keypad consists of extended keys 53 and 28,
       and non-extended keys 55 and 71 through 83.
     */
-    if ( extended ? (code == 53 || code == 28) :
+    if (( extended == 1 ) ? (code == 53 || code == 28) :
 	 (code == 55 || ( code >= 71 && code <= 83 )) )
 	keypad = Qt::Keypad;
 
@@ -334,7 +368,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 		    unicode =  keyMap()[code].shift_unicode ?  keyMap()[code].shift_unicode : 0xffff;
 		else
 		    unicode =  keyMap()[code].unicode ?  keyMap()[code].unicode : 0xffff;
-	    } else {
+	    } else if ( extended==1 ) {
 		if ( code == 53 )
 		    unicode = '/';
 	    }
@@ -366,7 +400,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     else
 	endAutoRepeat();
 
-    extended = false;
+    extended = 0;
 }
 
 #endif // QT_NO_QWS_KEYBOARD
