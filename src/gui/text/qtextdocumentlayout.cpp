@@ -371,7 +371,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                                            QTextFrame *frame) const
 {
     QTextFrameData *fd = data(frame);
-    if (!fd->boundingRect.intersects(context.rect))
+    if (context.rect.isValid() && !fd->boundingRect.intersects(context.rect))
         return;
 //     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
@@ -457,7 +457,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 cellRect.setHeight(td->rowPositions.at(r + rspan - 1) + td->heights.at(r + rspan - 1) - cellRect.top());
 
                 cellRect.translate(off);
-                if (!cellRect.intersects(context.rect))
+                if (context.rect.isValid() && !cellRect.intersects(context.rect))
                     continue;
 
                 if (fd->border) {
@@ -533,7 +533,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     const QTextLayout *tl = bl.layout();
     QRect r = tl->boundingRect().toRect();
     r.translate((offset + tl->position()).toPoint());
-    if (!r.intersects(context.rect))
+    if (context.rect.isValid() && !r.intersects(context.rect))
         return;
 //      LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset << "br" << tl->boundingRect();
 
