@@ -42,10 +42,8 @@ public:
 	opInProgress = 0;
 	opStartTimer = new QTimer( p );
 	removeTimer = new QTimer( p );
-	operationQueue.setAutoDelete( FALSE );
 	autoDelete = FALSE;
 	removeInterval = 10000;
-	oldOps.setAutoDelete( FALSE );
     }
 
     ~QNetworkProtocolPrivate()
@@ -866,8 +864,8 @@ QNetworkOperation *QNetworkProtocol::operationInProgress() const
 void QNetworkProtocol::clearOperationQueue()
 {
     if (!d->operationQueue.isEmpty())
-	d->operationQueue.takeAt(0);
-    d->operationQueue.setAutoDelete( TRUE );
+	d->operationQueue.removeFirst();
+    d->operationQueue.deleteAll();
     d->operationQueue.clear();
 }
 

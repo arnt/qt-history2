@@ -30,7 +30,6 @@ class QUrlOperatorPrivate
 public:
     QUrlOperatorPrivate()
     {
-	oldOps.setAutoDelete( FALSE );
 	networkProtocol = 0;
 	nameFilter = "*";
 	currPut = 0;
@@ -545,7 +544,6 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 #endif
 
     QPtrList<QNetworkOperation> ops;
-    ops.setAutoDelete( FALSE );
 
     QUrlOperator *uFrom = new QUrlOperator( *this, from );
     QUrlOperator *uTo = new QUrlOperator( to );
@@ -613,7 +611,6 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 #ifdef QURLOPERATOR_DEBUG
 	qDebug( "QUrlOperator: copy operation should start now..." );
 #endif
-	return ops;
     } else {
 	QString msg;
 	if ( !gProt ) {
@@ -970,7 +967,6 @@ QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
 
     *d = *url.d;
 
-    d->oldOps.setAutoDelete( FALSE );
     d->getOpPutOpMap = getOpPutOpMap;
     d->getOpPutProtMap = getOpPutProtMap;
     d->getOpGetProtMap = getOpGetProtMap;
@@ -989,7 +985,6 @@ QUrlOperator& QUrlOperator::operator=( const QString &url )
 {
     deleteNetworkProtocol();
     QUrl::operator=( url );
-    d->oldOps.setAutoDelete( FALSE );
     getNetworkProtocol();
     return *this;
 }
@@ -1072,9 +1067,9 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 	    deleteOperation( put );
 	}
     }
-    if ( gProt ) {
+    if ( gProt )
 	gProt->setAutoDelete( TRUE );
-    }
+
     if ( rm && gProt ) {
 	if ( op->state() != QNetworkProtocol::StFailed ) {
 	    gProt->addOperation( rm );
