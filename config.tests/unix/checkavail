@@ -85,16 +85,29 @@ then
 	    FOUND_INC=`ls $INCLUDEDIR/$INCLUDE 2>/dev/null`
 	    if [ ! -z "$FOUND_INC" ]
 	    then
-		# version check for the png lib
 		if [ "$MODULE_NAME" = "libpng" ]
 		then
+		     # version check for png lib
 		    PNG_VERSION=`grep "#define PNG_LIBPNG_VER " $FOUND_INC | awk '{print $3}'`
-		    if [ $PNG_VERSION -ge "10017" ]
+		    if [ "$PNG_VERSION" -ge "10017" ]
 		    then
 			SUCCESS=yes
 			if [ "$VERBOSE" = "yes" ]
 			then
 			    echo "  Found png.h (>= v1.0.17) in $INCLUDEDIR"
+			fi
+			break
+		    fi
+		elif [ "$MODULE_NAME" = "libzlib" ]
+		then
+		    # version check for z lib
+		    ZLIB_VERSION=`grep "#define ZLIB_VERSION " $FOUND_INC | awk '{print $3}' | sed -e 's/["|.]//g'`
+		    if [ "$ZLIB_VERSION" -ge "108" ]
+		    then
+			SUCCESS=yes
+			if [ "$VERBOSE" = "yes" ]
+			then
+			    echo "  Found zlib.h (>= v1.0.8) in $INCLUDEDIR"
 			fi
 			break
 		    fi
@@ -116,6 +129,9 @@ then
 		if [ "$MODULE_NAME" = "libpng" ]
 		then 
 		    echo "  Could not find png.h >= v1.0.17 anywhere in $INCLUDEDIRS"
+		elif [ "$MODULE_NAME" = "libzlib" ]
+		then
+		    echo "  Could not find zlib.h >= v1.0.8 anywhere in $INCLUDEDIRS"
 		else
 		    echo "  Could not find $INCLUDE anywhere in $INCLUDEDIRS"
 		fi
