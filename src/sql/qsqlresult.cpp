@@ -128,6 +128,12 @@ bool QSqlResult::isValid() const
 	    d->idx != AfterLast ) ? TRUE : FALSE;
 }
 
+/*! \fn bool QSqlResult::isNull( int i )
+  Returns TRUE if the field at position \a i is null, otherwise FALSE
+  is returned.
+*/
+
+
 /*! Returns TRUE if the result has records to be retrieved.
 
 */
