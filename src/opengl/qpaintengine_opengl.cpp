@@ -51,7 +51,7 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
 }
 
-bool QOpenGLPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool begin)
+bool QOpenGLPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool begin)
 {
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     dgl = (QGLWidget *)(pdev);

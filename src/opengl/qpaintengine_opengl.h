@@ -26,7 +26,7 @@ public:
     QOpenGLPaintEngine(const QPaintDevice *);
     ~QOpenGLPaintEngine();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
     bool end();
 
     void updatePen(QPainterState *ps);
