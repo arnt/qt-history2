@@ -46,8 +46,8 @@
 #define DBState_OpenError	0x0002
 
 // ### This needs to go in 4.0!
-extern Q_EXPORT QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
-extern Q_EXPORT QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+QPtrDict<QSqlDriverExtension> *qSqlDriverExtDict();
+QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
 
 /*!
     \class QSqlDriver qsqldriver.h
@@ -128,8 +128,8 @@ QSqlDriver::~QSqlDriver()
 
 bool QSqlDriver::isOpen() const
 {
-    if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
-	QSqlDriverExtension *ext = qt_driver_extension_dict->find((QSqlDriver*)this);
+    if ( !qSqlDriverExtDict()->isEmpty() ) {
+	QSqlDriverExtension *ext = qSqlDriverExtDict()->find( (QSqlDriver *) this );
 	if ( ext )
 	    return ext->isOpen();
     }
@@ -488,8 +488,8 @@ bool QSqlDriver::open( const QString& db,
 		       int port,
 		       const QMap<QString, QVariant>& connOpts )
 {
-    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
-	QSqlOpenExtension *ext = qt_open_extension_dict->find((QSqlDriver*)this);
+    if ( !qSqlOpenExtDict()->isEmpty() ) {
+	QSqlOpenExtension *ext = qSqlOpenExtDict()->find( (QSqlDriver *) this );
 	if ( ext )
 	    return ext->open( db, user, password, host, port, connOpts );
     }
