@@ -49,6 +49,12 @@ of source files and header files that should be put into the project
 file; any application specific configuration, such as an extra library
 that should be linked against, or an extra include path.
 
+\section3 '#' comments
+
+You can add comments to project files. Comments should be placed on
+their own line and begin with the '#' symbol; they run to the end of
+the line.
+
 \section2 Templates
 
 The template variable tells \e qmake what sort of makefile should be
@@ -179,3 +185,4 @@ will have the following line:
 Note, that you must use "+=", not "=", or \e qmake will not be able to
 use the settings used to build Qt as a guide as what type of Qt
 library was built.
+
