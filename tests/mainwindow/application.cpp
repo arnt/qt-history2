@@ -119,7 +119,7 @@ ApplicationWindow::ApplicationWindow()
     file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
 
 
-    appMenu = new QPopupMenu( this );
+    QPopupMenu* appMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&App", appMenu );
 
     appMenu->setCheckable( TRUE );
@@ -130,6 +130,10 @@ ApplicationWindow::ApplicationWindow()
 				    SLOT(toggleBigpix()), CTRL+Key_B );
     textlabelid = appMenu->insertItem( "&Text Labels", this,
 				    SLOT(toggleTextLabel()), CTRL+Key_T );
+    
+    appMenu->insertSeparator();
+    fullScreenId = appMenu->insertItem( "&Full Screen", this,
+					  SLOT(toggleFullScreen()), CTRL+Key_F );
 
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertSeparator();
@@ -417,7 +421,7 @@ void ApplicationWindow::toggleJust()
 {
     debug( "toggleJust" );
     setRightJustification( !rightJustification() );
-    appMenu->setItemChecked( justId, rightJustification() );
+    menuBar()->setItemChecked( justId, rightJustification() );
 }
 
 
@@ -425,12 +429,31 @@ void ApplicationWindow::toggleBigpix()
 {
     debug( "toggleBigpix" );
     setUsesBigPixmaps( !usesBigPixmaps() );
-    appMenu->setItemChecked( bigpixId, usesBigPixmaps() );
+    menuBar()->setItemChecked( bigpixId, usesBigPixmaps() );
 }
 
 void ApplicationWindow::toggleTextLabel()
 {
     debug( "toggleTextLabel" );
     setUsesTextLabel( !usesTextLabel() );
-    appMenu->setItemChecked( textlabelid, usesTextLabel() );
+    menuBar()->setItemChecked( textlabelid, usesTextLabel() );
+}
+
+void ApplicationWindow::toggleFullScreen()
+{
+    debug( "toggleFullScreen" );
+    bool full = !menuBar()->isItemChecked( fullScreenId );
+    menuBar()->setItemChecked( fullScreenId, full );
+    if ( full ) {
+	storeGeometry = geometry();
+	reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop, 
+		  QPoint(0,0) );
+	resize( qApp->desktop()->size() );
+	show();
+	setActiveWindow();
+    } else {
+	reparent( 0, WType_TopLevel, storeGeometry.topLeft() );
+	resize( storeGeometry.size() );
+	show();
+    }
 }

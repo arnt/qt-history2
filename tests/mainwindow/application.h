@@ -38,6 +38,7 @@ private slots:
     void print2();
 
 
+    void toggleFullScreen();
     void toggleJust();
     void toggleBigpix();
     void toggleTextLabel();
@@ -51,11 +52,12 @@ private:
     QMultiLineEdit *e;
     QString filename;
 
-    QPopupMenu* appMenu;
-
+    int fullScreenId;
     int justId;
     int bigpixId;
     int textlabelid;
+    
+    QRect storeGeometry;
 };
 
 
