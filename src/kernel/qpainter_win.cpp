@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#6 $
 **
 ** Implementation of QPainter class for Windows + NT
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#6 $";
 #endif
 
 
@@ -492,7 +492,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
 	bg_col = w->backgroundColor();		// use widget bg color
-	if ( w->testFlag(WState_Paint) )
+	if ( w->testWFlags(WState_Paint) )
 	    hdc = w->hdc;
 	else {
 	    hdc = GetDC( w->id() );
