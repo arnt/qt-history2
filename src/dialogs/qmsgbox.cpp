@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#57 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#58 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#58 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -855,16 +855,9 @@ int QMessageBox::message( const char *caption,
 			  const char *text,
 			  const char *buttonText,
 			  QWidget    *parent,
-			  const char *name )
+			  const char * )
 {
-    QMessageBox *mb = new QMessageBox( caption, text, NoIcon, Ok, 0, 0,
-				       parent, name );
-    CHECK_PTR( mb );
-    if ( buttonText )
-	mb->setButtonText( Ok, buttonText );
-    int retcode = mb->exec();
-    delete mb;
-    return retcode == Ok;
+    return QMessageBox::information( parent, caption, text, buttonText ) == 0;
 }
 
 
@@ -881,19 +874,10 @@ bool QMessageBox::query( const char *caption,
 			 const char *text,
 			 const char *yesButtonText,
 			 const char *noButtonText,
-			 QWidget *parent, const char *name )
+			 QWidget *parent, const char * )
 {
-    QMessageBox *mb = new QMessageBox( caption, text, NoIcon,
-				       Yes, No, 0,
-				       parent, name );
-    CHECK_PTR( mb );
-    if ( yesButtonText )
-	mb->setButtonText( Yes, yesButtonText );
-    if ( noButtonText )
-	mb->setButtonText( No, noButtonText );
-    int retcode = mb->exec();
-    delete mb;
-    return retcode == Yes;
+    return QMessageBox::information( parent, caption, text,
+				     yesButtonText, noButtonText ) == 0;
 }
 
 
