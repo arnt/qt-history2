@@ -88,6 +88,7 @@ void MainWindow::printImage()
     QPrinter printer;
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
+    dlg->setWindowTitle(tr("Print Image"));
 
     if (dlg->exec() != QDialog::Accepted)
         return;
@@ -146,7 +147,7 @@ void MainWindow::printImage()
 
 void MainWindow::showAboutBox()
 {
-    QMessageBox::about(this, tr("About the image model example"),
+    QMessageBox::about(this, tr("About the Pixelator example"),
         tr("This example demonstrates how a standard view and a custom\n"
            "delegate can be used to produce a specialized representation\n "
            "of data in a simple custom model."));
