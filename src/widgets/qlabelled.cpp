@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabelled.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qlabelled.cpp#4 $
 **
 ** Implementation of QLabelled widget class
 **
@@ -76,6 +76,7 @@ void QLabelled::setLabel( const char *text )
 {
     if (d->label->inherits("QLabel"))
 	((QLabel*)d->label)->setText(text);
+    resetFrameRect();
 }
 
 void QLabelled::setLabel( QWidget* label )
@@ -146,6 +147,8 @@ void QLabelled::layout()
 	d->grid->addRowSpacing( 3, frameWidth() );
 	d->grid->addColSpacing( 3, frameWidth() );
     }
+
+    resetFrameRect();
 
     d->grid->activate();
 }
