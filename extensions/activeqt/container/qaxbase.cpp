@@ -1249,7 +1249,7 @@ private:
     QAxBasePrivate *d;
 
     IDispatch *disp;
-    ITypeInfo *info;
+    ITypeInfo *typeinfo;
     ITypeLib *typelib;
 
     QSettings iidnames;
@@ -1269,7 +1269,7 @@ private:
 };
 
 MetaObjectGenerator::MetaObjectGenerator( QAxBase *ax, QAxBasePrivate *dptr )
-: that( ax ), d( dptr ), info(0), typelib(0), enum_data(0)
+: that( ax ), d( dptr ), typeinfo(0), typelib(0), enum_data(0)
 {
     proplist.setAutoDelete( TRUE ); // deep copied when creating metaobject
     infolist.setAutoDelete( TRUE ); // deep copied when creating metaobject
@@ -1286,7 +1286,7 @@ MetaObjectGenerator::MetaObjectGenerator( QAxBase *ax, QAxBasePrivate *dptr )
 
 MetaObjectGenerator::~MetaObjectGenerator()
 {
-    if ( info ) info->Release();
+    if ( typeinfo ) typeinfo->Release();
     if ( typelib ) typelib->Release();
 
 #ifndef QAX_NO_CLASSINFO
@@ -1330,17 +1330,17 @@ void MetaObjectGenerator::readClassInfo()
 	if ( !coClassID.isEmpty() )
 	    cacheKey = QString( "%1$%2$%3" ).arg( coClassID ).arg( (int)d->useEventSink ).arg( (int)d->useClassInfo );
     } else if ( disp ) {
-	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
+	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &typeinfo );
 	TYPEATTR *typeattr = 0;
-	if ( info )
-	    info->GetTypeAttr( &typeattr );
+	if ( typeinfo )
+	    typeinfo->GetTypeAttr( &typeattr );
 
 	QString interfaceID;
 	if ( typeattr ) {
 	    QUuid iid( typeattr->guid );
 	    interfaceID = iid.toString().upper();
 
-	    info->ReleaseTypeAttr( typeattr );
+	    typeinfo->ReleaseTypeAttr( typeattr );
 	}
 
 	// ### event interfaces!!
@@ -1353,9 +1353,9 @@ void MetaObjectGenerator::readEnumInfo()
 {
     UINT index = 0;
     if ( disp )
-	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
-    if ( info )
-	info->GetContainingTypeLib( &typelib, &index );
+	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &typeinfo );
+    if ( typeinfo )
+	typeinfo->GetContainingTypeLib( &typelib, &index );
     if ( !typelib )
 	return;
 
@@ -1444,13 +1444,13 @@ void MetaObjectGenerator::readEnumInfo()
 
 void MetaObjectGenerator::readFuncInfo()
 {
-    while ( info ) {
+    while ( typeinfo ) {
 	ushort nFuncs = 0;
 	ushort nVars = 0;
 	ushort nImpl = 0;
 	// get information about type
 	TYPEATTR *typeattr;
-	info->GetTypeAttr( &typeattr );
+	typeinfo->GetTypeAttr( &typeattr );
 	bool interesting = TRUE;
 	if ( typeattr ) {
 	    // get number of functions, variables, and implemented interfaces
@@ -1470,7 +1470,7 @@ void MetaObjectGenerator::readFuncInfo()
 		    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
 		}
 #endif
-		info->ReleaseTypeAttr( typeattr );
+		typeinfo->ReleaseTypeAttr( typeattr );
 	    } else {
 		interesting = FALSE;
 	    }
@@ -1479,7 +1479,7 @@ void MetaObjectGenerator::readFuncInfo()
 	// get information about all functions
 	if ( interesting ) for ( ushort fd = 0; fd < nFuncs ; ++fd ) {
 	    FUNCDESC *funcdesc = 0;
-	    info->GetFuncDesc( fd, &funcdesc );
+	    typeinfo->GetFuncDesc( fd, &funcdesc );
 	    if ( !funcdesc )
 		break;
 
@@ -1496,7 +1496,7 @@ void MetaObjectGenerator::readFuncInfo()
 	    BSTR bstrNames[256];
 	    UINT maxNames = 255;
 	    UINT maxNamesOut;
-	    info->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
+	    typeinfo->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
 	    QStringList names;
 	    int p;
 	    for ( p = 0; p < (int)maxNamesOut; ++p ) {
@@ -1511,7 +1511,7 @@ void MetaObjectGenerator::readFuncInfo()
 		 ( maxNamesOut == 6 && function == "GetIDsOfNames" ) ||
 		 ( maxNamesOut == 2 && function == "GetTypeInfoCount" ) ||
 		 ( maxNamesOut == 4 && function == "GetTypeInfo" ) ) {
-		info->ReleaseFuncDesc( funcdesc );
+		typeinfo->ReleaseFuncDesc( funcdesc );
 		continue;
 	    }
 
@@ -1524,7 +1524,7 @@ void MetaObjectGenerator::readFuncInfo()
 		    prototype = function + "(";
 
 		    // get return value
-		    returnType = guessTypes( typedesc, info, enumDict, function );
+		    returnType = guessTypes( typedesc, typeinfo, enumDict, function );
 
 		    if ( returnType != "void" ) {
 			if ( funcdesc->invkind == INVOKE_FUNC || returnType != "HRESULT" ) {
@@ -1546,7 +1546,7 @@ void MetaObjectGenerator::readFuncInfo()
 		TYPEDESC tdesc = funcdesc->lprgelemdescParam[ p - offset ].tdesc;
 		PARAMDESC pdesc = funcdesc->lprgelemdescParam[ p - offset ].paramdesc;
 
-		QString ptype = guessTypes( tdesc, info, enumDict, function );
+		QString ptype = guessTypes( tdesc, typeinfo, enumDict, function );
 		if ( pdesc.wParamFlags & PARAMFLAG_FRETVAL ) {
 		    returnType = ptype;
 		    paramTypes[0] = returnType;
@@ -1753,19 +1753,19 @@ void MetaObjectGenerator::readFuncInfo()
 	    desc += "\n";
 	    SysFreeString( bstrDocu );
 #endif
-	    info->ReleaseFuncDesc( funcdesc );
+	    typeinfo->ReleaseFuncDesc( funcdesc );
 	}
 
 	// get information about all variables
 	if ( interesting ) for ( ushort vd = 0; vd < nVars; ++vd ) {
 	    VARDESC *vardesc;
-	    info->GetVarDesc( vd, &vardesc );
+	    typeinfo->GetVarDesc( vd, &vardesc );
 	    if ( !vardesc )
 		break;
 
 	    // no use if it's not a dispatched variable
 	    if ( vardesc->varkind != VAR_DISPATCH ) {
-		info->ReleaseVarDesc( vardesc );
+		typeinfo->ReleaseVarDesc( vardesc );
 		continue;
 	    }
 
@@ -1773,9 +1773,9 @@ void MetaObjectGenerator::readFuncInfo()
 	    BSTR bstrName;
 	    UINT maxNames = 1;
 	    UINT maxNamesOut;
-	    info->GetNames( vardesc->memid, &bstrName, maxNames, &maxNamesOut );
+	    typeinfo->GetNames( vardesc->memid, &bstrName, maxNames, &maxNamesOut );
 	    if ( maxNamesOut != 1 ) {
-		info->ReleaseVarDesc( vardesc );
+		typeinfo->ReleaseVarDesc( vardesc );
 		continue;
 	    }
 	    QString variableName = BSTRToQString( bstrName );
@@ -1783,7 +1783,7 @@ void MetaObjectGenerator::readFuncInfo()
 
 	    // get variable type
 	    TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
-	    QString variableType = guessTypes( typedesc, info, enumDict, variableName );
+	    QString variableType = guessTypes( typedesc, typeinfo, enumDict, variableName );
 
 	    if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 		// generate meta property
@@ -1891,25 +1891,27 @@ void MetaObjectGenerator::readFuncInfo()
 		SysFreeString( bstrDocu );
 #endif
 	    }
-	    info->ReleaseVarDesc( vardesc );
+	    typeinfo->ReleaseVarDesc( vardesc );
 	}
 
 	if ( !nImpl ) {
-	    info->Release();
+	    typeinfo->Release();
+	    typeinfo = 0;
 	    break;
 	}
 
 	// go up one base class
 	HREFTYPE pRefType;
-	info->GetRefTypeOfImplType( 0, &pRefType );
+	typeinfo->GetRefTypeOfImplType( 0, &pRefType );
 	ITypeInfo *baseInfo = 0;
-	info->GetRefTypeInfo( pRefType, &baseInfo );
-	info->Release();
-	if ( info == baseInfo ) { // IUnknown inherits IUnknown ???
+	typeinfo->GetRefTypeInfo( pRefType, &baseInfo );
+	typeinfo->Release();
+	if ( typeinfo == baseInfo ) { // IUnknown inherits IUnknown ???
 	    baseInfo->Release();
+	    typeinfo = 0;
 	    break;
 	}
-	info = baseInfo;
+	typeinfo = baseInfo;
     }
 }
 
