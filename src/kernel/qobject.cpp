@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#39 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#39 $";
 #endif
 
 
@@ -1139,7 +1139,7 @@ functions.
 
 Here is a simple commented example (butchered from qlcddum.h).  Unlike
 most of the Qt documentation, this isn't peppered with links, so if
-you want to read about <a href=qlcdnum.html>QLCDNumber</a> or any of
+you want to read about <a href=qlcdnumber.html>QLCDNumber</a> or any of
 its parent classes please do it now, before you go through the
 example.
 
