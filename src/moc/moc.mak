@@ -12,7 +12,7 @@
 
 CC	=	cl
 CFLAGS	=	-O1 -nologo
-INCPATH	=	-I. -I..\tools
+INCPATH	=	-I. -I..\..\include
 LINK	=	link
 LFLAGS	=	/SUBSYSTEM:console /NOLOGO
 LIBS	=	

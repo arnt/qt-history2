@@ -1,4 +1,4 @@
-# Microsoft Developer Studio Generated NMAKE File, Format Version 4.10
+# Microsoft Developer Studio Generated NMAKE File, Format Version 4.20
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
@@ -6,28 +6,28 @@
 !IF "$(CFG)" == ""
 CFG=qt - Win32 Debug
 !MESSAGE No configuration specified.  Defaulting to qt - Win32 Debug.
-!ENDIF
+!ENDIF 
 
 !IF "$(CFG)" != "qt - Win32 Release" && "$(CFG)" != "qt - Win32 Debug"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE on this makefile
-!MESSAGE by defining the macro CFG on the command line.	 For example:
-!MESSAGE
+!MESSAGE by defining the macro CFG on the command line.  For example:
+!MESSAGE 
 !MESSAGE NMAKE /f "qt.mak" CFG="qt - Win32 Debug"
-!MESSAGE
+!MESSAGE 
 !MESSAGE Possible choices for configuration are:
-!MESSAGE
+!MESSAGE 
 !MESSAGE "qt - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "qt - Win32 Debug" (based on "Win32 (x86) Static Library")
-!MESSAGE
+!MESSAGE 
 !ERROR An invalid configuration is specified.
-!ENDIF
+!ENDIF 
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
-!ELSE
+!ELSE 
 NULL=nul
-!ENDIF
+!ENDIF 
 ################################################################################
 # Begin Project
 # PROP Target_Last_Scanned "qt - Win32 Debug"
@@ -42,41 +42,47 @@ CPP=cl.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "qt.release"
-# PROP Intermediate_Dir "qt.release"
+# PROP Output_Dir "Release"
+# PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
-OUTDIR=.\qt.release
-INTDIR=.\qt.release
+OUTDIR=.\Release
+INTDIR=.\Release
 
 ALL : "..\lib\qt.lib"
 
-CLEAN :
-	-@erase "$(INTDIR)\maccel.obj"
-	-@erase "$(INTDIR)\mapp.obj"
-	-@erase "$(INTDIR)\mbttngrp.obj"
-	-@erase "$(INTDIR)\mbutton.obj"
-	-@erase "$(INTDIR)\mchkbox.obj"
-	-@erase "$(INTDIR)\mclipbrd.obj"
-	-@erase "$(INTDIR)\mcombo.obj"
-	-@erase "$(INTDIR)\mdialog.obj"
-	-@erase "$(INTDIR)\mfiledlg.obj"
-	-@erase "$(INTDIR)\mframe.obj"
-	-@erase "$(INTDIR)\mgrpbox.obj"
-	-@erase "$(INTDIR)\mlabel.obj"
-	-@erase "$(INTDIR)\mlcdnum.obj"
-	-@erase "$(INTDIR)\mlined.obj"
-	-@erase "$(INTDIR)\mlistbox.obj"
-	-@erase "$(INTDIR)\mmenubar.obj"
-	-@erase "$(INTDIR)\mmsgbox.obj"
-	-@erase "$(INTDIR)\mpopmenu.obj"
-	-@erase "$(INTDIR)\mpushbt.obj"
-	-@erase "$(INTDIR)\mradiobt.obj"
-	-@erase "$(INTDIR)\mscrbar.obj"
-	-@erase "$(INTDIR)\msocknot.obj"
-	-@erase "$(INTDIR)\mtablevw.obj"
-	-@erase "$(INTDIR)\mtimer.obj"
-	-@erase "$(INTDIR)\mwidget.obj"
-	-@erase "$(INTDIR)\mwindow.obj"
+CLEAN : 
+	-@erase "$(INTDIR)\moc_qaccel.obj"
+	-@erase "$(INTDIR)\moc_qapp.obj"
+	-@erase "$(INTDIR)\moc_qbttngrp.obj"
+	-@erase "$(INTDIR)\moc_qbutton.obj"
+	-@erase "$(INTDIR)\moc_qchkbox.obj"
+	-@erase "$(INTDIR)\moc_qclipbrd.obj"
+	-@erase "$(INTDIR)\moc_qcombo.obj"
+	-@erase "$(INTDIR)\moc_qdialog.obj"
+	-@erase "$(INTDIR)\moc_qfiledlg.obj"
+	-@erase "$(INTDIR)\moc_qframe.obj"
+	-@erase "$(INTDIR)\moc_qgmanagr.obj"
+	-@erase "$(INTDIR)\moc_qgrpbox.obj"
+	-@erase "$(INTDIR)\moc_qlabel.obj"
+	-@erase "$(INTDIR)\moc_qlcdnum.obj"
+	-@erase "$(INTDIR)\moc_qlined.obj"
+	-@erase "$(INTDIR)\moc_qlistbox.obj"
+	-@erase "$(INTDIR)\moc_qmenubar.obj"
+	-@erase "$(INTDIR)\moc_qmlined.obj"
+	-@erase "$(INTDIR)\moc_qmsgbox.obj"
+	-@erase "$(INTDIR)\moc_qpopmenu.obj"
+	-@erase "$(INTDIR)\moc_qpushbt.obj"
+	-@erase "$(INTDIR)\moc_qradiobt.obj"
+	-@erase "$(INTDIR)\moc_qscrbar.obj"
+	-@erase "$(INTDIR)\moc_qslider.obj"
+	-@erase "$(INTDIR)\moc_qsocknot.obj"
+	-@erase "$(INTDIR)\moc_qtabbar.obj"
+	-@erase "$(INTDIR)\moc_qtabdlg.obj"
+	-@erase "$(INTDIR)\moc_qtablevw.obj"
+	-@erase "$(INTDIR)\moc_qtimer.obj"
+	-@erase "$(INTDIR)\moc_qtooltip.obj"
+	-@erase "$(INTDIR)\moc_qwidget.obj"
+	-@erase "$(INTDIR)\moc_qwindow.obj"
 	-@erase "$(INTDIR)\qaccel.obj"
 	-@erase "$(INTDIR)\qapp.obj"
 	-@erase "$(INTDIR)\qapp_win.obj"
@@ -112,17 +118,20 @@ CLEAN :
 	-@erase "$(INTDIR)\qgdict.obj"
 	-@erase "$(INTDIR)\qglist.obj"
 	-@erase "$(INTDIR)\qglobal.obj"
+	-@erase "$(INTDIR)\qgmanagr.obj"
 	-@erase "$(INTDIR)\qgrpbox.obj"
 	-@erase "$(INTDIR)\qgvector.obj"
 	-@erase "$(INTDIR)\qimage.obj"
 	-@erase "$(INTDIR)\qiodev.obj"
 	-@erase "$(INTDIR)\qlabel.obj"
+	-@erase "$(INTDIR)\qlayout.obj"
 	-@erase "$(INTDIR)\qlcdnum.obj"
 	-@erase "$(INTDIR)\qlined.obj"
 	-@erase "$(INTDIR)\qlistbox.obj"
 	-@erase "$(INTDIR)\qmenubar.obj"
 	-@erase "$(INTDIR)\qmenudta.obj"
 	-@erase "$(INTDIR)\qmetaobj.obj"
+	-@erase "$(INTDIR)\qmlined.obj"
 	-@erase "$(INTDIR)\qmsgbox.obj"
 	-@erase "$(INTDIR)\qobject.obj"
 	-@erase "$(INTDIR)\qpainter.obj"
@@ -150,10 +159,14 @@ CLEAN :
 	-@erase "$(INTDIR)\qscrbar.obj"
 	-@erase "$(INTDIR)\qsignal.obj"
 	-@erase "$(INTDIR)\qsize.obj"
+	-@erase "$(INTDIR)\qslider.obj"
 	-@erase "$(INTDIR)\qsocknot.obj"
 	-@erase "$(INTDIR)\qstring.obj"
+	-@erase "$(INTDIR)\qtabbar.obj"
+	-@erase "$(INTDIR)\qtabdlg.obj"
 	-@erase "$(INTDIR)\qtablevw.obj"
 	-@erase "$(INTDIR)\qtimer.obj"
+	-@erase "$(INTDIR)\qtooltip.obj"
 	-@erase "$(INTDIR)\qtstream.obj"
 	-@erase "$(INTDIR)\qwid_win.obj"
 	-@erase "$(INTDIR)\qwidget.obj"
@@ -165,48 +178,54 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
-CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
- /Fp"$(INTDIR)/qt.pch" /YX /Fo"$(INTDIR)/" /c
-CPP_OBJS=.\qt.release/
+# ADD CPP /nologo /W3 /GX /O2 /I "..\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
+CPP_PROJ=/nologo /ML /W3 /GX /O2 /I "..\include" /D "WIN32" /D "NDEBUG" /D\
+ "_WINDOWS" /Fp"$(INTDIR)/qt.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\Release/
 CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/qt.bsc"
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/qt.bsc" 
 BSC32_SBRS= \
-
+	
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"../lib/qt.lib"
-LIB32_FLAGS=/nologo /out:"../lib/qt.lib"
+# ADD LIB32 /nologo /out:"..\lib\qt.lib"
+LIB32_FLAGS=/nologo /out:"..\lib\qt.lib" 
 LIB32_OBJS= \
-	"$(INTDIR)\maccel.obj" \
-	"$(INTDIR)\mapp.obj" \
-	"$(INTDIR)\mbttngrp.obj" \
-	"$(INTDIR)\mbutton.obj" \
-	"$(INTDIR)\mchkbox.obj" \
-	"$(INTDIR)\mclipbrd.obj" \
-	"$(INTDIR)\mcombo.obj" \
-	"$(INTDIR)\mdialog.obj" \
-	"$(INTDIR)\mfiledlg.obj" \
-	"$(INTDIR)\mframe.obj" \
-	"$(INTDIR)\mgrpbox.obj" \
-	"$(INTDIR)\mlabel.obj" \
-	"$(INTDIR)\mlcdnum.obj" \
-	"$(INTDIR)\mlined.obj" \
-	"$(INTDIR)\mlistbox.obj" \
-	"$(INTDIR)\mmenubar.obj" \
-	"$(INTDIR)\mmsgbox.obj" \
-	"$(INTDIR)\mpopmenu.obj" \
-	"$(INTDIR)\mpushbt.obj" \
-	"$(INTDIR)\mradiobt.obj" \
-	"$(INTDIR)\mscrbar.obj" \
-	"$(INTDIR)\msocknot.obj" \
-	"$(INTDIR)\mtablevw.obj" \
-	"$(INTDIR)\mtimer.obj" \
-	"$(INTDIR)\mwidget.obj" \
-	"$(INTDIR)\mwindow.obj" \
+	"$(INTDIR)\moc_qaccel.obj" \
+	"$(INTDIR)\moc_qapp.obj" \
+	"$(INTDIR)\moc_qbttngrp.obj" \
+	"$(INTDIR)\moc_qbutton.obj" \
+	"$(INTDIR)\moc_qchkbox.obj" \
+	"$(INTDIR)\moc_qclipbrd.obj" \
+	"$(INTDIR)\moc_qcombo.obj" \
+	"$(INTDIR)\moc_qdialog.obj" \
+	"$(INTDIR)\moc_qfiledlg.obj" \
+	"$(INTDIR)\moc_qframe.obj" \
+	"$(INTDIR)\moc_qgmanagr.obj" \
+	"$(INTDIR)\moc_qgrpbox.obj" \
+	"$(INTDIR)\moc_qlabel.obj" \
+	"$(INTDIR)\moc_qlcdnum.obj" \
+	"$(INTDIR)\moc_qlined.obj" \
+	"$(INTDIR)\moc_qlistbox.obj" \
+	"$(INTDIR)\moc_qmenubar.obj" \
+	"$(INTDIR)\moc_qmlined.obj" \
+	"$(INTDIR)\moc_qmsgbox.obj" \
+	"$(INTDIR)\moc_qpopmenu.obj" \
+	"$(INTDIR)\moc_qpushbt.obj" \
+	"$(INTDIR)\moc_qradiobt.obj" \
+	"$(INTDIR)\moc_qscrbar.obj" \
+	"$(INTDIR)\moc_qslider.obj" \
+	"$(INTDIR)\moc_qsocknot.obj" \
+	"$(INTDIR)\moc_qtabbar.obj" \
+	"$(INTDIR)\moc_qtabdlg.obj" \
+	"$(INTDIR)\moc_qtablevw.obj" \
+	"$(INTDIR)\moc_qtimer.obj" \
+	"$(INTDIR)\moc_qtooltip.obj" \
+	"$(INTDIR)\moc_qwidget.obj" \
+	"$(INTDIR)\moc_qwindow.obj" \
 	"$(INTDIR)\qaccel.obj" \
 	"$(INTDIR)\qapp.obj" \
 	"$(INTDIR)\qapp_win.obj" \
@@ -242,17 +261,20 @@ LIB32_OBJS= \
 	"$(INTDIR)\qgdict.obj" \
 	"$(INTDIR)\qglist.obj" \
 	"$(INTDIR)\qglobal.obj" \
+	"$(INTDIR)\qgmanagr.obj" \
 	"$(INTDIR)\qgrpbox.obj" \
 	"$(INTDIR)\qgvector.obj" \
 	"$(INTDIR)\qimage.obj" \
 	"$(INTDIR)\qiodev.obj" \
 	"$(INTDIR)\qlabel.obj" \
+	"$(INTDIR)\qlayout.obj" \
 	"$(INTDIR)\qlcdnum.obj" \
 	"$(INTDIR)\qlined.obj" \
 	"$(INTDIR)\qlistbox.obj" \
 	"$(INTDIR)\qmenubar.obj" \
 	"$(INTDIR)\qmenudta.obj" \
 	"$(INTDIR)\qmetaobj.obj" \
+	"$(INTDIR)\qmlined.obj" \
 	"$(INTDIR)\qmsgbox.obj" \
 	"$(INTDIR)\qobject.obj" \
 	"$(INTDIR)\qpainter.obj" \
@@ -280,10 +302,14 @@ LIB32_OBJS= \
 	"$(INTDIR)\qscrbar.obj" \
 	"$(INTDIR)\qsignal.obj" \
 	"$(INTDIR)\qsize.obj" \
+	"$(INTDIR)\qslider.obj" \
 	"$(INTDIR)\qsocknot.obj" \
 	"$(INTDIR)\qstring.obj" \
+	"$(INTDIR)\qtabbar.obj" \
+	"$(INTDIR)\qtabdlg.obj" \
 	"$(INTDIR)\qtablevw.obj" \
 	"$(INTDIR)\qtimer.obj" \
+	"$(INTDIR)\qtooltip.obj" \
 	"$(INTDIR)\qtstream.obj" \
 	"$(INTDIR)\qwid_win.obj" \
 	"$(INTDIR)\qwidget.obj" \
@@ -295,7 +321,7 @@ LIB32_OBJS= \
   $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
 <<
 
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
+!ELSEIF  "$(CFG)" == "qt - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -304,41 +330,47 @@ LIB32_OBJS= \
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "qt.debug"
-# PROP Intermediate_Dir "qt.debug"
+# PROP Output_Dir "Debug"
+# PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-OUTDIR=.\qt.debug
-INTDIR=.\qt.debug
+OUTDIR=.\Debug
+INTDIR=.\Debug
 
 ALL : "..\lib\qt.lib"
 
-CLEAN :
-	-@erase "$(INTDIR)\maccel.obj"
-	-@erase "$(INTDIR)\mapp.obj"
-	-@erase "$(INTDIR)\mbttngrp.obj"
-	-@erase "$(INTDIR)\mbutton.obj"
-	-@erase "$(INTDIR)\mchkbox.obj"
-	-@erase "$(INTDIR)\mclipbrd.obj"
-	-@erase "$(INTDIR)\mcombo.obj"
-	-@erase "$(INTDIR)\mdialog.obj"
-	-@erase "$(INTDIR)\mfiledlg.obj"
-	-@erase "$(INTDIR)\mframe.obj"
-	-@erase "$(INTDIR)\mgrpbox.obj"
-	-@erase "$(INTDIR)\mlabel.obj"
-	-@erase "$(INTDIR)\mlcdnum.obj"
-	-@erase "$(INTDIR)\mlined.obj"
-	-@erase "$(INTDIR)\mlistbox.obj"
-	-@erase "$(INTDIR)\mmenubar.obj"
-	-@erase "$(INTDIR)\mmsgbox.obj"
-	-@erase "$(INTDIR)\mpopmenu.obj"
-	-@erase "$(INTDIR)\mpushbt.obj"
-	-@erase "$(INTDIR)\mradiobt.obj"
-	-@erase "$(INTDIR)\mscrbar.obj"
-	-@erase "$(INTDIR)\msocknot.obj"
-	-@erase "$(INTDIR)\mtablevw.obj"
-	-@erase "$(INTDIR)\mtimer.obj"
-	-@erase "$(INTDIR)\mwidget.obj"
-	-@erase "$(INTDIR)\mwindow.obj"
+CLEAN : 
+	-@erase "$(INTDIR)\moc_qaccel.obj"
+	-@erase "$(INTDIR)\moc_qapp.obj"
+	-@erase "$(INTDIR)\moc_qbttngrp.obj"
+	-@erase "$(INTDIR)\moc_qbutton.obj"
+	-@erase "$(INTDIR)\moc_qchkbox.obj"
+	-@erase "$(INTDIR)\moc_qclipbrd.obj"
+	-@erase "$(INTDIR)\moc_qcombo.obj"
+	-@erase "$(INTDIR)\moc_qdialog.obj"
+	-@erase "$(INTDIR)\moc_qfiledlg.obj"
+	-@erase "$(INTDIR)\moc_qframe.obj"
+	-@erase "$(INTDIR)\moc_qgmanagr.obj"
+	-@erase "$(INTDIR)\moc_qgrpbox.obj"
+	-@erase "$(INTDIR)\moc_qlabel.obj"
+	-@erase "$(INTDIR)\moc_qlcdnum.obj"
+	-@erase "$(INTDIR)\moc_qlined.obj"
+	-@erase "$(INTDIR)\moc_qlistbox.obj"
+	-@erase "$(INTDIR)\moc_qmenubar.obj"
+	-@erase "$(INTDIR)\moc_qmlined.obj"
+	-@erase "$(INTDIR)\moc_qmsgbox.obj"
+	-@erase "$(INTDIR)\moc_qpopmenu.obj"
+	-@erase "$(INTDIR)\moc_qpushbt.obj"
+	-@erase "$(INTDIR)\moc_qradiobt.obj"
+	-@erase "$(INTDIR)\moc_qscrbar.obj"
+	-@erase "$(INTDIR)\moc_qslider.obj"
+	-@erase "$(INTDIR)\moc_qsocknot.obj"
+	-@erase "$(INTDIR)\moc_qtabbar.obj"
+	-@erase "$(INTDIR)\moc_qtabdlg.obj"
+	-@erase "$(INTDIR)\moc_qtablevw.obj"
+	-@erase "$(INTDIR)\moc_qtimer.obj"
+	-@erase "$(INTDIR)\moc_qtooltip.obj"
+	-@erase "$(INTDIR)\moc_qwidget.obj"
+	-@erase "$(INTDIR)\moc_qwindow.obj"
 	-@erase "$(INTDIR)\qaccel.obj"
 	-@erase "$(INTDIR)\qapp.obj"
 	-@erase "$(INTDIR)\qapp_win.obj"
@@ -374,17 +406,20 @@ CLEAN :
 	-@erase "$(INTDIR)\qgdict.obj"
 	-@erase "$(INTDIR)\qglist.obj"
 	-@erase "$(INTDIR)\qglobal.obj"
+	-@erase "$(INTDIR)\qgmanagr.obj"
 	-@erase "$(INTDIR)\qgrpbox.obj"
 	-@erase "$(INTDIR)\qgvector.obj"
 	-@erase "$(INTDIR)\qimage.obj"
 	-@erase "$(INTDIR)\qiodev.obj"
 	-@erase "$(INTDIR)\qlabel.obj"
+	-@erase "$(INTDIR)\qlayout.obj"
 	-@erase "$(INTDIR)\qlcdnum.obj"
 	-@erase "$(INTDIR)\qlined.obj"
 	-@erase "$(INTDIR)\qlistbox.obj"
 	-@erase "$(INTDIR)\qmenubar.obj"
 	-@erase "$(INTDIR)\qmenudta.obj"
 	-@erase "$(INTDIR)\qmetaobj.obj"
+	-@erase "$(INTDIR)\qmlined.obj"
 	-@erase "$(INTDIR)\qmsgbox.obj"
 	-@erase "$(INTDIR)\qobject.obj"
 	-@erase "$(INTDIR)\qpainter.obj"
@@ -412,10 +447,14 @@ CLEAN :
 	-@erase "$(INTDIR)\qscrbar.obj"
 	-@erase "$(INTDIR)\qsignal.obj"
 	-@erase "$(INTDIR)\qsize.obj"
+	-@erase "$(INTDIR)\qslider.obj"
 	-@erase "$(INTDIR)\qsocknot.obj"
 	-@erase "$(INTDIR)\qstring.obj"
+	-@erase "$(INTDIR)\qtabbar.obj"
+	-@erase "$(INTDIR)\qtabdlg.obj"
 	-@erase "$(INTDIR)\qtablevw.obj"
 	-@erase "$(INTDIR)\qtimer.obj"
+	-@erase "$(INTDIR)\qtooltip.obj"
 	-@erase "$(INTDIR)\qtstream.obj"
 	-@erase "$(INTDIR)\qwid_win.obj"
 	-@erase "$(INTDIR)\qwidget.obj"
@@ -427,48 +466,54 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-CPP_PROJ=/nologo /MLd /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
- /Fp"$(INTDIR)/qt.pch" /YX /Fo"$(INTDIR)/" /c
-CPP_OBJS=.\qt.debug/
+# ADD CPP /nologo /W3 /GX /Z7 /Od /I "..\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
+CPP_PROJ=/nologo /MLd /W3 /GX /Z7 /Od /I "..\include" /D "WIN32" /D "_DEBUG" /D\
+ "_WINDOWS" /Fp"$(INTDIR)/qt.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\Debug/
 CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/qt.bsc"
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/qt.bsc" 
 BSC32_SBRS= \
-
+	
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"../lib/qt.lib"
-LIB32_FLAGS=/nologo /out:"../lib/qt.lib"
+# ADD LIB32 /nologo /out:"..\lib\qt.lib"
+LIB32_FLAGS=/nologo /out:"..\lib\qt.lib" 
 LIB32_OBJS= \
-	"$(INTDIR)\maccel.obj" \
-	"$(INTDIR)\mapp.obj" \
-	"$(INTDIR)\mbttngrp.obj" \
-	"$(INTDIR)\mbutton.obj" \
-	"$(INTDIR)\mchkbox.obj" \
-	"$(INTDIR)\mclipbrd.obj" \
-	"$(INTDIR)\mcombo.obj" \
-	"$(INTDIR)\mdialog.obj" \
-	"$(INTDIR)\mfiledlg.obj" \
-	"$(INTDIR)\mframe.obj" \
-	"$(INTDIR)\mgrpbox.obj" \
-	"$(INTDIR)\mlabel.obj" \
-	"$(INTDIR)\mlcdnum.obj" \
-	"$(INTDIR)\mlined.obj" \
-	"$(INTDIR)\mlistbox.obj" \
-	"$(INTDIR)\mmenubar.obj" \
-	"$(INTDIR)\mmsgbox.obj" \
-	"$(INTDIR)\mpopmenu.obj" \
-	"$(INTDIR)\mpushbt.obj" \
-	"$(INTDIR)\mradiobt.obj" \
-	"$(INTDIR)\mscrbar.obj" \
-	"$(INTDIR)\msocknot.obj" \
-	"$(INTDIR)\mtablevw.obj" \
-	"$(INTDIR)\mtimer.obj" \
-	"$(INTDIR)\mwidget.obj" \
-	"$(INTDIR)\mwindow.obj" \
+	"$(INTDIR)\moc_qaccel.obj" \
+	"$(INTDIR)\moc_qapp.obj" \
+	"$(INTDIR)\moc_qbttngrp.obj" \
+	"$(INTDIR)\moc_qbutton.obj" \
+	"$(INTDIR)\moc_qchkbox.obj" \
+	"$(INTDIR)\moc_qclipbrd.obj" \
+	"$(INTDIR)\moc_qcombo.obj" \
+	"$(INTDIR)\moc_qdialog.obj" \
+	"$(INTDIR)\moc_qfiledlg.obj" \
+	"$(INTDIR)\moc_qframe.obj" \
+	"$(INTDIR)\moc_qgmanagr.obj" \
+	"$(INTDIR)\moc_qgrpbox.obj" \
+	"$(INTDIR)\moc_qlabel.obj" \
+	"$(INTDIR)\moc_qlcdnum.obj" \
+	"$(INTDIR)\moc_qlined.obj" \
+	"$(INTDIR)\moc_qlistbox.obj" \
+	"$(INTDIR)\moc_qmenubar.obj" \
+	"$(INTDIR)\moc_qmlined.obj" \
+	"$(INTDIR)\moc_qmsgbox.obj" \
+	"$(INTDIR)\moc_qpopmenu.obj" \
+	"$(INTDIR)\moc_qpushbt.obj" \
+	"$(INTDIR)\moc_qradiobt.obj" \
+	"$(INTDIR)\moc_qscrbar.obj" \
+	"$(INTDIR)\moc_qslider.obj" \
+	"$(INTDIR)\moc_qsocknot.obj" \
+	"$(INTDIR)\moc_qtabbar.obj" \
+	"$(INTDIR)\moc_qtabdlg.obj" \
+	"$(INTDIR)\moc_qtablevw.obj" \
+	"$(INTDIR)\moc_qtimer.obj" \
+	"$(INTDIR)\moc_qtooltip.obj" \
+	"$(INTDIR)\moc_qwidget.obj" \
+	"$(INTDIR)\moc_qwindow.obj" \
 	"$(INTDIR)\qaccel.obj" \
 	"$(INTDIR)\qapp.obj" \
 	"$(INTDIR)\qapp_win.obj" \
@@ -504,17 +549,20 @@ LIB32_OBJS= \
 	"$(INTDIR)\qgdict.obj" \
 	"$(INTDIR)\qglist.obj" \
 	"$(INTDIR)\qglobal.obj" \
+	"$(INTDIR)\qgmanagr.obj" \
 	"$(INTDIR)\qgrpbox.obj" \
 	"$(INTDIR)\qgvector.obj" \
 	"$(INTDIR)\qimage.obj" \
 	"$(INTDIR)\qiodev.obj" \
 	"$(INTDIR)\qlabel.obj" \
+	"$(INTDIR)\qlayout.obj" \
 	"$(INTDIR)\qlcdnum.obj" \
 	"$(INTDIR)\qlined.obj" \
 	"$(INTDIR)\qlistbox.obj" \
 	"$(INTDIR)\qmenubar.obj" \
 	"$(INTDIR)\qmenudta.obj" \
 	"$(INTDIR)\qmetaobj.obj" \
+	"$(INTDIR)\qmlined.obj" \
 	"$(INTDIR)\qmsgbox.obj" \
 	"$(INTDIR)\qobject.obj" \
 	"$(INTDIR)\qpainter.obj" \
@@ -542,10 +590,14 @@ LIB32_OBJS= \
 	"$(INTDIR)\qscrbar.obj" \
 	"$(INTDIR)\qsignal.obj" \
 	"$(INTDIR)\qsize.obj" \
+	"$(INTDIR)\qslider.obj" \
 	"$(INTDIR)\qsocknot.obj" \
 	"$(INTDIR)\qstring.obj" \
+	"$(INTDIR)\qtabbar.obj" \
+	"$(INTDIR)\qtabdlg.obj" \
 	"$(INTDIR)\qtablevw.obj" \
 	"$(INTDIR)\qtimer.obj" \
+	"$(INTDIR)\qtooltip.obj" \
 	"$(INTDIR)\qtstream.obj" \
 	"$(INTDIR)\qwid_win.obj" \
 	"$(INTDIR)\qwidget.obj" \
@@ -557,25 +609,25 @@ LIB32_OBJS= \
   $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
 <<
 
-!ENDIF
+!ENDIF 
 
 .c{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<
+   $(CPP) $(CPP_PROJ) $<  
 
 .cpp{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<
+   $(CPP) $(CPP_PROJ) $<  
 
 .cxx{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<
+   $(CPP) $(CPP_PROJ) $<  
 
 .c{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<
+   $(CPP) $(CPP_PROJ) $<  
 
 .cpp{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<
+   $(CPP) $(CPP_PROJ) $<  
 
 .cxx{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<
+   $(CPP) $(CPP_PROJ) $<  
 
 ################################################################################
 # Begin Target
@@ -585,33 +637,21 @@ LIB32_OBJS= \
 
 !IF  "$(CFG)" == "qt - Win32 Release"
 
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
+!ELSEIF  "$(CFG)" == "qt - Win32 Debug"
 
-!ENDIF
+!ENDIF 
 
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qwmatrix.cpp
-DEP_CPP_QWMAT=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
+SOURCE=.\tools\qtstream.cpp
+NODEP_CPP_QTSTR=\
+	".\tools\qbuffer.h"\
+	".\tools\qfile.h"\
+	".\tools\qtstream.h"\
+	
 
-
-"$(INTDIR)\qwmatrix.obj" : $(SOURCE) $(DEP_CPP_QWMAT) "$(INTDIR)"
+"$(INTDIR)\qtstream.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -619,35 +659,12 @@ DEP_CPP_QWMAT=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\mapp.cpp
-DEP_CPP_MAPP_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
+SOURCE=.\tools\qbuffer.cpp
+NODEP_CPP_QBUFF=\
+	".\tools\qbuffer.h"\
+	
 
-
-"$(INTDIR)\mapp.obj" : $(SOURCE) $(DEP_CPP_MAPP_) "$(INTDIR)"
+"$(INTDIR)\qbuffer.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -655,37 +672,12 @@ DEP_CPP_MAPP_=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\mbttngrp.cpp
-DEP_CPP_MBTTN=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbttngrp.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgrpbox.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
+SOURCE=.\tools\qcollect.cpp
+NODEP_CPP_QCOLL=\
+	".\tools\qcollect.h"\
+	
 
-
-"$(INTDIR)\mbttngrp.obj" : $(SOURCE) $(DEP_CPP_MBTTN) "$(INTDIR)"
+"$(INTDIR)\qcollect.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -693,38 +685,13 @@ DEP_CPP_MBTTN=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\mbutton.cpp
-DEP_CPP_MBUTT=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
+SOURCE=.\tools\qdatetm.cpp
+NODEP_CPP_QDATE=\
+	".\tools\qdatetm.h"\
+	".\tools\qdstream.h"\
+	
 
-
-"$(INTDIR)\mbutton.obj" : $(SOURCE) $(DEP_CPP_MBUTT) "$(INTDIR)"
+"$(INTDIR)\qdatetm.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -732,36 +699,15 @@ DEP_CPP_MBUTT=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\mchkbox.cpp
-DEP_CPP_MCHKB=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qchkbox.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
+SOURCE=.\tools\qdir.cpp
+NODEP_CPP_QDIR_=\
+	".\tools\qdir.h"\
+	".\tools\qfiledef.h"\
+	".\tools\qfileinf.h"\
+	".\tools\qregexp.h"\
+	
 
-
-"$(INTDIR)\mchkbox.obj" : $(SOURCE) $(DEP_CPP_MCHKB) "$(INTDIR)"
+"$(INTDIR)\qdir.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -769,1554 +715,14 @@ DEP_CPP_MCHKB=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\mclipbrd.cpp
-DEP_CPP_MCLIP=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qclipbrd.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\mclipbrd.obj" : $(SOURCE) $(DEP_CPP_MCLIP) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mcombo.cpp
-DEP_CPP_MCOMB=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcombo.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mcombo.obj" : $(SOURCE) $(DEP_CPP_MCOMB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mdialog.cpp
-DEP_CPP_MDIAL=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdialog.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-
-
-"$(INTDIR)\mdialog.obj" : $(SOURCE) $(DEP_CPP_MDIAL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mfiledlg.cpp
-DEP_CPP_MFILE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdatetm.h"\
-	{$(INCLUDE)}"\qdialog.h"\
-	{$(INCLUDE)}"\qdir.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qfiledlg.h"\
-	{$(INCLUDE)}"\qfileinf.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-
-
-"$(INTDIR)\mfiledlg.obj" : $(SOURCE) $(DEP_CPP_MFILE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mframe.cpp
-DEP_CPP_MFRAM=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mframe.obj" : $(SOURCE) $(DEP_CPP_MFRAM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mgrpbox.cpp
-DEP_CPP_MGRPB=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgrpbox.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mgrpbox.obj" : $(SOURCE) $(DEP_CPP_MGRPB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mlabel.cpp
-DEP_CPP_MLABE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlabel.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mlabel.obj" : $(SOURCE) $(DEP_CPP_MLABE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mlcdnum.cpp
-DEP_CPP_MLCDN=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitarry.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlcdnum.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mlcdnum.obj" : $(SOURCE) $(DEP_CPP_MLCDN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mlined.cpp
-DEP_CPP_MLINE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlined.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mlined.obj" : $(SOURCE) $(DEP_CPP_MLINE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mlistbox.cpp
-DEP_CPP_MLIST=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlistbox.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mlistbox.obj" : $(SOURCE) $(DEP_CPP_MLIST) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mmenubar.cpp
-DEP_CPP_MMENU=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmenubar.h"\
-	{$(INCLUDE)}"\qmenudta.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpopmenu.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mmenubar.obj" : $(SOURCE) $(DEP_CPP_MMENU) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mmsgbox.cpp
-DEP_CPP_MMSGB=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdialog.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qmsgbox.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-
-
-"$(INTDIR)\mmsgbox.obj" : $(SOURCE) $(DEP_CPP_MMSGB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mpopmenu.cpp
-DEP_CPP_MPOPM=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmenudta.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpopmenu.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mpopmenu.obj" : $(SOURCE) $(DEP_CPP_MPOPM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mpushbt.cpp
-DEP_CPP_MPUSH=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpushbt.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mpushbt.obj" : $(SOURCE) $(DEP_CPP_MPUSH) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mradiobt.cpp
-DEP_CPP_MRADI=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qradiobt.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mradiobt.obj" : $(SOURCE) $(DEP_CPP_MRADI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mscrbar.cpp
-DEP_CPP_MSCRB=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrangect.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qscrbar.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mscrbar.obj" : $(SOURCE) $(DEP_CPP_MSCRB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\msocknot.cpp
-DEP_CPP_MSOCK=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qsocknot.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\msocknot.obj" : $(SOURCE) $(DEP_CPP_MSOCK) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mtablevw.cpp
-DEP_CPP_MTABL=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mtablevw.obj" : $(SOURCE) $(DEP_CPP_MTABL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mtimer.cpp
-DEP_CPP_MTIME=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtimer.h"\
-
-
-"$(INTDIR)\mtimer.obj" : $(SOURCE) $(DEP_CPP_MTIME) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mwidget.cpp
-DEP_CPP_MWIDG=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\mwidget.obj" : $(SOURCE) $(DEP_CPP_MWIDG) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\mwindow.cpp
-DEP_CPP_MWIND=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-
-
-"$(INTDIR)\mwindow.obj" : $(SOURCE) $(DEP_CPP_MWIND) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qaccel.cpp
-DEP_CPP_QACCE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qaccel.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qaccel.obj" : $(SOURCE) $(DEP_CPP_QACCE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qapp.cpp
-DEP_CPP_QAPP_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qintdict.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobjcoll.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidcoll.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qapp.obj" : $(SOURCE) $(DEP_CPP_QAPP_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qapp_win.cpp
-DEP_CPP_QAPP_W=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgvector.h"\
-	{$(INCLUDE)}"\qintdict.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpmcache.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qqueue.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qvector.h"\
-	{$(INCLUDE)}"\qwidcoll.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qapp_win.obj" : $(SOURCE) $(DEP_CPP_QAPP_W) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qbitarry.cpp
-DEP_CPP_QBITA=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qbitarry.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qbitarry.obj" : $(SOURCE) $(DEP_CPP_QBITA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qbitmap.cpp
-DEP_CPP_QBITM=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qimage.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qbitmap.obj" : $(SOURCE) $(DEP_CPP_QBITM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qbttngrp.cpp
-DEP_CPP_QBTTN=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbttngrp.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgrpbox.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qbttngrp.obj" : $(SOURCE) $(DEP_CPP_QBTTN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qbuffer.cpp
-DEP_CPP_QBUFF=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qbuffer.obj" : $(SOURCE) $(DEP_CPP_QBUFF) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qbutton.cpp
-DEP_CPP_QBUTT=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbttngrp.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgrpbox.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qbutton.obj" : $(SOURCE) $(DEP_CPP_QBUTT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qchkbox.cpp
-DEP_CPP_QCHKB=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qchkbox.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpmcache.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qchkbox.obj" : $(SOURCE) $(DEP_CPP_QCHKB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qclb_win.cpp
-DEP_CPP_QCLB_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qclipbrd.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdatetm.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qclb_win.obj" : $(SOURCE) $(DEP_CPP_QCLB_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qclipbrd.cpp
-DEP_CPP_QCLIP=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qclipbrd.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qclipbrd.obj" : $(SOURCE) $(DEP_CPP_QCLIP) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qcol_win.cpp
-DEP_CPP_QCOL_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qcol_win.obj" : $(SOURCE) $(DEP_CPP_QCOL_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qcollect.cpp
-DEP_CPP_QCOLL=\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-
-
-"$(INTDIR)\qcollect.obj" : $(SOURCE) $(DEP_CPP_QCOLL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qcolor.cpp
-DEP_CPP_QCOLO=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qcolor.obj" : $(SOURCE) $(DEP_CPP_QCOLO) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qcombo.cpp
-DEP_CPP_QCOMB=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcombo.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmenudta.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpopmenu.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qcombo.obj" : $(SOURCE) $(DEP_CPP_QCOMB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qconnect.cpp
-DEP_CPP_QCONN=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qconnect.obj" : $(SOURCE) $(DEP_CPP_QCONN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qcur_win.cpp
-DEP_CPP_QCUR_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qimage.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qcur_win.obj" : $(SOURCE) $(DEP_CPP_QCUR_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qcursor.cpp
-DEP_CPP_QCURS=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qcursor.obj" : $(SOURCE) $(DEP_CPP_QCURS) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qdatetm.cpp
-DEP_CPP_QDATE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qdatetm.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qdatetm.obj" : $(SOURCE) $(DEP_CPP_QDATE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qdialog.cpp
-DEP_CPP_QDIAL=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdialog.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobjcoll.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpushbt.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-
-
-"$(INTDIR)\qdialog.obj" : $(SOURCE) $(DEP_CPP_QDIAL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qdir.cpp
-DEP_CPP_QDIR_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qdatetm.h"\
-	{$(INCLUDE)}"\qdir.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qfiledef.h"\
-	{$(INCLUDE)}"\qfileinf.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qregexp.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-	{$(INCLUDE)}"\sys\stat.h"\
-	{$(INCLUDE)}"\sys\types.h"\
-
-
-"$(INTDIR)\qdir.obj" : $(SOURCE) $(DEP_CPP_QDIR_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qdrawutl.cpp
-DEP_CPP_QDRAW=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qdrawutl.obj" : $(SOURCE) $(DEP_CPP_QDRAW) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qdstream.cpp
+SOURCE=.\tools\qdstream.cpp
 DEP_CPP_QDSTR=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
 	{$(INCLUDE)}"\sys\types.h"\
-
+	
+NODEP_CPP_QDSTR=\
+	".\tools\qbuffer.h"\
+	".\tools\qdstream.h"\
+	
 
 "$(INTDIR)\qdstream.obj" : $(SOURCE) $(DEP_CPP_QDSTR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -2326,41 +732,226 @@ DEP_CPP_QDSTR=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qevent.cpp
-DEP_CPP_QEVEN=\
+SOURCE=.\tools\qfile.cpp
+NODEP_CPP_QFILE=\
+	".\tools\qfile.h"\
+	".\tools\qfiledef.h"\
+	
+
+"$(INTDIR)\qfile.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qfileinf.cpp
+NODEP_CPP_QFILEI=\
+	".\tools\qdatetm.h"\
+	".\tools\qdir.h"\
+	".\tools\qfiledef.h"\
+	".\tools\qfileinf.h"\
+	".\tools\qglobal.h"\
+	
+
+"$(INTDIR)\qfileinf.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qgarray.cpp
+NODEP_CPP_QGARR=\
+	".\tools\qgarray.h"\
+	".\tools\qstring.h"\
+	
+
+"$(INTDIR)\qgarray.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qgcache.cpp
+NODEP_CPP_QGCAC=\
+	".\tools\qdict.h"\
+	".\tools\qgcache.h"\
+	".\tools\qlist.h"\
+	".\tools\qstring.h"\
+	
+
+"$(INTDIR)\qgcache.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qgdict.cpp
+NODEP_CPP_QGDIC=\
+	".\tools\qdstream.h"\
+	".\tools\qgdict.h"\
+	".\tools\qlist.h"\
+	".\tools\qstring.h"\
+	
+
+"$(INTDIR)\qgdict.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qglist.cpp
+NODEP_CPP_QGLIS=\
+	".\tools\qdstream.h"\
+	".\tools\qglist.h"\
+	".\tools\qgvector.h"\
+	
+
+"$(INTDIR)\qglist.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qglobal.cpp
+NODEP_CPP_QGLOB=\
+	".\tools\qdict.h"\
+	".\tools\qglobal.h"\
+	".\tools\qstring.h"\
+	
+
+"$(INTDIR)\qglobal.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qgvector.cpp
+NODEP_CPP_QGVEC=\
+	".\tools\qdstream.h"\
+	".\tools\qglist.h"\
+	".\tools\qgvector.h"\
+	".\tools\qstring.h"\
+	
+
+"$(INTDIR)\qgvector.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qiodev.cpp
+NODEP_CPP_QIODE=\
+	".\tools\qiodev.h"\
+	
+
+"$(INTDIR)\qiodev.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qregexp.cpp
+NODEP_CPP_QREGE=\
+	".\tools\qregexp.h"\
+	
+
+"$(INTDIR)\qregexp.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qstring.cpp
+NODEP_CPP_QSTRI=\
+	".\tools\qdstream.h"\
+	".\tools\qstring.h"\
+	
+
+"$(INTDIR)\qstring.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\tools\qbitarry.cpp
+NODEP_CPP_QBITA=\
+	".\tools\qbitarry.h"\
+	".\tools\qdstream.h"\
+	
+
+"$(INTDIR)\qbitarry.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qwmatrix.cpp
+NODEP_CPP_QWMAT=\
+	".\kernel\qdstream.h"\
+	".\kernel\qwmatrix.h"\
+	
+
+"$(INTDIR)\qwmatrix.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\moc_qapp.cpp
+DEP_CPP_MOC_Q=\
+	"..\include\qapp.h"\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-
-
-"$(INTDIR)\qevent.obj" : $(SOURCE) $(DEP_CPP_QEVEN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qfile.cpp
-DEP_CPP_QFILE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qfiledef.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\sys\stat.h"\
-	{$(INCLUDE)}"\sys\types.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
 
-
-"$(INTDIR)\qfile.obj" : $(SOURCE) $(DEP_CPP_QFILE) "$(INTDIR)"
+"$(INTDIR)\moc_qapp.obj" : $(SOURCE) $(DEP_CPP_MOC_Q) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2368,55 +959,27 @@ DEP_CPP_QFILE=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qfiledlg.cpp
-DEP_CPP_QFILED=\
+SOURCE=.\kernel\moc_qclipbrd.cpp
+DEP_CPP_MOC_QC=\
 	"..\include\qarray.h"\
+	"..\include\qclipbrd.h"\
+	"..\include\qconnect.h"\
+	"..\include\qevent.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcombo.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdatetm.h"\
-	{$(INCLUDE)}"\qdialog.h"\
-	{$(INCLUDE)}"\qdir.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qfiledlg.h"\
-	{$(INCLUDE)}"\qfileinf.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlabel.h"\
-	{$(INCLUDE)}"\qlined.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qlistbox.h"\
-	{$(INCLUDE)}"\qmsgbox.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpushbt.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
+	
 
-
-"$(INTDIR)\qfiledlg.obj" : $(SOURCE) $(DEP_CPP_QFILED) "$(INTDIR)"
+"$(INTDIR)\moc_qclipbrd.obj" : $(SOURCE) $(DEP_CPP_MOC_QC) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2424,30 +987,35 @@ DEP_CPP_QFILED=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qfileinf.cpp
-DEP_CPP_QFILEI=\
+SOURCE=.\kernel\moc_qdialog.cpp
+DEP_CPP_MOC_QD=\
 	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qdialog.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qdatetm.h"\
-	{$(INCLUDE)}"\qdir.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qfiledef.h"\
-	{$(INCLUDE)}"\qfileinf.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-	{$(INCLUDE)}"\sys\stat.h"\
-	{$(INCLUDE)}"\sys\types.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
 
-
-"$(INTDIR)\qfileinf.obj" : $(SOURCE) $(DEP_CPP_QFILEI) "$(INTDIR)"
+"$(INTDIR)\moc_qdialog.obj" : $(SOURCE) $(DEP_CPP_MOC_QD) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2455,39 +1023,1585 @@ DEP_CPP_QFILEI=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qfnt_win.cpp
-DEP_CPP_QFNT_=\
+SOURCE=.\kernel\moc_qgmanagr.cpp
+DEP_CPP_MOC_QG=\
+	"..\include\qarray.h"\
+	"..\include\qcollect.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgdict.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qgmanagr.h"\
+	"..\include\qintdict.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qgmanagr.obj" : $(SOURCE) $(DEP_CPP_MOC_QG) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\moc_qsocknot.cpp
+DEP_CPP_MOC_QS=\
+	"..\include\qarray.h"\
+	"..\include\qconnect.h"\
+	"..\include\qevent.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qsocknot.h"\
+	"..\include\qstring.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qsocknot.obj" : $(SOURCE) $(DEP_CPP_MOC_QS) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\moc_qtimer.cpp
+DEP_CPP_MOC_QT=\
+	"..\include\qarray.h"\
+	"..\include\qconnect.h"\
+	"..\include\qevent.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtimer.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qtimer.obj" : $(SOURCE) $(DEP_CPP_MOC_QT) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\moc_qwidget.cpp
+DEP_CPP_MOC_QW=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qwidget.obj" : $(SOURCE) $(DEP_CPP_MOC_QW) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\moc_qwindow.cpp
+DEP_CPP_MOC_QWI=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	"..\include\qwindow.h"\
+	
+
+"$(INTDIR)\moc_qwindow.obj" : $(SOURCE) $(DEP_CPP_MOC_QWI) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qaccel.cpp
+NODEP_CPP_QACCE=\
+	".\kernel\qaccel.h"\
+	".\kernel\qapp.h"\
+	".\kernel\qlist.h"\
+	".\kernel\qsignal.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qaccel.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qapp.cpp
+NODEP_CPP_QAPP_=\
+	".\kernel\qapp.h"\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qpalette.h"\
+	".\kernel\qwidcoll.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qapp.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qapp_win.cpp
+NODEP_CPP_QAPP_W=\
+	".\kernel\qapp.h"\
+	".\kernel\qdatetm.h"\
+	".\kernel\qintdict.h"\
+	".\kernel\qkeycode.h"\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qpmcache.h"\
+	".\kernel\qqueue.h"\
+	".\kernel\qvector.h"\
+	".\kernel\qwidcoll.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qapp_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qbitmap.cpp
+NODEP_CPP_QBITM=\
+	".\kernel\qbitmap.h"\
+	".\kernel\qimage.h"\
+	
+
+"$(INTDIR)\qbitmap.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qclb_win.cpp
+NODEP_CPP_QCLB_=\
+	".\kernel\qapp.h"\
+	".\kernel\qclipbrd.h"\
+	".\kernel\qdatetm.h"\
+	".\kernel\qpixmap.h"\
+	
+
+"$(INTDIR)\qclb_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qclipbrd.cpp
+NODEP_CPP_QCLIP=\
+	".\kernel\qapp.h"\
+	".\kernel\qclipbrd.h"\
+	".\kernel\qpixmap.h"\
+	
+
+"$(INTDIR)\qclipbrd.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qcol_win.cpp
+NODEP_CPP_QCOL_=\
+	".\kernel\qapp.h"\
+	".\kernel\qcolor.h"\
+	
+
+"$(INTDIR)\qcol_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qcolor.cpp
+NODEP_CPP_QCOLO=\
+	".\kernel\qcolor.h"\
+	".\kernel\qdstream.h"\
+	
+
+"$(INTDIR)\qcolor.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qconnect.cpp
+NODEP_CPP_QCONN=\
+	".\kernel\qconnect.h"\
+	
+
+"$(INTDIR)\qconnect.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qcur_win.cpp
+NODEP_CPP_QCUR_=\
+	".\kernel\qapp.h"\
+	".\kernel\qbitmap.h"\
+	".\kernel\qcursor.h"\
+	".\kernel\qdstream.h"\
+	".\kernel\qimage.h"\
+	
+
+"$(INTDIR)\qcur_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qcursor.cpp
+NODEP_CPP_QCURS=\
+	".\kernel\qbitmap.h"\
+	".\kernel\qcursor.h"\
+	".\kernel\qdstream.h"\
+	
+
+"$(INTDIR)\qcursor.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qdialog.cpp
+NODEP_CPP_QDIAL=\
+	".\kernel\qapp.h"\
+	".\kernel\qdialog.h"\
+	".\kernel\qkeycode.h"\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qpushbt.h"\
+	
+
+"$(INTDIR)\qdialog.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qdrawutl.cpp
+NODEP_CPP_QDRAW=\
+	".\kernel\qbitmap.h"\
+	".\kernel\qdrawutl.h"\
+	".\kernel\qpmcache.h"\
+	
+
+"$(INTDIR)\qdrawutl.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qevent.cpp
+NODEP_CPP_QEVEN=\
+	".\kernel\qevent.h"\
+	
+
+"$(INTDIR)\qevent.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qfnt_win.cpp
+NODEP_CPP_QFNT_=\
+	".\kernel\qcache.h"\
+	".\kernel\qdict.h"\
+	".\kernel\qfont.h"\
+	".\kernel\qfontdta.h"\
+	".\kernel\qfontinf.h"\
+	".\kernel\qfontmet.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qfnt_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qfont.cpp
+NODEP_CPP_QFONT=\
+	".\kernel\qdict.h"\
+	".\kernel\qdstream.h"\
+	".\kernel\qfont.h"\
+	".\kernel\qfontdta.h"\
+	".\kernel\qfontinf.h"\
+	".\kernel\qfontmet.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qstrlist.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qfont.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qgmanagr.cpp
+NODEP_CPP_QGMAN=\
+	".\kernel\qgmanagr.h"\
+	".\kernel\qlist.h"\
+	
+
+"$(INTDIR)\qgmanagr.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qimage.cpp
+NODEP_CPP_QIMAG=\
+	".\kernel\qbuffer.h"\
+	".\kernel\qdict.h"\
+	".\kernel\qdstream.h"\
+	".\kernel\qfile.h"\
+	".\kernel\qimage.h"\
+	".\kernel\qintdict.h"\
+	".\kernel\qlist.h"\
+	".\kernel\qregexp.h"\
+	".\kernel\qtstream.h"\
+	
+
+"$(INTDIR)\qimage.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qlayout.cpp
+NODEP_CPP_QLAYO=\
+	".\kernel\qlayout.h"\
+	".\kernel\qmenubar.h"\
+	
+
+"$(INTDIR)\qlayout.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qmetaobj.cpp
+NODEP_CPP_QMETA=\
+	".\kernel\qmetaobj.h"\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qstrlist.h"\
+	
+
+"$(INTDIR)\qmetaobj.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qobject.cpp
+NODEP_CPP_QOBJE=\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qobject.h"\
+	".\kernel\qregexp.h"\
+	
+
+"$(INTDIR)\qobject.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpainter.cpp
+NODEP_CPP_QPAIN=\
+	".\kernel\qbitmap.h"\
+	".\kernel\qdstream.h"\
+	".\kernel\qpaintdc.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qstack.h"\
+	
+
+"$(INTDIR)\qpainter.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpalette.cpp
+NODEP_CPP_QPALE=\
+	".\kernel\qdstream.h"\
+	".\kernel\qpalette.h"\
+	
+
+"$(INTDIR)\qpalette.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpdevmet.cpp
+NODEP_CPP_QPDEV=\
+	".\kernel\qpdevmet.h"\
+	
+
+"$(INTDIR)\qpdevmet.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpic_win.cpp
+NODEP_CPP_QPIC_=\
+	".\kernel\qpicture.h"\
+	
+
+"$(INTDIR)\qpic_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpicture.cpp
+NODEP_CPP_QPICT=\
+	".\kernel\qdstream.h"\
+	".\kernel\qfile.h"\
+	".\kernel\qpaintdc.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qpicture.h"\
+	".\kernel\qpixmap.h"\
+	
+
+"$(INTDIR)\qpicture.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpixmap.cpp
+NODEP_CPP_QPIXM=\
+	".\kernel\qbitmap.h"\
+	".\kernel\qbuffer.h"\
+	".\kernel\qdstream.h"\
+	".\kernel\qimage.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qpixmap.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpm_win.cpp
+NODEP_CPP_QPM_W=\
+	".\kernel\qapp.h"\
+	".\kernel\qbitmap.h"\
+	".\kernel\qimage.h"\
+	".\kernel\qpaintdc.h"\
+	".\kernel\qwmatrix.h"\
+	
+
+"$(INTDIR)\qpm_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpmcache.cpp
+NODEP_CPP_QPMCA=\
+	".\kernel\qcache.h"\
+	".\kernel\qpmcache.h"\
+	
+
+"$(INTDIR)\qpmcache.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpntarry.cpp
+NODEP_CPP_QPNTA=\
+	".\kernel\qbitarry.h"\
+	".\kernel\qdstream.h"\
+	".\kernel\qpntarry.h"\
+	".\kernel\qrect.h"\
+	
+
+"$(INTDIR)\qpntarry.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qpoint.cpp
+NODEP_CPP_QPOIN=\
+	".\kernel\qdstream.h"\
+	".\kernel\qpoint.h"\
+	
+
+"$(INTDIR)\qpoint.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qprinter.cpp
+NODEP_CPP_QPRIN=\
+	".\kernel\qprinter.h"\
+	
+
+"$(INTDIR)\qprinter.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qprn_win.cpp
+NODEP_CPP_QPRN_=\
+	".\kernel\qpaintdc.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qpixmap.h"\
+	".\kernel\qprinter.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qprn_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qptd_win.cpp
+NODEP_CPP_QPTD_=\
+	".\kernel\qapp.h"\
+	".\kernel\qbitmap.h"\
+	".\kernel\qpaintd.h"\
+	".\kernel\qpaintdc.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qptd_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qptr_win.cpp
+NODEP_CPP_QPTR_=\
+	".\kernel\qbitmap.h"\
+	".\kernel\qintdict.h"\
+	".\kernel\qlist.h"\
+	".\kernel\qpaintdc.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qpmcache.h"\
+	".\kernel\qtstream.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qptr_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qrect.cpp
+NODEP_CPP_QRECT=\
+	".\kernel\qdstream.h"\
+	".\kernel\qrect.h"\
+	
+
+"$(INTDIR)\qrect.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qregion.cpp
+NODEP_CPP_QREGI=\
+	".\kernel\qbuffer.h"\
+	".\kernel\qdstream.h"\
+	".\kernel\qpntarry.h"\
+	".\kernel\qregion.h"\
+	
+
+"$(INTDIR)\qregion.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qrgn_win.cpp
+NODEP_CPP_QRGN_=\
+	".\kernel\qbuffer.h"\
+	".\kernel\qpntarry.h"\
+	".\kernel\qregion.h"\
+	
+
+"$(INTDIR)\qrgn_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qsignal.cpp
+NODEP_CPP_QSIGN=\
+	".\kernel\qmetaobj.h"\
+	".\kernel\qsignal.h"\
+	
+
+"$(INTDIR)\qsignal.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qsize.cpp
+NODEP_CPP_QSIZE=\
+	".\kernel\qdstream.h"\
+	".\kernel\qsize.h"\
+	
+
+"$(INTDIR)\qsize.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qsocknot.cpp
+NODEP_CPP_QSOCK=\
+	".\kernel\qevent.h"\
+	".\kernel\qsocknot.h"\
+	
+
+"$(INTDIR)\qsocknot.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qtimer.cpp
+NODEP_CPP_QTIME=\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qsignal.h"\
+	".\kernel\qtimer.h"\
+	
+
+"$(INTDIR)\qtimer.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qwid_win.cpp
+NODEP_CPP_QWID_=\
+	".\kernel\qapp.h"\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qpaintdc.h"\
+	".\kernel\qpainter.h"\
+	".\kernel\qpixmap.h"\
+	".\kernel\qwidcoll.h"\
+	".\kernel\qwindow.h"\
+	
+
+"$(INTDIR)\qwid_win.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qwidget.cpp
+NODEP_CPP_QWIDG=\
+	".\kernel\qapp.h"\
+	".\kernel\qkeycode.h"\
+	".\kernel\qobjcoll.h"\
+	".\kernel\qpixmap.h"\
+	".\kernel\qwidcoll.h"\
+	".\kernel\qwidget.h"\
+	
+
+"$(INTDIR)\qwidget.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\qwindow.cpp
+NODEP_CPP_QWIND=\
+	".\kernel\qpixmap.h"\
+	".\kernel\qwindow.h"\
+	
+
+"$(INTDIR)\qwindow.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\kernel\moc_qaccel.cpp
+DEP_CPP_MOC_QA=\
+	"..\include\qaccel.h"\
+	"..\include\qarray.h"\
+	"..\include\qconnect.h"\
+	"..\include\qevent.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qkeycode.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qaccel.obj" : $(SOURCE) $(DEP_CPP_MOC_QA) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qtooltip.cpp
+NODEP_CPP_QTOOL=\
+	".\widgets\qapp.h"\
+	".\widgets\qcolor.h"\
+	".\widgets\qlabel.h"\
+	".\widgets\qpoint.h"\
+	".\widgets\qstring.h"\
+	".\widgets\qtooltip.h"\
+	".\widgets\qwidget.h"\
+	
+
+"$(INTDIR)\qtooltip.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qbutton.cpp
+DEP_CPP_MOC_QB=\
+	"..\include\qarray.h"\
+	"..\include\qbutton.h"\
+	"..\include\qcollect.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglist.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlist.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qbutton.obj" : $(SOURCE) $(DEP_CPP_MOC_QB) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qchkbox.cpp
+DEP_CPP_MOC_QCH=\
+	"..\include\qarray.h"\
+	"..\include\qbutton.h"\
+	"..\include\qchkbox.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qchkbox.obj" : $(SOURCE) $(DEP_CPP_MOC_QCH) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qcombo.cpp
+DEP_CPP_MOC_QCO=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qcombo.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qcombo.obj" : $(SOURCE) $(DEP_CPP_MOC_QCO) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qframe.cpp
+DEP_CPP_MOC_QF=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qframe.obj" : $(SOURCE) $(DEP_CPP_MOC_QF) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qgrpbox.cpp
+DEP_CPP_MOC_QGR=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qgrpbox.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qgrpbox.obj" : $(SOURCE) $(DEP_CPP_MOC_QGR) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qlabel.cpp
+DEP_CPP_MOC_QL=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlabel.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qlabel.obj" : $(SOURCE) $(DEP_CPP_MOC_QL) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qlcdnum.cpp
+DEP_CPP_MOC_QLC=\
+	"..\include\qarray.h"\
+	"..\include\qbitarry.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlcdnum.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qlcdnum.obj" : $(SOURCE) $(DEP_CPP_MOC_QLC) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qlined.cpp
+DEP_CPP_MOC_QLI=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlined.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qlined.obj" : $(SOURCE) $(DEP_CPP_MOC_QLI) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qlistbox.cpp
+DEP_CPP_MOC_QLIS=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlistbox.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpixmap.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtablevw.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qlistbox.obj" : $(SOURCE) $(DEP_CPP_MOC_QLIS) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qmenubar.cpp
+DEP_CPP_MOC_QM=\
+	"..\include\qarray.h"\
+	"..\include\qcollect.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglist.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlist.h"\
+	"..\include\qmenubar.h"\
+	"..\include\qmenudta.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpixmap.h"\
+	"..\include\qpoint.h"\
+	"..\include\qpopmenu.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsignal.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtablevw.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qmenubar.obj" : $(SOURCE) $(DEP_CPP_MOC_QM) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qmlined.cpp
+DEP_CPP_MOC_QML=\
+	"..\include\qarray.h"\
+	"..\include\qcollect.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglist.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlist.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qmlined.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtablevw.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qmlined.obj" : $(SOURCE) $(DEP_CPP_MOC_QML) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qpopmenu.cpp
+DEP_CPP_MOC_QP=\
+	"..\include\qarray.h"\
+	"..\include\qcollect.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglist.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlist.h"\
+	"..\include\qmenudta.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpixmap.h"\
+	"..\include\qpoint.h"\
+	"..\include\qpopmenu.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsignal.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtablevw.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qpopmenu.obj" : $(SOURCE) $(DEP_CPP_MOC_QP) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qpushbt.cpp
+DEP_CPP_MOC_QPU=\
+	"..\include\qarray.h"\
+	"..\include\qbutton.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qpushbt.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qpushbt.obj" : $(SOURCE) $(DEP_CPP_MOC_QPU) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qradiobt.cpp
+DEP_CPP_MOC_QR=\
+	"..\include\qarray.h"\
+	"..\include\qbutton.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qradiobt.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qradiobt.obj" : $(SOURCE) $(DEP_CPP_MOC_QR) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qscrbar.cpp
+DEP_CPP_MOC_QSC=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrangect.h"\
+	"..\include\qrect.h"\
+	"..\include\qscrbar.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qscrbar.obj" : $(SOURCE) $(DEP_CPP_MOC_QSC) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qslider.cpp
+DEP_CPP_MOC_QSL=\
+	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrangect.h"\
+	"..\include\qrect.h"\
+	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qslider.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
+	"..\include\qwindefs.h"\
+	
+
+"$(INTDIR)\moc_qslider.obj" : $(SOURCE) $(DEP_CPP_MOC_QSL) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qtabbar.cpp
+DEP_CPP_MOC_QTA=\
 	"..\include\qarray.h"\
 	"..\include\qbrush.h"\
+	"..\include\qcollect.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglist.h"\
+	"..\include\qglobal.h"\
+	"..\include\qlist.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpainter.h"\
+	"..\include\qpalette.h"\
 	"..\include\qpen.h"\
+	"..\include\qpntarry.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
+	"..\include\qregion.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtabbar.h"\
+	"..\include\qwidget.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontdta.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
+	"..\include\qwmatrix.h"\
+	
 
-
-"$(INTDIR)\qfnt_win.obj" : $(SOURCE) $(DEP_CPP_QFNT_) "$(INTDIR)"
+"$(INTDIR)\moc_qtabbar.obj" : $(SOURCE) $(DEP_CPP_MOC_QTA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2495,47 +2609,36 @@ DEP_CPP_QFNT_=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qfont.cpp
-DEP_CPP_QFONT=\
+SOURCE=.\widgets\moc_qtablevw.cpp
+DEP_CPP_MOC_QTAB=\
 	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtablevw.h"\
+	"..\include\qwidget.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontdta.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
+	
 
-
-"$(INTDIR)\qfont.obj" : $(SOURCE) $(DEP_CPP_QFONT) "$(INTDIR)"
+"$(INTDIR)\moc_qtablevw.obj" : $(SOURCE) $(DEP_CPP_MOC_QTAB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2543,40 +2646,31 @@ DEP_CPP_QFONT=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qframe.cpp
-DEP_CPP_QFRAM=\
+SOURCE=.\widgets\moc_qtooltip.cpp
+DEP_CPP_MOC_QTO=\
 	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
+	"..\include\qcollect.h"\
+	"..\include\qconnect.h"\
+	"..\include\qevent.h"\
+	"..\include\qgarray.h"\
+	"..\include\qgdict.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qintdict.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
+	"..\include\qobject.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtimer.h"\
+	"..\include\qtooltip.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
+	
 
-
-"$(INTDIR)\qframe.obj" : $(SOURCE) $(DEP_CPP_QFRAM) "$(INTDIR)"
+"$(INTDIR)\moc_qtooltip.obj" : $(SOURCE) $(DEP_CPP_MOC_QTO) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2584,17 +2678,14 @@ DEP_CPP_QFRAM=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qgarray.cpp
-DEP_CPP_QGARR=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qstring.h"\
+SOURCE=.\widgets\qbttngrp.cpp
+NODEP_CPP_QBTTN=\
+	".\widgets\qbttngrp.h"\
+	".\widgets\qbutton.h"\
+	".\widgets\qlist.h"\
+	
 
-
-"$(INTDIR)\qgarray.obj" : $(SOURCE) $(DEP_CPP_QGARR) "$(INTDIR)"
+"$(INTDIR)\qbttngrp.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2602,23 +2693,17 @@ DEP_CPP_QGARR=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qgcache.cpp
-DEP_CPP_QGCAC=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgcache.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qstring.h"\
+SOURCE=.\widgets\qbutton.cpp
+NODEP_CPP_QBUTT=\
+	".\widgets\qbitmap.h"\
+	".\widgets\qbttngrp.h"\
+	".\widgets\qbutton.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qtimer.h"\
+	
 
-
-"$(INTDIR)\qgcache.obj" : $(SOURCE) $(DEP_CPP_QGCAC) "$(INTDIR)"
+"$(INTDIR)\qbutton.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2626,23 +2711,16 @@ DEP_CPP_QGCAC=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qgdict.cpp
-DEP_CPP_QGDIC=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qstring.h"\
+SOURCE=.\widgets\qchkbox.cpp
+NODEP_CPP_QCHKB=\
+	".\widgets\qchkbox.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	".\widgets\qpmcache.h"\
+	
 
-
-"$(INTDIR)\qgdict.obj" : $(SOURCE) $(DEP_CPP_QGDIC) "$(INTDIR)"
+"$(INTDIR)\qchkbox.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2650,22 +2728,23 @@ DEP_CPP_QGDIC=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qglist.cpp
-DEP_CPP_QGLIS=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgvector.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
+SOURCE=.\widgets\qcombo.cpp
+NODEP_CPP_QCOMB=\
+	".\widgets\qapp.h"\
+	".\widgets\qcombo.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qlined.h"\
+	".\widgets\qlistbox.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	".\widgets\qpopmenu.h"\
+	".\widgets\qscrbar.h"\
+	".\widgets\qstrlist.h"\
+	".\widgets\qtimer.h"\
+	
 
-
-"$(INTDIR)\qglist.obj" : $(SOURCE) $(DEP_CPP_QGLIS) "$(INTDIR)"
+"$(INTDIR)\qcombo.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2673,20 +2752,14 @@ DEP_CPP_QGLIS=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qglobal.cpp
-DEP_CPP_QGLOB=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qstring.h"\
+SOURCE=.\widgets\qframe.cpp
+NODEP_CPP_QFRAM=\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qframe.h"\
+	".\widgets\qpainter.h"\
+	
 
-
-"$(INTDIR)\qglobal.obj" : $(SOURCE) $(DEP_CPP_QGLOB) "$(INTDIR)"
+"$(INTDIR)\qframe.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2694,40 +2767,310 @@ DEP_CPP_QGLOB=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qgrpbox.cpp
-DEP_CPP_QGRPB=\
+SOURCE=.\widgets\qgrpbox.cpp
+NODEP_CPP_QGRPB=\
+	".\widgets\qgrpbox.h"\
+	".\widgets\qpainter.h"\
+	
+
+"$(INTDIR)\qgrpbox.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qlabel.cpp
+NODEP_CPP_QLABE=\
+	".\widgets\qaccel.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qlabel.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	
+
+"$(INTDIR)\qlabel.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qlcdnum.cpp
+NODEP_CPP_QLCDN=\
+	".\widgets\qbitarry.h"\
+	".\widgets\qlcdnum.h"\
+	".\widgets\qpainter.h"\
+	
+
+"$(INTDIR)\qlcdnum.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qlined.cpp
+NODEP_CPP_QLINE=\
+	".\widgets\qapp.h"\
+	".\widgets\qclipbrd.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qfontmet.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qlined.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	
+
+"$(INTDIR)\qlined.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qlistbox.cpp
+NODEP_CPP_QLIST=\
+	".\widgets\qapp.h"\
+	".\widgets\qfontmet.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qlistbox.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	".\widgets\qstrlist.h"\
+	
+
+"$(INTDIR)\qlistbox.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qmenubar.cpp
+NODEP_CPP_QMENU=\
+	".\widgets\qaccel.h"\
+	".\widgets\qapp.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qmenubar.h"\
+	".\widgets\qpainter.h"\
+	
+
+"$(INTDIR)\qmenubar.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qmenudta.cpp
+NODEP_CPP_QMENUD=\
+	".\widgets\qapp.h"\
+	".\widgets\qmenudta.h"\
+	".\widgets\qpopmenu.h"\
+	
+
+"$(INTDIR)\qmenudta.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qmlined.cpp
+NODEP_CPP_QMLIN=\
+	".\widgets\qapp.h"\
+	".\widgets\qclipbrd.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qmlined.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	".\widgets\qscrbar.h"\
+	
+
+"$(INTDIR)\qmlined.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qpopmenu.cpp
+NODEP_CPP_QPOPM=\
+	".\widgets\qaccel.h"\
+	".\widgets\qapp.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qmenubar.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpopmenu.h"\
+	".\widgets\qscrbar.h"\
+	
+
+"$(INTDIR)\qpopmenu.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qpushbt.cpp
+NODEP_CPP_QPUSH=\
+	".\widgets\qbitmap.h"\
+	".\widgets\qdialog.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qfontmet.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	".\widgets\qpmcache.h"\
+	".\widgets\qpushbt.h"\
+	
+
+"$(INTDIR)\qpushbt.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qradiobt.cpp
+NODEP_CPP_QRADI=\
+	".\widgets\qbitmap.h"\
+	".\widgets\qbttngrp.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qpixmap.h"\
+	".\widgets\qpmcache.h"\
+	".\widgets\qradiobt.h"\
+	
+
+"$(INTDIR)\qradiobt.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qrangect.cpp
+NODEP_CPP_QRANG=\
+	".\widgets\qglobal.h"\
+	".\widgets\qrangect.h"\
+	
+
+"$(INTDIR)\qrangect.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qscrbar.cpp
+NODEP_CPP_QSCRB=\
+	".\widgets\qbitmap.h"\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qscrbar.h"\
+	
+
+"$(INTDIR)\qscrbar.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qslider.cpp
+NODEP_CPP_QSLID=\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qkeycode.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qslider.h"\
+	".\widgets\qtimer.h"\
+	
+
+"$(INTDIR)\qslider.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qtabbar.cpp
+NODEP_CPP_QTABB=\
+	".\widgets\qkeycode.h"\
+	".\widgets\qtabbar.h"\
+	
+
+"$(INTDIR)\qtabbar.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\qtablevw.cpp
+NODEP_CPP_QTABL=\
+	".\widgets\qdrawutl.h"\
+	".\widgets\qpainter.h"\
+	".\widgets\qscrbar.h"\
+	".\widgets\qtablevw.h"\
+	
+
+"$(INTDIR)\qtablevw.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\widgets\moc_qbttngrp.cpp
+DEP_CPP_MOC_QBT=\
 	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
+	"..\include\qbttngrp.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qframe.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qgrpbox.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgrpbox.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
+	
 
-
-"$(INTDIR)\qgrpbox.obj" : $(SOURCE) $(DEP_CPP_QGRPB) "$(INTDIR)"
+"$(INTDIR)\moc_qbttngrp.obj" : $(SOURCE) $(DEP_CPP_MOC_QBT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2735,22 +3078,16 @@ DEP_CPP_QGRPB=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qgvector.cpp
-DEP_CPP_QGVEC=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgvector.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
+SOURCE=.\dialogs\qtabdlg.cpp
+NODEP_CPP_QTABD=\
+	".\dialogs\qpainter.h"\
+	".\dialogs\qpixmap.h"\
+	".\dialogs\qpushbt.h"\
+	".\dialogs\qtabbar.h"\
+	".\dialogs\qtabdlg.h"\
+	
 
-
-"$(INTDIR)\qgvector.obj" : $(SOURCE) $(DEP_CPP_QGVEC) "$(INTDIR)"
+"$(INTDIR)\qtabdlg.obj" : $(SOURCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2758,35 +3095,36 @@ DEP_CPP_QGVEC=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qimage.cpp
-DEP_CPP_QIMAG=\
+SOURCE=.\dialogs\moc_qmsgbox.cpp
+DEP_CPP_MOC_QMS=\
 	"..\include\qarray.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qdialog.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
+	"..\include\qmsgbox.h"\
 	"..\include\qobjdefs.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qwidget.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qimage.h"\
-	{$(INCLUDE)}"\qintdict.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregexp.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
+	
 
-
-"$(INTDIR)\qimage.obj" : $(SOURCE) $(DEP_CPP_QIMAG) "$(INTDIR)"
+"$(INTDIR)\moc_qmsgbox.obj" : $(SOURCE) $(DEP_CPP_MOC_QMS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2794,55 +3132,36 @@ DEP_CPP_QIMAG=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qiodev.cpp
-DEP_CPP_QIODE=\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-
-
-"$(INTDIR)\qiodev.obj" : $(SOURCE) $(DEP_CPP_QIODE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qlabel.cpp
-DEP_CPP_QLABE=\
+SOURCE=.\dialogs\moc_qtabdlg.cpp
+DEP_CPP_MOC_QTABD=\
 	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qdialog.h"\
+	"..\include\qevent.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglobal.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qtabdlg.h"\
+	"..\include\qwidget.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlabel.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
+	
 
-
-"$(INTDIR)\qlabel.obj" : $(SOURCE) $(DEP_CPP_QLABE) "$(INTDIR)"
+"$(INTDIR)\moc_qtabdlg.obj" : $(SOURCE) $(DEP_CPP_MOC_QTABD) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -2850,1473 +3169,81 @@ DEP_CPP_QLABE=\
 ################################################################################
 # Begin Source File
 
-SOURCE=.\win\qlcdnum.cpp
-DEP_CPP_QLCDN=\
+SOURCE=.\dialogs\qfiledlg.cpp
+NODEP_CPP_QFILED=\
+	".\dialogs\qapp.h"\
+	".\dialogs\qcombo.h"\
+	".\dialogs\qfiledlg.h"\
+	".\dialogs\qlabel.h"\
+	".\dialogs\qlined.h"\
+	".\dialogs\qlistbox.h"\
+	".\dialogs\qmsgbox.h"\
+	".\dialogs\qpushbt.h"\
+	
+
+"$(INTDIR)\qfiledlg.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\dialogs\qmsgbox.cpp
+NODEP_CPP_QMSGB=\
+	".\dialogs\qlabel.h"\
+	".\dialogs\qmsgbox.h"\
+	".\dialogs\qpushbt.h"\
+	
+
+"$(INTDIR)\qmsgbox.obj" : $(SOURCE) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\dialogs\moc_qfiledlg.cpp
+DEP_CPP_MOC_QFI=\
 	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
+	"..\include\qcollect.h"\
+	"..\include\qcolor.h"\
+	"..\include\qconnect.h"\
+	"..\include\qcursor.h"\
+	"..\include\qdatetm.h"\
+	"..\include\qdialog.h"\
+	"..\include\qdir.h"\
+	"..\include\qdstream.h"\
+	"..\include\qevent.h"\
+	"..\include\qfile.h"\
+	"..\include\qfiledlg.h"\
+	"..\include\qfileinf.h"\
+	"..\include\qfont.h"\
+	"..\include\qfontinf.h"\
+	"..\include\qfontmet.h"\
+	"..\include\qgarray.h"\
 	"..\include\qgeneric.h"\
+	"..\include\qglist.h"\
+	"..\include\qglobal.h"\
+	"..\include\qiodev.h"\
+	"..\include\qlist.h"\
+	"..\include\qmetaobj.h"\
 	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
+	"..\include\qobject.h"\
+	"..\include\qpaintd.h"\
+	"..\include\qpalette.h"\
+	"..\include\qpoint.h"\
+	"..\include\qrect.h"\
 	"..\include\qshared.h"\
+	"..\include\qsize.h"\
+	"..\include\qstring.h"\
+	"..\include\qstrlist.h"\
+	"..\include\qwidget.h"\
 	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitarry.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlcdnum.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
+	
 
-
-"$(INTDIR)\qlcdnum.obj" : $(SOURCE) $(DEP_CPP_QLCDN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qlined.cpp
-DEP_CPP_QLINE=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qclipbrd.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlined.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qlined.obj" : $(SOURCE) $(DEP_CPP_QLINE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qlistbox.cpp
-DEP_CPP_QLIST=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qlistbox.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qlistbox.obj" : $(SOURCE) $(DEP_CPP_QLIST) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qmenubar.cpp
-DEP_CPP_QMENU=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qaccel.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmenubar.h"\
-	{$(INCLUDE)}"\qmenudta.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpopmenu.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qmenubar.obj" : $(SOURCE) $(DEP_CPP_QMENU) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qmenudta.cpp
-DEP_CPP_QMENUD=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmenudta.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpopmenu.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qmenudta.obj" : $(SOURCE) $(DEP_CPP_QMENUD) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qmetaobj.cpp
-DEP_CPP_QMETA=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobjcoll.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qstrlist.h"\
-
-
-"$(INTDIR)\qmetaobj.obj" : $(SOURCE) $(DEP_CPP_QMETA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qmsgbox.cpp
-DEP_CPP_QMSGB=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdialog.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlabel.h"\
-	{$(INCLUDE)}"\qmsgbox.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpushbt.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-
-
-"$(INTDIR)\qmsgbox.obj" : $(SOURCE) $(DEP_CPP_QMSGB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qobject.cpp
-DEP_CPP_QOBJE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobjcoll.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregexp.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qobject.obj" : $(SOURCE) $(DEP_CPP_QOBJE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpainter.cpp
-DEP_CPP_QPAIN=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstack.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qpainter.obj" : $(SOURCE) $(DEP_CPP_QPAIN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpalette.cpp
-DEP_CPP_QPALE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qpalette.obj" : $(SOURCE) $(DEP_CPP_QPALE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpdevmet.cpp
-DEP_CPP_QPDEV=\
-	"..\include\qobjdefs.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpdevmet.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-
-
-"$(INTDIR)\qpdevmet.obj" : $(SOURCE) $(DEP_CPP_QPDEV) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpic_win.cpp
-DEP_CPP_QPIC_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpicture.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qpic_win.obj" : $(SOURCE) $(DEP_CPP_QPIC_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpicture.cpp
-DEP_CPP_QPICT=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpicture.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qpicture.obj" : $(SOURCE) $(DEP_CPP_QPICT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpixmap.cpp
-DEP_CPP_QPIXM=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qimage.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qpixmap.obj" : $(SOURCE) $(DEP_CPP_QPIXM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpm_win.cpp
-DEP_CPP_QPM_W=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qimage.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qpm_win.obj" : $(SOURCE) $(DEP_CPP_QPM_W) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpmcache.cpp
-DEP_CPP_QPMCA=\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcache.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qgcache.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpmcache.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-
-
-"$(INTDIR)\qpmcache.obj" : $(SOURCE) $(DEP_CPP_QPMCA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpntarry.cpp
-DEP_CPP_QPNTA=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitarry.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qpntarry.obj" : $(SOURCE) $(DEP_CPP_QPNTA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpoint.cpp
-DEP_CPP_QPOIN=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qpoint.obj" : $(SOURCE) $(DEP_CPP_QPOIN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpopmenu.cpp
-DEP_CPP_QPOPM=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qaccel.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmenubar.h"\
-	{$(INCLUDE)}"\qmenudta.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpopmenu.h"\
-	{$(INCLUDE)}"\qrangect.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qscrbar.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qpopmenu.obj" : $(SOURCE) $(DEP_CPP_QPOPM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qprinter.cpp
-DEP_CPP_QPRIN=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qprinter.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qprinter.obj" : $(SOURCE) $(DEP_CPP_QPRIN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qprn_win.cpp
-DEP_CPP_QPRN_=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qprinter.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qprn_win.obj" : $(SOURCE) $(DEP_CPP_QPRN_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qptd_win.cpp
-DEP_CPP_QPTD_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qptd_win.obj" : $(SOURCE) $(DEP_CPP_QPTD_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qptr_win.cpp
-DEP_CPP_QPTR_=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qintdict.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpmcache.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtstream.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qptr_win.obj" : $(SOURCE) $(DEP_CPP_QPTR_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qpushbt.cpp
-DEP_CPP_QPUSH=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdialog.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpmcache.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qpushbt.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qpushbt.obj" : $(SOURCE) $(DEP_CPP_QPUSH) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qradiobt.cpp
-DEP_CPP_QRADI=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbttngrp.h"\
-	{$(INCLUDE)}"\qbutton.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qgrpbox.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpmcache.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qradiobt.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qradiobt.obj" : $(SOURCE) $(DEP_CPP_QRADI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qrangect.cpp
-DEP_CPP_QRANG=\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qrangect.h"\
-
-
-"$(INTDIR)\qrangect.obj" : $(SOURCE) $(DEP_CPP_QRANG) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qrect.cpp
-DEP_CPP_QRECT=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qrect.obj" : $(SOURCE) $(DEP_CPP_QRECT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qregexp.cpp
-DEP_CPP_QREGE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qregexp.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qregexp.obj" : $(SOURCE) $(DEP_CPP_QREGE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qregion.cpp
-DEP_CPP_QREGI=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qregion.obj" : $(SOURCE) $(DEP_CPP_QREGI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qrgn_win.cpp
-DEP_CPP_QRGN_=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qrgn_win.obj" : $(SOURCE) $(DEP_CPP_QRGN_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qscrbar.cpp
-DEP_CPP_QSCRB=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qbitmap.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrangect.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qscrbar.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qscrbar.obj" : $(SOURCE) $(DEP_CPP_QSCRB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qsignal.cpp
-DEP_CPP_QSIGN=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsignal.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qsignal.obj" : $(SOURCE) $(DEP_CPP_QSIGN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qsize.cpp
-DEP_CPP_QSIZE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qsize.obj" : $(SOURCE) $(DEP_CPP_QSIZE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qsocknot.cpp
-DEP_CPP_QSOCK=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qsocknot.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qsocknot.obj" : $(SOURCE) $(DEP_CPP_QSOCK) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qstring.cpp
-DEP_CPP_QSTRI=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qdstream.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\qstring.obj" : $(SOURCE) $(DEP_CPP_QSTRI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qtablevw.cpp
-DEP_CPP_QTABL=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdrawutl.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qframe.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrangect.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qscrbar.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtablevw.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qtablevw.obj" : $(SOURCE) $(DEP_CPP_QTABL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qtimer.cpp
-DEP_CPP_QTIME=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtimer.h"\
-
-
-"$(INTDIR)\qtimer.obj" : $(SOURCE) $(DEP_CPP_QTIME) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qtstream.cpp
-DEP_CPP_QTSTR=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qshared.h"\
-	{$(INCLUDE)}"\qbuffer.h"\
-	{$(INCLUDE)}"\qfile.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qiodev.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qtstream.h"\
-
-
-"$(INTDIR)\qtstream.obj" : $(SOURCE) $(DEP_CPP_QTSTR) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qwid_win.cpp
-DEP_CPP_QWID_=\
-	"..\include\qarray.h"\
-	"..\include\qbrush.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qpen.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qintdict.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobjcoll.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpaintdc.h"\
-	{$(INCLUDE)}"\qpainter.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpntarry.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qregion.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidcoll.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-	{$(INCLUDE)}"\qwmatrix.h"\
-
-
-"$(INTDIR)\qwid_win.obj" : $(SOURCE) $(DEP_CPP_QWID_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qwidget.cpp
-DEP_CPP_QWIDG=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qapp.h"\
-	{$(INCLUDE)}"\qcollect.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qdict.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qgdict.h"\
-	{$(INCLUDE)}"\qglist.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qintdict.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qlist.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobjcoll.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidcoll.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-
-
-"$(INTDIR)\qwidget.obj" : $(SOURCE) $(DEP_CPP_QWIDG) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\qwindow.cpp
-DEP_CPP_QWIND=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qcolor.h"\
-	{$(INCLUDE)}"\qcursor.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qfont.h"\
-	{$(INCLUDE)}"\qfontinf.h"\
-	{$(INCLUDE)}"\qfontmet.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpaintd.h"\
-	{$(INCLUDE)}"\qpalette.h"\
-	{$(INCLUDE)}"\qpixmap.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-	{$(INCLUDE)}"\qwidget.h"\
-	{$(INCLUDE)}"\qwindow.h"\
-
-
-"$(INTDIR)\qwindow.obj" : $(SOURCE) $(DEP_CPP_QWIND) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-# End Source File
-################################################################################
-# Begin Source File
-
-SOURCE=.\win\maccel.cpp
-DEP_CPP_MACCE=\
-	"..\include\qarray.h"\
-	"..\include\qgeneric.h"\
-	"..\include\qobjdefs.h"\
-	"..\include\qshared.h"\
-	"..\include\qwindefs.h"\
-	{$(INCLUDE)}"\qaccel.h"\
-	{$(INCLUDE)}"\qconnect.h"\
-	{$(INCLUDE)}"\qevent.h"\
-	{$(INCLUDE)}"\qgarray.h"\
-	{$(INCLUDE)}"\qglobal.h"\
-	{$(INCLUDE)}"\qkeycode.h"\
-	{$(INCLUDE)}"\qmetaobj.h"\
-	{$(INCLUDE)}"\qobject.h"\
-	{$(INCLUDE)}"\qpoint.h"\
-	{$(INCLUDE)}"\qrect.h"\
-	{$(INCLUDE)}"\qsize.h"\
-	{$(INCLUDE)}"\qstring.h"\
-
-
-"$(INTDIR)\maccel.obj" : $(SOURCE) $(DEP_CPP_MACCE) "$(INTDIR)"
+"$(INTDIR)\moc_qfiledlg.obj" : $(SOURCE) $(DEP_CPP_MOC_QFI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
 
