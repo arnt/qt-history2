@@ -247,6 +247,8 @@ public:
 	return app.exec();
     }
     \endcode
+    Note that the translator must be created \e before the
+    application's main window.
 
     Most applications will never need to do anything else with this
     class. The other functions provided by this class are useful for
