@@ -200,12 +200,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull, 
 
     if ( colSize <= 0 ) {
 	colSize = 255;
-    }
-    colSize++; // trailing zero
-    if ( unicode ) {
-	colSize *= 2;
-    }
-    if ( colSize > 65536 ) { // limit buffer size to 64 KB 
+    } else if ( colSize > 65536 ) { // limit buffer size to 64 KB 
 	colSize = 65536;
     }
     char* buf = new char[ colSize ];
