@@ -111,7 +111,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	while ( XPending(QPaintDevice::x11AppDisplay()) ) {
 	    // also flushes output buffer
 	    while ( XPending(QPaintDevice::x11AppDisplay()) ) {
-		if ( d->exitloop ) {          // quit between events
+		if ( d->quitnow ) {		// quit between events
 		    return FALSE;
 		}
 
@@ -147,7 +147,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	}
     }
 
-    if ( d->exitloop ) {			// break immediately
+    if ( d->quitnow ) {			// break immediately
 	return FALSE;
     }
 
@@ -229,10 +229,10 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 #endif
 
     int nsel;
-    nsel = select( highest + 1, 
-		   &d->sn_vec[0].select_fds, 
+    nsel = select( highest + 1,
+		   &d->sn_vec[0].select_fds,
 		   &d->sn_vec[1].select_fds,
-		   &d->sn_vec[2].select_fds, 
+		   &d->sn_vec[2].select_fds,
 		   tm );
 
     // relock the GUI mutex before processing any pending events

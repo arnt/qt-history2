@@ -188,7 +188,7 @@ static void repairTimer(const timeval &time)	// repair broken timer
     timeval diff = watchtime - time;
     register TimerInfo *t = timerList->first();
     while(t) {				// repair all timers
-	if(t->type == TimerInfo::TIMER_QT) 
+	if(t->type == TimerInfo::TIMER_QT)
 	    t->u.qt_timer.timeout = t->u.qt_timer.timeout - diff;
 	else
 	    qDebug("%s:%d This can't happen!", __FILE__, __LINE__);
@@ -254,13 +254,13 @@ QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
     }
     if(QMacBlockingFunction::blocking()) { //just send it immediately
 	/* someday this is going to lead to an infite loop, I just know it. I should be marking the
-	   pending here, and unmarking, but of course single shot timers are removed between now 
+	   pending here, and unmarking, but of course single shot timers are removed between now
 	   and the return (down 4 lines) */
 	QTimerEvent e(tmr->id);
 	QApplication::sendEvent(tmr->obj, &e);
 	QApplication::flush();
 	return;
-    } 
+    }
     tmr->pending = TRUE;
     qt_event_request_timer(tmr);
 }
@@ -391,7 +391,7 @@ int qStartTimer(int interval, QObject *obj)
     } else {
 	t->type = TimerInfo::TIMER_MAC;
 	EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
-	if(InstallEventLoopTimer(GetMainEventLoop(), mint, mint, 
+	if(InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
 				 timerUPP, t, &t->u.mac_timer)) {
 	    delete t;
 	    return 0;
@@ -441,7 +441,7 @@ bool qKillTimer(QObject *obj)
 void QEventLoop::init()
 {
 #ifdef Q_OS_UNIX
-    if(!qt_is_gui_used) 
+    if(!qt_is_gui_used)
 	pipe( d->thread_pipe );
     d->select_timer = NULL;
     d->sn_highest = -1;
@@ -486,7 +486,7 @@ static QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
     qt_event_request_select((QEventLoop *)me);
 }
 
-int QEventLoop::macHandleSelect(timeval *tm) 
+int QEventLoop::macHandleSelect(timeval *tm)
 {
     if ( qt_preselect_handler ) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
@@ -526,7 +526,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
     }
 #ifdef Q_OS_MACX
     if (nsel == -1) {
-	if (errno == EINTR || errno == EAGAIN) 
+	if (errno == EINTR || errno == EAGAIN)
 	    errno = 0;
     } else if (nsel > 0 && highest >= 0) {
 	if(qt_is_gui_used) {
@@ -744,7 +744,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	first = TRUE;
 	QDate dt = QDate::currentDate();
 	if(dt.year() != 2001) {
-	    const char *out_str = "Sorry, your evaluation has expired.\n" 
+	    const char *out_str = "Sorry, your evaluation has expired.\n"
 				  "Please contact sales@trolltech.com to continue using Qt/Mac\n"
 	    fprintf(stderr, str);
 	    if(qt_is_gui_used) {
@@ -791,7 +791,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	} while(GetNumEventsInQueue(GetMainEventQueue()));
     }
 
-    if(d->quitnow || d->exitloop) {
+    if(d->quitnow) {
 #if defined(QT_THREAD_SUPPORT)
 	locker.mutex()->unlock();
 #endif
@@ -805,7 +805,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	    static timeval zerotm;
 	    if (!tm)
 		tm = &zerotm;
-	    tm->tv_sec  = 0;	
+	    tm->tv_sec  = 0;
 	    tm->tv_usec = 0;
 	}
 	if(!(flags & ExcludeSocketNotifiers))

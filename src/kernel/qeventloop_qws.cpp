@@ -97,7 +97,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	QApplication::sendPostedEvents();
 
 	while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
-	    if ( d->exitloop ) {		// quit between events
+	    if ( d->quitnow ) {		// quit between events
 		return FALSE;
 	    }
 	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
@@ -111,7 +111,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	}
     }
 
-    if ( d->exitloop ) {			// break immediately
+    if ( d->quitnow ) {			// break immediately
 	return FALSE;
     }
 
