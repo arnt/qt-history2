@@ -529,7 +529,7 @@ void QTitleBar::setCaption( const QString& title )
     QWidget::setCaption( title );
     cutText();
 
-    repaint( FALSE );
+    update();
 #endif
 }
 
@@ -562,7 +562,7 @@ void QTitleBar::setIcon( const QPixmap& icon )
     QWidget::setIcon( icon );
 #endif
 
-    repaint(FALSE);
+    update();
 #endif
 }
 
@@ -586,7 +586,7 @@ void QTitleBar::setActive( bool active )
 	return ;
 
     d->act = active;
-    repaint( FALSE );
+    update();
 }
 
 bool QTitleBar::isActive() const
