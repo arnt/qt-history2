@@ -1350,9 +1350,9 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	marg -= lv->d->minRightBearing;
     if ( isSelected() &&
 	 (column==0 || listView()->allColumnsShowFocus()) ) {
-	    p->fillRect( r - marg, 0, width - r + marg, height(),
+	p->fillRect( r - marg, 0, width - r + marg, height(),
 		     cg.brush( QColorGroup::Highlight ) );
-	    p->setPen( cg.highlightedText() );
+	p->setPen( cg.highlightedText() );
     } else {
 	p->setPen( cg.text() );
     }
@@ -2591,6 +2591,10 @@ void QListView::updateContents()
 {
     if ( !isVisible() )
 	return;
+    if ( d && d->drawables ) {
+	delete d->drawables;
+	d->drawables = 0;
+    }
     viewport()->setUpdatesEnabled( FALSE );
     updateGeometries();
     viewport()->setUpdatesEnabled( TRUE );
@@ -2717,13 +2721,6 @@ void QListView::triggerUpdate()
 {
     if ( !isVisible() || !isUpdatesEnabled() )
 	return; // it will update when shown, or something.
-
-#if 0 // ### why that, just kills performance
-    if ( d && d->drawables ) {
-	delete d->drawables;
-	d->drawables = 0;
-    }
-#endif
 
     d->timer->start( 0, TRUE );
 }
@@ -5111,7 +5108,7 @@ void QListViewItem::moveItem( QListViewItem *after )
 	    after->parent()->insertItem( this );
 	else if ( listView() )
 	    listView()->d->r->insertItem( this );
-	    
+	
     }
     moveToJustAfter( after );
     QListView *lv = listView();
