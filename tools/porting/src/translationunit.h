@@ -17,24 +17,25 @@
 #include "tokenengine.h"
 #include "tokenstreamadapter.h"
 #include "ast.h"
-#include "codemodel2.h"
+#include "codemodel.h"
 #include "smallobject.h"
 #include "cpplexer.h"
 #include "parser.h"
-#include "semantic2.h"
+#include "semantic.h"
 
 
 class TranslationUnitData : public QSharedData
 {
 public:
     TranslationUnitData(const TokenEngine::TokenSectionSequence &t)
-    :tokens(t) {};
+    :tokens(t), syntaxTree(0), globalScope(0), tokenStream(0) {};
     ~TranslationUnitData();
     TokenEngine::TokenSectionSequence tokens;
     const TranslationUnitAST *syntaxTree;
     const CodeModel::NamespaceScope *globalScope;
     const TokenStreamAdapter::TokenStream *tokenStream;
     pool memoryPool;
+    TypedPool<CodeModel::Item> codeModelMemoryPool;
 };
 
 class TranslationUnit
@@ -47,6 +48,7 @@ public:
     const TranslationUnitAST *syntaxTree() const;
     const CodeModel::NamespaceScope *codeModel() const;
     pool *memoryPool();
+    TypedPool<CodeModel::Item> *codeModelMemoryPool();
 private:
     friend class TranslationUnitAnalyzer;
     void setTokenStream(const TokenStreamAdapter::TokenStream *tokenStream);

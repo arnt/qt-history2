@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 #include "translationunit.h"
-#include <treedump.h>
+
 
 using namespace TokenEngine;
 using namespace CodeModel;
@@ -19,7 +19,8 @@ using namespace TokenStreamAdapter;
 
 TranslationUnitData::~TranslationUnitData()
 {
-    delete tokenStream;
+    if(tokenStream)
+        delete tokenStream;
 }
 
 TranslationUnit::TranslationUnit()
@@ -55,6 +56,8 @@ const NamespaceScope *TranslationUnit::codeModel() const
 pool *TranslationUnit::memoryPool()
 { return &d->memoryPool; }
 
+TypedPool<CodeModel::Item> *TranslationUnit::codeModelMemoryPool()
+{ return &d->codeModelMemoryPool; }
 
 /*
     Performs C++ parsing and semantic analysis on a translation unit.
@@ -80,7 +83,7 @@ TranslationUnit TranslationUnitAnalyzer::analyze
 
     // run semantic analysis
     CodeModel::SemanticInfo semanticInfo =  semantic.parseTranslationUnit
-                    (node, tokenStream, translationUnit.memoryPool());
+                    (node, tokenStream, translationUnit.codeModelMemoryPool());
 
     translationUnit.setCodeModel(semanticInfo.codeModel);
 
