@@ -75,7 +75,7 @@ public:
 #define q q_func()
 
 void QProgressDialogPrivate::init(const QString &labelText, const QString &cancelText,
-                               int min, int max)
+                                  int min, int max)
 {
     label = new QLabel(labelText, q);
     int align = q->style()->styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, 0, q);
@@ -136,7 +136,7 @@ void QProgressDialogPrivate::layout()
 
 
 /*!
-  \class QProgressDialog qprogressdialog.h
+  \class QProgressDialog
   \brief The QProgressDialog class provides feedback on the progress of a slow operation.
   \ingroup dialogs
   \mainclass
@@ -153,7 +153,7 @@ void QProgressDialogPrivate::layout()
   steps), and only shows itself if that estimate is beyond minimumDuration()
   (4 seconds by default).
 
-  Use setMinimum()and setMaximum() or the constructor to set the number of
+  Use setMinimum() and setMaximum() or the constructor to set the number of
   "steps" in the operation and call setValue() as the operation
   progresses. The number of steps can be chosen arbitrarily. It can be the
   number of files copied, the number of bytes received, the number of
@@ -174,18 +174,19 @@ void QProgressDialogPrivate::layout()
   running to ensure that the application doesn't freeze. Do the
   operation in a loop, call \l setProgress() at intervals, and check
   for cancellation with wasCanceled(). For example:
-\code
-QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
-for (int i = 0; i < numFiles; i++) {
-    progress.setValue(i);
-    qApp->processEvents();
 
-    if (progress.wasCanceled())
-        break;
-    //... copy one file
-}
-progress.setProgress(numFiles);
-\endcode
+    \code
+        QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
+        for (int i = 0; i < numFiles; i++) {
+            progress.setValue(i);
+            qApp->processEvents();
+
+            if (progress.wasCanceled())
+                break;
+            //... copy one file
+        }
+        progress.setValue(numFiles);
+    \endcode
 
   A modeless progress dialog is suitable for operations that take
   place in the background, where the user is able to interact with the
@@ -197,33 +198,33 @@ progress.setProgress(numFiles);
   You need to have an event loop to be running, connect the
   canceled() signal to a slot that stops the operation, and call \l
   setProgress() at intervals. For example:
-\code
-Operation::Operation(QObject *parent = 0)
-    : QObject(parent), steps(0)
-{
-    pd = new QProgressDialog("Operation in progress.", "Cancel", 0, 100);
-    connect(pd, SIGNAL(canceled()), this, SLOT(cancel()));
-    t = new QTimer(this);
-    connect(t, SIGNAL(timeout()), this, SLOT(perform()));
-    t->start(0);
-}
 
-void Operation::perform()
-{
-    pd->setValue(steps);
-    //... perform one percent of the operation
-    steps++;
-    if (steps > pd->maximum())
-        t->stop();
-}
+    \code
+        Operation::Operation(QObject *parent)
+            : QObject(parent), steps(0)
+        {
+            pd = new QProgressDialog("Operation in progress.", "Cancel", 0, 100);
+            connect(pd, SIGNAL(canceled()), this, SLOT(cancel()));
+            t = new QTimer(this);
+            connect(t, SIGNAL(timeout()), this, SLOT(perform()));
+            t->start(0);
+        }
 
-void Operation::cancel()
-{
-    t->stop();
-    //... cleanup
-}
-\endcode
+        void Operation::perform()
+        {
+            pd->setValue(steps);
+            //... perform one percent of the operation
+            steps++;
+            if (steps > pd->maximum())
+                t->stop();
+        }
 
+        void Operation::cancel()
+        {
+            t->stop();
+            //... cleanup
+        }
+    \endcode
 
   In both modes the progress dialog may be customized by
   replacing the child widgets with custom widgets by using setLabel(),
@@ -454,10 +455,12 @@ bool QProgressDialog::wasCanceled() const
 
 
 /*!
-  \property QProgressDialog::maximum
-  \brief the highest value represented by the progress bar
+    \property QProgressDialog::maximum
+    \brief the highest value represented by the progress bar
 
-  The default is 0.
+    The default is 0.
+
+    \sa minimum, setRange()
 */
 
 int QProgressDialog::maximum() const
@@ -471,10 +474,12 @@ void QProgressDialog::setMaximum(int maximum)
 }
 
 /*!
-  \property QProgressDialog::minimum
-  \brief the lowest value represented by the progress bar
+    \property QProgressDialog::minimum
+    \brief the lowest value represented by the progress bar
 
-  The default is 0.
+    The default is 0.
+
+    \sa maximum, setRange()
 */
 
 int QProgressDialog::minimum() const
@@ -485,6 +490,23 @@ int QProgressDialog::minimum() const
 void QProgressDialog::setMinimum(int minimum)
 {
     d->bar->setMinimum(minimum);
+}
+
+/*!
+    Sets the progress dialog's minimum and maximum values
+    to \a minimum and \a maximum, respectively.
+
+    If \a maximum is smaller than \a minimum, \a minimum becomes the only
+    legal value.
+
+    If the current value falls outside the new range, the progress
+    dialog is reset with reset().
+
+    \sa minimum, maximum
+*/
+void QProgressDialog::setRange(int minimum, int maximum)
+{
+    d->bar->setRange(minimum, maximum);
 }
 
 

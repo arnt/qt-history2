@@ -52,11 +52,14 @@ public:
 
     int minimum() const;
     int maximum() const;
+
+    void setRange(int minimum, int maximum);
     int value() const;
 
     QSize sizeHint() const;
 
     QString labelText() const;
+    int minimumDuration() const;
 
     void setAutoReset(bool b);
     bool autoReset() const;
@@ -71,10 +74,7 @@ public slots:
     void setValue(int progress);
     void setLabelText(const QString &);
     void setCancelButtonText(const QString &);
-
     void setMinimumDuration(int ms);
-public:
-    int minimumDuration() const;
 
 signals:
     void canceled();

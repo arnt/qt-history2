@@ -34,10 +34,7 @@ class Q_GUI_EXPORT QProgressBar : public QWidget
 public:
     explicit QProgressBar(QWidget *parent = 0);
 
-    void setMinimum(int minimum);
     int minimum() const;
-
-    void setMaximum(int maximum);
     int maximum() const;
 
     void setRange(int minimum, int maximum);
@@ -55,6 +52,8 @@ public:
 
 public slots:
     void reset();
+    void setMinimum(int minimum);
+    void setMaximum(int maximum);
     void setValue(int value);
 
 signals:
