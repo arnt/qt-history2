@@ -913,15 +913,14 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 	    sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	    int w = sz.width(), h = sz.height();
 
-	    if (button->isDefault() || button->autoDefault()) {
-		if (w < 85 && ! button->pixmap())
-		    w = 80;
-		if (h < 25)
-		    h = 25;
-	    } else {
-		if (h < 23)
-		    h = 23;
-	    }
+	    int defwidth = 0;
+	    if (button->isDefault() || button->autoDefault())
+		defwidth = 2*pixelMetric( PM_ButtonDefaultIndicator, widget );
+
+	    if (w < 80+defwidth && !button->pixmap())
+		w = 80+defwidth;
+	    if (h < 23+defwidth)
+		h = 23+defwidth;
 
 	    sz = QSize(w, h);
 #endif
