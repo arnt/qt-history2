@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>658</width>
-            <height>685</height>
+            <width>632</width>
+            <height>547</height>
         </rect>
     </property>
     <property name="caption">
@@ -956,9 +956,9 @@
                             <number>11</number>
                         </property>
                         <property name="spacing">
-                            <number>12</number>
+                            <number>6</number>
                         </property>
-                        <widget class="AnalogClock" row="0" column="0">
+                        <widget class="AnalogClock" row="0" column="0" rowspan="3" colspan="1">
                             <property name="name">
                                 <cstring>clock</cstring>
                             </property>
@@ -975,11 +975,55 @@
                                 </size>
                             </property>
                         </widget>
+                        <widget class="QDateEdit" row="1" column="1">
+                            <property name="name">
+                                <cstring>dateEdit</cstring>
+                            </property>
+                            <property name="date">
+                                <date>
+                                    <year>2000</year>
+                                    <month>1</month>
+                                    <day>1</day>
+                                </date>
+                            </property>
+                        </widget>
+                        <widget class="QTimeEdit" row="2" column="1">
+                            <property name="name">
+                                <cstring>timeEdit</cstring>
+                            </property>
+                            <property name="frame">
+                                <bool>true</bool>
+                            </property>
+                            <property name="time">
+                                <time>
+                                    <hour>0</hour>
+                                    <minute>0</minute>
+                                    <second>0</second>
+                                </time>
+                            </property>
+                            <property name="autoAdvance">
+                                <bool>true</bool>
+                            </property>
+                            <property name="maxValue">
+                                <time>
+                                    <hour>23</hour>
+                                    <minute>59</minute>
+                                    <second>59</second>
+                                </time>
+                            </property>
+                            <property name="minValue">
+                                <time>
+                                    <hour>0</hour>
+                                    <minute>0</minute>
+                                    <second>0</second>
+                                </time>
+                            </property>
+                        </widget>
                         <widget class="QLayoutWidget" row="0" column="1">
                             <property name="name">
-                                <cstring>Layout8</cstring>
+                                <cstring>Layout5</cstring>
                             </property>
-                            <vbox>
+                            <hbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
@@ -997,51 +1041,24 @@
                                         <string>DateTime string goes here!</string>
                                     </property>
                                 </widget>
-                                <widget class="QDateEdit">
+                                <spacer>
                                     <property name="name">
-                                        <cstring>dateEdit</cstring>
+                                        <cstring>Spacer2</cstring>
                                     </property>
-                                    <property name="date">
-                                        <date>
-                                            <year>2000</year>
-                                            <month>1</month>
-                                            <day>1</day>
-                                        </date>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
                                     </property>
-                                </widget>
-                                <widget class="QTimeEdit">
-                                    <property name="name">
-                                        <cstring>timeEdit</cstring>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
                                     </property>
-                                    <property name="frame">
-                                        <bool>true</bool>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>20</height>
+                                        </size>
                                     </property>
-                                    <property name="time">
-                                        <time>
-                                            <hour>0</hour>
-                                            <minute>0</minute>
-                                            <second>0</second>
-                                        </time>
-                                    </property>
-                                    <property name="autoAdvance">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="maxValue">
-                                        <time>
-                                            <hour>23</hour>
-                                            <minute>59</minute>
-                                            <second>59</second>
-                                        </time>
-                                    </property>
-                                    <property name="minValue">
-                                        <time>
-                                            <hour>0</hour>
-                                            <minute>0</minute>
-                                            <second>0</second>
-                                        </time>
-                                    </property>
-                                </widget>
-                            </vbox>
+                                </spacer>
+                            </hbox>
                         </widget>
                     </grid>
                 </widget>

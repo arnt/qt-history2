@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>679</width>
-            <height>410</height>
+            <width>672</width>
+            <height>449</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,55 +27,7 @@
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QLabel" row="0" column="2">
-            <property name="name">
-                <cstring>TextLabel2_2</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>1</hsizetype>
-                    <vsizetype>0</vsizetype>
-                </sizepolicy>
-            </property>
-            <property name="text">
-                <string>Size</string>
-            </property>
-        </widget>
-        <widget class="QThumbWheel" row="1" column="0">
-            <property name="name">
-                <cstring>wheelZoom</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>0</hsizetype>
-                    <vsizetype>7</vsizetype>
-                </sizepolicy>
-            </property>
-            <property name="minimumSize">
-                <size>
-                    <width>30</width>
-                    <height>0</height>
-                </size>
-            </property>
-        </widget>
-        <widget class="QThumbWheel" row="1" column="2">
-            <property name="name">
-                <cstring>wheelSize</cstring>
-            </property>
-            <property name="sizePolicy">
-                <sizepolicy>
-                    <hsizetype>0</hsizetype>
-                    <vsizetype>5</vsizetype>
-                </sizepolicy>
-            </property>
-            <property name="minimumSize">
-                <size>
-                    <width>30</width>
-                    <height>0</height>
-                </size>
-            </property>
-        </widget>
-        <widget class="QLayoutWidget" row="2" column="0" rowspan="1" colspan="3">
+        <widget class="QLayoutWidget" row="4" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>Layout9</cstring>
             </property>
@@ -220,44 +172,6 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QFrame" row="0" column="1" rowspan="2" colspan="1">
-            <property name="name">
-                <cstring>Frame3</cstring>
-            </property>
-            <property name="frameShape">
-                <enum>StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-                <enum>Raised</enum>
-            </property>
-            <property name="margin">
-                <number>3</number>
-            </property>
-            <property name="layoutMargin" stdset="0">
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>2</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="GLLandscape" row="0" column="0">
-                    <property name="name">
-                        <cstring>landscape</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>7</hsizetype>
-                            <vsizetype>7</vsizetype>
-                        </sizepolicy>
-                    </property>
-                </widget>
-            </grid>
-        </widget>
         <widget class="QLabel" row="0" column="0">
             <property name="name">
                 <cstring>TextLabel2</cstring>
@@ -272,7 +186,7 @@
                 <string>Zoom</string>
             </property>
         </widget>
-        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="3">
+        <widget class="QLayoutWidget" row="5" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>Layout18</cstring>
             </property>
@@ -426,6 +340,92 @@
                 </widget>
             </hbox>
         </widget>
+        <widget class="QThumbWheel" row="1" column="0">
+            <property name="name">
+                <cstring>wheelZoom</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
+        </widget>
+        <widget class="QThumbWheel" row="3" column="0">
+            <property name="name">
+                <cstring>wheelSize</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>7</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>30</width>
+                    <height>0</height>
+                </size>
+            </property>
+        </widget>
+        <widget class="QLabel" row="2" column="0">
+            <property name="name">
+                <cstring>TextLabel2_2</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>0</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="text">
+                <string>Size</string>
+            </property>
+        </widget>
+        <widget class="QFrame" row="0" column="1" rowspan="4" colspan="1">
+            <property name="name">
+                <cstring>Frame3</cstring>
+            </property>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <property name="margin">
+                <number>3</number>
+            </property>
+            <property name="layoutMargin" stdset="0">
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>2</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="GLLandscape" row="0" column="0">
+                    <property name="name">
+                        <cstring>landscape</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>7</vsizetype>
+                        </sizepolicy>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
     </grid>
 </widget>
 <customwidgets>
@@ -438,8 +438,8 @@
         </sizehint>
         <container>0</container>
         <sizepolicy>
-            <hordata>7</hordata>
-            <verdata>7</verdata>
+            <hordata>3</hordata>
+            <verdata>3</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>rotatedX(int)</signal>
@@ -447,26 +447,26 @@
         <slot access="public">rotateY(int)</slot>
         <slot access="public">rotateX(int)</slot>
         <slot access="public">zoom(int)</slot>
+        <slot access="public">fractalize()</slot>
         <slot access="public">setWireframe(int)</slot>
         <slot access="public">setFilled(int)</slot>
         <slot access="public">setGridSize(int)</slot>
         <slot access="public">toggleWaveAnimation(bool)</slot>
         <slot access="public">setSmoothShaded(int)</slot>
         <slot access="public">setLandscape(int)</slot>
-        <slot access="public">fractalize()</slot>
         <slot access="public">resetGrid()</slot>
     </customwidget>
     <customwidget>
         <class>QThumbWheel</class>
         <header location="local">qthumbwheel.h</header>
         <sizehint>
-            <width>30</width>
-            <height>30</height>
+            <width>100</width>
+            <height>16</height>
         </sizehint>
         <container>0</container>
         <sizepolicy>
-            <hordata>5</hordata>
-            <verdata>5</verdata>
+            <hordata>7</hordata>
+            <verdata>0</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
         <signal>valueChanged(int)</signal>
