@@ -954,7 +954,7 @@ bool Uic::isLayout( const QString& name ) const
 void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 {
     QDomElement n;
-    QStringList::Iterator it;
+    QStringList::Iterator it, it2;
 
     QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
@@ -981,15 +981,28 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 
     // find additional slots
     QStringList publicSlots, protectedSlots;
+    QStringList publicSlotTypes, protectedSlotTypes;
+    QMap<QString, QString> functionImpls;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "slot" ) {
 		    QString access = n2.attribute( "access" );
-		    if ( access == "protected" )
+		    if ( access == "protected" ) {
 			protectedSlots += n2.firstChild().toText().data();
-		    else
+			protectedSlotTypes += n2.attribute( "returnType", "void" );
+		    } else {
 			publicSlots += n2.firstChild().toText().data();
+			publicSlotTypes += n2.attribute( "returnType", "void" );
+		    }
+		}
+	    }
+	} else if ( n.tagName() == "functions" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "function" ) {
+		    QString fname = n2.attribute( "name" );
+		    fname = Parser::cleanArgs( fname );
+		    functionImpls.insert( fname, n2.firstChild().toText().data() );
 		}
 	    }
 	}
@@ -998,16 +1011,42 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     // create public additional slots as pure-virtual functions
     if ( !publicSlots.isEmpty() ) {
 	out << "public slots:" << endl;
-	for ( it = publicSlots.begin(); it != publicSlots.end(); ++it )
-	    out << "    void " << (*it) << ";" << endl;
+	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(); it != publicSlots.end(); ++it, ++it2 ) {
+	    bool createDecl = TRUE;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    QString fname = Parser::cleanArgs( *it );
+	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	    if ( fit != functionImpls.end() ) {
+		int begin = (*fit).find( "{" );
+		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+		createDecl = body.simplifyWhiteSpace().isEmpty();
+	    }
+	    if ( createDecl )
+		out << "    " << type << " " << (*it) << ";" << endl;
+	}
 	out << endl;
     }
 
     // create protected additional slots as pure-virtual functions
     if ( !protectedSlots.isEmpty() ) {
 	out << "protected slots:" << endl;
-	for ( it = protectedSlots.begin(); it != protectedSlots.end(); ++it )
-	    out << "    void " << (*it) << ";" << endl;
+	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(); it != protectedSlots.end(); ++it, ++it2 ) {
+	    bool createDecl = TRUE;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    QString fname = Parser::cleanArgs( *it );
+	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	    if ( fit != functionImpls.end() ) {
+		int begin = (*fit).find( "{" );
+		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+		createDecl = body.simplifyWhiteSpace().isEmpty();
+	    }
+	    if ( createDecl )
+		out << "    " << type << " " << (*it) << ";" << endl;
+	}
 	out << endl;
     }
 
@@ -1023,7 +1062,7 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 {
     QDomElement n;
-    QStringList::Iterator it;
+    QStringList::Iterator it, it2;
 
     QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
@@ -1064,6 +1103,8 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 
     // find additional slots
     QStringList publicSlots, protectedSlots;
+    QStringList publicSlotTypes, protectedSlotTypes;
+    QMap<QString, QString> functionImpls;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
@@ -1075,33 +1116,67 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 			publicSlots += n2.firstChild().toText().data();
 		}
 	    }
+	} else if ( n.tagName() == "functions" ) {
+	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+		if ( n2.tagName() == "function" ) {
+		    QString fname = n2.attribute( "name" );
+		    fname = Parser::cleanArgs( fname );
+		    functionImpls.insert( fname, n2.firstChild().toText().data() );
+		}
+	    }
 	}
     }
 
     // create stubs for public additional slots
     if ( !publicSlots.isEmpty() ) {
-	for ( it = publicSlots.begin(); it != publicSlots.end(); ++it ) {
-	    out << "/* " << endl;
-	    out << " * public slot" << endl;
-	    out << " */" << endl;
-	    out << "void " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl;
+	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(); it != publicSlots.end(); ++it, ++it2 ) {
+	    bool createImpl = TRUE;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    QString fname = Parser::cleanArgs( *it );
+	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	    if ( fit != functionImpls.end() ) {
+		int begin = (*fit).find( "{" );
+		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+		createImpl = body.simplifyWhiteSpace().isEmpty();
+	    }
+	    if ( createImpl ) {
+		out << "/* " << endl;
+		out << " * public slot" << endl;
+		out << " */" << endl;
+		out << "void " << subClass << "::" << (*it) << endl;
+		out << "{" << endl;
+		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+		out << "}" << endl;
+	    }
 	}
 	out << endl;
     }
 
     // create stubs for protected additional slots
     if ( !protectedSlots.isEmpty() ) {
-	for ( it = protectedSlots.begin(); it != protectedSlots.end(); ++it ) {
-	    out << "/* " << endl;
-	    out << " * protected slot" << endl;
-	    out << " */" << endl;
-	    out << "void " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl;
+	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(); it != protectedSlots.end(); ++it, ++it2 ) {
+	    bool createImpl = TRUE;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    QString fname = Parser::cleanArgs( *it );
+	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	    if ( fit != functionImpls.end() ) {
+		int begin = (*fit).find( "{" );
+		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+		createImpl = body.simplifyWhiteSpace().isEmpty();
+	    }
+	    if ( createImpl ) {
+		out << "/* " << endl;
+		out << " * protected slot" << endl;
+		out << " */" << endl;
+		out << "void " << subClass << "::" << (*it) << endl;
+		out << "{" << endl;
+		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+		out << "}" << endl;
+	    }
 	}
 	out << endl;
     }
