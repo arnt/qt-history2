@@ -39,15 +39,15 @@
 
 \title Qt Reference Documentation
 
-<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
+<table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
 <tr>
-<th bgcolor=#A2C511 width=33%>
+<th bgcolor=#a2c511 width=33%>
 General
 </th>
-<th bgcolor=#A2C511 width=33%>
+<th bgcolor=#a2c511 width=33%>
 Getting Started
 </th>
-<th bgcolor=#A2C511 width=33%>
+<th bgcolor=#a2c511 width=33%>
 What´s New
 </th>
 </tr>
@@ -80,12 +80,12 @@ What´s New
 </td>
 </tr>
 <tr>
-<th bgcolor=#A2C511>
+<th bgcolor=#a2c511>
 API Reference
 </th>
-<th bgcolor=#A2C511>
+<th bgcolor=#a2c511>
 Modules
-<th bgcolor=#A2C511>
+<th bgcolor=#a2c511>
 Overviews
 </tr>
 <tr>
@@ -131,13 +131,13 @@ Overviews
 </td>
 </tr>
 <tr>
-<th bgcolor=#A2C511>
+<th bgcolor=#a2c511>
 Trolltech
 </th>
-<th bgcolor=#A2C511>
+<th bgcolor=#a2c511>
 Tools
 </th>
-<th bgcolor=#A2C511>
+<th bgcolor=#a2c511>
 Appendix
 </th>
 </tr>
@@ -176,88 +176,70 @@ Appendix
 
 \title API Structure Overview
 
-<table bgcolor=#E5E5E5>
-<tr>
-<th cellpadding=2 cellspacing=1 border=0 colspan=2 bgcolor=#A2C511>
-Components
-</th>
-</tr><tr>
-<td>
-\link environment.html   Environment \endlink
-</td><td> Classes providing various global services to your application such as
-event handling, access to system settings, internationalization, etc.
-</td></tr><tr><td>
-\link application.html  <nobr>Mainwindow And Friends</nobr> \endlink
-</td><td> Everything you need for a typical modern main application window
-(menus, toolbars, workspace, ...)
-</td></tr><tr><td>
-\link dialogs.html   Standard Dialogs \endlink
-</td><td> Ready-made dialogs for file-, font-, color-selection and more.
-</td></tr><tr><td>
-\link basic.html   Basic Controls \endlink
-</td><td> The GUI primitives like buttons, combo-boxes, scrollbars, etc.
-</td></tr><tr><td>
-\link advanced.html   Advanced Controls \endlink
-</td><td> Advanced user interface controls like listviews, progress bars etc.
-</td></tr><tr><td>
-\link organizers.html   Organizers \endlink
-</td><td> User interface organizers like splitters, tab books, button groups, etc.
-</td></tr><tr><td>
- \link helpsystem.html   Help System \endlink
-</td><td> Classes providing for all forms of online-help in your application.
-</td></tr>
-<tr>
-<th colspan=2 bgcolor=#A2C511>
-Framework
-</th>
-</tr><tr>
-<td>
-      \link objectmodel.html   Object Model \endlink
-</td><td> The framework's underlying object model.
-</td></tr><tr><td>
-      \link componentmodel.html   Component Model \endlink
-</td><td> Interfaces and helper classes for the Qt Component Model.
-</td></tr><tr><td>
-      \link abstractwidgets.html   Abstract Widgets \endlink
-</td><td> Abstract widget classes available for subclassing.
-</td></tr><tr><td>
-      \link graphics.html   Graphics and Printing \endlink
-</td><td> Classes providing drawing (and thus printing) primitives
-</td></tr><tr><td>
-      \link draganddrop.html   Drag and Drop \endlink
-</td><td> Classes dealing with drag and drop and the necessary mime type
-encoding and decoding.
-</td></tr><tr><td>
-      \link appearance.html   Widget Appearance \endlink
-</td><td> Appearance customization with styles, fonts, colors etc.
-</td></tr><tr><td>
-      \link geomanagement.html   Geometry Management \endlink
-</td><td> Classes handling automatic resizing and moving of widgets. The Qt way
-of composing complex dialogs.
-</td></tr>
-<tr>
-<th colspan=2 bgcolor=#A2C511>
-Utilities
-</th>
-</tr><tr>
-<td>
-      \link tools.html <nobr> General Tool Classes</nobr> \endlink
-</td><td> Generic collection classes like list, queue, stack, string etc.
-</td></tr><tr><td>
-      \link images.html   Image Processing \endlink
-</td><td> Digital image coding, decoding and manipulation
-</td></tr><tr><td>
-      \link io.html   I/O Handling \endlink
-</td><td>Classes providing I/O, file and directory handling.
-</td></tr><tr><td>
-      \link time.html   Time And Date \endlink
-</td><td>Classes for handling date and time.
-</td></tr><tr><td>
-      \link misc.html   Miscellaneous \endlink
-</td><td> Various other useful classes
-</td>
-</tr>
-</table>
+\table
+\header \i Class Group
+	\i Description
+\row \i \link abstractwidgets.html   Abstract Widgets \endlink
+     \i Abstract widget classes available for subclassing.
+
+\row \i \link advanced.html   Advanced Controls \endlink
+     \i Advanced user interface controls such as listviews and progress bars.
+
+\row \i \link basic.html   Basic Controls \endlink
+     \i GUI primitives such as buttons, combo-boxes and scrollbars.
+
+\row \i \link componentmodel.html   Component Model \endlink
+     \i Interfaces and helper classes for the Qt Component Model.
+
+\row \i \link time.html   Date and Time \endlink
+     \i Classes for handling date and time.
+
+\row \i \link draganddrop.html   Drag and Drop \endlink
+     \i Classes dealing with drag and drop and the necessary mime type
+	encoding and decoding.
+
+\row \i \link environment.html   Environment \endlink
+     \i Classes providing various global services to your application such as
+        event handling, access to system settings and internationalization.
+
+\row \i \link tools.html  General Tool Classes \endlink
+     \i Collection classes such as list, queue, stack and string.
+
+\row \i \link geomanagement.html   Geometry Management \endlink
+     \i Classes handling automatic resizing and moving of widgets, for
+        composing complex dialogs.
+
+\row \i \link graphics.html   Graphics and Printing \endlink
+     \i Classes providing drawing (and thus printing) primitives
+
+\row \i \link helpsystem.html   Help System \endlink
+     \i Classes providing for all forms of online-help in your application.
+
+\row \i \link images.html   Image Processing \endlink
+     \i Digital image coding, decoding and manipulation
+
+\row \i \link io.html   I/O Handling \endlink
+     \i Classes providing Input/Output, file and directory handling.
+
+\row \i \link application.html   Mainwindow and Friends \endlink
+     \i Everything you need for a typical modern main application window
+	(menus, toolbars, workspace, etc.).
+
+\row \i \link misc.html   Miscellaneous \endlink
+     \i Various other useful classes
+
+\row \i \link objectmodel.html   Object Model \endlink
+     \i The framework's underlying object model.
+
+\row \i \link organizers.html   Organizers \endlink
+     \i User interface organizers like splitters, tab books, button groups, etc.
+
+\row \i \link dialogs.html   Standard Dialogs \endlink
+     \i Ready-made dialogs for file, font, color selection and more.
+
+\row \i \link appearance.html   Widget Appearance \endlink
+     \i Appearance customization with styles, fonts, colors etc.
+\endtable
 
 */
 
@@ -268,10 +250,10 @@ Utilities
 The tool classes are general-purpose collection classes that may be used
 independently of the GUI classes.
 
-<p>In particular, these classes do not depend on QApplication at all,
+In particular, these classes do not depend on QApplication at all,
 and so can be used in non-GUI programs.
 
-<p>See also the \link collection.html introduction to Qt collection
+See also the \link collection.html introduction to Qt collection
 classes. \endlink 
 
 */
@@ -502,16 +484,10 @@ and Qt basics, and some of them simply want to show you what's possible.
 
 Note that most of the examples assume that you have some experience with C++ 
 and Qt and therefore are not commented extensively. If you are interested
-in a line-by-line coverage please refer to the \link step-by-step-examples.html Walkthroughs \endlink
-provided.
+in a line-by-line coverage please refer to the
+\link step-by-step-examples.html walkthroughs \endlink.
 
-<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
-<tr>
-<th bgcolor=#A2C511 width=100% align=left>
-Qt base classes: assorted examples
-</th>
-</tr>
-</table>
+\section1 Qt Base Classes: Assorted Examples
 
 \list
 \i \link qaction-examples.html QAction and QActionGroup \endlink
@@ -519,13 +495,7 @@ Qt base classes: assorted examples
 \i \link qprocess-examples.html QProcess \endlink
 \endlist
 
-<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
-<tr>
-<th bgcolor=#A2C511 width=100% align=left>
-Qt modules: assorted examples
-</th>
-</tr>
-</table>
+\section1 Qt Modules: Assorted Examples
 
 \list
 \i \link xml-examples.html XML examples \endlink
@@ -534,31 +504,20 @@ Qt modules: assorted examples
 \i \link sql-examples.html SQL examples \endlink
 \endlist
 
-<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
-<tr>
-<th bgcolor=#A2C511 width=100% align=left>
-Qt extensions: assorted examples
-</th>
-</tr>
-</table>
+\section1 Qt Extensions: Assorted Examples
 
 \list
 \i \link nsplugin-examples.html Qt-based plugins for web browsers \endlink
 \i \link xt-motif-examples.html Xt/Motif support extension \endlink
 \endlist
 
-<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
-<tr>
-<th bgcolor=#A2C511 width=100% align=left>
-Miscellaneous
-</th>
-</tr>
-</table>
+\section1 Miscellaneous Examples
+
 */
 
 /*! \defgroup qaction-examples 
 
-\title QAction examples 
+\title QAction Examples 
 
 The following example programs show how to use the 
 QAction and QActionGroup classes.
@@ -567,7 +526,7 @@ QAction and QActionGroup classes.
 
 /*! \defgroup qfont-examples 
 
-\title QFont examples 
+\title QFont Examples 
 
 The following example programs show how to use the 
 classes QFont, QFontMetrics, QFontInfo, and QFontDatabase. 
@@ -576,7 +535,7 @@ classes QFont, QFontMetrics, QFontInfo, and QFontDatabase.
 
 /*! \defgroup qprocess-examples 
 
-\title QProcess examples 
+\title QProcess Examples 
 
 The following example programs show how to use the 
 QProcess class.
@@ -585,7 +544,7 @@ QProcess class.
 
 /*! \defgroup network-examples 
 
-\title Network examples 
+\title Network Examples 
 
 The following example programs demonstrate the use
 of the Qt network module.
@@ -594,7 +553,7 @@ of the Qt network module.
 
 /*! \defgroup table-examples 
 
-\title Table examples 
+\title Table Examples 
 
 The following example programs demonstrate the use
 of the Qt table module.
@@ -603,7 +562,7 @@ of the Qt table module.
 
 /*! \defgroup sql-examples 
 
-\title Qt SQL examples 
+\title Qt SQL Examples 
 
 The following example programs show how to use the 
 Qt SQL classes.
@@ -612,7 +571,7 @@ Qt SQL classes.
 
 /*! \defgroup xml-examples 
 
-\title Qt XML examples 
+\title Qt XML Examples 
 
 The following example programs show how to use the 
 Qt XML classes.
@@ -621,7 +580,7 @@ Qt XML classes.
 
 /*! \defgroup nsplugin-examples 
 
-\title Qt Plugins for Netscape and InternetExplorer 
+\title LiveConnect Examples
 
 The following example programs show how to write plugins 
 that can be used with web browsers supporting the LiveConnect

@@ -220,11 +220,11 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   platforms may behave incorrectly with coordinates as small as
   +/-4000.
 
-  \header qdrawutil.h
+  \headerfile qdrawutil.h
 
   \sa QPaintDevice QWidget QPixmap QPrinter QPicture
-  \link simple-application.html Application Walkthrough \endlink
-  \link coordsys.html Coordinate System Overview \endlink
+      \link simple-application.html Application Walkthrough \endlink
+      \link coordsys.html Coordinate System Overview \endlink
 */
 
 /*! \enum QPainter::CoordinateMode

@@ -52,217 +52,190 @@ dependencies are expressed in \c qfeatures.h.
 
 The available options are:
 
-<table>
-<tr><th><big>Macro</big><th><big>Disables</big><th><big>Set automatically by</big>
-<tr><th colspan=3>Images - \l QImageIO
-<tr><td valign=top>QT_NO_IMAGEIO_BMP <td valign=top>
-    The Microsoft Bitmap image file format.
-<tr><td valign=top>QT_NO_IMAGEIO_PPM <td valign=top>
-    The Portable Pixmap image file format.
-<tr><td valign=top>QT_NO_IMAGEIO_XBM <td valign=top>
-    The X11 Bitmap image file format.
-<tr><td valign=top>QT_NO_IMAGEIO_XPM <td valign=top>
-    The X11 Pixmap image file format.
-<tr><td valign=top>QT_NO_IMAGEIO_PNG <td valign=top>
-    The Portable Network Graphics image file format.
+\table
+\header \i Macro \i Disables \i Set automatically by
 
-<tr><th colspan=3>Animation
-<tr><td valign=top>QT_NO_ASYNC_IO <td valign=top>
-    Asynchronous I/O - \l QAsyncIO
-<tr><td valign=top>QT_NO_ASYNC_IMAGE_IO <td valign=top>
-    Asynchronous Image I/O and GIF image support - \l QImageDecoder, etc.
-<tr><td valign=top>QT_NO_MOVIE <td valign=top>
-    Animation support - \l QMovie
-    <td valign=top>QT_NO_ASYNC_IO, QT_NO_ASYNC_IMAGE_IO
+\header \i31 Images (\l QImageIO)
 
-<tr><th colspan=3>Fonts
-<tr><td valign=top>QT_NO_TRUETYPE <td valign=top>
-    TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
-<tr><td valign=top>QT_NO_BDF <td valign=top>
-    Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
-<tr><td valign=top>QT_NO_FONTDATABASE <td valign=top>
-    Font database.
+\row \i QT_NO_IMAGEIO_BMP
+     \i The Microsoft Bitmap image file format.
+\row \i QT_NO_IMAGEIO_PPM
+     \i The Portable Pixmap image file format.
+\row \i QT_NO_IMAGEIO_XBM
+     \i The X11 Bitmap image file format.
+\row \i QT_NO_IMAGEIO_XPM
+     \i The X11 Pixmap image file format.
+\row \i QT_NO_IMAGEIO_PNG
+     \i The Portable Network Graphics image file format.
 
-<tr><th colspan=3>Internationalization
+\header \i31 Animation
+\row \i QT_NO_ASYNC_IO
+     \i Asynchronous I/O (\l QAsyncIO)
+\row \i QT_NO_ASYNC_IMAGE_IO
+     \i Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
+\row \i QT_NO_MOVIE
+     \i Animation support (\l QMovie)
+     \i QT_NO_ASYNC_IO, QT_NO_ASYNC_IMAGE_IO
 
-<tr><td valign=top>QT_NO_I18N <td valign=top>
-    Conversions between Unicode and 8-bit encodings.
-<tr><td valign=top>QT_NO_UNICODETABLES <td valign=top>
-    Large tables defining such things as upper and lowercase conversions
-    for all Unicode characters.
+\header \i31 Fonts
+\row \i QT_NO_TRUETYPE
+     \i TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
+\row \i QT_NO_BDF
+     \i Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
+\row \i QT_NO_FONTDATABASE
+     \i Font database.
 
-<tr><th colspan=3>MIME
-<tr><td valign=top>QT_NO_MIME <td valign=top>
-    Multipurpose Internet Mail Extensions, an internet standard for encoding
-    and tagging typed data (eg. text, images, colors) - \l QMimeSource
-<tr><td valign=top>QT_NO_RICHTEXT <td valign=top>
-    HTML-like text - \l QStyleSheet, \l QLabel
-    <td valign=top>QT_NO_MIME
-<tr><td valign=top>QT_NO_DRAGANDDROP <td valign=top>
-    Drag-and-drop data between applications - \l QDragObject
-    <td valign=top>QT_NO_MIME
-<tr><td valign=top>QT_NO_CLIPBOARD <td valign=top>
-    Cut-and-paste data between applications - \l QClipboard
-    <td valign=top>QT_NO_MIME
+\header \i31 Internationalization
 
-<tr><th colspan=3>Sound
-<tr><td valign=top>QT_NO_SOUND <td valign=top>
-    Playing audio files - \l QSound
+\row \i QT_NO_I18N
+     \i Conversions between Unicode and 8-bit encodings.
+\row \i QT_NO_UNICODETABLES
+     \i Large tables defining such things as upper and lowercase conversions
+	for all Unicode characters.
 
-<tr><th colspan=3>Scipting
-<tr><td valign=top>QT_NO_PROPERTIES <td valign=top>
-    Scripting of Qt-based applications.
+\header \i31 MIME
+\row \i QT_NO_MIME
+     \i Multipurpose Internet Mail Extensions, an internet standard for encoding
+    and tagging typed data (eg. text, images, colors) (\l QMimeSource)
+\row \i QT_NO_RICHTEXT
+     \i HTML-like text (\l QStyleSheet, \l QLabel)
+     \i QT_NO_MIME
+\row \i QT_NO_DRAGANDDROP
+     \i Drag-and-drop data between applications (\l QDragObject)
+     \i QT_NO_MIME
+\row \i QT_NO_CLIPBOARD
+     \i Cut-and-paste data between applications (\l QClipboard)
+     \i QT_NO_MIME
 
-<tr><th colspan=3>Qt/Embedded-specific
+\header \i31 Sound
+\row \i QT_NO_SOUND
+     \i Playing audio files (\l QSound)
 
-<tr><td valign=top>QT_NO_QWS_CURSOR <td valign=top>
-    The cursor sprite on Qt/Embedded. Pen-operated devices would not
-    normally need this feature.
+\header \i31 Scipting
+\row \i QT_NO_PROPERTIES
+     \i Scripting of Qt-based applications.
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_8GRAYSCALE <td valign=top>
-    8-bit-per-pixel - 256 levels of gray.
-    Incompatible with QWS_DEPTH_8
+\header \i31 Qt/Embedded-specific
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_8 <td valign=top>
-    8-bit-per-pixel - 216-color color-cube with 40 auxiliary colors.
-    Incompatible with QWS_DEPTH_8GRAYSCALE.
+\row \i QT_NO_QWS_CURSOR
+     \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
+	normally need this feature.
+\row \i QT_NO_QWS_DEPTH_8GRAYSCALE
+     \i 8 bits per pixel: 256 levels of gray.
+	Incompatible with QWS_DEPTH_8.
+\row \i QT_NO_QWS_DEPTH_8
+     \i 8 bits per pixel: 216-color cube with 40 auxiliary colors.
+	Incompatible with QWS_DEPTH_8GRAYSCALE.
+\row \i QT_NO_QWS_DEPTH_15
+     \i 15 bits per pixel: 32 levels for each of red, green and blue.
+\row \i QT_NO_QWS_DEPTH_16
+     \i 16 bits per pixel: 64 levels of green, 32 levels for red and for blue.
+\row \i QT_NO_QWS_DEPTH_32
+     \i 32 bits per pixel: 256 levels for each of red, green and blue.
+\row \i QT_NO_QWS_MACH64
+     \i Mach64 accelerated driver (demonstration only).
+\row \i QT_NO_QWS_VFB
+     \i Virtual framebuffer running on X11 (see reference documentation).
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_15 <td valign=top>
-    15-bit-per-pixel - 32 levels each of Red, Blue, and Green.
+\header \i31 Networking
+\row \i QT_NO_NETWORKPROTOCOL
+     \i Abstract multi-protocol data retrieval,
+	with local file retrieval included (\l QNetworkProtocol)
+\row \i QT_NO_NETWORKPROTOCOL_FTP
+     \i FTP-protocol data retrieval.
+     \i QT_NO_NETWORKPROTOCOL
+\row \i QT_NO_NETWORKPROTOCOL_HTTP
+     \i HTTP-protocol data retrieval.
+     \i QT_NO_NETWORKPROTOCOL
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_16 <td valign=top>
-    16-bit-per-pixel - 32 levels each of Red and Blue, 64 of Green.
+\header \i31 Painting/drawing
+\row \i QT_NO_COLORNAMES
+     \i Color names such as "red", used by some \l QColor constructors
+	and by some HTML documents (\l QColor, \l QStyleSheet)
+\row \i QT_NO_TRANSFORMATIONS
+     \i Used by a number of classes in Qt. With this, rotation and scaling
+	are possible. Without it, only co-ordinate translation (\l QWMatrix)
+\row \i QT_NO_PSPRINTER
+     \i Postscript printer support.
+\row \i QT_NO_PRINTER
+     \i Printer support (\l QPrinter)
+     \i QT_NO_PSPRINTER (Unix only)
+\row \i QT_NO_PICTURE
+     \i Save Qt drawing commands to a files (\l QPicture)
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_32 <td valign=top>
-    32-bit-per-pixel - 256 levels for each of Red, Green, and Blue.
+\header \i31 Widgets
+\row \i QT_NO_WIDGETS
+     \i Disabling this disables all widgets except \l QWidget.
+\row \i QT_NO_TEXTVIEW
+     \i HTML document viewing (\l QTextView)
+     \i QT_NO_WIDGETS, QT_NO_RICHTEXT
+\row \i QT_NO_TEXTBROWSER
+     \i HTML document browsing (\l QTextBrowser)
+     \i QT_NO_TEXTVIEW
+\row \i QT_NO_ICONVIEW
+     \i Labelled icons (\l QIconView)
+     \i QT_NO_WIDGETS, QT_NO_DRAGANDDROP
+\row \i QT_NO_LISTVIEW
+     \i Lists of information (\l QListView)
+     \i QT_NO_WIDGETS
+\row \i QT_NO_CANVAS
+     \i Object canvas (\l QCanvas)
+     \i QT_NO_WIDGETS
+\row \i QT_NO_DIAL
+     \i Value control (\l QDial)
+     \i QT_NO_WIDGETS
+\row \i QT_NO_WORKSPACE
+     \i Multi-document interface (\l QWorkspace)
+     \i QT_NO_WIDGETS
+\row \i QT_NO_LCDNUMBER
+     \i LCD-like number display (\l QLCDNumber)
+     \i QT_NO_WIDGETS
 
-<tr><td valign=top>QT_NO_QWS_MACH64 <td valign=top>
-    Mach64 accelerated driver (demonstration only)
+\header \i31 GUI Styles
+\row \i QT_NO_STYLE_WINDOWS
+     \i Microsoft Windows style (\l QWindowsStyle)
+     \i QT_NO_WIDGETS
+\row \i QT_NO_STYLE_MOTIF
+     \i OSF Motif style (\l QMotifStyle)
+     \i QT_NO_WIDGETS
+\row \i QT_NO_STYLE_CDE
+     \i Open Group CDE style (\l QCDEStyle)
+     \i QT_NO_STYLE_MOTIF
+\row \i QT_NO_STYLE_PLATINUM
+     \i MacOS X style (\l QPlatinumStyle)
+     \i QT_NO_WIDGETS
+\row \i QT_NO_STYLE_SGI
+     \i SGI style (\l QSGIStyle)
+     \i QT_NO_STYLE_MOTIF
 
-<tr><td valign=top>QT_NO_QWS_VFB <td valign=top>
-    Virtual framebuffer running on X11 (see reference documentation).
+\header \i31 Dialogs
+\row \i QT_NO_DIALOGS
+     \i Disabling this disables all common dialogs \l QWidget.
+     \i QT_NO_WIDGETS
+\row \i QT_NO_FILEDIALOG
+     \i The file selection dialog (\l QFileDialog)
+     \i QT_NO_DIALOGS, QT_NO_NETWORKPROTOCOL, QT_NO_LISTVIEW
+\row \i QT_NO_FONTDIALOG
+     \i The font selection dialog (\l QFontDialog)
+     \i QT_NO_DIALOGS, QT_NO_FONTDATABASE
+\row \i QT_NO_COLORDIALOG
+     \i The color selection dialog (\l QColorDialog)
+     \i QT_NO_DIALOGS
+\row \i QT_NO_INPUTDIALOG
+     \i Text input dialog (\l QInputDialog)
+     \i QT_NO_DIALOGS
+\row \i QT_NO_MESSAGEBOX
+     \i Message/prompting dialog (\l QMessageBox)
+     \i QT_NO_DIALOGS
+\row \i QT_NO_PROGRESSDIALOG
+     \i Long-computation progress dialog (\l QProgressDialog)
+     \i QT_NO_DIALOGS
+\row \i QT_NO_TABDIALOG
+     \i Tabbed-pages dialog (\l QTabDialog)
+     \i QT_NO_DIALOGS
+\row \i QT_NO_WIZARD
+     \i Multi-step dialog (\l QWizard)
+     \i QT_NO_DIALOGS
+\endtable
 
-<tr><th colspan=3>Networking
-<tr><td valign=top>QT_NO_NETWORKPROTOCOL <td valign=top>
-    Abstract multi-protocol data retrieval,
-    with local file retrieval included - \l QNetworkProtocol
-
-<tr><td valign=top>QT_NO_NETWORKPROTOCOL_FTP <td valign=top>
-    FTP-protocol data retrieval.
-    <td valign=top>QT_NO_NETWORKPROTOCOL
-
-<tr><td valign=top>QT_NO_NETWORKPROTOCOL_HTTP <td valign=top>
-    <td valign=top>QT_NO_NETWORKPROTOCOL
-    HTTP-protocol data retrieval.
-
-<tr><th colspan=3>Painting/drawing
-<tr><td valign=top>QT_NO_COLORNAMES <td valign=top>
-    Color names such as "red", used by some \l QColor constructors
-    and by some HTML documents - \l QColor, \l QStyleSheet
-
-<tr><td valign=top>QT_NO_TRANSFORMATIONS <td valign=top>   // uses floating point
-    Used by a number of classes in Qt. With this, rotation and scaling
-    are possible. Without it, only co-ordinate translation - \l QWMatrix
-
-<tr><td valign=top>QT_NO_PSPRINTER <td valign=top>
-    Postscript printer support.
-
-<tr><td valign=top>QT_NO_PRINTER <td valign=top>
-    Printer support - \l QPrinter
-    <td valign=top>QT_NO_PSPRINTER on Unix
-
-<tr><td valign=top>QT_NO_PICTURE <td valign=top>
-    Save Qt drawing commands to a files - \l QPicture
-
-<tr><th colspan=3>Widgets
-<tr><td valign=top>QT_NO_WIDGETS <td valign=top>
-    Disabling this disables all widgets except \l QWidget.
-
-<tr><td valign=top>QT_NO_TEXTVIEW <td valign=top>
-    HTML document viewing - \l QTextView
-    <td valign=top>QT_NO_WIDGETS, QT_NO_RICHTEXT
-
-<tr><td valign=top>QT_NO_TEXTBROWSER <td valign=top>
-    HTML document browsing - \l QTextBrowser
-    <td valign=top>QT_NO_TEXTVIEW
-
-<tr><td valign=top>QT_NO_ICONVIEW <td valign=top>
-    Labelled icons - \l QIconView
-    <td valign=top>QT_NO_WIDGETS, QT_NO_DRAGANDDROP
-
-<tr><td valign=top>QT_NO_LISTVIEW <td valign=top>
-    Lists of information - \l QListView
-    <td valign=top>QT_NO_WIDGETS
-
-<tr><td valign=top>QT_NO_CANVAS <td valign=top>
-    Object canvas - \l QCanvas
-    <td valign=top>QT_NO_WIDGETS
-
-<tr><td valign=top>QT_NO_DIAL <td valign=top>
-    Value control - \l QDial
-    <td valign=top>QT_NO_WIDGETS
-
-<tr><td valign=top>QT_NO_WORKSPACE <td valign=top>
-    Multi-document interface - \l QWorkspace
-    <td valign=top>QT_NO_WIDGETS
-
-<tr><td valign=top>QT_NO_LCDNUMBER <td valign=top>
-    LCD-like number display - \l QLCDNumber
-    <td valign=top>QT_NO_WIDGETS
-
-<tr><th colspan=3>GUI Styles
-<tr><td valign=top>QT_NO_STYLE_WINDOWS <td valign=top>
-    Microsoft Windows style - \l QWindowsStyle
-    <td valign=top>QT_NO_WIDGETS
-<tr><td valign=top>QT_NO_STYLE_MOTIF <td valign=top>
-    OSF Motif style - \l QMotifStyle
-    <td valign=top>QT_NO_WIDGETS
-<tr><td valign=top>QT_NO_STYLE_CDE <td valign=top>
-    Open Group CDE style - \l QCDEStyle
-    <td valign=top>QT_NO_STYLE_MOTIF
-<tr><td valign=top>QT_NO_STYLE_PLATINUM <td valign=top>
-    MacOS X style - \l QPlatinumStyle
-    <td valign=top>QT_NO_WIDGETS
-<tr><td valign=top>QT_NO_STYLE_SGI <td valign=top>
-    SGI style - \l QSGIStyle
-    <td valign=top>QT_NO_STYLE_MOTIF
-
-<tr><th colspan=3>Dialogs
-<tr><td valign=top>QT_NO_DIALOGS <td valign=top>
-    Disabling this disables all common dialogs \l QWidget.
-    <td valign=top>QT_NO_WIDGETS
-
-<tr><td valign=top>QT_NO_FILEDIALOG <td valign=top>
-    The file selection dialog - \l QFileDialog
-    <td valign=top>QT_NO_DIALOGS, QT_NO_NETWORKPROTOCOL, QT_NO_LISTVIEW
-
-<tr><td valign=top>QT_NO_FONTDIALOG <td valign=top>
-    The font selection dialog - \l QFontDialog
-    <td valign=top>QT_NO_DIALOGS, QT_NO_FONTDATABASE
-
-<tr><td valign=top>QT_NO_COLORDIALOG <td valign=top>
-    The color selection dialog - \l QColorDialog
-    <td valign=top>QT_NO_DIALOGS
-
-<tr><td valign=top>QT_NO_INPUTDIALOG <td valign=top>
-    Text input dialog - \l QInputDialog
-    <td valign=top>QT_NO_DIALOGS
-
-<tr><td valign=top>QT_NO_MESSAGEBOX <td valign=top>
-    Message/prompting dialog - \l QMessageBox
-    <td valign=top>QT_NO_DIALOGS
-
-<tr><td valign=top>QT_NO_PROGRESSDIALOG <td valign=top>
-    Long-computation progress dialog - \l QProgressDialog
-    <td valign=top>QT_NO_DIALOGS
-
-<tr><td valign=top>QT_NO_TABDIALOG <td valign=top>
-    Tabbed-pages dialog - \l QTabDialog
-    <td valign=top>QT_NO_DIALOGS
-
-<tr><td valign=top>QT_NO_WIZARD <td valign=top>
-    Multi-step dialog - \l QWizard
-    <td valign=top>QT_NO_DIALOGS
-
-</table>
 */

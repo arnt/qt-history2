@@ -240,15 +240,15 @@
 	closingDown(),
   \endlist
 
-  <strong>Non-GUI programs</strong><br> While Qt is not optimized or
-  designed for writing non-GUI programs, it's possible to use <a
-  href="tools.html">some of its classes</a> without creating a
+  \e {Non-GUI programs:} While Qt is not optimized or
+  designed for writing non-GUI programs, it's possible to use
+  \link tools.html some of its classes \endlink without creating a
   QApplication.  This can be useful if you wish to share code between
   a non-GUI server and a GUI client.
 
-  \header qnamespace.h
-  \header qwindowdefs.h
-  \header qglobal.h
+  \headerfile qnamespace.h
+  \headerfile qwindowdefs.h
+  \headerfile qglobal.h
 */
 
 /*! \enum Qt::HANDLE

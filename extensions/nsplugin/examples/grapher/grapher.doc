@@ -51,6 +51,7 @@ to an image at the server.
  
   \include grapher/grapher.cpp
 */
+
 /*! \plainpage graph.g1n
 num label
 10 A
@@ -61,4 +62,3 @@ num label
 15 F
 19 G
 */
-

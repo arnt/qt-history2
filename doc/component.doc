@@ -53,15 +53,7 @@ recompiling and linking for every extension, using components makes it trivial
 to replace or extend only parts of the application, or to add new functionality
 at runtime.
 
-
-<table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#E5E5E5>
-<tr>
-<th bgcolor=#A2C511 width=100%>
-Component Concepts
-</th>
-</tr>
-<tr>
-<td>
+\sidebar Component Concepts
 
 \section1 Interface
 
@@ -112,19 +104,16 @@ The application can make use of any available implementation of its interfaces t
 existing functionality dynamically. Plugins are commonly provided as shared libraries, and placing 
 the library in a special subdirectory makes the application recognize the new functionality at start 
 up. Most applications support only single-component libraries.
-</td>
-</tr>
-</table>
+
+\endsidebar
 
 Most exisiting component models, e.g. COM, use a similar architecture. This document assumes that 
 you have a basic knowledge of component development. Recommended reading:
 
 \list
-\i <a href="http://www.amazon.com/exec/obidos/ASIN/1572313498/trolltech/t/107-3518660-0427733">
-Inside COM</a>
+\i \link http://www.amazon.com/exec/obidos/ASIN/1572313498/trolltech/t/107-3518660-0427733"
+Inside COM \endlink
 \endlist
-
-
 
 \section1 Using Interfaces
 

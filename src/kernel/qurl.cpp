@@ -103,42 +103,53 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   The QUrl class is provided for simple work with URLs.
   It can parse, decode, encode, etc.
 
-  QUrl works with the decoded path and
-  encoded query in turn.
+  QUrl works with the decoded path and encoded query in turn.
 
-Example:
-\code
-http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you
-\endcode
-<center><table border=1>
-<tr><th>Function</th><th>Returns</th><tr>
-<tr><td> protocol() </td><td>http</td></tr>
-<tr><td> host() </td><td>www.trolltech.com</td></tr>
-<tr><td> port() </td><td>80</td></tr>
-<tr><td> path() </td><td>cgi-bin</td></tr>
-<tr><td> fileName() </td><td>test&nbsp;me.pl</td></tr>
-<tr><td> query() </td><td>cmd=Hello%20you</td></tr>
-</table></center>
+  Example:
 
-Example:
-\code
-http://doc.trolltech.com/qdockarea.html#lines
-\endcode
-<center><table border=1>
-<tr><th>Function</th><th>Returns</th><tr>
-<tr><td> \l protocol() </td><td>http</td></tr>
-<tr><td> \l host() </td><td>doc.trolltech.com</td></tr>
-<tr><td> \l fileName() </td><td>qdockarea.html</td></tr>
-<tr><td> ref() </td><td>lines</td></tr>
-</table></center>
+  \c http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you
 
-    The individual parts of a URL can be set with setProtocol(),
-    setHost(), setPort(), setPath(), setFileName(), setRef() and
-    setQuery(). A URL could contain, for example, an ftp address which
-    requires a user name and password; these can be set with setUser()
-    and setPassword().
+  \table
+  \header \i Function
+	  \i Returns
+  \row \i protocol()
+       \i "http"
+  \row \i host()
+       \i "www.trolltech.com"
+  \row \i port()
+       \i 80
+  \row \i path()
+       \i "cgi-bin"
+  \row \i fileName()
+       \i "test&nbsp;me.pl"
+  \row \i query()
+       \i "cmd=Hello%20you"
+  \endtable
 
-  Because path is always encoded internally you must \e not use "%00"
+  Example:
+
+  \c http://doc.trolltech.com/qdockarea.html#lines
+
+  \table
+  \header \i Function
+	  \i Returns
+  \row \i \l protocol()
+       \i "http"
+  \row \i \l host()
+       \i "doc.trolltech.com"
+  \row \l fileName()
+       \i "qdockarea.html"
+  \row \l ref()
+       \i "lines"
+  \endtable
+
+  The individual parts of a URL can be set with setProtocol(),
+  setHost(), setPort(), setPath(), setFileName(), setRef() and
+  setQuery(). A URL could contain, for example, an ftp address which
+  requires a user name and password; these can be set with setUser()
+  and setPassword().
+
+  Because path is always encoded internally you must not use "%00"
   in the path, although this it is okay (but not recommended) for the
   query.
 
@@ -164,13 +175,13 @@ http://doc.trolltech.com/qdockarea.html#lines
   \endcode
 
     Use the static functions, encode() and decode() to encode or
-    decode a URL in a string (they operate on the string in-place).
+    decode a URL in a string. (They operate on the string in-place.)
     The isRelativeUrl() static function returns TRUE if the given
     string is a relative URL.
 
-  If you want to use an URL to work on a hierarchical structure
-  (e.g. a local or remote filesystem), the class QUrlOperator which is derived
-  from QUrl may be of use to you.
+  If you want to use an URL to work on a hierarchical structure (e.g.
+  a local or remote filesystem), you might want to use the subclass
+  QUrlOperator.
 
   \sa QUrlOperator
 */

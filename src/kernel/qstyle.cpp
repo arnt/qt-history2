@@ -701,7 +701,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value CE_ProgressBarGroove  the groove where the progress indicator is drawn in
-         a QProgressBar.
+	 a QProgressBar.
   \value CE_ProgressBarContents  the progress indicator of a QProgressBar.
   \value CE_ProgressBarLabel  the text label of a QProgressBar.
 
@@ -877,7 +877,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	  internal class.
   \row \i \l Style_Active \i Set if the menuitem is the current item.
        \i \e tabwidth is the width of the tab column where key accelerators
-          are drawn.
+	  are drawn.
   \row \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button
 			   or space bar is pressed).
        \i \e maxpmwidth is the maximum width of the check column where
@@ -939,7 +939,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value SR_PushButtonContents  area containing the label (iconset with text or pixmap).
   \value SR_PushButtonFocusRect  area for the focus rect (usually larger than the
-         contents rect).
+	 contents rect).
 
   \value SR_CheckBoxIndicator  area for the state indicator (e.g. check mark).
   \value SR_CheckBoxContents  area for the label (text or pixmap).
@@ -1045,7 +1045,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SC_ScrollBarLast  scrollbar last line (i.e. end).
   \value SC_ScrollBarSlider  scrollbar slider handle.
   \value SC_ScrollBarGroove  special subcontrol which contains the area in which the
-         slider handle may move.
+	 slider handle may move.
 
 
   \value SC_SpinWidgetUp  spinwidget up/increase; see also QSpinBox.
@@ -1061,7 +1061,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value SC_SliderGroove  special subcontrol which contains the area in which the
-         slider handle may move.
+	 slider handle may move.
   \value SC_SliderHandle  slider handle.
   \value SC_SliderTickmarks  slider tickmarks.
 
@@ -1126,7 +1126,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \row \i12 \l CC_SpinWidget
 
-            (const \l QSpinWidget *)
+	    (const \l QSpinWidget *)
        \i \l Style_Enabled \i Set if the spinwidget is enabled.
        \i12 Unused.
        \i12 &nbsp;
@@ -1134,7 +1134,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \row \i12 \l CC_ComboBox
 
-            (const \l QComboBox *)
+	    (const \l QComboBox *)
        \i \l Style_Enabled \i Set if the combobox is enabled.
        \i12 Unused.
        \i12 &nbsp;
@@ -1150,7 +1150,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \row \i12 \l CC_Slider
 
-            (const \l QSlider *)
+	    (const \l QSlider *)
        \i \l Style_Enabled \i Set if the slider is enabled.
        \i12 Unused.
        \i12 &nbsp;
@@ -1176,7 +1176,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \row \i \l CC_TitleBar
 
-          (const \l QWidget *)
+	  (const \l QWidget *)
        \i \l Style_Enabled \i Set if the titlebar is enabled.
        \i Unused.
        \i &nbsp;
@@ -1258,9 +1258,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_MenuButtonIndicator  width of the menu button indicator
   proportional to the widget height.
   \value PM_ButtonShiftHorizontal  horizontal contents shift of a button when the
-         button is down.
+	 button is down.
   \value PM_ButtonShiftVertical  vertical contents shift of a button when the
-         button is down.
+	 button is down.
 
 
   \value PM_DefaultFrameWidth  default frame width, usually 2.
@@ -1274,9 +1274,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value PM_ScrollBarExtent  width of a vertical scrollbar and the height of a
-         horizontal scrollbar.
+	 horizontal scrollbar.
   \value PM_ScrollBarSliderMin the minimum height of a vertical scrollbar's slider
-         and the minimum width of a horiztonal scrollbar slider.
+	 and the minimum width of a horiztonal scrollbar slider.
 
 
   \value PM_SliderThickness  total slider thickness.
@@ -1287,9 +1287,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value PM_DockWindowSeparatorExtent  width of a separator in a horiztonal dock window
-         and the height of a separator in a vertical dock window.
+	 and the height of a separator in a vertical dock window.
   \value PM_DockWindowHandleExtent  width of the handle in a horizontal dock window and
-         the height of the handle in a vertical dock window.
+	 the height of the handle in a vertical dock window.
   \value PM_DockWindowFrameWidth  frame width of a dock window.
 
 
@@ -1498,7 +1498,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value SP_TitleBarMinButton  minimize button on titlebars.  For example, in a
-         QWorkspace.
+	 QWorkspace.
   \value SP_TitleBarMaxButton  maximize button on titlebars.
   \value SP_TitleBarCloseButton  close button on titlebars.
   \value SP_TitleBarNormalButton  normal (restore) button on titlebars.

@@ -51,7 +51,7 @@
   This function registers the network protocols for FTP and HTTP. You have to
   call this function before you use QUrlOperator for these protocols.
 
-  Include the header qnetwork.h if you want to use this function.
+  This function is declared in \l qnetwork.h.
 */
 void qInitNetworkProtocols()
 {

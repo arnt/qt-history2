@@ -297,7 +297,7 @@ HEADERS	= myclass.h \
 	  mainwindow.h
 \endcode
 
-See also \target #SOURCES SOURCES \endlink.
+See also \link #SOURCES SOURCES \endlink.
 
 
 \target INCLUDEPATH
@@ -582,7 +582,7 @@ handled internally by \e qmake and rarely needs to be modified.
 \target OBJECTS
 <dt>\c OBJECTS
 
-<dd>This variable is generated from \target #SOURCES SOURCES
+<dd>This variable is generated from \link #SOURCES SOURCES
 \endlink.  The extension of each source file will been replaced by .o
 (Unix) or .obj (Win32).  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and

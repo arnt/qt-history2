@@ -25,8 +25,11 @@ static QString parenParen( QString("()") );
 static QString punctuation( ".,:;" );
 
 // see also bookparser.cpp
-static QString openCaption( "<blockquote><center><em>" );
-static QString closeCaption( "</em></center></blockquote>" );
+static QString openCaption( "<blockquote><p align=\"center\"><em>" );
+static QString closeCaption( "</em></p>\n</blockquote>" );
+static QString openSidebar( "<blockquote><p align=\"center\"><b>" );
+static QString closeSidebarHeading( "</b>\n<p>" );
+static QString closeSidebar( "</blockquote>\n<p>" );
 
 static QString linkBase( const QString& link )
 {
@@ -256,13 +259,15 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     bool internal = FALSE;
     bool overloads = FALSE;
     int numBugs = 0;
-    bool inValue = FALSE;
     bool inCaption = FALSE;
-    bool inQuote = FALSE;
-    bool inTable = FALSE;
     bool inHeader = FALSE;
-    int numPendingRows = 1;
-    bool useRowDarkColor = TRUE;
+    bool inQuote = FALSE;
+    bool inSidebar = FALSE;
+    bool inSidebarHeading = FALSE;
+    bool inTable = FALSE;
+    bool inValue = FALSE;
+    int numPendingRows = 0;
+    bool useRowDarkColor = FALSE;
     int headingBegin = -1;
     bool metNL = FALSE; // never met N.L.
     int begin;
@@ -408,8 +413,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case HASH( 'c', 7 ):
 		CONSUME( "caption" );
-		yyOut += openCaption;
-		inCaption = TRUE;
+		if ( inSidebarHeading ) {
+		    warning( 2, location(),
+			     "Unexpected '\\caption' in sidebar heading" );
+		} else {
+		    yyOut += openCaption;
+		    inCaption = TRUE;
+		}
 		break;
 	    case HASH( 'd', 8 ):
 		CONSUME( "defgroup" );
@@ -466,9 +476,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		}
 		break;
 	    case HASH( 'e', 8 ):
-		if ( command[4] == QChar('q') ) {
+		if ( command[3] == QChar('q') ) {
 		    CONSUME( "endquote" );
-		    yyOut += QString( "</blockquote>" );
+		    if ( inQuote ) {
+			yyOut += QString( "</blockquote>" );
+			inQuote = FALSE;
+		    } else {
+			warning( 2, location(), "Missing '\\quote'" );
+		    }
 		} else {
 		    CONSUME( "endtable" );
 		    if ( inTable ) {
@@ -489,6 +504,19 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected extension name after '\\extension'" );
 		} else {
 		    setKindHasToBe( Doc::Class, command );
+		}
+		break;
+	    case HASH( 'e', 10 ):
+		CONSUME( "endsidebar" );
+		if ( inSidebarHeading ) {
+		    warning( 2, location(), "No text in '\\sidebar'" );
+		    inSidebarHeading = FALSE;
+		}
+		if ( inSidebar ) {
+		    yyOut += closeSidebar;
+		    inSidebar = FALSE;
+		} else {
+		    warning( 2, location(), "Missing '\\sidebar'" );
 		}
 		break;
 	    case HASH( 'e', 11 ):
@@ -930,22 +958,23 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "\\skipto " ) + substr + QChar( '\n' );
 		break;
 	    case HASH( 's', 7 ):
-		CONSUME( "section" );
-		x = getWord( yyIn, yyPos );
-		if ( x.length() != 1 || x[0].unicode() < '1' ||
-		     x[0].unicode() > '4' ) {
-		    warning( 2, location(),
-			     "Expected digit between '1' and '4' after"
-			     " '\\section'" );
-		    x = QChar( '1' );
-		}
-		sectionLevel = x[0].unicode() - '0';
-		if ( sectionLevel - prevSectionLevel > 1 )
-		    warning( 2, location(),
-			     "Unexpected '\\section%d' within '\\section%d'",
-			     sectionLevel, prevSectionLevel );
+		if ( command[1] == QChar('e') ) {
+		    CONSUME( "section" );
+		    x = getWord( yyIn, yyPos );
+		    if ( x.length() != 1 || x[0].unicode() < '1' ||
+			 x[0].unicode() > '4' ) {
+			warning( 2, location(),
+				 "Expected digit between '1' and '4' after"
+				 " '\\section'" );
+			x = QChar( '1' );
+		    }
+		    sectionLevel = x[0].unicode() - '0';
+		    if ( sectionLevel - prevSectionLevel > 1 )
+			warning( 2, location(),
+				 "Unexpected '\\section%d' within"
+				 " '\\section%d'",
+				 sectionLevel, prevSectionLevel );
 
-		{
 		    if ( toc == 0 )
 			toc = new QValueList<Section>;
 		    QValueList<Section> *subsects = toc;
@@ -955,16 +984,26 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			subsects = subsects->last().subsections();
 		    }
 		    subsects->push_back( Section() );
-		}
 
-		prevSectionLevel = sectionLevel;
-		if ( kindIs == Doc::Class )
-		    prevSectionLevel++;
-		yyOut += QString( "<h%1>" ).arg( prevSectionLevel + 1 );
-		if ( headingBegin != -1 )
-		    warning( 2, location(),
-			     "Missing blank line after '\\section'" );
-		headingBegin = yyOut.length();
+		    prevSectionLevel = sectionLevel;
+		    if ( kindIs == Doc::Class )
+			prevSectionLevel++;
+		    yyOut += QString( "<h%1>" ).arg( prevSectionLevel + 1 );
+		    if ( headingBegin != -1 )
+			warning( 2, location(),
+				 "Missing blank line after '\\section'" );
+		    headingBegin = yyOut.length();
+		} else {
+		    CONSUME( "sidebar" );
+		    if ( inSidebar ) {
+			warning( 2, location(),
+				 "Cannot nest '\\sidebar' commands" );
+		    } else {
+			yyOut += openSidebar;
+			inSidebar = TRUE;
+			inSidebarHeading = TRUE;
+		    }
+		}
 		break;
 	    case HASH( 's', 8 ):
 		CONSUME( "skipline" );
@@ -991,7 +1030,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    }
 		} else {
 		    CONSUME( "title" );
-		    title = getRestOfParagraph( yyIn, yyPos );
+		    if ( inSidebarHeading ) {
+			warning( 2, location(),
+				 "Unexpected '\\title' in sidebar heading" );
+		    } else {
+			title = getRestOfParagraph( yyIn, yyPos );
+		    }
 		}
 		break;
 	    case HASH( 't', 6 ):
@@ -1078,6 +1122,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			yyOut += closeCaption;
 			inCaption = FALSE;
 		    }
+		    if ( inSidebarHeading ) {
+			yyOut += closeSidebarHeading;
+			inSidebarHeading = FALSE;
+		    } 
 		    if ( headingBegin != -1 ) {
 			QValueList<Section> *subsects = toc;
 			while ( !subsects->last().subsections()->isEmpty() )
@@ -1928,7 +1976,8 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
 		QMap<QString, QString>::Iterator first;
 		first = paragraph[currentParagraphNo[i]].begin();
 
-		html += QString( "<td width=\"3%\">%1\n" ).arg( href(*first) );
+		html += QString( "<td align=\"right\">%1\n" )
+			.arg( href(*first) );
 		if ( classext.contains(*first) )
 		    html += QChar( '*' );
 

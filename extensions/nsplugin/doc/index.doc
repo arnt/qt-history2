@@ -15,17 +15,13 @@ static char ident[] = "$Id: $";
 
 \title Qt-based LiveConnect Plugins
 
-\heading Qt-based LiveConnect Plugins for Netscape and Explorer
-
-<hr>
-
 The Qt-based Netscape Plugin software makes it easy to write
 plugins
 such that they can be used on both Unix/Linux and Windows/95/NT,
-in the Netscape and MS-Explorer, and any other
-WWW browser supporting the same protocol.
+in Netscape and Internet Explorer, and any other
+web browser supporting the same protocol.
 
-<h2>How-to</h2>
+\section1 How-to
 
 <ol>
  <li>Download the
@@ -68,7 +64,7 @@ WWW browser supporting the same protocol.
 
 We are working on streamlining the build process for Qt-based Netscape Plugins.	
 
-<h3>Building under X11</h3>
+\section2 Building under X11
 
 <ul>
  <li>The Makefiles in the examples are appropriate for UNIX/X11.
@@ -76,7 +72,7 @@ We are working on streamlining the build process for Qt-based Netscape Plugins.
 	directory of the browser.
 </ul>
 
-<h3>Building under Windows</h3>
+\section2 Building under Windows
 
 <ul>
  <li>Qt needs to be built as a static library when building Netscape plugins, we are
@@ -94,11 +90,10 @@ We are working on streamlining the build process for Qt-based Netscape Plugins.
 	of the browser.
 </ul>
 
-<h2>Known Bugs</h2>
+\section1 Known Bugs
 
 The Qt-based LiveConnect Plugin binding code has a number of
 minor bugs, but is sufficiently stable for most production applications.
-All of these have known solutions which we are working to implement.
 
 <ul>
  <li> MSIE 4.0 support is poor.

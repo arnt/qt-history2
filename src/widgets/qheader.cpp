@@ -173,7 +173,35 @@ public:
   section number of a section at a particular index position call
   mapToSection() giving it the index number.
 
-  \img mapto-eg.png map-to example
+  Here's an example to clarify mapToSection() and mapToIndex():
+
+  \table
+  \header \i41 Index positions
+  \row \i 0
+       \i 1
+       \i 2
+       \i 3
+  \header \i41 Original section ordering
+  \row \i Sect 0
+       \i Sect 1
+       \i Sect 2
+       \i Sect 3
+  \header \i41 Ordering after the user moves a section
+  \row \i Sect 0
+       \i Sect 2
+       \i Sect 3
+       \i Sect 1
+  \endtable
+
+  \table
+  \header \i \e k
+	  \i mapToSection(\e k)
+	  \i mapToIndex(\e k)
+  \row \i 0 \i 0 \i 0
+  \row \i 1 \i 2 \i 3
+  \row \i 2 \i 3 \i 1
+  \row \i 3 \i 1 \i 2
+  \endtable
 
 <!--
     <a name="mapexample">

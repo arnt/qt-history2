@@ -41,8 +41,6 @@ This module is part of the \link editions.html Qt Enterprise Edition \endlink.
 
 \tableofcontents
 
-
-
 \target overview
 \section1 Overview of the XML architecture in Qt
 
@@ -316,45 +314,21 @@ tagreader with features example. \endlink
 \section3 Summary
 
 \l QXmlSimpleReader implements the following behavior:
-<table border="1">
-<tr>
-    <th>namespaces</th>
-    <th>namespace-prefixes</th>
-    <th>Namespace prefix and local part</th>
-    <th>Qualified names</th>
-    <th>Prefix mapping</th>
-    <th>xmlns attributes</th>
-</tr>
-<tr>
-    <td>TRUE</td>
-    <td>FALSE</td>
-    <td>Yes</td>
-    <td>Yes \footnote SAX does not require a certain behvior.\endfootnote </td>
-    <td>Yes</td>
-    <td>No</td>
-</tr>
-<tr>
-    <td>TRUE</td>
-    <td>TRUE</td>
-    <td>Yes</td>
-    <td>Yes</td>
-    <td>Yes</td>
-    <td>Yes</td>
-</tr>
-<tr>
-    <td>FALSE</td>
-    <td>TRUE</td>
-    <td>No \footnote SAX does not require a certain behvior.\endfootnote </td>
-    <td>Yes</td>
-    <td>No \footnote SAX does not require a certain behvior.\endfootnote </td>
-    <td>Yes</td>
-</tr>
-<tr>
-    <td>FALSE</td>
-    <td>FALSE</td>
-    <td colspan=4 align=center>Illegal</td>
-</table>
- 
+
+\table
+\header \i (namespaces, namespace-prefixes)
+	\i Namespace prefix and local part
+	\i Qualified names
+	\i Prefix mapping
+	\i xmlns attributes
+\row \i (TRUE, FALSE) \i Yes \i Yes* \i Yes \i No
+\row \i (TRUE, TRUE) \i Yes \i Yes \i Yes \i Yes
+\row \i (FALSE, TRUE) \i No* \i Yes \i No* \i Yes
+\row \i (FALSE, TRUE) \i41 Illegal
+\endtable
+
+For the entries marked with a "*", SAX does not require a particuliar
+behavior.
 
 \target sax2Properties
 \section2 Properties
@@ -366,7 +340,7 @@ though: there are no means to ensure type-safety; the user must take care
 that he or she passes the correct type. Properties are useful if a reader supports
 special handler classes.
 
-<!-- example! -->
+\omit example! \endomit
  
 The URIs used for features and properties often look like URLs, e.g. 
 \c http://xml.org/sax/features/namespace. This does not mean that whatsoever

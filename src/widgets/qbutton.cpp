@@ -167,8 +167,8 @@ QTimer *QButton::timer()
   Default buttons (as used in many dialogs) are provided by
   QPushButton::setDefault() and QPushButton::setAutoDefault().
 
-  QButton provides four signals:
-  \list
+  QButton provides five signals:
+  \list 1
   \i pressed() is emitted when the left mouse button is pressed while
   the mouse cursor is inside the button.
   \i released() is emitted when the left mouse button is released.
@@ -176,7 +176,7 @@ QTimer *QButton::timer()
   released when the accelerator key is typed, or when animateClick()
   is called.
   \i toggled(bool) is emitted when the state of a toggle button changes.
-  \endlist stateChanged(int) is emitted when the state of a tristate
+  \i stateChanged(int) is emitted when the state of a tristate
 			toggle button changes.
   \endlist
 
@@ -211,9 +211,10 @@ QTimer *QButton::timer()
   sizeHint() as well, and sometimes hitButton() (to determine whether
   a button press is within the button).
 
-  To reduce flickering, the QButton::paintEvent() sets up a pixmap that the
-  drawButton() function draws in. You should not reimplement paintEvent()
-  for a subclass of QButton unless you want to take over all drawing.
+  To reduce flickering, QButton::paintEvent() sets up a pixmap that
+  the drawButton() function draws in. You should not reimplement
+  paintEvent() for a subclass of QButton unless you want to take over
+  all drawing.
 
   \sa QButtonGroup
 */
@@ -828,11 +829,9 @@ void QButton::focusOutEvent( QFocusEvent * e )
     QWidget::focusOutEvent( e );
 }
 
-
 /*!
   Internal slot used for auto repeat.
 */
-
 void QButton::autoRepeatTimeout()
 {
     if ( mlbDown && isEnabled() && autoRepeat() ) {
@@ -845,11 +844,9 @@ void QButton::autoRepeatTimeout()
     }
 }
 
-
 /*!
   Internal slot used for the second stage of animateClick().
 */
-
 void QButton::animateTimeout()
 {
     if ( !animation )
@@ -885,9 +882,7 @@ void QButton::nextState()
     }
 }
 
-
 /*! \reimp */
-
 void QButton::enabledChange( bool e )
 {
     if ( !e )
@@ -912,7 +907,6 @@ void QButton::toggle()
   \a type can be set to \c SingleShot, \c Toggle and
   \c TriState.
 */
-
 void QButton::setToggleType( ToggleType type )
 {
     toggleTyp = type;

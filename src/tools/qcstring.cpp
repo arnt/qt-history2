@@ -141,14 +141,13 @@ char *qstrncpy( char *dst, const char *src, uint len )
   is less than \a str2, 0 if \a str1 is equal to \a str2 or a positive
   value if \a str1 is greater than \a str2.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
   Special case II: Returns a random nonzero value if \a str1 is null
   or \a str2 is null (but not both).
 
-  \sa qstrncmp(), qstricmp(), qstrnicmp()
+  \sa qstrncmp() qstricmp() qstrnicmp()
+      \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -163,14 +162,13 @@ char *qstrncpy( char *dst, const char *src, uint len )
   is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
   Special case II: Returns a random nonzero value if \a str1 is null
   or \a str2 is null (but not both).
 
   \sa qstrcmp(), qstricmp(), qstrnicmp()
+      \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -184,14 +182,13 @@ char *qstrncpy( char *dst, const char *src, uint len )
   is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
   Special case II: Returns a random nonzero value if \a str1 is null
   or \a str2 is null (but not both).
 
   \sa qstrcmp(), qstrncmp(), qstrnicmp()
+      \link #asciinotion Note on character comparisons \endlink
 */
 
 int qstricmp( const char *str1, const char *str2 )
@@ -219,14 +216,13 @@ int qstricmp( const char *str1, const char *str2 )
   is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
   Special case II: Returns a random nonzero value if \a str1 is null
   or \a str2 is null (but not both).
 
   \sa qstrcmp(), qstrncmp() qstricmp()
+      \link #asciinotion Note on character comparisons \endlink
 */
 
 int qstrnicmp( const char *str1, const char *str2, uint len )
@@ -446,31 +442,28 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     supports some more obscure functions, e.g. sprintf(), setStr() and
     setExpand().
 
-    <table border="1">
-    <tr><th><a name="asciinotion">Note on character comparisons</th></tr>
-    <tr><td>
-  In QCString the notion of uppercase and lowercase and of which
-  character is greater than or less than another character is locale
-  dependent. This affects functions which support a case insensitive
-  option or which compare or lowercase or uppercase their arguments.
-  Case insensitive operations and comparisons will be accurate if both
-  strings contain only ASCII characters. (If $LC_CTYPE is set, most Unix
-  systems do 'the right thing'.) Functions that this affects include
-  contains(), find(), findRev(), operator\<(), operator\<=(),
-  operator>(), operator>=(), lower() and upper().
-  </td></tr></table>
+    \target asciinotion
+    \sidebar Note on Character Comparisons
 
-  Implementation note: the QCString methods for QRegExp searching are
+    In QCString the notion of uppercase and lowercase and of which
+    character is greater than or less than another character is
+    locale dependent. This affects functions which support a case
+    insensitive option or which compare or lowercase or uppercase
+    their arguments. Case insensitive operations and comparisons will
+    be accurate if both strings contain only ASCII characters. (If \c
+    $LC_CTYPE is set, most Unix systems do "the right thing".)
+    Functions that this affects include contains(), find(),
+    findRev(), \l operator<(), \l operator<=(), \l operator>(), \l
+    operator>=(), lower() and upper().
+    \endsidebar
+
+  Performance note: The QCString methods for QRegExp searching are
   implemented by converting the QCString to a QString and performing the
   search on that. This implies a deep copy of the QCString data. If you
   are going to perform many QRegExp searches on a large QCString, you
   will get better performance by converting the QCString to a QString
-  yourself, and then performing the searches on the QString. The results
-  will be of course be identical.
-
-  \sa \link shclass.html Shared classes\endlink
+  yourself, and then searching in the QString.
 */
-
 
 /*!
   \fn QCString::QCString()
@@ -648,8 +641,8 @@ bool QCString::resize( uint len )
 
 
 /*!
-  Implemented as a call to the native vsprintf() (see your C-library
-  manual).
+  Implemented as a call to the native vsprintf() (see the manual for
+  your C library).
 
   If the string is shorter than 256 characters, this sprintf() calls
   resize(256) to decrease the chance of memory corruption.  The string is
@@ -725,9 +718,9 @@ bool QCString::fill( char c, int len )
   The search is case sensitive if \a cs is TRUE, or case insensitive if
   \a cs is FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Returns the position of \a c, or -1 if \a c could not be found.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 int QCString::find( char c, int index, bool cs ) const
@@ -756,9 +749,9 @@ int QCString::find( char c, int index, bool cs ) const
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Returns the position of \a str, or -1 if \a str could not be found.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 int QCString::find( const char *str, int index, bool cs ) const
@@ -793,9 +786,9 @@ int QCString::find( const char *str, int index, bool cs ) const
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Returns the position of \a c, or -1 if \a c could not be found.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 int QCString::findRev( char c, int index, bool cs ) const
@@ -833,9 +826,9 @@ int QCString::findRev( char c, int index, bool cs ) const
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Returns the position of \a str, or -1 if \a str could not be found.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 int QCString::findRev( const char *str, int index, bool cs ) const
@@ -870,8 +863,7 @@ int QCString::findRev( const char *str, int index, bool cs ) const
   The match is case sensitive if \a cs is TRUE, or case insensitive if \a cs
   if FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 int QCString::contains( char c, bool cs ) const
@@ -902,12 +894,11 @@ int QCString::contains( char c, bool cs ) const
   The match is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs if FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   This function counts overlapping substrings, for example, "banana"
   contains two occurrences of "ana".
 
   \sa findRev()
+      \link #asciinotion Note on character comparisons \endlink
 */
 
 int QCString::contains( const char *str, bool cs ) const
@@ -1107,9 +1098,8 @@ QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
     QCString t = s.lower();			// t == "credit"
   \endcode
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   \sa upper()
+      \link #asciinotion Note on character comparisons \endlink
 */
 
 QCString QCString::lower() const
@@ -1130,13 +1120,12 @@ QCString QCString::lower() const
 
   Example:
   \code
-    QCString s("Debit");
+    QCString s( "Debit" );
     QCString t = s.upper();			// t == "DEBIT"
   \endcode
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   \sa lower()
+      \link #asciinotion Note on character comparisons \endlink
 */
 
 QCString QCString::upper() const
@@ -1921,9 +1910,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \< 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -1931,9 +1920,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \< 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -1942,9 +1931,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \a s1 is less than or equal to \a s2;
   otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -1953,9 +1942,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \a s1 is less than or equal to \a s2;
   otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -1963,9 +1952,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \> 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -1973,9 +1962,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   \relates QCString
   Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \> 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -1984,9 +1973,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \a s1 is greater than or equal to \a s2;
   otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -1995,9 +1984,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
   Returns TRUE if \a s1 is greater than or equal to \a s2;
   otherwise returns FALSE.
 
-  See the <a href="#asciinotion">Note on character comparisons</a>.
-
   Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
+
+  \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
