@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#271 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#272 $
 **
 ** Implementation of QListBox widget class
 **
@@ -54,9 +54,7 @@ public:
 	count( 0 ),
 	ignoreMoves( FALSE ),
 	minWidth( 0 ),
-	minHeight( 0 ),
-    init( FALSE )
-
+	minHeight( 0 )
     {}
     ~QListBoxPrivate();
 
@@ -100,7 +98,6 @@ public:
     // used for the sizeHint
     int minWidth;
     int minHeight;
-    bool init;
 };
 
 
@@ -553,7 +550,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     connect( d->updateTimer, SIGNAL(timeout()),
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
-	     this, SLOT(visibleSlot()) );
+	     this, SLOT(ensureCurrentVisible()) );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
     setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this ); // ### wrong way around, kind of
@@ -962,8 +959,6 @@ void QListBox::changeItem( const QListBoxItem *lbi, int index )
 /*!
   Returns the number of visible items.	Both partially and entirely
   visible items are counted.
-
-  \sa setFixedVisibleLines()
 */
 
 int QListBox::numItemsVisible() const
@@ -1424,134 +1419,74 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Next:
-    {
-	int old = currentItem();
-	int i = 0;
-	if ( numColumns() == 1 ) {
-	    i = currentItem() + numItemsVisible();
-	    i = i > (int)count() - 1 ? (int)count() - 1 : i;
-	    setCurrentItem( i );
-	    setBottomItem( i );
-	} else {
-	    // I'm not sure about this behavior...
-	    if ( currentRow() == numRows() - 1 )
-		i = currentItem() + numRows();
-	    else
-		i = currentItem() + numRows() - currentRow() - 1;
-	    i = i > (int)count() - 1 ? (int)count() - 1 : i;
-	    setCurrentItem( i );
-	}
+	{
+	    int old = currentItem();
+	    int i = 0;
+	    if ( numColumns() == 1 ) {
+		i = currentItem() + numItemsVisible();
+		i = i > (int)count() - 1 ? (int)count() - 1 : i;
+		setCurrentItem( i );
+		setBottomItem( i );
+	    } else {
+		// I'm not sure about this behavior...
+		if ( currentRow() == numRows() - 1 )
+		    i = currentItem() + numRows();
+		else
+		    i = currentItem() + numRows() - currentRow() - 1;
+		i = i > (int)count() - 1 ? (int)count() - 1 : i;
+		setCurrentItem( i );
+	    }
 
-	if ( d->selectionMode == Multi &&
-	     e->state() & ShiftButton &&
-	     ++old <= i ) {
-	    QListBoxItem *c;
-	    while ( old <= i ) {
-		c = item( old );
-		if ( c ) {
-		    c->s = !c->s;
-		    updateItem( c );
+	    if ( d->selectionMode == Multi &&
+		 e->state() & ShiftButton &&
+		 ++old <= i ) {
+		QListBoxItem *c;
+		while ( old <= i ) {
+		    c = item( old );
+		    if ( c ) {
+			c->s = !c->s;
+			updateItem( c );
+		    }
+		    ++old;
 		}
-		++old;
+		emitChangedSignal( TRUE );
 	    }
-	    emitChangedSignal( TRUE );
-	}
-#if 0
-	if ( style() == MotifStyle) {
-	    if ( lastRowVisible() == (int) count() - 1){
-		int o = yOffset();
-		setBottomItem( lastRowVisible() );
-		if ( currentItem() < lastRowVisible() &&
-		     currentItem() == topItem() &&
-		     yOffset() != o)
-		    setCurrentItem(currentItem() + 1);
-		break;
-	    }
-	    if (currentItem() != topItem() ){
-		setTopItem( currentItem() );
-		break;
-	    }
-	}
-	else {
-	    if ( currentItem() != lastRowVisible() ||
-		 lastRowVisible() == (int) count() - 1) {
-		ensureCurrentVisible(lastRowVisible());
-		break;
-	    }
-	}
-	oldCurrent = currentItem();
-	setYOffset(yOffset() + viewHeight() );
-	if ( style() == MotifStyle)
-	    ensureCurrentVisible( topItem() );
-	else
-	    ensureCurrentVisible(lastRowVisible());
-	if (oldCurrent == currentItem() && currentItem() + 1 <	(int) count() )
-	    ensureCurrentVisible( currentItem() + 1 );
-#endif
 	} break;
     case Key_Prior:
-    {
-	int old = currentItem();
-	int i;
-	if ( numColumns() == 1 ) {
-	    i = currentItem() - numItemsVisible();
-	    i = i < 0 ? 0 : i;
-	    setCurrentItem( i );
-	    setTopItem( i );
-	} else {
-	    // I'm not sure about this behavior...
-	    if ( currentRow() == 0 )
-		i = currentItem() - numRows();
-	    else
-		i = currentItem() - currentRow();
-	    i = i < 0 ? 0 : i;
-	    setCurrentItem( i );
-	}
+	{
+	    int old = currentItem();
+	    int i;
+	    if ( numColumns() == 1 ) {
+		i = currentItem() - numItemsVisible();
+		i = i < 0 ? 0 : i;
+		setCurrentItem( i );
+		setTopItem( i );
+	    } else {
+		// I'm not sure about this behavior...
+		if ( currentRow() == 0 )
+		    i = currentItem() - numRows();
+		else
+		    i = currentItem() - currentRow();
+		i = i < 0 ? 0 : i;
+		setCurrentItem( i );
+	    }
 
-	if ( d->selectionMode == Multi &&
-	     e->state() & ShiftButton &&
-	     --old >= i ) {
-	    QListBoxItem *c;
-	    while ( old >= i ) {
-		c = item( old );
-		if ( c ) {
-		    c->s = !c->s;
-		    updateItem( c );
+	    if ( d->selectionMode == Multi &&
+		 e->state() & ShiftButton &&
+		 --old >= i ) {
+		QListBoxItem *c;
+		while ( old >= i ) {
+		    c = item( old );
+		    if ( c ) {
+			c->s = !c->s;
+			updateItem( c );
+		    }
+		    --old;
 		}
-		--old;
-	    }
-	    emitChangedSignal( TRUE );
-	}
-#if 0
-	if ( style() != MotifStyle) {
-	    if (currentItem() != topItem() || topItem() == 0){
-		ensureCurrentVisible(topItem());
-		break;
+		emitChangedSignal( TRUE );
 	    }
 	}
-	else {
-	    if ( topItem() == 0 ){
-		int o = yOffset();
-		setTopItem( topItem() );
-		if ( currentItem() > 0 && currentItem() == lastRowVisible() && yOffset() != o)
-		    setCurrentItem(currentItem()-1);
-		break;
-	    }
-	    if ( currentItem() != lastRowVisible() ) {
-		setBottomItem( currentItem() );
-		break;
-	    }
-	}
-	oldCurrent = currentItem();
-	setYOffset(yOffset() - viewHeight() );
-	if ( style() == MotifStyle)
-	    ensureCurrentVisible( lastRowVisible() );
-	else
-	    ensureCurrentVisible( topItem() );
-	if (oldCurrent == currentItem() && currentItem() > 0)
-	    ensureCurrentVisible( currentItem() -1);
-#endif
-	} break;
+	break;
 
     case Key_Space:
 	toggleCurrentItem();
@@ -1568,47 +1503,47 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Home:
-    {
-	int old = currentItem();
-	setCurrentItem( 0 );
-	int i = 0;
+	{
+	    int old = currentItem();
+	    setCurrentItem( 0 );
+	    int i = 0;
 
-	if ( d->selectionMode == Multi &&
-	     e->state() & ShiftButton &&
-	     --old >= i ) {
-	    QListBoxItem *c;
-	    while ( old >= i ) {
-		c = item( old );
-		if ( c ) {
-		    c->s = !c->s;
-		    updateItem( c );
+	    if ( d->selectionMode == Multi &&
+		 e->state() & ShiftButton &&
+		 --old >= i ) {
+		QListBoxItem *c;
+		while ( old >= i ) {
+		    c = item( old );
+		    if ( c ) {
+			c->s = !c->s;
+			updateItem( c );
+		    }
+		    --old;
 		}
-		--old;
+		emitChangedSignal( TRUE );
 	    }
-	    emitChangedSignal( TRUE );
-	}
-    } break;
+	} break;
     case Key_End:
-    {
-	int old = currentItem();
-	int i = (int)count() - 1;
-	setCurrentItem( i );
+	{
+	    int old = currentItem();
+	    int i = (int)count() - 1;
+	    setCurrentItem( i );
 
-	if ( d->selectionMode == Multi &&
-	     e->state() & ShiftButton &&
-	     ++old <= i ) {
-	    QListBoxItem *c;
-	    while ( old <= i ) {
-		c = item( old );
-		if ( c ) {
-		    c->s = !c->s;
-		    updateItem( c );
+	    if ( d->selectionMode == Multi &&
+		 e->state() & ShiftButton &&
+		 ++old <= i ) {
+		QListBoxItem *c;
+		while ( old <= i ) {
+		    c = item( old );
+		    if ( c ) {
+			c->s = !c->s;
+			updateItem( c );
+		    }
+		    ++old;
 		}
-		++old;
+		emitChangedSignal( TRUE );
 	    }
-	    emitChangedSignal( TRUE );
-	}
-    } break;
+	} break;
     default:
 	e->ignore();
 	return;
@@ -1626,14 +1561,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 void QListBox::focusInEvent( QFocusEvent * )
 {
     emitChangedSignal( FALSE );
-    if ( currentItem() < 0 && numRows() > 0 ) {
-	setCurrentItem( topItem() );
-    }
-    updateItem( currentItem() );
-    if ( !d->init && isVisible() ) {
-	ensureCurrentVisible();
-	d->init = TRUE;
-    }
+    if ( !d->current && d->head )
+	setCurrentItem( d->head );
 }
 
 
@@ -2038,7 +1967,7 @@ void QListBox::doLayout() const
     switch( rowMode() ) {
     case FixedNumber:
 	// columnMode() is known to be Variable
-	tryGeometry( d->numRows, (c+d->numRows-1)/c );
+	tryGeometry( d->numRows, (c+d->numRows-1)/d->numRows );
 	break;
     case FitToHeight:
 	// columnMode() is known to be Variable
@@ -2431,8 +2360,10 @@ int QListBox::topItem() const
 }
 
 
-/*!
+/*!  Returns TRUE if this list box has variable-height rows, and
+FALSE if all the rows have the same height.
 
+\sa setVariableHeight() setVariableWidth()
 */
 
 bool QListBox::variableHeight() const
@@ -2441,8 +2372,16 @@ bool QListBox::variableHeight() const
 }
 
 
-/*!
+/*!  Sets this list box to have variable-height rows if \a enable is
+TRUE, and equal-height rows if \a enable is FALSE.
 
+When the list box has variable-height rows, each row is as high as the
+highest item in that row.  When it has same-sized rows, all rows are
+as high as the highest item in the list box.
+
+The default is TRUE.
+
+\sa setVariableWidth() variableHeight()
 */
 
 void QListBox::setVariableHeight( bool enable )
@@ -2455,7 +2394,10 @@ void QListBox::setVariableHeight( bool enable )
 }
 
 
-/*!
+/*!  Returns TRUE if this list box has variable-width columns, and
+FALSE if all the columns have the same width.
+
+\sa setVariableHeight() setVariableWidth()
 */
 
 bool QListBox::variableWidth() const
@@ -2464,8 +2406,16 @@ bool QListBox::variableWidth() const
 }
 
 
-/*!
+/*!  Sets this list box to have variable-width columns if \a enable is
+TRUE, and equal-width columns if \a enable is FALSE.
 
+When the list box has variable-width columns, each column is as wide
+as the widest item in that column.  When it has same-sized columns,
+all columns are as wide as the widest item in the list box.
+
+The default is FALSE.
+
+\sa setVariableHeight() variableWidth()
 */
 
 void QListBox::setVariableWidth( bool enable )
@@ -2482,9 +2432,18 @@ void QListBox::setVariableWidth( bool enable )
 
 void QListBox::refreshSlot()
 {
-    if ( d->mustPaintAll || d->layoutDirty ) {
+    if ( d->mustPaintAll ||
+	 d->layoutDirty ) {
 	d->mustPaintAll = FALSE;
 	doLayout();
+	if ( hasFocus() &&
+	     d->currentColumn >= 0 &&
+	     d->currentRow >= 0 &&
+	     ( d->columnPos[d->currentColumn] < contentsX() ||
+	       d->columnPos[d->currentColumn+1]>contentsX()+visibleWidth() ||
+	       d->rowPos[d->currentRow] < contentsY() ||
+	       d->rowPos[d->currentRow+1] > contentsY()+visibleHeight() ) )
+	    ensureCurrentVisible();
 	viewport()->repaint( FALSE );
 	return;
     }
@@ -2528,13 +2487,6 @@ void QListBox::refreshSlot()
 	viewport()->repaint( r, FALSE );
 }
 
-/*!
-  Calls ensureCurrentVisible */
-
-void QListBox::visibleSlot()
-{
-    ensureCurrentVisible();
-}
 
 /*! \reimp */
 
@@ -2700,8 +2652,11 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
     int x = d->columnPos[ col ] - contentsX();
     int y = d->rowPos[ row ] - contentsY();
 
-    return QRect( x, y, d->columnPos[ col + 1 ] - d->columnPos[ col ],
+    QRect r( x, y, d->columnPos[ col + 1 ] - d->columnPos[ col ],
 		  d->rowPos[ row + 1 ] - d->rowPos[ row ] );
+    if ( r.intersects( QRect( 0, 0, visibleWidth(), visibleHeight() ) ) )
+	return r;
+    return QRect( 0, 0, -1, -1 );
 }
 
 void QListBox::inSort( const QListBoxItem * lbi )
@@ -2731,16 +2686,13 @@ void QListBox::inSort( const QString& text )
 void QListBox::resizeEvent( QResizeEvent *e )
 {
     if ( d->layoutDirty ||
-	 rowMode() == FitToHeight || columnMode() == FitToWidth || columnMode() == FixedNumber) {
+	 rowMode() == FitToHeight || columnMode() == FitToWidth ||
+	 columnMode() == FixedNumber) {
 	d->layoutDirty = TRUE;
 	d->updateTimer->stop();
-	doLayout();
     }
     QScrollView::resizeEvent( e );
-    if ( !d->init && isVisible() ) {
-	ensureCurrentVisible();
-	d->init = TRUE;
-    }
+    ensureCurrentVisible();
 }
 
 
@@ -2789,10 +2741,7 @@ void QListBox::showEvent( QShowEvent * )
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
     d->mustPaintAll = FALSE;
-    if ( !d->init && isVisible() ) {
-	ensureCurrentVisible();
-	//d->init = TRUE;
-    }
+    ensureCurrentVisible();
 }
 
 /*!
@@ -2803,8 +2752,10 @@ void QListBox::showEvent( QShowEvent * )
 bool QListBox::itemYPos( int index, int *yPos ) const
 {
     QListBoxItem* i = item(index);
-    if ( !i ) return FALSE;
-    if ( yPos ) *yPos = i->y;
+    if ( !i )
+	return FALSE;
+    if ( yPos )
+	*yPos = i->y;
     return TRUE;
 }
 
@@ -2830,6 +2781,8 @@ QListBox * QListBoxItem::listBox() const
 */
 void QListBox::takeItem( const QListBoxItem * item)
 {
+    if ( !item )
+	return;
     d->count--;
     if ( item->p && item->p->n == item )
 	item->p->n = item->n;
