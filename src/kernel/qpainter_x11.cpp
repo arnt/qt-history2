@@ -339,7 +339,7 @@ static void init_gc_cache()
 }
 
 
-// #define GC_CACHE_STAT
+#define GC_CACHE_STAT
 #if defined(GC_CACHE_STAT)
 #include "qtextstream.h"
 #include "qbuffer.h"
@@ -359,8 +359,8 @@ static void cleanup_gc_cache()
     qDebug( "Number of cache creates = %d", g_numcreates );
     qDebug( "Number of cache faults = %d", g_numfaults );
     for ( int i=0; i<gc_cache_size; i++ ) {
-        QCString    str;
-        QBuffer     buf( str );
+        QByteArray str;
+        QBuffer buf( str );
         buf.open(IO_ReadWrite);
         QTextStream s(&buf);
         s << i << ": ";
@@ -3033,15 +3033,20 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
     Display *dpy = QPaintDevice::x11AppDisplay();
     GC gc;
     void *penref = 0;
-    bool obtained = false;
+    ulong pixel = brush.color().pixel(screen);
+    bool obtained = obtain_gc(&penref, &gc, pixel, dpy, screen, hd, gc_cache_clip_serial);
 
-    // ### why doesn't this work when using the GC cache?
-//     obtained = obtain_gc(&penref, &gc, brush.color().pixel(screen), dpy, screen, hd,
-// 			 ++gc_cache_clip_serial);
+    if (!obtained && !penref) {
+	gc = alloc_gc(dpy, screen, hd, false);
+    } else {
+	if (penref && ((QGCC*)penref)->clip_serial) {
+	    XSetClipMask(dpy, gc, None);
+	    ((QGCC*)penref)->clip_serial = 0;
+	}
+    }
 
     if (!obtained) {
-	gc = alloc_gc(dpy, screen, hd, false);
-	XSetForeground(dpy, gc, brush.color().pixel(screen));
+	XSetForeground(dpy, gc, pixel);
     }
 
     if (brush.pixmap()) {
@@ -3055,7 +3060,7 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
 	XFillRectangle(dpy, hd, gc, x, y, w, h);
     }
 
-    if (obtained) {
+    if (penref) {
 	release_gc(penref);
     } else {
 	free_gc(dpy, gc);
