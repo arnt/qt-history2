@@ -79,8 +79,8 @@ public:
         inline bool operator>(int position) const
             { return (*this).position > position; }
     };
-    mutable QVector<HeaderSection> sections; // section = sections.at(visualIndex)
-    mutable QVector<int> visualIndices; // index = visualIndices.at(section)
+    mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
+    mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
 
     int lastPos;
     int section; // used for resizing and moving sections

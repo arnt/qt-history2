@@ -363,7 +363,7 @@ QAbstractItemModel::ItemFlags QTableModel::flags(const QModelIndex &index) const
         return itm->flags();
     return QAbstractItemModel::ItemIsEditable
         |QAbstractItemModel::ItemIsSelectable
-        |QAbstractItemModel::ItemIsCheckable
+        |QAbstractItemModel::ItemIsUserCheckable
         |QAbstractItemModel::ItemIsEnabled;
 }
 
@@ -768,7 +768,7 @@ QTableWidgetItem::QTableWidgetItem()
     : view(0), model(0),
       itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsCheckable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
 }
@@ -780,7 +780,7 @@ QTableWidgetItem::QTableWidgetItem(const QString &text)
     : view(0), model(0),
       itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsCheckable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     setData(QAbstractItemModel::DisplayRole, text);

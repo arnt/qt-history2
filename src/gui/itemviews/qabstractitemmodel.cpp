@@ -1004,7 +1004,7 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
     \value ItemIsEditable It can be edited.
     \value ItemIsDragEnabled It can be dragged.
     \value ItemIsDropEnabled It can be used as a drop target.
-    \value ItemIsCheckable It can be checked.
+    \value ItemIsUserCheckable It can be checked or unchecked by the user.
     \value ItemIsEnabled The user can interact with the item.
     \value ItemIsTristate The item is checkable with three separate states.
 */

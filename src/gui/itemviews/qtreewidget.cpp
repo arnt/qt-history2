@@ -971,6 +971,7 @@ void QTreeModel::invalidatePersistentIndexRow(QTreeWidgetItem *item)
 QTreeWidgetItem::QTreeWidgetItem()
     : view(0), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
 }
@@ -985,6 +986,7 @@ QTreeWidgetItem::QTreeWidgetItem()
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
     : view(view), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
@@ -1006,6 +1008,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
     : view(0), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
@@ -1025,6 +1028,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
     : view(0), model(0), par(parent),
       itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent)
@@ -1041,6 +1045,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after)
     : view(0), model(0), par(parent),
       itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent) {

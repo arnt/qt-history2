@@ -139,7 +139,7 @@ public:
         ItemIsEditable = 2,
         ItemIsDragEnabled = 4,
         ItemIsDropEnabled = 8,
-        ItemIsCheckable = 16,
+        ItemIsUserCheckable = 16,
         ItemIsEnabled = 32,
         ItemIsTristate = 64
     };

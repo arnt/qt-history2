@@ -129,9 +129,7 @@ int main(int argc, char *argv[])
       item->setData(1, DownloadDelegate::DateRole, QDate(2004, 9, 11 + i));
       item->setData(2, DownloadDelegate::ProgressRole, 0.25 * (i % 4) + 0.10);
       item->setData(3, DownloadDelegate::RatingRole, (i % 6) + 1);
-      item->setFlags(item->flags()
-                     |QAbstractItemModel::ItemIsEditable
-                     |QAbstractItemModel::ItemIsCheckable);
+      item->setFlags(item->flags()|QAbstractItemModel::ItemIsEditable);
   }
 
   view->setWindowIcon(QPixmap(":/images/interview.png"));

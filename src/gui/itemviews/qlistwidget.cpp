@@ -315,6 +315,7 @@ void QListModel::updatePersistentIndexes(int row, int count)
 QListWidgetItem::QListWidgetItem(QListWidget *view)
     : view(view), model(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (view)
@@ -333,6 +334,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : view(view), model(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     setData(QAbstractItemModel::DisplayRole, text);

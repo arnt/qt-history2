@@ -1353,7 +1353,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
                 if (flow == QListView::LeftToRight) {
                     deltaFlowPosition = hint.width();
                     deltaSegHint = hint.height();
-                } else {
+                } else { // TopToBottom
                     deltaFlowPosition = hint.height();
                     deltaSegHint = hint.width();
                 }
@@ -1381,7 +1381,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
     if (flow == QListView::LeftToRight) {
         rect.setRight(segmentPositions.count() == 1 ? flowPosition : bounds.right());
         rect.setBottom(segPosition + deltaSegPosition);
-    } else {
+    } else { // TopToBottom
         rect.setRight(segPosition + deltaSegPosition);
         rect.setBottom(segmentPositions.count() == 1 ? flowPosition : bounds.bottom());
     }
@@ -1693,8 +1693,12 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
                  rect.top() - q->verticalOffset(),
                  rect.width(), rect.height());
     // If the listview is in "listbox-mode", the items are as wide as the view.
-    if (!wrap && movement == QListView::Static) {
-        if (flow == QListView::TopToBottom) {
+    if (!wrap && movement == QListView::Static
+        && flow == QListView::TopToBottom) {
+        if (q->isRightToLeft()) {
+            result.setRight(viewport->width()-1);
+            result.setLeft(0);
+        } else {
             result.setRight(qMax(contentsSize.width(), viewport->width())-1);
             result.setLeft(0);
         }
