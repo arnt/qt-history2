@@ -15,7 +15,7 @@ public:
 
     virtual QStringList featureList() = 0;
 
-    static QString interfaceID() { return "QSqlDriverInterface"; }
+    QString interfaceID() { return "QSqlDriverInterface"; }
 };
 
 #endif // QT_NO_SQL
