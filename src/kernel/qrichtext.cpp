@@ -1798,7 +1798,6 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
     bool hadEndParag = FALSE;
     bool hadOldStart = FALSE;
     bool hadOldEnd = FALSE;
-    QTextParag *lastParag = 0;
     bool leftSelection = FALSE;
     sel.swapped = FALSE;
     while ( TRUE ) {
@@ -1861,7 +1860,6 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 	    inSelection = FALSE;
 
 	old = c;
-	lastParag = c.parag();
 	c.gotoRight();
 	if ( old == c || noSelectionAnymore )
 	    break;
