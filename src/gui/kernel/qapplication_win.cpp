@@ -3200,7 +3200,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         llId = (llId << 24) | csr_physid;
         QTabletEvent e(t, localPos, globalPos, globalPos, dev,
                        qReal(prsNew / qReal(tdd.maxPressure - tdd.minPressure)),
-                       txiltX, tiltY, 0, llId);
+                       tiltX, tiltY, 0, llId);
         sendEvent = QApplication::sendSpontaneousEvent(w, &e);
     }
     return sendEvent;
