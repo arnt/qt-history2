@@ -68,7 +68,6 @@ public:
 
     void addSeparator();
 
-    virtual void setOrientation( Orientation );
     Orientation orientation() const { return o; }
 
     void show();
@@ -92,6 +91,9 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
+public slots:
+    virtual void setOrientation( Orientation );
+    
 protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
@@ -112,7 +114,7 @@ private:
     virtual void setUpGM();
     void paintToolBar();
     QBoxLayout *boxLayout();
-    
+
     QBoxLayout * bl;
     QToolBarPrivate * d;
     Orientation o;
