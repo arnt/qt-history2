@@ -62,7 +62,7 @@ int main( int argc, char **argv )
 	item->setRenameEnabled( TRUE );
     }
 
-    qiconview.setCaption( "Qt Example - Iconview" );
+    qiconview.setWindowTitle( "Qt Example - Iconview" );
 
     ListenDND listen_dnd( &qiconview );
     QObject::connect( &qiconview, SIGNAL( dropped( QDropEvent *, const QValueList<QIconDragItem> & ) ),
