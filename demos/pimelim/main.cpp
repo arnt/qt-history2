@@ -72,8 +72,7 @@ int main(int argc, char **argv)
     hub->setEditor(editor);
     hub->setViewer(viewer);
 
-    QObject::connect(list, SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     hub, SLOT(viewCurrent()));
+    QObject::connect(list, SIGNAL(activated(QModelIndex)), hub, SLOT(viewCurrent()));
     QObject::connect(viewer, SIGNAL(done()), hub, SLOT(setDefault()));
     QObject::connect(editor, SIGNAL(done()), hub, SLOT(setDefault()));
 
