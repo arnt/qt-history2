@@ -69,7 +69,7 @@
 #define QT_OPEN_APPEND		O_APPEND
 
 #define QT_SIGNAL_RETTYPE	void
-#if defined(_LANGUAGE_C_PLUS_PLUS) || !defined(_SGIAPI)
+#if !defined(_SGIAPI)
 #define QT_SIGNAL_ARGS		int
 #else
 #define QT_SIGNAL_ARGS		void
