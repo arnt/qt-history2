@@ -1478,10 +1478,7 @@ bool QApplicationPrivate::qws_apply_settings()
 
 
     if (groupCount == QPalette::NColorGroups)
-        if (QApplicationPrivate::sys_pal)
-            *QApplicationPrivate::sys_pal = pal;
-        else
-            QApplicationPrivate::sys_pal = new QPalette(pal);
+        QApplicationPrivate::setSystemPalette(pal);
 
     if (!qt_app_has_font) {
         QFont font(QApplication::font());

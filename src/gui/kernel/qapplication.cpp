@@ -35,6 +35,7 @@
 #include "qwidget.h"
 #include "qapplication_p.h"
 #include "qdnd_p.h"
+#include "qcolormap.h"
 #include "qdebug.h"
 
 #include "qinputcontext.h"
@@ -790,6 +791,7 @@ void QApplication::initialize()
     extern bool qRegisterGuiVariant();
     qRegisterGuiVariant();
 #endif
+
     QApplicationPrivate::is_app_running = true; // no longer starting up
 
 #ifndef QT_NO_SESSIONMANAGER
@@ -1104,12 +1106,10 @@ QStyle *QApplication::style()
             qFatal("No %s style available!", style.toLatin1().constData());
     }
 
-    if (!QApplicationPrivate::sys_pal) {
-        QPalette pal = QApplicationPrivate::app_style->standardPalette();
-        QApplicationPrivate::sys_pal = new QPalette(pal);
-    }
-    QApplication::setPalette(QApplicationPrivate::set_pal
-                             ? *QApplicationPrivate::set_pal : *QApplicationPrivate::sys_pal);
+    if (!QApplicationPrivate::sys_pal)
+        QApplicationPrivate::setSystemPalette(QApplicationPrivate::app_style->standardPalette());
+    if (QApplicationPrivate::set_pal) // repolish set palette with the new style
+        QApplication::setPalette(*QApplicationPrivate::set_pal);
 
 
     QApplicationPrivate::app_style->polish(qApp);
@@ -1462,10 +1462,29 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
 
 void QApplicationPrivate::setSystemPalette(const QPalette &pal)
 {
+    QPalette adjusted;
+
+#if 0
+    // adjust the system palette to avoid dithering
+    QColormap cmap = QColormap::instance();
+    if (cmap.depths() > 4 && cmap.depths() < 24) {
+        for (int g = 0; g < QPalette::NColorGroups; g++)
+            for (int i = 0; i < QPalette::NColorRoles; i++) {
+                QColor color = pal.color((QPalette::ColorGroup)g, (QPalette::ColorRole)i);
+                color = cmap.colorAt(cmap.pixel(color));
+                adjusted.setColor((QPalette::ColorGroup)g, (QPalette::ColorRole) i, color);
+            }
+    }
+#else
+    adjusted = pal;
+#endif
+
     if (!sys_pal)
-        sys_pal = new QPalette(pal);
+        sys_pal = new QPalette(adjusted);
     else
-        *sys_pal = pal;
+        *sys_pal = adjusted;
+
+
     if (!QApplicationPrivate::set_pal)
         QApplication::setPalette(*sys_pal);
 }
@@ -1838,7 +1857,7 @@ bool QApplication::event(QEvent *e)
         Q_ASSERT(te != 0);
         if (te->timerId() == qt_double_buffer_timer) {
             if (!QApplicationPrivate::active_window) {
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) && !defined(QT_RASTER_PAINTENGINE)
                 extern void qt_discard_double_buffer();
                 qt_discard_double_buffer();
 #endif
