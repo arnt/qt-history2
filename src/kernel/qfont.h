@@ -303,6 +303,7 @@ private:
     friend class QPSPrinterFont;
     friend class QApplication;
     friend class QWidget;
+    friend class QWidgetPrivate;
     friend class QTextFormatCollection;
     friend class QTextLayout;
     friend class QTextItem;
