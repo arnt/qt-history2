@@ -675,6 +675,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    consume( "endlink" );
 		    // we have found the missing link: Eirik Aavitsland
 		    warning( 2, location(), "Missing '\\link'" );
+		} else if ( command[5] == QChar('o') ) {
+		    consume( "endomit" );
+		    warning( 2, location(), "Missing '\\omit'" );
 		} else if ( command[5] == QChar('s') ) {
 		    consume( "endlist" );
 		    if ( openedLists.isEmpty() )
@@ -884,6 +887,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "note" );
 		yyOut += QString( "Note:" );
 		warning( 2, location(), "No such command '%s'", "\\note" );
+		break;
+	    case hash( 'o', 4 ):
+		consume( "omit" );
+		end = yyIn.find( QString("\\endomit"), yyPos );
+		if ( end == -1 )
+		    end = yyIn.length();
+		yyPos = end;
 		break;
 	    case hash( 'o', 8 ):
 		if ( command.length() != 8 )

@@ -86,6 +86,7 @@
   \link #mustquote \\mustquote \endlink,
   \link #note \\note \endlink,
   \link #obsolete \\obsolete \endlink,
+  \link #omit \\omit...\\endomit \endlink,
   \link #overload \\overload \endlink,
   \link #page \\page \endlink,
   \link #plainpage \\plainpage \endlink,
@@ -763,6 +764,9 @@
    \i <a name="r"></a>
     <b>\\r</b> ...
   \endlist
+
+   \i <a name="omit"></a>
+    <b>\\omit ... \\endomit</b> comments out a block of text.
 
   \section 2 Exotic commands
 
