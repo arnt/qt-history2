@@ -473,6 +473,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    v->fixup( tbuf );
 	    if ( old != tbuf ) {
 		d->pmDirty = TRUE;
+		if ( cursorPos > (int)tbuf.length() )
+		    cursorPos = tbuf.length();
 		update();
 	    }
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
