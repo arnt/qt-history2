@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#117 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#118 $
 **
 ** Definition of QWidget class
 **
@@ -135,6 +135,7 @@ public:
     bool	 hasFocus() const;
     void	 setFocus();
     void	 clearFocus();
+    void 	 setTabDestination( QWidget * );
 
   // Grab functions
 
@@ -279,7 +280,6 @@ private:
     void	 cancelResize();
     void	 sendDeferredEvents();
     QWidget     *focusWidget() const;
-    void 	 insertIntoFocusChain( QWidget * );
     void 	 reparentFocusWidgets( QWidget *parent );
     QFocusData  *focusData( bool create = FALSE );
 

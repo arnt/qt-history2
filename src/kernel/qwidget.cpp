@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#188 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#187 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#188 $");
 
 
 /*!
@@ -1783,18 +1783,46 @@ QFocusData * QWidget::focusData( bool create )
 }
 
 
-void QWidget::insertIntoFocusChain( QWidget *after )
+/*!
+  Sets the destination widget when Tab is pressed to \a next, i.e. if
+  the user presses Tab while this widget has focus, Qt gives the
+  keyboard focus to \a next.
+
+  Note that the tab destination of \a next is changed, so you can do
+  this:
+
+  \code
+    a->setTabDestination( b ); // a to b
+    b->setTabDestination( c ); // a to b to c
+    c->setTabDestination( d ); // a to b to c to d
+  \endcode
+
+  But you can not do this:
+
+  \code
+    c->setTabDestination( d ); // c to d
+    a->setTabDestination( b ); // a to b AND c to d
+    b->setTabDestination( c ); // a to b to c, but not c to d
+  \endcode
+
+*/
+void QWidget::setTabDestination( QWidget *next )
 {
+    if ( !next )
+	return;
+
     QFocusData *f = focusData( TRUE );
-    bool focusHere = (f->it.current() == this);
-    f->focusWidgets.removeRef( this );
-    if ( f->focusWidgets.findRef( after ) >= 0 )
-	f->focusWidgets.insert( f->focusWidgets.at() + 1, this );
+    bool focusThere = (f->it.current() == next );
+    f->focusWidgets.removeRef( next );
+    if ( f->focusWidgets.findRef( this ) >= 0 )
+	f->focusWidgets.insert( f->focusWidgets.at() + 1, next );
     else
-	f->focusWidgets.append( this );
-    if ( focusHere ) // reset iterator so tab will work appropriately
-	while( f->it.current() && f->it.current() != this )
+	f->focusWidgets.append( next );
+    if ( focusThere ) { // reset iterator so tab will work appropriately
+	f->it.toFirst();
+	while( f->it.current() && f->it.current() != next )
 	    ++f->it;
+    }
 }
 
 /*!
@@ -2217,7 +2245,7 @@ bool QWidget::close( bool forceKill )
 bool QWidget::isVisibleToTLW() const
 {
     const QWidget * w = this;
-    while ( w && !w->isVisible() && !w->isTopLevel() && w->parentWidget() )
+    while ( w && w->isVisible() && !w->isTopLevel() && w->parentWidget() )
 	w = w->parentWidget();
     return w->isVisible();
 }
