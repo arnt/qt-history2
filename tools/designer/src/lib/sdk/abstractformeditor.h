@@ -27,7 +27,7 @@ class AbstractMetaDataBase;
 class AbstractWidgetFactory;
 class AbstractDnDManager;
 class AbstractObjectInspector;
-class AbstractPixmapCache;
+class AbstractIconCache;
 class PluginManager;
 
 class QWidget;
@@ -50,7 +50,7 @@ public:
     AbstractWidgetDataBase *widgetDataBase() const;
     AbstractMetaDataBase *metaDataBase() const;
     AbstractWidgetFactory *widgetFactory() const;
-    AbstractPixmapCache *pixmapCache() const;
+    AbstractIconCache *iconCache() const;
     PluginManager *pluginManager() const;
 
     AbstractObjectInspector *objectInspector() const;
@@ -67,7 +67,7 @@ protected:
     void setWidgetDataBase(AbstractWidgetDataBase *widgetDataBase);
     void setWidgetFactory(AbstractWidgetFactory *widgetFactory);
     void setExtensionManager(QExtensionManager *extensionManager);
-    void setPixmapCache(AbstractPixmapCache *cache);
+    void setIconCache(AbstractIconCache *cache);
 
 private:
     QPointer<QWidget> m_topLevel;
@@ -79,7 +79,7 @@ private:
     QPointer<AbstractWidgetDataBase> m_widgetDataBase;
     QPointer<AbstractWidgetFactory> m_widgetFactory;
     QPointer<AbstractObjectInspector> m_objectInspector;
-    QPointer<AbstractPixmapCache> m_pixmapCache;
+    QPointer<AbstractIconCache> m_iconCache;
     PluginManager *m_pluginManager;
 
 private:

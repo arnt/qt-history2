@@ -23,7 +23,7 @@
 #include <abstractwidgetdatabase.h>
 #include <abstractobjectinspector.h>
 #include <qextensionmanager.h>
-#include <abstractpixmapcache.h>
+#include <abstracticoncache.h>
 
 class PluginManager;
 
@@ -99,11 +99,11 @@ AbstractObjectInspector *AbstractFormEditor::objectInspector() const
 void AbstractFormEditor::setObjectInspector(AbstractObjectInspector *objectInspector)
 { m_objectInspector = objectInspector; }
 
-AbstractPixmapCache *AbstractFormEditor::pixmapCache() const
-{ return m_pixmapCache; }
+AbstractIconCache *AbstractFormEditor::iconCache() const
+{ return m_iconCache; }
 
-void AbstractFormEditor::setPixmapCache(AbstractPixmapCache *cache)
-{ m_pixmapCache = cache; }
+void AbstractFormEditor::setIconCache(AbstractIconCache *cache)
+{ m_iconCache = cache; }
 
 PluginManager *AbstractFormEditor::pluginManager() const
 { return m_pluginManager; }

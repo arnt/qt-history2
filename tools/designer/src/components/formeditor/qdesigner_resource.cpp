@@ -32,7 +32,7 @@
 #include <abstractwidgetfactory.h>
 #include <abstractmetadatabase.h>
 #include <abstractformeditor.h>
-#include <abstractpixmapcache.h>
+#include <abstracticoncache.h>
 #include <ui4.h>
 
 #include <QMainWindow>
@@ -257,8 +257,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                         name = p->elementIconSet()->text();
                     else if (p->elementPixmap() != 0)
                         name = p->elementPixmap()->text();
-                    qDebug() << "QDesignerResource::applyProperties(): name=" << name;
-                    v = m_core->pixmapCache()->nameToPixmap(name);
+                    v = m_core->iconCache()->nameToIcon(name);
                 } else {
                     v = toVariant(o->metaObject(), p);
                 }
@@ -915,7 +914,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
-        QString name = m_core->pixmapCache()->pixmapToName(value.toPixmap());
+        QString name = m_core->iconCache()->iconToName(value.toIcon());
         r->setText(name);
         DomProperty *p = new DomProperty;
         p->setElementIconSet(r);

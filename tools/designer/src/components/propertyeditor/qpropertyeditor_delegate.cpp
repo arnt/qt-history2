@@ -133,7 +133,7 @@ QWidget *Delegate::createEditor(QWidget *parent,
         Q_ASSERT(editor);
 
         editor->installEventFilter(const_cast<Delegate *>(this));
-
+/*
         if (property->hasReset()) {
             QWidget *hbox = new QHBoxWidget(parent);
             editor->setParent(hbox);
@@ -145,7 +145,7 @@ QWidget *Delegate::createEditor(QWidget *parent,
 
             editor = hbox;
         }
-
+*/
         return editor;
     }
 
