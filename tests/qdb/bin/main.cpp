@@ -38,7 +38,7 @@
 	xdb.sourceforge.net
 */
 
-#include <qdb.h>
+#include <localsql.h>
 #include <qapplication.h>
 #include <qdir.h>
 #include <qfileinfo.h>

@@ -39,7 +39,7 @@
 	xdb.sourceforge.net
 */
 
-#include <qdb.h>
+#include <localsql.h>
 #include <qfile.h>
 #include <sqlinterpreter.h>
 #include <qmap.h>

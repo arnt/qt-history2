@@ -44,7 +44,7 @@ SOURCES	        += ../src/sqlinterpreter.cpp \
 		../src/parser.cpp \
 		../src/localsql.cpp 
 LIBS		+= -lxdb
-TARGET          += qdb
+TARGET          += lsql
 VERSION		+= 1.0.0
 DESTDIR		+= ../lib
 

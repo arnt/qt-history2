@@ -41,10 +41,10 @@ CONFIG		= xbase
 include(../include/shared.pri)
 SOURCES	        += main.cpp
 QMAKE_LIBDIR		+= ../lib
-LIBS		+= -lqdb
+LIBS		+= -llsql
 INCLUDEPATH	+= ../include
 DESTDIR		= ../bin
-TARGET          = qdb
+TARGET          = lsql
 
 # install
 target.path=$$QDB_INSTALL_BINPATH
