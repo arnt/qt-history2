@@ -512,9 +512,15 @@ void QComboBoxPrivate::returnPressed()
     if (lineEdit && !lineEdit->text().isEmpty()) {
         QString text = lineEdit->text();
         // check for duplicates (if not enabled) and quit
-        if (!d->duplicatesEnabled && q->contains(text))
-            return;
         int row = -1;
+        if (!d->duplicatesEnabled) {
+            row = q->findItem(text, QAbstractItemModel::MatchExactly
+                              | QAbstractItemModel::MatchCase);
+            if (row != -1) {
+                q->setCurrentItem(row);
+                return;
+            }
+        }
         switch (insertionPolicy) {
         case QComboBox::AtTop:
             row = 0;
@@ -1454,11 +1460,8 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         ++newRow;
         break;
     case Qt::Key_Home:
-        if (d->lineEdit) {
-            e->ignore();
-            return;
-        }
-        newRow = 0;
+        if (!d->lineEdit)
+            newRow = 0;
         break;
     case Qt::Key_End:
         if (!d->lineEdit)
@@ -1496,6 +1499,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         setCurrentItem(newRow);
     else if (d->lineEdit)
         d->lineEdit->event(e);
+
 }
 
 
