@@ -1081,7 +1081,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 
     QPixmap *pm = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
-    if (pixmap.isQBitmap() && d->bgMode == Qt::TransparentMode)
+    if (!mask && pixmap.isQBitmap() && d->bgMode == Qt::TransparentMode)
        mask = (QBitmap*) pm;
 
     HDC pm_dc;
@@ -1093,6 +1093,9 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         pm_dc = pm->winHDC();
         pm_offset = 0;
     }
+
+    if (mode == Qt::CopyPixmapNoMask)
+        mask = 0;
 
     Q_ASSERT(pm_dc);
 
@@ -1129,7 +1132,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             QBitmap bm(sr.width(), sr.height());
             {
                 QPainter p(&bm);
-                p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr);
+                p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr, Qt::CopyPixmapNoMask);
             }
             QWMatrix xform = QWMatrix(r.width()/(double)sr.width(), 0,
                                       0, r.height()/(double)sr.height(),
@@ -1860,7 +1863,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::PixmapScale
         | QPaintEngine::ClipTransform
 #endif
-//         | QPaintEngine::PainterPaths
+        | QPaintEngine::PainterPaths
         | QPaintEngine::UsesFontEngine
         | QPaintEngine::LinearGradients;
 
