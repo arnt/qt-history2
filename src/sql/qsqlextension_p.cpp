@@ -56,7 +56,7 @@ bool QSqlExtension::exec()
     return FALSE;
 }
 
-void QSqlExtension::bindValue( const QString& placeholder, const QVariant& val )
+void QSqlExtension::bindValue( const QString& placeholder, const QVariant& val, QSql::ParameterType tp )
 {
     bindm = BindByName;
     // if the index has already been set when doing emulated named
@@ -64,20 +64,21 @@ void QSqlExtension::bindValue( const QString& placeholder, const QVariant& val )
     if ( index[ values.count() ].isEmpty() ) {
 	index[ values.count() ] = placeholder;
     }
-    values[ placeholder ] = val;
+    values[ placeholder ] = Param( val, tp );
 }
 
-void QSqlExtension::bindValue( int pos, const QVariant& val )
+void QSqlExtension::bindValue( int pos, const QVariant& val, QSql::ParameterType tp )
 {
     bindm = BindByPosition;
     index[ pos ] = QString::number( pos );
-    values[ QString::number( pos ) ] = val;
+    QString nm = QString::number( pos );
+    values[ nm ] = Param( val, tp );
 }
 
-void QSqlExtension::addBindValue( const QVariant& val )
+void QSqlExtension::addBindValue( const QVariant& val, QSql::ParameterType tp )
 {
     bindm = BindByPosition;
-    bindValue( bindCount++, val );
+    bindValue( bindCount++, val, tp );
 }
 
 void QSqlExtension::clearValues()
@@ -89,6 +90,16 @@ void QSqlExtension::clearValues()
 void QSqlExtension::clearIndex()
 {
     index.clear();
+}
+
+QVariant QSqlExtension::parameterValue( const QString& /* holder */ )
+{
+    return QVariant();
+}
+
+QVariant QSqlExtension::parameterValue( int /* pos */ )
+{
+    return QVariant();
 }
 
 QSqlExtension::BindMethod QSqlExtension::bindMethod()

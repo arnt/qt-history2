@@ -112,22 +112,22 @@ public:
     {
 	int r = OCI_SUCCESS;
 	if ( ext->bindMethod() == QSqlExtension::BindByName ) {
-	    QMap<QString, QVariant>::Iterator it;
+	    QSqlExtension::ValueMap::Iterator it;
 	    for ( it = ext->values.begin(); it != ext->values.end(); ++it ) {
 		OCIBind * hbnd = 0; // Oracle handles these automatically
 		sb2 * indPtr = new sb2(0);
 		tmpStorage.append( qAutoDeleter(indPtr) );
-		if ( it.data().isNull() ) {
+		if ( it.data().value.isNull() ) {
 		    *indPtr = -1;
 		}
-		switch ( it.data().type() ) {
+		switch ( it.data().value.type() ) {
 		    case QVariant::ByteArray:
 			// this is for RAW, LONG RAW and BLOB fields..
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (dvoid *) it.data().asByteArray().data(),
-					   it.data().asByteArray().size(),
+					   (dvoid *) it.data().value.asByteArray().data(),
+					   it.data().value.asByteArray().size(),
 					   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
@@ -136,8 +136,8 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (dvoid *) it.data().asCString().data(),
-					   it.data().asCString().length(),
+					   (dvoid *) it.data().value.asCString().data(),
+					   it.data().value.asCString().length(),
 					   SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
@@ -146,7 +146,7 @@ public:
 		    case QVariant::Time:
 		    case QVariant::Date:
 		    case QVariant::DateTime: {
-			QByteArray * ba = new QByteArray( qMakeOraDate( it.data().toDateTime() ) );
+			QByteArray * ba = new QByteArray( qMakeOraDate( it.data().value.toDateTime() ) );
 			tmpStorage.append( qAutoDeleter(ba) );
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
@@ -160,7 +160,7 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) &it.data().asInt(),
+					   (ub1 *) &it.data().value.asInt(),
 					   sizeof(int),
 					   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -169,13 +169,13 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) &it.data().asDouble(),
+					   (ub1 *) &it.data().value.asDouble(),
 					   sizeof(double),
 					   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			break;
 		    case QVariant::String: {
-			QCString * str = new QCString( it.data().asString().utf8() );
+			QCString * str = new QCString( it.data().value.asString().utf8() );
 			tmpStorage.append( qAutoDeleter(str) );
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
@@ -191,8 +191,8 @@ public:
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) it.data().asString().local8Bit().data(),
-					   it.data().asString().length()+1,
+					   (ub1 *) it.data().value.asString().local8Bit().data(),
+					   it.data().value.asString().length()+1,
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
@@ -207,7 +207,7 @@ public:
 	    QMap<int, QString>::Iterator it;
 	    for ( it = ext->index.begin(); it != ext->index.end(); ++it ) {
 		OCIBind * hbnd = 0; // Oracle handles these automatically
-		QVariant val( ext->values[ it.data() ] );
+		QVariant val( ext->values[ it.data() ].value );
 		sb2 * indPtr = new sb2(0);
 		tmpStorage.append( qAutoDeleter(indPtr) );
 		if ( val.isNull() ) {
@@ -249,7 +249,7 @@ public:
 		    case QVariant::Int:
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) &ext->values[ it.data() ].asInt(), // avoid deep cpy
+					  (ub1 *) &ext->values[ it.data() ].value.asInt(), // avoid deep cpy
 					  sizeof(int),
 					  SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -257,7 +257,7 @@ public:
 		    case QVariant::Double:
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) &ext->values[ it.data() ].asDouble(), // avoid deep cpy
+					  (ub1 *) &ext->values[ it.data() ].value.asDouble(), // avoid deep cpy
 					  sizeof(double),
 					  SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );

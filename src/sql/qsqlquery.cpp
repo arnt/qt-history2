@@ -932,29 +932,29 @@ bool QSqlQuery::exec()
 	// fake preparation - just replace the placeholders..
 	QString query = d->sqlResult->lastQuery();
 	if ( d->sqlResult->extension()->bindMethod() == QSqlExtension::BindByName ) {
-	    QMap<QString, QVariant>::ConstIterator it;
+	    QSqlExtension::ValueMap::Iterator it;
 	    for ( it = d->sqlResult->extension()->values.begin();
 		  it != d->sqlResult->extension()->values.end(); ++it ) {
-		QSqlField f( "", it.data().type() );
-		if ( it.data().isNull() )
+		QSqlField f( "", it.data().value.type() );
+		if ( it.data().value.isNull() )
 		    f.setNull();
 		else
-		    f.setValue( it.data() );
+		    f.setValue( it.data().value );
 		query = query.replace( it.key(), driver()->formatValue( &f ) ); 
 	    }
 	} else {
-	    QMap<int, QString>::ConstIterator it;
+	    QMap<int, QString>::Iterator it;
 	    QString val;
 	    int i = 0;
 	    for ( it = d->sqlResult->extension()->index.begin();
 		  it != d->sqlResult->extension()->index.end(); ++it ) {
 		i = query.find( '?', i );
 		if ( i > -1 ) {
-		    QSqlField f( "", d->sqlResult->extension()->values[ it.data() ].type() );
-		    if ( d->sqlResult->extension()->values[ it.data() ].isNull() )
+		    QSqlField f( "", d->sqlResult->extension()->values[ it.data() ].value.type() );
+		    if ( d->sqlResult->extension()->values[ it.data() ].value.isNull() )
 			f.setNull();
 		    else
-			f.setValue( d->sqlResult->extension()->values[ it.data() ] );
+			f.setValue( d->sqlResult->extension()->values[ it.data() ].value );
 		    val = driver()->formatValue( &f );
 		    query = query.replace( i, 1, driver()->formatValue( &f ) );
 		    i += val.length();

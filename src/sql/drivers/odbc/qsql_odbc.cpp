@@ -850,7 +850,7 @@ bool QODBCResult::exec()
 	int para = 1;
 	QVariant val;
 	for ( it = extension()->index.begin(); it != extension()->index.end(); ++it ) {
-	    val = extension()->values[ it.data() ];
+	    val = extension()->values[ it.data() ].value;
 	    SQLINTEGER * ind = new SQLINTEGER( SQL_NTS );
 	    tmpStorage.append( qAutoDeleter(ind) );
 	    if ( val.isNull() ) {

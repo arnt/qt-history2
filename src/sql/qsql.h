@@ -71,6 +71,14 @@ public:
 	Yes = 1
     };
 
+#ifndef Q_QDOC
+    enum ParameterType {
+	In,
+	Out,
+	InOut
+    };
+#endif
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSql( const QSql & );
