@@ -962,7 +962,7 @@ static Q_UINT16 getGlyphIndex( unsigned char *table, Q_UINT16 format, unsigned s
 static inline void checkXftCoverage( QtFontFamily *family )
 {
 #ifdef _POSIX_MAPPED_FILES
-    QByteArray ext = family->fontFilename.mid( family->fontFilename.findRev( '.' ) ).lower();
+    QByteArray ext = family->fontFilename.mid( family->fontFilename.lastIndexOf( '.' ) ).toLower();
     if ( family->fontFileIndex == 0 && ( ext == ".ttf" || ext == ".otf" ) ) {
 	void *map;
 	// qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
