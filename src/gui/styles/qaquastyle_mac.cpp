@@ -79,9 +79,8 @@ void QAquaFocusWidget::setFocusWidget(QWidget * widget)
         setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
                     widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
         setPalette(widget->palette());
-        qDebug("placing at %d %d %d %d (%s)", x(), y(), width(), height(), parentWidget()->metaObject()->className());
         setMask(QRegion(rect()) - focusRegion());
-        raise();
+        stackUnder(d);
         show();
     }
 }
