@@ -22,7 +22,7 @@ class QSqlError;
 class QSqlRecord;
 class QSqlQuery;
 
-class QSqlModel: public QAbstractItemModel
+class Q_SQL_EXPORT QSqlModel: public QAbstractItemModel
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSqlModel);
