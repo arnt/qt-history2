@@ -68,7 +68,7 @@ struct QLineEditPrivate {
     bool inDoubleClick;
     bool offsetDirty;
     QPopupMenu *popup;
-    int id[ 5 ];
+    int id[ 7 ];
     QValueList<QLineEditUndoItem> undoList;
     QValueList<QLineEditUndoItem> redoList;
     bool undo;
@@ -205,12 +205,15 @@ void QLineEdit::init()
     setAcceptDrops( TRUE );
     ed = FALSE;
     d->popup = new QPopupMenu( this );
-    d->id[ 0 ] = d->popup->insertItem( tr( "Cut" ) );
-    d->id[ 1 ] = d->popup->insertItem( tr( "Copy" ) );
-    d->id[ 2 ] = d->popup->insertItem( tr( "Paste" ) );
-    d->id[ 3 ] = d->popup->insertItem( tr( "Clear" ) );
+    d->id[ 0 ] = d->popup->insertItem( tr( "Undo" ) );
+    d->id[ 1 ] = d->popup->insertItem( tr( "Redo" ) );
     d->popup->insertSeparator();
-    d->id[ 4 ] = d->popup->insertItem( tr( "Select All" ) );
+    d->id[ 2 ] = d->popup->insertItem( tr( "Cut" ) );
+    d->id[ 3 ] = d->popup->insertItem( tr( "Copy" ) );
+    d->id[ 4 ] = d->popup->insertItem( tr( "Paste" ) );
+    d->id[ 5 ] = d->popup->insertItem( tr( "Clear" ) );
+    d->popup->insertSeparator();
+    d->id[ 6 ] = d->popup->insertItem( tr( "Select All" ) );
 }
 
 
@@ -702,20 +705,26 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() == RightButton ) {
-	d->popup->setItemEnabled( d->id[ 0 ], hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 1 ], hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 2 ], (bool)QApplication::clipboard()->text().length() );
-	d->popup->setItemEnabled( d->id[ 3 ], (bool)text().length() );
+	d->popup->setItemEnabled( d->id[ 0 ], !d->undoList.isEmpty() );
+	d->popup->setItemEnabled( d->id[ 1 ], !d->redoList.isEmpty() );
+	d->popup->setItemEnabled( d->id[ 2 ], hasMarkedText() );
+	d->popup->setItemEnabled( d->id[ 3 ], hasMarkedText() );
+	d->popup->setItemEnabled( d->id[ 4 ], (bool)QApplication::clipboard()->text().length() );
+	d->popup->setItemEnabled( d->id[ 5 ], (bool)text().length() );
 	int id = d->popup->exec( QCursor::pos() );
 	if ( id == d->id[ 0 ] )
-	    cut();
+	    undoInternal();
 	else if ( id == d->id[ 1 ] )
-	    copy();
+	    redoInternal();
 	else if ( id == d->id[ 2 ] )
-	    paste();
+	    cut();
 	else if ( id == d->id[ 3 ] )
-	    clear();
+	    copy();
 	else if ( id == d->id[ 4 ] )
+	    paste();
+	else if ( id == d->id[ 5 ] )
+	    clear();
+	else if ( id == d->id[ 6 ] )
 	    selectAll();
 
 	return;
@@ -1664,7 +1673,7 @@ void QLineEdit::undoInternal()
     if ( d->undoList.isEmpty() )
 	return;
     d->undo = FALSE;	
-    
+
     d->redoList += QLineEditUndoItem(tbuf, cursorPos );
     setText( d->undoList.last().str );
     setCursorPosition( d->undoList.last().pos );
