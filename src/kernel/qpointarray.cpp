@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#60 $
 **
 ** Implementation of QPointArray class
 **
@@ -482,9 +482,10 @@ static inline int fix_angle( int a )
 /*!
   Sets the points of the array to those describing an arc of an
   ellipse with size \a w by \a h and position (\a x, \a y ), starting
-  from angle \a1, spanning \a a2.  The returned array has sufficient
-  resolution for use as pixels (see the overloaded function which
+  from angle \a1, spanning \a a2.  The resulting array has sufficient
+  resolution for pixel accuracy (see the overloaded function which
   takes an additional QWMatrix parameter).
+
   Angles are specified in 16ths of a degree,
   i.e. a full circle equals 5760 (16*360). Positive values mean
   counter-clockwise while negative values mean clockwise direction.
@@ -577,6 +578,17 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 }
 
 
+/*!
+  Sets the points of the array to those describing an arc of an
+  ellipse with size \a w by \a h and position (\a x, \a y ), starting
+  from angle \a1, spanning \a a2, transformed by the matrix \a xf.
+  The resulting array has sufficient resolution for pixel accuracy.
+
+  Angles are specified in 16ths of a degree,
+  i.e. a full circle equals 5760 (16*360). Positive values mean
+  counter-clockwise while negative values mean clockwise direction.
+  Zero degrees is at the 3'o clock position.
+*/
 void QPointArray::makeArc( int x, int y, int w, int h,
 			       int a1, int a2,
 			       const QWMatrix& xf )
@@ -596,9 +608,6 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 
     double xP, yP, xQ, yQ, xK, yK;
 
-    //xf.map(x+w, y+h/2.0, &xP, &yP);
-    //xf.map(x+w/2.0, y+h, &xQ, &yQ);
-    //xf.map(x+w, y+h, &xK, &yK);
     xf.map(x+w, y+h/2.0, &xP, &yP);
     xf.map(x+w/2.0, y, &xQ, &yQ);
     xf.map(x+w, y, &xK, &yK);
@@ -625,24 +634,18 @@ void QPointArray::makeArc( int x, int y, int w, int h,
     nquad[1] = n;
 
     xP = xQ; yP = yQ;
-    //xf.map(x, y+h/2.0, &xQ, &yQ);
-    //xf.map(x, y+h, &xK, &yK);
     xf.map(x, y+h/2.0, &xQ, &yQ);
     xf.map(x, y, &xK, &yK);
     qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
     nquad[2] = n;
 
     xP = xQ; yP = yQ;
-    //xf.map(x+w/2.0, y, &xQ, &yQ);
-    //xf.map(x, y, &xK, &yK);
     xf.map(x+w/2.0, y+h, &xQ, &yQ);
     xf.map(x, y+h, &xK, &yK);
     qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
     nquad[3] = n;
 
     xP = xQ; yP = yQ;
-    //xf.map(x+w, y+h/2.0, &xQ, &yQ);
-    //xf.map(x+w, y, &xK, &yK);
     xf.map(x+w, y+h/2.0, &xQ, &yQ);
     xf.map(x+w, y+h, &xK, &yK);
     qtr_elips(*this, n, xP, yP, xQ, yQ, xK, yK, m);
