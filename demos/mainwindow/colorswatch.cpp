@@ -26,7 +26,7 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
 
     QFrame *swatch = new QFrame(this);
     swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    swatch->setMinimumSize(150, 100);
+    swatch->setMinimumSize(125, 75);
 
     QPalette pal = swatch->palette();
     pal.setColor(swatch->backgroundRole(), QColor(colorName));

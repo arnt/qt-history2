@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
     QTextEdit *center = new QTextEdit(this);
     center->setReadOnly(true);
     center->setHtml(tr(message));
-    center->setMinimumSize(400, 300);
+    center->setMinimumSize(400, 200);
     setCenterWidget(center);
 
     statusBar()->message(tr("Status Bar"));
