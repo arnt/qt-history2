@@ -1012,7 +1012,7 @@ bool QAbstractItemModel::isValid(int row, int column, const QModelIndex &parent)
         return false;
     return row < rowCount(parent) && column < columnCount(parent);
 }
-    
+
 
 /*!
     \internal
@@ -1141,7 +1141,7 @@ QAbstractTableModel::QAbstractTableModel(QAbstractItemModelPrivate &dd, QObject 
     : QAbstractItemModel(dd, parent)
 {
 
-}   
+}
 
 /*!
     Destroys the abstract table model.
@@ -1261,7 +1261,7 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
 */
 
 QAbstractListModel::QAbstractListModel(QObject *parent)
-    : QAbstractTableModel(parent)
+    : QAbstractItemModel(parent)
 {
 
 }
@@ -1273,10 +1273,10 @@ QAbstractListModel::QAbstractListModel(QObject *parent)
 */
 
 QAbstractListModel::QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent)
-    : QAbstractTableModel(dd, parent)
+    : QAbstractItemModel(dd, parent)
 {
 
-}   
+}
 
 /*!
     Destroys the abstract list model.
