@@ -51,10 +51,11 @@ public:
 
     // ToolButton
     void drawToolButton( QPainter *p, int x, int y, int w, int h,
-			const QColorGroup &g, bool sunken = FALSE,
-			const QBrush *fill = 0 );
-    void drawToolButton( QToolButton* btn, QPainter *p);
-
+		     const QColorGroup &g, bool on, bool down, bool enabled, 
+		     bool autoRaised = FALSE, const QBrush *fill = 0 );
+    void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
+		     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
+		     const QBrush *fill = 0 );
 
     // RadioButton
     QSize exclusiveIndicatorSize() const;

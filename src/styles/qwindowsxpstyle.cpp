@@ -811,12 +811,13 @@ void QWindowsXPStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 }
 
 void QWindowsXPStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-		 const QColorGroup &g, bool sunken, const QBrush *fill )
-{
+		 const QColorGroup &g, bool on, bool down, bool enabled,
+		 bool autoRaised, const QBrush *fill )
+ {
 #if defined(Q_WS_WIN)
     HTHEME htheme = Private::getThemeData( L"TOOLBAR" );
     if ( !htheme ) {
-	QWindowsStyle::drawToolButton( p, x, y, w, h, g, sunken, fill );
+	QWindowsStyle::drawToolButton( p, x, y, w, h, g, on, down, enabled, autoRaised, fill );
 	return;
     }
 
@@ -826,21 +827,42 @@ void QWindowsXPStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
     r.top = y;
     r.bottom = y+h;
 
-    if ( sunken )
+    int statusId;
+
+    if ( on )
 	Private::DrawThemeBackground( htheme, p->handle(), 1, 3, &r, 0 );
     else
 	Private::DrawThemeBackground( htheme, p->handle(), 1, g.brightText().isValid() ? 1 : 2, &r, 0 );
     
     Private::CloseThemeData( htheme );
 #else
-    QWindowsStyle::drawToolButton( p, x, y, w, h, g, sunken, fill );
+    QWindowsStyle::drawToolButton( p, x, y, w, h, g, on, down, enabled, autoRaised, fill );
 #endif
 }
 
-void QWindowsXPStyle::drawToolButton( QToolButton *btn, QPainter *p )
+void QWindowsXPStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
+		 const QColorGroup &g, bool down, bool enabled, bool autoRaised,
+		 const QBrush *fill )
 {
-    QWindowsStyle::drawToolButton( btn, p );
-//    drawToolButton( p, btn->x(), btn->y(), btn->width(), btn->height(), btn->colorGroup(), btn->isOn() || btn->isDown() );
+#if defined(Q_WS_WIN)
+    HTHEME htheme = Private::getThemeData( L"TOOLBAR" );
+    if ( !htheme ) {
+	QWindowsStyle::drawDropDownButton( p, x, y, w, h, g, down, enabled, autoRaised, fill );
+	return;
+    }
+
+    RECT r;
+    r.left = x;
+    r.right = x+w;
+    r.top = y;
+    r.bottom = y+h;
+
+    int statusId;
+
+    Private::CloseThemeData( htheme );
+#else
+    QWindowsStyle::drawDropDownButton( p, x, y, w, h, g, down, enabled, autoRaised, fill );
+#endif
 }
 
 void QWindowsXPStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
