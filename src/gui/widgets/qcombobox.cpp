@@ -1490,6 +1490,7 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         return;
     case Qt::Key_Enter:
     case Qt::Key_Return:
+    case Qt::Key_Escape:
         e->ignore();
         return;
     default:
