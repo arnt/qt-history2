@@ -38,7 +38,7 @@ static QByteArray locale_encode(const QString &f)
 #ifndef Q_WS_MAC
     return f.toLocal8Bit();
 #else
-    // The from UTF-8 is temporary, toLocal8Bit() should work.
+    // Mac always expects UTF-8
     return f.toUtf8();
 #endif
 }
@@ -48,7 +48,7 @@ static QString locale_decode(const QByteArray &f)
 #ifndef Q_WS_MAC
     return QString::fromLocal8Bit(f);
 #else
-    // The from UTF-8 is temporary, fromLocal8Bit() should work.
+    // Mac always expects UTF-8
     return QUnicodeTables::normalize(QString::fromUtf8(f), QString::NormalizationForm_C);
 #endif
 }
