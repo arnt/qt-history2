@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#9 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#10 $
 **
 ** Definition of QTextStream class
 **
@@ -27,11 +27,11 @@ public:
     QTextStream( FILE *, int mode );
     virtual ~QTextStream();
 
-    QIODevice	*device() const;		// get current stream device
-    void	 setDevice( QIODevice * );	// set stream device
-    void	 unsetDevice();			// set NULL stream device
+    QIODevice	*device() const;
+    void	 setDevice( QIODevice * );
+    void	 unsetDevice();
 
-    bool	 eos() const;			// end of stream data?
+    bool	 eof() const;
 
     QTextStream &operator>>( char & );
     QTextStream &operator>>( signed short & );
@@ -42,7 +42,8 @@ public:
     QTextStream &operator>>( unsigned long & );
     QTextStream &operator>>( float & );
     QTextStream &operator>>( double & );
-    QTextStream &operator>>( char *& );
+    QTextStream &operator>>( char * );
+    QTextStream &operator>>( QString & );
 
     QTextStream &operator<<( char );
     QTextStream &operator<<( signed short );
@@ -57,7 +58,6 @@ public:
     QTextStream &operator<<( void * );		// any pointer
 
     QTextStream &readRawBytes( char *, uint len );
-
     QTextStream &writeRawBytes( const char *, uint len );
 
     enum {
@@ -81,31 +81,31 @@ public:
     static const long adjustfield;		// left | right | internal
     static const long floatfield;		// scientific | fixed
 
-    long  flags() const;			// get/set flags
+    long  flags() const;
     long  flags( long f );
     long  setf( long bits );
     long  setf( long bits, long mask );
     long  unsetf( long bits );
 
-    void  reset();				// set default flags
+    void  reset();
 
-    int	  width() const;			// get/set field width
+    int	  width()	const;
     int	  width( int );
-    int	  fill() const;				// get/set fill char
+    int	  fill()	const;
     int	  fill( int );
-    int	  precision() const;			// get/set float precision
+    int	  precision()	const;
     int	  precision( int );
 
 private:
     long	 input_int();
     QTextStream &output_int( int, ulong, bool );
-    QIODevice	*dev;				// I/O device
-    long	 fflags;			// formatting flags
-    int		 fwidth;			// field width
-    int		 fillchar;			// fill char
-    int		 fprec;				// float precision
-    bool	 fstrm;				// using file stream (cheat flag)
-    bool	 owndev;			// internally created device
+    QIODevice	*dev;
+    long	 fflags;
+    int		 fwidth;
+    int		 fillchar;
+    int		 fprec;
+    bool	 fstrm;
+    bool	 owndev;
 };
 
 typedef QTextStream QTS;
@@ -118,7 +118,7 @@ typedef QTextStream QTS;
 inline QIODevice *QTextStream::device() const
 { return dev; }
 
-inline bool QTextStream::eos() const
+inline bool QTextStream::eof() const
 { return dev ? dev->atEnd() : TRUE; }
 
 inline long QTextStream::flags() const
