@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#34 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#35 $
 **
 ** Definition of QStyle class
 **
@@ -218,10 +218,10 @@ public:
 				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h) = 0;
 
-    // Binary compatibility contortions:    
-    int scrollBarExtent(); //to become virtual in 3.0
+    // Binary compatibility contortions:
+    QSize scrollBarExtent(); //to become virtual in 3.0
 protected:
-    void setScrollBarExtent( int ); //will be removed in 3.0
+    void setScrollBarExtent( int w, int h=-1 ); //will be removed in 3.0
 };
 
 
