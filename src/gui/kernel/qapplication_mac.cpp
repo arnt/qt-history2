@@ -2314,8 +2314,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             }
         } else if(ekind == kEventWindowHidden) {
         } else if(ekind == kEventWindowShown) {
+#if 0
             if(!widget->testWFlags(Qt::WType_Popup))
-                widget->topLevelWidget()->setActiveWindow();
+                widget->setActiveWindow();
+#endif
         } else if(ekind == kEventWindowActivated) {
             if(QApplication::app_style) {
                 QEvent ev(QEvent::Style);

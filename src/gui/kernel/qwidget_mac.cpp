@@ -1306,7 +1306,7 @@ void QWidget::setActiveWindow()
         return;
     qt_event_remove_activate();
     qt_mac_set_fullscreen_mode(tlw->windowState() & Qt::WindowFullScreen);
-    WindowPtr window = qt_mac_window_for(this);
+    WindowPtr window = qt_mac_window_for(tlw);
     if(tlw->isPopup() || tlw->testWFlags(Qt::WStyle_Tool) || qt_mac_is_macdrawer(tlw)) {
         ActivateWindow(window, true);
     } else {
