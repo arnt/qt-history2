@@ -848,7 +848,8 @@ void Q4Menu::mouseReleaseEvent(QMouseEvent *e)
 	if(action->action->menu()) {
 	    action->action->menu()->d->setFirstActionActive();
 	} else {
-	    d->activateAction(action->action, QAction::Trigger);
+	    if(action)
+		d->activateAction(action->action, QAction::Trigger);
 	    d->hideUpToMenuBar();
 	}
     }
