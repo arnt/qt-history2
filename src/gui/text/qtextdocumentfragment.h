@@ -47,7 +47,7 @@ private:
     QTextDocumentFragmentPrivate *d;
 };
 
-QDataStream &operator<<(QDataStream &, const QTextDocumentFragment &fragment);
-QDataStream &operator>>(QDataStream &, QTextDocumentFragment &fragment);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextDocumentFragment &fragment);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextDocumentFragment &fragment);
 
 #endif // QTEXTDOCUMENTFRAGMENT_H

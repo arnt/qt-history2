@@ -99,7 +99,7 @@ public:
     QList<QTextFrame *> childFrames();
     QTextFrame *parentFrame();
 
-    class iterator {
+    class Q_GUI_EXPORT iterator {
         QTextFrame *f;
         int b;
         int e;
@@ -167,7 +167,7 @@ public:
 
     const QTextDocument *document() const;
 
-    class iterator {
+    class Q_GUI_EXPORT iterator {
         const QTextDocumentPrivate *p;
         int b;
         int e;
