@@ -208,6 +208,71 @@ QColor OLEColorToQColor( uint col )
     return QColor( GetRValue(cref),GetGValue(cref),GetBValue(cref) );
 }
 
+/*!
+    God knows why VariantChangeType can't do that...
+    Probably because VariantClear does not delete the stuff?
+*/
+static inline void makeReference( VARIANT &arg )
+{
+    switch( arg.vt ) {
+    case VT_BSTR:
+	arg.pbstrVal = new BSTR(arg.bstrVal);
+	break;
+    case VT_BOOL:
+	arg.pboolVal = new short(arg.boolVal);
+	break;
+    case VT_I1:
+	arg.pcVal = new char(arg.cVal);
+	break;
+    case VT_I2:
+	arg.piVal = new short(arg.iVal);
+	break;
+    case VT_I4:
+	arg.plVal = new long(arg.lVal);
+	break;
+    case VT_INT:
+	arg.pintVal = new int(arg.intVal);
+	break;
+    case VT_UI1:
+	arg.pbVal = new uchar(arg.bVal);
+	break;
+    case VT_UI2:
+	arg.puiVal = new ushort(arg.uiVal);
+	break;
+    case VT_UI4:
+	arg.pulVal = new ulong(arg.ulVal);
+	break;
+    case VT_UINT:
+	arg.puintVal = new uint(arg.uintVal);
+	break;
+    case VT_CY:
+	arg.pcyVal = new CY(arg.cyVal);
+	break;
+    case VT_R4:
+	arg.pfltVal= new float(arg.dblVal);
+	break;
+    case VT_R8:
+	arg.pdblVal = new double(arg.dblVal);
+	break;
+    case VT_DATE:
+	arg.pdate = new DATE(arg.date);
+	break;
+    case VT_DISPATCH:
+	arg.ppdispVal = new IDispatch*(arg.pdispVal);
+	break;
+    case VT_VARIANT:
+	arg.pvarVal = new VARIANT;
+	VariantInit(arg.pvarVal);
+	break;
+    case VT_ARRAY|VT_VARIANT:
+    case VT_ARRAY|VT_UI1:
+    case VT_ARRAY|VT_BSTR:
+	arg.pparray = new SAFEARRAY*(arg.parray);
+	break;
+    }
+    arg.vt |= VT_BYREF;
+}
+
 /*
     Converts \a var to \a arg, and tries to coerce \a arg to \a type.
 
@@ -222,7 +287,7 @@ QColor OLEColorToQColor( uint col )
     - QAxBase::internalInvoke( properties )
     - IPropertyBag::Read.
 */
-bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QString &type )
+bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, bool out)
 {
     arg.vt = VT_EMPTY;
 
@@ -398,7 +463,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QString &type )
 	}
 	break;
 #endif // QAX_SERVER
-
+/* XXX
     case 1000: // rawAccess in QAxBase::toVariant
 	if (type == "IDispatch*") {
 	    arg.vt = VT_DISPATCH;
@@ -412,10 +477,13 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QString &type )
 		arg.punkVal->AddRef();
 	}
 	break;
-
+*/
     default:
 	return FALSE;
     }
+
+    if (out)
+	makeReference(arg);
 
     return TRUE;
 }
@@ -509,66 +577,6 @@ bool QVariantToVoidStar(const QVariant &var, void *data)
     return true;
 }
 
-/*!
-    God knows why VariantChangeType can't do that...
-    Probably because VariantClear does not delete the stuff?
-*/
-static inline void makeReference( VARIANT &arg )
-{
-    switch( arg.vt ) {
-    case VT_BSTR:
-	arg.pbstrVal = new BSTR(arg.bstrVal);
-	break;
-    case VT_BOOL:
-	arg.pboolVal = new short(arg.boolVal);
-	break;
-    case VT_I1:
-	arg.pcVal = new char(arg.cVal);
-	break;
-    case VT_I2:
-	arg.piVal = new short(arg.iVal);
-	break;
-    case VT_I4:
-	arg.plVal = new long(arg.lVal);
-	break;
-    case VT_INT:
-	arg.pintVal = new int(arg.intVal);
-	break;
-    case VT_UI1:
-	arg.pbVal = new uchar(arg.bVal);
-	break;
-    case VT_UI2:
-	arg.puiVal = new ushort(arg.uiVal);
-	break;
-    case VT_UI4:
-	arg.pulVal = new ulong(arg.ulVal);
-	break;
-    case VT_UINT:
-	arg.puintVal = new uint(arg.uintVal);
-	break;
-    case VT_CY:
-	arg.pcyVal = new CY(arg.cyVal);
-	break;
-    case VT_R4:
-	arg.pfltVal= new float(arg.dblVal);
-	break;
-    case VT_R8:
-	arg.pdblVal = new double(arg.dblVal);
-	break;
-    case VT_DATE:
-	arg.pdate = new DATE(arg.date);
-	break;
-    case VT_DISPATCH:
-	arg.ppdispVal = new IDispatch*(arg.pdispVal);
-	break;
-    case VT_ARRAY|VT_VARIANT:
-    case VT_ARRAY|VT_UI1:
-    case VT_ARRAY|VT_BSTR:
-	arg.pparray = new SAFEARRAY*(arg.parray);
-	break;
-    }
-    arg.vt |= VT_BYREF;
-}
 /*
 static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
 {
@@ -1313,19 +1321,21 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const QString &hint )
 		    var = QPixmap();
 		}
 	    } else {
-		var.rawAccess( (IUnknown*)disp, (QVariant::Type)1000 );
+		//XXX var.rawAccess( (IUnknown*)disp, (QVariant::Type)1000 );
 	    }
 	}
 	break;
     case VT_UNKNOWN:
     case VT_UNKNOWN|VT_BYREF:
 	{
+	    /* XXX
 	    IUnknown *unkn = 0;
 	    if ( arg.vt & VT_BYREF )
 		unkn = *arg.ppunkVal;
 	    else
 		unkn = arg.punkVal;
 	    var.rawAccess( unkn, (QVariant::Type)1000 );
+	    */
 	}
 	break;
     case VT_ARRAY|VT_VARIANT:
