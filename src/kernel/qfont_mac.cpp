@@ -471,19 +471,22 @@ void QFontPrivate::load(QFont::Script script)
 	    
 	if(!(engineData = QFontCache::instance->findEngineData(key))) {
 	    engineData = new QFontEngineData;
-	    // QFontCache::instance->insertEngineData(key, engineData);
+	    QFontCache::instance->insertEngineData(key, engineData);
 	} else {
 	    engineData->ref();
 	}
 	if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
 	    Q_ASSERT(e->type() == QFontEngine::Mac);
 	    engine = (QFontEngineMac*)e;
+#if 0
 	    if(engine->fontDef.underline && !request.underline)
-		qDebug("Beep! Beep! [%p]", engine);
+		qDebug("Beep! Beep! [%d/%d/%d] [%p] [%p]", engine->fontDef.underline, request.underline, 
+		       req.underline, engine, engineData->engine);
+#endif
 	    engine->ref();
 	} else {
 	    engine = new QFontEngineMac;
-	    //    QFontCache::instance->insertEngine(key, engine);
+	    QFontCache::instance->insertEngine(key, engine);
 	}
 	engineData->engine = engine;
 
@@ -552,8 +555,10 @@ void QFontPrivate::load(QFont::Script script)
 #endif
 	}
     }
+#if 0
     if(engineData->engine->fontDef.underline)
 	qDebug("%p is underlined", engineData->engine);
+#endif
 }
 
 void QFont::initialize()
