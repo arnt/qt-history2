@@ -1,7 +1,7 @@
 #include "scriptengine.h"
 #include "opentype.h"
 #include "qfont.h"
-#include "qtextdata.h"
+#include <private/qunicodetables_p.h>
 #include "qtextengine.h"
 
 enum Features {

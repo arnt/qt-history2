@@ -1,7 +1,7 @@
 #include "qtextdata.h"
 
 
-const unsigned char QTextData::otherScripts [116] = {
+const unsigned char QTextData::otherScripts [118] = {
 #define SCRIPTS_02 0
     0xaf, QFont::Latin, 0xff, QFont::SpacingModifiers, 			// row 0x02, index 0
 #define SCRIPTS_03 4
@@ -48,8 +48,8 @@ const unsigned char QTextData::otherScripts [116] = {
     0x1f, QFont::Unicode, 0x2f, QFont::CombiningMarks, 0x6f, QFont::Unicode,
     0xff, QFont::Arabic,						// row 0xfe, index 98
 #define SCRIPTS_ff 108
-    0x5e, QFont::Katakana, 0x60, QFont::Unicode,
-    0x9f, QFont::KatakanaHalfWidth, 0xff, QFont::Unicode		// row 0xff, index 106
+    0x5e, QFont::Katakana, 0x60, QFont::Unicode,        		// row 0xff, index 106
+    0x9f, QFont::KatakanaHalfWidth, 0xfe, QFont::UnknownScript, 0xfe, QFont::Unicode
 };
 
 // (uc-0x0900)>>7
