@@ -1,3 +1,5 @@
+
+
 #qmake code
 OBJS=project.o main.o makefile.o unixmake2.o unixmake.o borland_bmake.o msvc_nmake.o msvc_dsp.o option.o winmakefile.o \
      projectgenerator.o metrowerks_xml.o
@@ -9,10 +11,9 @@ QTOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatast
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qlibrary.o
 vpath %.cpp @REL_QTDIR@/src/tools @REL_QTDIR@/src/codecs @REL_QTDIR@/src/kernel
 
-CFLAGS=$(QMAKE_CFLAGS_EXTRA) $(QMAKE_CFLAGS_DEBUG) \
-	-I. -Igenerators -Igenerators/unix -Igenerators/win32  -Igenerators/mac -I@OUT_QTDIR@/include \
-	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_NO_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
-LFLAGS=$(QMAKE_LFLAGS_EXTRA) @QMAKE_LIBRARIES@
+CFLAGS=@QMAKE_CFLAGS@ -I. -Igenerators -Igenerators/unix -Igenerators/win32  -Igenerators/mac \
+	-I@OUT_QTDIR@/include -I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_NO_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
+LFLAGS=@QMAKE_LFLAGS@
 
 #if cc isn't gcc I need to use the bad makefile
 ifeq ($(CC),gcc)

@@ -10,7 +10,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastr
 CFLAGS= $(QMAKE_CFLAGS_EXTRA) $(QMAKE_CFLAGS_DEBUG) \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac -I@OUT_QTDIR@/include \
 	-I@OUT_QTDIR@/src/tools -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NO_STL -I@QMAKESPEC@
-LFLAGS=$(QMAKE_LFLAGS_EXTRA) @QMAKE_LIBRARIES@
+LFLAGS=@QMAKE_LIBRARIES@
 
 qmake: $(OBJS) $(QOBJS)
 	$(CXX) -o $@ $(OBJS) $(QOBJS) $(LFLAGS)

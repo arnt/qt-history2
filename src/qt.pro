@@ -6,7 +6,7 @@ VERSION		= 3.0.0
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
-CONFIG		+= qt warn_on
+CONFIG		+= qt warn_on dylib
 
 KERNEL_CPP	= kernel	
 CANVAS_CPP      = canvas
@@ -86,10 +86,7 @@ unix {
 	STYLES_H	= $$STYLES_CPP
 
 	DEFINES    += QT_FATAL_ASSERT
-	!mac { #macx is a unix, but doesn't need this
-		!tru64-cxx:!tru64-g++:!freebsd-g++:LIBS += -ldl
-		CONFIG	   += x11 x11inc
-	}
+	!mac:CONFIG	   += x11 x11inc
 }
 
 DEPENDPATH += :$$NETWORK_H:$$KERNEL_H:$$WIDGETS_H:$$SQL_H:$$TABLE_H:$$DIALOGS_H:
