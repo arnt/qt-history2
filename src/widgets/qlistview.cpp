@@ -57,29 +57,14 @@
 #include "qlineedit.h"
 #include "qvbox.h"
 #include "qtooltip.h"
+#include "../kernel/qinternal_p.h"
 
 const int Unsorted = 16383;
 
 static QBitmap * verticalLine = 0;
 static QBitmap * horizontalLine = 0;
 
-static QPixmap *buffer = 0;
-
 static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
-static QCleanupHandler<QPixmap> qlv_cleanup_pixmap;
-
-static QPixmap *getCacheBuffer( const QSize &sz )
-{
-    if ( !buffer ) {
-	qlv_cleanup_pixmap.add( buffer );
-	buffer = new QPixmap;
-    }
-
-    if ( buffer->width() < sz.width() || buffer->height() < sz.height() )
-	buffer->resize( sz );
-    return buffer;
-}
-
 struct QListViewPrivate
 {
     // classes that are here to avoid polluting the global name space
@@ -2577,19 +2562,16 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		p->translate( r.left(), r.top() );
 		int ac = d->h->mapToLogical( c );
 		if ( d->useDoubleBuffer ) {
-		    QSize ps( r.width(), current->i->height() );
-		    QPixmap *pm = getCacheBuffer( ps );
-		    QPainter dp( pm );
-		    dp.translate( -r.left(), -r.top() );
-		    paintEmptyArea( &dp, r );
-		    dp.translate( r.left(), r.top() );
-		    dp.setFont( p->font() );
-		    dp.setPen( p->pen() );
-		    dp.setBrush( p->brush() );
-		    current->i->paintCell( &dp, colorGroup(), ac, r.width(),
+		    QSharedDoubleBuffer buffer( TRUE, FALSE );
+		    QRect a( r.topLeft(), QSize( r.width(), current->i->height() ) );
+		    buffer.begin( p, a );
+		    if ( buffer.isBuffered() )
+			paintEmptyArea( buffer.painter(), a );
+		    buffer.painter()->setFont( p->font() );
+		    buffer.painter()->setPen( p->pen() );
+		    buffer.painter()->setBrush( p->brush() );
+		    current->i->paintCell( buffer.painter(), colorGroup(), ac, r.width(),
 					   columnAlignment( ac ) );
-		    dp.end();
-		    p->drawPixmap( QPoint( 0, 0 ), *pm, QRect( 0, 0, ps.width(), ps.height() ) );
 		} else {
 		    current->i->paintCell( p, colorGroup(), ac, r.width(),
 					   columnAlignment( ac ) );

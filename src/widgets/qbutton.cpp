@@ -47,40 +47,11 @@
 #include "qpushbutton.h"
 #include "qcleanuphandler.h"
 #include "qaccessible.h"
+#include "../kernel/qinternal_p.h"
 #include <ctype.h>
 
 static const int autoRepeatDelay  = 300;
 static const int autoRepeatPeriod = 100;
-
-#if defined( Q_WS_QWS ) || defined( Q_WS_MAC9 )
-// Small in Qt/Embedded / Mac9 - 5K on 32bpp
-static const int drawingPixWidth  = 64;
-static const int drawingPixHeight = 20;
-#else
-// 120K on 32bpp
-static const int drawingPixWidth  = 300;
-static const int drawingPixHeight = 100;
-#endif
-
-
-/*
-  Returns a pixmap of dimension (drawingPixWidth x drawingPixHeight). The
-  pixmap is used by paintEvent for flicker-free drawing.
- */
-
-static QPixmap *drawpm = 0;
-
-static QCleanupHandler<QPixmap> qbt_cleanup_pixmap;
-
-static inline void makeDrawingPixmap()
-{
-    if ( !drawpm ) {
-	drawpm = new QPixmap( drawingPixWidth, drawingPixHeight );
-	Q_CHECK_PTR( drawpm );
-	qbt_cleanup_pixmap.add( drawpm );
-    }
-}
-
 
 class QButton::Data
 {
@@ -812,35 +783,17 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
 
 /*!
-  Processes the paint event \a event that is sent to the button.  
-  Small and typically complex buttons (less than 300x100 pixels) 
-  are painted double-buffered to reduce flicker. The actual 
-  drawing is done in the virtual functions - drawButton() 
-  and drawButtonLabel().
+  Handles paint events for buttons.  Small and typically complex
+  buttons are painted double-buffered to reduce flicker. The actually
+  drawing is done in the virtual functions drawButton() and
+  drawButtonLabel().
 
   \sa drawButton(), drawButtonLabel()
 */
-void QButton::paintEvent( QPaintEvent *event )
+void QButton::paintEvent( QPaintEvent *)
 {
-    if ( event &&
-	 width() <= drawingPixWidth &&
-	 height() <= drawingPixHeight &&
-	 backgroundMode() != X11ParentRelative ) {
-	makeDrawingPixmap(); // makes file-static drawpm variable
-	drawpm->fill( this, 0, 0 );
-	QPainter paint;
-	paint.begin( drawpm, this );
-	drawButton( &paint );
-	paint.end();
-
-	paint.begin( this );
-	paint.drawPixmap( 0, 0, *drawpm );
-	paint.end();
-    } else {
-	erase( event->region() );
-	QPainter paint( this );
-	drawButton( &paint );
-    }
+    QSharedDoubleBuffer buffer( this );
+    drawButton( buffer.painter() );
 }
 
 /*!\reimp

@@ -48,7 +48,6 @@
 #include "qptrdict.h" // binary compatibility
 #include "qapplication.h"
 #include "qtoolbar.h"
-#include "qcleanuphandler.h"
 
 // NOT REVISED
 /*!
@@ -188,7 +187,7 @@
     \obsolete
 
   If this property is set to TRUE, then a down arrow is drawn on the push
-  button to indicate that a menu will pop up if the user clicks on the 
+  button to indicate that a menu will pop up if the user clicks on the
   arrow.
 */
 
@@ -205,37 +204,6 @@ public:
     QGuardedPtr<QPopupMenu> popup;
     QIconSet* iconset;
 };
-
-static QPtrDict<QPushButtonPrivate> *d_ptr = 0;
-
-static QCleanupHandler<QPtrDict<QPushButtonPrivate> > qpb_cleanup_private;
-
-static QPushButtonPrivate* d( const QPushButton* foo )
-{
-    if ( !d_ptr ) {
-	d_ptr = new QPtrDict<QPushButtonPrivate>;
-	d_ptr->setAutoDelete( TRUE );
-	qpb_cleanup_private.add( d_ptr );
-    }
-    QPushButtonPrivate* ret = d_ptr->find( (void*)foo );
-    if ( ! ret ) {
-	ret = new QPushButtonPrivate;
-	d_ptr->replace( (void*) foo, ret );
-    }
-    return ret;
-}
-
-static bool has_d( const QPushButton* foo )
-{
-    return d_ptr && d_ptr->find( (void*)foo );
-}
-
-static void delete_d( const QPushButton* foo )
-{
-    if ( d_ptr )
-	d_ptr->remove( (void*) foo );
-}
-
 
 
 /*!
@@ -288,7 +256,7 @@ QPushButton::QPushButton( const QIconSet& icon, const QString &text,
  */
 QPushButton::~QPushButton()
 {
-    delete_d( this );
+    delete d;
 }
 
 void QPushButton::init()
@@ -587,10 +555,12 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
  */
 void QPushButton::setPopup( QPopupMenu* popup )
 {
-    if ( popup && !::d( this )->popup )
+    if ( !d ) 
+	d = new QPushButtonPrivate;
+    if ( popup && !d->popup )
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
 
-    ::d( this )->popup = popup;
+    d->popup = popup;
     autoDefButton = FALSE;
     setIsMenuButton( popup != 0 );
 }
@@ -598,14 +568,16 @@ void QPushButton::setPopup( QPopupMenu* popup )
 
 void QPushButton::setIconSet( const QIconSet& icon )
 {
-    if (! icon.isNull()) {
-	if ( ::d( this )->iconset )
-	    *::d( this )->iconset = icon;
+    if ( !d ) 
+	d = new QPushButtonPrivate;
+    if ( !icon.isNull() ) {
+	if ( d->iconset )
+	    *d->iconset = icon;
 	else
-	    ::d( this )->iconset = new QIconSet( icon );
-    } else if (::d(this)->iconset) {
-	delete (::d(this)->iconset);
-	::d(this)->iconset = 0;
+	    d->iconset = new QIconSet( icon );
+    } else if ( d->iconset) {
+	delete d->iconset;
+	d->iconset = 0;
     }
 
     update();
@@ -615,9 +587,7 @@ void QPushButton::setIconSet( const QIconSet& icon )
 
 QIconSet* QPushButton::iconSet() const
 {
-    if ( !::has_d( this ) )
-	return 0;
-    return ::d( this )->iconset;
+    return d ? d->iconset : 0;
 }
 
 /*!
@@ -628,14 +598,12 @@ QIconSet* QPushButton::iconSet() const
 */
 QPopupMenu* QPushButton::popup() const
 {
-    if ( !::has_d( this ) )
-	return 0;
-    return ::d( this )->popup;
+    return d ? (QPopupMenu*)d->popup : 0;
 }
 
 void QPushButton::popupPressed()
 {
-    QPopupMenu* popup = ::d( this )->popup;
+    QPopupMenu* popup = d ? (QPopupMenu*) d->popup : 0;
     if ( isDown() && popup ) {
 	bool horizontal = TRUE;
 	bool topLeft = TRUE;			// ### always TRUE

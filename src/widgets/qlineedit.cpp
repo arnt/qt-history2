@@ -51,6 +51,7 @@
 #include "qguardedptr.h"
 #include <ctype.h>
 #include "../kernel/qrichtext_p.h"
+#include "../kernel/qinternal_p.h"
 
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
@@ -87,7 +88,6 @@ struct QLineEditPrivate {
 	maxLen( 32767), offset( 0 ),
 	selectionStart( 0 ),
 	validator( 0 ),
-	pm(0),
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dndTimer( l, "DnD Timer" ),
 	parag( new QTextParag( 0, 0, 0, FALSE ) ),
@@ -100,14 +100,14 @@ struct QLineEditPrivate {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
 	cursor->setParag( parag );
-	pm = new QPixmap;
+	
     }
+    static QPixmap* pm; // only used when we have focus
 
     ~QLineEditPrivate()
     {
 	delete parag;
 	delete cursor;
-	delete pm;
     }
     void getTextObjects( QTextParag **p, QTextCursor **c )
     {
@@ -168,7 +168,6 @@ struct QLineEditPrivate {
     int offset;
     int selectionStart;
     const QValidator * validator;
-    QPixmap *pm;
     QTimer blinkTimer;
 
     QTimer dndTimer;
@@ -183,6 +182,7 @@ struct QLineEditPrivate {
     int preeditStart, preeditLength;
 };
 
+QPixmap* QLineEditPrivate::pm = 0;
 
 // REVISED: arnt
 /*!
@@ -256,7 +256,7 @@ struct QLineEditPrivate {
 */
 
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
-    : QFrame( parent, name, WRepaintNoErase )
+    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
 {
     init();
 }
@@ -755,6 +755,8 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     if ( d->cursorOn )
 	blinkSlot();
     update();
+    delete QLineEditPrivate::pm;
+    QLineEditPrivate::pm = 0;
 }
 
 /*!\reimp
@@ -766,11 +768,20 @@ void QLineEdit::drawContents( QPainter *painter )
     painter->translate( marg, 0 );
     updateOffset();
     const QColorGroup & g = colorGroup();
-    QPainter p( d->pm );
-    p.setPen( colorGroup().text() );
+    
+    // always double buffer when we have focus, and keep the pixmap
+    // around until we loose focus again. If we do not have focus,
+    // only use the standard shared buffer.
+    
+    if ( hasFocus() && !QLineEditPrivate::pm && !QSharedDoubleBuffer::getRawPixmap( width(), height() ) )
+	QLineEditPrivate::pm = new QPixmap; // create special while-we-have-focus buffer. Deleted in focusOutEvent
+    
+    QSharedDoubleBuffer buffer( !hasFocus(), FALSE, QLineEditPrivate::pm );
+    buffer.begin( painter, rect() );
+    buffer.painter()->setPen( colorGroup().text() );
     QBrush bg = g.brush((isEnabled()) ? QColorGroup::Base :
 			QColorGroup::Background);
-    p.fillRect( 0, 0, width(), height(), bg );
+    buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     QTextParag *parag;
     QTextCursor *cursor;
     d->getTextObjects( &parag, &cursor );
@@ -786,7 +797,7 @@ void QLineEdit::drawContents( QPainter *painter )
 	    parag->removeSelection( QTextDocument::Standard );
 	}
     }
-    QTextFormat *f = parag->formatCollection()->format( font(), p.pen().color() );
+    QTextFormat *f = parag->formatCollection()->format( font(), buffer.painter()->pen().color() );
     parag->setFormat( 0, parag->length(), f );
     f->removeRef();
     QRect r( rect().x(), rect().y(), width() - 4, rect().height() );
@@ -797,13 +808,12 @@ void QLineEdit::drawContents( QPainter *painter )
     int yoff = ( height() - parag->rect().height() ) / 2;
     if ( yoff < 0 )
 	yoff = 0;
-    p.translate( xoff, yoff );
+    buffer.painter()->translate( xoff, yoff );
     if ( d->mode != NoEcho )
-	parag->paint( p, colorGroup(), d->cursorOn && !d->readonly ? cursor : 0, TRUE );
+	parag->paint( *buffer.painter(), colorGroup(), d->cursorOn && !d->readonly ? cursor : 0, TRUE );
 
-    p.end();
-
-    painter->drawPixmap( 0, 0, *d->pm );
+    buffer.end();
+    
     if ( d->mode == Password ) {
 	delete parag;
 	delete cursor;
@@ -817,7 +827,7 @@ void QLineEdit::drawContents( QPainter *painter )
 
 void QLineEdit::resizeEvent( QResizeEvent *e )
 {
-    d->pm->resize( e->size() );
+    QFrame::resizeEvent( e );
 }
 
 

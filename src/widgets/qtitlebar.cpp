@@ -8,7 +8,7 @@
 #include "qimage.h"
 #include "qdatetime.h"
 #include "qpainter.h"
-#include "qcleanuphandler.h"
+#include "../kernel/qinternal_p.h"
 
 #ifndef QT_NO_WORKSPACE
 #include <qworkspace.h>
@@ -274,9 +274,6 @@ const char * const qt_unshade_xpm[] = {
 
 
 #endif // !Q_WS_WIN
-
-static QPixmap *buffer = 0;
-static QCleanupHandler<QPixmap> qtb_cleanup;
 
 #ifndef QT_NO_WORKSPACE
 
@@ -599,7 +596,7 @@ QSize QTitleBar::sizeHint() const
 */
 
 QTitleBarLabel::QTitleBarLabel( QWidget *parent, const char* name )
-    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase ), 
+    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase ),
     leftm( 2 ), rightm( 2 ), act( TRUE )
 {
     getColors();
@@ -671,12 +668,11 @@ void QTitleBarLabel::cutText()
 	while ( (fm.width(titletext.left( i ) + "...")  > maxw) && i>0 )
 	    i--;
 	cuttext = titletext.left( i ) + "...";
-	drawLabel();
     } else {
 	QToolTip::remove( this );
 	cuttext = titletext;
     }
-    drawLabel();
+    update();
 }
 
 void QTitleBarLabel::setLeftMargin( int x )
@@ -691,29 +687,12 @@ void QTitleBarLabel::setRightMargin( int x )
     cutText();
 }
 
-void QTitleBarLabel::drawLabel( bool redraw )
+void QTitleBarLabel::drawLabel( QPainter* p )
 {
-    if ( !buffer ) {
-	buffer = new QPixmap;
-	qtb_cleanup.add( buffer );
-    }
-
-    if ( buffer->isNull() )
-	return;
-
-    buffer->fill( yellow );
-    QPainter p( buffer );
-    p.setFont( font() );
-
     QRect cr = contentsRect();
-    style().drawTitleBar( &p, cr.x(), cr.y(), cr.width(), cr.height(), leftc, rightc, act );
-    drawFrame( &p );
-    style().drawTitleBarLabel( &p, cr.x() + leftm, cr.y(), cr.width() - rightm, cr.height(), cuttext, textc, act );
-
-    p.end();
-
-    if ( redraw )
-	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
+    style().drawTitleBar( p, cr.x(), cr.y(), cr.width(), cr.height(), leftc, rightc, act );
+    drawFrame( p );
+    style().drawTitleBarLabel( p, cr.x() + leftm, cr.y(), cr.width() - rightm, cr.height(), cuttext, textc, act );
 }
 
 void QTitleBarLabel::frameChanged()
@@ -723,22 +702,14 @@ void QTitleBarLabel::frameChanged()
 
 void QTitleBarLabel::paintEvent( QPaintEvent* )
 {
-    if ( !buffer ) 
-	return;
-    buffer->resize( QSize( QMAX( size().width(), buffer->width() ), QMAX( size().height(), buffer->height() ) ) );
-    drawLabel( FALSE );
-    bitBlt( this, 0, 0, buffer, 0, 0, width(), height() );
+    QSharedDoubleBuffer buffer( FALSE, FALSE );
+    buffer.begin( this, rect() );
+    drawLabel( buffer.painter() );
 }
 
 void QTitleBarLabel::resizeEvent( QResizeEvent* e )
 {
     QFrame::resizeEvent( e );
-
-    if ( !buffer ) {
-	buffer = new QPixmap;
-	qtb_cleanup.add( buffer );
-    }
-    buffer->resize( QSize( QMAX( size().width(), buffer->width() ), QMAX( size().height(), buffer->height() ) ) );
     cutText();
 }
 
@@ -770,8 +741,7 @@ void QTitleBarLabel::setActive( bool a )
 	leftc = ileftc;
 	rightc = irightc;
     }
-
-    drawLabel();
+    update();
 }
 
 QTitleBarButton::QTitleBarButton( QWidget* parent, ButtonType t, const char *name )

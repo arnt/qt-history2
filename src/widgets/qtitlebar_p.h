@@ -116,7 +116,7 @@ protected:
 
     bool event( QEvent* );
 
-    void drawLabel( bool redraw = TRUE );
+    void drawLabel( QPainter* );
     void frameChanged();
 
 private:
@@ -175,7 +175,7 @@ protected:
     void mouseMoveEvent( QMouseEvent * );
     void enterEvent( QEvent *e );
 
-    bool eventFilter( QObject *, QEvent * );    
+    bool eventFilter( QObject *, QEvent * );
 
 private:
     QTitleBarButton* closeB;

@@ -44,6 +44,7 @@
 #endif // QT_H
 
 #ifndef QT_NO_PUSHBUTTON
+class QPushButtonPrivate;
 
 class Q_EXPORT QPushButton : public QButton
 {
@@ -122,6 +123,8 @@ private:
     uint	reserved		: 1; // UNUSED
     uint	lastEnabled	: 1; // UNUSED
     uint	hasMenuArrow	: 1;
+
+    QPushButtonPrivate* d;
 
     friend class QDialog;
 
