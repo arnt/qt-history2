@@ -1549,11 +1549,11 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform;
     if(w != h) 
-	transform = CGAffineTransformMakeScale(1,  ((float)h)/w);
+	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
     float cg_x, cg_y;
     d->cg_mac_point(x, y, &cg_x, &cg_y);
-//    CGPathAddArc(path, w == h ? 0 : &transform, cg_x + (w/2), w/2, w/2, 0, 180, true);
-    CGPathAddArc(path, 0, cg_x + (w/2), cg_y + (w/2), w/2, 0, 90, true);
+    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath((CGContextRef)hd);
     CGContextAddPath((CGContextRef)hd, path);
     if(cpen.style() != NoPen) 
@@ -1596,7 +1596,25 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 	    setf(ExtDev);
 	return;
     }
-#if 1
+#ifdef USE_CORE_GRAPHICS
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGAffineTransform transform;
+    if(w != h) 
+	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
+    float cg_x, cg_y;
+    d->cg_mac_point(x, y, &cg_x, &cg_y);
+    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+    CGPathMoveToPoint(path, 0, cg_x + (w/2), cg_y - (h/2));
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGPathAddLineToPoint(path, 0, cg_x + (w/2), cg_y - (h/2));
+    CGContextBeginPath((CGContextRef)hd);
+    CGContextAddPath((CGContextRef)hd, path);
+    if(cbrush.style() != NoBrush) 
+	CGContextFillPath((CGContextRef)hd);
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+    CGPathRelease(path);
+#else
     QPointArray pa;
     pa.makeArc(x, y, w, h, a, alen, xmat); // arc polyline
     int n = pa.size();
@@ -1606,15 +1624,6 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
     pa.setPoint(n, cx, cy);	// add legs
     pa.setPoint(n+1, pa.at(0));
     drawPolyInternal(pa, TRUE, FALSE);
-#else
-    //There is probably a way to do this with FrameArc/PaintArc, but for now it is
-    //very different from Qt and not worth it FIXME
-    initPaintDevice();
-    if(d->qd_info.paintreg.isEmpty())
-	return;
-    Rect r;
-    SetRect(&r, d->offx + x, d->offy + y, d->offx + x + w, d->offy + y + h);
-    PaintArc(&r, -((a * 16) - 30), -(alen * 16));
 #endif
 }
 
@@ -1631,12 +1640,32 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 	if(!pdev->cmd(QPaintDevice::PdcDrawChord, this, param) || !hd)
 	    return;
     }
+#ifdef USE_CORE_GRAPHICS
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGAffineTransform transform;
+    if(w != h) 
+	transform = CGAffineTransformMakeScale(((float)w)/h, 1);
+    float cg_x, cg_y;
+    d->cg_mac_point(x, y, &cg_x, &cg_y);
+    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)(a+alen)/16) * (M_PI/180);
+    //We draw twice because the first draw will set the point to the end of arc, and the second pass will draw the line to the first point
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGPathAddArc(path, w == h ? 0 : &transform, (cg_x+(w/2))/((float)w/h), cg_y - (h/2), h/2, begin_radians, end_radians, a < 0 || alen < 0);
+    CGContextBeginPath((CGContextRef)hd);
+    CGContextAddPath((CGContextRef)hd, path);
+    if(cbrush.style() != NoBrush) 
+	CGContextFillPath((CGContextRef)hd);
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+    CGPathRelease(path);
+#else
     QPointArray pa;
     pa.makeArc(x, y, w-1, h-1, a, alen);
     int n = pa.size();
     pa.resize(n + 1);
     pa.setPoint(n, pa.at(0));
     drawPolyInternal(pa);
+#endif
 }
 
 void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
