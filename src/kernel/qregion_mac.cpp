@@ -352,12 +352,10 @@ void QRegion::translate(int x, int y)
 
 QRegion QRegion::unite(const QRegion &r) const
 {
-#if 0
     if(d == &shared_empty)
 	return r;
     if(r.d == &shared_empty)
 	return *this;
-#endif
     if(d->rect && r.d->rect) {
 	if(d->rect->contains(*r.d->rect))
 	    return copy();
@@ -377,10 +375,8 @@ QRegion QRegion::unite(const QRegion &r) const
 
 QRegion QRegion::intersect(const QRegion &r) const
 {
-#if 0
     if(d == &shared_empty || r.d == &shared_empty)
 	return QRegion();
-#endif
     if(d->rect && r.d->rect)
 	return QRegion(*d->rect & *r.d->rect);
     if(!d->rgn)
@@ -398,10 +394,8 @@ QRegion QRegion::intersect(const QRegion &r) const
 
 QRegion QRegion::subtract(const QRegion &r) const
 {
-#if 0
     if(d == &shared_empty || r.d == &shared_empty)
 	return *this;
-#endif
     if(!d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
     if(!r.d->rgn)
@@ -417,12 +411,10 @@ QRegion QRegion::subtract(const QRegion &r) const
 
 QRegion QRegion::eor(const QRegion &r) const
 {
-#if 0
     if(d == &shared_empty)
 	return r;
     if(r.d == &shared_empty)
 	return *this;
-#endif
     if(!d->rgn)
 	const_cast<QRegion *>(this)->rectifyRegion();
     if(!r.d->rgn)
