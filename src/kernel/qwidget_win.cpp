@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#201 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -56,6 +56,8 @@ static HHOOK	journalRec  = 0;
 
 extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 
+extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region); 
+extern void qt_clear_paintevent_clipping();
 
 /*****************************************************************************
   QWidget member functions
