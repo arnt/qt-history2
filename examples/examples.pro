@@ -1,5 +1,7 @@
 TEMPLATE    =	subdirs
 
+unix:!embedded:!mac:CONFIG += x11
+
 SUBDIRS	=	aclock \
 		action \
 		action/toggleaction \
@@ -112,5 +114,5 @@ embedded:SUBDIRS -= showimg
 win32:SUBDIRS += trayicon
 embedded:SUBDIRS += trayicon
 
-X11DIRS	    =   biff \
-		desktop
+x11:SUBDIRS	+= biff \
+		   desktop
