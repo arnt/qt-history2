@@ -184,6 +184,7 @@ class QWSClient : public QSocket
 public:
     QWSClient( QObject* parent, int socket, int shmid, int swidth, int sheight,
 	       int ramid, int fblen, int offscreen, int offscreenlen);
+    ~QWSClient();
 
     int socket() const;
 

@@ -64,7 +64,7 @@ main(int argc, char** argv)
 		qDebug( "%dx%d", w, h );
 	    }
 	}
-	(void)new QWSServer( w, h );
+	QWSServer server( w, h );
 	return app.exec();
     }
 }

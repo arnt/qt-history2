@@ -85,6 +85,10 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid, int swidth, int sh
     connect( this, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
 }
 
+QWSClient::~QWSClient()
+{
+}
+
 void QWSClient::closeHandler()
 {
     qDebug( "Client %p closed", this );
@@ -283,7 +287,9 @@ QWSServer::QWSServer( int sw, int sh, bool simulate,
 
 QWSServer::~QWSServer()
 {
-    // XXX destroy all clients
+    // destroy all clients, closing their connections
+    for (ClientMap::Iterator it = client.begin(); it != client.end(); ++it)
+	delete *it;
     if ( mouseBuf )
 	delete[] mouseBuf; //??? is delete[] 0 safe?
 }
