@@ -298,6 +298,7 @@ void HelpMainWindow::slotGoForward()
 
 void HelpMainWindow::slotGoHome()
 {
+    viewer->home();
 }
 
 void HelpMainWindow::slotHelpAbout()
