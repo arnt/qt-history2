@@ -254,7 +254,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 msg = d->queuedUserInputEvents.takeFirst();
             } else {
                 haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
-                if ((flags & QEventLoop::ExcludeUserInputEvents)
+                if (haveMessage && (flags & QEventLoop::ExcludeUserInputEvents)
                     && ((msg.message >= WM_KEYFIRST
                          && msg.message <= WM_KEYLAST) 
                         || (msg.message >= WM_MOUSEFIRST
