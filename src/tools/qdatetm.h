@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#4 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#5 $
 **
 ** Definition of date and time classes
 **
@@ -42,7 +42,7 @@ public:
     virtual const char *monthName( uint month ) const;
     virtual const char *dayName( uint weekday ) const;
 
-    virtual QString asString()		const;	// date as string
+    QString toString()	 const;			// date to string
 
     bool   setYMD( uint y, uint m, uint d );	// set year, month, day
 
@@ -90,7 +90,7 @@ public:
     uint   second()	 const;			// 0..59
     uint   msec()	 const;			// 0..999
 
-    virtual QString asString()		const;	// time as string
+    QString toString()	 const;			// time to string
 
     bool   setHMS( uint h, uint m, uint s, uint ms=0 );	// set time of day
 
@@ -135,7 +135,7 @@ public:
     void   setDate( QDate date ) { d=date; }	// set date
     void   setTime( QTime time ) { t=time; }	// set time
 
-    virtual QString asString() const;		// datetime as string
+    QString toString()  const;			// datetime to string
 
     QDateTime addDays( long days )	const;	// add days
     QDateTime addSecs( long secs )	const;	// add seconds (wrap date)
