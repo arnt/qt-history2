@@ -72,22 +72,59 @@ uchar
 }
 
 bool 
-QFSFileEngine::mkdir(const QString &dirName, QDir::Recursion /*recurse*/) const
+QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
 {
+    QString dirName = name;
+    if(recurse == QDir::Recursive) {
+        dirName = QDir::cleanPath(dirName);
+        for(int oldslash = -1, slash=0; slash != -1; oldslash = slash) {
+            slash = dirName.indexOf(QDir::separator(), oldslash+1);
+            if(slash == -1) {
+                if(oldslash == dirName.length())
+                    break;
+                slash = dirName.length();
+            }
+            if(slash) {
+                QByteArray chunk = QFile::encodeName(dirName.left(slash));
+                QT_STATBUF st;
+                if(QT_STAT(chunk, &st) != -1) {
+                    if((st.st_mode & S_IFMT) != S_IFDIR)
+                        return false;
+                } else if(::mkdir(chunk, 0777) != 0) {
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
 #if defined(Q_OS_DARWIN)  // Mac X doesn't support trailing /'s
-    QString name = dirName;
     if (dirName[dirName.length() - 1] == '/')
-        name = dirName.left(dirName.length() - 1);
-    int status = ::mkdir(QFile::encodeName(name), 0777);
-#else
-    int status = ::mkdir(QFile::encodeName(dirName), 0777);
+        dirName = dirName.left(dirName.length() - 1);
 #endif
-    return status == 0;
+    return (::mkdir(QFile::encodeName(dirName), 0777) == 0);
 }
 
 bool 
-QFSFileEngine::rmdir(const QString &dirName, QDir::Recursion /*recurse*/) const
+QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
 {
+    QString dirName = name;
+    if(recurse == QDir::Recursive) {
+        dirName = QDir::cleanPath(dirName);
+        for(int oldslash = 0, slash=dirName.length(); slash > 0; oldslash = slash) {
+            QByteArray chunk = QFile::encodeName(dirName.left(slash));
+            QT_STATBUF st;
+            if(QT_STAT(chunk, &st) != -1) {
+                if((st.st_mode & S_IFMT) != S_IFDIR)
+                    return false;
+                if(::rmdir(chunk) != 0)
+                    return oldslash != 0;
+            } else {
+                return false;
+            }
+            slash = dirName.lastIndexOf(QDir::separator(), oldslash-1);
+        }
+        return true;
+    }
     return ::rmdir(QFile::encodeName(dirName)) == 0;
 }
 
