@@ -1003,5 +1003,7 @@ QString QIODevice::errorString() const
 /*!
     \fn QIOEngine *QIODevice::ioEngine() const
 
-    ####### SDM
+    Returns the QIOEngine that operates on the QIODevice backing data. 
+
+    \sa QIOEngine
 */

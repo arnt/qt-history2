@@ -39,7 +39,7 @@ public:
 
     static QResource *find(const QString &path);
 
-protected:
+private:
     friend class QMetaResource;
     friend class QMetaResourcePrivate;
     QResource();
