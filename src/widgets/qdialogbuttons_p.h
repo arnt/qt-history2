@@ -3,7 +3,7 @@
 
 #include <qwidget.h>
 
-class QDialogButtonsPrivate;
+struct QDialogButtonsPrivate;
 
 class
 QDialogButtons : public QWidget
