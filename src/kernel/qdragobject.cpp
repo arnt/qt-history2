@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#56 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -328,6 +328,11 @@ void QDragObject::dragCopy()
 
   Normally one of simpler drag(), dragMove(), or dragCopy() functions
   would be used instead.
+
+  \warning in Qt 1.x, drag operations all return FALSE.  This will change
+	    in later versions - the functions are provided in this way to
+	    assist preemptive development - code both move and copy with
+	    Qt 1.x to be prepared.
 */
 bool QDragObject::drag(DragMode mode)
 {
