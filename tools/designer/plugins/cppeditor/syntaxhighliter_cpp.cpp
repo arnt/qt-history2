@@ -277,7 +277,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
     static QString numbers = "0123456789";
     bool questionMark = FALSE;
     QChar lastChar;
-    while ( TRUE ) {
+    for (;;) {
 	QChar c = string->at( i )->c;
 	
 	if ( lastWasBackSlash ) {

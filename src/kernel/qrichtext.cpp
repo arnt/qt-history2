@@ -1436,7 +1436,7 @@ void QTextDocument::setPlainText( const QString &text )
 	    lParag->append( s );
 	}
     } else {
-	while ( TRUE ) {
+	for (;;) {
 	    lParag = createParag( this, lParag, 0 );
 	    if ( !fParag )
 		fParag = lParag;

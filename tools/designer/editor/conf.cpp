@@ -73,7 +73,7 @@ QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
     for ( int i = 0; elements[ i ] != QString::null; ++i ) {
 	QSettings settings;
 	bool ok = TRUE;
-	while ( 1 ) {
+	for (;;) {
 	    family = settings.readEntry( path + elements[ i ] + "/family", QString::null, &ok );
 	    if ( !ok )
 		break;

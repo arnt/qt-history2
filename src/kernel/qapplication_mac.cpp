@@ -2185,7 +2185,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    request_context_pending = FALSE;
 	    EventRef er;
 	    const EventTypeSpec eventspec = { kEventClassQt, kEventQtRequestContext };
-	    while(1) {
+	    for(;;) {
 		OSStatus ret = ReceiveNextEvent( 1, &eventspec, QMAC_EVENT_NOWAIT, TRUE, &er );
 		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		    break;

@@ -88,7 +88,7 @@ FormWindow *find_formwindow( QWidget *w )
 {
     if ( !w )
 	return 0;
-    while ( TRUE ) {
+    for (;;) {
 	if ( w->inherits( "FormWindow" ) )
 	    return (FormWindow*)w;
 	if ( !w->parentWidget() )

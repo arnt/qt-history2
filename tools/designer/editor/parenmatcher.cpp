@@ -66,7 +66,7 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
     int ignore = 0;
     bool foundOpen = FALSE;
     QChar c = cursor->parag()->at( cursor->index() )->c;
-    while ( TRUE ) {
+    for (;;) {
 	if ( !foundOpen ) {
 	    if ( i >= (int)parenList.count() )
 		goto bye;
@@ -81,7 +81,7 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
 	}
 	
 	if ( i >= (int)parenList.count() ) {
-	    while ( TRUE ) {
+	    for (;;) {
 		closedParenParag = closedParenParag->next();
 		if ( !closedParenParag )
 		    goto bye;
@@ -140,7 +140,7 @@ bool ParenMatcher::checkClosedParen( QTextCursor *cursor )
     int ignore = 0;
     bool foundClosed = FALSE;
     QChar c = cursor->parag()->at( cursor->index() - 1 )->c;
-    while ( TRUE ) {
+    for (;;) {
 	if ( !foundClosed ) {
 	    if ( i < 0 )
 		goto bye;
@@ -155,7 +155,7 @@ bool ParenMatcher::checkClosedParen( QTextCursor *cursor )
 	}
 	
 	if ( i < 0 ) {
-	    while ( TRUE ) {
+	    for (;;) {
 		openParenParag = openParenParag->prev();
 		if ( !openParenParag )
 		    goto bye;

@@ -249,7 +249,7 @@ bool EditorCompletion::doCompletion()
     QString s;
     idx--;
     completionOffset = 1;
-    while ( TRUE ) {
+    for (;;) {
 	s.prepend( QString( cursor->parag()->at( idx )->c ) );
 	idx--;
 	if ( idx < 0 )
@@ -431,7 +431,7 @@ bool EditorCompletion::doObjectCompletion()
     int i = curEditor->textCursor()->index();
     i--;
     QTextParag *p = curEditor->textCursor()->parag();
-    while ( TRUE ) {
+    for (;;) {
 	if ( i < 0 )
 	    break;
 	if ( p->at( i )->c == ' ' || p->at( i )->c == '\t' )
@@ -541,7 +541,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     QString function( cursor->parag()->string()->toString().mid( j, i - j + 1 ) );
     QString part = cursor->parag()->string()->toString().mid( j, cursor->index() - j + 1 );
     function = function.simplifyWhiteSpace();
-    while ( TRUE ) {
+    for (;;) {
 	if ( function[ (int)function.length() - 1 ] == '(' ) {
 	    function.remove( function.length() - 1, 1 );
 	    function = function.simplifyWhiteSpace();

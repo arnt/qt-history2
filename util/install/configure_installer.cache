@@ -1,0 +1,15 @@
+-release
+-static
+-no-dsp
+-no-thread
+-no-accessibility
+-no-style-motif
+-no-style-cde
+-no-style-sgi
+-no-style-motifplus
+-no-style-platinum
+-no-big-codecs
+-no-jpeg
+-no-png
+-saveconfig
+installer

@@ -259,13 +259,15 @@ void QAquaStylePrivate::objDestroyed(QObject *o)
 // NOT REVISED
 /*!
   \class QAquaStyle qaquastyle.h
-  \brief The QAquaStyle class implements the aqua 'Look and Feel'.
+  \brief The QAquaStyle class implements the Aqua 'Look and Feel'.
   \ingroup appearance
 
-  This class implements the Aqua look and feel. It's an
-  experimental class that tries to resemble a Macintosh-like GUI style
-  with the QStyle system. The emulation is far from being
-  perfect.
+  This class implements the Aqua look and feel. The class
+  emulates the Mac OS X Aqua GUI style with the QStyle system. 
+  
+  The QAquaStyle code may not be distributed onto any other 
+  platform or included in any other licensed package unless 
+  explicit permission is granted.
 
   Note that the functions provided by QAquaStyle are reimplementations
   of QStyle functions; see QStyle for their documentation.

@@ -625,7 +625,7 @@ void FormDefinitionView::refresh( bool doDelete )
 						   QString::null, QString::null );
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
     if ( !slotList.isEmpty() ) {
-	while ( TRUE ) {
+	for (;;) {
 	    QListViewItem *item = 0;
 	    if ( (*it).access == "protected" )
 		item = new HierarchyItem( HierarchyItem::Slot,

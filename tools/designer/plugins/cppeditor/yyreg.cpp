@@ -133,7 +133,7 @@ static int getToken()
     // why "+ 2"? try putting some qDebug()'s and see
     yyPos = yyCurPos + 2;
 
-    while ( TRUE ) {
+    for (;;) {
 	/*
 	  See if the previous token is interesting. If it isn't, we
 	  will loop anyway an go to the token before the previous
@@ -491,7 +491,7 @@ static QString matchDataType()
       This code is really hard to follow... sorry. The loop matches
       Alpha::Beta::Gamma::...::Omega.
     */
-    while ( TRUE ) {
+    for (;;) {
 	bool virgin = TRUE;
 
 	prependToType( &type, matchTemplateAngles() );
@@ -572,7 +572,7 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
     yyTok = getToken();
 
     if ( yyTok != Tok_LeftParen ) {
-	while ( TRUE ) {
+	for (;;) {
 	    QString brackets = matchArrayBrackets();
 	    QString name;
 	    if ( yyTok == Tok_Ident ) {
@@ -602,7 +602,7 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
     }
     yyTok = getToken();
 
-    while ( TRUE ) {
+    for (;;) {
 	scopedName.prepend( matchTemplateAngles() );
 
 	if ( yyTok != Tok_Ident ) {
@@ -723,7 +723,7 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
     int endBody = -1;
     int startBody;
 
-    while ( TRUE ) {
+    for (;;) {
 	if ( endBody == -1 )
 	    endBody = yyPos;
 

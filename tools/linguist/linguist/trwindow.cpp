@@ -1575,7 +1575,7 @@ bool TrWindow::searchItem( const QString & searchWhat, QListViewItem * j,
 void TrWindow::newPhraseBook()
 {
     QString name;
-    while ( TRUE ) {
+    for (;;) {
 	name = QFileDialog::getSaveFileName( QString::null,
 		       tr("Qt phrase books (*.qph)\n"
 			  "All files (*)"), 0, "new_phrasebook",
