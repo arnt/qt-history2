@@ -1465,15 +1465,28 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
 
     //do the work
     QString ret = var;
-    if(!in.isNull()) {
-        QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in)));
-        ret.replace("${QMAKE_FILE_BASE}", fi.completeBaseName());
-        ret.replace("${QMAKE_FILE_IN_BASE}", fi.completeBaseName());
-        ret.replace("${QMAKE_FILE_NAME}", fi.filePath());
-        ret.replace("${QMAKE_FILE_IN}", fi.filePath());
+    int rep;
+    QRegExp reg_var("\\$\\{.*\\}");
+    reg_var.setMinimal(true);
+    while((rep = reg_var.indexIn(ret)) != -1) {
+        QString val;
+        const QString var = ret.mid(rep + 2, reg_var.matchedLength() - 3);
+        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_")))
+            val = project->values(var.mid(10)).join(" ");
+        if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_FIRST_")))
+            val = project->first(var.mid(12));
+        if(val.isNull() && !in.isNull()) {
+            if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE"))
+                val = fileInfo(Option::fixPathToLocalOS(in)).completeBaseName();
+            if(var == QLatin1String("QMAKE_FILE_NAME") || var == QLatin1String("QMAKE_FILE_IN"))
+                val = fileInfo(Option::fixPathToLocalOS(in)).filePath();
+        }
+        if(val.isNull() && !out.isNull()) {
+            if(var == QLatin1String("QMAKE_FILE_OUT"))
+                val = out;
+        }
+        ret.replace(rep, reg_var.matchedLength(), val);
     }
-    if(!out.isNull())
-        ret.replace("${QMAKE_FILE_OUT}", out);
 
     //cache the value
     cache->insert(cacheKey, ret);
