@@ -111,11 +111,16 @@ public:
     void setEdited( bool );
     bool edited() const;
 
-    bool hasMarkedText() const;
-    QString markedText() const;
+    bool hasSelectedText() const;
+    QString selectedText() const;
+    bool getSelection( int *start, int *end );
+    
+#ifndef QT_NO_COMPAT
+    bool hasMarkedText() const { return hasSelectedText(); }
+    QString markedText() const { return selectedText(); }
+#endif
     bool dragEnabled() const;
 
-    bool getSelection( int *start, int *end );
 
 public slots:
     virtual void setText( const QString &);

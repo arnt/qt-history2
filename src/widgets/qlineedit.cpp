@@ -415,14 +415,14 @@ QString QLineEdit::displayText() const
 
 
 
-/*! \property QLineEdit::hasMarkedText
-    \brief whether part of the text has been marked by the user (e.g.,
+/*! \property QLineEdit::hasSelectedText
+    \brief whether part of the text has been selected by the user (e.g.,
     by clicking and dragging)
 
-  \sa markedText()
+  \sa selectedText
 */
 
-bool QLineEdit::hasMarkedText() const
+bool QLineEdit::hasSelectedText() const
 {
     return d->parag->hasSelection( QTextDocument::Standard ) &&
 	d->parag->length() > 1 &&
@@ -431,14 +431,14 @@ bool QLineEdit::hasMarkedText() const
 	d->parag->selectionStart( QTextDocument::Standard ) != d->parag->selectionEnd( QTextDocument::Standard );
 }
 
-/*! \property QLineEdit::markedText
-    \brief the text marked by the user (e.g., by clicking and
-    dragging), or QString::null if no text is marked.
+/*! \property QLineEdit::selectedText
+    \brief the text selected by the user (e.g., by clicking and
+    dragging), or QString::null if no text is selected.
 
-  \sa hasMarkedText()
+  \sa hasSelectedText
 */
 
-QString QLineEdit::markedText() const
+QString QLineEdit::selectedText() const
 {
     return d->parag->string()->toString().mid( d->parag->selectionStart( 0 ), d->parag->selectionEnd( 0 ) - d->parag->selectionStart( 0 ) );
 }
@@ -596,7 +596,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		insert( QApplication::clipboard()->text() );
 	    break;
 	case Key_X:
-	    if ( !d->readonly && hasMarkedText() && echoMode() == Normal ) {
+	    if ( !d->readonly && hasSelectedText() && echoMode() == Normal ) {
 		copy();
 		del();
 	    }
@@ -679,7 +679,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		insert( QApplication::clipboard()->text() );
 	    break;
 	case Key_F20: // Cut key on Sun keyboards
-	    if ( !d->readonly && hasMarkedText() && echoMode() == Normal ) {
+	    if ( !d->readonly && hasSelectedText() && echoMode() == Normal ) {
 		copy();
 		del();
 	    }
@@ -897,7 +897,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     int oldPos = c->index();
     c->place( p, par );
 #ifndef QT_NO_DRAGANDDROP
-    if ( dragEnabled() && hasMarkedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
+    if ( dragEnabled() && hasSelectedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
 	 e->button() == LeftButton && inSelection( e->pos().x() + d->offset - frameWidth() - margin() - 1, d->parag ) ) {
 	d->dndTimer.start( QApplication::startDragTime(), TRUE );
 	d->dnd_primed = TRUE;
@@ -937,7 +937,7 @@ void QLineEdit::doDrag()
     if ( !dragEnabled() )
 	return;
     d->dnd_primed = FALSE;
-    QTextDrag *tdo = new QTextDrag( markedText(), this );
+    QTextDrag *tdo = new QTextDrag( selectedText(), this );
     if ( tdo->drag() )
 	del();
     setCursor( ibeamCursor );
@@ -1157,7 +1157,7 @@ void QLineEdit::cursorForward( bool mark, int steps )
 
 void QLineEdit::backspace()
 {
-    if ( hasMarkedText() ) {
+    if ( hasSelectedText() ) {
 	removeSelectedText();
     } else if ( d->cursor->index() > 0 ) {
 	d->checkUndoRedoInfo( UndoRedoInfo::Delete );
@@ -1185,7 +1185,7 @@ void QLineEdit::backspace()
 
 void QLineEdit::del()
 {
-    if ( hasMarkedText() ) {
+    if ( hasSelectedText() ) {
 	removeSelectedText();
     } else {
 	d->checkUndoRedoInfo( UndoRedoInfo::Delete );
@@ -1249,7 +1249,7 @@ void QLineEdit::end( bool mark )
 
 void QLineEdit::copy() const
 {
-    QString t = markedText();
+    QString t = selectedText();
     if ( !t.isEmpty() && echoMode() == Normal ) {
 	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 	disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
@@ -1289,7 +1289,7 @@ void QLineEdit::paste()
 
 void QLineEdit::cut()
 {
-    QString t = markedText();
+    QString t = selectedText();
     if ( !t.isEmpty() ) {
 	copy();
 	del();
@@ -1541,9 +1541,9 @@ void QLineEdit::dropEvent( QDropEvent *e )
     d->cursorOn = hasFocus();
 
     if ( !d->readonly && decoded) {
-	if ( e->source() == this && hasMarkedText() )
+	if ( e->source() == this && hasSelectedText() )
 	    deselect();
-	if ( !hasMarkedText() ) {
+	if ( !hasSelectedText() ) {
 	    QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
 	    d->cursor->place( p, d->parag );
 	}
@@ -1644,7 +1644,7 @@ void QLineEdit::insert( const QString &newText )
 	    t[i] = ' ';
 
     if ( !d->validator ) {
-	if( hasMarkedText() )
+	if( hasSelectedText() )
 	    removeSelectedText();
 	d->cursor->insert( t, FALSE );
 	emit textChanged( text() );
@@ -1652,7 +1652,7 @@ void QLineEdit::insert( const QString &newText )
 	QString text = d->parag->string()->toString();
 	text.remove( text.length() - 1, 1 );
 	int cp = d->cursor->index();
-	if ( hasMarkedText() ) {
+	if ( hasSelectedText() ) {
 	    text.remove( d->parag->selectionStart(0), d->parag->selectionEnd(0) - d->parag->selectionStart( 0 ) );
 	    cp = d->parag->selectionStart(0);
 	}
@@ -1929,9 +1929,9 @@ QPopupMenu *QLineEdit::createPopupMenu()
     bool enableRedo = !d->readonly && d->parag->commands()->isRedoAvailable();
     popup->setItemEnabled( d->id[ IdRedo ], enableRedo );
 #ifndef QT_NO_CLIPBOARD
-    bool enableCut = !d->readonly && hasMarkedText();
+    bool enableCut = !d->readonly && hasSelectedText();
     popup->setItemEnabled( d->id[ IdCut ], enableCut );
-    popup->setItemEnabled( d->id[ IdCopy ], hasMarkedText() );
+    popup->setItemEnabled( d->id[ IdCopy ], hasSelectedText() );
     bool enablePaste = !d->readonly && !QApplication::clipboard()->text().isEmpty();
     popup->setItemEnabled( d->id[ IdPaste ], enablePaste );
 #endif
@@ -1967,7 +1967,7 @@ bool QLineEdit::getSelection( int *start, int *end )
 {
     if ( !start || !end )
 	return FALSE;
-    if ( !hasMarkedText() )
+    if ( !hasSelectedText() )
 	return FALSE;
     *start = d->parag->selectionStart( QTextDocument::Standard );
     *end = d->parag->selectionEnd( QTextDocument::Standard );
