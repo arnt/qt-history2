@@ -2907,8 +2907,9 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 				   parent, name, caption );
 #endif
 #if defined(Q_WS_MAC)
-    return macGetOpenFileName( initialSelection, filter, workingDirectory,
-			       parent, name, caption );
+    if( ( qApp->style().inherits("QAquaStyle") ) )
+	return macGetOpenFileName( initialSelection, filter, workingDirectory,
+				   parent, name, caption );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
@@ -3014,8 +3015,9 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 				   parent, name, caption );
 #endif
 #if defined(Q_WS_MAC)
-    return macGetSaveFileName( initialSelection, filter, workingDirectory,
-			       parent, name, caption );
+    if( ( qApp->style().inherits("QAquaStyle") ) )
+	return macGetSaveFileName( initialSelection, filter, workingDirectory,
+				   parent, name, caption );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name, TRUE );
@@ -4705,7 +4707,8 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption );
 #endif
 #if defined(Q_WS_MAC)
-    return macGetOpenFileNames(filter, workingDirectory, parent, name, caption );
+    if( ( qApp->style().inherits("QAquaStyle") ) )
+	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption );
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
