@@ -97,7 +97,7 @@ void QtClassAncestors::parseClassSpecifier(ClassSpecifierAST *node)
             return;
         if(isDuplicate(className))
             return;
-      //  cout<<"Found class that inherits Qt "<< className.constData()<<endl;
+    //    cout<<"Found class that inherits Qt "<< className.constData()<<endl;
         classNames.append(className);
     }
 }

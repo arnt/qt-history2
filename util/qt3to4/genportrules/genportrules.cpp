@@ -12,6 +12,7 @@
 #include <QByteArray>
 #include <QTextStream>
 #include <QProcess>
+#include <QLibraryInfo>
 #include <qalgorithms.h>
 
 #include <lexer.h>
@@ -48,16 +49,16 @@ QString removedVirtualFileName;
     Paths to qt include dirs
 */
 QString qt3IncludeDir;
-QString qt4CompatIncludeDir;
+QString qt4Qt3SupportIncludeDir;
 QString qt4IncludeDir;
 QString qt4QtIncludeDir;
 
 /*
     Paths to cpp files that includes various parts of qt3 and qt4
 */
-QString includeQtNamespace="testfiles/includeqtnamespace.cpp";    //#include <qtnamespace.h>
-QString includeAllQt3=     "testfiles/allqt3.cpp";                //#include <qt.h>
-QString includeAllQt4Compat="testfiles/includeallqt4compat.cpp";  //#include <Qt3Compat>
+QString includeQtNamespace="sourcefiles/includeqtnamespace.cpp";    //#include <qtnamespace.h>
+QString includeAllQt3=     "sourcefiles/allqt3.cpp";                //#include <qt.h>
+QString includeAllQt4Compat="sourcefiles/includeallqt4compat.cpp";  //#include <Qt3Compat>
 
 /*
     Qt3 Qt class and Qt4 Qt namespace parsers
@@ -105,8 +106,9 @@ struct ClassNameLibrary
 
 QString getBaseDir()
 {
-    QString basedir = getenv("QTDIR");
-    basedir = basedir.left(basedir.lastIndexOf("/qt"));
+    QString basedir = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+    basedir = QFileInfo(basedir + "/..").canonicalPath();
+    cout << "Using base dir: " << basedir.toLatin1().constData() << endl;
     return basedir;
 }
 
@@ -114,14 +116,37 @@ QString getBaseDir()
 /*
     Preprocess a file using cpp
 */
-inline QByteArray gccPreprocess(const QString &fileName, QString args=QString::null)
+inline QByteArray gccPreprocess(const QString &fileName, QStringList args = QStringList())
 {
-     QString cmd="cpp -I. " +args +" "+ fileName;
+    //cout << "FileName" << fileName.toLatin1().constData() << endl;
+    //cout << "Args: " << args.toLatin1().constData() << endl;
+//     //QString cmd = "cpp -I. " +args +" "+ fileName;
+    //cout << cmd.toLatin1().constData() << endl;
+
+    args += fileName;
+    cout << "starting process" << endl;
+    cout << "FileName " << fileName.toLatin1().constData() << endl;
+    cout << "Args" << endl;
+    foreach(QString arg, args)
+        cout << arg.toLatin1().constData() << endl;
+
+
+
+    QProcess process;
+    process.start("cpp", args);
+    process.waitForFinished();
+    QByteArray output = process.readAllStandardOutput();
+    cout << process.readAllStandardError().constData() << endl;
+
+//    cout << output.constData() << endl;
+    return output;
+/*
     if (FILE *unixFile = popen(cmd.latin1(), "r")) {
         QFile f;
         f.open(QIODevice::ReadOnly, unixFile);
         return f.readAll();
     }
+*/
     return QByteArray();
 }
 
@@ -301,7 +326,8 @@ void processHeaderFileNames()
 {
 //    printf("Reading directory structure\n");
     QStringList qt3Headers = getFileNames(qt3IncludeDir, "*.h");
-    QStringList qt4CompatHeaders = getFileNames(qt4CompatIncludeDir, "*.h");
+    QStringList qt4CompatHeaders = getFileNames(qt4Qt3SupportIncludeDir, "*.h");
+    qt4CompatHeaders += getFileNames(qt4Qt3SupportIncludeDir, "*.h");
     QStringList qt4Headers = getHeadersRecursive(qt4IncludeDir);
     /*
         generate headerRename rule for all qxxx -> Q3Xxx renames
@@ -378,7 +404,7 @@ QList<SymbolRename> getCompatClassRenames()
         pool p;
 
         FileSymbol *sym = new FileSymbol();
-        sym->contents= gccPreprocess(includeAllQt3, "-I" + qt3IncludeDir);
+        sym->contents= gccPreprocess(includeAllQt3, QStringList() << ("-I" + qt3IncludeDir));
         sym->tokenStream = lexer.tokenize(sym);
         sym->ast = parser.parse(sym, &p);
         ClassNamesParser classNameParser(sym);
@@ -394,7 +420,10 @@ QList<SymbolRename> getCompatClassRenames()
         pool p;
 
         FileSymbol *sym = new FileSymbol();
-        sym->contents=gccPreprocess(includeAllQt4Compat, "-I" +  qt4CompatIncludeDir + " -I" + qt4IncludeDir + " -I" + qt4QtIncludeDir);
+        sym->contents=gccPreprocess(includeAllQt4Compat, QStringList()
+                                                       <<  ("-I" +  qt4Qt3SupportIncludeDir)
+                                                       <<  ("-I" + qt4IncludeDir)
+                                                       <<  ("-I" + qt4QtIncludeDir));
         sym->tokenStream = lexer.tokenize(sym);
         sym->ast = parser.parse(sym, &p);
 
@@ -437,7 +466,7 @@ QStringList getQtClassAncestors()
     pool p;
 
     FileSymbol *sym = new FileSymbol();
-    sym->contents= gccPreprocess(includeAllQt3, "-I" + qt3IncludeDir);
+    sym->contents= gccPreprocess(includeAllQt3, QStringList() << ("-I" + qt3IncludeDir));
     sym->tokenStream = lexer.tokenize(sym);
     sym->ast = parser.parse(sym, &p);
     return QtClassAncestors(sym).getClassNames();
@@ -835,7 +864,7 @@ int main(int, char**)
     Paths to qt include dirs
 */
     qt3IncludeDir =       baseDir + "/qt-3/include";
-    qt4CompatIncludeDir = baseDir + "/qt/include/Qt3Compat/";
+    qt4Qt3SupportIncludeDir = baseDir + "/qt/include/Qt3Support/";
     qt4IncludeDir =       baseDir + "/qt/include/";
     qt4QtIncludeDir =     baseDir + "/qt/include/Qt/";
 
@@ -847,9 +876,12 @@ int main(int, char**)
     /*
         Parse the Qt3 Qt class and the Qt4 Qt namespace.
     */
-    QByteArray qtClassTranslationUnit=gccPreprocess(includeQtNamespace, " -I"+qt3IncludeDir+" ");
+    QByteArray qtClassTranslationUnit = gccPreprocess(includeQtNamespace, QStringList() << ("-I" + qt3IncludeDir));
     qtClassParser = new QtClassParser(qtClassTranslationUnit);
-    QByteArray qtNamespaceTranslationUnit = gccPreprocess(includeQtNamespace, "-I" +  qt4CompatIncludeDir + " -I" + qt4IncludeDir + " -I" + qt4QtIncludeDir);
+    QByteArray qtNamespaceTranslationUnit = gccPreprocess(includeQtNamespace, QStringList()
+                                                                            << ("-I" +  qt4Qt3SupportIncludeDir)
+                                                                            << ("-I" + qt4IncludeDir)
+                                                                            << ("-I" + qt4QtIncludeDir));
     qtNamespaceParser = new QtNamespaceParser(qtNamespaceTranslationUnit);
 
     generateQtClassAncestorRules();

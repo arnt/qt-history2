@@ -1,2 +1,2 @@
-#include <testfiles/r++.macros>
+#include "r++.macros"
 #include <qt.h>

@@ -1,3 +1,3 @@
 #define QT_COMPAT
-#include <testfiles/r++.macros>
-#include <Qt3Compat>
+#include "r++.macros"
+#include <Qt3Support/Qt3Support>

@@ -1511,6 +1511,7 @@ private:
 template <class T> T* CreateNode(pool *p)
 {
     T* node(new (p->allocate(sizeof(T))) T);
+    Q_ASSERT(node);
     node->setNodeType(T::Type);
     node->_pool = p;
     return node;

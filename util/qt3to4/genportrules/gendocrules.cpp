@@ -3,6 +3,10 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
+#include <QString>
+
+#include <iostream>
+using namespace std;
 
 /*
     Read text file contents.
@@ -51,6 +55,7 @@ QList<SymbolRename> GenDocRules::getSymbolRenames()
     QString fileContents = loadDocFile(filename);
     QStringList list =  fileContents.split(QRegExp("\\s*(\\\\row|\\\\o|\\\n)\\s*"), QString::SkipEmptyParts);
 
+    qDebug("symbol renames");
 #if 0
     qDebug(fileContents);
     foreach(QString string, list)
@@ -65,9 +70,17 @@ QList<SymbolRename> GenDocRules::getSymbolRenames()
         SymbolRename symbolRename;
         symbolRename.from = list[i].trimmed();
         symbolRename.to = list[++i].trimmed();
+
+        QString str;
+        symbolRename.from.toLatin1();
+/*
+        cout << "renaming " << symbolRename.from.toLatin1().constData()
+             << " to " << symbolRename.to.toLatin1().constData() << endl;
+*/
         ++i;
         if(!isDefined(symbolRename, symbolRenames))
             symbolRenames.append(symbolRename);
+
     }
     return symbolRenames;
 }
@@ -82,6 +95,7 @@ QStringList GenDocRules::getSymbolRemoves()
     QString fileContents = loadDocFile(filename);
     QStringList list =  fileContents.split(QRegExp("\\s*(\\\\row|\\\\o|\\\n)\\s*"), QString::SkipEmptyParts);
 
+    qDebug("symbol removes");
 #if 0
     qDebug(fileContents);
     foreach(QString string, list)
