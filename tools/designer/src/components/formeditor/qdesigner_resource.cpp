@@ -363,9 +363,29 @@ DomConnections *QDesignerResource::saveConnections()
     return m_formWindow->saveConnections();
 }
 
+QString QDesignerResource::saveAuthor()
+{
+    return m_formWindow->author();
+}
+
+QString QDesignerResource::saveComment()
+{
+    return m_formWindow->comment();
+}
+
 void QDesignerResource::createConnections(DomConnections *connections, QWidget *w)
 {
     m_formWindow->createConnections(connections, w);
+}
+
+void QDesignerResource::createAuthor(const QString &author)
+{
+    m_formWindow->setAuthor(author);
+}
+
+void QDesignerResource::createComment(const QString &comment)
+{
+    m_formWindow->setComment(comment);
 }
 
 DomTabStops *QDesignerResource::saveTabStops()

@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #include "ui4.h"
 #include <QtXml/QDomDocument>
 
@@ -20,8 +19,6 @@
 
 void DomUI::clear(bool clear_all)
 {
-    delete m_author;
-    delete m_exportMacro;
     delete m_widget;
     delete m_layoutDefault;
     delete m_layoutFunction;
@@ -39,8 +36,6 @@ void DomUI::clear(bool clear_all)
     m_attr_stdSetDef = 0;
     }
 
-    m_author = 0;
-    m_exportMacro = 0;
     m_widget = 0;
     m_layoutDefault = 0;
     m_layoutFunction = 0;
@@ -57,8 +52,6 @@ DomUI::DomUI()
     m_has_attr_version = false;
     m_has_attr_stdSetDef = false;
     m_attr_stdSetDef = 0;
-    m_author = 0;
-    m_exportMacro = 0;
     m_widget = 0;
     m_layoutDefault = 0;
     m_layoutFunction = 0;
@@ -72,8 +65,6 @@ DomUI::DomUI()
 
 DomUI::~DomUI()
 {
-    delete m_author;
-    delete m_exportMacro;
     delete m_widget;
     delete m_layoutDefault;
     delete m_layoutFunction;
@@ -98,9 +89,7 @@ void DomUI::read(const QDomElement &node)
         QDomElement e = n.toElement();
         QString tag = e.tagName().toLower();
         if (tag == QLatin1String("author")) {
-            DomString *v = new DomString();
-            v->read(e);
-            setElementAuthor(v);
+            setElementAuthor(e.text());
             continue;
         }
         if (tag == QLatin1String("comment")) {
@@ -108,9 +97,7 @@ void DomUI::read(const QDomElement &node)
             continue;
         }
         if (tag == QLatin1String("exportmacro")) {
-            DomString *v = new DomString();
-            v->read(e);
-            setElementExportMacro(v);
+            setElementExportMacro(e.text());
             continue;
         }
         if (tag == QLatin1String("class")) {
@@ -196,15 +183,17 @@ QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
     if (hasAttributeStdSetDef())
         e.setAttribute(QLatin1String("stdsetdef"), attributeStdSetDef());
 
-    if (m_author != 0)
-        e.appendChild(m_author->write(doc, QLatin1String("author")));
+    child = doc.createElement(QLatin1String("author"));
+    child.appendChild(doc.createTextNode(m_author));
+    e.appendChild(child);
 
     child = doc.createElement(QLatin1String("comment"));
     child.appendChild(doc.createTextNode(m_comment));
     e.appendChild(child);
 
-    if (m_exportMacro != 0)
-        e.appendChild(m_exportMacro->write(doc, QLatin1String("exportmacro")));
+    child = doc.createElement(QLatin1String("exportmacro"));
+    child.appendChild(doc.createTextNode(m_exportMacro));
+    e.appendChild(child);
 
     child = doc.createElement(QLatin1String("class"));
     child.appendChild(doc.createTextNode(m_class));
@@ -247,9 +236,8 @@ QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
     return e;
 }
 
-void DomUI::setElementAuthor(DomString* a)
+void DomUI::setElementAuthor(const QString& a)
 {
-    delete m_author;
     m_author = a;
 }
 
@@ -258,9 +246,8 @@ void DomUI::setElementComment(const QString& a)
     m_comment = a;
 }
 
-void DomUI::setElementExportMacro(DomString* a)
+void DomUI::setElementExportMacro(const QString& a)
 {
-    delete m_exportMacro;
     m_exportMacro = a;
 }
 
@@ -1203,7 +1190,6 @@ void DomCustomWidget::clear(bool clear_all)
     delete m_header;
     delete m_sizeHint;
     delete m_sizePolicy;
-    delete m_pixmap;
     delete m_properties;
 
     if (clear_all) {
@@ -1214,7 +1200,6 @@ void DomCustomWidget::clear(bool clear_all)
     m_sizeHint = 0;
     m_container = 0;
     m_sizePolicy = 0;
-    m_pixmap = 0;
     m_properties = 0;
 }
 
@@ -1224,7 +1209,6 @@ DomCustomWidget::DomCustomWidget()
     m_sizeHint = 0;
     m_container = 0;
     m_sizePolicy = 0;
-    m_pixmap = 0;
     m_properties = 0;
 }
 
@@ -1233,7 +1217,6 @@ DomCustomWidget::~DomCustomWidget()
     delete m_header;
     delete m_sizeHint;
     delete m_sizePolicy;
-    delete m_pixmap;
     delete m_properties;
 }
 
@@ -1276,9 +1259,7 @@ void DomCustomWidget::read(const QDomElement &node)
             continue;
         }
         if (tag == QLatin1String("pixmap")) {
-            DomString *v = new DomString();
-            v->read(e);
-            setElementPixmap(v);
+            setElementPixmap(e.text());
             continue;
         }
         if (tag == QLatin1String("properties")) {
@@ -1323,8 +1304,9 @@ QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagName)
     if (m_sizePolicy != 0)
         e.appendChild(m_sizePolicy->write(doc, QLatin1String("sizepolicy")));
 
-    if (m_pixmap != 0)
-        e.appendChild(m_pixmap->write(doc, QLatin1String("pixmap")));
+    child = doc.createElement(QLatin1String("pixmap"));
+    child.appendChild(doc.createTextNode(m_pixmap));
+    e.appendChild(child);
 
     if (m_properties != 0)
         e.appendChild(m_properties->write(doc, QLatin1String("properties")));
@@ -1368,9 +1350,8 @@ void DomCustomWidget::setElementSizePolicy(DomSizePolicyData* a)
     m_sizePolicy = a;
 }
 
-void DomCustomWidget::setElementPixmap(DomString* a)
+void DomCustomWidget::setElementPixmap(const QString& a)
 {
-    delete m_pixmap;
     m_pixmap = a;
 }
 
@@ -4775,3 +4756,5 @@ void DomConnectionHint::setElementY(int a)
 {
     m_y = a;
 }
+
+

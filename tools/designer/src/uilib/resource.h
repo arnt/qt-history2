@@ -76,6 +76,8 @@ protected:
     virtual QActionGroup *createActionGroup(QObject *parent, const QString &name);
     
     virtual void createConnections(DomConnections *, QWidget *) {}
+    virtual void createAuthor(const QString &) {};
+    virtual void createComment(const QString &) {};
 
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
@@ -88,6 +90,8 @@ protected:
     virtual DomLayoutItem *createDom(QLayoutItem *item, DomLayout *ui_layout, DomWidget *ui_parentWidget);
     virtual DomSpacer *createDom(QSpacerItem *spacer, DomLayout *ui_layout, DomWidget *ui_parentWidget);
     virtual DomConnections *saveConnections();
+    virtual QString saveAuthor();
+    virtual QString saveComment();
     virtual DomCustomWidgets *saveCustomWidgets();
     virtual DomTabStops *saveTabStops();
     virtual QList<DomProperty*> computeProperties(QObject *obj);

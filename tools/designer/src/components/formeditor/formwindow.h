@@ -181,6 +181,7 @@ public:
                                     HighlightMode mode = Highlight);
 
     DomConnections *saveConnections();
+    
     void createConnections(DomConnections *connections, QWidget *parent);
 
     void updateOrderIndicators();

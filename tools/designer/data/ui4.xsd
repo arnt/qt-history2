@@ -5,9 +5,9 @@
 
         <xs:complexType name="UI">
                 <xs:sequence>
-                        <xs:element name="author" type="String" />
+                        <xs:element name="author" type="xs:string" />
                         <xs:element name="comment" type="xs:string" />
-                        <xs:element name="exportMacro" type="String" />
+                        <xs:element name="exportMacro" type="xs:string" />
                         <xs:element name="class" type="xs:string" />
                         <xs:element name="widget" type="Widget" />
                         <xs:element name="layoutDefault" type="LayoutDefault" />
@@ -118,7 +118,7 @@
                         <xs:element name="sizeHint" type="Size" />
                         <xs:element name="container" type="xs:integer" />
                         <xs:element name="sizePolicy" type="SizePolicyData" />
-                        <xs:element name="pixmap" type="String" />
+                        <xs:element name="pixmap" type="xs:string" />
                         <xs:element name="properties" type="Properties" />
                 </xs:sequence>
         </xs:complexType>

@@ -55,6 +55,11 @@ public:
     virtual AbstractFormWindowCursor *cursor() const = 0;
 
     virtual QString fileName() const = 0;
+    
+    QString author() const { return m_author; }
+    QString comment() const { return m_comment; }
+    void setAuthor(const QString &author) { m_author = author; }
+    void setComment(const QString &comment) { m_comment = comment; }
 
     virtual QString contents() const = 0;
     virtual void setContents(QIODevice *dev) = 0;
@@ -94,6 +99,9 @@ signals:
     void aboutToUnmanageWidget(QWidget *widget);
     void activated(QWidget *widget);
     void featureChanged(Feature f);
+    
+private:
+    QString m_comment, m_author;
 };
 
 #endif // ABSTRACTFORMWINDOW_H

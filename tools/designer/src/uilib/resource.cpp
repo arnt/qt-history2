@@ -77,7 +77,9 @@ QWidget *Resource::load(QIODevice *dev, QWidget *parentWidget)
     DomConnections *connections = ui.elementConnections();
     if (connections != 0)
         createConnections(connections, w);
-
+    createAuthor(ui.elementAuthor());
+    createComment(ui.elementComment());
+    
     return w;
 }
 
@@ -611,6 +613,8 @@ void Resource::save(QIODevice *dev, QWidget *widget)
     ui->setElementConnections(saveConnections());
     ui->setElementCustomWidgets(saveCustomWidgets());
     ui->setElementTabStops(saveTabStops());
+    ui->setElementAuthor(saveAuthor());
+    ui->setElementComment(saveComment());
 
     QDomDocument doc;
     doc.appendChild(ui->write(doc));
@@ -624,7 +628,17 @@ void Resource::save(QIODevice *dev, QWidget *widget)
 
 DomConnections *Resource::saveConnections()
 {
-    return new DomConnections; // ### return 0; ??
+    return new DomConnections;
+}
+
+QString Resource::saveAuthor()
+{
+    return QString();
+}
+
+QString Resource::saveComment()
+{
+    return QString();
 }
 
 DomWidget *Resource::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
