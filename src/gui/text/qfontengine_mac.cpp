@@ -270,6 +270,17 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
             qWarning("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
         if(OSStatus e = ATSUSetFontFeatures(ret->style, feats, feat_types, feat_values))
             qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+
+        //set the default color
+        const ATSUAttributeTag color_tag = kATSUColorTag;
+        ::RGBColor fcolor;
+        fcolor.red = ret->rgb.red()*256;
+        fcolor.green = ret->rgb.green()*256;
+        fcolor.blue = ret->rgb.blue()*256;
+        ByteCount color_size = sizeof(fcolor);
+        ATSUAttributeValuePtr color_value = &fcolor;
+        if(OSStatus e = ATSUSetAttributes(ret->style, 1, &color_tag, &color_size, &color_value)) 
+            qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
     }
     internal_fi = ret; //cache it
     const_cast<QFontEngineMac*>(this)->calculateCost(); //do this absolutely last!!
@@ -342,16 +353,20 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     if(task & DRAW) {
         Q_ASSERT(p); //really need a painter and engine to do any drawing!!!
         QColor rgb = pState->painter->pen().color();
+
+        QString fuck;
+        for(int i = pos; i < use_len; i++)
+            fuck += s[i];
         if(rgb != st->rgb) {
             st->rgb = rgb;
-            const ATSUAttributeTag tag = kATSUColorTag;
+            const ATSUAttributeTag color_tag = kATSUColorTag;
             ::RGBColor fcolor;
             fcolor.red = rgb.red()*256;
             fcolor.green = rgb.green()*256;
             fcolor.blue = rgb.blue()*256;
-            ByteCount size = sizeof(fcolor);
-            ATSUAttributeValuePtr value = &fcolor;
-            if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
+            ByteCount color_size = sizeof(fcolor);
+            ATSUAttributeValuePtr color_value = &fcolor;
+            if(OSStatus e = ATSUSetAttributes(st->style, 1, &color_tag, &color_size, &color_value)) {
                 qWarning("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
                 return 0;
             }
