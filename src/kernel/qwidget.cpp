@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#152 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#151 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#152 $");
 
 
 /*!
@@ -1428,19 +1428,16 @@ void QWidget::setFocus()
 	QFocusEvent out( Event_FocusOut );
 	QApplication::sendEvent( w, &out );
     }
-    w = this;
-    while ( w->parentWidget() )			// find top-level widget
-	w = w->parentWidget();
-    while ( w->focusChild )			// descend focus chain
-	w = w->focusChild;
-    w = w->parentWidget();
-    while ( w ) {				// reset focus chain
+    w = topLevelWidget();
+    while ( w->focusChild ) {		// reset focus chain
+	QWidget *fc =  w->focusChild;
 	w->focusChild = 0;
-	w = w->parentWidget();
+	w = fc;
     }
     w = this;
     QWidget *p;
-    while ( (p=w->parentWidget()) ) {		// build new focus chain
+    while ( (p=w->parentWidget()) && !w->testWFlags(WType_TopLevel) ) {
+	// build new focus chain
 	p->focusChild = w;
 	w = p;
     }
@@ -1473,20 +1470,11 @@ void QWidget::clearFocus()
 	return;
     clearWFlags( WFocusSet );
     QWidget *w;
-    if ( (w = qApp->focusWidget()) ) {		// goodbye to old focus widget
-	qApp->focus_widget = 0;
-	QFocusEvent out( Event_FocusOut );
-	QApplication::sendEvent( w, &out );
-    }
-    w = this;
-    while ( w->parentWidget() )			// find top-level widget
-	w = w->parentWidget();
-    while ( w->focusChild )			// descend focus chain
-	w = w->focusChild;
-    w = w->parentWidget();
-    while ( w ) {				// reset focus chain
+    w = topLevelWidget();
+    while ( w->focusChild ) {			// reset focus chain
+	QWidget *fc =  w->focusChild;
 	w->focusChild = 0;
-	w = w->parentWidget();
+	w = fc;
     }
     if ( qApp->focusWidget() == this ) {	// clear active focus
 	qApp->focus_widget = 0;

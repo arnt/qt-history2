@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#187 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -48,7 +48,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#186 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#187 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -1255,8 +1255,7 @@ bool QApplication::processNextEvent( bool canWait )
 
 	    case FocusIn: {			// got focus
 		QWidget *w = widget;
-		while ( w->parentWidget() )	// go to top level
-		    w = w->parentWidget();
+		w = w->topLevelWidget();
 		while ( w->focusChild )		// go down focus chain
 		    w = w->focusChild;
 		if ( w != focus_widget && w->isFocusEnabled() ) {
