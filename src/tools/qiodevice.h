@@ -5,7 +5,7 @@
 **
 ** Created : 940913
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -39,7 +39,7 @@
 #define QIODEVICE_H
 
 #ifndef QT_H
-#ifdef QT_LARGE_FILE_SUPPORT
+#ifdef QT_LARGE_FILE
 // ### Should be included first. This is a problem in the current
 // ### "qplatformdefs.h" strategy which is OK for source files but
 // ### not for header files. Do we need defines back in qmake.conf?
@@ -95,8 +95,12 @@
 class Q_EXPORT QIODevice			// IO device class
 {
 public:
-#ifdef QT_LARGE_FILE_SUPPORT
+#ifdef QT_LARGE_FILE
+#if defined(Q_OS_WIN32)
+    typedef __int64 Offset; // ### make it work with all compilers!
+#else
     typedef off_t Offset;
+#endif
 #else
     typedef Q_ULONG Offset;
 #endif

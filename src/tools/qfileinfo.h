@@ -48,7 +48,7 @@ class QDir;
 struct QFileInfoCache;
 
 
-class Q_EXPORT QFileInfo				   // file information class
+class Q_EXPORT QFileInfo
 {
 public:
     enum PermissionSpec {
@@ -114,7 +114,13 @@ public:
 
     bool	permission( int permissionSpec ) const;
 
+#ifdef QT_LARGE_FILE
+    QIODevice::Offset	size()	const;
+#elif (QT_VERSION-0 >= 400)
+#error "QFileInfo::size() should return QIODevice::Offset"
+#else
     uint	size()		const;
+#endif
 
     QDateTime	created()	const;
     QDateTime	lastModified()	const;

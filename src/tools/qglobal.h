@@ -45,35 +45,36 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     MACX	  - Mac OS X
-     MAC9	  - Mac OS 9
-     MSDOS  - MS-DOS and Windows
-     OS2	  - OS/2
-     OS2EMX - XFree86 on OS/2 (not PM)
-     WIN32  - Win32 (Windows 95/98/ME and Windows NT/2000)
-     SUN	  - SunOS
-     SOLARIS	 - Sun Solaris
-     HPUX	  - HP-UX
-     ULTRIX - DEC Ultrix
-     LINUX  - Linux
-     FREEBSD	 - FreeBSD
-     NETBSD - NetBSD
-     OPENBSD    - OpenBSD
-     BSDI	  - BSD/OS
-     IRIX	  - SGI Irix
-     OSF	  - Compaq Tru64
-     UNIXWARE	 - SCO UnixWare
-     SCO	  - SCO OpenServer
-     AIX	  - AIX
-     HURD	  - GNU Hurd
-     DGUX	  - DG/UX
-     DYNIX  - DYNIX/ptx
-     RELIANT	 - Reliant UNIX
-     QNX	  - QNX
-     QNX6   - QNX RTP 6.1
-     LYNX	  - LynxOS
-     BSD4	  - Any BSD 4.4 system
-     UNIX	  - Any UNIX BSD/SYSV system
+     MACX		- Mac OS X
+     MAC9		- Mac OS 9
+     MSDOS		- MS-DOS and Windows
+     OS2		- OS/2
+     OS2EMX		- XFree86 on OS/2 (not PM)
+     WIN32		- Win32 (Windows 95/98/ME and Windows NT/2000)
+     WIN64		- ###
+     SUN		- SunOS
+     SOLARIS		- Sun Solaris
+     HPUX		- HP-UX
+     ULTRIX		- DEC Ultrix
+     LINUX		- Linux
+     FREEBSD		- FreeBSD
+     NETBSD		- NetBSD
+     OPENBSD		- OpenBSD
+     BSDI		- BSD/OS
+     IRIX		- SGI Irix
+     OSF		- Compaq Tru64
+     UNIXWARE		- SCO UnixWare
+     SCO		- SCO OpenServer
+     AIX		- AIX
+     HURD		- GNU Hurd
+     DGUX		- DG/UX
+     DYNIX		- DYNIX/ptx
+     RELIANT		- Reliant UNIX
+     QNX		- QNX
+     QNX6		- QNX 6.1
+     LYNX		- LynxOS
+     BSD4		- Any BSD 4.4 system
+     UNIX		- Any UNIX BSD/SYSV system
 */
 
 #if defined(__APPLE__) && defined(__GNUC__)
@@ -260,15 +261,15 @@
    with the latest version of the C compiler. Version numbers do not always
    match. This little table (I'm not sure it's accurate) should be helpful:
 
-	   C++ product               C product
+   C++ product                C product
 
-	    C Set 3.1              C Compiler 3.0
-		 ...                       ...
-	C++ Compiler 3.6.6         C Compiler 4.3
-		 ...                       ...
-	Visual Age C++ 4.0              ...
-		 ...                       ...
-	Visual Age C++ 5.0         C Compiler 5.0
+            C Set 3.1         C Compiler 3.0
+                  ...         ...
+   C++ Compiler 3.6.6         C Compiler 4.3
+                  ...         ...
+   Visual Age C++ 4.0         ...
+                  ...         ...
+   Visual Age C++ 5.0         C Compiler 5.0
 
    Now:
    __xlC__    is the version of the C compiler in hexadecimal notation
