@@ -97,4 +97,7 @@ call tmp.bat
 
 cd %QTDIR%
 
+echo =============================================
+echo Qt is now ready for building.
+echo Just type %MAKE% -f Makefile.win32
 :end
