@@ -47,6 +47,9 @@ class MakefileGenerator
     bool init_already, moc_aware;
     QStringList createObjectList(const QString &var);
     QString build_args();
+    QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
+
+protected:
     void writeObj(QTextStream &, const QString &obj, const QString &src);
     void writeUicSrc(QTextStream &, const QString &ui);
     void writeMocObj(QTextStream &, const QString &obj);
@@ -56,7 +59,6 @@ class MakefileGenerator
     void writeInstalls(QTextStream &t, const QString &installs);
     void writeImageObj(QTextStream &t, const QString &obj);
     void writeImageSrc(QTextStream &t, const QString &images);
-    QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
 
 protected:
 

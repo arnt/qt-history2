@@ -48,7 +48,8 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 
     QMap<QString, QString> keys;
     QString keyFor(QString file);
-    QString fixEnvs(QString where);
+    QString fixEnvs(QString file);
+    QString fixEnvsList(QString where);
 
 public:
     ProjectBuilderMakefileGenerator(QMakeProject *p);

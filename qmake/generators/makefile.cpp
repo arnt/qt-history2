@@ -1229,8 +1229,7 @@ QString MakefileGenerator::build_args()
 
 	//output
 	QString ofile = Option::fixPathToTargetOS(Option::output.name());
-	if(ofile.findRev(Option::dir_sep) != -1)
-	    ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+	fileFixify(ofile, QDir::currentDirPath());
 	if (!ofile.isEmpty() && ofile != project->first("QMAKE_MAKEFILE"))
 	    ret += " -o " + ofile;
 
@@ -1263,8 +1262,7 @@ bool
 MakefileGenerator::writeMakeQmake(QTextStream &t)
 {
     QString ofile = Option::output.name();
-    if(ofile.findRev(Option::dir_sep) != -1)
-	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+    fileFixify(ofile, QDir::currentDirPath());
     ofile = Option::fixPathToTargetOS(ofile);
 
     if(project->isEmpty("QMAKE_FAILED_REQUIREMENTS") && 
@@ -1278,7 +1276,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     QString pfile = project->projectFile();
     if(pfile != "(stdin)") {
 	QString qmake = build_args();
-	fileFixify(pfile);
+	fileFixify(pfile, Option::output_dir);
 	if(!ofile.isEmpty()) {
 	    t << ofile << ": " << pfile << " ";
 	    if(Option::mkfile::do_cache) {
