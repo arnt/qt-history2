@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#65 $
 **
 ** Implementation of QPointArray class
 **
@@ -32,44 +32,6 @@
 
 const double Q_PI   = 3.14159265358979323846;   // pi
 
-/*!
-  \class QPointVal qpointarray.h
-  \brief The QPointVal class is an internal class, used with QPointArray.
-
-  The QPointVal is required by the indexing [] operator on point arrays.
-  It is probably a bad idea to use it in any other context.
-*/
-
-/*! \fn QPointVal::QPointVal (QPointData* ptr)
-
-  Constructs a reference to an element in a QPointArray.  This is
-  what QPointArray::operator[] contructs its return value with.
-*/
-
-/*! \fn QPointVal& QPointVal::operator= (const QPoint& point)
-  Assigns a given point to the value referenced by this QPointVal.
-*/
-
-/*! \fn QPointVal& QPointVal::operator+= (const QPoint& point)
-  Vector-adds a given point to the value referenced by this QPointVal.
-*/
-
-/*! \fn QPointVal& QPointVal::operator-= (const QPoint& point)
-  Vector-subtracts a given point to the value referenced by this QPointVal.
-*/
-
-/*! \fn QPointVal::operator QPoint() const
-  Returns the value of the point referenced by this QPointVal.
-*/
-
-/*! \fn int QPointVal::x () const
-  Returns the X coordinate of the point referenced by this QPointVal.
-*/
-
-/*! \fn int QPointVal::y () const
-  Returns the Y coordinate of the point referenced by this QPointVal.
-*/
-
 
 /*!
   \class QPointArray qpointarray.h
@@ -79,17 +41,22 @@ const double Q_PI   = 3.14159265358979323846;   // pi
 
   \inherit QArray
 
+  The QPointArray is an array of QPoint objects. In addition to the functions 
+  provided by QArray, QPointArray provides some handy methods:
+
+  For convenient reading and writing of the point data: setPoints(), 
+  putPoints(), point(), and setPoint().
+
+  For geometry operations: boundingRect() and translate(). As for the latter,
+  note that QWMatrix provides a map() function for more general transformation
+  of QPointArrays.
+
   QPointArray is used by the QPainter to draw
   \link QPainter::drawLineSegments() line segments\endlink,
   \link QPainter::drawPolyline() polylines\endlink,
   \link QPainter::drawPolygon() polygons\endlink and
   \link QPainter::drawQuadBezier() Bezier curves\endlink.
 
-  The QPointArray is not an array of QPoint, instead it contains a
-  platform dependent point type to make the QPainter functions more
-  efficient (no conversion needed).  On the other hand, QPointArray
-  has member functions that operate on QPoint to make programming
-  easier.
 
   Note that since this class is a QArray, it is
   \link shclass.html explicitly shared\endlink
@@ -184,25 +151,6 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
   \link shclass.html deep copy\endlink of the array.
 */
 
-
-/*!
-  Fills the point array with the point \e p.
-  If \e size is specified as different from -1, then the array will be
-  resized before filled.
-
-  Returns TRUE if successful, or FALSE if the memory cannot be allocated
-  (only when \e size != -1).
-
-  \sa resize()
-
-########## go away - provided by QArray now?
-
-bool QPointArray::fill( const QPoint &p, int size )
-{
-    QPointData p2( p.x(), p.y() );
-    return QArray<QPointData>::fill( p2, size );
-}
-*/
 
 
 /*!
@@ -406,44 +354,6 @@ bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
     va_end( ap );
     return TRUE;
 }
-
-
-/*!
-  Returns the point at position \e index in the array.
-  \sa operator[]
-
-##################goaway
-QPoint QPointArray::at( uint index ) const
-{
-    QPointData p = QArray<QPointData>::at( index );
-    return QPoint( (QCOORD)p.x, (QCOORD)p.y );
-}
-
-*/
-
-/*!
-  \fn QPointVal QPointArray::operator[]( int index )
-
-  Returns a reference to the point at position \e index in the array.
-*/
-
-/*!
-  \fn QPointVal QPointArray::operator[]( uint index )
-
-  Returns a reference to the point at position \e index in the array.
-*/
-
-/*!
-  \fn QPoint QPointArray::operator[] (int i) const
-
-  Returns the point at position \e index in the array.
-*/
-
-/*!
-  \fn QPoint QPointArray::operator[] (uint i) const
-
-  Returns the point at position \e index in the array.
-*/
 
 
 /*!
@@ -1039,28 +949,6 @@ QDataStream &operator>>( QDataStream &s, QPointArray &a )
     }
     return s;
 }
-
-/*!
-  \fn QPointVal& QPointVal::operator= (const QPointVal & point) 
-
-  Assign the point this references with
-  the value of the point referenced by \a point.
-*/
-
-/*!
-  \fn bool QPointVal::operator!= (const QPointVal & point) const
-
-  Compare the point this references with
-  the value of the point referenced by \a point.
-*/
-
-/*!
-  \fn bool QPointVal::operator== (const QPointVal & point) const
-
-  Compare the point this references with
-  the value of the point referenced by \a point.
-*/
-
 
 /*!
   \internal
