@@ -811,7 +811,7 @@ void LightStyle::drawScrollBarControls( QPainter* p, const QScrollBar* scrollbar
 
 
 void LightStyle::drawMenuBarPanel(QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &, const QBrush *fill = 0)
+				const QColorGroup &, const QBrush *fill )
 {
 
 }
