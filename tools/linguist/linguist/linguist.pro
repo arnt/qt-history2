@@ -9,6 +9,7 @@ HEADERS		= finddialog.h \
 		  trwindow.h \
 		  listviews.h \
 		  splashloader.h \
+		  logoloader.h \
 		  ../pics/images.h \
 		  ../shared/metatranslator.h
 SOURCES		= finddialog.cpp \
@@ -22,6 +23,7 @@ SOURCES		= finddialog.cpp \
 		  trwindow.cpp \
 		  listviews.cpp \
 		  splashloader.cpp \
+		  logoloader.cpp \
 		  ../shared/metatranslator.cpp
 FORMS		= about.ui
 

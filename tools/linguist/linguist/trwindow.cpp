@@ -898,37 +898,37 @@ bool Action::addToToolbar( QToolBar *tb, const QString& text,
 
 const QPixmap TrWindow::splash()
 {
-    Embed *splash = 0;
-
-    setupImageDict();
-    splash = imageDict->find( QString("splash") );
-    if ( splash == 0 )
-	return 0;
     QPixmap pixmap;
-    pixmap.loadFromData( splash->data, splash->size );
+    setupImageDict();
+    Embed *splash = imageDict->find( QString("splash") );
+    if ( splash  )
+	pixmap.loadFromData( splash->data, splash->size );
     return pixmap;
 }
 
 const QPixmap TrWindow::pageCurl()
 {
-    Embed *ess = 0;
-
-    setupImageDict();
-    ess = imageDict->find( QString("pagecurl") );
-    if ( ess == 0 )
-	return 0;
     QPixmap pixmap;
-    pixmap.loadFromData( ess->data, ess->size );
+    setupImageDict();
+    Embed *ess = imageDict->find( QString("pagecurl") );
+    if ( ess ) {
+	pixmap.loadFromData( ess->data, ess->size );
 	QBitmap pageCurlMask( pagecurl_mask_width, pagecurl_mask_height,
 			pagecurl_mask_bits, TRUE );
 	pixmap.setMask( pageCurlMask );
+    }
     return pixmap;
+}
+
+const QPixmap TrWindow::logo()
+{
+    return QPixmap( (const char**)logo_xpm );
 }
 
 TrWindow::TrWindow()
     : QMainWindow( 0, "translation window", WType_TopLevel | WDestructiveClose )
 {
-    setIcon( (const char**)logo_xpm );
+    setIcon( logo() );
 
     setupImageDict();
 

@@ -28,12 +28,14 @@
 
 #include "phrasebookbox.h"
 #include "phraselv.h"
+#include "logoloader.h"
 
 PhraseBookBox::PhraseBookBox( const QString& filename,
 			      const PhraseBook& phraseBook, QWidget *parent,
 			      const char *name, bool modal )
     : QDialog( parent, name, modal ), fn( filename ), pb( phraseBook )
 {
+    setIcon( logo() );
     QGridLayout *gl = new QGridLayout( this, 4, 3, 11, 11,
 				       "phrase book outer layout" );
     QVBoxLayout *bl = new QVBoxLayout( 6, "phrase book button layout" );

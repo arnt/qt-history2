@@ -19,6 +19,7 @@
 */
 
 #include "finddialog.h"
+#include "logoloader.h"
 
 #include <qcheckbox.h>
 #include <qlabel.h>
@@ -31,6 +32,8 @@ FindDialog::FindDialog( bool replace, QWidget *parent, const char *name,
 			bool modal )
     : QDialog( parent, name, modal )
 {
+    setIcon( logo() );
+
     sourceText = 0;
     
     led = new QLineEdit( this, "find line edit" );

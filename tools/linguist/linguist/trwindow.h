@@ -52,6 +52,7 @@ public:
     static QPixmap * pxDanger;
     static const QPixmap splash();
     static const QPixmap pageCurl();
+    static const QPixmap logo();
 
     TrWindow();
     ~TrWindow();
