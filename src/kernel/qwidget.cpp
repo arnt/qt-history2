@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#467 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#468 $
 **
 ** Implementation of QWidget class
 **
@@ -940,7 +940,7 @@ QStyle& QWidget::style() const
   style changes.  You will almost certainly need to update the widget
   using either repaint(TRUE) or update().
 
-  The default implementation calls update().
+  The default implementation does nothing.
 
   \sa QApplication::setStyle(), style()
 */
