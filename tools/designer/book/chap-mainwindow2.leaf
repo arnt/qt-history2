@@ -866,7 +866,7 @@ global clipboard, so add "QClipboard *clipboard;". Finally add
 files and is explained later.
 
 Press \Key Enter, to confirm the last variable, then click
-\Button{Close} to close the dialog. All the variables now appear in
+\CLOSE to close the dialog. All the variables now appear in
 Object Explorer's Members tab.
 
 \section3 Adding Forward Declarations
@@ -1009,7 +1009,7 @@ Unfortunately all the slots are called "Form1::"... instead of
 "MainForm::".... This is easily remedied. Click
 \Menu{Search|Replace...}, to invoke the \Widget{Replace Text} dialog.
 Enter "Form1" as the Find text and "MainForm" as the Replace text,
-then click \Button{Replace All}. Click \Button{Close}.
+then click \Button{Replace All}. Click \CLOSE.
 
 
 \section3 Adding Constants

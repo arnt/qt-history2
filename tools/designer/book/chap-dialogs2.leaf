@@ -292,9 +292,9 @@ We need to handle two buttons; the OK button and the cancel button. If
 the user clicks \OK, we will only accept their color name if it isn't
 empty, and if it isn't already in use. (The \File{rgb.txt} format
 allows duplicate colors, but we will choose not to allow them to be
-added.) If the user clicks \Cancel we'll just close the dialog.
+added.) If the user clicks \CANCEL we'll just close the dialog.
 
-Click \Key Ctrl+T to preview the form. Click the \Cancel button;
+Click \Key Ctrl+T to preview the form. Click the \CANCEL button;
 notice that it does nothing.
 
 We'll connect the cancel button first because it is the easiest. Click
@@ -305,7 +305,7 @@ Receiver to "ColorNameForm", and the slot to "reject()". Because this
 functionality is achieved purely through signal and slot connections
 using a predefined signal and a predefined slot, it will work in
 preview mode. Click \OK to close the dialog, then click \Key Ctrl+T to
-preview. Clicking the \Cancel button will now close the form, even in
+preview. Clicking the \CANCEL button will now close the form, even in
 preview mode.
 
 Now we'll connect the OK button. Click \Menu{Edit|Connections} to
@@ -378,7 +378,7 @@ ready to write the \Func{validate()} function.
 The function examines the text that the user has entered. If they've
 entered something and it doesn't exist in the list of colors we call
 \Func{accept()}; this closes the form and returns a true value to the
-caller. (\Func{reject()}, which is called if the user clicks \Cancel,
+caller. (\Func{reject()}, which is called if the user clicks \CANCEL,
 returns a false value.) If the color already exists we simply select
 it; an alternative would be to pop up a message box.
 
@@ -405,12 +405,12 @@ Includes (in Implementation)} dialog. Click \Button{Add} then enter
 "qcolordialog.h". Click \Button{Add} again, and enter "qlabel.h".
 Similarly add "qlineedit.h". We also need to include the header for
 the form we've just created, so add "colornameform.h", and since it is
-our last entry press \Key Enter, then click \Button{Close} Click
+our last entry press \Key Enter, then click \CLOSE Click
 \Button{Add} then enter "qcolordialog.h". Click \Button{Add} again,
 and enter "qlabel.h". Similarly add "qlineedit.h". We also need to
 include the header for the form we've just created, so add
 "colornameform.h", and since it is our last entry press \Key Enter,
-then click \Button{Close}.
+then click \CLOSE.
 
 Now we're ready to enter the \Func{editAdd()} slot's code. Click
 "mainform.ui.h" in the Project Overview to invoke the code editor.
@@ -586,7 +586,7 @@ When the user clicks the "Find" button we want to emit a signal so
 that the main form can look for the text.
 
 Click Object Explorer's Members tab, then right click Signals and
-click \Menu{New}. Enter "lookfor(const QString&)". We'll emit this
+click \Menu{New}. Enter "lookfor(const QString\&)". We'll emit this
 signal when we implement the code for the \Func{find()} slot.
 
 \section3 Coding the Dialog
@@ -798,7 +798,7 @@ editor and to set the MainForm as \QD's current form.
 We need to create a slot that will invoke the options form and to
 connect the optionsAction action to this slot.
 
-Invoke the \Widgets{View and Edit Connections} dialog and create a new
+Invoke the \Widget{View and Edit Connections} dialog and create a new
 connection from the optionsAction to a new slot called "editOptions".
 (Click \Menu{Edit|Connections}, then click \Button{New}. Change the
 Sender to "optionsAction", the Signal to "activated()" and the
@@ -833,7 +833,7 @@ Explorer's Members tab, right click "Includes (in Implementation)",
 then click \Menu{Edit}. Click \Button{Add} and enter "optionsform.h";
 click \Button{Add} again and enter "qradiobutton.h"; click
 \Button{Add} again and enter "qcheckbox.h". Press \Key Enter, then
-click \Button{Close}.)
+click \CLOSE.)
 
 Now the user can change options to suit their own preferences. But
 these option settings will be lost when they exit the application.
