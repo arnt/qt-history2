@@ -23,8 +23,10 @@
     in the model.
 */
 
-int LinearModel::rowCount(const QModelIndex &/*parent*/) const
+int LinearModel::rowCount(const QModelIndex &parent) const
 {
+    Q_USING(parent);
+
     return values.count();
 }
 
@@ -68,7 +70,8 @@ QVariant LinearModel::data(const QModelIndex &index, int role) const
 
 QAbstractItemModel::ItemFlags LinearModel::flags(const QModelIndex &index) const
 {
-    return QAbstractListModel::flags(index)|QAbstractListModel::ItemIsEditable; // all items in the model are editable
+    // all items in the model are editable
+    return QAbstractListModel::flags(index)|QAbstractListModel::ItemIsEditable;
 }
 
 /*!

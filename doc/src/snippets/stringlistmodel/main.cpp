@@ -38,8 +38,7 @@ int main(int argc, char *argv[])
 
     for (int row = 5; row < 12; ++row) {
         QModelIndex index = model->index(row, 0, QModelIndex());
-        model->setData(index, QAbstractItemModel::EditRole,
-            QString::number(row+1));
+        model->setData(index, QString::number(row+1));
     }
 
     view->show();
