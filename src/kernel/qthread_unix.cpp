@@ -395,20 +395,52 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 }
 
 
+// helper function to do thread sleeps, since usleep()/nanosleep() aren't reliable
+// enough (in terms of behavior and availability)
+static void thread_sleep(const timespec *ti)
+{
+#ifndef Q_OS_SOLARIS
+    pthread_mutex_t mtx;
+    pthread_cond_t cnd;
+
+    pthread_mutex_init(&mtx, 0);
+    pthread_cond_init(&cnd, 0);
+
+    pthread_mutex_lock(&mtx);
+    (void) pthread_cond_timedwait(&cnd, &mtx, ti);
+    pthread_mutex_unlock(&mtx);
+
+    pthread_cond_destroy(&cnd);
+    pthread_mutex_destroy(&mtx);
+#else
+    mutex_t mtx;
+    cond_t cnd;
+
+    mutex_init(&mtx, 0, 0);
+    cond_init(&cnd, 0, 0);
+
+    mutex_lock(&mtx);
+    (void) cond_timedwait(&cnd, &mtx, ti);
+    mutex_unlock(&mtx);
+
+    cond_destroy(&cnd);
+    mutex_destroy(&mtx);
+#endif
+}
+
+
 /*!
   System independent sleep.  This causes the current thread to sleep for
   \a secs seconds.
 */
 void QThread::sleep( unsigned long secs )
 {
-#ifdef Q_WS_MACX
-    sleep(secs);
-#else
-    struct timespec ts;
-    ts.tv_nsec = 0;
-    ts.tv_sec  = secs;
-    (void) ::nanosleep(&ts, NULL);
-#endif
+    struct timeval tv;
+    gettimeofday(&tv, 0);
+    timespec ti;
+    ti.tv_sec = tv.tv_sec + secs;
+    ti.tv_nsec = 0;
+    thread_sleep(&ti);
 }
 
 
@@ -418,7 +450,12 @@ void QThread::sleep( unsigned long secs )
 */
 void QThread::msleep( unsigned long msecs )
 {
-    QThread::usleep( msecs * 1000 );
+    struct timeval tv;
+    gettimeofday(&tv, 0);
+    timespec ti;
+    ti.tv_sec = tv.tv_sec + (msecs / 1000);
+    ti.tv_nsec = (tv.tv_usec * 1000) + (msecs % 1000) * 1000000;
+    thread_sleep(&ti);
 }
 
 
@@ -428,14 +465,12 @@ void QThread::msleep( unsigned long msecs )
 */
 void QThread::usleep( unsigned long usecs )
 {
-#ifdef Q_WS_MACX
-    usleep(usecs);
-#else
-    struct timespec ts;
-    ts.tv_nsec = (usecs % 1000000) * 1000;
-    ts.tv_sec  = usecs / 1000000;
-    (void) ::nanosleep(&ts, NULL);
-#endif
+    struct timeval tv;
+    gettimeofday(&tv, 0);
+    timespec ti;
+    ti.tv_sec = tv.tv_sec + (usecs / 1000000);
+    ti.tv_nsec = (tv.tv_usec * 1000) + (usecs % 1000000) * 1000;
+    thread_sleep(&ti);
 }
 
 
