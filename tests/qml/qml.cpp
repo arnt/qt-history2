@@ -989,7 +989,7 @@ void QMLCursor::clearSelection()
 
 void QMLCursor::goTo(QMLNode* n, QMLContainer* par, bool select)
 {
-    if (select){
+    if (select && node != n){
 	selectionDirty = TRUE;
 	hasSelection = TRUE;
 
@@ -1694,6 +1694,12 @@ void QMLView::updateSelection(int oldY, int newY)
     if (!doc->cursor || !doc->cursor->selectionDirty)
 	return;
 
+    if (oldY > newY) {
+	int tmp = oldY;
+	oldY = newY;
+	newY = tmp;
+    }
+    
     QPainter p(viewport());
     int minY = oldY>=0?QMAX(QMIN(oldY, newY), contentsY()):contentsY();
     int maxY = newY>=0?QMIN(QMAX(oldY, newY), contentsY()+viewport()->height()):contentsY()+viewport()->height();
@@ -1702,6 +1708,7 @@ void QMLView::updateSelection(int oldY, int newY)
 	      contentsX(), minY,
 	      viewport()->width(), maxY-minY,
 	      r, colorGroup(), backgroundPixmap, FALSE, TRUE);
+    doc->cursor->selectionDirty = FALSE;
 }
 
 void QMLView::viewportMousePressEvent( QMouseEvent * e)
@@ -1720,12 +1727,13 @@ void QMLView::viewportMouseMoveEvent( QMouseEvent * e)
 {
     if (e->state() & LeftButton) {
 	hideCursor();
+	int oldY = doc->cursor->y;
 	{
 	    QPainter p(viewport());
 	    doc->cursor->goTo( &p, e->pos().x() + contentsX(),
 			       e->pos().y() + contentsY(), TRUE);
 	}
-	updateSelection();
+	updateSelection( oldY,  doc->cursor->y);
 	if (doc->cursor->y + doc->cursor->height > contentsY() + viewport()->height()) {
 // 	    debug("yes %d", contentsY()+viewport()->height()-doc->cursor->y-doc->cursor->height);
 	    scrollBy(0, doc->cursor->y + doc->cursor->height-contentsY()-viewport()->height());
