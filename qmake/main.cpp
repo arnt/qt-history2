@@ -32,7 +32,7 @@
 int main(int argc, char **argv)
 {
     // parse command line
-    if(!Option::parseCommandLine(argc, argv))
+    if(!Option::init(argc, argv))
         return 666;
 
     QDir sunworkshop42workaround = QDir::current();

@@ -59,7 +59,7 @@ struct Option
     static QString pro_ext;
     static char field_sep;
     //both of these must be called..
-    static bool parseCommandLine(int argc, char **argv); //parse cmdline
+    static bool init(int argc=0, char **argv=0); //parse cmdline
     static bool postProcessProject(QMakeProject *);
 
     //and convenience functions
@@ -108,7 +108,7 @@ struct Option
     };
 
 private:
-    static int internalParseCommandLine(int, char **, int=0);
+    static int parseCommandLine(int, char **, int=0);
 };
 
 

@@ -156,7 +156,7 @@ enum {
     QMAKE_CMDLINE_BAIL
 };
 int
-Option::internalParseCommandLine(int argc, char **argv, int skip)
+Option::parseCommandLine(int argc, char **argv, int skip)
 {
     bool before = true;
     for(int x = skip; x < argc; x++) {
@@ -289,7 +289,7 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
 
 
 bool
-Option::parseCommandLine(int argc, char **argv)
+Option::init(int argc, char **argv)
 {
     Option::cpp_moc_mod = "";
     Option::h_moc_mod = "moc_";
@@ -346,7 +346,7 @@ Option::parseCommandLine(int argc, char **argv)
                 currlen = 0;
                 env_argc++;
             }
-            internalParseCommandLine(env_argc, env_argv);
+            parseCommandLine(env_argc, env_argv);
             for(int i2 = 0; i2 < env_size; i2++) {
                 if(env_argv[i2])
                     free(env_argv[i2]);
@@ -354,8 +354,8 @@ Option::parseCommandLine(int argc, char **argv)
             free(env_argv);
         }
     }
-    {
-        int ret = internalParseCommandLine(argc, argv, 1);
+    if(argc && argv) {
+        int ret = parseCommandLine(argc, argv, 1);
         if(ret != QMAKE_CMDLINE_SUCCESS)
             return ret == QMAKE_CMDLINE_SHOW_USAGE ? usage(argv[0]) : false;
     }
