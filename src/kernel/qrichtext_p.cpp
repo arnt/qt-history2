@@ -44,7 +44,7 @@ QTextCommand::Commands QTextCommand::type() const { return Invalid; }
 
 
 QTextCustomItem::~QTextCustomItem() {}
-void QTextCustomItem::adjustToPainter( QPainter* ) { width = 0; }
+void QTextCustomItem::setPainter( QPainter*, bool adjust ){ if ( adjust ) width = 0; }
 QTextCustomItem::Placement QTextCustomItem::placement() const { return PlaceInline; }
 
 bool QTextCustomItem::ownLine() const { return FALSE; }
@@ -596,10 +596,10 @@ int QTextParag::numberOfSubParagraph() const
 	    styleSheetItemsVec[ (int)p->styleSheetItemsVec.size() - 1 ] == p->style() ||
 		   p->styleSheetItemsVec.size() >= styleSheetItemsVec.size() &&
 		   p->styleSheetItemsVec[ (int)styleSheetItemsVec.size() - 1 ] == style() ) ) {
-	if ( p->style() == style() && listStyle() != p->listStyle() 
+	if ( p->style() == style() && listStyle() != p->listStyle()
 	     && p->styleSheetItemsVec.size() == styleSheetItemsVec.size() )
 	    break;
-	if ( p->style()->displayMode() == QStyleSheetItem::DisplayListItem 
+	if ( p->style()->displayMode() == QStyleSheetItem::DisplayListItem
 	     && p->style() != style() || styleSheetItemsVec.size() == p->styleSheetItemsVec.size() )
 	    ++n;
 	p = p->prev();

@@ -396,7 +396,7 @@ public:
     virtual ~QTextCustomItem();
     virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected ) = 0;
 
-    virtual void adjustToPainter( QPainter* );
+    virtual void setPainter( QPainter*, bool adjust );
 
     enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
     virtual Placement placement() const;
@@ -450,7 +450,7 @@ public:
     virtual ~QTextImage();
 
     Placement placement() const { return place; }
-    void adjustToPainter( QPainter* );
+    void setPainter( QPainter*, bool );
     int widthHint() const { return width; }
     int minimumWidth() const { return width; }
 
@@ -475,7 +475,7 @@ public:
 			 QMimeSourceFactory &factory );
     virtual ~QTextHorizontalLine();
 
-    void adjustToPainter( QPainter* );
+    void setPainter( QPainter*, bool );
     void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
     QString richText() const;
 
@@ -560,7 +560,7 @@ public:
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
-    void adjustToPainter();
+    void setPainter( QPainter*, bool );
 
     int row() const { return row_; }
     int column() const { return col_; }
@@ -614,7 +614,7 @@ public:
     QTextTable( QTextDocument *p, const QMap<QString, QString> &attr );
     virtual ~QTextTable();
 
-    void adjustToPainter( QPainter *p );
+    void setPainter( QPainter *p, bool adjust );
     void pageBreak( int  y, QTextFlow* flow );
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	       const QColorGroup& cg, bool selected );
@@ -661,7 +661,6 @@ private:
     int stretch;
     int innerborder;
     int us_cp, us_ib, us_b, us_ob, us_cs;
-    int lastX, lastY;
     QMap<QString, QString> attributes;
     QMap<QTextCursor*, int> currCell;
     Placement place;
@@ -1252,7 +1251,7 @@ public:
     void setTabArray( int *a );
     void setTabStops( int tw );
 
-    void setPainter( QPainter *p );
+    void setPainter( QPainter *p, bool adjust  );
     QPainter *painter() const { return pntr; }
 
     void setNewLinesAllowed( bool b );
@@ -1274,7 +1273,7 @@ public:
     void clearBackgroundColor();
 
     bool isLineBreak() const { return isBr; }
-    
+
     void setMovedDown( bool b ) { movedDown = b; }
     bool wasMovedDown() const { return movedDown; }
 
