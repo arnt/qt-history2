@@ -680,11 +680,42 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 */
 
 /*!
+    \fn QTextBlock::iterator::iterator()
+
+    Constructs an iterator for this text block.
+*/
+
+/*!
+    \fn QTextBlock::iterator::iterator(const iterator &other)
+
+    Copy constructor. Constructs a copy of the \a other iterator.
+*/
+
+/*!
+    \fn bool QTextBlock::iterator::atEnd() const
+
+    Returns true if the current item is the last item in the text block.
+*/
+
+/*!
+    \fn bool QTextBlock::iterator::operator==(const iterator &other)
+
+    Retuns true if this iterator is the same as the \a other iterator;
+    otherwise returns false.
+*/
+
+/*!
+    \fn bool QTextBlock::iterator::operator!=(const iterator &other)
+
+    Retuns true if this iterator is different from the \a other iterator;
+    otherwise returns false.
+*/
+
+/*!
     \fn QTextDocumentPrivate *QTextBlock::docHandle() const
 
     \internal
 */
-
 
 /*!
     Returns the starting position of the block within the document.
@@ -802,7 +833,7 @@ QString QTextBlock::text() const
 
 /*!
     Returns the text document this text block belongs to, or 0 if the
-    text block doesn't belong to any document.
+    text block does not belong to any document.
 */
 const QTextDocument *QTextBlock::document() const
 {
@@ -889,6 +920,12 @@ QTextFragment QTextBlock::iterator::fragment() const
     return QTextFragment(p, n, ne);
 }
 
+/*!
+    The prefix ++ operator (\c{++i}) advances the iterator to the
+    next item in the hash and returns an iterator to the new current
+    item.
+*/
+
 QTextBlock::iterator QTextBlock::iterator::operator++()
 {
     int ne = n;
@@ -899,6 +936,11 @@ QTextBlock::iterator QTextBlock::iterator::operator++()
     n = ne;
     return *this;
 }
+
+/*!
+    The prefix -- operator (\c{--i}) makes the preceding item
+    current and returns an iterator pointing to the new current item.
+*/
 
 QTextBlock::iterator QTextBlock::iterator::operator--()
 {
