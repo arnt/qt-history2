@@ -279,7 +279,9 @@
 */
 #    define _XOPEN_SOURCE 500          // import SUSv2/XPG5
 #    define _XOPEN_SOURCE_EXTENDED 1   // fall back on SUS/XPG4v2
-#    define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
+#    if defined(QT_THREAD_SUPPORT)
+#      define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
+#    endif
 // There is no _*_SOURCE on Solaris, there's an __EXTENSIONS__ macro instead.
 // This is very similar to Tru64.  This macro does not import most recent
 // Open Group interfaces.  Instead you must explicitly specify them using the
@@ -294,7 +296,9 @@
 #    if !defined(__EXTENSIONS__)
 #      define __EXTENSIONS__
 #    endif
-#    define _POSIX_C_SOURCE 199506L    // IEEE Std 1003.1c (1995) / POSIX.1c
+#    if defined(QT_THREAD_SUPPORT)
+#      define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
+#    endif
 // Don't know about other SYSV systems...
 // Please send info on relevant macros to qt-bugs@trolltech.com.
 // You could send the relevant header files, usually <unistd.h> and
