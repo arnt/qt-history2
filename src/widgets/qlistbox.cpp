@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#201 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#202 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1950,7 +1950,9 @@ void QListBox::setFixedVisibleLines( int lines )
 QSize QListBox::sizeHint() const
 {
     int w = (int)maxItemWidth() + 2*frameWidth();
-    int h = QMIN(1000,maximumSize().height()); // For when setFixedVisibleLines is used
+    int h = maximumSize().height(); // For when setFixedVisibleLines is used
+    if ( h >= 1000 )
+	h = -1; // ignore huge maxsizes
     int th = (((QListBox*)this)->totalHeight()) + 2*frameWidth();
     if ( th > h )
 	w += verticalScrollBar()->width();
