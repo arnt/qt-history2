@@ -1158,6 +1158,14 @@ void QWidget::showWindow()
     if (testWFlags(WStyle_Tool) || isPopup())
 	sm = SW_SHOWNOACTIVATE;
 
+    // Make sure that ShowWindow and UpdateWindow
+    // isn't called excessively
+    if (extra)
+	if (extra->shown_mode == sm)
+	    return;
+	else
+	    extra->shown_mode = sm;
+
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );
 }
