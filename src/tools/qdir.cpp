@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#96 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#97 $
 **
 ** Implementation of QDir class
 **
@@ -559,10 +559,10 @@ bool QDir::cdUp()
   Sets the name filter used by entryList() and entryInfoList().
 
   The name filter is a wildcarding filter that understands "*" and "?"
-  wildcards, You may specify several filter entries separated by a ";". If
+  wildcards, You may specify several filter entries separated by a " " or a ";". If
   you want entryList() and entryInfoList() to list all files ending with
   ".cpp" and all files ending with ".h", you simply call
-  dir.setNameFilter("*.cpp;*.h")
+  dir.setNameFilter("*.cpp *.h") or dir.setNameFilter("*.cpp;*.h")
 
   \sa nameFilter()
 */
@@ -1302,14 +1302,21 @@ static QStringList makeFilterList( QString filter )
     if ( filter.isEmpty() )
         return QStringList();
 
-    int i = filter.find( ';', 0 );
+    int i = filter.find( ' ', 0 );
+    QChar sep( ' ' );
+    if ( i == -1 ) {
+        if ( filter.find( ';', 0 ) != -1 ) {
+            sep = QChar( ';' );
+            i = filter.find( sep, 0 );
+        }
+    }
     QStringList lst;
 
     while ( i != -1 ) {
         if ( filter.left( i ).length() > 0 )
             lst.append( filter.left( i ) );
         filter.remove( 0, i + 1 );
-        i = filter.find( ';', 0 );
+        i = filter.find( sep, 0 );
     }
 
     if ( !filter.simplifyWhiteSpace().isEmpty() )
