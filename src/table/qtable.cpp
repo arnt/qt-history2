@@ -3228,15 +3228,15 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 	    cellWidget( itm->row(), itm->col() )->setFocus();
     }
 
-    if ( updateSelections && isRowSelection( selectionMode() ) ) {
-	if ( !isSelected( curRow, curCol, FALSE ) ) {
+    if ( updateSelections && isRowSelection( selectionMode() ) &&
+	 !isSelected( curRow, curCol, FALSE ) ) {
+	if ( selectionMode() == QTable::SingleRow )
 	    clearSelection();
-	    currentSel = new QTableSelection();
-	    selections.append( currentSel );
-	    currentSel->init( curRow, 0 );
-	    currentSel->expandTo( curRow, numCols() - 1 );
-	    repaintSelections( 0, currentSel );
-	}
+	currentSel = new QTableSelection();
+	selections.append( currentSel );
+	currentSel->init( curRow, 0 );
+	currentSel->expandTo( curRow, numCols() - 1 );
+	repaintSelections( 0, currentSel );
     }
 }
 
@@ -6620,10 +6620,11 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 
     if ( startPos == -1 ) {
 	int secAt = sectionAt( p );
-	if ( ( e->state() & ControlButton ) != ControlButton &&
-	     ( e->state() & ShiftButton ) != ShiftButton ||
-	     table->selectionMode() == QTable::Single ||
-	     table->selectionMode() == QTable::SingleRow ) {
+ 	bool multi = ( ( e->state() & ControlButton ) == ControlButton ||
+ 		       ( e->state() & ShiftButton ) == ShiftButton ||
+ 		       table->selectionMode() == QTable::Multi ||
+ 		       table->selectionMode() == QTable::MultiRow );
+ 	if ( !multi ) {
 	    startPos = p;
 	    bool b = table->signalsBlocked();
 	    table->blockSignals( TRUE );
@@ -6633,14 +6634,28 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	saveStates();
 	if ( table->selectionMode() != QTable::NoSelection ) {
 	    startPos = p;
-	    table->currentSel = new QTableSelection();
-	    table->selections.append( table->currentSel );
 	    if ( orientation() == Vertical ) {
-		table->currentSel->init( secAt, 0 );
-		table->setCurrentCell( secAt, 0 );
-	    } else {
-		table->currentSel->init( 0, secAt );
-		table->setCurrentCell( 0, secAt );
+		if ( !table->isRowSelected( secAt, TRUE ) ) {
+		    table->currentSel = new QTableSelection();
+		    table->selections.append( table->currentSel );
+		    table->currentSel->init( secAt, 0 );
+		    table->currentSel->expandTo( secAt, table->numCols() );
+		    table->setCurrentCell( secAt, 0 );
+		} else {		    
+		    table->currentSel->init( secAt, 0 );
+		    table->setCurrentCell( secAt, 0 );
+		}
+	    } else { // orientation == Horizontal
+		if ( !table->isColumnSelected( secAt, TRUE ) ) {
+		    table->currentSel = new QTableSelection();
+		    table->selections.append( table->currentSel );
+		    table->currentSel->init( 0, secAt );
+		    table->currentSel->expandTo( table->numRows(), secAt );
+		    table->setCurrentCell( 0, secAt );
+		} else {
+		    table->currentSel->init( 0, secAt );
+		    table->setCurrentCell( 0, secAt );
+		}
 	    }
 	}
     }
