@@ -446,6 +446,15 @@ event handling, access to system settings, internationalization, etc.
 
 */
 
+/*! \defgroup misc
+
+\heading Miscellaneous Classes
+
+These classes are useful classes not fitting into any other category.
+
+*/
+
+
 /*! \defgroup walkthroughs
 
 \heading Walkthroughs
@@ -458,13 +467,72 @@ or deal with programming techniques and Qt basics.
 Walkthroughs are especially aimed at Qt novices and not so experienced
 programmers and try to make learning Qt as painless as possible.
 
+*/
+
+
+/*! \defgroup examples
+
+\title Examples
+
+Qt ships with lots of small and some medium-sized example programs
+that teach you how to implement various tasks with Qt. Most of them will show how to
+use a certain class or module, others aim at programming techniques
+and Qt basics, and some of them simply want to show you what's possible.
+
+Note that most of the examples assume that you have some experience with C++ 
+and Qt and therefore are not commented extensively. If you are interested
+in a line-by-line coverage please refer to the <a href="walkthroughs.html">Walkthroughs</a>
+provided.
+
+<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
+<tr>
+<th bgcolor=#A2C511 width=100% align=left>
+Qt classes: assorted examples
+</th>
+</tr>
+</table>
+
+Pages:
+<ul>
+<li> <a href="qaction-examples.html">QAction and QActionGroup</a>
+</ul>
+
+<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
+<tr>
+<th bgcolor=#A2C511 width=100% align=left>
+Qt modules: assorted examples
+</th>
+</tr>
+</table>
+
+Pages:
+<ul>
+<li> <a href="xml-examples.html">XML examples</a>
+</ul>
+
+<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
+<tr>
+<th bgcolor=#A2C511 width=100% align=left>
+Miscellaneous
+</th>
+</tr>
+</table>
+*/
+
+/*! \defgroup qaction-examples 
+
+\title QAction examples 
+
+The following example programs show how to use the 
+QAction and QActionGroup classes.
 
 */
 
-/*! \defgroup misc
+/*! \defgroup xml-examples 
 
-\heading Miscellaneous Classes
+\title Qt XML examples 
 
-These classes are useful classes not fitting into any other category.
+The following example programs show how to use the 
+Qt XML classes.
 
 */

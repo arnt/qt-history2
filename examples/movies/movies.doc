@@ -1,0 +1,18 @@
+/*
+$Id$
+*/
+/*!   \page movies-example.html
+
+  \ingroup examples
+  \title Movies or the Story of the Animated GIF file
+
+  The Movies example displays animated GIF files using the QMovie and
+  QLabel classes.
+
+  <hr>
+
+  Main:
+
+  \include movies/main.cpp
+*/
+

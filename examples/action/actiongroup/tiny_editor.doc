@@ -1,0 +1,33 @@
+/*
+$Id$
+*/
+/*! \page tinyeditor-example.html
+
+  \ingroup qaction-examples
+ 
+  \title A Tiny Example Featuring QActionGroup
+ 
+  This example program shows how to use an
+  exclusive action group.
+ 
+  Detailed explanations of the code can be found in the
+  <a href="actiongroup.html">walkthrough</a>.
+ 
+  <hr>
+ 
+  Main:
+ 
+  \include action/actiongroup/tiny_editor.cpp
+ 
+  <hr>
+ 
+  Header file:
+ 
+  \include action/actiongroup/editor.h
+ 
+  <hr>
+ 
+  Implementation:
+
+  \include action/actiongroup/editor.cpp 
+*/     

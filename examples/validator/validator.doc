@@ -1,0 +1,41 @@
+/*
+$Id$
+*/
+/*!   \page validator-example.html
+
+  \ingroup examples
+  \title Validators
+
+  In this example you see how to write and use a custom validator.
+
+  <hr>
+
+  Header file of the validator:
+
+  \include validator/motor.h
+
+  <hr>
+
+  Implementation of the validator:
+
+  \include validator/motor.cpp
+
+  <hr>
+
+  Header file of the mainwidget:
+
+  \include validator/vw.h
+
+  <hr>
+
+  Implementation of the mainwidget:
+
+  \include validator/vw.cpp
+
+  <hr>
+
+  Main:
+
+  \include validator/main.cpp
+*/
+

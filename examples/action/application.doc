@@ -1,0 +1,32 @@
+/*
+$Id$
+*/
+     
+/*! \page qaction-application-example.html
+
+  \ingroup qaction-examples
+
+ 
+  \title A Complete Application Window with Actions
+ 
+  This example program is just like the application example,
+  but it uses QAction to build the menu and the toolbar.
+ 
+  <hr>
+ 
+  Header file:
+ 
+  \include action/application.h
+ 
+  <hr>
+ 
+  Implementation:
+ 
+  \include action/application.cpp
+ 
+  <hr>
+ 
+  Main:
+ 
+  \include action/main.cpp
+*/   
