@@ -473,6 +473,17 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     createAttributes(w, &ui_attribute_list, className);
 
     QDomElement e = w.firstChild().toElement();
+
+    bool needLayoutWidget = false;
+    int layoutWidgetCount = 0;
+    for (QDomElement ee = e; !ee.isNull(); ee = ee.nextSibling().toElement()) {
+        if (ee.tagName() != QLatin1String("widget"))
+            continue;
+
+        if (ee.attribute("class") == QLatin1String("QLayoutWidget"))
+            ++layoutWidgetCount;
+    }
+
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
         if (t == QLatin1String("vbox")
@@ -492,7 +503,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomWidget *ui_child = createWidget(e);
             Q_ASSERT(ui_child != 0);
 
-            if (ui_child->attributeClass() == QLatin1String("QLayoutWidget")
+            if (layoutWidgetCount == 1 && ui_child->attributeClass() == QLatin1String("QLayoutWidget")
                     && ui_child->elementLayout().size() == 1) {
                 QList<DomLayout*> layouts = ui_child->elementLayout();
 
@@ -502,6 +513,22 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             } else {
                 if (ui_child->attributeClass() == QLatin1String("QLayoutWidget"))
                     ui_child->setAttributeClass(QLatin1String("QWidget"));
+
+                QList<DomLayout*> layouts = ui_child->elementLayout();
+                for (int i=0; i<layouts.size(); ++i) {
+                    DomLayout *l = layouts.at(i);
+
+                    QList<DomProperty*> properties = l->elementProperty();
+                    QHash<QString, DomProperty*> m = propertyMap(properties);
+                    if (m.contains("margin"))
+                        continue;
+
+                    DomProperty *margin = new DomProperty();
+                    margin->setAttributeName("margin");
+                    margin->setElementNumber(0);
+                    properties.append(margin);
+                    l->setElementProperty(properties);
+                }
 
                 ui_child_list.append(ui_child);
             }
