@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#57 $
+** $Id: //depot/qt/main/src/moc/moc.y#58 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -38,7 +38,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#57 $")
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#58 $")
 
 QString rmWS( const char * );
 
@@ -762,13 +762,16 @@ extern "C" int _isatty( int );
 
 #include "lex.yy.c"
 
-void init();					// initialize
-void initClass();				// prepare for new class
-void generateClass();				// generate C++ code for class
-void initExpression();				// prepare for new expression
+void 	  init();				// initialize
+void 	  initClass();				// prepare for new class
+void 	  generateClass();			// generate C++ code for class
+void 	  initExpression();			// prepare for new expression
+QString	  combinePath( const char *, const char * );
 
 QString	  fileName;				// file name
-QString	  ofileName;				// output file name
+QString	  outputFile;				// output file name
+QString   includeFile;				// name of #include file
+QString	  includePath;				// #include file path
 bool	  noInclude     = FALSE;		// no #include <filename>
 bool	  generatedCode = FALSE;		// no code generated
 QString	  className;				// name of parsed class
@@ -781,47 +784,50 @@ FILE  *out;					// output file
 int yyparse();
 
 
-int main( int argc, char **argv )		// program starts here
+int main( int argc, char **argv )
 {
     bool autoInclude = TRUE;
     char *error	     = 0;
-    for ( int n=1; n<argc; n++ ) {
+    for ( int n=1; n<argc && error==0; n++ ) {
 	QString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
-	    char *opt = &arg[1];
-	    if ( *opt == 'o' )	{		// output redirection
+	    QString opt = &arg[1];
+	    if ( opt[0] == 'o' ) {		// output redirection
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
 			error = "Missing output-file name";
 			break;
 		    }
-		    ofileName = argv[++n];
-		}
-		else
-		    ofileName = &arg[2];
-	    }
-	    else
-	    if ( strcmp(opt,"i") == 0 ) {	// no #include statement
+		    outputFile = argv[++n];
+		} else
+		    outputFile = &opt[1];
+	    } else if ( opt == "i" ) {		// no #include statement
 		noInclude   = TRUE;
 		autoInclude = FALSE;
-	    } else
-	    if ( strcmp(opt,"f") == 0 ) {	// produce #include statement
+	    } else if ( opt[0] == 'f' ) {	// produce #include statement
 		noInclude   = FALSE;
 		autoInclude = FALSE;
-	    } else
-	    if ( strcmp(opt,"k") == 0 ) {	// don't stop on errors
+		if ( opt[1] ) {			// -fsomething.h
+		    includeFile = &opt[1];
+		}
+	    } else if ( opt[0] == 'p' ) {	// include file path
+		if ( opt[1] == '\0' ) {
+		    if ( !(n < argc-1) ) {
+			error = "Missing path name";
+			break;
+		    }
+		    includePath = argv[++n];
+		} else
+		    includePath = &opt[1];
+	    } else if ( opt == "k" ) {		// don't stop on errors
 		errorControl = TRUE;
-	    } else
-	    if ( strcmp(opt,"nw") == 0 ) {	// don't display warnings
+	    } else if ( opt == "nw" ) {		// don't display warnings
 		displayWarnings = FALSE;
-	    } else
-	    if ( strcmp(opt,"ldbg") == 0 ) {	// lex debug output
+	    } else if ( opt == "ldbg" ) {	// lex debug output
 		lexDebug = TRUE;
-	    } else
-	    if ( strcmp(opt,"ydbg") == 0 ) {	// yacc debug output
+	    } else if ( opt == "ydbg" ) {	// yacc debug output
 		yydebug = TRUE;
-	    } else
-	    if ( strcmp(opt,"dbg") == 0 ) {	// non-signal members are slots
+	    } else if ( opt == "dbg" ) {	// non-signal members are slots
 		grammarDebug = TRUE;
 	    } else {
 		error = "Invalid argument";
@@ -833,6 +839,7 @@ int main( int argc, char **argv )		// program starts here
 		fileName = arg.copy();
 	}
     }
+
     if ( autoInclude ) {
 	int ppos = fileName.findRev('.');
 	if ( ppos != -1 && tolower( fileName[ppos + 1] ) == 'h' )
@@ -840,37 +847,58 @@ int main( int argc, char **argv )		// program starts here
 	else
 	    noInclude = TRUE;
     }
-    if ( fileName.isNull() ) {
+    if ( !fileName.isEmpty() && !outputFile.isEmpty() &&
+	 includeFile.isEmpty() && includePath.isEmpty() ) {
+	includeFile = combinePath(fileName,outputFile);
+    }
+    if ( includeFile.isEmpty() )
+	includeFile = fileName.copy();
+    if ( !includePath.isEmpty() ) {
+	if ( includePath.right(1) != "/" )
+	    includePath += '/';
+	includeFile = includePath + includeFile;
+    }
+    if ( fileName.isNull() && !error ) {
 	fileName = "standard input";
 	yyin	 = stdin;
-    }
-    else if ( argc < 2 || error ) {		// incomplete/wrong args
+    } else if ( argc < 2 || error ) {		// incomplete/wrong args
 	fprintf( stderr, "Qt meta object compiler\n" );
 	if ( error )
 	    fprintf( stderr, "moc: %s\n", error );
-	fprintf( stderr, "Usage:  moc [-i] [-o output] <header-file>\n" );
+	fprintf( stderr, "Usage:  moc [options] <header-file>\n"
+		 "\t-o file  Write output to file rather than stdout\n"
+		 "\t-i       Do not generate an #include statement\n"
+		 "\t-f[file] Force #include, optional file name\n"
+		 "\t-p path  Path prefix for included file\n"
+		 "\t-k       Do not stop on errors\n"
+		 "\t-nw      Do not display warnings\n"
+#if 0
+		 "\t-ldbg    lex debug output\n"
+		 "\t-ydbg    yacc debug output\n"
+		 "\t-dbg     test parser, all non-signal members are slots\n"
+#endif
+		 );
 	return 1;
-    }
-    else {
+    } else {
 	yyin = fopen( fileName, "r" );
 	if ( !yyin ) {
 	    fprintf( stderr, "moc: %s: No such file\n", (const char*)fileName );
 	    return 1;
 	}
     }
-    if ( !ofileName.isNull() ) {		// output file specified
-	out = fopen( ofileName, "w" );		// create output file
+    if ( !outputFile.isEmpty() ) {		// output file specified
+	out = fopen( outputFile, "w" );		// create output file
 	if ( !out ) {
-	    fprintf( stderr, "moc: Cannot create %s\n", (const char*)ofileName );
+	    fprintf( stderr, "moc: Cannot create %s\n",
+		     (const char*)outputFile );
 	    return 1;
 	}
-    }
-    else					// use stdout
+    } else					// use stdout
 	out = stdout;
     init();
     yyparse();
     fclose( yyin );
-    if ( !ofileName.isNull() )
+    if ( !outputFile.isNull() )
 	fclose( out );
 
     if ( !generatedCode ) {
@@ -881,6 +909,61 @@ int main( int argc, char **argv )		// program starts here
     slots.clear();
     signals.clear();
     return 0;
+}
+
+
+void replace( char *s, char c1, char c2 )
+{
+    if ( !s )
+	return;
+    while ( *s ) {
+	if ( *s == c1 )
+	    *s = c2;
+	s++;
+    }
+}
+
+/*
+  This function looks at two file names and returns the name of the
+  infile, with a path relative to outfile. Examples:
+    /tmp/abc	/tmp/bcd	->	abc
+    xyz/a/bc	xyz/b/ac	->	../a/bc
+    /tmp/abc	xyz/klm		-)	/tmp/abc
+ */
+
+QString combinePath( const char *infile, const char *outfile )
+{
+    QString a = infile;  replace(a.data(),'\\','/');
+    QString b = outfile; replace(b.data(),'\\','/');
+    a = a.stripWhiteSpace();
+    b = b.stripWhiteSpace();
+    QString r;
+    int i = 0;
+    int ncommondirs = 0;
+    while ( a[i] && a[i] == b[i] ) {
+	if ( a[i] == '/' && i > 0 )
+	    ncommondirs++;
+	i++;
+    }
+    if ( ncommondirs > 0 ) {			// common base directory
+	while ( i>=0 ) {
+	    if ( a[i] == '/' && b[i] == '/' )
+		break;
+	    --i;
+	}
+	++i;
+	a = &a[i];
+	b = &b[i];
+    } else {
+	if ( a[0] == '/' )
+	    return a;
+	b = &b[i];
+    }
+    i = b.contains('/');
+    while ( i-- > 0 )
+	r += "../";
+    r += a;
+    return r;
 }
 
 
@@ -1125,7 +1208,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, hdr4 );
 	fprintf( out, "#include <qmetaobj.h>\n" );
 	if ( !noInclude )
-	    fprintf( out, "#include \"%s\"\n", (const char*)fileName );
+	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
 	fprintf( out, "\n\n" );
     }
     else
