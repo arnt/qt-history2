@@ -72,6 +72,28 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
     return FALSE;
 }
 
+void 
+UnixMakefileGenerator::writeExtraVariables(QTextStream &t)
+{
+    bool first = TRUE;
+    QMap<QString, QStringList> &vars = project->variables();
+    QStringList &exports = project->variables()["QMAKE_EXTRA_UNIX_VARIABLES"];
+    for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
+	for(QStringList::Iterator exp_it = exports.begin(); exp_it != exports.end(); ++exp_it) {
+	    QRegExp rx((*exp_it), FALSE, TRUE);
+	    if(rx.exactMatch(it.key())) {
+		if(first) {
+		    t << "\n####### Custom Variables" << endl;
+		    first = FALSE;
+		}
+		t << "EXPORT_" << it.key() << " = " << it.data().join(" ") << endl;
+	    }
+	}
+    }
+    if(!first)
+	t << endl;
+}
+
 void
 UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
@@ -255,6 +277,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "TARGET0	= " << var("TARGET_") << endl;
 	}
     }
+    writeExtraVariables(t);
     t << endl;
 
     // blasted includes
@@ -902,6 +925,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     QStringList &qeui = project->variables()["QMAKE_EXTRA_UNIX_INCLUDES"];
     for(QStringList::Iterator qeui_it = qeui.begin(); qeui_it != qeui.end(); ++qeui_it)
 	t << "include " << (*qeui_it) << endl;
+    writeExtraVariables(t);
 
     QPtrList<SubDir> subdirs;
     {
