@@ -34,74 +34,27 @@
 **
 **********************************************************************/
 
-#include <qsqldriverinterface.h>
-#include <qobjectcleanuphandler.h>
+#include <qsqldriverplugin.h>
 #include "../../../../src/sql/drivers/oci/qsql_oci.h"
 
-class QOCIDriverPlugin : public QSqlDriverFactoryInterface
+class QOCIDriverPlugin : public QSqlDriverPlugin
 {
 public:
     QOCIDriverPlugin();
-    virtual ~QOCIDriverPlugin();
 
-    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
-
-    QSqlDriver* create( const QString &name );
+    QSqlDriver* create( const QString & );
     QStringList featureList() const;
-
-private:
-    QObjectCleanupHandler drivers;
-    unsigned long ref;
 };
 
 QOCIDriverPlugin::QOCIDriverPlugin()
-: ref( 0 )
+    : QSqlDriverPlugin()
 {
-}
-
-QOCIDriverPlugin::~QOCIDriverPlugin()
-{
-}
-
-QRESULT QOCIDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
-{
-    *iface = 0;
-
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QSqlDriverFactory )
-	*iface = (QSqlDriverFactoryInterface*)this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-unsigned long QOCIDriverPlugin::addRef()
-{
-    return ref++;
-}
-
-unsigned long QOCIDriverPlugin::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QSqlDriver* QOCIDriverPlugin::create( const QString &name )
 {
     if ( name == "QOCI8" ) {
 	QOCIDriver* driver = new QOCIDriver();
-	drivers.add( driver );	
 	return driver;
     }
     return 0;
@@ -114,7 +67,4 @@ QStringList QOCIDriverPlugin::featureList() const
     return l;
 }
 
-Q_EXPORT_INTERFACE()
-{
-    Q_CREATE_INSTANCE( QOCIDriverPlugin )
-}
+Q_EXPORT_PLUGIN( QOCIDriverPlugin )

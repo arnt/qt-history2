@@ -34,71 +34,27 @@
 **
 **********************************************************************/
 
-#include <qsqldriverinterface.h>
-#include <qobjectcleanuphandler.h>
+#include <qsqldriverplugin.h>
 #include "../../../../src/sql/drivers/mysql/qsql_mysql.h"
 
-class QMYSQLDriverPlugin : public QSqlDriverFactoryInterface
+class QMYSQLDriverPlugin : public QSqlDriverPlugin
 {
 public:
     QMYSQLDriverPlugin();
-    virtual ~QMYSQLDriverPlugin();
 
-    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
-
-    QSqlDriver* create( const QString &name );
+    QSqlDriver* create( const QString & );
     QStringList featureList() const;
-
-private:
-    QObjectCleanupHandler drivers;
-    unsigned long ref;
 };
 
 QMYSQLDriverPlugin::QMYSQLDriverPlugin()
-: ref( 0 )
+    : QSqlDriverPlugin()
 {
-}
-
-QMYSQLDriverPlugin::~QMYSQLDriverPlugin()
-{
-}
-
-QRESULT QMYSQLDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
-{
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QSqlDriverFactory )
-	*iface = (QSqlDriverFactoryInterface*)this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-unsigned long QMYSQLDriverPlugin::addRef()
-{
-    return ref++;
-}
-
-unsigned long QMYSQLDriverPlugin::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
 }
 
 QSqlDriver* QMYSQLDriverPlugin::create( const QString &name )
 {
     if ( name.upper() == "QMYSQL3" ) {
 	QMYSQLDriver* driver = new QMYSQLDriver();
-	drivers.add( driver );	
 	return driver;
     }
     return 0;
@@ -111,7 +67,4 @@ QStringList QMYSQLDriverPlugin::featureList() const
     return l;
 }
 
-Q_EXPORT_INTERFACE()
-{
-    Q_CREATE_INSTANCE( QMYSQLDriverPlugin )
-}
+Q_EXPORT_PLUGIN( QMYSQLDriverPlugin )

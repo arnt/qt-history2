@@ -35,74 +35,27 @@
 **********************************************************************/
 
 #define Q_UUIDIMPL
-#include <qsqldriverinterface.h>
-#include <qobjectcleanuphandler.h>
+#include <qsqldriverplugin.h>
 #include "../../../../src/sql/drivers/tds/qsql_tds.h"
 
-class QTDSDriverPlugin : public QSqlDriverFactoryInterface
+class QTDSDriverPlugin : public QSqlDriverPlugin
 {
 public:
     QTDSDriverPlugin();
-    virtual ~QTDSDriverPlugin();
 
-    QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
-
-    QSqlDriver* create( const QString &name );
+    QSqlDriver* create( const QString & );
     QStringList featureList() const;
-
-private:
-    QObjectCleanupHandler drivers;
-    unsigned long ref;
 };
 
 QTDSDriverPlugin::QTDSDriverPlugin()
-: ref( 0 )
+    : QSqlDriverPlugin()
 {
-}
-
-QTDSDriverPlugin::~QTDSDriverPlugin()
-{
-}
-
-QRESULT QTDSDriverPlugin::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
-{
-    *iface = 0;
-
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QSqlDriverFactory )
-	*iface = (QSqlDriverFactoryInterface*)this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-unsigned long QTDSDriverPlugin::addRef()
-{
-    return ref++;
-}
-
-unsigned long QTDSDriverPlugin::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QSqlDriver* QTDSDriverPlugin::create( const QString &name )
 {
     if ( name == "QTDS7" ) {
 	QTDSDriver* driver = new QTDSDriver();
-	drivers.add( driver );	
 	return driver;
     }
     return 0;
@@ -115,7 +68,4 @@ QStringList QTDSDriverPlugin::featureList() const
     return l;
 }
 
-Q_EXPORT_INTERFACE()
-{
-    Q_CREATE_INSTANCE( QTDSDriverPlugin )
-}
+Q_EXPORT_PLUGIN( QTDSDriverPlugin )
