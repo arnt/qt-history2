@@ -50,6 +50,11 @@
 #define ULLONG_MAX Q_UINT64_C(18446744073709551615)
 #endif
 
+
+#ifndef QT_NO_TEXTCODEC
+QTextCodec *QString::codecForCStrings;
+#endif
+
 static int ucstrcmp(const QString &as, const QString &bs)
 {
     const QChar *a = as.unicode();
