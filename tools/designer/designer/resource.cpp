@@ -1271,7 +1271,7 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 	}
 	return spacer;
     } else {
-	Qt::Orientation orient;
+	Qt::Orientation orient = Qt::Horizontal;
 	int w = 0, h = 0;
 	QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
 	while ( !n.isNull() ) {
