@@ -784,7 +784,8 @@ void Configure::generateOutputVars()
 	qmakeSqlPlugins += "tds";
 
 
-    qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
+    if ( dictionary[ "SHARED" ] == "yes" )
+	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
 
     if( !dictionary[ "QT_INSTALL_HEADERS" ] )
 	dictionary[ "QT_INSTALL_HEADERS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/include" );
