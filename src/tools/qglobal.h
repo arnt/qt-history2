@@ -189,6 +189,9 @@
 #  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 6
 #    define Q_HAS_BOOL_TYPE
 #  endif
+#  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 95
+#    define Q_DELETING_VOID_UNDEFINED
+#  endif
 #  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 96
 #    define Q_DELETING_VOID_UNDEFINED
 #    define Q_FP_CCAST_BROKEN
