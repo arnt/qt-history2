@@ -135,7 +135,7 @@ void QPainterPrivate::draw_helper_fill_alpha(const void *data, Qt::FillRule fill
 #endif
     const int BUFFERSIZE = 16;
     QImage image(BUFFERSIZE, BUFFERSIZE, 32);
-    image.fill(state->brush.color().rgb());
+    image.fill(state->brush.color().rgba());
     image.setAlphaBuffer(true);
     QPixmap pm(image);
 
@@ -3286,7 +3286,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
             // Needed to preserve the alpha channel in the pixmap
             // While setPixel() is needed to switch on alpha buffer on Embedded
             QImage img(qRound(r.width()), qRound(r.height()), 32);
-            img.setPixel(0, 0, QColor(255, 0, 0, 127).rgb());
+            img.setPixel(0, 0, QColor(255, 0, 0, 127).rgba());
             img.setAlphaBuffer(true);
             pm = img;
         } else {

@@ -90,7 +90,7 @@ int QColormap::size() const
 
 uint QColormap::pixel(const QColor &color) const
 {
-    QRgb rgb = color.rgb();
+    QRgb rgb = color.rgba();
     if (d->mode == QColormap::Direct) {
         switch(d->depth) {
         case 16:

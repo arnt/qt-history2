@@ -520,7 +520,7 @@ int QColormap::size() const
 
 uint QColormap::pixel(const QColor &color) const
 {
-    QRgb rgb = color.rgb();
+    QRgb rgb = color.rgba();
     // Qt::color0 or Qt::color1 have fixed values for all screens
     if (rgb == 0x01ffffff)
         return 0;

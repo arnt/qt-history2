@@ -238,7 +238,10 @@ QColor::QColor(Qt::GlobalColor color)
 #undef QRGB
 #undef QRGBA
 
-    setRgb(global_colors[color]);
+    setRgb(qRed(global_colors[color]),
+           qGreen(global_colors[color]),
+           qBlue(global_colors[color]),
+           qAlpha(global_colors[color]));
 }
 
 /*!

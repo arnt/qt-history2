@@ -67,7 +67,7 @@ int QColormap::size() const
 }
 
 uint QColormap::pixel(const QColor &color) const
-{ return color.rgb(); }
+{ return color.rgba(); }
 
 const QColor QColormap::colorAt(uint pixel) const
 { return QColor(pixel); }
