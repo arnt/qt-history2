@@ -237,11 +237,12 @@ public:
 
 private:
     QSocket *csocket;
-    QQueue<QWSEvent> queue;
+    QList<QWSEvent> queue;
     uchar* offscreenaddress;
 
     QWSMouseEvent* mouse_event;
     QWSRegionModifiedEvent *region_event;
+    QWSRegionModifiedEvent *region_ack;
     QWSEvent* current_event;
     QValueList<int> unused_identifiers;
 
@@ -255,7 +256,7 @@ public:
     {
 	QWSEvent *r;
 	if ( queue.count() ) {
-	    r = queue.dequeue();
+	    r = queue.first(); queue.removeFirst();
 	} else if ( mouse_event ) {
 	    r = mouse_event;
 	    mouse_event = 0;
@@ -267,12 +268,13 @@ public:
     }
 
     QWSEvent *peek() {
-	return queue.head();
+	return queue.first();
     }
     bool directServerConnection() { return csocket == 0; }
     
     void fillQueue();
-    void waitForEvent( int type );
+    void waitForRegionAck();
+    void waitForCreation();
     void init();
     void create()
     {
@@ -300,20 +302,19 @@ public:
     {
 	// top up bag
 	create();
+qDebug("takID...");
+qDebug("%d left",unused_identifiers.count());
 	if ( !unused_identifiers.count() ) {
 	    // We have to wait!
-	    for (int o=0; o<10; o++)
+	    for (int o=0; o<30; o++)
 		create();
-	    if ( csocket )
-		csocket->flush();
-	    fillQueue();
-	    qWarning("Poor allocation: no object ID ready.  Waiting...");
-  	    while ( !unused_identifiers.count() ) {
-		qApp->processOneEvent();
-  		fillQueue();
-  	    }
+	    waitForCreation();
 	}
-	int i = *unused_identifiers.remove(unused_identifiers.begin());
+qDebug("%d left",unused_identifiers.count());
+	QValueList<int>::Iterator head = unused_identifiers.begin();
+	int i = *head;
+	unused_identifiers.remove(head);
+qDebug("ID=%d, %d left",i,unused_identifiers.count());
 	return i;
     }
 };
@@ -322,6 +323,7 @@ public:
 
 void QWSDisplayData::init()
 {
+    region_ack = 0;
     mouse_event = 0;
     region_event = 0;
     current_event = 0;
@@ -408,11 +410,12 @@ QWSEvent* QWSDisplayData::readMore()
 
 void QWSDisplayData::fillQueue()
 {
+    QWSServer::processEventQueue();
     QWSEvent *e = readMore();
     while ( e ) {
   	if ( e->type == QWSEvent::Creation ) {
 	    QWSCreationEvent *ce = (QWSCreationEvent*)e;
-	    //qDebug("%08x created",ce->objectid);
+	    qDebug("%d created",ce->simpleData.objectid);
 	    unused_identifiers.append(ce->simpleData.objectid);
 	    delete e;
 	} else if ( e->type == QWSEvent::Mouse ) {
@@ -420,7 +423,7 @@ void QWSDisplayData::fillQueue()
 		if ( (mouse_event->window() != e->window ()
 		      || mouse_event->simpleData.state !=
 		      ((QWSMouseEvent*)e)->simpleData.state )) {
-		    queue.enqueue( mouse_event );
+		    queue.append( mouse_event );
 		} else {
 		    delete mouse_event;
 		}
@@ -428,8 +431,9 @@ void QWSDisplayData::fillQueue()
 	    mouse_event = (QWSMouseEvent*)e;
 	} else if ( e->type == QWSEvent::RegionModified ) {
 	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
-	    if ( !re->simpleData.is_ack &&  
-		 (!region_event || re->window() == region_event->window() ) ) {
+	    if ( re->simpleData.is_ack ) {
+		region_ack = re;
+	    } else if ( (!region_event || re->window() == region_event->window() ) ) {
 		if ( region_event ) {
 		    QRegion r1;
 		    r1.setRects( re->rectangles, re->simpleData.nrectangles );
@@ -445,40 +449,39 @@ void QWSDisplayData::fillQueue()
 		    region_event = re;
 		}
 	    } else {
-		queue.enqueue(e);
+		queue.append(e);
 	    }
 	} else {
-	    queue.enqueue(e);
+	    queue.append(e);
 	}
 	e = readMore();
     }
 }
 
 
-void QWSDisplayData::waitForEvent( int type )
+
+void QWSDisplayData::waitForRegionAck()
 {
-    ASSERT( csocket );
-    QQueue<QWSEvent> holding;
-    QWSEvent *e = 0;
-
-    while ( queue.head() )
-	holding.enqueue( queue.dequeue() );
-    
     csocket->flush();
+    while ( 1 ) {
+	fillQueue();
+	if ( region_ack )
+	    break;
+	csocket->waitForMore(1000);
+    }
+    queue.prepend(region_ack);
+    region_ack = 0;
+}
 
-    do {
-	e = readMore();
-	if ( !e ) {
+void QWSDisplayData::waitForCreation()
+{
+    if ( csocket )
+	csocket->flush();
+    fillQueue();
+    while ( unused_identifiers.count() == 0 ) {
+	if ( csocket )
 	    csocket->waitForMore(1000);
-	    continue;
-	}
-	if ( e->type != type )
-	    holding.enqueue( e );
-    } while ( !e || e->type != type );
-
-    queue.enqueue( e );
-    while ( holding.head() ) {
-	queue.enqueue( holding.dequeue() );
+	fillQueue();
     }
 }
 
@@ -583,12 +586,7 @@ void QWSDisplay::setAltitude(int winId, int alt, bool fixed )
 	QWSServer::set_altitude( &cmd );
     } else {
 	d->sendCommand( cmd );
-	// since the region may be changed, we need to wait for ack
-	QWSRegionModifiedEvent *e;
-	do {
-	    d->waitForEvent( QWSEvent::RegionModified );
-	    e = (QWSRegionModifiedEvent *)d->peek();
-	} while ( !e->simpleData.is_ack );
+	d->waitForRegionAck();
     }
 }
 
@@ -624,13 +622,8 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
 	cmd.simpleData.nrectangles = ra.count();
 	cmd.setData( (char *)ra.data(), ra.count() * sizeof(QRect), FALSE);
 	d->sendCommand( cmd );
-	if ( !r.isEmpty() ) {
-	    QWSRegionModifiedEvent *e;
-	    do {
-		d->waitForEvent( QWSEvent::RegionModified );
-		e = (QWSRegionModifiedEvent *)d->peek();
-	    } while ( !e->simpleData.is_ack );
-	}
+	if ( !r.isEmpty() )
+	    d->waitForRegionAck();
     }
 }
 
@@ -648,12 +641,7 @@ void QWSDisplay::moveRegion( int winId, int dx, int dy )
 	QWSServer::move_region( &cmd );
     } else {
 	d->sendCommand( cmd );
-
-	QWSRegionModifiedEvent *e;
-	do {
-	    d->waitForEvent( QWSEvent::RegionModified );
-	    e = (QWSRegionModifiedEvent *)d->peek();
-	} while ( !e->simpleData.is_ack );
+	d->waitForRegionAck();
     }
 }
 void QWSDisplay::destroyRegion( int winId )
