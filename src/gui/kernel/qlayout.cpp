@@ -45,7 +45,7 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
 
     For users of QLayout subclasses or of QMainWindow there is seldom
     any need to use the basic functions provided by QLayout, such as
-    setResizeMode() or setMenuBar(). See \l{Layout Classes}
+    setSizeConstraint() or setMenuBar(). See \l{Layout Classes}
     for more information.
 
     To make your own layout manager, implement the functions
@@ -706,6 +706,7 @@ void QLayout::addChildWidget(QWidget *w)
 
 #ifdef QT3_SUPPORT
 /*!
+  \compat
 
   Sets this layout's parent widget to a fixed size with width \a w and
   height \a h, stopping the user form resizing it, and also prevents the
