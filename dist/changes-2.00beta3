@@ -18,10 +18,18 @@ QAccel
 	Non-latin1 accelerators are now supported.
 
 QTranslator/findtr/msg2qm/mergetr
-	Several bugs fixed and improvements made.
+	All reported bugs fixed and improvements made.
 
 Rich Text
-	Many improvements and fixes. Some API changes.
+	Many improvements and fixes such as supressed warnings in the 
+	QBrowser example. Support for logical font sizes.
 
 QApplication
-	lastWindowClosed() now works with virtual desktops.
+	lastWindowClosed() now works with virtual desktops. Desktop settings
+	on Windows improved.
+
+QScrollView / QMultiLineEdit
+	Speedups with a new widget flag: WNorthWestGravity.
+
+QPopupMenu / QMenuBar
+	Speedups, less flicker.
