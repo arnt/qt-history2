@@ -2954,9 +2954,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 		dImage.setColor( dImage.data->ncols-1, 0x00 );
 		memset( dImage.bits(), dImage.data->ncols-1, dImage.numBytes() );
 	    } else {
-		// ### What is the right thing here?
-		dImage.setColor( 255, 0x00 );
-		memset( dImage.bits(), 255, dImage.numBytes() );
+		memset( dImage.bits(), 0, dImage.numBytes() );
 	    }
 	    break;
 	case 16:
