@@ -14,7 +14,7 @@ class PopupMenuEditorItem : public QObject
     friend class PopupMenuEditor;
 
     PopupMenuEditorItem( PopupMenuEditor * menu = 0 );
-    
+
 public:
     enum ItemType {
 	Unknown = -1,
@@ -23,7 +23,7 @@ public:
 	ActionGroup = 3,
 	Widget = 4
     };
-    
+
     // FIXME: Qt-ify the constructors
     PopupMenuEditorItem( QAction * action, PopupMenuEditor * menu );
     PopupMenuEditorItem( QActionGroup * actionGroup, PopupMenuEditor * menu );
@@ -48,18 +48,18 @@ public:
 
     void setRemovable( bool enable );
     bool isRemovable();
-    
+
     void setAutoDelete( bool enable );
     bool isAutoDelete();
 
     void showMenu( int x, int y );
     void hideMenu();
     void focusMenu();
-    
+
     int count();
 
     bool eventFilter( QObject *, QEvent * event );
-    
+
 public slots:
     void selfDestruct();
 
@@ -85,10 +85,10 @@ class QLineEdit;
 class PopupMenuEditor : public QWidget
 {
     Q_OBJECT
-    
+
     friend class PopupMenuEditorItem;
     friend class MenuBarEditor;
-    
+
 public:
     PopupMenuEditor( FormWindow * fw, QWidget * parent = 0, const char * name = 0 );
     PopupMenuEditor( FormWindow * fw, PopupMenuEditor * menu, QWidget * parent );
@@ -111,7 +111,7 @@ public:
     void paste( int index );
 
     void insertedActions( QPtrList<QAction> & list );
-    
+
     void show();
     void loadIconPixmap( int index = -1 );
     void showLineEdit( int index = -1);
@@ -119,7 +119,7 @@ public:
     void resizeToContents();
 
     void showCurrentItemMenu();
-    void hideCurrentItemMenu();y
+    void hideCurrentItemMenu();
     void focusCurrentItemMenu();
 
     FormWindow * formWindow();
@@ -127,14 +127,14 @@ public:
 signals:
     void actionAdded( QAction * );
     void actionRemoved( QAction * );
-    
+
 protected:
     PopupMenuEditorItem * createItem( QAction * a = 0 );
     void deleteCurrentItem();
     PopupMenuEditorItem * currentItem();
     PopupMenuEditorItem * itemAt( const int y );
     void setFocusAt( const QPoint & pos );
-    
+
     void paintEvent( QPaintEvent * e );
     void mousePressEvent( QMouseEvent * e );
     void mouseDoubleClickEvent( QMouseEvent * e );
@@ -166,7 +166,7 @@ protected:
 
     void safeDec();
     void safeInc();
-    
+
 private:
     FormWindow * formWnd;
     QLineEdit * lineEdit;
