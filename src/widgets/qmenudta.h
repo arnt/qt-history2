@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#6 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#7 $
 **
 ** Definition of QMenuData class
 **
@@ -73,11 +73,11 @@ public:
 
     void	insertItem( const char *string, int id=-1, int index=-1 );
     void	insertItem( const char *string, QPopupMenu *popup,
-			    int index=-1 );
+			    int id=-1, int index=-1 );
 
     void	insertItem( QBitMap *bitmap, int id=-1, int index=-1 );
     void	insertItem( QBitMap *bitmap, QPopupMenu *popup,
-			    int index=-1 );
+			    int id=-1, int index=-1 );
 
     void	insertSeparator( int index=-1 );
 

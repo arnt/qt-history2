@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#10 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#10 $";
 #endif
 
 
@@ -144,9 +144,10 @@ void QMenuData::insertItem( const char *string, int id, int index )
     insertAny( string, 0, 0, id, index );
 }
 
-void QMenuData::insertItem( const char *string, QPopupMenu *popup, int index )
+void QMenuData::insertItem( const char *string, QPopupMenu *popup,
+			    int id, int index )
 {						// insert string + popup menu
-    insertAny( string, 0, popup, -2, index );
+    insertAny( string, 0, popup, id, index );
 }
 
 void QMenuData::insertItem( QBitMap *bitmap, int id, int index )
@@ -154,9 +155,10 @@ void QMenuData::insertItem( QBitMap *bitmap, int id, int index )
     insertAny( 0, bitmap, 0, id, index );
 }
 
-void QMenuData::insertItem( QBitMap *bitmap, QPopupMenu *popup, int index )
+void QMenuData::insertItem( QBitMap *bitmap, QPopupMenu *popup,
+			    int id, int index )
 {						// insert bitmap + popup menu
-    insertAny( 0, bitmap, popup, -2, index );
+    insertAny( 0, bitmap, popup, id, index );
 }
 
 void QMenuData::insertSeparator( int index )	// insert menu separator
