@@ -58,9 +58,6 @@
 #include <qobjectlist.h>
 
 #include <qprinter.h>
-#ifdef _WS_X11_
-#include "../../../src/kernel/qpsprinter_p.h"
-#endif
 #include <qfile.h>
 #include <qpainter.h>
 #include <q1xcompatibility.h>

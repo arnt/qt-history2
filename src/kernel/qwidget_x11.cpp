@@ -619,7 +619,13 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
     if ( text ) {
 	QWidget* tlw = topLevelWidget();
 	if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
-	    QPoint p = tlw->mapFromGlobal(mapToGlobal(QPoint(x,y)));
+	    QPoint p( x, y );
+	    QWidget * w = this;
+	    QWidget * tlw = topLevelWidget();
+	    while ( w != tlw ) {
+		p = w->mapToParent( p );
+		w = w->parentWidget();
+	    }
 	    XPoint spot;
 	    spot.x = p.x();
 	    spot.y = p.y()+height;

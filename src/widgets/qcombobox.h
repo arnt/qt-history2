@@ -43,6 +43,7 @@ class Q_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
     Q_ENUMS( Policy )
+    Q_PROPERTY( bool editable READ editable WRITE setEditable )
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( QString currentText READ currentText )
     Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )
@@ -110,7 +111,7 @@ public:
 
     virtual void	setListBox( QListBox * );
     QListBox * 	listBox() const;
-    
+
     QLineEdit*	lineEdit() const;
 
     virtual void	setAutoCompletion( bool );
@@ -120,6 +121,9 @@ public:
 
     void 	setDuplicatesEnabled( bool enable );
     bool 	duplicatesEnabled() const;
+    
+    bool 	editable() const;
+    void 	setEditable( bool );
 
 public slots:
     void	clearValidator();
@@ -139,7 +143,7 @@ private slots:
     void	internalClickTimeout();
     void	returnPressed();
     void	showMore();
-    
+
 protected:
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
@@ -155,6 +159,8 @@ protected:
     void updateMask();
 
 private:
+    void     setUpListBox();
+    void     setUpLineEdit();
     void	popDownListBox();
     void	reIndex();
     void	currentChanged();

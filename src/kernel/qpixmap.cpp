@@ -68,13 +68,8 @@
   e.g. QLabel::setPixmap(), and all the QButton subclasses support
   pixmap use.
 
-  There are also convenience functions to get and set single pixels
-  and to load and save the entire pixmap; these work by converting the
-  pixmap to a QImage internally.
-
-  The QPixmap class is optimized by the use of \link shclass.html implicit
-  sharing\endlink, so it is very efficient to pass QPixmap objects as
-  arguments.
+  The QPixmap class uses lazy copying, so it is practical to pass pass
+  QPixmap objects as arguments.
 
   Note about Windows 95 and 98: On Windows 9x, the system crashes if
   you create more than approximately 1000 pixmaps, independent of the

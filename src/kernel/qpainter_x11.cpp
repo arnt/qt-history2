@@ -36,7 +36,7 @@
 #include "qt_x11.h"
 #include "qpaintdevicemetrics.h"
 
-// NOT REVISED
+// REVISED: arnt
 
 /* paintevent magic to provide Windows semantics on X11
  */

@@ -12289,9 +12289,8 @@ QString &QString::operator=( const char *str )
 */
 
 /*!
-  Truncates the string at position \a newLen. If newLen is less than the
-  current length, this is equivalent to setLength( newLen ). Otherwise,
-  nothing happens.
+  Truncates the string at position \a newLen if newLen is less than the
+  current length . Otherwise, nothing happens.
 
   Example:
   \code
@@ -12302,7 +12301,6 @@ QString &QString::operator=( const char *str )
   In Qt 1.x, it was possible to "truncate" a string to a longer
   length.  This is no longer possible.
 
-  \sa setLength()
 */
 
 void QString::truncate( uint newLen )
@@ -12311,7 +12309,8 @@ void QString::truncate( uint newLen )
 	setLength( newLen );
 }
 
-/*!  Ensures that at least \a newLen characters are allocated, and
+/*### Make this public in 3.0
+  Ensures that at least \a newLen characters are allocated, and
   sets the length to \a newLen.  This function always detaches the
   string from other references to the same data.  Any new space
   allocated is \e not defined.

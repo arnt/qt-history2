@@ -133,8 +133,7 @@ QTimer *QButton::timer()
   Any button can have either a text or pixmap label.  setText() sets
   the button to be a text button and setPixmap() sets it to be a
   pixmap button.  The text/pixmap is manipulated as necessary to
-  create "disabled" appearance when the button is \link
-  QWidget::setEnabled() disabled\endlink.
+  create "disabled" appearance when the button is disabled.
 
   QButton provides most of the states used for buttons:
   <ul>
@@ -182,7 +181,7 @@ QTimer *QButton::timer()
   \endcode
 
   In this example, when the user presses Alt-C the button will
-  \link animateClick() animate a click\endlink.
+  call animateClick().
 
   You can also set a custom accelerator using the setAccel() function.
   This is useful mostly for pixmap buttons since they have no
@@ -671,7 +670,7 @@ void QButton::setState( ToggleState s )
   \sa isToggleButton()
 */
 
-/*!  
+/*!
   Returns TRUE if \e pos is inside the clickable button rectangle, or
   FALSE if it is outside.
 
@@ -689,7 +688,7 @@ bool QButton::hitButton( const QPoint &pos ) const
   This virtual function is reimplemented by subclasses to draw real
   buttons. At some point in time, these reimplementations are supposed
   to call drawButtonLabel().
-  
+
   \sa drawButtonLabel(), paintEvent()
 */
 
@@ -703,7 +702,7 @@ void QButton::drawButton( QPainter * )
 
   This virtual function is reimplemented by subclasses to draw real
   buttons. It's invoked by drawButton().
-  
+
   \sa drawButton(), paintEvent()
 */
 
@@ -861,12 +860,12 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
   buttons (less than 300x100 pixels) are painted double-buffered to
   reduce flicker. The actually drawing is done in the virtual functions
   drawButton() and drawButtonLabel().
-  
+
   \sa drawButton(), drawButtonLabel()
 */
 void QButton::paintEvent( QPaintEvent *event )
 {
-    if ( event && 
+    if ( event &&
 	 width() <= drawingPixWidth &&
 	 height() <= drawingPixHeight ) {
 	makeDrawingPixmap(); // makes file-static drawpm variable

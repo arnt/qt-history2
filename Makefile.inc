@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#15 $
+# $Id: //depot/qt/main/Makefile.inc#16 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -25,6 +25,18 @@ VCTEMPLATE = vcapp
 VCTEMPLATE = vclib
 !ENDIF
 
+!IF "$(MAKE)" != "NMAKE"
+MFILE = BMakefile
+ODIR = obj\borland
+TPATH = $(TMAKEPATH)\..\win32-borland
+CONSOLE = 
+!ELSE
+MFILE = NMakefile
+ODIR = obj\msvc
+TPATH = $(TMAKEPATH)\..\win32-msvc
+CONSOLE = console
+!ENDIF
+
 project: $(PROJECT).pro
 
 $(PROJECT).pro:
@@ -37,31 +49,71 @@ $(PROJECT).dsp: FORCE
 	tmake $(PROJECT).pro "CONFIG+=debug" "DEFINES+=QT_DLL" -t $(VCTEMPLATE) -o $(PROJECT).dsp
 
 
-debug: NMakefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.debug
+debug: $(MFILE).debug $(MORETARGETS) $(MORETARGETS_DEBUG)
+	$(MAKE) /$(MAKEFLAGS) -f $(MFILE).debug
 
-release: NMakefile.release $(MORETARGETS) $(MORETARGETS_RELEASE)
-	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.release
+release: $(MFILE).release $(MORETARGETS) $(MORETARGETS_RELEASE)
+	$(MAKE) /$(MAKEFLAGS) -f $(MFILE).release
 
-static-debug: NMakefile.static-debug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.static-debug
+static-debug: $(MFILE).static-debug $(MORETARGETS) $(MORETARGETS_DEBUG)
+	$(MAKE) /$(MAKEFLAGS) -f $(MFILE).static-debug
 
-static-release: NMakefile.static-release $(MORETARGETS) $(MORETARGETS_RELEASE)
-	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.static-release
+static-release: $(MFILE).static-release $(MORETARGETS) $(MORETARGETS_RELEASE)
+	$(MAKE) /$(MAKEFLAGS) -f $(MFILE).static-release
 
-borland: borland-debug
 
-borland-debug: BMakefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	bmake -f BMakefile.debug
 
-borland-release: BMakefile.release $(MORETARGETS) $(MORETARGETS_DEBUG)
-	bmake -f BMakefile.release
+$(MFILE).debug: $(PROJECT).pro Makefile
+!IF $(LIBTARGET) == 1
+	syncqt
+!ENDIF
+!IF "$(PROJECT)" == "qt"
+	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).debug \
+		"CONFIG+=debug" "DEFINES+=QT_MAKEDLL" \
+		"OBJECTS_DIR=$(ODIR)\debug"
+!ELSE
+	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).debug \
+		"CONFIG+=debug $(CONSOLE)" "DEFINES+=QT_DLL" \
+		"OBJECTS_DIR=$(ODIR)\debug"
+!ENDIF
 
-borland-staticdebug: BMakefile.staticdebug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	bmake -f BMakefile.staticdebug
 
-borland-staticrelease: BMakefile.staticrelease $(MORETARGETS) $(MORETARGETS_DEBUG)
-	bmake -f BMakefile.staticrelease
+$(MFILE).release: $(PROJECT).pro Makefile
+!IF $(LIBTARGET) == 1
+	syncqt
+!ENDIF
+!IF "$(PROJECT)" == "qt"
+	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).release \
+		"CONFIG+=release" "DEFINES+=QT_MAKEDLL" \
+		"OBJECTS_DIR=$(ODIR)\release" \
+		"TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
+!ELSE
+	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).release \
+		"CONFIG+=release" "DEFINES+=QT_DLL" \
+		"OBJECTS_DIR=$(ODIR)\release" \
+		"TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
+!ENDIF
+
+
+
+$(MFILE).static-debug: $(PROJECT).pro Makefile
+!IF $(LIBTARGET) == 1
+	syncqt
+!ENDIF
+	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-debug \
+		"CONFIG+=debug console" "DEFINES+=QT_NODLL" \
+		"OBJECTS_DIR=$(ODIR)\static_debug"
+
+
+$(MFILE).static-release: $(PROJECT).pro Makefile
+!IF $(LIBTARGET) == 1
+	syncqt
+!ENDIF
+	tmake "TMAKEPATH=$(TPATH)" $(PROJECT).pro -o $(MFILE).static-release \
+		"CONFIG+=release" "DEFINES+=QT_NODLL" \
+		"OBJECTS_DIR=$(ODIR)\static_release"
+
+
 
 x11: x11-debug
 
@@ -71,87 +123,6 @@ x11-debug: NMakefile.x11-debug $(MORETARGETS) $(MORETARGETS_DEBUG)
 x11-release: NMakefile.x11-release $(MORETARGETS) $(MORETARGETS_RELEASE)
 	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.x11-release
 
-NMakefile.debug: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-!IF "$(PROJECT)" == "qt"
-	tmake $(PROJECT).pro -o NMakefile.debug \
-	    "CONFIG+=debug console" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/debug"
-!ELSE
-	tmake $(PROJECT).pro -o NMakefile.debug \
-	    "CONFIG+=debug console" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/debug"
-!ENDIF
-
-NMakefile.release: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-!IF "$(PROJECT)" == "qt"
-	tmake $(PROJECT).pro -o NMakefile.release \
-	    "CONFIG+=release" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
-!ELSE
-	tmake $(PROJECT).pro -o NMakefile.release \
-	    "CONFIG+=release" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
-!ENDIF
-
-NMakefile.static-debug: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-	tmake $(PROJECT).pro -o NMakefile.static-debug \
-	    "CONFIG+=debug console" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-debug"
-
-NMakefile.static-release: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-	tmake $(PROJECT).pro -o NMakefile.static-release \
-	    "CONFIG+=release" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-release"
-
-BMakefile.debug: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-!IF "$(PROJECT)" =="qt"
-	tmake "TMAKEPATH=/tmake/lib/win32-borland" \
-	    $(PROJECT).pro -o BMakefile.debug \
-	    "CONFIG+=debug" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=borland/debug"
-!ELSE
-	tmake "TMAKEPATH=/tmake/lib/win32-borland" \
-	    $(PROJECT).pro -o BMakefile.debug \
-	    "CONFIG+=debug" "DEFINES+=QT_DLL" "OBJECTS_DIR=borland/debug"
-!ENDIF
-
-BMakefile.release: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-!IF "$(PROJECT)" == "qt"
-	tmake "TMAKEPATH=/tmake/lib/win32-borland" \
-	    $(PROJECT).pro -o BMakefile.release \
-	    "CONFIG+=release" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=borland/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
-!ELSE
-	tmake "TMAKEPATH=/tmake/lib/win32-borland" \
-	    $(PROJECT).pro -o BMakefile.release \
-	    "CONFIG+=release" "DEFINES+=QT_DLL" "OBJECTS_DIR=borland/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
-!ENDIF
-
-BMakefile.staticdebug: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-	tmake "TMAKEPATH=/tmake/lib/win32-borland" \
-	    $(PROJECT).pro -o BMakefile.staticdebug \
-	    "CONFIG+=debug" "DEFINES+=QT_NODLL" "OBJECTS_DIR=borland/staticdebug"
-
-BMakefile.staticrelease: $(PROJECT).pro Makefile
-!IF $(LIBTARGET) == 1
-	syncqt
-!ENDIF
-	tmake "TMAKEPATH=/tmake/lib/win32-borland" \
-	    $(PROJECT).pro -o BMakefile.staticrelease \
-	    "CONFIG+=release" "DEFINES+=QT_NODLL" "OBJECTS_DIR=borland/staticrelease"
 
 !IF "$(PROJECT)" == "qt"
 NMakefile.x11-debug: qtx11.pro $(PROJECT).pro Makefile
@@ -159,7 +130,7 @@ NMakefile.x11-debug: qtx11.pro $(PROJECT).pro Makefile
 	tmake qtx11.pro -o NMakefile.x11-debug \
 	    "CONFIG=qt debug console" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
-	    "OBJECTS_DIR=.obj/x11-debug" \
+	    "OBJECTS_DIR=obj\x11-debug" \
 	    "INCLUDEPATH=$(X11R6)\include"
 
 !ELSE
@@ -167,7 +138,7 @@ NMakefile.x11-debug: $(PROJECT).pro Makefile
 	tmake $(PROJECT).pro -o NMakefile.x11-debug \
 	    "CONFIG=qt debug console" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
-	    "OBJECTS_DIR=.obj/x11-debug" \
+	    "OBJECTS_DIR=obj\x11-debug" \
 	    "TMAKE_LIBS_QT/=s/qt/qtx11/" \
 	    "TMAKE_LIBS_WINDOWS=user32.lib wsock32.lib" \
 	    "TMAKE_LIBS=$(X11R6)\lib\X11.lib $(X11R6)\lib\Xext.lib"
@@ -179,7 +150,7 @@ NMakefile.x11-release: qtx11.pro $(PROJECT).pro Makefile
 	tmake qtx11.pro -o NMakefile.x11-release \
 	    "CONFIG=qt release" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
-	    "OBJECTS_DIR=.obj/x11-release" \
+	    "OBJECTS_DIR=obj\x11-release" \
 	    "INCLUDEPATH=$(X11R6)\include"
 
 !ELSE
@@ -187,7 +158,7 @@ NMakefile.x11-release: $(PROJECT).pro Makefile
 	tmake $(PROJECT).pro -o NMakefile.x11-release \
 	    "CONFIG=qt release" \
 	    "DEFINES+=QT_NODLL WIN32 _WIN32_X11_" \
-	    "OBJECTS_DIR=.obj/x11-release" \
+	    "OBJECTS_DIR=obj\x11-release" \
 	    "TMAKE_LIBS_QT/=s/qt/qtx11/" \
 	    "TMAKE_LIBS_WINDOWS=user32.lib wsock32.lib" \
 	    "TMAKE_LIBS=$(X11R6)\lib\X11.lib $(X11R6)\lib\Xext.lib"
@@ -234,37 +205,37 @@ depend:
 	-del $(MOREDEP)
 !ENDIF
 
-clean: NMakefile.debug
-	$(MAKE) /$(MAKEFLAGS) -nologo -f NMakefile.debug clean
+clean: $(MFILE).debug
+	$(MAKE) /$(MAKEFLAGS) -nologo -f $(MFILE).debug clean
 	-del NMakefile.*
 	-del BMakefile.*
 	-del vc*.pdb
 	-del $(PROJECT).pdb
 	-del $(PROJECT).ilk
 	-del $(PROJECT).exe
-	-del /Q .obj\debug\*
-	-del /Q .obj\release\*
-	-del /Q .obj\static-debug\*
-	-del /Q .obj\static-release\*
-	-del /Q .obj\x11-debug\*
-	-del /Q .obj\x11-release\*
-	-rmdir .obj\debug
-	-rmdir .obj\release
-	-rmdir .obj\static-debug
-	-rmdir .obj\static-release
-	-rmdir .obj\X11-debug
-	-rmdir .obj\x11-release
-	-rmdir .obj
-	-del BMakefile.*
-	-del /Q borland\debug\*
-	-del /Q borland\release\*
-	-del /Q borland\staticdebug\*
-	-del /Q borland\staticrelease\*
-	-rmdir borland\debug
-	-rmdir borland\release
-	-rmdir borland\staticdebug
-	-rmdir borland\staticrelease
-	-rmdir borland
+	-del /Q obj\msvc\debug\*
+	-del /Q obj\msvc\release\*
+	-del /Q obj\msvc\static_debug\*
+	-del /Q obj\msvc\static_release\*
+	-rmdir obj\msvc\debug
+	-rmdir obj\msvc\release
+	-rmdir obj\msvc\static_debug
+	-rmdir obj\msvc\static_release
+	-rmdir obj\msvc
+	-del /Q obj\borland\debug\*
+	-del /Q obj\borland\release\*
+	-del /Q obj\borland\static_debug\*
+	-del /Q obj\borland\static_release\*
+	-rmdir obj\borland\debug
+	-rmdir obj\borland\release
+	-rmdir obj\borland\static_debug
+	-rmdir obj\borland\static_release
+	-rmdir obj\borland
+	-del /Q obj\x11-debug\*
+	-del /Q obj\x11-release\*
+	-rmdir obj\X11-debug
+	-rmdir obj\x11-release
+	-rmdir obj
 !IFDEF MOREDEP
 	-del $(MOREDEP)
 !ENDIF
