@@ -360,8 +360,9 @@ void qt_mac_update_os_settings()
 	    { NULL, 0, 0 } };
 	QColor qc;
 	RGBColor c;
+	QPalette apppal = QApplication::palette();
 	for(int i = 0; mac_widget_colours[i].qt_class; i++) {
-	    QPalette pal = QApplication::palette();
+	    QPalette pal = apppal;
 	    if(!GetThemeTextColor(mac_widget_colours[i].active, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 		pal.setColor(QPalette::Active, QColorGroup::Text, qc);
@@ -384,7 +385,7 @@ void qt_mac_update_os_settings()
 		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
 		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
-	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton")) { //special
+	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") && pal != apppal) { //special
 		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText, 
 			     pal.color(QPalette::Disabled, QColorGroup::Text));
 		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText, 
@@ -397,7 +398,7 @@ void qt_mac_update_os_settings()
 		if(QPalette *oldpal = QApplication::app_palettes->find(mac_widget_colours[i].qt_class))
 		    set_palette = !(pal == *oldpal);
 	    }
-	    if(set_palette)
+	    if(set_palette && pal != apppal) 
 		QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
 	}
     }
