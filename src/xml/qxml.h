@@ -176,6 +176,7 @@ private:
     QTextStream *inputStream;
 
     QString str;
+    const QChar *unicode;
     int pos;
     int length;
     bool nextReturnedEndOfData;

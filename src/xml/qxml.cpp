@@ -966,7 +966,7 @@ QChar QXmlInputSource::next()
 	nextReturnedEndOfData = TRUE;
 	return EndOfData;
     }
-    return str[pos++];
+    return unicode[pos++];
 }
 
 /*!
@@ -1004,6 +1004,7 @@ QString QXmlInputSource::data()
 void QXmlInputSource::setData( const QString& dat )
 {
     str = dat;
+    unicode = dat.unicode();
     pos = 0;
     length = str.length();
     nextReturnedEndOfData = FALSE;
