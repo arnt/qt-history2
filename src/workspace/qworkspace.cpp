@@ -1911,8 +1911,15 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     if ( titlebar ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	if( childWidget->icon() )
-	    titlebar->setIcon( *childWidget->icon() );
+	if( childWidget->icon() ) {
+	    QPixmap pm(*childWidget->icon());
+	    if(pm.width() != 14 || pm.height() != 14) {
+		QImage im;
+		im = pm;
+		pm = im.smoothScale( 14, 14 );
+	    }
+	    titlebar->setIcon( pm );
+	}
 #endif
 	p = QPoint( contentsRect().x(),
 		    th + contentsRect().y() );
