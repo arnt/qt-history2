@@ -330,13 +330,8 @@ void qDrawShadePanel(QPainter *p, int x, int y, int w, int h,
         lines << QLineF(x1--, y1++, x2--, y2);
     }
     p->drawLines(lines);
-    if (fill) {                                // fill with fill color
-        QBrush oldBrush = p->brush();
-        p->setPen(Qt::NoPen);
-        p->setBrush(*fill);
-        p->drawRect(x+lineWidth, y+lineWidth, w-lineWidth*2, h-lineWidth*2);
-        p->setBrush(oldBrush);
-    }
+    if (fill)                                // fill with fill color
+        p->fillRect(x+lineWidth, y+lineWidth, w-lineWidth*2, h-lineWidth*2, *fill);
     p->setPen(oldPen);                        // restore pen
 }
 

@@ -30,6 +30,7 @@
 #include <private/qobject_p.h>
 
 static const int border = 1;
+static int textMargin = 2;
 
 class QItemDelegatePrivate : public QObjectPrivate
 {
@@ -111,9 +112,6 @@ void QItemDelegate::paint(QPainter *painter,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
-    const QPoint pt(0, 0);
-    const QSize sz(border * 2, border * 2);
-
     Q_ASSERT(index.isValid());
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
@@ -142,7 +140,7 @@ void QItemDelegate::paint(QPainter *painter,
 
     QRect pixmapRect = pixmap.rect();
     QFontMetrics fontMetrics(opt.font);
-    QRect textRect(pt, QSize(fontMetrics.width(text), fontMetrics.height()) + sz);
+    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.height());
 
     value = model->data(index, QAbstractItemModel::CheckStateRole);
     QRect checkRect = check(opt, value);
@@ -171,9 +169,6 @@ void QItemDelegate::paint(QPainter *painter,
 QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
-    const QPoint pt(0, 0);
-    const QSize sz(border * 2, border * 2);
-
     Q_ASSERT(index.isValid());
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
@@ -187,7 +182,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     QRect pixmapRect = pixmap.rect();
     QFontMetrics fontMetrics(fnt);
-    QRect textRect(pt, QSize(fontMetrics.width(text), fontMetrics.height()) + sz);
+    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.height());
     QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
@@ -316,14 +311,16 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     } else {
         painter->setPen(option.palette.color(cg, QPalette::Text));
     }
+
+    QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0);
     QFont font = painter->font();
     painter->setFont(option.font);
-    if (painter->fontMetrics().width(text) > rect.width())
-        painter->drawText(rect, option.displayAlignment,
-                          ellipsisText(painter->fontMetrics(), rect.width(),
+    if (painter->fontMetrics().width(text) > textRect.width())
+        painter->drawText(textRect, option.displayAlignment,
+                          ellipsisText(painter->fontMetrics(), textRect.width(),
                                        option.displayAlignment, text));
     else
-        painter->drawText(rect, option.displayAlignment, text);
+        painter->drawText(textRect, option.displayAlignment, text);
     painter->setFont(font);
     painter->setPen(pen);
 }
@@ -411,91 +408,93 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
                              QRect *checkRect, QRect *pixmapRect, QRect *textRect,
                              bool hint) const
 {
-    if (checkRect && pixmapRect && textRect) {
-        int x = option.rect.left();
-        int y = option.rect.top();
-        int bb = border * 2;
-        int w, h;
+    Q_ASSERT(checkRect && pixmapRect && textRect);
+    int x = option.rect.left();
+    int y = option.rect.top();
+    int bb = border * 2;
+    int w, h;
 
-        if (hint) {
-            w = qMax(textRect->width(), pixmapRect->width()) + bb;
-            h = qMax(textRect->height(), pixmapRect->height()) + bb;
-        } else {
-            x += border;
-            y += border;
-            w = option.rect.width() - bb;
-            h = option.rect.height() - bb;
-        }
+    textRect->addCoords(-textMargin, 0, textMargin, 0);
 
-        int cw = 0;
-        QRect check;
-        if (checkRect->isValid()) {
-            if (option.direction == Qt::RightToLeft) {
-                check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
-                cw = checkRect->width() + border;
-            } else {
-                check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
-                cw = checkRect->width() + border;
-                x += cw;
-            }
-        }
-
-        QRect display;
-        QRect decoration;
-        switch (option.decorationPosition) {
-        case QStyleOptionViewItem::Top: {
-            if (!pixmapRect->isEmpty())
-                pixmapRect->setHeight(pixmapRect->height() + bb); // add space
-            decoration.setRect(x, y, w, pixmapRect->height());
-            h = hint ? textRect->height() : h - pixmapRect->height();
-            display.setRect(x, y + pixmapRect->height(), w, h);
-            break; }
-        case QStyleOptionViewItem::Bottom: {
-            if (!textRect->isEmpty())
-                textRect->setHeight(textRect->height() + bb); // add space
-            h = hint ? textRect->height() + pixmapRect->height() : h;
-            decoration.setRect(x, y + h - pixmapRect->height(), w, pixmapRect->height());
-            h = hint ? textRect->height() : h - pixmapRect->height();
-            display.setRect(x, y, w, h);
-            break; }
-        case QStyleOptionViewItem::Left: {
-            if (option.direction == Qt::RightToLeft)
-                goto Right;
-        Left:
-            if (!pixmapRect->isEmpty())
-                pixmapRect->setWidth(pixmapRect->width() + bb); // add space
-            decoration.setRect(x, y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width() - cw;
-            display.setRect(x + pixmapRect->width(), y, w, h);
-            break; }
-        case QStyleOptionViewItem::Right: {
-            if (option.direction == Qt::RightToLeft)
-                goto Left;
-        Right:
-            if (!textRect->isEmpty())
-                textRect->setWidth(textRect->width() + bb); // add space
-            w = hint ? textRect->width() + pixmapRect->width() : w;
-            decoration.setRect(x + w - pixmapRect->width() - cw, y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width() - cw;
-            display.setRect(x, y, w, h);
-            break; }
-        default:
-            qWarning("doLayout: decoration positon is invalid");
-            decoration = *pixmapRect;
-            break;
-        }
-
-        if (!hint) { // we only need to do the internal layout if we are going to paint
-            *checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
-                                             checkRect->size(), check);
-            *pixmapRect = QStyle::alignedRect(option.direction, option.decorationAlignment,
-                                              pixmapRect->size(), decoration);
-        } else {
-            *checkRect = check;
-            *pixmapRect = decoration;
-        }
-        *textRect = display;
+    if (hint) {
+        w = qMax(textRect->width(), pixmapRect->width()) + bb;
+        h = qMax(textRect->height(), pixmapRect->height()) + bb;
+    } else {
+        x += border;
+        y += border;
+        w = option.rect.width() - bb;
+        h = option.rect.height() - bb;
     }
+
+    int cw = 0;
+    QRect check;
+    if (checkRect->isValid()) {
+        if (option.direction == Qt::RightToLeft) {
+            check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
+            cw = checkRect->width() + border;
+        } else {
+            check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
+            cw = checkRect->width() + border;
+            x += cw;
+        }
+    }
+
+    QRect display;
+    QRect decoration;
+    QStyleOptionViewItem::Position position = option.decorationPosition;
+    if (option.direction == Qt::RightToLeft) {
+        if (position == QStyleOptionViewItem::Right)
+            position = QStyleOptionViewItem::Left;
+        else if (position == QStyleOptionViewItem::Left)
+            position = QStyleOptionViewItem::Right;
+    }
+    switch (position) {
+    case QStyleOptionViewItem::Top: {
+        if (!pixmapRect->isEmpty())
+            pixmapRect->setHeight(pixmapRect->height() + bb); // add space
+        decoration.setRect(x, y, w, pixmapRect->height());
+        h = hint ? textRect->height() : h - pixmapRect->height();
+        display.setRect(x, y + pixmapRect->height(), w, h);
+        break; }
+    case QStyleOptionViewItem::Bottom: {
+        if (!textRect->isEmpty())
+            textRect->setHeight(textRect->height() + bb); // add space
+        h = hint ? textRect->height() + pixmapRect->height() : h;
+        decoration.setRect(x, y + h - pixmapRect->height(), w, pixmapRect->height());
+        h = hint ? textRect->height() : h - pixmapRect->height();
+        display.setRect(x, y, w, h);
+        break; }
+    case QStyleOptionViewItem::Left: {
+        if (!pixmapRect->isEmpty())
+            pixmapRect->setWidth(pixmapRect->width() + bb); // add space
+        decoration.setRect(x, y, pixmapRect->width(), h);
+        w = hint ? textRect->width() : w - pixmapRect->width() - cw;
+        display.setRect(x + pixmapRect->width(), y, w, h);
+        break; }
+    case QStyleOptionViewItem::Right: {
+        if (!textRect->isEmpty())
+            textRect->setWidth(textRect->width() + bb); // add space
+        w = hint ? textRect->width() + pixmapRect->width() : w;
+        decoration.setRect(x + w - pixmapRect->width() - cw, y, pixmapRect->width(), h);
+        w = hint ? textRect->width() : w - pixmapRect->width() - cw;
+        display.setRect(x, y, w, h);
+        break; }
+    default:
+        qWarning("doLayout: decoration positon is invalid");
+        decoration = *pixmapRect;
+        break;
+    }
+
+    if (!hint) { // we only need to do the internal layout if we are going to paint
+        *checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
+                                         checkRect->size(), check);
+        *pixmapRect = QStyle::alignedRect(option.direction, option.decorationAlignment,
+                                          pixmapRect->size(), decoration);
+    } else {
+        *checkRect = check;
+        *pixmapRect = decoration;
+    }
+    *textRect = display;
 }
 
 

@@ -2286,10 +2286,6 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
         ret = 0;
         break;
 
-    case SH_ColorDialog_SelectedColorBorder:
-        ret = 2;
-        break;
-
     case SH_MenuBar_DismissOnSecondClick:
         ret = 0;
         break;

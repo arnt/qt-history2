@@ -205,20 +205,15 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
     int b = 3;
 
     const QPalette & g = palette();
-    p->setPen(QPen(Qt::black, 0, Qt::SolidLine));
-    int selectedBorder = style()->styleHint(QStyle::SH_ColorDialog_SelectedColorBorder);
-    if (row ==selRow && col == selCol && selectedBorder > 0)
-        p->drawRect(selectedBorder, selectedBorder, w - 2 * selectedBorder, h - 2 * selectedBorder);
     QStyleOptionFrame opt;
-    opt.lineWidth = 2;
+    int dfw = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    opt.lineWidth = dfw;
     opt.midLineWidth = 1;
     opt.rect.setRect(b, b, w - 2 * b, h - 2 * b);
     opt.palette = g;
     opt.state = QStyle::State_Enabled | QStyle::State_Sunken;
     style()->drawPrimitive(QStyle::PE_Frame, &opt, p, this);
-
-    int t = (row == selRow && col == selCol) ? selectedBorder : 0;
-    b += 2 + t;
+    b += dfw;
 
     if ((row == curRow) && (col == curCol)) {
         if (hasFocus()) {
@@ -229,7 +224,8 @@ void QWellArray::paintCell(QPainter* p, int row, int col)
             style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
         }
     }
-    paintCellContents(p, row, col, QRect(b, b, w - 2*b, h - 2*b));
+    QRect cr(b, b, w - 2*b, h - 2*b);
+    paintCellContents(p, row, col, cr);
 }
 
 /*!

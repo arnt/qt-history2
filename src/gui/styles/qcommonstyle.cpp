@@ -2988,10 +2988,6 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = Qt::StrongFocus;
         break;
 
-    case SH_ColorDialog_SelectedColorBorder:
-        ret = 0;
-        break;
-
     case SH_MenuBar_DismissOnSecondClick:
         ret = 1;
         break;

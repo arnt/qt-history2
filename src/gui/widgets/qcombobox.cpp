@@ -1366,23 +1366,17 @@ void QComboBox::paintEvent(QPaintEvent *)
         QRect editField = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(
                                                  QStyle::CC_ComboBox, &opt,
                                                  QStyle::SC_ComboBoxEditField, this));
-        QRect textRect(editField);
-
         if (!pix.isNull()) {
             QRect pixRect(editField);
             pixRect.setWidth(pix.width() +  4);
             painter.setClipRect(pixRect);
-	    painter.drawPixmap(pixRect.left() + 2, (height() - pix.height()) / 2, pix);
-            textRect.setLeft(pixRect.right());
+            painter.drawPixmap(pixRect.left() + 2, (height() - pix.height()) / 2, pix);
+            editField.setLeft(pixRect.right());
         }
 
         if (!txt.isNull() && !isEditable()) {
-            textRect.setLeft(textRect.left() + 1);
-            textRect.setRight(textRect.right() -1 );
-            painter.setClipRect(textRect);
-            Qt::Alignment align = layoutDirection() == Qt::LeftToRight ?
-                                  Qt::AlignLeft|Qt::AlignVCenter : Qt::AlignRight|Qt::AlignVCenter;
-            painter.drawText(textRect, align, txt);
+            painter.setClipRect(editField);
+            painter.drawText(editField.adjusted(1, 0, -1, 0), Qt::AlignLeft|Qt::AlignVCenter, txt);
         }
     }
 }

@@ -504,7 +504,6 @@ public:
         SH_DrawMenuBarSeparator,
         SH_TitlebarModifyNotification,
         SH_Button_FocusPolicy,
-        SH_ColorDialog_SelectedColorBorder,
         SH_MenuBar_DismissOnSecondClick,
         SH_MessageBox_UseBorderForButtonSpacing,
         SH_TitleBar_AutoRaise,
