@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#29 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#30 $
 **
 ** Definition of QDragObject
 **
@@ -33,7 +33,7 @@ class QWidget;
 #endif // QT_H
 
 
-class QDragObject: public QObject {
+class Q_EXPORT QDragObject: public QObject {
     Q_OBJECT
 public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
@@ -63,7 +63,7 @@ private:
     QDragData * d;
 };
 
-class QStoredDrag: public QDragObject {
+class Q_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
     QStoredDragData * d;
 
@@ -78,7 +78,7 @@ public:
     virtual QByteArray encodedData(const char*) const;
 };
 
-class QTextDrag: public QStoredDrag {
+class Q_EXPORT QTextDrag: public QStoredDrag {
     Q_OBJECT
 public:
     QTextDrag( const QString &,
@@ -93,7 +93,7 @@ public:
 };
 
 
-class QImageDrag: public QDragObject {
+class Q_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     QImage img;
     QStrList ofmts;
@@ -115,7 +115,7 @@ public:
 };
 
 
-class QUrlDrag: public QStoredDrag {
+class Q_EXPORT QUrlDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
@@ -138,7 +138,7 @@ public:
 // member functions.
 //
 
-class QDragManager: public QObject {
+class Q_EXPORT QDragManager: public QObject {
     Q_OBJECT
 
 private:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#19 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#20 $
 **
 ** Definition of QFileInfo class
 **
@@ -33,7 +33,7 @@ class QDir;
 struct QFileInfoCache;
 
 
-class QFileInfo				   // file information class
+class Q_EXPORT QFileInfo				   // file information class
 {
 public:
     enum PermissionSpec {

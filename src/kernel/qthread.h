@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#7 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#8 $
 **
 ** Definition of QThread class
 **
@@ -51,7 +51,7 @@ const QThreadID invalidQThreadID = (QThreadID)-1;
 typedef void (*QThreadFunction)(void*);
 
 
-class QThread
+class Q_EXPORT QThread
 {
 public:
     QThread( QThreadID id = invalidQThreadID );

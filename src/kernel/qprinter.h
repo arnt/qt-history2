@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#27 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#28 $
 **
 ** Definition of QPrinter class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QPrinter : public QPaintDevice
+class Q_EXPORT QPrinter : public QPaintDevice
 {
 public:
     QPrinter();

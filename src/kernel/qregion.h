@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#40 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#41 $
 **
 ** Definition of QRegion class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QRegion
+class Q_EXPORT QRegion
 {
 public:
     enum RegionType { Rectangle, Ellipse };

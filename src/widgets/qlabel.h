@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#39 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#40 $
 **
 ** Definition of QLabel widget class
 **
@@ -30,7 +30,7 @@
 
 class QLabelExtra;
 
-class QLabel : public QFrame
+class Q_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
 public:

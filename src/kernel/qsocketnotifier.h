@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#17 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#18 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QSocketNotifier : public QObject
+class Q_EXPORT QSocketNotifier : public QObject
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#14 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#15 $
 **
 ** Definition of QSignal class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QSignal : private QObject			// signal class
+class Q_EXPORT QSignal : private QObject			// signal class
 {
 public:
     QSignal( QObject *parent=0, const char *name=0 );

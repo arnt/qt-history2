@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#14 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#15 $
 **
 ** Definition of QToolBar class
 **
@@ -34,7 +34,7 @@ class QBoxLayout;
 class QToolBarPrivate;
 
 
-class QToolBar: public QWidget
+class Q_EXPORT QToolBar: public QWidget
 {
     Q_OBJECT
 public:

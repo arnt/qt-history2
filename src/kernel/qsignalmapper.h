@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#7 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#8 $
 **
 ** Definition of QSignalMapper class
 **
@@ -33,7 +33,7 @@ class  QSignalMapperData;
 struct QSignalMapperRec;
 
 
-class QSignalMapper : public QObject {
+class Q_EXPORT QSignalMapper : public QObject {
     Q_OBJECT
 public:
     QSignalMapper( QObject* parent, const char* name=0 );

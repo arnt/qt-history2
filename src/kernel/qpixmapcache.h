@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.h#12 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.h#13 $
 **
 ** Definition of QPixmapCache class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QPixmapCache				// global pixmap cache
+class Q_EXPORT QPixmapCache				// global pixmap cache
 {
 public:
     static  int		cacheLimit();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#26 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#27 $
 **
 ** Definition of QPen class
 **
@@ -34,7 +34,7 @@ enum PenStyle { NoPen, SolidLine, DashLine,	// pen style
 		DotLine, DashDotLine, DashDotDotLine };
 
 
-class QPen
+class Q_EXPORT QPen
 {
 friend class QPainter;
 public:

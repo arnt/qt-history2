@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.h#3 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.h#4 $
 **
 ** Definitation of Drag and Drop support
 **
@@ -24,7 +24,7 @@
 
 class QWidget;
 
-class QDropSite {
+class Q_EXPORT QDropSite {
 public:
     QDropSite( QWidget* parent );
     virtual ~QDropSite();

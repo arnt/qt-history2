@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#84 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#85 $
 **
 ** Definition of QApplication class
 **
@@ -37,7 +37,7 @@
 extern QApplication *qApp;			// global application object
 
 
-class QApplication : public QObject		// application class
+class Q_EXPORT QApplication : public QObject		// application class
 {
     Q_OBJECT
 public:

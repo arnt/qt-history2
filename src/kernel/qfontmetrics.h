@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#43 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#44 $
 **
 ** Definition of QFontMetrics class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QFontMetrics
+class Q_EXPORT QFontMetrics
 {
 public:
     QFontMetrics( const QFont & );

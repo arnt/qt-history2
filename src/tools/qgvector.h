@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#16 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#17 $
 **
 ** Definition of QGVector class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QGVector : public QCollection		// generic vector
+class Q_EXPORT QGVector : public QCollection		// generic vector
 {
 friend class QGList;				// needed by QGList::toVector
 public:

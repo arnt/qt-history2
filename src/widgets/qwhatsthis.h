@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#7 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#8 $
 **
 ** Definition of QWhatsThis class
 **
@@ -30,7 +30,7 @@ class QToolButton;
 class QPopupMenu;
 
 // it's a class! it's a struct! it's a namespace! IT'S WHATS THIS?!
-class QWhatsThis
+class Q_EXPORT QWhatsThis
 {
 public:
     static void add( QWidget *, const QString &);

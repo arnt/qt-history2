@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#19 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#20 $
 **
 ** Definition of QPoint class
 **
@@ -33,7 +33,7 @@
 #endif
 
 
-class QPoint
+class Q_EXPORT QPoint
 {
 public:
     QPoint()	{}

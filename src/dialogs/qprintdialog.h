@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#19 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#20 $
 **
 ** Definition of print dialog.
 **
@@ -34,7 +34,7 @@ class QGroupBox;
 struct QPrintDialogPrivate;
 
 
-class QPrintDialog : public QDialog
+class Q_EXPORT QPrintDialog : public QDialog
 {
     Q_OBJECT
 public:

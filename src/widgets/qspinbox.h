@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#26 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#27 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -35,7 +35,7 @@ class QValidator;
 struct QSpinBoxData;
 
 
-class QSpinBox: public QFrame, public QRangeControl
+class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
 public:

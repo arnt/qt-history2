@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#25 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#26 $
 **
 ** Definition of QButtonGroup class
 **
@@ -33,7 +33,7 @@ class QButton;
 class QButtonList;
 
 
-class QButtonGroup : public QGroupBox
+class Q_EXPORT QButtonGroup : public QGroupBox
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#33 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#34 $
 **
 ** Definition of QTabDialog class
 **
@@ -34,7 +34,7 @@ struct QTabPrivate;
 struct QTab;
 
 
-class QTabDialog : public QDialog
+class Q_EXPORT QTabDialog : public QDialog
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#20 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#21 $
 **
 ** Definition of QSize class
 **
@@ -33,7 +33,7 @@
 #endif
 
 
-class QSize
+class Q_EXPORT QSize
 {
 public:
     QSize()	{ wd = ht = -1; }

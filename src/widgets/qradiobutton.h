@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#30 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#31 $
 **
 ** Definition of QRadioButton class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QRadioButton : public QButton
+class Q_EXPORT QRadioButton : public QButton
 {
     Q_OBJECT
 public:

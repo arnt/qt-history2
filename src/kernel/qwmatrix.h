@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.h#9 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.h#10 $
 **
 ** Definition of QWMatrix class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QWMatrix					// 2D transform matrix
+class Q_EXPORT QWMatrix					// 2D transform matrix
 {
 public:
     QWMatrix();

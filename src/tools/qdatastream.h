@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#27 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#28 $
 **
 ** Definition of QDataStream class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QDataStream				// data stream class
+class Q_EXPORT QDataStream				// data stream class
 {
 public:
     QDataStream();

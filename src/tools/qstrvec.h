@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#15 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#16 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -38,7 +38,7 @@ typedef Q_DECLARE(QVectorM,char)		QStrVecBase;
 #endif
 
 
-class QStrVec : public QStrVecBase
+class Q_EXPORT QStrVec : public QStrVecBase
 {
 public:
     QStrVec()  { dc = TRUE; }
@@ -58,7 +58,7 @@ private:
 };
 
 
-class QStrIVec : public QStrVec			// case insensitive string vec
+class Q_EXPORT QStrIVec : public QStrVec			// case insensitive string vec
 {
 public:
     QStrIVec() {}

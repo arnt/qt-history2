@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#26 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#27 $
 **
 ** Definition of QSlider class
 **
@@ -34,7 +34,7 @@ class QTimer;
 struct QSliderData;
 
 
-class QSlider : public QWidget, public QRangeControl
+class Q_EXPORT QSlider : public QWidget, public QRangeControl
 {
     Q_OBJECT
 public:

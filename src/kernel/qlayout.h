@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#20 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#21 $
 **
 ** Definition of layout classes
 **
@@ -34,7 +34,7 @@ class QMenuBar;
 struct QLayoutData;
 
 
-class QLayout : public QObject
+class Q_EXPORT QLayout : public QObject
 {
     Q_OBJECT
 public:
@@ -79,7 +79,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class QBoxLayout : public QLayout
+class Q_EXPORT QBoxLayout : public QLayout
 {
     Q_OBJECT
 public:
@@ -121,7 +121,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class QHBoxLayout : public QBoxLayout
+class Q_EXPORT QHBoxLayout : public QBoxLayout
 {
     Q_OBJECT
 public:
@@ -135,7 +135,7 @@ public:
 
 
 
-class QVBoxLayout : public QBoxLayout
+class Q_EXPORT QVBoxLayout : public QBoxLayout
 {
     Q_OBJECT
 public:
@@ -149,7 +149,7 @@ public:
 
 
 
-class QGridLayout : public QLayout
+class Q_EXPORT QGridLayout : public QLayout
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#39 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#40 $
 **
 ** Definition of QPushButton class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QPushButton : public QButton
+class Q_EXPORT QPushButton : public QButton
 {
 friend class QDialog;
     Q_OBJECT

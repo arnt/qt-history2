@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#22 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#23 $
 **
 ** Definition of QTimer class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QTimer : public QObject
+class Q_EXPORT QTimer : public QObject
 {
     Q_OBJECT
 public:

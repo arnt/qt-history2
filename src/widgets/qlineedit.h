@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#58 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#59 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -36,7 +36,7 @@ class QValidator;
 #endif // QT_H
 
 
-class QLineEdit : public QWidget
+class Q_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
 public:

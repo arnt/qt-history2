@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#12 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#13 $
 **
 ** Defintion of  QSplitter class
 **
@@ -29,7 +29,7 @@
 
 class QInternalSplitter;
 
-class QSplitter : public QFrame
+class Q_EXPORT QSplitter : public QFrame
 {
 	Q_OBJECT
 public:

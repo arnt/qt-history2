@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#50 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#51 $
 **
 ** Definition of QFont class
 **
@@ -36,7 +36,7 @@ struct QFontData;
 class  QFontInternal;
 
 
-class QFont					// font class
+class Q_EXPORT QFont					// font class
 {
 public:
     enum StyleHint { Helvetica, Times, Courier, OldEnglish,  System, AnyStyle,

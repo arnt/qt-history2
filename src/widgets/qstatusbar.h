@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.h#6 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.h#7 $
 **
 ** Definition of QStatusBar class
 **
@@ -32,7 +32,7 @@
 class QStatusBarPrivate;
 
 
-class QStatusBar: public QWidget
+class Q_EXPORT QStatusBar: public QWidget
 {
     Q_OBJECT
 public:

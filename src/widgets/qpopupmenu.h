@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#47 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#48 $
 **
 ** Definition of QPopupMenu class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QPopupMenu : public QTableView, public QMenuData
+class Q_EXPORT QPopupMenu : public QTableView, public QMenuData
 {
 friend class QMenuData;
 friend class QMenuBar;

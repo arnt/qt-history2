@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#34 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#35 $
 **
 ** Definition of QFileDialog class
 **
@@ -38,7 +38,7 @@ class QWidget;
 #endif // QT_H
 
 
-class QFileIconProvider: public QObject
+class Q_EXPORT QFileIconProvider: public QObject
 {
     Q_OBJECT
 public:
@@ -48,7 +48,7 @@ public:
 };
 
 
-class QFileDialog : public QDialog
+class Q_EXPORT QFileDialog : public QDialog
 {
     Q_OBJECT
 public:

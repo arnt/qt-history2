@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#16 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#17 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -33,7 +33,7 @@
 class QChain;
 struct QGManagerData;
 
-class QGManager : public QObject
+class Q_EXPORT QGManager : public QObject
 {
     Q_OBJECT
 public:

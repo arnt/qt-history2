@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#16 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#17 $
 **
 ** Definition of QClipboard class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QClipboard : public QObject
+class Q_EXPORT QClipboard : public QObject
 {
     Q_OBJECT
 private:

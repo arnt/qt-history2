@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#38 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#39 $
 **
 ** Definition of QMessageBox class
 **
@@ -33,7 +33,7 @@ class  QPushButton;
 struct QMBData;
 
 
-class QMessageBox : public QDialog
+class Q_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
 public:

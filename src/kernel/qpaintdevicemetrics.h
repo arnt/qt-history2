@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#13 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#14 $
 **
 ** Definition of QPaintDeviceMetrics class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QPaintDeviceMetrics			// paint device metrics
+class Q_EXPORT QPaintDeviceMetrics			// paint device metrics
 {
 public:
     QPaintDeviceMetrics( const QPaintDevice * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#16 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#17 $
 **
 ** Definition of movie classes
 **
@@ -32,7 +32,7 @@
 class QDataSource;
 class QMoviePrivate;
 
-class QMovie {
+class Q_EXPORT QMovie {
 public:
     QMovie();
     QMovie(QDataSource*, int bufsize=1024);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#27 $
+** $Id: //depot/qt/main/src/tools/qglist.h#28 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -33,7 +33,7 @@
   QLNode class (internal doubly linked list node)
  *****************************************************************************/
 
-class QLNode
+class Q_EXPORT QLNode
 {
 friend class QGList;
 friend class QGListIterator;
@@ -51,7 +51,7 @@ private:
   QGList class
  *****************************************************************************/
 
-class QGList : public QCollection		// doubly linked generic list
+class Q_EXPORT QGList : public QCollection		// doubly linked generic list
 {
 friend class QGListIterator;
 friend class QGVector;				// needed by QGVector::toList
@@ -188,7 +188,7 @@ QDataStream &operator<<( QDataStream &, const QGList & );
   QGListIterator class
  *****************************************************************************/
 
-class QGListIterator				// QGList iterator
+class Q_EXPORT QGListIterator				// QGList iterator
 {
 friend class QGList;
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#65 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#66 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QImage
+class Q_EXPORT QImage
 {
 public:
     enum Endian { IgnoreEndian, BigEndian, LittleEndian };
@@ -153,7 +153,7 @@ class QIODevice;
 typedef void (*image_io_handler)( QImageIO * ); // image IO handler
 
 
-class QImageIO
+class Q_EXPORT QImageIO
 {
 public:
     QImageIO();

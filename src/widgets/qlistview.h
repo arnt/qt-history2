@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#59 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#60 $
 **
 ** Definition of QListView widget class
 **
@@ -38,7 +38,7 @@ struct QListViewPrivate;
 #endif // QT_H
 
 
-class QListViewItem
+class Q_EXPORT QListViewItem
 {
 public:
     QListViewItem( QListView * parent );
@@ -153,7 +153,7 @@ private:
 };
 
 
-class QListView: public QScrollView
+class Q_EXPORT QListView: public QScrollView
 {
     Q_OBJECT
 public:
@@ -275,7 +275,7 @@ private:
 };
 
 
-class QCheckListItem : public QListViewItem
+class Q_EXPORT QCheckListItem : public QListViewItem
 {
 public:
     enum Type { RadioButton, CheckBox, Controller };

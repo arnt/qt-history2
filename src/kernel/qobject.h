@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#52 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#53 $
 **
 ** Definition of QObject class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QObject					// base class for Q objects
+class Q_EXPORT QObject					// base class for Q objects
 {
 public:
     QObject( QObject *parent=0, const char *name=0 );
@@ -172,7 +172,7 @@ inline const QObject *QObject::sender()
 }
 
 
-class QSenderObject : public QObject		// object for sending signals
+class Q_EXPORT QSenderObject : public QObject		// object for sending signals
 {
 public:
     void setSender( QObject *s ) { sigSender=s; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#17 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#18 $
 **
 ** Definition of QRangeControl class
 **
@@ -25,7 +25,7 @@
 #define QRANGECONTROL_H
 
 
-class QRangeControl
+class Q_EXPORT QRangeControl
 {
 public:
     QRangeControl();

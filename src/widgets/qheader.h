@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#23 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#24 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -30,7 +30,7 @@
 
 struct QHeaderData;
 
-class QHeader : public QTableView
+class Q_EXPORT QHeader : public QTableView
 {
     Q_OBJECT
 public:

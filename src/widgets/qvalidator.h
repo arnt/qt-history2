@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#13 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#14 $
 **
 ** Definition of validator classes.
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QValidator: public QObject
+class Q_EXPORT QValidator: public QObject
 {
     Q_OBJECT
 public:
@@ -44,7 +44,7 @@ public:
 };
 
 
-class QIntValidator: public QValidator
+class Q_EXPORT QIntValidator: public QValidator
 {
     Q_OBJECT
 public:
@@ -65,7 +65,7 @@ private:
 };
 
 
-class QDoubleValidator: public QValidator
+class Q_EXPORT QDoubleValidator: public QValidator
 {
     Q_OBJECT
 public:

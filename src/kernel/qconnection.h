@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.h#17 $
+** $Id: //depot/qt/main/src/kernel/qconnection.h#18 $
 **
 ** Definition of QConnection class
 **
@@ -32,7 +32,7 @@
 typedef void (QObject::*QMember)();		// pointer to member function
 
 
-class QConnection				// signal coupling
+class Q_EXPORT QConnection				// signal coupling
 {
 public:
     QConnection( const QObject *, QMember, const char *memberName );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#32 $
+** $Id: //depot/qt/main/src/tools/qdir.h#33 $
 **
 ** Definition of QDir class
 **
@@ -33,7 +33,7 @@ typedef QList<QFileInfo> QFileInfoList;
 typedef QListIterator<QFileInfo> QFileInfoListIterator;
 
 
-class QDir
+class Q_EXPORT QDir
 {
 public:
     enum FilterSpec { Dirs	    = 0x001,

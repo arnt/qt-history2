@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#61 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#62 $
 **
 ** Definition of event classes
 **
@@ -66,7 +66,7 @@
 #define Event_User		 1000		// first user event id
 
 
-class QEvent					// event base class
+class Q_EXPORT QEvent					// event base class
 {
 public:
     QEvent( int type )
@@ -81,7 +81,7 @@ private:
 };
 
 
-class QTimerEvent : public QEvent		// timer event
+class Q_EXPORT QTimerEvent : public QEvent		// timer event
 {
 public:
     QTimerEvent( int timerId )
@@ -106,7 +106,7 @@ enum ButtonState {				// mouse/keyboard state values
     KeyButtonMask   = 0x38
 };
 
-class QMouseEvent : public QEvent		// mouse event
+class Q_EXPORT QMouseEvent : public QEvent		// mouse event
 {
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state );
@@ -132,7 +132,7 @@ protected:
 #define Q_MOUSE_EVENT(x)	((QMouseEvent*)x)
 
 
-class QWheelEvent : public QEvent		// wheel event
+class Q_EXPORT QWheelEvent : public QEvent		// wheel event
 {
 public:
     QWheelEvent( const QPoint &pos, int delta, int state )
@@ -155,7 +155,7 @@ protected:
 
 #define Q_WHEEL_EVENT(x)	((QWheelEvent*)x)
 
-class QKeyEvent : public QEvent			// keyboard event
+class Q_EXPORT QKeyEvent : public QEvent			// keyboard event
 {
 public:
     QKeyEvent( int type, int key, int ascii, int state )
@@ -175,7 +175,7 @@ protected:
 
 #define Q_KEY_EVENT(x)		((QKeyEvent*)x)
 
-class QFocusEvent : public QEvent		// widget focus event
+class Q_EXPORT QFocusEvent : public QEvent		// widget focus event
 {
 public:
     QFocusEvent( int type )
@@ -187,7 +187,7 @@ public:
 #define Q_FOCUS_EVENT(x)	((QFocusEvent*)x)
 
 
-class QPaintEvent : public QEvent		// widget paint event
+class Q_EXPORT QPaintEvent : public QEvent		// widget paint event
 {
 public:
     QPaintEvent( const QRegion& paintRegion )
@@ -208,7 +208,7 @@ protected:
 #define Q_PAINT_EVENT(x)	((QPaintEvent*)x)
 
 
-class QMoveEvent : public QEvent		// widget move event
+class Q_EXPORT QMoveEvent : public QEvent		// widget move event
 {
 public:
     QMoveEvent( const QPoint &pos, const QPoint &oldPos )
@@ -222,7 +222,7 @@ protected:
 #define Q_MOVE_EVENT(x)		((QMoveEvent*)x)
 
 
-class QResizeEvent : public QEvent		// widget resize event
+class Q_EXPORT QResizeEvent : public QEvent		// widget resize event
 {
 public:
     QResizeEvent( const QSize &size, const QSize &oldSize )
@@ -236,7 +236,7 @@ protected:
 #define Q_RESIZE_EVENT(x)	((QResizeEvent*)x)
 
 
-class QCloseEvent : public QEvent		// widget close event
+class Q_EXPORT QCloseEvent : public QEvent		// widget close event
 {
 public:
     QCloseEvent()
@@ -251,7 +251,7 @@ protected:
 #define Q_CLOSE_EVENT(x)	((QCloseEvent*)x)
 
 
-class QShowEvent : public QEvent		// widget show event
+class Q_EXPORT QShowEvent : public QEvent		// widget show event
 {
 public:
     QShowEvent(bool spontaneous)
@@ -264,7 +264,7 @@ protected:
 #define Q_SHOW_EVENT(x)		((QShowEvent*)x)
 
 
-class QHideEvent : public QEvent		// widget hide event
+class Q_EXPORT QHideEvent : public QEvent		// widget hide event
 {
 public:
     QHideEvent(bool spontaneous)
@@ -281,7 +281,7 @@ protected:
 // your own QDragMoveEvent objects, write to qt-bugs@troll.no and
 // we'll try to find a way to extend it so it covers your needs.
 
-class QDragMoveEvent : public QEvent
+class Q_EXPORT QDragMoveEvent : public QEvent
 {
 public:
     QDragMoveEvent( const QPoint& pos )
@@ -307,7 +307,7 @@ protected:
     QRect rect;
 };
 
-class QDragEnterEvent : public QDragMoveEvent
+class Q_EXPORT QDragEnterEvent : public QDragMoveEvent
 {
 public:
     QDragEnterEvent( const QPoint& pos ) :
@@ -315,7 +315,7 @@ public:
 };
 
 
-class QDragResponseEvent : public QEvent
+class Q_EXPORT QDragResponseEvent : public QEvent
 {
 public:
     QDragResponseEvent( bool accepted )
@@ -326,7 +326,7 @@ protected:
 };
 
 
-class QDragLeaveEvent : public QEvent
+class Q_EXPORT QDragLeaveEvent : public QEvent
 {
 public:
     QDragLeaveEvent()
@@ -334,7 +334,7 @@ public:
 };
 
 
-class QDropEvent : public QEvent
+class Q_EXPORT QDropEvent : public QEvent
 {
 public:
     QDropEvent( const QPoint& pos )
@@ -350,7 +350,7 @@ protected:
 };
 
 
-class QChildEvent : public QEvent
+class Q_EXPORT QChildEvent : public QEvent
 {
 public:
     QChildEvent( int type, QWidget *child )
@@ -363,7 +363,7 @@ protected:
 };
 
 
-class QCustomEvent : public QEvent		// user-defined event
+class Q_EXPORT QCustomEvent : public QEvent		// user-defined event
 {
 public:
     QCustomEvent( int type, void *data )

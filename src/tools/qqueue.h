@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qqueue.h#10 $
+** $Id: //depot/qt/main/src/tools/qqueue.h#11 $
 **
 ** Definition of QQueue template/macro class
 **
@@ -45,7 +45,7 @@
 #define QQueueM(type) name2(QQueueM_,type)
 
 #define QQueueMdeclare(type)						      \
-class QQueueM(type) : private QGList					      \
+class Q_EXPORT QQueueM(type) : private QGList					      \
 {									      \
 public:									      \
     QQueueM(type)()			{}				      \

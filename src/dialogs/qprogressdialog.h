@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#18 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#19 $
 **
 ** Definition of QProgressDialog class
 **
@@ -34,7 +34,7 @@
 struct QProgressData;
 
 
-class QProgressDialog : public QSemiModal
+class Q_EXPORT QProgressDialog : public QSemiModal
 {
     Q_OBJECT
 public:

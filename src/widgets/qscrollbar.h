@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#35 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#36 $
 **
 ** Definition of QScrollBar class
 **
@@ -30,7 +30,7 @@
 #include "qdrawutil.h"
 #endif // QT_H
 
-class QScrollBar : public QWidget, public QRangeControl
+class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.h#7 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.h#8 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -36,7 +36,7 @@
 
 class QIODevice;
 
-class QAsyncIO {
+class Q_EXPORT QAsyncIO {
 public:
     virtual ~QAsyncIO();
     void connect(QObject*, const char *member);
@@ -48,7 +48,7 @@ private:
     QSignal signal;
 };
 
-class QDataSink : public QAsyncIO {
+class Q_EXPORT QDataSink : public QAsyncIO {
 public:
     // Call this to know how much I can take.
     virtual int readyToReceive()=0;
@@ -57,7 +57,7 @@ public:
     void maybeReady();
 };
 
-class QDataSource : public QAsyncIO {
+class Q_EXPORT QDataSource : public QAsyncIO {
 public:
     virtual int readyToSend()=0; // returns -1 when never any more ready
     virtual void sendTo(QDataSink*, int count)=0;
@@ -68,7 +68,7 @@ public:
     virtual void rewind();
 };
 
-class QIODeviceSource : public QDataSource {
+class Q_EXPORT QIODeviceSource : public QDataSource {
     const int buf_size;
     uchar *buffer;
     QIODevice* iod;
@@ -85,7 +85,7 @@ public:
     void rewind();
 };
 
-class QDataPump : public QObject {
+class Q_EXPORT QDataPump : public QObject {
     Q_OBJECT
     int interval;
     QTimer timer;

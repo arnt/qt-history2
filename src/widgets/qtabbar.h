@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#16 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#17 $
 **
 ** Definition of QTabBar class
 **
@@ -44,7 +44,7 @@ struct QTab
 };
 
 
-class QTabBar: public QWidget
+class Q_EXPORT QTabBar: public QWidget
 {
     Q_OBJECT
 

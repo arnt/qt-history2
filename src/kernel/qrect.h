@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#34 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#35 $
 **
 ** Definition of QRect class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QRect					// rectangle class
+class Q_EXPORT QRect					// rectangle class
 {
 public:
     QRect()	{ x1 = y1 = 0; x2 = y2 = -1; }

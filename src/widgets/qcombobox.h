@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#58 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#59 $
 **
 ** Definition of QComboBox class
 **
@@ -36,7 +36,7 @@ class QValidator;
 class QListBox;
 
 
-class QComboBox : public QWidget
+class Q_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
 public:

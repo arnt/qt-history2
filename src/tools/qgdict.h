@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#24 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#25 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -33,7 +33,7 @@ class QGDictIterator;
 class QBucket;					// internal classes
 typedef QList<QGDictIterator> QGDItList;
 
-class QGDict : public QCollection		// generic dictionary class
+class Q_EXPORT QGDict : public QCollection		// generic dictionary class
 {
 friend class QGDictIterator;
 public:
@@ -76,7 +76,7 @@ private:
 };
 
 
-class QGDictIterator				// generic dictionary iterator
+class Q_EXPORT QGDictIterator				// generic dictionary iterator
 {
 friend class QGDict;
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#55 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#56 $
 **
 ** Definition of QMenuData class
 **
@@ -37,7 +37,7 @@ class QPopupMenu;
 #include "qpixmap.h"
 #include "qsignal.h"
 
-class QMenuItem					// internal menu item class
+class Q_EXPORT QMenuItem					// internal menu item class
 {
 friend class QMenuData;
 public:
@@ -88,7 +88,7 @@ class QPixmap;
 #endif
 
 
-class QMenuData					// menu data class
+class Q_EXPORT QMenuData					// menu data class
 {
 friend class QMenuBar;
 friend class QPopupMenu;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmutex.h#6 $
+** $Id: //depot/qt/main/src/kernel/qmutex.h#7 $
 **
 ** Definition of QMutex class
 **
@@ -37,7 +37,7 @@ typedef HANDLE QMutexID;
 #endif
 
 
-class QMutex
+class Q_EXPORT QMutex
 {
 public:
     QMutex( bool lock = FALSE );

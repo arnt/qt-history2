@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#23 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#24 $
 **
 ** Definition of QGArray class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QGArray					// generic array
+class Q_EXPORT QGArray					// generic array
 {
 friend class QBuffer;
 public:

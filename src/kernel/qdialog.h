@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#28 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#29 $
 **
 ** Definition of QDialog class
 **
@@ -32,7 +32,7 @@
 class QPushButton;
 
 
-class QDialog : public QWidget			// dialog widget
+class Q_EXPORT QDialog : public QWidget			// dialog widget
 {
 friend class QPushButton;
     Q_OBJECT

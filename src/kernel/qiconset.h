@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.h#7 $
+** $Id: //depot/qt/main/src/kernel/qiconset.h#8 $
 **
 ** Definition of QIconSet class
 **
@@ -30,7 +30,7 @@
 struct QIconSetPrivate;
 
 
-class QIconSet
+class Q_EXPORT QIconSet
 {
 public:
     enum Size { Automatic, Small, Large };

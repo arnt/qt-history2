@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#28 $
+** $Id: //depot/qt/main/src/tools/qfile.h#29 $
 **
 ** Definition of QFile class
 **
@@ -33,7 +33,7 @@
 class QDir;
 
 
-class QFile : public QIODevice			// file I/O device class
+class Q_EXPORT QFile : public QIODevice			// file I/O device class
 {
 public:
     QFile();

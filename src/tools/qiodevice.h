@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#21 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#22 $
 **
 ** Definition of QIODevice class
 **
@@ -73,7 +73,7 @@
 #define TB(x) ((ioMode & (x)) == (x))
 
 
-class QIODevice					// IO device class
+class Q_EXPORT QIODevice					// IO device class
 {
 public:
     QIODevice();

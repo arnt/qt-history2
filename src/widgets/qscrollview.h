@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#24 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#25 $
 **
 ** Definition of QScrollView class
 **
@@ -30,7 +30,7 @@
 
 struct QScrollViewData;
 
-class QScrollView : public QFrame
+class Q_EXPORT QScrollView : public QFrame
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#32 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#33 $
 **
 ** Definition of QPointArray class
 **
@@ -60,7 +60,7 @@ struct QPointData {				// platform dependent point
 
 class QPointArray;
 
-class QPointVal
+class Q_EXPORT QPointVal
 {
 public:
     QPointVal( QPointData *ptr ) : p(ptr) {}
@@ -79,7 +79,7 @@ private:
   QPointArray class
  *****************************************************************************/
 
-class QPointArray : public QArray<QPointData>
+class Q_EXPORT QPointArray : public QArray<QPointData>
 {
 public:
     QPointArray() {}

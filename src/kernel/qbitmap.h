@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#31 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#32 $
 **
 ** Definition of QBitmap class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QBitmap : public QPixmap			// bitmap class
+class Q_EXPORT QBitmap : public QPixmap			// bitmap class
 {
 public:
     QBitmap();

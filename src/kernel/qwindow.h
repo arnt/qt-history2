@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.h#11 $
+** $Id: //depot/qt/main/src/kernel/qwindow.h#12 $
 **
 ** Definition of QWindow class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QWindow : public QWidget			// window widget class
+class Q_EXPORT QWindow : public QWidget			// window widget class
 {
     Q_OBJECT
 public:

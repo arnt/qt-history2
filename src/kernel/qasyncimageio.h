@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#18 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#19 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -34,7 +34,7 @@
 
 
 
-class QImageConsumer {
+class Q_EXPORT QImageConsumer {
 public:
     virtual void changed(const QRect&)=0;
     virtual void end()=0;
@@ -44,14 +44,14 @@ public:
     virtual void setSize(int, int)=0;
 };
 
-class QImageFormat {
+class Q_EXPORT QImageFormat {
 public:
     virtual ~QImageFormat();
     virtual int decode(QImage& img, QImageConsumer* consumer,
 	    const uchar* buffer, int length)=0;
 };
 
-class QImageFormatType {
+class Q_EXPORT QImageFormatType {
 public:
     virtual ~QImageFormatType();
     virtual QImageFormat* decoderFor(const uchar* buffer, int length)=0;
@@ -62,7 +62,7 @@ protected:
 
 struct QImageDecoderPrivate;
 
-class QImageDecoder {
+class Q_EXPORT QImageDecoder {
 public:
     QImageDecoder(QImageConsumer* c);
     ~QImageDecoder();
@@ -84,7 +84,7 @@ private:
 };
 
 
-class QGIFFormat : public QImageFormat {
+class Q_EXPORT QGIFFormat : public QImageFormat {
 public:
     QGIFFormat();
     virtual ~QGIFFormat();
@@ -156,7 +156,7 @@ private:
     void disposePrevious( QImage& img, QImageConsumer* consumer );
 };
 
-class QGIFFormatType : public QImageFormatType
+class Q_EXPORT QGIFFormatType : public QImageFormatType
 {
     QImageFormat* decoderFor(const uchar* buffer, int length);
     const char* formatName() const;

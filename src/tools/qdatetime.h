@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#29 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#30 $
 **
 ** Definition of date and time classes
 **
@@ -33,7 +33,7 @@
   QDate class
  *****************************************************************************/
 
-class QDate
+class Q_EXPORT QDate
 {
 public:
     QDate()  { jd=0; }				// set null date
@@ -88,7 +88,7 @@ private:
   QTime class
  *****************************************************************************/
 
-class QTime
+class Q_EXPORT QTime
 {
 public:
     QTime() { ds=0; }				// set null time
@@ -139,7 +139,7 @@ private:
   QDateTime class
  *****************************************************************************/
 
-class QDateTime
+class Q_EXPORT QDateTime
 {
 public:
     QDateTime() {}				// set null date and null time

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#29 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#30 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QColorGroup				// color group class
+class Q_EXPORT QColorGroup				// color group class
 {
 public:
     QColorGroup();				// all colors black
@@ -63,7 +63,7 @@ private:
 };
 
 
-class QPalette					// palette class
+class Q_EXPORT QPalette					// palette class
 {
 public:
     QPalette();

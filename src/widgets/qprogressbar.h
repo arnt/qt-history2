@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#12 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#13 $
 **
 ** Definition of QProgressBar class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QProgressBar : public QFrame
+class Q_EXPORT QProgressBar : public QFrame
 {
     Q_OBJECT
 public:

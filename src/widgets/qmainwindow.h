@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#20 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#21 $
 **
 ** Definition of QMainWindow class
 **
@@ -36,7 +36,7 @@ class QToolTipGroup;
 class QMainWindowPrivate;
 
 
-class QMainWindow: public QWidget
+class Q_EXPORT QMainWindow: public QWidget
 {
     Q_OBJECT
 public:

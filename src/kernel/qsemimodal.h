@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.h#6 $
 **
 ** Definition of QSemiModal class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QSemiModal : public QWidget
+class Q_EXPORT QSemiModal : public QWidget
 {
     Q_OBJECT
 public:

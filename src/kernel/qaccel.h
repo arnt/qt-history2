@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#32 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#33 $
 **
 ** Definition of QAccel class
 **
@@ -33,7 +33,7 @@
 class QAccelPrivate;				// internal class
 
 
-class QAccel : public QObject			// accelerator class
+class Q_EXPORT QAccel : public QObject			// accelerator class
 {
     Q_OBJECT
 public:

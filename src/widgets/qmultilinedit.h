@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#43 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#44 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -32,7 +32,7 @@
 
 struct QMultiLineData;
 
-class QMultiLineEdit : public QTableView
+class Q_EXPORT QMultiLineEdit : public QTableView
 {
     Q_OBJECT
 public:

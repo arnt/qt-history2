@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#14 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#15 $
 **
 ** Definition of QRegExp class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QRegExp
+class Q_EXPORT QRegExp
 {
 public:
     QRegExp();

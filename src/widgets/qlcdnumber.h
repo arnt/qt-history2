@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#36 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.h#37 $
 **
 ** Definition of QLCDNumber class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QLCDNumber : public QFrame		// LCD number widget
+class Q_EXPORT QLCDNumber : public QFrame		// LCD number widget
 {
     Q_OBJECT
 public:

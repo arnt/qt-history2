@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#3 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#4 $
 **
 ** Definition of QStyle class
 **
@@ -18,7 +18,7 @@
 #endif // QT_H
 
 
-class QStyle
+class Q_EXPORT QStyle
 {
     GUIStyle gs;
 public:

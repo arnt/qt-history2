@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#38 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#39 $
 **
 ** Definition of QTextStream class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 
-class QTextStream				// text stream class
+class Q_EXPORT QTextStream				// text stream class
 {
 public:
     enum Encoding {
@@ -162,7 +162,7 @@ private:	// Disabled copy constructor and operator=
 
 typedef QTextStream QTS;
 
-class QTextIStream : public QTextStream {
+class Q_EXPORT QTextIStream : public QTextStream {
 public:
     QTextIStream( QString &s, Encoding m=Unicode ) :
 	QTextStream(s,IO_ReadOnly,m) { }
@@ -172,7 +172,7 @@ public:
 	QTextStream(f,IO_ReadOnly) { }
 };
 
-class QTextOStream : public QTextStream {
+class Q_EXPORT QTextOStream : public QTextStream {
 public:
     QTextOStream( QString &s, Encoding m=Unicode ) :
 	QTextStream(s,IO_WriteOnly,m) { }
@@ -233,7 +233,7 @@ inline int QTextStream::precision( int p )
 typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
 typedef int (QTextStream::*QTSMFI)(int);	// manipulator w/int argument
 
-class QTSManip {				// text stream manipulator
+class Q_EXPORT QTSManip {				// text stream manipulator
 public:
     QTSManip( QTSMFI m, int a ) { mf=m; arg=a; }
     void exec( QTextStream &s ) { (s.*mf)(arg); }

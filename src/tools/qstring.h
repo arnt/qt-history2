@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#68 $
+** $Id: //depot/qt/main/src/tools/qstring.h#69 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -145,7 +145,7 @@ QDataStream &operator>>( QDataStream &, QByteArray & );
 class QRegExp;
 
 
-class QChar {
+class Q_EXPORT QChar {
 public:
     QChar() : row(0), cell(0) { }
     QChar( uchar c, uchar r=0 ) : row(r), cell(c) { }
@@ -181,7 +181,7 @@ public:
 
 
 
-class QString
+class Q_EXPORT QString
 {
 public:
     QString();					// make null string
@@ -467,7 +467,7 @@ inline QString operator+( char c1, const QString &s2 )
 
 class QRegExp;
 
-class Q1String : public QByteArray		// string class
+class Q_EXPORT Q1String : public QByteArray		// string class
 {
 public:
     Q1String() {}				// make null string

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfocusdata.h#5 $
+** $Id: //depot/qt/main/src/kernel/qfocusdata.h#6 $
 **
 ** Definition of internal QFocusData class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QFocusData {
+class Q_EXPORT QFocusData {
 public:
     QWidget* focusWidget() const { return it.current(); }
 

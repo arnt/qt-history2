@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#25 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#26 $
 **
 ** Definition of QFontInfo class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QFontInfo
+class Q_EXPORT QFontInfo
 {
 public:
     QFontInfo( const QFont & );

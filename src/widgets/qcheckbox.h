@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#25 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#26 $
 **
 ** Definition of QCheckBox class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QCheckBox : public QButton
+class Q_EXPORT QCheckBox : public QButton
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#24 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#25 $
 **
 ** Definition of QTableView class
 **
@@ -32,7 +32,7 @@ class QScrollBar;
 class CornerSquare;
 
 
-class QTableView : public QFrame
+class Q_EXPORT QTableView : public QFrame
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#11 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#12 $
 **
 ** Definition of QWidgetStack class
 **
@@ -35,7 +35,7 @@ class QWidgetStackPrivate;
 class QGridLayout;
 
 
-class QWidgetStack: public QFrame
+class Q_EXPORT QWidgetStack: public QFrame
 {
     Q_OBJECT
 public:

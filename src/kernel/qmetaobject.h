@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#13 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#14 $
 **
 ** Definition of QMetaObject class
 **
@@ -36,7 +36,7 @@ struct QMetaData				// member function meta data
 };
 
 
-class QMetaObject				// meta object class
+class Q_EXPORT QMetaObject				// meta object class
 {
 public:
     QMetaObject( const char *class_name, const char *superclass_name,

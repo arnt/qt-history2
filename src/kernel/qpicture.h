@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#24 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#25 $
 **
 ** Definition of QPicture class
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-class QPicture : public QPaintDevice		// picture class
+class Q_EXPORT QPicture : public QPaintDevice		// picture class
 {
 public:
     QPicture();

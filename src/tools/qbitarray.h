@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#25 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#26 $
 **
 ** Definition of QBitArray class
 **
@@ -35,7 +35,7 @@
 
 class QBitArray;
 
-class QBitVal
+class Q_EXPORT QBitVal
 {
 private:
     QBitArray *array;
@@ -52,7 +52,7 @@ public:
   QBitArray class
  *****************************************************************************/
 
-class QBitArray : public QByteArray
+class Q_EXPORT QBitArray : public QByteArray
 {
 public:
     QBitArray();

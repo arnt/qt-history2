@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#17 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#18 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -29,7 +29,7 @@
 #endif // QT_H
 
 
-class QGroupBox : public QFrame
+class Q_EXPORT QGroupBox : public QFrame
 {
     Q_OBJECT
 public:

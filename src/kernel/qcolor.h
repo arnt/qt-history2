@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#45 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#46 $
 **
 ** Definition of QColor class
 **
@@ -54,7 +54,7 @@ inline int qGray( QRgb rgb )			// convert RGB to gray 0..255
 { return qGray( qRed(rgb), qGreen(rgb), qBlue(rgb) ); }
 
 
-class QColor					// color class
+class Q_EXPORT QColor					// color class
 {
 public:
     enum Spec { Rgb, Hsv };

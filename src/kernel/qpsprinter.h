@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#18 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#19 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -37,7 +37,7 @@
 
 struct QPSPrinterPrivate;
 
-class QPSPrinter : public QPaintDevice
+class Q_EXPORT QPSPrinter : public QPaintDevice
 {
 private:
     // QPrinter uses these

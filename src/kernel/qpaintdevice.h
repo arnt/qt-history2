@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#52 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#53 $
 **
 ** Definition of QPaintDevice class
 **
@@ -51,7 +51,7 @@
 union QPDevCmdParam;
 
 
-class QPaintDevice				// device for QPainter
+class Q_EXPORT QPaintDevice				// device for QPainter
 {
 public:
     virtual ~QPaintDevice();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#32 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#33 $
 **
 ** Definition of QBrush class
 **
@@ -38,7 +38,7 @@ enum BrushStyle					// brush style
 	BDiagPattern, FDiagPattern, DiagCrossPattern, CustomPattern=24 };
 
 
-class QBrush
+class Q_EXPORT QBrush
 {
 friend class QPainter;
 public:

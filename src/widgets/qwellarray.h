@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.h#10 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.h#11 $
 **
 ** Definition of QWellArray widget class
 **
@@ -30,7 +30,7 @@
 
 struct QWellArrayData;
 
-class QWellArray : public QTableView
+class Q_EXPORT QWellArray : public QTableView
 {
 	Q_OBJECT
 public:
