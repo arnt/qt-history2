@@ -27,8 +27,8 @@
 #define QGLOBAL_H
 
 
-#define QT_VERSION	210
-#define QT_VERSION_STR	"2.1.0-beta"
+#define QT_VERSION	220
+#define QT_VERSION_STR	"2.2.0-snapshot"
 
 
 //
