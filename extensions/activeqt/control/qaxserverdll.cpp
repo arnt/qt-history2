@@ -95,6 +95,7 @@ STDAPI DllCanUnloadNow()
 
     delete qApp;
     qApp = 0;
+    qax_ownQApp = FALSE;
 
     // never allow unloading - safety net for Internet Explorer
     return S_FALSE;
