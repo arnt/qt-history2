@@ -41,7 +41,6 @@ public:
     void buttonClicked();
     void init(int, int, int);
     int indexOf(int) const;
-    void resizeButtons();
     QLabel *label;
 
     int                 numButtons;             // number of buttons
@@ -50,7 +49,6 @@ public:
     int                 button[3];              // button types
     int                 defButton;              // default button (index)
     int                 escButton;              // escape button (index)
-    QSize               buttonSize;             // button size
     QPushButton        *pb[3];                  // buttons
 };
 
@@ -633,7 +631,6 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             q->connect(pb[i], SIGNAL(clicked()), SLOT(buttonClicked()));
         }
     }
-    resizeButtons();
 }
 
 
@@ -647,21 +644,6 @@ int QMessageBoxPrivate::indexOf(int button) const
         }
     }
     return index;
-}
-
-
-void QMessageBoxPrivate::resizeButtons()
-{
-    int i;
-    QSize maxSize;
-    for (i = 0; i < numButtons; i++) {
-        QSize s = pb[i]->sizeHint();
-        maxSize.setWidth( qMax(maxSize.width(), s.width()));
-        maxSize.setHeight(qMax(maxSize.height(),s.height()));
-    }
-    buttonSize = maxSize;
-    for (i = 0; i < numButtons; i++)
-        pb[i]->resize(maxSize);
 }
 
 
@@ -878,7 +860,8 @@ void QMessageBox::setButtonText(int button, const QString &text)
     int index = d->indexOf(button);
     if (index >= 0 && d->pb[index]) {
         d->pb[index]->setText(text);
-        d->resizeButtons();
+        QResizeEvent e(size(), size());
+        event(&e);
     }
 }
 
@@ -910,9 +893,12 @@ QSize QMessageBox::sizeHint() const
     ensurePolished();
     d->label->adjustSize();
     QSize labelSize(d->label->size());
+    QSize maxButtonSizeHint;
     int n  = d->numButtons;
-    int bw = d->buttonSize.width();
-    int bh = d->buttonSize.height();
+    for (int i = 0; i < n; i++)
+        maxButtonSizeHint = maxButtonSizeHint.expandedTo(d->pb[i]->sizeHint());
+    int bw = maxButtonSizeHint.width();
+    int bh = maxButtonSizeHint.height();
     int border = bh / 2 - style()->pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if (border <= 0)
         border = 10;
@@ -954,9 +940,12 @@ void QMessageBox::resizeEvent(QResizeEvent *)
 {
     Q_D(QMessageBox);
     int i;
+    QSize maxButtonSizeHint;
     int n  = d->numButtons;
-    int bw = d->buttonSize.width();
-    int bh = d->buttonSize.height();
+    for (i = 0; i < n; i++)
+        maxButtonSizeHint = maxButtonSizeHint.expandedTo(d->pb[i]->sizeHint());
+    int bw = maxButtonSizeHint.width();
+    int bh = maxButtonSizeHint.height();
 #ifdef Q_OS_TEMP
     int visibleButtons = 0;
     for (i = 0; i < n; ++i)
@@ -984,14 +973,16 @@ void QMessageBox::resizeEvent(QResizeEvent *)
                           width() - lmargin -2*border,
                           height() - 3*border - bh);
     int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
+    if (n)
+        bw = qMin(bw,  (width() - 2 *border) / n);
     if (useBorder) {
         for (i=0; i<n; i++)
-            d->pb[rtl ? n - i - 1 : i]->move(border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
-                              height() - border - bh);
+            d->pb[rtl ? n - i - 1 : i]->setGeometry(border + i*bw + qMax(0,i*btn_spacing + extra_space*(i+1)/(n+1)),
+                                                    height() - border - bh, bw, bh);
     } else {
         for (i=0; i<n; i++)
-            d->pb[rtl ? n - i - 1 : i]->move(border + i*bw + extra_space/2 + i*btn_spacing,
-                              height() - border - bh);
+            d->pb[rtl ? n - i - 1 : i]->setGeometry(border + i*bw + qMax(0,extra_space/2 + i*btn_spacing),
+                                                    height() - border - bh, bw, bh);
     }
 }
 
