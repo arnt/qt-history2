@@ -37,8 +37,8 @@ struct QPainterPathElement
  */
 struct QPainterSubpath
 {
-    QPainterSubpath() : pointCount(0) { };    
-    
+    QPainterSubpath() : pointCount(0) { };
+
     /*! Makes a straight line connection to the last point if \a p differs from
      * lastPoint. The addLine recursion is safe since we connect to lastPoint
      * so next call to connectLast will just do nothing..
@@ -56,7 +56,7 @@ struct QPainterSubpath
     bool isClosed() const {
 	return elements.size() > 0 && elements.at(0).firstPoint() == lastPoint;
     }
-    
+
 
     /*! Converts the path to a polygon */
     QPointArray toPolygon() const;
@@ -65,17 +65,21 @@ struct QPainterSubpath
 
     QList<QPainterPathElement> elements;
     QPoint lastPoint;
-    int pointCount;
 };
 
 class QPainterPathPrivate
 {
 public:
-    
+    QPainterPathPrivate() :
+        fillMode(QPainterPath::OddEven)
+    {
+    }
+
     /* Moves current path to the list of subpaths and creates a new current */
     void beginSubpath_helper();
 
     QList<QPainterSubpath> subpaths;
+    QPainterPath::FillMode fillMode;
 };
 
 

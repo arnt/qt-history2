@@ -1113,11 +1113,16 @@ void QPainter::drawPath(const QPainterPath &path)
 	polygons.append(pd->subpaths.at(i).toPolygon());
     }
 
+    if (polygons.isEmpty())
+        return;
+
     if (d->state->brush.style() != NoBrush) {
 	save();
 	setPen(NoPen);
-	for (int i=0; i<polygons.size(); ++i)
-	    drawPolygon(polygons.at(i));
+        QPointArray combined;
+        for (int i=0; i<polygons.size(); ++i)
+            combined += polygons.at(i);
+        drawPolygon(combined, path.fillMode() == QPainterPath::Winding);
 	restore();
     }
 
@@ -1854,7 +1859,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
     if (a.isEmpty())
 	return;
-    
+
     if (npoints < 0)
         npoints = a.size() - index;
     if (index + npoints > (int)a.size())

@@ -38,7 +38,7 @@ void QPainterSubpath::close()
     printf(" -> trying to reconnect to first point\n");
     connectLast(firstElement.firstPoint());
 }
-    
+
 void QPainterSubpath::addLine(const QPoint &p1, const QPoint &p2)
 {
     connectLast(p1);
@@ -51,11 +51,11 @@ void QPainterSubpath::addLine(const QPoint &p1, const QPoint &p2)
     elements.append(elm);
 
     printf(" -> added line element (%d, %d) -> (%d, %d)\n",
-	   elm.lineData.x1, 
-	   elm.lineData.y1, 
-	   elm.lineData.x2, 
-	   elm.lineData.y2); 
-	
+	   elm.lineData.x1,
+	   elm.lineData.y1,
+	   elm.lineData.x2,
+	   elm.lineData.y2);
+
     lastPoint = p2;
 }
 
@@ -63,7 +63,7 @@ QPointArray QPainterSubpath::toPolygon() const
 {
     if (elements.isEmpty())
 	return QPointArray();
-    QPointArray p; 
+    QPointArray p;
     fflush(stdout);
     p << elements.at(0).firstPoint();
     for (int i=0; i<elements.size(); ++i) {
@@ -113,7 +113,7 @@ void QPainterPath::beginSubpath()
  * Closes the current subpath. If the sub path does not contain
  * any elements, the function does nothing. A new subpath is
  * automatically begun when the current is closed.
- */ 
+ */
 void QPainterPath::closeSubpath()
 {
     if (d->subpaths.last().elements.isEmpty())
@@ -129,7 +129,16 @@ void QPainterPath::closeSubpath()
  */
 void QPainterPath::addLine(const QPoint &p1, const QPoint &p2)
 {
-    d->subpaths.last().addLine(p1, p2);    
+    d->subpaths.last().addLine(p1, p2);
 }
 
+QPainterPath::FillMode QPainterPath::fillMode() const
+{
+    return d->fillMode;
+}
+
+void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
+{
+    d->fillMode = fillMode;
+}
 

@@ -22,15 +22,19 @@ class QPainterPathPrivate;
 class Q_GUI_EXPORT QPainterPath
 {
 public:
+    enum FillMode { OddEven, Winding };
+
     QPainterPath();
     ~QPainterPath();
 
     void beginSubpath();
     void closeSubpath();
-    
+
     void addLine(const QPoint &p1, const QPoint &p2);
     inline void addLine(int x1, int y1, int x2, int y2);
 
+    FillMode fillMode() const;
+    void setFillMode(FillMode fillMode);
 private:
     QPainterPathPrivate *d;
 
@@ -39,7 +43,7 @@ private:
 
 inline void QPainterPath::addLine(int x1, int y1, int x2, int y2)
 {
-    addLine(QPoint(x1, y1), QPoint(x2, y2));    
+    addLine(QPoint(x1, y1), QPoint(x2, y2));
 }
 
 #endif // QPAINTERPATH_H
