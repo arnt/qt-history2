@@ -1,6 +1,6 @@
 TEMPLATE = app
-HEADERS = setupwizardimpl.h environment.h shell.h
-SOURCES = main.cpp setupwizardimpl.cpp environment.cpp shell.cpp
+HEADERS = setupwizardimpl.h environment.h shell.h folderdlgimpl.h
+SOURCES = main.cpp setupwizardimpl.cpp environment.cpp shell.cpp folderdlgimpl.cpp
 INTERFACES = setupwizard.ui folderdlg.ui
 TARGET  = setup
 INCLUDEPATH = $(QTDIR)\src\3rdparty
