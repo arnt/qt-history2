@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#33 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#34 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -677,7 +677,7 @@ void QCommonStyle::drawControl( ControlElement element,
 */
 QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 {
-    return QRect();
+    return widget->rect();
 }
 
 

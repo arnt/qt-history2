@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#86 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#87 $
 **
 ** Definition of QStyle class
 **
@@ -99,7 +99,9 @@ public:
     enum PrimitiveOperation {
 	PO_ButtonCommand,
 	PO_ButtonBevel,
-	PO_ButtonTool
+	PO_ButtonTool,
+
+	PO_FocusRect,
 
 	/*
 	  PO_ArrowUp,
@@ -114,7 +116,6 @@ public:
 	  PO_IndicatorMask,
 	  PO_ExclusiveIndicator,
 	  PO_ExclusiveIndicatorMask,
-	  PO_FocusRect,
 	  PO_CheckMark,
 
 	  PO_ScrollBarLineUp,
@@ -130,8 +131,8 @@ public:
 	PStyle_Enabled = 		0x00000001,
 	PStyle_Sunken = 		0x00000002,
 	PStyle_Off =			0x00000004,
-	PStyle_NoChange=		0x00000008,
-	PStyle_On=			0x00000010
+	PStyle_NoChange =		0x00000008,
+	PStyle_On =			0x00000010
 
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
@@ -177,6 +178,8 @@ public:
 			      void *data = 0 ) const = 0;
 
     enum SubRect {
+	SR_PushButtonContents
+
 	/*
 	  SR_DefaultFrameContents,
 	  SR_PopupFrameContents,
@@ -184,7 +187,6 @@ public:
 
 	  SR_ButtonContents,
 	  SR_BevelButtonContents
-	  SR_PushButtonContents,
 	  SR_ToolButtonContents,
 	*/
     };

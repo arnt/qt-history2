@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#207 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#208 $
 **
 ** Implementation of QPushButton class
 **
@@ -342,7 +342,7 @@ QSize QPushButton::sizeHint() const
     constPolish();
 
     int h = style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) * 2,
-	w = h * 2;
+	w = h;
 
     // calculate contents size...
     if ( pixmap() ) {
@@ -468,16 +468,6 @@ void QPushButton::drawButton( QPainter *paint )
 
     style().drawControl(QStyle::CE_PushButton, paint, this, rect(), colorGroup());
     drawButtonLabel( paint );
-
-    /*
-      int x1, y1, x2, y2;
-      // get coordinates
-      style().pushButtonContentsRect( this ).coords( &x1, &y1, &x2, &y2 );
-      if ( hasFocus() ) {
-      QRect r(x1+2, y1+2, x2-x1-3, y2-y1-3);
-      style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
-      }
-    */
 
     lastEnabled = isEnabled();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#44 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#45 $
 **
 ** Implementation of Windows-like style class
 **
@@ -131,6 +131,10 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	drawButton(p, r, cg, flags & PStyle_Sunken);
 	break;
 
+    case PO_FocusRect:
+	p->drawWinFocusRect(r);
+	break;
+
     default:
 	QCommonStyle::drawPrimitive(op, p, r, cg, flags, data);
     }
@@ -172,12 +176,46 @@ void QWindowsStyle::drawControl( ControlElement element,
 			 br.bottom() - dbi);
 	}
 
-	drawPrimitive(PO_ButtonCommand, p, br, cg, flags);
+	if (button->isDown() && button->isDefault()) {
+	    p->setPen(cg.dark());
+	    p->drawRect(br);
+	} else
+	    drawPrimitive(PO_ButtonCommand, p, br, cg, flags);
+
+	if (button->hasFocus())
+	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonContents, widget),
+			  cg, flags);
 	break; }
 
     default:
 	QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
     }
+}
+
+
+/*!
+  \reimp
+*/
+QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
+{
+    QRect rect, wrect(widget->rect());
+
+    switch (r) {
+    case SR_PushButtonContents: {
+	int dfw1 = pixelMetric(PM_DefaultFrameWidth, widget) * 2,
+	    dfw2 = dfw1 * 2;
+	rect.setRect(wrect.left()   + dfw1,
+		     wrect.top()    + dfw1,
+		     wrect.right()  - dfw2,
+		     wrect.bottom() - dfw2);
+	break; }
+
+    default:
+	rect = QCommonStyle::subRect(r, widget);
+	break;
+    }
+
+    return rect;
 }
 
 
@@ -190,6 +228,8 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 
     switch (metric) {
     case PM_ButtonDefaultIndicator:
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
 	ret = 1;
 	break;
 
@@ -242,15 +282,6 @@ void QWindowsStyle::drawButton( QPainter *p, const QRect &r, const QColorGroup &
         drawWinShades( p, r.x(), r.y(), r.width(), r.height(),
                        cg.light(), cg.shadow(), cg.button(), cg.dark(),
                        &cg.brush( QColorGroup::Button ) );
-}
-
-
-/*!
- */
-void QWindowsStyle::drawBevelButton( QPainter *p, const QRect &r, const QColorGroup &cg,
-				     bool sunken) const
-{
-    drawButton(p, r, cg, sunken);
 }
 
 
@@ -597,7 +628,7 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
                                 const QColorGroup &g, bool sunken, const QBrush* fill)
 {
-    QWindowsStyle::drawButton(p, x, y, w, h, g, sunken, fill);
+    drawButton(p, QRect(x, y, w, h), g, sunken);
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#15 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#16 $
 **
 ** Definition of Windows-like style class
 **
@@ -78,6 +78,8 @@ public:
 		      CFlags how = CStyle_Default,
 		      void *data = 0 ) const;
 
+    QRect subRect( SubRect r, const QWidget *widget ) const;
+
     int pixelMetric( PixelMetric metic, const QWidget *widget = 0 ) const;
 
     QSize sizeFromContents( ContentsType contents,
@@ -88,8 +90,6 @@ public:
     // convenience
     void drawButton( QPainter *p, const QRect &r,
                      const QColorGroup &g, bool sunken) const;
-    void drawBevelButton( QPainter *p, const QRect &r,
-                          const QColorGroup &g, bool sunken) const;
 
     // old
     void drawButton( QPainter *p, int x, int y, int w, int h,
