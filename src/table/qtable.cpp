@@ -1348,10 +1348,10 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
 
 void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    // Region of the rect we should draw
-    QRegion reg( QRect( cx, cy, cw, ch ) );
+    // Region of the rect we should draw (clipping is in device coordinates).
+    QRegion reg( p->xForm( QRect( cx, cy, cw, ch ) ) );
     // Subtract the table from it
-    reg = reg.subtract( QRect( QPoint( 0, 0 ), tableSize() ) );
+    reg = reg.subtract( p->xForm( QRect( QPoint( 0, 0 ), tableSize() ) ) );
     p->save();
     // Set clip region...
     p->setClipRegion( reg );
@@ -3511,11 +3511,11 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 {
     autoScrollTimer->stop();
     mousePressed = FALSE;
+    bool hasCached = resizedSection != -1;
+    setCaching( FALSE );
     QHeader::mouseReleaseEvent( e );
     line1->hide();
     line2->hide();
-    bool hasCached = resizedSection != -1;
-    setCaching( FALSE );
     if ( hasCached ) {
 	emit sectionSizeChanged( resizedSection );
 	updateStretches();
@@ -3779,6 +3779,11 @@ void QTableHeader::swapSections( int oldIdx, int newIdx )
 	setLabel( newIdx, is, l );
     else
 	setLabel( newIdx, l );
+
+    int w1 = sectionSize( oldIdx );
+    int w2 = sectionSize( newIdx );
+    resizeSection( oldIdx, w2 );
+    resizeSection( newIdx, w1 );
 
     if ( orientation() == Horizontal )
 	table->swapColumns( oldIdx, newIdx );
