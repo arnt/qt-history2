@@ -224,7 +224,7 @@ int main( int argc, char** argv )
 
     fileList.clear();
     fileList << QString( getenv( "QTDIR" ) ) + "\\Makefile";
-    fileList << QString( getenv( "QTDIR" ) ) + "\\configure.bat";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\configure.exe";
     generateFileArchive( distname + "\\build.arq", fileList );
 
     fileList.clear();

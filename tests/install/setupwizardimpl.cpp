@@ -554,7 +554,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	outputDisplay->append( "Execute configure...\n" );
 
-	args << QEnvironment::getEnv( "QTDIR" ) + "\\configure.bat";
+	args << QEnvironment::getEnv( "QTDIR" ) + "\\configure.exe";
 	entry = settings.readEntry( "/Trolltech/Qt/Mode", &settingsOK );
 	if ( entry == "Debug" )
 	    args += "-debug";
@@ -583,18 +583,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    args += QString( "-sql-" ) + entry;
 	}
 
-	tmpFile.setName( QEnvironment::getEnv( "QTDIR" ) + "\\configcmd.bat" );
-	if( tmpFile.open( IO_WriteOnly ) ) {
-	    tmpStream.setDevice( &tmpFile );
-	    tmpStream << args.join( " " );
-
-	    args.clear();
-	    args << QString( "CMD /V:ON /C " ) + tmpFile.name();
-	    tmpFile.close();
-	}
-
 	outputDisplay->append( args.join( " " ) + "\n" );
-//	outputDisplay->insertItem( args.join( " " ) + "\n" );
 	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	configure.setArguments( args );
 
