@@ -209,7 +209,7 @@ class QSettingsHeading : public QMap<QString,QSettingsGroup>
 public:
     QSettingsHeading::Iterator git;
     void read(const QString &);
-    void parseLine(const QString &);
+    void parseLine(QTextStream &);
 };
 
 
@@ -228,8 +228,9 @@ void QSettingsHeading::read(const QString &filename)
 
     QString line;
     QTextStream stream(&file);
+    stream.setEncoding(QTextStream::UnicodeUTF8);
     while (! stream.atEnd())
-	parseLine(stream.readLine());
+	parseLine(stream);
 
     git = end();
 
@@ -237,9 +238,9 @@ void QSettingsHeading::read(const QString &filename)
 }
 
 
-void QSettingsHeading::parseLine(const QString &l)
+void QSettingsHeading::parseLine(QTextStream &stream)
 {
-    QString line = l.stripWhiteSpace();
+    QString line = stream.readLine();
     if (line.isEmpty())
 	// empty line... we'll allow it
 	return;
@@ -263,15 +264,28 @@ void QSettingsHeading::parseLine(const QString &l)
 	    return;
 	}
 
-	QStringList list = QStringList::split('=', line);
-	if (list.count() != 2 && line.find('=') == -1) {
+	int i = line.find('=');
+       	if (i == -1) {
 	    qWarning("QSettings: malformed line '%s' in group '%s'",
 		     line.latin1(), git.key().latin1());
-
 	    return;
-	}
+	} else {
+	    QString key, value;
+	    key = line.left(i);
+	    value = line.mid(i + 1);
 
-	(*git).insert(list[0].stripWhiteSpace(), list[1].stripWhiteSpace());
+	    while (value[value.length() - 1] == '\\') {
+		if (stream.atEnd()) {
+		    qDebug("QSettings: reached end of file, expected continued line");
+		    break;
+		}
+
+		value[value.length() -1 ] = QChar('\n');
+		value += stream.readLine();
+	    }
+
+	    (*git).insert(key, value);
+	}
     }
 }
 
@@ -405,8 +419,10 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
     } else
 	grp = *grpit;
 
+    QString v = value;
+    v.replace(QRegExp("\n"), "\\\n");
     grp.modified = TRUE;
-    grp.replace(key, value);
+    grp.replace(key, v);
     hd.replace(group, grp);
     headings.replace(heading, hd);
 
@@ -547,10 +563,7 @@ QSettings::~QSettings()
 }
 
 
-/*!
-
-    \internal
-
+/*! \internal
   Writes all modifications to the settings to disk.  If any errors are
   encountered, this function returns FALSE, otherwise it will return TRUE.
 */
