@@ -17,6 +17,7 @@
 #ifndef QT_H
 #include "qlist.h"
 #include "qtextstream.h"
+#include "qstring.h"
 #endif
 
 #ifndef QT_NO_DEBUG
@@ -24,15 +25,16 @@
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
-        Stream():ts(stderr, IO_WriteOnly),ref(1), space(true){}
+        Stream():ts(&buffer, IO_WriteOnly),ref(1), space(true){}
         QTextStream ts;
+        QString buffer;
         int ref;
         bool space;
     } *d;
 public:
     inline QDebug():d(new Stream){}
     inline QDebug(const QDebug &o):d(o.d){++d->ref;}
-    inline ~QDebug() {if (!--d->ref) { d->ts << endl; delete d; } }
+    inline ~QDebug() {if (!--d->ref) { qDebug(d->buffer.latin1()); delete d; } }
     inline QDebug &space() { d->space = true; d->ts << ' '; return *this; }
     inline QDebug &nospace() { d->space = false; return *this; }
     inline QDebug &maybeSpace() { if (d->space) d->ts << ' '; return *this; }
@@ -67,7 +69,9 @@ public:
     }
 
     inline QDebug &operator<<(QTSFUNC f)
-        { d->ts << f; return *this; }
+        { if (f == endl) { qDebug(d->buffer.latin1()); d->buffer.clear(); } 
+          else d->ts << f; 
+          return *this; }
 
     inline QDebug &operator<<(QTSManip m)
         { d->ts << m; return *this; }
