@@ -2628,18 +2628,21 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \enum QTextStream::Encoding
+    \compat
 
-    Use fieldAlignment(), padChar(), fieldWidth(), numberFlags(),
-    integerBase(), realNumberNotation(), and realNumberNotation
-    instead.
+    \value Latin1  Use setCodec(QTextCodec::codecForName("ISO-8859-1")) instead.
+    \value Locale  Use setCodec(QTextCodec::codecForLocale()) instead.
+    \value RawUnicode  Use setCodec(QTextCodec::codecForName("UTF-16")) instead.
+    \value Unicode  Use setCodec(QTextCodec::codecForName("UTF-16")) instead.
+    \value UnicodeNetworkOrder  Use setCodec(QTextCodec::codecForName("UTF-16BE")) instead.
+    \value UnicodeReverse  Use setCodec(QTextCodec::codecForName("UTF-16LE")) instead.
+    \value UnicodeUTF8  Use setCodec(QTextCodec::codecForName("UTF-8")) instead.
 
-    \omitvalue Latin1
-    \omitvalue Locale
-    \omitvalue RawUnicode
-    \omitvalue Unicode
-    \omitvalue UnicodeNetworkOrder
-    \omitvalue UnicodeReverse
-    \omitvalue UnicodeUTF8
+    Also, for all encodings except QTextStream::Latin1 and
+    QTextStream::UTF8, you need to call setAutoDetectUnicode(false)
+    to obtain the Qt 3 behavior in addition to the setCodec() call.
+
+    \sa setCodec(), setAutoDetectUnicode()
 */
 
 /*!
@@ -2667,7 +2670,7 @@ void QTextStream::setEncoding(Encoding encoding)
 */
 
 /*!
-    \fn int QTextStream::setf(int,int)
+    \fn int QTextStream::setf(int, int)
 
     Use setFieldAlignment(), setPadChar(), setFieldWidth(),
     setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
