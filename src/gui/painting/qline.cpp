@@ -250,9 +250,18 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 }
 
 
-    /*!
+/*!
     \fn void QLineF::moveBy(const QLineF &l)
 
     Translates this line by the vector specified by the line \a l.
 
 */
+
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug d, const QLineF &p)
+{
+    d << "QLineF(" << p.start() << "," << p.end() << ")";
+    return d;
+}
+#endif

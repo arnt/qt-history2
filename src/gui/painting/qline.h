@@ -14,8 +14,9 @@
 #ifndef QLINE_H
 #define QLINE_H
 
-#include <qglobal.h>
-
+#ifndef QT_NO_DEBUG
+#include <qdebug.h>
+#endif
 #include <qpoint.h>
 
 class Q_GUI_EXPORT QLineF {
@@ -141,5 +142,9 @@ inline void QLineF::operator+=(const QPointF &d)
     p1 += d;
     p2 += d;
 }
+
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug d, const QLineF &p);
+#endif
 
 #endif // QLINEFLOAT_H
