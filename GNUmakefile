@@ -74,6 +74,9 @@ clean:
 distclean: clean
 	-rm .qmake.cache
 
+doc: FORCE
+	qdoc util/qdoc/qdoc.conf
+
 .qmake.cache: 
 	@echo
 	@echo '  Qt must first be configured using the "configure" script.'
