@@ -933,6 +933,10 @@ fi
 # build tree initialization
 #-------------------------------------------------------------------------------
 
+#where to find which..
+unixtests=$relpath/config.tests/unix
+WHICH=$unixtests/which.test
+
 ### skip this if the user just needs help...
 if [ "$OPT_HELP" != "yes" ]; then
 
@@ -987,10 +991,6 @@ if [ "$CFG_MNG" = "auto" ]; then
 	CFG_MNG=yes
     fi
 fi
-
-#where to find which..
-unixtests=$relpath/config.tests/unix
-WHICH=$unixtests/which.test
 
 # if the source tree is different from the build tree,
 # symlink or copy part of the sources
