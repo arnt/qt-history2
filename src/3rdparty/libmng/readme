@@ -1,0 +1,44 @@
+libmng v0.9.1
+-------------
+
+This is the second beta-release!
+
+I have added an improved suspension-mode with this one.
+
+Also the mng_read() and mng_display() functions now work
+as one might expect. And the mng_display_freeze(),
+mng_display_resume() and mng_display_reset() functions will
+work in this scenario.
+
+Other than that there are a few minor changes and bug-fixes
+in the read & write logic. the file changes.readme contains
+a full list.
+
+This may be the last of the betas before the first real public
+release finds its way to the net. The number of bug-reports on
+v0.9.0 was low, which is very promising.
+
+
+
+For more information please visit:
+
+The official libmng web-site
+
+  http://www.libmng.com
+
+Libmng's community on SourceForge
+
+  https://sourceforge.net/project/?group_id=5635
+
+The official MNG homepage
+
+  http://www.libpng.org/pub/mng
+
+The official PNG homepage
+
+  http://www.libpng.org/pub/png
+
+
+Enjoy!
+
+Gerard.
