@@ -87,6 +87,7 @@ public:
     inline bool hasNext() const;
     inline QPainterPath::Element next();
 
+
 private:
     const QPainterPath *m_path;
     int m_pos;
@@ -117,12 +118,6 @@ inline QSubpathIterator::QSubpathIterator(const QPainterPath *path)
 {
 }
 
-inline bool QSubpathIterator::hasNext() const
-{
-    return m_pos < m_path->elementCount()
-        && m_path->elementAt(m_pos).type != QPainterPath::MoveToElement;
-}
-
 inline bool QSubpathIterator::hasSubpath() const
 {
     return m_pos + 1 < m_path->elementCount()
@@ -136,6 +131,12 @@ inline QPointF QSubpathIterator::nextSubpath()
     ++m_pos;
     Q_ASSERT(!hasSubpath());
     return QPointF(e.x, e.y);
+}
+
+inline bool QSubpathIterator::hasNext() const
+{
+    return m_pos < m_path->elementCount()
+        && m_path->elementAt(m_pos).type != QPainterPath::MoveToElement;
 }
 
 inline QPainterPath::Element QSubpathIterator::next()
@@ -157,17 +158,17 @@ inline bool QSubpathReverseIterator::hasSubpath() const
     return (m_start < m_end) & (m_pos == m_end);
 }
 
-inline bool QSubpathReverseIterator::hasNext() const
-{
-    return (m_start < m_end) & (m_pos < m_end) & (m_pos >= m_start);
-}
-
 inline QPointF QSubpathReverseIterator::nextSubpath()
 {
     Q_ASSERT(hasSubpath());
     const QPainterPath::Element &e = m_path->elementAt(m_pos);
     --m_pos;
     return QPointF(e.x, e.y);
+}
+
+inline bool QSubpathReverseIterator::hasNext() const
+{
+    return (m_start < m_end) & (m_pos < m_end) & (m_pos >= m_start);
 }
 
 inline int QSubpathReverseIterator::indexOfSubpath(int i)

@@ -1454,23 +1454,20 @@ class QPainterPathStrokerPrivate
 {
     Q_DECLARE_PUBLIC(QPainterPathStroker)
 public:
-    enum JoinMethod { NormalJoin, NoJoin };
-
     QPainterPathStrokerPrivate() :
         width(1),
         offset(0.5),
         miterLimit(5),
         appliedMiterLimit(10),
-        curveThreshold(1/10),
+        curveThreshold(0.25),
         style(Qt::SolidLine),
         joinStyle(Qt::BevelJoin),
         capStyle(Qt::FlatCap)
     {
     }
 
-    void strokeLine(const QLineF &line, QPainterPath *out, JoinMethod method) const;
-    void strokeCurve(int elmi, const QPainterPath &src, QPainterPath *out) const;
-    void joinPoints(const QLineF &nextLine, QPainterPath *path, JoinMethod method) const;
+    void capPoints(const QLineF &nextLine, QPainterPath *stroke) const;
+    void joinPoints(const QLineF &nextLine, QPainterPath *stroke) const;
 
     qreal width;
     qreal offset;
@@ -1483,35 +1480,40 @@ public:
     QPainterPathStroker *q_ptr;
 };
 
-void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine,
-                                            QPainterPath *path,
-                                            JoinMethod joinMethod) const
+void QPainterPathStrokerPrivate::capPoints(const QLineF &nextLine, QPainterPath *stroke) const
+{
+#ifdef QPP_STROKE_DEBUG
+    printf(" -----> capPoints: (%.2f, %.2f) (%.2f, %.2f)\n",
+           nextLine.startX(), nextLine.startY(), nextLine.endX(), nextLine.endY());
+#endif
+    stroke->lineTo(nextLine.start());
+}
+
+void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine, QPainterPath *stroke) const
 {
 #ifdef QPP_STROKE_DEBUG
     printf(" -----> joinPoints: (%.2f, %.2f) (%.2f, %.2f)\n",
            nextLine.startX(), nextLine.startY(), nextLine.endX(), nextLine.endY());
 #endif
-    int elmCount = path->elementCount();
-    Q_ASSERT(elmCount >= 2);
-    QPainterPath::Element &back1 = path->elements[elmCount-1];
-    const QPainterPath::Element &back2 = path->elementAt(elmCount-2);
+    if (joinStyle == Qt::BevelJoin) {
+        stroke->lineTo(nextLine.start());
+    } else {
+        int elmCount = stroke->elementCount();
+        Q_ASSERT(elmCount >= 2);
 
-    // Check for overlap
-    QLineF pline(back2.x, back2.y, back1.x, back1.y);
-    QLineF bevelLine(back1.x, back1.y, nextLine.startX(), nextLine.startY());
+        QPainterPath::Element &back1 = stroke->elements[elmCount-1];
+        const QPainterPath::Element &back2 = stroke->elementAt(elmCount-2);
+        QLineF prevLine(back2.x, back2.y, back1.x, back1.y);
 
-    QPointF isect;
-    QLineF::IntersectType type = pline.intersect(nextLine, &isect);
-    if (type == QLineF::BoundedIntersection) {
-        back1.x = isect.x();
-        back1.y = isect.y();
-    } else if (joinMethod != NoJoin) {
-        Qt::PenJoinStyle jStyle = type == QLineF::NoIntersection ? Qt::BevelJoin : joinStyle;
-        // Actually a broken segment. Will be removed later, so minimize overhead
-        if (pline.angle(bevelLine) > 90)
-            jStyle = Qt::BevelJoin;
-        switch (jStyle) {
-        case Qt::MiterJoin: {
+        QPointF isect;
+        QLineF::IntersectType type = prevLine.intersect(nextLine, &isect);
+
+        if (type == QLineF::NoIntersection) {
+            stroke->lineTo(nextLine.start());
+            return;
+        }
+
+        if (joinStyle == Qt::MiterJoin) {
             QLineF miterLine(QPointF(back1.x, back1.y), isect);
             if (miterLine.length() > appliedMiterLimit) {
                 miterLine.setLength(appliedMiterLimit);
@@ -1521,83 +1523,18 @@ void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine,
                 back1.x = isect.x();
                 back1.y = isect.y();
             }
-        }
-            break;
-        case Qt::BevelJoin:
-            path->lineTo(nextLine.start());
-            break;
-        case Qt::RoundJoin: {
-            QLineF cp1Line(pline.end(), isect);
-            cp1Line.setLength(cp1Line.length() * KAPPA);
+            stroke->lineTo(nextLine.start());
+
+        } else { // RoundJoin
+            QLineF cp1Line(prevLine.end(), isect);
+            int cp1Length = qMin(cp1Line.length(), appliedMiterLimit);
+            cp1Line.setLength(cp1Length * KAPPA);
             QLineF cp2Line(nextLine.start(), isect);
-            cp2Line.setLength(cp2Line.length() * KAPPA);
-            path->cubicTo(cp1Line.end(), cp2Line.end(), nextLine.start());
-            break;
-        }
-        default:
-            break;
+            int cp2Length = qMin(cp2Line.length(), appliedMiterLimit);
+            cp2Line.setLength(cp2Length * KAPPA);
+            stroke->cubicTo(cp1Line.end(), cp2Line.end(), nextLine.start());
         }
     }
-}
-
-void QPainterPathStrokerPrivate::strokeLine(const QLineF &line,
-                                            QPainterPath *path,
-                                            JoinMethod joinMethod) const
-{
-#ifdef QPP_STROKE_DEBUG
-    static int count = 0;
-    printf(" ---> strokeLine(%c): (%.2f, %.2f) (%.2f, %.2f)\n",
-           (++count)%2 ? 'u' : 'd', line.startX(), line.startY(), line.endX(), line.endY());
-#endif
-    if (line.isNull())
-        return;
-    QLineF normal = line.normalVector();
-    if (normal.isNull())
-        return;
-    normal.setLength(offset);
-    QLineF ml(line);
-    ml.translate(normal);
-
-    if (!path->isEmpty()) {
-        joinPoints(ml, path, joinMethod);
-    } else {
-        path->moveTo(ml.start());
-    }
-    path->lineTo(ml.end());
-}
-
-void QPainterPathStrokerPrivate::strokeCurve(int elmi,
-                                             const QPainterPath &in,
-                                             QPainterPath *path) const
-{
-    QBezier bezier(in.elementAt(elmi-1).x, in.elementAt(elmi-1).y,
-                   in.elementAt(elmi).x,   in.elementAt(elmi).y,
-                   in.elementAt(elmi+1).x, in.elementAt(elmi+1).y,
-                   in.elementAt(elmi+2).x, in.elementAt(elmi+2).y);
-
-    const int MAX_OFFSET = 16;
-    QBezier offsetCurves[MAX_OFFSET];
-
-    int count = bezier.shifted(offsetCurves, MAX_OFFSET, offset, curveThreshold);
-
-    if (count == 0)
-        return;
-
-    // Connect to previous point in path if required
-    if (path->isEmpty()) {
-        path->moveTo(offsetCurves[0].startPoint());
-    } else {
-//         joinPoints(QLineF(offsetCurves[0].startPoint(), offsetCurves[0].controlPoint1()),
-//                    path, NormalJoin);
-    }
-
-    // Add these beziers
-    for (int i=0; i<count; ++i) {
-        path->cubicTo(offsetCurves[i].controlPoint1(),
-                      offsetCurves[i].controlPoint2(),
-                      offsetCurves[i].endPoint());
-    }
-
 }
 
 /*!
@@ -1622,13 +1559,98 @@ QPainterPathStroker::QPainterPathStroker()
 QPainterPathStroker::~QPainterPathStroker()
 { delete d_ptr; }
 
-QPolygonF qt_reversed_polygon(const QPolygonF &p)
+/*!
+ * Strokes a subpath side using the \a it as source. Results are put into
+ * \a stroke. The function returns true if the subpath side was closed.
+ * If \a capFirst is true, we will use capPoints instead of joinPoints to
+ * connect the first segment, other segments will be joined using joinPoints.
+ * This is to put capping in order...
+ */
+template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath *stroke,
+                                                      const QPainterPathStrokerPrivate *data,
+                                                      bool capFirst)
 {
-    QPolygonF rev;
-    rev.reserve(p.size());
-    for (int i=p.size()-1; i>=0; --i)
-        rev << p.at(i);
-    return rev;
+    // Used in CurveToElement section below.
+    const int MAX_OFFSET = 16;
+    QBezier offsetCurves[MAX_OFFSET];
+
+    int startPos = stroke->elementCount() - 1;
+
+    QPointF start = it->nextSubpath();
+//     qDebug(" -> subpath [%.2f, %.2f], startPos=%d", start.x(), start.y(), startPos);
+
+    QPointF prev = start;
+
+    while (it->hasNext()) {
+        QPainterPath::Element e = it->next();
+
+        // LineToElement
+        if (e.isLineTo()) {
+//             qDebug(" ---> lineto [%.2f, %.2f]", e.x, e.y);
+            QLineF line(prev, e);
+            QLineF normal = line.normalVector();
+            normal.setLength(data->offset);
+            QLineF ml(line);
+            ml.translate(normal);
+
+            // If we are starting a new subpath, move to correct starting point.
+            if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
+                stroke->moveTo(ml.start());
+            } else if (capFirst) {
+                data->capPoints(ml, stroke);
+                capFirst = false;
+            } else {
+                data->joinPoints(ml, stroke);
+            }
+
+            // Add the stroke for this line.
+            stroke->lineTo(ml.end());
+            prev = e;
+
+        // CurveToElement
+        } else if (e.isCurveTo()) {
+//             qDebug(" ---> curveto [%.2f, %.2f]", e.x, e.y);
+
+            QPainterPath::Element cp2 = it->next(); // control point 2
+            QPainterPath::Element ep = it->next();  // end point
+
+            QBezier bezier(prev, e, cp2, ep);
+            int count = bezier.shifted(offsetCurves,
+                                       MAX_OFFSET,
+                                       data->offset,
+                                       data->curveThreshold);
+
+            // If we are starting a new subpath, move to correct starting point
+            if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
+                stroke->moveTo(offsetCurves[0].pt1());
+            } else if (capFirst) {
+                data->capPoints(QLineF(prev, e), stroke);
+                capFirst = 0;
+            } else {
+                data->joinPoints(QLineF(offsetCurves[0].pt1(),
+                                        offsetCurves[0].pt2()), stroke);
+            }
+
+            // Add these beziers
+            for (int i=0; i<count; ++i) {
+                stroke->cubicTo(offsetCurves[i].pt2(),
+                                offsetCurves[i].pt3(),
+                                offsetCurves[i].pt4());
+            }
+            prev = ep;
+        }
+    }
+
+    if (prev == start) { // closed subpath, join first and last point
+//         qDebug(" ---> closed subpath");
+        QLineF startTangent(stroke->elementAt(startPos), stroke->elementAt(startPos+1));
+        data->joinPoints(startTangent, stroke);
+        stroke->moveTo(QPointF()); // start new subpath
+        return true;
+    } else {
+//         qDebug(" ---> open subpath");
+        return false;
+    }
 }
 
 /*!
@@ -1642,84 +1664,33 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
 
     QPainterPath stroke;
 
-    QPainterPath reverse = input.toReversed();
-
 #ifdef QPP_STROKE_DEBUG
     printf(" -> path size: %d\n", input.elementCount());
     qt_debug_path(input);
-    qt_debug_path(reverse);
 #endif
+    QSubpathIterator fwit(&input);
+    QSubpathReverseIterator bwit(&input);
 
-    int pathSize = input.elementCount();
-    for (int elmi = 1; elmi < pathSize; ++elmi) {
-        QPainterPath usegs;
-        QPainterPath dsegs;
+    QPointF start, prev;
 
-        QPointF startPoint(input.elementAt(elmi-1).x, input.elementAt(elmi-1).y);
+    while (fwit.hasSubpath()) {
+        Q_ASSERT(bwit.hasSubpath());
 
-        for (; elmi<pathSize; ++elmi) {
-            const QPainterPath::Element &elm = input.elementAt(elmi);
-            Q_ASSERT(elm.type != QPainterPath::CurveToDataElement);
-            if (elm.type == QPainterPath::MoveToElement) {
-                break;
-            } else if (elm.type == QPainterPath::LineToElement) {
-                QLineF ffw(input.elementAt(elmi-1).x, input.elementAt(elmi-1).y, elm.x, elm.y);
-                d->strokeLine(ffw, &usegs, QPainterPathStrokerPrivate::NormalJoin);
-            } else if (elm.type == QPainterPath::CurveToElement) {
-                d->strokeCurve(elmi, input, &usegs);
-                elmi += 2;
-            }
+        bool fwclosed = qt_stroke_subpath_side(&fwit, &stroke, d, false);
+
+        int bwStart = stroke.elementCount() - 1;
+
+        bool bwclosed = qt_stroke_subpath_side(&bwit, &stroke, d, !fwclosed);
+
+        if (!bwclosed) {
+            QLineF bwStartTangent(stroke.elementAt(bwStart-1), stroke.elementAt(bwStart));
+            d->capPoints(bwStartTangent, &stroke);
         }
 
-        pathSize = reverse.elementCount();
-        for (int revPos = pathSize - elmi + 1; revPos < pathSize; ++revPos) {
-            const QPainterPath::Element &elm = reverse.elementAt(revPos);
-            Q_ASSERT(elm.type != QPainterPath::CurveToDataElement);
-            if (elm.type == QPainterPath::MoveToElement) {
-                break;
-            } else if (elm.type == QPainterPath::LineToElement) {
-                QLineF rev(reverse.elementAt(revPos-1).x, reverse.elementAt(revPos-1).y,
-                           reverse.elementAt(revPos).x, reverse.elementAt(revPos).y);
-                d->strokeLine(rev, &dsegs, QPainterPathStrokerPrivate::NormalJoin);
-            } else if (elm.type == QPainterPath::CurveToElement) {
-                d->strokeCurve(revPos, reverse, &dsegs);
-                revPos += 2;
-            }
-        }
-
-        // Check if previous subpath was closed...
-        bool closed = startPoint == QPointF(input.elementAt(elmi-1).x,
-                                            input.elementAt(elmi-1).y);
-        if (!closed) {
-            usegs.lineTo(QPointF(dsegs.elements.first().x, dsegs.elements.first().y));
-            dsegs.lineTo(QPointF(usegs.elements.first().x, usegs.elements.first().y));
-            stroke.addPath(usegs);
-            stroke.connectPath(dsegs);
-        } else {
-            QPointF ufirst(usegs.elements.first().x, usegs.elements.first().y);
-            QPointF dfirst(dsegs.elements.first().x, dsegs.elements.first().y);
-            if (!usegs.d_ptr->isClosed()) {
-                usegs.lineTo(ufirst);
-            }
-            if (!dsegs.d_ptr->isClosed()) {
-                dsegs.lineTo(dfirst);
-            }
-
-            stroke.addPath(usegs);
-            stroke.closeSubpath();
-
-            stroke.addPath(dsegs);
-            stroke.closeSubpath();
-        }
-
-#ifdef QPP_STROKE_DEBUG
-        qt_debug_path(stroke);
-        printf("Path after joining\n");
-#endif
+        stroke.closeSubpath();
     }
 
     stroke.setFillRule(Qt::WindingFill);
-
 #ifdef QPP_STROKE_DEBUG
     printf(" -> Final path:\n");
     qt_debug_path(stroke);
@@ -1730,7 +1701,7 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
 
 void QPainterPathStroker::setWidth(qreal width)
 {
-    if (width == 0)
+    if (width <= 0)
         width = 1;
     d->width = width;
     d->offset = width / 2;

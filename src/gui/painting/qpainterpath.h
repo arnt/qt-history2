@@ -44,6 +44,10 @@ public:
         qreal y;
         ElementType type;
 
+        bool isMoveTo() const { return type == MoveToElement; }
+        bool isLineTo() const { return type == LineToElement; }
+        bool isCurveTo() const { return type == CurveToElement; }
+
         operator QPointF () const { return QPointF(x, y); }
 
         bool operator==(const Element &e) const { return x == e.x && y == e.y && type == e.type; }

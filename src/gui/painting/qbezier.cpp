@@ -129,7 +129,7 @@ QPolygonF QBezier::toPolygon() const
     return polygon;
 }
 
-void QBezier::split(QBezier *firstHalf, QBezier *secondHalf)
+void QBezier::split(QBezier *firstHalf, QBezier *secondHalf) const
 {
     Q_ASSERT(valid);
     Q_ASSERT(firstHalf);
@@ -186,7 +186,7 @@ void QBezier::split(QBezier *firstHalf, QBezier *secondHalf)
     secondHalf->valid = true;
 }
 
-int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, float threshold)
+int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, float threshold) const
 {
     Q_ASSERT(curveSegments);
     Q_ASSERT(maxSegments > 0);

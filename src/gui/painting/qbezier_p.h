@@ -45,16 +45,16 @@ public:
 #endif
     QPolygonF toPolygon() const;
 
-    QPointF startPoint() const { Q_ASSERT(valid); return QPointF(x1, y1); }
-    QPointF controlPoint1() const { Q_ASSERT(valid); return QPointF(x2, y2); }
-    QPointF controlPoint2() const { Q_ASSERT(valid); return QPointF(x3, y3); }
-    QPointF endPoint() const { Q_ASSERT(valid); return QPointF(x4, y4); }
+    QPointF pt1() const { Q_ASSERT(valid); return QPointF(x1, y1); }
+    QPointF pt2() const { Q_ASSERT(valid); return QPointF(x2, y2); }
+    QPointF pt3() const { Q_ASSERT(valid); return QPointF(x3, y3); }
+    QPointF pt4() const { Q_ASSERT(valid); return QPointF(x4, y4); }
 
     inline QPointF midPoint() const;
     inline QLineF midTangent() const;
 
-    void split(QBezier *firstHalf, QBezier *secondHalf);
-    int shifted(QBezier *curveSegments, int maxSegmets, float offset, float threshold);
+    void split(QBezier *firstHalf, QBezier *secondHalf) const;
+    int shifted(QBezier *curveSegments, int maxSegmets, float offset, float threshold) const;
 
 private:
     void init();
