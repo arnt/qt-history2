@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#81 $
 **
 ** Implementation of QMainWindow class
 **
@@ -296,8 +296,8 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    //linebreak
 	    if ( !testonly ) {
 		int right = fill ? r.right() : linew - spacing();
-		qGeomCalc( *array, start, idx-start, r.left(), right,
-			   spacing() );
+		qGeomCalc( *array, start, idx-start, r.left(), 
+			   right-r.left()+1, spacing() );
 		for ( int i = start; i < idx; i++ ) {
 		    QRect g( (*array)[i].pos,
 			     up ? r.y() + r.bottom() - y - lineh : y,
@@ -806,7 +806,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	QMainWindowPrivate::ToolBar * t = dock->first();
 	while ( t ) {
 	    if ( !layout || t->nl ) {
-		layout = new QToolLayout( tl );
+		layout = new QToolLayout( tl, -1, "tool layout" );
 		layout->setDirection( dockDirection );
 		layout->setRightJustified( justify );
 	    }
