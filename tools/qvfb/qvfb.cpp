@@ -19,7 +19,7 @@
 #include <qmenu.h>
 #include <qaction.h>
 #include <qmenubar.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qcombobox.h>
@@ -37,7 +37,7 @@
 //#include <yet.h>
 
 QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidget *parent,
-	    const char *name, Qt::WFlags flags )
+            const char *name, Qt::WFlags flags )
     : QMainWindow( parent, flags )
 {
     setObjectName(name);
@@ -157,7 +157,7 @@ void QVFb::createPopupMenu()
     help->addAction(actions[AboutAct]);
     help->addAction(actions[AboutQtAct]);
 
-    QPopupMenu *menu = new QPopupMenu(this);
+    QMenu *menu = new QMenu(this);
     menu->addMenu("&File", file);
     menu->addMenu("&View", view);
     menu->addSeparator();
@@ -239,23 +239,23 @@ void QVFb::saveImage()
 #if 0
     QString filename = imagesave->getSaveFileName("snapshot.png", "*.png", this, "", "Save Image");
     if ( !!filename )
-	img.save(filename,"PNG");
+        img.save(filename,"PNG");
 #endif
 }
 
 void QVFb::toggleAnimation()
 {
     if ( view->animating() ) {
-	view->stopAnimation();
+        view->stopAnimation();
     } else {
 #warning "QFileDialog"
 #if 0
-	QString filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", "Save animation");
-	if ( !filename ) {
-	    view->stopAnimation();
-	} else {
-	    view->startAnimation(filename);
-	}
+        QString filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", "Save animation");
+        if ( !filename ) {
+            view->stopAnimation();
+        } else {
+            view->startAnimation(filename);
+        }
 #endif
     }
 }
@@ -268,8 +268,8 @@ void QVFb::toggleCursor()
 void QVFb::changeRate()
 {
     if ( !rateDlg ) {
-	rateDlg = new QVFbRateDialog( view->rate(), this );
-	connect( rateDlg, SIGNAL(updateRate(int)), view, SLOT(setRate(int)) );
+        rateDlg = new QVFbRateDialog( view->rate(), this );
+        connect( rateDlg, SIGNAL(updateRate(int)), view, SLOT(setRate(int)) );
     }
 
     rateDlg->show();
@@ -288,19 +288,19 @@ void QVFb::about()
     QString qt("X11");
 #endif
     QMessageBox::about(this, "About QVFB",
-	"<p><b><font size=+2>Qt/Embedded Virtual " + platform + " Framebuffer</font></b></p>"
-	"<p></p>"
-	"<p>Version 1.0</p>"
-	"<p>Copyright (C) 2001-$THISYEAR$ Trolltech AS. All rights reserved.</p>"
-	"<p></p>"
-	"<p>This program is licensed to you under the terms of the GNU General "
-	"Public License Version 2 as published by the Free Software Foundation. This "
-	"gives you legal permission to copy, distribute and/or modify this software "
-	"under certain conditions. For details, see the file 'LICENSE.GPL' that came with "
-	"this software distribution. If you did not get the file, send email to "
-	"info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
-	"OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
-	"FOR A PARTICULAR PURPOSE.</p>"
+        "<p><b><font size=+2>Qt/Embedded Virtual " + platform + " Framebuffer</font></b></p>"
+        "<p></p>"
+        "<p>Version 1.0</p>"
+        "<p>Copyright (C) 2001-$THISYEAR$ Trolltech AS. All rights reserved.</p>"
+        "<p></p>"
+        "<p>This program is licensed to you under the terms of the GNU General "
+        "Public License Version 2 as published by the Free Software Foundation. This "
+        "gives you legal permission to copy, distribute and/or modify this software "
+        "under certain conditions. For details, see the file 'LICENSE.GPL' that came with "
+        "this software distribution. If you did not get the file, send email to "
+        "info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
+        "OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
+        "FOR A PARTICULAR PURPOSE.</p>"
     );
 }
 
@@ -324,8 +324,8 @@ void QVFb::configure()
     config->size_640_480->setChecked(w==640&&h==480);
     config->skin->setEditable(TRUE);
     if (!currentSkin.isNull()) {
-	config->size_skin->setChecked(TRUE);
-	config->skin->setEditText(currentSkin);
+        config->size_skin->setChecked(TRUE);
+        config->skin->setEditText(currentSkin);
     }
     config->touchScreen->setChecked(view->touchScreenEmulation());
     config->depth_1->setChecked(view->displayDepth()==1);
@@ -335,15 +335,15 @@ void QVFb::configure()
     config->depth_16->setChecked(view->displayDepth()==16);
     config->depth_32->setChecked(view->displayDepth()==32);
     if ( view->gammaRed() == view->gammaGreen() && view->gammaGreen() == view->gammaBlue() ) {
-	config->gammaslider->setValue(int(view->gammaRed()*400));
-	config->rslider->setValue(100);
-	config->gslider->setValue(100);
-	config->bslider->setValue(100);
+        config->gammaslider->setValue(int(view->gammaRed()*400));
+        config->rslider->setValue(100);
+        config->gslider->setValue(100);
+        config->bslider->setValue(100);
     } else {
-	config->gammaslider->setValue(100);
-	config->rslider->setValue(int(view->gammaRed()*400));
-	config->gslider->setValue(int(view->gammaGreen()*400));
-	config->bslider->setValue(int(view->gammaBlue()*400));
+        config->gammaslider->setValue(100);
+        config->rslider->setValue(int(view->gammaRed()*400));
+        config->gslider->setValue(int(view->gammaGreen()*400));
+        config->bslider->setValue(int(view->gammaBlue()*400));
     }
     connect(config->gammaslider, SIGNAL(valueChanged(int)), this, SLOT(setGamma400(int)));
     connect(config->rslider, SIGNAL(valueChanged(int)), this, SLOT(setR400(int)));
@@ -354,39 +354,39 @@ void QVFb::configure()
     double ogr=view->gammaRed(), ogg=view->gammaGreen(), ogb=view->gammaBlue();
 
     if ( config->exec() ) {
-	int id = view->displayId(); // not settable yet
-	if ( config->size_240_320->isChecked() ) {
-	    w=240; h=320;
-	} else if ( config->size_320_240->isChecked() ) {
-	    w=320; h=240;
-	} else if ( config->size_640_480->isChecked() ) {
-	    w=640; h=480;
-	} else if ( config->size_skin->isChecked() ) {
-	    skin = config->skin->currentText();
-	} else {
-	    w=config->size_width->value();
-	    h=config->size_height->value();
-	}
-	int d;
-	if ( config->depth_1->isChecked() )
-	    d=1;
-	else if ( config->depth_4gray->isChecked() )
-	    d=4;
-	else if ( config->depth_8->isChecked() )
-	    d=8;
-	else if ( config->depth_12->isChecked() )
-	    d=12;
-	else if ( config->depth_16->isChecked() )
-	    d=16;
-	else
-	    d=32;
+        int id = view->displayId(); // not settable yet
+        if ( config->size_240_320->isChecked() ) {
+            w=240; h=320;
+        } else if ( config->size_320_240->isChecked() ) {
+            w=320; h=240;
+        } else if ( config->size_640_480->isChecked() ) {
+            w=640; h=480;
+        } else if ( config->size_skin->isChecked() ) {
+            skin = config->skin->currentText();
+        } else {
+            w=config->size_width->value();
+            h=config->size_height->value();
+        }
+        int d;
+        if ( config->depth_1->isChecked() )
+            d=1;
+        else if ( config->depth_4gray->isChecked() )
+            d=4;
+        else if ( config->depth_8->isChecked() )
+            d=8;
+        else if ( config->depth_12->isChecked() )
+            d=12;
+        else if ( config->depth_16->isChecked() )
+            d=16;
+        else
+            d=32;
 
-	if ( w != view->displayWidth() || h != view->displayHeight()
-		|| d != view->displayDepth() || skin != currentSkin )
-	    init( id, w, h, d, skin );
-	view->setTouchscreenEmulation( config->touchScreen->isChecked() );
+        if ( w != view->displayWidth() || h != view->displayHeight()
+                || d != view->displayDepth() || skin != currentSkin )
+            init( id, w, h, d, skin );
+        view->setTouchscreenEmulation( config->touchScreen->isChecked() );
     } else {
-	view->setGamma(ogr, ogg, ogb);
+        view->setGamma(ogr, ogg, ogb);
     }
 
     delete config;

@@ -2,7 +2,7 @@
   <class>Config</class>
   <widget class="QDialog" name="Config" >
     <property name="objectName" >
-      <cstring>Config</cstring>
+      <string notr="true">Config</string>
     </property>
     <property name="geometry" >
       <rect>
@@ -23,7 +23,7 @@
     </property>
     <layout class="QGridLayout" >
       <property name="objectName" >
-        <cstring>unnamed</cstring>
+        <string notr="true">unnamed</string>
       </property>
       <property name="margin" >
         <number>11</number>
@@ -34,7 +34,7 @@
       <item row="0" column="1" >
         <widget class="QGroupBox" name="ButtonGroup2" >
           <property name="objectName" >
-            <cstring>ButtonGroup2</cstring>
+            <string notr="true">ButtonGroup2</string>
           </property>
           <property name="title" >
             <string>Depth</string>
@@ -44,7 +44,7 @@
               <string>group1</string>
             </attribute>
             <property name="objectName" >
-              <cstring>depth_1</cstring>
+              <string notr="true">depth_1</string>
             </property>
             <property name="geometry" >
               <rect>
@@ -63,7 +63,7 @@
               <string>group1</string>
             </attribute>
             <property name="objectName" >
-              <cstring>depth_4gray</cstring>
+              <string notr="true">depth_4gray</string>
             </property>
             <property name="geometry" >
               <rect>
@@ -82,7 +82,7 @@
               <string>group1</string>
             </attribute>
             <property name="objectName" >
-              <cstring>depth_8</cstring>
+              <string notr="true">depth_8</string>
             </property>
             <property name="geometry" >
               <rect>
@@ -101,7 +101,7 @@
               <string>group1</string>
             </attribute>
             <property name="objectName" >
-              <cstring>depth_12</cstring>
+              <string notr="true">depth_12</string>
             </property>
             <property name="geometry" >
               <rect>
@@ -120,7 +120,7 @@
               <string>group1</string>
             </attribute>
             <property name="objectName" >
-              <cstring>depth_16</cstring>
+              <string notr="true">depth_16</string>
             </property>
             <property name="geometry" >
               <rect>
@@ -139,7 +139,7 @@
               <string>group1</string>
             </attribute>
             <property name="objectName" >
-              <cstring>depth_32</cstring>
+              <string notr="true">depth_32</string>
             </property>
             <property name="geometry" >
               <rect>
@@ -158,11 +158,11 @@
       <item rowspan="1" row="4" column="0" colspan="2" >
         <widget class="QWidget" name="Layout1" >
           <property name="objectName" >
-            <cstring>Layout1</cstring>
+            <string notr="true">Layout1</string>
           </property>
           <layout class="QHBoxLayout" >
             <property name="objectName" >
-              <cstring>unnamed</cstring>
+              <string notr="true">unnamed</string>
             </property>
             <property name="margin" >
               <number>0</number>
@@ -189,7 +189,7 @@
             <item>
               <widget class="QPushButton" name="buttonOk" >
                 <property name="objectName" >
-                  <cstring>buttonOk</cstring>
+                  <string notr="true">buttonOk</string>
                 </property>
                 <property name="text" >
                   <string>&amp;OK</string>
@@ -205,7 +205,7 @@
             <item>
               <widget class="QPushButton" name="buttonCancel" >
                 <property name="objectName" >
-                  <cstring>buttonCancel</cstring>
+                  <string notr="true">buttonCancel</string>
                 </property>
                 <property name="text" >
                   <string>&amp;Cancel</string>
@@ -221,7 +221,7 @@
       <item rowspan="1" row="2" column="0" colspan="2" >
         <widget class="QCheckBox" name="touchScreen" >
           <property name="objectName" >
-            <cstring>touchScreen</cstring>
+            <string notr="true">touchScreen</string>
           </property>
           <property name="text" >
             <string>Emulate touch screen (no mouse move).</string>
@@ -231,14 +231,14 @@
       <item rowspan="1" row="3" column="0" colspan="2" >
         <widget class="QGroupBox" name="GroupBox1" >
           <property name="objectName" >
-            <cstring>GroupBox1</cstring>
+            <string notr="true">GroupBox1</string>
           </property>
           <property name="title" >
             <string>Gamma</string>
           </property>
           <layout class="QGridLayout" >
             <property name="objectName" >
-              <cstring>unnamed</cstring>
+              <string notr="true">unnamed</string>
             </property>
             <property name="margin" >
               <number>11</number>
@@ -249,7 +249,7 @@
             <item row="6" column="0" >
               <widget class="QLabel" name="TextLabel3" >
                 <property name="objectName" >
-                  <cstring>TextLabel3</cstring>
+                  <string notr="true">TextLabel3</string>
                 </property>
                 <property name="text" >
                   <string>Blue</string>
@@ -259,7 +259,7 @@
             <item row="6" column="1" >
               <widget class="QSlider" name="bslider" >
                 <property name="objectName" >
-                  <cstring>bslider</cstring>
+                  <string notr="true">bslider</string>
                 </property>
                 <property name="palette" >
                   <palette>
@@ -525,7 +525,7 @@
             <item row="6" column="2" >
               <widget class="QLabel" name="blabel" >
                 <property name="objectName" >
-                  <cstring>blabel</cstring>
+                  <string notr="true">blabel</string>
                 </property>
                 <property name="text" >
                   <string>1.0</string>
@@ -551,7 +551,7 @@
             <item row="4" column="0" >
               <widget class="QLabel" name="TextLabel2" >
                 <property name="objectName" >
-                  <cstring>TextLabel2</cstring>
+                  <string notr="true">TextLabel2</string>
                 </property>
                 <property name="text" >
                   <string>Green</string>
@@ -561,7 +561,7 @@
             <item row="4" column="1" >
               <widget class="QSlider" name="gslider" >
                 <property name="objectName" >
-                  <cstring>gslider</cstring>
+                  <string notr="true">gslider</string>
                 </property>
                 <property name="palette" >
                   <palette>
@@ -827,7 +827,7 @@
             <item row="4" column="2" >
               <widget class="QLabel" name="glabel" >
                 <property name="objectName" >
-                  <cstring>glabel</cstring>
+                  <string notr="true">glabel</string>
                 </property>
                 <property name="text" >
                   <string>1.0</string>
@@ -837,7 +837,7 @@
             <item row="0" column="0" >
               <widget class="QLabel" name="TextLabel7" >
                 <property name="objectName" >
-                  <cstring>TextLabel7</cstring>
+                  <string notr="true">TextLabel7</string>
                 </property>
                 <property name="text" >
                   <string>All</string>
@@ -847,7 +847,7 @@
             <item row="0" column="2" >
               <widget class="QLabel" name="TextLabel8" >
                 <property name="objectName" >
-                  <cstring>TextLabel8</cstring>
+                  <string notr="true">TextLabel8</string>
                 </property>
                 <property name="text" >
                   <string>1.0</string>
@@ -857,7 +857,7 @@
             <item row="0" column="1" >
               <widget class="QSlider" name="gammaslider" >
                 <property name="objectName" >
-                  <cstring>gammaslider</cstring>
+                  <string notr="true">gammaslider</string>
                 </property>
                 <property name="palette" >
                   <palette>
@@ -1123,7 +1123,7 @@
             <item row="2" column="0" >
               <widget class="QLabel" name="TextLabel1_2" >
                 <property name="objectName" >
-                  <cstring>TextLabel1_2</cstring>
+                  <string notr="true">TextLabel1_2</string>
                 </property>
                 <property name="text" >
                   <string>Red</string>
@@ -1133,7 +1133,7 @@
             <item row="2" column="2" >
               <widget class="QLabel" name="rlabel" >
                 <property name="objectName" >
-                  <cstring>rlabel</cstring>
+                  <string notr="true">rlabel</string>
                 </property>
                 <property name="text" >
                   <string>1.0</string>
@@ -1143,7 +1143,7 @@
             <item row="2" column="1" >
               <widget class="QSlider" name="rslider" >
                 <property name="objectName" >
-                  <cstring>rslider</cstring>
+                  <string notr="true">rslider</string>
                 </property>
                 <property name="palette" >
                   <palette>
@@ -1441,7 +1441,7 @@
             <item rowspan="1" row="8" column="0" colspan="3" >
               <widget class="QPushButton" name="PushButton3" >
                 <property name="objectName" >
-                  <cstring>PushButton3</cstring>
+                  <string notr="true">PushButton3</string>
                 </property>
                 <property name="text" >
                   <string>Set all to 1.0</string>
@@ -1451,7 +1451,7 @@
             <item rowspan="9" row="0" column="3" colspan="1" >
               <widget class="GammaView" name="MyCustomWidget1" >
                 <property name="objectName" >
-                  <cstring>MyCustomWidget1</cstring>
+                  <string notr="true">MyCustomWidget1</string>
                 </property>
               </widget>
             </item>
@@ -1477,7 +1477,7 @@
       <item row="0" column="0" >
         <widget class="QGroupBox" name="ButtonGroup1" >
           <property name="objectName" >
-            <cstring>ButtonGroup1</cstring>
+            <string notr="true">ButtonGroup1</string>
           </property>
           <property name="sizePolicy" >
             <sizepolicy>
@@ -1492,7 +1492,7 @@
           </property>
           <layout class="QVBoxLayout" >
             <property name="objectName" >
-              <cstring>unnamed</cstring>
+              <string notr="true">unnamed</string>
             </property>
             <property name="margin" >
               <number>11</number>
@@ -1506,7 +1506,7 @@
                   <string>group2</string>
                 </attribute>
                 <property name="objectName" >
-                  <cstring>size_240_320</cstring>
+                  <string notr="true">size_240_320</string>
                 </property>
                 <property name="text" >
                   <string>240x320 &quot;PDA&quot;</string>
@@ -1519,7 +1519,7 @@
                   <string>group2</string>
                 </attribute>
                 <property name="objectName" >
-                  <cstring>size_320_240</cstring>
+                  <string notr="true">size_320_240</string>
                 </property>
                 <property name="text" >
                   <string>320x240 &quot;TV&quot;</string>
@@ -1532,7 +1532,7 @@
                   <string>group2</string>
                 </attribute>
                 <property name="objectName" >
-                  <cstring>size_640_480</cstring>
+                  <string notr="true">size_640_480</string>
                 </property>
                 <property name="text" >
                   <string>640x480 &quot;VGA&quot;</string>
@@ -1542,11 +1542,11 @@
             <item>
               <widget class="QWidget" name="Layout1_2" >
                 <property name="objectName" >
-                  <cstring>Layout1_2</cstring>
+                  <string notr="true">Layout1_2</string>
                 </property>
                 <layout class="QHBoxLayout" >
                   <property name="objectName" >
-                    <cstring>unnamed</cstring>
+                    <string notr="true">unnamed</string>
                   </property>
                   <property name="margin" >
                     <number>0</number>
@@ -1560,7 +1560,7 @@
                         <string>group2</string>
                       </attribute>
                       <property name="objectName" >
-                        <cstring>size_custom</cstring>
+                        <string notr="true">size_custom</string>
                       </property>
                       <property name="text" >
                         <string>Custom</string>
@@ -1570,7 +1570,7 @@
                   <item>
                     <widget class="QSpinBox" name="size_width" >
                       <property name="objectName" >
-                        <cstring>size_width</cstring>
+                        <string notr="true">size_width</string>
                       </property>
                       <property name="maximum" >
                         <number>1280</number>
@@ -1589,7 +1589,7 @@
                   <item>
                     <widget class="QSpinBox" name="size_height" >
                       <property name="objectName" >
-                        <cstring>size_height</cstring>
+                        <string notr="true">size_height</string>
                       </property>
                       <property name="maximum" >
                         <number>1024</number>
@@ -1611,11 +1611,11 @@
             <item>
               <widget class="QWidget" name="Layout8" >
                 <property name="objectName" >
-                  <cstring>Layout8</cstring>
+                  <string notr="true">Layout8</string>
                 </property>
                 <layout class="QHBoxLayout" >
                   <property name="objectName" >
-                    <cstring>unnamed</cstring>
+                    <string notr="true">unnamed</string>
                   </property>
                   <property name="margin" >
                     <number>0</number>
@@ -1629,7 +1629,7 @@
                         <string>group2</string>
                       </attribute>
                       <property name="objectName" >
-                        <cstring>size_skin</cstring>
+                        <string notr="true">size_skin</string>
                       </property>
                       <property name="sizePolicy" >
                         <sizepolicy>
@@ -1647,7 +1647,7 @@
                   <item>
                     <widget class="QComboBox" name="skin" >
                       <property name="objectName" >
-                        <cstring>skin</cstring>
+                        <string notr="true">skin</string>
                       </property>
                       <property name="sizePolicy" >
                         <sizepolicy>
@@ -1693,7 +1693,7 @@
       <item rowspan="1" row="1" column="0" colspan="2" >
         <widget class="QLabel" name="TextLabel1" >
           <property name="objectName" >
-            <cstring>TextLabel1</cstring>
+            <string notr="true">TextLabel1</string>
           </property>
           <property name="text" >
             <string>&lt;p>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth &lt;i>above&lt;/i>. You may freely modify the Gamma &lt;i>below&lt;/i>.</string>
