@@ -3581,7 +3581,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    return FALSE;
 
 	XMotionEvent lastMotion = event->xmotion;
-	while( XPending( X11->display ) )  { // compres mouse moves
+	while( XPending( X11->display ) )  { // compress mouse moves
 	    XNextEvent( X11->display, &nextEvent );
 	    if ( nextEvent.type == ConfigureNotify
 		 || nextEvent.type == PropertyNotify
