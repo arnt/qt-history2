@@ -1482,6 +1482,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 
     if ( !sqlCursor() )
 	return;
+
     if ( d->mode != QSqlTable::None ) {
 	if ( row == d->editRow && d->editBuffer ) {
 	    paintField( p, d->editBuffer->field( indexOf( col ) ), cr,
@@ -1496,9 +1497,9 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			    selected );
 	}
     } else {
-	if ( sqlCursor()->seek( row ) ) {
-	    paintField( p, sqlCursor()->field( indexOf( col ) ), cr, selected );
-	}
+	if ( sqlCursor()->seek( row ) )
+		paintField( p, sqlCursor()->field( indexOf( col ) ), cr, selected );
+
     }
 }
 
@@ -1795,6 +1796,7 @@ void QSqlTable::refresh( bool refreshCursor )
 	}
     }
     viewport()->setUpdatesEnabled( TRUE );
+	horizontalHeader()->repaint();
     setSize( cur );
     // keep others aware
     if ( d->lastAt != currentRow() ) {
