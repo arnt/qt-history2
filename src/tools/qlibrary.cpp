@@ -260,27 +260,20 @@ bool QLibrary::unload()
     if ( !d->pHnd )
 	return TRUE;
 
-// ### this is a hack to solve problems with plugin unloading und KAI C++
-// (other compilers may have the same problem)
 #if !defined(QT_NO_LIBRARY_UNLOAD)
     if ( !d->freeLibrary() ) {
-#if defined(QT_DEBUG_COMPONENT)
-	qWarning( "%s could not be unloaded.", (const char*) QFile::encodeName(library()) );
-#endif
+# if defined(QT_DEBUG_COMPONENT)
+	qWarning( "%s could not be unloaded", (const char*) QFile::encodeName(library()) );
+# endif
 	return FALSE;
-#else
-	return TRUE;
-#endif
-#if !defined(QT_NO_LIBRARY_UNLOAD)
     }
 
-#if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-    qWarning( "%s has been unloaded.", (const char*) QFile::encodeName(library()) );
-#endif
-
+# if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
+    qWarning( "%s has been unloaded", (const char*) QFile::encodeName(library()) );
+# endif
     d->pHnd = 0;
-    return TRUE;
 #endif
+    return TRUE;
 }
 
 /*!
