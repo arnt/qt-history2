@@ -19,6 +19,16 @@
 
 We assume that you already know C++!
 
+The best way to learn Qt is to read the official Qt book, <a
+href="http://vig.prenhall.com:8081/catalog/academic/product/0,4096,0131240722,00.html">
+C++ GUI Programming with Qt 3 (ISBN 0-13-124072-2)</a>. This book
+provides comprehensive coverage of Qt programming all the way from
+"Hello Qt" to advanced features like multithreading, 2D and 3D
+graphics, networking, and XML.
+
+If you can't get hold of the official book, or if you can't wait for
+it to arrive then here is our suggested learning programme.
+
 Read the \link http://www.trolltech.com/products/qt/whitepaper.html
 Qt Whitepaper\endlink first. This provides an overview of Qt's
 facilities and has snippets of code which demonstrate the Qt approach
