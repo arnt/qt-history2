@@ -1818,6 +1818,8 @@ int QComboBox::completionIndex( const QString & prefix,
     int start = startingAt;
     if ( start < 0 || start >= count() )
 	start = 0;
+    if ( start >= count() )
+	return -1;
     QString match = prefix.lower();
     if ( match.length() < 1 )
 	return start;
