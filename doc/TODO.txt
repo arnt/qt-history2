@@ -141,6 +141,11 @@ QFont/X11 (brad & lars)
 QString
   examine possibility to do language specific sorting. LC_COLLATE could help there.
 
+QWorkspace
+  moveChild( QPoint )
+  More control over min/max/close buttons individually
+  raise without focus
+
 New functionality
 -----------------
 
