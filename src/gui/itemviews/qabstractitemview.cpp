@@ -1251,11 +1251,11 @@ bool QAbstractItemView::edit(const QModelIndex &index,
                              BeginEditAction action,
                              QEvent *event)
 {
-    QStyleOptionViewItem options = viewOptions();
-    options.rect = itemViewportRect(index);
-    options.state |= (index == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
-
     QModelIndex buddy = model()->buddy(index);
+
+    QStyleOptionViewItem options = viewOptions();
+    options.rect = itemViewportRect(buddy);
+    options.state |= (buddy == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
 
     if (itemDelegate()->editorEvent(event, options, model(), buddy))
         return true; // the delegate handled the event
