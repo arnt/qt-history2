@@ -16,10 +16,7 @@
 
 #include <qapplication.h>
 #include <qgenerictableview.h>
-#include <qsqldatabase.h>
-#include <qsqldriver.h>
 #include <qsqlmodel.h>
-#include <qsqlquery.h>
 
 #include "../../connection.h"
 
