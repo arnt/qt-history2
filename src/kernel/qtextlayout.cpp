@@ -507,6 +507,7 @@ int QTextLine::textWidth() const
 
 void QTextLine::adjust(int y, int x1, int x2)
 {
+    // ##########################
 }
 
 int QTextLine::from() const
