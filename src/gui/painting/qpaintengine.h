@@ -55,7 +55,7 @@ public:
 	PatternTransform        = 0x0004,		// Brush patterns
 	PixmapTransform         = 0x0008,               // Pixmap transforms
 	CanRenderText           = 0x0010,		// Calls drawTextItem directly
-	UsesFontEngine          = 0x10000000,           // Internal use, QWidget and QPixmap
+	UsesFontEngine          = 0x10000000           // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(GCCaps, Capability);
 

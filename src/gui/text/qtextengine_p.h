@@ -151,7 +151,7 @@ struct QGlyphLayout
 	Arabic_Alef    = 10,  // Next character is final form of Alef/Tah/Lam/Kaf/Gaf
 	Arabic_HaaDal  = 11,  // Next character is final form of Haa/Dal/Taa Marbutah
 	Arabic_Seen    = 12,  // Initial or Medial form Of Seen/Sad
-	Arabic_Kashida = 13,  // Kashida(U+640) in middle of word
+	Arabic_Kashida = 13   // Kashida(U+640) in middle of word
     };
 
     unsigned short glyph;
