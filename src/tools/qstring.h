@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#95 $
+** $Id: //depot/qt/main/src/tools/qstring.h#96 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -242,6 +242,7 @@ public:
     QString	simplifyWhiteSpace()	const;
 
     QString    &insert( uint index, const QString & );
+    QString    &insert( uint index, const QChar*, uint len );
     QString    &insert( uint index, QChar );
     QString    &insert( uint index, char c ) { return insert(index,QChar(c)); }
     QString    &append( char );
@@ -250,6 +251,7 @@ public:
     QString    &prepend( const QString & );
     QString    &remove( uint index, uint len );
     QString    &replace( uint index, uint len, const QString & );
+    QString    &replace( uint index, uint len, const QChar*, uint clen );
     QString    &replace( const QRegExp &, const QString & );
 
     short	toShort( bool *ok=0 )	const;

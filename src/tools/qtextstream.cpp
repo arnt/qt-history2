@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#84 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#85 $
 **
 ** Implementation of QTextStream class
 **
@@ -202,6 +202,8 @@ QTextStream::QTextStream( QIODevice *d )
     reset();
 }
 
+// TODO: use special-case handling of this case in QTextStream, and
+//	 simplify this class to only deal with QChar or QString data.
 class QStringBuffer : public QIODevice {
 public:
     QStringBuffer( QString& str ) :
@@ -299,7 +301,7 @@ public:
 		len = s.length()*2 - (uint)index;
 	    }
 	}
-	memcpy( p, ((char*)(s.unicode()))+index, len );
+	memcpy( p, ((const char*)(s.unicode()))+index, len );
 	index += len;
 	return len;
     }
@@ -319,11 +321,16 @@ public:
 	    warning( "QBuffer::writeBlock: Write operation not permitted" );
 	    return -1;
 	}
-#endif
-	if ( (uint)index + len >= s.length()*2 ) {  // overflow
-	    s.truncate((index+len+1)/2);
+	if ( index&1 ) {
+	    warning( "QBuffer::writeBlock: non-even index - non Unicode" );
+	    return -1;
 	}
-	memcpy( ((char*)s.unicode())+index, p, len );
+	if ( len&1 ) {
+	    warning( "QBuffer::writeBlock: non-even length - non Unicode" );
+	    return -1;
+	}
+#endif
+	s.replace(index/2, len/2, (QChar*)p, len/2);
 	index += len;
 	return len;
     }
@@ -396,15 +403,18 @@ private:        // Disabled copy constructor and operator=
     ts << "pi = " << 3.14;			// str == "pi = 3.14..."
   \endcode
 
-  ####Encoding??? Unicode, surely
-
   Writing data to the text stream will modify the contents of the string.
   The string will be expanded when data is written beyond the end of the
   string.
+
+  Note that since QString is Unicode, you should not use readRawBytes()
+  or writeRawBytes() on such a stream.
 */
 
 QTextStream::QTextStream( QString& str, int filemode )
 {
+    // TODO: optimize for this case as it becomes more common
+    //        (see QStringBuffer above)
     init();
     dev = new QStringBuffer( str );
     ((QStringBuffer *)dev)->open( filemode );

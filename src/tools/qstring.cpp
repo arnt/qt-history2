@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#161 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#162 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -1441,7 +1441,16 @@ QString QString::simplifyWhiteSpace() const
 
 QString &QString::insert( uint index, const QString &s )
 {
-    int len = s.length();
+    return insert( index, s.unicode(), s.length() );
+}
+
+/*!
+  Insert \a len units of QChar data from \a s into the string before
+  position \a index.
+*/
+
+QString &QString::insert( uint index, const QChar* s, uint len )
+{
     if ( len == 0 )
 	return *this;
     uint olen = length();
@@ -1453,12 +1462,12 @@ QString &QString::insert( uint index, const QString &s )
 	QChar* uc = d->unicode+olen;
 	while (n--)
 	    *uc++ = ' ';
-	memcpy( d->unicode+index, s.unicode(), sizeof(QChar)*len );
+	memcpy( d->unicode+index, s, sizeof(QChar)*len );
     } else {					// normal insert
 	setLength( nlen );
 	memmove( d->unicode+index+len, unicode()+index,
 		 sizeof(QChar)*(olen-index) );
-	memcpy( d->unicode+index, s.unicode(), sizeof(QChar)*len );
+	memcpy( d->unicode+index, s, sizeof(QChar)*len );
     }
     return *this;
 }
@@ -1549,8 +1558,27 @@ QString &QString::remove( uint index, uint len )
 
 QString &QString::replace( uint index, uint len, const QString &s )
 {
-    remove( index, len );
-    insert( index, s );
+    return replace( index, len, s.unicode(), s.length() );
+}
+
+
+/*!
+  Replaces \a len characters starting at position \a index by
+  \a slen units ot QChar data from \a s, and returns a reference to the string.
+
+  \sa insert(), remove()
+*/
+
+QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
+{
+    if ( len == slen && index + len <= length() ) {
+	// Optimized common case
+	real_detach();
+	memcpy( d->unicode+index, s, len*sizeof(QChar) );
+    } else {
+	remove( index, len );
+	insert( index, s, slen );
+    }
     return *this;
 }
 
