@@ -55,17 +55,19 @@
 #define MOC_YACC_CODE
 void yyerror( const char *msg );
 
-#include "qptrlist.h"
 #include "qasciidict.h"
-#include "qdict.h"
-#include "qstrlist.h"
 #include "qdatetime.h"
+#include "qdict.h"
 #include "qfile.h"
+#include "qptrlist.h"
+#include "qregexp.h"
+#include "qstrlist.h"
+
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <limits.h>
 #include <qplatformdefs.h> 
+#include <stdio.h>
+#include <stdlib.h>
 
 #if defined CONST
 #undef CONST
@@ -75,7 +77,7 @@ void yyerror( const char *msg );
 #endif
 
 bool isEnumType( const char* type );
- int enumIndex( const char* type );
+int enumIndex( const char* type );
 
 static const char* const utype_map[] =
 {
@@ -182,16 +184,41 @@ static QCString rmWS( const char * );
 enum Access { Private, Protected, Public };
 
 
-struct Argument					// single arg meta data
+class Argument					// single arg meta data
 {
-    Argument( const char *left, const char *right, const char* argName = 0, bool isDefaultArgument = FALSE  )
-	{ leftType  = rmWS( left );
-	  rightType = rmWS( right );
-	  if ( leftType == "void" && rightType.isEmpty() )
-	      leftType = "";
-	  name = argName;
-	  isDefault = isDefaultArgument;
+public:
+    Argument( const char *left, const char *right, const char* argName = 0, bool isDefaultArgument = FALSE )
+    {
+	leftType = rmWS( left );
+	rightType = rmWS( right );
+	if ( leftType == "void" && rightType.isEmpty() )
+	    leftType = "";
+
+	int len = leftType.length();
+
+	/*
+	  Convert 'char const *' into 'const char *'. Start at index 1,
+	  not 0, because 'const char *' is already OK.
+	*/
+	for ( int i = 1; i < len; i++ ) {
+	    if ( leftType[i] == 'c' &&
+		 strncmp(leftType.data() + i + 1, "onst", 4) == 0 ) {
+		leftType.remove( i, 5 );
+		if ( leftType[i - 1] == ' ' )
+		    leftType.remove( i - 1, 1 );
+		leftType.prepend( "const " );
+		break;
+	    }
+
+	    // we musn't convert 'char * const *' into 'const char **'
+	    if ( leftType[i] == '&' || leftType[i] == '*' )
+		break;
 	}
+
+	name = argName;
+	isDefault = isDefaultArgument;
+    }
+
     QCString leftType;
     QCString rightType;
     QCString name;
@@ -201,7 +228,7 @@ struct Argument					// single arg meta data
 class ArgList : public QPtrList<Argument> {	// member function arg list
 public:
     ArgList() { setAutoDelete( TRUE ); }
-   ~ArgList() { clear(); }
+    ~ArgList() { clear(); }
 
     /* the clone has one default argument less, the orignal has all default arguments removed */
     ArgList* magicClone() {
@@ -1319,9 +1346,9 @@ property:		IDENTIFIER IDENTIFIER
 				}
 			prop_statements
 				{
-				    if ( g->propRead.isEmpty() && !g->propOverride)
+				    if ( g->propRead.isEmpty() && !g->propOverride )
 					moc_err( "A property must at least feature a read method." );
-				    checkIdentifier( $2 );
+				    checkPropertyName( $2 );
 				    Q_PROPERTYdetected = TRUE;
 				    // Avoid duplicates
 				    for( QPtrListIterator<Property> lit( g->props ); lit.current(); ++lit ) {
@@ -2489,7 +2516,7 @@ void generatePropsStrings()
 	    if ( p->getfunc == 0 ) {
 		if ( displayWarnings ) {
 
-		    // Is the type a set, that means, mentioned in Q_SETS ?
+		    // Is the type a set, that means, mentioned in Q_SETS?
 		    bool set = FALSE;
 		    for( QPtrListIterator<Enum> lit( g->enums ); lit.current(); ++lit )
 			if ( lit.current()->name == p->type && lit.current()->set )
@@ -2585,8 +2612,7 @@ void generatePropsStrings()
 		    p->setfunc = f;
 		    p->oredEnum = 0;
 		    break;
-		}
-		else if ( !isVariantType( p->type ) && f->args->count() == 1 ) {
+		} else if ( !isVariantType( p->type ) && f->args->count() == 1 ) {
 		    if ( tmp == "int" || tmp == "uint" || tmp == "unsigned int" ) {
 			if ( p->oredEnum == 0 )
 			    continue;
@@ -2674,7 +2700,7 @@ int generateProps()
 {
     if ( displayWarnings && !Q_OBJECTdetected )
 	moc_err("The declaration of the class \"%s\" contains properties"
-		" but no Q_OBJECT macro!", g->className.data());
+		" but no Q_OBJECT macro.", g->className.data());
 
     fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
     //
@@ -2714,7 +2740,7 @@ int generateProps()
 	    if ( it.current()->stdSet() )
 		flags += "QMetaProperty::StdSet|";
 
-	    if (!flags.isEmpty() ) {
+	    if ( !flags.isEmpty() ) {
 		if ( flags[ (int) flags.length() - 1] == '|' )
 		    flags.remove( flags.length()-1, 1);
 		fprintf( out, "    p->setFlags(%s);\n", flags.data() );
@@ -2751,7 +2777,7 @@ int generateClassInfos()
 
     if ( displayWarnings && !Q_OBJECTdetected )
 	moc_err("The declaration of the class \"%s\" contains class infos"
-		" but no Q_OBJECT macro!", g->className.data());
+		" but no Q_OBJECT macro.", g->className.data());
 
     fprintf( out, "    static const QClassInfo classinfo_tbl[] = {\n" );
     int i = 0;
@@ -2781,19 +2807,19 @@ void generateClass()		      // generate C++ source code for a class
     if ( !Q_OBJECTdetected ) {
 	if ( g->signals.count() == 0 && g->slots.count() == 0 && g->props.count() == 0 && g->infos.count() == 0 )
 	    return;
-	if ( displayWarnings && (g->signals.count()+g->slots.count()) != 0 )
-	    moc_err("The declaration of the class \"%s\" contains slots "
-		    "and/or signals\n\t but no Q_OBJECT macro!", g->className.data());
+	if ( displayWarnings && (g->signals.count() + g->slots.count()) != 0 )
+	    moc_err("The declaration of the class \"%s\" contains signals "
+		    "or slots\n\t but no Q_OBJECT macro.", g->className.data());
     } else {
 	if ( g->superClassName.isEmpty() )
 	    moc_err("The declaration of the class \"%s\" contains the\n"
 		    "\tQ_OBJECT macro but does not inherit from any class!\n"
 		    "\tInherit from QObject or one of its descendants"
-		    " or remove Q_OBJECT. ", g->className.data() );
+		    " or remove Q_OBJECT.", g->className.data() );
     }
     if ( templateClass ) {			// don't generate for class
 	moc_err( "Sorry, Qt does not support templates that contain\n"
-		 "signals, slots or Q_OBJECT. This will be supported soon." );
+		 "\tsignals, slots or Q_OBJECT." );
 	return;
     }
     g->generatedCode = TRUE;
@@ -2916,7 +2942,7 @@ void generateClass()		      // generate C++ source code for a class
 	(void) g->strings.first();
 	const char* s;
 	while ( ( s = g->strings.current() ) ) {
-	    (void ) g->strings.next();
+	    (void) g->strings.next();
 	    if ( g->strings.current() )
 		fprintf( out, "\t\"%s\",\n", s );
 	    else
@@ -2952,7 +2978,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\t0, 0,\n" );
 
     if ( g->signals.count() )
-	fprintf( out, "\tsignal_tbl, %d,\n", g->signals.count());
+	fprintf( out, "\tsignal_tbl, %d,\n", g->signals.count() );
     else
 	fprintf( out, "\t0, 0,\n" );
 
@@ -3366,7 +3392,7 @@ void addMember( Member m )
     if ( skipFunc ) {
 	tmpFunc->args = tmpArgList; // just to be sure
 	delete tmpFunc;
-	tmpArgList  = new ArgList;   // ugly but works!
+	tmpArgList  = new ArgList;   // ugly but works
 	tmpFunc	    = new Function;
 	skipFunc    = FALSE;
 	return;
@@ -3374,8 +3400,8 @@ void addMember( Member m )
 
     tmpFunc->type = tmpFunc->type.simplifyWhiteSpace();
     tmpFunc->access = tmpAccess;
-    tmpFunc->args	= tmpArgList;
-    tmpFunc->lineNo	= lineNo;
+    tmpFunc->args = tmpArgList;
+    tmpFunc->lineNo = lineNo;
 
     for ( ;; ) {
 	g->funcs.append( tmpFunc );
@@ -3401,30 +3427,10 @@ void addMember( Member m )
     tmpArgList = new ArgList;
 }
 
-/* Used to check property names. They must match the pattern
- * [A-Za-z][A-Za-z0-9_]*
- */
-void checkIdentifier( const char* ident )
+void checkPropertyName( const char* ident )
 {
-    const char* p = ident;
-    if ( p == 0 || *p == 0 )
-    {
-	moc_err( "A property name must not be of zero length");
+    if ( ident[0] == '_' ) {
+	moc_err( "Invalid property name '%s'.", ident );
 	return;
-    }
-    if ( !( *p >= 'A' && *p <= 'Z' ) && !( *p >= 'a' && *p <= 'z' )  )
-    {
-	moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", (char*) ident );
-	return;
-    }
-
-    while( *p )
-    {
-	if ( !( *p >= 'A' && *p <= 'Z' ) && !( *p >= 'a' && *p <= 'z' ) && !( *p >= '0' && *p <= '9' ) && *p != '_' )
-	{
-	    moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", (char*) ident );
-	    return;
-	}
-	++p;
     }
 }
