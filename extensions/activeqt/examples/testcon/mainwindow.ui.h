@@ -13,6 +13,11 @@
 #include "../../shared/types.h"
 #include <qtextbrowser.h>
 
+IDispatch *create_object_wrapper( QObject *o )
+{
+    return 0;
+}
+
 void MainWindow::changeProperties()
 {
     QAxWidget *container = 0;
