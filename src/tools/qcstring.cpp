@@ -77,6 +77,7 @@ void *qmemmove( void *dst, const void *src, uint len )
     return dst;
 }
 
+
 /*!
   \relates QCString
 
