@@ -460,10 +460,19 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 
 
 
-/*
-  Tool window
- */
+/*! \class QDockWindow
+    \brief The QDockWindow class provides a widget that can be docked
+    inside a QMainWindow or floated as a top-level window on the
+    desktop.
 
+    \ingroup application
+*/
+
+/*!
+    Constructs a QDockWindow with parent \a parent with widget flags
+    \a f.  The dock window will be placed in the left dock window
+    area.
+*/
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
@@ -473,6 +482,10 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
     setArea(d->area);
 }
 
+/*!
+    Constructs a QDockWindow with parent \a parent, placed in \a area
+    and with widget flags \a f.
+*/
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
@@ -482,6 +495,9 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlag
     setArea(area);
 }
 
+/*!
+    Destroys the dock window.
+ */
 QDockWindow::~QDockWindow()
 { }
 
