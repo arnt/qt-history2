@@ -989,9 +989,12 @@ QUrl::operator QString() const
 {
     if ( isLocalFile() )
 	return d->protocol + ":" + QDir::cleanDirPath( d->path );
-    else if ( d->protocol = "ftp" )
-	return d->protocol + "://" + d->host + QDir::cleanDirPath( d->path ).stripWhiteSpace(); // #### todo
-    else
+    else if ( d->protocol = "ftp" ) {
+	if ( !d->user.isEmpty() )
+	    return d->protocol + "://" + +d->user + ":" + d->pass + "@" + d->host + QDir::cleanDirPath( d->path ).stripWhiteSpace(); // #### todo
+	else
+	    return d->protocol + "://" + d->host + QDir::cleanDirPath( d->path ).stripWhiteSpace(); // #### todo
+    } else
 	return QString::null;
 }
 

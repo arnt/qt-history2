@@ -196,7 +196,7 @@ QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal ) const
 	url = path.path();
 	url += "/" + d->name;
     } else if ( path.protocol() == "ftp" ) {
-	url = path.protocol() + "://" + path.host() + path.path() + "/" +d->name;
+	url = path + /*.protocol() + "://" + path.host() + path.path() + "/" +*/ d->name;
     }
 
     return url;
