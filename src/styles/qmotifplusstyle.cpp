@@ -215,13 +215,13 @@ void QMotifPlusStyle::unPolish(QWidget *widget)
 
 
 /*! \reimp */
-void QMotifPlusStyle::polish(QApplication *app)
+void QMotifPlusStyle::polish(QApplication *)
 {
 }
 
 
 /*! \reimp */
-void QMotifPlusStyle::unPolish(QApplication *app)
+void QMotifPlusStyle::unPolish(QApplication *)
 {
 }
 
