@@ -1003,11 +1003,11 @@ that the forename and surname fields will be uppercase since they use
 our CustomEdit widget.
 
 \target Custom_Editor_Widgets_for_Tables
-\section3 Custom Editor Widgets for QTables
+\section3 Custom Editor Widgets for Tables
 
 We must reimpliment QSqlEditorFactory to use custom editor widgets in
 tables. In the following example we will create a custom editor based on
-QComboBox and a QSqlEditorFactory subclass to show how a QTable can use
+QComboBox and a QSqlEditorFactory subclass to show how a QDataTable can use
 a custom editor.
 
 \quotefile sql/overview/table3/main.h
