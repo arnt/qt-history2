@@ -461,9 +461,12 @@ QFSFileInfoEngine::fileName(FileName file) const
         if(!d->file.length() || (d->file.at(0) != '/'
 				 && d->file.at(1) != ':')) {
             ret = QDir::currentDirPath();
-            ret += '/';
         }
-        ret = d->file;
+        if(!d->file.isEmpty() && d->file != ".") {
+            if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
+                ret += '/';
+            ret += d->file;
+        }
 	if (ret[1] != ':' && ret[1] != '/') {
 	    ret.prepend(":");
 	    ret.prepend(_getdrive() + 'A' - 1);

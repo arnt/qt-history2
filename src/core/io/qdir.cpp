@@ -667,7 +667,7 @@ QDir::absFilePath(const QString &fileName, bool acceptAbsPath) const
         ret = QFSDirEngine::currentDirPath(fileName);
     }
     if(!d->data->path.isEmpty() && d->data->path != ".") {
-        if (ret.right(1) != QString::fromLatin1("/"))
+        if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
             ret += '/';
         ret += d->data->path;
     }

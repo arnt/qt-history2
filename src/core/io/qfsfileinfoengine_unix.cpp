@@ -111,7 +111,7 @@ QFSFileInfoEngine::fileName(FileName file) const
         if(!d->file.length() || d->file[0] != '/') 
             ret = QDir::currentDirPath();
         if(!d->file.isEmpty() && d->file != ".") {
-            if (ret.right(1) != QString::fromLatin1("/"))
+            if (!ret.isEmpty() && ret.right(1) != QString::fromLatin1("/"))
                 ret += '/';
             ret += d->file;
         }
