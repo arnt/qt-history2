@@ -83,5 +83,7 @@
     control should be allowed (the exact browser behaviour depends on the security 
     settings in the Internet Options dialog).
 
-    \input examples/activeqt/opengl-demo.qdocinc
+    \quotefromfile examples/activeqt/opengl-demo.qdocinc
+    \skipto <SCRIPT
+    \printto endraw
 */

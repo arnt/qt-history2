@@ -35,7 +35,7 @@
   The \c subWidget slot uses the \c QObject::child() function and
   returns the first child of type \c QSubWidget that has the requested
   name.
-  
+
   \quotefile hierarchy/objects.h
   \skipto class QSubWidget :
    \printuntil };
@@ -66,5 +66,7 @@
   The \link qaxserver-demo-hierarchy.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-    \input examples/activeqt/hierarchy-demo.qdocinc
+    \quotefromfile examples/activeqt/hierarchy-demo.qdocinc
+    \skipto <script
+    \printto endraw
 */

@@ -51,5 +51,7 @@
     Events from the ActiveX controls are handled using both Visual Basic Script
     and JavaScript.
 
-    \input examples/activeqt/simple-demo.qdocinc
+    \quotefromfile examples/activeqt/simple-demo.qdocinc
+    \skipto <SCRIPT
+    \printto endraw
 */

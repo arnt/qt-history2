@@ -43,5 +43,7 @@
     The \link qaxserver-demo-multiple.html demonstration \endlink requires your
     WebBrowser to support ActiveX controls, and scripting to be enabled.
 
-    \input examples/activeqt/multiple-demo.qdocinc
+    \quotefromfile examples/activeqt/multiple-demo.qdocinc
+    \skipto <script
+    \printto endraw
 */
