@@ -13,8 +13,7 @@
 #include <qscrollview.h>
 #include <qpixmap.h>
 #include <qfiledialog.h>
-#include <qmultilineedit.h>
-#include <qtextbrowser.h>
+#include <qtextview.h>
 #include <qfileinfo.h>
 #include <qfile.h>
 #include <qtextstream.h>
@@ -22,6 +21,7 @@
 #include <qhbox.h>
 #include <qspinbox.h>
 #include <qlabel.h>
+#include <qmultilineedit.h>
 
 class PixmapView : public QScrollView
 {
@@ -55,7 +55,7 @@ public:
 	: QWidgetStack( parent ) {
 	    normalText = new QMultiLineEdit( this );
 	    normalText->setReadOnly( TRUE );
-	    html = new QTextBrowser( this );
+	    html = new QTextView( this );
 	    pixmap = new PixmapView( this );
 	    raiseWidget( normalText );
     }
@@ -75,15 +75,15 @@ public:
 		if ( fi.isFile() ) {
 		    QFile f( path );
 		    if ( f.open( IO_ReadOnly ) ) {
+			QTextStream ts( &f );
+			QString text = ts.read();
+			f.close();
 			if ( fi.extension().lower().contains( "htm" ) ) {
-			    f.close();
-			    html->setSource( path ); 	
+			    QString url = html->mimeSourceFactory()->makeAbsolute( path, html->context() );
+			    html->setText( text, url ); 	
 			    raiseWidget( html );
 			    return;
 			} else {
-			    QTextStream ts( &f );
-			    QString text = ts.read();
-			    f.close();
 			    normalText->setText( text ); 	
 			    raiseWidget( normalText );
 			    return;
@@ -104,7 +104,7 @@ public:
 
 private:
     QMultiLineEdit *normalText;
-    QTextBrowser *html;
+    QTextView *html;
     PixmapView *pixmap;
 
 };
