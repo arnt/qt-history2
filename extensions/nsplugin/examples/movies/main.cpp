@@ -50,7 +50,9 @@ protected:
 	    return;
 
         // Get the area we have to draw in.
-        QRect r = rect();
+        QRect r = rect() & movie.getValidRect();
+	if ( r != rect() )
+	    p.eraseRect(rect());
 
         // Only rescale is we need to - it can take CPU!
         if ( r.size() != pm.size() ) {
@@ -211,7 +213,9 @@ public:
     const char* getMIMEDescription() const
     {
 	return "video/x-mng:mng:MNG animation;"
-	       "video/mng:mng:MNG animation";
+	       "video/mng::MNG animation;"
+	       "image/x-jng:jng:MNG animation;"
+	       "image/jng::JNG animation";
     }
 
     const char * getPluginNameString() const
