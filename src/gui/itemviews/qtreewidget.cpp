@@ -59,7 +59,7 @@ public:
     static bool lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
     static bool greaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
-    void itemChanged(QTreeWidgetItem *item);
+    void emitDataChanged(QTreeWidgetItem *item);
 
 protected:
     void append(QTreeWidgetItem *item);
@@ -78,7 +78,7 @@ private:
  The QTreeModel class manages the items stored in a tree view.
 
   \ingroup model-view
-    \mainclass
+  \mainclass
 */
 
 /*!
@@ -107,7 +107,9 @@ QTreeModel::~QTreeModel()
 }
 
 /*!
-  ###
+  \internal
+
+  Removes all items in the model.
 */
 
 void QTreeModel::clear()
@@ -116,7 +118,6 @@ void QTreeModel::clear()
         tree.at(i)->par = 0;
         tree.at(i)->view = 0;
         delete tree.at(i);
-        tree[i] = 0;
     }
     tree.clear();
     emit reset();
@@ -162,7 +163,8 @@ QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
 /*!
   \internal
 
-  Returns the model index that refers to the tree view \a item.
+  Returns the model index that refers to the
+  tree view \a item and \a column.
 */
 
 QModelIndex QTreeModel::index(QTreeWidgetItem *item, int column) const
@@ -176,9 +178,10 @@ QModelIndex QTreeModel::index(QTreeWidgetItem *item, int column) const
 
 /*!
   \internal
+  \reimpl
 
-  Returns the model index with the given \a row, \a column, \a type,
-  and \a parent.
+  Returns the model index with the given \a row,
+  \a column and \a parent.
 */
 
 QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) const
@@ -212,8 +215,10 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
 
 /*!
   \internal
+  \reimpl
 
-  Returns the parent model index of the index given as the \a child.
+  Returns the parent model index of the index given as
+  the \a child.
 */
 
 QModelIndex QTreeModel::parent(const QModelIndex &child) const
@@ -229,6 +234,7 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 
 /*!
   \internal
+  \reimpl
 
   Returns the number of rows in the \a parent model index.
 */
@@ -245,21 +251,24 @@ int QTreeModel::rowCount(const QModelIndex &parent) const
 
 /*!
   \internal
+  \reimpl
 
-  Returns the number of columns in the item referred to by the given
-  \a index.
+  Returns the number of columns in the item referred to by
+  the given \a index.
 */
 
-int QTreeModel::columnCount(const QModelIndex &) const
+int QTreeModel::columnCount(const QModelIndex &index) const
 {
+    Q_UNUSED(index);
     return header->columnCount();
 }
 
 /*!
   \internal
+  \reimpl
 
-  Returns the data corresponding to the given model \a index and
-  \a role.
+  Returns the data corresponding to the given model \a index
+  and \a role.
 */
 
 QVariant QTreeModel::data(const QModelIndex &index, int role) const
@@ -274,6 +283,7 @@ QVariant QTreeModel::data(const QModelIndex &index, int role) const
 
 /*!
   \internal
+  \reimpl
 
   Sets the data for the item specified by the \a index and \a role
   to that referred to by the \a value.
@@ -294,12 +304,30 @@ bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &val
     return false;
 }
 
+/*!
+  \internal
+  \reimpl
+
+  Returns the header data corresponding to the given header \a section,
+  \a orientation and data \a role.
+*/
+
 QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && header)
         return header->data(section, role);
     return QVariant();
 }
+
+/*!
+  \internal
+  \reimpl
+
+  Sets the header data for the item specified by the header \a section,
+  \a orientation and data \a role to the given \a value.
+
+  Returns true if successful; otherwise returns false.
+*/
 
 bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
                                int role, const QVariant &value)
@@ -312,28 +340,30 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
     return false;
 }
 
-
 /*!
   \internal
 
   Inserts a tree view item into the \a parent item at the given
   \a row. Returns true if successful; otherwise returns false.
 
-  If no valid parent is given, the item will be inserted into this
-  tree model at the row given.
+  An empty item will be created by this function.
 */
 
-bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
+bool QTreeModel::insertRows(int row, const QModelIndex &parent, int count)
 {
+    Q_UNUSED(count);
+
     if (parent.isValid()) {
         QTreeWidgetItem *p =  item(parent);
         if (p) {
             p->children.insert(row, new QTreeWidgetItem(p));
+            emit rowsInserted(parent, row, row);
             return true;
         }
         return false;
     }
     tree.insert(row, new QTreeWidgetItem());
+    emit rowsInserted(parent, row, row);
     return true;
 }
 
@@ -344,23 +374,29 @@ bool QTreeModel::insertRows(int row, const QModelIndex &parent, int)
   if successful; otherwise false is returned.
 */
 
-bool QTreeModel::removeRows(int row, const QModelIndex &parent, int /*count*/)
+bool QTreeModel::removeRows(int row, const QModelIndex &parent, int count)
 {
-    // FIXME: !!!!!!!
+    Q_UNUSED(count);
+
     if (parent.isValid()) {
         QTreeWidgetItem *p = item(parent);
         if (p) {
+            emit rowsRemoved(parent, row, row);
             p->children.removeAt(row);
             return true;
         }
         return false;
     }
+    emit rowsRemoved(parent, row, row);
     tree.removeAt(row);
     return true;
 }
 
 /*!
+  \internal
+  \reimpl
 
+  Returns the flags for the item refered to the given \a index.
 */
 
 QAbstractItemModel::ItemFlags QTreeModel::flags(const QModelIndex &index) const
@@ -374,7 +410,10 @@ QAbstractItemModel::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 }
 
 /*!
+  \internal
+  \reimpl
 
+  Returns if the model is sortable, otherwise returns false.
 */
 
 bool QTreeModel::isSortable() const
@@ -383,7 +422,11 @@ bool QTreeModel::isSortable() const
 }
 
 /*!
+  \internal
+  \reimpl
 
+  Sorts one level of the tree with the given \a parent
+  in the given \a order by the values in the given \a column.
 */
 
 void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
@@ -409,11 +452,14 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
     LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
     qHeapSort(begin, end, compare);
 
-    emit reset();
+    emit reset(); // items with their subtrees may have been moved
 }
 
 /*!
+  \internal
 
+  Sorts the entire tree in the model in the given \a order,
+  by the values in the given \a column.
 */
 
 void QTreeModel::sortAll(int column, Qt::SortOrder order)
@@ -431,10 +477,28 @@ void QTreeModel::sortAll(int column, Qt::SortOrder order)
     emit reset();
 }
 
+/*!
+  \internal
+
+  Returns true if the value of the \a left item is
+  less than the value of the \a right item.
+
+  Used by the sorting functions.
+*/
+
 bool QTreeModel::lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
 {
     return *left < *right;
 }
+
+/*!
+  \internal
+
+  Returns true if the value of the \a left item is
+  greater than the value of the \a right item.
+
+  Used by the sorting functions.
+*/
 
 bool QTreeModel::greaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
 {
@@ -442,10 +506,12 @@ bool QTreeModel::greaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem 
 }
 
 /*!
+  \internal
 
+  Emits the dataChanged() signal for the given \a item.
 */
 
-void QTreeModel::itemChanged(QTreeWidgetItem *item)
+void QTreeModel::emitDataChanged(QTreeWidgetItem *item)
 {
     QModelIndex idx = index(item);
     emit dataChanged(idx, idx);
@@ -454,7 +520,8 @@ void QTreeModel::itemChanged(QTreeWidgetItem *item)
 /*!
   \internal
 
-  Appends the tree view \a item to the tree model.*/
+  Appends the tree view \a item to the tree model and a toplevel item.
+*/
 
 void QTreeModel::append(QTreeWidgetItem *item)
 {
@@ -466,7 +533,7 @@ void QTreeModel::append(QTreeWidgetItem *item)
 /*!
   \internal
 
-  Remove the treeview \a item to the tree model.
+  Remove the treeview toplevel \a item from the tree model.
 */
 
 void QTreeModel::remove(QTreeWidgetItem *item)
@@ -479,11 +546,11 @@ void QTreeModel::remove(QTreeWidgetItem *item)
 }
 
 /*!
-\internal
+  \internal
 
-Emits the rowsInserted() signal for the row containing the given \a item.
+  Emits the rowsInserted() signal for the row containing the given \a item.
 
-\sa emitRowsRemoved()
+  \sa emitRowsRemoved()
 */
 
 void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
@@ -546,8 +613,6 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
     Sets the \a flags for this item. These determine whether the item can be
     selected, modified
-
-
 */
 
 /*!
@@ -785,7 +850,8 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
-  ###
+  Returns true if the text in the item is less than the text in the
+  \a other item, otherwise returns false.
 */
 
 bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
@@ -802,7 +868,8 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 */
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
-    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    role = (role == QAbstractItemModel::EditRole
+            ? QAbstractItemModel::DisplayRole : role);
     if (column >= values.count())
         values.resize(column + 1);
     QVector<Data> column_values = values.at(column);
@@ -814,7 +881,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     }
     values[column].append(Data(role, value));
     if (model)
-        model->itemChanged(this);
+        model->emitDataChanged(this);
 }
 
 /*!
@@ -845,7 +912,7 @@ void QTreeWidgetItem::appendChild(QTreeWidgetItem *child)
 }
 
 /*!
-  Inserts the \c child item in the list of children.
+  Inserts the \a child item at \a index in the list of children.
 */
 
 void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
@@ -870,6 +937,10 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
     return children.takeAt(index);
 }
 
+/*!
+  Returns true if the item is explicitly hidden, otherwise returns false.
+*/
+
 bool QTreeWidgetItem::isHidden() const
 {
     if (view && model) {
@@ -881,6 +952,10 @@ bool QTreeWidgetItem::isHidden() const
     }
     return false;
 }
+
+/*!
+  Hides the item if \a hide is true, otherwise shows the item.
+*/
 
 void QTreeWidgetItem::setHidden(bool hide)
 {
@@ -1120,7 +1195,9 @@ int QTreeWidget::topLevelItemCount() const
 }
 
 /*!
-  ###
+  Inserts the \a item at \a index in the top level in the view.
+
+  \sa appendToplevelItem()
 */
 
 void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
@@ -1129,7 +1206,9 @@ void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 }
 
 /*!
-  ###
+  Appends the \a item as a toplevel item in the view.
+
+  \sa insertToplevelItem()
 */
 
 void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
@@ -1163,6 +1242,8 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 }
 
 /*!
+  Adds a column for each item in the \a labels list and
+  sets the header label.
 */
 void QTreeWidget::setHeaderLabels(const QStringList &labels)
 {
@@ -1173,6 +1254,9 @@ void QTreeWidget::setHeaderLabels(const QStringList &labels)
 }
 
 /*!
+  Returns the pointer to the current item in the view.
+
+  \sa setCurrentItem()
 */
 
 QTreeWidgetItem *QTreeWidget::currentItem() const
@@ -1180,6 +1264,11 @@ QTreeWidgetItem *QTreeWidget::currentItem() const
     return d->model()->item(currentIndex());
 }
 
+/*!
+  Sets the current item to the given \a item.
+
+  \sa currentItem()
+*/
 void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 {
     if (item)
@@ -1188,11 +1277,21 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
         setCurrentIndex(QModelIndex());
 }
 
+/*!
+  Sorts the items in the view in the given \a order
+  by the values in the given \a column.
+*/
+
 void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 {
     d->model()->sortAll(column, order);
     header()->setSortIndicator(column, order);
 }
+
+/*!
+  Enables sorting of the items in the view by clicking on a header section
+  if \a enable is true, otherwise sorting is disabled.
+*/
 
 void QTreeWidget::setSortingEnabled(bool enable)
 {
@@ -1201,10 +1300,21 @@ void QTreeWidget::setSortingEnabled(bool enable)
         header()->setSortIndicatorShown(false);
 }
 
+/*!
+  Returns if sorting by clicking on a header section is enabled,
+  otherwise returns false.
+*/
+
 bool QTreeWidget::isSortingEnabled() const
 {
     return d->sortingEnabled;
 }
+
+/*!
+  Opens a persistent editor in the given \a item, in the given \a column.
+
+  The editor is created by the delegate.
+*/
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 {
@@ -1212,6 +1322,12 @@ void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
     QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::openPersistentEditor(index);
 }
+
+/*!
+  Closes the persistent editor in the given \a item, in the given \a column.
+
+  If no persistent editor is open in the given item and column, nothing is done.
+*/
 
 void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 {
@@ -1329,6 +1445,11 @@ void QTreeWidget::closeItem(const QTreeWidgetItem *item)
     close(index);
 }
 
+/*!
+  Sorts all items in the view by the value in the given \a column.
+  The items are sorted in the order given by the sort indicator in the header.
+*/
+
 void QTreeWidget::sortItems(int column)
 {
     if (d->sortingEnabled) {
@@ -1369,6 +1490,10 @@ void QTreeWidget::removeItem(QTreeWidgetItem *item)
 {
     d->model()->remove(item);
 }
+
+/*!
+  \reimpl
+*/
 
 void QTreeWidget::setModel(QAbstractItemModel *model)
 {
