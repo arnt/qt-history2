@@ -460,6 +460,8 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
 void QTable::init( int rows, int cols )
 {
+    mousePressed = FALSE;
+    
     contents.setAutoDelete( TRUE );
     widgets.setAutoDelete( TRUE );
 
@@ -1059,6 +1061,7 @@ bool QTable::selection( int num, int &topRow, int &leftCol, int &bottomRow, int 
 
 void QTable::contentsMousePressEvent( QMouseEvent* e )
 {
+    mousePressed = TRUE;
     if ( isEditing() )
  	endEdit( editRow, editCol, TRUE, edMode == Editing ? FALSE : TRUE );
 
@@ -1114,6 +1117,8 @@ void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
 
 void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 {
+    if ( !mousePressed )
+	return;
     int curRow = rowAt( e->pos().y() );
     int curCol = columnAt( e->pos().x() );
     fixRow( curRow, e->pos().y() );
@@ -1132,14 +1137,30 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTable::doAutoScroll()
 {
+    if ( !mousePressed )
+	return;
     QPoint pos = QCursor::pos();
     pos = mapFromGlobal( pos );
     pos -= QPoint( leftHeader->width(), topHeader->height() );
 
+    int curRow = this->curRow;
+    int curCol = this->curCol;
+    if ( pos.y() < 0 )
+	curRow--;
+    else if ( pos.y() > visibleWidth() )
+	curRow++;
+    if ( pos.x() < 0 )
+	curCol--;
+    else if ( pos.x() > visibleWidth() )
+	curCol++;
+	
     pos += QPoint( contentsX(), contentsY() );
-
-    int curRow = rowAt( pos.y() );
-    int curCol = columnAt( pos.x() );
+    if ( curRow == this->curRow )
+	curRow = rowAt( pos.y() );
+    if ( curCol == this->curCol )
+	curCol = columnAt( pos.x() );
+    pos -= QPoint( contentsX(), contentsY() );
+    
     fixRow( curRow, pos.y() );
     fixCol( curCol, pos.x() );
 
@@ -1163,6 +1184,7 @@ void QTable::doAutoScroll()
 
 void QTable::contentsMouseReleaseEvent( QMouseEvent * )
 {
+    mousePressed = FALSE;
     autoScrollTimer->stop();
 }
 

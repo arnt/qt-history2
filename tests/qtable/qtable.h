@@ -254,7 +254,8 @@ private:
     int lastSortCol;
     bool asc;
     bool doSort;
-
+    bool mousePressed;
+    
 };
 
 class QTableHeader : public QHeader
