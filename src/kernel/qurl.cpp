@@ -255,7 +255,10 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 		d->path = p;
 		d->cleanPathDirty = TRUE;
 	    } else {
-		setFileName( rel );
+		if ( isRelativeUrl( path() ) )
+		    setEncodedPathAndQuery( rel );
+		else
+		    setFileName( rel );
 	    }
 	}
     }
