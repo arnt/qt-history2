@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#29 $
 **
 ** Implementation of QFileDialog class
 **
@@ -634,10 +634,9 @@ void QUrl::parse( const QString& url )
 	{ 0,       Pass,       Pass,       Pass,       Pass,       Host,       Pass,       Pass,      }, // Pass
 	{ 0,       Host,       Host,       Path,       Port,       Host,       Ref,        Query,     }, // Host
 	{ 0,       Path,       Path,       Path,       Path,       Path,       Ref,        Query,     }, // Path
-	{ 0,       Ref,        Ref,        0,          Ref,        Ref,        Ref,        Query,     }, // Ref
+	{ 0,       Ref,        Ref,        Ref,        Ref,        Ref,        Ref,        Query,     }, // Ref
 	{ 0,       Query,      Query,      Query,      Query,      Query,      Query,      Query,     }, // Query
 	{ 0,       0,          Port,       Path,       0,          0,          0,          0,         }  // Port
-	
     };
 
     int state = Init; // parse state
