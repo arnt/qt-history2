@@ -249,8 +249,10 @@ void QAquaStyle::polish(QApplication* app)
 void QAquaStyle::polish(QWidget * w)
 {
     if(!w->isTopLevel() && !w->inherits("QSplitter") && 
-       w->palette().brush(QPalette::Active, QColorGroup::Background) == 
-       qApp->palette().brush(QPalette::Active, QColorGroup::Background))
+       w->backgroundPixmap() && 
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap() &&
+	w->backgroundPixmap()->serialNumber() == 
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) 
 	w->setBackgroundOrigin(QWidget::WindowOrigin);
     qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
