@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#17 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#17 $";
 #endif
 
 
@@ -167,7 +167,7 @@ void QButton::paintEvent( QPaintEvent * )
 }
 
 
-void QButton::focusInEvent( QFocusEvent * )
+void QButton::focusChangeEvent( QFocusEvent * )
 {
-    return TRUE;
+    repaint( FALSE );
 }
