@@ -1625,7 +1625,7 @@ bool QWidget::isEnabledTo( QWidget* ancestor ) const
     return !w->testAttribute(WA_ForceDisabled);
 }
 
-void 
+void
 QWidget::addAction(QAction *action)
 {
     if(!d->actions)
@@ -1637,8 +1637,8 @@ QWidget::addAction(QAction *action)
     QActionEvent e(QEvent::ActionAdded, action);
     QApplication::sendEvent(this, &e);
 }
- 
-void 
+
+void
 QWidget::insertAction(QAction *before, QAction *action)
 {
     if(!d->actions) {
@@ -1653,8 +1653,8 @@ QWidget::insertAction(QAction *before, QAction *action)
     d->actions->remove(action);
     d->actions->insert(before_int, action);
 }
- 
-void 
+
+void
 QWidget::removeAction(QAction *action)
 {
     if(d->actions && d->actions->remove(action)) {
@@ -1664,7 +1664,7 @@ QWidget::removeAction(QAction *action)
     }
 }
 
-QList<QAction*> 
+QList<QAction*>
 QWidget::actions() const
 {
     if(d->actions)
@@ -1672,7 +1672,7 @@ QWidget::actions() const
     return QList<QAction*>();
 }
 
-void 
+void
 QWidget::actionChanged()
 {
     QAction *action = qt_cast<QAction*>(sender());
@@ -3608,13 +3608,14 @@ void QWidget::show_helper()
 
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
-    if ( testWFlags(WStyle_Tool|testWFlags(WType_Popup))) {
-	raise();
-    } else if (isTopLevel()) {
-	while ( QApplication::activePopupWidget() ) {
-	    if ( !QApplication::activePopupWidget()->close() )
-		break;
-	}
+    if (isTopLevel()) {
+	if (testWFlags(WStyle_Tool|testWFlags(WType_Popup)))
+	    raise();
+	else
+	    while ( QApplication::activePopupWidget() ) {
+		if ( !QApplication::activePopupWidget()->close() )
+		    break;
+	    }
     }
 
     // On Windows, show the popup now so that our own focus handling
@@ -4461,7 +4462,7 @@ bool QWidget::event( QEvent *e )
     case QEvent::ContextMenu: {
 	QContextMenuEvent *c = (QContextMenuEvent *)e;
 	contextMenuEvent( c );
-	if ( !c->isAccepted() ) 
+	if ( !c->isAccepted() )
 	    return d->compositeEvent((QContextMenuEvent*)e);
     	break; }
 
