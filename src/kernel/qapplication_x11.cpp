@@ -3421,8 +3421,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_set_desktop_properties();
 	    }
 	} else if ( widget) {
-	    if (event->xproperty.window == widget->winId() ) { // widget properties
-		if (widget->isTopLevel()) {
+ 	    if (event->xproperty.window == widget->winId()) { // widget properties
+		if (widget->isTopLevel()) { // top level properties
 		    Atom ret;
 		    int format, e;
 		    unsigned char *data = 0;
@@ -3482,6 +3482,58 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 			if (data)
 			    XFree(data);
+		    } else if (event->xproperty.atom == qt_wm_state) {
+			if (event->xproperty.state == PropertyDelete) {
+			    // the window manager has removed the WM State property,
+			    // so it is now in the withdrawn state (ICCCM 4.1.3.1) and
+			    // we are free to reuse this window
+			    widget->topData()->parentWinId = 0;
+			    // map the window if we were waiting for a
+			    // transition to withdrawn
+			    if ( qt_deferred_map_contains( widget ) ) {
+				qt_deferred_map_take( widget );
+				XMapWindow( appDpy, widget->winId() );
+			    }
+			} else if (widget->topData()->parentWinId != appRootWin) {
+			    // the window manager has changed the WM State property...
+			    // we are  wanting to see if we are withdrawn so that we
+			    // can reuse this window... we only do this check *IF* we
+			    // haven't been reparented to root -
+			    // (the parentWinId != appRootWin) check above
+
+			    e = XGetWindowProperty(appDpy, widget->winId(), qt_wm_state,
+						   0, 2, FALSE, qt_wm_state, &ret,
+						   &format, &nitems, &after, &data );
+
+			    if (e == Success && ret == qt_wm_state &&
+				format == 32 && nitems > 0) {
+				long *state = (long *) data;
+				switch (state[0]) {
+				case WithdrawnState:
+				    // if we are in the withdrawn state, we are free to
+				    // reuse this window provided we remove the
+				    // WM_STATE property (ICCCM 4.1.3.1)
+				    XDeleteProperty(appDpy, widget->winId(),
+						    qt_wm_state);
+
+				    // set the parent id to zero, so that show() will
+				    // work again
+				    widget->topData()->parentWinId = 0;
+				    // map the window if we were waiting for a
+				    // transition to withdrawn
+				    if ( qt_deferred_map_contains( widget ) ) {
+					qt_deferred_map_take( widget );
+					XMapWindow( appDpy, widget->winId() );
+				    }
+				    break;
+				default:
+				    break;
+				}
+			    }
+
+			    if (data)
+				XFree(data);
+			}
 		    }
 		}
 	    }
