@@ -184,8 +184,8 @@ bool QSvgDevice::play( QPainter *painter )
     painter->setClipRect( brect, QPainter::CoordPainter );
 
     if ( attr.contains( "viewBox" ) ) {
-	QRegExp re( "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
-		    "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*" );
+	QRegExp re( QString::fromLatin1("\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
+					"\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*") );
 	if ( re.search( attr.namedItem( "viewBox" ).nodeValue() ) < 0 ) {
 	    qWarning( "QSvgDevice::play: Invalid viewBox attribute.");
 	    return FALSE;
@@ -852,7 +852,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	    {
 		QString pts = attr.namedItem( "points" ).nodeValue();
 		pts = pts.simplifyWhiteSpace();
-		QStringList sl = QStringList::split( QRegExp( "[ ,]" ), pts );
+		QStringList sl = QStringList::split( QRegExp( QString::fromLatin1("[ ,]") ), pts );
 		QPointArray ptarr( (uint)sl.count() / 2);
 		for ( int i = 0; i < (int)sl.count() / 2; i++ ) {
 		    double dx = sl[2*i].toDouble();
@@ -1041,8 +1041,8 @@ QColor QSvgDevice::parseColor( const QString &col )
 	return QColor( (*qSvgColMap)[ col ] );
     // in rgb(r,g,b) form ?
     QString c = col;
-    c.replace( QRegExp( "\\s*" ), "" );
-    QRegExp reg( "^rgb\\((\\d+)(%?),(\\d+)(%?),(\\d+)(%?)\\)$" );
+    c.replace( QRegExp( QString::fromLatin1("\\s*") ), "" );
+    QRegExp reg( QString::fromLatin1("^rgb\\((\\d+)(%?),(\\d+)(%?),(\\d+)(%?)\\)$") );
     if ( reg.search( c ) >= 0 ) {
 	int comp[3];
 	for ( int i = 0; i < 3; i++ ) {
@@ -1068,7 +1068,7 @@ QColor QSvgDevice::parseColor( const QString &col )
 
 double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
 {
-    QRegExp reg( "([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|%|pt|pc|cm|mm|in|)$" );
+    QRegExp reg( QString::fromLatin1("([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|%|pt|pc|cm|mm|in|)$") );
     if ( reg.search( str ) == -1 ) {
 	qWarning( "QSvgDevice::parseLen: couldn't parse " + str );
 	if ( ok )
@@ -1247,12 +1247,12 @@ void QSvgDevice::setTransform( const QString &tr )
 {
     QString t = tr.simplifyWhiteSpace();
 
-    QRegExp reg( "\\s*([\\w]+)\\s*\\(([^\\(]*)\\)" );
+    QRegExp reg( QString::fromLatin1("\\s*([\\w]+)\\s*\\(([^\\(]*)\\)") );
     int index = 0;
     while ( (index = reg.search(t, index)) >= 0 ) {
 	QString command = reg.cap( 1 );
 	QString params = reg.cap( 2 );
-	QStringList plist = QStringList::split( QRegExp("[,\\s]"), params );
+	QStringList plist = QStringList::split( QRegExp(QString::fromLatin1("[,\\s]")), params );
 	if ( command == "translate" ) {
 	    double tx = 0, ty = 0;
 	    tx = plist[0].toDouble();
@@ -1299,7 +1299,7 @@ void QSvgDevice::drawPath( const QString &data )
     bool relative = FALSE;		// e.g. 'h' vs. 'H'
     QString commands( "MZLHVCSQTA" );	// recognized commands
     int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };	// no of arguments
-    QRegExp reg( "\\s*,?\\s*([+-]?\\d*\\.?\\d*)" );	// floating point
+    QRegExp reg( QString::fromLatin1("\\s*,?\\s*([+-]?\\d*\\.?\\d*)") );	// floating point
 
     subIndex.append( 0 );
     // detect next command

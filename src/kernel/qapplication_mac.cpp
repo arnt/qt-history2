@@ -1876,7 +1876,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    if(!v.isValid()) v = widget->property("caption");
 		    if(v.isValid()) {
 			QString s = v.toString();
-			s.replace(QRegExp("(\\&|\\<[^\\>]*\\>)"), "");
+			s.replace(QRegExp(QString::fromLatin1("(\\&|\\<[^\\>]*\\>)")), "");
 			SpeechChannel ch;
 			NewSpeechChannel(NULL, &ch);
 			SpeakText(ch, s.latin1(), s.length());

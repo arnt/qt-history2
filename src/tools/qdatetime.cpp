@@ -2429,7 +2429,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	QDate date( year, month, day );
 	QTime time;
 	int hour, minute, second;
-	int pivot = s.find( QRegExp("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]") );
+	int pivot = s.find( QRegExp(QString::fromLatin1("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")) );
 	if ( pivot != -1 ) {
 	    hour = s.mid( pivot, 2 ).toInt();
 	    minute = s.mid( pivot+3, 2 ).toInt();

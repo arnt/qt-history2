@@ -149,7 +149,7 @@ public:
 /*!
     \property QtMultiLineEdit::atBeginning
     \brief whether the cursor is at the beginning
-  
+
     atBeginning() returns TRUE if the cursor is placed at the
     beginning of the text.
 */
@@ -167,7 +167,7 @@ public:
 /*!
     \property QtMultiLineEdit::alignment
     \brief the alignment
-    
+
     Possible values are \c AlignLeft, \c Align(H)Center and \c
     AlignRight.
   \sa Qt::AlignmentFlags
@@ -2387,7 +2387,7 @@ void QtMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 #ifndef QT_NO_COMPAT
 	if ( style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle )
 	    paste();
-#endif	    
+#endif
 #endif
     }
 #endif
@@ -2665,8 +2665,7 @@ void QtMultiLineEdit::pasteSubType(const QCString& subtype)
 
 #if defined(_OS_WIN32_)
 	// Need to convert CRLF to NL
-	QRegExp crlf("\\r\\n");
-	t.replace( crlf, "\n" );
+	t.replace( "\r\n", "\n" );
 #endif
 
 	for (int i=0; (uint)i<t.length(); i++) {
@@ -2881,8 +2880,7 @@ void QtMultiLineEdit::copy() const
 #endif
 #if defined(_OS_WIN32_)
 	// Need to convert NL to CRLF
-	QRegExp nl("\\n");
-	t.replace( nl, "\r\n" );
+	t.replace( "\n", "\r\n" );
 #endif
 	QApplication::clipboard()->setText( t );
 #if defined(_WS_X11_)

@@ -157,13 +157,13 @@ static bool stripTextDecl( QString& str )
 {
     QString textDeclStart( "<?xml" );
     if ( str.startsWith( textDeclStart ) ) {
-	QRegExp textDecl(
+	QRegExp textDecl(QString::fromLatin1(
 	    "^<\\?xml\\s+"
 	    "(version\\s*=\\s*((['\"])[-a-zA-Z0-9_.:]+\\3))?"
 	    "\\s*"
 	    "(encoding\\s*=\\s*((['\"])[A-Za-z][-a-zA-Z0-9_.]*\\6))?"
 	    "\\s*\\?>"
-	);
+	));
 	QString strTmp = str.replace( textDecl, "" );
 	if ( strTmp.length() != str.length() )
 	    return FALSE; // external entity has wrong TextDecl

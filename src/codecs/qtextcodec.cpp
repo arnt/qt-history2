@@ -3005,6 +3005,14 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     Sets the codec used by QString to convert to and from const char*
     and QByteArrays. If \a c is 0 (the default), QString assumes Latin-1.
 
+    \warning Some codecs do not preserve the characters in the ascii
+    range (0x00 to 0x7f).  For example, the Japanese Shift-JIS
+    encoding maps the backslash character (0x5a) to the Yen character.
+    This leads to unexpected results when using the backslash
+    character to escape characters in strings used in e.g. regular
+    expressions.  Use QString::fromLatin1() to preserve characters in
+    the ascii range when needed.
+
     \sa codecForCStrings(), setCodecForTr(), setCodecForCStrings()
 */
 

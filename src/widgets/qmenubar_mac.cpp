@@ -45,7 +45,7 @@ bool qt_modal_state(); //qapplication_mac.cpp
 void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 {
 #if 0
-    qDebug("setting %c%c%c%c to %s", (char)(cmd >> 24) & 0xFF, (char)(cmd >> 16) & 0xFF, 
+    qDebug("setting %c%c%c%c to %s", (char)(cmd >> 24) & 0xFF, (char)(cmd >> 16) & 0xFF,
 	   (char)(cmd >> 8) & 0xFF, (char)cmd & 0xFF,  b ? "on" : "off");
 #endif
 
@@ -72,7 +72,7 @@ static void qt_mac_set_modal_state(bool b)
 	    DisableMenuItem(mr2, 0);
 	else
 	    EnableMenuItem(mr2, 0);
-    }	
+    }
     ReleaseMenu(mr);
     qt_mac_command_set_enabled(kHICommandQuit, !b);
     qt_mac_command_set_enabled(kHICommandPreferences, !b);
@@ -130,7 +130,7 @@ public:
 	    DisposeMenuBar(mac_menubar);
 	    mac_menubar = 0;
 	}
-    }	
+    }
 };
 static QGuardedPtr<QMenuBar> fallbackMenuBar; //The current global menubar
 static QGuardedPtr<QMenuBar> activeMenuBar; //The current global menubar
@@ -254,7 +254,7 @@ bool QPopupMenu::macPopupMenu(const QPoint &p, int index)
 	    InvalidateMenuSize(ref);
 	    PopUpMenuSelect(ref, p.y(), p.x(), -1);
 	    return TRUE; //we did it for Qt..
-	} 
+	}
     }
 #else
     Q_UNUSED(p);
@@ -278,11 +278,11 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
     int st = t.findRev('\t');
     if(st != -1)
 	t.remove(st, t.length()-st);
-    t.replace(QRegExp("\\.*$"), ""); //no ellipses
+    t.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
     //now the fun part
     uint ret = 0;
     if(t.find(tr("About").lower(), 0, FALSE) == 0) {
-	if(t.find(QRegExp("qt$", FALSE)) == -1)
+	if(t.find(QRegExp(QString::fromLatin1("qt$"), FALSE)) == -1)
 	    ret = kHICommandAbout;
 	else
 	    ret = 'CUTE';
@@ -306,7 +306,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 		int st = text.findRev('\t');
 		if(st != -1)
 		    text.remove(st, text.length()-st);
-		text.replace(QRegExp("\\.*$"), ""); //no ellipses
+		text.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
 #ifdef Q_WS_MACX
 		if(ret == kHICommandAbout && text.lower() == tr("About").lower()) {
 		    ProcessSerialNumber psn;
@@ -395,7 +395,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    if(item->custom())
 		attr |= kMenuItemAttrCustomDraw;
 #endif
-	    
+
 	    //figure out an accelerator
 	    int accel_key = Qt::Key_unknown;
 	    if(accel.isEmpty() && item->key().count() > 1)
@@ -585,7 +585,7 @@ bool QMenuBar::activateCommand(uint cmd)
 */
 bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 {
-    if(!activeMenuBar) 
+    if(!activeMenuBar)
 	return FALSE;
 
     int mid = GetMenuID(menu);
@@ -636,8 +636,8 @@ void QMenuBar::macCreateNativeMenubar()
 	if(!mac_d)
 	    mac_d = new MacPrivate;
     } else if(p && (!menubars || !menubars->find(topLevelWidget())) &&
-       (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) || 
-	p->inherits("QToolBar") || 
+       (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) ||
+	p->inherits("QToolBar") ||
 	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
 	mac_eaten_menubar = 1;
 	if(!menubars)
@@ -708,7 +708,7 @@ bool QMenuBar::macUpdateMenuBar()
 	    for(WindowPtr wp = FrontWindow(); wp; wp = GetNextWindow(wp)) {
 		if(GetWindowClass(wp, &c))
 		    break;
-		if(c == kOverlayWindowClass) 
+		if(c == kOverlayWindowClass)
 		    continue;
 		w = QWidget::find((WId)wp);
 		break;
@@ -721,11 +721,11 @@ bool QMenuBar::macUpdateMenuBar()
 	    if(!mb && (!w->parentWidget() || w->parentWidget()->isDesktop()) && w->inherits("QDockWindow")) {
 		if(QWidget *area = ((QDockWindow*)w)->area()) {
 		    QWidget *areaTL = area->topLevelWidget();
-		    if((mb = menubars->find(areaTL))) 
+		    if((mb = menubars->find(areaTL)))
 			w = areaTL;
 		}
 	    }
-	    while(w && /*!w->testWFlags(WShowModal) &&*/ !mb) 
+	    while(w && /*!w->testWFlags(WShowModal) &&*/ !mb)
 		mb = menubars->find((w = w->parentWidget()));
 	    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)))
 		fall_back_to_empty = TRUE;
@@ -739,7 +739,7 @@ bool QMenuBar::macUpdateMenuBar()
 	if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) {
 	    if(mb->mac_d->modal != qt_modal_state()) {
 		bool qms = qt_modal_state();
-		if(!qms || menubars->find(qApp->activeModalWidget()) != mb) 
+		if(!qms || menubars->find(qApp->activeModalWidget()) != mb)
 		    qt_mac_set_modal_state(mb->mac_d->modal = qms);
 	    }
 	    return mb->mac_eaten_menubar;
@@ -753,14 +753,14 @@ bool QMenuBar::macUpdateMenuBar()
 	} else {
 	    SetMenuBar(mb->mac_d->mac_menubar);
 	    if(mb->mac_d->commands) {
-		for(QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> it(*(mb->mac_d->commands)); it.current(); ++it) 
+		for(QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> it(*(mb->mac_d->commands)); it.current(); ++it)
 		    qt_mac_command_set_enabled(it.currentKey(), TRUE);
 	    }
 	    InvalMenuBar();
 	}
 	if(mb->mac_d->modal != qt_modal_state()) {
 	    bool qms = qt_modal_state();
-	    if(!qms || menubars->find(qApp->activeModalWidget()) != mb) 
+	    if(!qms || menubars->find(qApp->activeModalWidget()) != mb)
 		qt_mac_set_modal_state(mb->mac_d->modal = qms);
 	}
 	return TRUE;
@@ -806,7 +806,7 @@ bool QMenuBar::macUpdatePopupVisible(MenuRef mr, bool vis)
 
     int mid = GetMenuID(mr);
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
-	if(mpb->qpopup) 
+	if(mpb->qpopup)
 	    return TRUE;
     }
     return FALSE;
