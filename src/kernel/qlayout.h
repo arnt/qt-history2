@@ -39,7 +39,7 @@ Q_OBJECT
 
 class Q_EXPORT QGridLayout : public QLayout
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QGridLayout( QWidget *parent, int nRows = 1, int nCols = 1, int border=0,
 		 int space = -1, const char *name=0 );
@@ -158,7 +158,7 @@ private:	// Disabled copy constructor and operator=
 
 class Q_EXPORT QHBoxLayout : public QBoxLayout
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QHBoxLayout( QWidget *parent, int border=0,
 		int space = -1, const char *name=0 );
@@ -174,7 +174,7 @@ public:
 
 class Q_EXPORT QVBoxLayout : public QBoxLayout
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QVBoxLayout( QWidget *parent, int border=0,
 		int space = -1, const char *name=0 );

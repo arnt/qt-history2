@@ -42,7 +42,7 @@ Q_OBJECT
 
 class Q_EXPORT QMultiLineEdit : public QTableView
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
    ~QMultiLineEdit();

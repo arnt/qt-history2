@@ -44,7 +44,7 @@ Q_OBJECT
 
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QSpinBox( QWidget* parent = 0, const char *name = 0 );
     QSpinBox( int minValue, int maxValue, int step = 1,

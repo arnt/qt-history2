@@ -36,7 +36,7 @@ Q_OBJECT
 
 class Q_EXPORT QCheckBox : public QButton
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QCheckBox( QWidget *parent, const char *name=0 );
     QCheckBox( const QString &text, QWidget *parent, const char* name=0 );

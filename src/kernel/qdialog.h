@@ -39,7 +39,7 @@ class QPushButton;
 class Q_EXPORT QDialog : public QWidget			// dialog widget
 {
 friend class QPushButton;
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );

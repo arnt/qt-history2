@@ -39,7 +39,7 @@ Q_OBJECT
 
 class Q_EXPORT QLabel : public QFrame
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );
     QLabel( const QString &text, QWidget *parent, const char *name=0,

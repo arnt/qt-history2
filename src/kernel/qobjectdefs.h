@@ -74,11 +74,6 @@ private:								\
 #define Q_OBJECT_FAKE Q_OBJECT
 
 #define Q_METAPROP( name, value )
-#define Q_COMPONENT Q_OBJECT
-#define Q_CUSTOM_FACTORY						\
-public:									\
-    static QObject* qFactory( QObject* parent );			\
-private:
 
 // macro for naming members
 #if defined(_OLD_CPP_)

@@ -43,7 +43,7 @@ Q_OBJECT
 
 class Q_EXPORT QLineEdit : public QWidget
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QLineEdit( QWidget *parent, const char *name=0 );
     QLineEdit( const QString &, QWidget *parent, const char *name=0 );
@@ -73,7 +73,7 @@ public:
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
     virtual void setSelection( int, int );
-    
+
     virtual void setCursorPosition( int );
     int		cursorPosition() const;
 

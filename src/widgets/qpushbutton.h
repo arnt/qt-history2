@@ -36,7 +36,7 @@ Q_OBJECT
 
 class Q_EXPORT QPushButton : public QButton
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );

@@ -51,7 +51,7 @@ Q_OBJECT
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
-    Q_COMPONENT
+    Q_OBJECT
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
     ~QWidget();
@@ -74,7 +74,7 @@ public:
     bool	 isEnabled()	const;
     bool	 isEnabledTo(QWidget*) const;
     bool	 isEnabledToTLW() const;
-    
+
 public slots:
     virtual void setEnabled( bool );
 
@@ -308,7 +308,7 @@ public:
 
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
-    
+
     // whats this help
     virtual bool customWhatsThis() const;
 				
