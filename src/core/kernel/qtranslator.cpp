@@ -513,14 +513,11 @@ bool QTranslator::do_load(const uchar *data, int len)
         }
 
         if (tag == QTranslatorPrivate::Contexts) {
-            d->contextArray = QByteArray::fromRawData(array.constData() + s.device()->at(),
-                                                      blockLen);
+            d->contextArray = QByteArray(array.constData() + s.device()->at(), blockLen);
         } else if (tag == QTranslatorPrivate::Hashes) {
-            d->offsetArray = QByteArray::fromRawData(array.constData() + s.device()->at(),
-                                                     blockLen);
+            d->offsetArray = QByteArray(array.constData() + s.device()->at(), blockLen);
         } else if (tag == QTranslatorPrivate::Messages) {
-            d->messageArray = QByteArray::fromRawData(array.constData() + s.device()->at(),
-                                                      blockLen);
+            d->messageArray = QByteArray(array.constData() + s.device()->at(), blockLen);
         }
 
         if (!s.device()->seek(s.device()->at() + blockLen)) {
