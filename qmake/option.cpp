@@ -424,26 +424,26 @@ void debug_msg(int level, const char *fmt, ...)
 {
     if(Option::debug_level < level)
 	return;
-    fprintf(stdout, "DEBUG %d: ", level);
+    fprintf(stderr, "DEBUG %d: ", level);
     {
 	va_list ap;
 	va_start(ap, fmt);
-	vfprintf(stdout, fmt, ap);
+	vfprintf(stderr, fmt, ap);
 	va_end(ap);
     }
-    fprintf(stdout, "\n");
+    fprintf(stderr, "\n");
 }
 
 void warn_msg(QMakeWarn type, const char *fmt, ...)
 {
     if(!(Option::warn_level & type))
 	return;
-    fprintf(stdout, "WARNING: ");
+    fprintf(stderr, "WARNING: ");
     {
 	va_list ap;
 	va_start(ap, fmt);
-	vfprintf(stdout, fmt, ap);
+	vfprintf(stderr, fmt, ap);
 	va_end(ap);
     }
-    fprintf(stdout, "\n");
+    fprintf(stderr, "\n");
 }
