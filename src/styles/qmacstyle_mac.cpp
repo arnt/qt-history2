@@ -1283,8 +1283,10 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.max = sldr->maxValue();
 	ttdi.value = sldr->valueFromPosition(sldr->sliderStart());
 	ttdi.attributes |= kThemeTrackShowThumb;
+#ifdef MACOSX_102
 	if(flags & Style_HasFocus)
 	    ttdi.attributes |= kThemeTrackHasFocus;
+#endif
 	if(sldr->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
 	if(widget->isEnabled())
