@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#95 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -190,7 +190,6 @@ void QFontCache::deleteItem( Item d )
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 QFont		     *QFont::defFont = 0;	// default font
-bool		     QFont::defRezAdj= FALSE;	// default resolution adj.
 
 
 /*****************************************************************************
@@ -436,11 +435,7 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	else
 	    lf.lfHeight = -(d->req.pointSize/10);
     } else {
-	if ( d->req.rezAdj )
-	    lf.lfHeight = -int((float)d->req.pointSize*
-			  GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
-	else
-	    lf.lfHeight = -(d->req.pointSize/10);
+	lf.lfHeight = -(d->req.pointSize/10);
     }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
@@ -761,13 +756,14 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     int l = len ? leftBearing(str[0]) : 0;
     int r = len ? -rightBearing(str[len-1]) : 0;
     // To be safer, check bearings of next-to-end characters too.
+    /* ### eaa: trenger aa fikse noe her.
     if (len > 1 ) {
 	int newl = width(str[0])+leftBearing(str[1]);
 	int newr = -width(str[len-1])-rightBearing(str[len-2]);
 	if ( newl < l ) l = newl;
 	if ( newr > r ) r = newr;
     }
-
+    */
     TEXTMETRICA *tm = TMX;
     return QRect(l, -tm->tmAscent, cx+r-l, tm->tmAscent+tm->tmDescent);
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#261 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#262 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -292,13 +292,8 @@ static QFont LOGFONT_AorW_to_QFont(LOGFONT& lf)
 	qf.setItalic( TRUE );
     if (lf.lfWeight != FW_DONTCARE)
 	qf.setWeight(lf.lfWeight*99/900);
-    if ( lf.lfHeight < 0 ) {
-	// The value is already adjusted
-	qf.setPointSize( -lf.lfHeight );
-	qf.setResolutionAdjusted( FALSE );
-    } else {
-	qf.setPointSize( lf.lfHeight );
-    }
+    // (Note: The lfHeight value is already mapped to 72dpi, no adj. required)
+    qf.setPointSize( QABS( lf.lfHeight ) );
     return qf;
 }
 
