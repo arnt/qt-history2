@@ -1370,7 +1370,10 @@ void QCheckTableItem::setChecked( bool b )
 
 bool QCheckTableItem::isChecked() const
 {
-    table()->updateCell( row(), col() );
+    // #### why was this next line here. It must not be here, as
+    // #### people want to call isChecked() from within paintCell()
+    // #### and end up in an infinite loop that way
+    // table()->updateCell( row(), col() );
     QWidget *w = table()->cellWidget( row(), col() );
     if ( w && w->inherits( "QCheckBox" ) )
 	return ( (QCheckBox*)w )->isChecked();
@@ -4286,10 +4289,10 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
     } else {
 	clearSelection( FALSE );
 	if ( header == leftHeader ) {
-	    while ( numRows() > rowCol ) 
+	    while ( numRows() > rowCol )
 		header->removeLabel( numRows() - 1 );
 	} else {
-	    while ( numCols() > rowCol ) 
+	    while ( numCols() > rowCol )
 		header->removeLabel( numCols() - 1 );
 	}
     }
