@@ -6,9 +6,11 @@
 !IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
 QMFILE=Makefile
 FORCEDEP=FORCE
+CONTINUEONERROR=/K
 !ELSE
 QMFILE=Makefile.borland
 FORCEDEP=
+CONTINUEONERROR= ###Something for Rainer to do
 !ENDIF
 
 all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
@@ -54,26 +56,26 @@ sub-codecs: sub-src .qmake.cache $(FORCEDEP)
 
 sub-tutorial: sub-src $(FORCEDEP)
 	cd tutorial
-	$(MAKE)
+	$(MAKE) $(CONTINUEONERROR)
 	cd ..
 
 sub-examples: sub-src $(FORCEDEP)
 	cd examples
-	$(MAKE)
+	$(MAKE) $(CONTINUEONERROR)
 	cd ..
 
 clean:
 	cd qmake
-	$(MAKE) -f $(QMFILE) clean
+	$(MAKE) -f $(QMFILE) $(CONTINUEONERROR) clean
 	cd ..\tools
-	$(MAKE) clean
+	$(MAKE) $(CONTINUEONERROR) clean
 	cd ..\src
-	$(MAKE) clean
-	$(MAKE) -f Makefile.main clean
+	$(MAKE) $(CONTINUEONERROR) clean
+	$(MAKE) -f Makefile.main $(CONTINUEONERROR) clean
 	cd ..\tutorial
-	$(MAKE) clean
+	$(MAKE) $(CONTINUEONERROR) clean
 	cd ..\examples
-	$(MAKE) clean
+	$(MAKE) $(CONTINUEONERROR) clean
 
 distclean: clean
 	-del .qmake.cache
