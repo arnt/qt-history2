@@ -292,75 +292,136 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
-
 	QString destdir = project->first("DESTDIR");
 	if(do_incremental) {
-	    //utility variables
-	    QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
-	    QString incr_target = var("TARGET") + "_incremental";
-	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
-	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
-
 	    //incremental target
-	    t << incr_target_dir << ": $(INCREMENTAL_OBJECTS)";
-	    if(!destdir.isEmpty())
-		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
-	    if(!project->isEmpty("QMAKE_PRE_LINK"))
-		t << "\n\t" << var("QMAKE_PRE_LINK");
-	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
-	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
-	    t << "\n\t"
-	      << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir << " $(INCREMENTAL_OBJECTS)" << endl;
-	    //real target
-	    QString objs = "$(UICDECLS) $(OBJECTS)  $(OBJMOC)";
-	    t << var("TARGET") << ": " << incr_target_dir << " " << objs << var("TARGETDEPS") << "\n\t";
-	    if(!destdir.isEmpty()) {
-		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-		objs += " -L" + destdir;
+	    QString incr_target = var("TARGET") + "_incremental";
+	    if(incr_target.find(Option::dir_sep) != -1)
+		incr_target = incr_target.right(incr_target.length() - 
+						(incr_target.findRev(Option::dir_sep) + 1));
+	    QString incr_deps, incr_objs;
+	    if(project->first("QMAKE_INCREMENTAL_STYLE") == "ld") {
+		QString incr_target_dir = var("OBJECTS_DIR") + incr_target + Option::obj_ext;
+		//actual target
+		t << incr_target_dir << ": $(OBJECTS)" << "\n\t"
+		  << "ld -r  -o "<< incr_target_dir << " $(OBJECTS)" << endl;
+		//communicated below
+		deps.prepend(incr_target_dir + " ");
+		incr_deps = "$(UICDECLS) $(INCREMENTAL_OBJECTS) $(OBJMOC)";
+		if(!incr_objs.isEmpty())
+		    incr_objs += " ";
+		incr_objs += incr_target_dir;
+	    } else {
+		//actual target
+		QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + 
+					  project->variables()["QMAKE_EXTENSION_SHLIB"].first();
+		QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
+		if(project->isActiveConfig("debug"))
+		    incr_lflags += var("QMAKE_LFLAGS_DEBUG");
+		else
+		    incr_lflags += var("QMAKE_LFLAGS_RELEASE");
+		t << incr_target_dir << ": $(INCREMENTAL_OBJECTS)" << "\n\t";
+		if(!destdir.isEmpty())
+		    t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+		t << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir << 
+		    " $(INCREMENTAL_OBJECTS)" << endl;
+		//communicated below
+		if(!destdir.isEmpty()) {
+		    if(!incr_objs.isEmpty())
+			incr_objs += " ";
+		    incr_objs += "-L" + destdir;
+		}
+		if(!incr_objs.isEmpty())
+		    incr_objs += " ";
+		incr_objs += " -l" + incr_target;
+		deps.prepend(incr_target_dir + " ");
+		incr_deps = "$(UICDECLS) $(OBJECTS) $(OBJMOC)";
 	    }
-	    objs += " -l" + incr_target;
-	    t << "$(LINK) $(LFLAGS) -o $(TARGET) " << objs << " $(LIBS)" << endl << endl;
+	    t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" 
+	      << endl << endl;
+
+	    //real target
+	    t << var("TARGET") << ": " << " " << incr_deps << " " << var("TARGETDEPS") << "\n\t";
+	    if(!destdir.isEmpty())
+		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+	    if(!project->isEmpty("QMAKE_PRE_LINK"))
+		t << var("QMAKE_PRE_LINK") << "\n\t";
+	    t << "$(LINK) $(LFLAGS) -o $(TARGET) " << incr_deps << " " << incr_objs << " $(LIBS)";
+	    if(!project->isEmpty("QMAKE_POST_LINK"))
+		t << "\n\t" << var("QMAKE_POST_LINK");
+	    t << endl << endl;
 	} else {
+	    t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" 
+	      << endl << endl;
+
 	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty())
 		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+	    if(!project->isEmpty("QMAKE_PRE_LINK"))
+		t << var("QMAKE_PRE_LINK") << "\n\t";
 	    t << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)";
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK");
 	    t << endl << endl;
 	}
     } else if(!project->isActiveConfig("staticlib")) {
-	QString destdir = project->first("DESTDIR");
+	QString destdir = project->first("DESTDIR"), incr_deps;
 	if(do_incremental) {
-	    //utility variables
 	    QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
-	    QString incr_target = var("QMAKE_ORIG_TARGET").replace(QRegExp("\\." + s_ext), "").replace(QRegExp("^lib"), "") + 
-				  "_incremental";
-	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
-	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
-	    t << "all: " << incr_target_dir << " " << deps << " " << varGlue("ALL_DEPS",""," ","") 
+	    QString incr_target = var("QMAKE_ORIG_TARGET").replace(
+		QRegExp("\\." + s_ext), "").replace(QRegExp("^lib"), "") + "_incremental";
+	    if(incr_target.find(Option::dir_sep) != -1)
+		incr_target = incr_target.right(incr_target.length() - 
+						(incr_target.findRev(Option::dir_sep) + 1));
+
+	    if(project->first("QMAKE_INCREMENTAL_STYLE") == "ld") {
+		QString incr_target_dir = var("OBJECTS_DIR") + incr_target + Option::obj_ext;
+		//actual target
+		const QString link_deps = "$(UICDECLS) $(OBJECTS) $(OBJMOC)";
+		t << incr_target_dir << ": " << link_deps << "\n\t"
+		  << "ld -r  -o " << incr_target_dir << " " << link_deps << endl;
+		//communicated below
+		QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
+		cmd.first().replace(QRegExp("\\$\\(OBJECTS\\) \\$\\(OBJMOC\\)"), 
+				    "$(INCREMENTAL_OBJECTS)"); //ick
+		cmd.append(incr_target_dir);
+		deps.prepend(incr_target_dir + " ");
+		incr_deps = "$(INCREMENTAL_OBJECTS)";
+	    } else {
+		//actual target
+		QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
+		QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
+		if(!project->isEmpty("QMAKE_LFLAGS_INCREMENTAL"))
+		    incr_lflags += var("QMAKE_LFLAGS_INCREMENTAL") + " ";
+		if(project->isActiveConfig("debug"))
+		    incr_lflags += var("QMAKE_LFLAGS_DEBUG");
+		else
+		    incr_lflags += var("QMAKE_LFLAGS_RELEASE");
+		t << incr_target_dir << ": $(INCREMENTAL_OBJECTS)" << "\n\t";
+		if(!destdir.isEmpty())
+		    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
+		t << "$(LINK) " << incr_lflags << " -o "<< incr_target_dir << 
+		    " $(INCREMENTAL_OBJECTS)" << endl;
+		//communicated below
+		QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
+		if(!destdir.isEmpty())
+		    cmd.append(" -L" + destdir);
+		cmd.append(" -l" + incr_target);
+		deps.prepend(incr_target_dir + " ");
+		incr_deps = "$(UICDECLS) $(OBJECTS) $(OBJMOC)";
+	    }
+
+	    t << "all: " << " " << deps << " " << varGlue("ALL_DEPS",""," ","") 
 	      << " " <<  var("DESTDIR_TARGET") << endl << endl;
 
-	    //incremental target
-	    t << incr_target_dir << ": $(INCREMENTAL_OBJECTS)";
-	    if(!destdir.isEmpty())
-		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
-	    if(!project->isEmpty("QMAKE_PRE_LINK"))
-		t << "\n\t" << var("QMAKE_PRE_LINK");
-	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
-	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
-	    t << "\n\t"
-	      << "$(LINK) " << incr_lflags << " -o " << incr_target_dir << " $(INCREMENTAL_OBJECTS)" << endl;
 	    //real target
-	    QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
-	    if(!destdir.isEmpty())
-		cmd.append(" -L" + destdir);
-	    cmd.append(" -l" + incr_target);
-	    t << var("DESTDIR_TARGET") << ": $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
+	    t << var("DESTDIR_TARGET") << ": " << incr_deps << " $(SUBLIBS) " << 
+		var("TARGETDEPS");
 	} else {
-	    t << "all: " << deps << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
-	    t << var("DESTDIR_TARGET") << ": $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
+	    t << "all: " << deps << " " << varGlue("ALL_DEPS",""," ","") << " " <<  
+		var("DESTDIR_TARGET") << endl << endl;
+	    t << var("DESTDIR_TARGET") << ": " << " $(SUBLIBS) " << 
+		var("TARGETDEPS");
 	}
 	if(!destdir.isEmpty())
 	    t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
@@ -419,9 +480,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << endl << endl;
 	}
     } else {
-	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
-	t << "staticlib: $(TARGET)" << endl << endl;
-	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
+	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << "\n\n"
+	  << "staticlib: $(TARGET)" << "\n\n"
+	  << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
 
 	if(!project->isEmpty("DESTDIR")) {
 	    QString destdir = project->first("DESTDIR");
