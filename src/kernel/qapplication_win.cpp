@@ -1,17 +1,23 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#396 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#397 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
 ** Created : 931203
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
@@ -78,7 +84,7 @@
 #define WM_MOUSEWHEEL	0x020A
 #endif
 
-inline QRgb colorref2qrgb(COLORREF col)
+QRgb qt_colorref2qrgb(COLORREF col)
 {
     return qRgb(GetRValue(col),GetGValue(col),GetBValue(col));
 }
@@ -315,11 +321,6 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     appCmdShow = cmdShow;
 }
 
-static void outColor(const char* s, const QColor& col) {
-    qDebug("%s is %d %d %d", s, col.red(), col.green(), col.blue());
-}
-
-
 static void qt_show_system_menu( QWidget* tlw)
 {
     HMENU menu = GetSystemMenu( tlw->winId(), FALSE );
@@ -361,8 +362,6 @@ extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
 
-static unsigned int gui_thread_id = 0;
-
 static void qt_set_windows_resources()
 {
     QFont menuFont;
@@ -399,32 +398,32 @@ static void qt_set_windows_resources()
 
     QColorGroup cg;
     cg.setColor( QColorGroup::Foreground,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
     cg.setColor( QColorGroup::Button,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNFACE))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNFACE))) );
     cg.setColor( QColorGroup::Light,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
     cg.setColor( QColorGroup::Midlight,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_3DLIGHT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_3DLIGHT))) );
     cg.setColor( QColorGroup::Dark,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNSHADOW))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNSHADOW))) );
     cg.setColor( QColorGroup::Mid, cg.button().dark( 150 ) );
     cg.setColor( QColorGroup::Text,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
     cg.setColor( QColorGroup::BrightText,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
     cg.setColor( QColorGroup::ButtonText,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNTEXT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNTEXT))) );
     cg.setColor( QColorGroup::Base,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOW))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_WINDOW))) );
     cg.setColor( QColorGroup::Background,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNFACE))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNFACE))) );
     cg.setColor( QColorGroup::Shadow,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_3DDKSHADOW))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_3DDKSHADOW))) );
     cg.setColor( QColorGroup::Highlight,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
     cg.setColor( QColorGroup::HighlightedText,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
+		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
     if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
 	if ( cg.midlight() == cg.button() )
@@ -437,9 +436,9 @@ static void qt_set_windows_resources()
     QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 		     disabled, Qt::white, Qt::white, cg.background() );
     dcg.setColor( QColorGroup::Highlight,
-		  QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
+		  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
     dcg.setColor( QColorGroup::HighlightedText,
-		  QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
+		  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
 
     QColorGroup icg = cg;
@@ -454,8 +453,8 @@ static void qt_set_windows_resources()
     QApplication::setPalette( pal, TRUE );
     *qt_std_pal = pal;
 
-    QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
-    QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
+    QColor menu(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
+    QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
 	// we might need a special color group for the menu.
 	cg.setColor( QColorGroup::Button, menu );
@@ -468,9 +467,9 @@ static void qt_set_windows_resources()
 	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 			 disabled, Qt::white, Qt::white, cg.background() );
 	dcg.setColor( QColorGroup::Highlight,
-		      QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
+		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
 	dcg.setColor( QColorGroup::HighlightedText,
-		      QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
+		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
 	icg = cg;
 	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
@@ -481,8 +480,8 @@ static void qt_set_windows_resources()
  	QApplication::setPalette( menu, TRUE, "QMenuBar");
     }
 
-    QColor ttip(colorref2qrgb(GetSysColor(COLOR_INFOBK)));
-    QColor ttipText(colorref2qrgb(GetSysColor(COLOR_INFOTEXT)));
+    QColor ttip(qt_colorref2qrgb(GetSysColor(COLOR_INFOBK)));
+    QColor ttipText(qt_colorref2qrgb(GetSysColor(COLOR_INFOTEXT)));
     {
 	cg.setColor( QColorGroup::Button, ttip );
 	cg.setColor( QColorGroup::Background, ttip );
@@ -500,47 +499,6 @@ static void qt_set_windows_resources()
     }
 
     BOOL effect = FALSE;
-
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
-#if defined(SPI_GETUIEFFECTS)
-       SystemParametersInfo( SPI_GETUIEFFECTS, 0, &effect, 0 );
-       QApplication::enableEffect( Qt::UI_General, effect );
-#else
-       QApplication::enableEffect( Qt::UI_General, TRUE );
-#endif
-#if defined(SPI_GETMENUANIMATION)
-        SystemParametersInfo( SPI_GETMENUANIMATION, 0, &effect, 0 );
-	QApplication::enableEffect( Qt::UI_AnimateMenu, effect );
-#else
-	QApplication::enableEffect( Qt::UI_AnimateMenu, TRUE );
-#endif
-#if defined(SPI_GETMENUFADE)
-	SystemParametersInfo( SPI_GETMENUFADE, 0, &effect, 0 );
-	QApplication::enableEffect( Qt::UI_FadeMenu, effect );
-#else
-	QApplication::enableEffect( Qt::UI_FadeMenu, FALSE );
-#endif
-#if defined(SPI_GETCOMBOBOXANIMATION)
-	SystemParametersInfo( SPI_GETCOMBOBOXANIMATION, 0, &effect, 0 );
-	QApplication::enableEffect( Qt::UI_AnimateCombo, effect );
-#else
-	QApplication::enableEffect( Qt::UI_AnimateCombo, TRUE );
-#endif
-#if defined(SPI_GETTOOLTIPANIMATION)
-	SystemParametersInfo( SPI_GETTOOLTIPANIMATION, 0, &effect, 0 );
-	QApplication::enableEffect( Qt::UI_AnimateTooltip, effect );
-#else
-	QApplication::enableEffect( Qt::UI_AnimateTooltip, TRUE );
-#endif	
-#if defined(SPI_GETTOOLTIPFADE)
-	SystemParametersInfo( SPI_GETTOOLTIPFADE, 0, &effect, 0 );
-	QApplication::enableEffect( Qt::UI_FadeTooltip, effect );
-#else
-	QApplication::enableEffect( Qt::UI_FadeTooltip, FALSE );
-#endif
-    } else {
-	QApplication::enableEffect( Qt::UI_General, FALSE );
-    }
 }
 
 /*****************************************************************************
@@ -551,8 +509,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 {
     // Detect the Windows version
     (void) QApplication::winVersion();
-
-    gui_thread_id = GetCurrentThreadId();
 
 #if defined(DEBUG)
     int argc = *argcptr;
@@ -1319,6 +1275,13 @@ int QApplication::exec()
     return quit_code;
 }
 
+#if defined(QT_THREAD_SUPPORT)
+void qSystemWarning( const QString& );
+void qt_wait_for_exec();
+void qt_ack_pipe();
+HANDLE qt_gui_thread();
+#endif
+
 static
 bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
@@ -1346,15 +1309,19 @@ bool QApplication::processNextEvent( bool canWait )
     emit guiThreadAwake();
 
     sendPostedEvents();
-
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock( FALSE );
+#endif
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers
 	    int ok;
 	    while ( numZeroTimers &&
-		    !(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) )
+		!(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) ) {
 		activateZeroTimers();
-	    if ( !ok )				// no event
+	    }
+	    if ( !ok )	{			// no event
 		return FALSE;
+	    }
 	} else {
 	    if ( !winGetMessage(&msg,0,0,0) ) {
 		quit();				// WM_QUIT received
@@ -1363,26 +1330,38 @@ bool QApplication::processNextEvent( bool canWait )
 	}
     } else {					// no-wait mode
 	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
-	    if ( numZeroTimers > 0 )		// there are 0-timers
+	    if ( numZeroTimers > 0 ) { 		// there are 0-timers
 		activateZeroTimers();
+	    }
 	    return FALSE;
 	}
     }
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+
+    if ( ( msg.message == WM_USER+999 ) && msg.lParam ) {
+	TranslateMessage( &msg );
+	qApp->unlock( FALSE );
+	qt_ack_pipe();
+	qt_wait_for_exec();
+	qApp->lock();
+	app_exit_loop = FALSE;
+	return FALSE;
+    }
+#endif
 
     if ( msg.message == WM_TIMER ) {		// timer message received
 	dispatchTimer( msg.wParam, &msg );
 	return TRUE;
     }
-
-
     TranslateMessage( &msg );			// translate to WM_CHAR
+
     if ( qt_winver & Qt::WV_NT_based )
 	DispatchMessage( &msg );		// send to QtWndProc
     else
 	DispatchMessageA( &msg );		// send to QtWndProc
     if ( configRequests )			// any pending configs?
 	qWinProcessConfigRequests();
-
     sendPostedEvents();
 
     return TRUE;
@@ -1398,27 +1377,28 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
+#if defined(QT_THREAD_SUPPORT)
 
 void QApplication::wakeUpGuiThread()
 {
-    if ( !PostThreadMessage( gui_thread_id , WM_USER+999, 0, 0 ) ) {
+    if ( !PostThreadMessage( (DWORD)qt_gui_thread() , WM_USER+999, 0, 0 ) ) {
 #ifdef CHECK_RANGE
-	if ( GetLastError() == ERROR_INVALID_THREAD_ID )
-	    qWarning("QApplication: Invalid thread ID");
+	qSystemWarning("QApplication: Invalid thread ID");
 #endif
     }
 }
 
 void QApplication::guiThreadTaken()
 {
-    if ( !PostThreadMessage( gui_thread_id , WM_USER+999, 0, 1 ) ) {
+    if ( !PostThreadMessage( (DWORD)qt_gui_thread() , WM_USER+999, 0, 1 ) ) {
 #ifdef CHECK_RANGE
-	if ( GetLastError() == ERROR_INVALID_THREAD_ID )
-	    qWarning("QApplication: Invalid thread ID");
+	qSystemWarning("QApplication: Couldn't take GUI thread");
 #endif
     }
 
 }
+
+#endif
 
 bool QApplication::winEventFilter( MSG * )	// Windows event filter
 {
@@ -3051,6 +3031,102 @@ int QApplication::wheelScrollLines()
 #else
     return wheel_scroll_lines;
 #endif
+}
+
+void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
+{
+    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
+	// we know that they can be used when we are here
+	int api;
+	switch (effect) {
+	case UI_AnimateMenu:
+	    api = SPI_SETMENUANIMATION;
+	    break;
+	case UI_FadeMenu:
+	    api = SPI_SETMENUFADE;
+	    break;
+	case UI_AnimateCombo:
+	    api = SPI_SETCOMBOBOXANIMATION;
+	    break;
+	case UI_AnimateTooltip:
+	    api = SPI_SETTOOLTIPANIMATION;
+	    break;
+	case UI_FadeTooltip:
+	    api = SPI_SETTOOLTIPFADE;
+	    break;
+	default:
+	   api = SPI_SETUIEFFECTS;
+	break;
+	}
+	SystemParametersInfo( api, 0, &effect, 0 );
+    }
+
+    switch (effect) {
+    case UI_AnimateMenu:
+	animate_menu = enable;
+	break;
+    case UI_FadeMenu:
+	fade_menu = enable;
+	break;
+    case UI_AnimateCombo:
+	animate_combo = enable;
+	break;
+    case UI_AnimateTooltip:
+	animate_tooltip = enable;
+	break;
+    case UI_FadeTooltip:
+	fade_tooltip = enable;
+	break;
+    default:
+	animate_ui = enable;
+	break;
+    }
+}
+
+bool QApplication::isEffectEnabled( Qt::UIEffect effect )
+{
+    if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
+    // we know that they can be used when we are here
+	BOOL enabled;
+	int api;
+	switch (effect) {
+	case UI_AnimateMenu:
+	    api = SPI_GETMENUANIMATION;
+	    break;
+	case UI_FadeMenu:
+	    api = SPI_GETMENUFADE;
+	    break;
+	case UI_AnimateCombo:
+	    api = SPI_GETCOMBOBOXANIMATION;
+	    break;
+	case UI_AnimateTooltip:
+	    api = SPI_GETTOOLTIPANIMATION;
+	    break;
+	case UI_FadeTooltip:
+	    api = SPI_GETTOOLTIPFADE;
+	    break;
+	default:
+	    api = SPI_GETUIEFFECTS;
+	    break;
+	}
+	SystemParametersInfo( api, 0, &enabled, 0 );
+	return enabled;
+    } else {
+	switch( effect ) {
+	case UI_AnimateMenu:
+	    return animate_menu;
+	case UI_FadeMenu:
+	    return fade_menu;
+	case UI_AnimateCombo:
+	    return animate_combo;
+	case UI_AnimateTooltip:
+	    return animate_tooltip;
+	case UI_FadeTooltip:
+	    return fade_tooltip;
+	default:
+	    return animate_ui;
+	}
+    }
 }
 
 /*****************************************************************************

@@ -5,17 +5,19 @@
 **
 ** Created : 931029
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -54,8 +56,10 @@
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qwhatsthis.h" // ######## dependency
+#include "qwindowsstyle.h" // ######## dependency
+#include "qmotifplusstyle.h" // ######## dependency
 #include <stdlib.h>
-#ifdef QT_SM_SUPPORT
+#ifndef QT_NO_SM_SUPPORT
 #include <pwd.h>
 #endif
 #include <ctype.h>
@@ -256,6 +260,9 @@ Atom 		qt_wm_client_leader	= 0;
 Atom 		qt_window_role		= 0;
 Atom 		qt_sm_client_id		= 0;
 Atom 		qt_xa_motif_wm_hints	= 0;
+Atom 		qt_kwin_running	= 0;
+Atom 		qt_kwm_running	= 0;
+Atom 		qt_gbackground_properties	= 0;
 Atom 		qt_x_incr		= 0;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
@@ -318,8 +325,9 @@ VFPTR qt_set_postselect_handler (VFPTR handler)
 static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
-timeval        *qt_wait_timer();
-int	        qt_activate_timers();
+timeval		*qt_wait_timer();
+timeval 	*qt_wait_timer_max = 0;
+int 		qt_activate_timers();
 
 #if !defined(NO_XIM)
 XIM	qt_xim = 0;
@@ -331,7 +339,7 @@ static QTextCodec * input_mapper = 0;
 
 QObject	       *qt_clipboard = 0;
 Time		qt_x_time = CurrentTime;
-// extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
+extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
@@ -603,6 +611,7 @@ static void qt_x11_process_intern_atoms()
     }
 }
 
+static bool seems_like_KDE_is_running = FALSE;
 
 // read the _QT_DESKTOP_PROPERTIES property and apply the settings to
 // the application
@@ -652,6 +661,9 @@ static bool qt_set_desktop_properties()
     if ( font != QApplication::font() ) {
 	QApplication::setFont( font, TRUE );
     }
+
+    seems_like_KDE_is_running = TRUE;
+
     return TRUE;
 }
 
@@ -811,17 +823,17 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( !resEF.isEmpty() ) {
 	QStringList effects = QStringList::split(" ",resEF);
 	if ( effects.contains("general") )
-	    QApplication::enableEffect( Qt::UI_General, TRUE );
+	    QApplication::setEffectEnabled( Qt::UI_General, TRUE );
 	if ( effects.contains("animatemenu") )
-	    QApplication::enableEffect( Qt::UI_AnimateMenu, TRUE );
+	    QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
 	if ( effects.contains("fademenu") )
-	    QApplication::enableEffect( Qt::UI_FadeMenu, TRUE );
+	    QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
 	if ( effects.contains("animatecombo") )
-	    QApplication::enableEffect( Qt::UI_AnimateCombo, TRUE );
+	    QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
 	if ( effects.contains("animatetooltip") )
-	    QApplication::enableEffect( Qt::UI_AnimateTooltip, TRUE );
+	    QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
 	if ( effects.contains("fadetooltip") )
-	    QApplication::enableEffect( Qt::UI_FadeTooltip, TRUE );
+	    QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
     }
 }
 
@@ -906,12 +918,12 @@ void QApplication::create_xim()
 #ifdef USE_X11R6_XIM
 	XIMCallback destroy;
 	destroy.callback = (XIMProc)xim_destroy_callback;
-	destroy.client_data = NULL;
-	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, NULL) != 0 )
+	destroy.client_data = 0;
+	if ( XSetIMValues( qt_xim, XNDestroyCallback, &destroy, 0 ) != 0 )
 	    qWarning( "Xlib dosn't support destroy callback");
 #endif
 	XIMStyles *styles=0;
-	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
+	XGetIMValues(qt_xim, XNQueryInputStyle, &styles, 0, 0);
 	if ( styles ) {
 	    int i;
 	    for ( i = 0; !qt_xim_style && i < styles->count_styles; i++ )
@@ -1165,6 +1177,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
 	qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
 	qt_x11_intern_atom( "_MOTIF_WM_HINTS", &qt_xa_motif_wm_hints );
+	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
+	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
+	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
 	qt_x11_intern_atom( "INCR", &qt_x_incr );
 
 	qt_xdnd_setup();
@@ -1253,6 +1268,56 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 #endif
 
 }
+
+
+#ifndef QT_NO_STYLE
+ // run-time search for default style
+void QApplication::x11_initialize_style()
+{
+    Atom type;
+    int format;
+    unsigned long length, after;
+    unsigned char *data;
+    if ( app_style )
+	return;
+    if ( !seems_like_KDE_is_running ) {
+	if ( XGetWindowProperty( appDpy, appRootWin, qt_kwin_running, 0, 1,
+				 FALSE, AnyPropertyType, &type, &format,
+				 &length, &after, &data ) == Success
+	     && length ) {
+	    seems_like_KDE_is_running = TRUE;
+	    if ( data )
+		XFree( data );
+	}
+    }
+    if ( !seems_like_KDE_is_running ) {
+	if ( XGetWindowProperty( appDpy, appRootWin, qt_kwm_running, 0, 1,
+				 FALSE, AnyPropertyType, &type, &format,
+				 &length, &after, &data ) == Success
+	     && length ) {
+	    seems_like_KDE_is_running = TRUE; // KDE1, to be precise
+	    if ( data )
+		XFree( data );
+	}
+    }
+    if ( seems_like_KDE_is_running ) {
+#if !defined(QT_NO_STYLE_WINDOWS)
+	app_style = new QWindowsStyle; // default to windowsstyle on KDE
+#endif
+    } else { // maybe another desktop?
+	if ( XGetWindowProperty( appDpy, appRootWin, qt_gbackground_properties, 0, 1,
+				 FALSE, AnyPropertyType, &type, &format,
+				 &length, &after, &data ) == Success
+	     && length ) {
+#ifndef QT_NO_STYLE_CDE
+	    app_style = new QMotifPlusStyle( TRUE ); // default to MotifPlus with hovering
+#endif
+	    if ( data )
+		XFree( data );
+	}
+    }
+}
+#endif
 
 void qt_init( int *argcptr, char **argv, QApplication::Type )
 {
@@ -2250,6 +2315,11 @@ int QApplication::exec()
     quit_now = FALSE;
     quit_code = 0;
     enter_loop();
+
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock(FALSE);
+#endif
+        
     return quit_code;
 }
 
@@ -2279,22 +2349,28 @@ bool QApplication::processNextEvent( bool canWait )
     if (qt_is_gui_used ) {
 	sendPostedEvents();
 
-	// Two loops so that posted events accumulate
+       	// Two loops so that posted events accumulate
 	while ( XPending(appDpy) ) {
 	    while ( XPending(appDpy) ) {	// also flushes output buffer
-		if ( app_exit_loop )		// quit between events
+		if ( app_exit_loop ) {          // quit between events
 		    return FALSE;
+		}
+
 		XNextEvent( appDpy, &event );	// get next event
 		nevents++;
 
-		if ( x11ProcessEvent( &event ) == 1 )
+		if ( x11ProcessEvent( &event ) == 1 ) {
 		    return TRUE;
+		}
 	    }
+
 	    sendPostedEvents();
 	}
     }
-    if ( app_exit_loop )			// break immediately
+
+    if ( app_exit_loop ) {			// break immediately
 	return FALSE;
+    }
 
     sendPostedEvents();
 
@@ -2342,7 +2418,7 @@ bool QApplication::processNextEvent( bool canWait )
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
-    qApp->unlock();
+    qApp->unlock(FALSE);
 #endif
 
     nsel = select( highest + 1,
@@ -2352,11 +2428,12 @@ bool QApplication::processNextEvent( bool canWait )
 		   tm );
 
 #undef FDCAST
-
+    
     if ( qt_postselect_handler )
 	qt_postselect_handler();
 
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+#if defined(QT_THREAD_SUPPORT)
+#  if defined(_OS_UNIX_)
     if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0],&c,1);
@@ -2368,9 +2445,8 @@ bool QApplication::processNextEvent( bool canWait )
 	    return FALSE;
 	}
     }
-#endif
-
-#if defined(QT_THREAD_SUPPORT)
+#  endif
+    
     qApp->lock();
 #endif
 
@@ -2398,28 +2474,36 @@ bool QApplication::processNextEvent( bool canWait )
 
   \sa guiThreadAwake()
 */
+
+#if defined(QT_THREAD_SUPPORT)
 void QApplication::wakeUpGuiThread()
 {
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+    
+#  if defined(_OS_UNIX_)
     char c = 0;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
-#endif
+#  endif
+    
 }
 
 // We've now become the GUI thread
 void QApplication::guiThreadTaken()
 {
-#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
+    
+#  if defined(_OS_UNIX_)
     char c = 1;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
-#endif
+#  endif
+    
 }
+
+#endif
 
 int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 {
@@ -2534,12 +2618,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_selection_sentinel ) {
-		qDebug("qapplication_x11.cpp:%d: TODO: fix the _QT_SELECTION_SENTINEL "
-		       "mechanism", __LINE__);
-		
-		// if (clipboard()->receivers(SIGNAL(dataChanged())) &&
-		//     qt_check_selection_sentinel( event ) )
-		//     emit clipboard()->dataChanged();
+		if (clipboard()->receivers(SIGNAL(dataChanged())) &&
+		    qt_check_selection_sentinel( event ) )
+		    emit clipboard()->dataChanged();
 	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
 		    qt_set_x11_resources();
@@ -3263,6 +3344,8 @@ static void repairTimer( const timeval &time )	// repair broken timer
 /*
   Returns the time to wait for the next timer, or null if no timers are
   waiting.
+
+  The result is bounded to qt_wait_timer_max if this exists.
 */
 
 timeval *qt_wait_timer()
@@ -3285,6 +3368,12 @@ timeval *qt_wait_timer()
 	    tm.tv_sec  = 0;			// no time to wait
 	    tm.tv_usec = 0;
 	}
+	if ( qt_wait_timer_max && *qt_wait_timer_max < tm )
+	    tm = *qt_wait_timer_max;
+	return &tm;
+    }
+    if ( qt_wait_timer_max ) {
+	tm = *qt_wait_timer_max;
 	return &tm;
     }
     return 0;					// no timers
@@ -3620,9 +3709,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    popupOfPopupButtonFocus = 0;
 	}
 
-	XAllowEvents( x11Display(), SyncPointer, CurrentTime );
-	
 	if ( !popupTarget->isEnabled() ) {
+	    if ( popupGrabOk )
+		XAllowEvents( x11Display(), SyncPointer, CurrentTime );
 	    return FALSE;
 	}
 
@@ -3661,7 +3750,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( releaseAfter )
 	    qt_button_down = 0;
 
-	if ( !qApp->inPopupMode() ) { // no longer in popup mode
+	if ( qApp->inPopupMode() ) { // still in popup mode
+	    if ( popupGrabOk )
+		XAllowEvents( dpy, SyncPointer, CurrentTime );
+	} else {
 	    if ( type != QEvent::MouseButtonRelease && state != 0 &&
 		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
@@ -3969,7 +4061,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	case XK_KP_Subtract:
 	case XK_KP_Decimal:
 	case XK_KP_Divide:
-	    keypad = true;
+	    keypad = TRUE;
 	    break;
 	default:
 	    break;
@@ -4336,12 +4428,13 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     clearWState(WState_ConfigPending);
 
     if ( isTopLevel() ) {
+	QApplication::syncX(); // ensure compaction can work properly
 	QPoint newCPos( geometry().topLeft() );
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 
 	bool trust =  topData()->parentWinId == None ||  topData()->parentWinId == appRootWin;
 	if (event->xconfigure.send_event || trust ) {
-	    /* if a ConfigureNotify comes from a true sendevent request, we can
+	    /* if a ConfigureNotify comes from a real sendevent request, we can
 	       trust its values. */
 	    newCPos.rx() = event->xconfigure.x + event->xconfigure.border_width;
 	    newCPos.ry() = event->xconfigure.y + event->xconfigure.border_width;
@@ -4514,11 +4607,74 @@ int QApplication::wheelScrollLines()
     return wheel_scroll_lines;
 }
 
+/*!
+  Enables the UI effect \a effect if \a enable is TRUE, otherwise
+  the effect will not be used.
+
+  \sa isEffectEnabled(), Qt::UIEffect, setDesktopSettingsAware()
+*/
+void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
+{
+    switch (effect) {
+    case UI_AnimateMenu:
+	animate_menu = enable;
+	break;
+    case UI_FadeMenu:
+	if ( enable )
+	    animate_menu = TRUE;
+	fade_menu = enable;
+	break;
+    case UI_AnimateCombo:
+	animate_combo = enable;
+	break;
+    case UI_AnimateTooltip:
+	animate_tooltip = enable;
+	break;
+    case UI_FadeTooltip:
+	if ( enable )
+	    animate_tooltip = TRUE;
+	fade_tooltip = enable;
+	break;
+    default:
+	animate_ui = enable;
+	break;
+    }
+}
+
+/*!
+  Returns TRUE if \a effect is enabled, otherwise FALSE.
+
+  By default, Qt will try to use the desktop settings, and
+  setDesktopSettingsAware() must be called to prevent this.
+
+  sa\ setEffectEnabled(), Qt::UIEffect
+*/
+bool QApplication::isEffectEnabled( Qt::UIEffect effect )
+{
+    if ( !animate_ui )
+	return FALSE;
+
+    switch( effect ) {
+    case UI_AnimateMenu:
+	return animate_menu;
+    case UI_FadeMenu:
+	return fade_menu;
+    case UI_AnimateCombo:
+	return animate_combo;
+    case UI_AnimateTooltip:
+	return animate_tooltip;
+    case UI_FadeTooltip:
+	return fade_tooltip;
+    default:
+	return animate_ui;
+    }
+}
+
 /*****************************************************************************
-  Session management support (-D QT_SM_SUPPORT to enable it)
+  Session management support
  *****************************************************************************/
 
-#ifndef QT_SM_SUPPORT
+#ifdef QT_NO_SM_SUPPORT
 
 class QSessionManagerData
 {
@@ -4617,7 +4773,7 @@ void QSessionManager::requestPhase2()
 {
 }
 
-#else // QT_SM_SUPPORT
+#else // QT_NO_SM_SUPPORT
 
 
 #include <X11/SM/SMlib.h>
@@ -5078,4 +5234,4 @@ void QSessionManager::requestPhase2()
 }
 
 
-#endif // QT_SM_SUPPORT
+#endif // QT_NO_SM_SUPPORT

@@ -5,17 +5,19 @@
 **
 ** Created : 931107
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -53,7 +55,8 @@ typedef QApplication QNonBaseApplication;
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
-#include <qthread.h>
+class QMutex;
+class QSemaphore;
 #endif
 
 class Q_EXPORT QApplication : public QObject
@@ -177,8 +180,8 @@ public:
     static void setStartDragDistance( int l );
     static int startDragDistance();
 
-    static bool	    effectEnabled( Qt::UIEffect );
-    static void	    enableEffect( Qt::UIEffect, bool enable = TRUE );
+    static bool	    isEffectEnabled( Qt::UIEffect );
+    static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
 #if defined(_WS_MAC_)
     void	     do_mouse_down(void *);
@@ -216,12 +219,12 @@ public:
     static void create_xim();
     static void close_xim();
 #endif
-
+#if defined(QT_THREAD_SUPPORT)
     void	     wakeUpGuiThread();
     void	     guiThreadTaken();
-#if defined(QT_THREAD_SUPPORT)
-    void	     lock() { qt_mutex->lock(); }
-    void	     unlock() { qt_mutex->unlock(); }
+    void	     lock();
+    void	     unlock(bool wakeUpGui = TRUE);
+    bool 	     locked();
 #endif
 
 signals:
@@ -283,6 +286,10 @@ private:
     QString	     session_id;
     bool	     is_session_restored;
 #endif
+#if defined(_WS_X11_) && !defined (QT_NO_STYLE )
+    static void x11_initialize_style();
+#endif
+
     static QSize     app_strut;
 
     static QAsciiDict<QPalette> *app_palettes;

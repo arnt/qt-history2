@@ -5,17 +5,19 @@
 **
 ** Created : 931107
 **
-** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
-** as defined by Troll Tech AS of Norway and appearing in the file
+** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.  This file is part of the kernel
+** module and therefore may only be used if the kernel module is specified
+** as Licensed on the Licensee's License Certificate.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
@@ -36,6 +38,7 @@
 #include "qcompactstyle.h"
 #endif
 #include "qmotifstyle.h"
+#include "qmotifplusstyle.h"
 #include "qplatinumstyle.h"
 #include "qcdestyle.h"
 #include "qsgistyle.h"
@@ -385,33 +388,35 @@ static void qt_fix_tooltips()
 // on threadevent until the new event loop has finished. It then returns
 // and reenters the loop in order to make sure variables are not corrupted.
 
-class QExecStack {
-
-    QMutex stackmutex;
+class QExecStack
+{
     QThreadEvent threadevent;
     QThreadEvent pipereceive;
-    QValueStack<THREAD_HANDLE> handles;
-
+    QValueStack<HANDLE> handles;
+    QMutex stackmutex;
 public:
-
+    QMutex currentMutex;
     QExecStack();
+    HANDLE gui_thread_id;
+
     void takeExec();      // I am now the GUI thread
     void releaseExec();   // Wake up previous GUI thread
     void waitForExec();   // Previous thread calls this
     void ackPipe();
     void waitPipe();
-    THREAD_HANDLE current();
-
+    HANDLE current();
 };
 
 QExecStack::QExecStack()
 {
     handles.push( QThread::currentThread() );
+    gui_thread_id = QThread::currentThread();
 }
 
 void QExecStack::takeExec()
 {
     stackmutex.lock();
+    gui_thread_id = current();
     handles.push( QThread::currentThread() );
     stackmutex.unlock();
 }
@@ -420,13 +425,14 @@ void QExecStack::releaseExec()
 {
     stackmutex.lock();
     handles.pop();
+    gui_thread_id = current();
     stackmutex.unlock();
     threadevent.wakeAll();
 }
 
 void QExecStack::waitForExec()
 {
-    while(true) {
+    while( TRUE ) {
 	threadevent.wait();
 	stackmutex.lock();
 	if( handles.top() == QThread::currentThread() ) {
@@ -438,11 +444,11 @@ void QExecStack::waitForExec()
     }
 }
 
-THREAD_HANDLE QExecStack::current()
+HANDLE QExecStack::current()
 {
-    THREAD_HANDLE ret;
+    HANDLE ret;
     stackmutex.lock();
-    ret=handles.top();
+    ret = handles.top();
     stackmutex.unlock();
     return ret;
 }
@@ -457,11 +463,10 @@ void QExecStack::waitPipe()
     while(1) {
 	pipereceive.wait();
 	stackmutex.lock();
-	THREAD_HANDLE tmp=handles.top();
+	HANDLE tmp = handles.top();
 	stackmutex.unlock();
-	if(tmp==QThread::currentThread()) {
+	if( tmp == QThread::currentThread() )
 	    return;
-	}
     }
 }
 
@@ -475,6 +480,11 @@ void qt_wait_for_exec()
 void qt_ack_pipe()
 {
     qt_exec_stack->ackPipe();
+}
+
+HANDLE qt_gui_thread()
+{
+    return qt_exec_stack->gui_thread_id;
 }
 
 #endif
@@ -517,6 +527,10 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	} else if ( qstricmp(arg, "-style=sgi") == 0 ) {
 	    setStyle( new QSGIStyle );
 #endif
+#ifndef QT_NO_STYLE_MOTIFPLUS
+	} else if (qstricmp(arg, "-style=motifplus") == 0) {
+	    setStyle(new QMotifPlusStyle);
+#endif
 #ifndef QT_NO_COMPLEXWIDGETS
 	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
@@ -544,6 +558,11 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 #ifndef QT_NO_STYLE_SGI
 	    if ( s == "sgi" )
 		setStyle( new QSGIStyle );
+	    else
+#endif
+#ifndef QT_NO_STYLE_MOTIFPLUS
+	    if ( s == "motifplus" )
+		setStyle(new QMotifPlusStyle);
 	    else
 #endif
 	    qWarning("Invalid -style option");
@@ -757,10 +776,12 @@ void QApplication::initialize( int argc, char **argv )
     is_app_running = TRUE; // no longer starting up
 
 #ifndef QT_NO_STYLE
+#if defined(_WS_X11_)
+    x11_initialize_style(); // run-time search for default style
+#endif
     if (!app_style) {
-
-// Compile-time search for default style
-//
+	// Compile-time search for default style
+	//
 #if defined(_WS_WIN_) && !defined(QT_NO_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
 #elif defined(_WS_X11_) && defined(_OS_IRIX_) && !defined(QT_NO_STYLE_SGI)
@@ -904,14 +925,14 @@ QApplication::~QApplication()
     app_cursor = 0;
 #endif
     /*
-    Cannot delete objectDict, as then all Class::metaObj variables
-    become invalid.  We could make a separate function to do this
-    to allow apps to assert "I will not use Qt any more". It is
-    not sufficient to assume that here, as a new QApplication might
-    be constructed.
+      Cannot delete objectDict, as then all Class::metaObj variables
+      become invalid.  We could make a separate function to do this
+      to allow apps to assert "I will not use Qt any more". It is
+      not sufficient to assume that here, as a new QApplication might
+      be constructed.
 
-    delete objectDict;
-    objectDict = 0;
+      delete objectDict;
+      objectDict = 0;
     */
 
     qApp = 0;
@@ -2533,14 +2554,17 @@ bool QApplication::desktopSettingsAware()
 int QApplication::enter_loop()
 {
 #if defined(QT_THREAD_SUPPORT)
-    bool switched=false;
-    if(qt_exec_stack->current()!=QThread::currentThread()) {
+    bool switched=FALSE;
+
+    if( qt_exec_stack->current() != QThread::currentThread() ) {
 	qApp->unlock();
+	qt_exec_stack->currentMutex.lock();
 	qt_exec_stack->takeExec();
 	guiThreadTaken();
 	qt_exec_stack->waitPipe();
+
 	qApp->lock();
-	switched=true;
+	switched=TRUE;
     }
 #endif
 
@@ -2548,6 +2572,11 @@ int QApplication::enter_loop()
 
     bool old_app_exit_loop = app_exit_loop;
     app_exit_loop = FALSE;
+
+#if defined(QT_THREAD_SUPPORT)
+    if ( switched ) 
+	qt_exec_stack->currentMutex.unlock();
+#endif
 
     while ( !app_exit_loop ) {
 	processNextEvent( TRUE );
@@ -2562,9 +2591,8 @@ int QApplication::enter_loop()
     }
 
 #if defined(QT_THREAD_SUPPORT)
-    if(switched) {
+    if( switched )
 	qt_exec_stack->releaseExec();
-    }
 #endif
 
     return 0;
@@ -2594,6 +2622,56 @@ int QApplication::loopLevel() const
 {
     return loop_level;
 }
+
+
+/*! \fn void QApplication::lock()
+  Lock the Qt library mutex.  If another thread has already locked the
+  mutex, the calling thread will block until the other thread has
+  unlocked the mutex.
+  
+  \sa unlock(), locked()
+*/
+
+
+/*! \fn void QApplication::unlock()
+  Unlock the Qt library mutex.
+  
+  \sa lock(), locked()
+*/
+
+
+/*! \fn bool QApplication::locked()
+  Returns TRUE if the Qt library mutex is locked by a different thread,
+  otherwise returns FALSE.
+  
+  \sa lock(), unlock()
+*/
+
+
+
+#if defined(QT_THREAD_SUPPORT)
+
+void QApplication::lock()
+{
+    qt_mutex->lock();
+}
+
+
+void QApplication::unlock(bool wakeUpGui)
+{
+    qt_mutex->unlock();
+    
+    if (wakeUpGui)
+	wakeUpGuiThread();
+}
+
+
+bool QApplication::locked()
+{
+    return qt_mutex->locked();
+}
+
+#endif
 
 
 /*!
@@ -2773,69 +2851,6 @@ void QApplication::setStartDragDistance( int l )
 int QApplication::startDragDistance()
 {
     return drag_distance;
-}
-
-/*!
-  Enable the UI effect \a effect if \a enable is TRUE, otherwise
-  the effect will not be used.
-
-  \sa effectEnabled(), Qt::UIEffect, setDesktopSettingsAware()
-*/
-void QApplication::enableEffect( Qt::UIEffect effect, bool enable )
-{
-    switch (effect) {
-    case UI_AnimateMenu:
-	animate_menu = enable;
-	break;
-    case UI_FadeMenu:
-	if ( enable )
-	    animate_menu = TRUE;
-	fade_menu = enable;
-	break;
-    case UI_AnimateCombo:
-	animate_combo = enable;
-	break;
-    case UI_AnimateTooltip:
-	animate_tooltip = enable;
-	break;
-    case UI_FadeTooltip:
-	if ( enable )
-	    animate_tooltip = TRUE;
-	fade_tooltip = enable;
-	break;
-    default:
-	animate_ui = enable;
-	break;
-    }
-}
-
-/*!
-  Returns TRUE if \a effect is enabled, otherwise FALSE.
-
-  By default, Qt will try to use the desktop settings, and
-  setDesktopSettingsAware() must be called to prevent this.
-
-  sa\ enableEffect(), Qt::UIEffect
-*/
-bool QApplication::effectEnabled( Qt::UIEffect effect )
-{
-    if ( !animate_ui )
-	return FALSE;
-
-    switch( effect ) {
-    case UI_AnimateMenu:
-	return animate_menu;
-    case UI_FadeMenu:
-	return fade_menu;
-    case UI_AnimateCombo:
-	return animate_combo;
-    case UI_AnimateTooltip:
-	return animate_tooltip;
-    case UI_FadeTooltip:
-	return fade_tooltip;
-    default:
-	return animate_ui;
-    }
 }
 
 /*!
