@@ -39,7 +39,6 @@
 #include <pwd.h>
 #include <signal.h>
 #include <dlfcn.h>
-#define QT_RTLD_FLAGS	RTLD_LAZY
 // KAI C++ has at the moment problems with unloading the Qt plugins.
 // So don't unload them as a workaround for now.
 #define QT_NO_LIBRARY_UNLOAD

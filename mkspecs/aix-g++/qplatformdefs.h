@@ -27,7 +27,6 @@
 #include <pwd.h>
 #include <signal.h>
 #include <dlfcn.h>
-#define QT_RTLD_FLAGS	RTLD_LAZY
 #include <strings.h> // AIX X11 headers define FD_ZERO using bzero()
 
 #include <sys/types.h>

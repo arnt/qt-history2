@@ -111,7 +111,7 @@ bool QLibraryPrivate::loadLibrary()
 
     QString filename = library->library();
 
-    pHnd = dlopen( filename.latin1() , QT_RTLD_FLAGS );
+    pHnd = dlopen( filename.latin1(), RTLD_LAZY );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
 	qWarning( "%s", dlerror() );

@@ -23,8 +23,6 @@
 #include <pwd.h>
 #include <signal.h>
 #include <dlfcn.h>
-// RTLD_GLOBAL not documented in NetBSD 1.5.2
-#define QT_RTLD_FLAGS	RTLD_LAZY
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
