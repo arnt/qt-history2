@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#33 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -746,28 +746,28 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 
     switch ( e->key() ) {
     case Key_Left:
-	moveCursor( MoveLeft, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( e->state() & ControlButton ? MoveWordBackward : MoveBackward, e->state() & ShiftButton );
 	break;
     case Key_Right:
-	moveCursor( MoveRight, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( e->state() & ControlButton ? MoveWordForward : MoveForward, e->state() & ShiftButton );
 	break;
     case Key_Up:
-	moveCursor( MoveUp, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( e->state() & ControlButton ? MovePgUp : MoveUp, e->state() & ShiftButton );
 	break;
     case Key_Down:
-	moveCursor( MoveDown, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( e->state() & ControlButton ? MovePgDown : MoveDown, e->state() & ShiftButton );
 	break;
     case Key_Home:
-	moveCursor( MoveHome, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( e->state() & ControlButton ? MoveHome : MoveLineStart, e->state() & ShiftButton );
 	break;
     case Key_End:
-	moveCursor( MoveEnd, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( e->state() & ControlButton ? MoveEnd : MoveLineEnd, e->state() & ShiftButton );
 	break;
     case Key_Prior:
-	moveCursor( MovePgUp, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( MovePgUp, e->state() & ShiftButton );
 	break;
     case Key_Next:
-	moveCursor( MovePgDown, e->state() & ShiftButton, e->state() & ControlButton );
+	moveCursor( MovePgDown, e->state() & ShiftButton );
 	break;
     case Key_Return: case Key_Enter:
 	if ( doc->hasSelection( QTextDocument::Standard, FALSE ) )
@@ -853,16 +853,16 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    break;
 		case Key_A:
 #if defined(Q_WS_X11)
-		    moveCursor( MoveHome, e->state() & ShiftButton, FALSE );
+		    moveCursor( MoveLineStart, e->state() & ShiftButton );
 #else
 		    selectAll( TRUE );
 #endif
 		    break;
 		case Key_B:
-		    moveCursor( MoveLeft, e->state() & ShiftButton, FALSE );
+		    moveCursor( MoveBackward, e->state() & ShiftButton );
 		    break;
 		case Key_F:
-		    moveCursor( MoveRight, e->state() & ShiftButton, FALSE );
+		    moveCursor( MoveForward, e->state() & ShiftButton );
 		    break;
 		case Key_D:
 		    if ( doc->hasSelection( QTextDocument::Standard ) ) {
@@ -885,13 +885,13 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    clearUndoRedoInfo = FALSE;
 		    break;
 		case Key_E:
-		    moveCursor( MoveEnd, e->state() & ShiftButton, FALSE );
+		    moveCursor( MoveLineEnd, e->state() & ShiftButton );
 		    break;
 		case Key_N:
-		    moveCursor( MoveDown, e->state() & ShiftButton, FALSE );
+		    moveCursor( MoveDown, e->state() & ShiftButton );
 		    break;
 		case Key_P:
-		    moveCursor( MoveUp, e->state() & ShiftButton, FALSE );
+		    moveCursor( MoveUp, e->state() & ShiftButton );
 		    break;
 		case Key_Z:
 		    undo();
@@ -1201,13 +1201,13 @@ void QTextEdit::removeSelectedText()
   moves one character left, but \e{Ctrl+Left Arrow} moves one word left.
 */
 
-void QTextEdit::moveCursor( MoveDirection direction, bool shift, bool control )
+void QTextEdit::moveCursor( CursorAction action, bool select )
 {
     drawCursor( FALSE );
-    if ( shift ) {
+    if ( select ) {
 	if ( !doc->hasSelection( QTextDocument::Standard ) )
 	    doc->setSelectionStart( QTextDocument::Standard, cursor );
-	moveCursor( direction, control );
+	moveCursor( action );
 	if ( doc->setSelectionEnd( QTextDocument::Standard, cursor ) ) {
 	    cursor->parag()->document()->nextDoubleBuffered = TRUE;
 	    repaintChanged();
@@ -1219,7 +1219,7 @@ void QTextEdit::moveCursor( MoveDirection direction, bool shift, bool control )
 	emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     } else {
 	bool redraw = doc->removeSelection( QTextDocument::Standard );
-	moveCursor( direction, control );
+	moveCursor( action );
 	if ( !redraw ) {
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
@@ -1251,51 +1251,45 @@ void QTextEdit::moveCursor( MoveDirection direction, bool shift, bool control )
 /*! \overload
 */
 
-void QTextEdit::moveCursor( MoveDirection direction, bool control )
+void QTextEdit::moveCursor( CursorAction action )
 {
     resetInputContext();
-    switch ( direction ) {
-    case MoveLeft: {
-	if ( !control )
-	    cursor->gotoLeft();
-	else
-	    cursor->gotoWordLeft();
-    } break;
-    case MoveRight: {
-	if ( !control )
-	    cursor->gotoRight();
-	else
-	    cursor->gotoWordRight();
-    } break;
-    case MoveUp: {
-	if ( !control )
-	    cursor->gotoUp();
-	else
-	    cursor->gotoPageUp( visibleHeight() );
-    } break;
-    case MoveDown: {
-	if ( !control )
-	    cursor->gotoDown();
-	else
-	    cursor->gotoPageDown( visibleHeight() );
-    } break;
-    case MoveHome: {
-	if ( !control )
-	    cursor->gotoLineStart();
-	else
-	    cursor->gotoHome();
-    } break;
-    case MoveEnd: {
-	if ( !control )
-	    cursor->gotoLineEnd();
-	else
-	    cursor->gotoEnd();
-    } break;
+    switch ( action ) {
+    case MoveBackward:
+	cursor->gotoLeft();
+	break;
+    case MoveWordBackward:
+	cursor->gotoWordLeft();
+	break;
+    case MoveForward:
+	cursor->gotoRight();
+	break;
+    case MoveWordForward:
+	cursor->gotoWordRight();
+	break;
+    case MoveUp:
+	cursor->gotoUp();
+	break;
     case MovePgUp:
 	cursor->gotoPageUp( visibleHeight() );
 	break;
+    case MoveDown:
+	cursor->gotoDown();
+	break;
     case MovePgDown:
 	cursor->gotoPageDown( visibleHeight() );
+	break;
+    case MoveLineStart:
+	cursor->gotoLineStart();
+	break;
+    case MoveHome:
+	cursor->gotoHome();
+	break;
+    case MoveLineEnd:
+	cursor->gotoLineEnd();
+	break;
+    case MoveEnd:
+	cursor->gotoEnd();
 	break;
     }
 

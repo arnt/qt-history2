@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#195 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#196 $
 **
 ** Implementation of QMultiLineEdit widget class
 **
@@ -207,7 +207,7 @@ QString QMultiLineEdit::markedText() const
 
 void QMultiLineEdit::pageDown( bool mark )
 {
-    moveCursor( MoveDown, mark, FALSE );
+    moveCursor( MoveDown, mark );
 }
 
 
@@ -218,7 +218,7 @@ void QMultiLineEdit::pageDown( bool mark )
 
 void QMultiLineEdit::pageUp( bool mark )
 {
-    moveCursor( MovePgUp, mark, FALSE );
+    moveCursor( MovePgUp, mark );
 }
 
 
@@ -312,7 +312,7 @@ void QMultiLineEdit::backspace()
 
 void QMultiLineEdit::home( bool mark )
 {
-    moveCursor( MoveHome, mark, FALSE );
+    moveCursor( MoveLineStart, mark );
 }
 
 /*!  Moves the text cursor to the right end of the line. If \a mark is
@@ -324,7 +324,7 @@ void QMultiLineEdit::home( bool mark )
 
 void QMultiLineEdit::end( bool mark )
 {
-    moveCursor( MoveEnd, mark, FALSE );
+    moveCursor( MoveLineEnd, mark );
 }
 
 /*!  Sets the cursor position to character number \a col in paragraph
@@ -427,7 +427,7 @@ bool QMultiLineEdit::edited() const
 */
 void QMultiLineEdit::cursorWordForward( bool mark )
 {
-    moveCursor( MoveRight, mark, TRUE );
+    moveCursor( MoveWordForward, mark );
 }
 
 /*!  Moves the cursor one word to the left.  If \a mark is TRUE, the
@@ -437,7 +437,7 @@ void QMultiLineEdit::cursorWordForward( bool mark )
 */
 void QMultiLineEdit::cursorWordBackward( bool mark )
 {
-    moveCursor( MoveLeft, mark, TRUE );
+    moveCursor( MoveWordBackward, mark );
 }
 
 /*!  Inserts \a s at paragraph number \a line, after character
@@ -480,7 +480,7 @@ void QMultiLineEdit::killLine()
 
 void QMultiLineEdit::cursorLeft( bool mark, bool )
 {
-    moveCursor( MoveLeft, mark, FALSE );
+    moveCursor( MoveBackward, mark );
 }
 
 /*!  Moves the cursor one character to the right.  If \a mark is TRUE,
@@ -491,7 +491,7 @@ void QMultiLineEdit::cursorLeft( bool mark, bool )
 
 void QMultiLineEdit::cursorRight( bool mark, bool )
 {
-    moveCursor( MoveRight, mark, FALSE );
+    moveCursor( MoveForward, mark );
 }
 
 /*!  Moves the cursor up one line.  If \a mark is TRUE, the text is
@@ -502,7 +502,7 @@ void QMultiLineEdit::cursorRight( bool mark, bool )
 
 void QMultiLineEdit::cursorUp( bool mark )
 {
-    moveCursor( MoveUp, mark, FALSE );
+    moveCursor( MoveUp, mark );
 }
 
 /*!
@@ -513,7 +513,7 @@ void QMultiLineEdit::cursorUp( bool mark )
 
 void QMultiLineEdit::cursorDown( bool mark )
 {
-    moveCursor( MoveDown, mark, FALSE );
+    moveCursor( MoveDown, mark );
 }
 
 /*!  Returns the text at line number \a line (possibly the empty

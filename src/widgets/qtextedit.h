@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.h#22 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.h#23 $
 **
 ** Definition of the QTextEdit class
 **
@@ -109,11 +109,15 @@ public:
 	ActionKill
     };
 
-    enum MoveDirection {
-	MoveLeft,
-	MoveRight,
+    enum CursorAction {
+	MoveBackward,
+	MoveForward,
+	MoveWordBackward,
+	MoveWordForward,
 	MoveUp,
 	MoveDown,
+	MoveLineStart,
+	MoveLineEnd,
 	MoveHome,
 	MoveEnd,
 	MovePgUp,
@@ -238,8 +242,7 @@ public slots:
     virtual void setFormat( QTextFormat *f, int flags );
     virtual void ensureCursorVisible();
     virtual void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
-    virtual void moveCursor( MoveDirection direction, bool shift, bool control );
-    virtual void moveCursor( MoveDirection direction, bool control );
+    virtual void moveCursor( CursorAction action, bool select );
     virtual void doKeyboardAction( KeyboardAction action );
     virtual void removeSelectedText();
     virtual void setCurrentFont( const QFont &f );
@@ -350,6 +353,7 @@ private:
     void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles = FALSE );
     void clearUndoRedo();
     void paintDocument( bool drawAll, QPainter *p, int cx = -1, int cy = -1, int cw = -1, int ch = -1 );
+    void moveCursor( CursorAction action );
 
 private:
     QTextDocument *doc;
