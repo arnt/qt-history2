@@ -306,7 +306,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #if defined(Q_OS_TEMP)
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
 #else
-            ret = GetSystemMetrics(SM_CYMCAPTION) - 1;
+            ret = GetSystemMetrics(SM_CYSMCAPTION) - 1;
 #endif
         }
 
