@@ -90,6 +90,7 @@ void QSqlExtension::clearValues()
 void QSqlExtension::clearIndex()
 {
     index.clear();
+    holders.clear();
 }
 
 QVariant QSqlExtension::parameterValue( const QString& /* holder */ )

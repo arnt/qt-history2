@@ -51,6 +51,7 @@
 
 #ifndef QT_H
 #include "qmap.h"
+#include "qvaluevector.h"
 #include "qstring.h"
 #include "qvariant.h"
 #include "qsql.h"
@@ -70,9 +71,16 @@ struct Param {
     QSql::ParameterType typ;
 };
 
+struct Holder {
+    Holder( const QString& hldr = QString::null, int pos = -1 ): holderName( hldr ), holderPos( pos ) {}
+    QString holderName;
+    int	    holderPos;
+};
+
 #if defined(Q_TEMPLATEDLL)
 Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<QString,Param>;
 Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<int,QString>;
+Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QValueVector<Holder>;
 #endif
 
 class QM_EXPORT_SQL QSqlExtension {
@@ -97,6 +105,11 @@ public:
     QMap<int, QString> index;
     typedef QMap<QString, Param> ValueMap;
     ValueMap values;
+
+    // convenience container for QSqlQuery
+    // to map holders <-> positions
+    typedef QValueVector<Holder> HolderVector;
+    HolderVector holders;
 };
 
 class QM_EXPORT_SQL QSqlDriverExtension

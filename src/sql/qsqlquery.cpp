@@ -878,13 +878,14 @@ bool QSqlQuery::prepare( const QString& query )
     qDebug( "\n QSqlQuery: " + query );
 #endif
     d->sqlResult->extension()->clearIndex();
+    QString q = query;
+    static QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	// below we substitute Oracle placeholders with ODBC ones and
 	// vice versa to make this db independant
-	QString q = query;
 	int i = 0, cnt = 0;
 	if ( driver()->hasFeature( QSqlDriver::NamedPlaceholders ) ) {
-	    QRegExp rx("'[^']*'|\\?");
+	    static QRegExp rx("'[^']*'|\\?");
 	    while ( (i = rx.search( q, i )) != -1 ) {
 		if ( rx.cap(0) == "?" ) {
 		    q = q.replace( i, 1, ":f" + QString::number(cnt) );
@@ -893,7 +894,6 @@ bool QSqlQuery::prepare( const QString& query )
 		i += rx.matchedLength();
 	    }
 	} else if ( driver()->hasFeature( QSqlDriver::PositionalPlaceholders ) ) {
-	    QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
 	    while ( (i = rx.search( q, i )) != -1 ) {
 		if ( rx.cap(1).isEmpty() ) {
 		    i += rx.matchedLength();
@@ -909,6 +909,11 @@ bool QSqlQuery::prepare( const QString& query )
 	}
 	return d->sqlResult->extension()->prepare( q );
     } else {
+	int i = 0;
+	while ( (i = rx.search( q, i )) != -1 ) {
+	    d->sqlResult->extension()->holders.append( Holder( rx.cap(0), i ) );
+	    i += rx.matchedLength();
+	}
 	return TRUE; // fake prepares should always succeed
     }
 }
@@ -932,15 +937,19 @@ bool QSqlQuery::exec()
 	// fake preparation - just replace the placeholders..
 	QString query = d->sqlResult->lastQuery();
 	if ( d->sqlResult->extension()->bindMethod() == QSqlExtension::BindByName ) {
-	    QSqlExtension::ValueMap::Iterator it;
-	    for ( it = d->sqlResult->extension()->values.begin();
-		  it != d->sqlResult->extension()->values.end(); ++it ) {
-		QSqlField f( "", it.data().value.type() );
-		if ( it.data().value.isNull() )
+	    int i;
+	    QVariant val;
+	    QString holder;
+	    for ( i = (int)d->sqlResult->extension()->holders.count() - 1; i >= 0; --i ) {
+		holder = d->sqlResult->extension()->holders[ (uint)i ].holderName;
+		val = d->sqlResult->extension()->values[ holder ].value;
+		QSqlField f( "", val.type() );
+		if ( val.isNull() )
 		    f.setNull();
 		else
-		    f.setValue( it.data().value );
-		query = query.replace( it.key(), driver()->formatValue( &f ) ); 
+		    f.setValue( val );
+		query = query.replace( (uint)d->sqlResult->extension()->holders[ (uint)i ].holderPos, 
+			holder.length(), driver()->formatValue( &f ) ); 
 	    }
 	} else {
 	    QMap<int, QString>::Iterator it;
