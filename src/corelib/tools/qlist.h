@@ -16,6 +16,7 @@
 
 #include "QtCore/qiterator.h"
 #include "QtCore/qatomic.h"
+#include "QtCore/qalgorithms.h"
 
 #ifndef QT_NO_STL
 #include <iterator>
@@ -406,7 +407,7 @@ inline void QList<T>::replace(int i, const T &t)
 
 template <typename T>
 inline void QList<T>::swap(int i, int j)
-{ 
+{
     Q_ASSERT_X(i >= 0 && i < p.size() && j >= 0 && j < p.size(),
                 "QList<T>::swap", "index out of range");
     detach();
