@@ -8,6 +8,9 @@
 # To remove the need for the first test, do this:
 # QTDIR=`pwd` export QTDIR
 
+relpath=`dirname $0`
+relpath=`(cd $relpath; pwd)`
+
 touch .test.qt.
 if [ '!' -f ${QTDIR}/.test.qt. ];
 then
@@ -301,7 +304,7 @@ fi
 TARGET=$PLATFORM
 if [ "x$SHARED" = "xyes" ]; then
     TARGET="${TARGET}-shared"
-    if [ '!' -f configs/$TARGET ]; then
+    if [ '!' -f $relpath/configs/$TARGET ]; then
         echo
         echo
         echo '    No shared library support for platform/compiler ' $TARGET
@@ -312,7 +315,7 @@ if [ "x$SHARED" = "xyes" ]; then
     fi
 else
     TARGET="${TARGET}-static"
-    if [ '!' -f configs/$TARGET ]; then
+    if [ '!' -f $relpath/configs/$TARGET ]; then
         echo
         echo
         echo '     No static library support for platform/compiler ' $TARGET
@@ -327,7 +330,7 @@ if [ "x$DEBUG" = "xyes" ]; then
     TARGET="${TARGET}-debug"
 fi
 
-CONFIG="configs/${TARGET}"
+CONFIG="$relpath/configs/${TARGET}"
 if [ -z "$TARGET" -o '!' -f "$CONFIG" ];
 then
     echo
@@ -391,9 +394,13 @@ echo "GIF supports:  $GIF"
 echo
 echo Creating makefiles...
 
-for a in `find . -name Makefile.in -print | sort` ; do
-    N=`dirname $a`/Makefile
-    M=${N}.in
+sepath=`echo $relpath | sed -e's/\\./\\\\./g'`
+
+for a in `find $relpath -name Makefile.in -print | sort` ; do
+    buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
+    test -d $buildpath || mkdir -p $buildpath
+    N=$buildpath/Makefile
+    M=$a
     cat > $N <<EOF
 #############################################################################
 # Automatically generated from $M
@@ -401,7 +408,15 @@ for a in `find . -name Makefile.in -print | sort` ; do
 #############################################################################
 
 EOF
-    cat .buildopts $CONFIG $M >> $N
+
+    if [ $relpath != `pwd` ] ; then
+        echo VPATH=$relpath/$buildpath >> $N
+	cat .buildopts $CONFIG >> $N
+	sed -e's/	\$(MOC) [^ ]* -o .*/	$(MOC) $< -o $@/g' \
+	    -e's/\(	\$(CXX) -c \$(CXXFLAGS) \$(INCPATH) -o\) [^ ]* [^ ]*/\1 $@ $</g' $M >> $N
+    else
+	cat .buildopts $CONFIG $M >> $N
+    fi
     if [ "$VERBOSE" = "yes" ]; then
        echo '  Created' $N
     fi
