@@ -376,8 +376,12 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 		clash = -1;
 	    }
 	}
+
 	intermediate = partial;
-	return ( currentState == Qt::PartialMatch );
+	bool isPartial = currentState == Qt::PartialMatch;
+	if ( isPartial )
+	    e->accept();
+	return isPartial;
     } else if ( n == 0 ) { // found exactly one match
 	clash = -1; // reset
 	if ( currentState == Qt::PartialMatch && mainStatusBar )
