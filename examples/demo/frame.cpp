@@ -102,6 +102,8 @@ void Frame::setCategories( const QPtrList<CategoryInterface> &l )
 	categoryBar->addCategory( categories.at(i)->name(),
 				  categories.at(i)->icon(),
 				  createCategoryPage( categories.at(i) ) );
+
+    categories.first()->setCurrentCategory( 0 );
 }
 
 QWidget *Frame::createCategoryPage( CategoryInterface *c )
