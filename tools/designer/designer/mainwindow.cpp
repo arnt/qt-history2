@@ -947,8 +947,12 @@ void MainWindow::helpRegister()
 
 void MainWindow::showProperties( QObject *o )
 {
-    if ( !o->isWidgetType() ) { // ###### QObject stuff todo
+    if ( !o->isWidgetType() ) {
 	propertyEditor->setWidget( o, lastActiveFormWindow );
+	if ( lastActiveFormWindow )
+	    hierarchyView->setFormWindow( lastActiveFormWindow, lastActiveFormWindow->mainContainer() );
+	else
+	    hierarchyView->setFormWindow( 0, 0 );
 	return;
     }
     QWidget *w = (QWidget*)o;

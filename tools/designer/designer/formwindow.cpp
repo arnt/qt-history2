@@ -221,6 +221,9 @@ void FormWindow::initSlots()
 
 FormWindow::~FormWindow()
 {
+    if ( MainWindow::self->objectHierarchy()->formWindow() == this )
+	MainWindow::self->objectHierarchy()->setFormWindow( 0, 0 );
+
     MetaDataBase::clear( this );
     ff->setFormWindow( 0 );
     delete iface;

@@ -24,6 +24,7 @@
 #include <qvariant.h>
 #include <qlistview.h>
 #include <qtabwidget.h>
+#include <qguardedptr.h>
 
 class FormWindow;
 class QCloseEvent;
@@ -208,7 +209,7 @@ private:
     FormDefinitionView *fView;
     SourceEditor *editor;
     QMap<QString, ClassBrowser> classBrowsers;
-    SourceEditor *lastSourceEditor;
+    QGuardedPtr<SourceEditor> lastSourceEditor;
 
 };
 

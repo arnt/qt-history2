@@ -906,7 +906,6 @@ HierarchyView::HierarchyView( QWidget *parent )
 {
     formwindow = 0;
     editor = 0;
-    lastSourceEditor = 0;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     listview = new HierarchyList( this, formWindow() );
     addTab( listview, tr( "Widgets" ) );
@@ -955,6 +954,7 @@ void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 	listview->setFormWindow( fw );
 	fView->setFormWindow( fw );
 	formwindow = 0;
+	editor = 0;
     }
 
     if ( fw == formwindow ) {
@@ -996,8 +996,9 @@ void HierarchyView::showClassesTimeout()
 {
     if ( !lastSourceEditor )
 	return;
-    SourceEditor *se = lastSourceEditor;
-    lastSourceEditor = 0;
+    SourceEditor *se = (SourceEditor*)lastSourceEditor;
+    if ( !se->object() )
+	return;
     if ( se->formWindow() ) {
 	setFormWindow( se->formWindow(), se->formWindow()->currentWidget() );
 	MainWindow::self->propertyeditor()->setWidget( se->formWindow()->currentWidget(),

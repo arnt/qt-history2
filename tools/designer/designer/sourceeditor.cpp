@@ -33,7 +33,7 @@
 #include <qtextstream.h>
 
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
-    : QVBox( parent ), iFace( iface ), lIface( liface ), obj( 0 ), pro( 0 )
+    : QVBox( parent, 0, WDestructiveClose ), iFace( iface ), lIface( liface ), obj( 0 ), pro( 0 )
 {
     iFace->addRef();
     lIface->addRef();
@@ -53,9 +53,11 @@ SourceEditor::~SourceEditor()
     if ( formWindow() ) {
 	formWindow()->formFile()->setCodeEdited( FALSE );
 	formWindow()->formFile()->setEditor( 0 );
-    }
-    if ( sourceFile() )
+    } else if ( sourceFile() ) {
 	sourceFile()->setEditor( 0 );
+	if ( MainWindow::self->objectHierarchy()->sourceEditor() == this )
+	    MainWindow::self->objectHierarchy()->setFormWindow( 0, 0 );
+    }
 }
 
 void SourceEditor::setObject( QObject *o, Project *p )
