@@ -1597,6 +1597,12 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     bool reverse = eng->layoutData->items[itm].analysis.bidiLevel % 2;
 
     int lineEnd = line.from + line.length;
+    // don't draw trailing spaces or take them into the layout.
+    if (!(eng->option.flags() & QTextOption::IncludeTrailingSpaces)) {
+        const QCharAttributes *attributes = eng->attributes();
+        while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
+            --lineEnd;
+    }
 
     // add the items left of the cursor
 
