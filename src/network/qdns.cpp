@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#36 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#37 $
 **
 ** Implementation of QDns class.
 **
@@ -35,22 +35,7 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-#if defined(Q_OS_LINUX)
-// DNS system header files are a mess!
-// <resolv.h> includes <arpa/nameser.h>. <arpa/nameser.h> is using
-// 'u_char' and includes <sys/types.h>.  Now the problem is that
-// <sys/types.h> defines 'u_char' only if __USE_BSD is defined.
-// __USE_BSD is defined in <features.h> if _BSD_SOURCE is defined.
-// The conclusion is that _BSD_SOURCE needs to be defined before
-// <features.h> is included.
-// Now "qdns.h" includes "qcstring.h" which includes <string.h>
-// which includes <features.h>.  So _BSD_SOURCE has to be defined
-// before "qdns.h".
-#  define _BSD_SOURCE
-#  define _GNU_SOURCE
-#endif
-
+#include "qplatformdefs.h"
 #include "qdns.h"
 
 #ifndef QT_NO_DNS
