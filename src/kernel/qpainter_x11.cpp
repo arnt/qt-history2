@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#49 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#49 $";
 #endif
 
 
@@ -982,6 +982,11 @@ void QPainter::setWorldMatrix( const QWorldMatrix &m, bool concat )
 }
 
 
+static inline int d2i_round( double d )
+{
+    return d > 0 ? int(d+0.5) : int(d-0.5);
+}
+
 void QPainter::updateXForm()			// update xform params
 {
     QWorldMatrix m;
@@ -993,24 +998,24 @@ void QPainter::updateXForm()			// update xform params
     }
     else
 	m = wxmat;
-    wm11 = (int)(m.m11()*65536.0);
-    wm12 = (int)(m.m12()*65536.0);
-    wm21 = (int)(m.m21()*65536.0);
-    wm22 = (int)(m.m22()*65536.0);
-    wdx  = (int)(m.dx() *65536.0);
-    wdy  = (int)(m.dy() *65536.0);
+    wm11 = d2i_round((double)m.m11()*65536.0);
+    wm12 = d2i_round((double)m.m12()*65536.0);
+    wm21 = d2i_round((double)m.m21()*65536.0);
+    wm22 = d2i_round((double)m.m22()*65536.0);
+    wdx  = d2i_round((double)m.dx() *65536.0);
+    wdy  = d2i_round((double)m.dy() *65536.0);
     bool invertible;
     m = m.invert( &invertible );		// invert matrix
 #if defined(CHECK_RANGE)
     if ( !invertible )
 	warning( "QPainter::updateXForm: World xform matrix not invertible" );
 #endif
-    im11 = (int)(m.m11()*65536.0);
-    im12 = (int)(m.m12()*65536.0);
-    im21 = (int)(m.m21()*65536.0);
-    im22 = (int)(m.m22()*65536.0);
-    idx  = (int)(m.dx() *65536.0);
-    idy  = (int)(m.dy() *65536.0);
+    im11 = d2i_round((double)m.m11()*65536.0);
+    im12 = d2i_round((double)m.m12()*65536.0);
+    im21 = d2i_round((double)m.m21()*65536.0);
+    im22 = d2i_round((double)m.m22()*65536.0);
+    idx  = d2i_round((double)m.dx() *65536.0);
+    idy  = d2i_round((double)m.dy() *65536.0);
 }
 
 
