@@ -13708,11 +13708,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	    }
 
 	    if ( format[pos + len] == 's' ) {
-#ifndef QT_NO_TEXTCODEC
 		QString s = QString::fromUtf8( va_arg(ap, char*) );
-#else
-		QString s = fromLatin1( va_arg(ap, char*) );
-#endif
 		replacement = ( decimals <= 0 ) ? s : s.left( decimals );
 	    } else {
 		int ch = va_arg(ap, int);
@@ -17218,12 +17214,10 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 				0, 0, 0, &used_def));
 		// and try again...
 	} else {
-#ifndef QT_NO_TEXTCODEC
 #ifndef QT_NO_DEBUG
 	    // Fail.
 	    qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF8)",
 		r, s.utf8().data());
-#endif
 #endif
 	    break;
 	}
