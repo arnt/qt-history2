@@ -111,7 +111,7 @@ public:
 	ShowWindowRequest = 73,			// widget's window should be mapped
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
-	User = 1000				// first user event id
+	User = 1000,				// first user event id
 	MaxUser  = 65535                        		// last user event id	
     };
 
