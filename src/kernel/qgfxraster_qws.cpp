@@ -19,6 +19,7 @@
 #include "qwsregionmanager_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
+#include "qpixmap.h"
 
 #include <stdlib.h>
 #include <math.h>
