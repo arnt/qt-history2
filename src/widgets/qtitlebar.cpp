@@ -5,7 +5,7 @@
 **
 ** Created : 001101
 **
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -36,6 +36,11 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
+
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
+#endif
 
 #include "qtitlebar_p.h"
 

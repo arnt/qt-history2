@@ -5,7 +5,7 @@
 **
 ** Created : 941003
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -45,6 +45,11 @@
 // POSIX Large File Support redefines truncate -> truncate64
 #if defined(truncate)
 # undef truncate
+#endif
+
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
 #endif
 
 #include "qpsprinter_p.h"

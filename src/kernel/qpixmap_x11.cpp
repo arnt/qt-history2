@@ -5,7 +5,7 @@
 **
 ** Created : 940501
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -52,6 +52,11 @@
 #endif
 
 #include "qplatformdefs.h"
+
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
+#endif
 
 #include "qbitmap.h"
 #include "qpaintdevicemetrics.h"

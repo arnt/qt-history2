@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Motif Dynamic Drag and Drop class
 **
 ** Created : 950419
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -64,6 +64,12 @@ in doc/dnd.doc, where the documentation system can see it. */
 /***********************************************************/
 
 #include "qplatformdefs.h"
+
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
+#endif
+
 #include "qapplication.h"
 
 #ifndef QT_NO_DRAGANDDROP

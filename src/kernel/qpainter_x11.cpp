@@ -37,6 +37,11 @@
 
 #include "qplatformdefs.h"
 
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
+#endif
+
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"

@@ -5,7 +5,7 @@
 **
 ** Created : 991122
 **
-** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -50,6 +50,11 @@
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
 #if defined(connect)
 # undef connect
+#endif
+
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
 #endif
 
 // UnixWare 7 redefines socket -> _socket
