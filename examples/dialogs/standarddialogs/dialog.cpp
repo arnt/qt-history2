@@ -88,18 +88,12 @@ Dialog::Dialog(QWidget *parent)
     QPushButton *errorButton =
             new QPushButton(tr("QErrorMessage::&error()"), this);
 
-    connect(integerButton, SIGNAL(clicked()),
-            this, SLOT(setInteger()));
-    connect(doubleButton, SIGNAL(clicked()),
-            this, SLOT(setDouble()));
-    connect(itemButton, SIGNAL(clicked()),
-            this, SLOT(setItem()));
-    connect(textButton, SIGNAL(clicked()),
-            this, SLOT(setText()));
-    connect(colorButton, SIGNAL(clicked()),
-            this, SLOT(setColor()));
-    connect(fontButton, SIGNAL(clicked()),
-            this, SLOT(setFont()));
+    connect(integerButton, SIGNAL(clicked()), this, SLOT(setInteger()));
+    connect(doubleButton, SIGNAL(clicked()), this, SLOT(setDouble()));
+    connect(itemButton, SIGNAL(clicked()), this, SLOT(setItem()));
+    connect(textButton, SIGNAL(clicked()), this, SLOT(setText()));
+    connect(colorButton, SIGNAL(clicked()), this, SLOT(setColor()));
+    connect(fontButton, SIGNAL(clicked()), this, SLOT(setFont()));
     connect(directoryButton, SIGNAL(clicked()),
             this, SLOT(setExistingDirectory()));
     connect(openFileNameButton, SIGNAL(clicked()),
@@ -108,16 +102,12 @@ Dialog::Dialog(QWidget *parent)
             this, SLOT(setOpenFileNames()));
     connect(saveFileNameButton, SIGNAL(clicked()),
             this, SLOT(setSaveFileName()));
-    connect(criticalButton, SIGNAL(clicked()),
-            this, SLOT(criticalMessage()));
+    connect(criticalButton, SIGNAL(clicked()), this, SLOT(criticalMessage()));
     connect(informationButton, SIGNAL(clicked()),
             this, SLOT(informationMessage()));
-    connect(questionButton, SIGNAL(clicked()),
-            this, SLOT(questionMessage()));
-    connect(warningButton, SIGNAL(clicked()),
-            this, SLOT(warningMessage()));
-    connect(errorButton, SIGNAL(clicked()),
-            this, SLOT(errorMessage()));
+    connect(questionButton, SIGNAL(clicked()), this, SLOT(questionMessage()));
+    connect(warningButton, SIGNAL(clicked()), this, SLOT(warningMessage()));
+    connect(errorButton, SIGNAL(clicked()), this, SLOT(errorMessage()));
 
     QGridLayout *layout = new QGridLayout(this);
     layout->setColumnStretch(1, 1);
@@ -160,7 +150,8 @@ void Dialog::setInteger()
 {
     bool ok;
     int i = QInputDialog::getInteger(tr("QInputDialog::getInteger()"),
-                                     tr("Percentage:"), 25, 0, 100, 1, &ok, this);
+                                     tr("Percentage:"), 25, 0, 100, 1, &ok,
+                                     this);
     if (ok)
         integerLabel->setText(tr("%1%").arg(i));
 }
@@ -169,7 +160,8 @@ void Dialog::setDouble()
 {
     bool ok;
     double d = QInputDialog::getDouble(tr("QInputDialog::getDouble()"),
-                                       tr("Amount:"), 37.56, -10000, 10000, 2, &ok, this);
+                                       tr("Amount:"), 37.56, -10000, 10000, 2,
+                                       &ok, this);
     if (ok)
         doubleLabel->setText(QString("$%1").arg(d));
 }
@@ -181,7 +173,8 @@ void Dialog::setItem()
 
     bool ok;
     QString item = QInputDialog::getItem(tr("QInputDialog::getItem()"),
-                                         tr("Season:"), items, 0, false, &ok, this);
+                                         tr("Season:"), items, 0, false, &ok,
+                                         this);
     if (ok && !item.isEmpty())
         itemLabel->setText(item);
 }
@@ -190,7 +183,8 @@ void Dialog::setText()
 {
     bool ok;
     QString text = QInputDialog::getText(tr("QInputDialog::getText()"),
-                                         tr("User name:"), QLineEdit::Normal, "", &ok, this);
+                                         tr("User name:"), QLineEdit::Normal,
+                                         QDir::home().dirName(), &ok, this);
     if (ok && !text.isEmpty())
         textLabel->setText(text);
 }
@@ -215,8 +209,10 @@ void Dialog::setFont()
 void Dialog::setExistingDirectory()
 {
     QString directory = QFileDialog::getExistingDirectory(this,
-                                tr("QFileDialog::getExistingDirectory()"), directoryLabel->text(),
-                                QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly);
+                                tr("QFileDialog::getExistingDirectory()"),
+                                directoryLabel->text(),
+                                QFileDialog::DontResolveSymlinks
+                                | QFileDialog::ShowDirsOnly);
     if (!directory.isEmpty())
         directoryLabel->setText(directory);
 }
@@ -234,7 +230,8 @@ void Dialog::setOpenFileName()
 void Dialog::setOpenFileNames()
 {
     QStringList files = QFileDialog::getOpenFileNames(
-                                this, tr("QFileDialog::getOpenFileNames()"), openFilesPath,
+                                this, tr("QFileDialog::getOpenFileNames()"),
+                                openFilesPath,
                                 tr("All (*);;Text files (*.txt)"));
     if (files.count()) {
         openFilesPath = files[0];
@@ -245,7 +242,8 @@ void Dialog::setOpenFileNames()
 void Dialog::setSaveFileName()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
-                                tr("QFileDialog::getSaveFileName()"), saveFileNameLabel->text(),
+                                tr("QFileDialog::getSaveFileName()"),
+                                saveFileNameLabel->text(),
                                 tr("All (*);;Text files (*.txt)"));
     if (!fileName.isEmpty())
         saveFileNameLabel->setText(fileName);
