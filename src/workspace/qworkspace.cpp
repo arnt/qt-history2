@@ -1023,7 +1023,13 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	    }
 	}
 	insertIcon( c->iconWidget() );
+	bool wasFocused = c->titlebar->isActive();
 	c->hide();
+	if ( wasFocused && d->active && d->active->testWState( WState_Minimized ) ) {
+	    blockSignals( TRUE );
+	    activateWindow( w, FALSE );
+	    blockSignals( FALSE );
+	}
 	if ( wasMax )
 	    c->setGeometry( d->maxRestore );
 	d->focus.append( c );
