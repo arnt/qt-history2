@@ -1074,16 +1074,16 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	    if ( !filename.isEmpty() ) {
 		QFileInfo fi( filename );
 
-		if ( fi.extension() == "pro" && ( extension.isEmpty() || extension.find( ";pro" ) != -1 ) ) {
+		if ( fi.extension( FALSE ) == "pro" && ( extension.isEmpty() || extension.find( ";pro" ) != -1 ) ) {
 		    addRecentlyOpened( filename, recentlyProjects );
 		    openProject( filename );
-		} else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
+		} else if ( fi.extension( FALSE ) == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
 		    if ( !inProject )
 			setCurrentProject( eProject );
 		    openFormWindow( filename );
 		    addRecentlyOpened( filename, recentlyFiles );
-		} else if ( !extension.isEmpty() && extension.find( ";" + fi.extension() ) != -1 ||
-			    additionalSources.find( fi.extension() ) != additionalSources.end() ) {
+		} else if ( !extension.isEmpty() && extension.find( ";" + fi.extension( FALSE ) ) != -1 ||
+			    additionalSources.find( fi.extension( FALSE ) ) != additionalSources.end() ) {
 		    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
 		    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
 			SourceFile *sf = project->findSourceFile( project->makeRelative( filename ) );
@@ -1094,7 +1094,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		} else if ( extension.isEmpty() ) {
 		    QString filter;
 		    for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
-			if ( (*it2).contains( fi.extension(), FALSE ) ) {
+			if ( (*it2).contains( fi.extension( FALSE ), FALSE ) ) {
 			    filter = *it2;
 			    break;
 			}
