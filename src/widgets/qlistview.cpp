@@ -4548,7 +4548,11 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     if ( i && !i->isEnabled() )
 	return;
-    if ( i != d->highlighted ) {
+    if ( i != d->highlighted && 
+	 !(d->pressedItem && 
+	   ( d->pressedItem->isSelected() || d->selectionMode == NoSelection ) &&
+	   d->pressedItem->dragEnabled() )) {
+
 	if ( i ) {
 	    emit onItem( i );
 	} else {
@@ -4566,12 +4570,13 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 	   ( e->state() & RightButton ) != RightButton ) )
 	return;
 
-    if ( i && i == d->pressedItem &&
-	 ( i->isSelected() || d->selectionMode == NoSelection ) &&
-	 i->dragEnabled() ) {
+    if ( d->pressedItem &&
+	 ( d->pressedItem->isSelected() || d->selectionMode == NoSelection ) &&
+	 d->pressedItem->dragEnabled() ) {
+
 	if ( !d->startDragItem ) {
-	    setSelected( i, TRUE );
-	    d->startDragItem = i;
+	    setSelected( d->pressedItem, TRUE );
+	    d->startDragItem = d->pressedItem;
 	}
 	if ( ( d->dragStartPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	    d->buttonDown = FALSE;
