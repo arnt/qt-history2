@@ -140,12 +140,6 @@ void HelpWindow::setSource( const QString &name )
 	return;
     }
 
-    int i = name.find( '#' );
-    QString sect = name;
-    if ( i != -1 )
-	sect = name.left( i );
-
-    setCharacterEncoding( sect );
     setText("<body bgcolor=\"" + paletteBackgroundColor().name() + "\">");
     QTextBrowser::setSource( name );
 }
@@ -220,49 +214,6 @@ void HelpWindow::ensureCursorVisible()
 {
     if ( !blockScroll )
 	QTextBrowser::ensureCursorVisible();
-}
-
-void HelpWindow::setCharacterEncoding( const QString &name )
-{
-    QFile file( name );
-    if ( !file.open( IO_ReadOnly ) ) {
-	qWarning( "can not open file " + name );
-	return;
-    }
-
-    QTextStream s( &file );
-    s.setEncoding( QTextStream::Latin1 );
-
-    QString text;
-    while ( !s.atEnd() ) {
-	text += s.readLine().lower();
-	if ( text.contains( "</head>", FALSE ) )
-	    break;
-    }
-    QString encoding;
-    if (text.length() > 3
-	&& text[0].unicode() == 0xef
-	&& text[1].unicode() == 0xbb
-	&& text[2].unicode() == 0xbf) {
-	encoding = "utf-8";
-    } else if (text.length() > 2
-	       && ((text[0].unicode() == 0xfe && text[1].unicode() == 0xff)
-		   || (text[0].unicode() == 0xff && text[1].unicode() == 0xfe))) {
-	encoding = "ISO-10646-UCS-2";
-    } else {
-	int i = text.find( "charset=" );
-    if ( i > -1 ) {
-	encoding = text.right( text.length() - (i+8) );
-	encoding = encoding.left( encoding.find( "\"" ) );
-	}
-    }
-    QTextCodec *codec = QTextCodec::codecForName( encoding.latin1() );
-    if ( !codec )
-	encoding = "utf-8";
-    else
-	encoding = QString( codec->name() );
-    QString extension = QString( "text/html; charset=%1" ).arg( encoding );
-    mw->browsers()->setMimeExtension( extension );
 }
 
 void HelpWindow::contentsMousePressEvent(QMouseEvent *e)

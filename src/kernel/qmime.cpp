@@ -300,16 +300,19 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
     setExtensionType("txt", "text/plain");
     setExtensionType("xml", "text/xml;charset=UTF-8");
     \endcode
-    The effect of these is that file names ending in "html" or "htm"
-    will be treated as text encoded in the iso8859-1 encoding, those
-    ending in "txt" will be treated as text encoded in the local
-    encoding; those ending in "xml" will be treated as text encoded in
-    Unicode UTF-8 encoding. The text subtype ("html", "plain", or
-    "xml") does not affect the factory, but users of the factory may
-    behave differently. We recommend creating "xml" files where
-    practical. These files can be viewed regardless of the runtime
-    encoding and can encode any Unicode characters without resorting
-    to encoding definitions inside the file.
+    The effect of these is that file names ending in "txt" will be
+    treated as text encoded in the local encoding; those ending in
+    "xml" will be treated as text encoded in Unicode UTF-8 encoding.
+    The text/html type is treated specially, since the encoding can be
+    specified in the html file itself. "html" or "htm" will be treated
+    as text encoded in the encoding specified by the html meta tag, if
+    none could be found, the charset of the mime type will be used.
+    The text subtype ("html", "plain", or "xml") does not affect the
+    factory, but users of the factory may behave differently. We
+    recommend creating "xml" files where practical. These files can be
+    viewed regardless of the runtime encoding and can encode any
+    Unicode characters without resorting to encoding definitions
+    inside the file.
 
     Any file data that is not recognized will be retrieved as a
     QMimeSource providing the "application/octet-stream" mime type,

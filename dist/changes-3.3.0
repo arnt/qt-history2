@@ -270,10 +270,17 @@ IRIX MIPSpro o32 mode.
 - QStyle
 	Add a new primitive element: PE_RubberBand.
 
+- QTextDrag
+	decode() now autodetects the encoding of text/html content.
+
 - QTextEdit
 	Reduced memory consumption by 20 bytes per line.
 	Added a getter for the currently set QSyntaxHighlighter.
 
+- QTextBrowser
+	Qt now automatically detects the charset of HTML files set
+	with setSource().
+	
 - QVariant
 	Comparison between variants where one of the variants is a
 	numeric value will compare on the numeric value. Type casting

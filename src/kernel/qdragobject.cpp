@@ -727,7 +727,7 @@ const char * QTextDrag::format(int i) const
     return d->fmt[i];
 }
 
-QTextCodec* findcharset(const QByteArray& mimetype)
+static QTextCodec* findcharset(const QByteArray& mimetype)
 {
     int i=mimetype.indexOf("charset=");
     if ( i >= 0 ) {
@@ -747,17 +747,65 @@ QTextCodec* findcharset(const QByteArray& mimetype)
     return QTextCodec::codecForLocale();
 }
 
+static QTextCodec *codecForHTML(const QByteArray &ba)
+{
+    // determine charset
+    int mib = 0;
+    int pos;
+    QTextCodec *c = 0;
+
+    if (ba.size() > 1 && (((uchar)ba[0] == 0xfe && (uchar)ba[1] == 0xff)
+			  || ((uchar)ba[0] == 0xff && (uchar)ba[1] == 0xfe))) {
+	mib = 1000; // utf16
+    } else if (ba.size() > 2
+	       && (uchar)ba[0] == 0xef
+	       && (uchar)ba[1] == 0xbb
+	       && (uchar)ba[2] == 0xbf) {
+	mib = 106; // utf-8
+    } else {
+	pos = 0;
+	while ((pos = ba.indexOf('<', pos)) != -1) {
+	    int end = ba.indexOf('>', pos+1);
+	    if (end == -1)
+		break;
+	    QString str = ba.mid(pos, end-pos);
+	    if (str.contains("meta http-equiv=", QString::CaseInsensitive)) {
+		pos = str.indexOf("charset=", 0, QString::CaseInsensitive) + strlen("charset=");
+		if (pos != -1) {
+		    int pos2 = ba.indexOf('\"', pos+1);
+		    QByteArray cs = ba.mid(pos, pos2-pos);
+		    c = QTextCodec::codecForName(cs);
+		    if (c)
+			return c;
+		}
+	    }
+	    pos = end;
+	}
+    }
+    if (mib)
+	c = QTextCodec::codecForMib(mib);
+
+    return c;
+}
+
 static
 QTextCodec* findcodec(const QMimeSource* e)
 {
     QTextCodec* r;
     const char* f;
     int i;
-    for ( i=0; (f=e->format(i)); i++ )
-	if ( (r = findcharset(QByteArray(f).toLower())) )
+    for ( i=0; (f=e->format(i)); i++ ) {
+	bool html = !qstrnicmp(f, "text/html", 9);
+	if (html)
+	    r = codecForHTML(e->encodedData(f));
+	if (!r)
+	    r = findcharset(QByteArray(f).toLower());
+	if (r)
 	    return r;
+    }
     return 0;
 }
+
 
 
 /*!
@@ -843,7 +891,14 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QString& subtype )
 		semi = m.length();
 	    QString foundst = m.mid(5,semi-5);
 	    if ( subtype.isNull() || foundst == subtype ) {
-		QTextCodec* codec = findcharset(m);
+		bool html = !qstrnicmp(mime, "text/html", 9);
+		QTextCodec* codec = 0;
+		if (html)
+		    // search for the charset tag in the HTML
+		    codec = codecForHTML(e->encodedData(mime));
+		if (!codec)
+		    codec = findcharset(m);
+		qDebug("using codec %s", codec->name());
 		if ( codec ) {
 		    QByteArray payload;
 
@@ -1546,7 +1601,7 @@ QString QUriDrag::uriToLocalFile(const char* uri)
     else {
 	file = uriToUnicodeUri(uri);
 	// convert to network path
-	file.insert(1, '/'); // leave as forward slashes 
+	file.insert(1, '/'); // leave as forward slashes
     }
 #endif
 
