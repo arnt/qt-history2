@@ -292,6 +292,7 @@ QWin32PaintEngine::QWin32PaintEngine(QPaintDevice *target)
       QPaintEngine(*(new QWin32PaintEnginePrivate), GCCaps(CoordTransform
 							   | PenWidthTransform
 							   | PixmapTransform
+							   | PixmapScale
 							   | UsesFontEngine))
 #else
       QPaintEngine(*(new QWin32PaintEnginePrivate), GCCaps(UsesFontEngine))
