@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#55 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -81,7 +81,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.49 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.50 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -793,14 +793,29 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
   QToolTip offers.
 
   It is called when there is a chance that a tool tip should be shown,
-  and must decide whether there is a tool tip for the point \a p and
-  what rectangle
+  and must decide whether there is a tool tip for the point \a p in
+  the widget this QToolTip object relates to.
+
+  \p is given in that widget's local coordinates.  Most maybeTip()
+  implementation will be of the form:
+  
+  \code
+    if ( \<something\> ) {
+	tip( \<something\>, \<something\> );
+    }
+  \endcode
+
+  The first argument to tip() (a rectangle) should include the \a p,
+  or QToolTip, the user or both can be confused.
+
+  \sa tip()
 */
 
 
 /*!
-  Pop up a tip saying \a text right now, and remove that tip once
-  the cursor moves out of rectangle \a rect.
+  Pop up a tip saying \a text right now, and remove that tip once the
+  cursor moves out of rectangle \a rect (which is given in the
+  coordinate system of the widget this QToolTip relates to).
 
   The tip will not come back if the cursor moves back; your maybeTip()
   has to reinstate it each time.
