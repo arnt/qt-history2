@@ -198,9 +198,9 @@ void Items::mouseReleaseEvent(QMouseEvent *)
 
 void Items::resizeEvent(QResizeEvent *event)
 {
+    DemoWidget::resizeEvent(event);
     buffer = QPixmap(size());
     drawItems(QRect());
-    DemoWidget::resizeEvent(event);
 }
 
 void Items::drawItems(const QRect &rect)
@@ -219,7 +219,6 @@ void Items::drawItems(const QRect &rect)
 
 void Items::resetState()
 {
-    updateBackground();
     drawItems(QRect());
     update();
 }
