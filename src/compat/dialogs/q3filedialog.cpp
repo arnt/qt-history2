@@ -27,48 +27,49 @@
 
 #ifndef QT_NO_FILEDIALOG
 
-#include "qevent.h"
-#include "qlineedit.h"
-#include "qcombobox.h"
-#include "q3listview.h"
-#include "qlistbox.h"
-#include "qlabel.h"
-#include "qpushbutton.h"
-#include "qtoolbutton.h"
-#include "qmessagebox.h"
-#include "qapplication.h"
 #include "private/qapplication_p.h"
-#include "qlayout.h"
-#include "qbitmap.h"
-#include "qpopupmenu.h"
-#include "qwidgetstack.h"
 #include "q3buttongroup.h"
-#include "qptrvector.h"
-#include "qregexp.h"
-#include "qstrlist.h"
-#include "qtimer.h"
 #include "q3header.h"
-#include "qvbox.h"
-#include "qhbox.h"
-#include "qtooltip.h"
-#include "qdragobject.h"
-#include "qmime.h"
-#include "qprogressbar.h"
-#include "qfile.h"
-#include "qcstring.h"
+#include "q3listview.h"
+#include "qapplication.h"
+#include "qbitmap.h"
 #include "qcheckbox.h"
-#include "qsplitter.h"
-#include "qmap.h"
-#include "qpainter.h"
 #include "qcleanuphandler.h"
-#include "qstyle.h"
+#include "qcombobox.h"
+#include "qcstring.h"
 #include "qcursor.h"
-#include "qpointer.h"
-#include "qlibrary.h"
 #include "qdesktopwidget.h"
+#include "qdragobject.h"
+#include "qevent.h"
+#include "qfile.h"
+#include "qhbox.h"
+#include "qlabel.h"
+#include "qlayout.h"
+#include "qlibrary.h"
+#include "qlineedit.h"
+#include "qlistbox.h"
+#include "qmap.h"
+#include "qmessagebox.h"
+#include "qmime.h"
+#include "qpainter.h"
+#include "qpointer.h"
+#include "qpopupmenu.h"
+#include "qprogressbar.h"
+#include "qptrvector.h"
+#include "qpushbutton.h"
+#include "qregexp.h"
+#include "qsplitter.h"
+#include "qstrlist.h"
+#include "qstyle.h"
+#include "qtimer.h"
+#include "qtoolbutton.h"
+#include "qtooltip.h"
+#include "qvbox.h"
+#include "qwidgetstack.h"
 
 #ifdef Q_WS_WIN
 #ifdef QT_THREAD_SUPPORT
+#  include "qwindowsstyle.h"
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
 #endif // Q_WS_WIN
@@ -83,6 +84,7 @@
 #include <ctype.h>
 
 #ifdef Q_WS_MAC
+#include <qmacstyle_mac.h>
 #include <private/qt_mac_p.h>
 #undef check
 #endif
@@ -3371,11 +3373,11 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
         *workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()))
         return winGetOpenFileName(initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qApp->style().inherits("QMacStyle")) {
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style())) {
         QStringList files = macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter, false);
         return files.isEmpty() ? QString::null : files.first();
     }
@@ -3488,11 +3490,11 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
         *workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()))
         return winGetSaveFileName(initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qApp->style().inherits("QMacStyle"))
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style()))
         return macGetSaveFileName(initialSelection.isNull() ? startWith : initialSelection, filter, workingDirectory,
                                    parent, name, caption, selectedFilter);
 #endif
@@ -4375,11 +4377,11 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
             initialDir = dir;
     } else
         initialDir = QString::null;
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle && dirOnly)
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()) && dirOnly)
         return winGetExistingDirectory(initialDir, parent, name, caption);
 #endif
 #if defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qApp->style().inherits("QMacStyle"))
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style()))
         return macGetOpenFileNames("", 0, parent, name, caption, NULL, false, true).first();
 #endif
 
@@ -5515,10 +5517,10 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
     }
 
 #if defined(Q_WS_WIN)
-    if (qt_use_native_dialogs && qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
+    if (qt_use_native_dialogs && qt_cast<QWindowsStyle *>(&qApp->style()))
         return winGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
-    if(qt_use_native_dialogs && qApp->style().inherits("QMacStyle"))
+    if(qt_use_native_dialogs && qt_cast<QMacStyle *>(&qApp->style()))
         return macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter);
 #endif
 
