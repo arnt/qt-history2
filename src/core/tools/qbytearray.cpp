@@ -715,6 +715,11 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
     Constructs a copy of \a other.
 
+    This operation takes \l{constant time}, because QByteArray is
+    \l{implicitly shared}. This makes returning a QByteArray from a
+    function very fast. If a shared instance is modified, it will be
+    copied (copy-on-write), and that takes \l{linear time}.
+
     \sa operator=()
 */
 
@@ -770,6 +775,7 @@ QByteArray &QByteArray::operator=(const char *str)
     Example:
     \code
         QByteArray ba("Hello");
+        int n = ba.size();          // n == 5
         ba.data()[0];               // returns 'H'
         ba.data()[4];               // returns 'o'
         ba.data()[5];               // returns '\0'
@@ -870,7 +876,7 @@ QByteArray &QByteArray::operator=(const char *str)
         QByteArray ba("Hello world");
         char *data = ba.data();
         while (*data) {
-            cout << "[" + *d + "]" << endl;
+            cout << "[" + *data + "]" << endl;
             ++data;
         }
     \endcode
@@ -898,7 +904,7 @@ QByteArray &QByteArray::operator=(const char *str)
     Returns a pointer to the data stored in the byte array. The
     pointer can be used to access the bytes that compose the array.
     The data is '\\0'-terminated. The pointer remains valid as long
-    as the vector isn't reallocated.
+    as the byte array isn't reallocated.
 
     This function is mostly useful to pass a byte array to a function
     that accepts a \c{const char *}.
@@ -947,9 +953,10 @@ QByteArray &QByteArray::operator=(const char *str)
     \endcode
 
     The return value is of type QByteRef, a helper class for
-    QByteArray. When you get an object of type QByteRef, you can
-    assign to it, and the assignent will apply to the character in
-    the QByteArray from which you got the reference.
+    QByteArray. When you get an object of type QByteRef, you can use
+    it as if it were a char &. If you assign to it, the assignment
+    will apply to the character in the QByteArray from which you got
+    the reference.
 
     \sa at()
 */
@@ -974,7 +981,7 @@ QByteArray &QByteArray::operator=(const char *str)
 /*! \fn QBool QByteArray::contains(const QByteArray &ba) const
 
     Returns true if the byte array contains an occurrence of the byte
-    array, \a ba; otherwise returns false.
+    array \a ba; otherwise returns false.
 
     \sa indexOf(), count()
 */
@@ -1003,7 +1010,7 @@ QByteArray &QByteArray::operator=(const char *str)
 
     Example:
     \code
-        QByteArray ba = "Stockholm";
+        QByteArray ba("Stockholm");
         ba.truncate(5);             // ba == "Stock"
     \endcode
 
@@ -1014,6 +1021,16 @@ QByteArray &QByteArray::operator=(const char *str)
 
     Appends the byte array \a ba onto the end of this byte array and
     returns a reference to this byte array.
+
+    Example:
+    \code
+        QByteArray x("free");
+        QByteArray y("dom");
+        x += y;
+        // x == "freedom"
+    \endcode
+
+    \sa append(), prepend()
 */
 
 /*! \fn QByteArray &QByteArray::operator+=(const QString &str)
@@ -1021,7 +1038,15 @@ QByteArray &QByteArray::operator=(const char *str)
     \overload
 
     Appends the string \a str onto the end of this byte array and
-    returns a reference to this byte array.
+    returns a reference to this byte array. The Unicode data is
+    converted into 8-bit characters using QString::toAscii().
+
+    If the QString contains non-ASCII Unicode characters, using this
+    operator can lead to loss of information. You can disable this
+    operator by defining \c QT_NO_CAST_TO_ASCII when you compile your
+    applications. You then need to call QString::ascii() (or
+    QString::latin1() or QString::utf8() or QString::local8Bit())
+    explicitly if you want to convert the data to \c{const char *}.
 */
 
 /*! \fn QByteArray &QByteArray::operator+=(const char *str)
@@ -1078,7 +1103,9 @@ QByteArray::QByteArray() : d(&shared_null)
 
 /*! \fn QByteArray::QByteArray(const char *str)
 
-    Constructs a new byte array initialized with the string \a str.
+    Constructs a byte array initialized with the string \a str.
+
+    QByteArray makes a deep copy of the string data.
 */
 
 QByteArray::QByteArray(const char *str)
@@ -1108,6 +1135,8 @@ QByteArray::QByteArray(const char *str)
 
     If \a str is 0 or is shorter than \a maxSize, \a maxSize is
     ignored.
+
+    QByteArray makes a deep copy of the string data.
 */
 
 QByteArray::QByteArray(const char *str, int maxSize)
@@ -1168,8 +1197,7 @@ QByteArray::QByteArray(int size, char ch)
 
     If \a size is greater than the current size, the byte array is
     extended to make it \a size bytes with the extra bytes added to
-    the end. The new bytes are unitialized, except the byte at index
-    position \a size, which is set to '\\0'.
+    the end. The new bytes are unitialized.
 
     If \a size is less than the current size, bytes are removed from
     the end.
@@ -1250,13 +1278,15 @@ void QByteArray::expand(int i)
 }
 
 /*!
-    Prepends the byte array \a ba to this byte array.
+    Prepends the byte array \a ba to this byte array and returns a
+    reference to this byte array.
 
     Example:
     \code
-        QByteArray ba("dom");
-        ba.prepend("free");
-        // ba == "freedom"
+        QByteArray x("ship");
+        QByteArray y("air");
+        x.prepend(y);
+        // x == "airship"
     \endcode
 
     This is the same as insert(0, \a ba).
@@ -1318,9 +1348,10 @@ QByteArray &QByteArray::prepend(char ch)
 
     Example:
     \code
-        QByteArray ba("free");
-        ba.append("dom");
-        // ba == "freedom"
+        QByteArray x("free");
+        QByteArray y("dom");
+        x.append(y);
+        // x == "freedom"
     \endcode
 
     This is the same as insert(size(), \a ba).
@@ -1342,9 +1373,18 @@ QByteArray &QByteArray::append(const QByteArray &ba)
 }
 
 /*! \fn QByteArray &QByteArray::append(const QString &str)
+
     \overload
 
-    Appends the string \a str to this byte array.
+    Appends the string \a str to this byte array. The Unicode data is
+    converted into 8-bit characters using QString::toAscii().
+
+    If the QString contains non-ASCII Unicode characters, using this
+    function can lead to loss of information. You can disable this
+    function by defining \c QT_NO_CAST_TO_ASCII when you compile your
+    applications. You then need to call QString::ascii() (or
+    QString::latin1() or QString::utf8() or QString::local8Bit())
+    explicitly if you want to convert the data to \c{const char *}.
 */
 
 /*!
@@ -1406,18 +1446,31 @@ QByteArray &QByteArray::insert(int i, const QByteArray &ba)
 
 /*!
     \fn QByteArray &QByteArray::insert(int i, const QString &str)
+
     \overload
 
     Inserts the string \a str at index position \a i in the byte
-    array. If \a i is \> size(), the array is first extended using
+    array. The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
+    If \a i is greater than size(), the array is first extended using
     resize().
+
+    If the QString contains non-ASCII Unicode characters, using this
+    function can lead to loss of information. You can disable this
+    function by defining \c QT_NO_CAST_TO_ASCII when you compile your
+    applications. You then need to call QString::ascii() (or
+    QString::latin1() or QString::utf8() or QString::local8Bit())
+    explicitly if you want to convert the data to \c{const char *}.
 */
 
 /*!
     \overload
 
-    Inserts the string \a str at position \a i in the byte array. If
-    \a i is \> size(), the array is first extended using resize().
+    Inserts the string \a str at position \a i in the byte array.
+
+    If \a i is greater than size(), the array is first extended using
+    resize().
 */
 
 QByteArray &QByteArray::insert(int i, const char *str)
@@ -1460,16 +1513,16 @@ QByteArray &QByteArray::insert(int i, char ch)
 }
 
 /*!
-    Removes \a len bytes from the array, starting at position \a
-    index, and returns a reference to the array.
+    Removes \a len bytes from the array, starting at index position \a
+    pos, and returns a reference to the array.
 
-    If \a index is out of range, nothing happens. If \a index is
-    valid, but \a index + \a len is larger than the size of the
-    array, the array is truncated at position \a index.
+    If \a pos is out of range, nothing happens. If \a pos is valid,
+    but \a pos + \a len is larger than the size of the array, the
+    array is truncated at position \a pos.
 
     Example:
     \code
-        QByteArray ba = "Montreal";
+        QByteArray ba("Montreal");
         ba.remove(1, 4);
         // ba == "Meal"
     \endcode
@@ -1477,16 +1530,16 @@ QByteArray &QByteArray::insert(int i, char ch)
     \sa insert(), replace()
 */
 
-QByteArray &QByteArray::remove(int index, int len)
+QByteArray &QByteArray::remove(int pos, int len)
 {
-    if (len == 0 || index >= d->size)
+    if (len == 0 || pos >= d->size)
         return *this;
     detach();
-    if (index + len >= d->size) {
-        resize(index);
+    if (pos + len >= d->size) {
+        resize(pos);
     } else {
-        memmove(d->data+index, d->data+index+len, d->size-index-len);
-        resize(d->size-len);
+        memmove(d->data + pos, d->data + pos + len, d->size - pos - len);
+        resize(d->size - len);
     }
     return *this;
 }
@@ -1494,6 +1547,14 @@ QByteArray &QByteArray::remove(int index, int len)
 /*!
     Replaces \a len bytes from index position \a pos with the byte
     array \a after, and returns a reference to this byte array.
+
+    Example:
+    \code
+        QByteArray x("Say yes!");
+        QByteArray y("no");
+        x.replace(4, 3, y);
+        // x == "Say no!"
+    \endcode
 
     \sa insert(), remove()
 */
@@ -1514,6 +1575,13 @@ QByteArray &QByteArray::replace(int pos, int len, const QByteArray &after)
 
     Replaces every occurrence of the byte array \a before with the
     byte array \a after.
+
+    Example:
+    \code
+        QByteArray ba("colour behaviour flavour neighbour");
+        ba.replace(QByteArray("ou"), QByteArray("o"));
+        // ba == "color behavior flavor neighbor"
+    \endcode
 */
 
 QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
@@ -1617,10 +1685,19 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 */
 
 /*! \fn QByteArray &QByteArray::replace(const QString &before, const QByteArray &after)
+
     \overload
 
     Replaces every occurrence of the string \a before with the byte
-    array \a after.
+    array \a after. The Unicode data is converted into 8-bit
+    characters using QString::toAscii().
+
+    If the QString contains non-ASCII Unicode characters, using this
+    function can lead to loss of information. You can disable this
+    function by defining \c QT_NO_CAST_TO_ASCII when you compile your
+    applications. You then need to call QString::ascii() (or
+    QString::latin1() or QString::utf8() or QString::local8Bit())
+    explicitly if you want to convert the data to \c{const char *}.
 */
 
 /*! \fn QByteArray &QByteArray::replace(const QString &before, const char *after)
@@ -1653,10 +1730,19 @@ QByteArray &QByteArray::replace(char before, const QByteArray &after)
 }
 
 /*! \fn QByteArray &QByteArray::replace(char before, const QString &after)
+
     \overload
 
     Replaces every occurrence of the character \a before with the
-    string \a after.
+    string \a after. The Unicode data is converted into 8-bit
+    characters using QString::toAscii().
+
+    If the QString contains non-ASCII Unicode characters, using this
+    function can lead to loss of information. You can disable this
+    function by defining \c QT_NO_CAST_TO_ASCII when you compile your
+    applications. You then need to call QString::ascii() (or
+    QString::latin1() or QString::utf8() or QString::local8Bit())
+    explicitly if you want to convert the data to \c{const char *}.
 */
 
 /*! \fn QByteArray &QByteArray::replace(char before, const char *after)
@@ -1698,11 +1784,12 @@ QByteArray &QByteArray::replace(char before, char after)
 
     Example:
     \code
-        QByteArray x("question");
+        QByteArray x("sticky question");
         QByteArray y("sti");
-        x.indexOf(y);               // returns 3
-        x.indexOf(y, 3);            // returns 3
-        x.indexOf(y, 4);            // returns -1
+        x.indexOf(y);               // returns 0
+        x.indexOf(y, 1);            // returns 10
+        x.indexOf(y, 10);           // returns 10
+        x.indexOf(y, 11);           // returns -1
     \endcode
 
     \sa lastIndexOf(), contains(), count()
@@ -1747,8 +1834,18 @@ int QByteArray::indexOf(const QByteArray &ba, int from) const
     \overload
 
     Returns the index position of the first occurrence of the string
-    \a str in the byte array, searching forward from index position \a
-    from. Returns -1 if \a str could not be found.
+    \a str in the byte array, searching forward from index position
+    \a from. Returns -1 if \a str could not be found.
+
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
+    If the QString contains non-ASCII Unicode characters, using this
+    function can lead to loss of information. You can disable this
+    function by defining \c QT_NO_CAST_TO_ASCII when you compile your
+    applications. You then need to call QString::ascii() (or
+    QString::latin1() or QString::utf8() or QString::local8Bit())
+    explicitly if you want to convert the data to \c{const char *}.
 */
 
 /*! \fn int QByteArray::indexOf(const char *str, int from) const
@@ -1795,18 +1892,18 @@ int QByteArray::indexOf(char ch, int from) const
 
 /*!
     Returns the index position of the last occurrence of the byte
-    array \a ba in the byte array, searching backward from index
+    array \a ba in this byte array, searching backward from index
     position \a from. If \a from is -1 (the default), the search
     starts at the last byte. Returns -1 if \a ba could not be found.
 
     Example:
     \code
-        QByteArray x("question");
-        QByteArray y("sti");
-        x.lastIndexOf(y);           // returns 3
-        x.lastIndexOf(y, 8);        // returns 3
-        x.lastIndexOf(y, 3);        // returns 3
-        x.lastIndexOf(y, 2);        // returns -1
+        QByteArray x("crazy azimuths");
+        QByteArray y("azy");
+        x.lastIndexOf(y);           // returns 6
+        x.lastIndexOf(y, 6);        // returns 6
+        x.lastIndexOf(y, 5);        // returns 2
+        x.lastIndexOf(y, 1);        // returns -1
     \endcode
 
     \sa indexOf(), contains(), count()
@@ -1851,12 +1948,23 @@ int QByteArray::lastIndexOf(const QByteArray &ba, int from) const
 }
 
 /*! \fn int QByteArray::lastIndexOf(const QString &str, int from) const
+
     \overload
 
     Returns the index position of the last occurrence of the string \a
     str in the byte array, searching backward from index position \a
     from. If \a from is -1 (the default), the search starts at the
     last (size() - 1) byte. Returns -1 if \a str could not be found.
+
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
+    If the QString contains non-ASCII Unicode characters, using this
+    function can lead to loss of information. You can disable this
+    function by defining \c QT_NO_CAST_TO_ASCII when you compile your
+    applications. You then need to call QString::ascii() (or
+    QString::latin1() or QString::utf8() or QString::local8Bit())
+    explicitly if you want to convert the data to \c{const char *}.
 */
 
 /*! \fn int QByteArray::lastIndexOf(const char *str, int from) const
@@ -1906,7 +2014,7 @@ int QByteArray::lastIndexOf(char ch, int from) const
 
 /*!
     Returns the number of (potentially overlapping) occurrences of
-    byte array \a ba in the byte array.
+    byte array \a ba in this byte array.
 
     \sa contains(), indexOf()
 */
@@ -2274,7 +2382,17 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is equal to string \a str;
     otherwise returns false.
 
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
     The comparison is case sensitive.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. You
+    then need to call QString::fromAscii(), QString::fromLatin1(),
+    QString::fromUtf8(), or QString::fromLocal8Bit() explicitly if
+    you want to convert the byte array to a QString before doing the
+    comparison.
 */
 
 /*! \fn bool QByteArray::operator!=(const QString &str) const
@@ -2282,7 +2400,17 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is not equal to string \a str;
     otherwise returns false.
 
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
     The comparison is case sensitive.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. You
+    then need to call QString::fromAscii(), QString::fromLatin1(),
+    QString::fromUtf8(), or QString::fromLocal8Bit() explicitly if
+    you want to convert the byte array to a QString before doing the
+    comparison.
 */
 
 /*! \fn bool QByteArray::operator<(const QString &str) const
@@ -2290,7 +2418,17 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is lexically less than string \a
     str; otherwise returns false.
 
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
     The comparison is case sensitive.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. You
+    then need to call QString::fromAscii(), QString::fromLatin1(),
+    QString::fromUtf8(), or QString::fromLocal8Bit() explicitly if
+    you want to convert the byte array to a QString before doing the
+    comparison.
 */
 
 /*! \fn bool QByteArray::operator>(const QString &str) const
@@ -2298,7 +2436,17 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is lexically greater than string
     \a str; otherwise returns false.
 
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
     The comparison is case sensitive.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. You
+    then need to call QString::fromAscii(), QString::fromLatin1(),
+    QString::fromUtf8(), or QString::fromLocal8Bit() explicitly if
+    you want to convert the byte array to a QString before doing the
+    comparison.
 */
 
 /*! \fn bool QByteArray::operator<=(const QString &str) const
@@ -2306,7 +2454,17 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is lexically less than or equal
     to string \a str; otherwise returns false.
 
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
     The comparison is case sensitive.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. You
+    then need to call QString::fromAscii(), QString::fromLatin1(),
+    QString::fromUtf8(), or QString::fromLocal8Bit() explicitly if
+    you want to convert the byte array to a QString before doing the
+    comparison.
 */
 
 /*! \fn bool QByteArray::operator>=(const QString &str) const
@@ -2314,7 +2472,17 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Returns true if this byte array is greater than or equal to string
     \a str; otherwise returns false.
 
+    The Unicode data is converted into 8-bit characters using
+    QString::toAscii().
+
     The comparison is case sensitive.
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. You
+    then need to call QString::fromAscii(), QString::fromLatin1(),
+    QString::fromUtf8(), or QString::fromLocal8Bit() explicitly if
+    you want to convert the byte array to a QString before doing the
+    comparison.
 */
 
 /*! \fn bool operator==(const QByteArray &a1, const QByteArray &a2)
@@ -2623,8 +2791,8 @@ QByteArray QByteArray::leftJustified(int width, char fill, bool truncate) const
 
     Example:
     \code
-        QString x("apple");
-        QString y = x.rightJustified(8, '.');     // y == "...apple"
+        QByteArray x("apple");
+        QByteArray y = x.rightJustified(8, '.');    // y == "...apple"
     \endcode
 
     \sa leftJustified()
