@@ -1,0 +1,695 @@
+<!doctype HTML public "-//W3C//DTD HTML 3.2//EN">
+<html><head><title>
+User's Guide - qmake
+</title></head><body bgcolor="#ffffff">
+<p><h1 align=center>User's Guide - qmake</h1>
+
+
+<hr>
+<h2>Introduction</h2>
+
+<p>
+qmake is an easy-to-use tool from Trolltech to create and maintain
+makefiles for software projects.  It can be a painful task to manage
+makefiles manually, especially if you develop for more than one platform
+or use more than one compiler.  qmake automates and streamlines this
+process and lets you spend your valuable time on writing code, not
+makefiles.
+
+<p>
+If the above looks familiar and you already know about tmake there will
+still be new information that appears in this document that outlines
+additions qmake made to the project (.pro) file concept.
+
+<p>
+Our main motivation for developing qmake was that we spent far too much
+time maintaining makefiles for <a href="http://www.trolltech.com/qt/">Qt</a>,
+our cross-platform GUI toolkit. Qt supports around 15 flavors of Unix,
+Microsoft Windows, and around 15 different C++ compilers.  We looked at
+GNU autoconf, but it was Unix-specific and not flexible enough in our
+opinion. Our makefile system also had to deal with Qt <a
+href="http://doc.trolltech.com/metaobjects.html">meta object compiler</a>
+(moc) issues. The moc program extracts meta information from C++ files and
+generates a C++ file with data tables etc.  It takes extra work to add
+makefile rules for the moc and wanted to automate this task. 
+
+<p> 
+Previously we used qmake for this work, however qmake has been
+introduced to further this ease makefile maintance. Troll Tech had been
+distributing different build systems, qmake has allowed us to use one
+buildsystem inside and out.
+
+<p>
+qmake is free software and you may use, copy, modify and distribute qmake
+and its documentation for any purpose and without any fee.  See the
+LICENSE file for details.
+
+<h2>Installation</h2>
+
+<ol>
+<li>Unpack the qmake tar.gz archive
+<li>cd into your qmake directory and type make
+<li>Set the MKSPEC environment variable to the mkspec of your choice (see below).
+<li>Add the qmake executable to your PATH.
+</ol>
+
+Here are some examples:<p>
+<strong>Unix Bourne shell:</strong><pre>
+    MKSPEC=linux-g++
+	QTDIR=/usr/local/qt
+    PATH=$PATH:/local/qmake/bin
+    export QTDIR MKSPEC PATH
+</pre>
+
+<strong>Unix C shell:</strong><pre>
+	setenv QTDIR /usr/local/qt
+    setenv QMAKEPATH linux-g++
+    setenv PATH $PATH:/local/qmake/bin
+</pre>
+
+<strong>Microsoft Windows:</strong><pre>
+    set QMAKEPATH=win32-msvc
+	set QTDIR=c:\qt
+    set PATH=%PATH%;c:\qmake\bin
+</pre>
+
+<p> <a name=mkspec_sect></a><h3>MKSPEC</h3>
+
+<p>
+The MKSPEC variable has the form <em>platform</em>-<em>compiler</em>. qmake
+will then use $QTDIR/mkspecs/$MKSPEC to find your compiler specifications.
+This configuration file contains compiler options and lists tools and
+libraries.
+
+<p>
+Supported platforms: AIX, Data General, FreeBSD, HPUX, SGI Irix, Linux,
+NetBSD, OpenBSD, OSF1/DEC, SCO, Solaris, SunOS, Ultrix, Unixware and
+Win32.
+
+<p>
+You can find your platform-compiler combination in the <tt>$QTDIR/mkspecs</tt>.
+
+<hr>
+<h2>Getting Started</h2>
+
+Let's assume you have a small Qt application consisting of one C++ header
+file and two source files.
+
+First you need to create a qmake project file, e.g. hello.pro:<pre>
+  HEADERS   =  hello.h
+  SOURCES   =  hello.cpp main.cpp
+  TARGET    =  hello
+</pre>
+
+Then run qmake to create a Makefile:<pre>
+  qmake hello.pro -o Makefile
+</pre>
+And finally:<pre>
+  make
+</pre>
+This builds the hello program. Remember to set the <code>MKSPEC</code>
+environment variable before you run qmake.
+<p>
+
+<hr>
+<h2>Makefile Templates</h2>
+
+<p>
+qmake understands three kind of <quote>templates</quote>, these templates
+tell qmake what kind of project it is building. The allowed values are:
+<p>
+<table border="0">
+    <tr>
+        <td>&nbsp;</td>
+        <td>app</td>
+        <td>&nbsp;</td>
+        <td>Creates a makefile for building applications.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>lib</td>
+        <td>&nbsp;</td>
+        <td>Creates a makefile for building libraries.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>subdirs</td>
+        <td>&nbsp;</td>
+        <td>Creates a makefile for building targets in subdirectories.</td>
+    </tr>
+</table>
+
+
+<p>
+
+The hello.pro project file above does not have a <code>TEMPLATE</code> or a
+<code>CONFIG</code> variable.  The default template is <tt>app</tt> and the
+default configuration is <tt>qt warn_on release</tt>.
+
+This project file produces exactly the same result as the hello.pro
+above:<pre>
+  TEMPLATE =  app
+  CONFIG   =  qt warn_on release
+  HEADERS  =  hello.h
+  SOURCES  =  hello.cpp main.cpp
+  TARGET   =  hello
+</pre>
+
+
+
+<a name="config_var"></a><h4>Makefile Configuration</h4>
+
+<p>
+The <code>CONFIG</code> variable is recognized by qmake
+templates and specifies what compiler options to use and which extra
+libraries to link in.
+
+<p>
+You may assign anything to this variable, however some will be recognized
+internally by qmake and have special meaning, they are as follows:
+
+These options control the compilation flags:
+<p>
+<table border="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>release</td>
+    <td>&nbsp;</td>
+    <td>Compile with optimization enabled, ignored if
+    "debug" is specified.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>debug</td>
+    <td>&nbsp;</td>
+    <td>Compile with debug options enabled.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>warn_on</td>
+    <td>&nbsp;</td>
+    <td>The compiler should emit more warnings than normally, ignored if
+     "warn_off" is specified.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>warn_off</td>
+    <td>&nbsp;</td>
+    <td>The compiler should emit no warnings or as few as possible.</td>
+  </tr>
+</table>
+
+<p>
+These options defines the application/library type:
+<p>
+<table border="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>qt</td>
+    <td>&nbsp;</td>
+    <td>The target is a Qt application/library and requires Qt header
+     files/library.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>opengl</td>
+    <td>&nbsp;</td>
+    <td>The target requires the OpenGL (or Mesa) headers/libraries.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>thread</td>
+    <td>&nbsp;</td>
+    <td>The target is a multi-threaded application or library.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>x11</td>
+    <td>&nbsp;</td>
+    <td>The target is a X11 application or library.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>windows</td>
+    <td>&nbsp;</td>
+    <td>The target is a Win32 window application (app only).</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>console</td>
+    <td>&nbsp;</td>
+    <td>The target is a Win32 console application (app only).</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>dll</td>
+    <td>&nbsp;</td>
+    <td>The target is a shared object/DLL.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>staticlib</td>
+    <td>&nbsp;</td>
+    <td>The target is a static library (lib only).</td>
+  </tr>
+</table>
+
+<p>
+As an example, if the hello application uses both Qt and OpenGL and you
+want to compile it for debugging, your <code>CONFIG</code> line should
+read:<pre>
+  CONFIG = qt opengl debug
+</pre>
+
+<p>
+The most common qmake options and project variables are described here.
+See the qmake <a href="qmake_ref.html">reference manual</a> for
+details.<p>
+
+
+
+<h4>The Application Template</h4>
+
+The application template, app, lets you compile and link executable
+programs or shared objects (DLLs).
+
+This template recognizes several variables.
+<p>
+<table border="0">
+    <tr>
+        <td>&nbsp;</td>
+        <td>HEADERS</td>
+        <td>&nbsp;</td>
+        <td>Header files.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>SOURCES</td>
+        <td>&nbsp;</td>
+        <td>Source files.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>LEXSOURCES</td>
+        <td>&nbsp;</td>
+        <td>qmake will generate a makefile to process the listed files with
+        lex, and then compile it.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>YACCSOURCES</td>
+        <td>&nbsp;</td>
+        <td>qmake will generate a makefile to process the listed files with
+        yacc, and then compile it.</td>
+    </tr>
+
+    <tr>
+        <td>&nbsp;</td>
+        <td>TARGET</td>
+        <td>&nbsp;</td>
+        <td>Name of executable (adds .exe if on Windows).</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>DESTDIR</td>
+        <td>&nbsp;</td>
+        <td>Where to put the target.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>DEFINES</td>
+        <td>&nbsp;</td>
+        <td>Tell compiler to define C preprocessor macros (-D option).</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>INCLUDEPATH</td>
+        <td>&nbsp;</td>
+        <td>Sets the include file search path for the compiler (-I
+        option).
+	</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>DEPENDPATH</td>
+        <td>&nbsp;</td>
+        <td>Sets the dependency search path for qmake.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>INTERFACES</td>
+        <td>&nbsp;</td>
+        <td>Specify .ui files for addition to the build</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>DEF_FILE</td>
+        <td>&nbsp;</td>
+        <td>Win32 only: Link with a .def file.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>RC_FILE</td>
+        <td>&nbsp;</td>
+        <td>Win32 only: Use a .rc file (compile to temporary .res).
+	</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>RES_FILE</td>
+        <td>&nbsp;</td>
+        <td>Win32 only: Link with a .res file.
+	</td>
+    </tr>
+</table>
+
+<p>
+
+
+<h4>The Library Template</h4>
+
+The library template, lib, lets you compile and create static or shared
+libraries.
+
+<p>
+The lib template supports the same project variables as app, but also
+<code>VERSION</code>.  <code>VERSION</code> is the version number of the
+target library, e.g. 1.40.  The version is important for shared libraries.
+
+
+<h4>The Subdirs Template</h4>
+
+The subdirs template, subdirs, lets you invoke make in subdirectories.
+
+<p>The <code>SUBDIRS</code> variable contains the name of all subdirectories to
+be processed.
+
+
+<h4>Special Templates for Microsoft Visual C++</h4>
+
+If you have Microsoft Visual C++ 5.0 or 6.0, you can use two special templates to
+generate a MSVC++ IDE project (.dsp file).  After you have generated
+e.g. hello.dsp, choose "File"->"Open Workspace" and select the hello.dsp
+file.  Visual C++ will then create a workspace (.dsw file) for you.<p>
+<table border="0">
+    <tr>
+        <td>&nbsp;</td>
+        <td>vcapp</td>
+        <td>&nbsp;</td>
+        <td>Creates an application project file.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>vclib</td>
+        <td>&nbsp;</td>
+        <td>Creates a library project file.</td>
+    </tr>
+</table>
+
+<p>
+Run qmake to create a hello.dsp file (use -t to override the default
+template):<pre>
+  qmake -t vcapp -o hello.dsp hello.pro
+</pre>
+
+
+<hr>
+<h2>Project File Syntax</h2>
+
+The qmake project file has a very simple syntax.  
+
+<a name=#assign_sect></a><h3>Assignments</h3>
+
+<p>
+You may set project variables, append to project variables, and remove from
+project variable.
+
+<p>
+To set a project variable:<pre>
+    HEADERS = gui.h xml.h url.h
+</pre>
+
+If you cannot fit everything on one line, use '\' to split it up:<pre>
+    HEADERS = gui.h \
+	      xml.h \
+	      url.h
+</pre>
+
+<p>
+Project variables contains lists of items (such as header files,
+compiler options etc.) and use whitespace to separate the items.
+This means that qmake cannot deal with items containing whitespace.
+The INCLUDEPATH variable is an exception. If INCLUDEPATH contains
+one or more semicolons (;), qmake uses the semicolon to separate
+the include directories, hence you can have include directories
+containing whitespace (this is quite common on Windows).
+
+<p>
+Here is an example:<pre>
+    INCLUDEPATH = C:\Program Files\DBLib\Include;C:\qt\include
+</pre>
+
+<p>
+qmake supports <em>project variable expension</em>. Use $$ to expand
+any project variable:<pre>
+    ALLFILES = $$HEADERS $$SOURCES
+</pre>
+
+<p>
+Most often you assign some value to a project variable, but you can
+also add to, remove from or replace parts of a project variable.<pre>
+    A   = abc
+    X   = xyz
+    A  += def			# A = abc def
+    B   = $$A			# B = abc def
+    B  -= abc			# B = def
+</pre>
+
+<p>
+You can also set variables from the command line when running the qmake
+program. For instance, if you want to generate a makefile with debug
+information:<pre>
+    qmake "CONFIG+=debug" hello.pro
+</pre>
+
+<a name=#scope_sect></a><h3>Scopes</h3>
+<p>
+You may use scopes to (conditionally) assign to variables. There are
+several ways to test for something being "inscope":
+<ul>
+<li>It appears in the CONFIG variable (see the <a href=#config_var>CONFIG</a> section)
+<li>If qmake is in an OS mode (see the -unix/-win32 option in the <a href=#usage>
+    usage</a> section) you may use the OS dependant scope (unix/win32).
+<li>Function testing (see the <a href=#funct_sect>function tests</a>
+section)
+<li>If a given compiler is used as the MKSPEC (see the 
+    <a href=#mkspec_sect>MKSPEC</a> section.
+</ul>
+
+<p>
+Scopes must be colon separated from their assignment for example:
+
+<pre>
+    SOURCES	   =   common.cpp   # common for all platforms
+    unix:SOURCES   +=  unix.cpp	    # additional sources for Unix
+    win32:SOURCES  +=  win32.cpp    # additional sources for Windows
+    unix:LIBS	   +=  -lm	    # on Unix we need the math lib
+</pre>
+
+<p>
+You may logically AND together scopes by separating multiple ones with
+colons, similarly you may negate as scope with the '!' character. In some
+cases you may actually just want to execute the scope, and not do an
+assignment, this is perfectly legal in qmake - and the final colon is
+optional. For example:
+
+<pre>
+   win32:win32-msvc:USING_MSVC=1 #if this is win32, and the win32-msvc
+                                 #compiler is to be used then set the variable
+   unix:include(file.pri)  #if this is unix, then substitute the contents
+                           #file.pri with this include line.
+   !unix:debug:message(oh dear, unix should be debugged!):WEIRD=1
+</pre>
+
+<p>
+The syntax scope:assignment can get a little cumbersome when a test is
+performed multiple times. It also leads to a makefile becoming hard to
+understand without digging into it, so scopes may be blocked to attempt to
+modularize different tests. For example:
+
+<pre>
+   win32:dance {
+      contains(dance, square_dance):CONFIG += howdown
+      contains(dance, disco):CONFIG += nightfever
+      ACTION += dancing
+   }
+<pre>
+
+<p>
+Because the syntax for qmake is line based it makes the blocking syntax
+very strict, this means: You must have the { on the same line as the scope
+test (you may have 1 assignment after it if you so desire). Then the
+following assignments must be one per line, and finally must be finished
+with the line containing only a '}' character. There is a provision for
+using only blocked style if you prefer on one line, however it is
+discouraged, and the old style is still preferred for one liners. For
+example:
+
+<pre>
+  test:VARIABLE = value  #is the same as...
+  test { VARIABLE = value }
+</pre>
+
+
+<a name=funct_sect></a><h3>Function Tests</h3>
+
+<p>
+As has appeared in some of the example tests above, functions may be used
+to do advanced tests. For the most part simply testing for platform or the
+value appearing in the CONFIG variable should be sufficent, but some built
+in functions have been added. To date the functions may not be extended
+externally, and this functionallity will probably not be added. The
+existing functions are:
+
+<p>
+<table border="1">
+    <tr>
+        <td>&nbsp;</td>
+        <td>Function name</td>
+        <td>&nbsp;</td>
+        <td>Arguments</td>
+        <td>&nbsp;</td>
+        <td>Description</td>
+    </tr>
+
+    <tr>
+        <td>&nbsp;</td>
+        <td>include</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will succeed if the file could be found and
+        parsed correctly, it will fail otherwise.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>contains</td>
+        <td>&nbsp;</td>
+        <td>variable, value</td>
+        <td>&nbsp;</td>
+		<td>This function will suceed if variable (the name of a qmake
+		variable) contains the given value</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>system</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will execute string in a secondary shell and will
+        succeed if the command exits with a exit status of 1.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>message</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will always return succeed, but will display the
+        given string to the user.</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>error</td>
+        <td>&nbsp;</td>
+        <td>string</td>
+        <td>&nbsp;</td>
+        <td>This function will never return, but will display the given
+        string to the user, and then exit qmake, this should only be used
+        for very fatal configurations.</td>
+    </tr>
+</table>
+
+<p>
+Example usages:
+
+<pre>
+  !include(file.pri):message(I couldn't include file.pri):file_pri=FAILED
+  release:debug:error(You can't have release and debug at the same time!)
+  system(ls /bin):HAS_BIN=FALSE
+  !contains(HAS_BIN, TRUE):message(why you don't have a /bin directory!):
+</pre>
+
+<hr>
+<h2><a name="usage"></a>Running qmake</h2>
+
+Usage: <pre> qmake [options] <em>project files or project settings</em> </pre>
+Options: <pre>
+        -nocache      Don't use a cache file
+        -nodepend     Don't generate dependency information
+        -o file       Write output to <em>file</em>
+        -unix         Run in unix mode
+        -win32        Run in win32 mode
+        -mkcache file Use <em>file</em> as cache
+        -mkspec file  Use <em>file</em> as spec
+        -d            Increase debug level
+        -t template   Specify the <em>template</em>
+</pre>
+
+The -t option overrides any <code>TEMPLATE</code> variable in the project file.
+<p>
+The default project file extension is ".pro", if you do not specify the
+extension qmake will automatically add them for you.
+
+<p>
+Example of basic use:<pre>
+    qmake hello -o Makefile
+</pre>
+
+<p>
+Example of how to create a makefile with debugging information:<pre>
+    qmake hello "CONFIG+=debug" -o Makefile
+</pre>
+
+<p>
+The cache file (mentioned above in the options) is a special file qmake
+will read to find settings not specified in the mkspec, the .pro file, or
+the command line. If neither -mkspec nor -nocache are specified qmake will
+try to find a file called .qmake.cache in parent directories, if it fails
+to find this file it will silently ignore this step of processing. 
+
+<p>
+The order of processing all given assignments is:
+
+<ol>
+<li>The cache file is read and processed
+<li>The mkspec file is read and processed
+<li>All commandline given assignments are processed in order
+<li>Finally all project files are processed in order
+</ol>
+
+<hr>
+
+<!---
+<h2><a name="progen"></a>The progen Utility</h2>
+
+The progen utility creates project files for you. It can be used like
+this:<pre>
+  progen -n hello -o hello.pro
+</pre>
+If no .cpp or .h files are specified on the command line, progen
+searches for .cpp and .h (except moc_*.cpp) in the current directory
+and below.
+<p>
+Usage:<pre>
+  progen [options] [<em>C/C++ header files and source files</em>]
+</pre>
+Options:<pre>
+  -lower   Lower-case letters in filenames (useful on Windows).
+  -n <em>name</em>  Specify a project name (<code>TARGET</code>).
+  -o <em>file</em>  Write output to <em>file</em> instead of stdout.
+  -t <em>file</em>  Specify a template <em>file</em>.
+</pre>
+--->
+
+</body></html>
