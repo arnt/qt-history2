@@ -62,7 +62,7 @@ PluginManager::PluginManager(QObject *parent)
     
     m_pluginPaths 
         = unique(settings.value(QLatin1String("PluginPaths")).toStringList());
-    m_registeredPlugins
+    m_disabledPlugins
         = unique(settings.value(QLatin1String("DisabledPlugins")).toStringList());
     updateRegisteredPlugins();                    
 

@@ -90,8 +90,7 @@ void PluginPreferenceWidget::itemChanged(QTreeWidgetItem *item, int col)
     if (item->parent() == 0)
         return;
         
-    QString plugin = item->parent()->text(0) + "/" + item->text(0);
-    qDebug() << "itemChanged():" << plugin << item->checkState(1);    
+    QString plugin = QDir::cleanPath(item->parent()->text(0) + "/" + item->text(0));
 
     if (item->checkState(1) != Qt::Checked) {
         if (!m_prefs->m_disabled_plugins.contains(plugin))
@@ -106,12 +105,13 @@ void PluginPreferenceWidget::itemChanged(QTreeWidgetItem *item, int col)
 
 void PluginPreferenceWidget::populateTree()
 {
-    disconnect(m_tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
+    disconnect(m_tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+                this, SLOT(itemChanged(QTreeWidgetItem*, int)));
     m_tree->clear();
     
     m_tree->setColumnCount(2);
     m_tree->setHeaderLabels(QStringList() << tr("Path") << tr("Enabled"));
-    
+
     foreach (QString path, m_prefs->m_plugin_paths) {
         QTreeWidgetItem *path_item = new QTreeWidgetItem(m_tree);
         path_item->setText(0, path);
@@ -129,7 +129,8 @@ void PluginPreferenceWidget::populateTree()
     }
 
     m_tree->resizeColumnToContents(0);
-    connect(m_tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(itemChanged(QTreeWidgetItem*, int)));
+    connect(m_tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+            this, SLOT(itemChanged(QTreeWidgetItem*, int)));
     updateButtons();
 }
 
@@ -151,6 +152,8 @@ void PluginPreferenceWidget::addPath()
     if (path.isEmpty())
         return;
 
+    path = QDir::cleanPath(path);
+        
     if (!m_prefs->m_plugin_paths.contains(path)) {
         m_prefs->m_plugin_paths.append(path);
         populateTree();
@@ -212,6 +215,7 @@ bool PluginPreferences::saveSettings()
     m_plugin_manager->setPluginPaths(m_plugin_paths);
     m_plugin_manager->setDisabledPlugins(m_disabled_plugins);
     m_plugin_manager->syncSettings();
+    m_dirty = false;
     
     return true;
 }
@@ -221,6 +225,7 @@ bool PluginPreferences::readSettings()
     m_plugin_paths = m_plugin_manager->pluginPaths();
     m_disabled_plugins = m_plugin_manager->disabledPlugins();
     
+    m_dirty = false;
     emit updateWidget();
     
     return true;

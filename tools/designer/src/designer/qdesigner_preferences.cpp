@@ -38,6 +38,7 @@ QWidget *DesignerPreferences::createPreferenceWidget(QWidget *parent)
         layout->addStretch();
         connect(optShowNewDialog, SIGNAL(toggled(bool)), this, SLOT(setShowDialog(bool)));
         connect(optShowNewDialog, SIGNAL(toggled(bool)), this, SLOT(setSettingsDirty()));
+        connect(optShowNewDialog, SIGNAL(toggled(bool)), this, SIGNAL(changed()));
     }
     return m_prefWidget;
 }
