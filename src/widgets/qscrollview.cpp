@@ -1627,6 +1627,11 @@ void QScrollView::moveContents(int x, int y)
     d->hideOrShowAll(this);
 }
 
+#if QT_VERSION >= 300
+#error "Should rename contents{X,Y,Width,Height} to viewport{...}"
+// Because it's the viewport rectangle that is "moving", not the contents.
+#endif
+
 /*!
   Returns the X coordinate of the contents which is at the left
   edge of the viewport.
