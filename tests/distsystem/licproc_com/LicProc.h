@@ -39,6 +39,12 @@ private:
     QString srvName;
 // ILicProc
 public:
+    STDMETHOD(deleteFilemap)(BSTR tag, BSTR itemId, BSTR fileName, BSTR companyId);
+    STDMETHOD(deleteVersionTag)(BSTR tag, BSTR companyId);
+    STDMETHOD(clearFilemap)(BSTR companyId);
+    STDMETHOD(clearVersionTags)(BSTR companyId);
+    STDMETHOD(publishFilemap)(BSTR tag, BSTR itemId, BSTR fileName, BSTR fileDesc, BSTR companyId);
+    STDMETHOD(publishVersionTag)(BSTR tag, BSTR versionString, BSTR subDir, BSTR companyId);
     STDMETHOD(updateDb)(DWORD licenseId, BSTR versionTag, BSTR companyId);
     STDMETHOD(setServer)(BSTR srv, BSTR user, BSTR password, BSTR db);
     STDMETHOD(publishLine)(DWORD licenseId, BSTR itemId, DWORD usLicense, BSTR companyId);

@@ -20,6 +20,12 @@ import "ocidl.idl";
 		[id(3), helpstring("method publishLine")] HRESULT publishLine(DWORD licenseId, BSTR itemId, DWORD usLicense, BSTR companyId);
 		[id(4), helpstring("method setServer")] HRESULT setServer(BSTR srv, BSTR user, BSTR password, BSTR db);
 		[id(5), helpstring("method updateDb")] HRESULT updateDb(DWORD licenseId, BSTR versionTag, BSTR companyId);
+		[id(6), helpstring("method publishVersionTag")] HRESULT publishVersionTag(BSTR tag, BSTR versionString, BSTR subDir, BSTR companyId);
+		[id(7), helpstring("method publishFilemap")] HRESULT publishFilemap(BSTR tag, BSTR itemId, BSTR fileName, BSTR fileDesc, BSTR companyId);
+		[id(8), helpstring("method clearVersionTags")] HRESULT clearVersionTags(BSTR companyId);
+		[id(9), helpstring("method clearFilemap")] HRESULT clearFilemap(BSTR companyId);
+		[id(10), helpstring("method deleteVersionTag")] HRESULT deleteVersionTag(BSTR tag, BSTR companyId);
+		[id(11), helpstring("method deleteFilemap")] HRESULT deleteFilemap(BSTR tag, BSTR itemId, BSTR fileName, BSTR companyId);
 	};
 
 [

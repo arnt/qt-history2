@@ -25,6 +25,14 @@ static QString BSTR2QString( BSTR src )
     return tmp;
 }
 
+static bool checkCompanyId( QString companyId )
+{
+    if( ( companyId == "nor" ) || ( companyId == "usa" ) )
+	return true;
+
+    return false;
+}
+
 STDMETHODIMP LicProc::dummy(DWORD bar)
 {
     DWORD foo = bar;
@@ -35,7 +43,7 @@ STDMETHODIMP LicProc::publishLicense(DWORD licenseId, BSTR custId, BSTR licensee
 {
     if( !distDb->isOpen() )
 	return E_FAIL;
-    if( ( BSTR2QString( companyId ) != "nor" ) && ( BSTR2QString( companyId ) != "usa" ) )
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
 	return S_OK;
 
     QSqlRecord* buffer;
@@ -68,7 +76,7 @@ STDMETHODIMP LicProc::publishLine(DWORD licenseId, BSTR itemId, DWORD usLicense,
 {
     if( !distDb->isOpen() )
 	return E_FAIL;
-    if( ( BSTR2QString( companyId ) != "nor" ) && ( BSTR2QString( companyId ) != "usa" ) )
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
 	return S_OK;
 
     QSqlRecord* buffer;
@@ -151,7 +159,7 @@ STDMETHODIMP LicProc::updateDb(DWORD licenseId, BSTR versionTag, BSTR companyId)
 {
     QString tag = BSTR2QString( versionTag ) + "\n";
 
-    if( ( BSTR2QString( companyId ) != "nor" ) && ( BSTR2QString( companyId ) != "usa" ) )
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
 	return S_OK;
 
     int sock = socket( AF_INET, SOCK_STREAM, 0 );
@@ -201,4 +209,109 @@ STDMETHODIMP LicProc::updateDb(DWORD licenseId, BSTR versionTag, BSTR companyId)
 int main(int argc, char** argv )
 {
     return 0;
+}
+
+STDMETHODIMP LicProc::publishVersionTag(BSTR tag, BSTR versionString, BSTR subDir, BSTR companyId)
+{
+    if( !distDb->isOpen() )
+	return E_FAIL;
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
+	return S_OK;
+
+    QSqlRecord* buffer;
+
+    QSqlCursor versionCursor( "versions" );
+    versionCursor.select( QString( "tag = '%1'" ).arg( BSTR2QString( tag ) ) );
+    versionCursor.first();
+    if( versionCursor.isValid() ) {
+	QSqlQuery q;
+	q.exec( QString( "DELETE from versions where tag = '%1'" ).arg( BSTR2QString( tag ) ) );
+    }
+    buffer = versionCursor.primeInsert();
+
+    buffer->setValue( "tag", BSTR2QString( tag ) );
+    buffer->setValue( "subdir", BSTR2QString( subDir ) );
+    buffer->setValue( "version", BSTR2QString( versionString ) );
+    versionCursor.insert();
+
+    return S_OK;
+}
+
+STDMETHODIMP LicProc::publishFilemap(BSTR tag, BSTR itemId, BSTR fileName, BSTR fileDesc, BSTR companyId)
+{
+    if( !distDb->isOpen() )
+	return E_FAIL;
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
+	return S_OK;
+
+    QSqlRecord* buffer;
+
+    QSqlCursor mapCursor( "filesmap" );
+    mapCursor.select( QString( "ItemID = '%1' and FileName = '%2' and VersionTag = '%3'" ).arg( BSTR2QString( itemId ) ).arg( BSTR2QString( fileName ) ).arg( BSTR2QString( tag ) ) );
+    mapCursor.first();
+    if( mapCursor.isValid() ) {
+	QSqlQuery q;
+	q.exec( QString( "DELETE from map where ItemID = '%1' and FileName = '%2' and VersionTag = '%3'" ).arg( BSTR2QString( itemId ) ).arg( BSTR2QString( fileName ) ).arg( BSTR2QString( tag ) ) );
+    }
+    buffer = mapCursor.primeInsert();
+
+    buffer->setValue( "VersionTag", BSTR2QString( tag ) );
+    buffer->setValue( "ItemID", BSTR2QString( itemId ) );
+    buffer->setValue( "FileName", BSTR2QString( fileName ) );
+    buffer->setValue( "FileDec", BSTR2QString( fileDesc ) );
+    mapCursor.insert();
+
+    return S_OK;
+}
+
+STDMETHODIMP LicProc::clearVersionTags(BSTR companyId)
+{
+    if( !distDb->isOpen() )
+	return E_FAIL;
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
+	return S_OK;
+
+    QSqlQuery q;
+    q.exec( QString( "DELETE from versions" ) );
+
+    return S_OK;
+}
+
+STDMETHODIMP LicProc::clearFilemap(BSTR companyId)
+{
+    if( !distDb->isOpen() )
+	return E_FAIL;
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
+	return S_OK;
+
+    QSqlQuery q;
+    q.exec( QString( "DELETE from filesmap" ) );
+
+    return S_OK;
+}
+
+STDMETHODIMP LicProc::deleteVersionTag(BSTR tag, BSTR companyId)
+{
+    if( !distDb->isOpen() )
+	return E_FAIL;
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
+	return S_OK;
+
+    QSqlQuery q;
+    q.exec( QString( "DELETE from versions where tag = '%1'" ).arg( BSTR2QString( tag ) ) );
+
+    return S_OK;
+}
+
+STDMETHODIMP LicProc::deleteFilemap(BSTR tag, BSTR itemId, BSTR fileName, BSTR companyId)
+{
+    if( !distDb->isOpen() )
+	return E_FAIL;
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
+	return S_OK;
+
+    QSqlQuery q;
+    q.exec( QString( "DELETE from map where ItemID = '%1' and FileName = '%2' and VersionTag = '%3'" ).arg( BSTR2QString( itemId ) ).arg( BSTR2QString( fileName ) ).arg( BSTR2QString( tag ) ) );
+
+    return S_OK;
 }

@@ -2,9 +2,9 @@
 
 
 /* File created by MIDL compiler version 5.01.0164 */
-/* at Mon Jul 16 13:00:42 2001
+/* at Wed Aug 01 11:46:28 2001
  */
-/* Compiler settings for C:\DEPOT\QT\MAIN\TESTS\DISTSYSTEM\licproc_com\licproc_com.idl:
+/* Compiler settings for C:\depot\qt\main\tests\distsystem\licproc_com\licproc_com.idl:
     Oicf (OptLev=i2), W1, Zp8, env=Win32, ms_ext, c_ext
     error checks: allocation ref bounds_check enum stub_data 
 */
@@ -107,6 +107,35 @@ EXTERN_C const IID IID_ILicProc;
             BSTR versionTag,
             BSTR companyId) = 0;
         
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE publishVersionTag( 
+            BSTR tag,
+            BSTR versionString,
+            BSTR subDir,
+            BSTR companyId) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE publishFilemap( 
+            BSTR tag,
+            BSTR itemId,
+            BSTR fileName,
+            BSTR fileDesc,
+            BSTR companyId) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE clearVersionTags( 
+            BSTR companyId) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE clearFilemap( 
+            BSTR companyId) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE deleteVersionTag( 
+            BSTR tag,
+            BSTR companyId) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE deleteFilemap( 
+            BSTR tag,
+            BSTR itemId,
+            BSTR fileName,
+            BSTR companyId) = 0;
+        
     };
     
 #else 	/* C style interface */
@@ -190,6 +219,41 @@ EXTERN_C const IID IID_ILicProc;
             BSTR versionTag,
             BSTR companyId);
         
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *publishVersionTag )( 
+            ILicProc __RPC_FAR * This,
+            BSTR tag,
+            BSTR versionString,
+            BSTR subDir,
+            BSTR companyId);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *publishFilemap )( 
+            ILicProc __RPC_FAR * This,
+            BSTR tag,
+            BSTR itemId,
+            BSTR fileName,
+            BSTR fileDesc,
+            BSTR companyId);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *clearVersionTags )( 
+            ILicProc __RPC_FAR * This,
+            BSTR companyId);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *clearFilemap )( 
+            ILicProc __RPC_FAR * This,
+            BSTR companyId);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *deleteVersionTag )( 
+            ILicProc __RPC_FAR * This,
+            BSTR tag,
+            BSTR companyId);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *deleteFilemap )( 
+            ILicProc __RPC_FAR * This,
+            BSTR tag,
+            BSTR itemId,
+            BSTR fileName,
+            BSTR companyId);
+        
         END_INTERFACE
     } ILicProcVtbl;
 
@@ -240,6 +304,24 @@ EXTERN_C const IID IID_ILicProc;
 
 #define ILicProc_updateDb(This,licenseId,versionTag,companyId)	\
     (This)->lpVtbl -> updateDb(This,licenseId,versionTag,companyId)
+
+#define ILicProc_publishVersionTag(This,tag,versionString,subDir,companyId)	\
+    (This)->lpVtbl -> publishVersionTag(This,tag,versionString,subDir,companyId)
+
+#define ILicProc_publishFilemap(This,tag,itemId,fileName,fileDesc,companyId)	\
+    (This)->lpVtbl -> publishFilemap(This,tag,itemId,fileName,fileDesc,companyId)
+
+#define ILicProc_clearVersionTags(This,companyId)	\
+    (This)->lpVtbl -> clearVersionTags(This,companyId)
+
+#define ILicProc_clearFilemap(This,companyId)	\
+    (This)->lpVtbl -> clearFilemap(This,companyId)
+
+#define ILicProc_deleteVersionTag(This,tag,companyId)	\
+    (This)->lpVtbl -> deleteVersionTag(This,tag,companyId)
+
+#define ILicProc_deleteFilemap(This,tag,itemId,fileName,companyId)	\
+    (This)->lpVtbl -> deleteFilemap(This,tag,itemId,fileName,companyId)
 
 #endif /* COBJMACROS */
 
@@ -317,6 +399,89 @@ void __RPC_STUB ILicProc_setServer_Stub(
 
 
 void __RPC_STUB ILicProc_updateDb_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ILicProc_publishVersionTag_Proxy( 
+    ILicProc __RPC_FAR * This,
+    BSTR tag,
+    BSTR versionString,
+    BSTR subDir,
+    BSTR companyId);
+
+
+void __RPC_STUB ILicProc_publishVersionTag_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ILicProc_publishFilemap_Proxy( 
+    ILicProc __RPC_FAR * This,
+    BSTR tag,
+    BSTR itemId,
+    BSTR fileName,
+    BSTR fileDesc,
+    BSTR companyId);
+
+
+void __RPC_STUB ILicProc_publishFilemap_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ILicProc_clearVersionTags_Proxy( 
+    ILicProc __RPC_FAR * This,
+    BSTR companyId);
+
+
+void __RPC_STUB ILicProc_clearVersionTags_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ILicProc_clearFilemap_Proxy( 
+    ILicProc __RPC_FAR * This,
+    BSTR companyId);
+
+
+void __RPC_STUB ILicProc_clearFilemap_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ILicProc_deleteVersionTag_Proxy( 
+    ILicProc __RPC_FAR * This,
+    BSTR tag,
+    BSTR companyId);
+
+
+void __RPC_STUB ILicProc_deleteVersionTag_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ILicProc_deleteFilemap_Proxy( 
+    ILicProc __RPC_FAR * This,
+    BSTR tag,
+    BSTR itemId,
+    BSTR fileName,
+    BSTR companyId);
+
+
+void __RPC_STUB ILicProc_deleteFilemap_Stub(
     IRpcStubBuffer *This,
     IRpcChannelBuffer *_pRpcChannelBuffer,
     PRPC_MESSAGE _pRpcMessage,
