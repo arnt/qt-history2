@@ -22,6 +22,8 @@
 
 */
 
+#undef NETWMDEBUG
+
 #include "netwm.h"
 
 #include <string.h>
@@ -69,7 +71,7 @@ static Atom net_wm_ping              = 0;
 // used to determine whether application window is managed or not
 static Atom xa_wm_state              = 0;
 
-static Bool atoms_created            = False;
+static Bool netwm_atoms_created      = False;
 
 
 static char *nstrdup(const char *s1) {
@@ -101,12 +103,14 @@ static Window *nwindup(Window *w1, int n) {
 
 
 static void refdec_nri(NETRootInfoPrivate *p) {
-#ifdef    DEBUG
+    
+#ifdef    NETWMDEBUG
     fprintf(stderr, "decrementing NETRootInfoPrivate::ref (%d)\n", p->ref - 1);
 #endif
 
     if (! --p->ref) {
-#ifdef    DEBUG
+	
+#ifdef    NETWMDEBUG
 	fprintf(stderr, "\tno more references, deleting\n");
 #endif
 
@@ -123,12 +127,14 @@ static void refdec_nri(NETRootInfoPrivate *p) {
 
 
 static void refdec_nwi(NETWinInfoPrivate *p) {
-#ifdef    DEBUG
+    
+#ifdef    NETWMDEBUG
     fprintf(stderr, "decrementing NETWinInfoPrivate::ref (%d)\n", p->ref - 1);
 #endif
 
     if (! --p->ref) {
-#ifdef    DEBUG
+	
+#ifdef    NETWMDEBUG
 	fprintf(stderr, "\tno more references, deleting\n");
 #endif
 
@@ -223,7 +229,7 @@ static void create_atoms(Display *d) {
     while (i--)
 	*atomsp[i] = atoms[i];
 
-    atoms_created = True;
+    netwm_atoms_created = True;
 }
 
 
@@ -333,7 +339,7 @@ Z &RArray<Z>::operator[](int index) {
 NETRootInfo::NETRootInfo(Display *display, Window supportWindow, const char *wmName,
 			 unsigned long properties, int screen)
 {
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
     fprintf(stderr, "NETRootInfo::NETRootInfo: using window manager constructor\n");
 #endif
 
@@ -355,10 +361,12 @@ NETRootInfo::NETRootInfo(Display *display, Window supportWindow, const char *wmN
     p->active = None;
     p->clients = p->stacking = p->virtual_roots = (Window *) 0;
     p->clients_count = p->stacking_count = p->virtual_roots_count = 0;
+    p->kde_docking_windows = 0;
+    p->kde_docking_windows_count = 0;
 
     role = WindowManager;
 
-    if (! atoms_created) create_atoms(p->display);
+    if (! netwm_atoms_created) create_atoms(p->display);
 }
 
 
@@ -385,10 +393,12 @@ NETRootInfo::NETRootInfo(Display *display, unsigned long properties, int screen)
     p->active = None;
     p->clients = p->stacking = p->virtual_roots = (Window *) 0;
     p->clients_count = p->stacking_count = p->virtual_roots_count = 0;
+    p->kde_docking_windows = 0;
+    p->kde_docking_windows_count = 0;
 
     role = Client;
 
-    if (! atoms_created) create_atoms(p->display);
+    if (! netwm_atoms_created) create_atoms(p->display);
 }
 
 
@@ -411,16 +421,20 @@ NETRootInfo::~NETRootInfo() {
 
 void NETRootInfo::activate() {
     if (role == WindowManager) {
-#ifdef    DEBUG
+	
+#ifdef    NETWMDEBUG
 	fprintf(stderr,
 		"NETRootInfo::activate: setting supported properties on root\n");
 #endif
+	
 	// force support for Supported and SupportingWMCheck for window managers
 	setSupported(p->protocols | Supported | SupportingWMCheck);
     } else {
-#ifdef    DEBUG
+	
+#ifdef    NETWMDEBUG
 	fprintf(stderr, "NETRootInfo::activate: updating client information\n");
 #endif
+	
 	update(p->protocols);
     }
 }
@@ -434,7 +448,7 @@ void NETRootInfo::setClientList(Window *windows, unsigned int count) {
     if (p->clients) delete [] p->clients;
     p->clients = nwindup(windows, count);
 
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
     fprintf(stderr, "NETRootInfo::setClientList: setting list with %ld windows\n",
 	    p->clients_count);
 #endif
@@ -452,7 +466,7 @@ void NETRootInfo::setClientListStacking(Window *windows, unsigned int count) {
     if (p->stacking) delete [] p->stacking;
     p->stacking = nwindup(windows, count);
 
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
     fprintf(stderr, "NETRootInfo::SetClientListStacking: setting list with %ld windows\n",
 	    p->clients_count);
 #endif
@@ -552,7 +566,7 @@ void NETRootInfo::setDesktopName(CARD32 desktop, const char *desktopName) {
 	} else
 	    *propp++ = '\0';
 
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
     fprintf(stderr,
 	    "NETRootInfo::setDesktopName(%ld, '%s')\n"
 	    "desktop_names (atom %ld:\n",
@@ -646,7 +660,7 @@ void NETRootInfo::setSupported(unsigned long pr) {
     p->protocols = pr;
 
     if (role != WindowManager) {
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
 	fprintf(stderr, "NETRootInfo::setSupported - role != WindowManager\n");
 #endif
 
@@ -739,7 +753,7 @@ void NETRootInfo::setSupported(unsigned long pr) {
     XChangeProperty(p->display, p->root, net_supporting_wm_check, XA_WINDOW, 32,
 	 	    PropModeReplace, (unsigned char *) &(p->supportwindow), 1);
 
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
     fprintf(stderr,
 	    "NETRootInfo::setSupported: _NET_SUPPORTING_WM_CHECK = 0x%lx on 0x%lx\n"
 	    "                         : _NET_WM_NAME = '%s' on 0x%lx\n",
@@ -1081,7 +1095,7 @@ void NETRootInfo::update(unsigned long dirty) {
 		    delete [] p->stacking;
 		}
 
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
 		fprintf(stderr,"NETRootInfo::update: ClientStacking updated, "
 			"have %ld clients\n", nitems_ret);
 #endif
@@ -1123,7 +1137,7 @@ void NETRootInfo::update(unsigned long dirty) {
 		    p->geometry[d].height = data[i++];
 		}
 
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
 		if (nitems_ret % 2 != 0) {
 		    fprintf(stderr,
 			    "NETRootInfo::update(): desktop geometry array "
@@ -1157,7 +1171,7 @@ void NETRootInfo::update(unsigned long dirty) {
 		    p->viewport[d].y = data[i++];
 		}
 
-#ifdef    DEBUG
+#ifdef    NETWMDEBUG
 		if (nitems_ret % 2 != 0) {
 		    fprintf(stderr,
 			    "NETRootInfo::update(): desktop viewport array "
@@ -1325,7 +1339,7 @@ NETWinInfo::NETWinInfo(Display *display, Window window, Window rootWindow,
 
     this->role = role;
 
-    if (! atoms_created) create_atoms(p->display);
+    if (! netwm_atoms_created) create_atoms(p->display);
 
     if (p->properties)
 	update(p->properties);
@@ -1868,6 +1882,18 @@ void NETWinInfo::update(unsigned long dirty) {
 		p->frame_strut.bottom = d[3];
 	    }
 
+	    XFree(data_ret);
+	}
+    }
+    
+    if (dirty & WMPid) {
+	if (XGetWindowProperty(p->display, p->window, net_wm_pid, 0l, 1l,
+			       False, XA_CARDINAL, &type_ret, &format_ret,
+			       &nitems_ret, &unused, &data_ret) == Success) {
+	    if (type_ret == XA_CARDINAL && format_ret == 32 && nitems_ret == 1) {
+		p->pid = *((CARD32 *) data_ret);
+	    }
+	    
 	    XFree(data_ret);
 	}
     }
