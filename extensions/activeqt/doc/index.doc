@@ -128,6 +128,16 @@
     \i register the server
     \endlist
 
+    Additionally you can specify a version number using the \c VERSION
+    variable, e.g.
+    \code
+    TEMPLATE = lib
+    VERSION = 2.5
+    ...
+    \endcode
+    The version number specified will be used as the version of the type
+    library and of the server when registering.
+
     \section2 Out-of-process vs. In-process
 
     Whether your ActiveX server should run as a stand-alone executable
@@ -633,9 +643,8 @@
     \endraw
 
     This is however not necessary as ActiveQt provides a default implementation
-    of a main function. The default implemenation returns an error code -1 when
-    QAxFactory::isServer() returns FALSE, otherwise it creates a QApplication 
-    instance and calls exec().
+    of a main function. The default implemenation calls QAxFactory::startServer(),
+    creates a QApplication instance and calls exec().
 
     To build the ActiveX server executable run \link qmake-manual.book
     qmake\endlink to generate the makefile, and use your compiler's
@@ -766,7 +775,8 @@
 
     Microsoft Office applications are supported, but you need to register
     the controls as "Insertable" objects. Reimplement \c QAxFactory::registerClass
-    to add this attribute to the COM class.
+    to add this attribute to the COM class, or set the "Insertable" class info
+    for your class to "yes" using the Q_CLASSINFO macro.
 
     \section3 Unsupported Clients
 
@@ -779,6 +789,119 @@
     \endlist
 
     \section1 Enhanced features
+
+    \section2 Fewer methods and properties
+
+    By default all ActiveX controls expose not only their own methods
+    and properties to ActiveX clients, but also those of all super
+    classes, including QWidget.
+
+    This can be controlled by reimplementing QAxFactory's
+    exposeToSuperClass() function. Reimplement the function to return
+    the last (furthest up the inheritance hierarchy) super class that
+    should be exposed:
+
+    \code
+    QString MyFactory::exposeToSuperClass( const QString &key ) const
+    {
+        if ( key == "SmallActiveX" )
+            return key;
+        return QAxFactory::exposeToSuperClass( key );
+    }
+    \endcode
+
+    The SmallActiveX control will only expose its own functions and
+    properties to clients, while all other ActiveX controls provided
+    by this factory will expose their own functions and properties and
+    also those of all their super classes including QWidget. The
+    SmallActiveX class can of course propagate some of the QWidget
+    functions and properties into its own interface.
+
+    \section2 Class Information
+
+    An alternative to reimplementing QAxFactory to have more control about
+    how objects are registered or exposed is to provide class specific
+    information using the Q_CLASSINFO macro.
+
+    \table
+    \header
+    \i Key
+    \i Value
+    \i Meaning
+    \row
+    \i Version
+    \i x.y
+    \i The version of the class (1.0 is default)
+    \row
+    \i ClassID
+    \i {12345678-1234-1234-1234-123412345678}
+    \i You must reimplement QAxFactory::classID if not specified
+    \row
+    \i InterfaceID
+    \i {12345678-1234-1234-1234-123412345678}
+    \i You must reimplement QAxFactory::interfaceID if not specified
+    \row
+    \i EventsID
+    \i {12345678-1234-1234-1234-123412345678}
+    \i No signals are exposed as COM events if not specified
+    \row
+    \i StockEvents
+    \i yes
+    \i The object exposes stock events. See \l QAxFactory::hasStockEvents()
+    \row
+    \i ToSuperClass
+    \i classname
+    \i The object exposes functionality of all super classes up to and
+       including \e classname. An empty value indicates "QWidget". 
+       See \l QAxFactory::exposeToSuperClass()
+    \row
+    \i Insertable
+    \i yes
+    \i The object is registered to be "Insertable" and will be listed in 
+       OLE 2 containers (ie. Microsoft Office). This attribute will not be 
+       set by default.
+    \row
+    \i Aggregatable
+    \i no
+    \i The object does not support aggregation. By default aggregation is
+       supported.
+    \row
+    \i DefaultProperty
+    \i property name
+    \i The property \e name represents the default property of this object.
+       Ie. the default property of a push button would be "text".
+    \row
+    \i DefaultSignal
+    \i signal name
+    \i The signal \e name respresents the default signal of this object.
+       Ie. the default signal of a push button would be "clicked".
+    \endtable
+
+    Note that both keys and values are case sensitive.
+    The following declares a second version of a class that exposes only its
+    own API, and is available in the "Insert Objects" dialog of Microsoft
+    Office applications.
+
+    \raw
+    <pre>
+    class MyActiveX : public QWidget
+    {
+        Q_OBJECT
+        <b>Q_CLASSINFO("Version", "2.0")
+        Q_CLASSINFO("ClassID", "")
+        Q_CLASSINFO("InterfaceID", "")
+        Q_CLASSINFO("EventsID", "")
+        Q_CLASSINFO("Insertable", "yes")
+        Q_CLASSINFO("ToSuperClass", "MyActiveX")</b>
+
+	Q_PROPERTY( ...
+    public:
+	MyActiveX(QWidget *parent = 0, const char *name = 0);
+	
+	...
+    };
+    </pre>
+    \endraw
 
     \section2 More Interfaces
 
@@ -871,33 +994,6 @@
     };
     </pre>
     \endraw
-
-    \section2 Fewer methods and properties
-
-    By default all ActiveX controls expose not only their own methods
-    and properties to ActiveX clients, but also those of all super
-    classes, including QWidget.
-
-    This can be controlled by reimplementing QAxFactory's
-    exposeToSuperClass() function. Reimplement the function to return
-    the last (furthest up the inheritance hierarchy) super class that
-    should be exposed:
-
-    \code
-    QString MyFactory::exposeToSuperClass( const QString &key ) const
-    {
-        if ( key == "SmallActiveX" )
-            return key;
-        return QAxFactory::exposeToSuperClass( key );
-    }
-    \endcode
-
-    The SmallActiveX control will only expose its own functions and
-    properties to clients, while all other ActiveX controls provided
-    by this factory will expose their own functions and properties and
-    also those of all their super classes including QWidget. The
-    SmallActiveX class can of course propagate some of the QWidget
-    functions and properties into its own interface.
 */
 
 /*! \page qaxcontainer.html
