@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#38 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#38 $")
 
 
 /*****************************************************************************
@@ -334,8 +334,10 @@ void QColor::setRgb( int r, int g, int b )
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
 	warning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
-    if ( lalloc || g_cmap == 0 )
+    if ( lalloc || g_cmap == 0 ) {
 	rgbVal = QRGB(r,g,b) | RGB_DIRTY;	// alloc later
+	pix = 0;
+    }
     else {
 	rgbVal = QRGB(r,g,b);
 	alloc();				// alloc now
