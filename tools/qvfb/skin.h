@@ -23,6 +23,7 @@ private:
     bool buttonPressed;
     int buttonCode;
     int buttonIndex;
+    float transparancy;
 
     QString skinImageUpFileName;
     QString skinImageDownFileName;

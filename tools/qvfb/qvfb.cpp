@@ -283,13 +283,19 @@ void QVFb::changeRate()
 
 void QVFb::about()
 {
+    QString plat("X11");
+#if defined( Q_WS_MAC )
+    plat = "Mac OS X";
+#elif defined( Q_WS_WIN )
+    plat = "Windows";
+#endif
     QMessageBox::about(this, "About QVFB",
-	"<h2>The Qt/Embedded Virtual X11 Framebuffer</h2>"
-	"<p>This application runs under Qt/X11, emulating a simple framebuffer, "
+	"<h2>The Qt/Embedded Virtual " + plat + " Framebuffer</h2>"
+	"<p>This application runs under Qt/" + plat + ", emulating a simple framebuffer, "
 	"which the Qt/Embedded server and clients can attach to just as if "
-	"it was a hardware Linux framebuffer. "
+	"it was a realframebuffer. "
 	"<p>With the aid of this development tool, you can develop Qt/Embedded "
-	"applications under X11 without having to switch to a virtual console. "
+	"applications under " + plat + " without having to switch to a virtual console. "
 	"This means you can comfortably use your other development tools such "
 	"as GUI profilers and debuggers."
     );

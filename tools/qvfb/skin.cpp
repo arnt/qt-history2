@@ -6,7 +6,9 @@
 #include "skin.h"
 #include "qvfb.h"
 #include "qvfbview.h"
-
+#ifdef Q_WS_MAC
+# include <qt_mac.h>
+#endif
 
 Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget(p)
 {
@@ -19,6 +21,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget
     ts >> viewY1;
     ts >> viewW;
     ts >> viewH;
+    ts >> transparancy;
     ts >> numberOfAreas;
 //  Debug the skin file parsing
 //  printf("read: -%s- -%i- -%i- -%i-\n", skinImage.latin1(), viewX1, viewY1, numberOfAreas );
@@ -60,6 +63,9 @@ void Skin::setView( QVFbView *v )
 {
     view = v;
     view->move( viewX1, viewY1 );
+#ifdef Q_WS_MAC
+    QMacSavedPortInfo::setAlphaTransparancy(view, transparancy);
+#endif
 }
 
 

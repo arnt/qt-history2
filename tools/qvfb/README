@@ -36,6 +36,7 @@ The format for skin files is:
     Y offset of top left corner of the virtual screen on the skin image
     Width of the virtual screen on the skin image
     Height of the virtual screen on the skin image
+    Transparancy level of the Virtual Frame Buffer
     Number of defined button regions
 Then for each button region the format is:
     Button identifier
