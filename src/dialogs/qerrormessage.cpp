@@ -182,18 +182,19 @@ QErrorMessage * QErrorMessage::qtHandler()
 
 bool QErrorMessage::nextPending()
 {
-    while( TRUE ) {
-	if ( pending->isEmpty() )
-	    return FALSE;
+    bool status = FALSE;
+    while ( ! pending->isEmpty() ) {
 	QString p = *pending->begin();
 	printf( "e %d", pending->count() );
 	pending->remove( pending->begin() );
 	printf( "f %d", pending->count() );
 	if ( !doNotShow->find( p ) ) {
 	    errors->setText( p );
-	    return TRUE;
+	    status = TRUE;
+	    break;
 	}
     }
+    return status;
 }
 
 

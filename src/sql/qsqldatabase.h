@@ -56,13 +56,13 @@ class Q_EXPORT QSqlDatabase : public QObject
 {
     Q_OBJECT
 public:
+    QT_STATIC_CONST char * const defaultDatabase;
+
     static QSqlDatabase* addDatabase( const QString& type, const QString& name = defaultDatabase );
     static QSqlDatabase* database( const QString& name = defaultDatabase, bool open = TRUE );
     static void          removeDatabase( const QString& name );
 
     ~QSqlDatabase();
-
-    QT_STATIC_CONST char * const defaultDatabase;
 
     bool	 open();
     bool	 open( const QString& user, const QString& password );

@@ -530,16 +530,17 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
 	    d->rba.remove();
 	    d->rindex = 0;
 	    if ( nbytes == 0 ) {		// nothing more to skip
-		return TRUE;
+		break;
 	    }
 	} else {
 	    // Here we skip only a part of the first byte array
 	    if ( sink )
 		memcpy( sink, a->data()+d->rindex, nbytes );
 	    d->rindex += nbytes;
-	    return TRUE;
+	    break;
 	}
     }
+    return TRUE;
 }
 
 
@@ -564,12 +565,13 @@ bool QSocket::consumeWriteBuf( int nbytes )
 	    d->wba.remove();
 	    d->windex = 0;
 	    if ( nbytes == 0 )
-		return TRUE;
+		break;
 	} else {
 	    d->windex += nbytes;
-	    return TRUE;
+	    break;
 	}
     }
+    return TRUE;
 }
 
 
