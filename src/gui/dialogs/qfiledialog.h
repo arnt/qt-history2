@@ -79,6 +79,9 @@ public:
     void setResolveSymlinks(bool enabled);
     bool resolveSymlinks() const;
 
+    void setHistory(const QStringList &paths);
+    QStringList history() const;
+
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
 
@@ -86,7 +89,7 @@ public:
     QFileIconProvider *iconProvider() const;
 
 signals:
-    void filesSelected(const QStringList &);
+    void filesSelected(const QStringList &files);
 
 public:
 #ifdef QT_COMPAT

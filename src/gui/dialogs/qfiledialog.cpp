@@ -679,6 +679,37 @@ bool QFileDialog::resolveSymlinks() const
 }
 
 /*!
+  \brief sets the browsing history of the filedialog to contain the given \a paths.
+*/
+void QFileDialog::setHistory(const QStringList &paths)
+{
+    QList<QPersistentModelIndex> history;
+    QStringList::const_iterator it = paths.constBegin();
+    for (; it != paths.constEnd(); ++it) {
+        QModelIndex index = d->model->index(*it);
+        if (index.isValid()) {
+            history << QPersistentModelIndex(index);
+            QIcon icn = d->model->fileIcon(index);
+            d->lookIn->insertItem(icn, *it);
+        }
+    }
+    d->history = history;
+    d->back->setEnabled(!history.isEmpty());
+}
+
+/*!
+  \brief returns the browsing history of the filedialog as a list of paths.
+*/
+QStringList QFileDialog::history() const
+{
+    QStringList paths;
+    QList<QPersistentModelIndex>::const_iterator it = d->history.constBegin();
+    for (; it != d->history.constEnd(); ++it)
+        paths << d->model->filePath(*it);
+    return paths;
+}
+
+/*!
   \brief set the item delegate used to render the items in the views in the filedialog.
 */
 void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
@@ -1520,10 +1551,9 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 
 void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 {
-    if (!index.isValid()) // "My Computer" is already in the list
-        return;
+    Q_ASSERT(index.isValid()); // "My Computer" is already in the list
     toParent->setEnabled(index.isValid());
-    back->setEnabled(history.count() > 0);
+    back->setEnabled(!history.isEmpty());
     newFolder->setEnabled(!model->isReadOnly());
     QString pth = toNative(d->model->filePath(index));
     QIcon icn = d->model->fileIcon(index);
