@@ -251,26 +251,11 @@ public:
     inline QT_COMPAT QString family() const { return fontFamily(); }
     inline QT_COMPAT int pointSize() const { return (int)(fontPointSize()+0.5); }
 
-    inline QT_COMPAT void setCursorPosition(int para, int index)
-    {
-        QTextCursor c = cursor();
-        c.movePosition(QTextCursor::Start);
-        c.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, para);
-        c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
-        setCursor(c);
-    }
+    QT_COMPAT void setCursorPosition(int para, int index);
 
-    inline QT_COMPAT void getCursorPosition(int *parag, int *index) const
-    {
-        QTextCursor c = cursor();
-        QTextBlock block = c.block();
+    QT_COMPAT void getCursorPosition(int *parag, int *index) const;
 
-        *parag = 0;
-        for (QTextBlock tmp = block; tmp.isValid(); tmp = tmp.previous())
-            (*parag)++;
-
-        *index = c.position() - block.position();
-    }
+    QT_COMPAT QString text(int parag) const;
 
 #endif
 };

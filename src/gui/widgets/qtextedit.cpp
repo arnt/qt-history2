@@ -1215,6 +1215,43 @@ Qt::TextFormat QTextEdit::textFormat() const
 {
     return d->textFormat;
 }
+
+void QTextEdit::setCursorPosition(int para, int index)
+{
+    QTextCursor c = cursor();
+    c.movePosition(QTextCursor::Start);
+    c.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, para);
+    c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
+    setCursor(c);
+}
+
+void QTextEdit::getCursorPosition(int *parag, int *index) const
+{
+    if (!parag || !index)
+        return;
+
+    QTextBlock block = d->cursor.block();
+
+    Q_ASSERT(block.isValid());
+
+    *parag = -1;
+    for (QTextBlock tmp = block; tmp.isValid(); tmp = tmp.previous())
+        (*parag)++;
+
+    *index = d->cursor.position() - block.position();
+}
+
+QString QTextEdit::text(int parag) const
+{
+    QTextBlock block = document()->rootFrame()->begin().currentBlock();
+    while (parag > 0 && block.isValid()) {
+        block = block.next();
+        --parag;
+    }
+    // ### return html for textFormat() == RichText
+    return block.text();
+}
+
 #endif
 
 /*!
