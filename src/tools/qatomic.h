@@ -43,7 +43,7 @@ struct QAtomic {
         register int expected = *p, newval, result;
 	for (;;) {
             newval = expected + 1;
- 	    result = q_cas_32((int *volatile)p, expected, newval);
+ 	    result = q_cas_32((int *)p, expected, newval);
 	    if (result == expected) break;
 
 	    expected = result;
@@ -57,7 +57,7 @@ struct QAtomic {
 	register int expected = *p, newval, result;
 	for (;;) {
             newval = expected - 1;
- 	    result = q_cas_32((int *volatile)p, expected, newval);
+ 	    result = q_cas_32((int *)p, expected, newval);
 	    if (result == expected) break;
 
 	    expected = result;
