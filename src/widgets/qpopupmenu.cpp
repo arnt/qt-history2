@@ -721,7 +721,7 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
 	QString whatsThis = findItem( id )->whatsThis();
 	if ( whatsThis.isNull() )
 	    whatsThis = QWhatsThis::textFor( this, p );
-	QWhatsThis::leaveWhatsThisMode( whatsThis, mapToGlobal( p ) );
+	QWhatsThis::leaveWhatsThisMode( whatsThis, mapToGlobal( p ), this );
 #endif
     }
 
