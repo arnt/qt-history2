@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#3 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -17,8 +17,17 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#3 $";
 #endif
+
+/*! \class QComboBox qcombo.h
+
+  \brief The QComboBox is a menu which shows the currently selected item
+  rather than a menu title when not popped up.
+
+  This class is only partly documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 
 #include <qpopmenu.h>

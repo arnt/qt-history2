@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qrangect.cpp#4 $
 **
 ** Implementation of QRangeControl class
 **
@@ -13,9 +13,17 @@
 #include "qrangect.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qrangect.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qrangect.cpp#4 $";
 #endif
 
+/*! \class QRangeControl qrangect.h
+
+  \brief The QRangeControl is an abstract class which provides a
+  variable which can move within limits.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 #undef ABS
 #define ABS(X) ((X) < 0) ? (-(X)) : (X)

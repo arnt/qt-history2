@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#15 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,16 +16,17 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#15 $";
 #endif
 
 
-/*!
-\class QLCDNumber qlcdnum.h
-\brief The QLCDNumber widget displays an LCD number.
+/*! \class QLCDNumber qlcdnum.h
 
-\todo The QLCDNumber class documentation will be provided in a future relase.
-*/
+  \brief The QLCDNumber widget displays a number with LCD-like digits.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 
 static QString long2string( long num, int base, int ndigits, bool *oflow )
