@@ -893,14 +893,14 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	break; }
 
     case SR_ProgressBarContents: {
-	QFontMetrics fm(widget ? widget->fontMetrics() : QApplication::font());
+	QFontMetrics fm( ( widget ? widget->fontMetrics() : QApplication::fontMetrics() ) );
 	int textw = fm.width("100%") + 6;
 	rect.setCoords(wrect.left(), wrect.top(),
 		       wrect.right() - textw, wrect.bottom());
 	break; }
 
     case SR_ProgressBarLabel: {
-	QFontMetrics fm(widget ? widget->fontMetrics() : QApplication::font());
+	QFontMetrics fm( ( widget ? widget->fontMetrics() : QApplication::fontMetrics() ) );
 	int textw = fm.width("100%") + 6;
 	rect.setCoords(wrect.right() - textw, wrect.top(),
 		       wrect.right(), wrect.bottom());
