@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#59 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -880,6 +880,14 @@ void QGList::heapSortPushDown( QCollection::Item* heap, int first, int last )
 	}
     }
 }
+
+
+/*! Sorts the list by the result of the virtual compareItems() function.
+
+  The Heap-Sort algorithm is used for sorting.  It sorts n items with
+  O(n*log n) compares.  This is the asymptotic optimal solution of the
+  sorting problem.
+*/
 
 void QGList::sort()
 {
