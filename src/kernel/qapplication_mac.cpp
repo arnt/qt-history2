@@ -1462,7 +1462,7 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
 }
 
 QMAC_PASCAL OSStatus
-QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
+QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     bool remove_context_timer = TRUE;
     QApplication *app = (QApplication *)data;
@@ -1879,7 +1879,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	else if(focus_widget)
 	    widget = focus_widget;
 
-	if(widget) {
+	if(!widget) {
+	    return CallNextEventHandler(er, event);
+	} else {
 	    if ( app_do_modal && !qt_try_modal(widget, event) )
 		return 1;
 
