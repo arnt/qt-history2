@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#219 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#220 $
 **
 ** Implementation of QListBox widget class
 **
@@ -52,7 +52,7 @@ public:
 	selectionMode( QListBox::Single ),
 	count( 0 ),
 	ignoreMoves( FALSE )
-    
+
     {}
     ~QListBoxPrivate();
 
@@ -926,6 +926,14 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 	return;
     QListBoxItem * o = d->current;
     d->current = i;
+
+    if ( selectionMode() == Single ) {
+      if ( o )
+	setSelected( o, FALSE );
+      if ( i )
+	setSelected( i, TRUE );
+    }
+    
     if ( o )
 	updateItem( o );
     if ( i )
@@ -1125,7 +1133,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     if ( !rect().contains( e->pos() ) &&
 	 d->mousePressColumn < 0 && d->mousePressRow < 0 )
 	return;
-    
+
     // figure out in what direction to drag-select and perhaps scroll
     int dx = 0;
     int x = e->x();
