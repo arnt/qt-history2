@@ -224,6 +224,7 @@
 
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
+#  define Q_C_CALLBACKS
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #  endif
