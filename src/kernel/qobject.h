@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#66 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#67 $
 **
 ** Definition of QObject class
 **
@@ -31,11 +31,14 @@
 #include "qstring.h"
 #include "qevent.h"
 #include "qnamespace.h"
-#include "qvaluelist.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 #define QT_TR_NOOP(x) (x)
 #define QT_TRANSLATE_NOOP(scope,x) (x)
+
+class QMetaObject;
+class QProperty;
 
 class Q_EXPORT QObject: public Qt
 {
@@ -95,6 +98,11 @@ public:
     void	dumpObjectTree();
     void	dumpObjectInfo();
 
+#ifdef Q_PROPS
+    virtual bool	setProperty( const char *name, const QProperty& value );
+    virtual bool	property( const char *name, QProperty* value ) const;
+#endif
+
 signals:
     void	destroyed();
 
@@ -115,7 +123,7 @@ protected:
     const QObject *sender();
 
     virtual void initMetaObject();
-    static void staticMetaObject();
+    static QMetaObject* staticMetaObject();
 
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );
