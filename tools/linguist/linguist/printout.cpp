@@ -143,7 +143,7 @@ void PrintOut::drawRule( Rule rule )
         break;
     case ThinRule:
         pen.setColor( QColor(192, 192, 192) );
-        pen.setStyle( QPen::DotLine );
+        pen.setStyle( Qt::DotLine );
         pen.setWidth( 0 );
         p.setPen( pen );
         voffset += 5;

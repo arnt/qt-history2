@@ -10,7 +10,7 @@
 #include <qpushbutton.h>
 
 ArrowPad::ArrowPad( QWidget *parent, const char *name )
-    : QGrid( 3, Horizontal, parent, name )
+    : QGrid( 3, Qt::Horizontal, parent, name )
 {
     QGridLayout *l = static_cast<QGridLayout*>(layout());
     l->setMargin( 10 );

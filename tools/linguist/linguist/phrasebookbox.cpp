@@ -107,8 +107,8 @@ PhraseBookBox::PhraseBookBox( const QString& filename,
 
 void PhraseBookBox::keyPressEvent( QKeyEvent *ev )
 {
-    if ( ev->key() == Key_Down || ev->key() == Key_Up ||
-         ev->key() == Key_Next || ev->key() == Key_Prior )
+    if ( ev->key() == Qt::Key_Down || ev->key() == Qt::Key_Up ||
+         ev->key() == Qt::Key_Next || ev->key() == Qt::Key_Prior )
         QApplication::sendEvent( lv,
                 new QKeyEvent(ev->type(), ev->key(), ev->state(), ev->text(), ev->isAutoRepeat(), ev->count()) );
     else

@@ -154,7 +154,7 @@ const QPixmap TrWindow::pageCurl()
 }
 
 TrWindow::TrWindow()
-    : QMainWindow( 0, WType_TopLevel | WDestructiveClose )
+    : QMainWindow( 0, Qt::WType_TopLevel | Qt::WDestructiveClose )
 {
 
 #ifndef Q_WS_MAC
@@ -167,19 +167,19 @@ TrWindow::TrWindow()
     pxObsolete = new QPixmap( qPixmapFromMimeSource( "d_s_check_obs.png" ) );
     pxDanger = new QPixmap( qPixmapFromMimeSource( "s_check_danger.png" ) );
 
-    setCorner(TopLeft, DockWindowAreaLeft);
-    setCorner(TopRight, DockWindowAreaRight);
-    setCorner(BottomLeft, DockWindowAreaLeft);
-    setCorner(BottomRight, DockWindowAreaRight);
+    setCorner(Qt::TopLeft, Qt::DockWindowAreaLeft);
+    setCorner(Qt::TopRight, Qt::DockWindowAreaRight);
+    setCorner(Qt::BottomLeft, Qt::DockWindowAreaLeft);
+    setCorner(Qt::BottomRight, Qt::DockWindowAreaRight);
 
     // Set up the Scope dock window
     QDockWindow * dwScope = new QDockWindow(this);
 
-    dwScope->setAllowedAreas(AllDockWindowAreas);
+    dwScope->setAllowedAreas(Qt::AllDockWindowAreas);
     dwScope->setClosable(true);
     dwScope->setMovable(true);
     dwScope->setFloatable(true);
-    dwScope->setCurrentArea(DockWindowAreaLeft);
+    dwScope->setCurrentArea(Qt::DockWindowAreaLeft);
     dwScope->setWindowTitle(tr("Context"));
 
     lv = new Q3ListView();
@@ -442,7 +442,7 @@ void TrWindow::print()
 
     QPrintDialog dlg(&printer, this);
     if (dlg.exec()) {
-        QApplication::setOverrideCursor( WaitCursor );
+        QApplication::setOverrideCursor( Qt::WaitCursor );
         printer.setDocName( filename );
         statusBar()->message( tr("Printing...") );
         PrintOut pout( &printer );
@@ -657,7 +657,7 @@ bool TrWindow::searchItem( const QString & searchWhat, Q3ListViewItem * j,
                            Q3ListViewItem * k )
 {
     if ( (findWhere & foundWhere) != 0 ) {
-        foundOffset = searchWhat.indexOf( findText, foundOffset, findMatchCase ? QString::CaseSensitive : QString::CaseInsensitive);
+        foundOffset = searchWhat.indexOf( findText, foundOffset, findMatchCase ? Qt::CaseSensitive : Qt::CaseInsensitive);
         if ( foundOffset >= 0 ) {
             foundItem = itemToIndex( slv, k );
             foundScope = j;
@@ -1391,7 +1391,7 @@ void TrWindow::setupMenuBar()
     editp->addSeparator();
     findAct = editp->addAction(loadPixmap("searchfind.png"), tr("&Find..."), this, SLOT(find()), QKeySequence("Ctrl+F") );
     findAct->setEnabled( FALSE );
-    findAgainAct = editp->addAction(tr("Find &Next"), this, SLOT(findAgain()), Key_F3 );
+    findAgainAct = editp->addAction(tr("Find &Next"), this, SLOT(findAgain()), Qt::Key_F3 );
     findAgainAct->setEnabled( FALSE );
 #ifdef notyet
     replaceAct = editp->addAction(tr("&Replace..."), this, SLOT(replace()), QKeySequence("Ctrl+H") );
@@ -1470,13 +1470,13 @@ void TrWindow::setupMenuBar()
 #endif
 
     // Help
-    manualAct = helpp->addAction(tr("&Manual"), this, SLOT(manual()), Key_F1 );
+    manualAct = helpp->addAction(tr("&Manual"), this, SLOT(manual()), Qt::Key_F1 );
     helpp->addSeparator();
     aboutAct = helpp->addAction(tr("&About"), this, SLOT(about()) );
     aboutQtAct = helpp->addAction(tr("About &Qt"), this, SLOT(aboutQt()) );
     helpp->addSeparator();
     whatsThisAct = helpp->addAction(loadPixmap("whatsthis.xpm"), tr("&What's This?"),
-                               this, SLOT(whatsThis()), SHIFT + Key_F1 );
+                               this, SLOT(whatsThis()), Qt::SHIFT + Qt::Key_F1 );
 
     openAct->setWhatsThis( tr("Open a Qt translation source file (TS file) for"
                               " editing.") );

@@ -186,9 +186,9 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
 
     // Use white explicitly as the background color for the editor page.
     QPalette p = palette();
-    p.setColor( QPalette::Active, QPalette::Base, QColor( white ) );
-    p.setColor( QPalette::Inactive, QPalette::Base, QColor( white ) );
-    p.setColor( QPalette::Disabled, QPalette::Base, QColor( white ) );
+    p.setColor( QPalette::Active, QPalette::Base, QColor( Qt::white ) );
+    p.setColor( QPalette::Inactive, QPalette::Base, QColor( Qt::white ) );
+    p.setColor( QPalette::Disabled, QPalette::Base, QColor( Qt::white ) );
     p.setColor( QPalette::Active, QPalette::Background,
                 p.color( QPalette::Active, QPalette::Base ) );
     p.setColor( QPalette::Inactive, QPalette::Background,
@@ -239,7 +239,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     translationMed->setResizePolicy( QScrollView::AutoOne );
     translationMed->setWrapPolicy( QTextView::AtWhiteSpace );
     translationMed->setWordWrap( QTextView::WidgetWidth );
-    translationMed->setTextFormat( QTextView::PlainText );
+    translationMed->setTextFormat( Qt::PlainText );
     p = translationMed->palette();
     p.setColor( QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
     translationMed->setPalette( p );
@@ -249,7 +249,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     pageCurl = new PageCurl( this, "page curl" );
 
     // Focus
-    setFocusPolicy( StrongFocus );
+    setFocusPolicy( Qt::StrongFocus );
     transLbl->setFocusProxy( translationMed );
     srcTextLbl->setFocusProxy( translationMed );
     cmtText->setFocusProxy( translationMed );
@@ -385,11 +385,11 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     v = new QVBoxLayout( this );
 
     topDockWnd = new QDockWindow(parent);
-    topDockWnd->setAllowedAreas(AllDockWindowAreas);
+    topDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
     topDockWnd->setClosable(true);
     topDockWnd->setMovable(true);
     topDockWnd->setFloatable(true);
-    topDockWnd->setCurrentArea(DockWindowAreaTop);
+    topDockWnd->setCurrentArea(Qt::DockWindowAreaTop);
     topDockWnd->setWindowTitle(tr("Source text"));
 
     srcTextList = new Q3ListView();
@@ -425,11 +425,11 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     sv->addChild( sw );
 
     bottomDockWnd = new QDockWindow(parent);
-    bottomDockWnd->setAllowedAreas(AllDockWindowAreas);
+    bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
     bottomDockWnd->setClosable(true);
     bottomDockWnd->setMovable(true);
     bottomDockWnd->setFloatable(true);
-    bottomDockWnd->setCurrentArea(DockWindowAreaBottom);
+    bottomDockWnd->setCurrentArea(Qt::DockWindowAreaBottom);
     bottomDockWnd->setWindowTitle(tr("Phrases"));
 
 
@@ -450,7 +450,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     accel = new QAccel( this, "accel" );
     connect( accel, SIGNAL(activated(int)), this, SLOT(guessActivated(int)) );
     for ( int i = 0; i < 9; i++ )
-        accel->insertItem( CTRL + (Key_1 + i), i + 1 );
+        accel->insertItem( Qt::CTRL + (Qt::Key_1 + i), i + 1 );
 
     w->setParent(bottomDockWnd);
 
@@ -516,11 +516,11 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
                 // Hardcode the Tab key to do focus changes when pressed
                 // inside the editor
                 if ( doFocusChange ) {
-                    if ( k == Key_BackTab ) {
+                    if ( k == Qt::Key_BackTab ) {
                         emit focusSourceList();
                         doFocusChange = FALSE;
                         return TRUE;
-                    } else if ( k == Key_Tab ) {
+                    } else if ( k == Qt::Key_Tab ) {
                         emit focusPhraseList();
                         doFocusChange = FALSE;
                         return TRUE;
@@ -529,22 +529,22 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
             } else if ( e->type() == QEvent::KeyRelease ) {
                 MED * ed = (MED *) o;
                 switch( k ) {
-                case Key_Up:
+                case Qt::Key_Up:
                     if (ed->cursorY() < 10)
                         sv->verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
                     break;
 
-                case Key_Down:
+                case Qt::Key_Down:
                     if (ed->cursorY() >= ed->height() - 20)
                         sv->verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
                     break;
 
-                case Key_PageUp:
+                case Qt::Key_PageUp:
                     if (ed->cursorY() < 10)
                         sv->verticalScrollBar()->triggerAction(QScrollBar::SliderPageStepSub);
                     break;
 
-                case Key_PageDown:
+                case Qt::Key_PageDown:
                     if (ed->cursorY() >= ed->height() - 50)
                         sv->verticalScrollBar()->triggerAction(QScrollBar::SliderPageStepAdd);
                     break;
@@ -557,7 +557,7 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
             doFocusChange = TRUE;
         } else if ( qt_cast<Q3ListView*>(o) ) {
             // handle the ESC key in the list views
-            if ( e->type() == QEvent::KeyRelease && k == Key_Escape )
+            if ( e->type() == QEvent::KeyRelease && k == Qt::Key_Escape )
                 editorPage->translationMed->setFocus();
         }
     }
@@ -650,7 +650,7 @@ void MessageEditor::showMessage( const QString& text,
         while ( it != cl.end() ) {
             QString def;
             if ( n < 9 )
-                def = tr( "Guess (%1)" ).arg( QString(QKeySequence(CTRL | (Key_0 + (n + 1)))) );
+                def = tr( "Guess (%1)" ).arg( QString(QKeySequence(Qt::CTRL | (Qt::Key_0 + (n + 1)))) );
             else
                 def = tr( "Guess" );
             (void) new PhraseLVI( phraseLv,

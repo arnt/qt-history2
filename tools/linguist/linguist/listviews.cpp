@@ -78,7 +78,7 @@ void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
 
     if ( !t.isEmpty() ) {
         p->drawText( r, 0, width-marg-r, height(),
-                     align | AlignVCenter | SingleLine, t );
+                     align | Qt::AlignVCenter | Qt::SingleLine, t );
     }
 
 }
