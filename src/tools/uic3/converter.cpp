@@ -49,6 +49,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
     ui->setAttributeVersion("4.0");
 
     QStringList ui_tabstops;
+    QStringList ui_include_hits;
     QList<DomWidget*> ui_toolbars;
     QList<DomWidget*> ui_menubars;
     QList<DomActionGroup*> ui_action_list;
@@ -63,6 +64,15 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
                 if (n2.tagName().toLower() == "tabstop") {
                     QString name = n2.firstChild().toText().data();
                     ui_tabstops.append(name);
+                }
+                n2 = n2.nextSibling().toElement();
+            }
+        } else if (tagName == QLatin1String("includehints")) {
+            QDomElement n2 = n.firstChild().toElement();
+            while (!n2.isNull()) {
+                if (n2.tagName().toLower() == "includehint") {
+                    QString name = n2.firstChild().toText().data();
+                    ui_include_hits.append(name);
                 }
                 n2 = n2.nextSibling().toElement();
             }
@@ -192,6 +202,12 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
         DomTabStops *tabStops = new DomTabStops();
         tabStops->setElementTabStop(ui_tabstops);
         ui->setElementTabStops(tabStops);
+    }
+
+    if (ui_include_hits.size()) {
+        DomIncludeHints *includeHints = new DomIncludeHints();
+        includeHints->setElementIncludeHint(ui_include_hits);
+        ui->setElementIncludeHints(includeHints);
     }
 
     ui->setAttributeStdSetDef(stdsetdef);
