@@ -505,7 +505,7 @@ void Project::save()
 	contents = ts.read();
 	f.close();
     } else {
-	contents += "TEMPLATE\t= app\nCONFIG\t= qt warn_on release\nTARGET\t= " + fixedProjectName() + "\n";
+	contents += "TEMPLATE\t= app\nCONFIG\t+= qt warn_on release\nTARGET\t= " + fixedProjectName() + "\n";
     }
 
     int i = contents.find( "INTERFACES" );
