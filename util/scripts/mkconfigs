@@ -33,12 +33,12 @@ fi
 function mk {
     platform=$1
     config=$2
-    sysconf=$QTDIR/configs/$platform-$config
+    sysconf=configs/$platform-$config
     TMAKEPATH=$QTDIR/tmake:$TMAKEDIR/lib/$platform:$TMAKEPATH \
 	tmake -t $config /dev/null >$sysconf
     if [ -s $sysconf  ]
     then
-	if [ -n "$LIST" ] ; then echo configs/$sysconf ; fi
+	if [ -n "$LIST" ] ; then echo $sysconf ; fi
     else
 	rm $sysconf
     fi
@@ -47,6 +47,8 @@ function mk {
 function hasconf {
     grep -q '^[	 ]*'$2'[	 ]*=[	 ]*[^	 ]' $1
 }
+
+cd $QTDIR
 
 for platform in `(cd $TMAKEDIR/lib; /bin/ls -d *-*)`
 do
