@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#3 $
+** $Id: //depot/qt/main/examples/application/application.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -211,7 +211,7 @@ void ApplicationWindow::save()
 
     setCaption( filename );
 
-    statusBar()->message( QString( "File %1 saved", 2000 ).arg( filename ) );
+    statusBar()->message( QString( "File %1 saved" ).arg( filename ), 2000 );
 }
 
 void ApplicationWindow::saveAs()
