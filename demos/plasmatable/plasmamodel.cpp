@@ -72,7 +72,7 @@ QVariant PlasmaModel::data(const QModelIndex &index, int role) const
         return index.column();
     if (index.row() >= 0 && index.row() < rows
         && index.column() >= 0 && index.column() < cols
-        && role == QAbstractItemModel::Role_Display)
+        && role == QAbstractItemModel::DisplayRole)
         return value(index.row(), index.column());
     return QVariant();
 }

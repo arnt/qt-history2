@@ -17,7 +17,7 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Role_Display) const;
+    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     bool hasChildren(const QModelIndex &parent) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
                       QModelIndex::Type type = QModelIndex::View) const;

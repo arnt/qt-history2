@@ -37,11 +37,11 @@ class ItemModel : public QAbstractItemModel
 {
 public:
     QVariant data(const QModelIndex &index, int role) const {
-        if ((role == Role_Display)
+        if ((role == DisplayRole)
             && index.type() == QModelIndex::View  && index.isValid()
             && index.row() < rowCount(parent(index))
             && index.column() < columnCount(parent(index))) {
-            if (role == Role_Display)
+            if (role == DisplayRole)
                 return list.at(index.row());
         }
         return QVariant::Invalid;
@@ -56,7 +56,7 @@ public:
     }
 
     bool setData(const QModelIndex &index, int role, const QVariant &value) {
-        if (role == Role_Display) {
+        if (role == DisplayRole) {
             list[index.row()] = value.toString();
             emit dataChanged(index, index);
             return true;
@@ -182,7 +182,7 @@ void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget)
 {
     QAbstractItemModel *model = listView->model();
     model->insertRows(model->rowCount(), QModelIndex(), 1);
-    model->setData(model->index(model->rowCount()-1, 0), QAbstractItemModel::Role_Display, name);
+    model->setData(model->index(model->rowCount()-1, 0), QAbstractItemModel::DisplayRole, name);
 
     widget->setParent(widgets);
     widget->setAttributes(attributes);

@@ -34,7 +34,7 @@ bool ConnectionModel::hasChildren(const QModelIndex &parent) const
 
 QVariant ConnectionModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Role_Display || index.column() > 0 || index.row() < 0)
+    if (role != DisplayRole || index.column() > 0 || index.row() < 0)
         return QVariant();
 
     if (index.type() == QModelIndex::View) {

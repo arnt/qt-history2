@@ -17,7 +17,7 @@ public:
     int rowCount(const QModelIndex &index = QModelIndex()) const;
     int columnCount(const QModelIndex &index = QModelIndex()) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
+    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
 
 protected:
     void timerEvent(QTimerEvent *e);
@@ -33,7 +33,7 @@ private:
     int rows;
     int cols;
     int timer;
-    
+
     QVector<unsigned int> values;
     QVector<unsigned int> colors;
     QVector<unsigned int> cosinus;
