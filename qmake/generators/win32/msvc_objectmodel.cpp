@@ -462,12 +462,18 @@ bool VCCLCompilerTool::parseOption( const char* option )
 	break;
     case 'E':
 	if ( second == 'H' ) {
-	    if ( third == 'a' || third == 'c' || third == 's' ) {
+	    if ( third == 'a' 
+	    	|| (third == 'c' && fourth != 's')
+	    	|| (third == 's' && fourth != 'c') ) {
 		// ExceptionHandling must be false, or it will override
 		// with an /EHsc option
 		ExceptionHandling = _False;
 		AdditionalOptions += option;
 		break;
+	    } else if ( (third == 'c' && fourth == 's')
+		     || (third == 's' && fourth == 'c') ) {
+		ExceptionHandling = _True;
+		AdditionalOptions += option;
 	    }
 	    found = FALSE; break;
 	}
@@ -569,6 +575,9 @@ bool VCCLCompilerTool::parseOption( const char* option )
 	    EnableFiberSafeOptimizations = _True;
 	    break;
 	case 'X':
+	    // ExceptionHandling == true will override with
+	    // an /EHsc option, which is correct with /GX
+	    ExceptionHandling = _True; // Fall-through
 	case 'Z':
 	case 'e':
 	case 'h':
