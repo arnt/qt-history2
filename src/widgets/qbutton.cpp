@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#125 $
 **
 ** Implementation of QButton widget class
 **
@@ -651,13 +651,17 @@ void QButton::drawButtonLabel( QPainter * )
 /*!
   Handles keyboard events for the button.
 
-  Space is the only key that has any effect; it calls animateClick().
+  Space calls animateClick(), the arrow keys cause focus changes.
 */
 
 void QButton::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Space )
 	animateClick();
+    else if ( e->key() == Key_Up || e->key() == Key_Left )
+	focusNextPrevChild( FALSE );
+    else if ( e->key() == Key_Down || e->key() == Key_Right )
+	focusNextPrevChild( TRUE );
     else
 	e->ignore();
 }
