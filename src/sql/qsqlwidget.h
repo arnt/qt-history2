@@ -67,10 +67,10 @@ public:
     virtual void setFilter( const QString& filter );
     QString filter() const;
 
-    void setCursor( QSqlCursor* cursor ) { QSqlFormNavigator::setCursor( cursor ); }
+    void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE ) { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
     void setCursor ( const QCursor & cursor ) { QWidget::setCursor( cursor ); }
     const QCursor& cursor () const { return QWidget::cursor(); }
-    void setSqlCursor( QSqlCursor* cursor ) { QSqlFormNavigator::setCursor( cursor ); }
+    void setSqlCursor( QSqlCursor* cursor, bool autoDelete = FALSE ) { QSqlFormNavigator::setCursor( cursor, autoDelete ); }
     QSqlCursor* sqlCursor() const { return QSqlFormNavigator::cursor(); }
 
 signals:
