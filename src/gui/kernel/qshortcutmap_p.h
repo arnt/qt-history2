@@ -2,6 +2,7 @@
 #define QSHORTCUTMAP_H
 
 #include "qkeysequence.h"
+#include <qvector.h>
 
 // To enable dump output uncomment below
 //#define Dump_QShortcutMap
@@ -9,9 +10,10 @@
 class QKeyEvent;
 class QShortcutMapPrivate;
 struct QShortcutEntry;
+class QWidget;
+
 class QShortcutMap
-{
-    Q_DECLARE_PRIVATE(QShortcutMap);
+{    Q_DECLARE_PRIVATE(QShortcutMap);
 public:
     QShortcutMap();
     ~QShortcutMap();
@@ -34,7 +36,7 @@ private:
     QShortcutMapPrivate *d_ptr;
 
     Qt::SequenceMatch find(QKeyEvent *e);
-    QVector<const QShortcutEntry*> matches() const;
+    QVector<const QShortcutEntry *> matches() const;
     void createNewSequence(QKeyEvent *e, QKeySequence &seq);
     void clearSequence(QKeySequence &seq);
     bool correctSubWindow(const QWidget* w);

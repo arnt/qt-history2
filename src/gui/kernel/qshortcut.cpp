@@ -1,6 +1,8 @@
 #include "qshortcut.h"
 #include "private/qobject_p.h"
-#include "qwhatsthis.h"
+
+#include <qevent.h>
+#include <qwhatsthis.h>
 
 #define d d_func()
 #define p p_func()
