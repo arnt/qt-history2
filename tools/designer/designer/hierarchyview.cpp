@@ -685,7 +685,7 @@ void FormDefinitionView::setup()
 	    itemDef->setOpen( TRUE );
 	    QStringList entries =
 		lIface->definitionEntries( *dit, formWindow->mainWindow()->designerInterface() );
-	    HierarchyItem *item;
+	    HierarchyItem *item = 0;
 	    for ( QStringList::Iterator eit = entries.begin(); eit != entries.end(); ++eit ) {
 		item = new HierarchyItem( HierarchyItem::Definition,
 					  itemDef, item, *eit, QString::null, QString::null );
