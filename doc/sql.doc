@@ -239,6 +239,17 @@ Once a plugin is built, Qt will automatically load it, and the driver
 will be available for use by QSqlDatabase (see QSqlDatabase::drivers()
 for more information).
 
+Also, see the readme files for the driver you want to compile.  These
+files are located in the source directory for the specific driver,
+i.e. for the MySQL driver on unix:
+
+\code $QTDIR/src/sql/src/mysql/README \endcode
+
+And on windows:
+
+\code c:\qt\src\sql\src\mysql\README \endcode
+
+
 <h1><a name="Connecting_to_Databases">Connecting to Databases</a></h1> 
 
 At least one database connection must be created and opened before the
