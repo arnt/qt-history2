@@ -553,7 +553,7 @@
     To make the properties bindable for the ActiveX client, use multiple
     inheritance from the QAxBindable class:
 
-    \raw
+    \raw html
     <pre>
     #include &lt;qwidget.h&gt;
     <b>#include &lt;qaxbindable.h&gt;</b>
@@ -612,7 +612,7 @@
     server. Use QAxFactory::isServer() to create and run a standard
     application interface, or to prevent a stand-alone execution:
 
-    \raw
+    \raw html
     <pre>
     #include &lt;qapplication.h&gt;
     <b>#include &lt;qaxfactory.h&gt;</b>
@@ -882,7 +882,7 @@
     own API, and is available in the "Insert Objects" dialog of Microsoft
     Office applications.
 
-    \raw
+    \raw html
     <pre>
     class MyActiveX : public QWidget
     {
@@ -916,7 +916,7 @@
 
     To mark a Qt class as licensed specify a "LicenseKey" using the \c Q_CLASSINFO
     macro.
-    \raw
+    \raw html
     <pre>
     class MyLicensedControl : public QWidget
     {
@@ -1001,7 +1001,7 @@
     In your QAxBindable subclass, implement \c createAggregate() to return
     a new object of the QAxAggregated subclass.
 
-    \raw
+    \raw html
     <pre>
     class MyActiveX : public QWidget,                       
                       <b>public QAxBindable</b>

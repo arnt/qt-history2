@@ -345,24 +345,23 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 
 /*!
     \class QPainterPath
-
-    \brief The QPainterPath class specifies a vectorial graphical shape.
+    \brief The QPainterPath class specifies a graphical shape.
 
     A painter path is an object composed of a number of graphical
-    building blocks, such as rectangles, ellipses, lines and curves. A
-    painter path can be used for filling, outlining, and for clipping.
-    The main advantage of painter paths over normal drawing operations
-    is that it is possible to build up non-linear shapes which can be
-    drawn later one go.
+    building blocks, such as rectangles, ellipses, lines, and curves.
+    A painter path can be used for filling and outlining, and also for
+    clipping. The main advantage of painter paths over normal drawing
+    operations is that it is possible to build up non-linear shapes
+    which can be drawn later one go.
 
     Building blocks can be joined in closed sub-paths, such as a
     rectangle or an ellipse, or they can exist independently as unclosed
     sub-paths, although an unclosed path will not be filled.
 
-    Below is a code example on how a path can be used. The
-    painter in this case has a pen width of 3 and a light blue brush. We
-    first add a rectangle, which becomes a closed sub-path.  We then add
-    two bezier curves, and finally draw the entire path.
+    Below is a code snippet that shows how a path can be used. The
+    painter in this case has a pen width of 3 and a light blue brush.
+    We first add a rectangle, which becomes a closed sub-path.  We
+    then add two bezier curves, and finally draw the entire path.
 
     \code
     QPainterPath path;
@@ -405,17 +404,27 @@ QPainterPath::QPainterPath()
     d->subpaths.append(QPainterSubpath());
 }
 
+/*!
+    Creates a new painter path that is a copy of the \a other painter
+    path.
+*/
 QPainterPath::QPainterPath(const QPainterPath &other)
     : d_ptr(new QPainterPathPrivate(*other.d_ptr))
 {
 }
 
+/*!
+    Assigns the \a other painter path to this painter path.
+*/
 QPainterPath &QPainterPath::operator=(const QPainterPath &other)
 {
     *d_ptr = *other.d_ptr;
     return *this;
 }
 
+/*!
+    Destructs the painter path.
+*/
 QPainterPath::~QPainterPath()
 {
     delete d;
@@ -454,6 +463,22 @@ void QPainterPath::closeSubpath()
 
 
 /*!
+    \fn void QPainterPath::addLine(int x1, int y1, int x2, int y2)
+
+    \overload
+
+    Adds a line from point (\a{x1}, \a{y1}) to point (\a{x2}, \a{y2}).
+*/
+
+/*!
+    \fn void QPainterPath::addLine(int x, int y)
+
+    \overload
+
+    Adds a line from the last point drawn to the point (\a{x}, \a{y}).
+*/
+
+/*!
     Adds a straight line defined by the start point \a p1 and the end
     point \a p2 to the path.
  */
@@ -473,6 +498,33 @@ void QPainterPath::addLine(const QPoint &p)
 }
 
 /*!
+    \fn void QPainterPath::addRect(int x, int y, int width, int height)
+
+    \overload
+
+    Adds a rectangle at point (\a{x}, \a{y}) with the given \a width
+    and \a height.
+*/
+
+/*!
+    \fn void QPainterPath::addRect(const QPoint &topLeft, const QPoint &bottomRight)
+
+    \overload
+
+    Adds a rectangle at point \a topLeft that extends to the point \a
+    bottomRight.
+*/
+
+/*!
+    \fn void QPainterPath::addRect(const QPoint &topLeft, const QSize &size)
+
+    \overload
+
+    Adds a rectangle at point \a topLeft of the given \a size.
+*/
+
+
+/*!
     Adds the given \a rect to the path. The \a rect is closed and is
     not considered to be part of the current subpath.
  */
@@ -486,6 +538,16 @@ void QPainterPath::addRect(const QRect &rect)
     subpath.close();
     d->subpaths.prepend(subpath);
 }
+
+
+/*!
+    \fn void QPainterPath::addBezier(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+
+    \overload
+
+    Adds a Bezier curve with control points (\a{x1}, \a{y1}), (\a{x2},
+    \a{y2}), (\a{x3}, \a{y3}), and (\a{x4}, \a{y4}).
+*/
 
 /*!
     Adds a Bezier curve with control points \a p1, \a p2, \a p3, and
@@ -512,6 +574,21 @@ void QPainterPath::addBezier(const QPointArray &pa)
     addBezier(pa.at(0), pa.at(1), pa.at(2), pa.at(3));
 }
 
+/*!
+    \fn void QPainterPath::addArc(int x, int y, int width, int height,
+    int startAngle, int sweepLength)
+
+    \overload
+
+    Adds an arc which occupies the notional rectangle specified by the
+    given position (\a{x}, \a{y}), \a width and \a height.
+*/
+
+/*!
+    Adds an arc which occupies the notional rectangle \a rect,
+    starting at the given \a startAngle, and extending for \a
+    sweepLength degrees anti-clockwise.
+*/
 void QPainterPath::addArc(const QRect &rect, int startAngle, int sweepLength)
 {
     d->subpaths.last().addArc(rect, startAngle, sweepLength);
