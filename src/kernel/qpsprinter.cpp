@@ -2404,10 +2404,10 @@ QByteArray compress( const QImage & image ) {
 		    }
 		}
 		/* again, if we can't make use of the current quote
-		   candidate, we don't try any more. */
-		if ( start < index - tableSize )
+		   candidate, we don't try any more */
+		if ( start < index - tableSize || start < 0 || start > size+1 )
 		    start = None;
-		if ( end < index - tableSize + bestLength )
+		if ( end < index - tableSize + bestLength || end < 0 || end > size+1 )
 		    end = None;
 	    }
 	}
