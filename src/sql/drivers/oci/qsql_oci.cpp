@@ -15,10 +15,11 @@
 #include "qsql_oci.h"
 
 #include <qdatetime.h>
-#include <qptrvector.h>
+#include <qvector.h>
 #include <qmemarray.h>
 #include <qstringlist.h>
 #include <qregexp.h>
+#include <qcorevariant.h>
 #include <private/qinternal_p.h>
 #include <stdlib.h>
 
