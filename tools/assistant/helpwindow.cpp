@@ -20,22 +20,21 @@
 
 #include "helpwindow.h"
 #include "mainwindow.h"
-#include "docuparser.h"
 #include "tabbedbrowser.h"
+#include "helpdialogimpl.h"
 #include "config.h"
 
 #include <qurl.h>
 #include <qmessagebox.h>
-#include <qdragobject.h>
 #include <qdir.h>
 #include <qfile.h>
-#include <qsettings.h>
 #include <qprocess.h>
 #include <qpopupmenu.h>
 #include <qaction.h>
 #include <qfileinfo.h>
 #include <qevent.h>
-#include <qregexp.h>
+#include <qtextstream.h>
+#include <qtextcodec.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -67,8 +66,6 @@ void HelpWindow::setSource( const QString &name )
 	return;
     }
 
-    QFileInfo fi( name );
-
     if ( name.left( 7 ) == "http://" || name.left( 6 ) == "ftp://" ) {
 	QString webbrowser = Config::configuration()->webBrowser();
 	if ( webbrowser.isEmpty() ) {
@@ -79,7 +76,9 @@ void HelpWindow::setSource( const QString &name )
 		ShellExecuteA( winId(), 0, name.local8Bit(), 0, 0, SW_SHOWNORMAL );
 	    } );
 #else
-	    int result = QMessageBox::information( mw, tr( "Help" ), tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ), "Open", "Cancel" );
+	    int result = QMessageBox::information( mw, tr( "Help" ),
+			 tr( "Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n" ),
+			 "Open", "Cancel" );
 	    if ( result == 0 ) {
 		emit chooseWebBrowser();
 		webbrowser = Config::configuration()->webBrowser();
@@ -122,55 +121,21 @@ void HelpWindow::setSource( const QString &name )
 	return;
     }
 
-    if ( name.left( 2 ) != "p:" ) {
-	QUrl u( context(), name );
-	if ( !u.isLocalFile() ) {
-	    QMessageBox::information( mw, tr( "Help" ), tr( "Can't load and display non-local file\n"
-							      "%1" ).arg( name ) );
-	    return;
-	}
-
-	QTextBrowser::setSource( name );
-    } else {
-#if 1
-	QUrl u( context(), name.mid( 2 ) );
-	if ( !u.isLocalFile() ) {
-	    QMessageBox::information( mw, tr( "Help" ), tr( "Can't load and display non-local file\n"
-							      "%1" ).arg( name.mid( 2 ) ) );
-	    return;
-	}
-
-	QTextBrowser::setSource( name.mid( 2 ) );
-#else
-	QString txt;
-	const QMimeSource* m = mimeSourceFactory()->data( name.mid( 2 ).left( name.mid( 2 ).find( '#' ) ), context() );
-	if ( !m || !QTextDrag::decode( m, txt ) ) {
-	    qWarning("QTextBrowser: cannot decode %s", name.mid( 2 ).latin1() );
-	    return;
-	}
-
-	int i = txt.find( "name=\"" + name.mid( name.find( '#' ) + 1 ) );
-	i = txt.findRev( "<h3 class", i );
-	QString s( "<a name=\"" + name.mid( name.find( '#' ) + 1 ) + "\"><p><table><tr><td bgcolor=gray>" );
-	txt.insert( i, s );
-	int j = txt.find( "<h3 class", i + 1 + s.length() );
-	if ( j == -1 ) {
-	    j = txt.find( "<!-- eo", i + 1 + s.length() );
-	} else {
-	    int k = txt.find( "<hr>", i + 1 + s.length() );
-	    j = QMIN( j, k );
-	}
-	txt.insert( j, "</td></tr></table>" );
-	QTextBrowser::setText( txt, context() );
-	QUrl u( name.mid( 2 ) );
-	if ( !u.ref().isEmpty() )
-	    scrollToAnchor( u.ref() );
-#endif
+    QUrl u( context(), name );
+    if ( !u.isLocalFile() ) {
+	QMessageBox::information( mw, tr( "Help" ), tr( "Can't load and display non-local file\n"
+		    "%1" ).arg( name.mid( 2 ) ) );
+	return;
     }
+
     int i = name.find( '#' );
-    QString sect;
+    QString sect = name;
     if ( i != -1 )
-	sect = ": " + name.right( name.length() - i - 1 );
+	sect = name.left( i );
+
+    setCharacterEncoding( sect );
+    QTextBrowser::setSource( name );
+
     if( !documentTitle().isEmpty() )
 	mw->browsers()->updateTitle( documentTitle() );
     else
@@ -260,4 +225,36 @@ void HelpWindow::ensureCursorVisible()
 {
     if ( !blockScroll )
 	QTextBrowser::ensureCursorVisible();
+}
+
+void HelpWindow::setCharacterEncoding( const QString &name )
+{
+    QFile file( name );
+    if ( !file.open( IO_ReadOnly ) ) {
+	qWarning( "can not open file " + name );
+	return;
+    }
+
+    QTextStream s( &file );
+    s.setEncoding( QTextStream::Latin1 );
+
+    QString text;
+    while ( !s.atEnd() ) {
+	text += s.readLine().lower();
+	if ( text.contains( "</head>", FALSE ) )
+	    break;
+    }
+    int i = text.find( "charset=" );
+    QString encoding;
+    if ( i > -1 ) {
+	encoding = text.right( text.length() - (i+8) );
+	encoding = encoding.left( encoding.find( "\"" ) );
+    }
+    QTextCodec *codec = QTextCodec::codecForName( encoding.latin1() );
+    if ( !codec )
+	encoding = "utf-8";
+    else
+	encoding = QString( codec->name() );
+    QString extension = QString( "text/html; charset=%1" ).arg( encoding );
+    mw->helpDialog()->getContentFactory()->setExtensionType( "html", extension );
 }

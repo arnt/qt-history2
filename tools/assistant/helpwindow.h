@@ -52,6 +52,7 @@ private slots:
     void openLinkInNewPage();
 
 private:
+    void setCharacterEncoding( const QString &name );
     MainWindow *mw;
     bool shiftPressed;
     QString lastAnchor;

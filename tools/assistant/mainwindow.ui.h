@@ -380,7 +380,6 @@ void MainWindow::showLink( const QString &link )
     QString name = find >= 0 ? link.left( find ) : link;
     QMimeSourceFactory *factory = tabs->mimeSourceFactory();
     const QMimeSource *mime = factory->data( name );
-    tabs->setSource( link );
     if( mime ) {
 	tabs->setSource( link );
     } else if ( link=="assistant_about_text" ) {
