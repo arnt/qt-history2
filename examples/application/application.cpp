@@ -37,7 +37,7 @@
 #include "fileprint.xpm"
 
 ApplicationWindow::ApplicationWindow()
-    : QMainWindow( 0, "example application main window", WDestructiveClose )
+    : QMainWindow( 0, "example application main window", WDestructiveClose | WGroupLeader )
 {
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
