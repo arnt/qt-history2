@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#35 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#36 $
 **
 ** Definition of layout classes
 **
@@ -41,6 +41,8 @@ public:
 		 int autoBorder = -1, const char *name=0 );
     QGridLayout( int nRows, int nCols, int autoBorder = -1,
 		 const char *name=0 );
+    QGridLayout( QLayout *parentLayout, int nRows, int nCols, 
+		 int autoBorder = -1, const char *name=0 );
     ~QGridLayout();
 
     QSize sizeHint() const;
@@ -104,6 +106,9 @@ public:
     QBoxLayout( QWidget *parent, Direction, int border=0,
 		int autoBorder = -1, const char *name=0 );
 
+    QBoxLayout( QLayout *parentLayout, Direction, int autoBorder = -1,
+		const char *name=0 );
+
     QBoxLayout(	Direction, int autoBorder = -1,
 		const char *name=0 );
 
@@ -139,7 +144,8 @@ class Q_EXPORT QHBoxLayout : public QBoxLayout
 public:
     QHBoxLayout( QWidget *parent, int border=0,
 		int autoBorder = -1, const char *name=0 );
-
+    QHBoxLayout( QLayout *parentLayout, 
+		 int autoBorder = -1, const char *name=0 );
     QHBoxLayout( int autoBorder = -1, const char *name=0 );
 
     ~QHBoxLayout();
@@ -153,7 +159,8 @@ class Q_EXPORT QVBoxLayout : public QBoxLayout
 public:
     QVBoxLayout( QWidget *parent, int border=0,
 		int autoBorder = -1, const char *name=0 );
-
+    QVBoxLayout( QLayout *parentLayout, 
+		 int autoBorder = -1, const char *name=0 );
     QVBoxLayout( int autoBorder = -1, const char *name=0 );
 
     ~QVBoxLayout();

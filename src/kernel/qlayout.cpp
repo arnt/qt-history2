@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#79 $
 **
 ** Implementation of layout classes
 **
@@ -37,7 +37,7 @@ class QLayoutBox
 {
 public:
     QLayoutBox( QLayoutItem *lit ) { item = lit; }
-    //    QLayoutBox( QLayout *layout ) { item = new QLayoutLayoutItem( layout ); }
+
     QLayoutBox( QWidget *wid ) { item = new QWidgetItem( wid ); }
     QLayoutBox( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		QSizePolicy::SizeType vData= QSizePolicy::Minimum )
@@ -71,7 +71,7 @@ public:
 	:box_(box), torow(toRow), tocol(toCol) {}
     QLayoutBox *box() { return box_; }
 private:
-    friend QLayoutArray;
+    friend class QLayoutArray;
     QLayoutBox *box_;
     int torow, tocol;
 };
@@ -108,6 +108,7 @@ public:
 
     bool findWidget( QWidget* w, int *row, int *col );
 
+    void getNextPos( int &row, int &col ) { row = nextR; col = nextC; }
 private:
     void recalcHFW( int w, int s );
     void addHfwData ( QLayoutBox *box );
@@ -130,6 +131,8 @@ private:
     bool has_hfw;
     int hfw_width;
     int hfw_height;
+    int nextR;
+    int nextC;
 };
 
 QLayoutArray::QLayoutArray()
@@ -156,6 +159,7 @@ void QLayoutArray::init()
     setDirty();
     multi = 0;
     rr = cc = 0;
+    nextR = nextC = 0;
     hfwData = 0;
     things.setAutoDelete( TRUE );
     hReversed = vReversed = FALSE;
@@ -365,6 +369,14 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
     box->col = col;
     things.append( box );
     setDirty();
+    if ( row > nextR || row == nextR && col >= nextC ) {
+	nextR = row;
+	nextC = col + 1;
+	if ( nextC >= cc ) {
+	    nextC = 0;
+	    nextR++;
+	}
+    }
 }
 
 
@@ -379,6 +391,16 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 	multi = new QList<QMultiBox>;
     multi->append( mbox );
     setDirty();
+    if ( col2 < 0 )
+	col2 = cc - 1;
+    if ( row2 > nextR || row2 == nextR && col2 >= nextC ) {
+	nextR = row2;
+	nextC = col2 + 1;
+	if ( nextC >= cc ) {
+	    nextC = 0;
+	    nextR++;
+	}
+    }
 }
 
 void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
@@ -408,7 +430,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 				  (box->expanding() & QSizePolicy::Vertical);
     }
     if ( !box->isEmpty() ) {
-	//#### empty boxes ( i.e. spacers) do not get borders. This is hacky, but compatible.
+	//empty boxes ( i.e. spacers) do not get borders. This is hacky, but compatible.
 	if ( c )
 	    colData[box->col].empty = FALSE;
 	if ( r )
@@ -440,7 +462,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].maximumSize > chain[i].minimumSize
 		 && ( chain[i].expansive || !exp ) ) {
-		chain[i].minimumSize += diff; //#################
+		chain[i].minimumSize += diff; //#####
 		if ( chain[i].sizeHint < chain[i].minimumSize )
 		     chain[i].sizeHint = chain[i].minimumSize;
 		break;
@@ -569,7 +591,7 @@ void QLayoutArray::setupHfwLayoutData()
 	    ++it;
 	    QLayoutBox *box = mbox->box();
             int r1 = box->row;
-            int c1 = box->col;
+            //int c1 = box->col;
             int r2 = mbox->torow;
             int c2 = mbox->tocol;
             if ( r2 < 0 )
@@ -714,8 +736,6 @@ void QLayoutArray::distribute( QRect r, int spacing )
   layouts in the cells of your grid layout using addWidget(),
   addLayout() and addMultiCellWidget().
 
-  Finally, if the grid is the top-level layout, you activate() it.
-
   QGridLayout also includes two margin widths: The border width and
   the inter-box width.	The border width is the width of the reserved
   space along each of the QGridLayout's four sides.  The intra-widget
@@ -813,6 +833,25 @@ oi76ojAaozI6ozRaozZ6oziaozq6ozzaoz76o0AapEI6pERapJuRAAA7
 QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 			  int autoBorder , const char *name )
     : QLayout( parent, border, autoBorder, name )
+{
+    init( nRows, nCols );
+}
+
+
+
+/*!  
+  Constructs a new grid that is placed inside \a parentLayout, 
+  with \a nRows rows and \a  nCols columns,
+  If \a autoBorder is -1, this QGridLayout will inherits its parent's
+  defaultBorder(), otherwise \a autoBorder is used.
+
+  This grid is placed according to  \a parentLayout's default placement
+  rules.
+*/
+
+QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols, 
+  int autoBorder, const char *name )
+    : QLayout( parentLayout, autoBorder, name )
 {
     init( nRows, nCols );
 }
@@ -978,9 +1017,8 @@ void QGridLayout::init( int nRows, int nCols )
 
 void QGridLayout::addItem( QLayoutItem *item )
 {
-    int r =0;
-    int c =0;
-    //######################################################################
+    int r,c;
+    array->getNextPos( r, c );
     add( item, r, c );
 }
 
@@ -1227,8 +1265,6 @@ void QGridLayout::invalidate()
 
   </ul>
 
-  Finally, if the layout is a top-level one, you activate() it.
-
   QBoxLayout also includes two margin widths: The border width and the
   inter-box width.  The border width is the width of the reserved
   space along each of the QBoxLayout's four sides.  The intra-widget
@@ -1279,6 +1315,25 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
     if ( d == RightToLeft || d == BottomToTop )
 	setOrigin( BottomRight );
 }
+
+
+
+/*!  
+  Creates a new QBoxLayout with direction \a d and inserts it into
+  \a parentLayout.
+  
+*/
+
+QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int autoBorder,
+ const char *name )
+        : QGridLayout( parentLayout, 0, 0, autoBorder, name )
+{
+    dir = d;
+    if ( d == RightToLeft || d == BottomToTop )
+	setOrigin( BottomRight );
+}
+
+
 
 /*!
   If \a autoBorder is -1, this QBoxLayout will inherit its parent's
@@ -1506,7 +1561,6 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
      QBoxLayout * l = new QHBoxLayout( widget );
      l->addWidget( aWidget );
      l->addWidget( anotherWidget );
-     l->activate()
   \endcode
 
   \sa QVBoxLayout QGridLayout
@@ -1522,6 +1576,20 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 {
 
 }
+
+
+
+/*!  
+  Creates a new horizontal box and adds it to \a parentLayout.
+*/
+
+QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int autoBorder, 
+			  const char *name )
+    :QBoxLayout( parentLayout, LeftToRight, autoBorder, name )
+{
+    
+}
+
 
 /*!
   Creates a new horizontal box. You have to add it to another
@@ -1559,7 +1627,6 @@ QHBoxLayout::~QHBoxLayout()
      QBoxLayout * l = new QVBoxLayout( widget );
      l->addWidget( aWidget );
      l->addWidget( anotherWidget );
-     l->activate()
   \endcode
 
   \sa QHBoxLayout QGridLayout
@@ -1573,6 +1640,18 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
     : QBoxLayout( parent, TopToBottom, border, autoBorder, name )
 {
 
+}
+
+
+/*!  
+  Creates a new vertical box and adds it to \a parentLayout.
+*/
+
+QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int autoBorder, 
+			  const char *name )
+    :QBoxLayout( parentLayout, TopToBottom, autoBorder, name )
+{
+    
 }
 
 /*!
@@ -1591,3 +1670,5 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
+
+

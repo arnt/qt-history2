@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#17 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -552,10 +552,34 @@ QWidget * QLayout::mainWidget()
 }
 
 
+
+/*!  
+  Constructs a new child QLayout, and places it inside 
+  \a parentLayout, using the default placement defined by
+  addItem().
+  
+  If \a autoBorder is -1, this QLayout inherits \a parentLayout's
+  defaultBorder(), otherwise \a autoBorder is used.
+
+*/
+
+QLayout::QLayout( QLayout *parentLayout, int autoBorder, const char *name )
+    : QObject( parentLayout, name )
+
+{
+    menubar = 0;
+    topLevel = FALSE;
+    insideSpacing = autoBorder < 0 ? parentLayout->insideSpacing : autoBorder;
+    parentLayout->addItem( this );
+}
+
+
 /*!
   Constructs a new child QLayout,
-  If \a autoBorder is -1, this QLayout inherits \a parent's
+  If \a autoBorder is -1, this QLayout inherits its parent's
   defaultBorder(), otherwise \a autoBorder is used.
+
+  This layout has to be inserted into another layout before use.
 */
 
 QLayout::QLayout( int autoBorder, const char *name )
@@ -990,3 +1014,4 @@ void QLayout::invalidate()
 
     \internal
 */
+
