@@ -58,19 +58,21 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QWidget *wid = new QWidget(this, "rangecontrols");
     cell2->addWidget(wid);
 
-    QDial *dial = new QDial(wid, "dial");
-    QLCDNumber *lcd4 = new QLCDNumber( 2, wid );
+    QSkinDial *dial = new QSkinDial(wid, "dial");
+    QLCDNumber *lcd4 = new QLCDNumber( 2, wid, "lcd_dial" );
+    lcd4->setSegmentStyle(QLCDNumber::Filled);
+    lcd4->setFrameStyle(QFrame::NoFrame);
     connect( dial, SIGNAL( valueChanged( int ) ), lcd4, SLOT( display( int ) ) );
 
 
     QSlider *hslider = new QSlider( 0, 64, 1, 33, Qt::Horizontal, wid, "slider1" );
-    QLCDNumber *lcd2 = new QLCDNumber( 2, wid );
+    QLCDNumber *lcd2 = new QLCDNumber( 2, wid, "lcd_slider1" );
     lcd2->display( 33 );
     lcd2->setSegmentStyle( QLCDNumber::Filled );
     connect( hslider, SIGNAL( valueChanged( int ) ), lcd2, SLOT( display( int ) ) );
 
     QSlider *vslider = new QSlider( 0, 64, 1, 8, Qt::Vertical, wid, "slider2" );
-    QLCDNumber *lcd3 = new QLCDNumber( 3, wid );
+    QLCDNumber *lcd3 = new QLCDNumber( 3, wid , "lcd_slider2");
     lcd3->display( 8 );
     connect( vslider, SIGNAL( valueChanged( int ) ), lcd3, SLOT( display( int ) ) );
 

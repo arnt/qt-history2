@@ -577,10 +577,6 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 	    break;
 	 case S_Element:
 	    state.pop();
-	    qWarning(QString("%2(%3) %4 add %1, <%5, %6, %7, %8>")
-		    .arg(last_string)
-		    .arg(i->name).arg(i->type).arg(i->children.count())
-		    .arg(last_x).arg(last_y).arg(last_width).arg(last_height));
 	    i->children.insert(last_string, new QRect(last_x, last_y, 
 			last_width, last_height));
 	    last_x = last_y = 0;
@@ -815,11 +811,16 @@ QRect QSkinStyle::getGeometry(const QLayout *l, const QWidget *w) const
     return r;
 }
 
-int QSkinStyle::countImages(const QWidget *w) const 
+int QSkinStyle::countImages(const QWidget *w, const QString &n) const 
 {
    if(!defined(w))
        return 0;
-   return (d->getItem(w)->images.count());
+
+    QSkinStyleItem *i = d->getItem(w);
+    if(i->clipSets.find(n))
+	return i->clipSets.find(n)->count();
+
+    return 0;
 }
 
 QPixmap QSkinStyle::image(const QWidget *w, const QString &i) const
@@ -831,15 +832,32 @@ QPixmap QSkinStyle::image(const QWidget *w, const QString &i) const
    return retval;
 }
 
-void QSkinStyle::drawImage(QPainter *p, const QWidget *w, const QString &i) const
+void QSkinStyle::drawImage(QPainter *p, const QWidget *w, const QString &i ) const
 {
     if(!defined(w))
 	return;
 
-    if (i >= d->getItem(w)->images.count())
+    if (!d->getItem(w)->images.find(i))
 	return;
 
-    p->drawPixmap(QPoint(0,0), *d->getItem(w)->images.find(i), *d->getItem(w)->clips.find(i));
+    p->drawPixmap(QPoint(0,0), *d->getItem(w)->images.find(i), 
+	    *d->getItem(w)->clips.find(i));
+}
+
+void QSkinStyle::drawImage(QPainter *p, const QWidget *w, const QString &n, int ind) const
+{
+    QSkinStyleItem *i = d->getItem(w);
+    if (!i) 
+	return;
+
+    if(!i->clipSets.find(n))
+	return;
+
+    if (ind < 0 || ind >= i->clipSets.find(n)->count())
+	return;
+
+    p->drawPixmap(QPoint(0,0), *i->imageSets.find(n), 
+	    *i->clipSets.find(n)->at(ind));
 }
 
 
@@ -1419,8 +1437,7 @@ QSize QSkinLayout::minimumSize() const
 
 void QSkinDial::repaintScreen( const QRect *cr = 0 )
 {
-    QDial::repaintScreen(cr);
-#if 0
+//    QDial::repaintScreen(cr);
     QStyle &s = QApplication::style();
    
     /* if not skin style */
@@ -1431,7 +1448,7 @@ void QSkinDial::repaintScreen( const QRect *cr = 0 )
 
     QSkinStyle *ss = (QSkinStyle *)&s;
 
-    int steps = ss->countImages(this);
+    int steps = ss->countImages(this, "Base");
     if( steps == 0 ) {
         QDial::repaintScreen(cr);
 	return;
@@ -1444,18 +1461,16 @@ void QSkinDial::repaintScreen( const QRect *cr = 0 )
         p.setClipRect(*cr);
 	
 
-// XXX FIXME this needs to be written to smoothly scale between two ints.
     int scale = (maxValue() - minValue());
     int i = value() - minValue();
 
-    i = (i * steps) / scale;
+    i *= steps;
+    i /= scale;
 
     if (i >= steps)
        i = steps - 1;
     if (i < 0)
        i = 0;
 
-    //QPixmap px = ss->image(this, i); 
-    ss->drawImage(&p, this, i);
-#endif
+    ss->drawImage(&p, this, "Base", i);
 }

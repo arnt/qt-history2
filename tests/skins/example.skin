@@ -7,8 +7,8 @@
 <background>
     <source>th_buttons.png</source>
     <rect>
-        <x>0</x><y>180</y>
-	<width>60</width><height>60</height>
+	<x>0</x><y>180</y>
+	<width>60</width><height>50</height>
     </rect>
 </background>
 <widget type="QPushButton" name="push">
@@ -152,4 +152,44 @@
 	</rect>
     </image>
 </widget>
+<widget type="QWidget" name="rangecontrols">
+   <size><width>800</width><height>480</height></size>
+    <image name="Background">
+	<source>ui_back.png</source>
+	<rect>
+	    <x>0</x><y>0</y>
+	    <width>800</width><height>480</height>
+	</rect>
+    </image>
+</widget>
+<widget type="QSkinDial" name="dial">
+    <size> <width>160</width><height>160</height> </size>
+    <imageset name="Base">
+	<source>ui_dials.png</source>
+	<rect>
+	    <x>0</x><y>0</y>
+	    <width>160</width><height>160</height>
+	</rect>
+	<count>45</count>
+	<offset>
+	    <x>158</x>
+	    <y>0</y>
+	</offset>
+    </imageset>
+</widget>
+<layout name="rangelayout">
+   <size><width>800</width><height>480</height></size>
+   <element name="dial">
+   <rect>
+       <x>181</x><y>160</y>
+       <width>160</width><height>160</height>
+   </rect>
+   </element>
+   <element name="lcd_dial">
+   <rect>
+       <x>198</x><y>40</y>
+       <width>82</width><height>82</height>
+   </rect>
+   </element>
+</layout>
 </skin>
