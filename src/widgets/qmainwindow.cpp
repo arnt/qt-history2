@@ -1220,8 +1220,16 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   of this toolbar. Most certainly you want also to disable the Left and
   Right docks for this toolbar with setDockEnabled().
   The MDI example (examples/mdi/application.cpp) demonstrates
-  how to implement all that.
-
+  how to implement all that, and here is some sample code for that
+  \code
+  QToolBar *tb = new QToolBar( this );
+  addToolBar( tb, tr( "Menubar" ), Top, FALSE );
+  QMenuBar *mb = new QMenuBar( tb );
+  tb->setStretchableWidget( mb );
+  setDockEnabled( tb, Left, FALSE );
+  setDockEnabled( tb, Right, FALSE );
+  \endcode
+  
   An application with multiple toolbars can choose to save the current
   toolbar layout in order to restore it in the next session. To do so,
   use getLocation() on each toolbar, store the data and restore the
