@@ -373,8 +373,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
 	    wakeUp.stop();
 	    if ( m->state() == 0 ) {
-		if ( (label && label->isVisible()) ) {
-		    return TRUE;
+		if ( label && label->isVisible() ) {
+		    return FALSE;
 		} else {
 		    if ( fallAsleep.isActive() ) {
 			wakeUp.start( 1, TRUE );
