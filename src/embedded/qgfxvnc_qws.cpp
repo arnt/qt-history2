@@ -779,19 +779,24 @@ void QVNCServer::clientCutText()
 bool QVNCServer::checkFill( const uchar *data, int numPixels )
 {
     if ( qvnc_screen->depth() == 8 ) {
-	uchar pixel = *data++;
-	for ( int i = 1; i < numPixels; i++ ) {
-	    if ( pixel != *data )
+	if ( *data != *(data+1) || *data != *(data+2) || *data != *(data+3) )
+	    return FALSE;
+	Q_UINT32 pixels = *((Q_UINT32 *)data);
+	data += 4;
+	for ( int i = 1; i < numPixels/4; i++ ) {
+	    if ( pixels != *((Q_UINT32*)data) )
 		return FALSE;
-	    data++;
+	    data += 4;
 	}
     } else if ( qvnc_screen->depth() == 16 ) {
-	ushort pixel = *((ushort *)data);
-	data+=2;
-	for ( int i = 1; i < numPixels; i++ ) {
-	    if ( pixel != *((ushort *)data) )
+	if ( *((ushort *)data) != *(((ushort *)data)+1) )
+	    return FALSE;
+	Q_UINT32 pixels = *((Q_UINT32 *)data);
+	data += 4;
+	for ( int i = 1; i < numPixels/2; i++ ) {
+	    if ( pixels != *((Q_UINT32 *)data) )
 		return FALSE;
-	    data+=2;
+	    data += 4;
 	}
     } else if ( qvnc_screen->depth() == 32 ) {
 	Q_UINT32 pixel = *((Q_UINT32 *)data);
@@ -854,6 +859,14 @@ void QVNCServer::sendHextile()
 {
     QWSDisplay::grab( TRUE );
 
+    static int pixelSize;
+    static uchar *screendata = 0;
+    
+    if ( !screendata ) {
+	pixelSize = qvnc_screen->depth() / 8;
+	screendata = new uchar [MAP_TILE_SIZE*MAP_TILE_SIZE*pixelSize];
+    }
+
     Q_UINT16 count = 0;
     int vtiles = (qvnc_screen->deviceHeight()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
     int htiles = (qvnc_screen->deviceWidth()+MAP_TILE_SIZE-1)/MAP_TILE_SIZE;
@@ -871,8 +884,6 @@ void QVNCServer::sendHextile()
     client->writeBlock( (char *)&count, 2 );
 
     if ( qvnc_screen->hdr->dirty ) {
-	int pixelSize = qvnc_screen->depth() / 8;
-	uchar *screendata = new uchar [MAP_TILE_SIZE*MAP_TILE_SIZE*pixelSize];
 	QRfbRect rect;
 	rect.y = 0;
 	rect.h = MAP_TILE_SIZE;
@@ -892,17 +903,19 @@ void QVNCServer::sendHextile()
 
 		    // grab screen memory
 		    uchar *sptr = screendata;
-		    for ( int i = rect.y; i < rect.y+rect.h; i++ ) {
-			uchar *data = qvnc_screen->base() +
-				    i * qvnc_screen->linestep() +
-				    rect.x * pixelSize;
+		    uchar *data = qvnc_screen->base() +
+				  rect.y * qvnc_screen->linestep() +
+				  rect.x * pixelSize;
+		    for ( int i = 0; i < rect.h; i++ ) {
 			memcpy( sptr, data, MAP_TILE_SIZE * pixelSize );
 			sptr += MAP_TILE_SIZE * pixelSize;
+			data += qvnc_screen->linestep();
 		    }
 
 		    sptr = screendata;
 		    if ( checkFill( screendata, rect.w * rect.h ) ) {
 			// This area is a single color
+			qDebug( "Send empty block" );
 			Q_UINT8 subenc = 2; // BackgroundSpecified subencoding
 			client->writeBlock( (char *)&subenc, 1 );
 			int pixel;
@@ -928,7 +941,6 @@ void QVNCServer::sendHextile()
 
 	qvnc_screen->hdr->dirty = FALSE;
 	memset( qvnc_screen->hdr->map, 0, MAP_WIDTH*vtiles );
-	delete [] screendata;
     }
 
     QWSDisplay::ungrab();
