@@ -93,7 +93,7 @@ void qt_clear_paintevent_clipping()
     paintEventDevice = 0;
 }
 
-//  #define CACHE_STAT
+// #define CACHE_STAT
 #if defined(CACHE_STAT)
 #include "qtextstream.h"
 
@@ -820,6 +820,12 @@ void QWin32GC::initialize()
     stock_whiteBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
     stock_sysfont    = (HFONT)GetStockObject(SYSTEM_FONT);
     init_cache();
+}
+
+
+void QWin32GC::cleanup()
+{
+    cleanup_cache();
 }
 
 

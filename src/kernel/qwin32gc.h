@@ -52,6 +52,7 @@ public:
     HDC handle() const; // ### Still not liking this...
 
     static void initialize();
+    static void cleanup();
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,

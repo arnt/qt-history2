@@ -734,7 +734,10 @@ void qt_cleanup()
     QPixmapCache::clear();
 #ifndef Q_Q4PAINTER
     QPainter::cleanup();
+#else
+    QWin32GC::cleanup();
 #endif
+
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
