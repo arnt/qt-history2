@@ -19,7 +19,7 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QListView" row="1" column="0" rowspan="1" colspan="2">
+        <widget class="Q3ListView" row="1" column="0" rowspan="1" colspan="2">
             <column>
                 <property name="text">
                     <string>Name</string>
@@ -235,15 +235,15 @@
     </connection>
     <connection>
         <sender>remoteView</sender>
-        <signal>doubleClicked(QListViewItem*)</signal>
+        <signal>doubleClicked(Q3ListViewItem*)</signal>
         <receiver>FtpMainWindow</receiver>
-        <slot>changePathOrDownload(QListViewItem*)</slot>
+        <slot>changePathOrDownload(Q3ListViewItem*)</slot>
     </connection>
     <connection>
         <sender>remoteView</sender>
-        <signal>returnPressed(QListViewItem*)</signal>
+        <signal>returnPressed(Q3ListViewItem*)</signal>
         <receiver>FtpMainWindow</receiver>
-        <slot>changePathOrDownload(QListViewItem*)</slot>
+        <slot>changePathOrDownload(Q3ListViewItem*)</slot>
     </connection>
 </connections>
 <includes>
@@ -270,7 +270,7 @@
     <slot access="private">ftp_stateChanged( int state )</slot>
     <slot access="private">ftp_listInfo( const QUrlInfo &amp; i )</slot>
     <slot access="private">ftp_rawCommandReply( int code, const QString &amp; text )</slot>
-    <slot access="private">changePathOrDownload(  QListViewItem * )</slot>
+    <slot access="private">changePathOrDownload(  Q3ListViewItem * )</slot>
 </slots>
 <functions>
     <function access="private">init()</function>

@@ -15,8 +15,8 @@
 #include "ftpviewitem.h"
 
 
-FtpViewItem::FtpViewItem( QListView *parent, Type t, const QString &name, const QString &size, const QString &lastModified )
-    : QListViewItem(parent,name,size,lastModified), type(t)
+FtpViewItem::FtpViewItem( Q3ListView *parent, Type t, const QString &name, const QString &size, const QString &lastModified )
+    : Q3ListViewItem(parent,name,size,lastModified), type(t)
 {
     // the pixmaps for folders and files are in an image collection
     if ( type == Directory )
@@ -25,7 +25,7 @@ FtpViewItem::FtpViewItem( QListView *parent, Type t, const QString &name, const 
 	setPixmap( 0, QPixmap::fromMimeSource( "file.png" ) );
 }
 
-int FtpViewItem::compare( QListViewItem * i, int col, bool ascending ) const
+int FtpViewItem::compare( Q3ListViewItem * i, int col, bool ascending ) const
 {
     // The entry ".." is always the first one.
     if ( text(0) == ".." ) {
@@ -57,5 +57,5 @@ int FtpViewItem::compare( QListViewItem * i, int col, bool ascending ) const
     }
 
     // Use default sorting otherwise.
-    return QListViewItem::compare( i, col, ascending );
+    return Q3ListViewItem::compare( i, col, ascending );
 }

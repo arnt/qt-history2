@@ -179,9 +179,9 @@ void FtpMainWindow::changePath( const QString &newPath )
     ftp->list();
 }
 
-// This slot is connected to the QListView::doubleClicked() and
-// QListView::returnPressed() signals of the remoteView.
-void FtpMainWindow::changePathOrDownload( QListViewItem *item )
+// This slot is connected to the Q3ListView::doubleClicked() and
+// Q3ListView::returnPressed() signals of the remoteView.
+void FtpMainWindow::changePathOrDownload( Q3ListViewItem *item )
 {
     if ( ((FtpViewItem*)item)->isDir() )
 	changePath( item->text(0) );

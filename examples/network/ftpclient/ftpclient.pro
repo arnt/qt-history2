@@ -8,7 +8,8 @@ INCLUDEPATH += .
 # Input
 HEADERS += ftpviewitem.h
 INTERFACES += connectdialog.ui ftpmainwindow.ui
-SOURCES += ftpmainwindow.ui.h ftpviewitem.cpp main.cpp
-CONFIG += qt warn_on debug  create_prl link_prl
+SOURCES += ftpviewitem.cpp main.cpp
+CONFIG += qt uic3 warn_on debug  create_prl link_prl
+QT += network compat
 OBJECTS_DIR=.obj/release-shared
 MOC_DIR=.moc/release-shared

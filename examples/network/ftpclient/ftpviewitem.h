@@ -13,10 +13,10 @@
 #ifndef FTPVIEWITEM_H
 #define FTPVIEWITEM_H
 
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qdatetime.h>
 
-class FtpViewItem : public QListViewItem
+class FtpViewItem : public Q3ListViewItem
 {
 public:
     enum Type {
@@ -24,9 +24,9 @@ public:
 	File
     };
 
-    FtpViewItem( QListView *parent, Type t, const QString &name, const QString &size, const QString &lastModified );
+    FtpViewItem( Q3ListView *parent, Type t, const QString &name, const QString &size, const QString &lastModified );
 
-    int compare( QListViewItem * i, int col, bool ascending ) const;
+    int compare( Q3ListViewItem * i, int col, bool ascending ) const;
 
     bool isDir()
     { return type==Directory; }
