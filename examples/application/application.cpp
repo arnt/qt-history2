@@ -118,8 +118,8 @@ ApplicationWindow::ApplicationWindow()
     QPopupMenu * help = new QPopupMenu( this );
     menuBar()->insertItem( "&Help", help );
 
-    help->insertItem( "&About...", this, SLOT(about()), Key_F1 );
-    help->insertItem( "About &Qt...", this, SLOT(aboutQt()) );
+    help->insertItem( "&About", this, SLOT(about()), Key_F1 );
+    help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
     help->insertSeparator();
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1 );
 
