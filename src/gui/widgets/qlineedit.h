@@ -68,10 +68,10 @@ public:
 
     enum EchoMode { Normal, NoEcho, Password };
     EchoMode echoMode() const;
-     void setEchoMode( EchoMode );
+    void setEchoMode( EchoMode );
 
     bool isReadOnly() const;
-     void setReadOnly( bool );
+    void setReadOnly( bool );
 
     void setValidator( const QValidator * );
     const QValidator * validator() const;
@@ -81,6 +81,7 @@ public:
 
     int cursorPosition() const;
     void setCursorPosition( int );
+    int cursorPositionAt(const QPoint &pos);
 
     void setAlignment( int flag );
     int alignment() const;
@@ -116,16 +117,16 @@ public slots:
      void setText( const QString &);
 
 public:
-     void clear();
+    void clear();
     void selectAll();
-     void deselect();
-     void insert( const QString &);
-     void undo();
-     void redo();
+    void deselect();
+    void insert( const QString &);
+    void undo();
+    void redo();
 #ifndef QT_NO_CLIPBOARD
-     void cut();
-     void copy() const;
-     void paste();
+    void cut();
+    void copy() const;
+    void paste();
 #endif
 
 signals:
