@@ -174,11 +174,11 @@ Option::fixPathToTargetOS(QString in, bool fix_env)
     in = QDir::cleanDirPath(in);
     QString rep;
     if(Option::mode == UNIX_MODE || Option::mode == MACX_MODE)
-	rep = "[\\\\:]";
+	rep = "[\\\\]";
     else if(Option::mode == MAC9_MODE)
 	rep = "[/\\\\]";
     else if(Option::mode == WIN_MODE)
-	rep = "[:/]";
+	rep = "[/]";
     return in.replace(QRegExp(rep), Option::dir_sep);
 }
 
