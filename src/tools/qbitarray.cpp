@@ -48,7 +48,7 @@
   \brief The QBitVal class is an internal class, used with QBitArray.
 
   The QBitVal is required by the indexing [] operator on bit arrays.
-  It is probably a bad idea to use it in any other context.
+  Don't use it in any other context.
 */
 
 /*!
@@ -72,7 +72,7 @@
 */
 
 /*!
-    \overload QBitVal& QBitVal::operator= (bool v)
+  \overload QBitVal& QBitVal::operator= (bool v)
 
   Sets the value referenced by the QBitVal to \a v.
 */
@@ -90,13 +90,14 @@
   \link shclass.html sharing\endlink with a reference count.
 
   A QBitArray is a special byte array that can access individual bits
-  and perform bit-operations (AND, OR, XOR/EOR and NOT) on entire
+  and perform bit-operations (AND, OR, XOR and NOT) on entire
   arrays or bits.
 
   Bits can be manipulated by the setBit() and clearBit() functions, but it
   is also possible to use the indexing [] operator to test and set
-  individual bits. The [] operator is a little slower than the others
-  because some tricks are required to implement single-bit assignments.
+  individual bits. The [] operator is a little slower than setBit() and
+  clearBit() because some tricks are required to implement single-bit
+  assignments.
 
   Example:
   \code
@@ -120,7 +121,7 @@
   clearBit(). Bits can be toggled with toggleBit(). A bit's value can be
   obtained with testBit() and with at().
 
-  QBitArray supports the & (AND), | (OR), ^ (XOR) and ~ (NOT) operators.
+  QBitArray supports the \& (AND), | (OR), ^ (XOR) and ~ (NOT) operators.
 */
 
 /* \enum  QBitArray::bitarr_data
