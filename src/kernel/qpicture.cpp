@@ -460,8 +460,13 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcDrawImage: {
 		QImage image;
-		s >> p >> image;
-		painter->drawImage( p, image );
+		if ( d->formatMajor >=1 && d->formatMajor <= 3 ) {
+		    s >> p >> image;
+		    painter->drawImage( p, image );
+		} else {
+		    s >> r >> image;
+		    painter->drawImage( r, image );
+		}
 		}
 		break;
 	    case PdcBegin:
@@ -730,9 +735,16 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    br = QRect( *p[0].point, p[1].pixmap->size() );
 	    break;
 	case PdcDrawImage:
-	    s << *p[0].point;
-	    s << *p[1].image;
-	    br = QRect( *p[0].point, p[1].image->size() );
+	    if ( formatMajor >=1 && formatMajor <= 3 ) {
+		QPoint pt( p[0].point->x(), p[0].point->y() );
+		s << pt;
+		s << *p[1].image;
+		br = QRect( *p[0].point, p[1].image->size() );
+	    } else {
+		s << *p[0].rect;
+		s << *p[1].image;
+		br = *p[0].rect;
+	    }		
 	    break;
 	case PdcSave:
 	case PdcRestore:

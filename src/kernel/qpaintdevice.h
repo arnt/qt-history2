@@ -151,8 +151,8 @@ public:
 	PdcDrawCubicBezier = 14, // ptarr
 	PdcDrawText = 15, // point,str
 	PdcDrawTextFormatted = 16, // rect,ival,str
-	PdcDrawPixmap = 17, // point,pixmap
-	PdcDrawImage = 18, // point,image
+	PdcDrawPixmap = 17, // rect,pixmap
+	PdcDrawImage = 18, // rect,image
 	PdcDrawText2 = 19, // point,str
 	PdcDrawText2Formatted = 20, // rect,ival,str
 	PdcDrawLast = PdcDrawText2Formatted,

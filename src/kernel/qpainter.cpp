@@ -2210,8 +2210,8 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
-	QPoint p(x,y);
-	param[0].point = &p;
+	QRect r( x, y, subimage.width(), subimage.height() );
+	param[0].rect = &r;
 	param[1].image = &subimage;
 #if defined(Q_WS_WIN)
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
@@ -2260,14 +2260,30 @@ void QPainter::drawImage( const QRect &r, const QImage &i )
     int ih = i.height();
     if ( rw <= 0 || rh <= 0 || iw <= 0 || ih <= 0 )
 	return;
+
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	param[0].rect = &r;
+	param[1].image = &i;
+#if defined(Q_WS_WIN)
+	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
+	    return;
+#elif defined(Q_WS_QWS)
+	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
+	return;
+#else
+	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hd )
+	    return;
+#endif
+    }
+
+    
     bool scale = ( rw != iw || rh != ih );
     float scaleX = (float)rw/(float)iw;
     float scaleY = (float)rh/(float)ih;
     bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
 
-    QImage img = scale ? 
-		 ( smooth ? i.smoothScale( rw, rh ) : i.scale( rw, rh ) ) : 
-	     i;
+    QImage img = scale ? ( smooth ? i.smoothScale( rw, rh ) : i.scale( rw, rh ) ) : i;
 			   
     drawImage( r.x(), r.y(), img );
 }

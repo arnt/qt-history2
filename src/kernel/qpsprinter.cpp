@@ -6324,9 +6324,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcDrawImage: {
         if ( p[1].image->isNull() )
             break;
-        QPoint pnt = *(p[0].point);
+        QRect r = *(p[0].rect);
         QImage img = *(p[1].image);
-        d->drawImage( paint, pnt.x(), pnt.y(), img.width(), img.height(), img );
+        d->drawImage( paint, r.x(), r.y(), r.width(), r.height(), img );
         break;
     }
     case PdcSetBkColor:
