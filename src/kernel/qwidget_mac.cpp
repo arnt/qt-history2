@@ -697,6 +697,14 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if(!parentWidget())
 	setWinId( 0 );
     winid=parent->winid;
+    qDebug("reparent");
+ 
+    QWidget * topper=parent;
+    while(topper->parentWidget()) {
+	topper=parent->parentWidget();
+    }
+    
+    mytop=topper;
     
     reparentFocusWidgets( parent );             // fix focus chains
 
