@@ -279,7 +279,7 @@ void QFile::flush()
 }
 
 /*!
-    \overload QIODevice::Offset QFile::at() const
+    \fn QIODevice::Offset QFile::at() const
 
     Returns the position in the file.
 
