@@ -1,6 +1,7 @@
 # Qt styles module
 
 styles {
+	STYLES_P = styles
 	HEADERS +=$$STYLES_H/qstylefactory.h \
 		  $$STYLES_P/qstyleinterface_p.h \
 		  $$STYLES_H/qstyleplugin.h \
