@@ -43,7 +43,11 @@ struct Q_EXPORT QListData {
 template <typename T>
 class QList
 {
-    struct Node { void *v; T &t(); };
+    struct Node { void *v;
+	Q_INLINE_TEMPLATE T &t()
+	{ return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic ? *(T*)v:*(T*)this; }
+    };
+
     union { QListData p; QListData::Data *d; };
 
 public:
@@ -211,10 +215,6 @@ private:
     void node_copy(Node *from, Node *to, Node *src);
     void node_destruct(Node *from, Node *to, bool autoDelete );
 };
-
-template <typename T>
-Q_INLINE_TEMPLATE T &QList<T>::Node::t()
-{ return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic ? *(T*)v:*(T*)this; }
 
 template <typename T>
 Q_INLINE_TEMPLATE void QList<T>::node_construct(Node *n, const T &t)
