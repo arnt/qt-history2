@@ -22,8 +22,8 @@
 // #define QTHREADSTORAGE_DEBUG
 
 
-// keep this in sync with the implementation in qthreadstorage.cpp
-static const int MAX_THREAD_STORAGE = 257; // 256 maximum + 1 used in QRegExp
+ // 256 maximum + 1 used in QRegExp + 1 used in QEventLoop
+static const int MAX_THREAD_STORAGE = 258;
 
 static pthread_mutex_t thread_storage_mutex = PTHREAD_MUTEX_INITIALIZER;
 
