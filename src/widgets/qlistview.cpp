@@ -3813,6 +3813,9 @@ int QListViewItem::depth() const
     This function assumes that all parents of this item are open (i.e.
     that this item is visible, or can be made visible by scrolling).
 
+    This function might be relatively slow because of the tree
+    traversions needed to find the correct item.
+
     \sa itemBelow() QListView::itemRect()
 */
 
