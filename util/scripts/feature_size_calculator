@@ -1,0 +1,110 @@
+#!/usr/bin/perl
+
+$ENV{TEAMBUILDER_HOSTINFO}="1"; # Who do we blame for internal compiler errors?
+$ENV{TEAMBUILDER_CC_VERSION}="2.95.2"; # Ensure we everywhere use the same compiler
+
+sub usemakevar {
+    my ( $var, $v ) = @_;
+    $v = `awk '/^$var / { print \$3; }' Makefile`;
+    chomp $v;
+    $$var=$v;
+}
+usemakevar("OBJECTS_DIR");
+usemakevar("TARGET");
+$MOCDIR=$OBJECTS_DIR; $MOCDIR=~ s/\.obj/.moc/;
+
+$lib = "$ENV{QTDIR}/lib/$TARGET";
+
+for ( @ARGV ) {
+    if ( $_ eq "-c" ) {
+	$justcompile=1;
+    } elsif ( /^QT_NO_/ ) {
+	push @macros_to_test, $_;
+    }
+}
+
+system("rm ../include/qconfig.h tools/qconfig.h");
+system("touch tools/qconfig.h");
+system("ln -s ../src/tools/qconfig.h ../include/qconfig.h");
+
+if ( !$justcompile ) {
+    print "Initial build...\n";
+    system("make clean; make");
+}
+
+print "Reading files...\n";
+for $file ( split / /, `echo */q*[ph]` ) {
+    chomp $file;
+    if ( $file ne "tools/qfeatures.h" && $file !~ /^tools\/qconfig/ ) {
+	$filecontents{$file} = `cat $file`;
+    }
+}
+
+sub libsize
+{
+    system("strip $lib");
+    return -s $lib;
+}
+
+if ( !$justcompile ) {
+    $fullsize = libsize;
+    print "Full size library = $fullsize\n";
+}
+
+open FL, "tools/qfeatures.txt" || die "Cannot open ./tools/qfeatures.txt";
+
+while (<FL>) {
+    if ( /^Feature: (\S*)/ ) {
+	$macro="QT_NO_$1";
+	push @macros, $macro;
+    } elsif ( /^Requires: (.*?)\s*$/ ) {
+	$prerequisites{$macro} = join " ", map { "QT_NO_$_" } split /\s+/, $1;
+    }
+}
+
+sub cleanup {
+    system("rm ../include/qconfig.h");
+    system("rm tools/qconfig.h");
+    system("touch ../include/qconfig.h");
+    system("touch tools/qconfig.h");
+}
+
+$SIG{INT} = sub {
+    cleanup;
+    exit 1;
+};
+
+@macros_to_test = @macros unless defined(@macros_to_test);
+
+for $macro ( @macros_to_test ) {
+    # Find all macros that depend on this macro
+    %depmacros = ($macro => 1);
+    for $f ( @macros ) {
+	if ( $prerequisites{$f} =~ /\b$macro\b/ ) {
+	    $depmacros{$f} = 1;
+	}
+    }
+    $anydepmacros = '\b('.(join "|",keys %depmacros).')\b';
+    # Re-write qconfig.h
+    open QC, ">tools/qconfig.h";
+    print QC "#define $macro\n";
+    print stderr "Test $macro (deps: ", join(" ", keys %depmacros), ")\n";
+    close QC;
+    sleep 1;
+    unlink "$MOCDIR/allmoc.cpp";
+    unlink $lib;
+    system("make >log 2>\&1");
+    if ( -f $lib ) {
+	if ( $justcompile ) {
+	    print "Build OK with only $macro defined\n";
+	} else {
+	    $size_with{$macro} = libsize();
+	    print "Gain with $macro = ".($fullsize-$size_with{$macro})."\n";
+	}
+    } else {
+	print "\n\nBuild fails with only $macro defined:\n";
+	print "\n",`cat log`;
+    }
+};
+
+cleanup;

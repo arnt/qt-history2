@@ -36,14 +36,29 @@ sub depends {
     }
     return 0;
 }
-sub dependants {
+sub dependants_rec {
     my($x) = @_;
     my $n = 0;
     my $d = 0;
-    for $d (split /\s+/, $deps{$x}) {
-	$n += 1 + dependants($d);
+    $dependants_rec_count++;
+    if ( $dependants_rec_count > $dependants_rec_limit ) {
+	if ( $circularity_start eq $x ) {
+	    print STDERR "Circular dependency: $circularity\n";
+	    exit;
+	}
+	$circularity_start=$x if !$circularity_start;
+	$circularity="$x $circularity";
     }
+    for $d (split /\s+/, $deps{$x}) {
+	$n += 1 + dependants_rec($d);
+    }
+    $dependants_rec_count--;
     return $n;
+}
+sub dependants {
+    $dependants_rec_limit=keys %macro if !$dependants_rec_limit;
+    $dependants_rec_count=0;
+    return dependants_rec @_;
 }
 sub dependencysort {
     my($x, $y) = @_;
