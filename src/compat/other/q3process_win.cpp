@@ -538,7 +538,7 @@ void Q3Process::socketWrite( int )
 	    return;
 	}
 	d->stdinBufRead += written;
-	if ( d->stdinBufRead == d->stdinBuf.head()->size() ) {
+	if ( d->stdinBufRead == (DWORD)d->stdinBuf.head()->size() ) {
 	    d->stdinBufRead = 0;
 	    delete d->stdinBuf.dequeue();
 	    if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )

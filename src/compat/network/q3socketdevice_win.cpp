@@ -171,7 +171,7 @@ Q3SocketDevice::Protocol Q3SocketDevice::getProtocol() const
 int Q3SocketDevice::createNewSocket( )
 {
 #if !defined(QT_NO_IPV6)
-    int s;
+    SOCKET s;
     // Support IPv6 for Winsock v2.0++
     if ( initialized >= 0x20 && protocol() == IPv6 ) {
 	s = ::socket( AF_INET6, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
@@ -179,7 +179,7 @@ int Q3SocketDevice::createNewSocket( )
 	s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     }
 #else
-    int s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
+    SOCKET s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
 #endif
     if ( s == INVALID_SOCKET ) {
 	switch( WSAGetLastError() ) {
@@ -555,7 +555,7 @@ int Q3SocketDevice::accept()
 #endif
     SOCKLEN_T l = sizeof(a);
     bool done;
-    int s;
+    SOCKET s;
     do {
         s = ::accept( fd, (struct sockaddr*)&a, &l );
         // we'll blithely throw away the stuff accept() wrote to a
@@ -627,10 +627,11 @@ Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
 	return -1;
 
     fd_set fds;
+    memset(&fds, 0, sizeof(fd_set));
+    fds.fd_count = 1;
+    fds.fd_array[0] = fd;
+    
     struct timeval tv;
-
-    FD_ZERO( &fds );
-    FD_SET( fd, &fds );
 
     tv.tv_sec = msecs / 1000;
     tv.tv_usec = (msecs % 1000) * 1000;
