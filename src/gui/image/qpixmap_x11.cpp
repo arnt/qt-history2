@@ -2065,7 +2065,7 @@ bool QPixmap::hasAlpha() const
 */
 bool QPixmap::hasAlphaChannel() const
 {
-    return data->alpha;
+    return data->alpha || data->x11_mask;
 }
 
 /*!
