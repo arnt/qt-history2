@@ -217,6 +217,11 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
       shortTitleStr("Choose options")
 {
     connect( installPathButton, SIGNAL(clicked()), SLOT(choosePath()));
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
+    sysOther->hide();
+    sysOtherCombo->hide();
+    noteLabel->hide();
+#endif
 #if defined(Q_OS_WIN32)
     installPath->setText(
 	    QString( "C:\\Qt\\" ) +
