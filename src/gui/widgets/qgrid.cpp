@@ -58,7 +58,7 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
         nCols = -1;
         nRows = n;
     }
-    lay = new QGridLayout(this, nRows, nCols, 0, 0);
+    lay = new QGridLayout(this);
 }
 
 
@@ -71,7 +71,7 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
 QGrid::QGrid(int n, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
-    lay = new QGridLayout(this, -1, n, 0, 0);
+    lay = new QGridLayout(this);
 }
 
 
@@ -88,7 +88,7 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Q
         nRows = n;
     }
     setObjectName(name);
-    lay = new QGridLayout(this, nRows, nCols, 0, 0);
+    lay = new QGridLayout(this);
     lay->setObjectName(name);
 }
 
@@ -96,7 +96,7 @@ QGrid::QGrid(int n, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {
     setObjectName(name);
-    lay = new QGridLayout(this, -1, n, 0, 0);
+    lay = new QGridLayout(this);
     lay->setObjectName(name);
 }
 #endif

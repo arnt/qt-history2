@@ -32,8 +32,34 @@
 
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
+
+
+#ifdef QT_COMPAT
+#include <private/qaction_p.h>
+struct QHackedAccessAction {
+    QActionPrivate *d_ptr;
+};
+
+static inline int qt_get_menuitem_id(QAction *action)
+{
+    Q_ASSERT(action);
+    return reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->id;
+}
+static inline int qt_get_menuitem_signalvalue(QAction *action)
+{
+    Q_ASSERT(action);
+    return reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->param;
+}
+static inline void qt_set_menuitem_signalvalue(QAction *action, int param)
+{
+    Q_ASSERT(action);
+    reinterpret_cast<QHackedAccessAction*>(action)->d_ptr->param = param;
+}
+#endif // QT_COMPAT
+
 #define d d_func()
 #define q q_func()
+
 
 /* QMenu code */
 // internal class used for the torn off popup
@@ -1898,7 +1924,7 @@ QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
         QAction *act = list.at(i);
         if (act->menu() == popup) {
             if (index)
-                *index = static_cast<QMenuItem*>(act)->id();
+                *index = qt_get_menuitem_id(act);
             return static_cast<QMenuItem*>(act);
         }
     }
@@ -1909,7 +1935,7 @@ QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
 bool QMenu::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
-        static_cast<QMenuItem*>(act)->setSignalValue(param);
+        qt_set_menuitem_signalvalue(act, param);
         return true;
     }
     return false;
@@ -1918,7 +1944,7 @@ bool QMenu::setItemParameter(int id, int param)
 int QMenu::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id))
-        return static_cast<QMenuItem*>(act)->signalValue();
+        return qt_get_menuitem_signalvalue(act);
     return id;
 }
 
@@ -1941,6 +1967,6 @@ int QMenu::findIdForAction(QAction *act) const
 {
     if(!act)
         return -1;
-    return static_cast<QMenuItem*>(act)->id();
+    return qt_get_menuitem_id(act);
 }
-#endif
+#endif // QT_COMPAT

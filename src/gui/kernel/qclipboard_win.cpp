@@ -38,8 +38,10 @@ static QWidget *qt_cb_owner = 0;
 
 static QWidget *clipboardOwner()
 {
-    if (!qt_cb_owner)
-        qt_cb_owner = new QWidget(0, "internal clipboard owner");
+    if (!qt_cb_owner) {
+        qt_cb_owner = new QWidget(0);
+        qt_cb_owner->setObjectName("internal clipboard owner");
+    }
     return qt_cb_owner;
 }
 

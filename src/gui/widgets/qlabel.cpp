@@ -446,7 +446,7 @@ void QLabel::setNum(double num)
 
 void QLabel::setAlignment(Qt::Alignment alignment)
 {
-    if (alignment == d->align & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask))
+    if (alignment == (d->align & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask)))
         return;
     d->align = (d->align & ~(Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask))
                | (alignment & (Qt::AlignVertical_Mask|Qt::AlignHorizontal_Mask));
