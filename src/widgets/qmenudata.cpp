@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#5 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#5 $";
 #endif
 
 
@@ -28,14 +28,14 @@ QMenuItem::QMenuItem()				// initialize menu item
     ident = -1;
     is_separator = is_disabled = is_checked = FALSE;
     bitmap_data = 0;
-    submenu = 0;
+    popup_menu = 0;
     signal_data = 0;
 }
 
 QMenuItem::~QMenuItem()
 {
     delete bitmap_data;
-    delete submenu;
+    delete popup_menu;
     delete signal_data;
 }
 
@@ -52,6 +52,7 @@ QMenuData::QMenuData()
     mitems->setAutoDelete( TRUE );
     parentMenu = 0;				// assume top level
     isPopup = isMenuBar = FALSE;
+    badSize = TRUE;
 }
 
 QMenuData::~QMenuData()
@@ -68,17 +69,17 @@ void QMenuData::menuStateChanged()		// reimplemented in subclass
 {
 }
 
-void QMenuData::menuInsSubMenu( QPopupMenu * )	// reimplemented in subclass
+void QMenuData::menuInsPopup( QPopupMenu * )	// reimplemented in subclass
 {
 }
 
-void QMenuData::menuDelSubMenu( QPopupMenu * )	// reimplemented in subclass
+void QMenuData::menuDelPopup( QPopupMenu * )	// reimplemented in subclass
 {
 }
 
 
 void QMenuData::insertAny( const char *string, QBitMap *bitmap,
-			   QPopupMenu *sub, int id, int index )
+			   QPopupMenu *popup, int id, int index )
 {						// insert bitmap + sub menu
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
@@ -86,32 +87,34 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
 #endif
 	return;
     }
-    if ( index < 0 )
+    if ( index < 0 )				// append
 	index = mitems->count();
-    QMenuItem *mi = new QMenuItem;
+    register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
     mi->ident = id == -1 ? index : id;
-    if ( string == 0 && bitmap == 0 && sub == 0 ) // separator
-	mi->is_separator = TRUE;
+    if ( mi->ident == -2 )
+	mi->ident = -1;
+    if ( string == 0 && bitmap == 0 && popup == 0 )
+	mi->is_separator = TRUE;		// separator
     else {
 	mi->string_data = string;
 	mi->bitmap_data = bitmap;
-	mi->submenu = sub;
-	if ( sub )
-	    menuInsSubMenu( sub );
+	mi->popup_menu = popup;
+	if ( popup )
+	    menuInsPopup( popup );
     }
     mitems->insert( index, mi );
     menuContentsChanged();			// menu data changed
 }
 
 void QMenuData::insertItem( const char *string, int id, int index )
-{						// insert text item
+{						// insert string item
     insertAny( string, 0, 0, id, index );
 }
 
-void QMenuData::insertItem( const char *string, QPopupMenu *sub, int index )
-{						// insert text + sub menu
-    insertAny( string, 0, sub, -1, index );
+void QMenuData::insertItem( const char *string, QPopupMenu *popup, int index )
+{						// insert string + popup menu
+    insertAny( string, 0, popup, -2, index );
 }
 
 void QMenuData::insertItem( QBitMap *bitmap, int id, int index )
@@ -119,18 +122,18 @@ void QMenuData::insertItem( QBitMap *bitmap, int id, int index )
     insertAny( 0, bitmap, 0, id, index );
 }
 
-void QMenuData::insertItem( QBitMap *bitmap, QPopupMenu *sub, int index )
-{						// insert bitmap + sub menu
-    insertAny( 0, bitmap, sub, -1, index );
+void QMenuData::insertItem( QBitMap *bitmap, QPopupMenu *popup, int index )
+{						// insert bitmap + popup menu
+    insertAny( 0, bitmap, popup, -2, index );
 }
 
 void QMenuData::insertSeparator( int index )	// insert menu separator
 {
-    insertAny( 0, 0, 0, -1, index );
+    insertAny( 0, 0, 0, -2, index );
 }
 
 
-void QMenuData::removeItem( int index )		// insert menu separator
+void QMenuData::removeItem( int index )		// remove menu item
 {
     if ( index < 0 || index >= mitems->count() ) {
 #if defined(CHECK_RANGE)
@@ -139,20 +142,20 @@ void QMenuData::removeItem( int index )		// insert menu separator
 	return;
     }
     QMenuItem *mi = mitems->at( index );
-    if ( mi->submenu )
-	menuDelSubMenu( mi->submenu );
+    if ( mi->popup_menu )
+	menuDelPopup( mi->popup_menu );
     mitems->remove();
     menuContentsChanged();
 }
 
 
-const char *QMenuData::string( int id ) const	// get string at index
+const char *QMenuData::string( int id ) const	// get string
 {
     QMenuItem *mi = findItem( id );
     return mi ? mi->string() : 0;
 }
 
-QBitMap *QMenuData::bitmap( int id ) const	// get bitmap at index
+QBitMap *QMenuData::bitmap( int id ) const	// get bitmap
 {
     QMenuItem *mi = findItem( id );
     return mi ? mi->bitmap() : 0;

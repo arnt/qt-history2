@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#3 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#4 $
 **
 ** Definition of QMenuData class
 **
@@ -34,7 +34,7 @@ public:
     int		id()	      const { return ident; }
     const char *string()      const { return string_data; }
     QBitMap    *bitmap()      const { return bitmap_data; }
-    QPopupMenu *popup()	      const { return submenu; }
+    QPopupMenu *popup()	      const { return popup_menu; }
     QSignal    *signal()      const { return signal_data; }
     bool	isSeparator() const { return is_separator; }
     bool	isDisabled()  const { return is_disabled; }
@@ -44,7 +44,7 @@ private:
     int		ident;				// item identifier
     QString	string_data;			// item text
     QBitMap    *bitmap_data;			// item bitmap
-    QPopupMenu *submenu;			// item submenu
+    QPopupMenu *popup_menu;			// item popup menu
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
     uint	is_disabled  : 1;		// disabled flag
@@ -72,11 +72,11 @@ public:
    ~QMenuData();
 
     void	insertItem( const char *string, int id=-1, int index=-1 );
-    void	insertItem( const char *string, QPopupMenu *subMenu,
+    void	insertItem( const char *string, QPopupMenu *popup,
 			    int index=-1 );
 
     void	insertItem( QBitMap *bitmap, int id=-1, int index=-1 );
-    void	insertItem( QBitMap *bitmap, QPopupMenu *subMenu,
+    void	insertItem( QBitMap *bitmap, QPopupMenu *popup,
 			    int index=-1 );
 
     void	insertSeparator( int index=-1 );
@@ -113,11 +113,12 @@ protected:
     QMenuData     *parentMenu;
     uint	   isPopup	: 1;
     uint	   isMenuBar	: 1;
+    uint	   badSize	: 1;
     QMenuItem     *findItem( int id ) const;
     virtual void   menuContentsChanged();
     virtual void   menuStateChanged();
-    virtual void   menuInsSubMenu( QPopupMenu * );
-    virtual void   menuDelSubMenu( QPopupMenu * );
+    virtual void   menuInsPopup( QPopupMenu * );
+    virtual void   menuDelPopup( QPopupMenu * );
 
 private:
     void	insertAny( const char *, QBitMap *, QPopupMenu *, int, int );
