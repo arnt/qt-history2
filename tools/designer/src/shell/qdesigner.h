@@ -14,8 +14,8 @@
 #ifndef QDESIGNER_H
 #define QDESIGNER_H
 
-#include <QApplication>
-#include <QPointer>
+#include <QtCore/QPointer>
+#include <QtGui/QApplication>
 
 #define qDesigner \
     (static_cast<QDesigner*>(QCoreApplication::instance()))

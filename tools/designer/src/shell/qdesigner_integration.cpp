@@ -22,10 +22,10 @@
 #include <abstractwidgetbox.h>
 #include <abstractobjectinspector.h>
 
-#include <QFile>
-#include <QFileDialog>
-#include <QVariant>
-#include <QMessageBox>
+#include <QtCore/QFile>
+#include <QtGui/QFileDialog>
+#include <QtGui/QVariant>
+#include <QtGui/QMessageBox>
 
 #include <qdebug.h>
 

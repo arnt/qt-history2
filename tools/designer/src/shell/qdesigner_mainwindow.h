@@ -14,8 +14,8 @@
 #ifndef QDESIGNER_MAINWINDOW_H
 #define QDESIGNER_MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QHash>
+#include <QtCore/QHash>
+#include <QtGui/QMainWindow>
 
 class QDesignerWorkbench;
 class QDesignerToolWindow;

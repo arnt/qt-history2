@@ -14,8 +14,8 @@
 #ifndef QDESIGNER_TOOLWINDOW_H
 #define QDESIGNER_TOOLWINDOW_H
 
-#include <QMainWindow>
-#include <QPointer>
+#include <QtCore/QPointer>
+#include <QtGui/QMainWindow>
 
 class QDesignerWorkbench;
 

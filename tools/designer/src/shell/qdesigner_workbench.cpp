@@ -29,12 +29,11 @@
 #include <abstractformwindow.h>
 #include <abstractwidgetbox.h>
 
-#include <Q3Workspace>
-#include <QDesktopWidget>
-#include <QLabel>
-#include <QSignal>
-#include <QActionGroup>
-#include <QVariant>
+#include <Qt3Compat/Q3Workspace>
+#include <QtGui/QDesktopWidget>
+#include <QtGui/QLabel>
+#include <QtGui/QActionGroup>
+#include <QtGui/QVariant>
 
 #include <qdebug.h>
 

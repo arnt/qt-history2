@@ -14,7 +14,7 @@
 #ifndef QDESIGNER_INTEGRATION_H
 #define QDESIGNER_INTEGRATION_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class AbstractFormEditor;
 class AbstractFormWindow;

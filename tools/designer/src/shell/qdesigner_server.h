@@ -14,7 +14,7 @@
 #ifndef QDESIGNER_SERVER_H
 #define QDESIGNER_SERVER_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class QTcpServer;
 class QTcpSocket;

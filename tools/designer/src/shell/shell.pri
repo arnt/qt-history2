@@ -14,7 +14,11 @@ HEADERS += \
     qdesigner_propertyeditor.h \
     qdesigner_objectinspector.h \
     qdesigner_integration.h \
-    qdesigner_actions.h
+    qdesigner_actions.h \
+    qdesigner_preferences.h \
+    preferenceinterface.h \
+    pluginpreferences.h \
+    preferencedialog.h
 
 SOURCES += main.cpp \
     qdesigner.cpp \
@@ -29,6 +33,9 @@ SOURCES += main.cpp \
     qdesigner_propertyeditor.cpp \
     qdesigner_objectinspector.cpp \
     qdesigner_integration.cpp \
-    qdesigner_actions.cpp
+    qdesigner_preferences.cpp \
+    qdesigner_actions.cpp \
+    pluginpreferences.cpp \
+    preferencedialog.cpp
 
 

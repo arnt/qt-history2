@@ -11,15 +11,17 @@
 **
 ****************************************************************************/
 
-#include <QHostAddress>
-#include <QFileInfo>
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QStringList>
-#include <QFileOpenEvent>
+#include <QtCore/QFileInfo>
+#include <QtCore/QStringList>
+
+#include <QtNetwork/QHostAddress>
+#include <QtNetwork/QTcpServer>
+#include <QtNetwork/QTcpSocket>
 
 #include "qdesigner.h"
 #include "qdesigner_server.h"
+
+#include <qevent.h>
 
 // ### review
 

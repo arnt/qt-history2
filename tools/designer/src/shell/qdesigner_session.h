@@ -14,7 +14,7 @@
 #ifndef QDESIGNER_SESSION_H
 #define QDESIGNER_SESSION_H
 
-#include <QSettings>
+#include <QtCore/QSettings>
 
 class QDesignerSession: public QObject
 {

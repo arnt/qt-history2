@@ -19,8 +19,8 @@
 #include <abstractformwindow.h>
 #include <abstractformwindowmanager.h>
 
-#include <QAction>
-#include <QEvent>
+#include <QtGui/QAction>
+#include <QtCore/QEvent>
 
 QDesignerFormWindow::QDesignerFormWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),

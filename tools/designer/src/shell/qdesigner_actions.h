@@ -14,7 +14,7 @@
 #ifndef QDESIGNER_ACTIONS_H
 #define QDESIGNER_ACTIONS_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 class QDesignerMainWindow;
 class QDesignerWorkbench;

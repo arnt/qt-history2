@@ -14,8 +14,8 @@
 #ifndef QDESIGNER_FORMWINDOW_H
 #define QDESIGNER_FORMWINDOW_H
 
-#include <QMainWindow>
-#include <QPointer>
+#include <QtCore/QPointer>
+#include <QtGui/QMainWindow>
 
 class QDesignerWorkbench;
 class AbstractFormWindow;

@@ -14,7 +14,7 @@
 #ifndef QDESIGNER_SETTINGS_H
 #define QDESIGNER_SETTINGS_H
 
-#include <QSettings>
+#include <QtCore/QSettings>
 
 class QDesignerSettings: public QObject
 {

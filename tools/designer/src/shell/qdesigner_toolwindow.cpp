@@ -14,8 +14,8 @@
 #include "qdesigner_toolwindow.h"
 #include "qdesigner_workbench.h"
 
-#include <QAction>
-#include <QEvent>
+#include <QtCore/QEvent>
+#include <QtGui/QAction>
 
 QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),

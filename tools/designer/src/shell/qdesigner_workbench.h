@@ -14,11 +14,11 @@
 #ifndef QDESIGNER_WORKBENCH_H
 #define QDESIGNER_WORKBENCH_H
 
-#include <QObject>
-#include <QPointer>
-#include <QHash>
-#include <QList>
-#include <QRect>
+#include <QtCore/QObject>
+#include <QtCore/QPointer>
+#include <QtCore/QHash>
+#include <QtCore/QList>
+#include <QtCore/QRect>
 
 class QDesignerMainWindow;
 class QDesignerToolWindow;
