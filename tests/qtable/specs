@@ -63,7 +63,7 @@ DONE
 
 
 
-Bugs:
+Known Bugs:
 -------------
 
 - When reordering columns/rows seelctions don't work anymore - for
