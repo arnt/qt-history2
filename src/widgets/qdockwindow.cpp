@@ -925,10 +925,10 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f, 
     init();
 }
 
-class CustomGridLayout : public QGridLayout
+class QDockWindowGridLayout : public QGridLayout
 {
 public:
-    CustomGridLayout( QWidget *parent, int nRows, int nCols )
+    QDockWindowGridLayout( QWidget *parent, int nRows, int nCols )
 	: QGridLayout( parent, nRows, nCols ) {};
 
     QSizePolicy::ExpandData expanding() const
@@ -982,7 +982,7 @@ void QDockWindow::init()
 
     // Set up the initial handle layout for Vertical
     // Handle layout will change on calls to setOrienation()
-    QGridLayout *glayout = new CustomGridLayout( this, 3, 3 );
+    QGridLayout *glayout = new QDockWindowGridLayout( this, 3, 3 );
     glayout->setResizeMode( QLayout::Minimum );
     glayout->addMultiCellWidget( hHandleTop,    0, 0, 1, 1 );
     glayout->addMultiCellWidget( hHandleBottom, 2, 2, 1, 1 );
