@@ -50,7 +50,7 @@ class QProcessPrivate;
 class QMembuf;
 
 
-class Q_EXPORT QProcess : public QObject
+class Q_COMPAT_EXPORT QProcess : public QObject
 {
     Q_OBJECT
 public:
