@@ -1071,7 +1071,8 @@ void QTabBar::layoutTabs()
 	t = d->lstatic.last();
     else
 	t = d->lstatic.first();
-    int x = (t && d->scrolls) ? t->r.x() : 0;
+    int x = 0;
+    int offset = (t && d->scrolls) ? t->r.x() : 0;
     for (int i=0; i<d->lstatic.size(); ++i) {
 	t = d->lstatic.at(reverse ? d->lstatic.size() - 1 - i : i );
 	int lw = fm.width( t->label );
@@ -1093,8 +1094,17 @@ void QTabBar::layoutTabs()
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );
     }
-    for (int i=0; i<d->l.size(); ++i)
-	d->l.at(i)->r.setHeight( r.height() );
+    x += overlap;
+    if (offset > 0)
+	offset = 0;
+    int w = (d->scrolls) ? d->leftB->x() : width();
+    if (x + offset < w)
+	offset = w - x;
+
+    for (int i=0; i<d->lstatic.size(); ++i) {
+	d->lstatic.at(i)->r.setHeight( r.height() );
+	d->lstatic.at(i)->r.moveBy( offset, 0 );
+    }
 
     if ( sizeHint() != oldSh )
 	updateGeometry();
@@ -1225,8 +1235,11 @@ void QTabBar::makeVisible( QTab* tab  )
 
 void QTabBar::updateArrowButtons()
 {
-    bool b = !d->lstatic.isEmpty() && (d->lstatic.last()->r.right() > width());
-    d->scrolls = b;
+    if (d->lstatic.isEmpty()) {
+	d->scrolls = FALSE;
+    } else {
+	d->scrolls = (d->lstatic.last()->r.right() - d->lstatic.first()->r.left() > width());
+    }
     if ( d->scrolls ) {
 	const int arrowWidth = QMAX( d->btnWidth, QApplication::globalStrut().width() );
 	if ( QApplication::reverseLayout() ) {
@@ -1237,8 +1250,8 @@ void QTabBar::updateArrowButtons()
 	    d->leftB->setGeometry( width() - 2*arrowWidth, 0, arrowWidth, height() );
 	}
 
-	d->leftB->setEnabled( FALSE );
-	d->rightB->setEnabled( TRUE );
+	d->leftB->setEnabled( d->lstatic.first()->r.left() < 0);
+	d->rightB->setEnabled( d->lstatic.last()->r.right() >= d->leftB->x() );
 	d->leftB->show();
 	d->rightB->show();
     } else {
