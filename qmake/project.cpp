@@ -1180,6 +1180,32 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			replacement += buff;
 		    }
 		}
+	    } else if(val.lower() == "prompt") {
+		if(arg_list.count() != 1) {
+		    fprintf(stderr, "%s:%d prompt(question) requires one argument\n",
+			    parser.file.latin1(), parser.line_no);
+		} else if(projectFile() == "-") {
+		    fprintf(stderr, "%s:%d prompt(question) cannot be used when '-o -' is used.\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    QString msg = arg_list.first();
+		    if((msg.startsWith("\"") || msg.startsWith("'")) && msg.endsWith(msg.left(1)))
+			msg = msg.mid(1, msg.length()-2);
+		    msg.replace(QString("${QMAKE_FILE}"), parser.file.latin1());
+		    msg.replace(QString("${QMAKE_LINE_NUMBER}"), QString::number(parser.line_no));
+		    msg.replace(QString("${QMAKE_DATE}"), QDateTime::currentDateTime().toString());
+		    doVariableReplace(msg, place);
+		    fixEnvVariables(msg);
+		    if(!msg.endsWith("?"))
+			msg += "?";
+		    fprintf(stderr, "Project %s: %s ", val.upper().latin1(), msg.latin1());
+
+		    QFile qfile;
+		    if(qfile.open(IO_ReadOnly, stdin)) {
+			QTextStream t(&qfile);
+			replacement = t.readLine();
+		    }
+		}
 	    } else {
 		fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
 			parser.file.latin1(), parser.line_no, val.latin1());

@@ -224,6 +224,10 @@ after. \e variablename is the only required field, the others will default
 to empty strings. If you need to encode spaces in \e glue, \e before, or \e
 after you must quote them.
 
+\section2 prompt( question )
+
+This will display \e question, and read from stdin as a return value.
+
 \section2 member( variablename, position )
 
 This will place the value in \e variablename in position \e position of the
