@@ -5,7 +5,7 @@ INSTALLS += target
 
 #headers
 isEmpty(headers.path):headers.path=$$QT_PREFIX/include
-headers.files = ../include/*.h
+headers.files = ../include/*.h ../include/private
 INSTALLS += headers
 
 #docs
