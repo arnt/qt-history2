@@ -29,7 +29,12 @@ bool QLibraryPrivate::load_sys()
 {
     pHnd = (void*)shl_load(QFile::encodeName(fileName), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
     if (!pHnd)
-        pHnd = (void*)shl_load(QFile::encodeName(QFileInfo(fileName).path() + "/lib" + QFileInfo(fileName).fileName() + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+        pHnd = (void*)shl_load(QFile::encodeName(fileName + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+    if (!pHnd) {
+        QFileInfo fi(fileName);
+        pHnd = (void*)shl_load(QFile::encodeName(fi.path() + "/lib" + fi.fileName() + ".sl"), 
+                               BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+    }
     if (!pHnd)
         qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
     return pHnd != 0;
@@ -65,23 +70,30 @@ bool QLibraryPrivate::load_sys()
     else
         path += QLatin1Char('/');
 
-    pHnd = dlopen(QFile::encodeName(fileName), RTLD_LAZY);
+    QStringList suffixes(""), prefixes("");
+    prefixes << "lib";
 # if defined(Q_OS_HPUX)
-    if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".sl")), RTLD_LAZY);
-# else
-    if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".so")), RTLD_LAZY);
-# endif
+    suffixes << ".sl";
+#else
+    suffixes << ".so";
+#endif
 # ifdef Q_OS_MAC
-    if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".bundle")), RTLD_LAZY);
-    if (!pHnd)
-        pHnd = dlopen(QFile::encodeName(path + QLatin1String("lib") + name + QLatin1String(".dylib")), RTLD_LAZY);
+    suffixes << ".bundle" << ".dylib";
+#endif
+    for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
+        for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
+            QString attempt(path + prefixes[prefix] + name + suffixes[suffix]);
+            QFileInfo attempt_fi(attempt);
+            if(attempt_fi.exists() && !attempt_fi.isDir()) 
+                pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
+        }
+    }
+#ifdef Q_OS_MAC
     if (!pHnd) {
         if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
             QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
             QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            qDebug("attemping %s", QFile::encodeName(str).data());
             pHnd = dlopen(QFile::encodeName(str), RTLD_LAZY);
         }
     }
