@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#30 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#30 $";
 #endif
 
 
@@ -156,9 +156,6 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.pointSize = pointSize * 10;
     d->req.weight    = weight;
     d->req.italic    = italic;
-#if defined(_WS_X11_)
-    d->xfd	     = 0;
-#endif
 }
 
 /*----------------------------------------------------------------------------
