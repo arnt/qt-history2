@@ -42,8 +42,8 @@ extern bool qws_sw_cursor;
   ie. whether 0x01 is the rightmost or the leftmost pixel on the
   screen.
 
-  This code is unsupported, experimental and unfinished. It may or may
-  not be improved in future versions of Qt/Embedded.
+  This code is still experimental. There are no known bugs, but it has not
+  been extensively tested.
 */
 //#define QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
 
