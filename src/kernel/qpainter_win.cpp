@@ -477,15 +477,13 @@ void QPainter::updatePen()
 #endif
     }
 #ifndef Q_OS_TEMP
-    if ( cpen.width() > 1  &&
-	 ( (qt_winver & WV_NT_based) || ps == SolidLine ) ) {
+    if ( ( ( testf( ExtDev ) && cpen.width() != 0 ) || cpen.width() > 1 ) &&
+	 ( qt_winver & WV_NT_based || ps == SolidLine ) ) {
 	LOGBRUSH lb;
 	lb.lbStyle = 0;
 	lb.lbColor = pix;
 	lb.lbHatch = 0;
-	int pst =
-		PS_GEOMETRIC |
-		s;
+	int pst = PS_GEOMETRIC | s;
 	switch ( cpen.capStyle() ) {
 	    case SquareCap:
 		pst |= PS_ENDCAP_SQUARE;
@@ -512,7 +510,7 @@ void QPainter::updatePen()
     }
     else
 #endif
-	{
+    {
 	hpen = CreatePen( s, cpen.width(), pix );
     }
     SetTextColor( hdc, pix );			// pen color is also text color
