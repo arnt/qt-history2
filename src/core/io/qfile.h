@@ -18,9 +18,7 @@
 #include "qstring.h"
 #include <stdio.h>
 
-#if defined(QT_BUILD_QMAKE) || defined(QT_MOC) || defined(QT_BUILD_RCC)
-#  define QT_NO_QFILE_QOBJECT
-#else
+#ifndef QT_NO_QFILE_QOBJECT
 #  include "qobject.h"
 #endif
 
