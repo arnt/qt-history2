@@ -371,7 +371,7 @@ inline void QHash<Key, T>::insert(const Key &key, const T &value)
     if (node == e) {
 	node_create(h, key, value);
     } else {
-	if (d->autoDelete==this) 
+	if (d->autoDelete==this && node->value != value) 
 	    qDelete(node->value);
 	node->value = value;
     }
