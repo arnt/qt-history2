@@ -181,6 +181,10 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
 
+    // we try to create the ActiveX widgets later on...
+    int argc = 0;
+    QApplication app( argc, 0 );
+
     if ( bRegister ) {
 	if ( file.right( 3 ).lower() == "exe" ) {
 	    settings.writeEntry( "/AppID/" + appId + "/.", module );
@@ -195,7 +199,10 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
 	    const QString className = *key;
-	    const QMetaObject *mo = QMetaObject::metaObject( className.latin1() );
+	    QObject *object = qAxFactory()->create( className );
+	    if ( !object ) // don't register subobject classes
+		continue;
+	    const QMetaObject *mo = object->metaObject();
 
 	    const QString classId = qAxFactory()->classID(className).toString().upper();
 	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
