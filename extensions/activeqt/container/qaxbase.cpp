@@ -3262,20 +3262,12 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
 	persist->Release();
 	return result;
     } else {
-/* XXX
-	QAxBase *that = (QAxBase*)this;
 	const QMetaObject *mo = metaObject();
-	for ( int p = 1; p < mo->propertyCount(); ++p ) {
-	    // ignore parent class properties!
-	    const QMetaProperty *property = mo->property(p);
-	    if ( QVariant::nameToType(property->type()) == QVariant::Invalid &&
-		!mo->enumeratorNames(FALSE).contains(property->type()) )
-		continue;
-	    QVariant var;
-	    that->qt_property( p+metaObject()->propertyOffset(), 1, &var );
-	    result.insert( property->name(), var );
+	for (int p = mo->propertyOffset(); p < mo->propertyCount(); ++p) {
+	    const QMetaProperty property = mo->property(p);
+	    QVariant var = qObject()->property(property.name());
+	    result.insert(property.name(), var);
 	}
-*/
     }
     return result;
 }
@@ -3311,13 +3303,12 @@ void QAxBase::setPropertyBag( const PropertyBag &bag )
 	pbag->Release();
 	persist->Release();
     } else {
-/* XXX
-	QAxBase *that = (QAxBase*)this;
-	for ( int p = 1; p < metaObject()->numProperties( FALSE ); ++p ) {
-	    QVariant var = bag[metaObject()->property( p, FALSE )->name()];
-	    that->qt_property( p+metaObject()->propertyOffset(), 0, &var );
+    	const QMetaObject *mo = metaObject();
+	for (int p = mo->propertyOffset(); p < mo->propertyCount(); ++p) {
+	    const QMetaProperty property = mo->property(p);
+	    QVariant var = bag[property.name()];
+	    qObject()->setProperty(property.name(), var);
 	}
-*/    
     }
 }
 
