@@ -1401,7 +1401,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	return;
     }
 
-    if ( cellSize( section ) <= 0 )
+    if ( sectionSize( section ) <= 0 )
 	return;
 
     QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
