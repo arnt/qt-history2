@@ -225,6 +225,7 @@ static const char *mwTitle	= 0;		// main widget title
 
 static bool	app_do_modal	= FALSE;	// modal mode
 QWSDisplay*	qt_fbdpy = 0;			// QWS `display'
+QLock *QWSDisplay::lock = 0;
 
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonPressTime = 0;	// when was a button pressed
@@ -1846,7 +1847,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
     if ( !w )
 	w = desktop();
-    QPaintDevice::qwsDisplay()->selectCursor(w, (int)qApp->cursor_list.first().handle());
+    QPaintDevice::qwsDisplay()->selectCursor(w, (int)qApp->d->cursor_list.first().handle());
 }
 
 void QApplication::restoreOverrideCursor()
@@ -2036,10 +2037,11 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #ifndef QT_NO_CURSOR
 		// Update Cursor.
 		if ( !gw || gw != w || qt_last_cursor == 0xffffffff ) {
-		    QCursor *curs = app_cursor;
-		    if (!curs && w->d->extraData()) {
+		    QCursor *curs = 0;
+		    if (!qApp->d->cursor_list.isEmpty())
+			curs = &qApp->d->cursor_list.first();
+		    else if (w->d->extraData())
 			curs = w->d->extraData()->curs;
-		    }
 		    QWidget *pw = w;
 		    // If this widget has no cursor set, try parent.
 		    while (!curs) {

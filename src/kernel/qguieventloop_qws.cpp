@@ -34,7 +34,7 @@
 // from qapplication_qws.cpp
 extern QWSDisplay* qt_fbdpy; // QWS `display'
 
-bool QEventLoop::processEvents( ProcessEventsFlags flags )
+bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 {
     // process events from the QWS server
     int	   nevents = 0;
@@ -75,7 +75,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     return (nevents > 0);
 }
 
-bool QEventLoop::hasPendingEvents() const
+bool QGuiEventLoop::hasPendingEvents() const
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
     return qGlobalPostedEventsCount() || qt_fbdpy->eventPending();

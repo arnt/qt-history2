@@ -200,6 +200,7 @@
 #include <qsocket.h>
 #include <qserversocket.h>
 #include <qeventloop.h>
+#include <qguieventloop.h>
 #include <qsortedlist.h>
 #include <qsound.h>
 #include <qspinbox.h>

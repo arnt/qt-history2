@@ -78,6 +78,8 @@ static timeval	watchtime;			// watch if time is turned back
 timeval		*qt_wait_timer();
 timeval	*qt_wait_timer_max = 0;
 
+bool qt_disable_lowpriority_timers=FALSE;
+
 //
 // Internal operator functions for timevals
 //
@@ -470,7 +472,7 @@ int QEventLoop::timeToWait() const
 
 int QEventLoop::activateTimers()
 {
-    if ( !timerList || !timerList->count() )	// no timers
+    if ( qt_disable_lowpriority_timers || !timerList || !timerList->count() )	// no timers
 	return 0;
     bool first = TRUE;
     timeval currentTime;
