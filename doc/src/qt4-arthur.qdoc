@@ -70,6 +70,36 @@
     and providing default implementations for unsupported ones has
     become much simpler.
 
+    \section2 What's Changed Since Qt 4 Technology Preview 1?
+
+    As a result of user feedback and internal discussion, we have
+    made some improvements to the Qt 4 Paint Subsystem:
+
+    \list
+    \o The paint engine (\c QPaintEngine) and painter path (\c QPainterPath)
+       now provide floating point accuracy for coordinates.
+       As a result, many painting operations are now more accurate than
+       before, allowing certain types of rendering to be achieved that were
+       not previously possible.
+    \o The integer-based API has been maintained for compatibility with
+       existing classes.
+    \o On X11: Various improvements to rendering quality and performance
+       have been achieved with the XRender extension.
+    \endlist
+
+    A number of classes have been introduced to provide support for floating
+    point coordinates:
+
+    \list
+    \o \c QPointF, \c QRectF, and \c QSizeF are floating point equivalents
+       of \c QPoint, \c QRect, and \c QSize.
+    \o \c QPolygon provides a point array class that is similar to
+       \c QPointArray, but which uses \c QPointF to store the coordinates
+       of each point. Additionally, the contents of a \c QPainterPath object
+       can be flattened to produce a \c QPolygon.
+    \o \c QLineF provides a description of a vector in two-dimensional space.
+    \endlist
+
     \section2 Enabling Use of GDI+ on Windows
 
     GDI+ is installed by default on Windows XP, and is available as a
@@ -263,7 +293,9 @@
     \list
     \o Gradients cannot have alpha color on X11.
     \o Support for querying for supported features (such as if
-       antialiasing is available)
+       antialiasing is available).
+    \o Support for a floating point API in \c QPainter while maintaining
+       compatibility with the existing integer-based functions.
     \endlist
 
     \link qt4-intro.html [Back to the Technology Preview page] \endlink

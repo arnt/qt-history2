@@ -43,6 +43,14 @@ Follow the hyperlinks above for a detailed description for each of
 the five areas, including the current state of development and our
 plans for the final release.
 
+Since the first Technology Preview, we have made improvements to all of
+the five new technologies, but in particular we have significantly
+enhanced \link qt4-interview.html Interview \endlink,
+\link qt4-arthur.html Arthur \endlink, and
+\link qt4-scribe.html Scribe \endlink. Take a look at each of the
+overviews for a more detailed description of the new features in
+each of the technologies.
+
 In addition, the following modules have been significantly improved
 since Qt 3:
 
