@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#190 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -914,8 +914,6 @@ void QWidget::erase( const QRegion& rgn )
 
 void QWidget::scroll( int dx, int dy )
 {
-    // maybe scroll(dx,dy,rect()) ?
-
     ScrollWindow( winId(), dx, dy, 0, 0 );
     UpdateWindow( winId() );
 }
