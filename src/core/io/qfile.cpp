@@ -1104,6 +1104,8 @@ bool QFile::seek(qint64 off)
         qWarning("QFile::seek: IODevice is not open");
         return false;
     }
+
+    QIODevice::seek(off);
     if(!fileEngine()->seek(off)) {
         QFile::FileError err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)
@@ -1121,13 +1123,12 @@ bool QFile::seek(qint64 off)
 /*!
   \reimp
 */
-/*
-qint64 QFile::readLineData(char *data, qint64 len)
+qint64 QFile::readLineData(char *data, qint64 maxlen)
 {
 #ifndef QT_NO_FILE_BUFFER
     if (openMode() & Unbuffered)
 #endif
-        return QIODevice::readLineData(data, len);
+        return QIODevice::readLineData(data, maxlen);
 
 #ifndef QT_NO_FILE_BUFFER
     qint64 readSoFar = 0;
@@ -1173,25 +1174,33 @@ qint64 QFile::readLineData(char *data, qint64 len)
         }
 
         // return if it was found
-        if (foundEndOfLine)
+        if (foundEndOfLine) {
+            if (readSoFar < maxlen)
+                data[readSoFar] = '\0';
             return readSoFar;
+        }
 
         // read more data
-        int bytesToRead = qMin(read_cache_size, int(len - readSoFar));
-        if (bytesToRead == 0)
+        int bytesToRead = qMin(read_cache_size, int(maxlen - readSoFar));
+        if (bytesToRead == 0) {
+            if (readSoFar < maxlen)
+                data[readSoFar] = '\0';
             return readSoFar;
+        }
 
         char *buffer = d->buffer.alloc(bytesToRead);
         qint64 bytesRead = fileEngine()->read(buffer, bytesToRead);
-        if (bytesRead <= 0)
+        if (bytesRead <= 0) {
+            if (readSoFar < maxlen)
+                data[readSoFar] = '\0';
             return readSoFar > 0 ? readSoFar : qint64(-1);
+        }
 
         if (bytesRead < bytesToRead)
             d->buffer.truncate(bytesToRead - bytesRead);
     }
 #endif
 }
-*/
 
 /*!
   \reimp

@@ -86,14 +86,16 @@ public:
     virtual bool canReadLine() const;
 
     qint64 write(const char *data, qint64 len);
-    qint64 write(const QByteArray &data);
+    inline qint64 write(const QByteArray &data)
+    { return write(data.constData(), data.size()); }
 
     virtual bool waitForReadyRead(int msecs);
     virtual bool waitForBytesWritten(int msecs);
 
-    bool getChar(char *c);
-    bool putChar(char c);
     void ungetChar(char c);
+    inline bool putChar(char c) { return write(&c, 1) == 1; }
+    inline bool getChar(char *c)
+    { char ch; bool result = read(&ch, 1) == 1; if (c) *c = ch; return result; }
 
     QString errorString() const;
 

@@ -441,10 +441,12 @@ void QIODevice::close()
 */
 bool QIODevice::flush()
 {
+    qint64 toWrite = bytesToWrite();
     while (bytesToWrite() > 0) {
         if (!waitForBytesWritten(-1))
             return false;
     }
+    d->ungetBuffer.chop(toWrite);
     return true;
 }
 
@@ -477,12 +479,19 @@ qint64 QIODevice::size() const
     For sequential devices, the default behavior is to do nothing and
     return false.
 
+    When subclassing QIODevice, you must call QIODevice::seek() at the
+    start of your function to ensure integrity with QIODevice's
+    built-in ungetbuffer. The base implementation always returns true.
+
     \sa pos()
 */
 bool QIODevice::seek(qint64 pos)
 {
-    Q_UNUSED(pos);
-    return false;
+    if (pos > 0)
+        d->ungetBuffer.chop(pos);
+    else
+        d->ungetBuffer.clear();
+    return true;
 }
 
 /*!
@@ -689,7 +698,28 @@ qint64 QIODevice::readLine(char *data, qint64 maxlen)
         return qint64(-1);
     }
 
-    return readLineData(data, maxlen);
+    qint64 readSoFar = 0;
+    if (int ungetSize = d->ungetBuffer.size()) {
+        do {
+            if (readSoFar + 1 > maxlen) {
+                if (readSoFar < maxlen)
+                    data[readSoFar] = '\0';
+                d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
+                return readSoFar;
+            }
+
+            char c = d->ungetBuffer[ungetSize-- - 1];
+            data[readSoFar++] = c;
+            if (c == '\n') {
+                if (readSoFar < maxlen)
+                    data[readSoFar] = '\0';
+                return readSoFar;
+            }
+        } while (ungetSize > 0);
+        d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
+    }
+
+    return readLineData(data + readSoFar, maxlen - readSoFar);
 }
 
 /*!
@@ -767,22 +797,14 @@ bool QIODevice::canReadLine() const
     return false;
 }
 
-/*!
+/*! \fn bool QIODevice::getChar(char *c)
+
     Reads one character from the device and stores it in \a c. If \a c
     is 0, the character is discarded. Returns true on success;
     otherwise returns false.
 
     \sa read() putChar() ungetChar()
 */
-bool QIODevice::getChar(char *c)
-{
-    char tmp;
-    if (read(&tmp, 1) != 1)
-        return false;
-    if (c)
-        *c = tmp;
-    return true;
-}
 
 /*!
     Writes at most \a maxlen bytes of data from \a data to the
@@ -812,8 +834,11 @@ qint64 QIODevice::write(const char *data, qint64 maxlen)
             qint64 blockSize = endOfBlock - startOfBlock;
             if (blockSize > 0) {
                 qint64 ret = writeData(startOfBlock, blockSize);
-                if (ret <= 0)
+                if (ret <= 0) {
+                    if (writtenSoFar)
+                        d->ungetBuffer.chop(writtenSoFar);
                     return writtenSoFar ? writtenSoFar : ret;
+                }
                 writtenSoFar += ret;
             }
 
@@ -821,19 +846,28 @@ qint64 QIODevice::write(const char *data, qint64 maxlen)
                 break;
 
             qint64 ret = writeData("\r\n", 2);
-            if (ret <= 0)
+            if (ret <= 0) {
+                if (writtenSoFar)
+                    d->ungetBuffer.chop(writtenSoFar);
                 return writtenSoFar ? writtenSoFar : ret;
+            }
             ++writtenSoFar;
 
             startOfBlock = endOfBlock + 1;
         }
+
+        if (writtenSoFar)
+            d->ungetBuffer.chop(writtenSoFar);
         return writtenSoFar;
     }
 #endif
-    return writeData(data, maxlen);
+    qint64 written = writeData(data, maxlen);
+    d->ungetBuffer.chop(written);
+    return written;
 }
 
-/*!
+/*! \fn qint64 QIODevice::write(const QByteArray &byteArray)
+
     \overload
 
     Writes the content of \a byteArray to the device. Returns the number of
@@ -841,21 +875,14 @@ qint64 QIODevice::write(const char *data, qint64 maxlen)
 
     \sa read() writeData()
 */
-qint64 QIODevice::write(const QByteArray &byteArray)
-{
-    return write(byteArray.constData(), byteArray.size());
-}
 
-/*!
+/*! \fn bool QIODevice::putChar(char c)
+
     Writes the character \a c to the device. Returns true on success;
     otherwise returns false.
 
     \sa write() getChar() ungetChar()
 */
-bool QIODevice::putChar(char c)
-{
-    return write(&c, 1) == 1;
-}
 
 /*!
     Puts the character \a c back into the device, and decrements the
@@ -868,6 +895,8 @@ void QIODevice::ungetChar(char c)
     CHECK_OPEN(write, Q_VOID);
     CHECK_READABLE(read, Q_VOID);
     d->ungetBuffer.append(c);
+    if (!isSequential())
+        seek(pos() - 1);
 }
 
 /*!
