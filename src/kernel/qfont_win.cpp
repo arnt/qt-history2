@@ -238,9 +238,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	chr = ch.latin1();
     }
     if ( chr ) {
-	if ( !currHDC )
-	    currHDC = fin->dc();
-	DWORD res = GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat );
+	DWORD res = GetGlyphOutline( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
 	if ( res != GDI_ERROR )
 	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 #ifndef QT_NO_DEBUG
@@ -281,7 +279,6 @@ QString QFontPrivate::lastResortFont() const
 
 void QFontPrivate::initFontInfo()
 {
-    currHDC = 0;
     lineWidth = 1;
     actual = request;				// most settings are equal
 #ifdef UNICODE
@@ -389,7 +386,6 @@ void QFontPrivate::load()
 // compatMode is used to get Qt-2 compatibility when printing
 HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 {
-    currHDC = hdc;
     QString fam = QFont::substitute( request.family );
     if ( request.rawMode ) {			// will choose a stock font
 	int f, deffnt;
@@ -671,10 +667,6 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
     // Japanese win95 fails without this
     if ( len == 0 )
 	return;
-    if ( hdc )
-	currHDC = hdc;
-    else
-	currHDC = fin->dc();
 
     int width = 0;
     SIZE s = {0,0};
@@ -695,7 +687,7 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 		singlePrint ? QFont::Hebrew : QFont::NoScript );
 	    cache->mapped = tchar( qc, length );
 	    singlePrint = FALSE;
-	    BOOL res = GetTextExtentPoint32( currHDC, cache->mapped, length, &s );
+	    BOOL res = GetTextExtentPoint32( hdc ? hdc : fin->dc(), cache->mapped, length, &s );
 #ifndef QT_NO_DEBUG
 	    if ( !res )
 		qSystemWarning( "QFontPrivate::buildCache: GetTextExtentPoint32 failed" );

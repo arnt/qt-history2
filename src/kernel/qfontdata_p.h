@@ -225,9 +225,6 @@ public:
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
-#if defined(Q_WS_WIN)
-	currHDC = 0;
-#endif // Q_WS_WIN
 #if defined(Q_WS_X11)
 	x11Screen = QPaintDevice::x11AppScreen();
 #endif // Q_WS_X11
@@ -242,9 +239,6 @@ public:
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
-#if defined(Q_WS_WIN)
-	currHDC = 0;
-#endif // Q_WS_WIN
 #if defined(Q_WS_X11)
 	x11Screen = fp.x11Screen;
 #endif // Q_WS_X11
@@ -259,9 +253,6 @@ public:
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
-#if defined(Q_WS_WIN)
-	currHDC = 0;
-#endif // Q_WS_WIN
 #if defined(Q_WS_X11)
 	x11Screen = pd->x11Screen();
 #endif // Q_WS_X11
@@ -460,7 +451,6 @@ public:
     void initFontInfo();
     HFONT create( bool *stockFont, HDC hdc = 0, bool compatMode = FALSE );
     QFontStruct *fin;
-    HDC currHDC;
 
     void buildCache( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
     void drawText( HDC hdc, int x, int y, TextRun *cache );
