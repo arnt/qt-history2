@@ -87,6 +87,9 @@ public:
     QString tabLabel( QWidget * ) const;
     void setTabLabel( QWidget *p, const QString &l );
 
+    QIconSet tabIconSet( QWidget * w ) const;
+    void setTabIconSet( QWidget * w, const QIconSet & iconset );
+
     QWidget * currentPage() const;
     QWidget *page( int ) const;
     QString label( int ) const;

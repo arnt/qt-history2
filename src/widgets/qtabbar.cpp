@@ -420,7 +420,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     void * data[2];
     data[0] = (void *) t;
     data[1] = (void *) &has_focus;
-    style().drawControl( QStyle::CE_TabBarLabel, p, this, br, colorGroup(),
+    style().drawControl( QStyle::CE_TabBarLabel, p, this, r, colorGroup(),
 			 QStyle::CStyle_Default, data );
 }
 

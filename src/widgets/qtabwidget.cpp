@@ -835,4 +835,50 @@ int QTabWidget::count() const
 {
     return d->tabs->count();
 }
+
+/*!
+  Returns the iconset for the page \a w.
+*/
+QIconSet QTabWidget::tabIconSet( QWidget * w ) const
+{
+    int id = d->stack->id( w );
+    if ( id < 0 )
+        return QIconSet();
+    QTab* t = d->tabs->tab( id );
+    if ( !t )
+        return QIconSet();
+    if ( t->iconset )
+	return QIconSet( *t->iconset );
+    else 
+	return QIconSet();
+}
+
+/*!
+  Set the iconset for the page \a w to \a iconset.
+*/
+void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
+{
+    int id = d->stack->id( w );
+    if ( id < 0 )
+        return;
+    QTab* t = d->tabs->tab( id );
+    if ( !t )
+        return;
+    if ( t->iconset )
+        delete t->iconset;
+    t->iconset = new QIconSet( iconset );
+
+    d->tabs->layoutTabs();
+
+    int ct = d->tabs->currentTab();
+    bool block = d->tabs->signalsBlocked();
+    d->tabs->blockSignals( TRUE );
+    d->tabs->setCurrentTab( 0 );
+    d->tabs->setCurrentTab( ct );
+    d->tabs->blockSignals( block );
+
+    d->tabs->update();
+    setUpLayout();
+}
+
 #endif
