@@ -295,6 +295,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		}
 	    }
 	}
+	debug_msg(5, "Found dependency from %s to %s", fn.latin1(), inc.latin1());
 
 	if(!inc.isEmpty()) {
 	    if(!project->isEmpty("SKIP_DEPENDS")) {
@@ -517,8 +518,14 @@ MakefileGenerator::init()
 			    line = line.right(line.length() - sep - 1).stripWhiteSpace();
 			    fileFixify(file);
 			    if(state == CacheInfo) {
-				if(project->variables()[file].join(" ") != line) 
-				    break;
+				if(file == "QMAKE_CACHE_VERSION") {
+				    if(line != qmake_version()) 
+					break;
+				} else {
+				    const QStringList &l = project->variables()[file];
+				    if(!l.isEmpty() && !line.isEmpty() && l.join(" ") != line) 
+					break;
+				}
 			    } else if(state == CacheDepend) {
 				bool found = (bool)cache_found_files[file];
 				QStringList files = QStringList::split(" ", line);
@@ -597,7 +604,7 @@ MakefileGenerator::init()
 				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"),
 			      QString::null };
 	depHeuristics.clear();
-	bool write_cache = !QFile::exists(cache_file);
+	bool write_cache = FALSE, read_cache = QFile::exists(cache_file);
 	for(int x = 0; sources[x] != QString::null; x++) {
 	    QStringList vpath, &l = v[sources[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -655,7 +662,8 @@ MakefileGenerator::init()
 		    }
 
 		    bool found_cache_moc = FALSE, found_cache_dep = FALSE;
-		    if(Option::output.name() != "-" && project->isActiveConfig("qmake_cache")) {
+		    if(read_cache && Option::output.name() != "-" && 
+		       project->isActiveConfig("qmake_cache")) {
 			QString fn = (*val_it);
 			fileFixify(fn);
 			if(!findDependencies(fn).isEmpty()) 
@@ -665,23 +673,26 @@ MakefileGenerator::init()
 			if(!found_cache_moc || !found_cache_dep) 
 			    write_cache = TRUE;
 		    }
+		    if(!found_cache_dep && sources[x] != "OBJECTS") 
+			generateDependencies(deplist, (*val_it), doDepends());
 		    if(!found_cache_moc && mocAware() && 
 		       (sources[x] == "SOURCES" || sources[x] == "HEADERS") && 
 		       (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
 			Option::mkfile::do_mocs)) 
 			generateMocList((*val_it));
-		    if(!found_cache_dep && sources[x] != "OBJECTS") 
-			generateDependencies(deplist, (*val_it), doDepends());
 		}
 	    }
 	}
-	if(write_cache) {
+	if(write_cache || !read_cache) {
 	    QFile cachef(cache_file);
 	    if(cachef.open(IO_WriteOnly | IO_Translate)) {
 		debug_msg(2, "Writing internal cache information: %s", cache_file.latin1());
 		QTextStream cachet(&cachef);
 		cachet << "[check]" << "\n"
-		       << "MOC_DIR = " << var("MOC_DIR") << "\n";
+		       << "QMAKE_CACHE_VERSION = " << qmake_version() << "\n"
+		       << "QMAKE_ABSOLUTE_SOURCE_PATH = " << var("QMAKE_ABSOLUTE_SOURCE_PATH") << "\n"
+		       << "MOC_DIR = " << var("MOC_DIR") << "\n"
+		       << "UI_DIR = " <<  var("UI_DIR") << "\n";
 		cachet << "[depend]" << endl;
 		for(QMap<QString, QStringList>::Iterator it = depends.begin(); 
 		    it != depends.end(); ++it) 
