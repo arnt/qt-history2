@@ -187,7 +187,7 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
                     } else if (isspace((uchar) *p))
                         break;
                 }
-                if (p)
+                if (*p)
                     *r++ = *p++;
             }
             if (*p && p < p_end)
