@@ -2168,7 +2168,6 @@ void QApplication::x11_initialize_style()
 	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwm_running,
 			     0, 1, False, AnyPropertyType, &type, &format, &length,
 			     &after, &data ) == Success && length ) {
-	qDebug( "kwm is running (KDE 1.x)" );
 	if ( data ) XFree( (char *)data );
 	app_style = QStyleFactory::create("windows");
     }
