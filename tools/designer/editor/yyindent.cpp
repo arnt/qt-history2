@@ -84,10 +84,10 @@ static const int BigRoof = 400;
     * ppCommentOffset is the indentation within a C-style comment,
       when it cannot be picked up.
 */
-static int ppHardwareTabSize = 8;
-static int ppIndentSize = 4;
-static int ppContinuationIndentSize = 8;
-static int ppCommentOffset = 2;
+static const int ppHardwareTabSize = 8;
+static const int ppIndentSize = 4;
+static const int ppContinuationIndentSize = 8;
+static const int ppCommentOffset = 2;
 
 static QRegExp *literal = 0;
 static QRegExp *label = 0;
@@ -262,21 +262,21 @@ struct LinizerState
 };
 
 static QStringList *yyProgram = 0;
-static LinizerState yyLinizerState;
+static LinizerState *yyLinizerState = 0;
 
 // shorthands
-static const QString& yyLine = yyLinizerState.line;
-static const int& yyBraceDepth = yyLinizerState.braceDepth;
-static const bool& yyLeftBraceFollows = yyLinizerState.leftBraceFollows;
+static const QString *yyLine = 0;
+static const int *yyBraceDepth = 0;
+static const bool *yyLeftBraceFollows = 0;
 
 /*
   Saves and restores the state of the global linizer. This enables
   backtracking.
 */
 #define YY_SAVE() \
-	LinizerState savedState = yyLinizerState
+	LinizerState savedState = *yyLinizerState
 #define YY_RESTORE() \
-	yyLinizerState = savedState
+	*yyLinizerState = savedState
 
 /*
   Advances to the previous line in yyProgram and update yyLine
@@ -287,19 +287,19 @@ static bool readLine()
 {
     int k;
 
-    yyLinizerState.leftBraceFollows =
-	    ( firstNonWhiteSpace(yyLinizerState.line) == QChar('{') );
+    yyLinizerState->leftBraceFollows =
+	    ( firstNonWhiteSpace(yyLinizerState->line) == QChar('{') );
 
     do {
-	if ( yyLinizerState.iter == yyProgram->begin() ) {
-	    yyLinizerState.line = QString::null;
+	if ( yyLinizerState->iter == yyProgram->begin() ) {
+	    yyLinizerState->line = QString::null;
 	    return FALSE;
 	}
 
-	--yyLinizerState.iter;
-	yyLinizerState.line = *yyLinizerState.iter;
+	--yyLinizerState->iter;
+	yyLinizerState->line = *yyLinizerState->iter;
 
-	yyLinizerState.line = trimmedCodeLine( yyLinizerState.line );
+	yyLinizerState->line = trimmedCodeLine( yyLinizerState->line );
 
 	/*
 	  Remove C-style comments that span multiple lines. If the
@@ -307,30 +307,30 @@ static bool readLine()
 	  of that and eventually yyLine will contain a slash-aster.
 
 	  Notice that both if's can be executed, since
-	  yyLinizerState.inCComment is potentially set to FALSE in
+	  yyLinizerState->inCComment is potentially set to FALSE in
 	  the first if. The order of the if's is also important.
 	*/
 
-	if ( yyLinizerState.inCComment ) {
+	if ( yyLinizerState->inCComment ) {
 	    QString slashAster( "/*" );
 
-	    k = yyLinizerState.line.find( slashAster );
+	    k = yyLinizerState->line.find( slashAster );
 	    if ( k == -1 ) {
-		yyLinizerState.line = QString::null;
+		yyLinizerState->line = QString::null;
 	    } else {
-		yyLinizerState.line.truncate( k );
-		yyLinizerState.inCComment = FALSE;
+		yyLinizerState->line.truncate( k );
+		yyLinizerState->inCComment = FALSE;
 	    }
 	}
 
-	if ( !yyLinizerState.inCComment ) {
+	if ( !yyLinizerState->inCComment ) {
 	    QString asterSlash( "*/" );
 
-	    k = yyLinizerState.line.find( asterSlash );
+	    k = yyLinizerState->line.find( asterSlash );
 	    if ( k != -1 ) {
 		for ( int i = 0; i < k + 2; i++ )
-		    eraseChar( yyLinizerState.line, i, QChar(' ') );
-		yyLinizerState.inCComment = TRUE;
+		    eraseChar( yyLinizerState->line, i, QChar(' ') );
+		yyLinizerState->inCComment = TRUE;
 	    }
 	}
 
@@ -338,10 +338,10 @@ static bool readLine()
 	  Remove preprocessor directives.
 	*/
 	k = 0;
-	while ( k < (int) yyLinizerState.line.length() ) {
-	    QChar ch = yyLinizerState.line[k];
+	while ( k < (int) yyLinizerState->line.length() ) {
+	    QChar ch = yyLinizerState->line[k];
 	    if ( ch == QChar('#') ) {
-		yyLinizerState.line = QString::null;
+		yyLinizerState->line = QString::null;
 	    } else if ( !ch.isSpace() ) {
 		break;
 	    }
@@ -351,18 +351,18 @@ static bool readLine()
 	/*
 	  Remove trailing spaces.
 	*/
-	k = yyLinizerState.line.length();
-	while ( k > 0 && yyLinizerState.line[k - 1].isSpace() )
+	k = yyLinizerState->line.length();
+	while ( k > 0 && yyLinizerState->line[k - 1].isSpace() )
 	    k--;
-	yyLinizerState.line.truncate( k );
+	yyLinizerState->line.truncate( k );
 
 	/*
 	  '}' increment the brace depth and '{' decrements it and not
 	  the other way around, as we are parsing backwards.
 	*/
-	yyLinizerState.braceDepth +=
-		yyLinizerState.line.contains( QChar('}') ) -
-		yyLinizerState.line.contains( QChar('{') );
+	yyLinizerState->braceDepth +=
+		yyLinizerState->line.contains( QChar('}') ) -
+		yyLinizerState->line.contains( QChar('{') );
 
 	/*
 	  We use a dirty trick for
@@ -375,13 +375,13 @@ static bool readLine()
 	      }
 	      else ...
 	*/
-	if ( yyLinizerState.pendingRightBrace )
-	    yyLinizerState.braceDepth++;
-	yyLinizerState.pendingRightBrace =
-		( yyLinizerState.line.find(*braceX) == 0 );
-	if ( yyLinizerState.pendingRightBrace )
-	    yyLinizerState.braceDepth--;
-    } while ( yyLinizerState.line.isEmpty() );
+	if ( yyLinizerState->pendingRightBrace )
+	    yyLinizerState->braceDepth++;
+	yyLinizerState->pendingRightBrace =
+		( yyLinizerState->line.find(*braceX) == 0 );
+	if ( yyLinizerState->pendingRightBrace )
+	    yyLinizerState->braceDepth--;
+    } while ( yyLinizerState->line.isEmpty() );
 
     return TRUE;
 }
@@ -392,13 +392,17 @@ static bool readLine()
 */
 static void startLinizer()
 {
-    yyLinizerState.braceDepth = 0;
-    yyLinizerState.inCComment = FALSE;
-    yyLinizerState.pendingRightBrace = FALSE;
+    yyLinizerState->braceDepth = 0;
+    yyLinizerState->inCComment = FALSE;
+    yyLinizerState->pendingRightBrace = FALSE;
 
-    yyLinizerState.iter = yyProgram->end();
-    --yyLinizerState.iter;
-    yyLinizerState.line = *yyLinizerState.iter;
+    yyLine = &yyLinizerState->line;
+    yyBraceDepth = &yyLinizerState->braceDepth;
+    yyLeftBraceFollows = &yyLinizerState->leftBraceFollows;
+
+    yyLinizerState->iter = yyProgram->end();
+    --yyLinizerState->iter;
+    yyLinizerState->line = *yyLinizerState->iter;
     readLine();
 }
 
@@ -448,24 +452,24 @@ static bool bottomLineStartsInCComment()
 */
 static int indentWhenBottomLineStartsInCComment()
 {
-    int k = yyLine.findRev( QString("/*") );
+    int k = yyLine->findRev( QString("/*") );
     if ( k == -1 ) {
 	/*
 	  We found a normal text line in a comment. Align the
 	  bottom line with the text on this line.
 	*/
-	return indentOfLine( yyLine );
+	return indentOfLine( *yyLine );
     } else {
 	/*
 	  The C-style comment starts on this line. If there is
 	  text on the same line, align with it. Otherwise, align
 	  with the slash-aster plus a given offset.
 	*/
-	int indent = columnForIndex( yyLine, k );
+	int indent = columnForIndex( *yyLine, k );
 	k += 2;
-	while ( k < (int) yyLine.length() ) {
-	    if ( !yyLine[k].isSpace() )
-		return columnForIndex( yyLine, k );
+	while ( k < (int) yyLine->length() ) {
+	    if ( !(*yyLine)[k].isSpace() )
+		return columnForIndex( *yyLine, k );
 	    k++;
 	}
 	return indent + ppCommentOffset;
@@ -494,17 +498,17 @@ static bool matchBracelessControlStatement()
 {
     int delimDepth = 0;
 
-    if ( yyLine.endsWith(QString("else")) )
+    if ( yyLine->endsWith(QString("else")) )
 	return TRUE;
 
-    if ( !yyLine.endsWith(QChar(')')) )
+    if ( !yyLine->endsWith(QChar(')')) )
 	return FALSE;
 
     for ( int i = 0; i < SmallRoof; i++ ) {
-	int j = yyLine.length();
+	int j = yyLine->length();
 	while ( j > 0 ) {
 	    j--;
-	    QChar ch = yyLine[j];
+	    QChar ch = (*yyLine)[j];
 
 	    switch ( ch.unicode() ) {
 	    case ')':
@@ -513,7 +517,7 @@ static bool matchBracelessControlStatement()
 	    case '(':
 		delimDepth--;
 		if ( delimDepth == 0 ) {
-		    if ( yyLine.find(*iflikeKeyword) != -1 ) {
+		    if ( yyLine->find(*iflikeKeyword) != -1 ) {
 			/*
 			  We have
 
@@ -581,10 +585,10 @@ static bool isUnfinishedLine()
 
     YY_SAVE();
 
-    if ( yyLine.isEmpty() )
+    if ( yyLine->isEmpty() )
 	return FALSE;
 
-    QChar lastCh = yyLine[(int) yyLine.length() - 1];
+    QChar lastCh = (*yyLine)[(int) yyLine->length() - 1];
     if ( QString("{};").find(lastCh) == -1 ) {
 	/*
 	  It doesn't end with ';' or similar. If it's not "if ( x )",
@@ -592,15 +596,15 @@ static bool isUnfinishedLine()
 	*/
 	unf = !matchBracelessControlStatement();
     } else if ( lastCh == QChar(';') ) {
-	if ( lastParen(yyLine) == QChar('(') ) {
+	if ( lastParen(*yyLine) == QChar('(') ) {
 	    /*
 	      Exceptional case:
 
 		  for ( int i = 1; i < 10;
 	    */
 	    unf = TRUE;
-	} else if ( readLine() && yyLine.endsWith(QChar(';')) &&
-		    lastParen(yyLine) == QChar('(') ) {
+	} else if ( readLine() && yyLine->endsWith(QChar(';')) &&
+		    lastParen(*yyLine) == QChar('(') ) {
 	    /*
 	      Exceptional case:
 
@@ -643,15 +647,15 @@ static int indentForContinuationLine()
     int braceDepth = 0;
     int delimDepth = 0;
 
-    bool leftBraceFollowed = yyLeftBraceFollows;
+    bool leftBraceFollowed = *yyLeftBraceFollows;
 
     for ( int i = 0; i < SmallRoof; i++ ) {
 	int hook = -1;
 
-	int j = yyLine.length();
+	int j = yyLine->length();
 	while ( j > 0 && hook < 0 ) {
 	    j--;
-	    QChar ch = yyLine[j];
+	    QChar ch = (*yyLine)[j];
 
 	    switch ( ch.unicode() ) {
 	    case ')':
@@ -680,7 +684,7 @@ static int indentForContinuationLine()
 		  delimiters.
 		*/
 		if ( braceDepth == -1 ) {
-		    if ( j < (int) yyLine.length() - 1 ) {
+		    if ( j < (int) yyLine->length() - 1 ) {
 			hook = j;
 		    } else {
 			return 0; // shouldn't happen
@@ -713,12 +717,12 @@ static int indentForContinuationLine()
 		  end of the unfinished lines or by non-balanced
 		  parentheses.
 		*/
-		if ( j == 0 || QString("!=<>").find(yyLine[j - 1]) == -1 ) {
+		if ( j == 0 || QString("!=<>").find((*yyLine)[j - 1]) == -1 ) {
 		    if ( braceDepth == 0 && delimDepth == 0 &&
-			 j < (int) yyLine.length() - 1 &&
-			 !yyLine.endsWith(QChar(',')) &&
-			 (yyLine.contains(QChar('(')) ==
-			  yyLine.contains(QChar(')'))) )
+			 j < (int) yyLine->length() - 1 &&
+			 !yyLine->endsWith(QChar(',')) &&
+			 (yyLine->contains(QChar('(')) ==
+			  yyLine->contains(QChar(')'))) )
 			hook = j;
 		}
 	    }
@@ -740,12 +744,12 @@ static int indentForContinuationLine()
 			  "foo foo foo foo foo foo foo foo foo") );
 	    */
 	    hook++;
-	    while ( hook < (int) yyLine.length() ) {
-		if ( !yyLine[hook].isSpace() )
-		    return columnForIndex( yyLine, hook );
+	    while ( hook < (int) yyLine->length() ) {
+		if ( !(*yyLine)[hook].isSpace() )
+		    return columnForIndex( *yyLine, hook );
 		hook++;
 	    }
-	    return indentOfLine( yyLine ) + ppContinuationIndentSize;
+	    return indentOfLine( *yyLine ) + ppContinuationIndentSize;
 	}
 
 	if ( braceDepth != 0 )
@@ -772,7 +776,7 @@ static int indentForContinuationLine()
 		  The "3;" should fall right under the "2;", and the
 		  "{" under the "int".
 		*/
-		return indentOfLine( yyLine );
+		return indentOfLine( *yyLine );
 	    } else {
 		/*
 		  We have
@@ -790,7 +794,7 @@ static int indentForContinuationLine()
 		  (We do have a special trick above for the
 		  assignment operator above, though.)
 		*/
-		return indentOfLine( yyLine ) + ppContinuationIndentSize;
+		return indentOfLine( *yyLine ) + ppContinuationIndentSize;
 	    }
 	}
 
@@ -854,7 +858,7 @@ static int indentForContinuationLine()
 static int indentForStandaloneLine()
 {
     for ( int i = 0; i < SmallRoof; i++ ) {
-	if ( !yyLeftBraceFollows ) {
+	if ( !*yyLeftBraceFollows ) {
 	    YY_SAVE();
 
 	    if ( matchBracelessControlStatement() ) {
@@ -867,12 +871,13 @@ static int indentForStandaloneLine()
 
 		  yyLine is "if ( x &&".
 		*/
-		return indentOfLine( yyLine ) + ppIndentSize;
+		return indentOfLine( *yyLine ) + ppIndentSize;
 	    }
 	    YY_RESTORE();
 	}
 
-	if ( yyLine.endsWith(QChar(';')) || yyLine.contains(QChar('{')) > 0 ) {
+	if ( yyLine->endsWith(QChar(';')) ||
+	     yyLine->contains(QChar('{')) > 0 ) {
 	    /*
 	      The situation is possibly this, and we want to indent
 	      "z;":
@@ -885,33 +890,33 @@ static int indentForStandaloneLine()
 	      any arbitrarily complex compound statement can appear.
 	    */
 
-	    if ( yyBraceDepth > 0 ) {
+	    if ( *yyBraceDepth > 0 ) {
 		do {
 		    if ( !readLine() )
 			break;
-		} while ( yyBraceDepth > 0 );
+		} while ( *yyBraceDepth > 0 );
 	    }
 
 	    LinizerState hookState;
 
-	    if ( yyBraceDepth == 0 ) {
+	    if ( *yyBraceDepth == 0 ) {
 		while ( isContinuationLine() )
 		    readLine();
-		hookState = yyLinizerState;
+		hookState = *yyLinizerState;
 
 		readLine();
-		if ( yyBraceDepth == 0 ) {
+		if ( *yyBraceDepth == 0 ) {
 		    do {
 			if ( !matchBracelessControlStatement() )
 			    break;
-			hookState = yyLinizerState;
+			hookState = *yyLinizerState;
 		    } while ( readLine() );
 		}
 	    } else {
-		hookState = yyLinizerState;
+		hookState = *yyLinizerState;
 	    }
 
-	    yyLinizerState = hookState;
+	    *yyLinizerState = hookState;
 
 	    while ( isContinuationLine() )
 		readLine();
@@ -920,8 +925,8 @@ static int indentForStandaloneLine()
 	      Never trust lines containing only '{' or '}', as some
 	      people (Richard Stallman) format them weirdly.
 	    */
-	    if ( yyLine.stripWhiteSpace().length() > 1 )
-		return indentOfLine( yyLine ) - yyBraceDepth * ppIndentSize;
+	    if ( yyLine->stripWhiteSpace().length() > 1 )
+		return indentOfLine( *yyLine ) - *yyBraceDepth * ppIndentSize;
 	}
 
 	if ( !readLine() )
@@ -931,7 +936,7 @@ static int indentForStandaloneLine()
 }
 
 /*
-  Constructs regular expressions used by the indenter.
+  Constructs global variables used by the indenter.
 */
 static void initializeIndenter()
 {
@@ -942,10 +947,12 @@ static void initializeIndenter()
     inlineCComment->setMinimal( TRUE );
     braceX = new QRegExp( QString("^\\s*\\}\\s*(?:else|catch)\\b") );
     iflikeKeyword = new QRegExp( QString("\\b(?:catch|do|for|if|while)\\b") );
+
+    yyLinizerState = new LinizerState;
 }
 
 /*
-  Destroys regular expressions used by the indenter.
+  Destroys global variables used by the indenter.
 */
 static void terminateIndenter()
 {
@@ -954,6 +961,7 @@ static void terminateIndenter()
     delete inlineCComment;
     delete braceX;
     delete iflikeKeyword;
+    delete yyLinizerState;
 }
 
 /*
@@ -964,7 +972,7 @@ static void terminateIndenter()
   This function works better if typedIn is set properly; it is
   slightly more conservative if typedIn is completely wild, and
   slighly more liberal if typedIn is always null. The user might be
-  annoyed by the liberal behavior if she is trying something unusual.
+  annoyed by the liberal behavior.
 */
 int indentForBottomLine( const QStringList& program, QChar typedIn )
 {
