@@ -277,7 +277,7 @@ void BouncyLogo::advance(int stage)
 	double ny = y() + vy;
 
 	if ( nx < 0 || nx >= canvas()->width() )
-	    vx = -vy;
+	    vx = -vx;
 	if ( ny < 0 || ny >= canvas()->height() )
 	    vy = -vy;
 
