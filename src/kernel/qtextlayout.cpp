@@ -399,6 +399,8 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 			 (i != d->firstItemInLine || pos != 0) ) {
 			if ( breakItem != i )
 			    itemWidth = 0;
+			if (lastWasSpace || itemAttrs->softBreak)
+			    breakany = FALSE;
 			breakItem = i;
 			breakPosition = pos;
 //  			qDebug("found possible break at item %d, position %d (absolute=%d), tmpWidth=%d, tmpItemWidth=%d", breakItem, breakPosition, d->items[breakItem].position+breakPosition, tmpWidth, tmpItemWidth );
