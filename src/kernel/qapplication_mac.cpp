@@ -1568,7 +1568,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
     switch(eclass) {
     case kEventClassMouse:
-	block_event = (ekind != kEventMouseMoved);
+        block_event = TRUE;
 	break;
     case kEventClassKeyboard:
 	block_event = TRUE;
@@ -1877,7 +1877,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    else
 		widget = QApplication::widgetAt(where.h, where.v);
 	}
-	if(!QMacBlockingFunction::blocking()) { //set the cursor up
+	if(!unhandled_dialogs.contains(FrontWindow())) { //set the cursor up
 	    QCursor cursor(Qt::ArrowCursor);
 	    QWidget *cursor_widget = widget;
 	    if(cursor_widget && cursor_widget == qt_button_down && ekind == kEventMouseUp)
