@@ -17,7 +17,7 @@
 #include <qaccessiblewidget.h>
 
 class QAbstractButton;
-class QGenericHeader;
+class QHeaderView;
 class QTabBar;
 class QComboBox;
 class QTitleBar;
@@ -35,7 +35,7 @@ public:
     int                state(int child) const;
 
 protected:
-    QGenericHeader *header() const;
+    QHeaderView *header() const;
 };
 
 class QAccessibleTabBar : public QAccessibleWidget

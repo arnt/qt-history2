@@ -16,7 +16,7 @@
 #include <qapplication.h>
 #include <qabstractbutton.h>
 #include <qevent.h>
-#include <qgenericheader.h>
+#include <qheaderview.h>
 #include <qtabbar.h>
 #include <qcombobox.h>
 #include <qlistview.h>
@@ -46,10 +46,10 @@ QAccessibleHeader::QAccessibleHeader(QWidget *w)
     addControllingSignal("sectionClicked(int, Qt::ButtonState)");
 }
 
-/*! Returns the QGenericHeader. */
-QGenericHeader *QAccessibleHeader::header() const
+/*! Returns the QHeaderView. */
+QHeaderView *QAccessibleHeader::header() const
 {
-    return qt_cast<QGenericHeader*>(object());
+    return qt_cast<QHeaderView*>(object());
 }
 
 /*! \reimp */
@@ -111,7 +111,7 @@ int QAccessibleHeader::state(int child) const
         state |= Invisible;
     if (!header()->isClickable())
         state |= Unavailable;
-    if (header()->resizeMode(section) != QGenericHeader::Custom)
+    if (header()->resizeMode(section) != QHeaderView::Custom)
         state |= Sizeable;
     if (child && header()->isMovable())
         state |= Movable;
