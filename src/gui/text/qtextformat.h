@@ -10,7 +10,6 @@ class QString;
 class QFont;
 
 class QTextFormatCollection;
-class QTextFormatCollectionPrivate;
 class QTextFormatProperty;
 class QTextFormatPrivate;
 class QTextBlockFormat;
@@ -148,6 +147,7 @@ public:
     QList<int> allPropertyIds() const;
 
     bool operator==(const QTextFormat &rhs) const;
+    inline bool operator!=(const QTextFormat &rhs) const { return !operator==(rhs); }
 
 private:
     QSharedDataPointer<QTextFormatPrivate> d;
