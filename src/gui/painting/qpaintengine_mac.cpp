@@ -1214,7 +1214,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
     // Drawing the subpaths
 
     for (int i=0; i<p.elementCount(); ++i) {
-        const QPainterPath::Elements &elm = p.elementAt(i);
+        const QPainterPath::Element &elm = p.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
             // ### Strickly speaking this would imply connecting the last point
@@ -1231,9 +1231,12 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
             Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
             CGPathAddCurveToPoint(path, 0,
                                   elm.x, elm.y,
-                                  p.elementAt(i+1).x, p.elementAt(i+1),
-                                  p.elementAt(i+2).y, p.elementAt(i+2));
+                                  p.elementAt(i+1).x, p.elementAt(i+1).y,
+                                  p.elementAt(i+2).x, p.elementAt(i+2).y);
             i+=2;
+            break;
+        default:
+            qFatal("QCoreGraphicsPaintEngine::drawPath(), unhandled type: %d", elm.type);
             break;
         }
     }
