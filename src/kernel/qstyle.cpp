@@ -49,6 +49,7 @@ public:
 
     QSize sbextent;
     int button_default_indiciator_width;
+    int button_margin;
 };
 
 static QPtrDict<QStylePrivate> *d_ptr = 0;
@@ -972,4 +973,16 @@ int QStyle::menuButtonIndicatorWidth( int h )
 
   \sa drawPopupMenuItem()
 */
+
+
+
+int QStyle::buttonMargin() const
+{
+    return d(this)->button_margin;
+}
+void QStyle::setButtonMargin( int m )
+{
+    d(this)->button_margin = m;
+}
+
 #endif // QT_NO_STYLE

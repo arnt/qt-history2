@@ -242,6 +242,7 @@ public:
     // Binary compatibility contortions, to become virtual in 3.0
     QSize scrollBarExtent(); // ### const 3.0
     int buttonDefaultIndicatorWidth() const;
+    int buttonMargin() const; // ### virtual 3.0
     int toolBarHandleExtent() const; // ### virtual 3.0
     int toolBarHandleExtend() const; // obsolete
     void drawToolBarHandle( QPainter *p, const QRect &r,
@@ -252,6 +253,7 @@ public:
 protected:
     void setScrollBarExtent( int w, int h=-1 ); // ### remove 3.0
     void setButtonDefaultIndicatorWidth( int w ); // ### remove 3.0
+    void setButtonMargin( int w ); // ### remove 3.0
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -367,16 +367,16 @@ QSize QPushButton::sizeHint() const
 
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
-	w = pm->width() + 6;
-	h = pm->height() + 6;
+	w = pm->width() + style().buttonMargin();
+	h = pm->height() + style().buttonMargin();
     } else {
 	QString s( text() );
 	if ( s.isEmpty() )
 	    s = QString::fromLatin1("XXXX");
 	QFontMetrics fm = fontMetrics();
 	QSize sz = fm.size( ShowPrefix, s );
-	w = sz.width() + 6;
-	h = sz.height() + sz.height()/8 + 10;
+	w = sz.width() + style().buttonMargin();
+	h = sz.height() + sz.height()/8 + 4 + style().buttonMargin();
 	w += h;
     }
 
@@ -384,8 +384,8 @@ QSize QPushButton::sizeHint() const
     if ( iconSet() && !iconSet()->isNull() ) {
 	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-	w += iw + 4;
-	h = QMAX( h, ih + 6 );
+	w += iw + style().buttonMargin() - 2;
+	h = QMAX( h, ih + style().buttonMargin() );
     }
 
 

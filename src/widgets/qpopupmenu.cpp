@@ -542,7 +542,7 @@ void QPopupMenu::hideAllPopups()
 {
     register QMenuData *top = this;		// find top level popup
     if ( !preventAnimation )
-	preventAnimation = new QTimer( this );
+	preventAnimation = new QTimer( qApp );
     preventAnimation->stop();
     preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
 
@@ -563,7 +563,7 @@ void QPopupMenu::hideAllPopups()
 void QPopupMenu::hidePopups()
 {
     if ( !preventAnimation )
-	preventAnimation = new QTimer( this );
+	preventAnimation = new QTimer( qApp );
     preventAnimation->stop();
     preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
 
