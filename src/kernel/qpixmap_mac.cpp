@@ -9,7 +9,6 @@
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {
-  //printf("%s %d\n",__FILE__,__LINE__);
     init( 0, 0, 0, FALSE, defOptim );
     if ( w <= 0 || h <= 0 )                     // create null pixmap
         return;
@@ -19,41 +18,6 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->h = h;
     data->d = 1;
 }
-
-/*
-QPixmap &QPixmap::operator=( const QPixmap &pixmap )
-{
-  //printf("QPixmap:= %s %d\n",__FILE__,__LINE__);
-    if ( paintingActive() ) {
-#if defined(CHECK_STATE)
-        warning("QPixmap::operator=: Cannot assign to pixmap during painting");
-#endif
-        return *this;
-    }
-    pixmap.data->ref();                         // avoid 'x = x'
-    deref();
-
-    if ( pixmap.paintingActive() ) {            // make a deep copy
-        init( pixmap.width(), pixmap.height(), pixmap.depth() );
-        data->uninit = FALSE;
-        data->bitmap = pixmap.data->bitmap;     // copy bitmap flag
-        data->optim  = pixmap.data->optim;      // copy optimization flag
-        if ( !isNull() ) {
-            bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
-                    CopyROP, TRUE );
-            if ( pixmap.mask() )
-                setMask( *pixmap.mask() );
-        }
-        pixmap.data->deref();
-    } else {
-        data = pixmap.data;
-        devFlags = pixmap.devFlags;             // copy QPaintDevice flags
-        hd = pixmap.hd;                         // copy QPaintDevice drawable
-    }
-    return *this;
-}
-*/
-
 
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
@@ -79,7 +43,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
         if ( d > 8 && dd <= 8 ) {               // convert to 8 bit
             if ( (conversion_flags & DitherMode_Mask) == AutoDither )
                 conversion_flags = (conversion_flags & ~DitherMode_Mask)
-                                        | PreferDither;
+				   | PreferDither;
             conv8 = TRUE;
         } else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {
             conv8 = d == 1;                     // native depth wanted
@@ -121,8 +85,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
         *this = pm;
     }
 
-   if(handle()) {
-      SetPort((WindowPtr)handle());
+    if(handle()) {
+	SetPort((WindowPtr)handle());
     }
 
     // Slow and icky, but the proper way crashed
@@ -130,13 +94,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int loopc,loopc2;
     QRgb q;
     for(loopc=0;loopc<image.width();loopc++) {
-      for(loopc2=0;loopc2<image.height();loopc2++) {
-        q=image.pixel(loopc,loopc2);
-        r.red=qRed(q)*256;
-        r.green=qGreen(q)*256;
-        r.blue=qBlue(q)*256;
-        SetCPixel(loopc,loopc2,&r);
-      }
+	for(loopc2=0;loopc2<image.height();loopc2++) {
+	    q=image.pixel(loopc,loopc2);
+	    r.red=qRed(q)*256;
+	    r.green=qGreen(q)*256;
+	    r.blue=qBlue(q)*256;
+	    SetCPixel(loopc,loopc2,&r);
+	}
     }
 
     data->uninit = FALSE;
@@ -153,15 +117,15 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 int get_index(QImage * qi,QRgb mycol)
 {
-  int loopc;
-  for(loopc=0;loopc<qi->numColors();loopc++) {
-    if(qi->color(loopc)==mycol) {
-      return loopc;
+    int loopc;
+    for(loopc=0;loopc<qi->numColors();loopc++) {
+	if(qi->color(loopc)==mycol) {
+	    return loopc;
+	}
     }
-  }
-  qi->setNumColors(qi->numColors()+1);
-  qi->setColor(qi->numColors(),mycol);
-  return qi->numColors();
+    qi->setNumColors(qi->numColors()+1);
+    qi->setColor(qi->numColors(),mycol);
+    return qi->numColors();
 }
 
 QImage QPixmap::convertToImage() const
@@ -189,8 +153,8 @@ QImage QPixmap::convertToImage() const
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
 
-   if(handle()) {
-      SetPort((WindowPtr)handle());
+    if(handle()) {
+	SetPort((WindowPtr)handle());
     }
 
     // Slow and icky, but the proper way crashed
@@ -198,19 +162,19 @@ QImage QPixmap::convertToImage() const
     int loopc,loopc2;
     QRgb q;
     for(loopc=0;loopc<w;loopc++) {
-      for(loopc2=0;loopc2<h;loopc2++) {
-        GetCPixel(loopc,loopc2,&r);
-        q=qRgb(r.red/256,r.green/256,r.blue/256);
-        if(ncols) {
-          image.setPixel(loopc,loopc2,get_index(&image,q));
-	} else {
-          image.setPixel(loopc,loopc2,q);
+	for(loopc2=0;loopc2<h;loopc2++) {
+	    GetCPixel(loopc,loopc2,&r);
+	    q=qRgb(r.red/256,r.green/256,r.blue/256);
+	    if(ncols) {
+		image.setPixel(loopc,loopc2,get_index(&image,q));
+	    } else {
+		image.setPixel(loopc,loopc2,q);
+	    }
 	}
-      }
     }
 
 #if 0
-    #error "Need to take QPixmap::mask() into account here, "\
+#error "Need to take QPixmap::mask() into account here, "\
             "by adding a transparent color (if possible), and "\
             "changing masked-out pixels to that color index."
 
@@ -218,9 +182,9 @@ QImage QPixmap::convertToImage() const
 
 
     for ( int i=0; i<ncols; i++ ) {             // copy color table
-      image.setColor( i, qRgb(0,
-                              0,
-                              0));
+	image.setColor( i, qRgb(0,
+				0,
+				0));
     }
 
     QImage * flippy=new QImage();
@@ -230,23 +194,21 @@ QImage QPixmap::convertToImage() const
 
 void QPixmap::fill( const QColor &fillColor )
 {
-  //printf("QPixmap::fill: %s %d\n",__FILE__,__LINE__);
-  if(hd) {
-    Rect r;
-    RGBColor rc;
-    SetPort((GrafPort *)hd);
-    rc.red=fillColor.red()*256;
-    rc.green=fillColor.green()*256;
-    rc.blue=fillColor.blue()*256;
-    RGBForeColor(&rc);
-    SetRect(&r,0,0,width(),height());
-    PaintRect(&r);
-  }
+    if(hd) {
+	Rect r;
+	RGBColor rc;
+	SetPort((GrafPort *)hd);
+	rc.red=fillColor.red()*256;
+	rc.green=fillColor.green()*256;
+	rc.blue=fillColor.blue()*256;
+	RGBForeColor(&rc);
+	SetRect(&r,0,0,width(),height());
+	PaintRect(&r);
+    }
 }
 
 void QPixmap::detach()
 {
-  //printf("%s %d\n",__FILE__,__LINE__);
     if ( data->uninit || data->count == 1 )
         data->uninit = FALSE;
     else
@@ -255,7 +217,6 @@ void QPixmap::detach()
 
 int QPixmap::metric(int m) const
 {
-  //printf("%s %d\n",__FILE__,__LINE__);
     int val;
     if ( m == QPaintDeviceMetrics::PdmWidth || m == QPaintDeviceMetrics::PdmHeight ) {
         if ( m == QPaintDeviceMetrics::PdmWidth )
@@ -263,27 +224,21 @@ int QPixmap::metric(int m) const
         else
             val = height();
     } else {
-      //Display *dpy = x11Display();
-      // int scr = x11Screen();
         switch ( m ) {
-            case QPaintDeviceMetrics::PdmWidthMM:
-	      //        val = (DisplayWidthMM(dpy,scr)*width())/
-              //        DisplayWidth(dpy,scr);
-                break;
-            case QPaintDeviceMetrics::PdmHeightMM:
-	      // val = (DisplayHeightMM(dpy,scr)*height())/
-	      //       DisplayHeight(dpy,scr);
-                break;
-            case QPaintDeviceMetrics::PdmNumColors:
-                val = 1 << depth();
-                break;
-            case QPaintDeviceMetrics::PdmDepth:
-                val = depth();
-                break;
-            default:
-                val = 0;
+	case QPaintDeviceMetrics::PdmWidthMM:
+	    break;
+	case QPaintDeviceMetrics::PdmHeightMM:
+	    break;
+	case QPaintDeviceMetrics::PdmNumColors:
+	    val = 1 << depth();
+	    break;
+	case QPaintDeviceMetrics::PdmDepth:
+	    val = depth();
+	    break;
+	default:
+	    val = 0;
 #if defined(CHECK_RANGE)
-                warning( "QPixmap::metric: Invalid metric command" );
+	    warning( "QPixmap::metric: Invalid metric command" );
 #endif
         }
     }
@@ -292,16 +247,14 @@ int QPixmap::metric(int m) const
 
 void QPixmap::deref()
 {
-  // Destroy image if last ref
+    // Destroy image if last ref
     if ( data && data->deref() ) {                      // last reference lost
         if ( data->mask ) {
             delete data->mask;
             data->mask = 0;
         }
         if ( hd && qApp ) {
-            //printf("Deref'ing, deleting pixmap\n");
             DisposeGWorld((GWorldPtr)hd);
-            //getchar();
             hd = 0;
         }
         delete data;
@@ -310,66 +263,58 @@ void QPixmap::deref()
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
-  //printf("%s %d\n",__FILE__,__LINE__);
-  return QPixmap();
+    return QPixmap();
 }
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
-  // Hmm.
-  if(w>1024 || h > 1024) {
-    return;
-  }
-  //printf("QPixmap::init: %s %d\n",__FILE__,__LINE__);
-  //printf("  %d %d %d\n",w,h,d);
-  if(w<0 || h<0) {
-    return;
-  }
+    // Hmm.
+    if(w>1024 || h > 1024) {
+	return;
+    }
+    if(w<0 || h<0) {
+	return;
+    }
 
-  data = new QPixmapData;
-  data->uninit=TRUE;
-  data->bitmap=FALSE;
-  data->selfmask=FALSE;
-  data->mask=0;
-  if(d<1) {
-    d=defaultDepth();
-  }
-  if(w==0 && h==0) {
-    data->w=data->h=0;
-    data->d=0;
-    return;
-  }
-  data->w=w;
-  data->h=h;
-  QDErr e;
-  GWorldFlags someflags;
-  Rect rect;
-  // God knows what this does
-  someflags=alignPix | stretchPix | newDepth;
-  // Depth of 0=deepest screen depth
-  //printf("Newgworld %d %d %d\n",w,h,d);
-  //getchar();
-  SetRect(&rect,0,0,w,h);
-  e=NewGWorld((CGrafPort **)&hd,d,&rect,0,0,someflags);
-  if((e & gwFlagErr)!=0) {
-    // Something went wrong
-    //printf("Couldn't make QPixmap GWorld!\n");
-    hd=0;
-    //getchar();
-  }
+    data = new QPixmapData;
+    data->uninit=TRUE;
+    data->bitmap=FALSE;
+    data->selfmask=FALSE;
+    data->mask=0;
+    if(d<1) {
+	d=defaultDepth();
+    }
+    if(w==0 && h==0) {
+	data->w=data->h=0;
+	data->d=0;
+	return;
+    }
+    data->w=w;
+    data->h=h;
+    QDErr e;
+    GWorldFlags someflags;
+    Rect rect;
+    // God knows what this does
+    someflags=alignPix | stretchPix | newDepth;
+    // Depth of 0=deepest screen depth
+    SetRect(&rect,0,0,w,h);
+    e=NewGWorld((CGrafPort **)&hd,d,&rect,0,0,someflags);
+    if((e & gwFlagErr)!=0) {
+	// Something went wrong
+	hd=0;
+    }
 }
 
 int QPixmap::defaultDepth()
 {
-  GDHandle gd;
-  gd=GetMainDevice();
-  int wug=(**gd).gdCCDepth;
-  //printf("Default depth %d\n",wug);
-  if(wug) {
-    return wug;
-  } else {
-    return 16;
-  }
+    GDHandle gd;
+    gd=GetMainDevice();
+    int wug=(**gd).gdCCDepth;
+    if(wug) {
+	return wug;
+    } else {
+	return 16;
+    }
 }
 
 QWMatrix QPixmap::trueMatrix(const QWMatrix & matrix,int w,int h)

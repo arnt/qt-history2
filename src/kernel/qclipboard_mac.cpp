@@ -3,23 +3,19 @@
 
 void QClipboard::ownerDestroyed()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QClipboard::connectNotify( const char * )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 bool QClipboard::event( QEvent * e )
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  return false;
+    return false;
 }
 
 void QClipboard::clear()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QClipboard::setData( QMimeSource* src )

@@ -21,72 +21,60 @@ QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
 
 QCursor::QCursor()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 QCursor::QCursor(int shape)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 QCursor::QCursor(const QCursor &c)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 QCursor::~QCursor()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 void QCursor::setBitmap(const QBitmap &bitmap,const QBitmap &mask,
                         int hotX,int hotY)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 QCursor &QCursor::operator=(const QCursor &c)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  return QCursor();
+    return QCursor();
 }
 
 int QCursor::shape() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  return 0;
+    return 0;
 }
 
 void QCursor::setShape(int shape)
 {
-  printf("%s %d\n",__FILE__,__LINE__);
 }
 
 QPoint QCursor::hotSpot() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  return QPoint();
+    return QPoint();
 }
 
 const QBitmap * QCursor::mask() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  return 0;
+    return 0;
 }
 
 const QBitmap * QCursor::bitmap() const
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  return 0;
+    return 0;
 }
 
 QPoint QCursor::pos()
 {
-  printf("%s %d\n",__FILE__,__LINE__);
-  return QPoint();
+    return QPoint();
 }
 
 void * QCursor::handle() const
 {
-  return 0;
+    return 0;
 }

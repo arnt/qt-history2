@@ -3,14 +3,12 @@
 
 QRegion::QRegion()
 {
-  printf("QRegion::QRegion(): %s %d\n",__FILE__,__LINE__);
   data=new QRegionData;
   data->rgn=(void *)NewRgn();
 }
 
 QRegion::QRegion( bool is_null )
 {
-  printf("QRegion::QRegion(bool): %s %d\n",__FILE__,__LINE__);
   data=new QRegionData;
   data->rgn=(void *)NewRgn();
   data->is_null=is_null;
@@ -19,7 +17,6 @@ QRegion::QRegion( bool is_null )
 QRegion::QRegion( const QRect &r, RegionType t )
 {
   data=new QRegionData;
-  printf("QRegion::QRegion(rect): %s %d\n",__FILE__,__LINE__);
   data->rgn=(void *)NewRgn();
   Rect re;
   OpenRgn();
@@ -30,40 +27,34 @@ QRegion::QRegion( const QRect &r, RegionType t )
 
 QRegion::QRegion( const QPointArray &a, bool winding )
 {
-  printf("QRegion::QRegion(points): %s %d\n",__FILE__,__LINE__);
   data=new QRegionData;
   data->rgn=(void *)NewRgn();
 }
 
 QRegion::QRegion( const QRegion &r )
 {
-  printf("QRegion::QRegion(QRegion): %s %d\n",__FILE__,__LINE__);
   data=r.data;
   data->ref();
 }
 
 QRegion::QRegion( const QBitmap & bm )
 {
-  printf("QRegion::QRegion(bitmap): %s %d\n",__FILE__,__LINE__);
   data=new QRegionData;
   data->rgn=(void *)NewRgn();
 }
 
 QRegion::~QRegion()
 {
-  printf("QRegion::~QRegion: %s %d\n",__FILE__,__LINE__);
   if ( data->deref() ) {
     if ( data->rgn ) {
       DisposeRgn((RgnHandle)data->rgn );
     }
     delete data;
   }
-  printf("Dunregionin\n");
 }
 
 QRegion &QRegion::operator=( const QRegion &r )
 {
-  printf("QRegion::= %s %d\n",__FILE__,__LINE__);
   r.data->ref();
   if ( data->deref() ) {
     if ( data->rgn ) {
@@ -77,7 +68,6 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 QRegion QRegion::copy() const
 {
-  printf("QRegion::copy: %s %d\n",__FILE__,__LINE__);
   QRegion r(data->is_null);
   RgnHandle rr=(RgnHandle)data->rgn;
   RgnHandle r2=NewRgn();
@@ -88,13 +78,11 @@ QRegion QRegion::copy() const
 
 bool QRegion::isNull() const
 {
-  printf("QRegion::isNull: %s %d\n",__FILE__,__LINE__);
   return data->is_null;
 }
 
 bool QRegion::isEmpty() const
 {
-  printf("QRegion::isEmpty: %s %d\n",__FILE__,__LINE__);
   if(EmptyRgn((RgnHandle)data->rgn)) {
     return true;
   }
@@ -103,10 +91,9 @@ bool QRegion::isEmpty() const
 
 bool QRegion::contains( const QPoint &p ) const
 {
-  printf("QRegion::contains: %s %d\n",__FILE__,__LINE__);
   Point pp;
-  //pp.x=p.x();  How the hell do you set a point?
-  //pp.y=p.y();
+  pp.h=p.x();
+  pp.v=p.y();
   if(PtInRgn(pp,(RgnHandle)data->rgn))
     return true;
   return false;
@@ -114,13 +101,11 @@ bool QRegion::contains( const QPoint &p ) const
 
 void QRegion::translate( int dx, int dy )
 {
-  printf("QRegion::translate: %s %d\n",__FILE__,__LINE__);
   OffsetRgn((RgnHandle)data->rgn,dx,dy);
 }
 
 QRegion QRegion::unite( const QRegion &r ) const
 {
-  printf("QRegion::unite: %s %d\n",__FILE__,__LINE__);
   QRegion qr(false);
   RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
@@ -132,7 +117,6 @@ QRegion QRegion::unite( const QRegion &r ) const
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
-  printf("QRegion::intersect: %s %d\n",__FILE__,__LINE__);
   QRegion qr(false);
   RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
@@ -145,7 +129,6 @@ QRegion QRegion::intersect( const QRegion &r ) const
 QRegion QRegion::subtract( const QRegion &r ) const
 {
   // Is this right? What's the difference of two regions?
-  printf("QRegion::subtract: %s %d\n",__FILE__,__LINE__);
   QRegion qr(false);
   RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
@@ -157,7 +140,6 @@ QRegion QRegion::subtract( const QRegion &r ) const
 
 QRegion QRegion::eor( const QRegion &r ) const
 {
-  printf("QRegion::eor: %s %d\n",__FILE__,__LINE__);
   QRegion qr(false);
   RgnHandle ret=(RgnHandle)qr.data->rgn;
   if(data->rgn && r.data->rgn) {
@@ -169,7 +151,6 @@ QRegion QRegion::eor( const QRegion &r ) const
 
 QRect QRegion::boundingRect() const
 {
-  printf("QRegion::boundingRect: %s %d\n",__FILE__,__LINE__);
   Region * r=*((RgnHandle)data->rgn);
   return QRect(r->rgnBBox.left,r->rgnBBox.top,
                r->rgnBBox.right-r->rgnBBox.left,
@@ -178,7 +159,6 @@ QRect QRegion::boundingRect() const
 
 QArray<QRect> QRegion::rects() const
 {
-  printf("QRegion::rects: %s %d\n",__FILE__,__LINE__);
   // I'm not sure how we can break this down into more accurate rects
   // so for now we just return the one
   QArray<QRect> foo(1);
@@ -188,7 +168,6 @@ QArray<QRect> QRegion::rects() const
 
 bool QRegion::operator==( const QRegion &r ) const
 {
-  printf("QRegion::== %s %d\n",__FILE__,__LINE__);
   if(EqualRgn((RgnHandle)data->rgn,(RgnHandle)r.data->rgn)) {
     return true;
   } else {
