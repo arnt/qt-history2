@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#21 $
+** $Id: //depot/qt/main/src/moc/moc.y#22 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#22 $";
 #endif
 
 
@@ -634,7 +634,7 @@ void generate()                                 // generate C++ source code
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
 		 "**      by: Quasar Meta Object Compiler (moc)\n**\n";
-    char *hdr3 = "** WARNING! All changes in this file will be lost!\n";
+    char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     static int gen_count = 0;
     if ( skipClass ) {                          // don't generate for class
@@ -644,7 +644,13 @@ void generate()                                 // generate C++ source code
     if ( gen_count++ == 0 ) {                   // first class to be generated
 	QDateTime dt = QDateTime::currentDateTime();
 	QString dstr = dt.asString();
-        fprintf( out, hdr1, (pcchar)className, (pcchar)fileName );
+	QString fn = fileName;
+	int i = fileName.length()-1;
+	while ( i>0 && fileName[i-1] != '/' && fileName[i-1] != '\\' )
+	    i--;				// skip path
+	if ( i >= 0 )
+	    fn = &fileName[i];
+        fprintf( out, hdr1, (pcchar)className, (pcchar)fn );
         fprintf( out, hdr2, (pcchar)dstr );
         fprintf( out, hdr3 );
         fprintf( out, hdr4 );
@@ -657,13 +663,14 @@ void generate()                                 // generate C++ source code
 //
 // Special class is needed to make tricks with access privileges
 //
+/*
     fprintf( out, "class QObject__%s : public QObject\n{\npublic:",
              (pcchar)className );
     fprintf( out, "\n    void setSender( QObject *s ) { sender=s; }\n};\n\n" );
 
     fprintf( out, "char *%s::className() const\n{\n    ", (pcchar)className );
     fprintf( out, "return \"%s\";\n}\n\n", (pcchar)className );
-
+*/
 //
 // Generate static metaObj variable
 //
@@ -753,8 +760,8 @@ void generate()                                 // generate C++ source code
                  (pcchar)f->name, (pcchar)typstr );
         fprintf( out, "    if ( !c )\n\treturn;\n" );
         fprintf( out, "    RT r = (RT)(*(c->member()));\n" );
-        fprintf( out, "    QObject__%s *object = (QObject__%s*)c->object();\n",
-                 (pcchar)className, (pcchar)className );
+        fprintf( out, "    QSenderObject *object = "
+		      "(QSenderObject*)c->object();\n", (pcchar)className );
         fprintf( out, "    object->setSender( this );\n" );
         fprintf( out, "    (object->*r)(%s);\n}\n", (pcchar)valstr );
 /*
