@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#180 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#179 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#180 $")
 
 
 /*****************************************************************************
@@ -1136,16 +1136,16 @@ void QPainter::updateXForm()
 
     txinv = FALSE;				// no inverted matrix
     txop  = TxNone;
-    if ( wm12 == 0 && wm21 == 0 ) {
+    if ( wm12 == 0 && wm21 == 0 && wm11 >= 0 && wm22 >= 0 ) {
 	if ( wm11 == 65536 && wm22 == 65536 ) {
 	    if ( wdx != 0 || wdy != 0 )
 		txop = TxTranslate;
-	}
-	else
+	} else {
 	    txop = TxScale;
-    }
-    else
+	}
+    } else {
 	txop = TxRotShear;
+    }
 }
 
 
