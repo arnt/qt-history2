@@ -135,6 +135,7 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_H/qapplication_p.h \
+		  $$KERNEL_H/qapplicationinterface.h \
 		  $$KERNEL_H/qasyncimageio.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
@@ -452,6 +453,7 @@ tools:SOURCES += tools/qbig5codec.cpp \
 kernel:SOURCES += kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
+		  kernel/qapplicationinterface.cpp \
 		  kernel/qasyncimageio.cpp \
 		  kernel/qasyncio.cpp \
 		  kernel/qbitmap.cpp \

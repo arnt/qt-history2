@@ -3,7 +3,6 @@ CONFIG		+= qt warn_on release
 HEADERS		= qplugin.h \
 		  qpluginmanager.h \
 		  qplugininterface.h \
-		  qapplicationinterface.h \
 		  qactionfactory.h \
 		  qactionplugin.h \
 		  qactioninterface.h \

@@ -3129,13 +3129,13 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  Returns an interface implementation that matches the \a request, or null
-  if this application doesn't provide the requested interface.
+  Returns an interface that matches the \a request, or null if this application 
+  doesn't provide the requested interface.
 
   Plugins can use this function to get access to application components using
-  the methods QApplicationInterface provides. This is usually done in the
-  connectNotify method of a subclass of QPlugInInterface where the plugin can
-  check if required interfaces can be provided by the application object.
+  the methods the interface provides. This is usually done in the connectNotify 
+  method of a subclass of QPlugInInterface where the plugin can check if required 
+  interfaces can be provided by the application object.
 
   The default implementation returns null for all requests.
 
@@ -3145,60 +3145,3 @@ QApplicationInterface* QApplication::requestApplicationInterface( const QCString
 {
     return 0;
 }
-
-/*!
-  \class QApplicationInterface qapplicationinterface.h
-
-  \brief This class provides an interface to give runtime access to application components.
-
-  \sa QPlugInInterface
-*/
-
-/*!
-  \fn QApplicationInterface::QApplicationInterface( QObject* object )
-
-  Creates an QApplicationInterface that will provide an interface to the application component
-  \a object. As the interface depends on the passed object it gets deleted when the object gets
-  destroyed. 
-  It's not valid to pass null for the same reason.
-*/
-
-/*!
-  \fn QObject* QApplicationInterface::parent()
-  \reimp
-
-  This function is made protected to uncontrolled access to the handled object.
-*/
-
-/*!
-  \fn QVariant QApplicationInterface::requestProperty( const QCString& p )
-
-  This function is supposed to return the value of the property \a p of the object.
-  Reimplement this function for advanced processing.
-
-  The default implementation returns the \a value of the property of the handled object.
-*/
-
-/*!
-  \fn void QApplicationInterface::requestSetProperty( const QCString& p, const QVariant& value )
-
-  This function is supposed to change the value of the property \a p of the object to \a value.
-  Reimplement this function for advanced processing.
-
-  The default implementation sets the property \a p of the handled object to \a value.
-*/
-
-/*!
-  \fn void QApplicationInterface::requestConnect( const char* signal, QObject* target, const char* slot )
-
-  This function can be used to connect the \a signal of the handled object to the \a slot of the \a target.
-  Reimplement this function for advanced processing.
-
-  The default implementation connects the \a signal of the handled object to the \a slot of \a target.
-*/
-
-/*!
-  \fn void QApplicationInterface::requestInterface( const QCString& )
-
-  This function can be used to provide interfaces to sub-compontents of the application.
-*/
