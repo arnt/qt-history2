@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#11 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#12 $
 **
 ** Definition of QDataStream class
 **
@@ -85,7 +85,7 @@ inline QIODevice *QDataStream::device() const
 { return dev; }
 
 inline bool QDataStream::eof() const
-{ return dev ? dev->atEnd() : TRUE; }
+{ return dev ? dev->atEnd() : FALSE; }
 
 inline int QDataStream::byteOrder() const
 { return byteorder; }
