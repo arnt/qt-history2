@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#40 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#40 $";
 #endif
 
 
@@ -1926,11 +1926,23 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 	if ( testf(VxF) )
 	    VXFORM_P( x, y );
     }
-    if ( pixmap.bitPlanes == 1 ) {		// bitmap
+    if ( pixmap.depth() == 1 ) {		// bitmap
 	if ( testf(DirtyPen) )			// bitmap gets pen color
 	    updatePen();
+	bool do_clip = hasClipping();
+	if ( bg_mode == TransparentMode ) {	// set up transparency clipping
+	    XSetClipMask( dpy, gc, pixmap.hd );
+	    XSetClipOrigin( dpy, gc, x, y );
+	}
 	XCopyPlane( dpy, pixmap.hd, hd, gc, 0, 0,
 		    pixmap.sz.width(), pixmap.sz.height(), x, y, 1 );
+	if ( bg_mode == TransparentMode ) {	// restore clipping
+	    XSetClipOrigin( dpy, gc, 0, 0 );
+	    if ( do_clip )
+		XSetRegion( dpy, gc, crgn.handle() );
+	    else
+		XSetClipMask( dpy, gc, None );
+	}
     }
     else
 	XCopyArea( dpy, pixmap.hd, hd, gc, 0, 0,
@@ -2096,12 +2108,13 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    }
 	    drawPixMap( x, y, *draw_bm );	// draw bitmap!
 	    flags = tmpf;
-	    XSetClipMask( dpy, gc, 0 );
+	    XSetClipOrigin( dpy, gc, 0, 0 );
 	    if ( do_clip ) {
 		delete draw_bm;			// delete temporary bitmap
-		XSetClipOrigin( dpy, gc, 0, 0 );
 		XSetRegion( dpy, gc, crgn.handle() );
 	    }
+	    else				// restore clip mask
+		XSetClipMask( dpy, gc, None );
 	    if ( create_new_bm )
 		ins_text_bitmap( eff_mat, cfont, str, len, wx_bm );
 	    return;
