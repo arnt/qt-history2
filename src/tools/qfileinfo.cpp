@@ -543,9 +543,11 @@ uint QFileInfo::size() const
 	doStat();
     if ( fic )
 #if defined(QT_LARGEFILE_SUPPORT) && defined(QT_NEWABI)
-	return (uint)fic->st.st_size;
-#else
 	return (QIODevice::Offset)fic->st.st_size;
+#elif defined(QT_LARGEFILE_SUPPORT)
+	return fic->st.st_size > UINT_MAX ? UINT_MAX : (uint)fic->st.st_size;
+#else
+	return (uint)fic->st.st_size;
 #endif
     else
 	return 0;

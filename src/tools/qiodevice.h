@@ -88,13 +88,7 @@
 class Q_EXPORT QIODevice			// IO device class
 {
 public:
-#if defined(Q_OS_MAC) && (QT_VERSION-0 >= 0x040000)
-#error "QIODevice::Offset should be unsigned long long instead of Q_ULONG"
-#elif defined(QT_LARGEFILE_SUPPORT) && defined(QT_NEWABI)
-    typedef unsigned long long Offset;
-#else
-    typedef Q_ULONG Offset;
-#endif
+    typedef QtFileOffset Offset;
 
     QIODevice();
     virtual ~QIODevice();

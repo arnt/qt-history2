@@ -465,6 +465,7 @@
 
 #if defined(__cplusplus)
 
+
 //
 // Useful type definitions for Qt
 //
@@ -534,6 +535,7 @@ inline int qRound( double d )
     return d >= 0.0 ? int(d + 0.5) : int( d - ((int)d-1) + 0.5 ) + ((int)d-1);
 }
 
+
 //
 // Size-dependent types (architechture-dependent byte order)
 //
@@ -570,6 +572,15 @@ typedef unsigned long		Q_ULONG;
 #define Q_UINT64		Q_ULONG
 #endif
 
+#if defined(Q_OS_MACX) && !defined(QT_LARGEFILE_SUPPORT)
+#  define QT_LARGEFILE_SUPPORT 64
+#endif
+#if defined(QT_LARGEFILE_SUPPORT)
+    typedef unsigned long long QtFileOffset;
+#else
+    typedef Q_ULONG QtFileOffset;
+#endif
+
 
 //
 // Data stream functions is provided by many classes (defined in qdatastream.h)
@@ -586,6 +597,7 @@ class QDataStream;
 extern bool qt_winunicode;
 #endif
 
+
 //
 // Feature subsetting
 //
@@ -594,6 +606,7 @@ extern bool qt_winunicode;
 // supported on Qt/Embedded where reducing the library size is important
 // and where the application-suite is often a fixed set.
 //
+
 #if !defined(QT_MOC)
 #if defined(QCONFIG_LOCAL)
 #include <qconfig-local.h>
@@ -764,8 +777,7 @@ Q_EXPORT int qWinVersion();
 
 #if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
 #  define QT_DEBUG				// display debug messages
-#  if !defined(QT_NO_COMPAT)
-// source compatibility with Qt 2.x
+#  if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
 #    if !defined(NO_DEBUG) && !defined(DEBUG)
 #      if !defined(Q_OS_MACX)			// clash with MacOS X headers
 #        define DEBUG
@@ -795,8 +807,7 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 
 Q_EXPORT void qSystemWarning( const char *, int code = -1 );
 
-#if !defined(QT_CLEAN_NAMESPACE)
-// source compatibility with Qt 1.x
+#if !defined(QT_CLEAN_NAMESPACE) 		// compatibility with Qt 1
 
 Q_EXPORT void debug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
@@ -820,24 +831,23 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 
 
 #if !defined(Q_ASSERT)
-#if defined(QT_CHECK_STATE)
-#if defined(QT_FATAL_ASSERT)
-#define Q_ASSERT(x)  ((x) ? (void)0 : qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__))
-#else
-#define Q_ASSERT(x)  ((x) ? (void)0 : qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__))
-#endif
-#else
-#define Q_ASSERT(x)
-#endif
+#  if defined(QT_CHECK_STATE)
+#    if defined(QT_FATAL_ASSERT)
+#      define Q_ASSERT(x)  ((x) ? (void)0 : qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__))
+#    else
+#      define Q_ASSERT(x)  ((x) ? (void)0 : qWarning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__))
+#    endif
+#  else
+#    define Q_ASSERT(x)
+#  endif
 #endif
 
-#if !defined(QT_NO_COMPAT)
-// source compatibility with Qt 2.x
-#ifndef Q_OS_TEMP
+#if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
 #  if !defined(ASSERT)
-#    define ASSERT(x) Q_ASSERT(x)
+#    if !defined(Q_OS_TEMP)
+#      define ASSERT(x) Q_ASSERT(x)
+#    endif
 #  endif
-#endif // Q_OS_TEMP
 #endif // QT_NO_COMPAT
 
 
@@ -849,23 +859,20 @@ Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 #  define Q_CHECK_PTR(p)
 #endif
 
-#if !defined(QT_NO_COMPAT)
-// source compatibility with Qt 2.x
+#if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
 #  if !defined(CHECK_PTR)
 #    define CHECK_PTR(x) Q_CHECK_PTR(x)
 #  endif
 #endif // QT_NO_COMPAT
-
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
-#if !defined(QT_NO_COMPAT)
-// source compatibility with Qt 2.x
+#if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
 typedef QtMsgHandler msg_handler;
-#endif
+#endif // QT_NO_COMPAT
 
 Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
 
@@ -874,14 +881,18 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
-/* Install paths from configure */
+
+//
+// Install paths from configure
+//
+
 Q_EXPORT const char *qInstallPath();
 Q_EXPORT const char *qInstallPathDocs();
 Q_EXPORT const char *qInstallPathHeaders();
 Q_EXPORT const char *qInstallPathLibs();
 Q_EXPORT const char *qInstallPathBins();
 Q_EXPORT const char *qInstallPathPlugins();
-Q_EXPORT const char *qInstallPathData();;
+Q_EXPORT const char *qInstallPathData();
 
 #endif // __cplusplus
 
