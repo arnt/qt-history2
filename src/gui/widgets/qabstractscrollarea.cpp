@@ -131,14 +131,15 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     QStyleOption opt(0);
     opt.init(q);
     if (q->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, &opt, q)) {
+        int extra = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2;
         QRect fr = vr;
         if (needh) {
-            fr.setBottom(fr.bottom() - hsbExt);
-            hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(0, fr.bottom() + 1, fr.width() - (needv?vsbExt:0), hsbExt)));
+            fr.setBottom(fr.bottom() - hsbExt - extra);
+            hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(0, fr.bottom() + 1 + extra, fr.width() - (needv?(vsbExt+extra):0), hsbExt)));
         }
         if (needv) {
-            fr.setRight(fr.right() - vsbExt);
-            vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(fr.right() + 1, 0, vsbExt, fr.height())));
+            fr.setRight(fr.right() - vsbExt - extra);
+            vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(fr.right() + 1 + extra, 0, vsbExt, fr.height())));
         }
         q->setFrameRect(QStyle::visualRect(opt.direction, opt.rect, fr));
         vr = q->contentsRect();
