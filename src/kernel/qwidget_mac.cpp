@@ -734,20 +734,19 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-	//handle transition
-	bool dotrans = FALSE;
-	if(parentWidget()) {
-	    WindowClass c;
-	    GetWindowClass((WindowPtr)hd, &c);
-	    dotrans = (c == kMovableModalWindowClass) && 
-		      qApp->style().inherits("QAquaStyle");
-	}
 	//I'm not sure I should be doing this here, but it fixes some problems
 	//I need to make sure all events have been processed before painting
 	//the newly shown dialog. This fixes problems like weirdnesses when showing
 	//a dialog with a child that has been reparented (ala qdockareas) FIXME?
-	qApp->sendPostedEvents();
-	if(dotrans) {
+	qApp->sendPostedEvents(this, 0);
+	if(QObjectList *lst = queryList()) {
+	    QObjectListIt it(*lst);
+	    for(QObject *obj; (obj = it.current()); ++it ) 
+		qApp->sendPostedEvents(obj, 0);
+	}
+
+	//handle transition
+	if(parentWidget() && testWFlags(WShowModal)) {
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);

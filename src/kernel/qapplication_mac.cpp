@@ -187,6 +187,9 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
         QCursor::initialize();
         QPainter::initialize();
 
+	QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
+	tlw->hide();
+
 	static EventTypeSpec events[] = {
 	    { kEventClassMouse, kEventMouseDragged },
 	    { kEventClassMouse, kEventMouseMoved },
