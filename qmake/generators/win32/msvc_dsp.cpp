@@ -410,6 +410,34 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
                 if(project->variables()["QMAKE_EXTRA_COMPILERS"].isEmpty())
                     continue;
 		
+		const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+		for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+		    if(project->variables().contains((*it) + ".variable_out") ||
+		       project->variables()[(*it) + ".CONFIG"].indexOf("no_link") != -1)
+			continue;
+
+		    int output_count = 0;
+		    QString tmp_out = project->variables()[(*it) + ".output"].first();
+		    QStringList &tmp = project->variables()[(*it) + ".input"];
+		    for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+			QStringList &inputs = project->variables()[(*it2)];
+			for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); 
+			    ++input) {
+			    QString in = (*input);
+			    QString out = replaceExtraCompilerVariables(tmp_out, (*input), 
+									QString::null), deps = in;
+			    deps = replaceExtraCompilerVariables(deps, (*input), out);
+			    if(!output_count) 
+				t << "# Begin Group \"" << (*it2) << "\"\n";
+			    t <<  "# Begin Source File\n\nSOURCE=" << out << endl
+			      << "USERDEP_" << out.section('.', 0, 0) << "=\"" << deps << "\"" << endl
+			      << "# End Source File" << endl;
+			    output_count++;
+			}
+		    }
+		    if(output_count)
+			t << "\n# End Group\n";
+		}
 	    } else if(variable == "MSVCDSP_COMPILERSOURCES") {
                 if(project->variables()["QMAKE_EXTRA_COMPILERS"].isEmpty())
                     continue;
