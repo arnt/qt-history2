@@ -605,10 +605,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     int fillY = qMax(r.y(), y);
     int fillWidth = qMin(pm.width(), w);
     int fillHeight = qMin(pm.height(), h);
-    p->drawPixmap(fillX, fillY,
-                  fillWidth, fillHeight, pm,
-                  fillX - x, fillY - y,
-                  fillWidth, fillHeight);
+    p->drawPixmap(fillX, fillY, pm, fillX - x, fillY - y, fillWidth, fillHeight);
 }
 
 /*!
