@@ -550,7 +550,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 
 
 /*!
-  Destructs the QScrollView.  Any children added with addChild()
+  Destroys the QScrollView.  Any children added with addChild()
   will be destructed.
 */
 QScrollView::~QScrollView()
@@ -1104,7 +1104,7 @@ QWidget* QScrollView::cornerWidget() const
 
   You may call setCornerWidget() with the same widget at different times.
 
-  All widgets set here will be deleted by the QScrollView when it destructs
+  All widgets set here will be deleted by the QScrollView when it is destroyed
   unless you separately
   reparent the widget after setting some other corner widget (or 0).
 

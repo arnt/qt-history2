@@ -70,7 +70,7 @@
 */
 
 
-/*! Destructs the tab and frees up all allocated resources */
+/*! Destroys the tab and frees up all allocated resources */
 
 QTab::~QTab()
 {
@@ -189,7 +189,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 
 
 /*!
-  Destructs the tab control, freeing memory used.
+  Destroys the tab control, freeing memory used.
 */
 
 QTabBar::~QTabBar()

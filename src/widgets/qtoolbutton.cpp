@@ -229,7 +229,7 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 }
 
 
-/*! Destructs the object and frees any allocated resources. */
+/*! Destroys the object and frees any allocated resources. */
 
 QToolButton::~QToolButton()
 {

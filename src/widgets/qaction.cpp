@@ -382,7 +382,7 @@ void QAction::init()
     }
 }
 
-/*! Destructs the object and frees allocated resources. */
+/*! Destroys the object and frees allocated resources. */
 
 QAction::~QAction()
 {
@@ -1208,7 +1208,7 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }
 
-/*! Destructs the object and frees allocated resources. */
+/*! Destroys the object and frees allocated resources. */
 
 QActionGroup::~QActionGroup()
 {

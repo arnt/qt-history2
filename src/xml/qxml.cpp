@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#88 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#89 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -360,7 +360,7 @@ QXmlNamespaceSupport::QXmlNamespaceSupport()
 }
 
 /*!
-  Destructs a QXmlNamespaceSupport.
+  Destroys a QXmlNamespaceSupport.
 */
 QXmlNamespaceSupport::~QXmlNamespaceSupport()
 {
@@ -584,7 +584,7 @@ void QXmlNamespaceSupport::reset()
 /*!
   \fn QXmlAttributes::~QXmlAttributes()
 
-  Destructs attributes.
+  Destroys attributes.
 */
 
 /*!

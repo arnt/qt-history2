@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#34 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#35 $
 **
 ** Implementation of QSocket class.
 **
@@ -178,7 +178,7 @@ QSocket::QSocket( QObject *parent, const char *name )
 
 
 /*!
-  Destructs the socket.  Closes the connection if necessary.
+  Destroys the socket.  Closes the connection if necessary.
   \sa close()
 */
 

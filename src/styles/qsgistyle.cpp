@@ -103,7 +103,7 @@ QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ),
 }
 
 /*!
-  Destructs the style.
+  Destroys the style.
 */
 QSGIStyle::~QSGIStyle()
 {

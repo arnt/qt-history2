@@ -771,7 +771,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 QListBox * QListBox::changedListBox = 0;
 
 /*!
-  Destructs the list box.  Deletes all list box items.
+  Destroys the list box.  Deletes all list box items.
 */
 
 QListBox::~QListBox()

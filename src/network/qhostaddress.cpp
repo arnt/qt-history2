@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhostaddress.cpp#6 $
+** $Id: //depot/qt/main/src/network/qhostaddress.cpp#7 $
 **
 ** Implementation of QHostAddress class.
 **
@@ -133,7 +133,7 @@ QHostAddress::QHostAddress( const QHostAddress &address )
 
 
 /*!
-  Destructs the socket address object.
+  Destroys the socket address object.
 */
 QHostAddress::~QHostAddress()
 {

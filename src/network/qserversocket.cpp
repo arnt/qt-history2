@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qserversocket.cpp#7 $
+** $Id: //depot/qt/main/src/network/qserversocket.cpp#8 $
 **
 ** Implementation of QServerSocket class.
 **
@@ -160,7 +160,7 @@ void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backl
 
 
 /*!
-  Destructs the socket.
+  Destroys the socket.
 
   This brutally severes any backlogged connections (connections that
   have reached the host, but not yet been completely set up by calling

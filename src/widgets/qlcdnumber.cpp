@@ -338,7 +338,7 @@ void QLCDNumber::init()
 }
 
 /*!
-  Destructs the LCD number.
+  Destroys the LCD number.
 */
 
 QLCDNumber::~QLCDNumber()

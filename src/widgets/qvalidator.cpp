@@ -215,7 +215,7 @@ QIntValidator::QIntValidator( int bottom, int top,
 
 
 /*!
-  Destructs the validator, freeing any storage and other resources
+  Destroys the validator, freeing any storage and other resources
   used.
 */
 
@@ -339,7 +339,7 @@ QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
 
 
 /*!
-  Destructs the validator, freeing any storage and other resources
+  Destroys the validator, freeing any storage and other resources
   used.
 */
 

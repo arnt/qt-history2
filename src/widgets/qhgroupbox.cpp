@@ -74,7 +74,7 @@ QHGroupBox::QHGroupBox( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destructs the horizontal group box, deleting its child widgets.
+  Destroys the horizontal group box, deleting its child widgets.
 */
 QHGroupBox::~QHGroupBox()
 {

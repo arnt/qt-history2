@@ -166,7 +166,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
 }
 
 /*!
-  Destructs the dial.
+  Destroys the dial.
 */
 QDial::~QDial()
 {

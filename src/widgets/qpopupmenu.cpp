@@ -220,7 +220,7 @@ static QPopupMenu* active_popup_menu = 0;
   Constructs a popup menu with a parent and a widget name.
 
   Although a popup menu is always a top-level widget, if a parent is
-  passed the popup menu will be deleted when that parent destructs
+  passed the popup menu will be deleted when that parent is destroyed
   (as with any other QObject).
 
 */
@@ -253,7 +253,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 }
 
 /*!
-  Destructs the popup menu.
+  Destroys the popup menu.
 */
 
 QPopupMenu::~QPopupMenu()

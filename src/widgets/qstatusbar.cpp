@@ -150,7 +150,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 
 
 /*!
-  Destructs the status bar and frees any allocated resources.
+  Destroys the status bar and frees any allocated resources.
 */
 QStatusBar::~QStatusBar()
 {

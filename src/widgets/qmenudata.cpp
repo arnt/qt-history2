@@ -1267,7 +1267,7 @@ QCustomMenuItem::QCustomMenuItem()
 }
 
 /*!
-  Destructs a QCustomMenuItem
+  Destroys a QCustomMenuItem
  */
 QCustomMenuItem::~QCustomMenuItem()
 {

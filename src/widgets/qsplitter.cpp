@@ -249,7 +249,7 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
 
 
 /*!
-  Destructs the splitter.
+  Destroys the splitter.
 */
 
 QSplitter::~QSplitter()

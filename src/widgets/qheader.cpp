@@ -197,7 +197,7 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
 }
 
 /*!
-  Destructs the header.
+  Destroys the header.
  */
 
 QHeader::~QHeader()

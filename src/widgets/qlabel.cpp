@@ -180,7 +180,7 @@ QLabel::QLabel( QWidget *buddy,  const QString &text,
 }
 
 /*!
-  Destructs the label.
+  Destroys the label.
 */
 
 QLabel::~QLabel()

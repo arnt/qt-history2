@@ -76,7 +76,7 @@ QHButtonGroup::QHButtonGroup( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destructs the horizontal button group, deleting its child widgets.
+  Destroys the horizontal button group, deleting its child widgets.
 */
 QHButtonGroup::~QHButtonGroup()
 {

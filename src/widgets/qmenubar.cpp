@@ -253,7 +253,7 @@ void QMenuBar::styleChange( QStyle& old )
 
 
 /*!
-  Destructs the menu bar.
+  Destroys the menu bar.
 */
 
 QMenuBar::~QMenuBar()

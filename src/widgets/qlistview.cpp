@@ -2439,7 +2439,7 @@ QListView::ResizeMode QListView::resizeMode() const
 }
 
 /*!
-  Destructs the list view, deleting all items in it, and frees up all
+  Destroys the list view, deleting all items in it, and frees up all
   allocated resources.
 */
 

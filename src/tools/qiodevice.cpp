@@ -184,7 +184,7 @@ QIODevice::QIODevice()
 }
 
 /*!
-  Destructs the I/O device.
+  Destroys the I/O device.
 */
 
 QIODevice::~QIODevice()

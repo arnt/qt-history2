@@ -72,7 +72,7 @@ QCDEStyle::QCDEStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols )
 }
 
 /*!
-  Destructs the style.
+  Destroys the style.
 */
 QCDEStyle::~QCDEStyle()
 {

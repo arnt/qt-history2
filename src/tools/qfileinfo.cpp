@@ -168,7 +168,7 @@ QFileInfo::QFileInfo( const QFileInfo &fi )
 }
 
 /*!
-  Destructs the QFileInfo.
+  Destroys the QFileInfo.
 */
 
 QFileInfo::~QFileInfo()

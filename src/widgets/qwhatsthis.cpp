@@ -828,7 +828,7 @@ QWhatsThis::QWhatsThis( QWidget * widget)
 
 
 /*!
-  Destructs the object and frees any allocated resources.
+  Destroys the object and frees any allocated resources.
 */
 QWhatsThis::~QWhatsThis()
 {

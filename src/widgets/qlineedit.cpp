@@ -283,7 +283,7 @@ QLineEdit::QLineEdit( const QString & contents,
 
 
 /*!
-  Destructs the line edit.
+  Destroys the line edit.
 */
 
 QLineEdit::~QLineEdit()
