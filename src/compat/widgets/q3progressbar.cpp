@@ -264,8 +264,14 @@ static QStyleOptionProgressBar getStyleOption(const Q3ProgressBar *pb)
 {
     QStyleOptionProgressBar opt;
     opt.init(pb);
+    opt.minimum = 0;
     opt.maximum = pb->totalSteps();
     opt.progress = pb->progress();
+    if (pb->centerIndicator())
+        opt.textAlignment = Qt::AlignCenter;
+    else
+        opt.textAlignment = Qt::AlignAuto;
+    opt.textVisible = pb->percentageVisible();
     opt.text = pb->progressString();
     return opt;
 }

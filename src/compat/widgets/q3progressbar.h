@@ -18,9 +18,7 @@
 
 #ifndef QT_NO_PROGRESSBAR
 
-
 class Q3ProgressBarPrivate;
-
 
 class Q_GUI_EXPORT Q3ProgressBar : public QFrame
 {
@@ -38,11 +36,11 @@ public:
     QT_COMPAT_CONSTRUCTOR Q3ProgressBar(int totalSteps, QWidget *parent, const char *name,
                                        Qt::WFlags f=0);
 #endif
-    Q3ProgressBar(QWidget *parent = 0, Qt::WFlags f=0);
+    Q3ProgressBar(QWidget *parent = 0, Qt::WFlags f = 0);
     Q3ProgressBar(int totalSteps, QWidget *parent = 0, Qt::WFlags f=0);
 
     int totalSteps() const;
-    int progress()   const;
+    int progress() const;
     const QString &progressString() const;
 
     QSize sizeHint() const;
