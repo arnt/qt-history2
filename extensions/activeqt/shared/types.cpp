@@ -23,9 +23,7 @@
 #ifdef QAX_SERVER
 #include <qaxfactory.h>
 #include <qlibrary.h>
-extern QAxFactoryInterface *qAxFactory();
 extern ITypeLib *qAxTypeLibrary;
-extern bool qAxWrapObject( QObject *o, IDispatch **disp );
 
 CLSID CLSID_QRect = { 0x34030f30, 0xe359, 0x4fe6, {0xab, 0x82, 0x39, 0x76, 0x6f, 0x5d, 0x91, 0xee } };
 CLSID CLSID_QSize = { 0xcb5f84b3, 0x29e5, 0x491d, {0xba, 0x18, 0x54, 0x72, 0x48, 0x8e, 0xef, 0xba } };
@@ -1708,7 +1706,7 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		var.vt = VT_DISPATCH;
 		
 		if (ptrvalue)
-		    qAxWrapObject((QObject*)ptrvalue, &var.pdispVal);
+		    qAxFactory()->createObjectWrapper((QObject*)ptrvalue, &var.pdispVal);
 		else
 		    var.pdispVal = 0;
 #endif

@@ -280,7 +280,7 @@ QObject *QAxFactory::createObject( const QString &key, QObject *parent, const ch
 }
 
 /*!
-    Reimplement this function return the QMetaObject corresponding to
+    Reimplement this function to return the QMetaObject corresponding to
     \a key, or 0 if this factory doesn't support the value of \a key.
 
     The default implementation returns the QMetaObject for the class
@@ -290,6 +290,18 @@ QMetaObject *QAxFactory::metaObject(const QString &key) const
 {
     return QMetaObject::metaObject(key.latin1());
 }
+
+/*!
+    \fn bool QAxFactory::createObjectWrapper(QObject *object, IDispatch **wrapper)
+
+    Reimplement this function to provide the COM object for \a object
+    in \a wrapper. Return TRUE if the function was successfull, otherwise
+    return FALSE.
+
+    The default implementation creates a generic automation wrapper based 
+    on the meta object information of \a object.
+*/
+// implementation in qaxserverbase.cpp
 
 /*!
     Reimplement this function to return the class identifier for each

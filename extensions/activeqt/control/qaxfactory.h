@@ -26,6 +26,7 @@
 class QWidget;
 class QMetaObject;
 class QSettings;
+struct IDispatch;
 
 struct QAxFactoryInterface : public QFeatureListInterface
 {
@@ -34,6 +35,7 @@ public:
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
     virtual QObject *createObject( const QString &key, QObject *parent = 0, const char *name = 0 ) = 0;
     virtual QMetaObject *metaObject( const QString &key ) const = 0;
+    virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper) = 0;
 
     virtual QUuid classID( const QString &key ) const = 0;
     virtual QUuid interfaceID( const QString &key ) const = 0;
@@ -53,6 +55,8 @@ public:
 #endif
 };
 
+extern QAxFactoryInterface *qAxFactory();
+
 class QAxFactory : public QAxFactoryInterface
 {
 public:
@@ -66,9 +70,9 @@ public:
     virtual QStringList featureList() const = 0;
 #endif
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 );
-
     virtual QObject *createObject( const QString &key, QObject *parent = 0, const char *name = 0 );
     virtual QMetaObject *metaObject( const QString &key ) const;
+    virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper);
 
     virtual QUuid classID( const QString &key ) const;
     virtual QUuid interfaceID( const QString &key ) const;

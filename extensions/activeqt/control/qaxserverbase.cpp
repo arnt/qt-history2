@@ -431,17 +431,18 @@ private:
     CRITICAL_SECTION createWindowSection;
 };
 
-bool qAxWrapObject( QObject *o, IDispatch **disp )
+bool QAxFactory::createObjectWrapper(QObject *object, IDispatch **wrapper)
 {
-    *disp = 0;
-    QAxServerBase *obj = new QAxServerBase( o );
-    obj->QueryInterface( IID_IDispatch, (void**)disp );
-    if (*disp)
+    *wrapper = 0;
+    QAxServerBase *obj = new QAxServerBase( object );
+    obj->QueryInterface( IID_IDispatch, (void**)wrapper );
+    if (*wrapper)
 	return TRUE;
 
     delete obj;
     return FALSE;
 }
+
 
 /*
     Helper class to enumerate all supported event interfaces.
