@@ -76,11 +76,11 @@ public:
     //### 4.0: widget flag!
     static QString getText( const QString &caption, const QString &label, QLineEdit::EchoMode echo = QLineEdit::Normal,
 			    const QString &text = QString::null, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static int getInteger( const QString &caption, const QString &label, int num = 0, int from = -2147483647,
-			   int to = 2147483647,
+    static int getInteger( const QString &caption, const QString &label, int value = 0, int minValue = -2147483647,
+			   int maxValue = 2147483647,
 			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static double getDouble( const QString &caption, const QString &label, double num = 0,
-			     double from = -2147483647, double to = 2147483647,
+    static double getDouble( const QString &caption, const QString &label, double value = 0,
+			     double minValue = -2147483647, double maxValue = 2147483647,
 			     int decimals = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
     static QString getItem( const QString &caption, const QString &label, const QStringList &list,
 			    int current = 0, bool editable = TRUE,
@@ -104,4 +104,4 @@ private:	// Disabled copy constructor and operator=
 #endif // QT_NO_INPUTDIALOG
 
 #endif // QINPUTDIALOG_H
- 
+

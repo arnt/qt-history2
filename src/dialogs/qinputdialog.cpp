@@ -318,14 +318,14 @@ QString QInputDialog::getText( const QString &caption, const QString &label,
 }
 
 /*!
-    Static convenience function to get an integer input from the user. \a
-    caption is the text which is displayed in the title bar of the dialog.
-    \a label is the text which is shown to the user (it should say
-    what should be entered). \a num is the default integer which the
-    spinbox will be set to.
-    \a from and \a to are the minimum and maximum values the user may
-    choose, and \a step is the amount by which the values change as the
-    user presses the arrow buttons to increment or decrement the value.
+    Static convenience function to get an integer input from the
+    user. \a caption is the text which is displayed in the title bar
+    of the dialog.  \a label is the text which is shown to the user
+    (it should say what should be entered). \a value is the default
+    integer which the spinbox will be set to.  \a minValue and \a
+    maxValue are the minimum and maximum values the user may choose,
+    and \a step is the amount by which the values change as the user
+    presses the arrow buttons to increment or decrement the value.
 
     If \a ok is not-null *\a ok will be set to TRUE if the user
     pressed OK and to FALSE if the user pressed Cancel. The dialog's
@@ -350,7 +350,7 @@ QString QInputDialog::getText( const QString &caption, const QString &label,
 */
 
 int QInputDialog::getInteger( const QString &caption, const QString &label,
-			      int num, int from, int to, int step, bool *ok,
+			      int value, int minValue, int maxValue, int step, bool *ok,
 			      QWidget *parent, const char *name )
 {
     QInputDialog *dlg = new QInputDialog( label, parent,
@@ -359,9 +359,9 @@ int QInputDialog::getInteger( const QString &caption, const QString &label,
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
 #endif
-    dlg->spinBox()->setRange( from, to );
+    dlg->spinBox()->setRange( minValue, maxValue );
     dlg->spinBox()->setSteps( step, 0 );
-    dlg->spinBox()->setValue( num );
+    dlg->spinBox()->setValue( value );
 
     bool ok_ = FALSE;
     int result;
@@ -375,14 +375,14 @@ int QInputDialog::getInteger( const QString &caption, const QString &label,
 }
 
 /*!
-    Static convenience function to get a floating point number from the
-    user. \a caption is the text which is displayed in the title bar of
-    the dialog. \a label is the text which is shown to the user (it
-    should say what should be entered). \a num is the default floating
-    point number that the line edit will be set to. \a from and \a to
-    are the minimum and maximum values the user may choose, and \a
-    decimals is the maximum number of decimal places the number may
-    have.
+    Static convenience function to get a floating point number from
+    the user. \a caption is the text which is displayed in the title
+    bar of the dialog. \a label is the text which is shown to the user
+    (it should say what should be entered). \a value is the default
+    floating point number that the line edit will be set to. \a
+    minValue and \a maxValue are the minimum and maximum values the
+    user may choose, and \a decimals is the maximum number of decimal
+    places the number may have.
 
     If \a ok is not-null \e *\a ok will be set to TRUE if the user
     pressed OK and to FALSE if the user pressed Cancel. The dialog's
@@ -408,7 +408,7 @@ int QInputDialog::getInteger( const QString &caption, const QString &label,
 */
 
 double QInputDialog::getDouble( const QString &caption, const QString &label,
-				double num, double from, double to,
+				double value, double minValue, double maxValue,
 				int decimals, bool *ok, QWidget *parent,
 				const char *name )
 {
@@ -417,8 +417,8 @@ double QInputDialog::getDouble( const QString &caption, const QString &label,
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setCaption( caption );
 #endif
-    dlg.lineEdit()->setValidator( new QDoubleValidator( from, to, decimals, dlg.lineEdit() ) );
-    dlg.lineEdit()->setText( QString::number( num, 'f', decimals ) );
+    dlg.lineEdit()->setValidator( new QDoubleValidator( minValue, maxValue, decimals, dlg.lineEdit() ) );
+    dlg.lineEdit()->setText( QString::number( value, 'f', decimals ) );
     dlg.lineEdit()->selectAll();
 
     bool accepted = ( dlg.exec() == QDialog::Accepted );
