@@ -195,7 +195,7 @@ public:
     inline const char *latin1() const { return toLatin1(); }
     inline const char *utf8() const { return toUtf8(); }
     inline const char *local8Bit() const{ return toLocal8Bit(); }
-    const ushort *utf16() const;
+    inline const ushort *utf16() const;
 
     QByteArray toAscii() const;
     QByteArray toLatin1() const;
