@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#146 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -699,8 +699,7 @@ static void sendPostedEvents()			// transmit posted events
 	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event ) {
 	    QApplication::sendEvent( pe->receiver, pe->event );
-	    if ( pe == it.current() )
-		((QPEvent*)pe->event)->clearPostedFlag();
+	    ((QPEvent*)pe->event)->clearPostedFlag();
 	}
 	delete pe;
     }
