@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#105 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#105 $");
 
 
 /*!
@@ -1541,7 +1541,7 @@ ACTIVATE_SIGNAL_WITH_PARAM( const char * )
 
 
 /*****************************************************************************
-  QObject debugging output routines; to be removed before real version 1.0.
+  QObject debugging output routines.
  *****************************************************************************/
 
 static void dumpRecursive( int level, QObject *object )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#55 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -19,7 +19,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#55 $");
 
 
 /*!
@@ -577,11 +577,6 @@ QFont::CharSet QFont::charSet() const
   it can totally obscure the text shown to the user when the font is
   used. This is why the \link fontmatch.html font matching\endlink
   algorithm gives high priority to finding the correct character set.
-
-  (Currently using the correct font family has higher priority than
-  using the correct character set. We are not certain if this should
-  be reversed and might do so in the 1.0 release. If you have opinions
-  about this please mail us!)
 
   To ensure that the character set is correct you can use the QFontInfo
   class.
