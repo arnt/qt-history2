@@ -34,7 +34,7 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
     pal.setColor( QColorGroup::ButtonText, Qt::black );
     pal.setColor( QColorGroup::Highlight, pal.color( QPalette::Active, QColorGroup::Dark ) );
     setPalette( pal );
-    setFont( QFont( "nimbus sans l", d->height()/40 ) );
+     setFont( QFont( "monofonto", 22 ) );
 
     // set images for later use in the info text
     for ( i=0; images[i].label!=0; i++ ) {
@@ -49,7 +49,7 @@ Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_C
 
     // the info text
     info = new QLabel( vb );
-    info->setFont( QFont( "nimbus sans l", d->height()/35 ) );
+    info->setFont( QFont( "monofonto", 28 ) );
     info->setBackgroundColor( black );
     info->setAlignment( AlignVCenter );
     nextInfo();

@@ -18,15 +18,13 @@ main(int argc, char** argv)
 
 //    qInstallMsgHandler(silent);
 
-#if 0
-    QPalette pal( qtgreen, Qt::black );
-    pal.setColor( QColorGroup::ButtonText, Qt::black );
-    app.setPalette( pal );
+//     QPalette pal( qtgreen, Qt::black );
+//     pal.setColor( QColorGroup::ButtonText, Qt::black );
+//     app.setPalette( pal );
 
-    // compute the font size with the help of the screensize
-    QWidget *d = QApplication::desktop();
-    app.setFont( QFont( "Coolvetica", d->height()/40 ) );
-#endif
+//     // compute the font size with the help of the screensize
+//     QWidget *d = QApplication::desktop();
+//     app.setFont( QFont( "monofonto", 22 ) );
 
     Launcher l;
     app.setMainWidget( &l );
