@@ -2238,6 +2238,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	return;
 
     const int slen = str.length();
+    if (len < 0)
+        len = slen - pos;
     if ( len == 0 || pos >= slen ) // empty string
         return;
     if ( pos + len > slen )
