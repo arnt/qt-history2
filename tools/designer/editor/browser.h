@@ -7,6 +7,7 @@
 class Editor;
 class QTextCursor;
 class QTextParag;
+class QTextFormat;
 
 class EDITOR_EXPORT EditorBrowser : public QObject
 {
@@ -14,6 +15,7 @@ class EDITOR_EXPORT EditorBrowser : public QObject
 
 public:
     EditorBrowser( Editor *e );
+    ~EditorBrowser();
 
     bool eventFilter( QObject *o, QEvent *e );
     virtual void setCurrentEdior( Editor *e );
@@ -25,6 +27,7 @@ protected:
     Editor *curEditor;
     QTextParag *oldHighlightedParag;
     QString lastWord;
+    QTextFormat *highlighteFormat;
 
 };
 

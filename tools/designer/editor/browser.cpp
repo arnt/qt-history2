@@ -2,7 +2,6 @@
 #include "editor.h"
 #include <qrichtext_p.h>
 
-static QTextFormat *highlighteFormat = 0;
 
 EditorBrowser::EditorBrowser( Editor *e )
     : curEditor( e ), oldHighlightedParag( 0 )
@@ -10,6 +9,14 @@ EditorBrowser::EditorBrowser( Editor *e )
     curEditor = e;
     curEditor->viewport()->installEventFilter( this );
     curEditor->installEventFilter( this );
+    QFont fn( curEditor->font() );
+    fn.setUnderline( TRUE );
+    highlighteFormat = curEditor->document()->formatCollection()->format( fn, blue );
+}
+
+EditorBrowser::~EditorBrowser()
+{
+    delete highlighteFormat;
 }
 
 bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
@@ -31,10 +38,6 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		}
 		oldHighlightedParag = 0;
 		if ( findCursor( c, from, to ) && from.parag() == to.parag() ) {
-		    QFont fn( curEditor->font() );
-		    fn.setUnderline( TRUE );
-		    if ( !highlighteFormat )
-			highlighteFormat = curEditor->document()->formatCollection()->format( fn, blue );
 		    from.parag()->setFormat( from.index(), to.index() - from.index() + 1, highlighteFormat, FALSE );
 		    lastWord = from.parag()->string()->toString().mid( from.index(), to.index() - from.index() + 1 );
 		    oldHighlightedParag = from.parag();
