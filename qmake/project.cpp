@@ -158,7 +158,11 @@ bool
 QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
-    int hash_mark = s.find(QRegExp("[^\\\\]?#")); // Allow escaping of #'s
+    int hash_mark = -1;
+    if (s[0] == '#')
+	hash_mark = 0;
+    else
+	hash_mark = s.find(QRegExp("[^\\\\]#")); // Allow escaping of #'s
     if(hash_mark != -1) //good bye comments
 	s = s.left(hash_mark);
     if(s.isEmpty()) /* blank_line */
@@ -432,14 +436,15 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	    parser.line_no++;
 	    line = t.readLine().stripWhiteSpace();
 	    int prelen = line.length();
-	    {
-		int hash_mark = line.find('#');
-		if(hash_mark != -1) //bye comments
-		    line = line.left(hash_mark);
-	    }
+
+	    int hash_mark = line.find(QRegExp("[^\\\\]#")); // Allow escaping of #'s
+	    if(hash_mark != -1) //good bye comments
+		line = line.left(hash_mark);
 	    if(!line.isEmpty() && line.right(1) == "\\") {
-		line.truncate(line.length() - 1);
-		s += line + " ";
+		if (!line.startsWith("#")) {
+		    line.truncate(line.length() - 1);
+		    s += line + " ";
+		}
 	    } else if(!line.isEmpty() || (line.isEmpty() && !prelen)) {
 		if(s.isEmpty() && line.isEmpty())
 		    continue;
