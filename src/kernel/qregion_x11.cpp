@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#31 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#31 $");
 
 
 static QRegion *empty_region = 0;
@@ -344,7 +344,7 @@ QArray<QRect> QRegion::getRects() const
     QArray<QRect> a( data->rgn->numRects );
     BOX *r = data->rgn->rects;
     for ( int i=0; i<(int)a.size(); i++ ) {
-	a[i] = QRect( r->x1, r->y1, r->x2-r->x1, r->y2-r->y1 );
+	a[i].setCoords( r->x1, r->y1, r->x2, r->y2);
 	r++;
     }
     return a;
