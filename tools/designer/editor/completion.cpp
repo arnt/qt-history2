@@ -240,7 +240,8 @@ bool EditorCompletion::doCompletion()
     QTextCursor *cursor = curEditor->textCursor();
     QTextDocument *doc = curEditor->document();
 
-    if ( cursor->index() > 0 && cursor->parag()->at( cursor->index() - 1 )->c == '.' )
+    if ( cursor->index() > 0 && cursor->parag()->at( cursor->index() - 1 )->c == '.' &&
+	 ( cursor->index() == 1 || cursor->parag()->at( cursor->index() - 2 )->c != '.' ) )
 	return doObjectCompletion();
 
     int idx = cursor->index();
@@ -348,7 +349,10 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		    return FALSE;
 		if ( doCompletion() )
 			return TRUE;
-	    } else if ( ke->key() == Key_Period ||
+	    } else if ( ke->key() == Key_Period &&
+			( curEditor->textCursor()->index() == 0 ||
+			  curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() - 1 )->c != '.' )
+			||
 			ke->key() == Key_Greater &&
 			curEditor->textCursor()->index() > 0 &&
 			curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() - 1 )->c == '-' ) {
