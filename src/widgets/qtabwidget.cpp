@@ -415,8 +415,10 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
     QTab* t = d->tabs->tab( id );
     if ( !t )
         return;
-    if ( t->iconset )
+    if ( t->iconset ) {
         delete t->iconset;
+        t->iconset = 0;
+    }
     // this will update the accelerators
     t->setText( label );
     t->iconset = new QIconSet( iconset );
