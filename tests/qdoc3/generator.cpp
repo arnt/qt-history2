@@ -280,8 +280,6 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 
 	if ( func->reimplementedFrom() != 0 )
 	    generateReimplementedFrom( func, marker );
-	if ( !func->reimplementedBy().isEmpty() )
-	    generateReimplementedBy( func, marker );
     }
 }
 
@@ -526,7 +524,7 @@ void Generator::generateReimplementedFrom( const FunctionNode *func,
 	const FunctionNode *from = func->reimplementedFrom();
 	Text text;
 	text << Atom::ParaLeft << "Reimplemented from ";
-	appendFullName( text, from, func, marker, from->parent() );
+	appendFullName( text, from->parent(), func, marker, from );
 	text << "." << Atom::ParaRight;
 	generateText( text, func, marker );
     }
@@ -576,26 +574,6 @@ const Atom *Generator::generateAtomList( const Atom *atom, const Node *relative,
 	}
     }
     return 0;
-}
-
-void Generator::generateReimplementedBy( const FunctionNode *func,
-					 CodeMarker *marker )
-{
-    QValueList<FunctionNode *>::ConstIterator r;
-    int index;
-
-    Text text;
-    text << Atom::ParaLeft << "Reimplemented by";
-
-    r = func->reimplementedBy().begin();
-    index = 0;
-    while ( r != func->reimplementedBy().end() ) {
-	appendFullName( text, *r, func, marker );
-	text << separator( index++, func->reimplementedBy().count() );
-	++r;
-    }
-    text << Atom::ParaRight;
-    generateText( text, func, marker );
 }
 
 void Generator::appendFullName( Text& text, const Node *apparentNode,

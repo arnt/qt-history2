@@ -81,26 +81,59 @@ void Tree::addBaseClass( ClassNode *subclass, Node::Access access,
 
 void Tree::resolveInheritance()
 {
-    NodeList::ConstIterator c = root()->childNodes().begin();
-    while ( c != root()->childNodes().end() ) {
-	if ( (*c)->type() == Node::Class )
-	    resolveInheritance( (ClassNode *) *c );
-	++c;
+    for ( int pass = 0; pass < 2; pass++ ) {
+	NodeList::ConstIterator c = root()->childNodes().begin();
+	while ( c != root()->childNodes().end() ) {
+	    if ( (*c)->type() == Node::Class )
+		resolveInheritance( pass, (ClassNode *) *c );
+	    ++c;
+	}
+	priv->unresolvedInheritanceMap.clear();
     }
-    priv->unresolvedInheritanceMap.clear();
 }
 
-void Tree::resolveInheritance( ClassNode *classe )
+void Tree::resolveInheritance( int pass, ClassNode *classe )
 {
-    QValueList<InheritanceBound> bounds =
-	    priv->unresolvedInheritanceMap[classe];
-    QValueList<InheritanceBound>::ConstIterator b = bounds.begin();
-    while ( b != bounds.end() ) {
-	ClassNode *baseClass =
-		(ClassNode *) findNode( (*b).basePath, Node::Class );
-	if ( baseClass != 0 )
-	    classe->addBaseClass( (*b).access, baseClass,
-				  (*b).baseTemplateArgs );
-	++b;
+    if ( pass == 0 ) {
+	QValueList<InheritanceBound> bounds =
+		priv->unresolvedInheritanceMap[classe];
+	QValueList<InheritanceBound>::ConstIterator b = bounds.begin();
+	while ( b != bounds.end() ) {
+	    ClassNode *baseClass =
+		    (ClassNode *) findNode( (*b).basePath, Node::Class );
+	    if ( baseClass != 0 )
+		classe->addBaseClass( (*b).access, baseClass,
+				      (*b).baseTemplateArgs );
+	    ++b;
+	}
+    } else {
+	NodeList::ConstIterator c = classe->childNodes().begin();
+	while ( c != classe->childNodes().end() ) {
+	    if ( (*c)->type() == Node::Function ) {
+		FunctionNode *func = (FunctionNode *) *c;
+		FunctionNode *from = findFunctionInBaseClasses( classe, func );
+		if ( from != 0 ) {
+		    if ( func->virtualness() == FunctionNode::NonVirtual )
+			func->setVirtualness( FunctionNode::ImpureVirtual );
+		    func->setReimplementedFrom( from );
+		}
+	    }
+	    ++c;
+	}
     }
+}
+
+FunctionNode *Tree::findFunctionInBaseClasses( ClassNode *classe,
+					       FunctionNode *clone )
+{
+    QValueList<RelatedClass>::ConstIterator r = classe->baseClasses().begin();
+    while ( r != classe->baseClasses().end() ) {
+	FunctionNode *func;
+	if ( ((func = findFunctionInBaseClasses((*r).node, clone)) != 0 ||
+	      (func = (*r).node->findFunctionNode(clone)) != 0) &&
+	     func->virtualness() != FunctionNode::NonVirtual )
+	    return func;
+ 	++r;
+    }
+    return 0;
 }

@@ -76,8 +76,6 @@ private:
     void generateOverload( const Node *node, CodeMarker *marker );
     void generateReimplementedFrom( const FunctionNode *func,
 				    CodeMarker *marker );
-    void generateReimplementedBy( const FunctionNode *func,
-				  CodeMarker *marker );
     void appendFullName( Text& text, const Node *apparentNode,
 			 const Node *relative, CodeMarker *marker,
 			 const Node *actualNode = 0 );

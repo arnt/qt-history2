@@ -30,7 +30,9 @@ public:
     NamespaceNode *root() { return &roo; }
 
 private:
-    void resolveInheritance( ClassNode *classe );
+    void resolveInheritance( int pass, ClassNode *classe );
+    FunctionNode *findFunctionInBaseClasses( ClassNode *classe,
+					     FunctionNode *clone );
 
     NamespaceNode roo;
     TreePrivate *priv;

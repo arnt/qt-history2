@@ -535,6 +535,7 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 						       func->returnType()) );
     if ( func->metaness() != FunctionNode::Slot )
 	quickFunc->setMetaness( func->metaness() );
+    quickFunc->setVirtualness( FunctionNode::ImpureVirtual );
     quickFunc->setOverload( func->isOverload() );
 
     QValueList<Parameter>::ConstIterator q = func->parameters().begin();
