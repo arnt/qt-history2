@@ -180,7 +180,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     Q4StyleOption opt(0, Q4StyleOption::Default);
     opt.rect = rect();
     opt.palette = palette();
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         opt.state = QStyle::Style_Horizontal;
     else
         opt.state = QStyle::Style_Default;

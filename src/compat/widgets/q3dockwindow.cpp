@@ -222,7 +222,7 @@ void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
     opt.state = QStyle::Style_Default;
     if (isEnabled())
         opt.state |= QStyle::Style_Enabled;
-    if (orientation() == Horizontal)
+    if (orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
     style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
 }
