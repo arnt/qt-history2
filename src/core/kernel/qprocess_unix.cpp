@@ -822,7 +822,7 @@ bool QProcess::start(QStringList *env)
             if (_arguments.count()>0 && getenv("PATH")!=0) {
                 QString command = _arguments[0];
                 if (!command.contains(QLatin1Char('/'))) {
-                    QStringList pathList = QString::fromLocal8Bit(getenv("PATH")).split(':');
+                    QStringList pathList = QString::fromLocal8Bit(getenv("PATH")).split(QLatin1Char(':'));
                     for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it) {
                         QString dir = *it;
 #if defined(Q_OS_DARWIN) //look in a bundle

@@ -124,7 +124,7 @@ public:
             case 0:
                 if (IsLatin(ch)) {
                     // ASCII
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                 } else if (IsFirstByte(ch)) {
                     // Big5-ETen
                     buf[0] = ch;
@@ -208,7 +208,7 @@ QString QBig5Codec::toUnicode(const char* chars, int len) const
         uchar ch = chars[i];
         if (IsLatin(ch)) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
         } else if (IsFirstByte(ch)) {
             // Big5-ETen
             if (i < len-1) {
@@ -413,7 +413,7 @@ public:
             case 0:
                 if (IsLatin(ch)) {
                     // ASCII
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                 } else if (IsFirstByte(ch)) {
                     // Big5-HKSCS
                     buf[0] = ch;
@@ -494,7 +494,7 @@ QString QBig5hkscsCodec::toUnicode(const char* chars, int len) const
         uchar ch = chars[i];
         if (IsLatin(ch)) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
         } else if (IsFirstByte(ch)) {
             // Big5-HKSCS
             if (i < len-1) {

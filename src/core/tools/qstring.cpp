@@ -2090,7 +2090,7 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
         int numBackRefs = 0;
 
         for (int i = 0; i < al - 1; i++) {
-            if (uc[i] == '\\') {
+            if (uc[i] == QLatin1Char('\\')) {
                 int no = uc[i + 1].digitValue();
                 if (no > 0 && no <= numCaptures)
                     numBackRefs++;
@@ -2107,7 +2107,7 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
             int j = 0;
 
             for (int i = 0; i < al - 1; i++) {
-                if (uc[i] == '\\') {
+                if (uc[i] == QLatin1Char('\\')) {
                     int no = uc[i + 1].digitValue();
                     if (no > 0 && no <= numCaptures) {
                         capturePositions[j] = i;
@@ -3303,11 +3303,11 @@ QString QString::simplified() const
         while (from!=fromend && !from->isSpace())
             to[outc++] = *from++;
         if (from!=fromend)
-            to[outc++] = ' ';
+            to[outc++] = QLatin1Char(' ');
         else
             break;
     }
-    if (outc > 0 && to[outc-1] == ' ')
+    if (outc > 0 && to[outc-1] == QLatin1Char(' '))
         outc--;
     result.truncate(outc);
     return result;
@@ -4112,7 +4112,7 @@ QString &QString::sprintf(const char* cformat, ...)
     for (;;) {
         // Copy non-escape chars to result
         while (*c != '\0' && *c != '%')
-            result.append(*c++);
+            result.append(QLatin1Char(*c++));
 
         if (*c == '\0')
             break;
@@ -4122,11 +4122,11 @@ QString &QString::sprintf(const char* cformat, ...)
         ++c;
 
         if (*c == '\0') {
-            result.append('%'); // a % at the end of the string - treat as non-escape text
+            result.append(QLatin1Char('%')); // a % at the end of the string - treat as non-escape text
             break;
         }
         if (*c == '%') {
-            result.append('%'); // %%
+            result.append(QLatin1Char('%')); // %%
             ++c;
             continue;
         }
@@ -4149,7 +4149,7 @@ QString &QString::sprintf(const char* cformat, ...)
                 ++c;
         } while (!no_more_flags);
 
-        if (*c == QLatin1Char('\0')) {
+        if (*c == '\0') {
             result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
             break;
         }
@@ -4159,7 +4159,7 @@ QString &QString::sprintf(const char* cformat, ...)
         if (qIsDigit(*c)) {
             QString width_str;
             while (*c != '\0' && qIsDigit(*c))
-                width_str.append(*c++);
+                width_str.append(QLatin1Char(*c++));
 
             // can't be negative - started with a digit
             // contains at least one digit
@@ -4184,7 +4184,7 @@ QString &QString::sprintf(const char* cformat, ...)
             if (qIsDigit(*c)) {
                 QString precision_str;
                 while (*c != '\0' && qIsDigit(*c))
-                    precision_str.append(*c++);
+                    precision_str.append(QLatin1Char(*c++));
 
                 // can't be negative - started with a digit
                 // contains at least one digit
@@ -4341,7 +4341,7 @@ QString &QString::sprintf(const char* cformat, ...)
                 if (length_mod == lm_l)
                     subst = QChar((ushort) va_arg(ap, int));
                 else
-                    subst = (uchar) va_arg(ap, int);
+                    subst = QLatin1Char((uchar) va_arg(ap, int));
                 ++c;
                 break;
             }
@@ -4405,7 +4405,7 @@ QString &QString::sprintf(const char* cformat, ...)
 
             default: // bad escape, treat as non-escape text
                 for (const char *cc = escape_start; cc != c; ++cc)
-                    result.append(*cc);
+                    result.append(QLatin1Char(*cc));
                 continue;
         }
 
@@ -5599,7 +5599,7 @@ QString QString::arg(QChar a, int fieldWidth) const
 QString QString::arg(char a, int fieldWidth) const
 {
     QString c;
-    c += QChar(a);
+    c += QLatin1Char(a);
     return arg(c, fieldWidth);
 }
 
@@ -5708,7 +5708,7 @@ QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
     args[3] = &a4;
 
     for (i = 0; i < end; i++) {
-        if (uc[i] == '%') {
+        if (uc[i] == QLatin1Char('%')) {
             int digit = uc[i + 1].unicode() - '0';
             if (digit >= 0 && digit <= 9)
                 digitUsed[digit]++;
@@ -5732,7 +5732,7 @@ QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
 
     i = 0;
     while (i < len) {
-        if (uc[i] == '%' && i != end) {
+        if (uc[i] == QLatin1Char('%') && i != end) {
             int digit = uc[i + 1].unicode() - '0';
             if (digit >= 0 && digit <= lastDigit) {
                 result += *args[argForDigit[digit]];

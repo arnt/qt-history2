@@ -206,10 +206,10 @@ public:
 #endif
 
 private:
-// #ifdef QT_NO_CAST_FROM_ASCII
-//     QChar(char c);
-//     QChar(uchar c);
-// #endif
+#ifdef QT_NO_CAST_FROM_ASCII
+    QChar(char c);
+    QChar(uchar c);
+#endif
     ushort ucs;
 } Q_PACKED;
 

@@ -82,9 +82,9 @@ QUuid::QUuid(const QString &text)
         return;
     }
     QString temp = text.toUpper();
-    if (temp[0] != '{')
+    if (temp[0] != QLatin1Char('{'))
         temp = QLatin1Char('{') + text;
-    if (text[(int)text.length()-1] != '}')
+    if (text[(int)text.length()-1] != QLatin1Char('}'))
         temp += QLatin1Char('}');
 
     data1 = temp.mid(1, 8).toULong(&ok, 16);
@@ -160,7 +160,7 @@ QUuid::QUuid(const char *text)
 
 static QString uuidhex(uint data, int digits)
 {
-    return QString::number(data, 16).rightJustified(digits, '0');
+    return QString::number(data, 16).rightJustified(digits, QLatin1Char('0'));
 }
 
 /*!
@@ -172,7 +172,7 @@ QString QUuid::toString() const
 {
     QString result;
 
-    QChar dash = '-';
+    QChar dash = QLatin1Char('-');
     result = QLatin1Char('{') + uuidhex(data1,8);
     result += dash;
     result += uuidhex(data2,4);

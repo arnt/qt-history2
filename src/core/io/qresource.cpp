@@ -196,13 +196,13 @@ QResource
 {
     if(!qt_resource_root)
         return 0;
-    if(path.isEmpty() || path[0] != '/') {
+    if(path.isEmpty() || path[0] != QLatin1Char('/')) {
         qWarning("Invalid resource path: %s", path.latin1());
         return 0;
     }
 
     QResource *ret = qt_resource_root;
-    QStringList chunks = QDir::cleanPath(path).split('/', QString::SkipEmptyParts);
+    QStringList chunks = QDir::cleanPath(path).split(QLatin1Char('/'), QString::SkipEmptyParts);
     for(int i = 0; i < chunks.size(); i++) {
         QResource *parent = ret;
         ret = 0;
@@ -287,7 +287,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
 	    }
 	    name += QChar(c2, c1);
         }
-        Q_ASSERT(!name.isEmpty() && name[0] == '/');
+        Q_ASSERT(!name.isEmpty() && name.at(0) == QLatin1Char('/'));
 
         //bytes
         uchar bytes_in_len = resource[off];
@@ -304,7 +304,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         //now create the nodes
         bool creation_path = false;
         QResource *current = qt_resource_root;
-        QStringList chunks = QDir::cleanPath(name).split('/', QString::SkipEmptyParts);
+        QStringList chunks = QDir::cleanPath(name).split(QLatin1Char('/'), QString::SkipEmptyParts);
         for(int i = 0; i < chunks.size(); i++) {
             QResource *parent = current;
             current = 0;

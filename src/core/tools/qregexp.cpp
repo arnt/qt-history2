@@ -794,10 +794,10 @@ static QString wc2rx(const QString &wc_str)
             if (wc[i] == QLatin1Char('^'))
                 rx += wc[i++];
             if (i < wclen) {
-                if (rx[i] == ']')
+                if (rx[i] == QLatin1Char(']'))
                     rx += wc[i++];
                 while (i < wclen && wc[i] != QLatin1Char(']')) {
-                    if (wc[i] == '\\')
+                    if (wc[i] == QLatin1Char('\\'))
                         rx += QLatin1Char('\\');
                     rx += wc[i++];
                 }

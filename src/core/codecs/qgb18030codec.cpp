@@ -211,7 +211,7 @@ QString QGb18030Codec::toUnicode(const char* chars, int len) const
 
         if (IsLatin(ch)) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
             i++;
         } else if (Is1stByte(ch)) {
             // GB18030 ?
@@ -332,7 +332,7 @@ public:
               case 0:
                 if (ch < 0x80) {
                     // ASCII
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                 } else if (Is1stByte(ch)) {
                     // GB18030?
                     buf[0] = ch;
@@ -500,7 +500,7 @@ public:
               case 0:
                 if (ch < 0x80) {
                     // ASCII
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                 } else if (Is1stByte(ch)) {
                     // GBK 1st byte?
                     buf[0] = ch;
@@ -584,7 +584,7 @@ QString QGbkCodec::toUnicode(const char* chars, int len) const
 
         if (IsLatin(ch)) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
             i++;
         } else if (Is1stByte(ch)) {
             // GBK ?
@@ -702,7 +702,7 @@ public:
               case 0:
                 if (ch < 0x80) {
                     // ASCII
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                 } else if (IsByteInGb2312(ch)) {
                     // GB2312 1st byte?
                     buf[0] = ch;
@@ -787,7 +787,7 @@ QString QGb2312Codec::toUnicode(const char* chars, int len) const
 
         if (IsLatin(ch)) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
             i++;
         } else if (Is1stByte(ch)) {
             // GB2312 ?

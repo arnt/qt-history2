@@ -139,7 +139,7 @@ QString QEucKrCodec::toUnicode(const char* chars, int len) const
             break;
         if (ch < 0x80) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
         } else if (IsEucChar(ch)) {
             // KSC 5601
             if (i < len-1) {
@@ -272,7 +272,7 @@ public:
             case 0:
                 if (ch < 0x80) {
                     // ASCII
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                 } else if (IsEucChar(ch)) {
                     // KSC 5601
                     buf[0] = ch;

@@ -173,7 +173,7 @@ public:
                 }
             } else {
                 if (ch < 128) {
-                    *qch++ = ch;
+                    *qch++ = QLatin1Char(ch);
                     headerDone = true;
                 } else if ((ch & 0xe0) == 0xc0) {
                     uc = ch & 0x1f;

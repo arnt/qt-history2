@@ -1066,11 +1066,11 @@ static QString resolveSymlinks(const QString& path, int depth = 0)
             linkTarget = fileInfo.readLink();
             break;
         }
-    } while ((slashPos = part.lastIndexOf('/')) != -1);
+    } while ((slashPos = part.lastIndexOf(QLatin1Char('/'))) != -1);
 
     if (foundLink) {
         QString path2;
-        if (linkTarget[0] == '/') {
+        if (linkTarget.at(0) == QLatin1Char('/')) {
             path2 = linkTarget;
             if (slashPos < (int) path.length())
                 path2 += QLatin1Char('/') + path.right(path.length() - slashPos - 1);
@@ -1135,13 +1135,13 @@ QString QCoreApplication::applicationFilePath()
     QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
     QString absPath;
 
-    if (argv0[0] == '/') {
+    if (argv0.at(0) == QLatin1Char('/')) {
         /*
           If argv0 starts with a slash, it is already an absolute
           file path.
         */
         absPath = argv0;
-    } else if (argv0.contains('/')) {
+    } else if (argv0.contains(QLatin1Char('/'))) {
         /*
           If argv0 contains one or more slashes, it is a file path
           relative to the current directory.
@@ -1272,13 +1272,13 @@ QStringList QCoreApplication::libraryPaths()
         QString installPathPlugins = QString::fromLocal8Bit(qInstallPathPlugins());
         if (QFile::exists(installPathPlugins)) {
 #ifdef Q_WS_WIN
-            installPathPlugins.replace('\\', '/');
+            installPathPlugins.replace(QLatin1Char('\\'), QLatin1Char('/'));
 #endif
             app_libpaths->append(installPathPlugins);
         }
 
         QString app_location(self->applicationFilePath());
-        app_location.truncate(app_location.lastIndexOf('/'));
+        app_location.truncate(app_location.lastIndexOf(QLatin1Char('/')));
         if (app_location != QString::fromLocal8Bit(qInstallPathPlugins()) && QFile::exists(app_location))
             app_libpaths->append(app_location);
     }

@@ -587,7 +587,7 @@ QFileInfo::baseName() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', 0, 0);
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section(QLatin1Char('.'), 0, 0);
 }
 
 /*!
@@ -610,7 +610,7 @@ QFileInfo::completeBaseName() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', 0, -2);
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section(QLatin1Char('.'), 0, -2);
 }
 
 /*!
@@ -633,7 +633,7 @@ QFileInfo::completeSuffix() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', 1, -1);
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section(QLatin1Char('.'), 1, -1);
 }
 
 /*!
@@ -656,7 +656,7 @@ QFileInfo::suffix() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileEngine->fileName(QFileEngine::BaseName).section('.', -1);
+    return d->data->fileEngine->fileName(QFileEngine::BaseName).section(QLatin1Char('.'), -1);
 }
 
 #ifndef QT_NO_DIR

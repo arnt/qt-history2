@@ -125,7 +125,7 @@ QString QTsciiCodec::toUnicode(const char* chars, int len) const
         uchar ch = chars[i];
         if (ch < 0x80) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
         } else if (IsTSCIIChar(ch)) {
             // TSCII
             uint s[3];

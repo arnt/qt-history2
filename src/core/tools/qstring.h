@@ -147,8 +147,8 @@ public:
     bool startsWith(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     bool endsWith(const QString &s, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
-    QString leftJustified(int width, QChar fill = ' ', bool trunc = false) const;
-    QString rightJustified(int width, QChar fill = ' ', bool trunc = false) const;
+    QString leftJustified(int width, QChar fill = QLatin1Char(' '), bool trunc = false) const;
+    QString rightJustified(int width, QChar fill = QLatin1Char(' '), bool trunc = false) const;
 
     QString toLower() const;
     QString toUpper() const;
@@ -401,9 +401,9 @@ public:
     inline QT_COMPAT QChar constref(uint i) const
     { return at(i); }
     QT_COMPAT QChar &ref(uint i);
-    inline QT_COMPAT QString leftJustify(int width, QChar fill=' ', bool trunc=false) const
+    inline QT_COMPAT QString leftJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
     { return leftJustified(width, fill, trunc); }
-    inline QT_COMPAT QString rightJustify(int width, QChar fill=' ', bool trunc=false) const
+    inline QT_COMPAT QString rightJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
     { return rightJustified(width, fill, trunc); }
     inline QT_COMPAT QString lower() const { return toLower(); }
     inline QT_COMPAT QString upper() const { return toUpper(); }

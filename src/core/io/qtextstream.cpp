@@ -549,9 +549,9 @@ inline static int ts_end(const QChar *c, uint len, uchar flags)
     case 0:
         return false;
     case TS_EOL:
-        if(*c == '\n')
+        if(*c == QLatin1Char('\n'))
             end = 1;
-        else if(len >= 2 && *c == '\r' && *(c+1) == '\n')
+        else if(len >= 2 && *c == QLatin1Char('\r') && *(c+1) == QLatin1Char('\n'))
             end = 2;
         break;
     case TS_SPACE:
@@ -567,7 +567,7 @@ inline static int ts_end(const QChar *c, uint len, uchar flags)
             end = 1;
         break;
     case TS_BIN:
-        if(c->isDigit() && (c->latin1() == '0' || c->latin1() == '1'))
+        if(c->isDigit() && (*c == QLatin1Char('0') || *c == QLatin1Char('1')))
             end = 1;
         break;
     default:
@@ -755,7 +755,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
             for(char *it = buffer_data, *end = it + buffer_len;
                 rnum < len && it < end; it++) {
                 if(buf)
-                    *(buf++) = *it;
+                    *(buf++) = QLatin1Char(*it);
                 if(end_flags) {
                     int end = 0;
                     if((end_flags & 0x0F) == TS_EOL) {
@@ -768,7 +768,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
                             end = !end;
                     }
                     if(!end) {
-                        QChar c(*it);
+                        QChar c = QLatin1Char(*it);
                         end = ts_end(&c, 1, end_flags);
                     }
                     if(end) {
@@ -794,7 +794,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
                 if(end_flags) {
                     int end = 0;
                     if((end_flags & 0x0F) == TS_EOL) {
-                        if(next_c == '\r' && i + 4 <= buffer_len) {
+                        if(next_c == QLatin1Char('\r') && i + 4 <= buffer_len) {
                             QChar n;
                             if (d->networkOrder)
                                 n = QChar(buffer_data[i+3],
@@ -802,7 +802,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
                             else
                                 n = QChar(buffer_data[i+2],
                                           buffer_data[i+3]);
-                            if(n == '\n')
+                            if(n == QLatin1Char('\n'))
                                 end = 2;
                             if(end_flags & TS_MOD_NOT)
                                 end = !end;
@@ -977,7 +977,7 @@ QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
     } else if (!d->mapper && d->internalOrder) {
         QChar *u = new QChar[len];
         for (uint i = 0; i < len; i++)
-            u[i] = p[i];
+            u[i] = QLatin1Char(p[i]);
         d->dev->writeBlock((char*)u, len * sizeof(QChar));
         delete [] u;
     }
@@ -1233,10 +1233,10 @@ long QTextStreamPrivate::input_int()
         q->skipWhiteSpace();
         QChar c = ts_getc();
         if(c.unicode() != QEOF) {
-            if (c != '-' && c != '+')
+            if (c != QLatin1Char('-') && c != QLatin1Char('+'))
                 ts_ungetc(c);
             val = (long)input_dec();
-            if (val && c == '-')
+            if (val && c == QLatin1Char('-'))
                 val -= (val * 2);
         }
         break; }
@@ -1246,20 +1246,20 @@ long QTextStreamPrivate::input_int()
     default: {
         q->skipWhiteSpace();
         QChar c = ts_getc();
-        if (c == '0') {                // bin, oct or hex
+        if (c == QLatin1Char('0')) {                // bin, oct or hex
             c = ts_getc();
-            if (c.toLower() == 'x') {
+            if (c.toLower() == QLatin1Char('x')) {
                 val = (long)input_hex();
-            } else if (c.toLower() == 'b') {
+            } else if (c.toLower() == QLatin1Char('b')) {
                 val = (long)input_bin();
             } else {                        // octal
                 ts_ungetc(c);
-                if (c >= '0' && c <= '7')
+                if (c >= QLatin1Char('0') && c <= QLatin1Char('7'))
                     val = (long)input_oct();
             }
-        } else if (c == '-' || c == '+') {
+        } else if (c == QLatin1Char('-') || c == QLatin1Char('+')) {
             val = (long)input_dec();
-            if (val && c == '-')
+            if (val && c == QLatin1Char('-'))
                 val -= (val * 2);
         } else if (c.isDigit()) {
             ts_ungetc(c);
@@ -1639,7 +1639,7 @@ QString QTextStream::read()
         // convert dos (\r\n) and mac (\r) style eol to unix style (\n)
         start = 0;
         for (i=0; i<num; i++) {
-            if (buf[i] == '\r') {
+            if (buf[i] == QLatin1Char('\r')) {
                 // Only skip single cr's preceding lf's
                 if (skipped_cr) {
                     result += buf[i];
@@ -1651,9 +1651,9 @@ QString QTextStream::read()
                 }
             } else {
                 if (skipped_cr) {
-                    if (buf[i] != '\n') {
+                    if (buf[i] != QLatin1Char('\n')) {
                         // Should not have skipped it
-                        result += '\n';
+                        result += QLatin1Char('\n');
                     }
                     skipped_cr = false;
                 }
@@ -1772,7 +1772,7 @@ QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
                 *--p = '-';
             else if (q->flags() & q->showpos)
                 *--p = '+';
-            if ((q->flags() & q->internal) && d->fwidth && !QChar(*p).isDigit()) {
+            if ((q->flags() & q->internal) && d->fwidth && !QChar(QLatin1Char(*p)).isDigit()) {
                 d->ts_putc(*p);                        // special case for internal
                 ++p;                                //   padding
                 d->fwidth--;
@@ -1786,7 +1786,7 @@ QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
             if (padlen <= 0) {                // no padding required
                 writeBlock(p, len);
             } else if (padlen < (int)(p-buf)) { // speeds up padding
-                memset(p-padlen, (char)d->fillchar, padlen);
+                memset(p-padlen, d->fillchar, padlen);
                 writeBlock(p-padlen, padlen+len);
             }
             else                                // standard padding
@@ -1960,7 +1960,7 @@ QTextStream &QTextStream::operator<<(const char* s)
             } else {
                 ppad = padbuf;
             }
-            memset(ppad, (char)d->fillchar, padlen);        // fill with d->fillchar
+            memset(ppad, d->fillchar, padlen);        // fill with d->fillchar
             if (!(flags() & left)) {
                 d->writeBlock(ppad, padlen);
                 padlen = 0;
@@ -2005,9 +2005,9 @@ QTextStream &QTextStream::operator<<(const QString& s)
     QString s1 = s;
     if (d->fwidth) {                                // field width set
         if ((flags() & left))
-            s1 = s.leftJustified(d->fwidth, (char)d->fillchar);
+            s1 = s.leftJustified(d->fwidth, QChar(d->fillchar));
         else
-            s1 = s.rightJustified(d->fwidth, (char)d->fillchar);
+            s1 = s.rightJustified(d->fwidth, QChar(d->fillchar));
         d->fwidth = 0;                                // reset width
     }
     d->writeBlock(s1.unicode(), s1.length());

@@ -310,7 +310,7 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
             switch (state) {
               case Ascii:
                 if (ch < 0x80) {
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                     break;
                 }
                 /* fall through */
@@ -626,7 +626,7 @@ public:
                         switch (state) {
                           case Ascii:
                             if (ch < 0x80) {
-                                result += QChar(ch);
+                                result += QLatin1Char(ch);
                                 break;
                             }
                             /* fall through */

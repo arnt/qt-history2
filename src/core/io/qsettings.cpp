@@ -371,15 +371,15 @@ void QSettingsHeading::parseLine(QTextStream &stream)
         // empty line... we'll allow it
         return;
 
-    if (line[0] == QChar('#'))
+    if (line[0] == QLatin1Char('#'))
         // commented line
         return;
 
-    if (line[0] == QChar('[')) {
+    if (line[0] == QLatin1Char('[')) {
         QString gname = line;
 
         gname = gname.remove((uint)0, 1);
-        if (gname[(int)gname.length() - 1] == QChar(']'))
+        if (gname[(int)gname.length() - 1] == QLatin1Char(']'))
             gname = gname.remove(gname.length() - 1, 1);
 
         git = find(gname);
@@ -391,7 +391,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
             return;
         }
 
-        int i = line.indexOf('=');
+        int i = line.indexOf(QLatin1Char('='));
         if (i == -1) {
             qWarning("QSettings: malformed line '%s' in group '%s'",
                      line.latin1(), git.key().latin1());
@@ -406,14 +406,14 @@ void QSettingsHeading::parseLine(QTextStream &stream)
                 esc = false;
                 for (; i < (int)line.length(); i++) {
                     if (esc) {
-                        if (line[i] == 'n')
-                            value.append('\n'); // escaped newline
-                        else if (line[i] == '0')
+                        if (line[i] == QLatin1Char('n'))
+                            value.append(QLatin1Char('\n')); // escaped newline
+                        else if (line[i] == QLatin1Char('0'))
                             value = QString::null; // escaped empty string
                         else
                             value.append(line[i]);
                         esc = false;
-                    } else if (line[i] == '\\')
+                    } else if (line[i] == QLatin1Char('\\'))
                         esc = true;
                     else
                         value.append(line[i]);
@@ -425,7 +425,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
                         qWarning("QSettings: reached end of file, expected continued line");
                         break;
                     }
-                    value.append('\n');
+                    value.append(QLatin1Char('\n'));
                     line = stream.readLine();
                     i = 0;
                 }
@@ -1204,9 +1204,9 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok)
 
     QString realkey;
 
-    if (grp_key[0] == '/') {
+    if (grp_key[0] == QLatin1Char('/')) {
         // parse our key
-        QStringList list(grp_key.split('/', QString::SkipEmptyParts));
+        QStringList list(grp_key.split(QLatin1Char('/'), QString::SkipEmptyParts));
 
         if (list.count() < 2) {
             qWarning("QSettings::readEntry: invalid key '%s'", grp_key.latin1());
@@ -1381,9 +1381,9 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
     QString realkey;
 
-    if (grp_key[0] == '/') {
+    if (grp_key[0] == QLatin1Char('/')) {
         // parse our key
-        QStringList list(grp_key.split('/', QString::SkipEmptyParts));
+        QStringList list(grp_key.split(QLatin1Char('/'), QString::SkipEmptyParts));
 
         if (list.count() < 2) {
             qWarning("QSettings::writeEntry: invalid key '%s'", grp_key.latin1());
@@ -1436,7 +1436,7 @@ bool QSettings::removeEntry(const QString &key)
 #endif
 
     QString realkey;
-    if (grp_key[0] == '/') {
+    if (grp_key[0] == QLatin1Char('/')) {
         // parse our key
         QStringList list(grp_key.split(QLatin1Char('/'), QString::SkipEmptyParts));
 
@@ -1510,9 +1510,9 @@ QStringList QSettings::entryList(const QString &key) const
 #endif
 
     QString realkey;
-    if (grp_key[0] == '/') {
+    if (grp_key[0] == QLatin1Char('/')) {
         // parse our key
-        QStringList list(grp_key.split('/', QString::SkipEmptyParts));
+        QStringList list(grp_key.split(QLatin1Char('/'), QString::SkipEmptyParts));
 
         if (list.count() < 1) {
             qWarning("QSettings::listEntries: invalid key '%s'", grp_key.latin1());
@@ -1552,7 +1552,7 @@ QStringList QSettings::entryList(const QString &key) const
                 itkey.remove(0, realkey.length() + 1);
         }
 
-        if (itkey.indexOf('/') != -1)
+        if (itkey.indexOf(QLatin1Char('/')) != -1)
             continue;
 
         ret << itkey;
@@ -1603,9 +1603,9 @@ QStringList QSettings::subkeyList(const QString &key) const
 
     QString realkey;
     int subkeycount = 2;
-    if (grp_key[0] == '/') {
+    if (grp_key[0] == QLatin1Char('/')) {
         // parse our key
-        QStringList list(grp_key.split('/', QString::SkipEmptyParts));
+        QStringList list(grp_key.split(QLatin1Char('/'), QString::SkipEmptyParts));
 
         if (list.count() < 1) {
             qWarning("QSettings::subkeyList: invalid key '%s'", grp_key.latin1());
@@ -1658,7 +1658,7 @@ QStringList QSettings::subkeyList(const QString &key) const
                 itkey.remove(0, realkey.length() + 1);
         }
 
-        int slash = itkey.indexOf('/');
+        int slash = itkey.indexOf(QLatin1Char('/'));
         if (slash == -1)
             continue;
         itkey.truncate(slash);
@@ -1689,9 +1689,9 @@ QDateTime QSettings::lastModificationTime(const QString &key)
         return QDateTime();
 #endif
 
-    if (grp_key[0] == '/') {
+    if (grp_key[0] == QLatin1Char('/')) {
         // parse our key
-        QStringList list(grp_key.split('/', QString::SkipEmptyParts));
+        QStringList list(grp_key.split(QLatin1Char('/'), QString::SkipEmptyParts));
 
         if (list.count() < 2) {
             qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.latin1());
@@ -1844,7 +1844,7 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok)
     bool esc=false;
     for (int i=0; i<(int)value.length(); i++) {
         if (esc) {
-            if (value[i] == 'e') { // end-of-string
+            if (value[i] == QLatin1Char('e')) { // end-of-string
                 l.append(s);
                 s= QLatin1String("");
             } else if (value[i] == QLatin1Char('0')) { // null string
@@ -1853,7 +1853,7 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok)
                 s.append(value[i]);
             }
             esc=false;
-        } else if (value[i] == '^') {
+        } else if (value[i] == QLatin1Char('^')) {
             esc = true;
         } else {
             s.append(value[i]);
@@ -1906,7 +1906,7 @@ void QSettings::setPath(const QString &domain, const QString &product, Scope sco
     d->globalScope = scope == Global;
 
     QString actualSearchPath;
-    int lastDot = domain.lastIndexOf('.');
+    int lastDot = domain.lastIndexOf(QLatin1Char('.'));
 
 #if defined(Q_WS_WIN)
     actualSearchPath = "/" + domain.mid(0, lastDot) + "/" + product;

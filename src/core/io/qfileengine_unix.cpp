@@ -152,7 +152,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
 #endif // _POSIX_THREAD_SAFE_FUNCTIONS
     {
         QString fn = QFile::decodeName(QByteArray(file->d_name));
-        fi.setFile(d->file + '/' + fn);
+        fi.setFile(d->file + QLatin1Char('/') + fn);
 #ifndef QT_NO_REGEXP
         if(!((filterSpec & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
@@ -323,7 +323,7 @@ QFSFileEngine::fileFlags(uint type) const
     }
     if(type & FlagsMask) {
         ret |= ExistsFlag;
-        if(fileName(BaseName)[0] == QChar('.'))
+        if(fileName(BaseName)[0] == QLatin1Char('.'))
             ret |= HiddenFlag;
     }
     return ret;
@@ -333,31 +333,31 @@ QString
 QFSFileEngine::fileName(FileName file) const
 {
     if(file == BaseName) {
-        int slash = d->file.lastIndexOf('/');
+        int slash = d->file.lastIndexOf(QLatin1Char('/'));
         if(slash != -1)
             return d->file.mid(slash + 1);
     } else if(file == PathName) {
-        int slash = d->file.lastIndexOf('/');
+        int slash = d->file.lastIndexOf(QLatin1Char('/'));
         if(slash == -1)
-            return QString::fromLatin1(".");
+            return QLatin1String(".");
         else if(!slash)
-            return QString::fromLatin1("/");
+            return QLatin1String("/");
         return d->file.left(slash);
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
-        if(!d->file.length() || d->file[0] != '/')
+        if(!d->file.length() || d->file[0] != QLatin1Char('/'))
             ret = QDir::currentPath();
         if(!d->file.isEmpty() && d->file != QLatin1String(".")) {
             if(!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
-                ret += '/';
+                ret += QLatin1Char('/');
             ret += d->file;
         }
         if(file == AbsolutePathName) {
-            int slash = ret.lastIndexOf('/');
+            int slash = ret.lastIndexOf(QLatin1Char('/'));
             if(slash == -1)
                 return QDir::currentPath();
             else if(!slash)
-                return QString::fromLatin1("/");
+                return QLatin1String("/");
             return ret.left(slash);
         }
         return ret;
@@ -399,7 +399,7 @@ QFSFileEngine::isRelativePath() const
     int len = d->file.length();
     if(len == 0)
         return true;
-    return d->file[0] != '/';
+    return d->file[0] != QLatin1Char('/');
 }
 
 uint

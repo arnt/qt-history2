@@ -2273,22 +2273,22 @@ QLocale::QLocale(const QString &name)
         const QChar *uc = name.unicode();
         if (l > 2
                 && uc[2] != QLatin1Char('_')
-                && uc[2] != '.'
-                && uc[2] != '@')
+                && uc[2] != QLatin1Char('.')
+                && uc[2] != QLatin1Char('@'))
             break;
 
         lang = codeToLanguage(name.mid(0, 2));
         if (lang == C)
             break;
 
-        if (l == 2 || uc[2] == '.' || uc[2] == '@')
+        if (l == 2 || uc[2] == QLatin1Char('.') || uc[2] == QLatin1Char('@'))
             break;
 
         // we have uc[2] == '_'
         if (l < 5)
             break;
 
-        if (l > 5 && uc[5] != '.' && uc[5] != '@')
+        if (l > 5 && uc[5] != QLatin1Char('.') && uc[5] != QLatin1Char('@'))
             break;
 
         cntry = codeToCountry(name.mid(3, 2));
@@ -2425,7 +2425,7 @@ QString QLocale::name() const
     if (c == AnyCountry)
         return result;
 
-    result.append('_');
+    result.append(QLatin1Char('_'));
     result.append(countryToCode(c));
 
     return result;
@@ -3122,7 +3122,7 @@ QString QLocalePrivate::doubleToString(double d,
     else if (flags & QLocalePrivate::AlwaysShowSign)
         num_str.prepend(plus());
     else if (flags & QLocalePrivate::BlankBeforePositive)
-        num_str.prepend(' ');
+        num_str.prepend(QLatin1Char(' '));
 
     if (flags & QLocalePrivate::CapitalEorX)
         num_str = num_str.toUpper();
@@ -3163,12 +3163,12 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
     }
 
     for (int i = num_str.length()/* - cnt_thousand_sep*/; i < precision; ++i)
-        num_str.prepend(base == 10 ? zero() : QChar('0'));
+        num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
 
     if (flags & Alternate
             && base == 8
-            && (num_str.isEmpty() || num_str[0].unicode() != '0'))
-        num_str.prepend('0');
+            && (num_str.isEmpty() || num_str[0].unicode() != QLatin1Char('0')))
+        num_str.prepend(QLatin1Char('0'));
 
     // LeftAdjusted overrides this flag ZeroPadded. sprintf only padds
     // when precision is not specified in the format string
@@ -3192,7 +3192,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
             num_pad_chars -= 2;
 
         for (int i = 0; i < num_pad_chars; ++i)
-            num_str.prepend(base == 10 ? zero() : QChar('0'));
+            num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
     }
 
     if (base == 16
@@ -3204,9 +3204,9 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
     if (negative)
         num_str.prepend(minus());
     else if (flags & AlwaysShowSign)
-        num_str.prepend(base == 10 ? plus() : QChar('+'));
+        num_str.prepend(base == 10 ? plus() : QLatin1Char('+'));
     else if (flags & BlankBeforePositive)
-        num_str.prepend(' ');
+        num_str.prepend(QLatin1Char(' '));
 
     if (flags & CapitalEorX)
         num_str = num_str.toUpper();
@@ -3235,12 +3235,12 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
     }
 
     for (int i = num_str.length()/* - cnt_thousand_sep*/; i < precision; ++i)
-        num_str.prepend(base == 10 ? zero() : QChar('0'));
+        num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
 
     if (flags & Alternate
             && base == 8
-            && (num_str.isEmpty() || num_str[0].unicode() != '0'))
-        num_str.prepend('0');
+            && (num_str.isEmpty() || num_str[0].unicode() != QLatin1Char('0')))
+        num_str.prepend(QLatin1Char('0'));
 
     // LeftAdjusted overrides this flag ZeroPadded. sprintf only padds
     // when precision is not specified in the format string
@@ -3258,7 +3258,7 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
             num_pad_chars -= 2;
 
         for (int i = 0; i < num_pad_chars; ++i)
-            num_str.prepend(base == 10 ? zero() : QChar('0'));
+            num_str.prepend(base == 10 ? zero() : QLatin1Char('0'));
     }
 
     if (base == 16

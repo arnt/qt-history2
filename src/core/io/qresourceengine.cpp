@@ -256,9 +256,9 @@ QString
 QResourceFileEngine::fileName(FileName file) const
 {
     if(file == BaseName) {
-	int slash = d->file.lastIndexOf('/');
+	int slash = d->file.lastIndexOf(QLatin1Char('/'));
 	if (slash == -1) {
-	    int colon = d->file.lastIndexOf(':');
+	    int colon = d->file.lastIndexOf(QLatin1Char(':'));
 	    if (colon != -1)
 		return d->file.mid(colon + 1);
 	    return d->file;
@@ -267,15 +267,15 @@ QResourceFileEngine::fileName(FileName file) const
     } else if(file == PathName || file == AbsolutePathName) {
         if (!d->file.size())
             return d->file;
-	int slash = d->file.lastIndexOf('/');
+	int slash = d->file.lastIndexOf(QLatin1Char('/'));
 	if (slash == -1) {
-	    if (d->file.at(1) == ':')
+	    if (d->file.at(1) == QLatin1Char(':'))
 		return d->file.left(2);
-	    return QString::fromLatin1(".");
+	    return QLatin1String(".");
 	} else {
 	    if (!slash)
-		return QString::fromLatin1("/");
-	    if (slash == 2 && d->file.at(1) == ':')
+		return QLatin1String("/");
+	    if (slash == 2 && d->file.at(1) == QLatin1Char(':'))
 		slash++;
 	    return d->file.left(slash);
 	}

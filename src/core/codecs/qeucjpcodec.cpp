@@ -195,7 +195,7 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
         uchar ch = chars[i];
         if (ch < 0x80) {
             // ASCII
-            result += QChar(ch);
+            result += QLatin1Char(ch);
         } else if (ch == Ss2) {
             // JIS X 0201 Kana
             if (i < len-1) {
@@ -388,7 +388,7 @@ public:
               case 0:
                 if (ch < 0x80) {
                     // ASCII
-                    result += QChar(ch);
+                    result += QLatin1Char(ch);
                 } else if (ch == Ss2 || ch == Ss3) {
                     // JIS X 0201 Kana or JIS X 0212
                     buf[0] = ch;

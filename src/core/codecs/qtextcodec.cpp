@@ -2166,7 +2166,7 @@ QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
         if (c[i] > 127)
             uc[i] = unicodevalues[forwardIndex].values[c[i]-128];
         else
-            uc[i] = c[i];
+            uc[i] = QLatin1Char(c[i]);
     }
     return r;
 }

@@ -895,7 +895,7 @@ void QUrlPrivate::setAuthority(const QString &auth)
         }
     }
 
-    int userInfoIndex = auth.indexOf('@');
+    int userInfoIndex = auth.indexOf(QLatin1Char('@'));
     if (userInfoIndex != -1 && (portIndex == -1 || userInfoIndex < portIndex))
         setUserInfo(auth.left(userInfoIndex));
 
@@ -911,7 +911,7 @@ void QUrlPrivate::setAuthority(const QString &auth)
 
 void QUrlPrivate::setUserInfo(const QString &userInfo)
 {
-    int delimIndex = userInfo.indexOf(':');
+    int delimIndex = userInfo.indexOf(QLatin1Char(':'));
     if (delimIndex == -1) {
         userName = userInfo;
         password.clear();
@@ -1708,7 +1708,7 @@ void QUrl::setQueryItems(const QMap<QString, QString> &query)
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
     detach();
 
-    QString alsoEncode = QLatin1String(" \t#");
+    QByteArray alsoEncode = " \t#";
     alsoEncode += d->valueDelimiter;
     alsoEncode += d->pairDelimiter;
 
@@ -1719,9 +1719,9 @@ void QUrl::setQueryItems(const QMap<QString, QString> &query)
         if (first) first = false;
         else queryTmp += d->pairDelimiter;
 
-        queryTmp += QUrl::toPercentEncoding(i.key(), alsoEncode.ascii());
+        queryTmp += QUrl::toPercentEncoding(i.key(), alsoEncode);
         queryTmp += d->valueDelimiter;
-        queryTmp += QUrl::toPercentEncoding(i.value(), alsoEncode.ascii());
+        queryTmp += QUrl::toPercentEncoding(i.value(), alsoEncode);
         ++i;
     }
 
@@ -1758,16 +1758,16 @@ void QUrl::addQueryItem(const QString &key, const QString &value)
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
     detach();
 
-    QString alsoEncode = QLatin1String(" \t#");
+    QByteArray alsoEncode = " \t#";
     alsoEncode += d->valueDelimiter;
     alsoEncode += d->pairDelimiter;
 
     if (!d->query.isEmpty())
         d->query += d->pairDelimiter;
 
-    d->query += QUrl::toPercentEncoding(key, alsoEncode.ascii());
+    d->query += QUrl::toPercentEncoding(key, alsoEncode);
     d->query += d->valueDelimiter;
-    d->query += QUrl::toPercentEncoding(value, alsoEncode.ascii());
+    d->query += QUrl::toPercentEncoding(value, alsoEncode);
 }
 
 /*!
@@ -2345,10 +2345,10 @@ QUrl QUrl::fromLocalFile(const QString &localFile)
     QUrl url;
     url.setScheme(QLatin1String("file"));
     QString deslashified = localFile;
-    deslashified.replace('\\', '/');
+    deslashified.replace(QLatin1Char('\\'), QLatin1Char('/'));
 
     // magic for drives on windows
-    if (deslashified.length() > 1 && deslashified.at(1) == ':' && deslashified.at(0) != '/') {
+    if (deslashified.length() > 1 && deslashified.at(1) == QLatin1Char(':') && deslashified.at(0) != QLatin1Char('/')) {
         url.setPath(QLatin1String("/") + deslashified);
     // magic for shared drive on windows
     } else if (deslashified.startsWith(QLatin1String("//"))) {
@@ -2380,7 +2380,7 @@ QString QUrl::toLocalFile() const
         } else {
 	    tmp = d->path;
 	    // magic for drives on windows
-            if (d->path.length() > 2 && d->path.at(0) == '/' && d->path.at(2) == ':')
+            if (d->path.length() > 2 && d->path.at(0) == QLatin1Char('/') && d->path.at(2) == QLatin1Char(':'))
 		tmp.remove(0, 1);
 	}
     }

@@ -46,10 +46,10 @@ private:
 #endif
     static inline QChar getFilterSepChar(const QString &nameFilter)
     {
-        QChar sep(';');
+        QChar sep(QLatin1Char(';'));
         int i = nameFilter.indexOf(sep, 0);
-        if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
-            sep = QChar(' ');
+        if (i == -1 && nameFilter.indexOf(QLatin1Char(' '), 0) != -1)
+            sep = QChar(QLatin1Char(' '));
         return sep;
     }
     static inline QStringList splitFilters(const QString &nameFilter, QChar sep=0) {
@@ -200,7 +200,7 @@ inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
         for (i = 0; i < l.size(); ++i) {
 	    QString path = data->path;
 	    if (!path.isEmpty() && path.right(1) != QLatin1String("/"))
-		path += '/';
+		path += QLatin1Char('/');
             si[i].item = QFileInfo(path + l.at(i));
 	}
         qt_cmp_si_sortSpec = sortSpec;
@@ -548,7 +548,7 @@ QDir::canonicalPath() const
 QString
 QDir::dirName() const
 {
-    int pos = d->data->path.lastIndexOf('/');
+    int pos = d->data->path.lastIndexOf(QLatin1Char('/'));
     if (pos == -1)
         return d->data->path;
     return d->data->path.mid(pos + 1);
@@ -577,8 +577,8 @@ QDir::filePath(const QString &fileName, bool acceptAbsPath) const
 
     QString ret = d->data->path;
     if(!fileName.isEmpty()) {
-        if (!ret.isEmpty() && ret[(int)ret.length()-1] != '/' && fileName[0] != '/')
-            ret += '/';
+        if (!ret.isEmpty() && ret[(int)ret.length()-1] != QLatin1Char('/') && fileName[0] != QLatin1Char('/'))
+            ret += QLatin1Char('/');
         ret += fileName;
     }
     return ret;
@@ -696,8 +696,8 @@ QDir::cd(const QString &dirName, bool acceptAbsPath)
                   while (dir.cdUp())
                       ;
             */
-            if (newPath[0] == QChar('.') && newPath[1] == QChar('.') &&
-                (newPath.length() == 2 || newPath[2] == QChar('/')))
+            if (newPath[0] == QLatin1Char('.') && newPath[1] == QLatin1Char('.') &&
+                (newPath.length() == 2 || newPath[2] == QLatin1Char('/')))
                 newPath = QFileInfo(newPath).absoluteFilePath();
         }
     }
@@ -1393,13 +1393,13 @@ QChar
 QDir::separator()
 {
 #if defined(Q_OS_UNIX)
-    return '/';
+    return QLatin1Char('/');
 #elif defined (Q_FS_FAT) || defined(Q_WS_WIN)
-    return '\\';
+    return QLatin1Char('\\');
 #elif defined (Q_OS_MAC)
-    return ':';
+    return QLatin1Char(':');
 #else
-    return '/';
+    return QLatin1Char('/');
 #endif
 }
 
@@ -1576,21 +1576,22 @@ QDir::cleanPath(const QString &path)
     if (path.isEmpty())
         return path;
     QString name = path;
-    if(QDir::separator() != '/')
-	name.replace(QDir::separator(), '/');
+    QChar dir_separator = separator();
+    if(dir_separator != QLatin1Char('/'))
+	name.replace(dir_separator, QLatin1Char('/'));
 
     int used = 0, levels = 0;
     const int len = name.length();
     QVector<QChar> out(len);
     const QChar *p = name.unicode();
     for(int i = 0, last = -1, iwrite = 0; i < len; i++) {
-        if(p[i] == '/') {
-            while(i < len-1 && p[i+1] == '/')
+        if(p[i] == QLatin1Char('/')) {
+            while(i < len-1 && p[i+1] == QLatin1Char('/'))
                 i++;
             bool eaten = false;
-            if(i < len - 1 && p[i+1] == '.') {
+            if(i < len - 1 && p[i+1] == QLatin1Char('.')) {
                 int dotcount = 1;
-                if(i < len - 2 && p[i+2] == '.')
+                if(i < len - 2 && p[i+2] == QLatin1Char('.'))
                     dotcount++;
                 if(i == len - dotcount - 1) {
                     if(dotcount == 1) {
@@ -1598,7 +1599,7 @@ QDir::cleanPath(const QString &path)
                     } else if(levels) {
                         if(last == -1) {
                             for(int i2 = iwrite-1; i2 >= 0; i2--) {
-                                if(out[i2] == '/') {
+                                if(out[i2] == QLatin1Char('/')) {
                                     last = i2;
                                     break;
                                 }
@@ -1608,11 +1609,11 @@ QDir::cleanPath(const QString &path)
                         break;
                     }
                 } else {
-                    if(p[i+dotcount+1] == '/') {
+                    if(p[i+dotcount+1] == QLatin1Char('/')) {
                         if(dotcount == 2 && levels) {
                             if(last == -1 || iwrite - last == 1) {
                                 for(int i2 = (last == -1) ? (iwrite-1) : (last-1); i2 >= 0; i2--) {
-                                    if(out[i2] == '/') {
+                                    if(out[i2] == QLatin1Char('/')) {
                                         eaten = true;
                                         last = i2;
                                         break;
@@ -1650,11 +1651,11 @@ QDir::cleanPath(const QString &path)
                 last = i - (i - iwrite);
             else
                 continue;
-        } else if(!i && p[i] == '.') {
+        } else if(!i && p[i] == QLatin1Char('.')) {
             int dotcount = 1;
-            if(len >= 1 && p[1] == '.')
+            if(len >= 1 && p[1] == QLatin1Char('.'))
                 dotcount++;
-            if(len >= dotcount && p[dotcount] == '/') {
+            if(len >= dotcount && p[dotcount] == QLatin1Char('/')) {
                 if(dotcount == 1) {
                     i++;
                     continue;
