@@ -317,9 +317,8 @@
 //#define QT_NO_QWS_DEPTH_1
 /*!
     4-bit VGA
-    Not yet implemented
 */
-#define QT_NO_QWS_VGA_16
+// #define QT_NO_QWS_VGA_16
 /*!
     8-bit grayscale
 */
