@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#70 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#71 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -143,6 +143,8 @@ GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 typedef short QCOORD;				// coordinate type
 const QCOORD_MIN = -32768;
 const QCOORD_MAX =  32767;
+
+typedef unsigned int QRgb;			// RGB triplet
 
 char *qAppName();				// get application name
 
