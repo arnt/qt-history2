@@ -50,7 +50,9 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-
+#if defined( Q_OS_TEMP )
+#include "qt_windows.h"
+#endif
 
 /*!
   \class QDialog qdialog.h
@@ -615,6 +617,9 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	    // p = middle of the desktop
 	    p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
 	}
+#if defined( Q_OS_TEMP )
+	p = QPoint( 0, GetSystemMetric( SM_CYCAPTION ) );
+#endif
 
 	// p = origin of this
 	p = QPoint( p.x()-width()/2 - extraw,
