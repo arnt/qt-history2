@@ -101,7 +101,6 @@ protected:
 
     //make sure libraries are found
     virtual bool findLibraries();
-    virtual QString findDependency(const QString &);
 
     virtual QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);

@@ -523,8 +523,7 @@ MakefileGenerator::init()
                     (*input) = fileFixify((*input));
                 QFileInfo fi(Option::fixPathToLocalOS((*input)));
                 QString in = Option::fixPathToTargetOS((*input), false), out = tmp_out;
-                out = replaceExtraCompilerVariables(out, (*input), out);
-
+                out = replaceExtraCompilerVariables(out, (*input), Qstring::null);
                 if(project->variables().contains((*it) + ".variable_out")) {
                     project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
                 } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
@@ -1455,7 +1454,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 QString in = Option::fixPathToTargetOS((*input), false), deps;
                 if(!tmp_dep.isEmpty())
                     deps = " " + tmp_dep;
-                QString out = replaceExtraCompilerVariables(tmp_out, (*input), out);
+                QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                 QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
                 for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
                     cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
@@ -2077,6 +2076,38 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
         if(depHeuristics.contains(file.real()))
             return depHeuristics[file.real()];
 
+        { //is it form an EXTRA_TARGET
+            QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+            for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+                QString targ = var((*it) + ".target");
+                if(targ.isEmpty())
+                    targ = (*it);
+                if(targ.endsWith(file.real())) {
+                    ret = QMakeLocalFileName(targ);
+                    goto found_dep_from_heuristic;
+                }
+            }
+        }
+        { //is it from an EXTRA_COMPILER
+            QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+            for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+                QString tmp_out = project->variables()[(*it) + ".output"].first();
+                if(tmp_out.isEmpty())
+                    continue;
+                QStringList &tmp = project->variables()[(*it) + ".input"];
+                for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+                    QStringList &inputs = project->variables()[(*it2)];
+                    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                        QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+                        if(out.endsWith(file.real())) {
+                            qDebug("found %s via compilers %s", file.real().latin1(), out.latin1());
+                            ret = QMakeLocalFileName(out);
+                            goto found_dep_from_heuristic;
+                        }
+                    }
+                }
+            }
+        }
         { //is it a file from a .ui?
             QString inc_file = file.real().section(Option::dir_sep, -1);
             int extn = inc_file.lastIndexOf('.');
@@ -2099,7 +2130,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                         ret_name += inc_file;
                         ret_name = fileFixify(ret_name, QDir::currentDirPath(), Option::output_dir);
                         ret = QMakeLocalFileName(ret_name);
-                        break;
+                        goto found_dep_from_heuristic;
                     }
                 }
             }
@@ -2121,7 +2152,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                             QString ret_name = d + file.real();
                             ret_name = fileFixify(ret_name, QDir::currentDirPath(), Option::output_dir);
                             ret = QMakeLocalFileName(ret_name);
-                            break;
+                            goto found_dep_from_heuristic;
                         }
                     }
                 }
@@ -2144,7 +2175,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                             QString ret_name = d + file.local();
                             ret_name = fileFixify(ret_name, QDir::currentDirPath(), Option::output_dir);
                             ret = QMakeLocalFileName(ret_name);
-                            break;
+                            goto found_dep_from_heuristic;
                         }
                     }
                 }
@@ -2165,48 +2196,16 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                             }
                             ret_name = fileFixify(ret_name, QDir::currentDirPath(), Option::output_dir);
                             ret = QMakeLocalFileName(ret_name);
-                            break;
+                            goto found_dep_from_heuristic;
                         }
                     }
-                    if(!ret.isNull())
-                        break;
                 }
             }
         }
+    found_dep_from_heuristic:
         depHeuristics.insert(file.real(), ret);
     }
     return ret;
-}
-
-QString
-MakefileGenerator::findDependency(const QString &dep)
-{
-    //check in our extra targets
-    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
-    for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
-        QString targ = var((*it) + ".target");
-        if(targ.isEmpty())
-            targ = (*it);
-        if(targ.endsWith(dep))
-            return targ;
-    }
-    //check in our extra compilers
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        if(tmp_out.isEmpty())
-            continue;
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                QString out = replaceExtraCompilerVariables(out, (*input), tmp_out);
-                if(out.endsWith(dep))
-                    return out;
-            }
-        }
-    }
-    return QString("");
 }
 
 QStringList
