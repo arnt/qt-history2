@@ -731,9 +731,10 @@ and rarely needs to be modified.
 \section3 QMAKE_CFLAGS_MT
 
 This variable contains the compiler flags for creating a
-multi-threaded application.  The value of this variable is typically
-handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
-rarely needs to be modified.
+multi-threaded application or when the version of Qt that you link
+against is a multi-threaded statically linked library.  The value of 
+this variable is typically handled by \e qmake or 
+\link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
@@ -742,9 +743,10 @@ rarely needs to be modified.
 \section3 QMAKE_CFLAGS_MT_DBG
 
 This variable contains the compiler flags for creating a debuggable
-multi-threaded application.  The value of this variable is typically
-handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
-rarely needs to be modified.
+multi-threaded application or when the version of Qt that you link
+against is a debuggable multi-threaded statically linked library.  The 
+value of this variable is typically handled by \e qmake or 
+\link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
@@ -755,7 +757,8 @@ rarely needs to be modified.
 \e {This is used on Windows only}
 
 This variable contains the compiler flags for creating a 
-multi-threaded dll.  The value of this variable is typically
+multi-threaded dll or when the version of Qt that you link
+against is a multi-threaded dll.  The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
 rarely needs to be modified.
 
@@ -768,9 +771,10 @@ rarely needs to be modified.
 \e {This is used on Windows only}
 
 This variable contains the compiler flags for creating a debuggable
-multi-threaded dll.  The value of this variable is typically
-handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and
-rarely needs to be modified.
+multi-threaded dll or when the version of Qt that you link
+against is a debuggable multi-threaded statically linked library. 
+The value of this variable is typically handled by \e qmake or 
+\link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
 
