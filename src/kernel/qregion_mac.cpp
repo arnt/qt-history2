@@ -105,13 +105,9 @@ RgnHandle QRegion::handle(bool require_rgn) const
 	if(d->qt_rgn->numRects) {
 	    RgnHandle tmp_rgn = qt_mac_get_rgn();
 	    for(int i = 0; i < d->qt_rgn->numRects; ++i) {
-		Rect mac_r;
 		QRect qt_r = d->qt_rgn->rects[i];
-		SetRect(&mac_r, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()), 
-			qMin(SHRT_MAX, qt_r.right() + 1), qMin(SHRT_MAX, qt_r.bottom() + 1));
-		OpenRgn();
-		FrameRect(&mac_r);
-		CloseRgn(tmp_rgn);
+		SetRectRgn(tmp_rgn, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()), 
+			   qMin(SHRT_MAX, qt_r.right() + 1), qMin(SHRT_MAX, qt_r.bottom() + 1));
 		UnionRgn(d->rgn, tmp_rgn, d->rgn);
 	    }
 	    qt_mac_dispose_rgn(tmp_rgn);
