@@ -1395,7 +1395,7 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
 QActionGroup::~QActionGroup()
 {
     QList<QActionGroupPrivate::MenuItem*>::Iterator mit(d->menuitems.begin());
-    while (*mit) {
+    while (mit != d->menuitems.end()) {
 	QActionGroupPrivate::MenuItem *mi = *mit;
 	++mit;
 	if (mi->popup)
