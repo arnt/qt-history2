@@ -19,7 +19,7 @@
 #include <qmainwindow.h>
 #include <qmenu.h>
 
-ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFlags flags)
+ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags flags)
     : QDockWindow(parent, flags)
 {
     setObjectName(colorName + QLatin1String(" Dock Window"));
@@ -135,7 +135,8 @@ void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
 
 void ColorSwatch::polishEvent(QEvent *)
 {
-    const Qt::DockWindowArea area = mainWindow()->dockWindowArea(this);
+    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    const Qt::DockWindowArea area = mainWindow->dockWindowArea(this);
     const Qt::DockWindowAreas areas = allowedAreas();
 
     closableAction->setChecked(hasFeature(QDockWindow::DockWindowClosable));
@@ -203,7 +204,8 @@ void ColorSwatch::place(Qt::DockWindowArea area, bool p)
 {
     if (!p) return;
 
-    mainWindow()->addDockWindow(area, this);
+    QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
+    mainWindow->addDockWindow(area, this);
 
     if (allowedAreasActions->isEnabled()) {
         allowLeftAction->setEnabled(area != Qt::LeftDockWindowArea);
