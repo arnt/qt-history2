@@ -28,7 +28,6 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
-#include <qclipboard.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -215,24 +214,6 @@ void ApplicationWindow::saveAs()
 
 void ApplicationWindow::print()
 {
-   QString text = "where to find the icon in the application and the\n"
-		  "application name. Also describe to him what the new icon should\n"
-	          "convey. John will create the icon and send you an email asking if it\n"
-		  "fits your wildest dreams. Iterations are expected to occur.";
-
-   QApplication::clipboard()->setText( text );
-
-    int para, index;
-    e->paste();
-    e->undo();
-    e->paste();
-    e->setCursorPosition( 2, 8 );
-    e->moveCursor( QTextEdit::MoveWordForward, TRUE );
-    e->removeSelectedText();
-    e->getCursorPosition( &para, &index );
-    qDebug( "para: %d, pos: %d", para, index );
-
-    /*
     // ###### Rewrite to use QSimpleRichText to print here as well
     const int Margin = 10;
     int pageNo = 1;
@@ -268,7 +249,6 @@ void ApplicationWindow::print()
     } else {
 	statusBar()->message( "Printing aborted", 2000 );
     }
-    */
 }
 
 void ApplicationWindow::closeEvent( QCloseEvent* ce )
