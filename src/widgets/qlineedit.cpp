@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#129 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#129 $");
 
 
 struct QLineEditPrivate {
@@ -1119,16 +1119,19 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
 
 QSize QLineEdit::sizeHint() const
 {
-    int h = fontMetrics().height();
+    QFontMetrics fm( font() );
+    int h = fm.height();
+    int w = fm.width( "about 15-20 chars." );
     if ( frame() ) {
 	h += 8;
 	if ( style() == WindowsStyle && h < 26 )
 	    h = 22;
-	return QSize( 10*h + 8, h );
+	return QSize( w + 8, h );
     } else {
-	return QSize( 10*h + 4, h + 4 );
+	return QSize( w + 4, h + 4 );
 	
     }
+    
 }
 
 

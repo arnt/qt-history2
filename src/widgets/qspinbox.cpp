@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#30 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -436,6 +436,21 @@ void QSpinBox::stepDown()
 */
 
 
+/*!
+  \fn void QSpinBox::valueChanged( const char* valueText )
+
+  This signal is emitted whenever the valueChanged( int ) signal is
+  emitted, i.e. every time the value of the spin box changes (whatever
+  the cause - by setValue(), by a keyboard accelerator, by mouse
+  clicks etc.).
+
+  The string pointed to by \a valueText is the same string that is
+  displayed in the edit field of the spin box.
+
+  \sa value()
+*/
+
+
 
 /*!
   Intercepts and handles those events coming to the embedded QLineEdit
@@ -528,15 +543,18 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 }
 
 
+
+
 /*!
   This method gets called by QRangeControl whenever the value has changed.
-  Updates the display and emits the valueChanged() signal.
+  Updates the display and emits the valueChanged() signals.
 */
 
 void QSpinBox::valueChange()
 {
     updateDisplay();
     emit valueChanged( value() );
+    emit valueChanged( currentValueText() );
 }
 
 
@@ -576,15 +594,7 @@ void QSpinBox::setValidator( QValidator* v )
 
 void QSpinBox::updateDisplay()
 {
-    if ( (value() == minValue()) && specialValueText() ) {
-	vi->setText( specialValueText() );
-    }
-    else {
-	QString s = prefix();
-	s.append( mapValueToText( value() ) );
-	s.append( suffix() );
-	vi->setText( s );
-    }
+    vi->setText( currentValueText() );
     edited = FALSE;
     up->setEnabled( wrapping() || value() < maxValue() );
     down->setEnabled( wrapping() || value() > minValue() );
@@ -665,11 +675,12 @@ void QSpinBox::textChanged()
   display value \a v. The default implementation returns a string
   containing \a v printed in the standard way.
 
-  Override this in in a subclass if you want a specialized spin box,
-  handling something else than integers. This function need not be
-  concerned with \link setPrefix() prefix \endlink or \link
-  setSuffix() suffix \endlink or \link setSpecialValueText() special-value
-  text, \endlink the QSpinBox handles that automatically.
+  Override this function in in a subclass if you want a specialized
+  spin box, handling something else than integers. This function need
+  not be concerned with \link setPrefix() prefix \endlink or \link
+  setSuffix() suffix \endlink or \link setSpecialValueText()
+  special-value text, \endlink the QSpinBox handles that
+  automatically.
 
   \sa updateDisplay(), mapTextToValue()
 */
@@ -688,9 +699,9 @@ QString QSpinBox::mapValueToText( int v )
   implementation tries to interpret it as an integer in the standard
   way, and returns the integer value.
 
-  Override this in in a subclass if you want a specialized spin box,
-  handling something else than integers. It should call text() (or
-  cleanText() ) and return the value corresponding to that
+  Override this function in in a subclass if you want a specialized
+  spin box, handling something else than integers. It should call
+  text() (or cleanText() ) and return the value corresponding to that
   text. If the text does not represent a legal value
   (uninterpretable), the bool pointed to by \a ok should be set to
   FALSE.
@@ -711,6 +722,26 @@ int QSpinBox::mapTextToValue( bool* ok )
 	newVal = s.toInt( ok );
     }
     return newVal;
+}
+
+
+/*!
+  Returns the full text of the current value, i.e. including any
+  prefix, suffix or special-value text.
+*/
+
+QString QSpinBox::currentValueText()
+{
+    QString s;
+    if ( (value() == minValue()) && specialValueText() ) {
+	s = specialValueText();
+    }
+    else {
+	s = prefix();
+	s.append( mapValueToText( value() ) );
+	s.append( suffix() );
+    }
+    return s;
 }
 
 
@@ -772,3 +803,5 @@ void QSpinBox::styleChange( GUIStyle )
 	setFrameStyle( Panel | Sunken );
     update();
 }
+
+

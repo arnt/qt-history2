@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#16 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#17 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -57,10 +57,12 @@ public slots:
 
 signals:
     void		valueChanged( int value );
+    void		valueChanged( const char* valueText );
 
 protected:
     virtual QString	mapValueToText( int value );
     virtual int		mapTextToValue( bool* ok );
+    QString		currentValueText();
 
     virtual void	updateDisplay();
     virtual void	interpretText();
