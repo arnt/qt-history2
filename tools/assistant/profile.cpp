@@ -37,7 +37,7 @@ Profile *Profile::createDefaultProfile()
     profile->props[QLatin1String("abouturl")] = QLatin1String("about_qt");
     profile->props[QLatin1String("title")] = QLatin1String("Qt Assistant");
     profile->props[QLatin1String("basepath")] = path;
-    profile->props[QLatin1String("startpage")] = path + QLatin1String("index.html");
+    profile->props[QLatin1String("startpage")] = QLatin1String("file:") + path + QLatin1String("index.html");
 
     profile->addDCFTitle( path + QLatin1String("qt.dcf"), QT_TITLE );
 //    profile->addDCFTitle( path + QLatin1String("designer.dcf"), DESIGNER_TITLE );
