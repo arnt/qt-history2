@@ -15,6 +15,7 @@
 #define QFACTORYINTERFACE_H
 
 #include "qobject.h"
+#include "qstringlist.h"
 
 struct QFactoryInterface
 {
