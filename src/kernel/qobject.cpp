@@ -1786,7 +1786,7 @@ void QObject::initMetaObject()
 /*!
   The functionality of initMetaObject(), provided as a static function.
 */
-QMetaObject* QObject::createMetaObject()
+void QObject::staticMetaObject()
 {
     if ( metaObj )
 	return metaObj;
@@ -1820,16 +1820,6 @@ QMetaObject* QObject::createMetaObject()
 	0, 0,
 	0, 0 );
     return metaObj;
-}
-
-
-// ## To disappear in Qt 3.0
-/*!
-  The functionality of initMetaObject(), provided as a static function.
-*/
-void QObject::staticMetaObject()
-{
-    createMetaObject();
 }
 
 /*!
@@ -2352,7 +2342,7 @@ QVariant QObject::property( const char *name ) const
 {
 
     QVariant value;
-    
+
     //#ME this should manage all QVariant can do
     typedef const char* (QObject::*ProtoConstCharStar)() const;
 
@@ -2762,12 +2752,12 @@ QPropertyInfoList QObject::properties() const
     QPropertyInfoList l;
     QMetaObject* meta = queryMetaObject();
     if ( meta ) {
-	QStrList names = meta->propertyNames(); // resolves overloaded 
+	QStrList names = meta->propertyNames(); // resolves overloaded
 	for ( const char* name = names.first(); names.current(); name = names.next() ) {
 	    QMetaProperty* p = meta->property( names.current(), TRUE );
 	    if ( p )
 		l.append( QPropertyInfo(p) );
-	    
+	
 	}
     }
     return l;

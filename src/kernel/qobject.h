@@ -130,8 +130,6 @@ protected:
 
 
     virtual void initMetaObject();
-    static QMetaObject* createMetaObject();
-    // ## To disappear in Qt 3.0
     static void staticMetaObject();
 
     virtual void timerEvent( QTimerEvent * );

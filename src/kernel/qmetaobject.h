@@ -179,17 +179,4 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-class Q_EXPORT QMetaObjectInit
-{
-public:
-    // ## To disappear in Qt 3.0
-    QMetaObjectInit(void(*f)());
-    QMetaObjectInit(QMetaObject*(*f)());
-
-    static uint init();
-    static QMetaObject* item( const char* classname );
-    static QMetaObject* item( uint index );
-    static uint          count();
-};
-
 #endif // QMETAOBJECT_H

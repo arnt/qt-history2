@@ -30,8 +30,9 @@
 #define input yyinput				// yyinput in C++
 
 #define X if(lexDebug){fprintf(stderr,"LEX (%i) : %s\n",lineNo,yytext);};
-#define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s updates level to %i\n"\
-                               ,lineNo,yytext,templLevel);};
+#define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s\n",lineNo,yytext);};
+// #define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s updates level to %i\n"\
+//                                 ,lineNo,yytext,templLevel);};
 #define Z if(lexDebug){fprintf(stderr,"LEX (%i) : skipped the string %s\"\n"\
                                ,lineNo,yytext);};
 #define BEGIN_INSIDE
@@ -47,6 +48,7 @@ int classPLevel      = 1;  /* Depth of nested curly braces in IN_CLASS*/
 int namespacePLevel  = 1;  /* Depth of nested curly braces in IN_NAMESPACE*/
 int expLevel         = 1;  /* Depth of nested parentheses in IN_EXPR */
 int fctLevel         = 1;  /* Depth of nested parentheses in IN_FCT */
+int eatLevel         = 0;  /* Depth of nested parentheses in IN_EAT */
 int templLevel       = 1;  /* Depth of levels in IN_TEMPL_ARGS */
 
 int lastState        = 0;  /* Remembers the state when a
@@ -61,7 +63,7 @@ extern void addExpressionString( char * );
 extern void moc_warn( char *msg );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_BUILDER
+%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_EAT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_BUILDER
 
 %%
 <OUTSIDE>"class"		{ X;
@@ -78,6 +80,7 @@ extern void moc_warn( char *msg );
 				  return TEMPLATE; }
 <QT_DEF>"signals"		{ X;return SIGNALS; }
 <QT_DEF>"slots"			{ X;return SLOTS; }
+<QT_DEF>"property"		{ X;return PROPERTY; }
 
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
@@ -91,8 +94,10 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"slots"		{ X;return SLOTS; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <IN_CLASS>"Q_METAPROP"		{ X;return Q_METAPROP; }
-<IN_CLASS>"Q_COMPONENT"		{ X;return Q_COMPONENT; }
-<IN_CLASS>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
+<IN_CLASS>"property"		{ X;return PROPERTY_IN_CLASS; }
+<IN_CLASS>"enum"		{ X;return ENUM_IN_CLASS; }
+<IN_CLASS>"class"		{ X;return CLASS_IN_CLASS; }
+<IN_CLASS>"struct"		{ X;return STRUCT_IN_CLASS; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)
@@ -111,27 +116,25 @@ extern void moc_warn( char *msg );
 				  return USING; }
 
 <QT_DEF>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<QT_DEF>"Q_COMPONENT"		{ X;return Q_COMPONENT; }
 <QT_DEF>"Q_METAPROP"		{ X;return Q_METAPROP; }
-<QT_DEF>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
 <IN_BUILDER>"("			{ X;return '('; }
 <IN_BUILDER>","			{ X;return ','; }
 <IN_BUILDER>")"			{ X; BEGIN QT_DEF; return ')'; }
-<IN_EXPR>"("			{ expLevel++;Y; }
+<IN_EXPR>"("			{ expLevel++;X; }
 <IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ')';} }
-<IN_EXPR>"["			{ expLevel++;Y; }
-<IN_EXPR>"]"			{ expLevel--;Y;if (expLevel == 0)
+<IN_EXPR>"["			{ expLevel++;X; }
+<IN_EXPR>"]"			{ expLevel--;X;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ']';} }
 <IN_EXPR>","			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ',' ;} }
 <IN_EXPR>";"			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ';' ;} }
-<IN_ENUM>"("			{ expLevel++;Y; }
-<IN_ENUM>")"			{ expLevel--;Y;if (expLevel == 0)
+<IN_ENUM>"("			{ expLevel++;X; }
+<IN_ENUM>")"			{ expLevel--;X;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ')';} }
-<IN_ENUM>"["			{ expLevel++;Y; }
-<IN_ENUM>"]"			{ expLevel--;Y;if (expLevel == 0)
+<IN_ENUM>"["			{ expLevel++;X; }
+<IN_ENUM>"]"			{ expLevel--;X;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ']';} }
 <IN_ENUM>","			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ',' ;} }
@@ -440,6 +443,22 @@ extern void moc_warn( char *msg );
 \n			{
 			  lineNo++;
 			}
+
+
+<IN_EAT>"{"			{ eatLevel++;X; }
+<IN_EAT>"}"			{ eatLevel--;X; }
+<IN_EAT>";"			{ if (eatLevel==0){X;return ';';} }
+<IN_EAT>\"[^"]*		{			/* discard strings */
+			  if (yytext[yyleng - 1] == '\\') {
+			    yymore();
+			  }
+			  else {
+			    Z;
+			    addExpressionString(yytext);
+			    input();		/* discard the '"' */
+			  }
+			}
+<IN_EAT>.		;
 
 %%
 

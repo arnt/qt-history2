@@ -122,12 +122,9 @@ char	*straddSpc( const char *, const char *,
 
 extern int yydebug;
 bool	   lexDebug	   = FALSE;
-bool	   doProperties	   = FALSE;
-bool	   propertyWarnings= FALSE;
 int	   lineNo;				// current line number
 bool	   errorControl	   = FALSE;		// controlled errors
 bool	   displayWarnings = TRUE;
-bool	   suppressWarnings = FALSE;
 bool	   skipClass;				// don't generate for class
 bool	   skipFunc;				// don't generate for func
 bool	   templateClass;			// class is a template
@@ -139,11 +136,6 @@ AccessPerm tmpAccessPerm;			// current access permission
 AccessPerm subClassPerm;			// current access permission
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
-bool	   Q_COMPONENTdetected;			// TRUE if current class
-						// contains the Q_COMPONENT macro
-bool	   Q_CUSTOM_FACTORYdetected;			// TRUE if current class
-						// contains the Q_CUSTOM_FACTORY macro
-
 QAsciiDict<QString> tmpMetaProperties;		// Stores properties of the QMetaObject
 
 QCString   tmpExpression;
@@ -192,8 +184,11 @@ const int  formatRevision = 4;			// moc output format revision
 %token			DOUBLE
 %token			VOID
 %token			ENUM
+%token			ENUM_IN_CLASS
 %token			CLASS
+%token			CLASS_IN_CLASS
 %token			STRUCT
+%token			STRUCT_IN_CLASS
 %token			UNION
 %token			ASM
 %token			PRIVATE
@@ -210,9 +205,9 @@ const int  formatRevision = 4;			// moc output format revision
 %token			SIGNALS
 %token			SLOTS
 %token			Q_OBJECT
-%token			Q_COMPONENT
 %token			Q_METAPROP
-%token			Q_CUSTOM_FACTORY
+%token			PROPERTY
+%token			PROPERTY_IN_CLASS
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -229,6 +224,7 @@ const int  formatRevision = 4;			// moc output format revision
 %type  <string>		simple_type_names
 %type  <string>		simple_type_name
 %type  <string>		class_key
+%type  <string>		class_key_in_class
 %type  <string>		complete_class_name
 %type  <string>		qualified_class_name
 %type  <string>		elaborated_type_specifier
@@ -517,6 +513,7 @@ fct_decl:		  '('
 			  argument_declaration_list
 			  ')'
 			  cv_qualifier_list_opt
+			  ctor_initializer_opt
 			  fct_body_or_semicolon
 						{ tmpFunc->args	     = $2;
 						  tmpFunc->qualifier = $4; }
@@ -575,8 +572,8 @@ fct_body_or_semicolon:	  ';'
 			| '=' INT_VAL ';'   /* abstract func, INT_VAL = 0 */
 			;
 
-fct_body:		  '{' {BEGIN IN_FCT; fctLevel = 1;}
-			  '}' {BEGIN QT_DEF; }
+fct_body:		  '{' { BEGIN IN_FCT; fctLevel = 1;}
+			  '}' { BEGIN QT_DEF; }
 			;
 
 
@@ -617,6 +614,23 @@ full_class_head:	  class_head
 			  opt_base_spec		{ superclassName = $2; }
 			;
 
+ctor_initializer_opt:		/* empty */
+			| ctor_initializer
+			;
+
+ctor_initializer:	':' mem_initializer_list
+			;
+
+mem_initializer_list:	mem_initializer
+			| mem_initializer ',' mem_initializer_list
+			;
+
+/* complete_class_name also represents IDENTIFIER */
+mem_initializer:	complete_class_name '('	{ expLevel = 1; }
+			const_expression ')'
+			;
+
+
 opt_base_spec:			/* empty */	{ $$ = 0; }
 			| base_spec		{ $$ = $1; }
 			;
@@ -646,68 +660,44 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					   "Q_OBJECT is a macro that resets"
 					   " access permission to \"private\".");
 			      Q_OBJECTdetected = TRUE;
-			      Q_COMPONENTdetected = FALSE;
-			  }
-			| Q_CUSTOM_FACTORY		{
-			    if ( tmpAccessPerm )
-				moc_warn("Q_CUSTOM_FACTORY is not in the private"
-					 " section of the class.\n"
-					 "Q_CUSTOM_FACTORY is a macro that resets"
-					 " access permission to \"private\".");
-			    Q_CUSTOM_FACTORYdetected = TRUE;
-			  }
-			| Q_COMPONENT		{
-			    if ( tmpAccessPerm )
-				moc_warn("Q_COMPONENT is not in the private"
-					 " section of the class.\n"
-					 "Q_COMPONENT is a macro that resets"
-					 " access permission to \"private\".");
-			    Q_OBJECTdetected = TRUE;
-			    Q_COMPONENTdetected = TRUE;
-			    doProperties = TRUE;
 			  }
 			| Q_METAPROP { BEGIN IN_BUILDER; }
 			  '(' STRING ',' STRING ')'
 				  { tmpMetaProperties.insert( $4, new QString( $6 ) ); }
 
+			| PROPERTY_IN_CLASS
+				{ if ( tmpAccessPerm == _PUBLIC )
+				    BEGIN QT_DEF;
+				  else
+				    moc_warn("Property declaration not in public"
+					     " section of class");
+				}
+			  opt_property	{ BEGIN IN_CLASS; }
+			| ENUM_IN_CLASS { BEGIN QT_DEF; }
+			  enum_tail ';' { BEGIN IN_CLASS;}
+			| class_key_in_class { BEGIN QT_DEF; }
+			  IDENTIFIER { BEGIN IN_EAT; eatLevel=0;}
+			  ';' { BEGIN IN_CLASS; }
 
 			;
-
-slot_area:		  SIGNALS ':'	     { moc_err( "Signals cannot "
+slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 						 "have access specifiers" ); }
 			| SLOTS	  ':' opt_slot_declarations
-			| ':'		 { if ( doProperties &&
-						tmpAccessPerm == _PUBLIC ) {
-						  BEGIN QT_DEF;
-						  suppressWarnings = TRUE;
-					   } else {
-						BEGIN IN_CLASS;
-					   }
-					 }
-				opt_qprop_declarations
-					 {
-						suppressWarnings = FALSE;
-					 }
-				
-			| IDENTIFIER	 { BEGIN IN_CLASS;
+			| ':'		{ BEGIN IN_CLASS; }
+			  opt_slot_declarations
+			| IDENTIFIER	{ BEGIN IN_CLASS;
 					   if ( classPLevel != 1 )
 					       moc_warn( "unexpected access"
 							 "specifier" );
-					 }
+					}
 			;
 
-opt_qprop_declarations:	/* empty */
-			| qprop_declarations
+opt_property:			/* empty */
+			| property
+				{ if ( !tmpFunc->name.isEmpty() )
+				    addMember('p');
+				}
 			;
-
-qprop_declarations:	  qprop_declarations qprop_declaration
-			| qprop_declaration
-			;
-
-
-qprop_declaration:	  qprop	{ /* It could have been a template */
-                                  if ( !tmpFunc->name.isEmpty() ) addMember('p');
-                                  else if ( !tmpEnum->name.isEmpty() ) addEnum(); }
 
 opt_signal_declarations:	/* empty */
 			| signal_declarations
@@ -718,7 +708,7 @@ signal_declarations:	  signal_declarations signal_declaration
 			;
 
 
-signal_declaration:	  qsignal	{ addMember('s'); }
+signal_declaration:	  signal_or_slot	{ addMember('s'); }
 			;
 
 opt_slot_declarations:		/* empty */
@@ -729,10 +719,11 @@ slot_declarations:	  slot_declarations slot_declaration
 			| slot_declaration
 			;
 
-slot_declaration:	  qslot	{ addMember('t'); }
+slot_declaration:	  signal_or_slot		{ addMember('t'); }
+			| PROPERTY signal_or_slot	{ addMember('t'); }
 			;
 
-opt_semicolons:		  /* empty */
+opt_semicolons:			/* empty */
 			| opt_semicolons ';'
 			;
 
@@ -864,26 +855,23 @@ type_and_name:		  type_name fct_name
 						{ operatorError();    }
 			;
 
-qprop:			  type_and_name fct_decl opt_semicolons
-			| type_and_name opt_bitfield ';' opt_semicolons
-				{ func_warn("Variable as property access function."); }
+property:		type_and_name fct_decl 
+			| type_and_name opt_bitfield ';' 
+				{ func_warn("Variable as property access"
+					    " function."); }
 			| type_and_name opt_bitfield ','member_declarator_list
-			  ';' opt_semicolons
-				{ func_warn("Variable as property access function."); }
-			| prop_enum_specifier  ';' opt_semicolons
-                        | USING complete_class_name ';' opt_semicolons
-                                { func_warn("Using declaration as signal or"
-					    " slot."); }
-			| USING NAMESPACE complete_class_name ';' opt_semicolons
-                                { func_warn("Using declaration as signal or"
-					    " slot."); }
+			  ';' 
+				{ func_warn("Variable as property access"
+					    " function."); }
+                        | USING complete_class_name ';' 
+                                { func_warn("Using declaration as property."); }
+			| USING NAMESPACE complete_class_name ';' 
+                                { func_warn("Using declaration as property."); }
 			| NAMESPACE IDENTIFIER '{'
                                 { classPLevel++;
-				  moc_err("Namespace declaration as signal or"
-					  " slot."); }
-			;
+				  moc_err("Namespace declaration as property."); }
 
-qslot:			  type_and_name fct_decl opt_semicolons
+signal_or_slot:		type_and_name fct_decl opt_semicolons
 			| type_and_name opt_bitfield ';' opt_semicolons
 				{ func_warn("Variable as signal or slot."); }
 			| type_and_name opt_bitfield ','member_declarator_list
@@ -891,7 +879,7 @@ qslot:			  type_and_name fct_decl opt_semicolons
 				{ func_warn("Variable as signal or slot."); }
 			| enum_specifier  ';' opt_semicolons
 				{ func_warn("Enum declaration as signal or"
-					  " slot."); }
+					    " slot."); }
                         | USING complete_class_name ';' opt_semicolons
                                 { func_warn("Using declaration as signal or"
 					    " slot."); }
@@ -902,27 +890,13 @@ qslot:			  type_and_name fct_decl opt_semicolons
                                 { classPLevel++;
 				  moc_err("Namespace declaration as signal or"
 					  " slot."); }
-			;
-
-qsignal:		  type_and_name fct_decl opt_semicolons
-			| type_and_name opt_bitfield ';' opt_semicolons
-				{ func_warn("Variable as signal or slot."); }
-			| type_and_name opt_bitfield ','member_declarator_list
+			| class_key IDENTIFIER ';' opt_semicolons
+				{ moc_warn("Class declaration as signal or slot.");}
+			| class_key IDENTIFIER
+			  '{'   { BEGIN IN_FCT; fctLevel=1;}
+                          '}'   { BEGIN QT_DEF; }
 			  ';' opt_semicolons
-				{ func_warn("Variable as signal or slot."); }
-			| enum_specifier  ';' opt_semicolons
-				{ func_warn("Enum declaration as signal or"
-					  " slot."); }
-                        | USING complete_class_name ';' opt_semicolons
-                                { func_warn("Using declaration as signal or"
-					    " slot."); }
-			| USING NAMESPACE complete_class_name ';' opt_semicolons
-                                { func_warn("Using declaration as signal or"
-					    " slot."); }
-			| NAMESPACE IDENTIFIER '{'
-                                { classPLevel++;
-				  moc_err("Namespace declaration as signal or"
-					  " slot."); }
+				{ moc_warn("Class declaration as signal or slot.");}
 			;
 
 
@@ -943,29 +917,35 @@ opt_bitfield:		  /* empty */
 			;
 
 
-enum_specifier:		  ENUM opt_identifier '{'   {BEGIN IN_FCT; fctLevel=1;}
-					      '}'   {BEGIN QT_DEF; }
+enum_specifier:		  ENUM enum_tail
 			;
 
-prop_enum_specifier:	  ENUM IDENTIFIER '{'   prop_enum_list
-				          '}'   {BEGIN QT_DEF; tmpEnum->name = $2; }
-			| ENUM  '{'   {BEGIN IN_FCT; fctLevel=1;}
-                                '}'   {BEGIN QT_DEF; func_warn("No anonymous enums allowed"
-							       "in properties section"); }
+enum_tail:		  IDENTIFIER '{'   enum_list
+			  '}'   { BEGIN QT_DEF; 
+				  if ( tmpAccessPerm == _PUBLIC) {
+				      tmpEnum->name = $1; 
+				      addEnum(); 
+				  }
+				}
+			| '{'   { BEGIN IN_FCT; fctLevel=1; }
+			  '}'   { BEGIN QT_DEF; }
 			;
 
-prop_enum_list:		  /* empty */
-			| prop_enumerator
-			| prop_enum_list ',' prop_enumerator
+enum_list:		  /* empty */
+			| enumerator
+			| enum_list ',' enumerator
 			;
 
-prop_enumerator:	  IDENTIFIER { tmpEnum->append( $1 ); }
+enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 ); }
 			| IDENTIFIER '=' { expLevel=0; }
-			  enumerator_expression { tmpEnum->append( $1 );  }
+			  enumerator_expression {  if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 );  }
 
-opt_identifier:		  /* empty */
-			| IDENTIFIER
+
+
+class_key_in_class:	  CLASS_IN_CLASS { $$ = "class"; }
+			| STRUCT_IN_CLASS { $$ = "struct"; }
 			;
+
 
 %%
 
@@ -1088,8 +1068,6 @@ int main( int argc, char **argv )
 		replace(qtPath.data(),'\\','/');
 		if ( qtPath.right(1) != "/" )
 		    qtPath += '/';
-	    } else if ( opt == "w" ) {		// warnings for property candidates
-		propertyWarnings = TRUE;
 	    } else if ( opt == "k" ) {		// don't stop on errors
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
@@ -1141,7 +1119,6 @@ int main( int argc, char **argv )
 		 "\t-p path  Path prefix for included file\n"
 		 "\t-k       Do not stop on errors\n"
 		 "\t-nw      Do not display warnings\n"
-		 "\t-w       Display warnings for all property candidates\n"
 		 );
 	return 1;
     } else {
@@ -1262,10 +1239,8 @@ void initClass()				 // prepare for new class
     tmpAccessPerm    = _PRIVATE;
     subClassPerm     = _PRIVATE;
     Q_OBJECTdetected = FALSE;
-    Q_COMPONENTdetected = FALSE;
     skipClass	     = FALSE;
     templateClass    = FALSE;
-    Q_CUSTOM_FACTORYdetected  = FALSE;
     tmpMetaProperties.clear();
     slots.clear();
     signals.clear();
@@ -1459,7 +1434,7 @@ void moc_err( char *s1, char *s2 )
 
 void moc_warn( char *msg )
 {
-    if ( displayWarnings && !suppressWarnings )
+    if ( displayWarnings )
 	fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, msg);
 }
 
@@ -1467,7 +1442,7 @@ void moc_warn( char *s1, char *s2 )
 {
     static char tmp[1024];
     sprintf( tmp, s1, s2 );
-    if ( displayWarnings && !suppressWarnings )
+    if ( displayWarnings )
 	fprintf( stderr, "%s:%d: Warning: %s\n", fileName.data(), lineNo, tmp);
 }
 
@@ -1790,10 +1765,8 @@ int generateProps()
 	if ( f->type != "void" ) {  // get function
 
 	    if ( p->getfunc ) {
-		if ( propertyWarnings )
-		    moc_warn("Property '%s' has get function defined twice.", name.data() );
+		moc_warn("Property '%s' has get function defined twice.", name.data() );
 	    } else {
-		p->getfunc = f;
 		QCString tmp = f->type.copy();
 		tmp = tmp.simplifyWhiteSpace();
 		if ( tmp.left(6) == "const " )
@@ -1809,19 +1782,18 @@ int generateProps()
 		}
 		tmp = tmp.simplifyWhiteSpace();
 		if ( !p->type.isEmpty() && p->type != tmp ) {
-		    p->setfunc = 0;
-		    if ( propertyWarnings )
-			moc_warn("Property '%s' has different types in get and set functions.", name.data() );
+		    moc_warn("Property '%s' has different types in get and set functions.", name.data() );
+		} else {
+		    p->type = tmp;
+		    p->getfunc = f;
 		}
-		p->type = tmp;
 	    }
 	}
 	
 	else if ( setCandidate )  { // set function
 	
 	    if ( p->setfunc ) {
-		if ( propertyWarnings )
-		    moc_warn("Property '%s' has set function defined twice.", name.data() );
+		moc_warn("Property '%s' has set function defined twice.", name.data() );
 	    } else {
 
 		QCString tmp = f->args->first()->leftType.copy();
@@ -1837,8 +1809,8 @@ int generateProps()
 		}
 		tmp = tmp.simplifyWhiteSpace();
 		if ( !p->type.isEmpty() && p->type != tmp ) {
-		    if ( propertyWarnings )
-			moc_err("Property '%s' has different types in set and get functions.", name.data() );
+		    moc_err("Property '%s' has different types in set and get functions.", name.data() );
+		    p->getfunc = 0;
 		}
 		p->type = tmp;
 		p->setfunc = f;
@@ -1885,22 +1857,22 @@ int generateProps()
 	int count = 0;
 	int entry = 0;
 	for( QDictIterator<Property> dit( pdict ); dit.current(); ++dit ){
-	    
+	
 	    fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
 		     entry, (const char*)dit.currentKey() );
-	    
+	
 	    if ( dit.current()->getfunc )
 		fprintf( out, "    props_tbl[%d].get = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count );
 	    else
 		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
-	    
+	
 	    if ( dit.current()->setfunc )
 		fprintf( out, "    props_tbl[%d].set = *((QMember*)&v%d_%d);\n",
 			 entry, Prop_Num, count + 1 );
 	    else
 		fprintf( out, "    props_tbl[%d].set = 0;\n", entry );
-	    
+	
 	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, (const char*)dit.current()->type );
 	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->gspec ));
 	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", entry, Property::specToString(dit.current()->sspec ));
@@ -1994,46 +1966,6 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\n\n" );
     }
 
-//
-// Generate static member function factory() if needed
-//
-
-    bool hasFactory = TRUE;
-
-    if ( Q_COMPONENTdetected && !Q_CUSTOM_FACTORYdetected )
-    {
-	// Special handling for QToolBar
-	if ( className == "QToolBar" )
-	{
-	    fprintf( out, "QObject* QToolBar_factory( QObject* parent )" );
-	    fprintf( out, "{" );
-	    fprintf( out, "    if ( !parent || !parent->inherits(\"QMainWindow\") )" );
-	    fprintf( out, "    {" );
-	    fprintf( out, "	   qDebug( \"The parent of a toolbar must always be a QMainWindow.\n\" );" );
-	    fprintf( out, "	   return 0;" );
-	    fprintf( out, "    }" );
-	    fprintf( out, "" );
-	    fprintf( out, "    return new QToolBar( (QMainWindow*)parent );" );
-	    fprintf( out, "}" );
-	}
-	// Special handling for Qt layout classes
-	else if ( className == "QGridLayout" || className == "QVBoxLayout" || className == "QHBoxLayout" ||
-	     className == "QBoxLayout" )
-	{
-	    fprintf( out, "static QObject *%s_factory( QObject* _parent )\n{\n", (const char*)className );
-	    fprintf( out, "    if ( _parent == 0 ) return new %s;\n",(const char*)className);
-	    fprintf( out, "    if ( _parent->inherits( \"QLayout\" ) ) return new %s( (QLayout*)_parent );\n",
-		     (const char*)className);
-	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
-	}
-	// Skip abstract classes
-	else if ( className != "QLayout" )
-	{
-	    // The hack ends here
-	    fprintf( out, "static QObject *%s_factory( QObject* _parent )\n{\n", (const char*)className );
-	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
-	}
-    }
 
 //
 // Generate virtual function className()
@@ -2046,17 +1978,6 @@ void generateClass()		      // generate C++ source code for a class
 // Generate static metaObj variable
 //
     fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", (const char*)qualifiedClassName());
-
-//
-// Generate static meta-object constructor-object (we don't rely on
-// it, except for QBuilder).
-//
-    fprintf( out, "\n#if QT_VERSION >= 199\n" );
-    int levels = openNameSpaceForMetaObject( out );
-    fprintf( out, "static QMetaObjectInit init_%s(&%s::createMetaObject);\n\n",
-	(const char*)pureClassName(), (const char*)qualifiedClassName() );
-    closeNameSpaceForMetaObject( out, levels );
-    fprintf( out, "#endif\n\n" );
 
 //
 // Generate initMetaObject member function
@@ -2080,15 +2001,8 @@ void generateClass()		      // generate C++ source code for a class
 // Generate staticMetaObject member function
 //
     fprintf( out, "void %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
-    fprintf( out, "    createMetaObject();\n}\n\n" );
-
-//
-// Generate createMetaObject member function
-//
-    fprintf( out, "QMetaObject* %s::createMetaObject()\n{\n", (const char*)qualifiedClassName() );
-    fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
+    fprintf( out, "    if ( metaObj )\n\treturn;\n" );
     fprintf( out, "    %s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
-
 
 //
 // Build the enums array in staticMetaObject()
@@ -2148,16 +2062,6 @@ void generateClass()		      // generate C++ source code for a class
 //
     finishProps();
 
-//
-// create Builder information in staticMetaObject()
-//
-    if ( Q_COMPONENTdetected )
-    {
-        if ( Q_CUSTOM_FACTORYdetected )
-           fprintf( out, "    metaObj->setFactory( %s::qFactory );\n", (const char*)className );
-        else
-           fprintf( out, "    metaObj->setFactory( %s_factory );\n", (const char*)className );
-    }
     fprintf( out, "    return metaObj;\n}\n" );
 
 //
@@ -2337,14 +2241,20 @@ void addMember( char m )
     }
 
     // check for property set/get candidates
-    if ( m == 'p' || ( m == 't' &&
-		       tmpFunc->type == "void" &&
-		       tmpAccessPerm == _PUBLIC ) ) {
+    if ( m == 'p' ) { // todo: check slots!
 	
-	if ( tmpFunc->type == "void" ) { //  set-function candidate
+	if ( tmpFunc->name.left(3) == "set") { //  set-function candidate
 
-	    if ( tmpFunc->args->count() != 1 )
+	    if ( tmpFunc->args->count() != 1 ) {
+		moc_warn( "Property set function %s(...) takes more than one argument.", 
+			  tmpFunc->name.data() );
 		goto Failed; // set functions have one parameter
+	    }
+	    if ( tmpFunc->type != "void" ) {
+		moc_warn( "Property set function %s(...) has non-void return type.", 
+			  tmpFunc->name.data() );
+		goto Failed;  // set functions do not have a return type
+	    }
 
 	    // check wether the parameter is legal
 	    bool special = FALSE;
@@ -2362,22 +2272,28 @@ void addMember( char m )
 	    // No []* etc. allowed here
 	    for( int i = 0; i < tmp.length(); ++i )
 		if ( !isIdentChar( tmp[i] ) && tmp[i] != '_' ) {
-		    if ( propertyWarnings )
-			moc_warn( "setProperty candiate %s(...) has illegal parameter type.",
-				  tmpFunc->name.data() );
+		    moc_warn( "Property set function %s(...) has illegal parameter type.",
+			      tmpFunc->name.data() );
 		    goto Failed;
 		}
 	    // pointers and refs are not allowed on enums
 	    if ( special && !isPropertyType( tmp, FALSE ) ) {
-		if ( propertyWarnings )
-		    moc_warn( "setProperty candidate %s(...) has illegal parameter type.",
-			      tmpFunc->name.data() );
+		moc_warn( "Property set function %s(...) has illegal parameter type.",
+			  tmpFunc->name.data() );
 		goto Failed;
 	    }
 	} else { // get-function candidate
 	
-	    if ( tmpFunc->args->count() != 0 )
+	    if ( tmpFunc->args->count() != 0 ) {
+		moc_warn( "Property get function %s(...) wants parameters.", 
+			  tmpFunc->name.data() );
 		goto Failed; // get functions have no parameter
+	    }
+	    if ( tmpFunc->qualifier != "const" ) {
+		moc_warn( "Property get function %s(...) not declared const.", 
+			  tmpFunc->name.data() );
+		goto Failed; // get functions have no parameter
+	    }
 	
 	    QCString tmp = tmpFunc->type;
 	    tmp = tmp.simplifyWhiteSpace();
@@ -2397,16 +2313,14 @@ void addMember( char m )
 	    // No []* etc. allowed here
 	    for( int i = 0; i < tmp.length(); ++i )
 		if ( !isIdentChar( tmp[i] ) && tmp[i] != '_' ) {
-		    if ( propertyWarnings )
-			moc_warn( "getProperty candidate %s() has illegal parameter type.",
-				  tmpFunc->name.data() );
+		    moc_warn( "Property get function %s() has illegal parameter type.",
+			      tmpFunc->name.data() );
 		    goto Failed;
 		}
 	    // pointers and refs are not allowed on enums
 	    if ( special && !isPropertyType( tmp, FALSE ) ) {
-		if ( propertyWarnings )
-		    moc_warn( "getProperty candidate %s() has illegal parameter type.",
-			      tmpFunc->name.data() );
+		moc_warn( "Property get function %s() has illegal parameter type.",
+			  tmpFunc->name.data() );
 		goto Failed;
 	    }
 	}
