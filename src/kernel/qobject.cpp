@@ -150,9 +150,8 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
     is much faster than inherits( "QWidget" ).
 
     Some QObject functions, e.g. children(), objectTrees() and
-    queryList() return a QObjectList. A QObjectList is a QPtrList of
-    QObjects. QObjectLists support the same operations as QPtrLists
-    and have an iterator class, QObjectListIterator.
+    queryList() return a QObjectList. A QObjectList is a QList of
+    QObjects.
 */
 
 
@@ -963,9 +962,9 @@ static void objSearch( QObjectList &result,
     The QObjectList class is defined in the \c qobjectlist.h header
     file.
 
-    The first child added is the \link QPtrList::first() first\endlink
+    The first child added is the \link QList::first() first\endlink
     object in the list and the last child added is the \link
-    QPtrList::last() last\endlink object in the list, i.e. new
+    QList::last() last\endlink object in the list, i.e. new
     children are appended at the end.
 
     Note that the list order changes when QWidget children are \link
