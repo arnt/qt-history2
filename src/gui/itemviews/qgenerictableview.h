@@ -33,10 +33,10 @@ public:
     void setModel(QAbstractItemModel *model);
     void setSelectionModel(QItemSelectionModel *selectionModel);
 
-    QGenericHeader *topHeader() const;
-    QGenericHeader *leftHeader() const;
-    void setTopHeader(QGenericHeader *header);
-    void setLeftHeader(QGenericHeader *header);
+    QGenericHeader *horizontalHeader() const;
+    QGenericHeader *verticalHeader() const;
+    void setHorizontalHeader(QGenericHeader *header);
+    void setVerticalHeader(QGenericHeader *header);
 
     int rowViewportPosition(int row) const;
     int rowHeight(int row) const;

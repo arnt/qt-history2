@@ -8,11 +8,13 @@ class QGenericTableViewPrivate : public QAbstractItemViewPrivate
     Q_DECLARE_PUBLIC(QGenericTableView)
 public:
     QGenericTableViewPrivate()
-        : showGrid(true), gridStyle(Qt::SolidLine), topHeader(0), leftHeader(0) {}
+        : showGrid(true), gridStyle(Qt::SolidLine), horizontalHeader(0), verticalHeader(0) {}
+    void init();
 
     bool showGrid;
     Qt::PenStyle gridStyle;
-    QGenericHeader *topHeader, *leftHeader;
+    QGenericHeader *horizontalHeader;
+    QGenericHeader *verticalHeader;
     QModelIndex topLeft, bottomRight; // Used for optimization in setSelection
 };
 
