@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#89 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#89 $");
 
 
 /*!
@@ -246,8 +246,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( event->type() == Event_Accel ) {
 	QWidget * f = ((QWidget *)object)->focusWidget();
 	QKeyEvent * ke = (QKeyEvent *) event;
-	if ( f ) {
-	    if ( ke->key() == Key_Alt ) {
+	if ( f ) { // ### this thinks alt and meta are the same
+	    if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
 		if ( windowsaltactive || actItem >= 0 ) {
 		    setWindowsAltMode( FALSE, -1 );
 		} else {
@@ -264,8 +264,10 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 
     // look for Alt release
     if ( ((QWidget*)object)->focusWidget() == object ) {
-	if ( windowsaltactive && event->type() == Event_KeyRelease &&
-	     ((QKeyEvent *)event)->key() == Key_Alt ) {
+	if ( windowsaltactive &&
+	     event->type() == Event_KeyRelease &&
+	     (((QKeyEvent *)event)->key() == Key_Alt ||
+	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
 	    actItem = 0;
 	    setFocus();
 	    if ( object->parent() )
@@ -281,6 +283,15 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	} else if ( event->type() == Event_KeyPress && object->parent() ) {
 	    object->removeEventFilter( this );	    
 	}
+    }
+
+    // watch for top-level window focus changes
+    if ( windowsaltactive &&
+	 event->type() == Event_FocusOut &&
+	 qApp && qApp->focusWidget() != this ) {
+	setWindowsAltMode( FALSE, -1 );
+	if ( object->parent() )
+	    object->removeEventFilter( this );
     }
 
     return FALSE;				// don't stop event
@@ -797,7 +808,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 		setWindowsAltMode( TRUE, item );
 		mi = mitems->at( item );
 		emit highlighted( mi->id() );
-	    } else if (actItem >= 0 && // ### uglehack alert!  beep beep beep!
+	    } else if (actItem >= 0 && irects && // ### uglehack alert!
 		       QRect(irects[actItem].left(), irects[actItem].top()-4,
 			     irects[actItem].width(),
 			     irects[actItem].height()+8 ).contains(e->pos())) {
@@ -978,18 +989,22 @@ void QMenuBar::setActItem( int i, bool clear )
 	// just one item needs repainting
 	int n = QMAX( actItem, i );
 	actItem = i;
-	repaint( irects[n], clear );
+	if ( irects )
+	    repaint( irects[n], clear );
     } else if ( QABS(i-actItem) == 1 ) {
 	// two neighbouring items need repainting
 	int o = actItem;
 	actItem = i;
-	repaint( irects[i].unite( irects[o] ), clear );
+	if ( irects )
+	    repaint( irects[i].unite( irects[o] ), clear );
     } else {
 	// two non-neighbouring items need repainting
 	int o = actItem;
 	actItem = i;
-	repaint( irects[o], clear );
-	repaint( irects[i], clear );
+	if ( irects ) {
+	    repaint( irects[o], clear );
+	    repaint( irects[i], clear );
+	}
     }
 }
 
