@@ -350,10 +350,12 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     d->saved = new QMacSavedPortInfo;
 
     const QWidget *copyFrom = 0;
-    pdev = redirect( (QPaintDevice*)pd );
-    if ( pdev ) {				    // redirected paint device?
+    QPainter::Redirection redirection = redirect((QPaintDevice*)pd);
+    if (redirection.replacement) {    // redirected paint device?
+	pdev = redirection.replacement;
+	redirection_offset = redirection.offset;
 	if ( pd->devType() == QInternal::Widget )
-	    copyFrom = (const QWidget *)pd;	    // copy widget settings
+	    copyFrom = (const QWidget *)pd; // copy widget settings
     } else {
 	pdev = (QPaintDevice*)pd;
     }
@@ -485,6 +487,8 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 
     updateBrush();
     updatePen();
+    if (!redirection_offset.isNull())
+	translate(-redirection_offset.x(), -redirection_offset.y());
     return TRUE;
 }
 
@@ -687,9 +691,11 @@ void QPainter::setClipRegion(const QRegion &rgn, CoordinateMode m)
 	return;
     }
 
-    if(m == CoordDevice)
+    if ( m == CoordDevice ) {
 	crgn = rgn;
-    else
+	if (!redirection_offset.isNull())
+	    crgn.translate(-redirection_offset);
+    } else
 	crgn = xmat * rgn;
 
     setf(ClipOn);
@@ -1768,7 +1774,7 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
 	if(pevent && !((*pevent) == pdev))
 	    pevent = 0;
 	QWidget *w = (QWidget*)pdev, *clip = w;
-	if(pevent && pevent->clip()) 
+	if(pevent && pevent->clip())
 	    clip = pevent->clip();
 	if(!(remade_clip = force)) {
 	    if(pevent != d->cache.paintevent)

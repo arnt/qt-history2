@@ -1174,64 +1174,26 @@ void QWidget::setBaseSize( int w, int h )
 
 extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, int );
 
-void QWidget::erase( int x, int y, int w, int h )
+void QWidgetPrivate::erase_helper( const QRegion& rgn )
 {
-    // SIMILAR TO region ERASE BELOW
-
-    if ( testAttribute(WA_NoErase) )
-	return;
-    if ( w < 0 )
-	w = crect.width() - x;
-    if ( h < 0 )
-	h = crect.height() - y;
-
     HDC lhdc;
     bool tmphdc;
 
-    if( QPainter::redirect( this ) ) {
+#if 0
+    // #### good idea, but none of the other platforms does this
+    // #### currently. Needs fixing. Matthias
+    if( QPainter::redirect(q) ) {
 	tmphdc = FALSE;
-	lhdc = QPainter::redirect( this )->handle();
+	lhdc = QPainter::redirect(q)->handle();
 	Q_ASSERT( lhdc );
-    } else if ( !hdc ) {
+    } else
+#endif
+	if ( !q->hdc ) {
 	tmphdc = TRUE;
-	lhdc = GetDC( winId() );
+	lhdc = GetDC(q->winId());
     } else {
 	tmphdc = FALSE;
-	lhdc = hdc;
-    }
-
-    QPoint offset = backgroundOffset();
-    int ox = offset.x();
-    int oy = offset.y();
-
-    qt_erase_background( lhdc, x, y, w, h, palette().background(), ox, oy );
-
-    if ( tmphdc ) {
-	ReleaseDC( winId(), lhdc );
-	hdc = 0;
-    }
-}
-
-void QWidget::erase( const QRegion& rgn )
-{
-    // SIMILAR TO rect ERASE ABOVE
-
-    if ( testAttribute(WA_NoErase) )
-	return;
-
-    HDC lhdc;
-    bool tmphdc;
-
-    if( QPainter::redirect( this ) ) {
-	tmphdc = FALSE;
-	lhdc = QPainter::redirect( this )->handle();
-	Q_ASSERT( lhdc );
-    } else if ( !hdc ) {
-	tmphdc = TRUE;
-	lhdc = GetDC( winId() );
-    } else {
-	tmphdc = FALSE;
-	lhdc = hdc;
+	lhdc = q->hdc;
     }
 
     HRGN oldRegion = CreateRectRgn( 0, 0, 0, 0 );
@@ -1245,11 +1207,18 @@ void QWidget::erase( const QRegion& rgn )
     }
     SelectClipRgn( lhdc, newRegion );
 
-    QPoint offset = backgroundOffset();
-    int ox = offset.x();
-    int oy = offset.y();
+    QPoint offset;
+    const QWidget *w = q;
+    while (w->d->isBackgroundInherited()) {
+	offset += w->pos();
+	w = w->parentWidget();
+    }
 
-    qt_erase_background( lhdc, 0, 0, crect.width(), crect.height(), palette().background(), ox, oy );
+    qt_erase_background(lhdc, 0, 0, q->crect.width(), q->crect.height(),
+			q->palette().brush(w->d->bg_role), offset.x(), offset.y());
+
+    //### insert parent drawing code from qwidget_x11.cpp here. Matthias
+
     SelectClipRgn( lhdc, hasRegion ? oldRegion : 0 );
     DeleteObject( oldRegion );
     if ( hasRegion )

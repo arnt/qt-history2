@@ -110,7 +110,6 @@ struct QWExtra {
 #endif // QMAC_NO_QUARTZ
     uint has_dirty_area:1;
 #endif // Q_WS_MAC
-    uint bg_origin : 2;
 #if defined(Q_WS_X11)
     uint children_use_dnd : 1;
     uint compress_events : 1;
@@ -155,6 +154,10 @@ public:
 
     bool isForegroundInherited() const;
     bool isBackgroundInherited() const;
+    bool isTransparent() const;
+    void updateInheritedBackground();
+
+    void erase_helper(const QRegion &);
 
 #if defined(Q_WS_X11)
     void createInputContext();

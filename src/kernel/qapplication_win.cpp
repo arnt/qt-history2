@@ -1815,20 +1815,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ERASEBKGND:			// erase window background
-	    {
-		RECT r;
-		QPoint offset = widget->backgroundOffset();
-		int ox = offset.x();
-		int oy = offset.y();
-		GetClientRect( hwnd, &r );
-		QBrush br(widget->backgroundColor());
-		if (widget->backgroundPixmap())
-		    br = QBrush(widget->backgroundColor(), *widget->backgroundPixmap());
-		qt_erase_background ( (HDC)wParam, r.left, r.top,
-						   r.right-r.left, r.bottom-r.top, br, ox, oy );
-		RETURN(TRUE);
-	    }
-	    break;
+	    widget->erase(); // ### isn't there a region and/or rectangle in the mssage? Matthias
+	    RETURN(TRUE);
 
 	case WM_MOVE:				// move window
 	case WM_SIZE:				// resize window

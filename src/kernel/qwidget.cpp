@@ -17,6 +17,7 @@
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qhash.h"
+#include "qstack.h"
 #include "qptrdict.h"
 #include "qcursor.h"
 #include "qpixmap.h"
@@ -966,7 +967,6 @@ void QWidgetPrivate::createExtra()
 	extra->curs = 0;
 #endif
 	extra->topextra = 0;
-	extra->bg_origin = QWidget::WidgetOrigin;
 #ifndef QT_NO_STYLE
 	extra->style = 0;
 #endif
@@ -1047,6 +1047,119 @@ bool QWidgetPrivate::isBackgroundInherited() const
 		    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
 }
 
+/*
+  Returns true if this widget has an inherited background and at least
+  one ancestor propagates its background; otherwise return false.
+ */
+bool QWidgetPrivate::isTransparent() const
+{
+    const QWidget *w = q;
+    while (w->d->isBackgroundInherited()) {
+	w = w->parentWidget();
+	if (w->testAttribute(QWidget::WA_ContentsPropagated))
+	    return true;
+    }
+    return false;
+}
+
+/*
+  In case a widget inherits its parent's pixmap background, and
+  possibly propagates it further to its own children, this function
+  updates everthing that needs to be updated after a move.
+
+  This is necessary because the pixmap offset has changed.
+ */
+void QWidgetPrivate::updateInheritedBackground()
+{
+    if ( !q->isVisible() || !isBackgroundInherited()
+	 || !q->palette().brush(q->backgroundRole()).pixmap())
+	return;
+
+    QObjectList lst = q->children();
+    for (int i = 0; i < lst.size(); ++i)
+	if (lst.at(i)->isWidgetType())
+	    static_cast<QWidget*>(lst.at(i))->d->updateInheritedBackground();
+    q->update(true);
+}
+
+/*!
+    \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
+
+    Fills the pixmap with the \a widget's background color or pixmap.
+
+    The \a ofs point is an offset in the widget.
+
+    The point \a ofs is a point in the widget's coordinate system. The
+    pixmap's top-left pixel will be mapped to the point \a ofs in the
+    widget. This is significant if the widget has a background pixmap;
+    otherwise the pixmap will simply be filled with the background
+    color of the widget.
+
+    Example:
+    \code
+    void CuteWidget::paintEvent( QPaintEvent *e )
+    {
+	QRect ur = e->rect();            // rectangle to update
+	QPixmap pix( ur.size() );        // Pixmap for double-buffering
+	pix.fill( this, ur.topLeft() );  // fill with widget background
+
+	QPainter p( &pix );
+	p.translate( -ur.x(), -ur.y() ); // use widget coordinate system
+					 // when drawing on pixmap
+	//    ... draw on pixmap ...
+
+	p.end();
+
+	bitBlt( this, ur.topLeft(), &pix );
+    }
+    \endcode
+*/
+
+/*!
+    \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+
+    Fills the pixmap with the \a widget's background color or pixmap.
+    \a xofs, \a yofs is an offset in the widget.
+*/
+
+void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
+{
+    QPoint offset(xofs, yofs);
+    QStack<QWidget*> parents;
+    QWidget *w = const_cast<QWidget *>(widget);
+    while (w->d->isBackgroundInherited()) {
+	offset += w->pos();
+	w = w->parentWidget();
+	parents += w;
+    }
+    QBrush brush = widget->palette().brush(w->d->bg_role);
+    fill(brush.color());
+    if (brush.pixmap()) {
+	QPainter p;
+	p.begin( this );
+	p.setPen( NoPen );
+	p.drawTiledPixmap(rect(), *brush.pixmap(), offset);
+	p.end();
+    }
+    if (!parents)
+	return;
+
+    w = parents.pop();
+    for (;;) {
+	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+	    QPainter::Redirection oldRedirect = QPainter::redirect(w, this, offset);
+  	    QRect rr = widget->rect();
+ 	    rr.moveBy(offset);
+	    QPaintEvent e(rr, true);
+	    QApplication::sendEvent(w, &e);
+	    QPainter::redirect(oldRedirect);
+	}
+	if (!parents)
+	    break;
+	w = parents.pop();
+	offset -= w->pos();
+    }
+}
 
 
 /*!
@@ -2073,6 +2186,8 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 	return;
     }
     setAttribute(WA_NoErase, false);
+    setAttribute(WA_SetForegroundRole, false);
+
     QPalette::ColorRole role;
     switch(m) {
     case FixedColor:
@@ -2126,10 +2241,13 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     case PaletteLinkVisited:
 	role = QPalette::LinkVisited;
 	break;
+    case X11ParentRelative:
+	d->fg_role = QPalette::Foreground;
+	d->bg_role = QPalette::Background;
+	setAttribute(WA_SetBackgroundRole, false);
     default:
 	break;
     }
-    setAttribute(WA_SetForegroundRole, false);
     setBackgroundRole(role);
 }
 #endif
@@ -2969,28 +3087,6 @@ QSize QWidget::frameSize() const
 }
 
 /*!
-    \internal
-
-    Recursive function that updates \a widget and all its children,
-    if they have some parent background origin.
-*/
-static void qt_update_bg_recursive( QWidget *widget )
-{
-    if ( !widget || widget->isHidden() || widget->backgroundOrigin() == QWidget::WidgetOrigin || !widget->backgroundPixmap() )
-	return;
-
-    QObjectList lst = widget->children();
-
-    for (int i = 0; i < lst.size(); ++i) {
-	QWidget *widget = static_cast<QWidget *>(lst.at(i));
-	if (widget->isWidgetType() && !widget->isHidden() && !widget->isTopLevel()
-	    && !widget->testWFlags(Qt::WSubWindow))
-	    qt_update_bg_recursive( widget );
-    }
-    QApplication::postEvent( widget, new QPaintEvent( widget->clipRegion(), !widget->testWFlags(Qt::WRepaintNoErase) ) );
-}
-
-/*!
     \overload
 
     This corresponds to move( QSize(\a x, \a y) ).
@@ -2998,12 +3094,12 @@ static void qt_update_bg_recursive( QWidget *widget )
 
 void QWidget::move( int x, int y )
 {
-    QPoint oldp(pos());
+    QPoint oldp = pos();
     setGeometry_helper( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
-    if ( isVisible() && oldp != pos() )
-	qt_update_bg_recursive( this );
+    if (oldp != pos())
+	d->updateInheritedBackground();
 }
 
 /*!
@@ -3013,8 +3109,11 @@ void QWidget::move( int x, int y )
 */
 void QWidget::resize( int w, int h )
 {
+    QSize olds = size();
     setGeometry_helper( geometry().x(), geometry().y(), w, h, FALSE );
     setWState( WState_Resized );
+    if (olds != size() && testAttribute(WA_ContentsPropagated))
+	d->updateInheritedBackground();
 }
 
 /*!
@@ -3024,11 +3123,12 @@ void QWidget::resize( int w, int h )
 */
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
-    QPoint oldp( pos( ));
+    QPoint oldp = pos();
+    QSize olds = size();
     setGeometry_helper( x, y, w, h, TRUE );
     setWState( WState_Resized );
-    if ( isVisible() && oldp != pos() )
-	qt_update_bg_recursive( this );
+    if (oldp != pos() || (olds != size() && testAttribute(WA_ContentsPropagated)))
+	d->updateInheritedBackground();
 }
 
 /*!
@@ -4782,51 +4882,6 @@ void QWidget::setAutoMask( bool enable )
     }
 }
 
-/*! \obsolete
-    \enum QWidget::BackgroundOrigin
-
-    This enum defines the origin used to draw a widget's background
-    pixmap.
-
-    The pixmap is drawn using the:
-    \value WidgetOrigin  widget's coordinate system.
-    \value ParentOrigin  parent's coordinate system.
-    \value WindowOrigin  top-level window's coordinate system.
-    \value AncestorOrigin  same origin as the parent uses.
-*/
-
-#ifndef QT_NO_COMPAT
-/*! \obsolete
-    \property QWidget::backgroundOrigin
-    \brief the origin of the widget's background
-
-    The origin is either WidgetOrigin (the default), ParentOrigin,
-    WindowOrigin or AncestorOrigin.
-
-    This only makes a difference if the widget has a background
-    pixmap, in which case positioning matters. Using \c WindowOrigin
-    for several neighboring widgets makes the background blend
-    together seamlessly. \c AncestorOrigin allows blending backgrounds
-    seamlessly when an ancestor of the widget has an origin other than
-    \c QWindowOrigin.
-
-    \sa background()
-*/
-QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
-{
-    return d->extra ? (BackgroundOrigin)d->extra->bg_origin : WidgetOrigin;
-}
-
-void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
-{
-    if ( origin == backgroundOrigin() )
-	return;
-    d->createExtra();
-    d->extra->bg_origin = origin;
-    update();
-}
-#endif
-
 /*!
     This function can be reimplemented in a subclass to support
     transparent widgets. It should be called whenever a widget changes
@@ -4837,56 +4892,6 @@ void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
 void QWidget::updateMask()
 {
 }
-
-
-#ifndef QT_NO_COMPAT
-/*!
-  \internal
-  Returns the offset of the widget from the backgroundOrigin.
-*/
-QPoint QWidget::backgroundOffset() const
-{
-    if (!isTopLevel()) {
-	switch(backgroundOrigin()) {
-	    case WidgetOrigin:
-		break;
-	    case ParentOrigin:
-		return pos();
-	    case WindowOrigin:
-		{
-		    const QWidget *topl = this;
-		    while(topl && !topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
-			topl = topl->parentWidget(TRUE);
-		    return mapTo((QWidget *)topl, QPoint(0, 0) );
-		}
-	    case AncestorOrigin:
-		{
-		    const QWidget *topl = this;
-		    bool ancestorIsWindowOrigin = FALSE;
-		    while(topl && !topl->isTopLevel() && !topl->testWFlags(Qt::WSubWindow))
-		    {
-			if (!ancestorIsWindowOrigin) {
-			    if (topl->backgroundOrigin() == QWidget::WidgetOrigin)
-				break;
-			    if (topl->backgroundOrigin() == QWidget::ParentOrigin)
-			    {
-				topl = topl->parentWidget(TRUE);
-				break;
-			    }
-			    if (topl->backgroundOrigin() == QWidget::WindowOrigin)
-				ancestorIsWindowOrigin = TRUE;
-			}
-			topl = topl->parentWidget(TRUE);
-		    }
-
-		    return mapTo((QWidget *) topl, QPoint(0,0) );
-		}
-	}
-    }
-    // fall back
-    return QPoint(0,0);
-}
-#endif
 
 /*!
     Returns the layout engine that manages the geometry of this
@@ -5342,6 +5347,54 @@ void QWidget::update(const QRegion &rgn)
 */
 
 
+/*!
+    void QWidget::erase()
+
+    Erases the widget without generating a \link paintEvent() paint
+    event\endlink.
+
+    Child widgets are not affected.
+*/
+
+/*!
+  \overload void QWidget::erase( const QRect &r )
+
+  Erases the specified area \a r in the widget.
+*/
+
+/*! \overload
+
+    Erases the specified area \a (x, y, w, h) in the widget.
+
+    If \a w is negative, it is replaced with \c{width() - x}. If \a h
+    is negative, it is replaced width \c{height() - y}.
+
+    \sa repaint()
+*/
+
+void QWidget::erase( int x, int y, int w, int h )
+{
+    if (QPainter::redirect(this))
+	return;
+    if ( w < 0 )
+	w = crect.width()  - x;
+    if ( h < 0 )
+	h = crect.height() - y;
+    if ( w != 0 && h != 0 )
+	d->erase_helper(QRect(x, y, w, h));
+}
+
+/*!
+    \overload
+
+    Erases the area defined by \a rgn in the widget.
+*/
+void QWidget::erase( const QRegion& rgn )
+{
+    if (QPainter::redirect(this))
+	return;
+    d->erase_helper(rgn);
+}
 
 /*!
     \overload void QWidget::drawText( int x, int y, const QString& str )

@@ -661,10 +661,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     }
 
     const QWidget *copyFrom = 0;
-    pdev = redirect( (QPaintDevice*)pd );
-    if ( pdev ) {				    // redirected paint device?
+    QPainter::Redirection redirection = redirect((QPaintDevice*)pd);
+    if (redirection.replacement) {    // redirected paint device?
+	pdev = redirection.replacement;
+	redirection_offset = redirection.offset;
 	if ( pd->devType() == QInternal::Widget )
-	    copyFrom = (const QWidget *)pd;	    // copy widget settings
+	    copyFrom = (const QWidget *)pd; // copy widget settings
     } else {
 	pdev = (QPaintDevice*)pd;
     }
@@ -827,6 +829,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     }
     setf(DirtyFont);
 
+    if (!redirection_offset.isNull())
+	translate(-redirection_offset.x(), -redirection_offset.y());
     return TRUE;
 }
 
@@ -1155,9 +1159,11 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 {
     if ( !isActive() )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
-    if ( m == CoordDevice )
+    if ( m == CoordDevice ) {
 	crgn = rgn;
-    else
+	if (!redirection_offset.isNull())
+	    crgn.translate(-redirection_offset);
+    } else
 	crgn = xmat * rgn;
 
     if ( testf(ExtDev) ) {

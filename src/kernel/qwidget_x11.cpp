@@ -25,6 +25,7 @@
 #include "qtextcodec.h"
 #include "qdatetime.h"
 #include "qcursor.h"
+#include "qstack.h"
 #include "qt_x11_p.h"
 #include <stdlib.h>
 
@@ -858,8 +859,11 @@ void QWidgetPrivate::updateSystemBackground()
     QBrush brush = q->palette().brush(q->backgroundRole());
     if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoErase))
 	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(), None);
-    else if (brush.pixmap() && q->backgroundOrigin() == QWidget::WidgetOrigin)
-	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(), brush.pixmap()->handle());
+    else if (brush.pixmap())
+	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(),
+				   isBackgroundInherited()
+				   ? ParentRelative
+				   : brush.pixmap()->handle());
     else
 	XSetWindowBackground( q->x11Display(), q->winId(), brush.color().pixel(q->x11Screen()) );
 }
@@ -1266,10 +1270,10 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( r != rect() )
 	    qt_set_paintevent_clipping( this, r );
 	if ( erase && w != 0 && h != 0 ) {
-	    if ( backgroundOrigin() == WidgetOrigin )
-		XClearArea( x11Display(), winId(), x, y, w, h, False );
-	    else
+	    if (d->isTransparent())
 		this->erase( x, y, w, h);
+	    else
+		XClearArea( x11Display(), winId(), x, y, w, h, False );
 	}
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping();
@@ -1806,58 +1810,6 @@ void QWidget::setBaseSize( int basew, int baseh )
     if ( testWFlags(WType_TopLevel) )
 	do_size_hints( this, d->extra );
 }
-
-/*!
-    \overload void QWidget::erase()
-
-    This version erases the entire widget.
-*/
-
-/*!
-  \overload void QWidget::erase( const QRect &r )
-
-  Erases the specified area \a r in the widget without generating a
-  \link paintEvent() paint event\endlink.
-*/
-
-/*!
-    Erases the specified area \a (x, y, w, h) in the widget without
-    generating a \link paintEvent() paint event\endlink.
-
-    If \a w is negative, it is replaced with \c{width() - x}. If \a h
-    is negative, it is replaced width \c{height() - y}.
-
-    Child widgets are not affected.
-
-    \sa repaint()
-*/
-
-void QWidget::erase( int x, int y, int w, int h )
-{
-    extern void qt_erase_rect( QWidget*, const QRect& ); // in qpainer_x11.cpp
-    if ( w < 0 )
-	w = crect.width()  - x;
-    if ( h < 0 )
-	h = crect.height() - y;
-    if ( w != 0 && h != 0 )
-	qt_erase_rect( this, QRect(x, y, w, h ) );
-}
-
-/*!
-    \overload
-
-    Erases the area defined by \a rgn, without generating a \link
-    paintEvent() paint event\endlink.
-
-    Child widgets are not affected.
-*/
-
-void QWidget::erase( const QRegion& rgn )
-{
-    extern void qt_erase_region( QWidget*, const QRegion& ); // in qpainer_x11.cpp
-    qt_erase_region( this, rgn );
-}
-
 /*!
     Scrolls the widget including its children \a dx pixels to the
     right and \a dy downwards. Both \a dx and \a dy may be negative.
@@ -2317,3 +2269,45 @@ void QWidgetPrivate::focusInputContext()
     }
 #endif // QT_NO_XIM
 }
+
+void QWidgetPrivate::erase_helper(const QRegion &rgn)
+{
+    QRegion r = rgn;
+    extern void qt_intersect_paintevent_clipping(QPaintDevice *, QRegion &);
+    qt_intersect_paintevent_clipping(q, r);
+
+    QVector<QRect> rects = r.rects();
+    for (int i = 0; i < rects.size(); ++i) {
+	const QRect &rr = rects[i];
+	XClearArea( q->x11Display(), q->winId(),
+		    rr.x(), rr.y(), rr.width(), rr.height(), False );
+    }
+
+    QPoint offset;
+    QStack<QWidget*> parents;
+    QWidget *w = q;
+    while (w->d->isBackgroundInherited()) {
+	offset += w->pos();
+	w = w->parentWidget();
+	parents += w;
+    }
+    if (!parents)
+	return;
+
+    w = parents.pop();
+    for (;;) {
+	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+	    QPainter::Redirection oldRedirect = QPainter::redirect(w, q, offset);
+  	    QRect rr = q->rect();
+ 	    rr.moveBy(offset);
+	    QPaintEvent e(rr, true);
+	    QApplication::sendEvent(w, &e);
+	    QPainter::redirect(oldRedirect);
+	}
+	if (!parents)
+	    break;
+	w = parents.pop();
+	offset -= w->pos();
+    }
+}
+

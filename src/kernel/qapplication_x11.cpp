@@ -5385,10 +5385,10 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	    return TRUE;
     }
 
+    if (d->isTransparent())
+	erase(paintRegion);
     QPaintEvent e( paintRegion );
     setWState( WState_InPaintEvent );
-    if ( !isTopLevel() && backgroundOrigin() != WidgetOrigin )
-	erase( paintRegion );
     qt_set_paintevent_clipping( this, paintRegion );
     QApplication::sendSpontaneousEvent( this, &e );
     qt_clear_paintevent_clipping();
@@ -5505,7 +5505,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    ;
     }
 
-    bool transbg = backgroundOrigin() != WidgetOrigin;
+    bool transbg = d->isTransparent();
     // we ignore NorthWestGravity at the moment for reversed layout
     if ( transbg ||
 	 (!testWFlags( WStaticContents ) &&
@@ -5517,7 +5517,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		! qt_x11EventFilter( &xevent )  &&
 		! x11Event( &xevent ) ) // send event through filter
 	    ;
-	repaint( !testWFlags(WResizeNoErase) || transbg );
+	repaint();
     }
 
     return TRUE;

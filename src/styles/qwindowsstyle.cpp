@@ -202,20 +202,14 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
     case PE_Indicator:
 	{
 	    QBrush fill;
-	    if (flags & Style_NoChange) {
-		QBrush b = p->brush();
-		QColor c = p->backgroundColor();
-		p->setBackgroundMode( TransparentMode );
-		p->setBackgroundColor( green );
+	    if (flags & Style_NoChange)
 		fill = QBrush(pal.base(), Dense4Pattern);
-		p->setBackgroundColor( c );
-		p->setBrush( b );
-	    } else if (flags & Style_Down)
-		fill = pal.brush( QPalette::Button );
+	    else if (flags & Style_Down)
+		fill = pal.button();
 	    else if (flags & Style_Enabled)
-		fill = pal.brush( QPalette::Base );
+		fill = pal.base();
 	    else
-		fill = pal.brush( QPalette::Background );
+		fill = pal.background();
 
 	    qDrawWinPanel( p, r, pal, TRUE, &fill );
 

@@ -612,11 +612,8 @@ void QCommonStyle::drawControl( ControlElement element,
 			     br.bottom() - dbi);
 	    }
 
-	    p->save();
-	    p->setBrushOrigin( -widget->backgroundOffset().x(),
-			       -widget->backgroundOffset().y() );
-	    drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
-	    p->restore();
+ 	    if (!button->isFlat() || button->isOn() || button->isDown())
+		drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
 #endif
 	    break;
 	}

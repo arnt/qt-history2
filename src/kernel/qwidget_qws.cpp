@@ -20,6 +20,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qhash.h"
+#include "qstack.h"
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qlayout.h"
@@ -1118,40 +1119,49 @@ void QWidget::setBaseSize( int basew, int baseh )
     }
 }
 
-void QWidget::erase( int x, int y, int w, int h )
+void QWidgetPrivate::erase_helper( const QRegion& reg )
 {
-    if ( testAttribute(WA_NoErase) )
-	return;
-
-    erase( QRegion( x, y, w, h ) );
-
-}
-
-void QWidget::erase( const QRegion& reg )
-{
-    //this is experimental, I need to test more, but it seems in unclipped mode erasing shouldn't happen????
-    if ( testAttribute(WA_NoErase) || testWFlags(WPaintUnclipped) )
-	return;
-
-    bool unclipped = testWFlags( WPaintUnclipped );
-    clearWFlags( WPaintUnclipped );
-    QPainter p(this);
-    p.setClipRegion( reg );
-    QBrush bg = palette().brush(backgroundRole());
-    if ( bg.pixmap() ) {
-	if ( !bg.pixmap()->isNull() ) {
-	    QPoint offset = backgroundOffset();
-	    int xoff = offset.x();
-	    int yoff = offset.y();
-
-	    p.drawTiledPixmap(rect(),*bg.pixmap(),
-			      QPoint(xoff%bg.pixmap()->width(), yoff%bg.pixmap()->height()));
-	}
-    } else {
-	p.fillRect(rect(),bg.color());
+    QPoint offset;
+    QStack<QWidget*> parents;
+    QWidget *w = q;
+    while (w->d->isBackgroundInherited()) {
+	offset += w->pos();
+	w = w->parentWidget();
+	parents += w;
     }
-    if ( unclipped )
-	setWFlags( WPaintUnclipped );
+
+    QBrush bg = q->palette().brush(w->d->bg_role);
+    QRect rr = rgn.boundingRect();
+    bool was_unclipped = q->testWFlags(Qt::WPaintUnclipped);
+    q->clearWFlags(Qt::WPaintUnclipped);
+    QPainter p(q);
+    if(was_unclipped)
+	q->setWFlags(Qt::WPaintUnclipped);
+    p.setClipRegion(rgn);
+    if(bg.pixmap())
+	p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
+						  rr.y()+(offset.y()%bg.pixmap()->height())));
+    else
+	p.fillRect(rr, bg.color());
+
+    if (!parents)
+	return;
+
+    w = parents.pop();
+    for (;;) {
+	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+	    QPainter::Redirection oldRedirect = QPainter::redirect(w, q, offset);
+  	    QRect rr = q->rect();
+ 	    rr.moveBy(offset);
+	    QPaintEvent e(rr, true);
+	    QApplication::sendEvent(w, &e);
+	    QPainter::redirect(oldRedirect);
+	}
+	if (!parents)
+	    break;
+	w = parents.pop();
+	offset -= w->pos();
+    }
 }
 
 void QWidget::scroll( int dx, int dy )

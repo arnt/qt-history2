@@ -21,7 +21,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qpainter_p.h"
-#include "qptrdict.h"
+#include "qmap.h"
 #include "qptrstack.h"
 #include "qregexp.h"
 #include "qtextlayout_p.h"
@@ -198,11 +198,6 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     the most usual constructor) makes it active. end() (and the
     destructor) deactivates it. If the painter is active, device()
     returns the paint device on which the painter paints.
-
-    Sometimes it is desirable to make someone else paint on an unusual
-    QPaintDevice. QPainter supports a static function to do this,
-    redirect(). We recommend not using it, but for some hacks it's
-    perfect.
 
     setTabStops() and setTabArray() can change where the tab stops
     are, but these are very seldomly used.
@@ -788,45 +783,47 @@ void QPainter::restore()
     block_ext = FALSE;
 }
 
-typedef QPtrDict<QPaintDevice> QPaintDeviceDict;
-static QPaintDeviceDict *pdev_dict = 0;
 
-/*!
+static QMap<QPaintDevice*, QPainter::Redirection> redirections;
+
+/*! \fn void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement, const QPoint &offset )
+  \internal
+
     Redirects all paint commands for a paint device, \a pdev, to
     another paint device, \a replacement, unless \a replacement is 0.
     If \a replacement is 0, the redirection for \a pdev is removed.
+
+    The optional point \a offset defines an offset within the
+    paint device.
 
     In general, you'll probably find calling QPixmap::grabWidget() or
     QPixmap::grabWindow() is an easier solution.
 */
 
-void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
+/*!\internal
+ */
+QPainter::Redirection QPainter::redirect(const Redirection &redirection )
 {
-    if ( pdev_dict == 0 ) {
-        if ( replacement == 0 )
-            return;
-        pdev_dict = new QPaintDeviceDict;
+    Redirection oldRedirect = redirect(redirection.device);
+    if (redirection.device) {
+	redirections.ensure_constructed();
+	if (redirection.replacement )
+	    redirections[redirection.device] = redirection;
+	else
+	    redirections.remove(redirection.device);
     }
-    if ( pdev == 0 )
-        qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
-    if ( replacement ) {
-        pdev_dict->insert( pdev, replacement );
-    } else {
-        pdev_dict->remove( pdev );
-        if ( pdev_dict->count() == 0 ) {
-            delete pdev_dict;
-            pdev_dict = 0;
-        }
-    }
+    return oldRedirect;
 }
 
 /*!
-    \internal
-    Returns the replacement for \a pdev, or 0 if there is no replacement.
+    \internal Returns the replacement for \a pdev.
 */
-QPaintDevice *QPainter::redirect( QPaintDevice *pdev )
+QPainter::Redirection QPainter::redirect( QPaintDevice *pdev)
 {
-    return pdev_dict ? pdev_dict->find( pdev ) : 0;
+    if (!pdev)
+	return Redirection();
+    redirections.ensure_constructed();
+    return redirections.value(pdev, Redirection(pdev, 0, QPoint()));
 }
 
 /*!
@@ -1531,6 +1528,8 @@ void QPainter::resetXForm()
     wxmat = QWMatrix();
     setWorldXForm( FALSE );
     setViewXForm( FALSE );
+    if (!redirection_offset.isNull())
+	translate(-redirection_offset.x(), -redirection_offset.y());
 }
 
 /*!
@@ -1607,6 +1606,8 @@ void QPainter::resetXForm()
     xlatex = 0;
     xlatey = 0;
     clearf( VxF );
+    if (!redirection_offset.isNull())
+	translate(-redirection_offset.x(), -redirection_offset.y());
 }
 #endif // QT_NO_TRANSFORMATIONS
 
@@ -3564,7 +3565,9 @@ QBrush::QBrush()
 
 QBrush::QBrush(const QPixmap &pixmap)
 {
-    init(Qt::green, CustomPattern);
+// ## if pixmap was image, we could pick a nice color rather than
+// assuming black.
+    init(Qt::black, CustomPattern);
     setPixmap(pixmap);
 }
 

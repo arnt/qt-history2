@@ -519,68 +519,6 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 
 /*!
-    \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
-
-    Fills the pixmap with the \a widget's background color or pixmap.
-    If the background is empty, nothing is done.
-
-    The \a ofs point is an offset in the widget.
-
-    The point \a ofs is a point in the widget's coordinate system. The
-    pixmap's top-left pixel will be mapped to the point \a ofs in the
-    widget. This is significant if the widget has a background pixmap;
-    otherwise the pixmap will simply be filled with the background
-    color of the widget.
-
-    Example:
-    \code
-    void CuteWidget::paintEvent( QPaintEvent *e )
-    {
-	QRect ur = e->rect();            // rectangle to update
-	QPixmap pix( ur.size() );        // Pixmap for double-buffering
-	pix.fill( this, ur.topLeft() );  // fill with widget background
-
-	QPainter p( &pix );
-	p.translate( -ur.x(), -ur.y() ); // use widget coordinate system
-					 // when drawing on pixmap
-	//    ... draw on pixmap ...
-
-	p.end();
-
-	bitBlt( this, ur.topLeft(), &pix );
-    }
-    \endcode
-*/
-
-/*!
-    \overload void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
-
-    Fills the pixmap with the \a widget's background color or pixmap.
-    If the background is empty, nothing is done. \a xofs, \a yofs is
-    an offset in the widget.
-*/
-
-void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
-{
-    const QPixmap* bgpm = widget->backgroundPixmap();
-    fill( widget->backgroundColor() );
-    if ( bgpm ) {
-	if ( !bgpm->isNull() ) {
-	    QPoint ofs = widget->backgroundOffset();
-	    xofs += ofs.x();
-	    yofs += ofs.y();
-
-	    QPainter p;
-	    p.begin( this );
-	    p.setPen( NoPen );
-	    p.drawTiledPixmap( 0, 0, width(), height(), *widget->backgroundPixmap(), xofs, yofs );
-	    p.end();
-	}
-    }
-}
-
-
-/*!
     \overload void QPixmap::resize( const QSize &size )
 
     Resizes the pixmap to size \a size.
@@ -1049,16 +987,13 @@ static QPixmap grabChildWidgets( QWidget * w )
     if ( res.isNull() && w->width() )
 	return res;
     res.fill( w, QPoint( 0, 0 ) );
-    QPaintDevice *oldRedirect = QPainter::redirect( w );
-    QPainter::redirect( w, &res );
+    QPainter::Redirection oldRedirect = QPainter::redirect(w, &res);
     bool dblbfr = QSharedDoubleBuffer::isDisabled();
     QSharedDoubleBuffer::setDisabled( TRUE );
     QPaintEvent e( w->rect(), FALSE );
     QApplication::sendEvent( w, &e );
     QSharedDoubleBuffer::setDisabled( dblbfr );
-    QPainter::redirect( w, oldRedirect );
-    if ( w->testWFlags( Qt::WRepaintNoErase ) )
-	w->repaint( FALSE );
+    QPainter::redirect(oldRedirect);
 
     const QObjectList children = w->children();
     if ( !children.isEmpty() ) {

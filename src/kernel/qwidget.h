@@ -555,7 +555,6 @@ private:
     friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
     friend void qt_event_request_updates(QWidget *, const QRegion &, bool subtract=FALSE);
     friend bool qt_window_rgn(WId, short, RgnHandle, bool);
-    friend void qt_erase_region( QWidget*, const QRegion&);
     friend class QDragManager;
 #endif
 
@@ -629,6 +628,7 @@ private:
     friend class QApplication;
     friend class QBaseApplication;
     friend class QPainter;
+    friend class QPixmap; // for QPixmap::fill()
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QETWidget;
@@ -685,9 +685,9 @@ public:
     inline void setFont( const QFont &f, bool ) { setFont( f ); }
     inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
     enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
-    void setBackgroundOrigin( BackgroundOrigin );
-    BackgroundOrigin backgroundOrigin() const;
-    QPoint backgroundOffset() const;
+    inline void setBackgroundOrigin( BackgroundOrigin ){};
+    inline BackgroundOrigin backgroundOrigin() const { return WindowOrigin; }
+    inline QPoint backgroundOffset() const { return QPoint(); }
 #endif
 };
 

@@ -56,8 +56,24 @@ public:
     QGfx * internalGfx();
 #endif
 
-    static void redirect( QPaintDevice *pdev, QPaintDevice *replacement );
-    static QPaintDevice *redirect( QPaintDevice *pdev );
+    // internal, do not use
+    struct Redirection
+    {
+	Redirection():device(0), replacement(0){}
+	Redirection(QPaintDevice *device, QPaintDevice *replacement, const QPoint& offset)
+	    : device(device), replacement(replacement), offset(offset){}
+	QPaintDevice *device, *replacement;
+	QPoint offset;
+	operator QPaintDevice*() const { return replacement; }
+    };
+    // internal, do not use
+    static Redirection redirect(const Redirection &redirection);
+    // internal, do not use
+    static inline Redirection redirect(QPaintDevice *pdev, QPaintDevice *replacement,
+				const QPoint& offset = QPoint())
+	{ return redirect(Redirection(pdev, replacement, offset)); }
+    // internal do not use
+    static Redirection redirect(QPaintDevice *pdev);
 
     bool	isActive() const;
 
@@ -299,7 +315,8 @@ private:
 
     QPainterPrivate *d;
     QPaintDevice *pdev;
-    QColor	bg_col;
+    QPoint redirection_offset;
+    QColor	bg_col; // ##### This should be a brush. Matthias
     uchar	bg_mode;
     uchar	rop;
     uchar	pu;

@@ -1824,71 +1824,53 @@ void QWidget::setBaseSize(int w, int h)
     d->topData()->baseh = h;
 }
 
-void QWidget::erase(int x, int y, int w, int h)
+static void qt_clear_area( QWidget* w, const QBrush &bg, const QPoint &offset, const QRegion& reg)
 {
-    erase(QRegion(x, y, w, h));
 }
 
-void qt_erase_region( QWidget* w, const QRegion& reg)
+void QWidgetPrivate::erase_helper(const QRegion& rgn)
 {
-    QRect rr(reg.boundingRect());
-    bool was_unclipped = w->testWFlags(Qt::WPaintUnclipped);
-    w->clearWFlags(Qt::WPaintUnclipped);
-    QPainter p(w);
+    QPoint offset;
+    QStack<QWidget*> parents;
+    QWidget *w = q;
+    while (w->d->isBackgroundInherited()) {
+	offset += w->pos();
+	w = w->parentWidget();
+	parents += w;
+    }
+
+    QBrush bg = q->palette().brush(w->d->bg_role);
+    QRect rr = rgn.boundingRect();
+    bool was_unclipped = q->testWFlags(Qt::WPaintUnclipped);
+    q->clearWFlags(Qt::WPaintUnclipped);
+    QPainter p(q);
     if(was_unclipped)
-	w->setWFlags(Qt::WPaintUnclipped);
-    p.setClipRegion(reg);
-    QBrush bg = w->backgroundBrush();
-    if(bg.pixmap()) {
-	if(!bg.pixmap()->isNull()) {
-	    QPoint offset = w->backgroundOffset();
-	    p.drawTiledPixmap(rr,*bg.pixmap(),
-			      QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
-				     rr.y()+(offset.y()%bg.pixmap()->height())));
-	}
-    } else {
+	q->setWFlags(Qt::WPaintUnclipped);
+    p.setClipRegion(rgn);
+    if(bg.pixmap())
+	p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
+						  rr.y()+(offset.y()%bg.pixmap()->height())));
+    else
 	p.fillRect(rr, bg.color());
-    }
-}
 
-void QWidget::erase(const QRegion& rgn)
-{
-    if(testAttribute(WA_NoErase) || isDesktop() || !isVisible())
+    if (!parents)
 	return;
-    if(d->isBackgroundInherited()) {
-	QPoint offset(pos());
-	QStack<QWidget*> parents;
-	for(QWidget *p = parentWidget(); p; p = p->parentWidget()) {
-	    parents.push(p);
-	    if(!p->d->isBackgroundInherited())
-		break;
-	    offset += p->pos();
+
+    w = parents.pop();
+    QRegion prgn = rgn;
+    prgn.translate(offset);
+    for (;;) {
+	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+	    qt_set_paintevent_clipping(w, prgn, q);
+	    QPaintEvent e(prgn);
+	    QApplication::sendEvent(w, &e);
+	    qt_clear_paintevent_clipping(w);
 	}
-	if(!parents.isEmpty()) {
-	    QWidget *p = parents.pop();
-	    QRegion prgn = rgn;
-	    prgn.translate(offset);
-	    qt_set_paintevent_clipping(p, prgn, this);
-	    qt_erase_region(p, prgn);
-	    qt_clear_paintevent_clipping(p);
-	    for(;;) {
-		if(p->testAttribute(WA_ContentsPropagated)) {
-		    p->setWState(WState_InPaintEvent);
-		    qt_set_paintevent_clipping(p, prgn, this);
-		    QPaintEvent e(prgn);
-		    QApplication::sendEvent(p, &e);
-		    qt_clear_paintevent_clipping(p);
-		    p->clearWState(WState_InPaintEvent);
-		}
-		if(parents.isEmpty())
-		    break;
-		p = parents.pop();
-		prgn.translate(-p->pos());
-	    }
-	}
-	return;
+	if (!parents)
+	    break;
+	w = parents.pop();
+	prgn.translate(-w->pos());
     }
-    qt_erase_region(this, rgn);
 }
 
 

@@ -254,7 +254,7 @@ public:
 */
 
 QPushButton::QPushButton( QWidget *parent, const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WNoAutoErase )
 {
     init();
 }
@@ -266,7 +266,7 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
 
 QPushButton::QPushButton( const QString &text, QWidget *parent,
 			  const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WNoAutoErase )
 {
     init();
     setText( text );
@@ -285,7 +285,7 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
 #ifndef QT_NO_ICONSET
 QPushButton::QPushButton( const QIconSet& icon, const QString &text,
 			  QWidget *parent, const char *name )
-	: QButton( parent, name )
+	: QButton( parent, name, WNoAutoErase  )
 {
     init();
     setText( text );
@@ -480,45 +480,6 @@ void QPushButton::resizeEvent( QResizeEvent * )
 */
 void QPushButton::drawButton( QPainter *paint )
 {
-    int diw = 0;
-    if ( isDefault() || autoDefault() ) {
-	diw = style().pixelMetric(QStyle::PM_ButtonDefaultIndicator, this);
-
-	if ( diw > 0 ) {
-	    if (backgroundMode() == X11ParentRelative) {
-		erase( 0, 0, width(), diw );
-		erase( 0, 0, diw, height() );
-		erase( 0, height() - diw, width(), diw );
-		erase( width() - diw, 0, diw, height() );
-	    } else if ( parentWidget() && parentWidget()->backgroundPixmap() ){
-		// pseudo tranparency
-		QPoint bo = backgroundOffset();
-		paint->drawTiledPixmap( 0, 0, width(), diw,
-					*parentWidget()->backgroundPixmap(),
-					bo.x(), bo.y() );
-		paint->drawTiledPixmap( 0, 0, diw, height(),
-					*parentWidget()->backgroundPixmap(),
-					bo.x(), bo.y() );
-		paint->drawTiledPixmap( 0, height()-diw, width(), diw,
-					*parentWidget()->backgroundPixmap(),
-					bo.x(), bo.y()+height() );
-		paint->drawTiledPixmap( width()-diw, 0, diw, height(),
-					*parentWidget()->backgroundPixmap(),
-					bo.x()+width(), bo.y() );
-	    } else {
-		paint->fillRect( 0, 0, width(), diw,
-				 palette().brush(QPalette::Background) );
-		paint->fillRect( 0, 0, diw, height(),
-				 palette().brush(QPalette::Background) );
-		paint->fillRect( 0, height()-diw, width(), diw,
-				 palette().brush(QPalette::Background) );
-		paint->fillRect( width()-diw, 0, diw, height(),
-				 palette().brush(QPalette::Background) );
-	    }
-
-	}
-    }
-
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;

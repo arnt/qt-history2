@@ -44,63 +44,17 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
     paintEventDevice = dev;
 }
 
+void qt_intersect_paintevent_clipping(QPaintDevice *dev, QRegion &region)
+{
+    if ( dev == paintEventDevice && paintEventClipRegion )
+	region &= *paintEventClipRegion;
+}
+
 void qt_clear_paintevent_clipping()
 {
     delete paintEventClipRegion;
     paintEventClipRegion = 0;
     paintEventDevice = 0;
-}
-
-class QWFlagWidget : public QWidget
-{
-public:
-    void setWState( WFlags f )          { QWidget::setWState(f); }
-    void clearWState( WFlags f )        { QWidget::clearWState(f); }
-    void setWFlags( WFlags f )          { QWidget::setWFlags(f); }
-    void clearWFlags( WFlags f )        { QWidget::clearWFlags(f); }
-};
-
-void qt_erase_region( QWidget* w, const QRegion& region)
-{
-    QRegion reg = region;
-
-    if ( !w->isTopLevel() && w->backgroundPixmap()
-         && w->backgroundOrigin() != QWidget::WidgetOrigin ) {
-	QPoint offset = w->backgroundOffset();
-	int ox = offset.x();
-	int oy = offset.y();
-
-        bool unclipped = w->testWFlags( Qt::WPaintUnclipped );
-        if ( unclipped )
-            ((QWFlagWidget*)w)->clearWFlags( Qt::WPaintUnclipped );
-        QPainter p( w );
-        p.setClipRegion( region ); // automatically includes paintEventDevice if required
-        p.drawTiledPixmap( 0, 0, w->width(), w->height(),
-                           *w->backgroundPixmap(),
-                           ox, oy );
-        if ( unclipped )
-            ((QWFlagWidget*)w)->setWFlags( Qt::WPaintUnclipped );
-        return;
-    }
-
-    if ( w == paintEventDevice && paintEventClipRegion )
-        reg = paintEventClipRegion->intersect( reg );
-
-    QVector<QRect> r = reg.rects();
-    for (int i = 0; i < r.size(); ++i) {
-        const QRect &rr = r[i];
-        XClearArea( w->x11Display(), w->winId(),
-                    rr.x(), rr.y(), rr.width(), rr.height(), False );
-    }
-}
-
-void qt_erase_rect( QWidget* w, const QRect& r)
-{
-    if ( w == paintEventDevice || w->backgroundOrigin() != QWidget::WidgetOrigin )
-        qt_erase_region( w, r );
-    else
-        XClearArea( w->x11Display(), w->winId(), r.x(), r.y(), r.width(), r.height(), False );
-
 }
 
 #ifdef QT_NO_XRENDER
@@ -975,10 +929,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     QPixmap::x11SetDefaultScreen( pd->x11Screen() );
 
     const QWidget *copyFrom = 0;
-    pdev = redirect( (QPaintDevice*)pd );
-    if ( pdev ) {				    // redirected paint device?
+    QPainter::Redirection redirection = redirect((QPaintDevice*)pd);
+    if (redirection.replacement) {    // redirected paint device?
+	pdev = redirection.replacement;
+	redirection_offset = redirection.offset;
 	if ( pd->devType() == QInternal::Widget )
-	    copyFrom = (const QWidget *)pd;	    // copy widget settings
+	    copyFrom = (const QWidget *)pd; // copy widget settings
     } else {
 	pdev = (QPaintDevice*)pd;
     }
@@ -1107,6 +1063,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     clip_serial = gc_cache_clip_serial++;
     updateBrush();
     updatePen();
+    if (!redirection_offset.isNull())
+	translate(-redirection_offset.x(), -redirection_offset.y());
     return TRUE;
 }
 
@@ -1456,8 +1414,11 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 {
     if ( !isActive() )
         qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
-    if ( m == CoordDevice )
+    if ( m == CoordDevice ) {
 	crgn = rgn;
+	if (!redirection_offset.isNull())
+	    crgn.translate(-redirection_offset);
+    }
     else
 	crgn = xmat * rgn;
 

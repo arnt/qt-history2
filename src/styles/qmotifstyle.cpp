@@ -220,11 +220,18 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonCommand:
     case PE_ButtonBevel:
     case PE_ButtonTool:
-    case PE_HeaderSection:
-	qDrawShadePanel( p, r, pal, bool(flags & (Style_Down | Style_On )),
-			 pixelMetric(PM_DefaultFrameWidth),
-			 &pal.brush(QPalette::Button) );
+    case PE_HeaderSection: {
+	QBrush fill;
+	if (flags & Style_Down)
+	    fill = pal.brush( QPalette::Mid );
+	else if (flags & Style_On)
+	    fill = QBrush( pal.mid(), Dense4Pattern );
+	else
+	    fill = pal.brush( QPalette::Button );
+	qDrawShadePanel(p, r, pal, bool(flags & (Style_Down | Style_On)),
+			pixelMetric(PM_DefaultFrameWidth), &fill);
 	break;
+    }
 
     case PE_Indicator: {
 #ifndef QT_NO_BUTTON
@@ -764,49 +771,31 @@ void QMotifStyle::drawControl( ControlElement element,
  		x2 -= diw;
  		y2 -= diw;
  	    }
- 	    QBrush fill;
- 	    if ( btn->isDown() )
- 		fill = pal.brush( QPalette::Mid );
- 	    else if ( btn->isOn() )
- 		fill = QBrush( pal.mid(), Dense4Pattern );
- 	    else
- 		fill = pal.brush( QPalette::Button );
-
-	    QPalette pal2 = pal;
-	    pal2.setBrush( QPalette::Button, fill );
  	    if ( btn->isDefault() ) {
  		if ( diw == 0 ) {
 		    QPointArray a;
 		    a.setPoints( 9,
 				 x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
 				 x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
- 		    p->setPen( pal2.shadow() );
+ 		    p->setPen( pal.shadow() );
  		    p->drawPolygon( a );
  		    x1 += 2;
  		    y1 += 2;
  		    x2 -= 2;
  		    y2 -= 2;
  		} else {
- 		    qDrawShadePanel( p, r, pal2, TRUE );
+ 		    qDrawShadePanel( p, r, pal, TRUE );
  		}
  	    }
- 	    if ( !btn->isFlat() || btn->isOn() || btn->isDown() ) {
+ 	    if (!btn->isFlat() || btn->isOn() || btn->isDown()) {
 		QRect tmp( x1, y1, x2 - x1 + 1, y2 - y1 + 1 );
 		SFlags flags = Style_Default;
 		if ( btn->isOn())
 		    flags |= Style_On;
 		if (btn->isDown())
 		    flags |= Style_Down;
-		p->save();
-		p->setBrushOrigin( -widget->backgroundOffset().x(),
-				   -widget->backgroundOffset().y() );
-		drawPrimitive( PE_ButtonCommand, p,
-			       tmp, pal2,
- 			       flags );
-		p->restore();
+		drawPrimitive(PE_ButtonCommand, p, tmp, pal, flags);
 	    }
- 	    if ( p->brush().style() != NoBrush )
- 		p->setBrush( NoBrush );
 #endif
 	    break;
 	}
