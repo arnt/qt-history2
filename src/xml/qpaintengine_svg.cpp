@@ -160,7 +160,7 @@ QSVGPaintEngine::~QSVGPaintEngine()
     delete qSvgColMap; qSvgColMap = 0;
 }
 
-bool QSVGPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QSVGPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
 //     QDomImplementation domImpl;
 //     QDomDocumentType docType = domImpl.createDocumentType( "svg", publicId, systemId);

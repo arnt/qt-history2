@@ -34,7 +34,7 @@ public:
     QSVGPaintEngine();
     ~QSVGPaintEngine();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
 
     void updatePen(QPainterState *ps);
