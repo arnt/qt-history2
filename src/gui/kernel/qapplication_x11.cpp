@@ -329,15 +329,14 @@ enum {
     TOTAL_XINPUT_EVENTS = 7
 };
 
-XDevice *devStylus = NULL;
-XDevice *devEraser = NULL;
+XDevice *devStylus = 0;
+XDevice *devEraser = 0;
 XEventClass event_list_stylus[TOTAL_XINPUT_EVENTS];
 XEventClass event_list_eraser[TOTAL_XINPUT_EVENTS];
 
 int qt_curr_events_stylus = 0;
 int qt_curr_events_eraser = 0;
 
-// well, luckily we only need to do this once.
 static int xinput_motion = INVALID_EVENT;
 static int xinput_key_press = INVALID_EVENT;
 static int xinput_key_release = INVALID_EVENT;
@@ -1308,6 +1307,22 @@ static void qt_check_focus_model()
         X11->focus_model = QX11Data::FM_Other;
 }
 
+static bool isXInputSupported(Display *dpy, int *event_base)
+{
+    Bool exists;
+    int opcode, error_base;
+    XExtensionVersion *version;
+    exists = XQueryExtension(dpy, "XInputExtension",
+                             &opcode, event_base, &error_base);
+    if (!exists)
+        return false;
+    version = XGetExtensionVersion(dpy, "XInputExtension");
+    if (!version || int(version) == NoSuchExtension)
+        return false;
+    XFree(version);
+    return true;
+}
+
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
@@ -1743,131 +1758,135 @@ void qt_init(QApplicationPrivate *priv, int,
 #endif // QT_NO_XIM
 
 #if defined (QT_TABLET_SUPPORT)
-        int ndev,
-            i,
-            j;
-        bool gotStylus,
-            gotEraser;
-        XDeviceInfo *devices, *devs;
-        XInputClassInfo *ip;
-        XAnyClassPtr any;
-        XValuatorInfoPtr v;
-        XAxisInfoPtr a;
-        XDevice *dev;
-        XEventClass *ev_class;
-        int curr_event_count;
+        int event_base;
+        if (isXInputSupported(X11->display, &event_base)) {
+            int ndev,
+                i,
+                j;
+            bool gotStylus,
+                gotEraser;
+            XDeviceInfo *devices, *devs;
+            XInputClassInfo *ip;
+            XAnyClassPtr any;
+            XValuatorInfoPtr v;
+            XAxisInfoPtr a;
+            XDevice *dev;
+            XEventClass *ev_class;
+            int curr_event_count;
 
 #if !defined(Q_OS_IRIX)
-        // XFree86 divides a stylus and eraser into 2 devices, so we must do for both...
-        const QString XFREENAMESTYLUS = "stylus";
-        const QString XFREENAMEPEN = "pen";
-        const QString XFREENAMEERASER = "eraser";
+            // XFree86 divides a stylus and eraser into 2 devices, so we must do for both...
+            const QString XFREENAMESTYLUS = "stylus";
+            const QString XFREENAMEPEN = "pen";
+            const QString XFREENAMEERASER = "eraser";
 #endif
 
-        devices = XListInputDevices(X11->display, &ndev);
-        if (devices == NULL) {
-            qWarning("Failed to get list of devices");
-            ndev = -1;
-        }
-        dev = NULL;
-        for (devs = devices, i = 0; i < ndev; i++, devs++) {
-            gotEraser = false;
+            devices = XListInputDevices(X11->display, &ndev);
+            if (!devices) {
+                qWarning("Failed to get list of devices");
+                ndev = -1;
+            }
+            dev = 0;
+            for (devs = devices, i = 0; i < ndev; i++, devs++) {
+                gotEraser = false;
 #if defined(Q_OS_IRIX)
 
-            gotStylus = (!strncmp(devs->name,
-                                   WACOM_NAME, sizeof(WACOM_NAME) - 1));
+                gotStylus = (!strncmp(devs->name,
+                                       WACOM_NAME, sizeof(WACOM_NAME) - 1));
 #else
-            QString devName = devs->name;
-            devName = devName.lower();
-            gotStylus = (devName.startsWith(XFREENAMEPEN)
-                          || devName.startsWith(XFREENAMESTYLUS));
-            if (!gotStylus)
-                gotEraser = devName.startsWith(XFREENAMEERASER);
+                QString devName = devs->name;
+                devName = devName.lower();
+                gotStylus = (devName.startsWith(XFREENAMEPEN)
+                              || devName.startsWith(XFREENAMESTYLUS));
+                if (!gotStylus)
+                    gotEraser = devName.startsWith(XFREENAMEERASER);
 
 #endif
-            if (gotStylus || gotEraser) {
-                // I only wanted to do this once, so wrap pointers around these
-                curr_event_count = 0;
+                if (gotStylus || gotEraser) {
+                    // I only wanted to do this once, so wrap pointers around these
+                    curr_event_count = 0;
 
-                if (gotStylus) {
-                    devStylus = XOpenDevice(X11->display, devs->id);
-                    dev = devStylus;
-                    ev_class = event_list_stylus;
-                } else if (gotEraser) {
-                    devEraser = XOpenDevice(X11->display, devs->id);
-                    dev = devEraser;
-                    ev_class = event_list_eraser;
-                }
-                if (dev == NULL) {
-                    qWarning("Failed to open device");
-                } else {
-                    if (dev->num_classes > 0) {
-                        for (ip = dev->classes, j = 0; j < devs->num_classes;
-                              ip++, j++) {
-                            switch (ip->input_class) {
-                            case KeyClass:
-                                DeviceKeyPress(dev, xinput_key_press,
-                                                ev_class[curr_event_count]);
-                                curr_event_count++;
-                                DeviceKeyRelease(dev, xinput_key_release,
-                                                  ev_class[curr_event_count]);
-                                curr_event_count++;
-                                break;
-                            case ButtonClass:
-                                DeviceButtonPress(dev, xinput_button_press,
-                                                   ev_class[curr_event_count]);
-                                curr_event_count++;
-                                DeviceButtonRelease(dev, xinput_button_release,
-                                                     ev_class[curr_event_count]);
-                                curr_event_count++;
-                                break;
-                            case ValuatorClass:
-                                // I'm only going to be interested in motion when the
-                                // stylus is already down anyway!
-                                DeviceMotionNotify(dev, xinput_motion,
+                    if (gotStylus) {
+                        devStylus = XOpenDevice(X11->display, devs->id);
+                        dev = devStylus;
+                        ev_class = event_list_stylus;
+                    } else if (gotEraser) {
+                        devEraser = XOpenDevice(X11->display, devs->id);
+                        dev = devEraser;
+                        ev_class = event_list_eraser;
+                    }
+                    if (!dev) {
+                        qWarning("Failed to open device");
+                    } else {
+                        if (dev->num_classes > 0) {
+                            for (ip = dev->classes, j = 0; j < devs->num_classes;
+                                  ip++, j++) {
+                                switch (ip->input_class) {
+                                case KeyClass:
+                                    DeviceKeyPress(dev, xinput_key_press,
                                                     ev_class[curr_event_count]);
-                                curr_event_count++;
-                                break;
-                            default:
-                                break;
+                                    curr_event_count++;
+                                    DeviceKeyRelease(dev, xinput_key_release,
+                                                      ev_class[curr_event_count]);
+                                    curr_event_count++;
+                                    break;
+                                case ButtonClass:
+                                    DeviceButtonPress(dev, xinput_button_press,
+                                                       ev_class[curr_event_count]);
+                                    curr_event_count++;
+                                    DeviceButtonRelease(dev, xinput_button_release,
+                                                         ev_class[curr_event_count]);
+                                    curr_event_count++;
+                                    break;
+                                case ValuatorClass:
+                                    // I'm only going to be interested in motion when the
+                                    // stylus is already down anyway!
+                                    DeviceMotionNotify(dev, xinput_motion,
+                                                        ev_class[curr_event_count]);
+                                    curr_event_count++;
+                                    break;
+                                default:
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                // get the min/max value for pressure!
-                any = (XAnyClassPtr) (devs->inputclassinfo);
-                if (dev == devStylus) {
-                    qt_curr_events_stylus = curr_event_count;
-                    for (j = 0; j < devs->num_classes; j++) {
-                        if (any->c_class == ValuatorClass) {
-                            v = (XValuatorInfoPtr) any;
-                            a = (XAxisInfoPtr) ((char *) v +
-                                                sizeof (XValuatorInfo));
+                    // get the min/max value for pressure!
+                    any = static_cast<XAnyClassPtr>(devs->inputclassinfo);
+                    if (dev == devStylus) {
+                        qt_curr_events_stylus = curr_event_count;
+                        for (j = 0; j < devs->num_classes; j++) {
+                            if (any->c_class == ValuatorClass) {
+                                v = reinterpret_cast<XValuatorInfoPtr>(any);
+                                a = reinterpret_cast<XAxisInfoPtr>(reinterpret_cast<char *>(v +
+                                                              sizeof(XValuatorInfo)));
 #if defined (Q_OS_IRIX)
-                            max_pressure = a[WAC_PRESSURE_I].max_value;
+                                max_pressure = a[WAC_PRESSURE_I].max_value;
 #else
-                            max_pressure = a[2].max_value;
+                                max_pressure = a[2].max_value;
 #endif
-                            // got the max pressure no need to go further...
+                                // got the max pressure no need to go further...
+                                break;
+                            }
+                            any = reinterpret_cast<XAnyClassPtr>(reinterpret_cast<char *>(any
+                                                                                 + any->length));
+                        }
+                    } else {
+                        qt_curr_events_eraser = curr_event_count;
+                    }
+                    // at this point we are assuming there is only one
+                    // wacom device...
+#if defined (Q_OS_IRIX)
+                    if (devStylus != 0) {
+#else
+                        if (devStylus != 0 && devEraser != 0) {
+#endif
                             break;
                         }
-                        any = (XAnyClassPtr) ((char *) any + any->length);
                     }
-                } else {
-                    qt_curr_events_eraser = curr_event_count;
-                }
-                // at this point we are assuming there is only one
-                // wacom device...
-#if defined (Q_OS_IRIX)
-                if (devStylus != NULL) {
-#else
-                    if (devStylus != NULL && devEraser != NULL) {
-#endif
-                        break;
-                    }
-                }
-            } // end for loop
-            XFreeDeviceList(devices);
+                } // end of for loop
+                XFreeDeviceList(devices);
+            }
 #endif // QT_TABLET_SUPPORT
 
         } else {
