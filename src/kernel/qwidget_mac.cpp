@@ -711,6 +711,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	    ADD_DEBUG_WINDOW_NAME(kWindowCloseBoxAttribute),
 	    { 0, NULL }
 	}, known_classes[] = {
+	    ADD_DEBUG_WINDOW_NAME(kUtilityWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kSheetWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kFloatingWindowClass),
@@ -738,13 +739,18 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 	    for(int i = 0; tmp_wattr && known_attribs[i].name; i++) {
 		if((tmp_wattr & known_attribs[i].tag) == known_attribs[i].tag) {
 		    tmp_wattr ^= known_attribs[i].tag;
-		    qDebug("* %s", known_attribs[i].name);
+		    qDebug("* %s %s", known_attribs[i].name, 
+			   GetAvailableWindowAttributes(wclass) & known_attribs[i].tag ? "" : "(*)");
 		}
 	    }
 	    if(tmp_wattr)
 		qDebug("!! Attributes: Unknown (%d)", (int)tmp_wattr);
 	}
 #endif
+	/* Just to be extra careful we will change to the kUtilityWindowClass if the
+	   requested attributes cannot be used */
+	if((GetAvailableWindowAttributes(wclass) & wattr) != wattr) 
+	    wclass = kUtilityWindowClass;
 
 #ifdef QMAC_USE_WDEF
 	if((wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool)) {
@@ -756,7 +762,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow )
 #endif
 	{
 	    if(OSStatus ret = CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
-		qDebug("Shouldn't happen %s:%d %ld", __FILE__, __LINE__, ret);
+		qDebug("%s:%d If you reach this error please contact Trolltech and include the\n"
+		       "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
 	    if(!desktop) { 	//setup an event callback handler on the window
 		InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(),
 					  GetEventTypeCount(window_events),
@@ -1203,10 +1210,9 @@ QWidget *QWidget::keyboardGrabber()
 void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
-    if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isPopup() || tlw->isDesktop()
-       || tlw->testWFlags(WStyle_Tool))
+    if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isDesktop())
 	return;
-    if(IsWindowActive((WindowPtr)tlw->handle()))
+    if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool) || IsWindowActive((WindowPtr)tlw->handle()))
 	ActivateWindow((WindowPtr)tlw->handle(), true);
     else
 	SelectWindow((WindowPtr)tlw->handle());
