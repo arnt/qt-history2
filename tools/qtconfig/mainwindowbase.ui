@@ -1609,21 +1609,9 @@
         <slot>removeSubstitute()</slot>
     </connection>
     <connection>
-        <sender>xftcheckbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>aacheckbox</receiver>
-        <slot>setChecked(bool)</slot>
-    </connection>
-    <connection>
         <sender>effectcheckbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>effectbase</receiver>
-        <slot>setEnabled(bool)</slot>
-    </connection>
-    <connection>
-        <sender>xftcheckbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>aacheckbox</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
     <connection>
@@ -1635,12 +1623,6 @@
     <connection>
         <sender>toolboxeffect</sender>
         <signal>activated(int)</signal>
-        <receiver>MainWindowBase</receiver>
-        <slot>somethingModified()</slot>
-    </connection>
-    <connection>
-        <sender>xftcheckbox</sender>
-        <signal>toggled(bool)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
@@ -1707,12 +1689,6 @@
     <connection>
         <sender>fontembeddingcheckbox</sender>
         <signal>clicked()</signal>
-        <receiver>MainWindowBase</receiver>
-        <slot>somethingModified()</slot>
-    </connection>
-    <connection>
-        <sender>aacheckbox</sender>
-        <signal>toggled(bool)</signal>
         <receiver>MainWindowBase</receiver>
         <slot>somethingModified()</slot>
     </connection>
