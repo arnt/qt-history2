@@ -40,14 +40,25 @@ QMenus::QMenus( QWidget *parent, const char *name )
     QPopupMenu *edit = new QPopupMenu( this );
 
     action = new QAction( "Normal", "&Normal", CTRL+Key_N, this );
+    action->setToggleAction( TRUE );
     connect( action, SIGNAL(activated()), this, SLOT(editNormal()) );
     action->addTo( edit );
 
     action = new QAction( "Bold", "&Bold", CTRL+Key_B, this );
+    action->setToggleAction( TRUE );
     connect( action, SIGNAL(activated()), this, SLOT(editBold()) );
     action->addTo( edit );
 
     action = new QAction( "Underline", "&Underline", CTRL+Key_U, this );
+    action->setToggleAction( TRUE );
+    connect( action, SIGNAL(activated()), this, SLOT(editUnderline()) );
+    action->addTo( edit );
+
+    edit->insertSeparator();
+
+    action = new QAction( "Unavailable", "Una&vailable", CTRL+Key_V, this );
+    action->setToggleAction( TRUE );
+    action->setEnabled( FALSE );
     connect( action, SIGNAL(activated()), this, SLOT(editUnderline()) );
     action->addTo( edit );
 
@@ -99,7 +110,8 @@ void QMenus::editUnderline()
 
 void QMenus::helpAbout()
 {
-    QMessageBox::about( this, "About QMenus", "" );
+    QMessageBox::about( this, "About QMenus", 
+			"This example implements an in-place ActiveX control with menus and status messages." );
 }
 
 void QMenus::helpAboutQt()
