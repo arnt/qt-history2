@@ -21,7 +21,7 @@ LFLAGS=@QMAKE_LFLAGS@
 #if cc isn't gcc I need to use the bad makefile
 ifeq ($(CC),gcc)
 all: qmake
-DEPDIR:=$(shell [ -d .deps/ ] || mkdir -p .deps/)
+DEPDIR:=$(shell [ -d .deps ] || mkdir -p .deps)
 -include $(OBJS:.o=.dep)
 else
 all: uqmake
