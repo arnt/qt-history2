@@ -2335,8 +2335,8 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_TabBarTabVSpace:
 	{
 	    const QTabBar * tb = (const QTabBar *) widget;
-	    if ( tb->shape() == QTabBar::RoundedAbove ||
-		 tb->shape() == QTabBar::RoundedBelow )
+	    if ( tb && ( tb->shape() == QTabBar::RoundedAbove ||
+			 tb->shape() == QTabBar::RoundedBelow ) )
 		ret = 10;
 	    else
 		ret = 0;
