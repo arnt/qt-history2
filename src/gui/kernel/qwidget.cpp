@@ -5518,17 +5518,21 @@ void QWidget::setSizePolicy(QSizePolicy policy)
 */
 
 /*!
-    Returns the preferred height for this widget, given the width \a
-    w. The default implementation returns 0, indicating that the
-    preferred height does not depend on the width.
+    Returns the preferred height for this widget, given the width \a w.
 
-    \warning Does not look at the widget's layout.
+    If this widget has a layout, the default implementation returns
+    the layout's preferred height.  if there is no layout, the default
+    implementation returns -1 indicating that the preferred height
+    does not depend on the width.
 */
 
 int QWidget::heightForWidth(int w) const
 {
-    (void)w;
-    return 0;
+#ifndef QT_NO_LAYOUT
+    if (layout() && layout()->hasHeightForWidth())
+        return layout()->totalHeightForWidth(w);
+#endif
+    return -1;
 }
 
 /*!
