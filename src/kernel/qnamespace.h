@@ -219,7 +219,6 @@ public:
 	WStyle_Splash           = WStyle_NoBorder | WMacNoSheet | WStyle_Tool | WWinOwnDC,
 #endif
 #ifndef QT_NO_COMPAT
-	,
 	WStaticContents		= 0x00400000,
 	WNoAutoErase		= 0x00800000,
 	WRepaintNoErase	= WNoAutoErase,
