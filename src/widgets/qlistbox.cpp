@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#96 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#96 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -334,7 +334,22 @@ int QListBoxPixmap::width( const QListBox * ) const
   get keyboard focus both by tabbing and clicking.
 
   New items may be inserted using either insertItem(), insertStrList()
-  and inSort().
+  and inSort().  The list box is automatically updated to reflect the
+  change; if you are going to insert a lot of data it may be
+  worthwhile to wrap the insertion in calls to setAutoUpdate():
+
+  \code
+      listBix->setAutoUpdate( FALSE );
+      for( i=1; i< hugeArray->count(); i++ )
+          listBox->insertItem( hugeArray[i] );
+      listBox->setAutoUpdate( TRUE );
+      listBox->repaint();
+  \endcode
+
+  Each change to insertItem() normally causes a screen update, and for
+  a large change only a few of those updates are really necessary.  Be
+  careful to call repaint() when you re-enable updates, so the widget
+  is completely repainted.
 
   By default, vertical and horizontal scroll bars are added and
   removed as necessary.	 setAutoScrollBar() can be used to force a
