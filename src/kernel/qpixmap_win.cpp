@@ -209,6 +209,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 				     (void**)&(data->ppvBits),
 				     NULL,
 				     0 );
+	delete [] bmi_data;
 #endif
 
     if ( !DATA_HBM ) {
@@ -1440,9 +1441,8 @@ bool QPixmap::hasAlphaChannel() const
 
 void QPixmap::convertToAlphaPixmap( bool initAlpha )
 {
-    int	  bmi_data_len = sizeof(BITMAPINFO);
-    char *bmi_data = new char[bmi_data_len];
-    memset( bmi_data, 0, bmi_data_len );
+    char bmi_data[sizeof(BITMAPINFO)];
+    memset( bmi_data, 0, sizeof(BITMAPINFO) );
     BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
