@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#28 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -1294,7 +1294,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     current_dropobj = pDataObj;
     current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
 
-    QDragEnterEvent de( QPoint(pt.x,pt.y) );
+    QDragEnterEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
 
@@ -1305,7 +1305,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
 STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
-    QDragMoveEvent de( QPoint(pt.x,pt.y) );
+    QDragMoveEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
     if ( acceptfmt )
 	de.accept();
     else
@@ -1335,7 +1335,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
     {      
 	current_dropobj = pDataObj;
 	current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
-	QDropEvent de( QPoint(pt.x,pt.y) );
+	QDropEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
 	QApplication::sendEvent( widget, &de );
 	DragLeave();
 	//current_drop = 0;   - already done
