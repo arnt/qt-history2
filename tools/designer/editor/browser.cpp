@@ -37,13 +37,13 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		    oldHighlightedParag->format();
 		    oldHighlightedParag = 0;
 		}
-		if ( findCursor( c, from, to ) && from.parag() == to.parag() ) {
+		if ( findCursor( c, from, to ) && from.paragraph() == to.paragraph() ) {
 		    // avoid collision with other selections
 		    for ( int i = 0; i < curEditor->document()->numSelections(); ++i )
 			curEditor->document()->removeSelection( i );
-		    from.parag()->setFormat( from.index(), to.index() - from.index() + 1, highlightedFormat, FALSE );
-		    lastWord = from.parag()->string()->toString().mid( from.index(), to.index() - from.index() + 1 );
-		    oldHighlightedParag = from.parag();
+		    from.paragraph()->setFormat( from.index(), to.index() - from.index() + 1, highlightedFormat, FALSE );
+		    lastWord = from.paragraph()->string()->toString().mid( from.index(), to.index() - from.index() + 1 );
+		    oldHighlightedParag = from.paragraph();
 		} else {
 		    lastWord = "";
 		}
@@ -99,15 +99,15 @@ void EditorBrowser::addEditor( Editor *e )
 bool EditorBrowser::findCursor( const QTextCursor &c, QTextCursor &from, QTextCursor &to )
 {
     from = c;
-    while ( from.parag()->at( from.index() )->c != ' ' && from.parag()->at( from.index() )->c != '\t'  && from.index() > 0 )
+    while ( from.paragraph()->at( from.index() )->c != ' ' && from.paragraph()->at( from.index() )->c != '\t'  && from.index() > 0 )
 	from.gotoLeft();
-    if ( from.parag()->at( from.index() )->c == ' ' || from.parag()->at( from.index() )->c == '\t' )
+    if ( from.paragraph()->at( from.index() )->c == ' ' || from.paragraph()->at( from.index() )->c == '\t' )
 	from.gotoRight();
     to = c;
-    while ( to.parag()->at( to.index() )->c != ' ' && to.parag()->at( to.index() )->c != '\t' &&
-	    to.index() < to.parag()->length() - 1 )
+    while ( to.paragraph()->at( to.index() )->c != ' ' && to.paragraph()->at( to.index() )->c != '\t' &&
+	    to.index() < to.paragraph()->length() - 1 )
 	to.gotoRight();
-    if ( to.parag()->at( to.index() )->c == ' ' || to.parag()->at( to.index() )->c == '\t' )
+    if ( to.paragraph()->at( to.index() )->c == ' ' || to.paragraph()->at( to.index() )->c == '\t' )
 	to.gotoLeft();
     return TRUE;
 }

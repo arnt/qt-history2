@@ -61,29 +61,29 @@ public:
 	}
 	lastState = isSelected();
 	if ( !parag )
-	    setupParag();
+	    setupParagraph();
 	parag->paint( *painter, listBox()->colorGroup() );
     }
 
     int height( const QListBox * ) const {
 	if ( !parag )
-	    ( (CompletionItem*)this )->setupParag();
+	    ( (CompletionItem*)this )->setupParagraph();
 	return parag->rect().height();
     }
     int width( const QListBox * ) const {
 	if ( !parag )
-	    ( (CompletionItem*)this )->setupParag();
+	    ( (CompletionItem*)this )->setupParagraph();
 	return parag->rect().width() - 2;
     }
     QString text() const { return QListBoxItem::text() + postfix; }
 
 private:
-    void setupParag() {
+    void setupParagraph() {
 	if ( !parag ) {
 	    QTextFormatter *formatter;
 	    formatter = new QTextFormatterBreakWords;
 	    formatter->setWrapEnabled( FALSE );
-	    parag = new QTextParag( 0 );
+	    parag = new QTextParagraph( 0 );
 	    parag->pseudoDocument()->pFormatter = formatter;
 	    parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + prefix +
 			   QListBoxItem::text() + postfix + postfix2 );
@@ -112,7 +112,7 @@ private:
 	}
     }
     QString type, postfix, prefix, postfix2;
-    QTextParag *parag;
+    QTextParagraph *parag;
     bool lastState;
 
 };
@@ -203,7 +203,7 @@ void EditorCompletion::updateCompletionMap( QTextDocument *doc )
     if ( doc != lastDoc )
 	strict = FALSE;
     lastDoc = doc;
-    QTextParag *s = doc->firstParag();
+    QTextParagraph *s = doc->firstParagraph();
     if ( !s->extraData() )
 	s->setExtraData( new ParagData );
     while ( s ) {
@@ -240,14 +240,14 @@ bool EditorCompletion::doCompletion()
     QTextCursor *cursor = curEditor->textCursor();
     QTextDocument *doc = curEditor->document();
 
-    if ( cursor->index() > 0 && cursor->parag()->at( cursor->index() - 1 )->c == '.' &&
-	 ( cursor->index() == 1 || cursor->parag()->at( cursor->index() - 2 )->c != '.' ) )
+    if ( cursor->index() > 0 && cursor->paragraph()->at( cursor->index() - 1 )->c == '.' &&
+	 ( cursor->index() == 1 || cursor->paragraph()->at( cursor->index() - 2 )->c != '.' ) )
 	return doObjectCompletion();
 
     int idx = cursor->index();
     if ( idx == 0 )
 	return FALSE;
-    QChar c = cursor->parag()->at( idx - 1 )->c;
+    QChar c = cursor->paragraph()->at( idx - 1 )->c;
     if ( !c.isLetter() && !c.isNumber() && c != '_' && c != '#' )
 	return FALSE;
 
@@ -255,14 +255,14 @@ bool EditorCompletion::doCompletion()
     idx--;
     completionOffset = 1;
     for (;;) {
-	s.prepend( QString( cursor->parag()->at( idx )->c ) );
+	s.prepend( QString( cursor->paragraph()->at( idx )->c ) );
 	idx--;
 	if ( idx < 0 )
 	    break;
-	if ( !cursor->parag()->at( idx )->c.isLetter() &&
-	     !cursor->parag()->at( idx )->c.isNumber() &&
-	     cursor->parag()->at( idx )->c != '_' &&
-	     cursor->parag()->at( idx )->c != '#' )
+	if ( !cursor->paragraph()->at( idx )->c.isLetter() &&
+	     !cursor->paragraph()->at( idx )->c.isNumber() &&
+	     cursor->paragraph()->at( idx )->c != '_' &&
+	     cursor->paragraph()->at( idx )->c != '#' )
 	    break;
 	completionOffset++;
     }
@@ -271,12 +271,12 @@ bool EditorCompletion::doCompletion()
 
     QValueList<CompletionEntry> lst( completionList( s, doc ) );
     if ( lst.count() > 1 ) {
-	QTextStringChar *chr = cursor->parag()->at( cursor->index() );
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	int x = cursor->parag()->rect().x() + chr->x;
+	QTextStringChar *chr = cursor->paragraph()->at( cursor->index() );
+	int h = cursor->paragraph()->lineHeightOfChar( cursor->index() );
+	int x = cursor->paragraph()->rect().x() + chr->x;
 	int y, dummy;
-	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
-	y += cursor->parag()->rect().y();
+	cursor->paragraph()->lineHeightOfChar( cursor->index(), &dummy, &y );
+	y += cursor->paragraph()->rect().y();
 	completionListBox->clear();
 	for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
 	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).postfix,
@@ -311,15 +311,15 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	curEditor = (Editor*)o;
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Tab ) {
-	    QString s = curEditor->textCursor()->parag()->string()->toString().
+	    QString s = curEditor->textCursor()->paragraph()->string()->toString().
 			left( curEditor->textCursor()->index() );
 	    if ( s.simplifyWhiteSpace().isEmpty() ) {
 		if ( curEditor->document()->indent() ) {
 		    curEditor->indent();
 		    int i = 0;
-		    for ( ; i < curEditor->textCursor()->parag()->length() - 1; ++i ) {
-			if ( curEditor->textCursor()->parag()->at( i )->c != ' ' &&
-			     curEditor->textCursor()->parag()->at( i )->c != '\t' )
+		    for ( ; i < curEditor->textCursor()->paragraph()->length() - 1; ++i ) {
+			if ( curEditor->textCursor()->paragraph()->at( i )->c != ' ' &&
+			     curEditor->textCursor()->paragraph()->at( i )->c != '\t' )
 			    break;
 		    }
 		    curEditor->drawCursor( FALSE );
@@ -347,19 +347,19 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	     ( ke->text() == "\t" && !( ke->state() & ControlButton ) ) ) {
 	    if ( ke->key() == Key_Tab ) {
 		if ( curEditor->textCursor()->index() == 0 &&
-		     curEditor->textCursor()->parag()->style() &&
-		     curEditor->textCursor()->parag()->style()->displayMode() ==
+		     curEditor->textCursor()->paragraph()->style() &&
+		     curEditor->textCursor()->paragraph()->style()->displayMode() ==
 		     QStyleSheetItem::DisplayListItem )
 		    return FALSE;
 		if ( doCompletion() )
 			return TRUE;
 	    } else if ( ke->key() == Key_Period &&
 			( curEditor->textCursor()->index() == 0 ||
-			  curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() - 1 )->c != '.' )
+			  curEditor->textCursor()->paragraph()->at( curEditor->textCursor()->index() - 1 )->c != '.' )
 			||
 			ke->key() == Key_Greater &&
 			curEditor->textCursor()->index() > 0 &&
-			curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() - 1 )->c == '-' ) {
+			curEditor->textCursor()->paragraph()->at( curEditor->textCursor()->index() - 1 )->c == '-' ) {
 		doObjectCompletion();
 	    } else {
 		if ( !doArgumentHint( ke->text() == "(" ) )
@@ -431,7 +431,7 @@ void EditorCompletion::completeCompletion()
     completionPopup->close();
     curEditor->setFocus();
     if ( i != -1 && i < (int)s.length() ) {
-	curEditor->setCursorPosition( curEditor->textCursor()->parag()->paragId(), idx + i + 1 );
+	curEditor->setCursorPosition( curEditor->textCursor()->paragraph()->paragId(), idx + i + 1 );
 	doArgumentHint( FALSE );
     }
 }
@@ -453,7 +453,7 @@ bool EditorCompletion::doObjectCompletion()
     QString object;
     int i = curEditor->textCursor()->index();
     i--;
-    QTextParag *p = curEditor->textCursor()->parag();
+    QTextParagraph *p = curEditor->textCursor()->paragraph();
     for (;;) {
 	if ( i < 0 )
 	    break;
@@ -531,9 +531,9 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	bool foundParen = FALSE;
 	int closeParens = 0;
 	while ( i >= 0 ) {
-	    if ( cursor->parag()->at( i )->c == ')' && i != cursor->index() )
+	    if ( cursor->paragraph()->at( i )->c == ')' && i != cursor->index() )
 		closeParens++;
-	    if ( cursor->parag()->at( i )->c == '(' ) {
+	    if ( cursor->paragraph()->at( i )->c == '(' ) {
 		closeParens--;
 		if ( closeParens == -1 ) {
 		    foundParen = TRUE;
@@ -550,19 +550,19 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     bool foundSpace = FALSE;
     bool foundNonSpace = FALSE;
     while ( j >= 0 ) {
-	if ( foundNonSpace && ( cursor->parag()->at( j )->c == ' ' || cursor->parag()->at( j )->c == ',' ) ) {
+	if ( foundNonSpace && ( cursor->paragraph()->at( j )->c == ' ' || cursor->paragraph()->at( j )->c == ',' ) ) {
 	    foundSpace = TRUE;
 	    break;
 	}
-	if ( !foundNonSpace && ( cursor->parag()->at( j )->c != ' ' || cursor->parag()->at( j )->c != ',' ) )
+	if ( !foundNonSpace && ( cursor->paragraph()->at( j )->c != ' ' || cursor->paragraph()->at( j )->c != ',' ) )
 	    foundNonSpace = TRUE;
 	--j;
     }
     if ( foundSpace )
 	++j;
     j = QMAX( j, 0 );
-    QString function( cursor->parag()->string()->toString().mid( j, i - j + 1 ) );
-    QString part = cursor->parag()->string()->toString().mid( j, cursor->index() - j + 1 );
+    QString function( cursor->paragraph()->string()->toString().mid( j, i - j + 1 ) );
+    QString part = cursor->paragraph()->string()->toString().mid( j, cursor->index() - j + 1 );
     function = function.simplifyWhiteSpace();
     for (;;) {
 	if ( function[ (int)function.length() - 1 ] == '(' ) {
@@ -635,12 +635,12 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     if ( functionLabel->isVisible() ) {
 	functionLabel->resize( w + 50, QMAX( functionLabel->fontMetrics().height(), 16 ) );
     } else {
-	QTextStringChar *chr = cursor->parag()->at( cursor->index() );
-	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-	int x = cursor->parag()->rect().x() + chr->x;
+	QTextStringChar *chr = cursor->paragraph()->at( cursor->index() );
+	int h = cursor->paragraph()->lineHeightOfChar( cursor->index() );
+	int x = cursor->paragraph()->rect().x() + chr->x;
 	int y, dummy;
-	cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
-	y += cursor->parag()->rect().y();
+	cursor->paragraph()->lineHeightOfChar( cursor->index(), &dummy, &y );
+	y += cursor->paragraph()->rect().y();
 	functionLabel->resize( w + 50, QMAX( functionLabel->fontMetrics().height(), 16 ) );
 	functionLabel->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
 	if ( functionLabel->x() + functionLabel->width() > QApplication::desktop()->width() )
@@ -666,12 +666,12 @@ void EditorCompletion::setContext( QObjectList *, QObject * )
 void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
 {
     QTextCursor *cursor = curEditor->textCursor();
-    QTextStringChar *chr = cursor->parag()->at( cursor->index() );
-    int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-    int x = cursor->parag()->rect().x() + chr->x;
+    QTextStringChar *chr = cursor->paragraph()->at( cursor->index() );
+    int h = cursor->paragraph()->lineHeightOfChar( cursor->index() );
+    int x = cursor->paragraph()->rect().x() + chr->x;
     int y, dummy;
-    cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
-    y += cursor->parag()->rect().y();
+    cursor->paragraph()->lineHeightOfChar( cursor->index(), &dummy, &y );
+    y += cursor->paragraph()->rect().y();
     completionListBox->clear();
     for ( QValueList<CompletionEntry>::ConstIterator it = lst.begin(); it != lst.end(); ++it )
 	(void)new CompletionItem( completionListBox, (*it).text, (*it).type,

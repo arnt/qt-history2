@@ -36,10 +36,10 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     markerWidget = new MarkerWidget( this, "editor_markerwidget" );
     connect( markerWidget, SIGNAL( markersChanged() ),
 	     this, SIGNAL( markersChanged() ) );
-    connect( markerWidget, SIGNAL( collapseFunction( QTextParag * ) ),
-	     this, SIGNAL( collapseFunction( QTextParag * ) ) );
-    connect( markerWidget, SIGNAL( expandFunction( QTextParag * ) ),
-	     this, SIGNAL( expandFunction( QTextParag * ) ) );
+    connect( markerWidget, SIGNAL( collapseFunction( QTextParagraph * ) ),
+	     this, SIGNAL( collapseFunction( QTextParagraph * ) ) );
+    connect( markerWidget, SIGNAL( expandFunction( QTextParagraph * ) ),
+	     this, SIGNAL( expandFunction( QTextParagraph * ) ) );
     connect( markerWidget, SIGNAL( collapse( bool ) ),
 	     this, SIGNAL( collapse( bool ) ) );
     connect( markerWidget, SIGNAL( expand( bool ) ),
@@ -104,7 +104,7 @@ void ViewManager::childEvent( QChildEvent *e )
 
 void ViewManager::setError( int line )
 {
-    QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
+    QTextParagraph *p = ( (Editor*)curView )->document()->paragAt( line );
     if ( p ) {
 	( (Editor*)curView )->setErrorSelection( line );
 	( (Editor*)curView )->setCursorPosition( line, 0 );
@@ -121,7 +121,7 @@ void ViewManager::setError( int line )
 
 void ViewManager::setStep( int line )
 {
-    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() )
 	    ( (ParagData*)p->extraData() )->step = FALSE;
@@ -145,7 +145,7 @@ void ViewManager::setStep( int line )
 void ViewManager::clearStep()
 {
     ( (Editor*)curView )->clearStepSelection();
-    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() )
 	    ( (ParagData*)p->extraData() )->step = FALSE;
@@ -156,7 +156,7 @@ void ViewManager::clearStep()
 
 void ViewManager::setStackFrame( int line )
 {
-    QTextParag *p = ( (Editor*)curView )->document()->paragAt( line );
+    QTextParagraph *p = ( (Editor*)curView )->document()->paragAt( line );
     if ( p ) {
 	( (Editor*)curView )->sync();
 	( (Editor*)curView )->setCursorPosition( line, 0 );
@@ -174,7 +174,7 @@ void ViewManager::setStackFrame( int line )
 
 void ViewManager::clearStackFrame()
 {
-    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() )
 	    ( (ParagData*)p->extraData() )->stackFrame = FALSE;
@@ -191,7 +191,7 @@ void ViewManager::resizeEvent( QResizeEvent *e )
 
 void ViewManager::clearErrorMarker()
 {
-    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() )
 	    ( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;
@@ -202,7 +202,7 @@ void ViewManager::clearErrorMarker()
 
 void ViewManager::setBreakPoints( const QValueList<int> &l )
 {
-    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     int i = 0;
     while ( p ) {
 	if ( l.find( i ) != l.end() ) {
@@ -226,7 +226,7 @@ QValueList<int> ViewManager::breakPoints() const
 {
     QValueList<int> l;
     int i = 0;
-    QTextParag *p = ( (Editor*)curView )->document()->firstParag();
+    QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
 	if ( p->extraData() &&
 	     ( (ParagData*)p->extraData() )->marker == ParagData::Breakpoint )

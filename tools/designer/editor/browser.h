@@ -6,7 +6,7 @@
 
 class Editor;
 class QTextCursor;
-class QTextParag;
+class QTextParagraph;
 class QTextFormat;
 
 class EDITOR_EXPORT EditorBrowser : public QObject
@@ -25,7 +25,7 @@ public:
 
 protected:
     Editor *curEditor;
-    QTextParag *oldHighlightedParag;
+    QTextParagraph *oldHighlightedParag;
     QString lastWord;
     QTextFormat *highlightedFormat;
 

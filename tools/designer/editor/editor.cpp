@@ -98,11 +98,11 @@ void Editor::configChanged()
 
 void Editor::setErrorSelection( int line )
 {
-    QTextParag *p = document()->paragAt( line );
+    QTextParagraph *p = document()->paragAt( line );
     if ( !p )
 	return;
     QTextCursor c( document() );
-    c.setParag( p );
+    c.setParagraph( p );
     c.setIndex( 0 );
     document()->removeSelection( Error );
     document()->setSelectionStart( Error, &c );
@@ -114,11 +114,11 @@ void Editor::setErrorSelection( int line )
 
 void Editor::setStepSelection( int line )
 {
-    QTextParag *p = document()->paragAt( line );
+    QTextParagraph *p = document()->paragAt( line );
     if ( !p )
 	return;
     QTextCursor c( document() );
-    c.setParag( p );
+    c.setParagraph( p );
     c.setIndex( 0 );
     document()->removeSelection( Step );
     document()->setSelectionStart( Step, &c );
@@ -141,10 +141,10 @@ void Editor::doChangeInterval()
 
 void Editor::commentSelection()
 {
-    QTextParag *start = document()->selectionStart( QTextDocument::Standard );
-    QTextParag *end = document()->selectionEnd( QTextDocument::Standard );
+    QTextParagraph *start = document()->selectionStart( QTextDocument::Standard );
+    QTextParagraph *end = document()->selectionEnd( QTextDocument::Standard );
     if ( !start || !end )
-	start = end = textCursor()->parag();
+	start = end = textCursor()->paragraph();
     while ( start ) {
 	if ( start == end && textCursor()->index() == 0 )
 	    break;
@@ -160,10 +160,10 @@ void Editor::commentSelection()
 
 void Editor::uncommentSelection()
 {
-    QTextParag *start = document()->selectionStart( QTextDocument::Standard );
-    QTextParag *end = document()->selectionEnd( QTextDocument::Standard );
+    QTextParagraph *start = document()->selectionStart( QTextDocument::Standard );
+    QTextParagraph *end = document()->selectionEnd( QTextDocument::Standard );
     if ( !start || !end )
-	start = end = textCursor()->parag();
+	start = end = textCursor()->paragraph();
     while ( start ) {
 	if ( start == end && textCursor()->index() == 0 )
 	    break;

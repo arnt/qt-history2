@@ -9,7 +9,7 @@ class EDITOR_EXPORT CIndent : public QTextIndent
 public:
     CIndent();
     virtual ~CIndent() {}
-    void indent( QTextDocument *doc, QTextParag *parag, int *oldIndent, int *newIndent );
+    void indent( QTextDocument *doc, QTextParagraph *parag, int *oldIndent, int *newIndent );
 
     void setTabSize( int ts );
     void setIndentSize( int is );
@@ -18,7 +18,7 @@ public:
 
 private:
     void reindent();
-    void indentLine( QTextParag *p, int &oldIndent, int &newIndent );
+    void indentLine( QTextParagraph *p, int &oldIndent, int &newIndent );
     void tabify( QString &s );
 
 public:

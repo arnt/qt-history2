@@ -63,7 +63,7 @@ public:
 
     virtual bool supportsErrors() const { return TRUE; }
     virtual bool supportsBreakPoints() const { return TRUE; }
-    virtual void makeFunctionVisible( QTextParag * ) {}
+    virtual void makeFunctionVisible( QTextParagraph * ) {}
 
     void drawCursor( bool b ) { QTextEdit::drawCursor( b ); }
 

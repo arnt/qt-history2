@@ -25,7 +25,7 @@
 #include <qpixmap.h>
 
 class ViewManager;
-class QTextParag;
+class QTextParagraph;
 
 class MarkerWidget : public QWidget
 {
@@ -36,8 +36,8 @@ public:
 
 signals:
     void markersChanged();
-    void expandFunction( QTextParag *p );
-    void collapseFunction( QTextParag *p );
+    void expandFunction( QTextParagraph *p );
+    void collapseFunction( QTextParagraph *p );
     void collapse( bool all /*else only functions*/ );
     void expand( bool all /*else only functions*/ );
     void editBreakPoints();
