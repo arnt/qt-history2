@@ -6,6 +6,7 @@
 #include <qcheckbox.h>
 #include <qprocess.h>
 #include <qpushbutton.h>
+#include <qdir.h>
 
 #include "helpdemo.h"
 
@@ -122,7 +123,7 @@ void HelpDemo::installExampleDocs()
 {
 
     QStringList lst;
-    lst << "assistant"
+    lst << QDir::convertSeparators( QString( qInstallPathBins() ) + "//assistant" )
 	<< "-addProfile"
 	<< "helpdemo.adp"
 	<< ".";
