@@ -991,6 +991,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
 #endif
         bool timedOut = false;
         if (!socketLayer.waitForWrite(d->blockingTimeout, &timedOut) && !timedOut) {
+            state = Qt::UnconnectedState;
             socketError = socketLayer.socketError();
             socketErrorString = socketLayer.errorString();
             emit q->error(socketError);
@@ -1001,6 +1002,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
 #if defined(QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::connectToNextAddress(), connection timed out");
 #endif
+            state = Qt::UnconnectedState;
             socketError = Qt::SocketTimeoutError;
             socketErrorString = QT_TRANSLATE_NOOP(QAbstractSocket,
                                                   "Network operation timed out");
