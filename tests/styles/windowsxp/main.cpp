@@ -63,7 +63,7 @@ QStyle* WindowsXPStyle::create( const QString& s )
 
 bool WindowsXPStyle::init()
 {
-    return TRUE;
+    return qWinVersion() == Qt::WV_XP;
 }
 
 void WindowsXPStyle::cleanup()
