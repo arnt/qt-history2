@@ -83,19 +83,6 @@ public:
   layout, the light usually comes from top right instead of top left.
 */
 
-/* ### Delete when revised
-    \enum QStyle::ScrollControl
-  This enum type defines
-  \value AddLine  control to scroll one line down, usually an arrow button
-  \value SubLine  control to scroll one line up, usually an arrow button
-  \value AddPage  control to scroll one page down
-  \value SubPage  control to scroll one page up
-  \value First  control to scroll to top of the range
-  \value Last  control to scroll to bottom of the range
-  \value Slider  the slider control
-  \value NoScroll  null value, indicates none of the visible controls
-*/
-
 /*!
   Constructs a QStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
@@ -131,6 +118,7 @@ QStyle::~QStyle()
 
 /*!
   \fn GUIStyle QStyle::guiStyle() const
+  \obsolete
 
   Returns an indicator to the additional "feel" component of a
   style. Current supported values are Qt::WindowsStyle and Qt::MotifStyle.
@@ -239,53 +227,108 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   This enum represents a style PrimitiveOperation.  A PrimitiveOperation is
   a common GUI element, such as a checkbox indicator or pushbutton bevel.
 
-  \value PO_ButtonCommand
-  \value PO_ButtonBevel
-  \value PO_ButtonTool
-  \value PO_ButtonDropDown
+  \value PO_ButtonCommand  button that performs an action/command, for example: a
+  push button.
+  \value PO_ButtonBevel  general purpose button bevel.
+  \value PO_ButtonTool  tool button, for example: a button in a toolbar.
+  \value PO_ButtonDropDown  drop down button, for example: a tool button that displays
+  a popup menu.
 
-  \value PO_FocusRect
 
-  \value PO_ArrowUp
-  \value PO_ArrowDown
-  \value PO_ArrowRight
-  \value PO_ArrowLeft
+  \value PO_FocusRect  general purpose focus indicator.
 
-  \value PO_SpinWidgetUp
-  \value PO_SpinWidgetDown
-  \value PO_SpinWidgetPlus
-  \value PO_SpinWidgetMinus
 
-  \value PO_Indicator
-  \value PO_IndicatorMask
-  \value PO_ExclusiveIndicator
-  \value PO_ExclusiveIndicatorMask
+  \value PO_ArrowUp  up arrow.
+  \value PO_ArrowDown  down arrow.
+  \value PO_ArrowRight  right arrow.
+  \value PO_ArrowLeft  left arrow.
 
-  \value PO_DockWindowHandle
-  \value PO_DockWindowSeparator
-  \value PO_DockWindowResizeHandle
 
-  \value PO_Splitter
+  \value PO_SpinWidgetUp  up symbol for a spin widget.
+  \value PO_SpinWidgetDown down symbol for a spin widget.
+  \value PO_SpinWidgetPlus  increase symbol for a spin widget.
+  \value PO_SpinWidgetMinus  decrease symbol for a spin widget.
 
-  \value PO_MenuBarItem
+  For more explanation of a spin widget, see the QSpinBox documentation.
 
-  \value PO_Panel
-  \value PO_PanelPopup
-  \value PO_PanelMenuBar
-  \value PO_PanelDockWindow
 
-  \value PO_TabBarBase
+  \value PO_Indicator  on/off indicator, for example: a check box.
+  \value PO_IndicatorMask  bitmap mask for an indicator.
+  \value PO_ExclusiveIndicator  exclusive on/off indicator, for example: a radio button.
+  \value PO_ExclusiveIndicatorMask  bitmap mask for an exclusive indicator.
 
-  \value PO_HeaderSection
-  \value PO_StatusBarSection
 
-  \value PO_GroupBoxFrame
+  \value PO_DockWindowHandle  tear off handle for dock windows and toolbars.
+  \value PO_DockWindowSeparator  item separator for dock window and toolbar contents.
+  \value PO_DockWindowResizeHandle  resize handle for dock windows.
 
-  \value PO_Separator
 
-  \value PO_SizeGrip
+  \value PO_Splitter  splitter handle.
 
-  \value PO_CheckMark
+
+  \value PO_Panel  general purpose panel frame.
+  \value PO_PanelPopup  panel frame for popup windows/menus.
+  \value PO_PanelMenuBar  panel frame for menu bars.
+  \value PO_PanelDockWindow  panel frame for dock windows and toolbars.
+
+  For more information on dock windows, see the QDockWindow documentation.
+
+
+  \value PO_TabBarBase  area below tabs in a tab widget.
+
+
+  \value PO_HeaderSection  section of a list/table header.
+  \value PO_StatusBarSection  section of a status bar.
+
+
+  \value PO_GroupBoxFrame  frame around a group box.
+
+
+  \value PO_Separator  general purpose separator.
+
+
+  \value PO_SizeGrip  window resize handle.
+
+
+  \value PO_CheckMark  general purpose check mark.
+
+
+  \value PO_ScrollBarAddLine  scrollbar line increase indicator (ie. scroll down).
+  \value PO_ScrollBarSubLine  scrollbar line decrease indicator (ie. scroll up).
+  \value PO_ScrollBarAddPage  scolllbar page increase indicator (ie. page down).
+  \value PO_ScrollBarSubPage  scrollbar page decrease indicator (ie. page up).
+  \value PO_ScrollBarSlider  scrollbar slider
+  \value PO_ScrollBarFirst  scrollbar first line indicator (ie. home).
+  \value PO_ScrollBarLast  scrollbar last line indicator (ie. end).
+
+
+  \value PO_ProgressBarChunk  section of a progress bar indicator.
+*/
+
+/*!
+  \enum QStyle::PrimitiveOperationFlags
+
+  This enum represents flags for drawing PrimitiveOperations.  Not all primitives
+  use all of these flags.  Note that these flags can have different meaning for
+  different primitives.  For an explanation of the relationship of various primitives
+  and flags, as well as the different meanings of the flags, see the Style overview.
+
+  \value PStyle_Default
+  \value PStyle_Enabled
+  \value PStyle_Raised
+  \value PStyle_Sunken
+  \value PStyle_Off
+  \value PStyle_NoChange
+  \value PStyle_On
+  \value PStyle_Down
+  \value PStyle_Horizontal
+  \value PStyle_Vertical
+  \value PStyle_HasFocus
+  \value PStyle_Top
+  \value PStyle_Bottom
+  \value PStyle_FocusAtBorder
+  \value PStyle_AutoRaise
+  \value PStyle_MouseOver
 */
 
 /*!
@@ -297,10 +340,291 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   The \a flags argument is used to control how the primitive is drawn.  Multiple
   flags can be used.
 
-  For example, a pressed button would be drawn with the flags PStyle_Enabled and
-  PStyle_Down.
+  For example, a pressed button would be drawn with the flags \e PStyle_Enabled and
+  \e PStyle_Down.
+
+  The \a data argument can be used to control how various primitives are drawn.
+  Note that \a data can be zero even for primitives that make use of extra data.
+  When data is non-zero, the data is used as folows:
+
+  \list
+    \i \e PO_FocusRect  data[0] - const QColor * - pointer to the color the on
+       which focus rect is being drawn. It is used to determine the color for the
+       focus indicator.  For example, when drawing focus on highlighted
+       QListViewItem, data[0] should be the highlight color.  This allows the style
+       to use a light color for the focus rect if drawing on a dark background.
+    \i \e PO_Panel, \e PO_PanelPopup, \e PO_PanelMenuBar, \e PO_PanelDockWindow
+       data[0] should be a pointer to an integer ( int * ).  This integer is the
+       line width when drawing the panel.
+  \endlist
+
+  For all other PrimitiveOperations, \a data is unused.
 
   \sa PrimitiveOperation, PrimitiveOperationFlags
+*/
+
+/*!
+  \enum QStyle::ControlElement
+
+  \value CE_PushButton
+  \value CE_PushButtonLabel
+
+  \value CE_CheckBox
+  \value CE_CheckBoxLabel
+
+  \value CE_RadioButton
+  \value CE_RadioButtonLabel
+
+  \value CE_TabBarTab
+  \value CE_TabBarLabel
+
+  \value CE_ProgressBarGroove
+  \value CE_ProgressBarContents
+  \value CE_ProgressBarLabel
+
+  \value CE_PopupMenuItem
+  \value CE_MenuBarItem
+*/
+
+/*!
+  \enum QStyle::ControlElementFlags
+
+  \value CStyle_Default
+  \value CStyle_Selected
+  \value CStyle_HasFocus
+  \value CStyle_Active
+*/
+
+/*
+  \fn void QStyle::drawControl( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags how = CStyle_Default, void **data = 0 ) const;
+*/
+
+/*!
+  \fn void QStyle::drawControlMask( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
+*/
+
+/*!
+  \enum QStyle::SubRect
+
+
+  \value SR_PushButtonContents
+  \value SR_PushButtonFocusRect
+
+  \value SR_CheckBoxIndicator
+  \value SR_CheckBoxContents
+  \value SR_CheckBoxFocusRect
+
+  \value SR_RadioButtonIndicator
+  \value SR_RadioButtonContents
+  \value SR_RadioButtonFocusRect
+
+  \value SR_ComboBoxFocusRect
+
+  \value SR_SliderFocusRect
+
+  \value SR_DockWindowHandleRect
+
+  \value SR_ProgressBarGroove
+  \value SR_ProgressBarContents
+  \value SR_ProgressBarLabel
+*/
+
+/*!
+  \fn QRect QStyle::subRect( SubRect r, const QWidget *widget ) const;
+*/
+
+/*!
+  \enum QStyle::ComplexControl
+
+
+  \value CC_SpinWidget
+  \value CC_ComboBox
+  \value CC_ScrollBar
+  \value CC_Slider
+  \value CC_ToolButton
+  \value CC_TitleBar
+  \value CC_ListView
+*/
+
+/*!
+  \enum QStyle::SubControl
+
+
+  \value SC_None
+
+  \value SC_ScrollBarAddLine
+  \value SC_ScrollBarSubLine
+  \value SC_ScrollBarAddPage
+  \value SC_ScrollBarSubPage
+  \value SC_ScrollBarFirst
+  \value SC_ScrollBarLast
+  \value SC_ScrollBarSlider
+  \value SC_ScrollBarGroove
+
+  \value SC_SpinWidgetUp
+  \value SC_SpinWidgetDown
+  \value SC_SpinWidgetFrame
+  \value SC_SpinWidgetEditField
+  \value SC_SpinWidgetButtonField
+
+  \value SC_ComboBoxEditField
+  \value SC_ComboBoxArrow
+
+  \value SC_SliderGroove
+  \value SC_SliderHandle
+  \value SC_SliderTickmarks
+
+  \value SC_ToolButton
+  \value SC_ToolButtonMenu
+
+  \value SC_TitleBarSysMenu
+  \value SC_TitleBarMinButton
+  \value SC_TitleBarMaxButton
+  \value SC_TitleBarCloseButton
+  \value SC_TitleBarLabel
+  \value SC_TitleBarNormalButton
+  \value SC_TitleBarShadeButton
+  \value SC_TitleBarUnshadeButton
+
+  \value SC_ListView
+  \value SC_ListViewBranch
+  \value SC_ListViewExpand
+
+  \value SC_All
+*/
+
+/*!
+  \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags flags = CStyle_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, void **data = 0 ) const;
+*/
+
+/*!
+  \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
+*/
+
+/*!
+  \fn QRect QStyle::querySubControlMetrics( ComplexControl control, const QWidget *widget, SubControl sc, void **data = 0 ) const;
+*/
+
+/*!
+  \fn SubControl QStyle::querySubControl( ComplexControl control, const QWidget *widget, const QPoint &pos, void **data = 0 ) const;
+*/
+
+/*!
+  \enum QStyle::PixelMetric
+
+
+  \value PM_ButtonMargin
+  \value PM_ButtonDefaultIndicator
+  \value PM_MenuButtonIndicator
+  \value PM_ButtonShiftHorizontal
+  \value PM_ButtonShiftVertical
+
+
+  \value PM_DefaultFrameWidth
+  \value PM_SpinBoxFrameWidth
+
+
+  \value PM_ScrollBarExtent
+  \value PM_ScrollBarMaximumDragDistance
+
+
+  \value PM_SliderThickness  total slider thickness
+  \value PM_SliderControlThickness  thickness of the business part
+  \value PM_SliderLength
+  \value PM_SliderMaximumDragDistance
+  \value PM_SliderTickmarkOffset
+  \value PM_SliderSpaceAvailable  available space for slider to move
+
+
+  \value PM_DockWindowSeparatorExtent
+  \value PM_DockWindowHandleExtent
+  \value PM_DockWindowFrameWidth
+
+
+  \value PM_MenuBarFrameWidth
+
+
+  \value PM_TabBarOverlap
+  \value PM_TabBarHorizontalFrame
+  \value PM_TabBarVerticalFrame
+  \value PM_TabBarBaseHeight
+  \value PM_TabBarBaseOverlap
+
+
+  \value PM_ProgressBarChunkWidth
+
+
+  \value PM_SplitterWidth
+
+
+  \value PM_IndicatorWidth
+  \value PM_IndicatorHeight
+  \value PM_ExclusiveIndicatorWidth
+  \value PM_ExclusiveIndicatorHeight
+*/
+
+/*!
+  \fn int QStyle::pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
+*/
+
+/*!
+  \enum QStyle::ContentsType
+
+
+  \value CT_PushButton
+  \value CT_CheckBox
+  \value CT_RadioButton
+  \value CT_ToolButton
+  \value CT_ComboBox
+  \value CT_Splitter
+  \value CT_DockWindow
+  \value CT_ProgressBar
+  \value CT_PopupMenuItem
+*/
+
+/*!
+  \fn QSize QStyle::sizeFromContents( ContentsType contents, const QWidget *widget, const QSize &contentsSize, void **data = 0 ) const;
+*/
+
+/*!
+  \enum QStyle::StyleHint
+
+
+  \value SH_ScrollBar_BackgroundMode
+  \value SH_ScrollBar_MiddleClickAbsolutePosition
+  \value SH_ScrollBar_ScrollWhenPointerLeavesControl
+
+
+  \value SH_TabBar_Alignment
+*/
+
+/*!
+  \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, void ***returnData = 0 ) const;
+*/
+
+/*!
+  \enum QStyle::StylePixmap
+
+
+  \value SP_TitleBarMinButton
+  \value SP_TitleBarMaxButton
+  \value SP_TitleBarCloseButton
+  \value SP_TitleBarNormalButton
+  \value SP_TitleBarShadeButton
+  \value SP_TitleBarUnshadeButton
+  \value SP_DockWindowCloseButton
+*/
+
+/*!
+  \fn QPixmap QStyle::stylePixmap( StylePixmap stylepixmap, const QWidget *widget = 0, void **data = 0 ) const;
+*/
+
+/*!
+  \fn QRect QStyle::visualRect( const QRect &logical, const QWidget *w );
+*/
+
+/*!
+  \fn QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
 */
 
 
@@ -309,7 +633,8 @@ QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
     QRect boundingRect = w->rect();
     QRect r = logical;
     if ( QApplication::reverseLayout() )
-	r.moveBy( 2*(boundingRect.right() - logical.right()) + logical.width() - boundingRect.width(), 0 );
+	r.moveBy( 2*(boundingRect.right() - logical.right()) +
+		  logical.width() - boundingRect.width(), 0 );
     return r;
 }
 
@@ -317,9 +642,10 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 {
     QRect r = logical;
     if ( QApplication::reverseLayout() )
-	r.moveBy( 2*(boundingRect.right() - logical.right()) + logical.width() - boundingRect.width(), 0 );
+	r.moveBy( 2*(boundingRect.right() - logical.right()) +
+		  logical.width() - boundingRect.width(), 0 );
     return r;
-}    
+}
 
 
 #endif // QT_NO_STYLE
