@@ -32,9 +32,10 @@ struct QTextHtmlParserAttribute {
 Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
 
 struct QTextHtmlParserNode {
-    QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isAnchor(false), isImage(false), fontItalic(0), fontUnderline(0), fontOverline(0),
+    QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isListStart(false), isAnchor(false), isImage(false), fontItalic(0), 
+    			  fontUnderline(0), fontOverline(0),
 			  fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
-			  alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined), listIndex(-1), indent(0),
+			  alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
 			  imageWidth(-1), imageHeight(-1), tableIndex(-1), cellIndex(-1),
 			  formatIndex(0), formatReference(0), propertyId(0),
 			  wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
@@ -45,6 +46,7 @@ struct QTextHtmlParserNode {
     int parent;
     uint isBlock : 1;
     uint isListItem : 1;
+    uint isListStart : 1;
     uint isAnchor : 1;
     uint isImage : 1;
     uint fontItalic : 1;
@@ -59,8 +61,6 @@ struct QTextHtmlParserNode {
     QColor bgColor;
     Qt::Alignment alignment;
     QTextListFormat::Style listStyle;
-    int listIndex; // ### maybe it's better to do the list allocation in ::load (Simon)
-    int indent;
     QString anchorHref;
     QString anchorName;
     QString imageName;

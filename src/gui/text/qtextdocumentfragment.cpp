@@ -6,6 +6,7 @@
 #include <qdebug.h>
 #include <qstylesheet.h>
 #include <qtextcodec.h>
+#include <qstack.h>
 
 QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &parser, int formatsNode)
 {
@@ -492,6 +493,9 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
     parser.parse(html);
 //    parser.dumpHtml();
 
+    QStack<int> listReferences;
+    int indent = 0;
+
     bool hasBlock = true;
     for (int i = 0; i < parser.count(); ++i) {
 	const QTextHtmlParserNode *node = &parser.at(i);
@@ -513,6 +517,12 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 		    QTextBlockFormat fmt;
 		    fmt.setNonDeletable(true);
 		    d->appendBlock(fmt);
+		} else if (closedNode->isListStart) {
+
+		    Q_ASSERT(!listReferences.isEmpty());
+
+		    listReferences.pop();
+		    --indent;
 		}
 
 		closedNode = &parser.at(closedNode->parent);
@@ -524,6 +534,16 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 	    if (node->bgColor.isValid())
 		fmt.setBackgroundColor(node->bgColor);
 	    d->appendBlock(fmt);
+	}
+
+	if (node->isListStart) {
+	    QTextListFormat listFmt;
+	    listFmt.setStyle(node->listStyle);
+
+	    ++indent;
+	    listFmt.setIndent(indent);
+
+	    listReferences << d->localFormatCollection.createReferenceIndex(listFmt);
 	}
 
 	if (node->isBlock) {
@@ -538,10 +558,12 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
 		block.setRightMargin(parser.rightMargin(i));
 		block.setFirstLineMargin(parser.firstLineMargin(i));
 
-		if (node->isListItem)
-		    block.setListFormatIndex(node->listIndex);
+		if (node->isListItem) {
+		    Q_ASSERT(!listReferences.isEmpty());
+		    block.setListFormatIndex(listReferences.top());
+		}
 		else
-		    block.setIndent(node->indent);
+		    block.setIndent(indent);
 
 		block.setAlignment(node->alignment);
 

@@ -566,26 +566,13 @@ void QTextHtmlParser::parseTag()
     node->isBlock = (node->style->displayMode() != QStyleSheetItem::DisplayInline);
     node->isImage = (node->tag == QLatin1String("img"));
     node->isListItem = (node->style->displayMode() == QStyleSheetItem::DisplayListItem);
-
-    bool isListStart = (node->tag == QLatin1String("ol") || node->tag == QLatin1String("ul"));
-
-    if (isListStart)
+    node->isListStart = (node->tag == QLatin1String("ol") || node->tag == QLatin1String("ul"));
+    if (node->isListStart)
 	node->listStyle = convertListStyle(node->style->listStyle());
 
     resolveParent();
     resolveNode();
     parseAttributes();
-
-    if (isListStart) {
-	// allocate a (unique) list id
-	QTextListFormat listFmt;
-	listFmt.setStyle(node->listStyle);
-
-	node->indent++;
-	listFmt.setIndent(node->indent);
-
-	node->listIndex = formats->createReferenceIndex(listFmt);
-    }
 
     if (node->tag == QLatin1String("table")) {
 	node->tableIndex = formats->createReferenceIndex(QTextTableFormat());
@@ -767,8 +754,6 @@ void QTextHtmlParser::resolveNode()
     node->bgColor = parent->bgColor;
     node->alignment = parent->alignment;
     node->listStyle = parent->listStyle;
-    node->listIndex = parent->listIndex;
-    node->indent = parent->indent;
     node->anchorHref = parent->anchorHref;
     node->anchorName = parent->anchorName;
     node->tableIndex = parent->tableIndex;
