@@ -787,11 +787,37 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
 /*!
   \class QHttpClient qhttp.h
-  \brief The QHttpClient class provides a HTTP client.
+  \brief The QHttpClient class provides the client side of HTTP.
 
   \module network
 
-  fnord
+  This class provides all means to send HTTP requests to a HTTP server and
+  receive the answer from the server. You have full control over the request
+  header and full access to the reply header.
+
+  If you want to fetch only single HTML sites, please look at the QHttp class;
+  it provides an easier to use interface to this functionality (it provides the
+  QUrlOperator interface for HTTP).
+
+  Since the QHttpClient class gives you full control over the header, you also
+  have to set the up the header by yourself. The following example
+  demonstrates, how to request the main HTML side from the Trolltech homepage
+  (i.e. the URL http://www.trolltech.com/index.html):
+
+  \code
+    QHttpClient client;
+    QHttpRequestHeader header( "GET", "/index.html" );
+    client.request( "www.trolltech.com", 80, header );
+  \endcode
+
+  This makes only the request. If a part of the reply arrived, the signal
+  replyChunk() is emitted. After the last chunk was reported like this, the
+  signal finished() is emitted. This allows you to process the document as far
+  as possible, without waiting for the complete transmission to be finished.
+
+  If you require to receive the whole document before you can do anything, take
+  also a look at the signal reply(). This signal is emitted when the whole
+  document was received.
 */
 
 /*!
@@ -801,12 +827,19 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   in response to this signal. Instead wait for finished().
  
   If this QHttpClient has a device set, then this signal is not emitted.
+
+  \sa replyChunk()
 */
 /*!
   \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QIODevice* device )
 
-  This signal is emitted if the reply is available and the data was written to
-  a device.
+  This signal is emitted when the reply is available and the data was written
+  to a device. Do not call request() in response to this signal. Instead wit
+  for finished().
+
+  If this QHttpClient has no device set, then this signal is not emitted.
+
+  \sa replyChunk()
 */
 /*!
   \fn void QHttpClient::replyChunk( const QHttpReplyHeader& repl, const QByteArray& data )
@@ -819,6 +852,8 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   signals instead.
 
   After everything is read and reported, the finished() signal is emitted.
+
+  \sa finished() reply()
 */
 /*!
   \fn void QHttpClient::replyHeader( const QHttpReplyHeader& repl )
@@ -827,21 +862,28 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
  
   It is now possible to decide wether the reply data should be read in memory
   or rather in some device by calling setDevice().
+
+  \sa setDevice() reply() replyChunk()
 */
 /*!
   \fn void QHttpClient::requestFailed()
 
   This signal is emitted if a request failed.
+
+  \sa request()
 */
 /*!
   \fn void QHttpClient::finished()
 
   This signal is emitted when the QHttpClient is able to start a new request.
   The QHttpClient is either in the state Idle or Alive now.
+
+  \sa reply() replyChunk()
 */
 
 /*!
-  Constructs a http client.
+  Constructs a HTTP client. The parameters \a parent and \a name are passed to
+  the QObject constructor.
 */
 QHttpClient::QHttpClient( QObject* parent, const char* name )
     : QObject( parent, name ), m_state( QHttpClient::Idle ), m_idleTimer( 0 ),
@@ -861,7 +903,7 @@ QHttpClient::QHttpClient( QObject* parent, const char* name )
 }
 
 /*!
-  Destructor. If there is an open connection, this connection is closed.
+  Destructor. If there is an open connection, it is closed.
 */
 QHttpClient::~QHttpClient()
 {
@@ -897,9 +939,7 @@ void QHttpClient::close()
     }
 }
 
-/*!
-  Sends a GET request to the server \a hostname at port \a port. Use the \a
-  header as the HTTP request header.
+/*! \overload
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header )
 {
@@ -921,13 +961,14 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 }
 
 /*!
-  Sends a POST request to the server \a hostname at port \a port. Use the \a
-  header as the HTTP request header. \a data is a char array of size \a size;
-  it is used as the content data of the POST request.
+  Sends a request to the server \a hostname at port \a port. Use the \a header
+  as the HTTP request header. You have to take care that the \a header is set
+  up appropriate for your request.  \a data is a char array of size \a size;
+  it is used as the content data of the HTTP request.
 
-  Call this function after the client was created or after the finished() signal
-  was emitted.  On other occasions the function returns FALSE to indicate that
-  it can not issue an request currently.
+  Call this function after the client was created or after the finished()
+  signal was emitted. On other occasions the function returns FALSE to indicate
+  that it can not issue an request currently.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size )
 {
@@ -957,13 +998,14 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 }
 
 /*!
-  Send a POST request to the server \a hostname at port \a port. Use the \a
-  header as the HTTP request header. The content data is read from \a device
+  Sends a request to the server \a hostname at port \a port. Use the \a header
+  as the HTTP request header. You have to take care that the \a header is set
+  up appropriate for your request.  The content data is read from \a device
   (the device must be opened for reading).
 
-  Call this function after the client was created or after the finished() signal
-  was emitted.  On other occasions the function returns FALSE to indicate that
-  it can not issue an request currently.
+  Call this function after the client was created or after the finished()
+  signal was emitted.  On other occasions the function returns FALSE to
+  indicate that it can not issue an request currently.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device )
 {
