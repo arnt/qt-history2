@@ -1927,7 +1927,7 @@ void QMainWindow::setUpLayout()
 	d->tll->setMenuBar( d->mb );
 	space = TRUE;
     }
-    
+
     d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
 
     if ( d->hidden && !d->hidden->isEmpty() ) {
@@ -2649,7 +2649,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	     !isDockEnabled( t, dock ) ) {
 #if defined(_WS_WIN32_)
-	    d->rectPainter->setPen( QPen( color0, 1, DashLine ) );
+	    d->rectPainter->setPen( QPen( color0, 1, DotLine ) );
 #else
 	    d->rectPainter->setPen( QPen( color0, 2, DashLine ) );
 #endif
