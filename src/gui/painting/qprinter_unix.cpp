@@ -32,8 +32,8 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qapplication.h"
 #include "qprinter_p.h"
 
-#include <stdlib.h>
 #include <unistd.h> // For ::sleep()
+#include <stdlib.h>
 
 
 // NOT REVISED
