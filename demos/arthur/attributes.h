@@ -16,7 +16,7 @@ public:
     {
         color = Qt::white;
         secondaryColor = Qt::black;
-        pattern.load("dome.jpg");
+        pattern.load("bg1.jpg");
         tile.load("qtlogo.png");
     }
 
