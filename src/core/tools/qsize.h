@@ -43,20 +43,15 @@ public:
 
     QSize &operator+=(const QSize &);
     QSize &operator-=(const QSize &);
-    QSize &operator*=(int c);
     QSize &operator*=(qReal c);
-    QSize &operator/=(int c);
     QSize &operator/=(qReal c);
 
     friend inline bool operator==(const QSize &, const QSize &);
     friend inline bool operator!=(const QSize &, const QSize &);
     friend inline const QSize operator+(const QSize &, const QSize &);
     friend inline const QSize operator-(const QSize &, const QSize &);
-    friend inline const QSize operator*(const QSize &, int);
-    friend inline const QSize operator*(int, const QSize &);
     friend inline const QSize operator*(const QSize &, qReal);
     friend inline const QSize operator*(qReal, const QSize &);
-    friend inline const QSize operator/(const QSize &, int);
     friend inline const QSize operator/(const QSize &, qReal);
 
 private:
@@ -119,9 +114,6 @@ inline QSize &QSize::operator+=(const QSize &s)
 inline QSize &QSize::operator-=(const QSize &s)
 { wd-=s.wd; ht-=s.ht; return *this; }
 
-inline QSize &QSize::operator*=(int c)
-{ wd *= c; ht *= c; return *this; }
-
 inline QSize &QSize::operator*=(qReal c)
 { wd = qRound(wd*c); ht = qRound(ht*c); return *this; }
 
@@ -137,36 +129,17 @@ inline const QSize operator+(const QSize & s1, const QSize & s2)
 inline const QSize operator-(const QSize &s1, const QSize &s2)
 { return QSize(s1.wd-s2.wd, s1.ht-s2.ht); }
 
-inline const QSize operator*(const QSize &s, int c)
-{ return QSize(s.wd*c, s.ht*c); }
-
-inline const QSize operator*(int c, const QSize &s)
-{  return QSize(s.wd*c, s.ht*c); }
-
 inline const QSize operator*(const QSize &s, qReal c)
 { return QSize(qRound(s.wd*c), qRound(s.ht*c)); }
 
 inline const QSize operator*(qReal c, const QSize &s)
 { return QSize(qRound(s.wd*c), qRound(s.ht*c)); }
 
-inline QSize &QSize::operator/=(int c)
-{
-    Q_ASSERT(c != 0);
-    wd /= c; ht /= c;
-    return *this;
-}
-
 inline QSize &QSize::operator/=(qReal c)
 {
     Q_ASSERT(c != 0.0);
     wd = qRound(wd/c); ht = qRound(ht/c);
     return *this;
-}
-
-inline const QSize operator/(const QSize &s, int c)
-{
-    Q_ASSERT(c != 0);
-    return QSize(s.wd/c, s.ht/c);
 }
 
 inline const QSize operator/(const QSize &s, qReal c)
@@ -218,9 +191,7 @@ public:
 
     QSizeF &operator+=(const QSizeF &);
     QSizeF &operator-=(const QSizeF &);
-    QSizeF &operator*=(int c);
     QSizeF &operator*=(qReal c);
-    QSizeF &operator/=(int c);
     QSizeF &operator/=(qReal c);
 
     friend inline bool operator==(const QSizeF &, const QSizeF &);
@@ -228,10 +199,8 @@ public:
     friend inline const QSizeF operator+(const QSizeF &, const QSizeF &);
     friend inline const QSizeF operator-(const QSizeF &, const QSizeF &);
     friend inline const QSizeF operator*(const QSizeF &, int);
-    friend inline const QSizeF operator*(int, const QSizeF &);
     friend inline const QSizeF operator*(const QSizeF &, qReal);
     friend inline const QSizeF operator*(qReal, const QSizeF &);
-    friend inline const QSizeF operator/(const QSizeF &, int);
     friend inline const QSizeF operator/(const QSizeF &, qReal);
 
     inline QSize toSize() const;
@@ -302,9 +271,6 @@ inline QSizeF &QSizeF::operator+=(const QSizeF &s)
 inline QSizeF &QSizeF::operator-=(const QSizeF &s)
 { wd -= s.wd; ht -= s.ht; return *this; }
 
-inline QSizeF &QSizeF::operator*=(int c)
-{ wd *= c; ht *= c; return *this; }
-
 inline QSizeF &QSizeF::operator*=(qReal c)
 { wd *= c; ht *= c; return *this; }
 
@@ -320,36 +286,17 @@ inline const QSizeF operator+(const QSizeF & s1, const QSizeF & s2)
 inline const QSizeF operator-(const QSizeF &s1, const QSizeF &s2)
 { return QSizeF(s1.wd-s2.wd, s1.ht-s2.ht); }
 
-inline const QSizeF operator*(const QSizeF &s, int c)
-{ return QSizeF(s.wd*c, s.ht*c); }
-
-inline const QSizeF operator*(int c, const QSizeF &s)
-{  return QSizeF(s.wd*c, s.ht*c); }
-
 inline const QSizeF operator*(const QSizeF &s, qReal c)
 { return QSizeF(s.wd*c, s.ht*c); }
 
 inline const QSizeF operator*(qReal c, const QSizeF &s)
 { return QSizeF(s.wd*c, s.ht*c); }
 
-inline QSizeF &QSizeF::operator/=(int c)
-{
-    Q_ASSERT(c != 0);
-    wd /= c; ht /= c;
-    return *this;
-}
-
 inline QSizeF &QSizeF::operator/=(qReal c)
 {
     Q_ASSERT(c != 0.0);
     wd = wd/c; ht = ht/c;
     return *this;
-}
-
-inline const QSizeF operator/(const QSizeF &s, int c)
-{
-    Q_ASSERT(c != 0);
-    return QSizeF(s.wd/c, s.ht/c);
 }
 
 inline const QSizeF operator/(const QSizeF &s, qReal c)
