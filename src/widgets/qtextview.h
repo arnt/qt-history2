@@ -194,11 +194,13 @@ protected:
     QTextDocument *document() const;
     void setDocument( QTextDocument *doc );
 
+protected slots:
+    virtual void doChangeInterval();
+
 private slots:
     void formatMore();
     void doResize();
     void doAutoScroll();
-    void doChangeInterval();
     void blinkCursor();
     void setModified();
     void startDrag();

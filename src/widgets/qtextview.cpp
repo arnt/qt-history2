@@ -1276,6 +1276,8 @@ void QTextView::doResize()
     formatMore();
 }
 
+/* \internal */
+
 void QTextView::doChangeInterval()
 {
     interval = 0;
