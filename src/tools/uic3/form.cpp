@@ -351,7 +351,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         //if (n.parentNode().toElement().tagName() != QLatin1String("variables"))
         //    continue;
         QString access = n.attribute("access", "protected");
-        QString var = n.firstChild().toText().data().trimmed();
+        QString var = fixDeclaration(n.firstChild().toText().data().trimmed());
         if (!var.endsWith(";"))
             var += ";";
         if (access == QLatin1String("public"))
@@ -389,7 +389,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         QString sigName = n.firstChild().toText().data().trimmed();
         if (sigName.endsWith(";"))
             sigName = sigName.left(sigName.length() - 1);
-        extraSignals += sigName;
+        extraSignals += fixDeclaration(sigName);
     }
 
     // create signals
