@@ -1,4 +1,3 @@
-#include <iostream>
 #include <qdragobject.h>
 #include <qapplication.h>
 #include "listview.h"
