@@ -568,73 +568,82 @@ bool QDialog::event(QEvent *e)
   Geometry management.
  *****************************************************************************/
 
-/*!
-    Shows the dialog as a \link #modeless modeless \endlink dialog.
-    Control returns immediately to the calling code.
-
-    The dialog will be modal or modeless according to the value
-    of the \l modal property.
-
-    \sa exec(), modal
+/*! \reimp
 */
 
-void QDialog::show()
+void QDialog::setVisible(bool visible)
 {
-    if (testAttribute(Qt::WA_WState_Visible))
-        return;
+    if (visible) {
+        if (isVisible())
+            return;
 
 #ifdef Q_OS_TEMP
-    hideSpecial();
+        hideSpecial();
 #endif
 
-    if (!testAttribute(Qt::WA_Moved)) {
-        Qt::WindowStates state = windowState();
-        adjustPosition(parentWidget());
-        setAttribute(Qt::WA_Moved, false); // not really an explicit position
-        if (state != windowState())
-            setWindowState(state);
-    }
-    QWidget::show();
-    showExtension(d->doShowExtension);
-    QWidget *fw = window()->focusWidget();
-    if (!fw)
-        fw = this;
+        if (!testAttribute(Qt::WA_Moved)) {
+            Qt::WindowStates state = windowState();
+            adjustPosition(parentWidget());
+            setAttribute(Qt::WA_Moved, false); // not really an explicit position
+            if (state != windowState())
+                setWindowState(state);
+        }
+        QWidget::setVisible(visible);
+        showExtension(d->doShowExtension);
+        QWidget *fw = window()->focusWidget();
+        if (!fw)
+            fw = this;
 
-    /*
-      The following block is to handle a special case, and does not
-      really follow propper logic in concern of autoDefault and TAB
-      order. However, it's here to ease usage for the users. If a
-      dialog has a default QPushButton, and first widget in the TAB
-      order also is a QPushButton, then we give focus to the main
-      default QPushButton. This simplifies code for the developers,
-      and actually catches most cases... If not, then they simply
-      have to use [widget*]->setFocus() themselves...
-    */
-    if (d->mainDef && fw->focusPolicy() == Qt::NoFocus) {
-        QWidget *first = fw;
-        while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == Qt::NoFocus)
-            ;
-        if (first != d->mainDef && qt_cast<QPushButton*>(first))
-            d->mainDef->setFocus();
-    }
-    if (!d->mainDef && isWindow()) {
-        QWidget *w = fw;
-        while ((w = w->nextInFocusChain()) != fw) {
-            QPushButton *pb = qt_cast<QPushButton *>(w);
-            if (pb && pb->autoDefault() && pb->focusPolicy() != Qt::NoFocus) {
-                pb->setDefault(true);
-                break;
+        /*
+          The following block is to handle a special case, and does not
+          really follow propper logic in concern of autoDefault and TAB
+          order. However, it's here to ease usage for the users. If a
+          dialog has a default QPushButton, and first widget in the TAB
+          order also is a QPushButton, then we give focus to the main
+          default QPushButton. This simplifies code for the developers,
+          and actually catches most cases... If not, then they simply
+          have to use [widget*]->setFocus() themselves...
+        */
+        if (d->mainDef && fw->focusPolicy() == Qt::NoFocus) {
+            QWidget *first = fw;
+            while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == Qt::NoFocus)
+                ;
+            if (first != d->mainDef && qt_cast<QPushButton*>(first))
+                d->mainDef->setFocus();
+        }
+        if (!d->mainDef && isWindow()) {
+            QWidget *w = fw;
+            while ((w = w->nextInFocusChain()) != fw) {
+                QPushButton *pb = qt_cast<QPushButton *>(w);
+                if (pb && pb->autoDefault() && pb->focusPolicy() != Qt::NoFocus) {
+                    pb->setDefault(true);
+                    break;
+                }
             }
         }
-    }
-    if (fw) {
-        QFocusEvent e(QEvent::FocusIn, Qt::TabFocusReason);
-        QApplication::sendEvent(fw, &e);
-    }
+        if (fw) {
+            QFocusEvent e(QEvent::FocusIn, Qt::TabFocusReason);
+            QApplication::sendEvent(fw, &e);
+        }
 
 #ifndef QT_NO_ACCESSIBILITY
-    QAccessible::updateAccessibility(this, 0, QAccessible::DialogStart);
+        QAccessible::updateAccessibility(this, 0, QAccessible::DialogStart);
 #endif
+
+    } else {
+        if (isExplicitlyHidden())
+            return;
+
+#ifndef QT_NO_ACCESSIBILITY
+        if (isVisible())
+            QAccessible::updateAccessibility(this, 0, QAccessible::DialogEnd);
+#endif
+
+        // Reimplemented to exit a modal event loop when the dialog is hidden.
+        QWidget::setVisible(visible);
+        if (d->eventLoop)
+            d->eventLoop->exit();
+    }
 }
 
 /*!\reimp */
@@ -716,24 +725,6 @@ void QDialog::adjustPosition(QWidget* w)
         p.setY(desk.y());
 
     move(p);
-}
-
-
-/*! \reimp */
-void QDialog::hide()
-{
-    if (isExplicitlyHidden())
-        return;
-
-#ifndef QT_NO_ACCESSIBILITY
-    if (isVisible())
-        QAccessible::updateAccessibility(this, 0, QAccessible::DialogEnd);
-#endif
-
-    // Reimplemented to exit a modal event loop when the dialog is hidden.
-    QWidget::hide();
-    if (d->eventLoop)
-        d->eventLoop->exit();
 }
 
 

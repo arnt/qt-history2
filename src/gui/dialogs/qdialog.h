@@ -44,8 +44,7 @@ public:
 
     int result() const;
 
-    void show();
-    void hide();
+    void setVisible(bool visible);
 
     void setOrientation(Qt::Orientation orientation);
     Qt::Orientation orientation() const;
