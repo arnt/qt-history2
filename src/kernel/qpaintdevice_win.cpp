@@ -308,10 +308,22 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
 
     static uint ropCodes[] = {			// ROP translation table
-	SRCCOPY, SRCPAINT, SRCINVERT, 0x00220326 /* DSna */,
-	NOTSRCCOPY, MERGEPAINT, 0x00990066 /* DSnx */, SRCAND,
-	DSTINVERT, BLACKNESS, WHITENESS, 0x00AA0029 /* D */,
-	SRCERASE, 0x00DD0228 /* SDno */, 0x007700E6 /* DSan */, NOTSRCERASE
+	SRCCOPY,		// CopyROP
+	SRCPAINT,		// OrROP
+	SRCINVERT,		// XorROP
+	0x00220326 /* DSna */,	// NotAndROP
+	NOTSRCCOPY,		// NotCopyROP
+	MERGEPAINT,		// NotOrROP
+	0x00990066 /* DSnx */,	// NotXorROP
+	SRCAND,			// AndROP
+	DSTINVERT,		// NotROP
+	BLACKNESS,		// ClearROP
+	WHITENESS,		// SetROP
+	0x00AA0029 /* D */,	// NopROP
+	SRCERASE,		// AndNotROP
+	0x00DD0228 /* SDno */,	// OrNotROP
+	0x007700E6 /* DSan */,	// NandROP
+	NOTSRCERASE		// NorROP
     };
     if ( rop > Qt::LastROP ) {
 #if defined(QT_CHECK_RANGE)

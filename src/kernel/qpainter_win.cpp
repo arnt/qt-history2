@@ -967,11 +967,24 @@ void QPainter::setBackgroundMode( BGMode m )
 
 void QPainter::setRasterOp( RasterOp r )
 {
-    static short ropCodes[] =
-	{ R2_COPYPEN, R2_MERGEPEN, R2_XORPEN, R2_MASKNOTPEN,
-	  R2_NOTCOPYPEN, R2_MERGENOTPEN, R2_NOTXORPEN, R2_MASKPEN,
-	  R2_NOT, R2_BLACK, R2_WHITE, R2_NOP,
-	  R2_MASKPENNOT, R2_MERGEPENNOT, R2_NOTMASKPEN, R2_NOTMERGEPEN };
+    static short ropCodes[] = {
+	R2_COPYPEN,	// CopyROP
+	R2_MERGEPEN,	// OrROP
+	R2_XORPEN,	// XorROP
+	R2_MASKNOTPEN,	// NotAndROP
+	R2_NOTCOPYPEN,	// NotCopyROP
+	R2_MERGENOTPEN,	// NotOrROP
+	R2_NOTXORPEN,	// NotXorROP
+	R2_MASKPEN,	// AndROP
+	R2_NOT,		// NotROP
+	R2_BLACK,	// ClearROP
+	R2_WHITE,	// SetROP
+	R2_NOP,		// NopROP
+	R2_MASKPENNOT,	// AndNotROP
+	R2_MERGEPENNOT,	// OrNotROP
+	R2_NOTMASKPEN,	// NandROP
+	R2_NOTMERGEPEN	// NorROP
+    };
 
     if ( !isActive() ) {
 #if defined(QT_CHECK_STATE)
