@@ -891,11 +891,11 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
 */
 QFontEngine *
 QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
-                         const QFontDef &request, int
+                        const QFontDef &request, int
 #ifdef Q_WS_X11
-                         force_encoding_id
+                        force_encoding_id
 #endif
-                        )
+    )
 {
 #ifdef Q_WS_X11
     Q_UNUSED(force_encoding_id);
@@ -1148,21 +1148,6 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             else
                 fe->fontDef.pixelSize = best_size->pixelSize;
 
-            if (fp) {
-#if defined(Q_WS_X11)
-                fe->fontDef.pointSize =
-                    int(qt_pointSize(fe->fontDef.pixelSize, fp->dpi) * 10.);
-#elif defined(Q_WS_WIN)
-                fe->fontDef.pointSize     = int(double(fe->fontDef.pixelSize) * 720.0 /
-                                                GetDeviceCaps(shared_dc,LOGPIXELSY));
-#elif defined(Q_WS_MAC)
-                fe->fontDef.pointSize = qt_mac_pointsize(fe->fontDef, fp->dpi);
-#else
-                fe->fontDef.pointSize     = fe->fontDef.pixelSize*10; //####int(double(fe->fontDef.pixelSize) * 720.0 / 96.0);
-#endif
-            } else {
-                fe->fontDef.pointSize = request.pointSize;
-            }
             fe->fontDef.styleHint     = request.styleHint;
             fe->fontDef.styleStrategy = request.styleStrategy;
 
@@ -1180,27 +1165,8 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             FM_DEBUG("  WARN: font loaded cannot render sample 0x%04x",
                      sampleCharacter(script).unicode());
             delete fe;
-
-            if (! request.family.isEmpty())
-                return 0;
-
-            FM_DEBUG("returning box engine");
-
-            fe = new QFontEngineBox(request.pixelSize);
-
-            if (fp) {
-                QFontCache::Key key(request, script
-#if defined(Q_WS_X11)
-                                    , fp->screen
-#endif
-                    );
-                QFontCache::instance->insertEngine(key, fe);
-            }
-
-            return fe;
-        }
-
-        if (fp) {
+            fe = 0;
+        } else if (fp) {
             QFontDef def = request;
             if (def.family.isEmpty()) {
                 def.family = fp->request.family;
@@ -1225,21 +1191,39 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                 }
             }
         }
-    } else {
-        if (request.family.isEmpty()) {
-            FM_DEBUG("returning box engine");
+    }
+    if (!fe) {
+        if (!request.family.isEmpty())
+            return 0;
 
-            fe = new QFontEngineBox(request.pixelSize);
+        FM_DEBUG("returning box engine");
 
-            if (fp) {
-                QFontCache::Key key(request, script
+        fe = new QFontEngineBox(request.pixelSize);
+
+        if (fp) {
+            QFontCache::Key key(request, script
 #if defined(Q_WS_X11)
-                                    , fp->screen
+                                , fp->screen
 #endif
-                    );
-                QFontCache::instance->insertEngine(key, fe);
-            }
+                );
+            QFontCache::instance->insertEngine(key, fe);
         }
+    }
+
+    if (fp) {
+#if defined(Q_WS_X11)
+        fe->fontDef.pointSize =
+            int(qt_pointSize(fe->fontDef.pixelSize, fp->dpi) * 10.);
+#elif defined(Q_WS_WIN)
+        fe->fontDef.pointSize     = int(double(fe->fontDef.pixelSize) * 720.0 /
+                                        GetDeviceCaps(shared_dc,LOGPIXELSY));
+#elif defined(Q_WS_MAC)
+        fe->fontDef.pointSize = qt_mac_pointsize(fe->fontDef, fp->dpi);
+#else
+        fe->fontDef.pointSize     = fe->fontDef.pixelSize*10; //####int(double(fe->fontDef.pixelSize) * 720.0 / 96.0);
+#endif
+    } else {
+        fe->fontDef.pointSize = request.pointSize;
     }
 
     return fe;
