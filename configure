@@ -713,6 +713,7 @@ then
      AIX*)
 	#PLATFORM=aix-g++
 	PLATFORM=aix-xlc
+	#PLATFORM=aix-64
 	PLATFORM_NOTES="
 	    - Also available for AIX: aix-g++
 	"
@@ -747,24 +748,25 @@ then
      IRIX:*)
 	#PLATFORM=irix-g++
 	PLATFORM=irix-n32
+	#PLATFORM=irix-64
 	#PLATFORM=irix-o32
 	PLATFORM_NOTES="
-	    - Also available for IRIX: irix-64 irix-g++ irix-o32
+	    - Also available for IRIX: irix-g++ irix-64 irix-o32
 	"
 	;;
      HP-UX:*)
-	PLATFORM=hpux-acc
-	#PLATFORM=hpux-cc
-	#PLATFORM=hpux-n64
-	#PLATFORM=hpux-o64
 	#PLATFORM=hpux-g++
+	PLATFORM=hpux-acc
+	#PLATFORM=hpux-n64
+	#PLATFORM=hpux-cc
+	#PLATFORM=hpux-o64
 	PLATFORM_NOTES="
-	    - Also available for HP-UX: hpux-g++ hpux-cc hpux-n64 hpux-o64
+	    - Also available for HP-UX: hpux-g++ hpux-n64 hpux-cc hpux-o64
 	"
 	;;
      OSF1:*)
-	PLATFORM=osf1-cxx
 	#PLATFORM=osf1-g++
+	PLATFORM=osf1-cxx
 	PLATFORM_NOTES="
 	    - Also available for Tru64: osf1-g++
 	"
@@ -779,7 +781,7 @@ then
 	#PLATFORM=solaris-g++
 	PLATFORM=solaris-cc
 	PLATFORM_NOTES="
-	    - Also available for Solaris: solaris-64 solaris-g++
+	    - Also available for Solaris: solaris-g++ solaris-64
 	"
 	;;
      SunOS:4*)
@@ -789,8 +791,8 @@ then
 	PLATFORM=unixware-g++
 	;;
      UnixWare:5*)
-	PLATFORM=unixware7-cc
 	#PLATFORM=unixware7-g++
+	PLATFORM=unixware7-cc
 	PLATFORM_NOTES="
 	    - Also available for UnixWare 7: unixware7-g++
 	"
