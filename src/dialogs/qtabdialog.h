@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#25 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#26 $
 **
 ** Definition of QTabDialog class
 **
@@ -48,8 +48,8 @@ public:
     void setApplyButton( const char *text = "Apply" );
     bool hasApplyButton() const;
 
-    void setOKButton( const char * text = "OK" );
-    bool hasOKButton() const;
+    void setOkButton( const char * text = "OK" );
+    bool hasOkButton() const;
 
 protected:
     void paintEvent( QPaintEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#47 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#48 $
 **
 ** Implementation of QTabDialog class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#48 $");
 
 
 /*!
@@ -308,11 +308,11 @@ bool QTabDialog::hasApplyButton() const
 /*!
   Returns TRUE if the tab dialog has an OK button, FALSE if not.
 
-  \sa setDefaultsButton() defaultButtonPressed() hasOKButton()
+  \sa setDefaultsButton() defaultButtonPressed() hasOkButton()
   hasCancelButton()
 */
 
-bool QTabDialog::hasOKButton() const
+bool QTabDialog::hasOkButton() const
 {
     return d->ok != 0;
 }
@@ -859,7 +859,7 @@ QRect QTabDialog::childRect() const
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
 
-void QTabDialog::setOKButton( const char * text )
+void QTabDialog::setOkButton( const char * text )
 {
     if ( !text ) {
 	delete d->ok;
