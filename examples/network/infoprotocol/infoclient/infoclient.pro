@@ -1,4 +1,4 @@
-REQUIRES        = network large-config
+REQUIRES        = network large-config nocrosscompiler
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 
