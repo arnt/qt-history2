@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#231 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#232 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#231 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#232 $");
 
 
 /*!
@@ -2047,7 +2047,6 @@ bool QWidget::focusNextPrevChild( bool next )
     if ( !candidate )
 	return FALSE;
 
-debug("%p gets focus",candidate);
     candidate->setFocus();
     return TRUE;
 }
