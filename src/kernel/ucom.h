@@ -3,6 +3,10 @@
 
 #include <memory.h>
 
+#ifndef UCOM_EXPORT
+#define UCOM_EXPORT
+#endif
+
 struct UObject;
 struct UInterfaceDescription;
 
@@ -16,7 +20,7 @@ struct UInterfaceDescription;
 
 
 // Universal unique interface ids
-struct UUid
+struct UCOM_EXPORT UUid
 {
     unsigned int   data1;
     unsigned short data2;
@@ -25,7 +29,7 @@ struct UUid
 };
 
 // the mandatory unknown interface
-struct UUnknownInterface
+struct UCOM_EXPORT UUnknownInterface
 {
     virtual UUnknownInterface* queryInterface( const UUid& ) = 0;
     virtual unsigned long addRef() = 0;
@@ -37,7 +41,7 @@ struct UUnknownInterface
 
 // the dispatch interface that inherits the unknown interface.. It is
 // used to explore interfaces during runtime and to do dynamic calls.
-struct UDispatchInterface : public UUnknownInterface
+struct UCOM_EXPORT UDispatchInterface : public UUnknownInterface
 {
     // returns the interface description of this dispatch interface.
     virtual const UInterfaceDescription* interfaceDescription() const = 0;
@@ -58,7 +62,7 @@ struct UDispatchInterface : public UUnknownInterface
 
 
 // A type for a UObject
-struct UType
+struct UCOM_EXPORT UType
 {
     virtual const UUid *uuid() const = 0;
     virtual const char *desc() const = 0;
@@ -75,13 +79,13 @@ struct UType
 
 
 // {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
-extern const UUid TID_UType_Null;
-extern UType *pUType_Null;
+extern UCOM_EXPORT const UUid TID_UType_Null;
+extern UCOM_EXPORT UType *pUType_Null;
 
 
 
 // The magic UObject
-struct UObject
+struct UCOM_EXPORT UObject
 {
 public: // scary MSVC bug makes this necessary
     UObject() : type( pUType_Null ) {}
@@ -147,7 +151,7 @@ public: // scary MSVC bug makes this necessary
 // A parameter description describes one method parameters. A
 // parameter has a name, a type and a flag describing whether it's an
 // in parameter, an out parameter, or both ways
-struct UParameter
+struct UCOM_EXPORT UParameter
 {
     const char* name;
     UType *type;
@@ -158,7 +162,7 @@ struct UParameter
 
 // A method description describes one method. A method has a name and
 // an array of parameters.
-struct UMethod
+struct UCOM_EXPORT UMethod
 {
     const char* name;
     int count;
@@ -166,7 +170,7 @@ struct UMethod
 };
 
 // A Property description. Not used yet in the example.
-struct UProperty
+struct UCOM_EXPORT UProperty
 {
     const char* name;
     UType* type;
@@ -181,7 +185,7 @@ struct UProperty
 
 // An interface description describes one interface, that is all its
 // methods and properties.
-struct UInterfaceDescription
+struct UCOM_EXPORT UInterfaceDescription
 {
     int methodCount;
     const UMethod* methods;
@@ -190,13 +194,13 @@ struct UInterfaceDescription
 };
 
 
-struct UEnumItem 				// - a name/value pair
+struct UCOM_EXPORT UEnumItem 				// - a name/value pair
 {
     const char *key;
     int value;
 };
 
-struct UEnum
+struct UCOM_EXPORT UEnum
 {			
     const char *name;			// - enumerator name
     unsigned int count;			// - number of values
@@ -222,8 +226,8 @@ inline bool UType::check( UObject* o, UType* t ) {
 
 
 // {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
-extern const UUid TID_UType_enum;
-struct UType_enum : public UType
+extern UCOM_EXPORT const UUid TID_UType_enum;
+struct UCOM_EXPORT UType_enum : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -233,12 +237,12 @@ struct UType_enum : public UType
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
-extern UType_enum *pUType_enum;
+extern UCOM_EXPORT UType_enum *pUType_enum;
 
 
 // {F1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-extern const UUid TID_UType_ptr;
-struct UType_ptr : public UType
+extern UCOM_EXPORT const UUid TID_UType_ptr;
+struct UCOM_EXPORT UType_ptr : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -248,11 +252,11 @@ struct UType_ptr : public UType
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
-extern UType_ptr * pUType_ptr;
+extern UCOM_EXPORT UType_ptr * pUType_ptr;
 
 // {F2D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-extern const UUid TID_UType_iface;
-struct UType_iface : public UType
+extern UCOM_EXPORT const UUid TID_UType_iface;
+struct UCOM_EXPORT UType_iface : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -262,11 +266,11 @@ struct UType_iface : public UType
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
-extern UType_iface * pUType_iface;
+extern UCOM_EXPORT UType_iface * pUType_iface;
 
 // {F3D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-extern const UUid TID_UType_idisp;
-struct UType_idisp : public UType
+extern UCOM_EXPORT const UUid TID_UType_idisp;
+struct UCOM_EXPORT UType_idisp : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -276,11 +280,11 @@ struct UType_idisp : public UType
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
-extern UType_idisp * pUType_idisp;
+extern UCOM_EXPORT UType_idisp * pUType_idisp;
 
 // {E1D3BE80-2F2F-45F7-AB11-E8A0CEC84B82}
-extern const UUid TID_UType_bool;
-struct UType_bool : public UType
+extern UCOM_EXPORT const UUid TID_UType_bool;
+struct UCOM_EXPORT UType_bool : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -290,12 +294,12 @@ struct UType_bool : public UType
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
-extern UType_bool * pUType_bool;
+extern UCOM_EXPORT UType_bool * pUType_bool;
 
 
 // {E1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-extern const UUid TID_UType_int;
-struct UType_int : public UType
+extern UCOM_EXPORT const UUid TID_UType_int;
+struct UCOM_EXPORT UType_int : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -305,12 +309,12 @@ struct UType_int : public UType
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
-extern UType_int * pUType_int;
+extern UCOM_EXPORT UType_int * pUType_int;
 
 
 // {A1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-extern const UUid TID_UType_double;
-struct UType_double : public UType
+extern UCOM_EXPORT const UUid TID_UType_double;
+struct UCOM_EXPORT UType_double : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -320,12 +324,12 @@ struct UType_double : public UType
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );
 };
-extern UType_double * pUType_double;
+extern UCOM_EXPORT UType_double * pUType_double;
 
 
 // {C1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
-extern const UUid TID_UType_charstar;
-struct UType_charstar : public UType
+extern UCOM_EXPORT const UUid TID_UType_charstar;
+struct UCOM_EXPORT UType_charstar : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -337,7 +341,7 @@ struct UType_charstar : public UType
 
     void clear( UObject * );
 };
-extern UType_charstar * pUType_charstar;
+extern UCOM_EXPORT UType_charstar * pUType_charstar;
 
 
 

@@ -1,4 +1,5 @@
 #include "ucom.h"
+#include <string.h>
 
 void UType::clear( UObject* )
 {

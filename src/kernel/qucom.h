@@ -1,12 +1,18 @@
 #ifndef QUTYPES_H
 #define QUTYPES_H
-#include <ucom.h>
+
 #include <qstring.h>
+#ifndef UCOM_EXPORT
+#define UCOM_EXPORT Q_EXPORT
+#endif
+
+#include <ucom.h>
+
 
 // {B1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
 extern const UUid TID_UType_QString;
 
-struct UType_QString : public UType
+struct Q_EXPORT UType_QString : public UType
 {
     const UUid *uuid() const;
     const char *desc() const;
@@ -19,7 +25,7 @@ struct UType_QString : public UType
 
     void clear( UObject * );
 };
-extern UType_QString * pUType_QString;
+extern Q_EXPORT UType_QString * pUType_QString;
 
 
 
