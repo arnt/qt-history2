@@ -1774,8 +1774,10 @@ void qt_init_internal( int *argcptr, char **argv,
 		QPaintDevice::x_appdefcolormap_arr[appScreen] =
 		    QPaintDevice::x_appdefvisual_arr[appScreen];
 	    } else {
-		QPaintDevice::x_appdefcolormap = !qt_cmap_option;
-		QPaintDevice::x_appdefcolormap_arr[appScreen] = !qt_cmap_option;
+		QPaintDevice::x_appdefcolormap = 
+		    !qt_cmap_option && QPaintDevice::x_appdefvisual;
+		QPaintDevice::x_appdefcolormap_arr[appScreen] = 
+		    !qt_cmap_option && QPaintDevice::x_appdefvisual;
 	    }
 
 	    if ( QPaintDevice::x_appdefcolormap ) {
