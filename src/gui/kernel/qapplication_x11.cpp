@@ -5133,7 +5133,6 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
     paintRegion |= paintRect;
     d->invalidated_region = QRegion();
 
-#if 0
     bool   merging_okay = !testWFlags(Qt::WPaintClever);
     if (merging_okay) {
         // WARNING: this is O(number_of_events * number_of_matching_events)
@@ -5156,7 +5155,6 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
             }
         }
     }
-#endif
 
     if (should_clip) {
         paintRegion = paintRegion.intersect(rect());
