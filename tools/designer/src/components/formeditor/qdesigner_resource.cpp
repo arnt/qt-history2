@@ -77,7 +77,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
     QString version = ui->attributeVersion();
     if (version != "4.0") {
-        QMessageBox::warning(0, QObject::tr("Qt Designer"),
+        QMessageBox::showWarning(0, QObject::tr("Qt Designer"),
                QObject::tr("This file was created using designer from Qt-%1 and "
                            "could not be read. "
                            "Please run it through <b>uic3 -convert</b> to convert "

@@ -61,7 +61,7 @@ int QSqlConnectionDialog::port() const
 void QSqlConnectionDialog::on_okButton_clicked()
 {
     if (ui.comboDriver->currentText().isEmpty()) {
-        QMessageBox::information(this, tr("No database driver selected"),
+        QMessageBox::showInformation(this, tr("No database driver selected"),
                                  tr("Please select a database driver"));
         ui.comboDriver->setFocus();
     } else {

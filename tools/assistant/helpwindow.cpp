@@ -77,7 +77,7 @@ void HelpWindow::setSource(const QUrl &name)
 #elif defined(Q_OS_MAC)
             webbrowser = "/usr/bin/open";
 #else
-            int result = QMessageBox::information(mw, tr("Help"),
+            int result = QMessageBox::showInformation(mw, tr("Help"),
                          tr("Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n"),
                          tr("Open"), tr("Cancel"));
             if (result == 0) {
@@ -100,7 +100,7 @@ void HelpWindow::setSource(const QUrl &name)
 #if defined(Q_OS_MAC)
             pdfbrowser = "/usr/bin/open";
 #else
-            QMessageBox::information(mw,
+            QMessageBox::showInformation(mw,
                                       tr("Help"),
                                       tr("No PDF Viewer has been specified\n"
                                           "Please use the settings dialog to specify one!\n"));
@@ -109,7 +109,7 @@ void HelpWindow::setSource(const QUrl &name)
         }
         QFileInfo info(pdfbrowser);
         if(!info.exists()) {
-            QMessageBox::information(mw,
+            QMessageBox::showInformation(mw,
                                       tr("Help"),
                                       tr("Qt Assistant is unable to start the PDF Viewer\n\n"
                                           "%1\n\n"

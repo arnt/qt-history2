@@ -20,6 +20,10 @@
 #include <math.h>
 #include <QtGui>
 
+#ifndef M_PI
+#define M_PI 3.1415927
+#endif
+
 #include "pieview.h"
 
 PieView::PieView(QWidget *parent)

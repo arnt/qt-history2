@@ -1748,12 +1748,12 @@ void QApplication::closeAllWindows()
     This is useful for inclusion in the Help menu of an application.
     See the examples/menu/menu.cpp example.
 
-    This function is a convenience slot for QMessageBox::aboutQt().
+    This function is a convenience slot for QMessageBox::showAboutQt().
 */
-void QApplication::aboutQt()
+void QApplication::showAboutQt()
 {
 #ifndef QT_NO_MESSAGEBOX
-    QMessageBox::aboutQt(mainWidget());
+    QMessageBox::showAboutQt(mainWidget());
 #endif // QT_NO_MESSAGEBOX
 }
 

@@ -1002,14 +1002,14 @@ void MainWindow::somethingModified()
 
 void MainWindow::helpAbout()
 {
-    QMessageBox::about(this, tr("Qt Configuration"),
+    QMessageBox::showAbout(this, tr("Qt Configuration"),
                        tr(about_text));
 }
 
 
 void MainWindow::helpAboutQt()
 {
-    QMessageBox::aboutQt(this, tr("Qt Configuration"));
+    QMessageBox::showAboutQt(this, tr("Qt Configuration"));
 }
 
 
@@ -1031,7 +1031,7 @@ void MainWindow::pageChanged(QWidget *page)
 void MainWindow::closeEvent(QCloseEvent *e)
 {
     if (modified) {
-        switch(QMessageBox::warning(this, tr("Save Changes"),
+        switch(QMessageBox::showWarning(this, tr("Save Changes"),
                                     tr("Save changes to settings?"),
                                     tr("&Yes"), tr("&No"), tr("&Cancel"), 0, 2)) {
         case 0: // save

@@ -673,7 +673,7 @@ bool MainWindow::readInForm(const QString &fileName)
     // Otherwise load it.
     QFile f(fileName);
     if (!f.open(QIODevice::ReadOnly)) {
-        QMessageBox::warning(this, tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
+        QMessageBox::showWarning(this, tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
                             .arg(f.fileName()).arg(f.errorString()));
         return false;
     }

@@ -377,8 +377,7 @@ void Main::loadFeatures(const QString& filename)
 {
     QFile file(filename);
     if ( !file.open(IO_ReadOnly) ) {
-	QMessageBox::warning(this,"Warning",
-			     "Cannot open file " + filename);
+	QMessageBox::showWarning(this,"Warning", "Cannot open file " + filename);
 	return;
     }
     QTextStream s(&file);
@@ -544,8 +543,7 @@ void Main::loadConfig(const QString& filename)
 {
     QFile file(filename);
     if ( !file.open(IO_ReadOnly) ) {
-	QMessageBox::warning(this,"Warning",
-			     "Cannot open file " + filename);
+	QMessageBox::showWarning(this,"Warning", "Cannot open file " + filename);
 	return;
     }
     QTextStream s(&file);
@@ -666,7 +664,7 @@ void Info::setSource(const QString& name)
 
 void Main::about()
 {
-    QMessageBox::about(this, "About qconfig",
+    QMessageBox::showAbout(this, "About qconfig",
 	"<p><b><font size=+2>Qt/Embedded build configuration</font></b></p>"
 	"<p></p>"
 	"<p>Version 1.0</p>"
@@ -685,7 +683,7 @@ void Main::about()
 
 void Main::aboutQt()
 {
-    QMessageBox::aboutQt( this, tr("qconfig") );
+    QMessageBox::showAboutQt( this, tr("qconfig") );
 }
 
 int main(int argc, char** argv)

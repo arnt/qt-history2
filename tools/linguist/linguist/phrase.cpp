@@ -109,7 +109,7 @@ bool QphHandler::fatalError(const QXmlParseException &exception)
         msg.sprintf("Parse error at line %d, column %d (%s).",
             exception.lineNumber(), exception.columnNumber(),
             exception.message().toLatin1().constData());
-        QMessageBox::information(qApp->mainWidget(),
+        QMessageBox::showInformation(qApp->mainWidget(),
             QObject::tr("Qt Linguist"), msg);
     }
     return false;

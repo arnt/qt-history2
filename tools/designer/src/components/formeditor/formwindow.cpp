@@ -1306,7 +1306,7 @@ void FormWindow::paste()
         copy();
 
     } else {
-        QMessageBox::information(this, tr("Paste error"),
+        QMessageBox::showInformation(this, tr("Paste error"),
                                   tr("Can't paste widgets. Designer couldn't find a container\n"
                                       "to paste into which does not contain a layout. Break the layout\n"
                                       "of the container you want to paste into and select this container\n"

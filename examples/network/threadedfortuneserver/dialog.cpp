@@ -14,7 +14,7 @@ Dialog::Dialog(QWidget *parent)
     quitButton->setAutoDefault(false);
 
     if (!server.listen()) {
-        QMessageBox::critical(this, tr("Fortune Server"),
+        QMessageBox::showCritical(this, tr("Fortune Server"),
                               tr("Unable to start the server: %1.")
                               .arg(server.errorString()));
         close();

@@ -66,27 +66,27 @@ Dialog::Dialog(QWidget *parent)
     criticalLabel = new QLabel(this);
     criticalLabel->setFrameStyle(frameStyle);
     QPushButton *criticalButton =
-            new QPushButton(tr("QMessageBox::critica&l()"), this);
+            new QPushButton(tr("QMessageBox::showCritica&l()"), this);
 
     informationLabel = new QLabel(this);
     informationLabel->setFrameStyle(frameStyle);
     QPushButton *informationButton =
-            new QPushButton(tr("QMessageBox::i&nformation()"), this);
+            new QPushButton(tr("QMessageBox::showI&nformation()"), this);
 
     questionLabel = new QLabel(this);
     questionLabel->setFrameStyle(frameStyle);
     QPushButton *questionButton =
-            new QPushButton(tr("QMessageBox::&question()"), this);
+            new QPushButton(tr("QMessageBox::show&Question()"), this);
 
     warningLabel = new QLabel(this);
     warningLabel->setFrameStyle(frameStyle);
     QPushButton *warningButton =
-            new QPushButton(tr("QMessageBox::&warning()"), this);
+            new QPushButton(tr("QMessageBox::show&Warning()"), this);
 
     errorLabel = new QLabel(this);
     errorLabel->setFrameStyle(frameStyle);
     QPushButton *errorButton =
-            new QPushButton(tr("QErrorMessage::&error()"), this);
+            new QPushButton(tr("QErrorMessage::show&M&essage()"), this);
 
     connect(integerButton, SIGNAL(clicked()), this, SLOT(setInteger()));
     connect(doubleButton, SIGNAL(clicked()), this, SLOT(setDouble()));
@@ -248,7 +248,7 @@ void Dialog::setSaveFileName()
 
 void Dialog::criticalMessage()
 {
-    int reply = QMessageBox::critical(this, tr("QMessageBox::critical()"),
+    int reply = QMessageBox::showCritical(this, tr("QMessageBox::showCritical()"),
                                       MESSAGE,
                                       QMessageBox::Abort,
                                       QMessageBox::Retry,
@@ -263,13 +263,13 @@ void Dialog::criticalMessage()
 
 void Dialog::informationMessage()
 {
-    QMessageBox::information(this, tr("QMessageBox::information()"), MESSAGE);
+    QMessageBox::showInformation(this, tr("QMessageBox::showInformation()"), MESSAGE);
     informationLabel->setText(tr("Closed with OK or Esc"));
 }
 
 void Dialog::questionMessage()
 {
-    int reply = QMessageBox::question(this, tr("QMessageBox::question()"),
+    int reply = QMessageBox::showQuestion(this, tr("QMessageBox::showQuestion()"),
                                       MESSAGE,
                                       QMessageBox::Yes,
                                       QMessageBox::No,
@@ -284,7 +284,7 @@ void Dialog::questionMessage()
 
 void Dialog::warningMessage()
 {
-    int reply = QMessageBox::warning(this, tr("QMessageBox::warning()"),
+    int reply = QMessageBox::showWarning(this, tr("QMessageBox::showWarning()"),
                                      MESSAGE,
                                      tr("Save &Again"),
                                      tr("&Continue"));
@@ -297,12 +297,12 @@ void Dialog::warningMessage()
 
 void Dialog::errorMessage()
 {
-    errorMessageDialog->message(
+    errorMessageDialog->showMessage(
             tr("This dialog shows and remembers error messages. "
                "If the checkbox is checked (as it is by default), "
                "the shown message will be shown again, "
                "but if the user unchecks the box the message "
-               "will not appear again if QMessageBox::message() "
+               "will not appear again if QErrorMessage::showMessage() "
                "is called with the same message."));
     errorLabel->setText(tr("If the box is unchecked, the message "
                            "won't appear again."));

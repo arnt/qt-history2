@@ -357,7 +357,7 @@ void TrWindow::openFile( const QString& name )
 
     if (!tor.load(name)) {
         statusBar()->clearMessage();
-        QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
+        QMessageBox::showWarning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
         return;
     }
 
@@ -451,8 +451,7 @@ void TrWindow::save()
         updateCaption();
         statusBar()->showMessage(tr("File saved."), MessageMS);
     } else {
-        QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot save '%1'.")
-            .arg(filename));
+        QMessageBox::showWarning(this, tr("Qt Linguist"), tr("Cannot save '%1'.").arg(filename));
     }
 }
 
@@ -479,8 +478,7 @@ void TrWindow::release()
         if (tor.release(newFilename))
             statusBar()->showMessage(tr("File created."), MessageMS);
         else
-            QMessageBox::warning(this, tr("Qt Linguist"),
-            tr("Cannot save '%1'.").arg(newFilename));
+            QMessageBox::showWarning(this, tr("Qt Linguist"), tr("Cannot save '%1'.").arg(newFilename));
     }
 }
 
@@ -653,7 +651,7 @@ void TrWindow::findAgain()
     setCurrentMessageRow(oldItemNo.row()); */
 
     qApp->beep();
-    QMessageBox::warning( this, tr("Qt Linguist"),
+    QMessageBox::showWarning( this, tr("Qt Linguist"),
                           QString( tr("Cannot find the string '%1'.") ).arg(findText) );
 //    foundItem   = 0;
     foundWhere  = 0;
@@ -687,7 +685,7 @@ void TrWindow::newPhraseBook()
             break;
         else if (!QFile::exists(name)) {
             break;
-            QMessageBox::warning(this, tr("Qt Linguist"),
+            QMessageBox::showWarning(this, tr("Qt Linguist"),
                 tr("A file called '%1' already exists."
                 "  Please choose another name.").arg(name));
         }
@@ -845,7 +843,7 @@ void TrWindow::about()
 
 void TrWindow::aboutQt()
 {
-    QMessageBox::aboutQt(this, tr("Qt Linguist"));
+    QMessageBox::showAboutQt(this, tr("Qt Linguist"));
 }
 
 void TrWindow::setupPhrase()
@@ -867,7 +865,7 @@ void TrWindow::closeEvent(QCloseEvent *e)
 bool TrWindow::maybeSave()
 {
     if (dirty) {
-        switch (QMessageBox::information(this, tr("Qt Linguist"),
+        switch (QMessageBox::showInformation(this, tr("Qt Linguist"),
             tr("Do you want to save '%1'?").arg(filename),
             QMessageBox::Yes | QMessageBox::Default,
             QMessageBox::No,
@@ -1647,7 +1645,7 @@ bool TrWindow::openPhraseBook(const QString& name)
 {
     PhraseBook pb;
     if (!pb.load(name)) {
-        QMessageBox::warning(this, tr("Qt Linguist"),
+        QMessageBox::showWarning(this, tr("Qt Linguist"),
             tr("Cannot read from phrase book '%1'.").arg(name));
         return false;
     }
@@ -1674,7 +1672,7 @@ bool TrWindow::savePhraseBook(QString &name, const PhraseBook &pb)
         name += ".qph";
 
     if (!pb.save(name)) {
-        QMessageBox::warning(this, tr("Qt Linguist"),
+        QMessageBox::showWarning(this, tr("Qt Linguist"),
             tr("Cannot create phrase book '%1'.").arg(name));
         return false;
     }

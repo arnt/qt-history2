@@ -66,7 +66,7 @@ bool MainWindow::saveAs()
         return false;
 
     if (QFile::exists(fileName)) {
-        int ret = QMessageBox::warning(this, tr("SDI"),
+        int ret = QMessageBox::showWarning(this, tr("SDI"),
                      tr("File %1 already exists.\n"
                         "Do you want to overwrite it?")
                      .arg(QDir::convertSeparators(fileName)),
@@ -81,7 +81,7 @@ bool MainWindow::saveAs()
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About SDI"),
+   QMessageBox::showAbout(this, tr("About SDI"),
             tr("The <b>SDI</b> example demonstrates how to write single"
                "document interface applications using Qt."));
 }
@@ -214,7 +214,7 @@ void MainWindow::writeSettings()
 bool MainWindow::maybeSave()
 {
     if (textEdit->document()->isModified()) {
-        int ret = QMessageBox::warning(this, tr("SDI"),
+        int ret = QMessageBox::showWarning(this, tr("SDI"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
                      QMessageBox::Yes | QMessageBox::Default,
@@ -233,7 +233,7 @@ void MainWindow::loadFile(const QString &fileName)
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("SDI"),
+        QMessageBox::showWarning(this, tr("SDI"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -253,7 +253,7 @@ void MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("SDI"),
+        QMessageBox::showWarning(this, tr("SDI"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));

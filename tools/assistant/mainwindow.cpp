@@ -249,7 +249,7 @@ void MainWindow::on_actionAboutApplication_triggered()
 {
     QString url = Config::configuration()->aboutURL();
     if (url == QLatin1String("about_qt")) {
-        QMessageBox::aboutQt(this, QLatin1String("Qt Assistant"));
+        QMessageBox::showAboutQt(this, QLatin1String("Qt Assistant"));
         return;
     }
     QString text;

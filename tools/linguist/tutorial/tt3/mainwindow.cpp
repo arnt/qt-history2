@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::about()
 {
-    QMessageBox::information(this, tr("About Troll Print 1.0"),
+    QMessageBox::showInformation(this, tr("About Troll Print 1.0"),
                    tr("Troll Print 1.0.\n\n"
                       "Copyright 1999 Macroshaft, Inc."));
 }

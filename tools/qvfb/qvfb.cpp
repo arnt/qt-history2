@@ -280,7 +280,7 @@ void QVFb::about()
     QString platform("X11");
     QString qt("X11");
 #endif
-    QMessageBox::about(this, "About QVFB",
+    QMessageBox::showAbout(this, "About QVFB",
         "<p><b><font size=+2>Qt/Embedded Virtual " + platform + " Framebuffer</font></b></p>"
         "<p></p>"
         "<p>Version 1.0</p>"
@@ -299,7 +299,7 @@ void QVFb::about()
 
 void QVFb::aboutQt()
 {
-    QMessageBox::aboutQt( this, tr("QVFB") );
+    QMessageBox::showAboutQt( this, tr("QVFB") );
 }
 
 void QVFb::configure()
