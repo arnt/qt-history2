@@ -95,30 +95,39 @@ static char variantToXbaseType( QVariant::Type type )
     }
 }
 
-bool FileDriver::create( const QSqlRecord* record )
+bool FileDriver::create( QValueList<QVariant>& fields )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::create..." << flush;
 #endif
     if ( !name() ) {
-	ERROR_RETURN( "FileDriver::create: no file name" );
+
     }
-    if ( !record->count() ) {
+    if ( !fields.count() ) {
 	ERROR_RETURN( "FileDriver::create: no fields defined" );
     }
-    QArray<xbSchema> xbrec( record->count()+1 );
+    QArray<xbSchema> xbrec( fields.count()+1 ); /* one extra for null entry */
     xbSchema x;
-    for ( uint i = 0; i < record->count(); ++i ) {
-	qstrncpy( x.FieldName, record->field(i)->name().latin1(),
-		  QMAX( 10, record->field(i)->name().length() )  );
-	x.FieldName[11] = 0;
-	x.Type = variantToXbaseType( record->field(i)->type() );
-	x.FieldLen = 10; //### fix
-	x.NoOfDecs = 0;//### fix
+    uint i = 0;
+    for ( i = 0; i < fields.count(); ++i ) {
+	QValueList<QVariant> fieldDescription = fields[i].toList();
+	if ( fieldDescription.count() != 4 ) {
+	    ERROR_RETURN( "FileDriver::create: bad field description" );
+	}
+	QString name = fieldDescription[3].toString();
+	int namelen = QMAX( name.length(), 11 );
+	QVariant::Type type = (QVariant::Type)fieldDescription[2].toInt();
+	int len = fieldDescription[1].toInt();
+	int prec = fieldDescription[0].toInt();
+	qstrncpy( x.FieldName, name.latin1(), namelen );
+	x.FieldName[namelen] = 0;
+	x.Type = variantToXbaseType( type );
+	x.FieldLen = len;
+	x.NoOfDecs = prec;
 	xbrec[i] = x;
     }
     memset( &x, 0, sizeof(xbSchema) );
-    xbrec[ record->count() ] = x;
+    xbrec[ fields.count()+1 ] = x;
     d->file.SetVersion( 4 );   /* create dbase IV style files */
     xbShort rc;
     if ( ( rc = d->file.CreateDatabase( name().latin1(), xbrec.data(), XB_OVERLAY ) )

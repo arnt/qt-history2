@@ -17,7 +17,7 @@ public:
 
     QString name() const { return nm; }
 
-    bool create( const QSqlRecord* record );
+    bool create( QValueList<QVariant>& fields );
     bool open();
     bool close();
     bool isOpen() const { return opened; }

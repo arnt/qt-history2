@@ -421,13 +421,21 @@ public:
 /* Pop top of stack (which should be a 'list', see 'PushList') and
  create a file with name 'name'.  The list should be of the form:
 
- QValueList<QVariant> field;
- QValueList<field> list;
+ field description
+ field description
+ field description
+ etc...
 
- where 'field' is a value list of variants in the following order:
+ where each 'field description' is a value list of variants in the
+ following order:
 
- list element 0: name of field (string)
- list element 1: type of field (an int corresponding to a QVariant::Type)
+ field decimal precision
+ field length
+ field type
+ field name
+
+ 'Field type' must be an int which corresponds QVariant::Type.
+
 */
 
 class Create : public Label
@@ -439,26 +447,14 @@ public:
     QString name() const { return "Create"; }
     int exec( qdb::Environment* env )
     {
-	QSqlRecord rec;
 	QValueList<QVariant> list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("Create: no fields defined!");
 	    return 0;
 	}
-	for ( uint i = 0; i < list.count(); ++i ) {
-	    QValueList<QVariant> fieldDescription = list[i].toList();
-	    if ( fieldDescription.count() != 2 ) {
-		env->setLastError("Create: bad field description!");
-		return 0;
-	    }
-	    QString name = fieldDescription[0].toString();
-	    QVariant::Type type = fieldDescription[1].type();
-	    QSqlField field( name, type );
-	    rec.append( field );
-	}
 	env->addFileDriver( 0, p1.toString() );
 	qdb::FileDriver* drv = env->fileDriver( 0 );
-	return drv->create( &rec );
+	return drv->create( list );
     }
 };
 
@@ -680,35 +676,6 @@ public:
 	    env->program()->setCounter( p1.toString() );
 	else
 	    env->program()->setCounter( p1.toInt() );
-	return TRUE;
-    }
-};
-
-/* Push an artificial 'field description' (see PishFieldDesc) on to
-   the stack using 'name' and 'type.  Type must correspond to a
-   QVariant::Type. This op is useful for creating a field description
-   when there is no open file to use (e.g., when creating files, see
-   Create).
-*/
-
-class PushField : public Label
-{
-public:
-    PushField( const QVariant& name,
-	       const QVariant& type,
-	       const QString& label = QString::null )
-	: Label( name, type, label ) {}
-    QString name() const { return "PushField"; }
-    int exec( qdb::Environment* env )
-    {
-
-	QVariant& name = p1;
-	QVariant value;
-	value.cast( (QVariant::Type)p2.toInt() );
-	QValueList<QVariant> field;
-	field.append( name );
-	field.append( value );
-	env->stack()->push( field );
 	return TRUE;
     }
 };

@@ -36,7 +36,7 @@ namespace qdb {
 
     struct FileDriver
     {
-	virtual bool create( const QSqlRecord* record ) = 0;
+	virtual bool create( QValueList<QVariant>& fields ) = 0;
 	virtual bool open() = 0;
 	virtual bool isOpen() const = 0;
 	virtual bool close() = 0;
