@@ -72,11 +72,10 @@ UnixMakefileGenerator::init()
     }
 
     if( project->isEmpty("QMAKE_EXTENSION_SHLIB") ) {
-	QString os = project->variables()["QMAKESPEC"].first().section( '-', 0, 0 );
-	if ( os == "cygwin" ) {
-	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dll" );
-	} else {
+	if ( project->isEmpty("QMAKE_CYGWIN_SHLIB") ) {
 	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "so" );
+	} else {
+	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dll" );
 	}
     }
     if( project->isEmpty("QMAKE_COPY_FILE") )
@@ -464,13 +463,12 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
 	}
-	QString os = project->variables()["QMAKESPEC"].first().section( '-', 0, 0 );
-	if ( os != "cygwin" ) {
+	if ( project->isEmpty("QMAKE_CYGWIN_SHLIB") ) {
 	    if ( !project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") ) {
-		if ( os == "hpux" ) {
-		    links << "$(TARGET0)";
-		} else {
+		if ( project->isEmpty("QMAKE_HPUX_SHLIB") ) {
 		    links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
+		} else {
+		    links << "$(TARGET0)";
 	        }
 	    }
 	}
