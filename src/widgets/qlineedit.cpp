@@ -92,7 +92,8 @@ struct QLineEditPrivate {
 	dndTimer( l, "DnD Timer" ),
 	parag( new QTextParag( 0, 0, 0, FALSE ) ),
 	dragTimer( l, "QLineEdit drag timer" ),
-	undoRedoInfo( parag )
+	undoRedoInfo( parag ),
+	dragEnabled( TRUE )
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
@@ -177,6 +178,7 @@ struct QLineEditPrivate {
     UndoRedoInfo undoRedoInfo;
     QPoint lastMovePos;
     int id[ 7 ];
+    bool dragEnabled;
 
 };
 
@@ -315,6 +317,7 @@ void QLineEdit::init()
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     setBackgroundMode( PaletteBase );
     setKeyCompression( TRUE );
+    setMouseTracking( TRUE );
 }
 
 
@@ -829,6 +832,12 @@ enum {
     IdSelectAll = 6
 };
 
+static bool inSelection( int x, QTextParag *p )
+{
+    return ( x >= p->at( p->selectionStart( QTextDocument::Standard ) )->x &&
+	     x <= p->at( p->selectionEnd( QTextDocument::Standard ) )->x );
+}
+
 /*! \reimp
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
@@ -860,6 +869,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	return;
     }
 #endif //QT_NO_POPUPMENU
+
     d->inDoubleClick = FALSE;
     QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
     QTextParag *par;
@@ -868,8 +878,8 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     int oldPos = c->index();
     c->place( p, par );
 #ifndef QT_NO_DRAGANDDROP
-    if ( hasMarkedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
-	 e->button() == LeftButton ) {
+    if ( dragEnabled() && hasMarkedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
+	 e->button() == LeftButton && inSelection( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), d->parag ) ) {
 	d->dndTimer.start( QApplication::startDragTime(), TRUE );
 	d->dnd_primed = TRUE;
 	d->dnd_startpos = e->pos();
@@ -905,14 +915,14 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 
 void QLineEdit::doDrag()
 {
+    if ( !dragEnabled() )
+	return;
     d->dnd_primed = FALSE;
     QTextDrag *tdo = new QTextDrag( markedText(), this );
-    if ( tdo->drag() ) {
-	// ##### Delete original (but check if it went to me)
-#if defined (_WS_WIN_)
+    if ( tdo->drag() )
         del();
-#endif
-    }
+    setCursor( ibeamCursor );
+    d->mousePressed = FALSE;
 }
 
 #endif // QT_NO_DRAGANDDROP
@@ -921,16 +931,27 @@ void QLineEdit::doDrag()
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
-#ifndef QT_NO_DRAGANDDROP
-    if ( d->dndTimer.isActive() ) {
-	d->dndTimer.stop();
-	return;
+    if ( !d->mousePressed ) {
+	if ( !isReadOnly() && d->parag->hasSelection( QTextDocument::Standard ) && dragEnabled() ) {
+	    if ( inSelection( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), d->parag ) )
+		setCursor( arrowCursor );
+	    else
+		setCursor( ibeamCursor );
+	}
     }
 
-    if ( d->dnd_primed ) {
-	if ( ( d->dnd_startpos - e->pos() ).manhattanLength() > QApplication::startDragDistance() )
-	    doDrag();
-	return;
+#ifndef QT_NO_DRAGANDDROP
+    if ( dragEnabled() ) {
+	if ( d->dndTimer.isActive() ) {
+	    d->dndTimer.stop();
+	    return;
+	}
+
+	if ( d->dnd_primed ) {
+	    if ( ( d->dnd_startpos - e->pos() ).manhattanLength() > QApplication::startDragDistance() )
+		doDrag();
+	    return;
+	}
     }
 #endif
 
@@ -1449,9 +1470,33 @@ void QLineEdit::clearValidator()
 void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 {
     if ( !d->readonly && QTextDrag::canDecode(e) )
-	e->accept( rect() );
+	e->acceptAction();
+    else
+	return;
+    d->cursorOn = TRUE;
 }
 
+/*! \reimp
+*/
+void QLineEdit::dragLeaveEvent( QDragLeaveEvent * )
+{
+    d->cursorOn = hasFocus();
+    update();
+}
+
+/*!\reimp
+*/
+
+void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
+{
+    if ( !d->readonly && QTextDrag::canDecode(e) )
+	e->acceptAction();
+    else
+	return;
+    QPoint p( e->pos().x() + d->offset - 2 - style().defaultFrameWidth(), 0 );
+    d->cursor->place( p, d->parag );
+    update();
+}
 
 /*!\reimp
 */
@@ -1465,6 +1510,8 @@ void QLineEdit::dropEvent( QDropEvent *e )
     // otherwise we'll accept any kind of text (like text/uri-list)
     if (! decoded) decoded = QTextDrag::decode(e, str);
 
+    d->cursorOn = hasFocus();
+
     if ( !d->readonly && decoded) {
 	if ( e->source() == this && hasMarkedText() )
 	    deselect();
@@ -1473,9 +1520,10 @@ void QLineEdit::dropEvent( QDropEvent *e )
 	    d->cursor->place( p, d->parag );
 	}
 	insert( str );
-	e->accept();
+	e->acceptAction();
     } else {
 	e->ignore();
+	update();
     }
 }
 
@@ -1862,6 +1910,26 @@ QPopupMenu *QLineEdit::createPopupMenu()
     popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() && !allSelected );
 
     return popup;
+}
+
+/* If \a b is TRUE, the lineedit starts a drag if the user presses and
+   moves the mouse on a selected text.
+*/
+
+void QLineEdit::setDragEnabled( bool b )
+{
+    d->dragEnabled = b;
+}
+
+/* Returns whether the lineedit starts a drag if the user presses and
+   moves the mouse on a selected text.
+
+   \sa setDragEnabled()
+*/
+
+bool QLineEdit::dragEnabled() const
+{
+    return d->dragEnabled;
 }
 
 #endif

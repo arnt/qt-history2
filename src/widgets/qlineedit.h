@@ -64,6 +64,7 @@ class Q_EXPORT QLineEdit : public QWidget
     Q_PROPERTY( bool edited READ edited WRITE setEdited )
     Q_PROPERTY( bool hasMarkedText READ hasMarkedText )
     Q_PROPERTY( QString markedText READ markedText )
+    Q_PROPERTY( bool dragEnabled READ dragEnabled WRITE setDragEnabled )
 
 public:
     QLineEdit( QWidget *parent, const char *name=0 );
@@ -112,6 +113,7 @@ public:
 
     bool hasMarkedText() const;
     QString markedText() const;
+    bool dragEnabled() const;
 
 public slots:
     virtual void setText( const QString &);
@@ -132,12 +134,13 @@ public slots:
     virtual void setPalette( const QPalette & );
     virtual void setSelection( int, int );
     virtual void setCursorPosition( int );
-    void setAlignment( int flag );
+    virtual void setAlignment( int flag );
 #ifndef QT_NO_CLIPBOARD
-    void cut();
-    void copy() const;
-    void paste();
+    virtual void cut();
+    virtual void copy() const;
+    virtual void paste();
 #endif
+    virtual void setDragEnabled( bool b );
 
 signals:
     void textChanged( const QString &);
@@ -156,6 +159,8 @@ protected:
     void resizeEvent( QResizeEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
+    void dragMoveEvent( QDragMoveEvent *e );
+    void dragLeaveEvent( QDragLeaveEvent *e );
     void dropEvent( QDropEvent * );
 #endif
 
