@@ -1,4 +1,4 @@
-// $Id: application.doc,v 2.4 1999/07/02 18:18:23 paul Exp $
+// $Id: application.doc,v 2.5 1999/07/10 20:11:21 agulbra Exp $
 
 /*! \page simple-application.html
 <title>Qt Simple Application</title>
@@ -39,7 +39,8 @@ Here's examples/main.cpp, in full.
 
 We'll go over main() in detail.
 
-\skipline argc
+\skip argc
+\line argc
 \line QApplication
 
 We create a QApplication object with the usual constructor and let it
@@ -77,7 +78,8 @@ include it in full but instead include bits and pieces as necessary.
 We skip the preliminary #include and some text constants, and start
 with the constructor.
 
-\skipline ApplicationWindow::ApplicationWindow
+\skip ApplicationWindow::ApplicationWindow
+\line ApplicationWindow::ApplicationWindow
 \until {
 
 ApplicationWindow inherits QMainWindow, the Qt class that provides
@@ -151,6 +153,10 @@ We make the status bar say "Ready" for two seconds at startup, just to
 tell the user that this window has finished initialization and can be
 used.
 
+\line resize
+
+We provide a nice default size for the new window.
+
 \line }
 
 That's it.
@@ -192,9 +198,33 @@ it's done, it sets the window system caption to the file name and
 displays a success message for two seconds in the status bar.
 
 \line ::save
+\until close
+
+This function saves the current file.  Nothing remarkable in the first
+part.
+
+\line setEdited
+
+Tell the editor that the contents haven't been edited since the last
+save.  When the user closes the window, ApplicationWindow may want to
+ask "Save?".
+
+\line setCaption
+
+It may be that the document was saved under a different name than the
+caption, so we set the window caption just to be sure.
+
 \until }
 
-Yes.
+That was all.
+
+\line ::saveAs
+\until message
+\line }
+\line }
+
+This function asks for a new name, saves the document under that name,
+and implicitly changes the window system caption to the new name.
 
 <a name="printer"></a>
 
@@ -280,14 +310,31 @@ FALSE), we acknowledge that.
 
 Tha's all.  We have printed a text document.
 
-\line ::closeDoc
-\until }
+\line ::closeEvent
+\line {
 
-This slot is connected to the File->Close Window menu item.  It simply
-calls the function in Qt that closes this window and then deletes the
-widget.  If this widget was the only window the application had, this
-will cause the application to exit - see <a href="#close">the
-lastWindowClosed setup in main()</a> above.
+This event get to process window-system close events.  A close event
+is subtly different from a hide event: hide may often mean "iconify"
+but close means that the window is going away for good.
+
+\line edited
+\line accept
+\line return
+\line }
+
+If the text hasn't been edited, we just accept the event.  The window
+will be closed, and since we used the \c WDestructiveClose widget
+flag, the widget will be deleted.
+
+\line QMessageBox
+\until }
+\line }
+
+We know the text has been edited, so we ask the user: What do you want
+to do?  If the user wants to save and then exit, we do that.  If the
+user wants to not exit, we ignore the close event (there is a chance
+that we can't block it but we try).  If the user just wants to exit,
+abandoning the edits, that's very simple.
 
 \line ::about
 \until aboutQt
@@ -298,13 +345,8 @@ this program and the GUI toolkit it uses.  (You don't need to provide
 an About Qt in your programs, but if you use Qt for free we'd
 appreciate it if you tell people what you're using.)
 
-That's all.  A complete, almost useful application with nice help.  If
-you write the save() function it'll be as good as the "editors" some
-computer vendors have shipped with their desktops.  In two-hundred-odd
-lines of code.
-
-Feel free to copy and modify the code from this walkthrough.  In
-particular, the main() and bits of the constructor can be used in a
-great many programs.
+That's all.  A complete, almost useful application with nice help.
+Almost as good as the "editors" some computer vendors have shipped
+with their desktops.  In less than 300 lines of code.
 
 */

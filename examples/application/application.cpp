@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#9 $
+** $Id: //depot/qt/main/examples/application/application.cpp#10 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -158,6 +158,7 @@ void ApplicationWindow::load( const char *fileName )
 
     e->setAutoUpdate( TRUE );
     e->repaint();
+    e->setEdited( FALSE );
     setCaption( fileName );
     QString s;
     s.sprintf( "Loaded document %s", fileName );
@@ -168,21 +169,23 @@ void ApplicationWindow::load( const char *fileName )
 void ApplicationWindow::save()
 {
     if ( filename.isEmpty() ) {
-        saveAs();
-        return;
+	saveAs();
+	return;
     }
 
     QString text = e->text();
     QFile f( filename );
     if ( !f.open( IO_WriteOnly ) ) {
-        statusBar()->message( QString("Could not write to %1").arg(filename),
+	statusBar()->message( QString("Could not write to %1").arg(filename),
 			      2000 );
-        return;
+	return;
     }
 
     QTextStream t( &f );
     t << text;
     f.close();
+
+    e->setEdited( FALSE );
 
     setCaption( filename );
 
@@ -195,10 +198,10 @@ void ApplicationWindow::saveAs()
     QString fn = QFileDialog::getSaveFileName( QString::null, QString::null,
 					       this );
     if ( !fn.isEmpty() ) {
-        filename = fn;
-        save();
+	filename = fn;
+	save();
     } else {
-        statusBar()->message( "Saving aborted", 2000 );
+	statusBar()->message( "Saving aborted", 2000 );
     }
 }
 
@@ -213,10 +216,10 @@ void ApplicationWindow::print()
 	QPainter p;
 	p.begin( printer );			// paint on printer
 	p.setFont( e->font() );
-	int yPos        = 0;			// y position for each line
+	int yPos	= 0;			// y position for each line
 	QFontMetrics fm = p.fontMetrics();
 	QPaintDeviceMetrics metrics( printer ); // need width/height
-	                                         // of printer surface
+						// of printer surface
 	for( int i = 0 ; i < e->numLines() ; i++ ) {
 	    if ( Margin + yPos > metrics.height() - Margin ) {
 		QString msg( "Printing (page " );
@@ -240,17 +243,30 @@ void ApplicationWindow::print()
 
 }
 
-void ApplicationWindow::closeEvent( QCloseEvent* e )
+void ApplicationWindow::closeEvent( QCloseEvent* ce )
 {
-    if ( QMessageBox::warning( this, "Qt Application Example", 
-			       "Help me, I'm being closed!", 
-			       "Close", "Cancel"
-			       ) == 0 )
-	e->accept();
+    if ( !e->edited() ) {
+	ce->accept();
+	return;
+    }
     
-    // Note: If we accepted the close event, we will be deleted
-    // afterwards since we used the WDestructiveClose flag in the
-    // constructor
+    switch( QMessageBox::information( this, "Qt Application Example",
+				      "The document has been changed since "
+				      "the last save.",
+				      "Save Now", "Cancel", "Leave Anyway",
+				      0, 1 ) ) {
+    case 0:
+	save();
+	ce->accept();
+	break;
+    case 1:
+    default: // just for sanity
+	ce->ignore();
+	break;
+    case 2:
+	ce->accept();
+	break;
+    }
 }
 
 
