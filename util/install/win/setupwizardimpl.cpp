@@ -927,7 +927,7 @@ void SetupWizardImpl::doFinalIntegration()
 #endif
 
     if ( ( ( !globalInformation.reconfig() && optionsPage->skipBuild->isChecked() )
-	 || ( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() ) )
+	 || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() ) )
 	|| qWinVersion() & WV_DOS_based ) {
 	QString description;
 #if defined(EVAL) || defined(EDU)
@@ -1517,19 +1517,15 @@ void SetupWizardImpl::showPageFinish()
     nextButton()->setText( "Next >" );
     QString finishMsg;
     if ( ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
-	    || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() ) )
+	    || ( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() ) )
 #if defined(Q_OS_WIN32)
     && qWinVersion() & WV_NT_based ) {
 #else
     ) {
 #endif
 	if( globalInformation.reconfig() ) {
-	    if( !configPage->rebuildInstallation->isChecked() )
-		finishMsg = "Qt has been reconfigured, and is ready to be rebuilt.";
-	    else
-		finishMsg = "Qt has been reconfigured and rebuilt, and is ready for use.";
-	}
-	else {
+	    finishMsg = "Qt has been reconfigured and rebuilt, and is ready for use.";
+	} else {
 #if defined(Q_OS_MACX)
             finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() +
                         " and is ready to use.\n\nPlease try out the developer tools in the bin folder and example "
@@ -1548,8 +1544,7 @@ void SetupWizardImpl::showPageFinish()
 		finishMsg += globalInformation.qtVersionStr();
 		finishMsg += "\" icon in the Qt program group in the start menu.";
 #endif
-	}
-	else {
+	} else {
 	    finishMsg = QString( "The Qt files have been installed to " ) + optionsPage->installPath->text() + " and is ready to be compiled.\n";
 #if defined(Q_OS_WIN32)
 	    if( persistentEnv && qWinVersion() & WV_DOS_based ) {
