@@ -905,8 +905,8 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     done
 
     # symlink the mkspecs directory
-    rm -f $outpath/mkspecs
-    mkdir $outpath/mkspecs
+    mkdir -p $outpath/mkspecs
+    rm -f $outpath/mkspecs/*
     ln -s $relpath/mkspecs/* $outpath/mkspecs
     rm -f $outpath/mkspecs/default
 
