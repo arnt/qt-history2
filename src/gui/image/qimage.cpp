@@ -3810,10 +3810,10 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 struct Qargb {
     Qargb() : a(0), r(0), g(0), b(0) {}
     Qargb(uint pixel, uint scale) {
-        a = qAlpha(pixel)*scale;
-        r = a * qRed(pixel) / 255;
-        g = a * qGreen(pixel) / 255;
-        b = a * qBlue(pixel) / 255;
+        a = qAlpha(pixel) * scale;
+        r =   qRed(pixel) * scale;
+        g = qGreen(pixel) * scale;
+        b =  qBlue(pixel) * scale;
     }
     inline Qargb &operator += (const Qargb &o) {
         a += o.a;
