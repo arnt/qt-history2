@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Definition of LCDRange class, Qt tutorial 14
+** Definition of LCDRange class, Qt tutorial 13
 **
 ****************************************************************/
 
@@ -25,7 +25,7 @@ public:
     const char *text()  const;
 public slots:
     void setValue( int );
-    void setRange( int min, int max );
+    void setRange( int minVal, int maxVal );
     void setText( const char * );
 signals:
     void valueChanged( int );

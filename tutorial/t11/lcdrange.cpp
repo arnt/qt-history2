@@ -34,9 +34,16 @@ void LCDRange::setValue( int value )
     sBar->setValue( value );
 }
 
-void LCDRange::setRange( int min, int max )
+void LCDRange::setRange( int minVal, int maxVal )
 {
-    sBar->setRange( min, max );
+    if ( minVal < 0 || maxVal > 99 || minVal > maxVal ) {
+	warning( "LCDRange::setRange(%d,%d)\n"
+		 "\tRange must be 0..99\n"
+		 "\tand minVal must not be greater than maxVal",
+		 minVal, maxVal );
+	return;
+    }
+    sBar->setRange( minVal, maxVal );
 }
 
 void LCDRange::resizeEvent( QResizeEvent *e )
