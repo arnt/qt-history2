@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#51 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -156,8 +156,8 @@ inline void QCList::reference( QCacheItem *ci )
 class QCListIt: public QListIterator<QCacheItem>
 {
 public:
-    QCListIt( const QCList * asdf ): QListIterator<QCacheItem>( *asdf ) {}
-    QCListIt( const QCListIt * asdf ): QListIterator<QCacheItem>( *asdf ) {}
+    QCListIt( const QCList *p ): QListIterator<QCacheItem>( *p ) {}
+    QCListIt( const QCListIt *p ): QListIterator<QCacheItem>( *p ) {}
 };
 
 
@@ -344,6 +344,7 @@ bool QGCache::insert_string( const QString &key, QCollection::Item data,
 	}
     }
 #if defined(DEBUG)
+    ASSERT( keytype == StringKey );
     lruList->inserts++;
     lruList->insertCosts += cost;
 #endif
@@ -375,6 +376,7 @@ bool QGCache::insert_other( const char *key, QCollection::Item data,
 	}
     }
 #if defined(DEBUG)
+    ASSERT( keytype != StringKey );
     lruList->inserts++;
     lruList->insertCosts += cost;
 #endif
@@ -443,9 +445,10 @@ QCollection::Item QGCache::take_string( const QString &key )
     return d;
 }
 
-
-
-/*! \internal */
+/*!
+  \internal
+  Takes an item out of the cache (no delete).
+*/
 
 QCollection::Item QGCache::take_other( const char *key )
 {
@@ -491,8 +494,8 @@ void QGCache::clear()
 	    case IntKey:
 		dict->remove_int( ci );
 		break;
-	case PtrKey: //unused
-	    break;
+	    case PtrKey:			// unused
+		break;
 	}
 	deleteItem( ci->data );			// delete data
 	lruList->removeFirst();			// remove from list
@@ -525,7 +528,10 @@ QCollection::Item QGCache::find_string( const QString &key, bool ref ) const
 }
 
 
-/*! \internal */
+/*!
+  \internal
+  Finds an item in the cache.
+*/
 
 QCollection::Item QGCache::find_other( const char *key, bool ref ) const
 {
@@ -580,6 +586,7 @@ bool QGCache::makeRoomFor( int cost, int priority )
 	switch ( keytype ) {
 	    case StringKey:
 		dict->remove_string( ci );
+		delete (QString*)ci->key;
 		break;
 	    case AsciiKey:
 		dict->remove_ascii( ci );
@@ -589,8 +596,8 @@ bool QGCache::makeRoomFor( int cost, int priority )
 	    case IntKey:
 		dict->remove_int( ci );
 		break;
-	case PtrKey: //unused
-	    break;
+	    case PtrKey:			// unused
+		break;
 	}
 	deleteItem( ci->data );			// delete data
 	lruList->removeLast();			// remove from list
@@ -733,7 +740,7 @@ bool QGCacheIterator::atLast() const
 
 QCollection::Item QGCacheIterator::toFirst()
 {
-    register QCacheItem *item = it->toFirst();
+    QCacheItem *item = it->toFirst();
     return item ? item->data : 0;
 }
 
@@ -744,7 +751,7 @@ QCollection::Item QGCacheIterator::toFirst()
 
 QCollection::Item QGCacheIterator::toLast()
 {
-    register QCacheItem *item = it->toLast();
+    QCacheItem *item = it->toLast();
     return item ? item->data : 0;
 }
 
@@ -755,7 +762,7 @@ QCollection::Item QGCacheIterator::toLast()
 
 QCollection::Item QGCacheIterator::get() const
 {
-    register QCacheItem *item = it->current();
+    QCacheItem *item = it->current();
     return item ? item->data : 0;
 }
 
@@ -766,7 +773,7 @@ QCollection::Item QGCacheIterator::get() const
 
 QString QGCacheIterator::getKeyString() const
 {
-    register QCacheItem *item = it->current();
+    QCacheItem *item = it->current();
     return item ? *((QString*)item->key) : QString::null;
 }
 
@@ -777,7 +784,7 @@ QString QGCacheIterator::getKeyString() const
 
 const char *QGCacheIterator::getKeyAscii() const
 {
-    register QCacheItem *item = it->current();
+    QCacheItem *item = it->current();
     return item ? (const char *)item->key : 0;
 }
 
@@ -788,7 +795,7 @@ const char *QGCacheIterator::getKeyAscii() const
 
 long QGCacheIterator::getKeyInt() const
 {
-    register QCacheItem *item = it->current();
+    QCacheItem *item = it->current();
     return item ? (long)item->key : 0;
 }
 
@@ -799,7 +806,7 @@ long QGCacheIterator::getKeyInt() const
 
 QCollection::Item QGCacheIterator::operator()()
 {
-    register QCacheItem *item = it->operator()();
+    QCacheItem *item = it->operator()();
     return item ? item->data : 0;
 }
 
@@ -810,7 +817,7 @@ QCollection::Item QGCacheIterator::operator()()
 
 QCollection::Item QGCacheIterator::operator++()
 {
-    register QCacheItem *item = it->operator++();
+    QCacheItem *item = it->operator++();
     return item ? item->data : 0;
 }
 
@@ -821,7 +828,7 @@ QCollection::Item QGCacheIterator::operator++()
 
 QCollection::Item QGCacheIterator::operator+=( uint jump )
 {
-    register QCacheItem *item = it->operator+=(jump);
+    QCacheItem *item = it->operator+=(jump);
     return item ? item->data : 0;
 }
 
@@ -832,7 +839,7 @@ QCollection::Item QGCacheIterator::operator+=( uint jump )
 
 QCollection::Item QGCacheIterator::operator--()
 {
-    register QCacheItem *item = it->operator--();
+    QCacheItem *item = it->operator--();
     return item ? item->data : 0;
 }
 
@@ -843,6 +850,6 @@ QCollection::Item QGCacheIterator::operator--()
 
 QCollection::Item QGCacheIterator::operator-=( uint jump )
 {
-    register QCacheItem *item = it->operator-=(jump);
+    QCacheItem *item = it->operator-=(jump);
     return item ? item->data : 0;
 }
