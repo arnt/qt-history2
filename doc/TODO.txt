@@ -166,7 +166,7 @@ Socket Multicasting (rms)
   multicasting. I'm not sure if many people will need this.
 
 qt_winEventFilter
-  Inprise want's this method to be Q_EXPORT'ed; it's probably better to remove it, 
+  Inprise want's this method to be Q_EXPORT'ed; it's probably better to remove it,
   since there is QApplication::winEventFilter already.
 
 
@@ -298,3 +298,6 @@ QListView/QListBox/maybe QTable (Reggie)
 QListView/QHeader (Reggie)
     Support for stretchable header in QListView, so that the header
     always fits exactly into the width of the view
+
+QTableItem (Reggie):
+    setEnabled( bool )
