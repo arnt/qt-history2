@@ -81,6 +81,8 @@ public:
     \ingroup qws
     \ingroup io
 
+    \internal
+
     It is used by Qt/Embedded for synchronizing access to the graphics
     card and shared memory region between processes.
 */
