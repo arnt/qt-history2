@@ -1,0 +1,40 @@
+#!/bin/sh
+
+cd qws
+
+echo Removing platform specific files.
+
+rm -f src/*/*_mac*
+rm -f src/*/*_win*
+rm -f src/*/*_x11*
+
+
+echo Rearranging
+
+mv util/qws server
+mv dist/GNUmakefile.embedded GNUmakefile
+mv dist/*.embedded .
+
+mkdir src/include
+
+touch src/moc/GNUmakefile
+
+echo Removing unnecessary files.
+
+rm -rf tests
+rm -rf util
+rm -rf tests
+rm -rf doc
+rm -rf gif
+rm -rf extensions/nsplugin
+rm -rf extensions/xt
+rm -rf extensions/xembed
+rm -rf extensions/imageio
+rm -f extensions/Makefile
+
+cd ..
+
+echo Packing the archive...
+
+tar cfz  qt-embedded.tar.gz qws
+
