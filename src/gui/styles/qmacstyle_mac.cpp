@@ -1662,7 +1662,7 @@ void QMacStylePrivate::HIThemeDrawClickThroughButton(const HIRect &macRect,
         yoff = combo->editable ? 3 : 2;
         extraWidth = 1;
         extraHeight = yoff;
-    } else if (bdi.kind == kThemeCheckBox) {
+    } else {
         extraHeight = 1;
         finalyoff = -1;
     }
