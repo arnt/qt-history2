@@ -127,8 +127,6 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, 
 {
 //     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
-    // ### add offset handling!!!
-
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
     GC gc = p->gc;

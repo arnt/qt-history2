@@ -15,7 +15,8 @@ HEADERS += fontengine.h \
            scriptenginearabic.h \
            scriptenginebasic.h \
 	   fontenginexlfd.h \
-	   fontenginexft.h
+	   fontenginexft.h \
+	   fontenginebox.h
 SOURCES += qfont.cpp \
 	   qfont_x11.cpp \
            qpainter_x11.cpp \
@@ -25,6 +26,7 @@ SOURCES += qfont.cpp \
            scriptenginebasic.cpp \
 	   fontenginexlfd.cpp \
 	   fontenginexft.cpp \
+	   fontenginebox.cpp \
            test.cpp
 CONFIG += qt warn_on debug  thread create_prl link_prl
 OBJECTS_DIR=.obj/debug-shared-mt

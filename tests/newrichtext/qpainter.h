@@ -374,6 +374,7 @@ private:
 
 protected:
     friend class FontEngineXLFD;
+    friend class FontEngineBox;
 #ifdef Q_OS_TEMP
 	QPoint	internalCurrentPos;
 #endif

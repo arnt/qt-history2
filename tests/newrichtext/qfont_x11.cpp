@@ -63,6 +63,7 @@
 #include "fontengine.h"
 #include "fontenginexlfd.h"
 #include "fontenginexft.h"
+#include "fontenginebox.h"
 #include "qtextdata.h"
 #include "qt_x11.h"
 
@@ -342,9 +343,8 @@ QFontX11Data::~QFontX11Data()
 	qfs = fontstruct[i];
 	fontstruct[i] = 0;
 
-	if ( qfs && qfs != (FontEngineIface *) -1 ) {
+	if ( qfs )
 	    qfs->deref();
-	}
     }
 }
 
@@ -1461,7 +1461,7 @@ bool QFontPrivate::loadUnicode(QFont::Script script, const QChar &sample)
 	qfs = x11data.fontstruct[QFont::Unicode];
     }
 
-    if (qfs && qfs != (FontEngineIface *) -1) {
+    if (qfs) {
 	QChar chs[2] = { QChar(0xfffe), sample };
 	hasChar = !qfs->canRender( chs, 1 ) && qfs->canRender( chs+1, 1 );
 
@@ -1507,7 +1507,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	FontEngineIface *qfs = x11data.fontstruct[script];
 	x11data.fontstruct[script] = 0;
 
-	if (qfs && qfs != (FontEngineIface *) -1) {
+	if (qfs) {
 	    // only deref here... we will let the cache take care of cleaning up
 	    // while the application is running
 	    qfs->deref();
@@ -1517,7 +1517,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	qfs = x11data.fontstruct[QFont::Unicode];
 	x11data.fontstruct[QFont::Unicode] = 0;
 
-	if (qfs && qfs != (FontEngineIface *) -1) {
+	if (qfs) {
 	    // only deref here... we will let the cache take care of cleaning up
 	    // while the application is running
 	    qfs->deref();
@@ -1620,7 +1620,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    // we don't have a font name, so we need to negative cache a font struct
 	    // the reason we do this here, is because Exceed substitutes the fixed
 	    // font for any name it can't find...
-	    x11data.fontstruct[script] = (FontEngineIface *) -1;
+	    x11data.fontstruct[script] = new FontEngineBox( pixelSize( request, paintdevice, x11Screen ) );
+	    // ####### add them all back in.
 // 	    initFontInfo(script, scale);
 	    fontCache->insert(k, x11data.fontstruct[script], 1);
 	    return;
@@ -1640,10 +1641,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	// Found font in either cache or dict...
 	x11data.fontstruct[script] = qfs;
 
-	if (qfs != (FontEngineIface *) -1) {
-	    qfs->ref();
+	qfs->ref();
 // 	    initFontInfo(script, scale);
-	}
 
 	request.dirty = FALSE;
 
@@ -1684,7 +1683,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    qDebug("QFontLoader: no nothing about script %d, giving up", script);
 #endif
 
-	    x11data.fontstruct[script] = (FontEngineIface *) -1;
+	    x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
 // 	    initFontInfo(script, scale);
 	    fontCache->insert(k, x11data.fontstruct[script], 1);
 	    return;
@@ -1716,7 +1715,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 		       script_table[script].list[script_table[script].index]);
 #endif
 
-		x11data.fontstruct[script] = (FontEngineIface *) -1;
+		x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
 // 		initFontInfo(script, scale);
 		fontCache->insert(k, x11data.fontstruct[script], 1);
 		return;
@@ -1746,7 +1745,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 		}
 	    } else {
 		// Didn't get unicode/script font, set to sentinel and return
-		x11data.fontstruct[script] = (FontEngineIface *) -1;
+		x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
 // 		initFontInfo(script, scale);
 		fontCache->insert(k, x11data.fontstruct[script], 1);
 		return;
@@ -1778,7 +1777,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif // QT_NO_XFTFREETYPE
     else {
 	// couldn't load the font...
-	x11data.fontstruct[script] = (FontEngineIface *) -1;
+	x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
 // 	initFontInfo(script, scale);
 	fontCache->insert(k, x11data.fontstruct[script], 1);
 	return;
@@ -2013,7 +2012,7 @@ QString QFont::rawName() const
     d->load(QFontPrivate::defaultScript);
 
     FontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs || qfs == (FontEngineIface *) -1) {
+    if (! qfs ) {
 	return QString::null;
     }
 
@@ -2117,7 +2116,7 @@ int QFontMetrics::ascent() const
     d->load(QFontPrivate::defaultScript);
 
     FontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs || qfs == (FontEngineIface *) -1)
+    if (! qfs )
 	return 0;
     return qfs->ascent();
 }
@@ -2139,7 +2138,7 @@ int QFontMetrics::descent() const
     d->load(QFontPrivate::defaultScript);
 
     FontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs || qfs == (FontEngineIface *) -1)
+    if (! qfs )
 	return 0;
     return qfs->descent();
 }
@@ -2208,7 +2207,7 @@ int QFontMetrics::minLeftBearing() const
     d->load(QFontPrivate::defaultScript);
 
     FontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs || qfs == (FontEngineIface *) -1)
+    if (! qfs )
 	return 0;
     return 0;
 }
@@ -2229,7 +2228,7 @@ int QFontMetrics::minRightBearing() const
     d->load(QFontPrivate::defaultScript);
 
     FontEngineIface *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs || qfs == (FontEngineIface *) -1)
+    if (! qfs )
 	return 0;
     return 0;
 }
@@ -2248,7 +2247,7 @@ int QFontMetrics::height() const
     d->load(QFontPrivate::defaultScript);
 
     FontEngineIface *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs || qfs == (FontEngineIface *) -1)
+    if (! qfs )
 	return (d->actual.pixelSize * 3 / 4) + 1;
 
     return qfs->ascent() + qfs->descent();
@@ -2267,7 +2266,7 @@ int QFontMetrics::leading() const
     d->load(QFontPrivate::defaultScript);
 
     FontEngineIface *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs || qfs == (FontEngineIface *) -1)
+    if (! qfs )
 	return 0;
 
     return qfs->leading();
@@ -2420,7 +2419,7 @@ int QFontMetrics::maxWidth() const
 	d->load((QFont::Script) i);
 
 	qfs = d->x11data.fontstruct[i];
-	if (! qfs || qfs == (FontEngineIface *) -1)
+	if (! qfs )
 	    continue;
 	w = QMAX( w, qfs->maxCharWidth() );
     }
