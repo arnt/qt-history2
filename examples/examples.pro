@@ -1,4 +1,4 @@
-TEMPLATE    =	examples
+TEMPLATE    =	subdirs
 SUBDIRS     =	aclock \
 		addressbook \
 		application \
@@ -18,7 +18,7 @@ SUBDIRS     =	aclock \
 		life \
 		lineedits \
 		listbox_combo \
-        listbox \
+		listbox \
 		listviews \
 		menu \
 		movies \
