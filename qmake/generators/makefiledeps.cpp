@@ -251,7 +251,7 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek,
         SourceFile *file = files->lookupFile(fn);
         if(!file) {
             file = new SourceFile;
-            file->file = fixPathForFile(fn);
+            file->file = fn;
             files->addFile(file);
         } else {
             if(file->type != type)
@@ -287,7 +287,7 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForMoc(const QMakeLocalFileName 
     return QMakeLocalFileName();
 }
 
-QMakeLocalFileName QMakeSourceFileInfo::fixPathForFile(const QMakeLocalFileName &f)
+QMakeLocalFileName QMakeSourceFileInfo::fixPathForFile(const QMakeLocalFileName &f, bool)
 {
     return f;
 }
@@ -308,7 +308,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     char *buffer = 0;
     int buffer_len = 0;
     {
-        int fd = open(file->file.local(), O_RDONLY);
+        int fd = open(fixPathForFile(file->file, true).local(), O_RDONLY);
         if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
             return false;
         buffer = getBuffer(fst.st_size);
@@ -551,7 +551,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
     char *buffer = 0;
     {
         struct stat fst;
-        int fd = open(file->file.local().latin1(), O_RDONLY);
+        int fd = open(fixPathForFile(file->file, true).local(), O_RDONLY);
         if(fd == -1 || fstat(fd, &fst) || S_ISDIR(fst.st_mode))
             return false; //shouldn't happen
         buffer = getBuffer(fst.st_size);

@@ -2005,8 +2005,10 @@ MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
 }
 
 QMakeLocalFileName
-MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file)
+MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file, bool forOpen)
 {
+    if(forOpen)
+        return QMakeLocalFileName(fileFixify(file.real(), QDir::currentPath(), Option::output_dir));
     return QMakeLocalFileName(fileFixify(file.real()));
 }
 
