@@ -154,7 +154,7 @@ environment variable \c QTDIR.
 
 You build and run programs for Qt v1.4x and Qt 2.x. You will need:<ul>
 
-<li>the \e header \e files, the \e moc> and the \e libraries of Qt 2.x
+<li>the \e header \e files, the \e moc and the \e libraries of Qt 2.x
 and Qt 1.4x to build programs,
 
 <li>the shared libraries of Qt 2.x and Qt 1.4x to run programs (if you
@@ -172,14 +172,14 @@ $ cd /opt
 $ gunzip -c qt-1.44.tar.gz | tar xf -
 $ cd qt-1.44
 $ setenv QTDIR /opt/qt-1.44
-$ configure \<...\>
+$ configure [options]
 $ make
 
 $ cd /opt
 $ gunzip -c qt-2.1.0.tar.gz | tar xf -
 $ cd qt-2.1.0
 $ setenv QTDIR /opt/qt-2.1.0
-$ configure \<...\>
+$ configure [options]
 $ make
 \endcode
 
