@@ -46,7 +46,7 @@
 #include "qcdestyle.h"
 #include "qmotifplusstyle.h"
 #include "qplatinumstyle.h"
-// #include "qsgistyle.h"
+#include "qsgistyle.h"
 // #include "qcompactstyle.h"
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
@@ -166,10 +166,9 @@ QStyle *QStyleFactory::create( const QString& s )
     if ( iface ) {
 	QStyle *st = iface->create( style );
 	iface->release();
-        return st;
+	return st;
     }
 #endif
-
     return 0;
 }
 
@@ -191,32 +190,41 @@ QStringList QStyleFactory::styles()
 #endif //QT_NO_COMPONENT
 
 #ifndef QT_NO_STYLE_WINDOWS
-    list << "Windows";
+    if ( !list.contains( "Windows" ) )
+	list << "Windows";
 #endif
 #ifndef QT_NO_STYLE_MOTIF
-    list << "Motif";
+    if ( !list.contains( "Motif" ) )
+	list << "Motif";
 #endif
 #ifndef QT_NO_STYLE_CDE
-    list << "CDE";
+    if ( !list.contains( "CDE" ) )
+	list << "CDE";
 #endif
 #ifndef QT_NO_STYLE_MOTIFPLUS
-    list << "MotifPlus";
+    if ( !list.contains( "MotifPlus" ) )
+	list << "MotifPlus";
 #endif
 #ifndef QT_NO_STYLE_PLATINUM
-    list << "Platinum";
+    if ( !list.contains( "Platinum" ) )
+	list << "Platinum";
 #endif
 #ifndef QT_NO_STYLE_SGI
-    list << "SGI";
+    if ( !list.contains( "SGI" ) )
+	list << "SGI";
 #endif
 #ifndef QT_NO_STYLE_COMPACT
-    list << "Compact";
+    if ( !list.contains( "Compact" ) )
+	list << "Compact";
 #endif
 #ifndef QT_NO_STYLE_AQUA
-    list << "Aqua";
+    if ( !list.contains( "Aqua" ) )
+	list << "Aqua";
 #endif
 #if 0
 #ifdef Q_WS_MAC
-    list << "Macintosh";
+    if ( !list.contains( "Macintosh" ) )
+	list << "Macintosh";
 #endif
 #endif
 

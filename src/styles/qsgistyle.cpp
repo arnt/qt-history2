@@ -52,15 +52,6 @@
 #include <limits.h>
 
 
-static const int sgiItemFrame           = 2;    // menu item frame width
-static const int sgiSepHeight           = 1;    // separator item height
-static const int sgiItemHMargin         = 3;    // menu item hor text margin
-static const int sgiItemVMargin         = 2;    // menu item ver text margin
-static const int sgiArrowHMargin        = 6;    // arrow horizontal margin
-// static const int sgiTabSpacing               = 12;   // space between text and tab ### not used?!?
-// static const int sgiCheckMarkHMargin = 2;    // horiz. margins of check mark ### not used?!?
-static const int sgiCheckMarkSpace      = 20;
-
 static bool sliderMoving                = FALSE;
 static bool sliderHandleActive          = FALSE;
 static bool repaintByMouseMove          = FALSE;
@@ -78,6 +69,8 @@ struct SliderLastPosition
 
 static SliderLastPosition sliderLastPosition;
 
+static QStyle *instance = 0;
+
 /*!
   \class QSGIStyle qsgistyle.h
   \brief The QSGIStyle class provides SGI/Irix look and feel.
@@ -90,7 +83,7 @@ static SliderLastPosition sliderLastPosition;
 /*!
   Constructs a QSGIStyle.
 
-  If useHighlightCols is FALSE (default value), the style will
+  If \a useHighlightCols is FALSE (default value), the style will
   polish the application's color palette to emulate the Motif way of
   highlighting, which is a simple inversion between the base and the
   text color.
@@ -99,6 +92,7 @@ static SliderLastPosition sliderLastPosition;
 */
 QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ), isApplicationStyle( 0 )
 {
+    instance = this;
 }
 
 /*!
@@ -106,33 +100,15 @@ QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ),
 */
 QSGIStyle::~QSGIStyle()
 {
-}
-
-/*!\reimp
-*/
-int QSGIStyle::buttonDefaultIndicatorWidth() const
-{
-    return 4;
-}
-
-/*!\reimp
-*/
-QSize QSGIStyle::scrollBarExtent() const
-{
-    return QSize( 21, 21 );
-}
-
-/*! \reimp
-*/
-int QSGIStyle::defaultFrameWidth() const
-{
-    return 2;
+    instance = 0;
 }
 
 /*!
-    Changes some application-wide settings to be
-    SGI-like, e.g., sets bold/italic font for
-    the menu system.
+  \reimp
+
+  Changes some application-wide settings to be
+  SGI-like, e.g., sets bold/italic font for
+  the menu system.
 */
 void
 QSGIStyle::polish( QApplication* app)
@@ -185,7 +161,6 @@ QSGIStyle::polish( QApplication* app)
 
 /*! \reimp
 */
-
 void
 QSGIStyle::unPolish( QApplication* /* app */ )
 {
@@ -195,9 +170,10 @@ QSGIStyle::unPolish( QApplication* /* app */ )
     QApplication::setFont( f, TRUE, "QComboBox" );
 }
 
-/*!
-    Installs event filters for several widgets to enable
-    the SGI-effect of glowing buttons.
+/*! \reimp
+
+  Installs an event filter for several widget classes
+  to enable hovering.
 */
 void
 QSGIStyle::polish( QWidget* w )
@@ -248,7 +224,7 @@ QSGIStyle::polish( QWidget* w )
         ((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
         w->setBackgroundMode( QWidget::PaletteBackground );
     } else if ( w->inherits("QPopupMenu") ) {
-        ((QFrame*) w)->setLineWidth( defaultFrameWidth() + 1 );
+        ((QFrame*) w)->setLineWidth( pixelMetric( PM_DefaultFrameWidth ) + 1 );
     } else if ( w->inherits("QToolBar") ) {
         w->setBackgroundMode( QWidget::PaletteBackground );
     } else if ( w->inherits("QToolBarSeparator") ) {
@@ -256,85 +232,206 @@ QSGIStyle::polish( QWidget* w )
     }
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 void
 QSGIStyle::unPolish( QWidget* w )
 {
-    if ( w == lastWidget )
-        w->unsetPalette( );
+    w->unsetPalette( );
 
-    if ( w->inherits("QButton") )
+    if ( w->inherits("QButton") || w->inherits("QSlider") || w->inherits("QScrollBar") )
         w->removeEventFilter( this );
 }
 
-/*!
-  Draws a line to separate parts of the visual interface.
-*/
-void
-QSGIStyle::drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
-                          const QColorGroup &g, bool sunken,
-                          int /*lineWidth*/, int /*midLineWidth*/ )
+/*! \reimp */
+bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 {
-    QPen oldPen = p->pen();
+    switch ( e->type() ) {
+    case QEvent::MouseButtonPress:
+        {
+            if ( o->inherits("QSlider") ) {
+                sliderLastPosition.pos = QRect( 0, -1, 0, -1 );
+                sliderLastPosition.slider = (QWidget*)o;
+                sliderMoving = TRUE;
+            }
+        }
+        break;
+    case QEvent::MouseButtonRelease:
+        {
+            if ( o->inherits("QSlider") )
+            {
+                sliderLastPosition.pos = QRect( 0, -1, 0, -1 );
+                sliderLastPosition.slider = 0;
+                sliderMoving = FALSE;
+                ((QWidget*) o)->repaint( FALSE );
+            }
+        }
+        break;
+    case QEvent::MouseMove:
+        {
+            QMouseEvent* me = (QMouseEvent*) e;
+            mousePos = me->pos();
+            if ( o->inherits("QScrollBar") || o->inherits("QSlider") ) {
+                repaintByMouseMove = me->button() == NoButton;
+                ((QWidget*) o)->repaint( FALSE );
+                repaintByMouseMove = FALSE;
+            }
+        }
+        break;
+    case QEvent::Enter:
+        {
+            if (o->inherits("QButton")) {
+                QWidget* w = (QWidget*) o;
+                if (w->isEnabled()) {
+                    QPalette pal = w->palette();
+                    lastWidget = w;
+                    if ( lastWidget->ownPalette() )
+                        lastWidgetPalette = new QPalette( lastWidget->palette() );
+                    pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
+                    lastWidget->setPalette( pal );
+                }
+            } else if ( o->isWidgetType() ) {               // must be either slider or scrollbar
+                deviceUnderMouse = (QPaintDevice*)(QWidget*)o;
+                ((QWidget*) o)->repaint( FALSE );
+            }
+        }
+        break;
+    case QEvent::Leave:
+        {
+            if ((QPaintDevice*)(QWidget*)o == deviceUnderMouse) {
+                deviceUnderMouse = 0;
+                ((QWidget*) o)->repaint( FALSE );
+            }
 
-    p->setPen( g.midlight() );
-    p->drawLine( x1, y1, x2, y2 );
-    if (sunken) {
-        p->setPen( g.shadow() );
-        if ( y2-y1 < x2-x1 )
-            p->drawLine( x1, y1+1, x2, y2+1 );
-        else
-            p->drawLine( x1+1, y1, x2+1, y2 );
+            if ( lastWidget && o == lastWidget &&
+                lastWidget->testWState( WState_Created )) {
+                if ( lastWidgetPalette ) {
+                    lastWidget->setPalette( *lastWidgetPalette );
+                    delete lastWidgetPalette;
+                    lastWidgetPalette = 0;
+                } else {
+                    lastWidget->unsetPalette();
+                }
+            }
+        }
+        break;
+    default:
+        break;
     }
-
-    p->setPen( oldPen );
+    return QMotifStyle::eventFilter( o, e );
 }
 
-/*!
-    Draws an SGI-like panel with somewhat rounded edges.
-*/
-void
-QSGIStyle::drawPanel( QPainter*p, int x, int y, int w, int h, const QColorGroup &g,
-                      bool sunken, int lineWidth, const QBrush* fill )
+static const int sgiItemFrame           = 2;    // menu item frame width
+static const int sgiSepHeight           = 1;    // separator item height
+static const int sgiItemHMargin         = 3;    // menu item hor text margin
+static const int sgiItemVMargin         = 2;    // menu item ver text margin
+static const int sgiArrowHMargin        = 6;    // arrow horizontal margin
+// static const int sgiTabSpacing               = 12;   // space between text and tab ### not used?!?
+// static const int sgiCheckMarkHMargin = 2;    // horiz. margins of check mark ### not used?!?
+static const int sgiCheckMarkSpace      = 20;
+
+/*! \reimp */
+int QSGIStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 {
-    if( w < 0 ) w = 0;
-    if( h < 0 ) h = 0;
-    QMotifStyle::drawPanel( p, x, y, w, h, g, sunken, ( w > lineWidth && h > lineWidth ) ? lineWidth : 1, fill );
-    if ( lineWidth <= 1 )
-        return;
-    // draw extra shadinglines
-    QPen oldPen = p->pen();
-    p->setPen( g.midlight() );
-    p->drawLine( x+1, y+h-3, x+1, y+1 );
-    p->drawLine( x+1, y+1, x+w-3, y+1 );
-    p->setPen( g.mid() );
-    p->drawLine( x+1, y+h-2, x+w-2, y+h-2 );
-    p->drawLine( x+w-2, y+h-2, x+w-2, y+1 );
-    p->setPen(oldPen);
+    switch ( metric ) {
+    case PM_DefaultFrameWidth:
+	return 2;
+
+    case PM_ButtonDefaultIndicator:
+	return 4;
+
+    case PM_ScrollBarExtent:
+	return 21;
+
+    case PM_IndicatorWidth:
+    case PM_IndicatorHeight:
+	return 20;
+
+    case PM_ExclusiveIndicatorWidth:
+    case PM_ExclusiveIndicatorHeight:
+	return 12;
+
+    case PM_SplitterWidth:
+	return QMAX( 10, QApplication::globalStrut().width() );
+
+    default:
+	break;
+    }
+    return QMotifStyle::pixelMetric( metric, widget );
 }
 
-/*!
-  Draws a press-senstive interface element.
-*/
-
-void
-QSGIStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-                       const QColorGroup &g, bool sunken, const QBrush *fill )
+static void drawPanel( QPainter *p, int x, int y, int w, int h,
+		const QColorGroup &g, bool sunken,
+		int lineWidth, const QBrush* fill)
 {
-    drawPanel( p, x, y, w, h, g, sunken, defaultFrameWidth(),
-               fill ? fill : (sunken ?
-                              &g.brush( QColorGroup::Mid )      :
-                              &g.brush( QColorGroup::Button ) ));
+    if ( w == 0 || h == 0 )
+	return;
+#if defined(CHECK_RANGE)
+    ASSERT( w > 0 && h > 0 && lineWidth >= 0 );
+#endif
+    QPen oldPen = p->pen();			// save pen
+    QPointArray a( 4*lineWidth );
+    if ( sunken )
+	p->setPen( g.dark() );
+    else
+	p->setPen( g.light() );
+    int x1, y1, x2, y2;
+    int i;
+    int n = 0;
+    x1 = x;
+    y1 = y2 = y;
+    x2 = x+w-2;
+    for ( i=0; i<lineWidth; i++ ) {		// top shadow
+	a.setPoint( n++, x1, y1++ );
+	a.setPoint( n++, x2--, y2++ );
+    }
+    x2 = x1;
+    y1 = y+h-2;
+    for ( i=0; i<lineWidth; i++ ) {		// left shadow
+	a.setPoint( n++, x1++, y1 );
+	a.setPoint( n++, x2++, y2-- );
+    }
+    p->drawLineSegments( a );
+    n = 0;
+    if ( sunken )
+	p->setPen( g.light() );
+    else
+	p->setPen( g.dark() );
+    x1 = x;
+    y1 = y2 = y+h-1;
+    x2 = x+w-1;
+    for ( i=0; i<lineWidth; i++ ) {		// bottom shadow
+	a.setPoint( n++, x1++, y1-- );
+	a.setPoint( n++, x2, y2-- );
+    }
+    x1 = x2;
+    y1 = y;
+    y2 = y+h-lineWidth-1;
+    for ( i=0; i<lineWidth; i++ ) {		// right shadow
+	a.setPoint( n++, x1--, y1++ );
+	a.setPoint( n++, x2--, y2 );
+    }
+    p->drawLineSegments( a );
+    if ( fill ) {				// fill with fill color
+	QBrush oldBrush = p->brush();
+	p->setPen( Qt::NoPen );
+	p->setBrush( *fill );
+	p->drawRect( x+lineWidth, y+lineWidth, w-lineWidth*2, h-lineWidth*2 );
+	p->setBrush( oldBrush );
+    }
+    p->setPen( oldPen );			// restore pen
 }
 
-/*!
-    Draws a button with a stronger separation from
-    the user interface.
-*/
-void
-QSGIStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-                            const QColorGroup &g, bool sunken, const QBrush *fill )
+static void drawButton( QPainter *p, int x, int y, int w, int h,
+		       const QColorGroup &g, bool sunken, const QBrush *fill )
+{
+    drawPanel( p, x, y, w, h, g, sunken, 2, //pixelMetric( PM_DefaultFrameWidth ),
+	       fill ? fill : (sunken ?
+			      &g.brush( QColorGroup::Mid )      :
+			      &g.brush( QColorGroup::Button ) ));
+}
+
+static void drawBevelButton( QPainter *p, int x, int y, int w, int h,
+			    const QColorGroup &g, bool sunken, const QBrush *fill )
 {
     drawButton( p, x+1, y+1, w-2, h-2, g, sunken, fill );
 
@@ -352,135 +449,110 @@ QSGIStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
     p->setPen( oldPen );
 }
 
-/*!
-    Reimplemented to be SGI-like.
-*/
-void
-QSGIStyle::drawPushButton( QPushButton* btn, QPainter* p)
+static void drawPushButton( QPushButton* btn, QPainter* p)
 {
     QColorGroup g = btn->colorGroup();
     int x1, y1, x2, y2;
 
-    btn->rect().coords( &x1, &y1, &x2, &y2 );   // get coordinates
+    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
     p->setPen( g.foreground() );
-    p->setBrush( QBrush(g.button(),NoBrush) );
+    p->setBrush( QBrush(g.button(),Qt::NoBrush) );
 
-    int diw = buttonDefaultIndicatorWidth();
+    int diw = instance->pixelMetric( QStyle::PM_ButtonDefaultIndicator );
     if ( btn->isDefault() || btn->autoDefault() ) {
-        x1 += diw;
-        y1 += diw;
-        x2 -= diw;
-        y2 -= diw;
+	x1 += diw;
+	y1 += diw;
+	x2 -= diw;
+	y2 -= diw;
     }
 
     QPointArray a;
     if ( btn->isDefault() ) {
-        if ( diw == 0 ) {
-            a.setPoints( 9,
-                         x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-                         x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-            p->setPen( g.shadow() );
-            p->drawPolyline( a );
-            x1 += 2;
-            y1 += 2;
-            x2 -= 2;
-            y2 -= 2;
-        } else {
-            qDrawShadePanel( p, btn->rect(), g, TRUE );
-        }
+	if ( diw == 0 ) {
+	    a.setPoints( 9,
+			 x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
+			 x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
+	    p->setPen( g.shadow() );
+	    p->drawPolyline( a );
+	    x1 += 2;
+	    y1 += 2;
+	    x2 -= 2;
+	    y2 -= 2;
+	} else {
+	    qDrawShadePanel( p, btn->rect(), g, TRUE );
+	}
     }
 
     QBrush fill = g.brush( QColorGroup::Button );
     if ( !btn->isFlat() || btn->isOn() || btn->isDown() )
-        drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill );
+	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill );
 
-    if ( p->brush().style() != NoBrush )
-        p->setBrush( NoBrush );
+    if ( p->brush().style() != Qt::NoBrush )
+	p->setBrush( Qt::NoBrush );
 }
 
-/*!
-    Reimplemented to be SGI-like.
-*/
-void
-QSGIStyle::drawArrow( QPainter *p, ArrowType type, bool /*down*/,
-                      int x, int y, int w, int h,
-                      const QColorGroup &g, bool enabled, const QBrush *fill )
-{
-    QPointArray a;                              // arrow polygon
-    switch ( type ) {
-    case UpArrow:
-        a.setPoints( 3, 0,-5, -5,4, 4,4 );
-        break;
-    case DownArrow:
-        a.setPoints( 3, 0,4, -4,-4, 4,-4 );
-        break;
-    case LeftArrow:
-        a.setPoints( 3, -4,0, 4,-5, 4,4 );
-        break;
-    case RightArrow:
-        a.setPoints( 3, 4,0, -4,-5, -4,4 );
-        break;
-    }
-
-    if ( a.isNull() )
-        return;
-
-    QPen savePen = p->pen();                    // save current pen
-    if ( fill )
-        p->fillRect( x, y, w, h, *fill );
-    p->setPen( NoPen );
-    if ( enabled ) {
-        a.translate( x+w/2, y+h/2 );
-        p->setBrush( enabled ? g.dark() : g.light() );
-        p->drawPolygon( a );                    // draw arrow
-    }
-
-    p->setPen( savePen );                       // restore pen
-}
-
-/*! \reimp
-*/
-QSize
-QSGIStyle::indicatorSize() const
-{
-    return QSize(20,20);
-}
-
-/*!
-    Draws an interface element showing the state of choice
-    used by a check box.
-
-  \sa drawCheckMark()
-*/
-void
-QSGIStyle::drawIndicator( QPainter* p, int x, int y, int w, int h,
-                          const QColorGroup &g, int s, bool down, bool enabled )
+static void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
+			  const QColorGroup &g, bool sunken,
+			  int /*lineWidth*/, int /*midLineWidth*/ )
 {
     QPen oldPen = p->pen();
 
-    p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
-
-    drawBevelButton( p, x+1, y+3, w-7, h-7, g,
-            enabled && down, &g.brush( QColorGroup::Button) );
-
-    if (s != QButton::Off)
-            drawCheckMark( p, x+w-18, y+h-14, w, h, g, s==QButton::On, !enabled );
+    p->setPen( g.midlight() );
+    p->drawLine( x1, y1, x2, y2 );
+    if (sunken) {
+	p->setPen( g.shadow() );
+	if ( y2-y1 < x2-x1 )
+	    p->drawLine( x1, y1+1, x2, y2+1 );
+	else
+	    p->drawLine( x1+1, y1, x2+1, y2 );
+    }
 
     p->setPen( oldPen );
 }
 
-/*!
-    Draws a fancy red check mark indicating the state of choice
-    in check boxes or checkable menu items.
-*/
-void
-QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
-                          const QColorGroup &g, bool act, bool dis )
+static void drawArrow( QPainter *p, int type, bool /*down*/,
+		      int x, int y, int w, int h,
+		      const QColorGroup &g, bool enabled, const QBrush *fill )
+{
+    QPointArray a;				// arrow polygon
+    switch ( type ) {
+    case 0:
+	a.setPoints( 3, 0,-5, -5,4, 4,4 );
+	break;
+    case 1:
+	a.setPoints( 3, 0,4, -4,-4, 4,-4 );
+	break;
+    case 2:
+	a.setPoints( 3, -4,0, 4,-5, 4,4 );
+	break;
+    case 3:
+	a.setPoints( 3, 4,0, -4,-5, -4,4 );
+	break;
+    }
+
+    if ( a.isNull() )
+	return;
+
+    QPen savePen = p->pen();			// save current pen
+    if ( fill )
+	p->fillRect( x, y, w, h, *fill );
+    p->setPen( Qt::NoPen );
+    if ( enabled ) {
+	a.translate( x+w/2, y+h/2 );
+	p->setBrush( enabled ? g.dark() : g.light() );
+	p->drawPolygon( a );			// draw arrow
+    }
+
+    p->setPen( savePen );			// restore pen
+}
+
+static void drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
+			  const QColorGroup &g, bool act, bool dis )
 {
     static QCOORD check_mark[] = {
-        14,0,  10,0,  11,1,  8,1,  9,2,  7,2,  8,3,  6,3,
-        7,4,  1,4,  6,5,  1,5,  6,6,  3,6,  5,7,  4,7,
-        5,8,  5,8,  4,3,  2,3,  3,2,  3,2 };
+	14,0,  10,0,  11,1,  8,1,  9,2,	 7,2,  8,3,  6,3,
+	7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
+	5,8,  5,8,  4,3,  2,3,	3,2,  3,2 };
 
     QPen oldPen = p->pen();
 
@@ -489,44 +561,54 @@ QSGIStyle::drawCheckMark( QPainter* p, int x, int y, int /*w*/, int /*h*/,
     amark.translate( x+1, y+1 );
 
     if (act) {
-        p->setPen( dis ? g.dark() : g.shadow() );
-        p->drawLineSegments( amark );
-        amark.translate( -1, -1 );
-        p->setPen( dis ? g.dark() : QColor(255,0,0) );
-        p->drawLineSegments( amark );
-        p->setPen( oldPen );
+	p->setPen( dis ? g.dark() : g.shadow() );
+	p->drawLineSegments( amark );
+	amark.translate( -1, -1 );
+	p->setPen( dis ? g.dark() : QColor(255,0,0) );
+	p->drawLineSegments( amark );
+	p->setPen( oldPen );
     } else
     {
-        p->setPen( dis ? g.dark() : g.mid() );
-        p->drawLineSegments( amark );
-        amark.translate( -1, -1 );
-        p->setPen( dis ? g.dark() : QColor(230,120,120) );
-        p->drawLineSegments( amark );
-        p->setPen( oldPen );
+	p->setPen( dis ? g.dark() : g.mid() );
+	p->drawLineSegments( amark );
+	amark.translate( -1, -1 );
+	p->setPen( dis ? g.dark() : QColor(230,120,120) );
+	p->drawLineSegments( amark );
+	p->setPen( oldPen );
     }
 }
 
-/*!
-    Draws a mask for an indicator in state /e s.
+static void drawIndicator( QPainter* p, int x, int y, int w, int h,
+			  const QColorGroup &g, int flags, bool down, bool enabled )
+{
+    QPen oldPen = p->pen();
 
-  \sa drawIndicator()
-*/
-void
-QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
+    p->fillRect( x, y, w, h, g.brush( QColorGroup::Background ) );
+
+    drawBevelButton( p, x+1, y+3, w-7, h-7, g,
+            enabled && down, &g.brush( QColorGroup::Button) );
+
+    if ( !(flags & QStyle::Style_Off) )
+	    drawCheckMark( p, x+w-18, y+h-14, w, h, g, flags & QButton::On, !enabled );
+
+    p->setPen( oldPen );
+}
+
+static void drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int flags )
 {
     QPen oldPen = p->pen();
     QBrush oldBrush = p->brush();
 
-    p->setPen( color1 );
-    p->setBrush( color1 );
-    p->fillRect( x, y, w, h, QBrush(color0) );
-    p->fillRect( x+2, y+3, w-7, h-7, QBrush(color1) );
+    p->setPen( Qt::color1 );
+    p->setBrush( Qt::color1 );
+    p->fillRect( x, y, w, h, QBrush( Qt::color0 ) );
+    p->fillRect( x+2, y+3, w-7, h-7, QBrush( Qt::color1 ) );
 
-    if (s != QButton::Off ) {
+    if ( !(flags & QStyle::Style_Off) ) {
         static QCOORD check_mark[] = {
-                14,0,  10,0,  11,1,  8,1,  9,2,  7,2,  8,3,  6,3,
-                7,4,  1,4,  6,5,  1,5,  6,6,  3,6,  5,7,  4,7,
-                5,8,  5,8,  4,3,  2,3,  3,2,  3,2 };
+	        14,0,  10,0,  11,1,  8,1,  9,2,	 7,2,  8,3,  6,3,
+	        7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
+	        5,8,  5,8,  4,3,  2,3,	3,2,  3,2 };
 
         QPointArray amark;
         amark = QPointArray( sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark );
@@ -540,21 +622,9 @@ QSGIStyle::drawIndicatorMask( QPainter* p, int x, int y, int w, int h, int s )
     p->setPen( oldPen );
 }
 
-/*! \reimp
-*/
-QSize
-QSGIStyle::exclusiveIndicatorSize() const
-{
-    return QSize(12,12);
-}
-
-/*!
-    Draws an interface element used to show the state
-    of an exclusive choice as used in a radio button.
-*/
-void QSGIStyle::drawExclusiveIndicator( QPainter* p,
-                                        int x, int y, int w, int h, const QColorGroup &g,
-                                        bool on, bool down, bool enabled )
+static void drawExclusiveIndicator( QPainter* p,
+				    int x, int y, int w, int h, const QColorGroup &g,
+				    bool on, bool down, bool enabled )
 {
     p->save();
     p->eraseRect( x, y, w, h );
@@ -578,34 +648,29 @@ void QSGIStyle::drawExclusiveIndicator( QPainter* p,
     p->drawLine( 2,5, 5,2 );
 
     if (on) {
-        p->setPen( enabled ? blue : darkGray );
-        p->setBrush( enabled ? blue : darkGray  );
-        a.setPoints(3, 6,2, 8,4, 6,6 );
-        p->drawPolygon( a );
-        p->setBrush( NoBrush );
+	p->setPen( enabled ? Qt::blue : Qt::darkGray );
+	p->setBrush( enabled ? Qt::blue : Qt::darkGray  );
+	a.setPoints(3, 6,2, 8,4, 6,6 );
+	p->drawPolygon( a );
+	p->setBrush( Qt::NoBrush );
 
-        p->setPen( g.shadow() );
-        p->drawLine( 7,7, 9,5 );
+	p->setPen( g.shadow() );
+	p->drawLine( 7,7, 9,5 );
     } else {
-        p->drawLine( 6,2, 9,5 );
+	p->drawLine( 6,2, 9,5 );
     }
     p->restore();
 }
 
-
-/*!
-  Draws the mask of a mark indicating the state of an exclusive choice
-*/
-void
-QSGIStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y,
+static void drawExclusiveIndicatorMask( QPainter *p, int x, int y,
                 int /* w*/, int /*h*/, bool /*on*/ )
 {
     p->save();
     QPen oldPen = p->pen();
     QBrush oldBrush = p->brush();
 
-    p->setPen( color1 );
-    p->setBrush( color1 );
+    p->setPen( Qt::color1 );
+    p->setBrush( Qt::color1 );
     QPointArray a;
     a.setPoints( 8, 0,5, 5,0, 6,0, 11,5, 11,6, 6,11, 5,11, 0,6 );
     a.translate( x, y );
@@ -630,7 +695,6 @@ static int get_combo_extra_width( int h, int *return_awh=0 )
         *return_awh = awh;
     return awh*3/2;
 }
-
 
 static void get_combo_parameters( const QRect &r,
                                   int &ew, int &awh, int &ax,
@@ -659,15 +723,220 @@ static void get_combo_parameters( const QRect &r,
     ax  += (ew-awh)/2;
 }
 
+/*! \reimp */
+void QSGIStyle::drawPrimitive( PrimitiveElement pe,
+		    QPainter *p,
+		    const QRect &r,
+		    const QColorGroup &cg,
+		    SFlags flags,
+		    void **data ) const
+{
+    const int x = r.x();
+    const int y = r.y();
+    const int w = r.width();
+    const int h = r.height();
+    const bool sunken = flags & ( Style_Sunken | Style_Down | Style_On );
+    const int defaultFrameWidth = pixelMetric( PM_DefaultFrameWidth );
+
+    switch ( pe ) {
+    case PE_ButtonCommand:
+	drawButton( p, x, y, w, h, cg, sunken, (sunken ? &cg.brush( QColorGroup::Mid ) :
+							 &cg.brush( QColorGroup::Button ) ));
+	break;
+
+    case PE_ButtonBevel:
+	drawBevelButton( p, x, y, w, h, cg, sunken, 0 );
+	break;
+
+    case PE_ArrowUp:
+	drawArrow( p, 0, flags & Style_Down, x, y, w, h, cg, flags & Style_Enabled, 0 );
+	break;
+
+    case PE_ArrowDown:
+	drawArrow( p, 1, flags & Style_Down, x, y, w, h, cg, flags & Style_Enabled, 0 );
+	break;
+
+    case PE_ArrowLeft:
+	drawArrow( p, 2, flags & Style_Down, x, y, w, h, cg, flags & Style_Enabled, 0 );
+	break;
+
+    case PE_ArrowRight:
+	drawArrow( p, 3, flags & Style_Down, x, y, w, h, cg, flags & Style_Enabled, 0 );
+	break;
+
+    case PE_Indicator:
+	drawIndicator( p, x, y, w, h, cg, flags, FALSE, TRUE );
+	break;
+
+    case PE_IndicatorMask:
+	drawIndicatorMask( p, x, y, w, h, flags );
+	break;
+
+    case PE_ExclusiveIndicator:
+	drawExclusiveIndicator( p, x, y, w, h, cg, flags & Style_On, flags & Style_Down | flags & Style_Sunken, flags & Style_Enabled );
+	break;
+
+    case PE_ExclusiveIndicatorMask:
+	drawExclusiveIndicatorMask( p, x, y, w, h, flags & Style_On );
+	break;
+
+    case PE_Panel:
+    case PE_PanelPopup:
+	{
+	    const int lineWidth = data ? *(int*)data[0] : defaultFrameWidth;
+	    drawPanel( p, x, y, w, h, cg, flags & (Style_Sunken | Style_Down | Style_On), lineWidth, 0 );
+	    if ( lineWidth <= 1 )
+		return;
+
+	    // draw extra shadinglines
+	    QPen oldPen = p->pen();
+	    p->setPen( cg.midlight() );
+	    p->drawLine( x+1, y+h-3, x+1, y+1 );
+	    p->drawLine( x+1, y+1, x+w-3, y+1 );
+	    p->setPen( cg.mid() );
+	    p->drawLine( x+1, y+h-2, x+w-2, y+h-2 );
+	    p->drawLine( x+w-2, y+h-2, x+w-2, y+1 );
+	    p->setPen(oldPen);
+	}
+	break;
+
+    default:
+	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, data );
+	break;
+    }
+}
+
+/*! \reimp */
+void QSGIStyle::drawControl( ControlElement element,
+		  QPainter *p,
+		  const QWidget *widget,
+		  const QRect &r,
+		  const QColorGroup &cg,
+		  SFlags how,
+		  void **data ) const
+{
+    switch ( element ) {
+    case CE_PushButton:
+	drawPushButton( (QPushButton*)widget, p );
+	break;
+    default:
+	QMotifStyle::drawControl( element, p, widget, r, cg, how, data );
+	break;
+    }    
+}
+
+/*! \reimp */
+void QSGIStyle::drawComplexControl( ComplexControl control,
+			 QPainter *p,
+			 const QWidget* widget,
+			 const QRect& r,
+			 const QColorGroup& cg,
+			 SFlags how,
+			 SCFlags sub,
+			 SCFlags subActive,
+			 void **data ) const
+{
+    switch ( control ) {
+    case CC_ComboBox:
+	if ( sub & SC_ComboBoxArrow ) {
+	    int awh, ax, ay, sh, sy, dh, ew;
+	    get_combo_parameters( widget->rect(), ew, awh, ax, ay, sh, dh, sy );
+
+//	    drawBevelButton( p, x, y, w, h, g, FALSE, &fill );
+
+	    QBrush arrow = cg.brush( QColorGroup::Dark );
+	    drawPrimitive( PE_ArrowDown, p, QRect( ax, ay, awh, awh ), cg, how, data );
+
+	    p->fillRect( ax, sy, awh, sh, arrow );
+	}
+	if ( sub & SC_ComboBoxEditField ) {
+	}
+	break;
+
+    default:
+	QMotifStyle::drawComplexControl( control, p, widget, r, cg, how, sub, subActive, data );
+	break;
+    }
+}
+
+/*! \reimp */
+QRect QSGIStyle::subRect( SubRect r, const QWidget *widget ) const
+{
+    QRect rect;
+
+    switch ( r ) {
+    case SR_ComboBoxFocusRect:
+	{
+	    int awh, ax, ay, sh, sy, dh, ew;
+	    int fw = pixelMetric( PM_DefaultFrameWidth, widget );
+	    QRect tr = widget->rect();
+
+	    tr.addCoords( fw, fw, -fw, -fw );
+	    get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
+	    rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
+	}
+	break;
+    default:
+	return QMotifStyle::subRect( r, widget );
+    }
+    
+    return rect;
+}
+
+/*! \reimp */
+QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
+					   const QWidget *widget,
+					   SubControl sub,
+					   void **data ) const
+{
+    QRect rect;
+
+    switch ( control ) {
+    case CC_ComboBox:
+	switch ( sub ) {
+	case SC_ComboBoxArrow:
+	    {
+		int ew, awh, sh, dh, ax, ay, sy;
+		int fw = pixelMetric( PM_DefaultFrameWidth, widget );
+		QRect cr = widget->rect();
+		cr.addCoords( fw, fw, -fw, -fw );
+		get_combo_parameters( cr, ew, awh, ax, ay, sh, dh, sy );
+		rect.setRect( ax, ay, awh, awh );
+	    }
+	    break;
+
+	case SC_ComboBoxEditField:
+	    {
+		int fw = pixelMetric( PM_DefaultFrameWidth, widget );
+		rect = widget->rect();
+		rect.addCoords( fw, fw, -fw, -fw );
+		int ew = get_combo_extra_width( rect.height() );
+
+ 		rect.addCoords( 1, 1, -1-ew, -1 );
+	    }
+	    break;
+
+	default:
+	    break;
+	}
+	break;
+
+    default:
+	return QMotifStyle::querySubControlMetrics( control, widget, sub, data );
+    }
+
+    return rect;
+}
+
 /*!
     Draws a raised shape used as a combobox.
- */
+ *
 void
 QSGIStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
                             const QColorGroup &g,
-                            bool /*sunken*/,
+                            bool sunken,
                             bool editable,
-                            bool /*enabled*/,
+                            bool enabled,
                             const QBrush *fb )
 {
     QBrush fill = fb ? *fb : g.brush( QColorGroup::Button );
@@ -689,27 +958,6 @@ QSGIStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     }
 }
 
-/*! \reimp
- */
-QRect QSGIStyle::comboButtonRect( int x, int y, int w, int h) const
-{
-    QRect r = buttonRect( x, y, w, h );
-    int ew = get_combo_extra_width( r.height() );
-    if( QApplication::reverseLayout() )
-        r.moveBy( ew + 3, 0 );
-     return QRect(r.x()+1, r.y()+1, r.width()-6-ew, r.height()-2);
-}
-
-/*! \reimp
- */
-QRect
-QSGIStyle::comboButtonFocusRect( int x, int y, int w, int h) const
-{
-    int awh, ax, ay, sh, sy, dh, ew;
-    get_combo_parameters( buttonRect( x, y, w, h ),
-                          ew, awh, ax, ay, sh, dh, sy );
-    return QRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
-}
 
 #define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
 #define VERTICAL        !HORIZONTAL
@@ -719,7 +967,7 @@ QSGIStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 #define SUB_LINE_ACTIVE ( activeControl == SubLine )
 
 /*!\reimp
- */
+ *
 void QSGIStyle::scrollBarMetrics( const QScrollBar* sb,
                                   int &sliderMin, int &sliderMax,
                                   int &sliderLength, int&buttonDim ) const
@@ -756,7 +1004,7 @@ static bool scrollerMoving = FALSE;
 
 /*!
     Draws scroll bar controls in SGI-like style.
-*/
+*
 void
 QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
                                   int sliderStart, uint controls, uint activeControl )
@@ -940,10 +1188,10 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 
 /*!
     Draws the sliding element of a slider-widget.
-*/
+*
 void
 QSGIStyle::drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGroup& g,
-                 Orientation orient, bool /*tickAbove*/, bool /*tickBelow*/ )
+                 Orientation orient, bool tickAbove, bool tickBelow )
 {
     QRect sliderR( x, y, w-1, h-1 );
     if ( sliderMoving ) {
@@ -984,7 +1232,7 @@ QSGIStyle::drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGrou
 
 /*!
     Draws the groove of a slider-widget.
-*/
+*
 void
 QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
                  const QColorGroup& g, QCOORD, Orientation )
@@ -1004,25 +1252,8 @@ QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
     p->setClipping( FALSE );
 }
 
-
 /*! \reimp
-*/
-void
-QSGIStyle::drawTab( QPainter *p, const QTabBar *tb, QTab* t, bool selected )
-{
-    QMotifStyle::drawTab( p, tb, t, selected );
-}
-
-/*! \reimp
-*/
-int
-QSGIStyle::splitterWidth() const
-{
-    return QMAX( 10, QApplication::globalStrut().width() );
-}
-
-/*! \reimp
-*/
+*
 void
 QSGIStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
                                const QColorGroup& g, Orientation orient )
@@ -1052,8 +1283,8 @@ QSGIStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
 }
 
 /*! \reimp
-*/
-int QSGIStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi,
+*
+int QSGIStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi,
                                     const QFontMetrics& fm ) const
 {
     int h = 0;
@@ -1078,7 +1309,7 @@ int QSGIStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi,
 }
 
 /*! \reimp
-*/
+*
 void
 QSGIStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
                                const QColorGroup &g, int lineWidth,
@@ -1117,7 +1348,7 @@ static void drawSGIPrefix( QPainter *p, int x, int y, QString* miText )
 }
 
 /*! \reimp
-*/
+*
 void QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
                                    int tab, QMenuItem* mi, const QPalette& pal,
                                    bool act, bool enabled,
@@ -1250,7 +1481,7 @@ void QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 
 /*!
     \reimp
-*/
+*
 void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                                  QMenuItem* mi, QColorGroup& g,
                                  bool active, bool, bool )
@@ -1279,85 +1510,6 @@ void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
         delete text;
     }
 }
-
-/*!
-    Reimplemented to enable the SGI-like effect of "glowing" widgets.
 */
-bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
-{
-    switch ( e->type() ) {
-    case QEvent::MouseButtonPress:
-        {
-            if ( o->inherits("QSlider") ) {
-                sliderLastPosition.pos = QRect( 0, -1, 0, -1 );
-                sliderLastPosition.slider = (QWidget*)o;
-                sliderMoving = TRUE;
-            }
-        }
-        break;
-    case QEvent::MouseButtonRelease:
-        {
-            if ( o->inherits("QSlider") )
-            {
-                sliderLastPosition.pos = QRect( 0, -1, 0, -1 );
-                sliderLastPosition.slider = 0;
-                sliderMoving = FALSE;
-                ((QWidget*) o)->repaint( FALSE );
-            }
-        }
-        break;
-    case QEvent::MouseMove:
-        {
-            QMouseEvent* me = (QMouseEvent*) e;
-            mousePos = me->pos();
-            if ( o->inherits("QScrollBar") || o->inherits("QSlider") ) {
-                repaintByMouseMove = me->button() == NoButton;
-                ((QWidget*) o)->repaint( FALSE );
-                repaintByMouseMove = FALSE;
-            }
-        }
-        break;
-    case QEvent::Enter:
-        {
-            if (o->inherits("QButton")) {
-                QWidget* w = (QWidget*) o;
-                if (w->isEnabled()) {
-                    QPalette pal = w->palette();
-                    lastWidget = w;
-                    if ( lastWidget->ownPalette() )
-                        lastWidgetPalette = new QPalette( lastWidget->palette() );
-                    pal.setColor( QPalette::Active, QColorGroup::Button, pal.active().midlight() );
-                    lastWidget->setPalette( pal );
-                }
-            } else if ( o->isWidgetType() ) {               // must be either slider or scrollbar
-                deviceUnderMouse = (QPaintDevice*)(QWidget*)o;
-                ((QWidget*) o)->repaint( FALSE );
-            }
-        }
-        break;
-    case QEvent::Leave:
-        {
-            if ((QPaintDevice*)(QWidget*)o == deviceUnderMouse) {
-                deviceUnderMouse = 0;
-                ((QWidget*) o)->repaint( FALSE );
-            }
-
-            if ( lastWidget && o == lastWidget &&
-                lastWidget->testWState( WState_Created )) {
-                if ( lastWidgetPalette ) {
-                    lastWidget->setPalette( *lastWidgetPalette );
-                    delete lastWidgetPalette;
-                    lastWidgetPalette = 0;
-                } else {
-                    lastWidget->unsetPalette();
-                }
-            }
-        }
-        break;
-    default:
-        break;
-    }
-    return QMotifStyle::eventFilter( o, e );
-}
 
 #endif // QT_NO_STYLE_SGI

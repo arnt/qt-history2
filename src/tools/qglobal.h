@@ -41,7 +41,6 @@
 
 // ### for beta2, hopefully done before next beta
 // ##############
-#define QT_NO_STYLE_SGI
 #define QT_NO_STYLE_COMPACT
 // ###################
 
