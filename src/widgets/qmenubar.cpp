@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#70 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#70 $");
 
 
 /*!
@@ -35,6 +35,34 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#69 $");
   <img src=qmenubar-m.gif> <img src=qmenubar-w.gif>
 
   \sa QPopupMenu
+*/
+
+/*!
+  \fn void QMenuBar::activated( int id )
+
+  This signal is emitted when a menu item is selected; \a id is the id
+  of the selected item.
+
+  Normally, you will connect each menu item to a single slot using
+  QMenuData::insertItem(), but sometimes you will want to connect
+  several items to a single slot (most often if the user selects from
+  an array).  This signal is handy in such cases.
+
+  \sa highlighted(), QMenuData::insertItem()
+*/
+
+/*!
+  \fn void QMenuBar::highlighted( int id )
+
+  This signal is emitted when a menu item is highlighted; \a id is the
+  id of the highlighted item.
+
+  Normally, you will connect each menu item to a single slot using
+  QMenuData::insertItem(), but sometimes you will want to connect
+  several items to a single slot (most often if the user selects from
+  an array).  This signal is handy in such cases.
+
+  \sa activated(), QMenuData::insertItem()
 */
 
 

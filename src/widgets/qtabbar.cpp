@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#16 $
 **
 ** Implementation of QTabBar class
 **
@@ -10,7 +10,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#16 $");
 
 
 QTab::~QTab()
@@ -43,6 +43,16 @@ struct QTabPrivate {
   decides which, if any, tab the user selects with the mouse. </ul>
 
   <img src=qtabbar-m.gif> <img src=qtabbar-w.gif>
+*/
+
+/*! \fn void QTabBar::selected( int id )
+
+  QTabBar emits this signal whenever any tab is selected, whether by
+  the program or the user.  The argument \a id is the ID if the tab
+  as returned by addTab().
+
+  show() is guaranteed to emit this signal, so that you can display
+  your page in a slot connected to this signal.
 */
 
 /*!
@@ -473,8 +483,13 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	if ( d->focus >= d->id )
 	    d->focus = old;
 	e->accept();
-    } else if ( e->key() == Key_Space ) {
-	// space - select
+    } else {
+	// other keys - ignore
+	e->ignore();
+    }
+
+    // if the focus moved, repaint and signal
+    if ( old != d->focus ) {
 	QTab * t = l->last();
 	QRect r( 0,0, -1, -1 );
 	if ( t )
@@ -489,22 +504,6 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 		repaint( r );
 	    emit selected( t->id );
 	}
-    } else {
-	// other keys - ignore
-	e->ignore();
-    }
-
-    // if the focus moved, repaint a bit
-    if ( old != d->focus ) {
-	QRect r( 0,0, -1,-1 );
-	QTab * t = l->first();
-	while ( t ) {
-	    if ( t->id == d->focus || t->id == old )
-		r = r.unite( t->r );
-	    t = l->next();
-	}
-	if ( r.isValid() )
-	    repaint( r );
     }
 }
 

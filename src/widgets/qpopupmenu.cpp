@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#96 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#96 $");
 
 
 // Motif style parameters
@@ -436,23 +436,42 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 
 /*!
   \fn void QPopupMenu::activated( int id )
-  This signal is emitted when the a menu item is selected.
-  This method of receiving notification of
-  menu items selection offers an alternative to passing
-  a slot to one of the QMenuData::insertItem() methods of this class.
+
+  This signal is emitted when a menu item is selected; \a id is the id
+  of the selected item.
+
+  Normally, you will connect each menu item to a single slot using
+  QMenuData::insertItem(), but sometimes you will want to connect
+  several items to a single slot (most often if the user selects from
+  an array).  This signal is handy in such cases.
 
   \sa highlighted(), QMenuData::insertItem()
 */
 
 /*!
   \fn void QPopupMenu::highlighted( int id )
-  This signal is emitted when the a menu item is highlighted.
-  This method of receiving notification of
-  menu items selection offers an alternative to passing
-  a slot to one of the QMenuData::insertItem() methods of this class.
+
+  This signal is emitted when a menu item is highlighted; \a id is the
+  id of the highlighted item.
+
+  Normally, you will connect each menu item to a single slot using
+  QMenuData::insertItem(), but sometimes you will want to connect
+  several items to a single slot (most often if the user selects from
+  an array).  This signal is handy in such cases.
 
   \sa activated(), QMenuData::insertItem()
 */
+
+/*! \fn void QPopupMenu::highlightedRedirect( int id )
+
+  Used internally to connect submenus to their parents.
+*/
+
+/*! \fn void QPopupMenu::activatedRedirect( int id )
+
+  Used internally to connect submenus to their parents.
+*/
+
 
 void QPopupMenu::subActivated( int id )
 {
