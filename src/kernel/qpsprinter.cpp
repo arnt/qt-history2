@@ -3986,69 +3986,70 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFontEngine *f, QByteArray& d)
 void QPSPrinterFontPFB::download(QTextStream& s, bool global)
 {
     //qDebug("downloading pfb font %s", psname.latin1() );
-  const BYTE* p = (const BYTE *)data.constData();
-  int pos;
-  int len;
-  int typ;
+    const unsigned char* p = (const BYTE *)data.constData();
+    int pos;
+    int len;
+    int typ;
 
-  int hexcol = 0;
-  int line_length = 64;
+    int hexcol = 0;
+    int line_length = 64;
 
-  emitPSFontNameList( s, psname, replacementList );
-  s << "% Font resource\n";
+    emitPSFontNameList( s, psname, replacementList );
+    s << "% Font resource\n";
 
-  pos = 0;
-  typ = -1;
-  while (typ != 3) { // not end of file
-    if (p[ pos ] != 0x80) // PFB marker
-      return; // pfb file does not start with 0x80
-    pos++;
-    typ = p[ pos ]; // 1=ascii 2=binary 3=done
-    pos++;
+    pos = 0;
+    typ = -1;
+    while (typ != 3) { // not end of file
+	if (p[ pos ] != 0x80) // PFB marker
+	    return; // pfb file does not start with 0x80
+	pos++;
+	typ = p[ pos ]; // 1=ascii 2=binary 3=done
+	pos++;
 
-    if (typ == 3) break;
+	if (typ == 3) break;
 
-    len = p[ pos ];         pos++;
-    len |= (p[ pos ] << 8) ; pos++;
-    len |= (p[ pos ] << 16); pos++;
-    len |= (p[ pos ] << 24); pos++;
+	len = p[ pos ];         pos++;
+	len |= (p[ pos ] << 8) ; pos++;
+	len |= (p[ pos ] << 16); pos++;
+	len |= (p[ pos ] << 24); pos++;
 
-    //printf("font block type %d len %d\n",typ,len);
+	//qDebug("font block type %d len %d",typ,len);
 
-    if (typ==1) {
-      for (int j=0; j<len; j++) {
-        if (hexcol) { s << "\n"; hexcol = 0; }
-        //qWarning(QString::fromLatin1((char*)(p+pos),1));
-        if (p[pos] == '\r' || p[pos] == '\n') {
-          s << "\n";
-        while (p[pos] == '\r' || p[pos] == '\n') pos++;
-        } else {
-        s << QString::fromLatin1((char*)(p+pos),1);
-        pos++;
-        }
-      }
+	int end = pos + len;
+	if (typ==1) {
+	    while (pos < end) {
+		if (hexcol > 0) {
+		    s << "\n";
+		    hexcol = 0;
+		}
+		//qWarning(QString::fromLatin1((char*)(p+pos),1));
+		if (p[pos] == '\r' || p[pos] == '\n') {
+		    s << "\n";
+		    while (pos < end && p[pos] == '\r' || p[pos] == '\n')
+			pos++;
+		} else {
+		    s << QString::fromLatin1((char*)(p+pos),1);
+		    pos++;
+		}
+	    }
+	}
+	if (typ==2) {
+	    static const char *hexchar = "0123456789abcdef";
+	    while (pos < end) {
+		/* trim hexadecimal lines to line_length columns */
+		if (hexcol >= line_length) {
+		    s << "\n";
+		    hexcol = 0;
+		}
+		s << QString::fromLatin1(hexchar+((p[pos] >> 4) & 0xf),1)
+		  << QString::fromLatin1(hexchar+((p[pos]     ) & 0xf),1);
+		pos++;
+		hexcol += 2;
+	    }
+	}
     }
-    if (typ==2) {
-      static const char *hexchar = "0123456789abcdef";
-      for (int j=0; j<len; j++) {
-        /* trim hexadecimal lines to line_length columns */
-        if (hexcol >= line_length) {
-          s << "\n";
-          hexcol = 0;
-        }
-        s << QString::fromLatin1(hexchar+((p[pos] >> 4) & 0xf),1);
-        s << QString::fromLatin1(hexchar+((p[pos]     ) & 0xf),1);
-        pos++;
-        //putc(hexchar[(*p >> 4) & 0xf], ofp);
-        //putc(hexchar[*p & 0xf], ofp);
-        hexcol += 2;
-      }
-
-      //pos += len;
-    }
-  }
-  s << "% End of font resource\n";
-  downloadMapping( s, global );
+    s << "% End of font resource\n";
+    downloadMapping( s, global );
 }
 
 // ================== AFontFileNotFound ============
