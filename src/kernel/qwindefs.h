@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#99 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#100 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -247,8 +247,7 @@ struct QWExtra {
     char    *iconText;				// widget icon text
     QPixmap *icon;				// widget icon
 #if defined(_WS_WIN_)
-    HANDLE   winIconSmall;			// Windows icon (small)
-    HANDLE   winIconBig;			// Windows icon (big)
+    HANDLE   winIcon;				// internal Windows icon
 #endif
     QPixmap *bg_pix;				// background pixmap
     char     bg_mode;				// background mode
