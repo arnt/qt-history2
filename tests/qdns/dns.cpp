@@ -2,7 +2,7 @@
 #include <qapplication.h>
 #include <qdns.h>
 #include <qtimer.h>
-
+#include <qvaluelist.h>
 
 typedef QValueList<QHostAddress> HostAddresses;
 typedef QValueList<QDns::MailServer> MailServer;
