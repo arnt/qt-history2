@@ -1,160 +1,160 @@
 <html>
-<h1>The Q Window System Protocol</h1>
+    <h1>The Q Window System Protocol</h1>
 
-The <tt>qws</tt> server is a very simple window system. The objective is to make
-a very small server, leaving the client libraries to do most of the work. This
-architecture is well-suited to embedded systems as it allows for both small and
-large client-server systems: for example a system that is initially just
-<tt>qws</tt> and a few small clients can later have more clients added using
-possibly more sophisticated client libraries.
-<p>
-The strengths of QWS over other options in the embedded GUI market are:
-<ul>
- <li>The base operating system, Linux, imposes zero cost.
- <li>The memory footprint is low -
+    The <tt>qws</tt> server is a very simple window system. The objective is to make
+    a very small server, leaving the client libraries to do most of the work. This
+    architecture is well-suited to embedded systems as it allows for both small and
+    large client-server systems: for example a system that is initially just
+    <tt>qws</tt> and a few small clients can later have more clients added using
+    possibly more sophisticated client libraries.
+    <p>
+      The strengths of QWS over other options in the embedded GUI market are:
+    <ul>
+      <li>The base operating system, Linux, imposes zero cost.
+      <li>The memory footprint is low -
 	the entire operating system and window system use under 4 MB
 	of ROM and ??? MB of RAM.
- <li>The functionality in Linux and Qt is very rich. Qt has been a key
+      <li>The functionality in Linux and Qt is very rich. Qt has been a key
 	factor in the explosion of end-user applications for Linux.
-</ul>
-<p>
-The protocol used by QWS is documented in the sections below.
+    </ul>
+    <p>
+      The protocol used by QWS is documented in the sections below.
 
-<h2>Client Initialization</h2>
+    <h2>Client Initialization</h2>
 
-When a client first runs, it makes a socket connection to port QWS_PORT (17986)
-of the localhost.
-All communication is on the local machine so no endianness considerations are
-required for the data transfers.  The client first reads a header from the
-socket:
-<dl compact>
-    <dt><tt>int width</tt>
-	<dd>The width of the screen in pixels.
-    <dt><tt>int height</tt>
-	<dd>The height of the screen in pixels.
-    <dt><tt>int depth</tt>
-	<dd>The depth of the screen in bits.
-    <dt><tt>int shmid</tt>
-	<dd>The shared-memory identifier for the memory address of the
-	    frame buffer, or -1 if shared-memory is not used (see next field).
-    <dt><tt>int fbid</tt>
-	<dd>The Linux framebuffer number to use (if shmid is -1),
-	    or -1 if a framebuffer number is not used.
-	    eg. 0 means use <tt>/dev/fb0</tt> as the framebuffer.
-</dl>
+    When a client first runs, it makes a socket connection to port QWS_PORT (17986)
+    of the localhost.
+    All communication is on the local machine so no endianness considerations are
+    required for the data transfers.  The client first reads a header from the
+    socket:
+    <dl compact>
+      <dt><tt>int width</tt>
+      <dd>The width of the screen in pixels.
+      <dt><tt>int height</tt>
+      <dd>The height of the screen in pixels.
+      <dt><tt>int depth</tt>
+      <dd>The depth of the screen in bits.
+      <dt><tt>int shmid</tt>
+      <dd>The shared-memory identifier for the memory address of the
+	frame buffer, or -1 if shared-memory is not used (see next field).
+      <dt><tt>int fbid</tt>
+      <dd>The Linux framebuffer number to use (if shmid is -1),
+	or -1 if a framebuffer number is not used.
+	eg. 0 means use <tt>/dev/fb0</tt> as the framebuffer.
+    </dl>
 
-<h2>Window Regions</h2>
-<p>
-The most important part of any window system is its handling of
-<em>regions</em>. It is <em>regions</em> that are the window the user
-sees.
-<p>
-The diagram below models a typical window system.
-<p>
-<img src=windows.gif>
-<p>
-First notice that there is a well-defined
-order or "depth" for each window - following the labels alphabetically
-from "a" the deepest to "g" the shallowest.
-The window "a" is the
-display screen or "root window".
-The green windows "b", "c", and "g" are sub-windows of the root window and
-are called "top level windows".
-The yellow windows "f" and "d" are child windows of window "c", and "e"
-is a child window of "d".
-Note that window "d" is positioned so that its bottom portion is clipped
-off by its parent window "c".
-<p>
-In QWS,
-top level windows may all be controlled by
-different processes, while
-child windows are always controlled by the same process as the top level
-window containing them.
-<p>
-Each of the coloured shapes is a window, and for each one there are three
-regions of interest.
-<p>
-<img src=regions.gif>
-<p>
-<dl compact>
- <dt><b>requestedRegion</b>
-    <dd>This is the region that is the shape of the window.
-	    Non-rectangular windows such as "d" above
-	    are called "shaped windows". QWS makes no distinction
-	    between rectangular and non-rectangular windows.
- <dt><b>allocatedRegion</b>
-    <dd>This is the requestedRegion intersected with allocatedRegion of
-	    the parent window, minus the requestedRegion of any shallower
-	    sibling windows. It represents the region allocated to a window
-	    and all that windows children.
- <dt><b>paintableRegion</b>
-    <dd>This is the region which the window is responsible for painting.
-	    It is the allocatedRegion minus the requestedRegion of all
-	    immediate child windows.
-</dl>
-Note that these regions are all relative to the root window, not to the
-parent of the window.
+    <h2>Window Regions</h2>
+    <p>
+      The most important part of any window system is its handling of
+      <em>regions</em>. It is <em>regions</em> that are the window the user
+      sees.
+    <p>
+      The diagram below models a typical window system.
+    <p>
+      <img src=windows.gif>
+    <p>
+      First notice that there is a well-defined
+      order or "depth" for each window - following the labels alphabetically
+      from "a" the deepest to "g" the shallowest.
+      The window "a" is the
+      display screen or "root window".
+      The green windows "b", "c", and "g" are sub-windows of the root window and
+      are called "top level windows".
+      The yellow windows "f" and "d" are child windows of window "c", and "e"
+      is a child window of "d".
+      Note that window "d" is positioned so that its bottom portion is clipped
+      off by its parent window "c".
+    <p>
+      In QWS,
+      top level windows may all be controlled by
+      different processes, while
+      child windows are always controlled by the same process as the top level
+      window containing them.
+    <p>
+      Each of the coloured shapes is a window, and for each one there are three
+      regions of interest.
+    <p>
+      <img src=regions.gif>
+    <p>
+    <dl compact>
+      <dt><b>requestedRegion</b>
+      <dd>This is the region that is the shape of the window.
+	Non-rectangular windows such as "d" above
+	are called "shaped windows". QWS makes no distinction
+	between rectangular and non-rectangular windows.
+      <dt><b>allocatedRegion</b>
+      <dd>This is the requestedRegion intersected with allocatedRegion of
+	the parent window, minus the requestedRegion of any shallower
+	sibling windows. It represents the region allocated to a window
+	and all that windows children.
+      <dt><b>paintableRegion</b>
+      <dd>This is the region which the window is responsible for painting.
+	It is the allocatedRegion minus the requestedRegion of all
+	immediate child windows.
+    </dl>
+    Note that these regions are all relative to the root window, not to the
+    parent of the window.
 
-<p>
-In QWS, the server only handles the root and top-level windows, with
-deeper child windows completely handled by the client library. This allows
-operations that do not involve changes to the top-level window regions
-to be faster.
-<p>
-When an application needs to change the region of a child window, it does so
-without interaction with the server. When it needs to change the region of
-a top-level window, it makes a request to the server which then negotiates
-space for the window, possibly by taking space away from windows of other
-applications. This is the <em>window management</em> feature of the server.
+    <p>
+      In QWS, the server only handles the root and top-level windows, with
+      deeper child windows completely handled by the client library. This allows
+      operations that do not involve changes to the top-level window regions
+      to be faster.
+    <p>
+      When an application needs to change the region of a child window, it does so
+      without interaction with the server. When it needs to change the region of
+      a top-level window, it makes a request to the server which then negotiates
+      space for the window, possibly by taking space away from windows of other
+      applications. This is the <em>window management</em> feature of the server.
 
-<h2>Events to Clients</h2>
-<p>
-After initialization, the client then continues with application-specific
-processing, regularly
-draining any events from the socket connection. The client will usually be
-structured as an event loop.
-The possible events are:
-<dl>
-  <dt>QWSMouseEvent
-    <dd>
-    <pre>
+    <h2>Events to Clients</h2>
+    <p>
+      After initialization, the client then continues with application-specific
+      processing, regularly
+      draining any events from the socket connection. The client will usually be
+      structured as an event loop.
+      The possible events are:
+    <dl>
+      <dt>QWSMouseEvent
+      <dd>
+	<pre>
     int type = QWSEvent::Mouse;
     int dummy_windowid;
     int x_root, y_root, state;
     int time;</pre>
-    This event is sent to the client whenever the mouse moves. All clients
-    <font color=red>[this may change]</font>
-    get all mouse events.
-    The position (<i>x_root</i>, <i>y_root</i>)
-    is relative to the top-left corner of the screen. <i>time</i> is a value
-    in milliseconds that indicates when (relative to some undefined epoch) the
-    mouse event occurred, and should be used by the client to calculate such
-    emergent events as double-clicks.
-    </p>
-  <dt>QWSFocusEvent
-    <dd>
-    <pre>
+	This event is sent to the client whenever the mouse moves. All clients
+	<font color=red>[this may change]</font>
+	get all mouse events.
+	The position (<i>x_root</i>, <i>y_root</i>)
+	is relative to the top-left corner of the screen. <i>time</i> is a value
+	in milliseconds that indicates when (relative to some undefined epoch) the
+	mouse event occurred, and should be used by the client to calculate such
+	emergent events as double-clicks.
+      </p>
+      <dt>QWSFocusEvent
+      <dd>
+	<pre>
     int type = QWSEvent::Focus;
     int windowid;
     uchar get_focus; </pre>
-    If <i>get_focus</i> is 1, this indicates that <i>window</i> now has keyboard
-    focus.  If <i>get_focus</i> is 0, this indicates that <i>window</i> no longer
-    has keyboard focus.
-    <font color=red>[we don't currently define when this happens]</font>
-    </p>
-  <dt>QWSKeyEvent
-    <dd>
-    <pre>
+	If <i>get_focus</i> is 1, this indicates that <i>window</i> now has keyboard
+	focus.  If <i>get_focus</i> is 0, this indicates that <i>window</i> no longer
+	has keyboard focus.
+	<font color=red>[we don't currently define when this happens]</font>
+      </p>
+      <dt>QWSKeyEvent
+      <dd>
+	<pre>
     int type = QWSEvent::Key;
     int windowid;
     int unicode;
     int modifiers;
     uint is_press:1;
     uint is_auto_repeat:1; </pre>
-    This event is sent to the client whenever a key is pressed, released, or is
-    auto-repeating after it is pressed.
-    The key event <i>unicode</i> and <i>modifiers</i> values should be
-    interpretted as if generated by the QWS
+	This event is sent to the client whenever a key is pressed, released, or is
+	auto-repeating after it is pressed.
+	The key event <i>unicode</i> and <i>modifiers</i> values should be
+	interpretted as if generated by the QWS
     <a href=#vkb>Virtual Keyboard</a>. If <i>is_press</i> is 1 then the user has
     pressed the key.  If <i>is_press</i> is 0 then the user has released the key.
     If <i>is_auto_repeat</i> is 1 then <i>is_press</i> is 1 and some time has
@@ -203,6 +203,38 @@ The possible events are:
     int objectid;</pre>
     This event is sent to the client at some time after the client sends
     a QWSCreate command.
+    </p>
+  <a name="property_notify_event"></a>
+  <dt>QWSPropertyNotifyEvent
+    <dd>
+    <pre>
+    int type = QWSEvent::PropertyNotify
+    int window
+    int property
+    int state
+    </pre>
+    If a property on any window changed, this event is sent to all clients to inform them, that
+    the property <i>property</i> on the window <i>window</i> changed. <i>State</i> gives information 
+    about the type of change, this can be
+    <ul>
+      <li><i>QWSEvent::PropertyNewValue</i> - The value of the property changed
+      <li><i>QWSEvent::PropertyDeleted</i> - The property has been removed
+    </ul>
+    </p>
+  <a name="property_reply_event"></a>
+  <dt>QWSPropertyReplyEvent
+    <dd>
+    <pre>
+    int type = QWSEvent::PropertyReply
+    int window
+    int property
+    int len
+    char *data
+    </pre>
+    If a client requested the data of the <i>property</i> on the <i>window</i> by sending a
+    <a href="#property_get_command">QWSGetPropertyCommand</a> to the server, the server
+    sends this event to the requesting client. <i>data</i> is the data of the property and contains
+    </i>len</i> bytes.
     </p>
 </dl>
 
@@ -317,12 +349,14 @@ During processing, clients may send the following commands.
     if it doesn't exist already. <i>mode</i> can be one of
     <ul>
       <li><i>QWSProperty::PropReplace</i> - If the <i>property</i> already contains data, the new data is
-      is replaced by the new one 
+      is replaced by the new one
       <li><i>QWSProperty::PropPrepend</i> - If the <i>property</i> already contains data, the new data is
-      is prepended 
+      is prepended
       <li><i>QWSProperty::PropAppend</i> - If the <i>property</i> already contains data, the new data is
-      is appended 
+      is appended
     </ul>
+    As result of this command a <a href="#property_notify_event">QWSPropertyNotifyEvent</a> is sent
+    to all clients.
     </p>
   <dt>QWSRemovePropertyCommand
     <dd>
@@ -333,6 +367,19 @@ During processing, clients may send the following commands.
     } simleData;</pre>
     This command is sent by the client to remove the property identified by <i>property</i>
     from the window with the id <i>windowid</i>.
+    </p>
+  <a name="property_get_command">
+  <dt>QWSGetPropertyCommand
+    <dd>
+    Type: <i>QWSCommand::GetProperty</i>
+    <pre>
+    struct SimpleData {
+        int windowid, property;
+    } simleData;</pre>
+    This command is sent by the client to get the data of the property identified by <i>property</i>
+    from the window with the id <i>windowid</i>.
+    As result of this a <a href="#property_reply_event">QWSPropertyReplyEvent</a> is sent to the client,
+    which requested the data of the property.
     </p>
 </dl>
 
