@@ -69,7 +69,7 @@ showhelp()
     echo
 
     echo "Various:"
-    echo "  -no-id / -do-id      : Toggle whether to generate $Id: //depot/qt/main/util/scripts/mkdists#62 $ tag"
+    echo "  -no-id / -do-id      : Toggle whether to generate \$Id tag"
     echo "  -no-doc / -do-doc    : Toggle whether to generate documentation"
     echo "  -no-gzip / -do-gzip  : Toggle whether to add a gzip package"
 
