@@ -786,7 +786,7 @@ void MessageEditor::updateButtons()
     emit updateActions( overwrite );
 }
 
-void MessageEditor::startFromSource()
+void MessageEditor::beginFromSource()
 {
     mayOverwriteTranslation = TRUE;
     setTranslation( sourceText, TRUE );

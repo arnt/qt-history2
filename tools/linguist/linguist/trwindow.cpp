@@ -533,17 +533,19 @@ TrWindow::TrWindow()
 
     setupMenuBar();
     setupToolBars();
+#if 0
     doneAndNextAccel = new QLabel( QString(" %1: %2 ").arg(tr("Done & Next"))
-						      .arg(tr("Ctrl+N")),
+						      .arg(tr("Ctrl+Enter")),
 				   statusBar(), "done and next accel" );
     statusBar()->addWidget( doneAndNextAccel, 0, FALSE );
-    startFromSourceAccel = new QLabel( QString(" %1: %2 ")
-					       .arg(tr("Start from Source"))
-					       .arg(tr("Ctrl+T")),
-				       statusBar(), "start from source accel" );
-    statusBar()->addWidget( startFromSourceAccel, 0, FALSE );
-    connect( me, SIGNAL(updateActions(bool)), startFromSourceAccel,
+    beginFromSourceAccel = new QLabel( QString(" %1: %2 ")
+					       .arg(tr("Begin from Source"))
+					       .arg(tr("Ctrl+B")),
+				       statusBar(), "begin from source accel" );
+    statusBar()->addWidget( beginFromSourceAccel, 0, FALSE );
+    connect( me, SIGNAL(updateActions(bool)), beginFromSourceAccel,
 	     SLOT(setEnabled(bool)) );
+#endif
 
     progress = new QLabel( statusBar(), "progress" );
     statusBar()->addWidget( progress, 0, TRUE );
@@ -683,7 +685,9 @@ void TrWindow::openFile( const QString& name )
 	    updateCaption();
 	    me->showNothing();
 	    doneAndNextAct->setEnabled( FALSE );
+#if 0
 	    doneAndNextAccel->setEnabled( FALSE );
+#endif
 	    messageIsShown = FALSE;
 	    statusBar()->message(
 		    tr("%1 source phrase(s) loaded.").arg(numMessages),
@@ -1242,14 +1246,18 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 	    statusBar()->clear();
 	doneAndNextAct->setEnabled( m->message().type() !=
 				    MetaTranslatorMessage::Obsolete );
+#if 0
 	doneAndNextAccel->setEnabled( doneAndNextAct->isEnabled() );
+#endif
     } else {
 	if ( item == 0 )
 	    me->showNothing();
 	else
 	    me->showContext( c->fullContext(), c->finished() );
 	doneAndNextAct->setEnabled( FALSE );
+#if 0
 	doneAndNextAccel->setEnabled( FALSE );
+#endif
     }
     
     deleteAct->setEnabled( messageIsShown );
@@ -1782,10 +1790,10 @@ void TrWindow::setupMenuBar()
 
     // Translation menu
     // when updating the accelerators, remember the status bar
-    startFromSourceAct = new Action( translationp, tr("S&tart from Source"),
-				     me, SLOT(startFromSource()),
-				     QAccel::stringToKey(tr("Ctrl+T")) );
-    connect( me, SIGNAL(updateActions(bool)), startFromSourceAct,
+    beginFromSourceAct = new Action( translationp, tr("&Begin from Source"),
+				     me, SLOT(beginFromSource()),
+				     QAccel::stringToKey(tr("Ctrl+B")) );
+    connect( me, SIGNAL(updateActions(bool)), beginFromSourceAct,
 	     SLOT(setEnabled(bool)) );
     prevUnfinishedAct = new Action( translationp, tr("&Prev Unfinished"),
 				    this, SLOT(prevUnfinished()),
@@ -1802,7 +1810,7 @@ void TrWindow::setupMenuBar()
 			  QAccel::stringToKey(tr("Ctrl+Shift+L")) );
     doneAndNextAct = new Action( translationp, tr("Done and &Next"),
 				 this, SLOT(doneAndNext()),
-				 QAccel::stringToKey(tr("Ctrl+N")) );
+				 QAccel::stringToKey(tr("Ctrl+Enter")) );
 
     // Phrasebook menu
     newPhraseBookAct = new Action( phrasep, tr("&New Phrase Book..."),
@@ -1905,7 +1913,7 @@ void TrWindow::setupMenuBar()
 				 " Trolltech.") );
     whatsThisAct->setWhatsThis( tr("Enter What's This? mode.") );
 
-    startFromSourceAct->setWhatsThis( tr("Copies the source text into"
+    beginFromSourceAct->setWhatsThis( tr("Copies the source text into"
 					 " the translation field.") );
     nextAct->setWhatsThis( tr("Moves to the next item.") );
     prevAct->setWhatsThis( tr("Moves to the previous item.") );
@@ -1942,7 +1950,7 @@ void TrWindow::setupToolBars()
     replaceAct->addToToolbar( editt, tr("Replace"), "replace" );
 #endif
 
-    startFromSourceAct->addToToolbar( translationst, tr("Start from Source"),
+    beginFromSourceAct->addToToolbar( translationst, tr("Begin from Source"),
 				      "searchfind" );
     prevAct->addToToolbar( translationst, tr("Prev"), "searchfind" );
     nextAct->addToToolbar( translationst, tr("Next"), "searchfind" );

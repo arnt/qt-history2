@@ -180,7 +180,7 @@ public slots:
     void paste();
     void del();
     void selectAll();
-    void startFromSource();
+    void beginFromSource();
     void toggleGuessing();
     void finishAndNext();
 
