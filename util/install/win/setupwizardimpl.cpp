@@ -542,7 +542,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     } else if( newPage == optionsPage ) {
 	setInstallStep( 2 );
     } else if( newPage == licensePage ) {
-qDebug( "%s", QEnvironment::getEnv( "PATH" ).latin1() );
 	QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe" );
 	QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
 	if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
