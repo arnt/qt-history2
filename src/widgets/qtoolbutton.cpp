@@ -123,11 +123,11 @@ public:
 /*!
     \enum QToolButton::TextPosition
 
-    The position of the tool button's text in relation to the tool
-    button's icon.
+    The position of the tool button's textLabel in relation to the
+    tool button's icon.
 
-    \value Right The text appears to the right of the icon.
-    \value Under The text appears below the icon.
+    \value BesideIcon The text appears beside the icon.
+    \value BelowIcon The text appears below the icon.
 */
 
 

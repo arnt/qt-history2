@@ -71,7 +71,12 @@ class Q_EXPORT QToolButton : public QButton
     Q_OVERRIDE( QPixmap pixmap DESIGNABLE false STORED false )
 
 public:
-    enum TextPosition{ Right, Under };
+    enum TextPosition {
+	BesideIcon,
+	BelowIcon,
+	Right = BesideIcon, // obsolete
+	Under = BelowIcon // obsolete
+    };
     QToolButton( QWidget * parent, const char* name=0 );
 #ifndef QT_NO_TOOLBAR
     QToolButton( const QIconSet& s, const QString &textLabel,
