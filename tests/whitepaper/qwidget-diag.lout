@@ -3,8 +3,9 @@
 # % lout -EPS qwidget-diag.lout > qwidget-diag.eps
 
 @SysInclude { diag }
-@SysInclude { doc }
-@Doc @Text @Begin
+@SysInclude { picture }
+@Illustration 16c @Wide 
+{
 @Diag
     font { Helvetica Base }
 {
@@ -23,4 +24,4 @@
     }
 }
 }
-@End @Text
+}

@@ -3,12 +3,14 @@
 # % lout -EPS qstyle-diag.lout > qstyle-diag.eps
 
 @SysInclude { diag }
-@SysInclude { doc }
-@Doc @Text @Begin
-@Scale @Diag
+@SysInclude { picture }
+@Illustration 24c @Wide 
+{
+@Diag 
     font { Helvetica Base }
 {
-@Tree {
+@Tree 
+{
     @CurveBox QStyle 
     @FirstSub {
 	@CurveBox QCommonStyle
@@ -26,4 +28,4 @@
     }
 }
 }
-@End @Text
+}

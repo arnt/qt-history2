@@ -1,9 +1,10 @@
 @SysInclude { tbl }
-@SysInclude { doc }
-@Doc @Text @Begin
-@Scale @Tbl
+@SysInclude { picture }
+@Illustration 16c @Wide {
+@Tbl
     rule { yes }
     rulecolor { darkgrey }
+    width { expand }
     indent { ctr }
     font { Helvetica Base }
     aformat { @StartHSpan @Cell paint { darkgrey } white @Color A | 
@@ -11,10 +12,8 @@
     bformat { @StartHSpan @Cell paint { grey } A | @HSpan | @HSpan | @HSpan }
     cformat { @Cell paint { lightgrey } A | @Cell paint { lightgrey } B | 
 	      @Cell paint { lightgrey } C | @Cell paint { lightgrey } D }
-    dformat { @StartVSpan @Cell A | @Cell B | @StartVSpan @Cell C | 
-	      @StartVSpan @Cell D }
-    eformat { @VSpan | @Cell B | @VSpan | @VSpan }
-    fformat { @Cell A | @Cell B | @Cell C | @VSpan }
+    dformat { @Cell A | @Cell B | @Cell C | @StartVSpan @Cell D }
+    eformat { @Cell A | @Cell B | @Cell C | @VSpan }
 {
     @Rowa
 	A { Qt Application Source Code }
@@ -29,13 +28,12 @@
 	A { GDI }
 	B { Xlib }
 	C { Carbon }
-	D { @LP @LP Embedded Linux }
+	D { @LP Embedded Linux }
     @Rowe
-	B { X11 }
-    @Rowf
 	A { Windows }
-	B { Unix }
+	B { X11 }
 	C { Mac OS X }
 }
-@End @Text
+}
+
 
