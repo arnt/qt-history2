@@ -114,7 +114,7 @@
     (directly or indirectly) from QObject.
 
     Slots are implemented by the application programmer.
-    Here is a possible implementation of Foo::setValue():
+    Here is a possible implementation of Counter::setValue():
 
     \quotefromfile snippets/signalsandslots/signalsandslots.cpp
     \skipto ::setValue
