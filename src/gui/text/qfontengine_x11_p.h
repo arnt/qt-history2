@@ -177,13 +177,20 @@ private:
     qreal line_thickness;
     qreal underline_position;
     FcPattern *_pattern;
-    int load_flags;
     int xsize;
     int ysize;
     bool antialias;
     bool outline_drawing;
     int subpixel;
-    FT_Matrix matrix; // for subpixel
+
+public:
+    enum GlyphFormat {
+        Format_None,
+        Format_Render = Format_None,
+        Format_Mono,
+        Format_A8,
+        Format_A32
+    };
 
     /* we don't cache glyphs that are too large anyway, so we can make this struct rather small */
     struct Glyph {
@@ -197,9 +204,8 @@ private:
         char format;
         uchar *data;
     };
-    Glyph *loadGlyph(uint glyph) const;
+    Glyph *loadGlyph(uint glyph, GlyphFormat = Format_None) const;
 
-public:
     GlyphSet glyphSet;
 private:
     mutable QOpenType *_openType;

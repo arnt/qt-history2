@@ -108,6 +108,7 @@ protected:
     void drawXLFD(const QPointF &p, const QTextItemInt &si);
 #ifndef QT_NO_FONTCONFIG
     void drawFreetype(const QPointF &p, const QTextItemInt &si);
+    void core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint glyph);
 #endif
 
     friend void qt_cleanup();

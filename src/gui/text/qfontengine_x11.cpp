@@ -566,9 +566,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     line_thickness = underline_position = 1.;
     metrics = freetype->face->size->metrics;
 
-    matrix.xx = matrix.yy = 0x10000;
-    matrix.yx = matrix.xy = 0;
-    load_flags = FT_LOAD_DEFAULT;
+    int load_flags = FT_LOAD_DEFAULT;
     int format = PictStandardA8;
     if (!antialias) {
         load_flags |= FT_LOAD_TARGET_MONO;
@@ -576,11 +574,9 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     } else {
         if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
             load_flags |= FT_LOAD_TARGET_LCD;
-            matrix.xx = 0x30000;
             format = PictStandardARGB32;
         } else if (subpixel == FC_RGBA_VRGB || subpixel == FC_RGBA_VBGR) {
             load_flags |= FT_LOAD_TARGET_LCD_V;
-            matrix.yy = 0x30000;
             format = PictStandardARGB32;
         }
     }
@@ -635,16 +631,44 @@ void QFontEngineFT::unlockFace() const
 #define TRUNC(x)    ((x) >> 6)
 #define ROUND(x)    (((x)+32) & -64)
 
-QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
+QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) const
 {
     Q_ASSERT(freetype->lock == 1);
 
-    FT_Face face = freetype->face;
-    FT_Load_Glyph(face, glyph, load_flags);
-
-    FT_GlyphSlot slot = face->glyph;
     if (outline_drawing)
         return 0;
+
+    bool add_to_glyphset = false;
+    if (format == Format_None) {
+        format = Format_Mono;
+        if (X11->use_xrender) {
+            add_to_glyphset = true;
+            if (subpixel != FC_RGBA_NONE)
+                format = Format_A32;
+            else if (antialias)
+                format = Format_A8;
+        }
+    }
+    Q_ASSERT(format != Format_None);
+    int hfactor = 1;
+    int vfactor = 1;
+    int load_flags = FT_LOAD_DEFAULT;
+    if (format == Format_Mono) {
+        load_flags |= FT_LOAD_TARGET_MONO;
+    } else if (format == Format_A32) {
+        if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
+            load_flags |= FT_LOAD_TARGET_LCD;
+            hfactor = 3;
+        } else if (subpixel == FC_RGBA_VRGB || subpixel == FC_RGBA_VBGR) {
+            load_flags |= FT_LOAD_TARGET_LCD_V;
+            vfactor = 3;
+        }
+
+    }
+
+    FT_Face face = freetype->face;
+    FT_Load_Glyph(face, glyph, load_flags);
+    FT_GlyphSlot slot = face->glyph;
 
     int left  = FLOOR(slot->metrics.horiBearingX);
     int right = CEIL(slot->metrics.horiBearingX + slot->metrics.width);
@@ -659,9 +683,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
     info.xOff = TRUNC(ROUND(slot->advance.x));
     info.yOff = 0;
 
-    int hfactor = matrix.xx >> 16;
-    int vfactor = matrix.yy >> 16;
-    int pitch = antialias ? (info.width * hfactor + 3) & ~3 : ((info.width + 31) & ~31) >> 3;
+    int pitch = format == Format_Mono ? ((info.width + 31) & ~31) >> 3 : (info.width * hfactor + 3) & ~3;
     int size = pitch * info.height * vfactor;
     uchar *buffer = new uchar[size];
     memset (buffer, 0, size);
@@ -672,9 +694,13 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
         bitmap.width = info.width*hfactor;
         bitmap.pitch = pitch;
         bitmap.buffer = buffer;
-        bitmap.pixel_mode = antialias ? ft_pixel_mode_grays : ft_pixel_mode_mono;
+        bitmap.pixel_mode = format == Format_Mono ? ft_pixel_mode_mono : ft_pixel_mode_grays;
+        FT_Matrix matrix;
+        matrix.xx = hfactor << 16;
+        matrix.yy = vfactor << 16;
+        matrix.yx = matrix.xy = 0;
 
-        FT_Outline_Transform(&slot->outline, (FT_Matrix *)&matrix);
+        FT_Outline_Transform(&slot->outline, &matrix);
         FT_Outline_Translate (&slot->outline, -left*hfactor, -bottom*vfactor);
         FT_Outline_Get_Bitmap(library, &slot->outline, &bitmap);
         if (hfactor != 1) {
@@ -725,7 +751,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
         uchar *src = slot->bitmap.buffer;
         uchar *dst = buffer;
         int h = slot->bitmap.rows;
-        if (!antialias) {
+        if (format == Format_Mono) {
             int bytes = ((info.width + 7) & ~7) >> 3;
             while (h--) {
                 memcpy (dst, src, bytes);
@@ -775,8 +801,8 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
     }
 
 #ifndef QT_NO_XRENDER
-    if (X11->use_xrender) {
-        if (!antialias) {
+    if (add_to_glyphset) {
+        if (format == Format_Mono) {
             /*
              * swap bit order around; FreeType is always MSBFirst
              */
@@ -797,11 +823,11 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
 
         ::Glyph xglyph = glyph;
         XRenderAddGlyphs (X11->display, glyphSet, &xglyph, &info, 1, (const char *)buffer, size);
+        delete [] buffer;
+        buffer = 0;
     }
 #endif
-    // ################ fix non render case
 
-    delete [] buffer;
 
     bool large_glyph = (((char)(slot->linearHoriAdvance>>16) != slot->linearHoriAdvance>>16)
                         || ((uchar)(info.width) != info.width)
@@ -823,8 +849,8 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph) const
     g->x = -TRUNC(left);
     g->y = TRUNC(top);
     g->advance = TRUNC(ROUND(slot->advance.x));
-    g->format = 0;
-    g->data = 0;
+    g->format = add_to_glyphset ? Format_None : format;
+    g->data = buffer;
     glyph_data[glyph] = g;
 
     return g;
