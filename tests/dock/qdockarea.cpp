@@ -113,10 +113,10 @@ void QDockAreaHandle::mouseReleaseEvent( QMouseEvent *e )
 	    }
 	}
     }
-    
+
     s->QWidget::layout()->invalidate();
     s->QWidget::layout()->activate();
-    
+
     mousePressed = FALSE;
 }
 
@@ -185,7 +185,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, b
     }
     sections = 1;
     setupLayout();
-    setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Fixed, 
+    setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Fixed,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
 }
 
@@ -254,9 +254,9 @@ void QDockArea::setupLayout()
     }
 
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
-	layouts[ d->section ]->addWidget( d->dockWidget );
 	resizeable[ d->section ] = d->dockWidget->isResizeEnabled();
 	if ( d->dockWidget->isResizeEnabled() ) {
+	    layouts[ d->section ]->addWidget( d->dockWidget );
 	    QWidgetList wl;
 	    wl.append( d->dockWidget );
 	    QWidget *w = new QDockAreaHandle( orientation() == Horizontal ? Vertical : Horizontal, this, wl );
@@ -264,6 +264,8 @@ void QDockArea::setupLayout()
 	    insertedSplitters.append( w );
 	    layouts[ d->section ]->addWidget( w );
 	    wlv[ d->section ]->append( d->dockWidget );
+	} else {
+	    layouts[ d->section ]->addWidget( d->dockWidget, 0, AlignLeft | AlignTop );
 	}
     }
 
