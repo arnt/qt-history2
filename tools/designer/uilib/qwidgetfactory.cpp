@@ -301,11 +301,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     if ( !menubar.isNull() )
 	widgetFactory->loadMenuBar( menubar );
 
+    if ( !connections.isNull() )
+	widgetFactory->loadConnections( connections, connector );
     if ( w && name && qstrlen( name ) > 0 )
 	w->setName( name );
 
-    if ( !connections.isNull() )
-	widgetFactory->loadConnections( connections, connector );
     if ( !tabOrder.isNull() )
 	widgetFactory->loadTabOrder( tabOrder );
 
