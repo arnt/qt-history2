@@ -201,7 +201,6 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 #include "qtoolbar.moc"
 
 
-// NOT REVISED
 /*! \class QToolBar qtoolbar.h
 
   \brief The QToolBar class provides a movable panel containing
@@ -209,48 +208,58 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 
   \ingroup application
 
-  A tool bar is a panel that contains a set of controls, usually
+  A toolbar is a panel that contains a set of controls, usually
   represented by small icons.  It's purpose is to provide quick access
-  to frequently used commands or options. Within a main window, the
-  user can drag tool bars freely around and hide them with a click on
-  the tool bar handle.
+  to frequently used commands or options. Within a QMainWindow the user
+  can drag toolbars within and between the dock areas. Toolbars can also
+  be dragged out of any dock area to float freely as top level windows.
 
-  A QToolBar is a special QDockWindow, and so provides also all
-  functionality of a QDockWindow. For example, within a QMainWindow the
-  user can drag tool bars freely around.
+  QToolBar is a specialization of QDockWindow, and so provides 
+  all the functionality of a QDockWindow.
 
   To use QToolBar you simply create a QToolBar as child of a
-  QMainWindow, create a number of QToolButton widgets (or other
-  widgets) in left to right (or top to bottom) order, call
-  addSeparator() when you want a separator - that's all.
+  QMainWindow, create a number of QToolButton widgets (or other widgets)
+  in left to right (or top to bottom) order and call addSeparator() when
+  you want a separator. When a toolbar is floated the caption used is
+  the label given in the constructor call. This can be changed with
+  setLabel().
 
-  The application/application.cpp example does precisely this.
+  \walkthrough action/application.cpp
+  \skipto new QToolBar
+  \printuntil fileSaveAction
 
-  You may use any kind of widget within a tool bar, with QToolButton
-  and QComboBox being the two most common.
+  This extract from the \l application/application.cpp example shows the
+  creation of a new toolbar as a child of a QMainWindow and adding two
+  QActions.
 
-  As QDockWindows, QToolBars live in QDockAreas. A QMainWindow already
-  contains four QDockAreas, one on each edge. When you create a QToolBar
-  as child of a QMainWindow, QMainWindow locates it in one of the dock
-  areas.
+  You may use any kind of widget within a toolbar, with QToolButton
+  and QComboBox being the most common.
 
-  The main window can be resized to a smaller size than a tool bar would
-  need to show all items. If this happens, QToolbar shows a little arrow
-  button at its right or bottom end. Clicking on on that button pops up a
-  menu that shows the "overflowing" items.
+  QToolBars, like QDockWindows, are located in QDockAreas or float as
+  top level windows. QMainWindow provides four QDockAreas (top, left,
+  right and bottom). When you create a new toolbar (as in the example
+  above) as a child of a QMainWindow the toolbar will be added to the
+  top dock area. You can move it to another dock area (or float it) by
+  calling QMainWindow::moveDockWindow().
 
-  Usually a tool bar gets just the space it needs. However, with
-  setHorizontalStretchable()/setVerticalStretchable() or
-  setStretchableWidget() you can advise the main window to expand
-  the tool bar to fill all available width in the specified orientation.
+  If the main window is resized so that the area occupied by the toolbar
+  is too small to show all its widgets a little arrow button (which
+  looks like a right-pointing chevron) will appear at the right or
+  bottom of the toolbar. Clicking this button pops up a menu that shows
+  the 'overflowing' items.
 
-  The tool bar arranges its buttons either horizontally or vertically (see
+  Usually a toolbar gets just the space it needs. However, with
+  setHorizontalStretchable(), setVerticalStretchable() or
+  setStretchableWidget() you can advise the main window to expand the
+  toolbar to fill all available space in the specified orientation.
+
+  The toolbar arranges its buttons either horizontally or vertically (see
   orientation() for details). Generally, QDockArea will set the
-  orientation correctly for you, and in case anyone needs readjustment,
-  the orientationChanged() signal is emitted every time the orientation
-  changes.
+  orientation correctly for you, but you can set it yourself with
+  setOrientation() and track any changes by connecting to the 
+  orientationChanged() signal.
 
-  You can use the clear() method to remove all items from a tool bar.
+  You can use the clear() method to remove all items from a toolbar.
 
   \sa QToolButton QMainWindow
   <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design</a>
@@ -258,10 +267,12 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 */
 
 
-/*!  Constructs an empty tool bar that is a child of \a parent and
-  managed by \a parent, initially in \a dock, labeled \a and starting
-  a newline in the dock if \a newLine is TRUE. \a name is the object
-  name, as usual.
+/*!  Constructs an empty toolbar.
+
+    The toolbar is a child of \a parent and is managed by \a parent. It
+    is initially located in dock area \a dock and is labeled \a label.
+    If \a newLine is TRUE the toolbar will be placed on a new line in
+    the dock area.
 */
 
 QToolBar::QToolBar( const QString &label,
@@ -277,13 +288,15 @@ QToolBar::QToolBar( const QString &label,
 }
 
 
-/*!  Constructs an empty horizontal tool bar with a parent of \a
-  parent and managed by \a mainWindow.	The \a label and \a newLine
-  are passed straight to QMainWindow::addDockWindow().	\a name is the
-  object name and \a f is the widget flags.
+/*!  Constructs an empty horizontal toolbar.
 
-  This is the constructor to use if you want to create torn-off
-  tool bars or tool bars in the status bar.
+    The toolbar is a child of \a parent and is managed by \a mainWindow.
+    The \a label and \a newLine parameters are passed straight to
+    QMainWindow::addDockWindow(). \a name is the object name and \a f is
+    the widget flags.
+
+  Use this constructor if you want to create torn-off (undocked,
+  floating) toolbars or toolbars in the status bar.
 */
 
 QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
@@ -299,7 +312,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 }
 
 
-/*!  Constructs an empty tool bar in the top dock of its parent,
+/*!  Constructs an empty toolbar in its parent's top dock area,
   without any label and without requiring a newline.
 */
 
@@ -315,7 +328,7 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
 
 /*!
   Common initialization code. Requires that \c mw and \c o are set.
-  Does not call QMainWindow::addDockWindow()
+  Does not call QMainWindow::addDockWindow().
 */
 void QToolBar::init()
 {
@@ -356,11 +369,11 @@ void QToolBar::setOrientation( Orientation o )
     d->extension->setOrientation( o );
 }
 
-/*!  Adds a separator to the end of the tool bar. */
+/*!  Adds a separator to the end of the toolbar. */
 
 void QToolBar::addSeparator()
 {
-    (void) new QToolBarSeparator( orientation(), this, "tool bar separator" );
+    (void) new QToolBarSeparator( orientation(), this, "toolbar separator" );
 }
 
 /*!\reimp
@@ -405,7 +418,7 @@ void QToolBar::hide()
 	mw->triggerLayout( FALSE );
 }
 
-/*!  Returns a pointer to the QMainWindow which controls this tool bar.
+/*!  Returns a pointer to the QMainWindow which manages this toolbar.
 */
 
 QMainWindow * QToolBar::mainWindow()
@@ -414,13 +427,14 @@ QMainWindow * QToolBar::mainWindow()
 }
 
 
-/*! Sets \a w to be expanded if this tool bar is requested to stretch
-  (because QMainWindow right-justifies the dock it's in, or
-  isVerticalStretchable() or isHorizontalStretchable() if this tool bar is
-  TRUE).
+/*! Sets \a w to be expanded if this toolbar is requested to stretch.
 
-  If you call setStretchableWidget() and the tool bar is not yet
-  stretchable, setStretchable( ) is called.
+    The request to stretch might occur because QMainWindow
+    right-justifies the dock it's in, or because this toolbar's
+    isVerticalStretchable() or isHorizontalStretchable() is set to TRUE.
+
+  If you call setStretchableWidget() and the toolbar is not yet
+  stretchable, setStretchable() is called.
 
   \sa QMainWindow::setRightJustification(), setVerticalStretchable(),
   setHorizontalStretchable()
@@ -465,10 +479,9 @@ bool QToolBar::event( QEvent * e )
 }
 
 
-/*!  Sets the label of this tool bar to \a label.
+/*!  Sets the label of this toolbar to \a label.
 
-Whenever a user drags the toolbar and drops it elsewhere on the
-desktop, the tool bar becomes a window on its own with \a label as
+If the toolbar is floated this label becomes the toolbar window's
 caption.
 
 \sa label()
@@ -481,7 +494,7 @@ void QToolBar::setLabel( const QString & label )
 }
 
 
-/*!  Returns the label of this tool bar.
+/*!  Returns the label of this toolbar.
 
   \sa setLabel()
 */
@@ -492,7 +505,7 @@ QString QToolBar::label() const
 }
 
 
-/*! Clears the tool bar, deleting all child widgets. */
+/*! Deletes all the toolbar's child widgets. */
 
 void QToolBar::clear()
 {
