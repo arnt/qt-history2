@@ -3,6 +3,7 @@
 
 #ifndef QT_H
 #include <qstring.h>
+#include <qucom.h>
 #endif // QT_H
 
 #include <memory.h>
@@ -93,7 +94,33 @@ struct Q_EXPORT QUuid
 	return !( *this == guid );
     }
 #endif
+    // Convenience operators to cast from and to the UCOM type UUid.
+    QUuid( const UUid &guid )
+    {
+	memcpy( this, &guid, sizeof(GUID) );
+    }
 
+    QUuid operator=(const UUid &orig )
+    {
+	return QUuid( orig );
+    }
+
+    operator UUid() const
+    {
+	UUid guid = { data1, data2, data3, { data4[0], data4[1], data4[2], data4[3], data4[4], data4[5], data4[6], data4[7] } };
+	return guid;
+    }
+
+    bool operator==( const UUid &guid ) const
+    {
+	return !memcmp( this, &guid, sizeof(QUuid) );
+    }
+
+    bool operator!=( const UUid &guid ) const
+    {
+	return !( *this == guid );
+    }
+    
     uint   data1;
     ushort data2;
     ushort data3;

@@ -52,7 +52,6 @@
 #include "qpointarray.h"
 #include "qcursor.h"
 #include "qdatetime.h"
-#include "ucom.h"
 #include "qucom.h"
 
 // NOT REVISED

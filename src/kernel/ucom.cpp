@@ -1,3 +1,6 @@
+#include <qglobal.h>
+#define UCOM_EXPORT Q_EXPORT
+
 #include "ucom.h"
 #include <string.h>
 
