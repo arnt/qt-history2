@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#131 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#132 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -560,6 +560,16 @@ QString::QString() :
 {
     Q2HELPER(stat_construct_null++);
     d->ref();
+}
+
+/*!
+  Constructs a string containing the one character \a ch.
+*/
+QString::QString( const QChar& ch ) :
+    d(shared_null ? shared_null : shared_null=new Data)
+{
+    d = new Data(new QChar[1],0,1);
+    d->unicode[0] = ch;
 }
 
 /*!

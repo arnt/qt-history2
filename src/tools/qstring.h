@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#73 $
+** $Id: //depot/qt/main/src/tools/qstring.h#74 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -158,29 +158,48 @@ public:
 
     operator char() const { return row?0:cell; }
 
-    bool operator==( const QChar& c )
-    {
-	return c.cell == cell
-	    && c.row == row;
-    }
-    bool operator==( char c )
-    {
-	return c == cell && !row;
-    }
-
-    bool operator!=( const QChar& c )
-    {
-	return c.cell != cell
-	    || c.row != row;
-    }
-    bool operator!=( char c )
-    {
-	return c != cell || row;
-    }
+    friend int operator==( const QChar& c1, const QChar& c2 );
+    friend int operator==( const QChar& c1, char c );
+    friend int operator==( char ch, const QChar& c );
+    friend int operator!=( const QChar& c1, const QChar& c2 );
+    friend int operator!=( const QChar& c, char ch );
+    friend int operator!=( char ch, const QChar& c );
 
     uchar row;
     uchar cell;
 };
+
+inline int operator==( char ch, const QChar& c )
+{
+    return ch == c.cell && !c.row;
+}
+
+inline int operator==( const QChar& c, char ch )
+{
+    return ch == c.cell && !c.row;
+}
+
+inline int operator==( const QChar& c1, const QChar& c2 )
+{
+    return c1.cell == c2.cell
+	&& c1.row == c2.row;
+}
+
+inline int operator!=( const QChar& c1, const QChar& c2 )
+{
+    return c1.cell != c2.cell
+	|| c1.row != c2.row;
+}
+
+inline int operator!=( char ch, const QChar& c )
+{
+    return ch != c.cell || c.row;
+}
+
+inline int operator!=( const QChar& c, char ch )
+{
+    return ch != c.cell || c.row;
+}
 
 
 
@@ -188,6 +207,7 @@ class Q_EXPORT QString
 {
 public:
     QString();					// make null string
+    QString( const QChar& );			// one-char string
     QString( int size );			// allocate size incl. \0
     QString( const QString & );			// impl-shared copy
     QString( const QByteArray& );		// deep copy
