@@ -840,6 +840,9 @@ public:
 
     void doLayout( QPainter *p, int w );
     void draw( QPainter *p, const QRect& rect, const QColorGroup &cg, const QBrush *paper = 0 );
+    void eraseParagraphEmptyArea( QTextParagraph *parag, QPainter *p, const QColorGroup &cg );
+    bool useDoubleBuffer( QTextParagraph *parag, QPainter *p );
+
     void drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
 		    QPixmap *&doubleBuffer, const QColorGroup &cg,
 		    bool drawCursor, QTextCursor *cursor, bool resetChanged = TRUE );
@@ -1828,6 +1831,12 @@ inline void QTextDocument::setFlow( QTextFlow *f )
 inline void QTextDocument::takeFlow()
 {
     flow_ = 0;
+}
+
+inline bool QTextDocument::useDoubleBuffer( QTextParagraph *parag, QPainter *p )
+{
+    return ( !parag->document()->parent() || parag->document()->nextDoubleBuffered ) &&
+	( !p || !p->device() || p->device()->devType() != QInternal::Printer );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

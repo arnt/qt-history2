@@ -3060,6 +3060,18 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
     }
 }
 
+void QTextDocument::eraseParagraphEmptyArea( QTextParagraph *parag, QPainter *p,
+					     const QColorGroup &cg )
+{
+    if ( parag->rect().x() + parag->rect().width() <
+	 parag->document()->x() + parag->document()->width() ) {
+	p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
+		     ( parag->document()->x() + parag->document()->width() ) -
+		     ( parag->rect().x() + parag->rect().width() ),
+		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
+    }
+}
+
 void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
 			       QPixmap *&doubleBuffer, const QColorGroup &cg,
 			       bool drawCursor, QTextCursor *cursor, bool resetChanged )
@@ -3070,13 +3082,10 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
     QRect ir( parag->rect() );
     if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
 	ir.setWidth( width() );
-    bool useDoubleBuffer = !parag->document()->parent();
-    if ( !useDoubleBuffer && parag->document()->nextDoubleBuffered )
-	useDoubleBuffer = TRUE;
-    if ( is_printer( p ) )
-	useDoubleBuffer = FALSE;
 
-    if ( useDoubleBuffer  ) {
+    bool uDoubleBuffer = useDoubleBuffer( parag, p );
+
+    if ( uDoubleBuffer  ) {
 	painter = new QPainter;
 	if ( cx >= 0 && cy >= 0 )
 	    ir = ir.intersect( QRect( cx, cy, cw, ch ) );
@@ -3095,7 +3104,7 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
 
     painter->setBrushOrigin( -ir.x(), -ir.y() );
 
-    if ( useDoubleBuffer || is_printer( painter ) )
+    if ( uDoubleBuffer || is_printer( painter ) )
 	painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ), parag->backgroundBrush( cg ) );
     else if ( cursor && cursor->paragraph() == parag )
 	painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
@@ -3105,7 +3114,7 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
 			-( ir.y() - parag->rect().y() ) );
     parag->paint( *painter, cg, drawCursor ? cursor : 0, TRUE, cx, cy, cw, ch );
 
-    if ( useDoubleBuffer ) {
+    if ( uDoubleBuffer ) {
 	delete painter;
 	painter = 0;
 	p->drawPixmap( ir.topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), ir.size() ) );
@@ -3113,14 +3122,8 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
 	painter->translate( -ir.x(), -ir.y() );
     }
 
-    if ( useDoubleBuffer && !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
-	if ( parag->rect().x() + parag->rect().width() < parag->document()->x() + parag->document()->width() ) {
-	    p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
-			 ( parag->document()->x() + parag->document()->width() ) -
-			 ( parag->rect().x() + parag->rect().width() ),
-			 parag->rect().height(), cg.brush( QColorGroup::Base ) );
-	}
-    }
+    if ( uDoubleBuffer && !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+	eraseParagraphEmptyArea( parag, p, cg );
 
     parag->document()->nextDoubleBuffered = FALSE;
 }
@@ -3164,6 +3167,9 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	if ( pr.y() > cy + ch )
 	    goto floating;
 	if ( !pr.intersects( QRect( cx, cy, cw, ch ) ) || ( onlyChanged && !parag->hasChanged() ) ) {
+	    bool uDoubleBuffer = useDoubleBuffer( parag, p );
+	    if ( uDoubleBuffer && !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+		eraseParagraphEmptyArea( parag, p, cg );
 	    parag = parag->next();
 	    continue;
 	}
