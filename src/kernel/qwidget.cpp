@@ -247,7 +247,8 @@
   \i System functions:
 	parentWidget(),
 	topLevelWidget(),
-	reparentolish((),
+	reparent(),
+	polish(),
 	winId(),
 	find(),
 	metric().
