@@ -133,7 +133,8 @@ int Tokenizer::getToken()
 		break;
 	    case '(':
 		yyCh = getChar();
-		yyParenDepth++;
+		if ( yyNumPreprocessorSkipping == 0 )
+		    yyParenDepth++;
 		if ( isspace(yyCh) ) {
 		    do {
 			yyCh = getChar();
@@ -148,7 +149,8 @@ int Tokenizer::getToken()
 		return Tok_LeftParen;
 	    case ')':
 		yyCh = getChar();
-		yyParenDepth--;
+		if ( yyNumPreprocessorSkipping == 0 )
+		    yyParenDepth--;
 		return Tok_RightParen;
 	    case '*':
 		yyCh = getChar();
@@ -286,7 +288,8 @@ int Tokenizer::getToken()
 		return Tok_SomeOperator;
 	    case '[':
 		yyCh = getChar();
-		yyBracketDepth++;
+		if ( yyNumPreprocessorSkipping == 0 )
+		    yyBracketDepth++;
 		return Tok_LeftBracket;
 	    case '\\':
 		yyCh = getChar();
@@ -294,15 +297,18 @@ int Tokenizer::getToken()
 		break;
 	    case ']':
 		yyCh = getChar();
-		yyBracketDepth--;
+		if ( yyNumPreprocessorSkipping == 0 )
+		    yyBracketDepth--;
 		return Tok_RightBracket;
 	    case '{':
 		yyCh = getChar();
-		yyBraceDepth++;
+		if ( yyNumPreprocessorSkipping == 0 )
+		    yyBraceDepth++;
 		return Tok_LeftBrace;
 	    case '}':
 		yyCh = getChar();
-		yyBraceDepth--;
+		if ( yyNumPreprocessorSkipping == 0 )
+		    yyBraceDepth--;
 		return Tok_RightBrace;
 	    case '|':
 		yyCh = getChar();
