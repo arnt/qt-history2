@@ -41,7 +41,7 @@ QListData::Data *QListData::detach()
     Data *x = static_cast<Data *>(qMalloc(DataHeaderSize + d->alloc * sizeof(void *)));
     ::memcpy(x, d, DataHeaderSize + d->alloc * sizeof(void *));
     x->alloc = d->alloc;
-    x->ref = 1;
+    x->ref.init(1);
     x->sharable = true;
     if (!x->alloc)
         x->begin = x->end = 0;
