@@ -2,7 +2,7 @@
 
 #include <qvariant.h>
 
-QApplicationInterface* PlugApplication::requestApplicationInterface()
+QApplicationInterface* PlugApplication::queryInterface()
 {
     return appIface ? appIface : ( appIface = new PlugApplicationInterface );
 }
@@ -17,7 +17,7 @@ PlugApplicationInterface::~PlugApplicationInterface()
     delete iMainWindow;
 }
 
-QComponentInterface* PlugApplicationInterface::requestInterface( const QCString& request )
+QComponentInterface* PlugApplicationInterface::queryInterface( const QCString& request )
 {
     if ( request == "PlugMainWindowInterface" ) {
 	return iMainWindow ? iMainWindow : (iMainWindow = new QComponentInterface( (PlugMainWindow*)qApp->mainWidget() ) );

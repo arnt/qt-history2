@@ -7,24 +7,23 @@
 #include "qactioninterface.h"
 #include "qactionfactory.h"
 
-class QActionPlugIn : public QActionInterface, public QPlugIn
+class ActionPlugIn : public ActionInterface, public QPlugIn
 {
 public:
     QActionPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
 
-    QCString queryPlugInInterface() const { return "QActionInterface"; }
+    QString queryInterface() const { return "ActionInterface"; }
 
     QAction* create( const QString& classname, QObject* parent = 0 );
 };
 
-class QActionPlugInManager : public QPlugInManager<QActionPlugIn>, public QActionFactory
+class ActionPlugInManager : public QPlugInManager<ActionPlugIn>
 {
 public:
-    QActionPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
+    ActionPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
 	QPlugIn::LibraryPolicy = QPlugIn::Default, const char* fn = 0 );
 
-    QString factoryName() const { return "QActionPlugInManager"; }
-
+    public 
 private:
     QAction* newAction( const QString& classname, QObject* parent = 0 );
     QStringList actions();

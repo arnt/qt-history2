@@ -49,7 +49,7 @@ public:
     PlugApplicationInterface();
     ~PlugApplicationInterface();
 
-    QComponentInterface* requestInterface( const QCString& );
+    QComponentInterface* queryInterface( const QCString& );
 
 private:
     QGuardedPtr<QComponentInterface> iMainWindow;
@@ -64,7 +64,7 @@ public:
 	appIface = 0;
     }
 
-    QApplicationInterface* requestApplicationInterface();
+    QApplicationInterface* queryInterface();
 
 protected:
     QGuardedPtr<QApplicationInterface> appIface;
