@@ -322,7 +322,7 @@ private:
     // used by parseReference() and parsePEReference()
     enum EntityRecognitionContext { InContent, InAttributeValue, InEntityValue, InDTD };
 
-    // private methods
+    // private functions
     void eat_ws();
     void next_eat_ws();
 
@@ -330,6 +330,8 @@ private:
     bool atEnd();
 
     void init( const QXmlInputSource& i );
+
+    bool entityExist( const QString& ) const;
 
     bool parseProlog();
     bool parseElement();

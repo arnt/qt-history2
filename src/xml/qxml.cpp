@@ -5107,8 +5107,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    d->error = XMLERR_ERRORPARSINGENTITYVALUE;
 		    goto parseError;
 		}
-		if (  d->entities.find( name() ) == d->entities.end() &&
-			d->externEntities.find( name() ) == d->externEntities.end() ) {
+		if (  !entityExist( name() ) ) {
 		    d->entities.insert( name(), string() );
 		    if ( declHnd ) {
 			if ( !declHnd->internalEntityDecl( name(), string() ) ) {
@@ -5135,8 +5134,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    d->error = XMLERR_ERRORPARSINGNAME;
 		    goto parseError;
 		}
-		if (  d->entities.find( name() ) == d->entities.end() &&
-			d->externEntities.find( name() ) == d->externEntities.end() ) {
+		if (  !entityExist( name() ) ) {
 		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, ref() ) );
 		    if ( dtdHnd ) {
 			if ( !dtdHnd->unparsedEntityDecl( name(), d->publicId, d->systemId, ref() ) ) {
@@ -5157,8 +5155,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    d->error = XMLERR_ERRORPARSINGENTITYVALUE;
 		    goto parseError;
 		}
-		if (  d->parameterEntities.find( name() ) == d->parameterEntities.end() &&
-			d->externParameterEntities.find( name() ) == d->externParameterEntities.end() ) {
+		if (  !entityExist( name() ) ) {
 		    d->parameterEntities.insert( name(), string() );
 		    if ( declHnd ) {
 			if ( !declHnd->internalEntityDecl( QString("%")+name(), string() ) ) {
@@ -5173,8 +5170,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		    d->error = XMLERR_ERRORPARSINGEXTERNALID;
 		    goto parseError;
 		}
-		if (  d->parameterEntities.find( name() ) == d->parameterEntities.end() &&
-			d->externParameterEntities.find( name() ) == d->externParameterEntities.end() ) {
+		if (  !entityExist( name() ) ) {
 		    d->externParameterEntities.insert( name(), QXmlSimpleReaderPrivate::ExternParameterEntity( d->publicId, d->systemId ) );
 		    if ( declHnd ) {
 			if ( !declHnd->externalEntityDecl( QString("%")+name(), d->publicId, d->systemId ) ) {
@@ -5185,8 +5181,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case EDDone:
-		if (  d->entities.find( name() ) == d->entities.end() &&
-			d->externEntities.find( name() ) == d->externEntities.end() ) {
+		if (  !entityExist( name() ) ) {
 		    d->externEntities.insert( name(), QXmlSimpleReaderPrivate::ExternEntity( d->publicId, d->systemId, QString::null ) );
 		    if ( declHnd ) {
 			if ( !declHnd->externalEntityDecl( name(), d->publicId, d->systemId ) ) {
@@ -6042,8 +6037,8 @@ parseError:
 }
 
 
-/*
-  Init the data values.
+/*!
+  Inits the data values.
 */
 void QXmlSimpleReader::init( const QXmlInputSource& i )
 {
@@ -6068,6 +6063,20 @@ void QXmlSimpleReader::init( const QXmlInputSource& i )
     pos = 0;
     next();
     d->error = XMLERR_OK;
+}
+
+/*!
+  Returns TRUE if a entity with the name \a e exists,
+  otherwise returns FALSE.
+*/
+bool QXmlSimpleReader::entityExist( const QString& e ) const
+{
+    if (  d->parameterEntities.find(e) == d->parameterEntities.end() &&
+	    d->externParameterEntities.find(e) == d->externParameterEntities.end() ) {
+	return FALSE;
+    } else {
+	return TRUE;
+    }
 }
 
 void QXmlSimpleReader::reportParseError()
