@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#96 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#97 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -181,10 +181,10 @@ void *qt_find_obj_child( QObject *, const char *, const char * );
 // GUI styles
 
 enum GUIStyle {
-    MacStyle,
+    MacStyle, // OBSOLETE
     WindowsStyle,
-    Win3Style,
-    PMStyle,
+    Win3Style, // OBSOLETE
+    PMStyle, // OBSOLETE
     MotifStyle
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#107 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#107 $");
 
 
 /*!
@@ -82,12 +82,8 @@ QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 
 
-#if defined(_WS_MAC_)
-GUIStyle QApplication::app_style = MacStyle;	// default style for Mac
-#elif defined(_WS_WIN_)
+#if defined(_WS_WIN_)
 GUIStyle QApplication::app_style = WindowsStyle;// default style for Windows
-#elif defined(_WS_PM_)
-GUIStyle QApplication::app_style = PMStyle;	// default style for OS/2 PM
 #elif defined(_WS_X11_)
 GUIStyle QApplication::app_style = MotifStyle;	// default style for X Windows
 #endif
@@ -308,9 +304,7 @@ QApplication::~QApplication()
 /*!
   Sets the application GUI style to \e style.
 
-  The style parameter can be \c MacStyle, \c WindowsStyle, \c PMStyle
-  or \c MotifStyle.  Only \c MotifStyle and \c WindowsStyle is
-  supported in the current version of Qt.
+  The style parameter can be \c WindowsStyle or \c MotifStyle.
 
   \sa style(), QWidget::setStyle()
 */
