@@ -817,6 +817,13 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
+  \fn int qAlpha( QRgb rgba )
+  \relates QColor
+
+  Returns the alpha component of the RGBA quadruplet \e rgb.
+*/
+
+/*!
   \fn QRgb qRgb( int r, int g, int b )
   \relates QColor
 
@@ -831,7 +838,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
   \fn QRgb qRgba( int r, int g, int b, int a )
   \relates QColor
 
-  Returns the RGBA triplet \a (r,g,b,a).
+  Returns the RGBA quadruplet \a (r,g,b,a).
 
   The return type QRgba is equivalent to \c unsigned \c int.
 
