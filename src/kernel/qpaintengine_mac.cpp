@@ -718,19 +718,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
 void
 QQuickDrawPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
-#if 0
-    Q_ASSERT(isActive());
-
-    QTextEngine *engine = ti.engine();
-    QScriptItem *si = &engine->items[ti.item()];
-    engine->shape(ti.item());
-    QFontEngine *fe = si->font();
-
-    Q_ASSERT(fe);
-    fe->draw(this, p.x() + si->x,  p.y() + si->y, engine, si, textflags);
-#else
-    qDebug("Must implement drawTextItem!!");
-#endif
+    ti.fontEngine->draw(this, p.x(), p.y(), ti, textflags);
 }
 
 Qt::HANDLE
@@ -1697,7 +1685,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
 void
 QCoreGraphicsPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
-    qDebug("Must implement drawTextItem!!");
+    ti.fontEngine->draw(this, p.x(), p.y(), ti, textflags);
 }
 
 Qt::HANDLE

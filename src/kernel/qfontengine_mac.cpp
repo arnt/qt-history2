@@ -96,10 +96,11 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
 }
 
 void
-QFontEngineMac::draw(QPainter *p, int x, int y, const QTextItem &si, int textFlags)
+QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
-    int txop = p->d->txop;
-    QWMatrix xmat = p->d->matrix;
+    QPainterState *pState = p->painterState();
+    int txop = pState->txop;
+    QWMatrix xmat = pState->matrix;
 
     if(txop >= QPainter::TxScale) {
 	int aw = si.width, ah = si.ascent + si.descent + 1;
@@ -112,7 +113,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextItem &si, int textFla
 	    QPainter paint;
 	    paint.begin(&bm);		// draw text in bitmap
 	    paint.setPen(Qt::color1);
-	    draw(&paint, 0, si.ascent, si, textFlags);
+	    draw(paint.d->engine, 0, si.ascent, si, textFlags);
 	    paint.end();
 	    wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
 	    if(wx_bm->isNull()) {
@@ -122,9 +123,9 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextItem &si, int textFla
 	}
 
 	QPixmap pm(wx_bm->width(), wx_bm->height());
-	if(p->backgroundMode() != QPainter::OpaqueMode) {
+	if(pState->painter->backgroundMode() != QPainter::OpaqueMode) {
 	    QPainter paint(&pm);
-	    paint.fillRect(0, 0, pm.width(), pm.height(), p->pen().color());
+	    paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
 	    pm.setMask(*wx_bm);
 	} else { //This is untested code, I need to find a test case, FIXME --Sam
 	    pm = *wx_bm;
@@ -137,24 +138,26 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextItem &si, int textFla
 	mat1.map(x, y - si.ascent, &nfx, &nfy);
 	double dx, dy;
 	mat2.map(0, 0, &dx, &dy);     // compute position of bitmap
-	unclippedBitBlt(p->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1, -1, Qt::CopyROP, FALSE, FALSE );
+	unclippedBitBlt(pState->painter->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1,
+                        -1, Qt::CopyROP, FALSE, FALSE );
 	delete wx_bm;
 	return;
     } else if(txop == QPainter::TxTranslate) {
-	p->map(x, y, &x, &y);
+	pState->painter->map(x, y, &x, &y);
     }
 
-    if(p->d->engine && p->d->engine->type() == QPaintEngine::QuickDraw) {
-	QQuickDrawPaintEngine *mgc = (QQuickDrawPaintEngine*)p->d->engine;
+    if(p->type() == QPaintEngine::QuickDraw) {
+	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
 	mgc->updateState(mgc->state);
 	mgc->setupQDPort(false, 0, 0);
 	mgc->setupQDFont();
     }
 
     QGlyphLayout *glyphs = si.glyphs;
-    if(p->backgroundMode() == Qt::OpaqueMode) {
+    if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
 	glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
-	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());
+	pState->painter->fillRect(x+br.x, y+br.y, br.width, br.height,
+                                  pState->painter->backgroundColor());
     }
 
 
@@ -178,11 +181,11 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextItem &si, int textFla
     if(w && textFlags != 0) {
 	int lw = lineThickness();
 	if(textFlags & Qt::Underline)
-	    p->drawRect(x, y+underlinePosition(), si.right_to_left ? -w : w, lw);
+	    p->drawRect(QRect(x, y+underlinePosition(), si.right_to_left ? -w : w, lw));
 	if(textFlags & Qt::Overline)
-	    p->drawRect(x, y + (ascent() + 1), si.right_to_left ? -w : w, lw);
+	    p->drawRect(QRect(x, y + (ascent() + 1), si.right_to_left ? -w : w, lw));
 	if(textFlags & Qt::StrikeOut)
-	    p->drawRect(x, y + (ascent() / 3), si.right_to_left ? -w : w, lw);
+	    p->drawRect(QRect(x, y + (ascent() / 3), si.right_to_left ? -w : w, lw));
     }
 }
 
@@ -321,7 +324,8 @@ QFontEngineMac::maxCharWidth() const
     QATSUStyle *st = getFontStyle();
     if(st->maxWidth != -1)
 	return st->maxWidth;
-    {     // I hate doing this, but I don't see a better way just yet - so I'll just take the width of the captial m 'M'
+    {   // I hate doing this, but I don't see a better way just yet - 
+        // so I'll just take the width of the captial m 'M'
 	QChar ch = 'M';
 	st->maxWidth = doTextTask(&ch, 0, 1, 1, WIDTH);
     }
@@ -329,24 +333,33 @@ QFontEngineMac::maxCharWidth() const
 }
 
 
-int
-QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int x, int y, QPainter *p) const
+int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task,
+                               int x, int y, QPaintEngine *p) const
 {
     QATSUStyle *st = getFontStyle();
-    if(!st) //can't really happen, but just to be sure..
+    QPainterState *pState = 0;
+    QPaintDevice *device = 0;
+    QWidget *widget = 0;
+    if (p) {
+        pState = p->painterState();
+        device = pState->painter->device();
+        if (device->devType() == QInternal::Widget)
+            widget = static_cast<QWidget *>(device);
+    }
+
+    if (!st) //can't really happen, but just to be sure..
 	return 0;
 
     int ret = 0;
-    if(task & DRAW) {
-	Q_ASSERT(p); //really need a p to do any drawing!!!
-
-	if(p->device()->devType() == QInternal::Widget) { //offset correctly..
-	    QPoint pos = posInWindow((QWidget*)p->device());
+    if (task & DRAW) {
+        Q_ASSERT(p); //really need a painter and engine to do any drawing!!!
+	if (widget) { //offset correctly..
+	    QPoint pos = posInWindow(widget);
 	    x += pos.x();
 	    y += pos.y();
 	}
 
-	QColor rgb = p->pen().color();
+	QColor rgb = pState->painter->pen().color();
 	if(rgb != st->rgb) {
 	    st->rgb = rgb;
 	    const ATSUAttributeTag tag = kATSUColorTag;
@@ -372,10 +385,10 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 #ifdef USE_CORE_GRAPHICS
 	if(task & DRAW) { //we need to flip the translation here because we flip it internally
 	    int height = 0;
-	    if(p->device()->devType() == QInternal::Widget)
-		height = ((QWidget*)p->device())->topLevelWidget()->height();
+            if (widget)
+		height = widget->topLevelWidget()->height();
 	    else
-		height = p->device()->metric(QPaintDeviceMetrics::PdmHeight);
+		height = device->metric(QPaintDeviceMetrics::PdmHeight);
 	    tf = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, height);
 	    tf = CGAffineTransformScale(tf, 1, -1);
 	}
@@ -418,7 +431,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     ByteCount valueSizes[arr_guess];
     ATSUAttributeValuePtr values[arr_guess];
     tags[arr] = kATSULineLayoutOptionsTag;
-    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading | kATSLineFractDisable;
+    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
+                                   | kATSLineFractDisable;
     if(fontDef.styleStrategy & QFont::NoAntialias)
 	layopts |= kATSLineNoAntiAliasing;
 
@@ -438,26 +452,26 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     tags[arr] = kATSUCGContextTag;
     CGContextRef ctx = NULL;
 #ifdef USE_CORE_GRAPHICS
-    if(p && p->device()) {
-	ctx = (CGContextRef)p->handle();
+    if (p && device) {
+	ctx = static_cast<CGContextRef>(p->handle());
     } else {
 	static QPixmap *pixmap = NULL;
 	if(!pixmap)
 	    pixmap = new QPixmap(1, 1, 32);
-	ctx = (CGContextRef)pixmap->macCGHandle();
+	ctx = static_cast<CGContextRef>(pixmap->macCGHandle());
     }
 #else
     CGrafPtr port = NULL;
-    if(p && p->device()) {
-	if(p->device()->devType() == QInternal::Widget)
-	    port = GetWindowPort((WindowPtr)p->device()->handle());
+    if(p && device) {
+	if (widget)
+	    port = GetWindowPort(static_cast<WindowPtr>(widget->handle()));
 	else
-	    port = (CGrafPtr)p->device()->handle();
+	    port = static_cast<CGrafPtr>(device->handle());
     } else {
-	static QPixmap *pixmap = NULL;
+	static QPixmap *pixmap = 0;
 	if(!pixmap)
 	    pixmap = new QPixmap(1, 1, 32);
-	port = (CGrafPtr)pixmap->handle();
+	port = static_cast<CGrafPtr>(pixmap->handle());
     }
     if(OSStatus err = QDBeginCGContext(port, &ctx)) {
 	qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
@@ -466,14 +480,14 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     }
 
     RgnHandle rgnh = NULL;
-    if(p && p->d->engine && p->d->engine->type() == QPaintEngine::QuickDraw) {
+    if (p && p->type() == QPaintEngine::QuickDraw) {
 	QRegion rgn;
-	QQuickDrawPaintEngine *mgc = (QQuickDrawPaintEngine*)p->d->engine;
+	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
 	mgc->setupQDPort(false, 0, &rgn);
-	if(!rgn.isEmpty())
-	    rgnh = rgn.handle(TRUE);
+	if (!rgn.isEmpty())
+	    rgnh = rgn.handle(true);
     }
-    if(rgnh) {
+    if (rgnh) {
 	Rect clipr;
 	GetPortBounds(port, &clipr);
 	ClipCGContextToRegion(ctx, &clipr, rgnh);
@@ -483,9 +497,9 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     values[arr] = &ctx;
     arr++;
 
-    if(arr > arr_guess) //this won't really happen, just so I will not miss the case
+    if (arr > arr_guess) //this won't really happen, just so I will not miss the case
 	qWarning("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
-    if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
+    if (OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
 	qWarning("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
 #ifndef USE_CORE_GRAPHICS
@@ -502,7 +516,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	ATSUFontID fid;
 	UniCharArrayOffset off;
 	UniCharCount off_len;
-	if(ATSUMatchFontsToText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid, &off, &off_len) != kATSUFontsNotMatched)
+	if(ATSUMatchFontsToText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid,
+                                &off, &off_len) != kATSUFontsNotMatched)
 	    ret = 1;
     } else if((task & WIDTH) && !ret) {
 	ATSUTextMeasurement left, right, bottom, top;
@@ -522,13 +537,14 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	int drawy = y;
 #ifndef USE_CORE_GRAPHICS
 	int height = 0;
-	if(p->device()->devType() == QInternal::Widget)
-	    height = ((QWidget*)p->device())->topLevelWidget()->height();
+	if(widget)
+	    height = widget->topLevelWidget()->height();
 	else
-	    height = p->device()->metric(QPaintDeviceMetrics::PdmHeight);
+	    height = device->metric(QPaintDeviceMetrics::PdmHeight);
 	drawy = height-drawy;
 #endif
-	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1), FixRatio(drawy, 1));
+	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
+                     FixRatio(drawy, 1));
     }
     //cleanup
     ATSUDisposeTextLayout(alayout);
