@@ -104,22 +104,4 @@ public:
 };
 #endif
 
-#ifdef QT_COMPAT
-#ifdef Q_WS_MAC
-struct Q3MenuBarCallBacks {
-    typedef bool (*ActivateCmd)(MenuRef, short, bool, bool);
-    ActivateCmd activate;
-
-    typedef bool (*UpdatePopupCmd)(MenuRef);
-    UpdatePopupCmd updatePopup;
-
-    typedef bool (*UpdatePopupVisibleCmd)(MenuRef, bool);
-    UpdatePopupVisibleCmd updatePopupVisible;
-
-    typedef bool (*UpdateMenuBarCmd)();
-    UpdateMenuBarCmd updateMenuBar;
-};
-#endif
-#endif
-
 #endif // QMENUBAR_P_H

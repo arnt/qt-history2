@@ -25,8 +25,6 @@
 #ifndef QT_NO_STYLE
 
 class QAction;
-class Q3PopupMenu;
-class Q3MenuItem;
 class QTab;
 class QCheckListItem;
 class QFontMetrics;
@@ -37,28 +35,20 @@ public:
     enum StyleOptionDefault { Default };
 
     Q3StyleOption(StyleOptionDefault=Default) : def(true) {}
-
     // Note: we don't use default arguments since that is unnecessary
     // initialization.
-    Q3StyleOption(int in1) :
-        def(false), i1(in1) {}
-    Q3StyleOption(int in1, int in2) :
-        def(false), i1(in1), i2(in2) {}
+    Q3StyleOption(int in1) : def(false), i1(in1) {}
+    Q3StyleOption(int in1, int in2) : def(false), i1(in1), i2(in2) {}
     Q3StyleOption(int in1, int in2, int in3, int in4) :
         def(false), i1(in1), i2(in2), i3(in3), i4(in4) {}
-    Q3StyleOption(QAction* a) : def(false), act(a) {}
-    Q3StyleOption(QAction* a, int in1) : def(false), act(a), i1(in1) {}
-    Q3StyleOption(QAction* a, int in1, int in2) : def(false), act(a), i1(in1), i2(in2) {}
-#ifdef QT_COMPAT
-    Q3StyleOption(Q3MenuItem* m) : def(false), mi(m) {}
-    Q3StyleOption(Q3MenuItem* m, int in1) : def(false), mi(m), i1(in1) {}
-    Q3StyleOption(Q3MenuItem* m, int in1, int in2) : def(false), mi(m), i1(in1), i2(in2) {}
-#endif
+    Q3StyleOption(QAction *a) : def(false), act(a) {}
+    Q3StyleOption(QAction *a, int in1) : def(false), act(a), i1(in1) {}
+    Q3StyleOption(QAction *a, int in1, int in2) : def(false), act(a), i1(in1), i2(in2) {}
     Q3StyleOption(const QColor& c) : def(false), cl(&c) {}
-    Q3StyleOption(QTab* t) : def(false), tb(t) {}
-    Q3StyleOption(QCheckListItem* i) : def(false), cli(i) {}
+    Q3StyleOption(QTab *t) : def(false), tb(t) {}
+    Q3StyleOption(QCheckListItem *i) : def(false), cli(i) {}
     Q3StyleOption(Qt::ArrowType a) : def(false), i1((int)a) {}
-    Q3StyleOption(const QRect& r) : def(false), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
+    Q3StyleOption(const QRect &r) : def(false), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
     Q3StyleOption(QWidget *w) : def(false), p1((void*)w) {}
 
     bool isDefault() const { return def; }
@@ -73,27 +63,25 @@ public:
     int titleBarState() const { return i1; }
 
     int headerSection() const { return i1; }
-    Q3MenuItem* menuItem() const { return mi; }
-    QAction* action() const { return act; }
+    QAction *action() const { return act; }
     int maxIconWidth() const { return i1; }
     int tabWidth() const { return i2; }
 
-    const QColor& color() const { return *cl; }
+    const QColor &color() const { return *cl; }
 
-    QTab* tab() const { return tb; }
+    QTab *tab() const { return tb; }
 
-    QCheckListItem* checkListItem() const { return cli; }
+    QCheckListItem *checkListItem() const { return cli; }
 
     Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
     QRect rect() const { return QRect(i1, i2, i3, i4); }
-    QWidget* widget() const { return (QWidget*)p1; }
+    QWidget *widget() const { return (QWidget*)p1; }
 
 private:
     // NOTE: none of these components have constructors.
     bool def;
     bool b1,b2,b3; // reserved
     QAction *act;
-    Q3MenuItem* mi;
     QTab* tb;
     const QColor* cl;
     int i1, i2, i3, i4, i5, i6; // reserved

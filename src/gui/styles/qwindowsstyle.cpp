@@ -55,14 +55,6 @@ static bool use2000style = true;
 
 enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
-// A friendly class providing access to Q3MenuData's protected member.
-#if 0 // For now..
-class FriendlyMenuData : public Q3MenuData
-{
-    friend class QWindowsStyle;
-};
-#endif // For now..
-
 // Private class
 class QWindowsStyle::Private : public QObject
 {
@@ -126,44 +118,6 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             }
         }
         break;
-#if 0 // For now..
-    case QEvent::KeyRelease:
-        if (((QKeyEvent*)e)->key() == Qt::Key_Alt) {
-            widget = widget->topLevelWidget();
-
-            // Update state
-            alt_down = false;
-            // Repaint only menubars
-            QList<Q3MenuBar *> l = qFindChildren<Q3MenuBar *>(widget);
-            for (int pos=0; pos<l.size(); ++pos) {
-                Q3MenuBar *menuBar  = l.at(pos);
-                menuBar->repaint();
-            }
-        }
-        break;
-
-    case QEvent::FocusIn:
-    case QEvent::FocusOut:
-        {
-            // Menubars toggle based on focus
-            Q3MenuBar *menuBar = qt_cast<Q3MenuBar*>(o);
-            if (menuBar && !menuBarTimer) // delayed repaint to avoid flicker
-                menuBarTimer = menuBar->startTimer(0);
-        }
-        break;
-    case QEvent::Timer:
-        {
-            Q3MenuBar *menuBar = qt_cast<Q3MenuBar*>(o);
-            QTimerEvent *te = (QTimerEvent*)e;
-            if (menuBar && te->timerId() == menuBarTimer) {
-                menuBar->killTimer(te->timerId());
-                menuBarTimer = 0;
-                menuBar->repaint();
-                return true;
-            }
-        }
-        break;
-#endif // For now..
     case QEvent::Close:
         // Reset widget when closing
         seenAlt.removeAll(widget);
@@ -224,12 +178,6 @@ void QWindowsStyle::polish(QWidget *widget)
     QCommonStyle::polish(widget);
     if(QMenu *menu = qt_cast<QMenu*>(widget))
         menu->setCheckable(true);
-#if 0 // For now..
-#ifdef QT_COMPAT
-    if(Q3PopupMenu *popup = qt_cast<Q3PopupMenu*>(widget))
-        popup->setCheckable(true);
-#endif
-#endif // For now..
 }
 
 /*! \reimp */
@@ -708,46 +656,7 @@ int QWindowsStyle::styleHint(StyleHint hint,
             ret = cues ? 1 : 0;
             // Do nothing if we always paint underlines
             if (!ret && widget && d) {
-#if 0 // For now
-                Q3MenuBar *menuBar = ::qt_cast<Q3MenuBar*>(widget);
-                Q3PopupMenu *popupMenu = 0;
-                if (!menuBar)
-                    popupMenu = ::qt_cast<Q3PopupMenu*>(widget);
-
-                // If we paint a menubar draw underlines if it has focus, or if alt is down,
-                // or if a popup menu belonging to the menubar is active and paints underlines
-                if (menuBar) {
-                    if (menuBar->hasFocus()) {
-                        ret = 1;
-                    } else if (d->altDown()) {
-                        ret = 1;
-                    } else if (qApp->focusWidget() && qApp->focusWidget()->isPopup()) {
-                        popupMenu = ::qt_cast<Q3PopupMenu*>(qApp->focusWidget());
-                        Q3MenuData *pm = popupMenu ? static_cast<Q3MenuData*>(popupMenu) : 0;
-                        if (pm && ((FriendlyMenuData*)pm)->parentMenu == menuBar) {
-                            if (d->hasSeenAlt(menuBar))
-                                ret = 1;
-                        }
-                    }
-                // If we paint a popup menu draw underlines if the respective menubar does
-                } else if (popupMenu) {
-                    Q3MenuData *pm = static_cast<Q3MenuData*>(popupMenu);
-                    while (pm) {
-                        if (((FriendlyMenuData*)pm)->isMenuBar) {
-                            menuBar = (Q3MenuBar*)pm;
-                            if (d->hasSeenAlt(menuBar))
-                                ret = 1;
-                            break;
-                        }
-                        pm = ((FriendlyMenuData*)pm)->parentMenu;
-                    }
-                // Otherwise draw underlines if the toplevel widget has seen an alt-press
-                } else if (d->hasSeenAlt(widget)) {
-                    ret = 1;
-                }
-#else
                 ret = 1;
-#endif // For now..
             }
 
         }
@@ -1324,21 +1233,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             vrect = visualRect(QRect(xpos, y + windowsItemVMargin, w - xm - tab + 1,
                                      h - 2 * windowsItemVMargin), menuitem->rect);
             xvis = vrect.x();
-            if (menuitem->menuItemType == QStyleOptionMenuItem::Q3Custom) {
-                // Grr... how do we paint it...
-                /*
-                p->save();
-                if (dis && !act) {
-                    p->setPen(pal.light());
-                    mi->custom()->paint(p, pal, act, !dis,
-                                         xvis+1, y+windowsItemVMargin+1, w-xm-tab+1, h-2*windowsItemVMargin);
-                    p->setPen(discol);
-                }
-                mi->custom()->paint(p, pal, act, !dis,
-                                     xvis, y+windowsItemVMargin, w-xm-tab+1, h-2*windowsItemVMargin);
-                p->restore();
-                */
-            }
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
                 p->save();
@@ -2010,8 +1904,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             int w = sz.width();
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
-            if ((mi->menuItemType != QStyleOptionMenuItem::Separator
-                 && mi->menuItemType != QStyleOptionMenuItem::Q3Custom) && !mi->icon.isNull())
+            if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height()
                               + 2 * windowsItemFrame));

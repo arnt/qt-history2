@@ -209,13 +209,6 @@
 */
 
 /*!
-    \fn Q3MenuItem* Q3StyleOption::menuItem() const
-
-    Returns a menu item if the appropriate constructor was called;
-    otherwise the return value is undefined.
-*/
-
-/*!
     \fn int Q3StyleOption::maxIconWidth() const
 
     Returns the maximum width of the menu item check area if the
@@ -642,7 +635,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value PE_ButtonBevel  generic button bevel.
     \value PE_ButtonTool  tool button, for example, a QToolButton.
     \value PE_ButtonDropDown  drop down button, for example, a tool
-        button that displays a popup menu, for example, Q3PopupMenu.
+        button that displays a popup menu, for example, QMenu.
 
 
     \value PE_FocusRect  generic focus indicator.
@@ -678,8 +671,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
 
     \value PE_Panel  generic panel frame; see also QFrame.
-    \value PE_PanelPopup  panel frame for popup windows/menus; see also
-        Q3PopupMenu.
+    \value PE_PanelPopup  panel frame for popup windows/menus; see also QMenu.
     \value PE_PanelMenuBar  panel frame for menu bars.
     \value PE_PanelDockWindow  panel frame for dock windows and toolbars.
     \value PE_PanelTabWidget  panel frame for tab widgets.
@@ -690,7 +682,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         QTab.
 
     \value PE_MenuFrame frame displayed in a QMenu
-    \value PE_MenuBarFrame frame displayed in a Q3MenuBar
+    \value PE_MenuBarFrame frame displayed in a QMenuBar
 
     \value PE_HeaderSection  section of a list or table header; see also
         QHeader.
@@ -857,8 +849,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \value CE_ToolButtonLabel a tool button's label.
 
-    \value CE_MenuBarItem  a menu item in a Q3MenuBar.
-    \value CE_MenuBarEmptyArea the empty area of a Q3MenuBar.
+    \value CE_MenuBarItem  a menu item in a QMenuBar.
+    \value CE_MenuBarEmptyArea the empty area of a QMenuBar.
 
     \value CE_MenuItem  a menu item in a QMenu.
     \value CE_MenuScroller scrolling areas in a QMenu when the

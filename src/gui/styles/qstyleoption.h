@@ -117,7 +117,7 @@ struct QStyleOptionProgressBar : public QStyleOption
 struct QStyleOptionMenuItem : public QStyleOption {
     enum { Type = SO_MenuItem };
     enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, Margin,
-			EmptyArea, Q3Custom };
+			EmptyArea };
     enum CheckState { NotCheckable, Checked, Unchecked };
     MenuItemType menuItemType;
     CheckState checkState;
@@ -126,11 +126,9 @@ struct QStyleOptionMenuItem : public QStyleOption {
     QIconSet icon;
     int maxIconWidth;
     int tabWidth;
-    QSize q3CustomItemSizeHint;
-    bool q3CustomItemFullSpan;
     QFont font;
     QStyleOptionMenuItem(int version) : QStyleOption(version, SO_MenuItem), menuItemType(Normal),
-    checkState(NotCheckable), maxIconWidth(0), tabWidth(0), q3CustomItemFullSpan(false) {}
+    checkState(NotCheckable), maxIconWidth(0), tabWidth(0) {}
     QDOC_PROPERTY(MenuItemType menuItemType);
     QDOC_PROPERTY(CheckState checkState);
     QDOC_PROPERTY(QRect menuRect);
@@ -138,8 +136,6 @@ struct QStyleOptionMenuItem : public QStyleOption {
     QDOC_PROPERTY(QIconSet icon);
     QDOC_PROPERTY(int maxIconWidth);
     QDOC_PROPERTY(int tabWidth);
-    QDOC_PROPERTY(QSize q3CustomItemSizeHint);
-    QDOC_PROPERTY(bool q3CustomItemFullSpan);
     QDOC_PROPERTY(QFont font);
 };
 

@@ -501,7 +501,7 @@ void QMenuBar::clear()
 }
 
 /*!
-    \property Q3MenuBar::defaultUp
+    \property QMenuBar::defaultUp
     \brief the popup orientation
 
     The default popup orientation. By default, menus pop "down" the

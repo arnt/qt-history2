@@ -433,12 +433,6 @@ void QMacStyleQD::unPolish(QWidget* w)
     if(btn) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(true);
-        /*
-#ifdef QT_COMPAT
-    } else if(qt_cast<Q3PopupMenu*>(w)) {
-        w->setWindowOpacity(1.0);
-#endif
-*/
     } else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(1.0);
     } else if(qt_cast<QMenu*>(w)) {
@@ -1260,9 +1254,6 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             else
                 xpos += xm;
                 */
-            if (mi->menuItemType == QStyleOptionMenuItem::Q3Custom) {
-                qWarning("Drawing of custom menu items that aren't full span is no longer allowed.");
-            }
             QString s = mi->text;
             if (!s.isEmpty()) {                        // draw text
                 int t = s.indexOf('\t');

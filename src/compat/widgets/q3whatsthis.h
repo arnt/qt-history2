@@ -22,8 +22,6 @@
 #endif // QT_H
 
 class QToolButton;
-class Q3PopupMenu;
-class QStyleSheet;
 
 class Q_COMPAT_EXPORT Q3WhatsThis: public QObject
 {

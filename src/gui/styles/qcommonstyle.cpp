@@ -2413,12 +2413,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
             int maxpmw = mi->maxIconWidth;
             int w = sz.width(),
                 h = sz.height();
-            if (mi->menuItemType == QStyleOptionMenuItem::Q3Custom) {
-                w = mi->q3CustomItemSizeHint.width();
-                h = mi->q3CustomItemSizeHint.height();
-                if (!mi->q3CustomItemFullSpan)
-                    h += 8;
-            } else if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
+            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
                 w = 10;
                 h = 2;
             } else {

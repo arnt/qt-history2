@@ -386,9 +386,8 @@ void QStyleOption::init(const QWidget *w)
     \class QStyleOptionMenuItem qstyleoption.h
     \brief QStyleOptionMenuItem describes the parameter necessary for drawing a menu item.
 
-    The QStyleOptionMenuItem is used for drawing menu items from \l QMenu and
-    from the older \l Q3PopupMenu. It is also used for drawing a variety of
-    other menu related things.
+    The QStyleOptionMenuItem is used for drawing menu items from \l QMenu.
+    It is also used for drawing a variety of other menu related things.
 */
 
 /*!
@@ -409,7 +408,6 @@ void QStyleOption::init(const QWidget *w)
     \value TearOff A tear-off handle for the menu.
     \value Margin The margin of the menu.
     \value EmptyArea The empty area of the menu.
-    \value Q3Custom A custom menu item from a \l Q3PopupMenu.
 
 */
 
@@ -474,22 +472,6 @@ void QStyleOption::init(const QWidget *w)
 
     The tab width is the distance between the text of the menu item and the
     shortcut if it contains one.
-*/
-
-/*!
-    \property QStyleOptionMenuItem::q3CustomItemSizeHint
-    \brief The size hint for a custom menu item in a \l Q3PopupMenu
-
-    This property is only used for custom menu items in Q3PopupMenus.
-    \sa Q3CustomMenuItem
-*/
-
-/*!
-    \property QStyleOptionMenuItem::q3CustomItemFullSpan
-    \brief Indicates that a custom menu item spans the entire \l rect for it.
-
-    This property is only used for custom menu items in a \l Q3PopupMenu.
-    \sa Q3CustomMenuItem
 */
 
 /*!
