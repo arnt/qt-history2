@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#12 $
 **
 ** Implementation of QMessageBox class
 **
@@ -15,7 +15,7 @@
 #include "qpushbt.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#12 $";
 #endif
 
 
@@ -57,6 +57,7 @@ static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#11 $";
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE )
 {
+    initMetaObject();
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignCenter );
@@ -64,6 +65,10 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     CHECK_PTR( button );
     button->setDefault( TRUE );
     connect( button, SIGNAL(clicked()), SLOT(accept()) );
+    QFont font( "Helvetica", 12 );
+    label->setFont( font );
+    font.setWeight( QFont::Bold );
+    button->setFont( font );
 }
 
 
@@ -123,8 +128,12 @@ void QMessageBox::adjustSize()
 {
     button->adjustSize();
     label->adjustSize();
+    QString labelStr = label->text();
+    int	nlines = labelStr.contains( '\n' );
+    QFontMetrics fm = label->fontMetrics();
+    nlines += 2;
     int w = QMAX(button->width(),label->width());
-    int h = button->height() + label->height();
+    int h = button->height() + fm.lineSpacing()*nlines;
     resize( w + w/3, h + h/3 );
 }
 
@@ -149,9 +158,9 @@ void QMessageBox::resizeEvent( QResizeEvent * )
 //
 
 /*!
-  Opens a message box directly using the specified parameters.
+  Opens a modal message box directly using the specified parameters.
 
-  Example of use:
+  Example:
   \code
     QMessageBox::message( "Warning", "Did you feed the giraffe?", "Sorry!" );
   \endcode
