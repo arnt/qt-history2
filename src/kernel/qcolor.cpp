@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#49 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#49 $")
 
 
 /*----------------------------------------------------------------------------
@@ -36,8 +36,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#48 $")
   \c darkBlue, \c darkCyan, \c darkMagenta, \c darkYellow, \c color0 and
   \c color1.
 
-  The colors \c color0 (pixel value = 0) and \c color1 (pixel value = 1) are
-  special colors for drawing in \link QBitmap bitmaps\endlink.
+  The colors \c color0 (zero pixel value) and \c color1 (non-zero pixel value)
+  are special colors for drawing in \link QBitmap bitmaps\endlink.
 
   The QColor class has an efficient, dynamic color allocation strategy.
   A color is normally allocated the first time it is used (lazy allocation),
@@ -63,12 +63,15 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#48 $")
  *****************************************************************************/
 
 #if defined(_WS_WIN_)
-const QColor color0	( 0x00ffffff, 0x00ffffff );
-const QColor color1	( 0x00000000, 0 );
+#define COLOR0_PIX 0
+#define COLOR1_PIX 0x00ffffff
 #else
-const QColor color0	( 0x00ffffff, 0 );
-const QColor color1	( 0x00000000, 1 );
+#define COLOR0_PIX 0
+#define COLOR1_PIX 1
 #endif
+
+const QColor color0	( 0x00ffffff, COLOR0_PIX );
+const QColor color1	( 0x00000000, COLOR1_PIX );
 const QColor black	(   0,	 0,   0 );
 const QColor white	( 255, 255, 255 );
 const QColor darkGray	( 128, 128, 128 );
@@ -114,13 +117,8 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
 void QColor::initglobals()
 {
     ginit = TRUE;
-#if defined(_WS_WIN_)
-    ((QColor*)(&::color0))->pix = 0x00ffffff;
-    ((QColor*)(&::color1))->pix = 0;
-#else
-    ((QColor*)(&::color0))->pix = 0;
-    ((QColor*)(&::color1))->pix = 1;
-#endif
+    ((QColor*)(&::color0))->pix = COLOR0_PIX;
+    ((QColor*)(&::color1))->pix = COLOR1_PIX;
     ((QColor*)(&::color0))->rgbVal = 0x00ffffff;
     ((QColor*)(&::color1))->rgbVal = 0;
     ((QColor*)(&::black))	->setRgb(   0,	 0,   0 );
