@@ -20,7 +20,7 @@ enum {
 };
 
 QTextCursorPrivate::QTextCursorPrivate(const QTextPieceTable *table)
-    : x(0), position(1), anchor(1), adjusted_anchor(1),
+    : x(0), position(0), anchor(0), adjusted_anchor(0),
       pieceTable(const_cast<QTextPieceTable *>(table))
 {
     Q_ASSERT(pieceTable);
@@ -62,17 +62,16 @@ void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRe
 
 void QTextCursorPrivate::setPosition(int newPosition)
 {
-    if (newPosition < 0 || newPosition > pieceTable->length() ||
-	newPosition == position)
+    Q_ASSERT(newPosition >= 0 && newPosition < pieceTable->length());
+    if (newPosition == position)
 	return;
-    Q_ASSERT(pieceTable->length());
 
     position = newPosition;
 }
 
 void QTextCursorPrivate::setX()
 {
-    QTextBlockIterator block = pieceTable->blocksFind(position-1);
+    QTextBlockIterator block = pieceTable->blocksFind(position);
     const QTextLayout *layout = block.layout();
     int pos = position - block.start();
 
@@ -243,7 +242,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 	return true;
 
     case QTextCursor::Start:
-	position = 1;
+	position = 0;
 	break;
     case QTextCursor::StartOfLine: {
 
@@ -289,7 +288,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
     }
 
     case QTextCursor::End:
-	position = pieceTable->length();
+	position = pieceTable->length() - 1;
 	break;
     case QTextCursor::EndOfLine: {
 	if (!line.isValid())
@@ -430,7 +429,6 @@ QTextCursor::QTextCursor()
 QTextCursor::QTextCursor(QTextDocument *document)
     : d(new QTextCursorPrivate(const_cast<const QTextDocument*>(document)->d_func()->pieceTable))
 {
-    Q_ASSERT(d->pieceTable->blocksBegin() != d->pieceTable->blocksEnd());
 }
 
 /*!
@@ -744,6 +742,8 @@ QTextCharFormat QTextCursor::charFormat() const
 	return QTextCharFormat();
 
     int pos = d->position - 1;
+    if (pos < 0)
+	pos = 0;
     Q_ASSERT(pos >= 0 && pos < d->pieceTable->length());
 
 

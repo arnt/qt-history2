@@ -30,7 +30,7 @@ public:
     bool moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     inline QTextBlockIterator block() const
-    { return pieceTable->blocksFind(position-1); }
+    { return pieceTable->blocksFind(position); }
     inline QTextBlockFormat blockFormat() const
     { return block().blockFormat(); }
 

@@ -34,7 +34,7 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
 	: r(row), c(col)
 {
     // + 1, see comment in QTextTable::start() why
-    s = QTextCursor(p->pieceTable, p->cellAt(r, c).key() + 1);
+    s = QTextCursor(p->pieceTable, p->cellAt(r, c).key());
 
     QTextBlockIterator b = p->cellAt(r, col++);
     while (b == p->cellAt(r, col))
@@ -381,9 +381,7 @@ QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 */
 QTextCursor QTextTable::start() const
 {
-    // + 1 as the cursor position is always to the right, and for determining the
-    // block format we do blocksFind(position - 1) in the cursor.
-    return QTextCursor(d->pieceTable, d->start().key() + 1);
+    return QTextCursor(d->pieceTable, d->start().key());
 }
 
 /*!

@@ -40,10 +40,10 @@ QTextTable *QTextTableManager::tableAt(int docPos) const
     for (; it != tables.constEnd(); ++it) {
 	const QList<QTextTablePrivate::Row> &rows = (*it)->d->rowList;
 	int ts = rows[0][0].key();
-	if (ts < docPos && ts > pos) {
+	if (ts <= docPos && ts > pos) {
 	    QTextTablePrivate::Row r = rows.last();
 	    QTextBlockIterator tend = r.last();
-	    if (tend.key() >= docPos-1) {
+	    if (tend.key() >= docPos) {
 		pos = ts;
 		table = (*it);
 	    }

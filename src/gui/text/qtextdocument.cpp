@@ -72,9 +72,7 @@ QTextDocument::~QTextDocument()
 QString QTextDocument::plainText() const
 {
     QString txt = d->pieceTable->plainText();
-    txt.replace(QTextParagraphSeparator, "\n");
-    // remove initial paragraph
-    txt.remove(0, 1);
+    txt.replace(QTextParagraphSeparator, '\n');
     return txt;
 }
 
