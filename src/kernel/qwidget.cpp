@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#78 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,8 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#77 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#78 $")
+
 
 /*!
   \class QWidget qwidget.h
@@ -827,7 +828,6 @@ void QWidget::adjustSize()
   <dt>WStyle_MinMax <dd> NOT USED!
   <dt>WStyle_All <dd> All style flags set.
   <dt>WMouseTracking <dd> The widget receives mouse move events.
-  <dt>WHasAccel <dd> The widget has an associated QAccel.
   <dt>WConfigPending <dd> Config event pending.
   <dt>WResizeNoErase <dd> Widget resizing should not erase the widget.
   <dt>WExplicitHide <dd> Flags that hide() has been called before first show().
@@ -843,13 +843,6 @@ void QWidget::adjustSize()
 // --------------------------------------------------------------------------
 // QWidget event handling
 //
-
-class QKeyEventFriend : public QKeyEvent {	// trick to use accel flag
-public:
-    QKeyEventFriend() : QKeyEvent(0,0,0,0) {}
-    bool didAccel() const { return accel != 0; }
-    void setAccel()	  { accel = TRUE; }
-};
 
 /*!
   This is the main event handler. You may reimplement this function
@@ -879,10 +872,11 @@ public:
 
 bool QWidget::event( QEvent *e )		// receive event(),
 {
-    if ( eventFilters ) {			// pass through event filters
+    if ( eventFilters )	{			// try filters
 	if ( activate_filters( e ) )		// stopped by a filter
 	    return TRUE;
     }
+
     switch ( e->type() ) {
 
 	case Event_Timer:
@@ -905,35 +899,8 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    mouseDoubleClickEvent( (QMouseEvent*)e );
 	    break;
 
-	case Event_KeyPress: {
-	    QKeyEventFriend *k = (QKeyEventFriend*)e;
-	    QWidget *w = this;
-	    if ( !k->didAccel() ) {
-		k->setAccel();			// flag that we tried accel
-		while ( w ) {			// try all parents
-		    bool has_accel = w->testWFlags(WHasAccel);
-		    if ( has_accel && w->children() ) {
-			QObjectListIt it( *w->children() );
-			QObject *obj;
-			bool found_accel = FALSE;
-			while ( (obj=it.current()) ) {
-			    if ( !obj->highPriority() )
-				break;
-			    if ( !obj->inherits("QAccel") )
-				break;
-			    found_accel = TRUE;
-			    if ( obj->event( k ) )
-				return TRUE;	// accel wanted it
-			    ++it;
-			}
-			if ( !found_accel )	// accel probably removed
-			    w->clearWFlags( WHasAccel );
-		    }
-		    else if ( has_accel )	// accel but not children???
-			w->clearWFlags( WHasAccel );
-		    w = w->parentWidget();
-		}
-	    }
+    case Event_KeyPress: {
+	    QKeyEvent *k = (QKeyEvent *)e;
 #if 0
 	    bool res = FALSE;
 	    if ( k->key() == Key_Tab )
@@ -943,33 +910,12 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    if ( res )
 		break;
 #endif
-	    if ( qApp->focusWidget() ) {	// send to focus widget
-		w = qApp->focusWidget();
-	    }
-	    else {
-		w = this;			// search for parent widget
-		while ( w->parentWidget() )
-		    w = w->parentWidget();
-	    }
-	    w->keyPressEvent( k );
-#if defined(_WS_X11_)
-	    if ( !k->isAccepted() && w->parentWidget() ) {
-		while ( w->parentWidget() )
-		    w = w->parentWidget();
-		w->keyPressEvent( k );		// pass event to top level
-	    }
-#endif
+	    keyPressEvent( k );
 	    }
 	    break;
 
-	case Event_KeyRelease: {
-	    QKeyEvent *k = (QKeyEvent*)e;
-	    keyReleaseEvent( k );
-#if defined(_WS_X11_)
-	    if ( !k->isAccepted() && !testWFlags(WType_Overlap) && parentObj )
-		return parentObj->event( e );	// pass event to parent
-#endif
-	    }
+	case Event_KeyRelease:
+	    keyReleaseEvent( (QKeyEvent*)e );
 	    break;
 
 	case Event_FocusIn:
@@ -1000,10 +946,6 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    }
 	    break;
 
-	case Event_AccelInserted:
-	    setWFlags( WHasAccel );
-	    break;
-
 	default:
 	    return FALSE;
     }
@@ -1011,12 +953,12 @@ bool QWidget::event( QEvent *e )		// receive event(),
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-timer events for the widget.
+  This event handler can be reimplemented in a subclass to receive
+  timer events for the widget.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa QObject::startTimer(), QObject::killTimer() and event().
+  \sa QObject::startTimer(), QObject::killTimer(), event()
 */
 
 void QWidget::timerEvent( QTimerEvent * )
@@ -1024,29 +966,30 @@ void QWidget::timerEvent( QTimerEvent * )
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-mouse move events for the widget.
+  This event handler can be reimplemented in a subclass to receive
+  mouse move events for the widget.
 
-If mouse tracking is switched off, mouse move events will only occur
-if a mouse button is down while the mouse is being moved.  If mouse
-tracking is switched on, mouse move events will occur even if no mouse
-button is down.
+  If mouse tracking is switched off, mouse move events will only occur if
+  a mouse button is down while the mouse is being moved.  If mouse
+  tracking is switched on, mouse move events will occur even if no mouse
+  button is down.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa setMouseTracking() and event(). */
+  \sa setMouseTracking(), event()
+*/
 
 void QWidget::mouseMoveEvent( QMouseEvent * )
 {
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-mouse press events for the widget.
+  This event handler can be reimplemented in a subclass to receive
+  mouse press events for the widget.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa mouseReleaseEvent() and event().
+  \sa mouseReleaseEvent(), event()
 */
 
 void QWidget::mousePressEvent( QMouseEvent * )
@@ -1054,12 +997,12 @@ void QWidget::mousePressEvent( QMouseEvent * )
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-mouse release events for the widget.
+  This event handler can be reimplemented in a subclass to receive
+  mouse release events for the widget.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa mousePressEvent() and event().
+  \sa mousePressEvent(), event()
 */
 
 void QWidget::mouseReleaseEvent( QMouseEvent * )
@@ -1067,12 +1010,12 @@ void QWidget::mouseReleaseEvent( QMouseEvent * )
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-mouse double click events for the widget.
+  This event handler can be reimplemented in a subclass to receive
+  mouse double click events for the widget.
 
-The default implementation generates a normal mouse press event.
+  The default implementation generates a normal mouse press event.
 
-\sa mousePressEvent() and event().
+  \sa mousePressEvent(), event()
 */
 
 void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
@@ -1080,7 +1023,8 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
     mousePressEvent( e );			// try mouse press event
 }
 
-/*! This event handler can be reimplemented in a sub class to receive
+/*!
+  This event handler can be reimplemented in a subclass to receive
   key press events for the widget.
 
   If you reimplement this, it is very important that you \link
@@ -1089,14 +1033,16 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyReleaseEvent() event() QKeyEvent::ignore() */
+  \sa keyReleaseEvent(), QKeyEvent::ignore(), event()
+*/
 
 void QWidget::keyPressEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*! This event handler can be reimplemented in a sub class to receive
+/*!
+  This event handler can be reimplemented in a subclass to receive
   key release events for the widget.
 
   If you reimplement this, it is very important that you \link
@@ -1105,7 +1051,8 @@ void QWidget::keyPressEvent( QKeyEvent *e )
 
   The default implementation ignores the event.
 
-  \sa keyPressEvent() event() QKeyEvent::ignore() */
+  \sa keyPressEvent(), QKeyEvent::ignore(), event()
+*/
 
 void QWidget::keyReleaseEvent( QKeyEvent *e )
 {
@@ -1113,12 +1060,12 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-keyboard focus events (focus received) for the widget.
+  This event handler can be reimplemented in a subclass to receive
+  keyboard focus events (focus received) for the widget.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa focusOutEvent() and event().
+  \sa focusOutEvent(), event()
 */
 
 void QWidget::focusInEvent( QFocusEvent * )
@@ -1126,44 +1073,47 @@ void QWidget::focusInEvent( QFocusEvent * )
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-keyboard focus events (focus lost) for the widget.
+  This event handler can be reimplemented in a subclass to receive
+  keyboard focus events (focus lost) for the widget.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa focusInEvent() and event().
+  \sa focusInEvent(), event()
 */
 
 void QWidget::focusOutEvent( QFocusEvent * )
 {
 }
 
-/*!  This event handler can be reimplemented in a sub class to receive
+/*!
+  This event handler can be reimplemented in a subclass to receive
   widget paint events.	Actually, it more or less \e must be
   reimplemented.
+
+  The default implementation does nothing.
 
   When the paint event occurs, the rectangle \e e->rect() has been
   cleared to the background color or pixmap.  For many widgets it is
   sufficient to redraw the entire widget each time, but some need to
   consider \e e->rect() to avoid flicker or slowness.
-
-  The default implementation does nothing.
+  Pixmaps can also be used to implement flicker-free update.
 
   update() and repaint() can be used to force a paint event.
 
-  \sa event() repaint() update() QPainter QPixmap */
+  \sa event(), repaint(), update(), QPainter, QPixmap
+*/
 
 void QWidget::paintEvent( QPaintEvent * e )
 {
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-widget move events.
+  This event handler can be reimplemented in a subclass to receive
+  widget move events.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa resizeEvent() event() move()
+  \sa resizeEvent(), event(), move()
 */
 
 void QWidget::moveEvent( QMoveEvent * )
@@ -1171,12 +1121,12 @@ void QWidget::moveEvent( QMoveEvent * )
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-widget resize events.
+  This event handler can be reimplemented in a subclass to receive
+  widget resize events.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa moveEvent() event() resize()
+  \sa moveEvent(), event(), resize()
 */
 
 void QWidget::resizeEvent( QResizeEvent * )
@@ -1184,12 +1134,12 @@ void QWidget::resizeEvent( QResizeEvent * )
 }
 
 /*!
-This event handler can be reimplemented in a sub class to receive
-widget close events.
+  This event handler can be reimplemented in a subclass to receive
+  widget close events.
 
-The default implementation does nothing.
+  The default implementation does nothing.
 
-\sa event().
+  \sa event(), close(), destroyed()
 */
 
 void QWidget::closeEvent( QCloseEvent * )

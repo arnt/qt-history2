@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#102 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#101 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#102 $")
 
 
 // --------------------------------------------------------------------------
@@ -1033,6 +1033,8 @@ int QApplication::enter_loop()			// local event loop
 		case KeyRelease:
 		    if ( focus_widget )
 			widget = (QETWidget*)focus_widget;
+		    else
+			widget = (QETWidget*)widget->topLevelWidget();
 		    if ( !widget->isDisabled() )
 			widget->translateKeyEvent( &event );
 		    break;
