@@ -191,7 +191,7 @@ MakefileGenerator::initOutPaths()
     QDir::current().cd(currentDir);
 }
 
-QMakeProject 
+QMakeProject
 *MakefileGenerator::projectFile() const
 {
     return project;
@@ -1678,9 +1678,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 		QDir pwd(Option::output_dir);
 		QStringList in = (*it)->directory.split(Option::dir_sep), out;
 		for(int i = 0; i < in.size(); i++) {
-		    if(in.at(i) == "..") 
+		    if(in.at(i) == "..")
 			out.prepend(QFileInfo(pwd.path()).fileName());
-		    else if(in.at(i) != ".") 
+		    else if(in.at(i) != ".")
 			out.prepend("..");
 		    pwd.cd(in.at(i));
 		}
@@ -1919,7 +1919,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
             }
             file = Option::fixPathToTargetOS(file, false, canon);
             if(canon && QFile::exists(file) && file == Option::fixPathToTargetOS(file, true, canon)) {
-                QString real_file = QDir(file).canonicalPath();
+                QString real_file = QFileInfo(file).canonicalFilePath();
                 if(!real_file.isEmpty())
                     file = real_file;
             }
@@ -2031,7 +2031,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &d
         if(depHeuristics.contains(dep.real()))
             return depHeuristics[dep.real()];
 
-        if(Option::output_dir != QDir::currentPath() 
+        if(Option::output_dir != QDir::currentPath()
            && QDir::isRelativePath(dep.real())) { //is it from the shadow tree
             QList<QMakeLocalFileName> depdirs = QMakeSourceFileInfo::dependencyPaths();
             depdirs.prepend(QFileInfo(file.real()).absoluteDir().path());
