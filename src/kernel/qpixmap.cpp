@@ -990,6 +990,8 @@ static QPixmap grabChildWidgets( QWidget * w )
     QPaintEvent e( w->rect(), FALSE );
     QApplication::sendEvent( w, &e );
     QPainter::redirect( w, 0 );
+    if ( w->testWFlags( Qt::WRepaintNoErase ) )
+	w->repaint( FALSE );
 
     const QObjectList * children = w->children();
     if ( children ) {
