@@ -106,7 +106,7 @@
 #  define Q_OS_HPUX
 #elif defined(ultrix) || defined(__ultrix) || defined(__ultrix__)
 #  define Q_OS_ULTRIX
-#elif defined(reliantunix)
+#elif defined(sinix)
 #  define Q_OS_RELIANT
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #  define Q_OS_LINUX
@@ -223,15 +223,6 @@
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
 #  endif
-#elif defined(__CDS__)
-// does not seem to define __EDG__ or __EDG according to Reliant documentation
-// but nevertheless uses EDG conventions like _BOOL
-#  define Q_CC_EDG
-#  define Q_CC_CDS
-#elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
-// don't know whether it defines __EDG__ or __EDG but an EDG compiler for sure
-#  define Q_CC_EDG
-#  define Q_CC_OC
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 // __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
 // __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002
@@ -259,6 +250,10 @@
 #      define Q_CC_USLC
 #    endif
 #  endif
+#elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
+// don't know whether it defines __EDG__ or __EDG but an EDG compiler for sure
+#  define Q_CC_EDG
+#  define Q_CC_OC
 #elif defined(__USLC__)
 // the older UnixWare compiler is not based on EDG
 #  define Q_CC_USLC
@@ -266,16 +261,23 @@
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
 #  if __SUNPRO_CC >= 0x500
-     // 'bool' is enabled by default but it can still be disabled
-     // using -features=nobool in which case _BOOL is not defined
-     // which is the default in the 4.2 compatibility mode triggered
-     // by -compat=4
+     // 'bool' is enabled by default but can be disabled using -features=nobool
+     // in which case _BOOL is not defined
+     // this is the default in 4.2 compatibility mode triggered by -compat=4
 #    if !defined(_BOOL)
 #      define Q_NO_BOOL_TYPE
 #    endif
 #    define Q_C_CALLBACKS
 #  else
      // 4.2 compiler or older
+#    define Q_NO_BOOL_TYPE
+#  endif
+#elif defined(Q_OS_RELIANT)
+// CDS++ does not seem to define __EDG__ or __EDG according to Reliant
+// documentation but nevertheless uses EDG conventions like _BOOL
+#  define Q_CC_EDG
+#  define Q_CC_CDS
+#  if !defined(_BOOL)
 #    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(Q_OS_HPUX)
