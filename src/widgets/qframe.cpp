@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#85 $
 **
 ** Implementation of QFrame widget class
 **
@@ -381,8 +381,9 @@ void QFrame::updateFrameWidth()
   style \endlink, not only the line width and the mid line width.  For
   example, the style \c NoFrame always has a frame width 0, while the
   style \c Panel has a frame width equivalent to the line width.
+  The frame width also includes the margin.
 
-  \sa lineWidth(), midLineWidth(), frameStyle()
+  \sa lineWidth(), midLineWidth(), frameStyle(), margin()
 */
 
 

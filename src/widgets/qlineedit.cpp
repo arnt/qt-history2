@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#196 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#197 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1386,9 +1386,9 @@ void QLineEdit::dragScrollSlot()
   newMarkAnchor to \a newMarkDrag.  Returns TRUE if it changes the line
   edit and FALSE if it doesn't.
 
-  If \a newText contains more than one line is longer than
-  maxLength(), validateAndSet() truncates it before testing its
-  validity.
+  Linebreaks in \a newText are converted to spaces, and
+  it is truncated to maxLength() if necessary
+  before testing its validity.
 
   Repaints and emits textChanged() if appropriate.
 */
