@@ -193,12 +193,12 @@ QColor::QColor(Qt::GlobalColor color)
         // that we can use Qt::color0 and Qt::color1 with fixed pixel values on
         // all screens
         QRGBA(255, 255, 255, 1), // Qt::color0
-        QRGBA( 0,   0,   0, 1),  // Qt::color1
+        QRGBA(  0,   0,   0, 1), // Qt::color1
 #else
-        QRGB(255, 255, 255),  // Qt::color0
-        QRGB(0, 0, 0),        // Qt::color1
+        QRGB(255, 255, 255), // Qt::color0
+        QRGB(  0,   0,   0), // Qt::color1
 #endif
-        QRGB( 0,   0,   0), // black
+        QRGB(  0,   0,   0), // black
         QRGB(255, 255, 255), // white
         /*
          * From the "The Palette Manager: How and Why" by Ron Gery,
@@ -223,15 +223,15 @@ QColor::QColor(Qt::GlobalColor color)
         QRGB(160, 160, 164), // index 247   light gray
         QRGB(192, 192, 192), // index 7     light gray
         QRGB(255,   0,   0), // index 249   red
-        QRGB( 0, 255,   0), // index 250   green
-        QRGB( 0,   0, 255), // index 252   blue
-        QRGB( 0, 255, 255), // index 254   cyan
+        QRGB(  0, 255,   0), // index 250   green
+        QRGB(  0,   0, 255), // index 252   blue
+        QRGB(  0, 255, 255), // index 254   cyan
         QRGB(255,   0, 255), // index 253   magenta
         QRGB(255, 255,   0), // index 251   yellow
         QRGB(128,   0,   0), // index 1     dark red
-        QRGB( 0, 128,   0), // index 2     dark green
-        QRGB( 0,   0, 128), // index 4     dark blue
-        QRGB( 0, 128, 128), // index 6     dark cyan
+        QRGB(  0, 128,   0), // index 2     dark green
+        QRGB(  0,   0, 128), // index 4     dark blue
+        QRGB(  0, 128, 128), // index 6     dark cyan
         QRGB(128,   0, 128), // index 5     dark magenta
         QRGB(128, 128,   0)  // index 3     dark yellow
     };
@@ -254,21 +254,20 @@ QColor::QColor(Qt::GlobalColor color)
 
 /*!
     Constructs a color with the value \a color. The color format is
-    specified with \a format. The default format is RgbFormat, where the
-    alpha component is ignored and set to 255, or solid.
+    specified with \a format. The alpha component is ignored and set
+    to 255, or solid.
 */
-QColor::QColor(uint color, ColorFormat format)
+
+QColor::QColor(QRgb color)
 {
     cspec = Rgb;
-    if (format == QColor::RgbaFormat)
-	argb.alpha = qAlpha(color) * 0x101;
-    else
-	argb.alpha = 0xffff;
+    argb.alpha = 0xffff;
     argb.red   = qRed(color)   * 0x101;
     argb.green = qGreen(color) * 0x101;
     argb.blue  = qBlue(color)  * 0x101;
     argb.pad   = 0;
 }
+
 
 /*!
     \fn QColor::QColor(const QString &name)
@@ -381,13 +380,13 @@ QStringList QColor::colorNames()
 /*!
     \overload
 */
-void QColor::getHsv(float *h, float *s, float *v, float *a) const
+void QColor::getHsvF(float *h, float *s, float *v, float *a) const
 {
         if (!h || !s || !v)
         return;
 
     if (cspec != Invalid && cspec != Hsv) {
-        toHsv().getHsv(h, s, v, a);
+        toHsv().getHsvF(h, s, v, a);
         return;
     }
 
@@ -437,7 +436,7 @@ void QColor::getHsv(int *h, int *s, int *v, int *a) const
     The value of \a s, \a v, and \a a must all be in the range
     0.0f-1.0f; the value of \a h must be in the range 0.0f-360.0f.
 */
-void QColor::setHsv(float h, float s, float v, float a)
+void QColor::setHsvF(float h, float s, float v, float a)
 {
     if (((h < 0.0f || h >= 360.0f) && h != -1.0f)
         || (s < 0.0f || s > 1.0f)
@@ -484,13 +483,13 @@ void QColor::setHsv(int h, int s, int v, int a)
 /*!
     \overload
 */
-void QColor::getRgb(float *r, float *g, float *b, float *a) const
+void QColor::getRgbF(float *r, float *g, float *b, float *a) const
 {
     if (!r || !g || !b)
         return;
 
     if (cspec != Invalid && cspec != Rgb) {
-        toRgb().getRgb(r, g, b, a);
+        toRgb().getRgbF(r, g, b, a);
         return;
     }
 
@@ -545,7 +544,7 @@ void QColor::getRgb(int *r, int *g, int *b, int *a) const
 
     All values must be in the range 0.0f-1.0f.
 */
-void QColor::setRgb(float r, float g, float b, float a)
+void QColor::setRgbF(float r, float g, float b, float a)
 {
     if (r < 0.0f || r > 1.0f
         || g < 0.0f || g > 1.0f
@@ -601,7 +600,7 @@ void QColor::setRgb(int r, int g, int b, int a)
 /*!
     \fn QRgb QColor::rgb() const
 
-    Returns the RGB value of the color.
+    Returns the RGB value of the color. The alpha is stripped for compatibility.
 
     The return type \e QRgb is equivalent to \c unsigned \c int.
 
@@ -614,12 +613,12 @@ QRgb QColor::rgb() const
 {
     if (cspec != Invalid && cspec != Rgb)
         return toRgb().rgb();
-    return qRgba(argb.red >> 8, argb.green >> 8, argb.blue >> 8, argb.alpha >> 8);
+    return qRgb(argb.red >> 8, argb.green >> 8, argb.blue >> 8);
 }
 
 /*!
     \overload
-    Sets the RGB value to \a rgb.
+    Sets the RGB value to \a rgb, ignoring the alpha.
 
     The type \e QRgb is equivalent to \c unsigned \c int.
 
@@ -628,7 +627,7 @@ QRgb QColor::rgb() const
 void QColor::setRgb(QRgb rgb)
 {
     cspec = Rgb;
-    argb.alpha = qAlpha(rgb) * 0x101;
+    argb.alpha = 0xffff;
     argb.red   = qRed(rgb)   * 0x101;
     argb.green = qGreen(rgb) * 0x101;
     argb.blue  = qBlue(rgb)  * 0x101;
@@ -643,6 +642,18 @@ void QColor::setRgb(QRgb rgb)
 int QColor::alpha() const
 { return argb.alpha >> 8; }
 
+
+/*!
+    Sets the alpha of this color to \a alpha. Integer alpha is
+    specified in the range 0-255.
+
+*/
+
+void QColor::setAlpha(int alpha)
+{
+    argb.alpha = alpha * 0x101;
+}
+
 /*!
     Returns the alpha color component of this color.
 
@@ -650,6 +661,17 @@ int QColor::alpha() const
 */
 float QColor::alphaF() const
 { return argb.alpha / float(USHRT_MAX); }
+
+/*!
+    Sets the alpha of this color to \a alpha. Float alpha is
+    specified in the range 0-1.
+*/
+void QColor::setAlphaF(float alpha)
+{
+    float tmp = alpha * USHRT_MAX;
+    argb.alpha = qRound(tmp);
+}
+
 
 /*!
     Returns the red color component of this color.
@@ -661,6 +683,15 @@ int QColor::red() const
     if (cspec != Invalid && cspec != Rgb)
         return toRgb().red();
     return argb.red >> 8;
+}
+
+/*!
+    Sets the red color component of this color to \a red. Int
+    components are specified in the range 0-255.
+*/
+void QColor::setRed(int red)
+{
+    argb.red = red * 0x101;
 }
 
 /*!
@@ -676,6 +707,16 @@ int QColor::green() const
 }
 
 /*!
+    Sets the green color component of this color to \a green. Int
+    components are specified in the range 0-255.
+*/
+void QColor::setGreen(int green)
+{
+    argb.green = green * 0x101;
+}
+
+
+/*!
     Returns the blue color component of this color.
 
     \sa blueF() red() green() alpha()
@@ -685,6 +726,16 @@ int QColor::blue() const
     if (cspec != Invalid && cspec != Rgb)
         return toRgb().blue();
     return argb.blue >> 8;
+}
+
+
+/*!
+    Sets the blue color component of this color to \a blue. Int
+    components are specified in the range 0-255.
+*/
+void QColor::setBlue(int blue)
+{
+    argb.blue = blue * 0x101;
 }
 
 /*!
@@ -699,6 +750,16 @@ float QColor::redF() const
     return argb.red / float(USHRT_MAX);
 }
 
+
+/*!
+    Sets the red color component of this color to \a red. Float
+    components are specified in the range 0-1.
+*/
+void QColor::setRedF(float red)
+{
+    argb.red = qRound(red * USHRT_MAX);
+}
+
 /*!
     Returns the green color component of this color.
 
@@ -711,6 +772,16 @@ float QColor::greenF() const
     return argb.green / float(USHRT_MAX);
 }
 
+
+/*!
+    Sets the green color component of this color to \a green. Float
+    components are specified in the range 0-1.
+*/
+void QColor::setGreenF(float green)
+{
+    argb.green = qRound(green * USHRT_MAX);
+}
+
 /*!
     Returns the blue color component of this color.
 
@@ -721,6 +792,15 @@ float QColor::blueF() const
     if (cspec != Invalid && cspec != Rgb)
         return toRgb().blueF();
     return argb.blue / float(USHRT_MAX);
+}
+
+/*!
+    Sets the blue color component of this color to \a blue. Float
+    components are specified in the range 0-1.
+*/
+void QColor::setBlueF(float blue)
+{
+    argb.blue = qRound(blue * USHRT_MAX);
 }
 
 /*!
@@ -1130,7 +1210,7 @@ QColor QColor::fromRgb(int r, int g, int b, int a)
 
     \sa toRgb() fromCmyk() fromHsv()
 */
-QColor QColor::fromRgb(float r, float g, float b, float a)
+QColor QColor::fromRgbF(float r, float g, float b, float a)
 {
     if (r < 0.0f || r > 1.0f
         || g < 0.0f || g > 1.0f
@@ -1192,7 +1272,7 @@ QColor QColor::fromHsv(int h, int s, int v, int a)
 
     \sa toHsv() fromCmyk() fromRgb()
 */
-QColor QColor::fromHsv(float h, float s, float v, float a)
+QColor QColor::fromHsvF(float h, float s, float v, float a)
 {
     if (((h < 0.0f || h >= 360.0f) && h != -1.0f)
         || (s < 0.0f || s > 1.0f)
@@ -1241,13 +1321,13 @@ void QColor::getCmyk(int *c, int *m, int *y, int *k, int *a)
 /*!
     \overload
 */
-void QColor::getCmyk(float *c, float *m, float *y, float *k, float *a)
+void QColor::getCmykF(float *c, float *m, float *y, float *k, float *a)
 {
     if (!c || !m || !y || !k)
         return;
 
     if (cspec != Invalid && cspec != Cmyk) {
-        toCmyk().getCmyk(c, m, y, k, a);
+        toCmyk().getCmykF(c, m, y, k, a);
         return;
     }
 
@@ -1292,7 +1372,7 @@ void QColor::setCmyk(int c, int m, int y, int k, int a)
 
     All the values must be in the range 0.0f-1.0f.
 */
-void QColor::setCmyk(float c, float m, float y, float k, float a)
+void QColor::setCmykF(float c, float m, float y, float k, float a)
 {
     if (c < 0.0f || c > 1.0f
         || m < 0.0f || m > 1.0f
@@ -1352,7 +1432,7 @@ QColor QColor::fromCmyk(int c, int m, int y, int k, int a)
 
     \sa toCmyk() fromHsv() fromRgb()
 */
-QColor QColor::fromCmyk(float c, float m, float y, float k, float a)
+QColor QColor::fromCmykF(float c, float m, float y, float k, float a)
 {
     if (c < 0.0f || c > 1.0f
         || m < 0.0f || m > 1.0f

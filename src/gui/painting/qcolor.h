@@ -34,12 +34,10 @@ class Q_GUI_EXPORT QColor
 public:
     enum Spec { Invalid, Rgb, Hsv, Cmyk };
 
-    enum ColorFormat { RgbFormat, RgbaFormat };
-
     QColor();
     QColor(Qt::GlobalColor color);
     QColor(int r, int g, int b, int a = 255);
-    QColor(uint color, ColorFormat format = RgbFormat);
+    QColor(QRgb rgb);
     QColor(const QString& name);
     QColor(const char *name);
     QColor(const QColor &color);
@@ -55,22 +53,30 @@ public:
     { return cspec; }
 
     int alpha() const;
+    void setAlpha(int alpha);
 
     float alphaF() const;
+    void setAlphaF(float alpha);
 
     int red() const;
     int green() const;
     int blue() const;
+    void setRed(int red);
+    void setGreen(int green);
+    void setBlue(int blue);
 
     float redF() const;
     float greenF() const;
     float blueF() const;
+    void setRedF(float red);
+    void setGreenF(float green);
+    void setBlueF(float blue);
 
     void getRgb(int *r, int *g, int *b, int *a = 0) const;
     void setRgb(int r, int g, int b, int a = 255);
 
-    void getRgb(float *r, float *g, float *b, float *a = 0) const;
-    void setRgb(float r, float g, float b, float a = 1.0);
+    void getRgbF(float *r, float *g, float *b, float *a = 0) const;
+    void setRgbF(float r, float g, float b, float a = 1.0);
 
     QRgb rgb() const;
     void setRgb(QRgb rgb);
@@ -86,8 +92,8 @@ public:
     void getHsv(int *h, int *s, int *v, int *a = 0) const;
     void setHsv(int h, int s, int v, int a = 255);
 
-    void getHsv(float *h, float *s, float *v, float *a = 0) const;
-    void setHsv(float h, float s, float v, float a = 1.0);
+    void getHsvF(float *h, float *s, float *v, float *a = 0) const;
+    void setHsvF(float h, float s, float v, float a = 1.0);
 
     int cyan() const;
     int magenta() const;
@@ -102,8 +108,8 @@ public:
     void getCmyk(int *c, int *m, int *y, int *k, int *a = 0);
     void setCmyk(int c, int m, int y, int k, int a = 255);
 
-    void getCmyk(float *c, float *m, float *y, float *k, float *a = 0);
-    void setCmyk(float c, float m, float y, float k, float a = 1.0);
+    void getCmykF(float *c, float *m, float *y, float *k, float *a = 0);
+    void setCmykF(float c, float m, float y, float k, float a = 1.0);
 
     QColor toRgb() const;
     QColor toHsv() const;
@@ -111,14 +117,17 @@ public:
 
     QColor convertTo(Spec colorSpec) const;
 
+    static QColor fromRgb(QRgb rgb);
+    static QColor fromRgba(QRgb rgba);
+
     static QColor fromRgb(int r, int g, int b, int a = 255);
-    static QColor fromRgb(float r, float g, float b, float a = 1.0);
+    static QColor fromRgbF(float r, float g, float b, float a = 1.0);
 
     static QColor fromHsv(int h, int s, int v, int a = 255);
-    static QColor fromHsv(float h, float s, float v, float a = 1.0);
+    static QColor fromHsvF(float h, float s, float v, float a = 1.0);
 
     static QColor fromCmyk(int c, int m, int y, int k, int a = 255);
-    static QColor fromCmyk(float c, float m, float y, float k, float a = 1.0);
+    static QColor fromCmykF(float c, float m, float y, float k, float a = 1.0);
 
     QColor light(int f = 150) const;
     QColor dark(int f = 200) const;
