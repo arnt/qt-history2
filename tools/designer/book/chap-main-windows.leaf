@@ -12,7 +12,7 @@ application.
 
 \img mw-colortool1.png The Color Tool application
 
-The \c colortool application is a multiplatform application that
+The \c colortool application is a cross-platform application that
 allows users to create, edit and save lists of colors. Each color has
 a user defined name and an RGB (Red, Green, Blue) value. 
 

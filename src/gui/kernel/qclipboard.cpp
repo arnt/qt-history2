@@ -105,7 +105,7 @@
     \endlist
 
     See the multiclip example in the \e{Qt Designer} examples
-    directory for an example of a multiplatform clipboard application
+    directory for an example of a cross-platform clipboard application
     that also demonstrates selection handling.
 */
 

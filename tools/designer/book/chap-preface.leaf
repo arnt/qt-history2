@@ -3,7 +3,7 @@
 \section1 Introduction
 
     This manual presents \QD, a tool for designing and implementing
-    user interfaces built with the Qt multiplatform GUI toolkit. \QD
+    user interfaces built with the Qt cross-platform GUI toolkit. \QD
     makes it easy to experiment with user interface design. At any
     time you can generate the code required to reproduce the user
     interface from the files \QD produces, changing your design as

@@ -137,7 +137,7 @@ part of a project, not just part of a single form.
 \QD needs to store information on projects, for example, the list of
 forms, the image collection and information about available databases
 and how to access them. The majority of Qt users already use a project
-file format to create multiplatform makefiles: \Cmd tmake (and with
+file format to create cross-platform makefiles: \Cmd tmake (and with
 Qt 3.0 \Cmd qmake) project \File{.pro} files. These files already
 contain the list of forms, \File{.ui} files, used in the project for
 \Cmd uic. 

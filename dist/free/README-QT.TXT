@@ -5,7 +5,7 @@ other releases of Qt.  Upgrade/downgrade to that version, or look
 for a new version of this software.
 
 %This software was developed with the Free Edition of Qt, the
-multi-platform C++ Graphical User Interface toolkit. 
+cross-platform C++ Graphical User Interface toolkit. 
 
 Qt is a product of Trolltech (see http://www.trolltech.com).  Qt is
 released in two different editions:

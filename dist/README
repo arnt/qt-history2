@@ -1,6 +1,6 @@
 This is Qt version %VERSION%
 
-Qt is a multiplatform C++ GUI application framework.
+Qt is a cross-platform C++ GUI application framework.
 
 Qt 4.0 introduces new features and many improvements over the 3.x.x
 series. See the changes file for details.

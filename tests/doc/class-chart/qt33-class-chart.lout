@@ -64,7 +64,7 @@ Slope @Font 9.25c @Wide { ragged nohyphen } @Break {
 Qt is a C++ toolkit for cross-platform GUI and application
 development. In addition to the Qt C++ class library, the toolkit
 includes tools like Qt Designer that make writing applications fast
-and straightforward. Qt's multiplatform abilities and
+and straightforward. Qt's cross-platform abilities and
 internationalization support means that Qt applications can reach the
 widest darkgrey @Colour{mark}et. 
 }
