@@ -35,7 +35,16 @@
 #include "qdir.h"
 #include "qfileinfo.h"
 #include "qhash.h"
-#include "qthread.h"
+
+#if defined(QT_THREAD_SUPPORT)
+#  include <qthread.h>
+#  include <private/qmutexpool_p.h>
+#  define M_LOCK(x) \
+    QMutexLocker mlocker(qt_global_mutexpool \
+			 ? qt_global_mutexpool->get(x) \
+			 : 0)
+#endif
+
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
@@ -2450,13 +2459,13 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	return TRUE;
 
     if ( receiver == 0 ) {			// serious error
-	qWarning( "QCoreApplication::notify: Unexpected null receiver" );
+	qWarning( "QApplication::notify: Unexpected null receiver" );
 	return TRUE;
     }
 
 #if defined(QT_THREAD_SUPPORT)
     Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
-	       "QCoreApplication::sendEvent",
+	       "QApplication::sendEvent",
 	       QString("Cannot send events to objects owned by a different thread (%1).  "
 		       "Receiver '%2' (of type '%3') was created in thread %4")
 	       .arg(QString::number((ulong) QThread::currentThread(), 16))
@@ -2467,35 +2476,34 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
-	QEventLoop *eventloop = QEventLoop::instance();
-	QPostEventList *postedEvents = eventloop->d->postedEvents;
+	extern QPostEventList *qt_postEventList(QObject *); // from qcoreapplication.cpp
+	QPostEventList *postedEvents = qt_postEventList(receiver);
+	if (postedEvents) {
+	    M_LOCK(&postedEvents->mutex);
 
-#if defined(QT_THREAD_SUPPORT)
-	QMutexLocker locker(&postedEvents->mutex);
-#endif // QT_THREAD_SUPPORT
-
-	// the QObject destructor calls QObject::removeChild, which calls
-	// QCoreApplication::sendEvent() directly.  this can happen while the event
-	// loop is in the middle of posting events, and when we get here, we may
-	// not have any more posted events for this object.
-	bool postedChildInsertEventsRemaining = false;
-	// if this is a child remove event and the child insert
-	// hasn't been dispatched yet, kill that insert
-	QObject * c = ((QChildEvent*)e)->child();
-	for (int i = 0; i < postedEvents->size(); ++i) {
-	    const QPostEvent &pe = postedEvents->at(i);
-	    if (pe.event && pe.receiver == receiver) {
-		if (pe.event->type() == QEvent::ChildInserted
-		    && ((QChildEvent*)pe.event)->child() == c ) {
-		    pe.event->posted = false;
-		    delete pe.event;
-		    const_cast<QPostEvent &>(pe).event = 0;
-		    const_cast<QPostEvent &>(pe).receiver = 0;
-		} else {
-		    postedChildInsertEventsRemaining = true;
+	    // the QObject destructor calls QObject::removeChild, which calls
+	    // QCoreApplication::sendEvent() directly.  this can happen while the event
+	    // loop is in the middle of posting events, and when we get here, we may
+	    // not have any more posted events for this object.
+	    bool postedChildInsertEventsRemaining = false;
+	    // if this is a child remove event and the child insert
+	    // hasn't been dispatched yet, kill that insert
+	    QObject * c = ((QChildEvent*)e)->child();
+	    for (int i = 0; i < postedEvents->size(); ++i) {
+		const QPostEvent &pe = postedEvents->at(i);
+		if (pe.event && pe.receiver == receiver) {
+		    if (pe.event->type() == QEvent::ChildInserted
+			&& ((QChildEvent*)pe.event)->child() == c ) {
+			pe.event->posted = false;
+			delete pe.event;
+			const_cast<QPostEvent &>(pe).event = 0;
+			const_cast<QPostEvent &>(pe).receiver = 0;
+		    } else {
+			postedChildInsertEventsRemaining = true;
+		    }
 		}
+		receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
 	    }
-	    receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
 	}
     }
 #endif // QT_COMPAT

@@ -6,6 +6,39 @@
 #include "qtranslator.h"
 #include "qmetaobject.h"
 
+#include <qvector.h>
+#if defined(QT_THREAD_SUPPORT)
+#  include <qmutex.h>
+#endif
+
+struct QPostEvent
+{
+    QObject *receiver;
+    QEvent *event;
+    inline QPostEvent()
+	: receiver(0), event(0)
+    { }
+    inline QPostEvent(QObject *r, QEvent *e)
+	: receiver(r), event(e)
+    { }
+};
+
+class QPostEventList : public QVector<QPostEvent>
+{
+public:
+    QEventLoop *eventloop;
+
+    int offset;
+#if defined(QT_THREAD_SUPPORT)
+    QMutex mutex;
+#endif
+
+    inline QPostEventList()
+	: QVector<QPostEvent>(), eventloop(0), offset(0)
+    { }
+    ~QPostEventList();
+};
+
 class Q_CORE_EXPORT QTranslatorList : private QList<QTranslator*>
 {
 public:

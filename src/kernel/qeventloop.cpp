@@ -13,85 +13,43 @@
 ****************************************************************************/
 
 #include "qeventloop.h"
-#include "qcoreapplication.h"
-#include "qdatetime.h"
-#include "qmap.h"
-#include "qthreadstorage.h"
-#include "qthread.h"
-#include "qsocketnotifier.h"
-
 #include "qeventloop_p.h"
-#include <private/qmutexpool_p.h>
+#include "qcoreapplication.h"
+
+#include <qdatetime.h>
+#include <qhash.h>
+#if defined(QT_THREAD_SUPPORT)
+#  include <qthread.h>
+#  include <qthreadstorage.h>
+#  include <private/qmutexpool_p.h>
+#  define M_LOCK(x) \
+    QMutexLocker locker(qt_global_mutexpool \
+			? qt_global_mutexpool->get(x) \
+			: 0)
+#endif
 
 #define d d_func()
 #define q q_func()
 
 
 #if defined(QT_THREAD_SUPPORT)
-static QThreadStorage<QPostEventList*> postEventLists;
-static QMap<Qt::HANDLE, QEventLoopPrivate *> eventloopprivate_map;
+static QHash<Qt::HANDLE, QEventLoop *> eventloops;
 #else
-static QEventLoopPrivate *singleton = 0;
+static QEventLoop *singleton = 0;
 #endif
-
-QEventLoopPrivate *qt_find_eventloop_private(Qt::HANDLE thread)
-{
-#if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker(qt_global_mutexpool ? qt_global_mutexpool->get(&eventloopprivate_map) : 0);
-    eventloopprivate_map.ensure_constructed();
-    return eventloopprivate_map.value(thread);
-#else
-    Q_UNUSED(thread);
-    return singleton;
-#endif
-}
-
-
-QPostEventList::~QPostEventList()
-{
-    for (int i = 0; i < size(); ++i) {
-	const QPostEvent &pe = at(i);
-	// don't leak undelivered events
-	if (pe.event) delete pe.event;
-    }
-
-#ifdef QT_THREAD_SUPPORT
-    // clear the postedEvents
-    QEventLoopPrivate *p = qt_find_eventloop_private(QThread::currentThread());
-    if (p) p->postedEvents = 0;
-#endif
-}
-
 
 QEventLoopPrivate::QEventLoopPrivate()
-    : QObjectPrivate(), initialized(false)
+    : QObjectPrivate()
 {
     reset();
 #if defined(Q_WS_X11)
     xfd = -1;
 #endif // Q_WS_X11
-
-#ifdef QT_THREAD_SUPPORT
-    postEventLists.ensure_constructed();
-    if (!postEventLists.hasLocalData())
-	postEventLists.setLocalData(new QPostEventList);
-    postedEvents = postEventLists.localData();
-
-    QMutexLocker locker(qt_global_mutexpool ?
-			qt_global_mutexpool->get(&eventloopprivate_map) : 0);
-    eventloopprivate_map.ensure_constructed();
-    Qt::HANDLE thread = QThread::currentThread();
-    Q_ASSERT_X(!eventloopprivate_map.contains(thread), "QEventLoop",
-	       "Cannot have more than one event loop per thread.");
-    eventloopprivate_map.insert(thread, this);
-#else
-    postedEvents = new QPostEventList;
-
-    Q_ASSERT_X(!singleton, "QEventLoop",
-	       "Cannot have more than one event loop per application.");
-    singleton = this;
-#endif
 }
+
+
+// in qcoreapplication.cpp
+extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 
 
 /*!
@@ -153,8 +111,21 @@ QEventLoopPrivate::QEventLoopPrivate()
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate(), parent)
 {
+#ifdef QT_THREAD_SUPPORT
+    M_LOCK(&eventloops);
+    eventloops.ensure_constructed();
+    const Qt::HANDLE thr = thread();
+    Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
+	       "Cannot have more than one event loop per thread.");
+    eventloops.insert(thr, this);
+#else
+    Q_ASSERT_X(!singleton, "QEventLoop",
+	       "Cannot have more than one event loop per application.");
+    singleton = this;
+#endif
+
     init();
-    d->initialized = true;
+    qt_setEventLoop(this, this);
 }
 
 
@@ -163,8 +134,21 @@ QEventLoop::QEventLoop(QObject *parent)
 QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
     : QObject(priv, parent)
 {
+#ifdef QT_THREAD_SUPPORT
+    M_LOCK(&eventloops);
+    eventloops.ensure_constructed();
+    const Qt::HANDLE thr = thread();
+    Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
+	       "Cannot have more than one event loop per thread.");
+    eventloops.insert(thr, this);
+#else
+    Q_ASSERT_X(!singleton, "QEventLoop",
+	       "Cannot have more than one event loop per application.");
+    singleton = this;
+#endif
+
     init();
-    d->initialized = true;
+    qt_setEventLoop(this, this);
 }
 
 
@@ -173,16 +157,13 @@ QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
 */
 QEventLoop::~QEventLoop()
 {
+    qt_setEventLoop(this, 0);
     cleanup();
 
 #if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker(qt_global_mutexpool ?
-			qt_global_mutexpool->get(&eventloopprivate_map) : 0);
-    eventloopprivate_map.remove(thread());
+    M_LOCK(&eventloops);
+    eventloops.remove(thread());
 #else
-    delete d->postedEvents;
-    d->postedEvents = 0;
-
     singleton = 0;
 #endif
 }
@@ -201,15 +182,14 @@ QEventLoop::~QEventLoop()
 QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
 {
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker(qt_global_mutexpool ? qt_global_mutexpool->get(&eventloopprivate_map) : 0);
-    eventloopprivate_map.ensure_constructed();
-
-    QEventLoopPrivate * const p =
-	eventloopprivate_map.value(thread ? thread : QThread::currentThread());
-    return p ? p->q : 0;
+    if (thread == 0)
+	thread = QThread::currentThread();
+    M_LOCK(&eventloops);
+    eventloops.ensure_constructed();
+    return eventloops.value(thread);
 #else
     Q_UNUSED(thread);
-    return singleton ? singleton->q : 0;
+    return singleton;
 #endif
 }
 
