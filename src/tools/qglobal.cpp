@@ -113,7 +113,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 	return FALSE;
     }
     if ( sizeof(Q_INT8) != 1 || sizeof(Q_INT16) != 2 || sizeof(Q_INT32) != 4 ||
-	 sizeof(Q_LONG) != si_wordSize || sizeof(float) != 4 || sizeof(double) != 8 ) {
+	 sizeof(Q_LONG)*8 != si_wordSize || sizeof(float) != 4 || sizeof(double) != 8 ) {
 #if defined(QT_CHECK_RANGE)
 	qFatal( "qSysInfo: Unsupported system data type size" );
 #endif
