@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#120 $
+** $Id: //depot/qt/main/src/moc/moc.y#121 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1461,7 +1461,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.54 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.55 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1551,12 +1551,27 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "void %s::initMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn;\n" );
-    if ( qualifiedSuperclassName().contains(':') ) // Work around bug in MSVC
-        fprintf( out, "#if !defined(_CC_MSVC_)\n" );
+    if ( qualifiedSuperclassName().contains(':') ) { // Work around bug in MSVC
+        fprintf( out, "#if defined(_CC_MSVC_)\n" );
+	fprintf ( out, 
+	      "// create a pointer to member function to workaround MSVC bug");
+
+	fprintf( out, "const char* (%s::* fp)() const = %s::className;",
+		 (const char*)qualifiedSuperclassName(),
+		 (const char*)qualifiedSuperclassName() );
+	fprintf( out, "if ( strcmp((this->*fp)(), \"%s\") != 0 )\n"
+	         "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
+	         (const char*)qualifiedSuperclassName(),
+		 (const char*)qualifiedClassName(),
+		 (const char*)qualifiedSuperclassName() );
+        fprintf( out, "#else\n" );
+    }
     fprintf( out, "    if ( strcmp(%s::className(), \"%s\") != 0 )\n"
 	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
-             (const char*)qualifiedSuperclassName(), (const char*)qualifiedSuperclassName(),
-             (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
+             (const char*)qualifiedSuperclassName(),
+	     (const char*)qualifiedSuperclassName(),
+             (const char*)qualifiedClassName(),
+	     (const char*)qualifiedSuperclassName() );
     if ( qualifiedSuperclassName().contains(':') ) // Work around bug in MSVC
         fprintf( out, "#endif\n" );
     fprintf( out, "\n#if QT_VERSION >= 199\n" );
