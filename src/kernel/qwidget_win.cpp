@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#217 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#218 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -323,6 +323,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
     WId old_winid = winid;
+    bool accept_drops = acceptDrops();
+    if ( accept_drops )
+	setAcceptDrops( FALSE ); // ole dnd unregister (we will register again below)
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
     setWinId( 0 );
@@ -385,6 +388,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
     }
+    if ( accept_drops )
+	setAcceptDrops( TRUE );
 }
 
 
