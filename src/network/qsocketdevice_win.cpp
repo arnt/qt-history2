@@ -72,6 +72,30 @@ static void cleanupWinSock() // post-routine
     initialized = FALSE;
 }
 
+static inline void qt_socket_getportaddr( struct sockaddr *sa,
+					  Q_UINT16 *port, QHostAddress *addr )
+{
+#if !defined (QT_NO_IPV6)
+    if (sa->sa_family == AF_INET6) {
+	qt_sockaddr_in6 *sa6 = (qt_sockaddr_in6 *)sa;
+	Q_IPV6ADDR tmp;
+	for ( int i = 0; i < 16; ++i )
+	    tmp.c[i] = sa6->sin6_addr.qt_s6_addr[i];
+	QHostAddress a( tmp );
+	if ( !a.isNull() ) {
+	    *addr = a;
+	    *port = ntohs( sa6->sin6_port );
+	}
+	return;
+    }
+#endif
+    struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
+    QHostAddress a( ntohl( sa4->sin_addr.s_addr ) );
+    if ( !a.isNull() ) {
+	*port = ntohs( sa4->sin_port );
+	*addr = a;
+    }
+}
 
 void QSocketDevice::init()
 {
@@ -337,6 +361,10 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
     if ( !isValid() )
 	return FALSE;
+
+    pa = addr;
+    pp = port;
+
     struct sockaddr_in a4;
     struct sockaddr *aa;
     SOCKLEN_T aalen;
@@ -640,24 +668,7 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	SOCKLEN_T sz;
 	sz = sizeof( a );
 	r = ::recvfrom( fd, data, maxlen, 0, (struct sockaddr *)&a, &sz );
-#if !defined(QT_NO_IPV6)
-	// Check the family type, and translate the remote address
-	// accordingly.
-	struct sockaddr *ap = (struct sockaddr *)&a;
-	if (ap->sa_family == AF_INET6) {
-	    qt_sockaddr_in6 *a6 = (qt_sockaddr_in6 *)&a;
-	    Q_IPV6ADDR tmp;
-	    memcpy( &tmp, &a6->sin6_addr.qt_s6_addr, sizeof(tmp) );
-
-	    pp = ntohs(a6->sin6_port);
-	    pa = QHostAddress(tmp);
-	} else
-#endif
-	{
-	    struct sockaddr_in *a4 = (struct sockaddr_in *)&a;
-	    pp = ntohs( a4->sin_port );
-	    pa = QHostAddress( ntohl( a4->sin_addr.s_addr ) );
-	}
+	qt_socket_getportaddr( (struct sockaddr *)(&a), &pp, &pa );
     } else {
 	r = ::recv( fd, data, maxlen, 0 );
     }
@@ -915,25 +926,8 @@ void QSocketDevice::fetchConnectionParameters()
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
     sz = sizeof( sa );
-    if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) ) {
-#if !defined (QT_NO_IPV6)
-	struct sockaddr *sap = (struct sockaddr *)&sa;
-	if (sap->sa_family == AF_INET6) {
-	    qt_sockaddr_in6 *sa6 = (qt_sockaddr_in6 *)&sa;
-	    p = ntohs( sa6->sin6_port );
-	    Q_IPV6ADDR tmp;
-	    for ( int i = 0; i < 16; ++i )
-		tmp.c[i] = sa6->sin6_addr.qt_s6_addr[i];
-
-	    a = QHostAddress(tmp);
-	} else
-#endif
-	{
-	    struct sockaddr_in *sa4 = (struct sockaddr_in *)&sa;
-	    p = ntohs( sa4->sin_port );
-	    a = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
-	}
-    }
+    if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) )
+	qt_socket_getportaddr( (struct sockaddr *)(&sa), &p, &a );
     pp = 0;
     pa = QHostAddress();
 }
@@ -951,25 +945,8 @@ void QSocketDevice::fetchPeerConnectionParameters()
     memset( &sa, 0, sizeof(sa) );
     SOCKLEN_T sz;
     sz = sizeof( sa );
-    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
-#if !defined (QT_NO_IPV6)
-	struct sockaddr *sa4 = (struct sockaddr *)&sa;
-	if (sa4->sa_family == AF_INET6) {
-	    qt_sockaddr_in6 *sa6 = (qt_sockaddr_in6 *)&sa;
-	    pp = ntohs( sa6->sin6_port );
-	    Q_IPV6ADDR tmp;
-	    for ( int i = 0; i < 16; ++i )
-		tmp.c[i] = sa6->sin6_addr.qt_s6_addr[i];
-
-	    pa = QHostAddress(tmp);
-	} else
-#endif
-	{
-	    struct sockaddr_in *sa4 = (struct sockaddr_in *)&sa;
-	    pp = ntohs( sa4->sin_port );
-	    pa = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
-	}
-    }
+    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) )
+	qt_socket_getportaddr( (struct sockaddr *)(&sa), &pp, &pa );
 }
 
 Q_UINT16 QSocketDevice::peerPort() const
