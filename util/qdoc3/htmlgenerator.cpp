@@ -152,7 +152,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	if ( inLink ) {
 	    out() << protect( plainCode(atom->string()) );
 	} else {
-	    out() << highlightedCode( atom->string(), relative );
+	    out() << highlightedCode( atom->string(), marker, relative );
 	}
 	out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
 	break;
@@ -748,7 +748,7 @@ void HtmlGenerator::generateBrief(const Node *node, CodeMarker *marker)
 void HtmlGenerator::generateIncludes(const InnerNode *inner, CodeMarker *marker)
 {
     if (!inner->includes().isEmpty()) {
-	QString code = highlightedCode(marker->markedUpIncludes(inner->includes()), inner);
+	QString code = highlightedCode(marker->markedUpIncludes(inner->includes()), marker, inner);
 	out() << "<pre>" << trimmedTrailing(code) << "</pre>";
     }
 }
@@ -1200,7 +1200,11 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
         marked.replace( "</@extra>", "</tt>" );
     }
 
-    out() << highlightedCode( marked, relative );
+    if (style != CodeMarker::Detailed) {
+        marked.replace("<@type>", "");
+        marked.replace("</@type>", "");
+    }
+    out() << highlightedCode( marked, marker, relative );
 }
 
 void HtmlGenerator::generateSectionList(const Section& section, const Node *relative,
@@ -1328,7 +1332,8 @@ QString HtmlGenerator::protect( const QString& string )
     return html;
 }
 
-QString HtmlGenerator::highlightedCode(const QString& markedCode, const Node *relative)
+QString HtmlGenerator::highlightedCode(const QString& markedCode, CodeMarker *marker,
+                                       const Node *relative)
 {
     QRegExp linkTag("(<@link node=\"([^\"]+)\">).*(</@link>)");
     linkTag.setMinimal(true);
@@ -1348,7 +1353,26 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, const Node *re
 
 	html.replace( linkTag.pos(3), linkTag.cap(3).length(), end );
 	html.replace( linkTag.pos(1), linkTag.cap(1).length(), begin );
-	k++;
+	++k;
+    }
+
+    QRegExp typeTag("(<@type>)(.*)(</@type>)");
+    typeTag.setMinimal(true);
+
+    k = 0;
+    while ((k = html.indexOf(typeTag, k)) != -1) {
+	QString begin;
+	QString end;
+        QString link = linkForNode(marker->resolveTarget(typeTag.cap(2), tre, relative), relative);
+
+        if (!link.isEmpty()) {
+	    begin = "<a href=\"" + link + "\">";
+	    end = "</a>";
+	}
+
+	html.replace( typeTag.pos(3), typeTag.cap(3).length(), end );
+	html.replace( typeTag.pos(1), typeTag.cap(1).length(), begin );
+	++k;
     }
 
 #if 0
@@ -1372,8 +1396,6 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, const Node *re
     html.replace( QRegExp("</@preprocessor>"), "</font>" );
     html.replace( QRegExp("<@string>"), "<font color=green>" );
     html.replace( QRegExp("</@string>"), "</font>" );
-    html.replace( QRegExp("<@type>"), "<font color=brown>" );
-    html.replace( QRegExp("</@type>"), "</font>" );
 #endif
     html.replace( QRegExp("</?@[^>]*>"), "" );
     return html;
@@ -1468,17 +1490,13 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
 	return QString();
 
     fn = fileName(node);
-    //if (fn != outFileName())
+#if 0
+    // ### reintroduce this test, without breaking .dcf files
+    if (fn != outFileName())
+#endif
         link += fn;
 
     if (!node->isInnerNode()) {
-        /*
-            Don't allow links to obsolete or compat function from
-            other pages.
-        */
-        if (node->status() <= Node::Obsolete && !link.isEmpty())
-            return QString();
-
         ref = refForNode(node);
         if (relative && fn == fileName(relative) && ref == refForNode(relative))
             return QString();

@@ -90,7 +90,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
     case Node::Function:
 	func = (const FunctionNode *) node;
 	if ( !func->returnType().isEmpty() )
-	    synopsis = protect( func->returnType() ) + " ";
+	    synopsis = typified(func->returnType()) + " ";
 	synopsis += name + " (";
 	if ( !func->parameters().isEmpty() ) {
 	    synopsis += " ";
@@ -98,7 +98,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	    while ( p != func->parameters().end() ) {
 		if ( p != func->parameters().begin() )
 		    synopsis += ", ";
-		synopsis += protect( (*p).leftType() ) + " <@param>" +
+		synopsis += typified((*p).leftType()) + " <@param>" +
 			    protect( (*p).name() ) + "</@param>" +
 			    protect( (*p).rightType() );
 		if ( !(*p).defaultValue().isEmpty() )

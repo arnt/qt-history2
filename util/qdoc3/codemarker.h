@@ -84,7 +84,8 @@ public:
 
 protected:
     virtual QString sortName( const Node *node );
-    QString protect( const QString& string );
+    QString protect(const QString &string);
+    QString typified(const QString &string);
     QString taggedNode( const Node *node );
     QString linkTag( const Node *node, const QString& body );
     void insert(FastSection &fastSection, Node *node, SynopsisStyle style, Status status);

@@ -77,7 +77,7 @@ private:
 
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );
-    QString highlightedCode( const QString& markedCode, const Node *relative );
+    QString highlightedCode( const QString& markedCode, CodeMarker *marker, const Node *relative );
     QString fileBase(const Node *node);
 #if 0
     QString fileBase( const Node *node, const SectionIterator& section );

@@ -41,7 +41,7 @@ Node::Status Node::inheritedStatus() const
 {
     Status parentStatus = Commendable;
     if (par)
-	parentStatus = inheritedStatus();
+	parentStatus = par->inheritedStatus();
     return (Status)qMin((int)sta, (int)parentStatus);
 }
 

@@ -118,6 +118,51 @@ QString CodeMarker::protect( const QString& string )
     return marked;
 }
 
+QString CodeMarker::typified(const QString &string)
+{
+    QString result;
+    QString pendingWord;
+
+    for (int i = 0; i <= string.size(); ++i) {
+        QChar ch;
+        if (i != string.size())
+            ch = string.at(i);
+
+        QChar lower = ch.toLower();
+        if ((lower >= 'a' && lower <= 'z') || ch.digitValue() >= 0 || ch == QLatin1Char('_')
+                || ch == QLatin1Char(':')) {
+            pendingWord += ch;
+        } else {
+            if (!pendingWord.isEmpty()) {
+                bool isProbablyType = (pendingWord != "const");
+                if (isProbablyType)
+                    result += "<@type>";
+                result += pendingWord;
+                if (isProbablyType)
+                    result += "</@type>";
+            }
+            pendingWord.clear();
+
+            switch (ch.unicode()) {
+            case '\0':
+                break;
+            case '&':
+                result += "&amp;";
+                break;
+            case '<':
+                result += "&lt;";
+                break;
+            case '>':
+                result += "&gt;";
+                break;
+            default:
+                result += ch;
+            }
+        }
+    }
+    return result;
+}
+
 QString CodeMarker::taggedNode( const Node *node )
 {
     QString tag;
