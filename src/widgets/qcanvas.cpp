@@ -2974,7 +2974,7 @@ void QCanvasPolygon::setPoints(QPointArray pa)
 {
     removeFromChunks();
     poly = pa;
-    poly.translate(x(),y());
+    poly.translate((int)x(),(int)y());
     addToChunks();
 }
 
@@ -3090,7 +3090,7 @@ void QCanvasLine::setPoints(int x1, int y1, int x2, int y2)
 */
 void QCanvasLine::drawShape(QPainter &p)
 {
-    p.drawLine(x()+x1,y()+y1,x()+x2,y()+y2);
+    p.drawLine((int)(x()+x1), (int)(y()+y1), (int)(x()+x2), (int)(y()+y2));
 }
 
 /*!
@@ -3215,7 +3215,7 @@ void QCanvasRectangle::setSize(int width, int height)
 QPointArray QCanvasRectangle::areaPoints() const
 {
     QPointArray pa(4);
-    pa[0] = QPoint(x()-1,y()-1);
+    pa[0] = QPoint((int)x()-1,(int)y()-1);
     pa[1] = pa[0] + QPoint(w+1,0);
     pa[2] = pa[0] + QPoint(w+1,h+1);
     pa[3] = pa[0] + QPoint(0,h+1);
@@ -3227,7 +3227,7 @@ QPointArray QCanvasRectangle::areaPoints() const
 */
 void QCanvasRectangle::drawShape(QPainter & p)
 {
-    p.drawRect(x(), y(), w, h);
+    p.drawRect((int)x(), (int)y(), w, h);
 }
 
 
@@ -3529,7 +3529,7 @@ void QCanvasText::setColor(const QColor& c)
 void QCanvasText::moveBy(double dx, double dy)
 {
     removeFromChunks();
-    brect.moveBy(dx, dy);
+    brect.moveBy((int)dx, (int)dy);
     QCanvasItem::moveBy(dx,dy);
 }
 
