@@ -9,6 +9,15 @@
 #include <qbytearray.h>
 #include <qdatastream.h>
 
+// need this to make sure our copied format doesn't hold a reference
+// to the original format collection anymore
+static QTextFormat cloneFormat(const QTextFormat &fmt)
+{
+    QTextFormat result(fmt.type());
+    result.merge(fmt);
+    return result;
+}
+
 QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollection *collection, const QList<int> &formatIndices)
 {
     Q_FOREACH(int formatIdx, formatIndices) {
@@ -20,11 +29,11 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollecti
             Q_ASSERT(collection->hasFormatCached(groupFormat));
             int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
 
-            formats[idx] = groupFormat;
+            formats[idx] = cloneFormat(groupFormat);
             groups[format.groupIndex()] = idx;
         }
 
-        formats[formatIdx] = format;
+        formats[formatIdx] = cloneFormat(format);
     }
 }
 
@@ -58,9 +67,6 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
 {
-    localFormatCollection = new QTextFormatCollection;
-    localFormatCollection->ref = 1;
-
     if (!cursor.hasSelection())
         return;
 
@@ -143,24 +149,11 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         ++fragIt;
     }
 
-    QTextFormatCollectionState collState(pieceTable->formatCollection(), usedFormats);
-    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(localFormatCollection);
-
-    for (int i = 0; i < blocks.count(); ++i) {
-        Block &b = blocks[i];
-        b.blockFormat = formatIndexMap.value(b.blockFormat, -1);
-        b.charFormat = formatIndexMap.value(b.charFormat, -1);
-
-        for (int i = 0; i < b.fragments.count(); ++i) {
-            TextFragment &f = b.fragments[i];
-            f.format = formatIndexMap.value(f.format, -1);
-        }
-    }
+    formats = QTextFormatCollectionState(pieceTable->formatCollection(), usedFormats);
 }
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextDocumentFragmentPrivate &rhs)
 {
-    localFormatCollection = 0;
     operator=(rhs);
 }
 
@@ -168,11 +161,7 @@ QTextDocumentFragmentPrivate &QTextDocumentFragmentPrivate::operator=(const QTex
 {
     blocks = rhs.blocks;
     localBuffer = rhs.localBuffer;
-    QTextFormatCollection *x = new QTextFormatCollection(*rhs.localFormatCollection);
-    x->ref = 1;
-    x = qAtomicSetPtr(&localFormatCollection, x);
-    if (x && !--x->ref)
-        delete x;
+    formats = rhs.formats;
 
     return *this;
 }
@@ -180,8 +169,6 @@ QTextDocumentFragmentPrivate &QTextDocumentFragmentPrivate::operator=(const QTex
 
 QTextDocumentFragmentPrivate::~QTextDocumentFragmentPrivate()
 {
-    if (!--localFormatCollection->ref)
-        delete localFormatCollection;
 }
 
 void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
@@ -194,7 +181,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
         cursor.moveTo(QTextCursor::NextBlock);
 
     QTextFormatCollection *formats = cursor.d->pieceTable->formatCollection();
-    QMap<int, int> formatIndexMap = formatCollectionState().insertIntoOtherCollection(formats);
+    QMap<int, int> formatIndexMap = this->formats.insertIntoOtherCollection(formats);
 
     QTextPieceTablePointer destPieceTable = cursor.d->pieceTable;
 
@@ -221,26 +208,6 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
             destPieceTable->insert(cursor.position(), text, formatIdx);
         }
     }
-}
-
-QTextFormatCollectionState QTextDocumentFragmentPrivate::formatCollectionState() const
-{
-    QList<int> usedFormats;
-
-    Q_FOREACH(const Block &b, blocks) {
-
-        if (b.blockFormat != -1)
-            usedFormats << b.blockFormat;
-
-        if (b.charFormat != -1)
-            usedFormats << b.charFormat;
-
-        Q_FOREACH(const TextFragment &f, b.fragments)
-            if (f.format != -1)
-                usedFormats << f.format;
-    }
-
-    return QTextFormatCollectionState(localFormatCollection, usedFormats);
 }
 
 void QTextDocumentFragmentPrivate::appendBlock(int blockFormatIndex, int charFormatIndex)
@@ -395,7 +362,7 @@ QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragme
 
     const QTextDocumentFragmentPrivate *d = fragment.d;
 
-    return stream << d->formatCollectionState() << d->localBuffer << d->blocks;
+    return stream << d->formats << d->localBuffer << d->blocks;
 }
 
 /*!
@@ -405,22 +372,7 @@ QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
 {
     QTextDocumentFragmentPrivate *d = new QTextDocumentFragmentPrivate;
 
-    QTextFormatCollectionState collState;
-    stream >> collState;
-    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
-
-    stream >> d->localBuffer >> d->blocks;
-
-    for (int i = 0; i < d->blocks.count(); ++i) {
-        QTextDocumentFragmentPrivate::Block &block = d->blocks[i];
-        block.blockFormat = formatIndexMap.value(block.blockFormat, -1);
-        block.charFormat = formatIndexMap.value(block.charFormat, -1);
-
-        for (int i = 0; i < block.fragments.count(); ++i) {
-            QTextDocumentFragmentPrivate::TextFragment &fragment = block.fragments[i];
-            fragment.format = formatIndexMap.value(fragment.format, -1);
-        }
-    }
+    stream >> d->formats >> d->localBuffer >> d->blocks;
 
     delete fragment.d;
     fragment.d = d;
@@ -597,19 +549,7 @@ void QTextHTMLImporter::import()
                 usedFormats << f.format;
     }
 
-    QTextFormatCollectionState collState(&formats, usedFormats);
-    QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
-
-    for (int i = 0; i < d->blocks.count(); ++i) {
-        QTextDocumentFragmentPrivate::Block &b = d->blocks[i];
-        b.blockFormat = formatIndexMap.value(b.blockFormat, -1);
-        b.charFormat = formatIndexMap.value(b.charFormat, -1);
-
-        for (int i = 0; i < b.fragments.count(); ++i) {
-            QTextDocumentFragmentPrivate::TextFragment &f = b.fragments[i];
-            f.format = formatIndexMap.value(f.format, -1);
-        }
-    }
+    d->formats = QTextFormatCollectionState(&formats, usedFormats);
 }
 
 void QTextHTMLImporter::closeTag(int i)

@@ -39,18 +39,13 @@ inline QDataStream &operator>>(QDataStream &stream, QTextFormatCollectionState &
 class QTextDocumentFragmentPrivate
 {
 public:
-    QTextDocumentFragmentPrivate() {
-        localFormatCollection = new QTextFormatCollection;
-        localFormatCollection->ref = 1;
-    }
+    QTextDocumentFragmentPrivate() {}
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
     ~QTextDocumentFragmentPrivate();
     QTextDocumentFragmentPrivate(const QTextDocumentFragmentPrivate &);
     QTextDocumentFragmentPrivate &operator =(const QTextDocumentFragmentPrivate &);
 
     void insert(QTextCursor &cursor) const;
-
-    QTextFormatCollectionState formatCollectionState() const;
 
     void appendBlock(int blockFormatIndex, int charFormatIndex);
     void appendText(const QString &text, int formatIdx);
@@ -76,9 +71,8 @@ public:
     typedef QVector<Block> BlockVector;
 
     BlockVector blocks;
-
     QString localBuffer;
-    QTextFormatCollection *localFormatCollection;
+    QTextFormatCollectionState formats;
 };
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::TextFragment &fragment)
