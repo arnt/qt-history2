@@ -98,6 +98,8 @@ void P4Init::processExited()
     P4Info::userName = new QString( QStringList::split( ' ', userEntry[0] )[2] );
     QStringList clientEntry = entries.grep( "client name:", FALSE );
     P4Info::clientName = new QString( QStringList::split( ' ', clientEntry[0] )[2] );
+
+    delete this;
 }
 
 P4FStat::P4FStat( const QString& filename )
