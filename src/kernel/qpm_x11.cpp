@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#53 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#53 $")
 
 
 /*
@@ -508,11 +508,12 @@ QImage QPixmap::convertToImage() const
 				(ulong)src[2] << 16 | (ulong)src[3] << 24;
 			src += 4;
 			break;
-		    default:
+		    default:			// should not really happen
 			x = w;			// leave loop
-			y = h;			
+			y = h;
+			pixel = 0;		// eliminate compiler warning
 #if defined(CHECK_RANGE)
-			warning( "QPixmap::convertToImage: Internal error" );
+			warning( "QPixmap::convertToImage: Invalid depth" );
 #endif
 		}
 		if ( red_shift > 0 )
