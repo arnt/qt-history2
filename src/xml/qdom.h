@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#4 $
+** $Id: //depot/qt/main/src/xml/qdom.h#5 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -39,18 +39,10 @@
 #define QDOM_H
 
 #ifndef QT_H
-#include <qstring.h>
-#include <qdict.h>
-#include <qrect.h>
-#include <qfont.h>
-#include <qpen.h>
-#include <qpoint.h>
-#include <qsize.h>
-#include <qvariant.h>
-#include <qmime.h>
+#include "qstring.h"
 #endif // QT_H
 
-#include <qmodules.h>
+#include "qmodules.h"
 
 #if !defined(QT_MODULE_XML)
 #define QM_EXPORT

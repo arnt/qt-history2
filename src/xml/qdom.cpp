@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#17 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#18 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -44,6 +44,7 @@
 #include "qtextstream.h"
 #include "qiodevice.h"
 #include "qpixmap.h"
+#include "qdict.h"
 
 #include <string.h>
 #include <stdlib.h>
