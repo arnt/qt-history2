@@ -215,7 +215,8 @@ extern "C" {
 	    }
 	}
 
-        qDebug("sending compose: '%s', cursor=%d, sellen=%d", data->text.utf8(), cursor, sellen);
+        XIM_DEBUG("sending compose: '%s', cursor=%d, sellen=%d",
+                  data->text.utf8(), cursor, sellen);
 	qic->sendIMEvent(QEvent::InputMethodCompose, data->text, cursor, sellen);
 
 	return 0;
@@ -475,21 +476,24 @@ void QXIMInputContext::reset()
         return;
 
     data->clear();
-    char *mb = XmbResetIC(data->ic);
-    if (mb)
-        XFree(mb);
+    if (data->ic) {
+        char *mb = XmbResetIC(data->ic);
+        if (mb)
+            XFree(mb);
+    }
 }
 
 void QXIMInputContext::widgetDestroyed(QWidget *w)
 {
     QInputContext::widgetDestroyed(w);
-    ICData *d = ximData.take(w);
-    if (!d)
+    ICData *data = ximData.take(w);
+    if (!data)
         return;
 
-    d->clear();
-    XDestroyIC(d->ic);
-    delete d;
+    data->clear();
+    if (data->ic)
+        XDestroyIC(data->ic);
+    delete data;
 }
 
 void QXIMInputContext::mouseHandler(int pos, QMouseEvent *)
@@ -521,7 +525,7 @@ void QXIMInputContext::setFocusWidget(QWidget *w)
     QWidget *oldFocus = focusWidget();
     if (oldFocus) {
         ICData *data = ximData.value(oldFocus);
-        if (data)
+        if (data && data->ic)
             XUnsetICFocus(data->ic);
     }
 
@@ -534,7 +538,9 @@ void QXIMInputContext::setFocusWidget(QWidget *w)
     if (!data)
         data = createICData(w);
 
-    XSetICFocus(data->ic);
+    if (data->ic)
+        XSetICFocus(data->ic);
+
     update();
 }
 
@@ -553,24 +559,26 @@ bool QXIMInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
     QWidget *w = focusWidget();
     if (keywidget != w)
         return false;
-    ICData *d = ximData.value(w);
-    if (!d)
+    ICData *data = ximData.value(w);
+    if (!data)
         return false;
 
     // input method has sent us a commit string
-    QByteArray data;
-    data.resize(513);
+    QByteArray string;
+    string.resize(513);
     KeySym key;    // unused
     Status status; // unused
     QString text;
-    int count = XmbLookupString(d->ic, &event->xkey, data.data(), data.size(), &key, &status);
+    int count = XmbLookupString(data->ic, &event->xkey, string.data(), string.size(),
+                                &key, &status);
 
     if (status == XBufferOverflow) {
-        data.resize(count + 1);
-        count = XmbLookupString(d->ic, &event->xkey, data.data(), data.size(), &key, &status);
+        string.resize(count + 1);
+        count = XmbLookupString(data->ic, &event->xkey, string.data(), string.size(),
+                                &key, &status);
     }
     if (count > 0)
-        text = qt_input_mapper->toUnicode(data.constData() , count);
+        text = qt_input_mapper->toUnicode(string.constData() , count);
 
     if (!(xim_style & XIMPreeditCallbacks) || !isComposing()) {
         // ############### send a regular key event here!
@@ -579,7 +587,7 @@ bool QXIMInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
     }
 
     sendIMEvent(QEvent::InputMethodEnd, text);
-    d->clear();
+    data->clear();
     return true;
 }
 
@@ -644,11 +652,12 @@ QXIMInputContext::ICData *QXIMInputContext::createICData(QWidget *w)
                              (char *) 0);
     }
 
-    if (!data->ic)
-        qFatal("Failed to create XIM input context!");
-
-    // when resetting the input context, preserve the input state
-    (void) XSetICValues(data->ic, XNResetState, XIMPreserveState, (char *) 0);
+    if (data->ic) {
+        // when resetting the input context, preserve the input state
+        (void) XSetICValues(data->ic, XNResetState, XIMPreserveState, (char *) 0);
+    } else {
+        qWarning("Failed to create XIC");
+    }
 
     ximData[w] = data;
     return data;
@@ -661,7 +670,7 @@ void QXIMInputContext::update()
         return;
 
     ICData *data = ximData.value(w);
-    if (!data)
+    if (!data || !data->ic)
         return;
 
     QRect r = w->inputMethodQuery(Qt::ImMicroFocus).toRect();
