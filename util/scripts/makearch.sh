@@ -105,7 +105,7 @@ all: library tutorial examples
 library tutorial examples: moc
 	cd \$@; \$(MAKE)
 
-moc: variables bin/moc
+moc: variables
 	cd \$@; \$(MAKE)
 	[ -d bin ] || mkdir bin
 	cp moc/moc bin/moc
