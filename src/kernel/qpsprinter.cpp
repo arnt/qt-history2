@@ -113,7 +113,7 @@ static const char *const ps_header =
 "add get 0.11 mul add add cvi put}for QCIgray image}ie}D/di{gsave TR 1 i 1 eq\n"
 "{false eq{pop true 3 1 roll 4 i 4 i false 4 i 4 i imagemask BkCol SC\n"
 "imagemask}{pop false 3 1 roll imagemask}ie}{dup false ne{/languagelevel\n"
-"where{pop languagelevel 3 ge}{false}ie}{false}ie{/ma ED dup 8 eq{/dc[0 1]d\n"
+"where{pop languagelevel 3 ge}{false}ie}{false}ie{/ma ED 8 eq{/dc[0 1]d\n"
 "/DeviceGray}{/dc[0 1 0 1 0 1]d/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id 7\n"
 "DB/ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource im d\n"
 "/BitsPerComponent 8 d/Decode dc d DE/md 7 DB/ImageType 1 d/Width w d/Height\n"
@@ -1696,10 +1696,10 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTex
     stream << "<";
     if ( si.analysis.bidiLevel % 2 ) {
 	for ( int i = len-1; i >=0; i-- )
-	    stream << toHex( mapUnicode(text.unicode()[i+si.position].unicode()) );
+	    stream << toHex( mapUnicode(text.unicode()[i].unicode()) );
     } else {
 	for ( int i = 0; i < len; i++ )
-	    stream << toHex( mapUnicode(text.unicode()[i+si.position].unicode()) );
+	    stream << toHex( mapUnicode(text.unicode()[i].unicode()) );
     }
     stream << ">";
 
@@ -4220,7 +4220,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 
     if ( si.analysis.bidiLevel % 2 ) {
 	for ( int i = len-1; i >= 0; i-- ) {
-	    QChar ch = text.unicode()[si.position+i];
+	    QChar ch = text.unicode()[i];
 	    if ( !ch.row() ) {
 		; // ignore, we should never get here anyway
 	    } else {
@@ -4239,7 +4239,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 	}
     } else {
 	for ( int i = 0; i < len; i++ ) {
-	    QChar ch = text.unicode()[si.position+i];
+	    QChar ch = text.unicode()[i];
 	    if ( !ch.row() ) {
 		; // ignore, we should never get here anyway
 	    } else {
@@ -5586,8 +5586,8 @@ QByteArray compress( const QImage & image, bool gray ) {
 #define WIDTH(w)        (float)(w)
 #define HEIGHT(h)       (float)(h)
 
-#define POINT(index)    XCOORD(p[index].point->x()) << ' ' <<           \
-                        YCOORD(p[index].point->y()) << ' '
+#define POINT(index)    XCOORD(p[index].point->x()+0.5) << ' ' <<           \
+                        YCOORD(p[index].point->y()+0.5) << ' '
 #define RECT(index)     XCOORD(p[index].rect->normalize().x())  << ' ' <<     \
                         YCOORD(p[index].rect->normalize().y())  << ' ' <<     \
                         WIDTH (p[index].rect->normalize().width()) << ' ' <<  \
