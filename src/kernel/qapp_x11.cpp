@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#173 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#172 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#173 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -135,7 +135,7 @@ public:
 
 
 /*****************************************************************************
-  qt_init() - initializes Qt for X-Windows
+  qt_init() - initializes Qt for X11
  *****************************************************************************/
 
 void qt_init( int *argcptr, char **argv )
@@ -499,7 +499,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
   double-clicks the window close box) will leave the main event loop and
   \link QApplication::quit() exit the application\endlink.
 
-  For X-Windows, this function also resizes and moves the main widget
+  For X11, this function also resizes and moves the main widget
   according to the \e -geometry command-line option, so you should
   \link QWidget::setGeometry() set the default geometry\endlink before
   calling setMainWidget().
@@ -759,7 +759,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
 
 /*!
-  Flushes the X event queue in the X-Windows implementation.
+  Flushes the X event queue in the X11 implementation.
   Does nothing on other platforms.
   \sa syncX()
 */
@@ -771,7 +771,7 @@ void QApplication::flushX()
 }
 
 /*!
-  Synchronizes with the X server in the X-Windows implementation.
+  Synchronizes with the X server in the X11 implementation.
   Does nothing on other platforms.
   \sa flushX()
 */
@@ -1384,7 +1384,7 @@ void QApplication::exit_loop()
 
 
 /*!
-  This virtual function is only implemented under X-Windows.
+  This virtual function is only implemented under X11.
 
   If you create an application that inherits QApplication and reimplement this
   function, you get direct access to all X events that the are received
@@ -2148,6 +2148,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 {
     QRect  paintRect( event->xexpose.x,	   event->xexpose.y,
 		      event->xexpose.width, event->xexpose.height );
+    bool   clever = testWFlags(WPaintClever);
     XEvent xevent;
     PaintEventInfo info;
 
@@ -2157,7 +2158,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     info.check	= testWFlags(WType_TopLevel);
     info.config = 0;
 
-    while ( TRUE ) {
+    while ( !clever ) {
 	if ( !XCheckIfEvent(dpy,&xevent,isPaintEvent,(XPointer)&info) )
 	    break;
 	if ( qApp->x11EventFilter(&xevent) )	// send event through filter
