@@ -116,7 +116,7 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     QSettings settings;
     settings.setPath( "MyCompany.com", "MyApplication" );
 
-    settings.writeEntry( "/background color", bgColor );
+    settings.writeEntry( "/colors/background", bgColor );
     settings.writeEntry( "/geometry/width", width );
     // ...
     \endcode
