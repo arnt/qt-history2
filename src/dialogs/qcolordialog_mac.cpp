@@ -101,7 +101,7 @@ QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )
 	}
     }
 #endif
-    free(pstr);
+    free((void *)pstr);
     if(ok)
 	(*ok) = rval;
     if(!rval) 
