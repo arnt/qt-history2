@@ -2219,7 +2219,17 @@ void QLineEditPrivate::init( const QString& txt )
 
 void QLineEditPrivate::updateTextLayout()
 {
-    textLayout.setText( q->displayText(), q->font() );
+    // replace all non-printable characters with spaces (to avoid
+    // drawing boxes when using fonts that don't have glyphs for such
+    // characters)
+    const QString &displayText = q->displayText();
+    QString str(displayText.unicode(), displayText.length());
+    QChar* uc = (QChar*)str.unicode();
+    for (int i = 0; i < (int)str.length(); ++i) {
+	if (! uc[i].isPrint())
+	    uc[i] = QChar(0x0020);
+    }
+    textLayout.setText( str, q->font() );
     // ### want to do textLayout.setRightToLeft( text.isRightToLeft() );
     textLayout.beginLayout( QTextLayout::SingleLine );
     textLayout.beginLine( INT_MAX );
