@@ -2205,7 +2205,6 @@ void QTextDocument::doLayout( QPainter *p, int w )
     flow_->setWidth( w );
     cw = w;
     vw = w;
-    invalidate();
     if ( !par && is_printer( p ) )
 	fCollection->setPainter( p );
     QTextParag *parag = fParag;
