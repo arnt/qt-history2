@@ -1197,7 +1197,7 @@ EOF
 fi
 
 
-if [ "$QWS_DEPTHS" = prompted ]
+if [ "$QWS_DEPTHS" = prompted -a "$EMBEDDED" != no ]
 then
     echo
     echo "Choose pixel-depths to support:"
@@ -1259,7 +1259,7 @@ then
     fi
 fi
 
-if [ "$QWS_QVFB" = prompted ]
+if [ "$QWS_QVFB" = prompted -a "$EMBEDDED" != no ]
 then
     echo
     echo "Enable Qt Virtual Framebuffer support for development on X11 (default yes)"
@@ -1273,23 +1273,23 @@ then
 fi
 
 
-if [ -z "$QWS_ACCEL_VOODOO3" -a -n "$EMB" ]
+if [ -z "$QWS_ACCEL_VOODOO3" -a "$EMBEDDED" != no ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VOODOO3"
 fi
-if [ -z "$QWS_ACCEL_MACH64" -a -n "$EMB" ]
+if [ -z "$QWS_ACCEL_MACH64" -a "$EMBEDDED" != no ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_MACH64"
 fi
-if [ -z "$QWS_ACCEL_MATROX" -a -n "$EMB" ]
+if [ -z "$QWS_ACCEL_MATROX" -a "$EMBEDDED" != no ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_MATROX"
 fi
-if [ "$QWS_QVFB" = "n" -a -n "$EMB" ]
+if [ "$QWS_QVFB" = "n" -a "$EMBEDDED" != no ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VFB"
 fi
-if [ -z "$QWS_VNC" -a -n "$EMB" ]
+if [ -z "$QWS_VNC" -a "$EMBEDDED" != no ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
