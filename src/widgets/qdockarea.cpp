@@ -869,7 +869,7 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
 	dockWindows.at( i )->setNewLine( TRUE );
     if ( makeFloating ) {
 	QWidget *p = parentWidget() ? parentWidget() : topLevelWidget();
-	dockWindow->reparent( p, WType_Dialog | WStyle_Customize | WStyle_NoBorder, QPoint( 0, 0 ), FALSE );
+	dockWindow->reparent( p, WType_Dialog | WStyle_Customize | WStyle_NoBorder | WStyle_Tool, QPoint( 0, 0 ), FALSE );
     }
     if ( swap )
 	dockWindow->resize( dockWindow->height(), dockWindow->width() );
