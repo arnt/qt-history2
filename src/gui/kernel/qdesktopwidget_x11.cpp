@@ -147,13 +147,12 @@ void QDesktopWidgetPrivate::init()
 
 }
 
-#define d d_func()
-
 // the QDesktopWidget itself will be created on the default screen
 // as qt_x11_create_desktop_on_screen defaults to -1
 QDesktopWidget::QDesktopWidget()
     : QWidget(*new QDesktopWidgetPrivate, 0, Qt::Desktop)
 {
+    Q_D(QDesktopWidget);
     d->init();
 }
 
@@ -163,21 +162,25 @@ QDesktopWidget::~QDesktopWidget()
 
 bool QDesktopWidget::isVirtualDesktop() const
 {
+    Q_D(const QDesktopWidget);
     return d->use_xinerama;
 }
 
 int QDesktopWidget::primaryScreen() const
 {
+    Q_D(const QDesktopWidget);
     return d->defaultScreen;
 }
 
 int QDesktopWidget::numScreens() const
 {
+    Q_D(const QDesktopWidget);
     return d->screenCount;
 }
 
 QWidget *QDesktopWidget::screen(int screen)
 {
+    Q_D(QDesktopWidget);
     if (d->use_xinerama)
         return this;
 
@@ -202,6 +205,7 @@ QWidget *QDesktopWidget::screen(int screen)
 
 const QRect QDesktopWidget::availableGeometry(int screen) const
 {
+    Q_D(const QDesktopWidget);
     if (qt_desktopwidget_workarea_dirty) {
         // the workareas are dirty, invalidate them
         for (int i = 0; i < d->screenCount; ++i)
@@ -245,6 +249,7 @@ const QRect QDesktopWidget::availableGeometry(int screen) const
 
 const QRect QDesktopWidget::screenGeometry(int screen) const
 {
+    Q_D(const QDesktopWidget);
     if (screen < 0 || screen >= d->screenCount)
         screen = d->defaultScreen;
 
@@ -253,6 +258,7 @@ const QRect QDesktopWidget::screenGeometry(int screen) const
 
 int QDesktopWidget::screenNumber(const QWidget *widget) const
 {
+    Q_D(const QDesktopWidget);
     if (!widget)
         return d->defaultScreen;
 
@@ -283,6 +289,7 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
 
 int QDesktopWidget::screenNumber(const QPoint &point) const
 {
+    Q_D(const QDesktopWidget);
     int closestScreen = -1;
     int shortestDistance = INT_MAX;
     for (int i = 0; i < d->screenCount; ++i) {
@@ -297,6 +304,7 @@ int QDesktopWidget::screenNumber(const QPoint &point) const
 
 void QDesktopWidget::resizeEvent(QResizeEvent *event)
 {
+    Q_D(QDesktopWidget);
     d->init();
     qt_desktopwidget_workarea_dirty = true;
     QWidget::resizeEvent(event);

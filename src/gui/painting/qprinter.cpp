@@ -32,8 +32,6 @@
 #  include "qprintdialog.h"
 #endif // QT3_SUPPORT
 
-#define d d_func()
-
 #define ABORT_IF_ACTIVE(location) \
     if (d->printEngine->printerState() == QPrinter::Active) { \
         qWarning("%s, cannot be changed while printer is active", location); \
@@ -337,6 +335,7 @@ QPrinter::QPrinter(PrinterMode mode)
     : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice),
       d_ptr(new QPrinterPrivate)
 {
+    Q_D(QPrinter);
 #if defined (Q_WS_WIN)
     d->printEngine = new QWin32PrintEngine(mode);
 #elif defined (Q_WS_MAC)
@@ -353,6 +352,7 @@ QPrinter::QPrinter(PrinterMode mode)
 */
 QPrinter::~QPrinter()
 {
+    Q_D(QPrinter);
 #ifdef QT3_SUPPORT
     delete d->printDialog;
 #endif
@@ -367,6 +367,7 @@ QPrinter::~QPrinter()
 */
 QString QPrinter::printerName() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_PrinterName).toString();
 }
 
@@ -377,6 +378,7 @@ QString QPrinter::printerName() const
 */
 void QPrinter::setPrinterName(const QString &name)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setPrinterName()");
     d->printEngine->setProperty(QPrintEngine::PPK_PrinterName, name);
 }
@@ -417,6 +419,7 @@ void QPrinter::setPrinterName(const QString &name)
 
 QString QPrinter::outputFileName() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_OutputFileName).toString();
 }
 
@@ -432,6 +435,7 @@ QString QPrinter::outputFileName() const
 
 void QPrinter::setOutputFileName(const QString &fileName)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setOutputFileName()");
     d->printEngine->setProperty(QPrintEngine::PPK_OutputFileName, fileName);
 }
@@ -451,6 +455,7 @@ void QPrinter::setOutputFileName(const QString &fileName)
 */
 QString QPrinter::printProgram() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_PrinterProgram).toString();
 }
 
@@ -466,6 +471,7 @@ QString QPrinter::printProgram() const
 */
 void QPrinter::setPrintProgram(const QString &printProg)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setPrintProgram()");
     d->printEngine->setProperty(QPrintEngine::PPK_PrinterProgram, printProg);
 }
@@ -478,6 +484,7 @@ void QPrinter::setPrintProgram(const QString &printProg)
 */
 QString QPrinter::docName() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_DocumentName).toString();
 }
 
@@ -487,6 +494,7 @@ QString QPrinter::docName() const
 */
 void QPrinter::setDocName(const QString &name)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setDocName()");
     d->printEngine->setProperty(QPrintEngine::PPK_DocumentName, name);
 }
@@ -499,6 +507,7 @@ void QPrinter::setDocName(const QString &name)
 */
 QString QPrinter::creator() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_Creator).toString();
 }
 
@@ -515,6 +524,7 @@ QString QPrinter::creator() const
 */
 void QPrinter::setCreator(const QString &creator)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setCreator");
     d->printEngine->setProperty(QPrintEngine::PPK_Creator, creator);
 }
@@ -528,6 +538,7 @@ void QPrinter::setCreator(const QString &creator)
 */
 QPrinter::Orientation QPrinter::orientation() const
 {
+    Q_D(const QPrinter);
     return QPrinter::Orientation(d->printEngine->property(QPrintEngine::PPK_Orientation).toInt());
 }
 
@@ -550,6 +561,7 @@ QPrinter::Orientation QPrinter::orientation() const
 
 void QPrinter::setOrientation(Orientation orientation)
 {
+    Q_D(QPrinter);
     d->printEngine->setProperty(QPrintEngine::PPK_Orientation, orientation);
 }
 
@@ -561,6 +573,7 @@ void QPrinter::setOrientation(Orientation orientation)
 */
 QPrinter::PageSize QPrinter::pageSize() const
 {
+    Q_D(const QPrinter);
     return QPrinter::PageSize(d->printEngine->property(QPrintEngine::PPK_PageSize).toInt());
 }
 
@@ -580,6 +593,7 @@ QPrinter::PageSize QPrinter::pageSize() const
 
 void QPrinter::setPageSize(PageSize newPageSize)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setPageSize()");
     if (newPageSize > NPageSize) {
         qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize);
@@ -601,6 +615,7 @@ void QPrinter::setPageSize(PageSize newPageSize)
 
 void QPrinter::setPageOrder(PageOrder pageOrder)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setPageOrder()");
     d->printEngine->setProperty(QPrintEngine::PPK_PageOrder, pageOrder);
 }
@@ -614,6 +629,7 @@ void QPrinter::setPageOrder(PageOrder pageOrder)
 
 QPrinter::PageOrder QPrinter::pageOrder() const
 {
+    Q_D(const QPrinter);
     return QPrinter::PageOrder(d->printEngine->property(QPrintEngine::PPK_PageOrder).toInt());
 }
 
@@ -627,6 +643,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 
 void QPrinter::setColorMode(ColorMode newColorMode)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setColorMode()");
     d->printEngine->setProperty(QPrintEngine::PPK_ColorMode, newColorMode);
 }
@@ -640,6 +657,7 @@ void QPrinter::setColorMode(ColorMode newColorMode)
 */
 QPrinter::ColorMode QPrinter::colorMode() const
 {
+    Q_D(const QPrinter);
     return QPrinter::ColorMode(d->printEngine->property(QPrintEngine::PPK_ColorMode).toInt());
 }
 
@@ -659,6 +677,7 @@ QPrinter::ColorMode QPrinter::colorMode() const
 
 int QPrinter::numCopies() const
 {
+    Q_D(const QPrinter);
    return d->printEngine->property(QPrintEngine::PPK_NumberOfCopies).toInt();
 }
 
@@ -674,6 +693,7 @@ int QPrinter::numCopies() const
 
 void QPrinter::setNumCopies(int numCopies)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setNumCopies()");
     d->printEngine->setProperty(QPrintEngine::PPK_NumberOfCopies, numCopies);
 }
@@ -689,6 +709,7 @@ void QPrinter::setNumCopies(int numCopies)
 */
 bool QPrinter::collateCopies() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_CollateCopies).toBool();
 }
 
@@ -705,6 +726,7 @@ bool QPrinter::collateCopies() const
 */
 void QPrinter::setCollateCopies(bool collate)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setCollateCopies()");
     d->printEngine->setProperty(QPrintEngine::PPK_CollateCopies, collate);
 }
@@ -732,6 +754,7 @@ void QPrinter::setCollateCopies(bool collate)
 
 void QPrinter::setFullPage(bool fp)
 {
+    Q_D(QPrinter);
     d->printEngine->setProperty(QPrintEngine::PPK_FullPage, fp);
 }
 
@@ -748,6 +771,7 @@ void QPrinter::setFullPage(bool fp)
 
 bool QPrinter::fullPage() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_FullPage).toBool();
 }
 
@@ -770,6 +794,7 @@ bool QPrinter::fullPage() const
 
 void QPrinter::setResolution(int dpi)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setResolution()");
     d->printEngine->setProperty(QPrintEngine::PPK_Resolution, dpi);
 }
@@ -784,6 +809,7 @@ void QPrinter::setResolution(int dpi)
 
 int QPrinter::resolution() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_Resolution).toInt();
 }
 
@@ -798,6 +824,7 @@ int QPrinter::resolution() const
 
 void QPrinter::setPaperSource(PaperSource source)
 {
+    Q_D(QPrinter);
     d->printEngine->setProperty(QPrintEngine::PPK_PaperSource, source);
 }
 
@@ -807,6 +834,7 @@ void QPrinter::setPaperSource(PaperSource source)
 */
 QPrinter::PaperSource QPrinter::paperSource() const
 {
+    Q_D(const QPrinter);
     return QPrinter::PaperSource(d->printEngine->property(QPrintEngine::PPK_PaperSource).toInt());
 }
 
@@ -819,6 +847,7 @@ QPrinter::PaperSource QPrinter::paperSource() const
 */
 QRect QPrinter::pageRect() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_PageRect).toRect();
 }
 
@@ -830,6 +859,7 @@ QRect QPrinter::pageRect() const
 */
 QRect QPrinter::paperRect() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_PaperRect).toRect();
 }
 
@@ -840,6 +870,7 @@ QRect QPrinter::paperRect() const
 */
 int QPrinter::metric(PaintDeviceMetric id) const
 {
+    Q_D(const QPrinter);
     return d->printEngine->metric(id);
 }
 
@@ -849,6 +880,7 @@ int QPrinter::metric(PaintDeviceMetric id) const
 QPaintEngine *QPrinter::paintEngine() const
 
 {
+    Q_D(const QPrinter);
 // Being a bit safe, since we have multiple inheritance...
 #if defined (Q_WS_WIN)
     return static_cast<QWin32PrintEngine*>(d->printEngine);
@@ -874,6 +906,7 @@ QPaintEngine *QPrinter::paintEngine() const
 */
 void QPrinter::setWinPageSize(int pageSize)
 {
+    Q_D(QPrinter);
     ABORT_IF_ACTIVE("QPrinter::setWinPageSize()");
     d->printEngine->setProperty(QPrintEngine::PPK_WindowsPageSize, pageSize);
 }
@@ -888,6 +921,7 @@ void QPrinter::setWinPageSize(int pageSize)
 */
 int QPrinter::winPageSize() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_WindowsPageSize).toInt();
 }
 #endif // Q_WS_WIN
@@ -902,6 +936,7 @@ int QPrinter::winPageSize() const
 */
 QList<int> QPrinter::supportedResolutions() const
 {
+    Q_D(const QPrinter);
     QList<QVariant> varlist
         = d->printEngine->property(QPrintEngine::PPK_SupportedResolutions).toList();
     QList<int> intlist;
@@ -917,6 +952,7 @@ QList<int> QPrinter::supportedResolutions() const
 */
 bool QPrinter::newPage()
 {
+    Q_D(QPrinter);
     return d->printEngine->newPage();
 }
 
@@ -930,6 +966,7 @@ bool QPrinter::newPage()
 */
 bool QPrinter::abort()
 {
+    Q_D(QPrinter);
     return d->printEngine->abort();
 }
 
@@ -1026,6 +1063,7 @@ void QPrinter::setMinMax(int minPage, int maxPage)
 */
 QPrinter::PrinterState QPrinter::printerState() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->printerState();
 }
 
@@ -1083,6 +1121,7 @@ QPrinter::PrinterState QPrinter::printerState() const
 */
 HDC QPrinter::getDC() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->getPrinterDC();
 }
 
@@ -1091,6 +1130,7 @@ HDC QPrinter::getDC() const
 */
 void QPrinter::releaseDC(HDC hdc) const
 {
+    Q_D(const QPrinter);
     d->printEngine->releasePrinterDC(hdc);
 }
 #endif
@@ -1111,6 +1151,7 @@ void QPrinter::releaseDC(HDC hdc) const
 
 QString QPrinter::printerSelectionOption() const
 {
+    Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_SelectionOption).toString();
 }
 
@@ -1128,6 +1169,7 @@ QString QPrinter::printerSelectionOption() const
 
 void QPrinter::setPrinterSelectionOption(const QString &option)
 {
+    Q_D(QPrinter);
     d->printEngine->setProperty(QPrintEngine::PPK_SelectionOption, option);
 }
 
@@ -1181,6 +1223,7 @@ bool QPrinter::pageSetup(QWidget *parent)
 */
 bool QPrinter::printSetup(QWidget *parent)
 {
+    Q_D(QPrinter);
     return qt_compat_QPrinter_printSetup(this, d, parent);
 }
 #endif // Q_WS_MAC
@@ -1201,6 +1244,7 @@ bool QPrinter::printSetup(QWidget *parent)
 */
 bool QPrinter::setup(QWidget *parent)
 {
+    Q_D(QPrinter);
     return qt_compat_QPrinter_printSetup(this, d, parent)
 #ifdef Q_WS_MAC
         && qt_compat_QPrinter_pageSetup(this, parent);
@@ -1229,9 +1273,10 @@ bool QPrinter::setup(QWidget *parent)
 
 int QPrinter::fromPage() const
 {
+    Q_D(const QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d->printDialog->fromPage();
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter*>(this)->d_func()->printDialog->fromPage();
 }
 
 /*!
@@ -1254,9 +1299,10 @@ int QPrinter::fromPage() const
 
 int QPrinter::toPage() const
 {
+    Q_D(const QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d->printDialog->toPage();
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter*>(this)->d_func()->printDialog->toPage();
 }
 
 /*!
@@ -1282,8 +1328,9 @@ int QPrinter::toPage() const
 
 void QPrinter::setFromTo(int from, int to)
 {
+    Q_D(QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     d->printDialog->setFromTo(from, to);
 }
 
@@ -1301,9 +1348,10 @@ void QPrinter::setFromTo(int from, int to)
 */
 int QPrinter::minPage() const
 {
+    Q_D(const QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d->printDialog->minPage();
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter*>(this)->d_func()->printDialog->minPage();
 }
 
 /*!
@@ -1322,9 +1370,10 @@ int QPrinter::minPage() const
 
 int QPrinter::maxPage() const
 {
+    Q_D(const QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter *>(this)->d->printDialog->maxPage();
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter *>(this)->d_func()->printDialog->maxPage();
 }
 
 /*!
@@ -1345,8 +1394,9 @@ int QPrinter::maxPage() const
 
 void QPrinter::setMinMax( int minPage, int maxPage )
 {
+    Q_D(QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     d->printDialog->setMinMax(minPage, maxPage);
 }
 
@@ -1374,9 +1424,10 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
 bool QPrinter::collateCopiesEnabled() const
 {
+    Q_D(const QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d->printDialog->isOptionEnabled(QPrintDialog::PrintCollateCopies);
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter*>(this)->d_func()->printDialog->isOptionEnabled(QPrintDialog::PrintCollateCopies);
 }
 
 /*!
@@ -1404,8 +1455,9 @@ bool QPrinter::collateCopiesEnabled() const
 
 void QPrinter::setCollateCopiesEnabled(bool enable)
 {
+    Q_D(QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
 
     QPrintDialog::PrintDialogOptions opt = d->printDialog->enabledOptions();
     if (enable)
@@ -1437,8 +1489,9 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
 
 void QPrinter::setPrintRange( PrintRange range )
 {
+    Q_D(QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     d->printDialog->setPrintRange(QPrintDialog::PrintRange(range));
 }
 
@@ -1454,9 +1507,10 @@ void QPrinter::setPrintRange( PrintRange range )
 */
 QPrinter::PrintRange QPrinter::printRange() const
 {
+    Q_D(const QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return PrintRange(const_cast<QPrinter*>(this)->d->printDialog->printRange());
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return PrintRange(const_cast<QPrinter*>(this)->d_func()->printDialog->printRange());
 }
 
 /*!
@@ -1479,8 +1533,9 @@ QPrinter::PrintRange QPrinter::printRange() const
 */
 void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
 {
+    Q_D(QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     QPrintDialog::PrintDialogOptions opt = d->printDialog->enabledOptions();
     if (enable)
         opt |= QPrintDialog::PrintDialogOption(1 << option);
@@ -1501,9 +1556,10 @@ void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
  */
 bool QPrinter::isOptionEnabled( PrinterOption option ) const
 {
+    Q_D(const QPrinter);
     if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d->printDialog->isOptionEnabled(QPrintDialog::PrintDialogOption(option));
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter*>(this)->d_func()->printDialog->isOptionEnabled(QPrintDialog::PrintDialogOption(option));
 }
 
 #endif // QT3_SUPPORT

@@ -37,19 +37,17 @@ public:
     QPicturePrivate *pic_d;
 };
 
-#define d d_func()
-#define q q_func()
-#define pic_d d->pic_d
-
 QPicturePaintEngine::QPicturePaintEngine()
     : QPaintEngine(*(new QPicturePaintEnginePrivate), AllFeatures)
 {
+    Q_D(QPicturePaintEngine);
     d->pt = 0;
 }
 
 QPicturePaintEngine::QPicturePaintEngine(QPaintEnginePrivate &dptr)
     : QPaintEngine(dptr, AllFeatures)
 {
+    Q_D(QPicturePaintEngine);
     d->pt = 0;
 }
 
@@ -59,6 +57,7 @@ QPicturePaintEngine::~QPicturePaintEngine()
 
 bool QPicturePaintEngine::begin(QPaintDevice *pd)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << "QPicturePaintEngine::begin()";
 #endif
@@ -66,65 +65,67 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
     QPicture *pic = static_cast<QPicture *>(pd);
 
     d->pdev = pd;
-    pic_d = pic->d;
-    Q_ASSERT(pic_d);
+    d->pic_d = pic->d_func();
+    Q_ASSERT(d->pic_d);
 
-    d->s.setDevice(&pic_d->pictb);
-    d->s.setVersion(pic_d->formatMajor);
+    d->s.setDevice(&d->pic_d->pictb);
+    d->s.setVersion(d->pic_d->formatMajor);
 
-    pic_d->pictb.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    d->pic_d->pictb.open(QIODevice::WriteOnly | QIODevice::Truncate);
     d->s.writeRawData(qt_mfhdr_tag, 4);
-    d->s << (quint16) 0 << (quint16) pic_d->formatMajor << (quint16) pic_d->formatMinor;
+    d->s << (quint16) 0 << (quint16) d->pic_d->formatMajor << (quint16) d->pic_d->formatMinor;
     d->s << (quint8) QPicturePrivate::PdcBegin << (quint8) sizeof(qint32);
-    pic_d->brect = QRect();
-    if (pic_d->formatMajor >= 4) {
-        QRect r = pic_d->brect;
+    d->pic_d->brect = QRect();
+    if (d->pic_d->formatMajor >= 4) {
+        QRect r = d->pic_d->brect;
         d->s << (qint32) r.left() << (qint32) r.top() << (qint32) r.width()
              << (qint32) r.height();
     }
-    pic_d->trecs = 0;
-    d->s << (quint32)pic_d->trecs; // total number of records
-    pic_d->formatOk = false;
+    d->pic_d->trecs = 0;
+    d->s << (quint32)d->pic_d->trecs; // total number of records
+    d->pic_d->formatOk = false;
     setActive(true);
     return true;
 }
 
 bool QPicturePaintEngine::end()
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << "QPicturePaintEngine::end()";
 #endif
     d->pdev = 0;
-    pic_d->trecs++;
+    d->pic_d->trecs++;
     d->s << (quint8) QPicturePrivate::PdcEnd << (quint8) 0;
     int cs_start = sizeof(quint32);                // pos of checksum word
     int data_start = cs_start + sizeof(quint16);
     int brect_start = data_start + 2*sizeof(qint16) + 2*sizeof(quint8);
-    int pos = pic_d->pictb.pos();
-    pic_d->pictb.seek(brect_start);
-    if (pic_d->formatMajor >= 4) { // bounding rectangle
-        QRect r = pic_d->brect;
+    int pos = d->pic_d->pictb.pos();
+    d->pic_d->pictb.seek(brect_start);
+    if (d->pic_d->formatMajor >= 4) { // bounding rectangle
+        QRect r = d->pic_d->brect;
         d->s << (qint32) r.left() << (qint32) r.top() << (qint32) r.width()
              << (qint32) r.height();
     }
-    d->s << (quint32) pic_d->trecs;                        // write number of records
-    pic_d->pictb.seek(cs_start);
-    QByteArray buf = pic_d->pictb.buffer();
+    d->s << (quint32) d->pic_d->trecs;                        // write number of records
+    d->pic_d->pictb.seek(cs_start);
+    QByteArray buf = d->pic_d->pictb.buffer();
     quint16 cs = (quint16) qChecksum(buf.constData() + data_start, pos - data_start);
     d->s << cs;                                // write checksum
-    pic_d->pictb.close();
+    d->pic_d->pictb.close();
     setActive(false);
     return true;
 }
 
 #define SERIALIZE_CMD(c) \
-    pic_d->trecs++; \
+    d->pic_d->trecs++; \
     d->s << (quint8) c; \
     d->s << (quint8) 0; \
-    pos = pic_d->pictb.pos()
+    pos = d->pic_d->pictb.pos()
 
 void QPicturePaintEngine::updatePen(const QPen &pen)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> updatePen(): width:" << pen.width() << "style:"
              << pen.style() << "color:" << pen.color();
@@ -137,6 +138,7 @@ void QPicturePaintEngine::updatePen(const QPen &pen)
 
 void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> updateBrush(): style:" << brush.style();
 #endif
@@ -148,6 +150,7 @@ void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 
 void QPicturePaintEngine::updateFont(const QFont &font)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> updateFont(): pt sz:" << font.pointSize();
 #endif
@@ -160,6 +163,7 @@ void QPicturePaintEngine::updateFont(const QFont &font)
 
 void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> updateBackground(): mode:" << bgMode << "style:" << bgBrush.style();
 #endif
@@ -175,6 +179,7 @@ void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBr
 
 void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> updateMatrix():" << matrix;
 #endif
@@ -186,6 +191,7 @@ void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
 
 void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> updateClipRegion(): op:" << op
              << "bounding rect:" << region.boundingRect();
@@ -203,6 +209,7 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperat
 
 void QPicturePaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> updateRenderHints(): " << hints;
 #endif
@@ -214,23 +221,24 @@ void QPicturePaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
 void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
 {
-    int newpos = pic_d->pictb.pos();            // new position
+    Q_D(QPicturePaintEngine);
+    int newpos = d->pic_d->pictb.pos();            // new position
     int length = newpos - pos;
     QRect br = r.toRect();
 
     if (length < 255) {                         // write 8-bit length
-        pic_d->pictb.seek(pos - 1);             // position to right index
+        d->pic_d->pictb.seek(pos - 1);             // position to right index
         d->s << (quint8)length;
     } else {                                    // write 32-bit length
         d->s << (quint32)0;                    // extend the buffer
-        pic_d->pictb.seek(pos - 1);             // position to right index
+        d->pic_d->pictb.seek(pos - 1);             // position to right index
         d->s << (quint8)255;                   // indicate 32-bit length
-        char *p = pic_d->pictb.buffer().data();
+        char *p = d->pic_d->pictb.buffer().data();
         memmove(p+pos+4, p+pos, length);        // make room for 4 byte
         d->s << (quint32)length;
         newpos += 4;
     }
-    pic_d->pictb.seek(newpos);                  // set to new position
+    d->pic_d->pictb.seek(newpos);                  // set to new position
 
     if (br.isValid()) {
         if (corr) {                             // widen bounding rect
@@ -246,12 +254,13 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
             br &= cr;
         }
         if (br.isValid())
-            pic_d->brect |= br;                 // merge with existing rect
+            d->pic_d->brect |= br;                 // merge with existing rect
     }
 }
 
 void QPicturePaintEngine::drawPath(const QPainterPath &path)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> drawPath():" << path.boundingRect();
 #endif
@@ -264,6 +273,7 @@ void QPicturePaintEngine::drawPath(const QPainterPath &path)
 // ### Stream out sr
 void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> drawPixmap():" << r;
 #endif
@@ -275,6 +285,7 @@ void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 
 void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> drawTiledPixmap():" << r << s;
 #endif
@@ -286,6 +297,7 @@ void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
 
 void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
 {
+    Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
     qDebug() << " -> drawTextItem():" << p << QString(ti.chars, ti.num_chars);
 #endif

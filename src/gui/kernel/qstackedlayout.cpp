@@ -17,9 +17,6 @@
 #include <qlist.h>
 #include <qwidget.h>
 
-#define d d_func()
-#define q q_func()
-
 class QStackedLayoutPrivate : public QLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QStackedLayout)
@@ -128,6 +125,7 @@ QStackedLayout::QStackedLayout(QLayout *parentLayout)
 */
 QStackedLayout::~QStackedLayout()
 {
+    Q_D(QStackedLayout);
     qDeleteAll(d->list);
 }
 
@@ -142,6 +140,7 @@ QStackedLayout::~QStackedLayout()
 */
 int QStackedLayout::addWidget(QWidget *widget)
 {
+    Q_D(QStackedLayout);
     return insertWidget(d->list.count(), widget);
 }
 
@@ -157,6 +156,7 @@ int QStackedLayout::addWidget(QWidget *widget)
 */
 int QStackedLayout::insertWidget(int index, QWidget *widget)
 {
+    Q_D(QStackedLayout);
     addChildWidget(widget);
     index = qMin(index, d->list.count());
     if (index < 0)
@@ -178,6 +178,7 @@ int QStackedLayout::insertWidget(int index, QWidget *widget)
 */
 QLayoutItem *QStackedLayout::itemAt(int index) const
 {
+    Q_D(const QStackedLayout);
     return d->list.value(index);
 }
 
@@ -186,6 +187,7 @@ QLayoutItem *QStackedLayout::itemAt(int index) const
 */
 QLayoutItem *QStackedLayout::takeAt(int index)
 {
+    Q_D(QStackedLayout);
     if (index <0 || index >= d->list.size())
         return 0;
     QLayoutItem *item = d->list.takeAt(index);
@@ -212,6 +214,7 @@ QLayoutItem *QStackedLayout::takeAt(int index)
 */
 void QStackedLayout::setCurrentIndex(int index)
 {
+    Q_D(QStackedLayout);
     QWidget *prev = currentWidget();
     QWidget *next = widget(index);
     if (!next || next == prev)
@@ -252,6 +255,7 @@ void QStackedLayout::setCurrentIndex(int index)
 
 int QStackedLayout::currentIndex() const
 {
+    Q_D(const QStackedLayout);
     return d->index;
 }
 
@@ -265,6 +269,7 @@ int QStackedLayout::currentIndex() const
 */
 QWidget *QStackedLayout::currentWidget() const
 {
+    Q_D(const QStackedLayout);
     return d->index >= 0 ? d->list.at(d->index)->widget() : 0;
 }
 
@@ -276,6 +281,7 @@ QWidget *QStackedLayout::currentWidget() const
 */
 QWidget *QStackedLayout::widget(int index) const
 {
+    Q_D(const QStackedLayout);
      if (index < 0 || index >= d->list.size())
         return 0;
     return d->list.at(index)->widget();
@@ -287,6 +293,7 @@ QWidget *QStackedLayout::widget(int index) const
 */
 int QStackedLayout::count() const
 {
+    Q_D(const QStackedLayout);
     return d->list.size();
 }
 
@@ -310,6 +317,7 @@ void QStackedLayout::addItem(QLayoutItem *item)
 */
 QSize QStackedLayout::sizeHint() const
 {
+    Q_D(const QStackedLayout);
     QSize s(0, 0);
     int n = d->list.count();
 
@@ -324,6 +332,7 @@ QSize QStackedLayout::sizeHint() const
 */
 QSize QStackedLayout::minimumSize() const
 {
+    Q_D(const QStackedLayout);
     QSize s(0, 0);
     int n = d->list.count();
 

@@ -21,8 +21,6 @@
 #include "qevent.h"
 #include "qstyle.h"
 #include "qvariant.h"
-#define d d_func()
-#define q q_func()
 
 /*!
    Returns the size policy as a QVariant

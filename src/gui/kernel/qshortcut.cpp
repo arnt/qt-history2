@@ -21,9 +21,6 @@
 #include <private/qapplication_p.h>
 #include <private/qshortcutmap_p.h>
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QShortcut qshortcut.h
     \brief The QShortcut class is used to create keyboard shortcuts.
@@ -112,6 +109,7 @@ public:
 
 void QShortcutPrivate::redoGrab(QShortcutMap &map)
 {
+    Q_Q(QShortcut);
     QWidget *parent = q->parentWidget();
     if (!parent) {
         qWarning("QShortcut: no widget parent defined");
@@ -153,10 +151,11 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
                      Qt::ShortcutContext context)
     : QObject(*new QShortcutPrivate, parent)
 {
+    Q_D(QShortcut);
     Q_ASSERT(parent != 0);
     d->sc_context = context;
     d->sc_sequence = key;
-    d->redoGrab(qApp->d->shortcutMap);
+    d->redoGrab(qApp->d_func()->shortcutMap);
     if (member)
         connect(this, SIGNAL(activated()), parent, member);
     if (ambiguousMember)
@@ -168,8 +167,9 @@ QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
 */
 QShortcut::~QShortcut()
 {
+    Q_D(QShortcut);
     if (qApp)
-        qApp->d->shortcutMap.removeShortcut(d->sc_id, this);
+        qApp->d_func()->shortcutMap.removeShortcut(d->sc_id, this);
 }
 
 /*!
@@ -193,10 +193,11 @@ QShortcut::~QShortcut()
 */
 void QShortcut::setKey(const QKeySequence &key)
 {
+    Q_D(QShortcut);
     if (d->sc_sequence == key)
         return;
     d->sc_sequence = key;
-    d->redoGrab(qApp->d->shortcutMap);
+    d->redoGrab(qApp->d_func()->shortcutMap);
 }
 
 /*!
@@ -206,6 +207,7 @@ void QShortcut::setKey(const QKeySequence &key)
 */
 QKeySequence QShortcut::key() const
 {
+    Q_D(const QShortcut);
     return d->sc_sequence;
 }
 
@@ -224,10 +226,11 @@ QKeySequence QShortcut::key() const
 */
 void QShortcut::setEnabled(bool enable)
 {
+    Q_D(QShortcut);
     if (d->sc_enabled == enable)
         return;
     d->sc_enabled = enable;
-    qApp->d->shortcutMap.setShortcutEnabled(enable, d->sc_id, this);
+    qApp->d_func()->shortcutMap.setShortcutEnabled(enable, d->sc_id, this);
 }
 
 /*!
@@ -239,6 +242,7 @@ void QShortcut::setEnabled(bool enable)
 */
 bool QShortcut::isEnabled() const
 {
+    Q_D(const QShortcut);
     return d->sc_enabled;
 }
 
@@ -256,10 +260,11 @@ bool QShortcut::isEnabled() const
 */
 void QShortcut::setContext(Qt::ShortcutContext context)
 {
+    Q_D(QShortcut);
     if(d->sc_context == context)
         return;
     d->sc_context = context;
-    d->redoGrab(qApp->d->shortcutMap);
+    d->redoGrab(qApp->d_func()->shortcutMap);
 }
 
 /*!
@@ -269,6 +274,7 @@ Returns the context in which the shortcut will be activated.
 */
 Qt::ShortcutContext QShortcut::context()
 {
+    Q_D(QShortcut);
     return d->sc_context;
 }
 
@@ -287,6 +293,7 @@ Qt::ShortcutContext QShortcut::context()
 */
 void QShortcut::setWhatsThis(const QString &text)
 {
+    Q_D(QShortcut);
     d->sc_whatsthis = text;
 }
 
@@ -297,6 +304,7 @@ void QShortcut::setWhatsThis(const QString &text)
 */
 QString QShortcut::whatsThis() const
 {
+    Q_D(const QShortcut);
     return d->sc_whatsthis;
 }
 
@@ -305,6 +313,7 @@ QString QShortcut::whatsThis() const
 */
 int QShortcut::id() const
 {
+    Q_D(const QShortcut);
     return d->sc_id;
 }
 
@@ -313,6 +322,7 @@ int QShortcut::id() const
 */
 bool QShortcut::event(QEvent *e)
 {
+    Q_D(QShortcut);
     bool handled = false;
     if (d->sc_enabled && e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
