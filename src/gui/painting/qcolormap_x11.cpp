@@ -27,11 +27,8 @@ public:
         : mode(QColormap::Direct), depth(0),
           colormap(0), visual(0),
           r_max(0), g_max(0), b_max(0),
-          r_shift(0), g_shift(0), b_shift(0),
-          cells(0)
+          r_shift(0), g_shift(0), b_shift(0)
     { ref = 0; }
-    ~QColormapPrivate()
-    { delete cells; }
 
     QAtomic ref;
 
@@ -49,11 +46,8 @@ public:
     uint g_shift;
     uint b_shift;
 
-    struct Color {
-        uint rgb;
-        uint pixel;
-    };
-    QVector<Color> *cells;
+    QVector<QColor> colors;
+    QVector<int> pixels;
 };
 
 
@@ -132,24 +126,52 @@ static Visual *find_truecolor_visual(Display *dpy, int scr, int *depth, int *nco
 #endif
 
 
-static void query_colormap(QColormapPrivate *d)
+static void query_colormap(QColormapPrivate *d, int screen)
 {
     Display *display = QX11Info::display();
 
     // query existing colormap
     int q_colors = (((1u << d->depth) > 256u) ? 256u : (1u << d->depth));
     XColor queried[256];
+    memset(queried, 0, sizeof(queried));
     for (int x = 0; x < q_colors; ++x)
         queried[x].pixel = x;
     XQueryColors(display, d->colormap, queried, q_colors);
 
+    d->colors.resize(q_colors);
+    for (int x = 0; x < q_colors; ++x) {
+        d->colors[x] = QColor::fromRgb(queried[x].red / float(USHRT_MAX),
+                                       queried[x].green / float(USHRT_MAX),
+                                       queried[x].blue / float(USHRT_MAX));
+
+        if (queried[x].red == 0
+            && queried[x].green == 0
+            && queried[x].blue == 0
+            && queried[x].pixel != BlackPixel(display, screen)) {
+            // end of colormap
+            q_colors = x;
+            break;
+        }
+    }
+    d->colors.resize(q_colors);
+
     // for missing colors, find the closest color in the existing colormap
-    Q_ASSERT(d->cells->size());
-    for (int x = 0; x < d->cells->size(); ++x) {
-        if (d->cells->at(x).pixel != 0)
+    Q_ASSERT(d->pixels.size());
+    for (int x = 0; x < d->pixels.size(); ++x) {
+        if (d->pixels.at(x) != -1)
             continue;
 
-        const QRgb rgb = d->cells->at(x).rgb;
+        QRgb rgb;
+        if (d->mode == QColormap::Indexed) {
+            const int r = (x & ((d->r_max - 1) * d->g_max * d->b_max)) / (d->g_max * d->b_max);
+            const int g = (x & ((d->g_max - 1) * d->b_max)) / d->b_max;
+            const int b = x & (d->b_max - 1);
+            rgb = qRgb((r * 0xff + (d->r_max - 1) / 2) / (d->r_max - 1),
+                       (g * 0xff + (d->g_max - 1) / 2) / (d->g_max - 1),
+                       (b * 0xff + (d->b_max - 1) / 2) / (d->b_max - 1));
+        } else {
+            rgb = qRgb(x, x, x);
+        }
 
         // find closest color
         int mindist = INT_MAX, best = -1;
@@ -173,27 +195,28 @@ static void query_colormap(QColormapPrivate *d)
             xcolor.pixel = queried[best].pixel;
 
             if (XAllocColor(display, d->colormap, &xcolor)) {
-                (*d->cells)[x].pixel = xcolor.pixel;
+                d->pixels[x] = xcolor.pixel;
+            } else {
+                // some wierd stuff is going on...
+                d->pixels[x] = (qGray(rgb) < 127
+                                ? BlackPixel(display, screen)
+                                : WhitePixel(display, screen));
             }
         } else {
-            (*d->cells)[x].pixel = queried[best].pixel;
+            d->pixels[x] = best;
         }
     }
 }
 
-static void init_gray(QColormapPrivate *d)
+static void init_gray(QColormapPrivate *d, int screen)
 {
-    d->cells = new QVector<QColormapPrivate::Color>(d->r_max);
-
-    bool need_query = false;
+    d->pixels.resize(d->r_max);
 
     for (int g = 0; g < d->g_max; ++g) {
         const int gray = (g * 0xff + (d->r_max - 1) / 2) / (d->r_max - 1);
         const QRgb rgb = qRgb(gray, gray, gray);
 
-        QColormapPrivate::Color &cell = (*d->cells)[g];
-        cell.rgb = rgb;
-        cell.pixel = 0;
+        d->pixels[g] = -1;
 
         if (d->visual->c_class & 1) {
             XColor xcolor;
@@ -203,33 +226,26 @@ static void init_gray(QColormapPrivate *d)
             xcolor.pixel = 0ul;
 
             if (XAllocColor(QX11Info::display(), d->colormap, &xcolor))
-                cell.pixel = xcolor.pixel;
+                d->pixels[g] = xcolor.pixel;
         }
-
-        need_query = (cell.pixel == 0);
     }
 
-    if (need_query)
-        query_colormap(d);
+    query_colormap(d, screen);
 }
 
-static void init_indexed(QColormapPrivate *d)
+static void init_indexed(QColormapPrivate *d, int screen)
 {
-    d->cells = new QVector<QColormapPrivate::Color>(d->r_max * d->g_max * d->b_max);
-
-    bool need_query = false;
+    d->pixels.resize(d->r_max * d->g_max * d->b_max);
 
     // create color cube
     for (int x = 0, r = 0; r < d->r_max; ++r) {
         for (int g = 0; g < d->g_max; ++g) {
-            for (int b = 0; b < d->b_max; ++b) {
+            for (int b = 0; b < d->b_max; ++b, ++x) {
                 const QRgb rgb = qRgb((r * 0xff + (d->r_max - 1) / 2) / (d->r_max - 1),
                                       (g * 0xff + (d->g_max - 1) / 2) / (d->g_max - 1),
                                       (b * 0xff + (d->b_max - 1) / 2) / (d->b_max - 1));
 
-                QColormapPrivate::Color &cell = (*d->cells)[x++];
-                cell.rgb = rgb;
-                cell.pixel = 0;
+                d->pixels[x] = -1;
 
                 if (d->visual->c_class & 1) {
                     XColor xcolor;
@@ -239,16 +255,13 @@ static void init_indexed(QColormapPrivate *d)
                     xcolor.pixel = 0ul;
 
                     if (XAllocColor(QX11Info::display(), d->colormap, &xcolor))
-                        cell.pixel = xcolor.pixel;
+                        d->pixels[x] = xcolor.pixel;
                 }
-
-                need_query = (cell.pixel == 0);
             }
         }
     }
 
-    if (need_query)
-        query_colormap(d);
+    query_colormap(d, screen);
 }
 
 
@@ -289,7 +302,7 @@ void QColormap::initialize()
             else if (d->visual->map_entries > 250)
                 d->r_max = d->g_max = d->b_max = 12;
             else
-                d->r_max = d->g_max = d->b_max = d->visual->map_entries;
+                d->r_max = d->g_max = d->b_max = 4;
             break;
 
         case StaticColor:
@@ -386,10 +399,10 @@ void QColormap::initialize()
 
         switch (d->mode) {
         case Gray:
-            init_gray(d);
+            init_gray(d, i);
             break;
         case Indexed:
-            init_indexed(d);
+            init_indexed(d, i);
             break;
         default:
             break;
@@ -453,7 +466,13 @@ int QColormap::depth() const
 { return d->depth; }
 
 int QColormap::size() const
-{ return d->r_max * d->g_max * d->b_max; }
+{
+    return (d->mode == Gray
+            ? d->r_max
+            : (d->mode == Indexed
+               ? d->r_max * d->g_max * d->b_max
+               : -1));
+}
 
 uint QColormap::pixel(const QColor &color) const
 {
@@ -472,32 +491,24 @@ uint QColormap::pixel(const QColor &color) const
     const uint b = (color.argb.blue  * d->b_max) >> 16;
     if (d->mode != Direct) {
         if (d->mode == Gray)
-            return d->cells->at((r * 30 + g * 59 + b * 11) / 100).pixel;
-        return d->cells->at(r * d->g_max * d->b_max + g * d->b_max + b).pixel;
+            return d->pixels.at((r * 30 + g * 59 + b * 11) / 100);
+        return d->pixels.at(r * d->g_max * d->b_max + g * d->b_max + b);
     }
     return (r << d->r_shift) + (g << d->g_shift) + (b << d->b_shift);
 }
 
 const QColor QColormap::colorAt(uint pixel) const
 {
-    QColor c;
-
     if (d->mode != Direct) {
-        if (pixel > (uint)d->cells->size())
-            return c;
-        c.setRgb(d->cells->at(pixel).rgb);
-        return c;
+        Q_ASSERT(pixel <= (uint)d->colors.size());
+        return d->colors.at(pixel);
     }
 
     const int r = (((pixel & d->visual->red_mask)   >> d->r_shift) << 8) / d->r_max;
     const int g = (((pixel & d->visual->green_mask) >> d->g_shift) << 8) / d->g_max;
     const int b = (((pixel & d->visual->blue_mask)  >> d->b_shift) << 8) / d->b_max;
-    c.setRgb(r, g, b);
-    return c;
+    return QColor(r, g, b);
 }
-
 
 const QVector<QColor> QColormap::colormap() const
-{
-    return QVector<QColor>();
-}
+{ return d->colors; }
