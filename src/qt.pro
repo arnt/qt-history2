@@ -52,7 +52,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
-		  $$DIALOGS_H/qlinedialog.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
@@ -414,7 +413,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
 		  dialogs/qwizard.cpp \
-		  dialogs/qlinedialog.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h \
@@ -457,13 +455,15 @@ zlib:SOURCES   += $$ZLIB_SOURCES
 builder:HEADERS+= $$KERNEL_H/qdom.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_H/qxml.h \
-		  $$WIDGETS_H/qaction.h
-
+		  $$WIDGETS_H/qaction.h \
+		  $$DIALOGS_H/qlinedialog.h
+		
 builder:SOURCES+= kernel/qdom.cpp \
 		  kernel/qdomext.cpp \
 		  kernel/qvariant.cpp \
 		  kernel/qxml.cpp \
-		  widgets/qaction.cpp
+		  widgets/qaction.cpp \
+		  dialogs/qlinedialog.cpp
 
 TARGET		= qt
 VERSION		= 2.1.0
