@@ -5978,55 +5978,6 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index, const QString
     return t;
 }
 
- /*! \internal
- 
-   Insert \a tag in the tag - according to line and index numbers
-*/
-
-QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const QString &tag)
-{
-    QTextEditOptimPrivate::Tag *t = new QTextEditOptimPrivate::Tag, *tmp;
-
-    if (d->od->tags == 0)
-	d->od->tags = t;
-    t->bold = t->italic = t->underline = FALSE;
-    t->line  = line;
-    t->index = index;
-    t->tag   = tag;
-    t->leftTag = 0;
-    t->parent  = 0;
-
-    // find insertion pt. in tag struct.
-    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
-    if ((it = d->od->tagIndex.find(LOGOFFSET(line))) != d->od->tagIndex.end()) {
-	tmp = *it;
-	if (tmp->index >= index) { // the exisiting tag may be placed AFTER the one we want to insert
-	    tmp = tmp->prev;
-	} else {
-	    while (tmp && tmp->next && tmp->next->line == line && tmp->next->index <= index)
-		tmp = tmp->next;
-	}
-    } else {
-	tmp = d->od->tags;
-	while (tmp && tmp->next && tmp->next->line < line)
-	    tmp = tmp->next;
-    }
-    
-    t->prev = tmp;
-    t->next = tmp ? tmp->next : 0;
-    if (t->next)
-	t->next->prev = t;
-    if (tmp)
-	tmp->next = t;
-
-    tmp = d->od->tagIndex[LOGOFFSET(t->line)];
-    if (!tmp || (tmp && tmp->index >= t->index)) {
-	d->od->tagIndex.replace(LOGOFFSET(t->line), t);
-    }
-    return t;
-}
-
-
 /*! \internal
 
   Insert \a tag in the tag - according to line and index numbers
