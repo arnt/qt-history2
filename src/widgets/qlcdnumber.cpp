@@ -92,13 +92,13 @@ static QString int2string( int num, int base, int ndigits, bool *oflow )
     }
     switch( base ) {
 	case QLCDNumber::HEX:
-	    s.sprintf( "%*lx", ndigits, num );
+	    s.sprintf( "%*x", ndigits, num );
 	    break;
 	case QLCDNumber::DEC:
-	    s.sprintf( "%*li", ndigits, num );
+	    s.sprintf( "%*i", ndigits, num );
 	    break;
 	case QLCDNumber::OCT:
-	    s.sprintf( "%*lo", ndigits, num );
+	    s.sprintf( "%*o", ndigits, num );
 	    break;
 	case QLCDNumber::BIN:
 	    {
