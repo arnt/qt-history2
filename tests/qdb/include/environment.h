@@ -57,9 +57,9 @@ struct localsql {
     /*! A group set for an ordered result set */
     struct GroupSetItem {
 	ColumnKey::Iterator start;
-	int substart;
+	uint substart;
 	ColumnKey::Iterator last;
-	int sublast;
+	uint sublast;
     };
     typedef QValueList<GroupSetItem> GroupSet;
 };

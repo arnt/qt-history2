@@ -1114,6 +1114,33 @@ public:
     }
 };
 
+/* Push the count of field P2 from the current group of the
+ result set identified by 'id' on to the top of the stack.  The result set
+ must be positioned on a valid group (see NextGroup).
+*/
+
+class PushGroupCount : public Op
+{
+public:
+    PushGroupCount( const QVariant& id, const QVariant& P2 )
+	: Op( id, P2 ) {}
+    QString name() const { return "pushgroupcount"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	LocalSQLResultSet* res = env->resultSet( p1.toInt() );
+	QVariant v;
+	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
+	    if ( !res->groupSetCount( p2.toString(), v ) )
+		return FALSE;
+	} else {
+	    if ( !res->groupSetCount( p2.toInt(), v ) )
+		return FALSE;
+	}
+	env->stack()->push( v );
+	return TRUE;
+    }
+};
+
 
 
 #endif

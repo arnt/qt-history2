@@ -763,7 +763,6 @@ bool ResultSet::setGroupSet( const QVariant& v )
     for ( ColumnKey::Iterator it = sortKey.begin();
 	  it != sortKey.end();
 	  ++it ) {
-	bool boundry = FALSE;
 	for ( uint k = 0; k < (*it).count(); ++k ) {
 	    Record& currec = data[ (it.data()[k]) ];
 	    /* check if the group by fields have changed */
