@@ -643,10 +643,18 @@ inline const QString operator+(const QString &s1, const char *s2)
 { return QString(s1) += s2; }
 inline const QString operator+(const char *s1, const QString &s2)
 { return QString(s1) += s2; }
+inline const QString operator+(const QString &s1, char *s2)
+{ return QString(s1) += s2; }
+inline const QString operator+(char *s1, const QString &s2)
+{ return QString(s1) += s2; }
 inline const QString operator+(char c, const QString &s)
 { return QString(QChar(c)) += s; }
 inline const QString operator+(const QString &s, char c)
 { return QString(s) += c; }
+inline const QString operator+(const QByteArray &ba, const QString &s)
+{ return QString(ba) += s; }
+inline const QString operator+(const QString &s, const QByteArray &ba)
+{ return QString(s) += ba; }
 #ifndef QT_NO_STL
 inline const QString operator+(const QString& s1, const std::string& s2)
 { return s1 + QString(s2.c_str()); }
