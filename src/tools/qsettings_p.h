@@ -70,7 +70,7 @@ public:
 class QSettingsPrivate
 {
 public:
-    QSettingsPrivate();
+    QSettingsPrivate( QSettings::Format format );
     ~QSettingsPrivate();
 
     QSettingsGroup readGroup();

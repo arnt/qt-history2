@@ -452,9 +452,14 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 
 #endif
 
-QSettingsPrivate::QSettingsPrivate()
+QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
     : groupDirty( TRUE ), modified(FALSE), globalScope(TRUE)
 {
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    if ( format != QSettings::Ini )
+	return;
+#endif
+
     QString appSettings(QDir::homeDirPath() + "/.qt/");
     QString defPath;
 #ifdef Q_WS_WIN
@@ -829,7 +834,7 @@ void QSettings::removeSearchPath( System s, const QString &path)
 */
 QSettings::QSettings()
 {
-    d = new QSettingsPrivate;
+    d = new QSettingsPrivate( Native );
     Q_CHECK_PTR(d);
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
@@ -846,7 +851,7 @@ QSettings::QSettings()
 */
 QSettings::QSettings( Format format )
 {
-    d = new QSettingsPrivate;
+    d = new QSettingsPrivate( format );
     Q_CHECK_PTR(d);
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
