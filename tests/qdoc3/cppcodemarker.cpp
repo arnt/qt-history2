@@ -38,11 +38,14 @@ QString CppCodeMarker::markedUpCode(const QString &code, const Node *relative,
 QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 					SynopsisStyle style)
 {
+    const int MaxEnumValues = 6;
     const FunctionNode *func;
     const PropertyNode *property;
+    const EnumNode *enume;
     QString synopsis;
     QString extra;
     QString name;
+    int i;
 
     name = taggedNode( node );
     if ( style != Detailed )
@@ -114,13 +117,35 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	}
 	break;
     case Node::Enum:
+	enume = static_cast<const EnumNode *>(node);
 	synopsis = "enum " + name;
+        if (style == Summary) {
+            synopsis += " { ";
+            if (enume->items().size() <= MaxEnumValues) {
+                for (int i = 0; i < enume->items().size(); ++i) {
+	            if (i != 0)
+		        synopsis += ", ";
+		    synopsis += enume->items().at(i).name();
+                }
+            } else {
+                for (int i = 0; i < enume->items().size(); ++i) {
+		    if (i < MaxEnumValues - 1 || i == enume->items().size() - 1) {
+	                if (i != 0)
+		            synopsis += ", ";
+		        synopsis += enume->items().at(i).name();
+		    } else if (i == MaxEnumValues - 1) {
+		        synopsis += ", ...";
+		    }
+                }
+            }
+	    synopsis += "}";
+	}
 	break;
     case Node::Typedef:
 	synopsis = "typedef " + name;
 	break;
     case Node::Property:
-	property = (const PropertyNode *) node;
+	property = static_cast<const PropertyNode *>(node);
 	synopsis = property->dataType() + " " + name;
 	break;
     default:
@@ -307,9 +332,9 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 	    }
 	}
 
+	append( sections, publicTypes );
 	append( sections, writableProperties );
 	append( sections, readOnlyProperties );
-	append( sections, publicTypes );
 	append( sections, publicFunctions );
 	append( sections, publicSlots );
 	append( sections, publicSignals );

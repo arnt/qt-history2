@@ -188,7 +188,7 @@ void CodeMarker::insert(FastClassSection &fastSection, Node *node, SynopsisStyle
 	irrelevant = (inheritedMember
 		      && (func->metaness() == FunctionNode::Ctor ||
 			  func->metaness() == FunctionNode::Dtor));
-    } else if ( node->type() == Node::Enum ) {
+    } else if ( node->type() == Node::Enum || node->type() == Node::Typedef ) {
 	irrelevant = ( inheritedMember && style != SeparateList );
     }
 
