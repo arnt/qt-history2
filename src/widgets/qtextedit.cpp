@@ -1754,7 +1754,8 @@ void QTextEdit::drawCursor( bool visible )
 	 !viewport()->isUpdatesEnabled() ||
 	 !cursor->paragraph() ||
 	 !cursor->paragraph()->isValid() ||
-	 ( !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) && !selectedText().isEmpty() ) ||
+	 ( !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) &&
+	   !selectedText().isEmpty() ) ||
 	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
 	 isReadOnly() )
 	return;
@@ -1976,12 +1977,12 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 	if (QApplication::clipboard()->supportsSelection()) {
 	    QApplication::clipboard()->setSelectionMode(TRUE);
 
-            // don't listen to selection changes
-            disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
+	    // don't listen to selection changes
+	    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
 	    copy();
-            // listen to selection changes
-            connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
-                     this, SLOT(clipboardChanged()) );
+	    // listen to selection changes
+	    connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
+		     this, SLOT(clipboardChanged()) );
 
 	    QApplication::clipboard()->setSelectionMode(FALSE);
 	}
@@ -2853,14 +2854,16 @@ void QTextEdit::cut()
 
 void QTextEdit::copy()
 {
-    QString t;
+    QString t = doc->selectedText( QTextDocument::Standard, TRUE );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText() );
-    if ( doc->hasSelection( QTextDocument::Standard ) && !( t = doc->selectedText( QTextDocument::Standard, TRUE ) ).isEmpty() )
+    else if ( doc->hasSelection( QTextDocument::Standard ) &&
+	 !t.isEmpty() && t.simplifyWhiteSpace() != "<selstart/>" )
 	QApplication::clipboard()->setText( t );
 #else
-    if ( doc->hasSelection( QTextDocument::Standard ) && !( t = doc->selectedText( QTextDocument::Standard, TRUE ) ).isEmpty() )
+    if ( doc->hasSelection( QTextDocument::Standard ) &&
+	 !t.isEmpty() && t.simplifyWhiteSpace() != "<selstart/>" )
 	QApplication::clipboard()->setText( t );
 #endif
 }
@@ -3802,7 +3805,7 @@ void QTextEdit::startDrag()
 #ifndef QT_NO_DRAGANDDROP
     mousePressed = FALSE;
     inDoubleClick = FALSE;
-    QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard ), viewport() );
+    QDragObject *drag = new QTextDrag( doc->selectedText( QTextDocument::Standard, TRUE ), viewport() );
     if ( isReadOnly() ) {
 	drag->dragCopy();
     } else {
