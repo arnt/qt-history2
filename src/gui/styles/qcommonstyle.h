@@ -47,13 +47,6 @@ public:
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    void drawPrimitive(PrimitiveElement pe,
-                        QPainter *p,
-                        const QRect &r,
-                        const QPalette &pal,
-                        SFlags flags = Style_Default,
-                        const QStyleOption& = QStyleOption::Default) const;
-
     void drawControl(ControlElement element,
                       QPainter *p,
                       const QWidget *widget,

@@ -131,16 +131,6 @@ static const char * const tree_branch_closed_xpm[] = {
 "#       #",
 "#########"};
 
-/*! \reimp */
-void QCommonStyle::drawPrimitive(PrimitiveElement ,
-                                  QPainter *,
-                                  const QRect &,
-                                  const QPalette &,
-                                  SFlags ,
-                                  const QStyleOption& ) const
-{
-}
-
 /*!
     Draws the primitive element \a pe, with style options \a opt, on
     painter \a p, with the given parent \a widget.
@@ -669,97 +659,6 @@ void QCommonStyle::drawControl(ControlElement element,
         if (!widget->testAttribute(Qt::WA_NoSystemBackground))
             p->eraseRect(r);
         break; }
-    case CE_PushButton:
-        {
-#ifndef QT_NO_PUSHBUTTON
-            const QPushButton *button = (const QPushButton *) widget;
-            QRect br = r;
-            int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
-
-            if (button->isDefault() || button->autoDefault()) {
-                if (button->isDefault())
-                    drawPrimitive(PE_ButtonDefault, p, br, pal, flags);
-
-                br.setCoords(br.left()   + dbi,
-                             br.top()    + dbi,
-                             br.right()  - dbi,
-                             br.bottom() - dbi);
-            }
-
-            if (!button->isFlat() || button->isChecked() || button->isDown())
-                drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
-#endif
-            break;
-        }
-
-    case CE_PushButtonLabel:
-        {
-#ifndef QT_NO_PUSHBUTTON
-            const QPushButton *button = (const QPushButton *) widget;
-            QRect ir = r;
-
-            if (button->isDown() || button->isChecked()) {
-                flags |= Style_Sunken;
-                ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-                          pixelMetric(PM_ButtonShiftVertical, widget));
-            }
-            // ### Please add another rect for QPushButton/AbstractButton that
-            // takes care of this.  This is not the correct way to draw this
-            // arrow, talk to TWS if you don't agree/want help.
-            if (button->menu()) {
-                int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
-                QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
-                drawPrimitive(PE_ArrowDown, p, ar, pal, flags, opt);
-                ir.setWidth(ir.width() - mbi);
-            }
-
-            int tf=Qt::AlignVCenter | Qt::ShowPrefix;
-            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
-                tf |= Qt::NoAccel;
-
-#ifndef QT_NO_ICONSET
-            if (!button->icon().isNull()) {
-                QIconSet::Mode mode =
-                    button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
-                if (mode == QIconSet::Normal && button->hasFocus())
-                    mode = QIconSet::Active;
-
-                QIconSet::State state = QIconSet::Off;
-                if (button->isCheckable() && button->isChecked())
-                    state = QIconSet::On;
-
-                QPixmap pixmap = button->icon().pixmap(QIconSet::Small, mode, state);
-                int pixw = pixmap.width();
-                int pixh = pixmap.height();
-
-                //Center the icon if there is neither text nor pixmap
-                if (button->text().isEmpty())
-                    p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
-                else
-                    p->drawPixmap(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
-
-                ir.moveBy(pixw + 4, 0);
-                ir.setWidth(ir.width() - (pixw + 4));
-                // left-align text if there is
-                if (!button->text().isEmpty())
-                    tf |= Qt::AlignLeft;
-            } else
-#endif //QT_NO_ICONSET
-                tf |= Qt::AlignHCenter;
-            drawItem(p, ir, tf, pal,
-                     flags & Style_Enabled, QPixmap(), button->text(), -1, &(pal.buttonText().color()));
-
-            if (flags & Style_HasFocus)
-                drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
-                              pal, flags);
-#endif
-            break;
-        }
-
-    case CE_CheckBox:
-        drawPrimitive(PE_Indicator, p, r, pal, flags, opt);
-        break;
-
 #if 0
     case CE_TabBarTab:
         {
@@ -858,97 +757,6 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 #endif // QT_NO_TOOLBOX
-    case CE_ProgressBarGroove:
-        qDrawShadePanel(p, r, pal, true, 1, &pal.brush(QPalette::Background));
-        break;
-
-#ifndef QT_NO_PROGRESSBAR
-    case CE_ProgressBarContents:
-        {
-            const QProgressBar *progressbar = (const QProgressBar *) widget;
-            // Correct the highlight color if same as background,
-            // or else we cannot see the progress...
-            QPalette pal2 = pal;
-            if (pal2.highlight() == pal2.background())
-                pal2.setColor(QPalette::Highlight,
-                               progressbar->palette().color(QPalette::Active,
-                                                            QPalette::Highlight));
-            bool reverse = QApplication::reverseLayout();
-            int fw = 2;
-            int w = r.width() - 2*fw;
-            if (!progressbar->totalSteps()) {
-                // draw busy indicator
-                int x = progressbar->progress() % (w * 2);
-                if (x > w)
-                    x = 2 * w - x;
-                x = reverse ? r.right() - x : x + r.x();
-                p->setPen(QPen(pal2.highlight(), 4));
-                p->drawLine(x, r.y() + 1, x, r.height() - fw);
-            } else {
-                const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
-                int u;
-                if (unit_width > 1)
-                    u = (r.width()+unit_width/3) / unit_width;
-                else
-                    u = w / unit_width;
-                int p_v = progressbar->progress();
-                int t_s = progressbar->totalSteps() ? progressbar->totalSteps() : 1;
-
-                if (u > 0 && p_v >= INT_MAX / u && t_s >= u) {
-                    // scale down to something usable.
-                    p_v /= u;
-                    t_s /= u;
-                }
-
-                // nu < tnu, if last chunk is only a partial chunk
-                int tnu, nu;
-                tnu = nu = p_v * u / t_s;
-
-                if (nu * unit_width > w)
-                    nu--;
-
-                // Draw nu units out of a possible u of unit_width
-                // width, each a rectangle bordered by background
-                // color, all in a sunken panel with a percentage text
-                // display at the end.
-                int x = 0;
-                int x0 = reverse ? r.right() - ((unit_width > 1) ?
-                                                unit_width : fw) : r.x() + fw;
-                for (int i=0; i<nu; i++) {
-                    drawPrimitive(PE_ProgressBarChunk, p,
-                                   QRect(x0+x, r.y(), unit_width, r.height()),
-                                   pal2, Style_Default, opt);
-                    x += reverse ? -unit_width: unit_width;
-                }
-
-                // Draw the last partial chunk to fill up the
-                // progressbar entirely
-                if (nu < tnu) {
-                    int pixels_left = w - (nu*unit_width);
-                    int offset = reverse ? x0+x+unit_width-pixels_left : x0+x;
-                    drawPrimitive(PE_ProgressBarChunk, p,
-                                   QRect(offset, r.y(), pixels_left,
-                                          r.height()), pal2, Style_Default,
-                                   opt);
-                }
-            }
-        }
-        break;
-
-    case CE_ProgressBarLabel:
-        {
-            const QProgressBar *progressbar = (const QProgressBar *) widget;
-            QColor penColor = pal.highlightedText();
-            QColor *pcolor = 0;
-            if (progressbar->centerIndicator() && !progressbar->indicatorFollowsStyle() &&
-                 progressbar->progress()*2 >= progressbar->totalSteps())
-                pcolor = &penColor;
-            drawItem(p, r, Qt::AlignCenter | Qt::SingleLine, pal, flags & Style_Enabled,
-                     progressbar->progressString(), -1, pcolor);
-        }
-        break;
-#endif // QT_NO_PROGRESSBAR
-
     case CE_MenuTearoff: {
         if(flags & Style_Active)
             p->fillRect(r, pal.brush(QPalette::Highlight));
@@ -1336,7 +1144,7 @@ void QCommonStyle::drawControlMask(ControlElement control,
                                     QPainter *p,
                                     const QWidget *widget,
                                     const QRect &r,
-                                    const QStyleOption& opt) const
+                                    const QStyleOption& ) const
 {
     Q_UNUSED(widget);
 
@@ -1345,18 +1153,6 @@ void QCommonStyle::drawControlMask(ControlElement control,
     QPalette pal(Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color1,Qt::color0);
 
     switch (control) {
-    case CE_PushButton:
-        drawPrimitive(PE_ButtonCommand, p, r, pal, Style_Default, opt);
-        break;
-
-    case CE_CheckBox:
-        drawPrimitive(PE_IndicatorMask, p, r, pal, Style_Default, opt);
-        break;
-
-    case CE_RadioButton:
-        drawPrimitive(PE_ExclusiveIndicatorMask, p, r, pal, Style_Default, opt);
-        break;
-
     default:
         p->fillRect(r, Qt::color1);
         break;
@@ -2027,9 +1823,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             if (toolbutton->activeParts & SC_ToolButtonMenu)
                 mflags |= Style_Down;
 
+            Q4StyleOption tool(0, Q4StyleOption::Default);
+            tool.palette = pal2;
             if (toolbutton->parts & SC_ToolButton) {
                 if (bflags & (Style_Down | Style_On | Style_Raised)) {
-                    drawPrimitive(PE_ButtonTool, p, button, pal2, bflags);
+                    tool.rect = button;
+                    tool.state = bflags;
+                    drawPrimitive(PE_ButtonTool, &tool, p, widget);
                 } else if (toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap()
                            && !toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap()->isNull()) {
                     p->drawTiledPixmap(toolbutton->rect,
@@ -2039,9 +1839,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
             }
 
             if (toolbutton->parts & SC_ToolButtonMenu) {
+                tool.rect = menuarea;
+                tool.state = mflags;
                 if (mflags & (Style_Down | Style_On | Style_Raised))
-                    drawPrimitive(PE_ButtonDropDown, p, menuarea, pal2, mflags);
-                drawPrimitive(PE_ArrowDown, p, menuarea, pal2, mflags);
+                    drawPrimitive(PE_ButtonDropDown, &tool, p, widget);
+                drawPrimitive(PE_ArrowDown, &tool, p, widget);
             }
 
             if (toolbutton->state & Style_HasFocus) {
@@ -2385,6 +2187,8 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
             bool down = false;
             QPixmap pm;
 
+            Q4StyleOption tool(0, Q4StyleOption::Default);
+            tool.palette = pal;
             if (controls & SC_TitleBarCloseButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, widget, SC_TitleBarCloseButton), widget);
                 down = active & SC_TitleBarCloseButton;
@@ -2396,8 +2200,9 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
                     pm = stylePixmap(SP_DockWindowCloseButton, widget);
                 else
                     pm = stylePixmap(SP_TitleBarCloseButton, widget);
-                drawPrimitive(PE_ButtonTool, p, ir, pal,
-                              down ? Style_Down : Style_Raised);
+                tool.rect = ir;
+                tool.state = down ? Style_Down : Style_Raised;
+                drawPrimitive(PE_ButtonTool, &tool, p, widget);
 
                 p->save();
                 if(down)
@@ -2412,8 +2217,9 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
 
                 down = active & SC_TitleBarMaxButton;
                 pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
-                drawPrimitive(PE_ButtonTool, p, ir, pal,
-                              down ? Style_Down : Style_Raised);
+                tool.rect = ir;
+                tool.state = down ? Style_Down : Style_Raised;
+                drawPrimitive(PE_ButtonTool, &tool, p, widget);
 
                 p->save();
                 if(down)
@@ -2433,7 +2239,9 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
                                                SP_TitleBarMinButton);
                 down = active & ctrl;
                 pm = QPixmap(stylePixmap(spixmap, widget));
-                drawPrimitive(PE_ButtonTool, p, ir, pal, down ? Style_Down : Style_Raised);
+                tool.rect = ir;
+                tool.state = down ? Style_Down : Style_Raised;
+                drawPrimitive(PE_ButtonTool, &tool, p, widget);
 
                 p->save();
                 if(down)
@@ -2448,7 +2256,9 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
 
                 down = active & SC_TitleBarShadeButton;
                 pm = QPixmap(stylePixmap(SP_TitleBarShadeButton, widget));
-                drawPrimitive(PE_ButtonTool, p, ir, pal, down ? Style_Down : Style_Raised);
+                tool.rect = ir;
+                tool.state = down ? Style_Down : Style_Raised;
+                drawPrimitive(PE_ButtonTool, &tool, p, widget);
                 p->save();
                 if(down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, widget),
@@ -2462,7 +2272,9 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
 
                 down = active & SC_TitleBarUnshadeButton;
                 pm = QPixmap(stylePixmap(SP_TitleBarUnshadeButton, widget));
-                drawPrimitive(PE_ButtonTool, p, ir, pal, down ? Style_Down : Style_Raised);
+                tool.rect = ir;
+                tool.state = down ? Style_Down : Style_Raised;
+                drawPrimitive(PE_ButtonTool, &tool, p, widget);
                 p->save();
                 if(down)
                     p->translate(pixelMetric(PM_ButtonShiftHorizontal, widget),

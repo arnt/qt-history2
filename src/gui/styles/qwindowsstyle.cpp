@@ -1089,9 +1089,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
                     p->drawRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
                                 opt->rect.height() - 2);
                 }
-            } else
+            } else {
                 qDrawWinButton(p, opt->rect, opt->palette,
                                opt->state & (Style_Down | Style_On), &fill);
+            }
         } else {
             p->fillRect(opt->rect, fill);
         }
@@ -2113,7 +2114,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                 ar.addCoords(2, 2, -2, -2);
                 if (opt->state & Style_Enabled)
                     flags |= Style_Enabled;
-                
+
                 if (cmb->activeParts == SC_ComboBoxArrow)
                     flags |= Style_Sunken;
                 Q4StyleOption arrowOpt(0, Q4StyleOption::Default);
@@ -2139,7 +2140,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionCom
                     p->setPen(cmb->palette.text());
                     p->setBackground(cmb->palette.background());
                 }
-                
+
                 if (cmb->state & Style_HasFocus && !cmb->editable) {
                     Q4StyleOptionFocusRect focus(0);
                     focus.rect = QStyle::visualRect(subRect(SR_ComboBoxFocusRect, cmb, widget),
