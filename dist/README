@@ -53,7 +53,12 @@ get the new release. Contact sales@trolltech.com if you are a
 Professional or Enterprise Edition licensee and have not received this
 e-mail.
 
-Any problems encountered with Qt 4.0 should be reported to
-qt-bugs@trolltech.com.
+Trolltech has set up a special mailing list, qt4-preview-feedback, for
+discussion of Qt4 related issues. To subscribe, send a message
+containing just the word "subscribe" (without the quotes) to
+qt4-preview-feedback-request@trolltech.com.  We encourage you to use
+this mailing list instead of qt-interest for Qt4 issues. See
+http://lists.trolltech.com/ for more information on Trolltech's
+mailing lists, including archived discussions.
 
 Qt is a trademark of Trolltech AS.
