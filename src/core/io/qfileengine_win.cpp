@@ -581,9 +581,15 @@ QFSFileEngine::rootPath()
 QString
 QFSFileEngine::tempPath()
 {
+#ifdef UNICODE
     wchar_t tempPath[MAX_PATH];
-    GetTempPath(MAX_PATH, (LPWSTR)tempPath);
+    GetTempPath(MAX_PATH, tempPath);
     QString ret = QString::fromUtf16((ushort*)tempPath);
+#else
+    char tempPath[MAX_PATH];
+    GetTempPath(MAX_PATH, tempPath);
+    QString ret(tempPath);
+#endif
     if(ret.isEmpty())
         ret = QString::fromLatin1("c:/tmp");
     return ret;
