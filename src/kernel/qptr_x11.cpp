@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#214 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#213 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#214 $");
 
 
 /*****************************************************************************
@@ -2747,12 +2747,12 @@ void QPainter::drawText( int x, int y, const char *str, int len )
   If several of the horizontal or several of the vertical alignment flags   
   are set, the resulting alignment is undefined.
 
-  If ExpandTabs is set and no tab \link setTabStops() stops or tab \link
-  setTabArray() array have been set tabs will expand to the closest
-  reasonable tab stop based on the current font. For \link
-  QFont::setFixedPitch() fixed pitch (width) fonts you are guaranteed that
-  each tab stop will be at a multiple of eight of the width of the
-  characters in the font.
+  If ExpandTabs is set and no \link setTabStops() tab stops \endlink or
+  \link setTabArray() tab array \endlink have been set tabs will expand to
+  the closest reasonable tab stop based on the current font. For \link
+  QFont::setFixedPitch() fixed pitch\endlink (fixed width) fonts you are
+  guaranteed that each tab stop will be at a multiple of eight of the
+  width of the characters in the font.
 
   \a brect (if non-null) is set to the actual bounding rectangle of
   the output.  \a internal is, yes, internal.
