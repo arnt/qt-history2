@@ -140,12 +140,9 @@ void MingwMakefileGenerator::processLibsVar()
 
 void MingwMakefileGenerator::fixTargetExt()
 {
-    if (!project->isActiveConfig("dll") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+    if (project->isActiveConfig("staticlib")) {
         project->variables()["TARGET_EXT"].append(".a");
         project->variables()["QMAKE_LFLAGS"].append("-static");
-        if(project->variables()["TARGET"].value(0).left(3) != "lib")
-            project->variables()["TARGET"].value(0).prepend("lib");
-    } else if (project->isActiveConfig("staticlib")) {
         project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + ".a";
     } else {
         Win32MakefileGenerator::fixTargetExt();
