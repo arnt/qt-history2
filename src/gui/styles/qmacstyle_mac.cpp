@@ -92,19 +92,15 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
     static Rect r;
     bool use_rect = (rect.x() || rect.y() || rect.width() || rect.height());
     QPoint tl(qr.topLeft());
-    if(pd && pd->devType() == QInternal::Widget) {
+    if (pd && pd->devType() == QInternal::Widget) {
         QWidget *w = (QWidget*)pd;
         tl = w->mapTo(w->topLevelWidget(), tl);
     }
-    if(use_rect)
+    if (use_rect)
         tl += rect.topLeft();
     int offset = 0;
-    if(useOffset) {
-//        if(QRect::rectangleMode() == QRect::InclusiveRectangles)
-            offset = 1;
-//        else
-//            offset = 2;
-    }
+    if (useOffset)
+        offset = 1;
     SetRect(&r, tl.x(), tl.y(), (tl.x() + qr.width()) - offset, (tl.y() + qr.height()) - offset);
     if(use_rect) {
         r.right -= rect.width();
@@ -425,8 +421,10 @@ const ThemeWindowType QtWinType = kThemeUtilityWindow; // Window type we use for
  *****************************************************************************/
 static inline int qt_mac_hitheme_tab_version()
 {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_TIGER)
         return 1;
+#endif
     return 0;
 }
 
@@ -444,12 +442,8 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
 {
     int x, y;
     int offset = 0;
-    if (useOffset) {
-//        if(QRect::rectangleMode() == QRect::InclusiveRectangles)
-            offset = 1;
-//        else
-//            offset = 2;
-    }
+    if (useOffset)
+        offset = 1;
     if (p) {
         QPoint pt = domap(p, convertRect.topLeft());
         x = pt.x();
@@ -464,7 +458,7 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
     return retRect;
 }
 
-static inline const QRect qrectForHIRect(const HIRect &hirect)
+static inline const QRect qt_qrectForHIRect(const HIRect &hirect)
 {
     return QRect(QPoint(int(hirect.origin.x), int(hirect.origin.y)),
                  QSize(int(hirect.size.width), int(hirect.size.height)));
@@ -1735,7 +1729,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                     cg, kHIThemeOrientationNormal, &cr);
                 if(ce == QStyle::CE_MenuEmptyArea)
                     break;
-                contentRect = qrectForHIRect(cr);
+                contentRect = qt_qrectForHIRect(cr);
             }
             int xpos = contentRect.x() + 18;
             int checkcol = maxpmw;
@@ -1870,7 +1864,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                  kHIThemeOrientationNormal, &textRect);
             //text
             QPixmap pix = mi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
-            q->drawItem(p, qrectForHIRect(textRect),
+            q->drawItem(p, qt_qrectForHIRect(textRect),
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                         | Qt::TextSingleLine,
                         mi->palette, mi->state & QStyle::Style_Enabled,
@@ -2041,7 +2035,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                     HIRect hirect2 = qt_hirectForQRect(tabRect);
                     HIThemeGetTabShape(&hirect2, &tdi, &tabShape);
                     HIShapeGetBounds(tabShape, &hirect2);
-                    QRect newRect = qrectForHIRect(hirect2);
+                    QRect newRect = qt_qrectForHIRect(hirect2);
                     QColor curCol = opt->state & QStyle::Style_Selected ? QColor(0, 0, 255, 30)
                                                                         : QColor(0, 0, 0, 51);
                     p->save();
@@ -2126,10 +2120,20 @@ QRect QMacStylePrivate::HIThemeSubRect(QStyle::SubRect sr, const QStyleOption *o
     case QStyle::SR_PanelTab: {
         HIRect hirect = qt_hirectForQRect(opt->rect);
         QCFType<HIShapeRef> shape;
-        HIThemeGetTabPaneContentShape(&hirect, kThemeTabNorth, kHIThemeTabSizeNormal, &shape);
+        HIThemeGetTabPaneContentShape(&hirect,
+                        opt->state & QStyle::Style_Bottom ? kThemeTabSouth : kThemeTabNorth,
+                        kHIThemeTabSizeNormal, &shape);
         HIShapeGetBounds(shape, &hirect);
-        r = qrectForHIRect(hirect);
-        r.setY(r.y() + 4);
+        r = qt_qrectForHIRect(hirect);
+        bool newStyleTabs =
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+            QSysInfo::MacintoshVersion >= QSysInfo::MV_TIGER ? true :
+#endif
+            false;
+        if (opt->state & QStyle::Style_Bottom)
+            r.setHeight(r.height() - (newStyleTabs ? 3 : 11));
+        else
+            r.setY(r.y() + (newStyleTabs ? 4 : 14));
         break; }
     case QStyle::SR_ToolBarButtonContents:
     case QStyle::SR_ToolBarButtonMenu:
@@ -2409,7 +2413,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     QCFType<HIShapeRef> titleRegion3;
                     HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleTextRgn, &titleRegion3);
                     HIShapeGetBounds(titleRegion3, &titleRect);
-                    p->setClipRect(qrectForHIRect(titleRect));
+                    p->setClipRect(qt_qrectForHIRect(titleRect));
                     QRect br = p->clipRegion().boundingRect();
                     int x = br.x(),
                     y = br.y() + (titlebar->rect.height() / 2 - p->fontMetrics().height() / 2);
@@ -2689,18 +2693,18 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
             switch (sc) {
             case QStyle::SC_SliderGroove:
                 HIThemeGetTrackBounds(&tdi, &macRect);
-                ret = qrectForHIRect(macRect);
+                ret = qt_qrectForHIRect(macRect);
                 break;
             case QStyle::SC_ScrollBarGroove:
                 HIThemeGetTrackDragRect(&tdi, &macRect);
-                ret = qrectForHIRect(macRect);
+                ret = qt_qrectForHIRect(macRect);
                 break;
             case QStyle::SC_SliderHandle:
             case QStyle::SC_ScrollBarSlider:
                 QCFType<HIShapeRef> shape;
                 HIThemeGetTrackThumbShape(&tdi, &shape);
                 HIShapeGetBounds(shape, &macRect);
-                ret = qrectForHIRect(macRect);
+                ret = qt_qrectForHIRect(macRect);
                 break;
             }
         }
@@ -2776,7 +2780,7 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
                 titleRect = qt_hirectForQRect(tmpRect);
                 HIThemeGetWindowShape(&titleRect, &wdi, wrc, &region);
                 HIShapeGetBounds(region, &titleRect);
-                ret = qrectForHIRect(titleRect);
+                ret = qt_qrectForHIRect(titleRect);
             }
         }
         break;
@@ -3221,10 +3225,20 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         qt_mac_set_port(p);
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
-    case QStyle::PE_PanelTabWidget:
-        qt_mac_set_port(p);
-        DrawThemeTabPane(qt_glb_mac_rect(opt->rect, p), tds);
-        break;
+    case QStyle::PE_PanelTabWidget: {
+        p->save();
+        // Not great, but I can't seem to get Appearance Manager to flip for me.
+        QPixmap pix(opt->rect.size(), 32);
+        QPainter pixPainter(&pix);
+        qt_mac_set_port(&pixPainter);
+        DrawThemeTabPane(qt_glb_mac_rect(opt->rect, &pixPainter), tds);
+        if (opt->state & QStyle::Style_Bottom) {
+            p->scale(1, -1);
+            p->translate(0, -opt->rect.height());
+        }
+        p->drawPixmap(opt->rect, pix);
+        p->restore();
+        break; }
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
@@ -3666,16 +3680,22 @@ QRect QMacStylePrivate::AppManSubRect(QStyle::SubRect sr, const QStyleOption *op
     case QStyle::SR_ToolBarButtonMenu:
         r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
         break;
-    case QStyle::SR_PanelTab:
+    case QStyle::SR_PanelTab: {
         r = opt->rect;
-        r.setY(r.y() + q->pixelMetric(QStyle::PM_TabBarBaseHeight) + q->pixelMetric(QStyle::PM_TabBarBaseOverlap) + 8);
-        break;
+        int newOffset = q->pixelMetric(QStyle::PM_TabBarBaseHeight)
+                        + q->pixelMetric(QStyle::PM_TabBarBaseOverlap);
+        if (opt->state & QStyle::Style_Bottom)
+            r.setHeight(r.height() - newOffset - 16);
+        else
+            r.setY(r.y() + newOffset + 8);
+        break; }
     default:
         r = q->QWindowsStyle::subRect(sr, opt, fm, widget);
         break;
     }
     return r;
 }
+
 void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *widget) const
 {

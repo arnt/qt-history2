@@ -249,9 +249,16 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_MenuFrame:
     case PE_Panel:
     case PE_PanelPopup:
-        if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt))
+        if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
+            p->save();
+            if (frame->state & Style_Bottom) {
+                p->scale(1, -1);
+                p->translate(0, -frame->rect.height());
+            }
             qDrawShadePanel(p, frame->rect, frame->palette, frame->state & Style_Sunken,
                             frame->lineWidth);
+            p->restore();
+        }
         break;
     case PE_MenuBarFrame:
     case PE_PanelMenuBar:
@@ -1365,7 +1372,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         break; }
     case SR_PanelTab:
         r = opt->rect;
-        r.setY(r.y() + fm.height() + 8); // ### Need to take the icon into account.
+        // ### Need to take the icon into account.
+        if (opt->state & QStyle::Style_Bottom)
+            r.setHeight(r.height() - fm.height() - 11);
+        else
+            r.setY(r.y() + fm.height() + 8);
         break;
     default:
         break;
