@@ -5858,12 +5858,12 @@ void QPSPrinter::drawCubicBezier(const QPointArray &a, int index)
 }
 #endif
 
-void QPSPrinter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+void QPSPrinter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
     // ###### fix sr
     QImage img = pm;
     QImage mask;
-    if ( pm.mask() )
+    if ( !imask && pm.mask() )
 	mask = *pm.mask();
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img, mask);
 }
