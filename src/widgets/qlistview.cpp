@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#357 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#358 $
 **
 ** Implementation of QListView widget class
 **
@@ -990,7 +990,7 @@ void QListViewItem::enforceSortOrder() const
 
 void QListViewItem::setSelected( bool s )
 {
-    selected = s ? 1 : 0;
+    selected = s && isSelectable() ? 1 : 0;
 }
 
 
