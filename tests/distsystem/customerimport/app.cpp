@@ -23,41 +23,58 @@ void ImportApp::doImport()
 
     if( internDB->open() ) {
 	if( axaptaDB->open() ) {
-	    QSqlCursor internCursor( "tempCustomer", true, internDB );
+	    QFile logFile( "skipped.log" );
+	    if( logFile.open( IO_WriteOnly | IO_Translate ) ) {
+		QTextStream log( &logFile );
 
-	    internCursor.select();
-	    internCursor.first();
-	    while( internCursor.isValid() ) {
-		QString customerID = internCursor.value( "customerid" ).toString();
-		QString customerName = internCursor.value( "customername" ).toString();
-		QString customerAddress = internCursor.value( "address" ).toString();
+		QSqlCursor internCursor( "tempCustomer", true, internDB );
 
-		customerAddress.replace( QRegExp( "[\\r,\\n]" ), " " );
-		QSqlCursor axaptaCursor( "CustTable", true, axaptaDB );
+		internCursor.select();
+		internCursor.first();
+		while( internCursor.isValid() ) {
+		    QString customerID = internCursor.value( "customerid" ).toString();
+		    QString customerName = internCursor.value( "customername" ).toString();
+		    QString customerAddress = internCursor.value( "address" ).toString();
 
-		axaptaCursor.select( "Name = '" + customerName + "' and replace( replace( Address, chr( 13 ), ' '), chr( 10 ), ' ' ) = '" + customerAddress + "' and dataareaid = 'ts3'" );
-		axaptaCursor.first();
-		if( axaptaCursor.isValid() ) {
-		    // We found a record, hooray :)
-		    QSqlRecord* buffer = axaptaCursor.primeUpdate();
-		    QSqlQuery q( QString::null, axaptaDB );
-		    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + buffer->value( "ACCOUNTNUM" ).toString() + "'";
-		    bool b = q.exec( tmp );
+		    customerAddress.replace( QRegExp( "[\\r,\\n]" ), " " );
+		    QSqlCursor axaptaCursor( "CustTable", true, axaptaDB );
+
+		    axaptaCursor.select( "Name = '" + customerName + "' and replace( replace( Address, chr( 13 ), ' '), chr( 10 ), ' ' ) = '" + customerAddress + "' and dataareaid = 'ts3'" );
+		    axaptaCursor.first();
+		    if( axaptaCursor.isValid() ) {
+			    // We found a record, hooray :)
+			    QSqlRecord* buffer = axaptaCursor.primeUpdate();
+			    QSqlQuery q( QString::null, axaptaDB );
+			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + buffer->value( "ACCOUNTNUM" ).toString() + "'";
+			    bool b = q.exec( tmp );
+			    if( b )
+				log << customerID << " ... OK" << endl;
+			    else
+				log << customerID << " ... FAILED (SQL error)" << endl;
+		    }
+		    else {
+			axaptaCursor.select( "Name = '" + customerName + "' and dataareaid = 'ts3'" );
+			axaptaCursor.first();
+			if( axaptaCursor.isValid() ) {
+			    // We found a record, hooray :)
+			    QSqlRecord* buffer = axaptaCursor.primeUpdate();
+			    QSqlQuery q( QString::null, axaptaDB );
+			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + buffer->value( "ACCOUNTNUM" ).toString() + "'";
+			    bool b = q.exec( tmp );
+			    if( b )
+				log << customerID << " ... MAYBE (Name OK, but address mismatched)" << endl;
+			    else
+				log << customerID << " ... FAILED (SQL error)" << endl;
+			}
+			else {
+			    log << customerID << " ... FAILED (\"" << customerName << "\" not found)" << endl;
+			}
+		    }
+		    logFile.flush();
+		    internCursor.next();
 		}
-		else {
-		    skippedIds += customerID;
-		}
-
-		internCursor.next();
+		logFile.close();
 	    }
 	}
-    }
-    QFile logFile( "skipped.log" );
-
-    if( logFile.open( IO_WriteOnly | IO_Translate ) ) {
-	QTextStream log( &logFile );
-	log << skippedIds.join( "\n" );
-	log << endl;
-	logFile.close();
     }
 }
