@@ -6,6 +6,7 @@ public:
     static QString getEnv( QString varName, int envBlock = LocalEnv );
     static void putEnv( QString varName, QString varValue, int envBlock = LocalEnv );
     static QString getRegistryString( QString keyName, QString valueName, int scope = CurrentUser );
+    static bool recordUninstall( QString displayName, QString cmdString );
     static QString getTempPath();
 
     enum {

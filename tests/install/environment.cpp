@@ -61,6 +61,52 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
     }
 }
 
+bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
+{
+    HKEY key;
+    QByteArray buffer;
+
+    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) {
+	if( RegCreateKeyExW( HKEY_LOCAL_MACHINE, (WCHAR*)qt_winTchar( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" ) + displayName, true ), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
+	    const QChar* data;
+	    int i;
+
+	    buffer.resize( displayName.length() * 2 + 2 );
+	    data = displayName.unicode();
+	    for ( i = 0; i < (int)displayName.length(); ++i ) {
+		buffer[ 2*i ] = displayName[ i ].cell();
+		buffer[ (2*i)+1 ] = displayName[ i ].row();
+	    }
+	    buffer[ (2*i) ] = 0;
+	    buffer[ (2*i)+1 ] = 0;
+	    RegSetValueExW( key, (WCHAR*)qt_winTchar( "DisplayName", true ), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+	    
+	    buffer.resize( cmdString.length() * 2 + 2 );
+	    data = cmdString.unicode();
+	    for ( i = 0; i < (int)cmdString.length(); ++i ) {
+		buffer[ 2*i ] = cmdString[ i ].cell();
+		buffer[ (2*i)+1 ] = cmdString[ i ].row();
+	    }
+	    buffer[ (2*i) ] = 0;
+	    buffer[ (2*i)+1 ] = 0;
+	    RegSetValueExW( key, (WCHAR*)qt_winTchar( "UninstallString", true ), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+	    
+	    RegCloseKey( key );
+	    return true;
+	}
+    }
+    else {
+	if( RegCreateKeyExA( HKEY_LOCAL_MACHINE, QString( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" ) + displayName ).local8Bit(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
+	    RegSetValueExA( key, "DisplayName", 0, REG_SZ, (const unsigned char*)displayName.latin1(), displayName.length() + 1 );
+	    RegSetValueExA( key, "UninstallString", 0, REG_SZ, (const unsigned char*)cmdString.latin1(), cmdString.length() + 1 );
+
+	    RegCloseKey( key );
+	    return true;
+	}
+    }
+    return false;
+}
+
 QString QEnvironment::getRegistryString( QString keyName, QString valueName, int scope )
 {
     QString value;

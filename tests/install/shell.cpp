@@ -131,42 +131,33 @@ WinShell::WinShell()
     IEnumIDList* enumerator = NULL;
     LPITEMIDLIST item;
 
-    desktopFolder = NULL;
-    localProgramsFolder = NULL;
-    commonProgramsFolder = NULL;
     localProgramsFolderName = QString::null;
     commonProgramsFolderName = QString::null;
+    windowsFolderName = QString::null;
 
-    if( SUCCEEDED( hr = SHGetDesktopFolder( &desktopFolder ) ) ) {
-	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
-	    if( SHGetPathFromIDList( item, buffer.data() ) ) {
-		localProgramsFolderName = buffer.data();
-		if( SUCCEEDED( hr = desktopFolder->BindToObject( (LPCITEMIDLIST)item, NULL, IID_IShellFolder, (void**)&localProgramsFolder ) ) ) {
-		    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) { // On NT we also have a common folder
-			if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
-			    if( SHGetPathFromIDList( item, buffer.data() ) ) {
-				commonProgramsFolderName = buffer.data();
-				if( FAILED( hr = desktopFolder->BindToObject( (LPCITEMIDLIST)item, NULL, IID_IShellFolder, (void**)&commonProgramsFolder ) ) )
-				    qDebug( "Could not get interface to programs folder" );
-			    }
-			    else
-				qDebug( "Could not get name of common programs folder" );
-			}
-			else
-			    qDebug( "Could not get common programs folder location" );
-		    }
+    if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
+	if( SHGetPathFromIDList( item, buffer.data() ) ) {
+	    localProgramsFolderName = buffer.data();
+	    if( int( qWinVersion ) & int( Qt::WV_NT_based ) ) { // On NT we also have a common folder
+		if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
+		    if( SHGetPathFromIDList( item, buffer.data() ) )
+			commonProgramsFolderName = buffer.data();
+		    else
+			qDebug( "Could not get name of common programs folder" );
 		}
 		else
-		    qDebug( "Could not get interface to programs folder" );
+		    qDebug( "Could not get common programs folder location" );
+		if( GetWindowsDirectory( buffer.data(), buffer.size() ) )
+		    windowsFolderName = buffer.data();
+		else
+		    qDebug( "Could not get Windows directory" );
 	    }
-	    else
-		qDebug( "Could not get name of programs folder" );
 	}
 	else
-	    qDebug( "Could not get programs folder location" );
+	    qDebug( "Could not get name of programs folder" );
     }
     else
-	qDebug( "Could not get desktop interface" );
+	qDebug( "Could not get programs folder location" );
 
     closedImage = new QPixmap( folder_closed_xpm );
     openImage = new QPixmap( folder_open_xpm );
@@ -176,48 +167,6 @@ WinShell::WinShell()
 
 WinShell::~WinShell()
 {
-    if( localProgramsFolder )
-	localProgramsFolder->Release();
-    if( commonProgramsFolder )
-	commonProgramsFolder->Release();
-    if( desktopFolder )
-	desktopFolder->Release();
-}
-
-HRESULT WinShell::EnumFolder( IShellFolder* folder, QStringList& entryList )
-{
-    HRESULT hr;
-    IEnumIDList* enumerator;
-    QString entries;
-
-    if( SUCCEEDED( hr = folder->EnumObjects( NULL, SHCONTF_FOLDERS, &enumerator ) ) ) {
-	LPITEMIDLIST item;
-	while( ( hr = enumerator->Next( 1, &item, NULL ) ) == S_OK ) {
-	    STRRET name;
-	    if( SUCCEEDED( hr = folder->GetDisplayNameOf( item, SHGDN_INFOLDER, &name ) ) ) {
-		switch( name.uType ) {
-		case STRRET_CSTR:
-		    entries += &name.cStr[ 0 ];
-		    break;
-		case STRRET_WSTR:
-		    for( int i = 0; name.pOleStr[ i ] != 0; i++ )
-			entries += QChar( name.pOleStr[ i ] );
-		    break;
-		}
-		entries += "\\";
-	    }
-	    else {
-		qDebug( "Could not get display name for entry" );
-		break;
-	    }
-	}
-        enumerator->Release();
-    }
-    else
-	qDebug( "Could not get enumerator" );
-
-    entryList = QStringList::split( '\\', entries );
-    return hr;
 }
 
 QString WinShell::selectFolder( QString folderName, bool common )

@@ -1,5 +1,6 @@
 #include "setupwizardimpl.h"
 #include "environment.h"
+#include "confirmdlg.h"
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qlabel.h>
@@ -214,8 +215,20 @@ void SetupWizardImpl::integratorDone()
 	{
 	    QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
 
-	    if( autoexp.open( IO_Append ) ) {
-		QTextStream outstream( &autoexp );
+	    if( autoexp.open( IO_ReadOnly ) ) { // First try to open the file to search for existing installations
+		QTextStream instream( &autoexp );
+		QString existingAutoexp;
+
+		instream >> existingAutoexp;
+		if( existingAutoexp.find( "; Trolltech Qt" ) == -1 ) {
+		    autoexp.close();
+		    if( autoexp.open( IO_Append ) ) { // Reopen the file to append our autoexp additions
+			QTextStream outstream( &autoexp );
+			outstream << "; Trolltech Qt\nQString=<d->unicode,su> len=<d->len,u>\n";
+		    }
+		}
+		if( autoexp.isOpen() )
+		    autoexp.close();
 	    }
 	}
 	break;
@@ -236,6 +249,19 @@ void SetupWizardImpl::integratorDone()
 	examplesName = shell.createFolder( folderPath->text() + "\\Examples", common );
 	installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
     }
+    /*
+    ** Then record the installation in the registry, and set up the uninstallation
+    */
+    QStringList uninstaller;
+    uninstaller << shell.windowsFolderName + "\\quninstall.exe";
+    uninstaller << installPath->text();
+
+    if( common )
+	uninstaller << ( QString( "\"" ) + shell.commonProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+    else
+	uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+    QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
+
     setNextEnabled( buildPage, true );
 }
 
@@ -403,20 +429,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		readArchive( "tutorial.arq", installPath->text() );
 	    filesCopied = true;
 	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
-//	    filesDisplay->append( "All files have been copied.\n" );
-//	    filesDisplay->append( "This log will be written to the installation directory.\n" );
-
-/*
-	    QFile logFile( installPath->text() + "\\install.log" );
-	    if( logFile.open( IO_WriteOnly ) ) {
-		QTextStream outStream( &logFile );
-		for( int i = filesDisplay->count() - 3; i > 0; i-- ) {
-		    QString entry = filesDisplay->text( i );
-		    outStream << entry.latin1();
-		}
-		logFile.close();
-	    }
-*/
 	}
 	setNextEnabled( progressPage, true );
     }
@@ -424,9 +436,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
 	QByteArray pathBuffer;
 	QStringList path;
-
-	QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
-	QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
+	ConfirmDlg confirm;
 
 	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
 	if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
@@ -435,14 +445,24 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    path.prepend( "%QTDIR%\\bin" );
 	QEnvironment::putEnv( "PATH", path.join( ";" ) );
 
-	path.clear();
+	confirm.confirmText->setText( "Do you want to set QTDIR to point to the new installation?" );
+	if( confirm.exec() ) {
+	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
+	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
 
-	path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::DefaultEnv ) );
-	if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
-	    path.prepend( "%QTDIR%\\lib" );
-	if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
-	    path.prepend( "%QTDIR%\\bin" );
-	QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::DefaultEnv );
+	    path.clear();
+	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::DefaultEnv ) );
+	    if( path.findIndex( "%QTDIR%\\lib" ) == -1 )
+		path.prepend( "%QTDIR%\\lib" );
+	    if( path.findIndex( "%QTDIR%\\bin" ) == -1 )
+		path.prepend( "%QTDIR%\\bin" );
+	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::DefaultEnv );
+	}
+	else {
+	    QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv );
+	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
+	}
+
 
 	configList->clear();
 	advancedList->clear();

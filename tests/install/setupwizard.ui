@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>513</width>
-            <height>343</height>
+            <width>509</width>
+            <height>341</height>
         </rect>
     </property>
     <property name="caption">
@@ -357,7 +357,7 @@
                             <cstring>folderLabel</cstring>
                         </property>
                         <property name="text">
-                            <string>Icon folder</string>
+                            <string>Program folder</string>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget" row="0" column="1">
@@ -861,14 +861,14 @@
         <receiver>SetupWizard</receiver>
         <slot>clickedDevSysPath()</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">clickedDevSysPath()</slot>
     <slot access="public" language="C++">clickedFolderPath()</slot>
     <slot access="public" language="C++">clickedPath()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
-    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">licenseAccepted()</slot>
     <slot access="public" language="C++">pageChanged(const QString&amp;)</slot>
-    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>
