@@ -17,13 +17,7 @@ if [ -z "$WHICH" ]; then
     fi
 fi
 
-if [ ! -z "$WHICH" ]; then
-    a=`which "$1" 2>/dev/null`
-    if [ ! -z "$a" -a -x "$a" ]; then
-	echo "$a"
-	exit 0
-    fi
-else
+if [ -z "$WHICH" ]; then
     IFS=:
     for a in $PATH; do
 	if [ -x $a/$1 ]; then
@@ -31,5 +25,11 @@ else
 	    exit 0
 	fi
     done
+else
+    a=`"$WHICH" "$1" 2>/dev/null`
+    if [ ! -z "$a" -a -x "$a" ]; then
+	echo "$a"
+	exit 0
+    fi
 fi
 exit 1
