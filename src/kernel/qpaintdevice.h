@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#19 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#20 $
 **
 ** Definition of QPaintDevice class
 **
@@ -68,7 +68,7 @@ protected:
     HPS	     hps;				// presentation space
 #elif defined(_WS_X11_)
     Display *dpy;				// display
-    Window   hd;				// handle to drawable
+    HANDLE   hd;				// handle to drawable
 #endif
 
     virtual bool cmd( int, QPDevCmdParam * );
