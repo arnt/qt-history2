@@ -2857,7 +2857,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	while ( l ) {
 	    if ( *cin == '&' ) {
 		++cin;
-		if ( --l )
+		--l;
+		if ( !l )
 		    break;
 		if ( *cin != '&' )
 		    underlinePositions[numUnderlines++] = cout - text.unicode();
