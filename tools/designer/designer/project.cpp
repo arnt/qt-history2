@@ -152,7 +152,7 @@ void Project::parse()
 	dbFile = "";
 	QString part = contents.mid( i + QString( "DBFILE" ).length() );
 	dbFile = parse_part( part );
-	dbFile = makeAbsolute( dbFile );
+	dbFile = dbFile;
     }
 
     i = contents.find( "PROJECTNAME" );
@@ -519,11 +519,11 @@ void Project::saveConnections()
     inSaveConnections = TRUE;
     if ( !QFile::exists( dbFile ) ) {
 	QFileInfo fi( fileName() );
-	setDatabaseDescription( makeAbsolute( fi.baseName() + ".db" ) );
+	setDatabaseDescription( fi.baseName() + ".db" );
     }
 
     /* .db xml */
-    QFile f( dbFile );
+    QFile f( makeAbsolute( dbFile ) );
     if ( f.open( IO_WriteOnly ) ) {
 	QTextStream ts( &f );
 	ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
@@ -589,10 +589,10 @@ static QDomElement loadSingleProperty( QDomElement e, const QString& name )
 
 void Project::loadConnections()
 {
-    if ( !QFile::exists( dbFile ) )
+    if ( !QFile::exists( makeAbsolute( dbFile ) ) )
 	return;
 
-    QFile f( dbFile );
+    QFile f( makeAbsolute( dbFile ) );
     if ( f.open( IO_ReadOnly ) ) {
 	QDomDocument doc;
 	if ( doc.setContent( &f ) ) {
