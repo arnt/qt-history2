@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#295 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#296 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2258,7 +2258,7 @@ void QFileDialog::okClicked()
 	else
 	    f = QUrlInfo( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
-	    setUrl( QUrl( d->url, nameEdit->text() ) );
+	    setUrl( QUrl( d->url, nameEdit->text() + "/" ) );
 	    trySetSelection( TRUE, d->url, TRUE );
 	}
     }
