@@ -15,6 +15,10 @@
 
 #include <math.h>
 
+static QLineF::IntersectType qt_linef_intersect(float x1, float y1, float x2, float y2,
+                                                   float x3, float y3, float x4, float y4,
+                                                   float *x, float *y);
+
 /*!
     \class QLineF
 
@@ -34,18 +38,22 @@
 */
 
 /*!
-    \enum QLineF::IntersectMode
+    \enum QLineF::IntersectType
 
-    \value Unbounded In this mode, checks for intersection ignore the start and
-                     end points of each line. This means that non-parallel
-                     lines will always have an intersection.
+    \value NoIntersection Indicates that the lines does not intersect,
+    e.g. they are parallel.
+
+    \value UnboundedIntersection Indicates that the two lines intersected,
+    but not within the range of lines. This will be the case if lines
+    are not parallel.
 
     \img qlinefloat-unbounded.png
 
-    \value Bounded   In this mode, checks for intersection take into account
-                     the start and end points of each line. This means that
-                     non-parallel lines will only intersect if the intersection
-                     occurs between the start and end points of each line.
+    \value BoundedIntersection Indicates that the two lines
+    intersected with within the the start and end points of each
+    line. This means that non-parallel lines will only intersect if
+    the intersection occurs between the start and end points of each
+    line.
 
     \img qlinefloat-bounded.png
 
@@ -140,13 +148,6 @@
 */
 
 /*!
-    \fn bool QLineF::intersects(const QLineF &l, IntersectMode mode = Unbounded)
-
-    Returns true if this line intersects the line specified by \a l for the
-    given intersection \a mode; otherwise returns false.
-*/
-
-/*!
     \fn void QLineF::operator+=(const QPointF &other)
 
     Performs a vector addition of this line with the \a other line given.
@@ -179,49 +180,23 @@ QLineF QLineF::unitVector() const
     return f;
 }
 
+
+
 /*!
-    Returns the intersection point between the this line and the line
-    \a l. The mode \a mode specifies if the intersection is bounded or
-    not and \a intersected is set to true if the lines did intersect.
-    The return value is undefined if the lines do not intersect.
+    Returns wheter this line intersects the line \a l or not. By
+    passing in a valid object to \a intersectionPoint, it is possible
+    to get the actual intersection point. The intersection point is
+    undefined if the lines are parallel.
 */
-QPointF QLineF::intersect(const QLineF &l, IntersectMode mode, bool *intersected) const
+QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
 {
-    Q_ASSERT(!isNull());
-    Q_ASSERT(!l.isNull());
-    // Parallell lines
-    if (vx() == l.vx() && vy() == l.vy()) {
-        if (intersected)
-            *intersected = false;
-        return QPointF();
-    }
-
-    // For special case where one of the lines are vertical
-    if (vx() == 0) {
-        float la = l.vy() / l.vx();
-        QPointF isect(p1.x(), la * p1.x() + l.startY() - la*l.startX());
-        return isect;
-    } else if (l.vx() == 0) {
-        float ta = vy() / vx();
-        QPointF isect(l.startX(), ta * l.startX() + startY() - ta*startX());
-        return isect;
-    }
-
-    float ta = vy()/vx();
-    float la = l.vy()/l.vx();
-
-    float x = ( - l.startY() + la * l.startX() + p1.y() - ta * p1.x() ) / (la - ta);
-
-    QPointF isect = QPointF(x, ta*(x - p1.x()) + p1.y());
-
-    if (mode == Unbounded) {
-        if (intersected)
-            *intersected = true;
-    } else {
-        if (intersected)
-            *intersected = (x >= p1.x() && x <= p2.x() && x >= l.p1.x() && x <= l.p2.x());
-    }
-    return isect;
+    float ox, oy;
+    IntersectType type = qt_linef_intersect(startX(), startY(), endX(), endY(),
+                                               l.startX(), l.startY(), l.endX(), l.endY(),
+                                               &ox, &oy);
+    if (intersectionPoint)
+        *intersectionPoint = QPointF(ox, oy);
+    return type;
 }
 
 
@@ -231,3 +206,81 @@ QPointF QLineF::intersect(const QLineF &l, IntersectMode mode, bool *intersected
     Translates this line by the vector specified by the line \a l.
 
 */
+
+#define SAME_SIGNS(a, b) ((a) * (b) >= 0)
+
+// Line intersection algorithm, copied from Graphics Gems II
+static QLineF::IntersectType qt_linef_intersect(float x1, float y1, float x2, float y2,
+                                                   float x3, float y3, float x4, float y4,
+                                                   float *x, float *y)
+{
+    float a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
+    float r1, r2, r3, r4;         /* 'Sign' values */
+    float denom, offset, num;     /* Intermediate values */
+
+    /* Compute a1, b1, c1, where line joining points 1 and 2
+     * is "a1 x  +  b1 y  +  c1  =  0".
+     */
+
+    a1 = y2 - y1;
+    b1 = x1 - x2;
+    c1 = x2 * y1 - x1 * y2;
+
+    /* Compute r3 and r4.
+     */
+
+
+    r3 = a1 * x3 + b1 * y3 + c1;
+    r4 = a1 * x4 + b1 * y4 + c1;
+
+    /* Check signs of r3 and r4.  If both point 3 and point 4 lie on
+     * same side of line 1, the line segments do not intersect.
+     */
+
+    if ( r3 != 0 &&
+         r4 != 0 &&
+         SAME_SIGNS( r3, r4 ))
+        return QLineF::NoIntersection;
+
+    /* Compute a2, b2, c2 */
+
+    a2 = y4 - y3;
+    b2 = x3 - x4;
+    c2 = x4 * y3 - x3 * y4;
+
+    /* Compute r1 and r2 */
+
+    r1 = a2 * x1 + b2 * y1 + c2;
+    r2 = a2 * x2 + b2 * y2 + c2;
+
+    /* Check signs of r1 and r2.  If both point 1 and point 2 lie
+     * on same side of second line segment, the line segments do
+     * not intersect.
+     */
+
+    if ( r1 != 0 &&
+         r2 != 0 &&
+         SAME_SIGNS( r1, r2 ))
+        return QLineF::NoIntersection;
+
+    /* Line segments intersect: compute intersection point.
+     */
+
+    denom = a1 * b2 - a2 * b1;
+    if ( denom == 0 )
+        return QLineF::UnboundedIntersection;
+    offset = denom < 0 ? - denom / 2 : denom / 2;
+
+    /* The denom/2 is to get rounding instead of truncating.  It
+     * is added or subtracted to the numerator, depending upon the
+     * sign of the numerator.
+     */
+
+    num = b1 * c2 - b2 * c1;
+    *x = ( num < 0 ? num - offset : num + offset ) / denom;
+
+    num = a2 * c1 - a1 * c2;
+    *y = ( num < 0 ? num - offset : num + offset ) / denom;
+
+    return QLineF::BoundedIntersection;
+} /* lines_intersect */

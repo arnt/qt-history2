@@ -21,7 +21,7 @@
 class Q_GUI_EXPORT QLineF {
 public:
 
-    enum IntersectMode { Unbounded, Bounded };
+    enum IntersectType { NoIntersection, BoundedIntersection, UnboundedIntersection };
 
     inline QLineF();
     inline QLineF(const QPointF &pt1, const QPointF &pt2);
@@ -48,9 +48,7 @@ public:
 
     QLineF normalVector() const;
 
-    inline bool intersects(const QLineF &l, IntersectMode mode = Unbounded) const;
-
-    QPointF intersect(const QLineF &l, IntersectMode mode = Unbounded, bool *intersected = 0) const;
+    IntersectType intersect(const QLineF &l, QPointF *intersectionPoint) const;
 
     inline void moveBy(const QLineF &p);
 
@@ -117,14 +115,6 @@ inline float QLineF::vx() const
 inline float QLineF::vy() const
 {
     return p2.y() - p1.y();
-}
-
-inline bool QLineF::intersects(const QLineF &l, IntersectMode mode) const
-{
-    Q_ASSERT(!isNull());
-    bool intersected = false;
-    intersect(l, mode, &intersected);
-    return intersected;
 }
 
 inline QLineF QLineF::normalVector() const
