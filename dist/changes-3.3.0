@@ -71,9 +71,13 @@ chipsets.
 Qt/Mac
 ------
 
-QAccessible support introduced (implemented in terms of Apple's Universal Access API).
+QAccessible support has been introduced (implemented in terms of Apple's
+Universal Access API).
+
 Added support for Xcode project files in qmake.
+
 Added Tablet support for Mac OS X.
+
 Numerous visual improvements.
 
 
