@@ -456,6 +456,9 @@ private:
 class QWorkspaceChild : public QFrame
 {
     Q_OBJECT
+
+friend class QWorkspace;
+
 public:
     QWorkspaceChild( QWidget* window,
 		     QWorkspace *parent=0, const char *name=0 );
@@ -463,10 +466,6 @@ public:
 
     void setActive( bool );
     bool isActive() const;
-
-    bool isShaded() const;
-    bool isSnappedDown() const { return snappedDown; }
-    bool isSnappedRight() const { return snappedRight; }
 
     void adjustToFullscreen();
 
@@ -895,9 +894,9 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 
 	int x = c->x();
 	int y = c->y();
-	if ( c->isSnappedDown() )
+	if ( c->snappedDown )
 	    y = height() - c->height();
-	if ( c->isSnappedRight() )
+	if ( c->snappedRight )
 	    x = width() - c->width();
 
 	if ( x != c->x() || y != c->y() )
@@ -940,7 +939,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    inCaptionChange = FALSE;
 	}
 	else {
-	    removeIcon( c->iconWidget() );
+	    if ( c->iconw )
+		removeIcon( c->iconw->parentWidget() );
 	    c->show();
 	}
 	hideMaximizeControls();
@@ -956,7 +956,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 
     if ( c ) {
 	setUpdatesEnabled( FALSE );
-	if (d->icons.contains(c->iconWidget()) )
+	if (c->iconw && d->icons.contains( c->iconw->parentWidget() ) )
 	    normalizeWindow( w );
 	QRect r( c->geometry() );
 	c->adjustToFullscreen();
@@ -1096,7 +1096,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	if ( o == topLevelWidget() )
 	{
 	    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-		if ( c->isShaded() )
+		if ( c->shademode )
 		    c->showShaded();
 	    }
 	} else if ( o->inherits("QWorkspaceChild") ) {
@@ -1299,7 +1299,8 @@ void QWorkspace::toolMenuAboutToShow()
     if ( !d->active )
 	return;
 
-    if ( d->active->isShaded() )
+
+    if ( d->active->shademode )
 	d->toolPopup->changeItem( 6, QIconSet(QPixmap((const char**)shade_xpm).xForm(QWMatrix().rotate( -180 ))), "&Roll down" );
     else
 	d->toolPopup->changeItem( 6, QIconSet((const char**)shade_xpm), "&Roll up" );
@@ -1573,6 +1574,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 	    maxB->resize(titleHeight-4, titleHeight-4);
 	    iconB->resize(titleHeight-4, titleHeight-4);
 	    shadeB->resize(titleHeight-4, titleHeight-4);
+	    iconL->resize(titleHeight-4, titleHeight-4);
 	    shadeB->hide();
 	    if ( !window->testWFlags( WStyle_MinMax ) ) {
 		maxB->hide();
@@ -1596,6 +1598,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 	    maxB->resize( titleHeight-2, titleHeight-2 );
 	    iconB->resize( titleHeight-2, titleHeight-2 );
 	    shadeB->resize( titleHeight-2, titleHeight-2 );
+	    iconL->resize(titleHeight-2, titleHeight-2);
 	    maxB->hide();
 	    iconB->hide();
 	    iconL->hide();
@@ -1614,6 +1617,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 	maxB->resize(titleHeight-4, titleHeight-4);
 	iconB->resize(titleHeight-4, titleHeight-4);
 	shadeB->resize(titleHeight-4, titleHeight-4);
+	iconL->resize(titleHeight-4, titleHeight-4);
 	shadeB->hide();
     }
 
@@ -1767,7 +1771,7 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     maxB->move( closeB->x() - maxB->width() - bo, closeB->y() );
     iconB->move( maxB->x() - iconB->width(), maxB->y() );
     shadeB->move( closeB->x() - shadeB->width(), closeB->y() );
-    iconL->setGeometry( 2, 1, closeB->height(), height()-2 );
+    iconL->move( 2, 1 );
 
     int right = closeB->isVisibleTo( this ) ? closeB->x() : width();
     if ( iconB->isVisibleTo( this ) )
@@ -1911,6 +1915,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
 QWorkspaceChild::~QWorkspaceChild()
 {
+    delete iconw;
 }
 
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
@@ -1964,6 +1969,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    ((QWorkspace*)parentWidget())->normalizeWindow( windowWidget() );
 	    ((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
 	    delete iconw->parentWidget();
+	    iconw = 0;
 	}
 	activate();
     }
@@ -2006,9 +2012,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::HideToParent:
 	if ( !childWidget->isVisibleTo( this ) ) {
 	    QWidget * w = iconw;
-	    if ( w )
-		w = w->parentWidget();
-	    if ( w ) {
+	    if ( w && ( w = w->parentWidget() ) ) {
 		((QWorkspace*)parentWidget())->removeIcon( w );
 		delete w;
 	    }
@@ -2595,12 +2599,8 @@ void QWorkspaceChild::internalRaise()
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
     }
-    setUpdatesEnabled( TRUE );
-}
 
-bool QWorkspaceChild::isShaded() const
-{
-    return shademode;
+    setUpdatesEnabled( TRUE );
 }
 
 void QWorkspaceChild::move( int x, int y )
