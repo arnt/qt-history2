@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#9 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#10 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -29,6 +29,7 @@
 # include <io.h>
 # include <dos.h>
 # include <direct.h>
+# define _OS_FATFS_
 #endif
 #include <limits.h>
 
@@ -120,7 +121,7 @@
 #endif
 
 
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
+#if defined(_OS_FATFS_)
 # define F_OK	0
 # define X_OK	1
 # define W_OK	2

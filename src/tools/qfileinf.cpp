@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#18 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,30 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#18 $")
+
+
+#if defined(_OS_FATFS_)
+
+static void convertSeparators( char *n )
+{
+    if ( !n )
+	return;
+    while ( *n ) {
+	if ( *n ==  '\\' )
+	    *n = '/';
+	n++;
+    }
+}
+
+#elif defined(UNIX)
+
+static void convertSeparators( char * )
+{
+    return;
+}
+
+#endif
 
 
 struct QFileInfoCache
@@ -80,6 +103,7 @@ QFileInfo::QFileInfo()
 QFileInfo::QFileInfo( const char *file )
 {
     fn	  = file;
+    convertSeparators( fn.data() );
     fic	  = 0;
     cache = TRUE;
 }
@@ -95,6 +119,7 @@ QFileInfo::QFileInfo( const char *file )
 QFileInfo::QFileInfo( const QFile &file )
 {
     fn	  = file.name();
+    convertSeparators( fn.data() );
     fic	  = 0;
     cache = TRUE;
 }
@@ -111,6 +136,7 @@ QFileInfo::QFileInfo( const QFile &file )
 QFileInfo::QFileInfo( const QDir &d, const char *fileName )
 {
     fn	  = d.filePath( fileName );
+    convertSeparators( fn.data() );
     fic	  = 0;
     cache = TRUE;
 }
@@ -199,6 +225,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 void QFileInfo::setFile( const char *file )
 {
     fn = file;
+    convertSeparators( fn.data() );
     delete fic;
     fic = 0;
 }
@@ -214,6 +241,7 @@ void QFileInfo::setFile( const char *file )
 void QFileInfo::setFile( const QFile &file )
 {
     fn	= file.name();
+    convertSeparators( fn.data() );
     delete fic;
     fic = 0;
 }
@@ -227,9 +255,10 @@ void QFileInfo::setFile( const QFile &file )
   \sa isRelative()
  ----------------------------------------------------------------------------*/
 
-void QFileInfo::setFile( const	QDir &d, const char *fileName )
+void QFileInfo::setFile( const QDir &d, const char *fileName )
 {
     fn	= d.filePath( fileName );
+    convertSeparators( fn.data() );
     delete fic;
     fic = 0;
 }
@@ -298,7 +327,7 @@ void QFileInfo::setCaching( bool enable )
   \sa isRelative(), absFilePath()
  ----------------------------------------------------------------------------*/
 
-const char * QFileInfo::filePath() const
+const char *QFileInfo::filePath() const
 {
     return fn.data();
 }
@@ -317,11 +346,11 @@ const char * QFileInfo::filePath() const
 
 QString QFileInfo::fileName() const
 {
-    int pos = fn.findRev( QDir::separator() );
-    if ( pos == -1 )
+    int p = fn.findRev( '/' );
+    if ( p == -1 )
 	return fn.copy();
     else
-	return fn.right( fn.length() - pos - 1 );
+	return QString( &fn[p+1] );
 }
 
 /*----------------------------------------------------------------------------
@@ -342,7 +371,7 @@ QString QFileInfo::absFilePath() const
     if ( QDir::isRelativePath(fn) ) {
 	QString tmp = QDir::currentDirPath();
 	tmp.detach();
-	tmp += QDir::separator();
+	tmp += '/';
 	tmp += fn;
 	return tmp;
     } else {
@@ -418,7 +447,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	s = absFilePath();
     else
 	s = fn;
-    int pos = s.findRev( QDir::separator() );
+    int pos = s.findRev( '/' );
     if ( pos == -1 )
 	return ".";
     else

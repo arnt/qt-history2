@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#20 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#20 $")
 
 
 #if !defined(PATH_MAX)
@@ -33,7 +33,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#19 $")
 #endif
 
 
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
+#if defined(_OS_FATFS_)
 
 static void convertSeparators( char *n )
 {
@@ -353,8 +353,8 @@ QString QDir::dirName() const
 QString QDir::filePath( const char *fileName,
 			bool acceptAbsPath ) const
 {
-    if ( acceptAbsPath && !isRelativePath( fileName ) )
-	return QString( fileName );
+    if ( acceptAbsPath && !isRelativePath(fileName) )
+	return QString(fileName);
 
     QString tmp = dPath.copy();
     if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && fileName &&
@@ -988,13 +988,14 @@ char QDir::separator()
 {
 #if defined( UNIX )
     return '/';
-#elif defined (_OS_MSDOS_) || defined(_OS_OS2_) || defined(_OS_WIN32_)
+#elif defined (_OS_FATFS_)
     return '\\';
 #elif defined (_OS_MAC_)
     return ':';
 #endif
     return '/';
 }
+
 
 /*----------------------------------------------------------------------------
   Sets the the current directory. Returns TRUE if successful.
@@ -1038,6 +1039,7 @@ QDir QDir::root()
     return QDir( rootDirPath() );
 }
 
+
 /*----------------------------------------------------------------------------
   Returns the absolute path of the current directory.
   \sa current()
@@ -1067,7 +1069,7 @@ QString QDir::currentDirPath()
 	}
     } else {
 #if defined(DEBUG)
-	warning( "QDir::currentDirPath: stat(\".\") failed" );
+	debug( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
 	currentName = 0;
 	forcecwd    = TRUE;
@@ -1096,7 +1098,7 @@ QString QDir::homeDirPath()
 
 QString QDir::rootDirPath()
 {
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
+#if defined(_OS_FATFS_)
     QString d( "c:/" );
 #elif defined(UNIX)
     QString d( "/" );
@@ -1188,10 +1190,10 @@ bool QDir::isRelativePath( const char *path )
 {
     int len = strlen( path );
     if ( len == 0 )
-	return FALSE;
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
+	return TRUE;
+#if defined(_OS_FATFS_)
     int i = 0;
-    if ( len >= 2 && path[1] == ':' )		// drive
+    if ( isalpha(path[0]) && path[1] == ':' )		// drive, e.g. a:
 	i = 2;
     return path[i] != '/' && path[i] != '\\';
 #elif defined(UNIX)
@@ -1275,9 +1277,10 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fiList = new QFileInfoList;
 	CHECK_PTR( fiList );
 	fiList->setAutoDelete( TRUE );
+    } else {
+	fList->clear();
+	fiList->clear();
     }
-    fList->clear();
-    fiList->clear();
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
