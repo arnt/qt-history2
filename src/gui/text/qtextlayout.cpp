@@ -1547,14 +1547,15 @@ int QTextLine::xToCursor(float x, CursorPosition cpos) const
 
     const QScriptLine &line = eng->lines[i];
 
-    if (!line.length)
-        return line.from;
-
     int line_length = line.length;
     // don't draw trailing spaces or take them into the layout.
     const QCharAttributes *a = eng->attributes() + line.from;
     while (line_length && a[line_length-1].whiteSpace)
         --line_length;
+
+    if (!line_length)
+        return line.from;
+
 
     int firstItem = eng->findItem(line.from);
     int lastItem = eng->findItem(line.from + line_length - 1);
