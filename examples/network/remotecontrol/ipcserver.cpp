@@ -14,7 +14,6 @@ public:
     IpcSocket( QObject *parent) : QSocket( parent )
     {
 	packetSize = 0;
-	packetType = 0;
 	connect( this, SIGNAL(readyRead()), SLOT(read()) );
     }
 
@@ -33,37 +32,32 @@ private slots:
 		    return;
 		ds >> packetSize;
 		bytesAvail -= 4;
-	    } else if ( packetType == 0 ) {
-		if ( bytesAvail < 1 )
-		    return;
-		ds >> packetType;
-		bytesAvail -= 1;
 	    } else {
 		if ( bytesAvail < packetSize )
 		    return;
-		if ( packetType == QVariant::String ) {
-		    QString txt;
-		    ds >> txt;
-		    emit receivedText( txt );
-		} else if ( packetType == QVariant::Image ) {
-		    QImage image;
-		    ds >> image;
-		    emit receivedPixmap( QPixmap(image) );
-		} else if ( packetType == QVariant::Palette ) {
-		    QPalette pal;
-		    ds >> pal;
-		    QApplication::setPalette( pal, TRUE );
-		}
+		QVariant variant;
+		ds >> variant;
 		bytesAvail -= packetSize;
 		packetSize = 0;
-		packetType = 0;
+		switch ( variant.type() ) {
+		    case QVariant::String:
+			emit receivedText( variant.toString() );
+			break;
+		    case QVariant::Image:
+			emit receivedPixmap( QPixmap(variant.toImage()) );
+			break;
+		    case QVariant::Palette:
+			QApplication::setPalette( variant.toPalette(), TRUE );
+			break;
+		    default:
+			break;
+		}
 	    }
 	}
     }
 
 private:
     Q_UINT32 packetSize;
-    Q_UINT8 packetType;
 };
 
 IpcServer::IpcServer( Q_UINT16 port, QObject *parent ) :

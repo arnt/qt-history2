@@ -11,7 +11,6 @@ class RemoteCtrlImpl : public RemoteCtrl
 
 public:
     RemoteCtrlImpl( QSocket * );
-    ~RemoteCtrlImpl();
 
 private slots:
     void sendImage();
@@ -19,7 +18,7 @@ private slots:
     void sendPalette();
 
 private:
-    void sendPacket( const QByteArray &, Q_UINT8 );
+    void sendPacket( const QVariant & );
 
     QSocket *socket;
 };
