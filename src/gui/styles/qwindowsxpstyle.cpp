@@ -344,7 +344,6 @@ struct XPThemeData
             QPixmap pm(rec.size());
             QPainter p(&pm);
             pm.fill(Qt::black);
-//            p.eraseRect(0, 0, rec.width(), rec.height());
 
             HDC dc2 = p.device()->getDC();
             pDrawThemeBackground(handle(), dc2, partId, stateId, &rect(), 0);
@@ -353,41 +352,13 @@ struct XPThemeData
             rec = oldrec;
             p.end();
 
-            // ################ Make perfect 90 angle rotates, using QImage
             if (hMirrored || vMirrored)
             {
                 QImage img = pm.toImage();
                 img = img.mirror(hMirrored, vMirrored);
                 pm = img;
             }
-            //if (rotated >= 180) {
-            //    //QMatrix m;
-            //    //m.scale(1, -1);
-            //    //pm = pm.transform(m);
-            //    rotated -= 180;
-            //}
-            //if (rotated) {
-            //    QMatrix m;
-            //    m.rotate(rotated);
-            //    pm = pm.transform(m);
-            //}
             painter->drawPixmap(rec.x(), rec.y(), pm);
-        } else if (name == "TREEVIEW") {
-            pDrawThemeBackground(handle(), dc, partId, stateId, &rect(), 0);
-        } else if ((name == "EDIT" || name == "LISTVIEW") && ::qt_cast<const QComboBox*>(widget) == 0) {
-            // We assume upto 2px border on the lineedits and Styled Panels,
-            // and clip the contents.
-            QRect rt = rec;
-            rec = painter->matrix().mapRect(rec);
-            HRGN hr1 = CreateRectRgn(rec.left(), rec.top(), rec.right() + 1, rec.bottom() + 1);
-            HRGN hr2 = CreateRectRgn(rec.left() + 2, rec.top() + 2, rec.right() - 1, rec.bottom() - 1);
-            CombineRgn(hr1, hr1, hr2, RGN_DIFF);
-            SelectClipRgn(dc, hr1);
-            pDrawThemeBackground(handle(), dc, partId, stateId, &rect(), 0);
-            SelectClipRgn(dc, 0);
-            DeleteObject(hr1);
-            DeleteObject(hr2);
-            rec = rt;
         } else {
             QRect rt = rec;
             rec = painter->deviceMatrix().mapRect(rec);
@@ -401,7 +372,6 @@ struct XPThemeData
                 if(widget)
                     p.setBackground(widget->palette().color(widget->backgroundRole()));
                 else
-                    //p.setBackgroundColor(qApp->palette().active().background());
                     p.setBackground(qApp->palette().background());
                 p.eraseRect(0, 0, rec.width(), rec.height());
 
@@ -412,10 +382,6 @@ struct XPThemeData
                 p.end();
                 rec = oldrec;
 
-                //QMatrix m;
-                //m.scale(-1, 1);
-                //pm = pm.transform(m);
-                // ################ Make perfect 90 angle rotates, using QImage
                 if (hMirrored || vMirrored)
                 {
                     QImage img = pm.toImage();
@@ -1042,15 +1008,14 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         }
 
     case PE_IndicatorBranch: {
-        return;
         static const int decoration_size = 9;
-        int mid_h = option->rect.width() / 2;
-        int mid_v = option->rect.height() / 2;
+        int mid_h = option->rect.x() + option->rect.width() / 2;
+        int mid_v = option->rect.y() + option->rect.height() / 2;
         int bef_h = mid_h;
         int bef_v = mid_v;
         int aft_h = mid_h;
         int aft_v = mid_v;
-        if (flags & QStyle::State_Children) {
+        if (option->state & State_Children) {
             int delta = decoration_size / 2;
             bef_h -= delta;
             bef_v -= delta;
@@ -1060,20 +1025,18 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             theme.rec = QRect(bef_h, bef_v, decoration_size, decoration_size);
             theme.drawBackground(TVP_GLYPH, flags & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED);
         }
-        // ### BUG: the dotted lines don't follow a the y coordinates (causes drawing errors)
-        // ### also see qwindowsstyle
         QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
-//         QPoint org(p->xForm(QPoint(0, 0)));
-//         p->setBrushOrigin(org);
-        if (flags & QStyle::State_Item)
-            p->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
-        if (flags & QStyle::State_Sibling)
+        if (option->state & State_Item) {
+            if (QApplication::isRightToLeft())
+                p->fillRect(option->rect.left(), mid_v, bef_h - option->rect.left(), 1, brush);
+            else
+                p->fillRect(aft_h, mid_v, option->rect.right() - aft_h + 1, 1, brush);
+        }
+        if (option->state & State_Sibling)
             p->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
-        if (flags & (QStyle::State_Open|QStyle::State_Children|QStyle::State_Item|QStyle::State_Sibling))
+        if (option->state & (State_Open | State_Children | State_Item | State_Sibling))
             p->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
-        break; }
-
-
+        return; }
     default:
         break;
     }
