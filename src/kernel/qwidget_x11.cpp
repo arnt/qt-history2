@@ -2296,8 +2296,11 @@ void QWidget::setMask( const QRegion& region )
 
 void QWidget::setMask( const QBitmap &bitmap )
 {
+    QBitmap bm = bitmap;
+    if ( bm.x11Screen() != x11Screen() )
+	bm.x11SetScreen( x11Screen() );
     XShapeCombineMask( x11Display(), winId(), ShapeBounding, 0, 0,
-		       bitmap.handle(), ShapeSet );
+		       bm.handle(), ShapeSet );
 }
 
 /*!
