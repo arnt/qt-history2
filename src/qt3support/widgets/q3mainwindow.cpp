@@ -424,9 +424,9 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     is usually subclassed since this makes it easier to encapsulate
     the central widget, menus and toolbars as well as the window's
     state. Subclassing makes it possible to create the slots that are
-    called when the user clicks menu items or toolbar buttons. You can
-    also create main windows using \link designer-manual.book Qt
-    Designer\endlink. We'll briefly review adding menu items and
+    called when the user clicks menu items or toolbar buttons.
+
+    We'll briefly review adding menu items and
     toolbar buttons then describe the facilities of Q3MainWindow
     itself.
 
@@ -453,11 +453,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     The functions menuBar() and statusBar() create a suitable widget
     if one doesn't exist, and update the window's layout to make
     space.
-
-    Q3MainWindow provides a QToolTipGroup connected to the status bar.
-    The function toolTipGroup() provides access to the default
-    QToolTipGroup. It isn't possible to set a different tool tip
-    group.
 
     New dock windows and toolbars can be added to a Q3MainWindow using
     addDockWindow(). Qt::Dock windows can be moved using moveDockWindow()
@@ -597,7 +592,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     Q3MainWindow provides functionality specific to the standard dock
     areas it provides.
 
-    \sa Q3ToolBar Q3DockWindow QStatusBar QAction QMenuBar Q3PopupMenu QToolTipGroup QDialog
+    \sa Q3ToolBar Q3DockWindow QStatusBar QAction QMenuBar Q3PopupMenu QDialog
 */
 
 /*!
@@ -1284,7 +1279,7 @@ void Q3MainWindow::setUpLayout()
     }
 }
 
-/*!  \reimp */
+/*! \internal */
 void Q3MainWindow::show()
 {
     if (!d->tll)
@@ -1306,8 +1301,7 @@ void Q3MainWindow::show()
 }
 
 
-/*! \reimp
-*/
+/*! \internal */
 void Q3MainWindow::hide()
 {
     if (isVisible()) {

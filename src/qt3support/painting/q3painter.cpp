@@ -55,6 +55,12 @@
 */
 
 /*!
+    \fn Q3Painter::Q3Painter(QPaintDevice *pdev)
+
+    Constructs a Q3Painter that operates on device \a pdev.
+*/
+
+/*!
     \internal
 */
 QRect Q3Painter::adjustedRectangle(const QRect &r)

@@ -1132,7 +1132,7 @@ QString Q3HttpRequestHeader::toString() const
     The functions hasPendingRequests() and clearPendingRequests()
     allow you to query and clear the list of pending requests.
 
-    \sa \link network.html Qt Network Documentation \endlink Q3NetworkProtocol, QUrlOperator Q3Ftp
+    \sa Q3NetworkProtocol, Q3UrlOperator, Q3Ftp
 */
 
 /*!
@@ -1490,7 +1490,7 @@ QIODevice* Q3Http::currentSourceDevice() const
     This function can be used to delete the QIODevice in the slot connected to
     the requestFinished() signal.
 
-    \sa currentDestinationDevice() get() post() request()
+    \sa get() post() request()
 */
 QIODevice* Q3Http::currentDestinationDevice() const
 {

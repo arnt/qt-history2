@@ -27,7 +27,7 @@
 using namespace Qt;
 
 /*!
-    \class Q3Accel qaccel.h
+    \class Q3Accel
     \brief The Q3Accel class handles keyboard accelerator and shortcut keys.
 
     \compat
@@ -40,7 +40,7 @@ using namespace Qt;
     In most cases, you will not need to use this class directly. Use
     the QAction class to create actions with accelerators that can be
     used in both menus and toolbars. If you're only interested in
-    menus use QMenuData::insertItem() or QMenuData::setAccel() to make
+    menus use Q3MenuData::insertItem() or Q3MenuData::setAccel() to make
     accelerators for operations that are also available on menus. Many
     widgets automatically generate accelerators, such as QAbstractButton,
     QGroupBox, QLabel (with QLabel::setBuddy()), QMenuBar, and QTabBar.
@@ -109,9 +109,8 @@ using namespace Qt;
 			SLOT(printDoc()));	   // printDoc() slot
     \endcode
 
-    \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
+    \sa QKeyEvent QWidget::keyPressEvent() Q3MenuData::setAccel()
     QAbstractButton::setAccel() QLabel::setBuddy() QKeySequence
-    \link guibooks.html#fowler GUI Design Handbook: Keyboard Shortcuts \endlink.
 */
 
 
@@ -933,14 +932,13 @@ QKeySequence Q3Accel::stringToKey(const QString & s)
     and the user hits the accelerator key.
 
     To set What's This help on a menu item (with or without an
-    accelerator key), use QMenuData::setWhatsThis().
+    accelerator key), use Q3MenuData::setWhatsThis().
 
     \sa whatsThis(), QWhatsThis::inWhatsThisMode(),
-    QMenuData::setWhatsThis(), QAction::setWhatsThis()
+    Q3MenuData::setWhatsThis(), QAction::setWhatsThis()
 */
 void Q3Accel::setWhatsThis(int id, const QString& text)
 {
-
     Q3AccelItem *item = find_id(d->aitems, id);
     if (item)
 	item->whatsthis = text;
@@ -971,101 +969,7 @@ bool Q3Accel::ignoreWhatsThis() const
     return d->ignorewhatsthis;
 }
 
-
 /*!
-
-\page accelerators.html
-
-\title Standard Accelerator Keys
-
-Applications invariably need to define accelerator keys for actions.
-Qt fully supports accelerators, for example with \l Q3Accel::shortcutKey().
-
-Here are Microsoft's recommendations for accelerator keys, with
-comments about the Open Group's recommendations where they exist
-and differ. For most commands, the Open Group either has no advice or
-agrees with Microsoft.
-
-The emboldened letter plus Alt is Microsoft's recommended choice, and
-we recommend supporting it. For an Apply button, for example, we
-recommend QAbstractButton::setText(\link QWidget::tr() tr \endlink("&amp;Apply"));
-
-If you have conflicting commands (e.g. About and Apply buttons in the
-same dialog), you must decide for yourself.
-
-\list
-\i <b><u>A</u></b>bout
-\i Always on <b><u>T</u></b>op
-\i <b><u>A</u></b>pply
-\i <b><u>B</u></b>ack
-\i <b><u>B</u></b>rowse
-\i <b><u>C</u></b>lose (CDE: Alt+F4; Alt+F4 is "close window" in Windows)
-\i <b><u>C</u></b>opy (CDE: Ctrl+C, Ctrl+Insert)
-\i <b><u>C</u></b>opy Here
-\i Create <b><u>S</u></b>hortcut
-\i Create <b><u>S</u></b>hortcut Here
-\i Cu<b><u>t</u></b>
-\i <b><u>D</u></b>elete
-\i <b><u>E</u></b>dit
-\i <b><u>E</u></b>xit (CDE: E<b><u>x</u></b>it)
-\i <b><u>E</u></b>xplore
-\i <b><u>F</u></b>ile
-\i <b><u>F</u></b>ind
-\i <b><u>H</u></b>elp
-\i Help <b><u>T</u></b>opics
-\i <b><u>H</u></b>ide
-\i <b><u>I</u></b>nsert
-\i Insert <b><u>O</u></b>bject
-\i <b><u>L</u></b>ink Here
-\i Ma<b><u>x</u></b>imize
-\i Mi<b><u>n</u></b>imize
-\i <b><u>M</u></b>ove
-\i <b><u>M</u></b>ove Here
-\i <b><u>N</u></b>ew
-\i <b><u>N</u></b>ext
-\i <b><u>N</u></b>o
-\i <b><u>O</u></b>pen
-\i Open <b><u>W</u></b>ith
-\i Page Set<b><u>u</u></b>p
-\i <b><u>P</u></b>aste
-\i Paste <b><u>L</u></b>ink
-\i Paste <b><u>S</u></b>hortcut
-\i Paste <b><u>S</u></b>pecial
-\i <b><u>P</u></b>ause
-\i <b><u>P</u></b>lay
-\i <b><u>P</u></b>rint
-\i <b><u>P</u></b>rint Here
-\i P<b><u>r</u></b>operties
-\i <b><u>Q</u></b>uick View
-\i <b><u>R</u></b>edo (CDE: Ctrl+Y, Shift+Alt+Backspace)
-\i <b><u>R</u></b>epeat
-\i <b><u>R</u></b>estore
-\i <b><u>R</u></b>esume
-\i <b><u>R</u></b>etry
-\i <b><u>R</u></b>un
-\i <b><u>S</u></b>ave
-\i Save <b><u>A</u></b>s
-\i Select <b><u>A</u></b>ll
-\i Se<b><u>n</u></b>d To
-\i <b><u>S</u></b>how
-\i <b><u>S</u></b>ize
-\i S<b><u>p</u></b>lit
-\i <b><u>S</u></b>top
-\i <b><u>U</u></b>ndo (CDE: Ctrl+Z or Alt+Backspace)
-\i <b><u>V</u></b>iew
-\i <b><u>W</u></b>hat's This?
-\i <b><u>W</u></b>indow
-\i <b><u>Y</u></b>es
-\endlist
-
-There are also a lot of other keys and actions (that use other
-modifier keys than Alt). See the Microsoft and The Open Group
-documentation for details.
-
-The \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t
-Microsoft book \endlink has ISBN 0735605661. The corresponding Open Group
-book is very hard to find, rather expensive and we cannot recommend
-it. However, if you really want it, OGPubs@opengroup.org might be able
-to help. Ask them for ISBN 1859121047.
-
+    \fn void Q3Accel::repairEventFilter()
+    \internal
 */

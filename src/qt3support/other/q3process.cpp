@@ -127,7 +127,7 @@
     and capturing their output. Microsoft recommends using an intermediate
     application to start 16-bit applications.
 
-    \sa QSocket
+    \sa Q3Socket
 */
 
 /*!
@@ -553,7 +553,7 @@ QString Q3Process::readLineStderr()
     emitted after all the data has been written to standard input. If
     the start failed, then this signal is emitted immediately.
 
-    \sa start() launchFinished();
+    \sa start() launchFinished()
 */
 bool Q3Process::launch( const QByteArray& buf, QStringList *env )
 {

@@ -403,7 +403,7 @@ QWidget * Q3DragObject::source()
 
     Q3DragObject is the base class for all data that needs to be
     transferred between and within applications, both for drag and
-    drop and for the \link qclipboard.html clipboard\endlink.
+    drop and for the clipboard.
 
     See the \link dnd.html Drag and drop documentation\endlink for an
     overview of how to provide drag and drop in your application.
@@ -726,11 +726,7 @@ bool Q3TextDrag::decode(const QMimeSource* e, QString& str)
     \compat
 
     Images are offered to the receiving application in multiple
-    formats, determined by Qt's \link QImage::outputFormats() output
-    formats\endlink.
-
-    For more information about drag and drop, see the Q3DragObject
-    class and the \link dnd.html drag and drop documentation\endlink.
+    formats, determined by Qt's output formats.
 */
 
 /*!
@@ -1173,6 +1169,13 @@ void Q3UriDrag::setFileNames(const QStringList & fnames)
 
     setUris(uris);
 }
+
+/*!
+    \fn void Q3UriDrag::setFileNames(const QString &name)
+    \fn void Q3UriDrag::setFileNames(const QString &name)
+
+    Same as setFileNames(QStringList(\a name)).
+*/
 
 /*!
     \fn void Q3UriDrag::setUnicodeUris(const QStringList &list)

@@ -88,6 +88,18 @@ int Q3SvgDevice::metric(PaintDeviceMetric m) const
 */
 
 /*!
+    \fn Q3Picture::Q3Picture()
+
+    Constructs a Q3Picture.
+*/
+
+/*!
+    \fn Q3Picture::Q3Picture(const QPicture &other)
+
+    Constructs a copy of \a other.
+*/
+
+/*!
     \overload
     Loads the picture in the specified \a format from a file with the
     given \a fileName. Returns true if the file is loaded successfully;

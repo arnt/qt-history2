@@ -85,6 +85,41 @@ void Q3PointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMa
 #endif // QT_NO_TRANSFORMATIONS
 
 /*!
+    \fn Q3PointArray::Q3PointArray()
+
+    Constructs an empty Q3PointArray.
+*/
+
+/*!
+    \fn Q3PointArray::Q3PointArray(const QRect &r, bool closed)
+
+    Constructs a point array from the rectangle \a r.
+
+    If \a closed is false, then the point array just contains the
+    following four points of the rectangle ordered clockwise. The
+    bottom-right point is located at (r.x() + r.width(), r.y() +
+    r.height()).
+*/
+
+/*!
+    \fn Q3PointArray::Q3PointArray(const QPolygon& other)
+
+    Constructs a copy of \a other.
+*/
+
+/*!
+    \fn Q3PointArray Q3PointArray::copy() const
+
+    Returns a copy of this Q3PointArray.
+*/
+
+/*!
+    \fn bool Q3PointArray::isNull()
+
+    Same as isEmpty().
+*/
+
+/*!
     Sets the points of the array to those describing an ellipse with
     size, width \a w by height \a h, and position (\a x, \a y).
 

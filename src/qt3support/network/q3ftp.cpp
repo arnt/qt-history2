@@ -1194,7 +1194,7 @@ static void delete_d( const Q3Ftp* foo )
     experienced network programmer and want to have complete control
     you can use rawCommand() to execute arbitrary FTP commands.
 
-    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator Q3Http
+    \sa Q3NetworkProtocol, Q3UrlOperator Q3Http
 */
 
 /*!
@@ -1388,7 +1388,7 @@ void Q3Ftp::init()
     bytes, since for large files these values might need to be
     "scaled" to avoid overflow.
 
-    \sa get() put() QProgressBar::setProgress()
+    \sa get() put()
 */
 
 /*!

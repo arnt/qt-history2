@@ -684,7 +684,7 @@ QString Q3Action::toolTip() const
 
     There is no default statusTip text.
 
-    \sa statusTip(), setToolTip()
+    \sa setToolTip()
 */
 void Q3Action::setStatusTip(const QString& tip)
 {

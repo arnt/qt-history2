@@ -319,7 +319,7 @@ void Q3ProgressBar::setPercentageVisible(bool on)
 }
 
 /*!
-    \reimp
+    \internal
 */
 void Q3ProgressBar::show()
 {

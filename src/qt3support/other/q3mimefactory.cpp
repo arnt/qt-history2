@@ -87,8 +87,7 @@ static QImage richTextImageLoader(const QString &name, const QString &context)
     The rich text widgets, QTextEdit and QTextBrowser, use
     Q3MimeSourceFactory to resolve references such as images or links
     within rich text documents. They either access the default factory
-    (see \l{defaultFactory()}) or their own (see
-    \l{QTextEdit::setMimeSourceFactory()}). Other classes that are
+    (see \l{defaultFactory()}) or their own. Other classes that are
     capable of displaying rich text (such as QLabel, QWhatsThis or
     QMessageBox) always use the default factory.
 
@@ -299,6 +298,9 @@ const QMimeSource *Q3MimeSourceFactory::data(const QString& abs_name) const
 }
 
 /*!
+    \fn void Q3MimeSourceFactory::setFilePath(const QStringList &path)
+    \fn void Q3MimeSourceFactory::setFilePath(const QString &path)
+
     Sets the list of directories that will be searched when named data
     is requested to those given in the string list \a path.
 
@@ -481,7 +483,7 @@ Q3MimeSourceFactory* Q3MimeSourceFactory::takeDefaultFactory()
     data() it iterates over the list of installed mimesource factories
     until the data can be resolved.
 
-    \sa removeFactory();
+    \sa removeFactory()
 */
 
 void Q3MimeSourceFactory::addFactory(Q3MimeSourceFactory *f)
@@ -493,7 +495,7 @@ void Q3MimeSourceFactory::addFactory(Q3MimeSourceFactory *f)
     Removes the mimesource factory \a f from the list of available
     mimesource factories.
 
-    \sa addFactory();
+    \sa addFactory()
 */
 
 void Q3MimeSourceFactory::removeFactory(Q3MimeSourceFactory *f)
