@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#28 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -1132,6 +1132,24 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
     rich += "</p>";
     return rich;
 }
+
+// Must doc this enum somewhere, and it is logically related to QStyleSheet
+
+/*!
+  \enum Qt::TextFormat
+  
+  This enum is used in widgets that can display both plain text and
+  rich text, e.g. QLabel. It is used for deciding whether a text
+  string should be interpreted as the one or the other. This is
+  normally done by passing one of the enum values to a setTextFormat()
+  function.
+
+  <ul>
+  <li> \c PlainText - The text string is interpreted as a normal text string.
+  <li> \c RichText - The text string is interpreted as a rich text according to the current QStyleSheet::defaultSheet().
+  <li> \c AutoText - The text string is interpreted as for \c RichText if QStyleSheet::mightBeRichText() returns TRUE, otherwise as for \c PlainText.
+  </ul>
+*/
 
 /*!
   Returns whether the string \a text is likely to be rich text
