@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#34 $
 **
 ** Implementation of QWizard class.
 **
@@ -670,3 +670,13 @@ void QWizard::removePage( QWidget * page )
 	d->pages.resize( i );
     d->ws->removeWidget( page );
 }
+
+#ifdef QT_BUILDER
+QWidget* QWizard::page( int pos ) const
+{
+    if ( pos >= count() || pos < 0 )
+      return 0;
+
+    return d->pages[ pos ]->w;
+}
+#endif

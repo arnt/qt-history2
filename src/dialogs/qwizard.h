@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#12 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#13 $
 **
 ** Definition of the QWizard class.
 **
@@ -58,6 +58,9 @@ public:
     virtual void showPage( QWidget * );
 
     QWidget * currentPage() const;
+#ifdef QT_BUILDER
+    QWidget* page( int pos ) const;
+#endif
 
     virtual bool appropriate( QWidget * ) const;
     virtual void setAppropriate( QWidget *, bool );
@@ -69,6 +72,10 @@ public:
     QPushButton * helpButton() const;
 
     bool eventFilter( QObject *, QEvent * );
+
+#ifdef QT_BUILDER
+    int count() const;
+#endif // QT_BUILDER
 
 public slots:
     virtual void setBackEnabled( QWidget *, bool );
@@ -101,7 +108,9 @@ private:
 
     void updateButtons();
 
+#ifndef QT_BUILDER
     int count() const;
+#endif // QT_BUILDER
 
     void layOut();
     QWizardPrivate *d;
