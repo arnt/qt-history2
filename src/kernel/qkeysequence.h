@@ -45,6 +45,8 @@
 #endif // QT_H
 #endif
 
+#ifndef QT_NO_ACCEL
+
 class QKeySequencePrivate;
 
 class Q_EXPORT QKeySequence : public Qt
@@ -75,5 +77,7 @@ private:
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
 #endif
+
+#endif //QT_NO_ACCEL
 
 #endif

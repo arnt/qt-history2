@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include "qkeysequence.h"
+
+#ifndef QT_NO_ACCEL
+
 #include "qaccel.h"
 #include "qshared.h"
 #include "qvaluelist.h"
@@ -356,3 +359,5 @@ QDataStream &operator>>( QDataStream &s, QKeySequence &keysequence )
 }
 
 #endif //QT_NO_DATASTREAM
+
+#endif //QT_NO_ACCEL

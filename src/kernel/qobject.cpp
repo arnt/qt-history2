@@ -2087,10 +2087,8 @@ static void dumpRecursive( int level, QObject *object )
 	if ( object->isWidgetType() ) {
 	    QWidget * w = (QWidget *)object;
 	    if ( w->isVisible() ) {
-		QString t;
-		t.sprintf( "<%d,%d,%d,%d>",
-			   w->x(), w->y(), w->width(), w->height() );
-		flags += t;
+		QString t( "<%1,%2,%3,%4>" );
+		flags += t.arg(w->x()).arg(w->y()).arg(w->width()).arg(w->height());
 	    } else {
 		flags += 'I';
 	    }

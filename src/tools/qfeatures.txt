@@ -678,7 +678,7 @@ SeeAlso: ???
 
 Feature: IMAGE_TRANSFORMATION
 Section: Painting
-Requires: WMATRIX
+Requires: PIXMAP_TRANSFORMATION
 Name: Image transformations
 SeeAlso: ???
 

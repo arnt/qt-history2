@@ -104,8 +104,10 @@ public:
     virtual void setScreen(QScreen * t,QScreenCursor * c,bool swc,int * ot,
 			   int * lo) {
 	gfx_screen=t;
+#ifndef QT_NO_QWS_CURSOR
 	gfx_screencursor=c;
 	gfx_swcursor=swc;
+#endif
 	gfx_lastop=lo;
 	gfx_optype=ot;
 	setClut(gfx_screen->clut(),gfx_screen->numCols());
@@ -164,7 +166,9 @@ protected:
 
 protected:
     QScreen * gfx_screen;
+#ifndef QT_NO_QWS_CURSOR
     QScreenCursor * gfx_screencursor;
+#endif
     bool gfx_swcursor;
     volatile int * gfx_lastop;
     volatile int * gfx_optype;
@@ -271,7 +275,7 @@ public:
     virtual void drawPolygon( const QPointArray &,bool,int,int );
     virtual void blt( int,int,int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
+#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
     virtual void stretchBlt( int,int,int,int,int,int );
 #endif
     virtual void tiledBlt( int,int,int,int );
@@ -280,7 +284,9 @@ public:
 
     virtual void setSource(const QImage *);
     virtual void setSource(const QPaintDevice *);
+#ifndef QT_NO_QWS_REPEATER
     virtual void setSource(unsigned char *,int,int,int,int,QRgb *,int);
+#endif
 
 protected:
 

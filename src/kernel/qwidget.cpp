@@ -3072,6 +3072,7 @@ bool QWidget::isActiveWindow() const
     QWidget *tlw = topLevelWidget();
     if(tlw == qApp->activeWindow() || ( isVisible() && tlw->isPopup() ))
 	return TRUE;
+#ifndef QT_NO_STYLE
     if(style().styleHint(QStyle::SH_Widget_ShareActivation, this, NULL)) {
 	if(tlw->isDialog() && !tlw->testWFlags(WShowModal) &&
 	   tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
@@ -3083,6 +3084,7 @@ bool QWidget::isActiveWindow() const
 		return TRUE;
 	}
     }
+#endif
     return FALSE;
 }
 

@@ -337,7 +337,7 @@ public:
     virtual void blt( int,int,int,int,int,int )=0;
     virtual void scroll( int,int,int,int,int,int )=0;
 
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
+#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
     virtual void stretchBlt( int,int,int,int,int,int )=0;
 #endif
     virtual void tiledBlt( int,int,int,int )=0;

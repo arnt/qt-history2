@@ -302,7 +302,7 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
   QPixmap (and QImage) helper functions
  *****************************************************************************/
 
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 #  define QT_XFORM_TYPE_MSBFIRST 0
 #  define QT_XFORM_TYPE_LSBFIRST 1
 #  if defined(Q_WS_WIN)

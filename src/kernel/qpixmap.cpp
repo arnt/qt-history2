@@ -1078,7 +1078,7 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 
   \sa xForm(), QWMatrix
 */
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {
     const double dt = (double)0.0001;
@@ -1178,7 +1178,7 @@ QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
   line of the source data, \a sWidth and \a sHeight are the width and height of
   the source data.
 */
-#ifndef QT_NO_TRANSFORMATIONS
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
 #undef IWX_MSB
 #define IWX_MSB(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
 			    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
@@ -1339,4 +1339,4 @@ bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
 #undef IWX_MSB
 #undef IWX_LSB
 #undef IWX_PIX
-#endif // QT_NO_TRANSFORMATIONS
+#endif // QT_NO_PIXMAP_TRANSFORMATION

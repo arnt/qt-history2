@@ -833,7 +833,10 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     }
 
     gfx_screen=qt_screen;
+#ifndef QT_NO_QWS_CURSOR
     gfx_screencursor=qt_screencursor;
+    gfx_swcursor=qt_sw_cursor;
+#endif
     srcpixeltype = pixeltype = NormalPixel;
     is_screen_gfx = buffer==qt_screen->base();
     width=w;
@@ -863,7 +866,6 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     globalRegionRevision = 0;
     src_normal_palette=FALSE;
     clutcols = 0;
-    gfx_swcursor=qt_sw_cursor;
     gfx_lastop=lastop;
     gfx_optype=optype;
     update_clip();
@@ -4853,7 +4855,7 @@ specify the destination rectangle, \a sw and \a sh specify the size
 of the source; its x and y position are assumed to be 0.
 */
 
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
+#if !defined(QT_NO_MOVIE) || !defined( QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 					 int sw,int sh )

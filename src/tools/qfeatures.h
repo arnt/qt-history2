@@ -229,11 +229,6 @@
 #define QT_NO_IMAGE_TEXT
 #endif
 
-// Image transformations
-#if !defined(QT_NO_IMAGE_TRANSFORMATION) && (defined(QT_NO_WMATRIX))
-#define QT_NO_IMAGE_TRANSFORMATION
-#endif
-
 // Pixmap transformations
 #if !defined(QT_NO_PIXMAP_TRANSFORMATION) && (defined(QT_NO_WMATRIX))
 #define QT_NO_PIXMAP_TRANSFORMATION
@@ -342,6 +337,11 @@
 // BMP image I/O
 #if !defined(QT_NO_IMAGEIO_BMP) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_DATASTREAM))
 #define QT_NO_IMAGEIO_BMP
+#endif
+
+// Image transformations
+#if !defined(QT_NO_IMAGE_TRANSFORMATION) && (defined(QT_NO_PIXMAP_TRANSFORMATION))
+#define QT_NO_IMAGE_TRANSFORMATION
 #endif
 
 // Network file access
@@ -699,11 +699,6 @@
 #define QT_NO_SCROLLVIEW
 #endif
 
-// Aqua style
-#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
-#define QT_NO_STYLE_AQUA
-#endif
-
 // Tab-bars
 #if !defined(QT_NO_TABBAR) && (defined(QT_NO_TOOLBUTTON))
 #define QT_NO_TABBAR
@@ -717,6 +712,11 @@
 // Popup-menus
 #if !defined(QT_NO_POPUPMENU) && (defined(QT_NO_MENUDATA) || defined(QT_NO_FRAME))
 #define QT_NO_POPUPMENU
+#endif
+
+// Aqua style
+#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
+#define QT_NO_STYLE_AQUA
 #endif
 
 // QCanvas
