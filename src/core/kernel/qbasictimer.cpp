@@ -18,52 +18,64 @@
 
 /*!
     \class QBasicTimer qbasictimer.h
-
-    \brief The QBasicTimer class facilitates timer events for
-    QObjects.
+    \brief The QBasicTimer class provides timer events for QObjects.
 
     \ingroup time
     \ingroup events
 
-    This class exists for the sake of low level size and performance
-    optimizations. In user code, we suggest using the higher level
-    abstraction provided by QTimer instead.
+    This is a fast, lightweight, and low-level class used by Qt
+    internally. We recommend using the higher-level QTimer class
+    rather than this class if you want to use timers in your
+    applications.
+
+    To use this class, create a QBasicTimer, and call its start()
+    function with a single-shot timeout interval and with a pointer to
+    a QObject subclass. When the timer times out it will send a timer
+    event to the QObject subclass. The timer can be stopped at any
+    time using stop(). isActive() returns true for a timer that is
+    running: i.e. has been started but has not reached the
+    timeout time and has not been stopped. The timer's ID can be
+    retrieved using timerId().
 */
 
 
 /*!
-  \fn QBasicTimer::QBasicTimer()
+    \fn QBasicTimer::QBasicTimer()
 
-  Contructs a basic timer.
+    Contructs a basic timer.
+
+    \sa start()
 */
 /*!
-  \fn QBasicTimer::~QBasicTimer()
+    \fn QBasicTimer::~QBasicTimer()
 
-  Destroys the basic timer.
-*/
-
-/*!
-  \fn bool QBasicTimer::isActive() const
-
-    Returns true if the timer is running (pending); otherwise returns
-    false.
+    Destroys the basic timer.
 */
 
 /*!
-  \fn int QBasicTimer::timerId() const
+    \fn bool QBasicTimer::isActive() const
 
-  Returns the timer id.
+    Returns true if the timer is running and hasn't yet timed
+    out and has not been stopped; otherwise returns false.
 
-  \sa QTimerEvent::timerId().
+    \sa start() stop()
 */
 
 /*!
-    Starts or restarts the timer with a \a msec milliseconds timeout
-    on object \a obj.
+    \fn int QBasicTimer::timerId() const
 
-    The object will receive timer events.
+    Returns the timer's id.
 
-    \sa QObject::timerEvent()
+    \sa QTimerEvent::timerId().
+*/
+
+/*!
+    Starts (or restarts) the timer with a \a msec milliseconds
+    timeout.
+
+    The object, \a obj, will receive timer events.
+
+    \sa stop() isActive() QObject::timerEvent()
  */
 void QBasicTimer::start(int msec, QObject *obj)
 {
@@ -73,8 +85,10 @@ void QBasicTimer::start(int msec, QObject *obj)
 }
 
 /*!
-  Stops the timer.
- */
+    Stops the timer.
+
+    \sa start() isActive()
+*/
 void QBasicTimer::stop()
 {
     if (id && QCoreApplication::eventLoop())

@@ -44,27 +44,40 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 
 /*!
     \class QEventLoop
-    \brief The QEventLoop class manages the event queue.
+    \brief The QEventLoop class manages Qt's event queue.
 
     \ingroup application
     \ingroup events
 
-    It receives events from the window system and other sources.  It
+    It receives events from the window system and other sources. It
     then sends them to QApplication for processing and delivery.
+    QEventLoop provides fine-grained control over event delivery.
 
-    QEventLoop allows the application programmer to have more control
-    over event delivery.  Programs that perform long operations can
-    call either processOneEvent() or processEvents() with various
-    ProcessEvent values OR'ed together to control which events should
-    be delivered.
+    For simple control of event processing use
+    QApplication::processEvents().
+
+    For finer control of the application's event loop call
+    QApplication::eventLoop() and call functions on the QEventLoop
+    object that is returned. If you want to use your own instance of
+    QEventLoop or of a QEventLoop subclass, you must create your
+    instance \e before you create the QApplication object.
+
+    The event loop is started by calling exec(), and stopped by
+    calling exit().
+
+    Programs that perform long operations can call processEvents()
+    with various \c ProcessEvents values OR'ed together to control
+    which events should be delivered.
 
     QEventLoop also allows the integration of an external event loop
-    with the Qt event loop.  The Motif Extension included with Qt
-    includes a reimplementation of QEventLoop for merging Qt and Motif
+    with the Qt event loop. For example, the Motif Extension included
+    with Qt
+\if defined(commercial)
+\link commercialeditions.html Enterprise Edition\endlink
+\endif
+    includes a reimplementation of QEventLoop that merges Qt and Motif
     events together.
 
-    To use your own instance of QEventLoop or QEventLoop subclass create
-    it before you create the QApplication object.
 */
 
 /*! \enum QEventLoop::ProcessEvents
@@ -73,8 +86,8 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
     processEvents() functions.
 
     \value AllEvents - All events are processed
-    \value ExcludeUserInput - Do not process user input events.
-           (ButtonPress, KeyPress, etc.)
+    \value ExcludeUserInput - Do not process user input events, such
+            as ButtonPress and KeyPress.
     \value ExcludeSocketNotifiers - Do not process socket notifier
            events.
     \value WaitForMore - Wait for events if no pending events
@@ -91,10 +104,12 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 
 
 /*!
-    Creates a QEventLoop object, this object becomes the global event loop object.
-    There can only be one event loop object. The QEventLoop is usually constructed
-    by calling QApplication::eventLoop(). To create your own event loop object create
-    it before you instantiate the QApplication object.
+    Creates a QEventLoop object. This object becomes the global event
+    loop object. There can only be one event loop object. The
+    QEventLoop is usually constructed by calling
+    QApplication::eventLoop(). If you want to create your own event
+    loop object you \e must create it before you instantiate the
+    QApplication object.
 
     The \a parent argument is passed on to the QObject constructor.
 */
@@ -150,7 +165,7 @@ QEventLoop::~QEventLoop()
 
 /*!
     Returns a pointer to the event loop object for the specified \a
-    thread.  If \a thread is zero, the current thread is used. If no
+    thread. If \a thread is zero, the current thread is used. If no
     event loop exists for the specified \a thread, this function
     returns 0.
 
@@ -171,8 +186,8 @@ QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
 }
 
 /*!
-    Enters the main event loop and waits until exit() is called, and
-    returns the value that was set to exit().
+    Enters the main event loop and waits until exit() is called.
+    Returns the value that was passed to exit().
 
     It is necessary to call this function to start event handling. The
     main event loop receives events from the window system and
@@ -181,12 +196,12 @@ QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
     Generally speaking, no user interaction can take place before
     calling exec(). As a special case, modal widgets like QMessageBox
     can be used before calling exec(), because modal widgets call
-    exec() to start a local event loop.
+    use their own local event loop.
 
     To make your application perform idle processing, i.e. executing a
     special function whenever there are no pending events, use a
-    QTimer with 0 timeout. More advanced idle processing schemes can
-    be achieved using processEvents().
+    QTimer with 0 timeout. More sophisticated idle processing schemes
+    can be achieved using processEvents().
 
     \sa QApplication::quit(), exit(), processEvents()
 */
@@ -292,16 +307,16 @@ int QEventLoop::loopLevel() const
 /*!
     Process pending events that match \a flags for a maximum of \a
     maxTime milliseconds, or until there are no more events to
-    process, which ever is shorter.
+    process, whichever is shorter.
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
     input, i.e. by using the \c ExcludeUserInput flag.
 
-    NOTE: This function will not process events continuously; it
+    Note: This function does not process events continuously; it
     returns after all available events are processed.
 
-    NOTE: Specifying the \c WaitForMore flag makes no sense and will
+    Note: Specifying the \c WaitForMore flag makes no sense and will
     be ignored.
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
@@ -342,7 +357,7 @@ void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
     If the \c WaitForMore flag is \e not set in \a flags, and no
     events are available, this function will return immediately.
 
-    NOTE: This function will not process events continuously; it
+    Note: This function does not process events continuously; it
     returns after all available events are processed.
 
     This function returns true if an event was processed; otherwise it
@@ -353,28 +368,29 @@ void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 
 /*! \fn bool QEventLoop::hasPendingEvents() const
 
-    Returns true if there is an event waiting, otherwise it returns false.
+    Returns true if there is an event waiting; otherwise returns
+    false.
 */
 
 /*! \fn void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 
-    Registers \a notifier with the event loop.  Subclasses need to
+    Registers \a notifier with the event loop. Subclasses must
     reimplement this method to tie a socket notifier into another
-    event loop.  Reimplementations \e MUST call the base
+    event loop. Reimplementations <b>must</b> call the base
     implementation.
 */
 
 /*! \fn void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 
-    Unregisters \a notifier from the event loop.  Subclasses need to
+    Unregisters \a notifier from the event loop. Subclasses must
     reimplement this method to tie a socket notifier into another
-    event loop.  Reimplementations \e MUST call the base
+    event loop. Reimplementations <b>must</b> call the base
     implementation.
 */
 
 /*! \fn void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
 
-    Marks \a notifier as pending.  The socket notifier will be
+    Marks \a notifier as pending. The socket notifier will be
     activated the next time activateSocketNotifiers() is called.
 */
 
@@ -393,9 +409,9 @@ void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
     call this after the time returned by timeToWait() has elapsed.
 
     Note: This function is only useful on systems where \c select() is
-    used to block the eventloop.  On Windows, this function always
-    returns 0.  On MacOS X, this function always returns 0 when the
-    GUI is enabled.  On MacOS X, this function returns the documented
+    used to block the eventloop. On Windows, this function always
+    returns 0. On Mac OS X, this function always returns 0 when the
+    GUI is enabled. On Mac OS X, this function returns the documented
     value when the GUI is disabled.
 */
 
@@ -408,9 +424,9 @@ void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
     this to make sure that Qt's timers continue to work.
 
     Note: This function is only useful on systems where \c select() is
-    used to block the eventloop.  On Windows, this function always
-    returns -1.  On MacOS X, this function always returns -1 when the
-    GUI is enabled.  On MacOS X, this function returns the documented
+    used to block the eventloop. On Windows, this function always
+    returns -1. On MacOS X, this function always returns -1 when the
+    GUI is enabled. On MacOS X, this function returns the documented
     value when the GUI is disabled.
 */
 

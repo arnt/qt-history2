@@ -28,35 +28,40 @@
 
     \ingroup objectmodel
 
-    The QMeta Object System in Qt is responsible for the signals and
+    The Qt Meta Object System in Qt is responsible for the signals and
     slots inter-object communication mechanism, runtime type
-    information and the property system. All meta information in Qt is
-    kept in a single instance of QMetaObject per class.
+    information, and the Qt property system. A single QMetaObject
+    instance is created for each QObject subclass that is used in an
+    application, and this instance stores all the meta information for
+    the QObject subclass.
 
-    This class is not normally required for application programming.
-    But if you write meta applications, such as scripting engines or
-    GUI builders, you might find these functions useful:
+    This class is not normally required for application programming,
+    but it is useful if you write meta applications, such as scripting
+    engines or GUI builders.
+
+    The functions you are most likely to find useful are these:
     \list
-    \i className() to get the name of a class.
-    \i superClass() to access the superclass's meta object.
-    \i slotCount(), slot(), signalCount() and signal() to get information
+    \i className() returns the name of a class.
+    \i superClass() returns the superclass's meta object.
+    \i slotCount(), slot(), signalCount(), and signal() provide information
        about a class's signals and slots.
-    \i enumeratorCount() and enumerator() to obtain information about
+    \i enumeratorCount() and enumerator() provide information about
        a class's enumerators.
-    \i propertyCount() and property() to obtain information about a
+    \i propertyCount() and property() provide information about a
        class's properties.
     \endlist
 
     The index functions indexOfSlot(), indexOfSignal(),
-    indexOfEnumerator() and indexOfProperty() map names of member
+    indexOfEnumerator(), and indexOfProperty(), map names of member
     functions, enumerators or properties to indices in the meta
     object. Qt uses e.g. indexOfSignal() and indexOfSlot() internally
     when you connect a signal to a slot.
 
-    Classes may further have a list of name-value pairs of additonal
-    class information. The number of pairs is returned by
-    classInfoCount(), single pairs are returned by classInfo(), and you
-    can search for pairs with indexOfClassInfo().
+    Classes can also have a list of name--value pairs of additonal
+    \link QMetaClassInfo class information\endlink. The number of
+    pairs is returned by classInfoCount(), single pairs are returned
+    by classInfo(), and you can search for pairs with
+    indexOfClassInfo().
 
     \sa \link moc.html moc (Meta QObject Compiler)\endlink
 
@@ -247,7 +252,7 @@ int QMetaObject::classInfoOffset() const
 }
 
 /*!
-    Returns the number of slots for this class.
+    Returns the number of slots in this class.
 
     \sa slot()
 */
@@ -263,7 +268,7 @@ int QMetaObject::slotCount() const
 }
 
 /*!
-    Returns the number of signals for this class.
+    Returns the number of signals in this class.
 
     \sa signal()
 */
@@ -279,7 +284,7 @@ int QMetaObject::signalCount() const
 }
 
 /*!
-    Returns the number of enumerators for this class.
+    Returns the number of enumerators in this class.
 
     \sa enumerator()
 */
@@ -295,7 +300,7 @@ int QMetaObject::enumeratorCount() const
 }
 
 /*!
-    Returns the number of properties for this class.
+    Returns the number of properties in this class.
 
     \sa property()
 */
@@ -311,7 +316,7 @@ int QMetaObject::propertyCount() const
 }
 
 /*!
-    Returns the number of items of class information for this class.
+    Returns the number of items of class information in this class.
 */
 int QMetaObject::classInfoCount() const
 {
@@ -579,7 +584,7 @@ QMetaClassInfo QMetaObject::classInfo(int index) const
 
     Both \a signal and \a member are expected to be normalized.
 
-    \sa normalizeSignature()
+    \sa normalizedSignature()
 */
 bool QMetaObject::checkConnectArgs(const char *signal, const char *member)
 {
@@ -766,6 +771,8 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
 
     \ingroup objectmodel
 
+    A QMetaMember has a signature(), a list of parameters(), a
+    return type(), a tag(), and an access() specifier.
 */
 
 
@@ -836,9 +843,10 @@ QMetaMember::Access QMetaMember::access() const
 
     \ingroup objectmodel
 
-    Use name() for the enumerator's name and keys() to get a list of
-    all keys. The function isFlag() returns whether the enumerator is
-    meant to be used as flags, meaning its values can be OR-ed
+    Use name() for the enumerator's name. The enumerator's keys (names
+    of each enumerated item) are returned by key(); the number of keys
+    is given by numKeys(). isFlag() returns whether the enumerator is
+    meant to be used as a flag, meaning that its values can be OR'ed
     together.
 
     The conversion functions keyToValue(), valueToKey(), keysToValue()
@@ -911,8 +919,8 @@ int QMetaEnum::value(int index) const
 
 
 /*!
-    Returns true if this enumerator is is used as flags, i.e. the
-    enumeration values can be OR-ed together; otherwise returns false.
+    Returns true if this enumerator is is used as a flag, i.e. the
+    enumeration values can be OR'ed together; otherwise returns false.
 
     \sa keysToValue(), valueToKeys()
 */
@@ -922,7 +930,8 @@ bool QMetaEnum::isFlag() const
 }
 
 /*!
-    Converts the enumeration key \a key to its integer value.
+    Returns the integer value of the enumeration key \a key, or -1 if
+    \a key isn't found.
 
     For set types, use keysToValue().
 
@@ -941,11 +950,12 @@ int QMetaEnum::keyToValue(const char *key) const
 }
 
 /*!
-    Converts the enumeration value \a value to its literal key.
+    Returns the key string for the enumeration value \a value, or 0 if
+    \a value isn't found.
 
     For set types, use valueToKeys().
 
-    \sa valueToKey(), isFlagType(), valueToKeys()
+    \sa valueToKey() isFlag() valueToKeys()
 */
 const char* QMetaEnum::valueToKey(int value) const
 {
@@ -960,8 +970,9 @@ const char* QMetaEnum::valueToKey(int value) const
 }
 
 /*!
-    Converts the list of '|'-separated keys \a keys to their combined
-    (OR-ed) integer value.
+    Returns the value derived from OR'ing together the values of the
+    keys given in \a keys. Note that the key strings in \a keys must
+    be '|'-separated.
 
     \sa isFlag(), valueToKey(), keysToValue()
 */
@@ -990,7 +1001,8 @@ int QMetaEnum::keysToValue(const char *keys) const
 }
 
 /*!
-    Converts the set value \a value to a list of '|'-separated keys.
+    Returns a byte array of '|'-separated keys that represents the
+    given \a value.
 
     \sa isFlag(), valueToKey(), valueToKeys()
 */
@@ -1022,19 +1034,22 @@ QByteArray QMetaEnum::valueToKeys(int value) const
 
     \ingroup objectmodel
 
-    Property meta data includes type(), name(), and whether a property
-    isReadable(), isWritable(), isDesignable(), isScriptable(),
-    isStored() or isEditable() .
+    A property has a name() and a type(), as well as various
+    attributes that specify whether it isReadable(), isWritable(),
+    isDesignable(), isScriptable(), isStored(), or isEditable().
 
-    The functions isFlagType(), isEnumType() and enumerator() provide
-    further information about a property's type.
+    If the property is an enumeration isEnumType() returns true; and
+    if the property is an enumeration that is a flag (i.e. its values
+    can be OR'ed together), isEnumType() and isFlagType() both return
+    true. The enumerator for these types is available from
+    enumerator().
 
-    Actual property values are set and received with read(), write(),
-    or reset(); or through QObject's set and get functions. See
+    The property's values are set and retrieved with read(), write(),
+    and reset(); or through QObject's set and get functions. See
     QObject::setProperty() and QObject::property() for details.
 
-    You receive meta property data through an object's meta object.
-    See QMetaObject::property() and QMetaObject::propertyCount() for
+    You get meta property data through an object's meta object. See
+    QMetaObject::property() and QMetaObject::propertyCount() for
     details.
 */
 
@@ -1049,7 +1064,7 @@ QMetaProperty::QMetaProperty()
 
 
 /*!
-    Returns the name of this property.
+    Returns this property's name.
  */
 const char *QMetaProperty::name() const
 {
@@ -1060,7 +1075,7 @@ const char *QMetaProperty::name() const
 }
 
 /*!
-    Returns the type of this property.
+    Returns this property's type.
  */
 const char *QMetaProperty::type() const
 {
@@ -1073,7 +1088,7 @@ const char *QMetaProperty::type() const
 
 /*!
     Returns true if the property's type is an enumeration value that
-    is used as flags, i.e. if the enumeration values can be OR-ed
+    is used as a flag, i.e. if the enumeration values can be OR'ed
     together; otherwise returns false. A set type is implicitly also
     an enum type.
 
@@ -1131,8 +1146,8 @@ QMetaEnum QMetaProperty::enumerator() const
 
 
 /*!
-    Tries to read the property's value from object \a obj.  On
-    success, returns the value; otherwise returns an invalid variant.
+    Reads the property's value from object \a obj. Returns the value
+    if it was able to read it; otherwise returns an invalid variant.
 */
 QCoreVariant QMetaProperty::read(const QObject *obj) const
 {
@@ -1161,8 +1176,8 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
 }
 
 /*!
-    Tries to write \a value as the property's value on object \a
-    obj. On success, returns true; otherwise returns false.
+    Writes \a value as the property's value to object \a obj. Returns
+    true if the write succeeded; otherwise returns false.
 */
 bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
 {
@@ -1199,10 +1214,10 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
 }
 
 /*!
-    Tries to reset the property for object \a obj with a reset method.
-    On success, returns true; otherwise returns false.
+    Resets the property for object \a obj with a reset method.
+    Returns true if the reset worked; otherwise returns false.
 
-    Reset methods are optional, usually only few properties support
+    Reset methods are optional, with only a few properties supporting
     them.
 */
 bool QMetaProperty::reset(QObject *obj) const
@@ -1258,7 +1273,7 @@ static bool qt_query_property(const QMetaObject*const*mobj,const int *idx, uint 
 }
 
 /*!
-    Returns true if the property is designable for object \a obj;
+    Returns true if this property is designable for object \a obj;
     otherwise returns false.
 
     If no object \a obj is given, the function returns a static
@@ -1319,15 +1334,14 @@ bool QMetaProperty::isEditable(const QObject *obj) const
 /*!
     \class QMetaClassInfo qmetaobject.h
 
-    \brief The QMetaClassInfo class provides additional information on a
-    class.
+    \brief The QMetaClassInfo class provides additional information
+    about a class.
 
     \ingroup objectmodel
 
-
-    A class information item is a simple \e name - \e value pair that
-    was declared with Q_CLASSINFO in the code. Access its name with
-    name() and its value with value().
+    Class information items are simple \e{name}--\e{value} pairs that
+    are specified using \c Q_CLASSINFO in the source code. The
+    information can be retrieved using name() and value().
 */
 
 
