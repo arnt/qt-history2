@@ -115,6 +115,8 @@ void MainWindow::setup()
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
     connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
     connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
+    connect( actionAddBookmark, SIGNAL( activated() ),
+	     helpDock, SLOT( addBookmark() ) );
     connect( helpDock, SIGNAL( showLink( const QString& ) ),
 	     this, SLOT( showLink( const QString& ) ) );
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
@@ -356,7 +358,7 @@ void MainWindow::setupBookmarkMenu()
 {
     bookmarkMenu->clear();
     bookmarks.clear();
-    bookmarkMenu->insertItem( tr( "&Add Bookmark" ), helpDock, SLOT( addBookmark() ) );
+    actionAddBookmark->addTo( bookmarkMenu );
 
     QFile f( QDir::homeDirPath() + "/.bookmarks" );
     if ( !f.open( IO_ReadOnly ) )

@@ -405,6 +405,17 @@
     </action>
     <action>
         <property name="name">
+            <cstring>actionAddBookmark</cstring>
+        </property>
+        <property name="text">
+            <string>&amp;Add Bookmark</string>
+        </property>
+        <property name="whatsThis">
+            <string>Add the currently displayed page as a new bookmark.</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
             <cstring>actionHelpWhatsThis</cstring>
         </property>
         <property name="iconSet">
