@@ -2441,8 +2441,8 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
                 Q_ASSERT(varp[0].type() != QVariant::Invalid);
 		argv[0] = const_cast<void*>(varp[0].constData());
                 if (type.endsWith("*")) {
-                    argv[0] = new void*(argv[0]);
                     argv_pointer[0] = argv[0];
+                    argv[0] = argv_pointer;
                 }
 	    }
 
