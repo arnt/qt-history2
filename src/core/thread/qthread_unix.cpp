@@ -79,9 +79,9 @@ void *QThreadPrivate::start(void *arg)
     QThreadData *data = &thr->d_func()->data;
     QThreadData::setCurrent(data);
 
+    data->quitNow = false;
     // ### TODO: allow the user to create a custom event dispatcher
-    (void) new QEventDispatcherUNIX;
-    Q_ASSERT(data->eventDispatcher != 0);
+    data->eventDispatcher = new QEventDispatcherUNIX;
     data->eventDispatcher->startingUp();
 
     emit thr->started();

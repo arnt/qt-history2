@@ -545,6 +545,7 @@ int QCoreApplication::exec()
 void QCoreApplication::exit(int returnCode)
 {
     QThreadData *data = QThreadData::current();
+    data->quitNow = true;
     for (int i = 0; i < data->eventLoops.size(); ++i) {
         QEventLoop *eventLoop = data->eventLoops.at(i);
         eventLoop->exit(returnCode);

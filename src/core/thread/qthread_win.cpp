@@ -77,8 +77,9 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
     QThreadData *data = &thr->d_func()->data;
     TlsSetValue(qt_current_data_tls_index, data);
 
-    (void) new QEventDispatcherWin32;
-    Q_ASSERT(data->eventDispatcher != 0);
+    data->quitNow = false;
+    // ### TODO: allow the user to create a custom event dispatcher
+    data->eventDispatcher = new QEventDispatcherWin32;
     data->eventDispatcher->startingUp();
 
     emit thr->started();

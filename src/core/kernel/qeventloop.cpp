@@ -75,7 +75,7 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     Q_ASSERT_X(data != 0, "QEventLoop::exec()", "internal error");
     data->eventLoops.push(this);
 
-    while (!d->exit)
+    while (!d->exit && !data->quitNow)
         processEvents(flags | WaitForMoreEvents);
 
     QEventLoop *eventLoop = data->eventLoops.pop();

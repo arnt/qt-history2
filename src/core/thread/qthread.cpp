@@ -28,7 +28,7 @@
 */
 
 QThreadData::QThreadData()
-    : id(-1), eventDispatcher(0), tls(0)
+    : id(-1), quitNow(false), eventDispatcher(0), tls(0)
 { }
 
 QThreadData::~QThreadData()
@@ -297,7 +297,10 @@ uint QThread::stackSize() const
 */
 int QThread::exec()
 {
+    Q_D(QThread);
+    d->mutex.lock();
     QEventLoop eventLoop;
+    d->mutex.unlock();
     int returnCode = eventLoop.exec();
     return returnCode;
 }
@@ -324,6 +327,8 @@ int QThread::exec()
 void QThread::exit(int returnCode)
 {
     Q_D(QThread);
+    QMutexLocker locker(&d->mutex);
+    d->data.quitNow = true;
     for (int i = 0; i < d->data.eventLoops.size(); ++i) {
         QEventLoop *eventLoop = d->data.eventLoops.at(i);
         eventLoop->exit(returnCode);
