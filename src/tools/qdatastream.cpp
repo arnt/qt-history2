@@ -725,9 +725,6 @@ QDataStream &QDataStream::operator>>( double &f )
 	register uchar *p = (uchar *)(&f);
 	char b[8];
 	dev->readBlock( b, 8 );
-	// ### this is broken on Solaris (and maybe other platforms)
-	// ### because of Endianness
-	// ### on next bump, this should be fixed
 	*p++ = b[7];
 	*p++ = b[6];
 	*p++ = b[5];
