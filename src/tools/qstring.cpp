@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#117 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#118 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -631,10 +631,14 @@ void QString::real_detach()
 {
     if ( d->count != 1 ) {
 	int newlen = d->len;
-	ushort * nd = new ushort[newlen];
-	memcpy( nd, d->unicode, sizeof(ushort)*newlen );
-	deref();
-	d = new Data(nd,newlen,newlen);
+	if ( newlen ) {
+	    ushort * nd = new ushort[newlen];
+	    memcpy( nd, d->unicode, sizeof(ushort)*newlen );
+	    deref();
+	    d = new Data(nd,newlen,newlen);
+	} else {
+	    d = new Data(0,0,0);
+	}
     } else {
 	d->dirtyascii = 1;
     }
@@ -754,10 +758,11 @@ void QString::truncate( uint newlen )
 
 /*!
   Equivalent to truncate(newlenp1-1).  This is for backward compatibility.
+  If newlenp1 is 0, truncate(0).
 */
 void QString::resize( uint newlenp1 )
 {
-    truncate(newlenp1-1);
+    truncate(QMIN(0,newlenp1-1));
 }
 
 /*!
@@ -856,7 +861,7 @@ void QString::fill( ushort c, int len )
 
 int QString::find( ushort c, int index, bool cs ) const
 {
-    if ( (uint)index > length() )		// index outside string
+    if ( (uint)index >= length() )		// index outside string
 	return -1;
     register const ushort *uc;
     uc = unicode()+index;
@@ -886,7 +891,7 @@ int QString::find( ushort c, int index, bool cs ) const
 
 int QString::find( const QString& str, int index, bool cs ) const
 {
-    if ( (uint)index > length() )		// index outside string
+    if ( (uint)index >= length() )		// index outside string
 	return -1;
     register const ushort *uc;
     uc = unicode()+index;
@@ -944,10 +949,14 @@ int QString::findRev( ushort c, int index, bool cs ) const
 int QString::findRev( const QString& str, int index, bool cs ) const
 {
     uint slen = str.length();
+    if ( !slen )
+	return index;
     if ( index < 0 )				// neg index ==> start from end
 	index = length()-slen;
     else if ( (uint)index > length() )		// bad index
 	return -1;
+    else if ( (uint)index == length() )		// bad index, but accept it
+	index--;
     else if ( (uint)(index + slen) > length() ) // str would be too long
 	index = length() - slen;
     if ( index < 0 )
@@ -1160,7 +1169,8 @@ QString QString::leftJustify( uint width, ushort fill, bool truncate ) const
     int padlen = width - len;
     if ( padlen > 0 ) {
 	result.setLength(len+padlen);
-	memcpy( result.d->unicode, unicode(), sizeof(ushort)*len );
+	if ( len )
+	    memcpy( result.d->unicode, unicode(), sizeof(ushort)*len );
 	ushort* uc = result.d->unicode + len;
 	while (padlen--)
 	    *uc++ = fill;
@@ -1201,7 +1211,8 @@ QString QString::rightJustify( uint width, ushort fill, bool truncate ) const
 	ushort* uc = result.d->unicode;
 	while (padlen--)
 	    *uc++ = fill;
-	memcpy( uc, unicode(), sizeof(ushort)*len );
+	if ( len )
+	    memcpy( uc, unicode(), sizeof(ushort)*len );
     } else {
 	if ( truncate )
 	    result = left( width );
@@ -1301,7 +1312,8 @@ QString QString::stripWhiteSpace() const
 	end--;
     int l = end - start + 1;
     result.setLength( l );
-    memcpy( result.d->unicode, &s[start], sizeof(ushort)*l );
+    if ( l )
+	memcpy( result.d->unicode, &s[start], sizeof(ushort)*l );
     return result;
 }
 
@@ -1572,8 +1584,10 @@ bye:
 short QString::toShort( bool *ok ) const
 {
     long v = toLong( ok );
-    if ( ok && *ok && (v < -32768 || v > 32767) )
+    if ( ok && *ok && (v < -32768 || v > 32767) ) {
 	*ok = FALSE;
+	v = 0;
+    }
     return (short)v;
 }
 
@@ -1588,8 +1602,10 @@ short QString::toShort( bool *ok ) const
 ushort QString::toUShort( bool *ok ) const
 {
     ulong v = toULong( ok );
-    if ( ok && *ok && (v > 65535) )
+    if ( ok && *ok && (v > 65535) ) {
 	*ok = FALSE;
+	v = 0;
+    }
     return (ushort)v;
 }
 
@@ -1617,7 +1633,7 @@ int QString::toInt( bool *ok ) const
 
 uint QString::toUInt( bool *ok ) const
 {
-    return (uint)toLong( ok );
+    return (uint)toULong( ok );
 }
 
 /*!
@@ -1779,11 +1795,14 @@ QString &QString::setNum( double n, char f, int prec )
   \obsolete because at() now auto-expands anyway.
 
   Sets the character at position \e index to \e c and expands the
-  string if necessary, filling with character-0.
+  string if necessary, filling with spaces.
 */
 void QString::setExpand( uint index, ushort c )
 {
+    int spaces = index - d->len;
     at(index) = c;
+    while (spaces-->0)
+	d->unicode[--index]=' ';
 }
 
 
@@ -1837,8 +1856,10 @@ QString& QString::operator+=( const QString &str )
 {
     uint len1 = length();
     uint len2 = str.length();
-    setLength(len1+len2);
-    memcpy( d->unicode+len1, str.unicode(), sizeof(ushort)*len2 );
+    if ( len2 ) {
+	setLength(len1+len2);
+	memcpy( d->unicode+len1, str.unicode(), sizeof(ushort)*len2 );
+    }
     return *this;
 }
 
@@ -3206,7 +3227,7 @@ int Q1String::toInt( bool *ok ) const
 
 uint Q1String::toUInt( bool *ok ) const
 {
-    return (uint)toLong( ok );
+    return (uint)toULong( ok );
 }
 
 /*!

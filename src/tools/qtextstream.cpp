@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#55 $
 **
 ** Implementation of QTextStream class
 **
@@ -210,7 +210,7 @@ public:
 	    s.truncate( 0 );
 	}
 	if ( m & IO_Append ) {                      // append to end of buffer
-	    index = s.length();
+	    index = s.length()*sizeof(ushort);
 	} else {
 	    index = 0;
 	}
@@ -250,7 +250,7 @@ public:
 	    return FALSE;
 	}
 #endif
-	if ( (uint)pos > s.length()*2 ) {
+	if ( (uint)pos >= s.length()*2 ) {
 #if defined(CHECK_RANGE)
 	    warning( "QStringBuffer::at: Index %d out of range", pos );
 #endif
@@ -379,7 +379,7 @@ private:        // Disabled copy constructor and operator=
   \code
     QString str;
     QTextStream ts( str, IO_WriteOnly );
-    ts << "pi = " << 3.14;			// str == "pi = 3.14"
+    ts << "pi = " << 3.14;			// str == "pi = 3.14..."
   \endcode
 
   The \a mode argument cannot be Ascii.
@@ -1206,11 +1206,11 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	if ( !(flags() & left) ) {		// but NOT left adjustment
 	    len = strlen(p);
 	    int padlen = fwidth - len;
-	    if ( padlen <= 0 )			// no padding required
-		dev->writeBlock( p, len );
-	    else if ( padlen < (int)(p-buf) ) { // speeds up padding
+	    if ( padlen <= 0 ) {		// no padding required
+		writeBlock( p, len );
+	    } else if ( padlen < (int)(p-buf) ) { // speeds up padding
 		memset( p-padlen, fillchar, padlen );
-		dev->writeBlock( p-padlen, padlen+len );
+		writeBlock( p-padlen, padlen+len );
 	    }
 	    else				// standard padding
 		*this << (const char *)p;
@@ -1220,7 +1220,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	fwidth = 0;				// reset field width
     }
     else
-	dev->writeBlock( p, strlen(p) );
+	writeBlock( p, strlen(p) );
     return *this;
 }
 
@@ -1336,7 +1336,7 @@ QTextStream &QTextStream::operator<<( double f )
     if ( fwidth )				// padding
 	*this << (const char *)buf;
     else					// just write it
-	dev->writeBlock( buf, strlen(buf) );
+	writeBlock( buf, strlen(buf) );
     return *this;
 }
 
@@ -1363,18 +1363,18 @@ QTextStream &QTextStream::operator<<( const char *s )
 	    }
 	    memset( ppad, fillchar, padlen );	// fill with fillchar
 	    if ( !(flags() & left) ) {
-		dev->writeBlock( ppad, padlen );
+		writeBlock( ppad, padlen );
 		padlen = 0;
 	    }
-	    dev->writeBlock( s, len );
+	    writeBlock( s, len );
 	    if ( padlen )
-		dev->writeBlock( ppad, padlen );
+		writeBlock( ppad, padlen );
 	    if ( ppad != padbuf )		// delete extra big fill buf
 		delete[] ppad;
 	    return *this;
 	}
     }
-    dev->writeBlock( s, len );
+    writeBlock( s, len );
     return *this;
 }
 
@@ -1403,6 +1403,8 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
   The buffer \e s must be preallocated.
 
+  \note No CharacterMode conversion is used in this function.
+
   \sa QIODevice::readBlock()
 */
 
@@ -1416,6 +1418,8 @@ QTextStream &QTextStream::readRawBytes( char *s, uint len )
   Writes the \e len bytes from \e s to the stream and returns a reference to
   the stream.
 
+  \note No CharacterMode conversion is used in this function.
+
   \sa QIODevice::writeBlock()
 */
 
@@ -1425,6 +1429,31 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
     return *this;
 }
 
+QTextStream &QTextStream::writeBlock( const char *p, uint len )
+{
+    switch ( cmode ) {
+      case Ascii:
+	dev->writeBlock( p, len );
+	break;
+      case UnicodeBigEndian: {
+	    ushort *u = new ushort[len];
+	    for (int i=0; i<len; i++)
+		u[i] = p[i];
+	    dev->writeBlock( (char*)u, len*sizeof(ushort) );
+	    delete [] u;
+	}
+	break;
+      case UnicodeLittleEndian: {
+	    ushort *u = new ushort[len];
+	    for (int i=0; i<len; i++)
+		u[i] = p[i] << 8;
+	    dev->writeBlock( (char*)u, len*sizeof(ushort) );
+	    delete [] u;
+	}
+	break;
+    }
+    return *this;
+}
 
 /*!
   \fn int QTextStream::flags() const

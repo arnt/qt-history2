@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#29 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#30 $
 **
 ** Definition of QTextStream class
 **
@@ -147,6 +147,7 @@ private:
     ulong input_dec();
     ulong input_hex();
     double input_double();
+    QTextStream &writeBlock( const char *p, uint len );
 
 private:	// Disabled copy constructor and operator=
     QTextStream( const QTextStream & );
