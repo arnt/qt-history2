@@ -5127,10 +5127,12 @@ void QWidget::showFullScreen()
 /*!
   \reimp
 */
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 QAccessibleInterface *QWidget::createAccessibilityInterface()
 {
     return new QAccessibleWidget( this );
 }
+#endif
 
 
 static QPixmap* qdb_shared_pixmap = 0;
