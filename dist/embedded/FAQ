@@ -20,25 +20,10 @@ A. - Application programmers will need a standard Qt Professional Edition
 
 
 Q. What does it cost?
-A. Development licenses are the same as for Qt/X11 and Qt/Windows - see
-   http://www.trolltech.com/pricing.html for details.
-
-   Run-time license prices are:
-
-	Volume          Device Price
-	-----------------------------
-	500..999        $18.00
-	>= 1000         $13.00
-	>= 5000         $8.00
-	>= 10000        $6.75
-	>= 25000        $5.25
-	>= 50000        $4.25
-	>= 100000       $3.50
-	>= 250000       $2.75
-	>= 500000       $2.50
-
-   These prices are subject to change prior to the final Qt/Embedded release,
-   but are available now.
+A. The Qt/Embedded Professional Edition is available under terms
+   similar to those for Qt/X11 and Qt/Windows. The price of the
+   runtime licenses vary with the number of licenses purchased. Please
+   e-mail sales@trolltech.com for details.
 
 
 Q. Will it be possible for third parties to write commercial software for
