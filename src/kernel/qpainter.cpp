@@ -2811,8 +2811,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    }
 	    painter->translate( xoff, yoff );
 	    parag->paint( *painter, cg );
-	    if ( !dontclip )
-    		painter->restore();
+	    painter->restore();
 	}
     }
     if ( encode ) {
@@ -2820,6 +2819,10 @@ void qt_format_text( const QFont& font, const QRect &r,
     } else {
 	delete parag;
     }
+
+    if ( painter && restoreClipping )
+	painter->restore();
+
 #endif //QT_NO_RICHTEXT
 }
 
