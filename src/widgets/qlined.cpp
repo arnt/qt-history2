@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#121 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#120 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#121 $");
 
 
 struct QLineEditPrivate {
@@ -533,7 +533,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    // display code comes here - a bit yucky but it works
 	    if ( mark1 != mark2 ) {
 		QString marked( displayText.mid( mark1, mark2 - mark1 ) );
-		int xpos1 =  margin + fm.width( displayText, mark1 );
+		int xpos1 =  margin + 2 + fm.width( displayText, mark1 );
 		int xpos2 =  xpos1 + fm.width( marked ) - 1;
 		p.fillRect( xpos1, ypos - fm.ascent(),
 			    xpos2 - xpos1, fm.height(),
@@ -545,17 +545,17 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    }
 	    p.setPen( g.text() );
 	    if ( mark1 != 0 )
-		p.drawText( margin, ypos, displayText, mark1 );
+		p.drawText( margin + 2, ypos, displayText, mark1 );
 	    if ( mark2 != charsVisible ) {
 		QString rest( displayText.mid( mark2, charsVisible - mark2 ) );
-		p.drawText( margin + fm.width( displayText.left( mark2) ),
+		p.drawText( margin + 2 + fm.width( displayText.left( mark2) ),
 			    ypos, rest );
 	    }
 	}
 
 	p.setPen( g.foreground() );
 
-	int curXPos = margin;
+	int curXPos = margin + 2;
 	if ( echoMode() != NoEcho )
 	    curXPos += fm.width( displayText, cursorPos - offset ) - 1;
 	int curYPos   = ypos - fm.ascent();
