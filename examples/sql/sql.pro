@@ -1,4 +1,5 @@
 TEMPLATE      = subdirs
 SUBDIRS       = cachedtable \
                 querymodel \
-                tablemodel
+                tablemodel \
+                relationaltablemodel
