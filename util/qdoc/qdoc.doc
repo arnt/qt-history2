@@ -192,13 +192,14 @@
 
    <p><li><a name="overload"></a>
     <b>\\overload</b> indicates that this function is a secondary
-    overload of this name. For any overloaded function, qdoc expects
-    one primary version and the rest as overloads.
+    overload of this name. For any overloaded function (except
+    constructors), qdoc expects one primary version and the rest as
+    overloads.
 
     The primary version gets most of the documentation; the others
-    get a standard paragraph and whatever you add: "This is an
-    overloaded function, provided for convenience. It behaves
-    essentially like the above function."
+    get a standard paragraph and whatever you add. The standard
+    paragraph is "This is an overloaded member function, provided for
+    convenience. It behaves essentially like the above function."
 
     Typically, you will use \\overload alone on its line:
     <pre>
@@ -222,9 +223,16 @@
     The same effect can be achieved by using \\overload alone on its
     line together with \link #fn \\fn \endlink.
 
-    In the documentation, \\overload expands to "This is an overloaded
-    member function, provided for convenience. It behaves essentially
-    like the above function."
+    Here's an example with additional documentation:
+    <pre>
+    /*! <u>\\overload</u>
+
+      Creates a bubble of diameter \\a d.
+    *&#47;
+    QBubble *QSoap::createBubble( int d )
+    {
+	return createBubble( d, d );
+    }</pre>
 
    <p><li><a name="l"></a>
     <b>\\l</b> (ell) makes an explicit link to almost anything that
@@ -1245,7 +1253,7 @@
     "--define=DEBUG,GUBED" to define the preprocessor symbols DEBUG
     and GUBED. You can use regular expressions, but beware of
     characters interpreted by your command interpreter. To ease
-    typing, the comma can be used instead of "|" to mean "or".
+    typing, "," can be used instead of "|" to mean "or".
 
    <p><li><a name="--false"></a>
     <b>--false</b> (cf. \link #FALSE FALSE \endlink) specifies what
