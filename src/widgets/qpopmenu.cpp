@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#62 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#61 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#62 $")
 
 
 // Mac style parameters
@@ -865,7 +865,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	if ( !rect().contains( e->pos() ) && tryMenuBar( e ) )
+	if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
 	    return;
     }
     actItem = item;
