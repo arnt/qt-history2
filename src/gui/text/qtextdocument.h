@@ -72,8 +72,8 @@ public:
 
     enum FindFlag
     {
-        SearchCaseSensitive = 0x00001,
-        SearchFullWordsOnly = 0x00002
+        FindCaseSensitively = 0x00001,
+        FindWholeWords = 0x00002
         // ### more
     };
     Q_DECLARE_FLAGS(FindFlags, FindFlag);

@@ -311,14 +311,13 @@ void QTextDocument::setHtml(const QString &html)
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
 */
-#include <qdebug.h>
 QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags options) const
 {
     if (_expr.isEmpty())
         return QTextCursor();
 
     QString expr;
-    if (options & SearchFullWordsOnly) {
+    if (options & FindWholeWords) {
         expr = QRegExp::escape(_expr);
         expr.prepend("\\b");
         expr.append("\\b");
@@ -330,7 +329,7 @@ QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags option
     int pos = from;
 
     Qt::CaseSensitivity cs;
-    if (options & SearchCaseSensitive)
+    if (options & FindCaseSensitively)
         cs = Qt::CaseSensitive;
     else
         cs = Qt::CaseInsensitive;
@@ -342,7 +341,7 @@ QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags option
         QString text = block.text();
         int idx = -1;
 
-        if (options & SearchFullWordsOnly)
+        if (options & FindWholeWords)
             idx = text.indexOf(re, blockOffset);
         else
             idx = text.indexOf(expr, blockOffset, cs);

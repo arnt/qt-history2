@@ -170,9 +170,9 @@ public:
     {
         QTextDocument::FindFlags flags = 0;
         if (cs)
-            flags |= QTextDocument::SearchCaseSensitive;
+            flags |= QTextDocument::FindCaseSensitively;
         if (wo)
-            flags |= QTextDocument::SearchFullWordsOnly;
+            flags |= QTextDocument::FindWholeWords;
         return find(exp, flags);
     }
 
