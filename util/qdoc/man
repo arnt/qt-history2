@@ -122,7 +122,7 @@ sub parseclassfile {
     local ($title );
 
     # strip head and tail
-    s/^.*?<body>\s*//s;
+    s/^.*?<body[&>]*>\s*//s;
     s/<hr><p>\s+This file is part of the.*$//s;
 
     # paragraphs, lines
