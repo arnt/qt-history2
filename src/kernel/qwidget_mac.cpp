@@ -97,10 +97,11 @@ static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
     if(!p || r.isEmpty())
 	return;
 
+    bool erase = !p->testWFlags(QWidget::WRepaintNoErase);
     if(now)
-	p->repaint(r, !p->testWFlags(QWidget::WRepaintNoErase));
+	p->repaint(r, erase);
     else
-	QApplication::postEvent(p, new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
+	QApplication::postEvent(p, new QPaintEvent(r, erase));
 
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
 	for(QObjectListIt it(*childObjects); it.current(); ++it) {
@@ -879,10 +880,8 @@ void QWidget::stackUnder( QWidget *w )
     int loc = p->childObjects->findRef(w);
     if ( loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->insert( loc, p->childObjects->take() );
-    // #### excessive repaints
     dirtyClippedRegion(TRUE);
-    update( geometry() );
-    w->update ( w->geometry() );
+    paint_children( p, geometry());
 }
 
 
@@ -918,9 +917,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QPoint oldp = pos();
     QSize  olds = size();
 
-    QRegion oldregion;
-    if(isMove)
-	oldregion = clippedRegion(FALSE);
+    QRegion oldregion = clippedRegion(FALSE);
 
     QRect  r( x, y, w, h );
     dirtyClippedRegion(FALSE);
@@ -948,72 +945,75 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if(isMove || isResize) {
 	if ( isVisible() ) {
-	    QRegion blt_optim;
+	    //send the move event..
+	    if ( isMove ) {
+		QMoveEvent e( pos(), oldp );
+		QApplication::sendEvent( this, &e );
+	    }
+	    //send the resize event..
+	    if ( isResize ) {
+		QResizeEvent e( size(), olds );
+		QApplication::sendEvent( this, &e );
+	    }
+
+	    //make sure everything is painted right..
+	    QRegion bltregion;
 	    int px = 0, py = 0;
 	    if(parentWidget()) {
 		QPoint tp(posInWindow(parentWidget()));
 		px = tp.x();
 		py = tp.y();
 	    }
-
-	    if ( isMove ) {
-		QMoveEvent e( pos(), oldp );
-		QApplication::sendEvent( this, &e );
-
-		if( !isTopLevel() && !oldregion.isEmpty() ) {
-		    //save the window state, and do the grunt work
-		    int ow = olds.width(), oh = olds.height();
-		    QMacSavedPortInfo saveportstate; 
-		    SetPortWindowPort((WindowPtr)handle()); 
-		    ::RGBColor f;
-		    f.red = f.green = f.blue = 0;
-		    RGBForeColor( &f );
-		    f.red = f.green = f.blue = ~0;
-		    RGBBackColor( &f );
-
-		    //calculate new and old rectangles
-		    int nx = px + x, ny = py + y;
-		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
-		    int ox = px + oldp.x(), oy = py + oldp.y();
-		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-
-		    //setup the old clipped region..
-		    blt_optim = oldregion;
-		    blt_optim.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-		    blt_optim &= clippedRegion(FALSE);
-		    SetClip((RgnHandle)blt_optim.handle());
-		    
-		    //create a temporary space
-		    GWorldPtr tmppix;
-		    Rect tmpr; SetRect(&tmpr, 0, 0, ow, oh);
-		    NewGWorld( &tmppix, 0, &tmpr, NULL, 0, alignPix | stretchPix | newDepth );
-		    LockPixels(GetGWorldPixMap(tmppix));
-
-		    //now do the blt
-		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-		    BitMap *pixm = (BitMap *)*GetGWorldPixMap(tmppix);
-		    CopyBits(scrn, pixm, &oldr, &tmpr, srcCopy, 0);
-		    CopyBits(pixm, scrn, &tmpr, &newr, srcCopy, 0);
-
-		    //cleanup
-		    UnlockPixels(GetGWorldPixMap(tmppix));
-		    DisposeGWorld(tmppix);
-		} 
-	    }
-	    if ( isResize ) {
-		QResizeEvent e( size(), olds );
-		QApplication::sendEvent( this, &e );
-
+	    if(isResize) {
 		//erase the new area
-		QRegion newr = QRegion(QRect(QPoint(0, 0), olds)) ^ QRegion(QRect(QPoint(0, 0), size()));
+		QRegion newr = QRegion(QRect(QPoint(0, 0), olds)) ^ 
+			       QRegion(QRect(QPoint(0, 0), size()));
 		if(!newr.isEmpty()) 
 		    erase(newr);
+	    } else if( isMove && !isTopLevel() && !oldregion.isEmpty() ) {
+		//save the window state, and do the grunt work
+		int ow = olds.width(), oh = olds.height();
+		QMacSavedPortInfo saveportstate; 
+		SetPortWindowPort((WindowPtr)handle()); 
+		::RGBColor f;
+		f.red = f.green = f.blue = 0;
+		RGBForeColor( &f );
+		f.red = f.green = f.blue = ~0;
+		RGBBackColor( &f );
+
+		//calculate new and old rectangles
+		int nx = px + x, ny = py + y;
+		Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
+		int ox = px + oldp.x(), oy = py + oldp.y();
+		Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
+
+		//setup the old clipped region..
+		bltregion = oldregion;
+		bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		bltregion &= clippedRegion(FALSE);
+		SetClip((RgnHandle)bltregion.handle());
+		    
+		//create a temporary space
+		GWorldPtr tmppix;
+		Rect tmpr; SetRect(&tmpr, 0, 0, ow, oh);
+		NewGWorld( &tmppix, 0, &tmpr, NULL, 0, alignPix | stretchPix | newDepth );
+		LockPixels(GetGWorldPixMap(tmppix));
+
+		//now do the blt
+		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
+		BitMap *pixm = (BitMap *)*GetGWorldPixMap(tmppix);
+		CopyBits(scrn, pixm, &oldr, &tmpr, srcCopy, 0);
+		CopyBits(pixm, scrn, &tmpr, &newr, srcCopy, 0);
+
+		//cleanup
+		UnlockPixels(GetGWorldPixMap(tmppix));
+		DisposeGWorld(tmppix);
 	    }
 
-	    QRegion upd = (oldregion + clippedRegion(FALSE)) - blt_optim;
-	    upd.translate(-px, -py);
+	    //finally issue "expose" events if necesary
+	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
+	    upd.translate(-px, -py); //translate them from window to the parent
 	    paint_children( parentWidget() ? parentWidget() : this, upd, TRUE);
-
 	} else {
 	    if ( isMove )
 		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
@@ -1420,6 +1420,9 @@ bool QWidget::isClippedRegionDirty()
 
 QRegion QWidget::clippedRegion(bool do_children)
 {
+    if(!isVisible())
+	return QRegion();
+
     createExtra();
 
     if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
