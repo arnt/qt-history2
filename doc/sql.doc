@@ -104,12 +104,13 @@ Executing SQL Commands Using QSqlQuery</a></li>
 	<li><a href="#Deleting_Records">Deleting Records</a></li>
 	</ul>
     </ul>
-<li><a href="#Data-Aware_Widgets">Data-Aware Widgets</a></li> 
+<li><a href="#Data-Aware_Widgets">Data-Aware Widgets</a></li>
     <ul>
-    <li><a href="#Data-Aware_Tables">Data-Aware Tables</a></li> 
-    <li><a href="#Creating_Forms">Creating Data-Aware Forms</a></li> 
+    <li><a href="#Data-Aware_Tables">Data-Aware Tables</a></li>
+    <li><a href="#Creating_Forms">Creating Data-Aware Forms</a></li>
 	<ul>
 	<li><a href="#Displaying_a_Record">Displaying a Record</a></li>
+	<li><a href="#Displaying_a_Record_in_a_DataForm">Displaying a Record in a Data Form</a></li>
 	<li><a href="#Editing_a_Record">Editing a Record</a></li>
 	</ul>
     <li><a href="#Custom_Editor_Widgets">Custom Editor Widgets</a></li> 
@@ -813,7 +814,7 @@ QDataTables only retrieve visible rows which (depending on the driver)
 allows even large tables to be displayed very quickly with minimal
 memory cost.
 
-<h2><a name="Creating_Forms">Creating Data-Aware Forms</a></h2> 
+<h2><a name="Creating_Forms">Creating Data-Aware Forms</a></h2>
 
 Creating data-aware forms is more involved than using data-aware
 tables because we must take care of each field individually.  Most of
@@ -847,10 +848,21 @@ data-aware we insert a pointer to the widget and the associated field
 name into the \l QSqlForm. Finally we call readFields() to populate the
 widgets with data from the database via the cursor's buffer.
 
+<h3><a name="Displaying_a_Record_in_a_DataForm">Displaying a Record in a Data Form</a></h3>
+
+\l QDataForm is a Widget that can hold a read-only \l QSqlForm. In
+addition to \l QSqlForm it offers the slot refresh ( \l QSqlRecord * ) so it
+can easily be linked together with a \l QDataTable to display a detailled
+view of a record:
+
+\code
+    connect( myDataTable, SIGNAL( currentChanged( QSqlRecord* ) ), myDataView, SLOT( refresh( QSqlRecord* ) ) );
+\endcode
+
 <h3><a name="Editing_a_Record">Editing a Record</a></h3>
 
 This example is similar to the previous one so we will focus on the
-differences. 
+differences.
 
 \walkthrough sql/overview/form2/main.h
 \skipto class
@@ -869,7 +881,7 @@ confirm their update. We also hold pointers to the \l QSqlCursor and the
 \printline
 
 We call setTrimmed() on the text fields so that any spaces used to right
-pad the fields are removed when the fields are retrieved. 
+pad the fields are removed when the fields are retrieved.
 
 Properties that we might wish to apply to fields, such as alignment and
 validation are achieved in the conventional way, for example, by calling
@@ -901,7 +913,7 @@ index. We then move to the first record in the result set.
 
 \skipto new QSqlForm
 \printline 
-\printline 
+\printline
 
 We create a new QSqlForm object and set it's record buffer to the
 cursor's update buffer.
@@ -936,7 +948,7 @@ record.
 
 Link to \l sql/overview/form2/main.cpp
 
-<h2><a name="Custom_Editor_Widgets">Custom Editor Widgets</a></h2> 
+<h2><a name="Custom_Editor_Widgets">Custom Editor Widgets</a></h2>
 
 QSqlForm uses QSqlPropertyMap to handle the transfer of data between
 widgets and database fields. Custom widgets can also be used in a form
