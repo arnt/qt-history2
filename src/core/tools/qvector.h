@@ -262,8 +262,8 @@ void QVector<T>::free(Data *x)
     if (QTypeInfo<T>::isComplex) {
         T* b = x->array;
         T* i = b + x->size;
-        while (i != b)
-            (--i)->~T();
+        while (i-- != b)
+             i->~T();
     }
     qFree(x);
 }
