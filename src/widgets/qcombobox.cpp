@@ -117,8 +117,11 @@
   It is possible to constrain the input to an editable combobox using
   QValidator; see setValidator().  By default, all input is accepted.
 
-  A combobox has a default focusPolicy() of \c TabFocus, i.e. it will
-  not grab focus if clicked.  This differs from both Windows and Motif.
+  If the combo box is not editable then it has a default focusPolicy() 
+  of \c TabFocus, i.e. it will not grab focus if clicked.  This 
+  differs from both Windows and Motif.  If the combo box is editable then it 
+  has a default focusPolicy() of \c StrongFocus, i.e. it will grab focus if
+  clicked.
 
   A combobox can be populated using the insert functions,
   insertStringList() and insertItem() for example. Items can be changed
