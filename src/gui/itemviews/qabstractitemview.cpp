@@ -532,7 +532,7 @@ QModelIndex QAbstractItemView::currentItem() const
 */
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
-    d->root = index;
+    d->root = QPersistentModelIndex(index, d->model);
     doItemsLayout();
 }
 
@@ -1649,17 +1649,17 @@ QWidget *QAbstractItemViewPrivate::createEditor(QAbstractItemDelegate::StartEdit
     return editor;
 }
 
-QWidget *QAbstractItemViewPrivate::persistentEditor(const QModelIndex &index) const
+QWidget *QAbstractItemViewPrivate::persistentEditor(const QModelIndex &index)// const
 {
-    QList<QPair<QModelIndex, QWidget*> >::ConstIterator it = persistentEditors.begin();
-    for (; it != persistentEditors.end(); ++it) {
-        if ((*it).first == index)
-            return (*it).second;
-    }
+    QPersistentModelIndex persistent(index, model);
+    QMap<QPersistentModelIndex, QWidget*>::ConstIterator it = persistentEditors.find(persistent);
+    if (it != persistentEditors.end())
+        return *it;
     return 0;
 }
 
 void QAbstractItemViewPrivate::setPersistentEditor(QWidget *editor, const QModelIndex &index)
 {
-    persistentEditors.append(QPair<QModelIndex, QWidget*>(index, editor));
+    QPersistentModelIndex persistent(index, model);
+    persistentEditors.insert(persistent, editor);
 }

@@ -132,32 +132,48 @@ QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 }
 
 QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
+    : d(&QPersistentModelIndexData::shared_null)
 {
-    // FIXME: should we make sure that we have no persistent index for index before we create a new one ?
-    d = new QPersistentModelIndexData;
+    // FIXME: this is too slow
+    QList<QPersistentModelIndexData*> *persistentIndices = &(model->d_func()->persistentIndices);
+    for (int i = 0; i < persistentIndices->count(); ++i) {
+        if (persistentIndices->at(i)->index == index) {
+            d = persistentIndices->at(i);
+            break;
+        }
+    }
+    if (d == &QPersistentModelIndexData::shared_null)
+        d = new QPersistentModelIndexData;
+    ++d->ref;
     d->model = model;
     d->index = index;
-    ++d->ref;
-    model->d_func()->persistentIndices.append(d);
+    persistentIndices->append(d);
 }
 
 QPersistentModelIndex::~QPersistentModelIndex()
 {
-    if (!--d->ref) {
+    if (!--d->ref && d != &QPersistentModelIndexData::shared_null) {
         d->model->d_func()->persistentIndices.removeAll(d);
-        if (d != &QPersistentModelIndexData::shared_null)
-            delete d;
+        delete d;
     }
+}
+
+bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
+{
+    return d < other.d;
 }
 
 void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 {
-    --d->ref;
+    if (!--d->ref && d != &QPersistentModelIndexData::shared_null) {
+        d->model->d_func()->persistentIndices.removeAll(d);
+        delete d;
+    }
     d = other.d;
     ++d->ref;
 }
 
-QPersistentModelIndex::operator const QModelIndex&()
+QPersistentModelIndex::operator const QModelIndex&() const
 {
     return d->index;
 }

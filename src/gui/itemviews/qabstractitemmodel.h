@@ -59,14 +59,16 @@ public:
     QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model);
     QPersistentModelIndex(const QPersistentModelIndex &other);
     ~QPersistentModelIndex();
+    bool operator<(const QPersistentModelIndex &other) const;
     void operator=(const QPersistentModelIndex &other);
-    operator const QModelIndex&();
+    operator const QModelIndex&() const;
     int row() const;
     int column() const;
     void *data() const;
     bool isValid() const;
     bool operator==(const QModelIndex &other) const;
     bool operator!=(const QModelIndex &other) const;
+//    bool operator<(const QModelIndex &other) const;
 private:
     QPersistentModelIndexData *d;
 };

@@ -20,7 +20,7 @@ public:
 
     QWidget *createEditor(QAbstractItemDelegate::StartEditAction action,
                           QEvent *event, const QModelIndex &index);
-    QWidget *persistentEditor(const QModelIndex &index) const;
+    QWidget *persistentEditor(const QModelIndex &index);// const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
     QAbstractItemModel *model;
@@ -31,9 +31,7 @@ public:
     int selectionMode;
     int selectionBehavior;
 
-    // #### this datastructur is far to inefficient. We need a faster
-    // #### way to associate data with an item and look it up.
-    QList<QPair<QModelIndex, QWidget*> > persistentEditors;
+    QMap<QPersistentModelIndex, QWidget*> persistentEditors;
 
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
@@ -42,7 +40,7 @@ public:
     QPoint cursorIndex;
     int startEditActions;
 
-    QModelIndex root;
+    QPersistentModelIndex root;
     int horizontalFactor;
     int verticalFactor;
 
