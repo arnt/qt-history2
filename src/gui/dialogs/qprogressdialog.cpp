@@ -133,7 +133,6 @@ void QProgressDialogPrivate::layout()
 
     label->setGeometry(mlr, 0, q->width()-mlr*2, lh);
     bar->setGeometry(mlr, lh+sp, q->width()-mlr*2, bh.height());
-    layout();
 }
 
 
