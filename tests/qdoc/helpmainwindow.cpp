@@ -235,12 +235,12 @@ void HelpMainWindow::slotFilePrint()
 	p.setFont( font );
 	QRect view( body );
 	int page = 1;
-	int ls = p->fontMetrics().lineSpacing();
+	int ls = p.fontMetrics().lineSpacing();
 	do {
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    p.setFont( font );
 	    p.drawText( view.right() - p.fontMetrics().width( viewer->caption() ),
-			view.top() - 2*ls, viewer->caption() );
+			view.top() - 3*ls/2, viewer->caption() );
 	    p.setPen(1);
 	    p.drawLine( view.left(), view.top()-ls, view.right(), view.top()-ls );
 	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
