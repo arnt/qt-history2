@@ -232,7 +232,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(mocsrcd.isEmpty())
 	    mocsrcd = "$(QTDIR)/src/moc";
 	t << "$(MOC): \n\t"
-	  << "make -C " << mocsrcd << endl << endl;
+	  << "( cd " << mocsrcd << " ; $(MAKE) )"  << endl << endl;
     }
 
     writeMakeQmake(t);

@@ -72,7 +72,7 @@ static char *gimme_buffer(off_t s)
 bool
 MakefileGenerator::generateMocList(QString fn_target)
 {
-    if(!mocablesToMOC[fn_target].isEmpty())
+    if(!findMocDestination(fn_target).isEmpty())
 	return TRUE;
     QString fn_local = Option::fixPathToLocalOS(fn_target);
 
@@ -144,8 +144,8 @@ MakefileGenerator::generateMocList(QString fn_target)
 
 	    if(!mocFile.isEmpty()) {
 		mocFile = Option::fixPathToTargetOS(mocFile);
-		mocablesToMOC[fn_target] = mocFile;
-		mocablesFromMOC[mocFile] = fn_target;
+		mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
+		mocablesFromMOC[cleanFilePath(mocFile)] = fn_target;
 	    }
 	    break;
 	}
@@ -307,7 +307,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 bool
 MakefileGenerator::generateMocList(QString fn_target)
 {
-    if(!mocablesToMOC[fn_target].isEmpty())
+    if(!findMocDestination(fn_target).isEmpty())
 	return TRUE;
 
     QString fn_local = Option::fixPathToLocalOS(fn_target);
@@ -343,8 +343,8 @@ MakefileGenerator::generateMocList(QString fn_target)
 
 		if(!mocFile.isEmpty()) {
 		    mocFile = Option::fixPathToTargetOS(mocFile);
-		    mocablesToMOC[fn_target] = mocFile;
-		    mocablesFromMOC[mocFile] = fn_target;
+		    mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
+		    mocablesFromMOC[cleanFilePath(mocFile)] = fn_target;
 		}
 		file.close();
 		return TRUE;
@@ -597,8 +597,8 @@ MakefileGenerator::init()
 
 	    QString mocable = (v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep): v["MOC_DIR"].first()) +
 			      Option::moc_mod + fi.baseName() + Option::cpp_ext;
-	    mocablesToMOC[decl] = mocable;
-	    mocablesFromMOC[mocable] = decl;
+	    mocablesToMOC[cleanFilePath(decl)] = mocable;
+	    mocablesFromMOC[cleanFilePath(mocable)] = decl;
 	    v["_UIMOC"].append(mocable);
 	}
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("UICDECLS"));
@@ -887,12 +887,11 @@ MakefileGenerator::createObjectList(const QString &var)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	QString dirName;
-	if ( dir.isEmpty() ) {
+	if ( dir.isEmpty() ) 
 	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
-	} else {
+	else
 	    dirName = dir;
-	}
-	ret.append( dirName + fi.baseName() + Option::obj_ext);
+	ret.append( Option::fixPathToTargetOS(dirName + fi.baseName() + Option::obj_ext) );
     }
     return ret;
 }
@@ -965,7 +964,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 }
 
 bool
-MakefileGenerator::fileFixify(QStringList &files)
+MakefileGenerator::fileFixify(QStringList &files) const
 {
     if(files.isEmpty())
 	return FALSE;
@@ -977,7 +976,7 @@ MakefileGenerator::fileFixify(QStringList &files)
 }
 
 bool
-MakefileGenerator::fileFixify(QString &file)
+MakefileGenerator::fileFixify(QString &file) const
 {
     if(file.isEmpty())
 	return FALSE;
@@ -1015,4 +1014,10 @@ MakefileGenerator::fileFixify(QString &file)
     return TRUE;
 }
 
-
+QString 
+MakefileGenerator::cleanFilePath(const QString &file) const
+{
+    QString ret = Option::fixPathToTargetOS(file);
+    fileFixify(ret);
+    return ret;
+}

@@ -165,11 +165,11 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(INTERFACES)" << endl << endl;
 
     t << "clean:" << "\n\t"
-      << varGlue("OBJECTS","-del ","\n\t-del ","") << "\n\t"
-      << varGlue("SRCMOC" ,"-del ","\n\t-del ","") << "\n\t"
-      << varGlue("OBJMOC" ,"-del ","\n\t-del ","") << "\n\t"
+      << varGlue("OBJECTS","-del ","\n\t-del ","\n\t") 
+      << varGlue("SRCMOC" ,"-del ","\n\t-del ","\n\t")
+      << varGlue("OBJMOC" ,"-del ","\n\t-del ","\n\t")
       << "-del $(TARGET)" << "\n\t"
-      << varGlue("QMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
+      << varGlue("QMAKE_CLEAN","-del ","\n\t-del ","\n\t")
       << varGlue("CLEAN_FILES","-del ","\n\t-del ","") << endl << endl;
 }
 

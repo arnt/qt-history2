@@ -114,13 +114,13 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			QString mocpath = var( "QMAKE_MOC" );
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
-			QString build = "\n\n# Begin Custom Build - Moc'ing " + mocablesFromMOC[(*it)] +
+			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
 		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
 					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t" + mocpath + mocablesFromMOC[(*it)] + " -o " +
+					"\t" + mocpath + findMocSource((*it)) + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
-			t << "USERDEP_" << base << "=\"" << mocablesFromMOC[(*it)] << "\"" << endl << endl;
+			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\"" << endl << endl;
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
 			  << build << "!ENDIF " << endl << endl;
@@ -136,7 +136,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl << endl;
 
-		    if ( project->isActiveConfig("moc") && !mocablesToMOC[(*it)].isEmpty()) {
+		    if ( project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
@@ -145,10 +145,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + (*it) +
-		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + mocablesToMOC[(*it)] +
+		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + findMocDestination((*it)) +
 					"\"" " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
 					"\t" + mocpath + (*it)  + " -o " +
-					mocablesToMOC[(*it)] + "\n\n" "# End Custom Build\n\n";
+					findMocDestination((*it)) + "\n\n" "# End Custom Build\n\n";
 
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
@@ -201,7 +201,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		     " -o " + fpath + fname + ".h \\\n" "\t" + uicpath  + (*it) +
 		     " -i " + fpath + fname + ".h -o " + fpath + fname + ".cpp \\\n"
 		     "\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
-//		     "\t" + mocpath + fname + ".h -o " + mocablesToMOC[ fname + ".h" ] + "\\\n\n"
 		     "\"" + fpath + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 		     "\t$(BuildCmds)\n\n"
 		     "\"" + fpath + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"

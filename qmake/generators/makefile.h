@@ -42,6 +42,7 @@
 
 class MakefileGenerator
 {
+    QString cleanFilePath(const QString &file) const;
     bool generateDependancies(QStringList &dirs, QString x);
     bool generateMocList(QString fn);
     bool init_already, moc_aware;
@@ -54,12 +55,15 @@ class MakefileGenerator
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
     void writeInstalls(QTextStream &t, const QString &installs);
+    QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
 
 protected:
 
     QMakeProject *project;
     QMap<QString, QStringList> depends;
-    QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
+
+    inline QString findMocSource(const QString &moc_file) const { return mocablesFromMOC[cleanFilePath(moc_file)]; }
+    inline QString findMocDestination(const QString &src_file) const { return mocablesToMOC[cleanFilePath(src_file)]; }
 
     void setMocAware(bool o) { moc_aware = o; }
     bool mocAware() const { return moc_aware; }
@@ -76,8 +80,8 @@ protected:
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
 
-    bool fileFixify(QString &file);
-    bool fileFixify(QStringList &files);
+    bool fileFixify(QString &file) const;
+    bool fileFixify(QStringList &files) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator() { }
