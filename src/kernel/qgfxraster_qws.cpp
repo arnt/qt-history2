@@ -3537,7 +3537,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		    if (is_screen_gfx)
 			*((((unsigned long)myptr) & 0x1) ?
-			    myptr-1 : myptr+1)~=get_value_16(srcdepth,&srcdata);
+			    myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
 		    else
 #endif
 			*(myptr)=~get_value_16(srcdepth,&srcdata);
@@ -4065,10 +4065,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    } else {
 		unsigned char *tmp=(unsigned char *)alphaptr;
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		stmp++;
-		r = *stmp++;
-		g = *stmp++;
-		b = *stmp;
+		tmp++;
+		r = *tmp++;
+		g = *tmp++;
+		b = *tmp;
 #else
 		b = *tmp++;
 		g = *tmp++;
