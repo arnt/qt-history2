@@ -184,7 +184,7 @@ int main( int argc, char ** argv )
     for ( int i = 0; i < 256; i++ )
   	colors[i] = qRgb( i, i, i );
     
-    cmap1.setEntries( 0, 256, colors );
+    cmap1.setEntries( 256, colors );
     
     gl.setColormap( cmap1 );
     
