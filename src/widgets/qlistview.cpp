@@ -3314,14 +3314,13 @@ void QListView::removeColumn( int index )
 	}
     }
 
-    for ( int i = index; i < (int)d->column.count(); ++i ) {
+    for ( int i = index; i < (int)d->column.size(); ++i ) {
 	QListViewPrivate::Column *c = d->column.take( i );
 	if ( i == index )
 	    delete c;
-	if ( i < (int)d->column.count()-1 )
+	if ( i < (int)d->column.size()-1 )
 	    d->column.insert( i, d->column[ i + 1 ] );
     }
-    d->column.take( d->column.size() - 1 );
     d->column.resize( d->column.size() - 1 );
 
     d->h->removeLabel( index );
@@ -5038,9 +5037,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
     \code
     QListViewItem *i = itemAt( p );
     if ( i ) {
-	if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
+	if ( p.x() > header()->sectionPos( header()->mapToIndex( 0 ) ) +
 		treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() ||
-		p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) {
+		p.x() < header()->sectionPos( header()->mapToIndex( 0 ) ) ) {
 	    ; // p is not on root decoration
 	else
 	    ; // p is on the root decoration
