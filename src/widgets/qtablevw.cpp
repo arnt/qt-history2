@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#71 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#71 $");
 
 
 const int sbDim = 16;
@@ -76,7 +76,7 @@ void CornerSquare::paintEvent( QPaintEvent * )
   width or height has changed.
 
   When you read this documentation, it is important to understand the
-  distinctions between the four coordinate systems involved.
+  distinctions between the four pixel coordinate systems involved.
 
   <ol>
   <li> The \e cell coordinates.  (0,0) is the top left corner of a cell.
@@ -97,6 +97,11 @@ void CornerSquare::paintEvent( QPaintEvent * )
   It is rather unfortunate that we have to use four different
   coordinate systems, but if we were to provide a flexible and
   powerful base class, there wasn't any way around it.
+
+  Note: The row,column indices are always given in that order,
+  i.e. first the vertical (row), then the horizontal (column). This is
+  the opposite order of all pixel operations, which take first the
+  horizontal (x), then the vertical (y).
 
   <img src=qtablevw-m.gif> <img src=qtablevw-w.gif>
 
