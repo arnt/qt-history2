@@ -797,6 +797,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
         q->setAttribute(Qt::WA_StaticContents);
     if (f & Qt::WDestructiveClose)
 	q->setAttribute(Qt::WA_DeleteOnClose);
+    if (f & Qt::WShowModal)
+	q->setAttribute(Qt::WA_ShowModal);
 #endif
     data.window_type = f;
     data.window_state = 0;
@@ -3387,7 +3389,7 @@ bool QWidget::isActiveWindow() const
 #endif
     if(style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, this)) {
         if((tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) &&
-           !tlw->testWFlags(Qt::WShowModal) &&
+           !tlw->testAttribute(Qt::WA_ShowModal) &&
            (!tlw->parentWidget() || tlw->parentWidget()->isActiveWindow()))
            return true;
         QWidget *w = qApp->activeWindow();
@@ -3395,7 +3397,7 @@ bool QWidget::isActiveWindow() const
             w->parentWidget()->topLevelWidget() == tlw)
             return true;
         while(w && (tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) &&
-              !w->testWFlags(Qt::WShowModal) && w->parentWidget()) {
+              !w->testAttribute(Qt::WA_ShowModal) && w->parentWidget()) {
             w = w->parentWidget()->topLevelWidget();
             if(w == tlw)
                 return true;
@@ -4029,7 +4031,7 @@ void QWidgetPrivate::show_helper()
     }
 #endif
 
-    if (q->testWFlags(Qt::WShowModal))
+    if (q->testAttribute(Qt::WA_ShowModal))
         // qt_enter_modal *before* show, otherwise the initial
         // stacking might be wrong
         qt_enter_modal(q);
@@ -4084,7 +4086,7 @@ void QWidgetPrivate::hide_helper()
     // Move test modal here.  Otherwise, a modal dialog could get
     // destroyed and we lose all access to its parent because we haven't
     // left modality.  (Eg. modal Progress Dialog)
-    if (q->testWFlags(Qt::WShowModal))
+    if (q->testAttribute(Qt::WA_ShowModal))
         qt_leave_modal(q);
 
 #if defined(Q_WS_WIN)
@@ -5282,11 +5284,6 @@ void QWidget::moveEvent(QMoveEvent *)
     The widget will be erased and receive a paint event immediately
     after processing the resize event. No drawing need be (or should
     be) done inside this handler.
-
-    Widgets that have been created with the \c Qt::WNoAutoErase flag
-    will not be erased. Nevertheless, they will receive a paint event
-    for their entire area afterwards. Again, no drawing needs to be
-    done inside this handler.
 
     The default implementation calls updateMask() if the widget has
     \link QWidget::setAutoMask() automatic masking\endlink enabled.

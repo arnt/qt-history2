@@ -719,7 +719,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             releaseKeyboard();
         if (isTopLevel())
             X11->deferred_map.removeAll(this);
-        if (testWFlags(Qt::WShowModal))                // just be sure we leave modal
+        if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
             qt_leave_modal(this);
         else if (testWFlags(Qt::WType_Popup))
             qApp->closePopup(this);
@@ -1733,7 +1733,7 @@ void QWidgetPrivate::show_sys()
         // update _MOTIF_WM_HINTS
         QtMWMHints mwmhints = GetMWMHints(X11->display, q->winId());
 
-        if (q->testWFlags(Qt::WShowModal)) {
+        if (q->testAttribute(Qt::WA_ShowModal)) {
             mwmhints.input_mode = MWM_INPUT_FULL_APPLICATION_MODAL;
             mwmhints.flags |= MWM_HINTS_INPUT_MODE;
         }
@@ -1787,7 +1787,7 @@ void QWidgetPrivate::show_sys()
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
         }
-        if (q->testWFlags(Qt::WShowModal)) {
+        if (q->testAttribute(Qt::WA_ShowModal)) {
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MODAL);
         }
 

@@ -2126,7 +2126,7 @@ bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
 
-    if (widget->testWFlags(Qt::WShowModal))        // widget is modal
+    if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
         modal = widget;
     if (!top || modal == top)                        // don't block event
         return true;

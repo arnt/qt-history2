@@ -833,10 +833,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if(ptl && ptl->testWFlags(Qt::WStyle_StaysOnTop))
             setWFlags(Qt::WStyle_StaysOnTop);
     }
-    if(dialog && !testWFlags(Qt::WShowModal) && parentWidget()
-            && parentWidget()->testWFlags(Qt::WShowModal))
-        setWFlags(Qt::WShowModal);
-    if(!testWFlags(Qt::WStyle_Customize) && !(desktop || popup) && !testWFlags(Qt::WShowModal))
+    if(dialog && !testAttribute(Qt::WA_ShowModal) && parentWidget()
+            && parentWidget()->testAttribute(Qt::WA_ShowModal))
+        setAttribute(Qt::WA_ShowModal);
+    if(!testWFlags(Qt::WStyle_Customize) && !(desktop || popup) && !testAttribute(Qt::WA_ShowModal))
         setWFlags(Qt::WStyle_Customize | Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
 
     d->hd = 0;
@@ -870,7 +870,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             wclass = kDrawerWindowClass;
         else if(popup || (testWFlags(Qt::WStyle_Splash) == Qt::WStyle_Splash))
             wclass = kModalWindowClass;
-        else if(testWFlags(Qt::WShowModal))
+        else if(testAttribute(Qt::WA_ShowModal))
             wclass = kMovableModalWindowClass;
         else if(testWFlags(Qt::WStyle_ToolTip))
             wclass = kHelpWindowClass;
@@ -1015,7 +1015,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(this) && parentWidget())
             SetDrawerParent(window, qt_mac_window_for(parentWidget()));
-        if(dialog && !parentWidget() && !testWFlags(Qt::WShowModal))
+        if(dialog && !parentWidget() && !testAttribute(Qt::WA_ShowModal))
             grp = GetWindowGroupOfClass(kDocumentWindowClass);
         if(testWFlags(Qt::WStyle_StaysOnTop)) {
             if(d->topData()->group)
@@ -1106,7 +1106,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if(acceptDrops())
             setAcceptDrops(false);
 
-        if(testWFlags(Qt::WShowModal))          // just be sure we leave modal
+        if(testAttribute(Qt::WA_ShowModal))          // just be sure we leave modal
             qt_leave_modal(this);
         else if(testWFlags(Qt::WType_Popup))
             qApp->closePopup(this);

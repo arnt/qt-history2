@@ -84,7 +84,7 @@ public:
     };
     Q_DECLARE_FLAGS(MouseButtons, MouseButton)
 
-#if defined(QT3_SUPPORT)
+#ifdef QT3_SUPPORT
     enum ButtonState_enum {
         ShiftButton     = Qt::ShiftModifier,
         ControlButton   = Qt::ControlModifier,
@@ -176,7 +176,82 @@ public:
     typedef TextFlag TextFlags;
 #endif
 
-    // Widget flags; documented in qwidget.cpp
+    enum WindowTypeFlag {
+        Widget = 0x00000000,
+        Window = 0x00000001,
+        Dialog = 0x00000003,
+        Sheet = 0x00000005,
+        Drawer = 0x00000007,
+        Popup = 0x00000009,
+        Tool = 0x0000000b,
+        ToolTip = 0x0000000d,
+        SplashScreen = 0x0000000f,
+        Desktop = 0x00000011,
+
+        WindowType_Mask = 0x000000ff,
+        MSWindowsFixedSizeDialogHint = 0x00000100,
+        X11BypassWindowManagerHint = 0x00000200,
+        FramelessWindowHint = 0x00000400,
+        WindowTitleHint = 0x00000800,
+        WindowSystemMenuHint = 0x00001000,
+        WindowMinimizeButtonHint = 0x00002000,
+        WindowMaximizeButtonHint = 0x00004000,
+        WindowMinMaxButtonsHint = WindowMinimizeButtonHint | WindowMaximizeButtonHint ,
+        WindowContextHelpButtonHint = 0x00008000,
+        WindowStaysOnTopHint = 0x00010000
+
+#ifdef QT3_SUPPORT_TBD
+        ,
+        WType_TopLevel = Window,
+        WType_Dialog = Dialog
+        WType_Popup = Popup,
+        WType_Desktop = Desktop,
+        WType_Mask = WIndowType_Mask,
+
+        WStyle_Customize = 0,
+        WStyle_NormalBorder = 0,
+        WStyle_DialogBorder = MSWindowsFixedSizeDialogHint,
+        WStyle_NoBorder = FramelessWindowHint,
+        WStyle_Title = WindowTitleHint,
+        WStyle_SysMenu = WindowSystemMenuHint,
+        WStyle_Minimize = WindowMinimizeButtonHint,
+        WStyle_Maximize = WindowMaximizeButtonHint,
+        WStyle_MinMax = WStyle_Minimize | WStyle_Maximize,
+        WStyle_Tool = Tool,
+        WStyle_StaysOnTop = WindowStaysOnTopHint,
+        WStyle_ContextHelp = WindowContextHelpButtonHint,
+
+        // misc flags
+        WPaintDesktop = 0,
+        WPaintClever = 0,
+        WMouseNoMask            = 0x00200000,
+
+        WX11BypassWM            = X11BypassWindowManagerHint,
+        WWinOwnDC               = 0,
+        WMacSheet               = Sheet,
+        WMacDrawer              = Drawer,
+
+        WGroupLeader            = 0,
+        WShowModal              = 0x04000000,
+
+        WStyle_Splash           = SplashScreen,
+        WStyle_ToolTip          = ToolTip,
+
+        WDestructiveClose      = 0x00010000,
+        WStaticContents        = 0x00400000,
+        WNoAutoErase           = 0,
+        WRepaintNoErase        = 0,
+        WNorthWestGravity      = WStaticContents,
+        WType_Modal            = Dialog | WShowModal,
+        WStyle_Dialog          = Dialog,
+        WStyle_NoBorderEx      = FramelessWindowHint,
+        WResizeNoErase = 0,
+        WMacNoSheet = 0
+#endif
+
+    };
+
+    Q_DECLARE_FLAGS(WindowType, WindowTypeFlag);
 
     // documented in qwidget.cpp
     enum WFlag {
@@ -325,6 +400,8 @@ public:
         WA_WState_DND = 67,
         WA_WState_OwnSizePolicy = 68,
         WA_WState_ExplicitShowHide = 69,
+
+        WA_ShowModal = 70,
 
         // Add new attributes above this!
         WA_AttributeCount
@@ -1187,6 +1264,7 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowType)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas)

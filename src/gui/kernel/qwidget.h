@@ -741,7 +741,7 @@ inline bool QWidget::isEnabled() const
 { return !testAttribute(Qt::WA_Disabled); }
 
 inline bool QWidget::isModal() const
-{ return testWFlags(Qt::WShowModal); }
+{ return testAttribute(Qt::WA_ShowModal); }
 
 inline bool QWidget::isEnabledToTLW() const
 { return isEnabled(); }

@@ -557,7 +557,7 @@ void QProgressDialog::setValue(int progress)
     d->bar->setValue(progress);
 
     if (d->shown_once) {
-        if (testWFlags(Qt::WShowModal))
+        if (testAttribute(Qt::WA_ShowModal))
             qApp->processEvents();
     } else {
         if (progress == 0) {

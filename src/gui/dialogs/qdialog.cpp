@@ -365,8 +365,8 @@ int QDialog::exec()
     bool deleteOnClose = testAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_DeleteOnClose, false);
 
-    bool wasShowModal = testWFlags(Qt::WShowModal);
-    setWFlags(Qt::WShowModal);
+    bool wasShowModal = testAttribute(Qt::WA_ShowModal);
+    setAttribute(Qt::WA_ShowModal, false);
     setResult(0);
 
     show();
@@ -376,8 +376,7 @@ int QDialog::exec()
     (void) eventLoop.exec();
     d->eventLoop = 0;
 
-    if (!wasShowModal)
-        clearWFlags(Qt::WShowModal);
+    setAttribute(Qt::WA_ShowModal, wasShowModal);
 
     int res = result();
     if (deleteOnClose)
@@ -894,10 +893,7 @@ QSize QDialog::minimumSizeHint() const
 
 void QDialog::setModal(bool modal)
 {
-    if (modal)
-        setWFlags(Qt::WShowModal);
-    else
-        clearWFlags(Qt::WShowModal);
+    setAttribute(Qt::WA_ShowModal, modal);
 }
 
 

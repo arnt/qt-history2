@@ -2109,7 +2109,7 @@ static bool qt_blocked_modal(QWidget *widget)
     QWidget *modal=0, *top=qt_modal_stack->first();
 
     widget = widget->topLevelWidget();
-    if (widget->testWFlags(Qt::WShowModal))        // widget is modal
+    if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
         modal = widget;
     if (!top || modal == top)                                // don't block event
         return false;
