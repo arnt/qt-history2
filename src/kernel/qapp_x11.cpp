@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#242 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#241 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#242 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2681,6 +2681,23 @@ void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
 
     XSendEvent( appDpy, scrolled_widget->winId(), FALSE, NoEventMask,
 	(XEvent*)&client_message );
+}
+
+int qt_sip_count( QWidget* scrolled_widget )
+{
+    if ( !sip_list )
+	return 0;
+
+    int sips=0;
+
+    for (QScrollInProgress* sip = sip_list->first();
+	sip; sip=sip_list->next())
+    {
+	if ( sip->scrolled_widget == scrolled_widget )
+	    sips++;
+    }
+
+    return sips;
 }
 
 static

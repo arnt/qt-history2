@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#198 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#197 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#198 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -31,6 +31,7 @@ bool qt_modal_state();				// --- "" ---
 void qt_open_popup( QWidget * );		// --- "" ---
 void qt_close_popup( QWidget * );		// --- "" ---
 void qt_insert_sip( QWidget*, int, int );	// --- "" ---
+int qt_sip_count( QWidget* );			// --- "" ---
 void qt_updated_rootinfo();
 
 
@@ -1405,20 +1406,6 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::scroll( int dx, int dy )
 {
-    scroll( dx, dy, FALSE, FALSE );
-}
-
-/*!
-  This is an extended version of the normal QWidget::scroll().  It allows
-  additional hinting over how the scroll is repainted.  
-  If \a repaint_immediately is TRUE, repaint() is used rather than update().
-  \a erase is passed on the repaint().
-
-  Note that the hints are ignored under Win32, as the repaints are done
-  immediately anyway.
-*/
-void QWidget::scroll( int dx, int dy, bool repaint_immediately, bool erase )
-{
     int x1, y1, x2, y2, w=crect.width(), h=crect.height();
     if ( dx > 0 ) {
 	x1 = 0;
@@ -1458,17 +1445,20 @@ void QWidget::scroll( int dx, int dy, bool repaint_immediately, bool erase )
 	}
     }
 
+    // Don't let the server be bogged-down with repaint events
+    bool repaint_immediately = qt_sip_count( this ) < 3;
+
     if ( dx ) {
 	x1 = x2 == 0 ? w : 0;
 	if ( repaint_immediately )
-	    repaint( x1, 0, crect.width()-w, crect.height(), erase );
+	    repaint( x1, 0, crect.width()-w, crect.height(), TRUE );
 	else
 	    XClearArea( dpy, winid, x1, 0, crect.width()-w, crect.height(), TRUE);
     }
     if ( dy ) {
 	y1 = y2 == 0 ? h : 0;
 	if ( repaint_immediately )
-	    repaint( 0, y1, crect.width(), crect.height()-h, erase );
+	    repaint( 0, y1, crect.width(), crect.height()-h, TRUE );
 	else
 	    XClearArea( dpy, winid, 0, y1, crect.width(), crect.height()-h, TRUE);
     }

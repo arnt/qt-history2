@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#79 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#79 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -823,11 +823,6 @@ void QWidget::erase( int x, int y, int w, int h )
 void QWidget::scroll( int dx, int dy )
 {
     ScrollWindow( winId(), dx, dy, 0, 0 );
-}
-
-void QWidget::scroll( int dx, int dy, bool, bool )
-{
-    scroll(dx,dy);
 }
 
 
