@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#4 $
 **
 ** Implementation of QPainter class
 **
@@ -19,9 +19,10 @@
 #include "qpntarry.h"
 #include "qwxfmat.h"
 #include "qstack.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#4 $";
 #endif
 
 
@@ -63,22 +64,31 @@ struct QPState {				// painter state
 };
 
 declare(QStackM,QPState);
-static QStackM(QPState) *ps_stack = 0;		// painter state stack
-// NOTE!!! Must be local to each painter!!!
+typedef QStackM(QPState) QPStateStack;
 
-void QPainter::save()
+void QPainter::killPStack()
 {
-    if ( ps_stack == 0 ) {
-	ps_stack = new QStackM(QPState);
-	ps_stack->setAutoDelete( TRUE );
-	CHECK_PTR( ps_stack );			// NOTE !!! Add delete callback
+    delete (QPStateStack *)ps_stack;
+}
+
+void QPainter::save()				// save/push painter state
+{
+    if ( testf(ExtDev) ) {
+	pdev->cmd( PDC_SAVE, 0 );
+	return;
+    }
+    QPStateStack *pss = (QPStateStack *)ps_stack;
+    if ( pss == 0 ) {
+	pss = new QStackM(QPState);
+	pss->setAutoDelete( TRUE );
+	CHECK_PTR( pss );
+	ps_stack = pss;
     }
     register QPState *ps = new QPState;
     CHECK_PTR( ps );
-    /* HERE: Store data in stack object */
-//    ps->font  = cfont.copy();
-//    ps->pen   = cpen.copy();
-//    ps->brush = cbrush.copy();
+    ps->font  = cfont.copy();
+    ps->pen   = cpen.copy();
+    ps->brush = cbrush.copy();
     ps->bgc = bg_col;
     ps->bgm = bg_mode;
     ps->rop = rop;
@@ -89,35 +99,35 @@ void QPainter::save()
     ps->wm  = *wxfmat;
     ps->vxf = testf(VxF);
     ps->wxf = testf(WxF);
-//    ps->rgn = crgn.copy();
+    ps->rgn = crgn.copy();
     ps->clip= testf(ClipOn);
-    ps_stack->push( ps );
+    pss->push( ps );
 }
 
-void QPainter::restore()
+void QPainter::restore()			// restore/pop painter state
 {
-    if ( ps_stack == 0 || ps_stack->isEmpty() )
+    if ( testf(ExtDev) ) {
+	pdev->cmd( PDC_RESTORE, 0 );
 	return;
-    register QPState *ps = ps_stack->top();
-    bool eq = TRUE;
-/*
+    }
+    QPStateStack *pss = (QPStateStack *)ps_stack;
+    if ( pss == 0 || pss->isEmpty() )
+	return;
+    register QPState *ps = pss->top();
     if ( ps->font != cfont )
 	setFont( ps->font );
     if ( ps->pen != cpen )
 	setPen( ps->pen );
     if ( ps->brush != cbrush )
-	setFont( ps->brush );
-*/
-//    if ( ps->bgc != bg_col )
-//	setBackgroundColor( ps->bgc );
+	setBrush( ps->brush );
+    if ( ps->bgc != bg_col )
+	setBackgroundColor( ps->bgc );
     if ( ps->bgm != bg_mode )
 	setBackgroundMode( ps->bgm );
     if ( ps->rop != rop )
 	setRasterOp( ps->rop );
-/*
     if ( ps->pu != pu )
-	setUnit( pu );
-*/
+	pu = ps->pu;
     QRect sr( sx, sy, sw, sh );
     QRect tr( tx, ty, tw, th );
     if ( ps->sr != sr )
@@ -130,13 +140,11 @@ void QPainter::restore()
 	setViewXForm( ps->vxf );
     if ( ps->wxf != testf(WxF) )
 	setWorldXForm( ps->wxf );
-/*
     if ( ps->rgn != crgn )
-	setRegion( ps->rgn );
-*/
+	setClipRegion( ps->rgn );
     if ( ps->clip != testf(ClipOn) )
 	setClipping( ps->clip );
-    ps_stack->pop();
+    pss->pop();
 }
 
 
@@ -176,32 +184,17 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
     QPen newPen( tColor );
     setPen( newPen );
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
-    QPointArray a( 8 );
-    a.setPoint( 0, x1, y1 );			// top lines
-    a.setPoint( 1, x2, y1 );
-    a.setPoint( 2, x1, y1+1 );
-    a.setPoint( 3, x1, y2 );
-    a.setPoint( 4, x1+2, y2-1 );
-    a.setPoint( 5, x2-1, y2-1 );
-    a.setPoint( 6, x2-1, y1+2 );
-    a.setPoint( 7, x2-1, y2-2 );
-    drawLineSegments( a );
+    QPointArray a;
+    a.setPoints( 8, x1,y1, x2,y1, x1,y1+1, x1,y2, x1+2,y2-1, x2-1,y2-1,
+		    x2-1,y1+2,  x2-1,y2-2 );
+    drawLineSegments( a );			// draw top lines
     cpen.setColor( bColor );
-    a.setPoint( 0, x1+1, y1+1 );		// bottom lines
-    a.setPoint( 1, x2, y1+1 );
-    a.setPoint( 2, x1+1, y1+2 );
-    a.setPoint( 3, x1+1, y2-1 );
-    a.setPoint( 4, x1+1, y2 );
-    a.setPoint( 5, x2, y2 );
-    a.setPoint( 6, x2, y1+2 );
-    a.setPoint( 7, x2, y2-1 );
-    drawLineSegments( a );
-    if ( fill && w > 4 && h > 4 ) {		// fill with background color
-	QBrush oldBrush = brush();
-	setBrush( QBrush(backgroundColor()) );
+    a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1, x1+1,y2, x2,y2,
+		 x2,y1+2, x2,y2-1 );
+    drawLineSegments( a );			// draw bottom lines
+    if ( fill && w > 4 && h > 4 ) {		// fill with current brush
 	cpen.setStyle( NoPen );
 	drawRect( x+2, y+2, w-4, h-4 );
-	setBrush( oldBrush );
     }
     setPen( oldPen );				// restore pen
 }
@@ -257,11 +250,8 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
     }
     drawLineSegments( a );
     if ( fill ) {				// fill with background color
-	QBrush oldBrush = brush();
-	setBrush( QBrush(backgroundColor()) );
 	cpen.setStyle( NoPen );
 	drawRect( x+tWidth, y+tWidth, w-sumWidth, h-sumWidth );
-	setBrush( oldBrush );
     }
     setPen( oldPen );				// restore pen
 }
@@ -399,4 +389,49 @@ void QPainter::drawText( const QRect &r, TextAlignment ta, const char *str,
 void QPainter::setBrushOrigin( const QPoint &p )
 {
     setBrushOrigin( p.x(), p.y() );
+}
+
+
+// --------------------------------------------------------------------------
+// QPen stream functions
+//
+
+QDataStream &operator<<( QDataStream &s, const QPen &p )
+{
+    return s << (UINT8)p.style() << (UINT8)p.width() << p.color();
+}
+
+QDataStream &operator>>( QDataStream &s, QPen &p )
+{
+    UINT8 style, width;
+    QColor color;
+    s >> style;
+    s >> width;
+    s >> color;
+    p = QPen( color, (uint)width, (PenStyle)style );
+    return s;
+}
+
+
+// --------------------------------------------------------------------------
+// QBrush stream functions
+//
+
+QDataStream &operator<<( QDataStream &s, const QBrush &b )
+{
+    return s << (UINT8)b.style() << b.color();
+}
+
+QDataStream &operator>>( QDataStream &s, QBrush &b )
+{
+    UINT8 style;
+    QColor color;
+    s >> style;
+    s >> color;
+#if defined(DEBUG)
+    if ( style == CustomPattern )
+	warning( "QBrush: Cannot read bitmap brush from data stream" );
+#endif
+    b = QBrush( color, (BrushStyle)style );
+    return s;
 }
