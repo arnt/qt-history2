@@ -41,6 +41,7 @@
 #include "qdatetime.h"
 #include "qdir.h"
 #include "qfiledefs_p.h"
+#include "qdeepcopy.h"
 #if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
 #include <limits.h>
 #endif
@@ -656,6 +657,20 @@ QString QFileInfo::absFilePath() const
     tmp += fn;
     makeAbs( tmp );
     return QDir::cleanDirPath( tmp );
+}
+
+/*! \internal
+    Detaches all internal data.
+*/
+void QFileInfo::detach()
+{
+    fn = QDeepCopy<QString>( fn );
+    if ( fic ) {
+	QFileInfoCache *cur = fic;
+	fic = new QFileInfoCache;
+	*fic = *cur;
+	delete cur;
+    }
 }
 
 #endif

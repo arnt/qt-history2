@@ -47,6 +47,7 @@
 #ifndef QT_NO_STRINGLIST
 
 class QRegExp;
+template <class T> class QDeepCopy;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -86,6 +87,10 @@ public:
 #ifndef QT_NO_REGEXP
     QStringList& gres( const QRegExp &expr, const QString &after );
 #endif
+
+protected:
+    void detach() { QValueList<QString>::detach(); }
+    friend class QDeepCopy< QStringList >;
 };
 
 #ifndef QT_NO_DATASTREAM

@@ -43,6 +43,7 @@
 #include "qfileinfo.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "qdeepcopy.h"
 
 #if defined(Q_FS_FAT) && !defined(Q_OS_UNIX)
 const bool CaseSensitiveFS = FALSE;
@@ -1349,5 +1350,24 @@ int qt_cmp_si( const void *n1, const void *n2 )
 #if defined(Q_C_CALLBACKS)
 }
 #endif
+
+/*! \internal
+    Detaches all internal data.
+*/
+void QDir::detach()
+{
+    // deepcopy
+    dPath = QDeepCopy<QString>(dPath);
+    nameFilt = QDeepCopy<QString>(nameFilt);
+
+    if ( fList )
+	*fList = QDeepCopy<QStringList>( *fList );
+
+    if ( fiList ) {
+	QFileInfoList *newlist = new QFileInfoList( *fiList );
+	delete fiList;
+	fiList = newlist;
+    }
+}
 
 #endif // QT_NO_DIR

@@ -46,6 +46,7 @@
 
 class QDir;
 struct QFileInfoCache;
+template <class T> class QDeepCopy;
 
 
 class Q_EXPORT QFileInfo
@@ -138,6 +139,8 @@ private:
     bool        symLink;
 #endif
 
+    void detach();
+    friend class QDeepCopy< QFileInfo >;
 };
 
 
