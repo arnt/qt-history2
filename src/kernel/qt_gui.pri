@@ -148,6 +148,7 @@ kernel {
 			  $$KERNEL_CPP/qpixmap_mac.cpp \
 			  $$KERNEL_CPP/qprinter_mac.cpp \
 			  $$KERNEL_CPP/qpaintdevice_mac.cpp \
+			  $$KERNEL_CPP/qgc_mac.cpp \
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qguieventloop_mac.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp \
@@ -247,7 +248,7 @@ kernel {
 }
 
 oldpainter {
-	DEFINES += Q_Q3PAINTER
+    DEFINES += Q_Q3PAINTER
     #add
     HEADERS += $$KERNEL_H/q3painter.h $$KERNEL_P/q3painter_p.h
     SOURCES += $$KERNEL_CPP/q3painter.cpp
