@@ -146,6 +146,7 @@ public:
     QObjectList *previewProject();
 
     Project *emptyProject();
+    void formNameChanged( FormWindow *fw );
 
 public slots:
     void showProperties( QObject *w );

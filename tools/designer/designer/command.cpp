@@ -504,6 +504,9 @@ bool SetPropertyCommand::checkProperty()
 	    setProperty( oldValue, oldCurrentItemText, FALSE );
 	    return FALSE;
 	}
+	
+	if ( widget->parent() && widget->parent()->inherits( "FormWindow" ) )
+	    formWindow()->mainWindow()->formNameChanged( (FormWindow*)( (QWidget*)widget )->parentWidget() );
     }
     return TRUE;
 }

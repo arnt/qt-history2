@@ -4724,5 +4724,15 @@ QWidget *MainWindow::findRealForm( QWidget *wid )
     return 0;
 }
 
+void MainWindow::formNameChanged( FormWindow *fw )
+{
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->form() == fw ) {
+	    e->refresh();
+	    break;
+	}
+    }
+}
+
 #include "mainwindow.moc"
 
