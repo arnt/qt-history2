@@ -663,6 +663,23 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
         triggerAction(action);
 }
 
+/*!
+    \reimp
+*/
+void QAbstractSlider::changeEvent(QEvent *ev)
+{
+    switch (ev->type()) {
+    case QEvent::EnabledChange:
+        if (!isEnabled()) {
+            d->repeatActionTimer.stop();
+            setSliderDown(false);
+        }
+        // fall through...
+    default:
+        QWidget::changeEvent(ev);
+    }
+}
+
 /*! \fn int QAbstractSlider::minValue() const
 
     Use minimum() instead.
