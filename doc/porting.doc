@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.44 1999/04/28 09:54:02 aavit Exp $
+** $Id: porting.doc,v 1.45 1999/04/29 19:20:06 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -479,9 +479,10 @@ other reasons, sprintf is still a poor choice - eg. it doesn't pass Unicode).
 The only remaining common case is conversion of 0 (NULL) to QString, which
 would usually give expected results in Qt 1.x.  For Qt 2.0 the correct
 syntax is to use QString::null, though this is rarely required since
-the default constructor, QString(), creates a null string. You will
-need to change "const QString& param = 0" default constructors and
-"return 0" in functions returning a QString.
+the default constructor, QString(), creates a null string.  Also, QString(0)
+will be interpretted as QString((const char*)0), which will also create
+a null string.
+
 <p>
 Also see <a href=#QStrList>QStrList</a>.
 
