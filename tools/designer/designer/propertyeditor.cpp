@@ -17,7 +17,7 @@
 ** not clear to you.
 **
 **********************************************************************/
-
+#include <iostream.h>
 #include <qvariant.h> // HP-UX compiler needs this here
 
 #include "propertyeditor.h"
@@ -65,6 +65,7 @@
 #include <qaccel.h>
 #include <qworkspace.h>
 #include <qtimer.h>
+#include <qdragobject.h>
 
 #ifndef QT_NO_SQL
 #include <qdatetimeedit.h>
@@ -2212,6 +2213,7 @@ PropertyList::PropertyList( PropertyEditor *e )
     header()->setMovingEnabled( FALSE );
     header()->setFullSize( TRUE );
     setResizePolicy( QScrollView::Manual );
+    viewport()->setAcceptDrops(true);
     addColumn( tr( "Property" ) );
     addColumn( tr( "Value" ) );
     connect( header(), SIGNAL( sizeChange( int, int, int ) ),
@@ -2799,6 +2801,66 @@ void PropertyList::resetProperty()
     editor->formWindow()->commandHistory()->addCommand( cmd, FALSE );
     if ( i->hasSubItems() )
 	i->initChildren();
+}
+
+void PropertyList::viewportDragEnterEvent( QDragEnterEvent *e )
+{
+    PropertyListItem *i = (PropertyListItem*) itemAt( e->pos() );
+    if( !i ) {
+	e->ignore();
+	return;
+    }
+
+    if ( i->inherits("PropertyColorItem") && QColorDrag::canDecode( e ) )
+	e->accept();
+    else if ( i->inherits("PropertyPixmapItem") && QImageDrag::canDecode( e ) )
+	e->accept();
+    else
+	e->ignore();
+}
+
+void PropertyList::viewportDragMoveEvent ( QDragMoveEvent *e )
+{
+    PropertyListItem *i = (PropertyListItem*) itemAt( e->pos() );
+    if( !i ) {
+	e->ignore();
+	return;
+    }
+
+    if ( i->inherits("PropertyColorItem") && QColorDrag::canDecode( e ) )
+	e->accept();
+    else if ( i->inherits("PropertyPixmapItem") && QImageDrag::canDecode( e ) )
+	e->accept();
+    else
+	e->ignore();
+}
+
+void PropertyList::viewportDropEvent ( QDropEvent *e )
+{
+    PropertyListItem *i = (PropertyListItem*) itemAt( e->pos() );
+    if( !i ) {
+	e->ignore();
+	return;
+    }
+
+    if ( i->inherits("PropertyColorItem") && QColorDrag::canDecode( e ) ) {
+	QColor color;
+	QColorDrag::decode( e, color );
+	i->setValue( QVariant( color ) );
+	valueChanged( i );
+	e->accept();
+    }
+    else if ( i->inherits("PropertyPixmapItem")  && QImageDrag::canDecode( e ) ) {
+	QImage img;
+	QImageDrag::decode( e, img );
+	QPixmap pm;
+	pm.convertFromImage( img );
+	i->setValue( QVariant( pm ) );
+	valueChanged( i );
+	e->accept();
+    }
+    else
+	e->ignore();
 }
 
 // ------------------------------------------------------------

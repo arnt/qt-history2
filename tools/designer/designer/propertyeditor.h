@@ -498,6 +498,10 @@ protected:
     void paintEmptyArea( QPainter *p, const QRect &r );
     bool addPropertyItem( PropertyItem *&item, const QCString &name, QVariant::Type t );
 
+    void viewportDragEnterEvent( QDragEnterEvent * );
+    void viewportDragMoveEvent ( QDragMoveEvent * );
+    void viewportDropEvent ( QDropEvent * );
+
 protected:
     PropertyEditor *editor;
 
