@@ -32,12 +32,12 @@ public:
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextFormatCollectionState &state)
 {
-    stream << state.formats << state.groups; return stream;
+    return stream << state.formats << state.groups;
 }
 
 inline QDataStream &operator>>(QDataStream &stream, QTextFormatCollectionState &state)
 {
-    stream >> state.formats >> state.groups; return stream;
+    return stream >> state.formats >> state.groups;
 }
 
 class QTextDocumentFragmentPrivate

@@ -369,14 +369,12 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
 QDataStream &operator<<(QDataStream &stream, const QTextFormat &format)
 {
-    stream << format.d->type << format.d->properties;
-    return stream;
+    return stream << format.d->type << format.d->properties;
 }
 
 QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 {
-    stream >> format.d->type >> format.d->properties;
-    return stream;
+    return stream >> format.d->type >> format.d->properties;
 }
 
 /*!
