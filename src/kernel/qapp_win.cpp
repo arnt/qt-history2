@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#140 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#139 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#140 $");
 
 
 /*****************************************************************************
@@ -1478,7 +1478,6 @@ struct TimerInfo {				// internal timer info
 typedef Q_DECLARE(QVectorM,TimerInfo)  TimerVec; // vector of TimerInfo structs
 typedef Q_DECLARE(QIntDictM,TimerInfo) TimerDict;// fast dict of timers
 
-static const int MaxTimers  = 256;		// max number of timers
 static TimerVec *timerVec   = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
@@ -1543,7 +1542,7 @@ static void activateZeroTimers()		// activate full-speed timers
 	    t = timerVec->at(i++);
 	    if ( t && t->zero )
 		break;
-	    else if ( i == MaxTimers )		// should not happen
+	    else if ( i == timerVec->size() )		// should not happen
 		return;
 	}
 	QTimerEvent e( t->ind + 1 );
@@ -1558,7 +1557,7 @@ static void activateZeroTimers()		// activate full-speed timers
 
 static void initTimers()			// initialize timers
 {
-    timerVec = new TimerVec( MaxTimers );
+    timerVec = new TimerVec( 128 );
     CHECK_PTR( timerVec );
     timerVec->setAutoDelete( TRUE );
     timerDict = new TimerDict( 29 );
@@ -1570,7 +1569,7 @@ static void cleanupTimers()			// remove pending timers
     register TimerInfo *t;
     if ( !timerVec )				// no timers were used
 	return;
-    for ( int i=0; i<MaxTimers; i++ ) {		// kill all pending timers
+    for ( int i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
 	t = timerVec->at( i );
 	if ( t && !t->zero )
 	    KillTimer( 0, t->id );
@@ -1601,8 +1600,10 @@ int qStartTimer( int interval, QObject *obj )
     if ( !timerVec )				// initialize timer data
 	initTimers();
     int ind = timerVec->findRef( 0 );		// get free timer
-    if ( ind == -1 || !obj )			// cannot create timer
-	return 0;
+    if ( ind == -1 || !obj ) {
+	int = timerVec->size();			// increase the size
+	timerVec->resize( ind * 4 );
+    }
     t = new TimerInfo;				// create timer entry
     CHECK_PTR( t );
     t->ind  = ind;
@@ -1615,7 +1616,7 @@ int qStartTimer( int interval, QObject *obj )
     } else {
 	t->zero = interval == 0;
 	if ( t->zero ) {			// add zero timer
-	    t->id = (uint)50000 + ind;		// unique, high id
+	    t->id = (uint)50000 + ind;		// unique, high id ##########
 	    numZeroTimers++;
 	} else {
 	    t->id = SetTimer( 0, 0, (uint)interval, 0 );
@@ -1635,7 +1636,7 @@ int qStartTimer( int interval, QObject *obj )
 
 bool qKillTimer( int ind )
 {
-    if ( !timerVec || ind <= 0 || ind > MaxTimers )
+    if ( !timerVec || ind <= 0 || ind > timerVec->size() )
 	return FALSE;
     register TimerInfo *t = timerVec->at(ind-1);
     if ( !t )
@@ -1654,7 +1655,7 @@ bool qKillTimer( QObject *obj )
     if ( !timerVec )
 	return FALSE;
     register TimerInfo *t;
-    for ( int i=0; i<MaxTimers; i++ ) {
+    for ( int i=0; i<timerVec->size(); i++ ) {
 	t = timerVec->at( i );
 	if ( t && t->obj == obj ) {		// object found
 	    if ( t->zero )
