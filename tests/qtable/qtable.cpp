@@ -461,7 +461,7 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 void QTable::init( int rows, int cols )
 {
     mousePressed = FALSE;
-    
+
     contents.setAutoDelete( TRUE );
     widgets.setAutoDelete( TRUE );
 
@@ -1078,7 +1078,7 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 	if ( !currentSelection ) {
 	    currentSelection = new SelectionRange();
 	    selections.append( currentSelection );
-	    currentSelection->init( curRow, curCol );
+	    currentSelection->init( this->curRow, this->curCol );
 	}
 	SelectionRange oldSelection = *currentSelection;
 	currentSelection->expandTo( curRow, curCol );
@@ -1160,7 +1160,7 @@ void QTable::doAutoScroll()
     if ( curCol == this->curCol )
 	curCol = columnAt( pos.x() );
     pos -= QPoint( contentsX(), contentsY() );
-    
+
     fixRow( curRow, pos.y() );
     fixCol( curCol, pos.x() );
 
