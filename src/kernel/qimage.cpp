@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#197 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#198 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1080,7 +1080,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		m = mask.scanLine(y);
 		b = dst->scanLine(y);
 		int w = src->width();
-		for (int x = 0; x<w; x++) {
+		for ( x = 0; x<w; x++ ) {
 		    if ( !(*m&bit) )
 			b[x] = trans;
 		    if (!(bit >>= 1)) {

@@ -54,7 +54,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
 	spacerCount -= 1; //only spacers between things
     if ( space < cMin + spacerCount*spacer ) {
 	//	debug("not enough space");
-	for ( int i = 0; i < count; i++ ) {
+	for ( i = 0; i < count; i++ ) {
 	    chain[i].size = chain[i].minimumSize;
 	    chain[i].done = TRUE;
 	}
