@@ -2204,21 +2204,11 @@ void QComboBox::setLineEdit( QLineEdit *edit )
     }
 
     edit->setText( currentText() );
-    if ( d->ed ) {
-	int start = 0, end = 0;
-	d->ed->getSelection( &start, &end );
-	edit->setSelection( start, end );
-	edit->setCursorPosition( d->ed->cursorPosition() );
-	edit->setEdited( d->ed->edited() );
-	delete d->ed;
-    }
-
+    delete d->ed;
     d->ed = edit;
 
-    if ( edit->parent() != this ) {
+    if ( edit->parent() != this )
 	edit->reparent( this, QPoint(0,0), FALSE );
-	edit->setFont( font() );
-    }
 
     connect (edit, SIGNAL( textChanged( const QString& ) ),
 	     this, SIGNAL( textChanged( const QString& ) ) );
