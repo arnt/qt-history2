@@ -216,19 +216,13 @@
   returns TRUE when successful, otherwise returns FALSE. The \a filepath is
   the absolute path to the shared library file.
 
+  Implementations of this function should use the \link QComponentFactory::registerComponent()
+  static functions \endlink in QComponentFactory
+
   Example:
   \code
-  QSettings register;
-  bool ok;
-
-  register.insertSearchPath( QSettings::Windows, "/Classes" );
-  ok = register.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default", "Test Component" );
-  ok = register.writeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default", filepath ) && ok;
-
-  return ok;
+  return QComponentFactory::registerComponent( QUuid(DD19964B-A2C8-42AE-AAF9-8ADC509BCA03), filepath, "Test Component" );
   \endcode
-
-  See \l QSettings.
 */
 
 /*!
@@ -237,18 +231,12 @@
   Removes the component in this server from the system registry and returns
   TRUE if successful, otherwise returns FALSE.
 
+  Implementations of this function should use the \link QComponentFactory::registerComponent()
+  static functions \endlink in QComponentFactory
+
   \code
-  QSettings settings;
-  bool ok;
-
-  settings.insertSearchPath( QSettings::Windows, "/Classes" );
-  ok = settings.removeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/InprocServer32/Default" );
-  ok = settings.removeEntry( "/CLSID/{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}/Default" ) && ok;
-
-  return ok;
+  return QComponentFactory::unregisterComponent( QUuid(DD19964B-A2C8-42AE-AAF9-8ADC509BCA03) );
   \endcode
-
-  See \l QSettings.
 */
 
 #endif // QT_NO_COMPONENT
