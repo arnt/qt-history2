@@ -66,6 +66,7 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
     Q_PROPERTY( QString whatsThis READ whatsThis WRITE setWhatsThis )
     Q_PROPERTY( QKeySequence accel READ accel WRITE setAccel )
+    Q_PROPERTY( bool statusTipDelay READ statusTipDelay WRITE setStatusTipDelay )
 
 public:
     QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );
@@ -90,13 +91,14 @@ public:
     virtual void setAccel( const QKeySequence& key );
     QKeySequence accel() const;
     virtual void setToggleAction( bool );
-    
+
     bool isToggleAction() const;
     bool isOn() const;
     bool isEnabled() const;
     virtual bool addTo( QWidget* );
     virtual bool removeFrom( QWidget* );
-    static void setStatusTipDelay( bool delay );
+    void setStatusTipDelay( bool delay );
+    bool statusTipDelay() const;
 
 protected:
     virtual void addedTo( QWidget *actionWidget, QWidget *container );
