@@ -2,7 +2,7 @@
 
 class GeneratorDlgImpl : public GeneratorDlg
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     GeneratorDlgImpl( const QString &dest, QWidget* pParent = NULL, const char* pName = NULL, WFlags f = 0 );
 
