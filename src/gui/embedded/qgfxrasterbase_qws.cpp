@@ -233,7 +233,7 @@ void QGfxRasterBase::setBrush(const QBrush &b)
 
     int brush_style = cbrush.style();
     if (brush_style >= Qt::Dense1Pattern && brush_style <= Qt::DiagCrossPattern) {
-        cbrushpixmap = qt_pixmapForBrush(brush_style, false);
+        cbrushpixmap = qt_pixmapForBrush(brush_style, true);
     } else {
         cbrushpixmap = cbrush.texture();
     }
