@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#39 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#40 $
 **
 ** Definition of QColor class
 **
@@ -99,8 +99,9 @@ public:
 
 private:
     void   setSystemNamedColor( const char *name );
-    static void initglobals();
-    static bool ginit;
+    static void initGlobalColors();
+    static bool color_init;
+    static bool globals_init;
     static bool lalloc;
 #if defined(_WS_WIN_)
     static HANDLE hpal;
@@ -137,6 +138,9 @@ inline int QColor::blue() const
 inline uint QColor::pixel() const
 { return (rgbVal & RGB_DIRTY) == 0 ? pix : ((QColor*)this)->alloc(); }
 
+inline bool QColor::lazyAlloc()
+{ return lalloc; }
+
 
 inline bool QColor::operator==( const QColor &c ) const
 {
@@ -151,9 +155,6 @@ inline bool QColor::operator!=( const QColor &c ) const
 		rgbVal != c.rgbVal :
 		rgbVal != c.rgbVal || pix != c.pix;
 }
-
-inline bool QColor::lazyAlloc()
-{ return lalloc; }
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#41 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#41 $");
 
 
 /*****************************************************************************
@@ -30,7 +30,6 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#40 $");
 
 HANDLE QColor::hpal = 0;			// application global palette
 
-static bool color_init = FALSE;
 static int  current_alloc_context = 0;
 
 
@@ -183,36 +182,21 @@ uint QColor::realizePal( QWidget *widget )
   QColor member functions
  *****************************************************************************/
 
-QColor::QColor( QRgb rgb, uint pixel )
-{
-    if ( pixel == 0xffffffff ) {
-	setRgb( rgb );
-    } else {
-	rgbVal = rgb;
-	pix    = pixel;
-    }
-    rgbVal |= RGB_DIRECT;
-}
-
-
 uint QColor::alloc()
 {
     if ( (rgbVal & RGB_INVALID) || !color_init ) {
-	rgbVal = qRgb( 0, 0, 0 );		// invalid color or state
+	rgbVal = 0;				// invalid color or state
 	pix = 0;
     } else {
 	rgbVal &= RGB_MASK;
-	if ( hpal )
-	    pix = PALETTEINDEX( GetNearestPaletteIndex(hpal,rgbVal) );
-	else
-	    pix = rgbVal;
+	pix = hpal ? PALETTEINDEX(GetNearestPaletteIndex(hpal,rgbVal)) :rgbVal;
     }
     return pix;
 }
 
 
 /****************************************************************************
-** Color lookup based on a name.  The color names have been borrowed from X
+** Color lookup based on a name.  The color names have been borrowed from X.
 *****************************************************************************/
 
 #if !defined(NO_COLORNAMES)
@@ -912,27 +896,15 @@ static uint get_rgb_val( const char * )
 
 void QColor::setSystemNamedColor( const char *name )
 {
-    rgbVal = get_rgb_val( name );
-    if ( rgbVal == RGB_INVALID ) {
-	pix = 0;
-    } else {
-	if ( lalloc ) {
-	    rgbVal |= RGB_DIRTY;		// alloc later
-	    pix = 0;
-	} else {
-	    alloc();				// alloc now
-	}
-    }
-}
-
-
-void QColor::setRgb( int r, int g, int b )
-{
-#if defined(CHECK_RANGE)
-    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
-	warning( "QColor::setRgb: RGB parameter(s) out of range" );
+    if ( !color_init ) {
+#if defined(CHECK_STATE)
+	warning( "QColor::setSystemNamedColor: Cannot perform this operation "
+		 "because QApplication does not exist" );
 #endif
-    rgbVal = qRgb(r,g,b);
+	alloc();				// makes the color black
+	return;
+    }
+    rgbVal = get_rgb_val( name );
     if ( lalloc ) {
 	rgbVal |= RGB_DIRTY;			// alloc later
 	pix = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#67 $
 **
 ** Implementation of QColor class
 **
@@ -12,8 +12,9 @@
 #include "qcolor.h"
 #include "qdstream.h"
 #include <stdlib.h>
+#include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#67 $");
 
 
 /*!
@@ -97,8 +98,13 @@ const QColor darkYellow ( 128, 128,   0 );
   QColor member functions
  *****************************************************************************/
 
-bool QColor::ginit  = FALSE;			// global color not init'ed
+bool QColor::color_init   = FALSE;		// color system not initialized
+bool QColor::globals_init = FALSE;		// global color not initialized
 bool QColor::lalloc = TRUE;			// lazy color allocation
+
+#if QT_VERSION == 200
+#error "Rename lalloc to lazy_alloc"
+#endif
 
 /*!
   Initializes the global colors.  This function is called if a global
@@ -116,9 +122,9 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
   \endcode
 */
 
-void QColor::initglobals()
+void QColor::initGlobalColors()
 {
-    ginit = TRUE;
+    globals_init = TRUE;
     ((QColor*)(&::color0))->pix = COLOR0_PIX;
     ((QColor*)(&::color1))->pix = COLOR1_PIX;
     ((QColor*)(&::color0))->rgbVal = 0x00ffffff;
@@ -152,26 +158,46 @@ void QColor::initglobals()
   \sa isValid()
 */
 
+
 /*!
   \fn QColor::QColor( int r, int g, int b )
 
-  Constructs a color with the RGB value (r,g,b).
-
-  \e r, \e g and \e b must be in the range 0..255.
+  Constructs a color with the RGB value \a (r,g,b).
+  \a r, \a g and \a b must be in the range 0..255.
 
   \sa setRgb()
 */
 
-/*!
-  Constructs a color with the RGB \e or HSV value \e (x,y,z).
 
-  The \e (x,y,z) triplet defines an RGB value if \e colorSpec == \c
-  QColor::Rgb.	\e x (red), \e y (green) and \e z (blue) must be in the
+/*!
+  Constructs a color with a RGB value and a custom pixel value.
+
+  If the \a pixel = 0xffffffff, then the color uses the RGB value in a
+  standard way.	 If \a pixel is something else, then the pixel value will
+  be set directly to \a pixel (skips the normal allocation procedure).
+*/
+
+QColor::QColor( QRgb rgb, uint pixel )
+{
+    if ( pixel == 0xffffffff ) {
+	setRgb( rgb );
+    } else {
+	rgbVal = rgb | RGB_DIRECT;
+	pix    = pixel;
+    }
+}
+
+
+/*!
+  Constructs a color with the RGB \e or HSV value \a (x,y,z).
+
+  The \e (x,y,z) triplet defines an RGB value if \a colorSpec == \c
+  QColor::Rgb.	\a x (red), \a y (green) and \a z (blue) must be in the
   range 0..255.
 
-  The \e (x,y,z) triplet defines a HSV value if \e colorSpec == \c
-  QColor::Hsv.	\e x (hue) must be in the range -1..360 (-1 means
-  achromatic), and \e y (saturation) and \e z (value) must be in the range
+  The \a (x,y,z) triplet defines a HSV value if \a colorSpec == \c
+  QColor::Hsv.	\a x (hue) must be in the range -1..360 (-1 means
+  achromatic), and \a y (saturation) and \a z (value) must be in the range
   0..255.
 
   \sa setRgb(), setHsv()
@@ -185,6 +211,7 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
 	setRgb( x, y, z );
 }
 
+
 /*!
   Constructs a named color, i.e. loads the color from the color database.
   \sa setNamedColor()
@@ -195,16 +222,30 @@ QColor::QColor( const char *name )
     setNamedColor( name );
 }
 
+
 /*!
-  Constructs a color that is a copy of \e c.
+  Constructs a color that is a copy of \a c.
 */
 
 QColor::QColor( const QColor &c )
 {
-    if ( !ginit )
-	initglobals();
+    if ( !globals_init )
+	initGlobalColors();
     rgbVal = c.rgbVal;
     pix	   = c.pix;
+}
+
+
+inline static int hex2int( char hexchar )
+{
+    int v;
+    if ( isdigit(hexchar) )
+	v = hexchar - '0';
+    else if ( isalpha(hexchar) )
+	v = toupper(hexchar) - 'A' + 10;
+    else
+	v = 0;
+    return v;
 }
 
 
@@ -221,15 +262,23 @@ QColor::QColor( const QColor &c )
 
 void QColor::setNamedColor( const char *name )
 {
-    if ( strlen(name) == 0 ) {
-	setRgb( 0, 0, 0 );
-    } else if ( name[0]=='#' ) {
-	QString hex = name+1;
-	int bpc = (strlen(name)-1)/3;
-	int i=0;
-	int r = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc)); i+=bpc;
-	int g = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc)); i+=bpc;
-	int b = strtol(hex.mid(i,bpc),0,16)*256/(1<<(4*bpc));
+    if ( name == 0 || *name == '\0' ) {
+	setRgb( 0 );
+    } else if ( name[0] == '#' ) {
+	const char *p = &name[1];
+	int len = strlen(p);
+	int r, g, b;
+	if ( len == 6 ) {
+	    r = (hex2int(p[0]) << 4) + hex2int(p[1]);
+	    g = (hex2int(p[2]) << 4) + hex2int(p[3]);
+	    b = (hex2int(p[4]) << 4) + hex2int(p[5]);
+	} else if ( len == 3 ) {
+	    r = hex2int(p[0]);
+	    g = hex2int(p[1]);
+	    b = hex2int(p[2]);
+	} else {
+	    r = g = b = 0;
+	}
 	setRgb( r, g, b );
     } else {
 	setSystemNamedColor( name );
@@ -243,8 +292,8 @@ void QColor::setNamedColor( const char *name )
 
 QColor &QColor::operator=( const QColor &c )
 {
-    if ( !ginit )
-	initglobals();
+    if ( !globals_init )
+	initGlobalColors();
     rgbVal = c.rgbVal;
     pix	   = c.pix;
     return *this;
@@ -329,6 +378,7 @@ void QColor::hsv( int *h, int *s, int *v ) const
     }
 }
 
+
 /*!
   Sets a HSV color value.
 
@@ -390,7 +440,7 @@ void QColor::setHsv( int h, int s, int v )
 
 /*!
   Returns the red, green and blue components of the RGB value in
-  \e *r, \e *g and \e *b.
+  \e *r, \e *g and \e *b.  The value range for a component is 0..255.
   \sa setRgb(), hsv()
 */
 
@@ -401,10 +451,36 @@ void QColor::rgb( int *r, int *g, int *b ) const
     *b = (int)((rgbVal >> 16) & 0xff);
 }
 
+
 /*!
-  Sets the RGB value to \e rgb.
+  Sets the RGB value to \a (r,g,b).
+  \a r, \a g and \a b must be in the range 0..255.
+  \sa rgb(), setHsv()
+*/
+
+void QColor::setRgb( int r, int g, int b )
+{
+#if defined(CHECK_RANGE)
+    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
+	warning( "QColor::setRgb: RGB parameter(s) out of range" );
+#endif
+    rgbVal = qRgb(r,g,b);
+    if ( lalloc || !color_init ) {
+	rgbVal |= RGB_DIRTY;			// alloc later
+	pix = 0;
+    } else {
+	alloc();				// alloc now
+    }
+}
+
+
+/*!
+  Sets the RGB value to \a rgb.
 
   Bits 0-7 = red, bits 8-15 = green, bits 16-23 = blue.
+
+  \warning The bit encoding may change in a future version of Qt.
+  Please use the qRgb() function to compose RGB triplets.
 
   The type \e QRgb is equivalent to \c unsigned \c int.
 
@@ -413,10 +489,13 @@ void QColor::rgb( int *r, int *g, int *b ) const
 
 void QColor::setRgb( QRgb rgb )
 {
-    int r = (int)(rgb & 0xff);
-    int g = (int)((rgb >> 8) & 0xff);
-    int b = (int)((rgb >> 16) & 0xff);
-    setRgb( r, g, b );
+    if ( lalloc || !color_init ) {
+	rgbVal = (rgb & 0x00ffffff) | RGB_DIRTY;// alloc later
+	pix = 0;
+    } else {
+	rgbVal = (rgb & 0x00ffffff);
+	alloc();				// alloc now
+    }
 }
 
 
@@ -471,6 +550,7 @@ QColor QColor::light( int factor ) const
     c.setHsv( h, s, v );
     return c;
 }
+
 
 /*!
   Returns a darker (or lighter) color.
@@ -611,9 +691,11 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 /*!
   \fn QRgb qRgb( int r, int g, int b )
   \relates QColor
-  Returns the RGB triplet \e (r,g,b).
+  Returns the RGB triplet \a (r,g,b).
 
   Bits 0-7 = \e r (red), bits 8-15 = \e g (green), bits 16-23 = \e b (blue).
+
+  \warning The bit encoding may change in a future version of Qt.
 
   The return type \e QRgb is equivalent to \c unsigned \c int.
 
@@ -623,7 +705,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 /*!
   \fn int qGray( int r, int g, int b )
   \relates QColor
-  Returns a gray value 0..255 from the \e (r,g,b) triplet.
+  Returns a gray value 0..255 from the \a (r,g,b) triplet.
 
   The gray value is calculated using the formula:
   <code>(r*11 + g*16 + b*5)/32</code>.
