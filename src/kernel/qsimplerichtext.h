@@ -60,7 +60,7 @@ public:
 		     const QString& context = QString::null, const QStyleSheet* sheet = 0);
     QSimpleRichText( const QString& text, const QFont& fnt,
 		     const QString& context,  const QStyleSheet* sheet,
-		     const QMimeSourceFactory* factory, int verticalBreak = -1,
+		     const QMimeSourceFactory* factory, int pageBreak = -1,
 		     const QColor& linkColor = Qt::blue, bool linkUnderline = TRUE );
     ~QSimpleRichText();
 

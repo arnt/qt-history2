@@ -85,8 +85,6 @@ bool QTextCustomItem::up( QTextCursor *, QTextDocument *&doc, QTextParag *&parag
 
 void QTextFlow::setPageSize( int ps ) { pagesize = ps; }
 bool QTextFlow::isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
-void QTextFlow::draw( QPainter *, int , int , int , int ) {}
-void QTextFlow::eraseAfter( QTextParag *, QPainter *, const QColorGroup & ) {}
 
 void QTextTableCell::invalidate() { cached_width = -1; cached_sizehint = -1; }
 

@@ -122,8 +122,8 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
   and the font \a fnt.
 
   This is a slightly more complex constructor for QSimpleRichText that
-  takes an additional mime source factory \a factory, a vertical break
-  parameter \a verticalBreak and a bool \a linkUnderline. \a linkColor is
+  takes an additional mime source factory \a factory, a page break
+  parameter \a pageBreak and a bool \a linkUnderline. \a linkColor is
   only provided for compatibility, but has no effect, as QColorGroup's
   QColorGroup::link() color is used now.
 
@@ -139,13 +139,13 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
   style sheet will be used (see \l{QStyleSheet::defaultSheet()}).
 
   This constructor is useful for creating a QSimpleRichText object
-  suitable for printing. Set \a verticalBreak to be the height of the
+  suitable for printing. Set \a pageBreak to be the height of the
   contents area of the pages.
 */
 
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context,  const QStyleSheet* sheet,
-				  const QMimeSourceFactory* factory, int verticalBreak,
+				  const QMimeSourceFactory* factory, int pageBreak,
 				  const QColor& /*linkColor*/, bool linkUnderline )
 {
     d = new QSimpleRichTextData;
@@ -155,8 +155,8 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc = new QTextDocument( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords );
     d->doc->setDefaultFont( fnt );
-    d->doc->flow()->setPageSize( verticalBreak );
-    d->doc->setVerticalBreak( TRUE );
+    d->doc->flow()->setPageSize( pageBreak );
+    d->doc->setPageBreakEnabled( TRUE );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );
     d->doc->setMimeSourceFactory( (QMimeSourceFactory*)factory );
     d->doc->setUnderlineLinks( linkUnderline );
@@ -289,8 +289,8 @@ void QSimpleRichText::adjustSize()
     }
 }
 
-/*!  
-  
+/*!
+
   Draws the formatted text with painter \a p, at position (\a x, \a
   y), clipped to \a clipRect.  The clipping rectangle is given in the
   document's coordinates translated by (\a x, \a y). Colors from the
@@ -330,9 +330,9 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
 
 /*! \fn void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
   const QColorGroup& cg, const QBrush* paper ) const
-  
+
   \obsolete
-  
+
   Use the version with clipRect instead. The region version has
   problems with larger documents on some platforms (on X11 regions
   internally are represented with 16bit coordinates).

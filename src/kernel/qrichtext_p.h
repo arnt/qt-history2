@@ -427,8 +427,8 @@ public:
 
     QTextDocument *parent;
     QTextParag *parag;
-    
-    virtual void verticalBreak( int  y, QTextFlow* flow );
+
+    virtual void pageBreak( int  y, QTextFlow* flow );
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -495,38 +495,35 @@ public:
     QTextFlow();
     virtual ~QTextFlow();
 
-    virtual void setWidth( int w );
+    virtual void setWidth( int width );
+    int width() const;
+
     virtual void setPageSize( int ps );
     int pageSize() const { return pagesize; }
 
     virtual int adjustLMargin( int yp, int h, int margin, int space );
     virtual int adjustRMargin( int yp, int h, int margin, int space );
 
-    virtual void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
+    virtual void registerFloatingItem( QTextCustomItem* item );
     virtual void unregisterFloatingItem( QTextCustomItem* item );
     virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
-    virtual void adjustFlow( int  &yp, int w, int h, QTextParag *parag = 0, bool pages = TRUE );
+    
+    virtual int adjustFlow( int  y, int w, int h ); // adjusts y according to the defined pagesize. Returns the shift.
 
     virtual bool isEmpty();
-    virtual void updateHeight( QTextCustomItem *i );
-
-    virtual void draw( QPainter *, int , int , int , int );
-    virtual void eraseAfter( QTextParag *, QPainter *, const QColorGroup & );
 
     void clear();
-    
-    QSize size() const { return QSize( width, height); }
 
 private:
-    int width;
-    int height;
-
+    int w;
     int pagesize;
 
     QPtrList<QTextCustomItem> leftItems;
     QPtrList<QTextCustomItem> rightItems;
 
 };
+
+inline int QTextFlow::width() const { return w; }
 
 class QTextTable;
 
@@ -588,7 +585,6 @@ private:
     int cached_width;
     int cached_sizehint;
     QMap<QString, QString> attributes;
-
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -607,7 +603,7 @@ public:
     virtual ~QTextTable();
 
     void adjustToPainter( QPainter *p );
-    void verticalBreak( int  y, QTextFlow* flow );
+    void pageBreak( int  y, QTextFlow* flow );
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	       const QColorGroup& cg, bool selected );
 
@@ -655,6 +651,7 @@ private:
     QMap<QTextCursor*, int> currCell;
     Placement place;
     void adjustCells( int y , int shift );
+    int pageBreakFor;
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -807,8 +804,8 @@ public:
 
     void setFlow( QTextFlow *f );
     QTextFlow *flow() const { return flow_; }
-    bool verticalBreak() const { return pages; }
-    void setVerticalBreak( bool b ) { pages = b; }
+    bool isPageBreakEnabled() const { return pages; }
+    void setPageBreakEnabled( bool b ) { pages = b; }
 
     void setUseFormatCollection( bool b ) { useFC = b; }
     bool useFormatCollection() const { return useFC; }
@@ -1272,7 +1269,6 @@ private:
     bool needPreProcess : 1;
     bool fullWidth : 1;
     bool newLinesAllowed : 1;
-    bool splittedInside : 1;
     bool lastInFrame : 1;
     bool visible : 1;
     bool breakable : 1;
@@ -1309,6 +1305,7 @@ public:
     virtual ~QTextFormatter();
 
     virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts ) = 0;
+    virtual int formatVertically( QTextDocument* doc, QTextParag* parag );
 
     bool isWrapEnabled( QTextParag *p ) const { if ( !wrapEnabled ) return FALSE; if ( p && !p->isBreakable() ) return FALSE; return TRUE;}
     int wrapAtColumn() const { return wrapColumn;}
@@ -1326,7 +1323,7 @@ protected:
 #endif
     virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls );
-
+    
 private:
     bool wrapEnabled;
     int wrapColumn;
@@ -1615,7 +1612,7 @@ inline int QTextDocument::y() const
 
 inline int QTextDocument::width() const
 {
-    return QMAX( cw, flow_->width );
+    return QMAX( cw, flow_->width() );
 }
 
 inline int QTextDocument::visibleWidth() const
@@ -1626,7 +1623,7 @@ inline int QTextDocument::visibleWidth() const
 inline int QTextDocument::height() const
 {
     if ( lParag )
-	return QMAX( flow_->height, lParag->rect().top() + lParag->rect().height() + 1 );
+	return lParag->rect().top() + lParag->rect().height() + 1;
     return 0;
 }
 

@@ -2571,6 +2571,8 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	    parag->paint( *p, cg, 0, FALSE );
 	p->translate( 0, -y );
 	parag = parag->next();
+	if ( !flow()->isEmpty() )
+	    flow()->drawFloatingItems( p, rect.x(), rect.y(), rect.width(), rect.height(), cg, FALSE );
     }
 }
 
@@ -2651,9 +2653,6 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
     }
 
-    if ( verticalBreak() && parag->lastInFrame && parag->document()->flow() )
-	parag->document()->flow()->eraseAfter( parag, p, cg );
-
     parag->document()->nextDoubleBuffered = FALSE;
 }
 
@@ -2702,9 +2701,6 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 		    delete buf_pixmap;
 		    buf_pixmap = 0;
 		}
-		if ( verticalBreak() && flow() )
-		    flow()->draw( p, cx, cy, cw, ch );
-
 		return lastFormatted;
 	    }
 	    parag = parag->next();
@@ -2738,9 +2734,6 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	buf_pixmap = 0;
     }
 
-    if ( verticalBreak() && flow() )
-	flow()->draw( p, cx, cy, cw, ch );
-
     tmpCursor = 0;
     return lastFormatted;
 }
@@ -2753,7 +2746,7 @@ void QTextDocument::setDefaultFont( const QFont &f )
 void QTextDocument::registerCustomItem( QTextCustomItem *i, QTextParag *p )
 {
     if ( i && i->placement() != QTextCustomItem::PlaceInline ) {
-	flow_->registerFloatingItem( i, i->placement() == QTextCustomItem::PlaceRight );
+	flow_->registerFloatingItem( i );
 	p->registerFloatingItem( i );
 	i->setParagraph( p );
     }
@@ -3318,7 +3311,6 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     visible = TRUE;
     list_val = -1;
     newLinesAllowed = FALSE;
-    splittedInside = FALSE;
     lastInFrame = FALSE;
     defFormat = formatCollection()->defaultFormat();
     if ( !doc ) {
@@ -3512,19 +3504,14 @@ void QTextParag::move( int &dy )
 	i->ypos += dy;
     if ( p )
 	p->lastInFrame = TRUE;
-    if ( doc && doc->verticalBreak() ) {
-	const int oy = r.y();
-	int y = oy;
-	doc->flow()->adjustFlow( y, r.width(), r.height(), this, TRUE );
-	if ( oy != y ) {
-	    if ( p ) {
-		p->lastInFrame = TRUE;
+    
+    // do page breaks if required
+    if ( doc && doc->isPageBreakEnabled() ) {
+	int shift;
+	if ( ( shift = doc->formatter()->formatVertically(  doc, this ) ) ) {
+	    if ( p ) 
 		p->setChanged( TRUE );
-	    }
-	    int oh = r.height();
-	    r.setY( y );
-	    r.setHeight( oh );
-	    dy += y - oy;
+	    dy += shift;
 	}
     }
 }
@@ -3543,19 +3530,15 @@ void QTextParag::format( int start, bool doMove )
     if ( invalid == -1 )
 	return;
 
-    bool formattedAgain = FALSE;
-
     r.moveTopLeft( QPoint( documentX(), p ? p->r.y() + p->r.height() : documentY() ) );
     r.setWidth( documentWidth() );
     if ( p )
 	p->lastInFrame = FALSE;
- formatAgain:
     if ( doc ) {
 	for ( QTextCustomItem *i = floatingItems.first(); i; i = floatingItems.next() ) {
 	    i->ypos = r.y();
 	    if ( i->placement() == QTextCustomItem::PlaceRight )
 		i->xpos = r.x() + r.width() - i->width;
-	    doc->flow()->updateHeight( i );
 	}
     }
     QMap<int, QTextParagLineStart*> oldLineStarts = lineStarts;
@@ -3563,6 +3546,7 @@ void QTextParag::format( int start, bool doMove )
     int y = formatter()->format( doc, this, start, oldLineStarts );
     r.setWidth( QMAX( r.width(), minimumWidth() ) );
     QMap<int, QTextParagLineStart*>::Iterator it = oldLineStarts.begin();
+    
     for ( ; it != oldLineStarts.end(); ++it )
 	delete *it;
 
@@ -3593,25 +3577,9 @@ void QTextParag::format( int start, bool doMove )
     if ( !visible )
 	r.setHeight( 0 );
 
-    splittedInside = FALSE;
-    if ( doc && doc->verticalBreak() ) {
-	const int oy = r.y();
-	int y = oy;
-	doc->flow()->adjustFlow( y, r.width(), r.height(), this, TRUE );
-	if ( oy != y ) {
-	    if ( p ) {
-		p->lastInFrame = TRUE;
-		p->setChanged( TRUE );
-	    }
-	    int oh = r.height();
-	    r.setY( y );
-	    r.setHeight( oh );
-	    if ( !formattedAgain ) {
-		formattedAgain = TRUE;
-		goto formatAgain;
-	    }
-	}
-    }
+    // do page breaks if required
+    if ( doc && doc->isPageBreakEnabled() )
+	(void) doc->formatter()->formatVertically(  doc, this );
 
     if ( n && doMove && n->invalid == -1 && r.y() + r.height() != n->r.y() ) {
 	int dy = ( r.y() + r.height() ) - n->r.y();
@@ -4836,6 +4804,35 @@ void QTextFormatter::insertLineStart( QTextParag *parag, int index, QTextParagLi
     }
 }
 
+
+/* Standard pagebreak algorithm using QTextFlow::adjustFlow. Returns
+ the shift of the paragraphs bottom line.
+ */
+int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
+{
+    int oldHeight = parag->rect().height();
+    QMap<int, QTextParagLineStart*>& lineStarts = parag->lineStartList();
+    QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
+    int h = 0;
+    for ( ; it != lineStarts.end() ; ++it  ) {
+	QTextParagLineStart * ls = it.data();
+	ls->y = h;
+	QTextStringChar *c = &parag->string()->at(it.key());
+	if ( c && c->customItem() && c->customItem()->ownLine() ) {
+	    int h = c->customItem()->height;
+	    c->customItem()->pageBreak( parag->rect().y() + ls->y + ls->baseLine - h, doc->flow() );
+	    int delta = c->customItem()->height - h;
+	    ls->h += delta;
+	} else {
+	    int shift = doc->flow()->adjustFlow( parag->rect().y() + ls->y, ls->w, ls->h );
+	    ls->y += shift;
+	}
+	h = ls->y + ls->h;
+    }
+    parag->setHeight( h );
+    return h - oldHeight;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatterBreakInWords::QTextFormatterBreakInWords()
@@ -4860,8 +4857,8 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     bool fullWidth = TRUE;
     int minw = 0;
     bool wrapEnabled = isWrapEnabled( parag );
-
-    start = 0;
+    
+    start = 0;    //######### what is the point with start?! (Matthias)
     if ( start == 0 )
 	c = &parag->string()->at( 0 );
 
@@ -4916,6 +4913,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
+	    
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    if ( x != left )
 		fullWidth = FALSE;
@@ -4965,6 +4963,13 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 {
 }
 
+#define DO_FLOW( lineStart ) if ( doc && doc->isPageBreakEnabled() ) { \
+		    int yflow = lineStart->y + parag->rect().y();\
+		    int shift = doc->flow()->adjustFlow( yflow, dw, lineStart->h ); \
+		    lineStart->y += shift;\
+		    y += shift;\
+		}
+
 int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 				      int start, const QMap<int, QTextParagLineStart*> & )
 {
@@ -4988,7 +4993,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int marg = left + rdiff;
     int minw = 0;
     int tminw = marg;
-    int ls = doc ? parag->lineSpacing() : 0;
+    int linespace = doc ? parag->lineSpacing() : 0;
     bool wrapEnabled = isWrapEnabled( parag );
 
     start = 0;
@@ -5047,7 +5052,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    curLeft = x;
 	    if ( i == 0 || !isBreakable( string, i - 1 ) || string->at( i - 1 ).lineStart == 0 ) {
 		y += QMAX( h, tmph );
-		tmph = c->height() + ls;
+		tmph = c->height() + linespace;
 		h = tmph;
 		lineStart = lineStart2;
 		lineStart->y = y;
@@ -5055,7 +5060,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		c->lineStart = 1;
 		firstChar = c;
 	    } else {
-		tmph = c->height() + ls;
+		tmph = c->height() + linespace;
 		h = tmph;
 		delete lineStart2;
 	    }
@@ -5085,6 +5090,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
+  		    DO_FLOW( lineStart )
 		}
 		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
@@ -5100,7 +5106,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    fullWidth = FALSE;
 		curLeft = x;
 		y += h;
-		tmph = c->height() + ls;
+		tmph = c->height() + linespace;
 		h = 0;
 		lineStart->y = y;
 		insertLineStart( parag, i, lineStart );
@@ -5112,6 +5118,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lastBreak = -1;
 		col = 0;
 	    } else {
+  		DO_FLOW( lineStart )
 		i = lastBreak;
 		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
@@ -5127,7 +5134,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    fullWidth = FALSE;
 		curLeft = x;
 		y += h;
-		tmph = c->height() + ls;
+		tmph = c->height() + linespace;
 		h = tmph;
 		lineStart->y = y;
 		insertLineStart( parag, i + 1, lineStart );
@@ -5144,7 +5151,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	} else if ( lineStart && ( isBreakable( string, i ) || parag->isNewLinesAllowed() && c->c == '\n' ) ) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
-		tmph = QMAX( tmph, c->height() + ls );
+		tmph = QMAX( tmph, c->height() + linespace );
 	    }
 	    minw = QMAX( minw, tminw );
 	    tminw = marg + ww;
@@ -5155,7 +5162,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lastBreak = i;
 	} else {
 	    tminw += ww;
-	    int belowBaseLine = QMAX( tmph - tmpBaseLine, c->height() + ls - c->ascent() );
+	    int belowBaseLine = QMAX( tmph - tmpBaseLine, c->height() + linespace - c->ascent() );
 	    tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 	    tmph = tmpBaseLine + belowBaseLine;
 	}
@@ -5179,6 +5186,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	// last line in a paragraph is not justified
 	if ( align == Qt::AlignJustify )
 	    align = Qt::AlignAuto;
+ 	DO_FLOW( lineStart )
 	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, w - x );
 	delete lineStart;
     }
@@ -6331,7 +6339,7 @@ QString QTextDocument::parseCloseTag( const QString& doc, int& pos )
 
 QTextFlow::QTextFlow()
 {
-    width = height = pagesize = 0;
+    w = pagesize = 0;
     leftItems.setAutoDelete( FALSE );
     rightItems.setAutoDelete( FALSE );
 }
@@ -6346,10 +6354,9 @@ void QTextFlow::clear()
     rightItems.clear();
 }
 
-void QTextFlow::setWidth( int w )
+void QTextFlow::setWidth( int width )
 {
-    height = 0;
-    width = w;
+    w = width;
 }
 
 int QTextFlow::adjustLMargin( int yp, int, int margin, int space )
@@ -6369,25 +6376,23 @@ int QTextFlow::adjustRMargin( int yp, int, int margin, int space )
 	if ( item->ypos == -1 )
 	    continue;
 	if ( yp >= item->ypos && yp < item->ypos + item->height )
-	    margin = QMAX( margin, width - item->xpos - space );
+	    margin = QMAX( margin, w - item->xpos - space );
     }
     return margin;
 }
 
-void QTextFlow::adjustFlow( int &yp, int , int h, QTextParag *, bool pages )
+
+int QTextFlow::adjustFlow( int y, int /*w*/, int h )
 {
-    if ( pages && pagesize > 0 ) { // check pages
-	int ty = yp;
-	int yinpage = ty % pagesize;
-	if ( yinpage < 2 )
-	    yp += 2 - yinpage;
+    if ( pagesize > 0 ) { // check pages
+	int yinpage = y % pagesize;
+	if ( yinpage <= 2 )
+	    return 2 - yinpage;
 	else
 	    if ( yinpage + h > pagesize - 2 )
-	    yp += ( pagesize - yinpage ) + 2;
+		return ( pagesize - yinpage ) + 2;
     }
-
-    if ( yp + h > height )
-	height = yp + h;
+    return 0;
 }
 
 void QTextFlow::unregisterFloatingItem( QTextCustomItem* item )
@@ -6396,12 +6401,13 @@ void QTextFlow::unregisterFloatingItem( QTextCustomItem* item )
     rightItems.removeRef( item );
 }
 
-void QTextFlow::registerFloatingItem( QTextCustomItem* item, bool right )
+void QTextFlow::registerFloatingItem( QTextCustomItem* item )
 {
-    if ( right ) {
+    if ( item->placement() == QTextCustomItem::PlaceRight ) {
 	if ( !rightItems.contains( item ) )
 	    rightItems.append( item );
-    } else if ( !leftItems.contains( item ) ) {
+    } else if ( item->placement() == QTextCustomItem::PlaceLeft && 
+		!leftItems.contains( item ) ) {
 	leftItems.append( item );
     }
 }
@@ -6422,16 +6428,10 @@ void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, 
     }
 }
 
-void QTextFlow::updateHeight( QTextCustomItem *i )
-{
-    height = QMAX( height, i->ypos + i->height );
-}
-
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void QTextCustomItem::verticalBreak( int y , QTextFlow* flow )
+void QTextCustomItem::pageBreak( int /*y*/ , QTextFlow* /*flow*/ )
 {
-    flow->adjustFlow( y, width, height );
 }
 
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
@@ -6489,6 +6489,7 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 	place = PlaceRight;
     cachewidth = 0;
     attributes = attr;
+    pageBreakFor = -1;
 }
 
 QTextTable::~QTextTable()
@@ -6573,19 +6574,24 @@ void QTextTable::adjustCells( int y , int shift )
 	height += shift;
 }
 
-void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
+void QTextTable::pageBreak( int  yt, QTextFlow* flow )
 {
     if ( flow->pageSize() <= 0 )
         return;
+    if ( layout && pageBreakFor > 0 && pageBreakFor != yt ) {
+	layout->invalidate();
+	int h = layout->heightForWidth( width-2*outerborder );
+	layout->setGeometry( QRect(0, 0, width-2*outerborder, h)  );
+	height = layout->geometry().height()+2*outerborder;
+    }
+    pageBreakFor = yt;
     QListIterator<QTextTableCell> it( cells );
     QTextTableCell* cell;
     while ( ( cell = it.current() ) ) {
 	++it;
 	int y = yt + outerborder + cell->geometry().y();
-	int oldy = y;
-	flow->adjustFlow( y, width, cell->richText()->flow()->size().height() + 2*cellspacing );
-	int shift = y - oldy;
-	adjustCells( oldy - outerborder - yt, shift ); 
+	int shift = flow->adjustFlow( y - cellspacing, width, cell->richText()->height() + 2*cellspacing );
+	adjustCells( y - outerborder - yt, shift );
     }
 }
 
@@ -7054,8 +7060,6 @@ void QTextTableCell::setGeometry( const QRect& r )
     if ( r.width() != cached_width )
 	richtext->doLayout( painter(), r.width() );
     cached_width = r.width();
-    richtext->setWidth( r.width() );
-    richtext->flow()->height = r.height();
     geom = r;
 }
 
