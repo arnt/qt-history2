@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#44 $
 **
 ** Implementation of QRegExp class
 **
@@ -13,7 +13,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#44 $");
 
 
 /*!
@@ -45,9 +45,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#43 $");
   <ul plain>
   <li><dfn>?</dfn> matches any character
   <li><dfn>*</dfn> matches any sequence of characters
-  <li><dfn>[]</dfn> matches a defines set of characters,
+  <li><dfn>[]</dfn> matches a defined set of characters,
     e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
-    and dot.
+    and dot, and [^z] matches everything except lower-case z.
   </ul>
 */
 
@@ -459,20 +459,25 @@ static QString wc2rx( const char *pattern )
     char c;
     while ( (c=*p++) ) {
 	switch ( c ) {
-	    case '*':				// '*' ==> '.*'
-		wcpattern += '.';
-		break;
-	    case '?':				// '?' ==> '.'
-		c = '.';
-		break;
-	    case '.':				// quote special regexp chars
-	    case '+':
-	    case '\\':
-	    case '^':
-	    case '$':
-	    case '[':
-		wcpattern += '\\';
-		break;
+	case '*':				// '*' ==> '.*'
+	    wcpattern += '.';
+	    break;
+	case '?':				// '?' ==> '.'
+	    c = '.';
+	    break;
+	case '.':				// quote special regexp chars
+	case '+':
+	case '\\':
+	case '$':
+	case '^':
+	    wcpattern += '\\';
+	    break;
+	case '[':
+	    if ( *p == '^' ) {
+		wcpattern += '[';
+		c = *p++;
+	    }
+	    break;
 	}
 	wcpattern += c;
     }
