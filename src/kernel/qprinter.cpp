@@ -307,16 +307,16 @@
 */
 
 /*!
-  \fn void setPageRangeEnabled( uint mask )
+  \fn void QPrinter::setPageRangeEnabled( uint mask )
 
   Enables the page range options that should be visible in the print
-  setup dialog. \mask is a bitmask of possible QPrinter::PageRange.
+  setup dialog. \a mask is a bitmask of possible QPrinter::PageRange.
 
   \sa QPrinter::PageRange
 */
 
 /*!
-  \fn uint pageRangeEnabled() const
+  \fn uint QPrinter::pageRangeEnabled() const
 
   Returns a bitmask of QPrinter::PageRange describing which of the
   page ranges are enabled in the print setup dialog.
@@ -325,15 +325,15 @@
 */
 
 /*!
-  \fn void setPageRange( PageRange range )
+  \fn void QPrinter::setPageRange( PageRange range )
 
   Sets the default selected page range to be used when the print setup
-  dialog is opened to \range. If the PageRange specified by \range is
+  dialog is opened to \a range. If the PageRange specified by \a range is
   currently disabled the function does nothing.
 */
 
 /*!
-  \fn PageRange pageRange() const
+  \fn PageRange QPrinter::pageRange() const
 
   Returns the PageRange of the QPrinter. After the print setup dialog
   has been opened, this function returns the value selected by the user.
