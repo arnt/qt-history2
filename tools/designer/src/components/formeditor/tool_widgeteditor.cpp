@@ -16,6 +16,7 @@
 
 // sdk
 #include <abstractformwindowmanager.h>
+#include <abstractwidgetbox.h>
 #include <layoutinfo.h>
 
 #include <QtGui/qevent.h>
@@ -168,8 +169,11 @@ QWidget *WidgetEditorTool::editor() const
 
 void WidgetEditorTool::activated()
 {
+    core()->widgetBox()->setEnabled(true);
+
     if (m_formWindow == 0)
         return;
+
     QList<QWidget*> sel = m_formWindow->selectedWidgets();
     foreach (QWidget *w, sel)
         m_formWindow->raiseSelection(w);
@@ -177,8 +181,11 @@ void WidgetEditorTool::activated()
 
 void WidgetEditorTool::deactivated()
 {
+    core()->widgetBox()->setEnabled(false);
+
     if (m_formWindow == 0)
         return;
+
     m_formWindow->clearSelection();
 }
 
