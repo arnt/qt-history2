@@ -256,6 +256,7 @@ CFG_NEWABI=no ### need to break ABI for full Large File support...
 CFG_STL=auto
 CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
+CFG_USER_BUILD_KEY=
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -318,7 +319,7 @@ while [ -n "$1" ]; do
 	VAL=yes
 	;;
     #Qt style options that pass an argument
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-depths|-make|-nomake|-qconfig|-platform|-xplatform)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-depths|-make|-nomake|-qconfig|-platform|-xplatform|-buildkey)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	shift
 	VAL=$1
@@ -425,6 +426,9 @@ while [ -n "$1" ]; do
 	;;
     bindir)
 	QT_INSTALL_BINS="$VAL"
+	;;
+    buildkey)
+	CFG_USER_BUILD_KEY="$VAL"
 	;;
     embedded)
 	CFG_EMBEDDED="$VAL"
@@ -1462,14 +1466,15 @@ if [ "$OPT_HELP" = "yes" ]; then
     fi
 
     cat <<EOF
-Usage:  $relconf [-prefix dir] [-docdir dir] [-headerdir dir]
-	[-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir]
-	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm]
-	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng]
-	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-no-nis] [-nis]
-	[-no-cups] [-cups] [-no-largefile] [-largefile] [-stl] [-no-stl]
-	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
-	[-with-<module setting>] [-without-<module setting>] [-fast] [-nofast]
+Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir]
+	[-headerdir dir] [-libdir dir] [-bindir dir] [-plugindir dir ]
+	[-datadir dir] [-debug] [-release] [-qt-gif] [-no-gif] [-sm]
+	[-no-sm] [-qt-zlib] [-system-zlib] [-qt-libpng]
+	[-system-libpng] [-no-jpeg] [-system-jpeg] [-no-thread]
+	[-thread] [-no-nis] [-nis] [-no-cups] [-cups] [-no-largefile]
+	[-largefile] [-stl] [-no-stl] [-Istring] [-lstring] [-Lstring]
+	[-Rstring] [-disable-<module>] [-with-<module setting>]
+	[-without-<module setting>] [-fast] [-nofast]
 
 Installation options:
 
@@ -1492,6 +1497,12 @@ Installation options:
                           (default PREFIX/plugins)
     -datadir dir ....... Data used by Qt programs will be installed to dir
                           (default PREFIX)
+
+ You may use these options to turn on strict plugin loading.
+
+    -buildkey key ...... Build the Qt library and plugins using the specified
+			 key.  When the library loads plugins, it will only
+			 load those that have a matching key.
 
 Configure options:
 
@@ -2036,13 +2047,7 @@ if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi
 
-
-#-------------------------------------------------------------------------------
-# part of configuration information goes into qconfig.h
-#-------------------------------------------------------------------------------
-
-[ -r qconfig.h-hold ] && mv -f qconfig.h-hold $outpath/include/qconfig.h
-
+# update QMAKE_CONFIG to show our current predefined configuration
 case "$CFG_QCONFIG" in
 minimal|small|medium|large|full)
     # these are a sequence of increasing functionality
@@ -2060,57 +2065,14 @@ minimal|small|medium|large|full)
 	OPT_HELP=yes
     fi
 esac
-case "$CFG_QCONFIG" in
-full)
-    echo "/* Everything */" >$outpath/include/qconfig.h.new
-    ;;
-*)
-    QCONFIGFILE=qconfig-$CFG_QCONFIG.h
-    echo "/* Copied from $QCONFIGFILE */" >$outpath/include/qconfig.h.new
-    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/include/qconfig.h.new
-    ;;
-esac
-cat >> $outpath/include/qconfig.h.new <<EOF
-/* License information */
-#define QT_PRODUCT_LICENSEE "$Licensee"
-#define QT_PRODUCT_LICENSE  "$Products"
 
-/* Compile time features */
-EOF
-[ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/include/qconfig.h.new
-if [ "$CFG_LARGEFILE" = "yes" ]; then
-    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
-    QMAKE_CONFIG="$QMAKE_CONFIG largefile"
-    if [ "$CFG_NEWABI" = "yes" ]; then
-	echo "#define QT_NEWABI 1" >>$outpath/include/qconfig.h.new
+# update QMAKE_CONFIG to show which modules are being built
+for MODULE in $MODULES; do
+    if [ -d "$relpath/src/$MODULE" ]; then
+	M=`echo $MODULE | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
+	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
-fi
-if [ "$CFG_STL" = "no" ]; then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
-else
-    QMAKE_CONFIG="$QMAKE_CONFIG stl"
-fi
-
-if [ -n "$QCONFIG_FLAGS" ]; then
-    for cfg in $QCONFIG_FLAGS; do
-
-cat >>$outpath/include/qconfig.h.new << EOF
-#ifndef $cfg
-# define $cfg
-#endif
-
-EOF
-    done
-fi
-
-# avoid unecessary rebuilds by copying only if qconfig.h has changed
-if cmp -s $outpath/include/qconfig.h $outpath/include/qconfig.h.new; then
-    rm -f $outpath/include/qconfig.h.new
-else
-    [ -f $outpath/include/qconfig.h ] && chmod +w $outpath/include/qconfig.h
-    mv $outpath/include/qconfig.h.new $outpath/include/qconfig.h
-    chmod -w $outpath/include/qconfig.h
-fi
+done
 
 
 #-------------------------------------------------------------------------------
@@ -2137,6 +2099,13 @@ elif [ "$CFG_DEBUG" = "no" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}release"
     QMAKE_CONFIG="$QMAKE_CONFIG release"
 fi
+if [ "$CFG_SHARED" = "yes" ]; then
+    QMAKE_OUTDIR="${QMAKE_OUTDIR}-shared"
+    QMAKE_CONFIG="$QMAKE_CONFIG dll"
+elif [ "$CFG_SHARED" = "no" ]; then
+    QMAKE_OUTDIR="${QMAKE_OUTDIR}-static"
+    QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
+fi
 if [ "$CFG_THREAD" = "yes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
@@ -2149,11 +2118,13 @@ fi
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_INCDIR_QT=$relpath/include\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
-
-if [ "$CFG_SHARED" = "no" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
-elif [ "$CFG_SHARED" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG dll"
+if [ "$CFG_LARGEFILE" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG largefile"
+fi
+if [ "$CFG_STL" = "no" ]; then
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
+else
+    QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
 [ "$CFG_LIBJPEG" = "system" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 if [ "$CFG_JPEG" = "no" ]; then
@@ -2268,7 +2239,6 @@ for MODULE in $MODULES; do
     if [ -d "$relpath/src/$MODULE" ]; then
 	M=`echo $MODULE | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
 	echo "#define QT_MODULE_$M" >>$outpath/include/qmodules.h.new
-	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
 done
 
@@ -2279,6 +2249,175 @@ else
     [ -f $outpath/include/qmodules.h ] && chmod +w $outpath/include/qmodules.h
     mv -f $outpath/include/qmodules.h.new $outpath/include/qmodules.h
     chmod -w $outpath/include/qmodules.h
+fi
+
+#-------------------------------------------------------------------------------
+# generate QT_BUILD_KEY
+#-------------------------------------------------------------------------------
+
+# some compilers generate binary incompatible code between different versions,
+# so we need to generate a build key that is different between these compilers
+COMPILER=`echo $PLATFORM | cut -f 2- -d-`
+case "$COMPILER" in
+g++)
+    # GNU C++
+    COMPILER_VERSION=`g++ --version`
+    case "$COMPILER_VERSION" in
+    *2.95.*)
+	COMPILER_VERSION="2.95.*"
+	;;
+    *3.*)
+	COMPILER_VERSION="3.*"
+	;;
+    *)
+	;;
+    esac
+
+    COMPILER="g++-$COMPILER_VERSION"
+    ;;
+*)
+    #
+    ;;
+esac
+
+BUILD_OPTIONS=
+rm -f .options
+for config_option in $QMAKE_CONFIG; do
+    case "$config_option" in
+    # compilation
+    debug|release)				;;
+    dll|staticlib)				;;
+    thread)					;;
+
+    # edition
+    internal|enterprise)			;;
+
+    # image format
+    system-png|qt-png|no-png)			;;
+    system-mng|qt-mng|no-mng)			;;
+    system-jpeg|qt-jpeg|no-jpeg)		;;
+    system-zlib|qt-zlib|no-zlib)		;;
+    gif|no-gif)					;;
+
+    # x11
+    xkb|xftfreetype|xrender|xinerama|x11sm)	;;
+    
+    # embedded
+    nocrosscompiler|embedded|ft)		;;
+
+    # misc
+    GNUmake)					;;
+    bigcodecs)					;;
+    nis)					;;
+    nas)					;;
+
+    # the above config options make no impact on the Qt API. don't put them into
+    # the build key
+
+    *-config)
+	# take the last *-config setting.  this is the highest config being used,
+	# and is the one that we will use for tagging plugins
+	BUILD_OPTIONS="$config_option"
+	;;
+
+    *)
+	echo "$config_option" >> .options
+	;;
+    esac
+done
+
+# sort the .options file (helps ensure that changes in this configure script 
+# don't affect the QT_BUILD_KEY generation)
+if [ -f .options ]; then
+    for opt in `sort -f .options`; do
+	BUILD_OPTIONS="$BUILD_OPTIONS $opt"
+    done
+fi
+rm -f .options
+
+for build_option in $D_FLAGS; do
+    case "$build_option" in
+    QT_NO*)
+	# QT_NO* defines affect the Qt API (and binary compatibility).  they need
+	# to be included in the build key
+	echo "$build_option" >> .options
+	;;
+    *)
+	[ "$OPT_VERBOSE" = "yes" ] && echo "$build_option shouldn't change Qt API"
+	;;
+    esac
+done
+
+# sort the compile time defines (helps ensure that changes in this configure
+# script don't affect the QT_BUILD_KEY generation)
+if [ -f .options ]; then
+    for opt in `sort -f .options`; do
+	BUILD_OPTIONS="$BUILD_OPTIONS $opt"
+    done
+fi
+rm -f .options
+
+if [ -z "$CFG_USER_BUILD_KEY" ]; then
+    QT_BUILD_KEY="$UNAME_MACHINE $UNAME_SYSTEM $COMPILER $BUILD_OPTIONS"
+else
+    QT_BUILD_KEY="$CFG_USER_BUILD_KEY $UNAME_MACHINE $UNAME_SYSTEM $COMPILER $BUILD_OPTIONS"
+fi
+
+#-------------------------------------------------------------------------------
+# part of configuration information goes into qconfig.h
+#-------------------------------------------------------------------------------
+
+[ -r qconfig.h-hold ] && mv -f qconfig.h-hold $outpath/include/qconfig.h
+
+case "$CFG_QCONFIG" in
+full)
+    echo "/* Everything */" >$outpath/include/qconfig.h.new
+    ;;
+*)
+    QCONFIGFILE=qconfig-$CFG_QCONFIG.h
+    echo "/* Copied from $QCONFIGFILE */" >$outpath/include/qconfig.h.new
+    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/include/qconfig.h.new
+    ;;
+esac
+cat >> $outpath/include/qconfig.h.new <<EOF
+
+/* License information */
+#define QT_PRODUCT_LICENSEE "$Licensee"
+#define QT_PRODUCT_LICENSE  "$Products"
+
+/* Build key */
+#define QT_BUILD_KEY "$QT_BUILD_KEY"
+ 
+/* Compile time features */
+EOF
+[ '!' -z "$LicenseKey" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKey\"" >>$outpath/include/qconfig.h.new
+
+if [ "$CFG_LARGEFILE" = "yes" ]; then
+    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/include/qconfig.h.new
+    if [ "$CFG_NEWABI" = "yes" ]; then
+	echo "#define QT_NEWABI 1" >>$outpath/include/qconfig.h.new
+    fi
+fi
+
+if [ -n "$QCONFIG_FLAGS" ]; then
+    for cfg in $QCONFIG_FLAGS; do
+
+cat >>$outpath/include/qconfig.h.new << EOF
+#ifndef $cfg
+# define $cfg
+#endif
+
+EOF
+    done
+fi
+
+# avoid unecessary rebuilds by copying only if qconfig.h has changed
+if cmp -s $outpath/include/qconfig.h $outpath/include/qconfig.h.new; then
+    rm -f $outpath/include/qconfig.h.new
+else
+    [ -f $outpath/include/qconfig.h ] && chmod +w $outpath/include/qconfig.h
+    mv $outpath/include/qconfig.h.new $outpath/include/qconfig.h
+    chmod -w $outpath/include/qconfig.h
 fi
 
 
@@ -2343,8 +2482,8 @@ fi
 #-------------------------------------------------------------------------------
 
 # check if we are using gcc/g++
-COMPILER=`echo $PLATFORM | cut -f 2- -d-`
-if [ "$COMPILER" = "g++" ]; then
+case "$COMPILER" in
+g++-*)
     if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]; then
 	cat <<EOF
 
@@ -2360,7 +2499,9 @@ if [ "$COMPILER" = "g++" ]; then
 
 EOF
     fi
-fi
+    ;;
+*) ;;
+esac
 
 echo
 if [ "$XPLATFORM" = "$PLATFORM" ]; then
