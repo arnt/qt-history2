@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#33 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#34 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -61,6 +61,10 @@ int main( int argc, char **argv )
     QPixmap twodpix_sel( twodicon_sel );
     QPixmap threedpix( threedicon );
     QPixmap threedpix_sel( threedicon_sel );
+    QPixmap internpix( internicon );
+    QPixmap internpix_sel( internicon_sel );
+    QPixmap joypix( joyicon );
+    QPixmap joypix_sel( joyicon_sel );
 
     // example 1
     QTabWidget *tab = new QTabWidget();
@@ -109,12 +113,12 @@ int main( int argc, char **argv )
     tab = new QTabWidget();
     w = new I18nDemo(tab);
     tab->addTab(w, "Internationalization");
-    frame.addCategory( tab, textpix, textpix_sel, "Internationalization");
+    frame.addCategory( tab, internpix, internpix_sel, "Internationalization");
 
     tab = new QTabWidget();
     w = new KAstTopLevel(tab);
     tab->addTab(w, "Games");
-    frame.addCategory( tab, textpix, textpix_sel, "Asteroids");
+    frame.addCategory( tab, joypix, joypix_sel, "Asteroids");
 
     a.setMainWidget( &frame );
     frame.show();
