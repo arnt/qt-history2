@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xembed/qxembed.cpp#5 $
+** $Id: //depot/qt/main/extensions/xembed/qxembed.cpp#6 $
 **
 ** Implementation of QXEmbed class
 **
@@ -32,7 +32,7 @@ QXEmbed::QXEmbed(QWidget *parent, const char *name)
 {
     window = 0;
     setFocusPolicy(StrongFocus);
-    
+
     //trick to create extraData();
     QCursor old = cursor();
     setCursor(Qt::blankCursor);
@@ -154,6 +154,7 @@ void QXEmbed::embed(WId w)
     XReparentWindow(qt_xdisplay(), w, winId(), 0, 0);
     QApplication::syncX();
     XResizeWindow(qt_xdisplay(), w, width(), height());
+    XMapRaised(qt_xdisplay(), w);
     extraData()->xDndProxy = w;
 
     if (this == qApp->focusWidget() )
