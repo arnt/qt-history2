@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#159 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#160 $
 **
 ** Implementation of QFileDialog class
 **
@@ -66,21 +66,21 @@ static const char* open_xpm[]={
 ". c None",
 "b c #ffff00",
 "d c #000000",
-"# c #999999",
+"* c #999999",
 "c c #cccccc",
 "a c #ffffff",
-"...#####........",
-"..#aaaaa#.......",
-".#abcbcba######.",
-".#acbcbcaaaaaa#d",
-".#abcbcbcbcbcb#d",
-"#############b#d",
-"#aaaaaaaaaa##c#d",
-"#abcbcbcbcbbd##d",
-".#abcbcbcbcbcd#d",
-".#acbcbcbcbcbd#d",
-"..#acbcbcbcbb#dd",
-"..#############d",
+"...*****........",
+"..*aaaaa*.......",
+".*abcbcba******.",
+".*acbcbcaaaaaa*d",
+".*abcbcbcbcbcb*d",
+"*************b*d",
+"*aaaaaaaaaa**c*d",
+"*abcbcbcbcbbd**d",
+".*abcbcbcbcbcd*d",
+".*acbcbcbcbcbd*d",
+"..*acbcbcbcbb*dd",
+"..*************d",
 "...ddddddddddddd"};
 /* XPM */
 static const char* closed_xpm[]={
@@ -88,21 +88,21 @@ static const char* closed_xpm[]={
 ". c None",
 "b c #ffff00",
 "d c #000000",
-"# c #999999",
+"* c #999999",
 "a c #cccccc",
 "c c #ffffff",
-"..#####........",
-".#ababa#.......",
-"#abababa######.",
-"#cccccccccccc#d",
-"#cbababababab#d",
-"#cabababababa#d",
-"#cbababababab#d",
-"#cabababababa#d",
-"#cbababababab#d",
-"#cabababababa#d",
-"#cbababababab#d",
-"##############d",
+"..*****........",
+".*ababa*.......",
+"*abababa******.",
+"*cccccccccccc*d",
+"*cbababababab*d",
+"*cabababababa*d",
+"*cbababababab*d",
+"*cabababababa*d",
+"*cbababababab*d",
+"*cabababababa*d",
+"*cbababababab*d",
+"**************d",
 ".dddddddddddddd"};
 
 
@@ -110,60 +110,60 @@ static const char* closed_xpm[]={
 static const char* cdtoparent_xpm[]={
 "15 13 3 1",
 ". c None",
-"# c #000000",
+"* c #000000",
 "a c #ffff99",
-"..#####........",
-".#aaaaa#.......",
-"###############",
-"#aaaaaaaaaaaaa#",
-"#aaaa#aaaaaaaa#",
-"#aaa###aaaaaaa#",
-"#aa#####aaaaaa#",
-"#aaaa#aaaaaaaa#",
-"#aaaa#aaaaaaaa#",
-"#aaaa######aaa#",
-"#aaaaaaaaaaaaa#",
-"#aaaaaaaaaaaaa#",
-"###############"};
+"..*****........",
+".*aaaaa*.......",
+"***************",
+"*aaaaaaaaaaaaa*",
+"*aaaa*aaaaaaaa*",
+"*aaa***aaaaaaa*",
+"*aa*****aaaaaa*",
+"*aaaa*aaaaaaaa*",
+"*aaaa*aaaaaaaa*",
+"*aaaa******aaa*",
+"*aaaaaaaaaaaaa*",
+"*aaaaaaaaaaaaa*",
+"***************"};
 
 
 /* XPM */
 static const char* detailedview_xpm[]={
 "14 11 3 1",
 ". c None",
-"# c #000000",
+"* c #000000",
 "a c #000099",
-".####.###.###.",
+".****.***.***.",
 "..............",
 "aaaaaaaaaaaaaa",
 "..............",
-".####.###.###.",
+".****.***.***.",
 "..............",
-".####.###.###.",
+".****.***.***.",
 "..............",
-".####.###.###.",
+".****.***.***.",
 "..............",
-".####.###.###."};
+".****.***.***."};
 
 
 /* XPM */
 static const char* mclistview_xpm[]={
 "15 11 4 1",
-"# c None",
+"* c None",
 "b c #000000",
 ". c #000099",
 "a c #ffffff",
-"...#####...####",
-".a.#bbb#.a.#bbb",
-"...#####...####",
-"###############",
-"...#####...####",
-".a.#bbb#.a.#bbb",
-"...#####...####",
-"###############",
-"...#####...####",
-".a.#bbb#.a.#bbb",
-"...#####...####"};
+"...*****...****",
+".a.*bbb*.a.*bbb",
+"...*****...****",
+"***************",
+"...*****...****",
+".a.*bbb*.a.*bbb",
+"...*****...****",
+"***************",
+"...*****...****",
+".a.*bbb*.a.*bbb",
+"...*****...****"};
 
 
 static QPixmap * openFolderIcon = 0;
