@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#235 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#236 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2495,13 +2495,6 @@ sub quotelist {
 }
 
 
-  
-sub makeindex {
-    
-
-}
-
-
 
 
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
@@ -2639,23 +2632,18 @@ print "Documented ", $countdoc, " member functions, left out ",
     $countall-$countdoc-$errmsg, " (", $countall,
     ") private or non-function members\n";
 
-#&makeindex();
-#&maketitleindex();
-#&makepropertyindex();
-#&makewhatsthis();
-#
 &post();
 
-#chdir( "$outputdir" );
-#print "Creating Index...\n";
-#system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
-#print "Creating Title Index...\n";
-#system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
-#print "Creating Property Index...\n";
-#system( "$ENV{'QTDIR'}/util/qdoc/mkproperties propertyindex *.html" );
-#print "Creating Whatsthis Help...\n";
-#system( "$ENV{'QTDIR'}/util/qdoc/mkwhatsthis whatsthis *.html" );
-#print "Finished!\n";
+chdir( "$outputdir" );
+print "Creating Index...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
+print "Creating Title Index...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
+print "Creating Property Index...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mkproperties propertyindex *.html" );
+print "Creating Whatsthis Help...\n";
+system( "$ENV{'QTDIR'}/util/qdoc/mkwhatsthis whatsthis *.html" );
+print "Finished!\n";
 
 if ( open( O, "> " . $ENV{"HOME"} . "/.qdoc-cache" ) ) {
     foreach ( keys %cachable ) {
