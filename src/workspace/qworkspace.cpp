@@ -1915,7 +1915,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
 QWorkspaceChild::~QWorkspaceChild()
 {
-    delete iconw;
+    if ( iconw )
+	delete iconw->parentWidget();
 }
 
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
@@ -2584,6 +2585,8 @@ void QWorkspaceChild::setCaption( const QString& cap )
 void QWorkspaceChild::internalRaise()
 {
     setUpdatesEnabled( FALSE );
+    if ( iconw )
+	iconw->parentWidget()->raise();
     raise();
 
     if ( !windowWidget() || windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
