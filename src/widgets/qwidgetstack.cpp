@@ -72,7 +72,9 @@ public:
 
     The application programmer can move any widget to the top of the
     stack at any time using raiseWidget(), and add or remove widgets
-    using addWidget() and removeWidget().
+    using addWidget() and removeWidget(). It is not sufficient to pass
+    the widget stack as parent to a widget which should be inserted into
+    the widgetstack.
 
     visibleWidget() is the \e get equivalent of raiseWidget(); it
     returns a pointer to the widget that is currently at the top of
