@@ -61,6 +61,7 @@ public:
     }
 
     bool operator!() const { return !d; }
+    bool isNull() const { return !d; }
 };
 
 template<class T> class QSharedPointer : public QExplicitSharedPointer<T>
