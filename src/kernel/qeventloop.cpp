@@ -232,9 +232,7 @@ int QEventLoop::loopLevel() const
 /*!
     Process pending events that match \a flags for a maximum of \a
     maxTime milliseconds, or until there are no more events to
-    process, which ever is shorter. If this function is called without
-    any arguments, then all event types are processed for a maximum of
-    3 seconds (3000 milliseconds).
+    process, which ever is shorter.
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
