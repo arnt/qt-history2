@@ -111,7 +111,7 @@ fi
 
 echo "Removing local files..." >&2
 cd ${DISTDIR}
-rm -f qt/doc.conf qt/opengl/doc.conf
+rm -f qt/doc.conf qt/opengl/doc.conf extensions/nsplugin/doc.conf
 find qt -name .cvsignore | xargs rm -f
 rm -rf qt/doc qt/etc qt/gif qt/tmake
 rm -rf qt/examples/sheet
