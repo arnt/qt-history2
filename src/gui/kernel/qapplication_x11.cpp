@@ -1066,7 +1066,7 @@ static void qt_get_net_supported()
                                False, XA_ATOM, &type, &format, &nitems, &after, &data);
 
             if (type == XA_ATOM && format == 32) {
-                ts.write(reinterpret_cast<char *>(data), nitems * 4);
+                ts.write(reinterpret_cast<char *>(data), nitems * sizeof(long));
                 offset += nitems;
             } else
                 after = 0;
