@@ -1213,41 +1213,37 @@ void QWidget::drawText( int x, int y, const QString &str )
 
 int QWidget::metric( int m ) const
 {
-    WindowPtr p = (WindowPtr)winid;
-    if ( m == QPaintDeviceMetrics::PdmWidth ) {
-	if ( !isTopLevel() ) {
+    switch(m) {
+    case QPaintDeviceMetrics::PdmHeightMM: // 75 dpi is 3dpmm
+	return (metric(QPaintDeviceMetrics::PdmHeight)*100)/288;
+    case QPaintDeviceMetrics::PdmWidthMM: // 75 dpi is 3dpmm
+	return (metric(QPaintDeviceMetrics::PdmWidth)*100)/288;
+    case QPaintDeviceMetrics::PdmWidth:
+    {
+	if ( !isTopLevel() ) 
 	    return crect.width();
-	} else {
-  	    Rect windowBounds;
-            GetPortBounds( GetWindowPort( p ), &windowBounds );
-            return windowBounds.right;
-	}
-    } else if( m == QPaintDeviceMetrics::PdmHeight ) {
-	if ( !isTopLevel() ) {
+	Rect windowBounds;
+	GetPortBounds( GetWindowPort( ((WindowPtr)winid) ), &windowBounds );
+	return windowBounds.right;
+    }
+
+    case QPaintDeviceMetrics::PdmHeight:
+    {
+	if ( !isTopLevel() ) 
 	    return crect.height();
-	} else {
-  	    Rect windowBounds;
-            GetPortBounds( GetWindowPort( p ), &windowBounds );
-            return windowBounds.bottom;
-	}
-    } else if ( m == QPaintDeviceMetrics::PdmWidthMM ) {
-	return metric( QPaintDeviceMetrics::PdmWidth );
-    } else if ( m == QPaintDeviceMetrics::PdmHeightMM ) {
-	return metric( QPaintDeviceMetrics::PdmHeight );
-    } else if ( m == QPaintDeviceMetrics::PdmNumColors ) {
+	Rect windowBounds;
+	GetPortBounds( GetWindowPort( ((WindowPtr)winid) ), &windowBounds );
+	return windowBounds.bottom;
+    }
+    case QPaintDeviceMetrics::PdmDepth:// FIXME : this is a lie in most cases
 	return 16;
-    } else if ( m == QPaintDeviceMetrics::PdmDepth ) {
-	// FIXME : this is a lie in most cases
-	return 16;
-    } else if ( m == QPaintDeviceMetrics::PdmDpiX ) {
-	// FIXME : this is a lie in most cases
+    case QPaintDeviceMetrics::PdmDpiX: // FIXME : this is a lie in most cases
 	return 80;
-    } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
-	// FIXME : this is a lie in most cases
+    case QPaintDeviceMetrics::PdmDpiY: // FIXME : this is a lie in most cases
 	return 80;
-    } else {
-        // FIXME: Handle this case
+    default: //leave this so the compiler complains when new ones are added
 	qWarning("QWidget::metric unhandled parameter %d",m);
+	return QPaintDevice::metric(m);// XXX
     }
     return 0;
 }
