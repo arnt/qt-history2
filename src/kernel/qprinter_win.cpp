@@ -346,6 +346,82 @@ void QPrinter::readPdlgA( void* pdv )
     }
 }
 
+static void setDefaultPrinter(const QString &printerName)
+{
+    // Open the printer by name, to get a HANDLE
+    HANDLE hPrinter;
+    if (! OpenPrinter((TCHAR *)qt_winTchar(printerName,TRUE),&hPrinter,NULL)) {
+    	qDebug("OpenPrinter(%s) failed, error %d",printerName.latin1(),GetLastError());
+     	return;
+    }
+
+    // Obtain PRINTER_INFO_2 and close printer afterwords
+    DWORD nbytes, rbytes;
+    GetPrinter(hPrinter,2,NULL,0,&nbytes);
+    PRINTER_INFO_2 *pinf2 = (PRINTER_INFO_2 *)GlobalAlloc(GPTR,nbytes);
+    BOOL callOk = GetPrinter(hPrinter,2,(LPBYTE)pinf2,nbytes,&rbytes);
+    ClosePrinter(hPrinter);
+    if (! callOk) {
+	    qDebug("GetPrinter() failed, error %d",GetLastError());
+ 	    GlobalFree(pinf2);
+ 	    return;
+    }
+
+    
+    // There are drivers with no pDevMode structure!
+    if ( pinf2->pDevMode ) {
+        // Allocate a global HANDLE for a DEVMODE Structure
+        SIZE_T szDEVMODE = sizeof(DEVMODE) + pinf2->pDevMode->dmDriverExtra;
+        if ( hdevmode ) {
+            GlobalFree( hdevmode );
+            hdevmode = 0;
+        }
+        hdevmode = GlobalAlloc(GHND,szDEVMODE);
+        ASSERT(hdevmode != 0);
+        DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
+        ASSERT(pDevMode != 0);
+
+        // Copy DEVMODE from PRINTER_INFO_2 Structure
+        memcpy(pDevMode,pinf2->pDevMode,szDEVMODE);
+        GlobalUnlock(hdevmode);
+    }
+
+    // Allocate a global HANDLE for a DEVNAMES Structure
+    DWORD   lDrvrName = lstrlen(pinf2->pDriverName) + 1;
+    DWORD   lPrntName = lstrlen(pinf2->pPrinterName) + 1;
+    DWORD   lPortName = lstrlen(pinf2->pPortName) + 1;
+    if ( hdevnames ) {
+    	GlobalFree( hdevnames );
+	    hdevnames = 0;
+    }
+    hdevnames = GlobalAlloc(GHND,(lDrvrName + lPrntName + lPortName) * sizeof(TCHAR) + sizeof(DEVNAMES));
+    ASSERT(hdevnames != 0);
+    DEVNAMES *pDevNames = (DEVNAMES *)GlobalLock(hdevnames);
+    ASSERT(pDevNames != 0);
+
+    // Create DEVNAMES Information from PRINTER_INFO_2 Structure
+    int tcOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
+    ASSERT(sizeof(DEVNAMES) == tcOffset * sizeof(TCHAR));
+
+    pDevNames->wDriverOffset = tcOffset;
+    memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pDriverName,lDrvrName * sizeof(TCHAR));
+    tcOffset += lDrvrName;
+
+    pDevNames->wDeviceOffset = tcOffset;
+    memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPrinterName,lPrntName * sizeof(TCHAR));
+    tcOffset += lPrntName;
+
+    pDevNames->wOutputOffset = tcOffset;
+    memcpy((LPTSTR)pDevNames + tcOffset,pinf2->pPortName,lPortName * sizeof(TCHAR));
+    tcOffset += lPortName;
+
+    // This is (probably) not the Default Printer
+    pDevNames->wDefault = 0;
+
+    // Clean up
+    GlobalUnlock(pDevNames);
+    GlobalFree(pinf2);
+}
 
 bool QPrinter::setup( QWidget *parent )
 {
@@ -356,6 +432,9 @@ bool QPrinter::setup( QWidget *parent )
 
     bool result = FALSE;
 
+    if ( !printerName().isEmpty() )
+        setDefaultPrinter( printerName() );
+    
     // Must handle the -A and -W versions separately; they're incompatible
     if ( qt_winver & Qt::WV_NT_based ) {
 	PRINTDLG pd;
