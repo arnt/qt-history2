@@ -17,15 +17,12 @@ HEADERS += \
 	painting/qpainterpath.h \
 	painting/qpainterpath_p.h \
 	painting/qpen.h \
-	painting/qpoint.h \
 	painting/qpointarray.h \
 	painting/qpolygon.h \
 	painting/qpolygonscanner.h \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
-	painting/qrect.h \
 	painting/qregion.h \
-	painting/qsize.h \
 	painting/qmatrix.h \
 	painting/qwmatrix.h
 
@@ -42,14 +39,11 @@ SOURCES += \
 	painting/qpainter.cpp \
 	painting/qpainterpath.cpp \
 	painting/qpen.cpp \
-	painting/qpoint.cpp \
 	painting/qpointarray.cpp \
 	painting/qpolygon.cpp \
 	painting/qpolygonscanner.cpp \
 	painting/qprinter.cpp \
-	painting/qrect.cpp \
 	painting/qregion.cpp \
-	painting/qsize.cpp \
 	painting/qmatrix.cpp
 
 win32 {
