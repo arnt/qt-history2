@@ -66,8 +66,7 @@ bool QOpenGLPaintEngine::end()
 void QOpenGLPaintEngine::updatePen(QPainterState *ps)
 {
     dgl->makeCurrent();
-//     dgl->qglColor(ps->pen.color());
-    glColor3ub(ps->pen.color().red(), ps->pen.color().green(), ps->pen.color().blue());
+    dgl->qglColor(ps->pen.color());
     d->cpen = ps->pen;
     d->cbrush = ps->brush;
 }
@@ -150,36 +149,29 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
 {
     dgl->makeCurrent();
     if (d->cbrush.style() != NoBrush) {
-// 	dgl->qglColor(d->cbrush.color());
-	glColor3ub(d->cbrush.color().red(), d->cbrush.color().green(), d->cbrush.color().blue());
+ 	dgl->qglColor(d->cbrush.color());
  	glBegin(GL_POLYGON);
 	{
 	    glVertex2i(r.x(), r.y());
 	    glVertex2i(r.x()+r.width(), r.y());
-	    glVertex2i(r.x()+r.width(), r.y());
-	    glVertex2i(r.x()+r.width(), r.y()+r.height());
 	    glVertex2i(r.x()+r.width(), r.y()+r.height());
 	    glVertex2i(r.x(), r.y()+r.height());
-	    glVertex2i(r.x(), r.y()+r.height());
-	    glVertex2i(r.x(), r.y());
 	}
 	glEnd();
-// 	dgl->qglColor(d->cpen.color());
-	glColor3ub(d->cpen.color().red(), d->cpen.color().green(), d->cpen.color().blue());
+ 	dgl->qglColor(d->cpen.color());
 	if (d->cpen.style() == NoPen)
 	    return;
     }
     QRect rr = r;
     rr.setWidth(r.width()-1);
     rr.setHeight(r.height()-1);
+    rr.moveBy(0,1);
 
     if (d->cpen.style() != NoPen) {
  	glBegin(GL_LINE_LOOP);
 	{
 	    glVertex2i(rr.x(), rr.y());
 	    glVertex2i(rr.x()+rr.width(), rr.y());
-	    glVertex2i(rr.x()+rr.width(), rr.y());
-	    glVertex2i(rr.x()+rr.width(), rr.y()+rr.height());
 	    glVertex2i(rr.x()+rr.width(), rr.y()+rr.height());
 	    glVertex2i(rr.x(), rr.y()+rr.height());
 	}
@@ -210,7 +202,25 @@ void QOpenGLPaintEngine::drawPoints(const QPointArray &pa, int index, int npoint
 
 void QOpenGLPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
 {
+    dgl->makeCurrent();
+    glLineStipple(1, 0x5555);
+    glEnable(GL_LINE_STIPPLE);
+    QRect rr = r;
+    rr.setWidth(r.width()-1);
+    rr.setHeight(r.height()-1);
+    rr.moveBy(0, 1);
 
+    if (d->cpen.style() != NoPen) {
+ 	glBegin(GL_LINE_LOOP);
+	{
+	    glVertex2i(rr.x(), rr.y());
+	    glVertex2i(rr.x()+rr.width(), rr.y());
+	    glVertex2i(rr.x()+rr.width(), rr.y()+rr.height());
+	    glVertex2i(rr.x(), rr.y()+rr.height());
+	}
+ 	glEnd();
+    }
+    glDisable(GL_LINE_STIPPLE);
 }
 
 void QOpenGLPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
