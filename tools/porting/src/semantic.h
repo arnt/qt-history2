@@ -74,8 +74,8 @@ protected:
     QList<CodeModel::Member *> lookupNameInScope(CodeModel::Scope *scope, const NameAST* name);
     CodeModel::TypeMember *typeLookup(CodeModel::Scope *baseScope, const NameAST* name);
 
-    CodeModel::FunctionMember *Semantic::functionLookup(CodeModel::Scope *baseScope,  const DeclaratorAST *functionDeclarator);
-    CodeModel::FunctionMember *Semantic::selectFunction(QList<CodeModel::Member*> candidatateList, const DeclaratorAST *functionDeclarator);
+    CodeModel::FunctionMember *functionLookup(CodeModel::Scope *baseScope,  const DeclaratorAST *functionDeclarator);
+    CodeModel::FunctionMember *selectFunction(QList<CodeModel::Member*> candidatateList, const DeclaratorAST *functionDeclarator);
 private:
     CodeModel::NamespaceScope *findOrInsertNamespace(NamespaceAST *ast, const QByteArray &name);
     QByteArray typeOfDeclaration(TypeSpecifierAST *typeSpec, DeclaratorAST *declarator);

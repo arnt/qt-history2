@@ -43,7 +43,7 @@ private:
     void scanOperator(int *kind);
     void scanKeyword(int *kind);
 
-    bool RppLexer::match(char *buf, int len);
+    bool match(char *buf, int len);
     typedef void (RppLexer::*scan_fun_ptr)(int *kind);
     RppLexer::scan_fun_ptr s_scan_table[128+1];
     int s_attr_table[256];

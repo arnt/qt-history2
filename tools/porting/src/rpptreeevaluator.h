@@ -61,7 +61,7 @@ protected:
 
     TokenEngine::TokenContainer evaluateMacro(TokenEngine::TokenContainer tokenContainer, int &identiferTokenIndex);
     TokenEngine::TokenContainer cloneTokenList(const TokenEngine::TokenList &list);
-    Source *RppTreeEvaluator::getParentSource(const Item *item) const;
+    Source *getParentSource(const Item *item) const;
     IncludeType includeTypeFromDirective(
                     const IncludeDirective *includeDirective) const;
 private:

@@ -92,7 +92,7 @@ private:
 class TokenSequence
 {
 public:
-    virtual TokenSequence::~TokenSequence() {}
+    virtual ~TokenSequence() {}
     virtual int count() const = 0;
     virtual QByteArray text(const int index) const = 0;
     virtual TokenContainer tokenContainer(const int index) const = 0;

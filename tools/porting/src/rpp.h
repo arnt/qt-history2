@@ -459,7 +459,7 @@ protected:
 
 struct IfSection: public Item, public ItemComposite
 {
-    IfSection::IfSection(Item *parent)
+    IfSection(Item *parent)
     :m_parent(parent), m_ifGroup(0), m_elseGroup(0), m_endifLine(0) {}
 
     IfSection *toIfSection() const
