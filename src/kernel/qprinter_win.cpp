@@ -51,7 +51,53 @@
 #define PST_ACTIVE      1
 #define PST_ABORTED     2
 
+#ifdef IN
+#undef IN
+#endif
+#ifdef MM
+#undef MM
+#endif
 
+#define MM(n) int((n * 720 + 127) / 254)
+#define IN(n) int(n * 72)
+
+struct PaperSize {
+    int width, height;
+};
+
+static PaperSize paperSizes[QPrinter::NPageSize] =
+{
+    {  MM(210), MM(297) },      // A4
+    {  MM(176), MM(250) },      // B5
+    {  IN(8.5), IN(11) },       // Letter
+    {  IN(8.5), IN(14) },       // Legal
+    {  IN(7.5), IN(10) },       // Executive
+    {  MM(841), MM(1189) },     // A0
+    {  MM(594), MM(841) },      // A1
+    {  MM(420), MM(594) },      // A2
+    {  MM(297), MM(420) },      // A3
+    {  MM(148), MM(210) },      // A5
+    {  MM(105), MM(148) },      // A6
+    {  MM(74), MM(105)},        // A7
+    {  MM(52), MM(74) },        // A8
+    {  MM(37), MM(52) },        // A9
+    {  MM(1000), MM(1414) },    // B0
+    {  MM(707), MM(1000) },     // B1
+    {  MM(31), MM(44) },        // B10
+    {  MM(500), MM(707) },      // B2
+    {  MM(353), MM(500) },      // B3
+    {  MM(250), MM(353) },      // B4
+    {  MM(125), MM(176) },      // B6
+    {  MM(88), MM(125) },       // B7
+    {  MM(62), MM(88) },        // B8
+    {  MM(44), MM(62) },        // B9
+    {  MM(163), MM(229) },      // C5E
+    {  MM(105), MM(241) },      // Comm10E
+    {  MM(110), MM(220) },      // DLE
+    {  MM(210), MM(330) },      // Folio
+    {  MM(432), MM(279) },      // Ledger
+    {  MM(279), MM(432) },      // Tabloid
+};
 
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
 
@@ -283,7 +329,7 @@ static PageSizeNames names[] = {
           { DMPAPER_A2,                 QPrinter::A2 },
           { DMPAPER_A3_TRANSVERSE,      QPrinter::A3 },
           { DMPAPER_A3_EXTRA_TRANSVERSE,        QPrinter::A3 },
-          { -1, QPrinter::A4 }
+          { 0, QPrinter::A4 }
 };
 
 static QPrinter::PageSize mapDevmodePageSize( int s )
@@ -297,7 +343,7 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
 static int mapPageSizeDevmode( QPrinter::PageSize s )
 {
     int i = 0;
-    while ( (names[i].qtSizeName > 0) && (names[i].qtSizeName != s) )
+    while ( (names[i].winSizeName > 0) && (names[i].qtSizeName != s) )
     i++;
     return names[i].winSizeName;
 }
@@ -538,9 +584,15 @@ bool QPrinter::setup( QWidget *parent )
             else
                 dm->dmOrientation = DMORIENT_LANDSCAPE;
             dm->dmCopies = ncopies;
-            dm->dmPaperSize = mapPageSizeDevmode( pageSize() );
             dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-            if ( colorMode() == Color )
+                       int winPageSize = mapPageSizeDevmode( pageSize() );
+                       if ( winPageSize != 0 ) {
+                           dm->dmPaperSize = winPageSize;
+                       } else if ( pageSize() < Custom ) {
+                           dm->dmPaperSize = 0;
+                           dm->dmPaperLength = paperSizes[ pageSize() ].height;
+                           dm->dmPaperWidth = paperSizes[ pageSize() ].width;
+                       }            if ( colorMode() == Color )
                 dm->dmColor = DMCOLOR_COLOR;
             else
                 dm->dmColor = DMCOLOR_MONOCHROME;
@@ -591,9 +643,16 @@ bool QPrinter::setup( QWidget *parent )
                 else
                     dm->dmOrientation = DMORIENT_LANDSCAPE;
                 dm->dmCopies = ncopies;
-                dm->dmPaperSize = mapPageSizeDevmode( pageSize() );
                 dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-                if ( colorMode() == Color )
+		int winPageSize = mapPageSizeDevmode( pageSize() );
+		if ( winPageSize != 0 ) {
+		    dm->dmPaperSize = winPageSize;
+		} else if ( pageSize() < Custom ) {
+		    dm->dmPaperSize = 0;
+		    dm->dmPaperLength = paperSizes[ pageSize() ].height;
+		    dm->dmPaperWidth = paperSizes[ pageSize() ].width;
+		}
+		if ( colorMode() == Color )
                     dm->dmColor = DMCOLOR_COLOR;
                 else
                     dm->dmColor = DMCOLOR_MONOCHROME;
