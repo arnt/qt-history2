@@ -568,24 +568,28 @@ void QWin32PaintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
             }
         }
 
-        POINT *cPoints;
-        int cCount;
-        d->polygonClipper.clipPolygon((qt_float_point*)points, pointCount, &cPoints, &cCount, false);
+//        POINT *cPoints;
+//        int cCount;
+//        d->polygonClipper.clipPolygon((qt_float_point*)points, pointCount, &cPoints, &cCount, false);
 
-        if (cCount == 0)
-            return;
+        QVector<QPoint> vector;
+        for (int i=0; i<pointCount; ++i)
+            vector << points[i].toPoint();
+
+//        if (cCount == 0)
+ //           return;
 
         if (plot_pixel) {
-            Polyline(d->hdc, cPoints, cCount);
+            Polyline(d->hdc, (const POINT*) vector.constData(), pointCount);
 #ifndef Q_OS_TEMP
             SetPixelV(d->hdc, x2, y2, d->pColor);
 #else
             SetPixel(d->hdc, x2, y2, d->pColor);
 #endif
         } else {
-            cPoints[pointCount-1].x = x2;
-            cPoints[pointCount-1].y = y2;
-            Polyline(d->hdc, cPoints, cCount);
+//            cPoints[pointCount-1].x = x2;
+//            cPoints[pointCount-1].y = y2;
+            Polyline(d->hdc, (const POINT*)vector.constData(), pointCount);
         }
         return;
     }
