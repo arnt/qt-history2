@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#49 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2617,26 +2617,6 @@ void QMultiLineEdit::setValidator( const QValidator *v )
 const QValidator * QMultiLineEdit::validator() const
 {
     return mlData->val;
-}
-
-/*!
-  Moves the cursor left \a steps characters.  The traversed
-  text is marked if \a mark is TRUE.
-*/
-void QMultiLineEdit::cursorLeft( bool mark, long steps )
-{
-    while ( steps-- )
-	cursorLeft( mark, TRUE );
-}
-
-/*!
-  Moves the cursor right \a steps characters.  The traversed
-  text is marked if \a mark is TRUE.
-*/
-void QMultiLineEdit::cursorRight( bool mark, long steps )
-{
-    while ( steps-- )
-	cursorRight( mark, TRUE );
 }
 
 /*!  Sets the edited flag of this line edit to \a on.  The edited flag

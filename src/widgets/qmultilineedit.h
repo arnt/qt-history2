@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#15 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#16 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -74,8 +74,6 @@ public:
     void setEdited( bool );
     bool edited() const;
 
-    void cursorLeft( bool mark, long steps );
-    void cursorRight( bool mark, long steps );
     void cursorWordForward( bool mark );
     void cursorWordBackward( bool mark );
 
