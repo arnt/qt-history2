@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#17 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#18 $
 **
 ** Defintion of  QSplitter class
 **
@@ -72,6 +72,7 @@ protected:
 
     int adjustPos( int , int );
     virtual void setRubberband( int );
+    void getRange( int id, int*, int* );
 
 private:
     void init();
@@ -81,6 +82,9 @@ private:
     void storeSizes();
     QSplitterLayoutStruct *addWidget( QWidget*, bool first = FALSE );
     void recalcId();
+    void moveBefore( int pos, int id );
+    void moveAfter( int pos, int id );
+    void setG( QWidget *w, int p, int s );
     
     // Josef Wagmann <josef.wagmann@passau.netsurf.de> wants access to these
     QCOORD pick( const QPoint &p ) const
@@ -93,7 +97,6 @@ private:
     QCOORD trans( const QSize &s ) const
     { return orient == Vertical ? s.width() : s.height(); }
 
-    //    QCOORD newpos() const;
 
 #if 0
     QWidget *w1;
@@ -102,7 +105,7 @@ private:
     QSplitterHandle *d;
 #else
     QSplitterData *data;
-#endif    
+#endif
     Orientation orient;
     QCOORD bord; //half border
     friend class QSplitterHandle;
