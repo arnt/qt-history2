@@ -12,9 +12,13 @@ SUBDIRS += testcon \
  
 opengl:SUBDIRS += opengl
 
-win32-g++:SUBDIRS -= simple \
-			tetrax \
-			menus \
-			opengl
+#mingw dose not suport controls yet
+win32-g++:SUBDIRS -= multiple \
+	  simple \
+	  tetrax \
+	  wrapper \
+	  menus \
+	  hierarchy \
+	  opengl
 
 

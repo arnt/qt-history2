@@ -5,8 +5,13 @@ CONFIG		+= ordered
     message( "ActiveQt requires a Qt/Enterprise license." )
 }
 contains( QT_PRODUCT, qt-(enterprise|internal) ) {
-    SUBDIRS	= idc \
+    	
+	SUBDIRS	= idc \
 		  container \
 		  control \
 		  examples
+
+#mingw dos not suport controls yet
+	win32-g++:SUBDIRS -= idc \
+		  control
 }
