@@ -38,7 +38,7 @@
 
 #if defined(QT_THREAD_SUPPORT)
 
-#include <qplatformdefs.h>
+#include "qplatformdefs.h"
 
 #include "qthread.h"
 #include "qapplication.h"
@@ -920,4 +920,5 @@ bool QSemaphore::tryAccess(int n)
 
 #include "qthread_unix.moc"
 
-#endif
+
+#endif // QT_THREAD_SUPPORT
