@@ -1018,28 +1018,31 @@ void QCanvas::advance()
     update();
 }
 
-#ifndef QT_NO_TRANSFORMATIONS
 // Don't call this unless you know what you're doing.
 /*!
   \internal
 */
 void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, bool dbuf )
 {
-    QWMatrix wm = view->worldMatrix();
     QPoint tl = view->contentsToViewport(QPoint(0,0));
-    QWMatrix iwm = wm.invert();
 
+#ifndef QT_NO_TRANSFORMATIONS
+    QWMatrix wm = view->worldMatrix();
+    QWMatrix iwm = wm.invert();
     // ivr = covers all chunks in vr
     QRect ivr = iwm.map(vr);
-
     QWMatrix twm;
     twm.translate(tl.x(),tl.y());
+#else
+    QRect ivr = vr;
+#endif
 
     QRect all(0,0,width(),height());
 
     if ( !all.contains(ivr) ) {
 	// Need to clip with edge of canvas.
 
+#ifndef QT_NO_TRANSFORMATIONS
 	// For translation-only transformation, it is safe to include the right
 	// and bottom edges, but otherwise, these must be excluded since they
 	// are not precisely defined (different bresenham paths).
@@ -1049,36 +1052,50 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 	else
 	    a = QPointArray( all );
 
-	QWMatrix ttwm;
-	ttwm.translate(tl.x(),tl.y());
-	a = (wm*ttwm).map(a);
+	a = (wm*twm).map(a);
+#else
+	QPointArray a( QRect(all.x(),all.y(),all.width()+1,all.height()+1) );
+#endif
+	if ( view->viewport()->backgroundMode() == NoBackground ) {
+	    QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
+	    p->setClipRegion(QRegion(cvr)-QRegion(a));
+	    p->fillRect(vr,view->viewport()->palette()
+		.brush(QPalette::Active,QColorGroup::Background));
+	}
 	p->setClipRegion(a);
     }
 
     if ( dbuf ) {
 	ensureOffScrSize( vr.width(), vr.height() );
 	QPainter dbp(&offscr);
+#ifndef QT_NO_TRANSFORMATIONS
 	twm.translate(-vr.x(),-vr.y());
 	twm.translate(-tl.x(),-tl.y());
 	dbp.setWorldMatrix( wm*twm, TRUE );
+#else
+	dbp.translate(-vr.x()-tl.x(),-vr.y()-tl.y());
+#endif
 	dbp.setClipRect(0,0,vr.width(), vr.height());
 	drawCanvasArea(ivr,&dbp,FALSE);
-	p->drawPixmap(vr.x()+tl.x(), vr.y()+tl.y(), offscr, 0, 0,
-	    vr.width(), vr.height());
+	p->drawPixmap(vr.x(), vr.y(), offscr, 0, 0, vr.width(), vr.height());
     } else {
-	p->setWorldMatrix( wm*twm );
-
-	QRect r = vr; r.moveBy(tl.x(),tl.y());
+	QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
 	if ( !all.contains(ivr) ) {
-	    p->setClipRegion(p->clipRegion() & r);
+	    QRegion inside = p->clipRegion() & r;
+	    //QRegion outside = p->clipRegion() - r;
+	    //p->setClipRegion(outside);
+	    //p->fillRect(outside.boundingRect(),red);
+	    p->setClipRegion(inside);
 	} else {
 	    p->setClipRect(r);
 	}
-
+#ifndef QT_NO_TRANSFORMATIONS
+	p->setWorldMatrix( wm*twm );
+#else
+#endif
 	drawCanvasArea(ivr,p,FALSE);
     }
 }
-#endif
 
 /*!
   Repaints changed areas in all views of the canvas.
@@ -3522,23 +3539,8 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
-#ifndef QT_NO_TRANSFORMATIONS
-	if ( !d->xform.isIdentity() ) {
-	    viewing->drawViewArea(this,p,r,FALSE);
-	} else
-#endif
-	{
-	    viewing->drawCanvasArea(r,p,!d->repaint_from_moving);
-	}
-
-	// check if drawing outside of the canvas.
-	if (viewing->width() < (cx + cw))
-	    p->eraseRect(viewing->width(), cy,
-		    cx + cw - viewing->width(), ch);
-	if (viewing->height() < (cy + ch))
-	    p->eraseRect(cx, viewing->height(), cw,
-		    cy + ch - viewing->height());
-
+	//viewing->drawViewArea(this,p,r,TRUE);
+	viewing->drawViewArea(this,p,r,!d->repaint_from_moving);
 	d->repaint_from_moving = FALSE;
     } else {
 	p->eraseRect(r);
