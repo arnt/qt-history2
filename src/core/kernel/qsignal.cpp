@@ -219,17 +219,27 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
         sig[sig.size() - 1] = ')';
     sig.append('\0');
 
+    QMetaObject::Call call = QMetaObject::InvokeSlot;
     int idx = obj->metaObject()->indexOfSlot(sig.constData());
-    if (idx < 0)
-        idx = obj->metaObject()->indexOfSlot(
-                QMetaObject::normalizedSignature(sig.constData()).constData());
+    if (idx < 0) {
+        QByteArray norm = QMetaObject::normalizedSignature(sig.constData());
+        idx = obj->metaObject()->indexOfSlot(norm.constData());
+        if (idx < 0) {
+            call = QMetaObject::EmitSignal;
+            idx = obj->metaObject()->indexOfSignal(norm.constData());
+        }
+    }
     if (idx < 0)
         return false;
 
     // check return type
-    if (ret.data() && qstrcmp(ret.name(), obj->metaObject()->slot(idx).typeName()) != 0)
-        return false;
-
+    if (ret.data()) {
+        const char *retType = call == QMetaObject::InvokeSlot
+                              ? obj->metaObject()->slot(idx).typeName()
+                              : obj->metaObject()->signal(idx).typeName();
+        if (qstrcmp(ret.name(), retType) != 0)
+            return false;
+    }
     void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
                      val5.data(), val6.data(), val7.data(), val8.data(), val9.data()};
     if (type == Qt::AutoConnection) {
@@ -239,8 +249,13 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
     }
 
     if (type != Qt::QueuedConnection) {
-        return obj->qt_metacall(QMetaObject::InvokeSlot, idx, param) < 0;
+        return obj->qt_metacall(call, idx, param) < 0;
     } else {
+        if (ret.data()) {
+            qWarning("qInvokeMetaMember: Unable to invoke methods with return values in queued "
+                     "connections.");
+            return false;
+        }
         int nargs = 1; // include return type
         void **args = (void **) qMalloc(ParamCount * sizeof(void *));
         int *types = (int *) qMalloc(ParamCount * sizeof(int));
@@ -252,13 +267,15 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
                 args[i] = QMetaType::copy(types[i], param[i]);
                 ++nargs;
             } else if (param[i]) {
-                qWarning("Unable to handle unregistered datatype '%s'", typeNames[i]);
+                qWarning("qInvokeMetaMember: Unable to handle unregistered datatype '%s'",
+                         typeNames[i]);
                 return false;
             }
         }
 
         QCoreApplication::postEvent(obj,
-               new QMetaCallEvent(QEvent::InvokeSlot, idx, obj, nargs, types, args));
+               new QMetaCallEvent(call == QMetaObject::InvokeSlot ? QEvent::InvokeSlot
+                                  : QEvent::EmitSignal, idx, obj, nargs, types, args));
     }
     return true;
 }
