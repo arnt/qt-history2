@@ -113,9 +113,7 @@ struct QWExtra {
     uint children_use_dnd : 1;
     uint compress_events : 1;
 #endif
-#if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;                                // widget mask
-#endif
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif

@@ -274,6 +274,7 @@ public:
 
     void setMask(const QBitmap &);
     void setMask(const QRegion &);
+    QRegion mask() const; 
     void clearMask();
 
     void setWindowTitle(const QString &);

@@ -289,6 +289,7 @@ public:
         WA_LayoutOnEntireRect,
         WA_OutsideWSRange,
         WA_GrabbedShortcut,
+        WA_TransparentForMouseEvents,
 
         // Add new attributes above this!
         WA_AttributeCount

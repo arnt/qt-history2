@@ -5567,6 +5567,17 @@ void QWidget::updateMask()
 }
 
 /*!
+    Returns the mask currently set on a widget. If no mask is set the
+    return value will be an empty region.
+
+    \sa setMask(), clearMask(), QRegion::isEmpty()
+*/
+QRegion QWidget::mask() const
+{
+    return d->extra ? d->extra->mask : QRegion();
+}
+
+/*!
     Returns the layout engine that manages the geometry of this
     widget's children.
 

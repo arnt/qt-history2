@@ -1944,7 +1944,7 @@ QWidget *QApplication::findChildWidget(const QWidget *p, const QPoint &pos)
     return findWidget(p->children(), pos, true);
 }
 
-QWidget *QApplication::widgetAt(int x, int y)
+QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     // XXX not a fast function...
     QWidgetList list = topLevelWidgets();

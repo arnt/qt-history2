@@ -2532,6 +2532,10 @@ void QWidget::setAcceptDrops(bool on)
 
 void QWidget::setMask(const QRegion& region)
 {
+    d->createExtra();
+    if(QWExtra *extra = d->extraData())
+        extra->mask = region;
+
     XShapeCombineRegion(d->xinfo->display(), winId(), ShapeBounding, 0, 0,
                          region.handle(), ShapeSet);
 }
@@ -2552,6 +2556,10 @@ void QWidget::setMask(const QRegion& region)
 
 void QWidget::setMask(const QBitmap &bitmap)
 {
+    d->createExtra();
+    if(QWExtra *extra = d->extraData())
+        extra->mask = QRegion(bitmap);
+
     QBitmap bm = bitmap;
     if (bm.x11Info()->screen() != d->xinfo->screen())
         bm.x11SetScreen(d->xinfo->screen());

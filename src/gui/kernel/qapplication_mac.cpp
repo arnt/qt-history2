@@ -1025,7 +1025,7 @@ QWidget *qt_recursive_match(QWidget *widget, int x, int y)
     return child ? QWidget::find((WId)child) : widget;
 }
 
-QWidget *QApplication::widgetAt(int x, int y)
+QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     //find the tld
     QWidget *widget;

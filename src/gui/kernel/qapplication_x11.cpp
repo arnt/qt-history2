@@ -2528,16 +2528,7 @@ Window qt_x11_findClientWindow(Window win, Atom property, bool leaf)
 }
 
 
-/*!
-    Returns a pointer to the widget at global screen position \a
-    (x, y), or 0 if there is no Qt widget there.
-
-    This function is normally rather slow.
-
-    \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
-*/
-
-QWidget *QApplication::widgetAt(int x, int y)
+QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     int screen = QCursor::x11Screen();
     int lx, ly;

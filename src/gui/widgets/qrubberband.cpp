@@ -18,6 +18,9 @@
 #include "qbitmap.h"
 #include "qevent.h"
 #include "qtimer.h"
+#ifdef Q_WS_MAC
+# include "qt_mac.h"
+#endif
 
 #include <private/qwidget_p.h>
 class QRubberBandPrivate : public QWidgetPrivate
@@ -46,10 +49,9 @@ public:
 
     You can create a QRubberBand whenever you need to render a rubber
     band around a given area (or to represent a single line), then
-    call setGeometry() to move and size it; hiding the widget will
-    make the rubber band disappear.
+    call setGeometry() to move and size it; hiding (or destroying) the
+    widget will make the rubber band disappear.
 */
-//### Why hide it rather than delete it?
 
 //### How about some nice convenience constructors?
 //QRubberBand::QRubberBand(QRubberBand::Type t, const QRect &rect, QWidget *p)
@@ -69,7 +71,12 @@ QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) :
             WType_TopLevel | WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
 {
     d->shape = s;
+    setAttribute(WA_TransparentForMouseEvents);
     setAutoMask(true);
+#ifdef Q_WS_MAC
+    extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+    ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), kWindowNoShadowAttribute, 0);
+#endif
 }
 
 /*!

@@ -945,6 +945,30 @@ QApplication::~QApplication()
 }
 
 
+/*!
+    Returns a pointer to the widget at global screen position \a
+    (x, y), or 0 if there is no Qt widget there.
+
+    This function is normally rather slow.
+
+    \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
+*/
+QWidget *QApplication::widgetAt(int x, int y)
+{
+    QWidget *ret = widgetAt_sys(x, y);
+    if(ret && ret->testAttribute(Qt::WA_TransparentForMouseEvents)) {
+        //shoot a hole in the widget and try once again
+        QRegion oldmask = ret->mask();
+        QPoint wpoint = ret->mapFromGlobal(QPoint(x, y));
+        QRegion newmask = oldmask - QRegion(wpoint.x(), wpoint.y(), 1, 1);
+        ret->setMask(newmask);
+        QWidget *poke = widgetAt_sys(x, y);
+        ret->setMask(oldmask);
+        ret = poke;
+    }
+    return ret;
+}
+
 
 /*!
     \fn void QApplication::setArgs(int argc, char **argv)

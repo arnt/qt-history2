@@ -935,7 +935,7 @@ static QWidget *findChildWidget(const QWidget *p, const QPoint &pos)
     return 0;
 }
 
-QWidget *QApplication::widgetAt(int x, int y)
+QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     POINT p;
     HWND  win;

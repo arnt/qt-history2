@@ -234,6 +234,7 @@ public:
 
 #endif // QT_COMPAT
 private:
+    static QWidget *widgetAt_sys(int x, int y);
     bool notify_helper(QObject *receiver, QEvent * e);
 
     void construct(Type);

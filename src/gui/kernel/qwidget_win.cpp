@@ -1753,6 +1753,10 @@ void QWidget::setAcceptDrops(bool on)
 
 void QWidget::setMask(const QRegion &region)
 {
+    d->createExtra();
+    if(QWExtra *extra = d->extraData())
+        extra->mask = region;
+
     // Since SetWindowRegion takes ownership, and we need to translate,
     // we take a copy.
     HRGN wr = CreateRectRgn(0,0,1,1);
@@ -1769,6 +1773,10 @@ void QWidget::setMask(const QRegion &region)
 
 void QWidget::setMask(const QBitmap &bitmap)
 {
+    d->createExtra();
+    if(QWExtra *extra = d->extraData())
+        extra->mask = QRegion(bitmap);
+
     HRGN wr = qt_win_bitmapToRegion(bitmap);
 
     int fleft = 0, ftop = 0;
@@ -1782,6 +1790,9 @@ void QWidget::setMask(const QBitmap &bitmap)
 
 void QWidget::clearMask()
 {
+    d->createExtra();
+    if(QWExtra *extra = d->extraData())
+        extra->mask = QRegion();
     SetWindowRgn(winId(), 0, true);
 }
 
