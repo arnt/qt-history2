@@ -779,7 +779,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 	return FALSE;
 
     if (! value.isEmpty())
-	qWarning("QString::readBoolEntry: '%s' is not 'true' or 'false'",
+	qWarning("QSettings::readBoolEntry: '%s' is not 'true' or 'false'",
 		 value.latin1());
     if ( ok )
 	*ok = FALSE;
