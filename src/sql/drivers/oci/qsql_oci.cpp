@@ -172,9 +172,9 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     ub4		colType(0);
     text        *colName = 0;
     ub4         colNameLen(0);
-    sb1	colScale(0);
+    sb1		colScale(0);
     ub4         colLength(0);
-    sb2	colPrecision(0);
+    sb2		colPrecision(0);
     int		r(0);
     QVariant::Type type( QVariant::Invalid );
 
@@ -1029,11 +1029,11 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
     QSqlQuery t = createQuery();
     QString stmt ("select column_name, data_type, data_length, data_precision, data_scale "
 		  "from user_tab_columns "
-		  "where table_name='%1';" );
+		  "where table_name='%1'" );
     t.exec( stmt.arg( tablename.upper() ) );
     while ( t.next() ) {
-	QString dt = t.value(1).toString();
-	QVariant::Type ty = qDecodeOCIType( dt, t.value(1).toInt(), t.value(2).toInt(), t.value(3).toInt() );
+	QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(),
+			t.value(3).toInt(), t.value(4).toInt() );
 	QSqlField f( t.value(0).toString(), ty );
 	fil.append( f );
     }
@@ -1052,6 +1052,34 @@ QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 	fil = result->fs;
     }
     return fil;
+}
+
+QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
+{
+    QSqlRecordInfo fil;
+    if ( !isOpen() )
+	return fil;
+    QSqlQuery t = createQuery();
+    QString stmt ("select column_name, data_type, data_length, data_precision, data_scale, nullable, data_default "
+		  "from user_tab_columns "
+		  "where table_name='%1'" );
+    t.exec( stmt.arg( tablename.upper() ) );
+    while ( t.next() ) {
+	QVariant::Type ty = qDecodeOCIType( t.value(1).toString(), t.value(2).toInt(), t.value(3).toInt(), t.value(4).toInt() );
+	bool required = t.value( 5 ).toString() == "N";
+	int prec = -1;
+	if ( !t.isNull( 3 ) ) {
+	    prec = t.value( 3 ).toInt();
+	}
+	QSqlFieldInfo f( t.value(0).toString(), ty, required, t.value(2).toInt(), prec, t.value( 6 ) );
+	fil.append( f );
+    }
+    return fil;
+}
+
+QSqlRecordInfo QOCIDriver::recordInfo( const QSqlQuery& query ) const
+{
+    return QSqlRecordInfo( record( query ) );
 }
 
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const

@@ -97,6 +97,8 @@ public:
     QStringList         tables( const QString& user ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
+    QSqlRecordInfo      recordInfo( const QString& tablename ) const;
+    QSqlRecordInfo      recordInfo( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QString             formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
