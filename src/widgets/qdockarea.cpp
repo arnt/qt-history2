@@ -193,11 +193,13 @@ static int point_pos( const QPoint &p, Qt::Orientation o, bool swap = FALSE )
     return o == Qt::Horizontal ? ( swap ? p.y() : p.x() ) : ( swap ? p.x() : p.y() );
 }
 
-static void place_line( const QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextend )
+static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextend, int tbstrut )
 {
     QDockWidget *last = 0;
     QRect lastRect;
-    for ( QValueList<DockData>::ConstIterator it = lastLine.begin(); it != lastLine.end(); ++it ) {
+    for ( QValueList<DockData>::Iterator it = lastLine.begin(); it != lastLine.end(); ++it ) {
+	if ( (*it).w->inherits( "QToolBar" ) && tbstrut != -1 )
+	    (*it).rect.setHeight( tbstrut );
 	if ( !last ) {
 	    last = (*it).w;
 	    lastRect = (*it).rect;
@@ -239,7 +241,8 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     int sectionpos = 0;
     int linestrut = 0;
     QValueList<DockData> lastLine;
-
+    int tbstrut = -1;
+    
     // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
@@ -258,7 +261,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	if ( !lastLine.isEmpty() &&
 	     ( space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
 	    if ( !testonly ) // place the last line, if not in test mode
-		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ), tbstrut );
 	    // remember the line coordinats of the last line
 	    if ( orientation() == Horizontal )
 		lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
@@ -269,6 +272,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	    sectionpos += linestrut;
 	    linestrut = 0;
 	    pos = start;
+	    tbstrut = -1;
 	}
 
 	// remeber first widget of a line
@@ -284,13 +288,15 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
 	lastLine.append( DockData( dw, QRect( pos, sectionpos,
 					      dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
+	if ( dw->inherits( "QToolBar" ) )
+	    tbstrut = QMAX( tbstrut, dock_strut( dw, orientation() ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
 	add_size( dock_extend( dw, orientation() ), pos, orientation() );
     }
 
     // if some stuff was not placed/stored yet, do it now
     if ( !testonly )
-	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ), tbstrut );
     if ( orientation() == Horizontal )
 	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
     else
