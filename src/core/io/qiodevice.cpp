@@ -391,43 +391,87 @@ void QIODevice::close()
 #endif
 }
 
+/*!
+    Flushes all written data to the device. Returns true on succeess;
+    otherwise returns false.
+
+    When this function returns true, all data is guaranteed to have
+    been written to the device.
+*/
 bool QIODevice::flush()
 {
     return true;
 }
 
+/*!
+    For non-sequential devices, this function returns the position
+    that data is written to or read from. For sequential devices, it
+    always returns 0.
+
+    \sa isSequential(), seek()
+*/
 Q_LONGLONG QIODevice::pos() const
 {
     return Q_LONGLONG(0);
 }
 
+/*!
+    Returns the size of the device, if this can be
+    determined. Otherwise this function returns 0.
+*/
 Q_LONGLONG QIODevice::size() const
 {
     return Q_LONGLONG(0);
 }
 
-bool QIODevice::seek(Q_LONGLONG offset)
+/*!
+    For non-sequential devices, this function sets the current read
+    and write position to \a pos and returns true. Otherwise it does
+    nothing and returns false.
+
+    \sa pos()
+*/
+bool QIODevice::seek(Q_LONGLONG pos)
 {
-    if (offset > 0)
-        read(offset);
-    return true;
+    return false;
 }
 
+/*!
+    Returns true if the current read and write position is at the end
+    of the device (i.e. there is no more data available for reading on
+    the device); otherwise returns false.
+*/
 bool QIODevice::atEnd() const
 {
     return pos() == size();
 }
 
+/*!
+    Seeks to the start of input for non-sequential devices. Equivalent
+    to seek(0).
+
+    \sa seek()
+*/
 bool QIODevice::reset()
 {
     return seek(0);
 }
 
+/*!
+    Returns the number of bytes that are available for reading.
+*/
 Q_LONGLONG QIODevice::bytesAvailable() const
 {
     return size() - pos();
 }
 
+/*!
+    For devices that buffer data before it is written, this function
+    returns the number of bytes waiting to be written. For unbuffered
+    devices, this function always returns 0.
+
+    \sa flush()
+*/
 Q_LONGLONG QIODevice::bytesToWrite() const
 {
     return Q_LONGLONG(0);
