@@ -8,7 +8,7 @@ ActionPlugInManager::ActionPlugInManager( const QString& path, const QString& fi
 
 QAction* ActionPlugInManager::create( const QString& actionname, QObject* parent )
 {
-    QAction *a;
+    QAction *a = 0;
     ActionInterface *iface = queryInterface( actionname );
     if ( iface ) {
 	a = iface->create( actionname, parent );
