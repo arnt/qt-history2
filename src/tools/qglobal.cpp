@@ -813,9 +813,8 @@ unsigned int qt_int_sqrt( unsigned int n )
     // n must be in the range 0...UINT_MAX/2-1
     if ( n >= UINT_MAX>>2 ) {
 	unsigned int r = 2 * qt_int_sqrt( n / 4 );
-	if ( n / r > r + 1 )
-	    return r + 1;
-	return r;
+	unsigned int r2 = r + 1;
+	return ( n >= r2 * r2 ) ? r2 : r;
     }
     uint h, p= 0, q= 1, r= n;
     while ( q <= n )
