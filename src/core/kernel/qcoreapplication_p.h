@@ -38,6 +38,10 @@ public:
 
     virtual void createEventLoop();
 
+#ifdef QT_COMPAT
+    void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
+#endif
+
     int &argc;
     char **argv;
     QEventLoop *eventLoop;

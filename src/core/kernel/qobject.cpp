@@ -51,9 +51,9 @@ QObjectPrivate::QObjectPrivate(int version)
     pendTimer = false;                          // no timers yet
     blockSig = false;                           // not blocking signals
     wasDeleted = false;                         // double-delete catcher
-    hasPostedEvents = false;
+    postedEvents = 0;
 #ifdef QT_COMPAT
-    hasPostedChildInsertedEvents = false;
+    postedChildInsertedEvents = 0;
 #endif
 }
 

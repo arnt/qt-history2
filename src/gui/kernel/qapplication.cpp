@@ -2583,36 +2583,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                .latin1());
 
 #ifdef QT_COMPAT
-    if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
-        QThreadData *data = QThreadData::current();
-       if (data) {
-            QMutexLocker locker(&data->postEventList.mutex);
-
-            // the QObject destructor calls QObject::removeChild, which calls
-            // QCoreApplication::sendEvent() directly.  this can happen while the event
-            // loop is in the middle of posting events, and when we get here, we may
-            // not have any more posted events for this object.
-            bool postedChildInsertEventsRemaining = false;
-            // if this is a child remove event and the child insert
-            // hasn't been dispatched yet, kill that insert
-            QObject * c = ((QChildEvent*)e)->child();
-            for (int i = 0; i < data->postEventList.size(); ++i) {
-                const QPostEvent &pe = data->postEventList.at(i);
-                if (pe.event && pe.receiver == receiver) {
-                    if (pe.event->type() == QEvent::ChildInserted
-                        && ((QChildEvent*)pe.event)->child() == c) {
-                        pe.event->posted = false;
-                        delete pe.event;
-                        const_cast<QPostEvent &>(pe).event = 0;
-                        const_cast<QPostEvent &>(pe).receiver = 0;
-                    } else {
-                        postedChildInsertEventsRemaining = true;
-                    }
-                }
-                receiver->d->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
-            }
-        }
-    }
+    if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)
+       d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
 #endif // QT_COMPAT
 
     // capture the current mouse/keyboard state

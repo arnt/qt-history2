@@ -55,12 +55,12 @@ public:
     uint blockSig : 1;
     uint wasDeleted : 1;
     uint ownObjectName : 1;
-    uint hasPostedEvents : 1;
+    uint unused : 27;
+    int postedEvents;
 #ifdef QT_COMPAT
-    uint hasPostedChildInsertedEvents : 1;
-    uint unused : 25;
+    int postedChildInsertedEvents;
 #else
-    uint unused : 26;
+    int reserved;
 #endif
 };
 
@@ -217,6 +217,7 @@ protected:
     friend struct QMetaObject;
     friend class QApplication;
     friend class QCoreApplication;
+    friend class QCoreApplicationPrivate;
     friend class QWidget;
 
 private:

@@ -166,10 +166,10 @@ private:
     ushort spont : 1;
 
     friend class QCoreApplication;
+    friend class QCoreApplicationPrivate;
     friend class QApplication;
     friend class QAccelManager;
     friend class QShortcutMap;
-    friend class QBaseApplication;
     friend class QETWidget;
 };
 
