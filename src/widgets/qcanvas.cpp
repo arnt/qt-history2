@@ -2111,8 +2111,8 @@ void QCanvasPixmap::init(const QImage& image)
     convertFromImage(image);
     hotx = image.offset().x();
     hoty = image.offset().y();
-    if ( image.hasAlphaBuffer() )
-	collision_mask = new QImage(image.createAlphaMask());
+    collision_mask = image.hasAlphaBuffer() ?
+	new QImage(image.createAlphaMask()) : 0;
 }
 
 void QCanvasPixmap::init(const QPixmap& pixmap, int hx, int hy)
@@ -2120,8 +2120,8 @@ void QCanvasPixmap::init(const QPixmap& pixmap, int hx, int hy)
     (QPixmap&)*this = pixmap;
     hotx = hx;
     hoty = hy;
-    if ( pixmap.mask() )
-	collision_mask = new QImage(mask()->convertToImage());
+    collision_mask = pixmap.mask() ?
+	new QImage(mask()->convertToImage()) : 0;
 }
 
 /*!
