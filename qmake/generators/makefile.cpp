@@ -202,11 +202,16 @@ MakefileGenerator::init()
     init_already = true;
 
     QMap<QString, QStringList> &v = project->variables();
-    QString paths[] = { QString("SOURCES"), QString("FORMS"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
-                        QString("HEADERS"), QString("HEADERS_ORIG"), QString("LEXSOURCES"),
-                        QString("QMAKE_INTERNAL_INCLUDED_FILES"),
-                        QString("PRECOMPILED_HEADER"), QString::null };
-    for(int y = 0; paths[y] != QString::null; y++) {
+    const QStringList &quc = v["QMAKE_EXTRA_COMPILERS"];
+
+    QStringList paths;
+    paths << "SOURCES" << "FORMS" << "YACCSOURCES" << "INCLUDEPATH" << "HEADERS" << "HEADERS_ORIG"
+          << "LEXSOURCES" << "QMAKE_INTERNAL_INCLUDED_FILES" << "PRECOMPILED_HEADER";
+    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+        if(!v[(*it) + ".output"].isEmpty())
+            paths += v[(*it) + ".input"];
+    }
+    for(int y = 0; y < paths.count(); y++) {
         QStringList &l = v[paths[y]];
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
             if((*it).isEmpty())
@@ -217,11 +222,10 @@ MakefileGenerator::init()
     }
 
     /* get deps and mocables */
-    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
-        Option::mkfile::do_deps || Option::mkfile::do_mocs) && !noIO()) {
+    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps || Option::mkfile::do_mocs) 
+       && !noIO()) {
         depHeuristics.clear();
-        if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps) &&
-           doDepends()) {
+        if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps) && doDepends()) {
             QStringList incDirs = v["DEPENDPATH"] + v["QMAKE_ABSOLUTE_SOURCE_PATH"];
             if(project->isActiveConfig("depend_includepath"))
                 incDirs += v["INCLUDEPATH"];
@@ -231,12 +235,16 @@ MakefileGenerator::init()
             setDependencyPaths(deplist);
             debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").latin1());
         }
-        if(!noIO()) {
-            QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
-                                  QString("HEADERS"), QString("SOURCES"), QString("FORMS"),
-                                  QString("PRECOMPILED_HEADER"), QString::null };
+        {
+            QStringList sources;
+            sources << "OBJECTS" << "LEXSOURCES" << "YACCSOURCES" << "HEADERS" << "SOURCES" << "FORMS"
+                    << "PRECOMPILED_HEADER";
+            for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+                if(!v[(*it) + ".output"].isEmpty())
+                    sources += v[(*it) + ".input"];
+            }
             int x;
-            for(x = 0; sources[x] != QString::null; x++) {
+            for(x = 0; x < sources.count(); x++) {
                 QStringList &l = v[sources[x]], vpath;
                 for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
                     if(!(*val_it).isEmpty()) {
@@ -300,7 +308,7 @@ MakefileGenerator::init()
                     }
                 }
             }
-            for(x = 0; sources[x] != QString::null; x++) {
+            for(x = 0; x < sources.count(); x++) {
                 uchar seek = 0;
                 if(mocAware() && (sources[x] == "SOURCES" || sources[x] == "HEADERS") &&
                    (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_mocs))
@@ -314,8 +322,7 @@ MakefileGenerator::init()
     }
 
     //extra compilers (done here so it ends up in the variables post-fixified)
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
         QString tmp_out = project->variables()[(*it) + ".output"].first();
         if(tmp_out.isEmpty())
             continue;
@@ -1414,9 +1421,9 @@ void
 MakefileGenerator::writeExtraCompilerVariables(QTextStream &t)
 {
     bool first = true;
-    const QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::ConstIterator compit = comps.begin(); compit != comps.end(); ++compit) {
-        const QStringList &vars = project->variables()[(*compit) + ".variables"];
+    const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+        const QStringList &vars = project->variables()[(*it) + ".variables"];
         for(QStringList::ConstIterator varit = vars.begin(); varit != vars.end(); ++varit) {
             if(first) {
                 t << "\n####### Custom Compiler Variables" << endl;
