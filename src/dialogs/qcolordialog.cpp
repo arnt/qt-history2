@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#12 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#13 $
 **
 ** Implementation of QColorDialog class
 **
@@ -231,11 +231,11 @@ void QColorLuminancePicker::setCol( int h, int s , int v )
 }
 
 QPoint QColorPicker::colPt()
-{ return QPoint( (360-hue)*pWidth/360, (255-sat)*pHeight/255 ); }
+{ return QPoint( (360-hue)*(pWidth-1)/360, (255-sat)*(pHeight-1)/255 ); }
 int QColorPicker::huePt( const QPoint &pt )
-{ return 360 - pt.x()*360/pHeight; }
+{ return 360 - pt.x()*360/(pHeight-1); }
 int QColorPicker::satPt( const QPoint &pt )
-{ return 255 - pt.y()*255/pWidth ; }
+{ return 255 - pt.y()*255/(pWidth-1) ; }
 void QColorPicker::setCol( const QPoint &pt )
 { setCol( huePt(pt), satPt(pt) ); }
 
@@ -281,7 +281,7 @@ void QColorPicker::setCol( int h, int s )
     QRect r( colPt(), QSize(20,20) );
     hue = nhue; sat = nsat;
     r = r.unite( QRect( colPt(), QSize(20,20) ) );
-    r.moveBy( contentsRect().x()-10, contentsRect().y()-10 );
+    r.moveBy( contentsRect().x()-9, contentsRect().y()-9 );
     //    update( r );
     repaint( r, FALSE );
 }
@@ -303,13 +303,13 @@ void QColorPicker::mousePressEvent( QMouseEvent *m )
 void QColorPicker::drawContents(QPainter* p)
 {
     QRect r = contentsRect();
-    //QArray<QRect> rects =  p->clipRegion()->rects();
 
     p->drawPixmap( r.topLeft(), *pix );
     QPoint pt = colPt() + r.topLeft();
-    p->setPen( QPen(black, 2) );
-    p->drawLine( pt.x()-10, pt.y(), pt.x()+10, pt.y() );
-    p->drawLine( pt.x(), pt.y()-10, pt.x(), pt.y()+10 );
+    p->setPen( QPen(black) );
+
+    p->fillRect( pt.x()-9, pt.y(), 20, 2, black );
+    p->fillRect( pt.x(), pt.y()-9, 2, 20, black );
 
 }
 
@@ -634,7 +634,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
     QHBoxLayout *pickLay = new QHBoxLayout( rightLay );
 
-    
+
     QVBoxLayout *cLay = new QVBoxLayout( pickLay );
     cp = new QColorPicker( dialog );
     cp->setFrameStyle( QFrame::Panel + QFrame::Sunken );
