@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 1.5 1996/02/17 21:47:07 agulbra Exp $
+** $Id: metaobjects.doc,v 1.6 1996/02/17 22:05:27 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -88,7 +88,7 @@ two of these already useless objects together:
 \code
     Foo yo, go;
 
-    connect(&amp;yo, SIGNAL(somethingChanged(int)), &amp;go, SLOT(setSomething(int)));
+    connect(&yo, SIGNAL(somethingChanged(int)), &go, SLOT(setSomething(int)));
 \endcode
 
 Then a call to <code>yo.setSomething()</code> will make yo emit a
@@ -164,9 +164,9 @@ who can connect to it. A slot's arguments cannot have default values,
 and as for signals, it is generally a bad idea to use custom types for
 slot arguments.
 
-A <code>public slots:</code> section contains slots that anyone can connect
-signals to.  This is very useful for component programming: You
-create objects that know nothing about each other, connect their
+A <code>public slots:</code> section contains slots that anyone can
+connect signals to.  This is very useful for component programming:
+You create objects that know nothing about each other, connect their
 signals and slots so information is passed correctly, and, like a
 model railway, turn it on and leave it running.
 
@@ -198,11 +198,7 @@ functions.
 
 <h2>Example</h2>
 
-Here is a simple commented example (butchered from qlcddum.h).	Unlike
-most of the Qt documentation, this isn't peppered with links, so if
-you want to read about <a href=qlcdnumber.html>QLCDNumber</a> or any of
-its parent classes please do it now, before you go through the
-example.
+Here is a simple commented example (butchered from qlcddum.h).
 
 \code
     #include "qframe.h"
