@@ -126,7 +126,7 @@ public:
 	    return FALSE;
 
 	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
-	if ( iFace && iFace->interfaceID() == interfaceID() ) {
+	if ( iFace && iFace->interfaceId() == interfaceId ) {
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		plugDict.remove( *f );
