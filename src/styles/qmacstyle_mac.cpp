@@ -865,9 +865,11 @@ void QMacStyle::drawControl(ControlElement element,
 	    tts = kThemeTabNonFrontPressed;
 	}
 	ThemeTabDirection ttd = kThemeTabNorth;
-	if(tb->shape() == QTabBar::RoundedBelow)
+	if(tb->shape() == QTabBar::RoundedBelow || tb->shape() == QTabBar::TriangularBelow) 
 	    ttd = kThemeTabSouth;
 	QRect tabr(r.x(), r.y(), r.width(), r.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
+	if(ttd == kThemeTabSouth)
+	    tabr.moveBy(0, -pixelMetric(PM_TabBarBaseOverlap, widget));
 	((QMacPainter *)p)->setport();
 	DrawThemeTab(qt_glb_mac_rect(tabr, p, FALSE), tts, ttd, NULL, 0);
 	if(!(how & Style_Selected)) {
@@ -876,6 +878,8 @@ void QMacStyle::drawControl(ControlElement element,
 	    const int fudge = 20;
 	    QRect pr = QRect(r.x() - fudge, r.bottom() - 2, 
 			     r.width() + (fudge * 2), pixelMetric(PM_TabBarBaseHeight, widget));
+	    if(ttd == kThemeTabSouth) 
+		pr.moveBy(0, -(r.height() + 2));
 	    p->save();
 	    p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
 	    ((QMacPainter *)p)->setport();
