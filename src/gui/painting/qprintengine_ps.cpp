@@ -4581,6 +4581,8 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMod
                                     fontpath += fs;
                                 f.readLine(fs, 1024);
                                 fs=fs.trimmed();
+                                if (fs.isEmpty())
+                                    end = true;
                             }
                             finished = true;
                         }
