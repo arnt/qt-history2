@@ -78,7 +78,7 @@
       // This will fill the colormap with colors ranging from
       // black to white.
       for ( int i = 0; i < colormap->size(); i++ )
-          colormap->setRgb( i, qRgb( i, i, i ) );
+          colormap->setEntry( i, qRgb( i, i, i ) );
 
       widget.setColormap( colormap );
       widget.show();
