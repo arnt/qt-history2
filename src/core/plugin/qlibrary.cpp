@@ -363,6 +363,8 @@ QLibraryPrivate::~QLibraryPrivate()
         Q_ASSERT(this == that);
 	Q_UNUSED(that);
     }
+    if (instance)
+        delete instance(); // create and destroy
 }
 
 void *QLibraryPrivate::resolve(const char *symbol)
@@ -403,7 +405,7 @@ bool QLibraryPrivate::loadPlugin()
     if (instance)
         return true;
     if (load()) {
-        instance = (InstanceFn)resolve("qt_plugin_instance");
+        instance = (QtPluginInstanceFunction)resolve("qt_plugin_instance");
         return instance;
     }
     return false;
@@ -446,15 +448,15 @@ bool QLibraryPrivate::isPlugin()
             if (!pHnd)
                 temporary_load =  load_sys();
 #  ifdef Q_CC_BOR
-            typedef const char * __stdcall (*QtPluginQueryVerificationDataFn)();
+            typedef const char * __stdcall (*QtPluginQueryVerificationDataFunction)();
 #  else
-            typedef const char * (*QtPluginQueryVerificationDataFn)();
+            typedef const char * (*QtPluginQueryVerificationDataFunction)();
 #  endif
-            QtPluginQueryVerificationDataFn qtPluginQueryVerificationDataFn =
-                (QtPluginQueryVerificationDataFn) resolve("qt_plugin_query_verification_data");
+            QtPluginQueryVerificationDataFunction qtPluginQueryVerificationDataFunction =
+                (QtPluginQueryVerificationDataFunction) resolve("qt_plugin_query_verification_data");
 
-            if (!qtPluginQueryVerificationDataFn
-                || !qt_parse_pattern(qtPluginQueryVerificationDataFn(), &qt_version, &debug, &key)) {
+            if (!qtPluginQueryVerificationDataFunction
+                || !qt_parse_pattern(qtPluginQueryVerificationDataFunction(), &qt_version, &debug, &key)) {
                 qt_version = 0;
                 key = "unknown";
                 if (temporary_load)

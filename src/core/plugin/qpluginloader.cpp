@@ -13,9 +13,11 @@
 
 #include "qplatformdefs.h"
 
+#include "qplugin.h"
 #include "qpluginloader.h"
 #include <qfileinfo.h>
 #include "qlibrary_p.h"
+#include "qdebug.h"
 
 /*!
     \class QPluginLoader
@@ -230,7 +232,7 @@ void QPluginLoader::setFileName(const QString &fileName)
         d = 0;
         did_load = false;
     }
-    d = QLibraryPrivate::findOrCreate(QFileInfo(fileName).absoluteFilePath());
+    d = QLibraryPrivate::findOrCreate(QFileInfo(fileName).canonicalFilePath());
     if (d && d->pHnd && d->instance)
         did_load = true;
 }
@@ -240,4 +242,20 @@ QString QPluginLoader::fileName() const
     if (d)
         return d->fileName;
     return QString();
+}
+typedef QList<QtPluginInstanceFunction> StaticInstanceFunctionList;
+Q_GLOBAL_STATIC(StaticInstanceFunctionList, staticInstanceFunctionList)
+
+void Q_CORE_EXPORT qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction function)
+{
+    staticInstanceFunctionList()->append(function);
+}
+
+QObjectList QPluginLoader::staticInstances()
+{
+    QObjectList instances;
+    StaticInstanceFunctionList *functions = staticInstanceFunctionList();
+    for (int i = 0; i < functions->count(); ++i)
+        instances.append((*functions)[i]());
+    return instances;
 }

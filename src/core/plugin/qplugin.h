@@ -25,57 +25,63 @@
 #  endif
 #endif
 
-// NOTE: if you change pattern, you MUST change the pattern in
-// qlibrary.cpp as well.  changing the pattern will break all
-// backwards compatibility as well (no old plugins will be loaded).
-#ifdef QPLUGIN_DEBUG_STR
-#  undef QPLUGIN_DEBUG_STR
-#endif
-#ifdef QT_NO_DEBUG
-#  define QPLUGIN_DEBUG_STR "false"
-#else
-#  define QPLUGIN_DEBUG_STR "true"
-#endif
-#define Q_PLUGIN_VERIFICATION_DATA \
-  static const char *qt_plugin_verification_data = \
-    "pattern=""QT_PLUGIN_VERIFICATION_DATA""\n" \
-    "version="QT_VERSION_STR"\n" \
-    "debug="QPLUGIN_DEBUG_STR"\n" \
-    "buildkey="QT_BUILD_KEY"\0";
+typedef QObject *(*QtPluginInstanceFunction)();
+
+#define Q_IMPORT_PLUGIN(PLUGIN) \
+        class Static##PLUGIN##PluginInstance{ \
+        public: \
+                Static##PLUGIN##PluginInstance() {                      \
+                extern void qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction); \
+                extern QObject *qt_plugin_instance_##PLUGIN(); \
+                qRegisterStaticPluginInstanceFunction(qt_plugin_instance_##PLUGIN); \
+                } \
+        }; \
+       static Static##PLUGIN##PluginInstance static##PLUGIN##Instance;
 
 #define Q_PLUGIN_INSTANCE(IMPLEMENTATION) \
         { \
             static QPointer<IMPLEMENTATION> _instance; \
-            if (!_instance) \
+            if (!_instance)      \
                 _instance = new IMPLEMENTATION; \
             return _instance; \
         }
 
-#ifdef Q_WS_WIN
-#  ifdef Q_CC_BOR
-#    define Q_EXPORT_PLUGIN(PLUGIN) \
-                Q_PLUGIN_VERIFICATION_DATA \
-                Q_EXTERN_C __declspec(dllexport) \
-                const char * __stdcall qt_plugin_query_verification_data() \
-                { return qt_plugin_verification_data; } \
-                Q_EXTERN_C __declspec(dllexport) QObject * __stdcall qt_plugin_instance() \
-                Q_PLUGIN_INSTANCE(PLUGIN)
-#  else
-#    define Q_EXPORT_PLUGIN(PLUGIN) \
-                Q_PLUGIN_VERIFICATION_DATA \
-                Q_EXTERN_C __declspec(dllexport) \
-                const char *qt_plugin_query_verification_data() \
-                { return qt_plugin_verification_data; } \
-                Q_EXTERN_C __declspec(dllexport) QObject *qt_plugin_instance() \
-                Q_PLUGIN_INSTANCE(PLUGIN)
-#  endif
-#else
+#if defined(QT_STATICPLUGIN)
 #  define Q_EXPORT_PLUGIN(PLUGIN) \
+            Q_DECL_EXPORT QObject *qt_plugin_instance_##PLUGIN() \
+            Q_PLUGIN_INSTANCE(PLUGIN)
+
+#else
+// NOTE: if you change pattern, you MUST change the pattern in
+// qlibrary.cpp as well.  changing the pattern will break all
+// backwards compatibility as well (no old plugins will be loaded).
+#  ifdef QPLUGIN_DEBUG_STR
+#    undef QPLUGIN_DEBUG_STR
+#  endif
+#  ifdef QT_NO_DEBUG
+#    define QPLUGIN_DEBUG_STR "false"
+#  else
+#    define QPLUGIN_DEBUG_STR "true"
+#  endif
+#  define Q_PLUGIN_VERIFICATION_DATA \
+    static const char *qt_plugin_verification_data = \
+      "pattern=""QT_PLUGIN_VERIFICATION_DATA""\n" \
+      "version="QT_VERSION_STR"\n" \
+      "debug="QPLUGIN_DEBUG_STR"\n" \
+      "buildkey="QT_BUILD_KEY"\0";
+
+#  if defined (Q_OS_WIN32) && defined(Q_CC_BOR)
+#     define Q_STANDARD_CALL __stdcall
+#  else
+#     define Q_STANDARD_CALL
+#  endif
+
+#  define Q_EXPORT_PLUGIN(PLUGIN)      \
             Q_PLUGIN_VERIFICATION_DATA \
             Q_EXTERN_C Q_DECL_EXPORT \
-            const char *qt_plugin_query_verification_data() \
+            const char * Q_STANDARD_CALL qt_plugin_query_verification_data() \
             { return qt_plugin_verification_data; } \
-            Q_EXTERN_C Q_DECL_EXPORT QObject *qt_plugin_instance() \
+            Q_EXTERN_C Q_DECL_EXPORT QObject * Q_STANDARD_CALL qt_plugin_instance() \
             Q_PLUGIN_INSTANCE(PLUGIN)
 #endif
 

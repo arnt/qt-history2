@@ -33,6 +33,7 @@
 #include "qlibrary.h"
 #include "qpointer.h"
 #include "qstringlist.h"
+#include "qplugin.h"
 
 class QLibraryPrivate
 {
@@ -55,8 +56,7 @@ public:
 
     static QLibraryPrivate *findOrCreate(const QString &fileName);
 
-    typedef QObject *(*InstanceFn)();
-    InstanceFn instance;
+    QtPluginInstanceFunction instance;
     uint qt_version;
     QString lastModified;
 

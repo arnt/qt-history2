@@ -17,6 +17,8 @@
 #include <qdir.h>
 #include <qsettings.h>
 #include <qdebug.h>
+#include "qplugin.h"
+#include "qpluginloader.h"
 #include "private/qobject_p.h"
 
 class QFactoryLoaderPrivate : public QObjectPrivate
@@ -24,6 +26,7 @@ class QFactoryLoaderPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QFactoryLoader)
 public:
     QFactoryLoaderPrivate(){}
+    QByteArray iid;
     QList<QLibraryPrivate*> libraryList;
     QMap<QString,QLibraryPrivate*> keyMap;
     QStringList keyList;
@@ -35,7 +38,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
     :QObject(*new QFactoryLoaderPrivate, parent)
 {
     Q_D(QFactoryLoader);
-
+    d->iid = iid;
     QStringList filters;
 #if defined(Q_OS_WIN32)
     filters << QLatin1String("*.dll");
@@ -122,16 +125,28 @@ QFactoryLoader::~QFactoryLoader()
 QStringList QFactoryLoader::keys() const
 {
     Q_D(const QFactoryLoader);
-    return d->keyList;
+    QStringList keys = d->keyList;
+    QObjectList instances = QPluginLoader::staticInstances();
+    for (int i = 0; i < instances.count(); ++i)
+        if (QFactoryInterface *factory = qt_cast<QFactoryInterface*>(instances.at(i)))
+            if (instances.at(i)->qt_metacast(d->iid))
+                    keys += factory->keys();
+    return keys;
 }
 
 QObject *QFactoryLoader::instance(const QString &key) const
 {
     Q_D(const QFactoryLoader);
+    QObjectList instances = QPluginLoader::staticInstances();
+    for (int i = 0; i < instances.count(); ++i)
+        if (QFactoryInterface *factory = qt_cast<QFactoryInterface*>(instances.at(i)))
+            if (instances.at(i)->qt_metacast(d->iid) && factory->keys().contains(key, Qt::CaseInsensitive))
+                return instances.at(i);
+
     if (QLibraryPrivate* library = d->keyMap.value(key)) {
         if (library->instance || library->loadPlugin()) {
             if (QObject *obj = library->instance()) {
-                if (!obj->parent())
+                if (obj && !obj->parent())
                     obj->setParent(const_cast<QFactoryLoader*>(this));
                 return obj;
             }
