@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#196 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#197 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12154,9 +12154,15 @@ QConstString::~QConstString()
 
 /*!
   Returns a static Windows TCHAR* from a QString, possibly adding NUL.
+
+  The lifetime of the return value is until the next call to this function.
 */
-const void* qt_winTchar(const QString& str, bool addnul)
+const void* qt_winTchar(const QString& str_in, bool addnul)
 {
+    // So that the return value lives long enough.
+    static QString str;
+    str = str_in;
+
 #ifdef UNICODE
     static uint buflen = 256;
     static TCHAR *buf = new TCHAR[buflen];
