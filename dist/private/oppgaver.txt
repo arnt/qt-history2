@@ -151,6 +151,16 @@ Fra Andrew Pavlomanolakos <app@novanet.net.au>:
 Ditto:
 > Note 2. Defining 'Key_Q + ASCII_ACCEL' displays rubbish on a popup.
 
+Morten Eriksen <mortene@sim.no> writes:
+
+> Hvis en QComboBox er i Motif 1.x style og har flere elementer enn man
+> faar plass til paa skjermen burde det vel vaere en mekanisme der som
+> soerger for at man fortsatt kan velge blant alle elementene? (Jepp, jeg
+> vet at dette er dokumentert oppfoersel). Skulle ikke vaere noen stor sak
+> aa legge inn support for at popupmenyen faar "fortsettelse" i en submeny,
+> vel? (A la det som f.eks. skjer med bookmarks-lista i Netscape)
+
+
 
 Support WM_CLIENT_LEADER flag. Ref. Jeff Meininger.
 
