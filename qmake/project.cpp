@@ -1502,13 +1502,7 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     }
     parser_info pi = parser;
     QStack<ScopeBlock> sc = scope_blocks;
-    bool parsed = false;
-    if(flags & IncludeFlagNewProject) {
-        QMakeProject proj;
-        parsed = proj.read(file.toLatin1().constData(), place);
-    } else {
-        parsed = read(file.toLatin1().constData(), place);
-    }
+    const bool parsed = read(file.toLatin1().constData(), place);
     if(parsed)
         place["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
     else
@@ -1670,11 +1664,12 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             QString file = args[0], seek_var = args[1];
             file = Option::fixPathToLocalOS(file);
 
-            QMap<QString, QStringList> tmp;
-            if(doProjectInclude(file, IncludeFlagNewProject, tmp) == IncludeSuccess) {
-                if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
-                    place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
-                ret = tmp[seek_var].join(QString(Option::field_sep));
+            QMakeProject proj;
+            if(proj.read(file)) {
+                QMap<QString, QStringList> &v = proj.variables();
+                if(v.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
+                    place["QMAKE_INTERNAL_INCLUDED_FILES"] += v["QMAKE_INTERNAL_INCLUDED_FILES"];
+                ret = v[seek_var].join(QString(Option::field_sep));
             }
         }
         break; }
@@ -2155,15 +2150,16 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         }
 
         bool ret = false;
-        QMap<QString, QStringList> tmp;
-        if(doProjectInclude(Option::fixPathToLocalOS(args[0]), IncludeFlagNewProject, tmp) == IncludeSuccess) {
-            if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
-                place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
+        QMakeProject proj;
+        if(proj.read(Option::fixPathToLocalOS(args[0]))) {
+            QMap<QString, QStringList> &v = proj.variables();
+            if(v.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
+                place["QMAKE_INTERNAL_INCLUDED_FILES"] += v["QMAKE_INTERNAL_INCLUDED_FILES"];
             if(args.count() == 2) {
-                ret = tmp.contains(args[1]);
+                ret = v.contains(args[1]);
             } else {
                 QRegExp regx(args[2]);
-                const QStringList &l = tmp[args[1]];
+                const QStringList &l = v[args[1]];
                 for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
                     if(regx.exactMatch((*it)) || (*it) == args[2]) {
                         ret = true;
