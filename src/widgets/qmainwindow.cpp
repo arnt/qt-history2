@@ -1611,7 +1611,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	while ( ( dw = it.current() ) ) {
 	    ++it;
 	    if ( dw->place() == QDockWindow::OutsideDock )
-		dw->close();
+		delete dw;
 	}
     }
 
