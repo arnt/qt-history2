@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#22 $
 **
 ** Implementation of QBitArray class
 **
@@ -13,7 +13,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#22 $")
 
 
 #define SHBLOCK  ((bitarr_data*)(sharedBlock()))
@@ -68,10 +68,10 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#21 $")
 
 QBitArray::QBitArray() : QByteArray( 0, 0 )
 {
-    QShared *x = newData();
+    bitarr_data *x = new bitarr_data;
     CHECK_PTR( x );
+    x->nbits = 0;
     setSharedBlock( x );
-    ((bitarr_data*)(x))->nbits = 0;
 }
 
 /*!
@@ -80,8 +80,9 @@ QBitArray::QBitArray() : QByteArray( 0, 0 )
 
 QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
 {
-    QShared *x = newData();
+    bitarr_data *x = new bitarr_data;
     CHECK_PTR( x );
+    x->nbits = 0;
     setSharedBlock( x );
     resize( size );
 }
