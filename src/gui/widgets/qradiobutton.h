@@ -22,8 +22,6 @@ class Q_GUI_EXPORT QRadioButton : public QAbstractButton
 {
     Q_OBJECT
 
-    Q_OVERRIDE(bool autoExclusive DESIGNABLE true)
-
 public:
     explicit QRadioButton(QWidget *parent=0);
     explicit QRadioButton(const QString &text, QWidget *parent=0);

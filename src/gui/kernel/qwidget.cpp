@@ -5006,8 +5006,8 @@ void QWidget::leaveEvent(QEvent *)
     When the paint event occurs, the update region has normally been
     erased, so that you're painting on the widget's background.
 
-    The background can be set using setBackground() or
-    setBackgroundRole().
+    The background can be set using setBackgroundRole() and
+    setPalette().
 
     From Qt 4.0, QWidget automatically double-buffers its painting, so
     there's no need to write double-buffering code in paintEvent() to

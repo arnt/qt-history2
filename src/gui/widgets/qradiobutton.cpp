@@ -33,7 +33,7 @@
     a time can be checked; if the user selects another button, the
     previously selected button is switched off.
 
-    Radio buttons are autoExclusive by default. If autoExclusive is
+    Radio buttons are autoExclusive by default. If auto-exclusive is
     enabled, radio buttons that belong to the same parent widget
     behave as if they were part of the same exclusive button group. If
     you need multiple exclusive button groups for radio buttons that
@@ -44,9 +44,9 @@
     button changes state. Otherwise, use isChecked() to see if a particular
     button is selected.
 
-    Just like QPushButton, a radio button can display text or a
-    pixmap. The text can be set in the constructor or with setText();
-    the pixmap is set with setPixmap().
+    Just like QPushButton, a radio button displays text, and
+    optionally a small icon. The text can be set in the constructor or
+    with setText(); the icon is set with setIcon().
 
     Important inherited members: text(), setText(), text(),
     setDown(), isDown(), autoRepeat(), group(), setAutoRepeat(),
@@ -59,16 +59,6 @@
     \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink
 */
 
-/*!
-    \property QRadioButton::autoExclusive
-    \brief whether the radio button is automatically exclusive
-
-    If the radio button is exclusive, it will be deselected if another in
-    the same group is enabled. Similarly, if it is selected, other exclusive
-    buttons in the same group will be deselected.
-
-    The default is true.
-*/
 
 /*
     Initializes the radio button.

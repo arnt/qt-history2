@@ -92,11 +92,8 @@ bool QToolButtonPrivate::hasMenu() const
     setToolButtonStyle() and setIconSize(). When used inside a
     QToolBar in a QMainWindow, the button automatically adjusts to
     QMainWindow's settings (see QMainWindow::setToolButtonStyle() and
-    QMainWindow::setIconSize()). The pixmap set on a QToolButton will
-    be set to 22x22 if it is bigger than this size. If iconSize() is
-    Qt::LargeIconSize, then the pixmap will be set to 32x32.  Instead
-    of a pixmap, a tool button can also display an arrow symbol,
-    specified with \l arrowType.
+    QMainWindow::setIconSize()). Instead of an icon, a tool button can
+    also display an arrow symbol, specified with \l arrowType.
 
     A tool button can offer additional choices in a popup menu. The
     popup menu can be set using setMenu(). Use setPopupMode() to

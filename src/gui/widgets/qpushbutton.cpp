@@ -75,12 +75,11 @@ public:
     In this example the shortcut is \e{Alt+D}, and the label text
     will be displayed as \bold{\underline{D}ownload}.
 
-    Push buttons can display a textual label or a pixmap, and
-    optionally a small icon. These can be set using the constructors
-    and changed later using setText(), setPixmap() and setIconSet().
-    If the button is disabled the appearance of the text or pixmap and
-    icon will be manipulated with respect to the GUI style to make
-    the button look "disabled".
+    Push buttons display a textual label, and optionally a small
+    icon. These can be set using the constructors and changed later
+    using setText() and setIcon().  If the button is disabled the
+    appearance of the text or pixmap and icon will be manipulated with
+    respect to the GUI style to make the button look "disabled".
 
     A push button emits the signal clicked() when it is activated by
     the mouse, the Spacebar or by a keyboard shortcut. Connect to

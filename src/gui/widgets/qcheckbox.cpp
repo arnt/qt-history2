@@ -63,9 +63,9 @@ public:
     enable it with setTristate(), and use checkState() to query the current
     toggle state.
 
-    Just like QPushButton, a checkbox can display text or a pixmap.
-    The text can be set in the constructor or with setText(); the
-    pixmap is set with setPixmap().
+    Just like QPushButton, a checkbox button displays text, and
+    optionally a small icon. The text can be set in the constructor or
+    with setText(); the icon is set with setIcon().
 
     Important inherited functions: text(), setText(), text(),
     pixmap(), setPixmap(), accel(), setAccel(), isToggleButton(),
