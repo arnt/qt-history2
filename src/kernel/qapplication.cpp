@@ -70,18 +70,19 @@
 
   For any GUI application that uses Qt, there is precisely one
   QApplication object, no matter whether the application has 0, 1, 2
-  or even more windows at the moment.
+  or more windows at any time.
 
-  This object (you can access is using the global variable \c qApp)
-  does a great many things, most importantly: <ul>
+  The QApplication object is accessible through the global variable \c
+  qApp. Its main areas of responsibility are:
+  <ul>
 
-  <li> It initializes the application to the user's desktop settings
-  like palette(), font() or the doubleClickInterval(). It keeps track
-  of these properties in case the user changes the desktop globally
-  in some kind of control panel.
+  <li> It initializes the application with the user's desktop settings
+  such as palette(), font() and doubleClickInterval(). It keeps track
+  of these properties in case the user changes the desktop globally, for
+  example through some kind of control panel.
 
   <li> It performs event handling, meaning that it receives events
-  from the underlying window system and sends them to the destination
+  from the underlying window system and dispatches them to the relevant
   widgets.  By using sendEvent() and postEvent() you can send your own
   events to widgets.
 
@@ -90,7 +91,7 @@
   details about this.
 
   <li> It defines the application's look and feel, which is
-  encapsulated in a QStyle object. This can be changed during runtime
+  encapsulated in a QStyle object. This can be changed at runtime
   with setStyle().
 
   <li> It specifies how the application is to allocate colors.
@@ -100,12 +101,12 @@
   and provides localization of strings that are visible to the user via
   translate().
 
-  <li> It provides some magic objects like the desktop() and the
+  <li> It provides some magical objects like the desktop() and the
   clipboard().
 
-  <li> It knows about the application's windows, and lets you ask
-  which widget is at a certain position using widgetAt(), lets you
-  closeAllWindows(), gives you a list of topLevelWidgets(), etc.
+  <li> It knows about the application's windows. You can ask which
+  widget is at a certain position using widgetAt(), get a list of
+  topLevelWidgets() and closeAllWindows(), etc.
 
   <li> It manages the application's mouse cursor handling,
   see setOverrideCursor() and setGlobalMouseTracking().
@@ -113,7 +114,7 @@
   <li> On the X window system, it provides functions to flush and sync
   the communication stream, see flushX() and syncX().
 
-  <li> It provides support to implement sophisticated \link
+  <li> It provides support for sophisticated \link
   session.html session management \endlink. This makes it possible
   for applications to terminate gracefully when the user logs out, to
   cancel a shutdown process if termination isn't possible and even to
@@ -128,8 +129,8 @@
   things with QApplication.
 
   Since the QApplication object does so much initialization, it is
-  absolutely necessary to create it before any other objects related
-  to the user interface are created.
+  <b>must</b> be created before any other objects related to the user
+  interface are created.
 
   Since it also deals with common command line arguments, it is
   usually a good idea to create it \e before any interpretation or
@@ -188,7 +189,7 @@
 	removeTranslator()
 	translate().
 
-     <li> Certain widgets:
+     <li> Widgets:
 	mainWidget(),
 	setMainWidget(),
 	allWidgets(),
@@ -218,7 +219,7 @@
 	commitData(),
 	saveState()
 
-     <li> Misc:
+     <li> Miscellaneous:
 	closeAllWindows(),
 	startingUp(),
 	closingDown(),
@@ -456,16 +457,16 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   QPaintDevice paint devices\endlink (includes widgets, pixmaps, bitmaps
   etc.)
 
-  Notice that \a argc and \a argv might be changed. Qt removes command
+  Note that \a argc and \a argv might be changed. Qt removes command
   line arguments that it recognizes. The original \a argc and \a argv
-  are can be accessed later by \c qApp->argc() and \c qApp->argv().
+  can be accessed later with \c qApp->argc() and \c qApp->argv().
   The documentation for argv() contains a detailed description of how
   to process command line arguments.
 
   Qt debugging options (not available if Qt was compiled with the
   QT_NO_DEBUG flag defined):
   <ul>
-  <li> \c -nograb, tells Qt to never grab the mouse or the keyboard.
+  <li> \c -nograb, tells Qt that it must never grab the mouse or the keyboard.
   <li> \c -dograb (only under X11), running under a debugger can cause
   an implicit -nograb, use -dograb to override.
   <li> \c -sync (only under X11), switches to synchronous mode for
@@ -478,7 +479,9 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   All Qt programs automatically support the following command line options:
   <ul>
   <li> \c -style= \e style, sets the application GUI style. Possible values
-       are \c motif, \c windows, and \c platinum.
+       are \c motif, \c windows, and \c platinum. If you compiled Qt
+       with additional styles or have additional styles as plugins these
+       will be available to the \c -style command line option.
   <li> \c -session= \e session, restores the application from an earlier
        \link session.html session \endlink.
   </ul>
@@ -489,7 +492,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   <li> \c -display \e display, sets the X display (default is $DISPLAY).
   <li> \c -geometry \e geometry, sets the client geometry of the
 	\link setMainWidget() main widget\endlink.
-  <li> \c -fn or \c -font \e font, defines the application font.
+  <li> \c -fn or \c -font \e font, defines the application font. The
+  font should be specified using an X logical font description.
   <li> \c -bg or \c -background \e color, sets the default background color
 	and an application palette (light and dark shades are calculated).
   <li> \c -fg or \c -foreground \e color, sets the default foreground color.
@@ -499,7 +503,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   <li> \c -visual \c TrueColor, forces the application to use a TrueColor visual
        on an 8-bit display.
   <li> \c -ncols \e count, limits the number of colors allocated in the
-       color cube on a 8-bit display, if the application is using the
+       color cube on an 8-bit display, if the application is using the
        \c QApplication::ManyColor color specification.  If \e count is
        216 then a 6x6x6 color cube is used (ie. 6 levels of red, 6 of green,
        and 6 of blue); for other values, a cube
@@ -604,9 +608,9 @@ QApplication::Type QApplication::type() const
 #if defined(Q_WS_X11)
 // note: #ifdef'ed stuff is NOT documented.
 /*!
-  Create an application, given an already open display \a dpy.  If \a visual
-  and \a colormap are non-zero, the application will use those as the default
-  Visual and Colormap contexts.
+  Create an application, given an already open display \a dpy.  If \a
+  visual and \a colormap are non-zero, the application will use those as
+  the default Visual and Colormap contexts.
 
   This is available only on X11.
 */
@@ -753,7 +757,7 @@ void QApplication::initialize( int argc, char **argv )
 
   Only other popup widgets may be opened when a popup widget is shown.
   The popup widgets are organized in a stack. This function returns
-  the active popup widget on top of the stack.
+  the active popup widget at the top of the stack.
 
   \sa activeModalWidget(), topLevelWidgets()
 */
@@ -768,12 +772,12 @@ QWidget *QApplication::activePopupWidget()
   Returns the active modal widget.
 
   A modal widget is a special top level widget which is a subclass of
-  QDialog that specifies the modal parameter of the constructor to
-  TRUE. A modal widget must be finished before the user can continue
+  QDialog that specifies the modal parameter of the constructor as
+  TRUE. A modal widget must be closed before the user can continue
   with other parts of the program.
 
-  The modal widgets are organized in a stack. This function returns
-  the active modal widget on top of the stack.
+  Modal widgets are organized in a stack. This function returns
+  the active modal widget at the top of the stack.
 
   \sa activePopupWidget(), topLevelWidgets()
 */
@@ -853,7 +857,7 @@ QApplication::~QApplication()
 
   A QApplication object is constructed by passing \e argc and \e argv
   from the \c main() function. Some of the arguments may be recognized
-  as Qt options removed from the argument vector. For example, the X11
+  as Qt options and removed from the argument vector. For example, the X11
   version of Qt knows about \c -display, \c -font and a few more
   options.
 
@@ -1029,7 +1033,7 @@ int QApplication::colorSpec()
   <li> \c QApplication::CustomColor.
     Use this choice if your application needs a small number of custom
     colors. On X11, this choice is the same as NormalColor. On Windows, Qt
-    creates a Windows palette, and allocates colors in it on demand.
+    creates a Windows palette, and allocates colors to it on demand.
   <li> \c QApplication::ManyColor.
     Use this choice if your application is very color hungry
     (e.g. it wants thousands of colors).
@@ -1053,7 +1057,7 @@ int QApplication::colorSpec()
 
   Be aware that the CustomColor and ManyColor choices may lead to colormap
   flashing: The foreground application gets (most) of the available
-  colors, while the background windows will look less good.
+  colors, while the background windows will look less attractive.
 
   Example:
   \code
@@ -1073,7 +1077,7 @@ int QApplication::colorSpec()
   once the QApplication object exists.  A value greater than 8 (typically
   16, 24 or 32) means true color.
 
-  The color cube used by Qt are all those colors with red, green, and blue
+  The color cube used by Qt has all those colors with red, green, and blue
   components of either 0x00, 0x33, 0x66, 0x99, 0xCC, or 0xFF.
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext() */
@@ -1091,15 +1095,24 @@ void QApplication::setColorSpec( int spec )
 
 /*!
   \fn QSize QApplication::globalStrut()
-  Returns the global strut of the application.
+  Returns the application's global strut.
+
+  The strut is a size object whose dimensions are the minimum that any
+  GUI element that the user can interact with should have. For example
+  no button should be resized to be smaller than the global strut size.
+
   \sa setGlobalStrut()
 */
 
 /*!
-  Sets the application strut to \a strut. No GUI-element that
-  can be interacted with should be smaller than the provided
-  size. This should be considered when reimplementing items
-  that may be used on touch-screens or with similar IO-devices.
+  Sets the application's global strut to \a strut.  
+  
+  The strut is a size object whose dimensions are the minimum that any
+  GUI element that the user can interact with should have. For example
+  no button should be resized to be smaller than the global strut size.
+  
+  The strut size should be considered when reimplementing GUI controls
+  that may be used on touch-screens or similar IO-devices.
 
   Example:
   \code
@@ -1119,8 +1132,8 @@ void QApplication::setGlobalStrut( const QSize& strut )
 
 #ifndef QT_NO_COMPONENT
 /*!
-  Returns a list of paths where the application will search when dynamically
-  loading libraries.
+  Returns a list of paths that the application will search when
+  dynamically loading libraries.
 
   \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
 */
@@ -1139,8 +1152,9 @@ QStringList QApplication::libraryPaths()
 
 /*!
   Sets the list of directories to search when loading libraries to \a paths.
-  If \a paths is empty, the path list is unchanged, otherwise all previous
-  paths will be replaced by this call.
+  If \a paths is empty, the path list is unchanged, otherwise all
+  existing paths will be deleted and the path list will consist of the
+  paths given in \a paths.
 
   \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
  */
@@ -1151,8 +1165,8 @@ void QApplication::setLibraryPaths(const QStringList &paths)
 }
 
 /*!
-  Add \a path to the end of the library path list.  If \a path is null or
-  already in the path list, the path list is unchanged.
+  Append \a path to the end of the library path list.  If \a path is
+  null or already in the path list, the path list is unchanged.
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
@@ -1206,7 +1220,7 @@ void QApplication::removeLibraryPath(const QString &path)
 
   If a widget is passed as argument, the default palette for the
   widget's class is returned. This may or may not be the application
-  palett. In most cases there isn't be a special palette for certain
+  palette. In most cases there isn't a special palette for certain
   types of widgets, but one notable exception is the popup menu under
   Windows, if the user has defined a special background color for
   menus in the display settings.
@@ -1246,7 +1260,7 @@ QPalette QApplication::palette(const QWidget* w)
 /*!
   Changes the default application palette to \a palette. If \a
   informWidgets is TRUE, then existing widgets are informed about the
-  change and thus may adjust themselves to the new application
+  change and may adjust themselves to the new application
   setting. Otherwise the change only affects newly created widgets. If
   \a className is passed, the change applies only to classes that
   inherit \a className (as reported by QObject::inherits()).
@@ -1300,8 +1314,8 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 #endif // QT_NO_PALETTE
 
 /*!
-  Returns the default font for a widget. Basically this function uses
-  \link QObject::className() w->className() \endlink to get a font for it.
+  Returns the default font for the widget. Basically this function uses
+  \link QObject::className() w->className() \endlink to find the font.
 
   If \a w is 0 the default application font is returned.
 
@@ -1331,16 +1345,16 @@ QFont QApplication::font( const QWidget *w )
 
 /*! Changes the default application font to \a font. If \a
   informWidgets is TRUE, then existing widgets are informed about the
-  change and thus may adjust themselves to the new application
+  change and may adjust themselves to the new application
   setting. Otherwise the change only affects newly created widgets. If
   \a className is passed, the change applies only to classes that
   inherit \a className (as reported by QObject::inherits()).
 
   On application start-up, the default font depends on the window
-  system.  It can vary both with window system version and with
-  locale.  This function lets you override it.  Note that overriding
-  it may be a bad idea, for example some locales need extra-big fonts
-  to support their special characters.
+  system.  It can vary both with window system version and with locale.
+  This function lets you override the default font; but overriding may
+  be a bad idea, for example some locales need extra-large fonts to
+  support their special characters.
 
   \sa font(), fontMetrics(), QWidget::setFont()
 */
@@ -1383,14 +1397,15 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 
 
 /*!
-  Polishing of widgets.
+    Initialization of the appearance of a widget \e before it is first
+    shown.
 
   Usually widgets call this automatically when they are polished. It
   may be used to do some style-based central customization of widgets.
 
-  Note that you are not limited to public functions of QWidget.
+  Note that you are not limited to the public functions of QWidget.
   Instead, based on meta information like QObject::className() you are
-  able to customize any kind of widgets.
+  able to customize any kind of widget.
 
   \sa QStyle::polish(), QWidget::polish(), setPalette(), setFont()
 */
@@ -1420,9 +1435,7 @@ void QApplication::polish( QWidget *w )
 
   Example:
   \code
-    //
-    // Shows all hidden top level widgets.
-    //
+    // Show all hidden top level widgets.
     QWidgetList	 *list = QApplication::topLevelWidgets();
     QWidgetListIt it( *list );	// iterate over the widgets
     QWidget * w;
@@ -1434,7 +1447,7 @@ void QApplication::polish( QWidget *w )
     delete list;		// delete the list, not the widgets
   \endcode
 
-  \warning Delete the list away as soon you have finished using it.
+  \warning Delete the list as soon you have finished using it.
   The widgets in the list may be deleted by someone else at any time.
 
   \sa allWidgets(), QWidget::isTopLevel(), QWidget::isVisible(),
@@ -1449,7 +1462,7 @@ QWidgetList *QApplication::topLevelWidgets()
 /*!
   Returns a list of all the widgets in the application.
 
-  The list is created using new and must be deleted by the caller.
+  The list is created using \c new and must be deleted by the caller.
 
   The list is empty (QPtrList::isEmpty()) if there are no widgets.
 
@@ -1457,9 +1470,7 @@ QWidgetList *QApplication::topLevelWidgets()
 
   Example:
   \code
-    //
-    // Updates all widgets.
-    //
+    // Update all widgets.
     QWidgetList	 *list = QApplication::allWidgets();
     QWidgetListIt it( *list );		// iterate over the widgets
     QWidget * w;
@@ -1472,7 +1483,7 @@ QWidgetList *QApplication::topLevelWidgets()
 
   The QWidgetList class is defined in the qwidcoll.h header file.
 
-  \warning Delete the list away as soon you have finished using it.
+  \warning Delete the list as soon you have finished using it.
   The widgets in the list may be deleted by someone else at any time.
 
   \sa topLevelWidgets(), QWidget::isVisible(), QPtrList::isEmpty(),
@@ -1526,7 +1537,7 @@ QFontMetrics QApplication::fontMetrics()
   indicates an error.
 
   Note that unlike the C library function of the same name, this
-  function \e does returns to the caller - it is event processing that
+  function \e does return to the caller - it is event processing that
   stops.
 
   \sa quit(), exec()
@@ -1568,7 +1579,7 @@ void QApplication::quit()
 
 
 /*!
-  Conveniently closes all top-level windows.
+  Closes all top-level windows.
 
   This function is particularly useful for applications with many
   top-level windows. It could for example be connected to a "Quit"
@@ -1579,7 +1590,7 @@ void QApplication::quit()
     QPopupMenu* file = new QPopupMenu( this );
     file->insertItem( "&Quit", qApp, SLOT(closeAllWindows()), CTRL+Key_Q );
 
-    // when the last window was closed, the application should quit
+    // when the last window is closed, the application should quit
     connect( qApp, SIGNAL( lastWindowClosed() ), qApp, SLOT( quit() ) );
   \endcode
 
@@ -1612,15 +1623,15 @@ void QApplication::closeAllWindows()
 /*!
   \fn void QApplication::lastWindowClosed()
 
-  This signal is emitted when the user has closed the last remaining
+  This signal is emitted when the user has closed the last 
   top level window.
 
   The signal is very useful when your application has many top level
   widgets but no main widget. You can then connect it to the quit()
   slot.
 
-  For convenience, transient top level widgets such as popup menus and
-  dialogs are omitted.
+  For convenience, this signal is \e not emitted for transient top level
+  widgets such as popup menus and dialogs.
 
   \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel(), QWidget::close()
 */
@@ -1634,7 +1645,7 @@ void QApplication::closeAllWindows()
   desktop session.
 
   The signal is particularly useful if your application has to do some
-  last-second cleanups. Note that no user interaction is possible at
+  last-second cleanups. Note that no user interaction is possible in
   this state.
 
   \sa quit()
@@ -1644,7 +1655,7 @@ void QApplication::closeAllWindows()
 /*!
   \fn void QApplication::guiThreadAwake()
 
-  This signal is emitted when the GUI threads is about to process a cycle
+  This signal is emitted when the GUI thread is about to process a cycle
   of the event loop.
 
   \sa wakeUpGuiThread()
@@ -1654,8 +1665,9 @@ void QApplication::closeAllWindows()
 /*!
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 
-  Sends an event directly to a receiver, using the notify() function.
-  Returns the value that was returned from the event handler.
+  Sends event \a event directly to receiver \a receiver, using the
+  notify() function. Returns the value that was returned from the event
+  handler.
 
   The event is usually allocated on the stack here, as it is \e not
   deleted when the event has been sent.
@@ -1671,14 +1683,16 @@ void QApplication::closeAllWindows()
   key events
 
   Reimplementing this virtual function is one of five ways to process
-  an event: <ol> <li> Reimplementing this function.  Very powerful,
+  an event: 
+  <ol> 
+  <li> Reimplementing this function.  Very powerful,
   you get \e complete control, but of course only one subclass can be
   qApp.
 
   <li> Installing an event filter on qApp.  Such an event filter gets
   to process all events for all widgets, so it's just as powerful as
   reimplementing notify(), and in this way it's possible to have more
-  than one application-global event filter.  Global event filter get
+  than one application-global event filter.  Global event filters get
   to see even mouse events for \link QWidget::isEnabled() disabled
   widgets, \endlink and if \link setGlobalMouseTracking() global mouse
   tracking \endlink is enabled, mouse move events for all widgets.
@@ -1691,7 +1705,8 @@ void QApplication::closeAllWindows()
   gets all the events except Tab and Shift-Tab key presses.
 
   <li> Finally, reimplementing paintEvent(), mousePressEvent() and so
-  on.  This is the normal, easiest and least powerful way. </ol>
+  on.  This is the normal, easiest and least powerful way. 
+  </ol>
 
   \sa QObject::event(), installEventFilter()
 */
@@ -1883,6 +1898,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 
 /*!
   Returns TRUE if an application object has not been created yet.
+
   \sa closingDown()
 */
 
@@ -1893,6 +1909,7 @@ bool QApplication::startingUp()
 
 /*!
   Returns TRUE if the application objects are being destroyed.
+
   \sa startingUp()
 */
 
@@ -1907,7 +1924,7 @@ bool QApplication::closingDown()
   events to process, whichever is shorter.
 
   You can call this function occasionally when your program is busy
-  doing a long operation (e.g. copying a file).
+  performing a long operation (e.g. copying a file).
 
   \sa processOneEvent(), exec(), QTimer
 */
@@ -1921,8 +1938,9 @@ void QApplication::processEvents()
   Waits for an event to occur, processes it, then returns.
 
   This function is useful for adapting Qt to situations where the
-  event processing must be grafted into existing program loops. Using
-  this function in new applications may be an indication of design
+  event processing must be grafted into existing program loops. 
+  
+  Using this function in new applications may be an indication of design
   problems.
 
   \sa processEvents(), exec(), QTimer
@@ -1987,8 +2005,8 @@ void QApplication::syncX()	{}		// do nothing
 #ifndef QT_NO_TRANSLATION
 
 /*!
-  Adds \a mf to the list of message files to be used for
-  localization.
+  Adds the message file \a mf to the list of message files to be used
+  for translations.
 
   Multiple messages files can be installed, given that they cover
   distinct contexts.
@@ -2003,7 +2021,7 @@ void QApplication::installTranslator( QTranslator * mf )
     if ( mf )
 	translators->insert( 0, mf );
 
-    // hook to set the layouting direction of dialogs.
+    // hook to set the layout direction of dialogs.
     if( tr( "QT_LAYOUT_DIRECTION", "this should return the string 'RTL' for languages that "
 	    "are laid out from right to left as Hebrew and arabic. It has the effect to "
 	    "mirror the whole layout of the widgets, as required by these languages. "
@@ -2012,8 +2030,9 @@ void QApplication::installTranslator( QTranslator * mf )
 }
 
 /*!
-  Removes \a mf from the list of message files used by this
-  application.  Does not, of course, delete mf.
+  Removes the message file \a mf from the list of message files used by
+  this application.  (Does not delete the message file from the file
+  system.)
 
   \sa installTranslator() translate(), QObject::tr()
 */
@@ -2075,8 +2094,9 @@ QTextCodec* QApplication::defaultCodec() const
 
 /*!
   Returns the translation text for \a sourceText, by querying the
-  installed messages files.  The message file that was installed
-  last is asked first.
+  installed messages files. The message files are searched from the most
+  recently installed message file back to the first installed message
+  file.
 
   QObject::tr() offers a more convenient way to use this functionality.
 
@@ -2084,12 +2104,12 @@ QTextCodec* QApplication::defaultCodec() const
   \a sourceText is either English text or a short marker text, if
   the output text will be very long (as for help texts).
 
-  \a comment is a disambiguating comment, for when the same text is
-  used in different roles within one context.  By default, it is
-  null.
+  \a comment is a disambiguating comment, for when the same \a
+  sourceText is used in different roles within one context.  By default,
+  it is null.
 
   See the \l QTranslator documentation for more information about
-  contexts, keys and comments.
+  contexts and comments.
 
   If none of the message files contain a translation for \a sourceText
   in \a context, this function returns \a sourceText.
@@ -2133,7 +2153,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
 //see also notify(), which does the removal of ChildInserted when ChildRemoved.
 
 /*!
-  Stores the event in a queue and returns immediately.
+  Adds the event to an event queue and returns immediately.
 
   The event must be allocated on the heap, as it is deleted when the event
   has been posted.
@@ -2221,9 +2241,9 @@ void QApplication::sendPostedEvents()
 
 
 /*!
-  Immediately dispatches all events which have been previously enqueued
+  Immediately dispatches all events which have been previously queued
   with QApplication::postEvent() and which are for the object \a receiver
-  and have the \a event_type.
+  and have the event type \a event_type.
 
   Some event compression may occur. Note that events from the window
   system are \e not dispatched by this function.
@@ -2309,10 +2329,10 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 /*!
   Removes all events posted using postEvent() for \a receiver.
 
-  The events are \e not dispatched, simply removed from the queue. You
-  should never need to call this function. If you do call it, be aware
-  that killing events may cause \a receiver to break one or more
-  invariants.
+  The events are \e not dispatched, instead they are removed from the
+  queue. You should never need to call this function. If you do call it,
+  be aware that killing events may cause \a receiver to break one or
+  more invariants.
 */
 
 void QApplication::removePostedEvents( QObject *receiver )
@@ -2343,7 +2363,8 @@ void QApplication::removePostedEvents( QObject *receiver )
   Removes \a event from the queue of posted events, and emits a
   warning message if appropriate.
 
-  \warning This function can be \e really slow.  Avoid using it, if possible.
+  \warning This function can be \e really slow.  Avoid using it, if
+  possible.
 */
 
 void QApplication::removePostedEvent( QEvent *  event )
@@ -2611,7 +2632,7 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
   The desktop widget is useful for obtaining the size of the screen.
   It may also be possible to draw on the desktop. We recommend against
   assuming that it's possible to draw on the desktop, as it works on
-  some machines and not on others.
+  some operating systems and not on others.
 
   \code
     QDesktopWidget *d = QApplication::desktop();
@@ -2642,7 +2663,7 @@ QDesktopWidget *QApplication::desktop()
   \code
   int main( int argc, char** argv ) {
     QApplication::setDesktopSettingsAware( FALSE ); // I know better than the user
-    QApplication myApp( argc, argv );           // gimme default fonts & colors
+    QApplication myApp( argc, argv ); // give me default fonts & colors
     ...
   }
   \endcode
@@ -2707,7 +2728,7 @@ int QApplication::enter_loop()
 
 
 /*!
-  This function leaves from a recursive call to the main event loop.
+  This function exits from a recursive call to the main event loop.
   Do not call it unless you are an expert.
 
   \sa enter_loop(), loopLevel()
@@ -2741,7 +2762,7 @@ int QApplication::loopLevel() const
 
 
 /*! \fn void QApplication::unlock(bool wakeUpGui)
-  Unlock the Qt library mutex.  if \a wakeUpGui is TRUE (default argument),
+  Unlock the Qt library mutex.  if \a wakeUpGui is TRUE (the default),
   then the GUI thread will be woken with QApplication::wakeUpGuiThread().
 
   \sa lock(), locked()
@@ -2752,9 +2773,9 @@ int QApplication::loopLevel() const
   Returns TRUE if the Qt library mutex is locked by a different thread,
   otherwise returns FALSE.
 
-  \warning Due to differing implementations of recursive mutexes on supported
-  platforms, calling this function from the same thread that previous locked
-  the mutex will give undefined results.
+  \warning Due to differing implementations of recursive mutexes on
+  supported platforms, calling this function from the same thread that
+  previous locked the mutex will give undefined results.
 
   \sa lock() unlock()
 */
@@ -2810,7 +2831,7 @@ bool QApplication::tryLock()
 /*!
   \fn bool QApplication::isSessionRestored() const
 
-  Returns whether the application has been restored from an earlier
+  Returns TRUE if the application has been restored from an earlier
   session.
 
   \sa sessionId(), commitData(), saveState()
@@ -2825,8 +2846,8 @@ bool QApplication::tryLock()
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
 
-  The session identifier is guaranteed to be unique for both different
-  applications and different instances of the same application.
+  The session identifier is guaranteed to be unique both for different
+  applications and for different instances of the same application.
 
   \sa isSessionRestored(), commitData(), saveState()
  */
@@ -2838,9 +2859,9 @@ bool QApplication::tryLock()
   This function deals with session management. It is invoked when the
   QSessionManager wants the application to commit all its data.
 
-  Usually this means saving of all open files, after getting
-  permission from the user. Furthermore you may want to provide the
-  user a way to cancel the shutdown.
+  Usually this means saving all open files, after getting
+  permission from the user. Furthermore you may want to provide a means
+  by which the user can cancel the shutdown.
 
   Note that you should not exit the application within this function.
   Instead, the session manager may or may not do this afterwards,
@@ -2853,7 +2874,7 @@ bool QApplication::tryLock()
   example usage.
 
   The default implementation requests interaction and sends a close
-  event to all visible top level widgets. If at least one event was
+  event to all visible top level widgets. If any event was
   rejected, the shutdown is cancelled.
 
   \sa isSessionRestored(), sessionId(), saveState()
@@ -2932,14 +2953,14 @@ void QApplication::setStartDragTime( int ms )
 }
 
 /*!
-  If you support drag-and-drop in you application and a drag should
+  If you support drag and drop in you application and a drag should
   start after a mouse click and after a certain time elapsed, you
   should use the value which this method returns as delay (in ms).
 
   Qt internally uses also this delay e.g. in QTextView or QLineEdit
   for starting a drag.
 
-  The default value is set to 500 ms.
+  The default value is 500 ms.
 
   \sa setStartDragTime(), startDragDistance()
 */
@@ -2961,12 +2982,12 @@ void QApplication::setStartDragDistance( int l )
 }
 
 /*!
-  If you support drag-n-drop in you application and a drag should
+  If you support drag and drop in you application and a drag should
   start after a mouse click and after moving the mouse a certain
   distance, you should use the value which this method returns as the
   distance. So if the mouse position of the click is stored in \c
   startPos and the current position (e.g. in the mouse move event) is
-  \c currPos, you can find out if a drag should be started with a code
+  \c currPos, you can find out if a drag should be started with code
   like this:
 
   \code
@@ -2976,7 +2997,7 @@ void QApplication::setStartDragDistance( int l )
 
   Qt internally uses this value too, e.g. in the QFileDialog.
 
-  The default value is set to 4 pixels.
+  The default value is 4 pixels.
 
   \sa setStartDragDistance(), startDragTime(), QPoint::manhattanLength()
 */
@@ -2987,8 +3008,9 @@ int QApplication::startDragDistance()
 }
 
 /*!
-  If set to true, all dialogs and widgets will be layouted in a mirrored fashion, as required by
-  right to left languages as hebrew and arabic.
+  If \a b is TRUE, all dialogs and widgets will be laid out in a
+  mirrored fashion, as required by right to left languages such as
+  Hebrew and Arabic.
 
   \sa reverseLayout()
 */
@@ -2998,7 +3020,8 @@ void QApplication::setReverseLayout( bool b )
 }
 
 /*!
-  returns if all dialogs and widgets will be layouted in a mirrored fashion.
+    Returns TRUE if all dialogs and widgets will be laid out in a
+    mirrored fashion.
 
   \sa setReverseLayout()
 */
