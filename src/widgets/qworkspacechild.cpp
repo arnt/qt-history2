@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#8 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -324,7 +324,8 @@ bool QWorkspaceChildTitelBar::isActive() const
     return act;
 }
 
-QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent=0, const char *name=0 )
+QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
+				  const char *name )
     : QFrame( parent, name, WStyle_Customize | WStyle_NoBorder )
 {
     mode = 0;

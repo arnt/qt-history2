@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#6 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -42,7 +42,7 @@
 
 #define OFFSET 20
 
-QWorkspace::QWorkspace( QWidget *parent=0, const char *name=0 )
+QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     active = 0;

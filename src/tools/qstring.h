@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#99 $
+** $Id: //depot/qt/main/src/tools/qstring.h#100 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -419,7 +419,7 @@ inline QString &QString::setNum( float n, char f, int prec )
 inline QString QString::arg(int a, int fieldwidth, int base) const
 { return arg((long)a, fieldwidth, base); }
 
-inline QString QString::arg(uint a, int fieldwidth=0, int base=10) const
+inline QString QString::arg(uint a, int fieldwidth, int base) const
 { return arg((ulong)a, fieldwidth, base); }
 
 
