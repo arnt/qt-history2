@@ -950,6 +950,12 @@ void Q3WorkspacePrivate::maximizeWindow(QWidget* w)
         if(!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
             showMaximizeControls();
         } else {
+            if (!d->active && d->becomeActive) {
+                d->active = (Q3WorkspaceChild*)d->becomeActive->parentWidget();
+                d->active->setActive(true);
+                d->becomeActive = 0;
+                emit q->windowActivated(d->active->windowWidget());
+            }
             c->widgetResizeHandler->setActive(false);
             if (c->titlebar)
                 c->titlebar->setMovable(false);
