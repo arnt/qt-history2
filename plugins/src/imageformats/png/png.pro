@@ -12,8 +12,8 @@ system-png {
         win32:LIBS += libpng.lib
 }
 !system-png {
-	INCLUDEPATH += $(QTDIR)/src/3rdparty/libpng
-	INCLUDEPATH += $(QTDIR)/src/3rdparty/zlib
+	INCLUDEPATH += $$QT_SOURCE_TREE/src/3rdparty/libpng
+	INCLUDEPATH += $$QT_SOURCE_TREE/src/3rdparty/zlib
 	SOURCES += \
     	    ../../../../src/3rdparty/libpng/png.c \
 	    ../../../../src/3rdparty/libpng/pngerror.c \
@@ -51,6 +51,6 @@ system-png {
 system-zlib:unix:LIBS += -lz
 system-zlib:mac:LIBS += -lz
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/imageformats
 INSTALLS += target

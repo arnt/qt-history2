@@ -20,6 +20,6 @@ win32-borland:{
     QMAKE_LFLAGS += /duxtheme.dll
 }
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/styles
 INSTALLS += target

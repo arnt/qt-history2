@@ -17,6 +17,6 @@ win32:OBJECTS_DIR	= obj
 TARGET		= qsgistyle
 DESTDIR		= ../../../styles
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/styles
 INSTALLS += target

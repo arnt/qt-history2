@@ -26,6 +26,6 @@ REQUIRES	= sql
 DESTDIR		= ../../../sqldrivers
 TARGET		= qsqloci
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/sqldrivers
 INSTALLS += target

@@ -26,6 +26,6 @@ REQUIRES	= sql
 TARGET		= qsqlmysql
 DESTDIR		= ../../../sqldrivers
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/sqldrivers
 INSTALLS += target

@@ -61,6 +61,6 @@ system-jpeg {
 	    ../../../../src/3rdparty/libjpeg/jmemansi.c
 }
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/imageformats
 INSTALLS += target

@@ -13,6 +13,6 @@ TARGET		= qgfxmatrox
 DESTDIR		= ../../../gfxdrivers
 DEFINES		-= QT_NO_QWS_MATROX
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/gfxdrivers
 INSTALLS 	+= target

@@ -13,6 +13,6 @@ TARGET		= qgfxvoodoo
 DESTDIR		= ../../../gfxdrivers
 DEFINES		-= QT_NO_QWS_VOODOO3
 
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+
 target.path += $$plugins.path/gfxdrivers
 INSTALLS 	+= target
