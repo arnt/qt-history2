@@ -387,94 +387,8 @@ void QDesignerActions::openForm()
             tr("Designer UI files (*.ui)"));
 
     if (fileName.isEmpty() == false) {
-        readInForm(fileName);
+        m_mainWindow->readInForm(fileName);
     }
-}
-
-bool QDesignerActions::readInForm(const QString &fileName)
-{
-    // First make sure that we don't have this one open already.
-    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
-    int totalWindows = formWindowManager->formWindowCount();
-    for (int i = 0; i < totalWindows; ++i) {
-        AbstractFormWindow *w = formWindowManager->formWindow(i);
-        if (w->fileName() == fileName) {
-            w->raise();
-            formWindowManager->setActiveFormWindow(w);
-            return true;
-        }
-    }
-
-    // Otherwise load it.
-    QFile f(fileName);
-    if (!f.open(QFile::ReadOnly)) {
-        QMessageBox::warning(core()->topLevel(), tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
-                .arg(f.fileName()).arg(f.errorString()));
-        return false;
-    }
-
-
-    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-    if (AbstractFormWindow *editor = formWindow->editor()) {
-        editor->setContents(&f);
-        editor->setFileName(fileName);
-        formWindowManager->setActiveFormWindow(editor);
-    }
-    formWindow->show();
-
-    return true;
-}
-
-bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveFile)
-{
-    Q_ASSERT(fw && !saveFile.isEmpty());
-    QFile f(saveFile);
-    while (!f.open(QFile::WriteOnly)) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not open file: %1"
-                                "\nReason: %2"
-                                "\nWould you like to retry or change your file?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Select New File"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                break;
-                case QMessageBox::No: {
-                    QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                            QDir::current().absolutePath(), QString("*.ui"));
-                    if (fileName.isEmpty())
-                        return false;
-                    f.setFileName(fileName);
-                    fw->setFileName(fileName);
-                    break; }
-            case QMessageBox::Cancel:
-                return false;
-        }
-    }
-    QByteArray utf8Array = fw->contents().toUtf8();
-    while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not write file: %1\nReason:%2\nWould you like to retry?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, 0,
-                        fw, Qt::WMacSheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Don't Retry"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                f.resize(0);
-                break;
-            case QMessageBox::No:
-                return false;
-        }
-    }
-    fw->setDirty(false);
-    return true;
 }
 
 bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
@@ -516,7 +430,7 @@ bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
         }
     }
     fw->setFileName(saveFile);
-    return writeOutForm(fw, saveFile);
+    return m_mainWindow->writeOutForm(fw, saveFile);
 }
 
 void QDesignerActions::saveForm()
@@ -531,7 +445,7 @@ bool QDesignerActions::saveForm(AbstractFormWindow *fw)
     if (fw->fileName().isEmpty())
         ret = saveFormAs(fw);
     else
-        ret =  writeOutForm(fw, fw->fileName());
+        ret =  m_mainWindow->writeOutForm(fw, fw->fileName());
     return ret;
 }
 

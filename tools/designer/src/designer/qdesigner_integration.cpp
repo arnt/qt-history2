@@ -22,10 +22,7 @@
 #include <abstractwidgetbox.h>
 #include <abstractobjectinspector.h>
 
-#include <QtCore/QFile>
-#include <QtGui/QFileDialog>
 #include <QtCore/QVariant>
-#include <QtGui/QMessageBox>
 
 #include <qdebug.h>
 
@@ -126,59 +123,3 @@ void QDesignerIntegration::activateWidget(QWidget *widget)
     // ### in-place editing here!!
     Q_UNUSED(widget);
 }
-
-bool QDesignerIntegration::saveForm(AbstractFormWindow *fw, const QString &saveFile)
-{
-    Q_ASSERT(fw && saveFile.isEmpty() == false);
-
-    QFile f(saveFile);
-    while (!f.open(QFile::WriteOnly)) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not open file: %1"
-                                "\nReason: %2"
-                                "\nWould you like to retry or change your file?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Select New File"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                break;
-                case QMessageBox::No: {
-                    QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                            QDir::home().absolutePath(), QString::fromLatin1("*.ui"));
-                    if (fileName.isEmpty())
-                        return false;
-                    f.setFileName(fileName);
-                    fw->setFileName(fileName);
-                } break;
-            case QMessageBox::Cancel:
-                return false;
-        }
-    }
-    QByteArray utf8Array = fw->contents().toUtf8();
-    while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
-        QMessageBox box(tr("Save Form?"),
-                        tr("Could not write file: %1\nReason:%2\nWould you like to retry?")
-                                .arg(f.fileName()).arg(f.errorString()),
-                        QMessageBox::Warning,
-                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, 0,
-                        fw, Qt::WMacSheet);
-        box.setButtonText(QMessageBox::Yes, tr("Retry"));
-        box.setButtonText(QMessageBox::No, tr("Don't Retry"));
-        switch(box.exec()) {
-            case QMessageBox::Yes:
-                f.resize(0);
-                break;
-            case QMessageBox::No:
-                return false;
-        }
-    }
-
-    fw->setDirty(false);
-
-    return true;
-}
-

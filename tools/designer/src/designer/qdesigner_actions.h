@@ -37,7 +37,6 @@ public:
     QDesignerWorkbench *workbench() const;
     AbstractFormEditor *core() const;
 
-
     QActionGroup *fileActions() const;
     QActionGroup *editActions() const;
     QActionGroup *editModeActions() const;
@@ -109,8 +108,6 @@ private slots:
     void editPreferences();
 
 private:
-    bool readInForm(const QString &fileName);
-    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName);
     bool saveForm(AbstractFormWindow *fw);
     bool saveFormAs(AbstractFormWindow *fw);
     void fixActionContext();

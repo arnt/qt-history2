@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtGui/QFileOpenEvent>
+#include <QtGui/QCloseEvent>
 #include <qdebug.h>
 
 // designer
@@ -78,3 +80,25 @@ void QDesigner::initialize()
     m_mainWindow->show();
 }
 
+bool QDesigner::event(QEvent *ev)
+{
+    bool eaten;
+    switch (ev->type()) {
+    case QEvent::FileOpen:
+        m_mainWindow->readInForm(static_cast<QFileOpenEvent *>(ev)->file());
+        eaten = true;
+        break;
+    case QEvent::Close: {
+            QCloseEvent *closeEvent = static_cast<QCloseEvent *>(ev);
+            sendEvent(m_mainWindow, closeEvent);
+            if (closeEvent->isAccepted())
+                eaten = QApplication::event(ev);
+            eaten = true;
+        }
+        break;
+    default:
+        eaten = QApplication::event(ev);
+        break;
+    }
+    return eaten;
+}

@@ -25,11 +25,14 @@
 
 // Qt
 #include <QtCore/QEvent>
+#include <QtCore/QFile>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
+#include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
+#include <QtGui/QMessageBox>
 #include <QtGui/QToolBar>
 
 #include <qdebug.h>
@@ -50,6 +53,12 @@ QDesignerMainWindow::~QDesignerMainWindow()
 
 void QDesignerMainWindow::initialize()
 {
+    QMenuBar *mb;
+#ifdef Q_WS_MAC
+    mb = new QMenuBar(0);
+#else
+    mb = menuBar();
+#endif
     m_workbench = new QDesignerWorkbench(this);
     m_workbench->setMainWindow(this);
 
@@ -61,12 +70,12 @@ void QDesignerMainWindow::initialize()
 
     m_actionManager = new QDesignerActions(this);
 
-    m_fileMenu = menuBar()->addMenu(tr("&File"));
+    m_fileMenu = mb->addMenu(tr("&File"));
     foreach (QAction *action, m_actionManager->fileActions()->actions()) {
         m_fileMenu->addAction(action);
     }
 
-    m_editMenu = menuBar()->addMenu(tr("&Edit"));
+    m_editMenu = mb->addMenu(tr("&Edit"));
     foreach (QAction *action, m_actionManager->editActions()->actions()) {
         m_editMenu->addAction(action);
     }
@@ -77,14 +86,14 @@ void QDesignerMainWindow::initialize()
         m_editMenu->addAction(action);
     }
 
-    m_formMenu = menuBar()->addMenu(tr("F&orm"));
+    m_formMenu = mb->addMenu(tr("F&orm"));
     foreach (QAction *action, m_actionManager->formActions()->actions()) {
         m_formMenu->addAction(action);
     }
 
-    m_toolMenu = menuBar()->addMenu(tr("&Tool"));
+    m_toolMenu = mb->addMenu(tr("&Tool"));
 
-    m_windowMenu = menuBar()->addMenu(tr("&Window"));
+    m_windowMenu = mb->addMenu(tr("&Window"));
     foreach (QAction *action, m_actionManager->windowActions()->actions()) {
         m_windowMenu->addAction(action);
     }
@@ -191,3 +200,95 @@ void QDesignerMainWindow::updateWindowState()
 #endif
 }
 
+bool QDesignerMainWindow::readInForm(const QString &fileName) const
+{
+    // First make sure that we don't have this one open already.
+    AbstractFormWindowManager *formWindowManager = core()->formWindowManager();
+    int totalWindows = formWindowManager->formWindowCount();
+    for (int i = 0; i < totalWindows; ++i) {
+        AbstractFormWindow *w = formWindowManager->formWindow(i);
+        if (w->fileName() == fileName) {
+            w->raise();
+            formWindowManager->setActiveFormWindow(w);
+            return true;
+        }
+    }
+
+    // Otherwise load it.
+    QFile f(fileName);
+    if (!f.open(QFile::ReadOnly)) {
+        QMessageBox::warning(core()->topLevel(), tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
+                .arg(f.fileName()).arg(f.errorString()));
+        return false;
+    }
+
+
+    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
+    if (AbstractFormWindow *editor = formWindow->editor()) {
+        editor->setContents(&f);
+        editor->setFileName(fileName);
+        formWindowManager->setActiveFormWindow(editor);
+    }
+    formWindow->show();
+
+    return true;
+}
+
+bool QDesignerMainWindow::writeOutForm(AbstractFormWindow *fw, const QString &saveFile) const
+{
+    Q_ASSERT(fw && !saveFile.isEmpty());
+    QFile f(saveFile);
+    while (!f.open(QFile::WriteOnly)) {
+        QMessageBox box(tr("Save Form?"),
+                        tr("Could not open file: %1"
+                                "\nReason: %2"
+                                "\nWould you like to retry or change your file?")
+                                .arg(f.fileName()).arg(f.errorString()),
+                        QMessageBox::Warning,
+                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
+                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
+        box.setButtonText(QMessageBox::Yes, tr("Retry"));
+        box.setButtonText(QMessageBox::No, tr("Select New File"));
+        switch(box.exec()) {
+            case QMessageBox::Yes:
+                break;
+                case QMessageBox::No: {
+                    QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+                            QDir::current().absolutePath(), QString("*.ui"));
+                    if (fileName.isEmpty())
+                        return false;
+                    f.setFileName(fileName);
+                    fw->setFileName(fileName);
+                    break; }
+            case QMessageBox::Cancel:
+                return false;
+        }
+    }
+    QByteArray utf8Array = fw->contents().toUtf8();
+    while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
+        QMessageBox box(tr("Save Form?"),
+                        tr("Could not write file: %1\nReason:%2\nWould you like to retry?")
+                                .arg(f.fileName()).arg(f.errorString()),
+                        QMessageBox::Warning,
+                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, 0,
+                        fw, Qt::WMacSheet);
+        box.setButtonText(QMessageBox::Yes, tr("Retry"));
+        box.setButtonText(QMessageBox::No, tr("Don't Retry"));
+        switch(box.exec()) {
+            case QMessageBox::Yes:
+                f.resize(0);
+                break;
+            case QMessageBox::No:
+                return false;
+        }
+    }
+    fw->setDirty(false);
+    return true;
+}
+
+
+void QDesignerMainWindow::closeEvent(QCloseEvent *ev)
+{
+    qDebug() << "CloseEvent for the main window";
+    return QMainWindow::closeEvent(ev);
+}

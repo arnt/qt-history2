@@ -32,11 +32,13 @@ public:
     QDesigner(int &argc, char **argv);
     virtual ~QDesigner();
 
-private:
+    QDesignerMainWindow *mainWindow() const;
     QDesignerSettings *settings() const;
     QDesignerSession *session() const;
-    QDesignerMainWindow *mainWindow() const;
     QDesignerServer *server() const;
+
+protected:
+    bool event(QEvent *ev);
 
 signals:
     void initialized();

@@ -23,6 +23,7 @@ class QMenu;
 class QActionGroup;
 
 class AbstractFormEditor;
+class AbstractFormWindow;
 class QDesignerFormWindowManager;
 class QDesignerFormWindow;
 class QDesignerActions;
@@ -36,6 +37,9 @@ public:
 
     QDesignerWorkbench *workbench() const;
     AbstractFormEditor *core() const;
+    bool readInForm(const QString &fileName) const;
+    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName) const;
+
 
 signals:
     void initialized();
@@ -49,6 +53,7 @@ private slots:
 
 protected:
     virtual void changeEvent(QEvent *event);
+    void closeEvent(QCloseEvent *ev);
 
 private:
     void initialize();

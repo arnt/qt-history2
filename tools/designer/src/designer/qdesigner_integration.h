@@ -32,8 +32,6 @@ public:
 
     inline AbstractFormEditor *core() const;
 
-    bool saveForm(AbstractFormWindow *fw, const QString &fileName);
-
 signals:
     void propertyChanged(AbstractFormWindow *formWindow, const QString &name, const QVariant &value);
 
