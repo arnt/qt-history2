@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#43 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#43 $";
 #endif
 
 
@@ -504,7 +504,7 @@ void QPushButton::drawButtonLabel( QPainter *paint )
     }
     x += 2;  y += 2;  w -= 4;  h -= 4;
     if ( pixmap() ) {
-	QPixmap *pm = (QPixmap *)pixmap();	
+	const QPixmap *pm = pixmap();
 	if ( pm->width() > w || pm->height() > h )
 	    p->setClipRect( x, y, w, h );
 	if ( pm->depth() == 1 && isUp() )
