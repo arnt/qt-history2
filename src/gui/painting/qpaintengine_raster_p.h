@@ -103,7 +103,7 @@ public:
 
     enum RasterOperation {
         SourceCopy,
-        SourceOverComposite,
+        SourceOverComposite
     };
 
     void fillForBrush(const QBrush &brush, FillData *data, const QPainterPath *path);
