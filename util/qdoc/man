@@ -254,12 +254,12 @@ $_ = <A>;
 s/ / /gs;
 close A;
 
-while ( m@<b><a href=\"([a-z0-9]+\.html)\">([A-Za-z0-9]*)</a></b><td>([^<]*?)\s*<@gs ) {
+while ( m@<b><a href=\"([a-z0-9]+\.html)\">([A-Za-z0-9]*)</a></b>(?:</td>)?<td>([^<]*?)\s*<@gs ) {
     $name{$1} = $2;
     $desc{$1} = $3;
 }
 
-if ( m@<div align=right>Qt version ([^\s<]+)</div>@s ) {
+if ( m@<div align=[^>]*>Qt version ([^\s<]+)</div>@s ) {
     $version = $1;
 } else {
     die "unable to find Qt version, stopped";
