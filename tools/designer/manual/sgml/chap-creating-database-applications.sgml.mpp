@@ -57,7 +57,7 @@ recreate the example database on your own system.
 </programlisting></example>
 The book table is simplified for the purposes of example. It can only
 relate a book to a single author (authorid) and lacks an ISBN field.
-The format table is used to store 'paperpack', 'hardback', etc.
+The format table is used to store 'paperback', 'hardback', etc.
 <example><title>Schema <literal>CREATE VIEW</> Statements</><programlisting>
 \scan eg/book/book.sql /CREATE VIEW/ /CREATE VIEW/
 </programlisting></example>

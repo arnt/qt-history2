@@ -148,7 +148,7 @@ data. <em>Qt Designer</em> is fully integrated with the SQL classes
 and can be used to create data-aware forms. The data-aware widgets can
 also be programmed directly with your own C++ code. The classes that
 support this layer include \l QSqlEditorFactory, \l QSqlForm, \l
-QSqlPropertyMap, \l QDataTable and \l QDataForm and \l QDataView.
+QSqlPropertyMap, \l QDataTable, \l QDataBrowser and \l QDataView.
 
 <em>SQL API Layer.</em> These classes provide access to databases.
 Connections are made using the \l QSqlDatabase class. Database
@@ -188,7 +188,7 @@ this section we introduce the \l QDataTable, \l QSqlForm, \l
 QSqlPropertyMap and QSqlEditorFactory classes and demonstrate how to use
 custom data-aware widgets. <em>Qt Designer</em> provides an easy visual
 way of achieving the same thing.  See the <em>Qt Designer</em> manual,
-\l QDataForm and \l QDataView for more information.
+\l QDataBrowser and \l QDataView for more information.
 
 <a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
 section gives examples of subclassing QSqlCursor. Subclassing can be
@@ -712,7 +712,7 @@ manual and its accompanying examples provides additional information.
 \dontinclude sql/overview/table1/main.cpp
 \skipto include
 \printline include
-\printuntil return 1
+\printuntil return 0
 \printline
 <h5 align="center">From \l sql/overview/table1/main.cpp
 </h5>
@@ -947,6 +947,7 @@ class and its upperLine property with the property map.
 
 \skipto QSqlForm
 \printline QSqlForm
+\printline
 \printline propMap
 
 The final change is to install the property map into the QSqlForm once
