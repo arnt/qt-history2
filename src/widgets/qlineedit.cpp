@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#80 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#80 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -1193,7 +1193,10 @@ QSize QLineEdit::sizeHint() const
 }
 
 
-/*!
+
+
+
+/*
   Sets this line edit to accept input only as accepted by \a v.
 
   If \a v == 0, remove the currently set input validator.  The default
@@ -1201,6 +1204,7 @@ QSize QLineEdit::sizeHint() const
 
   \sa validator() QValidator
 */
+
 
 /* No validators
 void QLineEdit::setValidator( QValidator * v )
@@ -1212,10 +1216,9 @@ void QLineEdit::setValidator( QValidator * v )
     x->validator = v;
     repaint();
 }
-
 */
 
-/*!
+/*
   Returns a pointer to the current input validator, or 0 if no
   validator has been set.
 */
@@ -1226,6 +1229,7 @@ QValidator * QLineEdit::validator() const
     QLineEditExtra * x = lookInLEDict( this );
     return x ? x->validator : 0;
 }
+
 */
 
 /*!
