@@ -1157,7 +1157,7 @@ int QApplication::macProcessEvent(MSG * m)
 	    QWidget *popupwidget = NULL;
 	    if( inPopupMode() ) {
 		popupwidget = activePopupWidget();
-		SetPortWindowPort((WindowPtr)widget->handle());
+		SetPortWindowPort((WindowPtr)popupwidget->handle());
 		Point gp = er->where;
 		GlobalToLocal( &gp ); //now map it to the window
 		popupwidget = recursive_match(popupwidget, gp.h, gp.v);
@@ -1195,8 +1195,8 @@ int QApplication::macProcessEvent(MSG * m)
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
 		QMouseEvent qme( etype, plocal, p, button, state );
-		QApplication::sendEvent( widget, &qme );
 //		qDebug("Would send event to %s %s", widget->name(), widget->className());
+		QApplication::sendEvent( widget, &qme );
 	    }
 	}
 	//mousedown's will effect stuff outside InContent as well
