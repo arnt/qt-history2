@@ -55,7 +55,7 @@ static void cleanup_agent()
 /*!
     Looks up the hostname (IP address) \a name. When the result of the
     lookup is ready, the slot or signal \a member in \a receiver is
-    called with a QDnsHostInfo argument. The QDnsHostInfo struct can
+    called with a QDnsHostInfo argument. The QDnsHostInfo object can
     then be inspected to get the results of the lookup.
 
     Example:
@@ -67,15 +67,16 @@ static void cleanup_agent()
     And here is the implementation of the slot:
 
     \code
-        void MyWidget::lookedUp(const QDnsHostInfo &hosts)
+        void MyWidget::lookedUp(const QDnsHostInfo &host)
         {
-            if (hosts.error != QDns::NoError) {
-                qDebug("Lookup failed: %s", hosts.errorString.latin1());
+            if (host.error() != QDns::NoError) {
+                qDebug("Lookup failed: %s", host.errorString().latin1());
                 return;
             }
 
-            for (int i = 0; i < hosts.addresses.count(); ++i)
-                qDebug("Got address: %s", hosts.addresses.at(i).toString().latin1());
+            QList<QHostAddress> addresses = host.addresses();
+            for (int i = 0; i < addresses.count(); ++i)
+                qDebug("Got address: %s", addresses.at(i).toString().latin1());
         }
     \endcode
 */
@@ -180,14 +181,15 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 */
 
 /*!
-    \enum QDns::Error
+    \enum QDnsHostInfo::Error
+
     \value NoError The lookup was successful.
     \value HostNotFound No IP addresses were found for the host.
     \value UnknownError An unknown error occurred.
 */
 
 /*!
-    Constructs an empty QDnsHostInfo.
+    Constructs an empty QDnsHostInfo object.
 */
 QDnsHostInfo::QDnsHostInfo()
     : d(new QDnsHostInfoPrivate)
@@ -226,7 +228,8 @@ QDnsHostInfo::~QDnsHostInfo()
 }
 
 /*!
-    Returns the list of IP addresses returned by the host name lookup.
+    Returns the list of IP addresses returned by the host name lookup;
+    this list may be empty.
 
     \sa host()
 */
@@ -247,7 +250,7 @@ QString QDnsHostInfo::host() const
     If the host name lookup failed, this function returns the type of
     error that occurred; otherwise NoError is returned.
 
-    \sa QDnsHostInfo::Error
+    \sa QDnsHostInfo::Error errorString()
 */
 QDnsHostInfo::Error QDnsHostInfo::error() const
 {
@@ -257,6 +260,8 @@ QDnsHostInfo::Error QDnsHostInfo::error() const
 /*!
     If the lookup failed, this function returns a human readable
     description of the error; otherwise "Unknown error" is returned.
+
+    \sa error()
 */
 QString QDnsHostInfo::errorString() const
 {
