@@ -204,6 +204,8 @@ void QDataBrowser::setSort( const QStringList& sort )
 }
 
 /*! Returns the current sort, or an empty stringlist if there is none.
+    Each string in the stringlist is in the form 'fieldname order', e.g.
+    'id ASC', 'surname DESC'.
 
 */
 
@@ -852,8 +854,14 @@ void QDataBrowser::writeFields()
 }
 
 
-/*! Clears all the values in the form. For example the text of
-   QLineEdit's will be set to "".
+/*! Clears all the values in the form. 
+
+    All the edit buffer field values are set to their 'zero state', e.g.
+    0 for numeric fields, "" for string fields. Then the widgets are
+    updated using the property map. A combobox that is property-mapped
+    to ints would scroll to the first item for example. See the \l
+    QSqlPropertyMap constructor for the default mappings of widgets to
+    properties.
 
 */
 
