@@ -468,7 +468,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString tmp_cmd_name = project->variables()[(*it) + ".name"].join(" ");
 		    QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
 		    QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
-		    QStringList &vars = project->variables()[(*it) + ".variables"];
+		    //QStringList &vars = project->variables()[(*it) + ".variables"];
 		    if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
 			continue;
                     if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
