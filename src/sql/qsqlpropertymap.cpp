@@ -151,26 +151,35 @@ public:
 QSqlPropertyMap::QSqlPropertyMap()
 {
     d = new QSqlPropertyMapPrivate();
-    d->propertyMap["QButton"]        = "text";
-    d->propertyMap["QCheckBox"]      = "checked";
-    d->propertyMap["QComboBox"]      = "currentItem";
-    d->propertyMap["QDateEdit"]      = "date";
-    d->propertyMap["QDateTimeEdit"]  = "dateTime";
-    d->propertyMap["QDial"]          = "value";
-    d->propertyMap["QLabel"]         = "text";
-    d->propertyMap["QLCDNumber"]     = "value";
-    d->propertyMap["QLineEdit"]      = "text";
-    d->propertyMap["QListBox"]       = "currentItem";
-    d->propertyMap["QMultiLineEdit"] = "text";
-    d->propertyMap["QPushButton"]    = "text";
-    d->propertyMap["QRadioButton"]   = "text";
-    d->propertyMap["QScrollBar"]     = "value";
-    d->propertyMap["QSlider"]        = "value";
-    d->propertyMap["QSpinBox"]       = "value";
-    d->propertyMap["QTextBrowser"]   = "source";
-    d->propertyMap["QTextEdit"]      = "text";
-    d->propertyMap["QTextView"]      = "text";
-    d->propertyMap["QTimeEdit"]      = "time";
+    const struct MapData {
+	const char *classname;
+	const char *property;
+    } mapData[] = {
+	{ "QButton", 		"text" },
+	{ "QCheckBox", 		"checked" },
+	{ "QComboBox", 		"currentItem" },
+	{ "QDateEdit", 		"date" },
+	{ "QDateTimeEdit",	"dateTime" },
+	{ "QDial", 		"value" },
+	{ "QLabel", 		"text" },
+	{ "QLCDNumber",		"value" },
+	{ "QLineEdit",		"text" },
+	{ "QListBox",		"currentItem" },
+	{ "QMultiLineEdit",	"text" },
+	{ "QPushButton",	"text" },
+	{ "QRadioButton",	"text" },
+	{ "QScrollBar",		"value" },
+	{ "QSlider",		"value" },
+	{ "QSpinBox",		"value" },
+	{ "QTextBrowser",	"source" },
+	{ "QTextEdit",		"text" },
+	{ "QTextView",		"text" },
+	{ "QTimeEdit",		"time" }
+    };
+
+    const MapData *m = mapData;
+    for ( uint i = 0; i < sizeof(mapData)/sizeof(MapData); i++, m++ )
+	d->propertyMap.insert( m->classname, m->property );
 }
 
 /*!
