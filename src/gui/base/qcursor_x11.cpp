@@ -34,7 +34,7 @@ extern QCursor cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
  *****************************************************************************/
 
 QCursorData::QCursorData(int s)
-    : cshape(s), hcurs(0), bm(0), bmm(0), hx(0), hy(0), pm(0), pmm(0)
+    : cshape(s), bm(0), bmm(0), hx(0), hy(0), hcurs(0), pm(0), pmm(0)
 {
     ref = 1;
 }
