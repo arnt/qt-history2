@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#31 $
+** $Id: //depot/qt/main/src/moc/moc.l#32 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -57,8 +57,6 @@ class QString;
 
 extern void addExpressionChar( char );
 extern void addExpressionString( char * );
-extern bool isMocSkipBegin( const QString & );
-extern bool isMocSkipEnd( const QString & );
 extern void moc_warn( char *msg );
 %}
 
