@@ -9,6 +9,8 @@
 #include "tree.h"
 #include <ctype.h>
 
+#include <qlist.h>
+#include <qiterator.h>
 
 #define COMMAND_PROJECT                 Doc::alias("project")
 #define COMMAND_VERSION                 Doc::alias("version")
@@ -622,6 +624,12 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
         obsoleteSection.ref = obsoleteLink;
         appendDcfSubSection(&classSection, obsoleteSection);
     }
+    if (!compatLink.isEmpty()) {
+        DcfSection compatSection;
+        compatSection.title = "Qt 3 compatibility members";
+        compatSection.ref = compatLink;
+        appendDcfSubSection(&classSection, compatSection);
+    }
 
     appendDcfSubSection(&dcfRoot, classSection);
 }
@@ -880,6 +888,11 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
                                                    CodeMarker::Status status)
 {
     QList<Section> sections = marker->sections(inner, CodeMarker::Summary, status);
+    QListMutableIterator<Section> j(sections);
+    while (j.hasNext()) {
+        if (j.next().members.size() == 0)
+            j.remove();
+    }
     if (sections.isEmpty())
         return QString();
 
