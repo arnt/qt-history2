@@ -139,6 +139,11 @@ while [ -n "$1" ]; do
 	;;
    -qdoc)
 	shift
+	VAR=qmake_path
+	VAL=$1
+	;;
+   -qdoc)
+	shift
 	VAR=qdoc_path
 	VAL=$1
 	;;
@@ -176,6 +181,7 @@ while [ -n "$1" ]; do
    mac) DO_MAC=$VAL ;;
    embedded) DO_EMBEDDED=$VAL ;;
    #paths
+   qmake_path) QMAKE_PATH=$VAL ;;
    qdoc_path) QDOC_PATH=$VAL;;
    outdir) OUT_TREE=$VAL;;
    manifest) MANIFEST_FILE=$VAL;;
