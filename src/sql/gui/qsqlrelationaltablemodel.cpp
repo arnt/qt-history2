@@ -192,19 +192,10 @@ QSqlTableModel *QSqlRelationalTableModel::relationModel(int column)
     return childModel;
 }
 
-bool QSqlRelationalTableModel::submitChanges()
+void QSqlRelationalTableModel::revertRow(int row)
 {
-    if (QSqlTableModel::submitChanges()) {
-        d->clearChanges();
-        return true;
-    }
-    return false;
-}
-
-void QSqlRelationalTableModel::revertAll()
-{
-    QSqlTableModel::revertAll();
-    d->clearChanges();
+    for (int i = 0; i < d->relations.count(); ++i)
+        d->relations[i].displayValues.remove(row);
 }
 
 void QSqlRelationalTableModel::clear()
@@ -215,3 +206,8 @@ void QSqlRelationalTableModel::clear()
     QSqlTableModel::clear();
 }
 
+bool QSqlRelationalTableModel::select()
+{
+    d->clearChanges();
+    return QSqlTableModel::select();
+}

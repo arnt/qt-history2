@@ -47,15 +47,16 @@ public:
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &item, int role, const QVariant &value);
+
     void clear();
+    bool select();
 
     virtual void setRelation(int column, const QSqlRelation &relation);
     QSqlRelation relation(int column) const;
     virtual QSqlTableModel *relationModel(int column);
 
 public slots:
-    bool submitChanges();
-    void revertAll();
+    void revertRow(int row);
 
 protected:
     QString selectStatement() const;
