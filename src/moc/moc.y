@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#45 $
+** $Id: //depot/qt/main/src/moc/moc.y#46 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#46 $";
 #endif
 
 
@@ -716,7 +716,7 @@ opt_identifier:		  /* empty */
 
 %%
 
-#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined_OS_OS2_)
+#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
 extern "C" int read( int, void *, uint );
 #if defined(_CC_MSC_)
 extern "C" int fileno( FILE *stream );
@@ -769,11 +769,7 @@ int main( int argc, char **argv )		// program starts here
 		noInclude   = TRUE;
 		autoInclude = FALSE;
 	    } else
-	    if ( strcmp(opt,"i-") == 0 ) {	// no #include statement
-		noInclude   = TRUE;
-		autoInclude = FALSE;
-	    } else
-	    if ( strcmp(opt,"i+") == 0 ) {	// produce #include statement
+	    if ( strcmp(opt,"f") == 0 ) {	// produce #include statement
 		noInclude   = FALSE;
 		autoInclude = FALSE;
 	    } else
@@ -803,7 +799,7 @@ int main( int argc, char **argv )		// program starts here
     }
     if ( autoInclude ) {
 	int ppos = fileName.find('.');
-	if ( ppos != -1 && fileName.right( fileName.length()-ppos-1 ) == "h" )
+	if ( ppos != -1 && tolower( fileName[ppos + 1] ) == 'h' )
 	    noInclude = FALSE;
 	else
 	    noInclude = TRUE;
