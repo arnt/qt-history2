@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#28 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#28 $";
 #endif
 
 
@@ -398,7 +398,7 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 		p->setPen( palette().disabled().text() );
 	    else
 		p->setPen( g.text() );
-	    p->drawText( r, AlignCenter | AlignVCenter | ShowPrefix | DontClip,
+	    p->drawText( r, AlignCenter | ShowPrefix | DontClip,
 			 mi->string() );
 	}
     }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#7 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#7 $";
 #endif
 
 
@@ -65,14 +65,14 @@ The default alignment is \c AlignHCenter.
 /*!
 Sets the alignment of the group box title.
 
-The title is always placed on the upper frame line, but the horizontal
-alignment can be specified by the \e alignment parameter.
+The title is always placed on the upper frame line, however,
+the horizontal alignment can be specified by the \e alignment parameter.
 
 The \e alignment is the bitwise OR of the following flags:
 <ul>
-<li> \c AlignLeft draws the text to the left.
-<li> \c AlignRight draws the text to the right.
-<li> \c AlignHCenter draws the text centered.
+<li> \c AlignLeft aligns the title text to the left.
+<li> \c AlignRight aligns the title text to the right.
+<li> \c AlignHCenter aligns the title text centered.
 </ul>
 
 \sa alignment().
@@ -131,7 +131,7 @@ void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
     if ( tw ) {					// draw the title
 	paint.setClipping( FALSE );
 	paint.setPen( g.text() );
-	paint.drawText( r, AlignCenter | AlignVCenter, str, len );
+	paint.drawText( r, AlignCenter, str, len );
     }
     drawContents( &paint );
     paint.end();
