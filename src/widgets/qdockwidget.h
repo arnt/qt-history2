@@ -86,8 +86,7 @@ protected:
     QBoxLayout *boxLayout();
 
 private:
-    void handleMoveInDock( const QPoint &pos );
-    void handleMoveOutsideDock( const QPoint &pos, const QPoint &gp );
+    void handleMove( const QPoint &pos, const QPoint &gp );
     void updateGui();
 
     void startRectDraw( const QPoint &so );

@@ -249,7 +249,7 @@ void QDockWidgetHandle::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
-    dockWidget->handleMoveOutsideDock( e->globalPos() - offset, e->globalPos() );
+    dockWidget->handleMove( e->globalPos() - offset, e->globalPos() );
 }
 
 void QDockWidgetHandle::mouseReleaseEvent( QMouseEvent *e )
@@ -357,7 +357,7 @@ void QDockWidgetTitleBar::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
-    dockWidget->handleMoveOutsideDock( e->globalPos() - offset, e->globalPos() );
+    dockWidget->handleMove( e->globalPos() - offset, e->globalPos() );
 }
 
 void QDockWidgetTitleBar::mouseReleaseEvent( QMouseEvent *e )
@@ -461,10 +461,6 @@ void QDockWidget::resizeEvent( QResizeEvent *e )
     updateGui();
 }
 
-void QDockWidget::handleMoveInDock( const QPoint & )
-{
-}
-
 static void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset )
 {
     int w = r.width();
@@ -502,7 +498,7 @@ QWidget *QDockWidget::areaAt( const QPoint &gp )
     return a;
 }
 
-void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
+void QDockWidget::handleMove( const QPoint &pos, const QPoint &gp )
 {
     if ( !unclippedPainter )
 	return;
@@ -606,14 +602,20 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
 {
     if ( state == InDock ) {
 	if ( tmpDockArea ) {
-	    if ( dockArea && dockArea != tmpDockArea )
+	    if ( dockArea && dockArea != tmpDockArea ) {
+		delete (QDockArea::DockWidgetData*)dockWidgetData;
+		dockWidgetData = dockArea->dockWidgetData( this );
 		dockArea->removeDockWidget( this, FALSE, FALSE );
+	    }
 	    dockArea = tmpDockArea;
 	    dockArea->moveDockWidget( this, globalPos, currRect, startOrientation != orientation() );
 	}
     } else {
-	if ( dockArea )
+	if ( dockArea ) {
+	    delete (QDockArea::DockWidgetData*)dockWidgetData;
+	    dockWidgetData = dockArea->dockWidgetData( this );
 	    dockArea->removeDockWidget( this, TRUE, startOrientation != Horizontal );
+	}
 	dockArea = 0;
 	move( currRect.topLeft() );
 	show();
