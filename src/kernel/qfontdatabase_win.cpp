@@ -499,7 +499,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 
     HFONT hfont = 0;
 
-    if ( fp->mask & QFontPrivate::RawMode ) {			// will choose a stock font
+    if ( fp->rawMode ) {			// will choose a stock font
 	int f, deffnt;
 	// ### why different?
 	if ( (qt_winver & Qt::WV_NT_based) || qt_winver == Qt::WV_32s )
