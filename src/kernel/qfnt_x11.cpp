@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#94 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#94 $");
 
 
 static const int fontFields = 14;
@@ -1007,7 +1007,7 @@ int QFontMetrics::leftBearing(char ch) const
 {
     if ( !inFont(ch) )
 	ch = FS->default_char;
-    return FS->per_char[ch].lbearing;
+    RETURN_PRINTER_ADJUSTED(FS->per_char[ch].lbearing);
 }
 
 /*!
@@ -1022,7 +1022,7 @@ int QFontMetrics::rightBearing(char ch) const
 {
     if ( !inFont(ch) )
 	ch = FS->default_char;
-    return FS->per_char[ch].rbearing;
+    RETURN_PRINTER_ADJUSTED(FS->per_char[ch].rbearing);
 }
 
 /*!
@@ -1036,7 +1036,7 @@ int QFontMetrics::rightBearing(char ch) const
 int QFontMetrics::maxLeftBearing() const
 {
     // Don't need def->lbearing, the FS stores it.
-    return FS->min_bounds.lbearing;
+    RETURN_PRINTER_ADJUSTED(FS->min_bounds.lbearing);
 }
 
 /*!
@@ -1065,7 +1065,7 @@ int QFontMetrics::maxRightBearing() const
 	def->rbearing = mx;
     }
 
-    return def->rbearing;
+    RETURN_PRINTER_ADJUSTED(def->rbearing);
 }
 
 
@@ -1114,7 +1114,7 @@ int QFontMetrics::leading() const
 
 int QFontMetrics::lineSpacing() const
 {
-    RETURN_PRINTER_ADJUSTED(leading() + height());
+    return leading() + height();
 }
 
 
@@ -1227,7 +1227,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 		      qRound((width)*75.0/(xres*1.0)),
 		      qRound((descent + ascent)*75.0/(xres*1.0)) );
     } else {
-    return QRect( startX, -ascent, width, descent + ascent );
+	return QRect( startX, -ascent, width, descent + ascent );
     }
 }
 
