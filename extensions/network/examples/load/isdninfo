@@ -30,6 +30,10 @@ $getcps = &IIOCGETCPS;
 $iobytes_t = "ll"; # 2 longs
 $iobytes=$iobytes_t x (4 * $MAX_CHANNELS);
 
+
+($period) = $ENV{"QUERY_STRING"} =~ /period=(\d+)/;
+$period = 1 if $period < 1;
+
 while (1) {
     if (ioctl(ISDNINFO,$getcps,$iobytes)) {
 	@io = unpack($iobytes_t x $channels, $iobytes);
@@ -42,8 +46,8 @@ while (1) {
 	}
 
 	if ( defined($i) ) {
-	    $cpsi = $ni - $i;
-	    $cpso = $no - $o;
+	    $cpsi = int(($ni - $i)/$period);
+	    $cpso = int(($no - $o)/$period);
 
 	    print "$cpsi $cpso\n";
 	}
@@ -53,5 +57,5 @@ while (1) {
     } else {
 	die "/dev/isdninfo: no CPS";
     }
-    sleep 1;
+    sleep $period;
 }
