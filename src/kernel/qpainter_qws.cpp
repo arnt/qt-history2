@@ -1521,6 +1521,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		    QBitmap bm( aw, ah, TRUE );	// create bitmap
 		    QPainter paint;
 		    paint.begin( &bm );		// draw text in bitmap
+		    paint.setPen( color1 );
 		    paint.setFont( dfont );
 		    paint.drawText( tx, ty, str, len );
 		    paint.end();
@@ -1573,10 +1574,10 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		delete tpm;
 		return;
 	    } else {
-		gfx->setAlphaType(QGfx::LittleEndianMask);
-		gfx->setAlphaSource(wx_bm->scanLine(0), wx_bm->bytesPerLine());
 		gfx->setSource(wx_bm);
 		gfx->setSourceOffset(0, 0);
+		gfx->setAlphaType(QGfx::LittleEndianMask);
+		gfx->setAlphaSource(wx_bm->scanLine(0), wx_bm->bytesPerLine());
 		gfx->blt(x, y, wx_bm->width(),wx_bm->height());
 
 		if ( create_new_bm )

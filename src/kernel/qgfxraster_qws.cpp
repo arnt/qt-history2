@@ -1183,7 +1183,12 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
     : QGfxRasterBase(b,w,h)
 {
     setLineStep((depth*width+7)/8);
-    setBrush(QColor(0,0,255));
+    if ( depth == 1 ) {
+	setPen( color1 );
+	setBrush( color0 );
+    } else {
+	setBrush(QColor(0,0,0));
+    }
 }
 
 template <const int depth, const int type>
@@ -1201,11 +1206,7 @@ void QGfxRaster<depth,type>::setBrush( const QBrush & b )
 	patternedbrush=false;
     }
     QColor tmp=b.color();
-    if(depth==1) {
-	srccol==qGray(tmp.red(),tmp.green(),tmp.blue())>127 ? 1 : 0;
-    } else {
-	srccol=tmp.pixel();
-    }
+    srccol=tmp.pixel();
 }
 
 // if the source is 1bpp, the pen and brush currently active will be used
@@ -1793,7 +1794,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    	ret=monobitval & 0x1;
 	    	monobitval=monobitval >> 1;
 	    } else {
-		ret=monobitval & 0x80;
+		ret=(monobitval & 0x80) >> 7;
 		monobitval=monobitval << 1;
 		monobitval=monobitval & 0xff;
 	    }
@@ -2024,7 +2025,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 		ret=monobitval & 0x1;
 		monobitval=monobitval >> 1;
 	    } else {
-		ret=monobitval & 0x80;
+		ret = ( monobitval & 0x80 ) >> 7;
 		monobitval=monobitval << 1;
 		monobitval=monobitval & 0xff;
 	    }
@@ -2085,8 +2086,6 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
     if ( depth == 32 ) {
 	unsigned int *myptr=(unsigned int *)l;
 	int w = x2-x1+1;
-	// Could put SourcePen stuff in here, but it's only really
-	// useful for anti-aliased fonts and so on
 	if ( !ismasking ) {
 	    uint gv = srccol;
 	    if(reverse) {
