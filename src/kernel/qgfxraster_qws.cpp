@@ -38,6 +38,7 @@
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
 
+#define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
 #ifdef Q_CC_EDG_
 // Hacky workaround for KCC/linux include files.
@@ -256,6 +257,17 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->width = image.width();
     data->height = image.height();
     memcpy(data->cursor, image.bits(), image.numBytes());
+#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+    // Swap pixels
+    unsigned int * ptr=(unsigned int *)data->cursor;
+    for(int loopc=0;loopc<image.numBytes()/4;loopc++) {
+	unsigned int tmp=*ptr;
+	unsigned int tmp2=tmp & 0xffff;
+	tmp=tmp >> 16;
+	tmp=tmp & (tmp2 << 16);
+	*ptr=tmp;
+    }
+#endif
     data->colors = image.numColors();
     int depth = gfx->bitDepth();
     if ( depth <= 8 ) {
@@ -832,7 +844,6 @@ QGfxRasterBase::~QGfxRasterBase()
 #ifdef QT_PAINTER_LOCKING
     QWSDisplay::ungrab();
 #endif
-    sync();
     delete [] dashes;
     delete [] cliprect;
 }
