@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#383 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#384 $
 **
 ** Implementation of QWidget class
 **
@@ -2794,14 +2794,20 @@ void QWidget::show()
     }
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
 	QSize s = sizeHint();
+	QSizePolicy::ExpandData exp;
 	if ( layout() ) {
 	    if ( layout()->hasHeightForWidth() )
 		s.setHeight( layout()->heightForWidth( s.width() ) );
-	    if ( layout()->expanding() & QSizePolicy::Horizontal )
-		s.setWidth( QMAX( s.width(), 200 ) );
-	    if ( layout()->expanding() & QSizePolicy::Vertical )
-		s.setHeight( QMAX( s.height(), 150 ) );
+	    exp =  layout()->expanding();
+	} else {
+	    if ( sizePolicy().hasHeightForWidth() )
+		s.setHeight( heightForWidth( s.width() ) );
+	    exp = sizePolicy().expanding();
 	}
+	if ( exp & QSizePolicy::Horizontal )
+	    s.setWidth( QMAX( s.width(), 200 ) );
+	if ( exp & QSizePolicy::Vertical )
+	    s.setHeight( QMAX( s.height(), 150 ) );
 	if ( !s.isEmpty() )
 	    resize( s );
     }
@@ -4015,7 +4021,8 @@ QSizePolicy QWidget::sizePolicy() const
 
 /*!
   Returns the preferred height for this widget, given the width \a w.
-  The default implementation returns 0.
+  The default implementation returns 0, indicating that the preferred
+  height does not depend on the width.
 
   \warning Does not look at the widget's layout
 */
