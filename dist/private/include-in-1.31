@@ -18,9 +18,27 @@ Check that unreleased widgets are not in doc/html/*.gif
 	drawButton( &paint );
 	paint.end();
 
---- qprogbar.cpp	Fri Oct  3 09:30:12 1997
-+++ qprogbar.cpp	Fri Oct  3 09:30:12 1997
-@@ -231,14 +231,14 @@
+--- qprogbar.cpp	Mon Oct  6 11:59:03 1997
++++ qprogbar.cpp	Mon Oct  6 11:57:55 1997
+@@ -197,6 +186,9 @@
+ 
+ /*!
+   Handles paint events for the progress bar.
++  In WindowsStyle, \link QColorGroup::text() colorGroup().text()\endlink
++  and QApplication::winStyleHighlightColor() are used.  In MotifStyle,
++  \link QColorGroup::text() colorGroup().base()\endlink is also used.
+ */
+ 
+ void QProgressBar::drawContents( QPainter *p )
+@@ -235,6 +227,7 @@
+ 	qDrawShadePanel( p, r, colorGroup(), TRUE, 1 );
+ 
+ 	// ### This part changes every percentage change.
++	p->setPen( colorGroup().text() );
+ 	p->fillRect( r.x()+r.width(), bar.y(), textw, bar.height(),
+ 	    backgroundColor() );
+ 	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
+@@ -242,14 +235,15 @@
      } else {
  	int pw = bar.width() * progress_val / total_steps;
  
@@ -34,6 +52,7 @@ Check that unreleased widgets are not in doc/html/*.gif
  	p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
 -	p->fillRect( bar, white );
 +	p->fillRect( bar, colorGroup().base() );
++	p->setPen( colorGroup().text() );
  	p->drawText( bar, AlignCenter, progress_str );
      }
  }
