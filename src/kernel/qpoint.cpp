@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $
 **
 ** Implementation of QPoint class
 **
@@ -14,7 +14,7 @@
 #include "qpoint.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#18 $")
 
 
 /*----------------------------------------------------------------------------
@@ -156,59 +156,59 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#17 $")
 
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn bool operator==( const QPoint &p1, const QPoint &p2 )
+  \relates QPoint
   Returns TRUE if \e p1 and \e p2 are equal, or FALSE if they are different.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn bool operator!=( const QPoint &p1, const QPoint &p2 )
+  \relates QPoint
   Returns TRUE if \e p1 and \e p2 are different, or FALSE if they are equal.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn QPoint operator+( const QPoint &p1, const QPoint &p2 )
+  \relates QPoint
   Returns the sum of \e p1 and \e p2; each component is added separately.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn QPoint operator-( const QPoint &p1, const QPoint &p2 )
+  \relates QPoint
   Returns \e p2 subtracted from \e p1; each component is
   subtracted separately.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn QPoint operator*( const QPoint &p, int c )
+  \relates QPoint
   Multiplies both of \e p's components by \e c and returns the result.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn QPoint operator*( int c, const QPoint &p )
+  \relates QPoint
   Multiplies both of \e p's components by \e c and returns the result.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn QPoint operator*( const QPoint &p, double c )
+  \relates QPoint
   Multiplies both of \e p's components by \e c and returns the
   result.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn QPoint operator*( double c, const QPoint &p )
+  \relates QPoint
   Multiplies both of \e p's components by \e c and returns the
   result.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \relates QPoint
   \fn QPoint operator-( const QPoint &p )
+  \relates QPoint
   Returns \e p where x and y have opposite signs.
  ----------------------------------------------------------------------------*/
 
