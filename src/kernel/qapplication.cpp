@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 
+#include "qaccessible.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qeventloop.h"
@@ -2643,6 +2644,9 @@ QEventLoop *QApplication::eventLoop()
 */
 int QApplication::exec()
 {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::setRootObject(this);
+#endif
     return eventLoop()->exec();
 }
 

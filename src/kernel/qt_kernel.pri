@@ -257,7 +257,8 @@ kernel {
 	      HEADERS += $$KERNEL_H/qaccessible.h
 	      SOURCES += $$KERNEL_CPP/qaccessible.cpp
 
-	      !embedded:!x11:mac:SOURCES += $$KERNEL_CPP/qaccessible_mac.cpp
+	      mac:SOURCES += $$KERNEL_CPP/qaccessible_mac.cpp
 	      else:win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp
+	      else:SOURCES += $$KERNEL_CPP/qaccessible_unix.cpp
 	}
 }

@@ -16,10 +16,14 @@
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
-#include "qptrdict.h"
+#include "qhash.h"
 #include "qmetaobject.h"
 #include <private/qpluginmanager_p.h>
 #include "qapplication.h"
+#include "qguardedptr.h"
+#include "qwidget.h"
+#include "qtooltip.h"
+#include "qwhatsthis.h"
 #include <stdlib.h>
 
 /*!
@@ -267,7 +271,7 @@
 */
 
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
-static QPtrDict<QAccessibleInterface> *qAccessibleInterface = 0;
+static QHash<QObject*,QAccessibleInterface*> *qAccessibleInterface = 0;
 static bool cleanupAdded = FALSE;
 
 static void qAccessibleCleanup()
@@ -282,15 +286,10 @@ static void qAccessibleCleanup()
 }
 
 #ifdef Q_WS_MAC
+#warning "queryAccessibleObject is obsolete"
 QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
 {
-    if(qAccessibleInterface) {
-	for(QPtrDictIterator<QAccessibleInterface> it(*qAccessibleInterface); it.current(); ++it) {
-	    if(it.current() == o)
-		return (QObject*)it.currentKey();
-	}
-    }
-    return NULL;
+    return o ? o->object() : 0;
 }
 #endif
 
@@ -316,7 +315,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 	return QE_INVALIDARG;
 
     if ( qAccessibleInterface ) {
-	*iface = qAccessibleInterface->find( object );
+	*iface = qAccessibleInterface->value( object );
 	if ( *iface ) {
 	    (*iface)->addRef();
 	    return QS_OK;
@@ -363,6 +362,20 @@ bool QAccessible::isActive()
 }
 
 /*!
+    \fn void QAccessible::setRootObject(QObject *object)
+
+    Sets the root accessible object of this application to \a object. 
+    All other accessible objects in the application can be reached by the
+    client using object navigation.
+
+    You should never need to call this function. Qt sets the QApplication
+    object as the root object immediately before the event loop is entered
+    in QApplication::exec().
+
+    \sa queryAccessibleInterface
+*/
+
+/*!
     \class QAccessibleInterface qaccessible.h
     \brief The QAccessibleInterface class defines an interface that exposes information about accessible objects.
 
@@ -375,6 +388,16 @@ bool QAccessible::isActive()
     Returns TRUE if all the data necessary to use this interface
     implementation is valid (e.g. all pointers are non-null),
     otherwise returns FALSE.
+
+    \sa object()
+*/
+
+/*!
+    \fn QObject *QAccessibleInterface::object() const
+
+    Returns the QObject this interface provides information for.
+
+    \sa isValid()
 */
 
 /*!
@@ -571,7 +594,11 @@ bool QAccessible::isActive()
     \sa setSelected()
 */
 
-
+class QAccessibleObjectPrivate
+{
+public:
+    QGuardedPtr<QObject> object;
+};
 
 /*!
     \class QAccessibleObject qaccessible.h
@@ -588,10 +615,12 @@ bool QAccessible::isActive()
     Creates a QAccessibleObject for \a object.
 */
 QAccessibleObject::QAccessibleObject( QObject *object )
-: object_(object)
 {
+    d = new QAccessibleObjectPrivate;
+    d->object = object;
+
     if ( !qAccessibleInterface ) {
-	qAccessibleInterface = new QPtrDict<QAccessibleInterface>( 73 );
+	qAccessibleInterface = new QHash<QObject*,QAccessibleInterface*>();
 	if ( !cleanupAdded ) {
 	    qAddPostRoutine( qAccessibleCleanup );
 	    cleanupAdded = TRUE;
@@ -610,12 +639,14 @@ QAccessibleObject::QAccessibleObject( QObject *object )
 QAccessibleObject::~QAccessibleObject()
 {
     if ( qAccessibleInterface ) {
-	qAccessibleInterface->remove( object_ );
+	qAccessibleInterface->remove( d->object );
 	if ( !qAccessibleInterface->count() ) {
 	    delete qAccessibleInterface;
 	    qAccessibleInterface = 0;
 	}
     }
+
+    delete d;
 }
 
 /*!
@@ -646,7 +677,7 @@ QObject *QAccessibleObject::object() const
     if ( !isValid() )
 	qWarning( "QAccessibleInterface is invalid. Crash pending..." );
 #endif
-    return object_;
+    return d->object;
 }
 
 /*!
@@ -654,7 +685,359 @@ QObject *QAccessibleObject::object() const
 */
 bool QAccessibleObject::isValid() const
 {
-    return !object_.isNull();
+    return !d->object.isNull();
+}
+
+class QAccessibleWidgetPrivate : public QAccessible
+{
+public:
+    QAccessibleWidgetPrivate()
+	:role(Client), state(Normal)
+    {
+    }
+
+    Role role;
+    State state;
+    QString name;
+    QString description;
+    QString value;
+    QString help;
+    QString defAction;
+    QString accelerator;
+};
+
+/*!
+  \class QAccessibleWidget qaccessiblewidget.h
+  \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
+*/
+
+/*!
+  Creates a QAccessibleWidget object for \a o.
+  \a role, \a name, \a description, \a value, \a help, \a defAction,
+  \a accelerator and \a state are optional parameters for static values
+  of the object's property.
+*/
+QAccessibleWidget::QAccessibleWidget( QObject *o, Role role, QString name,
+    QString description, QString value, QString help, QString defAction, QString accelerator, State state )
+    : QAccessibleObject( o )
+{
+    d = new QAccessibleWidgetPrivate();
+    d->role = role;
+    d->state = state;
+    d->name = name;
+    d->description = description;
+    d->value = value;
+    d->help = help;
+    d->defAction = defAction;
+    d->accelerator = accelerator;
+}
+
+QAccessibleWidget::~QAccessibleWidget()
+{
+    delete d;
+}
+
+/*! Returns the widget. */
+QWidget *QAccessibleWidget::widget() const
+{
+    Q_ASSERT(object()->isWidgetType());
+    if ( !object()->isWidgetType() )
+	return 0;
+    return (QWidget*)object();
+}
+
+/*! \reimp */
+int QAccessibleWidget::controlAt( int x, int y ) const
+{
+    QWidget *w = widget();
+    QPoint gp = w->mapToGlobal( QPoint( 0, 0 ) );
+    if ( !QRect( gp.x(), gp.y(), w->width(), w->height() ).contains( x, y ) )
+	return -1;
+
+    QPoint rp = w->mapFromGlobal( QPoint( x, y ) );
+
+    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+
+    if ( list.isEmpty() )
+	return 0;
+
+    QList<QObject*>::Iterator it = list.begin();
+    QWidget *child = 0;
+    int index = 1;
+    while ( it != list.end() ) {
+	child = (QWidget*)*it;
+	if ( !child->isTopLevel() && !child->isHidden() && child->geometry().contains( rp ) ) {
+	    return index;
+	}
+	++it;
+	++index;
+    }
+    return index;
+}
+
+/*! \reimp */
+QRect	QAccessibleWidget::rect( int control ) const
+{
+#if defined(QT_DEBUG)
+    if ( control )
+	qWarning( "QAccessibleWidget::rect: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+#else
+    Q_UNUSED(control)
+#endif
+    QWidget *w = widget();
+    QPoint wpos = w->mapToGlobal( QPoint( 0, 0 ) );
+
+    return QRect( wpos.x(), wpos.y(), w->width(), w->height() );
+}
+
+/*! \reimp */
+int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
+{
+#if defined(QT_DEBUG)
+    if ( startControl )
+	qWarning( "QAccessibleWidget::navigate: This implementation does not support subelements! (ID %d unknown for %s)", startControl, widget()->className() );
+#else
+    Q_UNUSED(startControl);
+#endif
+    QWidget *w = widget();
+    switch ( dir ) {
+    case NavFirstChild:
+	{
+	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+	    return list.isEmpty() ? -1 : 1;
+	}
+    case NavLastChild:
+	{
+	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+	    return list.isEmpty() ? -1 : list.count();
+	}
+    case NavNext:
+    case NavPrevious:
+	{
+	    QWidget *parent = w->parentWidget();
+	    if (!parent)
+		return -1;
+	    QObjectList sl = parent->queryList( "QWidget", 0, FALSE, FALSE );
+	    if (sl.isEmpty())
+		return -1;
+	    QObject *sib;
+	    int index;
+	    if ( dir == NavNext ) {
+		for (index = 0; index < sl.count()-1; ++index) {
+		    sib = sl.at(index);
+		    if ( sib == w )
+			return index+2;
+		}
+	    } else {
+		for (index = sl.count()-1; index > 0; --index) {
+		    sib = sl.at(index);
+		    if ( sib == w )
+			return index;
+		}
+	    }
+	    return -1;
+	}
+	break;
+    case NavFocusChild:
+	{
+	    if ( w->hasFocus() )
+		return 0;
+
+	    QWidget *fw = w->focusWidget();
+	    if ( !fw )
+		return -1;
+
+	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+	    int index = list.indexOf(fw);
+	    if (index != -1)
+		++index;
+	    return index;
+	}
+    default:
+	qWarning( "QAccessibleWidget::navigate: unhandled request" );
+	break;
+    };
+    return -1;
+}
+
+/*! \reimp */
+int QAccessibleWidget::childCount() const
+{
+    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    return cl.count();
+}
+
+/*! \reimp */
+bool QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface ) const
+{
+    *iface = 0;
+    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    if ( cl.isEmpty() )
+	return FALSE;
+
+    QObject *o = 0;
+    if ( cl.count() >= control )
+	o = cl.at( control-1 );
+
+    if ( !o )
+	return FALSE;
+
+    return QAccessible::queryAccessibleInterface( o, iface );
+}
+
+/*! \reimp */
+bool QAccessibleWidget::queryParent( QAccessibleInterface **iface ) const
+{
+    return QAccessible::queryAccessibleInterface( widget()->parentWidget(), iface );
+}
+
+/*! \reimp */
+bool QAccessibleWidget::doDefaultAction( int control )
+{
+#if defined(QT_DEBUG)
+    if ( control )
+	qWarning( "QAccessibleWidget::doDefaultAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+#else
+    Q_UNUSED(control)
+#endif
+    return FALSE;
+}
+
+/*! \reimp */
+QString QAccessibleWidget::text( Text t, int control ) const
+{
+    switch ( t ) {
+    case DefaultAction:
+	return d->defAction;
+    case Description:
+	if ( !control && d->description.isEmpty() ) {
+	    QString desc = QToolTip::textFor(widget());
+	    return desc;
+	}
+	return d->description;
+    case Help:
+	if ( !control && d->help.isEmpty() ) {
+	    QString help = QWhatsThis::textFor( widget() );
+	    return help;
+	}
+	return d->help;
+    case Accelerator:
+	return d->accelerator;
+    case Name:
+	{
+	    if ( !control && d->name.isEmpty() && widget()->isTopLevel() )
+		return widget()->caption();
+	    return d->name;
+	}
+    case Value:
+	return d->value;
+    default:
+	break;
+    }
+    return QString();
+}
+
+/*! \reimp */
+void QAccessibleWidget::setText( Text t, int /*control*/, const QString &text )
+{
+    switch ( t ) {
+    case DefaultAction:
+	d->defAction = text;
+	break;
+    case Description:
+	d->description = text;
+	break;
+    case Help:
+	d->help = text;
+	break;
+    case Accelerator:
+	d->accelerator = text;
+	break;
+    case Name:
+	d->name = text;
+	break;
+    case Value:
+	d->value = text;
+	break;
+    default:
+	break;
+    }
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleWidget::role( int control ) const
+{
+    if ( !control )
+	return d->role;
+    return NoRole;
+}
+
+/*! \reimp */
+QAccessible::State QAccessibleWidget::state( int control ) const
+{
+    if ( control )
+	return Normal;
+
+    if ( d->state != Normal )
+	return d->state;
+
+    int state = Normal;
+
+    QWidget *w = widget();
+    if ( w->isHidden() )
+	state |= Invisible;
+    if ( w->focusPolicy() != QWidget::NoFocus && w->isActiveWindow() )
+	state |= Focusable;
+    if ( w->hasFocus() )
+	state |= Focused;
+    if ( !w->isEnabled() )
+	state |= Unavailable;
+    if ( w->isTopLevel() ) {
+	state |= Moveable;
+	if ( w->minimumSize() != w->maximumSize() )
+	    state |= Sizeable;
+    }
+
+    return (State)state;
+}
+
+/*! \reimp */
+bool QAccessibleWidget::setFocus( int control )
+{
+#if defined(QT_DEBUG)
+    if ( control )
+	qWarning( "QAccessibleWidget::setFocus: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
+#else
+    Q_UNUSED(control)
+#endif
+    if ( widget()->focusPolicy() != QWidget::NoFocus ) {
+	widget()->setFocus();
+	return TRUE;
+    }
+    return FALSE;
+}
+
+/*! \reimp */
+bool QAccessibleWidget::setSelected( int, bool, bool )
+{
+#if defined(QT_DEBUG)
+    qWarning( "QAccessibleWidget::setSelected: This function not supported for simple widgets." );
+#endif
+    return FALSE;
+}
+
+/*! \reimp */
+void QAccessibleWidget::clearSelection()
+{
+#if defined(QT_DEBUG)
+    qWarning( "QAccessibleWidget::clearSelection: This function not supported for simple widgets." );
+#endif
+}
+
+/*! \reimp */
+QMemArray<int> QAccessibleWidget::selection() const
+{
+    return QMemArray<int>();
 }
 
 #endif

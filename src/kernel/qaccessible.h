@@ -19,7 +19,6 @@
 #include "qobject.h"
 #include <private/qcom_p.h>
 #include "qrect.h"
-#include "qguardedptr.h"
 #include "qmemarray.h"
 #endif // QT_H
 
@@ -199,6 +198,7 @@ public:
     static QRESULT queryAccessibleInterface( QObject *, QAccessibleInterface ** );
     static void updateAccessibility( QObject *, int who, Event reason );
     static bool isActive();
+    static void setRootObject(QObject*);
 
     static void initialize();
     static void cleanup();
@@ -211,11 +211,12 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
 {
     // check for valid pointers
     virtual bool	isValid() const = 0;
+    virtual QObject	*object() const = 0;
 
     // hierarchy
     virtual int		childCount() const = 0;
-    virtual QRESULT	queryChild( int control, QAccessibleInterface** ) const = 0;
-    virtual QRESULT	queryParent( QAccessibleInterface** ) const = 0;
+    virtual bool	queryChild( int control, QAccessibleInterface** ) const = 0;
+    virtual bool	queryParent( QAccessibleInterface** ) const = 0;
 
     // navigation
     virtual int		controlAt( int x, int y ) const = 0;
@@ -246,6 +247,8 @@ struct Q_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFeatur
     virtual QRESULT createAccessibleInterface( const QString &, QObject *, QAccessibleInterface** ) = 0;
 };
 
+class QAccessibleObjectPrivate;
+
 class Q_EXPORT QAccessibleObject : public QObject, public QAccessibleInterface
 {
 public:
@@ -256,16 +259,49 @@ public:
     Q_REFCOUNT
 
     bool	isValid() const;
-
-protected:
-    QObject *object() const;
+    QObject	*object() const;
 
 private:
-    QGuardedPtr<QObject> object_;
+    QAccessibleObjectPrivate *d;
 };
 
-#define Q_DEFINED_QACCESSIBLE_OBJECT
-#include "qwinexport.h"
+class QAccessibleWidgetPrivate;
+
+class Q_EXPORT QAccessibleWidget : public QAccessibleObject
+{
+public:
+    QAccessibleWidget( QObject *o, Role r = Client, QString name = QString(), 
+	QString description = QString(), QString value = QString(), 
+	QString help = QString(), QString defAction = QString(),
+	QString accelerator = QString(), State s = Normal );
+
+    ~QAccessibleWidget();
+
+    int		controlAt( int x, int y ) const;
+    QRect	rect( int control ) const;
+    int		navigate( NavDirection direction, int startControl ) const;
+    int		childCount() const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryParent( QAccessibleInterface ** ) const;
+
+    QString	text( Text t, int control ) const;
+    void	setText( Text t, int control, const QString &text );
+    Role	role( int control ) const;
+    State	state( int control ) const;
+
+    bool	doDefaultAction( int control );
+    bool	setFocus( int control );
+    bool	setSelected( int control, bool on, bool extend );
+    void	clearSelection();
+    QMemArray<int> selection() const;
+
+protected:
+    QWidget *widget() const;
+
+private:
+    QAccessibleWidgetPrivate *d;
+};
+
 #endif //QT_ACCESSIBILITY_SUPPORT
 
 #endif //QACCESSIBLE_H

@@ -139,6 +139,10 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	ptrNotifyWinEvent( reason, w->winId(), OBJID_CLIENT, who );
 }
 
+void QAccessible::setRootObject(QObject*)
+{
+}
+
 class QWindowsEnumerate : public IEnumVARIANT
 {
 public:

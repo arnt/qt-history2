@@ -12,7 +12,7 @@ public:
     QAccessiblePopup( QObject *o );
 
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QRect	rect( int control ) const;
     int		controlAt( int x, int y ) const;
@@ -35,7 +35,7 @@ public:
     QAccessibleMenuBar( QObject *o );
 
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QRect	rect( int control ) const;
     int		controlAt( int x, int y ) const;

@@ -214,7 +214,7 @@ void AccessibleFactory::cleanup()
 
 bool AccessibleFactory::canUnload() const
 {
-    return (QAccessibleWidget::objects == 0);
+    return FALSE;
 }
 
 Q_EXPORT_COMPONENT()

@@ -26,57 +26,13 @@ QString buddyString( QWidget * );
 QString stripAmp( const QString& );
 QString hotKey( const QString& );
 
-class QAccessibleWidget : public QAccessibleObject
-{
-public:
-    QAccessibleWidget( QObject *o, Role r = Client, QString name = QString::null, 
-	QString description = QString::null, QString value = QString::null, 
-	QString help = QString::null, QString defAction = QString::null,
-	QString accelerator = QString::null, State s = Normal );
-
-    ~QAccessibleWidget();
-
-    int		controlAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
-    int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
-    QRESULT	queryParent( QAccessibleInterface ** ) const;
-
-    QString	text( Text t, int control ) const;
-    void	setText( Text t, int control, const QString &text );
-    Role	role( int control ) const;
-    State	state( int control ) const;
-
-    bool	doDefaultAction( int control );
-    bool	setFocus( int control );
-    bool	setSelected( int control, bool on, bool extend );
-    void	clearSelection();
-    QMemArray<int> selection() const;
-
-    static ulong objects;
-
-protected:
-    QWidget *widget() const;
-
-private:
-    Role role_;
-    State state_;
-    QString name_;
-    QString description_;
-    QString value_;
-    QString help_;
-    QString defAction_;
-    QString accelerator_;
-};
-
 class QAccessibleWidgetStack : public QAccessibleWidget
 {
 public:
     QAccessibleWidgetStack( QObject *o );
 
     int		controlAt( int x, int y ) const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
 protected:
     QWidgetStack *widgetStack() const;
@@ -116,7 +72,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
@@ -136,7 +92,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
@@ -158,7 +114,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
@@ -202,7 +158,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
 
@@ -224,7 +180,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
 
@@ -249,7 +205,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
 
@@ -271,7 +227,7 @@ public:
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
     int		childCount() const;
-    QRESULT	queryChild( int control, QAccessibleInterface ** ) const;
+    bool	queryChild( int control, QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
