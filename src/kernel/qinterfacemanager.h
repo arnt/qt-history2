@@ -134,7 +134,7 @@ public:
 
 	{
 	    QStringList il = plugin->interfaceList();
-	    for ( QStringList::iterator i = il.begin(); i != il.end(); i++ ) {
+	    for ( QStringList::Iterator i = il.begin(); i != il.end(); i++ ) {
 		QUnknownInterface *iFace = plugin->queryInterface( *i );
 		if ( iFace && iFace->interfaceID() == interfaceID() ) {
 		    QStringList fl = iFace->featureList();
