@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#67 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#67 $");
 
 
 /*****************************************************************************
@@ -204,7 +204,7 @@ void QColor::initialize()
     int      scr  = DefaultScreen(dpy);
     int	     spec = QApplication::colorSpec();
     int	     depth, ncols;
-    Colormap cmap;    
+    Colormap cmap;
     const int tc = TrueColor;
 
 #if QT_VERSION == 200
@@ -222,7 +222,7 @@ void QColor::initialize()
 	ncols = DisplayCells(dpy,scr);
     }
     g_truecolor = g_vis->c_class == tc;
-    bool defVis = (XVisualIDFromVisual(g_vis) == 
+    bool defVis = (XVisualIDFromVisual(g_vis) ==
 		   XVisualIDFromVisual(DefaultVisual(dpy,scr)));
     bool defCmap;
     if ( g_truecolor )
@@ -234,7 +234,7 @@ void QColor::initialize()
 	cmap = DefaultColormap(dpy,scr);
     } else {
 #if QT_VERSION >= 140
-#error "Add qt_create_colormap similar to the code qgl solution"
+#error "Add qt_create_colormap similar to the code in qgl"
 #endif
 	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone);
     }
@@ -713,7 +713,7 @@ void QColor::destroyAllocContext( int context )
 {
     init_context_stack();
     if ( !color_init || g_truecolor || colors_frozen )
-	return; 
+	return;
     ulong *pixels = new ulong[colorDict->count()];
     QColorData   *d;
     QColorDictIt it( *colorDict );
