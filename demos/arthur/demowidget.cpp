@@ -51,7 +51,6 @@ DemoWidget::DemoWidget(QWidget *parent)
     d = rand() / (double)RAND_MAX;
 
     setAttribute(Qt::WA_NoBackground);
-    setAttribute(Qt::WA_NoSystemBackground);
 }
 
 void DemoWidget::startAnimation()
