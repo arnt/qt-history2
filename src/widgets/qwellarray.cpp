@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#5 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -38,12 +38,12 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
     //    setBackgroundMode( PaletteBase );	
     nCols = 7;
     nRows = 7;
-    int cellW = 24;
-    int cellH = 21;
+    int w = 24;		// cell width
+    int h = 21;		// cell height
     smallStyle = popup;
 
     if ( popup ) {
-	cellW = cellH = 18;
+	w = h = 18;
 	if ( style() == WindowsStyle )
 	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	else
@@ -53,8 +53,8 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
     }
     setNumCols( nCols );			
     setNumRows( nRows );			
-    setCellWidth( cellW );			
-    setCellHeight( cellH );			
+    setCellWidth( w );			
+    setCellHeight( h );			
     /*    setTableFlags( Tbl_vScrollBar |		
 	  Tbl_hScrollBar |		
 	  Tbl_clipCellPainting |	
@@ -68,9 +68,7 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 
     if ( smallStyle )
 	setMouseTracking( TRUE );
-    //   if ( frameWidth() )
     setOffset( 5 , 10 );
-    //	debug( "::%d", xOffset() );
 
     resize( sizeHint() );
 
@@ -106,8 +104,8 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
     QColorGroup g = colorGroup();
     p->setPen( QPen( black, 0, SolidLine ) );
     if ( !smallStyle && row ==selRow && col == selCol && style() != MotifStyle ) {
-	int d = 2;
-	p->drawRect( d, d, w-2*d, h-2*d );	
+	int n = 2;
+	p->drawRect( n, n, w-2*n, h-2*n );	
     }
 
 

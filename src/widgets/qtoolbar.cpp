@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#24 $
 **
 ** Implementation of QToolBar class
 **
@@ -176,15 +176,14 @@ void QToolBar::setUpGM()
 
     const QObjectList * c = children();
     QObjectListIt it( *c );
-    QObject * o;
-
-    while( (o=it.current()) != 0 ) {
+    QObject *obj;
+    while( (obj=it.current()) != 0 ) {
 	++it;
-	if ( o->isWidgetType() ) {
-	    QWidget * w = (QWidget *)o;
-	    if ( !qstrcmp( "tool bar separator", o->name() ) &&
-		 !qstrcmp( "QFrame", o->className() ) ) {
-		QFrame * f = (QFrame *)o;
+	if ( obj->isWidgetType() ) {
+	    QWidget * w = (QWidget *)obj;
+	    if ( !qstrcmp( "tool bar separator", obj->name() ) &&
+		 !qstrcmp( "QFrame", obj->className() ) ) {
+		QFrame * f = (QFrame *)obj;
 		if ( orientation() == Vertical ) {
 		    f->setMinimumSize( 0, 6 );
 		    f->setMaximumSize( 32767, 6 );
@@ -226,20 +225,20 @@ void QToolBar::paintEvent( QPaintEvent * )
     qDrawShadePanel( &p, 0, 0, width(), height(),
 		     colorGroup(), FALSE, 1, 0 );
     if ( style() == MotifStyle ) {
-	QColor d( colorGroup().dark() );
-	QColor l( colorGroup().light() );
+	QColor dark( colorGroup().dark() );
+	QColor light( colorGroup().light() );
 	unsigned int i;
 	if ( orientation() == Vertical ) {
 	    QPointArray a( 2 * ((width()-6)/3) );
 	    int x = 3 + (width()%3)/2;
-	    p.setPen( d );
+	    p.setPen( dark );
 	    p.drawLine( 1, 8, width()-2, 8 );
 	    for( i=0; 2*i < a.size(); i ++ ) {
 		a.setPoint( 2*i, x+1+3*i, 6 );
 		a.setPoint( 2*i+1, x+2+3*i, 3 );
 	    }
 	    p.drawPoints( a );
-	    p.setPen( l );
+	    p.setPen( light );
 	    p.drawLine( 1, 9, width()-2, 9 );
 	    for( i=0; 2*i < a.size(); i++ ) {
 		a.setPoint( 2*i, x+3*i, 5 );
@@ -249,14 +248,14 @@ void QToolBar::paintEvent( QPaintEvent * )
 	} else {
 	    QPointArray a( 2 * ((height()-6)/3) );
 	    int y = 3 + (height()%3)/2;
-	    p.setPen( d );
+	    p.setPen( dark );
 	    p.drawLine( 8, 1, 8, height()-2 );
 	    for( i=0; 2*i < a.size(); i ++ ) {
 		a.setPoint( 2*i, 5, y+1+3*i );
 		a.setPoint( 2*i+1, 2, y+2+3*i );
 	    }
 	    p.drawPoints( a );
-	    p.setPen( l );
+	    p.setPen( light );
 	    p.drawLine( 9, 1, 9, height()-2 );
 	    for( i=0; 2*i < a.size(); i++ ) {
 		a.setPoint( 2*i, 4, y+3*i );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#47 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -631,14 +631,14 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
     }
 }
 
-void QHeader::handleColumnResize( int handleIdx, int s, bool final )
+void QHeader::handleColumnResize( int index, int s, bool final )
 {
-    int lim = pPos(handleIdx-1) + MINSIZE;
+    int lim = pPos(index-1) + MINSIZE;
     if ( s == lim ) return;
     if ( s < lim ) s = lim;
-    int oldPos = pPos( handleIdx );
+    int oldPos = pPos( index );
     int delta = s - oldPos;
-    int lIdx = mapToLogical(handleIdx - 1);
+    int lIdx = mapToLogical(index - 1);
     int oldSize = data->sizes[lIdx];
     int newSize = data->sizes[lIdx] = oldSize + delta;
     int repaintPos = QMIN( oldPos, s );

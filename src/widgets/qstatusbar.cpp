@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#15 $
 **
 ** Implementation of QStatusBar class
 **
@@ -117,19 +117,19 @@ QStatusBarPrivate::ResizeLines::ResizeLines( QWidget * parent )
 
 void QStatusBarPrivate::ResizeLines::paintEvent( QPaintEvent * )
 {
-    QPainter p( this );
+    QPainter painter( this );
     QPointArray a;
     a.setPoints( 3, 1,12, 12,1, 12,12 );
-    p.setPen( colorGroup().dark() );
-    p.setBrush( colorGroup().dark() );
-    p.drawPolygon( a );
-    p.setPen( colorGroup().light() );
-    p.drawLine(  0, 12, 12,  0 );
-    p.drawLine(  5, 12, 12,  5 );
-    p.drawLine( 10, 12, 12, 10 );
-    p.setPen( colorGroup().background() );
-    p.drawLine(  4, 12, 12,  4 );
-    p.drawLine(  9, 12, 12,  9 );
+    painter.setPen( colorGroup().dark() );
+    painter.setBrush( colorGroup().dark() );
+    painter.drawPolygon( a );
+    painter.setPen( colorGroup().light() );
+    painter.drawLine(  0, 12, 12,  0 );
+    painter.drawLine(  5, 12, 12,  5 );
+    painter.drawLine( 10, 12, 12, 10 );
+    painter.setPen( colorGroup().background() );
+    painter.drawLine(  4, 12, 12,  4 );
+    painter.drawLine(  9, 12, 12,  9 );
 }
 
 

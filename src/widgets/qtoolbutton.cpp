@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#29 $
 **
 ** Implementation of QToolButton class
 **
@@ -109,19 +109,19 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
 /*!  Creates a tool button that is a child of \a parent (which must be
   a QToolBar) and named \a name.
 
-  The tool button will display \a s, with text label or tool tip \a
+  The tool button will display \a iconSet, with text label or tool tip \a
   textLabel and status-bar message \a grouptext, connected to \a slot
   in object \a receiver, and returns the button.
 */
 
-QToolButton::QToolButton( QIconSet s, const char * textLabel,
+QToolButton::QToolButton( QIconSet iconSet, const char * textLabel,
 			  const char * grouptext,
 			  QObject * receiver, const char * slot,
 			  QToolBar * parent, const char * name )
     : QButton( parent, name )
 {
     init();
-    setIconSet( s );
+    setIconSet( iconSet );
     setTextLabel( textLabel );
     if ( receiver && slot )
 	connect( this, SIGNAL(clicked()), receiver, slot );

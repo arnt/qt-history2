@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#40 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -705,13 +705,13 @@ const char * QDragMoveEvent::format( int n )
 bool QDragMoveEvent::provides( const char * mimeType )
 {
     int n=0;
-    const char * p;
+    const char *f;
     do {
-	p = format( n );
-	if ( !p )
+	f = format( n );
+	if ( !f )
 	    return FALSE;
 	n++;
-    } while( qstricmp( mimeType, p ) );
+    } while( qstricmp( mimeType, f ) );
     return TRUE;
 }
 
