@@ -2586,11 +2586,10 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 	return sel;
     }
 
+    QString s;
     if ( c1.paragraph() == c2.paragraph() ) {
-	QString s;
 	QTextParagraph *p = c1.paragraph();
 	int end = c2.index();
-#ifndef QT_NO_TEXTCUSTOMITEM
 	if ( p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
 	if ( !p->mightHaveCustomItems ) {
@@ -2611,50 +2610,47 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 		}
 	    }
 	}
-#else
-	s += p->string()->toString().mid( c1.index(), end - c1.index() );
-#endif
-	return s;
-    }
-
-    QString s;
-    QTextParagraph *p = c1.paragraph();
-    int start = c1.index();
-    while ( p ) {
-	int end = p == c2.paragraph() ? c2.index() : p->length() - 1;
-#ifndef QT_NO_TEXTCUSTOMITEM
-	if ( p == c2.paragraph() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
-	    ++end;
-	if ( !p->mightHaveCustomItems ) {
-	    s += p->string()->toString().mid( start, end - start );
-	    if ( p != c2.paragraph() )
-		s += "\n";
-	} else {
-	    for ( int i = start; i < end; ++i ) {
-		if ( p->at( i )->isCustom() ) {
-		    if ( p->at( i )->customItem()->isNested() ) {
-			s += "\n";
-			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QPtrList<QTextTableCell> cells = t->tableCells();
-			for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
-			    s += c->richText()->plainText() + "\n";
-			s += "\n";
+    } else {
+	QTextParagraph *p = c1.paragraph();
+	int start = c1.index();
+	while ( p ) {
+	    int end = p == c2.paragraph() ? c2.index() : p->length() - 1;
+	    if ( p == c2.paragraph() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
+		++end;
+	    if ( !p->mightHaveCustomItems ) {
+		s += p->string()->toString().mid( start, end - start );
+		if ( p != c2.paragraph() )
+		    s += "\n";
+	    } else {
+		for ( int i = start; i < end; ++i ) {
+		    if ( p->at( i )->isCustom() ) {
+			if ( p->at( i )->customItem()->isNested() ) {
+			    s += "\n";
+			    QTextTable *t = (QTextTable*)p->at( i )->customItem();
+			    QPtrList<QTextTableCell> cells = t->tableCells();
+			    for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+				s += c->richText()->plainText() + "\n";
+			    s += "\n";
+			}
+		    } else {
+			s += p->at( i )->c;
 		    }
-		} else {
-		    s += p->at( i )->c;
 		}
 	    }
+	    start = 0;
+	    if ( p == c2.paragraph() )
+		break;
+	    p = p->next();
 	}
-#else
-	s += p->string()->toString().mid( start, end - start );
-	if ( p != c2.parag() )
-	    s += "\n";
-#endif
-	start = 0;
-	if ( p == c2.paragraph() )
-	    break;
-	p = p->next();
     }
+    // ### workaround for plain text export until we get proper
+    // mime types: turn unicode line seperators into the more
+    // widely understood \n. Makes copy and pasting code snipplets
+    // from within Assistent possible
+    QChar* uc = (QChar*) s.unicode();
+    for ( uint ii = 0; ii < s.length(); ii++ )
+	if ( uc[(int)ii] == QChar_linesep )
+	    uc[(int)ii] = QChar('\n');
     return s;
 }
 
