@@ -119,6 +119,7 @@ struct QScrollViewData {
 	hbar.setSteps( 20, 1/*set later*/ );
 	policy = QScrollView::Default;
 	signal_choke = FALSE;
+	static_bg = FALSE;
     }
     ~QScrollViewData()
     {
@@ -164,7 +165,7 @@ struct QScrollViewData {
 		 && clipped_viewport->height()+clipped_viewport->y() >=
 		 viewport.height() ) {
 		// clipped_viewport still covers viewport
-		if ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) )
+		if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) ) || static_bg )
 		    clipped_viewport->repaint( clipped_viewport->visibleRect(),
 			       !clipped_viewport->testWFlags(Qt::WResizeNoErase) );
 		} else {
@@ -183,15 +184,13 @@ struct QScrollViewData {
 	    for (QSVChildRec *r = children.first(); r; r=children.next()) {
 		r->hideOrShow(sv, clipped_viewport);
 	    }
-	    if ( clipped_viewport ) {
-		clipped_viewport->show();
-	    }
+	    clipped_viewport->show();
 	}
     }
 
     void moveAllBy(int dx, int dy)
     {
-	if ( clipped_viewport ) {
+	if ( clipped_viewport && !static_bg ) {
 	    clipped_viewport->move(
 		clipped_viewport->x()+dx,
 		clipped_viewport->y()+dy
@@ -263,6 +262,8 @@ struct QScrollViewData {
     int autoscroll_accel;
     bool drag_autoscroll;
 #endif
+
+    bool static_bg;
 
     // This variable allows ensureVisible to move the contents then
     // update both the sliders.  Otherwise, updating the sliders would
@@ -418,7 +419,7 @@ documentation about these flags.  Here are some examples: <ul>
 <li> An image manipulation widget would use \c
 WResizeNoErase|WNorthWestGravity, because the widget draws all pixels
 itself and when the size increases, it only needs a paint event for
-the new part, since the old part remains unchanged.  
+the new part, since the old part remains unchanged.
 
 <li>A word processing widget might use \c WResizeNoErase and repaint
 itself line by line to get a less flickery resizing. If the widget is
@@ -461,8 +462,8 @@ flag explicitly.
   </ul>
 */
 
-/*!  
-  
+/*!
+
   Constructs a QScrollView with a \a parent, a \a name and widget
   flags \a f.
 
@@ -2164,6 +2165,34 @@ void QScrollView::enableClipper(bool y)
 	delete d->clipped_viewport;
 	d->clipped_viewport = 0;
     }
+}
+
+/*!
+  Sets the scrollview to have a static background if \a y is TRUE, or a scrolling background otherwise. By default,
+  the background is scrolling.
+
+  Beware that this mode is quite slow, as a full repaint of the visible area has to be triggered on every contents move.
+
+  Static background does only work when the clipper is enabled, otherwise calling this function is a no op.
+
+  \sa hasStaticBackground()
+*/
+void  QScrollView::setStaticBackground(bool y)
+{
+    // ignore if clipper is not enabled
+    if( !d->clipped_viewport )
+	y = FALSE;
+
+    d->static_bg = y;
+}
+
+/*!
+  Returns wether QScrollView uses a static background.
+  \sa setStaticBackground()
+*/
+bool QScrollView::hasStaticBackground() const
+{
+    return d->static_bg;
 }
 
 /*!

@@ -108,6 +108,9 @@ public:
     QPoint	viewportToContents(const QPoint&);
     void	enableClipper(bool y);
 
+    void     setStaticBackground(bool y);
+    bool     hasStaticBackground() const;
+
     QSize	viewportSize( int, int ) const;
     QSizePolicy sizePolicy() const;
     QSize	sizeHint() const;
