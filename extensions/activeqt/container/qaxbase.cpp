@@ -2557,6 +2557,8 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	    const QMetaData *slot = metaObject()->slot( id, TRUE );
 	    function = slot->method->name;
 	    int retoff = ( slot->method->count && ( slot->method->parameters->inOut == QUParameter::Out ) ) ? 1 : 0;
+	    if ( slot->method->count < varc )
+		varc = slot->method->count;
 	    if ( retoff ) {
 		const QUParameter *retparam = slot->method->parameters;
 		if ( QUType::isEqual( retparam->type, &static_QUType_ptr ) )
