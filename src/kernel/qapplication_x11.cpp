@@ -45,8 +45,7 @@
 # undef open
 #endif
 
-// Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
-// defined.
+// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
 #if defined(connect)
 # undef connect
 #endif

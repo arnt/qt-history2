@@ -47,6 +47,11 @@
 # undef truncate
 #endif
 
+// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
+#if defined(connect)
+# undef connect
+#endif
+
 // UnixWare 7 redefines socket -> _socket
 #if defined(socket)
 # undef socket
@@ -70,12 +75,6 @@
 #include "qsocketdevice.h"
 #include "qcleanuphandler.h"
 #include <limits.h>
-
-// When _XOPEN_SOURCE_EXTENDED is defined,
-// Solaris redefines connect -> __xnet_connect
-#if defined(connect)
-# undef connect
-#endif
 
 //#define QDNS_DEBUG
 
