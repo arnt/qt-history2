@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#79 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#80 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -60,7 +60,7 @@ class QClipboard;
 #elif defined(_OS_MSDOS_)
 #define _WS_WIN16_
 #error "Qt requires Win32 and does not work with Windows 3.x"
-#elif defined(_OS_NTX11_)
+#elif defined(_WIN32_X11_)
 #define _WS_X11_
 #elif defined(_OS_WIN32_)
 #define _WS_WIN32_
@@ -230,9 +230,9 @@ const uint WFocusSet		= 0x40000000;
 
 struct QWExtra {
     GUIStyle guistyle;				// GUI Style
-    short int minw, minh;			// minimum size
-    short int maxw, maxh;			// maximum size
-    short int incw, inch;			// size increments
+    short    minw, minh;			// minimum size
+    short    maxw, maxh;			// maximum size
+    short    incw, inch;			// size increments
     char    *caption;				// widget caption
     char    *iconText;				// widget icon text
     QPixmap *icon;				// widget icon
