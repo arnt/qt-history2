@@ -10,5 +10,5 @@ unix {
   OBJECTS_DIR = .obj
 }
 
-win32:LIBS  += qassistantclient.lib
-unix:LIBS   += /home/thomas/troll/main/lib/libqassistantclient.a
+win32:LIBS  += $$QT_BUILD_TREE/lib/qassistantclient.lib
+unix:LIBS   += $$QT_BUILD_TREE/lib/libqassistantclient.a
