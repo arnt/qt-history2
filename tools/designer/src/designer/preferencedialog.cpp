@@ -24,6 +24,7 @@
 #include <abstractformeditor.h>
 
 #include "preferencedialog.h"
+
 #include "qdesigner_preferences.h"  // Someday we'll need to load most of these dynamically.
 #include "pluginpreferences.h"
 
@@ -40,10 +41,20 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     m_preferences.append(iface);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    QSplitter *splitter = new QSplitter(this);
-    mainLayout->addWidget(splitter);
-    m_treeWidget = new QTreeWidget(splitter);
-    m_stack = new QStackedWidget(splitter);
+    QHBoxLayout *hBox = new QHBoxLayout(mainLayout);
+    
+    m_treeWidget = new QTreeWidget(this);
+    hBox->addWidget(m_treeWidget);
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sp.setHorizontalStretch(1);
+    m_treeWidget->setSizePolicy(sp);
+    
+    m_stack = new QStackedWidget(this);
+    hBox->addWidget(m_stack);
+    sp = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sp.setHorizontalStretch(2);
+    m_stack->setSizePolicy(sp);
+    
     m_treeWidget->setColumnCount(1);
     m_treeWidget->header()->setResizeMode(QHeaderView::Stretch);
     m_treeWidget->header()->hide();
@@ -86,6 +97,10 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
         }
     }
 
+    QFrame *separator = new QFrame(this);
+    separator->setFrameStyle(QFrame::Sunken|QFrame::HLine);
+    mainLayout->addWidget(separator);
+    
     QBoxLayout *layout = new QHBoxLayout();
     mainLayout->addLayout(layout);
     layout->addStretch();
