@@ -109,6 +109,21 @@ private:
 };
 
 
+// QDnsSocket are sockets that are used for DNS lookup
+
+class QDnsSocket: public QObject {
+    Q_OBJECT
+    // note: Private not public.  This class contains NO public API.
+protected:
+    QDnsSocket( QObject *, const char * );
+    ~QDnsSocket();
+
+private slots:
+    virtual void cleanCache();
+    virtual void retransmit();
+    virtual void answer();
+};
+
 #endif // QT_NO_DNS
 
 #endif // QDNS_H

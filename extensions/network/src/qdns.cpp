@@ -79,20 +79,6 @@ public:
 class QDnsRR;
 class QDnsDomain;
 
-// QDnsSocket are sockets that are used for DNS lookup
-
-class QDnsSocket: public QObject {
-    Q_OBJECT
-    // note: Private not public.  This class contains NO public API.
-protected:
-    QDnsSocket( QObject *, const char * );
-    ~QDnsSocket();
-
-private slots:
-    virtual void cleanCache();
-    virtual void retransmit();
-    virtual void answer();
-};
 
 
 // QDnsRR is the class used to store a single RR.  QDnsRR can store
