@@ -826,6 +826,8 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    }
 	    if ( after )
 		++i;
+	    if ( i > (int)dl->count() )
+		i = dl->count();
 	    dl->insert( i, ct );
 	}
     } else {
@@ -886,7 +888,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, int index )
 	moveToolBar( toolBar, edge, 0, TRUE );
     } else {
 	QMainWindowPrivate::ToolBar *tb = dl->at( index );
-	if ( !tb ) 
+	if ( !tb )
 	    moveToolBar( toolBar, edge, 0, TRUE );
 	else
 	    moveToolBar( toolBar, edge, tb->t, FALSE );
@@ -1705,9 +1707,9 @@ void QMainWindow::styleChange( QStyle& old )
 
 /*!
   Finds and gives back the \a dock and the \a index there of the toolbar \a tb. \a dock is
-  set to the dock of the mainwindow in which \a tb is and \a index is set to the 
+  set to the dock of the mainwindow in which \a tb is and \a index is set to the
   position of the toolbar in this dock.
-  
+
   This method returns TRUE if the information could be found out, otherwise FALSE
   (e.g. because the toolbar \a tb was not found in this mainwindow)
 */
@@ -1716,13 +1718,13 @@ bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, in
 {
     if ( !tb )
 	return FALSE;
-    
+
     QMainWindowPrivate::ToolBarDock *td;
     QMainWindowPrivate::ToolBar *t = d->findToolbar( tb, td );
-    
+
     if ( !td || !t )
 	return FALSE;
-    
+
     if ( td == d->left )
 	dock = Left;
     else if ( td == d->right )
@@ -1735,8 +1737,8 @@ bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, in
 	dock = Unmanaged;
     else if ( td == d->tornOff )
 	dock = TornOff;
-    
+
     index = td->findRef( t );
-    
+
     return TRUE;
 }
