@@ -12462,7 +12462,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 
   
 */
-
+Q_EXPORT QStringData *QString::shared_null = 0;
 QT_STATIC_CONST_IMPL QString QString::null;
 QT_STATIC_CONST_IMPL QChar QChar::null;
 QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
