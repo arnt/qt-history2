@@ -13,11 +13,11 @@
 #include <qsqlcursor.h>
 #include <qfile.h>
 
-#define DRIVER       "QMYSQL3" 	/* see the Qt SQL documentation for a list of available drivers */
-#define DATABASE     "testdb"  	/* the name of your database */
-#define USER         "troll"  	/* user name with appropriate rights */
-#define PASSWORD     "trond"	/* password for USER */
-#define HOST         "horsehead.troll.no" /* host on which the database is running */
+#define DRIVER       "QMYSQL3" /* see the Qt SQL documentation for a list of available drivers */
+#define DATABASE     "" /* the name of your database */
+#define USER         "" /* user name with appropriate rights */
+#define PASSWORD     ""	/* password for USER */
+#define HOST         "" /* host on which the database is running */
 
 int main( int argc, char ** argv )
 {
@@ -44,8 +44,7 @@ int main( int argc, char ** argv )
 	qWarning( "Unable to open data file '%s' - exiting", argv[1] );
 	return 1;
     }
-    QByteArray binaryData( f.size() );
-    f.readBlock( binaryData.data(), f.size() );
+    QByteArray binaryData = f.readAll();
     qWarning( "Data size: %d", binaryData.size() );
     
     // create a table with a binary field
