@@ -1452,7 +1452,7 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
 	global_double_buffer->rendhd =
 	    (Qt::HANDLE) XftDrawCreate(QX11Info::appDisplay(),
 				       global_double_buffer->hd,
-				       (Visual *) QX11Info::appVisual(),
+				       QX11Info::appVisual(),
 				       QX11Info::appColormap());
 #endif
 
@@ -1494,7 +1494,8 @@ void QWidget::repaint(const QRegion& rgn)
     HANDLE old_rendhd = rendhd;
 
     if (double_buffer) {
-	qt_x11_get_double_buffer(hd, rendhd, x11Screen(), x11Depth(), br.width(), br.height());
+	qt_x11_get_double_buffer(hd, rendhd, d->xinfo->screen(), d->xinfo->depth(), br.width(),
+				 br.height());
 
 	dboff = br.topLeft();
 	QPainter::setRedirected(this, this, dboff);
@@ -1510,8 +1511,8 @@ void QWidget::repaint(const QRegion& rgn)
 
     if (testAttribute(WA_NoSystemBackground)) {
 	if (double_buffer) {
-	    GC gc = qt_xget_temp_gc(x11Screen(), false);
-	    XCopyArea(x11Display(), winId(), hd, gc,
+	    GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
+	    XCopyArea(d->xinfo->display(), winId(), hd, gc,
 		      br.x(), br.y(), br.width(), br.height(), 0, 0);
 	}
     } else if (!testAttribute(WA_NoBackground)) {
@@ -1528,7 +1529,7 @@ void QWidget::repaint(const QRegion& rgn)
 	    extern void qt_erase_background(Qt::HANDLE, int screen,
 					    int x, int y, int width, int height,
 					    const QBrush &brush, int offx, int offy);
-	    qt_erase_background(q->hd, q->x11Screen(),
+	    qt_erase_background(q->hd, q->d->xinfo->screen(),
 				br.x() - dboff.x(), br.y() - dboff.y(),
 				br.width(), br.height(), q->pal.brush(w->d->bg_role),
 				br.x() + offset.x(), br.y() + offset.y());
@@ -1536,7 +1537,7 @@ void QWidget::repaint(const QRegion& rgn)
 	    QVector<QRect> rects = rgn.rects();
 	    for (int i = 0; i < rects.size(); ++i) {
 		const QRect &rr = rects[i];
-		XClearArea( q->x11Display(), q->winId(),
+		XClearArea( q->d->xinfo->display(), q->winId(),
 			    rr.x(), rr.y(), rr.width(), rr.height(), False );
 	    }
 	}
@@ -1573,11 +1574,11 @@ void QWidget::repaint(const QRegion& rgn)
     if (double_buffer) {
 	QPainter::restoreRedirected(this);
 
-	GC gc = qt_xget_temp_gc(x11Screen(), false);
+	GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
 	QVector<QRect> rects = rgn.rects();
 	for (int i = 0; i < rects.size(); ++i) {
 	    const QRect &rr = rects[i];
-	    XCopyArea(x11Display(), hd, winId(), gc,
+	    XCopyArea(d->xinfo->display(), hd, winId(), gc,
 		      rr.x() - br.x(), rr.y() - br.y(),
 		      rr.width(), rr.height(),
 		      rr.x(), rr.y());
@@ -1665,7 +1666,7 @@ void QWidget::setWindowState(uint newstate)
 		    XEvent e;
 		    e.xclient.type = ClientMessage;
 		    e.xclient.message_type = ATOM(WM_CHANGE_STATE);
-		    e.xclient.display = x11Display();
+		    e.xclient.display = d->xinfo->display();
 		    e.xclient.window = winid;
 		    e.xclient.format = 32;
 		    e.xclient.data.l[0] = IconicState;
@@ -1673,10 +1674,11 @@ void QWidget::setWindowState(uint newstate)
 		    e.xclient.data.l[2] = 0;
 		    e.xclient.data.l[3] = 0;
 		    e.xclient.data.l[4] = 0;
-		    XSendEvent(x11Display(), RootWindow(x11Display(), x11Screen()),
+		    XSendEvent(d->xinfo->display(),
+			       RootWindow(d->xinfo->display(),d->xinfo->screen()),
 			       False, (SubstructureNotifyMask|SubstructureRedirectMask), &e);
 		} else {
-		    XMapWindow(x11Display(), winId());
+		    XMapWindow(d->xinfo->display(), winId());
 		}
 	    }
 
@@ -1710,7 +1712,7 @@ void QWidget::setWindowState(uint newstate)
 void QWidget::showWindow()
 {
     if ( isTopLevel()  ) {
-	XWMHints *h = XGetWMHints( x11Display(), winId() );
+	XWMHints *h = XGetWMHints( d->xinfo->display(), winId() );
 	XWMHints  wm_hints;
 	bool got_hints = h != 0;
 	if ( !got_hints ) {
@@ -1719,17 +1721,17 @@ void QWidget::showWindow()
 	}
 	h->initial_state = testWState(WState_Minimized) ? IconicState : NormalState;
 	h->flags |= StateHint;
-	XSetWMHints( x11Display(), winId(), h );
+	XSetWMHints( d->xinfo->display(), winId(), h );
 	if ( got_hints )
 	    XFree( (char *)h );
 
 	if (qt_x_user_time != CurrentTime) {
-	    XChangeProperty(x11Display(), winId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
+	    XChangeProperty(d->xinfo->display(), winId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
 			    32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
 	}
 
 	if ( d->d->topData()->parentWinId &&
-	     d->topData()->parentWinId != QX11Info::appRootWindow(x11Screen()) &&
+	     d->topData()->parentWinId != QX11Info::appRootWindow(d->xinfo->screen()) &&
 	     !isMinimized() ) {
 	    X11->deferred_map.append(this);
 	    return;
@@ -1745,7 +1747,7 @@ void QWidget::showWindow()
 		top->normalGeometry = geometry();
 	    setGeometry(maxRect);
 
-	    XMapWindow( x11Display(), winId() );
+	    XMapWindow( d->xinfo->display(), winId() );
 	    qt_wait_for_window_manager(this);
 
 	    // the wm was not smart enough to adjust our size, do that manually
@@ -1756,7 +1758,7 @@ void QWidget::showWindow()
 	    return;
 	}
     }
-    XMapWindow( x11Display(), winId() );
+    XMapWindow( d->xinfo->display(), winId() );
 }
 
 
@@ -1772,7 +1774,7 @@ void QWidget::hideWindow()
     if ( isTopLevel() ) {
 	X11->deferred_map.take(this);
 	if ( winId() ) // in nsplugin, may be 0
-	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
+	    XWithdrawWindow( d->xinfo->display(), winId(), d->xinfo->screen() );
 
 	QTLWExtra *top = d->topData();
 	crect.moveTopLeft( QPoint(crect.x() - top->fleft, crect.y() - top->ftop ) );
@@ -1781,10 +1783,10 @@ void QWidget::hideWindow()
 	top->fleft = top->fright = top->ftop = top->fbottom = 0;
 	fstrut_dirty = TRUE;
 
-	XFlush( x11Display() );
+	XFlush( d->xinfo->display() );
     } else {
 	if ( winId() ) // in nsplugin, may be 0
-	    XUnmapWindow( x11Display(), winId() );
+	    XUnmapWindow( d->xinfo->display(), winId() );
     }
 }
 
@@ -1804,7 +1806,7 @@ void QWidget::raise()
 	p->d->children.remove(this);
 	p->d->children.append(this);
     }
-    XRaiseWindow( x11Display(), winId() );
+    XRaiseWindow( d->xinfo->display(), winId() );
 }
 
 /*!
@@ -1823,7 +1825,7 @@ void QWidget::lower()
 	p->d->children.remove(this);
 	p->d->children.prepend(this);
     }
-    XLowerWindow( x11Display(), winId() );
+    XLowerWindow( d->xinfo->display(), winId() );
 }
 
 
@@ -1846,7 +1848,7 @@ void QWidget::stackUnder( QWidget* w)
     Window stack[2];
     stack[0] = w->winId();;
     stack[1] = winId();
-    XRestackWindows( x11Display(), stack, 2 );
+    XRestackWindows( d->xinfo->display(), stack, 2 );
 }
 
 
@@ -1902,13 +1904,13 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
     s.win_gravity = qt_widget_tlw_gravity;	// usually NorthWest
     // reset in case it was set
     qt_widget_tlw_gravity = QApplication::reverseLayout() ? NorthEastGravity: NorthWestGravity;
-    XSetWMNormalHints( widget->x11Display(), widget->winId(), &s );
+    XSetWMNormalHints( widget->x11Info()->display(), widget->winId(), &s );
 }
 
 
 void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 {
-    Display *dpy = x11Display();
+    Display *dpy = d->xinfo->display();
 
     if ( testWFlags(WType_Desktop) )
 	return;
@@ -2147,8 +2149,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     if ( dx == 0 && dy == 0 )
 	return;
 
-    Display *dpy = x11Display();
-    GC gc = qt_xget_readonly_gc( x11Screen(), FALSE );
+    Display *dpy = d->xinfo->display();
+    GC gc = qt_xget_readonly_gc( d->xinfo->screen(), FALSE );
     // Want expose events
     if ( w > 0 && h > 0 && !just_update ) {
 	XSetGraphicsExposures( dpy, gc, True );
@@ -2208,8 +2210,8 @@ int QWidget::metric( int m ) const
     } else if ( m == QPaintDeviceMetrics::PdmHeight ) {
 	val = crect.height();
     } else {
-	Display *dpy = x11Display();
-	int scr = x11Screen();
+	Display *dpy = d->xinfo->display();
+	int scr = d->xinfo->screen();
 	switch ( m ) {
 	    case QPaintDeviceMetrics::PdmDpiX:
 	    case QPaintDeviceMetrics::PdmPhysicalDpiX:
@@ -2228,10 +2230,10 @@ int QWidget::metric( int m ) const
 		      DisplayHeight(dpy,scr);
 		break;
 	    case QPaintDeviceMetrics::PdmNumColors:
-		val = x11Cells();
+		val = d->xinfo->cells();
 		break;
 	    case QPaintDeviceMetrics::PdmDepth:
-		val = x11Depth();
+		val = d->xinfo->depth();
 		break;
 	    default:
 		val = 0;
@@ -2342,7 +2344,7 @@ void QWidget::setAcceptDrops( bool on )
 
 void QWidget::setMask( const QRegion& region )
 {
-    XShapeCombineRegion( x11Display(), winId(), ShapeBounding, 0, 0,
+    XShapeCombineRegion( d->xinfo->display(), winId(), ShapeBounding, 0, 0,
 			 region.handle(), ShapeSet );
 }
 
@@ -2361,9 +2363,9 @@ void QWidget::setMask( const QRegion& region )
 void QWidget::setMask( const QBitmap &bitmap )
 {
     QBitmap bm = bitmap;
-    if ( bm.x11Screen() != x11Screen() )
-	bm.x11SetScreen( x11Screen() );
-    XShapeCombineMask( x11Display(), winId(), ShapeBounding, 0, 0,
+    if ( bm.x11Info()->screen() != d->xinfo->screen() )
+	bm.x11SetScreen( d->xinfo->screen() );
+    XShapeCombineMask( d->xinfo->display(), winId(), ShapeBounding, 0, 0,
 		       bm.handle(), ShapeSet );
 }
 
@@ -2375,7 +2377,7 @@ void QWidget::setMask( const QBitmap &bitmap )
 
 void QWidget::clearMask()
 {
-    XShapeCombineMask( x11Display(), winId(), ShapeBounding, 0, 0,
+    XShapeCombineMask( d->xinfo->display(), winId(), ShapeBounding, 0, 0,
 		       None, ShapeSet );
 }
 
@@ -2550,7 +2552,7 @@ QX11Info *QWidget::x11Info() const
 
 void QWidgetPrivate::setWindowRole(const char *role)
 {
-    XChangeProperty(q->x11Display(), q->winId(),
+    XChangeProperty(q->d->xinfo->display(), q->winId(),
 		    ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
 		    (unsigned char *)role, qstrlen(role));
 }

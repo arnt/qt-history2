@@ -365,111 +365,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
     (X11 only). Using this function is not portable.
 */
 
-static int *dpisX=0, *dpisY=0;
-static void create_dpis()
-{
-    if ( dpisX )
-	return;
-
-    Display *dpy = QPaintDevice::x11AppDisplay();
-    if ( ! dpy )
-	return;
-
-    int i, screens =  ScreenCount( dpy );
-    dpisX = new int[ screens ];
-    dpisY = new int[ screens ];
-    for ( i = 0; i < screens; i++ ) {
-	dpisX[ i ] = (DisplayWidth(dpy,i) * 254 + DisplayWidthMM(dpy,i)*5)
-
-		     / (DisplayWidthMM(dpy,i)*10);
-	dpisY[ i ] = (DisplayHeight(dpy,i) * 254 + DisplayHeightMM(dpy,i)*5)
-		     / (DisplayHeightMM(dpy,i)*10);
-    }
-}
-
-/*!
-    Sets the value returned by x11AppDpiX() to \a dpi for screen
-    \a screen. The default is determined by the display configuration.
-    Changing this value will alter the scaling of fonts and many other
-    metrics and is not recommended. Using this function is not
-    portable.
-
-    \sa x11SetAppDpiY()
-*/
-void QPaintDevice::x11SetAppDpiX(int dpi, int screen)
-{
-    create_dpis();
-    if ( ! dpisX )
-	return;
-    if ( screen < 0 )
-	screen = QPaintDevice::x11AppScreen();
-    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
-	return;
-    dpisX[ screen ] = dpi;
-}
-
-/*!
-    Sets the value returned by x11AppDpiY() to \a dpi for screen
-    \a screen. The default is determined by the display configuration.
-    Changing this value will alter the scaling of fonts and many other
-    metrics and is not recommended. Using this function is not
-    portable.
-
-    \sa x11SetAppDpiX()
-*/
-void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
-{
-    create_dpis();
-    if ( ! dpisY )
-	return;
-    if ( screen < 0 )
-	screen = QPaintDevice::x11AppScreen();
-    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
-	return;
-    dpisY[ screen ] = dpi;
-}
-
-
-/*!
-    Returns the horizontal DPI of the X display (X11 only) for screen
-    \a screen. Using this function is not portable. See
-    QPaintDeviceMetrics for portable access to related information.
-    Using this function is not portable.
-
-    \sa x11AppDpiY(), x11SetAppDpiX(), QPaintDeviceMetrics::logicalDpiX()
-*/
-int QPaintDevice::x11AppDpiX(int screen)
-{
-    create_dpis();
-    if ( ! dpisX )
-	return 0;
-    if ( screen < 0 )
-	screen = QPaintDevice::x11AppScreen();
-    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
-	return 0;
-    return dpisX[ screen ];
-}
-
-/*!
-    Returns the vertical DPI of the X11 display (X11 only) for screen
-    \a screen.  Using this function is not portable. See
-    QPaintDeviceMetrics for portable access to related information.
-    Using this function is not portable.
-
-    \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()
-*/
-int QPaintDevice::x11AppDpiY( int screen )
-{
-    create_dpis();
-    if ( ! dpisY )
-	return 0;
-    if ( screen < 0 )
-	screen = QPaintDevice::x11AppScreen();
-    if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
-	return 0;
-    return dpisY[ screen ];
-}
-
 /*!
     \fn bool QPaintDevice::paintingActive() const
 
@@ -540,7 +435,7 @@ static mask_gc gc_vec[max_mask_gcs];
 
 static void cleanup_mask_gc()
 {
-    Display *dpy = QPaintDevice::x11AppDisplay();
+    Display *dpy = QX11Info::appDisplay();
     init_mask_gc = FALSE;
     for ( int i=0; i<max_mask_gcs; i++ ) {
 	if ( gc_vec[i].gc )
@@ -620,7 +515,21 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
-    Display *dpy = src->x11Display();
+
+    QX11Info *src_xf = 0, *dst_xf = 0;
+    if (ts == QInternal::Widget)  // ### fix
+	src_xf = static_cast<const QWidget *>(src)->x11Info();
+    else if (ts == QInternal::Pixmap)
+	src_xf = static_cast<const QPixmap *>(src)->x11Info();
+
+    if (td == QInternal::Widget) // ### fix
+	dst_xf = static_cast<const QWidget *>(dst)->x11Info();
+    else if (td == QInternal::Pixmap)
+	dst_xf = static_cast<const QPixmap *>(dst)->x11Info();
+
+    Q_ASSERT(src_xf != 0 && dst_xf != 0);
+
+    Display *dpy = src_xf->display();
 
     if ( sw <= 0 ) {				// special width
 	if ( sw < 0 )
@@ -717,8 +626,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( ts == QInternal::Pixmap ) {
 	src_pm = (QPixmap*)src;
-    	if ( src_pm->x11Screen() != dst->x11Screen() )
-    	    src_pm->x11SetScreen( dst->x11Screen() );
+    	if ( src_pm->x11Info()->screen() != dst_xf->screen() )
+    	    src_pm->x11SetScreen( dst_xf->screen() );
 	mono_src = src_pm->depth() == 1;
 	mask = ignoreMask ? 0 : src_pm->data->mask;
     } else {
@@ -729,8 +638,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	graphics_exposure = td == QInternal::Widget;
     }
     if ( td == QInternal::Pixmap ) {
-      	if ( dst->x11Screen() != src->x11Screen() )
-      	    ((QPixmap*)dst)->x11SetScreen( src->x11Screen() );
+      	if ( dst_xf->screen() != src_xf->screen() )
+      	    ((QPixmap*)dst)->x11SetScreen( src_xf->screen() );
 	mono_dst = ((QPixmap*)dst)->depth() == 1;
 	((QPixmap*)dst)->detach();		// changes shared pixmap
     } else {
@@ -822,7 +731,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    gc = qt_xget_temp_gc( dst->x11Screen(), mono_dst );		// get a reusable GC
+    gc = qt_xget_temp_gc( dst_xf->screen(), mono_dst );		// get a reusable GC
 
     if ( rop != Qt::CopyROP )			// use non-default ROP code
 	XSetFunction( dpy, gc, ropCodes[rop] );
@@ -835,8 +744,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 			    GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
 	if ( td == QInternal::Widget ) {	// set GC colors
 	    QWidget *w = (QWidget *)dst;
-	    gcvals.background = w->backgroundColor().pixel( dst->x11Screen() );
-	    gcvals.foreground = w->foregroundColor().pixel( dst->x11Screen() );
+	    gcvals.background = w->palette().color(w->backgroundRole()).pixel( dst_xf->screen() );
+	    gcvals.foreground = w->palette().color(w->foregroundRole()).pixel( dst_xf->screen() );
 	    if ( include_inferiors ) {
 		valmask |= GCSubwindowMode;
 		gcvals.subwindow_mode = IncludeInferiors;
@@ -845,8 +754,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    gcvals.background = 0;
 	    gcvals.foreground = 1;
 	} else {
-	    gcvals.background = QColor(Qt::white).pixel(dst->x11Screen());
-	    gcvals.foreground = QColor(Qt::black).pixel(dst->x11Screen());
+	    gcvals.background = QColor(Qt::white).pixel(dst_xf->screen());
+	    gcvals.foreground = QColor(Qt::black).pixel(dst_xf->screen());
 	}
 
 	gcvals.fill_style  = FillOpaqueStippled;
@@ -936,7 +845,7 @@ int QPaintDevice::resolution() const
 
 Display *QPaintDevice::x11Display() const
 {
-    if (devType() == QInternal::Widget)
+    if (devType() == QInternal::Widget) // ### fix these in all fu's below
 	return static_cast<const QWidget *>(this)->x11Info()->display();
     else if (devType() == QInternal::Pixmap)
 	return static_cast<const QPixmap *>(this)->x11Info()->display();
@@ -1032,4 +941,60 @@ bool QPaintDevice::x11AppDefaultColormap(int screen)
 
 bool QPaintDevice::x11AppDefaultVisual(int screen)
 { return QX11Info::appDefaultVisual(screen); }
+
+/*!
+    Sets the value returned by x11AppDpiX() to \a dpi for screen
+    \a screen. The default is determined by the display configuration.
+    Changing this value will alter the scaling of fonts and many other
+    metrics and is not recommended. Using this function is not
+    portable.
+
+    \sa x11SetAppDpiY()
+*/
+void QPaintDevice::x11SetAppDpiX(int dpi, int screen)
+{
+    QX11Info::setAppDpiX(dpi, screen);
+}
+
+/*!
+    Sets the value returned by x11AppDpiY() to \a dpi for screen
+    \a screen. The default is determined by the display configuration.
+    Changing this value will alter the scaling of fonts and many other
+    metrics and is not recommended. Using this function is not
+    portable.
+
+    \sa x11SetAppDpiX()
+*/
+void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
+{
+    QX11Info::setAppDpiY(dpi, screen);
+}
+
+
+/*!
+    Returns the horizontal DPI of the X display (X11 only) for screen
+    \a screen. Using this function is not portable. See
+    QPaintDeviceMetrics for portable access to related information.
+    Using this function is not portable.
+
+    \sa x11AppDpiY(), x11SetAppDpiX(), QPaintDeviceMetrics::logicalDpiX()
+*/
+int QPaintDevice::x11AppDpiX(int screen)
+{
+    return QX11Info::appDpiX(screen);
+}
+
+/*!
+    Returns the vertical DPI of the X11 display (X11 only) for screen
+    \a screen.  Using this function is not portable. See
+    QPaintDeviceMetrics for portable access to related information.
+    Using this function is not portable.
+
+    \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()
+*/
+int QPaintDevice::x11AppDpiY( int screen )
+{
+    return QX11Info::appDpiY(screen);
+}
+
 #endif
