@@ -1,4 +1,4 @@
-/*! \quickfn ListView.currentItem()
+/*! \quickfn QListView.currentItem()
 
     \quickified
 
@@ -10,7 +10,7 @@
     \replace /(WStyle_[A-Za-z0-9]+)/"\1"/
 */
 
-/*! \quickfn ListView.setContentsPos( Number alpha, Number beta )
+/*! \quickfn QListView.setContentsPos( Number alpha, Number beta )
 
   Bla bla.
 */

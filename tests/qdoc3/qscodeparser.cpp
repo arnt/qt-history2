@@ -122,57 +122,59 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	}
 	return 0;
     } else if ( command == COMMAND_QUICKCLASS ) {
-	QString qtClassName = "Q" + arg;
+	QString className = arg;
+	QString bare = className;
+	if ( bare[0] == 'Q' && bare[1].lower() != bare[1] )
+	    bare = bare.mid( 1 );
 
-	if ( (wrapperClass = tryClass("Quick" + arg + "Interface")) != 0 ) {
-	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
+	if ( (wrapperClass = tryClass("Quick" + bare + "Interface")) != 0 ) {
+	    if ( (qtClass = tryClass(className)) == 0 ) {
 		doc.location().warning( tr("Cannot find Qt class '%1'"
 					   " corresponding to '%2'")
-					.arg(qtClassName)
+					.arg(className)
 					.arg(wrapperClass->name()) );
 		return 0;
 	    }
-	} else if ( (wrapperClass = tryClass("Quick" + arg)) != 0 ) {
-	    qtClass = tryClass( qtClassName );
+	} else if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ) {
+	    qtClass = tryClass( className );
 	    if ( qtClass == 0 ) {
 		qtClass = wrapperClass;
 		wrapperClass = 0;
 	    }
-	} else if ( (wrapperClass = tryClass("Quick" + arg + "Ptr")) != 0 ) {
+	} else if ( (wrapperClass = tryClass("Quick" + bare + "Ptr")) != 0 ) {
 	    QRegExp ptrToQtType( "(Q[A-Za-z0-9_]+)\\s*\\*" );
 	    FunctionNode *ctor =
 		    wrapperClass->findFunctionNode( wrapperClass->name() );
 	    if ( ctor != 0 && !ctor->parameters().isEmpty() &&
 		 ptrToQtType.exactMatch(ctor->parameters().first().leftType()) )
-		qtClassName = ptrToQtType.cap( 1 );
+		className = ptrToQtType.cap( 1 );
 
-	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
+	    if ( (qtClass = tryClass(className)) == 0 ) {
 		doc.location().warning( tr("Cannot find Qt class '%1'"
 					   " corresponding to '%2'")
-					.arg(qtClassName)
+					.arg(className)
 					.arg(wrapperClass->name()) );
 		return 0;
 	    }
-	} else if ( (wrapperClass = tryClass("Q" + arg + "Ptr")) != 0 ) {
-	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
+	} else if ( (wrapperClass = tryClass("Q" + bare + "Ptr")) != 0 ) {
+	    if ( (qtClass = tryClass(className)) == 0 ) {
 		doc.location().warning( tr("Cannot find Qt class '%1'"
 					   " corresponding to '%2'")
-					.arg(qtClassName)
+					.arg(className)
 					.arg(wrapperClass->name()) );
 		return 0;
 	    }
 	} else {
-	    qtClass = tryClass( qtClassName );
+	    qtClass = tryClass( className );
 	    if ( qtClass == 0 ) {
-		doc.location().warning( tr("Cannot find C++ class"
-					   " corresponding to Qt Script class"
-					   " '%1'")
-					.arg(arg) );
+		doc.location().warning( tr("Cannot find C++ class '%1'")
+					.arg(className) );
 		return 0;
 	    }
 	}
 
-	ClassNode *quickClass = new ClassNode( qsTre->root(), arg );
+	ClassNode *quickClass = new ClassNode( qsTre->root(), className );
+qDebug( "Quickifying '%s'", className.latin1() );
 	quickifyClass( quickClass, qtClass, wrapperClass );
 	setQuickDoc( quickClass, doc );
 	return 0;
@@ -515,14 +517,8 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 
     while ( i < (int) source.length() ) {
 	if ( leftWordBoundary(source, i) ) {
-	    if ( source[i] == 'Q' ) {
-		if ( source[i + 1].lower() == source[i + 1] ) {
-		    result += source[i++];
-		} else if ( source.mid(i, 8) == "QCString" ) {
-		    i += 2;
-		} else {
-		    i++;
-		}
+	    if ( source[i] == 'C' && source.mid(i, 7) == "CString" ) {
+		i++;
 	    } else if ( source[i] == 'T' && source.mid(i, 4) == "TRUE" &&
 			rightWordBoundary(source, i + 4) ) {
 		result += "true";

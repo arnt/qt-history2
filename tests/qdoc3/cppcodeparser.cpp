@@ -31,6 +31,8 @@
 #define COMMAND_TYPEDEF      Doc::alias( "typedef" )
 
 CppCodeParser::CppCodeParser()
+    : varComment( "/\\*\\s([a-zA-Z_0-9]+)\\s\\*/" ), sep( "(?:<[^>]+>)?::" )
+
 {
     reset( 0 );
 }
@@ -383,8 +385,6 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 	    if ( match(Tok_Ident) ) {
 		*var = previousLexeme();
 	    } else if ( match(Tok_Comment) ) {
-		QRegExp varComment( "/\\*\\s([a-zA-Z_0-9]+)\\s\\*/" );
-
 		/*
 		  A neat hack: Commented-out parameter names are
 		  recognized by qdoc. It's impossible to illustrate
@@ -439,7 +439,6 @@ bool CppCodeParser::matchParameter( FunctionNode *func )
 bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
 				       FunctionNode **funcPtr )
 {
-    QRegExp sep( "(?:<[^>]+>)?::" );
     CodeChunk returnType;
     QStringList path;
     QString name;

@@ -20,7 +20,7 @@ QRegExp *Location::spuriousRegExp = 0;
   Constructs an empty location.
 */
 Location::Location()
-    : etcetera( FALSE )
+    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( FALSE )
 {
 }
 
@@ -28,16 +28,40 @@ Location::Location()
 
 */
 Location::Location( const QString& fileName )
-    : etcetera( FALSE )
+    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( FALSE )
 {
     push( fileName );
 }
 
+Location::Location( const Location& other )
+    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( FALSE )
+{
+    *this = other;
+}
+
+Location& Location::operator=( const Location& other )
+{
+    QValueStack<StackEntry> *oldStk = stk;
+
+    stkBottom = other.stkBottom;
+    if ( other.stk == 0 ) {
+	stk = 0;
+	stkTop = &stkBottom;
+    } else {
+	stk = new QValueStack<StackEntry>( *other.stk );
+	stkTop = &stk->top();
+    }
+    stkDepth = other.stkDepth;
+    etcetera = other.etcetera;
+    delete oldStk;
+    return *this;
+}
+
 void Location::start()
 {
-    if ( stk.top().lineNo < 1 ) {
-	stk.top().lineNo = 1;
-	stk.top().columnNo = 1;
+    if ( stkTop->lineNo < 1 ) {
+	stkTop->lineNo = 1;
+	stkTop->columnNo = 1;
     }
 }
 
@@ -48,13 +72,13 @@ void Location::start()
 void Location::advance( QChar ch )
 {
     if ( ch == '\n' ) {
-	stk.top().lineNo++;
-	stk.top().columnNo = 1;
+	stkTop->lineNo++;
+	stkTop->columnNo = 1;
     } else if ( ch == '\t' ) {
-	stk.top().columnNo = 1 + ( (stk.top().columnNo + tabSize - 1) &
-				   ~(tabSize - 1) );
+	stkTop->columnNo = 1 + tabSize * ( stkTop->columnNo + tabSize - 1 )
+			       / tabSize;
     } else {
-	stk.top().columnNo++;
+	stkTop->columnNo++;
     }
 }
 
@@ -66,11 +90,16 @@ void Location::advance( QChar ch )
 */
 void Location::push( const QString& pathAndFileName )
 {
-    StackEntry entry;
-    entry.pathAndFileName = pathAndFileName;
-    entry.lineNo = INT_MIN;
-    entry.columnNo = 1;
-    stk.push( entry );
+    if ( stkDepth++ >= 1 ) {
+	if ( stk == 0 )
+	    stk = new QValueStack<StackEntry>;
+	stk->push( StackEntry() );
+	stkTop = &stk->top();
+    }
+
+    stkTop->pathAndFileName = pathAndFileName;
+    stkTop->lineNo = INT_MIN;
+    stkTop->columnNo = 1;
 }
 
 /*!
@@ -81,7 +110,18 @@ void Location::push( const QString& pathAndFileName )
 */
 void Location::pop()
 {
-    stk.pop();
+    if ( --stkDepth == 0 ) {
+	stkBottom = StackEntry();
+    } else {
+	stk->pop();
+	if ( stk->isEmpty() ) {
+	    delete stk;
+	    stk = 0;
+	    stkTop = &stkBottom;
+	} else {
+	    stkTop = &stk->top();
+	}
+    }
 }
 
 /*! \fn bool Location::isEmpty() const
@@ -98,11 +138,9 @@ void Location::pop()
   \sa lineNo(), columnNo()
 */
 
-/*! \fn QString Location::fileName() const
-
+/*!
   ###
 */
-
 QString Location::fileName() const
 {
     QString fn = pathAndFileName();

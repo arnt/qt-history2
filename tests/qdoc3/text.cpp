@@ -102,7 +102,7 @@ void Text::dump() const
 	str.replace( QRegExp("\""), "\\\"" );
 	str.replace( QRegExp("\n"), "\\n" );
 	str.replace( QRegExp("[\\x00-\\x1f\\x7f-\\xffff]"), "?" );
-	qDebug( "    %15s \"%s\"", atom->typeString().latin1(), str.latin1() );
+	qDebug( "    %.15s \"%s\"", atom->typeString().latin1(), str.latin1() );
 	atom = atom->next();
     }
 }

@@ -17,6 +17,10 @@ class Location
 public:
     Location();
     Location( const QString& pathAndFileName );
+    Location( const Location& other );
+    ~Location() { delete stk; }
+
+    Location& operator=( const Location& other );
 
     void start();
     void advance( QChar ch );
@@ -24,12 +28,12 @@ public:
     void pop();
     void setEtc( bool etc ) { etcetera = etc; }
 
-    bool isEmpty() const { return stk.isEmpty(); }
-    int depth() const { return stk.count(); }
-    const QString& pathAndFileName() const { return stk.top().pathAndFileName; }
+    bool isEmpty() const { return stkDepth == 0; }
+    int depth() const { return stkDepth; }
+    const QString& pathAndFileName() const { return stkTop->pathAndFileName; }
     QString fileName() const;
-    int lineNo() const { return stk.top().lineNo; }
-    int columnNo() const { return stk.top().columnNo; }
+    int lineNo() const { return stkTop->lineNo; }
+    int columnNo() const { return stkTop->columnNo; }
     bool etc() const { return etcetera; }
     void warning( const QString& message, const QString& details = "" ) const;
     void error( const QString& message, const QString& details = "" ) const;
@@ -57,7 +61,10 @@ private:
     QString toString() const;
     QString top() const;
 
-    QValueStack<StackEntry> stk;
+    StackEntry stkBottom;
+    QValueStack<StackEntry> *stk;
+    StackEntry *stkTop;
+    int stkDepth;
     bool etcetera;
 
     static int tabSize;

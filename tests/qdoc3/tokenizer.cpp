@@ -509,15 +509,17 @@ int Tokenizer::getTokenAfterPreprocessor()
     do {
 	/*
 	  We set yyLex now, and after getToken() this will be
-	  yyPrevLex.  This way, we skip over the preprocessor
+	  yyPrevLex. This way, we skip over the preprocessor
 	  directive.
 	*/
 	qstrcpy( yyLex, yyPrevLex );
 
 	/*
-	  This is subtle.  If getToken() meets another #, it will
-	  call getTokenAfterPreprocessor() once again, which
-	  could in turn call getToken() again, etc.
+	  If getToken() meets another #, it will call
+	  getTokenAfterPreprocessor() once again, which could in turn
+	  call getToken() again, etc. Unless there are 10,000 or so
+	  preprocessor directives in a row, this shouldn't overflow
+	  the stack.
 	*/
 	tok = getToken();
     } while ( yyNumPreprocessorSkipping > 0 );

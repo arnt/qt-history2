@@ -72,6 +72,8 @@ private:
     Node::Access access;
     FunctionNode::Metaness metaness;
     QStringList lastPath;
+    QRegExp varComment;
+    QRegExp sep;
 };
 
 #endif
