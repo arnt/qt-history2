@@ -70,8 +70,3 @@ public:
 };
 
 QAXFACTORY_EXPORT( ActiveQtFactory, "{9e626211-be62-4d18-9483-9419358fbb03}", "{75c276de-1df5-451f-a004-e4fa1a587df1}" )
-
-int main()
-{
-    return 0;
-}
