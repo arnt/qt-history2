@@ -4692,8 +4692,10 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		    toAdd += s;
 		    space -= s;
 		    numSpaces--;
-		} else {
+		} else if ( first ) {
 		    first = FALSE;
+		    if ( c->c == ' ' )
+			x -= c->format()->width( ' ' );
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = TRUE;
@@ -4717,8 +4719,10 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 		    toAdd += s;
 		    space -= s;
 		    numSpaces--;
-		} else {
+		} else if ( first ) {
 		    first = FALSE;
+		    if ( c->c == ' ' )
+			x -= c->format()->width( ' ' );
 		}
 		c->x = x + toAdd;
 		c->rightToLeft = FALSE;
@@ -5141,6 +5145,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	x += ww;
     }
 
+    // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between 
+    // layouting and printing. This corrects some layouting errors in BiDi mode due to this.
+    if ( len > 1 )
+	c->setFormat( string->at( len - 2 ).format() );
+    
     if ( lineStart ) {
 	lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	h = QMAX( h, tmph );
