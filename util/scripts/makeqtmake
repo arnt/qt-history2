@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/util/scripts/makeqtmake#1 $
+# $Id: //depot/qt/main/util/scripts/makeqtmake#2 $
 #
 # Makes Qt makefiles and a project file - internal Troll Tech tool.
 #
@@ -81,7 +81,7 @@ if ( open( F, "> GNUmakefile" ) ) {
 }
 $libtarget && ($libtarget = "-t lib");
 if ( ! $nopro ) {
-    $files = join(" ",find_files(".",'\.(h|cpp)$',0));
+    $files = join(" ",find_files(".",'\.(h|hpp|cpp|C)$',0));
     `progen -n $project $libtarget -o $project.pro $files`;
 }
 $cvs && `cvs add $project.pro Makefile GNUmakefile`;
