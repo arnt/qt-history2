@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#180 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -104,6 +104,15 @@ typedef QStack<QWMatrix> QWMatrixStack;
   QPainter::begin() copies these attributes from the paint device, and
   changing a paint device's attributes will have effect only the next
   time a painter is opened on it.
+
+  \warning The range of acceptable coordinate values to QPainter's
+  various drawing functions is limited by the capabilities of the
+  drawing engine of the underlying window system. Currently, only
+  Windows NT is able to handle the full 32 bit range; on other
+  platforms, the output may be incorrect when the absolute value of
+  any coordinate (after any set world and/or view transforms have been
+  applied) exceeds some system-dependent value. All systems we have
+  tested were able to correctly handle coordinates up to +/- 2000.
 
   \warning QPainter::begin() resets all attributes to their default
   values, from the device, thus setting fonts, brushes, etc, before
