@@ -382,7 +382,7 @@ struct Q_EXPORT QStringData : public QShared {
 #ifdef Q_OS_MAC9
     uint maxl;
 #else
-	uint macx : 30;
+	uint maxl : 30;
 #endif
     uint dirty : 1;
 };
