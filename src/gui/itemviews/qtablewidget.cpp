@@ -51,6 +51,9 @@ public:
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
+
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
     bool isValid(const QModelIndex &index) const;
@@ -70,12 +73,24 @@ QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
 
 QTableModel::~QTableModel()
 {
-    for (int i = 0; i < r * c; ++i)
-        delete table.at(i);
-    for (int j = 0; j < r; ++j)
-        delete verticalHeader.at(j);
-    for (int k = 0; k < c; ++k)
-        delete horizontalHeader.at(k);
+    for (int i = 0; i < r * c; ++i) {
+        if (table.at(i)) {
+            table.at(i)->view = 0;
+            delete table.at(i);
+        }
+    }
+    for (int j = 0; j < r; ++j) {
+        if (verticalHeader.at(j)) {
+            verticalHeader.at(j)->view = 0;
+            delete verticalHeader.at(j);
+        }
+    }
+    for (int k = 0; k < c; ++k) {
+        if (horizontalHeader.at(k)) {
+            horizontalHeader.at(k)->view = 0;
+            delete horizontalHeader.at(k);
+        }
+    }
 }
 
 bool QTableModel::insertRows(int, const QModelIndex &, int)
@@ -249,8 +264,7 @@ bool QTableModel::setData(const QModelIndex &index, int role, const QVariant &va
 {
     QTableWidgetItem *itm = item(index);
     if (!itm) {
-        QTableWidget *view = ::qt_cast<QTableWidget*>(QObject::parent());
-        itm = new QTableWidgetItem(view);
+        itm = new QTableWidgetItem();
         setItem(index, itm);
     }
     itm->setData(role, value);
@@ -269,6 +283,35 @@ QAbstractItemModel::ItemFlags QTableModel::flags(const QModelIndex &index) const
         |QAbstractItemModel::ItemIsEnabled;
 }
 
+QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    QTableWidgetItem *itm = 0;
+    if (orientation == Qt::Horizontal)
+        itm = horizontalHeader.at(section);
+    else
+        itm = verticalHeader.at(section);
+
+    if (itm)
+        return itm->data(role);
+    return QAbstractItemModel::headerData(section, orientation, role);
+}
+
+bool QTableModel::setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value)
+{
+    QTableWidgetItem *itm = 0;
+    if (orientation == Qt::Horizontal)
+        itm = horizontalHeader.at(section);
+    else
+        itm = verticalHeader.at(section);
+
+    if (itm) {
+        itm->setData(role, value);
+        return true;
+    }
+
+    return false;
+}
+
 bool QTableModel::isValid(const QModelIndex &index) const
 {
     return index.isValid() && index.row() < r && index.column() < c;
@@ -276,8 +319,8 @@ bool QTableModel::isValid(const QModelIndex &index) const
 
 // item
 
-QTableWidgetItem::QTableWidgetItem(QTableWidget *view)
-    : view(view),
+QTableWidgetItem::QTableWidgetItem()
+    : view(0),
       itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsCheckable
@@ -287,7 +330,8 @@ QTableWidgetItem::QTableWidgetItem(QTableWidget *view)
 
 QTableWidgetItem::~QTableWidgetItem()
 {
-    view->removeItem(this);
+    if (view)
+        view->removeItem(this);
 }
 
 
@@ -500,8 +544,10 @@ void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
 {
     QVector<QTableWidgetItem*> &header = d->model()->verticalHeader;
     for (int i=0; i<header.count() && i<labels.count(); ++i) {
-        if (!header.at(i))
-            header[i] = new QTableWidgetItem(this);
+        if (!header.at(i)) {
+            header[i] = new QTableWidgetItem();
+            header.at(i)->view = this;
+        }
         header.at(i)->setText(labels.at(i));
     }
 }
@@ -510,8 +556,10 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 {
     QVector<QTableWidgetItem*> &header = d->model()->horizontalHeader;
     for (int i=0; i<header.count() && i<labels.count(); ++i) {
-        if (!header.at(i))
-            header[i] = new QTableWidgetItem(this);
+        if (!header.at(i)) {
+            header[i] = new QTableWidgetItem();
+            header.at(i)->view = this;
+        }
         header.at(i)->setText(labels.at(i));
     }
 }

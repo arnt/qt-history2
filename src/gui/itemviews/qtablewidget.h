@@ -20,9 +20,10 @@ class QTableWidget;
 
 class Q_GUI_EXPORT QTableWidgetItem
 {
+    friend class QTableModel;
     friend class QTableWidget;
 public:
-    QTableWidgetItem(QTableWidget *view = 0);
+    QTableWidgetItem();
     virtual ~QTableWidgetItem();
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
