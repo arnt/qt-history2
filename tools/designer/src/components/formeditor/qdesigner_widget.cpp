@@ -95,7 +95,7 @@ void QDesignerLabel::updateBuddy()
     if (myBuddy.isEmpty())
         return;
 
-    QList<QWidget*> l = qFindChildren<QWidget*>(topLevelWidget(), myBuddy.latin1());
+    QList<QWidget*> l = qFindChildren<QWidget*>(topLevelWidget(), myBuddy);
     if (l.size())
         QLabel::setBuddy(l.first());
 }
