@@ -38,6 +38,10 @@
 #ifndef QGROUPBOX_H
 #define QGROUPBOX_H
 
+#ifndef CHECKABLE_GROUPBOX
+#define CHECKABLE_GROUPBOX
+#endif // CHECKABLE_GROUPBOX
+
 #ifndef QT_H
 #include "qframe.h"
 #endif // QT_H
