@@ -53,8 +53,6 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollCount(0),
         layoutPosted(false),
         alternatingColors(false),
-        oddColor(Qt::lightGray),
-        evenColor(Qt::white),
         dropIndicator(0)
 {
 }
@@ -81,6 +79,9 @@ void QAbstractItemViewPrivate::init()
 
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAttribute(Qt::WA_NoBackground);
+
+    oddColor = q->palette().color(QPalette::Midlight);
+    evenColor = q->palette().color(QPalette::Base);
 
     q->setHorizontalFactor(64);
     q->setVerticalFactor(64);
