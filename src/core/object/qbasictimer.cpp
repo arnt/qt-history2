@@ -77,7 +77,7 @@ void QBasicTimer::start(int msec, QObject *obj)
  */
 void QBasicTimer::stop()
 {
-    if (id)
+    if (id && QCoreApplication::eventLoop())
 	QCoreApplication::eventLoop()->unregisterTimer(id);
     id = 0;
 }
