@@ -272,15 +272,6 @@ established and refuses to work if the check fails. If you don't
 like this behaviour, you can remove the \c{#define ODBC_CHECK_DRIVER}
 line from the file \c{qsql_odbc.cpp}. Do this at your own risk!
 
-Note that some DBMSs, like Microsoft Access, do not return the
-primary index for a table through ODBC. You can still use the QODBC3
-driver, but you will have to manage table indices yourself (through
-QSqlCursor::setPrimaryIndex()), otherwise INSERT, UPDATE and DELETE
-operations will fail in data-aware Qt widgets. You will have to
-comment out the \c{#define ODBC_CHECK_DRIVER} line and recompile the
-driver, otherwise you will not be able to connect to a Microsoft
-Access database.
-
 If you experience that accessing an ODBC datasource is very slow,
 please make sure that ODBC call tracing is turned off in the ODBC
 datasource manager.
