@@ -1808,7 +1808,7 @@ QString QFileDialogPrivate::initialSelection(const QString &path, bool encode)
 {
     if (!path.isEmpty()) {
         QFileInfo info(encode ? encodeFileName(path) : path);
-        if (info.exists() && !info.isDir())
+        if (!info.isDir())
             return info.fileName();
     }
     return QString();
