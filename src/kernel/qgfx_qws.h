@@ -189,6 +189,7 @@ public:
 
     virtual int pixmapOffsetAlignment() { return 64; }
     virtual int pixmapLinestepAlignment() { return 64; }
+    virtual int sharedRamSize(void *) { return 0; }
 
     virtual bool onCard(unsigned char *) const;
     virtual bool onCard(unsigned char *, ulong& out_offset) const;
@@ -388,11 +389,12 @@ public:
 
     virtual void setRop(RasterOp)=0;
     virtual void setScreen(QScreen *,QScreenCursor *,bool,int *,int *);
-
+    void setShared(void * v) { shared_data=v; }
     bool isScreenGfx() { return is_screen_gfx; } //for cursor..
 
 protected:
     bool is_screen_gfx;
+    void * shared_data;
 
 };
 

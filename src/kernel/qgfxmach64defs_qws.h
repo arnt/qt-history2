@@ -113,6 +113,7 @@
 #define SRC_HEIGHT2 (0x6b*4)
 #define DST_CNTL 0x0130
 #define DST_HEIGHT_WIDTH 0x0118
+#define GUI_CNTL (0x5e*4)
 
 #define MIX_DST 0x0003
 #define MIX_SRC 0x0007

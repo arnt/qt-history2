@@ -281,8 +281,10 @@ bool QWSRegionManager::attach( const QString &filename )
 	    data = (unsigned char *)shmat( shmId, 0, 0 );
     } else {
 	shmId = shmget( key, 0, 0 );
+	// Unfortunately I need to keep some read/write data in the
+	// shared memory segment so it can't be read-only
 	if ( shmId != -1 )
-	    data = (unsigned char *)shmat( shmId, 0, SHM_RDONLY );
+	    data = (unsigned char *)shmat( shmId, 0, 0 );
     }
 
     return ( shmId != -1 && (int)data != -1 );

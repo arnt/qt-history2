@@ -76,93 +76,6 @@ bool no3d=false;
 static unsigned char * regbase=0;
 static unsigned char * regbase2=0;
 
-// Read a 32-bit graphics card register from 2d engine register block
-inline unsigned int regr(volatile unsigned int regindex)
-{
-    unsigned long int val;
-    val=*((volatile unsigned long *)(regbase+regindex));
-    return val;
-}
-
-// Write a 32-bit graphics card register to 2d engine register block
-inline void regw(volatile unsigned int regindex,unsigned long val)
-{
-    *((volatile unsigned long int *)(regbase+regindex))=val;
-}
-
-// Write a 32-bit graphics card register to 3d engine register block
-inline void regw2(volatile unsigned int regindex,unsigned long val)
-{
-    if(no3d)
-	abort();
-    *((volatile unsigned long int *)(regbase2+regindex))=val;
-}
-
-// Write a 32-bit floating point value to 3d engine register block
-inline void regwf2(volatile unsigned int regindex,float val)
-{
-    if(no3d)
-	abort();
-    unsigned int writeval;
-    *((float *)&writeval)=val;
-    *((volatile unsigned long int *)(regbase2+regindex))=writeval;
-}
-
-// Read a 32-bit value from 3d engine register block
-inline unsigned int regr2(volatile unsigned int regindex)
-{
-    if(no3d)
-	abort();
-    unsigned long int val;
-    val=*((volatile unsigned long *)(regbase2+regindex));
-    return val;
-}
-
-// Wait <entry> FIFO entries. <entry> FIFO entries must be free
-// before making <entry> regw's or regw2's, or you'll lock up the
-// graphics card and your computer. The total number of FIFO entries
-// varies from card to card. There's some code to attempt to recover
-// from engine lockups
-
-inline void wait_for_fifo(short entries)
-{
-    int trycount=0;
-
-    while(trycount++) {
-	int fifoval=regr(FIFO_STAT);
-	if(fifoval & 0x80000000) {
-	    qDebug("Resetting engine");
-            wait_for_fifo(1);
-            regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
-	    wait_for_fifo(1);
-	    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
-	    wait_for_fifo(1);
-	    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
-	    return;
-	}
-	fifoval=fifoval & 0xffff;
-	int loopc;
-	int count=0;
-	for(loopc=0;loopc<16;loopc++) {
-	    if(!(fifoval & 0x1))
-		count++;
-	    fifoval=fifoval >> 1;
-	}
-	if(count>=entries) {
-	    return;
-	}
-	if(trycount>10) {
-	    qDebug("Resetting engine");
-            wait_for_fifo(1);
-            regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
-	    wait_for_fifo(1);
-	    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
-	    wait_for_fifo(1);
-	    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
-	}
-    }
-}
-
 // Wait for all FIFO entries to become free (so we know no commands are
 // going to be queued up) then wait for the currently executing graphics
 // command to finish. Used by sync()
@@ -190,6 +103,15 @@ public:
 
     void setPixWidth(int,int,int=16,bool=true);
 
+    void wait_for_fifo(short);
+    unsigned int regr(volatile unsigned int);
+    void regw(volatile unsigned int,unsigned long);
+    void regw2(volatile unsigned int,unsigned long);
+    void regwf2(volatile unsigned int,float);
+    unsigned int regr2(volatile unsigned int);
+    void reset_engine();
+    void wait_for_idle();
+    
 private:
 
     unsigned char * regbase;
@@ -202,7 +124,127 @@ private:
 
 };
 
-inline void reset_engine()
+// Read a 32-bit graphics card register from 2d engine register block
+template<const int depth,const int type>
+inline unsigned int QGfxMach64<depth,type>::regr(volatile unsigned int 
+						 regindex)
+{
+    unsigned long int val;
+    val=*((volatile unsigned long *)(regbase+regindex));
+    return val;
+}
+
+// Write a 32-bit graphics card register to 2d engine register block
+template<const int depth,const int type>
+inline void QGfxMach64<depth,type>::regw(volatile unsigned int regindex,
+					 unsigned long val)
+{
+    *((volatile unsigned long int *)(regbase+regindex))=val;
+}
+
+// Needed by card init function. This is non-ideal
+inline unsigned int regr(volatile unsigned int regindex)
+{
+    unsigned long int val;
+    val=*((volatile unsigned long *)(regbase+regindex));
+    return val;
+}
+
+inline void regw(volatile unsigned int regindex,
+					 unsigned long val)
+{
+    *((volatile unsigned long int *)(regbase+regindex))=val;
+}
+		 
+// Write a 32-bit graphics card register to 3d engine register block
+template<const int depth,const int type>
+inline void QGfxMach64<depth,type>::regw2(volatile unsigned int regindex,
+					  unsigned long val)
+{
+    if(no3d)
+	abort();
+    *((volatile unsigned long int *)(regbase2+regindex))=val;
+}
+
+// Write a 32-bit floating point value to 3d engine register block
+template<const int depth,const int type>
+inline void QGfxMach64<depth,type>::regwf2(volatile unsigned int regindex,
+					   float val)
+{
+    if(no3d)
+	abort();
+    unsigned int writeval;
+    *((float *)&writeval)=val;
+    *((volatile unsigned long int *)(regbase2+regindex))=writeval;
+}
+
+// Read a 32-bit value from 3d engine register block
+template<const int depth,const int type>
+inline unsigned int QGfxMach64<depth,type>::regr2(volatile unsigned int 
+						  regindex)
+{
+    if(no3d)
+	abort();
+    unsigned long int val;
+    val=*((volatile unsigned long *)(regbase2+regindex));
+    return val;
+}
+
+// Wait <entry> FIFO entries. <entry> FIFO entries must be free
+// before making <entry> regw's or regw2's, or you'll lock up the
+// graphics card and your computer. The total number of FIFO entries
+// varies from card to card. There's some code to attempt to recover
+// from engine lockups
+
+template<const int depth,const int type>
+inline void QGfxMach64<depth,type>::wait_for_fifo(short entries)
+{
+    QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
+    tmp->fifocount+=entries;
+    if(tmp->fifocount<tmp->fifomax)
+	return;
+    
+    int trycount=0;
+
+    while(trycount++) {
+	int fifoval=regr(FIFO_STAT);
+	if(fifoval & 0x80000000) {
+	    qDebug("Resetting engine");
+            wait_for_fifo(1);
+            regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
+	    wait_for_fifo(1);
+	    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
+	    wait_for_fifo(1);
+	    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
+	    return;
+	}
+	fifoval=fifoval & 0xffff;
+	int loopc;
+	int count=0;
+	for(loopc=0;loopc<16;loopc++) {
+	    if(!(fifoval & 0x1))
+		count++;
+	    fifoval=fifoval >> 1;
+	}
+	if(count>=tmp->fifomax) {
+	    tmp->fifocount=0;
+	    return;
+	}
+	if(trycount>10) {
+	    qDebug("Resetting engine");
+            wait_for_fifo(1);
+            regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
+	    wait_for_fifo(1);
+	    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
+	    wait_for_fifo(1);
+	    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
+	}
+    }
+}
+
+
+template<const int depth,const int type>
+inline void QGfxMach64<depth,type>::reset_engine()
 {
     // We use wait_for_fifo(1)'s in case the fifo queue has bunged up
     // for some reason; this is safer
@@ -214,7 +256,8 @@ inline void reset_engine()
     regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
 }
 
-inline void wait_for_idle()
+template<const int depth,const int type>
+inline void QGfxMach64<depth,type>::wait_for_idle()
 {
     wait_for_fifo(16);
 
@@ -235,6 +278,9 @@ template<const int depth,const int type>
 QGfxMach64<depth,type>::QGfxMach64(unsigned char * a,int b,int c)
     : QGfxRaster<depth,type>(a,b,c)
 {
+    
+    regbase=::regbase;
+    regbase2=::regbase2;
 }
 
 // Sets up the graphics engine hardware scissors - these cut off
@@ -1554,11 +1600,9 @@ bool QMachScreen::initDevice()
     // Also enable register block 1 for the 3d engine
 
     if(!no3d) {
-	wait_for_fifo(1);
 	qDebug("Buscntl %x",regr(BUS_CNTL));
 	regw(BUS_CNTL,regr(BUS_CNTL) | 0x08000001);
     } else {
-	wait_for_fifo(1);
 	qDebug("No3d buscntl %x",regr(BUS_CNTL));
 	regw(BUS_CNTL,regr(BUS_CNTL) & ~0x08000001);
     }
@@ -1568,12 +1612,21 @@ bool QMachScreen::initDevice()
     mapsize-=(1024*8);
     QLinuxFbScreen::initDevice();
 
+    int tmp=regr(GUI_CNTL) & 0x3;
+    if(tmp==0) {
+        shared->fifomax=192;
+    } else if(tmp==1) {
+        shared->fifomax=128;
+    } else if(tmp==2) {
+        shared->fifomax=64;
+    } else {
+        qDebug("Reserved FIFO depth!");
+        shared->fifomax=64;
+    }
+
     // Lots of boilerplate from ATI manual, with some extra
     // from XFree Mach64 driver for good measure at the end
 
-    reset_engine();
-
-    wait_for_fifo(7);
     regw(CONTEXT_MASK,0xffffffff);
     regw(DST_OFF_PITCH, (w / 8) << 22);
     regw(DST_Y_X,0);
@@ -1581,14 +1634,12 @@ bool QMachScreen::initDevice()
     regw(DST_BRES_ERR,0);
     regw(DST_BRES_INC,0);
     regw(DST_BRES_DEC,0);
-    wait_for_fifo(6);
     regw(SRC_OFF_PITCH, (w / 8 ) << 22);
     regw(SRC_Y_X,0);
     regw(SRC_HEIGHT1_WIDTH1,1);
     regw(SRC_Y_X_START,0);
     regw(SRC_HEIGHT2_WIDTH2,1);
     regw(SRC_CNTL,SRC_LINE_X_LEFT_TO_RIGHT);
-    wait_for_fifo(13);
     regw(HOST_CNTL,0);
     regw(PAT_REG0,0);
     regw(PAT_REG1,0);
@@ -1601,28 +1652,18 @@ bool QMachScreen::initDevice()
     regw(DP_FRGD_CLR,0xffffffff);
     regw(DP_WRITE_MASK,0xffffffff);
     regw(DP_SRC,FRGD_SRC_FRGD_CLR);
-    wait_for_fifo(3);
     regw(CLR_CMP_CLR,0);
     regw(CLR_CMP_MASK,0xffffffff);
     regw(CLR_CMP_CNTL,0);
-    wait_for_fifo(2);
     regw(DP_CHAIN_MASK,0x8410);
-    wait_for_idle();
-
-    wait_for_fifo(3);
     regw(DST_X,0);
     regw(DST_Y,0);
     regw(DST_HEIGHT,760);
-    wait_for_idle();
-
-    wait_for_fifo(5);
     regw(DP_FRGD_CLR,0xffffffff);
     regw(DP_WRITE_MASK,0xffffffff);
     regw(DP_SRC,0x00000100);
     regw(CLR_CMP_CNTL,0x00000000);
     regw(GUI_TRAJ_CNTL,0x00000003);
-
-    wait_for_fifo(9);
     regw(DST_CNTL,0x3);
     regw(DST_BRES_ERR,0);
     regw(DST_BRES_INC,0);
@@ -1632,16 +1673,12 @@ bool QMachScreen::initDevice()
     regw(SRC_Y_X_START,0);
     regw(SRC_HEIGHT2_WIDTH2,0);
     regw(SRC_CNTL,0);
-
-    wait_for_fifo(6);
     regw(HOST_CNTL,regr(HOST_CNTL) & ~HOST_BYTE_ALIGN);
     regw(PAT_REG0,0);
     regw(PAT_REG1,0);
     regw(PAT_CNTL,0);
     regw(CUR_HORZ_VERT_OFF,0x00000000);
     regw(CUR_HORZ_VERT_POSN,0x00ff00ff);
-
-    wait_for_fifo(7);
     regw(DP_BKGD_CLR,0);
     regw(DP_FRGD_CLR,1);
     regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
@@ -1650,6 +1687,9 @@ bool QMachScreen::initDevice()
     regw(CLR_CMP_MASK,0xffffffff);
     regw(CLR_CMP_CNTL,0);
 
+    // We use 58 fifos, at least 64 should be free
+    shared->fifocount=58;
+    
     return true;
 }
 
@@ -1704,6 +1744,7 @@ QGfx * QMachScreen::createGfx(unsigned char * b,int w,int h,int d,int linestep)
 	    ret = new QGfxMach64<8,0>(b,w,h);
 	}
 	if(ret) {
+	    ret->setShared(shared);
 	    ret->setLineStep(linestep);
 	    return ret;
 	}
@@ -1771,7 +1812,6 @@ void QMachCursor::set(const QImage& image,int hx,int hy)
         int add=16-(cursor->width()/4);
         tmp+=add;
     }
-    wait_for_fifo(3);
     QRgb a=cursor->color(1);
     QRgb b=cursor->color(0);
     unsigned int c,d;
@@ -1787,7 +1827,6 @@ void QMachCursor::hide()
 {
     unsigned int cntlstat=regr(GEN_TEST_CNTL);
     cntlstat=cntlstat & 0xffffff7f;
-    wait_for_fifo(1);
     regw(GEN_TEST_CNTL,cntlstat);
 }
 
@@ -1796,7 +1835,6 @@ void QMachCursor::show()
 {
     unsigned int cntlstat=regr(GEN_TEST_CNTL);
     cntlstat=cntlstat | 0x80;
-    wait_for_fifo(1);
     regw(GEN_TEST_CNTL,cntlstat);
 }
 

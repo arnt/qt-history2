@@ -599,7 +599,6 @@ void QWSDisplay::Data::init()
 	memset(sharedRam,0,sharedRamSize);
 
 	QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
-	s->initDevice();
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
     int mouseoffset = 0;
@@ -616,6 +615,14 @@ void QWSDisplay::Data::init()
 
     sharedRamSize -= mouseoffset;
 
+    // Allow some memory for the graphics driver too
+    
+    sharedRamSize -= qt_screen->sharedRamSize(sharedRam+sharedRamSize);
+
+    
+    if(!csocket)
+	qt_screen->initDevice();
+    
     /* Initialise framebuffer memory manager */
     /* Add 4k for luck and to avoid clobbering hardware cursor */
     int screensize=qt_screen->screenSize();

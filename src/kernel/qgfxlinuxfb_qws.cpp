@@ -46,11 +46,6 @@
 #include "qgfxlinuxfb_qws.h"
 #include "qwindowsystem_qws.h"
 
-// Used when there's no hardware acceleration, since there's no point
-// in storing the state in shared memory
-static int dummy_optype = 0;
-static int dummy_lastop = 0;
-
 /*!
   \class QLinuxFbScreen
   \ingroup qws
@@ -185,20 +180,20 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	pos&=~0x7;
 	entryp=((int *)pos);
 	lowest=((unsigned int *)pos)+1;
-	optype=((int *)pos)+2;
-	lastop=((int *)pos)+3;
-	pos+=(sizeof(int))*4;
+	optype=&shared->optype;
+	lastop=&shared->lastop;
+	pos+=(sizeof(int))*2;
 	entries=(QPoolEntry *)pos;
     } else {
-	optype = &dummy_optype;
-	lastop = &dummy_lastop;
+	optype = &shared->optype;
+	lastop = &shared->lastop;
     }
 
 #ifndef QT_NO_QWS_REPEATER
     screen_optype=(int *)optype;
     screen_lastop=(int *)lastop;
 #endif
-    
+
     // Now read in palette
     if((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4)) {
 	screencols= (vinfo.bits_per_pixel==8) ? 256 : 16;
@@ -486,22 +481,23 @@ bool QLinuxFbScreen::initDevice()
 	entryp=((int *)pos);
 	lowest=((unsigned int *)pos)+1;
 	// These keep track of accelerator state
-	optype=((int *)pos)+2;
-	lastop=((int *)pos)+3;
-	pos+=(sizeof(int))*4;
+	optype=&shared->optype;
+	lastop=&shared->lastop;
+	pos+=(sizeof(int))*2;
 	entries=(QPoolEntry *)pos;
 	*entryp=0;
 	*lowest=mapsize;
+	shared->fifocount=0;
     } else {
-	optype = &dummy_optype;
-	lastop = &dummy_lastop;
+	optype = &shared->optype;
+	lastop = &shared->lastop;
     }
 
 #ifndef QT_NO_QWS_REPEATER
     screen_optype=(int *)optype;
     screen_lastop=(int *)lastop;
 #endif
-    
+
     *optype=0;
     *lastop=0;
 
@@ -816,6 +812,16 @@ void QLinuxFbScreen::restore()
 	free(cmap.blue);
 	free(cmap.transp);
     }
+}
+
+// This works like the QScreenCursor code. end points to the end
+// of our shared structure, we return the amount of memory we reserved
+int QLinuxFbScreen::sharedRamSize(void * end)
+{
+    qDebug("Shared ram size called for %lx",end);
+    shared=(QLinuxFb_Shared *)end;
+    shared--;
+    return sizeof(QLinuxFb_Shared);
 }
 
 void QLinuxFbScreen::blank(bool on)

@@ -36,6 +36,16 @@
 #ifndef QT_NO_QWS_LINUXFB
 #include "qgfx_qws.h"
 
+class QLinuxFb_Shared
+{
+public:
+    volatile int lastop;
+    volatile int optype;
+    volatile int fifocount;   // Accel drivers only
+    volatile int fifomax;
+
+};
+
 class QLinuxFbScreen : public QScreen
 {
 public:
@@ -56,11 +66,13 @@ public:
     virtual void set(unsigned int,unsigned int,unsigned int,unsigned int);
     virtual uchar * cache(int,int);
     virtual void uncache(uchar *);
-
+    virtual int sharedRamSize(void *);
+    
 protected:
 
     bool canaccel;
     int dataoffset;
+    QLinuxFb_Shared * shared;
 
 private:
 
