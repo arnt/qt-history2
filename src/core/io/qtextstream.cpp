@@ -33,9 +33,6 @@
 
 #include <private/qinternal_p.h>
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QTextStream
     \brief The QTextStream class provides functions for reading and
@@ -166,7 +163,7 @@
 
 #ifndef QT_NO_DEBUG
 #undef  CHECK_STREAM_PRECOND
-#define CHECK_STREAM_PRECOND(x)  if (x->d->sourceType != QTextStreamPrivate::String && !x->d->dev) { \
+#define CHECK_STREAM_PRECOND(x)  if (x->d_func()->sourceType != QTextStreamPrivate::String && !x->d_func()->dev) { \
                                           qWarning("QTextStream: No device");                        \
                                           return *x; }
 #else
@@ -293,6 +290,8 @@ void QTextStream::init()
 QTextStream::QTextStream()
 {
     init();
+
+    Q_D(QTextStream);
     setEncoding(Locale);
     reset();
     d->sourceType = QTextStreamPrivate::NotSet;
@@ -305,6 +304,8 @@ QTextStream::QTextStream()
 QTextStream::QTextStream(QIODevice *iod)
 {
     init();
+
+    Q_D(QTextStream);
     setEncoding(Locale);
     d->dev = iod;
     reset();
@@ -342,6 +343,8 @@ QTextStream::QTextStream(QIODevice *iod)
 QTextStream::QTextStream(QString *str, int)
 {
     init();
+
+    Q_D(QTextStream);
     d->str = str;
     d->strOff = 0;
     setEncoding(RawUnicode);
@@ -384,6 +387,8 @@ QTextStream::QTextStream(QString *str, int)
 QTextStream::QTextStream(QByteArray *a, int mode)
 {
     init();
+
+    Q_D(QTextStream);
     QBuffer *buf = new QBuffer(a);
     buf->open(mode);
     d->dev = buf;
@@ -406,6 +411,8 @@ QTextStream::QTextStream(QByteArray *a, int mode)
 QTextStream::QTextStream(const QByteArray &a, int mode)
 {
     init();
+
+    Q_D(QTextStream);
     QBuffer *buf = new QBuffer;
     buf->setData(a);
     buf->open(mode);
@@ -434,6 +441,8 @@ QTextStream::QTextStream(const QByteArray &a, int mode)
 QTextStream::QTextStream(FILE *fh, int mode)
 {
     init();
+
+    Q_D(QTextStream);
     setEncoding(Locale); //###
     d->dev = new QFile;
     ((QFile *)d->dev)->open(mode, fh);
@@ -450,6 +459,8 @@ QTextStream::QTextStream(FILE *fh, int mode)
 
 QTextStream::~QTextStream()
 {
+    Q_D(QTextStream);
+
     if (d->owndev)
         delete d->dev;
     delete d_ptr;
@@ -460,6 +471,7 @@ QTextStream::~QTextStream()
 */
 void QTextStream::skipWhiteSpace()
 {
+    Q_D(QTextStream);
     while(1) {
         QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(NULL, getstr_tmp_size, TS_MOD_NOT|TS_SPACE);
         if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
@@ -527,6 +539,8 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
             *l = 0;
         return QTextStreamPrivate::TS_END_OF_OUTPUT;
     }
+
+    Q_D(QTextStream);
 
     //just read directly from the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
@@ -743,6 +757,8 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
 */
 void QTextStreamPrivate::ts_putc(QChar c)
 {
+    Q_D(QTextStream);
+
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
         d->str->append(c);
@@ -796,6 +812,9 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
 {
     if (c.unicode() == 0xffff)
         return;
+
+    Q_D(QTextStream);
+
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
         if(d->strOff > 0)
@@ -824,6 +843,7 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
 
 QTextStream &QTextStream::readRawBytes(char *s, Q_LONGLONG len)
 {
+    Q_D(QTextStream);
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
         len = qMin((d->str->length()*sizeof(QChar))-d->strOff, (uint)len);
@@ -847,6 +867,7 @@ QTextStream &QTextStream::readRawBytes(char *s, Q_LONGLONG len)
 
 QTextStream &QTextStream::writeRawBytes(const char* s, Q_LONGLONG len)
 {
+    Q_D(QTextStream);
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
         d->str->append(QString::fromLatin1(s, len));
@@ -870,6 +891,7 @@ QTextStream &QTextStream::writeRawBytes(const char* s, Q_LONGLONG len)
 
 bool QTextStream::seek(Q_LONGLONG offset)
 {
+    Q_D(QTextStream);
     if(d->dev->seek(offset)) {
         d->ungetcBuf.clear();
         return true;
@@ -879,6 +901,8 @@ bool QTextStream::seek(Q_LONGLONG offset)
 
 QTextStream &QTextStreamPrivate::write(const char* p, uint len)
 {
+    Q_D(QTextStream);
+    Q_Q(QTextStream);
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
         d->str->append(QString::fromLatin1(p, len));
@@ -920,6 +944,8 @@ QTextStream &QTextStreamPrivate::write(const char* p, uint len)
 
 QTextStream &QTextStreamPrivate::write(const QChar* p, uint len)
 {
+    Q_D(QTextStream);
+    Q_Q(QTextStream);
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
         d->str->append(QString(p, len));
@@ -969,6 +995,7 @@ QTextStream &QTextStreamPrivate::write(const QChar* p, uint len)
 
 void QTextStream::reset()
 {
+    Q_D(QTextStream);
     d->fflags = 0;
     d->fwidth = 0;
     d->fillchar = ' ';
@@ -983,6 +1010,7 @@ void QTextStream::reset()
 
 QIODevice *QTextStream::device() const
 {
+    Q_D(const QTextStream);
     return d->dev;
 }
 
@@ -995,6 +1023,7 @@ QIODevice *QTextStream::device() const
 
 void QTextStream::setDevice(QIODevice *iod)
 {
+    Q_D(QTextStream);
     if (d->owndev) {
         delete d->dev;
         d->owndev = false;
@@ -1011,6 +1040,7 @@ void QTextStream::setDevice(QIODevice *iod)
 
 void QTextStream::unsetDevice()
 {
+    Q_D(QTextStream);
     setDevice(0);
     d->sourceType = QTextStreamPrivate::NotSet;
 }
@@ -1048,6 +1078,7 @@ void QTextStream::unsetDevice()
 
 QTextStream &QTextStream::operator>>(char &c)
 {
+    Q_D(QTextStream);
     CHECK_STREAM_PRECOND(this)
     skipWhiteSpace();
     c = d->ts_getc().latin1();
@@ -1061,6 +1092,7 @@ QTextStream &QTextStream::operator>>(char &c)
 
 QTextStream &QTextStream::operator>>(QChar &c)
 {
+    Q_D(QTextStream);
     CHECK_STREAM_PRECOND(this)
     c = d->ts_getc();
     return *this;
@@ -1069,6 +1101,8 @@ QTextStream &QTextStream::operator>>(QChar &c)
 
 ulong QTextStreamPrivate::input_bin()
 {
+    Q_D(QTextStream);
+
     uint l;
     ulong val = 0;
     const int buf_size = getnum_tmp_size;
@@ -1085,6 +1119,8 @@ ulong QTextStreamPrivate::input_bin()
 
 ulong QTextStreamPrivate::input_oct()
 {
+    Q_Q(QTextStream);
+
     ulong val = 0;
     q->skipWhiteSpace();
     while(1) {
@@ -1107,6 +1143,8 @@ ulong QTextStreamPrivate::input_oct()
 
 ulong QTextStreamPrivate::input_dec()
 {
+    Q_D(QTextStream);
+
     uint l;
     ulong val = 0;
     const int buf_size = getnum_tmp_size;
@@ -1123,6 +1161,8 @@ ulong QTextStreamPrivate::input_dec()
 
 ulong QTextStreamPrivate::input_hex()
 {
+    Q_D(QTextStream);
+
     uint l;
     ulong val = 0;
     const int buf_size = getnum_tmp_size;
@@ -1141,6 +1181,9 @@ ulong QTextStreamPrivate::input_hex()
 
 long QTextStreamPrivate::input_int()
 {
+    Q_D(QTextStream);
+    Q_Q(QTextStream);
+
     long val=0;
     switch (q->flags() & q->basefield) {
     case QTextStream::bin:
@@ -1197,6 +1240,8 @@ long QTextStreamPrivate::input_int()
 
 double QTextStreamPrivate::input_double()
 {
+    Q_Q(QTextStream);
+
     const int Init         = 0;                        // states
     const int Sign         = 1;
     const int Mantissa         = 2;
@@ -1289,6 +1334,8 @@ double QTextStreamPrivate::input_double()
 
 QTextStream &QTextStream::operator>>(signed short &i)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     i = (signed short)d->input_int();
     return *this;
@@ -1305,6 +1352,8 @@ QTextStream &QTextStream::operator>>(signed short &i)
 
 QTextStream &QTextStream::operator>>(unsigned short &i)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     i = (unsigned short)d->input_int();
     return *this;
@@ -1321,6 +1370,8 @@ QTextStream &QTextStream::operator>>(unsigned short &i)
 
 QTextStream &QTextStream::operator>>(signed int &i)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     i = (signed int)d->input_int();
     return *this;
@@ -1337,6 +1388,8 @@ QTextStream &QTextStream::operator>>(signed int &i)
 
 QTextStream &QTextStream::operator>>(unsigned int &i)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     i = (unsigned int)d->input_int();
     return *this;
@@ -1353,6 +1406,8 @@ QTextStream &QTextStream::operator>>(unsigned int &i)
 
 QTextStream &QTextStream::operator>>(signed long &i)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     i = (signed long)d->input_int();
     return *this;
@@ -1369,6 +1424,8 @@ QTextStream &QTextStream::operator>>(signed long &i)
 
 QTextStream &QTextStream::operator>>(unsigned long &i)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     i = (unsigned long)d->input_int();
     return *this;
@@ -1385,6 +1442,8 @@ QTextStream &QTextStream::operator>>(unsigned long &i)
 
 QTextStream &QTextStream::operator>>(float &f)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     f = (float)d->input_double();
     return *this;
@@ -1401,6 +1460,8 @@ QTextStream &QTextStream::operator>>(float &f)
 
 QTextStream &QTextStream::operator>>(double &f)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     f = d->input_double();
     return *this;
@@ -1418,6 +1479,8 @@ QTextStream &QTextStream::operator>>(double &f)
 
 QTextStream &QTextStream::operator>>(char *s)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     skipWhiteSpace();
 
@@ -1447,6 +1510,8 @@ QTextStream &QTextStream::operator>>(char *s)
 
 QTextStream &QTextStream::operator>>(QString &str)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     str=QString::null;
     skipWhiteSpace();
@@ -1474,6 +1539,8 @@ QTextStream &QTextStream::operator>>(QString &str)
 
 QTextStream &QTextStream::operator>>(QByteArray &str)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     skipWhiteSpace();
 
@@ -1515,6 +1582,8 @@ QTextStream &QTextStream::operator>>(QByteArray &str)
 
 QString QTextStream::readLine()
 {
+    Q_D(QTextStream);
+
     if (d->sourceType != QTextStreamPrivate::String && !d->dev) {
         qWarning("QTextStream::readLine: No device");
         return QString::null;
@@ -1545,6 +1614,8 @@ QString QTextStream::readLine()
 
 QString QTextStream::read()
 {
+    Q_D(QTextStream);
+
     if (d->sourceType != QTextStreamPrivate::String && !d->dev) {
         qWarning("QTextStream::read: No device");
         return QString::null;
@@ -1603,6 +1674,8 @@ QString QTextStream::read()
 */
 QTextStream &QTextStream::operator<<(QChar c)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     d->ts_putc(c);
     return *this;
@@ -1616,6 +1689,8 @@ QTextStream &QTextStream::operator<<(QChar c)
 */
 QTextStream &QTextStream::operator<<(char c)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     unsigned char uc = (unsigned char) c;
     d->ts_putc(uc);
@@ -1624,6 +1699,9 @@ QTextStream &QTextStream::operator<<(char c)
 
 QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
 {
+    Q_D(QTextStream);
+    Q_Q(QTextStream);
+
     static const char hexdigits_lower[] = "0123456789abcdef";
     static const char hexdigits_upper[] = "0123456789ABCDEF";
     CHECK_STREAM_PRECOND(q)
@@ -1732,6 +1810,7 @@ QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
 
 QTextStream &QTextStream::operator<<(signed short i)
 {
+    Q_D(QTextStream);
     return d->output_int(I_SHORT | I_SIGNED, i, i < 0);
 }
 
@@ -1745,6 +1824,7 @@ QTextStream &QTextStream::operator<<(signed short i)
 
 QTextStream &QTextStream::operator<<(unsigned short i)
 {
+    Q_D(QTextStream);
     return d->output_int(I_SHORT | I_UNSIGNED, i, false);
 }
 
@@ -1758,6 +1838,7 @@ QTextStream &QTextStream::operator<<(unsigned short i)
 
 QTextStream &QTextStream::operator<<(signed int i)
 {
+    Q_D(QTextStream);
     return d->output_int(I_INT | I_SIGNED, i, i < 0);
 }
 
@@ -1771,6 +1852,7 @@ QTextStream &QTextStream::operator<<(signed int i)
 
 QTextStream &QTextStream::operator<<(unsigned int i)
 {
+    Q_D(QTextStream);
     return d->output_int(I_INT | I_UNSIGNED, i, false);
 }
 
@@ -1784,6 +1866,7 @@ QTextStream &QTextStream::operator<<(unsigned int i)
 
 QTextStream &QTextStream::operator<<(signed long i)
 {
+    Q_D(QTextStream);
     return d->output_int(I_LONG | I_SIGNED, i, i < 0);
 }
 
@@ -1797,6 +1880,7 @@ QTextStream &QTextStream::operator<<(signed long i)
 
 QTextStream &QTextStream::operator<<(unsigned long i)
 {
+    Q_D(QTextStream);
     return d->output_int(I_LONG | I_UNSIGNED, i, false);
 }
 
@@ -1822,6 +1906,8 @@ QTextStream &QTextStream::operator<<(float f)
 
 QTextStream &QTextStream::operator<<(double f)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     char f_char;
     char format[16];
@@ -1868,6 +1954,8 @@ QTextStream &QTextStream::operator<<(double f)
 
 QTextStream &QTextStream::operator<<(const char* s)
 {
+    Q_D(QTextStream);
+
     CHECK_STREAM_PRECOND(this)
     char padbuf[48];
     uint len = qstrlen(s);                        // don't write null terminator
@@ -1920,6 +2008,7 @@ QTextStream &QTextStream::operator<<(const QByteArray & s)
 
 QTextStream &QTextStream::operator<<(const QString& s)
 {
+    Q_D(QTextStream);
     if (!d->mapper && d->latin1)
         return operator<<(s.latin1());
     CHECK_STREAM_PRECOND(this)
@@ -1947,6 +2036,7 @@ QTextStream &QTextStream::operator<<(const QString& s)
 
 QTextStream &QTextStream::operator<<(const void *ptr)
 {
+    Q_D(QTextStream);
     int f = flags();
     setf(hex, basefield);
     setf(showbase);
@@ -1991,7 +2081,8 @@ QTextStream &QTextStream::operator<<(const void *ptr)
 
 int QTextStream::flags() const
 {
-    return d->d->fflags;
+    Q_D(const QTextStream);
+    return d->fflags;
 }
 
 
@@ -2005,6 +2096,7 @@ int QTextStream::flags() const
 
 int QTextStream::flags(int f)
 {
+    Q_D(QTextStream);
     int oldf = d->fflags;
     d->fflags = f;
     return oldf;
@@ -2022,6 +2114,7 @@ int QTextStream::flags(int f)
 
 int QTextStream::setf(int bits)
 {
+    Q_D(QTextStream);
     int oldf = d->fflags;
     d->fflags |= bits;
     return oldf;
@@ -2041,6 +2134,7 @@ int QTextStream::setf(int bits)
 
 int QTextStream::setf(int bits, int mask)
 {
+    Q_D(QTextStream);
     int oldf = d->fflags;
     d->fflags = (d->fflags & ~mask) | (bits & mask);
     return oldf;
@@ -2058,6 +2152,7 @@ int QTextStream::setf(int bits, int mask)
 
 int QTextStream::unsetf(int bits)
 {
+    Q_D(QTextStream);
     int oldf = d->fflags;
     d->fflags &= ~bits;
     return oldf;
@@ -2070,6 +2165,7 @@ int QTextStream::unsetf(int bits)
 
 int QTextStream::width() const
 {
+    Q_D(const QTextStream);
     return d->fwidth;
 }
 
@@ -2082,6 +2178,7 @@ int QTextStream::width() const
 
 int QTextStream::width(int w)
 {
+    Q_D(QTextStream);
     int oldw = d->fwidth;
     d->fwidth = w;
     return oldw;
@@ -2094,6 +2191,7 @@ int QTextStream::width(int w)
 
 int QTextStream::fill() const
 {
+    Q_D(const QTextStream);
     return d->fillchar;
 }
 
@@ -2106,6 +2204,7 @@ int QTextStream::fill() const
 
 int QTextStream::fill(int f)
 {
+    Q_D(QTextStream);
     int oldc = d->fillchar;
     d->fillchar = f;
     return oldc;
@@ -2117,6 +2216,7 @@ int QTextStream::fill(int f)
 
 int QTextStream::precision() const
 {
+    Q_D(const QTextStream);
     return d->fprec;
 }
 
@@ -2128,6 +2228,7 @@ int QTextStream::precision() const
 
 int QTextStream::precision(int p)
 {
+    Q_D(QTextStream);
     int oldp = d->fprec;
     d->fprec = p;
     return oldp;
@@ -2307,6 +2408,8 @@ QTextStream &reset(QTextStream &s)
 
 void QTextStream::setEncoding(Encoding e)
 {
+    Q_D(QTextStream);
+
     if (d->sourceType == QTextStreamPrivate::String)
         return;
 
@@ -2389,6 +2492,7 @@ void QTextStream::setEncoding(Encoding e)
 
 void QTextStream::setCodec(QTextCodec *codec)
 {
+    Q_D(QTextStream);
     if (d->sourceType == QTextStreamPrivate::String)
         return; // QString does not need any codec
     d->mapper = codec;
@@ -2409,6 +2513,7 @@ void QTextStream::setCodec(QTextCodec *codec)
 
 QTextCodec *QTextStream::codec()
 {
+    Q_D(QTextStream);
     if (d->mapper) {
         return d->mapper;
     } else {
@@ -2421,6 +2526,7 @@ QTextCodec *QTextStream::codec()
 
 bool QTextStream::atEnd() const
 {
+    Q_D(const QTextStream);
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String)
         return d->strOff == (d->str->length()*sizeof(QChar));
@@ -2434,6 +2540,7 @@ bool QTextStream::atEnd() const
 
 QChar QTextStreamPrivate::ts_getc()
 {
+    Q_D(QTextStream);
     QChar r;
     uint l;
     d->ts_getbuf(&r, 1, 0, &l);
