@@ -199,7 +199,7 @@ void QTipManager::add( const QRect &gm, QWidget *w, const QRect &r, const QStrin
     t->groupText = gs;
     t->group = g;
     t->geometry = gm;
-    
+
     if ( h )
 	tips->take( w );
     else
@@ -458,7 +458,7 @@ void QTipManager::showTip()
     } else {
 	p = widget->mapToGlobal( t->geometry.topLeft() );
 	label->setAlignment( WordBreak | AlignCenter );
-	int h = label->heightForWidth( t->geometry.width() );
+	int h = label->heightForWidth( t->geometry.width() - 4 );
 	label->resize( label->width(), h );
     }
     if ( p.x() + label->width() > QApplication::desktop()->width() )
@@ -612,7 +612,7 @@ void QToolTip::initialize()
     QTipLabel t("");
     ttFont = new QFont(QApplication::font(&t));
     ttPalette = new QPalette(QApplication::palette(&t));
-    
+
     use_style_override = TRUE;
 }
 
