@@ -116,7 +116,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool focus READ hasFocus )
     Q_PROPERTY( bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false )
     Q_PROPERTY( bool visible READ isVisible )
-    Q_PROPERTY( QRect visibleRect READ visibleRect )
+    Q_PROPERTY( QRect visibleRect READ visibleRect ) // obsolete
     Q_PROPERTY( bool hidden READ isHidden WRITE setHidden DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool shown READ isShown WRITE setShown DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool minimized READ isMinimized )
@@ -373,7 +373,7 @@ public:
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
     bool		isVisibleToTLW() const; // obsolete
-    QRect		visibleRect() const;
+    QRect		visibleRect() const; // obsolete
     bool 		isHidden() const;
     bool 		isShown() const;
     bool		isMinimized() const;
@@ -386,6 +386,8 @@ public:
     virtual void	setSizePolicy( QSizePolicy );
     void 		setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE );
     virtual int heightForWidth(int) const;
+
+    QRegion	clipRegion() const;
 
 // ### move together with other slots in Qt 4.0
 public slots:
@@ -804,10 +806,7 @@ inline void QWidget::update( const QRect &r )
 { update( r.x(), r.y(), r.width(), r.height() ); }
 
 inline void QWidget::repaint()
-{ repaint( 0, 0, crect.width(), crect.height(), TRUE ); }
-
-inline void QWidget::repaint( bool erase )
-{ repaint( 0, 0, crect.width(), crect.height(), erase ); }
+{ repaint( TRUE ); }
 
 inline void QWidget::repaint( const QRect &r, bool erase )
 { repaint( r.x(), r.y(), r.width(), r.height(), erase ); }

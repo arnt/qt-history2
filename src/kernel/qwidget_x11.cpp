@@ -1331,7 +1331,7 @@ void QWidget::update()
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
 	 WState_Visible )
-	QApplication::postEvent( this, new QPaintEvent( visibleRect(), !testWFlags(WRepaintNoErase) ) );
+	QApplication::postEvent( this, new QPaintEvent( clipRegion(), !testWFlags(WRepaintNoErase) ) );
 }
 
 /*!
@@ -1368,7 +1368,7 @@ void QWidget::update( int x, int y, int w, int h )
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
 	    QApplication::postEvent( this,
-		new QPaintEvent( visibleRect().intersect(QRect(x,y,w,h)),
+		new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h)),
 				 !testWFlags( WRepaintNoErase ) ) );
     }
 }
@@ -2105,7 +2105,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     bool just_update = QABS( dx ) > width() || QABS( dy ) > height();
     if ( just_update )
 	update();
-    QRect sr = valid_rect?r:visibleRect();
+    QRect sr = valid_rect?r:clipRegion().boundingRect();
     int x1, y1, x2, y2, w=sr.width(), h=sr.height();
     if ( dx > 0 ) {
 	x1 = sr.x();

@@ -170,7 +170,6 @@
     \row \i Mode \i
 	isVisible(),
 	isVisibleTo(),
-	visibleRect(),
 	isMinimized(),
 	isDesktop(),
 	isEnabled(),
@@ -183,6 +182,7 @@
 	setMouseTracking(),
 	isUpdatesEnabled(),
 	setUpdatesEnabled(),
+	clipRegion().
 
     \row \i Look and feel \i
 	style(),
@@ -1540,7 +1540,7 @@ void QWidget::setDisabled( bool disable )
     The default implementation repaints the visible part of the
     widget.
 
-    \sa setEnabled(), isEnabled(), repaint(), update(), visibleRect()
+    \sa setEnabled(), isEnabled(), repaint(), update(), clipRegion()
 */
 
 void QWidget::enabledChange( bool )
@@ -3487,7 +3487,7 @@ static void qt_update_bg_recursive( QWidget *widget )
 		    qt_update_bg_recursive( widget );
 	}
     }
-    QApplication::postEvent( widget, new QPaintEvent( widget->visibleRect(), !widget->testWFlags(Qt::WRepaintNoErase) ) );
+    QApplication::postEvent( widget, new QPaintEvent( widget->clipRegion(), !widget->testWFlags(Qt::WRepaintNoErase) ) );
 }
 
 /*!
@@ -4172,19 +4172,11 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 
 /*!
     \property QWidget::visibleRect
-    \brief the currently visible rectangle of the widget
 
-    This property is useful to optimize immediate repainting of a
-    widget. Typical usage is:
-    \code
-	repaint( w->visibleRect() );
-    \endcode
-    or
-    \code
-	repaint( w->visibleRect(), FALSE );
-    \endcode
+    \obsolete
 
-    If nothing is visible, the rectangle returned is empty.
+    No longer necessary, you can simply call repaint(). If you do not
+    need the rectangle for repaint(), use clipRegion() instead.
 */
 QRect QWidget::visibleRect() const
 {
@@ -4203,8 +4195,22 @@ QRect QWidget::visibleRect() const
     }
     if ( !w->isVisible() )
 	return QRect();
-    else
-	return r;
+    return r;
+}
+
+/*!
+    Returns the unobscured region where paint events can occur.
+
+    For visible widgets, this is an approximation of the area not
+    covered by other widgets; otherwise, this is an empty region.
+
+    The repaint() function calls this function if necessary, so in
+    general you do not need to call it.
+
+*/
+QRegion QWidget::clipRegion() const
+{
+    return visibleRect();
 }
 
 
@@ -5775,6 +5781,13 @@ bool QWidget::isFullScreen() const
 
     \sa palette
 */
+
+
+void QWidget::repaint( bool erase )
+{
+    repaint( visibleRect(), erase );
+}
+
 
 
 

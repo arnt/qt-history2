@@ -1086,7 +1086,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
 	    if ( !testWFlags( WStaticContents ) )
-		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+		repaint( !testWFlags(WResizeNoErase) );
 	}
     } else {
 	if ( isMove && pos() != oldPos )

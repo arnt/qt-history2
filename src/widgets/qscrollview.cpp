@@ -246,11 +246,11 @@ void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
 	 viewport->height() ) {
 	// clipped_viewport still covers viewport
 	if( static_bg )
-	    clipped_viewport->repaint( clipped_viewport->visibleRect(), TRUE );
+	    clipped_viewport->repaint( TRUE );
 	else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WStaticContents) )
 		  || static_bg )
 	    QApplication::postEvent( clipped_viewport,
-		     new QPaintEvent( clipped_viewport->visibleRect(),
+		     new QPaintEvent( clipped_viewport->clipRegion(),
 			      !clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
     } else {
 	// Re-center
@@ -276,7 +276,7 @@ void QScrollViewData::moveAllBy(int dx, int dy)
 	    r->child->move(r->child->x()+dx,r->child->y()+dy);
 	}
 	if ( static_bg )
-	    viewport->repaint( viewport->visibleRect(), TRUE );
+	    viewport->repaint( TRUE );
     }
 }
 

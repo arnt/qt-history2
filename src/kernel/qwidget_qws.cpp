@@ -1001,7 +1001,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 #endif
 /*
 	    if ( !testWFlags( WStaticContents ) ) {
-		QApplication::postEvent(this,new QPaintEvent(visibleRect(),
+		QApplication::postEvent(this,new QPaintEvent(clipRegion(),
 					!testWFlags(WResizeNoErase) ) );
 	    }
 */
@@ -1081,7 +1081,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 #ifndef QT_NO_QWS_MANAGER
 	if (isResize && extra && extra->topextra && extra->topextra->qwsManager) {
 	    QApplication::postEvent(topData()->qwsManager,
-				    new QPaintEvent(visibleRect(), TRUE ) );
+				    new QPaintEvent( clipRegion(), TRUE ) );
 	}
 #endif
 	isSettingGeometry = FALSE;

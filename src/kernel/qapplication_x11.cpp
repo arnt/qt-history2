@@ -5627,7 +5627,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		! qt_x11EventFilter( &xevent )  &&
 		! x11Event( &xevent ) ) // send event through filter
 	    ;
-	repaint( visibleRect(), !testWFlags(WResizeNoErase) || transbg );
+	repaint( !testWFlags(WResizeNoErase) || transbg );
     }
 
     return TRUE;

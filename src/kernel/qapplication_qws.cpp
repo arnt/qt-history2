@@ -2759,7 +2759,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
 	r.translate(-crect.x(),-crect.y());
 	if ( post ) {
 	    QApplication::postEvent(topData()->qwsManager,
-		    new QPaintEvent(visibleRect(), TRUE ) );
+		    new QPaintEvent( clipRegion(), TRUE ) );
 	} else {
 	    QPaintEvent e(r, FALSE);
 	    setWState( WState_InPaintEvent );
