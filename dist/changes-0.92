@@ -1,19 +1,37 @@
-toUpper, toLower, simplifyWhiteSpace etc. do NOT change the string.
+QString:
+--------
+  upper(), lower(), stripWhiteSpace() and simplifyWhiteSpace() etc.
+  do NOT modify the string, instead they return a new string.
 
-changed argument in QList::toVector() from reference to pointer
-changed argument in QVector::toList() from reference to pointer
+QList and QVector:
+------------------
+  Changed argument in QList::toVector() from reference to pointer
+  Changed argument in QVector::toList() from reference to pointer
+  Removed QVector::apply()
+  Removed QList::apply()
 
-removed QVector::apply()
-removed QList::apply()
+QPainter:
+---------
+  pen(), brush() and font() no longer returns references.
+  You cannot do this any longer:
+	QPainter p;
+	...
+        p.pen().setColor( red );
+	p.brush().setStyle( NoBrush );
+  Instead, set a new pen or brush.
 
-Qpen, QBrush and QFont are no longer explicitely shared!!!
-QPainter::pen(), QPainter::brush() and QPainter::font() no longer return 
-references 
+QFile, QFileInfo (new):
+-----------------------
+  Removed QFile::setFileName, 
+  QFile::isRegular   => QFileInfo::isFile
+  QFile::isDirectory => QFileInfo::isDir
+  QFile::isSymLink   => QFileInfo::isSymLink
 
-Removed QFile::setFileName, 
-QFile::fileName  => QFile::rawName
+Q2DMatrix/QWMatrix:
+---------
+  Q2DMatrix has been replaced with QWMatrix (qwmatrix.h)
 
-QFile::isRegular   => QFileInfo::isFile
-QFile::isDirectory => QFileInfo::isDir
-QFile::isSymLink   => QFileInfo::isSymLink
-
+QPixmap:
+--------
+  enableImageCache() renamed to setOptimization().
+  Optimization is now default ON.  See doc for other optimization functions.
