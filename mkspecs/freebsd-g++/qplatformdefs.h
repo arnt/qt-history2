@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <dlfcn.h>
 
+#include <sys/param.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
@@ -64,7 +65,7 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#if !defined(__DragonFly__) && __FreeBSD_version < 400000
+#if !defined(__DragonFly__) && (__FreeBSD_version < 400000)
 // FreeBSD 1.0 - 3.5.1
 #  define QT_SOCKLEN_T		int
 #else
