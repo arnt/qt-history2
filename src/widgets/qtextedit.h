@@ -98,8 +98,9 @@ public:
     };
 
     enum WrapPolicy {
-	AtWhiteSpace,
-	Anywhere
+	AtWordBoundary,
+	Anywhere,
+	AtWhiteSpace = AtWordBoundary // deprecated, don't use
     };
 
     enum KeyboardAction {

@@ -122,21 +122,6 @@ public:
 	NoAccel = 0x4000
     };
 
-    // ### document me!!!
-    enum WordWrap {
-	NoWrap 		= 0x0000,
-	WidgetWidth 	= 0x2000,
-	FixedPixelWidth = 0x3000,
-	FixedColumnWidth= 0x4000
-    };
-
-    // ### document me!!!
-    enum WrapPolicy {
-	AtWordBoundary 	= 0x0000,
-	AtWhiteSpace 	= AtWordBoundary, // deprecated, don't use
-	Anywhere 	= 0x8000
-    };
-
     // Widget flags
     typedef uint WState;
 
