@@ -145,8 +145,8 @@ StringSet difference( const StringSet& ss, const StringSet& tt )
     QMap<QString, void *>::ConstIterator t = tt.map.begin();
     StringSet uu;
 
-    while ( s != ss.map.end() && t != tt.map.end() ) {
-	if ( s.key() < t.key() ) {
+    while ( s != ss.map.end() ) {
+	if ( t == tt.map.end() || s.key() < t.key() ) {
 	    uu.insert( s.key() );
 	    ++s;
 	} else if ( s.key() > t.key() ) {
