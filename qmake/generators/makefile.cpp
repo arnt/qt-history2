@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -93,7 +93,7 @@ static char *gimme_buffer(off_t s)
 }
 
 bool
-MakefileGenerator::generateMocList(QString fn_target)
+MakefileGenerator::generateMocList(const QString &fn_target)
 {
     if(!findMocDestination(fn_target).isEmpty())
 	return TRUE;
@@ -225,9 +225,9 @@ MakefileGenerator::generateMocList(QString fn_target)
 }
 
 bool
-MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QString fn, bool recurse)
+MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const QString &x, bool recurse)
 {
-    fn = fileFixify(fn);
+    QString fn = fileFixify(x);
     QStringList &fndeps = findDependencies(fn);
     if(!fndeps.isEmpty())
 	return TRUE;
@@ -328,7 +328,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	} else if(ui_file) {
 	    // skip whitespaces
 	    while(x < total_size_read &&
-		  (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t')) 
+		  (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
 		x++;
 	    if(*(big_buffer + x) == '<') {
 		x++;
@@ -342,7 +342,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		} else if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include", 7) &&
 		    (*(big_buffer + x + 7) == ' ' || *(big_buffer + x + 7) == '>')) {
 		    for(x += 8; *(big_buffer + x) != '>'; x++) {
-			if(total_size_read >= x + 9 && *(big_buffer + x) == 'i' && 
+			if(total_size_read >= x + 9 && *(big_buffer + x) == 'i' &&
 			   !strncmp(big_buffer + x, "impldecl", 8)) {
 			    for(x += 8; *(big_buffer + x) != '='; x++);
 			    if(*(big_buffer + x) != '=')
@@ -1302,7 +1302,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 		    use_implicit_rule = FALSE;
 	    }
 	}
-	if (!use_implicit_rule) {
+	if (!use_implicit_rule && !project->isEmpty(comp)) {
 	    QString p = var(comp);
 	    p.replace(stringSrc, (*sit));
 	    p.replace(stringObj, (*oit));
@@ -1370,7 +1370,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 		    use_implicit_rule = FALSE;
 	    }
 	}
-	if (!use_implicit_rule) {
+	if (!use_implicit_rule && !project->isEmpty("QMAKE_RUN_CXX")) {
 	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace(stringSrc, (*sit));
 	    p.replace(stringObj, (*oit));
@@ -1423,7 +1423,7 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	if(!project->isActiveConfig("yacc_no_name_mangle")) {
 	    mangle = fi.baseName(TRUE);
 	    yaccflags += " -p " + mangle;
-	} 
+	}
 	QString out_h = default_out_h, out_c = default_out_c;
 	if(!mangle.isEmpty()) {
 	    out_h.replace(stringBase, mangle);
@@ -1494,7 +1494,7 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
 		    use_implicit_rule = FALSE;
 	    }
 	}
-	if(!use_implicit_rule) {
+	if(!use_implicit_rule && !project->isEmpty("QMAKE_RUN_CXX")) {
 	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace( stringSrc, src);
 	    p.replace( stringObj, (*oit));
@@ -1582,7 +1582,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
 		uninst.append(QString("-$(DEL_FILE) -r") + " " + fileFixify(dst + f) + "");
-		
+
 		QDir dir(dirstr, f);
 		for(uint x = 0; x < dir.count(); x++) {
 		    QString file = dir[x];
