@@ -803,8 +803,8 @@ void SetupWizardImpl::showPageConfig()
     xpPlugin->setOn( entry == "Plugin" && canXPStyle );
     xpPlugin->setEnabled( canXPStyle );
     xpDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    xpDirect->setOn( entry == "Direct" );
-    xpDirect->setEnabled( false );
+    xpDirect->setOn( entry == "Direct" && canXPStyle );
+    xpDirect->setEnabled( canXPStyle );
 
     folder = new QCheckListItem( stfolder, "Windows" );
     folder->setOpen( true );
