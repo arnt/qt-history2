@@ -1,4 +1,4 @@
-			  INSTALLING Qt FOR MacOSX
+			  INSTALLING Qt/Mac Version %VERSION% (for Mac OS X)
 
 
 You may need to be root, depending on the permissions of the directories
@@ -101,7 +101,7 @@ where you choose to install Qt.
     Finder, you must place the relevant libraries in a directory where
     they can be found. We recommend making these symbolic links:
 
-    ln -s $QTDIR/lib/libqt.dylib.3.0.0 /usr/lib
+    ln -s $QTDIR/lib/libqt.dylib.%VERSION% /usr/lib
     ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib
 
     You may need to have 'administrator' access to do this, (in which
