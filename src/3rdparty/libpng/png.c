@@ -269,7 +269,7 @@ png_free_data(png_structp png_ptr, png_infop info_ptr, png_uint_32 mask, int num
 
 #if defined(PNG_TEXT_SUPPORTED)
 /* free text item num or (if num == -1) all text items */
-if (mask & PNG_FREE_TEXT)
+if (mask & info_ptr->free_me & PNG_FREE_TEXT)
 {
    if (num != -1)
    {
@@ -533,12 +533,9 @@ png_convert_to_rfc1123(png_structp png_ptr, png_timep ptime)
 
 /* Signature string for a PNG file. */
 png_bytep
-png_sig_bytes(png_structp png_ptr)
+png_sig_bytes(void)
 {
-   const png_byte png_sig_numbers[9] = {137, 80, 78, 71, 13, 10, 26, 10, 0};
-   if (png_ptr == NULL) /* silence compiler warning */
-     return ((png_bytep) strdup((png_const_charp)png_sig_numbers));
-   return ((png_bytep) strdup((png_const_charp)png_sig_numbers));
+   return ((png_bytep)"\211\120\116\107\015\012\032\012");
 }
 
 png_charp

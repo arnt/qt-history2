@@ -651,11 +651,10 @@ defined(PNG_READ_BACKGROUND_SUPPORTED)
 #ifdef PNG_FLOATING_POINT_SUPPORTED
    double scal_pixel_width;    /* width of one pixel */
    double scal_pixel_height;   /* height of one pixel */
-#else
+#endif
 #ifdef PNG_FIXED_POINT_SUPPORTED
    png_charp scal_s_width;     /* string containing height */
    png_charp scal_s_height;    /* string containing width */
-#endif
 #endif
 #endif
 
@@ -2023,7 +2022,7 @@ extern PNG_EXPORT(void, png_write_png) PNGARG((png_structp png_ptr,
 #define png_debug2(l, m, p1, p2)
 #endif
 
-extern PNG_EXPORT(png_bytep,png_sig_bytes) PNGARG((png_structp png_ptr));
+extern PNG_EXPORT(png_bytep,png_sig_bytes) PNGARG((void));
 
 extern PNG_EXPORT(png_charp,png_get_copyright) PNGARG((png_structp png_ptr));
 extern PNG_EXPORT(png_charp,png_get_header_ver) PNGARG((png_structp png_ptr));
@@ -2304,7 +2303,7 @@ PNG_EXTERN void png_crc_read PNGARG((png_structp png_ptr, png_bytep buf,
     defined(PNG_READ_iCCP_SUPPORTED) || defined(PNG_READ_sPLT_SUPPORTED)
 PNG_EXTERN png_charp png_decompress_chunk PNGARG((png_structp png_ptr,
    int comp_type, png_charp chunkdata, png_size_t chunklength,
-   png_size_t prefix_size));
+   png_size_t prefix_size, png_size_t *data_size));
 #endif
 
 /* Read "skip" bytes, read the file crc, and (optionally) verify png_ptr->crc */
@@ -2468,7 +2467,7 @@ PNG_EXTERN void png_write_tIME PNGARG((png_structp png_ptr,
 #endif
 
 #if defined(PNG_WRITE_sCAL_SUPPORTED)
-#ifdef PNG_FLOATING_POINT_SUPPORTED
+#if defined(PNG_FLOATING_POINT_SUPPORTED) && !defined(PNG_NO_STDIO)
 PNG_EXTERN void png_write_sCAL PNGARG((png_structp png_ptr,
    int unit, double width, double height));
 #else

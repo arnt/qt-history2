@@ -622,7 +622,7 @@ png_set_rgb_to_gray_fixed(png_structp png_ptr, int error_action,
 #endif
    {
       png_uint_16 red_int, green_int;
-      if(red > 0 && green > 0)
+      if(red < 0 || green < 0)
       {
          red_int   =  6968; /* .212671 * 32768 + .5 */
          green_int = 23434; /* .715160 * 32768 + .5 */

@@ -2712,30 +2712,24 @@ When you are done, you can free all memory used by libpng like this:
 It is also possible to individually free the info_ptr members that
 point to libpng-allocated storage with the following functions:
 
-    png_free_text(png_ptr, info_ptr, num)
-    num          - number of text item to be freed (-1 for all items)
-
-    png_free_hIST(png_ptr, info_ptr)
-
-    png_free_iCCP(png_ptr, info_ptr)
-
-    png_free_pCAL(png_ptr, info_ptr)
-
-    png_free_sCAL(png_ptr, info_ptr)
-
-    png_free_sPLT(png_ptr, info_ptr, num)
-    num          - number of suggested-paletted entry to be freed
-                   (-1 for all suggested palettes)
-
-    png_free_pixels(png_ptr, info_ptr)
-
-    png_free_unknown_chunk(png_ptr, info_ptr, num)
-    num          - number of unknown chunk entry to be freed
-                   (-1 for all suggested palettes)
+    png_free_data(png_ptr, info_ptr, mask, n)
+    mask         - identifies data to be freed, a mask
+                   made up by the OR one or more of
+                   PNG_FREE_PLTE, PNG_FREE_TRNS,
+                   PNG_FREE_HIST, PNG_FREE_ICCP,
+                   PNG_FREE_SPLT, PNG_FREE_ROWS,
+                   PNG_FREE_PCAL, PNG_FREE_SCAL,
+                   PNG_FREE_TEXT, PNG_FREE_UNKN,
+                   or simply PNG_FREE_ALL
+    n            - sequence number of item to be freed
+                   (-1 for all items)
 
 These functions may be safely called when the relevant storage has
 already been freed, or has not yet been allocated, and will in that
-case do nothing.
+case do nothing.  The "n" parameter is ignored if only one item
+of the selected data type, such as PLTE, is allowed.  If "n" is not
+-1, and multiple items are allowed for the data type identified in
+the mask, such as text or splt, only the n'th item is freed.
 
 If you allocated data such as a palette that you passed in to libpng with
 png_set_*, you must not free it until just before the call to

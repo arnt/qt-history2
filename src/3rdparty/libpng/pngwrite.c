@@ -165,13 +165,16 @@ png_write_info(png_structp png_ptr, png_infop info_ptr)
 #endif
 #if defined(PNG_WRITE_sCAL_SUPPORTED)
    if (info_ptr->valid & PNG_INFO_sCAL)
-#ifdef PNG_FLOATING_POINT_SUPPORTED
+#if defined(PNG_FLOATING_POINT_SUPPORTED) && !defined(PNG_NO_STDIO)
       png_write_sCAL(png_ptr, (int)info_ptr->scal_unit,
           info_ptr->scal_pixel_width, info_ptr->scal_pixel_height);
 #else
 #ifdef PNG_FIXED_POINT_SUPPORTED
       png_write_sCAL_s(png_ptr, (int)info_ptr->scal_unit,
           info_ptr->scal_s_width, info_ptr->scal_s_height);
+#else
+      png_warning(png_ptr,
+          "png_write_sCAL not supported; sCAL chunk not written.\n");
 #endif
 #endif
 #endif
