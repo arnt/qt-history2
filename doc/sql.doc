@@ -50,6 +50,15 @@
 /*! \example sql/overview/table2/main.cpp */
 /*! \example sql/overview/form1/main.cpp */
 /*! \example sql/overview/form2/main.h */
+/*! \example sql/overview/custom1/main.h */
+/*! \example sql/overview/custom1/main.cpp */
+/*! \example sql/overview/subclass1/main.cpp */
+/*! \example sql/overview/subclass2/main.h */
+/*! \example sql/overview/subclass2/main.cpp */
+/*! \example sql/overview/subclass3/main.h */
+/*! \example sql/overview/subclass3/main.cpp */
+/*! \example sql/overview/subclass4/main.h */
+/*! \example sql/overview/subclass4/main.cpp */
 
 /*! \page sql.html
 
@@ -95,6 +104,7 @@ Executing SQL Commands Using QSqlQuery</a></li>
 	</ul>
     <li><a href="#Custom_Editor_Widgets">Custom Editor Widgets</a></li> 
     </ul>
+<li><a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a></li> 
 <li><a href="#Appendix_1_Tables">Appendix 1: The Example Tables</a></li> 
 </ul>
 
@@ -133,7 +143,7 @@ QSqlCursor class which composes SQL commands automatically.
 level bridge between the database and the SQL classes. This layer is
 documented separately since it is only relevant to driver writers.
 
-This overview comprises four sections:
+This overview comprises five sections:
 
 <a href="#Connecting_to_Databases">Connecting to Databases</a>. 
 This section explains how to set up database connections using the \l
@@ -158,6 +168,12 @@ classes. Also covered are custom data-aware widgets and the \l
 QSqlEditorFactory class. <em>Qt Designer</em> provides an easy visual
 way of achieving the same thing.  See the <em>Qt Designer</em> manual
 for more information.
+
+<a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
+section gives examples of subclassing QSqlCursor. Subclassing can be
+used to provide default and calculated values for fields, and to
+display calculated data, e.g. showing names rather than ids of foreign
+keys.
 
 <h1><a name="Connecting_to_Databases">Connecting to Databases</a></h1> 
 
@@ -352,7 +368,7 @@ Tip: The \l lastQuery() function returns the text of the last query
 executed. This can be useful to check that the query you think is being
 executed is the one actually being executed.
 
-<h1><a name="Using_QSqlCursor">Using Cursors</a></h1> 
+<h1><a name="Using_QSqlCursor">Using QSqlCursor</a></h1> 
 
 The \l QSqlCursor class provides a high level interface to browsing and
 editing records in SQL database tables or views without the need to
@@ -378,6 +394,11 @@ above. For the examples that follow we will assume that the
 connections have been created using the create_connections() function
 defined in the <a href="#create_connections">QSqlDatabase example</a>
 presented earlier.
+
+In the <a href="#Data-Aware_Widgets">data-aware widgets</a> section that
+follows this one we show how to link widgets to database cursors. Once
+we have a knowledge of both cursors and data-aware widgets we can
+discuss <a href="#Subclassing_QSqlCursor">subclassing QSqlCursor</a>.
 
 The \l QSqlCursor class requires the \c qsqlcursor.h header file.
 
@@ -871,6 +892,128 @@ The behaviour of this example is identical to the previous one except
 that the forename and surname fields will be uppercase since they use
 our CustomEdit widget.
 
+<h2><a name="Subclassing_QSqlCursor">Subclassing QSqlCursor</a></h2>
+
+\dontinclude sql/overview/subclass1/main.cpp
+\skip include
+\line include
+\until return 1
+\line
+<h5 align="center">From \l sql/overview/subclass1/main.cpp
+</h5>
+
+This example is very similar to the table1 example presented earlier. We
+create a cursor, set up the display characteristics, add the fields to a
+QSqlTable, call refresh() to load the data and call show() to show the
+widget.
+
+Unfortunately this example is unsatisfactory. It is tedious to set the
+table name and display characteristics for the fields every time we need
+a cursor over this table. And it would be far better if we displayed the
+name of the product rather than its pricesid. Since we know the price of
+the product and the quantity we could also show the product cost and the
+cost of each invoiceitem. Finally it would be good if we could default
+some of the values when the user adds a new record. 
+
+\dontinclude sql/overview/subclass2/main.h
+\skip InvoiceItem
+\line InvoiceItem
+\until };
+\line
+<h5 align="center">From \l sql/overview/subclass2/main.h
+</h5>
+
+We have created a separate header file and subclassed QSqlCursor.
+
+\dontinclude sql/overview/subclass2/main.cpp
+\skip InvoiceItem
+\line InvoiceItem
+\until }
+<h5 align="center">From \l sql/overview/subclass2/main.cpp
+</h5>
+
+In our class's constructor we call the QSqlCursor constructor with the
+name of the table and set the display characteristics of the fields. 
+
+\skip InvoiceItemCursor
+\line InvoiceItemCursor
+
+Whenever we require a cursor over the invoiceitem table we can create an
+InvoiceItemCursor instead of a generic QSqlCursor. 
+
+This has taken care of the display characteristics, but we still need to
+show the product name rather than the pricesid.
+
+\dontinclude sql/overview/subclass3/main.h
+\skip protected
+\line protected
+\line
+<h5 align="center">From \l sql/overview/subclass3/main.h
+</h5>
+
+The change in the header file is minimal: we simply add the signature of
+the calculateField() function since we will be overriding it.
+
+\dontinclude sql/overview/subclass3/main.cpp
+\skip InvoiceItem
+\line InvoiceItem
+\until return QVariant
+\line
+<h5 align="center">From \l sql/overview/subclass3/main.cpp
+</h5>
+
+We have changed the InvoiceItemCursor constructor. We no longer set a
+display label for the pricesid since we won't actually show that field.
+Instead we create a new QSqlField called productname and append this to the
+InvoiceItemCursor's set of fields. We call setDisplayLabel() on
+productname and identify it as a calculated field by calling
+setCalculated(). The first argument to setCalculated() is the field
+name, the second a bool which if TRUE signifies that calculateField()
+must be called to get the field's value.
+
+We have to define our own calculateField() function. In our example
+database the pricesid in the invoiceitem table is a foreign key into the
+prices table. We find the name of the product by executing a query on
+the prices table using the pricesid. This returns the product's name.
+
+We are now able to extend the example to include calculated fields which
+perform real calculations.
+
+The header file, \l sql/overview/subclass4/main.h, remains unchanged
+from the previous example, but the constructor and calculateField()
+function require some simple expansion. We'll look at each in turn
+
+\dontinclude sql/overview/subclass4/main.cpp
+\skip InvoiceItem
+\line InvoiceItem
+\until }
+<h5 align="center">From \l sql/overview/subclass4/main.cpp
+</h5>
+
+We create two extra fields, price and cost, and append them to the
+cursor's set of fields. Both have their display labels and alignment set
+and both are registered as calculated fields with calls to
+setCalculated().
+
+\skip InvoiceItem
+\line InvoiceItem
+\until QString::null
+\line
+<h5 align="center">From \l sql/overview/subclass4/main.cpp
+</h5>
+
+The calculateField() function has expanded slightly because now we must
+calculate the value of three different fields. The productname and price
+fields are produced by looking up the corresponding values in the prices
+table keyed by pricesid. The cost field is calculated simply by
+multiplying the price by the quantity. Note that we cast the cost to a
+QVariant since that is the type that calculateField() must return.
+
+We've written three separate queries rather than one to make the example
+more like a real application where it is more likely that each
+calculated field would be a lookup against a different table or view.
+
+
 <h2><a name="Appendix_1_Tables">Appendix 1: The Example Tables</a></h2> 
 
 The example tables used can be recreated with the following standard SQL.
@@ -887,6 +1030,11 @@ create table creditors (id integer primary key, forename char(40),
 			surname char(40), city char(30));
 
 create table prices (id integer primary key, name char(40), price float);
+
+create table invoiceitem (id integer primary key, 
+			  pricesid integer, quantity integer,
+			  paiddate date);
+
 \endcode
 
 */
