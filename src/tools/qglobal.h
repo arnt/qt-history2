@@ -1186,6 +1186,15 @@ inline T qt_cast(const QObject *object)
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
+class QFlagInternal
+{
+public:
+    QFlagInternal(int i) : i(i) {}
+    operator int() const { return i; }
+private:
+    int i;
+};
+
 template<typename Enum>
 class QFlags
 {
@@ -1194,14 +1203,24 @@ public:
     inline QFlags(const QFlags &f) : u(f.u) {}
     inline QFlags(Enum f) : u(f) {}
     inline QFlags(Zero * = 0) : u(0) {}
+    inline QFlags(QFlagInternal i) : u(i) {}
 
+    inline operator QFlagInternal() const { return u; }
     inline QFlags &operator=(const QFlags &f) { u = f.u; return *this; }
-    inline operator int() const { return u; }
+    inline operator Zero*() const { return reinterpret_cast<Zero*>(u ? 0x1:0x0); }
+    inline bool operator!() const { return !u; }
     inline QFlags operator|(QFlags f) const { QFlags wf; wf.u = u|f.u; return wf; }
     inline QFlags operator|(Enum f) const { QFlags wf; wf.u = u|f; return wf; }
-    inline QFlags operator&(int mask) const { QFlags wf; wf.u = u&mask; return wf; }
+//    inline QFlags operator&(int mask) const { QFlags wf; wf.u = u&mask; return wf; }
+    inline QFlags operator&(uint mask) const { QFlags wf; wf.u = u&mask; return wf; }
+    inline QFlags operator&(QFlags f) const { QFlags wf; wf.u = u&f.u; return wf; }
+    inline QFlags operator&(Enum f) const { QFlags wf; wf.u = u&f; return wf; }
+    inline QFlags operator~() const { QFlags wf; wf.u = ~u; return wf; }
+
 
     inline QFlags &operator&=(int mask) {  u &= mask; return *this; }
+    inline QFlags &operator&=(QFlags f) {  u &= f.u; return *this; }
+    inline QFlags &operator&=(Enum f) {  u &= f; return *this; }
     inline QFlags &operator|=(QFlags f) {  u |= f.u; return *this; }
     inline QFlags &operator|=(Enum f) {  u |= f; return *this; }
 

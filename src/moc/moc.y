@@ -2427,10 +2427,14 @@ void generateMetacall()
 		    fprintf(out, "        case %d: _o[0] = (void*)&%s(); break;\n",
 			    propindex,
 			    (const char *)p->read);
-		else
+		else if (isVariantType(p->type))
 		    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
 			    propindex,
-			    !isVariantType(p->type) ? "int" : (const char *)p->type,
+			    (const char *)p->type,
+			    (const char *)p->read);
+		else
+		    fprintf(out, "        case %d: *(int*)_v = (QFlagInternal)%s(); break;\n",
+			    propindex,
 			    (const char *)p->read);
 	    }
 	    fprintf(out,
@@ -2448,7 +2452,13 @@ void generateMetacall()
 	    int propindex = -1;
 	    for (p = g->props.first(); p; p = g->props.next()) {
 		++propindex;
-		if (!p->write.isEmpty()) {
+		if (p->write.isEmpty())
+		    continue;
+		if (isSetType(p->type)) {
+		    fprintf(out, "        case %d: %s(QFlagInternal(*(int*)_v)); break;\n",
+			    propindex,
+			    (const char *)p->write );
+		} else {
 		    fprintf(out, "        case %d: %s(*(%s*)_v); break;\n",
 			    propindex,
 			    (const char *)p->write,
