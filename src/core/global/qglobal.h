@@ -646,9 +646,7 @@ typedef int QNoImplicitBoolCast;
 #  endif
 #  if defined(Q_MOC_RUN)
 #    define QT_COMPAT QT_COMPAT
-#  elif (defined(Q_CC_GNU) \
-         && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))) \
-    || (defined(Q_CC_INTEL) && (__INTEL_COMPILER - 0 == 800))
+#  elif defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
 #    define QT_COMPAT __attribute__ ((__deprecated__))
 #  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
 #    define QT_COMPAT __declspec(deprecated)
@@ -682,9 +680,7 @@ typedef int QNoImplicitBoolCast;
 #if defined(QT_DEPRECATED_WARNINGS)
 #  if defined(Q_MOC_RUN)
 #    define QT_DEPRECATED QT_DEPRECATED
-#  elif (defined(Q_CC_GNU) \
-         && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))) \
-    || (defined(Q_CC_INTEL) && (__INTEL_COMPILER - 0 == 800))
+#  elif defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
 #    define QT_DEPRECATED __attribute__ ((__deprecated__))
 #  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
 #    define QT_DEPRECATED __declspec(deprecated)
