@@ -1665,12 +1665,12 @@ void QString::truncate( uint newLen )
     we're fairly sure that size is big enough:
     \code
 	QString result;
-	int resultLength = 0;
-	result.setLength( newLen ); // allocate some space
+	int len = 0;
+	result.setLength( maxLen );     // allocate some space
 	while ( ... ) {
-	    result[resultLength++] = ... // fill (part of) the space with data
+	    result[len++] = ...         // fill part of the space
 	}
-	result.truncate[resultLength]; // and get rid of the undefined junk
+	result.truncate( len );         // and get rid of the rest
     \endcode
 
     If \a newLen is an underestimate, the worst that will happen is
