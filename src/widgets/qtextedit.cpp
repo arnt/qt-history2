@@ -3768,6 +3768,7 @@ void QTextEdit::setWrapPolicy( WrapPolicy policy )
 {
     if ( wPolicy == policy )
 	return;
+    wPolicy = policy;
     QTextFormatter *formatter;
     if ( policy == AtWhiteSpace )
 	formatter = new QTextFormatterBreakWords;
