@@ -1043,9 +1043,6 @@ bool QPainter::begin(QPaintDevice *pd)
 
     // Slip a painter state into the engine before we do any other operations
     d->engine->state = d->state;
-    d->engine->setDirty(QPaintEngine::AllDirty);
-    d->engine->clearDirty(QPaintEngine::DirtyClip);
-    d->engine->clearDirty(QPaintEngine::DirtyClipPath);
 
     if (!d->engine->begin(pd)) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");

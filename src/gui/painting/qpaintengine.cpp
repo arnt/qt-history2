@@ -540,7 +540,6 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 
 
     if (testDirty(DirtyClipPath)) {
-        // Q_ASSERT(hasFeature(PainterPaths)); ### AllDirty should never be used (says gunnar)
         if (hasFeature(ClipTransform)) {
             updateClipPath(s->tmpClipPath, s->tmpClipOp);
         } else {

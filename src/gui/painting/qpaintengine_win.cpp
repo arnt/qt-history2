@@ -364,11 +364,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     Q_ASSERT(d->hdc);
 
     QRegion *region = paintEventClipRegion;
-    QRect r = region ? region->boundingRect() : QRect();
-    if (region)
+    if (region && pdev == paintEventDevice)
         SelectClipRgn(d->hdc, region->handle());
-//     else
-//         SelectClipRgn(d->hdc, 0);
 
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
@@ -377,15 +374,17 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     }
 
     // ### Workaround for the ellipse problem below...
-    updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
-    updateMatrix(QMatrix());
+//     updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
+//     updateMatrix(QMatrix());
 
     SetBkMode(d->hdc, TRANSPARENT);
-//     SetBkColor(d->hdc, RGB(191, 191, 191));
     SetTextAlign(d->hdc, TA_BASELINE);
     SetTextColor(d->hdc, RGB(0, 0, 0));
-//     SelectObject(d->hdc, stock_nullBrush);
-//     SelectObject(d->hdc, stock_blackPen);
+    SelectObject(d->hdc, stock_nullBrush);
+    SelectObject(d->hdc, stock_blackPen);
+
+    setDirty(DirtyBackground);
+
     return true;
 }
 
@@ -449,6 +448,8 @@ bool QWin32PaintEngine::end()
     } else {
         d->pdev->releaseDC(d->hdc);
     }
+
+    SelectClipRgn(d->hdc, 0);
 
     d->hdc = 0;
 
@@ -950,7 +951,9 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int 
 void QWin32PaintEngine::updatePen(const QPen &pen)
 {
 #ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::updatePen(), style=%d, color=%p\n", pen.style(), pen.color().rgb());
+    static int counter = 0;
+    printf(" - QWin32PaintEngine::updatePen(), style=%d, color=%p, calls=%d\n",
+           pen.style(), pen.color().rgb(), ++counter);
 #endif
     d->pen = pen;
     d->penStyle = pen.style();
@@ -1047,7 +1050,9 @@ set:
 void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
 {
 #ifdef QT_DEBUG_DRAW
-    printf(" - QWin32PaintEngine::updateBrush(), style=%d, color=%p\n", brush.style(), brush.color().rgb());
+    static int counter = 0;
+    printf(" - QWin32PaintEngine::updateBrush(), style=%d, color=%p, calls=%d\n",
+           brush.style(), brush.color().rgb(), ++counter);
 #endif
     d->brush = brush;
     d->brushStyle = brush.style();
