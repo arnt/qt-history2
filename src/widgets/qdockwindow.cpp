@@ -1031,6 +1031,8 @@ void QDockWindow::init()
 /*!
     Sets the orientation of the dock window to \a o. The orientation
     is propagated to the layout boxLayout().
+
+    \warning All undocked QToolBars will always have a horizontal orientation.
 */
 
 void QDockWindow::setOrientation( Orientation o )
