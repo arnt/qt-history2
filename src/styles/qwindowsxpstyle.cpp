@@ -642,13 +642,15 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	partId = SP_PANE;
 	break;
 
-    case PE_PanelGroupBox:
-	name = "BUTTON";
-	partId = BP_GROUPBOX;
-	if ( !(flags & Style_Enabled) )
-	    stateId = GBS_DISABLED;
-	else
-	    stateId = GBS_NORMAL;
+    case PE_GroupBoxFrame:
+	if ( opt.frameShape() == QFrame::Box ) {
+	    name = "BUTTON";
+	    partId = BP_GROUPBOX;
+	    if ( !(flags & Style_Enabled) )
+		stateId = GBS_DISABLED;
+	    else
+		stateId = GBS_NORMAL;
+	}
 	break;
 
     case PE_SizeGrip:
