@@ -3,22 +3,23 @@
   \title Play Tetrix!
 
 \raw html
-<SCRIPT LANGUAGE=vbscript>
-Sub QTetrax_gameOver()
-    MsgBox( "GameOver!" )
-End Sub
-</SCRIPT>
-
 <object ID="QTetrax" width=550 height=370
     CLASSID="CLSID:852558AD-CBD6-4f07-844C-D1E8983CD6FC">
     <PARAM NAME="score" VALUE="0">
 [Object not available! Did you forget to build and register the server?] 
 </object>
 
-<FORM>
-    <INPUT TYPE="button" VALUE="Start Game..."
+<form>
+    <input type="button" value="Start Game..."
 	onClick="QTetrax.startGame()">
-</FORM>
+</form>
+
+<SCRIPT LANGUAGE=JavaScript>
+function QTetrax::gameOver()
+{
+    alert( "GameOver!" );
+}
+</SCRIPT>
 \endraw
 */
 
@@ -49,7 +50,7 @@ End Sub
   \printto int main
   The \c main entry point method instantiates a QApplication object, and
   creates the GUI only if the program is not running as an ActiveX server (ie.
-  the program has been started by the user rather than by COM). 
+  the program has been started by the user, not by COM). 
   \printto a.exec
   The server enters the application event loop, and destroys the GUI before exiting.
   \printuntil }
@@ -65,5 +66,13 @@ End Sub
 
   \quotefile tetrax/tetrax.doc
   \skipuntil raw html
+  The "Tetrix" control is embedded using the \c <object> tag. Note that the
+  dimensions of the control are provided explicitely, as the control itself
+  does not use Qt's layout engine.
+  \printuntil </object>
+  An HTML button is added to start the game.
+  \printuntil </form>
+  And an event handler for the \c gameOver() event is implemented in JavaScript
+  to display a simple message box.
   \printto endraw
 */

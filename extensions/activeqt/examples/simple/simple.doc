@@ -3,20 +3,6 @@
   \title A standard ActiveX and the "simple" ActiveQt widget.
 
 \raw html
-<SCRIPT LANGUAGE=VBScript>
-Sub Calendar_Click()
-    MsgBox( "Calendar Clicked!" )
-End Sub
-
-Sub QSimpleAX_TextChanged( str )
-    document.title = str
-End Sub
-
-Sub QSimpleAX_ValueChanged( Newvalue )
-    Calendar.Day = Newvalue
-End Sub
-</SCRIPT>
-
 <object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
     <PARAM NAME="text" VALUE="A simple control">
     <PARAM NAME="value" VALUE="1">
@@ -35,6 +21,23 @@ End Sub
 <FORM>
     <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
 </FORM>
+
+<SCRIPT LANGUAGE=VBScript>
+Sub Calendar_Click()
+    MsgBox( "Calendar Clicked!" )
+End Sub
+
+Sub QSimpleAX_TextChanged( str )
+    document.title = str
+End Sub
+</SCRIPT>
+
+<SCRIPT LANGUAGE=JavaScript>
+function QSimpleAX::ValueChanged( Newvalue )
+{
+    Calendar.Day = Newvalue;
+}
+</SCRIPT>
 \endraw
 */
 
@@ -78,7 +81,7 @@ End Sub
   WebBrowser to support ActiveX controls, and scripting to be enabled.
 
   The simple ActiveX control is embedded using the \c <object> tag.
-   \quotefile simple/simple.doc
+  \quotefile simple/simple.doc
   \skipto <object ID
   \printuntil </object>
 
@@ -89,8 +92,9 @@ End Sub
   \skipto <object ID
   \printuntil </object>
 
-  Events from the ActiveX controls are handled using Visual Basic Script.
-  \quotefile simple/simple.doc
+  Events from the ActiveX controls are handled using both Visual Basic Script
+  and JavaScript.
   \skipto VBScript
-  \printuntil </SCRIPT
+  \printuntil </SCRIPT>
+  \printuntil </SCRIPT>
 */
