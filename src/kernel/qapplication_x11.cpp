@@ -48,6 +48,7 @@
 #endif
 #include "qapplication.h"
 #include "qapplication_p.h"
+#include "qcolor_p.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
 #include "qobjectlist.h"
@@ -377,7 +378,6 @@ extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
-void		qt_reset_color_avail();		// defined in qcolor_x11.cpp
 
 int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;

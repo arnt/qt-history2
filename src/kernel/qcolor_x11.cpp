@@ -36,9 +36,11 @@
 **********************************************************************/
 
 #include "qcolor.h"
+#include "qcolor_p.h"
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qt_x11.h"
 
 // NOT REVISED
@@ -81,8 +83,6 @@ static bool	color_reduce = FALSE;
 static int	col_div_r;
 static int	col_div_g;
 static int	col_div_b;
-
-extern int	qt_ncols_option;		// qapplication_x11.cpp
 
 
 /*

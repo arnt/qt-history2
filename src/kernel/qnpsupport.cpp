@@ -36,13 +36,13 @@
 **********************************************************************/
 
 #include "qapplication.h"
+#include "qcolor_p.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <limits.h>
 
-void		qt_reset_color_avail();	      // in qcolor_x11.cpp
 int		qt_activate_timers();	      // in qapplication_x11.cpp
 timeval	       *qt_wait_timer();	      // in qapplication_x11.cpp
 

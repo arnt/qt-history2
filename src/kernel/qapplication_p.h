@@ -44,8 +44,9 @@
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of qapplication_*.cpp, qwidget*.cpp and qfiledialog.cpp.  This header
-// file may change from version to version without notice, or even be removed.
+// of qapplication_*.cpp, qwidget*.cpp, qcolor_x11.cpp, qfiledialog.cpp
+// and many other.  This header file may change from version to version
+// without notice, or even be removed.
 //
 // We mean it.
 //
@@ -60,6 +61,10 @@ extern bool qt_is_gui_used;
 
 #if defined (_OS_WIN32_)
 extern Qt::WindowsVersion qt_winver;
+#endif
+
+#if defined (_WS_X11_)
+extern int qt_ncols_option;
 #endif
 
 #endif

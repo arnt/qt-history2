@@ -55,5 +55,6 @@
 
 
 extern uint qt_get_rgb_val( const char *name );
+extern void qt_reset_color_avail();
 
 #endif
