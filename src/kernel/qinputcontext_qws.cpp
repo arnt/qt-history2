@@ -3,9 +3,7 @@
 **
 ** Implementation of QInputContext class
 **
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
-**
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -13,8 +11,8 @@
 ** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.
+** licenses for Qt/Embedded may use this file in accordance with the
+** Qt Embedded Commercial License Agreement provided with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -27,6 +25,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "qinputcontext_p.h"
 #include "qstring.h"
 #include "qwindowsystem_qws.h"
