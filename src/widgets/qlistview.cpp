@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#282 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#283 $
 **
 ** Implementation of QListView widget class
 **
@@ -227,13 +227,15 @@ struct QListViewPrivate
     }
   \endcode
 
-  (No iterator class is provided for QListViewItem, as a simple
-  iterator does not adequately express the choices QListViewItem
-  necessitates: Would <code>++it</code> mean "next sibling", "child if
-  any, else next sibling", "child if this object is open and has
-  children, else next subling" or any of a few other possible
-  meanings?)
-
+  Also there is now an interator class to traverse a tree of list view items.
+  To iterate over all items of a list view, do:
+  
+  \code
+    QListViewItemIterator it( listview );
+    for ( ; it.current(); ++it )
+      do_something_with_the_item( it.current() );
+  \endcode
+  
   Note that the order of the children will change when the sorting
   order changes, and is undefined if the items are not visible.  You
   can however call enforceSortOrder() at any time, and QListView will
@@ -4264,6 +4266,11 @@ void QListView::takeItem( QListViewItem * i )
   QListView* or a QListViewItem* as argument, to operate on the tree
   of QListViewItems.
 
+  A QListViewItemIterator iterates over all items of a listview. This means ++it makes always
+  the first child of the current item the new current one. If there is no child, the next sibling 
+  gets the new current item, and if there is no next sibling, the next sibling of the parent is
+  set to current.
+  
   Example:
 
   Often you want to get all items, which were selected by a user. Here is
