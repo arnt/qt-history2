@@ -955,21 +955,42 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 }
 
 /*!
-  Moves the cursor leftwards one or more characters.
-  \sa cursorRight()
+  \obsolete 
+  For compatibilty with older applications only. Use cursorForward
+  instead.
+  \sa cursorForward()
 */
+void QLineEdit::cursorRight( bool mark, int steps )
+{
+    cursorForward( mark, steps );
+}
 
+/*!
+  \obsolete 
+  For compatibilty with older applications only. Use cursorBack
+  instead.
+  \sa cursorBackward()
+*/
 void QLineEdit::cursorLeft( bool mark, int steps )
+{
+    cursorForward( mark, -steps );
+}
+
+/*!
+  Moves the cursor back one or more characters.
+  \sa cursorForward()
+*/
+void QLineEdit::cursorBackward( bool mark, int steps )
 {
     cursorRight( mark, -steps );
 }
 
 /*!
-  Moves the cursor rightwards one or more characters.
-  \sa cursorLeft()
+  Moves the cursor forward one or more characters.
+  \sa cursorBackward()
 */
 
-void QLineEdit::cursorRight( bool mark, int steps )
+void QLineEdit::cursorForward( bool mark, int steps )
 {
     if( steps > 0 )
 	while( steps-- )
@@ -1465,12 +1486,12 @@ void QLineEdit::insert( const QString &newText )
 
   Obsolete and provided for backwards compatibilty only.
 */
-
+#ifndef QT_NO_COMPAT
 void QLineEdit::repaintArea( int, int )
 {
     repaint( FALSE );
 }
-
+#endif
 
 /*!  \reimp */
 
