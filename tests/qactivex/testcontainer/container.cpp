@@ -110,7 +110,7 @@ public:
 
 
     QTestContainer( const QString &control )
-	: QObject( 0, "Test Container" )
+	: QObject( 0, "Test Container" ), exceptionCalled(FALSE), exceptionCode(0)
     {
 	object = new QAxObject( control, this, "Test Control" );
 	Q_ASSERT( !object->isNull() );
@@ -391,6 +391,13 @@ public:
 	emit betaPointerSlot( m_beta );
 	VERIFY_EQUAL( object->property( "beta" ), m_beta );
 */
+	connect( object, SIGNAL(exception(int, const QString&, const QString&, const QString&)), 
+		 this, SLOT(exception(int, const QString&, const QString&, const QString&)) );
+	object->dynamicCall( "throwException( int, const QString&, const QString&, const QString& )", 5, "QTestControl", "It's all your fault!", "c:\\test.hlp [22]" );
+	Q_ASSERT( exceptionCalled );
+	Q_ASSERT( exceptionSrc == "QTestControl" );
+	Q_ASSERT( exceptionDesc == "It's all your fault!" );
+	Q_ASSERT( exceptionContext == "c:\\test.hlp [22]" );
 	
 	qDebug( "\nFunctional test of %s finished with %d errors after %dms\n", object->control().latin1(), errorcount, runtimer.elapsed() );
 	return errorcount;
@@ -625,6 +632,16 @@ public slots:
     void longnumberChanged( long longnumber ) { m_longnumber = longnumber; }
     void longnumberRefSignal( long &longnumber ) { longnumber = m_longnumber; }
 */
+
+    void exception( int c, const QString &src, const QString &desc, const QString &context )
+    {
+	exceptionCalled = TRUE;
+	exceptionCode = c;
+	exceptionSrc = src;
+	exceptionDesc = desc;
+	exceptionContext= context;
+    }
+
 signals:
     void setUnicodeSlot( const QString &string );
     void getAndSetUnicodeSlot( QString &string );
@@ -670,6 +687,12 @@ private:
     short m_shortnumber;
     long m_longnumber;  
 */
+
+    bool exceptionCalled;
+    int exceptionCode;
+    QString exceptionSrc;
+    QString exceptionDesc;
+    QString exceptionContext;
 };
 
 #include "container.moc"
