@@ -1,3 +1,4 @@
+#if 0
 /****************************************************************************
 **
 ** Definition of internal QPSPrinter class.
@@ -99,3 +100,4 @@ private:
 #endif // QT_NO_PRINTER
 
 #endif // QPSPRINTER_P_H
+#endif // 0

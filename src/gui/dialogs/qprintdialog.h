@@ -1,3 +1,4 @@
+#if 0
 /****************************************************************************
 **
 ** Definition of print dialog.
@@ -75,3 +76,4 @@ private:        // Disabled copy constructor and operator=
 #endif
 
 #endif // QPRINTDIALOG_H
+#endif // 0

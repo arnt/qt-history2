@@ -2,11 +2,13 @@
 #define QDIALOGPRIVATE_P_H
 
 #include <private/qwidget_p.h>
+#include <qdialog.h>
 
 class QPushButton;
 class QSizeGrip;
 
-class QDialogPrivate : public QWidgetPrivate
+// ### Don't export dialog private when printing has been ported into main...
+class Q_GUI_EXPORT QDialogPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QDialog)
 public:

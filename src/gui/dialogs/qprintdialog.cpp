@@ -1,3 +1,4 @@
+#if 0
 /****************************************************************************
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
@@ -1683,3 +1684,4 @@ void QPrintDialog::fileNameEditChanged(const QString &text)
 
 #include "qprintdialog.moc"
 #endif
+#endif // 0

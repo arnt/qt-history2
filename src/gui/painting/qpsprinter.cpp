@@ -1,3 +1,4 @@
+#if 0
 /****************************************************************************
 **
 ** Implementation of QPSPrinter class.
@@ -5932,3 +5933,4 @@ void QPSPrinter::abort()
 }
 
 #endif // QT_NO_PRINTER
+#endif // 0
