@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#2 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -70,7 +70,7 @@ __END__
 */
 
 static const int n_unicode_to_koi8_25 = 161;
-static const char unicode_to_koi8_25[161] = {
+static const uchar unicode_to_koi8_25[161] = {
 	0x80,0xa4,0x81,0xa4,0xa4,0xa4,0xa4,0xa4,
 	0xa4,0xa4,0xa4,0xa4,0x82,0xa4,0xa4,0xa4,
 	0x83,0xa4,0xa4,0xa4,0x84,0xa4,0xa4,0xa4,
