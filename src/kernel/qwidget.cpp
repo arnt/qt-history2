@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#26 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#26 $";
 #endif
 
 
@@ -363,8 +363,8 @@ bool QWidget::event( QEvent *e )		// receive event
 	    QKeyEvent *k = (QKeyEvent*)e;
 	    keyPressEvent( k );
 #if defined(_WS_X11_)
-	    if ( !k->isAccepted() && parentObj )// child didn't want it, then
-		return parentObj->event( e );	//   pass event to parent
+	    if ( !k->isAccepted() && !testFlag(WType_Overlap) && parentObj )
+		return parentObj->event( e );	// pass event to parent
 #endif
 	    }
 	    break;
@@ -373,8 +373,8 @@ bool QWidget::event( QEvent *e )		// receive event
 	    QKeyEvent *k = (QKeyEvent*)e;
 	    keyReleaseEvent( k );
 #if defined(_WS_X11_)
-	    if ( !k->isAccepted() && parentObj )// child didn't want it, then
-		return parentObj->event( e );	//   pass event to parent
+	    if ( !k->isAccepted() && !testFlag(WType_Overlap) && parentObj )
+		return parentObj->event( e );	// pass event to parent
 #endif
 	    }
 	    break;
