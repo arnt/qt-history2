@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#84 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#85 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -195,7 +195,7 @@ const uint WState_Created	= 0x00000001;	// widget state flags
 const uint WState_Disabled	= 0x00000002;
 const uint WState_Visible	= 0x00000004;
 const uint WState_DoHide	= 0x00000008;
-const uint WState_AcceptFocus	= 0x00000010;
+const uint WState_ClickToFocus	= 0x00000010;
 const uint WState_TrackMouse	= 0x00000020;
 const uint WState_BlockUpdates	= 0x00000040;
 const uint WState_PaintEvent	= 0x00000080;
@@ -228,6 +228,7 @@ const uint WRecreated		= 0x08000000;
 const uint WExportFontMetrics	= 0x10000000;
 const uint WExportFontInfo	= 0x20000000;
 const uint WFocusSet		= 0x40000000;
+const uint WState_TabToFocus	= 0x80000000;
 
 
 // Extra QWidget data
@@ -269,6 +270,5 @@ const int ShowPrefix	= 0x0200;
 const int WordBreak	= 0x0400;
 const int GrayText	= 0x0800;
 const int DontPrint	= 0x1000;		// internal
-
 
 #endif // QWINDEFS_H

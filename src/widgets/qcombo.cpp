@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#61 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#61 $");
 
 
 /*!
@@ -197,7 +197,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->discardNextMousePress = FALSE;
     d->shortClick            = FALSE;
 
-    setAcceptFocus( TRUE );
+    setFocusPolicy( TabFocus );
 }
 
 
@@ -239,7 +239,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->shortClick = FALSE;
 
     if ( style() == MotifStyle )
-	setAcceptFocus( TRUE );
+	setFocusPolicy( TabFocus );
 
     if ( rw ) {
 	d->ed = new QLineEdit( this, "this is not /bin/ed" );

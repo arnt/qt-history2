@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#7 $
 **
 ** Implementation of QSlider class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#7 $");
 
 #define SLIDE_BORDER	2
 #define MOTIF_WIDTH	30
@@ -105,7 +105,7 @@ void QSlider::init()
     sliderPos = 0;
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
-    setAcceptFocus( TRUE );
+    setFocusPolicy( NoFocus );
 }
 
 
@@ -117,7 +117,7 @@ void QSlider::init()
   If tracking is enabled (default), the slider emits the
   valueChanged() signal whenever the slider is being dragged.  If
   tracking is disabled, the slider emits the valueChanged() signal
-  when the user relases the mouse button (unless the value happens to
+  when the user releases the mouse button (unless the value happens to
   be the same as before).
 
   \sa tracking()

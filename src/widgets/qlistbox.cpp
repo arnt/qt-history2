@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#86 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#86 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -385,7 +385,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
 	    setLineWidth( 1 );
     }
-    setAcceptFocus( TRUE );
+    setFocusPolicy( StrongFocus );
     if ( !qlb_maxLenDict )
 	qlb_maxLenDict = new QIntDict<int>;
     ASSERT( qlb_maxLenDict );

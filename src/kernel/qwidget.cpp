@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#149 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#148 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#149 $");
 
 
 /*!
@@ -1242,7 +1242,7 @@ bool QWidget::hasFocus() const
 void QWidget::setFocus()
 {
     if ( testWFlags(WFocusSet) || !(isFocusEnabled() && isEnabled()) )
-	return;					// cannot set focus
+	return;
     setWFlags( WFocusSet );
     QWidget *w;
     bool sameTLW = FALSE;
@@ -1353,7 +1353,7 @@ bool QWidget::focusNextPrevChild( bool next )
 	    return FALSE;
 	if ( it.current()->isWidgetType() ) {
 	    QWidget *w = (QWidget*)it.current();
-	    if ( w->isFocusEnabled() && w->isEnabled() ) {
+	    if ( w->isFocusEnabled() & TabFocus && w->isEnabled() ) {
 		w->setFocus();
 		return TRUE;
 	    }
@@ -1432,21 +1432,28 @@ void QWidget::setCRect( const QRect &r )
   keyReleaseEvent(), isEnabled()
 */
 
-void QWidget::setFocusEnabled( bool enable )
+void QWidget::setFocusPolicy( FocusPolicy policy )
 {
-    if ( enable )
-	setWFlags( WState_AcceptFocus );
+    if ( policy & TabFocus )
+	setWFlags( WState_TabToFocus );
     else
-	clearWFlags( WState_AcceptFocus );
+	clearWFlags( WState_TabToFocus );
+    if ( policy & ClickFocus )
+	setWFlags( WState_ClickToFocus );
+    else
+	clearWFlags( WState_ClickToFocus );
 }
 
 
 void QWidget::setAcceptFocus( bool enable )
 {
-    if ( enable )
-	setWFlags( WState_AcceptFocus );
-    else
-	clearWFlags( WState_AcceptFocus );
+    if ( enable ) {
+	setWFlags( WState_TabToFocus );
+	setWFlags( WState_ClickToFocus );
+    } else {
+	clearWFlags( WState_TabToFocus );
+	clearWFlags( WState_ClickToFocus );
+    }
 }
 
 

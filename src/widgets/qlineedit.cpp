@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#63 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#63 $");
 
 
 /*!
@@ -105,7 +105,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     dragScrolling = FALSE;
     scrollingLeft = FALSE;
     tbuf	  = "";
-    setAcceptFocus( TRUE );
+    setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
 }
 

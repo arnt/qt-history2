@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#100 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#101 $
 **
 ** Definition of QWidget class
 **
@@ -115,10 +115,14 @@ public:
 
   // Keyboard input focus functions
 
+    enum FocusPolicy 
+    { NoFocus = 0, TabFocus = 1, ClickFocus = 2, StrongFocus = 3 };
+
+
     bool	 isActiveWindow() const;
     void	 setActiveWindow();
-    bool	 isFocusEnabled() const;
-    void	 setFocusEnabled( bool );
+    FocusPolicy	 isFocusEnabled() const;
+    void	 setFocusPolicy( FocusPolicy );
     bool	 hasFocus() const;
     void	 setFocus();
     void	 clearFocus();
@@ -351,8 +355,9 @@ inline QFontInfo QWidget::fontInfo() const
 inline bool QWidget::hasMouseTracking() const
 { return testWFlags(WState_TrackMouse); }
 
-inline bool QWidget::isFocusEnabled() const
-{ return testWFlags(WState_AcceptFocus); }
+inline QWidget::FocusPolicy QWidget::isFocusEnabled() const
+{ return (FocusPolicy)((testWFlags(WState_TabToFocus) ? TabFocus : 0)
+		       + (testWFlags(WState_ClickToFocus) ? ClickFocus : 0)); }
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWFlags(WState_BlockUpdates); }
@@ -391,7 +396,7 @@ inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }
 
 inline bool QWidget::acceptFocus() const
-{ return testWFlags(WState_AcceptFocus); }
+{ return testWFlags(WState_ClickToFocus)||testWFlags(WState_TabToFocus); }
 
 inline WFlags QWidget::getWFlags() const
 { return flags; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#61 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#61 $");
 
 
 /*!
@@ -173,7 +173,7 @@ void QScrollBar::init()
     sliderPos	     = 0;
     pressedControl   = NONE;
     clickedAt	     = FALSE;
-    setAcceptFocus( TRUE );
+    setFocusPolicy( NoFocus );
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
 }
