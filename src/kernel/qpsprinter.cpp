@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#80 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1966,7 +1966,7 @@ static struct {
 } postscriptFontNames[] = {
     { "avantgarde", "AvantGarde-Book", 0, 0, 0, 0, 0 },
     { "charter", "CharterBT-Roman", 0, 0, 0, 0, 0 },
-    { "garamond", "Garamond-Regular", 0, 0, 0, 0 },
+    { "garamond", "Garamond-Regular", 0, 0, 0, 0, 0 },
     { "gillsans", "GillSans", 0, 0, 0, 0, 0 },
     { "helvetica",
       "Helvetica", "Helvetica-Oblique",
