@@ -26,56 +26,6 @@
 
 #define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
-class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
-{
-    Q_DECLARE_PUBLIC(QWin32PaintEngine)
-public:
-    QWin32PaintEnginePrivate() :
-        hwnd(0),
-        hdc(0),
-        hpen(0),
-        hfont(0),
-        hbrush(0),
-        hbrushbm(0),
-        holdpal(0),
-        flags(0),
-        penRef(0),
-        brushRef(0),
-        nocolBrush(false),
-        pixmapBrush(false),
-        usesWidgetDC(false),
-        pStyle(Qt::SolidLine),
-        pWidth(0),
-        pColor(0),
-        bColor(0)
-    {
-    }
-
-    HWND hwnd;
-    HDC hdc;
-    HPEN hpen;
-    HFONT hfont;
-    HBRUSH hbrush;
-    HBITMAP hbrushbm;
-    HPALETTE holdpal;
-    uint flags;
-
-    void *penRef;
-    void *brushRef;
-
-    uint nocolBrush:1;
-    uint pixmapBrush:1;
-    uint usesWidgetDC:1;
-
-    Qt::RasterOp rasterOp;
-    Qt::PenStyle pStyle;
-    int pWidth;
-    COLORREF pColor;
-    COLORREF bColor;
-
-    uint fontFlags;
-};
-
 #if defined QT_GDIPLUS_SUPPORT
 class QGdiplusPaintEnginePrivate : public QPaintEnginePrivate
 {
@@ -112,5 +62,73 @@ public:
     uint antiAliasEnabled : 1;
 };
 #endif // QT_GDIPLUS_SUPPORT
+
+class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QWin32PaintEngine)
+public:
+    QWin32PaintEnginePrivate() :
+        hwnd(0),
+        hdc(0),
+        hpen(0),
+        hfont(0),
+        hbrush(0),
+        hbrushbm(0),
+        holdpal(0),
+        flags(0),
+        penRef(0),
+        brushRef(0),
+        nocolBrush(false),
+        pixmapBrush(false),
+        usesWidgetDC(false),
+        pStyle(Qt::SolidLine),
+        pWidth(0),
+        pColor(0),
+        bColor(0),
+        gdiplusInUse(false),
+        gdiplusEngine(0)
+    {
+    }
+
+    HWND hwnd;
+    HDC hdc;
+    HPEN hpen;
+    HFONT hfont;
+    HBRUSH hbrush;
+    HBITMAP hbrushbm;
+    HPALETTE holdpal;
+    uint flags;
+
+    void *penRef;
+    void *brushRef;
+
+    uint nocolBrush:1;
+    uint pixmapBrush:1;
+    uint usesWidgetDC:1;
+
+    Qt::RasterOp rasterOp;
+    Qt::PenStyle pStyle;
+    int pWidth;
+    COLORREF pColor;
+    COLORREF bColor;
+
+    uint fontFlags;
+
+#if defined QT_GDIPLUS_SUPPORT
+    bool usesGdiplus() { return gdiplusInUse && gdiplusEngine; }
+    void beginGdiplus();
+    void endGdiplus();
+    uint gdiplusInUse : 1;
+    QGdiplusPaintEngine *gdiplusEngine;
+#endif
+};
+
+// True if the system supports gdi plus... Hardcode with define for now.
+bool qt_gdiplus_support =
+#if defined QT_GDIPLUS_SUPPORT
+    true;
+#else
+    false;
+#endif
 
 #endif

@@ -34,11 +34,8 @@
 #include <math.h>
 
 // #define NO_NATIVE_XFORM
-
 #define d d_func()
 #define q q_func()
-
-#define MY_DEBUG() printf("%s:%d\n", __FILE__, __LINE__);
 
 static const short qt_rop_codes_pen[] = {
     R2_COPYPEN,        // CopyROP
@@ -374,6 +371,7 @@ QWin32PaintEngine::QWin32PaintEngine(QPaintDevice *target)
 
 QWin32PaintEngine::~QWin32PaintEngine()
 {
+    delete d->gdiplusEngine;
 }
 
 
@@ -441,7 +439,10 @@ bool QWin32PaintEngine::end()
         return false;
     }
 
-//     killPStack();
+    if (d->gdiplusEngine)
+        d->endGdiplus();
+
+    //     killPStack();
 
     if (d->hpen) {
         SelectObject(d->hdc, stock_nullPen);
@@ -505,6 +506,11 @@ void QWin32PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     Q_ASSERT(isActive());
 
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawLine(p1, p2);
+        return;
+    }
+
     int x1 = p1.x(), x2 = p2.x(), y1 = p1.y(), y2 = p2.y();
     bool plot_pixel = false;
     plot_pixel = (d->pWidth == 0) && (d->pStyle == SolidLine);
@@ -560,7 +566,10 @@ void QWin32PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 void QWin32PaintEngine::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
-
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawRect(r);
+        return;
+    }
     int w = r.width(), h = r.height();
 
     if (d->pStyle == NoPen) {
@@ -586,6 +595,10 @@ void QWin32PaintEngine::drawRect(const QRect &r)
 void QWin32PaintEngine::drawPoint(const QPoint &p)
 {
     Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawPoint(p);
+        return;
+    }
 
     if (d->pStyle != NoPen)
 #ifndef Q_OS_TEMP
@@ -598,6 +611,10 @@ void QWin32PaintEngine::drawPoint(const QPoint &p)
 void QWin32PaintEngine::drawPoints(const QPointArray &pts, int index, int npoints)
 {
     Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawPoints(pts, index, npoints);
+        return;
+    }
     QPointArray pa = pts;
     if (d->pStyle != NoPen) {
         for (int i=0; i<npoints; i++) {
@@ -615,6 +632,10 @@ void QWin32PaintEngine::drawPoints(const QPointArray &pts, int index, int npoint
 void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawRoundRect(r, xRnd, yRnd);
+        return;
+    }
 
     if (xRnd <= 0 || yRnd <= 0) {
         drawRect(r);                        // draw normal rectangle
@@ -647,7 +668,11 @@ void QWin32PaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 void QWin32PaintEngine::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
-    // Workaround for Windows GDI
+     if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawEllipse(r);
+        return;
+    }
+   // Workaround for Windows GDI
 //     QPen oldPen = d->cpen;
 //     if (d->cpen == PS_NULL) {
 // //         setPen(d->bColor);
@@ -681,6 +706,10 @@ void QWin32PaintEngine::drawEllipse(const QRect &r)
 void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawArc(r, a, alen);
+        return;
+    }
 
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
@@ -737,6 +766,10 @@ void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
 void QWin32PaintEngine::drawPie(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawPie(r, a, alen);
+        return;
+    }
 
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
@@ -873,6 +906,11 @@ void QWin32PaintEngine::drawLineSegments(const QPointArray &a, int index, int nl
 
 void QWin32PaintEngine::drawPolyline(const QPointArray &a, int index, int npoints)
 {
+    Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawPolyline(a, index, npoints);
+        return;
+    }
     QPointArray pa = a;
     int x1, y1, x2, y2, xsave, ysave;
     pa.point(index+npoints-2, &x1, &y1);        // last line segment
@@ -916,6 +954,12 @@ void QWin32PaintEngine::drawPolyline(const QPointArray &a, int index, int npoint
 
 void QWin32PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
+    Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawPolygon(a, winding, index, npoints);
+        return;
+    }
+
     QPointArray pa = a;
 #ifndef Q_OS_TEMP
     if (winding)                                // set to winding fill mode
@@ -935,6 +979,11 @@ void QWin32PaintEngine::drawPolygon(const QPointArray &a, bool winding, int inde
 
 void QWin32PaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
+    Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawConvexPolygon(pa, index, npoints);
+        return;
+    }
     // Any efficient way?
     drawPolygon(pa,false,index,npoints);
 
@@ -943,8 +992,11 @@ void QWin32PaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int 
 #ifndef QT_NO_BEZIER
 void QWin32PaintEngine::drawCubicBezier(const QPointArray &a, int index)
 {
-    if (!isActive())
+    Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawCubicBezier(a, index);
         return;
+    }
     if ((int)a.size() - index < 4) {
         qWarning("QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
                  "points");
@@ -979,9 +1031,7 @@ void QWin32PaintEngine::cleanup()
 
 void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 {
-    if (!isActive())
-        return;
-
+    Q_ASSERT(isActive());
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
     if (close) {
@@ -995,8 +1045,11 @@ void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 
 void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
 {
-    if (!isActive())
+    Q_ASSERT(isActive());
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
         return;
+    }
 
     QPixmap *pm          = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
@@ -1073,6 +1126,10 @@ HDC QWin32PaintEngine::handle() const
 
 void QWin32PaintEngine::updatePen(QPainterState *state)
 {
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->updatePen(state);
+        return;
+    }
     int old_pix = d->pColor;
     d->pColor = COLOR_VALUE(state->pen.color());
     d->pWidth = state->pen.width();
@@ -1162,6 +1219,10 @@ set:
 
 void QWin32PaintEngine::updateBrush(QPainterState *state)
 {
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->updateBrush(state);
+        return;
+    }
 #ifndef Q_OS_TEMP
     static short d1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
     static short d2_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
@@ -1337,6 +1398,10 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
 
 void QWin32PaintEngine::updateRasterOp(QPainterState *state)
 {
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->updateRasterOp(state);
+        return;
+    }
     Q_ASSERT(isActive());
     SetROP2(d->hdc, qt_rop_codes_pen[state->rasterOp]);
     d->rasterOp = state->rasterOp;
@@ -1345,6 +1410,10 @@ void QWin32PaintEngine::updateRasterOp(QPainterState *state)
 
 void QWin32PaintEngine::updateBackground(QPainterState *state)
 {
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->updateBackground(state);
+        return;
+    }
     Q_ASSERT(isActive());
 
     SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
@@ -1354,6 +1423,10 @@ void QWin32PaintEngine::updateBackground(QPainterState *state)
 
 void QWin32PaintEngine::updateXForm(QPainterState *state)
 {
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->updateXForm(state);
+        return;
+    }
 #ifdef NO_NATIVE_XFORM
     return;
 #endif
@@ -1392,6 +1465,10 @@ void QWin32PaintEngine::updateXForm(QPainterState *state)
 
 void QWin32PaintEngine::updateClipRegion(QPainterState *state)
 {
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->updateClipRegion(state);
+        return;
+    }
     if (state->clipEnabled) {
         QRegion rgn = state->clipRegion;
 
@@ -1409,6 +1486,10 @@ void QWin32PaintEngine::updateClipRegion(QPainterState *state)
 
 void QWin32PaintEngine::updateFont(QPainterState *state)
 {
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->updateFont(state);
+        return;
+    }
     QFont &f = state->font;
     d->hfont = f.handle();
     SelectObject(d->hdc, d->hfont);
@@ -1448,6 +1529,67 @@ void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, c
         qt_draw_tile(this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y());
     }
 }
+
+void QWin32PaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
+{
+    bool requireGdiplus = false;
+    switch (hint) {
+    case QPainter::LineAntialiasing:
+        requireGdiplus = true;
+        break;
+    default:
+        break;
+    }
+
+    if (d->usesGdiplus()) {
+        d->gdiplusEngine->setRenderHint(hint, enable);
+        return;
+    }
+
+    if (requireGdiplus) {
+        if (enable && !d->usesGdiplus())
+            d->beginGdiplus();
+        if (d->usesGdiplus())
+            d->gdiplusEngine->setRenderHint(hint, enable);
+    }
+}
+
+QPainter::RenderHints QWin32PaintEngine::renderHints() const
+{
+    // ### Fill in the correct renderHints
+    return 0;
+}
+
+QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
+{
+    // ### Fill in the correct hints..
+    return 0;
+}
+
+void QWin32PaintEnginePrivate::beginGdiplus()
+{
+#if defined QT_GDIPLUS_SUPPORT
+    qDebug() << "QWin32PaintEnginePrivate::beginGdiplus()";
+    if (!qt_gdiplus_support)
+        return;
+    if (!d->gdiplusEngine)
+        d->gdiplusEngine = new QGdiplusPaintEngine(pdev);
+    d->gdiplusEngine->begin(pdev, q->state);
+    d->gdiplusInUse = true;
+    q->setDirty(QPaintEngine::AllDirty);
+#endif
+}
+
+void QWin32PaintEnginePrivate::endGdiplus()
+{
+#if defined QT_GDIPLUS_SUPPORT
+    qDebug() << "QWin32PaintEnginePrivate::endGdiplus()";
+    Q_ASSERT(gdiplusEngine);
+    gdiplusEngine->end();
+    gdiplusInUse = false;
+#endif
+}
+
 
 #if defined (QT_GDIPLUS_SUPPORT)
 /*******************************************************************************
@@ -1611,7 +1753,7 @@ void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
         d->brush = new HatchBrush(qt_hatchstyle_map[ps->brush.style()],
                                   conv(ps->brush.color()),
                                   conv(ps->bgBrush.color()));
-        d->graphics->SetRenderingOrigin(state->bgOrigin.x(), state->bgOrigin.y());
+        d->graphics->SetRenderingOrigin(ps->bgOrigin.x(), ps->bgOrigin.y());
         d->temporaryBrush = true;
     }
 }
@@ -1891,7 +2033,7 @@ QPainter::RenderHints QGdiplusPaintEngine::renderHints() const
 
 void QGdiplusPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
 {
-    if (hint & QPainter::LineAntialiasing) {
+    if (hint == QPainter::LineAntialiasing) {
         d->graphics->SetSmoothingMode(enable ? SmoothingModeHighQuality : SmoothingModeHighSpeed);
 //         d->graphics->SetPixelOffsetMode(enable ? PixelOffsetModeHalf : PixelOffsetModeNone);
         d->antiAliasEnabled = enable;

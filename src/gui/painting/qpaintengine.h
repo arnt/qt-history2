@@ -62,13 +62,15 @@ public:
     Q_DECLARE_FLAGS(GCCaps, Capability);
 
     enum DirtyFlags {
-        DirtyPen                      = 0x0001,
+        DirtyPen                = 0x0001,
         DirtyBrush              = 0x0002,
         DirtyFont               = 0x0004,
         DirtyBackground         = 0x0008,
         DirtyTransform          = 0x0010,
         DirtyClip               = 0x0020,
-        DirtyRasterOp                 = 0x0040
+        DirtyRasterOp           = 0x0040,
+
+        AllDirty                = 0xffff
     };
 
     QPaintEngine(GCCaps devcaps=0);
@@ -274,3 +276,4 @@ inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::GCCaps);
 #endif // QPAINTENGINE_H
+

@@ -78,6 +78,10 @@ public:
            RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000,
            UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
 
+    QPainter::RenderHints supportedRenderHints() const;
+    QPainter::RenderHints renderHints() const;
+    void setRenderHint(QPainter::RenderHint hint, bool enable);
+
 protected:
     QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, GCCaps caps);
 
