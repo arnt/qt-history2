@@ -3263,7 +3263,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 
     if ( d->selectionMode == Extended &&
 	 d->focusItem == d->pressedItem &&
-	 d->pressedSelected && d->focusItem && 
+	 d->pressedSelected && d->focusItem &&
  	 e->button() == LeftButton) {
 	bool block = signalsBlocked();
 	blockSignals( TRUE );
@@ -4993,6 +4993,25 @@ void QListViewItem::moveToJustAfter( QListViewItem * olderSibling )
 }
 
 
+/*! Moves this item after the item \a after. This means it will get
+the sibling exactly after the item \a after. To move an item in the
+hierarchy, use takeItem() and insertItem().
+*/
+
+void QListViewItem::moveItem( QListViewItem *after )
+{
+    if ( !after )
+	return;
+    if ( parent() != after->parent() ) {
+	parent()->takeItem( this );
+	after->parent()->insertItem( this );
+    }
+    moveToJustAfter( after );
+    QListView *lv = listView();
+    if ( lv )
+	lv->triggerUpdate();
+}
+
 /*!  \reimp */
 
 void QListView::showEvent( QShowEvent * )
@@ -5066,7 +5085,6 @@ void QListView::takeItem( QListViewItem * i )
 {
     d->r->takeItem( i );
 }
-
 
 /**********************************************************************
  *

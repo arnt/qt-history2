@@ -135,7 +135,8 @@ public:
     void repaint() const;
 
     void sort(); // ######## make virtual in next major release
-
+    void moveItem( QListViewItem *after );
+    
 protected:
     virtual void enforceSortOrder() const;
     virtual void setHeight( int );
