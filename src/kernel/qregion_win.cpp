@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#12 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -15,10 +15,10 @@
 #include "qbuffer.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#12 $")
 
 
-static void *empty_region = 0;
+static QRegion *empty_region = 0;
 
 static void cleanup_empty_region()
 {
@@ -34,8 +34,11 @@ QRegion::QRegion()
 	empty_region = new QRegion( TRUE );
 	CHECK_PTR( empty_region );
     }
-    data = (QRegionData*)empty_region;
+    data = empty_region->data;
     data->ref();
+#if defined(DEBUG)
+    ASSERT( data->bop.isNull() && data->rgn == 0 );
+#endif
 }
 
 QRegion::QRegion( bool )
@@ -56,7 +59,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 				   rr.right()+1, rr.bottom()+1 );
 	id = QRGN_SETRECT;
     }
-    else if ( t == Ellipse )	{		// elliptic region
+    else if ( t == Ellipse ) {			// elliptic region
 	data->rgn = CreateEllipticRgn( rr.left(),    rr.top(),
 				       rr.right()+1, rr.bottom()+1 );
 	id = QRGN_SETELLIPSE;
@@ -169,7 +172,7 @@ void QRegion::move( int dx, int dy )
   Sets the resulting region handle to 0 to indicate an empty region.
  ----------------------------------------------------------------------------*/
 
-QRegion QRegion::winCombine( const QRegion &r, int op )
+QRegion QRegion::winCombine( const QRegion &r, int op ) const
 {
     int both=RGN_NOP, left=RGN_NOP, right=RGN_NOP;
     switch ( op ) {
@@ -219,7 +222,7 @@ QRegion QRegion::unite( const QRegion &r ) const
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
-    return winCombine( r, QRGN_AND );
+     return winCombine( r, QRGN_AND );
 }
 
 QRegion QRegion::subtract( const QRegion &r ) const
@@ -235,7 +238,7 @@ QRegion QRegion::xor( const QRegion &r ) const
 
 bool QRegion::operator==( const QRegion &r ) const
 {
-    if ( data == r.data() )			// share the same data
+    if ( data == r.data )			// share the same data
 	return TRUE;
     if ( (data->rgn == 0) ^ (r.data->rgn == 0)) // one is empty, not both
 	return FALSE;
