@@ -5569,6 +5569,9 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	    selEnd = d->od->selStart.line;
 	    idxEnd = d->od->selStart.index;
 	}
+	if ( selEnd > d->od->numLines-1 ) {
+	    selEnd = d->od->numLines-1;
+	}
 	if ( startLine <= selStart && endLine >= selEnd ) {
 	    // case 1: area to paint covers entire selection
 	    int paragS = selStart - startLine;
@@ -5644,10 +5647,15 @@ void QTextEdit::optimMousePressEvent( QMouseEvent * e )
 
     QFontMetrics fm( QScrollView::font() );
     mousePressed = TRUE;
-    d->od->selStart.line = e->y() / fm.lineSpacing();
-    QString str = d->od->lines[ d->od->selStart.line ];
     mousePos = e->pos();
-    d->od->selStart.index = optimCharIndex( str );
+    d->od->selStart.line = e->y() / fm.lineSpacing();
+    if ( d->od->selStart.line > d->od->numLines-1 ) {
+	d->od->selStart.line = d->od->numLines-1;
+	d->od->selStart.index = d->od->lines[ d->od->numLines-1 ].length(); 
+    } else {
+	QString str = d->od->lines[ d->od->selStart.line ];
+	d->od->selStart.index = optimCharIndex( str );
+    }
     d->od->selEnd.line = d->od->selStart.line;
     d->od->selEnd.index = d->od->selStart.index;
     oldMousePos = e->pos();
@@ -5665,6 +5673,9 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
     d->od->selEnd.line = e->y() / fm.lineSpacing();
+    if ( d->od->selEnd.line > d->od->numLines-1 ) {
+	d->od->selEnd.line = d->od->numLines-1;
+    }
     QString str = d->od->lines[ d->od->selEnd.line ];
     mousePos = e->pos();
     d->od->selEnd.index = optimCharIndex( str );
@@ -5731,8 +5742,11 @@ void QTextEdit::optimDoAutoScroll()
 	d->od->selEnd.line = mousePos.y() / fm.lineSpacing();
     }
 	
-    if ( d->od->selEnd.line < 0 )
+    if ( d->od->selEnd.line < 0 ) {
 	d->od->selEnd.line = 0;
+    } else if ( d->od->selEnd.line > d->od->numLines-1 ) {
+	d->od->selEnd.line = d->od->numLines-1;
+    }
 
     QString str = d->od->lines[ d->od->selEnd.line ];
     d->od->selEnd.index = optimCharIndex( str );
@@ -5741,20 +5755,25 @@ void QTextEdit::optimDoAutoScroll()
     if ( doScroll )
 	ensureVisible( xx, yy, 1, 1 );
 
-    // calc pos and height of rect that needs redrawing
-    int h = QABS(mousePos.y() - oldMousePos.y()) + fm.lineSpacing() * 2;
-    int y;
-    if ( oldMousePos.y() < mousePos.y() ) {
-	y = oldMousePos.y() - fm.lineSpacing();
+    // if the text document is smaller than the heigth of the viewport
+    // - redraw the whole thing otherwise calculate the rect that
+    // needs drawing.
+    if ( d->od->numLines * fm.lineSpacing() < viewport()->height() ) {
+	repaintContents( contentsX(), contentsY(), width(), height(), FALSE );
     } else {
-	// expand paint area to work around possible paintbug with
-	// a fully selected line
-	h += fm.lineSpacing();
-	y = mousePos.y() - fm.lineSpacing()*2;
+	int h = QABS(mousePos.y() - oldMousePos.y()) + fm.lineSpacing() * 2;
+	int y;
+	if ( oldMousePos.y() < mousePos.y() ) {
+	    y = oldMousePos.y() - fm.lineSpacing();
+	} else {
+	    // expand paint area for a fully selected line
+	    h += fm.lineSpacing();
+	    y = mousePos.y() - fm.lineSpacing()*2;
+	}
+	if ( y < 0 )
+	    y = 0;
+	repaintContents( contentsX(), y, width(), h, FALSE );
     }
-    if ( y < 0 )
-	y = 0;
-    repaintContents( contentsX(), y, width(), h, FALSE );
 
     if ( !scrollTimer->isActive() && pos.y() < 0 || pos.y() > height() )
 	scrollTimer->start( 100, FALSE );
@@ -5762,23 +5781,28 @@ void QTextEdit::optimDoAutoScroll()
 	scrollTimer->stop();
 }
 
-/*! \internal */
+/*! \internal 
+ 
+  Returns the index of the character in the string \a str that is
+  currently under the mouse pointer.
+*/
 int QTextEdit::optimCharIndex( const QString &str )
 {
     QFontMetrics fm( QScrollView::font() );
     uint i = 0;
     int dd, dist = 10000000;
     int curpos = 0;
+    int mx = mousePos.x() - 4; // ### get the real margin from somewhere
 
-    if ( mousePos.x() > fm.width( str ) )
+    if ( mx > fm.width( str ) )
 	return str.length();
 
     // ### tab character does not return correct width
     while ( i < str.length() ) {
-	dd = fm.width( str.left( i ) ) - mousePos.x();
+	dd = fm.width( str.left( i ) ) - mx;
 	if ( QABS(dd) < dist || dist == dd ) {
 	    dist = QABS(dd);
-	    if ( mousePos.x() >= fm.width( str.left( i ) ) )
+	    if ( mx >= fm.width( str.left( i ) ) )
 		curpos = i;
 	}
 	i++;
