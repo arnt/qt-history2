@@ -1469,7 +1469,10 @@ QTextStream &QTextStream::operator>>(char *s)
     CHECK_STREAM_PRECOND(this)
     skipWhiteSpace();
 
-    uint maxlen = width(0), l, total=0;
+    uint maxlen = width();
+    setWidth(0);
+    uint l;
+    uint total=0;
     const int buf_size = getstr_tmp_size;
     QChar buf[buf_size];
     while(1) {
@@ -2026,7 +2029,7 @@ QTextStream &QTextStream::operator<<(const void *ptr)
     setf(showbase);
     unsetf(uppercase);
     d->output_int(I_LONG | I_UNSIGNED, (ulong)ptr, false);
-    flags(f);
+    setFlags(f);
     return *this;
 }
 
