@@ -73,14 +73,14 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 	 templ == "QDataView" ||
 	 templ == "QDataBrowser" ||
 	 templ == "QDataTable" ) {
-	SqlFormWizard *wizard = new SqlFormWizard( appIface, widget, 0, fw, 0, TRUE );
-	wizard->exec();
+	SqlFormWizard wizard( appIface, widget, 0, fw, 0, TRUE );
+	wizard.exec();
     }
 #endif
     if ( templ == "QMainWindow" ) {
-	MainWindowWizardBase *wizard = new MainWindowWizardBase( 0, 0, TRUE );
-	wizard->setAppInterface( aIface, fw, widget );
-	wizard->exec();
+	MainWindowWizardBase wizard( 0, 0, TRUE );
+	wizard.setAppInterface( aIface, fw, widget );
+	wizard.exec();
     }
 }
 
