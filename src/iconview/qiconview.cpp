@@ -3381,13 +3381,13 @@ QIconViewItem *QIconView::findItem( const QString &text ) const
 
     QIconViewItem *item = d->currentItem;
     for ( ; item; item = item->next ) {
-	if ( item->text().lower().left( text.length() ) == text )
+	if ( item->text().lower().left( text.length() ) == text.lower() )
 	    return item;
     }
 
     item = d->firstItem;
     for ( ; item && item != d->currentItem; item = item->next ) {
-	if ( item->text().lower().left( text.length() ) == text )
+	if ( item->text().lower().left( text.length() ) == text.lower() )
 	    return item;
     }
 
