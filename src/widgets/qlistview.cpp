@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#254 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#255 $
 **
 ** Implementation of QListView widget class
 **
@@ -2659,7 +2659,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 
     setCurrentItem( i ); // repaints
     ensureItemVisible( i );
-    
+
     return;
 }
 
@@ -2745,12 +2745,12 @@ void QListView::doAutoScroll()
 {
     if ( !d->focusItem )
         return;
-    
+
     QPoint pos = QCursor::pos();
     pos = viewport()->mapFromGlobal( pos );
 
     bool down = pos.y() > itemRect( d->focusItem ).y();
-    
+
     int g = pos.y() + contentsY();
     QListViewItem *c = d->focusItem, *old = 0L;
     if ( down ) {
@@ -2857,7 +2857,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     QListViewItem * i2;
 
     bool singleStep = FALSE;
-    
+
     switch( e->key() ) {
     case Key_Enter:
     case Key_Return:
@@ -3017,12 +3017,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
         d->visibleTimer->start( 1, TRUE );
     else
         ensureItemVisible( i );
-    
-    if ( oldCurrent ) {
-        QRect r = itemRect( oldCurrent );
-        r = r.unite( itemRect( currentItem() ) );
-        viewport()->repaint( r.x(), r.y(), r.width(), r.height() );
-    }
 }
 
 
