@@ -1043,7 +1043,7 @@ QString MakefileGenerator::build_args()
 	if(!Option::mkfile::do_cache)
 	    ret += " -nocache";
 	if(!Option::mkfile::do_deps)
-	    ret += " -nodeps";
+	    ret += " -nodepend";
 	if(!Option::mkfile::do_dep_heuristics)
 	    ret += " -nodependheuristics";
 
