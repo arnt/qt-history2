@@ -450,9 +450,6 @@ void QButton::setText( const QString &text )
     if ( btext == text )
 	return;
     btext = text;
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( contentsDescription() );
-#endif
 
     if ( bpixmap ) {
 	delete bpixmap;
@@ -597,9 +594,6 @@ void QButton::setState( ToggleState s )
 	    emit toggled( stat != Off );
 	emit stateChanged( s );
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( stateDescription() );
-#endif
 }
 
 
@@ -900,9 +894,6 @@ void QButton::nextState()
 	    emit toggled( stat != Off );
 	emit stateChanged( stat );
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    setAccessibilityHint( stateDescription() );
-#endif
 }
 
 
