@@ -637,21 +637,14 @@ QSize QLabel::minimumSizeHint() const
     return sz;
 }
 
-/*!
-  \reimp
-*/
-void QLabel::resizeEvent( QResizeEvent* e )
-{
-    QFrame::resizeEvent( e );
-}
 
-
-/*!
-    Draws the label contents using the painter \a p.
+/*!\reimp
 */
 
-void QLabel::drawContents( QPainter *p )
+void QLabel::paintEvent( QPaintEvent * )
 {
+    QPainter paint(this);
+    drawFrame(&paint);
     QRect cr = contentsRect();
 
     QPixmap *pix = pixmap();
@@ -686,16 +679,16 @@ void QLabel::drawContents( QPainter *p )
 #ifndef QT_NO_MOVIE
     if ( mov ) {
 	// ### should add movie to qDrawItem
-	QRect r = style().itemRect( p, cr, align, isEnabled(), &(mov->framePixmap()),
+	QRect r = style().itemRect( &paint, cr, align, isEnabled(), &(mov->framePixmap()),
 				    QString::null );
 	// ### could resize movie frame at this point
-	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );
+	paint.drawPixmap(r.x(), r.y(), mov->framePixmap() );
     }
     else
 #endif
 #ifndef QT_NO_RICHTEXT
     if ( doc ) {
-	doc->setWidth(p, cr.width() );
+	doc->setWidth(&paint, cr.width() );
 	int rh = doc->height();
 	int yo = 0;
 	if ( align & AlignVCenter )
@@ -706,7 +699,7 @@ void QLabel::drawContents( QPainter *p )
 	    style().styleHint(QStyle::SH_EtchDisabledText, this)) {
 	    QPalette pal = palette();
 	    pal.setColor( QPalette::Text, pal.light() );
-	    doc->draw(p, cr.x()+1, cr.y()+yo+1, cr, pal, 0);
+	    doc->draw(&paint, cr.x()+1, cr.y()+yo+1, cr, pal, 0);
 	}
 
 	// QSimpleRichText always draws with QPalette::Text as with
@@ -716,7 +709,7 @@ void QLabel::drawContents( QPainter *p )
 	QPalette pal = palette();
 	if ( foregroundRole() != QPalette::Text && isEnabled() )
 	    pal.setColor( QPalette::Foreground, paletteForegroundColor() );
-	doc->draw(p, cr.x(), cr.y()+yo, cr, pal, 0);
+	doc->draw(&paint, cr.x(), cr.y()+yo, cr, pal, 0);
     } else
 #endif
 #ifndef QT_NO_PICTURE
@@ -725,13 +718,13 @@ void QLabel::drawContents( QPainter *p )
 	int rw = br.width();
 	int rh = br.height();
 	if ( scaledcontents ) {
-	    p->save();
-	    p->translate( cr.x(), cr.y() );
+	    paint.save();
+	    paint.translate( cr.x(), cr.y() );
 #ifndef QT_NO_TRANSFORMATIONS
-	    p->scale( (double)cr.width()/rw, (double)cr.height()/rh );
+	    paint.scale( (double)cr.width()/rw, (double)cr.height()/rh );
 #endif
-	    p->drawPicture( -br.x(), -br.y(), *pic );
-	    p->restore();
+	    paint.drawPicture( -br.x(), -br.y(), *pic );
+	    paint.restore();
 	} else {
 	    int xo = 0;
 	    int yo = 0;
@@ -743,7 +736,7 @@ void QLabel::drawContents( QPainter *p )
 		xo = cr.width()-rw;
 	    else if ( align & AlignHCenter )
 		xo = (cr.width()-rw)/2;
-	    p->drawPicture( cr.x()+xo-br.x(), cr.y()+yo-br.y(), *pic );
+	    paint.drawPicture( cr.x()+xo-br.x(), cr.y()+yo-br.y(), *pic );
 	}
     } else
 #endif
@@ -764,8 +757,7 @@ void QLabel::drawContents( QPainter *p )
 	if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
 	    alignment |= NoAccel;
 	// ordinary text or pixmap label
-	style().drawItem( p, cr, alignment, palette(), isEnabled(),
-			  pix, ltext );
+	style().drawItem( &paint, cr, alignment, palette(), isEnabled(), pix, ltext );
     }
 }
 
@@ -1103,13 +1095,5 @@ void QLabel::setScaledContents( bool enable )
 
 #endif // QT_NO_IMAGE_SMOOTHSCALE
 
-/*!
-    Sets the font used on the QLabel to font \a f.
-*/
-
-void QLabel::setFont( const QFont &f )
-{
-    QFrame::setFont( f );
-}
 
 #endif // QT_NO_LABEL

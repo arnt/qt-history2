@@ -56,12 +56,12 @@ public:
     void 	 setTextFormat( TextFormat );
 
     int		 alignment() const	{ return align; }
-    virtual void setAlignment( int );
+    void setAlignment( int );
     int		 indent() const		{ return extraMargin; }
     void 	 setIndent( int );
 
     bool 	 autoResize() const	{ return autoresize; }
-    virtual void setAutoResize( bool );
+    void setAutoResize( bool );
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
     bool 	hasScaledContents() const;
     void 	setScaledContents( bool );
@@ -69,30 +69,27 @@ public:
     QSize	 sizeHint() const;
     QSize	 minimumSizeHint() const;
 #ifndef QT_NO_ACCEL
-    virtual void setBuddy( QWidget * );
+    void setBuddy( QWidget * );
     QWidget     *buddy() const;
 #endif
     int		 heightForWidth(int) const;
 
-    void setFont( const QFont &f );
-
 public slots:
-    virtual void setText( const QString &);
-    virtual void setPixmap( const QPixmap & );
+    void setText( const QString &);
+    void setPixmap( const QPixmap & );
 #ifndef QT_NO_PICTURE
-    virtual void setPicture( const QPicture & );
+    void setPicture( const QPicture & );
 #endif
 #ifndef QT_NO_MOVIE
-    virtual void setMovie( const QMovie & );
+    void setMovie( const QMovie & );
 #endif
-    virtual void setNum( int );
-    virtual void setNum( double );
+    void setNum( int );
+    void setNum( double );
     void	 clear();
 
 protected:
-    void	 drawContents( QPainter * );
+    void	 paintEvent( QPaintEvent * );
     void         changeEvent( QEvent * );
-    void	 resizeEvent( QResizeEvent* );
 
 private slots:
 #ifndef QT_NO_ACCEL
