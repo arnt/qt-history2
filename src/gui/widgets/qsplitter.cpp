@@ -144,12 +144,12 @@ QSplitter *QSplitterHandle::splitter() const
 
 /*!
 
-  Tells the splitter to move this handle to position /a p, which is
-  the distance from the left (or top) edge of the widget.
+    Tells the splitter to move this handle to position /a p, which is
+    the distance from the left (or top) edge of the widget.
 
-  Note that \a p is also measured from the left (or top) for
-  right-to-left languages. This function will map \a p to the
-  appropriate position before calling QSplitter::moveSplitter().
+    Note that \a p is also measured from the left (or top) for
+    right-to-left languages. This function will map \a p to the
+    appropriate position before calling QSplitter::moveSplitter().
 
   \sa QSplitter::moveSplitter()
 */
@@ -177,6 +177,9 @@ int QSplitterHandle::closestLegalPosition(int p)
     return s->closestLegalPosition(p, s->indexOfHandle(this));
 }
 
+/*!
+    \reimp
+*/
 QSize QSplitterHandle::sizeHint() const
 {
     int hw = d->s->handleWidth();
@@ -187,6 +190,11 @@ QSize QSplitterHandle::sizeHint() const
         .expandedTo(QApplication::globalStrut());
 }
 
+/*
+    Set the orientation of the splitter handle. This is usually propogated from the QSplitter
+
+    \sa QSplitter::setOrientation()
+*/
 void QSplitterHandle::setOrientation(Qt::Orientation o)
 {
     d->orient = o;
@@ -195,6 +203,9 @@ void QSplitterHandle::setOrientation(Qt::Orientation o)
 #endif
 }
 
+/*
+    \reimp
+*/
 void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->buttons() & Qt::LeftButton))
@@ -208,12 +219,18 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
+/*
+   \reimp
+*/
 void QSplitterHandle::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton)
         mouseOffset = d->pick(e->pos());
 }
 
+/*
+   \reimp
+*/
 void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 {
     if (!opaqueResize() && e->button() == Qt::LeftButton) {
@@ -224,6 +241,9 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
+/*
+   \reimp
+*/
 void QSplitterHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
@@ -722,6 +742,33 @@ void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
         sf = 1;
     setStretch(w, sf);
 }
+
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
+QSplitter::QSplitter(QWidget *parent, const char *name)
+    : QFrame(*new QSplitterPrivate, parent)
+{
+    setObjectName(name);
+    d->orient = Qt::Horizontal;
+    d->init();
+}
+
+
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
+QSplitter::QSplitter(Qt::Orientation o, QWidget *parent, const char *name)
+    : QFrame(*new QSplitterPrivate, parent)
+{
+    setObjectName(name);
+    d->orient = o;
+    d->init();
+}
+
+
 #endif
 
 /*
@@ -777,46 +824,47 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
     \ingroup organizers
     \mainclass
 
-    A splitter lets the user control the size of child widgets by
-    dragging the boundary between the children. Any number of widgets
-    may be controlled by a single splitter.
+    A splitter lets the user control the size of child widgets by dragging the
+    boundary between the children. Any number of widgets may be controlled by a
+    single splitter. The typical use of a QSplitter is to create several
+    widgets and add them using insertWidget() or addWidget().
 
-    To show a QListBox, a QListView and a QTextEdit side by side:
-    \code
-        QSplitter *split = new QSplitter(parent);
-        QListBox *lb = new QListBox(split);
-        QListView *lv = new QListView(split);
-        QTextEdit *ed = new QTextEdit(split);
-    \endcode
+    The following example will show a QListView, QTreeView, and QTextEdit side by side:
 
-    QSplitter lays out its children horizontally (side by side); you
-    can use setOrientation(Qt::Vertical) to lay out the
-    children vertically.
+    \quotefromfile ../../../doc/src/snippets/splitter/splitter.cpp
+    \skipto  QSplitter
+    \printuntil splitter->addWidget(textedit);
+
+    If a widget is already inside a QSplitter when insertWidget() or
+    addWidget() is called, it will move to the new position. This can be used
+    to reorder widgets in the splitter later. You can use indexOf(),
+    widget(), and count() to get access to the widgets inside the splitter.
+
+    A default QSplitter lays out its children horizontally (side by side); you
+    can use setOrientation(Qt::Vertical) to lay its
+    children out vertically.
 
     By default, all widgets can be as large or as small as the user
     wishes, between the \l minimumSizeHint() (or \l minimumSize())
-    and \l maximumSize() of the widgets. Use setResizeMode() to
-    specify that a widget should keep its size when the splitter is
-    resized, or set the stretch component of the \l sizePolicy.
+    and \l maximumSize() of the widgets.
 
-    By default, QSplitter resizes the childre dynamically. If you
+    QSplitter resizes its children dynamically by default. If you
     would rather have QSplitter resize the children only at the end of
     a resize operation, call setOpaqueResize(false).
 
-    The initial distribution of size between the widgets is determined
-    by the initial size of each widget. You can also use setSizes() to
-    set the sizes of all the widgets. The function sizes() returns the
-    sizes set by the user.
+    The initial distribution of size between the widgets is determined by the
+    initial size of each widget. You can also use setSizes() to set the sizes
+    of all the widgets. The function sizes() returns the sizes set by the user.
+    Alternatively, you can save and restore the sizes of the widgets from a
+    QByteArray using saveState() and restoreState() respectively.
 
-    If you hide() a child its space will be distributed among the
-    other children. It will be reinstated when you show() it again. It
-    is also possible to reorder the widgets within the splitter using
-    moveToFirst() and moveToLast().
+    When you hide() a child its space will be distributed among the
+    other children. It will be reinstated when you show() it again.
 
     \inlineimage qsplitter-m.png Screenshot in Motif style
     \inlineimage qsplitter-w.png Screenshot in Windows style
 
-    \sa QTabBar
+    \sa QTabBar QSplitterHandle
 */
 
 
@@ -824,25 +872,21 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
     Constructs a horizontal splitter with the \a parent and \a name
     arguments being passed on to the QFrame constructor.
 */
-
-QSplitter::QSplitter(QWidget *parent, const char *name)
+QSplitter::QSplitter(QWidget *parent)
     : QFrame(*new QSplitterPrivate, parent)
 {
-    setObjectName(name);
     d->orient = Qt::Horizontal;
     d->init();
 }
 
 
 /*!
-    Constructs a splitter with orientation \a o with the \a parent and
-    \a name arguments being passed on to the QFrame constructor.
+    Constructs a splitter with orientation \a o. The \a parent argument is
+    passed on to the QFrame constructor.
 */
-
-QSplitter::QSplitter(Qt::Orientation o, QWidget *parent, const char *name)
+QSplitter::QSplitter(Qt::Orientation o, QWidget *parent)
     : QFrame(*new QSplitterPrivate, parent)
 {
-    setObjectName(name);
     d->orient = o;
     d->init();
 }
@@ -874,6 +918,8 @@ void QSplitter::refresh()
     By default the orientation is horizontal (the widgets are side by
     side). The possible orientations are \c Qt::Horizontal and
     \c Qt::Vertical.
+
+    \sa QSplitterHandle::setOrientation()
 */
 
 void QSplitter::setOrientation(Qt::Orientation o)
@@ -952,32 +998,34 @@ void QSplitter::resizeEvent(QResizeEvent *)
 }
 
 /*!
-    \fn void QSplitter::addWidget(QWidget *widget)
     Adds the given \a widget to the splitter's layout after all the other
     items.
 
+    If \a widget is already in the splitter, it will be moved to the new position.
+
     \sa insertWidget() widget() indexOf()
 */
-void QSplitter::addWidget(QWidget *w)
+void QSplitter::addWidget(QWidget *widget)
 {
-    insertWidget(d->list.count(), w);
+    insertWidget(d->list.count(), widget);
 }
 
 /*!
-    \fn void QSplitter::insertWidget(int index, QWidget *widget)
     Inserts the \a widget specified into the splitter's layout at the
     given \a index.
 
+    If \a widget is already in the splitter, it will be moved to the new position.
+
     \sa addWidget() indexOf() widget()
 */
-void QSplitter::insertWidget(int index, QWidget *w)
+void QSplitter::insertWidget(int index, QWidget *widget)
 {
     QBoolBlocker b(d->blockChildAdd);
-    if (w->parentWidget() != this)
-        w->setParent(this);
+    if (widget->parentWidget() != this)
+        widget->setParent(this);
     if (isVisible())
-        w->show();
-    d->insertWidget(index, w);
+        widget->show();
+    d->insertWidget(index, widget);
     d->recalc(isVisible());
 }
 
@@ -1044,7 +1092,7 @@ QWidget *QSplitter::widget(int index) const
 }
 
 /*!
-    Returns the number of items contained in the splitter's layout.
+    Returns the number of widgets contained in the splitter's layout.
 */
 int QSplitter::count() const
 {
@@ -1052,8 +1100,18 @@ int QSplitter::count() const
 }
 
 /*!
-    Tells the splitter that the child widget described by \a c has
-    been inserted or removed.
+    \reimp
+
+    Tells the splitter that the child widget described by \a c has been
+    inserted or removed.
+
+    This method is also used to handle the situation where a widget is created
+    with the splitter as a parent but not explicitly added with insertWidget()
+    or addWidget(). This is for compatiblity and not the recommended way of
+    putting widgets into a splitter in new code. Please use insertWidget() or
+    addWidget() in new code.
+
+    \sa addWidget() insertWidget()
 */
 
 void QSplitter::childEvent(QChildEvent *c)
@@ -1233,7 +1291,7 @@ int QSplitter::closestLegalPosition(int pos, int index)
     \property QSplitter::opaqueResize
     \brief whether resizing is opaque
 
-    Opaque resizing is off by default.
+    Opaque resizing is on by default.
 */
 
 bool QSplitter::opaqueResize() const
@@ -1251,14 +1309,14 @@ void QSplitter::setOpaqueResize(bool on)
 /*!
 \fn void QSplitter::moveToFirst(QWidget *w)
 
-Moves widget \a w to the leftmost/top position.
+    Moves widget \a w to the leftmost/top position.
 */
 
 
 /*!
 \fn void QSplitter::moveToLast(QWidget *w)
 
-Moves widget \a w to the rightmost/bottom position.
+    Moves widget \a w to the rightmost/bottom position.
 */
 
 #endif
@@ -1321,16 +1379,11 @@ QSize QSplitter::minimumSizeHint() const
     Giving the values to another splitter's setSizes() function will
     produce a splitter with the same layout as this one.
 
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QList<int> list = mySplitter.sizes();
-    QList<int>::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
+    The easiest way to iterate over the list is to use the Java-style iterators.
+
+    \quotefromfile ../../../doc/src/snippets/splitter/splitter.cpp
+    \skipto   QListIterator<int>
+    \printuntil processSize(it.next());
 
     \sa setSizes()
 */
@@ -1424,6 +1477,13 @@ void QSplitter::changeEvent(QEvent *ev)
 
 /*!
     Saves the state of the splitter's layout.
+
+    Typically this is used in conjunction with QSettings to remember the size
+    for a future session. Here is an example:
+
+    \quotefromfile ../../../doc/src/snippets/splitter/splitter.cpp
+    \skipto  QSettings
+    \printuntil  settings.setValue("splitterSizes", splitter->saveState());
 */
 QByteArray QSplitter::saveState() const
 {
@@ -1452,6 +1512,15 @@ QByteArray QSplitter::saveState() const
 
 /*!
     Restores the splitter's layout to the \a state specified.
+
+    Typically this is used in conjunction with QSettings to restore the size
+    from a past session. Here is an example:
+
+    Restore the splitters's state:
+    \quotefromfile ../../../doc/src/snippets/splitter/splitter.cpp
+    \skipto  QSettings restoreSettings
+    \printuntil splitter->restoreState(restoreSettings.value("splitterSizes").toByteArray());
+
 */
 bool QSplitter::restoreState(const QByteArray &state)
 {

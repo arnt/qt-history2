@@ -35,12 +35,12 @@ class Q_GUI_EXPORT QSplitter : public QFrame
     Q_PROPERTY(bool childrenCollapsible READ childrenCollapsible WRITE setChildrenCollapsible)
 
 public:
-    explicit QSplitter(QWidget* parent = 0, const char* name = 0);
-    explicit QSplitter(Qt::Orientation, QWidget* parent = 0, const char* name = 0);
+    explicit QSplitter(QWidget* parent = 0);
+    explicit QSplitter(Qt::Orientation, QWidget* parent = 0);
     ~QSplitter();
 
-    void addWidget(QWidget *w);
-    void insertWidget(int index, QWidget *w);
+    void addWidget(QWidget *widget);
+    void insertWidget(int index, QWidget *widget);
 
     void setOrientation(Qt::Orientation);
     Qt::Orientation orientation() const;
@@ -91,6 +91,8 @@ protected:
 
 #ifdef QT_COMPAT
 public:
+    QT_COMPAT_CONSTRUCTOR QSplitter(QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QSplitter(Qt::Orientation, QWidget* parent, const char* name);
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
     QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
     inline QT_COMPAT void moveToFirst(QWidget *w) { insertWidget(0,w); }
