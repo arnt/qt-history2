@@ -1737,10 +1737,9 @@ void qt_init( QApplicationPrivate *priv, int,
 #ifndef QT_NO_XRANDR
 	// See if XRandR is supported on the connected display
 	int xrandr_errorbase;
-	Q_UNUSED( xrandr_eventbase );
-	if ( XRRQueryExtension( X11->display, &xrandr_eventbase, &xrandr_errorbase ) ) {
+	if ( XRRQueryExtension( X11->display, &X11->xrandr_eventbase, &xrandr_errorbase ) ) {
 	    // XRandR is supported
-	    qt_use_xrandr = TRUE;
+	    X11->use_xrandr = TRUE;
 	}
 #endif // QT_NO_XRANDR
 
@@ -1838,7 +1837,7 @@ void qt_init( QApplicationPrivate *priv, int,
 			  PropertyChangeMask );
 
 #ifndef QT_NO_XRANDR
-	    if (qt_use_xrandr)
+	    if (X11->use_xrandr)
 		XRRSelectInput( X11->display, QPaintDevice::x11AppRootWindow( screen ), True );
 #endif // QT_NO_XRANDR
 	}
@@ -3175,7 +3174,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 #endif
 
 #ifndef QT_NO_XRANDR
-    if (event->type == xrandr_eventbase + RRScreenChangeNotify) {
+    if (X11->use_xrandr && event->type == (X11->xrandr_eventbase + RRScreenChangeNotify)) {
 	// update Xlib internals with the latest screen configuration
 	XRRUpdateConfiguration(event);
 
