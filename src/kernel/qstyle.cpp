@@ -165,6 +165,12 @@ public:
 */
 
 /*!
+    \fn QStyleOption::QStyleOption( const QRect &r )
+
+    Pass a QRect, \a r.
+*/
+
+/*!
     \fn bool QStyleOption::isDefault() const
 
     Returns TRUE if the option was constructed with the default
@@ -254,6 +260,13 @@ public:
 
     Returns a check list item if the appropriate constructor was
     called; otherwise the return value is undefined.
+*/
+
+/*!
+    \fn QRect QStyleOption::rect() const
+
+    Returns a rectangle if the appropriate constructor was called;
+    otherwise the return value is undefined.
 */
 
 /*!

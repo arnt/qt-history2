@@ -1067,6 +1067,10 @@ QApplication::~QApplication()
   \sa argc(), QApplication::QApplication()
 */
 
+/*!
+    \fn void QApplication::setArgs( int argc, char **argv )
+    \internal
+*/
 
 
 #ifndef QT_NO_STYLE

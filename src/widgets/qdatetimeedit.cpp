@@ -1751,21 +1751,6 @@ public:
     \sa QTime QDateEdit QDateTimeEdit
 */
 
-/*!
-    \fn virtual void QTimeEdit::setMinValue( const QTime& d )
-
-    Sets the time edit's minimum value to \a d an its maximum value to
-    maxValue().
-*/
-
-
-/*!
-    \fn virtual void QTimeEdit::setMaxValue( const QTime& d )
-
-    Sets the time edit's maximum value to \a d an its minimum value to
-    minValue().
-*/
-
 
 /*!
     Constructs an empty time edit with parent \a parent and called \a
