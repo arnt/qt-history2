@@ -1726,9 +1726,9 @@ void QApplication::wakeUpGuiThread()
 }
 
 /*!
-  The message procedure calls this function for every message received.
-  Reimplement this function if you want to process window messages \e msg that
-  are not processed by Qt.
+    The message procedure calls this function for every message
+    received. Reimplement this function if you want to process window
+    messages \e msg that are not processed by Qt.
 */
 bool QApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
 {
@@ -1736,8 +1736,8 @@ bool QApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
 }
 
 /*!
-  If \a gotFocus is TRUE, \a widget will become the active window. Otherwise,
-  the active window is reset to NULL.
+    If \a gotFocus is TRUE, \a widget will become the active window.
+    Otherwise the active window is reset to NULL.
 */
 void QApplication::winFocus( QWidget *widget, bool gotFocus )
 {
@@ -1916,7 +1916,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		qt_button_down = 0;
 	    }
 
-		
+
 	    RETURN(0);
 	}
 	break;
@@ -2611,7 +2611,7 @@ void qt_leave_modal( QWidget *widget )
 	ignoreNextMouseReleaseEvent = TRUE;
     }
     app_do_modal = qt_modal_stack != 0;
-    
+
 }
 
 static bool qt_blocked_modal( QWidget *widget )
@@ -2668,7 +2668,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	    modal = qt_modal_stack->next();
 	    if ( p == groupLeader ) unrelated = FALSE;
 	}
-	
+
 	if ( unrelated )
 	    return TRUE;		// don't block event
     }
@@ -2681,6 +2681,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
     } else
 #endif
 	if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
+	 (type == WM_MOUSEWHEEL || type == (int)WM95_MOUSEWHEEL) ||
 	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST)
 #ifndef Q_OS_TEMP
 			|| type == WM_NCMOUSEMOVE
@@ -3149,12 +3150,12 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	// mouse an inch queues redraws for 30+ seconds.
 	//
 	// (Patch submitted by: Steve Williams)
-	
+
 	bool keepLooking = true;
 	bool messageFound = false;
 	MSG mouseMsg1;
 	MSG mouseMsg2;
-	
+
 	while ( winPeekMessage( &mouseMsg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST,
 			       PM_NOREMOVE) && keepLooking )
 	{
@@ -3162,14 +3163,14 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( mouseMsg1.message == WM_MOUSEMOVE ) {
 		 mouseMsg2 = mouseMsg1;
 		 messageFound = true;
-		
+
 		// Remove the mouse move message
 		winPeekMessage( &mouseMsg1, msg.hwnd, WM_MOUSEMOVE, WM_MOUSEMOVE,
 			       PM_REMOVE );
 	    } else
 		keepLooking = false;
 	}
-	
+
 	if ( messageFound ) {
 	    MSG *msgPtr = (MSG *)(&msg);
 
@@ -3811,6 +3812,11 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     if ( !w)
 	w = this;
 
+    int ret = 0;
+    MSG msg2 = msg;
+    if ( !qt_try_modal( w, &msg2, ret ) )
+	w = qApp->focusWidget();
+
     while ( w->focusProxy() )
 	w = w->focusProxy();
     if ( w->focusPolicy() == QWidget::WheelFocus ) {
@@ -3979,7 +3985,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	QPoint globalPos( ptNew.x, ptNew.y );
 
 	// make sure the tablet event get's sent to the proper widget...
-	QWidget *w = QApplication::widgetAt( globalPos, TRUE );	
+	QWidget *w = QApplication::widgetAt( globalPos, TRUE );
 	if ( w == NULL )
 	    w = this;
 	QPoint localPos = w->mapFromGlobal( globalPos );
