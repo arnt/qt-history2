@@ -901,7 +901,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 /*!
   This slot is called whenever the items in the tree view are changed.
 
-*/s
+*/
 
 void QTreeView::dataChanged()
 {
