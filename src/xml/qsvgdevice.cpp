@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#13 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#14 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -44,6 +44,10 @@
 #include "qfile.h"
 #include "qmap.h"
 #include "qregexp.h"
+
+#include <math.h>
+
+const double deg2rad = 0.017453292519943295769;	// pi/180
 
 class QSVGDevicePrivate {
 };
@@ -230,6 +234,8 @@ bool QSVGDevice::play( const QDomNode &node )
 	QDomNamedNodeMap attr = child.attributes();
 	if ( attr.contains( "style" ) )
 	    setStyle( attr.namedItem( "style" ).nodeValue() );
+	if ( attr.contains( "transform" ) )
+	    setTransform( attr.namedItem( "transform" ).nodeValue() );
 
 	int x1, y1, x2, y2, rx, ry, w, h;
 	ElementType t = typeMap[ child.nodeName() ];
@@ -424,7 +430,7 @@ int QSVGDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
 	bool ok;
 	double d = parseLen( map.namedItem( attr ).nodeValue(), &ok );
 	if ( ok )
-	    return int(d);
+	    return qRound( d );
     }
     return def;
 }
@@ -484,6 +490,48 @@ void QSVGDevice::setStyle( const QString &s )
 
     pt->setPen( pen );
     pt->setFont( font );
+}
+
+void QSVGDevice::setTransform( const QString &tr )
+{
+    QString t = tr.simplifyWhiteSpace();
+
+    QRegExp reg( "\\s*([\\w]+)\\s*\\(([^\\(]*)\\)" );
+    int index = 0;
+    while (( index = reg.search( t, index )) >= 0 ) {
+	QString command = reg.cap( 1 );
+	QString params = reg.cap( 2 );
+	QStringList plist = QStringList::split( QRegExp( "[,\\s]" ), params );
+	if ( command == "translate" ) {
+	    double tx = 0, ty = 0;
+	    tx = plist[0].toDouble();
+	    if ( plist.count() >= 2 )
+		ty = plist[1].toDouble();
+	    pt->translate( tx, ty );
+	} else if ( command == "rotate" ) {
+	    pt->rotate( plist[0].toDouble() );
+	} else if ( command == "scale" ) {
+	    double sx, sy;
+	    sx = sy = plist[0].toDouble();
+	    if ( plist.count() >= 2 )
+		sy = plist[1].toDouble();
+	    pt->scale( sx, sy );
+	} else if ( command == "matrix" && plist.count() >= 6 ) {
+	    double m[ 6 ];
+	    for (int i = 0; i < 6; i++)
+		m[ i ] = plist[ i ].toDouble();
+	    QWMatrix wm( m[ 0 ], m[ 1 ], m[ 2 ],
+			 m[ 3 ], m[ 4 ], m[ 5 ] );
+	    pt->setWorldMatrix( wm, TRUE );
+	} else if ( command == "skewX" ) {
+	    pt->shear( 0.0, tan( plist[0].toDouble() * deg2rad ) );
+	} else if ( command == "skewY" ) {
+	    pt->shear( tan( plist[0].toDouble() * deg2rad ), 0.0 );
+	}
+
+	// move on to next command
+	index += reg.matchedLength();
+    }
 }
 
 #endif // QT_NO_SVG
