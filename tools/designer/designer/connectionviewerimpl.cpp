@@ -23,6 +23,7 @@
 #include "connectioneditorimpl.h"
 #include "mainwindow.h"
 #include "command.h"
+#include "pixmapchooser.h"
 
 #include <qlistview.h>
 #include <qpushbutton.h>
@@ -116,6 +117,7 @@ void ConnectionViewer::readConnections()
 		continue;
 	}
 	QListViewItem *i = new QListViewItem( connectionListView );
+	i->setPixmap( 0, PixmapChooser::loadPixmap( "connecttool.xpm" ) );
 	i->setText( 0, conn.sender->name() );
 	i->setText( 1, conn.signal );
 	i->setText( 2, conn.receiver->name() );

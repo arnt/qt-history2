@@ -50,6 +50,7 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
 	QListViewItem *i = new QListViewItem( slotListView );
 	oldSlotNames.insert( i, QString( (*it).slot ) );
+	i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	i->setText( 0, (*it).slot );
 	i->setText( 1, (*it).access );
 	if ( MetaDataBase::isSlotUsed( formWindow, (*it).slot ) )
@@ -167,6 +168,7 @@ void EditSlots::okClicked()
 void EditSlots::slotAdd()
 {
     QListViewItem *i = new QListViewItem( slotListView );
+    i->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
     i->setText( 0, "newSlot()" );
     i->setText( 1, "public" );
     if ( MetaDataBase::isSlotUsed( formWindow, "newSlot()" ) )
