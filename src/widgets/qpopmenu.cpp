@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#140 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#139 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#140 $");
 
 // Motif style parameters
 
@@ -149,7 +149,7 @@ static QPopupMenuExtra * lookInPMDict( const QPopupMenu *that )
 
 
 /*! \fn void QPopupMenu::aboutToShow()
-  
+
   This signal is emited just before the popup menu is displayed.  You
   can connect it to any slot that sets up the menu contents (e.g. to
   ensure that the right items are enabled).
@@ -260,10 +260,13 @@ static QString accel_str( int k )
 	p.sprintf( "%c", (k & 0xff) );
     } else if ( k >= Key_F1 && k <= Key_F24 ) {
 	p.sprintf( "F%d", k - Key_F1 + 1 );
-    } else if ( k >= Key_Space && k <= Key_AsciiTilde ) {
+    } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
 	p.sprintf( "%c", k );
     } else {
 	switch ( k ) {
+	    case Key_Space:
+		p = "Space";
+		break;
 	    case Key_Escape:
 		p = "Esc";
 		break;
