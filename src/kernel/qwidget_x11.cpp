@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#298 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#299 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -603,8 +603,6 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    if ( !extra && cursor.handle() == arrowCursor.handle() )
-	return;
     createExtra();
     extra->curs = new QCursor(cursor);
     QCursor *oc = QApplication::overrideCursor();
@@ -1242,6 +1240,7 @@ void QWidget::move( int x, int y )
 void QWidget::internalMove( int x, int y )
 {
     if ( testWFlags(WType_TopLevel) ) {
+	setWFlags( WState_ConfigPending );
 	usposition = 1;
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition;
@@ -1315,9 +1314,9 @@ void QWidget::resize( int w, int h )
 	cancelResize();
 	QResizeEvent e( s, olds );
 	QApplication::sendEvent( this, &e );       // send resize event immediately
-	if ( !testWFlags(WResizeNoErase) ) {
-	    repaint( TRUE );
-	}
+ 	if ( !testWFlags(WResizeNoErase) ) {
+ 	    repaint( TRUE );
+ 	}
     }
 }
 
@@ -1325,6 +1324,7 @@ void QWidget::resize( int w, int h )
 void QWidget::internalResize( int w, int h )
 {
     if ( testWFlags(WType_TopLevel) ) {
+	setWFlags( WState_ConfigPending );
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USSize | PSize;
 	size_hints.width = w;
@@ -1410,6 +1410,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 void QWidget::internalSetGeometry( int x, int y, int w, int h )
 {
     if ( testWFlags(WType_TopLevel) ) {
+	setWFlags( WState_ConfigPending );
 	usposition = 1;
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition | USSize | PSize;
