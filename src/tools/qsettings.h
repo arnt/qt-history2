@@ -51,16 +51,24 @@ class QSettingsPrivate;
 class Q_EXPORT QSettings
 {
 public:
-    QSettings();
-    QSettings( bool unixFormat );
-
-    ~QSettings();
-
+    enum Format {
+	Native = 0,
+	Ini
+    };
     enum System {
 	Unix = 0,
 	Windows,
 	Mac
     };
+    enum Scope {
+	User,
+	Global
+    };
+
+    QSettings();
+    QSettings( Format format );
+
+    ~QSettings();
 
 #if !defined(Q_NO_BOOL_TYPE)
     bool	writeEntry( const QString &, bool );
@@ -88,6 +96,19 @@ public:
     void insertSearchPath( System, const QString & );
     void removeSearchPath( System, const QString & );
 
+    void setPath( const QString &domain, const QString &product, Scope = User );
+    /* ### static data brings threading trouble
+    static void setDefaultDomain( const QString &domain );
+    static QString defaultDomain();
+    static void setDefaultProduct( const QString &product );
+    static QString defaultProduct();
+    */
+
+    void beginGroup( const QString &group );
+    void endGroup();
+    void resetGroup();
+    QString group() const;
+
 private:
     QSettingsPrivate *d;
 
@@ -96,6 +117,7 @@ private:
     QSettings &operator=(const QSettings &);
 #endif
 
+    // ### Tabcompletion was here...
     QDateTime lastModficationTime( const QString & );
     bool sync();
 

@@ -193,6 +193,20 @@
     \value Windows Windows execution environments
 */
 
+/*!
+    \enum QSettings::Format
+
+    \value Native Store the settings in a platform dependent location
+    \value Ini Store the settings in a text file
+*/
+
+/*!
+    \enum QSettings::Scope
+
+    \value Global Save settings as global as possible
+    \value Local Save settings in user space
+*/
+
 #if defined(Q_OS_UNIX)
 // avoid pulling in qnamespace.h from kernel to get the HANDLE typedef
 typedef unsigned long HANDLE;
@@ -299,7 +313,9 @@ void QSettingsHeading::read(const QString &filename)
 
     QFile file(filename);
     if (! file.open(IO_ReadOnly)) {
+#if defined(QT_CHECK_STATE)
 	qWarning("QSettings: failed to open file '%s'", filename.latin1());
+#endif
 	return;
     }
 
@@ -341,15 +357,18 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 	    git = replace(gname, QSettingsGroup());
     } else {
 	if (git == end()) {
+#if defined(QT_CHECK_STATE)
 	    qWarning("QSettings: line '%s' out of group", line.latin1());
-
+#endif
 	    return;
 	}
 
 	int i = line.find('=');
        	if (i == -1) {
+#if defined(QT_CHECK_STATE)
 	    qWarning("QSettings: malformed line '%s' in group '%s'",
 		     line.latin1(), git.key().latin1());
+#endif
 	    return;
 	} else {
 	    QString key, value;
@@ -377,7 +396,9 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 		    // Backwards-compatiblity...
 		    // still escaped at EOL - manually escaped "newline"
 		    if (stream.atEnd()) {
+#if defined(QT_CHECK_STATE)
 			qWarning("QSettings: reached end of file, expected continued line");
+#endif
 			break;
 		    }
 		    value.append('\n');
@@ -405,7 +426,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 #endif
 
 QSettingsPrivate::QSettingsPrivate()
-    : modified(FALSE)
+    : groupDirty( TRUE ), modified(FALSE), globalScope(TRUE)
 {
     QString appSettings(QDir::homeDirPath() + "/.qt/");
     QString defPath;
@@ -446,7 +467,9 @@ QSettingsPrivate::QSettingsPrivate()
     QDir dir(appSettings);
     if (! dir.exists()) {
 	if (! dir.mkdir(dir.path()))
+#if defined(QT_CHECK_STATE)
 	    qWarning("QSettings: error creating %s", dir.path().latin1());
+#endif
     }
 
     if ( !!defPath )
@@ -598,6 +621,19 @@ QDateTime QSettingsPrivate::modificationTime()
     return datetime;
 }
 
+static bool verifyKey( const QString &key )
+{
+    if ( key.isEmpty() || key[0] != '/' || key.contains( QRegExp("[=\\\\r\\\\n" ) ) )
+	return FALSE;
+    return TRUE;
+}
+
+static inline QString groupKey( const QString &group, const QString &key )
+{
+    if ( group.endsWith( "/" ) || key.startsWith( "/" ) )
+	return group + key;
+    return group + "/" + key;
+}
 
 /*!
   Inserts \a path into the settings search path. The semantics of \a
@@ -681,6 +717,13 @@ QDateTime QSettingsPrivate::modificationTime()
 */
 void QSettings::insertSearchPath( System s, const QString &path)
 {
+    if ( !verifyKey( path ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
+#endif
+	return;
+    }
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd ) {
 	d->sysInsertSearchPath( s, path );
@@ -715,6 +758,13 @@ void QSettings::insertSearchPath( System s, const QString &path)
 */
 void QSettings::removeSearchPath( System s, const QString &path)
 {
+    if ( !verifyKey( path ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
+#endif
+	return;
+    }
+
 #ifdef Q_WS_WIN
     if ( d->sysd ) {
 	d->sysRemoveSearchPath( s, path );
@@ -754,21 +804,22 @@ QSettings::QSettings()
 }
 
 /*!
-  Creates a settings object. If \a unixFormat is TRUE the settings will
-  be written and read following the UNIX strategy. Otherwise they will
-  be stored in a platform specific way (ie. the Windows registry).
+  Creates a settings object. If \a format is 'Ini' the settings will
+  be stored in a text file, using the Unix strategy (see above). If \a format
+  is 'Native', the settings will be stored in a platform specific way 
+  (ie. the Windows registry).
 */
-QSettings::QSettings( bool unixFormat )
+QSettings::QSettings( Format format )
 {
     d = new QSettingsPrivate;
     Q_CHECK_PTR(d);
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     d->sysd = 0;
-    if ( !unixFormat )
+    if ( format == Native )
 	d->sysInit();
 #else
-    Q_UNUSED(unixFormat);
+    Q_UNUSED(format);
 #endif
 }
 
@@ -911,12 +962,23 @@ bool QSettings::sync()
 */
 bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::readBoolEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+    	if ( ok )
+	    *ok = FALSE;
+
+	return def;
+    }
+
+    QString theKey = groupKey( group(), key );
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysReadBoolEntry( key, def, ok );
+	return d->sysReadBoolEntry( theKey, def, ok );
 #endif
 
-    QString value = readEntry( key, ( def ? "true" : "false" ), ok );
+    QString value = readEntry( theKey, ( def ? "true" : "false" ), ok );
 
     if (value.lower() == "true")
 	return TRUE;
@@ -946,12 +1008,23 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 */
 double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::readDoubleEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+    	if ( ok )
+	    *ok = FALSE;
+
+	return def;
+    }
+
+    QString theKey = groupKey( group(), key );
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysReadDoubleEntry( key, def, ok );
+	return d->sysReadDoubleEntry( theKey, def, ok );
 #endif
 
-    QString value = readEntry( key, QString::number(def), ok );
+    QString value = readEntry( theKey, QString::number(def), ok );
     bool conv_ok;
     double retval = value.toDouble( &conv_ok );
     if ( conv_ok )
@@ -975,12 +1048,23 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 */
 int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::readNumEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+	if ( ok )
+	    *ok = FALSE;
+	return def;
+    }
+
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysReadNumEntry( key, def, ok );
+	return d->sysReadNumEntry( theKey, def, ok );
 #endif
 
-    QString value = readEntry( key, QString::number( def ), ok );
+    QString value = readEntry( theKey, QString::number( def ), ok );
     bool conv_ok;
     int retval = value.toInt( &conv_ok );
     if ( conv_ok )
@@ -1004,16 +1088,21 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 */
 QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
-    if (key.isNull() || key.isEmpty()) {
-#ifdef QT_CHECK_STATE
-	qWarning("QSettings::readEntry: invalid null/empty key.");
-#endif // QT_CHECK_STATE
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::readEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+	if ( ok )
+	    *ok = FALSE;
+
 	return def;
     }
 
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysReadEntry( key, def, ok );
+	return d->sysReadEntry( theKey, def, ok );
 #endif
 
     if ( ok ) // no, everything is not ok
@@ -1021,13 +1110,13 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 
     QString realkey;
 
-    if (key[0] == '/') {
+    if (theKey[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', key));
+	QStringList list(QStringList::split('/', theKey));
 
 	if (list.count() < 2) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::readEntry: invalid key '%s'", key.latin1());
+	    qWarning("QSettings::readEntry: invalid key '%s'", theKey.latin1());
 #endif // QT_CHECK_STATE
 	    if ( ok )
 		*ok = FALSE;
@@ -1050,7 +1139,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 	    realkey = list.join("/");
 	}
     } else
-    	realkey = key;
+    	realkey = theKey;
 
     QSettingsGroup grp = d->readGroup();
     QString retval = grp[realkey];
@@ -1075,12 +1164,21 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 */
 bool QSettings::writeEntry(const QString &key, bool value)
 {
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+	return FALSE;
+    }
+
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysWriteEntry( key, value );
+	return d->sysWriteEntry( theKey, value );
 #endif
     QString s(value ? "true" : "false");
-    return writeEntry(key, s);
+    return writeEntry(theKey, s);
 }
 #endif
 
@@ -1098,12 +1196,21 @@ bool QSettings::writeEntry(const QString &key, bool value)
 */
 bool QSettings::writeEntry(const QString &key, double value)
 {
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+	return FALSE;
+    }
+
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysWriteEntry( key, value );
+	return d->sysWriteEntry( theKey, value );
 #endif
     QString s(QString::number(value));
-    return writeEntry(key, s);
+    return writeEntry(theKey, s);
 }
 
 
@@ -1120,12 +1227,21 @@ bool QSettings::writeEntry(const QString &key, double value)
 */
 bool QSettings::writeEntry(const QString &key, int value)
 {
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+	return FALSE;
+    }
+
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysWriteEntry( key, value );
+	return d->sysWriteEntry( theKey, value );
 #endif
     QString s(QString::number(value));
-    return writeEntry(key, s);
+    return writeEntry(theKey, s);
 }
 
 
@@ -1147,7 +1263,16 @@ bool QSettings::writeEntry(const QString &key, int value)
 */
 bool QSettings::writeEntry(const QString &key, const char *value)
 {
-    return writeEntry(key, QString(value));
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
+	return FALSE;
+    }
+
+    QString theKey = groupKey( group(), key );
+
+    return writeEntry(theKey, QString(value));
 }
 
 
@@ -1165,29 +1290,30 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 */
 bool QSettings::writeEntry(const QString &key, const QString &value)
 {
-    if (key.isNull() || key.isEmpty()) {
-#ifdef QT_CHECK_STATE
-	qWarning("QSettings::writeEntry: invalid null/empty key.");
-#endif // QT_CHECK_STATE
-
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::writeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
 	return FALSE;
     }
 
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysWriteEntry( key, value );
+	return d->sysWriteEntry( theKey, value );
 #endif
     // NOTE: we *do* allow value to be a null/empty string
 
     QString realkey;
 
-    if (key[0] == '/') {
+    if (theKey[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', key));
+	QStringList list(QStringList::split('/', theKey));
 
 	if (list.count() < 2) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::writeEntry: invalid key '%s'", key.latin1());
+	    qWarning("QSettings::writeEntry: invalid key '%s'", theKey.latin1());
 #endif // QT_CHECK_STATE
 
 	    return FALSE;
@@ -1209,7 +1335,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 	    realkey = list.join("/");
 	}
     } else
-	realkey = key;
+	realkey = theKey;
 
     d->writeGroup(realkey, value);
     return TRUE;
@@ -1225,28 +1351,29 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 */
 bool QSettings::removeEntry(const QString &key)
 {
-    if (key.isNull() || key.isEmpty()) {
-#ifdef QT_CHECK_STATE
-	qWarning("QSettings::removeEntry: invalid null/empty key.");
-#endif // QT_CHECK_STATE
-
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::removeEntry: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
 	return FALSE;
     }
 
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysRemoveEntry( key );
+	return d->sysRemoveEntry( theKey );
 #endif
 
     QString realkey;
 
-    if (key[0] == '/') {
+    if (theKey[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', key));
+	QStringList list(QStringList::split('/', theKey));
 
 	if (list.count() < 2) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::removeEntry: invalid key '%s'", key.latin1());
+	    qWarning("QSettings::removeEntry: invalid key '%s'", theKey.latin1());
 #endif // QT_CHECK_STATE
 
 	    return FALSE;
@@ -1268,7 +1395,7 @@ bool QSettings::removeEntry(const QString &key)
 	    realkey = list.join("/");
 	}
     } else
-	realkey = key;
+	realkey = theKey;
 
     d->removeGroup(realkey);
     return TRUE;
@@ -1303,27 +1430,28 @@ bool QSettings::removeEntry(const QString &key)
 */
 QStringList QSettings::entryList(const QString &key) const
 {
-    if ( key.isNull() || key.isEmpty() ) {
-#ifdef QT_CHECK_STATE
-	qWarning("QSettings::entryList: invalid null/empty key.");
-#endif // QT_CHECK_STATE
-
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::entryList: Invalid key: %s", key.isNull() ? "(null)" : key.latin1() );
+#endif
 	return QStringList();
     }
 
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysEntryList( key );
+	return d->sysEntryList( theKey );
 #endif
 
     QString realkey;
-    if (key[0] == '/') {
+    if (theKey[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', key));
+	QStringList list(QStringList::split('/', theKey));
 
 	if (list.count() < 1) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::listEntries: invalid key '%s'", key.latin1());
+	    qWarning("QSettings::listEntries: invalid key '%s'", theKey.latin1());
 #endif // QT_CHECK_STATE
 
 	    return QStringList();
@@ -1344,7 +1472,7 @@ QStringList QSettings::entryList(const QString &key) const
 	    realkey = list.join("/");
 	}
     } else
-	realkey = key;
+	realkey = theKey;
 
     QSettingsGroup grp = d->readGroup();
     QSettingsGroup::Iterator it = grp.begin();
@@ -1399,27 +1527,28 @@ QStringList QSettings::entryList(const QString &key) const
 */
 QStringList QSettings::subkeyList(const QString &key) const
 {
-    if ( key.isNull() || key.isEmpty() ) {
-#ifdef QT_CHECK_STATE
-	qWarning( "QSettings::subkeyList: invalid null/empty key." );
-#endif // QT_CHECK_STATE
-
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::subkeyList: Invalid key: %s", key.isNull() ? "(null)" : key.latin1() );
+#endif
 	return QStringList();
     }
 
+    QString theKey = groupKey( group(), key );
+
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	return d->sysSubkeyList( key );
+	return d->sysSubkeyList( theKey );
 #endif
 
     QString realkey;
-    if (key[0] == '/') {
+    if (theKey[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', key));
+	QStringList list(QStringList::split('/', theKey));
 
 	if (list.count() < 1) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::listSubkeys: invalid key '%s'", key.latin1());
+	    qWarning("QSettings::subkeyList: invalid key '%s'", theKey.latin1());
 #endif // QT_CHECK_STATE
 
 	    return QStringList();
@@ -1440,7 +1569,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 	    realkey = list.join("/");
 	}
     } else
-	realkey = key;
+	realkey = theKey;
 
     QSettingsGroup grp = d->readGroup();
     QSettingsGroup::Iterator it = grp.begin();
@@ -1477,26 +1606,27 @@ QStringList QSettings::subkeyList(const QString &key) const
 */
 QDateTime QSettings::lastModficationTime(const QString &key)
 {
-    if (key.isNull() || key.isEmpty()) {
-#ifdef QT_CHECK_STATE
-	qWarning("QSettings::lastModficationTime: invalid null/empty key.");
-#endif // QT_CHECK_STATE
-
+    if ( !verifyKey( key ) ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QSettings::lastModficationTime: Invalid key: '%s'", key.isNull() ? "(null)" : key.latin1() );
+#endif
 	return QDateTime();
     }
+
+    QString theKey = groupKey( group(), key );
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
 	return QDateTime();
 #endif
 
-    if (key[0] == '/') {
+    if (theKey[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', key));
+	QStringList list(QStringList::split('/', theKey));
 
 	if (list.count() < 2) {
 #ifdef QT_CHECK_STATE
-	    qWarning("QSettings::lastModficationTime: invalid key '%s'", key.latin1());
+	    qWarning("QSettings::lastModficationTime: invalid key '%s'", theKey.latin1());
 #endif // QT_CHECK_STATE
 
 	    return QDateTime();
@@ -1642,3 +1772,170 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
     return l;
 }
 
+/*!
+  Insert platform-dependent paths from platform-independent information.
+
+  The \a domain should be an Internet domain name
+  controlled by the producer of the software, eg. Trolltech products
+  use "trolltech.com".
+
+  The \a product should be the official name of the product.
+
+  The \a scope should be
+  QSettings::User for user-specific settings, or
+  QSettings::Global for system-wide settings (generally
+  these will be read-only to many users).
+*/
+
+void QSettings::setPath( const QString &domain, const QString &product, Scope scope )
+{
+    /*
+      On Windows, any trailing ".com(\..*)" is stripped from the domain. The Global
+      scope corresponds to HKEY_LOCAL_MACHINE, and User corresponds to HKEY_CURRENT_USER.
+      Note that on some installations, not all users can write to the Global scope.
+
+      On UNIX, any trailing ".com(\..*)" is stripped from the domain. The Global scope
+      corresponds to "/opt" (this would be configurable at library build time - eg. to
+      "/usr/local" or "/usr"), while the User scope corresponds to $HOME/.*rc.
+      Note that on most installations, not all users can write to the System scope.
+
+      On MacOS X, if there is no "." in domain, append ".com", then reverse the
+      order of the elements (Mac OS uses "com.apple.finder" as domain+product).
+      The Global scope corresponds
+      to /Library/Preferences/*.plist, while the User scope corresponds to
+      ~/Library/Preferences/*.plist.
+      Note that on most installations, not all users can write to the System scope.
+    */
+    QString actualSearchPath;
+    int lastDot = domain.findRev( '.' );
+
+#if defined(Q_WS_WIN)
+    actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
+    insertSearchPath( Windows, actualSearchPath );
+#elif defined(Q_WS_MAC)
+    QString topLevelDomain = domain.right( domain.length() - lastDot - 1 ) + ".";
+    if ( topLevelDomain.isEmpty() )
+	topLevelDomain = "com.";
+    actualSearchPath = "/" + topLevelDomain + domain.left( lastDot ) + product;
+    insertSearchPath( Mac, actualSearchPath );
+#else
+    actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
+    insertSearchPath( Unix, actualSearchPath );
+#endif
+
+    d->globalScope = scope == Global;
+}
+
+#if 0 //### static data brings threading trouble
+
+QString *QSettingsPrivate::defDomain = 0;
+QString *QSettingsPrivate::defProduct = 0;
+
+/*!
+  Sets the default domain to \a domain. The default is to use a null domain,
+  or to use "Qt", depending on the platform.
+
+  Only QSettings object created after setting the default domain are affected.
+
+  \sa setDefaultProduct(), setPath()
+*/
+void QSettings::setDefaultDomain( const QString &domain )
+{
+    if ( !QSettingsPrivate::defDomain )
+	QSettingsPrivate::defDomain = new QString( domain );
+    else
+	*QSettingsPrivate::defDomain = domain;
+}
+
+/*!
+  Returns the current default domain.
+
+  \sa setDefaultDomain()
+*/
+QString QSettings::defaultDomain()
+{
+    if ( QSettingsPrivate::defDomain )
+	return *QSettingsPrivate::defDomain;
+    return QString::null;
+}
+
+/*!
+  Sets the default product to \a product. The default is to use the application
+  name.
+
+  Only QSettings object created after setting the default product are affected.
+
+  \sa qAppName()
+*/
+void QSettings::setDefaultProduct( const QString &product )
+{
+    if ( !QSettingsPrivate::defProduct )
+	QSettingsPrivate::defProduct = new QString( product );
+    else
+	*QSettingsPrivate::defProduct = product;
+}
+
+/*!
+    Returns the current default product.
+    
+    \sa setDefaultProduct()
+*/
+QString QSettings::defaultProduct()
+{
+    if ( QSettingsPrivate::defProduct )
+	return *QSettingsPrivate::defProduct;
+    return qAppName();
+}
+#endif
+
+/*!
+    Appends \a group to the current key prefix.
+*/
+void QSettings::beginGroup( const QString &group )
+{
+    d->groupStack.push( group );
+    d->groupDirty = TRUE;
+}
+
+/*!
+    Undo previous calls to beginGroup(). Note that a single beginGroup("a/b/c") is undone
+    by a single call to endGroup().
+*/
+void QSettings::endGroup()
+{
+    d->groupStack.pop();
+    d->groupDirty = TRUE;
+}
+
+/*!
+    Set the current key prefix to the empty string.
+*/
+void QSettings::resetGroup()
+{
+    d->groupStack.clear();
+    d->groupDirty = FALSE;
+    d->groupPrefix = QString::null;
+}
+
+/*!
+    Returns the current key prefix, or a null string if there is no key prefix set.
+    
+    \sa beginGroup();
+*/
+QString QSettings::group() const
+{
+    if ( d->groupDirty ) {
+	d->groupDirty = FALSE;
+	d->groupPrefix = QString::null;
+
+	QValueStack<QString>::Iterator it = d->groupStack.begin();
+	while ( it != d->groupStack.end() ) {
+	    QString group = *it;
+	    ++it;
+	    if ( group[0] != '/' )
+		group = "/" + group;
+	    d->groupPrefix += group;
+	}
+    }
+    return d->groupPrefix;
+}

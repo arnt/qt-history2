@@ -43,6 +43,7 @@
 #ifndef QT_H
 #include "qstringlist.h"
 #include "qmap.h"
+#include "qvaluestack.h"
 #endif // QT_H
 
 class QSettingsSysPrivate;
@@ -81,7 +82,17 @@ public:
     QMap<QString,QSettingsHeading> headings;
     QString group;
     QString heading;
-    bool modified;
+
+    /*### static data brings threading trouble
+    static QString *defProduct;
+    static QString *defDomain;
+    */
+    QValueStack<QString> groupStack;
+    QString groupPrefix;
+
+    bool groupDirty :1;
+    bool modified :1;
+    bool globalScope :1;
 
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     // system dependent implementations to use the 
