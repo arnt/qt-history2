@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#79 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,11 +17,13 @@
 #include "qkeycode.h"
 #include "qclipbrd.h"
 #include "qapp.h"
+/* 
 #include "qvalidator.h"
+*/
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#79 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -34,7 +36,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#78 $");
 struct QLineEditExtra {
     bool frame;
     QLineEdit::EchoMode mode;
+    /* No validators
     QValidator * validator;
+    */
 };
 
 
@@ -358,6 +362,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
     if ( e->ascii() >= 32 && e->key() != Key_Delete ) {
+	/* No validators
 	if ( validator() ) { // do a slow, wasteful test first
 	    QString test( tbuf.copy() );
 	    if ( hasMarkedText() )
@@ -367,7 +372,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    if ( validator()->validate( test ) > QValidator::Unknown )
 		return;
 	}
-
+	*/
 	if ( hasMarkedText() ) {
 	    tbuf.remove( minMark(), maxMark() - minMark() );
 	    cursorPos = minMark();
@@ -424,6 +429,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		}
 		int tlen = t.length();
 		int blen;
+		/* No validators
 		if ( validator() ) {
 		    // do a test run without hurting tbuf and stuf
 		    QString test( tbuf.copy() );
@@ -439,6 +445,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    if ( validator()->validate( test ) > QValidator::Unknown )
 			break;
 		}
+		*/
 		if ( hasMarkedText() ) {
 		    tbuf.remove( minMark(), maxMark() - minMark() );
 		    cursorPos = minMark();
@@ -922,9 +929,11 @@ void QLineEdit::del()
 
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
+	/* No validators
 	if ( validator() &&
 	     validator()->validate( test ) > QValidator::Unknown )
 	    return;
+	*/
 	tbuf = test;
 	cursorPos  = minMark();
 	markAnchor = cursorPos;
@@ -935,9 +944,11 @@ void QLineEdit::del()
 	emit textChanged( tbuf.data() );
     } else if ( cursorPos != (int)strlen(tbuf) ) {
 	test.remove( cursorPos, 1 );
+	/* No validators
 	if ( validator() &&
 	     validator()->validate( test ) > QValidator::Unknown )
 	    return;
+	*/
 	tbuf = test;
 	repaint( !hasFocus() );
 	emit textChanged( tbuf.data() );
@@ -1191,6 +1202,7 @@ QSize QLineEdit::sizeHint() const
   \sa validator() QValidator
 */
 
+/* No validators
 void QLineEdit::setValidator( QValidator * v )
 {
     if ( v == 0 && !qle_extraStuff )
@@ -1201,18 +1213,20 @@ void QLineEdit::setValidator( QValidator * v )
     repaint();
 }
 
+*/
 
 /*!
   Returns a pointer to the current input validator, or 0 if no
   validator has been set.
 */
 
+/* No validators
 QValidator * QLineEdit::validator() const
 {
     QLineEditExtra * x = lookInLEDict( this );
     return x ? x->validator : 0;
 }
-
+*/
 
 /*!
   Sets the line current palette to \a p, and sets the \link
