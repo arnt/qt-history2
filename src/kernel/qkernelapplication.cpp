@@ -1197,6 +1197,8 @@ QTextCodec* QKernelApplication::defaultCodec() const
 */
 QStringList QKernelApplication::libraryPaths()
 {
+    if (!self)
+	return QStringList();
     if ( !self->d->app_libpaths ) {
 	self->d->app_libpaths = new QStringList;
 	if ( QFile::exists( qInstallPathPlugins() ) )
