@@ -30,9 +30,6 @@
 #include "qclipboard.h"
 
 #ifndef QT_NO_CLIPBOARD
-
-// #define QCLIPBOARD_DEBUG
-
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
@@ -40,6 +37,11 @@
 #include "qbuffer.h"
 #include "qapplication_p.h"
 #include "qt_mac.h"
+
+/*****************************************************************************
+  QClipboard debug facilities
+ *****************************************************************************/
+//#define DEBUG_MAPPINGS
 
 static ScrapRef scrap = NULL;
 static QWidget * owner = 0;
@@ -139,18 +141,27 @@ QClipboardWatcher::QClipboardWatcher()
     setupOwner();
 }
 
+
+#ifdef DEBUG_MAPPINGS
+#  define MAP_FLAVOUR(x) x, #x
+#else
+#  define MAP_FLAVOUR(x) x
+#endif
 static struct {
     ScrapFlavorType mac_type;
+#ifdef DEBUG_MAPPINGS
+    const char *mac_type_name;
+#endif
     const char *qt_type; 
 } scrap_map[] = {
-    { kScrapFlavorTypeUnicode, "text/plain;charset=ISO-10646-UCS-2" }, //highest priority
-    { kScrapFlavorTypeText, "text/plain" },
-    { 0, NULL } 
+    { MAP_FLAVOUR(kScrapFlavorTypeUnicode), "text/plain;charset=ISO-10646-UCS-2" }, //highest priority
+    { MAP_FLAVOUR(kScrapFlavorTypeText), "text/plain" },
+    { MAP_FLAVOUR(0), NULL } 
 };
 
 const char* QClipboardWatcher::format( int n ) const
 {
-    int subtract = 0;
+    int subtract = 0, i = 0;
     const char *ret = NULL;
     char *buffer = NULL;
     ScrapFlavorInfo *infos = NULL;
@@ -170,6 +181,10 @@ const char* QClipboardWatcher::format( int n ) const
     for(int sm = 0; scrap_map[sm].qt_type; sm++) {
 	if(n == (sm - subtract)) {
 	    if(GetScrapFlavorSize(scrap, scrap_map[sm].mac_type, &flavorsize) == noErr) {
+#ifdef DEBUG_MAPPINGS
+		qDebug("QClipboard::format(%d): %s %s", n, scrap_map[sm].mac_type_name,
+		       scrap_map[sm].qt_type);
+#endif
 		ret = scrap_map[sm].qt_type;
 		goto format_end;
 	    } else {
@@ -178,26 +193,29 @@ const char* QClipboardWatcher::format( int n ) const
 	} 
     }
 
-    for( ; n < (int)cnt; n++) {
-	if( ( infos[n].flavorType >> 16 ) == ( 'QTxx' >> 16 ) ) 
+    for(i = n; i < (int)cnt; i++) {
+	if( ( infos[i].flavorType >> 16 ) == ( 'QTxx' >> 16 ) ) 
 	    break;
 	qDebug( "%s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
-		char(infos[n].flavorType >> 24), char((infos[n].flavorType >> 16) & 255), 
-		char((infos[n].flavorType >> 8) & 255), char(infos[n].flavorType & 255 ), n );
+		char(infos[i].flavorType >> 24), char((infos[i].flavorType >> 16) & 255), 
+		char((infos[i].flavorType >> 8) & 255), char(infos[i].flavorType & 255 ), i );
     }
-    if(n >= (int)cnt)
+    if(i >= (int)cnt)
 	return 0;
 
-    if(GetScrapFlavorSize(scrap, infos[n].flavorType, &flavorsize) != noErr || flavorsize < 4) {
-	qDebug("Failure to get ScrapFlavorSize for %d", (int)infos[n].flavorType);
+    if(GetScrapFlavorSize(scrap, infos[i].flavorType, &flavorsize) != noErr || flavorsize < 4) {
+	qDebug("Failure to get ScrapFlavorSize for %d", (int)infos[i].flavorType);
 	goto format_end;
     }
-    GetScrapFlavorData(scrap, infos[n].flavorType, &realsize, &typesize);
+    GetScrapFlavorData(scrap, infos[i].flavorType, &realsize, &typesize);
     buffer = (char *)malloc(typesize+realsize);
-    GetScrapFlavorData(scrap, infos[n].flavorType, &typesize, buffer);
+    GetScrapFlavorData(scrap, infos[i].flavorType, &typesize, buffer);
     memcpy(buffer, buffer+realsize, typesize);
     *(buffer + realsize) = '\0';
     ret = buffer;
+#ifdef DEBUG_MAPPINGS
+    qDebug("QClipboard::format(%d): (internal) %s", n, ret);
+#endif
 
  format_end:
     if(infos)
@@ -223,9 +241,13 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
     //special case again..
     for(int sm = 0; scrap_map[sm].qt_type; sm++) {
 	if(!qstrcmp(fmt, scrap_map[sm].qt_type)) {
+#ifdef DEBUG_MAPPINGS
+	    qDebug("QClipboard::encodedData(%s): %s %s", fmt, scrap_map[sm].mac_type_name,
+		   scrap_map[sm].qt_type);
+#endif
 	    GetScrapFlavorSize(scrap, scrap_map[sm].mac_type, &flavorsize);
 	    buffer = (char *)malloc(buffersize = flavorsize);
-	    GetScrapFlavorData(scrap, kScrapFlavorTypeText, &flavorsize, buffer);
+	    GetScrapFlavorData(scrap, scrap_map[sm].mac_type, &flavorsize, buffer);
 	    ret.assign(buffer, flavorsize);
 	    return ret;
 	}
@@ -253,6 +275,9 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	UInt32 mimesz;
 	memcpy(&mimesz, buffer, sizeof(mimesz));
 	if(!qstrnicmp(buffer+sizeof(mimesz), fmt, mimesz)) {
+#ifdef DEBUG_MAPPINGS
+	    qDebug("QClipboard::encodedData(%s): (internal)", fmt);
+#endif
 	    int len = flavorsize-(mimesz+sizeof(mimesz));
 	    memcpy(buffer, buffer+(mimesz+sizeof(mimesz)), len);
 	    ret.assign(buffer, len);
@@ -324,23 +349,32 @@ void QClipboard::setData( QMimeSource *src )
     ScrapFlavorType mactype;
     const char *fmt;
     for(int i = 0; (fmt = src->format(i)); i++) {
-	for(int sm = 0; scrap_map[sm].qt_type; sm++) {     //handle text/plain specially so other apps can get it
+	bool found_flavour = FALSE;
+	for(int sm = 0; scrap_map[sm].qt_type; sm++) {  
 	    if(!qstrcmp(fmt, scrap_map[sm].qt_type)) {
+#ifdef DEBUG_MAPPINGS
+		qDebug("QClipboard::setData(%s): %s", fmt, scrap_map[sm].mac_type_name);
+#endif
 		ar = src->encodedData(scrap_map[sm].qt_type);
 		PutScrapFlavor(scrap, scrap_map[sm].mac_type, 0, ar.size(), ar.data());
-		continue;
+		found_flavour = TRUE;
+		break;
 	    }
 	}
-
-	//encode it..
-	ar = src->encodedData(fmt);
-	mactype = ('Q' << 24) | ('T' << 16) | (i & 0xFFFF);
-	UInt32 mimelen = strlen(fmt);
-	char *buffer = (char *)malloc(ar.size() + mimelen + sizeof(mimelen));
-	memcpy(buffer, &mimelen, sizeof(mimelen));
-	memcpy(buffer+sizeof(mimelen), fmt, mimelen);
-	memcpy(buffer+sizeof(mimelen)+mimelen, ar.data(), ar.size());
-	PutScrapFlavor(scrap, (ScrapFlavorType)mactype, 0, ar.size()+mimelen+sizeof(mimelen), buffer);
+	if(!found_flavour) { 	    //encode it..
+#ifdef DEBUG_MAPPINGS
+	    qDebug("QClipboard::setData(%s): (internal)", fmt);
+#endif
+	    ar = src->encodedData(fmt);
+	    mactype = ('Q' << 24) | ('T' << 16) | (i & 0xFFFF);
+	    UInt32 mimelen = strlen(fmt);
+	    char *buffer = (char *)malloc(ar.size() + mimelen + sizeof(mimelen));
+	    memcpy(buffer, &mimelen, sizeof(mimelen));
+	    memcpy(buffer+sizeof(mimelen), fmt, mimelen);
+	    memcpy(buffer+sizeof(mimelen)+mimelen, ar.data(), ar.size());
+	    PutScrapFlavor(scrap, (ScrapFlavorType)mactype, 0, 
+			   ar.size()+mimelen+sizeof(mimelen), buffer);
+	}
     }
     emit dataChanged();
 }
