@@ -77,6 +77,8 @@ public:
     bool eventFilter( QObject *, QEvent * );
     bool lastWindowClosed() { return lwClosed; }
 
+    void timerEvent(QTimerEvent *e);
+
 protected slots:
     void showTopic( int, QListBoxItem *, const QPoint & );
     void showTopic( int, QListViewItem *, const QPoint & );
@@ -101,6 +103,7 @@ public slots:
     void toggleIndex();
     void toggleBookmarks();
     void toggleSearch();
+
 
 signals:
     void showLink( const QString &s );

@@ -54,6 +54,17 @@ static QString stripAmpersand( const QString &str )
     return s;
 }
 
+static bool verifyDirectory(const QString &str)
+{
+    QFileInfo dirInfo(str);
+    if (!dirInfo.exists())
+	return QDir().mkdir(str);
+    if (!dirInfo.isDir()) {
+	qWarning("'%s' exists but is not a directory", str.latin1());
+	return false;
+    }
+}
+
 struct IndexKeyword {
     IndexKeyword( const QString &kw, const QString &l )
 	: keyword( kw ), link( l ) {}
@@ -234,7 +245,7 @@ void HelpDialog::lastWinClosed()
 void HelpDialog::removeOldCacheFiles()
 {
     QString dir = cacheFilesPath; // ### remove the last '/' ?
-    if ( !QFile::exists( dir ) && !QDir().mkdir( dir ) ) {
+    if (!verifyDirectory(cacheFilesPath)) {
 	qWarning( "Failed to created assistant directory" );
 	return;
     }
@@ -249,6 +260,14 @@ void HelpDialog::removeOldCacheFiles()
 	    f.remove();
 	}
     }
+}
+
+void HelpDialog::timerEvent(QTimerEvent *e)
+{
+    static int opacity = 255;
+    help->setWindowOpacity((opacity-=4)/255.0);
+    if (opacity<=0)
+	qApp->quit();
 }
 
 
@@ -276,7 +295,14 @@ void HelpDialog::loadIndexFile()
 	processEvents();
 	if( lwClosed )
 	    return;
-	indexFile.open( IO_ReadOnly );
+	if (!indexFile.open(IO_ReadOnly)) {
+	    QMessageBox::warning(help, tr("Qt Assistant"), tr("Failed to load keyword index file\n"
+							      "Assistant will not work!"));
+#if defined Q_WS_WIN || defined Q_WS_MACX
+	    startTimer(50);
+#endif
+	    return;
+	}
     }
 
     QDataStream ds( &indexFile );
@@ -389,7 +415,7 @@ void HelpDialog::buildKeywordDB()
 	qHeapSort( lst );
 
     QFile indexout( cacheFilesPath + "indexdb." + Config::configuration()->profileName() );
-    if ( indexout.open( IO_WriteOnly ) ) {
+    if ( verifyDirectory(cacheFilesPath) && indexout.open( IO_WriteOnly ) ) {
 	QDataStream s( &indexout );
 	s << fileAges;
 	s << lst;
@@ -853,6 +879,12 @@ void HelpDialog::setupFullTextIndex()
 
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index( documentList, QDir::homeDirPath() ); // ### Is this correct ?
+    if (!verifyDirectory(cacheFilesPath)) {
+	QMessageBox::warning(help, tr("Qt Assistant"),
+			     tr("Failed to save fulltext search index\n"
+				"Assistant will not work!"));
+	return;
+    }
     fullTextIndex->setDictionaryFile( cacheFilesPath + "indexdb.dict." + pname );
     fullTextIndex->setDocListFile( cacheFilesPath + "indexdb.doc." + pname );
     processEvents();
