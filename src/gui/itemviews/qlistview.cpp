@@ -480,7 +480,7 @@ void QListView::setViewMode(ViewMode mode)
         if (!(d->modeProperties & QListViewPrivate::IconSize))
             d->iconSize = Qt::LargeIconSize;
         if (!(d->modeProperties & QListViewPrivate::ResizeMode))
-            d->resizeMode = Adjust;
+            d->resizeMode = Fixed;
     }
 
     if (isVisible())
