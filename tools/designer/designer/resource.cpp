@@ -164,7 +164,7 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 		inc.location = "local";
 	    inc.implDecl = "in declaration";
 	    if ( firstWidget.attribute( "impldecl" ) == "in implementation" )
-		inc.implDecl = "in implementation";	
+		inc.implDecl = "in implementation";
 	    inc.header = firstWidget.firstChild().toText().data();
 	    metaIncludes.append( inc );
 	} else if ( firstWidget.tagName() == "comment" ) {
@@ -181,7 +181,7 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
 		formwindow->setPixmapLoaderFunction( firstWidget.firstChild().toText().data() );
 	    }
 	}
-	
+
 	firstWidget = firstWidget.nextSibling().toElement();
     }
     QDomElement connections = firstWidget;
@@ -412,7 +412,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		attributes += QString(" colspan=\"") + QString::number(item.colspan) + "\" ";
 	    }
 	}
-	
+
 	if ( qstrcmp( className, "Spacer" ) == 0 ) {
 	    closeTag = makeIndent( indent ) + "</spacer>\n";
 	    ts << makeIndent( indent ) << "<spacer" << attributes << ">" << endl;
@@ -478,14 +478,14 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ts << makeIndent( indent ) << "<widget>" << endl;
 	    ++indent;
 	    ts << makeIndent( indent ) << "<class>" << "QWidget" << "</class>" << endl;
-	
+
 	    ts << makeIndent( indent ) << "<property stdset=\"1\">" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<name>name</name>" << endl;
 	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
-	
+
 	    ts << makeIndent( indent ) << "<attribute>" << endl;
 	    indent++;
 	    ts << makeIndent( indent ) << "<name>" << "title" << "</name>" << endl;
@@ -513,7 +513,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    lb = (QListBox*)obj;
 	else
 	    lb = ( (QComboBox*)obj )->listBox();
-	
+
 	QListBoxItem *i = lb->firstItem();
 	for ( ; i; i = i->next() ) {
 	    ts << makeIndent( indent ) << "<item>" << endl;
@@ -529,7 +529,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	}
     } else if ( obj->inherits( "QIconView" ) ) {
 	QIconView *iv = (QIconView*)obj;
-	
+
 	QIconViewItem *i = iv->firstItem();
 	for ( ; i; i = i->nextItem() ) {
 	    ts << makeIndent( indent ) << "<item>" << endl;
@@ -589,10 +589,10 @@ void Resource::saveItem( QListViewItem *i, QTextStream &ts, int indent )
 	    textes << i->text( c );
 	}
 	saveItem( textes, pixmaps, ts, indent );
-	
+
 	if ( i->firstChild() )
 	    saveItem( i->firstChild(), ts, indent );
-	
+
 	indent--;
 	ts << makeIndent( indent ) << "</item>" << endl;
 	i = i->nextSibling();
@@ -620,7 +620,7 @@ QPixmap Resource::loadPixmap( const QDomElement &e )
 	MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
 	return pix;
     }
-	
+
     QImage img = loadFromCollection( arg );
     QPixmap pix;
     pix.convertFromImage( img );
@@ -690,9 +690,9 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 	// save properties of layout
 	if ( lay != WidgetFactory::NoLayout )
 	    saveObjectProperties( layout, ts, indent );
-	
+
     }
-	
+
     for ( QListIterator<QObject> it ( *l ); it.current(); ++it )
 	saveObject( it.current(), grid, ts, indent );
     if ( !closeTag.isEmpty() ) {
@@ -726,7 +726,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 
     bool inLayout = w != formwindow->mainContainer() && !copying && w->isWidgetType() && ( (QWidget*)w )->parentWidget() &&
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
-	
+
     QStringList::Iterator it = changed.begin();
     for ( ; it != changed.end(); ++it ) {
 	const QMetaProperty* p = w->metaObject()->property( *it, TRUE );
@@ -743,7 +743,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	ts << ">" << endl;
 	indent++;
 	ts << makeIndent( indent ) << "<name>" << *it << "</name>" << endl;
-	
+
 	if ( p->isSetType() ) {
 	    saveSetProperty( w, *it, QVariant::nameToType( p->type() ), ts, indent );
 	} else if ( p->isEnumType() ) {
@@ -925,13 +925,13 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	saveColorGroup( ts, indent, p.active() );
 	indent--;
 	ts << makeIndent( indent ) << "</active>" << endl;
-	
+
 	ts << makeIndent( indent ) << "<disabled>" << endl;
 	indent++;
 	saveColorGroup( ts, indent, p.disabled() );
 	indent--;
 	ts << makeIndent( indent ) << "</disabled>" << endl;
-	
+
 	ts << makeIndent( indent ) << "<inactive>" << endl;
 	indent++;
 	saveColorGroup( ts, indent, p.inactive() );
@@ -944,17 +944,18 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
     case QVariant::Cursor:
 	ts << makeIndent( indent ) << "<cursor>" << value.toCursor().shape() << "</cursor>" << endl;
 	break;
-    case QVariant::StringList:
-	if ( name == "database" ) {
-	    QStringList lst = value.toStringList();
-	    if ( !lst.isEmpty() ) {
-		ts << makeIndent( indent ) << "<connection>" << entitize( lst[ 0 ] ) << "</connection>" << endl;
-		ts << makeIndent( indent ) << "<table>" << entitize( lst[ 1 ] ) << "</table>" << endl;
-		if ( w != formwindow->mainContainer() )
-		    ts << makeIndent( indent ) << "<field>" << entitize( lst[ 2 ] ) << "</field>" << endl;
-	    }
-	    break;
+    case QVariant::StringList: {
+	QStringList lst = value.toStringList();
+	uint i = 0;
+	ts << makeIndent( indent ) << "<stringlist>" << endl;
+	indent++;
+	if ( !lst.isEmpty() ) {	
+	    for ( i = 0; i < lst.count(); ++i )
+		ts << makeIndent( indent ) << "<string>" << entitize( lst[ i ] ) << "</string>" << endl;		    
 	}
+	indent--;
+	ts << makeIndent( indent ) << "</stringlist>" << endl;
+    } break;
     default:
 	qWarning( "saving the property %s of type %d not supported yet", name.latin1(), (int)t );
     }
@@ -1034,18 +1035,18 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 			break;
 		    }
 		}
-	
+
 		if ( !toplevel )
 		    toplevel = w;
 		layout = 0;
-		
+
 		if ( w && formwindow ) {
 		    if ( !parent || ( !parent->inherits( "QTabWidget" ) && !parent->inherits( "QWizard" ) ) )
 			formwindow->insertWidget( w, pasting );
 		    else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits( "QWizard" ) ) )
 			MetaDataBase::addEntry( w );
 		}
-		
+
 		if ( style )
 		    w->setStyle( style );
 		if ( pal )
@@ -1112,7 +1113,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	} else if ( n.tagName() == "column" ) {
 	    createColumn( n, w );
 	}
-	
+
 	n = n.nextSibling().toElement();
     }
 
@@ -1244,10 +1245,10 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
 		item->setOpen( TRUE );
 		createItem( n, widget, item );
 	    }
-		
+
 	    n = n.nextSibling().toElement();
 	}
-	
+
 	for ( int i = 0; i < lv->columns(); ++i ) {
 	    item->setText( i, textes[ i ] );
 	    item->setPixmap( i, pixmaps[ i ] );
@@ -1430,7 +1431,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
 	    l.append( *it );
 	v = QVariant( p->keysToValue( l ) );
-    }	
+    }
 
     if ( !previewMode && prop == "caption" ) {
 	QCString s1 = v.toCString();
@@ -1633,7 +1634,7 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 	    if ( cw && !cw->hasSignal( conn.signal ) )
 		continue;
 	}
-	
+
 	if ( conn.receiver->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)conn.receiver )->customWidget();
 	    if ( cw && !cw->hasSlot( conn.slot ) )
@@ -1757,11 +1758,11 @@ void Resource::saveCustomWidgets( QTextStream &ts, int indent )
 	if ( !w->lstSlots.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
 		ts << makeIndent( indent ) << "<slot access=\"" << (*it).access << "\">" << entitize( (*it).slot ) << "</slot>" << endl;
-	}	
+	}
 	if ( !w->lstProperties.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )
 		ts << makeIndent( indent ) << "<property type=\"" << (*it).type << "\">" << entitize( (*it).property ) << "</property>" << endl;
-	}	
+	}
 	indent--;
 	ts << makeIndent( indent ) << "</customwidget>" << endl;
     }
