@@ -124,7 +124,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
     if (showNotches) {
         calcLines();
         p.setPen(pal.foreground().color());
-        p.drawLineSegments(lines);
+        p.drawLines(lines);
     }
 
     // calculate and paint arrow

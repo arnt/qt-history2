@@ -513,7 +513,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 break;
             case QPicturePrivate::PdcDrawLineSegments:
                 s >> pa;
-                painter->drawLineSegments(pa);
+                painter->drawLines(pa);
                 break;
             case QPicturePrivate::PdcDrawPolyline:
                 s >> a;

@@ -1346,7 +1346,7 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 QModelIndex QTreeViewPrivate::modelIndex(int i) const
 {
     if (i < 0 || i >= viewItems.count())
-        return root;
+        return (QModelIndex)root;
     return viewItems.at(i).index;
 }
 
