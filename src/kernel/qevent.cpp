@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#80 $
 **
 ** Implementation of event classes
 **
@@ -323,6 +323,8 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 
 /*!
+  \fn ButtonState QMouseEvent::stateAfter() const
+
   Returns the state of buttons after the event.
   \sa state()
 */
@@ -403,7 +405,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
-  \fn int QWheelEvent::state() const
+  \fn ButtonState QWheelEvent::state() const
   Returns the keyboard modifier flags.
 
   The returned value is \c ShiftButton, \c ControlButton and \c AltButton
@@ -506,7 +508,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
-  \fn int QKeyEvent::state() const
+  \fn ButtonState QKeyEvent::state() const
   Returns the keyboard modifier flags that existed immediately before
   the event occurred.
 
@@ -517,6 +519,8 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
+  \fn ButtonState QKeyEvent::stateAfter() const
+
   Returns the keyboard modifier flags that existed immediately after
   the event occurred.
 
