@@ -1637,10 +1637,9 @@ void QWin32PaintEnginePrivate::endGdiplus()
  * And thus begindeth the GDI+ paint engine
  *
  ******************************************************************************/
-
 extern "C" {
-typedef int (WINAPI *PtrGdiplusStartup)(ULONG_PTR *, const QtGpStartupInput *, void *);
-typedef void (WINAPI *PtrGdiplusShutdown)(ULONG_PTR);
+typedef int (WINAPI *PtrGdiplusStartup)(Q_UINT64 **, const QtGpStartupInput *, void *);
+typedef void (WINAPI *PtrGdiplusShutdown)(Q_UINT64 *);
 
 typedef int (__stdcall *PtrGdipCreateFromHDC) (HDC hdc, QtGpGraphics **);
 typedef int (__stdcall *PtrGdipDeleteGraphics) (QtGpGraphics *);
@@ -2329,7 +2328,7 @@ void QGdiplusPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
    doing anything GDI+ related. Called by qt_init() in
    qapplication_win.cpp
 */
-static ULONG_PTR gdiplusToken = 0;
+static Q_UINT64 *gdiplusToken = 0;
 void QGdiplusPaintEngine::initialize()
 {
     QtGpStartupInput input = { 1, 0, false, false };
