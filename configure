@@ -578,6 +578,11 @@ do
 	   OPT_HELP=yes;
 	fi
 	;;
+    -qvfb) #left for compatibility
+	 QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\""
+	;;
+    -no-qvfb) #left for compatibility
+	;;
     -fast)
 	CONFIG_FAST=yes
 	;;
