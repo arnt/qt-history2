@@ -1659,7 +1659,7 @@ QOpenType *QFontEngineXft::openType() const
     if (_openType)
         return _openType;
 
-    if (! FT_IS_SFNT(_face))
+    if (!_face || !FT_IS_SFNT(_face))
         return 0;
 
     QFontEngineXft *that = const_cast<QFontEngineXft *>(this);
