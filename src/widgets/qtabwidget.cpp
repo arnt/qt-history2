@@ -668,7 +668,10 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 */
 QSize QTabWidget::sizeHint() const
 {
-    setUpLayout( TRUE );
+    if ( !d->dirty ) {
+	QTabWidget *that = (QTabWidget*)this;
+	that->setUpLayout( TRUE );
+    }
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint() );
     return QSize( QMAX( s.width(), t.width() ),
@@ -681,7 +684,10 @@ QSize QTabWidget::sizeHint() const
 */
 QSize QTabWidget::minimumSizeHint() const
 {
-    setUpLayout( TRUE );
+    if ( !d->dirty ) {
+	QTabWidget *that = (QTabWidget*)this;
+	that->setUpLayout( TRUE );
+    }
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
     return QSize( QMAX( s.width(), t.width() ),
