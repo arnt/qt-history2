@@ -51,8 +51,8 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
     QStyle *style = QApplication::style();
     file = QIcon(style->standardPixmap(QStyle::SP_FileIcon));
     fileLink = QIcon(style->standardPixmap(QStyle::SP_FileLinkIcon));
-    dir = QIcon(style->standardPixmap(QStyle::SP_DirOpenIcon));
-    dir.addPixmap(style->standardPixmap(QStyle::SP_DirClosedIcon), QIcon::Normal, QIcon::Off);
+    dir = QIcon(style->standardPixmap(QStyle::SP_DirClosedIcon));
+    dir.addPixmap(style->standardPixmap(QStyle::SP_DirOpenIcon), QIcon::Normal, QIcon::On);
     dirLink = QIcon(style->standardPixmap(QStyle::SP_DirLinkIcon));
     driveHD = QIcon(style->standardPixmap(QStyle::SP_DriveHDIcon));
     computer = QIcon(style->standardPixmap(QStyle::SP_ComputerIcon));
