@@ -2027,7 +2027,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		else
 		    cevent->ignore();
 		delete ce;
-		if ( res || ce->isAccepted() || w->testWFlags( WNoMousePropagation ) )
+		if ( res || cevent->isAccepted() || w->testWFlags( WNoMousePropagation ) )
 		    break;
 
 		w = w->parentWidget( TRUE );
