@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QClipboard class for X11
 **
@@ -550,7 +550,7 @@ bool QClipboard::event( QEvent *e )
 {
     if (e->type() == QEvent::Timer) {
 	QTimerEvent *te = (QTimerEvent *) e;
-	QClipboardData *d;
+	QClipboardData *d = 0;
 	bool ret = FALSE;
 	int *kill_id = 0;
 
