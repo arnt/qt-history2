@@ -537,8 +537,6 @@ void QPrinter::setPageSize( PageSize newPageSize )
         return;
     }
     page_size = newPageSize;
-    QPrinterPageSize pps = QPrinterPageSize::pageSize( pageSizeNames[newPageSize] );
-    d->pageSize = pps;
 #if defined(Q_WS_WIN)
     reinit();
 #endif
@@ -1009,127 +1007,6 @@ QPrinter::PageRange QPrinter::pageRange() const
 {
     return d->pageRange;
 }
-
-
-/*!
-    \class QPrinterPageSize
-    \brief The QPrinterPageSize is a class that holds a page size and
-    provides support for custom page sizes.
-
-    The page size's size is returned by size() and its name by name().
-    A predefined page size can be retrieved by name using pageSize().
-    A custom page size can be created using definePageSize(), and
-    removed using undefinePageSize().
-
-    Page sizes values are measured in tenths of a millimetre.
-*/
-
-/*!
-    Default constructor. Creates an invalid page size.
-*/
-QPrinterPageSize::QPrinterPageSize()
-  : d( 0 )
-{
-}
-
-/*!
-    \fn QPrinterPageSize::pageSize( const QString &name )
-
-    Returns the size of the page size called \a name. The search is
-    case-insensitive and considers both built-in names (e.g. "A4",
-    "Letter", etc.), and custom names (see definePageSize()). If the
-    name is not found, an invalid page size is returned.
-*/
-
-/*!
-    \fn QPrinterPageSize::definePageSize( const QString &name,
-					  const QSize &size )
-
-    Defines a new page size called \a name with size \a size.
-    The page size is registered system wide and kept between
-    sessions. The size is specified in tenths of a millimetre.
-
-    Windows-specific note: The standard Windows printer dialog, (used
-    by Qt on Windows systems for calls to QPrinter::setup()) only
-    allows the user to choose between a small number of predefined
-    page sizes and does not permit the use of custom page sizes. This
-    limitation does not apply when printing without the printer
-    dialog.
-*/
-
-/*!
-    \fn QPrinterPageSize::undefinePageSize( const QString &name )
-
-    Deletes the system wide page size called name \a name.
-*/
-
-/*!
-    \fn QPrinterPageSize::isValid()
-
-    Returns TRUE if this QPrinterPageSize is valid; otherwise returns
-    FALSE.
-*/
-
-/*!
-  \internal
-*/
-QPrinterPageSize::QPrinterPageSize( const QPrinterPageSize &ps )
-    : d( 0 )
-{
-    if( ps.d ) {
-	d = ps.d;
-	d->ref();
-    }
-}
-
-/*!
-  \internal
-*/
-QPrinterPageSize::~QPrinterPageSize()
-{
-    if( d ) {
-	d->deref();
-	if( d->count<=0 )
-	    delete d;
-    }
-}
-
-/*!
-  \internal
-*/
-QPrinterPageSize &QPrinterPageSize::operator=( const QPrinterPageSize &ps )
-{
-    if( ps.d )
-	ps.d->ref();
-
-    if( d ) {
-	d->deref();
-	if( d->count<= 0 )
-	    delete d;
-    }
-    d = ps.d;
-    return *this;
-}
-
-/*!
-    Returns the page size. The units are measured in tenths of a
-    millimetre.
-*/
-QSize QPrinterPageSize::size() const
-{
-    return d ? d->dimension : QSize();
-}
-
-/*!
-    Returns the name of the page size, for example, "A4" or "Letter".
-    If the page size is a custom size, the name will be the name set
-    with definePageSize().
-*/
-QString QPrinterPageSize::name() const
-{
-    return d ? d->name : QString();
-}
-
 
 #endif // QT_NO_PRINTER
 

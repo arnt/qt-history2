@@ -46,21 +46,9 @@
 class QPrinterPrivate
 {
 public:
-    uint pageRangeEnabled;
+    Q_UINT32 pageRangeEnabled;
     QPrinter::PageRange pageRange;
-    QPrinterPageSize pageSize;
 };
-
-
-class QPrinterPageSizePrivate : public QShared
-{
-public:
-    QString name;
-    QSize dimension;
-};
-
-const char *qprinter_name_for_pagesize( QPrinter::PageSize ps );
-QPrinter::PageSize qprinter_pagesize_for_name( const QString &name );
 
 #endif
 #endif

@@ -42,6 +42,7 @@
 #include "qt_mac.h"
 #include <qstyle.h>
 #include <stdlib.h>
+#include "qprinter_p.h"
 
 // NOT REVISED
 
@@ -55,13 +56,6 @@
 #define PST_ACTIVE      1
 #define PST_ERROR       2
 #define PST_ABORTED     3
-
-class QPrinterPrivate
-{
-public:
-    QPrinter::PageRange pageRange;
-    Q_UINT32 pageRangeEnabled;
-};
 
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
@@ -412,36 +406,6 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 	*bottom = (uint)(paperr.bottom - pager.bottom);
     if(right)
 	*right = (uint)(paperr.right - pager.right);
-}
-
-bool QPrinterPageSize::isValid() const
-{
-    // ###
-    return FALSE;
-}
-
-QPrinterPageSize  QPrinterPageSize::pageSize( const QString & )
-{
-    // ###
-    return QPrinterPageSize();
-}
-
-QPrinterPageSize QPrinterPageSize::definePageSize( const QString &,
-						   const QSize & )
-{
-    // ###
-    return QPrinterPageSize();
-}
-
-void QPrinterPageSize::undefinePageSize( const QString & )
-{
-    // ###
-}
-
-QStringList QPrinterPageSize::pageSizeNames()
-{
-    // ###
-    return QStringList();
 }
 
 #endif

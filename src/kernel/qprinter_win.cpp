@@ -51,50 +51,15 @@
 #include <commdlg.h>
 #endif
 
-static FORM_INFO_1 *forms = 0;
-#define FORM_BUFFER_SIZE sizeof( FORM_INFO_1 ) * 500
-
-typedef BOOL ( WINAPI *PtrEnumForms ) ( HANDLE, DWORD, LPBYTE, DWORD, LPDWORD, LPDWORD );
-typedef BOOL ( WINAPI *PtrAddForm ) ( HANDLE, DWORD, LPBYTE );
-typedef BOOL ( WINAPI *PtrDeleteForm ) ( HANDLE, LPTSTR );
-
-static PtrEnumForms enumForms = 0;
-static PtrAddForm addForm = 0;
-static PtrDeleteForm deleteForm = 0;
-
-static bool resolveLibraries()
-{
-    if( enumForms && addForm && deleteForm )
-	return TRUE;
-    enumForms = ( PtrEnumForms ) QLibrary::resolve( "winspool.drv", "EnumFormsW" );
-    addForm = ( PtrAddForm ) QLibrary::resolve( "winspool.drv", "AddFormW" );
-    deleteForm = ( PtrDeleteForm ) QLibrary::resolve( "winspool.drv", "DeleteFormW" );
-    return enumForms && addForm && deleteForm;
-}
-
 class QPrinterWinPrivate : public QPrinterPrivate
 {
 public:
     QPrinter::PrinterMode printerMode;
+    short winPageSize;
 };
 
-class QPrinterPageSizeWinPrivate : public QPrinterPageSizePrivate
-{
-public:
-    int id;
-};
+#define D ((QPrinterWinPrivate*) d)
 
-static inline QPrinterPageSizeWinPrivate* castToWin( QPrinterPageSizePrivate *ptr )
-{
-    return (QPrinterPageSizeWinPrivate*) ptr;
-}
-
-static inline QPrinterWinPrivate* castToWin( QPrinterPrivate *ptr )
-{
-    return (QPrinterWinPrivate*) ptr;
-}
-
-#define D castToWin( d )
 
 // QPrinter states
 
@@ -117,8 +82,6 @@ static inline QPrinterWinPrivate* castToWin( QPrinterPrivate *ptr )
 
 // Used for mapping between mm and windows form resolution
 #define FORMFACTOR 100
-
-static bool pageSizeForId( int dmid, QPrinterPageSizeWinPrivate *priv );
 
 typedef struct {
     int winSizeName;
@@ -202,18 +165,6 @@ static PaperSize paperSizes[QPrinter::NPageSize] = {
     {  MM(279), MM(432) },      // Tabloid
 };
 
-static QMap<QPrinter::PageSize,QPrinterPageSize> printerPageSizes;
-
-QPrinterPageSize qprinter_pagesize_for_pagesize( QPrinter::PageSize ps )
-{
-    QPrinterPageSize pps = printerPageSizes[ps];
-    if( pps.isValid() )
-	return pps;
-    QString name = qprinter_name_for_pagesize( ps );
-    PaperSize dim = paperSizes[ps];
-    return QPrinterPageSize::definePageSize( name, QSize( dim.w, dim.h ) );
-}
-
 static QPrinter::PageSize mapDevmodePageSize( int s )
 {
     int i = 0;
@@ -273,19 +224,21 @@ static void setPrinterMapping( HDC hdc, int res )
 QPrinter::QPrinter( PrinterMode m )
 : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
-    resolveLibraries();
     d = new QPrinterWinPrivate;
     D->printerMode = m;
+    D->winPageSize = DMPAPER_A4;
+    D->pageRangeEnabled = All | Range;
+    D->pageRange = All;
+
     orient      = Portrait;
     page_size   = A4;
-    D->pageSize = QPrinterPageSize::pageSize( qprinter_name_for_pagesize( A4 ) );
     page_order = FirstPageFirst;
     color_mode = GrayScale;
     ncopies     = 1;
     appcolcopies  = FALSE;
     usercolcopies = TRUE;
     res_set = FALSE;
-    from_pg     = to_pg = min_pg  = max_pg = 0;
+    from_pg     = to_pg = min_pg = max_pg = 0;
     state       = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
@@ -294,8 +247,6 @@ QPrinter::QPrinter( PrinterMode m )
     doc_name = "document1";
     hdevmode  = 0;
     hdevnames = 0;
-    D->pageRangeEnabled = All | Range;
-    D->pageRange = All;
 
     switch ( m ) {
     case ScreenResolution:
@@ -465,17 +416,19 @@ static int mapPaperSourceDevmode( QPrinter::PaperSource s )
 */
 short QPrinter::winPageSize() const
 {
-    DEVMODE *dm = (DEVMODE*) GlobalLock( hdevmode );
-    int wps = 0;
-    if( dm ) {
-	wps = dm->dmPaperSize;
-	GlobalUnlock( dm );
-    }
-#ifndef QT_NO_DEBUG
-    else
-	qSystemWarning( "QPrinter::winPageSize: GlobalLock returns zero." );
-#endif
-    return wps;
+    return D->winPageSize;
+}
+
+/*!
+  Windows only, using this function is not portable!
+  Sets the windows page size value that is used by the \c DEVMODE
+  struct
+*/
+void QPrinter::setWinPageSize( short winPageSize )
+{
+    D->winPageSize = winPageSize;
+    reinit();
+    page_size = mapDevmodePageSize( D->winPageSize );
 }
 
 static bool must_not_reinit = FALSE;
@@ -517,10 +470,8 @@ void QPrinter::readPdlg( void* pdv )
                 orient = Portrait;
             else
                 orient = Landscape;
-	    QPrinterPageSizeWinPrivate *priv =
-		( QPrinterPageSizeWinPrivate* ) d->pageSize.d;
-	    pageSizeForId( dm->dmPaperSize, priv );
-	    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
+	    D->winPageSize = dm->dmPaperSize;
+	    page_size = mapDevmodePageSize( dm->dmPaperSize );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
@@ -614,8 +565,8 @@ void QPrinter::readPdlgA( void* pdv )
 		orient = Portrait;
 	    else
 		orient = Landscape;
-	    pageSizeForId( dm->dmPaperSize, castToWin(d->pageSize.d) );
-	    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
+	    D->winPageSize = dm->dmPaperSize;
+	    page_size = mapDevmodePageSize( dm->dmPaperSize );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
@@ -925,12 +876,7 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	else
 	    dm->dmCollate = DMCOLLATE_FALSE;
 	dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-
-	if( d->pageSize.isValid() ) {
-	    dm->dmPaperSize = castToWin(d->pageSize.d)->id;
-	} else if( page_size<Custom ) {
-	    dm->dmPaperSize = page_size;
-	}
+        dm->dmPaperSize = D->winPageSize;
 
 	if ( colorMode() == Color )
 	    dm->dmColor = DMCOLOR_COLOR;
@@ -954,18 +900,7 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	else
 	    dm->dmCollate = DMCOLLATE_FALSE;
 	dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
-
-	if( d->pageSize.isValid() ) {
-	    if( pageSize()<Custom ) {
-		dm->dmPaperSize = castToWin(d->pageSize.d)->id;
-	    } else {
-		QSize sz = d->pageSize.d->dimension;
-		dm->dmPaperSize = 0;
-		dm->dmPaperLength = sz.height() * FORMFACTOR;
-		dm->dmPaperWidth  = sz.width() * FORMFACTOR;
-	    }
-	}
-
+	dm->dmPaperSize = D->winPageSize;
 	if ( colorMode() == Color )
 	    dm->dmColor = DMCOLOR_COLOR;
 	else
@@ -1552,291 +1487,6 @@ void QPrinter::reinit()
 	    setPrinterMapping( hdc, res );
 	}
     }
-}
-
-void QPrinter::setPrinterPageSize( const QPrinterPageSize &pageSize )
-{
-    if( !pageSize.isValid() ) {
-#if defined QT_CHECK_RANGE
-	qWarning( "QPrinter::setPrinterPageSize(), invalid pagesize!" );
-#endif
-	return;
-    }
-    d->pageSize = pageSize;
-    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
-    reinit();
-}
-
-QPrinterPageSize QPrinter::printerPageSize() const
-{
-    return d->pageSize;
-}
-
-bool QPrinterPageSize::isValid() const
-{
-    return d && D->id >= 0;
-}
-
-static unsigned short *get_default_name()
-{
-    PRINTDLG pd;
-    memset( &pd, 0, sizeof( PRINTDLG ) );
-    pd.Flags = PD_RETURNDEFAULT;
-    pd.lStructSize = sizeof( PRINTDLG );
-    if( !PrintDlg( &pd ) ) {
-	qSystemWarning( "get_default_printer(), failed to get defaults" );
-	return 0;
-    }
-    DEVNAMES *dn = (DEVNAMES*) GlobalLock( pd.hDevNames );
-    if( !dn ) {
-	qWarning( "get_default_printer(), failed to get DEVNAMES" );
-	return 0;
-    }
-    return ( (ushort*) dn ) + dn->wDeviceOffset;
-}
-
-static void updateRegistry()
-{
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows,
-			       "Trolltech/QPrinter" );
-    bool inited = settings.readBoolEntry( "/pageSizeInit", FALSE );
-    if( !inited ) {
-	for( int i=0; i<QPrinter::NPageSize; i++ ) {
-	    QString name =
-		qprinter_name_for_pagesize( (QPrinter::PageSize) i );
-	    PaperSize size = paperSizes[i];
-	    QStringList lst;
-	    lst << QString::number( 1 ) // Deletable in undefinePageSize ?
-		<< QString::number( mapPageSizeDevmode( (QPrinter::PageSize) i ) )
-		<< QString::number( size.w )
-		<< QString::number( size.h );
-	    settings.writeEntry( "/PageSizes/" + name, lst );
-	}
-	settings.writeEntry( "/pageSizeInit", TRUE );
-    }
-}
-
-static bool pageSizeForId( int dmid, QPrinterPageSizeWinPrivate *priv )
-{
-    QT_WA( {
-	if( !enumForms ) {
-	    qWarning( "QPrinterPageSize::pageSize(), "
-		      "could not resolve function 'enumForms'" );
-	    return FALSE;
-	}
-	HANDLE hPrinter;
-	bool found = FALSE;
-	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
-	    DWORD needed;
-	    DWORD returned;
-	    if( !forms )
-		forms = (FORM_INFO_1*) malloc( FORM_BUFFER_SIZE );
-	    if( enumForms( hPrinter, 1, (LPBYTE) forms, FORM_BUFFER_SIZE, &needed, &returned ) ) {
-		priv = new QPrinterPageSizeWinPrivate;
-		priv->name = QString::fromUcs2( ( const ushort * ) forms[dmid].pName );
-		priv->dimension = QSize( forms[dmid].Size.cx / FORMFACTOR,
-					 forms[dmid].Size.cy / FORMFACTOR );
-		priv->id = dmid;
-		found = TRUE;
-	    } else qSystemWarning( "pageSizeForId(), failed to enumerate forms" );
-	    if( !ClosePrinter( hPrinter ) )
-		qSystemWarning( "pageSizeForId(), failed to close printer" );
-	} else qSystemWarning( "pageSizeForId(), Failed to open printer" );
-	return found;
-    } , {
-	QPrinter::PageSize ps = mapDevmodePageSize( dmid );
-	QPrinterPageSize qps = qprinter_pagesize_for_pagesize( ps );
-	if( !qps.isValid() )
-	    return FALSE;
-	priv->dimension = qps.size();
-	priv->name = qps.name();
-	priv->id = dmid;
-	return TRUE;
-    } );
-}
-
-QPrinterPageSize QPrinterPageSize::pageSize( const QString &name )
-{
-    QT_WA( {
-	resolveLibraries();
-	if( !enumForms ) {
-	    qWarning( "QPrinterPageSize::pageSize(), "
-		      "could not resolve function 'enumForms'" );
-	    return QPrinterPageSize();
-	}
-	HANDLE hPrinter;
-	QPrinterPageSize ps;
-	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
-	    DWORD needed;
-	    DWORD returned;
-	    if( !forms )
-		forms = (FORM_INFO_1*) malloc( FORM_BUFFER_SIZE );
-	    if( enumForms( hPrinter, 1, (LPBYTE) forms, FORM_BUFFER_SIZE,
-			   &needed, &returned ) ) {
-		QString cmpName = name.lower();
-		for( uint i=0; i<returned; i++ ) {
-		    QString formName = QString::fromUcs2( ( const ushort * ) forms[i].pName );
-		    if( formName.lower() == cmpName ) {
-			QPrinterPageSizeWinPrivate *priv = new QPrinterPageSizeWinPrivate;
- 			priv->name = formName;
- 			priv->dimension = QSize( forms[i].Size.cx / FORMFACTOR,
- 						 forms[i].Size.cy / FORMFACTOR );
- 			priv->id = i+1;
- 			ps.d = priv;
-			break;
-		    }
-		}
-	    } else qSystemWarning( "QPrinterPageSize::pageSize(), failed to enumerate forms" );
-	    if( !ClosePrinter( hPrinter ) )
-		qSystemWarning( "QPrinterPageSize::pageSize(), failed to close printer" );
-	} else qSystemWarning( "QPrinterPageSize::pageSize(), failed to open printer" );
-	return ps;
-    } , {
-	updateRegistry();
-	QSettings settings;
-	settings.insertSearchPath( QSettings::Windows,
-				   "Trolltech/QPrinter/PageSizes" );
-	QStringList lst = settings.readListEntry( "/" + name );
-	if( lst.isEmpty() )
-	    return QPrinterPageSize();
-
-	QSize size( lst[2].toInt(), lst[3].toInt() );
-	QPrinterPageSizeWinPrivate *priv = new QPrinterPageSizeWinPrivate;
-	priv->name = name;
-	priv->dimension = size;
-	priv->id = lst[1].toInt();
-	QPrinterPageSize ps;
-	ps.d = priv;
-	return ps;
-    } );
-}
-
-
-QStringList QPrinterPageSize::pageSizeNames()
-{
-    QT_WA( {
-	resolveLibraries();
-	if( !enumForms ) {
-	    qWarning( "QPrinterPageSize::pageSize(), "
-		      "could not resolve function 'enumForms'" );
-	    return QStringList();
-	}
-	HANDLE hPrinter;
-	QStringList lst;
-	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
-	    DWORD needed;
-	    DWORD returned;
-	    if( !forms )
-		forms = (FORM_INFO_1*) malloc( FORM_BUFFER_SIZE );
-	    if( enumForms( hPrinter, 1, (LPBYTE) forms, FORM_BUFFER_SIZE, &needed, &returned ) ) {
-		for( uint i=0; i<returned; i++ )
-		    lst << QString::fromUcs2( ( const ushort * ) forms[i].pName );
-	    } else qSystemWarning( "QPrinterPageSize::pageSizeNames(): Failed to enumerate forms" );
-	    if( !ClosePrinter( hPrinter ) )
-		qSystemWarning( "QPrinterPageSize::pageSize(), failed to close printer" );
-	} else qSystemWarning( "QPrinterPageSize::pageSizeNames(): Failed to open printer" );
-	return lst;
-    }, {
-	updateRegistry();
-	QSettings settings;
-	settings.insertSearchPath( QSettings::Windows,
-				   "Trolltech/QPrinter/PageSizes" );
-	QStringList keys = settings.entryList( "/" );
-	return keys;
-    } );
-}
-
-QPrinterPageSize QPrinterPageSize::definePageSize( const QString &name,
-						   const QSize &dim )
-{
-    QT_WA(
-    {
-	resolveLibraries();
-	FORM_INFO_1 form;
-	memset( &form, 0, sizeof( FORM_INFO_1 ) );
-	form.Flags = FORM_USER;
-	form.pName = (LPWSTR) name.ucs2();
-	form.Size.cx = dim.width() * FORMFACTOR;
-	form.Size.cy = dim.height() * FORMFACTOR;
-	form.ImageableArea.left = 0;
-	form.ImageableArea.top = 0;
-	form.ImageableArea.right = dim.width() * FORMFACTOR;
-	form.ImageableArea.bottom = dim.height() * FORMFACTOR;
-
-	HANDLE hPrinter;
-	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
-	    if( !addForm )
-		qWarning( "QPrinterPageSize::definePageSize(), "
-			  "could not resolve function 'addForm'" );
-	    else if( !addForm( hPrinter, 1, (LPBYTE) &form ) )
-		qSystemWarning( "QPrinterPageSize::definePageSize(), "
-				"Failed to add form" );
-	    if( !ClosePrinter( hPrinter ) )
-		qSystemWarning( "QPrinterPageSize::definePageSize(), "
-				"Failed to close printer" );
-	} else qSystemWarning( "QPrinterPageSize::definePageSize(), "
-			       "Failed to open printer" );
-	return pageSize( name );
-    }, {
-	updateRegistry();
-	QSettings settings;
-	settings.insertSearchPath( QSettings::Windows,
-				   "Trolltech/QPrinter/PageSizes" );
-	QStringList lst = settings.readListEntry( "/" + name );
-	if( lst.isEmpty() ) {
-	    QPrinterPageSizeWinPrivate *priv = new QPrinterPageSizeWinPrivate;
-	    priv->name = name;
-	    priv->dimension = dim;
-	    priv->id = 0;
-	    QPrinterPageSize ps;
-	    ps.d = priv;
-	    QStringList lst;
-	    lst << QString::number( 2 )
-		<< QString::number( 0 )
-		<< QString::number( dim.width() )
-		<< QString::number( dim.height() );
-	    settings.writeEntry( "/" + name, lst );
-
-	    return ps;
-	}
-
-	QSize size( lst[2].toInt(), lst[3].toInt() );
-	QPrinterPageSizeWinPrivate *priv = new QPrinterPageSizeWinPrivate;
-	priv->name = name;
-	priv->dimension = size;
-	priv->id = lst[1].toInt();
-	QPrinterPageSize ps;
-	ps.d = priv;
-	return ps;
-    } );
-}
-
-void QPrinterPageSize::undefinePageSize( const QString &name )
-{
-    QT_WA( {
-	resolveLibraries();
-	HANDLE hPrinter;
-	if( OpenPrinter( (TCHAR*)get_default_name(), &hPrinter, 0 ) ) {
-	    if( !deleteForm ) {
-		qWarning( "QPrinterPageSize::undefinePageSize(), "
-			  "could not resolve function deleteForm" );
-	    } else if( !deleteForm( hPrinter, (LPWSTR) name.ucs2() ) )
-		qSystemWarning( "QPrinterPageSize::undefinePageSize(), "
-				"Failed to remove form" );
-	    if( !ClosePrinter( hPrinter ) )
-		qSystemWarning( "QPrinterPageSize::undefinePageSize(), "
-				"Failed to close printer" );
-	} else qSystemWarning( "QPrinterPageSize::undefinePageSize(), "
-			       "Failed to open printer" );
-    }, {
-	updateRegistry();
-	QSettings settings;
-	settings.insertSearchPath( QSettings::Windows,
-				   "Trolltech/QPrinter/PageSizes" );
-	if( settings.readEntry( "/" + name ).startsWith( "2" ) )
-	    settings.removeEntry( "/" + name );
-    } );
 }
 
 #endif // QT_NO_PRINTE

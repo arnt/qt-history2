@@ -55,32 +55,6 @@
 #endif
 
 class QPrinterPrivate;
-class QPrinterPageSizePrivate;
-
-class Q_EXPORT QPrinterPageSize
-{
-    friend class QPrinter;
-    friend class QPrinterPageSizePrivate;
-public:
-    QPrinterPageSize();
-    ~QPrinterPageSize();
-
-    static QPrinterPageSize pageSize( const QString &name );
-    static QPrinterPageSize definePageSize( const QString &name,
-					    const QSize &dim );
-    static void undefinePageSize( const QString &name );
-    static QStringList pageSizeNames();
-
-    QSize size() const;
-    QString name() const;
-    bool isValid() const;
-
-    QPrinterPageSize( const QPrinterPageSize &ps );
-    QPrinterPageSize& operator=( const QPrinterPageSize &ps );
-
-private:
-    QPrinterPageSizePrivate *d;
-};
 
 class Q_EXPORT QPrinter : public QPaintDevice
 {
@@ -132,11 +106,9 @@ public:
     PageSize pageSize()      const;
     virtual void setPageSize( PageSize );
 #ifdef Q_WS_WIN
+    void setWinPageSize( short winPageSize );
     short winPageSize() const;
 #endif
-    void setPrinterPageSize( const QPrinterPageSize &pageSize );
-    QPrinterPageSize printerPageSize() const;
-
     virtual void setPageOrder( PageOrder );
     PageOrder   pageOrder() const;
 
