@@ -351,7 +351,7 @@ QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
     Q_UNUSED(pdev);
 #else
     bool ret_cg_style = TRUE; //default to TRUE when using CORE_GRAPHICS if there is no pdev
-    if(pdev)
+    if(pdev && pdev->engine())
 	ret_cg_style = (pdev->engine()->type() == QPaintEngine::CoreGraphics);
     if(ret_cg_style && !getenv("QT_MAC_USE_APPMANAGER")) {
 	if(!cg_style)
