@@ -890,7 +890,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     }
     SelectObject(glHdc, fnt.handle());
     if (!wglUseFontBitmaps(glHdc, 0, 256, listBase))
-        qWarning("QGLContext::generateFontDisplayLists: Could not generate display lists for font '%s'", fnt.family().latin1());
+        qWarning("QGLContext::generateFontDisplayLists: Could not generate display lists for font '%s'", fnt.family().toLatin1().data());
     if (winId)
         ReleaseDC(winId, glHdc);
     else if (deviceIsPixmap())
@@ -899,7 +899,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
 void *QGLContext::getProcAddress(const QString &proc) const
 {
-    return (void *)wglGetProcAddress(proc.latin1());
+    return (void *)wglGetProcAddress(proc.toLatin1());
 }
 
 /*****************************************************************************
