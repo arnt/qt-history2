@@ -1896,7 +1896,6 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
 void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
-    printf(" -> QPainter::drawPolygon...\n");
     if (!isActive())
         return;
     d->engine->updateState(d->state);
