@@ -23,19 +23,20 @@
 class Q_CORE_EXPORT QTimer : public QObject
 {
     Q_OBJECT
+
 public:
     QTimer( QObject *parent=0, const char *name=0 );
-   ~QTimer();
-
-    bool	isActive() const;
-
-    int		start( int msec, bool sshot = FALSE );
-    void	changeInterval( int msec );
-    void	stop();
+    ~QTimer();
 
     static void singleShot( int msec, QObject *receiver, const char *member );
 
+    bool	isActive() const;
     int		timerId() const	{ return id; }
+
+public slots:
+    int		start( int msec, bool sshot = FALSE );
+    void	changeInterval( int msec );
+    void	stop();
 
 signals:
     void	timeout();
