@@ -4150,7 +4150,10 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
     if ( d->startDragItem )
 	i = d->startDragItem;
 
-    if ( !d->buttonDown || e->state() == NoButton )
+    if ( !d->buttonDown ||
+	 ( ( e->state() & LeftButton ) != LeftButton &&
+	   ( e->state() & MidButton ) != MidButton &&
+	   ( e->state() & RightButton ) != RightButton ) )
 	return;
 
     if ( i && i == d->focusItem &&
