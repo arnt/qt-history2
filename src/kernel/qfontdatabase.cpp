@@ -564,11 +564,13 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     0x4e00
 };
 
+#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
 static inline bool requiresOpenType(QFont::Script s)
 {
     return (s >= QFont::Syriac && s <= QFont::Sinhala)
 		 || (s >= QFont::Tibetan && s <= QFont::Khmer);
 }
+#endif
 
 // returns a sample unicode character for the specified script
 static QChar sampleCharacter(QFont::Script script)
@@ -587,7 +589,7 @@ static inline bool canRender( QFontEngine *fe, QFont::Script script )
     if (hasChar)
 	FM_DEBUG("    font has char 0x%04x", sample.unicode() );
 #endif
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
     if (hasChar && requiresOpenType(script)) {
 	QOpenType *ot = fe->openType();
 	if (!ot || !ot->supportsScript(script))
