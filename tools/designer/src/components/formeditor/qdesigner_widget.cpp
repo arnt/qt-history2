@@ -123,84 +123,6 @@ QLayoutWidget::QLayoutWidget(FormWindow *formWindow, QWidget *parent)
 {
 }
 
-void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
-{
-    if (index == -1) {
-        m_indicatorLeft->hide();
-        m_indicatorTop->hide();
-        m_indicatorRight->hide();
-        m_indicatorBottom->hide();
-        return;
-    }
-
-    m_currentIndex = index;
-    QLayoutItem *item = layout()->itemAt(index);
-    QRect g = item->geometry();
-
-    int dx = g.right() - pos.x();
-    int dy = g.bottom() - pos.y();
-
-    int dx1 = pos.x() - g.x();
-    int dy1 = pos.y() - g.y();
-
-    int mx = qMin(dx, dx1);
-    int my = qMin(dy, dy1);
-
-    bool isVertical = mx < my;
-
-    // ### cleanup
-    if (item->spacerItem()) { // false /*isEmptyItem(item)*/) {
-        QPalette p;
-        p.setColor(QPalette::Background, Qt::red);
-        m_indicatorRight->setPalette(p);
-        m_indicatorBottom->setPalette(p);
-
-        m_indicatorLeft->setGeometry(g.x(), g.y(), 2, g.height());
-        m_indicatorTop->setGeometry(g.x(), g.y(), g.width(), 2);
-        m_indicatorRight->setGeometry(g.right(), g.y(), 2, g.height());
-        m_indicatorBottom->setGeometry(g.x(), g.bottom(), g.width(), 2);
-
-        m_indicatorLeft->show();
-        m_indicatorLeft->raise();
-
-        m_indicatorTop->show();
-        m_indicatorTop->raise();
-
-        m_indicatorRight->show();
-        m_indicatorRight->raise();
-
-        m_indicatorBottom->show();
-        m_indicatorBottom->raise();
-    } else {
-        QPalette p;
-        p.setColor(QPalette::Background, Qt::blue);
-        m_indicatorRight->setPalette(p);
-        m_indicatorBottom->setPalette(p);
-
-        QRect r(layout()->geometry().topLeft(), layout()->parentWidget()->size());
-        if (isVertical) {
-            m_indicatorBottom->hide();
-
-            if (!qt_cast<QVBoxLayout*>(layout())) {
-                m_indicatorRight->setGeometry((mx == dx1) ? g.x() : g.right(), 0, 2, r.height());
-                m_indicatorRight->show();
-                m_indicatorRight->raise();
-            }
-        } else {
-            m_indicatorRight->hide();
-
-            if (!qt_cast<QHBoxLayout*>(layout())) {
-                m_indicatorBottom->setGeometry(r.x(), (my == dy1) ? g.y() : g.bottom(), r.width(), 2);
-                m_indicatorBottom->show();
-                m_indicatorBottom->raise();
-            }
-        }
-
-        m_indicatorLeft->hide();
-        m_indicatorTop->hide();
-    }
-}
-
 void QLayoutWidget::paintEvent(QPaintEvent*)
 {
     if (!m_formWindow->hasFeature(FormWindow::GridFeature))
@@ -211,6 +133,7 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
 
     QPainter p(this);
 
+#if 0 // ### enable me
     if (layout()) {
         p.setPen(QPen(palette().mid().color(), 1, Qt::DotLine));
 
@@ -237,6 +160,7 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
         foreach (int column, columns.keys())
             p.drawLine(column, g.y(), column, g.bottom());
     }
+#endif
 
     p.setPen(QPen(Qt::red, 1));
 
@@ -450,7 +374,8 @@ QLayoutSupport::QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject 
     : QObject(parent),
       m_formWindow(formWindow),
       m_widget(widget),
-      m_currentIndex(-1)
+      m_currentIndex(-1),
+      m_currentInsertMode(QLayoutSupport::InsertWidgetMode)
 {
     QPalette p;
     p.setColor(QPalette::Background, Qt::red);
@@ -490,6 +415,102 @@ QLayoutSupport::~QLayoutSupport()
 
     if (m_indicatorBottom)
         m_indicatorBottom->deleteLater();
+}
+
+void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
+{
+    if (index == -1) {
+        m_indicatorLeft->hide();
+        m_indicatorTop->hide();
+        m_indicatorRight->hide();
+        m_indicatorBottom->hide();
+        return;
+    }
+
+    m_currentIndex = index;
+    m_currentInsertMode = QLayoutSupport::InsertWidgetMode;
+
+    QLayoutItem *item = layout()->itemAt(index);
+    QRect g = item->geometry();
+
+    int dx = g.right() - pos.x();
+    int dy = g.bottom() - pos.y();
+
+    int dx1 = pos.x() - g.x();
+    int dy1 = pos.y() - g.y();
+
+    int mx = qMin(dx, dx1);
+    int my = qMin(dy, dy1);
+
+    bool isVertical = mx < my;
+
+    // ### cleanup
+    if (item->spacerItem()) { // false /*isEmptyItem(item)*/) {
+        QPalette p;
+        p.setColor(QPalette::Background, Qt::red);
+        m_indicatorRight->setPalette(p);
+        m_indicatorBottom->setPalette(p);
+
+        m_indicatorLeft->setGeometry(g.x(), g.y(), 2, g.height());
+        m_indicatorTop->setGeometry(g.x(), g.y(), g.width(), 2);
+        m_indicatorRight->setGeometry(g.right(), g.y(), 2, g.height());
+        m_indicatorBottom->setGeometry(g.x(), g.bottom(), g.width(), 2);
+
+        m_indicatorLeft->show();
+        m_indicatorLeft->raise();
+
+        m_indicatorTop->show();
+        m_indicatorTop->raise();
+
+        m_indicatorRight->show();
+        m_indicatorRight->raise();
+
+        m_indicatorBottom->show();
+        m_indicatorBottom->raise();
+    } else {
+        QPalette p;
+        p.setColor(QPalette::Background, Qt::blue);
+        m_indicatorRight->setPalette(p);
+        m_indicatorBottom->setPalette(p);
+
+        QRect r(layout()->geometry().topLeft(), layout()->parentWidget()->size());
+        if (isVertical) {
+            m_indicatorBottom->hide();
+
+            if (!qt_cast<QVBoxLayout*>(layout())) {
+                m_indicatorRight->setGeometry((mx == dx1) ? g.x() : g.right(), 0, 2, r.height());
+                m_indicatorRight->show();
+                m_indicatorRight->raise();
+
+                if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
+                    m_currentInsertMode = QLayoutSupport::InsertColumnMode;
+                    int row, column, rowspan, colspan;
+                    gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
+                    int incr = (mx == dx1) ? 0 : +1;
+                    m_currentCell = qMakePair(row, qMax(0, column + incr));
+                }
+            }
+        } else {
+            m_indicatorRight->hide();
+
+            if (!qt_cast<QHBoxLayout*>(layout())) {
+                m_indicatorBottom->setGeometry(r.x(), (my == dy1) ? g.y() : g.bottom(), r.width(), 2);
+                m_indicatorBottom->show();
+                m_indicatorBottom->raise();
+
+                if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout())) {
+                    m_currentInsertMode = QLayoutSupport::InsertRowMode;
+                    int row, column, rowspan, colspan;
+                    gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
+                    int incr = (my == dy1) ? 0 : +1;
+                    m_currentCell = qMakePair(qMax(0, row + incr), column);
+                }
+            }
+        }
+
+        m_indicatorLeft->hide();
+        m_indicatorTop->hide();
+    }
 }
 
 int QLayoutSupport::indexOf(QWidget *widget) const
@@ -576,23 +597,34 @@ void QLayoutSupport::insertWidget(QWidget *widget)
         } break;
 
         case LayoutInfo::Grid: {
-            QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
             QPoint pos = widget->pos();
+
             int index = currentIndex() != -1 ? currentIndex() : findItemAt(pos);
-            if (index != -1) {
-                QLayoutItem *item = gridLayout->itemAt(index);
-                if (item && item->spacerItem()) {
-                    int row, column, rowspan, colspan;
-                    gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
-                    gridLayout->takeAt(index);
-                    gridLayout->addWidget(widget, row, column, rowspan, colspan);
-                    delete item;
+
+            switch (currentInsertMode()) {
+                case QLayoutSupport::InsertColumnMode: {
+                    insertColumn(currentCell().second);
+                    layout()->activate();
+                    int new_index = findItemAt(currentCell().first, currentCell().second);
+                    Q_ASSERT(new_index != -1);
+                    insertWidget(new_index, widget);
+                } break;
+
+                case QLayoutSupport::InsertRowMode: {
+                    insertRow(currentCell().first);
+                    int new_index = findItemAt(currentCell().first, currentCell().second);
+                    Q_ASSERT(new_index != -1);
+                    insertWidget(new_index, widget);
+                } break;
+
+                case QLayoutSupport::InsertWidgetMode: {
+                    insertWidget(index, widget);
                     return;
-                }
+                } break;
             }
 
-            QMessageBox::information(m_widget, tr("Information"), tr("not implemented yet!"));
-            widget->setParent(formWindow()->mainContainer());
+            //QMessageBox::information(m_widget, tr("Information"), tr("not implemented yet!"));
+            //widget->setParent(formWindow()->mainContainer());
         } break;
 
         default:
@@ -600,7 +632,40 @@ void QLayoutSupport::insertWidget(QWidget *widget)
     } // end switch
 }
 
-void QLayoutSupport::createEmptyCells(QGridLayout *gridLayout)
+int QLayoutSupport::findItemAt(int at_row, int at_column)
+{
+    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    Q_ASSERT(gridLayout);
+
+    int index = 0;
+    while (gridLayout->itemAt(index)) {
+        int row, column, rowspan, colspan;
+        gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
+
+        if (at_row >= row && at_row < (row + rowspan)
+                && at_column >= column && at_column < (column + colspan))
+            return index;
+
+        ++index;
+    }
+
+    return -1;
+}
+
+void QLayoutSupport::insertWidget(int index, QWidget *widget)
+{
+    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    QLayoutItem *item = gridLayout->itemAt(index);
+    if (item && item->spacerItem()) {
+        int row, column, rowspan, colspan;
+        gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
+        gridLayout->takeAt(index);
+        gridLayout->addWidget(widget, row, column, rowspan, colspan);
+        delete item;
+    }
+}
+
+void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
 {
     Q_ASSERT(gridLayout);
 
@@ -647,10 +712,10 @@ void QLayoutSupport::createEmptyCells(QGridLayout *gridLayout)
     }
 }
 
-void QLayoutSupport::insertRow(QGridLayout *gridLayout, int row)
+void QLayoutSupport::insertRow(int row)
 {
     QHash<QLayoutItem*, QRect> infos;
-    computeGridLayout(gridLayout, &infos);
+    computeGridLayout(&infos);
 
     QHashMutableIterator<QLayoutItem*, QRect> it(infos);
     while (it.hasNext()) {
@@ -663,14 +728,16 @@ void QLayoutSupport::insertRow(QGridLayout *gridLayout, int row)
         }
     }
 
-    rebuildGridLayout(gridLayout, infos);
-    createEmptyCells(gridLayout);
+    rebuildGridLayout(infos);
+
+    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout()))
+        createEmptyCells(gridLayout);
 }
 
-void QLayoutSupport::insertColumn(QGridLayout *gridLayout, int column)
+void QLayoutSupport::insertColumn(int column)
 {
     QHash<QLayoutItem*, QRect> infos;
-    computeGridLayout(gridLayout, &infos);
+    computeGridLayout(&infos);
 
     QHashMutableIterator<QLayoutItem*, QRect> it(infos);
     while (it.hasNext()) {
@@ -684,8 +751,10 @@ void QLayoutSupport::insertColumn(QGridLayout *gridLayout, int column)
         }
     }
 
-    rebuildGridLayout(gridLayout, infos);
-    createEmptyCells(gridLayout);
+    rebuildGridLayout(infos);
+
+    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout()))
+        createEmptyCells(gridLayout);
 }
 
 QRect QLayoutSupport::itemInfo(int index) const
@@ -717,9 +786,9 @@ int QLayoutSupport::findItemAt(const QPoint &pos) const
 
         int spacing = layout()->spacing();
         int margin = layout()->margin();
+        // ### use the margin
 
         g.setBottomRight(g.bottomRight() + QPoint(spacing, spacing));
-        // ### use the spacer
 
         if (g.contains(pos))
             return index;
@@ -730,10 +799,10 @@ int QLayoutSupport::findItemAt(const QPoint &pos) const
     return -1;
 }
 
-void QLayoutSupport::computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutItem*, QRect> *l)
+void QLayoutSupport::computeGridLayout(QHash<QLayoutItem*, QRect> *l)
 {
     int index = 0;
-    while (QLayoutItem *item = gridLayout->itemAt(index)) {
+    while (QLayoutItem *item = layout()->itemAt(index)) {
         QRect info = itemInfo(index);
         l->insert(item, info);
 
@@ -741,8 +810,10 @@ void QLayoutSupport::computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutIte
     }
 }
 
-void QLayoutSupport::rebuildGridLayout(QGridLayout *&gridLayout, const QHash<QLayoutItem*, QRect> &infos)
+void QLayoutSupport::rebuildGridLayout(const QHash<QLayoutItem*, QRect> &infos)
 {
+    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+
     { // take the items
         int index = 0;
         while (gridLayout->itemAt(index))
@@ -753,6 +824,7 @@ void QLayoutSupport::rebuildGridLayout(QGridLayout *&gridLayout, const QHash<QLa
 
     AbstractFormEditor *core = formWindow()->core();
     LayoutInfo::deleteLayout(core, m_widget);
+
     gridLayout = (QGridLayout*) core->widgetFactory()->createLayout(m_widget, 0, LayoutInfo::Grid);
 
     QHashIterator<QLayoutItem*, QRect> it(infos);

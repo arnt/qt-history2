@@ -22,6 +22,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPointer>
+#include <qpair.h>
 
 class FormWindow;
 class QAction;
@@ -56,6 +57,14 @@ class QT_FORMEDITOR_EXPORT QLayoutSupport: public QObject
 {
     Q_OBJECT
 public:
+    enum InsertMode
+    {
+        InsertWidgetMode,
+        InsertRowMode,
+        InsertColumnMode
+    };
+
+public:
     QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject *parent = 0);
     virtual ~QLayoutSupport();
 
@@ -73,6 +82,12 @@ public:
     inline int currentIndex() const
     { return m_currentIndex; }
 
+    inline InsertMode currentInsertMode() const
+    { return m_currentInsertMode; }
+
+    inline QPair<int, int> currentCell() const
+    { return m_currentCell; }
+
     int findItemAt(const QPoint &pos) const;
     QRect itemInfo(int index) const;
     int indexOf(QWidget *widget) const;
@@ -84,12 +99,19 @@ public:
 
     QList<QWidget*> widgets(QLayout *layout);
 
-    void insertRow(QGridLayout *gridLayout, int row);
-    void insertColumn(QGridLayout *gridLayout, int column);
+    void insertRow(int row);
+    void insertColumn(int column);
 
-    static void createEmptyCells(QGridLayout *gridLayout);
-    void computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutItem*, QRect> *layout);
-    void rebuildGridLayout(QGridLayout *&gridLayout, const QHash<QLayoutItem*, QRect> &layout);
+//
+// QGridLayout helpers
+//
+    int findItemAt(int row, int column);
+
+    static void createEmptyCells(QGridLayout *&gridLayout);
+
+    void computeGridLayout(QHash<QLayoutItem*, QRect> *layout);
+    void rebuildGridLayout(const QHash<QLayoutItem*, QRect> &layout);
+    void insertWidget(int index, QWidget *widget);
 
 private:
     FormWindow *m_formWindow;
@@ -99,7 +121,8 @@ private:
     QPointer<QWidget> m_indicatorRight;
     QPointer<QWidget> m_indicatorBottom;
     int m_currentIndex;
-
+    InsertMode m_currentInsertMode;
+    QPair<int, int> m_currentCell;
 };
 
 class QT_FORMEDITOR_EXPORT QLayoutWidget : public QWidget
@@ -146,17 +169,17 @@ protected:
     inline QList<QWidget*> widgets(QLayout *layout)
     { return m_support.widgets(layout); }
 
-    inline void insertRow(QGridLayout *gridLayout, int row)
-    { m_support.insertRow(gridLayout, row); }
+    inline void insertRow(int row)
+    { m_support.insertRow(row); }
 
-    inline void insertColumn(QGridLayout *gridLayout, int column)
-    { m_support.insertColumn(gridLayout, column); }
+    inline void insertColumn(int column)
+    { m_support.insertColumn(column); }
 
-    inline void computeGridLayout(QGridLayout *gridLayout, QHash<QLayoutItem*, QRect> *layout)
-    { m_support.computeGridLayout(gridLayout, layout); }
+    inline void computeGridLayout(QHash<QLayoutItem*, QRect> *layout)
+    { m_support.computeGridLayout(layout); }
 
-    inline void rebuildGridLayout(QGridLayout *gridLayout, const QHash<QLayoutItem*, QRect> &layout)
-    { m_support.rebuildGridLayout(gridLayout, layout); }
+    inline void rebuildGridLayout(const QHash<QLayoutItem*, QRect> &layout)
+    { m_support.rebuildGridLayout(layout); }
 
 private:
     FormWindow *m_formWindow;
