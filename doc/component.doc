@@ -105,8 +105,8 @@ up. Most applications support only single-component libraries.
 
 \endsidebar
 
-Most exisiting component models, e.g. COM, use a similar architecture. This document assumes that 
-you have a basic knowledge of component development. Recommended reading:
+Most exisiting component models, e.g. COM, use a similar architecture. This document cannot cover
+all aspects of component development. Recommended reading for further information:
 
 \list
 \i \link http://www.amazon.com/exec/obidos/ASIN/1572313498/trolltech/t/107-3518660-0427733"
@@ -119,9 +119,9 @@ Inside COM \endlink
 
 In the Qt Component Model, interfaces are declared as pure abstract classes.
 Since interfaces encapsulate a functionality of a component that is publicly available it does not 
-make sense to have interfaces that have protected or private member functions, the \e struct keyword 
-is used so that all functions are made public. A common naming convention for interfaces is to use the 
-interface name with the postfix \e interface like in QUnknownInterface, or
+make sense to have interfaces that have protected or private member functions. Interfaces are declared
+using the \e struct keyword so that all functions are public by default. A common naming convention for 
+interfaces is to use the interface name with the postfix \e interface like in QUnknownInterface, or
 
 \code
 struct IntegerInterface : public QUnknownInterface
@@ -133,8 +133,13 @@ struct IntegerInterface : public QUnknownInterface
 };
 \endcode
 
+Interfaces define a set of related functions and should be specialized - if functions 
+in an interface are unrelated it is usually better to define two separate interfaces. 
+This ensures high resuability of the interfaces, and lean components that have to implement
+only those functions that make sense for their functionality.
+
 Many platforms provide a tool to generate a UUID that is associated
-with this interface. The Qt distribution includes \e quuidgen, a GUI
+with an interface. The Qt distribution includes \e quuidgen, a GUI
 tool that makes it easy to copy the generated ID directly into the
 source code:
 
@@ -184,7 +189,7 @@ private:
 };
 \endcode
 
-The implementation of IntegerInterface is trivial.
+The implementation of the IntegerInterface is trivial.
 
 
 
@@ -194,8 +199,9 @@ The implementation of the QUnknownInterface defines the set of interfaces
 the component provides and controls the lifetime of the component using
 reference counting.
 
-The implementation of \e queryInterface has to follow several rules to make the 
-use of the component reliable:
+The implementation of \e queryInterface() defines the publicly available functionality
+the component provides and has to follow several rules to make the use of the component 
+reliable:
 
 \list
 \i A query for \e QUnknownInterface must always return the same pointer value
@@ -206,7 +212,7 @@ use of the component reliable:
 See the \link qunknowninterface.html QUnknownInterface API reference \endlink for a
 more detailed explanation of those rules.
 
-An implementation of \e queryInterface usually looks like this:
+An implementation of \e queryInterface() usually looks like this:
 
 \code
 QRESULT NumberComponent::queryInterface( const QUuid &uuid,
@@ -225,12 +231,12 @@ QRESULT NumberComponent::queryInterface( const QUuid &uuid,
 }
 \endcode
 
-Naturally, the queryInterface implementation should return a valid interface pointer
+Naturally, the queryInterface() implementation should return a valid interface pointer
 for all interfaces implemented by the component, e.g. all the interfaces that the component
 inherits from, which includes the whole inheritance tree of those interfaces themselves.
 
 The return type QRESULT is used to give a more detailed reason why an interface 
-is available or not. Common return values for \e queryInterface are \e QS_OK if the 
+is available or not. Return values for \e queryInterface() are \e QS_OK if the 
 call was successful, or QE_NOINTERFACE if the queried interface is not provided by 
 this component.
 
@@ -240,7 +246,7 @@ longer used - it would invalidate all references a different client has
 to the same interface. Only the component itself knows when it is safe to 
 delete itself, and the client has to tell the component when it is no longer 
 used. This is done using a reference count. Whenever a pointer to an interface 
-is copied, the reference count is increased using \e addRef:
+is copied, the reference count is increased using \e addRef():
 
 \code
 ulong NumberComponent::addRef()
@@ -249,9 +255,9 @@ ulong NumberComponent::addRef()
 }
 \endcode
 
-\e addRef should also be called by any function that returns an interface directly 
-or in an out parameter, e.g. in \e queryInterface. Whenever a pointer to an interface
-is no longer used, the counter is decreased using \e release. As soon as the count reaches 
+\e addRef() should also be called by any function that returns an interface directly 
+or through an out parameter, like e.g. in \e queryInterface(). Whenever a pointer to an interface
+is no longer used, the counter is decreased using \e release(). As soon as the count reaches 
 zero the interface knows that there are no more references and it can delete itself:
 
 \code
@@ -259,7 +265,7 @@ ulong NumberComponent::release()
 {
     if ( !--ref ) {
         delete this;
-	return 0;
+        return 0;
     }
     return ref;
 }
@@ -267,9 +273,25 @@ ulong NumberComponent::release()
 
 If the reference count runs out of sync it is usually the reason for hard to
 find bugs - crashes when the interface get's released to often, or memory
-leaks when there are to many \e addRef calls.
+leaks when there are to many \e addRef() calls. The QInterfacePtr template class
+makes it easy to deal with reference counting by mapping addRef() and release()
+calls to the well-known C++ object lifetime behaviour:
 
-The above standard implementations of \e addRef and \e release are provided by
+\code
+...
+if ( ... ) {
+    QInterfacePtr<IntegerInterface> iface;
+    component->queryInterface( IID_Integer, (QUnknownInterface**)&iface );
+    if ( iface ) {
+    }
+}
+...
+\endcode
+
+When going out of scope, the QInterfacePtr object is destroyed and calls \e release()
+on the interface provided by the \e queryInterface() call.
+
+The standard implementations of \e addRef() and \e release() are provided by
 the C macro \e Q_REFCOUNT that can be used in the declaration of every class
 implementing QUnknownInterface, e.g.
 
@@ -281,7 +303,7 @@ public:
 
     // from QUnknownInterface
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    Q_REFCOUNT
+    Q_REFCOUNT;
     
     ...
 };
@@ -306,7 +328,7 @@ struct DoubleInterface : public QUnknownInterface
 \endcode
 
 \code
-class NumberComponent : public IntegerInterface
+class NumberComponent : public IntegerInterface, public DoubleInterface
 {
 public:
     NumberComponent();
@@ -324,7 +346,7 @@ public:
 
 \endcode
 
-the relevant part of the queryInterface implementation would become:
+the relevant part of the \e queryInterface() implementation would become:
 
 \code
     ...
@@ -339,10 +361,27 @@ the relevant part of the queryInterface implementation would become:
 
 The casting is necessary because both IntegerInterface and DoubleInterface
 inherit QUnknownInterface, and the compiler is not able to cast the \e this pointer
-to an \e QUnknownInterface* so the explizit cast becomes necessary. Which inheritance 
+to an \e QUnknownInterface* so an explizit cast is required. Which inheritance 
 path is used for the casting is not important, but it has to be consistent throughout 
 the component.
 
+Implementing multiple interfaces can become necessary for a second reason. If the
+application that uses the number component above wants to use an additional function,
+it has to define a new interface that declares this function, as the exisiting IntegerInterface
+must not change, and cannot change without breaking existing components.
+
+\code
+struct IntegerModuloInterface : public QUnknownInterface
+{
+    virtual int modulo( int a, int b ) = 0;
+};
+
+An application that knows about this new interface can use it by explicitely asking the component
+for it's implementation using \e queryInterface(). The next version of the component will behave 
+exactly as before when asked for the old IntegerInterface, and additionally implement the new 
+interface. Only if both the application and the component are updated the new interface will be
+used - if one module is not updated, the new functionality can not be used, but the application
+works as before.
 
 
 \section1 Writing a Component Server
@@ -357,13 +396,13 @@ created by  the compiler.
 In order to be able to distribute a component in binary
 form it must be wrapped in a component server. The most common kind of
 server is a shared library that gets dynamically loaded by the
-application. In order for the application to be able to access the
-component there must be a function exported by this shared library.
+application in runtime. In order for the application to be able to 
+access the component there must be a function exported by this shared library.
 This function will return a pointer to a QUnknownInterface
 implementation that can be used as an entry point to query for the
 interfaces needed. Qt provides a macro 
 
-\code Q_EXPORT_COMPONENT \endcode 
+\code Q_EXPORT_COMPONENT() \endcode 
 
 that declares the exported function
 
@@ -400,9 +439,9 @@ Q_EXPORT_COMPONENT()
 \endcode
 
 The ucom_instantiate() function must be declared and implemented
-exactly once for  each component server.
+exactly once for  each component server, similar to a \e main function in an application.
 
-Sidenote: The \e Q_EXPORT_COMPONENT macro expands to a declaration and implementation of a 
+Sidenote: The \e Q_EXPORT_COMPONENT() macro expands to a declaration and implementation of a 
 second exported function:
 
 \code int ucm_initialize( QApplication* theApp, bool *mt, bool *debug ) \endcode
@@ -441,11 +480,32 @@ with \e DESTDIR.
 \section2 Multiple Components in One Component Server
 
 The function exported by the component server returns a pointer to an implementation of 
-QUnknownInterface. The client can then use \e queryInterface on that interface to query 
+QUnknownInterface. The client can then use \e queryInterface() on that interface to query 
 for the component's interface implementations. All interfaces returned will always be implemented 
 by the same component - it is not possible to use queryInterface to query one component for an 
 interface and get the interface implementation of another component. This makes it impossible for 
 a client to access any other component than the one returned by the exported function.
+
+Another problem is that the \e queryInterface() call will always return the same component instance:
+
+\code
+QInterfacePtr<ValueInterface> iface;
+component->queryInterface( IID_Value, (QUnknownInterface**)&iface );
+if ( iface ) {
+    iface->setValue( 5 );
+}
+
+QInterfacePtr<ValueInterface> iface2;
+component->queryInterface( IID_Value, (QUnknownInterface**)&iface2 );
+if ( iface2 ) {
+    iface2->setValue( 3 );
+}
+
+int val = iface->value(); // this will set "val" to 3
+\endcode
+
+Both interfaces are just references to the same component instance - it is not possible
+to use \e queryInterface() to get a new instance of that component.
 
 The solution is to make use of another component that has the sole purpose of creating other 
 components. This component has to be the one returned by the exported function, and it has 
@@ -485,20 +545,23 @@ QRESULT ComponentFactory::createInstance( const QUuid &cid, const QUuid &iid,
 					  QUnknownInterface** iface,
 					  QUnknownInterface *outer )
 {
+    QRESULT res = QE_NOCOMPONENT;
     if ( cid == NumberComponent::CID ) {
-	NumberComponent *comp = new NumberComponent;
-	return comp->queryInterface( iid, iface );
+        NumberComponent *comp = new NumberComponent;
+        res = comp->queryInterface( iid, iface );
+        if ( res != QS_OK )
+            delete comp;
     } else if ( cid == SecondComponent::CID ) {
-	SecondComponent *comp = new SecondComponent;
-	return comp->queryInterface( iid, iface );
+        SecondComponent *comp = new SecondComponent;
+        res = comp->queryInterface( iid, iface );
+        if ( res != QS_OK )
+            delete comp;
     }
-    return QE_NOCOMPONENT;
+    return res;
 }
 \endcode
 
-The \e outer parameter can be used for component aggregation. Note that it is not possible to 
-use the Q_CREATE_INTERFACE macro, since this would not propagate the \e iid parameter.
-
+The \e outer parameter can be used for component aggregation.
 
 
 \section1 Using Components
@@ -517,11 +580,10 @@ wants to use it can load the component server using the QLibrary class like this
     int sum;
 
     QLibrary lib( "filename" );
-    IntegerInterface *iface;
-    if ( lib->queryInterface( IID_Integer,
+    QInterfacePtr<IntegerInterface> iface;
+    if ( lib.queryInterface( IID_Integer,
 			      (QUnknownInterface**)&iface ) == QS_OK ) {
 	sum = iface->add( 5, 8 );
-	iface->release;
     }
 \endcode
 
@@ -535,7 +597,7 @@ API reference \endlink.
 But loading a specific library file is not very generic - it makes the usage of the
 component depend on the installation of the shared library into a specific directory.
 
-Most applications know only which component they want to use. In order to find the component 
+Many applications know only which component they want to use. In order to find the component 
 server that provides this specific component the application has to look up the filename of 
 the component server in some kind of central database, and the component will have to register 
 itself in this central database. 
@@ -551,8 +613,7 @@ using the \link qcomponentfactory.html QComponentFactory \endlink class like thi
 \code
 bool ComponentServer::registerComponents( const QString &filepath ) const
 {
-    return QComponentFactory::registerComponent( NumberComponent::cid,
-		   filepath, "Component for numbers" );
+    return QComponentFactory::registerComponent( NumberComponent::cid, filepath );
 }
 
 bool ComponentServer::unregisterComponents() const
@@ -562,7 +623,7 @@ bool ComponentServer::unregisterComponents() const
 \endcode
 
 On Windows, this will use the system registry and register the component
-along with all other COM components. On UNIX, this will create a
+along with all the other components. On UNIX, this will create a
 settings file .CLSID that lists all installed components. To register
 all components in a server, it is sufficient to load the library, 
 query for the QComponentRegistrationInterface and call the registerComponent
@@ -574,12 +635,11 @@ functions of the QComponentFactory class to get an interface to the requested co
 \code
 int sum;
 
-IntegerInterface *iface;
+QInterfacePtr<IntegerInterface> iface;
 if ( QComponentFactory::createInstance(
 	     QUuid("{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}"),
 	     IID_Integer, (QUnknownInterface**)&iface ) == QS_OK ) {
     sum = iface->add( 5, 3 );
-    iface->release();
 }
 \endcode
 
@@ -675,11 +735,10 @@ The QPluginManager template class provides a generic solution for this.
 QImage image( "picture.png" );
 QPluginManager<ImageColorInterface> colorPlugins( IID_ImageColor, "./plugins" );
 
-ImageColorInterface *iface;
+QInterfacePtr<ImageColorInterface> iface;
 colorPlugins.queryInterface( "Sepia", &iface );
 if ( iface ) {
     image = iface->changeColor( "Sepia", image );
-    iface->release();
 }
 \endcode
 
