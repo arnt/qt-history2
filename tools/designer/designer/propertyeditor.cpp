@@ -1581,10 +1581,12 @@ void PropertyDatabaseItem::childValueChanged( PropertyItem *c )
     if ( c == PropertyItem::child( 0 ) ) { // if the connection changed
 	lst[ 0 ] = ( (PropertyListItem*)c )->currentItem();
 	PropertyItem::child( 1 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseTableList( lst[ 0 ] ) );
-	PropertyItem::child( 2 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] ) );
+	if ( withField )
+	    PropertyItem::child( 2 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] ) );
     } else if ( withField && c == PropertyItem::child( 1 ) ) { // if the table changed
 	lst[ 1 ] = ( (PropertyListItem*)c )->currentItem();
-	PropertyItem::child( 2 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] ) );
+	if ( withField )
+	    PropertyItem::child( 2 )->setValue( listview->propertyEditor()->formWindow()->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] ) );
     }
     lst.clear();
     lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem()
@@ -2174,7 +2176,7 @@ void PropertyList::setupProperties()
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
-    
+
     if ( editor->widget()->inherits( "QSqlTable" ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
 	setPropertyValue( item );
