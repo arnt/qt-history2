@@ -56,7 +56,7 @@ extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
 #include <arpa/nameser.h>
 #undef class
 #include <resolv.h>
-#else
+#elif !defined(Q_WS_WIN)
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
