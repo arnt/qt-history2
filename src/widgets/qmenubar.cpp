@@ -77,16 +77,16 @@ static bool inMenu = FALSE;
 
   A menu bar consists of a list of pull-down menu items.
   You add menu items with \link QMenuData::insertItem()
-  insertItem()\endlink. For example, ssuming that \c menubar is a
+  insertItem()\endlink. For example, asuming that \c menubar is a
   pointer to a QMenuBar and \c filemenu is a pointer to a
-  QPopupMenu:
+  QPopupMenu, the following statement inserts the menu into
+  the menu bar:
   \code
   menubar->insertItem( "&File", filemenu );
   \endcode
-  inserts the menu into the menu bar.  The ampersand in the menu
+  The ampersand in the menu
   item's text sets Alt+F as a shortcut for this menu. (You can use
-  "&&" to get a real ampersand in the menu bar, although this isn't
-  recommended.)
+  "&&" to get a real ampersand in the menu bar.)
 
   Items are either enabled or disabled. You toggle their state with
   setItemEnabled().
@@ -97,7 +97,7 @@ static bool inMenu = FALSE;
 
   \important insertItem removeItem clear insertSeparator setItemEnabled isItemEnabled
 
-    Example of creating a menu bar with menu items (from examples/menu/menu.cpp):
+    Example of creating a menu bar with menu items (from \l menu/menu.cpp):
     \quotefile menu/menu.cpp
     \skipto file = new QPopupMenu
     \printline
@@ -113,7 +113,7 @@ static bool inMenu = FALSE;
     provided in QMainWindow, adding \l{QPopupMenu}s to the menu bar
     and adding \l{QAction}s to the popup menus.
 
-    Example (from examples/action/application.cpp):
+    Example (from \l action/application.cpp):
     \quotefile action/application.cpp
     \skipto file = new QPopupMenu
     \printuntil fileNewAction
@@ -130,14 +130,13 @@ static bool inMenu = FALSE;
 
     QMenuBar on Qt/Mac is a wrapper for using the system-wide
     menubar. However if you have multiple menubars in one dialog the
-    outermost menubar (normally inside a widget with WType_TopLevel) will
+    outermost menubar (normally inside a widget with \l WType_TopLevel) will
     be used for the global menubar.
 
   <img src=qmenubar-m.png> <img src=qmenubar-w.png>
 
   \sa QPopupMenu QAccel QAction
-
-  <a href="guibooks.html#fowler">GUI Design Handbook: Menu Bar</a>
+      \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
 */
 
 
@@ -911,7 +910,7 @@ int QMenuBar::calculateRects( int max_width )
   (and hence itself) resized to the given \a max_width.  This can be
   useful for simple layout tasks in which the height of the menu bar
   is needed after items have been inserted.  See
-  examples/showimg/showimg.cpp for an example of the usage.
+  \l showimg/showimg.cpp for an example of the usage.
 */
 int QMenuBar::heightForWidth(int max_width) const
 {
