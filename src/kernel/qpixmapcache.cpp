@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#31 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -86,7 +86,7 @@ public:
 	}
    ~QPMCache() {}
     void timerEvent( QTimerEvent * );
-    bool insert( const char *k, const QPixmap *d, int c, int p = 0 );
+    bool insert( const QString& k, const QPixmap *d, int c, int p = 0 );
 private:
     int id;
     int ps;
@@ -123,7 +123,7 @@ void QPMCache::timerEvent( QTimerEvent * )
     }
 }
 
-bool QPMCache::insert( const char *k, const QPixmap *d, int c, int p )
+bool QPMCache::insert( const QString& k, const QPixmap *d, int c, int p )
 {
     bool r = QCache<QPixmap>::insert( k, d, c, p );
     if ( r && !id ) {
