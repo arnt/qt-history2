@@ -152,6 +152,10 @@
   It also shows how to subclass Listview Items for sepcial reasons. It looks
   and works like the mainwindow of a mail client.
 
+- mdi
+  This example program is just like the application example, but designed as 
+  Multiple Document Interface (MDI).
+
 - menu
   This example demonstrates simple use of menus (a menu bar and
   pull-down menus).  Qt also supports popup menus, but this example
