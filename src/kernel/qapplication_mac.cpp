@@ -1036,7 +1036,7 @@ void QSmSocketReceiver::socketActivated(int)
 {
 }
 
-#include "qapplication_x11.moc"
+#include "qapplication_mac.moc"
 
 class QSessionManagerData
 {
