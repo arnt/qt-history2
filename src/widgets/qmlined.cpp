@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#13 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1370,7 +1370,10 @@ void QMultiLineEdit::paste()
 
 void QMultiLineEdit::clear()
 {
-    
+    contents->first();
+    while ( contents->remove() ) ;
+    insert("");
+    dummy = TRUE;
 }
 
 
