@@ -13,6 +13,7 @@
 #include <qpixmap.h>
 
 #include "ftpviewitem.h"
+#include <qmimefactory.h>
 
 
 FtpViewItem::FtpViewItem( Q3ListView *parent, Type t, const QString &name, const QString &size, const QString &lastModified )
@@ -20,9 +21,9 @@ FtpViewItem::FtpViewItem( Q3ListView *parent, Type t, const QString &name, const
 {
     // the pixmaps for folders and files are in an image collection
     if ( type == Directory )
-	setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
+	setPixmap( 0, qPixmapFromMimeSource( "folder.png" ) );
     else
-	setPixmap( 0, QPixmap::fromMimeSource( "file.png" ) );
+	setPixmap( 0, qPixmapFromMimeSource( "file.png" ) );
 }
 
 int FtpViewItem::compare( Q3ListViewItem * i, int col, bool ascending ) const
