@@ -539,11 +539,9 @@ void QDragObject::dragLink()
     The \a mode specifies the drag mode (see
     \l{QDragObject::DragMode}.) Normally one of the simpler drag(),
     dragMove(), or dragCopy() functions would be used instead.
-
-    \warning in Qt 1.x, drag operations all return FALSE.
 */
 bool QDragObject::drag( DragMode mode )
-{ // ### In Qt 1.x?  huh?
+{
     if ( qt_dnd_manager )
 	return qt_dnd_manager->drag( this, mode );
     else
