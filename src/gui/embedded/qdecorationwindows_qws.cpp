@@ -21,130 +21,118 @@
 #ifndef QT_NO_IMAGEIO_XPM
 
 /* XPM */
-static const char * const win_menu_xpm[] = {
-/* width height ncolors chars_per_pixel */
-"16 16 12 1",
-/* colors */
-"       s None  c None",
-"* c #000000",
-". c #336600",
-"X c #666600",
-"o c #99CC00",
-"O c #999933",
-"+ c #333300",
-"@ c #669900",
-"# c #999900",
-"$ c #336633",
-"% c #666633",
-"& c #99CC33",
-/* pixels */
-"oooooooooooooooo",
-"oooooooooooooooo",
-"ooooo#.++X#ooooo",
-"ooooX******Xoooo",
-"oooX**XO#%**X&oo",
-"oo#**Ooo&@O**Ooo",
-"oo.*Xoo#+*@X*Xoo",
-"oo+*OoO+*+O#*+oo",
-"oo+*#O+**+##*+oo",
-"oo.*%@*++*+.*Xoo",
-"oo#**O@OO+***#oo",
-"oooX**X##$***Ooo",
-"ooooX********Xoo",
-"oooo&OX++X#OXooo",
-"oooooooooooooooo",
-"                "};
-
 static const char * const win_close_xpm[] = {
 "16 16 4 1",
+"  s None  c None",
+". c #000000",
+"X c #FFFFFF",
+"Y c #707070",
+"                ",
+"                ",
+"                ",
+"   Y.      .Y   ",
+"    ..    ..    ",
+"     ..  ..     ",
+"      .YY.      ",
+"      Y..Y      ",
+"      .YY.      ",
+"     ..  ..     ",
+"    ..    ..    ",
+"   Y.      .Y   ",
+"                ",
+"                ",
+"                ",
+"                "};
+
+static const char * const win_help_xpm[] = {
+"16 16 3 1",
 "       s None  c None",
-".      c #000000",
-"X      c #FFFFFF",
-"Y      c #707070",
-"XXXXXXXXXXXXXXXY",
-"X              .",
-"X              .",
-"X  Y.      .Y  .",
-"X   ..    ..   .",
-"X    ..  ..    .",
-"X     .YY.     .",
-"X     Y..Y     .",
-"X     .YY.     .",
-"X    ..  ..    .",
-"X   ..    ..   .",
-"X  Y.      .Y  .",
-"X              .",
-"X              .",
-"Y...............",
+".      c #ffffff",
+"X      c #000000",
+"                ",
+"                ",
+"                ",
+"     XXXXXX     ",
+"    XX    XX    ",
+"    XX    XX    ",
+"          XX    ",
+"         XX     ",
+"       XX       ",
+"       XX       ",
+"                ",
+"       XX       ",
+"       XX       ",
+"                ",
+"                ",
 "                "};
 
 static const char * const win_maximize_xpm[] = {
 "16 16 4 1",
-"       s None  c None",
-".      c #000000",
-"X      c #FFFFFF",
-"Y      c #707070",
-"XXXXXXXXXXXXXXXY",
-"X              .",
-"X              .",
-"X  ..........  .",
-"X  ..........  .",
-"X  .        .  .",
-"X  .        .  .",
-"X  .        .  .",
-"X  .        .  .",
-"X  .        .  .",
-"X  .        .  .",
-"X  ..........  .",
-"X              .",
-"X              .",
-"Y...............",
+"  s None  c None",
+". c #000000",
+"X c #FFFFFF",
+"Y c #707070",
+"                ",
+"                ",
+"                ",
+"   ..........   ",
+"   ..........   ",
+"   .        .   ",
+"   .        .   ",
+"   .        .   ",
+"   .        .   ",
+"   .        .   ",
+"   .        .   ",
+"   ..........   ",
+"                ",
+"                ",
+"                ",
 "                "};
 
 static const char * const win_minimize_xpm[] = {
 "16 16 4 1",
-"       s None  c None",
-".      c #000000",
-"X      c #FFFFFF",
-"Y      c #707070",
-"XXXXXXXXXXXXXXXY",
-"X              .",
-"X              .",
-"X              .",
-"X              .",
-"X              .",
-"X              .",
-"X              .",
-"X              .",
-"X              .",
-"X   ........   .",
-"X   ........   .",
-"X              .",
-"X              .",
-"Y...............",
+"  s None  c None",
+". c #000000",
+"X c #FFFFFF",
+"Y c #707070",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"                ",
+"    ........    ",
+"    ........    ",
+"                ",
+"                ",
+"                ",
 "                "};
 
 static const char * const win_normalize_xpm[] = {
 "16 16 4 1",
-"       s None  c None",
-".      c #000000",
-"X      c #FFFFFF",
-"Y      c #707070",
-"XXXXXXXXXXXXXXXY",
-"X              .",
-"X    ......... .",
-"X    ......... .",
-"X    .       . .",
-"X    .       . .",
-"X .........  . .",
-"X .........  . .",
-"X .       .  . .",
-"X .       .... .",
-"X .       .    .",
-"X .       .    .",
-"X .........    .",
-"X              .",
-"Y...............",
+"  s None  c None",
+". c #000000",
+"X c #FFFFFF",
+"Y c #707070",
+"                ",
+"                ",
+"     .........  ",
+"     .........  ",
+"     .       .  ",
+"     .       .  ",
+"  .........  .  ",
+"  .........  .  ",
+"  .       .  .  ",
+"  .       ....  ",
+"  .       .     ",
+"  .       .     ",
+"  .........     ",
+"                ",
+"                ",
 "                "};
 
 #endif // QT_NO_IMAGEIO_XPM
@@ -153,285 +141,210 @@ static const char * const win_normalize_xpm[] = {
 QDecorationWindows::QDecorationWindows()
     : QDecorationDefault()
 {
+    menu_width = 16;
+    help_width = 18;
+    minimize_width = 18;
+    maximize_width = 18;
+    close_width = 18;
 }
 
 QDecorationWindows::~QDecorationWindows()
 {
 }
 
-const char **QDecorationWindows::menuPixmap()
+const char **QDecorationWindows::xpmForRegion(int reg)
 {
 #ifndef QT_NO_IMAGEIO_XPM
-    return (const char **)win_menu_xpm;
-#else
-    return 0;
+    switch(reg)
+    {
+    case Close:
+        return (const char **)win_close_xpm;
+    case Help:
+        return (const char **)win_help_xpm;
+    case Minimize:
+        return (const char **)win_minimize_xpm;
+    case Maximize:
+        return (const char **)win_maximize_xpm;
+    case Normalize:
+        return (const char **)win_normalize_xpm;
+    default:
+        return QDecorationDefault::xpmForRegion(reg);
+    }
 #endif
-}
-
-const char **QDecorationWindows::closePixmap()
-{
-#ifndef QT_NO_IMAGEIO_XPM
-    return (const char **)win_close_xpm;
-#else
     return 0;
-#endif
 }
 
-const char **QDecorationWindows::minimizePixmap()
+QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, int type)
 {
-#ifndef QT_NO_IMAGEIO_XPM
-    return (const char **)win_minimize_xpm;
-#else
-    return 0;
-#endif
-}
+    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
+    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
+    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
+    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
+    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+    int titleHeight = hasTitle ? 20 : 0;
 
-const char **QDecorationWindows::maximizePixmap()
-{
-#ifndef QT_NO_IMAGEIO_XPM
-    return (const char **)win_maximize_xpm;
-#else
-    return 0;
-#endif
-}
-
-const char **QDecorationWindows::normalizePixmap()
-{
-#ifndef QT_NO_IMAGEIO_XPM
-    return (const char **)win_normalize_xpm;
-#else
-    return 0;
-#endif
-}
-
-int QDecorationWindows::getTitleWidth(const QWidget *widget)
-{
-    return widget->width();
-}
-
-/*
-    If rect is empty, no frame is added. (a hack, really)
-*/
-QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, QDecoration::DecorItem type)
-{
-    int titleHeight = getTitleHeight(widget);
-//    int titleWidth = getTitleWidth(widget);
-//    int bw = rect.isEmpty() ? 0 : BORDER_WIDTH;
     QRegion region;
-
     switch (type) {
-        case Maximize: {
-            QRect r(rect.right() - 2*titleHeight + 1, rect.top() - titleHeight,
-                            titleHeight, titleHeight);
-            if (r.left() > rect.left() + titleHeight)
-                    region = r;
+        case Menu: {
+                if (hasSysMenu) {
+                    region = QRect(rect.left() + 2, rect.top() - titleHeight,
+                                   menu_width, titleHeight);
+                }
+            }
             break;
-        }
+
+        case Title: {
+                QRect r(rect.left()
+                        + (hasSysMenu ? menu_width + 4: 0),
+                        rect.top() - titleHeight,
+                        rect.width()
+                        - (hasSysMenu ? menu_width : 0)
+                        - close_width
+                        - (hasMaximize ? maximize_width : 0)
+                        - (hasMinimize ? minimize_width : 0)
+                        - (hasContextHelp ? help_width : 0)
+                        - 3,
+                        titleHeight);
+                if (r.width() > 0)
+                    region = r;
+            }
+            break;
+        case Help: {
+                if (hasContextHelp) {
+                    QRect r(rect.right()
+                            - close_width
+                            - (hasMaximize ? maximize_width : 0)
+                            - (hasMinimize ? minimize_width : 0)
+                            - help_width - 3, rect.top() - titleHeight,
+                            help_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
+            }
+            break;
+
         case Minimize: {
-            QRect r(rect.right() - 3*titleHeight + 4, rect.top() - titleHeight,
-                            titleHeight, titleHeight);
-            if (r.left() > rect.left() + titleHeight)
-                    region = r;
+                if (hasMinimize) {
+                    QRect r(rect.right() - close_width
+                            - (hasMaximize ? maximize_width : 0)
+                            - minimize_width - 3, rect.top() - titleHeight,
+                            minimize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
+            }
             break;
-        }
-        case Menu:
-        case Close:
-        case All:
-        case Title:
-        case Top:
-        case Left:
-        case Right:
-        case Bottom:
-        case TopLeft:
-        case TopRight:
-        case BottomLeft:
-        case BottomRight:
+
+        case Normalize:
+        case Maximize: {
+                if (hasMaximize) {
+                    QRect r(rect.right() - close_width - maximize_width - 3,
+                            rect.top() - titleHeight, maximize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
+            }
+            break;
+
+        case Close: {
+                QRect r(rect.right() - close_width - 1, rect.top() - titleHeight,
+                        close_width, titleHeight);
+                if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            }
+            break;
+
         default:
-            region = QDecorationWindows::region(widget, rect, type);
+            region = QDecorationDefault::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
-void QDecorationWindows::paintItem(QPainter *painter, const QWidget *widget, DecorItem item,
-                                   DecoreState state)
+bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
+                               DecorationState state)
 {
-    if (item == None)
-        return;
+    if (decorationRegion == None)
+        return false;
 
-    if (item == All) {
-        paintItem(painter, widget, Border, state);
-        paintItem(painter, widget, Title, state);
-        paintItem(painter, widget, Menu, state);
-        paintItem(painter, widget, Help, state);
-        paintItem(painter, widget, Minimize, state);
-        paintItem(painter, widget, Maximize, state);
-        paintItem(painter, widget, Normalize, state);
-        paintItem(painter, widget, Close, state);
-        return;
-    }
+    const QRect titleRect = QDecoration::region(widget, Title).boundingRect();
+    const QPalette pal = widget->palette();
+    QRegion oldClipRegion = painter->clipRegion();
 
-    switch(item) {
-    case Border:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Border - NYI!");
-        break;
-    }
-    case Title:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Title - NYI!");
-        break;
-    }
-    case Menu:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Menu - NYI!");
-        break;
-    }
-    case Help:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Help - NYI!");
-        break;
-    }
-    case Minimize:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Minimize - NYI!");
-        break;
-    }
-    case Maximize:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Maximize - NYI!");
-        break;
-    }
-    case Normalize:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Normalize - NYI!");
-        break;
-    }
-    case Close:
-    {
-        qWarning("QDecorationWindows::paintEvent(): Close - NYI!");
-        break;
-    }
-    }
-}
-
-
-#if 0
-
-void QDecorationWindows::paint(QPainter *painter, const QWidget *widget)
-{
-    int titleWidth = getTitleWidth(widget);
-    int titleHeight = getTitleHeight(widget);
-
-    QRect rect(widget->rect());
-
-    // Border rect
-    QRect br(rect.left() - BORDER_WIDTH,
-                rect.top() - BORDER_WIDTH - titleHeight,
-                rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight);
-
-    // title bar rect
-    QRect tr(0, -titleHeight,  titleWidth - 1, titleHeight - 1);
-
-    QRegion oldClip = painter->clipRegion();
-    painter->setClipRegion(oldClip - QRegion(tr));        // reduce flicker
-
-#ifndef QT_NO_PALETTE
-    QPalette pal = QApplication::palette();
-    //QPalette pal = w->palette();
-    pal.setCurrentColorGroup(QPalette::Active);
-
-#if !defined(QT_NO_DRAWUTIL)
-    qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-                  br.height() - 4, pal, false,
-                  &pal.brush(QPalette::Background));
-#endif
-
-    painter->setClipRegion(oldClip);
-
-    if (titleWidth > 0) {
-        QBrush titleBrush;
+    bool paintAll = (decorationRegion == All);
+    if ((paintAll || decorationRegion & Title && titleRect.width() > 0) && state == Normal
+        && widget->testWFlags(Qt::WStyle_Title)) {
+        painter->setClipRegion(oldClipRegion);
+        QBrush fromBrush, toBrush;
         QPen   titlePen;
-        int    titleLeft = titleHeight + 4;
 
-        if (widget == qApp->activeWindow()) {
-            titleBrush = pal.brush(QPalette::Highlight);
+        if (widget == qApp->activeWindow() || qApp->activeWindow() == qApp->activePopupWidget()) {
+            fromBrush = pal.brush(QPalette::Highlight);
             titlePen   = pal.color(QPalette::HighlightedText);
         } else {
-            titleBrush = pal.brush(QPalette::Background);
+            fromBrush = pal.brush(QPalette::Background);
             titlePen   = pal.color(QPalette::Text);
         }
+        toBrush = fromBrush.color().light(300);
 
-#define CLAMP(x, y)            (((x) > (y)) ? (y) : (x))
+        painter->setPen(Qt::NoPen);
+        QPoint p1(titleRect.x(), titleRect.y() + titleRect.height()/2);
+        QPoint p2(titleRect.right(), titleRect.y() + titleRect.height()/2);
+        QBrush gradientBrush(p1, fromBrush, p2, toBrush);
+        painter->fillRect(titleRect, gradientBrush);
 
-        int x = tr.x();
-        QColor c1 = titleBrush.color();
-        QColor c2 = titleBrush.color();
-
-        if (widget == qApp->activeWindow()) {
-            c1 = QColor(0x10, 0x20, 0x90); // '98 Blue
-            // c2 = QColor(0x50, 0x60, 0xD0);
-            c2 = QColor(0x70, 0x70, 0x70);
-            // c1 = QColor(0xBA, 0xC4, 0x05); // Trolltech Green
-            // c1 = QColor(0xAA, 0xB4, 0x00); // Trolltech Green
-            // c2 = QColor(0x20, 0x20, 0x20);
-        } else {
-            c1 = QColor(0x20, 0x30, 0x50);
-            // c2 = QColor(0x60, 0x70, 0x90);
-            // c2 = QColor(0x40, 0x40, 0x40);
-            c2 = QColor(0x70, 0x70, 0x70);
-            titlePen = QPen(QColor(0x90, 0x90, 0x90));
-        }
-
-        int r = c1.red();
-        int g = c1.green();
-        int b = c1.blue();
-        for (int i = 0; i < 100; i++) {
-            int dr = r + (c2.red() * i) / 100;
-            int dg = g + (c2.green() * i) / 100;
-            int db = b + (c2.blue() * i) / 100;
-            x = tr.x() + (tr.width() * i) / 100;
-            int x2 = tr.x() + (tr.width() * (i + 1)) / 100;
-            QBrush tbr = QBrush(QColor(CLAMP(dr,255), CLAMP(dg,255), CLAMP(db,255)));
-            painter->fillRect(x, tr.y(), x2 - x, tr.height(), tbr);
-        }
-
-#ifndef QT_NO_WIDGET_TOPEXTRA
         painter->setPen(titlePen);
         painter->setFont(widget->font());
-        painter->drawText(titleLeft, -titleHeight,
-                        rect.width() - titleHeight - 10, titleHeight-1,
-                        Qt::AlignVCenter, widget->windowTitle());
-#endif
+        painter->drawText(titleRect, Qt::AlignVCenter, widget->windowTitle());
+        decorationRegion ^= Title;
     }
 
-#endif //QT_NO_PALETTE
-
+    return QDecorationDefault::paint(painter, widget, decorationRegion, state);
 }
 
-void QDecorationWindows::paintButton(QPainter *painter, const QWidget *w,
-                        QDecoration::Region type, int state)
+void QDecorationWindows::paintButton(QPainter *painter, const QWidget *widget, int buttonRegion,
+                                     DecorationState state, const QPalette &pal)
 {
-#ifndef QT_NO_PALETTE
-    QPalette pal = QApplication::palette();
-    //QPalette pal = w->palette();
-    pal.setCurrentColorGroup(QPalette::Active);
+    QBrush fromBrush, toBrush;
+    QPen   titlePen;
 
-    QRect brect(region(w, w->rect(), type).boundingRect());
-    int xoff=2;
-    int yoff=2;
-    const QPixmap pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
-    if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked))
-        xoff++, yoff++;
-    if (type != Menu)
-        painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15,
-                          pal.brush(QPalette::Background));
-    if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff, pm);
-#endif
+    if (widget == qApp->activeWindow() || qApp->activeWindow() == qApp->activePopupWidget()) {
+        fromBrush = pal.brush(QPalette::Highlight);
+        titlePen   = pal.color(QPalette::HighlightedText);
+    } else {
+        fromBrush = pal.brush(QPalette::Background);
+        titlePen   = pal.color(QPalette::Text);
+    }
+    toBrush = fromBrush.color().light(300);
+
+    QRect brect(QDecoration::region(widget, buttonRegion).boundingRect());
+    if (buttonRegion != Close && buttonRegion != Menu)
+        painter->fillRect(brect, toBrush);
+    else
+        painter->fillRect(brect.x() - 2, brect.y(), brect.width() + 4, brect.height(),
+                          buttonRegion == Menu ? fromBrush : toBrush);
+
+    int xoff = 1;
+    int yoff = 2;
+    const QPixmap pm = pixmapFor(widget, buttonRegion, xoff, yoff);
+    if (buttonRegion != Menu) {
+        if (state & Normal) {
+            qDrawWinPanel(painter, brect.x(), brect.y() + 2, brect.width(),
+                          brect.height() - 4, pal, false, &pal.brush(QPalette::Background));
+        } else if (state & Pressed) {
+            qDrawWinPanel(painter, brect.x(), brect.y() + 2, brect.width(),
+                          brect.height() - 4, pal, true, &pal.brush(QPalette::Background));
+            ++xoff;
+            ++yoff;
+        }
+    } else {
+        xoff = 0;
+        yoff = 2;
+    }
+
+    if (!pm.isNull())
+        painter->drawPixmap(brect.x() + xoff, brect.y() + yoff, pm);
 }
-
-#endif // 0 ----------------------------------------------------
 
 #endif // QT_NO_QWS_DECORATION_WINDOWS || QT_PLUGIN

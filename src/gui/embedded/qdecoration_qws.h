@@ -26,7 +26,6 @@ class QMenu;
 #define QT_NO_QWS_DECORATION_HYDRO
 #define QT_NO_QWS_DECORATION_KDE
 #define QT_NO_QWS_DECORATION_KDE2
-#define QT_NO_QWS_DECORATION_WINDOWS
 
 class QDecorationAction : public QAction
 {

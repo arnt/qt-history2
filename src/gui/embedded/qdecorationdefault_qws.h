@@ -39,6 +39,13 @@ protected:
     virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, int &xoff, int &yoff);
     virtual const char **xpmForRegion(int region);
 
+    int menu_width;
+    int help_width;
+    int close_width;
+    int minimize_width;
+    int maximize_width;
+    int normalize_width;
+
 private:
     static QPixmap *staticHelpPixmap;
     static QPixmap *staticMenuPixmap;

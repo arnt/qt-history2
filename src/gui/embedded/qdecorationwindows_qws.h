@@ -24,15 +24,14 @@ public:
     QDecorationWindows();
     virtual ~QDecorationWindows();
 
-    virtual QRegion region(const QWidget *widget, const QRect &rect, int decorationRegion = All);
-    virtual bool paint(QPainter *painter, const QWidget *widget, int decorationRegion = All,
-                       DecorationState state = Normal);
+    QRegion region(const QWidget *widget, const QRect &rect, int decorationRegion = All);
+    bool paint(QPainter *painter, const QWidget *widget, int decorationRegion = All,
+               DecorationState state = Normal);
+
 protected:
-    virtual const char **menuPixmap();
-    virtual const char **closePixmap();
-    virtual const char **minimizePixmap();
-    virtual const char **maximizePixmap();
-    virtual const char **normalizePixmap();
+    void paintButton(QPainter *painter, const QWidget *widget, int buttonRegion,
+                     DecorationState state, const QPalette &pal);
+    const char **xpmForRegion(int reg);
 };
 
 #endif // QT_NO_QWS_DECORATION_WINDOWS

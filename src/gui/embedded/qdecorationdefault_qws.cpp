@@ -29,7 +29,6 @@ QPixmap *QDecorationDefault::staticNormalizePixmap = 0;
 #ifndef QT_NO_IMAGEIO_XPM
 
 /* XPM */
-static int menu_width = 20;
 static const char * const default_menu_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "16 16 11 1",
@@ -64,7 +63,6 @@ static const char * const default_menu_xpm[] = {
 "oooooooooooooooo"
 };
 
-static int help_width = 20;
 static const char * const default_help_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -87,7 +85,6 @@ static const char * const default_help_xpm[] = {
 "                ",
 "                "};
 
-static int close_width = 20;
 static const char * const default_close_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -110,7 +107,6 @@ static const char * const default_close_xpm[] = {
 "                ",
 "                "};
 
-static int maximize_width = 20;
 static const char * const default_maximize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -133,7 +129,6 @@ static const char * const default_maximize_xpm[] = {
 "                ",
 "                "};
 
-static int minimize_width = 20;
 static const char * const default_minimize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -156,7 +151,6 @@ static const char * const default_minimize_xpm[] = {
 "                ",
 "                "};
 
-static int normalize_width = 20;
 static const char * const default_normalize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -184,6 +178,12 @@ static const char * const default_normalize_xpm[] = {
 QDecorationDefault::QDecorationDefault()
     : QDecoration()
 {
+    menu_width = 20;
+    help_width = 20;
+    close_width = 20;
+    minimize_width = 20;
+    maximize_width = 20;
+    normalize_width = 20;
 }
 
 QDecorationDefault::~QDecorationDefault()
@@ -202,9 +202,9 @@ QDecorationDefault::~QDecorationDefault()
     staticNormalizePixmap = 0;
 }
 
-#ifndef QT_NO_IMAGEIO_XPM
 const char **QDecorationDefault::xpmForRegion(int reg)
 {
+#ifndef QT_NO_IMAGEIO_XPM
     switch(reg)
     {
     case Help:
@@ -220,9 +220,9 @@ const char **QDecorationDefault::xpmForRegion(int reg)
     case Normalize:
         return (const char **)default_normalize_xpm;
     }
+#endif
     return 0;
 }
-#endif
 
 QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegion,
                                       int &xoff, int &/*yoff*/)
