@@ -13,4 +13,4 @@ win32 {
 	INCLUDEPATH	+= tmp $$QMAKE_INCDIR_QT
 }
 
-!win32-*:!wince-*:error("${QMAKE_FILE} is intended only for Windows!")
+!win32:error("$$_FILE_ is intended only for Windows!")
