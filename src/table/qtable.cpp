@@ -1809,7 +1809,6 @@ void QTable::init( int rows, int cols )
     selections.setAutoDelete( TRUE );
 
     // Create headers
-    topLeftCorner = new QWidget( this, "qt_topleft_corner" );
     leftHeader = new QTableHeader( rows, this, this, "left table header" );
     leftHeader->setOrientation( Vertical );
     leftHeader->setTracking( TRUE );
