@@ -179,6 +179,7 @@ public:
     const T& last() const { Q_ASSERT(!isEmpty()); return *(--end()); }
     inline void removeFirst() { Q_ASSERT(!isEmpty()); erase(begin()); }
     inline void removeLast() { Q_ASSERT(!isEmpty()); erase(--end()); }
+    inline QList<T> mid(int pos, int length = -1);
 
     T value(int i) const;
     T value(int i, const T &defaultValue) const;
@@ -343,6 +344,21 @@ inline void QList<T>::move(int from, int to)
 { Q_ASSERT_X(from >= 0 && from < p.size() && to >= 0 && to < p.size(),
                "QList<T>::move", "index out of range");
  detach(); p.move(from, to);
+}
+
+template<typename T>
+Q_OUTOFLINE_TEMPLATE QList<T> QList<T>::mid(int pos, int length)
+{
+    if (length < 0)
+        length = size() - pos;
+    if (pos == 0 && length == size())
+        return *this;
+    QList<T> copy;
+    if (pos + length > size())
+        length = size() - pos;
+    for (int i=pos; pos<pos + length; ++i)
+        copy += at(i);
+    return copy;
 }
 
 template<typename T>
