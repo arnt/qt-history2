@@ -370,6 +370,8 @@ void QWhatsThat::paintEvent( QPaintEvent* )
 	SystemParametersInfo( SPI_GETDROPSHADOW, 0, &shadow, 0 );
 	drawShadow = !shadow;
     }
+#elif defined(Q_WS_MACX)
+    drawShadow = FALSE; //never draw it on OS X we get it for free
 #endif
 
     QRect r = rect();

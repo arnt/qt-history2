@@ -521,29 +521,8 @@ void QAquaStyle::polish( QApplication* app )
     QPalette pal = app->palette();
     pal.setBrush( QColorGroup::Background, background );
     pal.setBrush( QColorGroup::Button, background );
-
-    pal.setColor( QPalette::Inactive, QColorGroup::ButtonText,
-                  QColor( 148,148,148 ));
-    pal.setColor( QPalette::Disabled, QColorGroup::ButtonText,
-                  QColor( 148,148,148 ));
-
-    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_aqua_highlight_active_color );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_aqua_highlight_inactive_color );
-    pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
-#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
-    pal.setColor(QPalette::Active, QColorGroup::Text, qt_aqua_text_active_color);
-    pal.setColor(QPalette::Active, QColorGroup::Foreground, qt_aqua_text_active_color);
-    pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qt_aqua_text_active_color);
-    pal.setColor(QPalette::Inactive, QColorGroup::Text, qt_aqua_text_inactive_color);
-    pal.setColor(QPalette::Disabled, QColorGroup::Text, qt_aqua_text_inactive_color);
-    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qt_aqua_text_inactive_color);
-    pal.setColor(QPalette::Disabled, QColorGroup::Foreground, qt_aqua_text_inactive_color);
-    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qt_aqua_text_inactive_color);
-    pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, qt_aqua_text_inactive_color);
-#else
-    pal.setColor(QColorGroup::HighlightedText, black);
-#endif
-    app->setPalette( pal, TRUE );
+    qt_mac_update_palette(pal, TRUE);
+    app->setPalette(pal, TRUE);
 }
 
 /*! \reimp */
@@ -575,7 +554,7 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    qAquaPolishFont(w);
+    qt_mac_polish_font(w);
     if( w->inherits("QTitleBar") ) {
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
@@ -2180,10 +2159,6 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 }
 
 #ifdef Q_WS_MAC
-//these came from carbon mailing list waiting for addition of
-//kThemeBrush[Primary|Secondary]HighlightColor in Appearance.h
-#define MAC_ACTIVE_HIGHLIGHT_COLOR -3
-#define MAC_INACTIVE_HIGHLIGHT_COLOR -4
 /*!
     \internal
 */
@@ -2211,43 +2186,9 @@ void QAquaStyle::appearanceChanged()
 	    changed = TRUE;
 	}
 
-	RGBColor clr;
-	GetThemeBrushAsColor(MAC_ACTIVE_HIGHLIGHT_COLOR, 32, true, &clr );
-	QColor hac = QColor(clr.red / 256, clr.green / 256, clr.blue / 256);
-	GetThemeBrushAsColor(MAC_INACTIVE_HIGHLIGHT_COLOR, 32, true, &clr );
-	QColor hic = QColor(clr.red / 256, clr.green / 256, clr.blue / 256);
-#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
-	GetThemeTextColor(kThemeTextColorDialogActive, 32, true, &clr);
-	QColor tac = QColor(clr.red / 256, clr.green / 256, clr.blue / 256);
-	GetThemeTextColor(kThemeTextColorDialogInactive, 32, true, &clr);
-	QColor tic = QColor(clr.red / 256, clr.green / 256, clr.blue / 256);
-#endif
-	if(qt_aqua_highlight_active_color != hac || 
-#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
-	    tac != qt_aqua_text_active_color || tic != qt_aqua_text_inactive_color ||
-#endif
-	   qt_aqua_highlight_inactive_color != hic) {
-	    changed = TRUE;
-	    qt_aqua_highlight_active_color = hac;
-	    qt_aqua_highlight_inactive_color = hic;
-	    QPalette pal = qApp->palette();
-	    pal.setColor(QPalette::Active, QColorGroup::Highlight, hac);
-	    pal.setColor(QPalette::Inactive, QColorGroup::Highlight, hic);
-#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
-	    qt_aqua_text_active_color = tac;
-	    qt_aqua_text_inactive_color = tic;
-	    pal.setColor(QPalette::Active, QColorGroup::Text, tac);
-	    pal.setColor(QPalette::Active, QColorGroup::Foreground, tac);
-	    pal.setColor(QPalette::Active, QColorGroup::HighlightedText, tac);
-	    pal.setColor(QPalette::Inactive, QColorGroup::Text, tic);
-	    pal.setColor(QPalette::Disabled, QColorGroup::Text, tic);
-	    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, tic);
-	    pal.setColor(QPalette::Disabled, QColorGroup::Foreground, tic);
-	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, tic);
-	    pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, tic);
-#endif
+	QPalette pal = qApp->palette();
+	if(qt_mac_update_palette(pal, FALSE))
 	    qApp->setPalette( pal, TRUE );
-	}
 
 	ThemeScrollBarArrowStyle arrows;
 	GetThemeScrollBarArrowStyle(&arrows);

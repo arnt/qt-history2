@@ -128,7 +128,62 @@ static inline bool qAquaActive( const QColorGroup & g )
 /* 
   Setup the font appropriatly on the Mac
 */
-static inline void qAquaPolishFont( QWidget *w )
+static inline bool qt_mac_update_palette(QPalette &pal, bool do_init) 
+{
+    static QPalette last_pal;
+    if(do_init) {
+	pal.setColor( QPalette::Inactive, QColorGroup::ButtonText, QColor( 148,148,148 ));
+	pal.setColor( QPalette::Disabled, QColorGroup::ButtonText, QColor( 148,148,148 ));
+#ifndef Q_WS_MAC
+	pal.setColor(QPalette::Active, QColorGroup::Highlight, QColor(0xC2, 0xC2, 0xC2));
+	pal.setColor(QPalette::Inactive, QColorGroup::Highlight, 
+			 mac_pal.color(QPalette::Active, QColorGroup::Highlight).light());
+	pal.setColor(QPalette::Active, QColorGroup::Shadow, Qt::gray);
+	pal.setColor(QPalette::Inactive, QColorGroup::Shadow, Qt::lightGray);
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+	pal.setColor(QPalette::Active, QColorGroup::Text, Qt::black);
+	pal.setColor(QPalette::Active, QColorGroup::Foreground, Qt::black);
+	pal.setColor(QPalette::Active, QColorGroup::HighlightedText, Qt::black);
+	pal.setColor(QPalette::Inactive, QColorGroup::Text, Qt::black);
+	pal.setColor(QPalette::Inactive, QColorGroup::Foreground, Qt::black);
+	pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
+#else
+	pal.setColor(QColorGroup::HighlightedText, Qt::black);
+#endif
+#endif
+    }
+#ifdef Q_WS_MAC
+    RGBColor c;
+#define BIND_CLR(mac, palette, group) \
+       GetThemeBrushAsColor(mac, 32, true, &c ); \
+       pal.setBrush(palette, group, QColor(c.red / 256, c.green / 256, c.blue / 256));
+    //these came from carbon mailing list waiting for addition of
+    //kThemeBrush[Primary|Secondary]HighlightColor in Appearance.h
+    BIND_CLR(-3, QPalette::Active, QColorGroup::Highlight);
+    BIND_CLR(-4, QPalette::Inactive, QColorGroup::Highlight);
+    BIND_CLR(kThemeBrushButtonActiveDarkShadow, QPalette::Active, QColorGroup::Shadow);
+    BIND_CLR(kThemeBrushButtonInactiveDarkShadow, QPalette::Inactive, QColorGroup::Shadow);
+#ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
+    BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::Text);
+    BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::Foreground);
+    BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::HighlightedText);
+    BIND_CLR(kThemeTextColorDialogInactive, QPalette::Inactive, QColorGroup::Text);
+    BIND_CLR(kThemeTextColorDialogInactive, QPalette::Inactive, QColorGroup::Foreground);
+    BIND_CLR(kThemeTextColorDialogInactive, QPalette::Inactive, QColorGroup::HighlightedText);
+#endif
+#undef BIND_CLR
+#endif
+    if(do_init || last_pal != pal) {
+	pal.setDisabled(pal.inactive());
+	last_pal = pal;
+	return TRUE;
+    }
+    return FALSE;
+}
+/* 
+  Setup the font appropriatly on the Mac
+*/
+static inline void qt_mac_polish_font( QWidget *w )
 {
 #ifdef Q_WS_MAC
     if( !w->ownFont() && w->font() == qApp->font() ) {
@@ -138,6 +193,12 @@ static inline void qAquaPolishFont( QWidget *w )
 	    key = kThemePushButtonFont;
 	else if(w->inherits("QListView") || w->inherits("QListBox"))
 	    key = kThemeViewsFont;
+	else if(w->inherits("QTitleBar"))
+	    key = kThemeWindowTitleFont;
+	else if(w->inherits("QMenuBar"))
+	    key = kThemeMenuTitleFont;
+	else if(w->inherits("QTipLabel"))
+	    key = kThemeEmphasizedSystemFont;
 	else if(w->inherits("QPopupMenu"))
 	    key = kThemeMenuItemFont;
 	else if(w->inherits("QLabel"))
