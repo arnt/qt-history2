@@ -132,7 +132,7 @@ public:
     enum Refresh {
 	RefreshData = 1,
 	RefreshColumns = 2,
-	RefreshAll = 3,
+	RefreshAll = 3
     };
     void         refresh( Refresh mode );
     void         sortColumn ( int col, bool ascending = TRUE,
