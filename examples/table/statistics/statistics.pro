@@ -10,7 +10,6 @@ REQUIRES=table full-config
 win32-msvc.net:contains(TEMPLATE_PREFIX,vc) {
     DEFINES += QT_SOURCE_TREE=&quot;$$QT_SOURCE_TREE&quot;
 } else {
-    QT_SOURCE_TREE ~= s/\\/\\ \
-
+    QT_SOURCE_TREE ~= s.\\./
     DEFINES += QT_SOURCE_TREE="\"$$QT_SOURCE_TREE\""
 }
