@@ -1143,7 +1143,9 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
             d->nocolBrush = true;
         }
         d->hbrush = CreatePatternBrush(d->hbrushbm);
-        DeleteObject(d->hbrushbm);
+        if (!d->pixmapBrush) // hbm is owned by the pixmap, and will be deleted by it later.
+            DeleteObject(d->hbrushbm);
+        d->hbrushbm = 0;
     } else {                                        // one of the hatch brushes
         int s;
         switch (d->brushStyle) {
