@@ -803,7 +803,7 @@ QVariant Parser::exprType( const QVariant& expr )
 	case Node_Min:
 	case Node_Sum:
 	    // type of sum(X) is type of X
-	    return expr.toList()[1];
+	    return exprType( expr.toList()[1] );
 	case Node_Count:
 	    return (int) QVariant::Int;
 	case Node_ResolvedField:
@@ -2194,38 +2194,41 @@ void Parser::matchFromClause()
     }
 }
 
-void Parser::matchOrderByClause( const QStringList& columnNames )
+void Parser::matchOptOrderByClause( int resultId,
+				    const QStringList& columnNames )
 {
-    yyTok = getToken();
-    matchOrInsert( Tok_by, "'by'" );
-
-    yyProg->append( new PushSeparator );
-    while ( TRUE ) {
-	QString columnName = matchColumnName();
-	bool descending = FALSE;
+    if ( yyTok == Tok_order ) {
+	yyTok = getToken();
+	matchOrInsert( Tok_by, "'by'" );
 
 	yyProg->append( new PushSeparator );
-	int k = columnNames.findIndex( columnName );
-	if ( k == -1 )
-	    error( "No column named '%s'", columnName.latin1() );
-	yyProg->append( new Push(k) );
+	while ( TRUE ) {
+	    QString columnName = matchColumnName();
+	    bool descending = FALSE;
 
-	switch ( yyTok ) {
-	case Tok_desc:
-	    descending = TRUE;
-	    // fall through
-	case Tok_asc:
+	    yyProg->append( new PushSeparator );
+	    int k = columnNames.findIndex( columnName );
+	    if ( k == -1 )
+		error( "No column named '%s'", columnName.latin1() );
+	    yyProg->append( new Push(k) );
+
+	    switch ( yyTok ) {
+	    case Tok_desc:
+		descending = TRUE;
+		// fall through
+	    case Tok_asc:
+		yyTok = getToken();
+	    }
+	    yyProg->append( new Push((int) descending) );
+	    yyProg->append( new MakeList );
+
+	    if ( yyTok != Tok_Comma )
+		break;
 	    yyTok = getToken();
 	}
-	yyProg->append( new Push((int) descending) );
 	yyProg->append( new MakeList );
-
-	if ( yyTok != Tok_Comma )
-	    break;
-	yyTok = getToken();
+	yyProg->append( new Sort(resultId) );
     }
-    yyProg->append( new MakeList );
-    yyProg->append( new Sort(0) );
 }
 
 void Parser::matchSelectStatement()
@@ -2276,9 +2279,7 @@ void Parser::matchSelectStatement()
 	*/
 	emitWhere( &whereCond, &whereConstants, selectColumns,
 		   selectColumnNames );
-
-	if ( yyTok == Tok_order )
-	    matchOrderByClause( selectColumnNames );
+	matchOptOrderByClause( 0, selectColumnNames );
     } else {
 	/*
 	  This is the general case where two passes are needed. The
@@ -2317,7 +2318,7 @@ void Parser::matchSelectStatement()
 		    usedDynamicFields.insert( f.key(), *g );
 		} else {
 		    resultColumnNos[*g].insert( f.key(), n );
-		    auxColumns.append( resolvedField(n, *g) );
+		    auxColumns.append( resolvedField(0, *g) );
 		    auxColumnNames.append( *g );
 		    n++;
 		}
@@ -2387,8 +2388,7 @@ void Parser::matchSelectStatement()
 	yyProg->append( new Goto(next) );
 	yyProg->appendLabel( end );
 
-	if ( yyTok == Tok_order )
-	    matchOrderByClause( auxColumnNames );
+	matchOptOrderByClause( 1, selectColumnNames );
     }
 }
 

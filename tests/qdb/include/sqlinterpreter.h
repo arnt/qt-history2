@@ -273,7 +273,7 @@ private:
     void matchInsertStatement();
     void matchRollbackStatement();
     void matchFromClause();
-    void matchOrderByClause( const QStringList& columnName );
+    void matchOptOrderByClause( int resultId, const QStringList& columnName );
     void matchSelectStatement();
     void matchUpdateStatement();
     void matchManipulativeStatement();
