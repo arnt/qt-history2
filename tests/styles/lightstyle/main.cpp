@@ -1,86 +1,32 @@
-#include <qstyleinterface.h>
+#include <qstyleplugin.h>
 #include "lightstyle.h"
-#include <qobjectcleanuphandler.h>
 
-class LightStyleIface : public QStyleFactoryInterface, public QLibraryInterface
+class LightStylePlugin : public QStylePlugin
 {
 public:
-    LightStyleIface();
-    virtual ~LightStyleIface();
+    LightStylePlugin();
 
-    QRESULT queryInterface( const QUuid&, QUnknownInterface **);
-    Q_REFCOUNT;
-
-    QStringList featureList() const;
-    QStyle *create( const QString& );
-
-    bool init();
-    void cleanup();
-    bool canUnload() const;
-
-private:
-    QObjectCleanupHandler styles;
+    QStringList keys() const;
+    QStyle *create(const QString &);
 };
 
-LightStyleIface::LightStyleIface()
+LightStylePlugin::LightStylePlugin()
+    : QStylePlugin()
 {
 }
 
-LightStyleIface::~LightStyleIface()
-{
-}
-
-QRESULT LightStyleIface::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
-{
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleFactory )
-	*iface = (QStyleFactoryInterface*)this;
-    else if ( uuid == IID_QLibrary )
-	*iface = (QLibraryInterface*)this;
-    else
-	return QE_NOINTERFACE;
-
-    if ( *iface )
-	(*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList LightStyleIface::featureList() const
+QStringList LightStylePlugin::keys() const
 {
     QStringList list;
     list << "Light";
     return list;
 }
 
-QStyle* LightStyleIface::create( const QString& s )
+QStyle *LightStylePlugin::create(const QString &s)
 {
-    if ( s.lower() == "light" ) {
-	QStyle *style = new LightStyle();
-	styles.add( style );
-	return style;
-    }
+    if (s.lower() == "light")
+	return new LightStyle;
     return 0;
 }
 
-bool LightStyleIface::init()
-{
-    return TRUE;
-}
-
-void LightStyleIface::cleanup()
-{
-    styles.clear();
-}
-
-bool LightStyleIface::canUnload() const
-{
-    return styles.isEmpty();
-}
-
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( LightStyleIface )
-}
+Q_EXPORT_PLUGIN( LightStylePlugin )
