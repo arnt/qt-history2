@@ -208,8 +208,7 @@ QFontEngineMac::canRender(const QChar *string,  int len)
 void
 QFontEngineMac::calculateCost()
 {
-    // ### don't know how to get the number of glyphs from the font,
-    // ### so default to 1024
+    // don't know how to get the number of glyphs from the font so default to 1024
     cache_cost = (ascent() + descent() + 1).toInt() * maxCharWidth().toInt() * 1024;
 }
 
