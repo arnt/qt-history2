@@ -774,7 +774,7 @@ QIODevice::readLine()
     int used = 0;
     QByteArray ret;
     for(char tmp, *p=0; (tmp = getch()) > 0 && tmp != '\n'; used++) {
-        if(!used || used <= ret.size()) {
+        if(!used || used >= ret.size()) {
             ret.resize(used+1024);
             p = ret.data();
         }

@@ -17,6 +17,8 @@
 #include <private/qinternal_p.h>
 #include <qfileengine.h>
 
+//#define QT_NO_FILE_BUFFER
+
 class QFilePrivate : public QIODevicePrivate
 {
     Q_DECLARE_PUBLIC(QFile)
@@ -27,7 +29,9 @@ protected:
 
     bool openExternalFile(int flags, int fd);
 
+#ifndef QT_NO_FILE_BUFFER
     QCircularBuffer buffer;
+#endif
     QString fileName;
     mutable QFileEngine *fileEngine;
 
