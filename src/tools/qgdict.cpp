@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#32 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#32 $")
 
 
 /*----------------------------------------------------------------------------
@@ -529,9 +529,8 @@ QGDictIterator::QGDictIterator( const QGDict &d )
 	dict->iterators = new QGDItList;	// create iterator list
 	CHECK_PTR( dict->iterators );
     }
-    dict->iterators->append( this );		// notify dict about iterator
+    dict->iterators->append( this );		// attach iterator to dict
 }
-
 
 /*----------------------------------------------------------------------------
   \internal
@@ -544,7 +543,7 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
     curNode = it.curNode;
     curIndex = it.curIndex;
     if ( dict )
-	dict->iterators->append( this );	// notify dict about iterator
+	dict->iterators->append( this );	// attach iterator to dict
 }
 
 /*----------------------------------------------------------------------------
@@ -555,13 +554,19 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
 
 QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 {
-    if ( dict )
-	dict->iterators->removeRef( this );      // remove old iterator from dict
+    if ( dict ) {				// detach from old dict
+	if ( dict->iterators->removeRef(this) ){
+	    if ( dict->iterators->count() == 0 ) {
+		delete dict->iterators;		// this was the last iterator
+		dict->iterators = 0;
+	    }
+	}
+    }
     dict = it.dict;
     curNode = it.curNode;
     curIndex = it.curIndex;
     if ( dict )
-	dict->iterators->append( this );      // notify dict about new iterator
+	dict->iterators->append( this );	// attach to new list
     return *this;
 }
 
@@ -572,13 +577,13 @@ QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 
 QGDictIterator::~QGDictIterator()
 {
-    if ( dict ) {				// decouple iterator from dict
+    if ( dict ) {				// detach iterator from dict
 #if defined(DEBUG)	
 	ASSERT( dict->iterators );
 #endif
 	if ( dict->iterators->removeRef(this) ) {
 	    if ( dict->iterators->count() == 0 ) {
-		delete dict->iterators;
+		delete dict->iterators;		// this was the last iterator
 		dict->iterators = 0;
 	    }
 	}

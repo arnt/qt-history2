@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#36 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -929,7 +929,7 @@ QGListIterator::QGListIterator( const QGList &l )
 	list->iterators = new QGList;		// create iterator list
 	CHECK_PTR( list->iterators );
     }
-    list->iterators->append( this );		// notify list about iterator
+    list->iterators->append( this );		// attach iterator to list
 }
 
 /*----------------------------------------------------------------------------
@@ -942,7 +942,7 @@ QGListIterator::QGListIterator( const QGListIterator &it )
     list = it.list;
     curNode = it.curNode;
     if ( list )
-	list->iterators->append( this );	// notify list about iterator
+	list->iterators->append( this );	// attach iterator to list
 }
 
 /*----------------------------------------------------------------------------
@@ -953,13 +953,18 @@ QGListIterator::QGListIterator( const QGListIterator &it )
 
 QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 {
-    if ( list )
-	list->iterators->removeRef( this );   // remove old iterator from list
+    if ( list ) {				// detach from old list
+	if ( list->iterators->removeRef(this) ){
+	    if ( list->iterators->count() == 0 ) {
+		delete list->iterators;		// this was the last iterator
+		list->iterators = 0;
+	    }
+	}
+    }
     list = it.list;
     curNode = it.curNode;
-
     if ( list )
-	list->iterators->append( this );      // notify list about new iterator
+	list->iterators->append( this );	// attach to new list
     return *this;
 }
 
@@ -970,13 +975,13 @@ QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 
 QGListIterator::~QGListIterator()
 {
-    if ( list ) {				// decouple iterator from list
+    if ( list ) {				// detach iterator from list
 #if defined(DEBUG)	
 	ASSERT( list->iterators );
 #endif
 	if ( list->iterators->removeRef(this) ) {
 	    if ( list->iterators->count() == 0 ) {
-		delete list->iterators;
+		delete list->iterators;		// this was the last iterator
 		list->iterators = 0;
 	    }
 	}
