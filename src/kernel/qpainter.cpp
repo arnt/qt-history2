@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#136 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1897,9 +1897,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     short charwidth[255];			// character widths
     memset( charwidth, -1, 255*sizeof(short) );
 
-#define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
 #undef	UCHAR
 #define UCHAR(x)  (uchar)(x)
+#define CWIDTH(x) (charwidth[UCHAR(x)]>=0 ? charwidth[UCHAR(x)] : (charwidth[UCHAR(x)]=fm.width(x)))
 
     bool wordbreak  = (tf & WordBreak)	== WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
