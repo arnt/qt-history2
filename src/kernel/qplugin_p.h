@@ -20,7 +20,8 @@ HINSTANCE qt_load_library( const QString& lib )
     else
 	handle = LoadLibraryA( (const char*)lib.local8Bit() );
 #ifdef CHECK_RANGE
-    qSystemWarning( "Failed to load library!" );
+    if ( !handle )
+	qSystemWarning( "Failed to load library!" );
 #endif
 
     return handle;
@@ -30,7 +31,8 @@ bool qt_free_library( HINSTANCE handle )
 {
     bool ok = FreeLibrary( handle );
 #ifdef CHECK_RANGE
-    qSystemWarning( "Failed to unload library!" );
+    if ( !ok )
+	qSystemWarning( "Failed to unload library!" );
 #endif
 
     return ok;
