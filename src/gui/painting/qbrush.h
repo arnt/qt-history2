@@ -159,7 +159,7 @@ private:
     friend class QLinearGradient;
     friend class QRadialGradient;
     friend class QConicalGradient;
-    friend QDataStream &operator<<(QDataStream &, const QBrush &);
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QBrush &);
 
     Type m_type;
     Spread m_spread;
