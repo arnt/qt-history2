@@ -7,7 +7,7 @@
 class QActiveXBase : public QWidget 
 {
 public:
-	QActiveXBase( QWidget* pParent = NULL, const char* pName = NULL, WFlags f = WStyle_Customize | WStyle_NoBorderEx ) : QWidget( pParent, pName, f )
+	QActiveXBase( QWidget* pParent = NULL, const char* pName = NULL, WFlags f = WStyle_Customize ) : QWidget( pParent, pName, f )
 	{
 		setFocusPolicy( QWidget::StrongFocus );
 	};
