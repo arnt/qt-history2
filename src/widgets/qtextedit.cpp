@@ -1364,7 +1364,7 @@ void QTextEdit::imComposeEvent( QIMEvent *e )
     int sellen = e->selectionLength();
     if ( sellen > 0 ) {
 	cursor->setIndex( d->preeditStart + e->cursorPos() + sellen );
-	QTextCursor c = *cursor;
+	c = *cursor;
 	cursor->setIndex( d->preeditStart + e->cursorPos() );
 	doc->setSelectionStart( QTextDocument::IMSelectionText, *cursor );
 	doc->setSelectionEnd( QTextDocument::IMSelectionText, c );
