@@ -194,11 +194,11 @@ void QValidator::fixup( QString & ) const
     Example of use:
 
     \code
+    QValidator* validator = new QIntValidator( 0, 100, this );
     QLineEdit* edit = new QLineEdit( this );
-    QValidator* validator = new QIntValidator( 0, 100, edit );
 
     // the edit lineedit will only accept integers between 0 and 100
-    edit->setValidator( v );
+    edit->setValidator( validator );
     \endcode
 
     Below we present some examples of validators. In practice they would
@@ -531,10 +531,11 @@ void QDoubleValidator::setDecimals( int decimals )
 
     Example of use:
     \code
-    QLineEdit* edit = new QLineEdit( split );
     // regexp: optional '-' followed by between 1 and 3 digits
     QRegExp rx( "-?\\d{1,3}" );
-    QValidator* validator = new QRegExpValidator( rx, edit );
+    QValidator* validator = new QRegExpValidator( rx, this );
+
+    QLineEdit* edit = new QLineEdit( this );
     edit->setValidator( validator );
     \endcode
 
