@@ -2588,7 +2588,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     const QMetaObject *mo = metaObject();
     QMetaProperty prop = mo->property(index + mo->propertyOffset());
     QString propname(prop.name());
-    
+
     // hardcoded control property
     if (propname == QLatin1String("control")) {
         switch(call) {
@@ -2606,7 +2606,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     }
     
     // get the IDispatch
-    if (!d->ptr || propname.isEmpty())
+    if (!d->ptr || !prop)
         return index;
     IDispatch *disp = d->dispatch();
     if (!disp)
@@ -2657,14 +2657,16 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             
             // map void* to VARIANTARG via QVariant
             QVariant qvar;
-            if (proptype == "QVariant")
+            if (proptype == "QVariant") {
                 qvar = *(QVariant*)v[0];
-            else if (proptype.endsWith('*'))
+            } else if (proptype.endsWith('*')) {
                 qVariantSet(qvar, *(void**)v[0], proptype);
-            else if (prop.isEnumType())
+            } else if (prop.isEnumType()) {
                 qvar = *(int*)v[0];
-            else
+                proptype = QByteArray::fromRawData("int", 3);
+            } else {
                 qvar = QCoreVariant(QCoreVariant::nameToType(proptype), v[0]);
+            }
 
             QVariantToVARIANT(qvar, arg, proptype);
             if (arg.vt == VT_EMPTY || arg.vt == VT_ERROR) {
@@ -2940,7 +2942,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
             if (disptype == DISPATCH_PROPERTYPUT)
                 paramType = type;
             else if (parse || disptype == DISPATCH_PROPERTYGET)
-                paramType = "QVariant";
+                paramType = 0;
             else
                 paramType = d->metaobj->paramType(name, i, &out);
             

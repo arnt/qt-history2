@@ -12,8 +12,11 @@
 **
 ****************************************************************************/
 
-#define QAXPRIVATE_DECL
-#include "qaxbase.cpp"
+#include "qaxbase.h"
+#include <qt_windows.h>
+
+
+#include "../shared/types.h"
 
 static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
 {
@@ -116,7 +119,7 @@ static QString toType(const QString &t)
     return "to" + type + "()";
 }
 
-QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
+QString qax_generateDocumentation(QAxBase *that)
 {
     that->metaObject();
 
@@ -124,8 +127,10 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	return QString::null;
 
     ITypeInfo *typeInfo = 0;
-    if (d->dispatch())
-	d->dispatch()->GetTypeInfo(0, LOCALE_SYSTEM_DEFAULT, &typeInfo);
+    IDispatch *dispatch = 0;
+    that->queryInterface(IID_IDispatch, (void**)&dispatch);
+    if (dispatch)
+	dispatch->GetTypeInfo(0, LOCALE_SYSTEM_DEFAULT, &typeInfo);
 
     QString docu;
     QTextStream stream(&docu, IO_WriteOnly);
@@ -270,8 +275,8 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 
     const int propCount = mo->propertyCount();
     if (propCount) {
-        if (d->dispatch())
-	    d->dispatch()->GetTypeInfo(0, LOCALE_SYSTEM_DEFAULT, &typeInfo);
+        if (dispatch)
+	    dispatch->GetTypeInfo(0, LOCALE_SYSTEM_DEFAULT, &typeInfo);
 	stream << "<h2>Properties:</h2>" << endl;
 	stream << "<ul>" << endl;
 
@@ -362,5 +367,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 
     if (typeInfo)
         typeInfo->Release();
+    if (dispatch)
+        dispatch->Release();
     return docu;
 }

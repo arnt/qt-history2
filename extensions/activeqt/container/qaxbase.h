@@ -121,8 +121,8 @@ private:
 
 inline QString QAxBase::generateDocumentation()
 {
-    extern QString qax_generateDocumentation(QAxBase *, QAxBasePrivate *);
-    return qax_generateDocumentation(this, d);
+    extern QString qax_generateDocumentation(QAxBase *);
+    return qax_generateDocumentation(this);
 }
 
 #ifndef QT_NO_DATASTREAM
