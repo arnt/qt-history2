@@ -1351,6 +1351,7 @@ void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 	s += QString( "stroke-width:0;" );
 	QFont f = pt->font();
 	QFontInfo fi( f );
+	s += QString( "font-family:%1;" ).arg( fi.family() );
 	s += QString( "font-size:%1;" ).arg( fi.pixelSize() );
 	s += QString( "font-style:%1;" )
 	     .arg( f.italic() ? "italic" : "normal" );
