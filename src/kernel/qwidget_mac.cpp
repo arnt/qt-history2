@@ -361,6 +361,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    wclass = kDocumentWindowClass;
 
 	WindowAttributes wattr = kWindowNoAttributes /*| kWindowLiveResizeAttribute*/;
+	if(testWFlags(WType_Popup)) 
+	    wattr |= kWindowNoActivatesAttribute;
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
@@ -584,7 +586,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
 }
 
-
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
     Point mac_p;
@@ -597,7 +598,6 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
     }
     return QPoint(mac_p.h, mac_p.v);
 }
-
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {
@@ -614,7 +614,6 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     }
     return QPoint(mac_p.h, mac_p.v);
 }
-
 
 void QWidget::setMicroFocusHint(int, int, int, int, bool, QFont * )
 {
@@ -647,7 +646,6 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 }
 
 static int allow_null_pixmaps = 0;
-
 void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
     QPixmap old;
@@ -677,14 +675,12 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
     }
 }
 
-
 void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setErasePixmap(QPixmap());
     allow_null_pixmaps--;
 }
-
 
 void QWidget::setCursor( const QCursor &cursor )
 {
@@ -695,7 +691,6 @@ void QWidget::setCursor( const QCursor &cursor )
     }
     setWState( WState_OwnCursor );
 }
-
 
 void QWidget::unsetCursor()
 {
@@ -796,7 +791,6 @@ void QWidget::releaseKeyboard()
 	mac_keyboard_grabber = NULL;
 }
 
-
 QWidget *QWidget::mouseGrabber()
 {
     return mac_mouse_grabber;
@@ -807,15 +801,12 @@ QWidget *QWidget::keyboardGrabber()
     return mac_keyboard_grabber;
 }
 
-
 void QWidget::setActiveWindow()
 {
     if(!isVisible() || !isTopLevel() || isPopup() || testWFlags( WStyle_Tool ))
 	return;
     SelectWindow( (WindowPtr)hd );
-    qApp->setActiveWindow(this);
 }
-
 
 void QWidget::update()
 {
@@ -890,7 +881,6 @@ void QWidget::showWindow()
 #endif
 	    //now actually show it
 	    ShowHide((WindowPtr)hd, 1);
-	    setActiveWindow();
 	}
     } else { 
 	dirty_wndw_rgn("showwindow",this, mac_rect(posInWindow(this), geometry().size()));
@@ -901,14 +891,10 @@ void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
     dirtyClippedRegion(TRUE);
-    if ( isTopLevel() ) {
+    if ( isTopLevel() ) 
 	ShowHide((WindowPtr)hd, 0);
-	if(QWidget *widget = parentWidget() ? parentWidget() : QWidget::find((WId)FrontWindow()))
-	    widget->setActiveWindow();
-	fstrut_dirty = TRUE;
-    } else if(isVisible()) {
+    else if(isVisible()) 
 	dirty_wndw_rgn("hidewindow",this, mac_rect(posInWindow(this), geometry().size()));
-    }
 }
 
 
@@ -1032,7 +1018,6 @@ void QWidget::raise()
 {
     if(isTopLevel()) {
 	BringToFront((WindowPtr)hd);
-	setActiveWindow();
     } else if(QWidget *p = parentWidget()) {
 
 	QRegion clp;
@@ -1403,7 +1388,6 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
 }
 
-
 void QWidget::drawText( int x, int y, const QString &str )
 {
     if ( testWState(WState_Visible) ) {
@@ -1413,7 +1397,6 @@ void QWidget::drawText( int x, int y, const QString &str )
 	paint.end();
     }
 }
-
 
 int QWidget::metric( int m ) const
 {
@@ -1552,7 +1535,6 @@ void QWidget::setName( const char *name )
 {
     QObject::setName( name );
 }
-
 
 void QWidget::propagateUpdates()
 {
@@ -1746,7 +1728,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 	return extra->clip_saved;
     return extra->clip_sibs;
 }
-
 
 void QWidget::resetInputContext()
 {
