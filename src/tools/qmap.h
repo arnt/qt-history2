@@ -1,4 +1,3 @@
-//depot/qt/main/src/tools/qmap.h#40 - integrate change 27381 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/tools/qmap.h#26 $
 **
