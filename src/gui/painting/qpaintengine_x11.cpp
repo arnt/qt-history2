@@ -596,22 +596,40 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps,
     // sort edge table by min y value
     qHeapSort(et);
 
-    int ymin = 9999999;
-    int ymax = -1;
+    int ymin = min_y(et.at(0));
+    int ymax = -99999999;
 
-    // find scan range
-    for (int x = 0; x < et.size(); ++x) {
-	int miny = min_y(et.at(x));
-	int maxy = max_y(et.at(x));
+    // eliminate shared edges and find scan range
+    for (int i = 0; i < et.size()-1; ++i) {
+	for (int k = i+1; k < et.size(); ++k) {
+	    int my = qMax(max_y(et.at(i)), max_y(et.at(k)));
 
-	if (miny < ymin)
-	    ymin = miny;
-	if (maxy > ymax)
-	    ymax = maxy;
+	    if (my > ymax)
+		ymax = my;
+
+   	    if (((et.at(i).p1 == et.at(k).p1 && et.at(i).p2 == et.at(k).p2)
+ 		 || (et.at(i).p2 == et.at(k).p1 && et.at(i).p1 == et.at(k).p2))) {
+		et.removeAt(i);
+ 		et.removeAt(k-1);
+		i = k-2;
+		break;
+	    }
+	}
     }
+
+    if (ymax < 0)
+	return;
+
+    if (ymin < 0)
+	ymin = 0;
+    if (paintEventClipRegion) // don't scan more lines than we have to
+	ymax = paintEventClipRegion->boundingRect().height();
 
     for (int y = ymin; y <= ymax; ++y) {
 	bool aetChanged = false;
+
+	currentScanline = y; // used by the less than op
+
 	// fill active edge table with edges that intersect the
 	// current scanline
 	for (int x = 0; x < et.size(); ++x) {
@@ -634,15 +652,9 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps,
 	    }
 	}
 
-	// close any open traps if we're finished
-	if (!aet.size()) {
-	    for (int i = 0; i < atps.size(); ++i) {
-		XTrapezoid trap = atps.at(i);
-		trap.bottom = IntToXFixed(y);
- 		tps.append(trap);
-	    }
+	// done?
+	if (!aet.size())
 	    break;
-	}
 
 	// calc intersection points
  	QVarLengthArray<QIntersectionPoint> isects(aet.size()+1);
@@ -656,7 +668,6 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps,
 	Q_ASSERT(isects.size()%2 == 1);
 
 	// sort intersection points
-	currentScanline = y;
 	qHeapSort(&isects[0], &isects[isects.size()-1]);
 
 	// update the order of the edges in the previous set of
@@ -722,6 +733,13 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps,
 		}
 	    }
 	}
+    }
+
+    // close off any open trapezoids
+    for (int i = 0; i < atps.size(); ++i) {
+	XTrapezoid trap = atps.at(i);
+	trap.bottom = IntToXFixed(currentScanline);
+	tps.append(trap);
     }
 
     // optimize by unifying all trapezoids that share left/right lines
