@@ -205,9 +205,9 @@ const int  formatRevision = 4;			// moc output format revision
 %token			SIGNALS
 %token			SLOTS
 %token			Q_OBJECT
-%token			Q_METAPROP
-%token			PROPERTY
-%token			PROPERTY_IN_CLASS
+%token			Q_META_PROPERTY
+%token			Q_PROPERTY
+%token			Q_PROPERTY_IN_CLASS
 
 %type  <string>		class_name
 %type  <string>		template_class_name
@@ -661,11 +661,11 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					   " access permission to \"private\".");
 			      Q_OBJECTdetected = TRUE;
 			  }
-			| Q_METAPROP { BEGIN IN_BUILDER; }
+			| Q_META_PROPERTY { BEGIN IN_BUILDER; }
 			  '(' STRING ',' STRING ')'
 				  { tmpMetaProperties.insert( $4, new QString( $6 ) ); }
 
-			| PROPERTY_IN_CLASS
+			| Q_PROPERTY_IN_CLASS
 				{ if ( tmpAccessPerm == _PUBLIC )
 				    BEGIN QT_DEF;
 				  else
@@ -720,7 +720,7 @@ slot_declarations:	  slot_declarations slot_declaration
 			;
 
 slot_declaration:	  signal_or_slot		{ addMember('t'); }
-			| PROPERTY signal_or_slot	{ addMember('t'); }
+			| Q_PROPERTY signal_or_slot	{ addMember('t'); }
 			;
 
 opt_semicolons:			/* empty */

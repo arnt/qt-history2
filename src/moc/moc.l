@@ -80,7 +80,7 @@ extern void moc_warn( char *msg );
 				  return TEMPLATE; }
 <QT_DEF>"signals"		{ X;return SIGNALS; }
 <QT_DEF>"slots"			{ X;return SLOTS; }
-<QT_DEF>"property"		{ X;return PROPERTY; }
+<QT_DEF>"Q_PROPERTY"		{ X;return Q_PROPERTY; }
 
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
@@ -93,8 +93,8 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"signals"		{ X;return SIGNALS; }
 <IN_CLASS>"slots"		{ X;return SLOTS; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<IN_CLASS>"Q_METAPROP"		{ X;return Q_METAPROP; }
-<IN_CLASS>"property"		{ X;return PROPERTY_IN_CLASS; }
+<IN_CLASS>"Q_META_PROPERTY"	{ X;return Q_META_PROPERTY; }
+<IN_CLASS>"Q_PROPERTY"		{ X;return Q_PROPERTY_IN_CLASS; }
 <IN_CLASS>"enum"		{ X;return ENUM_IN_CLASS; }
 <IN_CLASS>"class"		{ X;return CLASS_IN_CLASS; }
 <IN_CLASS>"struct"		{ X;return STRUCT_IN_CLASS; }
@@ -116,7 +116,7 @@ extern void moc_warn( char *msg );
 				  return USING; }
 
 <QT_DEF>"Q_OBJECT"		{ X;return Q_OBJECT; }
-<QT_DEF>"Q_METAPROP"		{ X;return Q_METAPROP; }
+<QT_DEF>"Q_META_PROPERTY"	{ X;return Q_META_PROPERTY; }
 <IN_BUILDER>"("			{ X;return '('; }
 <IN_BUILDER>","			{ X;return ','; }
 <IN_BUILDER>")"			{ X; BEGIN QT_DEF; return ')'; }

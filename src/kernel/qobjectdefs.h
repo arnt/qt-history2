@@ -38,22 +38,8 @@
 #define signals protected			// signals: in class
 #define emit					// emit signal
 
-#ifdef QT_BUILDER
-
-/* tmake ignore Q_OBJECT */
-#define Q_OBJECT							\
-public:									\
-    QMetaObject *metaObject() const { return metaObj; }			\
-    const char  *className()  const;					\
-    static void staticMetaObject();					\
-    static QMetaObject *createMetaObject();				\
-    static QString tr(const char*);					\
-protected:								\
-    void	 initMetaObject();					\
-private:								\
-    static QMetaObject *metaObj;
-
-#else // QT_BUILDER
+#define Q_PROPERTY 				// property acess function
+#define Q_META_PROPERTY( name, value )		// meta property
 
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT							\
@@ -66,14 +52,10 @@ protected:								\
     void	 initMetaObject();					\
 private:								\
     static QMetaObject *metaObj;
-
-#endif // QT_BUILDER
-
 
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
 
-#define Q_METAPROP( name, value )
 
 // macro for naming members
 #if defined(_OLD_CPP_)
