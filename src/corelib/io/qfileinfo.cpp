@@ -482,11 +482,11 @@ QFileInfo::absolutePath() const
     redundant "." or ".." elements.
 
     On systems that do not have symbolic links this function will
-    always return the same string that absoluteFilePath() returns. If the
+    always return the same string that absolutePath() returns. If the
     canonical path does not exist (normally due to dangling symbolic
     links) canonicalPath() returns an empty string.
 
-    \sa absoluteFilePath(), QString::isNull()
+    \sa absolutePath(), QString::isNull()
 */
 
 QString

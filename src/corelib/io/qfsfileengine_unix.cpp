@@ -397,16 +397,23 @@ QFSFileEngine::fileName(FileName file) const
             // a const char*.
             if(::realpath(QFile::encodeName(d->file).data(), real))
                 ret = QFile::decodeName(QByteArray(real));
-	    if (file == CanonicalPathName)
-		return ret;
-            // always make sure we go back to the current dir
-            ::chdir(cur);
+            ::chdir(cur); // always make sure we go back to the current dir
             //check it
             QT_STATBUF st;
             if(QT_STAT(QFile::encodeName(ret), &st) != 0)
                 ret = QString();
+            if(!ret.isEmpty() && file == CanonicalPathName) {
+                int slash = ret.lastIndexOf(QLatin1Char('/'));
+                if(slash == -1)
+                    return QDir::currentPath();
+                else if(!slash)
+                    return QLatin1String("/");
+                return ret.left(slash);
+            }
             return ret;
         }
+        if(file == CanonicalPathName)
+            return fileName(AbsolutePathName);
         return fileName(AbsoluteName);
     } else if(file == LinkName) {
         if(d->doStat() && d->isSymLink) {
