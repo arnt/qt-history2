@@ -1476,6 +1476,19 @@ void QGLWidget::makeCurrent()
 }
 
 /*!
+    \fn void QGLWidget::doneCurrent()
+
+    Makes no GL context the current context. Normally, you do not need
+    to call this function; QGLContext calls it as necessary. However,
+    it may be useful in multithreaded environments.
+*/
+
+void QGLWidget::doneCurrent()
+{
+    glcx->doneCurrent();
+}
+
+/*!
     \fn void QGLWidget::swapBuffers()
 
     Swaps the screen contents with an off-screen buffer. This only

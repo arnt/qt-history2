@@ -287,7 +287,8 @@ public:
     bool isValid() const;
     bool isSharing() const;
     virtual void makeCurrent();
-
+    void doneCurrent();
+    
     bool doubleBuffer() const;
     virtual void swapBuffers();
 
