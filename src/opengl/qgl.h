@@ -18,16 +18,11 @@
 #include "qglcolormap.h"
 #include "qmap.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_OPENGL
-#else
-#define QM_EXPORT_OPENGL Q_OPENGL_EXPORT
-#endif
 
 #ifdef QT_COMPAT
 #define QGL_VERSION        460
 #define QGL_VERSION_STR        "4.6"
-QM_EXPORT_OPENGL inline QT_COMPAT const char *qGLVersion() {
+Q_OPENGL_EXPORT inline QT_COMPAT const char *qGLVersion() {
     return QGL_VERSION_STR;
 }
 #endif
@@ -56,7 +51,7 @@ class QGLWidgetPrivate;
 class QGLContextPrivate;
 
 // Namespace class:
-class QM_EXPORT_OPENGL QGL
+class Q_OPENGL_EXPORT QGL
 {
 public:
     enum FormatOption {
@@ -83,7 +78,7 @@ public:
 
 
 
-class QM_EXPORT_OPENGL QGLFormat : public QGL
+class Q_OPENGL_EXPORT QGLFormat : public QGL
 {
 public:
     QGLFormat();
@@ -123,9 +118,9 @@ public:
     static bool hasOpenGL();
     static bool hasOpenGLOverlays();
 
-    friend QM_EXPORT_OPENGL bool operator==(const QGLFormat&,
+    friend Q_OPENGL_EXPORT bool operator==(const QGLFormat&,
                                              const QGLFormat&);
-    friend QM_EXPORT_OPENGL bool operator!=(const QGLFormat&,
+    friend Q_OPENGL_EXPORT bool operator!=(const QGLFormat&,
                                              const QGLFormat&);
 private:
     uint opts;
@@ -133,10 +128,10 @@ private:
 };
 
 
-QM_EXPORT_OPENGL bool operator==(const QGLFormat&, const QGLFormat&);
-QM_EXPORT_OPENGL bool operator!=(const QGLFormat&, const QGLFormat&);
+Q_OPENGL_EXPORT bool operator==(const QGLFormat&, const QGLFormat&);
+Q_OPENGL_EXPORT bool operator!=(const QGLFormat&, const QGLFormat&);
 
-class QM_EXPORT_OPENGL QGLContext : public QGL
+class Q_OPENGL_EXPORT QGLContext : public QGL
 {
     Q_DECLARE_PRIVATE(QGLContext)
 public:
@@ -211,13 +206,11 @@ private:
 #endif
 
 private:
-    QGLContext() {}
-    QGLContext(const QGLContext&) {}
-    QGLContext& operator=(const QGLContext&) { return *this; }
+    Q_DISABLE_COPY(QGLContext)
 };
 
 
-class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
+class Q_OPENGL_EXPORT QGLWidget : public QWidget, public QGL
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGLWidget)

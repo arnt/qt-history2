@@ -17,14 +17,8 @@
 #include "qcolor.h"
 #include "qvector.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_OPENGL
-#else
-#define QM_EXPORT_OPENGL Q_OPENGL_EXPORT
-#endif
-
 class QWidget;
-class QM_EXPORT_OPENGL QGLColormap
+class Q_OPENGL_EXPORT QGLColormap
 {
 public:
     QGLColormap();
