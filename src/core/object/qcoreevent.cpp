@@ -90,6 +90,7 @@
     \value DragMove  A drag-and-drop is in progress, \l{QDragMoveEvent}.
     \value DragResponse  Internal event used by Qt on some platforms.
     \value Drop  A drag-and-drop is completed, \l{QDropEvent}.
+    \value EmbeddingControl  Internal event used by Qt on some platforms.
     \value EmitSignal
     \value EnabledChange Widget's enabled state has changed
     \value Enter  Mouse enters widget's boundaries.

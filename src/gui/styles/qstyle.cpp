@@ -1907,10 +1907,10 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 
     This function can handle the entire integer range without
     overflow, providing \a span is \<= 4096.
- 
-    By default, this function assumes that the maximum value
-    is on the right for horizontal items and on the bottom for
-    vertical items. Set upsideDown to true to reverse this behavior.
+
+    By default, this function assumes that the maximum value is on the
+    right for horizontal items and on the bottom for vertical items.
+    Set \a upsideDown to true to reverse this behavior.
 
     \sa valueFromPosition()
 */
@@ -1950,11 +1950,11 @@ int QStyle::positionFromValue(int min, int max, int logical_val, int span, bool 
 
     This function can handle the entire integer range without
     overflow.
- 
+
     By default, this function assumes that the maximum value
     is on the right for horizontal items and on the bottom for
-    vertical items. Set upsideDown to true to reverse this behavior.
- 
+    vertical items. Set \a upsideDown to true to reverse this behavior.
+
     \sa positionFromValue()
 */
 
