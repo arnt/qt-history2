@@ -1664,10 +1664,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( !qApp )				// unstable app state
 	goto do_default;
 
-    if ( inLoop && qApp->loopLevel() ) {
-	qApp->sendPostedEvents( 0, QEvent::LayoutHint );
+    if ( inLoop && qApp->loopLevel() )
 	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
-    }
+
     inLoop = TRUE;
 
     MSG msg;
