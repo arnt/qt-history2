@@ -5,7 +5,7 @@
 QMAKE_INCREMENTAL =
 SKIP_DEPENDS += qconfig.h qmodules.h
 CONFIG += console
-CONFIG -= qt shared
+CONFIG -= qt shared resource_fork
 DESTDIR = ../bin/
 DEPENDPATH += generators generators/unix generators/win32 \
               generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/include/QtCore $$QT_SOURCE_TREE/qmake
@@ -25,20 +25,14 @@ SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
          metamakefile.cpp
 
 #Qt code
-SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
-         qiodevice.cpp qglobal.cpp \
-	 qgdict.cpp qcstring.cpp qbytearray.cpp \
-	 qdatastream.cpp qgarray.cpp \
-	 qbuffer.cpp qglist.cpp qlist.cpp\
-	 qptrcollection.cpp qfile.cpp \
-	 qregexp.cpp quuid.cpp \
-	 qgvector.cpp qvector.cpp \
-	 qbitarray.cpp qdir.cpp qhash.cpp \
-	 qfileinfo.cpp qdatetime.cpp qlinkedlist.cpp \
-	 qstringlist.cpp qmap.cpp \
-	 qsettings.cpp qunicodetables.cpp \
-	 qlibrary.cpp qlocale.cpp \
-         qstringmatcher.cpp qbytearraymatcher.cpp
+SOURCES+=qchar.cpp qstring.cpp qstringmatcher.cpp \
+         qtextstream.cpp qiodevice.cpp qglobal.cpp \
+	 qbytearray.cpp qbytearraymatcher.cpp \
+	 qdatastream.cpp qbuffer.cpp qlist.cpp\
+	 qfile.cpp qregexp.cpp quuid.cpp \
+	 qvector.cpp qbitarray.cpp qdir.cpp qhash.cpp \
+	 qfileinfo.cpp qdatetime.cpp qstringlist.cpp qmap.cpp \
+	 qsettings.cpp qunicodetables.cpp qlocale.cpp 
 
 exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
     DEFINES += HAVE_QCONFIG_CPP
@@ -50,18 +44,16 @@ VPATH += $$QT_SOURCE_TREE/src/core/global \
          $$QT_SOURCE_TREE/src/core/tools \
          $$QT_SOURCE_TREE/src/core/kernel \
          $$QT_SOURCE_TREE/src/core/library \
-	 $$QT_SOURCE_TREE/src/core/io \
-         $$QT_SOURCE_TREE/src/compat/tools
+	 $$QT_SOURCE_TREE/src/core/io 
 
 unix {
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
-   mac {
-     SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
-   }
+   mac:SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
 }
+
 win32 {
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp \
-              qsettings_win.cpp qlibrary_win.cpp
+              qsettings_win.cpp qlibrary_win.cpp qlibrary.cpp 
    win32-msvc*:LIBS += ole32.lib advapi32.lib
 }
 macx-*: LIBS += -framework CoreServices
