@@ -2014,10 +2014,9 @@ const QPixmap *QFileDialogPrivate::MCItem::pixmap() const
 
 int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 {
-    if ( pixmap() )
-	return QMAX( lb->fontMetrics().height(), pixmap()->height()) + 2;
-
-    return lb->fontMetrics().height() + 2;
+    int hf = lb->fontMetrics().height();
+    int hp = pixmap() ? pixmap()->height() : 0;
+    return QMAX(hf, hp) + 2;
 }
 
 
