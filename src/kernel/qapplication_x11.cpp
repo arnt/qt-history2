@@ -3662,18 +3662,6 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
-extern uint qGlobalPostedEventsCount();
-
-/*!
-    This function returns TRUE if there are pending events; otherwise
-    returns FALSE. Pending events can be either from the window system
-    or posted events using QApplication::postEvent().
-*/
-bool QApplication::hasPendingEvents()
-{
-    return (qGlobalPostedEventsCount() || XPending(appDpy));
-}
-
 /*!
     This virtual function is only implemented under X11.
 

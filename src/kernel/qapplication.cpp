@@ -2455,6 +2455,18 @@ void QApplication::wakeUpGuiThread()
     eventLoop()->wakeUp();
 }
 
+/*!
+    This function returns TRUE if there are pending events; otherwise
+    returns FALSE. Pending events can be either from the window system
+    or posted events using QApplication::postEvent().
+*/
+extern uint qGlobalPostedEventsCount();
+
+bool QApplication::hasPendingEvents()
+{
+    return eventLoop()->hasPendingEvents();
+}
+
 #if !defined(Q_WS_X11)
 
 // The doc and X implementation of these functions is in qapplication_x11.cpp
