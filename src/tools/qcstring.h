@@ -129,16 +129,6 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
 #endif
 
 /*****************************************************************************
-  QByteArray conversion functions
- *****************************************************************************/
-class QString;
-Q_EXPORT QString qToBase64( const QByteArray &array, int linelength = 76 );
-Q_EXPORT QByteArray qFromBase64( const QString &base64, bool *ok = 0 );
-
-
-
-
-/*****************************************************************************
   QCString class
  *****************************************************************************/
 
