@@ -156,6 +156,14 @@ static int getToken()
 		if ( strcmp(yyIdent + 1, "lass") == 0 )
 		    return Tok_class;
 		break;
+	    case 'f':
+		/*
+		  QTranslator::findMessage() has the same parameters as
+		  QApplication::translate().
+		*/
+		if ( strcmp(yyIdent + 1, "indMessage") == 0 )
+		    return Tok_translate;
+		break;
 	    case 'n':
 		if ( strcmp(yyIdent + 1, "amespace") == 0 )
 		    return Tok_namespace;
