@@ -587,7 +587,7 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     if (cNames) {
         QString name = BSTRToQString(names);
         SysFreeString(names);
-        propname = name.latin1();
+        propname = name.toLatin1();
     }
     typeinfo->Release();
 
@@ -980,7 +980,7 @@ bool QAxBase::setControl(const QString &c)
     if (!initialize(&d->ptr))
         d->initialized = true;
     if (isNull()) {
-        qWarning("QAxBase::setControl: requested control %s could not be instantiated.", c.latin1());
+        qWarning("QAxBase::setControl: requested control %s could not be instantiated.", c.toLatin1().data());
         clear();
         return false;
     }
@@ -1646,7 +1646,7 @@ QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const
     generator.readFuncsInfo(typeInfo, 0);
     generator.readVarsInfo(typeInfo, 0);
 
-    return generator.metaObject(parentObject, className.latin1());
+    return generator.metaObject(parentObject, className.toLatin1());
 }
 
 QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject)
@@ -1703,7 +1703,7 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
                 generator.readVarsInfo(interfaceInfo, 0);
             }
             if (!key.isEmpty())
-                generator.addClassInfo(key.data(), interfaceName.ascii());
+                generator.addClassInfo(key.data(), interfaceName.toLatin1());
 
             if (typeattr)
                 interfaceInfo->ReleaseTypeAttr(typeattr);
@@ -1712,7 +1712,7 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
     }
 
 
-    return generator.metaObject(parentObject, className.latin1());
+    return generator.metaObject(parentObject, className.toLatin1());
 }
 
 MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
@@ -1732,7 +1732,7 @@ MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
         typelib->AddRef();
         BSTR bstr;
         typelib->GetDocumentation(-1, &bstr, 0, 0, 0);
-        current_typelib = BSTRToQString(bstr).latin1();
+        current_typelib = BSTRToQString(bstr).toLatin1();
         SysFreeString(bstr);
     }
     readClassInfo();
@@ -1779,13 +1779,13 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
             // get type library name
             BSTR typelibname = 0;
             usertypelib->GetDocumentation(-1, &typelibname, 0, 0, 0);
-            QByteArray typeLibName = BSTRToQString(typelibname).latin1();
+            QByteArray typeLibName = BSTRToQString(typelibname).toLatin1();
             SysFreeString(typelibname);
 
             // get type name
             BSTR usertypename = 0;
             usertypelib->GetDocumentation(index, &usertypename, 0, 0, 0);
-            QByteArray userTypeName = BSTRToQString(usertypename).latin1();
+            QByteArray userTypeName = BSTRToQString(usertypename).toLatin1();
             SysFreeString(usertypename);
 
             if (hasEnum(userTypeName)) // known enum?
@@ -1975,7 +1975,7 @@ void MetaObjectGenerator::readClassInfo()
             // UUID
             if (d->useClassInfo && !hasClassInfo("CoClass")) {
                 QString coClassIDstr = iidnames.value(QLatin1String("/CLSID/") + coClassID + QLatin1String("/Default"), coClassID).toString();
-                addClassInfo("CoClass", coClassIDstr.isEmpty() ? coClassID.latin1() : coClassIDstr.latin1());
+                addClassInfo("CoClass", coClassIDstr.isEmpty() ? coClassID.toLatin1() : coClassIDstr.toLatin1());
                 QByteArray version = QByteArray::number(typeattr->wMajorVerNum) + "." + QByteArray::number(typeattr->wMinorVerNum);
                 if (version != "0.0")
                     addClassInfo("Version", version);
@@ -2088,7 +2088,7 @@ void MetaObjectGenerator::readEnumInfo()
             BSTR enumname;
             QByteArray enumName;
             if (typelib->GetDocumentation(i, &enumname, 0, 0, 0) == S_OK) {
-                enumName = BSTRToQString(enumname).latin1();
+                enumName = BSTRToQString(enumname).toLatin1();
                 SysFreeString(enumname);
             } else {
                 enumName = "enum" + QByteArray::number(++enum_serial);
@@ -2111,7 +2111,7 @@ void MetaObjectGenerator::readEnumInfo()
                         UINT maxNamesOut;
                         enuminfo->GetNames(memid, &valuename, 1, &maxNamesOut);
                         if (maxNamesOut) {
-                            valueName = BSTRToQString(valuename).latin1();
+                            valueName = BSTRToQString(valuename).toLatin1();
                             SysFreeString(valuename);
                         } else {
                             valueName = "value" + QByteArray::number(vd);
@@ -2265,7 +2265,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         QList<QByteArray> names;
         int p;
         for (p = 0; p < (int)maxNamesOut; ++p) {
-            names << BSTRToQString(bstrNames[p]).latin1();
+            names << BSTRToQString(bstrNames[p]).toLatin1();
             SysFreeString(bstrNames[p]);
         }
 
@@ -2437,7 +2437,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
         QByteArray variableName;
         int flags = 0;
 
-        variableName = BSTRToQString(bstrName).latin1();
+        variableName = BSTRToQString(bstrName).toLatin1();
         SysFreeString(bstrName);
 
         // get variable type
@@ -2508,7 +2508,7 @@ void MetaObjectGenerator::readInterfaceInfo()
                     QUuid uuid(typeattr->guid);
                     QString uuidstr = uuid.toString().toUpper();
                     uuidstr = iidnames.value("/Interface/" + uuidstr + "/Default", uuidstr).toString();
-                    addClassInfo("Interface " + QByteArray::number(++interface_serial), uuidstr.latin1());
+                    addClassInfo("Interface " + QByteArray::number(++interface_serial), uuidstr.toLatin1());
                 }
 #endif
                 typeinfo->ReleaseTypeAttr(typeattr);
@@ -2591,7 +2591,7 @@ void MetaObjectGenerator::readEventInterface(ITypeInfo *eventinfo, IConnectionPo
         QList<QByteArray> names;
         int p;
         for (p = 0; p < (int)maxNamesOut; ++p) {
-            names << BSTRToQString(bstrNames[p]).latin1();
+            names << BSTRToQString(bstrNames[p]).toLatin1();
             SysFreeString(bstrNames[p]);
         }
 
@@ -2659,7 +2659,7 @@ void MetaObjectGenerator::readEventInfo()
                 if (d->useClassInfo) {
                     QString uuidstr = connuuid.toString().toUpper();
                     uuidstr = iidnames.value("/Interface/" + uuidstr + "/Default", uuidstr).toString();
-                    addClassInfo("Event Interface " + QByteArray::number(++event_serial), uuidstr.latin1());
+                    addClassInfo("Event Interface " + QByteArray::number(++event_serial), uuidstr.toLatin1());
                 }
 #endif
 
@@ -2732,7 +2732,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         if (typelib) {
             BSTR bstr;
             typelib->GetDocumentation(-1, &bstr, 0, 0, 0);
-            current_typelib = BSTRToQString(bstr).latin1();
+            current_typelib = BSTRToQString(bstr).toLatin1();
             SysFreeString(bstr);
         }
         if (d->tryCache && tryCache())
@@ -3101,14 +3101,14 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
     case S_OK:
         return true;
     case DISP_E_BADPARAMCOUNT:
-        qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Bad parameter count.", name.toLatin1().data());
         return false;
     case DISP_E_BADVARTYPE:
-        qWarning("QAxBase: Error calling IDispatch member %s: Bad variant type.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Bad variant type.", name.toLatin1().data());
         return false;
     case DISP_E_EXCEPTION:
         {
-            qWarning("QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name.latin1());
+            qWarning("QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name.toLatin1().data());
             const QMetaObject *mo = that->metaObject();
             int exceptionSignal = mo->indexOfSignal("exception(int,QString,QString,QString)");
             if (exceptionSignal >= 0) {
@@ -3130,31 +3130,31 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
         }
         return false;
     case DISP_E_MEMBERNOTFOUND:
-        qWarning("QAxBase: Error calling IDispatch member %s: Member not found.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Member not found.", name.toLatin1().data());
         return false;
     case DISP_E_NONAMEDARGS:
-        qWarning("QAxBase: Error calling IDispatch member %s: No named arguments.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: No named arguments.", name.toLatin1().data());
         return false;
     case DISP_E_OVERFLOW:
-        qWarning("QAxBase: Error calling IDispatch member %s: Overflow.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Overflow.", name.toLatin1().data());
         return false;
     case DISP_E_PARAMNOTFOUND:
-        qWarning("QAxBase: Error calling IDispatch member %s: Parameter %d not found.", name.latin1(), argerr);
+        qWarning("QAxBase: Error calling IDispatch member %s: Parameter %d not found.", name.toLatin1().data(), argerr);
         return false;
     case DISP_E_TYPEMISMATCH:
-        qWarning("QAxBase: Error calling IDispatch member %s: Type mismatch in parameter %d.", name.latin1(), argerr);
+        qWarning("QAxBase: Error calling IDispatch member %s: Type mismatch in parameter %d.", name.toLatin1().data(), argerr);
         return false;
     case DISP_E_UNKNOWNINTERFACE:
-        qWarning("QAxBase: Error calling IDispatch member %s: Unknown interface.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Unknown interface.", name.toLatin1().data());
         return false;
     case DISP_E_UNKNOWNLCID:
-        qWarning("QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name.toLatin1().data());
         return false;
     case DISP_E_PARAMNOTOPTIONAL:
-        qWarning("QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name.toLatin1().data());
         return false;
     default:
-        qWarning("QAxBase: Error calling IDispatch member %s: Unknown error.", name.latin1());
+        qWarning("QAxBase: Error calling IDispatch member %s: Unknown error.", name.toLatin1().data());
         return false;
     }
 }
@@ -3433,7 +3433,7 @@ static void qax_noSuchFunction(int disptype, const QByteArray &name, const QByte
     const char *coclass = metaObject->classInfo(metaObject->indexOfClassInfo("CoClass")).value();
 
     if (disptype == DISPATCH_METHOD) {
-        qWarning("QAxBase::dynamicCallHelper: %s: No such method in %s [%s]", name.data(), that->control().latin1(), coclass ? coclass: "unknown");
+        qWarning("QAxBase::dynamicCallHelper: %s: No such method in %s [%s]", name.data(), that->control().toLatin1().data(), coclass ? coclass: "unknown");
         qWarning("\tCandidates are:");
         for (int i = 0; i < metaObject->memberCount(); ++i) {
             const QMetaMember slot(metaObject->member(i));
@@ -3444,7 +3444,7 @@ static void qax_noSuchFunction(int disptype, const QByteArray &name, const QByte
                 qWarning("\t\t%s", signature.data());
         }
     } else {
-        qWarning("QAxBase::dynamicCallHelper: %s: No such property in %s [%s]", name.data(), that->control().latin1(), coclass ? coclass: "unknown");
+        qWarning("QAxBase::dynamicCallHelper: %s: No such property in %s [%s]", name.data(), that->control().toLatin1().data(), coclass ? coclass: "unknown");
         if (!function.isEmpty()) {
             qWarning("\tCandidates are:");
             char f0 = function.toLower().at(0);
@@ -3568,7 +3568,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
                             bool isEnum = false;
                             for (int enumIndex = 0; enumIndex < mo->enumeratorCount(); ++enumIndex) {
                                 QMetaEnum metaEnum =mo->enumerator(enumIndex);
-                                int value = metaEnum.keyToValue(curArg.latin1());
+                                int value = metaEnum.keyToValue(curArg.toLatin1());
                                 if (value != -1 && !QByteArray(metaEnum.valueToKey(value)).isEmpty()) {
                                     vars << value;
                                     isEnum = true;
@@ -3903,7 +3903,7 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
         {
             const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
             qWarning("QAxBase::querySubObject: %s: error calling function or property in %s (%s)"
-                , name, control().latin1(), coclass ? coclass: "unknown");
+                , name, control().toLatin1().data(), coclass ? coclass: "unknown");
         }
 #endif
         break;
@@ -3912,7 +3912,7 @@ QAxObject *QAxBase::querySubObject(const char *name, QList<QVariant> &vars)
         {
             const char *coclass = metaObject()->classInfo(metaObject()->indexOfClassInfo("CoClass")).value();
             qWarning("QAxBase::querySubObject: %s: method or property is not of interface type in %s (%s)"
-                , name, control().latin1(), coclass ? coclass: "unknown");
+                , name, control().toLatin1().data(), coclass ? coclass: "unknown");
         }
 #endif
         break;
@@ -3956,7 +3956,7 @@ public:
         if (!var)
             return E_POINTER;
 
-        QString property = BSTRToQString((TCHAR*)name).local8Bit();
+        QString property = BSTRToQString((TCHAR*)name).toLocal8Bit();
         QVariant qvar = map.value(property);
         QVariantToVARIANT(qvar, *var);
         return S_OK;
@@ -3965,7 +3965,7 @@ public:
     {
         if (!var)
             return E_POINTER;
-        QString property = BSTRToQString((TCHAR*)name).local8Bit();
+        QString property = BSTRToQString((TCHAR*)name).toLocal8Bit();
         QVariant qvar = VARIANTToQVariant(*var, 0);
         map[property] = qvar;
 

@@ -736,8 +736,7 @@ QVariant QAxScript::call(const QString &function, const QVariant &var1,
     if (!script_engine)
         return QVariant();
     
-    return script_engine->dynamicCall(function.latin1(), 
-        var1, var2, var3, var4, var5, var6, var7, var8);
+    return script_engine->dynamicCall(function.toLatin1(), var1, var2, var3, var4, var5, var6, var7, var8);
 }
 
 /*!
@@ -754,7 +753,7 @@ QVariant QAxScript::call(const QString &function, QList<QVariant> &arguments)
     if (!script_engine)
         return QVariant();
     
-    return script_engine->dynamicCall(function.latin1(), arguments);
+    return script_engine->dynamicCall(function.toLatin1(), arguments);
 }
 
 /*! \internal

@@ -37,7 +37,7 @@ public:
             if (result == ERROR_SUCCESS) {
                 HKEY sub_key;
                 QString clsid = QString::fromLocal8Bit(buffer);
-                result = RegOpenKeyA(classes_key, QString(clsid + "\\Control").local8Bit(), &sub_key);
+                result = RegOpenKeyA(classes_key, QString(clsid + "\\Control").toLocal8Bit(), &sub_key);
                 if (result == ERROR_SUCCESS) {
                     RegCloseKey(sub_key);
                     RegQueryValueA(classes_key, buffer, (char*)&buffer, (LONG*)&szBuffer);
