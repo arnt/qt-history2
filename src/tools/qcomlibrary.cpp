@@ -82,7 +82,6 @@ bool QComLibrary::unload()
     return QLibrary::unload();
 }
 
-
 static bool verify( const QString& library, uint version, uint flags,
 		    const QCString &key, bool warn )
 {
@@ -123,7 +122,6 @@ static bool verify( const QString& library, uint version, uint flags,
     return FALSE;
 }
 
-
 struct qt_token_info
 {
     qt_token_info( const char *f, const ulong fc )
@@ -142,7 +140,6 @@ struct qt_token_info
     QMemArray<const char *> results;
     QMemArray<ulong> lengths;
 };
-
 
 /*
   return values:
@@ -201,7 +198,6 @@ static int qt_tokenize( const char *s, ulong s_len, ulong *advance,
 
     return ret;
 }
-
 
 /*
   returns TRUE if the string s was correctly parsed, FALSE otherwise.
@@ -264,15 +260,13 @@ static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
     return ret;
 }
 
-
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
 
 #include <sys/types.h>
 #include <sys/mman.h>
 
-
 static long qt_find_pattern( const char *s, ulong s_len,
-				  const char *pattern, ulong p_len )
+			     const char *pattern, ulong p_len )
 {
     /*
       this uses the same algorithm as QString::findRev...
@@ -288,7 +282,7 @@ static long qt_find_pattern( const char *s, ulong s_len,
       because we have to skip over all the debugging symbols first
     */
 
-    if ( p_len > s_len ) return -1;
+    if ( ! s || ! pattern || p_len > s_len ) return -1;
     ulong i, hs = 0, hp = 0, delta = s_len - p_len;
 
     for (i = 0; i < p_len; ++i ) {
@@ -309,7 +303,6 @@ static long qt_find_pattern( const char *s, ulong s_len,
     return -1;
 }
 
-
 /*
   This opens the specified library, mmaps it into memory, and searches
   for the QT_UCM_VERIFICATION_DATA.  The advantage of this approach is that
@@ -329,28 +322,42 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 	return FALSE;
     }
 
+    QByteArray data;
+    char *filedata = 0;
+    ulong fdlen = 0;
+
     char *mapaddr = 0;
     size_t maplen = file.size();
     mapaddr = (char *) mmap( mapaddr, maplen, PROT_READ, MAP_PRIVATE, file.handle(), 0 );
-    if ( mapaddr == MAP_FAILED ) {
-	perror( "mmap" );
-	file.close();
-	return FALSE;
+    if ( mapaddr != MAP_FAILED ) {
+	// mmap succeeded
+	filedata = mapaddr;
+	fdlen = maplen;
+    } else {
+	// mmap failed
+	// perror( "mmap" );
+
+	// try reading the data into memory instead
+	data = file.readAll();
+	filedata = data.data();
+	fdlen = data.size();
     }
 
     // verify that the pattern is present in the plugin
     const char *pattern = "pattern=QT_UCM_VERIFICATION_DATA";
     const ulong plen = qstrlen( pattern );
-    long pos = qt_find_pattern( mapaddr, maplen, pattern, plen );
+    long pos = qt_find_pattern( filedata, fdlen, pattern, plen );
 
     bool ret = FALSE;
     if ( pos >= 0 ) {
-	ret = qt_parse_pattern( mapaddr + pos, version, flags, key );
+	ret = qt_parse_pattern( filedata + pos, version, flags, key );
     }
 
-    if ( munmap(mapaddr, maplen) != 0 ) {
+    if ( mapaddr != MAP_FAILED &&
+	 munmap(mapaddr, maplen) != 0 ) {
 	perror( "munmap" );
     }
+
     file.close();
     return ret;
 }
@@ -368,7 +375,10 @@ void QComLibrary::createInstanceInternal()
 
     QFileInfo fileinfo( library() );
     QString lastModified  = fileinfo.lastModified().toString();
-    QString regkey = QString("/Qt Plugin/%1").arg( library() );
+    QString regkey = QString("/Qt Plugins %1.%2/%3")
+		     .arg( ( QT_VERSION & 0xff0000 ) >> 16 )
+		     .arg( ( QT_VERSION & 0xff00 ) >> 8 )
+		     .arg( library() );
     QStringList reg;
     uint flags;
     QCString key;
@@ -403,14 +413,15 @@ void QComLibrary::createInstanceInternal()
 
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
     if ( ! query_done ) {
+	// get the query information directly from the plugin without loading
 	if ( qt_unix_query( library(), &qt_version, &flags, &key ) ) {
  	    // info read succesfully from library
  	    query_done = TRUE;
 	}
     }
-#endif // Q_OS_FREEBSD || Q_OS_LINUX
-
+#else // !Q_OS_FREEBSD || !Q_OS_LINUX
     if ( ! query_done ) {
+	// get the query information by loading the plugin
 	if ( !isLoaded() ) {
 	    Q_ASSERT( entry == 0 );
 	    if ( !load() )
@@ -435,6 +446,7 @@ void QComLibrary::createInstanceInternal()
 	    query_done = TRUE;
 	}
     }
+#endif // Q_OS_FREEBSD || Q_OS_LINUX
 
     QStringList queried;
     queried << QString::number( qt_version,16 )
