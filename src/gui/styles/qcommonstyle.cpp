@@ -975,99 +975,6 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 
-#ifndef QT_NO_TOOLBUTTON
-    case CE_ToolButtonLabel:
-        {
-            const QToolButton *toolbutton = (const QToolButton *) widget;
-            QRect rect = r;
-            Qt::ArrowType arrowType = opt.isDefault()
-                        ? Qt::DownArrow : opt.arrowType();
-
-            int shiftX = 0;
-            int shiftY = 0;
-            if (flags & (Style_Down | Style_On)) {
-                shiftX = pixelMetric(PM_ButtonShiftHorizontal, widget);
-                shiftY = pixelMetric(PM_ButtonShiftVertical, widget);
-            }
-
-            if (!opt.isDefault()) {
-                PrimitiveElement pe;
-                switch (arrowType) {
-                case Qt::LeftArrow:  pe = PE_ArrowLeft;  break;
-                case Qt::RightArrow: pe = PE_ArrowRight; break;
-                case Qt::UpArrow:    pe = PE_ArrowUp;    break;
-                default:
-                case Qt::DownArrow:  pe = PE_ArrowDown;  break;
-                }
-
-                rect.moveBy(shiftX, shiftY);
-                drawPrimitive(pe, p, rect, pal, flags, opt);
-            } else {
-                QColor btext = toolbutton->palette().foreground();
-
-                if (toolbutton->icon().isNull() &&
-                    ! toolbutton->text().isNull() &&
-                    ! toolbutton->usesTextLabel()) {
-                    int alignment = Qt::AlignCenter | Qt::ShowPrefix;
-                    if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
-                        alignment |= Qt::NoAccel;
-                    rect.moveBy(shiftX, shiftY);
-                    drawItem(p, rect, alignment, pal,
-                             flags & Style_Enabled, toolbutton->text(), -1, &btext);
-                } else {
-                    QPixmap pm;
-                    QIconSet::Size size =
-                        toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
-                    QIconSet::State state =
-                        toolbutton->isChecked() ? QIconSet::On : QIconSet::Off;
-                    QIconSet::Mode mode;
-                    if (! toolbutton->isEnabled())
-                        mode = QIconSet::Disabled;
-                    else if (flags & (Style_Down | Style_On) ||
-                             ((flags & Style_Raised) && (flags & Style_AutoRaise)))
-                        mode = QIconSet::Active;
-                    else
-                        mode = QIconSet::Normal;
-                    pm = toolbutton->icon().pixmap(size, mode, state);
-
-                    if (toolbutton->usesTextLabel()) {
-                        p->setFont(toolbutton->font());
-                        QRect pr = rect, tr = rect;
-                        int alignment = Qt::ShowPrefix;
-                        if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
-                            alignment |= Qt::NoAccel;
-
-                        if (toolbutton->textPosition() == QToolButton::Under) {
-                            int fh = p->fontMetrics().height();
-                            pr.addCoords(0, 1, 0, -fh-3);
-                            tr.addCoords(0, pr.bottom(), 0, -3);
-                            pr.moveBy(shiftX, shiftY);
-                            drawItem(p, pr, Qt::AlignCenter, pal,
-                                      mode != QIconSet::Disabled || !toolbutton->icon().isGenerated(size, mode, state), pm);
-                            alignment |= Qt::AlignCenter;
-                        } else {
-                            pr.setWidth(pm.width() + 8);
-                            tr.addCoords(pr.right(), 0, 0, 0);
-                            pr.moveBy(shiftX, shiftY);
-                            drawItem(p, pr, Qt::AlignCenter, pal,
-                                      mode != QIconSet::Disabled || !toolbutton->icon().isGenerated(size, mode, state), pm);
-                            alignment |= Qt::AlignLeft | Qt::AlignVCenter;
-                        }
-                        tr.moveBy(shiftX, shiftY);
-                        drawItem(p, tr, alignment, pal,
-                                  flags & Style_Enabled, QPixmap(), toolbutton->text(),
-                                  toolbutton->text().length(), &btext);
-                    } else {
-                        rect.moveBy(shiftX, shiftY);
-                        drawItem(p, rect, Qt::AlignCenter, pal,
-                                  mode != QIconSet::Disabled || !toolbutton->icon().isGenerated(size, mode, state), pm);
-                    }
-                }
-            }
-
-            break;
-        }
-#endif // QT_NO_TOOLBUTTON
     default:
         break;
     }
@@ -1296,6 +1203,105 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
 
             drawItem(p, rect, Qt::AlignVCenter, header->palette, header->state & Style_Enabled,
                      header->text, -1, &(header->palette.buttonText().color()));
+        }
+        break;
+    case CE_ToolButtonLabel:
+        if (const Q4StyleOptionToolButton *tb = qt_cast<const Q4StyleOptionToolButton *>(opt)) {
+            QRect rect = tb->rect;
+            int shiftX = 0;
+            int shiftY = 0;
+            if (tb->state & (Style_Down | Style_On)) {
+                shiftX = pixelMetric(PM_ButtonShiftHorizontal, widget);
+                shiftY = pixelMetric(PM_ButtonShiftVertical, widget);
+            }
+            if (!(tb->extras & Q4StyleOptionToolButton::Arrow)) {
+                PrimitiveElement pe;
+                switch (tb->arrowType) {
+                case Qt::LeftArrow:
+                    pe = PE_ArrowLeft;
+                    break;
+                case Qt::RightArrow:
+                    pe = PE_ArrowRight;
+                    break;
+                case Qt::UpArrow:
+                    pe = PE_ArrowUp;
+                    break;
+                case Qt::DownArrow:
+                    pe = PE_ArrowDown;
+                    break;
+                }
+                rect.moveBy(shiftX, shiftY);
+                Q4StyleOption arrowOpt(0, Q4StyleOption::Default);
+                arrowOpt.rect = rect;
+                arrowOpt.palette = tb->palette;
+                arrowOpt.state = tb->state;
+                drawPrimitive(pe, &arrowOpt, p, widget);
+            } else {
+                QColor btext = tb->palette.foreground();
+
+                if (tb->icon.isNull() && !tb->text.isEmpty()
+                        && !(tb->extras & Q4StyleOptionToolButton::TextLabel)) {
+                    int alignment = Qt::AlignCenter | Qt::ShowPrefix;
+                    if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
+                        alignment |= Qt::NoAccel;
+                    rect.moveBy(shiftX, shiftY);
+                    drawItem(p, rect, alignment, tb->palette,
+                             opt->state & Style_Enabled, tb->text, -1, &btext);
+                } else {
+                    QPixmap pm;
+                    QIconSet::Size size =
+                        tb->extras & Q4StyleOptionToolButton::BigPixmap ? QIconSet::Large
+                                                                        : QIconSet::Small;
+                    QIconSet::State state =
+                        tb->state & Style_On ? QIconSet::On : QIconSet::Off;
+                    QIconSet::Mode mode;
+                    if (!(tb->state & Style_Enabled))
+                        mode = QIconSet::Disabled;
+                    else if (opt->state & (Style_Down | Style_On) ||
+                             ((opt->state & Style_Raised) && (opt->state & Style_AutoRaise)))
+                        mode = QIconSet::Active;
+                    else
+                        mode = QIconSet::Normal;
+                    pm = tb->icon.pixmap(size, mode, state);
+
+                    if (tb->extras & Q4StyleOptionToolButton::TextLabel) {
+                        p->setFont(tb->font);
+                        QRect pr = rect,
+                        tr = rect;
+                        int alignment = Qt::ShowPrefix;
+                        if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
+                            alignment |= Qt::NoAccel;
+
+                        if (tb->textPosition == QToolButton::Under) {
+                            int fh = p->fontMetrics().height();
+                            pr.addCoords(0, 1, 0, -fh - 3);
+                            tr.addCoords(0, pr.bottom(), 0, -3);
+                            pr.moveBy(shiftX, shiftY);
+                            drawItem(p, pr, Qt::AlignCenter, tb->palette,
+                                     mode != QIconSet::Disabled
+                                     || !tb->icon.isGenerated(size, mode, state), pm);
+                            alignment |= Qt::AlignCenter;
+                        } else {
+                            pr.setWidth(pm.width() + 8);
+                            tr.addCoords(pr.right(), 0, 0, 0);
+                            pr.moveBy(shiftX, shiftY);
+                            drawItem(p, pr, Qt::AlignCenter, tb->palette,
+                                      mode != QIconSet::Disabled
+                                      || !tb->icon.isGenerated(size, mode, state), pm);
+                            alignment |= Qt::AlignLeft | Qt::AlignVCenter;
+                        }
+                        tr.moveBy(shiftX, shiftY);
+                        drawItem(p, tr, alignment, tb->palette,
+                                  tb->state & Style_Enabled, QPixmap(), tb->text,
+                                  tb->text.length(), &btext);
+                    } else {
+                        rect.moveBy(shiftX, shiftY);
+                        drawItem(p, rect, Qt::AlignCenter, tb->palette,
+                                  mode != QIconSet::Disabled
+                                  || !tb->icon.isGenerated(size, mode, state), pm);
+                    }
+                }
+            }
         }
         break;
     default:
@@ -1587,10 +1593,6 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 #endif // QT_NO_SLIDER
 
 
-    case SR_ToolButtonContents:
-        rect = querySubControlMetrics(CC_ToolButton, widget, SC_ToolButton);
-        break;
-
     case SR_ToolBoxTabContents:
         rect = wrect;
         rect.addCoords(0, 0, -30, 0);
@@ -1757,6 +1759,13 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
                 else
                     r.setRect(0, 1, dw->rect.width() - 15, dw->rect.height() - 1);
             }
+        }
+        break;
+    case SR_ToolButtonContents:
+        if (const Q4StyleOptionToolButton *tb = qt_cast<const Q4StyleOptionToolButton *>(opt)) {
+            Q4StyleOptionToolButton newTb = *tb;
+            newTb.parts = SC_ToolButton;
+            r = querySubControlMetrics(CC_ToolButton, &newTb, w);
         }
         break;
     default:
@@ -2003,7 +2012,54 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
 
         }
         break;
+    case CC_ToolButton:
+        if (const Q4StyleOptionToolButton *toolbutton
+                = qt_cast<const Q4StyleOptionToolButton *>(opt)) {
+            QPalette pal2 = toolbutton->palette;
+            if (toolbutton->bgRole != QPalette::Button)
+                pal2.setBrush(QPalette::Button, toolbutton->palette.brush(toolbutton->bgRole));
+            QRect button, menuarea;
+            Q4StyleOptionToolButton newTB = *toolbutton;
+            newTB.parts = SC_ToolButton;
+            button = visualRect(querySubControlMetrics(cc, &newTB, widget), widget);
+            newTB.parts = SC_ToolButtonMenu;
+            menuarea = visualRect(querySubControlMetrics(cc, &newTB, widget), widget);
 
+            SFlags bflags = toolbutton->state,
+                   mflags = toolbutton->state;
+
+            if (toolbutton->activeParts & SC_ToolButton)
+                bflags |= Style_Down;
+            if (toolbutton->activeParts & SC_ToolButtonMenu)
+                mflags |= Style_Down;
+
+            if (toolbutton->parts & SC_ToolButton) {
+                if (bflags & (Style_Down | Style_On | Style_Raised)) {
+                    drawPrimitive(PE_ButtonTool, p, button, pal2, bflags);
+                } else if (toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap()
+                           && !toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap()->isNull()) {
+                    p->drawTiledPixmap(toolbutton->rect,
+                           *toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap(),
+                           toolbutton->pos);
+                }
+            }
+
+            if (toolbutton->parts & SC_ToolButtonMenu) {
+                if (mflags & (Style_Down | Style_On | Style_Raised))
+                    drawPrimitive(PE_ButtonDropDown, p, menuarea, pal2, mflags);
+                drawPrimitive(PE_ArrowDown, p, menuarea, pal2, mflags);
+            }
+
+            if (toolbutton->state & Style_HasFocus) {
+                Q4StyleOptionFocusRect fr(0);
+                fr.rect = toolbutton->rect;
+                fr.rect.addCoords(3, 3, -3, -3);
+                fr.palette = pal2;
+                fr.state = Style_Default;
+                drawPrimitive(PE_FocusRect, &fr, p, widget);
+            }
+        }
+        break;
     default:
         qWarning("drawComplexControl control not handled %d", cc);
     }
@@ -2222,8 +2278,30 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptio
             default:
                 break;
             }
-            break; }
-
+        }
+        break;
+    case CC_ToolButton:
+        if (const Q4StyleOptionToolButton *tb = qt_cast<const Q4StyleOptionToolButton *>(opt)) {
+            int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+            ret = tb->rect;
+            switch (tb->parts) {
+            case SC_ToolButton:
+                if (tb->extras
+                        & (Q4StyleOptionToolButton::Menu | Q4StyleOptionToolButton::PopupDelay)
+                        == Q4StyleOptionToolButton::Menu)
+                    ret.addCoords(0, 0, -mbi, 0);
+                break;
+            case SC_ToolButtonMenu:
+                if (tb->extras
+                        & (Q4StyleOptionToolButton::Menu | Q4StyleOptionToolButton::PopupDelay)
+                        == Q4StyleOptionToolButton::Menu)
+                    ret.addCoords(ret.width() - mbi, 0, 0, 0);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
     default:
         qWarning("QCommonStyle::querySubControlMetrics case not handled %d", cc);
     }
@@ -2236,10 +2314,10 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
                                        const QWidget *widget,
                                        const QRect &r,
                                        const QPalette &pal,
-                                       SFlags flags,
+                                       SFlags ,
                                        SCFlags controls,
                                        SCFlags active,
-                                       const QStyleOption& opt) const
+                                       const QStyleOption& ) const
 {
     if (! widget) {
         qWarning("QCommonStyle::drawComplexControl: widget parameter cannot be zero!");
@@ -2249,57 +2327,6 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
     activePainter = p;
 
     switch (control) {
-#ifndef QT_NO_TOOLBUTTON
-    case CC_ToolButton:
-        {
-            const QToolButton *toolbutton = (const QToolButton *) widget;
-
-            QPalette pal2 = pal;
-            if (toolbutton->backgroundRole() != QPalette::Button)
-                pal2.setBrush(QPalette::Button,
-                            toolbutton->palette().brush(toolbutton->backgroundRole()));
-            QRect button, menuarea;
-            button   = visualRect(querySubControlMetrics(control, widget, SC_ToolButton, opt), widget);
-            menuarea = visualRect(querySubControlMetrics(control, widget, SC_ToolButtonMenu, opt), widget);
-
-            SFlags bflags = flags,
-                   mflags = flags;
-
-            if (active & SC_ToolButton)
-                bflags |= Style_Down;
-            if (active & SC_ToolButtonMenu)
-                mflags |= Style_Down;
-
-            if (controls & SC_ToolButton) {
-                QWidget *tbPW = static_cast<QWidget *>(toolbutton->parent());
-                if (bflags & (Style_Down | Style_On | Style_Raised)) {
-                    drawPrimitive(PE_ButtonTool, p, button, pal2, bflags, opt);
-                } else if (tbPW &&
-                            tbPW->palette().brush(tbPW->backgroundRole()).pixmap() &&
-                          ! tbPW->palette().brush(tbPW->backgroundRole()).pixmap()->isNull()) {
-                    QPixmap pixmap =
-                        *(tbPW->palette().brush(tbPW->backgroundRole()).pixmap());
-
-                    p->drawTiledPixmap(r, pixmap, toolbutton->pos());
-                }
-            }
-
-            if (controls & SC_ToolButtonMenu) {
-                if (mflags & (Style_Down | Style_On | Style_Raised))
-                    drawPrimitive(PE_ButtonDropDown, p, menuarea, pal2, mflags, opt);
-                drawPrimitive(PE_ArrowDown, p, menuarea, pal2, mflags, opt);
-            }
-
-            if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
-                QRect fr = toolbutton->rect();
-                fr.addCoords(3, 3, -3, -3);
-                drawPrimitive(PE_FocusRect, p, fr, pal2);
-            }
-
-            break;
-        }
-#endif // QT_NO_TOOLBUTTON
-
 #ifndef QT_NO_TITLEBAR
     case CC_TitleBar:
         {
@@ -2436,130 +2463,6 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
             break;
         }
 #endif //QT_NO_TITLEBAR
-
-    case CC_SpinBox: {
-#ifndef QT_NO_SPINWIDGET
-//         const QSpinBox * sw = (const QSpinBox *) widget;
-//         SFlags flags;
-//         PrimitiveElement pe;
-
-//         if (controls & SC_SpinBoxFrame)
-//             qDrawWinPanel(p, r, pal, true); //cstyle == Sunken);
-
-//         if (controls & SC_SpinBoxUp) {
-//             flags = Style_Default | Style_Enabled;
-//             if (active == SC_SpinBoxUp) {
-//                 flags |= Style_On;
-//                 flags |= Style_Sunken;
-//             } else
-//                 flags |= Style_Raised;
-//             if (sw->buttonSymbols() == QSpinBox::PlusMinus)
-//                 pe = PE_SpinBoxPlus;
-//             else
-//                 pe = PE_SpinBoxUp;
-
-//             QRect re = sw->upRect();
-//             QPalette pal2 = pal;
-//             if(!sw->isUpEnabled())
-//                 pal2.setCurrentColorGroup(QPalette::Disabled);
-//             drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
-//             drawPrimitive(pe, p, re, pal2, flags);
-//         }
-
-//         if (controls & SC_SpinBoxDown) {
-//             flags = Style_Default | Style_Enabled;
-//             if (active == SC_SpinBoxDown) {
-//                 flags |= Style_On;
-//                 flags |= Style_Sunken;
-//             } else
-//                 flags |= Style_Raised;
-//             if (sw->buttonSymbols() == QSpinBox::PlusMinus)
-//                 pe = PE_SpinBoxMinus;
-//             else
-//                 pe = PE_SpinBoxDown;
-
-//             QRect re = sw->downRect();
-//             QPalette pal2 = pal;
-//             if(!sw->isDownEnabled())
-//                 pal2.setCurrentColorGroup(QPalette::Disabled);
-//             drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
-//             drawPrimitive(pe, p, re, pal2, flags);
-//        }
-#endif
-        break; }
-
-#ifndef QT_NO_SLIDER
-    case CC_Slider:
-        switch (controls) {
-        case SC_SliderTickmarks: {
-            const QSlider * sl = static_cast<const QSlider *>(widget);
-            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, sl);
-            int ticks = sl->tickmarks();
-            int thickness = pixelMetric(PM_SliderControlThickness, sl);
-            int len = pixelMetric(PM_SliderLength, sl);
-            int available = pixelMetric(PM_SliderSpaceAvailable, sl);
-            int interval = sl->tickInterval();
-
-            if (interval <= 0) {
-                interval = sl->singleStep();
-                if (QStyle::positionFromValue(sl->minimum(), sl->maximum(), interval, available)
-                    - QStyle::positionFromValue(sl->minimum(), sl->maximum(), 0, available) < 3)
-                    interval = sl->pageStep();
-            }
-
-            int fudge = len / 2;
-            int pos;
-
-            if (ticks & QSlider::Above) {
-                if (sl->orientation() == Qt::Horizontal)
-                    p->fillRect(0, 0, sl->width(), tickOffset, pal.brush(QPalette::Background));
-                else
-                    p->fillRect(0, 0, tickOffset, sl->width(), pal.brush(QPalette::Background));
-                p->setPen(pal.foreground());
-                int v = sl->minimum();
-                if (!interval)
-                    interval = 1;
-                while (v <= sl->maximum() + 1) {
-                    pos = QStyle::positionFromValue(sl->minimum(), sl->maximum(), v, available)
-                          + fudge;
-                    if (sl->orientation() == Qt::Horizontal)
-                        p->drawLine(pos, 0, pos, tickOffset-2);
-                    else
-                        p->drawLine(0, pos, tickOffset-2, pos);
-                    v += interval;
-                }
-            }
-
-            if (ticks & QSlider::Below) {
-                if (sl->orientation() == Qt::Horizontal)
-                    p->fillRect(0, tickOffset + thickness, sl->width(), tickOffset,
-                                pal.brush(QPalette::Background));
-                else
-                    p->fillRect(tickOffset + thickness, 0, tickOffset, sl->height(),
-                                pal.brush(QPalette::Background));
-                p->setPen(pal.foreground());
-                int v = sl->minimum();
-                if (!interval)
-                    interval = 1;
-                while (v <= sl->maximum() + 1) {
-                    pos = QStyle::positionFromValue(sl->minimum(), sl->maximum(), v, available)
-                          + fudge;
-                    if (sl->orientation() == Qt::Horizontal)
-                        p->drawLine(pos, tickOffset+thickness+1, pos,
-                                    tickOffset+thickness+1 + available-2);
-                    else
-                        p->drawLine(tickOffset+thickness+1, pos,
-                                    tickOffset+thickness+1 + available-2,
-                                    pos);
-                    v += interval;
-                }
-
-            }
-
-            break; }
-        }
-        break;
-#endif // QT_NO_SLIDER
     default:
         break;
     }
@@ -2716,28 +2619,6 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl control,
         break; }
 #endif // QT_NO_SLIDER
 
-#if !defined(QT_NO_TOOLBUTTON) && !defined(QT_NO_POPUPMENU)
-    case CC_ToolButton: {
-            const QToolButton *toolbutton = (const QToolButton *) widget;
-            int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
-
-            QRect rect = toolbutton->rect();
-            switch (sc) {
-            case SC_ToolButton:
-                if (toolbutton->menu() && ! toolbutton->popupDelay())
-                    rect.addCoords(0, 0, -mbi, 0);
-                return rect;
-
-            case SC_ToolButtonMenu:
-                if (toolbutton->menu() && ! toolbutton->popupDelay())
-                    rect.addCoords(rect.width() - mbi, 0, 0, 0);
-                return rect;
-
-            default: break;
-            }
-            break;
-        }
-#endif // QT_NO_TOOLBUTTON && QT_NO_POPUPMENU
 
 #ifndef QT_NO_TITLEBAR
     case CC_TitleBar: {
@@ -3358,6 +3239,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, 
             w += 12;
             sz = QSize(w, h);
         }
+        break;
+    case CT_ToolButton:
+        sz = QSize(sz.width() + 6, sz.height() + 5);
         break;
     case CT_MenuBar:
     case CT_Menu:

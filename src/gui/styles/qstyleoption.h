@@ -14,11 +14,12 @@
 #ifndef QSTYLEOPTION_H
 #define QSTYLEOPTION_H
 
+#include "qabstractspinbox.h"
 #include "qiconset.h"
 #include "qslider.h"
 #include "qstyle.h"
 #include "qtabbar.h"
-#include "qabstractspinbox.h"
+#include "qtoolbutton.h"
 
 struct Q_GUI_EXPORT Q4StyleOption {
     int version;
@@ -27,7 +28,7 @@ struct Q_GUI_EXPORT Q4StyleOption {
     QRect rect;             // Rect has overloaded meanings.
     QPalette palette;
     enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar,
-           ListView, ListViewItem, Header, DockWindow, SpinBox };
+           ListView, ListViewItem, Header, DockWindow, SpinBox, ToolButton };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -165,6 +166,24 @@ struct Q4StyleOptionDockWindow : public Q4StyleOption
     bool docked;
     bool isCloseEnabled;
     Q4StyleOptionDockWindow(int version) : Q4StyleOption(version , DockWindow) {}
+};
+
+struct Q4StyleOptionToolButton : public Q4StyleOptionComplex
+{
+    enum { Type = ToolButton };
+    enum Extras { None = 0x00, Arrow = 0x01, TextLabel = 0x02, Menu = 0x04, PopupDelay = 0x08,
+                  BigPixmap = 0x10 };
+    uint extras;
+    QIconSet icon;
+    QString text;
+    Qt::ArrowType arrowType;
+    QPalette::ColorRole bgRole;
+    QPalette::ColorRole parentBGRole;
+    QPalette parentPalette;
+    QPoint pos;
+    QFont font;
+    QToolButton::TextPosition textPosition;
+    Q4StyleOptionToolButton(int version) : Q4StyleOptionComplex(version, ToolButton) {}
 };
 
 template <typename T>

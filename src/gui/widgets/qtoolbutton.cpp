@@ -15,20 +15,17 @@
 #include "qtoolbutton.h"
 #ifndef QT_NO_TOOLBUTTON
 
-#include "qevent.h"
+#include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qdrawutil.h"
-#include "qpainter.h"
-#include "qpixmap.h"
-#include "qwmatrix.h"
-#include "qapplication.h"
-#include "qstyle.h"
-#include "qtooltip.h"
-#include "qimage.h"
+#include "qevent.h"
 #include "qiconset.h"
-#include "qtimer.h"
-#include "qpopupmenu.h"
+#include "qpainter.h"
 #include "qpointer.h"
+#include "qpopupmenu.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtooltip.h"
 
 #include "private/qabstractbutton_p.h"
 
@@ -40,25 +37,24 @@ public:
     void init(bool doMainWindowConnections);
     void popupPressed();
     void popupTimerDone();
+    Q4StyleOptionToolButton getStyleOption() const;
     QPointer<QMenu> menu; //the menu set by the user (setMenu)
     QPointer<QMenu> popupMenu; //the menu being displayed (could be the same as menu above)
     QBasicTimer popupTimer;
     int delay;
     Qt::ArrowType arrow;
-    uint instantPopup            : 1;
-    uint autoRaise            : 1;
-    uint repeat                    : 1;
-    uint usesTextLabel : 1;
-    uint usesBigPixmap : 1;
-    uint hasArrow : 1;
+    uint instantPopup          : 1;
+    uint autoRaise             : 1;
+    uint repeat                : 1;
+    uint usesTextLabel         : 1;
+    uint usesBigPixmap         : 1;
+    uint hasArrow              : 1;
     uint discardNextMouseEvent : 1;
     QToolButton::TextPosition textPos;
 };
 
 #define d d_func()
 #define q q_func()
-
-
 
 /*!
     \class QToolButton qtoolbutton.h
@@ -202,6 +198,64 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
 }
 
+Q4StyleOptionToolButton QToolButtonPrivate::getStyleOption() const
+{
+    Q4StyleOptionToolButton opt(0);
+    opt.init(q);
+    bool down = q->isDown();
+    bool checked = q->isChecked();
+    opt.text = q->text();
+    opt.icon = q->icon();
+    opt.arrowType = arrow;
+    if (down)
+        opt.state |= QStyle::Style_Down;
+    if (checked)
+        opt.state |= QStyle::Style_On;
+    if (autoRaise) {
+        opt.state |= QStyle::Style_AutoRaise;
+        if (q->uses3D()) {
+            opt.state |= QStyle::Style_MouseOver;
+            if (!checked && !down)
+                opt.state |= QStyle::Style_Raised;
+        }
+    } else if (!checked && !down) {
+        opt.state |= QStyle::Style_Raised;
+    }
+
+    opt.parts = QStyle::SC_ToolButton;
+    opt.activeParts = QStyle::SC_None;
+    if (down)
+        opt.activeParts |= QStyle::SC_ToolButton;
+
+    if ((menu || !q->actions().isEmpty()) && !delay) {
+        opt.parts |= QStyle::SC_ToolButtonMenu;
+        if (instantPopup || down)
+            opt.activeParts |= QStyle::SC_ToolButtonMenu;
+    }
+    opt.extras = Q4StyleOptionToolButton::None;
+    if (usesTextLabel)
+        opt.extras |= Q4StyleOptionToolButton::TextLabel;
+    if (hasArrow)
+        opt.extras |= Q4StyleOptionToolButton::Arrow;
+    if (menu)
+        opt.extras |= Q4StyleOptionToolButton::Menu;
+    if (delay)
+        opt.extras |= Q4StyleOptionToolButton::PopupDelay;
+    if (usesBigPixmap)
+        opt.extras |= Q4StyleOptionToolButton::BigPixmap;
+    opt.bgRole = q->backgroundRole();
+    const QWidget *w = q->parentWidget();
+    if (w) {
+        opt.parentBGRole = w->backgroundRole();
+        opt.parentPalette = w->palette();
+    } else {
+        opt.parentBGRole = opt.bgRole;
+    }
+    opt.textPosition = textPos;
+    opt.pos = q->pos();
+    opt.font = q->font();
+    return opt;
+}
 #ifndef QT_NO_TOOLBAR
 
 /*!
@@ -261,10 +315,10 @@ QSize QToolButton::sizeHint() const
     ensurePolished();
 
     int w = 0, h = 0;
-
+    QFontMetrics fm = fontMetrics();
     if (icon().isNull() && !text().isNull() && !usesTextLabel()) {
-        w = fontMetrics().width(text());
-        h = fontMetrics().height(); // boundingRect()?
+        w = fm.width(text());
+        h = fm.height(); // boundingRect()?
     } else if (usesBigPixmap()) {
         QPixmap pm = icon().pixmap(QIconSet::Large, QIconSet::Normal);
         w = pm.width();
@@ -286,8 +340,8 @@ QSize QToolButton::sizeHint() const
     }
 
     if (usesTextLabel()) {
-        QSize textSize = fontMetrics().size(Qt::ShowPrefix, text());
-        textSize.setWidth(textSize.width() + fontMetrics().width(' ')*2);
+        QSize textSize = fm.size(Qt::ShowPrefix, text());
+        textSize.setWidth(textSize.width() + fm.width(' ')*2);
         if (d->textPos == Under) {
             h += 4 + textSize.height();
             if (textSize.width() > w)
@@ -301,8 +355,10 @@ QSize QToolButton::sizeHint() const
 
     if ((d->menu || !actions().isEmpty()) && ! popupDelay())
         w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
-    return (style().sizeFromContents(QStyle::CT_ToolButton, this, QSize(w, h)).
-            expandedTo(QApplication::globalStrut()));
+
+    Q4StyleOptionToolButton opt = d->getStyleOption();
+    return style().sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), fm, this).
+            expandedTo(QApplication::globalStrut());
 }
 
 /*!
@@ -379,45 +435,10 @@ void QToolButton::setUsesTextLabel(bool enable)
 
     \sa drawLabel()
 */
-void QToolButton::drawBevel(QPainter * p)
+void QToolButton::drawBevel(QPainter *p)
 {
-    QStyle::SCFlags controls = QStyle::SC_ToolButton;
-    QStyle::SCFlags active = QStyle::SC_None;
-
-    Qt::ArrowType arrowtype = d->arrow;
-
-    if (isDown())
-        active |= QStyle::SC_ToolButton;
-
-    if ((d->menu || !actions().isEmpty()) && !d->delay) {
-        controls |= QStyle::SC_ToolButtonMenu;
-        if (d->instantPopup || isDown())
-            active |= QStyle::SC_ToolButtonMenu;
-    }
-
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
-    if (isDown())
-        flags |= QStyle::Style_Down;
-    if (isChecked())
-        flags |= QStyle::Style_On;
-    if (d->autoRaise) {
-        flags |= QStyle::Style_AutoRaise;
-        if (uses3D()) {
-            flags |= QStyle::Style_MouseOver;
-            if (! isChecked() && ! isDown())
-                flags |= QStyle::Style_Raised;
-        }
-    } else if (! isChecked() && ! isDown())
-        flags |= QStyle::Style_Raised;
-
-    style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), palette(),
-                               flags, controls, active,
-                                d->hasArrow ? QStyleOption(arrowtype) :
-                                    QStyleOption());
+    Q4StyleOptionToolButton opt = d->getStyleOption();
+    style().drawComplexControl(QStyle::CC_ToolButton, &opt, p, this);
 }
 
 
@@ -428,34 +449,10 @@ void QToolButton::drawBevel(QPainter * p)
 */
 void QToolButton::drawLabel(QPainter *p)
 {
-    QRect r =
-        QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, this), this);
-
-    Qt::ArrowType arrowtype = d->arrow;
-
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
-    if (isDown())
-        flags |= QStyle::Style_Down;
-    if (isChecked())
-        flags |= QStyle::Style_On;
-    if (d->autoRaise) {
-        flags |= QStyle::Style_AutoRaise;
-        if (uses3D()) {
-            flags |= QStyle::Style_MouseOver;
-            if (! isChecked() && ! isDown())
-                flags |= QStyle::Style_Raised;
-        }
-    } else if (! isChecked() && ! isDown())
-        flags |= QStyle::Style_Raised;
-
-    style().drawControl(QStyle::CE_ToolButtonLabel, p, this, r,
-                        palette(), flags,
-                        d->hasArrow ? QStyleOption(arrowtype) :
-                            QStyleOption());
+    Q4StyleOptionToolButton opt = d->getStyleOption();
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, &opt, this),
+                                  this);
+    style().drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
 }
 
 /*!
@@ -525,9 +522,11 @@ void QToolButton::timerEvent(QTimerEvent *e)
 */
 void QToolButton::mousePressEvent(QMouseEvent *e)
 {
+    Q4StyleOptionToolButton opt = d->getStyleOption();
+    opt.parts = QStyle::SC_ToolButtonMenu;
     QRect popupr =
-        QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ToolButton, this,
-                                       QStyle::SC_ToolButtonMenu), this);
+        QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ToolButton, &opt, this),
+                           this);
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
 
     if (d->discardNextMouseEvent) {

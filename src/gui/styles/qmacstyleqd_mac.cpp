@@ -847,87 +847,6 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
     }
 
     switch(ctrl) {
-    case CC_ToolButton: {
-        if(!widget)
-            break;
-        QToolButton *toolbutton = (QToolButton *) widget;
-        ThemeButtonKind bkind = kThemeBevelButton;
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            bkind = kThemeBevelButton;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                bkind = kThemeMiniBevelButton;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            bkind = kThemeSmallBevelButton;
-            break;
-        }
-
-        QRect button, menuarea;
-        button   = querySubControlMetrics(ctrl, widget, SC_ToolButton, opt);
-        menuarea = querySubControlMetrics(ctrl, widget, SC_ToolButtonMenu, opt);
-        SFlags bflags = flags,
-               mflags = flags;
-        if(subActive & SC_ToolButton)
-            bflags |= Style_Down;
-        if(subActive & SC_ToolButtonMenu)
-            mflags |= Style_Down;
-
-        if(sub & SC_ToolButton) {
-            if(bflags & (Style_Down | Style_On | Style_Raised)) {
-                ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-                if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
-                    info.adornment |= kThemeAdornmentFocus;
-                if(toolbutton->isChecked() || toolbutton->isDown())
-                    info.value |= kThemeStatePressed;
-
-                QRect off_rct(0, 0, 0, 0);
-                { //The AppManager draws outside my rectangle, so account for that difference..
-                    Rect macRect, myRect;
-                    SetRect(&myRect,r.x(), r.y(), r.width(), r.height());
-                    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-                    off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
-                                    (myRect.left - macRect.left) + (macRect.right - myRect.right),
-                                    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
-                }
-
-                // If the background color is set then make the toolbutton
-                // translucent so the background color is visible
-                if(widget->palette().color(widget->backgroundRole()) != Qt::white) {
-                    p->fillRect(r, widget->palette().color(widget->backgroundRole()));
-                    info.state = kThemeStateInactive;
-                }
-
-                ((QMacStyleQDPainter *)p)->setport();
-                DrawThemeButton(qt_glb_mac_rect(button, p, false, off_rct),
-                                bkind, &info, NULL, NULL, NULL, 0);
-            } else if(toolbutton->parentWidget() &&
-                        toolbutton->parentWidget()->palette().brush(toolbutton->parentWidget()->backgroundRole()).pixmap() &&
-                        ! toolbutton->parentWidget()->palette().brush(toolbutton->parentWidget()->backgroundRole()).pixmap()->isNull()) {
-                p->drawTiledPixmap(r, *(toolbutton->parentWidget()->palette().brush(toolbutton->parentWidget()->backgroundRole()).pixmap()),
-                                    toolbutton->pos());
-            }
-        }
-
-        if(sub & SC_ToolButtonMenu) {
-            ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-            if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
-                info.adornment |= kThemeAdornmentFocus;
-            if(toolbutton->isChecked() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
-                info.value |= kThemeStatePressed;
-            ((QMacStyleQDPainter *)p)->setport();
-            DrawThemeButton(qt_glb_mac_rect(menuarea, p, false), bkind, &info, NULL, NULL, NULL, 0);
-            QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
-            DrawThemePopupArrow(qt_glb_mac_rect(r, p),
-                                kThemeArrowDown, kThemeArrow7pt, tds, NULL, 0);
-        }
-        break; }
     case CC_TitleBar: {
         if(!widget)
             break;
@@ -2923,26 +2842,109 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                 static_cast<QMacStyleQDPainter *>(p)->setport();
                 ThemeButtonKind kind = kThemeIncDecButton;
                 switch (qt_aqua_size_constrain(widget)) {
-                    case QAquaSizeMini:
+                case QAquaSizeMini:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                            kind = kThemeIncDecButtonMini;
-                            break;
-                        }
-#endif
-                    case QAquaSizeSmall:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                            kind = kThemeIncDecButtonSmall;
-                            break;
-                        }
-#endif
-                    case QAquaSizeUnknown:
-                    case QAquaSizeLarge:
-                        kind = kThemeIncDecButton;
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        kind = kThemeIncDecButtonMini;
                         break;
+                    }
+#endif
+                case QAquaSizeSmall:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        kind = kThemeIncDecButtonSmall;
+                        break;
+                    }
+#endif
+                case QAquaSizeUnknown:
+                case QAquaSizeLarge:
+                    kind = kThemeIncDecButton;
+                    break;
                 }
                 DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, 0, 0, 0, 0);
+            }
+        }
+        break;
+    case CC_ToolButton:
+        if (const Q4StyleOptionToolButton *tb = qt_cast<const Q4StyleOptionToolButton *>(opt)) {
+            ThemeButtonKind bkind = kThemeBevelButton;
+            switch (qt_aqua_size_constrain(widget)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                bkind = kThemeBevelButton;
+                break;
+            case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    bkind = kThemeMiniBevelButton;
+                    break;
+                }
+#endif
+            case QAquaSizeSmall:
+                bkind = kThemeSmallBevelButton;
+                break;
+            }
+
+            QRect button, menuarea;
+            Q4StyleOptionToolButton newTb = *tb;
+            newTb.parts = SC_ToolButton;
+            button   = querySubControlMetrics(cc, &newTb, widget);
+            newTb.parts = SC_ToolButtonMenu;
+            menuarea = querySubControlMetrics(cc, &newTb, widget);
+            SFlags bflags = tb->state,
+            mflags = tb->state;
+            if (tb->parts & SC_ToolButton)
+                bflags |= Style_Down;
+            if (tb->parts & SC_ToolButtonMenu)
+                mflags |= Style_Down;
+
+            if (tb->parts & SC_ToolButton) {
+                if(bflags & (Style_Down | Style_On | Style_Raised)) {
+                    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+                    if (tb->state & Style_HasFocus && QMacStyle::focusRectPolicy(widget)
+                            != QMacStyle::FocusDisabled)
+                        info.adornment |= kThemeAdornmentFocus;
+                    if (tb->state & (Style_On | Style_Down))
+                        info.value |= kThemeStatePressed;
+
+                    QRect off_rct(0, 0, 0, 0);
+                    { //The AppManager draws outside my rectangle, so account for that difference..
+                        Rect macRect, myRect;
+                        SetRect(&myRect, tb->rect.x(), tb->rect.y(), tb->rect.width(), tb->rect.height());
+                        GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
+                        off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
+                                (myRect.left - macRect.left) + (macRect.right - myRect.right),
+                                (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+                    }
+
+                    // If the background color is set then make the toolbutton
+                    // translucent so the background color is visible
+                    if (tb->palette.color(tb->bgRole) != Qt::white) {
+                        p->fillRect(tb->rect, tb->palette.color(tb->bgRole));
+                        info.state = kThemeStateInactive;
+                    }
+
+                    static_cast<QMacStyleQDPainter *>(p)->setport();
+                    DrawThemeButton(qt_glb_mac_rect(button, p, false, off_rct),
+                                    bkind, &info, 0, 0, 0, 0);
+                } else if (tb->parentPalette.brush(tb->parentBGRole).pixmap() &&
+                           !tb->parentPalette.brush(tb->parentBGRole).pixmap()->isNull()) {
+                    p->drawTiledPixmap(tb->rect, *tb->parentPalette.brush(tb->parentBGRole).pixmap(),
+                                       tb->pos);
+                }
+            }
+
+            if (tb->parts & SC_ToolButtonMenu) {
+                ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+                if (tb->state & Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
+                    info.adornment |= kThemeAdornmentFocus;
+                if (tb->state & (Style_On | Style_Down) || (tb->activeParts & SC_ToolButtonMenu))
+                    info.value |= kThemeStatePressed;
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+                DrawThemeButton(qt_glb_mac_rect(menuarea, p, false), bkind, &info, 0, 0, 0, 0);
+                QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
+                DrawThemePopupArrow(qt_glb_mac_rect(r, p), kThemeArrowDown, kThemeArrow7pt, tds,
+                                    0, 0);
             }
         }
         break;

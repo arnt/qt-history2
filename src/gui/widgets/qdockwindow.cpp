@@ -9,6 +9,7 @@
 #include <qpainter.h>
 #include <qrubberband.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 #include <qtoolbutton.h>
 
 #include <private/qframe_p.h>
@@ -16,9 +17,6 @@
 #include "qdockwindowlayout_p.h"
 #define d d_func()
 #define q q_func()
-
-
-
 
 /*
   Tool window title
@@ -115,20 +113,22 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *event)
     QPainter p(this);
 
     QRect r = rect();
-
-    QStyle::SFlags flags = QStyle::Style_AutoRaise;
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.rect = r;
+    opt.palette = palette();
+    opt.state = QStyle::Style_AutoRaise;
     if (isEnabled())
-        flags |= QStyle::Style_Enabled;
+        opt.state |= QStyle::Style_Enabled;
     if (isChecked())
-        flags |= QStyle::Style_On;
+        opt.state |= QStyle::Style_On;
     if (isDown())
-        flags |= QStyle::Style_Down;
+        opt.state |= QStyle::Style_Down;
     if (underMouse()) {
-        flags |= QStyle::Style_MouseOver;
+        opt.state |= QStyle::Style_MouseOver;
         if (!isChecked() && !isDown())
-            flags |= QStyle::Style_Raised;
+            opt.state |= QStyle::Style_Raised;
     }
-    style().drawPrimitive(QStyle::PE_ButtonTool, &p, r, palette(), flags);
+    style().drawPrimitive(QStyle::PE_ButtonTool, &opt, &p, this);
 
     r.addCoords(2, 2, -2, -2);
     const QPixmap pm = icon().pixmap(QIconSet::Small, QIconSet::Normal);

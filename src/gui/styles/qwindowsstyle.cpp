@@ -253,36 +253,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
 {
     QRect rr(r);
     switch (pe) {
-    case PE_ButtonTool:
-        {
-            QBrush fill;
-            bool stippled = false;
-
-            if (! (flags & (Style_Down | Style_MouseOver)) &&
-                (flags & Style_On) &&
-                use2000style) {
-                fill = QBrush(pal.light(), Qt::Dense4Pattern);
-                stippled = true;
-            } else
-                fill = pal.brush(QPalette::Button);
-
-            if (flags & (Style_Raised | Style_Down | Style_On)) {
-                if (flags & Style_AutoRaise) {
-                    qDrawShadePanel(p, r, pal, flags & (Style_Down | Style_On),
-                                    1, &fill);
-
-                    if (stippled) {
-                        p->setPen(pal.button());
-                        p->drawRect(r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2);
-                    }
-                } else
-                    qDrawWinButton(p, r, pal, flags & (Style_Down | Style_On),
-                                   &fill);
-            } else
-                p->fillRect(r, fill);
-
-            break;
-        }
     default:
         QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
     }
@@ -1340,6 +1310,34 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
                                   const QWidget *w) const
 {
     switch (pe) {
+    case PE_ButtonTool: {
+        QBrush fill;
+        bool stippled;
+        if (!(opt->state & (Style_Down | Style_MouseOver)) && (opt->state & Style_On)
+                && use2000style) {
+            fill = QBrush(opt->palette.light(), Qt::Dense4Pattern);
+            stippled = true;
+        } else {
+            fill = opt->palette.brush(QPalette::Button);
+            stippled = false;
+        }
+
+        if (opt->state & (Style_Raised | Style_Down | Style_On)) {
+            if (opt->state & Style_AutoRaise) {
+                qDrawShadePanel(p, opt->rect, opt->palette,
+                                opt->state & (Style_Down | Style_On), 1, &fill);
+                if (stippled) {
+                    p->setPen(opt->palette.button());
+                    p->drawRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
+                                opt->rect.height() - 2);
+                }
+            } else
+                qDrawWinButton(p, opt->rect, opt->palette,
+                               opt->state & (Style_Down | Style_On), &fill);
+        } else {
+            p->fillRect(opt->rect, fill);
+        }
+        break; }
     case PE_ButtonCommand: {
         QBrush fill;
         SFlags flags = opt->state;
