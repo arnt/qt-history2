@@ -126,7 +126,7 @@ QPen
 QPicture
 QPlatinumStyle
 QPopupMenu
-QProcess
+Q3Process
 QProgressBar
 QProgressDialog
 QPushButton

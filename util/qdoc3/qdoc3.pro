@@ -1,5 +1,6 @@
 DEFINES += QDOC2_COMPAT
 QT = core
+QT += compat # until qprocess is done
 CONFIG += console
 CONFIG -= resource_fork
 HEADERS += archiveextractor.h \

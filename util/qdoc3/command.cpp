@@ -2,7 +2,7 @@
   command.cpp
 */
 
-#include <qprocess.h>
+#include <q3process.h>
 
 #include "command.h"
 
@@ -24,7 +24,7 @@ void executeCommand( const Location& location, const QString& format,
     if ( space != -1 )
 	toolName.truncate( space );
 
-    QProcess process( QStringList() << "sh" << "-c" << actualCommand );
+    Q3Process process( QStringList() << "sh" << "-c" << actualCommand );
     process.start();
     while ( process.isRunning() )
 	;
