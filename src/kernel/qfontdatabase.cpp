@@ -266,7 +266,11 @@ private:
 class QtFontFoundry
 {
 public:
-    QtFontFoundry( const QString &n ) { nm = n; namesDirty = TRUE; }
+    QtFontFoundry( const QString &n )
+    {
+	nm = n;
+	namesDirty = TRUE;
+    }
 
     QString name() const { return nm; }
 
@@ -281,8 +285,7 @@ private:
 
     bool namesDirty;
 
-    void addFamily( QtFontFamily *f )
-        { familyDict.insert( f->name(), f ); }
+    void addFamily( QtFontFamily *f ) { familyDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
 
@@ -294,7 +297,8 @@ private:
 
 class QFontDatabasePrivate {
 public:
-    QFontDatabasePrivate(){
+    QFontDatabasePrivate()
+    {
         namesDirty          = TRUE;
         familiesDirty       = TRUE;
         foundryDict.setAutoDelete( TRUE );
@@ -316,8 +320,7 @@ private:
     bool namesDirty;
     bool familiesDirty;
 
-    void addFoundry( QtFontFoundry *f )
-        { foundryDict.insert( f->name(), f ); }
+    void addFoundry( QtFontFoundry *f ) { foundryDict.insert( f->name(), f ); }
 
     friend void QFontDatabase::createDatabase();
 
@@ -707,11 +710,11 @@ static const char *getXftWeightString(int xftweight)
     int qtweight = QFont::Black;
     if (xftweight <= (XFT_WEIGHT_LIGHT + XFT_WEIGHT_MEDIUM) / 2)
 	qtweight = QFont::Light;
-    if (xftweight <= (XFT_WEIGHT_MEDIUM + XFT_WEIGHT_DEMIBOLD) / 2)
+    else if (xftweight <= (XFT_WEIGHT_MEDIUM + XFT_WEIGHT_DEMIBOLD) / 2)
 	qtweight = QFont::Normal;
-    if (xftweight <= (XFT_WEIGHT_DEMIBOLD + XFT_WEIGHT_BOLD) / 2)
+    else if (xftweight <= (XFT_WEIGHT_DEMIBOLD + XFT_WEIGHT_BOLD) / 2)
 	qtweight = QFont::DemiBold;
-    if (xftweight <= (XFT_WEIGHT_BOLD + XFT_WEIGHT_BLACK) / 2)
+    else if (xftweight <= (XFT_WEIGHT_BOLD + XFT_WEIGHT_BLACK) / 2)
 	qtweight = QFont::Bold;
 
     if (qtweight <= (QFont::Light + QFont::Normal) / 2)
@@ -729,6 +732,7 @@ static const char *getXftWeightString(int xftweight)
 
 extern bool qt_has_xft; // defined in qfont_x11.cpp
 
+
 void QFontDatabase::createDatabase()
 {
     if ( db ) return;
@@ -737,106 +741,99 @@ void QFontDatabase::createDatabase()
 
 #ifndef QT_NO_XFTFREETYPE
 
-    // #define QFDB_DEBUG
-
     if (qt_has_xft) {
 	XftFontSet  *foundries;
 	XftFontSet  *families;
 	XftFontSet  *styles;
-	char	    *foundry_name, *qt_foundry_name;
-	char	    *family_name;
-	char	    *style_value;
-	int	    weight_value;
-	int	    slant_value;
-	int	    foundry_i;
-	int	    family_i;
-	int	    style_i;
-	static char default_foundry[] = "Unknown";
 
-	foundries = XftListFonts (qt_xdisplay (),
-				  qt_xscreen (),
+	QCString foundryName, familyName, styleName;
+	bool hasFoundries;
+    	char *value;
+	int weight_value;
+	int slant_value;
+	int spacing_value;
+
+	foundries = XftListFonts (qt_xdisplay(),
+				  qt_xscreen(),
 				  0,
 				  XFT_FOUNDRY,
 				  0);
 
-#ifdef QFDB_DEBUG
-	printf ("Foundries ");
-	XftFontSetPrint (foundries);
-#endif
-	for (foundry_i = 0; foundry_i < foundries->nfont; foundry_i++) {
-	    if (XftPatternGetString(foundries->fonts[foundry_i],
-				    XFT_FOUNDRY, 0, &foundry_name) == XftResultMatch) {
-		qt_foundry_name = foundry_name;
+	for (int d = 0; d < foundries->nfont; d++) {
+	    if (XftPatternGetString(foundries->fonts[d],
+				    XFT_FOUNDRY, 0, &value) == XftResultMatch) {
+		foundryName = value;
+		hasFoundries = TRUE;
 	    } else {
-		foundry_name = 0;
-		qt_foundry_name = default_foundry;
+		hasFoundries = FALSE;
+		foundryName = "xft";
 	    }
 
-	    QtFontFoundry *foundry = new QtFontFoundry(qt_foundry_name);
+	    QtFontFoundry *foundry = new QtFontFoundry(foundryName.lower());
 	    Q_CHECK_PTR(foundry);
 	    db->addFoundry(foundry);
 
-	    if (foundry_name)
-		families = XftListFonts(qt_xdisplay (), qt_xscreen(),
-					XFT_FOUNDRY, XftTypeString, foundry_name, 0,
-					XFT_FAMILY, 0);
+	    if (hasFoundries)
+		families =
+		    XftListFonts(qt_xdisplay (), qt_xscreen(),
+				 XFT_FOUNDRY, XftTypeString, foundryName.data(), 0,
+				 XFT_FAMILY, 0);
 	    else
-		families = XftListFonts(qt_xdisplay (),
-					qt_xscreen(),
-					0,
-					XFT_FAMILY, 0);
-#ifdef QFDB_DEBUG
-	    printf ("Families ");
-	    XftFontSetPrint (families);
-#endif
-	    for (family_i = 0; family_i < families->nfont; family_i++) {
-		if (XftPatternGetString(families->fonts[family_i],
-					XFT_FAMILY, 0, &family_name) == XftResultMatch) {
-		    QtFontFamily *family = new QtFontFamily ( foundry, family_name);
+		families =
+		    XftListFonts(qt_xdisplay (),
+				 qt_xscreen(),
+				 0,
+				 XFT_FAMILY, 0);
+
+	    for (int f = 0; f < families->nfont; f++) {
+		if (XftPatternGetString(families->fonts[f],
+					XFT_FAMILY, 0, &value) == XftResultMatch) {
+		    familyName = value;
+		    QtFontFamily *family =
+			new QtFontFamily ( foundry, familyName.lower() );
 		    Q_CHECK_PTR (family);
 		    foundry->addFamily (family);
 
-		    if (foundry_name) {
-			styles = XftListFonts (qt_xdisplay (),
-					       qt_xscreen(),
-					       XFT_FOUNDRY, XftTypeString, foundry_name,
-					       XFT_FAMILY, XftTypeString, family_name,
-					       0,
-					       XFT_STYLE,
-					       XFT_WEIGHT,
-					       XFT_SLANT,
-					       0);
-		    } else {
-			styles = XftListFonts (qt_xdisplay (),
-					       qt_xscreen(),
-					       XFT_FAMILY, XftTypeString, family_name,
-					       0,
-					       XFT_STYLE,
-					       XFT_WEIGHT,
-					       XFT_SLANT,
-					       0);
-		    }
+		    if (hasFoundries)
+			styles =
+			    XftListFonts (qt_xdisplay (),
+					  qt_xscreen(),
+					  XFT_FOUNDRY, XftTypeString, foundryName.data(),
+					  XFT_FAMILY, XftTypeString, familyName.data(),
+					  0,
+					  XFT_STYLE, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
+					  0);
+		    else
+			styles =
+			    XftListFonts (qt_xdisplay (),
+					  qt_xscreen(),
+					  XFT_FAMILY, XftTypeString, familyName.data(),
+					  0,
+					  XFT_STYLE, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
+					  0);
 
-#ifdef QFDB_DEBUG
-		    printf ("Styles ");
-		    XftFontSetPrint (styles);
-#endif
-		    for (style_i = 0; style_i < styles->nfont; style_i++) {
-			if (XftPatternGetString (styles->fonts[style_i],
-						 XFT_STYLE, 0, &style_value) ==
+		    for (int s = 0; s < styles->nfont; s++) {
+			if (XftPatternGetString (styles->fonts[s],
+						 XFT_STYLE, 0, &value) ==
 			    XftResultMatch) {
-			    QtFontStyle *style = new QtFontStyle (family, style_value);
+			    QtFontStyle *style = new QtFontStyle (family, value);
 			    Q_CHECK_PTR (style);
 
 			    slant_value = XFT_SLANT_ROMAN;
 			    weight_value = XFT_WEIGHT_MEDIUM;
-			    XftPatternGetInteger (styles->fonts[style_i],
+			    XftPatternGetInteger (styles->fonts[s],
 						  XFT_SLANT, 0, &slant_value);
-			    XftPatternGetInteger (styles->fonts[style_i],
+			    XftPatternGetInteger (styles->fonts[s],
 						  XFT_WEIGHT, 0, &weight_value);
+			    XftPatternGetInteger (styles->fonts[s],
+						  XFT_SPACING, 0, &spacing_value);
 			    style->ital = slant_value != XFT_SLANT_ROMAN;
 			    style->lesserItal = FALSE;
 			    style->weightString = getXftWeightString(weight_value);
+			    // ### Xft doesn't seem to use the spacing_value
+			    // at the moment
+			    // if (spacing_value >= XFT_MONO)
+			    // style->setFixedPitch();
 			    style->setSmoothlyScalable();
 			    family->addStyle (style);
 			}
@@ -844,13 +841,14 @@ void QFontDatabase::createDatabase()
 		    XftFontSetDestroy (styles);
 		}
 	    }
+
 	    XftFontSetDestroy(families);
-	    if (qt_foundry_name == default_foundry)
-		break;
 	}
+
 	XftFontSetDestroy (foundries);
     }
 #endif
+
 
     int fontCount;
     // force the X server to give us XLFDs
@@ -933,6 +931,35 @@ void QFontDatabase::createDatabase()
     }
 
     XFreeFontNames( fontList );
+
+
+#ifdef QFONTDATABASE_DEBUG
+    // print the database
+    QDictIterator<QtFontFoundry> fndit(db->foundryDict);
+    QtFontFoundry *fnd;
+    while ((fnd = fndit.current()) != 0) {
+	++fndit;
+
+	qDebug("foundry %s", fnd->name().latin1());
+
+	QDictIterator<QtFontFamily> famit(fnd->familyDict);
+	QtFontFamily *fam;
+	while ((fam = famit.current()) != 0) {
+	    ++famit;
+
+	    qDebug("    family %s", fam->name().latin1());
+
+	    QDictIterator<QtFontStyle> styit(fam->styleDict);
+	    QtFontStyle *sty;
+	    while ((sty = styit.current()) != 0) {
+		++styit;
+
+		qDebug("        style %s", sty->name().latin1());
+	    }
+	}
+    }
+#endif // QFONTDATABASE_DEBUG
+
 }
 
 #endif // Q_WS_X11
