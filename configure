@@ -356,6 +356,9 @@ while [ -n "$1" ]; do
        VAL=`echo $CONFIG | sed -e "s/[^-]*-[^-]*-//"`
        QMAKE_ARGS="$QMAKE_ARGS \"$VAR-=$VAL\""
        ;;
+    -internal)
+       QMAKE_CONFIG="$QMAKE_CONFIG internal"
+       ;;
    -h | -help | --help)
        HELP=yes
 	;;

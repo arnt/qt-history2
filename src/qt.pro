@@ -37,7 +37,7 @@ win32 {
 
 	CONFIG	+= png zlib
 	CONFIG -= jpeg
-	DEFINES += QT_NO_IMAGEIO_JPEG UNICODE
+	DEFINES += UNICODE
 	INCLUDEPATH      += tmp
 	MOC_DIR	  = tmp
 	OBJECTS_DIR = tmp
