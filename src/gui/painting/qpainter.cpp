@@ -46,23 +46,87 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
 // Helper function for filling gradients...
 #define QT_FILL_GRADIENT(rect, fillCall, outlineCall)                   \
         QBitmap mask(rect.width(), rect.height());                      \
-        mask.fill(Qt::color0);                                              \
+        mask.fill(Qt::color0);                                          \
         QPainter p(&mask);                                              \
-        p.setPen(Qt::NoPen);                                                \
-        p.setBrush(Qt::color1);                                             \
+        p.setPen(Qt::NoPen);                                            \
+        p.setBrush(Qt::color1);                                         \
         p.fillCall;                                                     \
         save();                                                         \
         QRegion region(mask);                                           \
         region.translate(rect.topLeft());                               \
         setClipRegion(region);                                          \
         qt_fill_linear_gradient(rect, this, d->state->brush);           \
-        if (d->state->pen.style() != Qt::NoPen) {                           \
-            setBrush(Qt::NoBrush);                                          \
+        if (d->state->pen.style() != Qt::NoPen) {                       \
+            setBrush(Qt::NoBrush);                                      \
             outlineCall;                                                \
         }                                                               \
         restore();                                                      \
-        return;                                                         \
+        return
 
+// Helper function for alpha blending...
+#define QT_ALPHA_BLEND(rect, drawCall, nonAlphaDrawCall, justPen)      \
+        save();                                                        \
+        QPixmap pm(rect.size(), 32);                                   \
+        QPainter pm_paint;                                             \
+        for(int i = justPen; i < 2; i++) {                             \
+            char alpha = 0;                                            \
+            QColor mask_color(0, 1, 2);                                \
+            if(i == 0) {                                               \
+                if(d->state->brush.style() != Qt::SolidPattern         \
+                   || d->state->brush.color().alpha() == 255)          \
+                    continue;                                          \
+                pm_paint.setPen(Qt::NoPen);                            \
+                QBrush b = brush();                                    \
+                alpha = b.color().alpha();                             \
+                b.setColor(QColor(b.color().red(), b.color().green(),  \
+                                  b.color().blue()));                  \
+                pm_paint.setBrush(b);                                  \
+                if(mask_color == b.color())                            \
+                    mask_color = QColor(mask_color.red(),              \
+                                        mask_color.green()+5,          \
+                                        mask_color.blue());            \
+                setBrush(Qt::NoBrush);                                 \
+            } else if(i == 1) {                                        \
+                if(d->state->pen.style() == Qt::NoPen                  \
+                   || d->state->pen.color().alpha() == 255)            \
+                    continue;                                          \
+                pm_paint.setBrush(Qt::NoBrush);                        \
+                QPen p = pen();                                        \
+                alpha = p.color().alpha();                             \
+                p.setColor(QColor(p.color().red(), p.color().green(),  \
+                                  p.color().blue()));                  \
+                pm_paint.setPen(p);                                    \
+                if(mask_color == p.color())                            \
+                    mask_color = QColor(mask_color.red(),              \
+                                        mask_color.green()+5,          \
+                                        mask_color.blue());            \
+                setPen(Qt::NoPen);                                     \
+            }                                                          \
+            pm.fill(mask_color);                                       \
+            pm_paint.begin(&pm);                                       \
+            pm_paint.drawCall;                                         \
+            pm_paint.end();                                            \
+            QImage image = pm.convertToImage();                        \
+            for(int y = 0; y < image.height(); y++) {                  \
+                QRgb *row = (QRgb*)image.scanLine(y);                  \
+                for(int x = 0; x < image.width(); x++) {               \
+                    if(qRed(row[x]) == mask_color.red()                \
+                       && qGreen(row[x]) == mask_color.green()         \
+                       && qBlue(row[x]) == mask_color.blue())          \
+                        row[x] &= RGB_MASK;                            \
+                    else                                               \
+                        row[x] = (alpha << 24) | (row[x] & RGB_MASK);  \
+                }                                                      \
+            }                                                          \
+            image.setAlphaBuffer(true);                                \
+            pm = image;                                                \
+            drawPixmap(rect, pm);                                      \
+        }                                                              \
+        if(pen().style() != Qt::NoPen                                  \
+           || (!justPen && brush().style() != Qt::NoBrush))            \
+            nonAlphaDrawCall;                                          \
+        restore();                                                     \
+        return
 
 /*!
     \class QPainter qpainter.h
@@ -1209,6 +1273,33 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
     d->engine->updateState(d->state);
 
+    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
+        && (d->state->pen.style() != Qt::NoPen 
+            && d->state->pen.color().alpha() != 255)) {
+        QRect bounds(0, 0, 0, 0);
+        bounds.setWidth((p1.x() > p2.x()) ? (p1.x()-p2.x()) : (p2.x()-p1.x()));
+        bounds.setHeight((p1.y() > p2.y()) ? (p1.y()-p2.y()) : (p2.y()-p1.y()));
+        QPoint copy_p1(0, 0), copy_p2(0, 0);
+        if(p1.x() > p2.x()) {
+            copy_p1.setX(bounds.width());
+            bounds.moveLeft(p2.x());
+        } else {
+            copy_p2.setX(bounds.width());
+            bounds.moveLeft(p1.x());
+        }
+        if(p1.y() > p2.y()) {
+            copy_p1.setY(bounds.height());
+            bounds.moveTop(p2.y());
+        } else {
+            copy_p2.setY(bounds.height());
+            bounds.moveTop(p1.y());
+        }
+        QT_ALPHA_BLEND(bounds,
+                       drawLine(copy_p1, copy_p2),
+                       drawLine(p1, p2), 1);
+    }
+
+
     if ((d->state->WxF || d->state->VxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         d->engine->drawLine(xForm(p1), xForm(p2));
         return;
@@ -1345,6 +1436,9 @@ void QPainter::drawRects(const QList<QRect> &rects)
 
     if ((!d->engine->hasFeature(QPaintEngine::DrawRects)
          || !d->engine->hasFeature(QPaintEngine::LinearGradients)
+         || (d->state->brush.style() == Qt::SolidPattern
+             && d->state->brush.color().alpha() != 255
+             && !d->engine->hasFeature(QPaintEngine::SolidAlphaFill))
          || ((d->state->VxF || d->state->WxF)
              && !d->engine->hasFeature(QPaintEngine::CoordTransform)))
 
@@ -1662,6 +1756,16 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     QRect rect = r.normalize();
 
+    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
+        && ((d->state->brush.style() == Qt::SolidPattern
+             && d->state->brush.color().alpha() != 255)
+            || (d->state->pen.style() != Qt::NoPen 
+                && d->state->pen.color().alpha() != 255))) {
+        QT_ALPHA_BLEND(rect,
+                       drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
+                       drawRoundRect(r, xRnd, yRnd), 0);
+    }
+
     if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
@@ -1730,6 +1834,16 @@ void QPainter::drawEllipse(const QRect &r)
     d->engine->updateState(d->state);
 
     QRect rect = r.normalize();
+
+    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
+        && ((d->state->brush.style() == Qt::SolidPattern
+             && d->state->brush.color().alpha() != 255)
+            || (d->state->pen.style() != Qt::NoPen 
+                && d->state->pen.color().alpha() != 255))) {
+        QT_ALPHA_BLEND(rect,
+                       drawEllipse(0, 0, rect.width(), rect.height()),
+                       drawEllipse(rect), 0);
+    }
 
     if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
@@ -1835,6 +1949,16 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
+    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
+        && ((d->state->brush.style() == Qt::SolidPattern
+             && d->state->brush.color().alpha() != 255)
+            || (d->state->pen.style() != Qt::NoPen 
+                && d->state->pen.color().alpha() != 255))) {
+        QT_ALPHA_BLEND(rect,
+                       drawPie(0, 0, rect.width(), rect.height(), a, alen),
+                       drawPie(rect, a, alen), 0);
+    }
+
     if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
@@ -1892,6 +2016,16 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
     d->engine->updateState(d->state);
 
     QRect rect = r.normalize();
+
+    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
+        && ((d->state->brush.style() == Qt::SolidPattern
+             && d->state->brush.color().alpha() != 255)
+            || (d->state->pen.style() != Qt::NoPen 
+                && d->state->pen.color().alpha() != 255))) {
+        QT_ALPHA_BLEND(rect,
+                       drawChord(0, 0, rect.width(), rect.height(), a, alen),
+                       drawChord(rect, a, alen), 0);
+    }
 
     if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
@@ -2022,6 +2156,19 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
         npoints = a.size() - index;
     if (!isActive() || npoints < 2 || index < 0)
         return;
+
+    if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
+        && ((d->state->brush.style() == Qt::SolidPattern
+             && d->state->brush.color().alpha() != 255)
+            || (d->state->pen.style() != Qt::NoPen 
+                && d->state->pen.color().alpha() != 255))) {
+        QRect bounds = a.boundingRect();
+        QPointArray copy(a);
+        copy.translate(-bounds.x(), -bounds.y());
+        QT_ALPHA_BLEND(bounds,
+                       drawPolygon(copy, winding, index, npoints),
+                       drawPolygon(a, winding, index, npoints), 0);
+    }
 
     if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
