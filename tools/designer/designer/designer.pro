@@ -371,7 +371,7 @@ IMAGES		+= images/adjustsize.png \
 		images/disabled_image.png
 
 
-OBJECTS_DIR	= .rep
+OBJECTS_DIR	= .
 
 DEPENDPATH	+= $$QT_SOURCE_TREE/include
 VERSION  	= 1.0.0
