@@ -132,7 +132,7 @@ void newWinFont( void * p )
     QtFontFamily *family = foundry->familyDict.find( familyName.lower() );
     if ( !family ) {
         //qWarning( "New font family [%s]", (const char*) familyName );
-        family = new QtFontFamily( foundry, familyName.lower() );
+        family = new QtFontFamily( foundry, familyName );
         Q_CHECK_PTR(family);
         foundry->addFamily( family );
     }

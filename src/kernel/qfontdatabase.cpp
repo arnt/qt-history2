@@ -266,7 +266,7 @@ private:
 
     bool namesDirty;
 
-    void addFamily( QtFontFamily *f ) { familyDict.insert( f->name(), f ); }
+    void addFamily( QtFontFamily *f ) { familyDict.insert( f->name().lower(), f ); }
 
     friend void QFontDatabase::createDatabase();
 
