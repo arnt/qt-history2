@@ -117,6 +117,10 @@ static bool block_set_alignment = FALSE;
     \ingroup text
     \mainclass
 
+    \tableofcontents
+
+    \section1 Introduction and Concepts
+
     QTextEdit is an advanced WYSIWYG viewer/editor supporting rich
     text formatting using HTML-style tags. It is optimized to handle
     large documents and to respond quickly to user input.
@@ -140,7 +144,8 @@ static bool block_set_alignment = FALSE;
 	 history so is faster and uses less memory); text() returns
 	 plain or rich text depending on the textFormat(). This mode
 	 can correctly display a large subset of HTML tags.
-    \row \i Log Viewer<sup>3.</sup> \i setReadOnly(TRUE), setTextFormat(LogText)
+    \row \i Log Viewer<sup>3.</sup> \i setReadOnly(TRUE),<br>
+				       setTextFormat(LogText)
          \i Set text with append() (which has no undo
 	 history so is fast and uses less memory); text() returns
 	 plain text. It is possible to set text attributes (e.g.
@@ -178,6 +183,15 @@ static bool block_set_alignment = FALSE;
     character within a paragraph has its own attributes, for example,
     font and color.
 
+    The text edit documentation uses the following concepts:
+    \list
+    \i \e{current format} --
+    this is the format at the current cursor position, \e and it
+    is the format of the selected text if any.
+    \i \e{current paragraph} -- the paragraph which contains the
+    cursor.
+    \endlist
+
     QTextEdit can display images (using QMimeSourceFactory), lists and
     tables. If the text is too large to view within the text edit's
     viewport, scrollbars will appear. The text edit can load both
@@ -204,14 +218,16 @@ static bool block_set_alignment = FALSE;
     you should call setTextFormat(Qt::PlainText) to preserve such
     text.
 
-    The text edit documentation uses the following concepts:
-    \list
-    \i <i>current format</i> --
-    this is the format at the current cursor position, \e and it
-    is the format of the selected text if any.
-    \i <i>current paragraph</i> -- the paragraph which contains the
-    cursor.
-    \endlist
+    Note that we do not intend to add a full-featured web browser
+    widget to Qt (because that would easily double Qt's size and only
+    a few applications would benefit from it). The rich
+    text support in Qt is designed to provide a fast, portable and
+    efficient way to add reasonable online help facilities to
+    applications, and to provide a basis for rich text editors.
+    \section1 Using QTextEdit as a Display Widget
+
+    QTextEdit can display a large HTML subset, including tables and
+    images.
 
     The text is set or replaced using setText() which deletes any
     existing text and replaces it with the text passed in the
@@ -225,46 +241,6 @@ static bool block_set_alignment = FALSE;
     selected text is deleted with removeSelectedText(). Selected
     (marked) text can also be deleted with del() (which will delete
     the character to the right of the cursor if no text is selected).
-
-    The current format's attributes are set with setItalic(),
-    setBold(), setUnderline(), setFamily() (font family),
-    setPointSize(), setColor() and setCurrentFont().  The current
-    paragraph's alignment is set with setAlignment().
-
-    Use setSelection() to select text. The setSelectionAttributes()
-    function is used to indicate how selected text should be
-    displayed. Use hasSelectedText() to find out if any text is
-    selected. The currently selected text's position is available
-    using getSelection() and the selected text itself is returned by
-    selectedText(). The selection can be copied to the clipboard with
-    copy(), or cut to the clipboard with cut(). It can be deleted with
-    removeSelectedText(). The entire text can be selected (or
-    unselected) using selectAll(). QTextEdit supports multiple
-    selections. Most of the selection functions operate on the default
-    selection, selection 0. If the user presses a non-selecting key,
-    e.g. a cursor key without also holding down Shift, all selections
-    are cleared.
-
-    Set and get the position of the cursor with setCursorPosition()
-    and getCursorPosition() respectively. When the cursor is moved,
-    the signals currentFontChanged(), currentColorChanged() and
-    currentAlignmentChanged() are emitted to reflect the font, color
-    and alignment at the new cursor position.
-
-    If the text changes, the textChanged() signal is emitted, and if
-    the user inserts a new line by pressing Return or Enter,
-    returnPressed() is emitted. The isModified() function will return
-    TRUE if the text has been modified.
-
-    QTextEdit provides command-based undo and redo. To set the depth
-    of the command history use setUndoDepth() which defaults to 100
-    steps. To undo or redo the last operation call undo() or redo().
-    The signals undoAvailable() and redoAvailable() indicate whether
-    the undo and redo operations can be executed.
-
-    The indent() function is used to reindent a paragraph. It is
-    useful for code editors, for example in <em>Qt Designer</em>'s
-    code editor \e{Ctrl+I} invokes the indent() function.
 
     Loading and saving text is achieved using setText() and text(),
     for example:
@@ -315,6 +291,85 @@ static bool block_set_alignment = FALSE;
     You can scroll to an anchor in the text, e.g. \c{<a
     name="anchor">} with scrollToAnchor(). The find() function can be
     used to find and select a given string within the text.
+
+    A read-only QTextEdit provides the same functionality as the
+    (obsolete) QTextView. (QTextView is still supplied for
+    compatibility with old code.)
+
+    \section2 Read-only key bindings
+
+    When QTextEdit is used read-only the key-bindings are limited to
+    navigation, and text may only be selected with the mouse:
+    \table
+    \header \i Keypresses \i Action
+    \row \i \e{UpArrow} \i Move one line up
+    \row \i \e{DownArrow} \i Move one line down
+    \row \i \e{LeftArrow} \i Move one character left
+    \row \i \e{RightArrow} \i Move one character right
+    \row \i \e{PageUp} \i Move one (viewport) page up
+    \row \i \e{PageDown} \i Move one (viewport) page down
+    \row \i \e{Home} \i Move to the beginning of the text
+    \row \i \e{End} \i Move to the end of the text
+    \row \i \e{Shift+Wheel} \i Scroll the page horizontally (the Wheel is the mouse wheel)
+    \row \i \e{Ctrl+Wheel} \i Zoom the text
+    \endtable
+
+    The text edit may be able to provide some meta-information. For
+    example, the documentTitle() function will return the text from
+    within HTML \c{<title>} tags.
+
+    The text displayed in a text edit has a \e context. The context is
+    a path which the text edit's QMimeSourceFactory uses to resolve
+    the locations of files and images. It is passed to the
+    mimeSourceFactory() when quering data. (See QTextEdit() and
+    \l{context()}.)
+
+    \section1 Using QTextEdit as an Editor
+
+    All the information about using QTextEdit as a display widget also
+    applies here.
+
+    The current format's attributes are set with setItalic(),
+    setBold(), setUnderline(), setFamily() (font family),
+    setPointSize(), setColor() and setCurrentFont().  The current
+    paragraph's alignment is set with setAlignment().
+
+    Use setSelection() to select text. The setSelectionAttributes()
+    function is used to indicate how selected text should be
+    displayed. Use hasSelectedText() to find out if any text is
+    selected. The currently selected text's position is available
+    using getSelection() and the selected text itself is returned by
+    selectedText(). The selection can be copied to the clipboard with
+    copy(), or cut to the clipboard with cut(). It can be deleted with
+    removeSelectedText(). The entire text can be selected (or
+    unselected) using selectAll(). QTextEdit supports multiple
+    selections. Most of the selection functions operate on the default
+    selection, selection 0. If the user presses a non-selecting key,
+    e.g. a cursor key without also holding down Shift, all selections
+    are cleared.
+
+    Set and get the position of the cursor with setCursorPosition()
+    and getCursorPosition() respectively. When the cursor is moved,
+    the signals currentFontChanged(), currentColorChanged() and
+    currentAlignmentChanged() are emitted to reflect the font, color
+    and alignment at the new cursor position.
+
+    If the text changes, the textChanged() signal is emitted, and if
+    the user inserts a new line by pressing Return or Enter,
+    returnPressed() is emitted. The isModified() function will return
+    TRUE if the text has been modified.
+
+    QTextEdit provides command-based undo and redo. To set the depth
+    of the command history use setUndoDepth() which defaults to 100
+    steps. To undo or redo the last operation call undo() or redo().
+    The signals undoAvailable() and redoAvailable() indicate whether
+    the undo and redo operations can be executed.
+
+    The indent() function is used to reindent a paragraph. It is
+    useful for code editors, for example in <em>Qt Designer</em>'s
+    code editor \e{Ctrl+I} invokes the indent() function.
+
+    \section2 Editing key bindings
 
     The list of key-bindings which are implemented for editing:
     \table
@@ -368,98 +423,6 @@ static bool block_set_alignment = FALSE;
     can be changed to overwrite, where new text overwrites any text to
     the right of the cursor, using setOverwriteMode().
 
-    QTextEdit can also be used as read-only text viewer. Call
-    setReadOnly( TRUE ) to disable editing. A read-only QTextEdit
-    provides the same functionality as the (obsolete) QTextView.
-    (QTextView is still supplied for compatibility with old code.)
-
-    When QTextEdit is used read-only the key-bindings are limited to
-    navigation, and text may only be selected with the mouse:
-    \table
-    \header \i Keypresses \i Action
-    \row \i \e{UpArrow} \i Move one line up
-    \row \i \e{DownArrow} \i Move one line down
-    \row \i \e{LeftArrow} \i Move one character left
-    \row \i \e{RightArrow} \i Move one character right
-    \row \i \e{PageUp} \i Move one (viewport) page up
-    \row \i \e{PageDown} \i Move one (viewport) page down
-    \row \i \e{Home} \i Move to the beginning of the text
-    \row \i \e{End} \i Move to the end of the text
-    \row \i \e{Shift+Wheel} \i Scroll the page horizontally (the Wheel is the mouse wheel)
-    \row \i \e{Ctrl+Wheel} \i Zoom the text
-    \endtable
-
-    The text edit may be able to provide some meta-information. For
-    example, the documentTitle() function will return the text from
-    within HTML \c{<title>} tags.
-
-    The text displayed in a text edit has a \e context. The context is
-    a path which the text edit's QMimeSourceFactory uses to resolve
-    the locations of files and images. It is passed to the
-    mimeSourceFactory() when quering data. (See QTextEdit() and
-    \l{context()}.)
-
-    Note that we do not intend to add a full-featured web browser
-    widget to Qt (because that would easily double Qt's size and only
-    a few applications would benefit from it). The rich
-    text support in Qt is designed to provide a fast, portable and
-    efficient way to add reasonable online help facilities to
-    applications, and to provide a basis for rich text editors.
-
-    Setting the text format to \c LogText puts the widget in a special
-    mode which is optimized for very large texts. In this mode editing
-    and rich text support are disabled (the widget is explicitly set
-    to read-only mode). This allows the text to be stored in a
-    different, more memory efficient manner. However, a certain degree
-    of text formatting is supported through the use of formatting
-    tags. A tag is delimited by \c < and \c {>}. The characters \c
-    {<}, \c > and \c & are escaped by using \c {&lt;}, \c {&gt;} and
-    \c {&amp;}. A tag pair consists of a left and a right tag (or
-    open/close tags). Left-tags mark the starting point for
-    formatting, while right-tags mark the ending point. A right-tag
-    always start with a \c / before the tag keyword. For example \c
-    <b> and \c </b> are a tag pair. Tags can be nested, but they
-    have to be closed in the same order as they are opened. For
-    example, \c <b><u></u></b> is valid, while \c
-    <b><u></b></u> will output an error message.
-
-    By using tags it is possible to change the color, bold, italic and
-    underline settings for a piece of text. A color can be specified
-    by using the HTML font tag \c {<font color=colorname>}. The color
-    name can be one of the color names from the X11 color database, or
-    a RGB hex value (e.g \c {#00ff00}). Example of valid color tags:
-    \c {<font color=red>}, \c {<font color="light blue">}, \c {<font
-    color="#223344">}. Bold, italic and underline settings can be
-    specified by the tags \c {<b>}, \c <i> and \c {<u>}. Note that a
-    tag does not necessarily have to be closed. A valid example:
-    \code 
-    This is <font color=red>red</font> while <b>this</b> is <font color=blue>blue</font>.
-    <font color=green><font color=yellow>Yellow,</font> and <u>green</u>.
-    \endcode
-
-    Stylesheets can also be used in LogText mode. To create and use a
-    custom tag, you could do the following:
-    \code
-    QTextEdit * log = new QTextEdit( this );
-    log->setTextFormat( Qt::LogText );
-    QStyleSheetItem * item = new QStyleSheetItem( log->styleSheet(), "mytag" );
-    item->setColor( "red" );
-    item->setFontWeight( QFont::Bold );
-    item->setFontUnderline( TRUE );
-    log->append( "This is a <mytag>custom tag</mytag>!" );
-    \endcode
-    Note that only the color, bold, underline and italic attributes of
-    a QStyleSheetItem is used in LogText mode.
-    
-    There are a few things that you need to be aware of when the
-    widget is in this mode:
-    \list
-    \i Functions that deal with rich text formatting will not work or
-    return anything valid.
-    \i Lines are equivalent to paragraphs.
-    \i Inserting lines is not supported. It is only possible to append
-    lines.
-    \endlist
 */
 
 /*! \enum QTextEdit::KeyboardAction
