@@ -3,6 +3,7 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qvariant.h"
 #include "qtable.h"
 #include "qpainter.h"
 #include "qsql.h"
@@ -22,21 +23,24 @@ public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
     ~QSqlTable();
 
-    void setNullText( const QString& nullText ) { nullTxt = nullText; }
-    QString nullText() const { return nullTxt; }
+    void         setNullText( const QString& nullText );
+    QString      nullText();
 
-    void addColumn( const QSqlField& field );
-    void removeColumn( uint col );
-    void setColumn( uint col, const QSqlField& field );
+    void         addColumn( const QSqlField& field );
+    void         removeColumn( uint col );
+    void         setColumn( uint col, const QSqlField& field );
+
+    void         setQuery( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
+    void         setQuery( const QSql& query, bool autoPopulate = TRUE );
+    void         setRowset( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
+    void         setRowset( const QSqlRowset& rowset, bool autoPopulate = TRUE );
+    void         setView( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
+    void         setView( const QSqlView& view, bool autoPopulate = TRUE );
+    void         sortColumn ( int col, bool ascending = TRUE,
+			      bool wholeRows = FALSE );
+    QString      text ( int row, int col ) const;
+    QVariant     value ( int row, int col ) const;    
     
-    void setQuery( const QString& query, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-    void setQuery( const QSql& query, bool autoPopulate = TRUE );
-    void setRowset( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-    void setRowset( const QSqlRowset& rowset, bool autoPopulate = TRUE );
-    void setView( const QString& name, const QString& databaseName = QSqlConnection::defaultDatabase, bool autoPopulate = TRUE );
-    void setView( const QSqlView& view, bool autoPopulate = TRUE );
-   
-protected:
 protected:
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     int          indexOf( uint i );
@@ -45,19 +49,20 @@ protected:
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
 			     bool selected );
     void         columnClicked ( int col );
+    void         resizeData ( int len );
     
-protected slots:    
+    QTableItem * item ( int row, int col ) const;
+    void         setItem ( int row, int col, QTableItem * item );
+    void         clearCell ( int row, int col ) ;
+    void         setPixmap ( int row, int col, const QPixmap & pix );
+    void         takeItem ( QTableItem * i );
+	
+private slots:
     void         loadNextPage();
-    void         loadNextLine();
     void         loadLine( int l );
-    
+
 private:
-    QString      nullTxt;
-    typedef      QValueList< uint > ColIndex;
-    ColIndex     colIndex;
-    bool         haveAllRows;    
     void         setNumCols ( int r );
-    
     QSqlTablePrivate* d;
 };
 
