@@ -2251,7 +2251,7 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
                 }
                 ctrl <<= 1;
             }
-            if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool) {
+            if (tb->titleBarFlags & Qt::WindowShadeButtonHint) {
                 if (sc == SC_TitleBarMinButton || sc == SC_TitleBarMaxButton) {
                     if (isMinimized)
                         sc = SC_TitleBarUnshadeButton;
@@ -2503,26 +2503,28 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             case SC_TitleBarLabel:
                 ret = tb->rect;
                 ret.addCoords(0, 0, -delta, 0); // Close button always there
-                if (tb->titleBarFlags & Qt::WStyle_SysMenu)
+                if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
                     ret.addCoords(delta, 0, -delta, 0);
-                if (tb->titleBarFlags & Qt::WStyle_Minimize)
+                if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
                     ret.addCoords(0, 0, -delta, 0);
-                if (tb->titleBarFlags & Qt::WStyle_Maximize)
+                if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
                     ret.addCoords(0, 0, -delta, 0);
-                if (tb->titleBarFlags & Qt::WStyle_ContextHelp)
+                if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                     ret.addCoords(0, 0, -delta, 0);
                 break;
             case SC_TitleBarContextHelpButton:
-                if (tb->titleBarFlags & Qt::WStyle_ContextHelp)
+                if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                     offset += delta;
             case SC_TitleBarMinButton:
             case SC_TitleBarNormalButton:
-                if (tb->titleBarFlags & Qt::WStyle_Minimize)
+                if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
                     offset += delta;
             case SC_TitleBarMaxButton:
+                if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                    offset += delta;
             case SC_TitleBarShadeButton:
             case SC_TitleBarUnshadeButton:
-                if (tb->titleBarFlags & Qt::WStyle_Maximize)
+                if (tb->titleBarFlags & Qt::WindowShadeButtonHint)
                     offset += delta;
             case SC_TitleBarCloseButton:
                 offset += delta;
@@ -2583,7 +2585,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
                 ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 18);
             }
         } else {
-            ret = 0;
+            ret = 18;
         }
 
         break; }

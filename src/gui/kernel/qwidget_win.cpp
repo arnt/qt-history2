@@ -181,21 +181,19 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         } else {
             style = WS_OVERLAPPED;
 #ifndef Q_OS_TEMP
-            if (type == Qt::Dialog) {
-                flags |= Qt::WindowSystemMenuHint
-                         | Qt::WindowTitleHint
-                         | Qt::WindowContextHelpButtonHint;
-            } else {
-                flags |= Qt::WindowSystemMenuHint
-                         | Qt::WindowTitleHint
-                         | Qt::WindowMinMaxButtonsHint;
-            }
-#else
-            if (type == Qt::Dialog) {
+            if (type == Qt::Dialog)
+                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowContextHelpButtonHint;
+            else if (type == Qt::Tool)
                 flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
-            } else {
+            else
+                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
+#else
+            if (type == Qt::Dialog)
+                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowContextHelpButtonHint;
+            else if (type == Qt::Tool)
+                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
+            else
                 flags |= Qt::WindowTitleHint;
-            }
 #endif
         }
     }

@@ -214,7 +214,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mainWindow()->setCentralWidget(m_workspace);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        tw->setParent(magicalParent());
+        tw->setParent(magicalParent(), Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
         QRect g = m_geometries.value(tw, tw->geometryHint());
         tw->resize(g.size());
         tw->move(g.topLeft());

@@ -199,7 +199,8 @@ public:
         WindowMaximizeButtonHint = 0x00004000,
         WindowMinMaxButtonsHint = WindowMinimizeButtonHint | WindowMaximizeButtonHint,
         WindowContextHelpButtonHint = 0x00008000,
-        WindowStaysOnTopHint = 0x00010000
+        WindowShadeButtonHint = 0x00010000,
+        WindowStaysOnTopHint = 0x00020000
 
 #ifdef QT3_SUPPORT
         ,

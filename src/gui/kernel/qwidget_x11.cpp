@@ -466,6 +466,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         ulong wsa_mask = 0;
 
         if (customize) {
+            // All these buttons depend on the system menu, so we enable it
+            if (flags & (Qt::WindowMinimizeButtonHint
+                         | Qt::WindowMaximizeButtonHint
+                         | Qt::WindowContextHelpButtonHint))
+                flags |= Qt::WindowSystemMenuHint;
             if (flags & Qt::FramelessWindowHint) {
                 // override netwm type - quick and easy for KDE noborder
                 net_wintypes[curr_wintype++] = ATOM(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
@@ -495,6 +500,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             } else {
                 flags |= Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
             }
+        } else if (type == Qt::Tool) {
+            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
         } else {
             flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
         }

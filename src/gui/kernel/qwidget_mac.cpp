@@ -833,8 +833,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(ptl && (ptl->windowFlags() & Qt::WindowStaysOnTopHint))
             flags |= Qt::WindowStaysOnTopHint;
     }
-    if (!customize && !(desktop || popup) && !q->testAttribute(Qt::WA_ShowModal))
-        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint;
+    if (!customize) {
+        if (type == Qt::Tool)
+            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
+        else if (!(desktop || popup) && !q->testAttribute(Qt::WA_ShowModal))
+            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint;
+    }
 
 
     d->hd = 0;

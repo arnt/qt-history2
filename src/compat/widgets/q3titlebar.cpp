@@ -37,75 +37,6 @@
 #include "private/q3titlebar_p.h"
 #include "private/qwidget_p.h"
 
-#if 0
-class Q3TitleBarTip : public QToolTip
-{
-public:
-    Q3TitleBarTip(QWidget * parent) : QToolTip(parent) { }
-
-    void maybeTip(const QPoint &pos)
-    {
-        if (!qt_cast<Q3TitleBar*>(parentWidget()))
-            return;
-        Q3TitleBar *t = (Q3TitleBar *)parentWidget();
-
-        QString tipstring;
-        QStyle::SubControl ctrl = t->style()->hitTestComplexControl(QStyle::CC_TitleBar, t, pos);
-        QRect controlR = t->style()->subControlRect(QStyle::CC_TitleBar, t, ctrl);
-
-        QWidget *window = t->window();
-        if (window) {
-            switch(ctrl) {
-            case QStyle::SC_TitleBarSysMenu:
-                if (t->testWFlags(Qt::WStyle_SysMenu))
-                    tipstring = Q3TitleBar::tr("System Menu");
-                break;
-
-            case QStyle::SC_TitleBarShadeButton:
-                if ((t->windowType() == Qt::Tool) && t->testWFlags(Qt::WStyle_MinMax))
-                    tipstring = Q3TitleBar::tr("Shade");
-                break;
-
-            case QStyle::SC_TitleBarUnshadeButton:
-                if ((t->windowType() == Qt::Tool) && t->testWFlags(Qt::WStyle_MinMax))
-                    tipstring = Q3TitleBar::tr("Unshade");
-                break;
-
-            case QStyle::SC_TitleBarNormalButton:
-            case QStyle::SC_TitleBarMinButton:
-                if (!(t->windowType() == Qt::Tool) && t->testWFlags(Qt::WStyle_Minimize)) {
-                    if(window->isMinimized())
-                        tipstring = Q3TitleBar::tr("Normalize");
-                    else
-                        tipstring = Q3TitleBar::tr("Minimize");
-                }
-                break;
-
-            case QStyle::SC_TitleBarMaxButton:
-                if (!(t->windowType() == Qt::Tool) && t->testWFlags(Qt::WStyle_Maximize))
-                    tipstring = Q3TitleBar::tr("Maximize");
-                break;
-
-            case QStyle::SC_TitleBarCloseButton:
-                if (t->testWFlags(Qt::WStyle_SysMenu))
-                    tipstring = Q3TitleBar::tr("Close");
-                break;
-
-            default:
-                break;
-            }
-        }
-
-        if (tipstring.isEmpty() && t->window()) {
-            if (t->windowTitle() != t->window()->windowTitle())
-                tipstring = t->window()->windowTitle();
-        }
-        if(!tipstring.isEmpty())
-            tip(controlR, tipstring);
-    }
-};
-#endif
-
 class Q3TitleBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(Q3TitleBar)
@@ -115,6 +46,7 @@ public:
     {
     }
 
+    Qt::WFlags flags;
     QStyle::SubControl buttonDown;
     QPoint moveOffset;
     QToolTip *toolTip;
@@ -147,20 +79,22 @@ QStyleOptionTitleBar Q3TitleBarPrivate::getStyleOption() const
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
     opt.titleBarState = titleBarState();
-    opt.titleBarFlags = q->windowFlags();
+    opt.titleBarFlags = flags;
     return opt;
 }
 
-Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent)
+Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent, Qt::WFlags f)
     : QWidget(*new Q3TitleBarPrivate, parent, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
+    if (f == 0 && w)
+        f = w->windowFlags();
+    d->flags = f;
     d->window = w;
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if (w) {
-        overrideWindowFlags(w->windowFlags() & ~Qt::WType_Mask);
         if (w->minimumSize() == w->maximumSize())
-            overrideWindowFlags(windowFlags() & ~Qt::WStyle_Maximize);
+            d->flags &= ~Qt::WindowMaximizeButtonHint;
         setWindowTitle(w->windowTitle());
     }
 
@@ -261,7 +195,7 @@ void Q3TitleBar::mousePressEvent(QMouseEvent *e)
                                                                  e->pos(), this);
         switch (ctrl) {
         case QStyle::SC_TitleBarSysMenu:
-            if ((windowFlags() & Qt::WStyle_SysMenu) && !(windowType() == Qt::Tool)) {
+            if (d->flags & Qt::WindowSystemMenuHint) {
                 d->buttonDown = QStyle::SC_None;
                 static QTime *t = 0;
                 static Q3TitleBar *tc = 0;
@@ -281,27 +215,27 @@ void Q3TitleBar::mousePressEvent(QMouseEvent *e)
 
         case QStyle::SC_TitleBarShadeButton:
         case QStyle::SC_TitleBarUnshadeButton:
-            if ((windowFlags() & Qt::WStyle_MinMax) && (windowType() == Qt::Tool))
+            if (d->flags & Qt::WindowShadeButtonHint)
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarNormalButton:
-            if ((windowFlags() & Qt::WStyle_Minimize) && !(windowType() == Qt::Tool))
+            if (d->flags & Qt::WindowMinMaxButtonsHint)
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarMinButton:
-            if ((windowFlags() & Qt::WStyle_Minimize) && !(windowType() == Qt::Tool))
+            if (d->flags & Qt::WindowMinimizeButtonHint)
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarMaxButton:
-            if ((windowFlags() & Qt::WStyle_Maximize) && !(windowType() == Qt::Tool))
+            if (d->flags & Qt::WindowMaximizeButtonHint)
                 d->buttonDown = ctrl;
             break;
 
         case QStyle::SC_TitleBarCloseButton:
-            if ((windowFlags() & Qt::WStyle_SysMenu))
+            if (d->flags & Qt::WindowSystemMenuHint)
                 d->buttonDown = ctrl;
             break;
 
@@ -346,17 +280,17 @@ void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
             switch(ctrl) {
             case QStyle::SC_TitleBarShadeButton:
             case QStyle::SC_TitleBarUnshadeButton:
-                if((windowFlags() & Qt::WStyle_MinMax) && (windowType() == Qt::Tool))
+                if(d->flags & Qt::WindowShadeButtonHint)
                     emit doShade();
                 break;
 
             case QStyle::SC_TitleBarNormalButton:
-                if((windowFlags() & Qt::WStyle_MinMax) && !(windowType() == Qt::Tool))
+                if(d->flags & Qt::WindowMaximizeButtonHint)
                     emit doNormal();
                 break;
 
             case QStyle::SC_TitleBarMinButton:
-                if((windowFlags() & Qt::WStyle_Minimize) && !(windowType() == Qt::Tool)) {
+                if(d->flags & Qt::WindowMinimizeButtonHint) {
                     if (d->window && d->window->isMinimized())
                         emit doNormal();
                     else
@@ -365,7 +299,7 @@ void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
                 break;
 
             case QStyle::SC_TitleBarMaxButton:
-                if((windowFlags() & Qt::WStyle_Maximize) && !(windowType() == Qt::Tool)) {
+                if(d->flags & Qt::WindowMaximizeButtonHint) {
                     if(d->window && d->window->isMaximized())
                         emit doNormal();
                     else
@@ -374,7 +308,7 @@ void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
                 break;
 
             case QStyle::SC_TitleBarCloseButton:
-                if((windowFlags() & Qt::WStyle_SysMenu)) {
+                if(d->flags & Qt::WindowSystemMenuHint) {
                     d->buttonDown = QStyle::SC_None;
                     repaint();
                     emit doClose();
@@ -459,31 +393,32 @@ void Q3TitleBar::resizeEvent(QResizeEvent *r)
     cutText();
 }
 
+bool Q3TitleBar::isTool() const
+{
+    return (d->flags & Qt::WindowType_Mask) == Qt::Tool;
+}
+
 void Q3TitleBar::paintEvent(QPaintEvent *)
 {
     QStyleOptionTitleBar opt = d->getStyleOption();
     opt.subControls = QStyle::SC_TitleBarLabel;
     opt.activeSubControls = d->buttonDown;
-    if ((windowFlags() & Qt::WStyle_SysMenu)) {
-        if ((windowType() == Qt::Tool)) {
-            opt.subControls |= QStyle::SC_TitleBarCloseButton;
-            if (d->window && (windowFlags() & Qt::WStyle_MinMax)) {
-                if (d->window->isMinimized())
-                    opt.subControls |= QStyle::SC_TitleBarUnshadeButton;
-                else
-                    opt.subControls |= QStyle::SC_TitleBarShadeButton;
-            }
-        } else {
-            opt.subControls |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
-            if (d->window && (windowFlags() & Qt::WStyle_Minimize)) {
-                if(d->window && d->window->isMinimized())
-                    opt.subControls |= QStyle::SC_TitleBarNormalButton;
-                else
-                    opt.subControls |= QStyle::SC_TitleBarMinButton;
-            }
-            if (d->window && (windowFlags() & Qt::WStyle_Maximize) && !d->window->isMaximized())
-                opt.subControls |= QStyle::SC_TitleBarMaxButton;
+    if (d->flags & Qt::WindowSystemMenuHint) {
+        opt.subControls |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
+        if (d->window && (d->flags & Qt::WindowShadeButtonHint)) {
+            if (d->window->isMinimized())
+                opt.subControls |= QStyle::SC_TitleBarUnshadeButton;
+            else
+                opt.subControls |= QStyle::SC_TitleBarShadeButton;
         }
+        if (d->window && (d->flags & Qt::WindowMinMaxButtonsHint)) {
+            if(d->window && d->window->isMinimized())
+                opt.subControls |= QStyle::SC_TitleBarNormalButton;
+            else
+                opt.subControls |= QStyle::SC_TitleBarMinButton;
+        }
+        if (d->window && (d->flags & Qt::WindowMaximizeButtonHint) && !d->window->isMaximized())
+            opt.subControls |= QStyle::SC_TitleBarMaxButton;
     }
 
     QStyle::SubControl under_mouse = QStyle::SC_None;
@@ -517,7 +452,7 @@ void Q3TitleBar::mouseDoubleClickEvent(QMouseEvent *e)
         break;
 
     case QStyle::SC_TitleBarSysMenu:
-        if ((windowFlags() & Qt::WStyle_SysMenu))
+        if (d->flags & Qt::WStyle_SysMenu)
             emit doClose();
         break;
 
