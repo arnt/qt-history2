@@ -56,8 +56,10 @@ public:
     QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     explicit QImage(const char * const xpm[]);
 #ifndef QT_NO_IMAGEIO
-    explicit QImage(const QString &fileName, const char *format=0);
-    explicit QImage(const QByteArray &data);
+    explicit QImage(const QString &fileName, const char *format = 0);
+#ifndef QT_NO_CAST_FROM_ASCII
+    explicit QImage(const char *fileName, const char *format = 0);
+#endif
 #endif
     QImage(uchar *data, int w, int h, int depth, const QRgb *colortable, int numColors, Endian bitOrder);
 #ifdef Q_WS_QWS
@@ -140,7 +142,7 @@ public:
     QImage createAlphaMask(Qt::ImageConversionFlags flags = Qt::AutoColor) const;
 #endif
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
-    QImage createHeuristicMask(bool clipTight=true) const;
+    QImage createHeuristicMask(bool clipTight = true) const;
 #endif
 #ifndef QT_NO_IMAGE_MIRROR
     QImage mirror() const;
@@ -154,10 +156,15 @@ public:
 
 #ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
-    bool loadFromData(const uchar *buf, uint len, const char *format=0);
-    bool loadFromData(QByteArray data, const char* format=0);
+    bool loadFromData(const uchar *buf, int len, const char *format = 0);
+    bool loadFromData(const QByteArray &data, const char* format=0);
     bool save(const QString &fileName, const char* format, int quality=-1) const;
     bool save(QIODevice * device, const char* format, int quality=-1) const;
+
+    inline static QImage fromData(const uchar *data, int size, const char *format = 0)
+    { QImage image; image.loadFromData(data, size, format); return image; }
+    inline static QImage fromData(const QByteArray &data, const char *format = 0)
+    { QImage image; image.loadFromData(data, format); return image; }
 #endif //QT_NO_IMAGEIO
 
     int serialNumber() const;
@@ -187,13 +194,18 @@ public:
     inline QT3_SUPPORT QImage xForm(const QMatrix &matrix) const { return transform(matrix); }
     inline QT3_SUPPORT QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
         { return scale(QSize(w, h), mode, Qt::SmoothTransformation); }
-    QImage QT3_SUPPORT smoothScale(const QSize& s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
+    inline QImage QT3_SUPPORT smoothScale(const QSize &s,
+                                          Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
         { return scale(s, mode, Qt::SmoothTransformation); }
     inline QT3_SUPPORT void invertPixels(bool invertAlpha) { invertAlpha ? invertPixels(InvertRgba) : invertPixels(InvertRgb); }
+#ifndef QT_NO_IMAGEIO
+    inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)
+        { *this = QImage::fromData(data); }
+#endif
 #endif
 
 private:
-    QImageData *data;
+    QImageData *d;
 
     friend Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy,
                                     const QImage* src, int sx, int sy,
