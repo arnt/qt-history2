@@ -17,7 +17,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qkeycode.h>
-#include <qmultilineedit.h>
+#include <qtextedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qstatusbar.h>
@@ -35,16 +35,6 @@
 #include "fileopen.xpm"
 #include "fileprint.xpm"
 
-const char * fileOpenText = "<img source=\"fileopen\"> "
-"Click this button to open a <em>new file</em>. <br><br>"
-"You can also select the <b>Open command</b> from the File menu.";
-const char * fileSaveText = "Click this button to save the file you are "
-"editing.  You will be prompted for a file name.\n\n"
-"You can also select the Save command from the File menu.\n\n"
-"Note that implementing this function is left as an exercise for the reader.";
-const char * filePrintText = "Click this button to print the file you "
-"are editing.\n\n"
-"You can also select the Print command from the File menu.";
 
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
@@ -64,11 +54,21 @@ ApplicationWindow::ApplicationWindow()
     fileNewAction = new QAction( "New", "&New", CTRL+Key_N, this, "new" );
     connect( fileNewAction, SIGNAL( activated() ) , this, SLOT( newDoc() ) );
     
+    const char * fileOpenText = "<p><img source=\"fileopen\"> "
+                     "Click this button to open a <em>new file</em>. <br>"
+                     "You can also select the <b>Open</b> command "
+                     "from the <b>File</b> menu.</p>"; 
+
     fileOpenAction = new QAction( "Open File", QPixmap( fileopen ), "&Open", CTRL+Key_O, this, "open" );
-    connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( load() ) );
+    connect( fileOpenAction, SIGNAL( activated() ) , this, SLOT( choose() ) );
     QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", QPixmap( fileopen ) );
     fileOpenAction->setWhatsThis( fileOpenText );
     
+    const char * fileSaveText = "<p>Click this button to save the file you are "
+                     "editing.  You will be prompted for a file name.\n"
+                     "You can also select the <b>Save</b> command "
+                     "from the <b>File</b> menu.</p>";   
+
     fileSaveAction = new QAction( "Save File", QPixmap( filesave ), "&Save", CTRL+Key_S, this, "save" );
     connect( fileSaveAction, SIGNAL( activated() ) , this, SLOT( save() ) );
     fileSaveAction->setWhatsThis( fileSaveText );
@@ -77,6 +77,10 @@ ApplicationWindow::ApplicationWindow()
     connect( fileSaveAsAction, SIGNAL( activated() ) , this, SLOT( saveAs() ) );
     fileSaveAsAction->setWhatsThis( fileSaveText );
     
+    const char * filePrintText = "Click this button to print the file you "
+                     "are editing.\n You can also select the Print "
+                     "command from the File menu.";     
+
     filePrintAction = new QAction( "Print File", QPixmap( fileprint ), "&Print", CTRL+Key_P, this, "print" );
     connect( filePrintAction, SIGNAL( activated() ) , this, SLOT( print() ) );
     filePrintAction->setWhatsThis( filePrintText );
@@ -126,10 +130,11 @@ ApplicationWindow::ApplicationWindow()
     
     // create and define the central widget
     
-    e = new QMultiLineEdit( this, "editor" );
+    e = new QTextEdit( this, "editor" );
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
+
     resize( 450, 600 );
 }
 
@@ -147,7 +152,7 @@ void ApplicationWindow::newDoc()
     ed->show();
 }
 
-void ApplicationWindow::load()
+void ApplicationWindow::choose()
 {
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null,
 					       this);
@@ -158,31 +163,16 @@ void ApplicationWindow::load()
 }
 
 
-void ApplicationWindow::load( const char *fileName )
+void ApplicationWindow::load( const QString &fileName )
 {
     QFile f( fileName );
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
-    filename = fileName; 
-    
-    e->setAutoUpdate( FALSE );
-    e->clear();
-
-    QTextStream t(&f);
-    while ( !t.eof() ) {
-	QString s = t.readLine();
-	e->append( s );
-    }
-    f.close();
-
-    e->setAutoUpdate( TRUE );
-    e->repaint();
-    e->setEdited( FALSE );
+    e->load( fileName );
+    e->setModified( FALSE );
     setCaption( fileName );
-    QString s;
-    s.sprintf( "Loaded document %s", fileName );
-    statusBar()->message( s, 2000 );
+    statusBar()->message( "Loaded document " + fileName, 2000 );    
 }
 
 
@@ -205,7 +195,7 @@ void ApplicationWindow::save()
     t << text;
     f.close();
 
-    e->setEdited( FALSE );
+    e->setModified( FALSE );
 
     setCaption( filename );
 
@@ -234,13 +224,15 @@ void ApplicationWindow::print()
     if ( printer->setup(this) ) {		// printer dialog
 	statusBar()->message( "Printing..." );
 	QPainter p;
-	p.begin( printer );			// paint on printer
+	if( !p.begin( printer ) )              // paint on printer
+            return;			
+
 	p.setFont( e->font() );
-	int yPos	= 0;			// y position for each line
+	int yPos	= 0;			// y-position for each line
 	QFontMetrics fm = p.fontMetrics();
 	QPaintDeviceMetrics metrics( printer ); // need width/height
 						// of printer surface
-	for( int i = 0 ; i < e->numLines() ; i++ ) {
+	for( int i = 0 ; i < e->lines() ; i++ ) {
 	    if ( Margin + yPos > metrics.height() - Margin ) {
 		QString msg( "Printing (page " );
 		msg += QString::number( ++pageNo );
@@ -252,7 +244,7 @@ void ApplicationWindow::print()
 	    p.drawText( Margin, Margin + yPos,
 			metrics.width(), fm.lineSpacing(),
 			ExpandTabs | DontClip,
-			e->textLine( i ) );
+			e->text( i ) );
 	    yPos = yPos + fm.lineSpacing();
 	}
 	p.end();				// send job to printer
@@ -264,7 +256,7 @@ void ApplicationWindow::print()
 
 void ApplicationWindow::closeEvent( QCloseEvent* ce )
 {
-    if ( !e->edited() ) {
+    if ( !e->isModified() ) {
 	ce->accept();
 	return;
     }

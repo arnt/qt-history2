@@ -13,12 +13,13 @@
 
 #include <qmainwindow.h>
 
-class QMultiLineEdit;
+class QTextEdit;
 class QAction;
 
 class ApplicationWindow: public QMainWindow
 {
     Q_OBJECT
+
 public:
     ApplicationWindow();
     ~ApplicationWindow();
@@ -28,8 +29,8 @@ protected:
 
 private slots:
     void newDoc();
-    void load();
-    void load( const char *fileName );
+    void choose();
+    void load( const QString &fileName );
     void save();
     void saveAs();
     void print();
@@ -39,9 +40,8 @@ private slots:
 
 private:
     QPrinter *printer;
-    QMultiLineEdit *e;
+    QTextEdit *e;
     QString filename;
-
 };
 
 
