@@ -85,7 +85,6 @@ public:
         vx = vy = vw = vh = 0;
         changeFlags = 0;
         pfont = 0;
-        pfont = 0;
         painter = p;
         pen = QPen();
         bgOrigin = QPoint(0, 0);
@@ -126,9 +125,9 @@ public:
     int wx, wy, ww, wh;         // window rectangle
     int vx, vy, vw, vh;         // viewport rectangle
 
-    uint        clipEnabled:1;
-    uint         WxF:1;                        // World transformation
-    uint            VxF:1;                        // View transformation
+    uint clipEnabled:1;
+    uint WxF:1;                 // World transformation
+    uint VxF:1;                 // View transformation
 
     Qt::BGMode bgMode;
     QPainter *painter;
