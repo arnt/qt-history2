@@ -125,6 +125,18 @@ public:
 
     inline QString tr(const char *text) const { return QObject::tr(text); }
 
+    inline QString convert(const QString  &path) const
+        { return QDir::convertSeparators(path); }
+    inline QString revert(const QString &path) const
+        {
+            QString n(path);
+#if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
+            for (int i = 0; i < (int)n.length(); ++i)
+                if (n[i] == '\\') n[i] = '/';
+#endif
+            return n;
+        }
+
     QDirModel *model;
     QItemSelectionModel *selections;
     QListView *listView;
@@ -508,16 +520,16 @@ QStringList QFileDialog::selectedFiles() const
     int r = -1;
     for (int i = 0; i < indexes.count(); ++i) {
         if (indexes.at(i).row() != r) {
-            files.append(d->model->path(indexes.at(i)));
+            files.append(d->model->path(indexes.at(i))); // to internal
             r = indexes.at(i).row();
         }
     }
     if (d->fileMode == AnyFile && files.count() <= 0) { // a new filename
-        QString file = d->fileName->text();
+        QString file = d->revert(d->fileName->text()); // to internal
         if (QDir::isAbsolutePath(file))
             files.append(file);
         else
-            files.append(d->lookIn->currentText() + QDir::separator() + file);
+            files.append(d->revert(d->lookIn->currentText() + QDir::separator() + file)); // to internal
     }
     return files;
 }
@@ -954,15 +966,19 @@ void QFileDialog::fileNameChanged(const QString &text)
 void QFileDialog::lookInChanged(const QString &text)
 {
     if (d->lookInEdit->hasFocus()) {
+        // FIXME: this is a combobox focus problem:
+        // the lineedit gets focus after the listview, and so this fuction believes that
+        // the user wrote something in the lineedit and tries to autocomplete it
 
         int key = d->lookInEdit->lastKeyPressed();
         if (key == QDir::separator())
             return;
 
+        // text is the local path format (on windows separator is '\\')
         QModelIndex result;
         if (!text.isEmpty()) {
             int s = text.lastIndexOf(QDir::separator());
-            QString pth = (s == 0 ? QDir::rootPath() : text.left(s));
+            QString pth = d->revert(s == 0 ? QDir::rootPath() : text.left(s)); // to internal format
             QModelIndex dirIndex = d->model->index(pth);
             QString searchText = text.section(QDir::separator(), -1);
             int rowCount = d->model->rowCount(dirIndex);
@@ -978,7 +994,7 @@ void QFileDialog::lookInChanged(const QString &text)
         }
 
         if (result.isValid() && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
-            QString completed = d->model->path(result);
+            QString completed = d->convert(d->model->path(result)); // to native format
             int start = completed.length();
             int length = text.length() - start; // negative length
             bool block = d->lookInEdit->blockSignals(true);
@@ -1141,7 +1157,7 @@ void QFileDialog::reload()
 
 void QFileDialog::lookIn()
 {
-    QString path = d->lookIn->currentText();
+    QString path = d->revert(d->lookIn->currentText()); // to internal format
     QModelIndex index = d->model->index(path);
     d->setRoot(index);
     d->updateButtons(index);
@@ -1251,17 +1267,17 @@ void QFileDialogPrivate::setup(const QString &directory,
     setupWidgets(grid);
 
     // Insert paths in the "lookin" combobox
-    lookIn->insertItem(model->icon(QModelIndex()), model->path(QModelIndex())); // root
+    lookIn->insertItem(model->icon(QModelIndex()), convert(model->path(QModelIndex()))); // root
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->path(index);
         QIcon icons = model->icon(index);
-        lookIn->insertItem(icons, path);
+        lookIn->insertItem(icons, convert(path));
     }
     QModelIndex home = model->index(QDir::homePath()); // home
-    lookIn->insertItem(model->icon(home), QDir::homePath());
+    lookIn->insertItem(model->icon(home), convert(QDir::homePath()));
     lookIn->insertItem(model->icon(current), directory);
-    int c = lookIn->findItem(directory, QAbstractItemModel::MatchExactly);
+    int c = lookIn->findItem(convert(directory), QAbstractItemModel::MatchExactly);
     lookIn->setCurrentItem(c >= 0 ? c : 0);
 
     // Set filetypes or filter
@@ -1486,7 +1502,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 {
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
-    QString pth = d->model->path(index);
+    QString pth = convert(d->model->path(index)); // to native format
     QIcon icn = d->model->icon(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
