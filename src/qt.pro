@@ -118,6 +118,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
+		  $$KERNEL_H/qlocalfs.h \
 		  $$KERNEL_H/qurloperator.h \
 		  $$KERNEL_H/qurlinfo.h \
 		  $$KERNEL_H/qwidget.h \
@@ -349,6 +350,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qurl.cpp \
+		  kernel/qlocalfs.cpp \
 		  kernel/qurloperator.cpp \
 		  kernel/qurlinfo.cpp \
 		  kernel/qwidget.cpp \
