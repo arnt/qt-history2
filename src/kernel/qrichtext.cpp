@@ -1390,24 +1390,35 @@ void QTextDocument::setPlainText( const QString &text )
 
     int lastNl = 0;
     int nl = text.find( '\n' );
-    while ( TRUE ) {
+    if ( nl == -1 ) {
 	lParag = createParag( this, lParag, 0 );
 	if ( !fParag )
 	    fParag = lParag;
-	QString s = text.mid( lastNl, nl - lastNl );
+	QString s = text;
 	if ( !s.isEmpty() ) {
 	    if ( s[ (int)s.length() - 1 ] == '\r' )
 		s.remove( s.length() - 1, 1 );
 	    lParag->append( s );
 	}
-	if ( nl == 0xffffff )
-	    break;
-	lastNl = nl + 1;
-	nl = text.find( '\n', nl + 1 );
-	if ( nl == -1 )
-	    nl = 0xffffff;
+    } else {
+	while ( TRUE ) {
+	    lParag = createParag( this, lParag, 0 );
+	    if ( !fParag )
+		fParag = lParag;
+	    QString s = text.mid( lastNl, nl - lastNl );
+	    if ( !s.isEmpty() ) {
+		if ( s[ (int)s.length() - 1 ] == '\r' )
+		    s.remove( s.length() - 1, 1 );
+		lParag->append( s );
+	    }
+	    if ( nl == 0xffffff )
+		break;
+	    lastNl = nl + 1;
+	    nl = text.find( '\n', nl + 1 );
+	    if ( nl == -1 )
+		nl = 0xffffff;
+	}
     }
-
     if ( !lParag )
 	lParag = fParag = createParag( this, 0, 0 );
 }
