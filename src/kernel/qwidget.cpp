@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#193 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#194 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#193 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#194 $");
 
 
 /*!
@@ -1776,7 +1776,9 @@ void QWidget::setFocus()
 	return;
 
     QFocusData * f = focusData(TRUE);
-    if ( f->it.current() )
+    if ( f->it.current() == this )
+	return;
+    else if ( f->it.current() )
 	f->it.current()->clearFocus();
     else if ( qApp->focusWidget() &&
 	      topLevelWidget() == qApp->focusWidget()->topLevelWidget() )
