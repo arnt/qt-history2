@@ -83,7 +83,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	if ( e->button() == LeftButton ) {
 	    emit activate();
 	    bool me = isMovingEnabled();
-	    setMovingEnabled( o == widget );
+	    setMovingEnabled( me && o == widget );
 	    mouseMoveEvent( e );
 	    setMovingEnabled( me );
 	    buttonDown = TRUE;
@@ -101,7 +101,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	break;
     case QEvent::MouseMove: {
 	bool me = isMovingEnabled();
-	setMovingEnabled( o == widget );
+	setMovingEnabled( me && o == widget );
 	mouseMoveEvent( e );
 	setMovingEnabled( me );
 	if ( buttonDown && mode != Center )
