@@ -952,9 +952,9 @@ void QLineEdit::drawContents( QPainter *painter )
     QSharedDoubleBuffer buffer( painter, 0, linetop, width(), lineheight,
 				hasFocus() ? QSharedDoubleBuffer::Force : 0 );
     buffer.painter()->setPen( colorGroup().text() );
-    const QBrush &bg = isEnabled() && !isReadOnly() ?
-		       QBrush( paletteBackgroundColor() ) :
-	       g.brush( QColorGroup::Background);
+    QBrush bg = isEnabled() && !isReadOnly() ?
+	        QBrush( paletteBackgroundColor() ) :
+	        g.brush( QColorGroup::Background);
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
 	painter->fillRect( 0, 0, width(), linetop, bg );
