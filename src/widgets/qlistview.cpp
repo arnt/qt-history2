@@ -3869,7 +3869,6 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	else if ( selectionMode() == Multi  )
 	    setSelected( i, d->select );
 	else if ( selectionMode() == Extended ) {
-	    bool changed = FALSE;
 	    if ( !( ( e->state() & ControlButton ) ||
 		    ( e->state() & ShiftButton ) ) ) {
 		if ( !i->isSelected() ) {
@@ -3878,18 +3877,15 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		    clearSelection();
 		    blockSignals( blocked );
 		    i->setSelected( TRUE );
-		    changed = TRUE;
 		}
 	    } else {
 		if ( e->state() & ShiftButton )
 		    d->pressedSelected = FALSE;
 		if ( e->state() & ControlButton && i ) {
 		    i->setSelected( !i->isSelected() );
-		    changed = TRUE;
 		    d->pressedSelected = FALSE;
 		} else if ( !oldCurrent || !i || oldCurrent == i ) {
 		    if ( (bool)i->selected != d->select ) {
-			changed = TRUE;
 			i->setSelected( d->select );
 		    }
 		} else {
@@ -3903,7 +3899,6 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 			if ( down && lit.current() == i ) {
 			    if ( (bool)i->selected != d->select ) {
 				i->setSelected( d->select );
-				changed = TRUE;
 			    }
 			    triggerUpdate();
 			    break;
@@ -3915,13 +3910,10 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 			}
 			if ( (bool)lit.current()->selected != d->select ) {
 			    lit.current()->setSelected( d->select );
-			    changed = TRUE;
 			}
 		    }
 		}
 	    }
-	    if ( changed )
-		emit selectionChanged();
 	}
     }
 
