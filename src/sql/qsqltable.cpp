@@ -1348,14 +1348,7 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
 
 int QSqlTable::fieldAlignment( const QSqlField* field )
 {
-    bool num;
-    bool ok1 = FALSE, ok2 = FALSE;
-    QString txt = field->value().toString();
-    (void)txt.toInt( &ok1 );
-    if ( !ok1 )
-	(void)txt.toDouble( &ok2 );
-    num = ok1 || ok2;
-    return ( num ? AlignRight : AlignLeft ) | AlignVCenter;
+    return field->alignment();
 }
 
 
