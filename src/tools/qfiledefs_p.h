@@ -229,6 +229,8 @@
 # define WRITE		::write
 # define ACCESS		::access
 # if defined(Q_OS_OS2EMX)
+// This is documented in the un*x to OS/2-EMX Porting FAQ:
+// 	http://homepages.tu-darmstadt.de/~st002279/os2/porting.html
 #  define GETCWD	::_getcwd2
 #  define CHDIR		::_chdir2
 # else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#38 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#39 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -46,7 +46,6 @@
 // Macro FD_ZERO is defined using bzero() in <sys/time.h> and bzero()
 // is defined in <strings.h>.  However <sys/time.h> does not include
 // <strings.h>.  So we include it ourselves.  Seen on AIX 4.3.3.
-// ### Caution, this may not work on pre-XPG4v2 systems.
 #  include <strings.h>
 #endif
 
@@ -68,7 +67,8 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 // OK, I'm phasing this out because according to SUSv2 this is only
-// supposed to define sockaddr_un which we do not use.
+// supposed to provide definitions for UNIX-domain sockets like
+// sockaddr_un which we do not use.
 //#include <sys/un.h>
 #include <netdb.h>
 #include <errno.h>
@@ -77,12 +77,15 @@
 #  include <unix.h>
 #endif
 
-// What's this?
-#ifndef UNIX_PATH_MAX
-#  define UNIX_PATH_MAX 108
-#endif
+// What's this?  It's not even used so I am phasing it out.
+// #ifndef UNIX_PATH_MAX
+// #  define UNIX_PATH_MAX 108
+// #endif
 
-// What's this?
+// ### What's this?  This should be defined in <sys/socket.h>.
+// ### And what does ths use of a little-endian MIPS processor
+// ### have to do with the contents of system header files?
+// ### Should be explained.
 #ifdef __MIPSEL__
 #  ifndef SOCK_DGRAM
 #    define SOCK_DGRAM 1
@@ -96,20 +99,27 @@
 // no includes after this point
 
 // ### Mmmmh... Which system has TIOCINQ but not FIONREAD?
+// ### Please document with OS and OS release.
 #if !defined(FIONREAD) && defined(TIOCINQ)
 #  define QT_NREAD TIOCINQ
 #else
 #  define QT_NREAD FIONREAD
 #endif
 
-// ### Undefine this if you have problems with missing FNDELAY.
-// ### Please #ifdef and document including OS and OS release.
-// ### Will hopefully remove this in Qt 3.0 if all goes well.
-// ### Brad, is this OK with BSDs?
-#if 0
-#if !defined (O_NDELAY) && defined (FNDELAY)
-#  define O_NDELAY FNDELAY
+// ### Please #ifdef and document with OS and OS release.
+#if defined(Q_OS_QNX)
+// QNX 6.00 Neutrino is pure XPG4v2 and lacks support for BSD
+// legacy such as FNDELAY.
+#  if !defined (FNDELAY)
+#    define FNDELAY O_NDELAY
+#  endif
 #endif
+#if defined(Q_OS_OS2EMX)
+// This is documented in the un*x to OS/2-EMX Porting FAQ:
+// 	http://homepages.tu-darmstadt.de/~st002279/os2/porting.html
+#  if !defined (FNDELAY)
+#    define FNDELAY O_NONBLOCK
+#  endif
 #endif
 
 // This mess defines SOCKLEN_T to socklen_t or whatever else.
@@ -134,7 +144,6 @@
 #  undef SOCKLEN_T
 #endif
 
-#include <unistd.h>
 #if defined(Q_OS_MACX)
 #  define SOCKLEN_T int
 #elif defined(BSD4_4)
@@ -162,11 +171,19 @@
 #    define SOCKLEN_T int
 #  endif
 #elif defined(Q_OS_UNIXWARE7)
-// UnixWare 7 is XPG4v2.
-#  define SOCKLEN_T size_t
+#  if defined(_XOPEN_UNIX)
+// UnixWare 7 should be XPG4v2.
+#    define SOCKLEN_T size_t
+#  else
+#    define SOCKLEN_T int
+#  endif
 #elif defined(Q_OS_QNX)
-// QNX supports infamous XPG4v2 sockets.
-#  define SOCKLEN_T size_t
+#  if defined(_XOPEN_UNIX)
+// QNX should be XPG4v2 - at least if _QNX_SOURCE is defined.
+#    define SOCKLEN_T size_t
+#  else
+#    define SOCKLEN_T int
+#  endif
 #else
 // Fall through. XNS4 sockets are not the default on most XPG4v2 platforms.
 // From Sun's "Notes on 64-bit Drivers and STREAMS - A White Paper":
@@ -176,12 +193,19 @@
 // 	The standard environment provided the older Berkeley-style
 // 	prototypes.
 // This is not very clear:
-// 	=> Which feature-test macros trigger the infamous size_t?
-// 	   Does the last sentence apply to Solaris only or are there
+// 	=> Does the last sentence apply to Solaris only or are there
 // 	   many vendors shipping implementations with default size_t?
-// 	   At least AIX 4.2, UnixWare 7 and QNX use size_t by default.
+// 	   Actually AIX 4.2, UnixWare 7 and QNX use size_t by default.
+// 	=> Which feature-test macros trigger the infamous size_t on
+// 	   platforms that do not default to it? On HP-UX for example
+// 	   it's _XOPEN_SOURCE_EXTENDED.
 // 	=> Could it be that some platforms have POSIX.1g Draft 6.6
 // 	   (March 1997) overload XPG4v2 thus requesting socklen_t?
+// 	   This seems to be the case of GNU platforms. Then how to
+// 	   detect this?
+// It seems that except for GNU platforms, we should be able to test
+// directly against _XOPEN_VERSION and _XOPEN_UNIX instead of testing
+// against OS/release.
 #  define SOCKLEN_T int
 #endif
 
