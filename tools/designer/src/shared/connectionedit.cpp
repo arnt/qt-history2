@@ -39,21 +39,21 @@ static QRect fixRect(const QRect &r)
 
 static QRect expand(const QRect &r, int i)
 {
-    return QRect(r.x() - i + 1, r.y() - i + 1, r.width() + 2*i, r.height() + 2*i);
+    return QRect(r.x() - i, r.y() - i, r.width() + 2*i, r.height() + 2*i);
 }
 
 static QRect endPointRect(const QPoint &pos)
 {
     QRect r(pos + QPoint(-LINE_PROXIMITY_RADIUS, -LINE_PROXIMITY_RADIUS),
             QSize(2*LINE_PROXIMITY_RADIUS, 2*LINE_PROXIMITY_RADIUS));
-    return expand(r, 1);
+    return r;
 }
 
 static void paintEndPoint(QPainter *p, const QPoint &pos)
 {
     QRect r(pos + QPoint(-LINE_PROXIMITY_RADIUS, -LINE_PROXIMITY_RADIUS),
             QSize(2*LINE_PROXIMITY_RADIUS, 2*LINE_PROXIMITY_RADIUS));
-    p->fillRect(r, p->pen().color());
+    p->fillRect(fixRect(r), p->pen().color());
 }
 
 static CETypes::LineDir classifyLine(const QPoint &p1, const QPoint &p2)
@@ -477,11 +477,12 @@ void Connection::setTarget(QWidget *target, const QPoint &pos)
     update(false);
 }
 
-static QRect lineRect(const QPoint &p1, const QPoint &p2)
+static QRect lineRect(const QPoint &a, const QPoint &b)
 {
-    QRect result(qMin(p1.x(), p2.x()), qMin(p1.y(), p2.y()),
-                    qAbs(p2.x() - p1.x()), qAbs(p2.y() - p1.y()));
+    QPoint c(qMin(a.x(), b.x()), qMin(a.y(), b.y()));
+    QPoint d(qMax(a.x(), b.x()), qMax(a.y(), b.y()));
     
+    QRect result(c, d);
     return expand(result, LINE_PROXIMITY_RADIUS);
 }
 
@@ -522,6 +523,7 @@ void Connection::paint(QPainter *p) const
 {
     for (int i = 0; i < m_knee_list.size() - 1; ++i)
         p->drawLine(m_knee_list.at(i), m_knee_list.at(i + 1));
+    
     if (!m_arrow_head.isEmpty()) {
         p->save();
         p->setBrush(p->pen().color());
