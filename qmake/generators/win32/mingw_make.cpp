@@ -284,7 +284,7 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     t << endl << endl;
    
     QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
-    for(it = quc.begin(); it != quc.end(); ++it) {
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
 	QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
@@ -601,7 +601,7 @@ MingwMakefileGenerator::init()
     }
 
     QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
-    for(it = quc.begin(); it != quc.end(); ++it) {
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	if(tmp_out.isEmpty())
 	    continue;
