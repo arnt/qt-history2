@@ -51,30 +51,30 @@ QMakeProperty::keyBase(bool version) const
 QString
 QMakeProperty::value(QString v, bool just_check)
 {
-    if(v == "QT_INSTALL_PREFIX") 
+    if(v == "QT_INSTALL_PREFIX")
         return QLibraryInfo::location(QLibraryInfo::PrefixPath);
-    else if(v == "QT_INSTALL_DATA") 
+    else if(v == "QT_INSTALL_DATA")
         return QLibraryInfo::location(QLibraryInfo::DataPath);
     else if(v == "QT_INSTALL_DOCS")
         return QLibraryInfo::location(QLibraryInfo::DocumentationPath);
-    else if(v == "QT_INSTALL_HEADERS") 
+    else if(v == "QT_INSTALL_HEADERS")
         return QLibraryInfo::location(QLibraryInfo::HeadersPath);
-    else if(v == "QT_INSTALL_LIBS") 
+    else if(v == "QT_INSTALL_LIBS")
         return QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-    else if(v == "QT_INSTALL_BINS") 
+    else if(v == "QT_INSTALL_BINS")
         return QLibraryInfo::location(QLibraryInfo::BinariesPath);
-    else if(v == "QT_INSTALL_PLUGINS") 
+    else if(v == "QT_INSTALL_PLUGINS")
         return QLibraryInfo::location(QLibraryInfo::PluginsPath);
-    else if(v == "QT_INSTALL_TRANSLATIONS") 
+    else if(v == "QT_INSTALL_TRANSLATIONS")
         return QLibraryInfo::location(QLibraryInfo::TranslationsPath);
     else if(v == "QT_INSTALL_CONFIGURATION")
         return QLibraryInfo::location(QLibraryInfo::SettingsPath);
-    else if(v == "QMAKE_MKSPECS") 
+    else if(v == "QMAKE_MKSPECS")
         return qmake_mkspec_paths().join(Option::target_mode == Option::TARG_WIN_MODE ? ";" : ":");
-    else if(v == "QMAKE_VERSION") 
+    else if(v == "QMAKE_VERSION")
         return qmake_version();
 #ifdef QT_VERSION_STR
-    else if(v == "QT_VERSION") 
+    else if(v == "QT_VERSION")
         return QT_VERSION_STR;
 #endif
 
@@ -142,7 +142,7 @@ QMakeProperty::exec()
                 settings->beginGroup(keyBase(false) + s);
                 QStringList keys = settings->childKeys();
                 settings->endGroup();
-                for(QStringList::Iterator it2 = keys.begin(); it2 != keys.end(); it2++) {
+                for(QStringList::ConstIterator it2 = keys.begin(); it2 != keys.end(); it2++) {
                     QString ret = settings->value(keyBase(false) + s + "/" + (*it2)).toString();
                     if(s != qmake_version())
                         fprintf(stdout, "%s/", s.toLatin1().constData());
@@ -151,7 +151,7 @@ QMakeProperty::exec()
             }
             return true;
         }
-        for(QStringList::Iterator it = Option::prop::properties.begin();
+        for(QStringList::ConstIterator it = Option::prop::properties.begin();
             it != Option::prop::properties.end(); it++) {
             if(Option::prop::properties.count() > 1)
                 fprintf(stdout, "%s:", (*it).toLatin1().constData());
@@ -163,7 +163,7 @@ QMakeProperty::exec()
             }
         }
     } else if(Option::qmake_mode == Option::QMAKE_SET_PROPERTY) {
-        for(QStringList::Iterator it = Option::prop::properties.begin();
+        for(QStringList::ConstIterator it = Option::prop::properties.begin();
             it != Option::prop::properties.end(); it++) {
             QString var = (*it);
             it++;

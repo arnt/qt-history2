@@ -966,7 +966,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                          var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
             varlist.clear();
         }
-        for(QStringList::Iterator valit = vallist.begin();
+        for(QStringList::ConstIterator valit = vallist.begin();
             valit != vallist.end(); ++valit) {
             if((*valit).isEmpty())
                 continue;
@@ -1105,7 +1105,7 @@ QMakeProject::read(uchar cmd)
             debug_msg(2, "Looking for mkspec %s in (%s)", Option::mkfile::qmakespec.toLatin1().constData(),
                       mkspec_roots.join("::").toLatin1().constData());
             if(Option::mkfile::qmakespec.isEmpty()) {
-                for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
+                for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + "default";
                     QFileInfo default_info(mkspec);
                     if(default_info.exists() && default_info.isSymLink()) {
@@ -1121,7 +1121,7 @@ QMakeProject::read(uchar cmd)
 
             if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
                 bool found_mkspec = false;
-                for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
+                for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + Option::mkfile::qmakespec;
                     if(QFile::exists(mkspec)) {
                         found_mkspec = true;
@@ -1174,7 +1174,7 @@ QMakeProject::read(uchar cmd)
         parser.from_file = false;
         parser.line_no = 1; //really arg count now.. duh
         reset();
-        for(QStringList::Iterator it = Option::before_user_vars.begin();
+        for(QStringList::ConstIterator it = Option::before_user_vars.begin();
             it != Option::before_user_vars.end(); ++it) {
             if(!parse((*it), vars)) {
                 fprintf(stderr, "Argument failed to parse: %s\n", (*it).toLatin1().constData());
@@ -1213,7 +1213,7 @@ QMakeProject::read(uchar cmd)
         parser.from_file = false;
         parser.line_no = 1; //really arg count now.. duh
         reset();
-        for(QStringList::Iterator it = Option::after_user_vars.begin();
+        for(QStringList::ConstIterator it = Option::after_user_vars.begin();
             it != Option::after_user_vars.end(); ++it) {
             if(!parse((*it), vars)) {
                 fprintf(stderr, "Argument failed to parse: %s\n", (*it).toLatin1().constData());
@@ -1341,8 +1341,8 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
 #endif
 
     //simple matching
-    QStringList &configs = (place ? (*place)["CONFIG"] : vars["CONFIG"]);
-    for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
+    const QStringList &configs = (place ? (*place)["CONFIG"] : vars["CONFIG"]);
+    for(QStringList::ConstIterator it = configs.begin(); it != configs.end(); ++it) {
         if(((regex && re.exactMatch((*it))) || (!regex && (*it) == x)) && re.exactMatch((*it)))
             return true;
     }
@@ -1673,11 +1673,11 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             fprintf(stderr, "%s:%d: sprintf(format, ...) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
-            ret = args.first();
-            QStringList::Iterator arg_it = args.begin();
+            ret = args.at(0);
+            QStringList::ConstIterator arg_it = args.begin();
             ++arg_it;
-            for(; arg_it != args.end(); ++arg_it)
-                ret = ret.arg((*arg_it));
+            for(int i = 1; i < args.count(); ++i)
+                ret = ret.arg(args.at(i));
         }
         break; }
     case E_JOIN: {
@@ -1706,9 +1706,9 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             if(args.count() == 3)
                 join = args[2];
             QStringList var = place[varMap(args.first())];
-            for(QStringList::Iterator vit = var.begin(); vit != var.end(); ++vit) {
+            for(QStringList::ConstIterator vit = var.begin(); vit != var.end(); ++vit) {
                 QStringList lst = (*vit).split(sep);
-                for(QStringList::Iterator spltit = lst.begin(); spltit != lst.end(); ++spltit) {
+                for(QStringList::ConstIterator spltit = lst.begin(); spltit != lst.end(); ++spltit) {
                     if(!ret.isEmpty())
                         ret += join;
                     ret += (*spltit);

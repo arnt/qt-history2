@@ -622,90 +622,82 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
     int line_count = 1;
     bool ignore_qobject = false, ignore_qgadget = false;
  /* qmake ignore Q_GADGET */
-#define Q_GADGET_LEN 8 //strlen("Q_GADGET")
  /* qmake ignore Q_OBJECT */
-#define Q_OBJECT_LEN 8 //strlen("Q_OBJECT")
-    for(int x = 0; x < (buffer_len-Q_OBJECT_LEN); x++) {
-        while(x < buffer_len) {
-            if(*(buffer + x) == '/') {
-                ++x;
-                if(buffer_len >= x) {
-                    if(*(buffer + x) == '/') { //c++ style comment
-                        for(;x < buffer_len && !qmake_endOfLine(*(buffer + x)); ++x);
-                        ++line_count;
-                    } else if(*(buffer + x) == '*') { //c style comment
-                        for(;x < buffer_len; ++x) {
-                            if(*(buffer + x) == 't' || *(buffer + x) == 'q') { //ignore
-                                if(buffer_len >= (x + 20) &&
-                                   !strncmp(buffer + x + 1, "make ignore Q_OBJECT", 20)) {
-                                    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
-                                              file->file.real().toLatin1().constData(), line_count);
-                                    x += 20;
-                                    ignore_qobject = true;
-                                } else if(buffer_len >= (x + 20) &&
-                                          !strncmp(buffer + x + 1, "make ignore Q_GADGET", 20)) {
-                                    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_GADGET\"",
-                                              file->file.real().toLatin1().constData(), line_count);
-                                    x += 20;
-                                    ignore_qgadget = true;
-                                }
-                            } else if(*(buffer + x) == '*') {
-                                if(buffer_len >= (x+1) && *(buffer + (x+1)) == '/') {
-                                    x += 2;
-                                    break;
-                                }
-                            } else if(Option::debug_level && qmake_endOfLine(*(buffer + x))) {
-                                ++line_count;
+    for(int x = 0; x < buffer_len; x++) {
+        if(*(buffer + x) == '/') {
+            ++x;
+            if(buffer_len >= x) {
+                if(*(buffer + x) == '/') { //c++ style comment
+                    for(;x < buffer_len && !qmake_endOfLine(*(buffer + x)); ++x);
+                    ++line_count;
+                } else if(*(buffer + x) == '*') { //c style comment
+                    for(;x < buffer_len; ++x) {
+                        if(*(buffer + x) == 't' || *(buffer + x) == 'q') { //ignore
+                            if(buffer_len >= (x + 20) &&
+                               !strncmp(buffer + x + 1, "make ignore Q_OBJECT", 20)) {
+                                debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
+                                          file->file.real().toLatin1().constData(), line_count);
+                                x += 20;
+                                ignore_qobject = true;
+                            } else if(buffer_len >= (x + 20) &&
+                                      !strncmp(buffer + x + 1, "make ignore Q_GADGET", 20)) {
+                                debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_GADGET\"",
+                                          file->file.real().toLatin1().constData(), line_count);
+                                x += 20;
+                                ignore_qgadget = true;
                             }
+                        } else if(*(buffer + x) == '*') {
+                            if(buffer_len >= (x+1) && *(buffer + (x+1)) == '/') {
+                                x += 2;
+                                break;
+                            }
+                        } else if(Option::debug_level && qmake_endOfLine(*(buffer + x))) {
+                            ++line_count;
                         }
                     }
                 }
-            } else {
-                if(buffer_len > x+2 && *(buffer+x+1) == 'Q' && *(buffer+x+2) == '_' &&
-                   (*(buffer + x) < 'a' || *(buffer + x) > 'z') && (*(buffer + x) < 'A' || *(buffer + x) > 'Z') &&
-                   (*(buffer + x) < '0' || *(buffer + x) > '9') && *(buffer + x) != '_') {
-                    ++x;
+            }
+        }
+        if(buffer_len > x+2 &&  *(buffer+x+1) == 'Q' && *(buffer+x+2) == '_' &&
+                  *(buffer + x) != '_' &&
+                  (*(buffer + x) < 'a' || *(buffer + x) > 'z') &&
+                  (*(buffer + x) < 'A' || *(buffer + x) > 'Z') &&
+                  (*(buffer + x) < '0' || *(buffer + x) > '9')) {
+            ++x;
+            int match = 0;
+            static char *interesting[] = { "OBJECT", "GADGET" };
+            for(int interest = 0, m1, m2; interest < 2; ++interest) {
+                if(interest == 0 && ignore_qobject)
+                    continue;
+                else if(interest == 1 && ignore_qgadget)
+                    continue;
+                for(m1 = 0, m2 = 0; *(interesting[interest]+m1); ++m1) {
+                    if(*(interesting[interest]+m1) != *(buffer+x+2+m1)) {
+                        m2 = -1;
+                        break;
+                    }
+                    ++m2;
+                }
+                if(m1 == m2) {
+                    match = m2 + 2;
                     break;
                 }
             }
-            if(Option::debug_level && qmake_endOfLine(*(buffer+x)))
-                ++line_count;
-            ++x;
-        }
-        if(x >= buffer_len)
-            break;
-
-        bool interesting = *(buffer + x) == 'Q' &&
-                           (!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN) ||
-                            !strncmp(buffer+x, "Q_GADGET", Q_GADGET_LEN));
-        if(interesting) {
-            int len = 0;
-            if(!strncmp(buffer+x, "Q_OBJECT", Q_OBJECT_LEN)) {
-                if(ignore_qobject) {
-                    debug_msg(2, "Mocgen: %s:%d Ignoring Q_OBJECT", file->file.real().toLatin1().constData(), line_count);
-                    interesting = false;
+            if(match && *(buffer+x+match) != '_' &&
+               (*(buffer+x+match) < 'a' || *(buffer+x+match) > 'z') &&
+               (*(buffer+x+match) < 'A' || *(buffer+x+match) > 'Z') &&
+               (*(buffer+x+match) < '0' || *(buffer+x+match) > '9')) {
+                if(Option::debug_level) {
+                    *(buffer+x+match) = '\0';
+                    debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", file->file.real().toLatin1().constData(),
+                              line_count, buffer+x);
                 }
-                len=Q_OBJECT_LEN;
-            } else if(!strncmp(buffer+x, "Q_GADGET", Q_GADGET_LEN)) {
-                if(ignore_qgadget) {
-                    debug_msg(2, "Mocgen: %s:%d Ignoring Q_GADGET", file->file.real().toLatin1().constData(), line_count);
-                    interesting = false;
-                }
-                len=Q_GADGET_LEN;
-            }
-
-            if((*(buffer+x+len) >= 'a' && *(buffer+x+len) <= 'z') ||
-               (*(buffer+x+len) >= 'A' && *(buffer+x+len) <= 'Z') ||
-               (*(buffer+x+len) >= '0' && *(buffer+x+len) <= '9') || *(buffer+x+len) == '_')
-                interesting = false;
-            if(interesting) {
-                *(buffer+x+len) = '\0';
-                debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", file->file.real().toLatin1().constData(),
-                          line_count, buffer+x);
                 file->mocable = true;
-                break;
+                return true;
             }
         }
+        if(Option::debug_level && qmake_endOfLine(*(buffer+x)))
+            ++line_count;
     }
     return true;
 }
