@@ -2493,7 +2493,7 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 
     // calulate the advances for the shaped glyphs
 //     qDebug("unpositioned: ");
-    ((QFontEngineXft *)si->fontEngine)->recalcAdvances( str->length, glyphs, advances );
+    ((QFontEngineXft *)si->font())->recalcAdvances( str->length, glyphs, advances );
     for ( int i = 0; i < (int)str->length; i++ ) {
 	if ( glyphAttributes[i].mark )
 	    advances[i] = 0;
@@ -2503,7 +2503,7 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 
     // positioning code:
     if ( hasGPos && positioned) {
-	float scale = si->fontEngine->scale();
+	float scale = si->font()->scale();
 // 	qDebug("positioned glyphs:" );
 	for ( int i = 0; i < (int)str->length; i++) {
 // 	    qDebug("    %d:\t orig advance: %d\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,

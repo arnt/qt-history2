@@ -1194,7 +1194,7 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     QScriptItem *si = &engine->items[ti.item()];
 
     engine->shape( ti.item() );
-    QFontEngine *fe = si->fontEngine;
+    QFontEngine *fe = si->font();
     Q_ASSERT( fe );
 
     x += si->x;

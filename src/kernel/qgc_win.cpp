@@ -906,7 +906,7 @@ void QWin32GC::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     QScriptItem *si = &engine->items[ti.item()];
 
     engine->shape( ti.item() );
-    QFontEngine *fe = si->fontEngine;
+    QFontEngine *fe = si->font();
     Q_ASSERT( fe );
 
     int x = p.x() + si->x;
@@ -949,7 +949,7 @@ void QWin32GC::updatePen(QPainterState *state)
 	    d->penRef = stock_ptr;
 	    goto set;
 	}
-	if (obtain_pen(&d->penRef, &d->hpen, d->pColor)) 
+	if (obtain_pen(&d->penRef, &d->hpen, d->pColor))
 	    goto set;
     }
 

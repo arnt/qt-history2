@@ -575,7 +575,7 @@ void QTextEngine::shape( int item ) const
 
     si.glyph_data_offset = used;
 
-    if ( !si.fontEngine ) {
+    if ( !si.font() ) {
 	if ( hasUsp10 ) {
 	    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
 	    script = scriptForWinLanguage( script_prop->langid );
@@ -600,10 +600,10 @@ void QTextEngine::shape( int item ) const
 		}
 	    }
 	}
-	si.fontEngine = fnt->engineForScript( script );
-	if ( si.fontEngine->type() == QFontEngine::Box )
-	    si.fontEngine = fnt->engineForScript( QFont::NoScript );
-	si.fontEngine->ref();
+	QFontEngine *fe = fnt->engineForScript( script );
+	if ( fe->type() == QFontEngine::Box )
+	    fe = fnt->engineForScript( QFont::NoScript );
+	si.setFont(fe);
     }
 
     if ( hasUsp10 ) {
@@ -615,12 +615,12 @@ void QTextEngine::shape( int item ) const
 	do {
 	    ensureSpace( l );
 
-	    res = ScriptShape( hdc, &si.fontEngine->script_cache, (WCHAR *)string.unicode() + from, len,
+	    res = ScriptShape( hdc, &si.font()->script_cache, (WCHAR *)string.unicode() + from, len,
 			       l, &si.analysis, glyphs( &si ), logClusters( &si ), glyphAttributes( &si ),
 			       &si.num_glyphs );
 	    if ( res == E_PENDING ) {
-		hdc = si.fontEngine->dc();
-		SelectObject( hdc, si.fontEngine->hfont );
+		hdc = si.font()->dc();
+		SelectObject( hdc, si.font()->hfont );
 	    } else if ( res == USP_E_SCRIPT_NOT_IN_FONT ) {
 		si.analysis.script = 0;
 		hdc = 0;
@@ -633,12 +633,12 @@ void QTextEngine::shape( int item ) const
 
 
 	ABC abc;
-	res = ScriptPlace( hdc, &si.fontEngine->script_cache, glyphs( &si ), si.num_glyphs,
+	res = ScriptPlace( hdc, &si.font()->script_cache, glyphs( &si ), si.num_glyphs,
 		           glyphAttributes( &si ), &si.analysis, advances( &si ), offsets( &si ), &abc );
 	if ( res == E_PENDING ) {
-	    hdc = si.fontEngine->dc();
-	    SelectObject( hdc, si.fontEngine->hfont );
-	    ScriptPlace( hdc, &si.fontEngine->script_cache, glyphs( &si ), si.num_glyphs,
+	    hdc = si.font()->dc();
+	    SelectObject( hdc, si.font()->hfont );
+	    ScriptPlace( hdc, &si.font()->script_cache, glyphs( &si ), si.num_glyphs,
 		         glyphAttributes( &si ), &si.analysis, advances( &si ), offsets( &si ), &abc );
 	}
 	si.width = abc.abcA + abc.abcB + abc.abcC;
@@ -650,8 +650,8 @@ void QTextEngine::shape( int item ) const
 	for ( int i = 0; i < si.num_glyphs; i++ )
 	    si.width += advances[i];
     }
-    si.ascent = si.fontEngine->ascent();
-    si.descent = si.fontEngine->descent();
+    si.ascent = si.font()->ascent();
+    si.descent = si.font()->descent();
 
     ((QTextEngine *)this)->used += si.num_glyphs;
 }

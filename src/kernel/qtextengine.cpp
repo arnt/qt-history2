@@ -27,7 +27,7 @@ QScriptItem::QScriptItem(const QScriptItem &o)
       isObject( o.isObject ), hasPositioning( o.hasPositioning ),
       descent( o.descent ), ascent( o.ascent ), width( o.width ),
       x( o.x ), y( o.y ), num_glyphs( o.num_glyphs ), glyph_data_offset( o.glyph_data_offset ),
-      fontEngine( o.fontEngine ), custom(o.custom)
+      custom(o.custom), fontEngine( o.fontEngine )
 {
     if (fontEngine) fontEngine->ref();
 }
@@ -47,10 +47,11 @@ QScriptItem &QScriptItem::operator=(const QScriptItem &o)
     num_glyphs = o.num_glyphs;
     glyph_data_offset = o.glyph_data_offset;
     o.fontEngine->ref();
+    custom = o.custom;
+
     if (fontEngine && fontEngine->deref())
 	delete fontEngine;
     fontEngine = o.fontEngine;
-    custom = o.custom;
 
     return *this;
 }
@@ -1145,7 +1146,7 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 		    charEnd++;
 		glyphEnd = (charEnd == ilen) ? si->num_glyphs : logClusters[charEnd];
 		if ( glyphStart <= glyphEnd  ) {
-		    QFontEngine *fe = si->fontEngine;
+		    QFontEngine *fe = si->font();
 		    glyph_metrics_t m = fe->boundingBox( glyphs+glyphStart, advances+glyphStart,
 						       offsets+glyphStart, glyphEnd-glyphStart );
 		    gm.x = qMin( gm.x, m.x + gm.xoff );

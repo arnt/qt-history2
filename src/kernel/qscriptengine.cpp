@@ -46,7 +46,7 @@ static inline void positionCluster( QTextEngine *engine, QScriptItem *si, int gf
     qoffset_t *offsets = engine->offsets( si );
     GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
 
-    QFontEngine *f = si->fontEngine;
+    QFontEngine *f = si->font();
     glyph_metrics_t baseInfo = f->boundingBox( glyphs[gfrom] );
 
     if ( si->analysis.script == QFont::Hebrew ) {
@@ -286,10 +286,10 @@ static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QSc
 
     si->num_glyphs = len;
     engine->ensureSpace( len );
-    int error = si->fontEngine->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs, (si->analysis.bidiLevel %2) );
+    int error = si->font()->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs, (si->analysis.bidiLevel %2) );
     if ( error == QFontEngine::OutOfMemory ) {
 	engine->ensureSpace( si->num_glyphs );
-	si->fontEngine->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs, (si->analysis.bidiLevel %2) );
+	si->font()->stringToCMap( chars, len, glyphs, advances, &si->num_glyphs, (si->analysis.bidiLevel %2) );
     }
 }
 
@@ -955,7 +955,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
     // ### disable open typ for arabic for now. It has some bigger trouble with
     // non spacing marks.
 #if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
-    QOpenType *openType = si->fontEngine->openType();
+    QOpenType *openType = si->font()->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
 	arabicSyriacOpenTypeShape( QFont::Arabic, openType, string,  from,  len, engine, si );

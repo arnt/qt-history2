@@ -1829,7 +1829,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     glyph_t *glyphs = engine->glyphs( &si );
     advance_t *advances = engine->advances( &si );
     qoffset_t *offsets = engine->offsets( &si );
-    bool glyphIndices = si.fontEngine->type() == QFontEngine::Xft;
+    bool glyphIndices = si.font()->type() == QFontEngine::Xft;
 
     stream << "<";
     if ( si.analysis.bidiLevel % 2 ) {

@@ -217,12 +217,13 @@ struct QScriptItem
 			   isObject( FALSE ), hasPositioning( FALSE ),
 			   descent( -1 ), ascent( -1 ), width( -1 ),
 			   x( 0 ), y( 0 ), num_glyphs( 0 ), glyph_data_offset( 0 ),
-			   fontEngine( 0 ), custom(0) { }
+			   custom(0), fontEngine( 0 ) { }
     QScriptItem(const QScriptItem &o);
     ~QScriptItem();
     QScriptItem &operator=(const QScriptItem &o);
 
     void setFont(QFontEngine *e);
+    QFontEngine *font() const { return fontEngine; }
     int position;
     QScriptAnalysis analysis;
     unsigned short isSpace  : 1;
@@ -237,8 +238,9 @@ struct QScriptItem
     int y;
     int num_glyphs;
     int glyph_data_offset;
-    QFontEngine *fontEngine;
     int custom;
+private:
+    QFontEngine *fontEngine;
 };
 
 Q_DECLARE_TYPEINFO(QScriptItem, Q_MOVABLE_TYPE);

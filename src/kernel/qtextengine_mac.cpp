@@ -24,14 +24,14 @@ void QTextEngine::shape( int item ) const
 
     si.glyph_data_offset = used;
 
-    if ( !si.fontEngine )
-	si.fontEngine = fnt->engineForScript( script );
-    si.fontEngine->ref();
 
-    si.ascent = si.fontEngine->ascent();
-    si.descent = si.fontEngine->descent();
+    if ( !si.font() )
+	si.setFont(fnt->engineForScript( script ));
 
-    if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
+    si.ascent = si.font()->ascent();
+    si.descent = si.font()->descent();
+
+    if ( si.font() && si.font() != (QFontEngine*)-1 ) {
 	assert( script < QFont::NScripts );
 	scriptEngines[script].shape( script, string, from, len, (QTextEngine *)this, &si );
     }

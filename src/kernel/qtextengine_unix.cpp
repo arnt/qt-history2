@@ -30,16 +30,15 @@ void QTextEngine::shape( int item ) const
 
     si.glyph_data_offset = used;
 
-    if ( !si.fontEngine )
-	si.fontEngine = fnt->engineForScript( script );
-    si.fontEngine->ref();
+    if (!si.font())
+	si.setFont(fnt->engineForScript( script ));
 
     if ( !widthOnly ) {
-	si.ascent = si.fontEngine->ascent();
-	si.descent = si.fontEngine->descent();
+	si.ascent = si.font()->ascent();
+	si.descent = si.font()->descent();
     }
 
-    if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
+    if ( si.font() && si.font() != (QFontEngine*)-1 ) {
 	assert( script < QFont::NScripts );
 	scriptEngines[script].shape( script, string, from, len, (QTextEngine *)this, &si );
     }
@@ -48,8 +47,8 @@ void QTextEngine::shape( int item ) const
     advance_t *advances = this->advances( &si );
 
 #ifndef QT_NO_XFTFREETYPE
-    if (kern && si.fontEngine->type() == QFontEngine::Xft) {
-	FT_Face face = static_cast<QFontEngineXft *>(si.fontEngine)->freetypeFace();
+    if (kern && si.font()->type() == QFontEngine::Xft) {
+	FT_Face face = static_cast<QFontEngineXft *>(si.font())->freetypeFace();
 	if (FT_HAS_KERNING(face)) {
 	    FT_Vector kerning;
 	    glyph_t *g = glyphs(&si);
