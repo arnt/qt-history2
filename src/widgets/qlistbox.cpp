@@ -110,7 +110,7 @@ public:
     int mousePressColumn;
     int mouseMoveRow;
     int mouseMoveColumn;
-    BOOL mouseInternalPress;
+    bool mouseInternalPress;
 
     QTimer * scrollTimer;
     QTimer * updateTimer;
