@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#34 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -49,6 +49,10 @@ extern "C" {
   to greyscale.
 */
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static
 void iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 {
@@ -65,6 +69,7 @@ void iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
     }
 }
 
+
 static
 void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 {
@@ -77,6 +82,10 @@ void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 	return;
     }
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 static
 void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
@@ -761,6 +770,10 @@ const char* QPNGFormatType::formatName() const
 }
 
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static void
 info_callback(png_structp png_ptr, png_infop info)
 {
@@ -782,6 +795,11 @@ end_callback(png_structp png_ptr, png_infop info)
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
     that->end(png_ptr,info);
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+
 
 #ifdef PNG_USER_CHUNK_SUPPORTED
 static int

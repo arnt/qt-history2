@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#169 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#170 $
 **
 ** Global type declarations and definitions
 **
@@ -182,6 +182,7 @@
 #if __SUNPRO_CC >= 0x500
 #define HAS_BOOL_TYPE
 #define Q_SPARCWORKS_FUNCP_BUG
+#define Q_C_CALLBACKS
 #endif
 #elif defined(__DECCXX)
 #define _CC_DEC_

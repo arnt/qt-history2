@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#335 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#336 $
 **
 ** Implementation of QListView widget class
 **
@@ -672,6 +672,10 @@ QString QListViewItem::key( int column, bool ) const
 }
 
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static int cmp( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
@@ -680,6 +684,10 @@ static int cmp( const void *n1, const void *n2 )
     return ((QListViewPrivate::SortableItem *)n1)->key.
 	    compare( ((QListViewPrivate::SortableItem *)n2)->key );
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 
 /*!  Sorts the children of this item by the return values of

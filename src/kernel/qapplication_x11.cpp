@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#572 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#573 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -760,8 +760,10 @@ void QApplication::create_xim()
 		XIMCallback	destroy;
 		destroy.callback=xim_destroy_callback;
 		destroy.client_data=NULL;
+		/*
 		if (XSetIMValues(qt_xim,XNDestroyCallback,&destroy,NULL)!=NULL)
 			qWarning( "Xlib dosn't support destroy callback");
+			*/
 #endif
 	    XIMStyles *styles=0;
 	    XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
@@ -832,7 +834,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	// Qt part of other application
 
 	appForeignDpy = TRUE;
-	appName = "Qt-subapplication";
+	appName = qstrdup( "Qt-subapplication" );
 	appDpy  = display;
 	app_Xfd = XConnectionNumber( appDpy );
 
@@ -1172,6 +1174,11 @@ void qt_cleanup()
     if ( is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
+
+    if ( appForeignDpy ) {
+	delete appName;
+	appName = 0;
+    }
 
     delete activeBeforePopup;
     activeBeforePopup = 0;

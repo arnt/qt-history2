@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#112 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#113 $
 **
 ** Implementation of QDir class
 **
@@ -1530,6 +1530,10 @@ struct QDirSortItem {
 
 static int cmp_si_sortSpec;
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 static int cmp_si( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
@@ -1580,6 +1584,10 @@ static int cmp_si( const void *n1, const void *n2 )
     else
 	return r;
 }
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 /*!
   \internal
