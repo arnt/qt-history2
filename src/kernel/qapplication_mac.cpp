@@ -2357,7 +2357,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			by_accel = !GetEventParameter(event, kEventParamKeyModifiers, typeUInt32,
 						      NULL, sizeof(keyc), NULL, &keyc) && keyc;
 		    }
-		    if(!QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel))
+		    if(by_accel || !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel))
 #endif
 			handled_event = FALSE;
 		}
