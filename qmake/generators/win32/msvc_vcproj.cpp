@@ -935,7 +935,7 @@ void VcprojGenerator::initHeaderFiles()
 void VcprojGenerator::initGeneratedFiles()
 {
     vcProject.GeneratedFiles.Name = "Generated Files";
-    vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h;qrc;def;odl;idl";
+    vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h;qrc;def;odl;idl;res;";
     vcProject.GeneratedFiles.Guid = _GUIDGeneratedFiles;
 
     // Create a list of the files being moc'ed
@@ -1017,8 +1017,33 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.Filter = ""; //"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;ts;qrc";
     vcProject.ResourceFiles.Guid = _GUIDResourceFiles;
 
-    //vcProject.ResourceFiles.addFiles(project->variables()["RC_FILE"]);
-    // ### Insert qrc dependencies here...
+    // Bad hack, please look away -------------------------------------
+    QString rcc_dep_cmd = project->variables()["rcc.depend_command"].join(" ");
+    QStringList qrc_files = project->variables()["RESOURCES"];
+    QStringList deps;
+    if(!qrc_files.isEmpty()) {
+        for (int i = 0; i < qrc_files.count(); ++i) {
+	    char buff[256];
+            QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i), "");
+
+            dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+            if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+	        QString indeps;
+                while(!feof(proc)) {
+                    int read_in = fread(buff, 1, 255, proc);
+                    if(!read_in)
+                        break;
+                    indeps += QByteArray(buff, read_in);
+                }
+                fclose(proc);
+                if(!indeps.isEmpty())
+                    deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+            }
+        }
+    }
+    vcProject.ResourceFiles.addFiles(deps);
+    // You may look again --------------------------------------------
+
     vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
 
     vcProject.ResourceFiles.Project = this;
