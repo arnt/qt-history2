@@ -33,8 +33,10 @@ class Q_GUI_EXPORT QWorkspace : public QWidget
     Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
 
 public:
-    QWorkspace(QWidget* parent=0, const char* name=0);
-
+    QWorkspace(QWidget* parent=0);
+#ifdef QT_COMPAT
+    QWorkspace(QWidget* parent=0, const char* name);
+#endif
     ~QWorkspace();
 
     enum WindowOrder { CreationOrder, StackingOrder };

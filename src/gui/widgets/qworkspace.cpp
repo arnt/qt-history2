@@ -124,8 +124,7 @@ class QWorkspaceChild : public QFrame
     friend class QTitleBar;
 
 public:
-    QWorkspaceChild(QWidget* window,
-                     QWorkspace* parent=0, const char* name=0);
+    QWorkspaceChild(QWidget* window, QWorkspace* parent=0);
     ~QWorkspaceChild();
 
     void setActive(bool);
@@ -260,12 +259,20 @@ static bool isChildOf(QWidget * child, QWidget * parent)
 /*!
     Constructs a workspace with a \a parent and a \a name.
 */
+QWorkspace::QWorkspace(QWidget *parent)
+    : QWidget(*new QWorkspacePrivate, parent, 0)
+{
+    d->init();
+}
+
+#ifdef QT_COMPAT
 QWorkspace::QWorkspace(QWidget *parent, const char *name)
     : QWidget(*new QWorkspacePrivate, parent, 0)
 {
     setObjectName(name);
     d->init();
 }
+#endif
 
 /*!
     \internal
@@ -379,14 +386,15 @@ void QWorkspace::setPaletteBackgroundPixmap(const QPixmap & pm)
     update();
 }
 
+
 /*! \reimp */
 void QWorkspace::childEvent(QChildEvent * e)
 {
-    if ((e->type() == QEvent::ChildInserted) && e->child()->isWidgetType()) {
+    if ((e->type() == QEvent::ChildPolished) && e->child()->isWidgetType()) {
         QWidget* w = (QWidget*) e->child();
         if (!w || !w->testWFlags(Qt::WStyle_Title | Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)
              || d->icons.contains(w) || w == d->vbar || w == d->hbar || w == d->corner)
-            return;            // nothing to do
+            return;
 
         bool wasMaximized = w->isMaximized();
         bool wasMinimized = w->isMinimized();
@@ -399,7 +407,8 @@ void QWorkspace::childEvent(QChildEvent * e)
         if (!hasSize && w->sizeHint().isValid())
             w->adjustSize();
 
-        QWorkspaceChild* child = new QWorkspaceChild(w, this, "qt_workspacechild");
+        QWorkspaceChild* child = new QWorkspaceChild(w, this);
+        child->setObjectName("qt_workspacechild");
         child->installEventFilter(this);
 
         connect(child, SIGNAL(popupOperationMenu(QPoint)),
@@ -1121,30 +1130,32 @@ void QWorkspacePrivate::showMaximizeControls()
 
     // Do a breadth-first search first on every parent,
     QWidget* w = q->parentWidget();
-    QObjectList l;
+    QList<QMenuBar*> l;
     while (l.isEmpty() && w) {
-        l = w->queryList("QMenuBar", 0, false, false);
+        l = qFindChildren<QMenuBar*>(w);
         w = w->parentWidget();
     }
 
     // and query recursively if nothing is found.
     if (!l.size())
-        l = q->topLevelWidget()->queryList("QMenuBar", 0, 0, true);
+        l = qFindChildren<QMenuBar*>(q->topLevelWidget());
     if (l.size())
-        b = (QMenuBar *)l.at(0);
+        b = l.at(0);
 
     if (!b)
         return;
 
     if (!d->maxcontrols) {
         d->maxmenubar = b;
-        d->maxcontrols = new QFrame(q->topLevelWidget(), "qt_maxcontrols");
+        d->maxcontrols = new QFrame(q->topLevelWidget());
+        d->maxcontrols->setObjectName("qt_maxcontrols");
         QHBoxLayout* l = new QHBoxLayout(d->maxcontrols);
         l->setMargin(d->maxcontrols->frameWidth());
         l->setSpacing(0);
         if (d->maxWindow->windowWidget() &&
              d->maxWindow->windowWidget()->testWFlags(Qt::WStyle_Minimize)) {
-            QToolButton* iconB = new QToolButton(d->maxcontrols, "iconify");
+            QToolButton* iconB = new QToolButton(d->maxcontrols);
+            iconB->setObjectName("iconify");
 #ifndef QT_NO_TOOLTIP
             iconB->setToolTip(q->tr("Minimize"));
 #endif
@@ -1156,7 +1167,8 @@ void QWorkspacePrivate::showMaximizeControls()
                              q, SLOT(minimizeActiveWindow()));
         }
 
-        QToolButton* restoreB = new QToolButton(d->maxcontrols, "restore");
+        QToolButton* restoreB = new QToolButton(d->maxcontrols);
+        restoreB->setObjectName("restore");
 #ifndef QT_NO_TOOLTIP
         restoreB->setToolTip(q->tr("Restore Down"));
 #endif
@@ -1168,7 +1180,8 @@ void QWorkspacePrivate::showMaximizeControls()
                          q, SLOT(normalizeActiveWindow()));
 
         l->addSpacing(2);
-        QToolButton* closeB = new QToolButton(d->maxcontrols, "close");
+        QToolButton* closeB = new QToolButton(d->maxcontrols);
+        closeB->setObjectName("close");
 #ifndef QT_NO_TOOLTIP
         closeB->setToolTip(q->tr("Close"));
 #endif
@@ -1192,7 +1205,8 @@ void QWorkspacePrivate::showMaximizeControls()
     }
     if (d->active) {
         if (!d->maxtools) {
-            d->maxtools = new QLabel(q->topLevelWidget(), "qt_maxtools");
+            d->maxtools = new QLabel(q->topLevelWidget());
+            d->maxtools->setObjectName("qt_maxtools");
             d->maxtools->installEventFilter(q);
         }
         if (d->active->windowWidget() && !!d->active->windowWidget()->windowIcon()) {
@@ -1622,10 +1636,10 @@ void QWorkspace::tile()
     blockSignals(false);
 }
 
-QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent,
-                                  const char *name)
-    : QFrame(parent, name,
-              Qt::WStyle_NoBorder | Qt::WStyle_Customize | Qt::WDestructiveClose | Qt::WNoMousePropagation | Qt::WSubWindow)
+QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent)
+    : QFrame(parent,
+             Qt::WStyle_NoBorder | Qt::WStyle_Customize | Qt::WDestructiveClose
+             | Qt::WNoMousePropagation | Qt::WSubWindow)
 {
     setAttribute(Qt::WA_NoBackground, true);
     setMouseTracking(true);
@@ -1887,7 +1901,7 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
         if (iconw)
             iconw->setWindowTitle(childWidget->windowTitle());
         break;
-    case QEvent::IconChange:
+    case QEvent::WindowIconChange:
         {
             QWorkspace* ws = (QWorkspace*)parentWidget();
             if (!titlebar)
@@ -2057,14 +2071,14 @@ void QWorkspaceChild::setActive(bool b)
         iconw->setActive(act);
     repaint();
 
-    QObjectList ol = childWidget->queryList("QWidget");
+    QList<QWidget*> wl = qFindChildren<QWidget*>(childWidget);
     if (act) {
-        for (int i = 0; i < ol.size(); ++i) {
-            QObject *o = ol.at(i);
-            o->removeEventFilter(this);
+        for (int i = 0; i < wl.size(); ++i) {
+            QWidget *w = wl.at(i);
+            w->removeEventFilter(this);
         }
         if (!hasFocus) {
-            if (lastfocusw && ol.contains(lastfocusw) &&
+            if (lastfocusw && wl.contains(lastfocusw) &&
                  lastfocusw->focusPolicy() != Qt::NoFocus) {
                 // this is a bug if lastfocusw has been deleted, a new
                 // widget has been created, and the new one is a child
@@ -2075,10 +2089,10 @@ void QWorkspaceChild::setActive(bool b)
                 childWidget->setFocus();
             } else {
                 // find something, anything, that accepts focus, and use that.
-                for (int i = 0; i < ol.size(); ++i) {
-                    QObject *o = ol.at(i);
-                    if(o->isWidgetType() && ((QWidget*)o)->focusPolicy() != Qt::NoFocus) {
-                        ((QWidget*)o)->setFocus();
+                for (int i = 0; i < wl.size(); ++i) {
+                    QWidget *w = wl.at(i);
+                    if(w->focusPolicy() != Qt::NoFocus) {
+                        w->setFocus();
                         break;
                     }
                 }
@@ -2087,10 +2101,10 @@ void QWorkspaceChild::setActive(bool b)
     } else {
         if (isChildOf(focusWidget(), childWidget))
             lastfocusw = focusWidget();
-        for (int i = 0; i < ol.size(); ++i) {
-            QObject *o = ol.at(i);
-            o->removeEventFilter(this);
-            o->installEventFilter(this);
+        for (int i = 0; i < wl.size(); ++i) {
+            QWidget *w = wl.at(i);
+            w->removeEventFilter(this);
+            w->installEventFilter(this);
         }
     }
 }
@@ -2111,8 +2125,10 @@ QWidget* QWorkspaceChild::iconWidget() const
     if (!iconw) {
         QWorkspaceChild* that = (QWorkspaceChild*) this;
 
-        QVBox* vbox = new QVBox(that, "qt_vbox", Qt::WType_TopLevel);
-        QTitleBar *tb = new QTitleBar(windowWidget(), vbox, "_workspacechild_icon_");
+        QVBox* vbox = new QVBox(that, Qt::WType_TopLevel);
+        vbox->setObjectName("qt_vbox");
+        QTitleBar *tb = new QTitleBar(windowWidget(), vbox);
+        tb->setObjectName("_workspacechild_icon_");
         int th = style().pixelMetric(QStyle::PM_TitleBarHeight, tb);
         int iconSize = style().pixelMetric(QStyle::PM_MDIMinimizedWidth, this);
         if (!style().styleHint(QStyle::SH_TitleBar_NoBorder)) {
@@ -2324,11 +2340,14 @@ void QWorkspace::setScrollBarsEnabled(bool enable)
 
     d->xoffset = d->yoffset = 0;
     if (enable) {
-        d->vbar = new QScrollBar(Qt::Vertical, this, "vertical scrollbar");
+        d->vbar = new QScrollBar(Qt::Vertical, this);
+        d->vbar->setObjectName("vertical scrollbar");
         connect(d->vbar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarChanged()));
-        d->hbar = new QScrollBar(Qt::Horizontal, this, "horizontal scrollbar");
+        d->hbar = new QScrollBar(Qt::Horizontal, this);
+        d->hbar->setObjectName("horizontal scrollbar");
         connect(d->hbar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarChanged()));
-        d->corner = new QWidget(this, "qt_corner");
+        d->corner = new QWidget(this);
+        d->corner->setObjectName("qt_corner");
         d->updateWorkspace();
     } else {
         delete d->vbar;
