@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#49 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#49 $");
 
 
 /*!
@@ -320,7 +320,7 @@ void QLCDNumber::setNumDigits( int numDigits )
     if ( numDigits > 99 ) {
 #if defined(CHECK_RANGE)
 	warning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
-		 name() );
+		 name( "unnamed" ) );
 #endif
 	numDigits = 99;
     }
@@ -921,7 +921,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #if defined(CHECK_RANGE)
 	default :
 	    warning( "QLCDNumber::drawSegment: (%s) Internal error."
-		     "  Illegal segment id: %d\n", name(), segmentNo );
+		     "  Illegal segment id: %d\n",
+		     name( "unnamed" ), segmentNo );
 #endif
 	}
 	// End exact copy
@@ -1060,7 +1061,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #if defined(CHECK_RANGE)
 	default :
 	    warning( "QLCDNumber::drawSegment: (%s) Internal error."
-		     "  Illegal segment id: %d\n", name(), segmentNo );
+		     "  Illegal segment id: %d\n",
+		     name( "unnamed" ), segmentNo );
 #endif
 	}
 

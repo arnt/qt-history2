@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#30 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -524,7 +524,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	break;
     }
     default:
-	debug("QHeader::mouseReleaseEvent() (%s) no state", name() );
+	debug("QHeader::mouseReleaseEvent() (%s) no state", name("unnamed") );
 	break;
     }
 }
@@ -551,7 +551,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
     } else {
 	switch ( state ) {
 	case Idle:
-	    debug( "QHeader::mouseMoveEvent() (%s) Idle state", name() );
+	    debug( "QHeader::mouseMoveEvent() (%s) Idle state",
+		   name( "unnamed" ) );
 	    break;
 	case Pressed:
 	    if ( QABS( s - clickPos ) > 4 ) {
@@ -613,7 +614,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	    break;
 	}
 	default:
-	    warning( "QHeader::mouseMoveEvent: (%s) unknown state", name() );
+	    warning( "QHeader::mouseMoveEvent: (%s) unknown state",
+		     name( "unnamed" ) );
 	    break;
 	}
     }

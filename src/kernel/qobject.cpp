@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#150 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#149 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#150 $");
 
 
 /*!
@@ -264,7 +264,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 	QObject *obj;
 	while ( (obj=it.current()) ) {
 	    ++it;
-	    if ( strcmp(name,obj->name()) == 0 &&
+	    if ( qstrcmp(name,obj->name()) == 0 &&
 		obj->inherits(type) )
 		return obj;
 	}
@@ -487,6 +487,23 @@ bool QObject::inherits( const char *clname ) const
 */
 
 /*!
+  \overload const char *QObject::name( const char * defaultName ) const
+
+  Returns the name of this object, or \a defaultName if the object
+  does not have a name.
+
+  This version of name() is particularly useful for debug() calls such as:
+
+  \code
+    debug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
+	    name( "unnamed" ), newPrecision );
+  \endcode
+
+  name( "unnamed" ) is used here so that printf() (used in debug())
+  will not be asked to output a null pointer.
+*/
+
+/*!
   Sets the name of this object to \e name.  The default name is the
   one assigned by the constructor.
 
@@ -557,7 +574,7 @@ bool QObject::event( QEvent *e )
   timer events for the object.
 
   The default implementation does nothing.
-  
+
   QTimer provides a higher-level interface to the timer functionality,
   and also more general information about timers.
 
@@ -737,7 +754,7 @@ static void objSearch( QObjectList *result,
 	    ok = FALSE;
 	if ( ok ) {
 	    if ( objName )
-		ok = strcmp(objName,obj->name()) == 0;
+		ok = qstrcmp(objName,obj->name()) == 0;
 	    else if ( rx )
 		ok = rx->match(obj->name()) >= 0;
 	}
@@ -890,7 +907,7 @@ void QObject::insertChild( QObject *obj )
 #if defined(CHECK_STATE)
     else if ( childObjects->findRef(obj) >= 0 ) {
 	warning( "QObject::insertChild: Object %s::%s already in list",
-		 obj->className(), obj->name() );
+		 obj->className(), obj->name( "unnamed" ) );
 	return;
     }
 #endif
@@ -1556,7 +1573,7 @@ QMetaObject *QObject::queryMetaObject() const
 #if defined(CHECK_NULL)
     if ( !m )					// still no meta object: error
 	warning( "QObject: Object %s::%s has no meta object",
-		 x->className(), x->name() );
+		 x->className(), x->name( "unnamed" ) );
 #endif
     return m;
 }
@@ -1680,7 +1697,7 @@ static void dumpRecursive( int level, QObject *object )
     if ( object ) {
 	QString buf;
 	buf.fill( '\t', level );
-	const char *name = object->name() ? object->name() : "????";
+	const char *name = object->name( "unnamed" );
 	QString flags="";
 	if ( qApp->focusWidget() == object )
 	    flags += 'F';
@@ -1729,7 +1746,7 @@ void QObject::dumpObjectTree()
 void QObject::dumpObjectInfo()
 {
 #if defined(DEBUG)
-    debug( "OBJECT %s::%s", className(), name() );
+    debug( "OBJECT %s::%s", className(), name( "unnamed" ) );
     debug( "  SIGNALS OUT" );
     int n = 0;
     if ( connections ) {
@@ -1744,7 +1761,7 @@ void QObject::dumpObjectInfo()
 	    while ( (c=cit.current()) ) {
 		++cit;
 		debug( "\t  --> %s::%s %s", c->object()->className(),
-		       c->object()->name(), c->memberName() );
+		       c->object()->name( "unnamed" ), c->memberName() );
 	    }
 	}
     }
@@ -1755,7 +1772,8 @@ void QObject::dumpObjectInfo()
     if ( senderObjects ) {
 	QObject *sender = senderObjects->first();
 	while ( sender ) {
-	    debug( "\t%s::%s", sender->className(), sender->name() );
+	    debug( "\t%s::%s",
+		   sender->className(), sender->name( "unnamed" ) );
 	    n++;
 	    sender = senderObjects->next();
 	}

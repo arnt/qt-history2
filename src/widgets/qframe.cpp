@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#56 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#56 $");
 
 
 /*!
@@ -29,7 +29,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#55 $");
   fill in the frame.  This function is reimplemented by essentially
   all subclasses.  There are also two other less useful functions,
   drawFrame() and frameChanged().
-  
+
   QMenuBar uses this to "raise" the menu bar above the surrounding
   screen:
 
@@ -185,7 +185,7 @@ void QFrame::setFrameStyle( int style )
     bool shadow = (style & MShadow) != 0;
     if ( shape != shadow )
 	warning( "QFrame::setFrameStyle: (%s) Incomplete frame style",
-		 name() );
+		 name( "unnamed" ) );
 #endif
     fstyle = (short)style;
     updateFrameWidth();

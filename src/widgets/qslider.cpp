@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#48 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#48 $");
 
 
 static const int motifBorder = 2;
@@ -640,7 +640,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     resetState();
     sliderStartVal = sliderVal;
     QRect r = sliderRect();
-    
+
     if ( e->button() == RightButton ) {
 	return;
     } else if ( r.contains( e->pos() ) ) {
@@ -773,7 +773,7 @@ void QSlider::resetState()
     case Idle:
 	break;
     default:
-	warning("QSlider: (%s) in wrong state", name() );
+	warning("QSlider: (%s) in wrong state", name( "unnamed" ) );
     }
     state = Idle;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#89 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#89 $");
 
 
 /*!
@@ -48,38 +48,38 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#88 $");
   lineStep(); and last but NOT least setRange() to set the minValue()
   and maxValue() of the scrollbar.  (QScrollBar has a convenience
   constructor with which you can set most of that.)
-  
+
   In addition to the access functions from QRangeControl, QScrollBar
   has a comprehensive set of signals: <ul>
 
   <li> valueChanged() - emitted when the scroll bar's value has changed.
-  
+
   <li> sliderPressed() - emitted when the user starts to drag the
   slider
-  
+
   <li> sliderMoved() - emitted when the user drags the slider
-  
+
   <li> sliderReleased() - emitted when the user releases the slider
-  
+
   <li> nextLine() - emitted when the scroll bar has moved one line
   down/rightwards.  Line is defined in QRangeControl.
-  
+
   <li> prevLine() - emitted when the scroll bar has moved one line
   up/leftwards.
-  
+
   <li> nextPage() - emitted when the scroll bar has moved one page
   down/rightwards.
-  
+
   <li> prevPage() - emitted when the scroll bar has moved one page
   up/leftwards.
-  
+
   </ul>
-  
+
   QScrollBar only offers integer ranges, and the current
   implementation has problems when the range is greater than a million
   or so.  (A million is more than sufficient for today's display
   sizes, however.)
-  
+
   A scroll bar can be controlled by the keyboard, but it has a
   default focusPolicy() of \c NoFocus. Use setFocusPolicy() to
   enable keyboard focus.
@@ -730,7 +730,7 @@ void QScrollBar_Private::action( ScrollControl control )
 #if defined(CHECK_RANGE)
 	default:
 	    warning( "QScrollBar_Private::action: (%s) internal error",
-		     name() );
+		     name( "unnamed" ) );
 #endif
     }
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#86 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -307,7 +307,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     QString *s = contents->at( row );
     if ( !s ) {
 	warning( "QMultiLineEdit::paintCell: (%s) no text at line %d",
-		 name(), row );
+		 name( "unnamed" ), row );
 	return;
     }
     QRect updateR   = cellUpdateRect();
@@ -417,7 +417,7 @@ int QMultiLineEdit::textWidth( int line )
     if ( !s ) {
 	warning( "QMultiLineEdit::textWidth: (%s) "
 		 "Couldn't find contents at line %d",
-		 name(), line );
+		 name( "unnamed" ), line );
 	return 0;
     }
     return textWidth( s );

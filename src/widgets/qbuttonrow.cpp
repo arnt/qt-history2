@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttonrow.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qbuttonrow.cpp#3 $
 **
 ** Implementation of button row layout widget
 **
@@ -21,7 +21,7 @@
   according to their sizeHint()s. If there is room, all widgets will have the
   same size.
 
-  \sa QGrid and QHBox 
+  \sa QGrid and QHBox
 */
 
 
@@ -75,7 +75,7 @@ void QButtonRow::recalc()
 	if ( o->isWidgetType() ) {
 	    QWidget *w = (QWidget*) o;
 	    w->setMaximumSize( prefSize );
-	    debug( "recalc setting %p to (%d,%d)", w, prefSize.width(), 
+	    debug( "recalc setting %p to (%d,%d)", w, prefSize.width(),
 		   prefSize.height() );
 	}
     }
@@ -113,7 +113,7 @@ void QButtonRow::childEvent( QChildEvent *c )
     gm->addWidget( ser, w, 1 );
     gm->addWidget( par, w );
 
-    if ( sh.width() > prefSize.width() || sh.height() > prefSize.height() ) 
+    if ( sh.width() > prefSize.width() || sh.height() > prefSize.height() )
 	recalc();
     else {
 	w->setMaximumSize( prefSize );
@@ -151,13 +151,15 @@ void QButtonRow::dump()
 	++it;
 	if ( o-> isWidgetType() ) {
 	    QWidget *w = (QWidget*) o;
-	    debug( "%s/%s, max (%d,%d), min (%d,%d)", w->className(), w->name(),
+	    debug( "%s/%s, max (%d,%d), min (%d,%d)",
+		   w->className(), w->name( "unnamed" ),
 		   w->maximumSize().width(), w->maximumSize().height(),
 		   w->minimumSize().width(), w->minimumSize().height() );
 	}
     }
     QWidget *w = this;
-    debug( "%s/%s, max (%d,%d), min (%d,%d)", w->className(), w->name(),
+    debug( "%s/%s, max (%d,%d), min (%d,%d)",
+	   w->className(), w->name( "unnamed" ),
 	   w->maximumSize().width(), w->maximumSize().height(),
 	   w->minimumSize().width(), w->minimumSize().height() );
 

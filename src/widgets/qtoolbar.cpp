@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#10 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#10 $");
 
 
 
@@ -138,8 +138,8 @@ void QToolBar::setUpGM()
     while( (o=it.current()) != 0 ) {
 	++it;
 	if ( o->isWidgetType() ) {
-	    if ( !strcmp( "tool bar separator", o->name() ) &&
-		 !strcmp( "QFrame", o->className() ) ) {
+	    if ( !qstrcmp( "tool bar separator", o->name() ) &&
+		 !qstrcmp( "QFrame", o->className() ) ) {
 		QFrame * f = (QFrame *)o;
 		if ( orientation() == Vertical ) {
 		    f->setMinimumSize( 0, 6 );

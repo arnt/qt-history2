@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#9 $
 **
 ** Implementation of something useful.
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#9 $");
 
 
 class QMainWindowPrivate {
@@ -367,7 +367,8 @@ void QMainWindow::removeToolBar( QToolBar * toolBar )
 	 !removeToolBarFromDock( toolBar, d->right ) &&
 	 !removeToolBarFromDock( toolBar, d->bottom ) ) {
 	debug( "QMainWindow::removeToolBar() (%s) not managing %p (%s/%s)",
-	       name(), toolBar, toolBar->name(), toolBar->className() );
+	       name( "unnamed" ), toolBar,
+	       toolBar->name( "unnamed" ), toolBar->className() );
     } else {
 	d->timer->start( 0, TRUE );
     }
