@@ -33,7 +33,7 @@
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-QPaintEngine *qt_mac_current_gc = 0; //Current "active" QPaintEngine
+QPaintEngine *qt_mac_current_engine = 0; //Current "active" QPaintEngine
 
 
 /*****************************************************************************
@@ -199,8 +199,8 @@ QQuickDrawPaintEngine::end()
 
     delete d->saved;
     d->saved = 0;
-    if(qt_mac_current_gc == this)
-	qt_mac_current_gc = 0;
+    if(qt_mac_current_engine == this)
+	qt_mac_current_engine = 0;
 
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
 	HideWindow((WindowPtr)d->pdev->handle());
@@ -970,13 +970,13 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 	}
 	d->clip.dirty = false;
     }
-    if(remade_clip || qt_mac_current_gc != this) {
+    if(remade_clip || qt_mac_current_engine != this) {
 	QMacSavedPortInfo::setPaintDevice(d->pdev);
 #ifndef USE_CORE_GRAPHICS
 	if(type() != CoreGraphics)
 	    QMacSavedPortInfo::setClipRegion(d->clip.paintable);
 #endif
-	qt_mac_current_gc = this;
+	qt_mac_current_engine = this;
     }
     if(off)
 	*off = QPoint(d->offx, d->offy);
