@@ -14809,8 +14809,10 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 {
     if ( uclen < 0 )
 	uclen = s.length();
+    if ( s.data() == 0 )
+    return QCString();
     if ( uclen == 0 )
-	return QCString();
+	return QCString("");
     BOOL used_def;
     QCString mb(4096);
     int len;
