@@ -2,7 +2,7 @@ TEMPLATE	= app
 CONFIG		= qt warn_on release
 DEFINES += QWS
 LIBS		= -lqnetwork
-INCLUDEPATH	= $(QTDIR)/extensions/network/src
+INCLUDEPATH	= $(QTDIR)/extensions/network/src $(QTDIR)/include $(QTDIR)/../e/src/kernel $(QTDIR)/../e/include
 HEADERS	= qws.h qwscommand.h qwsproperty.h qws_gui.h qwsaccel.h \
 	  qwsmach64.h qwsmach64_defs.h
 SOURCES	= qws.cpp qwsproperty.cpp qws_gui.cpp qws_linuxfb.cpp main.cpp \
