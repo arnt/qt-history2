@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#14 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1018,8 +1018,9 @@ static const int windowsCheckMarkWidth = 12;       // checkmarks width on window
 void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 {
     p->setMouseTracking( TRUE );
-    p->setCheckable( TRUE );
-
+    if ( !p->testWState( WState_Polished ) )
+	p->setCheckable( TRUE );
+    p->setLineWidth( 2 );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#13 $
 **
 ** Implementation of Motif-like style class
 **
@@ -801,8 +801,9 @@ void QMotifStyle::polishPopupMenu( QPopupMenu* p)
 {
     p->setLineWidth( defaultFrameWidth() );
     p->setMouseTracking( FALSE );
-    p->setCheckable( FALSE );
-
+    if ( !p->testWState( WState_Polished ) )
+	p->setCheckable( FALSE );
+    p->setLineWidth( 2 );
 }
 
 
@@ -925,7 +926,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
     QColorGroup itemg = dis ? pal.disabled()
 			: act ? pal.active()
 			: pal.normal();
-    
+
     if ( checkable )
 	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     int checkcol	  =     maxpmw;
