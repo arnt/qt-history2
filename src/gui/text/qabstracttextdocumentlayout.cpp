@@ -35,7 +35,7 @@
 /*!
     \fn void QAbstractTextDocumentLayout::setPageSize(const QSize &size)
 
-    Sets the page size to \a size.
+    Sets the page \a size.
 
     \sa pageSize() numPages()
 */
@@ -49,10 +49,10 @@
 */
 
 /*!
-    Returns the size actually used for the document. The default implementation just
-    calls pageSize() . If for example your layout is html alike then you may want to
-    re-implement this function and return the size your document actually used, as that
-    will differ from the page size.
+    Returns the size used for the document. The default implementation just
+    calls pageSize(). For example, if your layout is similar to HTML then you
+    may want to re-implement this function, and return the size your document
+    actually used, as that will differ from the page size.
 
     \sa setPageSize() pageSize()
 */
@@ -81,22 +81,23 @@ QSize QAbstractTextDocumentLayout::sizeUsed() const
 /*!
     \fn void QAbstractTextDocumentLayout::documentChange(int from, int oldLength, int length)
 
-    This function is called whenever the content of the document changes. A change is
-    an insertion of text, removal or the combination of both. The \a from argument defines the
-    beginning where in the document the change happened. The \a oldLength argument
-    specifies the length of the area that was modified \bold{before} the actual change,
-    while \a length is the length \bold{afterwards} .
+    This function is called whenever the contents of the document change.
+    A change is an insertion of text, text removal, or the combination of
+    both. The \a from argument defines the beginning of the change in the
+    document. The \a oldLength argument specifies the length of the area that
+    was modified \bold{before} the actual change, and \a length is the
+    length \bold{afterwards}.
 
-    For example when simply inserting the text "Hello", \a oldLength would be 0
-    and \a length would equal 5, the length of the string.
+    For example when simply inserting the text "Hello", \a oldLength would
+    be 0 and \a length would equal 5 (the length of the string).
 
-    If for example 3 characters get removed, then \a oldLength would equal to 3 while
-    \a length would be 0, as before the change there were 3 characters and afterwards
-    none.
+    If for example 3 characters get removed, then \a oldLength would be
+    equal to 3 while \a length would be 0, as before the change there were 3
+    characters and afterwards none.
 
-    Replacing text is the combination of removal and insertion. So if for example
-    the text "Hello" gets replaced by "Hi" , \a oldLength would be 5 and \a length
-    would be 2.
+    Replacing text is the combination of removal and insertion. For example,
+    if the text "Hello" gets replaced by "Hi", \a oldLength would be 5 and
+    \a length would be 2.
 */
 
 /*!
@@ -187,8 +188,10 @@ void QAbstractTextDocumentLayout::layoutObject(QTextInlineObject item, const QTe
 }
 
 /*!
-    Called to draw the inline object \a item on painter \a p within
-    rectangle \a rect using the given text \a format and with the
+    \fn void QAbstractTextDocumentLayout::drawObject(QPainter *painter, const QRect &rect, QTextInlineObject item, const QTextFormat &format, QTextLayout::SelectionType selType)
+
+    Called to draw the inline object \a item on the given \a painter within
+    the rectangle specified by \a rect using the given text \a format and
     selection type \a selType.
 
     \sa layoutObject()
@@ -231,8 +234,9 @@ int QAbstractTextDocumentLayout::formatIndex(int pos)
 }
 
 /*!
-    Returns the character format that is applicable at position \a
-    pos.
+    \fn QTextCharFormat QAbstractTextDocumentLayout::format(int position)
+
+    Returns the character format that is applicable at the given \a position.
 */
 QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 {
@@ -253,8 +257,10 @@ const QTextDocument *QAbstractTextDocumentLayout::document() const
 
 
 /*!
-    Returns the name of the anchor at point \a pos, or an empty string
-    if there's no anchor at that point.
+    \fn QString QAbstractTextDocumentLayout::anchorAt(const QPoint &position) const
+
+    Returns the name of the anchor at the given \a position, or an empty
+    string if no anchor exists at that point.
 */
 QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
 {
