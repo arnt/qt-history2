@@ -2,7 +2,7 @@
 #
 # Configures to build the Qt library
 #
-# Copyright 1999-2000 Trolltech AS.  All rights reserved.
+# Copyright 1999-2001 Trolltech AS.  All rights reserved.
 #
 
 # To remove the need for the first test, do this:
@@ -152,7 +152,7 @@ elif [ -f $relpath/LICENSE.TROLL ]
 then
     Edition=troll
     echo
-    echo "This is the Trolltech Edition of Qt."
+    echo "This is the Trolltech in-house version of Qt."
     echo
     EMB="/Embedded" #fixme
 else
