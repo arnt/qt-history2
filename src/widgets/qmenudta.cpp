@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#25 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#25 $";
 #endif
 
 
@@ -146,7 +146,7 @@ int QMenuData::count() const
 int QMenuData::insertAny( const char *text, const QPixmap *pixmap,
 			  QPopupMenu *popup, int id, int index )
 {						// insert pixmap + sub menu
-    static int auto_id_count = 0;
+//    static int auto_id_count = 0;
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
 	warning( "QMenuData::insertItem: Index %d out of range", index );
@@ -159,10 +159,11 @@ int QMenuData::insertAny( const char *text, const QPixmap *pixmap,
 	return 0;
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
-    mi->ident = id == -1 ? --auto_id_count : id;
-    if ( text == 0 && pixmap == 0 && popup == 0 )
+    mi->ident = id == -1 ? index : id;
+    if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
-    else {
+        mi->ident        = -1;
+    } else {
 	mi->text_data = text;
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
