@@ -106,14 +106,14 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si)
 
     if(!p->hasFeature(QPaintEngine::CoordTransform)) {
         if(txop >= QPainterPrivate::TxScale) {
-            int aw = si.width, ah = si.ascent + si.descent + 1;
+            float aw = si.width, ah = si.ascent + si.descent + 1;
             if(aw == 0 || ah == 0)
                 return;
-            QBitmap bm(aw, ah, true);        // create bitmap
+            QBitmap bm(qRound(aw), qRound(ah), true);        // create bitmap
             {
                 QPainter paint(&bm);  // draw text in bitmap
                 paint.setPen(Qt::color1);
-                paint.drawTextItem(QPoint(0, si.ascent), si);
+                paint.drawTextItem(QPoint(0, qRound(si.ascent)), si);
                 paint.end();
             }
 
@@ -129,7 +129,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si)
                 pm.setMask(bm);
             }
 
-            pState->painter->drawPixmap(x, y - si.ascent, pm);
+            pState->painter->drawPixmap(x, y - qRound(si.ascent), pm);
             return;
         }
         if(txop == QPainterPrivate::TxTranslate) {
