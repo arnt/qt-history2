@@ -187,7 +187,7 @@ static QString double2string( double num, int base, int ndigits, bool *oflow )
 	}
 	s = int2string( (int)num, base, ndigits, 0 );
     } else {					// decimal base
-	s.sprintf( "%*g", ndigits, num );
+	s.sprintf( "%*.*g", ndigits, ndigits, num );
 	int i = s.find('e');
 	if ( i > 0 && s[i+1]=='+' ) {
 	    s[i] = ' ';
