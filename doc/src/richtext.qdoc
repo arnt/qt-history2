@@ -364,12 +364,10 @@ using the \c beginEditBlock() and \c endEditBlock() functions in the
 following way, as in the following example where we select the word that
 contains the cursor:
 
-\omit
-\quotefromfile textdocument-selections/mainwindow.cpp
+\quotefromfile snippets/textdocument-selections/mainwindow.cpp
 \skipto void MainWindow::selectWord
 \skipto cursor.beginEditBlock
 \printuntil cursor.endEditBlock
-\endomit
 
 If editing operations are not grouped, the document automatically records
 the individual operations so that they can be undone later. Grouping
