@@ -51,7 +51,7 @@
     provides paint engines for the following platforms and API's:
 
     \list
-    \o GDI and GDI+ on Windows
+    \o Pixel based engine used on Windows(tm) and for QImage on all platforms.
     \o OpenGL on all platforms
     \o PostScript on Linux, Unix, and Mac OS X
     \o QuickDraw and CoreGraphics on Mac OS X
@@ -96,35 +96,72 @@
 
     \endlist
 
-    \section2 Enabling Use of GDI+ on Windows
-
-    GDI+ is installed by default on Windows XP, and is available as a
-    downloadable redistributable binary for 98/ME/NT/2000. In order for
-    Qt to take advantage of the features in GDI+ the gdiplus.dll
-    library must be in the PATH.
-
     \section1 New Features in the Qt 4 Paint System
 
-    \section2 Linear Gradient Brushes
+    \section2 Gradient Brushes
 
-    With Qt 4 it is possible to fill shapes using a linear gradient
-    brush. A gradient in this case is used to describe the transition
-    from one color at one point to another color at another point. We
-    use the term linear gradient since the transition area follows a
-    line.
+    With Qt 4 it is possible to fill shapes using gradient
+    brushes. A gradient in this case is used to describe the transition
+    from one color at one point to another color at another point. A
+    gradient can span from one color to another or over a
+    number of colors by specifying multiple colors at positions in the
+    gradient area.. Qt 4 supports three types of gradients; Linear,
+    Radial and Conical.
 
-    Setting a linear gradient brush is done using the QBrush constructor
-    that takes two points and two colors, as sketched below:
+    Linear gradients are specified using two control points.
+    Setting a linear gradient brush is done by creating a QLinearGradient
+    object and setting it as a brush.
 
     \code
-    QBrush diagonalGradient(QPoint(0, 0), Qt::red, QPoint(width(), height()), Qt::blue);
-    painter.setBrush(diagonalGradient);
-    painter.drawRect(0, 0, width(), height());
+    QLinearGradient gradient(0, 0, 100, 100);
+    gradient.appendStop(0, Qt::red);
+    gradient.appendStop(0.5, Qt::green);
+    gradient.appendStop(1, Qt::blue);
+    painter.setBrush(gradient);
+    painter.drawRect(0, 0, 100, 100);
     \endcode
 
-    The code shown above produces a pattern as show in the following pixmap:
+    The code shown above produces a pattern as show in the following
+    pixmap:
 
     \img diagonalGradient.png
+
+    Radial gradients are specified using a center, a radius and a
+    focal point. Setting a radial brush is done by creating a QRadialGradient
+    object and setting it as a brush.
+
+    \code
+    QRadialGradient gradient(50, 50, 50, 30, 30);
+    gradient.appendStop(0.2, Qt::white);
+    gradient.appendStop(0.8, Qt::green);
+    gradient.appendStop(1, Qt::black);
+    painter.setBrush(gradient);
+    painter.drawEllipse(0, 0, 100, 100);
+    \endcode
+
+    The code shown above produces a pattern as shown in the following
+    pixmap:
+
+    \img radialGradient.png
+
+    Concal gradients are specified using a center and a start
+    angle. Setting a conical brush is done by creating a
+    QConicalGradient object and setting it as a brush.
+
+    \code
+    QConicalGradient gradient(60, 40, 0);
+    gradient.appendStop(0, Qt::black);
+    gradient.appendStop(0.4, Qt::green);
+    gradient.appendStop(0.6, Qt::white);
+    gradient.appendStop(1, Qt::black);
+    painter.setBrush(gradient);
+    painter.drawEllipse(0, 0, 100, 100);
+    \endcode
+
+    The code shown above produces a pattern as shown in the following
+    pixmap:
+
+    \img conicalGradient.png
 
     \section2 Alpha-Blended Drawing
 
@@ -168,7 +205,7 @@
     painter.drawLine(0, 0, width()/2, height());
 
     // One line with anti-aliasing
-    painter.setRenderHints(QPainter::LineAntialiasing);
+    painter.setRenderHints(QPainter::Antialiasing);
     painter.drawLine(width()/2, 0, width()/2, height());
     \endcode
 
@@ -176,8 +213,8 @@
 
     \img antialiased.png
 
-    Supported backends are currently Mac OS X,  Windows if GDI+ is
-    installed, X11 and OpenGL.
+    Antialiasing is supported when drawing to a QImage and on all
+    systems except X when XRender is not present.
 
 
     \section2 Extensive Use of Native Graphics Operations
@@ -187,9 +224,9 @@
     can potentially be performed in hardware which gives significant
     speed improvements.
 
-    Among these are native transformations (Windows 2000/XP, Mac OS X,
-    and, OpenGL) making painting with a world matrix much faster. Some
-    pixmap operations have also been moved closer to hardware.
+    Among these are native transformations (Mac OS X and OpenGL)
+    making painting with a world matrix much faster. Some pixmap
+    operations have also been moved closer to hardware.
 
 
     \section2 Painter Paths
@@ -266,34 +303,54 @@
     pen width of 1 using a scaled painter, the resulting line width
     would still be 1. This made it difficult to implement features
     such as zooming and high-resolution printing.
-    
+
     In Qt 4, pens and brushes honor the painter's transformation
     matrix.
 
     Note that this feature is still in development and not yet
     supported on all platforms.
 
-    \section1 More to Come
+    \section2 Custom filled Pens
 
-    The Qt 4 Paint System is mostly completed, but there is still
-    work being done.
+    In Qt 4, it is possible to specify how an outline should be
+    filled.  It can be a solid color or a QBrush, which makes it
+    possible to specify both texture and gradient fills for both
+    text and outlines.
 
-    Part of the work in progress is the finalization of the rendering
-    pipeline for all platforms, so that all features are supported and
-    look the same on all platforms. Among the currently unfinished
-    features are these:
+    \code
+    QLinearGradient gradient(0, 0, 100, 100);
+    gradient.appendStop(0, Qt::blue);
+    gradient.appendStop(1, Qt::red);
+    painter.setPen(QPen(gradient, 0));
+    for (int y=fontSize; y<100; y+=fontSize)
+        drawText(0, y, text);
+    \endcode
 
-    \list
+    The code above produces the following output:
 
-    \o Clipping to device coordinate system. (For example, if the
-       device has 16-bit coordinates we can clip the polygon to fit inside so
-       that the visual result is correct. Currently the results are
-       undefined.)
+    \img gradientText.png
 
-    \o Use fixed-point instead of floating-point arithmetic on Qt/Embedded
-       and possibly other platforms to improve performance.
+    \section2 QImage as a paint device
 
-    \endlist
+    A great improvement of Qt 4 over previous versions it that we now
+    provide a pixel based raster paint engine which allows users to
+    open a painter on a QImage. The QImage paint engine supports the
+    full featureset of QPainter (paths, antialiasing, alphablending,
+    etc) and can be used on all platforms.
+
+    One advantage of this is that it is possible to guarantee the
+    pixel exactness of any drawing operation independent of platform.
+
+    Painting on an image is as simple as drawing on any other paint device.
+
+    \code
+    QImage image(100, 100, 32);
+    QPainter painter(&image);
+
+    // painter commands.
+
+    painter.end();
+    \endcode
 
     \link qt4-intro.html [Back to the Beta page] \endlink
 */
