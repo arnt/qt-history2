@@ -3838,7 +3838,7 @@ bool QTable::eventFilter(QObject *o, QEvent *e)
                     int cc  = qMin(numCols() - 1, currentColumn() + 1);
                     while (cc < numCols()) {
                         QTableItem *i = item(currentRow(), cc);
-                        if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                        if (!d->hiddenCols.contains(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
                             break;
                         ++cc;
                     }
@@ -3849,7 +3849,7 @@ bool QTable::eventFilter(QObject *o, QEvent *e)
                     int cc  = qMax(0, currentColumn() - 1);
                     while (cc >= 0) {
                         QTableItem *i = item(currentRow(), cc);
-                        if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                        if (!d->hiddenCols.contains(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
                             break;
                         --cc;
                     }
@@ -4019,7 +4019,7 @@ void QTable::keyPressEvent(QKeyEvent* e)
             int cc  = qMin(numCols() - 1, currentColumn() + 1);
             while (cc < numCols()) {
                 QTableItem *i = item(currentRow(), cc);
-                if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                if (!d->hiddenCols.contains(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
                     break;
                 ++cc;
             }
@@ -4030,7 +4030,7 @@ void QTable::keyPressEvent(QKeyEvent* e)
             int cc  = qMax(0, currentColumn() - 1);
             while (cc >= 0) {
                 QTableItem *i = item(currentRow(), cc);
-                if (!d->hiddenCols.find(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
+                if (!d->hiddenCols.contains(cc) && !isColumnReadOnly(cc) && (!i || i->isEnabled()))
                     break;
                 --cc;
             }
