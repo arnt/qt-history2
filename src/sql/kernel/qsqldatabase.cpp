@@ -23,28 +23,28 @@
 #endif
 
 #ifdef QT_SQL_POSTGRES
-#include "drivers/psql/qsql_psql.h"
+#include "../drivers/psql/qsql_psql.h"
 #endif
 #ifdef QT_SQL_MYSQL
-#include "drivers/mysql/qsql_mysql.h"
+#include "../drivers/mysql/qsql_mysql.h"
 #endif
 #ifdef QT_SQL_ODBC
-#include "drivers/odbc/qsql_odbc.h"
+#include "../drivers/odbc/qsql_odbc.h"
 #endif
 #ifdef QT_SQL_OCI
-#include "drivers/oci/qsql_oci.h"
+#include "../drivers/oci/qsql_oci.h"
 #endif
 #ifdef QT_SQL_TDS
-#include "drivers/tds/qsql_tds.h"
+#include "../drivers/tds/qsql_tds.h"
 #endif
 #ifdef QT_SQL_DB2
-#include "drivers/db2/qsql_db2.h"
+#include "../drivers/db2/qsql_db2.h"
 #endif
 #ifdef QT_SQL_SQLITE
-#include "drivers/sqlite/qsql_sqlite.h"
+#include "../drivers/sqlite/qsql_sqlite.h"
 #endif
 #ifdef QT_SQL_IBASE
-#include "drivers/ibase/qsql_ibase.h"
+#include "../drivers/ibase/qsql_ibase.h"
 #endif
 
 #include "qcoreapplication.h"
