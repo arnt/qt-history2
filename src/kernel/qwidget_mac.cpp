@@ -35,14 +35,7 @@
 **
 **********************************************************************/
 
-// FIXME: These mac includes can be replaced by a single Carbon.h include
-#include <Events.h>
-#include <Quickdraw.h>
-#include <Menus.h>
-#include <Fonts.h>
-#include <MacTypes.h>
-#include <ToolUtils.h>
-#include <MacWindows.h>
+#include "qt_mac.h"
 
 #include "qapplication.h"
 #include "qapplication_p.h"
@@ -65,6 +58,16 @@
   QWidget member functions
  *****************************************************************************/
 
+/* THIS IS FOR PASCAL STYLE STRINGS, WE NEED TO FIGURE OUT IF THESE ARE FREED WHEN HANDED OVER
+   TO THE OS FIXME FIXME FIXME FIXME */
+//this function really sucks, re-write me when you'r edone figuring out
+const unsigned char * p_str(const char * c)
+{
+    unsigned char * ret=new unsigned char[qstrlen(c)+2];
+    ret[0]=qstrlen(c);
+    qstrcpy(((char *)ret)+1,c);
+    return ret;
+}
 
 /*!
   Creates a new widget window if \a window is null, otherwise sets the
@@ -278,21 +281,46 @@ void QWidget::reparent( QWidget *, WFlags, const QPoint &,
   \sa mapFromGlobal() mapTo() mapToParent()
 */
 
-QPoint QWidget::mapToGlobal( const QPoint & ) const
+QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
-    qDebug( "QWidget::mapToGlobal" );
-    return QPoint( 0, 0 );
+  int x2=pos.x();
+  int y2=pos.y();
+
+  ((QWidget *)this)->lockPort();
+  PixMapHandle pmh=GetPortPixMap(GetWindowPort((WindowPtr)handle()));
+  x2=x2-(**pmh).bounds.left;
+  y2=y2-(**pmh).bounds.top;
+  ((QWidget *)this)->unlockPort();
+
+  qDebug("QWidget::mapToGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), x2, y2);
+  QPoint p2(x2,y2);
+  return p2;
 }
+
 
 /*!
   Translates the global screen coordinate \e pos to widget coordinates.
   \sa mapToGlobal() mapFrom() mapFromParent()
 */
 
-QPoint QWidget::mapFromGlobal( const QPoint & ) const
+QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {
-    qDebug( "QWidget::mapFromGlobal" );
-    return QPoint( 0, 0 );
+  int x2=pos.x();
+  int y2=pos.y();
+
+  ((QWidget *)this)->lockPort();
+  PixMapHandle pmh=GetPortPixMap(GetWindowPort((WindowPtr)handle()));
+  x2=x2+(**pmh).bounds.left;
+  y2=y2+(**pmh).bounds.top;
+  for(const QWidget *widg=this; !widg->isTopLevel(); widg = widg->parentWidget()) {
+    x2-=widg->x();
+    y2-=widg->y();
+  }
+  ((QWidget *)this)->unlockPort();
+
+  qDebug("QWidget::mapFromGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), x2, y2);
+  QPoint p2(x2,y2);
+  return p2;
 }
 
 /*!
@@ -436,11 +464,7 @@ void QWidget::setCaption( const QString &cap )
 {
     qDebug( "QWidget::setCaption" );
 
-    unsigned char title[255];
-    memset(title, '\0', sizeof(title));
-    title[0] = cap.length();
-    strncpy((char *)title+1, cap.latin1(), 255);
-    SetWTitle((WindowPtr)winid, title);
+    SetWTitle((WindowPtr)winid, p_str(cap.latin1()));
 }
 
 /*!
@@ -936,8 +960,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
     }
     QRect  r( x, y, w, h );
-    if ( r.size() == olds && oldp == r.topLeft() &&
-         (isTopLevel() == FALSE ) ) { // #### Matthias
+    if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) ) { 
         return;
     }
 
@@ -1400,7 +1423,6 @@ void QWidget::propagateUpdates(int x, int y, int x2, int y2)
 //FIXME: Maybe we should use Qt/Embedded code for doing this.
 void QWidget::lockPort()
 {
-    qDebug( QString( "QWidget::lockPort %1" ).arg( (int)hd ) );;
     if ( !hd )
 	return;
 

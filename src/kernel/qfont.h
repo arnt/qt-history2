@@ -210,7 +210,7 @@ private:
     void	initFontInfo() const;
     void	load() const;
 #if defined(_WS_MAC_)
-    void        macSetFont(void *);
+    void        macSetFont(QPaintDevice *);
 #endif
 #if defined(_WS_WIN_)
     HFONT	create( bool *, HDC=0, bool=FALSE ) const;

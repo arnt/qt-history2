@@ -1,6 +1,13 @@
-#include <Types.h>
-#include <Memory.h>
-#include <Quickdraw.h>
-#include <Windows.h>
-#include <OSUtils.h>
-#include <SegLoad.h>
+#ifndef QT_MACH_H
+
+// FIXME: These mac includes can be replaced by a single Carbon.h include
+#include <Fonts.h>
+#include <MacTypes.h>
+#include <ToolUtils.h>
+#include <MacWindows.h>
+#include <Timer.h>
+
+#endif
+
+
+

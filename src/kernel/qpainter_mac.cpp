@@ -46,13 +46,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "qpaintdevicemetrics.h"
-
-// FIXME: These mac includes can be replaced by a single Carbon.h include
-#include <MacTypes.h>
-#include <Memory.h>
-#include <Quickdraw.h>
-#include <MacWindows.h>
-#include <OSUtils.h>
+#include "qpaintdevice.h"
+#include "qt_mac.h"
 
 const int TxNone=0;
 const int TxTranslate=1;
@@ -168,15 +163,33 @@ void QPainter::init()
   \sa font(), drawText()
 */
 
-void QPainter::setFont( const QFont & )
+void QPainter::setFont( const QFont &font )
 {
-    qDebug( "QPainter::font" );
+#if defined(CHECK_STATE)
+    if ( !isActive() )
+        warning( "QPainter::setFont: Will be reset by begin()" );
+#endif
+    if ( cfont.d != font.d ) {
+        cfont = font;
+        setf(DirtyFont);
+    }
 }
 
 
 void QPainter::updateFont()
 {
-    qDebug( "QPainter::updateFont" );
+    clearf(DirtyFont);
+    if ( testf(ExtDev) ) {
+        QPDevCmdParam param[1];
+        param[0].font = &cfont;
+        if ( !pdev->cmd(QPaintDevice::PdcSetFont,this,param) || !hd )
+            return;
+    }
+    setf(NoCache);
+    if ( penRef )
+        updatePen();                            // force a non-cached GC
+    //    Qt::HANDLE h = cfont.handle();
+    cfont.macSetFont(pdev);
 }
 
 
@@ -1264,15 +1277,93 @@ void QPainter::drawQuadBezier( const QPointArray &, int )
   \sa bitBlt(), QPixmap::setMask()
 */
 
-void QPainter::drawPixmap( int, int, const QPixmap &,
-			   int, int, int, int )
+void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh )
 {
-    qDebug( "QPixmap::drawPixmap" );
+    if ( !isActive() || pixmap.isNull() ) {
+        return;
+    }
+    if ( sw < 0 )
+        sw = pixmap.width() - sx;
+    if ( sh < 0 )
+        sh = pixmap.height() - sy;
+
+    // Sanity-check clipping
+    if ( sx < 0 ) {
+        x -= sx;
+        sw += sx;
+        sx = 0;
+    }
+    if ( sw + sx > pixmap.width() )
+        sw = pixmap.width() - sx;
+    if ( sy < 0 ) {
+        y -= sy;
+        sh += sy;
+        sy = 0;
+    }
+    if ( sh + sy > pixmap.height() )
+        sh = pixmap.height() - sy;
+    if ( sw <= 0 || sh <= 0 ) {
+        return;
+    }
+
+    if ( testf(ExtDev|VxF|WxF) ) {
+        if ( testf(ExtDev) || (txop == TxScale && pixmap.mask()) ||
+             txop == TxRotShear ) {
+            if ( sx != 0 || sy != 0 ||
+                 sw != pixmap.width() || sh != pixmap.height() ) {
+                QPixmap tmp( sw, sh, pixmap.depth() );
+                bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh, CopyROP, TRUE );
+                if ( pixmap.mask() ) {
+                    QBitmap mask( sw, sh );
+                    bitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh,
+                            CopyROP, TRUE );
+                    tmp.setMask( mask );
+                }
+                drawPixmap( x, y, tmp );
+                return;
+            }
+            if ( testf(ExtDev) ) {
+                QPDevCmdParam param[2];
+                QPoint p(x,y);
+                param[0].point  = &p;
+                param[1].pixmap = &pixmap;
+                if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param) /* || !hdc */ ) {
+                    return;
+		}
+            }
+        }
+        if ( txop == TxTranslate )
+            map( x, y, &x, &y );
+    }
+
+    bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
 }
 
 
-/* Internal, used by drawTiledPixmap */
-
+static void drawTile( QPainter *p, int x, int y, int w, int h,
+                      const QPixmap &pixmap, int xOffset, int yOffset )
+{
+    int yPos, xPos, drawH, drawW, yOff, xOff;
+    yPos = y;
+    yOff = yOffset;
+    while( yPos < y + h ) {
+        drawH = pixmap.height() - yOff;    // Cropping first row
+        if ( yPos + drawH > y + h )        // Cropping last row
+            drawH = y + h - yPos;
+        xPos = x;
+        xOff = xOffset;
+        while( xPos < x + w ) {
+            drawW = pixmap.width() - xOff; // Cropping first column
+            if ( xPos + drawW > x + w )    // Cropping last column
+                drawW = x + w - xPos;
+            p->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH );
+            xPos += drawW;
+            xOff = 0;
+        }
+        yPos += drawH;
+        yOff = 0;
+    }
+}
 
 /*!
   Draws a tiled \a pixmap in the specified rectangle.
@@ -1288,10 +1379,48 @@ void QPainter::drawPixmap( int, int, const QPixmap &,
   \sa drawPixmap()
 */
 
-void QPainter::drawTiledPixmap( int, int, int, int,
-				const QPixmap &, int, int )
+void QPainter::drawTiledPixmap( int x, int y, int w, int h,
+                                const QPixmap &pixmap, int sx, int sy )
 {
-    qDebug( "QPainter::drawTiledPixmap" );
+    int sw = pixmap.width();
+    int sh = pixmap.height();
+    if (!sw || !sh )
+	return;
+    if ( sx < 0 )
+        sx = sw - -sx % sw;
+    else
+        sx = sx % sw;
+    if ( sy < 0 )
+        sy = sh - -sy % sh;
+    else
+        sy = sy % sh;
+    /*
+      Requirements for optimizing tiled pixmaps:
+      - not an external device
+      - not scale or rotshear
+      - no mask
+    */
+    QBitmap *mask = (QBitmap *)pixmap.mask();
+    if ( !testf(ExtDev) && txop <= TxTranslate && mask == 0 ) {
+        if ( txop == TxTranslate )
+            map( x, y, &x, &y );
+        return;
+    }
+    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
+        int tw = sw, th = sh;
+        while ( tw*th < 32678 && tw < w/2 )
+            tw *= 2;
+        while ( tw*th < 32678 && th < h/2 )
+            th *= 2;
+        QPixmap tile( tw, th, pixmap.depth() );
+        if ( mask ) {
+            QBitmap tilemask( tw, th );
+            tile.setMask( tilemask );
+        }
+        drawTile( this, x, y, w, h, tile, sx, sy );
+    } else {
+        drawTile( this, x, y, w, h, pixmap, sx, sy );
+    }
 }
 
 
@@ -1301,10 +1430,174 @@ void QPainter::drawTiledPixmap( int, int, int, int,
   \a (x,y) is the base line position.  Note that the meaning of \a y
   is not the same for the two drawText() varieties.
 */
+extern const unsigned char * p_str(const char * c);
 
-void QPainter::drawText( int, int, const QString &, int )
+void QPainter::drawText( int x, int y, const QString &str, int len)
 {
-    qDebug( "QPainter::drawText" );
+  qDebug( "QPainter::drawText" );
+  if ( !isActive() )
+    return;
+  if ( len < 0 )
+    len = str.length();
+  if ( len == 0 )                             // empty string
+    return;
+
+  pdev->lockPort();
+  updateBrush();
+  updatePen();
+
+  if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
+    if ( testf(DirtyFont) )
+      updateFont();
+
+    if ( testf(ExtDev) ) {
+      QPDevCmdParam param[2];
+      QPoint p( x, y );
+      QString newstr = str.left(len);
+      param[0].point = &p;
+      param[1].str = &newstr;
+      if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd ) {
+	pdev->unlockPort();
+	return;
+      }
+    }
+
+    if ( txop >= TxScale ) {
+      const QFontMetrics & fm = fontMetrics();
+      QFontInfo    fi = fontInfo();
+      QRect bbox = fm.boundingRect( str, len );
+      int w=bbox.width(), h=bbox.height();
+      int aw, ah;
+      int tx=-bbox.x(),  ty=-bbox.y();    // text position
+      QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
+      QFont dfont( cfont );
+      QWMatrix mat2;
+      if ( txop == TxScale ) {
+	int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
+	newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
+	dfont.setPointSize( newSize );
+	QFontMetrics fm2( dfont );
+	QRect abbox = fm2.boundingRect( str, len );
+	aw = abbox.width();
+	ah = abbox.height();
+	tx = -abbox.x();
+	ty = -abbox.y();        // text position - off-by-one?
+	if ( aw == 0 || ah == 0 )
+	  return;
+	double rx = (double)bbox.width() * mat1.m11() / (double)aw;
+	double ry = (double)bbox.height() * mat1.m22() /(double)ah;
+	mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
+      }
+      else {
+	mat2 = QPixmap::trueMatrix( mat1, w, h );
+	aw = w;
+	ah = h;
+      }
+      bool empty = aw == 0 || ah == 0;
+      QBitmap * wx_bm=0;
+      bool create_new_bm = wx_bm == 0;
+      if ( create_new_bm && !empty ) {    // no such cached bitmap
+	QBitmap bm( aw, ah );           // create bitmap
+	bm.fill( color0 );
+	QPainter paint;
+	paint.begin( &bm );             // draw text in bitmap
+	paint.setFont( dfont );
+	paint.drawText( tx, ty, str, len );
+	paint.end();
+	wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+	if ( wx_bm->isNull() ) {
+	  pdev->unlockPort();
+	  delete wx_bm;               // nothing to draw
+	  return;
+	}
+      }
+      if ( bg_mode == OpaqueMode ) {      // opaque fill
+	int fx = x;
+	int fy = y - fm.ascent();
+	int fw = fm.width(str,len);
+	int fh = fm.ascent() + fm.descent();
+	int m, n;
+	QPointArray a(5);
+	mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
+	a.setPoint( 4, m, n );
+	mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
+	mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
+	mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
+	QBrush oldBrush = cbrush;
+	setBrush( backgroundColor() );
+	updateBrush();
+	//XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), 4,
+	//              Nonconvex, CoordModeOrigin );
+	//XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), 5,
+	//            CoordModeOrigin );
+	setBrush( oldBrush );
+      }
+      if ( empty ) {
+	pdev->unlockPort();
+	return;
+      }
+      double fx=x, fy=y, nfx, nfy;
+      mat1.map( fx,fy, &nfx,&nfy );
+      double tfx=tx, tfy=ty, dx, dy;
+      mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+      x = qRound(nfx-dx);
+      y = qRound(nfy-dy);
+      pdev->unlockPort();
+      return;
+    }
+    if ( txop == TxTranslate )
+      map( x, y, &x, &y );
+  }
+
+  QCString mapped='?';
+
+  const QTextCodec* mapper = cfont.d->mapper();
+  if ( mapper ) {
+    // translate from Unicode to font charset encoding here
+    mapped = mapper->fromUnicode(str,len);
+  }
+
+  if(!mapped) {
+    char * soo=new char[2];
+    soo[0]='?';
+    soo[1]='\0';
+    mapped=soo;
+  }
+
+  if ( !cfont.handle() ) {
+    if ( mapped.isNull() )
+      warning("Fontsets only apply to mapped encodings");
+    else {
+      MoveTo(x,y);
+      DrawString(p_str(mapped));
+    }
+  } else {
+    if ( !mapped.isNull() ) {
+      MoveTo(x,y);
+      DrawString(p_str(mapped));
+    } else {
+      // Unicode font
+
+      QString v = str;
+#ifdef QT_BIDI
+      v.compose();  // apply ligatures (for arabic, etc...)
+      v = v.visual(); // visual ordering
+      len = v.length();
+#endif
+
+      MoveTo(x,y);
+      DrawString(p_str((char *)v.unicode()));
+    }
+  }
+
+#if 0
+  if ( cfont.underline() || cfont.strikeOut() ) {
+    const QFontMetrics & fm = fontMetrics();
+    int lw = fm.lineWidth();
+    int tw = fm.width( str, len );
+  }
+#endif
+  pdev->unlockPort();
 }
 
 /*!

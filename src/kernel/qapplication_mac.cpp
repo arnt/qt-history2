@@ -40,16 +40,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "qglobal.h"
-
-// FIXME: These mac includes can be replaced by a single Carbon.h include
-#include <Events.h>
-#include <Quickdraw.h>
-#include <Menus.h>
-#include <Fonts.h>
-#include <MacTypes.h>
-#include <ToolUtils.h>
-#include <MacWindows.h>
-#include <Timer.h>
+#include "qt_mac.h"
 
 #include "qapplication.h"
 #include "qapplication_p.h"
@@ -506,7 +497,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
       QWidget *curwidg=(QWidget *)(*it);
       int wx=curwidg->x(), wy=curwidg->y();
       int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-      qDebug("recursive_match %d %d  %d %d  %d %d",curwidg->x(), curwidg->y(),wx,wy,wx2,wy2);
+      //      qDebug("recursive_match %d %d  %d %d",wx,wy,wx2,wy2);
       if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
 	return recursive_match(curwidg,x-wx,y-wy);
       }
@@ -531,22 +522,26 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
 */
 QWidget *QApplication::widgetAt( int x, int y, bool child)
 {
-    // Need to handle child/top-level stuff - right now only do top-levels
-    Point p;
-    p.h=x;
-    p.v=y;
-    WindowPtr wp;
-    FindWindow(p,&wp);
-    QWidget * widget=QWidget::find((WId)wp);
-    if(!widget) {
-	qWarning("Couldn't find %d",wp);
-	return 0;
-    }
-    if(!child) {
-	return widget;
-    } else {
-	return recursive_match(widget,x,y);
-    }
+  //find the tld
+  Point p;
+  p.h=x;
+  p.v=y;
+  WindowPtr wp;
+  FindWindow(p,&wp);
+
+  //get that widget
+  QWidget * widget=QWidget::find((WId)wp);
+  if(!widget) {
+    qWarning("Couldn't find %d",(int)wp);
+    return 0;
+  }
+
+  //find the child
+  if(child) {
+    GlobalToLocal( &p ); //now map it to the window
+    widget = recursive_match(widget, p.h, p.v);
+  }
+  return widget;
 }
 
 /*!
@@ -1276,7 +1271,6 @@ bool QApplication::do_mouse_down( EventRecord* es )
   }
   return in_widget;
 }
-
 RgnHandle cliprgn=0;
 bool ignorecliprgn=true;
 
@@ -1284,14 +1278,13 @@ int QApplication::macProcessEvent(MSG * m)
 {
   WindowPtr wp;
   EventRecord *er = (EventRecord *)m;
-  QWidget *twidget = QWidget::find( (WId)er->message );
   Point p2 = er->where;
   QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
   if(!er->what)
     return 0;
 
   if ( er->what == updateEvt ) {
-    qDebug( "Update Event" );
+    QWidget *twidget = QWidget::find( (WId)er->message );
     wp = (WindowPtr)er->message;
     SetPortWindowPort(wp);
     SetOrigin( 0, 0 );
@@ -1307,8 +1300,6 @@ int QApplication::macProcessEvent(MSG * m)
       twidget->propagateUpdates( 0, 0, twidget->width(), twidget->height() );
       ignorecliprgn = true;
     }
-    qDebug( "~Update Event" );
-
   } else if( er->what == mouseDown ) {
     short part = FindWindow( er->where, &wp );
     if( part == inContent ) {
@@ -1316,15 +1307,14 @@ int QApplication::macProcessEvent(MSG * m)
 	widget = mac_mouse_grabber;
       } else {
 	Point pp2 = er->where;
-	GlobalToLocal( &pp2 );
 	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
       }
       if ( widget ) {
 	SetPortWindowPort( wp );
 
 	QPoint p( er->where.h, er->where.v );
-	QPoint pglob(widget->mapFromGlobal( p ));
-	QMouseEvent qme( QEvent::MouseButtonPress, pglob, p, QMouseEvent::LeftButton, 0);
+	QPoint plocal(widget->mapFromGlobal( p ));
+	QMouseEvent qme( QEvent::MouseButtonPress, p, plocal, QMouseEvent::LeftButton, 0);
 	QApplication::sendEvent( widget, &qme );
       }
       mouse_button_state = 1;
@@ -1337,17 +1327,15 @@ int QApplication::macProcessEvent(MSG * m)
 	widget = mac_mouse_grabber;
       } else {
 	Point pp2 = er->where;
-	GlobalToLocal( &pp2 );
 	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
       }
       if ( widget ) {
 	SetPortWindowPort( wp );
 
 	QPoint p( er->where.h, er->where.v );
-	QPoint pglob(widget->mapFromGlobal( p ));
-	QMouseEvent qme( QEvent::MouseButtonRelease, pglob, p, QMouseEvent::LeftButton, 0);
+	QPoint plocal(widget->mapFromGlobal( p ));
+	QMouseEvent qme( QEvent::MouseButtonRelease, p, plocal, QMouseEvent::LeftButton, 0);
 	QApplication::sendEvent( widget, &qme );
-
       }
     }
     mouse_button_state = 0;
@@ -1358,18 +1346,13 @@ int QApplication::macProcessEvent(MSG * m)
 	widget = mac_keyboard_grabber;
       } else {
 	Point pp2 = er->where;
-	GlobalToLocal( &pp2 );
-	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+	if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
+	  widget = widget->focusWidget();
       }
-    }
-    if(!widget) {
-      qWarning("Can't find %d!",myactive);
-      return 0;
     }
 
     short mychar=er->message & charCodeMask;
     QKeyEvent ke(QEvent::KeyPress,get_key(er->message),mychar,0,QString(QChar(mychar)));
-    //QApplication::sendEvent(twidget,&ke);
     QApplication::sendEvent(widget,&ke);
     qDebug("Key down.. %c", mychar);
   } else if(er->what == keyUp) {
@@ -1379,18 +1362,13 @@ int QApplication::macProcessEvent(MSG * m)
 	widget = mac_keyboard_grabber;
       } else {
 	Point pp2 = er->where;
-	GlobalToLocal( &pp2 );
-	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+	if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
+	  widget = widget->focusWidget();
       }
-    }
-    if(!widget) {
-      qWarning("Can't find %d!",myactive);
-      return 0;
     }
 
     short mychar=er->message & charCodeMask;
     QKeyEvent ke(QEvent::KeyRelease,get_key(er->message),mychar,0,QString(QChar(mychar)));
-    //QApplication::sendEvent(twidget,&ke);
     QApplication::sendEvent(widget,&ke);
     qDebug("Key up.. %c", mychar);
   } else if(er->what == osEvt) {

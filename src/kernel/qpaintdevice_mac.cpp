@@ -40,13 +40,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-
-// FIXME: These mac includes can be replaced by a single Carbon.h include
-#include <MacTypes.h>
-#include <Memory.h>
-#include <Quickdraw.h>
-#include <MacWindows.h>
-#include <OSUtils.h>
+#include "qt_mac.h"
 
 // NOT REVISED
 /*!

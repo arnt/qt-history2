@@ -4,16 +4,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qwmatrix.h"
-
-// FIXME: These mac includes can be replaced by a single Carbon.h include
-#include <Events.h>
-#include <Quickdraw.h>
-#include <Menus.h>
-#include <Fonts.h>
-#include <MacTypes.h>
-#include <ToolUtils.h>
-#include <MacWindows.h>
-#include <Timer.h>
+#include "qt_mac.h"
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
