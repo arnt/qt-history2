@@ -6089,21 +6089,26 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 	    }
 	}
 	if ( tag ) {
-	    formatFlags |= QTextFormat::Color;
 	    QString col = tag->tag.simplifyWhiteSpace();
 	    if ( col.left(11) == "font color=" ) {
 		col = col.mid( 11 );
 		if ( col[0] == '\"' )
 		    col = col.mid(1, col.length() - 2);
 	    }
-	    f->setColor( QColor( col ) );
+	    QColor color = QColor( col );
+	    if ( color.isValid() ) {
+		formatFlags |= QTextFormat::Color;
+		f->setColor( color );
+	    }
 	}
     } else { // use the stylesheet tag definition
-	formatFlags |= QTextFormat::Color;
+	if ( ssItem->color().isValid() ) {
+	    formatFlags |= QTextFormat::Color;
+	    f->setColor( ssItem->color() );
+	}
 	f->setBold( ssItem->fontWeight() == QFont::Bold );
 	f->setItalic( ssItem->fontItalic() );
 	f->setUnderline( ssItem->fontUnderline() );
-	f->setColor( ssItem->color() );
     }
     td->setFormat( 0, f, formatFlags );
     td->removeSelection( 0 );
