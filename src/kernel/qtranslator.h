@@ -37,17 +37,18 @@
 class QTranslatorPrivate;
 
 
-class Q_EXPORT QTranslatorMessage {
+class Q_EXPORT QTranslatorMessage
+{
 public:
-    enum Type { Unfinished, Finished, Obsolete };
-
     QTranslatorMessage();
     QTranslatorMessage( const char * context,
 			const char * sourceText,
 			const char * comment,
-			const QString& translation = QString::null,
-			Type type = Unfinished );
+			const QString& translation = QString::null );
     QTranslatorMessage( QDataStream & );
+    QTranslatorMessage( const QTranslatorMessage & m );
+
+    QTranslatorMessage & operator=( const QTranslatorMessage & m );
 
     uint hash() const { return h; }
     const char *context() const { return cx; }
@@ -56,9 +57,6 @@ public:
 
     void setTranslation( const QString & translation ) { tn = translation; }
     QString translation() const { return tn; }
-
-    void setType( Type type ) { ty = type; }
-    Type type() const { return ty; }
 
     enum Prefix { NoPrefix, Hash, HashContext, HashContextSourceText,
     		  HashContextSourceTextComment };
@@ -83,10 +81,9 @@ private:
     QCString st;
     QCString cm;
     QString tn;
-    Type ty;
 
     enum Tag { Tag_End = 1, Tag_SourceText16, Tag_Translation, Tag_Context16,
-	       Tag_Hash, Tag_SourceText, Tag_Context, Tag_Comment, Tag_Type };
+	       Tag_Hash, Tag_SourceText, Tag_Context, Tag_Comment };
 };
 
 
@@ -133,7 +130,6 @@ public:
     void unsqueeze();
 
     QValueList<QTranslatorMessage> messages() const;
-    QString toUnicode( const char * ) const;
 
 private:
     QTranslatorPrivate * d;
