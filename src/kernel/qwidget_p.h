@@ -155,10 +155,7 @@ public:
     void updateInheritedBackground(bool force = false);
     void updatePropagatedBackground();
 
-#if !defined(Q_WS_X11)
-    // ### remove on other platforms
-    void erase_helper(const QRegion &);
-#endif
+    QRect clipRect() const;
 
 #if defined(Q_WS_X11)
     void createInputContext();

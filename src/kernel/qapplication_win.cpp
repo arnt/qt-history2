@@ -380,8 +380,7 @@ public:
 #endif
     void	repolishStyle( QStyle &style ) { styleChange( style ); }
 
-    HDC setHdc(HDC h) { HDC tmp = hdc; hdc = h; return tmp; }
-
+    void eraseWindowBackground(HDC);
 };
 
 static void set_winapp_name()
@@ -1796,12 +1795,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ERASEBKGND:			// erase window background
-	    {
-		HDC oldhdc = widget->setHdc((HDC)wParam);
-		widget->erase();
-		widget->setHdc(oldhdc);
-		RETURN(TRUE);
-	    }
+	    widget->eraseWindowBackground((HDC)wParam);
+	    RETURN(TRUE);
 	    break;
 
 	case WM_MOVE:				// move window
@@ -3378,7 +3373,6 @@ bool QETWidget::translatePaintEvent( const MSG & )
     if ( res == ERROR )
 	return TRUE;
 
-    setWState( WState_InPaintEvent );
     PAINTSTRUCT ps;
     hdc = BeginPaint( winId(), &ps );
     if ( res != COMPLEXREGION ) {
@@ -3387,14 +3381,10 @@ bool QETWidget::translatePaintEvent( const MSG & )
 	    goto cleanup;
 	rgn = psRect;
     }
-    {
-	QPaintEvent e(rgn);
-	QApplication::sendSpontaneousEvent( this, (QEvent*) &e );
-    }
+    repaint(rgn);
 cleanup:
     hdc = 0;
     EndPaint( winId(), &ps );
-    clearWState( WState_InPaintEvent );
     return TRUE;
 }
 
@@ -3454,8 +3444,6 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
-		if ( !testAttribute(WA_StaticContents))
-		    repaint();
 	    } else {
 		QResizeEvent *e = new QResizeEvent( newSize, oldSize );
 		QApplication::postEvent( this, e );
@@ -3495,6 +3483,27 @@ bool QETWidget::translateCloseEvent( const MSG & )
 {
     return close(FALSE);
 }
+
+
+void QETWidget::eraseWindowBackground(HDC hdc)
+{
+    const QWidget *w = this;
+    QPoint offset;
+    while (w->d->isBackgroundInherited()) {
+	offset += w->pos();
+	w = w->parentWidget();
+    }
+
+    RECT r;
+    GetClientRect( winid, &r );
+
+    qt_erase_background
+	( hdc, r.left, r.top,
+	  r.right-r.left, r.bottom-r.top,
+	  pal.brush(w->d->bg_role),
+	  offset.x(), offset.y() );
+}
+
 
 void  QApplication::setCursorFlashTime( int msecs )
 {

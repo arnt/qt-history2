@@ -1106,6 +1106,30 @@ void QWidgetPrivate::propagatePaletteChange()
 }
 
 
+/*
+  Returns the widget's clipping rectangle.
+*/
+QRect QWidgetPrivate::clipRect() const
+{
+    QRect r = q->rect();
+    const QWidget * w = q;
+    int ox = 0;
+    int oy = 0;
+    while ( w
+	    && w->isVisible()
+	    && !w->isTopLevel()
+	    && w->parentWidget() ) {
+	ox -= w->x();
+	oy -= w->y();
+	w = w->parentWidget();
+	r = r.intersect( QRect( ox, oy, w->width(), w->height() ) );
+    }
+    if ( !w->isVisible() )
+	return QRect();
+    return r;
+}
+
+
 
 /*!
     \overload void QPixmap::fill( const QWidget *widget, const QPoint &offset )
@@ -1158,8 +1182,6 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
     }
     QBrush brush = widget->palette().brush(w->d->bg_role);
 
-
-#if 0
     fill(brush.color());
     if (brush.pixmap()) {
 	QPainter p;
@@ -1168,19 +1190,6 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 	p.drawTiledPixmap(rect(), *brush.pixmap(), offset);
 	p.end();
     }
-#else
-
-#if defined(Q_WS_WIN)
-    extern void qt_erase_background(HDC, int, int, int, int, const QBrush &, int, int);
-    qt_erase_background(handle(), 0, 0, width(), height(), brush, offset.x(), offset.y());
-#elif defined(Q_WS_X11)
-    extern void qt_erase_background(Qt::HANDLE, int screen, int x, int y, int width, int height,
-				    const QBrush &brush, int offx, int offy);
-    qt_erase_background(hd, x11Screen(), 0, 0, width(), height(), brush, offset.x(), offset.y());
-#endif
-
-
-#endif
 
     if (!parents)
 	return;
@@ -1211,10 +1220,10 @@ void QPainter::copyFrom(const QWidget* w)
     const QWidget *p = w;
     QPoint offset;
     while (p->d->isBackgroundInherited()) {
-	offset -= p->pos();
+	offset += p->pos();
 	p = p->parentWidget();
     }
-    bg_origin = offset;
+    bg_origin = -offset;
     bg_brush = w->palette().brush(p->d->bg_role);
 }
 
@@ -3814,22 +3823,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 */
 QRect QWidget::visibleRect() const
 {
-    QRect r = rect();
-    const QWidget * w = this;
-    int ox = 0;
-    int oy = 0;
-    while ( w
-	    && w->isVisible()
-	    && !w->isTopLevel()
-	    && w->parentWidget() ) {
-	ox -= w->x();
-	oy -= w->y();
-	w = w->parentWidget();
-	r = r.intersect( QRect( ox, oy, w->width(), w->height() ) );
-    }
-    if ( !w->isVisible() )
-	return QRect();
-    return r;
+    return d->clipRect();
 }
 
 /*!
@@ -3844,7 +3838,7 @@ QRect QWidget::visibleRect() const
 */
 QRegion QWidget::clipRegion() const
 {
-    return visibleRect();
+    return d->clipRect();
 }
 
 
@@ -5260,7 +5254,7 @@ bool QWidget::isFullScreen() const
 
 void QWidget::repaint()
 {
-    repaint(visibleRect());
+    repaint(d->clipRect());
 }
 
 /*! \overload
@@ -5374,36 +5368,30 @@ void QWidget::erase( int x, int y, int w, int h )
     if ( h < 0 )
 	h = crect.height() - y;
     if ( w != 0 && h != 0 ) {
-#ifdef Q_WS_X11
 	QPainter p(this);
 	p.eraseRect(QRect(x, y, w, h));
-#else
-	// ### fix me matthias :)
-	if (! QPainter::redirected(this))
-	    d->erase_helper(QRect(x, y, w, h));
-#endif
     }
 }
 
 /*! \obsolete
     \overload
 
-    Erases the area defined by \a rgn in the widget.
+    Erases the area defined by \a rgn in the widget. Use this code
+    instead:
+    \code
+	QPainter p(this);
+	p.setClipRegion(rgn);
+	p.eraseRect(rgn.boundingRect());
+    /endcode
 */
 void QWidget::erase( const QRegion& rgn )
 {
     if (testAttribute(WA_NoSystemBackground))
 	return;
 
-#ifdef Q_WS_X11
     QPainter p(this);
     p.setClipRegion(rgn);
     p.eraseRect(rgn.boundingRect());
-#else
-    // ### fix me matthias :)
-    if (! QPainter::redirected(this))
-	d->erase_helper(rgn);
-#endif
 }
 #endif // QT_NO_COMPAT
 

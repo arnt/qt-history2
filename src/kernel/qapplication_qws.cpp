@@ -2721,19 +2721,10 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
 	return;
     r.translate(-crect.x(),-crect.y());
 
-    if ( post ) {
+    if (post)
 	QApplication::postEvent(this,new QPaintEvent(r));
-    } else {
-	/// ##### why isn't that just calling repaint???
-	erase(r);
-
-	QPaintEvent e( r );
-	setWState( WState_InPaintEvent );
-	qt_set_paintevent_clipping( this, r);
-	QApplication::sendEvent( this, &e );
-	qt_clear_paintevent_clipping();
-	clearWState( WState_InPaintEvent );
-    }
+    else
+	repaint(r);
 
     QObjectList childList = children();
     for (int i = 0; i < childList.size(); ++i) {
@@ -2752,17 +2743,10 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
     if ( testWFlags(WType_TopLevel) && d->topData()->qwsManager) {
 	r &= d->topData()->qwsManager->region();
 	r.translate(-crect.x(),-crect.y());
-	if ( post ) {
-	    QApplication::postEvent(d->topData()->qwsManager,
-		    new QPaintEvent( clipRegion() ) );
-	} else {
-	    QPaintEvent e(r);
-	    setWState( WState_InPaintEvent );
-	    qt_set_paintevent_clipping( this, r );
-	    QApplication::sendEvent(d->topData()->qwsManager, &e );
-	    qt_clear_paintevent_clipping();
-	    clearWState( WState_InPaintEvent );
-	}
+	if (post)
+	    QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent( clipRegion() ));
+	else
+	    repaint(r);
     }
 #endif
 }

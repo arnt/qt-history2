@@ -618,14 +618,64 @@ void QWidget::update(int x, int y, int w, int h)
 
 void QWidget::repaint( const QRegion& reg )
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible && isVisible() ) {
-	if (!testAttribute(WA_NoBackground))
-	    erase(reg);
-	QPaintEvent e( reg );
-	qt_set_paintevent_clipping( this, reg );
-	QApplication::sendSpontaneousEvent( this, &e );
-	qt_clear_paintevent_clipping();
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
+	return;
+    if (rgn.isEmpty())
+	return;
+    if (testWState(WState_InPaintEvent)) {
+	qWarning("QWidget::repaint: recursive repaint detected.");
+       	return;
     }
+
+    setWState(WState_InPaintEvent);
+
+    if (!testAttribute(WA_NoBackground)) {
+	QPoint offset;
+	QStack<QWidget*> parents;
+	QWidget *w = q;
+	while (w->d->isBackgroundInherited()) {
+	    offset += w->pos();
+	    w = w->parentWidget();
+	    parents += w;
+	}
+
+	QBrush bg = q->palette().brush(w->d->bg_role);
+	QRect rr = rgn.boundingRect();
+	bool was_unclipped = q->testWFlags(Qt::WPaintUnclipped);
+	q->clearWFlags(Qt::WPaintUnclipped);
+	QPainter p(q);
+	if(was_unclipped)
+	    q->setWFlags(Qt::WPaintUnclipped);
+	p.setClipRegion(rgn);
+	if(bg.pixmap())
+	    p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
+						      rr.y()+(offset.y()%bg.pixmap()->height())));
+	else
+	    p.fillRect(rr, bg.color());
+
+	if (!parents)
+	    return;
+
+	w = parents.pop();
+	for (;;) {
+	    if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+		QPainter::setRedirected(w, q, offset);
+		QRect rr = q->rect();
+		rr.moveBy(offset);
+		QPaintEvent e(rr);
+		QApplication::sendEvent(w, &e);
+		QPainter::restoreRedirected(w);
+	    }
+	    if (!parents)
+		break;
+	    w = parents.pop();
+	    offset -= w->pos();
+	}
+    }
+    QPaintEvent e( rgn );
+    qt_set_paintevent_clipping( this, rgn );
+    QApplication::sendSpontaneousEvent( this, &e );
+    qt_clear_paintevent_clipping();
 }
 
 void QWidget::showWindow()
@@ -1085,51 +1135,6 @@ void QWidget::setBaseSize( int basew, int baseh )
     x->baseh = baseh;
     if ( testWFlags(WType_TopLevel) ) {
 	// XXX
-    }
-}
-
-void QWidgetPrivate::erase_helper(const QRegion &rgn, const QPoint &dboff)
-{
-    QPoint offset;
-    QStack<QWidget*> parents;
-    QWidget *w = q;
-    while (w->d->isBackgroundInherited()) {
-	offset += w->pos();
-	w = w->parentWidget();
-	parents += w;
-    }
-
-    QBrush bg = q->palette().brush(w->d->bg_role);
-    QRect rr = rgn.boundingRect();
-    bool was_unclipped = q->testWFlags(Qt::WPaintUnclipped);
-    q->clearWFlags(Qt::WPaintUnclipped);
-    QPainter p(q);
-    if(was_unclipped)
-	q->setWFlags(Qt::WPaintUnclipped);
-    p.setClipRegion(rgn);
-    if(bg.pixmap())
-	p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
-						  rr.y()+(offset.y()%bg.pixmap()->height())));
-    else
-	p.fillRect(rr, bg.color());
-
-    if (!parents)
-	return;
-
-    w = parents.pop();
-    for (;;) {
-	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::setRedirected(w, q, offset);
-  	    QRect rr = q->rect();
- 	    rr.moveBy(offset);
-	    QPaintEvent e(rr);
-	    QApplication::sendEvent(w, &e);
-	    QPainter::restoreRedirected(w);
-	}
-	if (!parents)
-	    break;
-	w = parents.pop();
-	offset -= w->pos();
     }
 }
 

@@ -745,7 +745,8 @@ void QWidget::update()
 void QWidget::update(const QRegion &rgn)
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
- 	InvalidateRgn(winId(), rgn.handle(), false);
+	if (!rgn.isEmpty())
+	    InvalidateRgn(winId(), rgn.handle(), false);
 }
 
 void QWidget::update(int x, int y, int w, int h)
@@ -769,26 +770,64 @@ void QWidget::update(int x, int y, int w, int h)
 
 void QWidget::repaint( const QRegion& rgn )
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-#ifndef Q_OS_TEMP
-	ValidateRgn( winId(), rgn.handle() );
-#else
-	if ( rgn.handle() ) {
-	    QRect qr = rgn.boundingRect();
-	    RECT r = { qr.x(), qr.y(), qr.width(), qr.height() };
-	    ValidateRect( winId(), &r );
-	} else {
-	    // Entire area
-	    ValidateRect( winId(), NULL );
-	}
-#endif
-	QPaintEvent e( rgn );
-	qt_set_paintevent_clipping( this, rgn );
-	if (!testAttribute(WA_NoBackground))
-	    erase( rgn );
-	QApplication::sendSpontaneousEvent( this, &e );
-	qt_clear_paintevent_clipping();
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
+	return;
+    if (rgn.isEmpty())
+	return;
+    if (testWState(WState_InPaintEvent)) {
+ 	qWarning("QWidget::repaint: recursive repaint detected.");
+ 	return;
     }
+
+    setWState(WState_InPaintEvent);
+    ValidateRgn( winId(), rgn.handle() );
+    qt_set_paintevent_clipping( this, rgn );
+
+    if (false && !testAttribute(WA_NoBackground)) {
+	QPoint offset;
+	QStack<QWidget*> parents;
+	QWidget *w = q;
+	while (w->d->isBackgroundInherited()) {
+	    offset += w->pos();
+	    w = w->parentWidget();
+	    parents += w;
+	}
+
+	bool tmphdc = !hdc;
+	HDC lhdc = tmphdc ? GetDC(winId()) : hdc;
+	SelectClipRgn(lhdc, rgn.handle());
+	extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, int );
+	qt_erase_background(lhdc, 0, 0, crect.width(), crect.height(),
+			    palette().brush(w->d->bg_role), offset.x(), offset.y());
+
+	if (!!parents) {
+	    w = parents.pop();
+	    for (;;) {
+		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+		    QPainter::setRedirected(w, q, offset);
+		    QRect rr = rect();
+		    rr.moveBy(offset);
+		    QPaintEvent e(rr);
+		    QApplication::sendEvent(w, &e);
+		    QPainter::restoreRedirected(w);
+		}
+		if (!parents)
+		    break;
+		w = parents.pop();
+		offset -= w->pos();
+	    }
+	}
+	SelectClipRgn(lhdc, 0);
+	if ( tmphdc ) {
+	    ReleaseDC( winId(), lhdc );
+	    hdc = 0;
+	}
+    }
+
+    QPaintEvent e(rgn);
+    QApplication::sendSpontaneousEvent( this, &e );
+    qt_clear_paintevent_clipping();
+    clearWState(WState_InPaintEvent);
 }
 
 
@@ -1174,8 +1213,6 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	if ( isResize ) {
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
-	    if (!testAttribute(WA_StaticContents))
-		repaint();
 	}
     } else {
 	if (isMove && pos() != oldPos)
@@ -1246,55 +1283,6 @@ void QWidget::setBaseSize( int w, int h )
     d->extra->topextra->basew = w;
     d->extra->topextra->baseh = h;
 }
-
-
-extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, int );
-
-void QWidgetPrivate::erase_helper(const QRegion &rgn)
-{
-    bool tmphdc = !q->hdc;
-    HDC lhdc = tmphdc ? GetDC(q->winId()) : q->hdc;
-
-    QPoint offset;
-    QStack<QWidget*> parents;
-    QWidget *w = q;
-    while (w->d->isBackgroundInherited()) {
-	offset += w->pos();
-	w = w->parentWidget();
-	parents += w;
-    }
-
-    SelectClipRgn(lhdc, rgn.handle());
-    qt_erase_background(lhdc, 0, 0, q->crect.width(), q->crect.height(),
-			q->palette().brush(w->d->bg_role), offset.x(), offset.y());
-
-    if (!parents)
-	goto cleanup;
-
-    w = parents.pop();
-    for (;;) {
-	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::setRedirected(w, q, offset);
-  	    QRect rr = q->rect();
- 	    rr.moveBy(offset);
-	    QPaintEvent e(rr);
-	    QApplication::sendEvent(w, &e);
-	    QPainter::restoreRedirected(w);
-	}
-	if (!parents)
-	    break;
-	w = parents.pop();
-	offset -= w->pos();
-    }
-
- cleanup:
-    SelectClipRgn(lhdc, 0);
-    if ( tmphdc ) {
-	ReleaseDC( q->winId(), lhdc );
-	q->hdc = 0;
-    }
-}
-
 
 void QWidget::scroll( int dx, int dy )
 {

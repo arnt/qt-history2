@@ -1334,7 +1334,7 @@ void QWidget::repaint(const QRegion& rgn)
 	    for (;;) {
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
 		    QPainter::setRedirected(w, q, offset + dboff);
-		    QRect rr = q->visibleRect();
+		    QRect rr = clipRect();
 		    rr.moveBy(offset);
 		    QPaintEvent e(rr);
 		    QApplication::sendEvent(w, &e);
