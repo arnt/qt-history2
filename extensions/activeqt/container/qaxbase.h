@@ -135,6 +135,16 @@ template <> inline QAxBase *qt_cast<QAxBase*>(const QObject *o)
     return (QAxBase*)(result);
 }
 
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QAxBase *qt_cast_helper<QAxBase*>(QObject *o, QAxBase *)
+#else
+template <> inline QAxBase *qt_cast<QAxBase*>(QObject *o)
+#endif
+{
+    void *result = o ? o->qt_metacast("QAxBase") : 0;
+    return (QAxBase*)(result);
+}
+
 inline QString QAxBase::generateDocumentation()
 {
     extern QString qax_generateDocumentation(QAxBase *);

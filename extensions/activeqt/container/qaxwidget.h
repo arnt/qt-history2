@@ -73,4 +73,14 @@ template <> inline QAxWidget *qt_cast<QAxWidget*>(const QObject *o)
     return (QAxWidget*)(result);
 }
 
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QAxWidget *qt_cast_helper<QAxWidget*>(QObject *o, QAxWidget *)
+#else
+template <> inline QAxWidget *qt_cast<QAxWidget*>(QObject *o)
+#endif
+{
+    void *result = o ? o->qt_metacast("QAxWidget") : 0;
+    return (QAxWidget*)(result);
+}
+
 #endif // QAXWIDGET_H

@@ -53,4 +53,14 @@ template <> inline QAxObject *qt_cast<QAxObject*>(const QObject *o)
     return (QAxObject*)(result);
 }
 
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QAxObject *qt_cast_helper<QAxObject*>(QObject *o, QAxObject *)
+#else
+template <> inline QAxObject *qt_cast<QAxObject*>(QObject *o)
+#endif
+{
+    void *result = o ? o->qt_metacast("QAxObject") : 0;
+    return (QAxObject*)(result);
+}
+
 #endif //QAXOBJECT_H
