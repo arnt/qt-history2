@@ -134,6 +134,11 @@ protected:
 
     void safeDec();
     void safeInc();
+
+    void navigateLeft( bool ctrl );
+    void navigateRight( bool ctrl );
+    void enterEditMode();
+    void leaveEditMode();
     
 private:
     FormWindow * formWnd;

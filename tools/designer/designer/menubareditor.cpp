@@ -386,12 +386,12 @@ int MenuBarEditor::findItem( QPoint & pos )
     // check add item
     s = itemSize( p, &addItem );
     dx = s.width();
-	    
+
     if ( x + dx > w && x > borderSize ) {
 	y += itemHeight;
 	x = borderSize;
     }
-    
+
     r = QRect( x, y, s.width(), s.height() );
     
     if ( r.contains( pos ) ) {
@@ -710,48 +710,19 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    break;
 	
 	case Qt::Key_Left:
-	    // FIXME: handle invisible items
-	    if ( currentIndex > 0 ) {
-		hideItem();
-		if ( e->state() & Qt::ControlButton ) {
-		    ExchangeMenuCommand * cmd = new ExchangeMenuCommand( "Move Menu Left",
-									 formWnd,
-									 this,
-									 currentIndex,
-									 currentIndex - 1 );
-		    formWnd->commandHistory()->addCommand( cmd );
-		    cmd->execute();
-		    safeDec();
-		} else {
-		    safeDec();
-		}
-		showItem();
-	    }
-	    break;
+	    e->accept();
+	    navigateLeft( e->state() & Qt::ControlButton );
+	    return;
 	
 	case Qt::Key_Right:
-	    // FIXME: handle invisible items
-	    hideItem();
-	    if ( e->state() & Qt::ControlButton ) {
-		if ( currentIndex < ( itemList.count() - 1 ) ) {
-		    ExchangeMenuCommand * cmd =	new ExchangeMenuCommand( "Move Menu Right",
-									 formWnd,
-									 this,
-									 currentIndex,
-									 currentIndex + 1 );
-		    formWnd->commandHistory()->addCommand( cmd );
-		    cmd->execute();
-		    safeInc();
-		}
-	    } else {
-		safeInc();
-	    }
-	    showItem();
-	    break;
+	    e->accept();
+	    navigateRight( e->state() & Qt::ControlButton );
+	    return; // no update
 	
 	case Qt::Key_Down:
+	    e->accept();
 	    focusItem();
-	    break;
+	    return; // no update
 
 	case Qt::Key_PageUp:
 	    currentIndex = 0;
@@ -764,12 +735,9 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
 	case Qt::Key_F2:
-	    if ( currentIndex > itemList.count() ) {
-		insertSeparator();
-	    } else {
-		showLineEdit();
-	    }
-	    break;
+	    e->accept();
+	    enterEditMode();
+	    return; // no update
 
 	case Qt::Key_Up:
 	case Qt::Key_Alt:
@@ -781,15 +749,13 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    return; // no update
 	    
 	case Qt::Key_C:
-	    if ( e->state() & Qt::ControlButton &&
-		 currentIndex < itemList.count() ) {
+	    if ( e->state() & Qt::ControlButton && currentIndex < itemList.count() ) {
 		copy( currentIndex );
 		break;
 	    }
 	    
 	case Qt::Key_X:
-	    if ( e->state() & Qt::ControlButton &&
-		 currentIndex < itemList.count() ) {
+	    if ( e->state() & Qt::ControlButton && currentIndex < itemList.count() ) {
 		hideItem();
 		cut( currentIndex );
 		showItem();
@@ -806,12 +772,10 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 
 	default:
 	    if ( e->ascii() >= 32 || e->ascii() == 0 ) {
-		qDebug( "accept" );
 		showLineEdit();
 		QApplication::sendEvent( lineEdit, e );
 		e->accept();
 	    } else {
-		qDebug( "ignore" );
 		e->ignore();
 	    }
 	    return;
@@ -824,22 +788,7 @@ void MenuBarEditor::keyPressEvent( QKeyEvent * e )
 	    return;
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
-	{
-	    MenuBarEditorItem * i = 0;
-	    if ( currentIndex >= itemList.count() ) {
-		i = createItem();
-		// do not put rename on cmd stack
-		RenameMenuCommand rename( "Rename Menu", formWnd, this, lineEdit->text(), i );
-		rename.execute();
-	    } else {
-		i = itemList.at( currentIndex );
-		RenameMenuCommand * cmd =
-		    new RenameMenuCommand( "Rename Menu", formWnd, this, lineEdit->text(), i );
-		formWnd->commandHistory()->addCommand( cmd );
-		cmd->execute();
-	    }
-	    showItem();
-	}
+	    leaveEditMode();
 	case Qt::Key_Escape:
 	    lineEdit->hide();
 	    setFocus();
@@ -1089,4 +1038,75 @@ void MenuBarEditor::safeInc()
 	    // skip invisible items
 	} while ( currentIndex < max && !( item( currentIndex )->isVisible() ) );
     }
+}
+
+void MenuBarEditor::navigateLeft( bool ctrl )
+{
+    // FIXME: handle invisible items
+    if ( currentIndex > 0 ) {
+	hideItem();
+	if ( ctrl ) {
+	    ExchangeMenuCommand * cmd = new ExchangeMenuCommand( "Move Menu Left",
+								 formWnd,
+								 this,
+								 currentIndex,
+								 currentIndex - 1 );
+	    formWnd->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	    safeDec();
+	} else {
+	    safeDec();
+	}
+	showItem();
+    }
+    update();
+}
+
+void MenuBarEditor::navigateRight( bool ctrl )
+{
+// FIXME: handle invisible items
+    hideItem();
+    if ( ctrl ) {
+	if ( currentIndex < ( itemList.count() - 1 ) ) {
+	    ExchangeMenuCommand * cmd =	new ExchangeMenuCommand( "Move Menu Right",
+								 formWnd,
+								 this,
+								 currentIndex,
+								 currentIndex + 1 );
+	    formWnd->commandHistory()->addCommand( cmd );
+	    cmd->execute();
+	    safeInc();
+	}
+    } else {
+	safeInc();
+    }
+    showItem();
+    update();
+}
+
+void MenuBarEditor::enterEditMode()
+{
+    if ( currentIndex > itemList.count() ) {
+	insertSeparator();
+    } else {
+	showLineEdit();
+    }
+}
+
+void MenuBarEditor::leaveEditMode()
+{
+    MenuBarEditorItem * i = 0;
+    if ( currentIndex >= itemList.count() ) {
+	i = createItem();
+	// do not put rename on cmd stack
+	RenameMenuCommand rename( "Rename Menu", formWnd, this, lineEdit->text(), i );
+	rename.execute();
+    } else {
+	i = itemList.at( currentIndex );
+	RenameMenuCommand * cmd =
+	    new RenameMenuCommand( "Rename Menu", formWnd, this, lineEdit->text(), i );
+	formWnd->commandHistory()->addCommand( cmd );
+	cmd->execute();
+    }
+    showItem();
 }

@@ -779,7 +779,7 @@ PopupMenuEditorItem * PopupMenuEditor::itemAt( const int y )
 	i = itemList.next();
     }
 
-    iy = itemList.count() * itemHeight;
+    iy += itemHeight;
     if ( iy > y ) {
 	return &addItem;
     }
