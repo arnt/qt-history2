@@ -215,7 +215,7 @@ static const char *qtlogo_xpm[] = {
 
 
 
-// NOT REVISED
+// BEING REVISED: paul
 /*!
   \class QMessageBox qmessagebox.h
   \brief Displays a brief message, an icon, and some buttons.
