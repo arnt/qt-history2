@@ -63,16 +63,6 @@ void QTableModel::setColumnCount(int columns)
 	emit contentsRemoved(index(0, c - 1, 0), index(r - 1, _c - 1, 0));
 }
 
-int QTableModel::rowCount() const
-{
-    return rowCount(QModelIndex());
-}
-
-int QTableModel::columnCount() const
-{
-    return columnCount(QModelIndex());
-}
-
 void QTableModel::setText(int row, int column, const QString &text)
 {
     QModelIndex index(row, column, 0);

@@ -4,8 +4,6 @@
 #ifndef QT_H
 #include <qobject.h>
 #include <qmime.h>
-#include <qstring.h>
-#include <qiconset.h>
 #include <qvariant.h>
 #include <qlist.h>
 #endif
@@ -50,16 +48,15 @@ public:
     QGenericItemModel(QObject *parent = 0, const char *name = 0);
     virtual ~QGenericItemModel();
 
-    virtual QModelIndex index(int row, int col, const QModelIndex &parent) const;
+    virtual QModelIndex index(int row, int col, const QModelIndex &parent = 0) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
-
-    inline QModelIndex topLeft(const QModelIndex &parent) const
+    inline QModelIndex topLeft(const QModelIndex &parent = 0) const
 	{ return index(0, 0, parent); }
-    inline QModelIndex bottomRight(const QModelIndex &parent) const
+    inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
 	{ return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
 
-    virtual int rowCount(const QModelIndex &parent) const = 0;
-    virtual int columnCount(const QModelIndex &parent) const = 0;
+    virtual int rowCount(const QModelIndex &parent = 0) const = 0;
+    virtual int columnCount(const QModelIndex &parent = 0) const = 0;
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual const char *format(int i) const;
@@ -68,11 +65,11 @@ public:
     virtual bool decode(QMimeSource *src);
 
     virtual QVariant data(const QModelIndex &index, int element) const = 0;
-    virtual QVariant data(const QModelIndex &index) const;
+    virtual QVariant dataList(const QModelIndex &index) const;
     virtual void setData(const QModelIndex &index, int element, const QVariant &value);
-    virtual void setData(const QModelIndex &index, const QVariant &values);
-    virtual void insertData(const QModelIndex &index, const QVariant &values);
-    virtual void appendData(const QVariant &values);
+    virtual void setDataList(const QModelIndex &index, const QVariant &values);
+    virtual void insertDataList(const QModelIndex &index, const QVariant &values);
+    virtual void appendDataList(const QVariant &values);
 
     virtual QVariant::Type type(const QModelIndex &index, int element) const = 0;
     virtual int element(const QModelIndex &index, QVariant::Type type) const = 0;
@@ -82,8 +79,8 @@ public:
     virtual bool isEditable(const QModelIndex &index) const;
     virtual bool isDragEnabled(const QModelIndex &index) const;
     virtual bool isDropEnabled(const QModelIndex &index) const;
-
-    virtual bool isModelSortable() const;
+    
+    virtual bool isSortable() const;
     virtual void sort(int column, SortOrder order);
 
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;

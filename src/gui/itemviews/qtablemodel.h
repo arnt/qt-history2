@@ -41,8 +41,6 @@ public:
 
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
-    int rowCount() const;
-    int columnCount() const;
 
     virtual void setText(int row, int column, const QString &text);
     virtual void setIconSet(int row, int column, const QIconSet &iconSet);
@@ -64,10 +62,10 @@ public:
     const QTableModelItem *item(const QModelIndex &index) const;
     QTableModelItem *item(const QModelIndex &index);
 
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = 0) const;
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = 0) const;
+    int columnCount(const QModelIndex &parent = 0) const;
 
     QVariant data(const QModelIndex &index, int element) const;
     void setData(const QModelIndex &index, int element, const QVariant &variant);

@@ -55,10 +55,10 @@ public:
     const QListModelItem *item(const QModelIndex &index) const;
 
     QModelIndex index(QListModelItem *item) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = 0) const;
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = 0) const;
+    int columnCount(const QModelIndex &parent = 0) const;
 
     QVariant data(const QModelIndex &index, int element) const;
     void setData(const QModelIndex &index, int element, const QVariant &variant);

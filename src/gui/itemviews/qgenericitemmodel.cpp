@@ -87,9 +87,9 @@ QModelIndex QGenericItemModel::parent(const QModelIndex &) const
     return QModelIndex();
 }
 
-bool QGenericItemModel::hasChildren(const QModelIndex &) const
+bool QGenericItemModel::hasChildren(const QModelIndex &parent) const
 {
-    return false;
+    return (rowCount(parent) > 0) && (columnCount(parent) > 0);
 }
 
 void QGenericItemModel::fetchMore()
@@ -111,7 +111,7 @@ QByteArray QGenericItemModel::encodedData(const char *mime, const QModelIndexLis
     QVariantList variants;
     QModelIndexList::ConstIterator it = indices.begin();
     for (; it != indices.end(); ++it)
-	variants << data(*it);
+	variants << dataList(*it);
     QByteArray encoded;
     QDataStream stream(encoded, IO_WriteOnly);
     stream << QVariant(variants);
@@ -136,11 +136,11 @@ bool QGenericItemModel::decode(QMimeSource *src)
     QCoreVariantList variants = variant.toList();
     QCoreVariantList::ConstIterator it = variants.begin();
     for (int i = 0; it != variants.end(); ++it, ++i)
-	appendData(*it);
+	appendDataList(*it);
     return true;
 }
 
-QVariant QGenericItemModel::data(const QModelIndex &index) const
+QVariant QGenericItemModel::dataList(const QModelIndex &index) const
 {
     QVariantList elementList;
     for (int e = 0; e < elementCount(index); ++e)
@@ -153,7 +153,7 @@ void QGenericItemModel::setData(const QModelIndex &, int, const QVariant &)
     // do nothing - read only
 }
 
-void QGenericItemModel::setData(const QModelIndex &index, const QVariant &values)
+void QGenericItemModel::setDataList(const QModelIndex &index, const QVariant &values)
 {
     if (values.type() != QVariant::List)
 	return;
@@ -163,12 +163,12 @@ void QGenericItemModel::setData(const QModelIndex &index, const QVariant &values
 	setData(index, e++, *it);
 }
 
-void QGenericItemModel::insertData(const QModelIndex &, const QVariant &)
+void QGenericItemModel::insertDataList(const QModelIndex &, const QVariant &)
 {
     // do nothing - read only
 }
 
-void QGenericItemModel::appendData(const QVariant &)
+void QGenericItemModel::appendDataList(const QVariant &)
 {
     // do nothing - read only
 }
@@ -200,7 +200,7 @@ bool QGenericItemModel::isDropEnabled(const QModelIndex &) const
     return false;
 }
 
-bool QGenericItemModel::isModelSortable() const
+bool QGenericItemModel::isSortable() const
 {
     return false;
 }
