@@ -36,7 +36,7 @@
 
 struct glyph_metrics_t;
 class QChar;
-typedef unsigned short glyph_t;
+typedef unsigned int glyph_t;
 class QOpenType;
 class QPainterPath;
 

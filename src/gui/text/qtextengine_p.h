@@ -81,7 +81,7 @@ struct glyph_metrics_t
 };
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
-typedef unsigned short glyph_t;
+typedef unsigned int glyph_t;
 
 #if defined(Q_WS_X11) || defined (Q_WS_QWS) || defined (Q_WS_MAC)
 
@@ -158,7 +158,7 @@ struct QGlyphLayout
         Arabic_Kashida = 13   // Kashida(U+640) in middle of word
     };
 
-    unsigned short glyph;
+    glyph_t glyph;
     struct Attributes {
         unsigned short justification   :4;  // Justification class
         unsigned short clusterStart    :1;  // First glyph of representation of cluster
