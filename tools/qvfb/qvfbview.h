@@ -23,7 +23,7 @@ class QVFbView : public QScrollView
     Q_OBJECT
 public:
     QVFbView( int display_id, int w, int h, int d, QWidget *parent = 0,
-		const char *name = 0, WFlags = 0 );
+		const char *name = 0, Qt::WFlags = 0 );
     ~QVFbView();
 
     int displayId() const;

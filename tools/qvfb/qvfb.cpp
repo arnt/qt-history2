@@ -16,6 +16,8 @@
 #include "config.h"
 #include "skin.h"
 
+#include <qmenu.h>
+#include <qaction.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qapplication.h>
@@ -31,38 +33,30 @@
 #include <qcursor.h>
 #include <qdragobject.h>
 #include <qcheckbox.h>
+//#include <yet.h>
 
 QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent,
-	    const char *name, WFlags flags )
-    : QMainWindow( parent, name, flags )
+	    const char *name, Qt::WFlags flags )
+    : QMainWindow( parent, flags )
 {
-    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( "logo.png" );
-    if ( m ) {
-	QPixmap pix;
-	QImageDrag::decode( m, pix );
-	setWindowIcon( pix );
-    }
+    setObjectName(name);
+    QPixmap pix("logo.png");
+    setWindowIcon( pix );
 
 #warning "QFileDialog"
-#if 0    
+#if 0
     imagesave = new QFileDialog( this, 0, TRUE );
 #endif
     rateDlg = 0;
     view = 0;
     init( display_id, w, h, d, skin );
-    createMenu( menuBar() );
+    createActions();
+    createMenuBar();
     adjustSize();
 }
 
 QVFb::~QVFb()
 {
-}
-
-void QVFb::popupMenu()
-{
-    QPopupMenu *pm = new QPopupMenu( this );
-    createMenu( pm );
-    pm->exec(QCursor::pos());
 }
 
 void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
@@ -78,10 +72,10 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 	Skin *skin = new Skin( this, skin_name, w, h );
 	view = new QVFbView( display_id, w, h, d, skin );
 	skin->setView( view );
-	view->setMargin( 0 );
+//	view->setMargin( 0 );
 	view->setFrameStyle( QFrame::NoFrame );
 	view->setFixedSize( w, h );
-	setCentralWidget( skin );
+	setCenterWidget( skin );
 	adjustSize();
 	view->show();
 	if ( vis ) show();
@@ -93,9 +87,9 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 	}
 	menuBar()->show();
 	view = new QVFbView( display_id, w, h, d, this );
-	view->setMargin( 0 );
+//	view->setMargin( 0 );
 	view->setFrameStyle( QFrame::NoFrame );
-	setCentralWidget( view );
+	setCenterWidget( view );
 	resize( sizeHint() );
 	view->show();
     }
@@ -103,43 +97,102 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
     currentSkin = skin_name;
 }
 
-void QVFb::enableCursor( bool e )
+QAction *QVFb::newAction(const char *menuName, const char *shortkey, const char *slot)
 {
-    view->viewport()->setCursor( e ? ArrowCursor : BlankCursor );
-    viewMenu->setItemChecked( cursorId, e );
+    QAction *result = new QAction(menuName, QKeySequence(shortkey), this);
+    connect(result, SIGNAL(triggered()), slot);
+    return result;
 }
 
-void QVFb::createMenu(QMenuData *menu)
+void QVFb::createActions()
 {
-    QPopupMenu *file = new QPopupMenu( this );
-    file->insertItem( "&Configure...", this, SLOT(configure()), ALT+CTRL+Key_C );
-    file->insertSeparator();
-    file->insertItem( "&Save image...", this, SLOT(saveImage()), ALT+CTRL+Key_S );
-    file->insertItem( "&Animation...", this, SLOT(toggleAnimation()), ALT+CTRL+Key_A );
-    file->insertSeparator();
-    file->insertItem( "&Quit", qApp, SLOT(quit()) );
+    actions[ConfigAct] = newAction("&Configure", "Ctrl+Alt+C", SLOT(configure()));
+    actions[QuitAct] = newAction("&Quit", "", SLOT(quit()));
+    actions[AboutAct] = newAction("&About", "", SLOT(about()));
+    actions[AboutQtAct] = newAction("About &Qt", "", SLOT(aboutQt()));
 
-    menu->insertItem( "&File", file );
+    actions[SaveAct] = newAction("&Save image...", "Ctrl+Alt+S", SLOT(saveImage()));
 
-    viewMenu = new QPopupMenu( this );
-    viewMenu->setCheckable( TRUE );
-    cursorId = viewMenu->insertItem( "Show &Cursor", this, SLOT(toggleCursor()) );
+    actions[AnimationAct] = newAction("&Animation...", "Ctrl+Alt+A", SLOT(toggleAnimation()));
+    actions[CursorAct] = newAction("Show &Cursor", "Ctrl+Alt+U", SLOT(toggleCursor()));
+    actions[CursorAct]->setCheckable(true);
     enableCursor(TRUE);
-    viewMenu->insertItem( "&Refresh Rate...", this, SLOT(changeRate()) );
-    viewMenu->insertSeparator();
-    viewMenu->insertItem( "Zoom scale &1", this, SLOT(setZoom1()) );
-    viewMenu->insertItem( "Zoom scale &2", this, SLOT(setZoom2()) );
-    viewMenu->insertItem( "Zoom scale &3", this, SLOT(setZoom3()) );
-    viewMenu->insertItem( "Zoom scale &4", this, SLOT(setZoom4()) );
-    viewMenu->insertItem( "Zoom scale &0.5", this, SLOT(setZoomHalf()) );
 
-    menu->insertItem( "&View", viewMenu );
+    actions[RefreshAct] = newAction("&Refresh rate...", "Ctrl+Alt+R", SLOT(changeRate()));
+    actions[Zoom05Act] = newAction("Zoom scale &0.5", "Ctrl+Alt+0", SLOT(setZoomHalf()));
+    actions[Zoom1Act] = newAction("Zoom scale &1", "Ctrl+Alt+1", SLOT(setZoom1()));
+    actions[Zoom2Act] = newAction("Zoom scale &2", "Ctrl+Alt+2", SLOT(setZoom2()));
+    actions[Zoom3Act] = newAction("Zoom scale &3", "Ctrl+Alt+3", SLOT(setZoom3()));
+    actions[Zoom4Act] = newAction("Zoom scale &4", "Ctrl+Alt+4", SLOT(setZoom4()));
+}
 
-    QPopupMenu *help = new QPopupMenu( this );
-    help->insertItem("&About", this, SLOT(about()));
-    help->insertItem("About &Qt", this, SLOT(aboutQt()));
-    menu->insertSeparator();
-    menu->insertItem( "&Help", help );
+void QVFb::createPopupMenu()
+{
+    QMenu *file = new QMenu;
+    file->addAction(actions[ConfigAct]);
+    file->addSeparator();
+    file->addAction(actions[SaveAct]);
+    file->addAction(actions[AnimationAct]);
+    file->addSeparator();
+    file->addAction(actions[QuitAct]);
+
+    QMenu *view = new QMenu;
+    view->addAction(actions[CursorAct]);
+    view->addAction(actions[RefreshAct]);
+    view->addSeparator();
+    view->addAction(actions[Zoom1Act]);
+    view->addAction(actions[Zoom2Act]);
+    view->addAction(actions[Zoom3Act]);
+    view->addAction(actions[Zoom4Act]);
+    view->addAction(actions[Zoom05Act]);
+
+    QMenu *help = new QMenu;
+    help->addAction(actions[AboutAct]);
+    help->addAction(actions[AboutQtAct]);
+
+    QPopupMenu *menu = new QPopupMenu(this);
+    menu->addMenu("&File", file);
+    menu->addMenu("&View", view);
+    menu->addSeparator();
+    menu->addMenu("&Help", help);
+    menu->exec(QCursor::pos());
+}
+
+void QVFb::createMenuBar()
+{
+    QMenu *file = new QMenu;
+    file->addAction(actions[ConfigAct]);
+    file->addSeparator();
+    file->addAction(actions[SaveAct]);
+    file->addAction(actions[AnimationAct]);
+    file->addSeparator();
+    file->addAction(actions[QuitAct]);
+
+    QMenu *view = new QMenu;
+    view->addAction(actions[CursorAct]);
+    view->addAction(actions[RefreshAct]);
+    view->addSeparator();
+    view->addAction(actions[Zoom1Act]);
+    view->addAction(actions[Zoom2Act]);
+    view->addAction(actions[Zoom3Act]);
+    view->addAction(actions[Zoom4Act]);
+    view->addAction(actions[Zoom05Act]);
+
+    QMenu *help = new QMenu;
+    help->addAction(actions[AboutAct]);
+    help->addAction(actions[AboutQtAct]);
+
+    QMenuBar *menu = menuBar();
+    menu->addMenu("&File", file);
+    menu->addMenu("&View", view);
+    menu->addSeparator();
+    menu->addMenu("&Help", help);
+}
+
+void QVFb::enableCursor( bool e )
+{
+    view->viewport()->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
+    actions[CursorAct]->setChecked(e);
 }
 
 void QVFb::setZoom(double z)
@@ -176,7 +229,7 @@ void QVFb::saveImage()
 {
     QImage img = view->image();
 #warning "QFileDialog"
-#if 0    
+#if 0
     QString filename = imagesave->getSaveFileName("snapshot.png", "*.png", this, "", "Save Image");
     if ( !!filename )
 	img.save(filename,"PNG");
@@ -189,14 +242,14 @@ void QVFb::toggleAnimation()
 	view->stopAnimation();
     } else {
 #warning "QFileDialog"
-#if 0    
+#if 0
 	QString filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", "Save animation");
 	if ( !filename ) {
 	    view->stopAnimation();
 	} else {
 	    view->startAnimation(filename);
 	}
-#endif	
+#endif
     }
 }
 

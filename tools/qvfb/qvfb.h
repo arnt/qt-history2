@@ -15,8 +15,9 @@
 class QVFbView;
 class QVFbRateDialog;
 class QPopupMenu;
-class QMenuData;
+class QMenu;
 class QFileDialog;
+class QAction;
 class Config;
 
 class QVFb: public QMainWindow
@@ -24,11 +25,11 @@ class QVFb: public QMainWindow
     Q_OBJECT
 public:
     QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent = 0,
-		const char *name = 0, WFlags = 0 );
+		const char *name = 0, Qt::WFlags = 0 );
     ~QVFb();
 
     void enableCursor( bool e );
-    void popupMenu();
+    void createPopupMenu();
 
 protected slots:
     void saveImage();
@@ -48,10 +49,13 @@ protected slots:
     void setZoomHalf();
 
 protected:
-    void createMenu(QMenuData *menu);
+    void createMenuBar();
 
 private:
     void init( int display_id, int w, int h, int d, const QString &skin );
+    QAction *newAction(const char *menuName, const char *shortkey, const char *slot);
+    void createActions();
+    
     QVFbView *view;
     QVFbRateDialog *rateDlg;
     QFileDialog* imagesave;
@@ -59,6 +63,27 @@ private:
     int cursorId;
     Config* config;
     QString currentSkin;
+
+    enum FBActs { ConfigAct,
+                  QuitAct,
+                  AboutAct,
+                  AboutQtAct,
+//                  HelpAct,
+//                  FileAct,
+                  SaveAct,
+                  AnimationAct,
+                  CursorAct,
+//                  ViewAct,
+                  RefreshAct,
+                  Zoom1Act,
+                  Zoom2Act,
+                  Zoom3Act,
+                  Zoom4Act,
+                  Zoom05Act,
+                  NCountAct
+    };
+
+    QAction *actions[NCountAct];
 
 private slots:
     void setGamma400(int n);

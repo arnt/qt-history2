@@ -29,7 +29,7 @@ QVFbRateDialog::QVFbRateDialog( int rate, QWidget *parent, const char *name,
     tl->addWidget( label );
 
     QHBoxLayout *hl = new QHBoxLayout( tl );
-    rateSlider = new QSlider( 1, 100, 10, rate, QSlider::Horizontal, this );
+    rateSlider = new QSlider( 1, 100, 10, rate, Qt::Horizontal, this );
     hl->addWidget( rateSlider );
     connect( rateSlider, SIGNAL(valueChanged(int)), this, SLOT(rateChanged(int)) );
     rateLabel = new QLabel( QString( "%1fps" ).arg(rate), this );

@@ -59,7 +59,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget
 //  setPixmap( ipaq );
     setFixedSize( skinImageUp->size() );
     QBitmap mask = skinImageUp->createHeuristicMask();
-    WFlags wf = WStyle_Customize | WType_TopLevel | WStyle_NoBorder;
+    Qt::WFlags wf = Qt::WStyle_Customize | Qt::WType_TopLevel | Qt::WStyle_NoBorder;
     parent->setParent(0, wf);
     parent->show();
     parent->setMask( mask );
@@ -100,8 +100,8 @@ void Skin::paintEvent( QPaintEvent * )
 
 void Skin::mousePressEvent( QMouseEvent *e )
 {
-    if (e->button() == RightButton) {
-	parent->popupMenu();
+    if (e->button() == Qt::RightButton) {
+	parent->createPopupMenu();
     } else {
 	buttonPressed = FALSE;
 

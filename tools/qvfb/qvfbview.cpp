@@ -46,12 +46,12 @@
 //#define QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
 
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
-		    const char *name, WFlags flags )
+		    const char *name, Qt::WFlags flags )
     : QScrollView( parent, name, flags ), emulateTouchscreen(FALSE), qwslock(NULL)
 {
     displayid = display_id;
     viewport()->setMouseTracking( TRUE );
-    viewport()->setFocusPolicy( StrongFocus );
+    viewport()->setFocusPolicy( Qt::StrongFocus );
     zm = 1;
     animation = 0;
     int actualdepth=d;
@@ -491,8 +491,8 @@ void QVFbView::drawScreen()
 	    pm.convertFromImage( img.smoothScale(int(img.width()*zm),int(img.height()*zm)) );
 	}
 	unlock();
-	p.setPen( black );
-	p.setBrush( white );
+	p.setPen( Qt::black );
+	p.setBrush( Qt::white );
 	p.drawPixmap( int(r.x()*zm), int(r.y()*zm), pm,
 			int(leading*zm), 0, pm.width(), pm.height() );
     } else {
@@ -544,7 +544,7 @@ void QVFbView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QVFbView::contentsMouseMoveEvent( QMouseEvent *e )
 {
-    if ( !emulateTouchscreen || (e->state() & MouseButtonMask ) )
+    if ( !emulateTouchscreen || (e->state() & Qt::MouseButtonMask ) )
 	sendMouseData( e->pos()/zm, e->state() );
 }
 
@@ -553,14 +553,14 @@ void QVFbView::contentsMouseMoveEvent( QMouseEvent *e )
 void QVFbView::keyPressEvent( QKeyEvent *e )
 {
     sendKeyboardData(e->text()[0].unicode(), e->key(),
-		     e->state()&(ShiftButton|ControlButton|AltButton),
+		     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
 		     TRUE, e->isAutoRepeat());
 }
 
 void QVFbView::keyReleaseEvent( QKeyEvent *e )
 {
     sendKeyboardData(/*#### e->ascii()*/0, e->key(),
-		     e->state()&(ShiftButton|ControlButton|AltButton),
+		     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
 		     FALSE, e->isAutoRepeat());
 }
 

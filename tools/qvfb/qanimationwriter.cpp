@@ -14,7 +14,7 @@
 
 #define QT_CLEAN_NAMESPACE
 #include <qfile.h>
-#include <qcstring.h>
+#include <qstring.h>
 #include <png.h>
 #include <netinet/in.h> // for htonl
 
@@ -229,7 +229,7 @@ public:
 
 QAnimationWriter::QAnimationWriter( const QString& filename, const char* format )
 {
-    if ( QCString(format) != "MNG" ) {
+    if ( QLatin1String(format) != "MNG" ) {
 	qWarning("Format \"%s\" not supported, only MNG", format);
 	dev = 0;
 	d = 0;
