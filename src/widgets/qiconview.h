@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#62 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#63 $
 **
 ** Definition of QIconView widget class
 **
@@ -252,7 +252,7 @@ private:
     bool dirty, wordWrapDirty;
 
     QIconViewItemPrivate *d;
-    
+
 };
 
 
@@ -375,6 +375,7 @@ public slots:
     virtual void orderItemsInGrid();
     virtual void alignItemsInGrid( const QSize &grid );
     virtual void alignItemsInGrid();
+    virtual void setContentsPos( int x, int y );
 
 signals:
     void dropped( QDropEvent *e );

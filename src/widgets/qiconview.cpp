@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#136 $
 **
 ** Definition of QIconView widget class
 **
@@ -136,7 +136,8 @@ struct QIconViewPrivate
     QColor ownColor;
     QFont ownFont;
     bool wordWrapIconText;
-
+    int cachedContentsX, cachedContentsY;
+    
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -1920,7 +1921,8 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->hasOwnColor = FALSE;
     d->hasOwnFont = FALSE;
     d->wordWrapIconText = TRUE;
-
+    d->cachedContentsX = d->cachedContentsY = -1;
+    
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2073,6 +2075,13 @@ void QIconView::slotUpdate()
     }
     viewport()->repaint( FALSE );
 
+    int cx = d->cachedContentsX == -1 ? contentsX() : d->cachedContentsX;
+    int cy = d->cachedContentsY == -1 ? contentsY() : d->cachedContentsY;
+    
+    if ( cx != contentsX() || cy != contentsY() )
+	setContentsPos( cx, cy );
+    
+    d->cachedContentsX = d->cachedContentsY = -1;
     d->cachedW = d->cachedH = 0;
 }
 
@@ -2409,6 +2418,21 @@ void QIconView::alignItemsInGrid()
 
     alignItemsInGrid( QSize( QMAX( d->rastX + d->spacing, w ),
 			     QMAX( d->rastY + d->spacing, h ) ) );
+}
+
+/*!
+  \reimp
+*/
+
+void QIconView::setContentsPos( int x, int y )
+{
+    if ( d->updateTimer->isActive() ) {
+	d->cachedContentsX = x;
+	d->cachedContentsY = y;
+    } else {
+	d->cachedContentsY = d->cachedContentsX = -1;
+	QScrollView::setContentsPos( x, y );
+    }
 }
 
 /*!
@@ -2941,7 +2965,7 @@ bool QIconView::rearrangeEnabled() const
   the other ones are not touched.
 
   This setting only applies if the iconview is visible. If you insert
-  items and the iconview is not visible, the icons are reordered whe it
+  items and the iconview is not visible, the icons are reordered when it
   gets visible.
 */
 
