@@ -3309,9 +3309,9 @@ void QTextDocument::registerCustomItem( QTextCustomItem *i, QTextParagraph *p )
 
 void QTextDocument::unregisterCustomItem( QTextCustomItem *i, QTextParagraph *p )
 {
-    flow_->unregisterFloatingItem( i );
     p->unregisterFloatingItem( i );
     i->setParagraph( 0 );
+    flow_->unregisterFloatingItem( i );
 }
 #endif
 
@@ -7250,10 +7250,6 @@ QString QTextDocument::parseCloseTag( const QChar* doc, int length, int& pos )
 QTextFlow::QTextFlow()
 {
     w = pagesize = 0;
-#ifndef QT_NO_TEXTCUSTOMITEM
-    leftItems.setAutoDelete( TRUE );
-    rightItems.setAutoDelete( TRUE );
-#endif
 }
 
 QTextFlow::~QTextFlow()
@@ -7264,8 +7260,12 @@ QTextFlow::~QTextFlow()
 void QTextFlow::clear()
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
+    leftItems.setAutoDelete( TRUE );
+    rightItems.setAutoDelete( TRUE );
     leftItems.clear();
     rightItems.clear();
+    leftItems.setAutoDelete( FALSE );
+    rightItems.setAutoDelete( FALSE );
 #endif
 }
 
