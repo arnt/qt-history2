@@ -1,0 +1,95 @@
+Getting Started with Qt/Windows Educational Edition
+===================================================
+
+We at Trolltech would first like to welcome you to the world of Qt
+programming!
+
+
+Building the Tutorial and Example Programs
+-----------------------------------------
+
+To build the Qt example programs, run the shortcut "Make Example Programs"
+in the Qt folder in "Start menu -> Programs".
+
+The Qt folder also contains shortcut to build the the tutorial programs.
+
+Alternatively, you can build these targets from either a command prompt
+using the make program that comes with your compiler, or import the
+Makefile into your favorite IDE.
+
+
+Troubleshooting
+---------------
+
+If the compilation fails because the moc.exe program cannot be found or
+the Qt header files are missing, check if the PATH contains the qt\bin
+directory and the environment variable QTDIR has been set.  After
+installing Qt, you may need to reboot your computer to make sure these
+settings are applied.
+
+If the compilation fails because the "make", "nmake", or the compiler
+itself cannot be found, you must make sure that the environment (PATH
+etc.) is set up for command-line use of the compiler. For Microsoft Visual
+C++ users, run the vcvars32.bat file to setup the environment. This file
+can be found in the bin directory of the Visual Studio installation.
+
+If the compilation fails because the compiler does not find the system
+header files (e.g. stdio.h or windows.h), you must set the INCLUDE and LIB
+environment variables to contain the paths of the compiler's header files
+and library files. For Microsoft Visual C++ users, the vcvars32.bat file
+takes care of this.
+
+Also, make sure you check the relevant Platform Notes for your OS and
+compiler at http://www.trolltech.com/platforms/
+
+
+The Qt Reference Manual
+-----------------------
+
+The Qt reference documentation is installed in the qt\doc\html directory
+(unless you chose not to install it.)  The Qt folder in "Start menu ->
+Programs" contains a shortcut to browse the documentation.
+
+If you are new to Qt programming, we recommend that you check out the
+tutorial section and the example programs. Another good source of
+information is the book "Programming with Qt" book published by O'Reilly
+(ISBN 1-56592-588-2), which covers elementary to advanced topics in Qt
+programming.
+
+
+Create Makefiles with tmake
+---------------------------
+
+If you want to spend less time writing your own makefiles or you need to
+maintain makefiles for several platforms, download and install the free
+tmake utility from Troll Tech.  tmake is an easy-to-use tool for creating
+and maintaining makefiles across many platforms and compilers.
+
+tmake reads a special tmake project file (.pro) and creates a makefile for
+your operating system and compiler.  A project file typically looks like
+this (qt\examples\hello\hello.pro):
+
+      TEMPLATE  = app
+      CONFIG    = qt warn_on release
+      HEADERS   = hello.h
+      SOURCES   = hello.cpp \
+                  main.cpp
+      TARGET    = hello
+
+To create a makefile for Borland C++, set the TMAKEPATH environment
+variable to "C:\tmake\lib\win32-borland" and run the tmake program:
+
+      C:\qt\examples\hello> tmake hello.pro -o Makefile
+
+tmake can create makefiles for Windows and all popular Unix systems and
+supports more than 15 different C/C++ compilers and is therefore ideal
+for cross-platform software development.  tmake can also create project
+files (.dsp files) for Microsoft Developer Studio.
+
+
+Reporting Bugs, Mailing List and Support
+----------------------------------------
+
+If you find any bugs, send a report to qt-bugs@trolltech.com.  If you want
+to join the Qt development mailing list, send a mail to
+qt-interest-request@trolltech.com containing the single word "subscribe".
