@@ -17,7 +17,7 @@
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
 #include "qsqlform.h"
-#include "qsqlmanager_p.h"
+#include "private/qsqlmanager_p.h"
 #include "qsqlresult.h"
 
 class QDataBrowserPrivate

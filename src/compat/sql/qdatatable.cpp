@@ -25,7 +25,7 @@
 #include "qpainter.h"
 #include "qpopupmenu.h"
 #include "qlist.h"
-#include "qsqlmanager_p.h"
+#include "private/qsqlmanager_p.h"
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qtimer.h"
