@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#17 $
 **
 ** Implementation of MIME support
 **
@@ -315,7 +315,7 @@ QStringList QMimeSourceFactory::filePath() const
   
   \sa setFilePath()
 */
-void QMimeSourceFile::addFilePath( const QString& p )
+void QMimeSourceFactory::addFilePath( const QString& p )
 {
   d->path += p;
 }
