@@ -248,12 +248,10 @@ public:
     void findY(LayoutStruct *layoutStruct, int requiredWidth);
 };
 
-#define d d_func()
-#define q q_func()
-
 QTextDocumentLayoutPrivate::HitPoint
 QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, int *position) const
 {
+    Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
 
     LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point
@@ -324,8 +322,6 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *pos
 
     QPoint pos = point - textrect.topLeft();
 
-    QTextBlockFormat blockFormat = bl.blockFormat();
-
     // ### rtl?
 
     HitPoint hit = PointInside;
@@ -359,6 +355,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *pos
 // ### could be moved to QTextBlock
 int QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
 {
+    Q_Q(const QTextDocumentLayout);
     QTextBlockFormat blockFormat = bl.blockFormat();
     int indent = blockFormat.indent();
 
@@ -533,6 +530,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
                                            const QAbstractTextDocumentLayout::PaintContext &context,
                                            QTextBlock bl) const
 {
+    Q_Q(const QTextDocumentLayout);
 //     LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset;
     const QTextLayout *tl = bl.layout();
     QTextBlockFormat blockFormat = bl.blockFormat();
@@ -576,6 +574,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
                                               const QAbstractTextDocumentLayout::PaintContext &context,
                                               QTextBlock bl, const QTextLayout::Selection &selection) const
 {
+    Q_Q(const QTextDocumentLayout);
     const QTextBlockFormat blockFormat = bl.blockFormat();
     const QTextCharFormat charFormat = bl.charFormat();
     const QFont font = charFormat.font();
@@ -675,6 +674,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
+    Q_Q(QTextDocumentLayout);
     const QTextDocument *doc = q->document();
     q->documentChange(0, 0, doc->docHandle()->length());
 }
@@ -1023,6 +1023,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
 void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame)
 {
+    Q_D(QTextDocumentLayout);
     QTextFrame *parent = frame->parentFrame();
     Q_ASSERT(parent);
     QTextFrameData *pd = data(parent);
@@ -1083,6 +1084,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, int frameWidth, int frameHeight)
 {
+    Q_Q(QTextDocumentLayout);
     Q_ASSERT(data(f)->dirty);
 //     qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
 
@@ -1252,6 +1254,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 
 void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layoutStruct)
 {
+    Q_D(QTextDocumentLayout);
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
 
@@ -1377,6 +1380,7 @@ void QTextDocumentLayoutPrivate::findY(LayoutStruct *layoutStruct, int requiredW
 QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
     : QAbstractTextDocumentLayout(*new QTextDocumentLayoutPrivate, doc)
 {
+    Q_D(QTextDocumentLayout);
     d->blockTextFlags = Qt::TextIncludeTrailingSpaces|Qt::TextWordWrap;
 
     registerHandler(QTextFormat::ImageObject, new QTextImageHandler(this));
@@ -1385,6 +1389,7 @@ QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
 
 void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 {
+    Q_D(QTextDocumentLayout);
     QTextFrame *frame = document()->rootFrame();
     d->drawFrame(QPoint(), painter, context, frame);
 }
@@ -1402,6 +1407,7 @@ static void markFrames(QTextFrame *current, int start, int end)
 
 void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
+    Q_D(QTextDocumentLayout);
     if (d->pageSize.isNull() || !d->pageSize.isValid())
         return;
     Q_UNUSED(oldLength);
@@ -1424,6 +1430,7 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 
 int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
+    Q_D(const QTextDocumentLayout);
     QTextFrame *f = document()->rootFrame();
     int position = 0;
     QTextDocumentLayoutPrivate::HitPoint p = d->hitTest(f, point, &position);
@@ -1441,6 +1448,7 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
 
 void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &format)
 {
+    Q_D(QTextDocumentLayout);
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextObjectHandler handler = d->handlers.value(f.objectType());
@@ -1459,6 +1467,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
 
 void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat &format)
 {
+    Q_D(QTextDocumentLayout);
     if (item.width())
         return;
 
@@ -1506,17 +1515,20 @@ int QTextDocumentLayout::numPages() const
 
 void QTextDocumentLayout::setPageSize(const QSize &size)
 {
+    Q_D(QTextDocumentLayout);
     d->pageSize = size;
     d->relayoutDocument();
 }
 
 QSize QTextDocumentLayout::pageSize() const
 {
+    Q_D(const QTextDocumentLayout);
     return d->pageSize;
 }
 
 QSize QTextDocumentLayout::sizeUsed() const
 {
+    Q_Q(const QTextDocumentLayout);
     return data(q->document()->rootFrame())->boundingRect.size();
 }
 
@@ -1545,16 +1557,19 @@ void QTextDocumentLayout::adjustSize()
 
 void QTextDocumentLayout::setBlockTextFlags(int flags)
 {
+    Q_D(QTextDocumentLayout);
     d->blockTextFlags = flags;
 }
 
 int QTextDocumentLayout::blockTextFlags() const
 {
+    Q_D(const QTextDocumentLayout);
     return d->blockTextFlags;
 }
 
 void QTextDocumentLayout::setFixedColumnWidth(int width)
 {
+    Q_D(QTextDocumentLayout);
     d->fixedColumnWidth = width;
 }
 
