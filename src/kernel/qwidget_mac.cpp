@@ -131,18 +131,17 @@ static WId qt_root_win() {
 #else
     //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP ON MACX
 #if 0
-    char title[2];
-    title[0]=0;
-    title[1]='\0';
-    Rect boundsRect;
+    ret = (WindowPtr)CreateNewPort();
+    qDebug("Created desktop: %d", ret);
+    int sw, sh;
     GDHandle g = GetMainDevice();
-    if(g) 
-	SetRect( &boundsRect, 0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom );
-    else 
-	SetRect( &boundsRect, 0, 0, 1024, 768 );
-    ret = (WindowPtr)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
-				 0, plainDBox, (WindowPtr)-1, TRUE, 0);
-    DisposeWindow(ret);
+    if(g) {
+	sw = (*g)->gdRect.right;
+	sh = (*g)->gdRect.bottom;
+    }
+    Rect r;
+    SetRect(&r, 0, 0, sw, sh);
+    SetPortBounds((CGrafPtr)ret, &r);
 #endif
 #endif
     return (WId) ret;
