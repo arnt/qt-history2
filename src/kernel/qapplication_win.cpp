@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#252 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#253 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1278,9 +1278,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    if ( QColor::hPal() && (WId)wParam == widget->winId() )
 		return 0;			// otherwise: FALL THROUGH!
 	    // FALL THROUGH
-	case WM_SETTINGCHANGE:
-	    qt_set_windows_resources();
-	    break;
 	case WM_QUERYNEWPALETTE:		// realize own palette
 	    if ( QColor::hPal() ) {
 		HDC hdc = GetDC( widget->winId() );
@@ -1293,6 +1290,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		ReleaseDC( widget->winId(), hdc );
 		return n;
 	    }
+	    break;
+	    
+	case WM_SETTINGCHANGE:
+	    qt_set_windows_resources();
 	    break;
 
 	case WM_CLOSE:				// close window
