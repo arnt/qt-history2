@@ -606,7 +606,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     if(bpp == 1)
 	memset(dptr, 0x00, dbytes);
     else if(bpp == 8)
-	memset(dptr, white.pixel(), dbytes);
+	memset(dptr, QColor(white).pixel(), dbytes);
     else if(bpp == 32)
 	pm.fill(0x00FFFFFF);
     else
