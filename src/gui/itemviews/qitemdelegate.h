@@ -61,6 +61,8 @@ protected:
                   bool hint) const;
     void doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const;
     QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
+
+    bool eventFilter(QObject *object, QEvent *event);
 };
 
 #endif

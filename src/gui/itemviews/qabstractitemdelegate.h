@@ -85,6 +85,9 @@ public:
     // events for non-widget editors
     virtual bool event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
 
+signals:
+    void doneEditing(QWidget *editor, bool accept);
+
 protected:
     QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
                          const QString &org) const;

@@ -61,10 +61,10 @@ public:
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
     
-    void setSelectionMode(int mode);
+    void setSelectionMode(int mode); // FIXME: make property
     int selectionMode() const;
 
-    void setSelectionBehavior(int behavior);
+    void setSelectionBehavior(int behavior); // FIXME: make property
     int selectionBehavior() const;
     
     QModelIndex currentItem() const;
@@ -111,6 +111,7 @@ protected slots:
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
     virtual void selectionModelDestroyed();
+    virtual void endEditing(QWidget *editor, bool accept);
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
@@ -125,8 +126,6 @@ signals:
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);
-
-    bool eventFilter(QObject *object, QEvent *event);
 
     void setHorizontalFactor(int factor);
     int horizontalFactor() const;
@@ -147,7 +146,6 @@ protected:
     virtual bool beginEdit(const QModelIndex &index,
                            QAbstractItemDelegate::BeginEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &index, bool accept);
-    QWidget *currentEditor() const;
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(Qt::ButtonState state,
                                                                  const QModelIndex &index,

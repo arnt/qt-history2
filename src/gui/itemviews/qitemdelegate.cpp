@@ -21,6 +21,7 @@
 #include <qrect.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
+#include <qevent.h>
 
 static const int border = 1;
 
@@ -207,6 +208,7 @@ QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
         || (option.state & QStyle::Style_HasFocus && editorType(model, index) == Widget)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
+        lineEdit->installEventFilter(this);
         return lineEdit;
     }
     return 0;
@@ -222,9 +224,11 @@ QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
     \sa QAbstractItemDelegate::EndEditAction QAbstractItemDelegate::releaseEditor()
 */
 
-void QItemDelegate::releaseEditor(EndEditAction, QWidget *editor,
-                                  QAbstractItemModel *, const QModelIndex &)
+void QItemDelegate::releaseEditor(EndEditAction action, QWidget *editor,
+                                  QAbstractItemModel *model, const QModelIndex &index)
 {
+    if (action == QAbstractItemDelegate::Accepted)
+        setModelData(editor, model, index);
     delete editor;
 }
 
@@ -483,4 +487,36 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
         break;
     }
     return variant.toPixmap();
+}
+
+/*!
+  ### update this
+    If the \a object is the current editor: if the \a event is an Esc
+    key press the current edit is cancelled and ended, or if the \a
+    event is an Enter or Return key press the current edit is accepted
+    and ended. If editing is ended the event filter returns true to
+    signify that it has handled the event; in all other cases it does
+    nothing and returns false to signify that the event hasn't been
+    handled.
+
+    \sa endEdit()
+*/
+
+bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
+{
+    QLineEdit *editor = ::qt_cast<QLineEdit*>(object);
+    if (editor && event->type() == QEvent::KeyPress) {
+        switch (static_cast<QKeyEvent *>(event)->key()) {
+        case Qt::Key_Escape:
+            emit doneEditing(editor, false);
+            return true;
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            emit doneEditing(editor, true);
+            return true;
+        default:
+            break;
+        }
+    }
+    return false;
 }
