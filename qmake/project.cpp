@@ -1880,18 +1880,25 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     }
                 }
             } else if(val.toLower() == "cat") {
-                if(arg_list.count() != 1) {
+                if(arg_list.count() < 1 || arg_list.count() > 2) {
                     fprintf(stderr, "%s:%d: cat(file) requires one arguments.\n",
                             parser.file.latin1(), parser.line_no);
                 } else {
                     QString file = arg_list[0];
                     file = Option::fixPathToLocalOS(file);
 
+                    bool singleLine = true;
+                    if(arg_list.count() > 1) 
+                        singleLine = (arg_list[1].toLower() == "true");
+
                     QFile qfile(file);
                     if(qfile.open(QIODevice::ReadOnly)) {
                         QTextStream stream(&qfile);
-                        while(!stream.atEnd())
+                        while(!stream.atEnd()) {
                             replacement += stream.readLine().trimmed();
+                            if(!singleLine)
+                                replacement += "\n";
+                        }
                         qfile.close();
                     }
                 }
