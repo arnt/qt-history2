@@ -1,13 +1,13 @@
-Getting Started with Qt Professional Edition for Windows
-========================================================
+Getting Started with Qt for Windows
+===================================
 
 We at Trolltech would first like to thank you for choosing Qt for
 developing your Windows software.
 
-Now that you have installed the Qt Professional Edition, you will need to
-build the Qt library before you can develop Qt programs.
-The setup program has installed makefiles for your chosen compiler. The
-qt\mkfiles directory contains several makefile sets in zipped archives.
+Now that you have installed Qt/Windows, you will need to build the Qt
+library before you can develop Qt programs.  The setup program has
+installed makefiles for your chosen compiler. The qt\mkfiles directory
+contains several makefile sets in zipped archives.
 
 
 GIF Support in Qt
