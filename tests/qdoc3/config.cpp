@@ -362,7 +362,6 @@ QString Config::findFile( const Location& location, const QStringList& files,
 	}
 	userFriendlyFilePath += "?";
     }
-qDebug( "userFriendly '%s', actual '%s'", userFriendlyFilePath.latin1(), fileInfo.filePath().latin1() );
     return fileInfo.filePath();
 }
 
