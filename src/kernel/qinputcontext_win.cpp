@@ -301,6 +301,10 @@ void QInputContext::setFont( const QWidget *w, const QFont &f )
     hf = f.handle();
 
     HIMC imc = getContext( w->winId() );
+
+    if ( !imc )
+	return;
+
 #ifdef Q_OS_TEMP
     LOGFONT lf;
     if ( GetObject( hf, sizeof(lf), &lf ) )
@@ -349,14 +353,16 @@ void QInputContext::setFocusHint( int x, int y, int width, int height, const QWi
 
 
     HIMC imc = getContext( w->winId() );
-    if ( aimm ) {
-	aimm->SetCompositionWindow( imc, &cf );
-	aimm->SetCandidateWindow( imc, &candf );
-    } else {
-	ImmSetCompositionWindow( imc, &cf );
-	ImmSetCandidateWindow( imc, &candf );
+    if ( imc ) {
+	if ( aimm ) {
+	    aimm->SetCompositionWindow( imc, &cf );
+	    aimm->SetCandidateWindow( imc, &candf );
+	} else {
+	    ImmSetCompositionWindow( imc, &cf );
+	    ImmSetCandidateWindow( imc, &candf );
+	}
+	releaseContext( w->winId(), imc );
     }
-    releaseContext( w->winId(), imc );
 }
 
 
