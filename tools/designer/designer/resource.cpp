@@ -1889,9 +1889,9 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	QCString s1 = v.toCString();
 	QString s2 = v.toString();
 	if ( !s2.isEmpty() )
-	    formwindow->setCaption( s1 );
-	else if ( !s1.isEmpty() )
 	    formwindow->setCaption( s2 );
+	else if ( !s1.isEmpty() )
+	    formwindow->setCaption( s1 );
     }
     if ( prop == "icon" ) {
 	formwindow->setIcon( v.toPixmap() );
