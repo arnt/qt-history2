@@ -1413,6 +1413,8 @@ void QDataTable::sortColumn ( int col, bool ascending,
 			      bool  )
 {
     if ( sorting() ) {
+	if ( d->dat.mode() != QSql::None )
+	    endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
 	if ( !sqlCursor() )
 	    return;
 	QSqlIndex lastSort = sqlCursor()->sort();
