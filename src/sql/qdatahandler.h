@@ -43,7 +43,7 @@
 
 #include "qsqlerror.h"
 
-class QDataHandler
+class Q_EXPORT QDataHandler
 {
 public:
     QDataHandler();
