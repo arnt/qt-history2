@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#103 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#103 $");
 
 
 /*****************************************************************************
@@ -1615,7 +1615,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QEvent enter( Event_Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
-	if ( !(state && autoCaptureWnd) )
+	if ( state == 0 && autoCaptureWnd == 0 &&
+	     !QApplication::hasGlobalMouseTracking() )
 	    return TRUE;			// no button
 	POINT curPos;
 	GetCursorPos( &curPos );		// compress mouse move
