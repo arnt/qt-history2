@@ -3737,11 +3737,20 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 
 void QTextEdit::setWordWrap( WordWrap mode )
 {
+    if ( wrapMode == mode )
+	return;
     wrapMode = mode;
     switch ( mode ) {
     case NoWrap:
 	document()->formatter()->setWrapEnabled( FALSE );
 	document()->formatter()->setWrapAtColumn( -1 );
+	doc->setWidth( visibleWidth() );
+	doc->setMinimumWidth( -1, 0 );
+	doc->invalidate();
+	repaintContents( FALSE );
+	lastFormatted = doc->firstParag();
+	interval = 0;
+	formatMore();
 	break;
     case WidgetWidth:
 	document()->formatter()->setWrapEnabled( TRUE );
@@ -3783,18 +3792,22 @@ void QTextEdit::setWrapColumnOrWidth( int value )
     wrapWidth = value;
     if ( wrapMode == FixedColumnWidth ) {
 	document()->formatter()->setWrapAtColumn( wrapWidth );
+	resizeContents( 0, 0 );
 	doc->setWidth( visibleWidth() );
-    } else {
+	doc->setMinimumWidth( -1, 0 );
+    } else if (wrapMode == FixedPixelWidth ) {
 	document()->formatter()->setWrapAtColumn( -1 );
-	resizeContents( wrapWidth, contentsHeight() );
+	resizeContents( 0, 0 );
 	doc->setWidth( wrapWidth );
 	doc->setMinimumWidth( wrapWidth, 0 );
-	doc->invalidate();
-	repaintContents( FALSE );
-	lastFormatted = doc->firstParag();
-	interval = 0;
-	formatMore();
+    } else {
+	return;
     }
+    doc->invalidate();
+    repaintContents( FALSE );
+    lastFormatted = doc->firstParag();
+    interval = 0;
+    formatMore();
 }
 
 int QTextEdit::wrapColumnOrWidth() const
