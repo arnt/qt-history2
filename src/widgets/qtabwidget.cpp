@@ -658,11 +658,11 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 
     // do alignment
     int alignment = style().styleHint( QStyle::SH_TabBar_Alignment, this );
-    if ( alignment != AlignLeft && d->tabs->width() < width() ) {
+    if ( alignment != AlignLeft && t.width() < width() ) {
 	if ( alignment == AlignHCenter )
-	    tabx += width()/2 - d->tabs->width()/2;
+	    tabx += width()/2 - t.width()/2;
 	else if ( alignment == AlignRight )
-	    tabx += width() - d->tabs->width();
+	    tabx += width() - t.width();
     }
 
     d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
