@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#181 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2361,7 +2361,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   <li> \c WordBreak breaks the text to fit the rectangle.
   </ul>
 
-  These flags are defined in qwindowdefs.h.
+  These flags are defined in qnamespace.h.
 
   \sa drawText(), fontMetrics()
 */

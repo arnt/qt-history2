@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#450 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#451 $
 **
 ** Implementation of QWidget class
 **
@@ -561,7 +561,7 @@ QFont default_font( QWidget *parent )
 				  WStyle_Tool );
   \endcode
 
-  The widget flags are defined in qwindowdefs.h (which is included by
+  The widget flags are defined in qnamespace.h (which is included by
   qwidget.h).
 */
 
@@ -3263,7 +3263,7 @@ QSize QWidget::minimumSizeHint() const
   \fn bool QWidget::testWFlags( WFlags n ) const
 
   Returns TRUE if any of the widget flags in \e n are set. The
-  widget flags are listed in qwindowdefs.h, and are strictly for
+  widget flags are listed in qnamespace.h, and are strictly for
   internal use.
 
   \internal

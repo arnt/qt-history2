@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#138 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1572,7 +1572,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
   <li> \c WordBreak breaks the text to fit the rectangle.
   </ul>
 
-  These flags are defined in qwindowdefs.h.
+  These flags are defined in qnamespace.h.
 
   If \c ExpandTabs is set in \a flgs, then:
   if \a tabarray is non.zero, it specifies a 0-terminated sequence
