@@ -418,66 +418,81 @@ void QTextDocument::setHtml(const QString &html)
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
 */
-QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags options, FindDirection direction) const
+QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options, FindDirection direction) const
 {
-    if (_expr.isEmpty())
+    if (expr.isEmpty())
         return QTextCursor();
-
-    QString expr;
-    if (options & FindWholeWords) {
-        expr = QRegExp::escape(_expr);
-        expr.prepend("\\b");
-        expr.append("\\b");
-    } else {
-        expr = _expr;
-    }
-    QRegExp re(expr);
 
     int pos = from;
 
-    Qt::CaseSensitivity cs;
-    if (options & FindCaseSensitively)
-        cs = Qt::CaseSensitive;
-    else
-        cs = Qt::CaseInsensitive;
-    re.setCaseSensitivity(cs);
+    const Qt::CaseSensitivity cs = (options & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
     QTextBlock block = d->blocksFind(pos);
 
     if (direction == FindForward) {
         while (block.isValid()) {
-            const int blockOffset = qMax(0, pos - block.position());
+            int blockOffset = qMax(0, pos - block.position());
             QString text = block.text();
-            int idx = -1;
 
-                if (options & FindWholeWords)
-                    idx = text.indexOf(re, blockOffset);
-                else
+            const int blockLength = block.length();
+            while (blockOffset < blockLength) {
+                int idx = -1;
+
+                if (options & FindWholeWords) {
                     idx = text.indexOf(expr, blockOffset, cs);
+                    if (idx >= 0) {
+                        const int start = idx;
+                        const int end = start + expr.length();
+                        if ((start != 0 && text.at(start - 1).isLetterOrNumber())
+                                || (end != text.length() && text.at(end).isLetterOrNumber()))
+                            idx = -1;
+                    }
+                } else {
+                    idx = text.indexOf(expr, blockOffset, cs);
+                }
 
                 if (idx >= 0) {
-                    QTextCursor cursor(docHandle(), block.position() + blockOffset + idx);
+                    QTextCursor cursor(docHandle(), block.position() + idx);
+                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
+                    return cursor;
+                }
+                blockOffset += expr.length();
+            }
+
+            block = block.next();
+        }
+    } else {
+        while (block.isValid()) {
+            int blockOffset = pos - block.position();
+            if (pos > block.position())
+                blockOffset = block.length() - 1;
+
+            QString text = block.text();
+
+            const int blockLength = block.length();
+            while (blockOffset >= 0) {
+                int idx = -1;
+
+                if (options & FindWholeWords) {
+                    idx = text.lastIndexOf(expr, blockOffset, cs);
+                    if (idx >= 0) {
+                        const int start = idx;
+                        const int end = start + expr.length();
+                        if ((start != 0 && text.at(start - 1).isLetterOrNumber())
+                                || (end != text.length() && text.at(end).isLetterOrNumber()))
+                            idx = -1;
+                    }
+                } else {
+                    idx = text.lastIndexOf(expr, blockOffset, cs);
+                }
+
+                if (idx >= 0) {
+                    QTextCursor cursor(docHandle(), block.position() + idx);
                     cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, expr.length());
                     return cursor;
                 }
 
-                block = block.next();
-        }
-    } else {
-        while (block.isValid()) {
-            const int blockOffset = qMin(pos - block.position(), block.length() - 1);
-            QString text = block.text();
-            int idx = -1;
-
-            if (options & FindWholeWords)
-                idx = text.lastIndexOf(re, blockOffset);
-            else
-                idx = text.lastIndexOf(expr, blockOffset, cs);
-
-            if (idx >= 0) {
-                QTextCursor cursor(docHandle(), block.position() + blockOffset + idx);
-                cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, expr.length());
-                return cursor;
+                blockOffset -= expr.length();
             }
 
             block = block.previous();
