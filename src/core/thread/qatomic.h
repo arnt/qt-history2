@@ -14,7 +14,12 @@
 #ifndef QATOMIC_H
 #define QATOMIC_H
 
-#include <arch/qatomic.h>
+#if defined(QT_MOC) || defined(QT_BUILD_QMAKE)
+// this allows us to use -I... magic to select a specific arch (e.g. generic)
+#  include <arch/qatomic.h>
+#else
+#  include <QtCore/arch/qatomic.h>
+#endif
 
 #ifndef Q_SPECIALIZED_QATOMIC
 
