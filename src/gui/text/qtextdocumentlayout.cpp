@@ -1165,7 +1165,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         QTextFrame *c = children.at(i);
         QTextFrameData *cd = data(c);
         if (cd->sizeDirty) {
-            QSize oldsize = cd->size;
+//            QSize oldsize = cd->size;
             layoutFrame(c, layoutFrom, layoutTo);
 //             if (oldsize != cd->size)
 //                 fullLayout = true;
@@ -1245,7 +1245,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
                 positionFloat(c);
             }
         } else {
-            QTextBlock block = it.currentBlock();
+//            QTextBlock block = it.currentBlock();
 //             if (block.position() + block.length() < layoutFrom)
 //                 continue;
             // layout and position child block

@@ -170,16 +170,15 @@ private:
 static uint variantHash(const QVariant &variant)
 {
     switch (variant.type()) {
-        case QVariant::Invalid: return 0;
-        case QVariant::Bool: return variant.toBool();
-        case QVariant::Int: return variant.toInt();
-        case QVariant::Double: return static_cast<int>(variant.toDouble());
-        case QVariant::String: return qHash(variant.toString());
-        case QVariant::Color: return qHash(variant.toColor().rgb());
-        default: return qHash(variant.typeName());
-
+    case QVariant::Invalid: return 0;
+    case QVariant::Bool: return variant.toBool();
+    case QVariant::Int: return variant.toInt();
+    case QVariant::Double: return static_cast<int>(variant.toDouble());
+    case QVariant::String: return qHash(variant.toString());
+    case QVariant::Color: return qHash(variant.toColor().rgb());
+    default: break;
     }
-    return 0;
+    return qHash(variant.typeName());
 }
 
 uint QTextFormatPrivate::recalcHash() const

@@ -295,7 +295,6 @@ QString QAccessibleApplication::text(Text t, int) const
         break;
     case Description:
         return qApp->applicationFilePath();
-        break;
     default:
         break;
     }

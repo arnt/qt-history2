@@ -377,7 +377,7 @@ int QAccessibleComboBox::navigate(RelationFlag rel, int entry, QAccessibleInterf
         if (entry == PopupList) {
             *target = QAccessible::queryAccessibleInterface(comboBox()->itemView());
             return *target ? 0 : -1;
-        break; }
+        }
     case QAccessible::Left:
         return entry == OpenList ? CurrentText : -1;
     case QAccessible::Right:

@@ -396,9 +396,9 @@ bool QViewport::viewportEvent(QEvent *e)
             return QApplication::sendEvent(d->vbar, e);
         }
     default:
-        return static_cast<QViewportHelper*>(d->viewport)->QWidget::event(e);
+        break;
     }
-    return true;
+    return static_cast<QViewportHelper*>(d->viewport)->QWidget::event(e);
 }
 
 /*!
