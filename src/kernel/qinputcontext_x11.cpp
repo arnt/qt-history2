@@ -94,9 +94,11 @@ static XFontSet getFontSet( const QFont &f )
 	    fontsetCache[i] = XCreateFontSet(dpy,  "-*-fixed-*-*-*-*-16-*", &missList, &missCount, 0);
 	    if(missCount > 0)
 		XFreeStringList(missList);
+	    if ( !fontsetCache[i] )
+		fontsetCache[i] == (XFontSet)-1;
 	}
     }
-    return fontsetCache[i];
+    return (fontsetCache[i] == (XFontSet)-1) ? 0 : fontsetCache[i];
 }
 
 
@@ -360,7 +362,7 @@ QInputContext::~QInputContext()
     if ( --fontsetRefCount == 0 ) {
 	Display *dpy = QPaintDevice::x11AppDisplay();
 	for ( int i = 0; i < 4; i++ ) {
-	    if ( fontsetCache[i] ) {
+	    if ( fontsetCache[i] && fontsetCache[i] != (XFontSet)-1 ) {
 		XFreeFontSet(dpy, fontsetCache[i]);
 		fontsetCache[i] = 0;
 	    }
