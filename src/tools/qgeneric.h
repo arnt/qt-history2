@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#10 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#11 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
@@ -20,7 +20,7 @@
 
 #if defined(_OS_LINUX_)
 #include <g++/generic.h>
-#elsif defined(UNIX)		// TODO what Windows compilers include it?
+#elif defined(UNIX)		// TODO what Windows compilers include it?
 #include <generic.h>
 #endif
 
