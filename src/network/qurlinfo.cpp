@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
-#include "q3url.h"
+#include "qurl.h"
 #include "qdir.h"
 #include <limits.h>
 
@@ -162,7 +162,7 @@ QUrlInfo::QUrlInfo(const QString &name, int permissions, const QString &owner,
     isExecutable.
 */
 
-QUrlInfo::QUrlInfo(const Q3Url &url, int permissions, const QString &owner,
+QUrlInfo::QUrlInfo(const QUrl &url, int permissions, const QString &owner,
                     const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
                     const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
                     bool isWritable, bool isReadable, bool isExecutable)
