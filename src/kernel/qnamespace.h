@@ -522,6 +522,52 @@ public:
 	Key_thorn = 0x0fe,
 	Key_ydiaeresis = 0x0ff,
 
+	// multimedia/internet keys - ignored by default - see QKeyEvent c'tor
+
+	Key_Back  = 0x1061,
+	Key_Forward  = 0x1062,
+	Key_Stop  = 0x1063,
+	Key_Refresh  = 0x1064,
+
+	Key_VolumeDown = 0x1070,
+	Key_VolumeMute  = 0x1071,
+	Key_VolumeUp = 0x1072,
+	Key_BassBoost = 0x1073,
+	Key_BassUp = 0x1074,
+	Key_BassDown = 0x1075,
+	Key_TrebleUp = 0x1076,
+	Key_TrebleDown = 0x1077,
+
+	Key_MediaPlay  = 0x1080,
+	Key_MediaStop  = 0x1081,
+	Key_MediaPrev  = 0x1082,
+	Key_MediaNext  = 0x1083,
+
+	Key_HomePage  = 0x1090,
+	Key_Favorites  = 0x1091,
+	Key_Search  = 0x1092,
+
+	Key_LaunchMail  = 0x10a0,
+	Key_LaunchMedia = 0x10a1,
+	Key_Launch0  = 0x10a2,
+	Key_Launch1  = 0x10a3,
+	Key_Launch2  = 0x10a4,
+	Key_Launch3  = 0x10a5,
+	Key_Launch4  = 0x10a6,
+	Key_Launch5  = 0x10a7,
+	Key_Launch6  = 0x10a8,
+	Key_Launch7  = 0x10a9,
+	Key_Launch8  = 0x10aa,
+	Key_Launch9  = 0x10ab,
+	Key_LaunchA  = 0x10ac,
+	Key_LaunchB  = 0x10ad,
+	Key_LaunchC  = 0x10ae,
+	Key_LaunchD  = 0x10af,
+	Key_LaunchE  = 0x10b0,
+	Key_LaunchF  = 0x10b1,
+
+	Key_MediaLast = 0x1fff,
+
 	Key_unknown = 0xffff
     };
 

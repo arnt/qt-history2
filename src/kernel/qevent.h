@@ -265,7 +265,11 @@ public:
     QKeyEvent( Type type, int key, int ascii, int state,
 		const QString& text=QString::null, bool autorep=FALSE, ushort count=1 )
 	: QEvent(type), txt(text), k((ushort)key), s((ushort)state),
-	    a((uchar)ascii), accpt(TRUE), autor(autorep), c(count) {}
+	    a((uchar)ascii), accpt(TRUE), autor(autorep), c(count) 
+    {
+	if ( key >= Key_Back && key <= Key_MediaLast )
+	    accpt = FALSE;
+    }
     int	   key()	const	{ return k; }
     int	   ascii()	const	{ return a; }
     ButtonState state()	const	{ return ButtonState(s); }

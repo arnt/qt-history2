@@ -620,6 +620,8 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   key press or release event is not handled by your widget. A key event is
   propagated up the parent widget chain until a widget accepts it with
   QKeyEvent::accept() or an event filter consumes it.
+  Key events for multi media keys are ignored by default. You should call
+  QKeyEvent::accept() if your widget handles those events.
 
   The QWidget::setEnable() function can be used to enable or disable mouse
   and keyboard events for a widget.
