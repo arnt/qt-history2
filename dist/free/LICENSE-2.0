@@ -20,7 +20,7 @@ You may use the Software to compile, link and run application programs legally
 developed by third parties.
 
 You may use the Software to create application programs, reusable
-components and other items under the following restrictions: 
+components and other software items under the following restrictions: 
 
   1. You accept this license.
 
@@ -30,8 +30,9 @@ components and other items under the following restrictions:
   3  You explicitly permit your items to be modified and redistributed
       in original and modified versions without any charge.
 
-  4. Your items do not require other libraries, programs, data or
-      documents to operate, other than those that are freely available.
+  4. If your items require other products such as libraries, programs,
+      data or documents in order to operate, you must not have any
+      commercial interest in those other products.
 
 You may make modifications to the Software.  In order to preserve the
 copyright of the unmodified version of the Software, modifications must
