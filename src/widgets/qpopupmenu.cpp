@@ -615,9 +615,10 @@ void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi && mi->isEnabled() ) {
+	QGuardedPtr<QSignal> signal = mi->signal();
 	actSig( mi->id() );
-	if ( mi->signal() )
-	    mi->signal()->activate();
+	if ( signal )
+	    signal->activate();
     }
 }
 
@@ -1440,9 +1441,10 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 		actItem = -1;
 		updateItem( mi->id() );
 		active_popup_menu = this;
+		QGuardedPtr<QSignal> signal = mi->signal();
 		actSig( mi->id(), b );
-		if ( mi->signal() && !b )
-		    mi->signal()->activate();
+		if ( signal && !b )
+		    signal->activate();
 		active_popup_menu = 0;
 	    }
 	}
@@ -1649,9 +1651,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 #endif
 	    if ( mi->isEnabled() || b ) {
 		active_popup_menu = this;
+		QGuardedPtr<QSignal> signal = mi->signal();
 		actSig( mi->id(), b );
-		if ( mi->signal() && !b )
-		    mi->signal()->activate();
+		if ( signal && !b )
+		    signal->activate();
 		active_popup_menu = 0;
 	    }
 	}
@@ -1710,9 +1713,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 #endif
 		if ( mi->isEnabled() || b ) {
 		    active_popup_menu = this;
+		    QGuardedPtr<QSignal> signal = mi->signal();
 		    actSig( mi->id(), b );
-		    if ( mi->signal() && !b  )
-			mi->signal()->activate();
+		    if ( signal && !b  )
+			signal->activate();
 		    active_popup_menu = 0;
 		}
 	    }
@@ -2277,9 +2281,10 @@ void QPopupMenu::activateItemAt( int index )
 		    actItem = -1;
 		    updateItem( mi->id() );
 		    active_popup_menu = this;
+		    QGuardedPtr<QSignal> signal = mi->signal();
 		    actSig( mi->id(), b );
-		    if ( mi->signal() && !b )
-			mi->signal()->activate();
+		    if ( signal && !b )
+			signal->activate();
 		    active_popup_menu = 0;
 		}
 	    }
