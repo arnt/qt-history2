@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#32 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#33 $
 **
 ** Implementation of QFontDialog
 **
@@ -33,10 +33,14 @@
 #include "qcheckbox.h"
 #include "qcombobox.h"
 #include "qlayout.h"
-#include "qgroupbox.h"
+#include "qvgroupbox.h"
+#include "qhgroupbox.h"
+#include "qhbox.h"
 #include "qlabel.h"
 #include "qapplication.h"
 #include "qfontdatabase.h"
+
+#include <ctype.h>
 
 //
 //  W A R N I N G
@@ -44,13 +48,6 @@
 //
 //  This class is under development and is currently unstable.
 //
-//  It is very unlikely that this code will be available in the final
-//  Qt 2.0 release.  It will be available soon after then, but a number
-//  of important API changes still need to be made.
-//
-//  Thus, it is important that you do NOT use this code in an application
-//  unless you are willing for your application to be dependent on the
-//  snapshot releases of Qt.
 //
 
 /*!
@@ -58,7 +55,7 @@
   \brief The QFontDialog provides a dialog widget for selecting a text font
   \ingroup dialogs
 
-  Use for allowing the user to select a font among the available fonts
+  Used for allowing the user to select a font among the available fonts
   on the underlying window system.
 */
 
@@ -77,13 +74,13 @@ struct QFontDialogPrivate
     QLineEdit * sizeEdit;
     QListBox * sizeList;
 
-    QGroupBox * effects;
+    QVGroupBox * effects;
     QCheckBox * strikeout;
     QCheckBox * underline;
     QLabel * colorAccel;
     QComboBox * color;
 
-    QGroupBox * sample;
+    QHGroupBox * sample;
     QLineEdit * sampleEdit;
 
     QLabel * scriptAccel;
@@ -104,6 +101,7 @@ struct QFontDialogPrivate
     QString       size;
 
     QStringList familyNames;
+    QStringList charSetNames;
     bool usingStandardSizes;
 };
 
@@ -177,52 +175,32 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeAccel->setMargin( 2 );
 
     // effects box
-    d->effects = new QGroupBox( this, "font effects" );
-    d->effects->setTitle( tr("Effects") );
+    d->effects = new QVGroupBox( tr("Effects"), this, "font effects" );
     d->strikeout = new QCheckBox( d->effects, "strikeout on/off" );
     d->strikeout->setText( tr("Stri&keout") );
     d->underline = new QCheckBox( d->effects, "underline on/off" );
     d->underline->setText( tr("&Underline") );
+
+#if 0
     d->color = new QComboBox( TRUE, d->effects, "pen color" );
     d->color->setEnabled( FALSE );
     d->colorAccel
 	= new QLabel( d->color, tr("&Color"), d->effects, "color label" );
     d->colorAccel->setMargin( 2 );
+#endif
 
-    d->effectsLayout = new QBoxLayout( d->effects, QBoxLayout::Down, 6, 0 );
-    d->effectsLayout->addSpacing( 12 );
-    d->effectsLayout->addWidget( d->strikeout, 0, AlignLeft );
-    d->effectsLayout->addSpacing( 2 );
-    d->effectsLayout->addWidget( d->underline, 0, AlignLeft );
-    //d->effectsLayout->addSpacing( 6 );
-    d->effectsLayout->addWidget( d->colorAccel, 0, AlignLeft );
-    d->effectsLayout->addWidget( d->color );
-    //d->effectsLayout->addSpacing( 6 );
-
-    // sample and script box
-    QWidget * sampleStuff = new QWidget( this, "sample and more, wrapped up" );
-
-    d->sample = new QGroupBox( sampleStuff, "sample text" );
+    d->sample = new QHGroupBox( tr("sample"), this, "sample text" );
     d->sample->setTitle( tr("Sample") );
     d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
     d->sampleEdit->setText( tr("AaBbYyZz") );
-    d->scriptCombo = new QExpandingComboBox( TRUE, sampleStuff, "font encoding" );
+    d->sampleEdit->setAlignment( AlignCenter );
+
+    d->scriptCombo = new QExpandingComboBox( TRUE, this, "font encoding" );
     d->scriptCombo->setFocusPolicy( StrongFocus );
+
     d->scriptAccel
-	= new QLabel( d->scriptCombo, tr("Scr&ipt"), sampleStuff,"encoding label");
+	= new QLabel( d->scriptCombo, tr("Scr&ipt"), this,"encoding label");
     d->scriptAccel->setMargin( 2 );
-
-    d->sampleLayout = new QBoxLayout( sampleStuff, QBoxLayout::Down, 0 );
-    d->sampleLayout->addWidget( d->sample, 2 );
-    d->sampleLayout->addSpacing( 5 );
-    //    d->sampleLayout->addStretch( 10 );
-    d->sampleLayout->addWidget( d->scriptAccel, 0, AlignLeft );
-    d->sampleLayout->addWidget( d->scriptCombo, 0, AlignLeft );
-
-    // layout for sampleEdit
-    d->sampleEditLayout = new QBoxLayout( d->sample, QBoxLayout::Down, 12, 0 );
-    d->sampleEditLayout->addSpacing( 6 );
-    d->sampleEditLayout->addWidget( d->sampleEdit, 42 );
 
 #if 0
     connect( d->familyList, SIGNAL(highlighted(const QString&)),
@@ -231,19 +209,15 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     connect( d->familyList, SIGNAL(highlighted(int)),
 	     SLOT(familyHighlighted(int)) );
 #endif
-    connect( d->scriptCombo, SIGNAL(activated(const QString&)),
-	     SLOT(scriptHighlighted(const QString&)) );
+    connect( d->scriptCombo, SIGNAL(activated(int)),
+	     SLOT(scriptHighlighted(int)) );
     connect( d->styleList, SIGNAL(highlighted(const QString&)),
 	     SLOT(styleHighlighted(const QString&)) );
     connect( d->sizeList, SIGNAL(highlighted(const QString&)),
 	     SLOT(sizeHighlighted(const QString&)) );
 
-    connect( d->familyEdit, SIGNAL(returnPressed()),
-	     SLOT(familySelected()) );
-    connect( d->styleEdit, SIGNAL(returnPressed()),
-	     SLOT(styleSelected()) );
-    connect( d->sizeEdit, SIGNAL(returnPressed()),
-	     SLOT(sizeSelected()) );
+    connect( d->sizeEdit, SIGNAL(textChanged( const QString &)),
+	     SLOT(sizeChanged(const QString&)) );
 
     connect( d->strikeout, SIGNAL(clicked()),
 	     SLOT(updateSample()) );
@@ -256,14 +230,11 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     QSize sz;
     sz = d->familyList->sizeHint();
-    qWarning( "Xfamily(%i, %i)", sz.width(), sz.height() );
     sz = d->styleList->sizeHint();
-    qWarning( "Xstyle(%i, %i)", sz.width(), sz.height() );
     sz = d->sizeList->sizeHint();
-    qWarning( "Xsize(%i, %i)", sz.width(), sz.height() );
 
     // grid layout
-    QGridLayout * mainGrid = new QGridLayout( this, 5, 7, 12, 0 );
+    QGridLayout * mainGrid = new QGridLayout( this, 9, 6, 12, 0 );
 
     mainGrid->addWidget( d->familyAccel, 0, 0 );
     mainGrid->addWidget( d->familyEdit, 1, 0 );
@@ -289,28 +260,36 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     mainGrid->addWidget( d->effects, 4, 0 );
 
-    mainGrid->addMultiCellWidget( sampleStuff, 4, 4, 2, 4 );
+    mainGrid->addMultiCellWidget( d->sample, 4, 7, 2, 4 );
 
-    QWidget *buttonBox = new QWidget( this, "button box" );
-    mainGrid->addMultiCellWidget( buttonBox, 1, 4, 6, 6 );
+    mainGrid->addWidget( d->scriptAccel, 5, 0 );
+    mainGrid->addRowSpacing( 6, 2 );
+    mainGrid->addWidget( d->scriptCombo, 7, 0 );
 
-    d->buttonLayout = new QBoxLayout( buttonBox, QBoxLayout::Down, 0 );
+    mainGrid->addRowSpacing( 8, 12 );
 
+    QHBoxLayout *buttonBox = new QHBoxLayout;
+    mainGrid->addMultiCell( buttonBox, 9, 9, 0, 4 );
+
+    buttonBox->addStretch( 1 );
     d->ok = new QPushButton(
 		    modal ? tr("OK") : tr("Apply"),
-		    buttonBox, "accept font selection" );
+		    this, "accept font selection" );
+    buttonBox->addWidget( d->ok );
     if ( modal )
 	connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
     connect( d->ok, SIGNAL(clicked()), SLOT(emitSelectedFont()) );
-    d->buttonLayout->addWidget( d->ok, 0, AlignLeft );
+    d->ok->setDefault( TRUE );
+    d->ok->setFixedWidth( 80 );
 
-    d->buttonLayout->addSpacing( 6 );
+    buttonBox->addSpacing( 12 );
 
     d->cancel = new QPushButton(
 		    modal ? tr("Cancel") : tr("Close"),
-		    buttonBox, "cancel/close" );
+		    this, "cancel/close" );
+    buttonBox->addWidget( d->cancel );
     connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
-    d->buttonLayout->addWidget( d->cancel, 0, AlignLeft );
+    d->cancel->setFixedWidth( 80 );
 
     resize( 500, 360 );
 
@@ -457,29 +436,16 @@ QListBox * QFontDialog::sizeListBox() const
     return d->sizeList;
 }
 
-void QFontDialog::scriptSelected()
+void QFontDialog::sizeChanged( const QString &s )
 {
-}
-
-/*!  Update the available font styles and sizes to fit the newly
-  highlighted family.
-*/
-
-void QFontDialog::familySelected()
-{
-}
-
-/*!  Update the available sizes to fit the newly
-  highlighted style.
-*/
-
-void QFontDialog::styleSelected()
-{
-}
-
-
-void QFontDialog::sizeSelected()
-{
+    bool ok = FALSE;
+    if ( d->size != s ) {
+	(void) s.toInt( &ok );
+	if ( ok ) {
+	    d->size = s;
+	    updateSample();
+	}
+    }
 }
 
 
@@ -549,14 +515,23 @@ void QFontDialog::updateFamilies()
 {
     d->familyNames = d->fdb.families();
     QStringList newList;
+    QString s;
     QStringList::Iterator it = d->familyNames.begin();
     for( ; it != d->familyNames.end() ; it++ ) {
+	s = *it;
+	if ( s.contains('-') ) {
+	    int i = s.find('-');
+	    s = s.left( i ) + " [" + s.right( s.length() - i - 1 ) + "]";
+	}
+	s[0] = s[0].upper();
+#if 0
 	if ( d->fdb.isSmoothlyScalable( *it ) )
-	    newList.append( *it + "(TT)" );
+	    newList.append( s + "(TT)" );
 	else if ( d->fdb.isBitmapScalable( *it ) )
-	    newList.append( *it + "(BT)" );
+	    newList.append( s + "(BT)" );
 	else
-	    newList.append( *it );
+#endif
+	newList.append( s );
     }
     d->familyList->insertStringList( newList );
 }
@@ -569,16 +544,18 @@ void QFontDialog::updateScripts()
 {
     d->scriptCombo->clear();
 
-    QStringList scripts = d->fdb.charSets( d->family );
+    d->charSetNames = d->fdb.charSets( d->family );
 
-    if ( scripts.isEmpty() ) {
+    if ( d->charSetNames.isEmpty() ) {
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
 		  "no character sets for family \"%s\"",
 		  (const char *) d->family );
 	return;
     }
 
-    d->scriptCombo->insertStringList( scripts );
+    QStringList::Iterator it = d->charSetNames.begin();
+    for ( ; it != d->charSetNames.end() ; ++it )
+	d->scriptCombo->insertItem( d->fdb.verboseCharSetName(*it) );
 }
 
 /*!  Update the contents of the "font style" list box.  This
@@ -587,8 +564,6 @@ void QFontDialog::updateScripts()
 void QFontDialog::updateStyles()
 {
     d->styleList->clear();
-    d->styleList->hide();
-    d->styleList->show();
 
     QStringList styles = d->fdb.styles( d->family, d->charSet );
     if ( styles.isEmpty() ) {
@@ -605,8 +580,6 @@ void QFontDialog::updateSizes()
     //    usingStandardSizes = d->fdb.isScalable( d->family );
     
     d->sizeList->clear();
-    d->sizeList->hide();
-    d->sizeList->show();
     QValueList<int> sizes = d->fdb.pointSizes( d->family,d->style, d->charSet);
     if ( sizes.isEmpty() ) {
 	qWarning( "QFontDialog::updateFamilies: Internal error, "
@@ -630,21 +603,14 @@ void QFontDialog::updateSizes()
 
 void QFontDialog::familyHighlighted( const QString &s )
 {
-    d->familyEdit->setText( s );
+    d->familyEdit->setText(d->familyList->text(d->familyList->currentItem()));
     if ( style() == WindowsStyle && d->familyEdit->hasFocus() )
 	d->familyEdit->selectAll();
 
     d->family = s;
     updateScripts();
-    if ( d->scriptCombo->count() != 0 ) {
-	// Avoid bug in QComboBox ###### FIX IT
-#if 1
-	scriptHighlighted( d->scriptCombo->text( 0 ) );
-#else
-	d->scriptCombo->setCurrentItem( 0 );
-#endif
-    }
-
+    if ( d->scriptCombo->count() != 0 )
+	scriptHighlighted( 0 );
 }
 
 void QFontDialog::familyHighlighted( int i )
@@ -657,11 +623,15 @@ void QFontDialog::familyHighlighted( int i )
 
 */
 
+void QFontDialog::scriptHighlighted( int index )
+{
+    scriptHighlighted( d->charSetNames[index] );
+}
+
 void QFontDialog::scriptHighlighted( const QString &s )
 {
     d->charSet = s;
 
-    //    int index = d->styleList->currentItem();
     updateStyles();
     if ( d->styleList->count() != 0 )
 	d->styleList->setCurrentItem( 0 );  // Will call styleHighlighted
@@ -713,9 +683,50 @@ void QFontDialog::sizeHighlighted( const QString &s )
 
 void QFontDialog::setFont( const QFont &f )
 {
+    QString famNam = f.family().lower();
+
+    QStringList::Iterator it;
+    it = d->familyNames.begin();
+    int i = 0;
+    for( ; it != d->familyNames.end() ; ++it ) {
+	QString s = *it;
+	if ( famNam == s ) {
+	    d->familyList->setCurrentItem( i );
+	    i = -1;
+	    break;
+	}
+	if ( s.contains('-') ) {
+	    int i = s.find('-');
+	    if ( famNam == s.right( s.length() - i - 1 ) ) {
+		familyHighlighted( i );
+		i = -1;
+		break;
+	    }
+	}
+	i++;
+    }
+    if ( i == -1 )
+	return;
+
+    QString styleString = d->fdb.styleString( f );
+    if ( !styleString.isEmpty() )
+	styleHighlighted( styleString );
+
+    int pSize = f.pointSize();
+    QString tmp;
+    for ( i = 0 ; (uint)i < d->sizeList->count() - 1 ; i++ ) {
+	tmp = d->sizeList->text(i);
+	if ( tmp.toInt() >= pSize )
+	    break;
+    }
+    if ( d->sizeList->count() != 0 )
+	d->sizeList->setCurrentItem( i );
+
+
+    int a = f.pointSize();
+    a = a;
 #if 0
     // ### Quick hack
-    familyHighlighted( f.family() );
     QFontCharSet charSet = d->family.charSet( f.charSet() );
     if ( charSet.isNull() )
 	return;

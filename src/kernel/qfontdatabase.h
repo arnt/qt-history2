@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#5 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#6 $
 **
 ** Definition of the QFontDatabase class
 **
@@ -33,15 +33,10 @@
 //  W A R N I N G
 //  -------------
 //
-//  This class is under development and is currently unstable.
+//  This class is under development and all members are private.
 //
-//  It is very unlikely that this code will be available in the final
-//  Qt 2.0 release.  It will be available soon after then, but a number
-//  of important API changes still need to be made.
-//
-//  Thus, it is important that you do NOT use this code in an application
-//  unless you are willing for your application to be dependent on the
-//  snapshot releases of Qt.
+//  The API will probably be opened up in Qt 2.1 In the meantime it is
+//  used by QFontDialog only.
 //
 
 #ifndef QT_H
@@ -59,7 +54,7 @@ class QFontDatabasePrivate;
 
 class Q_EXPORT QFontDatabase
 {
-public:
+private:
     QFontDatabase();
 
     const QStringList &families( bool onlyForLocale = TRUE ) const;
@@ -112,12 +107,17 @@ public:
 const QStringList charSets( const QString &familyName,
 			    bool onlyForLocale = TRUE ) const;
 
+    QString styleString( const QFont &);
 
+static QString verboseCharSetName( const QString & charSetName );
 
 private:
     static void createDatabase();
 
     QFontDatabasePrivate *d;
+
+    friend class QFontDialog;
+    friend class QFontDialogPrivate;
 };
 
 #endif
