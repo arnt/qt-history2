@@ -457,7 +457,7 @@
           <string notr="true">actionHelpAssistant</string>
         </property>
         <property name="icon" >
-          <iconset>:/trolltech/assistant/images/win/assistant.png</iconset>
+          <iconset>:/trolltech/assistant/images/assistant.png</iconset>
         </property>
         <property name="shortcut" >
           <string>F1</string>
