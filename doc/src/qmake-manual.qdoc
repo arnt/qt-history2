@@ -3112,7 +3112,7 @@
        contains a colon-separated list of directories.
     \o In the directory specified by \c $QMAKESPEC/features.
     \o In the \c data_install/mkspecs/$FEATURES_DIR directory.
-    \o In the \c $QTDIR/mkspecs/$FEATURES_DIR directory.
+    \o In the \c $QMAKESPEC/../$FEATURES_DIR directory.
     \endlist
 
     The \c FEATURES_DIR environment variable contains the following values:
