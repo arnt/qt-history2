@@ -289,7 +289,8 @@ struct TransformedFont
 class QTextCodec;
 
 #ifndef QT_NO_XFTFREETYPE
-#include <freetype/freetype.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include "ftxopen.h"
 
 class QFontEngineXft : public QFontEngine

@@ -21,9 +21,8 @@
 
 #ifndef QT_NO_FREETYPE
 
-extern "C" {
-#include <freetype/freetype.h>
-}
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 // ascent, descent, width(ch), width(string), maxwidth?
 // leftbearing, rightbearing, minleftbearing,minrightbearing

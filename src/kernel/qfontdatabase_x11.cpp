@@ -29,7 +29,8 @@
 #include <sys/mman.h>
 
 #ifndef QT_NO_XFTFREETYPE
-#include <freetype/freetype.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #endif
 
 #ifndef QT_XFT2
