@@ -68,7 +68,6 @@ network:SUBDIRS +=  ftpclient \
 workspace:SUBDIRS+= mdi
 table:SUBDIRS +=    statistics \
 		    table
-xml:SUBDIRS +=	    xmlquotes
 sql:SUBDIRS += sql
 
 embedded:SUBDIRS += winmanager \
