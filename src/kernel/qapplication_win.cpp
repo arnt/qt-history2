@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#266 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#267 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2073,6 +2073,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		    if ( tw->focusPolicy() & QWidget::ClickFocus )
 			tw->setFocus();
 		}
+		if ( QWidget::mouseGrabber() == 0 )
+		    setAutoCapture( w->winId() );
 		QMouseEvent* e = new QMouseEvent( type, w->mapFromGlobal(QPoint(gpos.x, gpos.y)),
 			   QPoint(gpos.x,gpos.y), button, state );
 		QApplication::postEvent( w, e );
