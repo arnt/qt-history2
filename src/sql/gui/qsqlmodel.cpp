@@ -1,16 +1,15 @@
 /****************************************************************************
- **
- ** Implementation of QSqlModel class.
- **
- ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
- **
- ** This file is part of the sql module of the Qt GUI Toolkit.
- ** EDITIONS: FREE, ENTERPRISE
- **
- ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- **
- ****************************************************************************/
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include "qsqlmodel.h"
 
@@ -24,7 +23,7 @@
 
 #define QSQL_PREFETCH 15 // ### make this configurable
 
-void QSqlModelPrivate::prefetch(int limit)
+void QSqlQueryModelPrivate::prefetch(int limit)
 {
     if (atEnd || limit <= bottom.row())
         return;
@@ -47,18 +46,18 @@ void QSqlModelPrivate::prefetch(int limit)
 }
 
 /*!
-    \class QSqlModel
-    \brief The QSqlModel class provides a read only data model for SQL
+    \class QSqlQueryModel
+    \brief The QSqlQueryModel class provides a read only data model for SQL
     result sets.
 
     \ingroup database
     \module sql
 
-    QSqlModel is a data model that provides data from a QSqlQuery.
+    QSqlQueryModel is a data model that provides data from a QSqlQuery.
     The QSqlQuery has to be valid and may not be forward-only.
 
     \code
-    QSqlModel model;
+    QSqlQueryModel model;
     model.setQuery("SELECT FORENAME, SURNAME, ID FROM TEST");
     \endcode
 
@@ -72,16 +71,16 @@ void QSqlModelPrivate::prefetch(int limit)
 */
 
 /*!
-    Creates an empty QSqlModel and sets the parent to \a parent.
+    Creates an empty QSqlQueryModel and sets the parent to \a parent.
  */
-QSqlModel::QSqlModel(QObject *parent)
-    : QAbstractTableModel(*new QSqlModelPrivate, parent)
+QSqlQueryModel::QSqlQueryModel(QObject *parent)
+    : QAbstractTableModel(*new QSqlQueryModelPrivate, parent)
 {
 }
 
 /*! \internal
  */
-QSqlModel::QSqlModel(QSqlModelPrivate &dd, QObject *parent = 0)
+QSqlQueryModel::QSqlQueryModel(QSqlQueryModelPrivate &dd, QObject *parent = 0)
     : QAbstractTableModel(dd, parent)
 {
 }
@@ -89,28 +88,28 @@ QSqlModel::QSqlModel(QSqlModelPrivate &dd, QObject *parent = 0)
 /*!
     Destroys the object and frees any allocated resources.
  */
-QSqlModel::~QSqlModel()
+QSqlQueryModel::~QSqlQueryModel()
 {
 }
 
 /*!
     \internal
 */
-void QSqlModel::fetchMore()
+void QSqlQueryModel::fetchMore()
 {
     d->prefetch(d->bottom.row() + QSQL_PREFETCH);
 }
 
 /*! \reimp
  */
-int QSqlModel::rowCount() const
+int QSqlQueryModel::rowCount() const
 {
     return d->bottom.row() + 1;
 }
 
 /*! \reimp
  */
-int QSqlModel::columnCount() const
+int QSqlQueryModel::columnCount() const
 {
     return d->rec.count();
 }
@@ -130,7 +129,7 @@ int QSqlModel::columnCount() const
 
     \sa setData(), lastError()
 */
-QVariant QSqlModel::data(const QModelIndex &item, int role) const
+QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 {
     if (!item.isValid())
         return QVariant();
@@ -152,7 +151,7 @@ QVariant QSqlModel::data(const QModelIndex &item, int role) const
         return v;
     QModelIndex dItem = dataIndex(item);
     if (dItem.row() > d->bottom.row())
-        const_cast<QSqlModelPrivate *>(d)->prefetch(dItem.row());
+        const_cast<QSqlQueryModelPrivate *>(d)->prefetch(dItem.row());
 
     if (!d->query.seek(dItem.row())) {
         d->error = d->query.lastError();
@@ -170,7 +169,7 @@ QVariant QSqlModel::data(const QModelIndex &item, int role) const
 
     \sa query(), QSqlQuery::isActive(), QSqlQuery::setForwardOnly()
 */
-void QSqlModel::setQuery(const QSqlQuery &query)
+void QSqlQueryModel::setQuery(const QSqlQuery &query)
 {
     if (d->bottom.isValid()) {
         emit rowsRemoved(QModelIndex(), 0, d->bottom.row());
@@ -208,7 +207,7 @@ void QSqlModel::setQuery(const QSqlQuery &query)
 /*!
     Clears the model and releases all aquired resources
  */
-void QSqlModel::clear()
+void QSqlQueryModel::clear()
 {
     d->error = QSqlError();
     d->atEnd = true;
@@ -232,7 +231,7 @@ void QSqlModel::clear()
 
     \sa data()
  */
-bool QSqlModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QSqlQueryModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (role != DisplayRole || index.type() != QModelIndex::HorizontalHeader || index.row() <= 0
         || index.column() < 0)
@@ -249,7 +248,7 @@ bool QSqlModel::setData(const QModelIndex &index, int role, const QVariant &valu
 
     \sa setQuery()
 */
-const QSqlQuery QSqlModel::query() const
+const QSqlQuery QSqlQueryModel::query() const
 {
     return d->query;
 }
@@ -258,7 +257,7 @@ const QSqlQuery QSqlModel::query() const
     Returns information about the last error that occurred on the
     database.
 */
-QSqlError QSqlModel::lastError() const
+QSqlError QSqlQueryModel::lastError() const
 {
     return d->error;
 }
@@ -269,7 +268,7 @@ QSqlError QSqlModel::lastError() const
 
    \sa lastError()
 */
-void QSqlModel::setLastError(const QSqlError &error)
+void QSqlQueryModel::setLastError(const QSqlError &error)
 {
     d->error = error;
 }
@@ -279,7 +278,7 @@ void QSqlModel::setLastError(const QSqlError &error)
    that are currently displayed. Returns an empty record if
    the model has not yet been initialized.
 */
-QSqlRecord QSqlModel::record() const
+QSqlRecord QSqlQueryModel::record() const
 {
     return d->rec;
 }
@@ -290,7 +289,7 @@ QSqlRecord QSqlModel::record() const
     the model does not support parent-child relationships.
 
     To populate the newly inserted columns with data, you must
-    reimplement QSqlModel::data().
+    reimplement QSqlQueryModel::data().
 
     Example:
     \code
@@ -299,13 +298,13 @@ QSqlRecord QSqlModel::record() const
         if (item.column() == myNewlyInsertedColumn) {
             return "My calculated value";
         }
-        return QSqlModel::data(item, role);
+        return QSqlQueryModel::data(item, role);
     }
     \endcode
 
     Returns true if \a column is within bounds; otherwise returns false.
  */
-bool QSqlModel::insertColumn(int column, const QModelIndex &parent, int count)
+bool QSqlQueryModel::insertColumn(int column, const QModelIndex &parent, int count)
 {
     if (count <= 0 || parent.isValid() || column < 0 || column > d->rec.count())
         return false;
@@ -338,7 +337,7 @@ bool QSqlModel::insertColumn(int column, const QModelIndex &parent, int count)
 
     Returns true if the columns were removed; otherwise returns false.
  */
-bool QSqlModel::removeColumn(int column, const QModelIndex &parent, int count)
+bool QSqlQueryModel::removeColumn(int column, const QModelIndex &parent, int count)
 {
     if (count <= 0 || parent.isValid() || column < 0 || column >= d->rec.count())
         return false;
@@ -361,7 +360,7 @@ bool QSqlModel::removeColumn(int column, const QModelIndex &parent, int count)
     Returns an invalid model index if \a item is out of bounds or if
     \a item does not point to a value in the result set.
 */
-QModelIndex QSqlModel::dataIndex(const QModelIndex &item) const
+QModelIndex QSqlQueryModel::dataIndex(const QModelIndex &item) const
 {
     if (item.column() < 0 || item.column() >= d->rec.count()
         || !d->rec.isGenerated(item.column()))

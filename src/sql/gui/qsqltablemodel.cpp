@@ -1,16 +1,15 @@
 /****************************************************************************
- **
- ** Implementation of QSqlModel class.
- **
- ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
- **
- ** This file is part of the sql module of the Qt GUI Toolkit.
- ** EDITIONS: FREE, ENTERPRISE
- **
- ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
- **
- ****************************************************************************/
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include "qsqltablemodel.h"
 
@@ -24,7 +23,7 @@
 
 #include "qsqlmodel_p.h"
 
-class QSqlTableModelPrivate: public QSqlModelPrivate
+class QSqlTableModelPrivate: public QSqlQueryModelPrivate
 {
     Q_DECLARE_PUBLIC(QSqlTableModel);
 public:
@@ -176,7 +175,7 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
   default database connection will be used.
  */
 QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
-    : QSqlModel(*new QSqlTableModelPrivate, parent)
+    : QSqlQueryModel(*new QSqlTableModelPrivate, parent)
 {
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }
@@ -255,7 +254,7 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
     }
 
     if (item.type() != QModelIndex::View)
-        return QSqlModel::data(item, role);
+        return QSqlQueryModel::data(item, role);
 
     switch (d->strategy) {
     case OnFieldChange:
@@ -273,7 +272,7 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
             return var;
         break; }
     }
-    return QSqlModel::data(item, role);
+    return QSqlQueryModel::data(item, role);
 }
 
 /*!
@@ -312,7 +311,7 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
 bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (index.type() != QModelIndex::View)
-        return QSqlModel::setData(index, role, value);
+        return QSqlQueryModel::setData(index, role, value);
 
     QSqlRecord rec = query().record();
     if (index.column() >= rec.count())
@@ -364,7 +363,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
  */
 void QSqlTableModel::setQuery(const QSqlQuery &query)
 {
-    QSqlModel::setQuery(query);
+    QSqlQueryModel::setQuery(query);
 }
 
 /*!
@@ -786,7 +785,7 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
  */
 int QSqlTableModel::rowCount() const
 {
-    int rc = QSqlModel::rowCount();
+    int rc = QSqlQueryModel::rowCount();
     if (d->insertIndex >= 0)
         ++rc;
     return rc;
@@ -803,7 +802,7 @@ int QSqlTableModel::rowCount() const
  */
 QModelIndex QSqlTableModel::dataIndex(const QModelIndex &item) const
 {
-    QModelIndex it = QSqlModel::dataIndex(item);
+    QModelIndex it = QSqlQueryModel::dataIndex(item);
     if (d->insertIndex >= 0 && it.row() >= d->insertIndex)
         return createIndex(it.row() - 1, it.column(), it.data(), it.type());
     return it;
@@ -852,6 +851,6 @@ bool QSqlTableModel::isEditable(const QModelIndex &item) const
 void QSqlTableModel::clear()
 {
     d->clear();
-    QSqlModel::clear();
+    QSqlQueryModel::clear();
 }
 

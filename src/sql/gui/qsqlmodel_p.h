@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLMODEL_P_H
-#define QSQLMODEL_P_H
+#ifndef QSQLQUERYMODEL_P_H
+#define QSQLQUERYMODEL_P_H
 
 //
 //  W A R N I N G
@@ -34,11 +34,11 @@
 #include "qvarlengtharray.h"
 #include "qvector.h"
 
-class QSqlModelPrivate: public QAbstractItemModelPrivate
+class QSqlQueryModelPrivate: public QAbstractItemModelPrivate
 {
-    Q_DECLARE_PUBLIC(QSqlModel);
+    Q_DECLARE_PUBLIC(QSqlQueryModel);
 public:
-    QSqlModelPrivate(): atEnd(false) {}
+    QSqlQueryModelPrivate(): atEnd(false) {}
 
     void prefetch(int);
 

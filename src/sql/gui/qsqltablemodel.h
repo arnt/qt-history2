@@ -22,7 +22,7 @@ class QSqlRecord;
 class QSqlField;
 class QSqlIndex;
 
-class Q_SQL_EXPORT QSqlTableModel: public QSqlModel
+class Q_SQL_EXPORT QSqlTableModel: public QSqlQueryModel
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSqlTableModel);

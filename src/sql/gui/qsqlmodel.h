@@ -11,24 +11,24 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLMODEL_H
-#define QSQLMODEL_H
+#ifndef QSQLQUERYMODEL_H
+#define QSQLQUERYMODEL_H
 
 #include <qabstractitemmodel.h>
 
-class QSqlModelPrivate;
+class QSqlQueryModelPrivate;
 class QSqlError;
 class QSqlRecord;
 class QSqlQuery;
 
-class Q_SQL_EXPORT QSqlModel: public QAbstractTableModel
+class Q_SQL_EXPORT QSqlQueryModel: public QAbstractTableModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSqlModel);
+    Q_DECLARE_PRIVATE(QSqlQueryModel);
 
 public:
-    QSqlModel(QObject *parent = 0);
-    virtual ~QSqlModel();
+    QSqlQueryModel(QObject *parent = 0);
+    virtual ~QSqlQueryModel();
 
     int rowCount() const;
     int columnCount() const;
@@ -52,7 +52,7 @@ public slots:
 protected:
     QModelIndex dataIndex(const QModelIndex &item) const;
     void setLastError(const QSqlError &error);
-    QSqlModel(QSqlModelPrivate &d, QObject *parent);
+    QSqlQueryModel(QSqlQueryModelPrivate &d, QObject *parent);
 };
 
 #endif
