@@ -237,6 +237,10 @@ void qHeapSort(BiIterator begin, BiIterator end)
 template <typename Container>
 void qHeapSort(Container &c)
 {
+#ifdef Q_CC_BOR
+    // Work around Borland 5.5 optimizer bug
+    c.detach();
+#endif
     qHeapSortHelper(c.begin(), c.end(), *c.begin());
 }
 
