@@ -1143,7 +1143,10 @@ int PopupMenuEditor::drawActionGroup( QPainter & p, QActionGroup * g, int x, int
 
     if ( g->usesDropDown() ) { //FIXME: if the ag is visible, it usesDropDown
 	h += drawAction( p, ( QAction * ) g, x, y );
-	drawArrow( p, y );
+	// FIXME have a const ArrowRect
+	QRect r( width() - borderSize - arrowWidth, y, arrowWidth, itemHeight );
+	style().drawPrimitive( QStyle::PE_ArrowRight, &p, r, colorGroup(),
+			       QStyle::Style_Enabled );
 	return h; // we will draw the children in the submenu
     }
     return h;
@@ -1161,42 +1164,6 @@ int PopupMenuEditor::drawSeparator( QPainter & p, const int y )
     p.drawLine( 1, m , w - 2, m );
 
     return separatorHeight;
-}
-
-void PopupMenuEditor::drawArrow( QPainter & p, const int y )
-{
-     // FIXME: use style
-    const int my = y + itemHeight / 2;
-    const int mx = width() - borderSize - arrowWidth / 2;
-
-    QPointArray a; // FIXME: use bitmap
-    
-    a.setPoints( 20,
-		 mx - 2, my - 4,
-		 mx - 2, my - 3,
-		 mx - 2, my - 2,
-		 mx - 2, my - 1,
-		 mx - 2, my,
-		 mx - 2, my + 1,
-		 mx - 2, my + 2,
-		 mx - 2, my + 3,
-		 
-		 mx - 1, my - 3,
-		 mx - 1, my - 2,
-		 mx - 1, my - 1,
-		 mx - 1, my,
-		 mx - 1, my + 1,
-		 mx - 1, my + 2,
-
-		 mx, my - 2,
-		 mx, my - 1,
-		 mx, my,
-		 mx, my + 1,
-
-		 mx + 1, my - 1,
-		 mx + 1, my );
-
-    p.drawPoints( a );
 }
 
 void PopupMenuEditor::drawToggle( QPainter & p, const int y )
@@ -1272,8 +1239,12 @@ void PopupMenuEditor::drawItems( QPainter & p )
 	    if ( i->isSeparator() ) {
 		y += drawSeparator( p, y );
 	    } else {
-		if ( i->count() )
-		    drawArrow( p, y );
+		if ( i->count() ) {
+		    QRect r( width() - borderSize - arrowWidth,
+			     y, arrowWidth, itemHeight );
+		    style().drawPrimitive( QStyle::PE_ArrowRight, &p, r, colorGroup(),
+					   QStyle::Style_Enabled );
+		}
 		if ( i->type() == PopupMenuEditorItem::Action )
 		    y += drawAction( p, i->action(), borderSize, y );
 		else if ( i->type() == PopupMenuEditorItem::ActionGroup )
