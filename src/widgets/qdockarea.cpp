@@ -61,6 +61,32 @@ struct Q_EXPORT DockData
 #endif
 };
 
+static int fix_x( QDockWindow* w, int width = -1 ) {
+    if ( QApplication::reverseLayout() ) {
+	if ( width < 0 )
+	    width = w->width();
+	return w->parentWidget()->width() - w->x() - width;
+    }
+    return w->x();
+}
+static int fix_x( QDockWindow* w, int x, int width = -1 ) {
+    if ( QApplication::reverseLayout() ) {
+	if ( width < 0 )
+	    width = w->width();
+	return w->parentWidget()->width() - x - width;
+    }
+    return x;
+}
+
+static QPoint fix_pos( QDockWindow* w ) {
+    if ( QApplication::reverseLayout() ) {
+	QPoint p = w->pos();
+	p.rx() = w->parentWidget()->width() - p.x() - w->width();
+	return p;
+    }
+    return w->pos();
+}
+
 
 void QDockAreaLayout::setGeometry( const QRect &r )
 {
@@ -198,7 +224,7 @@ static int dock_strut( QDockWindow *w, Qt::Orientation o )
 static void set_geometry( QDockWindow *w, int pos, int sectionpos, int extent, int strut, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal )
-	w->setGeometry( pos, sectionpos, extent, strut );
+	w->setGeometry( fix_x( w, pos, extent), sectionpos, extent, strut );
     else
 	w->setGeometry( sectionpos, pos, strut, extent );
 }
@@ -367,10 +393,6 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	}
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
 	QRect dwRect(pos, sectionpos, dockExtend, dock_strut( dw, orientation()  ) );
-#ifdef REVERSE_LAYOUT
-	if ( QApplication::reverseLayout() && orientation() == Horizontal )
-	    dwRect = QStyle::visualRect( dwRect, rect );
-#endif
 	lastLine.append( DockData( dw, dwRect ) );
 	if ( dw->inherits( "QToolBar" ) )
 	    tbstrut = QMAX( tbstrut, dock_strut( dw, orientation() ) );
@@ -672,6 +694,10 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
     lines = layout->lineList();
 
     QRect rect = QRect( mapFromGlobal( r.topLeft() ), r.size() );
+    if ( orientation() == Horizontal && QApplication::reverseLayout() ) {
+	rect = QRect( width() - rect.x() - rect.width(), rect.y(), rect.width(), rect.height() );
+	pos.rx() = width() - pos.x();
+    }
     dockWindow->setOffset( point_pos( rect.topLeft(), orientation() ) );
     if ( orientation() == Horizontal ) {
 	int offs = dockWindow->offset();
@@ -773,7 +799,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 		    if ( !firstTime && lineStarts.find( dw ) != -1 ) // we are in the next line, so break
 			break;
 		    if ( point_pos( pos, orientation() ) <
-			 point_pos( dw->pos(), orientation() ) + size_extent( dw->size(), orientation() ) / 2 ) {
+			 point_pos( fix_pos( dw ), orientation() ) + size_extent( dw->size(), orientation() ) / 2 ) {
 			inc = FALSE;
 		    }
 		    if ( inc )
@@ -965,7 +991,7 @@ QDockArea::DockWindowData *QDockArea::dockWindowData( QDockWindow *w )
 	    break;
     }
     data->line = i;
-    data->offset = point_pos( QPoint( w->x(), w->y() ), orientation() );
+    data->offset = point_pos( QPoint( fix_x(w), w->y() ), orientation() );
     data->area = this;
     data->fixedExtent = w->fixedExtent();
     return data;
@@ -998,7 +1024,7 @@ void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
 	    if ( !firstTime && lineStarts.find( dw ) != -1 )
 		break;
 	    if ( offset <
-		 point_pos( dw->pos(), orientation() ) + size_extent( dw->size(), orientation() ) / 2 )
+		 point_pos( fix_pos( dw ), orientation() ) + size_extent( dw->size(), orientation() ) / 2 )
 		break;
 	    index++;
 	    firstTime = FALSE;
