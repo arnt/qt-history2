@@ -37,16 +37,16 @@ public:
     inline bool isValid() const { return eng; }
 
     QRect rect() const;
-    int width() const;
-    int ascent() const;
-    int descent() const;
-    int height() const;
+    float width() const;
+    float ascent() const;
+    float descent() const;
+    float height() const;
 
     bool isRightToLeft() const;
 
-    void setWidth(int w);
-    void setAscent(int a);
-    void setDescent(int d);
+    void setWidth(float w);
+    void setAscent(float a);
+    void setDescent(float d);
 
     int at() const;
 
@@ -148,16 +148,17 @@ public:
 
     enum { NoCursor = -1 };
 
-    inline void draw(QPainter *p, const QPoint &pos, int cursorPos, const QVector<Selection> &selections) const {
+    inline void draw(QPainter *p, const QPointF &pos, int cursorPos, const QVector<Selection> &selections) const {
         draw(p, pos, cursorPos, selections.constData(), selections.size());
     }
-    void draw(QPainter *p, const QPoint &pos, int cursorPos = NoCursor, const Selection *selections = 0, int nSelections = 0, const QRect &cr = QRect()) const;
+    void draw(QPainter *p, const QPointF &pos, int cursorPos = NoCursor,
+              const Selection *selections = 0, int nSelections = 0, const QRect &cr = QRect()) const;
 
-    QPoint position() const;
-    void setPosition(const QPoint &p);
+    QPointF position() const;
+    void setPosition(const QPointF &p);
 
-    QRect boundingRect() const;
-    QRect rect() const;
+    QRectF boundingRect() const;
+    QRectF rect() const;
 
     QTextEngine *engine() const { return d; }
 
@@ -183,13 +184,13 @@ public:
     inline bool isValid() const { return eng; }
 
     QRect rect() const;
-    int x() const;
-    int y() const;
-    int width() const;
-    int ascent() const;
-    int descent() const;
-    int height() const;
-    int textWidth() const;
+    float x() const;
+    float y() const;
+    float width() const;
+    float ascent() const;
+    float descent() const;
+    float height() const;
+    float textWidth() const;
 
     enum Edge {
         Leading,
@@ -201,17 +202,13 @@ public:
     };
 
     /* cursorPos gets set to the valid position */
-    int cursorToX(int *cursorPos, Edge edge = Leading) const;
-    inline int cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
-    int xToCursor(int x, CursorPosition = CursorBetweenCharacters) const;
+    float cursorToX(int *cursorPos, Edge edge = Leading) const;
+    inline float cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
+    int xToCursor(float x, CursorPosition = CursorBetweenCharacters) const;
 
-    enum LineWidthUnit {
-        UnitIsPixels,
-        UnitIsGlyphs
-    };
-
-    void layout(int width, LineWidthUnit unit = UnitIsPixels);
-    void setPosition(const QPoint &pos);
+    void layout(float width);
+    void layoutFixedColumnWidth(int numColumns);
+    void setPosition(const QPointF &pos);
 
     int from() const;
     int length() const;
@@ -219,10 +216,11 @@ public:
     QTextEngine *engine() const { return eng; }
     int line() const { return i; }
 
-    void draw(QPainter *p, int x, int y, int selection = -1) const;
+    void draw(QPainter *p, const QPointF &point, int selection = -1) const;
 
 private:
     QTextLine(int line, QTextEngine *e) : i(line), eng(e) {}
+    void layout_helper(int numGlyphs);
     friend class QTextLayout;
     int i;
     QTextEngine *eng;

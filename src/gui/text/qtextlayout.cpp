@@ -92,9 +92,9 @@ QRect QTextInlineObject::rect() const
 
     \sa ascent() descent() rect()
 */
-int QTextInlineObject::width() const
+float QTextInlineObject::width() const
 {
-    return qRound(eng->items[itm].width);
+    return eng->items[itm].width;
 }
 
 /*!
@@ -102,9 +102,9 @@ int QTextInlineObject::width() const
 
     \sa descent() width() rect()
 */
-int QTextInlineObject::ascent() const
+float QTextInlineObject::ascent() const
 {
-    return qRound(eng->items[itm].ascent);
+    return eng->items[itm].ascent;
 }
 
 /*!
@@ -112,9 +112,9 @@ int QTextInlineObject::ascent() const
 
     \sa ascent() width() rect()
 */
-int QTextInlineObject::descent() const
+float QTextInlineObject::descent() const
 {
-    return qRound(eng->items[itm].descent);
+    return eng->items[itm].descent;
 }
 
 /*!
@@ -123,9 +123,9 @@ int QTextInlineObject::descent() const
 
     \sa ascent() descent() width() rect()
 */
-int QTextInlineObject::height() const
+float QTextInlineObject::height() const
 {
-    return qRound(eng->items[itm].height());
+    return eng->items[itm].height();
 }
 
 
@@ -134,7 +134,7 @@ int QTextInlineObject::height() const
 
     \sa width() ascent() descent() rect()
 */
-void QTextInlineObject::setWidth(int w)
+void QTextInlineObject::setWidth(float w)
 {
     eng->items[itm].width = w;
 }
@@ -144,7 +144,7 @@ void QTextInlineObject::setWidth(int w)
 
     \sa ascent() setDescent() width() rect()
 */
-void QTextInlineObject::setAscent(int a)
+void QTextInlineObject::setAscent(float a)
 {
     eng->items[itm].ascent = a;
 }
@@ -154,7 +154,7 @@ void QTextInlineObject::setAscent(int a)
 
     \sa descent() setAscent() width() rect()
 */
-void QTextInlineObject::setDescent(int d)
+void QTextInlineObject::setDescent(float d)
 {
     eng->items[itm].descent = d;
 }
@@ -659,7 +659,7 @@ QTextLine QTextLayout::findLine(int pos) const
 
     \sa setPosition()
 */
-QPoint QTextLayout::position() const
+QPointF QTextLayout::position() const
 {
     return d->position;
 }
@@ -669,7 +669,7 @@ QPoint QTextLayout::position() const
 
     \sa position()
 */
-void QTextLayout::setPosition(const QPoint &p)
+void QTextLayout::setPosition(const QPointF &p)
 {
     d->position = p;
 }
@@ -677,7 +677,7 @@ void QTextLayout::setPosition(const QPoint &p)
 /*!
     The smallest rectangle that contains all the lines in the layout.
 */
-QRect QTextLayout::boundingRect() const
+QRectF QTextLayout::boundingRect() const
 {
     if (!d->boundingRect.isValid()) {
         float xmin = 0, xmax = 0, ymin = 0, ymax = 0;
@@ -697,9 +697,9 @@ QRect QTextLayout::boundingRect() const
 /*!
   \internal
 */
-QRect QTextLayout::rect() const
+QRectF QTextLayout::rect() const
 {
-    QRect r = boundingRect();
+    QRectF r = boundingRect();
     r.translate(d->position);
     return r;
 }
@@ -745,7 +745,7 @@ void QTextLayout::setDirection(QChar::Direction dir)
 
 
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
-                          const QRectF &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
+                          const QRectF &rect, const QTextLine &line, const QPointF &pos, int selectionIdx)
 {
     p->save();
     p->setClipRect(rect.toRect());
@@ -775,7 +775,7 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
         p->drawLine(int(rect.x()), int(rect.y()), int(rect.x() + rect.width()), int(rect.y() + rect.height()));
     if (text.isValid())
         p->setPen(text);
-    line.draw(p, pos.x(), pos.y(), selectionIdx);
+    line.draw(p, pos, selectionIdx);
     p->restore();
     return;
 }
@@ -795,7 +795,8 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
     nSelections, and the selections themselves are passed in \a
     selections.
 */
-void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Selection *selections, int nSelections, const QRect &cr) const
+void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
+                       const Selection *selections, int nSelections, const QRect &cr) const
 {
     Q_ASSERT(numLines() != 0);
 
@@ -803,10 +804,10 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
     d->selections = selections;
     d->nSelections = nSelections;
 
-    QPoint position = pos + d->position;
+    QPointF position = pos + d->position;
 
-    int clipy = INT_MIN;
-    int clipe = INT_MAX;
+    float clipy = INT_MIN;
+    float clipe = INT_MAX;
     if (cr.isValid()) {
         clipy = cr.y() - position.y();
         clipe = clipy + cr.height();
@@ -822,7 +823,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         int from = sl.from;
         int length = sl.length;
 
-        l.draw(p, position.x(), position.y());
+        l.draw(p, position);
         if (selections) {
             for (int j = 0; j < nSelections; ++j) {
                 const Selection &s = selections[j];
@@ -961,9 +962,9 @@ QRect QTextLine::rect() const
 
     \sa rect() y() length() width()
 */
-int QTextLine::x() const
+float QTextLine::x() const
 {
-    return qRound(eng->lines[i].x);
+    return eng->lines[i].x;
 }
 
 /*!
@@ -971,9 +972,9 @@ int QTextLine::x() const
 
     \sa x() rect() length() width()
 */
-int QTextLine::y() const
+float QTextLine::y() const
 {
-    return qRound(eng->lines[i].y);
+    return eng->lines[i].y;
 }
 
 /*!
@@ -981,9 +982,9 @@ int QTextLine::y() const
 
     \sa textWidth() x() y() length() rect()
 */
-int QTextLine::width() const
+float QTextLine::width() const
 {
-    return qRound(eng->lines[i].width);
+    return eng->lines[i].width;
 }
 
 
@@ -992,9 +993,9 @@ int QTextLine::width() const
 
     \sa descent() height()
 */
-int QTextLine::ascent() const
+float QTextLine::ascent() const
 {
-    return qRound(eng->lines[i].ascent);
+    return eng->lines[i].ascent;
 }
 
 /*!
@@ -1002,9 +1003,9 @@ int QTextLine::ascent() const
 
     \sa ascent() height()
 */
-int QTextLine::descent() const
+float QTextLine::descent() const
 {
-    return qRound(eng->lines[i].descent);
+    return eng->lines[i].descent;
 }
 
 /*!
@@ -1012,9 +1013,9 @@ int QTextLine::descent() const
 
     \sa ascent() descent()
 */
-int QTextLine::height() const
+float QTextLine::height() const
 {
-    return qRound(eng->lines[i].height());
+    return eng->lines[i].height();
 }
 
 /*!
@@ -1022,31 +1023,43 @@ int QTextLine::height() const
     always \<= to width(), and is the minimum width that could be used
     by layout() without changing the line break position.
 */
-int QTextLine::textWidth() const
+float QTextLine::textWidth() const
 {
-    return qRound(eng->lines[i].textWidth);
+    return eng->lines[i].textWidth;
 }
 
 /*!
     Lays out the line with the given \a width. The line is filled from
     it's starting position with as many characters as will fit into
-    the line. Depending on the specified \a unit the width is either
-    interpreted in pixels (default) or in number of visible glyphs.
+    the line.
 */
-void QTextLine::layout(int width, LineWidthUnit unit)
+void QTextLine::layout(float width)
 {
-    int maxGlyphs = INT_MAX;
-    if (unit == UnitIsGlyphs) {
-        maxGlyphs = width;
-        width = INT_MAX >> 6;
-    }
-
-    eng->boundingRect = QRect();
-
     QScriptLine &line = eng->lines[i];
     line.width = width;
     line.length = 0;
     line.textWidth = 0;
+    layout_helper(INT_MAX);
+}
+
+/*!
+    Lays out the line. The line is filled from it's starting position
+    with as many characters as are specified by \a numColumns.
+*/
+void QTextLine::layoutFixedColumnWidth(int numColumns)
+{
+    QScriptLine &line = eng->lines[i];
+    line.width = INT_MAX >> 6;
+    line.length = 0;
+    line.textWidth = 0;
+    layout_helper(numColumns);
+}
+
+void QTextLine::layout_helper(int maxGlyphs)
+{
+    eng->boundingRect = QRectF();
+
+    QScriptLine &line = eng->lines[i];
 
     if (!eng->items.size()) {
         line.setDefaultHeight(eng);
@@ -1184,7 +1197,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 /*!
     Moves the line to position \a pos.
 */
-void QTextLine::setPosition(const QPoint &pos)
+void QTextLine::setPosition(const QPointF &pos)
 {
     eng->lines[i].x = pos.x();
     eng->lines[i].y = pos.y();
@@ -1225,7 +1238,7 @@ int QTextLine::length() const
     Draws a line on painter \a p at position \a xpos, \a ypos. \a
     selection is reserved for internal use.
 */
-void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
+void QTextLine::draw(QPainter *p, const QPointF &pos, int selection) const
 {
     const QScriptLine &line = eng->lines[i];
 
@@ -1242,8 +1255,8 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
     int lastItem = eng->findItem(lineEnd - 1);
     int nItems = lastItem-firstItem+1;
 
-    float x(xpos);
-    float y(ypos);
+    float x = pos.x();
+    float y = pos.y();
     x += line.x;
     y += line.y + line.ascent;
 
@@ -1402,11 +1415,11 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
 
     \sa xToCursor()
 */
-int QTextLine::cursorToX(int *cursorPos, Edge edge) const
+float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 {
     if (!i && !eng->items.size()) {
         *cursorPos = 0;
-        return qRound(eng->lines[0].x);
+        return eng->lines[0].x;
     }
 
     int pos = *cursorPos;
@@ -1503,7 +1516,7 @@ int QTextLine::cursorToX(int *cursorPos, Edge edge) const
     }
 
     *cursorPos = pos + si->position;
-    return qRound(x);
+    return x;
 }
 
 /*!
@@ -1512,14 +1525,12 @@ int QTextLine::cursorToX(int *cursorPos, Edge edge) const
 
     \sa cursorToX()
 */
-int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
+int QTextLine::xToCursor(float x, CursorPosition cpos) const
 {
     const QScriptLine &line = eng->lines[i];
 
     if (!line.length)
         return line.from;
-
-    float x(xpos);
 
     int line_length = line.length;
     // don't draw trailing spaces or take them into the layout.

@@ -561,13 +561,13 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
 
     QTextBlock block = doc->findBlock(documentPosition);
     QTextLayout *layout = block.layout();
-    QPoint layoutPos = layout->position();
+    QPointF layoutPos = layout->position();
     const int relativePos = documentPosition - block.position();
     QTextLine line = layout->findLine(relativePos);
     if (!line.isValid())
         return;
 
-    const int y = layoutPos.y() + line.y();
+    const int y = qRound(layoutPos.y() + line.y());
     d->vbar->setValue(y);
 }
 
@@ -2375,13 +2375,14 @@ QRect QTextEditPrivate::cursorRect() const
     const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
     QTextBlock block = cursor.block();
     QTextLayout *layout = block.layout();
-    QPoint layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
+    QPointF layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
     const int relativePos = cursor.position() - block.position();
     QTextLine line = layout->findLine(relativePos);
     if (!line.isValid())
-        return QRect(layoutPos.x(), layoutPos.y(), 1, 10); // ###
+        return QRect(qRound(layoutPos.x()), qRound(layoutPos.y()), 1, 10); // ###
 
-    return QRect(layoutPos.x() + line.cursorToX(relativePos), layoutPos.y() + line.y(), 1, line.ascent() + line.descent());
+    return QRectF(layoutPos.x() + line.cursorToX(relativePos), layoutPos.y() + line.y(),
+                  1, line.ascent() + line.descent()).toRect();
 }
 
 /*!

@@ -332,8 +332,8 @@ public:
     mutable int used;
     float minWidth;
     float maxWidth;
-    QRect boundingRect;
-    QPoint position;
+    QRectF boundingRect;
+    QPointF position;
 
     int cursorPos;
     const QTextLayout::Selection *selections;

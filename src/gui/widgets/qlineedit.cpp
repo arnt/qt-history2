@@ -1808,14 +1808,14 @@ void QLineEdit::paintEvent(QPaintEvent *)
     QTextLine line = d->textLayout.lineAt(0);
 
     // locate cursor position
-    int cix = line.cursorToX(d->cursor);
+    int cix = qRound(line.cursorToX(d->cursor));
 
     // horizontal scrolling
     int minLB = qMax(0, -fm.minLeftBearing());
     int minRB = qMax(0, -fm.minRightBearing());
 
 
-    int widthUsed = line.textWidth() + 1 + minRB;
+    int widthUsed = qRound(line.textWidth()) + 1 + minRB;
     if ((minLB + widthUsed) <=  lineRect.width()) {
         switch (d->visualAlignment()) {
         case Qt::AlignRight:
@@ -2102,7 +2102,7 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.clearLines();
     QTextLine l = textLayout.createLine();
     l.layout(0x100000);
-    ascent = l.ascent();
+    ascent = qRound(l.ascent());
 }
 
 int QLineEditPrivate::xToPosInternal(int x, QTextLine::CursorPosition betweenOrOn) const
@@ -2127,7 +2127,7 @@ QRect QLineEditPrivate::cursorRect() const
     QRect cr = q->contentsRect();
     int cix = cr.x() - hscroll + innerMargin;
     QTextLine l = textLayout.lineAt(0);
-    cix += l.cursorToX(cursor);
+    cix += qRound(l.cursorToX(cursor));
     int ch = qMin(cr.height(), q->fontMetrics().height() + 1);
     return QRect(cix-4, cr.y() + (cr.height() -  ch) / 2, 8, ch);
 }

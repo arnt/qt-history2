@@ -305,7 +305,7 @@ QTextDocumentLayoutPrivate::HitPoint
 QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *position) const
 {
     const QTextLayout *tl = bl.layout();
-    QRect textrect = tl->rect();
+    QRect textrect = tl->rect().toRect();
     LDEBUG << "    checking block" << bl.position() << "point=" << point
            << "    tlrect" << textrect;
     if (!textrect.contains(point)) {
@@ -531,8 +531,8 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
 {
     Q_Q(const QTextDocumentLayout);
     const QTextLayout *tl = bl.layout();
-    QRect r = tl->boundingRect();
-    r.translate(offset + tl->position());
+    QRect r = tl->boundingRect().toRect();
+    r.translate((offset + tl->position()).toPoint());
     if (!r.intersects(context.rect))
         return;
 //      LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset << "br" << tl->boundingRect();
@@ -548,7 +548,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
 
     QColor bgCol = blockFormat.backgroundColor();
     if (bgCol.isValid()) {
-        QRect r = bl.layout()->rect();
+        QRect r = bl.layout()->rect().toRect();
         r.translate(offset);
         painter->fillRect(r , bgCol);
     }
@@ -592,15 +592,15 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QTextLine firstLine = bl.layout()->lineAt(0);
     Q_ASSERT(firstLine.isValid());
     QPoint pos = offset
-                 + bl.layout()->rect().topLeft()
-                 + QPoint(firstLine.x(), firstLine.y());
+                 + bl.layout()->rect().toRect().topLeft()
+                 + QPointF(firstLine.x(), firstLine.y()).toPoint();
 
     {
         Qt::Alignment a = blockFormat.alignment();
         if (a == Qt::AlignRight)
-            pos.rx() += firstLine.width() - firstLine.textWidth();
+            pos.rx() += qRound(firstLine.width() - firstLine.textWidth());
         else if (a == Qt::AlignHCenter)
-            pos.rx() += (firstLine.width() - firstLine.textWidth()) / 2;
+            pos.rx() += qRound((firstLine.width() - firstLine.textWidth()) / 2);
     }
 
     switch (style) {
@@ -653,7 +653,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
         case QTextListFormat::ListLowerAlpha:
         case QTextListFormat::ListUpperAlpha:
             painter->setFont(font);
-            painter->drawText(r.left(), pos.y() + fontMetrics.ascent(), itemText);
+            painter->drawText(QPointF(r.left(), pos.y() + fontMetrics.ascent()), itemText);
             break;
         case QTextListFormat::ListSquare:
             painter->fillRect(r, brush);
@@ -1297,7 +1297,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 //         qDebug() << "layout line y=" << currentYPos << "left=" << left << "right=" <<right;
 
         if (d->fixedColumnWidth != -1)
-            line.layout(d->fixedColumnWidth, QTextLine::UnitIsGlyphs);
+            line.layoutFixedColumnWidth(d->fixedColumnWidth);
         else
             line.layout(right - left);
 
@@ -1312,15 +1312,15 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 //            qDebug() << "    redo: left=" << left << " right=" << right;
             if (line.textWidth() > right-left) {
                 // lines min width more than what we have
-                findY(layoutStruct, line.textWidth());
+                findY(layoutStruct, qRound(line.textWidth()));
                 floatMargins(layoutStruct, &left, &right);
                 line.layout(line.textWidth());
             }
         }
 
         line.setPosition(QPoint(left - layoutStruct->x_left, layoutStruct->y - cy));
-        layoutStruct->y += line.ascent() + line.descent() + 1;
-        layoutStruct->widthUsed = qMax(layoutStruct->widthUsed, left - layoutStruct->x_left + line.textWidth());
+        layoutStruct->y += qRound(line.ascent() + line.descent() + 1);
+        layoutStruct->widthUsed = qRound(qMax(layoutStruct->widthUsed, left - layoutStruct->x_left + line.textWidth()));
     }
     layoutStruct->y += blockFormat.bottomMargin();
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)

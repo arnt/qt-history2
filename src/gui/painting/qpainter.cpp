@@ -3074,8 +3074,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                 bitmap = *p->mask();
                 QPainter pt(&bitmap);
                 Q_ASSERT(!pm.mask()->mask());
-                pt.drawPixmap(qRound(x), qRound(y), qRound(w), qRound(h), 
-                              *pm.mask(), qRound(sx), qRound(sy), qRound(sw), 
+                pt.drawPixmap(qRound(x), qRound(y), qRound(w), qRound(h),
+                              *pm.mask(), qRound(sx), qRound(sy), qRound(sw),
                               qRound(sh));
                 pt.end();
                 p->setMask(bitmap);
@@ -3215,7 +3215,7 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
     QTextLine line = layout.createLine();
     line.layout(0x01000000);
     const QScriptLine &sl = engine->lines[0];
-    line.draw(this, qRound(p.x()), qRound(p.y() - sl.ascent));
+    line.draw(this, QPointF(p.x(), p.y() - sl.ascent));
 }
 
 /*!
@@ -4241,7 +4241,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
                  ? *painter->d_ptr->state->pfont
                  : painter->d_ptr->state->font)
               : font);
-    QFontMetrics fm(fnt);
+    QFontMetricsF fm(fnt);
 
     QString text = str;
     // compatible behaviour to the old implementation. Replace
@@ -4268,7 +4268,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             ++chr;
         }
     } else if (!tabarraylen && !tabstops) {
-        tabstops = fm.width('x')*8;
+        tabstops = qRound(fm.width('x')*8);
     }
 
     if (hidemnmemonic || showmnemonic) {
@@ -4301,8 +4301,8 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         numUnderlines = 0;
 
     underlinePositions[numUnderlines] = -1;
-    int height = 0;
-    int width = 0;
+    float height = 0;
+    float width = 0;
 
     QTextLayout textLayout(text, fnt);
     textLayout.engine()->underlinePositions = underlinePositions;
@@ -4317,7 +4317,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             tf |= Qt::TextIncludeTrailingSpaces;
         textLayout.beginLayout((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);
 
-        int leading = fm.leading();
+        float leading = fm.leading();
         height = -leading;
 
         textLayout.clearLines();
@@ -4326,9 +4326,9 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             if (!l.isValid())
                 break;
 
-            l.layout(qRound(lineWidth));
+            l.layout(lineWidth);
             height += leading;
-            l.setPosition(QPoint(0, height));
+            l.setPosition(QPointF(0., height));
             height += l.ascent() + l.descent();
             width = qMax(width, l.textWidth());
         }
@@ -4358,7 +4358,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         for (int i = 0; i < textLayout.numLines(); i++) {
             QTextLine line = textLayout.lineAt(i);
 
-            line.draw(painter, qRound(r.x() + xoff + line.x()), qRound(r.y() + yoff));
+            line.draw(painter, QPointF(r.x() + xoff + line.x(), r.y() + yoff));
         }
 
         if (restore) {
