@@ -1352,9 +1352,18 @@ void VcprojGenerator::initOld()
 QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
 {
     QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
-    ret.replace("$(DEFINES)",  varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
-                varGlue("DEFINES"," -D"," -D",""));
-    ret.replace("$(INCPATH)",  this->var("MSVCPROJ_INCPATH"));
+
+    QStringList &defines = project->variables()["VCPROJ_MAKEFILE_DEFINES"];
+    if(defines.isEmpty())
+        defines.append(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
+                       varGlue("DEFINES"," -D"," -D",""));
+    ret.replace("$(DEFINES)", defines.first());
+
+    QStringList &incpath = project->variables()["VCPROJ_MAKEFILE_INCPATH"];
+    if(incpath.isEmpty())
+        incpath.append(this->var("MSVCPROJ_INCPATH"));
+    ret.replace("$(INCPATH)", incpath.first());
+
     return ret;
 }
 
