@@ -1826,7 +1826,7 @@ inline void DomUI::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("author")) {
             DomString *v = new DomString();
             v->read(e);
@@ -2069,7 +2069,7 @@ inline void DomIncludes::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("include")) {
             DomInclude *v = new DomInclude();
             v->read(e);
@@ -2135,7 +2135,7 @@ inline void DomInclude::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -2193,7 +2193,7 @@ inline void DomResources::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("include")) {
             DomResource *v = new DomResource();
             v->read(e);
@@ -2258,7 +2258,7 @@ inline void DomResource::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -2331,7 +2331,7 @@ inline void DomActionGroup::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("action")) {
             DomAction *v = new DomAction();
             v->read(e);
@@ -2460,7 +2460,7 @@ inline void DomAction::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("property")) {
             DomProperty *v = new DomProperty();
             v->read(e);
@@ -2544,7 +2544,7 @@ inline void DomActionRef::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -2595,7 +2595,7 @@ inline void DomImages::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("image")) {
             DomImage *v = new DomImage();
             v->read(e);
@@ -2661,7 +2661,7 @@ inline void DomImage::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("data")) {
             DomImageData *v = new DomImageData();
             v->read(e);
@@ -2731,7 +2731,7 @@ inline void DomImageData::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -2785,7 +2785,7 @@ inline void DomCustomWidgets::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("customwidget")) {
             DomCustomWidget *v = new DomCustomWidget();
             v->read(e);
@@ -2847,7 +2847,7 @@ inline void DomHeader::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -2914,7 +2914,7 @@ inline void DomCustomWidget::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("class")) {
             setElementClass(e.text());
             continue;
@@ -3076,7 +3076,7 @@ inline void DomProperties::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("property")) {
             DomPropertyData *v = new DomPropertyData();
             v->read(e);
@@ -3138,7 +3138,7 @@ inline void DomPropertyData::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -3187,7 +3187,7 @@ inline void DomSizePolicyData::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("hordata")) {
             setElementHorData(e.text().toInt());
             continue;
@@ -3267,7 +3267,7 @@ inline void DomLayoutDefault::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -3323,7 +3323,7 @@ inline void DomLayoutFunction::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -3373,7 +3373,7 @@ inline void DomTabStops::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("tabstop")) {
             m_tabStop.append(e.text());
             continue;
@@ -3451,7 +3451,7 @@ inline void DomLayout::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("property")) {
             DomProperty *v = new DomProperty();
             v->read(e);
@@ -3584,7 +3584,7 @@ inline void DomLayoutItem::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("widget")) {
             DomWidget *v = new DomWidget();
             v->read(e);
@@ -3711,7 +3711,7 @@ inline void DomRow::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("property")) {
             DomProperty *v = new DomProperty();
             v->read(e);
@@ -3775,7 +3775,7 @@ inline void DomColumn::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("property")) {
             DomProperty *v = new DomProperty();
             v->read(e);
@@ -3845,7 +3845,7 @@ inline void DomItem::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("property")) {
             DomProperty *v = new DomProperty();
             v->read(e);
@@ -3989,7 +3989,7 @@ inline void DomWidget::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("class")) {
             m_class.append(e.text());
             continue;
@@ -4221,7 +4221,7 @@ inline void DomSpacer::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("property")) {
             DomProperty *v = new DomProperty();
             v->read(e);
@@ -4288,7 +4288,7 @@ inline void DomColor::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("red")) {
             setElementRed(e.text().toInt());
             continue;
@@ -4375,7 +4375,7 @@ inline void DomColorGroup::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("color")) {
             DomColor *v = new DomColor();
             v->read(e);
@@ -4445,7 +4445,7 @@ inline void DomPalette::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("active")) {
             DomColorGroup *v = new DomColorGroup();
             v->read(e);
@@ -4544,7 +4544,7 @@ inline void DomFont::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("family")) {
             setElementFamily(e.text());
             continue;
@@ -4681,7 +4681,7 @@ inline void DomPoint::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("x")) {
             setElementX(e.text().toInt());
             continue;
@@ -4757,7 +4757,7 @@ inline void DomRect::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("x")) {
             setElementX(e.text().toInt());
             continue;
@@ -4859,7 +4859,7 @@ inline void DomSizePolicy::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("hsizetype")) {
             setElementHSizeType(e.text().toInt());
             continue;
@@ -4957,7 +4957,7 @@ inline void DomSize::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("width")) {
             setElementWidth(e.text().toInt());
             continue;
@@ -5031,7 +5031,7 @@ inline void DomDate::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("year")) {
             setElementYear(e.text().toInt());
             continue;
@@ -5118,7 +5118,7 @@ inline void DomTime::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("hour")) {
             setElementHour(e.text().toInt());
             continue;
@@ -5211,7 +5211,7 @@ inline void DomDateTime::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("hour")) {
             setElementHour(e.text().toInt());
             continue;
@@ -5333,7 +5333,7 @@ inline void DomStringList::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("string")) {
             m_string.append(e.text());
             continue;
@@ -5393,7 +5393,7 @@ inline void DomResourcePixmap::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -5442,7 +5442,7 @@ inline void DomString::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
     }
 
     m_text = node.text();
@@ -5561,7 +5561,7 @@ inline void DomProperty::read(const QDomElement &node)
         if (!n.isElement())
             continue;
         QDomElement e = n.toElement();
-        QString tag = e.tagName();
+        QString tag = e.tagName().toLower();
         if (tag == QLatin1String("bool")) {
             setElementBool(e.text());
             continue;
