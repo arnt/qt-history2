@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.h#2 $
+** $Id: //depot/qt/main/src/kernel/qconnect.h#3 $
 **
 ** Definition of QConnection class
 **
@@ -22,7 +22,7 @@ typedef void (QObject::*QMember)();		// pointer to member function
 class QConnection				// signal coupling
 {
 public:
-    QConnection( const QObject *, QMember );
+    QConnection( const QObject *, QMember, const char *memberName );
    ~QConnection() {}
 
     bool     isConnected() const { return obj != 0; }
@@ -34,13 +34,12 @@ public:
 #else
     QMember *member() const { return (QMember*)&mbr; }
 #endif
-
-    bool     connect( const QObject *, QMember);// connect object/member
-    bool     disconnect();			// disconnect current coupling
+    const char *memberName() const { return mbr_name; }
 
 private:
     QObject *obj;				// object connected to
     QMember  mbr;				// member connected to
+    const char *mbr_name;
 };
 
 
