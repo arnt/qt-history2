@@ -60,7 +60,8 @@
 
 
 /*! \fn QLayoutItem::QLayoutItem (int alignment)
-  Constructs a layout item with alignment \a alignment.
+  Constructs a layout item with an \a alignment
+  that is a bitwise OR of Qt::AlignmentFlags.
   Alignment may not be supported by all subclasses.
  */
 
@@ -69,7 +70,8 @@
 */
 
 
-/*! Sets the alignment of this item to \a a.
+/*! Sets the alignment of this item to \a a,
+  which is a bitwise OR of Qt::AlignmentFlags.
 */
 
 void QLayoutItem::setAlignment( int a )

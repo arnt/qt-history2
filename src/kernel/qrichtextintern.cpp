@@ -454,7 +454,9 @@ inline int QTextContainer::numberOfColumns() const
 
 }
 
-
+/*!
+  \sa Qt::AlignmentFlags
+*/
 inline int QTextContainer::alignment() const
 {
     if ( style->alignment() != QStyleSheetItem::Undefined )

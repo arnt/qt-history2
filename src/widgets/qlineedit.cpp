@@ -1070,7 +1070,7 @@ void QLineEdit::cut()
 
 /*!
   Sets the alignment of the line editor. Possible Values are Qt::AlignLeft,
-  Qt::AlignRight and Qt::AlignCenter.
+  Qt::AlignRight and Qt::AlignCenter - see Qt::AlignmentFlags.
   \sa alignment()
 */
 void QLineEdit::setAlignment( int flag ){
@@ -1086,7 +1086,7 @@ void QLineEdit::setAlignment( int flag ){
   Returns the current alignment of the line editor. Possible Values
   are Qt::AlignLeft, Qt::AlignRight and Qt::AlignCenter.
 
-  \sa setAlignment()
+  \sa setAlignment(), Qt::AlignmentFlags
 */
 
 int QLineEdit::alignment() const

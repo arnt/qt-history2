@@ -2822,7 +2822,7 @@ void QMultiLineEdit::resizeEvent( QResizeEvent *e )
   Sets the alignment. Possible values are \c AlignLeft, \c AlignCenter
   and \c AlignRight.
 
-  \sa alignment()
+  \sa alignment(), Qt::AlignmentFlags
 */
 void QMultiLineEdit::setAlignment( int flags )
 {
@@ -2835,7 +2835,7 @@ void QMultiLineEdit::setAlignment( int flags )
 /*!
   Returns the alignment.
 
-  \sa setAlignment()
+  \sa setAlignment(), Qt::AlignmentFlags.
 */
 int QMultiLineEdit::alignment() const
 {

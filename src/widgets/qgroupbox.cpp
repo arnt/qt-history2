@@ -185,7 +185,7 @@ void QGroupBox::setTitle( const QString &title )
 
   The default alignment is \c AlignLeft.
 
-  \sa setAlignment()
+  \sa setAlignment(), Qt::AlignmentFlags
 */
 
 /*!
@@ -201,7 +201,7 @@ void QGroupBox::setTitle( const QString &title )
   <li> \c AlignHCenter aligns the title text centered.
   </ul>
 
-  \sa alignment()
+  \sa alignment(), Qt::AlignmentFlags
 */
 
 void QGroupBox::setAlignment( int alignment )

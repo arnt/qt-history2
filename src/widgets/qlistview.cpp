@@ -2411,6 +2411,8 @@ QListView::WidthMode QListView::columnWidthMode( int c ) const
   Configures the logical column \a column to have alignment \a align.
   The alignment is ultimately passed to QListViewItem::paintCell()
   for each item in the view.
+
+  \sa Qt::AlignmentFlags
 */
 
 void QListView::setColumnAlignment( int column, int align )
@@ -2436,6 +2438,8 @@ void QListView::setColumnAlignment( int column, int align )
 /*!
   Returns the alignment of logical column \a column.  The default
   is \c AlignLeft.
+
+  \sa Qt::AlignmentFlags
 */
 
 int QListView::columnAlignment( int column ) const

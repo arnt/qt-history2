@@ -1519,7 +1519,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
   The \a internal argument is for internal purposes.
 
-  \sa width(), QPainter::boundingRect()
+  \sa width(), QPainter::boundingRect(), Qt::AlignmentFlags
 */
 
 QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,

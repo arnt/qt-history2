@@ -1921,8 +1921,7 @@ QCanvasItemList QCanvas::collisions(QPoint p) const
 */
 QCanvasItemList QCanvas::collisions(QRect r) const
 {
-    QCanvasRectangle i(r);
-    i.setCanvas((QCanvas*)this);
+    QCanvasRectangle i(r,(QCanvas*)this);
     QCanvasItemList l = i.collisions(TRUE);
     l.sort();
     return l;
@@ -3388,27 +3387,13 @@ void QCanvasText::setRect()
 /*!
   \fn int QCanvasText::textFlags() const
   Returns the currently set alignment flags.
-  \sa setTextFlags()
+  \sa setTextFlags(), Qt::AlignmentFlags
 */
 
 
 /*!
   Sets the alignment flags.  These are a bitwise OR or \e some of the
-  flags available to QPainter::drawText().
-
-  <ul>
-       <li> AlignLeft aligns to the left border.
-       <li> AlignRight aligns to the right border.
-       <li> AlignHCenter aligns horizontally centered.
-       <li> AlignTop aligns to the top border.
-       <li> AlignBottom aligns to the bottom border.
-       <li> AlignVCenter aligns vertically centered
-       <li> AlignCenter (= AlignHCenter | AlignVCenter)
-       <li> SingleLine ignores newline characters in the text.
-       <li> ExpandTabs expands tabulators.
-       <li> ShowPrefix displays "&x" as "x" underlined.
-       <li> GrayText grays out the text.
-  </ul>
+  flags available to QPainter::drawText() - see Qt::AlignmentFlags.
 
   The DontClip and WordBreak flags are not supported.
 */
