@@ -197,7 +197,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 		 this, SLOT( insertTags( const QString& )));
 
 	QPopupMenu *optionsMenu = new QPopupMenu( this );
-	menuBar->insertItem( tr( "&Options" ), optionsMenu );
+	menuBar->insertItem( tr( "O&ptions" ), optionsMenu );
 
 	optionsToolBar = new QToolBar( "Options", this, DockTop );
 	wrapAction = new QAction( this );
