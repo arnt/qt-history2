@@ -72,7 +72,7 @@ private:
 };
 
 
-static inline HDC alloc_mem_dc( HBITMAP hbm )
+static inline HDC alloc_mem_dc( HBITMAP hbm, HBITMAP *old_hbm )
 {
     HDC hdc = CreateCompatibleDC( qt_display_dc() );
     if ( !hdc ) {
@@ -85,7 +85,7 @@ static inline HDC alloc_mem_dc( HBITMAP hbm )
 	SelectPalette( hdc, QColor::hPal(), FALSE );
 	RealizePalette( hdc );
     }
-    SelectObject( hdc, hbm );
+    *old_hbm = (HBITMAP)SelectObject( hdc, hbm );
     return hdc;
 }
 
@@ -98,10 +98,9 @@ void QPixmap::initAlphaPixmap( uchar *bytes, int length, BITMAPINFO *bmi )
     if ( bytes )
 	memcpy( data->realAlphaBits, bytes, length );
 
-    DeleteObject( DATA_HBM );
-    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
-
-    DeleteObject( hBitmap );
+    DeleteObject( SelectObject( dc, data->old_hbm ) );
+    data->old_hbm = (HBITMAP)SelectObject( dc, hBitmap );
+    DATA_HBM = hBitmap;
 }
 
 
@@ -138,6 +137,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	hdc = 0;
 	DATA_HBM = 0;
+	data->old_hbm = 0;
 #if defined(QT_CHECK_RANGE)
 	if ( !make_null )			// invalid parameters
 	    qWarning( "QPixmap: Invalid pixmap parameters" );
@@ -222,7 +222,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 #endif
 	return;
     }
-    hdc = alloc_mem_dc( DATA_HBM );
+    hdc = alloc_mem_dc( DATA_HBM, &data->old_hbm );
 }
 
 
@@ -243,12 +243,15 @@ void QPixmap::deref()
 	    delete data->mask;
 	if ( data->maskpm )
 	    delete data->maskpm;
+	if ( DATA_HBM ) {
+	    DeleteObject( ( hdc ? SelectObject( hdc, data->old_hbm ) : (HGDIOBJ)DATA_HBM ) );
+	    DATA_HBM = 0;
+	    data->old_hbm = 0;
+	}
 	if ( hdc ) {
 	    DeleteDC( hdc );
 	    hdc = 0;
 	}
-	if ( DATA_HBM )
-	    DeleteObject( DATA_HBM );
 	delete data;
     }
 }
@@ -330,7 +333,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     memcpy( data->ppvBits, newbits, bpl*h );
 #endif
 
-    hdc = alloc_mem_dc( DATA_HBM );
+    hdc = alloc_mem_dc( DATA_HBM, &data->old_hbm  );
     delete [] newbits;
     if ( defOptim != NormalOptim )
 	setOptimization( defOptim );
@@ -1375,7 +1378,7 @@ void QPixmap::freeCell( bool terminate )
 	    DATA_HBM = CreateCompatibleBitmap( qt_display_dc(), data->w, data->h);
 	else
 	    DATA_HBM = CreateBitmap( data->w, data->h, 1, 1, 0 );
-	hdc = alloc_mem_dc( DATA_HBM );
+	hdc = alloc_mem_dc( DATA_HBM, &data->old_hbm );
 	BitBlt( hdc, 0, 0, data->w, data->h, mcp->handle(), 0, offset, SRCCOPY );
     }
     mcp->freeCell( offset, data->h );

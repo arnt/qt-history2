@@ -198,6 +198,9 @@ protected:
 	bool hasAlpha;
 #endif
 	Optimization optim;
+#if defined(Q_WS_WIN)
+	HBITMAP old_hbm;
+#endif
     } *data;
 private:
 #ifndef QT_NO_IMAGEIO
