@@ -1953,8 +1953,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		n = app_cursor;
 	    } else {
 		for(QWidget *p = widget; p; p = p->parentWidget()) {
-		    if(p->extra && p->extra->curs)
+		    if(p->extra && p->extra->curs) {
 			n = p->extra->curs;
+			break;
+		    }
 		}
 	    }
 	}
