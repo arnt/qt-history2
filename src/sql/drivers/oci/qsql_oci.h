@@ -26,9 +26,9 @@
 #define Q_EXPORT_SQLDRIVER_OCI Q_SQL_EXPORT
 #endif
 
-// Check if OCI supports scrollable cursors (Oracle version >= 9)
 #ifdef OCI_STMT_SCROLLABLE_READONLY
-#define QOCI_USES_VERSION_9
+// Switch this on if you want scrollable server-side cursors (Oracle version >= 9)
+//#define QOCI_USES_VERSION_9
 #endif
 
 class QOCIPrivate;
