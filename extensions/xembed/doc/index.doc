@@ -1,0 +1,25 @@
+/****************************************************************************
+** $Id: index.doc,v 1.8 1999/06/16 20:04:48 agulbra Exp $
+**
+** Index page
+**
+** Copyright (C) 1999-2000 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#if defined(DEBUG)
+static char ident[] = "$Id: index.doc,v 1.8 1999/06/16 20:04:48 agulbra Exp $";
+#endif
+
+/*! \page xembed.html
+
+<title>Qt XEmbed</title>
+</head>
+
+<body bgcolor=#ffffff>
+<h1 align=center>Qt XEmbed - run applications in a subwidget</h1>
+
+<hr>
+
+<p>
+*/
