@@ -63,7 +63,7 @@ class QVariantTypeBase;
 class QVariantValueBase;
 class QStringList;
 template <class T> class QValueList;
-template <class T> struct QValueListNode;
+template <class T> class QValueListNode;
 template <class Key, class T> class QMap;
 
 

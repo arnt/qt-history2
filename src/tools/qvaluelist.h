@@ -36,10 +36,15 @@
 #endif
 
 template <class T>
-struct QValueListNode
+class Q_EXPORT QValueListNode
 {
+public:
     QValueListNode( const T& t ) : data( t ) { }
     QValueListNode() { }
+#if defined(Q_TEMPLATEDLL)
+    // Workaround MS bug in memory de/allocation in DLL vs. EXE 
+    virtual ~QValueListNode() { }
+#endif
 
     QValueListNode<T>* next;
     QValueListNode<T>* prev;
@@ -181,6 +186,10 @@ public:
 	    delete this;
     }
 
+#if defined(Q_TEMPLATEDLL)
+    // Workaround MS bug in memory de/allocation in DLL vs. EXE 
+    virtual
+#endif
     ~QValueListPrivate() {
 	NodePtr p = node->next;
 	while( p != node ) {
