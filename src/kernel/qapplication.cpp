@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#269 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#270 $
 **
 ** Implementation of QApplication class
 **
@@ -980,11 +980,11 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char
 void QApplication::polish(QWidget* w)
 {
     if ( !w->testWState( WState_PaletteSet ) ) {
-	if ( palette( w ) != palette() )
+	if ( !palette( w ).isCopyOf( palette() ) )
 	    w->setPalette( palette( w ) );
     }
     if ( !w->testWState( WState_FontSet ) ) {
-	if ( font( w ) != font() )
+	if ( !font( w ).isCopyOf( font() ) )
 	    w->setFont( font( w ) );
     }
 
