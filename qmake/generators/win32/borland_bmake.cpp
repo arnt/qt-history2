@@ -375,7 +375,7 @@ BorlandMakefileGenerator::init()
     }
     MakefileGenerator::init();
     if ( !project->variables()["VERSION"].isEmpty()) {
-	QStringList l = QStringList::split('.', project->variables()["VERSION"].first(), ".");
+	QStringList l = QStringList::split('.', project->variables()["VERSION"].first());
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }

@@ -386,7 +386,7 @@ UnixMakefileGenerator::init()
 	project->variables()["VER_PAT"].append("0");
     }
     if ( project->variables()["VER_PAT"].isEmpty() ) {
-	QStringList l = QStringList::split('.', project->variables()["VERSION"].first(), ".");
+	QStringList l = QStringList::split('.', project->variables()["VERSION"].first());
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
 	project->variables()["VER_PAT"].append("0");
