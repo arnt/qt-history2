@@ -785,8 +785,7 @@ void QDnsAnswer::notify()
     it.toFirst();
     while( (dns=(QDns*)(it.current())) != 0 ) {
 	++it;
-	if ( notified.find( (void*)dns ) == 0 &&
-	     query->dns->find( (void*)dns ) != 0 ) {
+	if ( notified.find( (void*)dns ) == 0 ) {
 	    notified.insert( (void*)dns, (void*)42 );
 	    if ( rrs->count() == 0 ) {
 #if defined(QDNS_DEBUG)
@@ -1027,14 +1026,13 @@ void QDnsManager::answer()
     }
 
     QDnsQuery * q = queries[i];
-    queries.take( i );
     QDnsAnswer answer( a, q );
     answer.parse();
     answer.notify();
-    if ( answer.ok )
+    if ( answer.ok ) {
+	queries.take( i );
 	delete q;
-    else
-	queries.insert( i, q );
+    }
 }
 
 
@@ -1274,6 +1272,9 @@ QPtrList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		s.ascii(), r->label().ascii(), r->recordType() );
 #endif
 	QDnsDomain * d = m->domain( s );
+#if defined(QDNS_DEBUG)
+	qDebug( " - found %d RRs", d && d->rrs ? d->rrs->count() : 0 );
+#endif
 	if ( d->rrs )
 	    d->rrs->first();
 	QDnsRR * rr;
