@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#9 $
 **
 ** Implementation of QEucCodec class
 **
@@ -38,17 +38,17 @@ QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
-	if ( !ch.row && ch.cell < 0x80 ) {
-	    *cursor++ = ch.cell;
+	if ( !ch.row() && ch.cell() < 0x80 ) {
+	    *cursor++ = ch.cell();
 	} else {
-	    uchar b = (ch.row << 2) | (ch.cell >> 6);
-	    if ( ch.row < 0x08 ) {
+	    uchar b = (ch.row() << 2) | (ch.cell() >> 6);
+	    if ( ch.row() < 0x08 ) {
 		*cursor++ = 0xc0 | b;
 	    } else {
-		*cursor++ = 0xe0 | (ch.row >> 4);
+		*cursor++ = 0xe0 | (ch.row() >> 4);
 		*cursor++ = 0x80 | (b&0x3f);
 	    }
-	    *cursor++ = 0x80 | (ch.cell&0x3f);
+	    *cursor++ = 0x80 | (ch.cell()&0x3f);
 	}
     }
     *cursor = 0x00; // NUL terminator
@@ -217,11 +217,11 @@ public:
 	    if ( half ) {
 		QChar ch;
 		if ( swap ) {
-		    ch.row = *chars++;
-		    ch.cell = buf;
+		    ch.row() = *chars++;
+		    ch.cell() = buf;
 		} else {
-		    ch.row = buf;
-		    ch.cell = *chars++;
+		    ch.row() = buf;
+		    ch.cell() = *chars++;
 		}
 		if ( !headerdone ) {
 		    if ( ch == QChar::byteOrderSwapped )

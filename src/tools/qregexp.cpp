@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#67 $
 **
 ** Implementation of QRegExp class
 **
@@ -74,7 +74,7 @@
   character, you must write "\\." in C++ source, not "\.".
 
   \bug Case insensitive matching is not supported for non-ASCII
-  (non-8bit) characters. Any charcter with a non-zero QChar.row is
+  (non-8bit) characters. Any charcter with a non-zero QChar.row() is
   matched case sensitively even if the QRegExp is in case insensitive
   mode.
 */
@@ -339,8 +339,8 @@ int QRegExp::match( const QString &str, int index, int *len,
     } else {
 	if ( *d & CHR ) {
 	    QChar c( *d );
-	    if ( !cs && !c.row ) {		// case sensitive, # only 8bit
-		while ( pl && ( p->row || tolower(p->cell) != c.cell ) ) {
+	    if ( !cs && !c.row() ) {		// case sensitive, # only 8bit
+		while ( pl && ( p->row() || tolower(p->cell()) != c.cell() ) ) {
 		    p++;
 		    pl--;
 		}
@@ -388,7 +388,7 @@ bool matchcharclass( uint *rxd, QChar c )
     if ( clcode != CCL && clcode != CCN)
 	warning("QRegExp: Internal error, please report to qt-bugs@troll.no");
     uint numFields = *d & MVL;
-    uint cval = (((uint)(c.row)) << 8) | ((uint)c.cell);
+    uint cval = (((uint)(c.row())) << 8) | ((uint)c.cell());
     bool found = FALSE;
     for ( int i = 0; i < (int)numFields; i++ ) {
 	d++;
@@ -429,8 +429,8 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 	    if ( !pl )
 		return 0;
 	    QChar c( *d );
-	    if ( !cs && !c.row ) {		// case insensitive, #Only 8bit
-		if ( p->row || tolower(p->cell) != c.cell )
+	    if ( !cs && !c.row() ) {		// case insensitive, #Only 8bit
+		if ( p->row() || tolower(p->cell()) != c.cell() )
 		    return 0;
 		p++;
 		pl--;
@@ -485,8 +485,8 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		const QChar *first_p = p;
 		if ( *d & CHR ) {		// match char
 		    QChar c( *d );
-		    if ( !cs && !c.row ) {	// case insensitive, #only 8bit
-			while ( pl && !p->row && tolower(p->cell)==c.cell ) {
+		    if ( !cs && !c.row() ) {	// case insensitive, #only 8bit
+			while ( pl && !p->row() && tolower(p->cell())==c.cell() ) {
 			    p++;
 			    pl--;
 			}
@@ -536,8 +536,8 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		const QChar *first_p = p;
 		if ( *d & CHR ) {		// match char
 		    QChar c( *d );
-		    if ( !cs && !c.row ) {	// case insensitive, #only 8bit
-			if ( pl && !p->row && tolower(p->cell) == c.cell ) {
+		    if ( !cs && !c.row() ) {	// case insensitive, #only 8bit
+			if ( pl && !p->row() && tolower(p->cell()) == c.cell() ) {
 			    p++;
 			    pl--;
 			}
@@ -706,12 +706,12 @@ static uint char_val( const QChar **str, uint *strlength )   // get char value
 		    }
 		}
 		else {				// not an octal number
-		    v = (((uint)(p->row)) << 8) | ((uint)p->cell);
+		    v = (((uint)(p->row())) << 8) | ((uint)p->cell());
 		}
 	    }
 	}
     } else {
-	v = (((uint)(p->row)) << 8) | ((uint)p->cell);
+	v = (((uint)(p->row())) << 8) | ((uint)p->cell());
     }
     *str += len;
     *strlength -= len;
@@ -726,7 +726,7 @@ static uint *dump( uint *p )
 	if ( *p & CHR ) {
 	    QChar uc = (QChar)*p;
 	    char c = (char)uc;
-	    uint u = (((uint)(uc.row)) << 8) | ((uint)uc.cell);
+	    uint u = (((uint)(uc.row())) << 8) | ((uint)uc.cell());
 	    debug( "\tCHR\tU%04x (%c)", u, (c ? c : ' '));
 	    p++;
 	}

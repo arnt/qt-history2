@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#141 $
 **
 ** Implementation of QMenuBar class
 **
@@ -992,9 +992,10 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
-		if ( i >= 0 && isalnum(s[i+1]) ) {
-		    int k = s[i+1];
-		    if ( toupper(k) == c ) {
+		if ( i >= 0 &&
+			(s[i+1].isLetter() || s[i+1].isNumber()) )
+		{
+		    if ( s[i+1].upper() == c ) {
 			mi = m;
 			break;
 		    }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#214 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#215 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12494,40 +12494,21 @@ static const Q_INT8 *decimal_info [256] = {
 
 
 
-// ##### Unicode fns need to ifdef UNICODE (if we go that way)
-QChar uctolower(QChar c)
-{
-    QChar l = c;
-    l.toLower();
-    return l;
-}
-QChar uctoupper(QChar c)
-{
-    QChar u = c;
-    u.toUpper();
-    return u;
-}
-bool ucisspace(QChar c)
-{
-    return c.isSpace();
-}
-bool ucisdigit(QChar c)
-{
-    return c.row ? FALSE : isdigit(c.cell);
-}
+static
 int ucstrcmp( const QString &as, const QString &bs )
 {
-    if ( as.d == bs.d )
-	return 0;
     const QChar *a = as.unicode();
     const QChar *b = bs.unicode();
+    if ( a == b )
+	return 0;
     int l=QMIN(as.length(),bs.length());
     while ( l-- && *a == *b )
 	a++,b++;
     if ( l==-1 )
 	return ( as.length()-bs.length() );
-    return a->row == b->row ? a->cell - b->cell : a->row - b->row;
+    return a->unicode() - b->unicode();
 }
+static
 int ucstrncmp( const QChar *a, const QChar *b, int l )
 {
     while ( l-- && *a == *b )
@@ -12536,15 +12517,16 @@ int ucstrncmp( const QChar *a, const QChar *b, int l )
 	return 0;
     return *a - *b;
 }
+static
 int ucstrnicmp( const QChar *a, const QChar *b, int l )
 {
-    while ( l-- && uctolower(*a) == uctolower(*b) )
+    while ( l-- && a->lower() == b->lower() )
 	a++,b++;
     if ( l==-1 )
 	return 0;
-    QChar al = uctolower(*a);
-    QChar bl = uctolower(*b);
-    return al.row == bl.row ? al.cell - bl.cell : al.row - bl.row;
+    QChar al = a->lower();
+    QChar bl = b->lower();
+    return al.row() == bl.row() ? al.cell() - bl.cell() : al.row() - bl.row();
 }
 
 
@@ -12576,22 +12558,42 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 
 
 /*!
+  Returns whether the character is a printable character.  This is
+  and character of category Cc or Cn.  Note that this gives no indication
+  of whether the character is available in some font.
+*/
+bool QChar::isPrint() const
+{
+    Category c = category();
+    return c == Cc || c == Cn;
+}
+
+/*!
   Returns whether the character is a whitespace character.
 */
 bool QChar::isSpace() const
 {
-    if( !row )
-	if( cell >= 9 && cell <=13 ) return TRUE;
+    if( !row() )
+	if( cell() >= 9 && cell() <=13 ) return TRUE;
     return category() == Zs;
 }
 
 /*!
-  Returns whether the character is a punktuation mark
+  Returns whether the character is a mark (category Mn or Mc).
   */
 bool QChar::isMark() const
 {
     Category c = category();
     return (c == Mn || c == Mc);
+}
+
+/*!
+  Returns whether the character is puntuation (categories Pd, Ps, Pe, or Po).
+  */
+bool QChar::isPunct() const
+{
+    Category c = category();
+    return (c >= Pd && c <= Po);
 }
 
 /*!
@@ -12625,9 +12627,9 @@ bool QChar::isDigit() const
   */
 int QChar::digitValue() const
 {
-    const Q_INT8 *dec_row = decimal_info[row];
+    const Q_INT8 *dec_row = decimal_info[row()];
     if( !dec_row ) return -1;
-    return decimal_info[row][cell];
+    return decimal_info[row()][cell()];
 }
 
 /*!
@@ -12635,7 +12637,7 @@ int QChar::digitValue() const
   */
 QChar::Category QChar::category() const
 {
-  return (Category) *(category_info[row]+cell);
+  return (Category) *(category_info[row()]+cell());
 }
 
 /*!
@@ -12643,9 +12645,9 @@ QChar::Category QChar::category() const
   */
 QChar::Direction QChar::direction() const
 {
-  const Q_UINT8 *rowp = direction_info[row];
+  const Q_UINT8 *rowp = direction_info[row()];
   if(!rowp) return QChar::DirL;
-  return (Direction) ( *(rowp+cell) &0xf );
+  return (Direction) ( *(rowp+cell()) &0xf );
 }
 
 /*!
@@ -12654,9 +12656,9 @@ QChar::Direction QChar::direction() const
   */
 QChar::Joining QChar::joining() const
 {
-  const Q_UINT8 *rowp = direction_info[row];
+  const Q_UINT8 *rowp = direction_info[row()];
   if(!rowp) return QChar::OtherJoining;
-  return (Joining) ((*(rowp+cell) >> 4) &0x7);
+  return (Joining) ((*(rowp+cell()) >> 4) &0x7);
 }
 
 /*!
@@ -12664,9 +12666,9 @@ QChar::Joining QChar::joining() const
   */
 bool QChar::mirrored() const
 {
-  const Q_UINT8 *rowp = direction_info[row];
+  const Q_UINT8 *rowp = direction_info[row()];
   if(!rowp) return FALSE;
-  return *(rowp+cell)>128;
+  return *(rowp+cell())>128;
 }
 
 /*!
@@ -12675,10 +12677,10 @@ bool QChar::mirrored() const
   */
 QString QChar::decomposition() const
 {
-    const Q_UINT16 *r = decomp_info[row];
+    const Q_UINT16 *r = decomp_info[row()];
     if(!r) return QString::null;
 
-    Q_UINT16 pos = r[cell];
+    Q_UINT16 pos = r[cell()];
     if(!pos) return QString::null;
     pos+=2;
 
@@ -12695,43 +12697,37 @@ QString QChar::decomposition() const
   */
 QChar::Decomposition QChar::decompositionTag() const
 {
-  const Q_UINT16 *r = decomp_info[row];
+  const Q_UINT16 *r = decomp_info[row()];
   if(!r) return QChar::Single;
 
-  Q_UINT16 pos = r[cell];
+  Q_UINT16 pos = r[cell()];
   if(!pos) return QChar::Single;
 
   return (QChar::Decomposition) decomp_map[pos];
 }
 
 /*!
-  Transforms the char to its lowercase equivalent if it is uppercase,
-  leaves it untouched otherwise
+  Returns the lowercase equivalent if the character is uppercase,
+  or the character itself otherwise.
   */
-void QChar::toLower()
+QChar QChar::lower() const
 {
-  if(category() != Lu) return;
-
-  Q_UINT16 lower = *(case_info[row]+cell);
-  if(lower == 0) return;
-
-  cell = lower & 0xFF;
-  row = lower<<8;
+    if(category() != Lu) return *this;
+    Q_UINT16 lower = *(case_info[row()]+cell());
+    if(lower == 0) return *this;
+    return lower;
 }
 
 /*!
-  Transforms the char to its uppercase equivalent, if it is lowercase,
-  leaves it untouched otherwise
+  Returns the uppercase equivalent if the character is lowercase,
+  or the character itself otherwise.
   */
-void QChar::toUpper()
+QChar QChar::upper() const
 {
-  if(category() != Ll) return;
-
-  Q_UINT16 upper = *(case_info[row]+cell);
-  if(upper == 0) return;
-
-  cell = upper & 0xFF;
-  row = upper<<8;
+    if(category() != Ll) return *this;
+    Q_UINT16 upper = *(case_info[row()]+cell());
+    if(upper == 0) return *this;
+    return upper;
 }
 
 /*!
@@ -12773,12 +12769,12 @@ private:
 
 QLigature::QLigature( QChar c )
 {
-    const Q_UINT16 *r = ligature_info[c.row];
+    const Q_UINT16 *r = ligature_info[c.row()];
     if( !r )
 	ligatures = 0;
     else
     {
-	const Q_UINT16 pos = r[c.cell];
+	const Q_UINT16 pos = r[c.cell()];
 	ligatures = (Q_UINT16 *)&(ligature_map[pos]);
     }
     cur = ligatures;
@@ -12859,11 +12855,15 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
 } // format()
 
 /*!
-  Applies possible ligatures to a QString, mostly needed to get arabic text
-  rendered correctly, but will also put the compose the following two
-  chars to give one: QChar(0x0041) ('A') and QChar(0x0308) (Unicode accent
-  diaresis) to give QChar(0x00c4) (German A Umlaut).
-  */
+  Note that this function is not supported in Qt 2.0, and is merely
+  for experimental and illustrative purposes.  It is mainly of interest
+  to those experimenting with Arabic and other composition-rich texts.
+
+  Applies possible ligatures to a QString, useful when composition-rich
+  text requires rendering with glyph-poor fonts, but also
+  makes compositions such as QChar(0x0041) ('A') and QChar(0x0308)
+  (Unicode accent diaresis) giving QChar(0x00c4) (German A Umlaut).  
+*/
 void QString::compose()
 {
     unsigned int index=0, len;
@@ -12914,7 +12914,7 @@ static inline bool is_arabic(unsigned short x) {
 	    ((x >= 0xfe70) && (x <= 0xfeff)));
 }
 
-static inline bool is_neutral(QChar &ch) {
+static inline bool is_neutral(const QChar &ch) {
     QChar::Direction dir = ch.direction();
     return ((dir == QChar::DirB) ||
 	    (dir == QChar::DirS) ||
@@ -13344,6 +13344,11 @@ QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderMark((ushort)0xfeff);
 QT_STATIC_CONST_IMPL QChar QChar::byteOrderSwapped((ushort)0xfffe);
 
+QString::Data* QString::makeSharedNull()
+{
+    return shared_null=new Data;
+}
+
 // Uncomment this to get some useful statistics.
 // #define Q2HELPER(x) x
 
@@ -13513,11 +13518,6 @@ QString::QString( const char *str, uint maxSize )
   Deallocates any space reserved solely by this QString.
 */
 
-QString::~QString()
-{
-    deref();
-}
-
 void QString::real_detach()
 {
     setLength( length() );
@@ -13529,6 +13529,11 @@ void QString::deref()
 	delete d;
 	d = 0; // helps debugging
     }
+}
+
+void QString::Data::deleteSelf()
+{
+    delete this;
 }
 
 /*!
@@ -13545,14 +13550,14 @@ QString &QString::operator=( const QString &s )
 }
 
 /*!
-  Assigns a deep copy of \a ba, interpretted a classic C string, to
+  Assigns a deep copy of \a cs, interpretted a classic C string, to
   this string and returns a reference to this string.
 */
-QString &QString::operator=( const QByteArray& ba )
+QString &QString::operator=( const QCString& cs )
 {
     deref();
     uint l;
-    QChar *uc = asciiToUnicode(ba,&l);
+    QChar *uc = asciiToUnicode(cs,&l);
     d = new Data(uc,l,l);
     return *this;
 }
@@ -13963,7 +13968,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	} else {
 	    char in[64], out[128];
 	    strncpy(in,f.latin1(),63);
-	    char fch = format[pos+len];
+	    char fch = format[pos+len].latin1();
 	    in[f.length()] = fch;
 	    switch ( fch ) {
 	      case 'd': case 'i': case 'o': case 'u': case 'x': case 'X': {
@@ -14055,8 +14060,8 @@ int QString::find( QChar c, int index, bool cs ) const
 	while ( n-- && *uc != c )
 	    uc++;
     } else {
-	c = uctolower( c );
-	while ( n-- && uctolower(*uc) != c )
+	c = c.lower();
+	while ( n-- && uc->lower() != c )
 	    uc++;
     }
     if ( uint(uc - unicode()) >= length() )
@@ -14181,9 +14186,9 @@ int QString::contains( QChar c, bool cs ) const
 	    if ( *uc++ == c )
 		count++;
     } else {					// case insensitive
-	c = uctolower( c );
+	c = c.lower();
 	while ( n-- ) {
-	    if ( uctolower(*uc) == c )
+	    if ( uc->lower() == c )
 		count++;
 	    uc++;
 	}
@@ -14445,7 +14450,7 @@ QString QString::lower() const
     register QChar *p=s.d->unicode;
     if ( p ) {
 	while ( l-- ) {
-	    *p = uctolower(*p);
+	    *p = p->lower();
 	    p++;
 	}
     }
@@ -14472,7 +14477,7 @@ QString QString::upper() const
     register QChar *p=s.d->unicode;
     if ( p ) {
 	while ( l-- ) {
-	    *p = uctoupper(*p);
+	    *p = p->upper();
 	    p++;
 	}
     }
@@ -14500,7 +14505,7 @@ QString QString::stripWhiteSpace() const
 {
     if ( isEmpty() )				// nothing to do
 	return *this;
-    if ( !ucisspace(at(0)) && !ucisspace(at(length()-1)) )
+    if ( !at(0).isSpace() && !at(length()-1).isSpace() )
 	return *this;
 
     register const QChar *s = unicode();
@@ -14508,12 +14513,12 @@ QString QString::stripWhiteSpace() const
 
     int start = 0;
     int end = length() - 1;
-    while ( start<=end && ucisspace(s[start]) )	// skip white space from start
+    while ( start<=end && s[start].isSpace() )	// skip white space from start
 	start++;
     if ( start > end ) {			// only white space
 	return result;
     }
-    while ( end && ucisspace(s[end]) )		// skip white space from end
+    while ( end && s[end].isSpace() )		// skip white space from end
 	end--;
     int l = end - start + 1;
     result.setLength( l );
@@ -14551,9 +14556,9 @@ QString QString::simplifyWhiteSpace() const
     int outc=0;
     QChar *to	= result.d->unicode;
     while ( TRUE ) {
-	while ( from!=fromend && ucisspace(*from) )
+	while ( from!=fromend && from->isSpace() )
 	    from++;
-	while ( from!=fromend && !ucisspace(*from) )
+	while ( from!=fromend && !from->isSpace() )
 	    to[outc++] = *from++;
 	if ( from!=fromend )
 	    to[outc++] = ' ';
@@ -14845,10 +14850,10 @@ static bool
 ok_in_base( QChar c, int base )
 {
     if ( base <= 10 )
-	return ucisdigit(c) && c.digitValue() < base;
+	return c.isDigit() && c.digitValue() < base;
     else
-	return ucisdigit(c) || (c >= 'a' && c < char('a'+base-10))
-	                    || (c >= 'A' && c < char('A'+base-10));
+	return c.isDigit() || (c >= 'a' && c < char('a'+base-10))
+	                   || (c >= 'A' && c < char('A'+base-10));
 }
 
 /*!
@@ -14869,7 +14874,7 @@ long QString::toLong( bool *ok, int base ) const
     int neg = 0;
     if ( !p )
 	goto bye;
-    while ( l && ucisspace(*p) )			// skip leading space
+    while ( l && p->isSpace() )			// skip leading space
 	l--,p++;
     if ( l && *p == '-' ) {
 	l--;
@@ -14886,7 +14891,7 @@ long QString::toLong( bool *ok, int base ) const
     while ( l && ok_in_base(*p,base) ) {
 	l--;
 	int dv;
-	if ( ucisdigit(*p) ) {
+	if ( p->isDigit() ) {
 	    dv = p->digitValue();
 	} else {
 	    if ( *p >= 'a' && *p <= 'z' )
@@ -14901,7 +14906,7 @@ long QString::toLong( bool *ok, int base ) const
     }
     if ( neg )
 	val = -val;
-    while ( l && ucisspace(*p) )			// skip trailing space
+    while ( l && p->isSpace() )			// skip trailing space
 	l--,p++;
     if ( !l )
 	is_ok = TRUE;
@@ -14929,7 +14934,7 @@ ulong QString::toULong( bool *ok, int base ) const
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;
-    while ( l && ucisspace(*p) )			// skip leading space
+    while ( l && p->isSpace() )			// skip leading space
 	l--,p++;
     if ( *p == '+' )
 	l--,p++;
@@ -14940,7 +14945,7 @@ ulong QString::toULong( bool *ok, int base ) const
     while ( l && ok_in_base(*p,base) ) {
 	l--;
 	uint dv;
-	if ( ucisdigit(*p) ) {
+	if ( p->isDigit() ) {
 	    dv = p->digitValue();
 	} else {
 	    if ( *p >= 'a' && *p <= 'z' )
@@ -14954,7 +14959,7 @@ ulong QString::toULong( bool *ok, int base ) const
 	p++;
     }
 
-    while ( l && ucisspace(*p) )			// skip trailing space
+    while ( l && p->isSpace() )			// skip trailing space
 	l--,p++;
     if ( !l )
 	is_ok = TRUE;
@@ -15201,7 +15206,7 @@ QString &QString::setNum( double n, char f, int prec )
   string if necessary, filling with spaces.
 
   This method is redundant in Qt 2.x, because operator[] will
-  expand the string as necessary.
+  expand the string as necessary, if you are assigning a value.
 */
 
 void QString::setExpand( uint index, QChar c )
@@ -15477,12 +15482,16 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 */
 
 /*!
-  \fn QChar& QString::operator[](int)
+  \fn QCharRef QString::operator[](int)
 
-  Returns a reference to the character at \a i, expanding
-  the string with QChar::null if necessary.  The resulting reference
+  Returns an object that references the character at \a i.
+  This reference
   can then be assigned to, or otherwise used immediately, but
   becomes invalid once further modifications are made to the string.
+  The QCharRef internal class can be used much like a constant QChar, but
+  if you assign to it, you change the original string (which enlarges
+  and detaches itself). You will get compilation errors if you try to
+  use the result as anything but a QChar.
 */
 
 /*!
@@ -15846,7 +15855,7 @@ const void* qt_winTchar(const QString& str_in, bool addnul)
 #if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
     EXTEND
     for ( int i=str.length(); i--; )
-	buf[i] = uc[i].row << 8 | uc[i].cell;
+	buf[i] = uc[i].row() << 8 | uc[i].cell();
     if ( addnul )
 	buf[str.length()] = 0;
 #else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#12 $
 **
 ** Localization database support.
 **
@@ -597,8 +597,8 @@ void QTranslator::squeeze()
 		res = items[i].result;
 		uint k;
 		for( k=0; k<res.length(); k++ ) {
-		    b[(int)sp++] = res[(int)k].row;
-		    b[(int)sp++] = res[(int)k].cell;
+		    b[(int)sp++] = res[(int)k].row();
+		    b[(int)sp++] = res[(int)k].cell();
 		}
 		i--;
 		j--;

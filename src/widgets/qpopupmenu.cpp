@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#216 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#217 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1446,9 +1446,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    QString s = m->text();
 	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
-		if ( i >= 0 && isalnum(s[i+1]) ) {
-		    int k = s[i+1];
-		    if ( toupper(k) == c ) {
+		if ( i >= 0 &&
+			( s[i+1].isLetter() || s[i+1].isNumber() ) ) {
+		    if ( s[i+1].upper() == c ) {
 			mi = m;
 			ok_key = TRUE;
 			break;

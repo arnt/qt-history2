@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#61 $
 **
 ** Implementation of QTextCodec class
 **
@@ -683,8 +683,8 @@ class QTextCodecFromIOD : public QTextCodec {
 
     QCString n;
 
-    // If from_unicode_page[row][cell] is 0 and from_unicode_page_multibyte,
-    //  use from_unicode_page_multibyte[row][cell] as string.
+    // If from_unicode_page[row()][cell()] is 0 and from_unicode_page_multibyte,
+    //  use from_unicode_page_multibyte[row()][cell()] as string.
     char** from_unicode_page;
     char*** from_unicode_page_multibyte;
     char unkn;
@@ -779,29 +779,29 @@ public:
 		if (unicode >= 0 && unicode <= 0xffff)
 		{
 		    QChar ch((ushort)unicode);
-		    if (!from_unicode_page[ch.row]) {
-			from_unicode_page[ch.row] = new char[256];
+		    if (!from_unicode_page[ch.row()]) {
+			from_unicode_page[ch.row()] = new char[256];
 			for (int i=0; i<256; i++)
-			    from_unicode_page[ch.row][i]=0;
+			    from_unicode_page[ch.row()][i]=0;
 		    }
 		    if ( mb_unicode ) {
-			from_unicode_page[ch.row][ch.cell] = 0;
+			from_unicode_page[ch.row()][ch.cell()] = 0;
 			if (!from_unicode_page_multibyte) {
 			    from_unicode_page_multibyte = new char**[256];
 			    for (int i=0; i<256; i++)
 				from_unicode_page_multibyte[i]=0;
 			}
-			if (!from_unicode_page_multibyte[ch.row]) {
-			    from_unicode_page_multibyte[ch.row] = new char*[256];
+			if (!from_unicode_page_multibyte[ch.row()]) {
+			    from_unicode_page_multibyte[ch.row()] = new char*[256];
 			    for (int i=0; i<256; i++)
-				from_unicode_page_multibyte[ch.row][i] = 0;
+				from_unicode_page_multibyte[ch.row()][i] = 0;
 			}
 			mb[nmb++] = 0;
-			from_unicode_page_multibyte[ch.row][ch.cell]
+			from_unicode_page_multibyte[ch.row()][ch.cell()]
 			    = qstrdup(mb);
 			*mb_unicode = unicode;
 		    } else {
-			from_unicode_page[ch.row][ch.cell] = (char)byte;
+			from_unicode_page[ch.row()][ch.cell()] = (char)byte;
 			if ( to_unicode )
 			    to_unicode[byte] = unicode;
 			else
@@ -917,14 +917,14 @@ public:
     	    if ( ch == QChar::null ) {
 		// special
 		*cursor++ = 0;
-	    } else if ( from_unicode_page[ch.row] &&
-		from_unicode_page[ch.row][ch.cell] )
+	    } else if ( from_unicode_page[ch.row()] &&
+		from_unicode_page[ch.row()][ch.cell()] )
 	    {
-		*cursor++ = from_unicode_page[ch.row][ch.cell];
+		*cursor++ = from_unicode_page[ch.row()][ch.cell()];
 		lout++;
 	    } else if ( from_unicode_page_multibyte &&
-		      from_unicode_page_multibyte[ch.row] &&
-		      (s=from_unicode_page_multibyte[ch.row][ch.cell]) )
+		      from_unicode_page_multibyte[ch.row()] &&
+		      (s=from_unicode_page_multibyte[ch.row()][ch.cell()]) )
 	    {
 		while (*s) {
 		    *cursor++ = *s++;
@@ -1329,7 +1329,7 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     int i;
     int u;
     for( i=0; i<len; i++ ) {
-	u = uc[i].cell + 256* uc[i].row;
+	u = uc[i].cell() + 256* uc[i].row();
 	r[i] = ( u < (int)reverseMap->size() ) ? (*reverseMap)[u] :  '?';
     }
     r[len] = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#8 $
 **
 ** Implementation of QJisCodec class
 **
@@ -114,18 +114,18 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	uint j;
-	if ( ch.row == 0x00 && ch.cell < 0x80 ) {
+	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // Ascii
 	    if (state != JISX0201_Latin ||
-		ch.cell == ReverseSolidus || ch.cell == Tilde) {
+		ch.cell() == ReverseSolidus || ch.cell() == Tilde) {
 		state = Ascii;
 	    }
-	    j = ch.cell;
-	} else if ((j = conv->UnicodeToJisx0201(ch.row, ch.cell)) != 0) {
+	    j = ch.cell();
+	} else if ((j = conv->UnicodeToJisx0201(ch.row(), ch.cell())) != 0) {
 	    if (j < 0x80) {
 		// JIS X 0201 Latin
 		if (state != Ascii ||
-		    ch.cell == YenSign || ch.cell == Overline) {
+		    ch.cell() == YenSign || ch.cell() == Overline) {
 		    state = JISX0201_Latin;
 		}
 	    } else {
@@ -133,10 +133,10 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 		state = JISX0201_Kana;
 		j &= 0x7f;
 	    }
-	} else if ((j = conv->UnicodeToJisx0208(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0208(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0208
 	    state = JISX0208_1983;
-	} else if ((j = conv->UnicodeToJisx0212(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0212(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0212
 	    state = JISX0212;
 	} else {

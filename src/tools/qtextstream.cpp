@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#106 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#107 $
 **
 ** Implementation of QTextStream class
 **
@@ -176,7 +176,7 @@ void QTextStream::init()
     decoder = 0;
     doUnicodeHeader = TRUE;		//default to autodetect
     latin1 = TRUE; //### mapper = QTextCodec::local
-    internalOrder = QChar::networkOrdered; //default to network order
+    internalOrder = QChar::networkOrdered(); //default to network order
 }
 
 /*!
@@ -526,11 +526,11 @@ QChar QTextStream::ts_getc()
 	if ( c1 == 0xfe && c2 == 0xff ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    internalOrder = QChar::networkOrdered;   //network order
+	    internalOrder = QChar::networkOrdered();   //network order
 	} else if ( c1 == 0xff && c2 == 0xfe ) {
 	    mapper = 0;
 	    latin1 = FALSE;
-	    internalOrder = !QChar::networkOrdered;   //reverse network order
+	    internalOrder = !QChar::networkOrdered();   //reverse network order
 	} else {
 	    if ( c2 != EOF )
 		dev->ungetch( c2 );
@@ -585,21 +585,21 @@ void QTextStream::ts_putc( QChar c )
 	QCString block = mapper->fromUnicode( s, len );
 	dev->writeBlock( block, len );
     } else if ( latin1 ) {
-	if( c.row )
+	if( c.row() )
 	    dev->putch( '?' ); //######unknown character???
 	else
-	    dev->putch( c.cell );
+	    dev->putch( c.cell() );
     } else {
 	if ( doUnicodeHeader ) {
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
 	if ( isNetworkOrder() ) {
-	    dev->putch(c.row);
-	    dev->putch(c.cell);
+	    dev->putch(c.row());
+	    dev->putch(c.cell());
 	} else {
-	    dev->putch(c.cell);
-	    dev->putch(c.row);
+	    dev->putch(c.cell());
+	    dev->putch(c.row());
 	}
     }
 }
@@ -620,7 +620,7 @@ bool QTextStream::ts_isdigit(QChar c)
     else // ######## see QString ucdigit()
 	return isdigit(ch&0xff);
 #endif
-    return !c.row && isdigit(c.cell); //###
+    return !c.row() && isdigit(c.cell()); //###
 }
 
 bool QTextStream::ts_isspace( QChar c )
@@ -631,7 +631,7 @@ bool QTextStream::ts_isspace( QChar c )
     else // ######## see QString ucspace()
 	return isspace(ch&0xff);
 #endif
-    return !c.row && isspace(c.cell); //#############################3
+    return !c.row() && isspace(c.cell()); //#############################3
 }
 
 void QTextStream::ts_ungetc( QChar c )
@@ -644,12 +644,12 @@ void QTextStream::ts_ungetc( QChar c )
 	if ( isNetworkOrder() ) {
 	    //stream is network ordered
 	// Reverse of put
-	    dev->ungetch(c.cell);
-	    dev->ungetch(c.row);
+	    dev->ungetch(c.cell());
+	    dev->ungetch(c.row());
 	} else {
 	// Reverse of put
-	    dev->ungetch(c.row);
-	    dev->ungetch( c.cell );
+	    dev->ungetch(c.row());
+	    dev->ungetch( c.cell() );
 	}
     }
 }
@@ -1903,13 +1903,13 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = QChar::networkOrdered;
+	internalOrder = QChar::networkOrdered();
 	break;
     case UnicodeReverse:
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	internalOrder = !QChar::networkOrdered;   //reverse network ordered
+	internalOrder = !QChar::networkOrdered();   //reverse network ordered
 	break;
     case RawUnicode:
 	mapper = 0;

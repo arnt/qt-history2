@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeucjpcodec.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qeucjpcodec.cpp#7 $
 **
 ** Implementation of QEucJpCodec class
 **
@@ -97,10 +97,10 @@ QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	uint j;
-	if ( ch.row == 0x00 && ch.cell < 0x80 ) {
+	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
-	    *cursor++ = ch.cell;
-	} else if ((j = conv->UnicodeToJisx0201(ch.row, ch.cell)) != 0) {
+	    *cursor++ = ch.cell();
+	} else if ((j = conv->UnicodeToJisx0201(ch.row(), ch.cell())) != 0) {
 	    if (j < 0x80) {
 		// JIS X 0201 Latin ?
 		*cursor++ = j;
@@ -109,11 +109,11 @@ QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
 		*cursor++ = Ss2;
 		*cursor++ = j;
 	    }
-	} else if ((j = conv->UnicodeToJisx0208(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0208(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0208
 	    *cursor++ = (j >> 8)   | 0x80;
 	    *cursor++ = (j & 0xff) | 0x80;
-	} else if ((j = conv->UnicodeToJisx0212(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0212(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0212
 	    *cursor++ = Ss3;
 	    *cursor++ = (j >> 8)   | 0x80;

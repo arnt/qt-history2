@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#94 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1856,7 +1856,7 @@ static void makeFixedStrings()
     QString glyphname;
     do {
 	vector.sprintf( "/FE%d [", (int)unicodevalues[i].cs );
-	glyphname = 0;
+	glyphname = "";
 	l = 0;
 	for( k=0; k<128; k++ ) {
 	    while( unicodetoglyph[l].u < k )
@@ -1999,7 +1999,7 @@ void QPSPrinter::setFont( const QFont & f )
     i = 0;
     while( (unsigned int)i < ps.length() ) {
 	if ( i == 0 || ps[i-1] == ' ' ) {
-	    ps[i] = (char)toupper( ps[i] );
+	    ps[i] = ps[i].upper();
 	    if ( i )
 		ps.remove( i-1, 1 );
 	    else

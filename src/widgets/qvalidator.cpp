@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#30 $
 **
 ** Implementation of validator classes.
 **
@@ -335,7 +335,7 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 	// has decimal point, now count digits after that
 	i++;
 	int j = i;
-	while( isdigit( input[j] ) )
+	while( input[j].isDigit() )
 	    j++;
 	if ( j - i > d )
 	    return QValidator::Valid;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#203 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#204 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1030,14 +1030,14 @@ void QLineEdit::newMark( int pos, bool copy )
 void QLineEdit::markWord( int pos )
 {
     int i = pos - 1;
-    while ( i >= 0 && isprint(tbuf.at(i)) && !isspace(tbuf.at(i)) )
+    while ( i >= 0 && tbuf.at(i).isPrint() && !tbuf.at(i).isPrint() )
 	i--;
     i++;
     markAnchor = i;
 
     int lim = tbuf.length();
     i = pos;
-    while ( i < lim && isprint(tbuf.at(i)) && !isspace(tbuf.at(i)) )
+    while ( i < lim && tbuf.at(i).isPrint() && !tbuf.at(i).isPrint() )
 	i++;
     markDrag = i;
 

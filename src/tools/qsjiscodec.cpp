@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsjiscodec.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qsjiscodec.cpp#8 $
 **
 ** Implementation of QSjisCodec class
 **
@@ -91,17 +91,17 @@ QCString QSjisCodec::fromUnicode(const QString& uc, int& len_in_out) const
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	uint j;
-	if ( ch.row == 0x00 && ch.cell < 0x80 ) {
+	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
-	    *cursor++ = ch.cell;
-	} else if ((j = conv->UnicodeToJisx0201(ch.row, ch.cell)) != 0) {
+	    *cursor++ = ch.cell();
+	} else if ((j = conv->UnicodeToJisx0201(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0201 Latin or JIS X 0201 Kana
 	    *cursor++ = j;
-	} else if ((j = conv->UnicodeToSjis(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToSjis(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0208
 	    *cursor++ = (j >> 8);
 	    *cursor++ = (j & 0xff);
-	} else if ((j = conv->UnicodeToJisx0212(ch.row, ch.cell)) != 0) {
+	} else if ((j = conv->UnicodeToJisx0212(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0212 (can't be encoded in ShiftJIS !)
 	    *cursor++ = 0x81;	// white square
 	    *cursor++ = 0xa0;	// white square

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#169 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#170 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1161,13 +1161,13 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 	if ( info.isDir() )
 	    d->currentFileName = info.absFilePath();
 	else
-	    d->currentFileName = 0;
+	    d->currentFileName = QString::null;
     } else if ( info.isFile() && mode() == ExistingFiles ) {
 	d->currentFileName = info.absFilePath();
     } else if ( info.isFile() || (mode() == AnyFile && !info.isDir()) ) {
 	d->currentFileName = info.absFilePath();
     } else {
-	d->currentFileName = 0;
+	d->currentFileName = QString::null;
     }
     if ( updatelined && !d->currentFileName.isNull() ) {
 	// If the selection is valid, or if its a directory, allow OK.
@@ -1458,7 +1458,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	if ( f.isDir() ) {
 	    *workingDirectory = result;
 	} else {
-	    result = 0;
+	    result = QString::null;
 	}
     }
     delete dialog;

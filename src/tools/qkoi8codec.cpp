@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#11 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -161,37 +161,37 @@ QCString QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	const QChar ch = uc[i];
-	if ( ch.row ) {
-	    if ( ch.row == 0x25 ) {
-		if ( ch.cell < n_unicode_to_koi8_25 )
-		    *cursor++ = unicode_to_koi8_25[ch.cell];
+	if ( ch.row() ) {
+	    if ( ch.row() == 0x25 ) {
+		if ( ch.cell() < n_unicode_to_koi8_25 )
+		    *cursor++ = unicode_to_koi8_25[ch.cell()];
 		else
 		    *cursor++ = unkn;
-	    } else if ( ch.row == 0x04 ) {
-		if ( ch.cell < n_unicode_to_koi8_04 )
-		    *cursor++ = unicode_to_koi8_04[ch.cell];
+	    } else if ( ch.row() == 0x04 ) {
+		if ( ch.cell() < n_unicode_to_koi8_04 )
+		    *cursor++ = unicode_to_koi8_04[ch.cell()];
 		else
 		    *cursor++ = unkn;
-	    } else if ( ch.row == 0x22 ) {
-		if ( ch.cell == 0x1A )
+	    } else if ( ch.row() == 0x22 ) {
+		if ( ch.cell() == 0x1A )
 		    *cursor++ = 0x96;
-		else if ( ch.cell == 0x48 )
+		else if ( ch.cell() == 0x48 )
 		    *cursor++ = 0x97;
-		else if ( ch.cell == 0x64 )
+		else if ( ch.cell() == 0x64 )
 		    *cursor++ = 0x98;
-		else if ( ch.cell == 0x65 )
+		else if ( ch.cell() == 0x65 )
 		    *cursor++ = 0x99;
 		else
 		    *cursor++ = unkn;
-	    } else if ( ch.row == 0x23 ) {
-		if ( ch.cell == 0x20 )
+	    } else if ( ch.row() == 0x23 ) {
+		if ( ch.cell() == 0x20 )
 		    *cursor++ = 0x93;
-		else if ( ch.cell == 0x21 )
+		else if ( ch.cell() == 0x21 )
 		    *cursor++ = 0x9B;
 		else
 		    *cursor++ = unkn;
-	    } else if ( ch.row == 0x20 ) {
-		if ( ch.cell == 0x22 )
+	    } else if ( ch.row() == 0x20 ) {
+		if ( ch.cell() == 0x22 )
 		    *cursor++ = 0x95;
 		else
 		    *cursor++ = unkn;
@@ -199,8 +199,8 @@ QCString QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 		*cursor++ = unkn;
 	    }
 	} else {
-	    if ( ch.cell < 128 ) {
-		*cursor++ = ch.cell;
+	    if ( ch.cell() < 128 ) {
+		*cursor++ = ch.cell();
 	    } else {
 		*cursor++ = unkn;
 	    }

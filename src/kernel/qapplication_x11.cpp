@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#465 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#466 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2178,9 +2178,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			       QEvent::KeyPress : QEvent::KeyRelease;
 		
 		short *s = event->xclient.data.s;
-		QChar c;
-		c.row = s[5];
-		c.cell = s[6];
+		QChar c(s[6],s[5]);
 		QString text;
 		if (c != QChar::null)
 		    text = c;

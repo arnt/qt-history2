@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#63 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#64 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -143,7 +143,7 @@ static void parsePrintcap( QListView * printers )
 		}
 		// then look for a real comment
 		j = i+1;
-		while( printerDesc[j] && isspace(printerDesc[j]) )
+		while( printerDesc[j].isSpace() )
 		    j++;
 		if ( printerDesc[j] != ':' ) {
 		    printerComment = printerDesc.mid( i, j-i );
@@ -156,10 +156,10 @@ static void parsePrintcap( QListView * printers )
 		    // point k at the end of remote host name
 		    while( printerDesc[i] != '=' )
 			i++;
-		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
+		    while( printerDesc[i] == '=' || printerDesc[i].isSpace() )
 			i++;
 		    j = i;
-		    while( printerDesc[j] != ':' && printerDesc[j] )
+		    while( j < (int)printerDesc.length() && printerDesc[j] != ':' )
 			j++;
 
 		    // and stuff that into the string
@@ -170,7 +170,7 @@ static void parsePrintcap( QListView * printers )
 		perhapsAddPrinter( printers, printerName, printerHost,
 				   printerComment );
 	    // chop away the line, for processing the next one
-	    printerDesc = 0;
+	    printerDesc = "";
 	}
     }
     delete[] line;
@@ -288,21 +288,21 @@ static char * parsePrintersConf( QListView * printers )
 			QRegExp( QString::fromLatin1(": *use *=") ) );
 		    while( printerDesc[i] != '=' )
 			i++;
-		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
+		    while( printerDesc[i] == '=' || printerDesc[i].isSpace() )
 			i++;
 		    j = i;
-		    while( printerDesc[j] != ':' &&
-			   printerDesc[j] != ',' &&
-			   printerDesc[j] )
+		    while( j < (int)printerDesc.length() &&
+			   printerDesc[j] != ':' &&
+			   printerDesc[j] != ',' )
 			j++;
 		    // that's our default printer
 		    defaultPrinter = qstrdup( printerDesc.mid( i, j-i ).ascii() );
-		    printerName = 0;
-		    printerDesc = 0;
+		    printerName = "";
+		    printerDesc = "";
 		} else if ( printerName == QString::fromLatin1("_all") ) {
 		    // skip it.. any other cases we want to skip?
-		    printerName = 0;
-		    printerDesc = 0;
+		    printerName = "";
+		    printerDesc = "";
 		}
 
 		if ( j > 0 ) {
@@ -321,24 +321,24 @@ static char * parsePrintersConf( QListView * printers )
 		    // point k at the end of remote host name
 		    while( printerDesc[i] != '=' )
 			i++;
-		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
+		    while( printerDesc[i] == '=' || printerDesc[i].isSpace() )
 			i++;
 		    j = i;
-		    while( printerDesc[j] != ':' &&
-			   printerDesc[j] != ',' &&
-			   printerDesc[j] )
+		    while( j < (int)printerDesc.length() &&
+			   printerDesc[j] != ':' &&
+			   printerDesc[j] != ',' )
 			j++;
 		    // and stuff that into the string
 		    printerHost = printerDesc.mid( i, j-i );
 		    // maybe stick the remote printer name into the comment
 		    if ( printerDesc[j] == ',' ) {
 			i = ++j;
-			while( isspace( printerDesc[i] ) )
+			while( printerDesc[i].isSpace() )
 			    i++;
 			j = i;
-			while( printerDesc[j] != ':' &&
-			       printerDesc[j] != ',' &&
-			       printerDesc[j] )
+			while( j < (int)printerDesc.length() &&
+			       printerDesc[j] != ':' &&
+			       printerDesc[j] != ',' )
 			    j++;
 			if ( printerName != printerDesc.mid( i, j-i ) ) {
 			    printerComment = QString::fromLatin1("Remote name: ");
@@ -351,7 +351,7 @@ static char * parsePrintersConf( QListView * printers )
 		perhapsAddPrinter( printers, printerName, printerHost,
 				   printerComment );
 	    // chop away the line, for processing the next one
-	    printerDesc = 0;
+	    printerDesc = "";
 	}
     }
     delete[] line;

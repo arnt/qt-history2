@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#155 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1169,17 +1169,17 @@ int QFontMetrics::descent() const
 inline bool inFont(XFontStruct *f, QChar ch )
 {
     if ( f->max_byte1 ) {
-	return ch.cell >= f->min_char_or_byte2
-	    && ch.cell <= f->max_char_or_byte2
-	    && ch.row >= f->min_byte1
-	    && ch.row <= f->max_byte1;
-    } else if ( ch.row ) {
-	uint ch16 = ch.cell+ch.row*256;
+	return ch.cell() >= f->min_char_or_byte2
+	    && ch.cell() <= f->max_char_or_byte2
+	    && ch.row() >= f->min_byte1
+	    && ch.row() <= f->max_byte1;
+    } else if ( ch.row() ) {
+	uint ch16 = ch.unicode();
 	return ch16 >= f->min_char_or_byte2
 	    && ch16 <= f->max_char_or_byte2;
     } else {
-	return ch.cell >= f->min_char_or_byte2
-	    && ch.cell <= f->max_char_or_byte2;
+	return ch.cell() >= f->min_char_or_byte2
+	    && ch.cell() <= f->max_char_or_byte2;
     }
 }
 
@@ -1211,26 +1211,26 @@ XCharStruct* charStr(const QTextCodec* mapper, XFontStruct *f, QChar ch)
     }
 
     if ( f->max_byte1 ) {
-	if ( !(ch.cell >= f->min_char_or_byte2
-	    && ch.cell <= f->max_char_or_byte2
-	    && ch.row >= f->min_byte1
-	    && ch.row <= f->max_byte1) )
+	if ( !(ch.cell() >= f->min_char_or_byte2
+	    && ch.cell() <= f->max_char_or_byte2
+	    && ch.row() >= f->min_byte1
+	    && ch.row() <= f->max_byte1) )
 	    ch = QChar((ushort)f->default_char);
 	return f->per_char +
-	    ((ch.row - f->min_byte1)
+	    ((ch.row() - f->min_byte1)
 		    * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
-		+ ch.cell - f->min_char_or_byte2);
-    } else if ( ch.row ) {
-	uint ch16 = ch.cell+ch.row*256;
+		+ ch.cell() - f->min_char_or_byte2);
+    } else if ( ch.row() ) {
+	uint ch16 = ch.unicode();
 	if ( !(ch16 >= f->min_char_or_byte2
 	    && ch16 <= f->max_char_or_byte2) )
 	    ch16 = f->default_char;
 	return f->per_char + ch16;
     } else {
-	if ( !( ch.cell >= f->min_char_or_byte2
-	    && ch.cell <= f->max_char_or_byte2) )
+	if ( !( ch.cell() >= f->min_char_or_byte2
+	    && ch.cell() <= f->max_char_or_byte2) )
 	    ch = QChar((uchar)f->default_char);
-	return f->per_char + ch.cell - f->min_char_or_byte2;
+	return f->per_char + ch.cell() - f->min_char_or_byte2;
     }
 }
 

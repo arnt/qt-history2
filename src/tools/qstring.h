@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#114 $
+** $Id: //depot/qt/main/src/tools/qstring.h#115 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -38,30 +38,31 @@
 
 class QRegExp;
 class QString;
+class QCharRef;
 
 class Q_EXPORT QChar {
 public:
     // The alternatives just avoid order-of-construction warnings.
 #if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
-    QChar() : row(0), cell(0) { }
-    QChar( char c ) : row(0), cell(c) { }
-    QChar( uchar c ) : row(0), cell(c) { }
-    QChar( uchar c, uchar r ) : row(r), cell(c) { }
-    QChar( const QChar& c ) : row(c.row), cell(c.cell) { }
-    QChar( ushort rc ) : row((rc>>8)&0xff), cell(rc&0xff) { }
-    QChar( short rc ) : row((rc>>8)&0xff), cell(rc&0xff) { }
-    QChar( uint rc ) : row((rc>>8)&0xff), cell(rc&0xff) { }
-    QChar( int rc ) : row((rc>>8)&0xff), cell(rc&0xff) { }
+    QChar() : rw(0), cl(0) { }
+    QChar( char c ) : rw(0), cl(c) { }
+    QChar( uchar c ) : rw(0), cl(c) { }
+    QChar( uchar c, uchar r ) : rw(r), cl(c) { }
+    QChar( const QChar& c ) : rw(c.rw), cl(c.cl) { }
+    QChar( ushort rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
+    QChar( short rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
+    QChar( uint rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
+    QChar( int rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
 #else
-    QChar() : cell(0), row(0) { }
-    QChar( char c ) : cell(c), row(0) { }
-    QChar( uchar c ) : cell(c), row(0) { }
-    QChar( uchar c, uchar r ) : cell(c), row(r) { }
-    QChar( const QChar& c ) : cell(c.cell), row(c.row) { }
-    QChar( ushort rc ) : cell(rc&0xff), row((rc>>8)&0xff) { }
-    QChar( short rc ) : cell(rc&0xff), row((rc>>8)&0xff) { }
-    QChar( uint rc ) : cell(rc&0xff), row((rc>>8)&0xff) { }
-    QChar( int rc ) : cell(rc&0xff), row((rc>>8)&0xff) { }
+    QChar() : cl(0), rw(0) { }
+    QChar( char c ) : cl(c), rw(0) { }
+    QChar( uchar c ) : cl(c), rw(0) { }
+    QChar( uchar c, uchar r ) : cl(c), rw(r) { }
+    QChar( const QChar& c ) : cl(c.cl), rw(c.rw) { }
+    QChar( ushort rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
+    QChar( short rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
+    QChar( uint rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
+    QChar( int rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
 #endif
 
     QT_STATIC_CONST QChar null;            // 0000
@@ -93,6 +94,11 @@ public:
       OtherJoining, Dual, Right, Center, Unknown
     };                                                                         
 
+    // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
+
+    bool isNull() const { return unicode()==0; }
+    bool isPrint() const;
+    bool isPunct() const;
     bool isSpace() const;
     bool isMark() const;
     bool isLetter() const;
@@ -100,8 +106,8 @@ public:
     bool isDigit() const;
 
     int digitValue() const;
-    void toLower();
-    void toUpper();
+    QChar lower() const;
+    QChar upper() const;
 
     Category category() const;
     Direction direction() const;
@@ -110,9 +116,9 @@ public:
     QString decomposition() const;
     Decomposition decompositionTag() const;                                    
 
-    operator char() const { return row ? 0 : cell; }
-
-    ushort unicode() const { return (row << 8) | cell; }
+    char latin1() const { return rw ? 0 : cl; }
+    ushort unicode() const { return (rw << 8) | cl; }
+    operator char() const { return latin1(); }
 
     friend int operator==( const QChar& c1, const QChar& c2 );
     friend int operator==( const QChar& c1, char c );
@@ -133,68 +139,76 @@ public:
     friend int operator>( const QChar& c, char ch );
     friend int operator>( char ch, const QChar& c );
 
+    uchar& cell() { return cl; }
+    uchar& row() { return rw; }
+    uchar cell() const { return cl; }
+    uchar row() const { return rw; }
+
+    static bool networkOrdered() { return (int)net_ordered == 1; }
+
+private:
 #if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
     // XChar2b on X11, ushort on _OS_WIN32_BYTESWAP_
-    uchar row;
-    uchar cell;
-    enum { networkOrdered = 1 }; // ### Net... or net...?
+    uchar rw;
+    uchar cl;
+    enum { net_ordered = 1 };
 #else
     // ushort on _OS_WIN32_
-    uchar cell;
-    uchar row;
-    enum { networkOrdered = 0 };
+    uchar cl;
+    uchar rw;
+    enum { net_ordered = 0 };
 #endif
 };
 
 inline int operator==( char ch, const QChar& c )
 {
-    return ch == c.cell && !c.row;
+    return ch == c.cl && !c.rw;
 }
 
 inline int operator==( const QChar& c, char ch )
 {
-    return ch == c.cell && !c.row;
+    return ch == c.cl && !c.rw;
 }
 
 inline int operator==( const QChar& c1, const QChar& c2 )
 {
-    return c1.cell == c2.cell
-	&& c1.row == c2.row;
+    return c1.cl == c2.cl
+	&& c1.rw == c2.rw;
 }
 
 inline int operator!=( const QChar& c1, const QChar& c2 )
 {
-    return c1.cell != c2.cell
-	|| c1.row != c2.row;
+    return c1.cl != c2.cl
+	|| c1.rw != c2.rw;
 }
 
 inline int operator!=( char ch, const QChar& c )
 {
-    return ch != c.cell || c.row;
+    return ch != c.cl || c.rw;
 }
 
 inline int operator!=( const QChar& c, char ch )
 {
-    return ch != c.cell || c.row;
+    return ch != c.cl || c.rw;
 }
 
 inline int operator<=( const QChar& c, char ch )
 {
-    return !(ch < c.cell || c.row);
+    return !(ch < c.cl || c.rw);
 }
 
 inline int operator<=( char ch, const QChar& c )
 {
-    return ch <= c.cell || c.row;
+    return ch <= c.cl || c.rw;
 }
 
 inline int operator<=( const QChar& c1, const QChar& c2 )
 {
-    return c1.row > c2.row
+    return c1.rw > c2.rw
 	? FALSE
-	: c1.row < c2.row
+	: c1.rw < c2.rw
 	    ? TRUE
-	    : c1.cell <= c2.cell;
+	    : c1.cl <= c2.cl;
 }
 
 inline int operator>=( const QChar& c, char ch ) { return ch <= c; }
@@ -206,6 +220,7 @@ inline int operator<( const QChar& c1, const QChar& c2 ) { return !(c2<=c1); }
 inline int operator>( const QChar& c, char ch ) { return !(ch>=c); }
 inline int operator>( char ch, const QChar& c ) { return !(c>=ch); }
 inline int operator>( const QChar& c1, const QChar& c2 ) { return !(c2>=c1); }
+
 
 
 class Q_EXPORT QString
@@ -226,7 +241,7 @@ public:
 #ifndef QT_NO_CAST_ASCII
     QString    &operator=( const char * );	// deep copy
 #endif
-    QString    &operator=( const QByteArray& );	// deep copy
+    QString    &operator=( const QCString& );	// deep copy
 
     QT_STATIC_CONST QString null;
 
@@ -332,16 +347,18 @@ public:
 
     // Your compiler is smart enough to use the const one if it can.
     const QChar& at( uint i ) const
-	{ return i<d->len ? unicode()[i] : QChar::null; }
-    QChar& at( uint i )
+	{ return i<d->len ? d->unicode[i] : QChar::null; }
+    const QChar& operator[]( int i ) const { return at((uint)i); }
+    QCharRef at( uint i );
+    QCharRef operator[]( int i );
+
+    QChar& ref(uint i)
 	{ // Optimized for easy-inlining by simple compilers.
 	    if (d->count!=1 || i>=d->len)
 		subat(i);
 	    d->dirtyascii=1;
 	    return d->unicode[i];
 	}
-    const QChar& operator[]( int i ) const { return at((uint)i); }
-    QChar& operator[]( int i ) { return at((uint)i); }
 
     const QChar* unicode() const { return d->unicode; }
     const char* ascii() const;
@@ -390,6 +407,7 @@ private:
 	    unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
 	~Data() { if ( unicode ) delete [] unicode;
 		  if ( ascii ) delete [] ascii; }
+	void deleteSelf();
 	QChar *unicode;
 	char *ascii;
 	uint len;
@@ -398,11 +416,65 @@ private:
     };
     Data *d;
     static Data* shared_null;
-    friend int ucstrcmp( const QString &a, const QString &b );
+    static Data* makeSharedNull();
 
     friend class QConstString;
     QString(Data* dd, bool /*dummy*/) : d(dd) { }
 };
+
+class QCharRef {
+    friend QString;
+    QString& s;
+    uint p;
+    QCharRef(QString* str, uint pos) : s(*str), p(pos) { }
+
+public:
+    // Most QChar operations repeated here...
+
+    // An operator= for each QChar cast constructor...
+    QCharRef operator=(char c ) { s.ref(p)=c; return *this; }
+    QCharRef operator=(uchar c ) { s.ref(p)=c; return *this; }
+    QCharRef operator=(const QChar& c ) { s.ref(p)=c; return *this; }
+    QCharRef operator=(const QCharRef& c ) { s.ref(p)=c.unicode(); return *this; }
+    QCharRef operator=(ushort rc ) { s.ref(p)=rc; return *this; }
+    QCharRef operator=(short rc ) { s.ref(p)=rc; return *this; }
+    QCharRef operator=(uint rc ) { s.ref(p)=rc; return *this; }
+    QCharRef operator=(int rc ) { s.ref(p)=rc; return *this; }
+
+    operator const QChar& () const { return ((const QString&)s)[p]; }
+
+    // each function...
+    ushort unicode() const { return (((const QString&)s)[p]).unicode(); }
+    char latin1() const { return (((const QString&)s)[p]).latin1(); }
+
+    bool isNull() const { return unicode()==0; }
+    bool isPrint() const { return (((const QString&)s)[p]).isPrint(); }
+    bool isPunct() const { return (((const QString&)s)[p]).isPunct(); }
+    bool isSpace() const { return (((const QString&)s)[p]).isSpace(); }
+    bool isMark() const { return (((const QString&)s)[p]).isMark(); }
+    bool isLetter() const { return (((const QString&)s)[p]).isLetter(); }
+    bool isNumber() const { return (((const QString&)s)[p]).isNumber(); }
+    bool isDigit() const { return (((const QString&)s)[p]).isDigit(); }
+
+    int digitValue() const { return (((const QString&)s)[p]).digitValue(); }
+    QChar lower() { return (((const QString&)s)[p]).lower(); }
+    QChar upper() { return (((const QString&)s)[p]).upper(); }
+
+    QChar::Category category() const { return (((const QString&)s)[p]).category(); }
+    QChar::Direction direction() const { return (((const QString&)s)[p]).direction(); }
+    QChar::Joining joining() const { return (((const QString&)s)[p]).joining(); }
+    bool mirrored() const { return (((const QString&)s)[p]).mirrored(); }
+    QString decomposition() const { return (((const QString&)s)[p]).decomposition(); }
+    QChar::Decomposition decompositionTag() const { return (((const QString&)s)[p]).decompositionTag(); }
+
+    // Not the non-const ones of these.
+    uchar cell() const { return (((const QString&)s)[p]).cell(); }
+    uchar row() const { return (((const QString&)s)[p]).row(); }
+};
+
+inline QCharRef QString::at( uint i ) { return QCharRef(this,i); }
+inline QCharRef QString::operator[]( int i ) { return at((uint)i); }
+
 
 class Q_EXPORT QConstString : private QString {
 public:
@@ -424,12 +496,23 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
   QString inline functions
  *****************************************************************************/
 
+// These two move code into makeSharedNull() and deletesData()
+// to improve cache-coherence (and reduce code bloat), while
+// keeping the common cases fast.
+//
 // No safe way to pre-init shared_null on ALL compilers/linkers.
 inline QString::QString() :
-    d(shared_null ? shared_null : shared_null=new Data)
+    d(shared_null ? shared_null : makeSharedNull())
 {
     d->ref();
 }
+//
+inline QString::~QString()
+{
+    if ( d->deref() )
+	d->deleteSelf();
+}
+
 
 //inline QString &QString::operator=( const QString &s )
 //{ return (const QString &)assign( s ); }

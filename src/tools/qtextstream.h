@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#56 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#57 $
 **
 ** Definition of QTextStream class
 **
@@ -134,7 +134,7 @@ private:
     void	init();
     QTextStream &output_int( int, ulong, bool );
     QIODevice	*dev;
-    bool	isNetworkOrder() { return internalOrder == QChar::networkOrdered; }
+    bool	isNetworkOrder() { return internalOrder == QChar::networkOrdered(); }
 
     int		 fflags;
     int		 fwidth;

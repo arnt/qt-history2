@@ -340,20 +340,20 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 
     if( ch.isMark() ) return TRUE; // ignore marks for conversion
     
-    if ( ch.row ) {
-	if ( ch.row == 0x05 ) {		
-	    if ( ch.cell > 0x91 )
+    if ( ch.row() ) {
+	if ( ch.row() == 0x05 ) {		
+	    if ( ch.cell() > 0x91 )
 		converted = TRUE;
 	    // 0x0591 - 0x05cf: hebrew punktuation... dropped
-	    if ( ch.cell > 0xD0 ) 
-		*rstr += unicode_to_heb_05[ch.cell- 0xD0];
-	} else if ( ch.row == 0x20 ) {
-	    if ( ch.cell == 0x3E )
+	    if ( ch.cell() > 0xD0 ) 
+		*rstr += unicode_to_heb_05[ch.cell()- 0xD0];
+	} else if ( ch.row() == 0x20 ) {
+	    if ( ch.cell() == 0x3E )
 	    {
 		*rstr += (char)0xAF;
 		converted = TRUE;
 	    }
-	    else if ( ch.cell == 0x17 )
+	    else if ( ch.cell() == 0x17 )
 	    {
 		*rstr += (char)0xCF;
 		converted = TRUE;
@@ -362,14 +362,14 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 	    converted = FALSE;
 	}
     } else {
-	if ( ch.cell < 0x80 )
+	if ( ch.cell() < 0x80 )
 	{
-	    *rstr += ch.cell;
+	    *rstr += ch.cell();
 	    converted = TRUE;
 	}
-	else if( ch.cell < 0xA0 )
+	else if( ch.cell() < 0xA0 )
 	{
-	    *rstr += unicode_to_heb_00[ch.cell - 0xA0];
+	    *rstr += unicode_to_heb_00[ch.cell() - 0xA0];
 	    converted = TRUE;
 	}
     }
@@ -432,23 +432,23 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
 
     if( ch.isMark() ) return TRUE; // ignore marks for conversion
     
-    if ( ch.row ) {
-	if ( ch.row == 0x06 ) {		
-	    if ( ch.cell > 0x5f )
+    if ( ch.row() ) {
+	if ( ch.row() == 0x06 ) {		
+	    if ( ch.cell() > 0x5f )
 		converted = FALSE;
 	    else
-		*rstr += unicode_to_arab_06[ch.cell];
+		*rstr += unicode_to_arab_06[ch.cell()];
 	} else {
 	    converted = FALSE;
 	}
     } else {
-	if ( ch.cell < 0x80 )
-	    *rstr += ch.cell;
-	else if( ch.cell == 0xA0 )
+	if ( ch.cell() < 0x80 )
+	    *rstr += ch.cell();
+	else if( ch.cell() == 0xA0 )
 	    *rstr += (char)0xA0;
-	else if( ch.cell == 0xA4 )
+	else if( ch.cell() == 0xA4 )
 	    *rstr += (char)0xA4;
-	else if( ch.cell == 0xAd )
+	else if( ch.cell() == 0xAd )
 	    *rstr += (char)0xAd;
 	else
 	    converted = FALSE;

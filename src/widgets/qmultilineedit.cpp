@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#38 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -585,10 +585,14 @@ void QMultiLineEdit::doDrag()
 	mlData->dnd_timer = 0;
     }
     QDragObject *d = new QTextDrag(markedText(), this);
-    if ( d->drag() && d->target() != this ) {
-	del();
-        if ( textDirty && !mlData->isHandlingEvent )
-            emit textChanged();
+    if ( readOnly ) {
+	d->dragCopy();
+    } else {
+	if ( d->drag() && d->target() != this ) {
+	    del();
+	    if ( textDirty && !mlData->isHandlingEvent )
+		emit textChanged();
+	}
     }
     mlData->dnd_primed = FALSE;
 }
@@ -1920,6 +1924,7 @@ void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 */
 void QMultiLineEdit::dragMoveEvent( QDragMoveEvent* event )
 {
+    if ( readOnly ) return;
     event->accept( QTextDrag::canDecode(event) );
     mlData->dnd_forcecursor = TRUE;
     setCursorPixelPosition(event->pos(), FALSE);
@@ -1944,6 +1949,7 @@ void QMultiLineEdit::dragLeaveEvent( QDragLeaveEvent* )
 */
 void QMultiLineEdit::dropEvent( QDropEvent* event )
 {
+    if ( readOnly ) return;
     QString text;
     if ( QTextDrag::decode(event, text) ) {
 	if ( event->source() == this && event->movingData() ) {
@@ -2249,10 +2255,10 @@ void QMultiLineEdit::markWord( int posx, int posy )
   This implementation is an example of a useful classification
   that aids selection of common units like filenames and URLs.
 */
-int QMultiLineEdit::charClass( char ch )
+int QMultiLineEdit::charClass( QChar ch )
 {
-    if ( !isprint(ch) || isspace(ch) ) return 1;
-    else if ( isalnum(ch) || ch=='-' || ch=='+' || ch==':'
+    if ( !ch.isPrint() || ch.isSpace() ) return 1;
+    else if ( ch.isLetter() || ch=='-' || ch=='+' || ch==':'
 	    || ch=='.' || ch=='/' || ch=='\\'
 	    || ch=='@' || ch=='$' || ch=='~' ) return 2;
     else return 3;

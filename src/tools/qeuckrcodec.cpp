@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuckrcodec.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qeuckrcodec.cpp#4 $
 **
 ** Implementation of QEucKrCodec class
 **
@@ -82,10 +82,10 @@ QCString QEucKrCodec::fromUnicode(const QString& uc, int& len_in_out) const
   for (int i=0; i<l; i++) {
     QChar ch = uc[i];
     uint j;
-    if ( ch.row == 0x00 && ch.cell < 0x80 ) {
+    if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
       // ASCII
-      *cursor++ = ch.cell;
-    } else if ((j = qt_UnicodeToKsc5601((ch.row << 8) | ch.cell)) ) {
+      *cursor++ = ch.cell();
+    } else if ((j = qt_UnicodeToKsc5601((ch.row() << 8) | ch.cell())) ) {
       // KSC 5601
       *cursor++ = (j >> 8)   | 0x80;
       *cursor++ = (j & 0xff) | 0x80;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#78 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#79 $
 **
 ** Implementation of QFile class
 **
@@ -839,6 +839,8 @@ int QFile::readLine( char *p, uint maxlen )
   readLine() for files that have been opened with the \c IO_Raw
   flag.
 
+  Note that the string is read as plain Latin1 bytes, not Unicode.
+
   \sa readBlock(), QTextStream::readLine()
 */
 
@@ -848,7 +850,7 @@ int QFile::readLine( QString& s, uint maxlen )
     int l = readLine(ba.data(),maxlen);
     if ( l >= 0 ) {
 	ba.truncate(l);
-	s = ba;
+	s = QCString(ba);
     }
     return l;
 }
