@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#72 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#71 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#72 $";
 #endif
 
 
@@ -778,6 +778,13 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     }
     else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
+	if ( pm->isNull() ) {
+#if defined(CHECK_NULL)
+	    warning( "QPainter::begin: Cannot paint null pixmap" );
+#endif
+	    end();
+	    return FALSE;
+	}
 	bool mono = pm->depth() == 1;		// monochrome bitmap
 	gc = alloc_painter_gc( dpy, hd, mono );	// create GC
 	ww = vw = pm->width();			// default view size
