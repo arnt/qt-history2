@@ -13436,7 +13436,7 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     uint olen = length();
     int nlen = olen + len;
 
-    int df = d->unicode - s;
+    int df = s - d->unicode; // ### pointer subtraction, cast down to int
     if ( df >= 0 && (uint)df < d->maxl ) {
 	// Part of me - take a copy.
 	QChar *tmp = QT_ALLOC_QCHAR_VEC( len );
