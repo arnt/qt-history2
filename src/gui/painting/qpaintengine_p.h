@@ -27,8 +27,6 @@ class QPaintEnginePrivate
 public:
     QPaintEnginePrivate() : pdev(0), q_ptr(0) { }
     QPaintDevice *pdev;
-
-protected:
     QPaintEngine *q_ptr;
 };
 
