@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#18 $
 **
 ** Implementation of QTabWidget class
 **
@@ -472,7 +472,7 @@ QSize QTabWidget::sizeHint() const
 */
 QSize QTabWidget::minimumSizeHint() const
 {
-    QSize s( 0, d->stack->minimumSizeHint().height() );
+    QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->sizeHint() );
     return QSize( QMAX( s.width(), t.width()),
 		  s.height() + t.height() );
