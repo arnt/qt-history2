@@ -194,6 +194,7 @@ private:
 
 Q_DECLARE_TYPEINFO(QUrl, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QUrl);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QUrl::FormattingOptions)
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QUrl &);

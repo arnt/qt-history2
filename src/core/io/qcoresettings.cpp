@@ -1002,7 +1002,7 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
         ftruncate(fd, 0);
 
     return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Translate
-                                         : QIODevice::ReadOnly,
+                     : QIODevice::DeviceMode(QIODevice::ReadOnly),
                      fd);
 
 #else
