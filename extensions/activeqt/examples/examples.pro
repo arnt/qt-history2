@@ -6,6 +6,7 @@ SUBDIRS = testcon \
 	  multiple \
 	  simple \
 	  tetrax \
-	  opengl \
 	  wrapper \
 	  menus
+
+opengl:SUBDIRS += opengl
