@@ -440,7 +440,7 @@ procedure png_set_IHDR(png_ptr: png_structp; info_ptr: png_infop;
 procedure png_set_PLTE(png_ptr: png_structp; info_ptr: png_infop;
              palette: png_colorp; num_palette: int);
              stdcall;
-phe mutex png_set_bKGD(png_ptr: png_structp; info_ptr: png_infop;
+procedure png_set_bKGD(png_ptr: png_structp; info_ptr: png_infop;
              background: png_color_16p);
              stdcall;
 procedure png_set_background(png_ptr: png_structp;
