@@ -149,8 +149,8 @@
     above, we don't specify any connection, so the default connection
     is used.
 
-    To check if an error occurred, we can call QSqlQuery::isActive().
-    The error is available as QSqlQuery::lastError().
+    If an error occurs, \l{QSqlQuery::exec()}{exec()} returns false.
+    The error is then available as QSqlQuery::lastError().
 
     \section2 Navigating the Result Set
 
@@ -181,11 +181,14 @@
     is avaliable as QSqlQuery::size() for databases that support it.
 
     To determine whether a database driver supports a given feature,
-    use QSqlDriver::hasFeature() as follows:
+    use QSqlDriver::hasFeature(). In the following example, we call
+    QSqlQuery::size() to determine the size of a result set of
+    the underlying database supports that feature; otherwise, we
+    navigate to the last record an
 
     \skipto FEATURE
-    \skipto defaultDB
-    \printuntil }
+    \skipline FEATURE
+    \printuntil /\}$/
 
     If you iterate through a result set only using next() and seek()
     with positive values, you can call
@@ -207,15 +210,13 @@
     efficient to separate the query from the actual values being
     inserted. This can be done using placeholders. Qt supports two
     placeholder syntaxes: named binding and positional binding.
-    Here's an example of named binding (also called "Oracle-style
-    placeholders"):
+    Here's an example of named binding:
 
     \skipto NAMED BINDING
     \skipto query;
     \printuntil exec();
 
-    Here's an example of positional binding (also called "ODBC-style
-    placeholders"):
+    Here's an example of positional binding:
 
     \skipto POSITIONAL BINDING
     \skipto query;
@@ -225,7 +226,7 @@
     the database supports the syntax natively, Qt simply forwards the
     query to the DBMS; otherwise, Qt simulates the placeholder syntax
     by preprocessing the query. The actual query that ends up being
-    executed by the DBMS is available as QSqlQuery::lastQuery().
+    executed by the DBMS is available as QSqlQuery::executedQuery().
 
     When inserting multiple records, you need only to call
     QSqlQuery::prepare() once. Then you call
@@ -243,7 +244,7 @@
     \skipto query;
     \printuntil );
 
-    Again, you can use named or positional binding to associate
+    You can also use named or positional binding to associate
     parameters to actual values.
 
     Finally, here's an example of a \c DELETE statement:
@@ -294,10 +295,10 @@
     in a Table View} section.
 
     Another advantage of using some of these classes is that it can
-    make your code less thightly bound to SQL databases. For example,
-    if you use QSqlTableModel and later decide to use XML files to
-    store data instead of a database, it is essentially just a matter
-    of replacing one data model with another.
+    make your code more independent of SQL databases. If you use
+    QSqlTableModel and later decide to use XML files to store data
+    instead of a database, it is essentially just a matter of
+    replacing one data model with another.
 
     \section2 The SQL Query Model
 
@@ -314,6 +315,11 @@
     use QSqlQueryModel::record(int) to access the individual records.
     You can also use QSqlQueryModel::data() and any of the other
     functions inherited from QAbstractItemModel.
+
+    There also exists a \l{QSqlQueryModel::setQuery()}{setQuery()}
+    overload that takes a QSqlQuery object and operates on its result
+    set. This enables you to use any features of QSqlQuery to set up
+    the query (e.g., prepared queries).
 
     \section2 The SQL Table Model
 
@@ -355,14 +361,13 @@
     \skipto insertRows(
     \printuntil submit
 
-    Here's how to delete rows:
+    Here's how to delete five consecutive rows:
 
     \printline deleteRows(
     \printline submit
 
     The first argument to QSqlTableModel::deleteRows() is the index
-    of the first row to delete; the second argument is the number of
-    rows to delete.
+    of the first row to delete.
 
     When you're done making a change to a record, you should always
     call QSqlTableModel::submitAll() to ensure that the change is
@@ -385,13 +390,17 @@
     \list
     \o Without any caching, performance may drop significantly.
     \o If you modify a primary key, the record might slip through
-       your fingers are you are trying to filling it.
+       your fingers while you are trying to fill it.
     \endlist
 
     \section2 The SQL Relational Table Model
 
     QSqlRelationalTableModel extends QSqlTableModel to provide
-    support for foreign keys.
+    support for foreign keys. A foreign key is a 1-to-1 mapping
+    between a column in one table and the primary key column of
+    another table. For example, if a \c book table has a column
+    called \c authorid that refer to the \c id column of the \c
+    author table, we say that \c authorid is a foreign key.
 
     \table
     \row \o \inlineimage noforeignkeys.png
@@ -442,8 +451,8 @@
 
     You can use the same model as a data source for multiple views.
     If the user edits the model through one of the views, the other
-    views will reflect the changes as soon as they are submitted. The
-    \c sql/tablemodel example shows how it works.
+    views will reflect the changes immediately. The \c sql/tablemodel
+    example shows how it works.
 
     View classes display a header at the top to label the columns. To
     change the header texts, call
