@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#21 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#21 $";
 #endif
 
 
@@ -46,7 +46,7 @@ public:
     QWidgetMapper();
    ~QWidgetMapper();
     QWidget *find( WId id );			// find widget
-    bool     insert( const QWidget * );		// insert widget
+    void     insert( const QWidget * );		// insert widget
     bool     remove( WId id );			// remove widget
 private:
     WId	     cur_id;
@@ -81,9 +81,9 @@ inline QWidget *QWidgetMapper::find( WId id )
     return cur_widget;
 }
 
-inline bool QWidgetMapper::insert( const QWidget *widget )
+inline void QWidgetMapper::insert( const QWidget *widget )
 {
-    return QWidgetIntDict::insert((long)widget->id(),widget);
+    QWidgetIntDict::insert((long)widget->id(),widget);
 }
 
 inline bool QWidgetMapper::remove( WId id )
