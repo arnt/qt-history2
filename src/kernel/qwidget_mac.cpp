@@ -860,60 +860,65 @@ void QWidget::stackUnder( QWidget*)
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-  if ( testWFlags(WType_Desktop) )
-    return;
+    if ( testWFlags(WType_Desktop) )
+	return;
 
-  if ( w < 1 )                                // invalid size
-    w = 1;
-  if ( h < 1 )
-    h = 1;
-  QPoint oldp = pos();
-  QSize  olds = size();
-  // Deal with size increment
-  if ( extra ) {
-    if ( extra->topextra ) {
-      if ( extra->topextra->incw ) {
-	w = w/extra->topextra->incw;
-	w = w*extra->topextra->incw;
-      }
-      if ( extra->topextra->inch ) {
-	h = h/extra->topextra->inch;
-	h = h*extra->topextra->inch;
-      }
-    }
-  }
-  QRect  r( x, y, w, h );
-  if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) ) { 
-    return;
-  }
+    if ( extra ) {				// any size restrictions?
+	w = QMIN(w,extra->maxw);
+	h = QMIN(h,extra->maxh);
+	w = QMAX(w,extra->minw);
+	h = QMAX(h,extra->minh);
 
-  setCRect( r );
-
-  if ( isTopLevel() && isMove && winid )
-    MoveWindow((WindowPtr)winid,x,y,1);
-
-  bool isResize = olds != r.size();
-  if ( isTopLevel() && winid )
-    SizeWindow((WindowPtr)winid,w,h,1);
-
-  if ( isVisible() ) {
-    if ( isMove ) {
-      QMoveEvent e( r.topLeft(), oldp );
-      QApplication::sendEvent( this, &e );
-      QApplication::postEvent( this, new QPaintEvent(r, TRUE) );
-    }
-    if ( isResize ) {
-      QResizeEvent e( r.size(), olds );
-      QApplication::sendEvent( this, &e );
-      QApplication::postEvent( this, new QPaintEvent(r, !testWFlags(QWidget::WResizeNoErase)) );
+	// Deal with size increment
+	if ( extra->topextra ) {
+	    if ( extra->topextra->incw ) {
+		w = w/extra->topextra->incw;
+		w = w*extra->topextra->incw;
+	    }
+	    if ( extra->topextra->inch ) {
+		h = h/extra->topextra->inch;
+		h = h*extra->topextra->inch;
+	    }
+	}
     }
 
-  } else {
-    if ( isMove )
-      QApplication::postEvent( this,new QMoveEvent( r.topLeft(), oldp ) );
-    if ( isResize )
-      QApplication::postEvent( this,new QResizeEvent( r.size(), olds ) );
-  }
+    if ( w < 1 )                                // invalid size
+	w = 1;
+    if ( h < 1 )
+	h = 1;
+    QPoint oldp = pos();
+    QSize  olds = size();
+
+    QRect  r( x, y, w, h );
+    if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) ) 
+	return;
+    setCRect( r );
+
+    if ( isTopLevel() && isMove && winid )
+	MoveWindow((WindowPtr)winid,x,y,1);
+
+    bool isResize = olds != r.size();
+    if ( isTopLevel() && winid )
+	SizeWindow((WindowPtr)winid,w,h,1);
+
+    if ( isVisible() ) {
+	if ( isMove ) {
+	    QMoveEvent e( r.topLeft(), oldp );
+	    QApplication::sendEvent( this, &e );
+	    QApplication::postEvent( this, new QPaintEvent(r, TRUE) );
+	}
+	if ( isResize ) {
+	    QResizeEvent e( r.size(), olds );
+	    QApplication::sendEvent( this, &e );
+	    QApplication::postEvent( this, new QPaintEvent(r, !testWFlags(QWidget::WResizeNoErase)) );
+	}
+
+    } else {
+	if ( isMove )
+	    QApplication::postEvent( this,new QMoveEvent( r.topLeft(), oldp ) );
+	if ( isResize )
+	    QApplication::postEvent( this,new QResizeEvent( r.size(), olds ) );
+    }
 }
 
 /*!
@@ -933,8 +938,25 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
   \sa minimumSize(), setMaximumSize(), setSizeIncrement(), resize(), size(), QLayout::setResizeMode()
 */
 
-void QWidget::setMinimumSize( int, int )
+
+void QWidget::setMinimumSize( int minw, int minh)
 {
+#if defined(CHECK_RANGE)
+    if ( minw < 0 || minh < 0 )
+	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
+#endif
+    createExtra();
+    if ( extra->minw == minw && extra->minh == minh )
+	return;
+    extra->minw = minw;
+    extra->minh = minh;
+    if ( minw > width() || minh > height() ) {
+	bool resized = testWState( WState_Resized );
+	resize( QMAX(minw,width()), QMAX(minh,height()) );
+	if ( !resized )
+	    clearWState( WState_Resized ); //not a user resize
+    }
+    updateGeometry();
 }
 
 /*!
@@ -951,9 +973,39 @@ void QWidget::setMinimumSize( int, int )
   \sa maximumSize(), setMinimumSize(), setSizeIncrement(), resize(), size()
 */
 
-void QWidget::setMaximumSize( int, int )
+void QWidget::setMaximumSize( int maxw, int maxh)
 {
+#if defined(CHECK_RANGE)
+    if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
+	qWarning("QWidget::setMaximumSize: (%s/%s) "
+		"The largest allowed size is (%d,%d)",
+		 name( "unnamed" ), className(), QWIDGETSIZE_MAX,
+		QWIDGETSIZE_MAX );
+	maxw = QMIN( maxw, QWIDGETSIZE_MAX );
+	maxh = QMIN( maxh, QWIDGETSIZE_MAX );
+    }
+    if ( maxw < 0 || maxh < 0 ) {
+	qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
+		"are not possible",
+		name( "unnamed" ), className(), maxw, maxh );
+	maxw = QMAX( maxw, 0 );
+	maxh = QMAX( maxh, 0 );
+    }
+#endif
+    createExtra();
+    if ( extra->maxw == maxw && extra->maxh == maxh )
+	return;
+    extra->maxw = maxw;
+    extra->maxh = maxh;
+    if ( maxw < width() || maxh < height() ) {
+	bool resized = testWState( WState_Resized );
+	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
+	if ( !resized )
+	    clearWState( WState_Resized ); //not a user resize
+    }
+    updateGeometry();
 }
+
 
 /*!
   Sets the size increment of the widget.  When the user resizes the
