@@ -424,7 +424,7 @@ QByteArray QMainWindow::saveState(int version) const
 */
 bool QMainWindow::restoreState(const QByteArray &state, int version)
 {
-    QByteArray sd = stateData;
+    QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
     int v;
     stream >> v;
