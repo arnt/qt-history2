@@ -287,6 +287,13 @@ QPixmap* QLineEditPrivate::pm = 0;
   The argument is the new text.
 */
 
+/*!
+  \fn void QLineEdit::selectionChanged()
+
+  This signal is emitted whenever the selection changes.
+
+  \sa hasSelectedText, selectedText
+*/
 
 /*!
   Constructs a line edit with no text.
@@ -928,6 +935,8 @@ static bool inSelection( int x, QTextParag *p )
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
+    bool oldHST = hasSelectedText();
+
     d->undoRedoInfo.clear();
 
     d->inDoubleClick = FALSE;
@@ -944,6 +953,9 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	d->dnd_primed = TRUE;
 	d->dnd_startpos = e->pos();
 	d->releaseTextObjects( &par, &c );
+	if ( oldHST != hasSelectedText() )
+	    emit selectionChanged();
+
 	return;
     }
 #endif
@@ -963,6 +975,10 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	d->parag->setSelection( QTextDocument::Standard, s, e );
     }
     d->releaseTextObjects( &par, &c);
+
+    if ( oldHST != hasSelectedText() )
+	emit selectionChanged();
+
     update();
     d->mousePressed = TRUE;
 }
@@ -1048,7 +1064,11 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	d->dndTimer.stop();
 	QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
 	d->cursor->place( p, d->parag );
+	bool oldHST = hasSelectedText();
 	deselect(); // does a repaint
+	if ( oldHST != hasSelectedText() )
+	    emit selectionChanged();
+
 	return;
     }
     if ( d->inDoubleClick ) {
@@ -1094,6 +1114,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 */
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 {
+    bool oldHST = hasSelectedText();
     d->inDoubleClick = TRUE;
 
     QTextCursor c1 = *d->cursor;
@@ -1110,6 +1131,9 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 	QApplication::clipboard()->setSelectionMode(FALSE);
     }
 #endif // QT_NO_CLIPBOARD
+    if ( oldHST != hasSelectedText() )
+	emit selectionChanged();
+
     update();
 }
 
@@ -1914,6 +1938,7 @@ void QLineEdit::updateOffset()
 
 void QLineEdit::updateSelection()
 {
+    bool oldHST = hasSelectedText();
     int pos = d->cursor->index();
     int selectionStart = d->selectionStart;
     int selectionEnd;
@@ -1934,6 +1959,8 @@ void QLineEdit::updateSelection()
     }
 #endif // QT_NO_CLIPBOARD
 
+    if ( oldHST != hasSelectedText() )
+	emit selectionChanged();
 }
 
 

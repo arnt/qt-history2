@@ -151,6 +151,7 @@ public slots:
 signals:
     void textChanged( const QString &);
     void returnPressed();
+    void selectionChanged();
 
 protected:
     bool event( QEvent * );
