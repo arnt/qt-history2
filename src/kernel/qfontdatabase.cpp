@@ -265,7 +265,7 @@ struct QtFontFamily
     int count;
     QtFontFoundry **foundries;
 
-    unsigned char scripts[ QFont::NScripts + 1 ];
+    unsigned char scripts[QFont::NScripts];
 
     QtFontFoundry *foundry( const QString &f, bool = FALSE );
 };
@@ -1174,8 +1174,28 @@ QString QFontDatabase::scriptName(QFont::Script script)
 	name = QT_TRANSLATE_NOOP("QFont",  "Unicode" );
 	break;
 
+    case QFont::Tagalog:
+	name = QT_TRANSLATE_NOOP( "QFont", "Tagalog" );
+	break;
+
+    case QFont::Hanunoo:
+	name = QT_TRANSLATE_NOOP( "QFont", "Hanunoo" );
+	break;
+
+    case QFont::Buhid:
+	name = QT_TRANSLATE_NOOP( "QFont", "Buhid" );
+    	break;
+
+    case QFont::Tagbanwa:
+	name = QT_TRANSLATE_NOOP( "QFont", "Tagbanwa" );
+	break;
+
+    case QFont::KatakanaHalfWidth:
+	name = QT_TRANSLATE_NOOP( "QFont", "Katakana Half-Width Forms" );
+	break;
+
     default:
-	name = "";
+	name = QT_TRANSLATE_NOOP( "QFont", "Unknown Script" );
 	break;
     }
 
