@@ -1976,7 +1976,8 @@ void QObject::FNAME( int signal, TYPE param )				      \
 	object = c->object(); 						      \
 	sigSender = this;					      	      \
 	if ( c->numArgs() ) {						      \
-	    r1 = (RT1)*(c->member());					      \
+	    QMember m = *(c->member());					      \
+	    r1 = (RT1)m;						      \
 	    (object->*r1)( param );					      \
 	} else {							      \
 	    r0 = (RT0)*(c->member());					      \
@@ -1989,7 +1990,8 @@ void QObject::FNAME( int signal, TYPE param )				      \
 	    object = c->object();					      \
 	    sigSender = this;						      \
 	    if ( c->numArgs() ) {					      \
-	        r1 = (RT1)*(c->member());				      \
+		QMember m = *(c->member());				      \
+		r1 = (RT1)m;						      \
 	        (object->*r1)( param );					      \
 	    } else {							      \
 	        r0 = (RT0)*(c->member());				      \
