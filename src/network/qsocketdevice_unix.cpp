@@ -397,6 +397,7 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
     int r = qt_socket_bind( fd, (struct sockaddr*)&aa, sizeof(struct sockaddr_in) );
     if ( r < 0 ) {
 	switch( errno ) {
+	case EADDRINUSE:
 	case EINVAL:
 	    e = AlreadyBound;
 	    break;
