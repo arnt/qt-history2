@@ -5318,7 +5318,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     fixRow( tmpRow, e->pos().y() );
     fixCol( tmpCol, e->pos().x() );
     if (e->source() != (QObject*)cellWidget( currentRow(), currentColumn() ) )
-	setCurrentCell( tmpRow, tmpCol, FALSE )http://intern.troll.no;
+	setCurrentCell( tmpRow, tmpCol, FALSE );
     e->accept();
 }
 
