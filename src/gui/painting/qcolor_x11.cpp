@@ -495,7 +495,12 @@ uint QColor::alloc(int screen)
 }
 
 /*!
+  \fn uint alloc(int screen)
+
   Allocates the RGB color and returns the pixel value.
+
+  The \a screen parameter is only used under X11 to specify the X11
+  screen.
 
   Allocating a color means to obtain a pixel value from the RGB
   specification.  The pixel value is an index into the global color
@@ -506,36 +511,6 @@ uint QColor::alloc(int screen)
 
   \sa enterAllocContext()
 */
-// ### 4.0 - remove me?
-uint QColor::alloc()
-{
-    return alloc(-1);
-}
-
-/*!
-    \overload
-
-  Returns the pixel value for screen \a screen.
-
-  This value is used by the underlying window system to refer to a color.
-  It can be thought of as an index into the display hardware's color table,
-  but the value is an arbitrary 32-bit value.
-
-  \sa alloc()
-*/
-uint QColor::pixel(int screen) const
-{
-    // don't allocate Qt::color0 or Qt::color1, they have fixed pixel values for all screens
-    if (d.argb == qRgba(255, 255, 255, 1))
-        return 0;
-    if (d.argb == qRgba(0, 0, 0, 1))
-        return 1;
-
-    if (screen != QX11Info::appScreen())
-        return ((QColor*)this)->alloc(screen);
-    return pixel();
-}
-
 
 void QColor::setSystemNamedColor(const QString& name)
 {

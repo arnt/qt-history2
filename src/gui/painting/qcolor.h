@@ -71,14 +71,8 @@ public:
     bool   operator==(const QColor &c) const;
     bool   operator!=(const QColor &c) const;
 
-    uint   alloc();
-    uint   pixel()  const;
-
-#if defined(Q_WS_X11)
-    // ### in 4.0, make this take a default argument of -1 for default screen?
-    uint alloc(int screen);
-    uint pixel(int screen) const;
-#endif
+    uint   alloc(int screen = -1);
+    uint   pixel(int screen = -1)  const;
 
     static int  maxColors();
     static int  numBitPlanes();

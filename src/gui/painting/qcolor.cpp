@@ -18,6 +18,10 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
+#ifdef Q_WS_X11
+#include "qx11info_x11.h"
+#endif
+
 #include <stdio.h>
 
 
@@ -784,10 +788,26 @@ QColor QColor::dark(int factor) const
     hardware's color table, but the value is an arbitrary 32-bit
     value.
 
+    The \a screen parameter is only used under X11 to specify the X11
+    screen.
+
     \sa alloc()
 */
-uint QColor::pixel() const
+uint QColor::pixel(int screen) const
 {
+#ifdef Q_WS_X11
+    // don't allocate Qt::color0 or Qt::color1, they have fixed pixel values for all screens
+    if (d.argb == qRgba(255, 255, 255, 1))
+        return 0;
+    if (d.argb == qRgba(0, 0, 0, 1))
+        return 1;
+
+    if (screen != QX11Info::appScreen())
+        return ((QColor*)this)->alloc(screen);
+#else
+    Q_UNUSED(screen);
+#endif // Q_WS_X11
+
     if (isDirty())
         return ((QColor*)this)->alloc();
     else if (colormodel == d8)

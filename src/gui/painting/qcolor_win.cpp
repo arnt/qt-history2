@@ -234,7 +234,7 @@ uint QColor::realizePal(QWidget *widget)
   QColor member functions
  *****************************************************************************/
 
-uint QColor::alloc()
+uint QColor::alloc(int)
 {
     if (!color_init) {
         return d.d32.pix = 0;
