@@ -950,7 +950,7 @@ bool Q3UrlOperator::parse( const QString &url )
 }
 
 /*!
-    \reimp
+    Assigns \a url to this object.
 */
 
 Q3UrlOperator& Q3UrlOperator::operator=( const Q3UrlOperator &url )
@@ -977,7 +977,7 @@ Q3UrlOperator& Q3UrlOperator::operator=( const Q3UrlOperator &url )
 }
 
 /*!
-    \reimp
+    Assigns \a url to this object.
 */
 
 Q3UrlOperator& Q3UrlOperator::operator=( const QString &url )
@@ -990,7 +990,7 @@ Q3UrlOperator& Q3UrlOperator::operator=( const QString &url )
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 bool Q3UrlOperator::cdUp()
@@ -1002,7 +1002,7 @@ bool Q3UrlOperator::cdUp()
 }
 
 /*!
-    \reimp
+    \internal
 */
 
 bool Q3UrlOperator::checkValid()

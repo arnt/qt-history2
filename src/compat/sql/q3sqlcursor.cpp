@@ -1382,11 +1382,9 @@ int Q3SqlCursor::applyPrepared(const QString& q, bool invalidate)
     return ar;
 }
 
-/*!  \reimp
-
+/*!
   Executes the SQL query \a sql. Returns true of the cursor is
   active, otherwise returns false.
-
 */
 bool Q3SqlCursor::exec(const QString & sql)
 {
@@ -1461,8 +1459,6 @@ void Q3SqlCursor::sync()
 }
 
 /*!
-    \reimp
-
     Returns the value of field number \a i.
 */
 
@@ -1514,12 +1510,5 @@ void Q3SqlCursor::setValue(int i, const QCoreVariant& val)
 #endif
     QSqlRecord::setValue(i, val);
 }
-
-/*!
-    \fn void Q3SqlCursor::insert(int pos, const Q3SqlFieldInfo &fieldInfo)
-
-    Use replace() instead.
-*/
-
 
 #endif

@@ -753,10 +753,6 @@ If you reimplement this function you'll almost certainly need to
 reimplement setContentFromEditor(), and may need to reimplement
 sizeHint().
 
-\quotefile table/statistics/statistics.cpp
-\skipto createEditor
-\printto }
-
 \sa Q3Table::createEditor() setContentFromEditor() Q3Table::viewport() setReplaceable()
 */
 
@@ -775,10 +771,6 @@ Q3TableItem.
 
 If you reimplement createEditor() and return something that is not
 a QLineEdit you will need to reimplement this function.
-
-\quotefile table/statistics/statistics.cpp
-\skipto setContentFromEditor
-\printto }
 
 \sa Q3Table::setCellContentFromEditor()
 */
@@ -1761,12 +1753,6 @@ QSize Q3CheckTableItem::sizeHint() const
     the Q3CheckTableItem class. These table items look and behave just
     like the combobox or checkbox widgets but consume far less memory.
 
-    \quotefile table/small-table-demo/main.cpp
-    \skipto int j
-    \printuntil Q3CheckTableItem
-    In the example above we create a column of Q3CheckTableItems and
-    insert them into the table using setItem().
-
     Q3Table takes ownership of its Q3TableItems and will delete them
     when the table itself is destroyed. You can take ownership of a
     table item using takeItem() which you use to move a cell's
@@ -2351,10 +2337,7 @@ void Q3Table::updateHeaderStates()
 
     This header contains the column labels.
 
-    To modify a column label use Q3Header::setLabel(), e.g.
-    \quotefile table/statistics/statistics.cpp
-    \skipto horizontalHeader
-    \printline
+    To modify a column label use Q3Header::setLabel().
 
     \sa verticalHeader() setTopMargin() Q3Header
 */

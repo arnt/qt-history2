@@ -770,7 +770,8 @@ uint Q3GList::contains( Q3PtrCollection::Item d ) const
 
 
 /*!
-  \overload Q3PtrCollection::Item Q3GList::at( uint index )
+  \fn Q3PtrCollection::Item Q3GList::at( uint index )
+  \overload
 
   Sets the item at position \a index to the current item.
 */

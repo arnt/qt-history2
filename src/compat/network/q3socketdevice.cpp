@@ -290,8 +290,6 @@ void Q3SocketDevice::setSocket( int socket, Type type )
 
 
 /*!
-    \reimp
-
     Opens the socket using the specified QIODevice file \a mode. This
     function is called from the Q3SocketDevice constructors and from
     the setSocket() function. You should not call it yourself.
@@ -334,8 +332,6 @@ QIODevice::Offset Q3SocketDevice::size() const
 
 
 /*!
-    \reimp
-
     The read/write index is meaningless for a socket, therefore this
     function returns 0.
 */
@@ -346,8 +342,6 @@ QIODevice::Offset Q3SocketDevice::at() const
 
 
 /*!
-    \reimp
-
     The read/write index is meaningless for a socket, therefore this
     function does nothing and returns true.
 */

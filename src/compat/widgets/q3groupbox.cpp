@@ -898,9 +898,10 @@ void Q3GroupBox::setChildrenEnabled(bool b)
     }
 }
 
-/*! \reimp */
+/*! \internal */
 void Q3GroupBox::setEnabled(bool on)
 {
+    // ### setEnabled() is no longer virtual; we should use a changeEvent() instead
     Q3Frame::setEnabled(on);
     if (!d->checkbox || !on)
         return;

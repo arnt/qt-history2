@@ -2051,7 +2051,7 @@ void Q3IconViewItem::paintFocus(QPainter *p, const QPalette &cg)
 
 #ifndef QT_NO_DRAGANDDROP
 /*!
-    \fn void Q3IconViewItem::dropped(QDropEvent *e, const QValueList<Q3IconDragItem> &lst)
+    \fn void Q3IconViewItem::dropped(QDropEvent *e, const Q3ValueList<Q3IconDragItem> &lst)
 
     This function is called when something is dropped on the item. \a
     e provides all the information about the drop. If the drag object
@@ -2340,7 +2340,7 @@ void Q3IconViewItem::checkRect()
         return false;
     }
 
-    void MyIconViewItem::dropped(QDropEvent *evt, const QValueList<Q3IconDragItem>&)
+    void MyIconViewItem::dropped(QDropEvent *evt, const Q3ValueList<Q3IconDragItem>&)
     {
         QString label;
         if (Q3TextDrag::decode(evt, label))
@@ -2451,7 +2451,7 @@ void Q3IconViewItem::checkRect()
 */
 
 /*!
-    \fn void  Q3IconView::dropped (QDropEvent * e, const QValueList<Q3IconDragItem> &lst)
+    \fn void Q3IconView::dropped(QDropEvent *e, const Q3ValueList<Q3IconDragItem> &lst)
 
     This signal is emitted when a drop event occurs in the viewport
     (but not on any icon) which the icon view itself can't handle.

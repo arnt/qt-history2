@@ -313,11 +313,12 @@ void Q3WidgetStack::frameChanged()
 
 
 /*!
-    \reimp
+    \internal
 */
 
 void Q3WidgetStack::setFrameRect(const QRect & r)
 {
+    // ### this function used to be virtual in QFrame in Qt 3; it is no longer virtual in Qt 4
     Q3Frame::setFrameRect(r);
     setChildGeometries();
 }

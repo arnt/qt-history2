@@ -13,8 +13,6 @@
 
 #include "q3shared.h"
 
-// This file is needed to force compilation of QShared into the kernel library.
-
 /*!
     \class Q3Shared
     \brief The QShared class is used internally for implementing shared classes.

@@ -1083,8 +1083,6 @@ bool Q3UriDrag::canDecode(const QMimeSource* e)
 }
 
 /*!
-    \fn bool Q3UriDrag::decode(const QMimeSource *source, QList<QByteArray> &list)
-
     Decodes URIs from the MIME \a source, placing the result in the \a list.
     The list is cleared before any items are inserted.
 
@@ -1414,7 +1412,7 @@ bool Q3UriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
 }
 
 /*!
-    \class Q3ColorDrag qdragobject.h
+    \class Q3ColorDrag
 
     \brief The Q3ColorDrag class provides a drag and drop object for
     transferring colors between widgets.
@@ -1430,12 +1428,6 @@ bool Q3UriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
 
     For more information about drag and drop, see the Q3DragObject class
     and the \link dnd.html drag and drop documentation\endlink.
-*/
-
-/*!
-    Constructs a color drag object with the given \a col and \a
-    dragsource. The \a dragsource is passed to the Q3StoredDrag
-    constructor.
 */
 
 /*!

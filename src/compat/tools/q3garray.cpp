@@ -50,22 +50,7 @@
 #endif
 
 /*!
-  \class QShared qshared.h
-  \brief The QShared class is used internally for implementing shared classes.
-
-  \internal
-
-  It only contains a reference count and member functions to increment and
-  decrement it.
-
-  Shared classes normally have internal classes that inherit QShared and
-  add the shared data.
-
-  \sa \link shclass.html Shared Classes\endlink
-*/
-
-/*!
-  \class Q3GArray qgarray.h
+  \class Q3GArray
   \reentrant
   \brief The Q3GArray class is an internal class for implementing the QMemArray class.
 
