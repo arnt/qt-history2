@@ -1558,46 +1558,13 @@ void QListViewItem::enforceSortOrder() const
 
 void QListViewItem::setSelected( bool s )
 {
-    QListView* view = listView();
-    if ( !view )
-	return;
-    if ( view->selectionMode() != QListView::NoSelection && isSelectable() && s != isSelected() ) {
-	if ( view->selectionMode() == QListView::Single && this != view->currentItem() ) {
-	    QListViewItem *o = view->currentItem();
-	    if ( o && o->isSelected() )
-		o->selected = FALSE;
-	    view->setCurrentItem( this );
-	    if ( o )
-		o->repaint();
-	    emit view->currentChanged( this );
-	}
-
-	if ( !s ) {
-	    selected = FALSE;	    
-	} else {
-	    if ( view->selectionMode() == QListView::Single && view->currentItem() ) {
-		view->currentItem()->selected = FALSE;
-	    }
-	    if ( view->selectionMode() == QListView::Single ) {
-		bool b = view->signalsBlocked();
-		view->blockSignals( TRUE );
-		view->selectAll( FALSE );
-		view->blockSignals( b );
-	    }
-	    selected = s;
-	}
-
-	repaint();
-	if ( !view->signalsBlocked() ) {
-	    bool emitIt = view->selectionMode() == QListView::Single && s;
-	    QListView *v = listView();
-	    emit v->selectionChanged();
-	    if ( emitIt )
-		emit v->selectionChanged( this );
-	}
+    if ( listView() && listView()->selectionMode() != QListView::NoSelection) {
+	if ( s && isSelectable() )
+	    selected = TRUE;
+	else
+	    selected = FALSE;
     }
-}  
-
+}
 
 /*!  Returns the total height of this object, including any visible
   children.  This height is recomputed lazily and cached for as long
@@ -4804,7 +4771,7 @@ void QListView::setMultiSelection( bool enable )
 
 bool QListView::isMultiSelection() const
 {
-    return d->selectionMode != QListView::Single;
+    return d->selectionMode == QListView::Extended || d->selectionMode == QListView::Multi;
 }
 
 /*! \property QListView::selectionMode
@@ -4817,8 +4784,13 @@ bool QListView::isMultiSelection() const
  */
 
 void QListView::setSelectionMode( SelectionMode mode )
-{
-    setMultiSelection( isMultiSelection() );
+{    
+    if ( isMultiSelection() && ( mode == QListView::Single || mode == QListView::NoSelection ) ){
+	clearSelection();
+	if ( mode == QListView::Single )
+	    currentItem()->selected = TRUE;
+    }
+
     d->selectionMode = mode;
 }
 
