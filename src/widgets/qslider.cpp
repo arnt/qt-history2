@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#91 $
 **
 ** Implementation of QSlider class
 **
@@ -528,59 +528,22 @@ void QSlider::updateMask()
 	QRect sliderR = sliderRect();
 	QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
 	QBrush fill (color1);
-	switch ( style() ) {
-	case WindowsStyle:
-	    if ( hasFocus() ) {
-		QRect r;
-		if ( orient == Horizontal )
-		    r.setRect( 0, tickOffset-1, width(), thickness()+2 );
-		else
-		    r.setRect( tickOffset-1, 0, thickness()+2, height() );
-		r = r.intersect( rect() );
-		p.drawWinFocusRect( r );
-	    }
-	    {
-		int mid = tickOffset + thickness()/2;
-		if ( ticks & Above )
-		    mid += style().sliderLength() / 8;
-		if ( ticks & Below )
-		    mid -= style().sliderLength() / 8;
-		style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
-					 g, mid, orient );
-	    }
-	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(),
-				    sliderR.width(), sliderR.height(),
-				    orient, ticks & Above, ticks & Below );
-	    break;
-	default:
-	case MotifStyle:
-	    if ( orient == Horizontal ) {
-		qDrawShadePanel( &p, 0, tickOffset, width(), thickness(),
-				 g, TRUE, 1, &fill );
-		p.fillRect( 0, 0, width(), tickOffset, g.background() );
-		p.fillRect( 0, tickOffset + thickness(),
-			    width(), height()/*###*/, g.background() );
-	    } else {
-		qDrawShadePanel( &p, tickOffset, 0, thickness(), height(),
-				 g, TRUE, 1, &fill );
-		p.fillRect( 0, 0,  tickOffset, height(), g.background() );
-		p.fillRect( tickOffset + thickness(), 0,
-			    width()/*###*/, height(), g.background() );
-	    }
-
-	    if ( hasFocus() ) {
-		p.setPen( color1 );
-		if ( orient == Horizontal )
-		    p.drawRect(  1, tickOffset + 1, width() - 2, thickness() - 2 );
-		else
-		    p.drawRect( tickOffset + 1, 1, thickness() - 2, height() - 2 );
-	    }
-	    style().drawSliderMask( &p, sliderR.x(), sliderR.y(),
-				    sliderR.width(), sliderR.height(),
-				    orient, ticks & Above, ticks & Below );
-	    break;
+	int mid = tickOffset + thickness()/2;
+	if ( ticks & Above )
+	    mid += style().sliderLength() / 8;
+	if ( ticks & Below )
+	    mid -= style().sliderLength() / 8;
+ 	if ( orient == Horizontal ) {
+ 	    style().drawSliderGrooveMask(&p, 0, tickOffset, width(), thickness(),
+					 mid, Horizontal );
 	}
-
+	else {
+ 	    style().drawSliderGrooveMask( &p, tickOffset, 0, thickness(), height(),
+					  mid, Vertical );
+	}
+	style().drawSliderMask( &p, sliderR.x(), sliderR.y(),
+				sliderR.width(), sliderR.height(),
+				orient, ticks & Above, ticks & Below );
 
 	int interval = tickInt;
 	if ( interval <= 0 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#46 $
 **
 ** Implementation of QProgressBar class
 **
@@ -111,6 +111,8 @@ void QProgressBar::reset()
     percentage = -1;
     setIndicator(progress_str, progress_val, total_steps);
     update();
+    if ( autoMask() )
+	updateMask();
 }
 
 
@@ -130,8 +132,11 @@ void QProgressBar::setTotalSteps( int totalSteps )
     bool clear = totalSteps != total_steps;
     total_steps = totalSteps;
     if ( isVisible() ) {
-	if ( setIndicator(progress_str, progress_val, total_steps) )
+	if ( setIndicator(progress_str, progress_val, total_steps) ) {
 	    repaint( clear );
+	    if ( autoMask() )
+		updateMask();
+	}
     }
 }
 
@@ -155,8 +160,11 @@ void QProgressBar::setProgress( int progress )
 	return;
     progress_val = progress;
     if ( isVisible() ) {
-	if ( setIndicator(progress_str, progress_val, total_steps) )
+	if ( setIndicator(progress_str, progress_val, total_steps) ) {
 	    repaint( FALSE );
+	    if ( autoMask() )
+		updateMask();
+	}
     }
 }
 
@@ -210,6 +218,8 @@ void QProgressBar::setCenterIndicator( bool on )
     auto_indicator   = FALSE;
     center_indicator = on;
     repaint( FALSE );
+    if ( autoMask() )
+	updateMask();
 }
 
 /*!
@@ -236,6 +246,8 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 	return;
     auto_indicator = on;
     repaint( FALSE );
+    if ( autoMask() )
+	updateMask();
 }
 
 void QProgressBar::show()
@@ -375,7 +387,7 @@ void QProgressBar::drawContents( QPainter *p )
 
 	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
 	}
-	p->fillRect( bar, colorGroup().base() );
+	p->fillRect( bar, colorGroup().brush( QColorGroup::Base ) );
 	p->setPen( colorGroup().text() );
 	p->drawText( bar, AlignCenter, progress_str );
     }

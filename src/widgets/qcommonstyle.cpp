@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#4 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -249,9 +249,12 @@ void
 QCommonStyle::drawSliderGrooveMask( QPainter *p,
 				   int x, int y, int w, int h,
 				   QCOORD /* c */,
-				   Orientation )
+				   Orientation orient )
 {
-    p->fillRect(x, y, w, h, color1);
+     if ( orient == Horizontal )
+	 p->fillRect(x, y, w, h, color1);
+    else 
+	p->fillRect(x, y, w, h, color1);
 }
 
 

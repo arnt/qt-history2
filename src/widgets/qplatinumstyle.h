@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.h#2 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.h#3 $
 **
 ** Definition of Platinum-like style class
 **
@@ -35,7 +35,7 @@ class Q_EXPORT QPlatinumStyle : public QWindowsStyle
 public:
     QPlatinumStyle();
     void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-			 const QColorGroup &,  int lineWidth = 2, 
+			 const QColorGroup &,  int lineWidth = 2,
 			 const QBrush *fill = 0 );
     void drawButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
@@ -73,6 +73,9 @@ public:
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
 			     Orientation, bool tickAbove, bool tickBelow );
+    void drawSliderMask( QPainter *p,
+			 int x, int y, int w, int h,
+			 Orientation, bool tickAbove, bool tickBelow);
     void drawSliderGroove( QPainter *p,
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
@@ -80,7 +83,7 @@ public:
 
 
     int maximumSliderDragDistance() const;
-    
+
     void drawCheckMark( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g,
 			     bool act, bool dis );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#5 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -84,7 +84,7 @@ QPlatinumStyle::QPlatinumStyle()
 
 /*! \reimp */
 void QPlatinumStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
-			       const QColorGroup &g,  int lineWidth, 
+			       const QColorGroup &g,  int lineWidth,
 			       const QBrush *fill )
 {
     QWindowsStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
@@ -1253,6 +1253,65 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 	p->drawLine(x1+mx-2, y2-1, x1+mx+2, y2-1);
 
 	drawRiffles(p, x+2, y, w-4, h-5, g, FALSE);
+    }
+}
+
+void QPlatinumStyle::drawSliderMask( QPainter *p,
+				 int x, int y, int w, int h,
+				 Orientation orient , bool /* tickAbove */, bool /*tickBelow*/ )
+{
+    int x1 = x;
+    int x2 = x+w-1;
+    int y1 = y;
+    int y2 = y+h-1;
+    int mx = w/2;
+    int my = h/2;
+
+
+    p->setBrush( color1 );
+    p->setPen( NoPen );
+    p->drawRect( x,y,w,h );
+    p->setPen( color1 );
+
+    if ( orient == Vertical ) {
+	// shadow border
+	p->drawLine(x1, y1+1, x1,y2-1);
+	p->drawLine( x2-my+2, y1, x2, y1+my-2);
+	p->drawLine( x2-my+2, y2, x2, y1+my+2);
+ 	p->drawLine(x2, y1+my-2, x2, y1+my+2);
+ 	p->drawLine(x1+1, y1, x2-my+2, y1);
+ 	p->drawLine(x1+1, y2, x2-my+2, y2);
+	
+	// light shadow
+	p->drawLine(x1+1, y1+2, x1+1,y2-2);
+ 	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
+	p->drawLine( x2-my+2, y1+1, x2-1, y1+my-2);
+	
+	// dark shadow
+ 	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
+	p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
+ 	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
+	
+    }
+    else { // Horizontal
+	
+	// shadow border
+	p->drawLine(x1+1,y1,x2-1,y1);
+	p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
+	p->drawLine(x2, y2-mx+2, x1+mx+2, y2);
+	p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
+	p->drawLine(x1, y1+1, x1, y2-mx+2);
+	p->drawLine(x2, y1+1, x2, y2-mx+2);
+	
+	// light shadow
+	p->drawLine(x1+1, y1+1,x2-1, y1+1);
+	p->drawLine(x1+1, y1+1, x1+1, y2-mx+2);
+	
+	// dark shadow
+	p->drawLine(x2-1, y1+1, x2-1, y2-mx+2);
+	p->drawLine(x1+1, y2-mx+2, x1+mx-2, y2-1);
+	p->drawLine(x2-1, y2-mx+2, x1+mx+2, y2-1);
+	p->drawLine(x1+mx-2, y2-1, x1+mx+2, y2-1);
     }
 }
 
