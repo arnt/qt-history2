@@ -81,6 +81,7 @@ public:
     void setLabel( int section, const QString & s, int size = -1 );
     void setLabel( int section, const QIconSet & iconset, const QString & s,
 		   int size = -1 );
+    void removeLabel( int section );
 
     void setSectionState( int s, SectionState state );
     void setSectionStateToAll( SectionState state );
@@ -4532,8 +4533,8 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
 {
     updateBefore = rowCol < num;
     if ( rowCol > num ) {
-	header->QHeader::resizeArrays( rowCol + 1 );
-	header->QTableHeader::resizeArrays( rowCol + 1 );
+	header->QHeader::resizeArrays( rowCol );
+	header->QTableHeader::resizeArrays( rowCol );
 	int old = num;
 	clearSelection( FALSE );
 	int i = 0;
@@ -4637,6 +4638,14 @@ void QTable::setNumRows( int r )
     if ( isUpdatesEnabled )
 	leftHeader->update();
     leftHeader->updateCache();
+    if ( curRow >= numRows() ) {
+	curRow = numRows() - 1;
+	if ( curRow < 0 )
+	    curCol = -1;
+	else
+	    repaintCell( curRow, curCol );
+    }
+
     if ( curRow > numRows() )
 	curRow = numRows();
 }
@@ -4663,8 +4672,13 @@ void QTable::setNumCols( int c )
     if ( isUpdatesEnabled )
 	topHeader->update();
     topHeader->updateCache();
-    if ( curCol > numCols() )
-	curCol = numCols();
+    if ( curCol >= numCols() ) {
+	curCol = numCols() - 1;
+	if ( curCol < 0 )
+	    curRow = -1;
+	else
+	    repaintCell( curRow, curCol );
+    }
 }
 
 /*! Sets the section labels of the verticalHeader() to \a labels */
@@ -6077,13 +6091,25 @@ QTableHeader::QTableHeader( int i, QTable *t,
 
 void QTableHeader::addLabel( const QString &s , int size )
 {
-    if ( size > (int)states.size() ) {
-	states.resize( states.count() + 1 );
-	states[ (int)states.count() - 1 ] = Normal;
-	stretchable.resize( stretchable.count() + 1 );
-	stretchable[ (int)stretchable.count() - 1 ] = FALSE;
+    QHeader::addLabel( s, size );
+    if ( count() > (int)states.size() ) {
+	int s = states.size();
+	states.resize( count() );
+	stretchable.resize( count() );
+	for ( ; s < count(); ++s ) {
+	    states[ s ] = Normal;
+	    stretchable[ s ] = FALSE;
+	}
     }
-    QHeader::addLabel( s , size );
+}
+
+void QTableHeader::removeLabel( int section )
+{
+    QHeader::removeLabel( section );
+    if ( section == (int)states.size() - 1 ) {
+	states.resize( states.size() - 1 );
+	stretchable.resize( stretchable.size() - 1 );
+    }
 }
 
 void QTableHeader::resizeArrays( int n )
