@@ -431,7 +431,7 @@ static void np_do_timers( void*, void* )
 extern "C" char*
 NPP_GetMIMEDescription(void)
 {
-    if (!qNP) qNP = QNPlugin::actual();
+    if (!qNP) qNP = QNPlugin::create();
     return (char*)qNP->getMIMEDescription();
 }
 
@@ -440,7 +440,7 @@ NPP_GetMIMEDescription(void)
 extern "C" NPError
 NPP_GetValue(void * /*future*/, NPPVariable variable, void *value)
 {
-    if (!qNP) qNP = QNPlugin::actual();
+    if (!qNP) qNP = QNPlugin::create();
     NPError err = NPERR_NO_ERROR;
     if (variable == NPPVpluginNameString)
         *((const char **)value) = qNP->getPluginNameString();
@@ -466,7 +466,7 @@ NPP_Initialize(void)
     // Nothing more - we do it in DLLMain
 #endif
 
-    if (!qNP) qNP = QNPlugin::actual();
+    if (!qNP) qNP = QNPlugin::create();
     return NPERR_NO_ERROR;
 }
 
@@ -667,7 +667,7 @@ const char* gInstanceLookupString = "instance->pdata";
 extern "C" NPError 
 NPP_SetWindow(NPP instance, NPWindow* window)
 {
-    if (!qNP) qNP = QNPlugin::actual();
+    if (!qNP) qNP = QNPlugin::create();
 
     NPError result = NPERR_NO_ERROR;
     _NPInstance* This;
@@ -1602,7 +1602,7 @@ int QNPStream::write( int len, void* buffer )
 
 
 /*******************************************************************************
- * The plugin itself - only one ever exists, created by QNPlugin::actual()
+ * The plugin itself - only one ever exists, created by QNPlugin::create()
  ******************************************************************************/
 
 
@@ -1612,22 +1612,30 @@ int QNPStream::write( int len, void* buffer )
 
   This class is the heart of the plugin.  One instance of this object is
   created when the plugin is \e first needed, by calling
-  QNPlugin::actual(), which must be implemented in your plugin code to
+  QNPlugin::create(), which must be implemented in your plugin code to
   return some derived class of QNPlugin.  The one QNPlugin object creates
   all instances for a single running Netscape process.
 */
 
 /*!
-  \fn QNPlugin* QNPlugin::actual()
+  \fn QNPlugin* QNPlugin::create()
 
   This must be implemented by your plugin code.  It should return a derived
   class of QNPlugin.
 */
 
 /*!
+  Returns the plugin most recently returns by QNPlugin::create().
+*/
+QNPlugin* QNPlugin::actual()
+{
+    return qNP;
+}
+
+/*!
   Creates a QNPlugin.  This may only be used by the constructor 
   derived class
-  returned by plugin's implementation of the QNPlugin::actual() function.
+  returned by plugin's implementation of the QNPlugin::create() function.
 */
 QNPlugin::QNPlugin()
 {

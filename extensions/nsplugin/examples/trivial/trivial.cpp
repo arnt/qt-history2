@@ -55,7 +55,7 @@ public:
 
 };
 
-QNPlugin* QNPlugin::actual()
+QNPlugin* QNPlugin::create()
 {
     return new TrivialPlugin;
 }

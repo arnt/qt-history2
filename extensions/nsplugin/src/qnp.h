@@ -97,6 +97,8 @@ private:
 class QNPlugin {
 public:
     // Write this to return your QNPlugin derived class.
+    static QNPlugin* create();
+
     static QNPlugin* actual();
 
     virtual ~QNPlugin();
