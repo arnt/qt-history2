@@ -675,6 +675,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    return; 	    // nothing to do
 
 	bool hasBeenHidden = w->isHidden();
+	bool hasGeometry = ( w->x() != 0 ) && ( w->y() != 0 );
+	QRect wrect = QRect( w->x(), w->y(), w->width(), w->height() );
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
 	child->installEventFilter( this );
 	connect( child, SIGNAL( popupOperationMenu( const QPoint& ) ),
@@ -684,12 +686,18 @@ void QWorkspace::childEvent( QChildEvent * e)
 	d->windows.append( child );
 	if ( child->isVisibleTo( this ) )
 	    d->focus.append( child );
-	place( child );
 	child->internalRaise();
 	if ( hasBeenHidden )
 	    w->hide();
 	else if ( !isVisible() )  // that's a case were we don't receive a showEvent in time. Tricky.
 	    child->show();
+
+	if ( hasGeometry )
+	    child->setGeometry( wrect.x(), wrect.y(), 
+		wrect.width() + child->minimumSizeHint().width(), wrect.height() + child->minimumSizeHint().height() );
+	else
+	    place( child );
+
 	activateWindow( w );
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
