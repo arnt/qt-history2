@@ -1976,6 +1976,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	file = file.mid(1, file.length() - 2);
     }
     QString orig_file = file;
+    bool do_debug = file.endsWith("src.pro");
     if(!force_fix && project->isActiveConfig("no_fixpath")) {
 	if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
 	    QString qfile = Option::fixPathToLocalOS(file);
@@ -2002,9 +2003,15 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 		if(!out_fi.convertToAbs())
 		    out_dir = out_fi.filePath();
 	    }
-	    in_dir = QDir(in_dir).canonicalPath();
-	    out_dir = QDir(out_dir).canonicalPath();
+	    QString in_canonical_dir = QDir(in_dir).canonicalPath(),
+		   out_canonical_dir = QDir(out_dir).canonicalPath();
+	    if(!in_canonical_dir.isEmpty())
+		in_dir = in_canonical_dir;
+	    if(!out_canonical_dir.isEmpty())
+		out_dir = out_canonical_dir;
 	}
+	if(do_debug)
+	    qDebug("Fix -- %s %s", in_dir.latin1(), out_dir.latin1());
 	if(out_dir != in_dir || !QDir::isRelativePath(qfile)) {
 	    if(QDir::isRelativePath(qfile)) {
 		if(file.left(Option::dir_sep.length()) != Option::dir_sep &&
@@ -2013,9 +2020,14 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 		file.prepend(in_dir);
 	    }
 	    file = Option::fixPathToTargetOS(file, FALSE);
-	    if(QFile::exists(file) && file == Option::fixPathToTargetOS(file, TRUE))
-		file = QDir(file).canonicalPath();
+	    if(QFile::exists(file) && file == Option::fixPathToTargetOS(file, TRUE)) {
+		QString real_file = QDir(file).canonicalPath();
+		if(!real_file.isEmpty())
+		    file = real_file;
+	    }
 	    QString match_dir = Option::fixPathToTargetOS(out_dir, FALSE);
+	    if(do_debug)
+		qDebug("fix [fuck] %s %s", file.latin1(), match_dir.latin1());
 	    if(file == match_dir) {
 		file = "";
 	    } else if(file.startsWith(match_dir) &&
@@ -2049,7 +2061,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	file = ".";
     if(!quote.isNull())
 	file = quote + file + quote;
-    debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
+    if(do_debug)
+	debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
     return file;
 }
 
