@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#431 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#432 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1625,7 +1625,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    int ox = 0;
 		    int oy = 0;
 		    RECT r;
-		    if ( !window->isTopLevel() ) {
+		    if ( !widget->isTopLevel() ) {
 			if ( widget->backgroundOrigin() == QWidget::ParentOrigin ) {
 			    ox = widget->x();
 			    oy = widget->y();

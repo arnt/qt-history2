@@ -1053,9 +1053,9 @@ void QWidget::erase( int x, int y, int w, int h )
 	tmphdc = FALSE;
     }
     if ( backgroundOrigin() != WidgetOrigin && !isTopLevel() ) {
-	int ox = x();
-	int oy = y();
-	if ( w->backgroundOrigin() == QWidget::WindowOrigin ) {
+	int ox = this->x();
+	int oy = this->y();
+	if ( backgroundOrigin() == QWidget::WindowOrigin ) {
 	    QPoint p = mapTo( topLevelWidget(), QPoint(0,0) );
 	    ox = p.x();
 	    oy = p.y();
