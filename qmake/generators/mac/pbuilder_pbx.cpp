@@ -534,6 +534,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             mkt << "LEXFLAGS  = " << var("QMAKE_LEXFLAGS") << endl;
             mkt << "YACC      = " << var("QMAKE_YACC") << endl;
             mkt << "YACCFLAGS = " << var("QMAKE_YACCFLAGS") << endl;
+            mkt << "DEFINES       = "
+                << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
+                << varGlue("DEFINES","-D"," -D","") << endl;
+            mkt << "INCPATH       = " << "-I" << specdir();
+            if(!project->isActiveConfig("no_include_pwd")) {
+                QString pwd = fileFixify(QDir::currentPath());
+                if(pwd.isEmpty())
+                    pwd = ".";
+                mkt << " -I" << pwd;
+            }
+            mkt << varGlue("INCLUDEPATH"," -I", " -I", "") << endl;
             mkt << "DEL_FILE  = " << var("QMAKE_DEL_FILE") << endl;
             mkt << "MOVE      = " << var("QMAKE_MOVE") << endl << endl;
             mkt << "FORMS = " << varList("UICIMPLS") << endl;
