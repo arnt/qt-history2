@@ -241,24 +241,22 @@ private:
     QCanvasItem* ptr;
 };
 
-class QCanvasItemPtrList : public QValueList<QCanvasItem*> {
-public:
-    void sort()
-    {
-	qHeapSort(*((QValueList<QCanvasItemPtr>*)this));
-    }
-    void drawUnique( QPainter& painter )
-    {
-	QCanvasItem* prev=0;
-	for (Iterator it=fromLast(); it!=end(); --it) {
-	    QCanvasItem *g=*it;
-	    if (g!=prev) {
-		g->draw(painter);
-		prev=g;
-	    }
+void QCanvasItemList::sort()
+{
+    qHeapSort(*((QValueList<QCanvasItemPtr>*)this));
+}
+
+void QCanvasItemList::drawUnique( QPainter& painter )
+{
+    QCanvasItem* prev=0;
+    for (Iterator it=fromLast(); it!=end(); --it) {
+	QCanvasItem *g=*it;
+	if (g!=prev) {
+	    g->draw(painter);
+	    prev=g;
 	}
     }
-};
+}
 
 class QCanvasChunk {
 public:
@@ -268,7 +266,7 @@ public:
 
     void sort()
     {
-	((QCanvasItemPtrList&)list).sort();
+	list.sort();
     }
 
     const QCanvasItemList* listPtr() const
@@ -322,25 +320,7 @@ providing 2D-area-based iteration and pixelwise collision detection.
 
 Most of the methods in QCanvas are mainly used by the existing
 QCanvasItem classes, so will only be interesting if you intend
-to add a new type of QCanvasItem class.  The methods of primary
-interest to the typical user are, in approximate
-order of decreasing usefulness:
-
-<ul>
-      <li> \link QCanvas QCanvas \endlink (int w, int h, int chunksize, int maxclusters)
-      <li> void \link update update \endlink ()
-      <li> int \link width width \endlink () const
-      <li> int \link height height \endlink () const
-      <li> QCanvasIteratorPrivate* \link topAt topAt \endlink (int x, int y)
-      <li> QCanvasIteratorPrivate* \link lookIn lookIn \endlink (int x, int y, int w, int h)
-      <li> QCanvasItem* \link at at \endlink (QCanvasIteratorPrivate*) const
-      <li> bool \link exact exact \endlink (QCanvasIteratorPrivate*) const
-      <li> void \link next next \endlink (QCanvasIteratorPrivate*&)
-      <li> void \link end end \endlink (QCanvasIteratorPrivate*&)
-      <li> void \link protectFromChange protectFromChange \endlink (QCanvasIteratorPrivate*)
-      <li> virtual void \link drawBackground drawBackground \endlink (QPainter&, const QRect& area)
-      <li> virtual void \link drawForeground drawForeground \endlink (QPainter&, const QRect& area)
-</ul>
+to add a new type of QCanvasItem class.
 
 This class provides for very high redraw efficiency.  The properties
 of the mechanism are:
@@ -386,30 +366,13 @@ QCanvasChunk& QCanvas::chunkContaining(int x, int y) const
 { return chunk(x/chunksize,y/chunksize); }
 
 /*!
-Returns the sorted list of chunks at the given chunk.  You should
-not need this method - it is used internally for collision detection.
-\sa QCanvas::topAt(int,int)
+Returns the sorted list of all items.
 */
-const QCanvasItemList* QCanvas::listAtChunkTopFirst(int i, int j) const
+QCanvasItemList QCanvas::allItems()
 {
-    if (i>=0 && i<chwidth && j>=0 && j<chheight) {
-	chunk(i,j).sort();
-	return chunk(i,j).listPtr();
-    } else {
-	return 0;
-    }
-}
-
-/*!
-Returns the sorted list of all items.  You should
-not need this method - it is used internally for iteration.
-\sa QCanvas::all()
-*/
-QCanvasItemList* QCanvas::allList()
-{
-    QCanvasItemList* list=new QCanvasItemList;
+    QCanvasItemList list;
     for (QPtrDictIterator<void> it=itemDict; it.currentKey(); ++it) {
-	list->prepend((QCanvasItem*)it.currentKey());
+	list.prepend((QCanvasItem*)it.currentKey());
     }
     return list;
 }
@@ -648,6 +611,11 @@ void QCanvas::addAnimation(QCanvasItem* item)
     animDict.insert(item,(void*)1);
 }
 
+void QCanvas::removeAnimation(QCanvasItem* item)
+{
+    animDict.remove(item);
+}
+
 /*!
 (internal)
 This method removes an element from the list of QCanvasItem objects
@@ -701,7 +669,13 @@ void QCanvas::advance()
 	QCanvasItem* i = (QCanvasItem*)it.currentKey();
 	++it;
 	if ( i )
-	    i->forward();
+	    i->advance(0);
+    }
+    for (QPtrDictIterator<void> it=animDict; it.current(); ) {
+	QCanvasItem* i = (QCanvasItem*)it.currentKey();
+	++it;
+	if ( i )
+	    i->advance(1);
     }
     update();
 }
@@ -799,7 +773,7 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
     if (mx>chwidth) mx=chwidth;
     if (my>chheight) my=chheight;
 
-    QCanvasItemPtrList allvisible;
+    QCanvasItemList allvisible;
 
     for (int x=lx; x<mx; x++) {
 	for (int y=ly; y<my; y++) {
@@ -937,268 +911,6 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
 	chunkContaining(x,y).remove(g);
     }
 }
-
-/*
-(internal)
-A QCanvasIteratorPrivate is used for the actual implementation of
-the QCanvasIteratorPrivate* iterator.  It stores all the information needed to
-iterate over the various queries.
-
-\sa QCanvas::topAt(int,int)
-*/
-class QCanvasIteratorPrivate {
-private:
-    QCanvasIteratorPrivate(int ax, int ay, int aw, int ah, QCanvas* canv, QImage* coll_mask) :
-	x(ax),y(ay),
-	w(aw),h(ah),
-	collision_mask(coll_mask),
-	i(x/canv->chunkSize()),
-	j(y/canv->chunkSize()),
-	x1(i), y1(j),
-	x2((x+w-1)/canv->chunkSize()),
-	y2((y+h-1)/canv->chunkSize()),
-	list(canv->listAtChunkTopFirst(i,j)),
-	is_copy(FALSE)
-    {
-	if ( list )
-	    lit = list->begin();
-    }
-
-    // Iterates using items list
-    QCanvasIteratorPrivate(QCanvas* canv) :
-	x(0),y(0),
-	w(0),h(0),
-	i(1),j(1),
-	x1(0),y1(0),
-	x2(-1),y2(-1),
-	list(canv->allList()),
-	is_copy(TRUE)
-    {
-	if ( list )
-	    lit = list->begin();
-    }
-
-public:
-    static QCanvasIteratorPrivate* make(int ax, int ay, int aw, int ah, QCanvas* canv, QImage* coll_mask)
-    {
-	QCanvasIteratorPrivate* result=new QCanvasIteratorPrivate(ax,ay,aw,ah,
-	    canv, coll_mask);
-
-	if (result->empty()) {
-	    result=result->next(canv);
-	}
-
-	return result;
-    }
-
-    static QCanvasIteratorPrivate* make(int sx, int sy, QCanvasPixmap* im, QCanvas* canv)
-    {
-	return make( sx-im->hotx, sy-im->hoty, im->colw, im->colh,
-		canv, im->collision_mask);
-    }
-
-    static QCanvasIteratorPrivate* make(QCanvas* canv)
-    {
-	return new QCanvasIteratorPrivate(canv);
-    }
-
-    ~QCanvasIteratorPrivate()
-    {
-	if (is_copy) delete list;
-    }
-
-    QCanvasIteratorPrivate* next(const QCanvas* canv)
-    {
-	if (!empty()) {
-	    nextElement();
-	    if (!empty()) {
-		return this;
-	    }
-	}
-
-	while (empty()) {
-	    i++;
-
-	    if (i <= x2) {
-		newList((QCanvasItemList*)canv->listAtChunkTopFirst(i,j));
-	    } else {
-		i=x1; j++;
-		if (j <= y2) {
-		    newList((QCanvasItemList*)canv->listAtChunkTopFirst(i,j));
-		} else {
-		    delete this;
-		    return 0;
-		}
-	    }
-	}
-
-	return this;
-    }
-
-    QCanvasItem* element()
-    {
-	return *lit;
-    }
-
-    void protectFromChange()
-    {
-	if (!is_copy) {
-	    is_copy=TRUE;
-	    list=new QCanvasItemList(*list);
-	    lit = list->begin();
-	}
-    }
-
-    const int x, y, w, h;
-    QImage* collision_mask;
-
-private:
-    void newList(QCanvasItemList* nl)
-    {
-	if (is_copy) {
-	    delete list;
-	    list=new QCanvasItemList(*nl);
-	} else {
-	    list=nl;
-	}
-	lit = list->begin();
-    }
-
-    void nextElement()
-    {
-	++lit;
-    }
-
-    bool empty()
-    {
-	return !list || lit == list->end();
-    }
-
-    int i, j;
-    const int x1, y1, x2, y2;
-
-    const QCanvasItemList* list;
-    QCanvasItemList::ConstIterator lit;
-    bool is_copy; // indicates that list is a copy, not canvas list.
-};
-
-/*!
-QCanvasItem objects at a <em>point</em> can be traversed from top
-to bottom using:
-
-\code
-    for (QCanvasIteratorPrivate* p=topAt(x,y); p; next(p)) {
-    QCanvasItem* the_item = at(p);
-    if (you_are_interested_in_collisions_with(the_item) && exact(p)) {
-	    // Collision!
-	    ...
-	}
-    }
-\endcode
-
-This traverses <em>at least</em> all the items at pixel position (x,y).
-
-The QCanvasItem returned by at(QCanvasIteratorPrivate*) is very approximate, but is found
-very efficiently.  It should be used as a first-cut to ignore
-QCanvasItem objects you are not interested in.
-
-exact(QCanvasIteratorPrivate*) should be used to further
-examine the QCanvasItem, as depicted above.
-
-During the traversal, the QCanvas must not be modified unless
-protectFromChange(QCanvasIteratorPrivate*) is first called on the iterator.  This is for
-efficiency reasons (protecting the list of hits requires extra work).
-
-\warning Currently, the collision model is not quite correct at this
-    level of abstraction, because it cannot check collision exactness
-    beyond the rectangular level.  This will change in futures versions.
-    For now, you should perhaps use the QCanvasItem::neighbourhood(...)
-    methods instead.
-
-\sa QCanvasItem::rtti()
-*/
-QCanvasIteratorPrivate* QCanvas::topAt(int x, int y)
-{
-    QCanvasIteratorPrivate* iterator=QCanvasIteratorPrivate::make(x,y,1,1, this, 0);
-    return (QCanvasIteratorPrivate*)iterator;
-}
-
-/*!
-Provides for traversal of all QCanvasItem objects in the field,
-regardless of whether they are visible, on the field, or anything else.
-No particular ordering it given.  You should iterate to the end of the
-list, or use end(QCanvasIteratorPrivate*&).
-*/
-QCanvasIteratorPrivate* QCanvas::all()
-{
-    QCanvasIteratorPrivate* iterator=QCanvasIteratorPrivate::make(this);
-    return (QCanvasIteratorPrivate*)iterator;
-}
-
-/*!
-QCanvasItem objects in an <em>area</em> can be traversed using:
-
-\code
-   for (QCanvasIteratorPrivate* p=lookIn(x,y,w,h); p; next(p)) {
-    QCanvasItem* the_item = at(p);
-    ...
-    }
-\endcode
-
-This traverses \e at \e least all the items in the given rectangle
-\e at \e least once.
-
-\sa topAt(int,int) at(QCanvasIteratorPrivate*)
-*/
-QCanvasIteratorPrivate* QCanvas::lookIn(int x, int y, int w, int h)
-{
-    QCanvasIteratorPrivate* iterator=QCanvasIteratorPrivate::make(x,y,w,h, this, 0);
-    return (QCanvasIteratorPrivate*)iterator;
-}
-
-/*!
-This should be called if you want to terminate a traversal without
-looking at all results.  It frees memory used for the iteration.
-*/
-void QCanvas::end(QCanvasIteratorPrivate*& p) const
-{
-    if (p) {
-	delete (QCanvasIteratorPrivate*)p;
-	p=0;
-    }
-}
-
-/*!
-Returns the QCanvasItem for a given point in a traversal.
-
-\sa topAt(int,int) lookIn(int,int,int,int)
-*/
-QCanvasItem* QCanvas::at(QCanvasIteratorPrivate* p) const
-{
-    if (p) {
-	QCanvasIteratorPrivate* iterator=(QCanvasIteratorPrivate*)p;
-	return iterator->element();
-    } else {
-	return 0;
-    }
-}
-
-/*!
-During the traversal, the QCanvas must not be modified.
-If you wish to modify it, call this method on the
-QCanvasIteratorPrivate*.  This will allow the QCanvas to be subsequently
-modified without damaging the list of hits.
-*/
-void QCanvas::protectFromChange(QCanvasIteratorPrivate* p)
-{
-    if (p) {
-	QCanvasIteratorPrivate* iterator=(QCanvasIteratorPrivate*)p;
-	iterator->protectFromChange();
-    }
-}
-
-
-unsigned int QCanvas::posprec=0;
 
 /*!
 \class QCanvas qcanvas.h
@@ -1462,9 +1174,14 @@ Construct a QCanvasItem on the current canvas.
 */
 QCanvasItem::QCanvasItem() :
     cnv(current_canvas),
-    myx(0),myy(0),myz(0),
-    vis(TRUE)
+    myx(0),myy(0),myz(0)
 {
+    ani=0;
+    vis=1;
+    sel=0;
+    ena=0;
+    act=0;
+
     ext = 0;
     if (cnv) cnv->addItem(this);
 }
@@ -1486,11 +1203,28 @@ QCanvasItemExtra& QCanvasItem::extra()
     return *ext;
 }
 
+bool QCanvasItem::animated() const
+{
+    return ani;
+}
+
+void QCanvasItem::setAnimated(bool y)
+{
+    if ( y != ani ) {
+	ani = y;
+	if ( y ) {
+	    cnv->addAnimation(this);
+	} else {
+	    cnv->removeAnimation(this);
+	}
+    }
+}
+
 void QCanvasItem::setVelocity( double vx, double vy)
 {
     if ( ext || vx!=0.0 || vy!=0.0 ) {
-	if ( !ext && cnv )
-	    cnv->addAnimation(this);
+	if ( !ani )
+	    setAnimated(TRUE);
 	extra().vx = vx;
 	extra().vy = vy;
     }
@@ -1507,9 +1241,9 @@ double QCanvasItem::yVelocity() const
 }
 
 
-void QCanvasItem::forward()
+void QCanvasItem::advance(int stage)
 {
-    if ( ext ) moveBy(ext->vx,ext->vy);
+    if ( ext && stage==1 ) moveBy(ext->vx,ext->vy);
 }
 
 /*!
@@ -1658,42 +1392,339 @@ void QCanvasItem::setActive(bool yes)
     }
 }
 
+bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
+{
+    const QImage* s2image = s2->imageAdvanced()->collision_mask;
+    QRect s2area = s2->boundingRectAdvanced();
+
+    QRect cyourarea(s2area.x(),s2area.y(),
+	    s2area.width(),s2area.height());
+
+    QImage* s1image=s1->imageAdvanced()->collision_mask;
+
+    QRect s1area = s1->boundingRectAdvanced();
+
+    QRect ourarea = s1area.intersect(cyourarea);
+
+    if ( ourarea.isEmpty() )
+	return FALSE;
+
+    int x2=ourarea.x()-cyourarea.x();
+    int y2=ourarea.y()-cyourarea.y();
+    int x1=ourarea.x()-s1area.x();
+    int y1=ourarea.y()-s1area.y();
+    int w=ourarea.width();
+    int h=ourarea.height();
+
+    if ( !s2image ) {
+	if ( !s1image )
+	    return w>0 && h>0;
+	// swap everything around
+	int t;
+	t=x1; x1=x2; x2=t;
+	t=y1; x1=y2; y2=t;
+	s2image = s1image;
+	s1image = 0;
+    }
+
+    // s2image != 0
+
+    // XXX 
+    // XXX A non-linear search would typically be more
+    // XXX efficient.  Optimal would be spiralling out
+    // XXX from the center, but a simple vertical expansion
+    // XXX from the centreline would suffice.
+    // XXX
+    // XXX My sister just had a baby 40 minutes ago, so
+    // XXX I'm too brain-spun to implement it correctly!
+    // XXX 
+    //
+
+    // Let's make an assumption.  That sprite masks don't have
+    // bit orders for different machines!
+    //
+    // ASSERT(s1image->bitOrder()==s2image->bitOrder());
+
+    if (s1image) {
+	if (s1image->bitOrder() == QImage::LittleEndian) {
+	    for (int j=0; j<h; j++) {
+		uchar* ml = s1image->scanLine(y1+j);
+		uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7))
+		    && *(ml + ((x1+i) >> 3)) & (1 << ((x1+i) & 7)))
+		    {
+			return TRUE;
+		    }
+		}
+	    }
+	} else {
+	    for (int j=0; j<h; j++) {
+		uchar* ml = s1image->scanLine(y1+j);
+		uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7)))
+		    && *(ml + ((x1+i) >> 3)) & (1 << (7-((x1+i) & 7))))
+		    {
+			return TRUE;
+		    }
+		}
+	    }
+	}
+    } else {
+	if (s2image->bitOrder() == QImage::LittleEndian) {
+	    for (int j=0; j<h; j++) {
+		uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7)))
+		    {
+			return TRUE;
+		    }
+		}
+	    }
+	} else {
+	    for (int j=0; j<h; j++) {
+		uchar* yl = s2image->scanLine(y2+j);
+		for (int i=0; i<w; i++) {
+		    if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7))))
+		    {
+			return TRUE;
+		    }
+		}
+	    }
+	}
+    }
+
+    return FALSE;
+}
 
 QCanvas* QCanvasItem::current_canvas=0;
 
-/*!
-\fn bool QCanvasItem::at(int x, int y) const
-Should return TRUE if the item includes the given pixel position.
-*/
-bool QCanvasItem::at(int, int) const
+static bool collision_double_dispatch(
+			      	const QCanvasSprite* s1,
+				const QCanvasPolygonalItem* p1,
+				const QCanvasRectangle* r1,
+				const QCanvasEllipse* e1,
+				const QCanvasText* t1,
+				const QCanvasSprite* s2,
+				const QCanvasPolygonalItem* p2,
+				const QCanvasRectangle* r2,
+				const QCanvasEllipse* e2,
+				const QCanvasText* t2 )
 {
-    return FALSE;
+    // Lowercase = imperfect test
+    //
+    //   sirpet
+    //   ------
+    // s|Adbddb
+    // i|dddddd
+    // r|bdBDdb
+    // p|ddDDdd
+    // e|ddddcd  - note - uses d if angles specified or non-circular
+    // t|bdbddb
+    //
+
+    const QCanvasItem* i1 = s1 ?
+		(const QCanvasItem*)s1 : p1 ?
+		(const QCanvasItem*)p1 : r1 ?
+		(const QCanvasItem*)r1 : e1 ?
+		(const QCanvasItem*)e1 : (const QCanvasItem*)t1;
+    const QCanvasItem* i2 = s2 ?
+		(const QCanvasItem*)s2 : p2 ?
+		(const QCanvasItem*)p2 : r2 ?
+		(const QCanvasItem*)r2 : e2 ?
+		(const QCanvasItem*)e2 : (const QCanvasItem*)t2;
+
+    if ( s1 && s2 ) {
+	// a
+	return qt_testCollision(s1,s2);
+    } else if ( (r1 || t2 || s1) && (r2 || t2 || s2) ) {
+	// b
+	QRect rc1 = i1->boundingRectAdvanced();
+	QRect rc2 = i1->boundingRectAdvanced();
+	return rc1.intersects(rc2);
+    } else if ( e1 && e2
+	    && e1->angleLength()>=360*16 && e2->angleLength()>=360*16
+	    && e1->width()==e1->height()
+	    && e2->width()==e2->height() )
+    {
+	// c
+	double xd = (e1->x()+e1->xVelocity())-(e2->x()+e1->xVelocity());
+	double yd = (e1->y()+e1->yVelocity())-(e2->y()+e1->yVelocity());
+	double rd = (e1->width()+e2->width())/2;
+	return xd*xd+yd*yd <= rd*rd;
+    } else if ( p1 && (p2 || s2 || t2) ) {
+	// d
+	QPointArray pa1 = p1->areaPointsAdvanced();
+	QPointArray pa2 = p2 ? p2->areaPointsAdvanced()
+		       : i2->boundingRectAdvanced();
+	bool col= !(QRegion(pa1) & QRegion(pa2,TRUE)).isEmpty();
+
+	return col;
+    } else {
+	return collision_double_dispatch(s2,p2,r2,e2,t2,
+					 s1,p1,r1,e1,t1);
+    }
+}
+
+bool QCanvasSprite::collidesWith( const QCanvasItem* i ) const
+{
+    return i->collidesWith(this,0,0,0,0);
+}
+
+bool QCanvasSprite::collidesWith(  const QCanvasSprite* s,
+				 const QCanvasPolygonalItem* p,
+				 const QCanvasRectangle* r,
+				 const QCanvasEllipse* e,
+				 const QCanvasText* t ) const
+{
+    return collision_double_dispatch(s,p,r,e,t,this,0,0,0,0);
+}
+
+bool QCanvasPolygonalItem::collidesWith( const QCanvasItem* i ) const
+{
+    return i->collidesWith(0,this,0,0,0);
+}
+
+bool QCanvasPolygonalItem::collidesWith(  const QCanvasSprite* s,
+				 const QCanvasPolygonalItem* p,
+				 const QCanvasRectangle* r,
+				 const QCanvasEllipse* e,
+				 const QCanvasText* t ) const
+{
+    return collision_double_dispatch(s,p,r,e,t,0,this,0,0,0);
+}
+
+bool QCanvasRectangle::collidesWith( const QCanvasItem* i ) const
+{
+    return i->collidesWith(0,this,this,0,0);
+}
+
+bool QCanvasRectangle::collidesWith(  const QCanvasSprite* s,
+				 const QCanvasPolygonalItem* p,
+				 const QCanvasRectangle* r,
+				 const QCanvasEllipse* e,
+				 const QCanvasText* t ) const
+{
+    return collision_double_dispatch(s,p,r,e,t,0,this,this,0,0);
+}
+
+
+bool QCanvasEllipse::collidesWith( const QCanvasItem* i ) const
+{
+    return i->collidesWith(0,this,0,this,0);
+}
+
+bool QCanvasEllipse::collidesWith(  const QCanvasSprite* s,
+				 const QCanvasPolygonalItem* p,
+				 const QCanvasRectangle* r,
+				 const QCanvasEllipse* e,
+				 const QCanvasText* t ) const
+{
+    return collision_double_dispatch(s,p,r,e,t,0,this,0,this,0);
+}
+
+bool QCanvasText::collidesWith( const QCanvasItem* i ) const
+{
+    return i->collidesWith(0,0,0,0,this);
+}
+
+bool QCanvasText::collidesWith(  const QCanvasSprite* s,
+				 const QCanvasPolygonalItem* p,
+				 const QCanvasRectangle* r,
+				 const QCanvasEllipse* e,
+				 const QCanvasText* t ) const
+{
+    return collision_double_dispatch(s,p,r,e,t,0,0,0,0,this);
+}
+
+QCanvasItemList QCanvasItem::collisions(bool exact) const
+{
+    return canvas()->collisions(chunks(),this,exact);
 }
 
 /*!
-\fn bool QCanvasItem::at(const QRect& rect) const
-TRUE if the item intersects with the given area.
+  Returns a list of items which intersect with the point \a p,
+  sorted from shallowest to deepest.
 */
-bool QCanvasItem::at(const QRect&) const
+QCanvasItemList QCanvas::collisions(QPoint p) const
 {
-    return FALSE;
-}
-
-bool QCanvasItem::at(const QImage*, const QRect&) const
-{
-    return FALSE;
+    return collisions(QRect(p,QSize(1,1)));
 }
 
 /*!
-\fn int QCanvasItem::world_to_x(int i)
-
-Same as QCanvas::world_to_x(int i)
+  Returns a list of items which intersect with the rectangle \a r,
+  sorted from shallowest to deepest.
 */
+QCanvasItemList QCanvas::collisions(QRect r) const
+{
+    QCanvasRectangle i(r);
+    i.setCanvas((QCanvas*)this);
+    QCanvasItemList l = i.collisions(TRUE);
+    l.sort();
+    return l;
+}
+
 /*!
-\fn int QCanvasItem::x_to_world(int i)
+  Returns a list of items which intersect with the chunks listed
+  in \a chunks, excluding \a item.  If \a exact is TRUE, only
+  only those which actually QCanvasItem::collidesWith() \a item
+  are returned, otherwise items are included just for being in the
+  chunks.
 
-Same as QCanvas::x_to_world(int i)
+  This is a utility function mainly used to implement the simpler
+  QCanvasItem::collisions() function.
 */
+QCanvasItemList QCanvas::collisions(QPointArray chunks,
+	    const QCanvasItem* item, bool exact) const
+{
+    QPtrDict<void> seen;
+    QCanvasItemList result;
+    for (int i=0; i<(int)chunks.count(); i++) {
+	int x = chunks[i].x();
+	int y = chunks[i].y();
+	const QCanvasItemList* l = chunk(x,y).listPtr();
+	for (QCanvasItemList::ConstIterator it=l->begin(); it!=l->end(); ++it) {
+	    QCanvasItem *g=*it;
+	    if ( g != item ) {
+		if ( !seen.find(g) && (!exact || item->collidesWith(g)) ) {
+		    seen.replace(g,(void*)1);
+		    result.append(g);
+		}
+	    }
+	}
+    }
+    return result;
+}
+
+void QCanvasItem::addToChunks()
+{
+    if (visible() && canvas()) {
+	QPointArray pa = chunks();
+	for (int i=0; i<(int)pa.count(); i++)
+	    canvas()->addItemToChunk(this,pa[i].x(),pa[i].y());
+    }
+}
+
+void QCanvasItem::removeFromChunks()
+{
+    if (visible() && canvas()) {
+	QPointArray pa = chunks();
+	for (int i=0; i<(int)pa.count(); i++)
+	    canvas()->removeItemFromChunk(this,pa[i].x(),pa[i].y());
+    }
+}
+
+void QCanvasItem::changeChunks()
+{
+    if (visible() && canvas()) {
+	QPointArray pa = chunks();
+	for (int i=0; i<(int)pa.count(); i++)
+	    canvas()->setChangedChunk(pa[i].x(),pa[i].y());
+    }
+}
+
+
 
 /*!
 \class QCanvasPixmap qcanvas.h
@@ -1769,11 +1800,15 @@ QCanvasPixmap::QCanvasPixmap(const char* dataname, const char* maskname) :
 	iio.setFileName(maskname);
 	if (iio.read()) {
 	    collision_mask=new QImage(iio.image());
-	    mask.convertFromImage(*collision_mask);
-	    setMask(mask);
+	    QBitmap m;
+	    m.convertFromImage(*collision_mask);
+	    setMask(m);
 	} else {
 	    collision_mask=0;
 	}
+    } else if ( mask() ) {
+	collision_mask = new QImage(mask()->convertToImage());
+qDebug("%dx%dx%d mask",collision_mask->width(),collision_mask->height(),collision_mask->depth());
     } else {
 	collision_mask=0;
     }
@@ -1938,7 +1973,7 @@ Returns the length of the sequence.
 */
 
 /*!
-When testing sprite collision detection with QCanvas::exact(QCanvasIteratorPrivate*),
+When testing sprite collision detection
 the default is to use the image mask of the sprite.  By using
 readCollisionMasks(const char*), an alternate mask can be used.
 Also, by using QCanvasItem::setPixelCollisionPrecision(int),
@@ -2094,6 +2129,53 @@ int QCanvasSprite::absY2(int ny) const
     return absY(ny)+image()->height()-1;
 }
 
+QCanvasPixmap* QCanvasSprite::imageAdvanced() const
+{
+    return image();
+}
+
+QRect QCanvasItem::boundingRectAdvanced() const
+{
+    int dx = int(x()+xVelocity())-int(x());
+    int dy = int(y()+yVelocity())-int(y());
+    QRect r = boundingRect();
+    r.moveBy(dx,dy);
+    return r;
+}
+
+QRect QCanvasSprite::boundingRect() const
+{
+    return QRect(absX(), absY(), width(), height());
+}
+
+/*!
+Add the sprite to the chunks in its QCanvas which it overlaps.
+
+This must be called as the values of x(), y(), and image() change
+such that the QCanvasItem is removed from chunks it is in,
+the values of x(), y(), and image() change, then it is added
+back into the then covered chunks in the QCanvas.
+*/
+QPointArray QCanvasItem::chunks() const
+{
+    QPointArray r;
+    int n=0;
+    QRect br = boundingRect();
+    if (visible() && canvas()) {
+	int chunksize=canvas()->chunkSize();
+	br &= QRect(0,0,canvas()->width(),canvas()->height());
+	r.resize((br.width()/chunksize+2)*(br.height()/chunksize+2));
+	for (int j=br.top()/chunksize; j<=br.bottom()/chunksize; j++) {
+	    for (int i=br.left()/chunksize; i<=br.right()/chunksize; i++) {
+		r[n++] = QPoint(i,j);
+	    }
+	}
+    }
+    r.resize(n);
+    return r;
+}
+
+
 /*!
 Add the sprite to the chunks in its QCanvas which it overlaps.
 
@@ -2146,279 +2228,6 @@ int QCanvasSprite::height() const
 {
     return image()->height();
 }
-
-/*!
-(override)
-
-Tests if the given pixel touches the sprite.  This uses pixel-accurate
-detection, using the collision mask of the sprites current image (which
-is by default the image mask).  This test is useful for example to test
-when the user clicks a point with they mouse.  Note however, that
-QCanvas::topAt(int x, int y) and associated methods give a more
-efficient and flexible technique for this purpose.
-*/
-bool QCanvasSprite::at(int px, int py) const
-{
-    px=px-absX();
-    py=py-absY();
-
-    if (px<0 || px>=width() || py<0 || py>=height())
-	return FALSE;
-
-    QImage* img=image()->collision_mask;
-
-    if (img) {
-	if (img->bitOrder() == QImage::LittleEndian) {
-	    return *(img->scanLine(py) + (px >> 3)) & (1 << (px & 7));
-	} else {
-	    return *(img->scanLine(py) + (px >> 3)) & (1 << (7 -(px & 7)));
-	}
-    } else {
-	return TRUE;
-    }
-}
-
-/*!
-\sa neighbourhood(int,int,QCanvasPixmap*) const
-*/
-bool QCanvas::exact(QCanvasIteratorPrivate* p) const
-{
-    QCanvasIteratorPrivate* iterator=(QCanvasIteratorPrivate*)p;
-    QRect area(iterator->x,iterator->y,iterator->w,iterator->h);
-    return iterator->element()->at(area)
-	&& (!iterator->collision_mask
-	    || iterator->element()->at(iterator->collision_mask, area));
-}
-
-/*!
-Used by the methods associated with
-QCanvas::topAt(int x, int y) to test for a close hit.
-\sa neighbourhood(int,int,QCanvasPixmap*)
-*/
-bool QCanvasSprite::at(const QRect& rect) const
-{
-    QRect crect(rect.x(),rect.y(), rect.width(),rect.height());
-    QRect myarea(absX(),absY(),width(),height());
-    return crect.intersects(myarea);
-}
-
-/*!
-Used by the methods associated with
-QCanvas::topAt(int x, int y) to test for an exact hit.
-\sa neighbourhood(int,int,QCanvasPixmap*)
-*/
-bool QCanvasSprite::at(const QImage* yourimage, const QRect& yourarea) const
-{
-    QRect cyourarea(yourarea.x(),yourarea.y(),
-	    yourarea.width(),yourarea.height());
-
-    QImage* myimage=image()->collision_mask;
-
-    QRect ourarea(absX(),absY(),width(),height()); // myarea
-
-    ourarea=ourarea.intersect(cyourarea);
-
-    int yx=ourarea.x()-cyourarea.x();
-    int yy=ourarea.y()-cyourarea.y();
-    int mx=ourarea.x()-absX();
-    int my=ourarea.y()-absY();
-    int w=ourarea.width();
-    int h=ourarea.height();
-
-    if ( !yourimage ) {
-	if ( !myimage )
-	    return w>0 && h>0;
-	// swap everything around
-	int t;
-	t=mx; mx=yx; yx=t;
-	t=my; mx=yy; yy=t;
-	yourimage = myimage;
-	myimage = 0;
-    }
-
-    // yourimage != 0
-
-    // XXX
-    // XXX A non-linear search would typically be more
-    // XXX efficient.  Optimal would be spiralling out
-    // XXX from the center, but a simple vertical expansion
-    // XXX from the centreline would suffice.
-    // XXX
-    // XXX My sister just had a baby 40 minutes ago, so
-    // XXX I'm too brain-spun to implement it correctly!
-    // XXX
-    //
-
-    // Let's make an assumption.  That sprite masks don't have
-    // bit orders for different machines!
-    //
-    // ASSERT(myimage->bitOrder()==yourimage->bitOrder());
-
-    if (myimage) {
-	if (myimage->bitOrder() == QImage::LittleEndian) {
-	    for (int j=0; j<h; j++) {
-		uchar* ml = myimage->scanLine(my+j);
-		uchar* yl = yourimage->scanLine(yy+j);
-		for (int i=0; i<w; i++) {
-		    if (*(yl + ((yx+i) >> 3)) & (1 << ((yx+i) & 7))
-		    && *(ml + ((mx+i) >> 3)) & (1 << ((mx+i) & 7)))
-		    {
-			return TRUE;
-		    }
-		}
-	    }
-	} else {
-	    for (int j=0; j<h; j++) {
-		uchar* ml = myimage->scanLine(my+j);
-		uchar* yl = yourimage->scanLine(yy+j);
-		for (int i=0; i<w; i++) {
-		    if (*(yl + ((yx+i) >> 3)) & (1 << (7-((yx+i) & 7)))
-		    && *(ml + ((mx+i) >> 3)) & (1 << (7-((mx+i) & 7))))
-		    {
-			return TRUE;
-		    }
-		}
-	    }
-	}
-    } else {
-	if (yourimage->bitOrder() == QImage::LittleEndian) {
-	    for (int j=0; j<h; j++) {
-		uchar* yl = yourimage->scanLine(yy+j);
-		for (int i=0; i<w; i++) {
-		    if (*(yl + ((yx+i) >> 3)) & (1 << ((yx+i) & 7)))
-		    {
-			return TRUE;
-		    }
-		}
-	    }
-	} else {
-	    for (int j=0; j<h; j++) {
-		uchar* yl = yourimage->scanLine(yy+j);
-		for (int i=0; i<w; i++) {
-		    if (*(yl + ((yx+i) >> 3)) & (1 << (7-((yx+i) & 7))))
-		    {
-			return TRUE;
-		    }
-		}
-	    }
-	}
-    }
-
-    return FALSE;
-}
-
-/*
-QCanvasIteratorPrivate* QCanvasItem::neighbourhood() const
-{
-    return neighbourhood(x(),y());
-}
-
-QCanvasIteratorPrivate* QCanvasItem::neighbourhood(int nx, int ny) const
-{
-    return neighbourhood(nx,ny,0);
-}
-*/
-
-/*!
-Creates an iterator which can traverse the area which the QCanvasItem
-would cover if it had the given position and image.  This `would cover'
-concept is useful as it allows you to check for a collision <em>before</em>
-moving the sprite.
-
-*/
-/*
-QCanvasIteratorPrivate* QCanvasItem::neighbourhood(int nx, int ny, QCanvasPixmap* img) const
-{
-    if (!cnv) return 0;
-
-    QCanvasIteratorPrivate* iterator=
-	QCanvasIteratorPrivate::make(nx,ny,img,cnv);
-
-    while (iterator && iterator->element()==(QCanvasItem*)this)
-	iterator=iterator->next(cnv);
-
-    return (QCanvasIteratorPrivate*)iterator;
-}
-*/
-
-/*!
-Creates an iterator which traverses the QCanvasItem objects which
-collide with this sprite at its current position.
-
-\sa neighbourhood(int,int,QCanvasPixmap*)
-*/
-/*
-QCanvasIteratorPrivate* QCanvasSprite::neighbourhood() const
-{ return neighbourhood(x(),y(),image()); }
-*/
-
-/*!
-Creates an iterator which traverses the QCanvasItem objects which
-would collide with this sprite if it was moved to the given position (yet
-kept its current image).
-
-\sa neighbourhood(int,int,QCanvasPixmap*)
-*/
-/*
-QCanvasIteratorPrivate* QCanvasSprite::neighbourhood(int nx, int ny) const
-{ return neighbourhood(nx,ny,image()); }
-QCanvasIteratorPrivate* QCanvasSprite::neighbourhood(int nx, int ny, QCanvasPixmap* img) const
-{ return QCanvasItem::neighbourhood(nx,ny,img); }
-*/
-
-/*!
-Traverse to the next QCanvasItem in a collision list.
-
-\sa neighbourhood(int,int,QCanvasPixmap*)
-*/
-void QCanvas::next(QCanvasIteratorPrivate*& p) const
-{
-    if (p) {
-	QCanvasIteratorPrivate* iterator=(QCanvasIteratorPrivate*)p;
-
-	iterator=iterator->next(this);
-
-	while (iterator && iterator->element()==(QCanvasItem*)this)
-	    iterator=iterator->next(this);
-
-	p=(QCanvasIteratorPrivate*)iterator;
-    }
-}
-
-/*!
-Test if this sprite is touching the given QCanvasItem.
-This is a convenient packaging of neighbourhood() and related methods.
-*/
-bool QCanvasSprite::hitting(QCanvasItem& other) const
-{
-    return QCanvasItem::wouldHit(other,x(),y(),image());
-}
-
-/*!
-Test if this sprite would (exactly) touch the given QCanvasItem.
-This is a convenient packaging of neighbourhood() and related methods.
-*/
-bool QCanvasItem::wouldHit(QCanvasItem& other, int x, int y, QCanvasPixmap* img) const
-{
-/*
-    // Cast off const.  Safe, because we don't call non-const methods
-    // of the QCanvasItem returnsed by at().
-    //
-    QCanvasItem* nconst_this=(QCanvasItem*)this;
-
-    for (QCanvasIteratorPrivate* p=nconst_this->neighbourhood(x,y,img); p; nconst_this->next(p)) {
-	if (nconst_this->at(p)==&other) {
-	    if (nconst_this->exact(p)) {
-		nconst_this->end(p);
-		return TRUE;
-	    }
-	}
-    }
-*/
-    return FALSE;
-}
-
-
 
 
 /*!
@@ -2517,7 +2326,6 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
-qDebug(repaint_from_moving?"Moving":"Updating");
 	viewing->drawArea(r,p,!repaint_from_moving);
 	repaint_from_moving = FALSE;
     } else {
@@ -2593,15 +2401,6 @@ destructor.
 QCanvasPolygonalItem::~QCanvasPolygonalItem()
 {
 }
-
-/*!
-\fn QPointArray QCanvasPolygonalItem::areaPoints(QPoint& offset) const;
-Sets \a offset to the offset of the area, and
-returns the points of the polygonal area covered
-by the item.
-
-Call hide() before this changes, show() afterwards.
-*/
 
 /*
  * concave: scan convert nvert-sided concave non-simple polygon with vertices at
@@ -2732,30 +2531,24 @@ bool QCanvasPolygonalItem::scan(const QRect& win) const
     return FALSE;
 }
 
-bool QCanvasPolygonalItem::at(int x, int y) const
-{
-    return scan(QRect(x,y,1,1));
-}
-
-bool QCanvasPolygonalItem::at(const QRect &r) const
-{
-    return scan(r);
-}
-
-void QCanvasPolygonalItem::chunkify(int type)
+QPointArray QCanvasPolygonalItem::chunkify(int type)
 {
     QPointArray pa = areaPoints();
 
     if ( !pa.size() )
-	return;
+	return pa;
 
     // XXX Just a simple implementation for now - find the bounding
     //     rectangle and add to every chunk thus touched.
     // XXX A better algorithm would be some kine of scanline polygon
     //     render (hence the API asks for some points).
 
+    QPointArray result;
     QRect brect = pa.boundingRect();
     int chunksize=canvas()->chunkSize();
+    int n=0;
+    if ( type == 3 )
+	result.resize((brect.width()/chunksize+2)*(brect.height()/chunksize+2));
     for (int j=brect.top()/chunksize; j<=brect.bottom()/chunksize; j++) {
 	int i;
 	switch ( type ) {
@@ -2771,8 +2564,20 @@ void QCanvasPolygonalItem::chunkify(int type)
 	    for (i=brect.left()/chunksize; i<=brect.right()/chunksize; i++)
 		canvas()->setChangedChunk(i,j);
 	    break;
+	  case 3:
+	    for (i=brect.left()/chunksize; i<=brect.right()/chunksize; i++)
+		result[n++] = QPoint(i,j);
+	    break;
 	}
     }
+    if ( type == 3 )
+	result.resize(n);
+    return result;
+}
+
+QRect QCanvasPolygonalItem::boundingRect() const
+{
+    return areaPoints().boundingRect();
 }
 
 /*!
@@ -2852,8 +2657,13 @@ QCanvasPolygon::~QCanvasPolygon()
     hide();
 }
 
+/*!
+  Note that QCanvasPolygon does not support an outline (pen is
+  always NoPen).
+*/
 void QCanvasPolygon::drawShape(QPainter & p)
 {
+    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     p.drawPolygon(poly);
 }
 
@@ -2870,6 +2680,24 @@ void QCanvasPolygon::movingBy(int dx, int dy)
     poly.translate(dx,dy);
 }
 
+QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
+{
+    int dx = int(x()+xVelocity())-int(x());
+    int dy = int(y()+yVelocity())-int(y());
+    QPointArray r = areaPoints();
+    if ( dx || dy )
+	r.translate(dx,dy);
+    return r;
+}
+
+
+/*!
+  \fn QPointArray QCanvasPolygonalItem::areaPoints() const
+
+  Must return the points bounding the shape.  Note that the returned
+  points are \e outside the object, not touching it.
+*/
+
 QPointArray QCanvasPolygon::areaPoints() const
 {
     return poly;
@@ -2884,6 +2712,13 @@ QPointArray QCanvasPolygon::areaPoints() const
 QCanvasRectangle::QCanvasRectangle() :
     w(32), h(32)
 {
+}
+
+QCanvasRectangle::QCanvasRectangle(const QRect& r) :
+    w(r.width()), h(r.height())
+{
+    move(r.x(),r.y());
+    addToChunks();
 }
 
 QCanvasRectangle::QCanvasRectangle(int x, int y, int width, int height) :
@@ -2920,10 +2755,10 @@ void QCanvasRectangle::setSize(int width, int height)
 QPointArray QCanvasRectangle::areaPoints() const
 {
     QPointArray pa(4);
-    pa[0] = QPoint(x(),y());
-    pa[1] = pa[0] + QPoint(w-1,0);
-    pa[2] = pa[0] + QPoint(w-1,h-1);
-    pa[3] = pa[0] + QPoint(0,h-1);
+    pa[0] = QPoint(x()-1,y()-1);
+    pa[1] = pa[0] + QPoint(w+1,0);
+    pa[2] = pa[0] + QPoint(w+1,h+1);
+    pa[3] = pa[0] + QPoint(0,h+1);
     return pa;
 }
 
@@ -2988,19 +2823,18 @@ void QCanvasEllipse::setAngles(int start, int length)
 
 QPointArray QCanvasEllipse::areaPoints() const
 {
-    // XXX need something better to improve hit test now, and
-    //     paint efficiency later.  For now, just a rectangle.
-    QPointArray pa(4);
-    QPoint o = QPoint(x(),y());
-    pa[0] = o + QPoint(   -w/2,    -h/2);
-    pa[1] = o + QPoint((w+1)/2,    -h/2);
-    pa[2] = o + QPoint((w+1)/2, (w+1)/2);
-    pa[3] = o + QPoint(   -w/2, (w+1)/2);
-    return pa;
+    QPointArray r;
+    r.makeArc(x()-w/2,y()-h/2,w,h,a1,a2);
+    return r;
 }
 
+/*!
+  Note that QCanvasPolygon does not support an outline (pen is
+  always NoPen).
+*/
 void QCanvasEllipse::drawShape(class QPainter & p)
 {
+    p.setPen(NoPen); // since QRegion(QPointArray) excludes outline :-(  )-:
     if ( !a1 && a2 == 360*16 ) {
 	p.drawEllipse(QRect(QPoint(x()-w/2,y()-h/2),
 			QPoint(x()+(w+1)/2, y()+(w+1)/2)));
@@ -3057,6 +2891,8 @@ QCanvasText::~QCanvasText()
 {
 }
 
+QRect QCanvasText::boundingRect() const { return brect; }
+
 void QCanvasText::setRect()
 {
     static QWidget *w=0;
@@ -3112,7 +2948,7 @@ void QCanvasText::setTextFlags(int f)
 */
 
 /*!
-  \fn const QRect& QCanvasText::boundingRect()
+  \fn const QRect& QCanvasText::boundingRect() const
   Returns the bounding rectangle of the text.
 */
 
@@ -3154,23 +2990,6 @@ void QCanvasText::moveBy(double dx, double dy)
     brect.moveBy(dx, dy);
     QCanvasItem::moveBy(dx,dy);
 }
-
-/*!
-  For collision detection.
-*/
-bool QCanvasText::at(int x, int y) const
-{
-    return brect.contains(QPoint(x,y));
-}
-
-/*!
-  For collision detection.
-*/
-bool QCanvasText::at(const class QRect & r) const
-{
-    return r.intersects(brect);
-}
-
 
 /*!
   Draws the text.
@@ -3459,38 +3278,3 @@ void QCanvasSprite::move(double nx, double ny, int nf)
     }
 }
 
-
-/*!
-\fn QCanvasIteratorPrivate* QCanvasSprite::neighbourhood(int nx, int ny) const
-Same as QCanvasItem::neighbourhood(int x, int y).
-*/
-
-/*!
-\fn QCanvasIteratorPrivate* QCanvasSprite::neighbourhood(int nframe) const
-Similar to QCanvasItem::neighbourhood(QCanvasPixmap*), but
-the image is specified by index rather than actual value.
-*/
-/*
-QCanvasIteratorPrivate* QCanvasSprite::neighbourhood(int nframe) const
-{ return neighbourhood(x(),y(),nframe); }
-*/
-
-/*!
-\fn QCanvasIteratorPrivate* QCanvasSprite::neighbourhood(double nx, double ny, int nframe) const
-Similar to QCanvasItem::neighbourhood(int x, int y, QCanvasPixmap*), but
-the image is specified by index rather than actual value.
-*/
-/*
-QCanvasIteratorPrivate* QCanvasSprite::neighbourhood(double nx, double ny, int nframe) const
-{ return QCanvasItem::neighbourhood((int)nx,(int)ny,image(nframe)); }
-*/
-
-/*!
-\fn bool QCanvasSprite::wouldHit(QCanvasItem& other, double x, double y, int frame) const
-Similar to QCanvasItem::wouldHit(QCanvasItem&, int x, int y, QCanvasPixmap*),
-but the image is specified by index rather than actual value.
-*/
-bool QCanvasSprite::wouldHit(QCanvasItem& other, double x, double y, int frame) const
-{
-    return QCanvasItem::wouldHit(other,(int)x,(int)y,image(frame));
-}

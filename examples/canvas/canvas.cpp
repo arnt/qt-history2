@@ -19,12 +19,11 @@ FigureEditor::FigureEditor(
 
 void FigureEditor::contentsMousePressEvent(QMouseEvent* e)
 {
-    for (QCanvasIterator i = canvas()->at(e->pos()); i; ++i) {
-	if ( i.exact() ) {
-	    moving = *i;
-	    moving_start = e->pos();
-	    return;
-	}
+    QCanvasItemList l=canvas()->collisions(e->pos());
+    for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
+	moving = *it;
+	moving_start = e->pos();
+	return;
     }
     moving = 0;
 }
@@ -47,28 +46,84 @@ SpaceShip::SpaceShip()
 {
     static QCanvasPixmapSequence spaceship("sprites/spaceship%02d.png");
     setSequence(&spaceship);
-    const double speed = 4.0;
-    double d = drand48();
-    setVelocity(d*speed*2-speed, (1-d)*speed*2-speed);
+    setAnimated(TRUE);
 }
 
-void SpaceShip::forward()
+const int spaceship_rtti = 1234;
+
+int SpaceShip::rtti() const
 {
-    double vx = xVelocity();
-    double vy = yVelocity();
-    double nx = x() + vx;
-    double ny = y() + vy;
-    if ( nx < 0 || nx >= canvas()->width() )
-	vx = -vy;
-    if ( ny < 0 || ny >= canvas()->height() )
-	vy = -vy;
-    setVelocity(vx,vy);
-    QCanvasItem::forward();
+    return spaceship_rtti;
+}
+
+void SpaceShip::initSpeed()
+{
+    const double speed = 4.0;
+    double d = drand48();
+    setVelocity( d*speed*2-speed, (1-d)*speed*2-speed );
+}
+
+void SpaceShip::advance(int stage)
+{
+    switch ( stage ) {
+      case 0: {
+	double vx = xVelocity();
+	double vy = yVelocity();
+
+	if ( vx == 0.0 && vy == 0.0 ) {
+	    // stopped last turn
+	    initSpeed();
+	    vx = xVelocity();
+	    vy = yVelocity();
+	}
+
+	double nx = x() + vx;
+	double ny = y() + vy;
+
+	if ( nx < 0 || nx >= canvas()->width() )
+	    vx = -vy;
+	if ( ny < 0 || ny >= canvas()->height() )
+	    vy = -vy;
+
+	for (int bounce=0; bounce<4; bounce++) {
+	    QCanvasItemList l=collisions(FALSE);
+	    for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
+		QCanvasItem *hit = *it;
+		if ( hit->rtti()==spaceship_rtti && hit->collidesWith(this) ) {
+		    switch ( bounce ) {
+		      case 0:
+			vx = -vx;
+			break;
+		      case 1:
+			vy = -vy;
+			vx = -vx;
+			break;
+		      case 2:
+			vx = -vx;
+			break;
+		      case 3:
+			// Stop for this turn
+			vx = 0;
+			vy = 0;
+			break;
+		    }
+		    setVelocity(vx,vy);
+		    break;
+		}
+	    }
+	}
+
+	setVelocity(vx,vy);
+      } break;
+      case 1:
+	QCanvasItem::advance(stage);
+        break;
+    }
 }
 
 
 Main::Main() :
-    canvas(1000,1000)
+    canvas(500,500)
 {
     editor = new FigureEditor(canvas,this);
     QMenuBar* menu = menuBar();
@@ -93,17 +148,20 @@ Main::Main() :
 
     canvas.setAdvancePeriod(30);
 
-    for (int test=0; test<1000; test++) {
+    for (int test=0; test<10; test++) {
 	addCircle();
 	addHexagon();
 	addRectangle();
+	addSprite();
     }
 }
 
 void Main::addSprite()
 {
     QCanvasItem* i = new SpaceShip;
-    i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
+    do {
+	i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
+    } while (!i->collisions(TRUE).isEmpty());
 }
 
 void Main::addCircle()
@@ -143,7 +201,7 @@ int main(int argc, char** argv)
     QApplication app(argc,argv);
 
     Main m;
-    m.resize(800,600);
+    //m.resize(500,500);
     app.setMainWidget(&m);
     m.show();
 

@@ -7,9 +7,11 @@
 #include <qcanvas.h>
 
 class SpaceShip : public QCanvasSprite {
+    void initSpeed();
 public:
     SpaceShip();
-    void forward();
+    void advance(int);
+    int rtti() const;
 };
 
 
