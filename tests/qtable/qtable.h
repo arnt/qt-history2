@@ -89,7 +89,7 @@ class QTable : public QScrollView
     Q_OBJECT
     friend class QTableItem;
     friend class QTableHeader;
-    
+
 public:
     enum EditMode { NotEditing, Editing, Replacing };
 
@@ -176,8 +176,8 @@ protected:
     bool focusNextPrevChild( bool next );
 
 protected slots:
-    virtual void columnWidthChanged( int col, int os, int ns );
-    virtual void rowHeightChanged( int col, int os, int ns );
+    virtual void columnWidthChanged( int col );
+    virtual void rowHeightChanged( int row );
     virtual void columnIndexChanged( int s, int oi, int ni );
     virtual void rowIndexChanged( int s, int oi, int ni );
     virtual void columnClicked( int col );
@@ -249,6 +249,12 @@ public:
     void setSectionState( int s, SectionState state );
     SectionState sectionState( int s ) const;
 
+    int sectionSize( int section ) const;
+    int sectionPos( int section ) const;
+
+signals:
+    void sectionSizeChanged( int s );
+    
 protected:
     void paintEvent( QPaintEvent *e );
     void paintSection( QPainter *p, int index, QRect fr );
@@ -258,18 +264,24 @@ protected:
 
 private slots:
     void doAutoScroll();
+    void sectionWidthChanged( int col, int os, int ns );
 
 private:
     void updateSelections();
     void saveStates();
-
+    void setCaching( bool b );
+    
 private:
     QArray<SectionState> states, oldStates;
+    QArray<int> sectionSizes, sectionPoses;
     bool mousePressed;
     int pressPos, startPos, endPos;
     QTable *table;
     QTimer *autoScrollTimer;
-
+    QWidget *line1, *line2;
+    bool caching;
+    int resizedSection;
+    
 };
 
 #endif // TABLE_H

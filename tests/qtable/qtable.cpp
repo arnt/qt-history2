@@ -354,6 +354,9 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
       currentSelection( 0 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       lastSortCol( -1 ), asc( TRUE ), doSort( TRUE )
 {
+    // Enable clipper and set background mode
+    enableClipper( TRUE );
+    viewport()->setBackgroundMode( PaletteBase );
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
 
@@ -379,10 +382,6 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 	leftHeader->resizeSection( i, 20 );
     }
 
-    // Enable clipper and set background mode
-    enableClipper( TRUE );
-    viewport()->setBackgroundMode( PaletteBase );
-
     // Prepare for contents
     contents.resize( numRows * numCols );
     contents.setAutoDelete( TRUE );
@@ -392,14 +391,14 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 	     topHeader, SLOT( setOffset( int ) ) );
     connect( verticalScrollBar(), SIGNAL( valueChanged( int ) ),
 	     leftHeader, SLOT( setOffset( int ) ) );
-    connect( topHeader, SIGNAL( sizeChange( int, int, int ) ),
-	     this, SLOT( columnWidthChanged( int, int, int ) ) );
+    connect( topHeader, SIGNAL( sectionSizeChanged( int ) ),
+	     this, SLOT( columnWidthChanged( int ) ) );
     connect( topHeader, SIGNAL( indexChange( int, int, int ) ),
 	     this, SLOT( columnIndexChanged( int, int, int ) ) );
     connect( topHeader, SIGNAL( sectionClicked( int ) ),
 	     this, SLOT( columnClicked( int ) ) );
-    connect( leftHeader, SIGNAL( sizeChange( int, int, int ) ),
-	     this, SLOT( rowHeightChanged( int, int, int ) ) );
+    connect( leftHeader, SIGNAL( sectionSizeChanged( int ) ),
+	     this, SLOT( rowHeightChanged( int ) ) );
     connect( leftHeader, SIGNAL( indexChange( int, int, int ) ),
 	     this, SLOT( rowIndexChanged( int, int, int ) ) );
 
@@ -1200,7 +1199,7 @@ static bool inUpdateCell = FALSE;
 
 void QTable::updateCell( int row, int col )
 {
-    if ( inUpdateCell )
+    if ( inUpdateCell || row == -1 || col == -1 )
 	return;
     inUpdateCell = TRUE;
     QRect cg = cellGeometry( row, col );
@@ -1218,11 +1217,10 @@ void QTable::updateCell( int row, int col )
 }
 
 /*!  This function is called if the width of the column \a col has
-  been changed. The second and third parameters should be ignored and
-  cellWidth() should be used to get the width of the column.
+  been changed.
 */
 
-void QTable::columnWidthChanged( int col, int, int )
+void QTable::columnWidthChanged( int col )
 {
     updateContents( columnPos( col ), 0, contentsWidth(), contentsHeight() );
     QSize s( tableSize() );
@@ -1258,11 +1256,10 @@ void QTable::columnWidthChanged( int col, int, int )
 }
 
 /*!  This function is called if the height of the row \a row has
-  been changed. The second and third parameters should be ignored and
-  rowHeight() should be used to get the height of the row.
+  been changed.
 */
 
-void QTable::rowHeightChanged( int row, int, int )
+void QTable::rowHeightChanged( int row )
 {
     updateContents( 0, rowPos( row ), contentsWidth(), contentsHeight() );
     QSize s( tableSize() );
@@ -2016,6 +2013,17 @@ QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name 
     autoScrollTimer = new QTimer( this );
     connect( autoScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
+    line1 = new QWidget( table->viewport() );
+    line1->hide();
+    line1->setBackgroundMode( PaletteText );
+    table->addChild( line1 );
+    line2 = new QWidget( table->viewport() );
+    line2->hide();
+    line2->setBackgroundMode( PaletteText );
+    table->addChild( line2 );
+
+    connect( this, SIGNAL( sizeChange( int, int, int ) ),
+	     this, SLOT( sectionWidthChanged( int, int, int ) ) );
 }
 
 void QTableHeader::addLabel( const QString &s )
@@ -2101,6 +2109,8 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
     mousePressed = TRUE;
     pressPos = real_pos( e->pos(), orientation() );
     startPos = -1;
+    setCaching( TRUE );
+    resizedSection = -1;
 }
 
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
@@ -2149,6 +2159,14 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
     autoScrollTimer->stop();
     mousePressed = FALSE;
     QHeader::mouseReleaseEvent( e );
+    line1->hide();
+    line2->hide();
+    bool hasCached = resizedSection != -1;
+    setCaching( FALSE );
+    if ( hasCached ) {
+	table->repaintContents( table->contentsX(), table->contentsY(), table->visibleWidth(), table->visibleHeight(), FALSE );
+	emit sectionSizeChanged( resizedSection );
+    }
 }
 
 void QTableHeader::updateSelections()
@@ -2194,3 +2212,55 @@ void QTableHeader::doAutoScroll()
     autoScrollTimer->start( 100, TRUE );
 }
 
+void QTableHeader::sectionWidthChanged( int col, int, int )
+{
+    resizedSection = col;
+    if ( orientation() == Horizontal ) {
+	table->moveChild( line1, QHeader::sectionPos( col ) - 1, table->contentsY() );
+	line1->resize( 1, table->visibleHeight() );
+	line1->show();
+	line1->raise();
+	table->moveChild( line2, QHeader::sectionPos( col ) + QHeader::sectionSize( col ) - 1, table->contentsY() );
+	line2->resize( 1, table->visibleHeight() );
+	line2->show();
+	line2->raise();
+    } else {	
+	table->moveChild( line1, table->contentsX(), QHeader::sectionPos( col ) - 1 );
+	line1->resize( table->visibleWidth(), 1 );
+	line1->show();
+	line1->raise();
+	table->moveChild( line2, table->contentsX(), QHeader::sectionPos( col ) + QHeader::sectionSize( col ) - 1 );
+	line2->resize( table->visibleWidth(), 1 );
+	line2->show();
+	line2->raise();
+    }
+}
+
+int QTableHeader::sectionSize( int section ) const
+{
+    if ( caching )
+	return sectionSizes[ section ];
+    return QHeader::sectionSize( section );
+}
+
+int QTableHeader::sectionPos( int section ) const
+{
+    if ( caching )
+	return sectionPoses[ section ];
+    return QHeader::sectionPos( section );
+}
+
+void QTableHeader::setCaching( bool b )
+{
+    if ( caching == b )
+	return;
+    caching = b;
+    sectionPoses.resize( count() );
+    sectionSizes.resize( count() );
+    if ( b ) {
+	for ( int i = 0; i < count(); ++i ) {
+	    sectionSizes[ i ] = QHeader::sectionSize( i );
+	    sectionPoses[ i ] = QHeader::sectionPos( i );
+	}
+    }
+}
