@@ -132,7 +132,14 @@ void CDialogWidget::generate()
 	}
 	else
 	{
-		strQMake += " \"CONFIG+=staticlib\"";
+		if ( m_pPlatform->currentText() == "win32" )
+		{
+			strQMake += " \"DEFINES+=QT_NODLL\"";
+		}
+		else
+		{
+			strQMake += " \"CONFIG+=staticlib\"";
+		}
 	}
 
 	strQMake += " -mkspec " + m_pPlatform->currentText() + "-" + m_pCompiler->currentText() + " -o " + m_pOutNameEdit->text();
