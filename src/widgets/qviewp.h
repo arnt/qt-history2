@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qviewp.h#3 $
+** $Id: //depot/qt/main/src/widgets/qviewp.h#4 $
 **
 ** Definition of QViewport class
 **
@@ -11,12 +11,12 @@
 #ifndef QVIEWP_H
 #define QVIEWP_H
 
-#include <qwidget.h>
+#include <qframe.h>
 #include <qscrbar.h>
 
 struct QViewportData;
 
-class QViewport : public QWidget
+class QViewport : public QFrame
 {
     Q_OBJECT
 public:
@@ -64,6 +64,7 @@ protected:
 
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
+    void frameChanged();
 
     QWidget* portHole();
 

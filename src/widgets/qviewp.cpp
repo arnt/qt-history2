@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qviewp.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qviewp.cpp#4 $
 **
 ** Implementation of QViewport class
 **
@@ -77,7 +77,7 @@ Constructs a QViewport.  A single child can then be added with the view()
 method.
 */
 QViewport::QViewport( QWidget *parent, const char *name, WFlags f ) :
-    QWidget( parent, name, f )
+    QFrame( parent, name, f, FALSE )
 {
     d = new QViewportData(this);
 
@@ -121,8 +121,10 @@ void QViewport::vslide( int pos )
 */
 void QViewport::updateScrollBars()
 {
-    int w=width();
-    int h=height();
+    int fw = frameWidth();
+
+    int w = width();
+    int h = height();
 
     int portw, porth;
 
@@ -133,8 +135,8 @@ void QViewport::updateScrollBars()
 
     if ( !d->viewed || d->viewed->isVisible() ) {
 	// Do we definately need the scrollbar?
-	needh = w < viewWidth();
-	needv = h < viewHeight();
+	needh = w-fw*2 < viewWidth();
+	needv = h-fw*2 < viewHeight();
 
 	// Do we intend to show the scrollbar?
 	if (d->hMode == AlwaysOn) showh = TRUE;
@@ -145,10 +147,10 @@ void QViewport::updateScrollBars()
 	else showv = needv;
 
 	// Given other scrollbar will be shown, NOW do we need one?
-	if ( showh && h-sbDim < viewHeight() ) {
+	if ( showh && h-sbDim-fw*2 < viewHeight() ) {
 	    needv=TRUE; if (d->vMode == Auto) showv=TRUE;
 	}
-	if ( showv && w-sbDim < viewWidth() ) {
+	if ( showv && w-sbDim-fw*2 < viewWidth() ) {
 	    needh=TRUE; if (d->hMode == Auto) showh=TRUE;
 	}
     } else {
@@ -160,18 +162,18 @@ void QViewport::updateScrollBars()
 
     // Hide unneeded scrollbar, calculate porthole size
     if ( showh ) {
-	porth=h-sbDim;
+	porth=h-sbDim-fw*2;
     } else {
 	if (!needh) hslide( 0 ); // move widget to left
 	d->hbar.hide();
-	porth=h;
+	porth=h-fw*2;
     }
     if ( showv ) {
-	portw=w-sbDim;
+	portw=w-sbDim-fw*2;
     } else {
 	if (!needv) vslide( 0 ); // move widget to top
 	d->vbar.hide();
-	portw=w;
+	portw=w-fw*2;
     }
 
     // Configure scrollbars that we will show
@@ -195,21 +197,22 @@ void QViewport::updateScrollBars()
     // Position the scrollbars, porthole, and corner widget.
     int bottom;
     if ( showh ) {
-	int right=( showv || cornerWidget() )
-	    ? w-sbDim : w;
+	int right = ( showv || cornerWidget() ) ? w-sbDim : w;
 	d->hbar.setGeometry( 0, h-sbDim, right, sbDim );
 	bottom=h-sbDim;
     } else {
 	bottom=h;
     }
     if ( showv ) {
-	d->porthole.setGeometry( 0, 0, w-sbDim, bottom );
+	d->porthole.setGeometry( fw, fw, w-sbDim-fw*2, bottom-fw*2 );
+	setFrameRect(QRect(0, 0, w-sbDim, bottom));
 	if (cornerWidget())
 	    d->vbar.setGeometry( w-sbDim, 0, sbDim, h-sbDim );
 	else
 	    d->vbar.setGeometry( w-sbDim, 0, sbDim, bottom );
     } else {
-	d->porthole.setGeometry( 0, 0, w, bottom );
+	setFrameRect(QRect(0, 0, w, bottom));
+	d->porthole.setGeometry( fw, fw, w-fw*2, bottom-fw*2 );
     }
     if ( d->corner )
 	d->corner->setGeometry( w-sbDim, h-sbDim, sbDim, sbDim );
@@ -653,6 +656,16 @@ void QViewport::drawContentsOffset(QPainter*, int, int, int, int, int, int)
     // p->translate(offsetx,offsety);
     // drawContents(p, clipx, clipy, clipw, cliph);
 }
+
+/*!
+An override - ensures scrollbars are correct size when frame style changes.
+*/
+void QViewport::frameChanged()
+{
+    updateScrollBars();
+    update();
+}
+
 
 /*!
   Returns the porthole widget of the viewport.  This is the widget
