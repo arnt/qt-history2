@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#1 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#2 $
 **
 ** Definition of QLabel class
 **
@@ -21,14 +21,12 @@ class QLabel : public QWidget
     Q_OBJECT
 public:
     QLabel( QWidget *parent=0, const char *name=0 );
-   ~QLabel();
 
     void    setText( const char * );
     char   *text() const;
 
 protected:
     void    paintEvent( QPaintEvent * );
-    void    resizeEvent( QResizeEvent * );
 
 private:
     QString t;
