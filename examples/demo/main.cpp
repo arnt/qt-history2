@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#13 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#14 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -82,5 +82,5 @@ int main( int argc, char **argv )
     a.setMainWidget( &frame );
     frame.show();
 
-    a.exec();
+    return a.exec();
 }
