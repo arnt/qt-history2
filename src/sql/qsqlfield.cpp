@@ -38,6 +38,11 @@
 
 #ifndef QT_NO_SQL
 
+class QSqlFieldPrivate
+{
+public:
+};
+
 /*!
     \class QSqlField qsqlfield.h
     \brief The QSqlField class manipulates the fields in SQL database tables
@@ -96,6 +101,7 @@
 QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
     : nm(fieldName), ro(FALSE), nul(FALSE)
 {
+    d = 0; //new QSqlFieldPrivate();
     val.cast( type );
 }
 
@@ -146,6 +152,7 @@ bool QSqlField::operator==(const QSqlField& other) const
 
 QSqlField::~QSqlField()
 {
+    //    delete d;
 }
 
 
@@ -178,7 +185,7 @@ void QSqlField::setValue( const QVariant& value )
 	return;
     if ( value.type() != val.type() ) {
 	if ( !val.canCast( value.type() ) )
-	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s", 
+	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
 		      nm.local8Bit().data(), value.typeName(), val.typeName() );
 	QVariant tmp = value;
 	tmp.cast( val.type() );
