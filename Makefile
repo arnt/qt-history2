@@ -5,8 +5,10 @@
 
 !IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
 QMFILE=Makefile
+FORCEDEP=FORCE
 !ELSE
 QMFILE=Makefile.borland
+FORCEDEP=
 !ENDIF
 
 all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
@@ -26,12 +28,12 @@ src-qmake: symlinks
 	$(MAKE) -f $(QMFILE)
 	cd ..
 
-src-moc: src-qmake FORCE
+src-moc: src-qmake $(FORCEDEP)
 	cd src\moc
 	$(MAKE)
 	cd ..\..
 
-sub-tools: sub-codecs FORCE
+sub-tools: sub-codecs $(FORCEDEP)
 	cd tools
 	$(MAKE)
 	cd ..
@@ -39,23 +41,23 @@ sub-tools: sub-codecs FORCE
 symlinks: .qmake.cache
 #	syncqt
 
-sub-src: .qmake.cache FORCE
+sub-src: .qmake.cache $(FORCEDEP)
 	cd src
 	$(MAKE)
 	$(MAKE) -f Makefile.main
 	cd ..
 
-sub-codecs: sub-src .qmake.cache FORCE
+sub-codecs: sub-src .qmake.cache $(FORCEDEP)
 	cd src\codecs\src
 	$(MAKE)
 	cd ..\..\..
 
-sub-tutorial: sub-src FORCE
+sub-tutorial: sub-src $(FORCEDEP)
 	cd tutorial
 	$(MAKE)
 	cd ..
 
-sub-examples: sub-src FORCE
+sub-examples: sub-src $(FORCEDEP)
 	cd examples
 	$(MAKE)
 	cd ..
