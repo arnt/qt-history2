@@ -119,7 +119,23 @@
 	</rect>
     </image>
 </widget>
-<widget type="QSlider" name="horizontal_s">
+<widget type="QSlider" name="slider1" orientation="vertical">
+    <size>
+        <width>40</width><height>200</height>
+    </size>
+    <imageset name="Base">
+        <source>ui_wslide.png</source>
+	<rect>
+	    <x>0</x><y>0</y>
+	    <width>40</width><height>200</height>
+	</rect>
+	<count>40</count>
+	<offset>
+	    <x>40</x><y>0</y>
+	</offset>
+    </imageset>
+</widget>
+<widget type="QSlider" name="slider2" orientation="vertical">
     <size>
         <width>546</width><height>146</height>
     </size>
@@ -167,10 +183,10 @@
     <imageset name="Base">
 	<source>ui_dials.png</source>
 	<rect>
-	    <x>0</x><y>0</y>
+	    <x>1106</x><y>0</y>
 	    <width>160</width><height>160</height>
 	</rect>
-	<count>45</count>
+	<count>75</count>
 	<offset>
 	    <x>158</x>
 	    <y>0</y>

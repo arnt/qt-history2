@@ -18,15 +18,28 @@
 #include <qslider.h>
 #include <qcolor.h>
 
+/*!
+  \internal
+  \class QSkinStyleItem
+
+  \brief A description of part of the skin file
+
+  The QSkinStyleItem class is used to store information from the xml file
+  about a widget.  For widgets that need additional information 
+  (QSlider for example) a subclass is made with additional fields.
+*/
 class QSkinStyleItem
 {
 public:
     QSkinStyleItem(QString t, QString n) : name(n), type(t), hasMask(FALSE),
 	isDragable(FALSE) {}
-    ~QSkinStyleItem() {}
+    virtual ~QSkinStyleItem() {}
 
     QString name;
     QString type;
+
+    QDict<QString> attr;  // for custom widgets expressing themselves through
+    			  // a skin.
 
     QRect geom;
     QDict<QPixmap> images;
@@ -35,15 +48,38 @@ public:
     QDict<QPixmap> imageSets;
     QDict< QVector< QRect > > clipSets;
 
-    QValueVector<QPoint> line; /* just one of those things we might need for
-				  a widget */
-
     bool hasMask;
     QBitmap mask;
 
-    QDict<QRect> children;
-
     bool isDragable;
+
+    /* XXX Later move these into a *extra variable to save space in the 
+       majority of widgets.  More efficient than subclassing QSkinStyleItem
+       itself as in the subclassing case we would have to copy the item at 
+       polish. The 'extra' gives us the benifit of taging it on to the existing
+       data structure, and a value to check to see if the polish is already
+       done */
+
+    /* For QSlider */
+    int direction;
+    QValueVector<QPoint> line; /* just one of those things we might need for
+				  a widget */
+    /* For QDial */
+    int startAngle;
+    int endAngle;
+
+    /* for QPushButton, QCheckBox, QRadioButton */
+    bool showLabel;
+};
+
+/* XXX should be a completly separate class in a completely separate list */
+class QSkinStyleLayoutItem : public QSkinStyleItem
+{
+public:
+    QSkinStyleLayoutItem(QString t, QString n) : QSkinStyleItem(t, n) {}
+    virtual ~QSkinStyleLayoutItem() {}
+
+    QDict<QRect> children;
 };
 
 class QSkinStylePrivate
@@ -53,6 +89,7 @@ public:
     {
         backgroundPixmap = 0;
     }
+
     QPtrList<QSkinStyleItem> specials;
 
     // FIXME.  Should only use the 'class-only' item if no class
@@ -62,7 +99,7 @@ public:
 	if(specials.count() > 0) {
 	    specials.first();
 	    while(specials.current()) {
-		if (specials.current()->type == w->className()) {
+		if (w->inherits(specials.current()->type)) {
 		    if (!specials.current()->name 
 			    || (specials.current()->name == w->name()))
 			return specials.current();
@@ -91,6 +128,7 @@ public:
     QString name;
     QDict<QPixmap> images; /* unique store.  clean up from here */
 
+    /* these should be stored in an application Item */
     QPixmap *backgroundPixmap;
     QRect backgroundClip;
 
@@ -98,6 +136,7 @@ public:
     QColor bColor;
     QColor fColor;
     QColor tColor;
+    /* end of 'should be moved' */
 };
 
 class QSkinStyleHandler : public QXmlDefaultHandler
@@ -230,7 +269,7 @@ bool QSkinStyleHandler::startElement(const QString &, const QString &,
 		    errorProt += "missing attributes: ";
 		    return FALSE;
 		}
-		i = new QSkinStyleItem("QSkinLayout", atts.value("name"));
+		i = new QSkinStyleLayoutItem("QSkinLayout", atts.value("name"));
 		state.push(S_Layout);
 		return TRUE;
 	    }
@@ -577,7 +616,7 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 	    break;
 	 case S_Element:
 	    state.pop();
-	    i->children.insert(last_string, new QRect(last_x, last_y, 
+	    ((QSkinStyleLayoutItem *)i)->children.insert(last_string, new QRect(last_x, last_y, 
 			last_width, last_height));
 	    last_x = last_y = 0;
 	    last_string = QString::null;
@@ -758,6 +797,7 @@ bool QSkinStyle::defined(const QLayout *w) const
 {
     if (!d)
 	return FALSE;
+
     if (!d->getItem(w))
 	return FALSE;
 
@@ -768,8 +808,8 @@ bool QSkinStyle::defined(const QLayout *l, const QWidget *w) const
 {
     if (!defined(l))
 	return FALSE;
-
-    if(d->getItem(l)->children.find(w->name()))
+    QSkinStyleLayoutItem *i = (QSkinStyleLayoutItem *)d->getItem(l);
+    if(i->children.find(w->name()))
 	return TRUE;
 
     return FALSE;
@@ -804,10 +844,12 @@ QRect QSkinStyle::getGeometry(const QLayout *w) const
 
 QRect QSkinStyle::getGeometry(const QLayout *l, const QWidget *w) const
 {
-    if(!d)
+    if (!defined(l, w))
 	return QRect(0,0,50,20);
 
-    QRect r = *(d->getItem(l)->children.find(w->name()));
+    QSkinStyleLayoutItem *i = (QSkinStyleLayoutItem *)d->getItem(l);
+
+    QRect r = *(i->children.find(w->name()));
     return r;
 }
 
@@ -1227,7 +1269,7 @@ void QSkinStyle::polish( QWidget *widget )
 	}
 
 	// lots of setting up to do for sliders
-	if (!qstrcmp(i->type, "QSlider")) {
+	if (widget->inherits("QSlider")) {
 	    widget->setBackgroundMode(NoBackground);
 	    /* one of the images may be a 'Line' for positional information */
 	    QPixmap *p = i->images.find("Line");
@@ -1357,7 +1399,7 @@ void QSkinLayout::setGeometry(const QRect &rect )
     
     QLayout::setGeometry(rect);
 
-    if(qstrcmp(s.className(), "QSkinStyle"))
+    if(!s.inherits("QSkinStyle"))
 	return;
 
     QSkinStyle *ss = (QSkinStyle *)&s;
@@ -1399,7 +1441,7 @@ QSize QSkinLayout::sizeHint() const
 {
     QStyle &s = QApplication::style();
     
-    if(qstrcmp(s.className(), "QSkinStyle"))
+    if(!s.inherits("QSkinStyle"))
 	return QSize(100,100);
 
     QSkinStyle *ss = (QSkinStyle *)&s;
@@ -1419,7 +1461,7 @@ QSize QSkinLayout::minimumSize() const
 {
     QStyle &s = QApplication::style();
     
-    if(qstrcmp(s.className(), "QSkinStyle"))
+    if(!s.inherits("QSkinStyle"))
 	return QSize(100, 100);
 
     QSkinStyle *ss = (QSkinStyle *)&s;
@@ -1441,7 +1483,7 @@ void QSkinDial::repaintScreen( const QRect *cr = 0 )
     QStyle &s = QApplication::style();
    
     /* if not skin style */
-    if(qstrcmp(s.className(), "QSkinStyle")) {
+    if(!s.inherits("QSkinStyle")) {
         QDial::repaintScreen(cr);
 	return;
     }
