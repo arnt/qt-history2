@@ -345,7 +345,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
             // unreachable
         }
 
-    int bindResult = qt_socket_bind(socketDescriptor, sockAddrPtr, sockAddrSize);
+    int bindResult = QT_SOCKET_BIND(socketDescriptor, sockAddrPtr, sockAddrSize);
     if (bindResult < 0) {
         switch(errno) {
         case EADDRINUSE:
