@@ -15,8 +15,9 @@
 #include "commands.h"
 #include "qprocess.h"
 
-Launcher::Launcher() : QHBox(0,0,WStyle_Tool | WStyle_Customize)
+Launcher::Launcher() : QHBox( 0, 0, WStyle_NoBorder | WStyle_Maximize | WStyle_Customize )
 {
+    int i;
     QPushButton *pb;
 
     // general design
@@ -25,7 +26,7 @@ Launcher::Launcher() : QHBox(0,0,WStyle_Tool | WStyle_Customize)
     setBackgroundColor( black );
 
     // set images for later use in the info text
-    for ( int i=0; images[i].label!=0; i++ ) {
+    for ( i=0; images[i].label!=0; i++ ) {
 	QMimeSourceFactory::defaultFactory()
 	    ->setImage( QString(images[i].label), QString(images[i].file) );
     }
@@ -37,7 +38,11 @@ Launcher::Launcher() : QHBox(0,0,WStyle_Tool | WStyle_Customize)
 
     // the info text
     info = new QLabel( vb );
+#if defined(UNIX)
     info->setFont( QFont("Coolvetica",36) );
+#else
+    info->setFont( QFont("Coolvetica",20) );
+#endif
     info->setBackgroundColor( black );
     info->setAlignment( AlignTop );
     nextInfo();
@@ -50,14 +55,14 @@ Launcher::Launcher() : QHBox(0,0,WStyle_Tool | WStyle_Customize)
     vb->setBackgroundColor( black );
 
     // commands as shorthand push buttons
-    for (int i=0; command[i].label; i++) {
+    for ( i=0; command[i].label; i++ ) {
 	pb = new QPushButton( command[i].label, vb, QString::number(i) );
 	connect( pb, SIGNAL(clicked()), this, SLOT(execute()) );
     }
 
     // commands in the list view
     QListBox *lb = new QListBox( vb );
-    for ( int i=0; other_command[i].label; i++ ) {
+    for ( i=0; other_command[i].label; i++ ) {
 	lb->insertItem(other_command[i].label);
     }
     //	lb->setFont(QFont("smoothtimes",17));

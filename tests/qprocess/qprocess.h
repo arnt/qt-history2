@@ -15,7 +15,8 @@
 #include <sys/socket.h>
 #endif
 
-class Q_EXPORT QProcess : public QObject
+//class Q_EXPORT QProcess : public QObject
+class QProcess : public QObject
 {
     Q_OBJECT
 public:
@@ -66,12 +67,14 @@ private:
     QSocketNotifier *notifierStdin;
     QSocketNotifier *notifierStdout;
     QSocketNotifier *notifierStderr;
+#if defined(UNIX)
     int socketStdin[2];
     int socketStdout[2];
     int socketStderr[2];
     pid_t pid;
     QQueue<QByteArray> stdinBuf;
     ssize_t stdinBufRead;
+#endif
 
     void init();
 

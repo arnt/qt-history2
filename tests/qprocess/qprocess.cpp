@@ -22,6 +22,7 @@ void QProcess::init()
     notifierStdout = 0;
     notifierStderr = 0;
 
+#if defined(UNIX)
     socketStdin[0] = 0;
     socketStdin[1] = 0;
     socketStdout[0] = 0;
@@ -30,6 +31,7 @@ void QProcess::init()
     socketStderr[1] = 0;
 
     stdinBufRead = 0;
+#endif
 }
 
 /*!
@@ -65,9 +67,11 @@ QProcess::QProcess( const QString& com, const QStringList& args )
 */
 QProcess::~QProcess()
 {
+#if defined(UNIX)
     while ( !stdinBuf.isEmpty() ) {
 	delete stdinBuf.dequeue();
     }
+#endif
 }
 
 
@@ -266,9 +270,11 @@ int QProcess::exitStatus()
 */
 void QProcess::dataStdin( const QByteArray& buf )
 {
+#if defined(UNIX)
     stdinBuf.enqueue( new QByteArray(buf) );
     notifierStdin->setEnabled( TRUE );
     socketWrite( socketStdin[1] );
+#endif
 }
 
 /*!
@@ -279,9 +285,11 @@ void QProcess::dataStdin( const QByteArray& buf )
 */
 void QProcess::dataStdin( const QString& buf )
 {
+#if defined(UNIX)
     QByteArray bbuf;
     bbuf.duplicate( buf.latin1(), buf.length() );
     dataStdin( bbuf );
+#endif
 }
 
 /*!
@@ -289,10 +297,12 @@ void QProcess::dataStdin( const QString& buf )
 */
 void QProcess::closeStdin( )
 {
+#if defined(UNIX)
     if ( socketStdin[1] !=0 ) {
 	close( socketStdin[1] );
 	socketStdin[1] =0 ;
     }
+#endif
 }
 
 /*!

@@ -21,7 +21,11 @@ main(int argc, char** argv)
     QPalette pal( qtgreen, Qt::black );
     pal.setColor( QColorGroup::ButtonText, Qt::black );
     app.setPalette( pal );
+#if defined(UNIX)
     app.setFont( QFont("Coolvetica",22) );
+#else
+    app.setFont( QFont("Coolvetica",16) );
+#endif
 
     Launcher l;
     app.setMainWidget(&l);
