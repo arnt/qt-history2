@@ -1835,7 +1835,9 @@ MakefileGenerator::fileFixify(QString file, const QString &out_d, const QString 
 	    }
 	    file = Option::fixPathToTargetOS(file, FALSE);
 	    QString match_dir = Option::fixPathToTargetOS(out_dir, FALSE);
-	    if(file.left(match_dir.length()) == match_dir &&
+	    if(file == match_dir) {
+		file = "";
+	    } else if(file.left(match_dir.length()) == match_dir &&
 	       file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
 		file = file.right(file.length() - (match_dir.length() + 1));
 	    } else {
