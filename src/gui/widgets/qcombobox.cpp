@@ -224,6 +224,68 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
 */
 
 /*!
+    \fn void QComboBox::textChanged(const QString &text)
+
+    This signal is sent when the text changes in the current item. The
+    item's new \a text is given.
+*/
+
+/*!
+    \fn void QComboBox::activated(int row)
+
+    This signal is sent when an item in the combobox is activated. The
+    item's \a row is given.
+
+*/
+
+/*!
+    \fn void QComboBox::activated(const QString &text)
+
+    This signal is sent when an item in the combobox is activated. The
+    item's \a text is given.
+
+*/
+
+/*!
+    \fn void QComboBox::activated(const QModelIndex &)
+
+    \internal
+
+*/
+
+/*!
+    \fn void QComboBox::highlighted(int row)
+
+    This signal is sent when an item in the combobox is highlighted. The
+    item's \a row is given.
+*/
+
+/*!
+    \fn void QComboBox::highlighted(const QString &text)
+
+    This signal is sent when an item in the combobox is highlighted. The
+    item's \a text is given.
+*/
+
+/*!
+    \fn void QComboBox::highlighted(const QModelIndex &index)
+
+    \internal
+
+    This signal is sent when an item in the combobox is highlighted. The
+    item's model item \a index is given.
+*/
+
+/*!
+    \fn void QComboBox::rootChanged(const QModelIndex &old, const QModelIndex &root)
+
+    \internal
+
+    This signal is sent when the root model item for the combobox is changed.
+    Both the \a old root index and the new \a root index are given.
+*/
+
+/*!
     Constructs a combobox with the given \a parent, using the default model.
 */
 QComboBox::QComboBox(QWidget *parent) :
@@ -358,6 +420,10 @@ QComboBox::QComboBox(QAbstractItemModel *model, QWidget *parent) :
     d->model = model;
     d->init();
 }
+
+/*!
+    \internal
+*/
 
 QComboBox::QComboBox(QComboBoxPrivate &dd,
                                    QAbstractItemModel *model, QWidget *parent) :
@@ -603,7 +669,10 @@ bool QComboBox::contains(const QString &text) const
 }
 
 /*!
-  Returns the index of the item if it is found; otherwise returns -1.
+  Returns the index of the item containing the given \a text; otherwise
+  returns -1.
+
+  The \a flags specify how the items in the combobox are searched.
 */
 int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlag flags) const
 {
@@ -783,6 +852,12 @@ QModelIndex QComboBox::root() const
 {
     return QModelIndex(d->root);
 }
+
+/*!
+    \internal
+
+    Sets the root model item \a index for the items in the combobox.
+*/
 
 void QComboBox::setRoot(const QModelIndex &index)
 {

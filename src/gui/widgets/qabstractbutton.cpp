@@ -893,6 +893,10 @@ void QAbstractButton::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
 }
 
+/*!
+    \fn void QAbstractButton::paintEvent(QPaintEvent *e)
+    \reimp
+*/
 
 /*!
     \fn void QAbstractButton::pressed()
