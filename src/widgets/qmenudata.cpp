@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#2 $
 **
 ** Implementation of QMenuData class
 **
@@ -90,11 +90,11 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
 #endif
 	return;
     }
-    if ( index == mitems->count() )		// append
-	index = -1;
+    if ( index < 0 )
+	index = mitems->count();
     QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
-    mi->ident = id;
+    mi->ident = id != -1 ? id : index;
     if ( string == 0 && bitmap == 0 && sub == 0 )	// separator
 	mi->is_separator = TRUE;
     else {
@@ -104,10 +104,7 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
 	if ( sub )
 	    menuInitSubMenu( sub );
     }
-    if ( index < 0 )
-	mitems->append( mi );
-    else
-	mitems->insert( index, mi );
+    mitems->insert( index, mi );
     menuContentsChanged();			// menu data changed
 }
 
