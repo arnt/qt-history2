@@ -540,7 +540,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	case Tok_Name:
 	    driver = (*++v).toInt();
 	    field = (*++v).toString();
-	    yyProg->append( new PushFieldValue(driver, field) );
+	    yyProg->append( new PushFieldDesc(driver, field) );
 	    break;
 	case Tok_and:
 	    emitExpr( *++v, yyNextLabel, falseLab );

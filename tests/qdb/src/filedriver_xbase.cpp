@@ -52,7 +52,7 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-//#define DEBUG_XBASE 1
+#define DEBUG_XBASE 1
 //#define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
@@ -723,11 +723,15 @@ bool FileDriver::rangeMark( const localsql::List& data )
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
 	localsql::List rangeMarkFieldData = data[i].toList();
-	if ( rangeMarkFieldData.count() != 4 ) {
+	if ( rangeMarkFieldData.count() != 2 ) {
+	    ERROR_RETURN( "Internal error: Bad range data");
+	}
+	localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
+	if ( rangeMarkFieldDesc.count() != 4 ) {
 	    ERROR_RETURN( "Internal error: Bad field description");
 	}
-	QString name = rangeMarkFieldData[0].toString();
-	QVariant value = data[++i];
+	QString name = rangeMarkFieldDesc[0].toString();
+	QVariant value = rangeMarkFieldData[1];
 	xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 	if (  fieldnum == -1 ) {
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
@@ -765,16 +769,17 @@ bool FileDriver::rangeMark( const localsql::List& data )
 		if ( numeric )
 		    rc = d->indexes[i]->FindKey( searchValue.toDouble() );
 		else
-		    rc = d->indexes[i]->FindKey( searchValue.latin1() );
+		    rc = d->indexes[i]->FindKey( searchValue.utf8() );
 		if ( rc == XB_FOUND ) {
 		    rc = XB_NO_ERROR;
 		    /* found a key, now scan until we hit a new key value */
 		    for ( ; rc == XB_NO_ERROR ; ) {
 			bool markOK = TRUE;
 			for ( uint k = 0; k < data.count(); ++k ) {
-			    localsql::List rangeScanFieldData = data[i].toList();
-			    QString name = rangeScanFieldData[0].toString();
-			    QVariant value = rangeScanFieldData[1];
+			    localsql::List rangeMarkFieldData = data[i].toList();
+			    localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
+			    QString name = rangeMarkFieldDesc[0].toString();
+			    QVariant value = rangeMarkFieldData[1];
 			    xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 			    QVariant v;
 			    field( fieldnum, v );
@@ -803,9 +808,10 @@ bool FileDriver::rangeMark( const localsql::List& data )
 	while ( rc == XB_NO_ERROR ) {
 	    bool markRecord = FALSE;
 	    for ( i = 0; i < data.count(); ++i ) {
-		localsql::List rangeScanFieldData = data[i].toList();
-		QString name = rangeScanFieldData[0].toString();
-		QVariant value = data[++i];
+		localsql::List rangeMarkFieldData = data[i].toList();
+		localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
+		QString name = rangeMarkFieldDesc[0].toString();
+		QVariant value = rangeMarkFieldData[1];
 		xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 		QVariant v;
 		field( fieldnum, v );
