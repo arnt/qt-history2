@@ -24,11 +24,12 @@
 
 enum ObjectCategory
 {
-    DefaultObject = 0x0,
-    SubObject     = 0x1,
-    ActiveX       = 0x2,
-    NoMetaObject  = 0x4,
-    NoDeclaration = 0x8
+    DefaultObject   = 0x0,
+    SubObject       = 0x01,
+    ActiveX         = 0x02,
+    NoMetaObject    = 0x04,
+    NoImplementation = 0x08,
+    NoDeclaration   = 0x10
 };
 
 // this comes from moc/qmetaobject.cpp
@@ -530,7 +531,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
         }
     }
 
-    if (!(category & NoMetaObject)) {
+    if (!(category & (NoMetaObject|NoImplementation)) {
         QFile outfile(outname + ".cpp");
         if (!outfile.open(IO_WriteOnly | IO_Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
@@ -603,7 +604,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
     QFile implFile(cppFile + ".cpp");
     QTextStream implOut(&implFile);
-    if (!(category & NoMetaObject)) {
+    if (!(category & (NoMetaObject|NoImplementation))) {
         if (!implFile.open(IO_WriteOnly | IO_Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", implFile.fileName().latin1());
             return false;
@@ -745,8 +746,10 @@ int main(int argc, char **argv)
                     return 0;
                 } else if (arg == "nometaobject") {
                     category |= NoMetaObject;
-                } else if (arg == "i") {
+                } else if (arg == "impl") {
                     category |= NoDeclaration;
+                } else if (arg == "decl") {
+                    category |= NoImplementation;
                 } else if (arg == "h") {
                     qWarning("dumpdoc Usage:\n\tdumpcpp object -c <classname> [-n <namespace>] [-o <filename>] [-nometaobject]"
                         "              \n\tobject   : object[/subobject]*"
