@@ -965,7 +965,7 @@ class QBool
 {
     bool b;
 public:
-    inline explicit QBool(bool b):b(b){};
+    inline explicit QBool(bool B):b(B){};
     inline operator bool() const {return b;}
 };
 
