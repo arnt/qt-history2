@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#9 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -47,7 +47,7 @@ Here are the <a name=cursors>predefined cursors</a>:
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#9 $";
 #endif
 
 
@@ -75,7 +75,7 @@ struct QCursorData : QShared {			// internal cursor data
     QCursorData();
    ~QCursorData();
     int	      cshape;
-    QBitMap  *bm, *bmm;
+    QBitmap  *bm, *bmm;
     short     hx, hy;
     Cursor    hcurs;
     Pixmap    pm, pmm;
@@ -199,15 +199,13 @@ The specify-it-all constructor.
 \arg \e hotY define the hot spot of this cursor
 */
 
-QCursor::QCursor( const QBitMap &bitmap, const QBitMap &mask,
+QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
 {						// define own cursor
     data = new QCursorData;
     CHECK_PTR( data );
-    data->bm  = new QBitMap;
-    data->bmm = new QBitMap;
-    *(data->bm)  = bitmap;
-    *(data->bmm) = mask;
+    data->bm  = new QBitmap( bitmap );
+    data->bmm = new QBitmap( mask );
     data->hcurs = 0;
     data->cshape = BitMapCursor;
     data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
@@ -459,7 +457,7 @@ systems and window systems).
 
 For global cursors just a 16-bit number (the same as that returned by
 shape()) is written, for bitmapped cursors the bitmap and mask
-(variable size, see QBitMap), hot spot x and y (16 bits each) are
+(variable size, see QBitmap), hot spot x and y (16 bits each) are
 written as well.
 
 \todo big/little-endianness looks doubtful
@@ -490,15 +488,13 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 	    delete c.data;
 	c.data = new QCursorData;
 	CHECK_PTR( c.data );
-	QBitMap bm, bmm;
+	QBitmap bm(1,1), bmm(1,1); // ###
 	INT16   hx, hy;
 	s >> bm >> bmm;
 	s >> hx >> hy;
-	c.data->bm  = new QBitMap;
-	c.data->bmm = new QBitMap;
 	CHECK_PTR( c.data->bm && c.data->bmm );
-	*(c.data->bm)  = bm;
-	*(c.data->bmm) = bm;
+	c.data->bm  = new QBitmap( bm );
+	c.data->bmm = new QBitmap( bmm );
 	c.data->hcurs  = 0;
 	c.data->cshape = BitMapCursor;
 	c.data->hx = hx;

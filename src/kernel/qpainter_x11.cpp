@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#67 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#66 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#67 $";
 #endif
 
 
@@ -160,11 +160,10 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
     init( color, style );
 }
 
-QBrush::QBrush( const QColor &color, const QBitMap &bitmap )
+QBrush::QBrush( const QColor &color, const QBitmap &bitmap )
 {
     init( color, CustomPattern );
-    data->bitmap = new QBitMap;
-    *(data->bitmap) = bitmap;
+    data->bitmap = new QBitmap( bitmap );
 }
 
 QBrush::QBrush( const QBrush &p )
@@ -212,13 +211,12 @@ void QBrush::setColor( const QColor &c )	// set brush color
 	QPainter::changedBrush( this, CHANGE_COLOR );
 }
 
-void QBrush::setBitMap( const QBitMap &bitmap )	// set brush bitmap
+void QBrush::setBitMap( const QBitmap &bitmap )	// set brush bitmap
 {
     data->style = CustomPattern;
     if ( data->bitmap )
 	delete data->bitmap;
-    data->bitmap = new QBitMap;
-    *(data->bitmap) = bitmap;
+    data->bitmap = new QBitmap( bitmap );
     QPainter::changedBrush( this, CHANGE_ALL );
 }
 
@@ -688,7 +686,7 @@ static char *pat_tbl[] = {
 	s = FillSolid;
     if ( !gc_brush ) {				// brush not yet created
 	bool mono = pdev->devType() == PDT_PIXMAP &&
-	            ((QPixMap*)pdev)->depth() == 1;
+	            ((QPixmap*)pdev)->depth() == 1;
 	gc_brush = alloc_painter_gc( dpy, hd, mono );
 	XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
 	if ( rop != CopyROP ) {			// update raster op for brush
@@ -781,7 +779,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	}
     }
     else if ( pdev->devType() == PDT_PIXMAP ) {	// device is a pixmap
-	QPixMap *pm = (QPixMap*)pdev;
+	QPixmap *pm = (QPixmap*)pdev;
 	bool mono = pm->depth() == 1;		// monochrome bitmap
 	gc = alloc_painter_gc( dpy, hd, mono );	// create GC
 	ww = vw = pm->width();			// default view size
@@ -2014,7 +2012,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 }
 
 
-void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
+void QPainter::drawPixMap( int x, int y, const QPixmap &pixmap )
 {						// draw pixmap
     if ( !isActive() )
 	return;
@@ -2084,19 +2082,19 @@ static QString gen_xbm_key(  const Q2DMatrix &m, const QFont &f,
 }
 
 
-static QPixMap *get_text_bitmap( const Q2DMatrix &m, const QFont &f,
+static QPixmap *get_text_bitmap( const Q2DMatrix &m, const QFont &f,
 				 const char *str, int len )
 {
     QString k = gen_xbm_key( m, f, str, len );
-    return QPixMap::find( k );
+    return QPixmap::find( k );
 }
 
 
 static void ins_text_bitmap( const Q2DMatrix &m, const QFont &f,
-			     const char *str, int len, QPixMap *pm )
+			     const char *str, int len, QPixmap *pm )
 {
     QString k = gen_xbm_key( m, f, str, len );
-    if ( !QPixMap::insert(k,pm) )		// cannot insert pixmap
+    if ( !QPixmap::insert(k,pm) )		// cannot insert pixmap
 	delete pm;
 }
 
@@ -2137,12 +2135,12 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    Q2DMatrix eff_mat( wm11/65536.0, wm12/65536.0,
 			       wm21/65536.0, wm22/65536.0,
 			       wdx/65536.0,  wdy/65536.0 );
-	    QPixMap *wx_bm = get_text_bitmap( eff_mat, cfont, str, len );
+	    QPixmap *wx_bm = get_text_bitmap( eff_mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    Q2DMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
 	    mat = eff_mat * mat;
 	    if ( create_new_bm ) {		// no such cached bitmap
-		QPixMap bm( w, h, 1 );		// create bitmap
+		QPixmap bm( w, h, 1 );		// create bitmap
 		bm.fill( color0 );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
@@ -2151,7 +2149,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.end();
 		wx_bm = bm.xForm( mat );	// transform bitmap
 	    }
-	    mat = QPixMap::trueMatrix( mat, w, h );
+	    mat = QPixmap::trueMatrix( mat, w, h );
 #if 1
 	    WXFORM_P( x, y );
 	    int dx, dy;
@@ -2180,11 +2178,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		setBrush( oldBrush );
 	    }
 	    bool do_clip = hasClipping();
-	    QPixMap *draw_bm;
+	    QPixmap *draw_bm;
 	    if ( do_clip ) {			// clipping enabled
 		int ww = wx_bm->size().width();
 		int hh = wx_bm->size().height();
-		draw_bm = new QPixMap( ww, hh, 1 );
+		draw_bm = new QPixmap( ww, hh, 1 );
 		draw_bm->fill( color0 );
 		QPainter paint;
 		paint.begin( draw_bm );
@@ -2568,11 +2566,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	setClipRegion( new_rgn );
     }
 
-    QPixMap  *pm;
+    QPixmap  *pm;
     QPainter *pp;
 
     if ( (tf & GrayText) == GrayText ) {	// prepare to draw gray text
-	pm = new QPixMap( w, fheight );
+	pm = new QPixmap( w, fheight );
 	CHECK_PTR( pm );
 	pp = new QPainter;
 	CHECK_PTR( pp );

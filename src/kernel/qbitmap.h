@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#7 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#8 $
 **
-** Definition of QBitMap class
+** Definition of QBitmap class
 **
 ** Author  : Haavard Nord
 ** Created : 941020
@@ -13,21 +13,18 @@
 #ifndef QBITMAP_H
 #define QBITMAP_H
 
-#include "qimage.h"
+#include "qpixmap.h"
 
 
-class QBitMap : public QImage			// bitmap class
+class QBitmap : public QPixmap			// bitmap class
 {
 public:
-    QBitMap()					{}
-    QBitMap( int w, int h ) : QImage( w, h, 1 )	{}
-    QBitMap( int w, int h, const char *data, bool isXbitmap=FALSE );
-    QBitMap( const QPixMap &pm ) : QImage( pm )	{}
-    QBitMap( QPixMap *pm ) : QImage( pm )	{}
-    QBitMap( const QImage &i ) : QImage( i )	{}
-    QBitMap( QImageData *i ) : QImage( i )	{}
+    QBitmap( int w, int h ) : QPixmap( w, h, 1 )	{}
+    QBitmap( int w, int h, const char *data, bool isXbitmap=FALSE );
+    QBitmap( const QPixmap &pm ) : QPixmap( pm )	{}
+    QBitmap( QImageData *i ) : QPixmap( i )	{}
 protected:
-    bool  isBitMap() const;
+    bool  isBitmap() const;
 };
 
 

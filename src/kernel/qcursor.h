@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#8 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#9 $
 **
 ** Definition of QCursor class
 **
@@ -25,7 +25,7 @@ class QCursor					// cursor class
 public:
     QCursor();					// create default arrow cursor
     QCursor( int shape );			// create cursor with shape
-    QCursor( const QBitMap &bitmap, const QBitMap &mask,
+    QCursor( const QBitmap &bitmap, const QBitmap &mask,
 	     int hotX=-1, int hotY=-1 );
     QCursor( const QCursor & );
    ~QCursor();

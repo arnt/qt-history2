@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#20 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#20 $";
 #endif
 
 
@@ -464,7 +464,7 @@ void QPainter::drawChord( const QRect &r, int a1, int a2 )
     drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
 }
 
-void QPainter::drawPixMap( const QPoint &p, const QPixMap &pm )
+void QPainter::drawPixMap( const QPoint &p, const QPixmap &pm )
 {
     drawPixMap( p.x(), p.y(), pm );
 }

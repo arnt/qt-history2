@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#21 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#21 $";
 #endif
 
 
@@ -79,11 +79,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	sh = src->metric( PDM_HEIGHT );
 
     if ( src->paintingActive() && dst->isExtDev() ) {
-	QPixMap *pm;				// output to picture/printer
+	QPixmap *pm;				// output to picture/printer
 	if ( ts == PDT_PIXMAP )
-	    pm = (QPixMap*)src;
+	    pm = (QPixmap*)src;
 	else if ( ts == PDT_WIDGET ) {		// bitBlt to temp pixmap
-	    pm = new QPixMap( sw, sh );
+	    pm = new QPixmap( sw, sh );
 	    CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh, CopyROP );
 	}
@@ -125,9 +125,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     bool mono = FALSE;
 
     if ( ts == PDT_PIXMAP )
-	copy_plane = ((QPixMap*)src)->depth() == 1;
+	copy_plane = ((QPixmap*)src)->depth() == 1;
     if ( td == PDT_PIXMAP ) {
-	bool single_plane = ((QPixMap*)dst)->depth() == 1;
+	bool single_plane = ((QPixmap*)dst)->depth() == 1;
 	if ( single_plane && !copy_plane ) {	
 #if defined(CHECK_RANGE)
 		warning( "QPaintDevice::bitBlt: Incompatible destination pixmap" );
@@ -136,7 +136,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
 	mono = copy_plane && single_plane;
 	copy_plane ^= single_plane;
-	((QPixMap*)dst)->detach();   // we will change (possibly) shared pixmap
+	((QPixmap*)dst)->detach();   // we will change (possibly) shared pixmap
     }
     GC        gc = qt_xget_temp_gc( mono );
     XGCValues gcvals;

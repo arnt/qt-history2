@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#19 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#19 $";
 #endif
 
 
@@ -224,7 +224,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		delete str;
 		break;
 	    case PDC_DRAWPIXMAP: {
-		QPixMap pixmap(8,8,1);
+		QPixmap pixmap(8,8,1);
 		s >> p >> pixmap;
 		painter->drawPixMap( p, pixmap );
 	        }
@@ -406,8 +406,8 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	    break;
 	case PDC_DRAWPIXMAP: {
 	    QRect    r  = *p[0].rect;
-	    QPixMap *pm1 = (QPixMap *)p[2].pixmap;
-	    QPixMap  pm2( r.width(), r.height(), pm1->depth() );
+	    QPixmap *pm1 = (QPixmap *)p[2].pixmap;
+	    QPixmap  pm2( r.width(), r.height(), pm1->depth() );
 	    bitBlt( &pm2, 0, 0, pm1, r.x(), r.y(), r.width(), r.height() );
 	    s << *p[1].point << pm2;
 	    }

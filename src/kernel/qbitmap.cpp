@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#3 $
 **
-** Implementation of QBitMap class
+** Implementation of QBitmap class
 **
 ** Author  : Haavard Nord
 ** Created : 941020
@@ -13,17 +13,17 @@
 #include "qbitmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#3 $";
 #endif
 
 
-QBitMap::QBitMap( int w, int h, const char *bits, bool isXbitmap )
+QBitmap::QBitmap( int w, int h, const char *bits, bool isXbitmap )
+     : QPixmap( w, h, bits, isXbitmap )
 {
-    data->pm = new QPixMap( w, h, bits, isXbitmap );
 }
 
 
-bool QBitMap::isBitMap() const
+bool QBitmap::isBitmap() const
 {
     return TRUE;
 }

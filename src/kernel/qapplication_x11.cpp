@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#57 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#56 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#57 $";
 #endif
 
 
@@ -275,7 +275,7 @@ void qt_cleanup()
     }
     delete preRList;
 
-    QPixMap::cleanup();
+    QPixmap::cleanup();
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();

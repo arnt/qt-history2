@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#11 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -70,7 +70,7 @@ union QPDevCmdParam {
     const QPoint	*point;
     const QRect		*rect;
     const QPointArray 	*ptarr;
-    const QPixMap	*pixmap;
+    const QPixmap	*pixmap;
     const QColor	*color;
     const QFont		*font;
     const QPen		*pen;

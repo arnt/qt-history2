@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#14 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#15 $
 **
 ** Definition of QPaintDevice class
 **
@@ -75,7 +75,6 @@ protected:
     virtual bool cmd( int, QPDevCmdParam * );
     virtual long metric( int ) const;
 
-private:
     uint     devFlags;				// device flags
 
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,

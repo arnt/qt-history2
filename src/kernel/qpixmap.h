@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#17 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#18 $
 **
-** Definition of QPixMap class
+** Definition of QPixmap class
 **
 ** Author  : Haavard Nord
 ** Created : 940501
@@ -24,19 +24,19 @@ typedef void (*image_io_handler)( QImageIO * );	// image IO handler
 
 class QIODevice;
 
-class QPixMap : public QPaintDevice		// pixmap class
+class QPixmap : public QPaintDevice		// pixmap class
 {
 friend class QPaintDevice;
 friend class QPainter;
 public:
-    QPixMap();
-    QPixMap( int w, int h, int depth=-1 );
-    QPixMap( int w, int h, const char *data, bool isXbitmap );
-    QPixMap( const QImageData * );
-    QPixMap( const QPixMap & );
-   ~QPixMap();
+    QPixmap();
+    QPixmap( int w, int h, int depth=-1 );
+    QPixmap( int w, int h, const char *data, bool isXbitmap );
+    QPixmap( const QImageData * );
+    QPixmap( const QPixmap & );
+   ~QPixmap();
 
-    QPixMap &operator=( const QPixMap & );
+    QPixmap &operator=( const QPixmap & );
 
     int	    width()     const { return data->pw; }
     int	    height()    const { return data->ph; }
@@ -54,18 +54,18 @@ public:
     void    fill( const QColor &fillColor=white );
     void    resize( int width, int height );
     void    resize( const QSize & );
-    QPixMap copy() const;
+    QPixmap copy() const;
 
     bool    getImageData( QImageData * ) const;
     bool    setImageData( const QImageData * );
-    static  QPixMap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
+    static  QPixmap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
-    static  QPixMap *find( const char *key );	// pixmap dict functions
-    static  bool     insert( const char *key, QPixMap * );
+    static  QPixmap *find( const char *key );	// pixmap dict functions
+    static  bool     insert( const char *key, QPixmap * );
     static  void	    setCacheSize( long );
     static  void	    cleanup();
 
-    QPixMap xForm( const Q2DMatrix & );	// transform bitmap
+    QPixmap *xForm( const Q2DMatrix & );	// transform bitmap
     static  Q2DMatrix trueMatrix( const Q2DMatrix &, int w, int h );
 
     bool    cacheImageData( bool onOff );
@@ -94,7 +94,7 @@ private:
     void   freeMemDC();
 #endif
 
-    struct QPixMapData : QShared {
+    struct QPixmapData : QShared {
         QCOORD pw, ph;				// pixmap width,height
         int	   pd;				// pixmap depth
         uint   dirty  : 1;
@@ -114,21 +114,21 @@ private:
 };
 
 // --------------------------------------------------------------------------
-// QPixMap inline functions
+// QPixmap inline functions
 //
 
 
-inline void QPixMap::resize( const QSize &s )
+inline void QPixmap::resize( const QSize &s )
 {
     resize( s.width(), s.height() );
 }
 
 // --------------------------------------------------------------------------
-// QPixMap stream functions
+// QPixmap stream functions
 //
 
-QDataStream &operator<<( QDataStream &, const QPixMap & );
-QDataStream &operator>>( QDataStream &, QPixMap & );
+QDataStream &operator<<( QDataStream &, const QPixmap & );
+QDataStream &operator>>( QDataStream &, QPixmap & );
 
 // --------------------------------------------------------------------------
 // Abstract image description for image processing and storage.

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#3 $
 **
-** Implementation of QPixMap class
+** Implementation of QPixmap class
 **
 ** Author  : Haavard Nord
 ** Created : 950301
@@ -22,35 +22,35 @@
 
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#3 $";
 #endif
 
 // --------------------------------------------------------------------------
-// QPixMap member functions
+// QPixmap member functions
 //
 
 #undef MIN
 #define MIN(x,y)  ((x)<(y) ? (x) : (y))
 
-void QPixMap::resize( int w, int h )
+void QPixmap::resize( int w, int h )
 {
     if ( !data->virgin ) {				// has existing pixmap
-	QPixMap pm( w, h, depth() );
+	QPixmap pm( w, h, depth() );
 	bitBlt( &pm, 0, 0, this, 0, 0,	// copy old pixmap
 		MIN(width(), w),
 		MIN(height(),h) );
 	*this = pm;
     }
     else					// create new pixmap
-	*this = QPixMap( w, h, isBitMap() ? 1 : -1 );
+	*this = QPixmap( w, h, isBitMap() ? 1 : -1 );
 }
 
-const char *QPixMap::imageType( const char *fileName )
+const char *QPixmap::imageType( const char *fileName )
 {						// determine image format
     return QImageIO::imageFormat(fileName);
 }
 
-bool QPixMap::load( const char *fileName, const char *format )
+bool QPixmap::load( const char *fileName, const char *format )
 {						// load image
     QImageIO io;
     io.fileName = fileName;
@@ -62,7 +62,7 @@ bool QPixMap::load( const char *fileName, const char *format )
     return FALSE;
 }
 
-bool QPixMap::save( const char *fileName, const char *format ) const
+bool QPixmap::save( const char *fileName, const char *format ) const
 {						// save image
     if ( isNull() )
 	return FALSE;				// nothing to save
@@ -73,7 +73,7 @@ bool QPixMap::save( const char *fileName, const char *format ) const
     return io.write();
 }
 
-bool QPixMap::isBitMap() const			// reimplemented in QBitMap
+bool QPixmap::isBitMap() const			// reimplemented in QBitmap
 {
     return FALSE;
 }
@@ -83,39 +83,39 @@ bool QPixMap::isBitMap() const			// reimplemented in QBitMap
 // pixmap cache declarations and functions
 //
 
-typedef declare(QCacheM,QPixMap) QPixMapCache;
-static QPixMapCache *pmcache = 0;		// global pixmap cache
+typedef declare(QCacheM,QPixmap) QPixmapCache;
+static QPixmapCache *pmcache = 0;		// global pixmap cache
 const long pmcache_maxcost   = 1024*1024;	// maximum cache cost
 const int  pmcache_size      = 61;		// size of internal hash array
 
 
-QPixMap *QPixMap::find( const char *key )	// find pixmap in cache
+QPixmap *QPixmap::find( const char *key )	// find pixmap in cache
 {
     return pmcache ? pmcache->find(key) : 0;
 }
 
-bool QPixMap::insert( const char *key, QPixMap *pm )
+bool QPixmap::insert( const char *key, QPixmap *pm )
 {
     if ( !pmcache ) {				// create pixmap cache
-	pmcache = new QPixMapCache( pmcache_maxcost, pmcache_size );
+	pmcache = new QPixmapCache( pmcache_maxcost, pmcache_size );
 	pmcache->setAutoDelete( TRUE );
 	CHECK_PTR( pmcache );
     }
     return pmcache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
 }
 
-void QPixMap::setCacheSize( long maxCost )	// change the maxcost parameter
+void QPixmap::setCacheSize( long maxCost )	// change the maxcost parameter
 {
     if ( pmcache )
 	pmcache->setMaxCost( maxCost );
     else {
-	pmcache = new QPixMapCache( maxCost, pmcache_size );
+	pmcache = new QPixmapCache( maxCost, pmcache_size );
 	pmcache->setAutoDelete( TRUE );
 	CHECK_PTR( pmcache );
     }
 }
 
-void QPixMap::cleanup()				// cleanup cache
+void QPixmap::cleanup()				// cleanup cache
 {
     delete pmcache;
 }
@@ -191,29 +191,29 @@ static void init_image_handlers()		// initialize image handlers
 	CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup_image_handlers );
-	QPixMap::defineIOHandler( "QT", "^QIMG", 0,
+	QPixmap::defineIOHandler( "QT", "^QIMG", 0,
 				 read_qt_image, write_qt_image );
-//	QPixMap::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", 0,
+//	QPixmap::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", 0,
 //				 read_gif_image, write_gif_image );
-	QPixMap::defineIOHandler( "BMP", "^BM", 0,
+	QPixmap::defineIOHandler( "BMP", "^BM", 0,
 				 read_bmp_image, write_bmp_image );
-	QPixMap::defineIOHandler( "PBM", "^P1", "T",
+	QPixmap::defineIOHandler( "PBM", "^P1", "T",
 				 read_pbm_image, write_pbm_image );
-	QPixMap::defineIOHandler( "PBMRAW", "^P4", 0,
+	QPixmap::defineIOHandler( "PBMRAW", "^P4", 0,
 				 read_pbm_image, write_pbm_image );
-	QPixMap::defineIOHandler( "PGM", "^P2", "T",
+	QPixmap::defineIOHandler( "PGM", "^P2", "T",
 				 read_pbm_image, write_pbm_image );
-	QPixMap::defineIOHandler( "PGMRAW", "^P5", 0,
+	QPixmap::defineIOHandler( "PGMRAW", "^P5", 0,
 				 read_pbm_image, write_pbm_image );
-	QPixMap::defineIOHandler( "PPM", "^P3", "T",
+	QPixmap::defineIOHandler( "PPM", "^P3", "T",
 				 read_pbm_image, write_pbm_image );
-	QPixMap::defineIOHandler( "PPMRAW", "^P6", 0,
+	QPixmap::defineIOHandler( "PPMRAW", "^P6", 0,
 				 read_pbm_image, write_pbm_image );
-	QPixMap::defineIOHandler( "PNM", "^P1", 0,
+	QPixmap::defineIOHandler( "PNM", "^P1", 0,
 				 read_pbm_image, write_pbm_image );
-	QPixMap::defineIOHandler( "XBM", "^#define", "T",
+	QPixmap::defineIOHandler( "XBM", "^#define", "T",
 				 read_xbm_image, write_xbm_image );
-//	QPixMap::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
+//	QPixmap::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
 //				 read_xpm_image, write_xpm_image );
     }
 }
@@ -231,7 +231,7 @@ static QImageHandler *get_image_handler( const char *format )
     return 0;					// no such handler
 }
 
-void QPixMap::defineIOHandler( const char *format,
+void QPixmap::defineIOHandler( const char *format,
 			      const char *header,
 			      const char *flags,
 			      image_io_handler read_image,
@@ -269,7 +269,7 @@ static void setup_bitflip()			// create bitflip table
     }
 }
 
-char *qt_get_bitflip_array()			// called from QPixMap code
+char *qt_get_bitflip_array()			// called from QPixmap code
 {
     setup_bitflip();
     return bitflip;
@@ -898,10 +898,10 @@ bool QImageIO::write()
 
 
 // --------------------------------------------------------------------------
-// QPixMap stream functions
+// QPixmap stream functions
 //
 
-QDataStream &operator<<( QDataStream &s, const QPixMap &pixmap )
+QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
     QImageIO io;
     pixmap.getImageData( &io );
@@ -911,7 +911,7 @@ QDataStream &operator<<( QDataStream &s, const QPixMap &pixmap )
     return s;
 }
 
-QDataStream &operator>>( QDataStream &s, QPixMap &pixmap )
+QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {
     QImageIO io;
     io.ioDevice  = s.device();
