@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#303 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#304 $
 **
 ** Implementation of QWidget class
 **
@@ -819,6 +819,7 @@ void QWidget::createTLExtra()
 	extra->topextra->focusData = 0;
 	extra->topextra->fsize = crect.size();
 	extra->topextra->incw = extra->topextra->inch = 0;
+	extra->topextra->iconic = 0;
     }
 }
 

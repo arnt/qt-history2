@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#196 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2391,23 +2391,24 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	if ( msg.wParam != SIZE_MINIMIZED )
 	    setCRect( r );
 	if ( isTopLevel() ) {			// update caption/icon text
-#if 0
-/*
-  Something like this is required to record when windows are minimized.
-  But this fails if you resize() the widget before showing it. (why?)
-*/
+	    createTLExtra();
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
-		clearWFlags( WState_Visible );
-		QHideEvent e(TRUE);
-		QApplication::sendEvent( this, &e );
-	    } else if ( !isVisible() && ( msg.wParam == SIZE_RESTORED ||
-					msg.wParam == SIZE_MAXIMIZED ) ) {
-		setWFlags( WState_Visible );
-		QShowEvent e(TRUE);
-		QApplication::sendEvent( this, &e );
+		// being "hidden"
+		if ( isVisible() ) {
+		    clearWFlags( WState_Visible );
+		    QHideEvent e(TRUE);
+		    QApplication::sendEvent( this, &e );
+		    extra->topextra->iconic = 1;
+		}
+	    } else if ( extra->topextra->iconic ) {
+		// being shown
+		if ( !isVisible() ) {
+		    setWFlags( WState_Visible );
+		    QShowEvent e(TRUE);
+		    QApplication::sendEvent( this, &e );
+		}
+		extra->topextra->iconic = 0;
 	    }
-#endif
-
 	    if ( IsIconic(winId()) && iconText() )
 		SetWindowText( winId(), (TCHAR*)qt_winTchar(iconText(),TRUE) );
 	    else if ( !caption().isNull() )

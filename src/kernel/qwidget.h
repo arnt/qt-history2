@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#179 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#180 $
 **
 ** Definition of QWidget class
 **
@@ -160,7 +160,7 @@ public:
     QString caption()	const;
     const QPixmap *icon()	const;
     QString iconText()	const;
-    bool	 hasMouseTracking() const;
+    bool hasMouseTracking() const;
 
 public slots:
     virtual void	 setCaption( const QString &);
@@ -367,10 +367,10 @@ private:
     void	 sendDeferredEvents();
     void	 reparentFocusWidgets( QWidget *parent );
     QFocusData	*focusData( bool create );
-    virtual void setBackgroundFromMode();
-    virtual void setBackgroundColorDirect( const QColor & );
-    virtual void setBackgroundModeDirect( BackgroundMode );
-    virtual void setBackgroundEmpty();
+    void         setBackgroundFromMode();
+    void         setBackgroundColorDirect( const QColor & );
+    void         setBackgroundModeDirect( BackgroundMode );
+    void         setBackgroundEmpty();
 
     WId		 winid;
     WFlags	 flags;
@@ -572,6 +572,7 @@ struct QTLWExtra {
     QFocusData *focusData;			// focus data (for TLW)
     QSize    fsize;				// rect of frame
     short    incw, inch;			// size increments
+    uint     iconic: 1;				// iconified [cur. win32 only]
 };
 
 struct QWExtra {
