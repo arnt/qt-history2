@@ -27,9 +27,13 @@ extern const Q_UINT16 mfhdr_maj;
 extern const Q_UINT16 mfhdr_min;
 
 class QPicture;
-
-class QPaintCommands
+class QPicturePrivate
 {
+    Q_DECLARE_PUBLIC(QPicture)
+    friend class QPicturePaintEngine;
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPicture &r);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &s, QPicture &r);
+
 public:
     enum PaintCommand {
         PdcNOP = 0, //  <void>
@@ -90,16 +94,7 @@ public:
         PdcReservedStart = 0, // codes 0-199 are reserved
         PdcReservedStop = 199 //   for Qt
     };
-};
 
-class QPicturePrivate : public QPaintCommands
-{
-    Q_DECLARE_PUBLIC(QPicture)
-    friend class QPicturePaintEngine;
-    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPicture &r);
-    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &s, QPicture &r);
-
-public:
     inline QPicturePrivate() : q_ptr(0) { ref = 1; }
     QAtomic ref;
 

@@ -17,7 +17,7 @@
 class QPicturePaintEnginePrivate;
 class QBuffer;
 
-class QPicturePaintEngine : public QPaintEngine, public QPaintCommands
+class QPicturePaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QPicturePaintEngine)
 public:

@@ -14,13 +14,13 @@
 #ifndef QPICTURE_H
 #define QPICTURE_H
 
-#include "private/qpicture_p.h"
 #include "qpaintdevice.h"
 #include "qstringlist.h"
 
 #ifndef QT_NO_PICTURE
 
-class Q_GUI_EXPORT QPicture : public QPaintDevice, public QPaintCommands // picture class
+class QPicturePrivate;
+class Q_GUI_EXPORT QPicture : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QPicture)
 public:
@@ -45,8 +45,8 @@ public:
     void setBoundingRect(const QRect &r);
 
     QPicture& operator=(const QPicture &p);
-    inline void        detach() { if (d_ptr->ref != 1) detach_helper(); }
-    bool isDetached() const { return d_ptr->ref == 1; }
+    void detach();
+    bool isDetached() const;
 
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QPicture &p);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QPicture &p);
@@ -79,21 +79,6 @@ private:
 
 Q_DECLARE_SHARED(QPicture);
 
-inline bool QPicture::isNull() const
-{
-    return d_ptr->pictb.buffer().isNull();
-}
-
-inline uint QPicture::size() const
-{
-    return d_ptr->pictb.buffer().size();
-}
-
-inline const char* QPicture::data() const
-{
-    return d_ptr->pictb.buffer();
-}
-
 
 #ifndef QT_NO_PICTUREIO
 class QIODevice;
@@ -106,7 +91,7 @@ class Q_GUI_EXPORT QPictureIO
 {
 public:
     QPictureIO();
-    QPictureIO(QIODevice         *ioDevice, const char *format);
+    QPictureIO(QIODevice *ioDevice, const char *format);
     QPictureIO(const QString &fileName, const char* format);
    ~QPictureIO();
 
@@ -139,10 +124,10 @@ public:
     static QList<QByteArray> outputFormats();
 
     static void defineIOHandler(const char *format,
-                                 const char *header,
-                                 const char *flags,
-                                 picture_io_handler read_picture,
-                                 picture_io_handler write_picture);
+                                const char *header,
+                                const char *flags,
+                                picture_io_handler read_picture,
+                                picture_io_handler write_picture);
 
 private:
     Q_DISABLE_COPY(QPictureIO)
