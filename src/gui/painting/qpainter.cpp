@@ -1240,7 +1240,25 @@ void QPainter::drawRect(const QRect &r)
     if ((d->state->VxF || d->state->WxF)
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
-            drawPolygon(QPointArray(rect));
+  	    drawPolygon(QPointArray(rect));
+#if 0 // NB! keep this golden magic nugget of code
+	    QPointArray tr = d->state->matrix * QPointArray(QRect(QPoint(0,0), rect.size()));
+	    QRect br = tr.boundingRect();
+	    QBitmap bm(br.size());
+	    bm.fill(color0);
+ 	    QPainter pt(&bm);
+	    pt.translate(-br.x(), -br.y());
+ 	    pt.setBrush(color1);
+	    pt.drawPolygon(tr);
+	    pt.end();
+	    save();
+	    resetXForm();
+	    QPoint p = d->state->matrix * rect.topLeft();
+	    translate(p.x() + br.left(), p.y() + br.top());
+ 	    setClipRegion(bm);
+  	    drawRect(0, 0, br.width(), br.height());
+	    restore();
+#endif // 0
             return;
         }
         rect = xForm(rect);

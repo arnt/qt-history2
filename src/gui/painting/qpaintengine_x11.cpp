@@ -581,8 +581,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
         if (d->rendhd)
                 XftDrawSetSubwindowMode((XftDraw *) d->rendhd, IncludeInferiors);
 #endif
-    }
-    else if (d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
+    } else if (d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap *)(pdev);
         if (!pm || pm->isNull()) {
             qWarning("QPainter::begin: Cannot paint null pixmap");
@@ -661,27 +660,32 @@ void QX11PaintEngine::drawRect(const QRect &r)
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     ::Picture pict = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
 
-    if (pict) {
-	if (d->cbrush.style() != NoBrush && d->cbrush.color().alpha() != 255) {
-	    if (d->cpen.style() == NoPen) {
-		XRenderColor xc;
-		QColor qc = d->cbrush.color();
+    if (pict && d->cbrush.style() != NoBrush && d->cbrush.color().alpha() != 255) {
+	XRenderColor xc;
+	QColor qc = d->cbrush.color();
 
-                const uint A = qc.alpha(),
-                           R = qc.red(),
-                           G = qc.green(),
-                           B = qc.blue();
+	const uint A = qc.alpha(),
+		   R = qc.red(),
+		   G = qc.green(),
+		   B = qc.blue();
 
-                xc.alpha = (A | A << 8);
-                xc.red   = (R | R << 8) * xc.alpha / 0x10000;
-                xc.green = (B | G << 8) * xc.alpha / 0x10000;
-                xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
-
-                XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
-                                     r.x(), r.y(), r.width(), r.height());
-		return;
-	    }
+	xc.alpha = (A | A << 8);
+	xc.red   = (R | R << 8) * xc.alpha / 0x10000;
+	xc.green = (B | G << 8) * xc.alpha / 0x10000;
+	xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
+	if (d->cpen.style() == NoPen) {
+	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
+				 r.x(), r.y(), r.width(), r.height());
+	    return;
 	}
+	int lw = d->cpen.width();
+	int lw2 = (lw+1)/2;
+	if (r.width() > lw && r.height() > lw)
+	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
+				 r.x()+lw2, r.y()+lw2, r.width()-lw-1, r.height()-lw-1);
+	if (d->cpen.style() != NoPen)
+	    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
+	return;
     }
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
 
@@ -1200,15 +1204,54 @@ static int global_polygon_shape = Complex;
 void QX11PaintEngine::drawPolygon(const QPointArray &a, bool winding, int index, int npoints)
 {
     QPointArray pa = a;
-    if (winding)                              // set to winding fill rule
-        XSetFillRule(d->dpy, d->gc_brush, WindingRule);
 
     if (pa[index] != pa[index + npoints - 1]) {   // close open pointarray
         pa.detach();
         pa.resize(index + npoints + 1);
         pa.setPoint(index + npoints, pa[index]);
-        npoints++;
+        ++npoints;
     }
+
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+    if (d->cbrush.style() != NoBrush && d->cbrush.color().alpha() != 255) {
+	XftColor xfc;
+	QColor qc = d->cbrush.color();
+
+	const uint A = qc.alpha(),
+		   R = qc.red(),
+		   G = qc.green(),
+		   B = qc.blue();
+
+	xfc.pixel = qc.pixel();
+	xfc.color.alpha = (A | A << 8);
+	xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
+	xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
+	xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
+	::Picture src = d->rendhd ? XftDrawSrcPicture((XftDraw *) d->rendhd, &xfc) : 0;
+	::Picture dst = d->rendhd ? XftDrawPicture((XftDraw *) d->rendhd) : 0;
+
+	if (src && dst) {
+	    XPointDouble *poly = new XPointDouble[pa.size()];
+	    for (int i = 0; i < pa.size(); ++i) {
+		poly[i].x = pa[i].x();
+		poly[i].y = pa[i].y();
+	    }
+	    XRenderCompositeDoublePoly(d->dpy, PictOpOver, src, dst,
+				       XRenderFindStandardFormat(d->dpy, PictStandardARGB32),
+				       0, 0, 0, 0, poly, npoints, winding);
+	    delete [] poly;
+
+	    if (d->cpen.style() != NoPen) {              // draw outline
+		XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(index, npoints)),
+			   npoints, CoordModeOrigin);
+	    }
+	    return;
+	}
+    }
+#endif
+
+    if (winding)                              // set to winding fill rule
+        XSetFillRule(d->dpy, d->gc_brush, WindingRule);
 
     if (d->cbrush.style() != NoBrush) {          // draw filled polygon
         XFillPolygon(d->dpy, d->hd, d->gc_brush,
