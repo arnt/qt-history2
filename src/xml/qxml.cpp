@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#30 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#31 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2666,11 +2666,11 @@ bool QXmlSimpleReader::parseElementEmptyTag( bool &, QString &uri, QString &lnam
 	    }
 	} else {
 	    // report startElement first...
-	    if ( !contentHnd->startElement( "", "", d->tags.top(), d->attList ) ) {
+	    if ( !contentHnd->startElement( QString::null, QString::null, d->tags.top(), d->attList ) ) {
 		goto error;
 	    }
 	    // ... followed by endElement
-	    if ( !contentHnd->endElement( "","",d->tags.pop() ) ) {
+	    if ( !contentHnd->endElement( QString::null, QString::null, d->tags.pop() ) ) {
 		goto error;
 	    }
 	}
@@ -2705,7 +2705,7 @@ bool QXmlSimpleReader::parseElementETagBegin2()
 		return FALSE;
 	    }
 	} else {
-	    if ( !contentHnd->endElement("","",name()) ) {
+	    if ( !contentHnd->endElement( QString::null, QString::null, name() ) ) {
 		d->error = contentHnd->errorString();
 		return FALSE;
 	    }
