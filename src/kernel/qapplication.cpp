@@ -2278,7 +2278,7 @@ void QApplication::installTranslator( QTranslator * mf )
 
     translators->insert( 0, mf );
 
-    if ( !mf->messages().count() )
+    if ( mf->isEmpty() )
 	return;
 
     // hook to set the layout direction of dialogs

@@ -992,6 +992,20 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 
 #ifndef QT_NO_TRANSLATION_BUILDER
 
+/*! 
+    Returns TRUE if this translator is empty, otherwise returns FALSE.
+    This function works with stripped and unstripped translation files.
+*/
+bool QTranslator::isEmpty() const
+{
+    return !(d->unmapPointer || 
+	     d->unmapLength || 
+	     d->messageArray || 
+	     d->offsetArray || 
+	     d->contextArray );
+}
+
+
 /*!  Returns a list of the messages in the translator.  This function is
   rather slow; because it is seldom called, it's optimized for simplicity and
   small size, not speed.

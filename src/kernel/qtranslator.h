@@ -139,6 +139,8 @@ public:
     void squeeze( SaveMode = Everything );
     void unsqueeze();
 
+    bool isEmpty() const;
+
     QValueList<QTranslatorMessage> messages() const;
 #endif
 
