@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#166 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#167 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2533,6 +2533,9 @@ static QImageHandler *get_image_handler( const char *format )
 			       readGIF,
 			       writeGIF );
   \endcode
+
+  For image formats supporting incremental display, such as sequences
+  of animated frames, see the QImageFormatType class.
 */
 
 void QImageIO::defineIOHandler( const char *format,
