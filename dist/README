@@ -18,8 +18,8 @@ The Qt version 3.x series is not binary compatible with the 2.x
 series. This means programs compiled with Qt version 2.x must be
 recompiled to work with Qt 3.0.
 
-Qt 3.0 will be mostly, but not completely, source compatible with the
-Qt 2.x series. See the document "Porting from Qt 2.x to Qt 3.0" in the
+Qt 3.0 is mostly, but not completely, source compatible with the Qt
+2.x series. See the document "Porting from Qt 2.x to Qt 3.0" in the
 Online Reference Documentation for information on how to port an
 existing Qt 2.x-based program to Qt 3.0. Disclaimer: the guide is not
 entirely complete, so it is possible that you'll discover issues that
@@ -76,7 +76,7 @@ get the beta. Contact sales@trolltech.com if you are a Professional or
 Enterprise Edition licensee and have not received this e-mail.
 
 
-Any problems encountered with the beta version should be reported to
-qt-bugs@trolltech.com, or to the snapshot-users mailing list.
+Any problems encountered Qt 3.0 should be reported to
+qt-bugs@trolltech.com.
 
 Qt is a trademark of Trolltech AS.
