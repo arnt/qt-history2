@@ -4989,8 +4989,7 @@ QString QTextParag::richText() const
 	    s += c->format()->makeFormatChangeTags( 0, QString::null, c->anchorHref() );
 	    formatChar = c;
 	} else if ( ( formatChar->format()->key() != c->format()->key() ) ||
-		  (formatChar->isAnchor() != c->isAnchor() &&
-		   (!c->anchorHref().isEmpty() || !formatChar->anchorHref().isEmpty() ) ) )  {// lisp was here
+		  (c->anchorHref() != formatChar->anchorHref() ) )  {
 
 	    if ( !spaces.isEmpty() ) {
 		if (  spaces[0] == '\t' || lastCharWasSpace  )
