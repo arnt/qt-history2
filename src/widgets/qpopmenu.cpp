@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#31 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#31 $";
 #endif
 
 
@@ -500,7 +500,7 @@ void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
-    if ( !parent || !autoaccel )		// not ready
+    if ( parent == 0 && autoaccel == 0 )
 	return;
     if ( autoaccel )				// build it from scratch
 	autoaccel->clear();
