@@ -91,11 +91,13 @@ Database Drivers
 ----------------
 
 The installation program allows you to choose the different database
-drivers. For the evaluation version compiled with Borland, no PostgreSQL
+drivers.
+
+The client libraries for MySQL and PostgreSQL are included in the package.
+NOTE: For the evaluation version compiled with Borland, no PostgreSQL
 database driver is included due to the fact that the PostgreSQL client
 library header files are incompatible with the Borland compiler.
 
-The client libraries for MySQL and PostgreSQL are included in the package.
 
 The ODBC client library should be available on every Windows installation.
 
