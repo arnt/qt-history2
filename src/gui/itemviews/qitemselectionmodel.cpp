@@ -15,6 +15,169 @@
 #define d d_func()
 #define q q_func()
 
+/*!
+    \class QItemSelectionRange
+
+    \brief The QItemSelectionRange class manages information about ranges of selected items in a model.
+
+    \ingroup model-view
+
+    A QItemSelectionRange contains information about ranges of selected items
+    in a model. A range of items is a contiguous array of model items, extending
+    to cover a number of adjacent rows and columns with a common parent item;
+    this can be visualized as a two-dimensional block of cells in a table.
+
+    Selection ranges perform most of the management functions associated with
+    item selections, with the QItemSelection class providing a higher-level
+    interface for manipulating selections.
+
+    The model items contained in the selection range can be obtained by using
+    the items() function.
+    You can determine whether a given model item lies within a particular
+    range by using the contains() function. Ranges can also be compared using
+    the overloaded operators for equality and inequality, and the intersects()
+    function allows you to determine whether two ranges overlap.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink
+        QAbstractItemModel QItemSelection QItemSelectionModel
+
+*/
+
+/*!
+    \fn QItemSelectionRange::QItemSelectionRange()
+
+    Constructs an empty selection range.
+*/
+
+/*!
+    \fn QItemSelectionRange::QItemSelectionRange(const QItemSelectionRange &other)
+
+    Copy constructor. Constructs a new selection range with the same contents
+    as the \a other range given.
+
+*/
+
+/*!
+    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &parent, int top, int left, int bottom, int right)
+
+    Constructs a selection range containing the model items specified by the
+    \a parent and the extents of the range: \a top, \a left, \a bottom, and
+    \a right.
+
+*/
+
+/*!
+    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &parent, const QModelIndex &index)
+
+    Constructs a new selection range containing only the model item specified
+    by the \a parent and the model item \a index.
+
+*/
+
+/*!
+    \fn int QItemSelectionRange::QItemSelectionRange::top() const
+
+    Returns the row index corresponding to the uppermost selected row in the
+    selection range.
+
+*/
+
+/*!
+    \fn int QItemSelectionRange::QItemSelectionRange::left() const
+
+    Returns the column index corresponding to the leftmost selected column in the
+    selection range.
+
+*/
+
+/*!
+    \fn int QItemSelectionRange::QItemSelectionRange::bottom() const
+
+    Returns the row index corresponding to the lowermost selected row in the
+    selection range.
+
+*/
+
+/*!
+    \fn int QItemSelectionRange::QItemSelectionRange::right() const
+
+    Returns the column index corresponding to the rightmost selected column in
+    the selection range.
+
+*/
+
+/*!
+    \fn int QItemSelectionRange::QItemSelectionRange::width() const
+
+    Returns the number of selected columns in the selection range.
+
+*/
+
+/*!
+    \fn int QItemSelectionRange::QItemSelectionRange::height() const
+
+    Returns the number of selected rows in the selection range.
+
+*/
+
+/*!
+    \fn QModelIndex QItemSelectionRange::QItemSelectionRange::parent() const
+
+    Returns the parent model item index of the items in the selection range.
+
+*/
+
+/*!
+    \fn bool QItemSelectionRange::contains(const QModelIndex &index, const QAbstractItemModel *model) const
+
+    Returns true if the model item specified by the \a index lies within the
+    range of selected items for the given \a model; otherwise returns false.
+
+*/
+
+/*!
+    \fn bool QItemSelectionRange::intersects(const QItemSelectionRange &other) const
+
+    Returns true if this selection range intersects (overlaps with) the \a other
+    range given; otherwise returns false.
+
+*/
+
+/*!
+    \fn QItemSelectionRange QItemSelectionRange::intersect(const QItemSelectionRange &other) const
+
+    Returns a new selection range containing only the items that are found in
+    both the selection range and the \a other selection range.
+
+*/
+
+/*!
+    \fn bool QItemSelectionRange::operator==(const QItemSelectionRange &other) const
+
+    Returns true if the selection range is exactly the same as the \a other
+    range given; otherwise returns false.
+
+*/
+
+/*!
+    \fn bool QItemSelectionRange::operator!=(const QItemSelectionRange &other) const
+
+    Returns true if the selection range differs from the \a other range given;
+    otherwise returns false.
+
+*/
+
+/*!
+    \fn bool QItemSelectionRange::isValid() const
+
+    Returns true if the selection range is valid; otherwise returns false.
+
+*/
+
+/*!
+    Returns the list of model index items stored for the given \a model.
+*/
+
 QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) const
 {
     QModelIndex index;
@@ -34,13 +197,45 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
 /*!
   \class QItemSelection
 
-  \brief The QItemSelection class contains a list of non-overlapping selection ranges.
+  \brief The QItemSelection class manages information about selected items in a model.
 
   \ingroup model-view
 
+  A QItemSelection describes the items in a model that have been selected
+  by the user. It provides functions for creating and manipulating
+  selections, and selecting a range of items from a model.
 
+  An item selection can be constructed and initialized to contain a
+  range of items from an existing model. The following example constructs
+  a selection that contains a range of items from the given \c model,
+  beginning at the \c topLeft, and ending at the \c bottomRight.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink.
+  \code
+    QItemSelection *selection = new QItemSelection(topLeft,
+            bottomRight, model);
+  \endcode
+
+  An empty item selection can be constructed, and later populated as
+  required. So, if the model is going to be unavailable when we construct
+  the item selection, we can rewrite the above code in the following way:
+
+  \code
+    QItemSelection *selection = new QItemSelection();
+    ...
+    selection->select(topLeft, bottomRight, model);
+  \endcode
+
+  QItemSelection saves memory, and avoids unnecessary work, by working with
+  selection ranges rather than recording the model item index for each
+  item in the selection. Generally, an instance of this class will contain
+  a list of non-overlapping selection ranges.
+
+  Use merge() to merge two item selections, split() to 
+   that include merging (), splitting (split()) (select())
+
+  \sa \link model-view-programming.html Model/View Programming\endlink
+      QAbstractItemModel
+
 */
 
 /*!
@@ -249,7 +444,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   selection. All functions operate on both layers; for example,
   selectedItems() will return items from both layers.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!
