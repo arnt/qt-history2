@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#65 $
 **
 ** Implementation of QUrl class
 **
@@ -61,7 +61,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 	    s[ i ] = '/';
 	if ( s[ i ] == '/' )
 	    justHadSlash = TRUE;
-	else 
+	else
 	    justHadSlash = FALSE;
     }
 }
@@ -461,7 +461,7 @@ bool QUrl::parse( const QString& url )
 	{ 0,       Protocol,   0,          0,          Separator1, 0,          0,          0,         }, // Protocol
 	{ 0,       0,          0,          Separator2, 0,          0,          0,          0,         }, // Separator1
 	{ 0,       Path,       0,          Separator3, 0,          0,          0,          0,         }, // Separator2
-	{ 0,       User,       0,          Separator3, Pass,       Host,       0,          0,         }, // Separator3
+	{ 0,       User,       User,          Separator3, Pass,       Host,       0,          0,         }, // Separator3
 	{ 0,       User,       User,       User,       Pass,       Host,       User,       User,      }, // User
 	{ 0,       Pass,       Pass,       Pass,       Pass,       Host,       Pass,       Pass,      }, // Pass
 	{ 0,       Host,       Host,       Path,       Port,       Host,       Ref,        Query,     }, // Host
@@ -483,6 +483,7 @@ bool QUrl::parse( const QString& url )
 
     int cs = url_.find( ":/" );
     table[ 4 ][ 1 ] = User;
+    table[ 4 ][ 2 ] = User;
     if ( cs == -1 || forceRel ) { // we have a relative file (no path, host, protocol, etc.)
 	table[ 0 ][ 1 ] = Path;
 	relPath = TRUE;
@@ -511,8 +512,9 @@ bool QUrl::parse( const QString& url )
 	    if ( at == -1 ) {
 		if ( url_.left( 4 ) == "file" )
 		    table[ 4 ][ 1 ] = Path;
-		else
+		else 
 		    table[ 4 ][ 1 ] = Host;
+		table[ 4 ][ 2 ] = table[ 4 ][ 1 ]; 
 	    }
 	}
     }
