@@ -690,42 +690,38 @@ void QListView::resizeEvent(QResizeEvent *e)
 */
 void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
-    // the ignore by default
-    e->ignore();
-
-    if (d->canDecode(e)) {
-
-        // get old dragged items rect
-        QRect itemsRect = d->itemsRect(d->draggedItems);
-        QRect oldRect = itemsRect;
-        oldRect.translate(d->draggedItemsDelta());
-
-        // update position
-        d->draggedItemsPos = e->pos();
-
-        // get new items rect
-        QRect newRect = itemsRect;
-        newRect.translate(d->draggedItemsDelta());
-
-        d->viewport->repaint(oldRect|newRect);
-
-        // set the item under the cursor to current
-        QModelIndex index = QAbstractItemView::itemAt(e->pos());
+    if (e->source() == this && d->movement != Static) {
+        // the ignore by default
+        e->ignore();        
+        if (d->canDecode(e)) {
+            // get old dragged items rect
+            QRect itemsRect = d->itemsRect(d->draggedItems);
+            QRect oldRect = itemsRect;
+            oldRect.translate(d->draggedItemsDelta());
+            // update position
+            d->draggedItemsPos = e->pos();
+            // get new items rect
+            QRect newRect = itemsRect;
+            newRect.translate(d->draggedItemsDelta());
+            d->viewport->repaint(oldRect|newRect);
+            // set the item under the cursor to current
+            QModelIndex index = QAbstractItemView::itemAt(e->pos());
 //         if (index.isValid())
 //             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-
-        // check if we allow drops here
-        if (e->source() == this && d->draggedItems.contains(index))
-            e->accept(); // allow changing item position
-        else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled)
-            e->accept(); // allow dropping on dropenabled items
-        else if (!index.isValid())
-            e->accept(); // allow dropping in empty areas
+            // check if we allow drops here
+            if (e->source() == this && d->draggedItems.contains(index))
+                e->accept(); // allow changing item position
+            else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled)
+                e->accept(); // allow dropping on dropenabled items
+            else if (!index.isValid())
+                e->accept(); // allow dropping in empty areas
+        }
+        // do autoscrolling
+        if (d->shouldAutoScroll(e->pos()))
+            startAutoScroll();
+    } else {
+        QAbstractItemView::dragMoveEvent(e);
     }
-
-    // do autoscrolling
-    if (d->shouldAutoScroll(e->pos()))
-        startAutoScroll();
 }
 
 /*!
@@ -775,16 +771,20 @@ void QListView::startDrag()
         // plus adding viewitems to the draggedItems list.
         // We need these items to draw the drag items
         QModelIndexList indexes = selectionModel()->selectedIndexes();
-        QModelIndexList::ConstIterator it = indexes.begin();
-        for (; it != indexes.end(); ++it)
-            if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
-                d->draggedItems.push_back(*it);
-        if (d->draggedItems.count() > 0) {
+        if (indexes.count() > 0 ) {
+            QModelIndexList::ConstIterator it = indexes.begin();
+            for (; it != indexes.end(); ++it)
+                if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
+                    d->draggedItems.push_back(*it);
             QDrag *drag = new QDrag(this);
             drag->setMimeData(model()->mimeData(indexes));
-            drag->start();
+            QDrag::DropAction action = drag->start();
             d->draggedItems.clear();
+            if (action == QDrag::MoveAction)
+                d->removeSelectedRows();
         }
+    } else {
+        QAbstractItemView::startDrag();
     }
 }
 
@@ -796,9 +796,7 @@ QStyleOptionViewItem QListView::viewOptions() const
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
     if (d->iconSize == Qt::AutomaticIconSize ? !d->wrap : d->iconSize == Qt::SmallIconSize) {
         option.decorationSize = QStyleOptionViewItem::Small;
-        option.decorationPosition = (QApplication::reverseLayout()
-                                      ? QStyleOptionViewItem::Right
-                                      : QStyleOptionViewItem::Left);
+        option.decorationPosition = QStyleOptionViewItem::Left;
     } else {
         option.decorationSize = QStyleOptionViewItem::Large;
         option.decorationPosition = QStyleOptionViewItem::Top;

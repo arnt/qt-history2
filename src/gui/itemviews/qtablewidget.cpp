@@ -28,6 +28,12 @@ public:
     QTableModel(int rows, int columns, QTableWidget *parent);
     ~QTableModel();
 
+//     QStringList mimeTypes() const;
+//     QMimeData *mimeData(const QModelIndexList &indexes) const;
+//     bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
+//                       int row, const QModelIndex &parent);
+//     QDrag::DropActions supportedActions() const;
+
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
     bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 

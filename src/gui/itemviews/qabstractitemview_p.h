@@ -71,6 +71,8 @@ public:
         return On;
     }
 
+    void removeSelectedRows();
+
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
     mutable QItemSelectionModel *selectionModel;
