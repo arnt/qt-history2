@@ -436,7 +436,7 @@ int QKeySequence::decodeString(const QString& str)
 QString QKeySequence::encodeString(int key)
 {
     QString s;
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC) && !defined(QWS)
     // On MAC the order is Meta, Alt, Shift, Control.
     if ((key & META) == META)
 	s += QMAC_META;
