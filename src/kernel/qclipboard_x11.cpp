@@ -78,7 +78,6 @@ extern const char* qt_xdnd_atom_to_str( Atom );
 
 
 static QWidget * owner = 0;
-static bool inSelectionMode_obsolete = FALSE; // ### remove 4.0
 static bool timer_event_clear = FALSE;
 static int timer_id = 0;
 
