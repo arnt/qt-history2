@@ -1607,7 +1607,7 @@ static QString languageToCode(QLocale::Language language)
     	return "C";
 
     QString code;
-    code.setLength(2);
+    code.resize(2);
     const char *c = language_code_list + 2*(uint)language;
     code[0] = c[0];
     code[1] = c[1];
@@ -1620,7 +1620,7 @@ static QString countryToCode(QLocale::Country country)
     	return QString::null;
 
     QString code;
-    code.setLength(2);
+    code.resize(2);
     const char *c = country_code_list + 2*(uint)country;
     code[0] = c[0];
     code[1] = c[1];
@@ -2701,7 +2701,7 @@ static QString &decimalForm(QString &digits, int decpt, uint precision,
     	    digits.prepend(locale.zero());
     	decpt = 0;
     }
-    else if ((uint)decpt > digits.length()) {
+    else if (decpt > digits.length()) {
     	for (uint i = digits.length(); i < (uint)decpt; ++i)
 	    digits.append(locale.zero());
     }
@@ -2718,7 +2718,7 @@ static QString &decimalForm(QString &digits, int decpt, uint precision,
     else { // pm == PMChopTrailingZeros
     }
 
-    if (always_show_decpt || (uint)decpt < digits.length())
+    if (always_show_decpt || decpt < digits.length())
     	digits.insert(decpt, locale.decimal());
 
     if (thousands_group) {
@@ -2810,7 +2810,7 @@ QString QLocalePrivate::doubleToString(double d,
 	QString digits = qdtoa(d, mode, pr, &decpt, &sign, &rve, &buff);
 
     	if (zero().unicode() != '0') {
-	    for (uint i = 0; i < digits.length(); ++i)
+	    for (int i = 0; i < digits.length(); ++i)
 	    	digits.ref(i).unicode() += zero().unicode() - '0';
 	}
 
@@ -2873,7 +2873,7 @@ QString QLocalePrivate::doubleToString(double d,
     	num_str.prepend(' ');
 
     if (flags & QLocalePrivate::CapitalEorX)
-    	num_str = num_str.upper();
+    	num_str = num_str.toUpper();
 
     return num_str;
 }
@@ -2958,7 +2958,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
     	num_str.prepend(' ');
 
     if (flags & CapitalEorX)
-    	num_str = num_str.upper();
+    	num_str = num_str.toUpper();
 
     return num_str;
 }
@@ -3017,14 +3017,14 @@ QString QLocalePrivate::unsLongLongToString(Q_ULLONG l, int precision,
     	num_str.prepend("0x");
 
     if (flags & CapitalEorX)
-    	num_str = num_str.upper();
+    	num_str = num_str.toUpper();
 
     return num_str;
 }
 
-static bool compareSubstr(const QString &s1, uint idx, const QString &s2)
+static bool compareSubstr(const QString &s1, int idx, const QString &s2)
 {
-    uint i = 0;
+    int i = 0;
     for (; i + idx < s1.length() && i < s2.length(); ++i) {
         if (s1.unicode()[i + idx] != s2.unicode()[i])
             return false;
@@ -3040,7 +3040,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
     if (languageId() == QLocale::C)
 	return l_num;
 
-    uint idx = 0;
+    int idx = 0;
 
     // skip leading white space
     while (idx < l_num.length() && l_num.unicode()[idx].isSpace())
@@ -3052,9 +3052,9 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += nan().length();
 	    break;
 	}
-	else if (compareSubstr(l_num, idx, nan().upper())) {
-	    for (uint i = idx; i < idx + nan().length(); ++i)
-	    	l_num.ref(i) = l_num.unicode()[i].lower();
+	else if (compareSubstr(l_num, idx, nan().toUpper())) {
+	    for (int i = idx; i < idx + nan().length(); ++i)
+	    	l_num.ref(i) = l_num.unicode()[i].toLower();
 	    idx += nan().length();
 	    break;
 	}
@@ -3073,9 +3073,9 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += infinity().length();
 	    break;
 	}
-	else if (compareSubstr(l_num, idx, infinity().upper())) {
-	    for (uint i = idx; i < idx + infinity().length(); ++i)
-	    	l_num.ref(i) = l_num.unicode()[i].lower();
+	else if (compareSubstr(l_num, idx, infinity().toUpper())) {
+	    for (int i = idx; i < idx + infinity().length(); ++i)
+	    	l_num.ref(i) = l_num.unicode()[i].toLower();
 	    idx += infinity().length();
 	    break;
 	}
@@ -3093,7 +3093,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
         	c = '.';
             else if (c == group())
 	    	c = ',';
-	    else if (c == exponential() || c == exponential().upper())
+	    else if (c == exponential() || c == exponential().toUpper())
     		c = 'e';
             else if (c.unicode() == 'x' || c.unicode() == 'X') // hex number
 		c = 'x';
@@ -3112,8 +3112,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
     return l_num;
 }
 
-double QLocalePrivate::stringToDouble(QString num,
-                                        bool *ok) const
+double QLocalePrivate::stringToDouble(QString num, bool *ok) const
 {
 //    num = num.stripWhiteSpace();
     if (num.isEmpty()) {
@@ -3154,7 +3153,7 @@ double QLocalePrivate::stringToDouble(QString num,
 Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
                                     bool *ok) const
 {
-    num = num.stripWhiteSpace();
+    num = num.trimmed();
     if (num.isEmpty()) {
 	if (ok != 0)
             *ok = false;
@@ -3182,7 +3181,7 @@ Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
 Q_ULLONG QLocalePrivate::stringToUnsLongLong(QString num, int base,
                                     bool *ok) const
 {
-    num = num.stripWhiteSpace();
+    num = num.trimmed();
     if (num.isEmpty()) {
 	if (ok != 0)
             *ok = false;
