@@ -134,7 +134,6 @@ kernel {
 			  $$KERNEL_CPP/qcolor_mac.cpp \
 			  $$KERNEL_CPP/qcursor_mac.cpp \
 			  $$KERNEL_CPP/qdnd_mac.cpp \
-			  $$KERNEL_CPP/qmotifdnd_mac.cpp \
 			  $$KERNEL_CPP/qpixmap_mac.cpp \
 			  $$KERNEL_CPP/qprinter_mac.cpp \
 			  $$KERNEL_CPP/qpaintdevice_mac.cpp \
