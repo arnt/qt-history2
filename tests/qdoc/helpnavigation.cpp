@@ -122,8 +122,13 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
 	return;
     QTextStream ts( &f );
     HelpNavigationListItem *lastItem = 0;
-    while ( !ts.atEnd() ) {
-	QString s( ts.readLine() );
+    QStringList lst;
+    while ( !ts.atEnd() )
+	lst << ts.readLine();
+    lst.sort();
+    QStringList::Iterator it = lst.begin();
+    for ( ; it != lst.end(); ++it ) {
+	QString s( *it );
 	if ( s.find( "::" ) != -1 )
 	    continue;
 	int from = s.find( "\"" );
