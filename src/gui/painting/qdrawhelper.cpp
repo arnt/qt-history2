@@ -19,7 +19,7 @@ static void blend_color(ARGB *target, const QSpan *span, ARGB color)
     int rev_alpha = 255 - alpha;
 
     for (int i = span->len; i > 0 ; --i) {
-        qt_blend_pixel(color, target, span->coverage); // ### fix me: use premultiplied
+        qt_blend_pixel_premul(pr, pg, pb, alpha, target, span->coverage);
         ++target;
     }
 }
@@ -110,10 +110,10 @@ static void blend_transformed_bilinear_tiled(ARGB *target,
         y1 %= image_height;
         y2 %= image_height;
 
-        if (x1 < 0) x1 = image_width + x1;
-        if (x2 < 0) x2 = image_width + x2;
-        if (y1 < 0) y1 = image_height + y1;
-        if (y2 < 0) y2 = image_height + y2;
+        if (x1 < 0) x1 += image_width;
+        if (x2 < 0) x2 += image_width;
+        if (y1 < 0) y1 += image_height;
+        if (y2 < 0) y2 += image_height;
 
         Q_ASSERT(x1 >= 0 && x1 < image_width);
         Q_ASSERT(x2 >= 0 && x2 < image_width);
@@ -201,8 +201,8 @@ static void blend_transformed_tiled(ARGB *target, const QSpan *span,
         int py = (y + half_point) >> 16;
         px %= image_width;
         py %= image_height;
-        if (px < 0) px = image_width - px;
-        if (py < 0) py = image_height - py;
+        if (px < 0) px += image_width;
+        if (py < 0) py += image_height;
         int y_offset = py * image_width;
 
         Q_ASSERT(px >= 0 && px < image_width);

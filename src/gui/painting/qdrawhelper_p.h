@@ -81,23 +81,49 @@ static inline void qt_blend_pixel_opaque(ARGB src, ARGB *target, int coverage)
     qt_alpha_pixel(src.r, target->r, alpha, rev_alpha);
     qt_alpha_pixel(src.g, target->g, alpha, rev_alpha);
     qt_alpha_pixel(src.b, target->b, alpha, rev_alpha);
-    target->a = qMin(src.a + qt_div_255(rev_alpha * target->a), 255);
+    target->a = src.a + qt_div_255(rev_alpha * target->a);
 }
 
 static inline void qt_blend_pixel(ARGB src, ARGB *target, int coverage)
 {
     int alpha = qt_div_255(coverage * src.a);
-    int rev_alpha = 255 - alpha;
-    int res_alpha = qMin(alpha + qt_div_255(rev_alpha * target->a), 255);
+    if (alpha == 255) {
+        *target = src;
+    } else {
+        int rev_alpha = 255 - alpha;
+        int res_alpha = alpha + qt_div_255(rev_alpha * target->a);
 
-    if (res_alpha == 0)
-        return;
-
-    target->r = (src.r * alpha + qt_div_255(rev_alpha * target->r * target->a)) / res_alpha;
-    target->g = (src.g * alpha + qt_div_255(rev_alpha * target->g * target->a)) / res_alpha;
-    target->b = (src.b * alpha + qt_div_255(rev_alpha * target->b * target->a)) / res_alpha;
-    target->a = res_alpha;
+        target->a = res_alpha;
+        if (res_alpha == 255) {
+            qt_alpha_pixel(src.r, target->r, alpha, rev_alpha);
+            qt_alpha_pixel(src.g, target->g, alpha, rev_alpha);
+            qt_alpha_pixel(src.b, target->b, alpha, rev_alpha);
+        } else
+            if (res_alpha != 0) {
+            rev_alpha *= target->a;
+            target->r = (src.r * alpha + qt_div_255(rev_alpha * target->r)) / res_alpha;
+            target->g = (src.g * alpha + qt_div_255(rev_alpha * target->g)) / res_alpha;
+            target->b = (src.b * alpha + qt_div_255(rev_alpha * target->b)) / res_alpha;
+        }
+    }
 }
 
+static inline void qt_blend_pixel_premul(int pr, int pg, int pb, int alpha, ARGB *target, int coverage)
+{
+    int rev_alpha = 255 - alpha;
+    int res_alpha = alpha + qt_div_255(rev_alpha * target->a);
+
+    target->a = res_alpha;
+    if (res_alpha == 255) {
+        qt_alpha_pixel_pm(pr, target->r, rev_alpha);
+        qt_alpha_pixel_pm(pg, target->g, rev_alpha);
+        qt_alpha_pixel_pm(pb, target->b, rev_alpha);
+    } else if (res_alpha != 0) {
+        rev_alpha *= target->a;
+        target->r = (pr + qt_div_255(rev_alpha * target->r)) / res_alpha;
+        target->g = (pg + qt_div_255(rev_alpha * target->g)) / res_alpha;
+        target->b = (pb + qt_div_255(rev_alpha * target->b)) / res_alpha;
+    }
+}
 
 #endif

@@ -8,7 +8,7 @@ enum CPUFeatures {
 };
 static uint detectCPUFeatures() {
     uint result;
-    /* see p. 79 of amd64 instruction set manual Vol 1 */
+    /* see p. 118 of amd64 instruction set manual Vol3 */
     asm ("push %%ebx\n"
          "pushf\n"
          "pop %%eax\n"
@@ -25,9 +25,9 @@ static uint detectCPUFeatures() {
          "mov $0x00000001, %%eax\n"
          "cpuid\n"
          "1:\n"
-         "mov %%edx, %0\n"
          "pop %%ebx\n"
-        : "=m" (result)
+         "mov %%edx, %0\n"
+        : "=r" (result)
         :
         : "%eax", "%ecx", "%edx"
         );
@@ -112,16 +112,15 @@ static void blend_color_sse(ARGB *target, const QSpan *span, ARGB color)
 }
 
 #define CMOV_PIX(pixel, out, mask, image_bits, offset) \
-    asm ("xor %%eax, %%eax\n"                          \
-         "mov %1, %%edx\n"                             \
+    asm ("mov %1, %%edx\n"                             \
          "and $"#mask",%%edx\n"                         \
-         "cmovz (%2,%3,0x4), %%eax\n"                  \
-         "mov %%eax, %0\n"                             \
+         "cmovnz (%2,%3,0x4), %%edx\n"                  \
+         "mov %%edx, %0\n"                             \
          : "=m" (pixel)                                \
          : "r" (out),                                  \
            "r" (image_bits),                           \
            "r" (offset)                                \
-         : "%eax",  "%edx"                             \
+         : "%edx"                             \
         )
 
 static void blend_transformed_bilinear_sse(ARGB *target, const QSpan *span,
@@ -190,10 +189,10 @@ static void blend_transformed_bilinear_sse(ARGB *target, const QSpan *span,
                 Y1Out = 0x4,
                 Y2Out = 0x8
             };
-            register const uint out = (x1 < 0 | x1 >= image_width)
-                                      | ((x2 < 0 | x2 >= image_width) << 1)
-                                      | ((y1 < 0 | y1 >= image_height) << 2)
-                                      | ((y2 < 0 | y2 >= image_height) << 3);
+            register const uint out = (x1 >= 0 & x1 < image_width)
+                                      | ((x2 >= 0 & x2 < image_width) << 1)
+                                      | ((y1 >= 0 & y1 < image_height) << 2)
+                                      | ((y2 >= 0 & y2 < image_height) << 3);
             CMOV_PIX(left.tl, out, 0x5, image_bits, y1_offset + x1); // X1Out|Y2Out
             CMOV_PIX(left.bl, out, 0x8, image_bits, y2_offset + x1); // X1Out|Y2Out
             CMOV_PIX(right.tr, out, 0x6, image_bits, y1_offset + x2); // X2Out|Y1Out
