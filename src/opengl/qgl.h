@@ -217,15 +217,13 @@ private:
         uint crWin : 1;
         QPaintDevice* paintDevice;
         QColor transpColor;
-#ifdef Q_WS_MAC
-        QRegion oldR;
-#endif
     };
     Private* d;
 
     friend class QGLWidget;
+    friend class QGLWidgetPrivate;
 #ifdef Q_WS_MAC
-    void fixBufferRect();
+    void updatePaintDevice();
 #endif
 
 private:        // Disabled copy constructor and operator=
@@ -328,9 +326,6 @@ private:        // Disabled copy constructor and operator=
     friend class QGLContext;
     friend class QGLOverlayWidget;
     friend class QOpenGLPaintEngine;
-
-private slots:
-    void macInternalFixBufferRect();
 };
 
 

@@ -29,7 +29,6 @@
 #    include <OpenGL/gl.h>
 #endif
 
-
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qgl_p.h>
@@ -109,24 +108,13 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             }
         }
         if(!ctx) {
-            qDebug("QOpenGL: unable to create QGLContext");
+            qWarning("QOpenGL: unable to create QGLContext");
             return false;
         }
     }
+    cx = ctx;
     d->sharing = shareContext && shareContext->cx;
-
-    if((cx = (void *)ctx)) {
-        if(deviceIsPixmap()) {
-            QPixmap *pm = (QPixmap *)d->paintDevice;
-            PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
-            aglSetOffScreen(ctx, pm->width(), pm->height(),
-                            GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-        } else {
-            aglSetDrawable(ctx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
-        }
-        return true;
-    }
-    return false;
+    return true;
 }
 
 
@@ -185,7 +173,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
         fmt = aglChoosePixelFormat(NULL, 0, attribs);
     if(!fmt) {
         GLenum err = aglGetError();
-        qDebug("got an error tex: %d", (int)err);
+        qWarning("got an error tex: %d", (int)err);
     }
 #if 0
     else {
@@ -212,7 +200,6 @@ void QGLContext::reset()
     if(vi)
         aglDestroyPixelFormat((AGLPixelFormat)vi);
     vi = 0;
-    d->oldR = QRegion();
     d->crWin = false;
     d->sharing = false;
     d->valid = false;
@@ -228,23 +215,23 @@ void QGLContext::makeCurrent()
     }
 
     aglSetCurrentContext((AGLContext)cx);
-    fixBufferRect();
+    updatePaintDevice();
     aglUpdateContext((AGLContext)cx);
     currentCtx = this;
 }
 
-void QGLContext::fixBufferRect()
+void QGLContext::updatePaintDevice()
 {
-    if(d->paintDevice->devType() == QInternal::Widget && !((QWidget*)d->paintDevice)->isTopLevel()) {
-        if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
-           aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
-        if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
-            aglDisable((AGLContext)cx, AGL_CLIP_REGION);
-
+    if(d->paintDevice->devType() == QInternal::Widget) {
         QWidget *w = (QWidget *)d->paintDevice;
-        QRegion clp = qt_cast<QGLWidget*>(w)->d_func()->clippedRegion();
-        if(clp != d->oldR) {
-            d->oldR = clp;
+        aglSetDrawable((AGLContext)cx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
+        if(!w->isTopLevel()) {
+            if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
+                aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
+            if(aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
+                aglDisable((AGLContext)cx, AGL_CLIP_REGION);
+
+            QRegion clp = qt_cast<QGLWidget*>(w)->d_func()->clippedRegion();
             if(clp.isEmpty()) {
                 GLint offs[4] = { 0, 0, 0, 0 };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
@@ -258,10 +245,19 @@ void QGLContext::fixBufferRect()
                 if(!aglIsEnabled((AGLContext)cx, AGL_CLIP_REGION))
                     aglEnable((AGLContext)cx, AGL_CLIP_REGION); //re-enable it..
             }
-            aglUpdateContext((AGLContext)cx);
-            QMacSavedPortInfo::flush(w);
         }
+    } else if(d->paintDevice->devType() == QInternal::Pixmap) {
+        QPixmap *pm = (QPixmap *)d->paintDevice;
+        PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
+        aglSetOffScreen((AGLContext)cx, pm->width(), pm->height(),
+                        GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
+        GLint offs[4] = { 0, pm->height(), pm->width(), pm->height() };
+        aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+        aglDisable((AGLContext)cx, AGL_CLIP_REGION);
+    } else {
+        qWarning("not sure how to render opengl on this device!!");
     }
+    aglUpdateContext((AGLContext)cx);
 }
 
 void QGLContext::doneCurrent()
@@ -308,7 +304,7 @@ uint QGLContext::colorIndex(const QColor&c) const
                 break;
         if(ret == 256) {
             ret = -1;
-            qDebug("whoa, that's no good..");
+            qWarning("whoa, that's no good..");
         } else {
             cmap[ret] = c;
 
@@ -338,35 +334,20 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 /*****************************************************************************
   QGLWidget AGL-specific code
  *****************************************************************************/
-
 #define d d_func()
 #define q q_func()
-
-void QGLWidgetPrivate::setRegionDirty(bool b) //Internally we must put this off until "later"
-{
-#warning "I need to do something about this!!! --SAM"
-//    QWidgetPrivate::setRegionDirty(b);
-    QTimer::singleShot(1, q, SLOT(macInternalFixBufferRect()));
-}
-
-#if 0
-void QGLWidgetPrivate::macWidgetChangedWindow()
-{
-    if(d->glcx)
-        aglSetDrawable((AGLContext)d->glcx->cx, GetWindowPort((WindowPtr)handle()));
-    if(d->olcx)
-        aglSetDrawable((AGLContext)d->olcx->cx, GetWindowPort((WindowPtr)handle()));
-}
-#endif
 
 void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 {
     d->glcx = d->olcx = 0;
     d->autoSwap = true;
-    d->clp_serial = 0;
-    setEraseColor(black);
-    setContext(context, shareWidget ? shareWidget->context() : 0);
+    { //just make it black..
+        QPalette p = palette(); 
+        p.setColor(backgroundRole(), black); 
+        setPalette(p);
+    }
 
+    setContext(context, shareWidget ? shareWidget->context() : 0);
     if(isValid() && d->glcx->format().hasOverlay()) {
         d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
         if(!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
@@ -437,9 +418,7 @@ void QGLWidget::updateOverlayGL()
     }
 }
 
-void QGLWidget::setContext(QGLContext *context,
-                            const QGLContext* shareContext,
-                            bool deleteOldContext)
+void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, bool deleteOldContext)
 {
     if(context == 0) {
         qWarning("QGLWidget::setContext: Cannot set null context");
@@ -450,13 +429,11 @@ void QGLWidget::setContext(QGLContext *context,
         d->glcx->doneCurrent();
     QGLContext* oldcx = d->glcx;
     d->glcx = context;
-    if(!d->glcx->isValid()) {
-        const QGLContext *share = shareContext;
-        d->glcx->create(share);
-    }
+    if(!d->glcx->isValid()) 
+        d->glcx->create(shareContext);
     if(deleteOldContext)
         delete oldcx;
-    macInternalFixBufferRect();
+    d->updatePaintDevice();
 }
 
 bool QGLWidget::renderCxPm(QPixmap*)
@@ -477,12 +454,13 @@ void QGLWidget::cleanupColormaps()
 {
 }
 
-void QGLWidget::macInternalFixBufferRect()
+void QGLWidgetPrivate::updatePaintDevice()
 {
-    d->glcx->fixBufferRect();
-    if(d->olcx)
-        d->olcx->fixBufferRect();
-    update();
+    return;
+    glcx->updatePaintDevice();
+    if(olcx)
+        olcx->updatePaintDevice();
+    q->update();
 }
 
 #endif

@@ -42,9 +42,8 @@ public:
 #elif defined(Q_WS_X11)
     QGLOverlayWidget*        olw;
 #endif
-#if defined(Q_WS_MAC)
-    void setRegionDirty(bool);
-    uint clp_serial : 15;
+#ifdef Q_WS_MAC
+    void updatePaintDevice();
 #endif
 };
 
