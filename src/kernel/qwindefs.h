@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#7 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#8 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -137,16 +137,16 @@ typedef short QCOOT;				// coordinate type
 
 char *qAppName();
 
-// Timer functions are internal; use QObject:: timer functions instead
-
-int   qStartTimer( long interval, QObject *obj );
-bool  qKillTimer( int id );
-bool  qKillTimer( QObject *obj );
-
 
 // Misc functions
 
-void  qAddCleanupRoutine( void (*)() );
+void  qAddPreRoutine( void (*)(...) );
+void  qAddPostRoutine( void (*)(...) );
+
+class QAddPreRoutine {				// class for registering pre-
+public:						//    routines
+    QAddPreRoutine( void (*p)(...) ) { qAddPreRoutine(p); }
+};
 
 
 // GUI styles
