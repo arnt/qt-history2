@@ -15,6 +15,7 @@
 
 class Q_EXPORT QSqlDriver : public QObject
 {
+    friend class QSqlDatabase;
     Q_OBJECT
 public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
