@@ -520,6 +520,9 @@ while [ "$#" -gt 0 ]; do
 	hpux-n64)
 	    PLATFORM=hpux-acc-64
 	    ;;
+	hpux-acc-n64)
+	    PLATFORM=hpux-acc-64
+	    ;;
 	irix-o32)
 	    PLATFORM=irix-cc-o32
 	    ;;
@@ -527,6 +530,9 @@ while [ "$#" -gt 0 ]; do
 	    PLATFORM=irix-cc
 	    ;;
 	irix-64)
+	    PLATFORM=irix-cc-64
+	    ;;
+	irix-cc-n64)
 	    PLATFORM=irix-cc-64
 	    ;;
 	reliant-64)
