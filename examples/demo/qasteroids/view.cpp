@@ -284,7 +284,6 @@ void KAsteroidsView::addRocks( int num )
 
 void KAsteroidsView::showText( const QString &text, const QColor &color, bool scroll )
 {
-    textSprite->setTextFlags( AlignHCenter | AlignVCenter );
     textSprite->setText( text );
     textSprite->setColor( color );
 
