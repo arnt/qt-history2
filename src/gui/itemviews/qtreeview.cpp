@@ -175,20 +175,8 @@ QHeaderView *QTreeView::header() const
 */
 void QTreeView::setHeader(QHeaderView *header)
 {
-    if (d->header) {
-        disconnect(d->header, SIGNAL(sectionResized(int,int,int)),
-                   this, SLOT(columnResized(int,int,int)));
-        disconnect(d->header, SIGNAL(sectionMoved(int,int,int)),
-                   this, SLOT(columnMoved()));
-        disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
-                   this, SLOT(columnCountChanged(int,int)));
-        disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
-                   this, SLOT(resizeColumnToContents(int)));
-        disconnect(d->header, SIGNAL(sectionClicked(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                   this, SLOT(sortByColumn(int)));
-        d->header->setFocusProxy(0);
-    }
-
+    Q_ASSERT(header);
+    delete d->header;
     d->header = header;
 
     connect(d->header, SIGNAL(sectionResized(int,int,int)),

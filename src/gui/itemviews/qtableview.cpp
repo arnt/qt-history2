@@ -234,21 +234,7 @@ QHeaderView *QTableView::verticalHeader() const
 void QTableView::setHorizontalHeader(QHeaderView *header)
 {
     Q_ASSERT(header);
-    if (d->horizontalHeader) {
-        disconnect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
-                   this, SLOT(columnResized(int,int,int)));
-        disconnect(d->horizontalHeader, SIGNAL(sectionMoved(int,int,int)),
-                   this, SLOT(columnMoved(int,int,int)));
-        disconnect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
-                   this, SLOT(columnCountChanged(int,int)));
-        disconnect(d->horizontalHeader,
-                   SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                   this, SLOT(selectColumn(int)));
-        disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
-                   this, SLOT(resizeColumnToContents(int)));
-        d->horizontalHeader->setFocusProxy(0);
-    }
-
+    delete d->horizontalHeader;
     d->horizontalHeader = header;
 
     connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
@@ -271,21 +257,8 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
 */
 void QTableView::setVerticalHeader(QHeaderView *header)
 {
-    if (d->verticalHeader) {
-        disconnect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
-                   this, SLOT(rowResized(int,int,int)));
-        disconnect(d->verticalHeader, SIGNAL(sectionMoved(int,int,int)),
-                   this, SLOT(rowMoved(int,int,int)));
-        disconnect(d->verticalHeader, SIGNAL(sectionCountChanged(int,int)),
-                   this, SLOT(rowCountChanged(int,int)));
-        disconnect(d->verticalHeader,
-                   SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                   this, SLOT(selectRow(int)));
-        disconnect(d->verticalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
-                   this, SLOT(resizeRowToContents(int)));
-        d->verticalHeader->setFocusProxy(0);
-    }
-
+    Q_ASSERT(header);
+    delete d->verticalHeader;
     d->verticalHeader = header;
 
     connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
