@@ -1432,7 +1432,7 @@ void  QTreeViewPrivate::updateHorizontalScrollbar()
 {
     int factor = q->horizontalFactor();
     int width = viewport->width();
-    int count = model->columnCount(q->root());
+    int count = header->count();
 
     // if we have no viewport or no columns, there is nothing to do
     if (width <= 0 || count <= 0) {
@@ -1440,21 +1440,20 @@ void  QTreeViewPrivate::updateHorizontalScrollbar()
         return;
     }
 
-    // set page step size
-    q->horizontalScrollBar()->setPageStep(width); // FIXME: wrong
-
     // set the scroller range
     int x = width;
-    int col = header->logicalIndexAt(QApplication::reverseLayout() ? 0 : width) + 1;
-    int max = col ? (count - col) * factor : 0;
-    while (x > 0 && col > 0)
-        x -= header->sectionSize(--col);
+    while (x > 0 && count > 0)
+        x -= header->sectionSize(--count);
+    int max = count * factor;
+
+    // set page step size
+    int visibleCount = header->count() - count - 1;
+    q->horizontalScrollBar()->setPageStep(visibleCount * factor);
 
     if (x < 0) { // if the first item starts left of the viewport, we have to backtrack
-        int backtracking = factor * -x;
-        int sectionSize = header->sectionSize(col);
+        int sectionSize = header->sectionSize(count);
         if (sectionSize > 0) // avoid division by zero
-            max += (backtracking / sectionSize) + 1;
+            max += ((-x * factor) / sectionSize) + 1;
     }
 
     q->horizontalScrollBar()->setRange(0, max);

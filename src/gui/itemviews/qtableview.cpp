@@ -47,7 +47,7 @@ void QTableViewPrivate::updateVerticalScrollbar()
 {
     int factor = q->verticalFactor();
     int height = viewport->height();
-    int count = model->rowCount(q->root());
+    int count = verticalHeader->count();
 
     // if we have no viewport or no rows, there is nothing to do
     if (height <= 0 || count <= 0) {
@@ -55,21 +55,20 @@ void QTableViewPrivate::updateVerticalScrollbar()
         return;
     }
 
-    // set page step size
-    q->verticalScrollBar()->setPageStep(height); // FIXME: wrong
-
     // set the scroller range
     int y = height;
-    int row = verticalHeader->logicalIndexAt(height) + 1;
-    int max = row ? (count - row) * factor : 0;
-    while (y > 0 && row > 0)
-        y -= verticalHeader->sectionSize(--row);
+    while (y > 0 && count > 0)
+        y -= verticalHeader->sectionSize(--count);
+    int max = count * factor;
+
+    // set page step size
+    int visibleCount = verticalHeader->count() - count - 1;
+    q->verticalScrollBar()->setPageStep(visibleCount * factor);
 
     if (y < 0) { // if the last item starts above the viewport, we have to backtrack
-        int backtracking = factor * -y;
-        int sectionSize = verticalHeader->sectionSize(row);
-        if (sectionSize > 0) // avoid division by zero
-            max += (backtracking / sectionSize) + 1;
+        int sectionSize = verticalHeader->sectionSize(count);
+        if (sectionSize) // avoid division by zero
+            max += ((-y * factor)/ sectionSize) + 1; // how many units to add
     }
 
     q->verticalScrollBar()->setRange(0, max);
@@ -79,7 +78,7 @@ void QTableViewPrivate::updateHorizontalScrollbar()
 {
     int factor = q->horizontalFactor();
     int width = viewport->width();
-    int count = model->columnCount(q->root());
+    int count = horizontalHeader->count();
 
     // if we have no viewport or no columns, there is nothing to do
     if (width <= 0 || count <= 0) {
@@ -87,21 +86,20 @@ void QTableViewPrivate::updateHorizontalScrollbar()
         return;
     }
 
-    // set page step size
-    q->horizontalScrollBar()->setPageStep(width); // FIXME: wrong
-
     // set the scroller range
     int x = width;
-    int col = horizontalHeader->logicalIndexAt(QApplication::reverseLayout() ? 0 : width) + 1;
-    int max = col ? (count - col) * factor : 0;
-    while (x > 0 && col > 0)
-        x -= horizontalHeader->sectionSize(--col);
+    while (x > 0 && count > 0)
+        x -= horizontalHeader->sectionSize(--count);
+    int max = count * factor;
+
+    // set page step size
+    int visibleCount = horizontalHeader->count() - count - 1;
+    q->horizontalScrollBar()->setPageStep(visibleCount * factor);
 
     if (x < 0) { // if the last item starts left of the viewport, we have to backtrack
-        int backtracking = factor * -x;
-        int sectionSize = horizontalHeader->sectionSize(col);
-        if (sectionSize > 0) // avoid division by zero
-            max += (backtracking / sectionSize) + 1;
+        int sectionSize = horizontalHeader->sectionSize(count);
+        if (sectionSize) // avoid division by zero
+            max += ((-x * factor) / sectionSize) + 1;
     }
 
     q->horizontalScrollBar()->setRange(0, max);
