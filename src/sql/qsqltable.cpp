@@ -51,6 +51,8 @@ public:
     QString      nullTxt;
     typedef      QValueList< uint > ColIndex;
     ColIndex     colIndex;
+    typedef      QValueList< bool > ColReadOnly;
+    ColReadOnly  colReadOnly;
     bool         haveAllRows;
     bool         continuousEdit;
     bool         ro;
@@ -142,6 +144,10 @@ void QSqlTable::addColumn( const QSqlField* field )
     if ( field->isVisible() && !field->isPrimaryIndex() ) {
 	setNumCols( numCols() + 1 );
 	d->colIndex.append( field->fieldNumber() );
+	if ( field->isReadOnly() )
+	    d->colReadOnly.append( TRUE );
+	else
+	    d->colReadOnly.append( FALSE );
 	QHeader* h = horizontalHeader();
 	h->setLabel( numCols()-1, field->displayLabel() );
     }
@@ -167,8 +173,10 @@ void QSqlTable::removeColumn( uint col )
     QSqlTablePrivate::ColIndex::Iterator it = d->colIndex.at( col );
     if ( it != d->colIndex.end() )
 	d->colIndex.remove( it );
+    QSqlTablePrivate::ColReadOnly::Iterator it2 = d->colReadOnly.at( col );
+    if ( it2 != d->colReadOnly.end() )
+	d->colReadOnly.remove( it2 );
 }
-
 
 /*!
 
@@ -185,6 +193,10 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 	return;
     if ( field->isVisible() && !field->isPrimaryIndex() ) {
 	d->colIndex[ col ] = field->fieldNumber();
+	if ( field->isReadOnly() )
+	    d->colReadOnly[ col ] =  TRUE;
+	else
+	    d->colReadOnly[ col ] =  FALSE;
 	QHeader* h = horizontalHeader();
 	h->setLabel( col, field->name() );
     } else {
@@ -197,7 +209,7 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
   Sets the table's readonly flag to \a b.  Note that if the underlying cursor cannot
   be edited, this function will have no effect.
 
-  \sa setCursor()
+  \sa setCursor() isReadOnly()
 
 */
 
@@ -206,9 +218,50 @@ void QSqlTable::setReadOnly( bool b )
     d->ro = b;
 }
 
+/*!
+
+  Returns TRUE if the table is readonly, otherwise FALSE is returned.
+  
+  \sa setReadOnly()
+
+*/
+
 bool QSqlTable::isReadOnly() const
 {
     return d->ro;
+}
+
+/*!
+
+  Sets the \a column's readonly flag to \a b.  Readonly columns cannot
+  be edited. Note that if the underlying cursor cannot be edited, this
+  function will have no effect.
+
+  \sa setCursor() isColumnReadOnly()
+
+*/
+
+void QSqlTable::setColumnReadOnly( int col, bool b )
+{
+    if ( col >= numCols() )
+	return;
+    d->colReadOnly[ col ] = b;
+}
+
+/*!
+
+  Returns TRUE if the \a column is readonly, otherwise FALSE is
+  returned.
+  
+  \sa setColumnReadOnly()
+
+*/
+
+bool QSqlTable::isColumnReadOnly( int col ) const
+{
+    if ( col >= numCols() )
+	return FALSE;
+    return d->colReadOnly[ col ];
 }
 
 void QSqlTable::setConfirmEdits( bool confirm )
@@ -250,8 +303,8 @@ QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
     QWidget * w = 0;
     if( initFromCell ){
 	w = d->editorFactory->createEditor( viewport(), d->editBuffer.value( indexOf( col ) ) );
-	//qDebug("editor factory returned:" + QString::number((int)w));
-	d->propertyMap->setProperty( w, d->editBuffer.value( indexOf( col ) ) );
+	if ( w )
+	    d->propertyMap->setProperty( w, d->editBuffer.value( indexOf( col ) ) );
     } else {
 	//	qDebug("not init from cell");
     }
@@ -312,12 +365,13 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
 	if ( d->mode != QSqlTable::None ) {
-	    if ( ( ke->key() == Key_Tab ) && ( c < numCols() - 1 ) )
+	    if ( ( ke->key() == Key_Tab ) && ( c < numCols() - 1 ) ) {
 		d->continuousEdit = TRUE;
-	    else if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) )
+	    } else if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) ) {
 		d->continuousEdit = TRUE;
-	    else
+	    } else {
 		d->continuousEdit = FALSE;
+	    }
 	}
 	break;
     }
@@ -360,7 +414,7 @@ void QSqlTable::resizeEvent ( QResizeEvent * e )
 
 void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 {
-    //    qDebug("QSqlTable::contentsMousePressEvent( QMouseEvent* e )");
+    qDebug("QSqlTable::contentsMousePressEvent( QMouseEvent* e )");
     if ( d->mode != QSqlTable::None ) {
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
     }
@@ -408,15 +462,22 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
     d->editCol = -1;
     if ( !d->cursor )
 	return 0;
-    //    qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
-    //    qDebug("continuousEdit:" + QString::number(d->continuousEdit));
+    if ( d->mode == QSqlTable::Insert && !d->cursor->canInsert() )
+	return 0;
+    if ( d->mode == QSqlTable::Update && !d->cursor->canUpdate() )
+	return 0;
+    qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
+    qDebug("continuousEdit:" + QString::number(d->continuousEdit));
     d->editRow = row;
     d->editCol = col;
-    if ( d->continuousEdit )
-	return QTable::beginEdit( row, col, replace );
-    if ( d->mode == QSqlTable::None )
+    if ( d->continuousEdit ) {
+	QWidget* w = QTable::beginEdit( row, col, replace );
+	qDebug("QTable::beginEdit returned:" + QString::number((int)w));
+	return w;
+    }
+    if ( d->mode == QSqlTable::None && d->cursor->canUpdate() && d->cursor->primaryIndex().count() > 0 )
 	return beginUpdate( row, col, replace );
-    //    qDebug("NO EDIT, returning 0");
+    qDebug("NO EDIT, returning 0");
     return 0;
 }
 
@@ -426,12 +487,14 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 */
 void QSqlTable::endEdit( int row, int col, bool accept, bool )
 {
+    qDebug("QSqlTable::endEdit");
     QWidget *editor = cellWidget( row, col );
     if ( !editor )
 	return;
     if ( d->cancelMode )
 	return;
     if ( !accept ) {
+	qDebug("!accept");
 	setEditMode( NotEditing, -1, -1 );
 	clearCellWidget( row, col );
 	updateCell( row, col );
@@ -455,14 +518,16 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
 	    }
 	}
     } else {
+	qDebug("turning off editmode");
 	setEditMode( NotEditing, -1, -1 );
     }
     if ( d->mode == QSqlTable::None ) {
-	//	qDebug("QSqlTable::endEdit: done, setting focus to viewport");
+	qDebug("QSqlTable::endEdit: done, setting focus to viewport");
 	viewport()->setFocus();
     }
     updateCell( row, col );
     emit valueChanged( row, col );
+    qDebug("QSqlTable::endEdit DONE");
 }
 
 void QSqlTable::activateNextCell()
@@ -507,6 +572,8 @@ bool QSqlTable::beginInsert()
 {
     qt_debug_buffer("beginInsert: start, CURSOR", d->cursor);
     if ( !d->cursor || isReadOnly() || ! numCols() )
+	return FALSE;
+    if ( !d->cursor->canInsert() )
 	return FALSE;
     int i = 0;
     int row = currentRow();
@@ -553,15 +620,17 @@ bool QSqlTable::beginInsert()
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
-    //    qDebug("QSqlTable::beginUpdate");
+    qDebug("QSqlTable::beginUpdate");
     if ( !d->cursor || isReadOnly() )
 	return 0;
+    qDebug("entering update mode");
     ensureCellVisible( row, col );
     setCurrentSelection( row, col );
     d->mode = QSqlTable::Update;
     d->editBuffer.clear();
     d->editBuffer = *d->cursor;
     d->editBuffer.detach();
+    qt_debug_buffer("calling QTable::beginEdit", &d->editBuffer );
     return QTable::beginEdit( row, col, replace );
 }
 
@@ -597,6 +666,7 @@ void QSqlTable::insertCurrent()
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlTable::insertCurrent: insert not allowed for " + d->editBuffer.name() );
 #endif
+	endInsert();
 	return;
     }
     int b = 0;
@@ -608,7 +678,7 @@ void QSqlTable::insertCurrent()
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	b = d->editBuffer.insert();
 	QApplication::restoreOverrideCursor();
-	if ( !b )
+	if ( !b || !d->editBuffer.isActive() )
 	    handleError( d->editBuffer.lastError() );
 	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
 	endInsert();
@@ -670,12 +740,14 @@ void QSqlTable::updateCurrent()
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlTable::updateCurrent: no primary index for " + d->editBuffer.name() );
 #endif
+	endUpdate();
 	return;
     }
     if ( !d->editBuffer.canUpdate() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlTable::updateCurrent: updates not allowed for " + d->editBuffer.name() );
 #endif
+	endUpdate();
 	return;
     }
     int b = 0;
@@ -690,7 +762,7 @@ void QSqlTable::updateCurrent()
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	b = d->editBuffer.update( d->editBuffer.primaryIndex() );
 	QApplication::restoreOverrideCursor();
-	if ( !b )
+	if ( !b || !d->editBuffer.isActive() )
 	    handleError( d->editBuffer.lastError() );
 	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
 	endUpdate();
@@ -981,6 +1053,7 @@ void QSqlTable::reset()
     d->haveAllRows = FALSE;
     d->continuousEdit = FALSE;
     d->colIndex.clear();
+    d->colReadOnly.clear();
     d->mode =  QSqlTable::None;
     d->editRow = -1;
     d->editCol = -1;

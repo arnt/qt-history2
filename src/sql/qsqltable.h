@@ -37,6 +37,7 @@ public:
     bool         confirmEdits() const;
     bool         confirmCancels() const;
     bool         isReadOnly() const;
+    bool         isColumnReadOnly( int col ) const;
 
     virtual void setCursor( QSqlCursor* cursor = 0, bool autoPopulate = TRUE );
     virtual void setNullText( const QString& nullText );
@@ -46,6 +47,7 @@ public:
     virtual void setConfirmCancels( bool confirm );
     virtual void setAutoDelete( bool enable );
     virtual void setReadOnly( bool b );
+    virtual void setColumnReadOnly( int col, bool b );
 
     QSqlCursor*  cursor() const;
 
