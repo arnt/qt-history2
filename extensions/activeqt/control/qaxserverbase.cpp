@@ -62,6 +62,26 @@ extern unsigned long qAxLock();
 extern unsigned long qAxUnlock();
 extern void* qAxInstance;
 
+struct QAxExceptInfo
+{
+    QAxExceptInfo( int c, const QString &s, const QString &d, const QString &x )
+	: code(c), src(s), desc(d), context(x)
+    {
+    }
+    int code;
+    QString src;
+    QString desc;
+    QString context;
+};
+static QAxExceptInfo *qAxException = 0;
+
+// documentation in qaxbindable.cpp
+void QAxBindable::reportError( int code, const QString &src, const QString &desc, const QString &context )
+{
+    if ( qAxException )
+	delete qAxException;
+    qAxException = new QAxExceptInfo( code, src, desc, context );
+}
 
 static QPtrDict<QAxServerBase> *ax_ServerMapper = 0;
 static QPtrDict<QAxServerBase> *axServerMapper()
@@ -1899,7 +1919,7 @@ HRESULT WINAPI QAxServerBase::GetIDsOfNames(REFIID riid, LPOLESTR* rgszNames, UI
 */
 HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		  LCID /*lcid*/, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pvarResult,
-		  EXCEPINFO* /*pexcepinfo*/, UINT* puArgErr )
+		  EXCEPINFO* pexcepinfo, UINT* puArgErr )
 {
     if ( riid != IID_NULL )
 	return DISP_E_UNKNOWNINTERFACE;
@@ -2049,7 +2069,35 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	break;
     }
 
-    if ( isWidget ) {
+    if ( qAxException ) {
+	if ( pexcepinfo ) {
+	    memset( pexcepinfo, 0, sizeof(EXCEPINFO) );
+
+	    pexcepinfo->wCode = qAxException->code;
+	    if ( !qAxException->src.isNull() )
+		pexcepinfo->bstrSource = QStringToBSTR(qAxException->src);
+	    if ( !qAxException->desc.isNull() )
+		pexcepinfo->bstrDescription = QStringToBSTR(qAxException->desc);
+	    if ( !qAxException->context.isNull() ) {
+		QString context = qAxException->context;
+		int contextID = 0;
+		int br = context.find( '[' );
+		if ( br != -1 ) {
+		    context = context.mid( br+1 );
+		    context = context.left( context.length() - 1 );
+		    contextID = context.toInt();
+
+		    context = qAxException->context;
+		    context = context.left( br-1 );
+		}
+		pexcepinfo->bstrHelpFile = QStringToBSTR(context);
+		pexcepinfo->dwHelpContext = contextID;
+	    }
+	}
+	delete qAxException;
+	qAxException = 0;
+	return DISP_E_EXCEPTION;
+    } else if ( isWidget ) {
 	QSize sizeHint = qt.widget->sizeHint();
 	if ( oldSizeHint != sizeHint ) {
 	    updateGeometry();

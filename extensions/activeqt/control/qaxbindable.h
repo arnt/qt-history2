@@ -73,6 +73,7 @@ public:
     virtual ~QAxBindable();
     
     virtual QAxAggregated *createAggregate();
+    static void reportError( int code, const QString &src, const QString &desc, const QString &help = QString::null );
 
 protected:
     bool requestPropertyChange( const char *property );

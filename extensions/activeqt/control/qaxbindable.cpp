@@ -70,7 +70,8 @@ struct IAxServerBase : public IUnknown
     requestPropertyChange() to get permission from the ActiveX client
     application to change this property. When the property changes,
     call propertyChanged() to notify the ActiveX client application
-    about the change.
+    about the change. If a fatal error occurs in the control, use the
+    static reportError() function to notify the client.
 
     Use the interface returned by clientSite() to call the ActiveX client. To 
     implement additional COM interfaces in your ActiveX control, reimplement
@@ -167,6 +168,17 @@ QAxAggregated *QAxBindable::createAggregate()
 {
     return 0;
 }
+
+/*!
+    \fn void QAxBindable::reportError( int code, const QString &src, const QString &desc, const QString &context )
+
+    Reports an error to the client application. \a code is a contro-defined error code. 
+    \a desc is a human-readable description of the error intended for the application
+    user. \a src is the name of the source for the error, typically the ActiveX server
+    name. \a context can be the location of a help file with more information about the 
+    error. If \a context ends with a number in brackets, e.g. [12], this number will
+    be interpreted as the context ID in the help file.
+*/
 
 /*! \class QAxAggregated qaxbindable.h
     \brief The QAxAggregated class is an abstract base class for implementations of
