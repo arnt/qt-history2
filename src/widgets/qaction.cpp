@@ -895,9 +895,6 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     d->dropdown = FALSE;
     d->selected = 0;
     d->separatorAction = 0;
-    d->comboboxes.setAutoDelete( TRUE );
-    d->menubuttons.setAutoDelete( TRUE );
-    d->popups.setAutoDelete( TRUE );
 
     connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }
@@ -907,6 +904,9 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
 QActionGroup::~QActionGroup()
 {
     delete d->separatorAction;
+    d->menubuttons.setAutoDelete( TRUE );
+    d->comboboxes.setAutoDelete( TRUE );
+    d->popups.setAutoDelete( TRUE );
     delete d;
 }
 
@@ -935,15 +935,24 @@ bool QActionGroup::isExclusive() const
     return d->exclusive;
 }
 
-/*! Sets the representation of this actiongroup in toolbars
- */
+/*! 
+  When \a enable is TRUE, the group will add the actions to a 
+  logical subwidget of widgets it gets added to, e.g. a submenu in
+  a popup menu.
+  Changing this setting does only effect subsequent calls to addTo.
+
+  \sa usesDropDown
+*/
 
 void QActionGroup::setUsesDropDown( bool enable )
 {
     d->dropdown = enable;
 }
 
-/*! Returns the current representation of this actiongroup in toolbars
+/*! 
+  Returns whether this group uses a subwidget to represent the actions.
+
+  \sa setUsesDropDown
 */
 bool QActionGroup::usesDropDown() const
 {
@@ -992,6 +1001,7 @@ bool QActionGroup::addTo( QWidget* w )
 		QAction *defAction = it.current();
 
 		QToolButton* btn = new QToolButton( (QToolBar*) w );
+		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->menubuttons.append( btn );
 
 		if ( !iconSet().isNull() )
@@ -1018,6 +1028,7 @@ bool QActionGroup::addTo( QWidget* w )
 		return TRUE;
 	    } else {
 		QComboBox *box = new QComboBox( w );
+		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->comboboxes.append( box );
 		if ( !!toolTip() )
 		    QToolTip::add( box, toolTip() );
@@ -1036,6 +1047,7 @@ bool QActionGroup::addTo( QWidget* w )
 	if ( d->dropdown ) {
 	    QPopupMenu *menu = (QPopupMenu*)w;
 	    popup = new QPopupMenu( w );
+	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 	    d->popups.append( popup );
 
 	    if ( !iconSet().isNull() )
@@ -1203,6 +1215,14 @@ void QActionGroup::internalToggle( QAction *a )
 	if ( index != -1 )
 	    it.current()->setCurrentItem( index );
     }
+}
+
+void QActionGroup::objectDestroyed()
+{
+    const QObject* obj = sender();
+    d->menubuttons.removeRef( (QToolButton*)obj );
+    d->popups.removeRef( (QPopupMenu*)obj );
+    d->comboboxes.removeRef( (QComboBox*)obj );
 }
 
 #endif

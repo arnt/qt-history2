@@ -150,6 +150,7 @@ private slots:
     void childDestroyed();
     void internalComboBoxActivated( int );
     void internalToggle( QAction* );
+    void objectDestroyed();
 
 private:
     QActionGroupPrivate* d;
