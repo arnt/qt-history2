@@ -59,7 +59,11 @@ public:
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
+#ifdef Q_WS_WIN
+    HDC handle() const;
+#else
     Qt::HANDLE handle() const;
+#endif
     inline Type type() const { return QPaintEngine::OpenGL; }
 
 private:

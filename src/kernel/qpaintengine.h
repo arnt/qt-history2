@@ -29,7 +29,7 @@ struct QPaintEnginePrivate {
     uint flags;
 };
 
-class QPaintEngine : public Qt
+class Q_GUI_EXPORT QPaintEngine : public Qt
 {
 public:
     enum Capability {

@@ -430,7 +430,7 @@ static int nearest_gl_texture_size(int v)
 {
     int n = 0, last = 0;
     for (int s = 0; s < 32; ++s) {
-	if ((v>>s) & 1 == 1) {
+	if (((v>>s) & 1) == 1) {
 	    ++n;
 	    last = s;
 	}
@@ -445,11 +445,12 @@ QMap<int, GLuint> tx_cache;
 
 static void cleanup_texture_cache()
 {
-    GLuint textures[tx_cache.size()];
+    GLuint *textures = new GLuint[tx_cache.size()];
     for(int i = 0; i < tx_cache.size(); ++i)
 	textures[i] = tx_cache.value(i);
     glDeleteTextures(tx_cache.size(), textures);
     tx_cache.clear();
+    delete textures;
 }
 
 static void bind_texture_from_cache(const QPixmap &pm)
@@ -560,7 +561,12 @@ void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int 
 
 }
 
-Qt::HANDLE QOpenGLPaintEngine::handle() const
+#ifdef Q_WS_WIN
+HDC
+#else
+Qt::HANDLE
+#endif
+QOpenGLPaintEngine::handle() const
 {
     return 0;
 }
