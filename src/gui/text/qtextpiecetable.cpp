@@ -816,6 +816,7 @@ QTextFrame *QTextPieceTable::frameAt(int pos) const
         QTextFrame *c = findChildFrame(f, pos);
         if (!c)
             return f;
+        f = c;
     }
 }
 
@@ -858,7 +859,9 @@ void QTextPieceTable::remove_frame(QTextFrame *f)
 
     // iterator over all children and move them to the parent
     for (int i = 0; i < f->d->childFrames.size(); ++i) {
-        parent->d->childFrames.insert(index, f->d->childFrames.at(i));
+        QTextFrame *c = f->d->childFrames.at(i);
+        parent->d->childFrames.insert(index, c);
+        c->d->parentFrame = parent;
         ++index;
     }
     f->d->childFrames.clear();
