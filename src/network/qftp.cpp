@@ -109,6 +109,9 @@ class QFtpDTP : public QSocket
 public:
     QFtpDTP( QFtpPI *p, QObject *parent=0, const char *name=0 );
 
+    void setData( QByteArray * );
+    void writeData();
+
     bool hasError() const;
     QString errorMessage() const;
     void clearError();
@@ -127,11 +130,18 @@ private slots:
     void slotReadyRead();
     void slotError( int );
     void slotConnectionClosed();
+    void slotBytesWritten( int );
 
 private:
     QFtpPI *pi;
     QString err;
-    int totalBytesRead;
+    int totalBytes;
+
+    union {
+	QByteArray *ba;
+	QIODevice *dev;
+    } data;
+    bool data_ba;
 };
 
 class QFtpPI : public QObject
@@ -198,14 +208,48 @@ private:
 class QFtpCommand
 {
 public:
-    QFtpCommand( int i, QFtp::Command cmd, QStringList raw )
-	: id(i), command(cmd), rawCmds(raw)
-    { }
+    QFtpCommand( QFtp::Command cmd, QStringList raw );
+    QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba );
+    ~QFtpCommand();
 
     int id;
     QFtp::Command command;
     QStringList rawCmds;
+    union {
+	QByteArray *ba;
+	QIODevice *dev;
+    } data;
+    bool data_ba;
+
+    static int idCounter;
 };
+
+/**********************************************************************
+ *
+ * QFtpCommand implemenatation
+ *
+ *********************************************************************/
+int QFtpCommand::idCounter = 0;
+
+QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw )
+    : command(cmd), rawCmds(raw), data_ba(FALSE)
+{
+    id = ++idCounter;
+    data.ba = 0;
+}
+
+QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba )
+    : command(cmd), rawCmds(raw), data_ba(TRUE)
+{
+    id = ++idCounter;
+    data.ba = new QByteArray( ba );
+}
+
+QFtpCommand::~QFtpCommand()
+{
+    if ( data_ba )
+	delete data.ba;
+}
 
 /**********************************************************************
  *
@@ -214,8 +258,10 @@ public:
  *********************************************************************/
 QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
     QSocket( parent, name ), pi(p),
-    err( QString::null )
+    err( QString::null ), data_ba(FALSE)
 {
+    data_ba = FALSE;
+
     connect( this, SIGNAL( connected() ),
 	     SLOT( slotConnected() ) );
     connect( this, SIGNAL( readyRead() ),
@@ -224,10 +270,31 @@ QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
 	     SLOT( slotError( int ) ) );
     connect( this, SIGNAL( connectionClosed() ),
 	     SLOT( slotConnectionClosed() ) );
-#if 0
     connect( this, SIGNAL( bytesWritten( int ) ),
 	     SLOT( slotBytesWritten( int ) ) );
+}
+
+void QFtpDTP::setData( QByteArray *ba )
+{
+    data_ba = TRUE;
+    data.ba = ba;
+}
+
+void QFtpDTP::writeData()
+{
+    if ( data_ba ) {
+#if defined(QFTPDTP_DEBUG)
+	qDebug( "QFtpDTP::writeData: write %d bytes", data.ba->size() );
 #endif
+	totalBytes = 0;
+	if ( data.ba->size() == 0 )
+	    emit dataProgress( 0 );
+	else
+	    writeBlock( data.ba->data(), data.ba->size() );
+	close();
+	data_ba = FALSE;
+	data.ba = 0;
+    }
 }
 
 inline bool QFtpDTP::hasError() const
@@ -374,7 +441,7 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
 
 void QFtpDTP::slotConnected()
 {
-    totalBytesRead = 0;
+    totalBytes = 0;
 #if defined(QFTPDTP_DEBUG)
     qDebug( "QFtpDTP::connectState( CsConnected )" );
 #endif
@@ -417,8 +484,8 @@ void QFtpDTP::slotReadyRead()
 	    return;
 	}
 	ba.resize( bytesRead );
-	totalBytesRead += bytesRead;
-	emit dataProgress( totalBytesRead );
+	totalBytes += bytesRead;
+	emit dataProgress( totalBytes );
 	emit newData( ba );
     }
 }
@@ -444,6 +511,12 @@ void QFtpDTP::slotConnectionClosed()
     qDebug( "QFtpDTP::connectState( CsClosed )" );
 #endif
     emit connectState( QFtp::CsClosed );
+}
+
+void QFtpDTP::slotBytesWritten( int bytes )
+{
+    totalBytes += bytes;
+    emit dataProgress( bytes );
 }
 
 /**********************************************************************
@@ -673,6 +746,8 @@ bool QFtpPI::processReply()
     } else if ( replyCodeInt == 213 ) {
 	if ( currentCmd.startsWith("SIZE ") )
 	    emit dataSize( replyText.simplifyWhiteSpace().toInt() );
+    } else if ( replyCode[0]==1 && currentCmd.startsWith("STOR ") ) {
+	dtp.writeData();
     }
 
     // react on new state
@@ -771,12 +846,11 @@ void QFtpPI::dtpConnectState( int s )
 class QFtpPrivate
 {
 public:
-    QFtpPrivate() : idCounter(0), redirectConnectState(FALSE)
+    QFtpPrivate() : redirectConnectState(FALSE)
     { pending.setAutoDelete( TRUE ); }
 
     QFtpPI pi;
     QPtrList<QFtpCommand> pending;
-    int idCounter;
     bool redirectConnectState;
 };
 
@@ -966,7 +1040,7 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
     QStringList cmds;
     cmds << host;
     cmds << QString::number( (uint)port );
-    return addCommand( ConnectToHost, cmds );
+    return addCommand( new QFtpCommand( ConnectToHost, cmds ) );
 }
 
 /*!
@@ -986,7 +1060,7 @@ int QFtp::login( const QString &user, const QString &password )
     QStringList cmds;
     cmds << "USER " + ( user.isNull() ? QString("anonymous") : user ) + "\r\n";
     cmds << "PASS " + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n";
-    return addCommand( Login, cmds );
+    return addCommand( new QFtpCommand( Login, cmds ) );
 }
 
 /*!
@@ -1002,7 +1076,7 @@ int QFtp::login( const QString &user, const QString &password )
 */
 int QFtp::close()
 {
-    return addCommand( Close, QStringList("QUIT\r\n") );
+    return addCommand( new QFtpCommand( Close, QStringList("QUIT\r\n") ) );
 }
 
 /*!
@@ -1026,7 +1100,7 @@ int QFtp::list( const QString &dir )
 	cmds << "LIST\r\n";
     else
 	cmds << "LIST " + dir + "\r\n";
-    return addCommand( List, cmds );
+    return addCommand( new QFtpCommand( List, cmds ) );
 }
 
 /*!
@@ -1042,7 +1116,7 @@ int QFtp::list( const QString &dir )
 */
 int QFtp::cd( const QString &dir )
 {
-    return addCommand( Cd, QStringList("CWD "+dir+"\r\n") );
+    return addCommand( new QFtpCommand( Cd, QStringList("CWD "+dir+"\r\n") ) );
 }
 
 /*!
@@ -1064,7 +1138,29 @@ int QFtp::get( const QString &file )
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
     cmds << "RETR " + file + "\r\n";
-    return addCommand( Get, cmds );
+    return addCommand( new QFtpCommand( Get, cmds ) );
+}
+
+/*!
+  Stores the data \a data under \a file on the server. The progress of the
+  upload is reported by the dataSize() and dataProgress() signals.
+
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
+
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa dataSize() dataProgress() start() finishedSuccess() finishedError()
+*/
+int QFtp::put( const QByteArray &data, const QString &file )
+{
+    QStringList cmds;
+    cmds << "TYPE I\r\n";
+    cmds << "PASV\r\n";
+    cmds << "ALLO " + QString::number(data.size()) + "\r\n";
+    cmds << "STOR " + file + "\r\n";
+    return addCommand( new QFtpCommand( Put, cmds, data ) );
 }
 
 /*!
@@ -1080,7 +1176,7 @@ int QFtp::get( const QString &file )
 */
 int QFtp::remove( const QString &file )
 {
-    return addCommand( Remove, QStringList("DELE "+file+"\r\n") );
+    return addCommand( new QFtpCommand( Remove, QStringList("DELE "+file+"\r\n") ) );
 }
 
 /*!
@@ -1112,17 +1208,16 @@ QFtp::Command QFtp::currentCommand() const
     return c->command;
 }
 
-int QFtp::addCommand( Command cmd, const QStringList &rawCmds )
+int QFtp::addCommand( QFtpCommand *cmd )
 {
     QFtpPrivate *d = ::d( this );
-    d->idCounter++;
-    d->pending.append( new QFtpCommand(d->idCounter,cmd,rawCmds) );
+    d->pending.append( cmd );
 
     if ( d->pending.count() == 1 )
 	// don't emit the start() signal before the id is returned
 	QTimer::singleShot( 0, this, SLOT(startNextCommand()) );
 
-    return d->idCounter;
+    return cmd->id;
 }
 
 void QFtp::startNextCommand()
@@ -1131,10 +1226,18 @@ void QFtp::startNextCommand()
     QFtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return;
+
     emit start( c->id );
+
     if ( c->command == ConnectToHost ) {
 	d->pi.connectToHost( c->rawCmds[0], c->rawCmds[1].toUInt() );
     } else {
+	if ( c->command == Put ) {
+	    if ( c->data_ba && c->data.ba ) {
+		d->pi.dtp.setData( c->data.ba );
+		emit dataSize( c->data.ba->size() );
+	    }
+	}
 	if ( !d->pi.sendCommands( c->rawCmds ) ) {
 	    // ### error handling (this case should not happen)
 	}

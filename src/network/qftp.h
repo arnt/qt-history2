@@ -54,7 +54,7 @@
 
 
 class QSocket;
-
+class QFtpCommand;
 
 class QM_EXPORT_FTP QFtp : public QNetworkProtocol
 {
@@ -83,8 +83,8 @@ public:
 	List,
 	Cd,
 	Get,
+	Put,
 	Remove,
-//###	Put,
 //###	Copy,
 //###	Mkdir,
 //###	Rename,
@@ -98,6 +98,7 @@ public:
     int list( const QString &dir=QString::null );
     int cd( const QString &dir );
     int get( const QString &file );
+    int put( const QByteArray &data, const QString &file );
     int remove( const QString &file );
 
     int currentId() const;
@@ -144,7 +145,7 @@ private:
     void errorForNow( int code, const QCString &data );
     void errorForgetIt( int code, const QCString &data );
 
-    int addCommand( Command cmd, const QStringList &rawCmds );
+    int addCommand( QFtpCommand * );
 
 private slots:
     void startNextCommand();
