@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#118 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#119 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1508,7 +1508,7 @@ sub printclass {
     print O $doctype, "<html><head>\n<title>Qt Toolkit - ", 
     $class, 
     " Class</title>\n</head><body bgcolor=white>\n",
-    "<h1>", $name{$url}, " Class Reference</h1>\n<hr>\n";
+    "<h1 align=center>", $name{$url}, " Class Reference</h1>\n<hr>\n";
 
     my ($i, $family);
     if (defined($brief{$url})) {
@@ -1800,7 +1800,7 @@ sub classindex {
 <html>
 <head><title>Qt Toolkit - Class List</title></head>
 <body bgcolor=white>
-<h1>Qt Class Index</h1>
+<h1 align=center>Qt Class Index</h1>
 <ul compact>
 ";
     open(P, "> $outputdir/annotated.html")
@@ -1809,7 +1809,7 @@ sub classindex {
 <html>
 <head><title>Qt Toolkit - Class List</title></head>
 <body bgcolor=white>
-<h1>Annotated Qt Class Index</h1>
+<h1 align=center>Annotated Qt Class Index</h1>
 <p>Here are the classes in Qt, with brief descriptions:
 <ul compact>
 ";
@@ -1831,7 +1831,7 @@ sub classindex {
 sub enumindex {
     open(O, "> $outputdir/enums.html")
 	|| die "can't open $outputdir/enums.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit, enum type indexe</title></head><body bgcolor=white>\n<h1>Qt enum type index</h1>\n<p>Here are the enums defined in the Qt toolkit:\n<ul compact>";
+    print O $doctype, "<html><head><title>Qt toolkit, enum type indexe</title></head><body bgcolor=white>\n<h1 align=center>Qt enum type index</h1>\n<p>Here are the enums defined in the Qt toolkit:\n<ul compact>";
     foreach $url ( sort keys %type ) {
 	print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "enum");
@@ -1846,7 +1846,7 @@ sub headerindex {
     local($filename);
     open(O, "> $outputdir/headers.html")
 	|| die "can't open $outputdir/headers.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit - header file index</title></head><body bgcolor=white>\n<h1>Qt header file index</h1>\n<p>Here are the header files that make up the Qt API:\n<ul compact>";
+    print O $doctype, "<html><head><title>Qt toolkit - header file index</title></head><body bgcolor=white>\n<h1 align=center>Qt header file index</h1>\n<p>Here are the header files that make up the Qt API:\n<ul compact>";
     foreach $filename ( sort keys %headerfiles ) {
 	$_ = $filename;
 	s/\./-/;
@@ -1864,7 +1864,7 @@ sub exampleindex {
     local($filename);
     open(O, "> $outputdir/examples.html")
 	|| die "can't open $outputdir/examples.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit - Example Index</title></head><body bgcolor=white>\n<h1>Qt Example Index</h1>\n<p>Here are some of the examples that are included with Qt:\n<ul compact>";
+    print O $doctype, "<html><head><title>Qt toolkit - Example Index</title></head><body bgcolor=white>\n<h1 align=center>Qt Example Index</h1>\n<p>Here are some of the examples that are included with Qt:\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
 	$htmlfilename = $filename;
@@ -1895,7 +1895,7 @@ sub inheritanceindex {
 <html>
 <head><title>Qt Toolkit - Class Hierarchy</title></head>
 <body bgcolor=white>
-<h1>Qt Class Hierarchy</h1>
+<h1 align=center>Qt Class Hierarchy</h1>
 
 <p>This inheritance list is sorted roughly, but not completely,
 alphabetically.
@@ -1969,7 +1969,7 @@ sub memberlists {
 <html><head><title>
 Qt toolkit - ", $_, " member list
 </title></head><body bgcolor=white>
-<h1>Complete Member List for ", $_, "</h1>
+<h1 align=center>Complete Member List for ", $_, "</h1>
 <p>This is the complete list of member functions and enum types for 
 <a href=\"", $anchor{$_}, "\">", $_, "</a>, including all inherited members.
 
@@ -2016,7 +2016,7 @@ sub functionlist {
 <html>
 <head><title>Qt Toolkit - Member Function Index</title></head>
 <body bgcolor=white>
-<h1>Qt Member Function Index</h1>
+<h1 align=center>Qt Member Function Index</h1>
 
 Here is a list of all of the documented member functions in the Qt
 API with links to the class documentation for each function.
