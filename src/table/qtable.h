@@ -53,6 +53,12 @@
 
 #ifndef QT_NO_TABLE
 
+#if !defined( QT_MODULE_TABLE ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_TABLE )
+#define QM_EXPORT_TABLE
+#else
+#define QM_EXPORT_TABLE Q_EXPORT
+#endif
+
 class QTableHeader;
 class QValidator;
 class QTable;
@@ -67,7 +73,7 @@ struct QTablePrivate;
 struct QTableHeaderPrivate;
 
 
-class Q_EXPORT QTableSelection
+class QM_EXPORT_TABLE QTableSelection
 {
 public:
     QTableSelection();
@@ -94,7 +100,7 @@ private:
 };
 
 
-class Q_EXPORT QTableItem : public Qt
+class QM_EXPORT_TABLE QTableItem : public Qt
 {
     friend class QTable;
 
@@ -158,7 +164,7 @@ private:
 
 };
 
-class Q_EXPORT QComboTableItem : public QTableItem
+class QM_EXPORT_TABLE QComboTableItem : public QTableItem
 {
 public:
     QComboTableItem( QTable *table, const QStringList &list, bool editable = FALSE );
@@ -191,7 +197,7 @@ private:
 
 };
 
-class Q_EXPORT QCheckTableItem : public QTableItem
+class QM_EXPORT_TABLE QCheckTableItem : public QTableItem
 {
 public:
     QCheckTableItem( QTable *table, const QString &txt );
@@ -213,15 +219,15 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QTableItem>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QWidget>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTableSelection>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDict<int>;
+Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QPtrVector<QTableItem>;
+Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QPtrVector<QWidget>;
+Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QPtrList<QTableSelection>;
+Q_TEMPLATE_EXTERN template class QM_EXPORT_TABLE QIntDict<int>;
 // MOC_SKIP_END
 #endif
 
 
-class Q_EXPORT QTable : public QScrollView
+class QM_EXPORT_TABLE QTable : public QScrollView
 {
     Q_OBJECT
     Q_ENUMS( SelectionMode FocusStyle )
