@@ -98,7 +98,7 @@ static inline int scale( int value, QPainter *painter )
 	value = value * metrics.logicalDpiY() / 75; // ##### FIXME
 #elif defined (Q_WS_QWS)
 	value = value * metrics.logicalDpiY() / 75;
-#endif	
+#endif
     }
     return value;
 }
@@ -599,7 +599,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 	    ++it;
 	    if ( !s.isEmpty() )
 		string->insert( idx, s );
-	
+
 	    if ( formatting ) {
 		int len = s.length();
 		for ( int i = 0; i < len; ++i ) {
@@ -613,7 +613,7 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 		++len;
 		lastIndex += len;
 	    }
-	
+
 	    idx += s.length();
 	}
 	string->format( -1, FALSE );
@@ -1636,7 +1636,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    break;
 			curtag = tags.pop();
 		    }
-		
+
 		    // special handling for p. We do not want to nest there for HTML compatibility
 		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ) {
 			while ( curtag.style->name() == "p" ) {
@@ -1645,7 +1645,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    curtag = tags.pop();
 			}
 		    }
-		
+
 		}
 		
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -1752,9 +1752,9 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			else
 			    curtag = initag;
 		    }
-		
+
 		    const QStyleSheetItem* ostyle = curtag.style;
-		
+
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
 		    curtag.name = tagname;
@@ -1765,7 +1765,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr );
 		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
 			curtag.alignment = nstyle->alignment();
-		
+
 		    if ( ostyle->displayMode() == QStyleSheetItem::DisplayListItem &&
 			 curpar->length() <= 1
 			 && nstyle->displayMode() == QStyleSheetItem::DisplayBlock  ) {
@@ -1773,13 +1773,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    } else if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline && nstyle->displayMode() != QStyleSheetItem::DisplayNone ) {
 			NEWPAR;
 		    }
-		
+
 		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
 			curpar->setListStyle( curtag.liststyle );
 			if ( attr.find( "value" ) != attr.end() )
 			    curpar->setListValue( (*attr.find( "value" )).toInt() );
 		    }
-			
+
 		    if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
 			curpar->setFormat( &curtag.format );
 
@@ -1799,7 +1799,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    }
 			}
 		    }
-		
+
 		    if ( attr.contains( "align" ) &&
 			 ( curtag.name == "p" ||
 			   curtag.name == "div" ||
@@ -1835,15 +1835,15 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		if ( !sheet_->item( tagname ) ) // ignore unknown tags
 		    continue;
 
-		
+
 		// we close a block item. Since the text may continue, we need to have a new paragraph
 		bool needNewPar = curtag.style->displayMode() == QStyleSheetItem::DisplayBlock;
-		
+
 		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
  		    needNewPar = TRUE;
 		    hasNewPar = FALSE; // we want empty paragraphs in this case
 		}
-		
+
 		// html slopiness: handle unbalanched tag closing
 		while ( curtag.name != tagname ) {
 		    QString msg;
@@ -1855,13 +1855,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag = tags.pop();
 		}
 
-		
+
 		// close the tag
 		if ( !tags.isEmpty() )
 		    curtag = tags.pop();
 		else
 		    curtag = initag;
-		
+
  		if ( needNewPar ) {
 		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
 			tags.push( curtag );
@@ -1877,12 +1877,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    QChar c;
 	    while ( pos < int( doc.length() ) && !hasPrefix(doc, pos, '<' ) ){
 		c = parseChar( doc, pos, curtag.wsm );
-		
+
 		if ( c == '\n' ) // happens only in whitespacepre-mode.
 		    break;  // we want a new line in this case
-		
+
 		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U;
-		
+
 		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c_isSpace && space )
 		    continue;
 		if ( c == '\r' )
@@ -3367,7 +3367,7 @@ void QTextString::checkBidi() const
 	rtlKnown = TRUE;
     } else {
 	((QTextString *)this)->rightToLeft = FALSE;
-    }	
+    }
 
     int len = data.size();
     const QTextStringChar *c = data.data();
@@ -4719,7 +4719,7 @@ int QTextParag::bottomMargin() const
 
     int m = 0;
     if ( item->margin( QStyleSheetItem::MarginBottom ) != QStyleSheetItem::Undefined )
-	m = item->margin( QStyleSheetItem::MarginBottom );	
+	m = item->margin( QStyleSheetItem::MarginBottom );
     QStyleSheetItem *it = 0;
     QStyleSheetItem *n = next() ? next()->style() : 0;
     for ( int i =(int)styleSheetItemsVec.size() - 2 ; i >= 0; --i ) {
@@ -5245,7 +5245,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
-	
+
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    if ( x != left )
 		fullWidth = FALSE;
@@ -6053,7 +6053,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		format.setVAlign( QTextFormat::AlignSubScript );
 		break;
 	    }
-		
+
 	    if ( style->fontWeight() != QStyleSheetItem::Undefined )
 		format.fn.setWeight( style->fontWeight() );
 	    if ( style->fontSize() != QStyleSheetItem::Undefined ) {
@@ -6328,7 +6328,7 @@ void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int
 	if ( color.isValid() )
 	    g.setColor( QColorGroup::Dark, color );
 	if ( selected )
-	    p->fillRect( r.left(), y, r.right(), y + height, g.highlight() );	
+	    p->fillRect( r.left(), y, r.right(), y + height, g.highlight() );
 	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, g, TRUE, height / 8 );
     }
 }
@@ -7297,7 +7297,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	    if ( s ) {
 		p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
 		p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
-		p->fillRect( r.left(), r.top(), r.width(), s, cg.button() ); 	
+		p->fillRect( r.left(), r.top(), r.width(), s, cg.button() );
 		p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
 	    }
 	    qDrawShadePanel( p, r, cg, FALSE, border );
@@ -7395,7 +7395,7 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
 		 outerborder+cell->geometry().y(),
 		 cell->geometry().width(),
 		 cell->geometry().height() );
-	
+
 	if ( r.left() <= pos.x() && r.right() >= pos.x() ) {
 	    if ( cell->geometry().y() > lastY ) {
 		lastCell = i;
@@ -7440,7 +7440,7 @@ bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     if ( cc >= (int)cells.count() ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::next( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.at( 0 );
+	QTextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
@@ -7473,7 +7473,7 @@ bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     if ( cc < 0 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::prev( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.at( 0 );
+	QTextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
@@ -7502,7 +7502,7 @@ bool QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     if ( cell->row_ == layout->numRows() - 1 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::down( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.at( 0 );
+	QTextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
@@ -7540,7 +7540,7 @@ bool QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, in
     if ( cell->row_ == 0 ) {
 	currCell.insert( c, 0 );
 	QTextCustomItem::up( c, doc, parag, idx, ox, oy );
-	QTextTableCell *cell = cells.at( 0 );
+	QTextTableCell *cell = cells.first();
 	if ( !cell )
 	    return FALSE;
 	doc = cell->richText();
