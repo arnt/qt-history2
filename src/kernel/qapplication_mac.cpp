@@ -797,18 +797,7 @@ QStringList QSessionManager::discardCommand() const
 
 void QSessionManager::setProperty( const QString& name, const QString& value )
 {
-    FSSpec myspec;
-    char bigbuf[257];
-    const char * wingle=fileName.ascii();
-    strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);
-    OSErr ret;
-    ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
-    if(ret!=noErr) {
-        qWarning("Make FS spec in QFile::size error %d",ret);
-        return false;
-    }
-    uint size;}
+}
 
 void QSessionManager::setProperty( const QString& name,
 				   const QStringList& value )
