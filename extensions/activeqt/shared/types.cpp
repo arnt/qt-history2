@@ -879,8 +879,6 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                         if (arg.vt & VT_BYREF) {
                             qVariantSet(var, arg.ppdispVal, "IDispatch**");
                         } else {
-                            if (disp)
-                                disp->AddRef();
                             qVariantSet(var, disp, typeName);
                         }
                     }
@@ -896,8 +894,6 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                 unkn = *arg.ppunkVal;
             else
                 unkn = arg.punkVal;
-            if (unkn)
-                unkn->AddRef();
             qVariantSet(var, unkn, "IUnknown*");
         }
         break;
