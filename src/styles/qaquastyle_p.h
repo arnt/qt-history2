@@ -42,6 +42,8 @@
 enum AquaMode {
     AquaModeUnknown,
     AquaModeGraphite,
+    AquaModeLime,
+    AquaModeCherry,
     AquaModeAqua
 } aquaMode                             = AquaModeUnknown;
 
@@ -11102,6 +11104,10 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     QString mode = "aqua";
     if(aquaMode == AquaModeGraphite)
 	mode = "graphite";
+    else if(aquaMode == AquaModeLime)
+	mode = "lime";
+    else if(aquaMode == AquaModeCherry)
+	mode = "cherry";
     QString str = "$qt_" + mode + "_" + s;
     if( QPixmapCache::find( str, p ) )
         return;
@@ -11336,7 +11342,6 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     if( s.contains("win_") ) {
         QPixmapCache::insert( "$qt_aqua_win_act_left_controls",
                               (const char **) aqua_win_act_left_controls_xpm );
-
         QPixmapCache::insert( "$qt_aqua_win_act_left",
                               (const char **) aqua_win_act_left_xpm );
         QPixmapCache::insert( "$qt_aqua_win_act_mid",
@@ -11827,18 +11832,23 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 			      px );
     }
 
-    if(aquaMode == AquaModeGraphite) { //take that!!
+    if(aquaMode == AquaModeGraphite || aquaMode == AquaModeLime ||
+	aquaMode == AquaModeCherry) { //take that!!
 	QPixmap mp;
 	QPixmapCache::find( "$qt_aqua_" + s, mp );
 	p = mp;
-	if( !s.contains("gen_back") ) {
-	    im = p.convertToImage().convertDepth(32);
-	    for(int x = 0; x < im.width(); x++) {
-		for(int y = 0; y < im.height(); y++) {
-		    QRgb c = im.pixel(x, y);
-		    c = (qRed(c) + qGreen(c) + qBlue(c)) / 3;
-		    im.setPixel(x, y, qRgb(c, c, c));
-		}
+	im = p.convertToImage().convertDepth(32);
+	for(int x = 0; x < im.width(); x++) {
+	    for(int y = 0; y < im.height(); y++) {
+		QRgb c = im.pixel(x, y);
+		c = (qRed(c) + qGreen(c) + qBlue(c)) / 3;
+		if(aquaMode == AquaModeGraphite)
+		    c = qRgb(c, c, c);
+		else if(aquaMode == AquaModeCherry)
+		    c = qRgb(c, 0, 0);
+		else if(aquaMode == AquaModeLime)
+		    c = qRgb(0, c, 0);
+		im.setPixel(x, y, c);
 	    }
 	    p = im;
 	    if(mp.mask())

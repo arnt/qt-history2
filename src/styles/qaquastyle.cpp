@@ -98,7 +98,7 @@ public:
     int progressTimerId;
     int progressOff;
     //big focus rects
-    QWidget *focusWidget;
+    QFrame *focusWidget;
     QFrame::Shape oldFrameShape;
     QFrame::Shadow oldFrameShadow;
     int oldFrameWidth;
@@ -199,25 +199,25 @@ void QAquaStyle::polish( QWidget * w )
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
-         if( btn->group() ){
-             btn->group()->setMargin( 0 );
-             btn->group()->setInsideSpacing( 0 );
-         }
+	if( btn->group() ){
+	    btn->group()->setMargin( 0 );
+	    btn->group()->setInsideSpacing( 0 );
+	}
     }
 
-     if( w->inherits("QToolBar") ){
-         QToolBar * bar = (QToolBar *) w;
-         QBoxLayout * layout = bar->boxLayout();
-         layout->setSpacing( 0 );
-         layout->setMargin( 0 );
-     }
+    if( w->inherits("QToolBar") ){
+	QToolBar * bar = (QToolBar *) w;
+	QBoxLayout * layout = bar->boxLayout();
+	layout->setSpacing( 0 );
+	layout->setMargin( 0 );
+    }
 
-     if( w->inherits("QProgressBar") ){
-	 d->progressBars.append((QProgressBar*)w);
-	 if( d->progressTimerId == -1 ){
-	     d->progressTimerId = startTimer( 50 );
-	 }
-     }
+    if( w->inherits("QProgressBar") ){
+	d->progressBars.append((QProgressBar*)w);
+	if( d->progressTimerId == -1 ){
+	    d->progressTimerId = startTimer( 50 );
+	}
+    }
 
     if ( !w->isTopLevel() ) {
         if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
@@ -266,12 +266,9 @@ void QAquaStyle::unPolish( QWidget * w )
     }
 
     if(w == d->focusWidget) {
-	if(w->inherits("QFrame")) {
-	    QFrame *frm = (QFrame *)w;
-	    frm->setFrameShape(d->oldFrameShape);
-	    frm->setFrameShadow(d->oldFrameShadow);
-	    frm->setLineWidth(d->oldFrameWidth);
-	}
+	d->focusWidget->setFrameShape(d->oldFrameShape);
+	d->focusWidget->setFrameShadow(d->oldFrameShadow);
+	d->focusWidget->setLineWidth(d->oldFrameWidth);
 	d->focusWidget = NULL;
     }
 }
@@ -299,64 +296,55 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
 */
 bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 {
-    if( o->inherits("QPushButton") ){
-        QPushButton * btn = (QPushButton *) o;
+    if( (e->type() == QEvent::FocusOut && d->focusWidget == o) ||
+	(e->type() == QEvent::FocusIn && d->focusWidget) )  { //restore it
+	d->focusWidget->setFrameShape(d->oldFrameShape);
+	d->focusWidget->setFrameShadow(d->oldFrameShadow);
+	d->focusWidget->setLineWidth(d->oldFrameWidth);
+	d->focusWidget->repaint();
+	d->focusWidget = NULL;
+    }
 
-        if( e->type() == QEvent::FocusIn ) {
-	    // Kb Focus received - make this the default button
-	    d->defaultButton = btn;
-	} else if( e->type() == QEvent::FocusOut || e->type() == QEvent::Show ) {
-
-	    // Find the correct button to use as default button
-	    QObjectList *list = btn->topLevelWidget()->queryList( "QPushButton" );
-	    QObjectListIt it( * list );
-	    QPushButton * pb;
-	    while ( (pb = (QPushButton*)it.current()) ) {
-		++it;
-		if( ((e->type() == QEvent::FocusOut) && (pb->isDefault() ||
-							 pb->autoDefault() &&
-							 (pb != btn)) ) ||
-		    ((e->type() == QEvent::Show) && pb->isDefault()) )
-		{
-		    QPushButton * tmp = d->defaultButton;
-		    d->defaultButton = 0;
-		    if( tmp != 0 )
-			tmp->repaint( FALSE );
-		    d->defaultButton = pb;
-		    break;
-		}
-	    }
-	    delete list;
-        } else if( e->type() == QEvent::Hide ) {
-	    if( d->defaultButton == btn )
-		d->defaultButton = 0;
-	}
-    } else if( o->inherits("QFrame") ) {
-	QFrame *frm = (QFrame *)o;
-	if( (e->type() == QEvent::FocusOut && d->focusWidget == frm) ||
-	    (e->type() == QEvent::FocusIn && d->focusWidget) )  {
-	    if(d->focusWidget->inherits("QFrame")) {
-		//restore it
-		QFrame *out = (QFrame *)d->focusWidget;
-		out->setFrameShape(d->oldFrameShape);
-		out->setFrameShadow(d->oldFrameShadow);
-		out->setLineWidth(d->oldFrameWidth);
-		out->repaint();
-	    }
-	    d->focusWidget = NULL;
-	}
-	if( e->type() == QEvent::FocusIn && !o->inherits("QTable") ) {
+    if( e->type() == QEvent::FocusIn ) {
+	if( o->inherits("QFrame") && !o->inherits("QTable") ) {
 	    //save it
-	    d->focusWidget = frm;
-	    d->oldFrameShape = frm->frameShape();
-	    d->oldFrameShadow = frm->frameShadow();
-	    d->oldFrameWidth = frm->lineWidth();
+	    d->focusWidget = (QFrame *)o;
+	    d->oldFrameShape = d->focusWidget->frameShape();
+	    d->oldFrameShadow = d->focusWidget->frameShadow();
+	    d->oldFrameWidth = d->focusWidget->lineWidth();
 	    //set it
-	    frm->setFrameShape(QFrame::Panel);
-	    frm->setFrameShadow(QFrame::Plain);
-	    frm->setLineWidth(2);
-	    frm->repaint();
+	    d->focusWidget->setFrameShape(QFrame::Panel);
+	    d->focusWidget->setFrameShadow(QFrame::Plain);
+	    d->focusWidget->setLineWidth(2);
+	    d->focusWidget->repaint();
+	} else if( o->inherits("QPushButton") ) { // Kb Focus received - make this the default button
+	    d->defaultButton = (QPushButton *) o;
 	}
+    } else if( e->type() == QEvent::Hide && d->defaultButton == o ) {
+	d->defaultButton = NULL;
+    } else if( (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) && 
+	       o->inherits("QPushButton") ) {
+	QPushButton *btn = (QPushButton *)o;
+	// Find the correct button to use as default button
+	QObjectList *list = btn->topLevelWidget()->queryList( "QPushButton" );
+	QObjectListIt it( * list );
+	QPushButton * pb;
+	while ( (pb = (QPushButton*)it.current()) ) {
+	    ++it;
+	    if( ((e->type() == QEvent::FocusOut) && (pb->isDefault() ||
+						     pb->autoDefault() &&
+						     (pb != btn)) ) ||
+		((e->type() == QEvent::Show) && pb->isDefault()) )
+	    {
+		QPushButton * tmp = d->defaultButton;
+		d->defaultButton = 0;
+		if( tmp != 0 )
+		    tmp->repaint( FALSE );
+		d->defaultButton = pb;
+		break;
+	    }
+	}
+	delete list;
     }
     return FALSE;
 }
@@ -367,8 +355,8 @@ void QAquaStyle::drawItem( QPainter *p, const QRect &r,
 			   const QPixmap *pixmap, const QString& text,
 			   int len, const QColor* penColor ) const
 {
-    flags |= NoAccel;
-    QWindowsStyle::drawItem( p, r, flags, g, enabled, pixmap, text,
+    //No accelerators drawn here!
+    QWindowsStyle::drawItem( p, r, flags | NoAccel, g, enabled, pixmap, text,
 			     len, penColor );
 }
 
@@ -611,7 +599,6 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarSlider: {
 	QPixmap tip1, tip2, fill;
 	QBitmap tip1m, tip2m;
-	QRect real_rect;
 	QString act;
 	if(!qAquaActive( cg ) ) 
 	    act = "dis_";
@@ -620,20 +607,22 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    qAquaPixmap( "hsbr_tip_" + act + "left_" + nstr, tip1 );
 	    qAquaPixmap( "hsbr_tip_" + act + "right_" + nstr, tip2 );
 	    qAquaPixmap( "hsbr_" + act + "fill_" + nstr, fill );
+	    p->fillRect( QRect(r.x() + tip1.width(), r.y(), 
+			       r.width() - tip2.width() - tip1.width(), r.height()), 
+			 QBrush( Qt::black, fill ) );
 	    p->drawPixmap( r.x(), r.y(), tip1 );
 	    p->drawPixmap( r.x()+r.width()-tip2.width(), r.y(), tip2 );
-	    real_rect = QRect(r.x() + tip1.width(), r.y(), r.width() - tip2.width() - tip1.width(), r.height());
 	} else {
 	    QString nstr = QString::number(r.width());
 	    qAquaPixmap( "vsbr_tip_" + act + "up_" + nstr, tip1 );
 	    qAquaPixmap( "vsbr_tip_" + act + "down_" + nstr, tip2 );
 	    qAquaPixmap( "vsbr_" + act + "fill_" + nstr, fill );
+	    p->fillRect( QRect(r.x(), r.y() + tip1.height(), r.width(), 
+			       r.height() - tip2.height() - tip1.height()), 
+			 QBrush( Qt::black, fill ) );
 	    p->drawPixmap( r.x(), r.y(), tip1 );
 	    p->drawPixmap( r.x(), r.y()+r.height()-tip2.height(), tip2 );
-	    real_rect = QRect(r.x(), r.y() + tip1.height(), r.width(), r.height() - tip2.height() - tip1.height());
 	}
-	QBrush br( Qt::black, fill );
-	p->fillRect( real_rect, br );
 	break; }
 #endif
     default:
