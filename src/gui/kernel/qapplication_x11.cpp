@@ -1466,8 +1466,7 @@ void qt_init(QApplicationPrivate *priv, int,
             int major = 0;
             int minor = 0;
             XRenderQueryVersion(X11->display, &major, &minor);
-            X11->use_xrender = (major >= 0 && minor >= 4) && (format != 0)
-                               && (QX11Info::appDepth(X11->defaultScreen) != 8);
+            X11->use_xrender = (major >= 0 && minor >= 4) && (format != 0);
         }
 #endif // QT_NO_XRENDER
 
