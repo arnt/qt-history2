@@ -3,19 +3,6 @@ Stuff with priority is marked with #
 New functionality
 -----------------
 
-MainWindow editing (Reggie) #
-    Creating a mainwindow with menubar, toolbar, statusbar and
-    centralwidget. This can be done using the passiveInteractor and
-    mainContainer concept in the designer's formwindow like done with
-    QWizard. Menuu/Toolbar editing does not allow to add items, as
-    this is done using actions, it only mut be possible to add widgets
-    to toolbars and submenus and widgets to menus.
-    As special editor of the mainwindow a dialog to create actions and
-    change their properties has to be implemented. QMainWindow will
-    offer an action editor which will support dragging actions between
-    the editor and menu and toolbar. The designer will use that too to
-    let the user set the initial action for the menu and toolbar.
-
 Editing of Slots (Reggie)
     Should be possible to directly edit code for slots in the
     designer, so that one doesn't need to subclass always just to
