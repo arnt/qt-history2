@@ -87,7 +87,7 @@ public:
 
     uint bytesDone;
     uint bytesTotal;
-    int chunkedSize;
+    Q_LONG chunkedSize;
 
     QHttpRequestHeader header;
 
@@ -1843,46 +1843,95 @@ void QHttp::slotReadyRead()
 	}
     }
 
+    bool everythingRead = FALSE;
+
     if ( !d->readHeader ) {
-	uint n = d->socket.bytesAvailable();
+	Q_ULONG n = d->socket.bytesAvailable();
 	if ( n > 0 ) {
-	    QByteArray *arr;
-#if 0
-	    if ( d->chunkedSize == 0 ) {
-		if ( !d->socket.canReadLine() )
-		    return;
-		QString sizeString = d->socket.readLine();
-		int tPos = sizeString.find( ';' );
-		if ( tPos != -1 )
-		    sizeString.truncate( tPos );
-		bool ok;
-		d->chunkedSize = sizeString.toInt( &ok, 16 );
-		if ( !ok ) {
-		    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
-		    close();
-		    return;
+	    QByteArray *arr = 0;
+	    if ( d->chunkedSize != -1 ) {
+		// transfer-encoding is chunked
+		for ( ;; ) {
+		    // get chunk size
+		    if ( d->chunkedSize == 0 ) {
+			if ( !d->socket.canReadLine() )
+			    break;
+			QString sizeString = d->socket.readLine();
+			int tPos = sizeString.find( ';' );
+			if ( tPos != -1 )
+			    sizeString.truncate( tPos );
+			bool ok;
+			d->chunkedSize = sizeString.toInt( &ok, 16 );
+			if ( !ok ) {
+			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
+			    close();
+			    return;
+			}
+			if ( d->chunkedSize == 0 ) // last-chunk
+			    d->chunkedSize = -2;
+		    }
+
+		    // read trailer
+		    while ( d->chunkedSize == -2 && d->socket.canReadLine() ) {
+			if( d->socket.readLine() == "\r\n" )
+			    d->chunkedSize = -1;
+		    }
+		    if ( d->chunkedSize == -1 ) {
+			everythingRead = TRUE;
+			break;
+		    }
+
+		    // make sure that you can read the terminating CRLF,
+		    // otherwise wait until next time...
+		    n = d->socket.bytesAvailable();
+		    if ( n == 0 )
+			break;
+		    if ( (Q_LONG)n == d->chunkedSize )
+			n -= 1;
+		    else if ( (Q_LONG)n == d->chunkedSize+1 )
+			n -= 2;
+
+		    // read data
+		    uint toRead = QMIN( (Q_LONG)n, d->chunkedSize );
+		    if ( !arr )
+			arr = new QByteArray( 0 );
+		    uint oldArrSize = arr->size();
+		    arr->resize( oldArrSize + toRead );
+		    Q_LONG read = d->socket.readBlock( arr->data()+oldArrSize, toRead );
+		    arr->resize( oldArrSize + read );
+
+		    d->chunkedSize -= read;
+
+		    if ( d->chunkedSize == 0 && n - read >= 2 ) {
+			// read terminating CRLF
+			char tmp[2];
+			d->socket.readBlock( tmp, 2 );
+			if ( tmp[0] != '\r' || tmp[1] != '\n' ) {
+			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
+			    close();
+			    return;
+			}
+		    }
 		}
-	    }
-#endif
-	    if ( d->response.hasContentLength() ) {
+	    } else if ( d->response.hasContentLength() ) {
 		n = QMIN( d->response.contentLength() - d->bytesDone, n );
 		arr = new QByteArray( n );
 		Q_LONG read = d->socket.readBlock( arr->data(), n );
 		arr->resize( read );
-#if defined(QHTTP_DEBUG)
-		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", arr->size(), d->bytesDone );
-#endif
+		if ( d->bytesDone + bytesAvailable() + n == d->response.contentLength() )
+		    everythingRead = TRUE;
 	    } else {
 		arr = new QByteArray( d->socket.readAll() );
-#if defined(QHTTP_DEBUG)
-		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", arr->size(), d->bytesDone );
-#endif
 	    }
 	    n = arr->size();
+
 	    if ( d->toDevice ) {
 		d->toDevice->writeBlock( arr->data(), n );
 		delete arr;
 		d->bytesDone += n;
+#if defined(QHTTP_DEBUG)
+		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone );
+#endif
 		if ( d->response.hasContentLength() )
 		    emit dataReadProgress( d->bytesDone, d->response.contentLength() );
 		else
@@ -1890,18 +1939,18 @@ void QHttp::slotReadyRead()
 	    } else {
 		d->rba.append( arr );
 		d->rsize += n;
+#if defined(QHTTP_DEBUG)
+		qDebug( "QHttp::slotReadyRead(): read %d bytes (%d bytes done)", n, d->bytesDone + bytesAvailable() );
+#endif
 		if ( d->response.hasContentLength() )
-		    emit dataReadProgress( d->bytesDone + n, d->response.contentLength() );
+		    emit dataReadProgress( d->bytesDone + bytesAvailable(), d->response.contentLength() );
 		else
-		    emit dataReadProgress( d->bytesDone + n, 0 );
+		    emit dataReadProgress( d->bytesDone + bytesAvailable(), 0 );
 		emit readyRead( d->response );
 	    }
 	}
 
-	// Read everything ?
-	// We can only know that if the content length was given in advance.
-	// Otherwise we emit the signal in closed().
-	if ( d->response.hasContentLength() && d->bytesDone+bytesAvailable() == d->response.contentLength() ) {
+	if ( everythingRead ) {
 	    // Handle "Connection: close"
 	    if ( d->response.value("connection") == "close" ) {
 		close();
