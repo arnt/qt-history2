@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#17 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#18 $
 **
 ** Definition of QRect class
 **
@@ -27,14 +27,14 @@ public:
     bool   isNull()	const;
     bool   isEmpty()	const;
     bool   isValid()	const;
-    void   normalize();	
+    QRect  normalize()	const;
 
-    int	   left()	 const	{ return x1; }
-    int	   top()	 const	{ return y1; }
-    int	   right()	 const	{ return x2; }
-    int	   bottom()	 const	{ return y2; }
-    int	   x()		 const	{ return x1; }
-    int	   y()		 const	{ return y1; }
+    int	   left()	const	{ return x1; }
+    int	   top()	const	{ return y1; }
+    int	   right()	const	{ return x2; }
+    int	   bottom()	const	{ return y2; }
+    int	   x()		const	{ return x1; }
+    int	   y()		const	{ return y1; }
     void   setLeft( int pos );
     void   setTop( int pos );
     void   setRight( int pos );
@@ -58,9 +58,9 @@ public:
     void   setRect( int x, int y, int w, int h );
     void   setCoords( int x1, int y1, int x2, int y2 );
 
-    QSize  size()	 const;
-    int	   width()	 const	{ return x2 - x1 + 1; }
-    int	   height()	 const	{ return y2 - y1 + 1; }
+    QSize  size()	const;
+    int	   width()	const	{ return x2 - x1 + 1; }
+    int	   height()	const	{ return y2 - y1 + 1; }
     void   setWidth( int w );
     void   setHeight( int h );
     void   setSize( const QSize &s );
