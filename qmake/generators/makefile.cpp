@@ -670,7 +670,8 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	}
 
 	QString comp, cimp;
-	if((*sit).right(qstrlen(Option::cpp_ext)) == Option::cpp_ext) {
+	if((*sit).right(qstrlen(Option::cpp_ext)) == Option::cpp_ext || 
+	    (*sit).right(qstrlen(Option::cc_ext)) == Option::cc_ext)  {
 	    comp = "QMAKE_RUN_CXX";
 	    cimp = "QMAKE_RUN_CXX_IMP";
 	} else {

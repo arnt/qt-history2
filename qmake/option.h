@@ -65,6 +65,7 @@ struct Option
     static QString h_ext;
     static QString moc_ext;
     static QString cpp_ext;
+    static QString cc_ext;
     static QString obj_ext;
     static QString lex_ext;
     static QString yacc_ext;

@@ -54,6 +54,7 @@ QString Option::dir_sep;
 QString Option::moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
+QString Option::cc_ext;
 
 //mode
 Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
@@ -284,6 +285,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::h_ext = ".h";
     Option::moc_ext = ".moc";
     Option::cpp_ext = ".cpp";
+    Option::cc_ext = ".cc";
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
     if(Option::target_mode == Option::TARG_WIN_MODE) {
@@ -315,6 +317,8 @@ bool Option::postProcessProject(QMakeProject *project)
 	Option::yacc_ext = project->first("QMAKE_EXT_YACC");
     if(!project->isEmpty("QMAKE_EXT_CPP"))
 	Option::cpp_ext = project->first("QMAKE_EXT_CPP");
+    if(!project->isEmpty("QMAKE_EXT_CC"))
+	Option::cc_ext = project->first("QMAKE_EXT_CC");
     if(!project->isEmpty("QMAKE_EXT_OBJ"))
 	Option::obj_ext = project->first("QMAKE_EXT_OBJ");
     if(!project->isEmpty("QMAKE_MOD_MOC"))
