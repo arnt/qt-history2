@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#114 $
 **
 ** Implementation of layout classes
 **
@@ -809,6 +809,8 @@ private:
   The border width defaults to 0, and the intra-widget width defaults
   to the same as the border width.  Both are set using arguments to
   the constructor.
+
+  See also the <a href="layout.html">Layout Overview</a> documentation.
 */
 
 
@@ -1328,6 +1330,8 @@ QLayoutIterator QGridLayout::iterator()
   You will almost always want to use the convenience classes for
   QBoxLayout: QVBoxLayout and QHBoxLayout, because of their simpler
   constructors.
+
+  See also the <a href="layout.html">Layout Overview</a> documentation.
 */
 
 static inline bool horz( QBoxLayout::Direction dir )
@@ -1722,7 +1726,8 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
      l->addWidget( anotherChildOfWidget );
   \endcode
 
-  \sa QVBoxLayout QGridLayout
+  \sa QVBoxLayout QGridLayout <a href="layout.html">Layout overview documentation</a>
+
 */
 
 
@@ -1788,7 +1793,7 @@ QHBoxLayout::~QHBoxLayout()
      l->addWidget( anotherWidget );
   \endcode
 
-  \sa QHBoxLayout QGridLayout
+  \sa QHBoxLayout QGridLayout <a href="layout.html">Layout overview documentation</a>
 */
 
 /*!

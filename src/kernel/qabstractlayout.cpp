@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#65 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -601,7 +601,8 @@ bool QWidgetItem::isEmpty() const
   support children whose height depend on their widths, implement
   hasHeightForWidth() and heightForWidth().
   See the <a href="customlayout.html">custom layout page</a> for an in-depth
-  description.
+  description and the <a href="layout.html">layout overview page</a>
+  for an introduction.
 
   Geometry management stops when the layout manager is deleted.
 */

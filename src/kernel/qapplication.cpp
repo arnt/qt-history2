@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#268 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#269 $
 **
 ** Implementation of QApplication class
 **
@@ -875,12 +875,10 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 }
 
 /*!
-  Returns the default font for a widget. Basicly this function uses the
+  Returns the default font for a widget. Basically this function uses the
   class name of the widget to get a font for it.
 
-  If \a w is 0 the default application font is returned.  There is always
-  an application font, i.e. the returned pointer is guaranteed to be
-  non-null if a QApplication object has been constructed.
+  If \a w is 0 the default application font is returned.
 
   \sa setFont(), fontMetrics(), QWidget::font()
 */

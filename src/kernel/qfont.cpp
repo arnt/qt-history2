@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#137 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -187,7 +187,7 @@ void QFont::detach()
 /*!
   Constructs a font object that refers to the default font.
 
-  /sa QApplication::setFont(), QApplication::font()
+  \sa QApplication::setFont(), QApplication::font()
 */
 
 QFont::QFont()
@@ -791,7 +791,7 @@ bool QFont::rawMode() const
     return d->req.rawMode;
 }
 
-/*!  
+/*!
   Turns raw mode on if \e enable is TRUE, or turns it off if \e enable is
   FALSE.
 
@@ -815,8 +815,8 @@ bool QFont::rawMode() const
 
   \warning Do not use raw mode unless you really, really need it! In
   most (if not all") cases, setRawName() is a much better choise.
-  
-  
+
+
   \sa rawMode(), setRawName()
 */
 
