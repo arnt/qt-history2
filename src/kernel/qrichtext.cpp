@@ -4905,6 +4905,7 @@ QString QTextParag::richText() const
     QString s;
     QTextStringChar *formatChar = 0;
     QString spaces;
+    bool lastCharWasSpace = FALSE;
     for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
 	if ( c->isAnchor() && !c->anchorName().isEmpty() ) {
@@ -4919,9 +4920,18 @@ QString QTextParag::richText() const
 	if ( !formatChar ) {
 	    s += c->format()->makeFormatChangeTags( 0, QString::null, c->anchorHref() );
 	    formatChar = c;
-	} else if ( ( formatChar->format()->key() != c->format()->key() && c->c != ' ' ) ||
+	} else if ( ( formatChar->format()->key() != c->format()->key() ) ||
 		  (formatChar->isAnchor() != c->isAnchor() &&
 		   (!c->anchorHref().isEmpty() || !formatChar->anchorHref().isEmpty() ) ) )  {// lisp was here
+	    
+	    if ( !spaces.isEmpty() ) {
+		if ( spaces.length() > 1 || spaces[0] == '\t' || lastCharWasSpace )
+		    s += "<wsp>" + spaces + "</wsp>";
+		else
+		    s += spaces;
+		lastCharWasSpace = TRUE;
+		spaces = QString::null;
+	    }
 	    s += c->format()->makeFormatChangeTags( formatChar->format() , formatChar->anchorHref(), c->anchorHref() );
 	    formatChar = c;
 	}
@@ -4930,13 +4940,14 @@ QString QTextParag::richText() const
 	    spaces += c->c;
 	    continue;
 	} else if ( !spaces.isEmpty() ) {
-	    if ( spaces.length() > 1 || spaces[0] == '\t' )
+	    if ( spaces.length() > 1 || spaces[0] == '\t' || lastCharWasSpace )
 		s += "<wsp>" + spaces + "</wsp>";
 	    else
 		s += spaces;
 	    spaces = QString::null;
 	}
-
+	
+	lastCharWasSpace = FALSE;
 	if ( c->c == '<' ) {
 	    s += "&lt;";
 	} else if ( c->c == '>' ) {
@@ -4950,7 +4961,7 @@ QString QTextParag::richText() const
 	}
     }
     if ( !spaces.isEmpty() ) {
-	if ( spaces.length() > 1 || spaces[0] == '\t' )
+	if ( spaces.length() > 1 || spaces[0] == '\t' || lastCharWasSpace )
 		s += "<wsp>" + spaces + "</wsp>";
 	else
 	    s += spaces;
