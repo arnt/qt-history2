@@ -27,9 +27,6 @@
 #include <qdir.h>
 #include <qwhatsthis.h>
 
-#define d d_func()
-#define q q_func()
-
 class QTextBrowserPrivate : public QTextEditPrivate
 {
     Q_DECLARE_PUBLIC(QTextBrowser)
@@ -86,7 +83,7 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
             return path;
     }
 
-    if (d->stack.isEmpty())
+    if (stack.isEmpty())
         return name;
 
     QFileInfo path(QFileInfo(currentURL).absolutePath(), name);
@@ -153,6 +150,7 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
 QTextBrowser::QTextBrowser(QWidget *parent)
     : QTextEdit(*new QTextBrowserPrivate, parent)
 {
+    Q_D(QTextBrowser);
     setReadOnly(true);
     setUndoRedoEnabled(false);
     d->viewport->setMouseTracking(true);
@@ -166,6 +164,7 @@ QTextBrowser::QTextBrowser(QWidget *parent)
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     : QTextEdit(*new QTextBrowserPrivate, parent)
 {
+    Q_D(QTextBrowser);
     setObjectName(name);
     setReadOnly(true);
     setUndoRedoEnabled(false);
@@ -202,6 +201,7 @@ QTextBrowser::~QTextBrowser()
 */
 QString QTextBrowser::source() const
 {
+    Q_D(const QTextBrowser);
     if (d->stack.isEmpty())
         return QString::null;
     else
@@ -210,11 +210,13 @@ QString QTextBrowser::source() const
 
 QStringList QTextBrowser::searchPaths() const
 {
+    Q_D(const QTextBrowser);
     return d->searchPaths;
 }
 
 void QTextBrowser::setSearchPaths(const QStringList &paths)
 {
+    Q_D(QTextBrowser);
     d->searchPaths = paths;
 }
 
@@ -223,6 +225,7 @@ void QTextBrowser::setSearchPaths(const QStringList &paths)
 */
 void QTextBrowser::reload()
 {
+    Q_D(QTextBrowser);
     QString s = d->currentURL;
     d->currentURL = QString::null;
     setSource(s);
@@ -230,6 +233,7 @@ void QTextBrowser::reload()
 
 void QTextBrowser::setSource(const QString& name)
 {
+    Q_D(QTextBrowser);
     if (isVisible())
         qApp->setOverrideCursor(Qt::WaitCursor);
 
@@ -381,6 +385,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 void QTextBrowser::backward()
 {
+    Q_D(QTextBrowser);
     if (d->stack.count() <= 1)
         return;
     d->forwardStack.push(d->stack.pop());
@@ -397,6 +402,7 @@ void QTextBrowser::backward()
 */
 void QTextBrowser::forward()
 {
+    Q_D(QTextBrowser);
     if (d->forwardStack.isEmpty())
         return;
     setSource(d->forwardStack.pop());
@@ -409,6 +415,7 @@ void QTextBrowser::forward()
 */
 void QTextBrowser::home()
 {
+    Q_D(QTextBrowser);
     if (!d->home.isNull())
         setSource(d->home);
 }
@@ -448,6 +455,7 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 */
 void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
 {
+    Q_D(QTextBrowser);
     QTextEdit::mouseMoveEvent(ev);
 
     QString anchor = d->doc->documentLayout()->anchorAt(d->translateCoordinates(ev->pos()));
@@ -468,6 +476,7 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
 */
 void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 {
+    Q_D(QTextBrowser);
     QTextEdit::mouseReleaseEvent(ev);
 
     QString anchor = d->doc->documentLayout()->anchorAt(d->translateCoordinates(ev->pos()));
@@ -498,10 +507,9 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 */
 QImage QTextBrowser::loadImage(const QString &name)
 {
+    Q_D(QTextBrowser);
     QImage img;
     img.load(d->findFile(name));
     return img;
 }
-
-#include "moc_qtextbrowser.cpp"
 
