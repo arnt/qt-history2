@@ -483,13 +483,6 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     using setAutoCompletion() and whether or not the user can add
     duplicates is set with setDuplicatesEnabled().
 
-    \raw HTML
-    <img src="qcombo1-m.png">(Motif 1, read-only)<br clear=all>
-    <img src="qcombo2-m.png">(Motif 2, editable)<br clear=all>
-    <img src="qcombo3-m.png">(Motif 2, read-only)<br clear=all>
-    <img src="qcombo1-w.png">(Windows style)
-    \endraw
-
     \sa QLineEdit QSpinBox QRadioButton QButtonGroup
     \link guibooks.html#fowler GUI Design Handbook: Combo Box,\endlink
     \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box.\endlink
