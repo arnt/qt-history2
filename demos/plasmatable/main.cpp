@@ -14,9 +14,65 @@
 #include <qsplitter.h>
 #include <qtableview.h>
 #include <qheaderview.h>
+#include <qitemdelegate.h>
+#include <qpainter.h>
+
 #include "plasmamodel.h"
 #include "plasmadelegate.h"
 #include "colorfilter.h"
+
+class HexDelegate : public QItemDelegate
+{
+public:
+    HexDelegate(QObject *parent) 
+        : QItemDelegate(parent)
+    {
+        sz = QSize(2, 2);
+        textHex = "0x";
+        textHex.reserve(8); // fine tuning
+    }
+
+    ~HexDelegate()
+    {
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &, const QAbstractItemModel *,
+                   const QModelIndex &) const;
+
+    void paint(QPainter *, const QStyleOptionViewItem &, const QAbstractItemModel *,
+               const QModelIndex &) const;
+
+private:
+    mutable QString textHex;
+    QPoint pt;
+    QSize sz;
+};
+
+QSize HexDelegate::sizeHint(const QStyleOptionViewItem &opt,
+                            const QAbstractItemModel *,
+                            const QModelIndex &) const
+{
+    static QString textSize("0xFFFFFFFF");
+    return QFontMetrics(opt.font).size(0, textSize) + sz;
+}
+
+void HexDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                        const QAbstractItemModel *model, const QModelIndex &index) const
+{
+    static QRect emptyRect;
+
+    textHex.resize(2);
+    textHex += QString::number(
+                model->data(index, QAbstractItemModel::DisplayRole).toInt(), 16).toUpper();
+
+    // Layout text
+    QRect textRect(pt, painter->fontMetrics().size(0, textHex) + sz);
+    doLayout(option, &emptyRect, &textRect, false);
+
+    // draw the item
+    drawDisplay(painter, option, textRect, textHex);
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -30,47 +86,31 @@ int main(int argc, char *argv[])
     QItemSelectionModel *selections = new QItemSelectionModel(data, data);
 
     // 1st view
-#if 0
-    QTableView *view = new QTableView(&splitter);
-    QAbstractItemDelegate *delegate = new PlasmaDelegate(view);
+    QTableView *plasmaView = new QTableView(&splitter);
+    QAbstractItemDelegate *delegate = new PlasmaDelegate(plasmaView);
+    plasmaView->setModel(data);
+    plasmaView->setItemDelegate(delegate);
+    plasmaView->setSelectionModel(selections);
+    plasmaView->setShowGrid(false);
+    plasmaView->horizontalHeader()->hide();
+    plasmaView->verticalHeader()->hide();
 
-    ColorFilter *filter = new ColorFilter(&splitter);
-    filter->setModel(data);
-    filter->setFilter(0x00f00000);
-
-    view->setModel(data);
-    view->setItemDelegate(delegate);
-    //view->setSelectionModel(selections);
-    view->setShowGrid(false);
-    view->horizontalHeader()->hide();
-    view->verticalHeader()->hide();
-
-    for (int c = 0; c < cc; ++c)
-        view->resizeColumnToContents(c);
-    for (int r = 0; r < rc; ++r)
-        view->resizeRowToContents(r);
-#endif
     // 2nd view
+    QTableView *hexView = new QTableView(&splitter);
+    hexView->setModel(data);
+    hexView->setItemDelegate(new HexDelegate(hexView));
+    hexView->setSelectionModel(selections);
 
-    QTableView *view = new QTableView(&splitter);
-    QAbstractItemDelegate *delegate = new PlasmaDelegate(view);
-    view->setModel(data);
-    view->setItemDelegate(delegate);
-    view->setSelectionModel(selections);
-    view->setShowGrid(false);
-    view->horizontalHeader()->hide();
-    view->verticalHeader()->hide();
+    for (int c = 0; c < cc; ++c) {
+        plasmaView->resizeColumnToContents(c);
+        hexView->resizeColumnToContents(c);
+    }
 
-    for (int c = 0; c < cc; ++c)
-        view->resizeColumnToContents(c);
-    for (int r = 0; r < rc; ++r)
-        view->resizeRowToContents(r);
+    for (int r = 0; r < rc; ++r) {
+        plasmaView->resizeRowToContents(r);
+        hexView->resizeRowToContents(r);
+    }
 
-    // 3rd view
-    view = new QTableView(&splitter);
-    view->setModel(data);
-    view->setSelectionModel(selections);
-    
     app.setMainWidget(&splitter);
     splitter.show();
 
