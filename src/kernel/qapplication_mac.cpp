@@ -1597,8 +1597,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     case kEventClassQt:
 	remove_context_timer = FALSE;
 	if(ekind == kEventQtRequestPropagateWidgetUpdates) {
-	    for(QList<WId>::Iterator it = request_updates_pending_list.begin();
-		it != request_updates_pending_list.end(); ++it) {
+	    QList<WId> update_list = request_updates_pending_list;
+	    request_updates_pending_list.clear(); //clear now and use the saved list (above)..
+	    for(QList<WId>::Iterator it = update_list.begin();
+		it != update_list.end(); ++it) {
 		QWidget *widget = QWidget::find((*it));
 		if(!widget)
 		    continue;
@@ -1617,7 +1619,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			widget->repaint(r);
 		}
 	    }
-	    request_updates_pending_list.clear();
 	} else if(ekind == kEventQtRequestPropagateWindowUpdates) {
 	    request_updates_pending = NULL;
 	    QApplication::sendPostedEvents();
