@@ -45,8 +45,8 @@
 #include "qwidgetlist.h"
 #include "qlayout.h"
 #include "qsizegrip.h"
-#include "qwhatsthis.h" // ######## dependency
-#include "qpopupmenu.h" // ######## dependency
+#include "qwhatsthis.h"
+#include "qpopupmenu.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -264,6 +264,8 @@ void QDialog::setDefault( QPushButton *pushButton )
     bool hasMain = FALSE;
     while ( (pb = (QPushButton*)it.current()) ) {
 	++it;
+	if ( pb->topLevelWidget() != this )
+	    continue;
 	if ( pb == d->mainDef )
 	    hasMain = TRUE;
 	if ( pb != pushButton )
@@ -535,7 +537,7 @@ void QDialog::show()
 	    QPushButton *button;
 	    while ( ( button = (QPushButton*)it.current() ) ) {
 		++it;
-		if ( button->autoDefault() ) {
+		if ( button->topLevelWidget() == this && button->autoDefault() ) {
 		    button->setDefault( TRUE );
 		    break;
 		}
