@@ -712,17 +712,17 @@ void SetupWizardImpl::readMakeOutput()
 
 void SetupWizardImpl::readCleanerError()
 {
-    updateOutputDisplay( &cleaner );
+    updateErrorDisplay( &cleaner );
 }
 
 void SetupWizardImpl::readConfigureError()
 {
-    updateOutputDisplay( &configure );
+    updateErrorDisplay( &configure );
 }
 
 void SetupWizardImpl::readMakeError()
 {
-    updateOutputDisplay( &make );
+    updateErrorDisplay( &make );
 }
 
 void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
@@ -1066,8 +1066,9 @@ void SetupWizardImpl::configDone()
 		args << "sub-extensions";
 	}
 #endif
-	if ( globalInformation.sysId() == GlobalInformation::MinGW )
-	    args << "-f Makefile.win32-g++";
+	if ( globalInformation.sysId() == GlobalInformation::MinGW ) {
+	    args << "-fMakefile.win32-g++";
+	}
 
 	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	make.setArguments( args );
