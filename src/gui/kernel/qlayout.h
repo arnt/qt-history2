@@ -43,22 +43,22 @@ class QWidget;
 class Q_GUI_EXPORT QLayoutIterator
 {
 public:
-    inline QLayoutIterator(QLayout *i) : layout(i), idx(0) {}
-    inline QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), idx(i.idx) {
+    inline QLayoutIterator(QLayout *i) : layout(i), index(0) {}
+    inline QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), index(i.index) {
     }
     inline QLayoutIterator &operator=(const QLayoutIterator &i) {
         layout = i.layout;
-        idx = i.idx;
+        index = i.index;
         return *this;
     }
-    inline QT_COMPAT QLayoutItem *operator++() { return layout->itemAt(++idx); }
-    inline QT_COMPAT QLayoutItem *current() { return layout->itemAt(idx); }
-    inline QT_COMPAT QLayoutItem *takeCurrent() { layout->takeAt(idx); }
+    inline QT_COMPAT QLayoutItem *operator++() { return layout->itemAt(++index); }
+    inline QT_COMPAT QLayoutItem *current() { return layout->itemAt(index); }
+    inline QT_COMPAT QLayoutItem *takeCurrent() { layout->takeAt(index); }
     inline QT_COMPAT void deleteCurrent() { delete takeCurrent(); }
 
 private:
     QLayout *layout;
-    int idx;
+    int index;
 };
 #endif
 
@@ -190,8 +190,8 @@ public:
     QSize minimumSize() const;
     QSize maximumSize() const;
     void setGeometry(const QRect&) = 0;
-    virtual QLayoutItem *itemAt(int idx) const = 0;
-    virtual QLayoutItem *takeAt(int idx) = 0;
+    virtual QLayoutItem *itemAt(int index) const = 0;
+    virtual QLayoutItem *takeAt(int index) = 0;
     bool isEmpty() const;
 
     int totalHeightForWidth(int w) const;

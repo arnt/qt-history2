@@ -27,6 +27,8 @@ public:
     ~QStackedLayout();
 
     int addWidget(QWidget *w);
+    int insertWidget(int index, QWidget *w);
+    void removeWidget(int index);
 
     QWidget *currentWidget() const;
     int currentIndex() const;

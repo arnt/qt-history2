@@ -731,7 +731,7 @@ void QWindowsStyle::drawControl(ControlElement element,
                                  const QStyleOption& opt) const
 {
     switch (element) {
-#ifndef QT_NO_TABBAR
+#if 0
     case CE_TabBarTab:
         {
             if (!widget || !opt.tab())
@@ -847,7 +847,7 @@ void QWindowsStyle::drawControl(ControlElement element,
             }
             break;
         }
-#endif // QT_NO_TABBAR
+#endif
     case CE_ToolBoxTab:
         {
             qDrawShadePanel(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On) , 1,
@@ -2408,7 +2408,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             fill = QBrush(pal.light(), Dense4Pattern);
         else
             fill = pal.brush(QPalette::Button);
-        
+
         if (flags & Style_ButtonDefault && flags & Style_Down) {
             p->setPen(pal.dark());
             p->setBrush(fill);
@@ -2419,7 +2419,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             p->fillRect(r, fill);
         break;
     }
-            
+
     case PE_ButtonBevel:
     case PE_HeaderSection:
     {
@@ -2428,7 +2428,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             fill = QBrush(opt->palette.light(), Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
-        
+
         if (opt->state & (Style_Raised | Style_Down | Style_On | Style_Sunken))
             qDrawWinButton(p, opt->rect, opt->palette, opt->state & (Style_Down | Style_On), &fill);
         else
@@ -2444,36 +2444,36 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
     case PE_ArrowRight:
     case PE_ArrowLeft: {
         QPointArray a;
-        
+
         switch (pe) {
             case PE_ArrowUp:
                 a.setPoints(7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2);
                 break;
-                
+
             case PE_ArrowDown:
                 a.setPoints(7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1);
                 break;
-                
+
             case PE_ArrowRight:
                 a.setPoints(7, -2,-3, -2,3, -1,-2, -1,2, 0,-1, 0,1, 1,0);
                 break;
-                
+
             case PE_ArrowLeft:
                 a.setPoints(7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0);
                 break;
-                
+
             default:
                 break;
         }
-        
+
         if (a.isEmpty())
             return;
-        
+
         p->save();
         if (opt->state & Style_Down)
             p->translate(pixelMetric(PM_ButtonShiftHorizontal),
                          pixelMetric(PM_ButtonShiftVertical));
-        
+
         if (opt->state & Style_Enabled) {
             a.translate(opt->rect.x() + opt->rect.width() / 2,
                         opt->rect.y() + opt->rect.height() / 2);

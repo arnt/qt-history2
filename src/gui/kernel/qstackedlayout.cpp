@@ -6,8 +6,9 @@
 class QStackedLayoutPrivate
 {
 public:
+    QStackedLayoutPrivate():index(-1){}
     QList<QLayoutItem*> list;
-    int idx;
+    int index;
 };
 
 /*!
@@ -39,7 +40,6 @@ QStackedLayout::QStackedLayout(QWidget *parent)
     :QLayout(parent)
 {
     d = new QStackedLayoutPrivate;
-    d->idx = -1;
 }
 
 
@@ -52,7 +52,6 @@ QStackedLayout::QStackedLayout(QLayout *parentLayout)
     :QLayout(parentLayout)
 {
     d = new QStackedLayoutPrivate;
-    d->idx = -1;
 }
 
 /*!
@@ -65,43 +64,79 @@ QStackedLayout::~QStackedLayout()
     delete d;
 }
 
-/*!
-  Adds \a w to this layout. The first widget added becomes the initial current widget.
-   Returns the index of \a w in this layout.
+/*!  Adds \a w to this layout. The first widget added becomes the
+  initial current widget.  Returns the index of \a w in this layout.
 */
 int QStackedLayout::addWidget(QWidget *w)
 {
     addChildWidget(w);
+    int previous = indexOf(w);
+    if (previous != -1)
+        return previous;
     QWidgetItem *wi = new QWidgetItem(w);
     d->list.append(wi);
-    int idx = d->list.count() - 1;
-    if (idx == 0) {
-        setCurrentIndex(idx);
+    int index = d->list.count() - 1;
+    if (d->index < 0) {
+        setCurrentIndex(index);
     } else {
         w->hide();
         w->lower();
     }
-    return idx;
+    return index;
 }
 
-QLayoutItem *QStackedLayout::itemAt(int idx) const
+/*!  Inserts \a w to this layout at position \a index. If \a index is
+  out of range, the widget gets added. The first widget added becomes
+  the initial current widget.  Returns the index of \a w in this
+  layout.
+*/
+int QStackedLayout::insertWidget(int index, QWidget *w)
 {
-    return d->list.value(idx);
+    if (index <= 0 || index >= d->list.count())
+        return addWidget(w);
+    addChildWidget(w);
+    int previous = indexOf(w);
+    if (previous != -1)
+        return previous;
+    QWidgetItem *wi = new QWidgetItem(w);
+    d->list.insert(index, wi);
+    if (d->index < 0) {
+        setCurrentIndex(index);
+    } else {
+        w->hide();
+        w->lower();
+    }
+    return index;
 }
 
-QLayoutItem *QStackedLayout::takeAt(int idx)
+/*!
+  Removes the widget at position \a index from this layout.
+ */
+void QStackedLayout::removeWidget(int index)
 {
-    if (idx <0 || idx >= d->list.size())
+    takeAt(index);
+}
+
+/*!\reimp*/
+QLayoutItem *QStackedLayout::itemAt(int index) const
+{
+    return d->list.value(index);
+}
+
+/*!\reimp*/
+QLayoutItem *QStackedLayout::takeAt(int index)
+{
+    if (index <0 || index >= d->list.size())
         return 0;
-    QLayoutItem *item = d->list.takeAt(idx);
-    if (idx == d->idx) {
-        d->idx = -1;
+    QLayoutItem *item = d->list.takeAt(index);
+    if (index == d->index) {
+        d->index = -1;
         if ( d->list.count() > 0 ) {
-            idx = idx > 0 ? idx - 1 : 0;
-            setCurrentIndex(idx);
+            index = index > 0 ? index - 1 : 0;
+            setCurrentIndex(index);
         }
-    } else if (idx < d->idx) {
-        --d->idx;
+    } else if (index < d->index) {
+        --d->index;
     }
     return item;
 }
@@ -113,13 +148,13 @@ The current index is -1 if there is no current widget.
 
 \sa currentWidget() indexOf()
 */
-void QStackedLayout::setCurrentIndex(int idx)
+void QStackedLayout::setCurrentIndex(int index)
 {
     QWidget *prev = currentWidget();
-    QWidget *next = widget(idx);
+    QWidget *next = widget(index);
     if (!next || next == prev)
         return;
-    d->idx = idx;
+    d->index = index;
     next->raise();
     next->show();
 
@@ -156,7 +191,7 @@ void QStackedLayout::setCurrentIndex(int idx)
 
 int QStackedLayout::currentIndex() const
 {
-    return d->idx;
+    return d->index;
 }
 
 
@@ -166,7 +201,7 @@ int QStackedLayout::currentIndex() const
  */
 QWidget *QStackedLayout::currentWidget() const
 {
-    return d->idx >= 0 ? d->list.at(d->idx)->widget() : 0;
+    return d->index >= 0 ? d->list.at(d->index)->widget() : 0;
 }
 
 /*!
@@ -184,13 +219,13 @@ int QStackedLayout::indexOf(QWidget *w) const
 
 
 /*!
-  Returns the widget with index \a idx in this layout. Returns 0 if there is no such widget.
+  Returns the widget with index \a index in this layout. Returns 0 if there is no such widget.
  */
-QWidget *QStackedLayout::widget(int idx) const
+QWidget *QStackedLayout::widget(int index) const
 {
-     if (idx < 0 || idx >= d->list.size())
+     if (index < 0 || index >= d->list.size())
         return 0;
-    return d->list.at(idx)->widget();
+    return d->list.at(index)->widget();
 }
 
 /*!\property QStackedLayout::count

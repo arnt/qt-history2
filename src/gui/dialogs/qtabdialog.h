@@ -23,7 +23,6 @@
 #ifndef QT_NO_TABDIALOG
 
 class  QTabBar;
-class  QTab;
 class  QTabDialogPrivate;
 
 class Q_GUI_EXPORT QTabDialog : public QDialog
@@ -39,11 +38,9 @@ public:
 
     void addTab(QWidget *, const QString &);
     void addTab(QWidget *child, const QIconSet &iconset, const QString &label);
-    void addTab(QWidget *, QTab *);
 
     void insertTab(QWidget *, const QString &, int index = -1);
     void insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
-    void insertTab(QWidget *, QTab*, int index = -1);
 
     void changeTab(QWidget *, const QString &);
     void changeTab(QWidget *child, const QIconSet& iconset, const QString &label);

@@ -24,7 +24,6 @@
 
 class QTabBar;
 class QTabWidgetData;
-class QTab;
 class QWidgetStack;
 
 
@@ -35,7 +34,6 @@ class Q_GUI_EXPORT QTabWidget : public QWidget
     Q_ENUMS(TabShape)
     Q_PROPERTY(TabPosition tabPosition READ tabPosition WRITE setTabPosition)
     Q_PROPERTY(TabShape tabShape READ tabShape WRITE setTabShape)
-    Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int currentPage READ currentPageIndex WRITE setCurrentPage)
     Q_PROPERTY(int count READ count)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
@@ -47,12 +45,10 @@ public:
     virtual void addTab(QWidget *, const QString &); // ### make these inline in 4.0
     virtual void addTab(QWidget *child, const QIconSet& iconset,
                          const QString &label);
-    virtual void addTab(QWidget *, QTab*);
 
     virtual void insertTab(QWidget *, const QString &, int index = -1);
     virtual void insertTab(QWidget *child, const QIconSet& iconset,
                             const QString &label, int index = -1);
-    virtual void insertTab(QWidget *, QTab*, int index = -1);
 
     void changeTab(QWidget *, const QString &);
     void changeTab(QWidget *child, const QIconSet& iconset,
@@ -91,9 +87,6 @@ public:
     TabShape tabShape() const;
     void setTabShape(TabShape s);
 
-    int margin() const;
-    void setMargin(int);
-
     int count() const;
 
 public slots:
@@ -119,6 +112,11 @@ signals:
 private slots:
     void showTab(int);
 
+#ifdef QT_COMPAT
+public:
+    QT_COMPAT int margin() const { return 0; }
+    QT_COMPAT void setMargin(int) {}
+#endif
 private:
     QTabWidgetData *d;
     void setUpLayout(bool = false);

@@ -1259,12 +1259,15 @@ void QObject::setParent_helper(QObject *parent)
         d->thread = 0;
 
         d->parent->d->children.append(this);
-        const QMetaObject *polished = d->polished;
-        QChildEvent e(QEvent::ChildAdded, this);
-        QCoreApplication::sendEvent(d->parent, &e);
-        if (polished) {
-            QChildEvent e(QEvent::ChildPolished, this);
+
+        if (!d->isWidget) {
+            const QMetaObject *polished = d->polished;
+            QChildEvent e(QEvent::ChildAdded, this);
             QCoreApplication::sendEvent(d->parent, &e);
+            if (polished) {
+                QChildEvent e(QEvent::ChildPolished, this);
+                QCoreApplication::sendEvent(d->parent, &e);
+            }
         }
 #ifdef QT_COMPAT
         QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));

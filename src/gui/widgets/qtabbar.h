@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QTab and QTabBar classes.
+** Definition of QTabBar class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -12,117 +12,86 @@
 **
 ****************************************************************************/
 
-#ifndef QTABBAR_H
-#define QTABBAR_H
+#ifndef Q4TABBAR_H
+#define Q4TABBAR_H
 
 #ifndef QT_H
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_TABBAR
-
-class QTabBar;
 class QIconSet;
-
-class Q_GUI_EXPORT QTab : public Qt
-{
-    friend class QTabBar;
-    friend class QTabWidget;
-
-public:
-    QTab();
-    virtual ~QTab();
-    QTab(const QString& text);
-    QTab(const QIconSet& icon, const QString& text = QString::null);
-
-    void setText(const QString& text);
-    QString text() const { return label; }
-    void setIconSet(const QIconSet& icon);
-    QIconSet* iconSet() const { return iconset; }
-    void setRect(const QRect& rect) { r = rect; }
-    QRect rect() const { return r; }
-    void setEnabled(bool enable) { enabled = enable; }
-    bool isEnabled() const { return enabled; }
-    void setIdentifier(int i) { id = i; }
-    int identifier() const { return id; }
-
-private:
-    void setTabBar(QTabBar *tb);
-    QString label;
-    QRect r; // the bounding rectangle of this (may overlap with others)
-    bool enabled;
-    int id;
-    QIconSet* iconset; // optional iconset
-    QTabBar *tb;
-};
-
-
-struct QTabPrivate;
-//class *QAccel;
+class QTabBarPrivate;
 
 class Q_GUI_EXPORT QTabBar: public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QTabBar)
     Q_ENUMS(Shape)
     Q_PROPERTY(Shape shape READ shape WRITE setShape)
-    Q_PROPERTY(int currentTab READ currentTab WRITE setCurrentTab)
-    Q_PROPERTY(int count READ count)
-    Q_PROPERTY(int keyboardFocusTab READ keyboardFocusTab)
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
+    QDOC_PROPERTY(int count READ count)
 
 public:
-    QTabBar(QWidget* parent=0, const char* name=0);
+    QTabBar(QWidget* parent=0);
     ~QTabBar();
 
     enum Shape { RoundedAbove, RoundedBelow,
                  TriangularAbove, TriangularBelow };
 
     Shape shape() const;
-    virtual void setShape(Shape);
+    void setShape(Shape shape);
 
-    void show();
+    int addTab(const QString &text);
+    int addTab(const QIconSet& icon, const QString &text);
 
-    virtual int addTab(QTab *);
-    virtual int insertTab(QTab *, int index = -1);
-    virtual void removeTab(QTab *);
+    int insertTab(int index, const QString &text);
+    int insertTab(int index, const QIconSet& icon, const QString &text);
 
-    virtual void setTabEnabled(int, bool);
-    bool isTabEnabled(int) const;
+    void removeTab(int index);
 
+    bool isTabEnabled(int index) const;
+    void setTabEnabled(int index, bool);
+
+    QString tabText(int index) const;
+    void setTabText(int index, const QString &text);
+
+    QIconSet tabIcon(int index) const;
+    void setTabIcon(int index, const QIconSet & icon);
+
+    void setTabToolTip(int index, const QString & tip);
+    QString tabToolTip(int index) const;
+
+    QRect tabRect(int index) const;
+
+    int currentIndex() const;
+    int count() const;
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    int currentTab() const;
-    int keyboardFocusTab() const;
-
-    QTab * tab(int) const;
-    QTab * tabAt(int) const;
-    int indexOf(int) const;
-    int count() const;
-
-    virtual void layoutTabs();
-    virtual QTab * selectTab(const QPoint & p) const;
-
-    void         removeToolTip(int index);
-    void             setToolTip(int index, const QString & tip);
-    QString         toolTip(int index) const;
-
 public slots:
-    virtual void setCurrentTab(int);
-    virtual void setCurrentTab(QTab *);
+    void setCurrentIndex(int index);
 
 signals:
-    void selected(int);
-    void layoutChanged();
+    void currentChanged(int index);
+
+
+#ifdef QT_COMPAT
+public slots:
+    QT_MOC_COMPAT void setCurrentTab(int index) {setCurrentIndex(index); }
+signals:
+    QT_MOC_COMPAT void selected(int);
+#endif
 
 protected:
-    virtual void paint(QPainter *, QTab *, bool) const; // ### not const
-    virtual void paintLabel(QPainter*, const QRect&, QTab*, bool) const;
+    virtual QSize tabSizeHint(int index) const;
+    virtual void tabInserted(int index);
+    virtual void tabRemoved(int index);
+    virtual void tabLayoutChange();
 
-    void focusInEvent(QFocusEvent *e);
-    void focusOutEvent(QFocusEvent *e);
-
+    bool event(QEvent *);
     void resizeEvent(QResizeEvent *);
+    void showEvent(QShowEvent *);
     void paintEvent(QPaintEvent *);
     void mousePressEvent (QMouseEvent *);
     void mouseMoveEvent (QMouseEvent *);
@@ -130,21 +99,8 @@ protected:
     void keyPressEvent(QKeyEvent *);
     void changeEvent(QEvent *);
 
-    bool event(QEvent *e);
-
-    QList<QTab*> *tabList();
-
-private slots:
-    void scrollTabs();
-
 private:
-    void makeVisible(QTab* t = 0);
-    void updateArrowButtons();
-    QTabPrivate * d;
-
-    friend class QTabBarToolTip;
-    friend class QTab;
-
+    Q_PRIVATE_SLOT(void scrollTabs());
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QTabBar(const QTabBar &);
@@ -153,6 +109,4 @@ private:        // Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_TABBAR
-
-#endif // QTABBAR_H
+#endif

@@ -401,23 +401,6 @@ void QTabDialog::addTab(QWidget *child, const QIconSet& iconset, const QString &
     d->tw->addTab(child, iconset, label);
 }
 
-/*!
-  \overload
-
-  This is a lower-level method for adding tabs, similar to the other
-  addTab() method. It is useful if you are using setTabBar() to set a
-  QTabBar subclass with an overridden QTabBar::paint() function for a
-  subclass of QTab.
-
-  The \a child is the widget to be placed on the new tab page. The \a
-  tab is the tab to display on the tab page -- normally this shows a
-  label or an icon that identifies the tab page.
-
-*/
-void QTabDialog::addTab(QWidget * child, QTab* tab)
-{
-    d->tw->addTab(child, tab);
-}
 
 /*!
   Inserts another tab and page to the tab view.
@@ -459,24 +442,6 @@ void QTabDialog::insertTab(QWidget *child, const QIconSet& iconset, const QStrin
     d->tw->insertTab(child, iconset, label, index);
 }
 
-/*!
-    \overload
-
-  This is a lower-level method for inserting tabs, similar to the other
-  insertTab() method. It is useful if you are using setTabBar() to set a
-  QTabBar subclass with an overridden QTabBar::paint() function for a
-  subclass of QTab.
-
-  The \a child is the widget to be placed on the new tab page. The \a
-  tab is the tab to display on the tab page -- normally this shows a
-  label or an icon that identifies the tab page. The \a index is the
-  position where this tab page should be inserted.
-
-*/
-void QTabDialog::insertTab(QWidget * child, QTab* tab, int index)
-{
-    d->tw->insertTab(child, tab, index);
-}
 
 /*!
   Replaces the QTabBar heading the dialog by the given tab bar, \a tb.

@@ -51,6 +51,33 @@ QStackedBox::~QStackedBox()
 {
 }
 
+/*!  Adds \a w to this box. The first widget added becomes the
+  initial current widget.  Returns the index of \a w in this box.
+*/
+int QStackedBox::addWidget(QWidget *w)
+{
+    return d->layout->addWidget(w);
+}
+
+/*!  Inserts \a w to this box at position \a index. If \a index is
+  out of range, the widget gets added. The first widget added becomes
+  the initial current widget.  Returns the index of \a w in this
+  box.
+*/
+int QStackedBox::insertWidget(int index, QWidget *w)
+{
+    return d->layout->insertWidget(index, w);
+}
+
+/*!
+  Removes the widget at position \a index from this box.
+ */
+void QStackedBox::removeWidget(int index)
+{
+    d->layout->removeWidget(index);
+}
+
+
 /*\property QStackedBox::currentIndex
 \brief The index of the current widget
 
@@ -108,9 +135,8 @@ int QStackedBox::count() const
 void QStackedBox::childEvent(QChildEvent *e)
 {
     if (e->child()->isWidgetType() && e->added()) {
-        QWidget *child = static_cast<QWidget*>(e->child());
-        if (child->isTopLevel())
-            return;
-        d->layout->addWidget(child);
+        QWidget *w = static_cast<QWidget*>(e->child());
+        if (!w->isTopLevel())
+            d->layout->addWidget(w);
     }
 }

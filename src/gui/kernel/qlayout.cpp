@@ -135,33 +135,33 @@ public:
     inline int count() const { return things.count() + multi.count(); }
     QRect cellGeometry(int row, int col) const;
 
-    inline QLayoutItem *itemAt(int idx) const {
-        if (idx < things.count())
-            return things.at(idx)->item();
-        else if (idx - things.count() < multi.count())
-            return multi.at(idx - things.count())->box()->item();
+    inline QLayoutItem *itemAt(int index) const {
+        if (index < things.count())
+            return things.at(index)->item();
+        else if (index - things.count() < multi.count())
+            return multi.at(index - things.count())->box()->item();
         else
             return 0;
     }
-    
-    inline QLayoutItem *takeAt(int idx) {
+
+    inline QLayoutItem *takeAt(int index) {
         QLayoutItem *item = 0;
-        if (idx < things.count()) {
-            QGridBox *b = things.takeAt(idx);
+        if (index < things.count()) {
+            QGridBox *b = things.takeAt(index);
             if (b) {
                 item = b->takeItem();
                 delete b;
             }
-        } else if (idx - things.count() < multi.count()) {
-            QGridMultiBox *b = multi.takeAt(idx - things.count());
+        } else if (index - things.count() < multi.count()) {
+            QGridMultiBox *b = multi.takeAt(index - things.count());
             if (b) {
                 item = b->takeItem();
                 delete b;
             }
-        } 
+        }
         return item;
     }
-    
+
 private:
     void setNextPosAfter(int r, int c);
     void recalcHFW(int w, int s);
@@ -1016,18 +1016,18 @@ bool QGridLayout::findWidget(QWidget* w, int *row, int *col)
 /*!
     \reimp
 */
-QLayoutItem *QGridLayout::itemAt(int idx) const
+QLayoutItem *QGridLayout::itemAt(int index) const
 {
-    return data->itemAt(idx);
+    return data->itemAt(index);
 }
 
 
 /*!
     \reimp
 */
-QLayoutItem *QGridLayout::takeAt(int idx)
+QLayoutItem *QGridLayout::takeAt(int index)
 {
-    return data->takeAt(idx);
+    return data->takeAt(index);
 }
 
 
@@ -1678,20 +1678,20 @@ void QBoxLayout::invalidate()
 /*!
     \reimp
 */
-QLayoutItem *QBoxLayout::itemAt(int idx) const
+QLayoutItem *QBoxLayout::itemAt(int index) const
 {
-    return idx >= 0 && idx < data->list.count() ? data->list.at(idx)->item : 0;
+    return index >= 0 && index < data->list.count() ? data->list.at(index)->item : 0;
 }
 
 
 /*!
     \reimp
 */
-QLayoutItem *QBoxLayout::takeAt(int idx)
+QLayoutItem *QBoxLayout::takeAt(int index)
 {
-    if (idx >= data->list.count())
+    if (index >= data->list.count())
         return 0;
-    QBoxLayoutItem *b = data->list.takeAt(idx);
+    QBoxLayoutItem *b = data->list.takeAt(index);
     QLayoutItem *item = b->item;
     b->item = 0;
     delete b;

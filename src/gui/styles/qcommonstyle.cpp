@@ -828,7 +828,7 @@ void QCommonStyle::drawControl(ControlElement element,
             break;
         }
 
-#ifndef QT_NO_TABBAR
+#if 0
     case CE_TabBarTab:
         {
             const QTabBar * tb = (const QTabBar *) widget;
@@ -893,7 +893,7 @@ void QCommonStyle::drawControl(ControlElement element,
                 drawPrimitive(PE_FocusRect, p, r, pal);
             break;
         }
-#endif // QT_NO_TABBAR
+#endif
 #ifndef QT_NO_TOOLBOX
     case CE_ToolBoxTab:
         {
@@ -2795,7 +2795,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
                 h = 2;
             } else {
                 h = qMax(h, menu->fontMetrics().height() + 8);
-                if(act->icon().isNull()) 
+                if(act->icon().isNull())
                     h = qMax(h, act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
             }
 

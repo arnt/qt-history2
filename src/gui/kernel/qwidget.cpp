@@ -5764,6 +5764,15 @@ void QWidget::setParent(QWidget *parent, WFlags f)
 #ifndef QT_NO_PALETTE
     d->resolvePalette();
 #endif
+    if (parent){
+        const QMetaObject *polished = d->polished;
+        QChildEvent e(QEvent::ChildAdded, this);
+        QCoreApplication::sendEvent(parent, &e);
+        if (polished) {
+            QChildEvent e(QEvent::ChildPolished, this);
+            QCoreApplication::sendEvent(parent, &e);
+        }
+    }
 }
 
 /*!
