@@ -1544,7 +1544,16 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     int dy = 0;
     bool ok_key = TRUE;
 
-    switch ( e->key() ) {
+    int key = e->key();
+    if ( QApplication::reverseLayout() ) {
+	// in reverse mode opening and closing keys for submenues are reversed
+	if ( key == Key_Left )
+	    key = Key_Right;
+	else if ( key == Key_Right )
+	    key = Key_Left;
+    }
+    
+    switch ( key ) {
     case Key_Tab:
 	// ignore tab, otherwise it will be passed to the menubar
 	break;
