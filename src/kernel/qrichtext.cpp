@@ -1523,7 +1523,8 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 
 	sel.startCursor = start;
 	sel.endCursor = end;
-
+	sel.swapped = start.index() > end.index();
+	
 	return TRUE;
     }
 
