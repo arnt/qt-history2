@@ -124,7 +124,10 @@ void QThreadPrivate::finish(void *arg)
     thread, and it cannot be used for numerical comparison.
 */
 Qt::HANDLE QThread::currentThread()
-{ return reinterpret_cast<Qt::HANDLE>(pthread_self()); }
+{
+    // requires a C cast here otherwise we run into trouble on AIX
+    return (Qt::HANDLE)pthread_self();
+}
 
 /*!
     Returns a pointer to the currently executing QThread. If the
