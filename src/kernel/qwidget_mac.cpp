@@ -157,12 +157,13 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     WindowPtr behind = (WindowPtr)-1;
     unsigned char goaway=true;
 
-    if( !parentWidget() || (popup || modal) ) {
+    if( isTopLevel() || (popup || modal) ) {
 	mytop = this;
 	SetRect( &boundsRect, 50, 50, 600, 200 );
 	id = (WId)NewCWindow( nil, &boundsRect, (const unsigned char*)title, 
 			      visible, procid, behind, goaway, 0);
 	hd = (void *)id;
+	SetPortWindowPort((WindowPtr)hd);
     } else {
 	mytop = topLevelWidget( );
 	id = (WId)mytop->hd;
