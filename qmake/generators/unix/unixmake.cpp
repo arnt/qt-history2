@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
@@ -135,7 +135,10 @@ UnixMakefileGenerator::init()
 	}
 	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
 		(project->first("TARGET") == "qt-mt") ) ) {
-	    if(!project->variables()["QMAKE_LIBDIR_QT"].isEmpty()) {
+	    if ( !project->variables()["QMAKE_LIBDIR_QT"].isEmpty() ) {
+		if ( !project->variables()["QMAKE_RPATH"].isEmpty() )
+		    project->variables()["QMAKE_LIBDIR_FLAGS"].append(project->first("QMAKE_RPATH") +
+								  project->first("QMAKE_LIBDIR_QT"));
 		project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 								  project->first("QMAKE_LIBDIR_QT"));
 	    }
@@ -297,9 +300,9 @@ UnixMakefileGenerator::init()
 	project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
 	if ( !project->variables()["DESTDIR"].isEmpty() )
 	    project->variables()["DESTDIR_TARGET"].first().prepend(project->first("DESTDIR"));
-	if(!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty() && !project->variables()["TARGET_x"].isEmpty())
+	if ( !project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty() && !project->variables()["TARGET_x"].isEmpty() )
 	    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET_x");
-	if(project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
+	if ( project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty() )
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
 		"$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)");
     }
@@ -308,7 +311,7 @@ UnixMakefileGenerator::init()
     } else if ( project->isActiveConfig("dll") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_SHLIB"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
-	if( project->isActiveConfig("plugin") ) {
+	if ( project->isActiveConfig("plugin") ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	} else {
@@ -316,7 +319,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	}
 	QString destdir = project->first("DESTDIR");
-	if(!destdir.isEmpty() && !project->variables()["QMAKE_RPATH"].isEmpty())
+	if ( !destdir.isEmpty() && !project->variables()["QMAKE_RPATH"].isEmpty() )
 	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_RPATH") + destdir;
     }
 }
