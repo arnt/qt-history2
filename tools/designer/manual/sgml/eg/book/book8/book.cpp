@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book7/book.ui'
+** Form implementation generated from reading ui file 'book.ui'
 **
-** Created: Thu Feb 8 13:46:05 2001
+** Created: Thu Feb 8 15:09:47 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book7/book.h"
+#include "./book.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qdatatable.h>
@@ -30,7 +30,7 @@ BookForm::BookForm( QWidget* parent,  const char* name, bool modal, WFlags fl )
 {
     if ( !name )
 	setName( "BookForm" );
-    resize( 490, 504 ); 
+    resize( 494, 506 ); 
     setCaption( tr( "Book" ) );
     BookFormLayout = new QVBoxLayout( this ); 
     BookFormLayout->setSpacing( 6 );

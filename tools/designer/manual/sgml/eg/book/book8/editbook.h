@@ -1,7 +1,7 @@
 /****************************************************************************
-** Form interface generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book7/editbook.ui'
+** Form interface generated from reading ui file 'editbook.ui'
 **
-** Created: Thu Feb 8 13:32:31 2001
+** Created: Thu Feb 8 15:09:45 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -52,7 +52,7 @@ public:
 
 public slots:
     virtual void beforeUpdateBook( QSqlRecord *buffer );
-    virtual void map( QString name,int &id,bool flag );
+    virtual void mapAuthor( const QString &name,int &id,bool populate );
     virtual void primeInsertBook( QSqlRecord *buffer );
     virtual void primeUpdateBook( QSqlRecord *buffer );
     void polish();

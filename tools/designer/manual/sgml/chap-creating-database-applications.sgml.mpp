@@ -1347,20 +1347,12 @@ bool createConnections()
 \scan eg/book/book7/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/ 
 </programlisting>
 	    We look up the id of the ComboBox's current author and place
-	    it in the update (or insert) buffer's authorid field. Note
-	    that if the author name has changed or been deleted the
-	    query will fail and no author id will be inserted into the
-	    buffer causing the \ins to fail. To guarantee that the
-	    ComboBox is up-to-date we should create a cursor subclass
-	    and use this for our lookups. This is described in the
-	    <ulink url="http://doc.trolltech.com/sql.html">Qt SQL Module
-	    documentation</>, especially the section on subclassing
-	    \class[QSqlCursor] and calculated fields.
+	    it in the update (or insert) buffer's authorid field. 	    
 	    \P\Item
 
 	    \item\p
 	    As the user navigates through the records we ensure
-	    that the ComboBox reflects the current author. 
+	    that the ComboBox reflects the current author.  xset r on
 <programlisting>
 \scan eg/book/book7/editbook.cpp /EditBookForm::primeUpdateBook/ /^}/ 
 </programlisting>
@@ -1369,11 +1361,62 @@ bool createConnections()
 	    set the ComboBox's current item to the matching author.
 	    \P\Item
 	    \List1
-
-	\P\Item
+	\P
 	\List1
+
+    \p
+    If the author name has changed or been deleted the query will
+    fail and no author id will be inserted into the buffer causing the \ins
+    to fail.  An alternative is to record
+    the author id's as we populate the ComboBox and store them in a static
+    \class[QMap] which we can then look up as required. This approach
+    requires changes to the \fn[init()], \fn[beforeUpdateBook()] and
+    \fn[primeInsertBook()] functions and the addition of a new function,
+    \fn[mapAuthor()]. The relevant code from
+    \f[qt/tools/designer/eg/book/book8/editbook.ui] is shown below.
+
+	    \list[1,1]
+	    \item\p
+	    We now record the author id's in the \fn[init()] function.
+<programlisting>
+\scan eg/book/book8/editbook.cpp /EditBookForm::init/ /^}$/ 
+</programlisting>
+	    After inserting each author's name into the ComboBox we
+	    populate a \class[QMap] with the author's name and id.
+	    \P\Item
+
+	    \item\p
+	    Instead of looking up the author's id in the database we
+	    look it up in the static \class[QMap].
+<programlisting>
+\scan eg/book/book8/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/ 
+</programlisting>
+	    \P\Item
+
+	    \item\p
+	    We use a single function for storing author id's and
+	    returning them so that we can use a static data structure. 
+<programlisting>
+\scan eg/book/book8/editbook.cpp /EditBookForm::mapAuthor/ /^}/ 
+</programlisting>
+	    If the populate flag is TRUE, we store the author's name and
+	    id in the \class[QMap], otherwise we look up the given
+	    author name and set id appropriately.
+	    \P\Item
+	    \List1
+    \P
+
 \p
-We could apply the same technique to the formatid foreign key
+Another approach which is especially useful if the same foreign key
+lookups are required in different parts of the application is to
+subclass a cursor and use this for our lookups. This is described in the
+<ulink url="http://doc.trolltech.com/sql.html">Qt SQL Module
+documentation</>, particulary the section on subclassing
+\class[QSqlCursor].
+\P
+
+\p
+We could apply the same techniques to the formatid foreign key
 but won't demonstrate this since it is essentially a repetition.
 \P
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book7/editbook.ui'
+** Form implementation generated from reading ui file 'editbook.ui'
 **
-** Created: Thu Feb 8 13:32:33 2001
+** Created: Thu Feb 8 15:09:51 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/book/book7/editbook.h"
+#include "./editbook.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qcombobox.h>
@@ -34,7 +34,7 @@ EditBookForm::EditBookForm( QWidget* parent,  const char* name, bool modal, WFla
 {
     if ( !name )
 	setName( "EditBookForm" );
-    resize( 536, 377 ); 
+    resize( 532, 375 ); 
     setCaption( tr( "Edit Books" ) );
     EditBookFormLayout = new QVBoxLayout( this ); 
     EditBookFormLayout->setSpacing( 6 );
@@ -204,14 +204,15 @@ void EditBookForm::polish()
 void EditBookForm::beforeUpdateBook( QSqlRecord *buffer )
 {
     int id;
-    map( ComboBoxAuthor->currentText(), id, FALSE );
+    mapAuthor( ComboBoxAuthor->currentText(), id, FALSE );
     buffer->setValue( "authorid", id );
 }
 
-void EditBookForm::map( QString name,int &id,bool flag )
+void EditBookForm::mapAuthor( const QString &name,int &id,bool populate )
 {
     static QMap<QString,int> authorMap;
-    if ( flag )
+    
+    if ( populate ) 
 	authorMap[ name ] = id;
     else
 	id = authorMap[ name ];
@@ -220,8 +221,8 @@ void EditBookForm::map( QString name,int &id,bool flag )
 void EditBookForm::primeInsertBook( QSqlRecord *buffer )
 {
     QSqlQuery query( "SELECT nextval('book_seq');" );   
-    if ( query.next() )   
-	buffer->setValue( "id", query.value( 0 ) );       
+    if ( query.next() ) 
+	buffer->setValue( "id", query.value( 0 ).toInt() );       
 }
 
 void EditBookForm::primeUpdateBook( QSqlRecord *buffer )
@@ -245,9 +246,9 @@ void EditBookForm::init()
 {
     QSqlQuery query( "SELECT name, id FROM author_view ORDER BY name;" );    
     while ( query.next() ) {
-	ComboBoxAuthor->insertItem( query.value( 0 ).toString()); 
-	int i = query.value( 1 ).toInt();
-	map( query.value( 0 ).toString(), i, TRUE );
+	ComboBoxAuthor->insertItem( query.value( 0 ).toString() ); 
+	int id = query.value( 1 ).toInt();
+	mapAuthor( query.value( 0 ).toString(), id, TRUE );
     }
 }
 

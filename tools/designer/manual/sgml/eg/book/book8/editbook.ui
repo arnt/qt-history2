@@ -362,7 +362,7 @@
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">beforeUpdateBook( QSqlRecord *buffer )</slot>
-    <slot access="public" language="C++">mapAuthor( const QString name,int &amp;id,bool populate )</slot>
+    <slot access="public" language="C++">mapAuthor( const QString &amp;name,int &amp;id,bool populate )</slot>
     <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
     <slot access="public" language="C++">primeUpdateBook( QSqlRecord *buffer )</slot>
 </connections>
@@ -370,9 +370,9 @@
     <function name="init()" >{
     QSqlQuery query( "SELECT name, id FROM author_view ORDER BY name;" );    
     while ( query.next() ) {
-	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString()); 
-	int i = query.value( 1 ).toInt();
-	mapAuthor( query.value( 0 ).toString(), i, TRUE );
+	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString() ); 
+	int id = query.value( 1 ).toInt();
+	mapAuthor( query.value( 0 ).toString(), id, TRUE );
     }
 }</function>
     <function name="destroy()" >{
@@ -383,17 +383,18 @@
     mapAuthor( ComboBoxAuthor-&gt;currentText(), id, FALSE );
     buffer-&gt;setValue( "authorid", id );
 }</function>
-    <function name="mapAuthor(const QString,int&amp;,bool)" >{
+    <function name="mapAuthor(const QString&amp;,int&amp;,bool)" >{
     static QMap&lt;QString,int&gt; authorMap;
-    if ( populate )
+    
+    if ( populate ) 
 	authorMap[ name ] = id;
     else
 	id = authorMap[ name ];
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
-    int id;
-    mapAuthor( ComboBoxAuthor-&gt;currentText(), id, FALSE );
-    buffer-&gt;setValue( "id", id );       
+    QSqlQuery query( "SELECT nextval('book_seq');" );   
+    if ( query.next() ) 
+	buffer-&gt;setValue( "id", query.value( 0 ).toInt() );       
 }</function>
     <function name="primeUpdateBook(QSqlRecord*)" >{
     // Who is this book's author?
