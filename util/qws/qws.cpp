@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#2 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#3 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -173,7 +173,7 @@ public:
     void paintEvent(QPaintEvent* e)
     {
 	QRect r = e->rect();
-	bitBlt(this, 0, 0, &img, r.x(), r.y(), r.width(), r.height(),
+	bitBlt(this, r.x(), r.y(), &img, r.x(), r.y(), r.width(), r.height(),
 	    OrderedDither);
     }
 };
