@@ -569,7 +569,7 @@ bool qt_mac_can_clickThrough(const QWidget *w)
 
 bool qt_mac_is_macdrawer(const QWidget *w)
 {
-    return (w && w->windowType() == Qt::Drawer);
+    return (w && w->parentWidget() && w->windowType() == Qt::Drawer);
 }
 
 bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::DockWidgetArea where) //users of Qt/Mac can use this..
@@ -621,7 +621,7 @@ void QWidgetPrivate::toggleDrawers(bool visible)
 bool qt_mac_is_macsheet(const QWidget *w)
 {
     return (w && w->windowType() == Qt::Sheet
-       && w->parentWidget() && !w->parentWidget()->window()->windowType() == Qt::Desktop
+       && w->parentWidget() && w->parentWidget()->window()->windowType() != Qt::Desktop
        && w->parentWidget()->window()->isVisible());
 }
 
@@ -811,7 +811,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else {
         if(QDesktopWidget *dsk = QApplication::desktop()) {
             int deskn = dsk->primaryScreen();
-            if(parentWidget && !(parentWidget->windowType() == Qt::Desktop))
+            if(parentWidget && parentWidget->windowType() != Qt::Desktop)
                 deskn = dsk->screenNumber(parentWidget);
             dskr = dsk->screenGeometry(deskn);
         }

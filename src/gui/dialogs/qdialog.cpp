@@ -191,7 +191,8 @@
 */
 
 QDialog::QDialog(QWidget *parent, Qt::WFlags f)
-    : QWidget(*new QDialogPrivate, parent, f | Qt::WType_Dialog)
+    : QWidget(*new QDialogPrivate, parent, (f & Qt::WindowType_Mask) ? f : (f | Qt::Dialog))
+
 {
 }
 
@@ -202,7 +203,7 @@ QDialog::QDialog(QWidget *parent, Qt::WFlags f)
 */
 QDialog::QDialog(QWidget *parent, const char *name, bool modal, Qt::WFlags f)
     : QWidget(*new QDialogPrivate, parent,
-              (modal ? (f|Qt::WShowModal) : f) | Qt::WType_Dialog)
+              (modal ? (f|Qt::WShowModal) : f) | (f & Qt::WindowType_Mask) ? f : (f | Qt::Dialog))
 {
     setObjectName(name);
 }
@@ -213,7 +214,7 @@ QDialog::QDialog(QWidget *parent, const char *name, bool modal, Qt::WFlags f)
   \internal
 */
 QDialog::QDialog(QDialogPrivate &dd, QWidget *parent, Qt::WFlags f)
-    : QWidget(dd, parent, f | Qt::WType_Dialog)
+    : QWidget(dd, parent, (f & Qt::WindowType_Mask) ? f : (f | Qt::Dialog))
 {
 }
 
