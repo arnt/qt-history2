@@ -119,15 +119,6 @@ void QAuServerWindows::playHelper( const QString &filename, int loop, QSound *sn
 	return;
     ReleaseMutex(mutex);
 
-    if (!loop || loop == 1) { // Only once? Easy...
-	QT_WA( {
-	    PlaySoundW( (TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_ASYNC );
-	} , {
-	    PlaySoundA( QFile::encodeName(filename).data(), 0, SND_FILENAME|SND_ASYNC );
-	} );
-	return;
-    }
-
     DWORD threadid = 0;
     SoundInfo info(filename, loop, snd, this);
     current = CreateThread(0, 0, SoundPlayProc, &info, 0, &threadid);
