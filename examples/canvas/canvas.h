@@ -36,9 +36,6 @@ private:
 class Main : public QMainWindow {
     Q_OBJECT
 
-    QCanvas canvas;
-    FigureEditor *editor;
-
 public:
     Main();
 
@@ -46,7 +43,18 @@ private slots:
     void addSprite();
     void addCircle();
     void addHexagon();
+    void addPolygon();
     void addRectangle();
+    void toggleRedraws();
+    void toggleDoubleBuffer();
+
+private:
+    QCanvas canvas;
+    FigureEditor *editor;
+
+    QPopupMenu* options;
+    int sra_id;
+    int dbf_id;
 };
 
 #endif

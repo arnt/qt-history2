@@ -195,6 +195,9 @@ public:
     void setAdvancePeriod(int ms);
     void setUpdatePeriod(int ms);
 
+    void setDoubleBuffering(bool y);
+    void setRedrawAreaDisplay(bool y);
+
 public slots:
     virtual void advance();
     virtual void update();
@@ -222,9 +225,6 @@ private:
     QPtrDict<void> itemDict;
     QPtrDict<void> animDict;
 
-    static unsigned int posprec;
-    static bool double_buffer;
-
     void initTiles(QPixmap p, int h, int v, int tilewidth, int tileheight);
     void setTiles( QPixmap tiles, int h, int v, int tilewidth, int tileheight );
     ushort *grid;
@@ -236,6 +236,8 @@ private:
     QPixmap pm;
     QTimer* update_timer;
     QColor bgcolor;
+    bool debug_redraw_areas;
+    bool dblbuf;
 };
 
 class Q_EXPORT QCanvasView : public QScrollView
@@ -245,11 +247,12 @@ public:
     QCanvasView(QCanvas* viewing=0, QWidget* parent=0, const char* name=0, WFlags f=0);
     ~QCanvasView();
 
-    QCanvas* canvas() { return viewing; }
+    QCanvas* canvas() const { return viewing; }
     void setCanvas(QCanvas* v);
 
 protected:
     void drawContents( QPainter*, int cx, int cy, int cw, int ch );
+    QSize sizeHint() const;
 
 private:
     QCanvas* viewing;
@@ -369,6 +372,7 @@ private:
     QCanvasPixmapArray* images;
 };
 
+class QPolygonalProcessor;
 
 class Q_EXPORT QCanvasPolygonalItem : public QCanvasItem
 {
@@ -397,11 +401,9 @@ protected:
     void draw(class QPainter &);
     virtual void drawShape(class QPainter &) = 0;
 
-    void addToChunks();
-    void removeFromChunks();
-    void changeChunks();
-
 private:
+    void scanPolygon(const QPointArray& pa, int winding, QPolygonalProcessor& process) const;
+    QPointArray chunks() const;
 
     bool collidesWith(   const QCanvasSprite*,
 			 const QCanvasPolygonalItem*,
@@ -409,8 +411,6 @@ private:
 			 const QCanvasEllipse*,
 			 const QCanvasText* ) const;
 
-    QPointArray chunkify(int);
-    bool scan(const QRect&) const;
     QBrush brush;
     QPen pen;
 };

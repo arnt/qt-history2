@@ -5,6 +5,7 @@
 #include <qapplication.h>
 #include <qkeycode.h>
 #include <qpainter.h>
+#include <qlabel.h>
 
 #include "canvas.h"
 
@@ -123,7 +124,7 @@ void SpaceShip::advance(int stage)
 
 
 Main::Main() :
-    canvas(500,500)
+    canvas(800,800)
 {
     editor = new FigureEditor(canvas,this);
     QMenuBar* menu = menuBar();
@@ -135,11 +136,15 @@ Main::Main() :
     QPopupMenu* edit = new QPopupMenu;
     edit->insertItem("Add &Circle", this, SLOT(addCircle()), CTRL+Key_C);
     edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), CTRL+Key_H);
+    edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), CTRL+Key_P);
     edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), CTRL+Key_R);
     edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
     menu->insertItem("&Edit", edit);
 
-    QPopupMenu* options = new QPopupMenu;
+    options = new QPopupMenu;
+    sra_id = options->insertItem("Show redraw areas", this, SLOT(toggleRedraws()));
+    dbf_id = options->insertItem("Double buffer", this, SLOT(toggleDoubleBuffer()));
+    options->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Options",options);
 
     statusBar();
@@ -148,12 +153,27 @@ Main::Main() :
 
     canvas.setAdvancePeriod(30);
 
-    for (int test=0; test<10; test++) {
+    for (int test=0; test<20; test++) {
 	addCircle();
 	addHexagon();
+	addPolygon();
 	addRectangle();
 	addSprite();
     }
+}
+
+void Main::toggleRedraws()
+{
+    bool s = !options->isItemChecked(sra_id);
+    options->setItemChecked(sra_id,s);
+    canvas.setRedrawAreaDisplay(s);
+}
+
+void Main::toggleDoubleBuffer()
+{
+    bool s = !options->isItemChecked(dbf_id);
+    options->setItemChecked(dbf_id,s);
+    canvas.setDoubleBuffering(s);
 }
 
 void Main::addSprite()
@@ -174,13 +194,30 @@ void Main::addCircle()
 void Main::addHexagon()
 {
     QCanvasPolygon* i = new QCanvasPolygon;
+    const int size = 40;
     QPointArray pa(6);
-    pa[0] = QPoint(20,0);
-    pa[1] = QPoint(10,-17);
-    pa[2] = QPoint(-10,-17);
-    pa[3] = QPoint(-20,0);
-    pa[4] = QPoint(-10,17);
-    pa[5] = QPoint(10,17);
+    pa[0] = QPoint(2*size,0);
+    pa[1] = QPoint(size,-size*173/100);
+    pa[2] = QPoint(-size,-size*173/100);
+    pa[3] = QPoint(-2*size,0);
+    pa[4] = QPoint(-size,size*173/100);
+    pa[5] = QPoint(size,size*173/100);
+    i->setPoints(pa);
+    i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
+    i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
+}
+
+void Main::addPolygon()
+{
+    QCanvasPolygon* i = new QCanvasPolygon;
+    const int size = 400;
+    QPointArray pa(6);
+    pa[0] = QPoint(0,0);
+    pa[1] = QPoint(size,size/5);
+    pa[2] = QPoint(size*4/5,size);
+    pa[3] = QPoint(size/6,size*5/4);
+    pa[4] = QPoint(size*3/4,size*3/4);
+    pa[5] = QPoint(size*3/4,size/4);
     i->setPoints(pa);
     i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
     i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
@@ -189,7 +226,7 @@ void Main::addHexagon()
 void Main::addRectangle()
 {
     QCanvasPolygonalItem *i = new QCanvasRectangle( lrand48()%canvas.width(),lrand48()%canvas.height(),
-			    50,50);
+			    200,200);
     int z = lrand48()%256;
     //i->setBrush( QColor(lrand48()%32*8,z,lrand48()%32*8) );
     i->setBrush( QColor(z,z,z) );
@@ -199,6 +236,11 @@ void Main::addRectangle()
 int main(int argc, char** argv)
 {
     QApplication app(argc,argv);
+
+qDebug("sizeof(QCanvasPolygonalItem)=%d",sizeof(QCanvasPolygonalItem));
+qDebug("sizeof(QCanvasText)=%d",sizeof(QCanvasText));
+qDebug("sizeof(QWidget)=%d",sizeof(QWidget));
+qDebug("sizeof(QLabel)=%d",sizeof(QLabel));
 
     Main m;
     //m.resize(500,500);
