@@ -16,30 +16,72 @@
 
 #include <qglobal.h>
 
-extern "C" {
-
-    Q_CORE_EXPORT
-    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-
-    Q_CORE_EXPORT
-    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
-
 #define Q_HAVE_ATOMIC_INCDEC
-
-    Q_CORE_EXPORT
-    int q_atomic_increment(volatile int *ptr);
-
-    Q_CORE_EXPORT
-    int q_atomic_decrement(volatile int *ptr);
-
 #define Q_HAVE_ATOMIC_SET
 
-    Q_CORE_EXPORT
-    int q_atomic_set_int(volatile int *ptr, int newval);
+#if defined(_LP64)
 
-    Q_CORE_EXPORT
-    void *q_atomic_set_ptr(volatile void *ptr, void *newval);
+extern "C" {
+    Q_CORE_EXPORT int q_atomic_test_and_test_int(volatile int *ptr,
+                                                 int expected, int newval);
+    Q_CORE_EXPORT int q_atomic_test_and_test_ptr(volatile void *ptr,
+                                                 void *expected, void *newval);
+    Q_CORE_EXPORT int q_atomic_increment(volatile int *ptr);
+    Q_CORE_EXPORT int q_atomic_decrement(volatile int *ptr);
+    Q_CORE_EXPORT int q_atomic_set_int(volatile int *ptr, int newval);
+    Q_CORE_EXPORT void *q_atomic_set_ptr(volatile void *ptr, void *newval);
+}
 
+#else
+
+extern "C" {
+    Q_CORE_EXPORT int q_atomic_lock_int(volatile int *addr);
+    Q_CORE_EXPORT int q_atomic_lock_ptr(volatile void *addr);
+    Q_CORE_EXPORT void q_atomic_unlock(volatile void *addr, int value);
+
+    inline int q_atomic_test_and_set_int(volatile int *ptr,
+                                         int expected, int newval)
+    {
+        int val = q_atomic_lock_int(ptr);
+        if (val == expected) {
+            q_atomic_unlock(ptr, newval);
+            return 1;
+        }
+        q_atomic_unlock(ptr, val);
+        return 0; 
+    }
+
+    inline int q_atomic_test_and_set_ptr(volatile void *ptr,
+                                         void *expected, void *newval)
+    {
+        void *val = (void *) q_atomic_lock_ptr(ptr);
+        if (val == expected) {
+            q_atomic_unlock(ptr, (int) newval);
+            return 1;
+        }
+        q_atomic_unlock(ptr, (int) val);
+        return 0;
+    }
+
+    inline int q_atomic_increment(volatile int *ptr)
+    {
+        const int val = q_atomic_lock_int(ptr);
+        q_atomic_unlock(ptr, val + 1);
+        return val != -1;
+    }
+
+    inline int q_atomic_decrement(volatile int *ptr)
+    {
+        const int val = q_atomic_lock_int(ptr);
+        q_atomic_unlock(ptr, val - 1);
+        return val != 1;
+    }
+
+    Q_CORE_EXPORT int q_atomic_set_int(volatile int *ptr, int newval);
+    Q_CORE_EXPORT void *q_atomic_set_ptr(volatile void *ptr, void *newval);
 } // extern "C"
 
+#  endif // !_LP64
+
 #endif // SPARC_QATOMIC_H
+
