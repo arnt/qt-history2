@@ -202,7 +202,6 @@ public:
 
     QSize pageSize;
     bool pagedLayout;
-    mutable QTextBlock currentBlock;
 
     int blockTextFlags;
 #ifdef LAYOUT_DEBUG
@@ -522,7 +521,6 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
                                            QTextBlock bl) const
 {
 //     LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset;
-    currentBlock = bl;
     const QTextLayout *tl = bl.layout();
     QTextBlockFormat blockFormat = bl.blockFormat();
 
@@ -1207,7 +1205,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
-    currentBlock = bl;
 
     int flags = d->blockTextFlags | blockFormat.alignment();
     if (blockFormat.nonBreakableLines())
