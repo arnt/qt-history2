@@ -2150,9 +2150,11 @@ void Q3PopupMenu::keyPressEvent(QKeyEvent *e)
                                                            : Q4StyleOptionMenuItem::NotCheckable;
                             opt.menuItemType = Q4StyleOptionMenuItem::Normal;
                             opt.text = mi->text();
-                            QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, this,
-                                                                QSize(0, itemh),
-                                                                QStyleOption(mi,maxPMWidth,0));
+                            opt.tabWidth = 0;
+                            opt.maxIconWidth = maxPMWidth;
+                            QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt,
+                                                                QSize(0, itemh), fontMetrics(),
+                                                                this);
                             y += sz.height();
                             if(y > (contentsRect().height()-sh)) {
                                 if(sz.height() > sh || i < mitems->size()-1)
@@ -2266,8 +2268,11 @@ void Q3PopupMenu::subScrollTimer() {
             Q3MenuItem *mi = mitems->at(i);
             if(i >= d->scroll.topScrollableIndex) {
                 int itemh = itemHeight(mi);
-                QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, this, QSize(0, itemh),
-                                                    QStyleOption(mi, maxPMWidth, 0));
+                Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+                opt.tabWidth = 0;
+                opt.maxIconWidth = maxPMWidth;
+                QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt, QSize(0, itemh),
+                                                    fontMetrics(), this);
                 y += sz.height();
                 if(y > contentsRect().height() - sh) {
                     d->scroll.topScrollableIndex++;
@@ -2806,9 +2811,12 @@ Q3PopupMenu::updateScrollerState()
         Q3MenuItem *mi = mitems->at(row);
 
         int myheight = contentsRect().height();
-        QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, this,
-                                            QSize(0, itemHeight(mi)),
-                                            QStyleOption(mi,maxPMWidth));
+        Q4StyleOptionMenuItem opt = getStyleOption(this, mi);
+        opt.rect = rect();
+        opt.tabWidth = 0;
+        opt.maxIconWidth = maxPMWidth;
+        QSize sz = style().sizeFromContents(QStyle::CT_MenuItem, &opt, QSize(0, itemHeight(mi)),
+                                            fontMetrics(), this);
         if(y + sz.height() >= myheight) {
             d->scroll.scrollable = d->scroll.scrollable | Q3PopupMenuPrivate::Scroll::ScrollDown;
             break;

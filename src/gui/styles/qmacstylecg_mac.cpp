@@ -501,28 +501,6 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 }
 
 
-QRect QMacStyleCG::subRect(SubRect sr, const QWidget *widget) const
-{
-    QRect subrect;
-    switch (sr) {
-        case SR_PushButtonContents: {
-            CGRect inRect = CGRectMake(0, 0, widget->width(), widget->height());
-            CGRect outRect;
-            HIThemeButtonDrawInfo info;
-            info.version = qt_mac_hitheme_version;
-            info.state = kThemeStateActive;
-            info.kind = kThemePushButton;
-            info.adornment = kThemeAdornmentNone;
-            HIThemeGetButtonContentBounds(&inRect, &info, &outRect);
-            subrect = qrectForHIRect(outRect);
-            break;
-        }
-        default:
-            subrect = QWindowsStyle::subRect(sr, widget);
-    }
-    return subrect;
-}
-
 int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOption &opt,
                            QStyleHintReturn *d) const
 {
@@ -554,66 +532,6 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
         ret = QWindowsStyle::styleHint(sh, widget, opt, d);
     }
     return ret;
-}
-
-QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *widget,
-                                    const QSize &contentsSize, const QStyleOption &opt) const
-{
-    QSize sz = contentsSize;
-    switch (contents) {
-    case CT_SpinBox:
-        sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
-        break;
-    case CT_TabWidget:
-        sz.setWidth(sz.width() + 15); //leave a little bit of space around the tabs.
-        break;
-    case CT_TabBarTab: {
-        SInt32 tabh = sz.height();
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge: {
-            GetThemeMetric(kThemeLargeTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
-            tabh += overlap;
-            break; }
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
-                SInt32 overlap;
-                GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
-                tabh += overlap;
-                break;
-            }
-#endif
-        case QAquaSizeSmall: {
-            GetThemeMetric(kThemeSmallTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
-            tabh += overlap;
-            break; }
-        }
-        if(sz.height() > tabh)
-            sz.setHeight(tabh);
-        break; }
-    case CT_PushButton:
-        sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
-        sz = QSize(sz.width() + 16, sz.height()); // I don't know why.
-        break;
-    default:
-        sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
-    }
-    {
-        QSize macsz;
-        if(qt_aqua_size_constrain(widget, contents, sz, &macsz) != QAquaSizeUnknown) {
-            if(macsz.width() != -1)
-                sz.setWidth(macsz.width());
-            if(macsz.height() != -1)
-                sz.setHeight(macsz.height());
-        }
-    }
-    return sz;
 }
 
 QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
@@ -1722,6 +1640,42 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
 {
     QSize sz(csz);
     switch (ct) {
+    case CT_SpinBox:
+        sz.setWidth(sz.width() + macSpinBoxSep);
+        break;
+    case CT_TabWidget:
+        sz.setWidth(sz.width() + 15);
+        break;
+    case CT_TabBarTab: {
+        SInt32 tabh = sz.height();
+        switch (qt_aqua_size_constrain(widget)) {
+        case QAquaSizeUnknown:
+        case QAquaSizeLarge: {
+            GetThemeMetric(kThemeLargeTabHeight, &tabh);
+            SInt32 overlap;
+            GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
+            tabh += overlap;
+            break; }
+        case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
+                SInt32 overlap;
+                GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
+                tabh += overlap;
+                break;
+            }
+#endif
+        case QAquaSizeSmall: {
+            GetThemeMetric(kThemeSmallTabHeight, &tabh);
+            SInt32 overlap;
+            GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
+            tabh += overlap;
+            break; }
+        }
+        if(sz.height() > tabh)
+            sz.setHeight(tabh);
+        break; }
     case CT_PushButton:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
         sz = QSize(sz.width() + 16, sz.height());
@@ -1776,6 +1730,31 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
         if (macsz.height() != -1)
             sz.setHeight(macsz.height());
     }
+    /*
+    // Adjust size to within Aqua guidelines
+    if (ct == CT_PushButton || ct == CT_ToolButton) {
+        ThemeButtonKind bkind = kThemePushButton;
+        if (ct == CT_ToolButton)
+            bkind = kThemeBevelButton;
+        if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
+            if(bkind == kThemeBevelButton)
+                bkind = kThemeSmallBevelButton;
+        }
+        HIThemeButtonDrawInfo bdi;
+        bdi.version = qt_mac_hitheme_version;
+        bdi.state = kThemeStateActive;
+        bdi.kind = bkind;
+        bdi.value = kThemeButtonOff;
+        bdi.adornment = kThemeAdornmentNone;
+        HIRect macRect, myRect;
+        myRect = CGRectMake(0, 0, sz.width(), sz.height());
+        HIThemeGetButtonBackgroundBounds(&myRect, &bdi, &macRect);
+        sz.setWidth(sz.width() + int(myRect.origin.x - macRect.origin.x)
+                               + int(macRect.size.height - myRect.size.height));
+        sz.setHeight(sz.height() + int(myRect.origin.y - macRect.origin.y)
+                                 + int(macRect.size.height - myRect.size.height));
+    }
+    */
     return sz;
 }
 

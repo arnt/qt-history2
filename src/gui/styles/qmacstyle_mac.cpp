@@ -179,22 +179,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 }
 
 /*! \reimp */
-QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
-{
-    return correctStyle(w)->subRect(r, w);
-}
-
-/*! \reimp */
 int QMacStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &opt, QStyleHintReturn *d) const
 {
     return correctStyle(w)->styleHint(sh, w, opt, d);
-}
-
-/*! \reimp */
-QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
-                                       const QSize &contentsSize, const QStyleOption& opt) const
-{
-    return correctStyle(widget)->sizeFromContents(contents, widget, contentsSize, opt);
 }
 
 /*! \reimp */

@@ -25,6 +25,7 @@
 #endif // QT_NO_DIALOG
 #include <qlayout.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 #include <qmap.h>
 
 struct QDialogButtonsPrivate
@@ -396,7 +397,9 @@ QDialogButtons::layoutButtons()
         }
         if(w) {
             w->show();
-            w->setGeometry(style().subRect(rects[i], this));
+            Q4StyleOption opt(0);
+            opt.init(this);
+            w->setGeometry(style().subRect(rects[i], &opt, this));
         }
     }
 }
@@ -408,8 +411,9 @@ QDialogButtons::sizeHint() const
     QSize s;
     if(d->custom)
         s = d->custom->sizeHint();
-    return (style().sizeFromContents(QStyle::CT_DialogButtons, this, s.
-                                     expandedTo(QApplication::globalStrut())));
+    Q4StyleOption opt(0);
+    return style().sizeFromContents(QStyle::CT_DialogButtons, &opt, s, fontMetrics(), this).
+                                     expandedTo(QApplication::globalStrut());
 }
 
 QSize

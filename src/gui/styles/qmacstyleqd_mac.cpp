@@ -139,6 +139,67 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
     return qt_aqua_size_constrain(NULL);
 }
 
+static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *slider,
+                          const QPainter *p, ThemeTrackDrawInfo *tdi, const QWidget *needToRemove)
+{
+    memset(tdi, 0, sizeof(ThemeTrackDrawInfo));
+    tdi->filler1 = 0;
+    bool isScrollbar = (cc == QStyle::CC_ScrollBar);
+    switch (qt_aqua_size_constrain(needToRemove)) {
+    case QAquaSizeUnknown:
+    case QAquaSizeLarge:
+        if (isScrollbar)
+            tdi->kind = kThemeMediumScrollBar;
+        else
+            tdi->kind = kThemeMediumSlider;
+        break;
+    case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+            if (isScrollbar)
+                tdi->kind = kThemeMiniScrollBar;
+            else
+                tdi->kind = kThemeMiniSlider;
+            break;
+        }
+#endif
+    case QAquaSizeSmall:
+        if (isScrollbar)
+            tdi->kind = kThemeSmallScrollBar;
+        else
+            tdi->kind = kThemeSmallSlider;
+        break;
+    }
+    // Grr... this is dumb
+    if (!p) {
+        tdi->bounds = *qt_glb_mac_rect(slider->rect);
+    } else {
+        tdi->bounds = *qt_glb_mac_rect(slider->rect, p);
+    }
+    tdi->min = slider->minimum;
+    tdi->max = slider->maximum;
+    tdi->value = slider->sliderPosition;
+    tdi->attributes = kThemeTrackShowThumb;
+    if (slider->state & QStyle::Style_HasFocus)
+        tdi->attributes |= kThemeTrackHasFocus;
+    if (slider->orientation == Qt::Horizontal)
+        tdi->attributes |= kThemeTrackHorizontal;
+    if (slider->useRightToLeft)
+        tdi->attributes |= kThemeTrackRightToLeft;
+    tdi->enableState = slider->state & QStyle::Style_Enabled ? kThemeTrackActive
+                                                             : kThemeTrackDisabled;
+    if (!qAquaActive(slider->palette))
+        tdi->enableState = kThemeTrackDisabled;
+    if (!isScrollbar) {
+        if (slider->tickmarks == QSlider::NoMarks || slider->tickmarks == QSlider::Both)
+            tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
+        else if (slider->tickmarks == QSlider::Above)
+            tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
+        else
+            tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
+    }
+}
+
 //private
 class QMacStyleQDFocusWidget : public QAquaFocusWidget
 {
@@ -616,114 +677,6 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
     return ret;
 }
 
-QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
-{
-    QRect ret;
-    switch(r) {
-    case SR_DialogButtonAbort:
-    case SR_DialogButtonRetry:
-    case SR_DialogButtonIgnore:
-    case SR_DialogButtonApply:
-    case SR_DialogButtonAccept:
-    case SR_DialogButtonReject:
-    case SR_DialogButtonHelp:
-    case SR_DialogButtonAll:
-    case SR_DialogButtonCustom: {
-        QDialogButtons::Button srch = QDialogButtons::None;
-        if(r == SR_DialogButtonAccept)
-            srch = QDialogButtons::Accept;
-        else if(r == SR_DialogButtonReject)
-            srch = QDialogButtons::Reject;
-        else if(r == SR_DialogButtonAll)
-            srch = QDialogButtons::All;
-        else if(r == SR_DialogButtonApply)
-            srch = QDialogButtons::Apply;
-        else if(r == SR_DialogButtonHelp)
-            srch = QDialogButtons::Help;
-        else if(r == SR_DialogButtonRetry)
-            srch = QDialogButtons::Retry;
-        else if(r == SR_DialogButtonIgnore)
-            srch = QDialogButtons::Ignore;
-        else if(r == SR_DialogButtonAbort)
-            srch = QDialogButtons::Abort;
-
-        const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, w),
-                 bheight = pixelMetric(PM_DialogButtonsButtonHeight, w),
-                  bspace = pixelMetric(PM_DialogButtonsSeparator, w),
-                      fw = pixelMetric(PM_DefaultFrameWidth, w);
-        QRect wrect = w->rect();
-        const QDialogButtons *dbtns = (const QDialogButtons *) w;
-        int start = fw;
-        if(dbtns->orientation() == Qt::Horizontal)
-            start = wrect.right() - fw;
-        for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
-            if(dbtns->isButtonVisible(macBtnOrder[i])) {
-                QSize szH = dbtns->sizeHint(macBtnOrder[i]);
-                int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
-                if(dbtns->orientation() == Qt::Horizontal) {
-                    start -= mwidth;
-                    if(cnt)
-                        start -= bspace;
-                } else if(cnt) {
-                    start += mheight;
-                    start += bspace;
-                }
-                cnt++;
-                if(macBtnOrder[i] == srch) {
-                    if(dbtns->orientation() == Qt::Horizontal)
-                        ret = QRect(start, wrect.bottom() - fw - mheight, mwidth, mheight);
-                    else
-                        ret = QRect(fw, start, mwidth, mheight);
-                }
-            }
-            if(cnt == 2 && macBtnOrder[i] == QDialogButtons::Accept) { //yuck, but I need to put some extra space in there now..
-                if(dbtns->orientation() == Qt::Horizontal)
-                    start -= 20;
-                else
-                    start += 20;
-            }
-        }
-        int help_width = 0, help_height = 0;
-        if(dbtns->isButtonVisible(QDialogButtons::Help)) {
-            if(dbtns->buttonText(QDialogButtons::Help) == "?") {
-                help_width = 35;
-                help_height = bheight;
-            } else {
-                QSize szH = dbtns->sizeHint(QDialogButtons::Help);
-                help_width = szH.width();
-                help_height = szH.height();
-            }
-        }
-        if(r == SR_DialogButtonCustom) {
-            if(dbtns->orientation() == Qt::Horizontal)
-                ret = QRect(fw + help_width, fw, start - help_width - (fw*2) - bspace, wrect.height() - (fw*2));
-            else
-                ret = QRect(fw, start, wrect.width() - (fw*2), wrect.height() - help_height - start - (fw*2));
-        } else if(r == SR_DialogButtonHelp && !dbtns->buttonText(QDialogButtons::Help).isNull()) {
-            ret = QRect(fw, wrect.height() - help_height - fw, help_width, help_height);
-        }
-        break; }
-    case SR_PushButtonContents: {
-        Rect macRect, myRect;
-        SetRect(&myRect, 0, 0, w->width(), w->height());
-        ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
-        GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
-        ret = QRect(macRect.left, macRect.top, qMin(w->width()-(macRect.left*2), macRect.right-macRect.left),
-                    qMin(w->height()-(2*macRect.top), macRect.bottom-macRect.top));
-        break; }
-    case SR_ProgressBarLabel:
-    case SR_ProgressBarGroove:
-        break;
-    case SR_ProgressBarContents:
-        ret = w->rect();
-        break;
-    default:
-        ret = QWindowsStyle::subRect(r, w);
-        break;
-    }
-    return ret;
-}
-
 int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
                           const QStyleOption &opt,QStyleHintReturn *d) const
 {
@@ -806,137 +759,6 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
         break;
     }
     return ret;
-}
-
-QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget,
-                                       const QSize &contentsSize, const QStyleOption& opt) const
-{
-    QSize sz(contentsSize);
-    switch(contents) {
-    case CT_DialogButtons: {
-        const QDialogButtons *dbtns = (const QDialogButtons *)widget;
-        int w = contentsSize.width(), h = contentsSize.height();
-        const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget),
-                  bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
-                 bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget);
-        if(dbtns->orientation() == Qt::Horizontal) {
-            if(!w)
-                w = bwidth;
-        } else {
-            if(!h)
-                h = bheight;
-        }
-        for(unsigned int i = 0, cnt = 0; i < (sizeof(macBtnOrder)/sizeof(macBtnOrder[0])); i++) {
-            if(dbtns->isButtonVisible(macBtnOrder[i])) {
-                QSize szH = dbtns->sizeHint(macBtnOrder[i]);
-                int mwidth = qMax(bwidth, szH.width()), mheight = qMax(bheight, szH.height());
-                if(dbtns->orientation() == Qt::Horizontal)
-                    h = qMax(h, mheight);
-                else
-                    w = qMax(w, mwidth);
-
-                if(cnt)
-                    w += bspace;
-                cnt++;
-                if(dbtns->orientation() == Qt::Horizontal)
-                    w += mwidth;
-                else
-                    h += mheight;
-                if(cnt == 2 && macBtnOrder[i] == QDialogButtons::Accept) { //yuck, but I need to put some extra space in there now..
-                    if(dbtns->orientation() == Qt::Horizontal)
-                        w += 20;
-                    else
-                        h += 20;
-                }
-            }
-        }
-        if(dbtns->isButtonVisible(QDialogButtons::Help)) {
-            if(dbtns->buttonText(QDialogButtons::Help) == "?") {
-                if(dbtns->orientation() == Qt::Horizontal)
-                    w += 35;
-            } else {
-                QSize szH = dbtns->sizeHint(QDialogButtons::Help);
-                if(dbtns->orientation() == Qt::Horizontal)
-                    w += qMax(bwidth, szH.width());
-                else
-                    h += qMax(bheight, szH.height());
-            }
-        }
-        const int fw = pixelMetric(PM_DefaultFrameWidth, widget) * 2;
-        sz = QSize(w + fw, h + fw);
-        break; }
-    case CT_SpinBox:
-        sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
-        break;
-    case CT_TabWidget:
-        sz.setWidth(sz.width() + 15); //leave a little bit of space around the tabs.. ###
-        break;
-    case CT_TabBarTab: {
-        SInt32 tabh = sz.height();
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge: {
-            GetThemeMetric(kThemeLargeTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
-            tabh += overlap;
-            break; }
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
-                SInt32 overlap;
-                GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
-                tabh += overlap;
-                break;
-            }
-#endif
-        case QAquaSizeSmall: {
-            GetThemeMetric(kThemeSmallTabHeight, &tabh);
-            SInt32 overlap;
-            GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
-            tabh += overlap;
-            break; }
-        }
-        if(sz.height() > tabh)
-            sz.setHeight(tabh);
-        break; }
-    case CT_PushButton:
-        sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
-        sz = QSize(sz.width() + 16, sz.height()); //##
-        break;
-    default:
-        sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
-        break;
-    }
-    {
-        QSize macsz;
-        if(qt_aqua_size_constrain(widget, contents, sz, &macsz) != QAquaSizeUnknown) {
-            if(macsz.width() != -1)
-                sz.setWidth(macsz.width());
-            if(macsz.height() != -1)
-                sz.setHeight(macsz.height());
-        }
-        //I hate to do this, but it seems to be needed
-        if(contents == CT_PushButton || contents == CT_ToolButton) {
-            ThemeButtonKind bkind = kThemePushButton;
-            if(contents == CT_ToolButton)
-                bkind = kThemeBevelButton;
-            if(qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
-                if(bkind == kThemeBevelButton)
-                    bkind = kThemeSmallBevelButton;
-            }
-            ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
-            Rect macRect, myRect;
-            SetRect(&myRect,0, 0, sz.width(), sz.height());
-            GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-            sz.setWidth(sz.width() +
-                        (myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
-            sz.setHeight(sz.height() +
-                         (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
-        }
-    }
-    return sz;
 }
 
 QPixmap QMacStyleQD::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
@@ -1620,67 +1442,6 @@ QRect QMacStyleQD::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *
     return r;
 }
 
-static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *slider,
-                          const QPainter *p, ThemeTrackDrawInfo *tdi, const QWidget *needToRemove)
-{
-    memset(tdi, 0, sizeof(ThemeTrackDrawInfo));
-    tdi->filler1 = 0;
-    bool isScrollbar = (cc == QStyle::CC_ScrollBar);
-    switch (qt_aqua_size_constrain(needToRemove)) {
-    case QAquaSizeUnknown:
-    case QAquaSizeLarge:
-        if (isScrollbar)
-            tdi->kind = kThemeMediumScrollBar;
-        else
-            tdi->kind = kThemeMediumSlider;
-        break;
-    case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-            if (isScrollbar)
-                tdi->kind = kThemeMiniScrollBar;
-            else
-                tdi->kind = kThemeMiniSlider;
-            break;
-        }
-#endif
-    case QAquaSizeSmall:
-        if (isScrollbar)
-            tdi->kind = kThemeSmallScrollBar;
-        else
-            tdi->kind = kThemeSmallSlider;
-        break;
-    }
-    // Grr... this is dumb
-    if (!p) {
-        tdi->bounds = *qt_glb_mac_rect(slider->rect);
-    } else {
-        tdi->bounds = *qt_glb_mac_rect(slider->rect, p);
-    }
-    tdi->min = slider->minimum;
-    tdi->max = slider->maximum;
-    tdi->value = slider->sliderPosition;
-    tdi->attributes = kThemeTrackShowThumb;
-    if (slider->state & QStyle::Style_HasFocus)
-        tdi->attributes |= kThemeTrackHasFocus;
-    if (slider->orientation == Qt::Horizontal)
-        tdi->attributes |= kThemeTrackHorizontal;
-    if (slider->useRightToLeft)
-        tdi->attributes |= kThemeTrackRightToLeft;
-    tdi->enableState = slider->state & QStyle::Style_Enabled ? kThemeTrackActive
-                                                             : kThemeTrackDisabled;
-    if (!qAquaActive(slider->palette))
-        tdi->enableState = kThemeTrackDisabled;
-    if (!isScrollbar) {
-        if (slider->tickmarks == QSlider::NoMarks || slider->tickmarks == QSlider::Both)
-            tdi->trackInfo.slider.thumbDir = kThemeThumbPlain;
-        else if (slider->tickmarks == QSlider::Above)
-            tdi->trackInfo.slider.thumbDir = kThemeThumbUpward;
-        else
-            tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
-    }
-}
-
 void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
                                      QPainter *p, const QWidget *widget) const
 {
@@ -2279,6 +2040,42 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
 {
     QSize sz(csz);
     switch (ct) {
+    case CT_SpinBox:
+        sz.setWidth(sz.width() + macSpinBoxSep);
+        break;
+    case CT_TabWidget:
+        sz.setWidth(sz.width() + 15);
+        break;
+    case CT_TabBarTab: {
+        SInt32 tabh = sz.height();
+        switch (qt_aqua_size_constrain(widget)) {
+        case QAquaSizeUnknown:
+        case QAquaSizeLarge: {
+            GetThemeMetric(kThemeLargeTabHeight, &tabh);
+            SInt32 overlap;
+            GetThemeMetric(kThemeMetricTabFrameOverlap, &overlap);
+            tabh += overlap;
+            break; }
+        case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                GetThemeMetric(kThemeMetricMiniTabHeight, &tabh);
+                SInt32 overlap;
+                GetThemeMetric(kThemeMetricMiniTabFrameOverlap, &overlap);
+                tabh += overlap;
+                break;
+            }
+#endif
+        case QAquaSizeSmall: {
+            GetThemeMetric(kThemeSmallTabHeight, &tabh);
+            SInt32 overlap;
+            GetThemeMetric(kThemeMetricSmallTabFrameOverlap, &overlap);
+            tabh += overlap;
+            break; }
+        }
+        if(sz.height() > tabh)
+            sz.setHeight(tabh);
+        break; }
     case CT_PushButton:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, fm, widget);
         sz = QSize(sz.width() + 16, sz.height()); // No idea why, but it was in the old style.
@@ -2333,11 +2130,11 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
             sz.setHeight(macsz.height());
     }
     // Adjust size to within Aqua guidelines
-    if(ct == CT_PushButton || ct == CT_ToolButton) {
+    if (ct == CT_PushButton || ct == CT_ToolButton) {
         ThemeButtonKind bkind = kThemePushButton;
-        if(ct == CT_ToolButton)
+        if (ct == CT_ToolButton)
             bkind = kThemeBevelButton;
-        if(qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
+        if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
             if(bkind == kThemeBevelButton)
                 bkind = kThemeSmallBevelButton;
         }
@@ -2345,10 +2142,8 @@ QSize QMacStyleQD::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, c
         Rect macRect, myRect;
         SetRect(&myRect, 0, 0, sz.width(), sz.height());
         GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
-        sz.setWidth(sz.width() +
-                (myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
-        sz.setHeight(sz.height() +
-                (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
+        sz.setWidth(sz.width() + (myRect.left - macRect.left) + (macRect.bottom - myRect.bottom));
+        sz.setHeight(sz.height() + (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
     }
     return sz;
 }

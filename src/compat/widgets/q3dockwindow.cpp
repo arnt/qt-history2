@@ -84,8 +84,17 @@ Q3DockWindowResizeHandle::Q3DockWindowResizeHandle(Qt::Orientation o, QWidget *p
 QSize Q3DockWindowResizeHandle::sizeHint() const
 {
     int sw = 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3;
-    return (style().sizeFromContents(QStyle::CT_DockWindow, this, QSize(sw, sw)).
-            expandedTo(QApplication::globalStrut()));
+
+    Q4StyleOptionDockWindow opt(0);
+    opt.init(this);
+    if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
+        opt.state |= QStyle::Style_Horizontal;
+
+    opt.rect = rect();
+    opt.docked = dockWindow->area();
+    opt.isCloseEnabled = dockWindow->isCloseEnabled();
+    return (style().sizeFromContents(QStyle::CT_DockWindow, &opt, QSize(sw, sw), fontMetrics(),
+            this).expandedTo(QApplication::globalStrut()));
 }
 
 void Q3DockWindowResizeHandle::setOrientation(Qt::Orientation o)

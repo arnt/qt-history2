@@ -352,91 +352,6 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     return ret;
 }
 
-
-/*!
-  \reimp
-*/
-QSize QWindowsStyle::sizeFromContents(ContentsType contents,
-                                       const QWidget *widget,
-                                       const QSize &contentsSize,
-                                       const QStyleOption& opt) const
-{
-    QSize sz(contentsSize);
-
-    switch (contents) {
-    case CT_PushButton:
-        {
-#ifndef QT_NO_PUSHBUTTON
-            const QPushButton *button = (const QPushButton *) widget;
-            sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
-            int w = sz.width(), h = sz.height();
-
-            int defwidth = 0;
-            if (button->isDefault() || button->autoDefault())
-                defwidth = 2*pixelMetric(PM_ButtonDefaultIndicator, widget);
-
-            if (w < 80+defwidth)
-                w = 80+defwidth;
-            if (h < 23+defwidth)
-                h = 23+defwidth;
-
-            sz = QSize(w, h);
-#endif
-            break;
-        }
-
-    case CT_MenuBarItem: {
-        if(!sz.isEmpty())
-            sz = QSize(sz.width()+(windowsItemVMargin*2), sz.height()+(windowsItemHMargin*2));
-        break; }
-
-    case CT_MenuItem:
-        {
-#ifndef QT_NO_MENU
-            if (opt.isDefault())
-                break;
-
-            const QMenu *menu = (const QMenu *) widget;
-            bool checkable = menu->isCheckable();
-            QAction *act = opt.action();
-            int maxpmw = opt.maxIconWidth();
-            int w = sz.width(), h = sz.height();
-
-            if (act->isSeparator()) {
-                w = 10;
-                h = 2;
-            } else {
-                h = qMax(h, menu->fontMetrics().height() + 8);
-                if(!act->icon().isNull())
-                    h = qMax(h,act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 2*windowsItemFrame);
-            }
-
-            if (!act->text().isNull()) {
-                if (act->text().contains('\t'))
-                    w += 12;
-            }
-
-            if (maxpmw)
-                w += maxpmw + 6;
-            if (checkable && maxpmw < 20)
-                w += 20 - maxpmw;
-            if (checkable || maxpmw > 0)
-                w += 2;
-            w += 12;
-
-            sz = QSize(w, h);
-#endif
-            break;
-        }
-
-    default:
-        sz = QCommonStyle::sizeFromContents(contents, widget, sz, opt);
-        break;
-    }
-
-    return sz;
-}
-
 #ifndef QT_NO_IMAGEIO_XPM
 
 static const char * const qt_close_xpm[] = {
@@ -853,20 +768,6 @@ int QWindowsStyle::styleHint(StyleHint hint,
     }
 
     return ret;
-}
-
-/*! \reimp */
-QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
-{
-    QRect rect;
-
-    switch (r) {
-    default:
-        rect = QCommonStyle::subRect(r, widget);
-        break;
-    }
-
-    return rect;
 }
 
 /*! \reimp */

@@ -59,15 +59,8 @@ public:
 
 
 
-    virtual QRect subRect(SubRect, const QWidget *w) const;
-
     virtual int styleHint(StyleHint sh, const QWidget *, const QStyleOption &,
                           QStyleHintReturn *) const;
-
-    QSize sizeFromContents(ContentsType contents,
-                            const QWidget *w,
-                            const QSize &contentsSize,
-                            const QStyleOption& = QStyleOption::Default) const;
 
     enum FocusRectPolicy { FocusEnabled, FocusDisabled, FocusDefault };
     static void setFocusRectPolicy(QWidget *w, FocusRectPolicy policy);

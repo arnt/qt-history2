@@ -352,8 +352,6 @@ public:
         SR_CustomBase =                0xf0000000
     };
 
-    virtual QRect subRect(SubRect r, const QWidget *widget) const = 0;
-    // Qt 4...
     virtual QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const = 0;
 
 
@@ -529,12 +527,6 @@ public:
         CT_CustomBase =                0xf0000000
     };
 
-    virtual QSize sizeFromContents(ContentsType contents,
-                                    const QWidget *widget,
-                                    const QSize &contentsSize,
-                                    const QStyleOption& = QStyleOption::Default) const = 0;
-
-    // Qt 4
     virtual QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                                    const QFontMetrics &fm, const QWidget *w = 0) const = 0;
 

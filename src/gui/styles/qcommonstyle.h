@@ -48,20 +48,7 @@ public:
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 
-    QRect subRect(SubRect r, const QWidget *widget) const;
-
-    void drawComplexControlMask(ComplexControl control,
-                                 QPainter *p,
-                                 const QWidget *widget,
-                                 const QRect &r,
-                                 const QStyleOption& = QStyleOption::Default) const;
-
     int pixelMetric(PixelMetric m, const QWidget *widget = 0) const;
-
-    QSize sizeFromContents(ContentsType s,
-                            const QWidget *widget,
-                            const QSize &contentsSize,
-                            const QStyleOption& = QStyleOption::Default) const;
 
     int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const;
 

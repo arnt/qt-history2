@@ -56,20 +56,12 @@ public:
     int pixelMetric(PixelMetric metric,
                      const QWidget *widget = 0) const;
 
-    QSize sizeFromContents(ContentsType contents,
-                            const QWidget *widget,
-                            const QSize &contentsSize,
-                            const QStyleOption& = QStyleOption::Default) const;
-
     int styleHint(StyleHint sh, const QWidget *, const QStyleOption & = QStyleOption::Default,
                   QStyleHintReturn* = 0) const;
 
     QPixmap stylePixmap(StylePixmap stylepixmap,
                          const QWidget *widget = 0,
                          const QStyleOption& = QStyleOption::Default) const;
-
-    QRect subRect(SubRect r, const QWidget *widget) const;
-
 
 private:
     class Private;
