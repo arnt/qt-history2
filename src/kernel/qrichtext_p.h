@@ -357,6 +357,7 @@ public:
     bool hasSelection( int id ) const;
     void setSelectionStart( int id, QTextCursor *cursor );
     bool setSelectionEnd( int id, QTextCursor *cursor );
+    void selectAll( int id );
     bool removeSelection( int id );
     void selectionStart( int id, int &paragId, int &index );
     void selectionEnd( int id, int &paragId, int &index );

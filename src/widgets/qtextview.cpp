@@ -1858,11 +1858,11 @@ void QTextView::startDrag()
 
 void QTextView::selectAll( bool select )
 {
-    // ############## Implement that!!!
-    if ( !select ) {
+    if ( !select )
 	doc->removeSelection( QTextDocument::Standard );
-	repaintChanged();
-    }
+    else
+	doc->selectAll( QTextDocument::Standard );
+    repaintChanged();
     emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     emit selectionChanged();
 }

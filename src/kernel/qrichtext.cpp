@@ -165,7 +165,7 @@ QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
     } else {
 	s->remove( index, len );
     }
-    
+
     if ( c ) {
 	c->setParag( s );
 	c->setIndex( index );
@@ -1529,6 +1529,18 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
     }
 
     return TRUE;
+}
+
+void QTextDocument::selectAll( int id )
+{
+    removeSelection( id );
+    QTextCursor c( this );
+    c.setParag( fParag );
+    c.setIndex( 0 );
+    setSelectionStart( id, &c );
+    c.setParag( lParag );
+    c.setIndex( lParag->length() - 1 );
+    setSelectionEnd( id, &c );
 }
 
 bool QTextDocument::removeSelection( int id )
