@@ -31,7 +31,7 @@
 #include "qvaluelist.h"
 #endif // QT_H
 
-class QMetaProperty;
+struct QMetaProperty;
 
 class Q_EXPORT QPropertyInfo
 {
