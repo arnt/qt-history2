@@ -42,7 +42,7 @@ public:
     inline Q3ValueListConstIterator<T>(const Q3ValueListConstIterator &o) :
         QLinkedList<T>::const_iterator(o) {}
     inline Q3ValueListConstIterator<T>(const typename QLinkedList<T>::const_iterator &o) :
-        QLinkedList<T>::const_iterator(o) {}
+        QLinkedList<T>::const_iterator(O) {}
     inline Q3ValueListConstIterator<T>(const typename QLinkedList<T>::iterator &o) :
         QLinkedList<T>::const_iterator(o) {}
 };
@@ -64,6 +64,8 @@ public:
 
     typedef Q3ValueListIterator<T> Iterator;
     typedef Q3ValueListConstIterator<T> ConstIterator;
+    typedef Q3ValueListIterator<T> iterator;
+    typedef Q3ValueListConstIterator<T> const_iterator;
     typedef typename QLinkedList<T>::size_type size_type;
 
     /**
