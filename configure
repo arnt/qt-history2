@@ -1505,27 +1505,6 @@ if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]; then
     exit 2
 fi
 
-# determine the system architecture
-case "$UNAME_MACHINE" in
-i?86)
-    ARCH=i386
-    ;;
-sun4u)
-    ARCH=sparc64
-    ;;
-sun4[cdm])
-    ARCH=sparc
-    ;;
-Power?Macintosh)
-    ARCH=powerpc
-    ;;
-esac
-test -d "$relpath/arch/$ARCH" || ARCH="generic"
-
-# symlink the arch/$ARCH/arch/ include directory to include/arch/
-rm -f "$outpath/include/arch"
-ln -s "$relpath/arch/$ARCH/arch" "$outpath/include/arch"
-
 # now look at the configs and figure out what platform we are config'd for
 [ '!' -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
 ### echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
@@ -1561,6 +1540,72 @@ if [ $AUTOTHREAD = never ]; then
     AUTOTHREAD=no
 fi
 [ "$CFG_THREAD" = "auto" ] && CFG_THREAD=$AUTOTHREAD
+
+#-------------------------------------------------------------------------------
+# determine the system architecture
+#-------------------------------------------------------------------------------
+if [ "$OPT_VERBOSE" = "yes" ]; then
+    echo "Determining system architecture... ($UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE)"
+fi
+
+case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
+SunOS:5*:sun4*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    Solaris on Sun hardware..."
+    fi
+    case "$XPLATFORM" in
+    solaris-*-64)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    64-bit SPARC V9 (sparc64)"
+	fi
+	ARCH=sparc64
+	;;
+    *)
+	if [ "$OPT_VERBOSE" = "yes" ]; then
+	    echo "    32-bit SPARC V7 (sparc)"
+	fi
+	ARCH=sparc
+	;;
+    esac
+    ;;
+Darwin:*:Power?Macintosh)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit Apple PowerPC (powerpc)"
+    fi
+    ARCH=powerpc
+    ;;
+*:*:i?86)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit Intel 80x86 (i386)"
+    fi
+    ARCH=i386
+    ;;
+*:*:*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    Trying '$UNAME_MACHINE'..."
+    fi
+    ARCH="$UNAME_MACHINE"
+    ;;
+esac
+
+if [ -d "$relpath/arch/$ARCH" ]; then
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    '$ARCH' is supported"
+    fi
+else
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    '$ARCH' is supported, using 'generic'"
+    fi
+    ARCH="generic"
+fi
+
+if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "System architecture: '$ARCH'"
+fi
+
+# symlink the arch/$ARCH/arch/ include directory to include/arch/
+rm -f "$outpath/include/arch"
+ln -s "$relpath/arch/$ARCH/arch" "$outpath/include/arch"
 
 #-------------------------------------------------------------------------------
 # tests that don't need qmake (must be run before displaying help)
@@ -3168,6 +3213,7 @@ else
     echo "Building on:   $PLATFORM"
     echo "Building for:  $XPLATFORM"
 fi
+echo "Architecture:  $ARCH"
 
 if [ -n "$PLATFORM_NOTES" ]; then
     echo "Platform notes:"
