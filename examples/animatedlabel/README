@@ -1,6 +1,0 @@
-This example shows how to use the Async Image I/O classes for a simple
-animated label. While a similar result can be achieved by using
-QLabel::setMovie(), this example is more efficient since it stores
-all animation frames and uses the most efficient painting methods.
-It also has the advantage that it can function reasonably without
-an event loop, thus it can be used for "busy" feedback.

@@ -1,7 +1,0 @@
-This example contains a quick port of mpeg_play 2.1 to Qt. See
-README-mp21 for the original README file for mpeg_play.
-
-The kiosk will list all mpeg files in the current directory. This
-distribution only contains one very small mpeg file (fire.mpg).
-
-Some interesting animations may be found at http://www.irtc.org/anims/
