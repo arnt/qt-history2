@@ -2573,10 +2573,8 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
     line2->hide();
     bool hasCached = resizedSection != -1;
     setCaching( FALSE );
-    if ( hasCached ) {
-	table->repaintContents( table->contentsX(), table->contentsY(), table->visibleWidth(), table->visibleHeight(), FALSE );
+    if ( hasCached )
 	emit sectionSizeChanged( resizedSection );
-    }
 }
 
 void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
