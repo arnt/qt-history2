@@ -25,6 +25,7 @@
 
 #include <qcstring.h>
 #include <qstring.h>
+#include <qmap.h>
 
 /*********************************************************************
  *

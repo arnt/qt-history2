@@ -21,158 +21,149 @@
 #ifndef QWSCOMMAND_H
 #define QWSCOMMAND_H
 
-#include <qmap.h>
-
-class QWSCommand;
-class QWSServer;
-class QWSClient;
-
-class QWSCommandFactoryBase
-{
-public:
-   virtual QWSCommand *createCommand( QWSServer *server, QWSClient *client ) = 0;
-
-};
-
-template< class Command >
-class QWSCommandFactory : public QWSCommandFactoryBase
-{
-public:
-    QWSCommand *createCommand( QWSServer *server, QWSClient *client ) {
-	return new Command( server, client );
-    }
-
-};
-
-typedef QMap< int, QWSCommandFactoryBase* > QWSCommandDict;
-extern QWSCommandDict *qwsCommandRegister;
-
-void qwsRegisterCommands();
+#include "qwsutils.h"
 
 /*********************************************************************
  *
- * Class: QWSCommand
+ * Functions to read/write commands on/from a socket
  *
  *********************************************************************/
 
-class QWSCommand
+static void qws_write_command( QSocket *socket, int type, 
+			       char *simpleData, int simpleLen, char *rawData, int rawLen )
 {
-public:
+    qws_write_uint( socket, type );
+    qws_write_uint( socket, rawLen == -1 ? 0 : rawLen );
+    if ( simpleData && simpleLen )
+	socket->writeBlock( simpleData, simpleLen );
+    if ( rawLen && rawData )
+	socket->writeBlock( rawData, rawLen );
+}
+
+static bool qws_read_command( QSocket *socket, char *simpleData, int &simpleLen,
+			      char *&rawData, int &rawLen,
+			      int &bytesRead )
+{
+    if ( rawLen == -1 ) {
+	if ( (uint)socket->bytesAvailable() < sizeof( rawLen ) )
+	    return FALSE;
+	rawLen = qws_read_uint( socket );
+    }
+
+    if ( !bytesRead ) {
+	if ( simpleLen ) {
+	    if ( socket->bytesAvailable() < simpleLen )
+		return FALSE;
+	    bytesRead = socket->readBlock( simpleData, simpleLen );
+	} else
+	    bytesRead = 1; // hack!
+    }
+	
+    if ( bytesRead ) {
+	if ( !rawLen )
+	    return TRUE;
+	if ( socket->bytesAvailable() < rawLen )
+	    return FALSE;
+	rawData = new char[ rawLen ];
+	bytesRead += socket->readBlock( rawData, rawLen );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+/*********************************************************************
+ *
+ * QWSCommand base class - only use derived classes from that
+ *
+ *********************************************************************/
+
+struct QWSCommand 
+{
+    // ctor - dtor
+    QWSCommand( int t, int len, char *ptr ) : type( t ),
+	simpleLen( len ), rawLen( -1 ), rawData( 0 ), 
+	simpleDataPtr( ptr ), bytesRead( 0 ) {}
+    ~QWSCommand() { delete rawData; }
+
     enum Type {
 	Unknown = 0,
-	Create, Destroy,
+	Create, 
+	Destroy,
 	Region,
 	SetProperty,
 	AddProperty,
 	RemoveProperty
     };
-    
-    QWSCommand( QWSServer *s, QWSClient *c );
-    virtual ~QWSCommand();
 
-    virtual Type type() { return Unknown; }
-    
-    virtual void readData();
-    virtual void execute();
-
-    static void registerCommand( Type cmd, QWSCommandFactoryBase *commandFactory );
-    static QWSCommand *getCommand( Type cmd, QWSServer *server, QWSClient *c );
-
-protected:
-    QWSServer *server;
-    QWSClient *client;
-
-};
-
-/*********************************************************************
- *
- * Class: QWSCreateCommand
- *
- *********************************************************************/
-
-struct QWSCreate {
+    // data
     int type;
-};
-
-class QWSCreateCommand : public QWSCommand
-{
-public:
-    QWSCreateCommand( QWSServer *s, QWSClient *c );
-    virtual ~QWSCreateCommand();
-
-    virtual Type type() { return Create; }
-
-    virtual void readData();
-    virtual void execute();
-
-private:
-    QWSCreate command;
-};
-
-/*********************************************************************
- *
- * Class: QWSSetPropertyCommand
- *
- *********************************************************************/
-
-class QWSSetPropertyCommand : public QWSCommand
-{
-public:
-    QWSSetPropertyCommand( QWSServer *s, QWSClient *c );
-    virtual ~QWSSetPropertyCommand();
-
-    virtual Type type() { return SetProperty; }
-
-    virtual void readData();
-    virtual void execute();
-
-private:
-    int winId, property, mode;
-    QByteArray data;
+    int simpleLen;
+    int rawLen;
+    char *rawData;
+    
+    // functions
+    void write( QSocket *s ) {
+	qws_write_command( s, type, simpleDataPtr, simpleLen, rawData, rawLen );
+    }
+    bool read( QSocket *s ) {
+	bool b = qws_read_command( s, simpleDataPtr, simpleLen,
+				 rawData, rawLen, bytesRead );
+	return b;
+    }
+	    
+    // temp variables
+    char *simpleDataPtr;
+    int bytesRead;
 
 };
 
 /*********************************************************************
  *
- * Class: QWSAddPropertyCommand
+ * Commands
  *
  *********************************************************************/
 
-class QWSAddPropertyCommand : public QWSCommand
+struct QWSCreateCommand : public QWSCommand
 {
-public:
-    QWSAddPropertyCommand( QWSServer *s, QWSClient *c );
-    virtual ~QWSAddPropertyCommand();
+    QWSCreateCommand() : 
+	QWSCommand( QWSCommand::Create, sizeof( simpleData ), (char*)&simpleData ) {} 
 
-    virtual Type type() { return AddProperty; }
-
-    virtual void readData();
-    virtual void execute();
-
-private:
-    int winId, property;
-
+    struct SimpleData {
+    } simpleData;
+    
 };
 
-/*********************************************************************
- *
- * Class: QWSRemovePropertyCommand
- *
- *********************************************************************/
-
-class QWSRemovePropertyCommand : public QWSCommand
+struct QWSAddPropertyCommand : public QWSCommand
 {
-public:
-    QWSRemovePropertyCommand( QWSServer *s, QWSClient *c );
-    virtual ~QWSRemovePropertyCommand();
+    QWSAddPropertyCommand() : 
+	QWSCommand( QWSCommand::AddProperty, sizeof( simpleData ), (char*)&simpleData ) {} 
 
-    virtual Type type() { return RemoveProperty; }
+    struct SimpleData {
+	int winId, property;
+    } simpleData;
+    
+};
 
-    virtual void readData();
-    virtual void execute();
+struct QWSSetPropertyCommand : public QWSCommand
+{
+    QWSSetPropertyCommand() : 
+	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ), (char*)&simpleData ) {} 
 
-private:
-    int winId, property;
+    struct SimpleData {
+	int winId, property, mode;
+    } simpleData;
+    
+};
+
+struct QWSRemovePropertyCommand : public QWSCommand
+{
+    QWSRemovePropertyCommand() : 
+	QWSCommand( QWSCommand::RemoveProperty, sizeof( simpleData ), (char*)&simpleData ) {} 
+
+    struct SimpleData {
+	int winId, property;
+    } simpleData;
+    
 };
 
 #endif

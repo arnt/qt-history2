@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#5 $
+** $Id: //depot/qt/main/util/qws/qws.h#6 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -26,12 +26,11 @@
 #include <qdatetime.h>
 
 #include "qwsproperty.h"
+#include "qwscommand.h"
 
 const int QTFB_PORT=0x4642; // FB
 
 class QWSClient;
-
-int qws_read_uint( QSocket *socket );
 
 /*********************************************************************
  *
@@ -39,7 +38,7 @@ int qws_read_uint( QSocket *socket );
  *
  *********************************************************************/
 
-class QWSServer : public QServerSocket 
+class QWSServer : public QServerSocket
 {
     Q_OBJECT
 
@@ -55,6 +54,12 @@ public:
 	return &propertyManager;
     }
 
+private:
+    void invokeCreate( QWSCreateCommand *cmd, QWSClient *client );
+    void invokeAddProperty( QWSAddPropertyCommand *cmd );
+    void invokeSetProperty( QWSSetPropertyCommand *cmd );
+    void invokeRemoveProperty( QWSRemovePropertyCommand *cmd );
+    
 private slots:
     void doClient();
 
@@ -66,7 +71,9 @@ private:
     uchar* framebuffer;
     ClientMap client;
     QWSPropertyManager propertyManager;
-
+    int command_type;
+    QWSCommand *command;
+    
 };
 
 /*********************************************************************
@@ -75,7 +82,7 @@ private:
  *
  *********************************************************************/
 
-class QWSClient : public QSocket 
+class QWSClient : public QSocket
 {
 public:
     QWSClient( int socket, int shmid );

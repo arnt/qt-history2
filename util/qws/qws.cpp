@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#9 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#10 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -21,6 +21,7 @@
 #include "qws.h"
 #include "qwsevent.h"
 #include "qwscommand.h"
+#include "qwsutils.h"
 
 #include <qapplication.h>
 #include <qwidget.h>
@@ -86,7 +87,8 @@ void QWSClient::sendMouseEvent(const QPoint& pos, int state)
  *********************************************************************/
 
 QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
-    QServerSocket(QTFB_PORT,parent,name)
+    QServerSocket(QTFB_PORT,parent,name),
+    command_type( -1 ), command( 0 )
 {
     shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
 			IPC_CREAT|IPC_EXCL|0666);
@@ -118,16 +120,56 @@ void QWSServer::newConnection( int socket )
 
 void QWSServer::doClient()
 {
-    QWSClient* c = (QWSClient*)sender();
-    int command_type = qws_read_uint( c );
-    QWSCommand *command = QWSCommand::getCommand( (QWSCommand::Type)command_type, this, c );
-    if ( !command ) {
-	qWarning( "Protocol error - got: %d", command_type );
-	return;
+    QWSClient* client = (QWSClient*)sender();
+    
+    // read next command
+    if ( command_type == -1 ) {
+	command = 0;
+	command_type = qws_read_uint( client );
     }
+    
+    if ( !command ) {     
+	switch ( command_type ) {
+	case QWSCommand::Create:
+	    command = new QWSCreateCommand;
+	    break;
+	case QWSCommand::AddProperty:
+	    command = new QWSAddPropertyCommand;
+	    break;
+	case QWSCommand::SetProperty:
+	    command = new QWSSetPropertyCommand;
+	    break;
+	case QWSCommand::RemoveProperty:
+	    command = new QWSRemovePropertyCommand;
+	    break;
+	default:
+	    qDebug( "QWSServer::doClient() : Protocol error!" );
+	}
+    }
+    
+    if ( command ) {
+	if ( command->read( client ) ) {
 
-    command->readData();
-    command->execute();
+	    switch ( command_type ) {
+	    case QWSCommand::Create:
+		invokeCreate( (QWSCreateCommand*)command, client );
+		break;
+	    case QWSCommand::AddProperty:
+		invokeAddProperty( (QWSAddPropertyCommand*)command );
+		break;
+	    case QWSCommand::SetProperty:
+		invokeSetProperty( (QWSSetPropertyCommand*)command );
+		break;
+	    case QWSCommand::RemoveProperty:
+		invokeRemoveProperty( (QWSRemovePropertyCommand*)command );
+		break;
+	    }
+	    
+	    command_type = -1;
+	    delete command;
+	    command = 0;
+	}
+    }
 }
 
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
@@ -137,6 +179,56 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 }
 
 
+static int get_object_id()
+{
+    static int next=1000;
+    return next++;
+}
+
+void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
+{
+    qDebug( "QWSServer::invokeCreate" );
+    QWSCreationEvent event;
+    event.type = QWSEvent::Creation;
+    event.objectid = get_object_id();
+    client->writeBlock( (char*)&event, sizeof(event) );
+}
+
+void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
+{
+    qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.winId, 
+	    cmd->simpleData.property );
+    if ( properties()->addProperty( cmd->simpleData.winId, cmd->simpleData.property ) )
+ 	qDebug( "add property successful" );
+    else
+ 	qDebug( "adding property failed" );
+}
+
+void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
+{
+    qDebug( "QWSServer::invokeSetProperty %d %d %d %s", 
+	    cmd->simpleData.winId, cmd->simpleData.property,
+	    cmd->simpleData.mode, cmd->rawData );
+    QCString ba( cmd->rawLen );
+    ba = cmd->rawData;
+    if ( properties()->setProperty( cmd->simpleData.winId, 
+				    cmd->simpleData.property, 
+				    cmd->simpleData.mode, 
+				    ba ) )
+ 	qDebug( "set property successful" );
+    else
+ 	qDebug( "setting property failed" );
+}
+
+void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
+{
+    qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.winId, 
+	    cmd->simpleData.property );
+    if ( properties()->removeProperty( cmd->simpleData.winId, cmd->simpleData.property ) )
+ 	qDebug( "add property successful" );
+    else
+ 	qDebug( "adding property failed" );
+}
 
 class Main : public QWidget {
     QImage img;
@@ -204,42 +296,10 @@ main(int argc, char** argv)
 	refresh_delay = atoi(argv[1]);
     }
 
-    qwsRegisterCommands();
-
     Main m;
     app.setMainWidget(&m);
     m.serve(refresh_delay);
     m.show();
 
     return app.exec();
-}
-
-static ushort hex_ushort_to_int( ushort c )
-{
-    if ( c >= 'A' && c <= 'F')
-	return c - 'A' + 10;
-    if ( c >= 'a' && c <= 'f')
-	return c - 'a' + 10;
-    if ( c >= '0' && c <= '9')
-	return c - '0';
-    return 0;
-}
-
-static int hex_to_int( char *array )
-{
-    return ( 16 * 16 * 16 * hex_ushort_to_int( array[ 0 ] ) +
-	     16 * 16 * hex_ushort_to_int( array[ 1 ] ) +
-	     16 * hex_ushort_to_int( array[ 2 ] ) + 
-	     hex_ushort_to_int( array[ 3 ] ) );
-}
-
-int qws_read_uint( QSocket *socket )
-{
-    if ( !socket )
-	return -1;
-
-    int i;
-    socket->readBlock( (char*)&i, sizeof( int ) );
-    
-    return hex_to_int( (char*)&i );
 }
