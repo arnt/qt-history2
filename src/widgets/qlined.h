@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#35 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#36 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -34,7 +34,7 @@ public:
     bool	frame() const;
 
     enum	EchoMode { Normal, NoEcho, Password };
-    void	setEchoMode( enum EchoMode );
+    void	setEchoMode( EchoMode );
     QLineEdit::EchoMode echoMode() const;
 
     void	setValidator( QValidator * );
