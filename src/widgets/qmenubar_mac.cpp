@@ -579,7 +579,9 @@ bool QMenuBar::updateMenuBar()
 
     for(QMenuItemListIt it(*mitems); it.current(); ++it) {
 	QMenuItem *item = (*it);
-	if(item->isSeparator()) //mac doesn't support these
+	// Mac doesn't support serperators and we shouldn't create stuff
+	// for things with no popups
+	if (item->isSeparator() || !item->popup())
 	    continue;
 	if(MenuRef mp = createMacPopup(item->popup(), true)) {
 	    CFStringRef cfref;
