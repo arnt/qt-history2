@@ -32,13 +32,13 @@ DlgFilter::DlgFilter()
 QRESULT DlgFilter::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
     *iface = 0;
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)(ImportFilterInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_ImportFilterInterface )
+    else if ( uuid == IID_ImportFilter )
 	*iface = (ImportFilterInterface*)this;
-    else if ( uuid == IID_QLibraryInterface )
+    else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
 
     if ( *iface )
