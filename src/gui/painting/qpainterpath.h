@@ -124,6 +124,9 @@ public:
     void setJoinStyle(Qt::PenJoinStyle style);
     Qt::PenJoinStyle joinStyle() const;
 
+    void setMiterLimit(float length);
+    float miterLimit() const;
+
     QPainterPath createStroke(const QPainterPath &path) const;
 
 private:

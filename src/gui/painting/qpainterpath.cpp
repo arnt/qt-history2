@@ -938,6 +938,8 @@ public:
     QPainterPathStrokerPrivate() :
         width(1),
         offset(0.5),
+        miterLimit(5),
+        appliedMiterLimit(10),
         style(Qt::SolidLine),
         joinStyle(Qt::BevelJoin),
         capStyle(Qt::FlatCap)
@@ -950,6 +952,8 @@ public:
 
     float width;
     float offset;
+    float miterLimit;
+    float appliedMiterLimit;
     Qt::PenStyle style;
     Qt::PenJoinStyle joinStyle;
     Qt::PenCapStyle capStyle;
@@ -986,9 +990,17 @@ void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine,
         if (pline.angle(bevelLine) > 90)
             jStyle = Qt::BevelJoin;
         switch (jStyle) {
-        case Qt::MiterJoin:
-            back1.x = isect.x();
-            back1.y = isect.y();
+        case Qt::MiterJoin: {
+            QLineF miterLine(QPointF(back1.x, back1.y), isect);
+            if (miterLine.length() > appliedMiterLimit) {
+                miterLine.setLength(appliedMiterLimit);
+                back1.x = miterLine.endX();
+                back1.y = miterLine.endY();
+            } else {
+                back1.x = isect.x();
+                back1.y = isect.y();
+            }
+        }
             break;
         case Qt::BevelJoin:
             path->lineTo(nextLine.start());
@@ -1187,6 +1199,7 @@ void QPainterPathStroker::setWidth(float width)
 {
     d->width = width;
     d->offset = width / 2;
+    d->appliedMiterLimit = d->miterLimit * width;
 }
 
 float QPainterPathStroker::width() const
@@ -1222,4 +1235,15 @@ void QPainterPathStroker::setJoinStyle(Qt::PenJoinStyle style)
 Qt::PenJoinStyle QPainterPathStroker::joinStyle() const
 {
     return d->joinStyle;
+}
+
+void QPainterPathStroker::setMiterLimit(float limit)
+{
+    d->miterLimit = limit;
+    d->appliedMiterLimit = d->miterLimit * d->width;
+}
+
+float QPainterPathStroker::miterLimit() const
+{
+    return d->miterLimit;
 }
