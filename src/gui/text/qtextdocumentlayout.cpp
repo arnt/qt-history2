@@ -243,6 +243,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
 
     int rows = table->rows();
     int cols = table->cols();
+    Q_ASSERT(rows > 0 && cols > 0); // also avoid division by zero later
 
     QSize ps = pgSize;
 

@@ -5,6 +5,7 @@
 #include <qlist.h>
 #include <qmap.h>
 #include <qpointer.h>
+#include <qvarlengtharray.h>
 
 #include "qtextdocument.h"
 #include "qtexthtmlparser_p.h"
@@ -70,6 +71,22 @@ public:
     QTextFormatCollection localFormatCollection;
 
     QPointer<QTextPieceTable> pieceTable;
+};
+
+class QTextHTMLImporter : public QTextHtmlParser
+{
+public:
+    QTextHTMLImporter(QTextDocumentFragmentPrivate *d, const QString &html);
+
+    void import();
+
+private:
+    void closeTag(int i);
+
+    QTextDocumentFragmentPrivate *d;
+    QVarLengthArray<int> listReferences;
+    int indent;
+    QVarLengthArray<int> tableIndices;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

@@ -6,7 +6,6 @@
 #include <qdebug.h>
 #include <qstylesheet.h>
 #include <qtextcodec.h>
-#include <qvarlengtharray.h>
 
 QTextFormatCollectionState::QTextFormatCollectionState(const QTextHtmlParser &parser, int formatsNode)
 {
@@ -482,65 +481,27 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     return res;
 }
 
-QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
+QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QString &html)
+    : d(_d), indent(0)
 {
-    QTextDocumentFragment res;
+    parse(html);
+    dumpHtml();
+}
 
-    res.d = new QTextDocumentFragmentPrivate;
-    QTextDocumentFragmentPrivate *d = res.d;
-
-    QTextHtmlParser parser;
-    parser.parse(html);
-//    parser.dumpHtml();
-
-    QVarLengthArray<int> listReferences;
-    int indent = 0;
-    QVarLengthArray<int> tableIndices;
-
+void QTextHTMLImporter::import()
+{
     bool hasBlock = true;
-    for (int i = 0; i < parser.count(); ++i) {
-	const QTextHtmlParserNode *node = &parser.at(i);
+    for (int i = 0; i < count(); ++i) {
+	const QTextHtmlParserNode *node = &at(i);
 
 	/* emit 'closing' table blocks or adjust current indent level
 	 * if we
 	 *  1) are beyond the first node
 	 *  2) the current node not being a child of the previous node
-	 *     means there was a tag closing in the input html
-	 *  3) the current node actually having a parent or we reached
-	 *     the last node, which means someone wrote bad html and
-	 *     forgot to close tags at the end
+	 *      means there was a tag closing in the input html
 	 */
-	if (i > 0 && (node->parent != i -1)
-	    && (node->parent || (i == parser.count() - 1))) {
-
-	    const int grandParent = node->parent ? parser.at(node->parent).parent : 0;
-	    const QTextHtmlParserNode *closedNode = &parser.at(i - 1);
-
-	    while (closedNode->parent && closedNode->parent != grandParent) {
-		if (closedNode->tag == QLatin1String("tr")) {
-		    Q_ASSERT(!tableIndices.isEmpty());
-		    QTextBlockFormat fmt;
-		    fmt.setNonDeletable(true);
-		    fmt.setTableFormatIndex(tableIndices[tableIndices.size() - 1]);
-		    fmt.setTableCellEndOfRow(true);
-		    d->appendBlock(fmt);
-		} else if (closedNode->tag == QLatin1String("table")) {
-		    Q_ASSERT(!tableIndices.isEmpty());
-		    QTextBlockFormat fmt;
-		    fmt.setNonDeletable(true);
-		    d->appendBlock(fmt);
-		    tableIndices.resize(tableIndices.size() - 1);
-		} else if (closedNode->isListStart) {
-
-		    Q_ASSERT(!listReferences.isEmpty());
-
-		    listReferences.resize(listReferences.size() - 1);
-		    --indent;
-		}
-
-		closedNode = &parser.at(closedNode->parent);
-	    }
-	}
+	if (i > 0 && (node->parent != i - 1))
+	    closeTag(i);
 
 	if (node->isListStart) {
 	    QTextListFormat listFmt;
@@ -573,11 +534,11 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 	    } else {
 		QTextBlockFormat block;
 
-		block.setTopMargin(parser.topMargin(i));
-		block.setBottomMargin(parser.bottomMargin(i));
-		block.setLeftMargin(parser.leftMargin(i));
-		block.setRightMargin(parser.rightMargin(i));
-		block.setFirstLineMargin(parser.firstLineMargin(i));
+		block.setTopMargin(topMargin(i));
+		block.setBottomMargin(bottomMargin(i));
+		block.setLeftMargin(leftMargin(i));
+		block.setRightMargin(rightMargin(i));
+		block.setFirstLineMargin(firstLineMargin(i));
 
 		if (node->isListItem) {
 		    Q_ASSERT(!listReferences.isEmpty());
@@ -638,6 +599,50 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
 	d->appendText(node->text, format);
     }
 
+    if (listReferences.size() || tableIndices.size())
+	closeTag(count() - 1);
+}
+
+void QTextHTMLImporter::closeTag(int i)
+{
+    const bool atLastNode = (i == count() - 1);
+    const QTextHtmlParserNode *node = &at(i);
+    const int grandParent = atLastNode ? 0 : at(node->parent).parent;
+    const QTextHtmlParserNode *closedNode = &at(i - 1);
+
+    while (closedNode->parent != grandParent || (atLastNode && closedNode != &at(0))) {
+	if (closedNode->tag == QLatin1String("tr")) {
+	    Q_ASSERT(!tableIndices.isEmpty());
+	    QTextBlockFormat fmt;
+	    fmt.setNonDeletable(true);
+	    fmt.setTableFormatIndex(tableIndices[tableIndices.size() - 1]);
+	    fmt.setTableCellEndOfRow(true);
+	    d->appendBlock(fmt);
+	} else if (closedNode->tag == QLatin1String("table")) {
+	    Q_ASSERT(!tableIndices.isEmpty());
+	    QTextBlockFormat fmt;
+	    fmt.setNonDeletable(true);
+	    d->appendBlock(fmt);
+	    tableIndices.resize(tableIndices.size() - 1);
+	} else if (closedNode->isListStart) {
+
+	    Q_ASSERT(!listReferences.isEmpty());
+
+	    listReferences.resize(listReferences.size() - 1);
+	    --indent;
+	}
+
+	closedNode = &at(closedNode->parent);
+    }
+}
+
+QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
+{
+    QTextDocumentFragment res;
+
+    res.d = new QTextDocumentFragmentPrivate;
+
+    QTextHTMLImporter(res.d, html).import();
     return res;
 }
 
