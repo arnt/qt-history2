@@ -4,9 +4,13 @@
 
 Copyright (C) 1992-%YEAR% Troll Tech AS. All rights reserved. 
 
-This is the license for Qt Free Edition version %VERSION%; it covers private use,
+This is the license for Qt Free Edition version %VERSION%; it covers%SPECIAL-snapshot
+private use, use of third-party application programs based on Qt, and
+development of free software for the free software community. 
+%%SPECIAL-stable private use,
 use of third-party application programs based on Qt, and development of
-free software for the free software community. 
+free software for the free software community. %
+
 
                       COPYRIGHT AND RESTRICTIONS
 
