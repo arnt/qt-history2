@@ -218,10 +218,6 @@ else
 fi
 
 # licensed modules depend on type of commercial license
-MODULES="styles tools kernel widgets dialogs iconview workspace compat"
-[ "$PLATFORM_QWS" = "yes" ] && [ "$Products" = "qt-professional" ] && MODULES="$MODULES network"
-[ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
-CFG_MODULES_AVAILABLE=$MODULES
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
 QMAKE_VARS="$QMAKE_VARS \"styles += windows motif mac platinum sgi cde motifplus\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
@@ -250,14 +246,15 @@ CFG_XINERAMA=auto
 CFG_BIG_CODECS=yes
 CFG_ZLIB=yes
 CFG_PNG=yes
-CFG_LIBPNG=qt
+CFG_LIBPNG=auto
 CFG_JPEG=auto
-CFG_LIBJPEG=qt
+CFG_LIBJPEG=auto
 CFG_MNG=auto
-CFG_LIBMNG=qt
+CFG_LIBMNG=auto
 CFG_XCURSOR=auto
 CFG_XRANDR=auto
 CFG_XRENDER=auto
+CFG_OPENGL=auto
 CFG_FREETYPE=auto
 CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
@@ -275,7 +272,6 @@ CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
-CFG_SINGLEQTLIB=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -357,7 +353,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-stl|-ipv6|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -517,9 +513,9 @@ while [ "$#" -gt 0 ]; do
     depths)
 	CFG_QWS_DEPTHS="$VAL"
 	;;
-    singleqtlib) #just incase a user needs to turn off multiple libs
+    opengl)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_SINGLEQTLIB="$VAL"
+	    CFG_OPENGL="$VAL"
 	else
 	    UNKNOWN_OPT=yes
         fi
@@ -853,22 +849,6 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    enable) #left for commandline compatibility, not documented
-	MODULE="$VAL"
-	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]; then
-	    if echo "${MODULES}" | grep $MODULE >/dev/null 2>&1; then
-		MODULES="$MODULES $MODULE"
-	    fi
-	fi
-	;;
-    disable)
-	MODULE="$VAL"
-	if [ -d "$relpath/src/$MODULE" ]; then
-	    MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
-	else
-	    echo "Unknown module disabled: $MODULE"
-	fi
-	;;
     h|help)
 	if [ "$VAL" = "yes" ]; then
 	    OPT_HELP="$VAL"
@@ -1091,6 +1071,13 @@ if [ "$CFG_MNG" = "auto" ]; then
 	CFG_MNG=yes
     fi
 fi
+if [ "$CFG_LIBMNG" = "auto" ]; then
+    if $unixtests/checkavail "libjpeg" -lmng; then
+       CFG_LIBMNG=system
+    else
+       CFG_LIBMNG=qt
+    fi
+fi
 
 #detect how jpeg should be built
 if [ "$CFG_JPEG" = "auto" ]; then
@@ -1104,15 +1091,37 @@ if [ "$CFG_JPEG" = "auto" ]; then
 	CFG_JPEG=yes
     fi
 fi
+if [ "$CFG_LIBJPEG" = "auto" ]; then
+    if $unixtests/checkavail "libmng" -ljmng; then
+       CFG_LIBMNG=system
+    else
+       CFG_LIBJPEG=qt
+    fi
+fi
+
+#detect how jpeg should be built
+if [ "$CFG_PNG" = "auto" ]; then
+    if [ "$CFG_EMBEDDED" = "yes" ]; then
+	CFG_PNG=no
+    elif [ "$CFG_MNG" = "yes" ]; then
+	CFG_PNG=yes
+    elif [ "$CFG_SHARED" = "yes" ]; then
+	CFG_PNG=plugin
+    else
+	CFG_PNG=yes
+    fi
+fi
+if [ "$CFG_LIBPNG" = "auto" ]; then
+    if $unixtests/checkavail "libpng" -lpng; then
+       CFG_LIBPNG=system
+    else
+       CFG_LIBPNG=qt
+    fi
+fi
 
 #detect accessibility
 if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
     CFG_ACCESSIBILITY=yes
-fi
-
-#detect single lib support
-if [ "$CFG_SINGLEQTLIB" = "auto" ]; then
-    CFG_SINGLEQTLIB=no
 fi
 
 # if the source tree is different from the build tree,
@@ -1433,7 +1442,6 @@ fi
 
 if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]; then
     CFG_SM=no
-    MODULES=`echo $MODULES | sed -e 's/opengl//'`
     PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
 else
     PLATFORMS=`find $relpath/mkspecs/ -type f | grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
@@ -1680,6 +1688,9 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_TABLET" = "auto" ]; then
 	CFG_TABLET=yes
     fi
+    if [ "$CFG_OPENGL" = "auto" ]; then
+	CFG_OPENGL=yes
+    fi
 fi
 
 # x11
@@ -1687,9 +1698,9 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11
 
     # auto-detect OpenGL support
-    if echo $MODULES | grep opengl >/dev/null; then
+    if [ "$CFG_OPENGL" = "auto" ]; then
 	if $x11tests/opengl.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
-	    MODULES=`echo $MODULES | sed -e 's/opengl//'`
+	    CFG_OPENGL=no
 	fi
     fi
     # auto-detect Xcursor support
@@ -2019,9 +2030,6 @@ fi
     -Lstring ........... Add an explicit library path.
     -Rstring ........... Add an explicit dynamic library runtime search path.
     -lstring ........... Add an explicit library.
-
-    -disable-<module> ..... Disable <module> where module is one of:
-                            [ $CFG_MODULES_AVAILABLE ]
 
     -qt-sql-<driver> ...... Enable a SQL <driver> in the Qt Library, by default
                             none are turned on.
@@ -2489,17 +2497,11 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
          OLD_QCONFIG_H="$outpath/include/qconfig.h"
          mv -f "$OLD_QCONFIG_H" "${OLD_QCONFIG_H}.old"
     fi
-    OLD_QMODULES_H=
-    if [ -f "$outpath/include/qmodules.h" ]; then
-         OLD_QMODULES_H="$outpath/include/qmodules.h"
-         mv -f "$OLD_QMODULES_H" "${OLD_QMODULES_H}.old"
-    fi
 
     # create temporary qconfig.h for compiling qmake
     # when building qmake, we use #defines for the install paths,
     # however they are real functions in the library
     echo "/* All features enabled while building qmake */" >$outpath/include/qconfig.h #temporary config
-    echo "/* All modules enabled while building qmake */" >$outpath/include/qmodules.h #temporary modules
 
     #mkspecs/default is used as a (gasp!) default mkspec so QMAKESPEC needn't be set once configured
     rm -f mkspecs/default
@@ -2573,7 +2575,6 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     QMAKE_BUILD_ERROR=no
     (cd $outpath/qmake; $MAKE) || QMAKE_BUILD_ERROR=yes
     [ '!' -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QCONFIG_H}.old" "$OLD_QCONFIG_H" #put back qconfig.h
-    [ '!' -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QMODULES_H}.old" "$OLD_QMODULES_H" #put back qmodules.h
     [ "$QMAKE_BUILD_ERROR" = "yes" ] && exit 2
 fi
 
@@ -2715,6 +2716,11 @@ else
     QMAKE_CONFIG="$QMAKE_CONFIG accessibility"
 fi
 
+# enable opengl
+if [ "$CFG_OPENGL" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG opengl"
+fi
+
 # update QMAKE_CONFIG to show our current predefined configuration
 case "$CFG_QCONFIG" in
 minimal|small|medium|large|full)
@@ -2733,19 +2739,6 @@ minimal|small|medium|large|full)
 	OPT_HELP=yes
     fi
 esac
-
-# update QMAKE_CONFIG to show which modules are being built
-for MODULE in $MODULES; do
-    if [ -d "$relpath/src/$MODULE" ]; then
-	M=`echo $MODULE | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
-	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
-    fi
-done
-
-
-#-------------------------------------------------------------------------------
-# ??? ### please add a title to this section
-#-------------------------------------------------------------------------------
 
 # build up the variables for output
 QMAKE_OUTDIR=""
@@ -2785,9 +2778,6 @@ QMAKE_VARS="$QMAKE_VARS \"QMAKE_RTLDIR_QT=$QT_INSTALL_LIBS\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG largefile"
-fi
-if [ "$CFG_SINGLEQTLIB" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG qt_one_lib"
 fi
 if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
@@ -2959,30 +2949,6 @@ if [ "$CFG_EXCEPTION_SUPPORT" = "no" ]; then
 fi
 
 #-------------------------------------------------------------------------------
-# part of configuration information goes into qmodules.h
-#-------------------------------------------------------------------------------
-
-rm -f $outpath/include/qmodules.h.new
-cat >$outpath/include/qmodules.h.new << EOF
-/* These modules are present in this configuration of Qt */
-EOF
-for MODULE in $MODULES; do
-    if [ -d "$relpath/src/$MODULE" ]; then
-	M=`echo $MODULE | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
-	echo "#define QT_MODULE_$M" >>$outpath/include/qmodules.h.new
-    fi
-done
-
-# avoid unecessary rebuilds by copying only if qmodules.h has changed
-if cmp -s $outpath/include/qmodules.h $outpath/include/qmodules.h.new; then
-    rm -f $outpath/include/qmodules.h.new
-else
-    [ -f $outpath/include/qmodules.h ] && chmod +w $outpath/include/qmodules.h
-    mv -f $outpath/include/qmodules.h.new $outpath/include/qmodules.h
-    chmod -w $outpath/include/qmodules.h
-fi
-
-#-------------------------------------------------------------------------------
 # generate QT_BUILD_KEY
 #-------------------------------------------------------------------------------
 
@@ -3049,7 +3015,7 @@ esac
 #     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb
 #     Embedded: embedded ft
 #
-ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl"
+ALL_OPTIONS="stl"
 BUILD_CONFIG=
 BUILD_OPTIONS=
 
@@ -3063,7 +3029,7 @@ for config_option in $QMAKE_CONFIG; do
 	BUILD_CONFIG="$config_option"
 	;;
 
-    styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl)
+    stl)
 	# these config options affect the Qt API/ABI. they should influence
 	# the generation of the buildkey, so we don't skip them
    	SKIP="no"
@@ -3349,7 +3315,6 @@ fi
 [ "$OPT_CONCURRENT" != "0" ] && echo "Concurrent .......... $OPT_CONCURRENT"
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG"
-[ "$CFG_SINGLEQTLIB" = "yes" ] && echo "Single-Lib support... $CFG_SINGLEQTLIB"
 echo "STL support ......... $CFG_STL"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
@@ -3376,12 +3341,7 @@ echo "zlib support ........ $CFG_ZLIB"
 if [ "$PLATFORM_QWS" = "yes" ]; then
     echo "Embedded support .... $CFG_EMBEDDED"
 else
-    if echo $MODULES | grep opengl >/dev/null; then
-	opengl=yes
-    else
-	opengl=no
-    fi
-    echo "OpenGL support ...... $opengl"
+    echo "OpenGL support ...... $CFG_OPENGL"
 fi
 if [ "$PLATFORM_X11" = "yes" ]; then
     echo "NAS sound support ... $CFG_NAS"
