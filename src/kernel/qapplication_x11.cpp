@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#261 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#262 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#261 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#262 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -388,6 +388,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	QApplication::setPalette( pal );
     }
     setlocale( LC_ALL, "" );		// use correct char set mapping
+    setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
     if ( XSupportsLocale() &&
 	 ( qstrlen(XSetLocaleModifiers( "@im=none" )) ||
 	   qstrlen(XSetLocaleModifiers( "" ) ) ) )
