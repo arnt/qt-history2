@@ -21,7 +21,7 @@ when this is necessary.
 Widgets are instances of \Class QWidget or one of its subclasses, and
 custom widgets are created by subclassing.
 
-  \Image qwidget-diag
+  \img qwidget-diag.png
   \caption An extract from the \Class QWidget class hierarchy
 
   \index child widgets

@@ -121,9 +121,9 @@ right-to-left languages (e.g. Arabic and Hebrew).
 Layouts can be nested to arbitrary levels. Here's an example of a
 dialog box, shown at two different sizes:
 
-  \img countries-small.gif
+  \img countries-small.png
 
-  \img countries-large.gif
+  \img countries-large.png
 
 The dialog uses three layouts: a \Class QVBoxLayout that groups the
 push buttons, a \Class QHBoxLayout that groups the country listbox

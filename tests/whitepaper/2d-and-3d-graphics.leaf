@@ -89,6 +89,9 @@ object can be translated, scaled, rotated and sheared. The objects to
 be drawn can be clipped according to a 'window', and positioned on
 the widget using a 'viewport'.
 
+  \img xform.png
+  \caption Qt's \c xform example showing rotated text
+
   \index events
 
 The code below draws a bar-graph custom widget. It uses a \Class

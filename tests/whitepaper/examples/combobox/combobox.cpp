@@ -33,7 +33,7 @@ int main( int argc, char **argv )
     create_combobox( grid, "CDE", new QCDEStyle );
     create_combobox( grid, "Platinum", new QPlatinumStyle );
     create_combobox( grid, "SGI", new QSGIStyle );
-    create_combobox( grid, "SGI", new QAquaStyle );
+    create_combobox( grid, "Aqua", new QAquaStyle );
 
     grid->show();
     app.setMainWidget( grid );

@@ -37,6 +37,7 @@ speed and flexibility.
 \section1 Built-in Styles
 
   \index Aqua
+  \index CDE
   \index Macintosh
   \index Motif
   \index MotifPlus
@@ -44,14 +45,14 @@ speed and flexibility.
   \index SGI
   \index Windows
 
-Qt provides the following built-in styles: Windows, Platinum, Motif,
-MotifPlus, SGI and Aqua (on the Macintosh). By default, Qt uses the
-appropriate style for the user's platform and desktop environment.
-The style can also be chosen programmatically, or with the \c -style
-command-line option on Unix.
+Qt provides the following built-in styles: Windows, Motif, MotifPlus,
+CDE, Platinum, SGI and Aqua (on the Macintosh). By default, Qt uses
+the appropriate style for the user's platform and desktop
+environment. The style can also be chosen programmatically, or with
+the \c -style command-line option on Unix.
 
   \img combobox-style.png
-  \caption Combobox in Windows and Motif styles
+  \caption Comboboxes in the different built-in styles
 
   \index fade effect
   \index menus

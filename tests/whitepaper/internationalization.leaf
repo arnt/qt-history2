@@ -230,7 +230,7 @@ Trolltech provides French and German translations.
 \e {Qt Linguist} is a Qt application that helps translators translate
 Qt applications.
 
-  \img linguist.png
+  \img linguist-wp.png
   \caption Qt Linguist
 
 Translators can edit \File .ts files by hand, or more conveniently

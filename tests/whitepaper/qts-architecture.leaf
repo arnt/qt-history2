@@ -15,7 +15,7 @@ of the supported platforms, as described in \l {Styles and Themes}.
 This technique also enables developers to derive their own custom
 styles to provide a distinct look for their applications.
 
-  \Image architecture-diag
+  \img architecture-diag.png
   \caption Qt's Architecture
 
   \index MFC
