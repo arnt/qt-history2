@@ -162,7 +162,6 @@ public:
         String,
         FormatObject,
         Color,
-        IntList,
         Length,
         LengthVector
     };
@@ -195,7 +194,6 @@ public:
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
     QColor colorProperty(int propertyId, const QColor &defaultValue = QColor()) const;
-    QList<int> intListProperty(int propertyId) const;
     QTextLength lengthProperty(int propertyId) const;
     QVector<QTextLength> lengthVectorProperty(int propertyId) const;
 
@@ -204,7 +202,6 @@ public:
     void setProperty(int propertyId, float value, float defaultValue = 0.0);
     void setProperty(int propertyId, const QString &value, const QString &defaultValue = QString::null);
     void setProperty(int propertyId, const QColor &value, const QColor &defaultValue = QColor());
-    void setProperty(int propertyId, const QList<int> &value);
     void setProperty(int propertyId, const QTextLength &length);
     void setProperty(int propertyId, const QVector<QTextLength> &lengths);
 
