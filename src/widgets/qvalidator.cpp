@@ -177,19 +177,57 @@ void QValidator::fixup( QString & ) const
 /*!
   \class QIntValidator qvalidator.h
 
-  \brief The QIntValidator class provides range-checking of integers.
+  \brief The QIntValidator class provides a validator specifically for checking 
+  the range of an integer.
 
   \ingroup misc
 
-  QIntValidator provides a lower and an upper bound.  It does not
-  provide a fixup() function.
+  QIntValidator contains a range which an integer is checked against to ensure it is 
+  within that range.  This is used to determine whether an integer is \c Acceptable, 
+  \c Intermediate or \c Invalid.
+
+  Example of use:
+
+  \code 
+    //...
+    #include <qlineedit.h>
+    #include <qvalidator.h>
+    //...
+    QIntValidator v( 0, 100, this );
+    QLineEdit* edit = new QLineEdit( this );
+    edit->setValidator( &v );	// the edit lineedit will only accept integers from 0 to 100
+  \endcode
+
+  Below we present some examples of validators. In practice they would normally be associated 
+  with a widget as in the example above. 
+
+  \code 
+    QString s;
+    QIntValidator v( 0, 100, this );	// a validator that will only accept integers from 0 to 100
+
+    s = "10"; 
+    v.validate( a, 0 );	// Returns Acceptable
+    s = "35";
+    v.validate( a, 0 );	// Returns Acceptable
+
+    s = "105";
+    v.validate( a, 0 );	// Returns Intermediate
+    s = "-763";
+    v.validate( a, 0 );	// Returns Intermediate
+
+    s = "abc";
+    v.validate( a, 0 );	// Returns Invalid;
+    s = "12v";
+    v.validate( a, 0 );	// Returns Invalid;
+  \endcode
 
   \sa QDoubleValidator QRegExpValidator
 */
 
 
 /*!
-  Constructs a validator object that accepts all integers.
+  Constructs a validator that accepts all integers with the parent
+  \a parent and the name \a name.
 */
 
 QIntValidator::QIntValidator( QWidget * parent, const char *name )
@@ -201,8 +239,9 @@ QIntValidator::QIntValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Constructs a validator object that accepts all integers from \a
-  bottom up to and including \a top.
+  Constructs a validator that accepts all integers from \a
+  bottom up to and including \a top with the parent \a parent and
+  the name \a name.
 */
 
 QIntValidator::QIntValidator( int bottom, int top,
@@ -215,8 +254,7 @@ QIntValidator::QIntValidator( int bottom, int top,
 
 
 /*!
-  Destroys the validator, freeing any storage and other resources
-  used.
+  Destroys the validator, freeing any resources allocated.
 */
 
 QIntValidator::~QIntValidator()
@@ -225,9 +263,21 @@ QIntValidator::~QIntValidator()
 }
 
 
-/*!  Returns \a Acceptable if \a input contains a number in the legal
-  range, \a Intermediate if it contains another integer or is empty,
-  and \a Invalid if \a input is not an integer.
+/*!  
+  \code
+    s = "35";
+    v.validate( a, 0 );	// Returns Acceptable
+
+    s = "105";
+    v.validate( a, 0 );	// Returns Intermediate
+
+    s = "abc";
+    v.validate( a, 0 );	// Returns Invalid;
+  \endcode
+
+  Returns \c Acceptable if the input is an integer within the valid range, 
+  \c Intermediate if the input is an integer not within the valid
+  range and \c Invalid if the input is not an integer.
 */
 
 QValidator::State QIntValidator::validate( QString & input, int & ) const
@@ -246,7 +296,9 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
 }
 
 
-/*!  Sets the validator to accept only numbers from \a bottom to
+/*!  
+
+  Sets the range of the validator to accept only integers from \a bottom to
   \a top, both inclusive.
 */
 
@@ -257,7 +309,7 @@ void QIntValidator::setRange( int bottom, int top )
 }
 
 /*!
-  Sets the validator to accept no numbers smaller than \a bottom.
+  Sets the validator to accept no integers less than \a bottom.
 
   \sa setRange()
 */
@@ -267,7 +319,7 @@ void QIntValidator::setBottom( int bottom )
 }
 
 /*!
-  Sets the validator to accept no numbers bigger than \a top.
+  Sets the validator to accept no integers greater than \a top.
 
   \sa setRange()
 */
@@ -279,7 +331,7 @@ void QIntValidator::setTop( int top )
 /*!
   \fn int QIntValidator::bottom() const
 
-  Returns the lowest valid number according to this validator.
+  Returns the lowest valid integer according to this validator.
 
   \sa top() setRange()
 */
@@ -288,7 +340,7 @@ void QIntValidator::setTop( int top )
 /*!
   \fn int QIntValidator::top() const
 
-  Returns the highest valid number according to this validator.
+  Returns the highest valid integer according to this validator.
 
   \sa bottom() setRange()
 */
@@ -512,26 +564,26 @@ void QDoubleValidator::setDecimals( int decimals )
 
     s = "0";     v.validate( s, 0 ); // Returns Invalid
     s = "12345"; v.validate( s, 0 ); // Returns Invalid
-    s = "1";     v.validate( s, 0 ); // Returns Valid
+    s = "1";     v.validate( s, 0 ); // Returns Acceptable
 
     rx.setPattern( "\S+" );	    // One or more non-whitespace characters
     v.setRegExp( rx );
-    v.validate( "myfile.txt", 0 );  // Returns Valid
+    v.validate( "myfile.txt", 0 );  // Returns Acceptable
     v.validate( "my file.txt", 0 ); // Returns Invalid
 
     // A, B or C followed by exactly five digits followed by W, X, Y or Z
     rx.setPattern( "[A-C]\\d{5}[W-Z]" );
     v.setRegExp( rx );
     v.validate( "a12345Z", 0 );	// Returns Invalid
-    v.validate( "A12345Z", 0 );	// Returns Valid
+    v.validate( "A12345Z", 0 );	// Returns Acceptable
     v.validate( "B12", 0 );	// Returns Intermediate
 
     // Match most 'readme' files
     rx.setPattern( "read\\S?me(\.(txt|asc|1st))?" );
     rx.setCaseSensitive( FALSE );
     v.setRegExp( rx );
-    v.validate( "readme", 0 );	    // Returns Valid
-    v.validate( "README.1ST", 0 );  // Returns Valid
+    v.validate( "readme", 0 );	    // Returns Acceptable
+    v.validate( "README.1ST", 0 );  // Returns Acceptable
     v.validate( "read me.txt", 0 ); // Returns Invalid
     v.validate( "readm", 0 );	    // Returns Intermediate
 
@@ -541,7 +593,7 @@ void QDoubleValidator::setDecimals( int decimals )
 */
 
 /*!
-  Constructs a validator object that accepts any string (including an
+  Constructs a validator that accepts any string (including an
   empty one) as valid. The object's parent is \a parent and name is \a
   name.
 */
@@ -552,9 +604,7 @@ QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
 }
 
 /*!
-  \overload
-
-  Constructs a validator object which accepts all strings that match the
+  Constructs a validator which accepts all strings that match the
   regular expression \a rx. The object's parent is \a parent and name is
   \a name.
 
