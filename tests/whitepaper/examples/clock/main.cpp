@@ -9,9 +9,9 @@
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
-    Clock clock;
-    clock.resize( 140, 60 );
-    app.setMainWidget( &clock );
-    clock.show();
+    Clock *clock = new Clock;
+    app.setMainWidget( clock );
+    clock->resize( 140, 60 );
+    clock->show();
     return app.exec();
 }

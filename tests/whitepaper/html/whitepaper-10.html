@@ -1,47 +1,69 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- ./styles-and-themes.leaf:3 -->
+<!-- ./layouts.leaf:3 -->
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Styles and Themes</title>
+<title>Layouts</title>
 </head>
 <body>
-<p align="right">[<a href="whitepaper-9.html">Prev: Qt Linguist</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-11.html">Next: Layouts</a>]</p>
-<h2 align="center">Styles and Themes</h2>
+<p align="right">[<a href="whitepaper-9.html">Prev: Styles and Themes</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-11.html">Next: Events</a>]</p>
+<h2 align="center">Layouts</h2>
 <blockquote>
-<p>Qt supports a variety of styles, automatically using native 'look and feel'. Qt applications respect user preferences for colors, fonts, sounds, etc. Qt programmers are free to use any of the supplied styles and can override any preferences. Programmers can modify existing styles or implement their own styles using Qt's powerful style engine.</p>
+<p>Layouts provide a powerful and flexible alternative to using fixed sizes and positions. Layouts free programmers from having to perform size and position calculations, and provide automatic scaling to suit users screens.</p>
 </blockquote>
-<!-- index colors --><!-- index fonts --><!-- index look and feel --><!-- index preferences --><!-- index settings --><!-- index sounds --><!-- index styles --><!-- index system sounds --><!-- index themes --><!-- index user preferences --><!-- index drawing --><!-- index emulation --><!-- index interface emulation --><p>A style implements the 'look and feel' of the user interface on a particular platform. A style is a <font color=darkblue><b>QStyle</b></font> subclass that implements basic drawing functions such as "draw a frame", "draw a button", etc. Qt performs all the widget drawing itself for maximum speed and flexibility.</p>
-<h3><a name="1"></a>Built-in Styles</h3>
-<!-- index Aqua --><!-- index Macintosh --><!-- index Motif --><!-- index MotifPlus --><!-- index Platinum --><!-- index SGI --><!-- index Windows --><p>Qt provides the following built-in styles: Windows, Platinum, Motif, MotifPlus, SGI and Aqua (on the Macintosh). By default, Qt uses the appropriate style for the user's platform and desktop environment. The style can also be chosen programmatically, or with the <tt>-style</tt> command-line option on Unix.</p>
-<p align="center"><img align="middle" src="combobox-style.png">
+<!-- index automatic layouts --><!-- index child widget --><!-- index default widget size --><!-- index font changes --><!-- index layouts --><!-- index parent widget --><!-- index positioning of widgets --><!-- index repositioning of widgets --><!-- index resizing widgets --><!-- index size of widgets --><p>Qt provides layout managers for organizing child widgets within the parent widget's area. They feature automatic positioning of child widgets, automatic resizing, sensible minimum and default sizes for top-level widgets and automatic repositioning when the contents or the font changes. <a href="whitepaper-5.html">Qt Designer</a> is optimized for laying out widgets using layout managers.</p>
+<h3><a name="1"></a>Built-in Layout Managers</h3>
+<!-- index QGridLayout --><!-- index QHBoxLayout --><!-- index QPackerLayout --><!-- index QVBoxLayout --><p>Qt's built-in layout managers are <font color=darkblue><b>QHBoxLayout</b></font>, <font color=darkblue><b>QVBoxLayout</b></font> and <font color=darkblue><b>QGridLayout</b></font>.</p>
+<p><img align="middle" src="qhbox.png" alt="QHBox with five child widgets" width="176" height="24">
+<img align="middle" src="qvbox.png" alt="QVBox with five child widgets" width="41" height="115">
+<img align="middle" src="qgrid.png" alt="QGrid with five child widgets" width="93" height="89">
 </p>
-<blockquote><p align="center"><em>Combobox in Window and Motif styles</em></p></blockquote>
-<!-- index fade effect --><!-- index menus --><!-- index scroll effect --><!-- index tooltips --><!-- index transition effects --><p>A style is complemented by a theme, which encapsulates the user's preferences for colors, fonts, sounds, etc. Qt automatically adapts to the computer's active theme. For example, Qt supports scroll and fade transitions effects for menus and tooltips on Windows.</p>
-<h3><a name="2"></a>Style-aware Widgets</h3>
-<p>Qt's built-in widgets are style aware. Custom widgets and dialogs are almost always combinations of built-in widgets and layouts, and are automatically style aware. On the rare occasions when it is necessary to write a custom widget from scratch, developers can use <font color=darkblue><b>QStyle</b></font> to draw primitive user-interface elements rather than drawing raw rectangles directly.</p>
-<h3><a name="3"></a>Custom Styles</h3>
-<!-- index Ericsson --><!-- index Webphone --><p>Custom styles are used to provide a distinct look to an application or family of applications. For example, Ericsson created their own style for their Qt/Embedded Webphone.</p>
-<p align="center"><img align="middle" src="ericsson-style.png" alt="Ericsson's Webphone">
+<!-- index grid layout --><!-- index hbox --><!-- index horizontal box layout --><!-- index vbox --><!-- index vertical box layout --><p><font color=darkblue><b>QHBoxLayout</b></font> organizes the managed widgets in a single horizontal row from left to right. <font color=darkblue><b>QVBoxLayout</b></font> organizes the managed widgets in a single vertical column, from top to bottom. <font color=darkblue><b>QGridLayout</b></font> organizes the managed widgets in a grid of cells; widgets may span multiple cells.</p>
+<p>In most cases, Qt's layout managers pick optimal sizes for managed widgets so that windows resize smoothly. If the defaults are insufficient, developers can refine the layout using the following mechanisms:</p>
+<ol type=1><!-- index fixed size --><!-- index maximum size --><!-- index minimum size --><li><p><em>Setting a minimum size, a maximum size or a fixed size for some child widgets.</em></p>
+<!-- index stretches --><!-- index spacer items --><li><p><em>Adding stretch items or spacer items.</em> Stretch or spacer items fill empty space in a layout.</p>
+<!-- index size policy --><li><p><em>Changing the size policies of the child widgets.</em> By calling <font color=darkblue>QWidget::setSizePolicy()</font>, programmers can fine tune the resize behavior of a child widget. Child widgets can be set to expand, contract, keep the same size, etc.</p>
+<!-- index preferred size --><li><p><em>Changing the child widgets' size hints.</em> <font color=darkblue>QWidget::sizeHint()</font> and <font color=darkblue>QWidget::minimumSizeHint()</font> return a widget's preferred size and preferred minimum size based on the contents. Built-in widgets provide appropriate reimplementations.</p>
+<!-- index relative growth --><!-- index stretch factors --><li><p><em>Setting stretch factors.</em> Stretch factors allow relative growth of child widgets, e.g. two thirds of any extra space made available should be allocated to widget A and one third to widget B.</p>
+</ol><!-- index Designer --><!-- index Qt Designer --><!-- index margin (in layouts) --><!-- index spacing (in layouts) --><p>The 'spacing' between managed widgets and the 'margin' around the whole layout can also be set by the programmer. By default, <a href="whitepaper-5.html">Qt Designer</a> sets industry-standard values based on the context.</p>
+<!-- index Arabic --><!-- index Hebrew --><!-- index right-to-left languages --><p>Layouts can also run right-to-left and bottom-to-top. Right-to-left layouts are convenient for internationalized applications supporting right-to-left languages (e.g. Arabic and Hebrew).</p>
+<h3><a name="2"></a>Nested Layouts</h3>
+<p>Layouts can be nested to arbitrary levels. Here's an example dialog box, shown at two different sizes:</p>
+<p align="center"><img align="middle" src="countries-small.gif" width="0" height="0">
 </p>
-<p>Custom styles can be defined by subclassing <font color=darkblue><b>QStyle</b></font>, <font color=darkblue><b>QCommonStyle</b></font> or any other descendent of <font color=darkblue><b>QCommonStyle</b></font>. It is easy to make small modifications to existing styles by reimplementing one or two virtual functions from the appropriate base class.</p>
-<p>The full <font color=darkblue><b>QStyle</b></font> class hierarchy follows:</p>
-<ul><li><p>QStyle</p>
-<ul><li><p>QCommonStyle</p>
-<ul><li><p>QMotifStyle</p>
-<ul><li><p>QCDEStyle</p>
-<li><p>QMotifPlusStyle</p>
-<li><p>QSGIStyle</p>
-</ul><li><p>QWindowsStyle</p>
-<ul><li><p>QAquaStyle</p>
-<li><p>QPlatinumStyle</p>
-</ul></ul></ul></ul><p>An application's style can be set like this:</p>
-<pre>
-    QApplication::setStyle( new MyCustomStyle() );
+<p align="center"><img align="middle" src="countries-large.gif" width="0" height="0">
+</p>
+<p>The dialog uses three layouts: a <font color=darkblue><b>QVBoxLayout</b></font> that groups the push buttons, a <font color=darkblue><b>QHBoxLayout</b></font> that groups the country listbox with the push buttons and a <font color=darkblue><b>QVBoxLayout</b></font> that groups the "Select a country" label with the rest of the widget. A stretch item maintains the gap between the <font color=darkgreen><em>Cancel</em></font> and <font color=darkgreen><em>Help</em></font> buttons.</p>
+<p>The dialog's widgets and layouts are created with the following code:</p>
+<pre>        setCaption( "International Trader" );
+
+        QVBoxLayout *buttonBox = new QVBoxLayout( 6 );
+        buttonBox-&gt;addWidget( new QPushButton("OK", this) );
+        buttonBox-&gt;addWidget( new QPushButton("Cancel", this) );
+        buttonBox-&gt;addStretch( 1 );
+        buttonBox-&gt;addWidget( new QPushButton("Help", this) );
+
+        QListBox *countryList = new QListBox( this );
+        countryList-&gt;insertItem( "Canada" );
+        /* ... */
+        countryList-&gt;insertItem( "United States of America" );
+
+        QHBoxLayout *middleBox = new QHBoxLayout( 11 );
+        middleBox-&gt;addWidget( countryList );
+        middleBox-&gt;addLayout( buttonBox );
+
+        QVBoxLayout *topLevelBox = new QVBoxLayout( this, 6, 11 );
+        topLevelBox-&gt;addWidget( new QLabel("Select a country", this) );
+        topLevelBox-&gt;addLayout( middleBox );
 </pre>
-<!-- index Designer --><!-- index Qt Designer --><!-- index plugins --><p>A style can also be compiled as a plugin. Plugins make it possible to preview a form in a custom style in <a href="whitepaper-5.html">Qt Designer</a> without recompiling Qt or <a href="whitepaper-5.html">Qt Designer</a>. The style of an existing Qt application can be changed using a style plugin without recompiling the application.</p>
-<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/http://doc.trolltech.com/customstyle.html>http://doc.trolltech.com/3.0/http://doc.trolltech.com/customstyle.html</a> </ul></p>
+<!-- index Designer --><!-- index Qt Designer --><!-- index fixed positioning --> <p>Qt makes layouts so easy that programmers rarely use fixed positioning.</p>
+<p><a href="whitepaper-5.html">Qt Designer</a> makes layouts even easier. With only 17 mouse clicks, you can create and lay out the widgets for the dialog shown above.</p>
+<h3><a name="3"></a>Custom Layouts</h3>
+<!-- index BorderLayout --><!-- index CardLayout --><!-- index QLayout --><!-- index SimpleFlow --><!-- index custom layouts --><!-- index flow layouts --><p>Developers can define custom layout managers by subclassing <font color=darkblue><b>QLayout</b></font>. The <tt>customlayout</tt> example provided with Qt presents three custom layout managers, <tt>BorderLayout</tt>, <tt>CardLayout</tt> and <tt>SimpleFlow</tt>, which programmers can use and modify.</p>
+<!-- index QSplitter --><!-- index splitters --><p>Qt also includes <font color=darkblue><b>QSplitter</b></font>, a splitter bar that end users can manipulate. In some design situations, <font color=darkblue><b>QSplitter</b></font> may be preferable to a layout manager.</p>
+<!-- index manual layouts --><p>For complete control, it is also possible to perform layout manually in a widget by reimplementing <font color=darkblue>QWidget::resizeEvent()</font> and by calling <font color=darkblue>QWidget::setGeometry()</font> on each child widget.</p>
+<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/layout.html>http://doc.trolltech.com/3.0/layout.html</a> <li><a href=http://doc.trolltech.com/3.0/customlayout.html>http://doc.trolltech.com/3.0/customlayout.html</a> </ul></p>
 <!-- eof -->
-<p align="right">[<a href="whitepaper-9.html">Prev: Qt Linguist</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-11.html">Next: Layouts</a>]</p>
+<p align="right">[<a href="whitepaper-9.html">Prev: Styles and Themes</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-11.html">Next: Events</a>]</p>
 </body>
 </html>

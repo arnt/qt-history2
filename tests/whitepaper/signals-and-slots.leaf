@@ -1,43 +1,43 @@
 \chapter Signals and Slots
 
+  \index signal
+  \index slot
+
 \quote
-Signals and slots provide inter-object communication. They are easy to
-understand and use, simple to hand code, and are fully supported by
-\l{Qt Designer}.
+Signals and slots provide inter-object communication. They are easy
+to understand and use and are fully supported by \l {Qt Designer}.
 \endquote
 
-GUI applications respond to user actions. For example, when a user clicks
-a menu item or toolbar button, the program executes some code.  More
-generally, we want objects of any kind to be able to communicate with one
-another. For example, if we were parsing an XML file we might want to
-notify a list view that we're using to represent the XML file's structure
-whenever we encounter a new tag. The programmer must relate events to the
-relevant code. Older toolkits use mechanisms which are not type-safe
-(i.e. are crash-prone), are inflexible, and are not object oriented. Qt
-uses a mechanism, invented by Trolltech, called 'signals and slots'.
-Signals and slots is a powerful inter-object communication mechanism that
-can be used to completely replace the crude callbacks and message maps
-used by older toolkits. Signals and slots are type-safe, flexible, and
-well suited to component programming.
+GUI applications respond to user actions. For example, when a user
+clicks a menu item or toolbar button, the program executes some
+code.  More generally, we want objects of any kind to be able to
+communicate with each other. The programmer must relate events to the
+relevant code. Older toolkits use mechanisms that are not type safe
+(i.e. are crash prone), are inflexible, and are not object oriented.
+Trolltech has invented a solution called 'signals and slots'. Signals
+and slots is a powerful inter-object communication mechanism that can
+be used to completely replace the crude callbacks and message maps
+used by legacy toolkits. Signals and slots are type safe, flexible,
+fully object oriented and implemented in C++.
 
-If a programmer wants to associate some code with a button, using the old
-callback mechanism, they would have to pass a pointer to a function to
-the button. When the button is clicked, the function would then be
-called. There is no way of ensuring that arguments of the right type are
-given to the function when it is called, which makes crashes more likely.
-The other problem with the callback approach is that it tightly binds the
-GUI element to the functionality, making it difficult to develop classes
-independently.
+To associate some code with a button using the old callback
+mechanism, it is necessary to pass a pointer to a function to the
+button. When the button is clicked, the function is then called. Old
+toolkits do not ensure that arguments of the right type are given to
+the function when it is called, which makes crashes more likely.
+Another problem with the callback approach is that it tightly binds
+the GUI element to the functionality, making it difficult to develop
+classes independently.
 
-Qt's signals and slots mechanism is different. Qt widgets emit signals
-when events occur. For example, a button will emit a 'clicked' signal
-when it is clicked. The programmer can choose to connect to a signal
-by creating a function (called a slot) and calling the \Func
-connect() function to relate the signal with the slot. Qt's signals
-and slots mechanism does not require classes to have knowledge of each
-other, which makes it much easier to develop highly reusable software
-components. Signals and slots are type-safe, with type errors being
-reported by the compiler rather than by crashes.
+Qt's signals and slots mechanism is different. Qt widgets emit
+signals when events occur. For example, a button will emit a
+'clicked' signal when it is clicked. The programmer can choose to
+connect to a signal by creating a function (called a slot) and
+calling the \Func connect() function to relate the signal to the
+slot. Qt's signals and slots mechanism does not require classes to
+have knowledge of each other, which makes it much easier to develop
+highly reusable classes. Signals and slots are type safe, with type
+errors being reported by the compiler rather than by crashes.
 
   \index MFC
   \index Motif
@@ -52,15 +52,12 @@ reported by the compiler rather than by crashes.
   \index events
   \index state of widgets
 
-Objects, typically widgets, emit signals to indicate state
-changes. Signals can be connected to member functions, slots, that
-implement the required behavior.
-
   \index connect()
 
 For example, if a \Button Quit button's \Func clicked() signal is
 connected to the application's \Func quit() slot, a user's click on
-\Button Quit makes the application quit. In code, this is written as
+\Button Quit makes the application terminate. In code, this is
+written as
 \code
     connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) );
 \endcode
@@ -83,11 +80,11 @@ appear in the public, protected or private sections of a class.
 
   \index QObject
 
-To benefit from signals and slots, a class needs to inherit from
-\Class QObject or one of its subclasses and must include the \c
-Q_OBJECT macro in the class's definition. Signals are declared in the
-\c signals section of the class, while slots are declared in the \c
-{public slots}, \c {protected slots} or \c {private slots} sections.
+To benefit from signals and slots, a class must inherit from \Class
+QObject or one of its subclasses and include the \c Q_OBJECT macro in
+the class's definition. Signals are declared in the \c signals
+section of the class, while slots are declared in the \c public \c
+slots, \c protected \c slots or \c private \c slots sections.
 
   \index inheriting in Qt
   \index subclassing in Qt
@@ -111,16 +108,16 @@ Here's an example \Class QObject subclass:
     };
 \endcode
 
-The class \Class BankAccount has a constructor, a get function, \Func
-balance(), and a set function, \Func setBalance(), like almost any
-C++ class.
+In the style of most C++ classes, the class \Class BankAccount has a
+constructor, a get function \Func balance(), and a set function \Func
+setBalance().
 
-The class also has a signal, \Func balanceChanged(), that announces
+The class also has a signal \Func balanceChanged(), which announces
 that the balance in the account has changed. Signals are not
 implemented; when a signal is emitted, the slots it is connected to
 are executed.
 
-The set function is declared in the \c {public slots} section, so it
+The set function is declared in the \c public \c slots section, so it
 is a slot. Slots are standard member functions with an implementation
 that can be called like any other function, and which can also be
 connected to signals.
@@ -147,23 +144,21 @@ current balance as its argument. The keyword \c emit, like \c signals
 and \c slots, is provided by Qt and is transformed into standard C++
 by the C++ preprocessor.
 
-Here's an example of how to use \Class BankAccount:
+Here's an example of how to connect two \Class {BankAccount}s:
 \code
     BankAccount x, y;
     connect( &x, SIGNAL(balanceChanged(int)),
 	     &y, SLOT(setBalance(int)) );
     x.setBalance( 2450 );
 \endcode
-We create two \Class BankAccount objects, \c x and \c y, and connect
-\c x's \Func balanceChanged() signal to \c y's \Func setBalance()
-slot. When we set the balance in \c x to 2450, the \Func
-balanceChanged() signal is emitted and is received by \c y's \Func
+When the balance in \c x is set to 2450, the \Func balanceChanged()
+signal is emitted. The signal is received by \c y's \Func
 setBalance() slot, which sets \c y's balance to 2450.
 
-One object's signal can be connected to many different slots and many
-signals can be connected to one slot in a particular object. Connections
-can be made between any signal and slot, provided that their arguments
-are compatible.
+One object's signal can be connected to many different slots, and
+many signals can be connected to one slot in a particular object.
+Connections can be made between any signal and slot, provided that
+their arguments are compatible.
 
 \section1 Meta Object Compiler
 
@@ -175,13 +170,12 @@ are compatible.
 
 The signals and slots mechanism is implemented in pure standard C++.
 The implementation uses the C++ preprocessor and the Meta Object
-Compiler (\Cmd moc) included with the Qt library.
+Compiler (\Cmd moc) included with the Qt toolkit.
 
 The \Cmd moc reads the application's header files and generates the
 necessary code to support the signals and slots mechanism. Developers
-never have to edit or even look at the generated code, and the \Cmd
-qmake build tool generates the correct makefiles for the target
-platform.
+never have to edit or even look at the generated code. The \Cmd qmake
+build tool generates the correct Makefiles for the target platform.
 
   \index introspection
   \index magic

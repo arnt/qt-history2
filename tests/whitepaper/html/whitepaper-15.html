@@ -1,131 +1,45 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- ./component-model.leaf:3 -->
+<!-- ./qts-architecture.leaf:3 -->
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Component Model</title>
+<title>Qt's Architecture</title>
 </head>
 <body>
-<p align="right">[<a href="whitepaper-14.html">Prev: Collection Classes</a>] [<a href="whitepaper.html">Home</a>]</p>
-<h2 align="center">Component Model</h2>
+<p align="right">[<a href="whitepaper-14.html">Prev: Plugins and Dynamic Libraries</a>] [<a href="whitepaper.html">Home</a>]</p>
+<h2 align="center">Qt's Architecture</h2>
 <blockquote>
-<p>The Qt Component Model provides a cross-platform framework similar to COM on Windows. Using components makes it easier to upgrade or enhance functionality without having to replace an entire application. Components can also be used to share functionality among a group of applications. Qt components can be products in their own right, like COM components.</p>
+<p>Qt's functionality is built on the low-level APIs of the platforms it supports. This makes Qt flexible and efficient.</p>
 </blockquote>
-<h3><a name="1"></a>Concepts</h3>
-<!-- index COM --><!-- index QCOM --><!-- index Qt Component Model --><!-- index UCM --><!-- index component model --><!-- index components --><!-- index interfaces --><p>The component model is built around two key concepts: 'interfaces' and 'components'. An interface is a <font color=darkblue><b>QUnknownInterface</b></font> subclass that provides pure virtual functions. A component is a class that implements one or more interfaces.</p>
-<!-- index binary compatibility --><p>Components are stored in dynamic libraries. Application programmers always use a component through its interfaces. This eliminates the binary compatibility problem.</p>
-<!-- index GUID --><!-- index UUID --><p>Universally Unique Identifiers (UUIDs) are 128-bit integers that identify interfaces. A component knows the UUIDs of all the interfaces it implements, and will not allow itself to be cast to an interface type it does not support. This guarantees type safety. The use of UUIDs also eliminates version conflicts.</p>
-<h3><a name="2"></a>Dynamic Library Loading</h3>
-<!-- index DLL --><!-- index dynamic libraries --><!-- index libraries --><!-- index linking --><!-- index shared libraries --><p>The <font color=darkblue><b>QLibrary</b></font> class provides cross-platform dynamic library loading, a more powerful mechanism than the more restrictive build-time linking.</p>
-<p>Below is an example of the most basic way to dynamically load and use a library. The example attempts to obtain a pointer to the <tt>print_str</tt> symbol from the <tt>mylib</tt> library.</p>
-<pre>
-    typedef void (Prototype)( const char *str );
-
-    QLibrary lib( "mylib" );
-    Prototype *func = (Protoype *) lib.resolve( "print_str" );
-    if ( func )
-	func( "Hello world!" );
-</pre>
-<p>Calling a function this way is not type safe, and only symbols with C linkage are supported (due to C++ name mangling). These limitations are removed by using Qt components.</p>
-<h3><a name="3"></a>Using Components</h3>
-<p>Qt components can be used as unregistered components, as registered components and as plugins.</p>
-<h4><a name="3-1"></a>Unregistered Components</h4>
-<p>If the application knows where the shared library containing the component is located, it can construct a <font color=darkblue><b>QLibrary</b></font> object and query for the interface it requires.</p>
-<!-- index .dll --><!-- index .so --><p>In the following example, we expect <tt>blur.dll</tt> (on Windows) or <tt>blur.so</tt> (on Unix) to contain a component that implements the <font color=darkblue><b>ImageFilterInterface</b></font>.</p>
-<pre>
-    QLibrary lib( "blur" );
-    ImageFilterInterface *iface;
-    lib-&gt;queryInterface( IID_ImageFilter,
-			 (QUnknownInterface **) &amp;iface );
-    if ( iface ) {
-	iface-&gt;applyFilter( image );
-	iface-&gt;release();
-    }
-</pre>
-<p>This approach is very similar to conventional build-time linking, but with the following advantages: the application can search for the component at run time; it can load the component when the functionality is required; and it can unload the component to conserve memory. Unregistered components are most often used to split an application's functionality into easily manageable and upgradable components.</p>
-<h4><a name="3-2"></a>Registered Components</h4>
-<!-- index installed components --><!-- index registered components --><p>The <font color=darkblue><b>QComponentFactory</b></font> class provides functions to register and to look up components. Applications that know which components they need can access them through the component register using the component's UUID:</p>
-<pre>
-    const QUuid BlurFilterUuid =
-	    "{DD19964B-A2C8-42AE-AAF9-8ADC509BCA03}";
-
-    ImageFilterInterface *iface;
-    QComponentFactory::createInstance( BlurFilterUuid,
-	    IID_ImageFilter, (QUnknownInterface **) &amp;iface );
-    if ( iface ) {
-	iface-&gt;applyFilter( image );
-	iface-&gt;release();
-    }
-</pre>
-<p>Registered components are usually specialized components that define their own interfaces and that can be used by many unrelated applications. They may be supplied with a particular application, but in many cases registered components will be supplied by component vendors as additional tools for developers.</p>
-<h4><a name="3-3"></a>Plugins</h4>
-<!-- index plugins --><p>Applications can load any number of plugin components that implement the plugin interface defined by the application. Plugins are distinguished from each other by the features they implement. The <font color=darkblue><b>QPluginManager</b></font>&lt;T&gt; provides access to the available features. The following code obtains a list of filters (e.g. 'blur', 'sharpen') from all the plugins that supply image filters.</p>
-<pre>
-    QPluginManager&lt;ImageFilterInterface&gt; manager( IID_ImageFilter,
-						  "./plugins" );
-    QStringList features = manager-&gt;featureList();
-
-    for ( int i = 0; i &lt; features.count(); i++ ) {
-	ImageFilterInterface *iface;
-	manager-&gt;queryInterface( features[i],
-				 (QUnknownInterface **) &amp;iface );
-	add_to_filter_menu( features[i], iface-&gt;description() );
-	iface-&gt;release();
-    }
-</pre>
-<p>Plugins are used, for example, in text processors to provide spell-checking functionality, in web browsers to support unknown file formats, etc.</p>
-<h3><a name="4"></a>Writing Components</h3>
-<p>To write a component, the interfaces that it will implement must be defined. Here is the definition of an interface with one function:</p>
-<pre>
-    struct ImageFilterInterface : public QUnknownInterface
-    {
-	virtual void applyFilter( QImage *img ) = 0;
-    };
-</pre>
-<p>A component that implements the interface above must implement three functions from <font color=darkblue><b>QUnknownInterface</b></font>, <font color=darkblue>queryInterface()</font>, <font color=darkblue>addRef()</font> and <font color=darkblue>release()</font>, and one function from <font color=darkblue>ImageFilterInterface</font>. For convenience, the macro <tt>Q_REFCOUNT</tt> provides standard implementations for <font color=darkblue>addRef()</font> and <font color=darkblue>release()</font>.</p>
-<pre>
-    class BlurFilter : public ImageFilterInterface
-    {
-    public:
-	BlurFilter();
-
-	Q_REFCOUNT
-	QRESULT queryInterface( const QUuid&amp;,
-				QUnknownInterface ** );
-	virtual void applyFilter( QImage *img );
-    };
-</pre>
-<p>The <font color=darkblue>queryInterface()</font> function provides a pointer to an interface of the required type if the interface is supported by the component:</p>
-<pre>
-    QRESULT BlurFilter::queryInterface( const QUuid&amp; uuid,
-					QUnknownInterface **iface )
-    {
-	*iface = 0;
-
-	if ( uuid == IID_QUnknown ) {
-	    *iface = this;
-	} else if ( uuid == IID_ImageFilter ) {
-	    *iface = this;
-	} else {
-	    return QE_NOINTERFACE;
-	}
-	(*iface)-&gt;addRef();
-	return QS_OK;
-    }
-</pre>
-<p>Finally, the <font color=darkblue>applyFilter()</font> function must be implemented to provide the image-filtering capability.</p>
-<!-- index multiple inheritance --><p>A component can implement multiple interfaces by using multiple inheritance. Such a component's <font color=darkblue>queryInterface()</font> implementation must cast the <tt>this</tt> pointer to the appropriate interface type; apart from that, implementing multiple interfaces is as straightforward as implementing a single interface.</p>
-<h3><a name="5"></a>Placing Components in Shared Libraries</h3>
-<!-- index exporting components --><p>When compiling a component in a library, the component has to be exported so that <font color=darkblue><b>QLibrary</b></font> is aware of it. Qt provides macros to portably export components. <font color=darkblue><b>BlurFilter</b></font> is exported like this:</p>
-<pre>
-    Q_EXPORT_COMPONENT()
-    {
-	Q_CREATE_INSTANCE( BlurFilter )
-    }
-</pre>
-<p>This method allows one component to be exported per shared library. More components can be provided by exporting a factory component (a <font color=darkblue><b>QComponentFactoryInterface</b></font> subclass) to create instances of any component from the library. <font color=darkblue><b>QComponentFactory</b></font> automatically recognizes factory components and uses them to deliver components transparently to the application.</p>
-<!-- index qmake --><p>Makefiles for shared libraries can easily be generated for any platform supported by Qt using Trolltech's qmake tool.</p>
-<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/component.html>http://doc.trolltech.com/3.0/component.html</a> </ul></p>
+<!-- index emulating toolkits --><!-- index look and feel --><p>Qt is an 'emulating' cross-platform toolkit. All widgets are drawn by Qt, and programmers can extend or customize them by reimplementing virtual functions. Qt's widgets accurately emulate the look and feel of the supported platforms, as described in <a href="whitepaper-9.html">Styles and Themes</a>. This technique also enables developers to derive their own custom styles to provide a distinct look for their applications.</p>
+<p><center><img src= architecture-diag.png ></center></p>
+<blockquote><p align="center"><em>Qt's Architecture</em></p></blockquote>
+<!-- index MFC --><!-- index Motif --><!-- index layered toolkits --><p>Qt uses the low-level APIs of the different platforms it supports. This differs from traditional 'layered' cross-platform toolkits that are thin wrappers over single-platform toolkits (e.g. MFC on Windows and Motif on X11). Layered toolkits are usually slow, since every function call to the library results in many additional calls down through the different API layers. Layered toolkits are limited by the inflexibilities of the underlying toolkits, and usually behave slightly differently on the different platforms they support, leading to obscure bugs in applications.</p>
+<!-- index Embedded Linux --><!-- index Mac OS X --><!-- index Windows --><!-- index X Window System --><!-- index platforms --><p>Qt's API is implemented on a variety of platforms. Qt is professionally supported, and takes advantage of the available platforms: Windows, X11, Mac OS X and Embedded Linux. Using a single source tree, a Qt application can be converted into an executable simply by recompiling on the target platforms. Although Qt is a cross-platform toolkit, customers have found it to be easier to learn and more productive than platform-specific toolkits. Many customers use Qt for single-platform development, both on Windows and on Unix, preferring Qt's fully object-oriented approach.</p>
+<h3><a name="1"></a>Windows</h3>
+<!-- index GDI --><!-- index common controls --><!-- index file dialog --><!-- index print dialog --><p>Qt/Windows uses the Win32 API and GDI for events and drawing primitives. Qt does not use MFC or any other toolkit. In particular, Qt does not use the inflexible 'common controls', but rather provides its own more powerful, customizable widgets. (For non-specialized uses, the native Windows file and print dialogs are used by Qt.)</p>
+<!-- index transformations --><p>With Qt, the same executable works on Windows 95/98/NT4/ME/2000. Qt performs a run-time check for the Windows version, and uses the most advanced capabalities available. For example, only Windows NT4 and 2000 support rotated text natively; Qt can rended rotated text on all Windows versions, using the native support where available. As this example demonstrates, Qt developers are insulated from changes in the Windows API.</p>
+<!-- index accessibility --><p>Qt supports the Microsoft accessibility interfaces. Unlike Windows's common controls, Qt widgets can be extended without losing the accessibility information of the base widget. Custom widgets can also provide accessibility.</p>
+<!-- index multiple screens --><p>Qt supports multiple screens on Windows.</p>
+<h3><a name="2"></a>X11</h3>
+<!-- index Athena --><!-- index Xlib --><!-- index Xt --><p>Qt/X11 uses Xlib to communicate with the X server directly. Qt does not use Xt (X Toolkit), Motif, Athena or any other toolkit.</p>
+<!-- index look and feel --><p>Qt applications automatically adapt to the user's window manager or desktop environment, and have a native look and feel for Motif, SGI, CDE, GNOME and KDE. This contrasts with other Unix toolkits, which lock users into their own look and feel.</p>
+<!-- index Unicode --><!-- index codecs --><!-- index fonts --><p>Qt provides full <a href="whitepaper-8.html#1">Unicode</a> support. Qt applications can use Unicode fonts as well as non-Unicode fonts using codecs. Qt automatically combines multiple X fonts to render multi-lingual texts. Qt's font handling is intelligent enough to search all the installed fonts for a character, if that character is not available in the current font.</p>
+<!-- index RENDER --><!-- index X extensions --><!-- index XIM --><!-- index Xinerama --><!-- index alpha-blending --><!-- index anti-aliased fonts --><!-- index multiple screens --><p>Qt takes advantage of X extensions where they are available. Qt supports the RENDER extension for anti-aliased fonts and alpha-blending. Qt supports on-the-spot editing for X Input Methods. Qt supports multiple screens with both traditional multi-head and with Xinerama.</p>
+<h3><a name="3"></a>Mac OS X</h3>
+<!-- index Carbon --><p>New in version 3.0, Qt supports Mac OS X using the Carbon API. Qt/Mac creates a new market for customers who sell Qt applications.</p>
+<p>For Macintosh developers, the availability of Qt/Mac opens up a new world of possibilities. Macintosh developers can create applications on their favorite platform, using a fully object-oriented toolkit, and broaden their marked hugely simply by recompiling on, for example, Windows.</p>
+<!-- index OpenGL --><p>Qt/Mac also brings some technical to Macintosh development, for example, easy to use OpenGL, ### bloody hell, do our Mac competitors have such a nice tool as Designer? we'll ask Don &amp; Sam</p>
+<h3><a name="4"></a>Embedded Linux</h3>
+<!-- index frame buffer --><p>Qt/Embedded provides its own windowing environment and writes to the Linux frame buffer directly. Qt/Embedded eliminates the need for an X server, and runs faster and with a lower memory footprint than X11-based Linux devices.</p>
+<p>See the Qt/Embedded whitepaper for a complete technical overview. The key features are presented below.</p>
+<!-- index alpha-blending --><!-- index anti-aliased fonts --><!-- index fonts --><!-- index input methods --><!-- index memory --><p>Qt/Embedded uses alpha-blending for image painting and anti-aliased scalable TrueType and Type1 fonts. Qt/Embedded has flexible input handling, including hand-writing recognition, a pickboard and a virtual keyboard; it is easy to write new input methods. By selectively choosing features, the memory demands of Qt/Embedded can be tuned to between 800 KB and 3 MB in ROM (Intel x86).</p>
+<h3><a name="5"></a>Qt's Development World</h3>
+<!-- index RAD --><!-- index rapid application development --><p>Companies and developers from around the world are joining the Qt development community every day. They have recognized that Qt's architecture lends itself to rapid application development. These developers, whether they are targeting one or many platforms, are benefiting from Qt's consistent and straightforward API, and its powerful supporting tools such as <font color=red><b>qmake</i></font> and <em>Qt Designer</em>.</p>
+<!-- index mailing list --><p>Qt has an active and helpful user community who communicate using the <tt>qt-interest</tt> mailing list. See <a href="http://qt-interest.trolltech.com">http://qt-interest.trolltech.com</a> to subscribe or browse the archive.</p>
+<!-- index documentation --><!-- index guide --><!-- index manual --><!-- index reference documentation --><p>Qt is supplied with extensive documentation, which is also available on-line from <a href="http://doc.trolltech.com">http://doc.trolltech.com</a>.</p>
+<!-- index evaluation --><!-- index support --><p>Developers can evaluate Qt, with support, for 30 days on their preferred platform. See <a href="http://www.trolltech.com">http://www.trolltech.com</a> for details.</p>
+<p>For further information, email <a href="mailto:info@trolltech.com">info@trolltech.com</a>.</p>
 <!-- eof -->
 </body>
 </html>

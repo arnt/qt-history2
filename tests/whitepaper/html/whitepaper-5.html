@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- ./qt-designer.leaf:4 -->
+<!-- ./qt-designer.leaf:3 -->
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -8,9 +8,33 @@
 <body>
 <p align="right">[<a href="whitepaper-4.html">Prev: GUI Applications</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-6.html">Next: 2D and 3D Graphics</a>]</p>
 <h2 align="center">Qt Designer</h2>
-<h3><a name="1"></a>GUI Application Example</h3>
+<!-- index Designer --><!-- index Qt Designer --><blockquote>
+<p><i>Qt Designer</i> is written in Qt and provides visual user-interface design. Qt applications can be written entirely as source code, or using <i>Qt Designer</i> to speed up development.</p>
+</blockquote>
+<p align="center"><img align="middle" src="designer-wp.png" width="833" height="696">
+</p>
+<blockquote><p align="center"><em>Qt Designer</em></p></blockquote>
+<p>Designing a form with <i>Qt Designer</i> is a simple process. Developers click a toolbar button representing the widget they want, then click on a form to place the widget. The widget's properties can then be changed using the property editor. The precise positions and sizes of the widgets does not matter. Developers select widgets and apply layouts to them. For example, some button widgets could be selected and laid out side-by-side by choosing the 'lay out horizontally' option. This approach makes design very fast, and the finished forms will scale properly to fit whatever window size the end-user prefers. See <a href="whitepaper-10.html">Layouts</a> for information about Qt's automatic layouts.</p>
+<p><i>Qt Designer</i> eliminates the time consuming compile, link and run cycle, and makes it easy to correct or change designs. <i>Qt Designer</i>'s preview options let developers see their forms in any style, for example, a Windows developer can preview a form in Motif style. <i>Qt Designer</i> provides live preview and editing of database data through its tight integration with Qt's database classes. See <a href="whitepaper-7.html">Databases</a> for more about Qt's database support.</p>
+<p>Developers can create both dialog-style applications and main window-style applications with menus, toolbars, balloon help, etc. Several form templates are supplied, and developers can create their own templates to ensure consistency across an application or family of applications. <i>Qt Designer</i> uses wizards to make creating toolbars, menus and database applications as fast and easy as possible. Programmers can create their own custom widgets that can easily be integrated with <i>Qt Designer</i>.</p>
+<p><i>Qt Designer</i> supports a project-based approach to application development. A project is represented by a <font color=red><i>.pro</i></font> file, which <font color=red><b>qmake</i></font> can use to generate Makefiles. Developers create a new project and then add forms and source files as required. Developers can completely separate the user interface from the underlying functionality by subclassing, or they can keep their source code and forms together by editing the form's source directly in <i>Qt Designer</i>.</p>
+<p>Icons and other images used in the application are automatically shared across all forms in a project to reduce executable size and speed up loading.</p>
+<!-- index XML --><p>Form designs are stored in XML format in <font color=red><i>.ui</i></font> files and converted into C++ header and source files by the <font color=red><b>uic</i></font> (User Interface Compiler). The <font color=red><b>qmake</i></font> build tool automatically includes build rules for <font color=red><b>uic</i></font> in the Makefiles it generates, so developers do not need to invoke <font color=red><b>uic</i></font> themselves.</p>
+<p>Usually forms are compiled into the executable, but in some situations customers need to modify the appearance of an application without accessing the source code. Qt supports 'dynamic dialogs': <font color=red><i>.ui</i></font> files that can be loaded at run-time and dynamically converted into fully functional forms. Companies can supply application executables along with the customer-modifiable forms in <font color=red><i>.ui</i></font> format, and the customer can use <i>Qt Designer</i> to customize the appearance of the application's forms. Loading a dynamic dialog is trivial:</p>
+<pre>
+    QDialog *creditForm = (QDialog *)
+			  QWidgetFactory::create( "creditform.ui" );
+</pre>
+<h3><a name="1"></a>Qt Assistant</h3>
+<p><i>Qt Designer</i>'s on-line help is provided by the Qt Assistant application. Qt Assistant displays Qt's entire documentation set, and works in a similar way to a web browser. Unlike web browsers, Qt Assistant applies an intelligent indexing algorithm to provide fast searching for words and phrases that occur in the documentation.</p>
+<p align="center"><img align="middle" src="assistant-wp.png" width="867" height="550">
+</p>
+<blockquote><p align="center"><em>Qt Assistant</em></p></blockquote>
+<p>Qt's reference documentation consists of around 1,500 HTML pages (over 2,500 US letter sized pages), which document Qt's classes and tools, and which include overviews and introductions to various aspects of Qt programming.</p>
+<!-- index HTML viewer --><p>Qt Assistant is a Qt application that renders Qt's HTML reference documentation using <font color=darkblue><b>QTextEdit</b></font>. The <font color=darkblue><b>QTextEdit</b></font> class supports a subset of HTML 3.2, and can also use custom tags that are created with the <font color=darkblue><b>QStyleSheet</b></font> class.</p>
+<h3><a name="2"></a>GUI Application Example</h3>
 <p>* SCREEN SHOT</p>
-<p><hr><ul> ### </ul></p>
+<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/designer-manual.html>http://doc.trolltech.com/3.0/designer-manual.html</a> </ul></p>
 <!-- eof -->
 <p align="right">[<a href="whitepaper-4.html">Prev: GUI Applications</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-6.html">Next: 2D and 3D Graphics</a>]</p>
 </body>

@@ -1,5 +1,9 @@
 \chapter Collection Classes
 
+  \index STL
+  \index collection classes
+  \index containers
+
 \quote
 Collection classes are used to store groups of items in memory. Qt
 provides a set of classes, that are compatible with the Standard
@@ -13,9 +17,6 @@ STL (standard template library) which provides read-made data
 structures for storing items. Qt provides lists, stacks, queues and
 dictionaries with STL-syntax that work with all compilers.
 
-  \index STL
-  \index collection classes
-  \index containers
   \index iterators
   \index templates
 

@@ -11,14 +11,28 @@ right, like COM components.
 
 \section1 Concepts
 
+  \index COM
+  \index QCOM
+  \index Qt Component Model
+  \index UCM
+  \index component model
+
+  \index components
+  \index interfaces
+
 The component model is built around two key concepts: 'interfaces'
 and 'components'. An interface is a \Class QUnknownInterface
 subclass that provides pure virtual functions. A component is a class
 that implements one or more interfaces.
 
+  \index binary compatibility
+
 Components are stored in dynamic libraries. Application programmers
 always use a component through its interfaces. This eliminates the
 binary compatibility problem.
+
+  \index GUID
+  \index UUID
 
 Universally Unique Identifiers (UUIDs) are 128-bit integers that
 identify interfaces. A component knows the UUIDs of all the
@@ -27,6 +41,12 @@ interface type it does not support. This guarantees type safety. The
 use of UUIDs also eliminates version conflicts.
 
 \section1 Dynamic Library Loading
+
+  \index DLL
+  \index dynamic libraries
+  \index libraries
+  \index linking
+  \index shared libraries
 
 The \Class QLibrary class provides cross-platform dynamic library
 loading, a more powerful mechanism than the more restrictive
@@ -58,6 +78,9 @@ If the application knows where the shared library containing the
 component is located, it can construct a \Class QLibrary object and
 query for the interface it requires.
 
+  \index .dll
+  \index .so
+
 In the following example, we expect \c blur.dll (on Windows) or \c
 blur.so (on Unix) to contain a component that implements the \Class
 ImageFilterInterface.
@@ -81,6 +104,9 @@ an application's functionality into easily manageable and upgradable
 components.
 
 \section2 Registered Components
+
+  \index installed components
+  \index registered components
 
 The \Class QComponentFactory class provides functions to register and
 to look up components. Applications that know which components they
@@ -106,6 +132,8 @@ in many cases registered components will be supplied by component
 vendors as additional tools for developers.
 
 \section2 Plugins
+
+  \index plugins
 
 Applications can load any number of plugin components that
 implement the plugin interface defined by the application. Plugins
@@ -185,6 +213,8 @@ component:
 Finally, the \Func applyFilter() function must be implemented to
 provide the image-filtering capability.
 
+  \index multiple inheritance
+
 A component can implement multiple interfaces by using multiple
 inheritance. Such a component's \Func queryInterface() implementation
 must cast the \c this pointer to the appropriate interface type;
@@ -192,6 +222,8 @@ apart from that, implementing multiple interfaces is as
 straightforward as implementing a single interface.
 
 \section1 Placing Components in Shared Libraries
+
+  \index exporting components
 
 When compiling a component in a library, the component has to be
 exported so that \Class QLibrary is aware of it. Qt provides macros
@@ -210,6 +242,8 @@ More components can be provided by exporting a factory component
 any component from the library. \Class QComponentFactory
 automatically recognizes factory components and uses them to deliver
 components transparently to the application.
+
+  \index qmake
 
 Makefiles for shared libraries can easily be generated for any
 platform supported by Qt using Trolltech's \Cmd qmake tool.

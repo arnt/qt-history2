@@ -1,27 +1,61 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- ./collection-classes.leaf:3 -->
+<!-- ./plugins-and-dynamic-libraries.leaf:3 -->
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Collection Classes</title>
+<title>Plugins and Dynamic Libraries</title>
 </head>
 <body>
-<p align="right">[<a href="whitepaper-13.html">Prev: Input/Output and Networking</a>] [<a href="whitepaper.html">Home</a>]</p>
-<h2 align="center">Collection Classes</h2>
-<blockquote>
-<p>Collection classes are used to store groups of items in memory. Qt provides a set of classes, that are compatible with the Standard Template Library (STL), and which work regardless of whether the compiler supports STL or not.</p>
+<p align="right">[<a href="whitepaper-13.html">Prev: Collection Classes</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-15.html">Next: Qt's Architecture</a>]</p>
+<h2 align="center">Plugins and Dynamic Libraries</h2>
+<!-- index codecs --><!-- index database drivers --><!-- index image formats --><!-- index styles --><blockquote>
+<p>Qt can access functions from dynamic libraries platform-independently. Qt also supports plugins, which allow developers to create and distribute Qt codecs, database drivers, image format converters, styles and custom widgets as independent components.</p>
 </blockquote>
-<p>Applications often need to manage items in memory, for example, groups of images, widgets or custom objects. Many C++ compilers support the STL (standard template library) which provides read-made data structures for storing items. Qt provides lists, stacks, queues and dictionaries with STL-syntax that work with all compilers.</p>
-<!-- index STL --><!-- index collection classes --><!-- index containers --><!-- index iterators --><!-- index templates --><p>Qt's rich set of portable collection classes ('containers') and associated iterators are heavily used internally, and are provided as part of the Qt API. Qt's containers are optimized for speed and memory efficiency using two techniques, 'private classes' and 'implicit sharing'. Programmers can also use STL containers on the platforms that support them, at the cost of losing Qt's optimizations.</p>
-<!-- index bloat problem --><!-- index code bloat problem --><!-- index private classes --><p>Template classes usually increase the size of executables dramatically, because the compiler generates essentially the same code for each specialized type. The Qt collection classes use templates but reduce code bloat by using the private classes approach. Most of the collection class functionality is provided by non-template private classes. The actual collection classes are implemented as a thin layer over these private classes.</p>
-<h3><a name="1"></a>Value-based Collections</h3>
-<!-- index QTL --><!-- index algorithms --><!-- index lists --><!-- index maps --><!-- index stacks --><!-- index value-based collections --><!-- index vectors --><p>Qt provides six value-based collection classes: <font color=darkblue><b>QMap</b></font>&lt;Key,T&gt;, <font color=darkblue><b>QValueList</b></font>&lt;T&gt;, <font color=darkblue><b>QValueStack</b></font>&lt;T&gt;, <font color=darkblue><b>QValueVector</b></font>&lt;T&gt; and <font color=darkblue><b>QStringList</b></font>. They have an interface very similar to the STL containers and are fully compatible with the STL algorithms. Qt provides some STL-equivalent algorithms: <font color=darkblue>qCopy()</font>, <font color=darkblue>qFind()</font>, <font color=darkblue>qHeapSort()</font>, etc. On platforms with STL support, Qt provides automatic conversion operators between STL and Qt containers.</p>
-<!-- index copy on write --><!-- index implicit sharing --><!-- index reference counting --><!-- index sharing --><p>Qt's value-based collection classes are implicitly shared, also known as 'copy on write'. Copies of instances of these classes share the same data in memory. The data sharing is handled automatically; if the application modifies the contents of one of the copied objects, a deep copy of the data is made so that the other objects are left unchanged. When an object is copied, only a pointer is passed and a reference count incremented, which is much faster than actually copying the data and saves memory.</p>
-<!-- index strings --><p>Implicit sharing is used wherever it makes sense: in Qt's value-based collection classes, and in <font color=darkblue><b>QBitmap</b></font>, <font color=darkblue><b>QBrush</b></font>, <font color=darkblue><b>QCursor</b></font>, <font color=darkblue><b>QFont</b></font>, <font color=darkblue><b>QIconSet</b></font>, <font color=darkblue><b>QPalette</b></font>, <font color=darkblue><b>QPen</b></font>, <font color=darkblue><b>QPicture</b></font>, <font color=darkblue><b>QPixmap</b></font>, <font color=darkblue><b>QRegion</b></font>, <font color=darkblue><b>QRegExp</b></font>, <font color=darkblue><b>QString</b></font>, etc. Programmers can safely and efficiently copy objects of these classes by value, avoiding the risks related to using pointers and hand optimization. In particular, the implicitly shared <font color=darkblue><b>QString</b></font> class makes string processing fast and easy.</p>
-<!-- index POD --><!-- index arrays --><!-- index memory arrays --><!-- index plain old data --><p>Qt also provides the low-level <font color=darkblue><b>QMemArray</b></font>&lt;T&gt; class with its subclasses <font color=darkblue><b>QBitArray</b></font>, <font color=darkblue><b>QByteArray</b></font> and <font color=darkblue><b>QPointArray</b></font>. These classes are very efficient for handling basic "plain old data" types.</p>
-<h3><a name="2"></a>Pointer-based Collections</h3>
-<!-- index auto-deletion --><!-- index caches --><!-- index delete --><!-- index dictionaries --><!-- index lists --><!-- index ownership --><!-- index pointer-based collections --><!-- index queues --><!-- index stacks --><!-- index vectors --><p>Qt provides many low-level, generic pointer-based collection classes: <font color=darkblue><b>QDict</b></font>&lt;Key,T&gt;, <font color=darkblue><b>QPtrList</b></font>&lt;T&gt;, <font color=darkblue><b>QPtrQueue</b></font>&lt;T&gt;, <font color=darkblue><b>QPtrStack</b></font>&lt;T&gt;, <font color=darkblue><b>QPtrVector</b></font>&lt;T&gt; and <font color=darkblue><b>QCache</b></font>&lt;T&gt;. These classes store pointers rather than values. They are especially useful for storing pointers to <font color=darkblue><b>QWidget</b></font>s and <font color=darkblue><b>QObject</b></font>s. The pointer-based collection classes can optionally take ownership of the objects they contain and automatically delete them when the collection is destroyed.</p>
-<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/qtl.html>http://doc.trolltech.com/3.0/qtl.html</a> <li><a href=http://doc.trolltech.com/3.0/collections.html>http://doc.trolltech.com/3.0/collections.html</a> <li><a href=http://doc.trolltech.com/3.0/shclass.html>http://doc.trolltech.com/3.0/shclass.html</a> </ul></p>
+<h3><a name="1"></a>Dynamic Libraries</h3>
+<!-- index DLL --><!-- index dynamic libraries --><!-- index libraries --><!-- index linking --><!-- index shared libraries --><p>The <font color=darkblue><b>QLibrary</b></font> class provides cross-platform dynamic library loading, a more powerful mechanism than the more restrictive build-time linking.</p>
+<p>Below is an example of the most basic way to dynamically load and use a library. The example attempts to obtain a pointer to the <tt>print_str</tt> symbol from the <tt>mylib</tt> library.</p>
+<pre>
+    typedef void (Prototype)( const char *str );
+
+    QLibrary lib( "mylib" );
+    Prototype *func = (Protoype *) lib.resolve( "print_str" );
+    if ( func )
+	func( "Hello world!" );
+</pre>
+<p>Calling a function this way is not type safe, and only symbols with C linkage are supported (due to C++ name mangling). These limitations do not apply to Qt plugins.</p>
+<h3><a name="2"></a>Plugins</h3>
+<p>Converting a Qt codec, database driver, image format converter, style or custom widget into a plugin is achieved by subclassing the appropriate plugin base class, implementing a few simple functions, and adding a macro.</p>
+<p>For example, if a developer has created a <font color=darkblue><b>QStyle</b></font> subclass called 'HeavenlyStyle' that they want to make available as a plugin, they would create a subclass like this:</p>
+<pre>
+    class HeavenlyStylePlugin : public QStylePlugin
+    {
+    public:
+	HeavenlyStylePlugin() { }
+	~HeavenlyStylePlugin() { }
+
+	QStringList keys() const {
+	    return QStringList() &lt;&lt; "HeavenlyStyle"; 
+	}
+
+	QStyle* create( const QString&amp; key ) { 
+	    if ( key == "HeavenlyStyle" ) 
+		return new HeavenlyStyle;
+	    return 0;
+	}
+    };
+
+    Q_EXPORT_PLUGIN( HeavenlyStylePlugin )
+</pre>
+<p>The new style can be set like this:</p>
+<pre>
+    QApplication::setStyle( QStyleFactory::create("MyStyle") );
+</pre>
+<p>Database drivers, codecs, custom widgets and image formats that are supplied as plugins are detected and used by the application automatically.</p>
+<p>Companies already provide Qt components in source form, as precompiled dynamic libraries and as plugins.</p>
+<p align="center"><img align="middle" src="klaralvdalen.png" alt="Calendar widget" width="261" height="182">
+</p>
+<blockquote><p align="center"><em>One of <a href= http://www.klaralvdalens-datakonsult.se/ >Klar&auml;lvdalens Datakonsult</a>'s many commercial components</em></p></blockquote>
 <!-- eof -->
+<p align="right">[<a href="whitepaper-13.html">Prev: Collection Classes</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-15.html">Next: Qt's Architecture</a>]</p>
 </body>
 </html>

@@ -1,11 +1,11 @@
 \chapter Internationalization
 
 \quote
-Qt fully supports Unicode, the international standard character
-encoding scheme. Programmers can freely mix Arabic, English,
-Hebrew, Japanese, Russian, and every other language supported by
-Unicode, in their applications. Qt also includes tools to support
-application translation to help companies reach international markets.
+Qt fully supports Unicode, the international standard character set.
+Programmers can freely mix Arabic, English, Hebrew, Japanese,
+Russian, and every other language supported by Unicode, in their
+applications. Qt also includes tools to support application
+translation to help companies reach international markets.
 \endquote
 
   \index i18n
@@ -15,15 +15,14 @@ application translation to help companies reach international markets.
   \index multi-language
 
 Qt includes tools to facilitate the translation process. Programmers
-can easily mark user-visible text that needs translation and a tool is
-provided which extracts this text from the source code. \e {Qt
-Linguist} is an easy-to-use GUI application for translators that reads
-the extracted source text and provides the text with context
-information for the translator to translate. When the translation is
-complete \e {Qt Linguist} outputs the translations ready for use by
-application programs. \e {Qt Linguist}'s documentation provides the
-relevant information for release managers, translators and
-programmers.
+can easily mark user-visible text that needs translation, and a tool
+extracts this text from the source code. \e {Qt Linguist} is an
+easy-to-use GUI application that reads the extracted source texts,
+and provides the texts with context information ready for
+translation. When the translation is complete, \e {Qt Linguist}
+outputs a translation file for use by application programs. \e {Qt
+Linguist}'s documentation provides the relevant information for
+release managers, translators and programmers.
 
 \section1 Unicode
 
@@ -50,7 +49,7 @@ as \Func QChar::lower() and \Func QChar::isPunct() replace \Func
 tolower() and \Func ispunct() and work over the whole Unicode range.
 Qt's regular expression engine, provided by the \Class QRegExp class,
 uses Unicode strings both for the regular expression pattern and the
-string to match.
+target string.
 
 \omit
 Items in widget classes such as \Class QListBox and \Class QTable can
@@ -64,7 +63,8 @@ be sorted in the locale's dictionary order (only on Windows so far).
 
 Conversion to and from different encodings and charsets is handled by
 \Class QTextCodec subclasses. Qt uses \Class QTextCodec for fonts,
-input methods and I/O; you can use it for your own purposes as well.
+input methods and I/O; programmers can use it for their own purposes
+as well.
 
   \index Big5
   \index EUC-JP
@@ -87,6 +87,7 @@ subclassing \Class QTextCodec.
   \index Arabic
   \index Chinese
   \index Cyrillic
+  \index English
   \index Greek
   \index Hebrew
   \index Japanese
@@ -107,9 +108,9 @@ displayed on screen, from the simplest label to the most
 sophisticated rich-text editor. The engine supports advanced features
 such as special line breaking behavior, bidirectional writing and
 diacritical marks. It renders most of the world's writing systems,
-including Arabic, Chinese, Cyrillic, Greek, Hebrew, Japanese, Korean,
-Latin, Thai and Vietnamese. Qt will automatically combine many of the
-installed fonts to render multi-language text.
+including Arabic, Chinese, Cyrillic, English, Greek, Hebrew,
+Japanese, Korean, Latin, Thai and Vietnamese. Qt will automatically
+combine the installed fonts to render multi-language text.
 
 \section1 Input Methods
 
@@ -119,7 +120,7 @@ installed fonts to render multi-language text.
 Far-Eastern writing systems require many more characters than are
 available on a keyboard. The conversion from a sequence of key
 presses to actual characters is performed at the window-system level
-by software called input methods. Qt automatically supports the
+by software called 'input methods'. Qt automatically supports the
 installed input methods.
 
 \section1 Dates and Times
@@ -135,25 +136,24 @@ The editor classes for dates and times (\Class QDateEdit, \Class
 QTimeEdit and \Class QDateTimeEdit) respect the user's locale for
 separators and ordering.
 
-\section1 Translating Your Application
+\section1 Translating Applications
 
-\omit ### Mark, I edited the following paragraph \endomit
+  \index text translation
+  \index translation
 
-  \index translations
-
-Qt provides functions and tools to help you provide applications
-translated to many languages.
+Qt provides tools and functions to help developers provide
+applications in their customers' native languages.
 
   \index tr()
 
 To make a string translatable, simply wrap it in a call to \Func tr()
-(read "translate"):
+(read 'translate'):
 \code
     saveButton->setText( tr("Save") );
 \endcode
 \Func tr() attempts to replace a string literal (e.g. \c "Save") with
 a translation if one is available; otherwise it uses the original
-text. You can use English as the source language and Chinese as the
+text. English can be used as the source language and Chinese as the
 translated language, or vice versa. The argument to \Func tr() is
 converted to Unicode from the application's default encoding.
 
@@ -170,7 +170,7 @@ The 'context' is the name of a \Class QObject subclass. It is
 usually omitted, in which case the class containing the \Func tr()
 call is used as the context. The 'source text' is the text to
 translate. The 'comment' is optional; along with the context, it
-provides additional information to the human translators.
+provides additional information to human translators.
 
   \index .qm
   \index QTranslator
@@ -178,9 +178,9 @@ provides additional information to the human translators.
 
 Translations are stored in \Class QTranslator objects, which use
 disk-based \c .qm files (Qt Message files). Each \c .qm file contains
-the translations for a particular language. It is possible to choose
-the language at run-time; for example, according to the locale or
-user preferences.
+the translations for a particular language. The language can be
+chosen at run-time, in accordance with the locale or user
+preferences.
 
   \index Linguist
   \index Qt Linguist
@@ -203,8 +203,8 @@ Qt provides three tools for preparing \c .qm files: \Cmd lupdate, \e
    files, and generates a \c .ts file (Translation Source file). \c
    .ts files are in human-readable XML format.
 
-\i Translators use the \e {Qt Linguist} tool to provide translations
-   for the source texts in the \c .ts files.
+\i Translators use \e {Qt Linguist} to provide translations for the
+   source texts in the \c .ts files.
 
 \i Highly compressed \c .qm files are generated by running \Cmd
    lrelease on the \c .ts files.
@@ -216,19 +216,19 @@ an application. It is perfectly safe to run \Cmd lupdate frequently,
 as it reuses existing translations and marks translations for
 obsolete source texts without eliminating them. \Cmd lupdate also
 detects slight changes in source texts and automatically suggests
-translations. These translations are marked as unfinished so that a
-translator can easily check them.
+appropriate translations. These translations are marked as unfinished
+so that a translator can easily check them.
 
   \index French
   \index German
 
-Qt itself contains a modest 400 user-visible strings, for which
+Qt itself contains about 400 user-visible strings, for which
 Trolltech provides French and German translations.
 
 \section1 Qt Linguist
 
-\e {Qt Linguist} is a tool written in Qt to help translators
-translate Qt applications.
+\e {Qt Linguist} is a Qt application that helps translators translate
+Qt applications.
 
   \img linguist.png
   \caption Qt Linguist
@@ -240,18 +240,20 @@ texts for the current context is displayed in the top-right area,
 along with translations. By selecting a source text, the translator
 can enter a translation for it, mark it as done or unfinished, and
 proceed to the next unfinished translation. Keyboard shortcuts are
-provided for all the common navigation operations: \Menu {Done \&
-Next}, \Menu {Next Unfinished}, etc. The user interface's dockable
-windows can be reorganized to suit the translators' preferences.
+provided for all the common navigation options: \Menu {Done & Next},
+\Menu {Next Unfinished}, etc. The user interface's dockable windows
+can be reorganized to suit the translators' preferences.
+
+  \index accelerators
 
 Applications often use the same phrases many times in different
 source texts. \e {Qt Linguist} automatically displays intelligent
 guesses based on previously translated strings and predefined
 translations at the bottom of the window. Guesses often serve as a
-good starting point, and help translators to translate similar texts
+good starting point that helps translators translate similar texts
 consistently. \e {Qt Linguist} can optionally validate translations
 to ensure that accelerators and ending punctuation are translated
-appropriately.
+correctly.
 
 \ONLINES
 \Online i18n.html

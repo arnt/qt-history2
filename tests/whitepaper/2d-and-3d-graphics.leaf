@@ -13,17 +13,15 @@
   \index Unisys
   \index XBM
   \index XPM
+  \index bitmaps
   \index graphics
   \index icons
   \index images
   \index pictures
 
 The \Class QImage class supports the input, output and manipulation
-of images in several formats, including BMP, GIF\footnote If you are
-in a country that recognizes software patents and in which Unisys
-holds a patent on LZW decompression and you want to use GIF, Unisys
-may require you to license the technology.\endfootnote, JPEG, MNG,
-PNG, PNM, XBM and XPM.
+of images in several formats, including BMP, GIF*, JPEG, MNG, PNG,
+PNM, XBM and XPM.
 
 Many of Qt's built-in widgets can display images, for example
 buttons, labels, menu items, etc. Here's how to display an icon on a
@@ -33,9 +31,10 @@ push button:
   \skipuntil quote
   \printto endquote
 
-  \img icon-on-button.png An icon on a button
+  \img icon.png An icon on a button
 
   \index alpha channel
+  \index palette
   \index transformations
   \index transparency
 
@@ -47,6 +46,7 @@ channel' in a \Class QImage along with the color data for their own
 purposes (e.g. transparency and alpha-blending).
 
   \index animations
+  \index movies
 
 The \Class QMovie class can be used to display animated images.
 
@@ -55,7 +55,7 @@ The \Class QMovie class can be used to display animated images.
   \index painting
 
 The \Class QPainter provides a platform-independent API for painting
-on widgets. It provides primitives as well as advanced functionality
+widgets. It provides primitives as well as advanced functionality
 such as transformations and clipping. All Qt's built-in widgets paint
 themselves using \Class QPainter. Programmers invariably use \Class
 QPainter when implementing their own custom widgets.
@@ -91,11 +91,9 @@ the widget using a 'viewport'.
 
   \index events
 
-The example below shows a bar-graph custom widget. It uses a \Class
+The code below draws a bar-graph custom widget. It uses a \Class
 QPainter in the reimplementation of \Func paintEvent(), with the
 default coordinate system.
-
-  \img bar-graph.png
 
   \quotefile painting/painting.cpp
   \skipuntil quote
@@ -104,14 +102,21 @@ default coordinate system.
   \index clipping
   \index flicker
 
+The widget is drawn correctly at different sizes because the code
+uses the \Func width(), \Func height() and \Func rect() functions.
+The widget produced by this code is shown below.
+
+  \img painting.png
+
 \Class QPainter supports clipping using a region composed of
 rectangles, polygons, ellipses and bitmaps. Complex regions may be
-created by uniting, intersecting, subtracting or XOR'ing simple
+created by uniting, intersecting, subtracting and XOR'ing simple
 regions. Clipping can be used to reduce flicker when repainting.
 
   \index HSV
   \index RGB
   \index colors
+  \index palette
 
 The \Class QColor class stores a color specified by a RGB or HSV
 triple, or by a name (e.g. 'skyblue'). Qt programmers can specify any
@@ -126,6 +131,7 @@ predefined in Qt.
 required to paint on any supported device is the same, regardless of
 the device. Qt supports the following paint devices:
 
+  \index bitmaps
   \index double buffering
   \index flicker
   \index images
@@ -139,15 +145,16 @@ buffering'.
 
   \index SVG
   \index XML
+  \index meta-files
   \index pictures
+  \index rotations
   \index scales
   \index shears
-  \index rotations
 
 \i A \Class {QPicture} is a vector image that can be scaled, rotated
 and sheared gracefully. The \Class QPicture class stores an image as
 a list of paint commands rather than as pixel data. It supports the
-SVD (W3C Scalable Vector Graphics) XML format for input and output.
+SVG (W3C's Scalable Vector Graphics) XML format for input and output.
 
   \index printers
 
@@ -178,7 +185,7 @@ more lightweight than widgets, and they can be quickly moved, hidden,
 and shown. \Class QCanvas has efficient support for collision
 detection, and can list all the canvas items in a given area. \Class
 QCanvasItem can be subclassed to provide custom item types and to
-extend the functionality of existing types (e.g. \Class QCanvasText).
+extend the functionality of existing types.
 
   \index rotations
   \index scales
@@ -214,6 +221,9 @@ QPainter.
 Qt's OpenGL module is available on Windows, X11 and Macintosh, and
 uses the system's OpenGL library (including Mesa).
 
+  \img brain-innovation.jpg
+  \caption Brain Innovation's BrainVoyager Qt application
+
   \index alpha channel
   \index colormap
   \index double buffering
@@ -228,23 +238,22 @@ When using Qt, developers write in pure OpenGL. Qt also provides two
 convenience functions, \Func qglClearColor() and \Func qglColor(),
 that accept a \Class QColor argument and work in any mode.
 
-\omit ### HOOPS by Tech Soft America? ### \endomit
-
 \section1 A 3D Example
 
   \img box3d.png
 
-The following example draws a 3D box with sliders to rotate the box
-around the X, Y and Z axes.
+The complete code for an application that draws a 3D box, with
+sliders to rotate the box around the X, Y and Z axes, is presented
+below.
 
-In \File box3d.h, we define \Class Box3D like this:
+In \File box3d.h, \Class Box3D is defined like this:
 
   \quotefile box3d/box3d.h
   \skipuntil #define
   \printto #endif
-
-In \File box3d.cpp, we implement the functions declared in \File
-box3d.h:
+ 
+In \File box3d.cpp, the functions declared in \File box3d.h are
+implemented:
 
   \quotefile box3d/box3d.cpp
   \skipto #include
@@ -253,7 +262,8 @@ box3d.h:
   \skipto glEnd()
   \printuntil }
 
-In \File main.cpp, we create a \Class Box3D instance.
+In \File main.cpp, a \Class Box3D instance and three sliders are
+created:
 
   \quotefile box3d/main.cpp
   \skipto #include
@@ -265,3 +275,9 @@ In \File main.cpp, we create a \Class Box3D instance.
 \Online canvas.html
 \Online opengl.html
 \ENDONLINES
+
+\FOOTNOTE
+If you are in a country that recognizes software patents and where
+Unisys holds a patent on LZW decompression, Unisys may require you to
+license the technology to use GIF.
+\ENDFOOTNOTE

@@ -7,7 +7,7 @@
 #include "clock.h"
 
 Clock::Clock( QWidget *parent, const char *name )
-    : QLCDNumber( parent, name ), showingColon( TRUE  )
+    : QLCDNumber( parent, name ), showingColon( TRUE )
 {
     showTime();
     startTimer( 1000 );

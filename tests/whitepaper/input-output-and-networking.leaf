@@ -2,6 +2,9 @@
 
 \section1 Input/Output
 
+  \index Unicode
+  \index binary serialization
+  \index input/output
   \index serialization
 
 Qt provides classes to perform advanced I/O on multiple platforms.
@@ -68,6 +71,11 @@ directory along with their size, in decreasing size order:
     }
 \endcode
 
+  \index FTP
+  \index HTTP
+  \index URL
+  \index networking
+
 Transparent access to remote files is provided by \Class
 QUrlOperator. In addition to local file system access, Qt supports
 the the FTP and HTTP protocols and can be extended to support other
@@ -85,6 +93,12 @@ QPainter. These classes are described in \l {2D Graphics}.
 
 \section1 XML
 
+  \index DOM
+  \index Java
+  \index SAX
+  \index W3C
+  \index XML
+
 Qt's XML module provides a SAX parser and a DOM parser, both of which
 read well-formed XML and are non-validating. The SAX (Simple API for
 XML) implementation follows the design of the SAX2 Java
@@ -100,6 +114,10 @@ structure in memory that can be traversed at will.
 
 \section1 Inter-Process Communication
 
+  \index IPC
+  \index asynchronous I/O
+  \index processes
+
 The \Class QProcess class is used to start external programs and to
 communicate with them from a Qt application in a platform-independent
 way. Communication is achieved by writing to the external program's
@@ -112,6 +130,8 @@ to retrieve and process the data, and optionally respond by sending
 data back to the external program.
 
 \section1 Networking
+
+  \index networking
 
 Qt provides a cross-platform interface for writing TCP/IP clients and
 servers.

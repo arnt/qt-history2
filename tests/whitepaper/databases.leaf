@@ -1,9 +1,11 @@
 \chapter Databases
 
+  \index databases
+
 \quote
-The Qt SQL module simplifies the creation of GUI database
-applications. Programmers can easily execute SQL statements, use
-database-specific widgets, and make any widget data-aware.
+The Qt SQL module simplifies the creation of cross-platform GUI
+database applications. Programmers can easily execute SQL statements,
+use database-specific widgets, and make any widget data aware.
 \endquote
 
   \index Microsoft SQL Server
@@ -57,28 +59,24 @@ lookups, present master-detail relationships, and support drill-down.
   \index SELECT
   \index queries
 
-The \Class QSqlQuery class can be used to directly execute SQL DDL
-and DML statements. The \Class QSqlQuery class is also used to
-navigate the result sets produced by \c SELECT statements.
+The \Class QSqlQuery class is used to directly execute SQL DDL and
+DML statements. It is also used to navigate the result sets produced
+by \c SELECT statements.
 
 In the example below, a query is executed, and the result set
-navigated using the \Func QSqlQuery::next() function:
+navigated using \Func QSqlQuery::next():
 \code
     QSqlQuery query( "SELECT id, surname FROM staff" );
     while ( query.next() ) {
 	cout << "id: "
-	     << query.value(0).toInt()
+	     << query.value( 0 ).toInt()
 	     << " surname: "
-	     << query.value(1).toString() << endl;
+	     << query.value( 1 ).toString() << endl;
     }
 \endcode
 Field values are indexed in the order they appear in the \c SELECT
 statement. \Class QSqlQuery also provides the \Func first(), \Func
 prev(), \Func last() and \Func seek() navigation functions.
-
-  \index DELETE
-  \index INSERT
-  \index UPDATE
 
 \c INSERT, \c UPDATE and \c DELETE are equally simple. Below is an \c
 UPDATE example:
@@ -92,7 +90,6 @@ UPDATE example:
     }
 \endcode
 
-  \index tables
   \index views
 
 For programmers who are not comfortable writing raw SQL, the \Class
@@ -103,15 +100,15 @@ statements. For example:
     QSqlCursor cur( "staff" );
     while ( cur.next() ) {
 	cout << "id: "
-	     << cur.value("id").toInt()
+	     << cur.value( "id" ).toInt()
 	     << " surname: "
-	     << cur.value("surname").toString() << endl;
+	     << cur.value( "surname" ).toString() << endl;
     }
 \endcode
 
 \Class QSqlCursor also supports the ordering and filtering that are
-achieved using \c {ORDER BY} and \c WHERE clauses in the SQL
-statements used by \Class QSqlQuery.
+achieved using the \c ORDER \c BY and \c WHERE clauses in SQL
+statements.
 
   \index calculated fields
   \index foreign keys
@@ -127,18 +124,17 @@ with their calculated property set to TRUE, and by reimplementing
   \index rollback
   \index transactions
 
-Database drivers usually supply data in string form, regardless of the
-actual datatype; Qt handles such data seamlessly using the \Class
+Database drivers usually supply data as strings, regardless of the
+actual datatype. Qt handles such data seamlessly using the \Class
 QVariant class. Database drivers can be asked about the features they
-support, including whether they support query size reporting and
-transations. The \Func transaction(), \Func commit() and \Func
-rollback() functions can be used if the underlying database supports
-transactions.
+support, including query-size reporting and transactions. The \Func
+transaction(), \Func commit() and \Func rollback() functions can be
+used if the database supports transactions.
 
 \section1 Data-aware Widgets
 
-  \index data tables
-  \index tables
+  \index data table
+  \index table
 
 \Class QDataTable is a \Class QTable that displays records from a
 result set using a \Class QSqlCursor. \Class QDataTable, like \Class
@@ -166,21 +162,26 @@ Qt also includes \Class QDataBrowser and \Class QDataView
 to display records as forms, typically with one or perhaps just a
 few records shown at a time. These classes provide buttons with
 ready-made connections for navigating through the records. \Class
-QDataView is used for read only data. \Class QDataBrowser is used for
+QDataView is used for read-only data. \Class QDataBrowser is used for
 editing, and can provide ready-made insert, update and delete buttons.
 
-Both editable widgets, \Class QDataTable and \Class QDataBrowser, have
-both a popup context menu and keyboard shortcuts for editing records.
+  \index context menu
+  \index popup menu
+
+\Class QDataTable and \Class QDataBrowser have both a popup context
+menu and keyboard shortcuts for editing records.
 
   \index foreign keys
 
 Programmers can manipulate data retrieved from the database before it
-is displayed, e.g. by implementing a slot and connecting it to the
-\Func primeInsert() and \Func primeUpdate() signals. Data can also be
+is displayed by implementing a slot and connecting it to the \Func
+primeInsert() and \Func primeUpdate() signals. Data can also be
 manipulated or actions logged just before changes are written back to
 the database, for example, converting a foreign key's display text
 into its ID by implementing a slot connected to \Func beforeInsert(),
 \Func beforeUpdate() and \Func beforeDelete().
+
+  \index forms
 
 Developers can create their own forms for displaying database records.
 Unlike older toolkits that duplicate their widgets with data-aware
@@ -194,9 +195,9 @@ field to the widget that will present and edit the field's data.
 
 Master-detail relationships are easily set up by filtering the detail
 form or table's cursor by the master form or table's current record.
-Drill-down is also easy to achieve, for example, by associating a
-button, menu item or keyboard shortcut with a drill-down form that is
-invoked with the current record's key as a parameter.
+Drill-down is also easy to achieve by associating a button, menu item
+or keyboard shortcut with a drill-down form that is invoked with the
+current record's key as a parameter.
 
   \index Designer
   \index Qt Designer

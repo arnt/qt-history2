@@ -9,65 +9,66 @@
 <p align="right">[<a href="whitepaper-1.html">Prev: Introduction</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: Signals and Slots</a>]</p>
 <h2 align="center">Widgets</h2>
 <blockquote>
-<p>Qt has a rich set of widgets (e.g. buttons, scrollbars, etc.), that cater for most situations. Qt's widgets are flexible and easy to subclass for special requirements.</p>
+<p>Qt has a rich set of widgets (buttons, scroll bars, etc.) that cater for most situations. Qt's widgets are flexible and easy to subclass for special requirements.</p>
 </blockquote>
-<p>Qt provides a full set of widgets ('controls' and 'containers' in Windows terminology). Widgets are visual elements that are combined to create user interfaces. Buttons, menus, scroll bars, message boxes, application windows, etc., are all examples of widgets. Qt's widgets are not arbitrarily divided between 'controls' and 'containers'; all widgets can be used both as controls and as containers. Custom widgets can easily be created by subclassing existing Qt widgets, or even created from scratch on the rare occasions when this is necessary.</p>
+<p>Qt provides a full set of widgets. Widgets are visual elements that are combined to create user interfaces. Buttons, menus, scroll bars, message boxes, application windows, etc., are all examples of widgets. Qt's widgets are not arbitrarily divided between 'controls' and 'containers'; all widgets can be used both as controls and as containers. Custom widgets can easily be created by subclassing existing Qt widgets, or created from scratch on the rare occasions when this is necessary.</p>
 <!-- index controls --><!-- index widgets --><p>Widgets are instances of <font color=darkblue><b>QWidget</b></font> or one of its subclasses, and custom widgets are created by subclassing.</p>
-<p align="center"><img align="middle" src="qwidget-hierarchy.png">
-</p>
+<p><center><img src= qwidget-diag.png ></center></p>
 <blockquote><p align="center"><em>An extract from the <font color=darkblue><b>QWidget</b></font> class hierarchy</em></p></blockquote>
-<!-- index child widgets --><!-- index parent widgets --><p>A widget may contain any number of child widgets. Child widgets are shown within the parent widget's area. A widget with no visible parent is a top-level widget (a 'window') and usually has its own entry in the desktop environment's task bar. Qt imposes no arbitrary limitations on widgets. Any widget can be a top-level widget; any widget can be a child of any other widget. The position of child widgets within the parent's area can be set automatically using <a href="whitepaper-11.html">layout managers</a>, or manually if preferred. When a parent widget is disabled, hidden or deleted, the action is applied to all its child widgets recursively.</p>
-<!-- index HTML --><!-- index rich text --><p>Developers are not confined to using a single color, font or language in labels, message boxes, tooltips, etc. Qt's text-rendering widgets can display multi-language rich text using a subset of HTML. See <a href="whitepaper-8.html#2">Text Rendering</a>.</p>
+<!-- index child widgets --><!-- index parent widgets --><p>A widget may contain any number of child widgets. Child widgets are shown within the parent widget's area. A widget with no visible parent is a top-level widget (a 'window'), and usually has its own entry in the desktop environment's task bar. Qt imposes no arbitrary limitations on widgets. Any widget can be a top-level widget; any widget can be a child of any other widget. The position of child widgets within the parent's area can be set automatically using <a href="whitepaper-10.html">layout managers</a>, or manually if preferred. When a parent widget is disabled, hidden or deleted, the same action is applied to all its child widgets recursively.</p>
+<!-- index HTML --><!-- index rich text --><p>Labels, message boxes, tooltips, etc., are not confined to using a single color, font and language. Qt's text-rendering widgets can display multi-language rich text using a subset of HTML. See <a href="whitepaper-8.html#2">Text Rendering</a>.</p>
 <h3><a name="1"></a>A 'Hello' Example</h3>
 <p align="center"><img align="middle" src="hello.png" alt="Hello Qt!">
 </p>
-<p>The complete code for a program that displays "Hello Qt!" follows:</p>
+<p>The complete source code for a program that displays "Hello Qt!" follows:</p>
 <pre>    #include &lt;qapplication.h&gt;
     #include &lt;qlabel.h&gt;
 
     int main( int argc, char **argv )
     {
         QApplication app( argc, argv );
-        QLabel hello( "&lt;font color=blue&gt;Hello &lt;i&gt;Qt!&lt;/i&gt;&lt;/font&gt;", 0 );
-        app.setMainWidget( &amp;hello );
-        hello.show();
+        QLabel *hello = new QLabel( "&lt;font color=blue&gt;Hello &lt;i&gt;Qt!&lt;/i&gt;"
+                                    "&lt;/font&gt;", 0 );
+        app.setMainWidget( hello );
+        hello-&gt;show();
         return app.exec();
     }
 </pre>
 <h3><a name="2"></a> Built-in Widgets</h3>
 <p>The screenshots below present the main Qt widgets. They are shown using the Windows style.</p>
-<!-- index buttons --><!-- index hbox --><!-- index horizontal box layout --><!-- index labels --><!-- index push buttons --><p align="center"><img align="middle" src="qlabel-etc.png">
+<!-- index buttons --><!-- index hbox --><!-- index horizontal box layout --><!-- index labels --><!-- index push buttons --><p align="center"><img align="middle" src="qlabel-etc.png" width="138" height="37">
 </p>
-<blockquote><p align="center"><em>A <font color=darkblue><b>QLabel</b></font> and a <font color=darkblue><b>QPushButton</b></font> in a <font color=darkblue><b>QHBox</b></font></em></p></blockquote>
-<!-- index checkboxes --><!-- index radio buttons --><p align="center"><img align="middle" src="qradiobutton-etc.png">
+<blockquote><p align="center"><em>A <font color=darkblue><b>QLabel</b></font> and a <font color=darkblue><b>QPushButton</b></font> laid out with a <font color=darkblue><b>QHBox</b></font></em></p></blockquote>
+<!-- index checkboxes --><!-- index radio buttons --><p align="center"><img align="middle" src="qradiobutton-etc.png" width="200" height="87">
 </p>
-<blockquote><p align="center"><em>Two <font color=darkblue><b>QRadioButton</b></font>s and two <font color=darkblue><b>QCheckBox</b></font>es in a <font color=darkblue><b>QButtonGroup</b></font></em></p></blockquote>
-<!-- index comboboxes --><!-- index dates --><!-- index line editors --><!-- index multi-line editors --><!-- index text editors --><!-- index times --><p align="center"><img align="middle" src="qdateedit-etc.png">
+<blockquote><p align="center"><em>Two <font color=darkblue><b>QRadioButton</b></font>s and two <font color=darkblue><b>QCheckBox</b></font>es laid out with a <font color=darkblue><b>QButtonGroup</b></font></em></p></blockquote>
+<!-- index comboboxes --><!-- index date --><!-- index line editors --><!-- index multi-line editors --><!-- index text editors --><!-- index time --><p align="center"><img align="middle" src="qdatetimeedit-etc.png" width="214" height="226">
 </p>
-<blockquote><p align="center"><em>A <font color=darkblue><b>QDateTimeEdit</b></font>, a <font color=darkblue><b>QLineEdit</b></font>, a <font color=darkblue><b>QTextEdit</b></font> and a <font color=darkblue><b>QComboBox</b></font> in a <font color=darkblue><b>QGroupBox</b></font></em></p></blockquote>
-<!-- index dials --><!-- index LCD --><!-- index progress bars --><!-- index scroll bars --><!-- index sliders --><!-- index spin boxes --><p align="center"><img align="middle" src="qdial-etc.png">
+<blockquote><p align="center"><em>A <font color=darkblue><b>QDateTimeEdit</b></font>, a <font color=darkblue><b>QLineEdit</b></font>, a <font color=darkblue><b>QTextEdit</b></font> and a <font color=darkblue><b>QComboBox</b></font> laid out with a <font color=darkblue><b>QGroupBox</b></font></em></p></blockquote>
+<!-- index dials --><!-- index LCD --><!-- index progress bar --><!-- index scroll bar --><!-- index scroll view --><!-- index sliders --><!-- index spin boxes --><p align="center"><img align="middle" src="qdial-etc.png" width="200" height="127">
 </p>
-<blockquote><p align="center"><em>A <font color=darkblue><b>QDial</b></font>, a <font color=darkblue><b>QProgressBar</b></font>, a <font color=darkblue><b>QSpinBox</b></font>, a <font color=darkblue><b>QScrollBar</b></font>, a <font color=darkblue><b>QLCDNumber</b></font> and a <font color=darkblue><b>QSlider</b></font> in a <font color=darkblue><b>QGrid</b></font></em></p></blockquote>
-<!-- index icon views --><!-- index list boxes --><!-- index list views --><!-- index spreadsheets --><!-- index tables --><!-- index tree views --><p align="center"><img align="middle" src="qiconview-etc.png">
+<blockquote><p align="center"><em>A <font color=darkblue><b>QDial</b></font>, a <font color=darkblue><b>QProgressBar</b></font>, a <font color=darkblue><b>QSpinBox</b></font>, a <font color=darkblue><b>QScrollBar</b></font>, a <font color=darkblue><b>QLCDNumber</b></font> and a <font color=darkblue><b>QSlider</b></font> laid out with a <font color=darkblue><b>QGrid</b></font></em></p></blockquote>
+<!-- index hierarchical tree view --><!-- index icon view --><!-- index input validation --><!-- index list box --><!-- index list view --><!-- index spreadsheet --><!-- index table --><!-- index tree view --><!-- index user-input validation --><!-- index validation --><p align="center"><img align="middle" src="qiconview-etc.png" width="470" height="343">
 </p>
-<blockquote><p align="center"><em>A <font color=darkblue><b>QIconView</b></font>, a <font color=darkblue><b>QListView</b></font>, a <font color=darkblue><b>QListBox</b></font> and a <font color=darkblue><b>QTable</b></font> in a <font color=darkblue><b>QGrid</b></font></em></p></blockquote>
+<blockquote><p align="center"><em>A <font color=darkblue><b>QIconView</b></font>, a <font color=darkblue><b>QListView</b></font>, a <font color=darkblue><b>QListBox</b></font> and a <font color=darkblue><b>QTable</b></font> laid out with a <font color=darkblue><b>QGrid</b></font></em></p></blockquote>
+<p><font color=darkblue><b>QComboBox</b></font>, <font color=darkblue><b>QLineEdit</b></font> and <font color=darkblue><b>QSpinBox</b></font>'s input can be constrained or validated using a <font color=darkblue><b>QValidator</b></font> subclass. Qt regular expressions can be used for validation.</p>
 <p>Widgets that are used to display large amounts of data (e.g. <font color=darkblue><b>QTable</b></font>, <font color=darkblue><b>QListView</b></font> and <font color=darkblue><b>QTextEdit</b></font>) inherit <font color=darkblue><b>QScrollView</b></font> and can display scroll bars automatically.</p>
-<p>More specialized widgets are presented in the appropriate sections. <font color=darkblue><b>QMenuBar</b></font>, <font color=darkblue><b>QStatusBar</b></font>, <font color=darkblue><b>QToolBar</b></font> and related widgets are shown in <a href="whitepaper-4.html">GUI Applications</a>. <font color=darkblue><b>QMessageBox</b></font>, <font color=darkblue><b>QFileDialog</b></font>, <font color=darkblue><b>QTabDialog</b></font>, <font color=darkblue><b>QWizard</b></font> and other dialogs are shown in <a href="whitepaper-4.html#3">Dialogs</a>. <font color=darkblue><b>QSplitter</b></font> is covered in <a href="whitepaper-11.html">Layouts</a>. <font color=darkblue><b>QCanvas</b></font> and <font color=darkblue><b>QGLWidget</b></font> are shown in <a href="whitepaper-6.html#2">3D Graphics</a>.</p>
-<p>The code for the screenshot that shows the <font color=darkblue><b>QRadioButton</b></font>s and <font color=darkblue><b>QCheckBox</b></font>es follows:</p>
-<pre>        parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
-        radio1 = new QRadioButton( "&amp;Radio 1", parent );
-        radio2 = new QRadioButton( "R&amp;adio 2", parent );
-        radio1-&gt;setChecked( TRUE );
-        check1 = new QCheckBox( "&amp;Check 1", parent );
-        check2 = new QCheckBox( "C&amp;heck 2", parent );
-        check2-&gt;setChecked( TRUE );
+<p><font color=darkblue><b>QMenuBar</b></font>, <font color=darkblue><b>QStatusBar</b></font>, <font color=darkblue><b>QToolBar</b></font> and related widgets are presented in <a href="whitepaper-4.html">GUI Applications</a>. <font color=darkblue><b>QMessageBox</b></font>, <font color=darkblue><b>QFileDialog</b></font>, <font color=darkblue><b>QTabDialog</b></font>, <font color=darkblue><b>QWizard</b></font> and other dialogs are presented in <a href="whitepaper-4.html#3">Dialogs</a>. <font color=darkblue><b>QSplitter</b></font> is covered in <a href="whitepaper-10.html">Layouts</a>. <font color=darkblue><b>QCanvas</b></font> and <font color=darkblue><b>QGLWidget</b></font> are presented in <a href="whitepaper-6.html#2">3D Graphics</a>.</p>
+<p>The screenshot that shows the <font color=darkblue><b>QRadioButton</b></font>s and <font color=darkblue><b>QCheckBox</b></font>es was produced with the following code:</p>
+<pre>    parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
+    radio1 = new QRadioButton( "&amp;Radio 1", parent );
+    radio2 = new QRadioButton( "R&amp;adio 2", parent );
+    radio1-&gt;setChecked( TRUE );
+    check1 = new QCheckBox( "&amp;Check 1", parent );
+    check2 = new QCheckBox( "C&amp;heck 2", parent );
+    check2-&gt;setChecked( TRUE );
 </pre>
 <h3><a name="3"></a> Custom Widgets</h3>
-<p>Developers can create their own widgets and dialogs by subclassing <font color=darkblue><b>QWidget</b></font> or one of its subclasses. To illustrate subclassing, we will implement a digital clock widget.</p>
-<p align="center"><img align="middle" src="clock.png">
+<p>Developers can create their own widgets and dialogs by subclassing <font color=darkblue><b>QWidget</b></font> or one of its subclasses. To illustrate subclassing, the complete code for a digital clock widget is presented.</p>
+<p align="center"><img align="middle" src="clock.png" width="140" height="60">
 </p>
-<!-- index Clock --><!-- index LCD --><p>The <font color=darkblue><b>Clock</b></font> widget is a LCD that displays the current time and updates itself automatically. Its colon separator blinks to indicate the passing seconds.</p>
-<p>In <font color=red><i>clock.h</i></font>, we define <font color=darkblue><b>Clock</b></font> like this:</p>
+<!-- index Clock --><!-- index LCD --><p>The <font color=darkblue><b>Clock</b></font> widget is a LCD that displays the current time and updates itself automatically. A colon separator blinks to indicate the passing seconds.</p>
+<p>In <font color=red><i>clock.h</i></font>, <font color=darkblue><b>Clock</b></font> is defined like this:</p>
 <pre>    #include &lt;qlcdnumber.h&gt;
 
     class Clock : public QLCDNumber
@@ -85,13 +86,13 @@
     };
 </pre>
 <!-- index name (of widget) --><!-- index parent widgets --><!-- index timers --> <p><font color=darkblue><b>Clock</b></font> inherits its LCD functionality from the <font color=darkblue><b>QLCDNumber</b></font> widget. It has a constructor typical of widget classes, with optional <tt>parent</tt> and <tt>name</tt> parameters. (Testing and debugging are easier if <tt>name</tt> is set.) The <font color=darkblue>timerEvent()</font> function is inherited from <font color=darkblue><b>QObject</b></font> and is called at regular intervals by the system.</p>
-<p>In <font color=red><i>clock.cpp</i></font>, we implement the functions declared in <font color=red><i>clock.h</i></font>:</p>
+<p>In <font color=red><i>clock.cpp</i></font>, the functions declared in <font color=red><i>clock.h</i></font> are implemented:</p>
 <pre>    #include &lt;qdatetime.h&gt;
 
     #include "clock.h"
 
     Clock::Clock( QWidget *parent, const char *name )
-        : QLCDNumber( parent, name ), showingColon( TRUE  )
+        : QLCDNumber( parent, name ), showingColon( TRUE )
     {
         showTime();
         startTimer( 1000 );
@@ -111,9 +112,9 @@
         showingColon = !showingColon;
     }
 </pre>
- <p>The constructor calls <font color=darkblue>showTime()</font> to initialize the clock with the current time, and tells the system to call <font color=darkblue>timerEvent()</font> every 1000 milliseconds to refresh the LCD display. See the <a href="whitepaper-12.html">Events</a> section for details.</p>
-<p>In <font color=darkblue>showTime()</font>, we call <font color=darkblue>QLCDNumber::display()</font> with the current time. The colon is replaced by a space every other time <font color=darkblue>showTime()</font> is called to make the colon blink.</p>
-<p>In <font color=red><i>main.cpp</i></font>, we create a <font color=darkblue><b>Clock</b></font> instance, resize it and show it:</p>
+ <p>The constructor calls <font color=darkblue>showTime()</font> to initialize the clock with the current time, and tells the system to call <font color=darkblue>timerEvent()</font> every 1000 milliseconds to refresh the LCD display.</p>
+<p>In <font color=darkblue>showTime()</font>, <font color=darkblue>QLCDNumber::display()</font> is called with the current time. The colon is replaced by a space every other time <font color=darkblue>showTime()</font> is called to make the colon blink.</p>
+<p>The <font color=red><i>clock.h</i></font> and <font color=red><i>clock.cpp</i></font> files completely define and implement the <font color=darkblue><b>Clock</b></font> custom widget. This widget can be used straight away in a simple program:</p>
 <pre>    #include &lt;qapplication.h&gt;
 
     #include "clock.h"
@@ -121,16 +122,15 @@
     int main( int argc, char **argv )
     {
         QApplication app( argc, argv );
-        Clock clock;
-        clock.resize( 140, 60 );
-        app.setMainWidget( &amp;clock );
-        clock.show();
+        Clock *clock = new Clock;
+        app.setMainWidget( clock );
+        clock-&gt;resize( 140, 60 );
+        clock-&gt;show();
         return app.exec();
     }
 </pre>
- <p>This example contains only one widget (the <font color=darkblue><b>Clock</b></font>) and no child widgets. Most complex widgets are built by combining built-in widgets and layouts.</p>
-<!-- index Designer --><!-- index Qt Designer --><p>Even though Qt's classes are comfortable to hand code, the build cycle can be time consuming, especially when designing user interfaces. It is easiest to use <a href="whitepaper-5.html">Qt Designer</a>, Qt's visual design tool, to develop and experiment with different designs.</p>
-<p>Developers can also write custom widgets from scratch. For example, to create an analog clock, it would be necessary to draw the clock's face and hands in code rather than relying on functionality implemented in a base class. This could be achieved by reimplementing <font color=darkblue>paintEvent()</font>, as explained in <a href="whitepaper-6.html#1">2D Graphics</a>.</p>
+ <p>This example program contains a single widget (the <font color=darkblue><b>Clock</b></font>) and no child widgets. Complex widgets are built by combining widgets in layouts.</p>
+<!-- index Designer --><!-- index Qt Designer --><p>Developers can also write custom widgets from scratch. For example, to create an analog clock, it would be necessary to draw the clock's face and hands in code rather than relying on the functionality implemented in a base class. This approach is covered in <a href="whitepaper-6.html#1">2D Graphics</a>.</p>
 <p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/qwidget.html>http://doc.trolltech.com/3.0/qwidget.html</a> </ul></p>
 <!-- eof -->
 <p align="right">[<a href="whitepaper-1.html">Prev: Introduction</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: Signals and Slots</a>]</p>

@@ -7,11 +7,7 @@ perform size and position calculations, and provide automatic scaling
 to suit users screens.
 \endquote
 
- + relieve from calculating and updating the positions yourself
- + modern dialogs are nested layouts
-
-\section1 Built-in Layout Managers
-
+  \index automatic layouts
   \index child widget
   \index default widget size
   \index font changes
@@ -26,7 +22,10 @@ Qt provides layout managers for organizing child widgets within the
 parent widget's area. They feature automatic positioning of child
 widgets, automatic resizing, sensible minimum and default sizes for
 top-level widgets and automatic repositioning when the contents or
-the font changes.
+the font changes. \l {Qt Designer} is optimized for laying out
+widgets using layout managers.
+
+\section1 Built-in Layout Managers
 
   \index QGridLayout
   \index QHBoxLayout
@@ -46,13 +45,13 @@ QVBoxLayout and \Class QGridLayout.
   \index vbox
   \index vertical box layout
 
-\Class QHBoxLayout organizes the child widgets in a single horizontal
-row from left to right. \Class QVBoxLayout organizes the child
-widgets in a single vertical column, from top to bottom. \Class
-QGridLayout organizes the child widgets over a grid of cells. Widgets
-may span multiple cells.
+\Class QHBoxLayout organizes the managed widgets in a single
+horizontal row from left to right. \Class QVBoxLayout organizes the
+managed widgets in a single vertical column, from top to bottom.
+\Class QGridLayout organizes the managed widgets in a grid of cells;
+widgets may span multiple cells.
 
-In most cases, Qt's layout managers pick optimal sizes for child
+In most cases, Qt's layout managers pick optimal sizes for managed
 widgets so that windows resize smoothly. If the defaults are
 insufficient, developers can refine the layout using the following
 mechanisms:
@@ -81,10 +80,10 @@ mechanisms:
 
   \index preferred size
 
-\i \e {Reimplementing QWidget::sizeHint() or
-   QWidget::minimumSizeHint().} These functions return a widget's
-   preferred size and preferred minimum size based on the contents.
-   Built-in widgets provide appropriate reimplementations.
+\i \e {Changing the child widgets' size hints.} \Func
+   QWidget::sizeHint() and \Func QWidget::minimumSizeHint() return a
+   widget's preferred size and preferred minimum size based on the
+   contents. Built-in widgets provide appropriate reimplementations.
 
   \index relative growth
   \index stretch factors
@@ -105,10 +104,9 @@ mechanisms:
   \index margin (in layouts)
   \index spacing (in layouts)
 
-The 'spacing' between child widgets managed by a layout and the
-'margin' around the whole layout can also be set by the programmer. By
-default, \l {Qt Designer} sets industry-standard values based on the
-context.
+The 'spacing' between managed widgets and the 'margin' around the
+whole layout can also be set by the programmer. By default, \l {Qt
+Designer} sets industry-standard values based on the context.
 
   \index Arabic
   \index Hebrew
@@ -120,8 +118,8 @@ right-to-left languages (e.g. Arabic and Hebrew).
 
 \section1 Nested Layouts
 
-Layouts can be nested to arbitrary levels. Here's an example dialog
-box, shown at two different sizes:
+Layouts can be nested to arbitrary levels. Here's an example of a
+dialog box, shown at two different sizes:
 
   \img countries-small.gif
 
@@ -171,8 +169,6 @@ SimpleFlow, which programmers can use and modify.
 Qt also includes \Class QSplitter, a splitter bar that end users can
 manipulate. In some design situations, \Class QSplitter may be
 preferable to a layout manager.
-
-\omit ### organizers ### \endomit
 
   \index manual layouts
 

@@ -59,6 +59,7 @@ void setupLabelAndPushButton()
     QLabel *label = new QLabel( "&A label", parent );
     QPushButton *button = new QPushButton( "&Push button", parent );
     label->setBuddy( button );
+    button->setFocusPolicy( QWidget::NoFocus );
     standardLayoutWidgetStuff( parent );
 }
 
@@ -69,15 +70,15 @@ void setupButtons()
     QRadioButton *radio1, *radio2;
     QCheckBox *check1, *check2;
 
-    // quote
-    parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
-    radio1 = new QRadioButton( "&Radio 1", parent );
-    radio2 = new QRadioButton( "R&adio 2", parent );
-    radio1->setChecked( TRUE );
-    check1 = new QCheckBox( "&Check 1", parent );
-    check2 = new QCheckBox( "C&heck 2", parent );
-    check2->setChecked( TRUE );
-    // endquote
+// quote
+parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
+radio1 = new QRadioButton( "&Radio 1", parent );
+radio2 = new QRadioButton( "R&adio 2", parent );
+radio1->setChecked( TRUE );
+check1 = new QCheckBox( "&Check 1", parent );
+check2 = new QCheckBox( "C&heck 2", parent );
+check2->setChecked( TRUE );
+// endquote
 
     parent->reparent( realParent, QPoint(0, 0) );
     standardLayoutWidgetStuff( realParent );

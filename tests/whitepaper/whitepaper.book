@@ -15,5 +15,5 @@
 \input events.leaf
 \input input-output-and-networking.leaf
 \input collection-classes.leaf
-\input plugins.leaf
+\input plugins-and-dynamic-libraries.leaf
 \input qts-architecture.leaf
