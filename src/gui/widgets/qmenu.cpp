@@ -603,9 +603,15 @@ void QMenu::clear()
     qWarning("Must implement QMenu::clear()");
 }
 
-QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator)
+int QMenu::columnCount() const
 {
-    d->updateActions();
+    const_cast<QMenuPrivate*>(d)->updateActions();
+    return d->ncols;
+}
+
+QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator) const
+{
+    const_cast<QMenuPrivate*>(d)->updateActions();
     if(QMenuAction *ret = d->actionAt(pt)) {
         if(!ignoreSeparator || !ret->action->isSeparator())
             return ret->action;
@@ -613,10 +619,10 @@ QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator)
     return 0;
 }
 
-QRect QMenu::actionGeometry(QAction *act)
+QRect QMenu::actionGeometry(QAction *act) const
 {
-    d->updateActions();
-    for(QList<QMenuAction*>::Iterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
+    const_cast<QMenuPrivate*>(d)->updateActions();
+    for(QList<QMenuAction*>::ConstIterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
         if((*it)->action == act)
             return (*it)->rect;
     }
@@ -1894,18 +1900,18 @@ Q4MenuBar::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-QAction *Q4MenuBar::actionAtPos(const QPoint &pt)
+QAction *Q4MenuBar::actionAtPos(const QPoint &pt) const
 {
-    d->updateActions();
+    const_cast<Q4MenuBarPrivate*>(d)->updateActions();
     if(QMenuAction *ret = d->actionAt(pt)) 
         return ret->action;
     return 0;
 }
 
-QRect Q4MenuBar::actionGeometry(QAction *act)
+QRect Q4MenuBar::actionGeometry(QAction *act) const
 {
-    d->updateActions();
-    for(QList<QMenuAction*>::Iterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
+    const_cast<Q4MenuBarPrivate*>(d)->updateActions();
+    for(QList<QMenuAction*>::ConstIterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
         if((*it)->action == act)
             return (*it)->rect;
     }
@@ -1958,3 +1964,14 @@ void Q4MenuBar::internalShortcutActivated(int id)
     }
 #endif
 }
+
+#ifdef QT_COMPAT
+int Q4MenuBar::frameWidth() const
+{
+    return style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this);
+}
+int QMenu::frameWidth() const
+{
+    return style().pixelMetric(QStyle::PM_MenuFrameWidth, this);
+}
+#endif

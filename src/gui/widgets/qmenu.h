@@ -67,14 +67,15 @@ public:
 
     QSize sizeHint() const;
 
-    QRect actionGeometry(QAction *); 
-    QAction *actionAtPos(const QPoint &, bool ignoreSeparator = true);
+    QRect actionGeometry(QAction *) const; 
+    QAction *actionAtPos(const QPoint &, bool ignoreSeparator = true) const;
 
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
 #endif
 
 #ifdef QT_COMPAT
+    //menudata
     inline QT_COMPAT uint count() const { return actions().count(); }
     inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
                                     const QKeySequence& accel = 0, int id = -1, int index = -1) {
@@ -156,7 +157,6 @@ public:
             insertAction(act, findActionForIndex(index+1));
         return (int)act;
     }
-
     inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
     inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
 #ifndef QT_NO_ACCEL
@@ -219,6 +219,9 @@ public:
         return (QAction*)id;
     }
 
+    //frame
+    QT_COMPAT int frameWidth() const;
+
     //popupmenu
     inline QT_COMPAT void popup(const QPoint & pos, int indexAtPoint) { popup(pos, findActionForIndex(indexAtPoint)); }
     inline QT_COMPAT int exec(const QPoint & pos, int indexAtPoint) { 
@@ -240,6 +243,17 @@ signals:
     void highlighted(QAction *action);
 
 protected:
+#ifdef QT_COMPAT
+    inline QT_COMPAT int columns() const { return columnCount(); }
+    inline QT_COMPAT int itemHeight(int index) { 
+        return actionGeometry(findActionForIndex(index)).height(); 
+    }
+    inline QT_COMPAT int itemHeight(QAction *act) { 
+        return actionGeometry(act).height(); 
+    }
+#endif
+
+    int columnCount() const;
     void changeEvent(QEvent *);
     void keyPressEvent(QKeyEvent *);
     void mouseReleaseEvent(QMouseEvent *);
@@ -314,10 +328,11 @@ public:
     QSize minimumSizeHint() const;
     int heightForWidth(int) const;
 
-    QRect actionGeometry(QAction *); 
-    QAction *actionAtPos(const QPoint &);
+    QRect actionGeometry(QAction *) const; 
+    QAction *actionAtPos(const QPoint &) const;
 
 #ifdef QT_COMPAT
+    //menudata
     inline QT_COMPAT uint count() const { return actions().count(); }
     inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
                                     const QKeySequence& accel = 0, int id = -1, int index = -1) {
@@ -397,7 +412,6 @@ public:
             insertAction(act, findActionForIndex(index+1));
         return (int)act;
     }
-
     inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
     inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
 #ifndef QT_NO_ACCEL
@@ -458,6 +472,9 @@ public:
         verifyPlatformCanCastPointerToInt();
         return (QAction*)id;
     }
+
+    //frame
+    QT_COMPAT int frameWidth() const;
 #endif
 
 #ifdef Q_WS_MAC
