@@ -210,7 +210,7 @@ struct QLineEditPrivate : public Qt
 #endif
     inline bool inSelection( int x ) const
     { if ( selstart >= selend ) return FALSE;
-    int pos = xToPos( x, QTextItem::OnCharacters );  return pos >= selstart && pos < selend; }
+    int pos = xToPos( x, QTextLine::OnCharacters );  return pos >= selstart && pos < selend; }
 
     // masking
     void parseInputMask( const QString &maskFields );
@@ -228,7 +228,7 @@ struct QLineEditPrivate : public Qt
     void updateTextLayout();
     void moveCursor( int pos, bool mark = FALSE );
     void setText( const QString& txt );
-    int xToPos( int x, QTextItem::CursorPosition = QTextItem::BetweenCharacters ) const;
+    int xToPos( int x, QTextLine::CursorPosition = QTextLine::BetweenCharacters ) const;
     inline int visualAlignment() const { return alignment ? alignment : int( isRightToLeft() ? AlignRight : AlignLeft ); }
     QRect cursorRect() const;
     void updateMicroFocusHint();
@@ -1825,27 +1825,27 @@ void QLineEdit::drawContents( QPainter *p )
 	bg = pal.brush( QPalette::Background );
 	p->fillRect( cr, bg );
     }
+    // ### should not be here.
+    d->textLayout.setPalette(palette());
+
+    QTextLine line = d->textLayout.lineAt(0);
+
     // locate cursor position
-    int cix = 0;
-    QTextItem ci = d->textLayout.findItem( d->cursor );
-    if ( ci.isValid() ) {
-	if ( d->cursor != (int)d->text.length() && d->cursor == ci.from() + ci.length()
-	     && ci.isRightToLeft() != d->isRightToLeft() )
-	    ci = d->textLayout.findItem( d->cursor + 1 );
-	cix = ci.x() + ci.cursorToX( d->cursor - ci.from() );
-    }
+    int cix = line.cursorToX(d->cursor);
 
     // horizontal scrolling
     int minLB = qMax( 0, -fm.minLeftBearing() );
     int minRB = qMax( 0, -fm.minRightBearing() );
-    int widthUsed = d->textLayout.widthUsed() + 1 + minRB;
+
+
+    int widthUsed = line.textWidth() + 1 + minRB;
     if ( (minLB + widthUsed) <=  lineRect.width() ) {
 	switch ( d->visualAlignment() ) {
 	case AlignRight:
 	    d->hscroll = widthUsed - lineRect.width();
 	    break;
 	case AlignHCenter:
-	    d->hscroll = ( widthUsed - lineRect.width() ) / 2;
+	    d->hscroll = (widthUsed - lineRect.width()) / 2;
 	    break;
 	default:
 	    d->hscroll = 0;
@@ -1873,88 +1873,31 @@ void QLineEdit::drawContents( QPainter *p )
     if ( font().overline() )
 	textflags |= Qt::Overline;
 
-    for ( int i = 0; i < d->textLayout.numItems(); i++ ) {
-	QTextItem ti = d->textLayout.itemAt( i );
-	hasRightToLeft |= ti.isRightToLeft();
-	int tix = topLeft.x() + ti.x();
-	int first = ti.from();
-	int last = ti.from() + ti.length() - 1;
-
-	// text and selection
-	if ( d->selstart < d->selend && (last >= d->selstart && first < d->selend ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( qMax( d->selstart - first, 0 ) ),
-					     lineRect.top() ),
-				     QPoint( tix + ti.cursorToX( qMin( d->selend - first, last - first + 1 ) ) - 1,
-					     lineRect.bottom() ) ).normalize();
-	    p->save();
-  	    p->setClipRegion( QRegion( lineRect ) - highlight, QPainter::CoordPainter );
- 	    p->drawTextItem( topLeft, ti, textflags );
- 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
-	    p->fillRect( highlight, pal.highlight() );
- 	    p->setPen( pal.highlightedText() );
-	    p->drawTextItem( topLeft, ti, textflags );
-	    p->restore();
-	} else {
-	    p->drawTextItem( topLeft, ti, textflags );
-	}
-
-	// input method edit area
-	if ( d->imstart < d->imend && (last >= d->imstart && first < d->imend ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( qMax( d->imstart - first, 0 ) ), lineRect.top() ),
-			      QPoint( tix + ti.cursorToX( qMin( d->imend - first, last - first + 1 ) )-1, lineRect.bottom() ) ).normalize();
-	    p->save();
- 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
-
-	    int h1, s1, v1, h2, s2, v2;
-	    pal.color( QPalette::Base ).getHsv( &h1, &s1, &v1 );
-	    pal.color( QPalette::Background ).getHsv( &h2, &s2, &v2 );
-	    QColor imCol;
-	    imCol.setHsv( h1, s1, ( v1 + v2 ) / 2 );
-	    p->fillRect( highlight, imCol );
-	    p->drawTextItem( topLeft, ti, textflags );
-	    p->restore();
-	}
-
-	// input method selection
-	if ( d->imselstart < d->imselend && (last >= d->imselstart && first < d->imselend ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( qMax( d->imselstart - first, 0 ) ), lineRect.top() ),
-			      QPoint( tix + ti.cursorToX( qMin( d->imselend - first, last - first + 1 ) )-1, lineRect.bottom() ) ).normalize();
-	    p->save();
-	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
-	    p->fillRect( highlight, pal.text() );
-	    p->setPen( paletteBackgroundColor() );
-	    p->drawTextItem( topLeft, ti, textflags );
-	    p->restore();
-	}
-
-	// overwrite cursor
-	if ( d->cursorVisible && d->maskData &&
-	     d->selend <= d->selstart && (last >= d->cursor && first <= d->cursor ) ) {
-	    QRect highlight = QRect( QPoint( tix + ti.cursorToX( qMax( d->cursor - first, 0 ) ), lineRect.top() ),
-				     QPoint( tix + ti.cursorToX( qMin( d->cursor + 1 - first, last - first + 1 ) )-1, lineRect.bottom() ) ).normalize();
-	    p->save();
-	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
-	    p->fillRect( highlight, pal.text() );
-	    p->setPen( paletteBackgroundColor() );
-	    p->drawTextItem( topLeft, ti, textflags );
-	    p->restore();
-	    supressCursor = TRUE;
-	}
+    QTextLayout::Selection sel[4];
+    int nSel = 0;
+    if (d->selstart < d->selend) {
+	sel[nSel].setRange(d->selstart, d->selend - d->selstart);
+	sel[nSel].setType(QTextLayout::Highlight);
+	++nSel;
+    }
+    if (d->imstart < d->imend) {
+	sel[nSel].setRange(d->imstart, d->imend - d->imstart);
+	sel[nSel].setType(QTextLayout::ImText);
+	++nSel;
+    }
+    if (d->imselstart < d->imselend) {
+	sel[nSel].setRange(d->imselstart, d->imselend - d->imselstart);
+	sel[nSel].setType(QTextLayout::ImSelection);
+	++nSel;
+    }
+    if (d->cursorVisible && d->maskData && d->selend <= d->selstart) {
+	sel[nSel].setRange(d->cursor, 1);
+	sel[nSel].setType(QTextLayout::ImSelection);
+	++nSel;
     }
 
-    // draw cursor
-    if ( d->cursorVisible && !supressCursor ) {
-	QPoint from( topLeft.x() + cix, lineRect.top() );
-	QPoint to(from.x(), qMin(lineRect.bottom(), contentsRect().bottom()));
-	p->drawLine( from, to );
-	if ( hasRightToLeft ) {
-	    bool rtl = ci.isValid() ? ci.isRightToLeft() : TRUE;
-	    to = from + QPoint( (rtl ? -2 : 2), 2 );
-	    p->drawLine( from, to );
-	    from.ry() += 4;
-	    p->drawLine( from, to );
-	}
-    }
+    d->textLayout.draw(p, topLeft, (d->cursorVisible && !supressCursor) ? d->cursor : -1, sel, nSel);
+
 }
 
 
@@ -2228,22 +2171,16 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.setText( str, q->font() );
     // ### want to do textLayout.setRightToLeft( text.isRightToLeft() );
     textLayout.beginLayout( QTextLayout::SingleLine );
-    textLayout.beginLine( INT_MAX );
-    while ( !textLayout.atEnd() )
-	textLayout.addCurrentItem();
-    ascent = 0;
-    textLayout.endLine(0, 0, Qt::AlignLeft, &ascent);
+    QTextLine l = textLayout.createLine(0, 0, 0, INT_MAX);
+    ascent = l.ascent();
 }
 
-int QLineEditPrivate::xToPos( int x, QTextItem::CursorPosition betweenOrOn ) const
+int QLineEditPrivate::xToPos( int x, QTextLine::CursorPosition betweenOrOn ) const
 {
     x-= q->contentsRect().x() - hscroll + innerMargin;
-    for ( int i = 0; i < textLayout.numItems(); ++i ) {
-	QTextItem ti = textLayout.itemAt( i );
-	QRect tir = ti.rect();
-	if ( x >= tir.left() && x <= tir.right() )
-	    return ti.xToCursor( x - tir.x(), betweenOrOn ) + ti.from();
-    }
+    QTextLine l = textLayout.lineAt(0);
+    if (x >= 0 && x < l.textWidth())
+	return l.xToCursor(x, betweenOrOn);
     return x < 0 ? 0 : text.length();
 }
 
@@ -2252,13 +2189,8 @@ QRect QLineEditPrivate::cursorRect() const
 {
     QRect cr = q->contentsRect();
     int cix = cr.x() - hscroll + innerMargin;
-    QTextItem ci = textLayout.findItem( cursor );
-    if ( ci.isValid() ) {
-	if ( cursor != (int)text.length() && cursor == ci.from() + ci.length()
-	     && ci.isRightToLeft() != isRightToLeft() )
-	    ci = textLayout.findItem( cursor + 1 );
-	cix += ci.x() + ci.cursorToX( cursor - ci.from() );
-    }
+    QTextLine l = textLayout.lineAt(0);
+    cix += l.cursorToX(cursor);
     int ch = qMin( cr.height(), q->fontMetrics().height() + 1 );
     return QRect( cix-4, cr.y() + ( cr.height() -  ch) / 2, 8, ch );
 }
