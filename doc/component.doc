@@ -65,7 +65,7 @@ Component Concepts
 
 \section1 Interface
 
-An interfaces is a group of well-defined functions that provide access to a component. 
+An interface is a group of well-defined functions that provide access to a component. 
 A client can query a component for an interface, and can use the interface to call functions 
 implemented in the component. In the Qt Component Model, 
 
