@@ -33,6 +33,8 @@ public:
 
     QTextCursor start() const;
     QTextCursor end() const;
+    int startPosition() const;
+    int endPosition() const;
 
     inline bool operator==(const QTextTableCell &other) const
     { return d == other.d && fragment == other.fragment; }
@@ -67,6 +69,7 @@ public:
 #endif
 
     QTextTableCell cellAt(int row, int col) const;
+    QTextTableCell cellAt(int position) const;
     QTextTableCell cellAt(const QTextCursor &c) const;
 
     QTextCursor rowStart(const QTextCursor &c) const;

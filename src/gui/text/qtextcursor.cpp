@@ -126,74 +126,65 @@ QTextTable *QTextCursorPrivate::tableAt(int position) const
 }
 
 
-void QTextCursorPrivate::adjustCursor(int dir)
+void QTextCursorPrivate::adjustCursor()
 {
-    // ###################
-#if 0
-    QTextTable *t_anchor_ = tableAt(anchor);
-    QTextTable *t_position_ = tableAt(position);
-
-    QTextTablePrivate *t_anchor = 0;
-    QTextTablePrivate *t_position = 0;
-
-    if (t_anchor_)
-        t_anchor = t_anchor_->d_func();
-
-    if (t_position_)
-        t_position = t_position_->d_func();
-
-    // first adjust position if needed
-    if (t_position) {
-        int t_position_start = t_position->start().position();
-        int t_position_end = t_position->end().position();
-        bool anchor_in_table = false;
-        bool anchor_in_cell = false;
-        if (t_anchor) {
-            int t_anchor_start = t_anchor->start().position();
-            int t_anchor_end = t_anchor->end().position();
-            if (t_anchor_start >= t_position_start && t_anchor_end <= t_position_end) {
-                anchor_in_table = true;
-                if (t_position->cellStart(anchor) == t_position->cellStart(position))
-                    anchor_in_cell = true;
-            }
-        }
-        if (!anchor_in_table) {
-            // ### AdjustUp/Down should use x position!
-            position = (dir & AdjustPrev) ? t_position_start : t_position_end + 1;
-        } else if (!anchor_in_cell) {
-            if (dir & AdjustPrev)
-                position = t_position->cellStart(position).position() + 1;
-            else
-                position = t_position->cellEnd(position).position();
-        }
-    }
-
     adjusted_anchor = anchor;
-    if (t_anchor) {
-        int t_anchor_start = t_anchor->start().position();
-        int t_anchor_end = t_anchor->end().position();
-        bool position_in_table = false;
-        bool position_in_cell = false;
-        if (t_position) {
-            int t_position_start = t_position->start().position();
-            int t_position_end = t_position->end().position();
-            if (t_position_start >= t_anchor_start && t_position_end <= t_anchor_end) {
-                position_in_table = true;
-                if (t_anchor->cellStart(anchor) == t_anchor->cellStart(position))
-                    position_in_cell = true;
-            }
+    if (position == anchor)
+        return;
+
+    QTextFrame *f_position = pieceTable->frameAt(position);
+    QTextFrame *f_anchor = pieceTable->frameAt(adjusted_anchor);
+
+    if (f_position != f_anchor) {
+        // find common parent frame
+        QList<QTextFrame *> positionChain;
+        QList<QTextFrame *> anchorChain;
+        QTextFrame *f = f_position;
+        while (f) {
+            positionChain.prepend(f);
+            f = f->parent();
         }
-        dir = (position > anchor) ? AdjustPrev : AdjustNext;
-        if (!position_in_table) {
-            adjusted_anchor = (dir == AdjustPrev) ? t_anchor_start : t_anchor_end + 1;
-        } else if (!position_in_cell) {
-            if (dir & AdjustPrev)
-                adjusted_anchor = t_anchor->cellStart(anchor).position() + 1;
-            else
-                adjusted_anchor = t_anchor->cellEnd(anchor).position();
+        f = f_anchor;
+        while (f) {
+            anchorChain.prepend(f);
+            f = f->parent();
+        }
+        Q_ASSERT(positionChain.at(0) == anchorChain.at(0));
+        int i = 1;
+        int l = qMin(positionChain.size(), anchorChain.size());
+        for (; i < l; ++i) {
+            if (positionChain.at(i) != anchorChain.at(i))
+                break;
+        }
+
+        if (position < adjusted_anchor) {
+            position = positionChain.at(i)->startPosition() - 1;
+            adjusted_anchor = anchorChain.at(i)->endPosition() + 1;
+        } else {
+            position = positionChain.at(i)->endPosition() + 1;
+            adjusted_anchor = anchorChain.at(i)->startPosition() - 1;
+        }
+
+        f_position = positionChain.at(i-1);
+    }
+
+    // same frame, either need to adjust to cell boundaries or return
+    QTextTable *table = qt_cast<QTextTable *>(f_position);
+    if (!table)
+        return;
+
+    QTextTableCell c_position = table->cellAt(position);
+    QTextTableCell c_anchor = table->cellAt(adjusted_anchor);
+    if (c_position != c_anchor) {
+        // adjust to cell boundaries
+        if (position < adjusted_anchor) {
+            position = c_position.startPosition();
+            adjusted_anchor = c_anchor.endPosition();
+        } else {
+            position = c_position.endPosition();
+            adjusted_anchor = c_anchor.startPosition();
         }
     }
-#endif
 }
 
 bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
@@ -216,6 +207,8 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
     const QTextLayout *layout = blockIt.layout();
     int relativePos = position - blockIt.position();
     QTextLine line = layout->findLine(relativePos);
+
+    Q_ASSERT(pieceTable->frameAt(position) == pieceTable->frameAt(adjusted_anchor));
 
     switch(op) {
     case QTextCursor::NoMove:
@@ -320,10 +313,7 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
         anchor = position;
         adjusted_anchor = position;
     } else {
-        // adjust end and position
-        int dir = (op >= QTextCursor::Start && op <= QTextCursor::WordLeft)
-                  ? AdjustPrev : AdjustNext;
-        adjustCursor(dir);
+        adjustCursor();
     }
 
     if (adjustX)
@@ -702,7 +692,7 @@ void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier)
     int pos1 = d->position;
     int pos2 = d->adjusted_anchor;
     if (pos1 > pos2) {
-        pos1 = d->anchor;
+        pos1 = d->adjusted_anchor;
         pos2 = d->position;
     }
 

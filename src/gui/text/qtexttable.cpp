@@ -100,8 +100,7 @@ int QTextTableCell::columnSpan() const
 */
 QTextCursor QTextTableCell::start() const
 {
-    QTextPieceTable *p = d->pieceTable();
-    return QTextCursor(p, p->fragmentMap().position(fragment) + 1);
+    return QTextCursor(d->pieceTable(), startPosition());
 }
 
 /*!
@@ -111,12 +110,23 @@ QTextCursor QTextTableCell::start() const
 */
 QTextCursor QTextTableCell::end() const
 {
+    return QTextCursor(d->pieceTable(), endPosition());
+}
+
+
+int QTextTableCell::startPosition() const
+{
+    QTextPieceTable *p = d->pieceTable();
+    return p->fragmentMap().position(fragment) + 1;
+}
+
+int QTextTableCell::endPosition() const
+{
     QTextPieceTable *p = d->pieceTable();
     int index = d->cells.indexOf(fragment) + 1;
     int f = (index == d->cells.size() ? d->fragment_end : d->cells.at(index));
-    return QTextCursor(p, p->fragmentMap().position(f));
+    return p->fragmentMap().position(f);
 }
-
 
 /*!
   \fn QTextCursor QTextTableCell::operator==(const QTextTableCell &other) const
@@ -304,19 +314,18 @@ QTextTableCell QTextTable::cellAt(int row, int col) const
     return QTextTableCell(d, d->grid[row*d->nCols + col]);
 }
 
-
 /*!
   Returns a QTextTableCell object describing the properties
-  of the table cell at cursor position \a c.
+  of the table cell at position \a position in the document.
 */
-QTextTableCell QTextTable::cellAt(const QTextCursor &c) const
+QTextTableCell QTextTable::cellAt(int position) const
 {
     if (d->dirty)
         d->update();
 
-    uint pos = c.position();
+    uint pos = (uint)position;
     const QTextPieceTable::FragmentMap &m = d->pieceTable()->fragmentMap();
-    if (m.position(d->fragment_start) >= pos || m.position(d->fragment_end) < pos)
+    if (position < 0 || m.position(d->fragment_start) >= pos || m.position(d->fragment_end) < pos)
         return QTextTableCell();
 
     int fragment = d->cells.at(0);
@@ -327,6 +336,15 @@ QTextTableCell QTextTable::cellAt(const QTextCursor &c) const
         fragment = f;
     }
     return QTextTableCell(d, fragment);
+}
+
+/*!
+  Returns a QTextTableCell object describing the properties
+  of the table cell at cursor position \a c.
+*/
+QTextTableCell QTextTable::cellAt(const QTextCursor &c) const
+{
+    return cellAt(c.position());
 }
 
 /*!

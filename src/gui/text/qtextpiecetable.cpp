@@ -842,7 +842,7 @@ static QTextFrame *findChildFrame(QTextFrame *f, int pos)
     QList<QTextFrame *> children = f->children();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        if (pos >= c->startPosition() && pos < c->endPosition()) {
+        if (pos >= c->startPosition() && pos <= c->endPosition()) {
             return c;
         }
     }
@@ -920,14 +920,14 @@ void QTextPieceTable::insert_frame(QTextFrame *f)
 {
     int start = f->startPosition();
     int end = f->endPosition();
-    QTextFrame *parent = frameAt(start);
-    Q_ASSERT(parent == frameAt(end));
+    QTextFrame *parent = frameAt(start-1);
+    Q_ASSERT(parent == frameAt(end+1));
 
     if (start != end) {
         // iterator over the parent and move all children contained in my frame to myself
         for (int i = 0; i < parent->d->childFrames.size(); ++i) {
             QTextFrame *c = parent->d->childFrames.at(i);
-            if (start < c->startPosition () && end > c->endPosition()) {
+            if (start < c->startPosition() && end > c->endPosition()) {
                 parent->d->childFrames.removeAt(i);
                 f->d->childFrames.append(c);
                 c->d->parentFrame = f;
@@ -987,13 +987,13 @@ void QTextPieceTable::removeFrame(QTextFrame *frame)
 
     int start = frame->startPosition();
     int end = frame->endPosition();
-    Q_ASSERT(end > start);
+    Q_ASSERT(end >= start);
 
     beginEditBlock();
 
     // remove already removes the frames from the tree
     remove(end, 1);
-    remove(start, 1);
+    remove(start-1, 1);
 
     endEditBlock();
 }

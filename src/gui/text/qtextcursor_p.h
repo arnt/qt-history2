@@ -19,6 +19,7 @@ public:
     ~QTextCursorPrivate();
 
     void adjustPosition(int positionOfChange, int charsAddedOrRemoved, UndoCommand::Operation op);
+    void adjustCursor();
 
     void remove();
     void setPosition(int newPosition);
@@ -35,7 +36,6 @@ public:
 
     QTextTable *tableAt(int position) const;
 
-    void adjustCursor(int dir);
 
     int x;
     int position;

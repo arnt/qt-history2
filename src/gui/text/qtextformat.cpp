@@ -705,11 +705,17 @@ QTextFrame *QTextFrame::parent()
 }
 
 
+/*!
+  The first cursor position inside the frame
+*/
 QTextCursor QTextFrame::start()
 {
     return QTextCursor(d->pieceTable(), startPosition());
 }
 
+/*!
+  The last cursor position inside the frame
+*/
 QTextCursor QTextFrame::end()
 {
     return QTextCursor(d->pieceTable(), endPosition());
@@ -719,7 +725,7 @@ int QTextFrame::startPosition()
 {
     if (!d->fragment_start)
         return 0;
-    return d->pieceTable()->fragmentMap().position(d->fragment_start);
+    return d->pieceTable()->fragmentMap().position(d->fragment_start) + 1;
 }
 
 int QTextFrame::endPosition()
