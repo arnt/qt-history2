@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#195 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#196 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -591,9 +591,6 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	
 	if ( !displayText.isEmpty() ) {
 	    int charsVisible = lastCharVisible() - offset;
-	    if ( displayText[ charsVisible ] != '\0' ) // ##### NUL????
-		charsVisible++;
-
 	    int mark1,mark2;
 
 	    if ( markBegin > offset ) {
