@@ -82,8 +82,10 @@ public:
 
     bool isFake() const { return fake; }
 
+#if defined(PACKAGE_SUPPORT)
     void setPackage( bool b ) { pkg = b; }
     bool isPackage() const;
+#endif
 
 signals:
     void somethingChanged( FormFile* );

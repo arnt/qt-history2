@@ -704,10 +704,12 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove source file from project" ), REMOVE_SOURCE );
 	if ( MainWindow::self->singleProjectMode() ) {
+#if defined(PACKAGE_SUPPORT)
 	    menu.insertSeparator();
 	    menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
 	    menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
 	    menu.setItemChecked( TOGGLE_PACKAGE, wi->sourceFile->isPackage() );
+#endif
 	}
 	break;
     case WorkspaceItem::FormFileType:
@@ -716,10 +718,12 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove form from project" ), REMOVE_FORM );
 	if ( MainWindow::self->singleProjectMode() ) {
+#if defined(PACKAGE_SUPPORT)
 	    menu.insertSeparator();
 	    menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
 	    menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
 	    menu.setItemChecked( TOGGLE_PACKAGE, wi->formFile->isPackage() );
+#endif
 	}
 	break;
     case WorkspaceItem::FormSourceType:
@@ -756,10 +760,13 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	itemClicked( LeftButton, i, pos );
 	break;
     case EXPORT_PACKAGE:
+#if defined(PACKAGE_SUPPORT)
 	MainWindow::self->fileExport( wi->type() == WorkspaceItem::SourceFileType ?
 				      (QObject*)wi->sourceFile : (QObject*)wi->formFile );
+#endif
 	break;
     case TOGGLE_PACKAGE:
+#if defined(PACKAGE_SUPPORT)
 	project->setModified( TRUE );
 	switch ( wi->type() ) {
 	case WorkspaceItem::SourceFileType:
@@ -771,6 +778,7 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	default:
 	    break;
 	}
+#endif
 	break;
     }
 }

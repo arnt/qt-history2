@@ -271,9 +271,11 @@ bool SourceFile::checkFileName( bool allowBreak )
     return TRUE;
 }
 
+#if defined(PACKAGE_SUPPORT)
 bool SourceFile::isPackage() const
 {
     if ( filename[0] == '/' )
 	return TRUE;
     return pkg;
 }
+#endif

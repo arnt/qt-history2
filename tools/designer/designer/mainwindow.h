@@ -228,9 +228,14 @@ public slots:
     bool fileSaveAs();
     void fileSaveAll();
     void fileCreateTemplate();
+
+#if defined(PACKAGE_SUPPORT)
+public: // moc can't handle #defines
     void fileImport();
     void fileExport();
     void fileExport( QObject *o );
+public slots:
+#endif
 
     void editUndo();
     void editRedo();

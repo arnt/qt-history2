@@ -184,8 +184,12 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
 	return TRUE;
     if ( ed )
 	ed->save();
+#if defined(PACKAGE_SUPPORT)
     else if ( exportAsPackage && !cm && !ignoreModified )
 	loadCode();
+#else
+    Q_UNUSED( exportAsPackage )
+#endif
 
     if ( isModified( WFormWindow ) ) {
 	if ( withMsgBox ) {
@@ -722,9 +726,12 @@ bool FormFile::checkFileName( bool allowBreak )
     return TRUE;
 }
 
+
+#if defined(PACKAGE_SUPPORT)
 bool FormFile::isPackage() const
 {
     if ( filename[0] == '/' )
 	return TRUE;
     return pkg;
 }
+#endif

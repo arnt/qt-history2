@@ -632,6 +632,7 @@ void MainWindow::setupFileActions()
 	
 	fileMenu->insertSeparator();
 
+#if defined(PACKAGE_SUPPORT)
     	a = new QAction( this, 0 );
 	a->setText( tr( "Import" ) );
 	a->setToolTip( tr( "Import Dialog or File" ) );
@@ -645,8 +646,8 @@ void MainWindow::setupFileActions()
 	a->setMenuText( tr( "&Export as package..." ) );
 	connect( a, SIGNAL( activated() ), this, SLOT( fileExport() ) );
 	a->addTo( fileMenu );
-	
 	fileMenu->insertSeparator();
+#endif	
     }
 
     a = new QAction( this, 0 );
@@ -1448,6 +1449,7 @@ void MainWindow::fileCreateTemplate()
     dia.exec();
 }
 
+#if defined(PACKAGE_SUPPORT)
 void MainWindow::fileImport()
 {
     QStringList filterlist;
@@ -1515,6 +1517,7 @@ void MainWindow::fileExport( QObject *o )
 	currentProject->setModified( TRUE );
     }
 }
+#endif
 
 void MainWindow::createNewTemplate()
 {
