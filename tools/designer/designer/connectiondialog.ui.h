@@ -194,8 +194,6 @@ void ConnectionDialog::okClicked()
     QPtrList<Command> newConnectionCmds;
     QPtrList<Command> oldConnectionCmds;
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
-	if ( !c->isValid() )
-	    continue;
 	MetaDataBase::Connection conn;
 	conn.sender =
 	    MainWindow::self->formWindow()->child( c->senderItem()->currentText() );

@@ -1016,7 +1016,15 @@ void Uic::createFormImpl( const QDomElement &e )
 		    else if ( n2.tagName() == "slot" )
 			slot = n2.firstChild().toText().data();
 		}
-		if ( sender.isEmpty() || receiver.isEmpty() || signal.isEmpty() || slot.isEmpty() )
+		if ( sender.isEmpty() ||
+		     receiver.isEmpty() ||
+		     signal.isEmpty() ||
+		     slot.isEmpty() )
+		    continue;
+		if ( sender[0] == '<' ||
+		     receiver[0] == '<' ||
+		     signal[0] == '<' ||
+		     slot[0] == '<' )
 		    continue;
 
 		sender = registeredName( sender );
@@ -1027,7 +1035,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		    sender = "this";
 		if ( receiver == objName )
 		    receiver = "this";
-
+		
 		out << indent << "connect( " << sender << ", SIGNAL( " << signal << " ), "
 		    << receiver << ", SLOT( " << slot << " ) );" << endl;
 	    }
