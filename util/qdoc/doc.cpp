@@ -32,6 +32,7 @@
   string.  If they are not equal, break.  If they are equal,
   consume(), but not check(), removes the '\command' from the text.
 */
+
 #define hash( ch, len ) ( (ch) | ((len) << 8) )
 #define check( target ) \
 	if ( strcmp(target, command.latin1()) != 0 ) \

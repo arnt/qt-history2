@@ -166,6 +166,10 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 	    warning( 2, docLoc, "Command '\\%s %s' failed at line %d of '%s'",
 		     command.latin1(), subs.latin1(), walkloc.lineNum(),
 		     walkloc.shortFilePath().latin1() );
+	    warning( 2, walkloc,
+		     "Did not match command '\\%s %s' on line %d of '%s'",
+		     command.latin1(), subs.latin1(),
+		     docLoc.lineNum(), docLoc.shortFilePath().latin1() );
 	    shutUp = TRUE;
 	}
     } else {
@@ -176,7 +180,7 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 }
 
 QString Walkthrough::xto( const QString& substr, const Location& docLoc,
-			  const QString& command ) 
+			  const QString& command )
 {
     QString subs = substr.simplifyWhiteSpace();
     QString s;
@@ -205,7 +209,7 @@ QString Walkthrough::xto( const QString& substr, const Location& docLoc,
 }
 
 QString Walkthrough::xuntil( const QString& substr, const Location& docLoc,
-			     const QString& command ) 
+			     const QString& command )
 {
     QString s = xto( substr, docLoc, command );
     s += getNextLine();

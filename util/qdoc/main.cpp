@@ -18,24 +18,37 @@ extern void parseCppSourceFile( Steering *steering, const QString& fileName );
 // defined in htmlparser.cpp
 extern void parseHtmlFile( Steering *steering, const QString& fileName );
 
-static void applyDepth( void (*apply)(Steering *, const QString&),
-			Steering *steering, const QString& rootDir,
-			const QString& nameFilter )
+
+static int cmp( const void *n1, const void *n2 )
 {
+    if ( !n1 || !n2 )
+	return 0;
+
+    QFileInfo f1( *(QString *)n1 );
+    QFileInfo f2( *(QString *)n2 );
+    if ( f1.lastModified() < f2.lastModified() )
+	return -1;
+    else if ( f1.lastModified() > f2.lastModified() )
+	return 1;
+
+    return 0;
+}
+
+
+static QStringList find( const QString & rootDir, const QString & nameFilter )
+{
+    QStringList result;
     QStringList fileNames;
     QStringList::Iterator fn;
     QDir dir( rootDir );
-    if ( !dir.exists() )
-	return;
-
-    dir.setSorting( QDir::Name );
 
     dir.setNameFilter( nameFilter );
+    dir.setSorting( QDir::Name );
     dir.setFilter( QDir::Files );
     fileNames = dir.entryList();
     fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
-	apply( steering, dir.filePath(*fn) );
+	result += dir.filePath(*fn);
 	++fn;
     }
 
@@ -45,10 +58,14 @@ static void applyDepth( void (*apply)(Steering *, const QString&),
     fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
 	if ( *fn != QChar('.') && *fn != QString("..") )
-	    applyDepth( apply, steering, dir.filePath(*fn), nameFilter );
+	    result += find( dir.filePath(*fn), nameFilter );
 	++fn;
     }
+
+    return result;
 }
+
+
 
 int main( int argc, char **argv )
 {
@@ -70,29 +87,55 @@ int main( int argc, char **argv )
 
     QStringList::ConstIterator s;
 
+    // read the header files in any old order
+    QStringList headerFiles;
     s = config->includeDirList().begin();
     while ( s != config->includeDirList().end() ) {
-	applyDepth( parseCppHeaderFile, &steering, *s, QString("*.h") );
+	headerFiles += find( *s, QString("*.h") );
 	++s;
     }
-
+    s = headerFiles.begin();
+    while( s != headerFiles.end() ) {
+	parseCppHeaderFile( &steering, *s );
+	++s;
+    }
+    
     steering.nailDownDecls();
 
+    // then read the .cpp and .doc files, sorted strictly by
+    // modification time, most recent first.
+    QStringList sourceFiles;
     s = config->sourceDirList().begin();
     while ( s != config->sourceDirList().end() ) {
-	applyDepth( parseCppSourceFile, &steering, *s, QString("*.cpp") );
+	sourceFiles += find( *s, QString("*.cpp") );
 	++s;
     }
 
     s = config->docDirList().begin();
     while ( s != config->docDirList().end() ) {
-	applyDepth( parseCppSourceFile, &steering, *s, QString("*.doc") );
+	sourceFiles += find( *s, QString("*.doc") );
 	++s;
     }
 
+    int i = 0;
+    int n = sourceFiles.count();
+    QString * files = new QString[n];
+    s = sourceFiles.begin();
+    while( s != sourceFiles.end() && i < n ) {
+	files[i++] = *s;
+	++s;
+    }
+    qsort( files, n, sizeof( QString ), cmp );
+    i = n;
+    while( i-- > 0 )
+	parseCppSourceFile( &steering, files[i] );
+    delete[] files;
+    files = 0;
+
+    // finally, pick up old output for the editor
+    QStringList outputFiles;
     if ( config->supervisor() )
-	applyDepth( parseHtmlFile, &steering, config->outputDir(),
-		    QString("*.html") );
+	outputFiles = find( config->outputDir(), QString("*.html") );
 
     steering.nailDownDocs();
     steering.emitHtml();
