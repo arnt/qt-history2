@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#218 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#219 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1939,7 +1939,7 @@ void qt_leave_modal( QWidget* );
   the dialogs starts in that directory, and with \a startWith
   selected.
 
-  Only files matching \a filter are selectable.  If \a filter is 0,
+  Only files matching \a filter are selectable.  If \a filter is QString::null,
   all files are selectable.
 
   If \a widget and/or \a name is provided, the dialog will be centered
@@ -1954,7 +1954,7 @@ void qt_leave_modal( QWidget* );
   Example:
   \code
     // start at the current working directory and with *.cpp as filter
-    QString f = QFileDialog::getOpenFileName( 0, "*.cpp", this );
+    QString f = QFileDialog::getOpenFileName( QString::null, "*.cpp", this );
     if ( !f.isEmpty() ) {
         // the user selected a valid existing file
     } else {
@@ -2022,7 +2022,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   the dialogs starts in that directory, and with \a startWith
   selected.
 
-  Only files matching \a filter are selectable.  If \a filter is 0,
+  Only files matching \a filter are selectable.  If \a filter is QString::null,
   all files are selectable.
 
   If \a widget and/or \a name is provided, the dialog will be centered
@@ -2037,7 +2037,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   Example:
   \code
     // start at the current working directory and with *.cpp as filter
-    QString f = QFileDialog::getSaveFileName( 0, "*.cpp", this );
+    QString f = QFileDialog::getSaveFileName( QString::null, "*.cpp", this );
     if ( !f.isEmpty() ) {
         // the user gave a file name
     } else {
@@ -2672,7 +2672,9 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
 /*!  Sets this file dialog to \a newMode, which can be one of \c
   Directory (directories are accepted), \c ExistingFile (existing
-  files are accepted) or \c AnyFile (any valid file name is accepted).
+  files are accepted), \c AnyFile (any valid file name is accepted)
+  or \c ExistingFiles (like \c ExistingFile, but multple files may be
+  selected)
 
   \sa mode()
 */
@@ -3048,9 +3050,7 @@ void QFileDialog::modeButtonsDestroyed()
   \a parent is a widget over which the dialog should be positioned and
   \a name is the object name of the temporary QFileDialog object.
 
-  Note that the returned list has auto-delete turned off.  It is the
-  application developer's responsibility to delete the strings in the
-  list, for example using code such as:
+  Example:
 
   \code
     QStringList s( QFileDialog::getOpenFileNames() );
