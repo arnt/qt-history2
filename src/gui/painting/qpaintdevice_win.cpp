@@ -147,6 +147,8 @@ static void cleanup_msimg32Lib()
     if ( msimg32Lib != 0 ) {
 	FreeLibrary( msimg32Lib );
 	msimg32Lib = 0;
+	alphaBlend = 0;
+	loadAlphaBlendFailed = FALSE;
     }
 }
 #endif
