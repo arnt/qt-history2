@@ -180,7 +180,7 @@ public:
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 20;
+static const int ntypes = 21;
 static const char* type_map[ntypes] =
 {
     0,
@@ -200,6 +200,7 @@ static const char* type_map[ntypes] =
     "QPoint",
     "QImage",
     "int",
+    "uint",
     "bool",
     "double",
     "QCString"
