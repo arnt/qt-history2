@@ -64,27 +64,25 @@ QStringList QDesignerSettings::defaultFormTemplatePaths() const
 void QDesignerSettings::saveGeometryFor(const QWidget *w)
 {
     Q_ASSERT(w && !w->objectName().isEmpty());
-    const QWidget *widgetToPass = w;
-    if (w->parentWidget())
-        widgetToPass = w->parentWidget();
-
-    saveGeometryHelper(widgetToPass, w->objectName());
+    saveGeometryHelper(w, w->objectName());
 }
 
 void QDesignerSettings::setGeometryFor(QWidget *w, const QRect &fallBack) const
 {
     Q_ASSERT(w && !w->objectName().isEmpty());
-    QWidget *widgetToPass = w;
-
-    setGeometryHelper(widgetToPass, w->objectName(),
+    setGeometryHelper(w, w->objectName(),
                       fallBack.isNull() ? QRect(QPoint(0, 0), w->sizeHint()) : fallBack);
 }
 
 void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
 {
     beginGroup(key);
+    QPoint pos = w->pos();
+    if (!w->isWindow()) // in workspace
+        pos = w->parentWidget()->pos();
+
     setValue(QLatin1String("screen"), QApplication::desktop()->screenNumber(w));
-    setValue(QLatin1String("geometry"), QRect(w->pos(), w->size()));
+    setValue(QLatin1String("geometry"), QRect(pos, w->size()));
     setValue(QLatin1String("visible"), w->isVisible());
     endGroup();
 }
