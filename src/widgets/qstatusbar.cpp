@@ -96,8 +96,7 @@
     \endcode
 
     By default QStatusBar provides a QSizeGrip in the lower-right
-    corner (except on Mac OS X). You can disable it with
-    setSizeGripEnabled(FALSE);
+    corner. You can disable it with setSizeGripEnabled(FALSE);
 
     <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
@@ -149,9 +148,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 
 #ifndef QT_NO_SIZEGRIP
     d->resizer = 0;
-#ifndef Q_WS_MAC
     setSizeGripEnabled(TRUE); // causes reformat()
-#endif
 #else
     reformat();
 #endif
