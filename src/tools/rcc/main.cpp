@@ -250,7 +250,6 @@ showHelp(const char *argv0, const QString &error)
             "\t-compress level   Compress input files by level\n"
             "\t-root path        Prefix resource acesspath with root path\n"
             "\t-no-compress      Disable all compression\n"
-            "\t-r                Perform compilation recursivley on directories\n"
             "\t-version          Display version\n"
             "\t-help             Display this information\n",
             argv0);
