@@ -15,7 +15,7 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     markerWidget->setFixedWidth( 20 );
     dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
     layout->addWidget( dockArea );
-    dockArea->setMinimumWidth( 2 );
+    dockArea->setMinimumWidth( 5 );
     layout->addWidget( markerWidget );
 
     QObjectList *l = topLevelWidget()->queryList( "QDockWindow" );
