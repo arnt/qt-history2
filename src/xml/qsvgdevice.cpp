@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#32 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#33 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -115,9 +115,9 @@ QSvgDevice::~QSvgDevice()
   FALSE if errors were encountered.
  */
 
-bool QSvgDevice::load( const QString &file )
+bool QSvgDevice::load( const QString &fileName )
 {
-    QFile f( file );
+    QFile f( fileName );
     if ( !f.open( IO_ReadOnly ) ) {
 	qWarning( "QSvgDevice::load: Could not open input file" );
 	return FALSE;
@@ -196,9 +196,9 @@ QString QSvgDevice::toString() const
     return doc.toString();
 }
 
-bool QSvgDevice::save( const QString &file )
+bool QSvgDevice::save( const QString &fileName )
 {
-    QFile f( file );
+    QFile f( fileName );
     if ( !f.open ( IO_WriteOnly ) )
 	return FALSE;
     QTextStream s( &f );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#20 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#21 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -45,7 +45,6 @@
 #endif // QT_H
 
 #include "qfeatures.h"
-#include "qfeatures.h"
 
 #if !defined(QT_MODULE_XML)
 #define QM_EXPORT
@@ -65,11 +64,12 @@ public:
     QSvgDevice();
     ~QSvgDevice();
 
-    bool load( const QString& );
     bool play( QPainter *p );
 
     QString toString() const;
-    bool save( const QString& );
+
+    bool load( const QString &fileName );
+    bool save( const QString &fileName );
 
     QRect boundingRect() const;
 
