@@ -3168,9 +3168,9 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         if (!tCursorInfo()->contains(localPacketBuf[i].pkCursor))
             tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
         TabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
-        QSize deskotpSize = qt_desktopWidget->screenGeometry().size();
+        QSize desktopSize = qt_desktopWidget->screenGeometry().size();
         qreal posX = scaleCoord(ptNew.x, tdd.minX, tdd.maxX, 0, desktopSize.width());
-        qreal posY = scaleCoord(ptNew.y, tdd.minY, tdd.maxY, 0, desktopSize().height());
+        qreal posY = scaleCoord(ptNew.y, tdd.minY, tdd.maxY, 0, desktopSize.height());
         QPointF hiResGlobal(posX, posY);
         if (btnNew) {
             prsNew = localPacketBuf[i].pkNormalPressure;
