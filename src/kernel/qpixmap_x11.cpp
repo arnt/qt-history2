@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#45 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#45 $")
 
 
 /*
@@ -216,7 +216,7 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
 	bits = (const char *)flipped_bits;
     }
     hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
-    delete flipped_bits;
+    delete [] flipped_bits;
 }
 
 /*!
@@ -585,7 +585,7 @@ QImage QPixmap::convertToImage() const
 				      (carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
-	delete carr;
+	delete [] carr;
     }
     if ( data->optim ) {			// keep ximage that we fetched
 	((QPixmap*)this)->data->dirty  = FALSE;
@@ -653,7 +653,7 @@ bool QPixmap::convertFromImage( const QImage &img )
 	    flipped_bits = 0;
 	}
 	hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
-	delete flipped_bits;
+	delete [] flipped_bits;
 	data->w = w;  data->h = h;  data->d = 1;
 	if ( data->optim )
 	    data->dirty = FALSE;
@@ -867,8 +867,8 @@ bool QPixmap::convertFromImage( const QImage &img )
 	    pix[px->index] = c.pixel();
 	    px++;
 	}
-	delete pixarr;
-	delete pixarr_sorted;
+	delete [] pixarr;
+	delete [] pixarr_sorted;
 
 	p = newbits;
 	for ( i=0; i<nbytes; i++ )		// translate pixels

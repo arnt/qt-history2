@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#106 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#105 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#106 $")
 
 
 // --------------------------------------------------------------------------
@@ -435,7 +435,7 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
 
     void cleanup_ptr()
     {
-	delete global_ptr;
+	delete [] global_ptr;
     }
 
     void init_ptr()
@@ -1577,7 +1577,7 @@ static void cleanupTimers()			// cleanup timer data structure
 {
     if ( timerList ) {
 	delete timerList;
-	delete timerBitVec;
+	delete [] timerBitVec;
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#124 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#123 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#124 $")
 
 
 // --------------------------------------------------------------------------
@@ -2678,7 +2678,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
     if ( (tf & DontPrint) != 0 ) {		// don't print any text
 	if ( code_alloc )
-	    delete codes;
+	    delete [] codes;
 	return;
     }
 
@@ -2813,9 +2813,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     if ( p_alloc )
-	delete p;
+	delete [] p;
     if ( code_alloc )
-	delete codes;
+	delete [] codes;
 }
 
 

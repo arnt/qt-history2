@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#43 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#43 $")
 
 
 /*!
@@ -96,7 +96,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 QMenuBar::~QMenuBar()
 {
     delete autoaccel;
-    delete irects;
+    delete [] irects;
     if ( parent() )
 	parent()->removeEventFilter( this );
 }
@@ -327,7 +327,7 @@ void QMenuBar::updateRects()
 {
     if ( !badSize )				// size was not changed
 	return;
-    delete irects;
+    delete [] irects;
     if ( mitems->isEmpty() ) {
 	irects = 0;
 	return;

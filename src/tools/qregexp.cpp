@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#22 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#22 $")
 
 
 /*!
@@ -139,7 +139,7 @@ Destroys the regular expression and cleans up its internal data.
 
 QRegExp::~QRegExp()
 {
-    delete rxdata;
+    delete [] rxdata;
 }
 
 /*!
@@ -597,7 +597,7 @@ static ushort rxarray[ maxlen ];		// tmp regexp array
 void QRegExp::compile()
 {
     if ( rxdata ) {				// delete old data
-	delete rxdata;
+	delete [] rxdata;
 	rxdata = 0;
     }
     if ( rxstring.isEmpty() ) {			// no regexp pattern set

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#32 $
 **
 ** Implementation of QPicture class
 **
@@ -17,7 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#32 $")
 
 
 /*!
@@ -365,7 +365,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 			ta[i] = i1_16;
 		    }
 		    painter->setTabArray( ta );
-		    delete ta;
+		    delete [] ta;
 		}
 		break;
 	    case PDC_SETVXFORM:

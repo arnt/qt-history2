@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#9 $
 **
 ** Implementation of QCursor class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#9 $")
 
 
 // --------------------------------------------------------------------------
@@ -283,8 +283,8 @@ void QCursor::update() const			// update/load cursor
 	    }
 	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
 					w, h, bits, mask );
-	    delete bits;
-	    delete mask;
+	    delete [] bits;
+	    delete [] mask;
 /*
 	    QImage c, m;
 	    c = *data->bm;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#30 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#30 $")
 
 
 // --------------------------------------------------------------------------
@@ -50,7 +50,7 @@ void qt_reset_color_avail()			// OOPS: called from event loop
 {
     colorAvail = TRUE;
     if ( g_carr ) {				// color array was allocated
-	delete g_carr;
+	delete [] g_carr;
 	g_carr = 0;				// reset
     }
 }

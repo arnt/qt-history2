@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#46 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#46 $")
 
 
 /*!
@@ -849,9 +849,9 @@ static bool dither_image( const QImage *src, QImage *dst )
 		b++;
 	}
     }
-    delete line1;
-    delete line2;
-    delete bmline;
+    delete [] line1;
+    delete [] line2;
+    delete [] bmline;
     return TRUE;
 }
 
@@ -1780,7 +1780,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 		    *p = *b >> 4;
 	    }
 	}
-	delete buf;
+	delete [] buf;
     }
 
     else if ( nbits == 8 ) {			// 8 bit BMP image
@@ -1942,7 +1942,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 	    memcpy( buf, image.scanLine(y), bpl );
 	d->writeBlock( (char*)buf, bpl_bmp );
     }
-    delete buf;
+    delete [] buf;
 }
 
 

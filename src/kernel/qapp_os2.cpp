@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#8 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -20,7 +20,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#8 $")
 
 
 // --------------------------------------------------------------------------
@@ -113,7 +113,7 @@ int main( int argc, char **argv )
     if ( cleanupRvec ) {
 	while ( cleanupRcount )			// call cleanup routines
 	    (*(cleanupRvec[--cleanupRcount]))();
-	delete cleanupRvec;
+	delete [] cleanupRvec;
     }
     if ( qApp )
 	delete qApp;

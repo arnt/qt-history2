@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#58 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#57 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#58 $")
 
 
 /*!
@@ -267,7 +267,7 @@ void QPainter::setTabArray( int *ta )
 {
     if ( ta != tabarray ) {
 	tabarraylen = 0;
-	delete tabarray;			// delete old array
+	delete [] tabarray;			// delete old array
 	if ( ta ) {				// tabarray = copy of 'ta'
 	    while ( ta[tabarraylen] )
 		tabarraylen++;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#18 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#18 $")
 
 
 declare(QListM,QGDictIterator);			// list of iterators (Qditlst)
@@ -130,7 +130,7 @@ QGDict::QGDict( const QGDict & dict )		// make copy of other dict
 QGDict::~QGDict()
 {
     clear();					// delete everything
-    delete vec;
+    delete [] vec;
     if ( !iterators )				// no iterators for this dict
 	return;
     register QGDictIterator *i = iterators->first();
