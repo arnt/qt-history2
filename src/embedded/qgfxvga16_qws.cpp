@@ -1902,7 +1902,7 @@ bool QVga16Screen::connect( const QString &displaySpec )
     }
 #endif
 
-    if ( (shared_memory == (void *)-1) || (shared_memory == NULL) ) {
+    if ( (int)shared_memory == -1 || shared_memory == 0 ) {
 	qDebug( "shared memory or malloc failure\n" );
 	return FALSE;
     }
