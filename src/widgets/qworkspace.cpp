@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#22 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -30,16 +30,119 @@
 #include "qlabel.h"
 #include "qvbox.h"
 
+#if defined(_OS_WIN32_)
+const bool win32 = TRUE;
+#define TITLEBAR_HEIGHT 18
+#define TITLEBAR_SEPARATION 2
+#define BUTTON_WIDTH 16
+#define BUTTON_HEIGHT 14
+#define BORDER 2
+#define RANGE 16
+#define OFFSET 20
+
+
+static const char * close_xpm[] = {
+"16 16 2 1",
+"# c #000000",
+". c None",
+"................",
+"................",
+"................",
+"................",
+"....##....##....",
+".....##..##.....",
+"......####......",
+".......##.......",
+"......####......",
+".....##..##.....",
+"....##....##....",
+"................",
+"................",
+"................",
+"................",
+"................"};
+
+static const char*maximize_xpm[]={
+"16 16 2 1",
+"# c #000000",
+". c None",
+"................",
+"................",
+"................",
+"................",
+"...#########....",
+"...#########....",
+"...#.......#....",
+"...#.......#....",
+"...#.......#....",
+"...#.......#....",
+"...#.......#....",
+"...#########....",
+"................",
+"................",
+"................",
+"................"};
+
+
+static const char * minimize_xpm[] = {
+"16 16 2 1",
+"# c #000000",
+". c None",
+"................",
+"................",
+"................",
+"................",
+"................",
+"................",
+"................",
+"................",
+"................",
+"................",
+"....######......",
+"....######......",
+"................",
+"................",
+"................",
+"................"};
+
+static const char * normalize_xpm[] = {
+"16 16 2 1",
+"# c #000000",
+". c None",
+"................",
+"................",
+"................",
+".....######.....",
+".....######.....",
+".....#....#.....",
+"...######.#.....",
+"...######.#.....",
+"...#....###.....",
+"...#....#.......",
+"...#....#.......",
+"...######.......",
+"................",
+"................",
+"................",
+"................"};
+
+
+#else // !_OS_WIN32_
+
+const bool win32 = FALSE;
+#define TITLEBAR_HEIGHT 18
+#define TITLEBAR_SEPARATION 2
+#define BUTTON_WIDTH 16
+#define BUTTON_HEIGHT 16
+#define BORDER 2
+#define RANGE 16
 #define OFFSET 20
 
 static const char * close_xpm[] = {
-/* width height num_colors chars_per_pixel */
 "16 16 3 1",
-/* colors */
 "       s None  c None",
 ".      c white",
 "X      c #707070",
-/* pixels */
 "                ",
 "                ",
 "  .X        .X  ",
@@ -58,13 +161,10 @@ static const char * close_xpm[] = {
 "                "};
 
 static const char * maximize_xpm[] = {
-/* width height num_colors chars_per_pixel */
 "16 16 3 1",
-/* colors */
 "       s None  c None",
 ".      c white",
 "X      c #707070",
-/* pixels */
 "                ",
 "                ",
 "  ...........   ",
@@ -84,13 +184,10 @@ static const char * maximize_xpm[] = {
 
 
 static const char * minimize_xpm[] = {
-/* width height num_colors chars_per_pixel */
 "16 16 3 1",
-/* colors */
 "       s None  c None",
 ".      c white",
 "X      c #707070",
-/* pixels */
 "                ",
 "                ",
 "                ",
@@ -109,13 +206,10 @@ static const char * minimize_xpm[] = {
 "                "};
 
 static const char * normalize_xpm[] = {
-/* width height num_colors chars_per_pixel */
 "16 16 3 1",
-/* colors */
 " 	s None	c None",
 ".	c white",
 "X	c #707070",
-/* pixels */
 "                ",
 "                ",
 "     ........   ",
@@ -133,6 +227,10 @@ static const char * normalize_xpm[] = {
 "                ",
 "                "};
 
+#endif // !_OS_WIN32_
+
+
+
 
 class Q_EXPORT QWorkspaceChildTitleBar : public QWidget
 {
@@ -142,6 +240,8 @@ public:
     ~QWorkspaceChildTitleBar();
 
     bool isActive() const;
+    
+    QSize sizeHint() const;
 
  public slots:
     void setActive( bool );
@@ -596,27 +696,32 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     return FALSE;
 }
 
-#define BUTTON_SIZE 18
 void QWorkspace::showMaxHandles()
 {
     if ( !d->maxhandle ) {
 	d->maxhandle = new QHBox( topLevelWidget() );
-	d->maxhandle->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+	if ( !win32 )
+	    d->maxhandle->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
 	QToolButton* restoreB = new QToolButton( d->maxhandle, "restore" );
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( QPixmap( normalize_xpm ));
- 	restoreB->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+ 	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( restoreB, SIGNAL( clicked() ), this, SLOT( normalizeActive() ) );
 	QToolButton* closeB = new QToolButton( d->maxhandle, "close" );
 	closeB->setFocusPolicy( NoFocus );
 	closeB->setIconSet( QPixmap( close_xpm ) );
- 	closeB->setFixedSize(BUTTON_SIZE, BUTTON_SIZE);
+ 	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActive() ) );
+	
+	if ( win32 ) {
+	    restoreB->setAutoRaise( FALSE );
+	    closeB->setAutoRaise( FALSE );
+	}
 	//d->maxhandle->adjustSize();
 
 	//### layout doesn't work
-	d->maxhandle->setFixedSize( 2* BUTTON_SIZE+2*d->maxhandle->frameWidth(),
-				    BUTTON_SIZE+2*d->maxhandle->frameWidth() );
+	d->maxhandle->setFixedSize( 2* BUTTON_WIDTH+2*d->maxhandle->frameWidth(),
+				    BUTTON_HEIGHT+2*d->maxhandle->frameWidth() );
     }
 
     d->maxhandle->move ( topLevelWidget()->width() - d->maxhandle->width() - 4, 4 );
@@ -653,13 +758,6 @@ void QWorkspace::normalizeActive()
 */
 
 
-#define TITLEBAR_HEIGHT 18
-#define TITLEBAR_SEPARATION 2
-#define BUTTON_SIZE 18
-#define TITLE_HEIGHT 18
-#define BORDER 2
-#define RANGE 16
-
 
 QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent, const char* name, bool iconMode )
     : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder )
@@ -669,22 +767,29 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
     imode = iconMode;
     act = FALSE;
 
+    titleL = new QLabel( this, "__workspace_child_title_bar" );
+
     closeB = new QToolButton( this, "close" );
     closeB->setFocusPolicy( NoFocus );
     closeB->setIconSet( QPixmap( close_xpm ) );
-    closeB->resize(BUTTON_SIZE, BUTTON_SIZE);
+    closeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
     connect( closeB, SIGNAL( clicked() ),
 	     this, SIGNAL( doClose() ) ) ;
     maxB = new QToolButton( this, "maximize" );
     maxB->setFocusPolicy( NoFocus );
     maxB->setIconSet( QPixmap( maximize_xpm ));
-    maxB->resize(BUTTON_SIZE, BUTTON_SIZE);
+    maxB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
     connect( maxB, SIGNAL( clicked() ),
 	     this, SIGNAL( doMaximize() ) );
     iconB = new QToolButton( this, "iconify" );
     iconB->setFocusPolicy( NoFocus );
-    iconB->resize(BUTTON_SIZE, BUTTON_SIZE);
+    iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+    if ( win32 ) {
+	closeB->setAutoRaise( FALSE );
+	maxB->setAutoRaise( FALSE );
+	iconB->setAutoRaise( FALSE );
+    }
     if ( imode ) {
 	iconB->setIconSet( QPixmap( normalize_xpm ) );
 	connect( iconB, SIGNAL( clicked() ),
@@ -696,8 +801,6 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 		 this, SIGNAL( doMinimize() ) );
     }
 
-    titleL = new QLabel( this, "__workspace_child_title_bar" );
-
     titleL->setMouseTracking( TRUE );
     titleL->installEventFilter( this );
     titleL->setAlignment( AlignVCenter );
@@ -705,10 +808,6 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 
     iconL = new QLabel( this, "left" );
     iconL->setFocusPolicy( NoFocus );
-    iconL->resize( BUTTON_SIZE, BUTTON_SIZE );
-
-    resize( 256, TITLEBAR_HEIGHT );
-
 }
 
 QWorkspaceChildTitleBar::~QWorkspaceChildTitleBar()
@@ -791,20 +890,18 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 
 void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 {
-    int bo = ( height()- BUTTON_SIZE) / 2;
-    closeB->move( width() - BUTTON_SIZE - bo, bo  );
-    maxB->move( closeB->x() - BUTTON_SIZE - bo, closeB->y() );
-    iconB->move( maxB->x() - BUTTON_SIZE, maxB->y() );
-    iconL->move( 0, iconB->y() );
+    int bo = ( height()- BUTTON_HEIGHT) / 2;
+    closeB->move( width() - BUTTON_WIDTH - bo, bo  );
+    maxB->move( closeB->x() - BUTTON_WIDTH - bo, closeB->y() );
+    iconB->move( maxB->x() - BUTTON_WIDTH, maxB->y() );
+    iconL->setGeometry( 0, 0, BUTTON_WIDTH, height() );
 
-    int to = ( height()- TITLE_HEIGHT) / 2;
-
-    if (imode && !isActive() )
-	titleL->setGeometry( QRect( QPoint( BUTTON_SIZE + bo, 0 ),
+    if ( win32 || (imode && !isActive()) )
+	titleL->setGeometry( QRect( QPoint( BUTTON_WIDTH, 0 ),
 				    rect().bottomRight() ) );
     else
-	titleL->setGeometry( QRect( QPoint( BUTTON_SIZE + bo, to ),
-				    QPoint( iconB->geometry().left() - bo - 1, to + TITLE_HEIGHT ) ) );
+	titleL->setGeometry( QRect( QPoint( BUTTON_WIDTH, 0),
+				    QPoint( iconB->geometry().left() - 1, rect().bottom() ) ) );
 
 }
 
@@ -821,8 +918,13 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	QColorGroup g = colorGroup();
 	g.setColor( QColorGroup::Background,  colorGroup().color( QColorGroup::Highlight ) );
 	g.setColor( QColorGroup::Text,  colorGroup().color( QColorGroup::HighlightedText) );
-	titleL->setPalette( QPalette( g, g, g), TRUE );
-	titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+	if ( win32 ) {
+	    titleL->setPalette( QPalette( g, g, g), TRUE );
+	    iconL->setPalette( QPalette( g, g, g), TRUE );
+	} else {
+	    titleL->setPalette( QPalette( g, g, g), TRUE );
+	    titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+	}
     }
     else {
 	if ( imode ){
@@ -830,9 +932,16 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	    closeB->hide();
 	    maxB->hide();
 	}
-	const QColorGroup & g = colorGroup();
-	titleL->setPalette( QPalette( g, g, g), TRUE );
-	titleL->setFrameStyle( QFrame::NoFrame );
+	QColorGroup g = colorGroup();
+	if ( win32 ) {
+	    g.setColor( QColorGroup::Background,  colorGroup().color( QColorGroup::Dark ) );
+	    g.setColor( QColorGroup::Text,  colorGroup().color( QColorGroup::Background) );
+	    titleL->setPalette( QPalette( g, g, g), TRUE );
+	    iconL->setPalette( QPalette( g, g, g), TRUE );
+	} else {
+	    titleL->setFrameStyle( QFrame::NoFrame );
+	    titleL->setPalette( QPalette( g, g, g), TRUE );
+	}
     }
     if ( imode )
 	resizeEvent(0);
@@ -841,6 +950,12 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 bool QWorkspaceChildTitleBar::isActive() const
 {
     return act;
+}
+
+
+QSize QWorkspaceChildTitleBar::sizeHint() const
+{
+    return QSize( 196, QMAX( TITLEBAR_HEIGHT, fontMetrics().lineSpacing() ) );
 }
 
 class QWorkSpaceChildProtectedWidget : public QWidget
@@ -881,19 +996,21 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	return;
 
     titlebar->setText( clientw->caption() );
-	if( clientw->icon() )
-		titlebar->setIcon( *clientw->icon() );
+    if( clientw->icon() )
+	titlebar->setIcon( *clientw->icon() );
+    
+    int th = titlebar->sizeHint().height();
 
     bool hasBeenResize = clientw->testWState( WState_Resized );
-    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ), TRUE  );
+    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, th + BORDER + contentsRect().y() ), TRUE  );
 
     if ( !hasBeenResize ) {
 	QSize cs = clientw->sizeHint();
 	QSize s( cs.width() + 2*frameWidth() + 2*BORDER,
-		 cs.height() + 3*frameWidth() + TITLEBAR_HEIGHT +TITLEBAR_SEPARATION+2*BORDER );
+		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION+2*BORDER );
 	resize( s );
     } else {
-	resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + TITLEBAR_HEIGHT +2*BORDER);
+	resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + th +2*BORDER);
     }
 
     clientw->installEventFilter( this );
@@ -912,14 +1029,15 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
 
     QRect r = contentsRect();
-    titlebar->setGeometry( r.x() + BORDER, r.y() + BORDER, r.width() - 2*BORDER, TITLEBAR_HEIGHT+1);
+    int th = titlebar->sizeHint().height();
+    titlebar->setGeometry( r.x() + BORDER, r.y() + BORDER, r.width() - 2*BORDER, th+1);
 
     if (!clientw)
 	return;
 
-    QRect cr( r.x() + BORDER, r.y() + BORDER + TITLEBAR_SEPARATION + TITLEBAR_HEIGHT,
+    QRect cr( r.x() + BORDER, r.y() + BORDER + TITLEBAR_SEPARATION + th,
 			r.width() - 2*BORDER,
-			  r.height() - 2*BORDER - TITLEBAR_SEPARATION - TITLEBAR_HEIGHT);
+			  r.height() - 2*BORDER - TITLEBAR_SEPARATION - th);
     clientSize = cr.size();
     clientw->setGeometry( cr );
 }
@@ -988,8 +1106,9 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	{
 	    QResizeEvent* re = (QResizeEvent*)e;
 	    if ( re->size() != clientSize ){
+		int th = titlebar->sizeHint().height();
 		QSize s( re->size().width() + 2*frameWidth() + 2*BORDER,
-			 re->size().height() + 3*frameWidth() + TITLEBAR_HEIGHT +TITLEBAR_SEPARATION+2*BORDER );
+			 re->size().height() + 3*frameWidth() + th +TITLEBAR_SEPARATION+2*BORDER );
 		resize( s );
 	    }
 	}
