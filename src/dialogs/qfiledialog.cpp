@@ -2050,7 +2050,8 @@ void QFileDialog::init()
     QObjectList *ol = d->paths->queryList( "QLineEdit" );
     if ( ol && ol->first() )
 	( (QLineEdit*)ol->first() )->installEventFilter( this );
-
+    delete ol;
+    
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
     d->types->setEnableMultipleInsertion( FALSE );
@@ -2321,12 +2322,24 @@ QFileDialog::~QFileDialog()
   absolute path name.  The returned string is a null string if no file
   name was selected.
 
-  \sa QString::isNull(), QFileDialog::selectedFiles()
+  \sa QString::isNull(), QFileDialog::selectedFiles(), QFileDialog::selectedFilter()
 */
 
 QString QFileDialog::selectedFile() const
 {
     return d->currentFileName;
+}
+
+/*!
+  Returns the filter which the user has chosen in
+  the file dialog.
+
+  \sa QString::isNull(), QFileDialog::selectedFiles()
+*/
+
+QString QFileDialog::selectedFilter() const
+{
+    return d->types->currentText();
 }
 
 /*!

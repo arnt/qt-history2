@@ -222,6 +222,7 @@ public:
     // non-static function for special needs
 
     QString selectedFile() const;
+    QString selectedFilter() const;
     void setSelection( const QString &);
 
     QStringList selectedFiles() const;
