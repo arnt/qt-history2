@@ -1,8 +1,8 @@
 #include "qapplication.h"
 #include "qsqltable.h"
 #include "qsqldriver.h"
-#include "qsqlpropertymanager.h"
 #include "qsqleditorfactory.h"
+#include "qsqlform.h"
 
 #ifndef QT_NO_SQL
 
@@ -153,7 +153,7 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
     QSqlView* vw = d->view;
     if ( !vw )
 	return 0;
-    QSqlPropertyManager m;
+    QSqlPropertyMap m;
     QWidget * w = 0;
 
     m.addClass( "QSqlCustomEd", "state" );
@@ -175,7 +175,7 @@ void QSqlTable::setCellContentFromEditor( int row, int col )
     QSqlView* vw = d->view;
     if ( !vw )
 	return;
-    QSqlPropertyManager m;
+    QSqlPropertyMap m;
     QWidget * editor = cellWidget( row, col );
 
     if ( !editor )

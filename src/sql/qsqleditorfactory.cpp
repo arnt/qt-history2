@@ -5,7 +5,6 @@
 #include <qcombobox.h>
 
 #include "qsqleditorfactory.h"
-#include "qsqleditor.h"
 
 #ifndef QT_NO_SQL
 
