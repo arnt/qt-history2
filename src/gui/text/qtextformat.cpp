@@ -1433,7 +1433,9 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextBlockFormat::setFirstLineMargin(int margin)
 
-    Sets the paragraph's first line margin to \a margin.
+    Sets the \a margin for the first line in the block. This allows the first
+    line of a paragraph to be indented differently to the other lines,
+    enhancing the readability of the text.
 
     \sa firstLineMargin() setLeftMargin() setRightMargin() setTopMargin() setBottomMargin()
 */
@@ -1491,7 +1493,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextBlockFormat::setBackgroundColor(const QColor &color)
 
-    Sets the paragraph's background color to \a color.
+    Sets the paragraph's background \a color.
 
     \sa backgroundColor()
 */

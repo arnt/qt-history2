@@ -56,7 +56,7 @@
     \fn QTextObject::QTextObject(QTextDocument *document)
 
     Creates a new QTextObject for the given \a document.
-    
+
     \warning This function should never be called directly, but only
     from QTextDocument::createObject().
 */
@@ -66,6 +66,8 @@ QTextObject::QTextObject(QTextDocument *doc)
 }
 
 /*!
+  \fn QTextObject::QTextObject(QTextObjectPrivate &p, QTextDocument *document)
+
   \internal
 */
 QTextObject::QTextObject(QTextObjectPrivate &p, QTextDocument *doc)
@@ -257,6 +259,8 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
     You can iterate over frame's contents using the
     QTextFrame::iterator class: this provides read-only access to a
     frame's list of blocks and child frames.
+
+    \sa QTextCursor QTextDocument
 */
 
 /*!
@@ -319,7 +323,9 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 */
 
 /*!
-    Creates a new empty frame for the text document, \a doc.
+    \fn QTextFrame::QTextFrame(QTextDocument *document)
+
+    Creates a new empty frame for the text \a document.
 */
 QTextFrame::QTextFrame(QTextDocument *doc)
     : QTextObject(*new QTextFramePrivate, doc)
@@ -691,6 +697,9 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     iterate over a document and write the contents in your own custom
     format.
 
+    Text blocks are created by their parent documents. If you need to create
+    a new text block, use the cursor-based interface provided by QTextCursor.
+
     Each text block is located at a specific position() in a document().
     The contents of the block can be obtained by using the text() function.
     The length() function determines the block's size within the document
@@ -699,13 +708,12 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     its charFormat(), and its blockFormat().
 
     The next() and previous() functions allow navigation between blocks
-    within the document. Note that blocks are returned by these functions in
-    the order in which they appear in the document regardless of their
-    positions within the document structure.
+    within the document. Note that blocks are returned in sequence, so
+    adjacent blocks may come from different places in the document structure.
 
     \img qtextblock-sequence.png
 
-    \sa QBlockFormat QCharFormat QTextFragment
+    \sa QTextBlockFormat QTextCharFormat QTextFragment
  */
 
 /*!
@@ -768,17 +776,19 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     a way to iterate over these, and read their contents. It does not provide
     a way to modify the internal structure or contents of the block.
 
-    An iterator is constructed and used in the following way:
+    An iterator can be constructed and used to access the fragments within
+    a text block in the following way:
 
-    \code
-        // QTextBlock block;
-        QTextBlock::iterator it;
-        for (it = block.begin(); !(it.atEnd()); ++it) {
-            QTextFragment fragment = it.fragment();
-
-            if (fragment.isValid()) ...
-        }
-    \endcode
+    \quotefile textblock-fragments/xmlwriter.cpp
+    \skipto while (currentBlock
+    \printto QDom
+    \skipto QTextBlock::iterator
+    \printuntil if (fragment.isValid())
+    \skipto ...
+    \printuntil ...
+    \skipto }
+    \printuntil currentBlock =
+    \printuntil }
 
     \sa QTextFragment
 */

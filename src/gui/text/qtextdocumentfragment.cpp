@@ -210,8 +210,8 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
 
 /*!
     \class QTextDocumentFragment qtextdocumentfragment.h
-    \brief The QTextDocumentFragment class represents a piece of
-    formatted text.
+    \brief The QTextDocumentFragment class represents a piece of formatted text
+    from a QTextDocument.
 
     \ingroup text
 
@@ -254,7 +254,7 @@ QTextDocumentFragment::QTextDocumentFragment(QTextDocument *document)
     Creates a QTextDocumentFragment from the \a{cursor}'s selection. 
     If the cursor doesn't have a selection, the created fragment is empty.
 
-    \sa isEmpty()
+    \sa isEmpty() QTextCursor::selection()
 */
 QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &cursor)
     : d(0)
@@ -266,7 +266,9 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &cursor)
 }
 
 /*!
-    Creates a copy of the fragment \a rhs.
+    \fn QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
+
+    Copy constructor. Creates a copy of the given \a fragment.
 */
 QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
     : d(0)
@@ -275,7 +277,9 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
 }
 
 /*!
-    Assigns \a rhs to this fragment.
+    \fn QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragment &other)
+
+    Assigns the \a other fragment to this fragment.
 */
 QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragment &rhs)
 {
@@ -297,7 +301,7 @@ QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragm
 }
 
 /*!
-    Destroys the fragment.
+    Destroys the document fragment.
 */
 QTextDocumentFragment::~QTextDocumentFragment()
 {
@@ -327,9 +331,11 @@ QString QTextDocumentFragment::toPlainText() const
 }
 
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragment)
+
     \relates QTextDocumentFragment
 
-    Writes the fragment \a frag to the stream \a s and returns a reference to the
+    Writes the \a fragment to the \a stream and returns a reference to the
     stream.
 */
 QDataStream &operator<<(QDataStream &s, const QTextDocumentFragment &frag)
@@ -343,10 +349,12 @@ QDataStream &operator<<(QDataStream &s, const QTextDocumentFragment &frag)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
+
     \relates QTextDocumentFragment
 
-    Reads the  fragment \a frag from the stream \a s and returns a reference
-    to the stream.
+    Reads the \a fragment from the \a stream and returns a reference to the
+    stream.
 */
 QDataStream &operator>>(QDataStream &s, QTextDocumentFragment &frag)
 {

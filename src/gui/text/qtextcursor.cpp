@@ -668,8 +668,8 @@ int QTextCursor::anchor() const
     times.
 
     If \a mode is \c KeepAnchor, the cursor selects the text it moves
-    over; (this is the same effect that the user achieves when they
-    move using arrow keys etc., with the Shift key pressed).
+    over. This is the same effect that the user achieves when they
+    move using arrow keys with the Shift key pressed.
 */
 bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
 {
@@ -988,7 +988,7 @@ QTextDocumentFragment QTextCursor::selection() const
 }
 
 /*!
-    Returns an iterator for the block that contains the cursor.
+    Returns the block that contains the cursor.
 */
 QTextBlock QTextCursor::block() const
 {
