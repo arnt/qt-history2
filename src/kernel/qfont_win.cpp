@@ -497,6 +497,9 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     return hfont;
 }
 
+#define TMX d->fin->tm.w
+#define TMW d->fin->tm.w
+#define TMA d->fin->tm.a
 
 void *QFont::textMetric() const
 {
@@ -507,9 +510,9 @@ void *QFont::textMetric() const
 #endif
     }
     QT_WA( {
-	return (void *)&d->fin->tm.w;
+	return (void *)&TMW;
     } , {
-	return (void *)&d->fin->tm.a;
+	return (void *)&TMA;
     } );
 }
 
@@ -518,41 +521,16 @@ void *QFont::textMetric() const
   QFontMetrics member functions
  *****************************************************************************/
 
-void *QFontMetrics::textMetric() const
-{
-    if ( painter ) {
-	return painter->textMetric();
-    } else  {
-	QT_WA( {
-	    return (void *)&d->fin->tm.w;
-	} , {
-	    return (void *)&d->fin->tm.a;
-	} );
-    }
-}
-
-#undef  TM
-#undef  TMX
-#undef  TMA
-#undef  TMW
-#define TMA ((TEXTMETRICA*)(painter ? painter->textMetric() : textMetric()))
-#ifdef UNICODE
-#define TMW ((TEXTMETRICW*)(painter ? painter->textMetric() : textMetric()))
-#else
-#define TMW TMA
-#endif
-#define TM(F) ( ( qt_winver & Qt::WV_NT_based ) ? TMW->F : TMA->F )
-#define TMX TMA // Initial metrix align
-
+#define IS_TRUETYPE (QT_WA_INLINE( d->fin->tm.w.tmPitchAndFamily, d->fin->tm.a.tmPitchAndFamily ) & TMPF_TRUETYPE)
 
 int QFontMetrics::ascent() const
 {
-    return TMX->tmAscent;
+    return TMX.tmAscent;
 }
 
 int QFontMetrics::descent() const
 {
-    return TMX->tmDescent;
+    return TMX.tmDescent;
 }
 
 bool QFontMetrics::inFont(QChar ch) const
@@ -564,29 +542,28 @@ bool QFontMetrics::inFont(QChar ch) const
     } else {
 	QT_WA( {
 	    WCHAR ch16 = ch.unicode();
-	    if( ch16 < d->fin->tm.w.tmFirstChar || ch16 > d->fin->tm.w.tmLastChar )
+	    if( ch16 < TMW.tmFirstChar || ch16 > TMW.tmLastChar )
 		return FALSE;
 	    return TRUE;//!d->boundingRect( ch ).isEmpty();
 	} , {
-	    if ( ch.row() || ch.cell() < d->fin->tm.w.tmFirstChar
-		|| ch.cell() > d->fin->tm.w.tmLastChar )
+	    if ( ch.row() || ch.cell() < TMA.tmFirstChar
+		|| ch.cell() > TMA.tmLastChar )
 		return FALSE;
 	    return TRUE;//!d->boundingRect( ch ).isEmpty();
 	} );
     }
 }
 
-
 int QFontMetrics::leftBearing(QChar ch) const
 {
 #ifdef Q_OS_TEMP
-	return 0;
+    return 0;
 #else
-    if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
+    if ( IS_TRUETYPE ) {
 	ABC abc;
 	QT_WA( {
 	    uint ch16 = ch.unicode();
-	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
+	    GetCharABCWidths(d->fin->dc(),ch16,ch16,&abc);
 	} , {
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
@@ -597,14 +574,14 @@ int QFontMetrics::leftBearing(QChar ch) const
 	    } else {
 		ch8 = ch.cell();
 	    }
-	    GetCharABCWidthsA(hdc(),ch8,ch8,&abc);
+	    GetCharABCWidthsA(d->fin->dc(),ch8,ch8,&abc);
 	} );
 	return abc.abcA;
     } else {
 	QT_WA( {
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
-	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
+	    GetCharABCWidthsFloat(d->fin->dc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
 	} , {
 	    return 0;
@@ -620,11 +597,11 @@ int QFontMetrics::rightBearing(QChar ch) const
 #ifdef Q_OS_TEMP
 	return 0;
 #else
-    if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
+    if ( IS_TRUETYPE ) {
 	ABC abc;
 	QT_WA( {
 	    uint ch16 = ch.unicode();
-	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
+	    GetCharABCWidths(d->fin->dc(),ch16,ch16,&abc);
 	    return abc.abcC;
 	} , {
 	    uint ch8;
@@ -636,17 +613,17 @@ int QFontMetrics::rightBearing(QChar ch) const
 	    } else {
 		ch8 = ch.cell();
 	    }
-	    GetCharABCWidthsA(hdc(),ch8,ch8,&abc);
+	    GetCharABCWidthsA(d->fin->dc(),ch8,ch8,&abc);
 	} );
 	return abc.abcC;
     } else {
 	QT_WA( {
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
-	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
+	    GetCharABCWidthsFloat(d->fin->dc(),ch16,ch16,&abc);
 	    return int(abc.abcfC);
 	} , {
-	    return -TMX->tmOverhang;
+	    return -TMW.tmOverhang;
 	} );
     }
 
@@ -723,25 +700,25 @@ int QFontMetrics::minRightBearing() const
     if ( def->rbearing == SHRT_MIN ) {
 	int ml = 0;
 	int mr = 0;
-	if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
+	if ( IS_TRUETYPE ) {
 	    ABC *abc = 0;
 	    int n;
 	    QT_WA( {
-		const TEXTMETRIC *tm = TMW;
-		n = tm->tmLastChar - tm->tmFirstChar+1;
+		const TEXTMETRIC &tm = TMW;
+		n = tm.tmLastChar - tm.tmFirstChar+1;
 		if ( n <= max_font_count ) {
 		    abc = new ABC[n];
-		    GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		    GetCharABCWidths(d->fin->dc(), tm.tmFirstChar, tm.tmLastChar, abc);
 		} else {
 		    ml = get_min_left_bearing( this );
 		    mr = get_min_right_bearing( this );
 		}
 	    } , {
-		const TEXTMETRICA *tm = TMA;
-		n = tm->tmLastChar - tm->tmFirstChar+1;
+		const TEXTMETRICA &tm = TMA;
+		n = tm.tmLastChar - tm.tmFirstChar+1;
 		if ( n <= max_font_count ) {
 		    abc = new ABC[n];
-		    GetCharABCWidthsA(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		    GetCharABCWidthsA(d->fin->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
 		} else {
 		    ml = get_min_left_bearing( this );
 		    mr = get_min_right_bearing( this );
@@ -758,11 +735,11 @@ int QFontMetrics::minRightBearing() const
 	    }
 	} else {
 	    QT_WA( {
-		const TEXTMETRIC *tm = TMW;
-		int n = tm->tmLastChar - tm->tmFirstChar+1;
+		const TEXTMETRIC &tm = TMW;
+		int n = tm.tmLastChar - tm.tmFirstChar+1;
 		if ( n <= max_font_count ) {
 		    ABCFLOAT *abc = new ABCFLOAT[n];
-		    GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		    GetCharABCWidthsFloat(d->fin->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
 		    float fml = abc[0].abcfA;
 		    float fmr = abc[0].abcfC;
 		    for (int i=1; i<n; i++) {
@@ -778,7 +755,7 @@ int QFontMetrics::minRightBearing() const
 		}
 	    } , {
 		ml = 0;
-		mr = -TMX->tmOverhang;
+		mr = -TMX.tmOverhang;
 	    } );
 	}
 	def->lbearing = ml;
@@ -792,17 +769,17 @@ int QFontMetrics::minRightBearing() const
 
 int QFontMetrics::height() const
 {
-    return TMX->tmHeight;
+    return TMW.tmHeight;
 }
 
 int QFontMetrics::leading() const
 {
-    return TMX->tmExternalLeading;
+    return TMW.tmExternalLeading;
 }
 
 int QFontMetrics::lineSpacing() const
 {
-    return TMX->tmHeight + TMX->tmExternalLeading;
+    return TMW.tmHeight + TMW.tmExternalLeading;
 }
 
 int QFontMetrics::width( QChar ch ) const
@@ -815,7 +792,7 @@ int QFontMetrics::width( QChar ch ) const
 
     SIZE s = {0,0};
     wchar_t tc = ch.unicode();
-    BOOL res = GetTextExtentPoint32W( hdc(), &tc, 1, &s );
+    BOOL res = GetTextExtentPoint32W( d->fin->dc(), &tc, 1, &s );
 
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );
@@ -825,7 +802,7 @@ int QFontMetrics::width( QChar ch ) const
 	qSystemWarning( "QFontMetrics::width: GetTextExtentPoint32 failed" );
 #endif
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
-	s.cx -= TMX->tmOverhang;
+	s.cx -= TMX.tmOverhang;
     return s.cx;
 }
 
@@ -853,7 +830,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	painter->nativeXForm( FALSE );
 
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
-	w -= TMX->tmOverhang;
+	w -= TMX.tmOverhang;
     return w;
 }
 
@@ -881,20 +858,9 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     return QRect( gm.x, gm.y, gm.width, gm.height );
 }
 
-
-HDC QFontMetrics::hdc() const
-{
-    if ( painter ) {
-	painter->textMetric(); // ensure font is up-to-date
-	return painter->handle();
-    } else {
-	return d->fin->dc();
-    }
-}
-
 int QFontMetrics::maxWidth() const
 {
-    return TMX->tmMaxCharWidth;
+    return TMX.tmMaxCharWidth;
 }
 
 int QFontMetrics::underlinePos() const
@@ -905,7 +871,7 @@ int QFontMetrics::underlinePos() const
 
 int QFontMetrics::strikeOutPos() const
 {
-    int pos = TMX->tmAscent/3;
+    int pos = TMX.tmAscent/3;
     return QMAX(pos,1);
 }
 

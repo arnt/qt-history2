@@ -96,10 +96,7 @@ public:
 private:
     QFontMetrics( const QPainter * );
 
-#if defined(Q_WS_WIN)
-    void   *textMetric() const;
-    HDC	    hdc() const;
-#elif defined(Q_WS_QWS)
+#if defined(Q_WS_QWS)
     QFontEngine *internal() const;
 #endif
 
