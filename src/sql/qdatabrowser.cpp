@@ -160,13 +160,14 @@ QDataBrowser::Boundary QDataBrowser::boundary()
 }
 
 
-/*! Sets boundary checking to \a active.
+/*! \property QDataBrowser::boundaryChecking
 
-    When boundary checking is on, i.e. \a active is TRUE (the default),
-    signals are emitted indicating the current position of the default
-    cursor.
+    \brief whether boundary checking is active
 
-  \sa boundaryChecking()
+    When boundary checking is active, signals are emitted indicating
+    the current position of the default cursor.
+
+  \sa boundary()
 */
 
 void QDataBrowser::setBoundaryChecking( bool active )
@@ -174,11 +175,7 @@ void QDataBrowser::setBoundaryChecking( bool active )
     d->boundaryCheck = active;
 }
 
-/*! Returns TRUE if boundary checking is enabled (the default),
-  otherwise returns FALSE.
-
-  \sa setBoundaryChecking()
-
+/*!
 */
 
 bool QDataBrowser::boundaryChecking() const
@@ -186,8 +183,17 @@ bool QDataBrowser::boundaryChecking() const
     return d->boundaryCheck;
 }
 
-/*! Sets the browser's sort to the index \a sort.  To apply the new
-  sort, use refresh().
+/*! \property QDataBrowser::sort
+
+  \brief the browser sort
+
+  The browser sort affects the order in which data records are viewed
+  in the browser.  To actually apply the new sort, use refresh().
+
+  When examining the sort property, a stringlist is returned in the
+  form 'fieldname order', e.g.  'id ASC', 'surname DESC'.
+
+  \sa filter() refresh()
 
 */
 
@@ -209,10 +215,7 @@ void QDataBrowser::setSort( const QStringList& sort )
     d->cur.setSort( sort );
 }
 
-/*! Returns the current sort, or an empty stringlist if there is none.
-    Each string in the stringlist is in the form 'fieldname order', e.g.
-    'id ASC', 'surname DESC'.
-
+/*!
 */
 
 QStringList QDataBrowser::sort() const
@@ -221,9 +224,15 @@ QStringList QDataBrowser::sort() const
 }
 
 
-/*! Sets the browser's filter to the string \a filter.  To apply the
-  new filter, use refresh(). A filter string is an SQL WHERE clause
-  without the WHERE keyword.
+/*! \property QDataBrowser::filter
+
+  \brief the data filter for the browser
+
+  The filter applies to the data shown in the browser. To actually
+  apply the new filter, use refresh(). A filter string is an SQL WHERE
+  clause without the WHERE keyword.
+
+  \sa sort
 
 */
 
@@ -233,9 +242,7 @@ void QDataBrowser::setFilter( const QString& filter )
 }
 
 
-/*! Returns the current filter (WHERE clause), or an empty string if
-    no filter has been set.
-
+/*!
 */
 
 QString QDataBrowser::filter() const
@@ -315,8 +322,11 @@ QSqlForm* QDataBrowser::form()
     return d->frm.form();
 }
 
-/*!  Sets the read only property of the browser to \a active.
-  Read-only browsers will not perform database edits.
+/*!  \property QDataBrowser::readOnly
+
+  \brief whether the browser is read-only
+
+  If the browse is read-only, no database edits will be allowed.
 
 */
 
@@ -325,8 +335,7 @@ void QDataBrowser::setReadOnly( bool active )
     d->readOnly = active;
 }
 
-/*! Returns TRUE if the browser is read-only, otherwise FALSE is
-  returned.
+/*!
 */
 
 bool QDataBrowser::isReadOnly() const
@@ -334,20 +343,31 @@ bool QDataBrowser::isReadOnly() const
     return d->readOnly;
 }
 
-/*! If \a confirm is TRUE, all edit operations (inserts, updates and
-  deletes) must be confirmed by the user.  If \a confirm is FALSE (the
-  default), all edits are posted to the database immediately.
+/*! \property QDataBrowser::confirmEdits
 
+  \brief whether the browser confirms edit operations
+
+  If the confirmEdits property is active, the browser confirms all
+  edit operations (inserts, updates and deletes) with the user (this
+  behavior can be changed by overriding the confirmEdit() function),
+  otherwise all edit operations happen immediately.
+
+  \sa confirmEdit() confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
+
 void QDataBrowser::setConfirmEdits( bool confirm )
 {
     d->dat.setConfirmEdits( confirm );
 }
 
-/*! If \a confirm is TRUE, all inserts must be confirmed by the user.
-  If \a confirm is FALSE (the default), all edits are posted to the
-  database immediately.
+/*! \property QDataBrowser::confirmInsert
 
+  \brief whether the browser confirms insert operations
+
+  If the confirmInsert property is active, the browser confirms all
+  insert operations, otherwise all insert operations happen immediately.
+
+  \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete()
 */
 
 void QDataBrowser::setConfirmInsert( bool confirm )
@@ -355,10 +375,14 @@ void QDataBrowser::setConfirmInsert( bool confirm )
     d->dat.setConfirmInsert( confirm );
 }
 
-/*! If \a confirm is TRUE, all updates must be confirmed by the user.
-  If \a confirm is FALSE (the default), all edits are posted to the
-  database immediately.
+/*! \property QDataBrowser::confirmUpdate
 
+  \brief whether the browser confirms update operations
+
+  If the confirmUpdate property is active, the browser confirms all
+  update operations, otherwise all update operations happen immediately.
+
+  \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete()
 */
 
 void QDataBrowser::setConfirmUpdate( bool confirm )
@@ -366,10 +390,14 @@ void QDataBrowser::setConfirmUpdate( bool confirm )
     d->dat.setConfirmUpdate( confirm );
 }
 
-/*! If \a confirm is TRUE, all deletes must be confirmed by the user.
-  If \a confirm is FALSE (the default), all edits are posted to the
-  database immediately.
+/*! \property QDataBrowser::confirmDelete
 
+  \brief whether the browser confirms delete operations
+
+  If the confirmDelete property is active, the browser confirms all
+  delete operations, otherwise all delete operations happen immediately.
+
+  \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert()
 */
 
 void QDataBrowser::setConfirmDelete( bool confirm )
@@ -377,8 +405,15 @@ void QDataBrowser::setConfirmDelete( bool confirm )
     d->dat.setConfirmDelete( confirm );
 }
 
-/*! Returns TRUE if the browser confirms all edit operations (inserts,
-  updates and deletes), otherwise returns FALSE.
+/*! \property QDataBrowser::confirmEdits
+
+  \brief whether the browser confirms edit operations
+
+  If the confirmEdits property is active, the browser confirms all
+  edit operations (inserts, updates and deletes), otherwise all edit
+  operations happen immediately.
+
+  \sa confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
 
 bool QDataBrowser::confirmEdits() const
@@ -386,8 +421,7 @@ bool QDataBrowser::confirmEdits() const
     return ( d->dat.confirmEdits() );
 }
 
-/*! Returns TRUE if the browser confirms inserts, otherwise returns
-  FALSE.
+/*!
 */
 
 bool QDataBrowser::confirmInsert() const
@@ -395,8 +429,7 @@ bool QDataBrowser::confirmInsert() const
     return ( d->dat.confirmInsert() );
 }
 
-/*! Returns TRUE if the browser confirms updates, otherwise returns
-  FALSE.
+/*!
 */
 
 bool QDataBrowser::confirmUpdate() const
@@ -404,8 +437,7 @@ bool QDataBrowser::confirmUpdate() const
     return ( d->dat.confirmUpdate() );
 }
 
-/*! Returns TRUE if the browser confirms deletes, otherwise returns
-  FALSE.
+/*!
 */
 
 bool QDataBrowser::confirmDelete() const
@@ -413,9 +445,16 @@ bool QDataBrowser::confirmDelete() const
     return ( d->dat.confirmDelete() );
 }
 
-/*! If \a confirm is TRUE, all cancels must be confirmed by the user
-  through a message box.  If \a confirm is FALSE (the default), all
+/*! \property QDataBrowser::confirmCancels
+
+  \brief whether the browser confirms cancel operations
+
+  If the confirmCancel property is active, all cancels must be
+  confirmed by the user through a message box (this behavior can be
+  changed by overriding the confirmCancel() function), otherwise all
   cancels occur immediately.
+
+  \sa confirmEdits() confirmCancel()
 */
 
 void QDataBrowser::setConfirmCancels( bool confirm )
@@ -423,7 +462,7 @@ void QDataBrowser::setConfirmCancels( bool confirm )
     d->dat.setConfirmCancels( confirm );
 }
 
-/*! Returns TRUE if the browser confirms cancels, otherwise returns FALSE.
+/*!
 */
 
 bool QDataBrowser::confirmCancels() const
@@ -431,14 +470,17 @@ bool QDataBrowser::confirmCancels() const
     return d->dat.confirmCancels();
 }
 
-/*!  Sets the autoEdit property of the browser to \a autoEdit. The
-  default is TRUE. When the user begins an insert or update on a form
-  there are two possible outcomes when they navigate to another record:
+/*! \property QDataTable::autoEdit
+
+  \brief whether the browser automatically applies edits
+
+  The default value for this property is TRUE. When the user begins an
+  insert or update on a form there are two possible outcomes when they
+  navigate to another record:
+
   <ol>
-  <li> the insert or update is is performed -- this occurs if autoEdit
-  is TRUE
-  <li> the insert or update is abandoned -- this occurs if autoEdit is
-  FALSE
+  <li> the insert or update is is performed -- this occurs if autoEdit is TRUE
+  <li> the insert or update is abandoned -- this occurs if autoEdit is FALSE
   </ol>
 
 */
