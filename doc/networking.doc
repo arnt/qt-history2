@@ -209,14 +209,10 @@ ClientSocket constructor connects QSocket::readyRead() signal which is emitted w
 \printline }
 
 This slot is called every time we receive some data via socket.
-Our communication protocol is textual and line oriented, and socket communication is asynchronous (don't forget that, we don't know when readyRead() will be emitted, or will that be at the end of the line), so we have to check with QSocket::canReadLine() if the full line has been received. Because each input line presents one command in this protocol (list or get) we process it and return generated answer through the socket back to the Client.
+Our communication protocol is textual and line oriented, and socket communication is asynchronous (don't forget that, we don't know when readyRead() will be emitted, or will that be at the end of the line), so we have to check with QSocket::canReadLine() if the full line has been received. Because each input line presents one command in this protocol (list or get) we will process it and return generated answer through the socket back to the Client. 
+Function processCommand() parses the input line and if it recognizes LIST or GET command, calls corresponding (InfoData*)info methods - list and get, otherwise creates appropriate error message.
 QSocket is a subclass of QIODevice, thus we can use QTextStream to read and write lines to it.
 
-\skipto processCommand
-\printuntil return
-\printline }
-
-This function parses the input line and generates response. If it recognizes LIST or GET command, then it calls corresponding (InfoData*)info methods - list and get, otherwise creates appropriate error message.
 
 
 \skipto connectionClosed
@@ -264,7 +260,7 @@ It is not mandatory, of course, but it's good programming practice to cover erro
 
 It is time to illustrate how to use QNetworkProtocol, QNetworkOperation and QUrlOperator to register our communication protocol and make it on par to already implemented protocols, like QFtp, QHttp and QLocalFs. This will give us much larger flexibility in use and let us use Qt class that supports Network Protocols, e.g. QFileDialog.
 
-First, here is the header file in which Qip (our Network Protocol) is declared (\l network/infoprotocol/infourlclient/qip.h):
+First, here is the header file in which Qip (our custom Network Protocol) is declared (\l network/infoprotocol/infourlclient/qip.h):
 
 \quotefile network/infoprotocol/infourlclient/qip.h
 
