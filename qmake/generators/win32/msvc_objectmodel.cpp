@@ -1843,26 +1843,24 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 	    QString dep_cmd = Project->replaceExtraCompilerVariables(tmp_dep_cmd,
 							            info.file,
                                                                     out);
-	    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
-		while(!feof(proc)) {
-		    int read_in = fread(buff, 1, 255, proc);
-		    if(!read_in)
-			break;
-		    int l = 0;
-		    for(int i = 0; i < read_in; i++) {
-			if(buff[i] == '\n' || buff[i] == ' ') {
-			    deps += QByteArray(buff+l, (i - l) + 1);
-			    l = i;
-			}
-		    }
-		}
-		fclose(proc);
-	    }
-	}
+            dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+            if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+	        QString indeps;
+                while(!feof(proc)) {
+                    int read_in = fread(buff, 1, 255, proc);
+                    if(!read_in)
+                        break;
+                    indeps += QByteArray(buff, read_in);
+                }
+                fclose(proc);
+                if(!indeps.isEmpty())
+                    deps += " " + Project->fileFixify(indeps.replace('\n', ' ').simplified().split(' ')).join(";");
+            }
+        }
         for (int i = 0; i < deps.count(); ++i)
 	    deps[i] = Option::fixPathToTargetOS(
                         Project->replaceExtraCompilerVariables(deps.at(i), info.file, out),
-                        false);
+                        false).trimmed();
         // Command for file
         if (combined) {
             // Replace variables for command w/o intput files
