@@ -127,13 +127,14 @@ Curve::Curve( QWidget *parent, const char *name )
 
 void Curve::drawContents( QPainter *p )
 {
-    p->moveTo( width()/2, height()/2 + (int)(90.0*sin( double(shift)*3.1415/180.0)));
-
+    QPoint p1(width()/2, height()/2 + (int)(90.0*sin( double(shift)*3.1415/180.0)));
     for ( double a = 0.0; a < 360.0; a += 1.0 ) {
 	double rad = 3.1415 / 180.0 * a;
 	double x = width()/2 + 90.0 * sin(rad);
 	double y = height()/2 + 90.0 * sin(n * rad + double(shift)*3.1415/180.0);
-	p->lineTo( int(x), int(y) );
+	QPoint p2 = QPoint(int(x), int(y));
+	p->drawLine(p1, p2);
+	p1 = p2;
     }
 }
 
