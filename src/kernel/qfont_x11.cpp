@@ -477,6 +477,8 @@ void QFont::setRawName( const QString &name )
 
 	setFamily( name );
 	setRawMode( TRUE );
+    } else {
+	d->mask = QFontPrivate::Complete;
     }
 }
 
