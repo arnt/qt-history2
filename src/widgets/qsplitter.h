@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#22 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#23 $
 **
 ** Defintion of  QSplitter class
 **
@@ -27,6 +27,7 @@
 
 #ifndef QT_H
 #include "qframe.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 class QSplitterHandle;
@@ -47,8 +48,6 @@ public:
 
     virtual void setResizeMode( QWidget *w, ResizeMode );
 
-    //    bool event( QEvent * );
-
     virtual void setOpaqueResize( bool = TRUE );
     bool opaqueResize() const;
 
@@ -62,6 +61,9 @@ public:
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
 
+    QValueList<int> sizes() const;
+    void setSizes( QValueList<int> );
+    
 protected:
     void childEvent( QChildEvent * );
 
@@ -84,13 +86,13 @@ private:
     int hit( QPoint p );
     void doResize();
     void storeSizes();
+    void processChildEvents();
     QSplitterLayoutStruct *addWidget( QWidget*, bool first = FALSE );
     void recalcId();
     void moveBefore( int pos, int id, bool upLeft );
     void moveAfter( int pos, int id, bool upLeft );
     void setG( QWidget *w, int p, int s );
 
-    // Josef Wagmann <josef.wagmann@passau.netsurf.de> wants access to these
     QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }
     QCOORD pick( const QSize &s ) const

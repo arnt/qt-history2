@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#57 $
 **
 **  Splitter widget
 **
@@ -31,6 +31,7 @@
 #include "qlist.h"
 #include "qarray.h"
 #include "qobjectlist.h"
+#include "qapplication.h" //sendPostedEvents
 
 class QSplitterHandle : public QWidget
 {
@@ -178,12 +179,13 @@ public:
   dragging the boundary between the children. Any number of widgets
   may be controlled.
 
-  To show a QListBox and a QMultiLineEdit side by side:
+  To show a QListBox, a QListView and a QMultiLineEdit side by side:
 
   \code
     QSplitter *split = new QSplitter( parent );
     QListBox *lb = new QListBox( split );
-    QMultiLineEdit *lb = new QMultiLineEdit( split );
+    QListView *lv = new QListView( split );
+    QMultiLineEdit *ed = new QMultiLineEdit( split );
   \endcode
 
 
@@ -191,7 +193,7 @@ public:
   default is horizontal (the children are side by side) and you
   can use setOrientation( QSplitter::Vertical ) to set it to vertical.
 
-  By default, both widgets can be as large or as small as the user
+  By default, all widgets can be as large or as small as the user
   wishes. You can naturally use setMinimumSize() and/or
   setMaximumSize() on the children. Use setResizeMode() to specify that
   a widget should keep its size when the splitter is resized.
@@ -200,6 +202,11 @@ public:
   resize operation, but if you call setOpaqueResize( TRUE ), the
   widgets are resized as often as possible.
 
+  The initial distribution of size between the widgets is determined
+  by the initial size of each widget. You can also use setSizes() to
+  set the sizes of all the widgets. The function sizes() returns the
+  sizes set by the user.
+  
   <img src=qsplitter-m.gif> <img src=qsplitter-w.gif>
 
   \sa QTabBar
@@ -239,7 +246,6 @@ QSplitter::~QSplitter()
 
 void QSplitter::init()
 {
-    //ratio = -1;
     data = new QSplitterData;
 
     if ( style() == WindowsStyle )
@@ -632,7 +638,9 @@ void QSplitter::doResize()
 	a[i].init();
 	QSplitterLayoutStruct *s = data->list.at(i);
 	if ( s->isSplitter || s->mode == KeepSize ) {
-	    a[i].sizeHint = a[i].maximumSize = a[i].minimumSize = s->sizer;
+	    a[i].stretch = 0;
+	    a[i].sizeHint = a[i].minimumSize = s->sizer;
+	    a[i].maximumSize = pick( s->wid->maximumSize() );
 	} else { //proportional
 	    a[i].stretch = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
@@ -703,6 +711,7 @@ void QSplitter::recalc( bool update )
 
 void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
 {
+    processChildEvents();
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
 	if ( s->wid == w  ) {
@@ -744,6 +753,7 @@ void QSplitter::setOpaqueResize( bool on )
 
 void QSplitter::moveToFirst( QWidget *w )
 {
+    processChildEvents();
     bool found = FALSE;
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
@@ -772,6 +782,7 @@ void QSplitter::moveToFirst( QWidget *w )
 
 void QSplitter::moveToLast( QWidget *w )
 {
+    processChildEvents();
     bool found = FALSE;
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
@@ -851,7 +862,7 @@ void QSplitter::storeSizes()
     while ( s ) {
 	if ( !s->isSplitter )
 	    s->sizer = pick( s->wid->size() );
-	    s = data->list.next();	
+	s = data->list.next();	
     }
 }
 
@@ -902,3 +913,61 @@ bool QSplitter::isHidden( QWidget *w ) const
     return FALSE;
 }
 #endif
+
+
+/*!
+  Returns a list of the size parameters of all the widgets in this
+  splitter.
+  
+  Giving the values to setSizes() will give a splitter with the same
+  layout as this one.
+*/
+
+QValueList<int> QSplitter::sizes() const
+{
+    QValueList<int> list;
+    QSplitterLayoutStruct *s = data->list.first();
+    while ( s ) {
+	if ( !s->isSplitter )
+	    list.append( s->sizer );
+	s = data->list.next();
+    }
+
+    return list;
+}
+
+
+
+/*!
+  Sets the size parameters to the values given in \a list.
+  Extra values in \a list are ignored.
+
+  If \a list contains to few values, the result is undefined
+  but the program will still be well-behaved.
+*/
+
+void QSplitter::setSizes( QValueList<int> list )
+{
+    processChildEvents();
+    QValueList<int>::ConstIterator it = list.begin();
+    QSplitterLayoutStruct *s = data->list.first();
+    while ( s && it != list.end() ) {
+	if ( !s->isSplitter ) {
+	    s->sizer = *it;
+	    ++it;
+	}
+	s = data->list.next();
+    }
+    doResize();
+}
+
+
+/*!
+  Gets all posted child events, ensuring that the internal state of
+  the splitter is consistent with the programmer's idea.
+*/
+
+void QSplitter::processChildEvents()
+{
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+}
