@@ -529,11 +529,33 @@ bool QFontPrivate::parseXFontName(const QCString &fontName, char **tokens)
     return TRUE;
 }
 
+/*
+  Fills in a font definition (QFontDef) from the font properties in an
+  XFontStruct.
 
-// Fills in a font definition (QFontDef) from an XLFD (X Logical Font Description).
-// Returns TRUE if the the given xlfd is valid. If the xlfd is valid the encoding
-// name (charset registry + "-" + charset encoding) is returned in encodingName if
-// encodingName is non-zero. The fileds lbearing and rbearing are not given any values.
+  Returns TRUE if the QFontDef could be filled with properties from
+  the XFontStruct.  The fields lbearing and rbearing are not given any
+  values.
+*/
+bool QFontPrivate::fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
+{
+    unsigned long value;
+    if ( ! XGetFontProperty( fs, XA_FONT, &value ) )
+	return FALSE;
+
+    QCString xlfd = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
+    qDebug( "xlfd property: %s", (const char *) xlfd );
+    return fillFontDef( xlfd.lower(), fd, screen );
+}
+
+
+/*
+  Fills in a font definition (QFontDef) from an XLFD (X Logical Font
+  Description).
+
+  Returns TRUE if the the given xlfd is valid.  The fields lbearing
+  and rbearing are not given any values.
+*/
 bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 {
     char *tokens[QFontPrivate::NFontFields];
@@ -2086,7 +2108,7 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	    actual.pixelSize = (int) (_pixelSize + 0.5);
 
 	QFontDef font;
-	if ( fillFontDef(x11data.fontstruct[script]->name, &font, 0)) {
+	if ( fillFontDef(x11data.fontstruct[script]->name, &font, x11Screen ) ) {
 	    if ( font.pixelSize != 0 )
 		x11data.fontstruct[script]->scale = _pixelSize/((float) font.pixelSize);
 	    //qDebug("setting scale to %f requested pixel=%f got %d",
@@ -2145,7 +2167,10 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	return;
     }
 
-    if (! fillFontDef(x11data.fontstruct[script]->name, &actual, 0)) {
+    if ( ! fillFontDef( (XFontStruct *) x11data.fontstruct[script]->handle,
+			&actual, x11Screen ) &&
+	 ! fillFontDef( x11data.fontstruct[script]->name,
+			&actual, x11Screen ) ) {
 	// zero fontdef
 	actual = QFontDef();
 
@@ -2937,7 +2962,8 @@ void QFont::setRawName( const QString &name )
 {
     detach();
 
-    bool validXLFD = QFontPrivate::fillFontDef(name.latin1(), &d->request, 0);
+    bool validXLFD = QFontPrivate::fillFontDef(name.latin1(),
+					       &d->request, d->x11Screen );
     d->request.dirty = TRUE;
 
     if ( !validXLFD ) {

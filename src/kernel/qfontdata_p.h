@@ -313,6 +313,7 @@ public:
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);
+    static bool fillFontDef(XFontStruct *, QFontDef *, int);
     static bool fillFontDef(const QCString &, QFontDef *, int);
 
     static inline bool isZero(char *x)
