@@ -172,7 +172,7 @@ qregexp.o: qregexp.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qregexp.o: qgeneric.h /usr/include/string.h /usr/include/features.h
 qregexp.o: /usr/include/sys/cdefs.h /usr/include/ctype.h
 qregexp.o: /usr/include/malloc.h
-qgcache.o: qgcache.h qcollect.h qglobal.h qlist.h qglist.h qgeneric.h qdict.h
-qgcache.o: qgdict.h qstring.h qarray.h qgarray.h qshared.h
+qgcache.o: qgcache.h qcollect.h qglobal.h qglist.h qgdict.h qlist.h
+qgcache.o: qgeneric.h qdict.h qstring.h qarray.h qgarray.h qshared.h
 qgcache.o: /usr/include/string.h /usr/include/features.h
 qgcache.o: /usr/include/sys/cdefs.h
