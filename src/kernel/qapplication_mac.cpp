@@ -267,66 +267,6 @@ bool qt_wstate_iconified( WId )
     return FALSE;
 }
 
-/*!
-  \relates QApplication
-
-  Adds a global routine that will be called from the QApplication
-  destructor.  This function is normally used to add cleanup routines
-  for program-wide functionality.
-
-  The function given by \a p should take no arguments and return
-  nothing, like this:
-  \code
-    static int *global_ptr = 0;
-
-    static void cleanup_ptr()
-    {
-	delete [] global_ptr;
-	global_ptr = 0;
-    }
-
-    void init_ptr()
-    {
-	global_ptr = new int[100];	// allocate data
-	qAddPostRoutine( cleanup_ptr );	// delete later
-    }
-  \endcode
-
-  Note that for an application- or module-wide cleanup,
-  qAddPostRoutine() is often not suitable.  People have a tendency to
-  make such modules dynamically loaded, and then unload those modules
-  long before the QApplication destructor is called, for example.
-
-  For modules and libraries, using a reference-counted initialization
-  manager or Qt' parent-child delete mechanism may be better.  Here is
-  an example of a private class which uses the parent-child mechanism
-  to call a cleanup function at the right time:
-
-  \code
-    class MyPrivateInitStuff: public QObject {
-    private:
-        MyPrivateInitStuff( QObject * parent ): QObject( parent) {
-	    // initialization goes here
-	}
-	MyPrivateInitStuff * p;
-
-    public:
-        static MyPrivateInitStuff * initStuff( QObject * parent ) {
-	    if ( !p )
-	        p = new MyPrivateInitStuff( parent );
-	    return p;
-	}
-
-        ~MyPrivateInitStuff() {
-	    // cleanup (the "post routine") goes here
-	}
-    }
-  \endcode
-
-  By selecting the right parent widget/object, this can often be made
-  to clean up the module's data at the exact right moment.
-*/
-
 void qAddPostRoutine( Q_CleanUpFunction )
 {
 }
@@ -341,31 +281,6 @@ void qRemovePostRoutine( Q_CleanUpFunction )
   Platform specific QApplication members
  *****************************************************************************/
 
-/*!
-  \fn QWidget *QApplication::mainWidget() const
-
-  Returns the main application widget, or a null pointer if there is
-  not a defined main widget.
-
-  \sa setMainWidget()
-*/
-
-/*!
-  Sets the main widget of the application.
-
-  The main widget is like any other, in most respects except that if
-  it is deleted, the application exits.
-
-  You need not have a main widget; connecting lastWindowClosed() to quit() is
-  another alternative.
-
-  For X11, this function also resizes and moves the main widget
-  according to the \e -geometry command-line option, so you should set
-  the default geometry (using \l QWidget::setGeometry()) before
-  calling setMainWidget().
-
-  \sa mainWidget(), exec(), quit()
-*/
 extern QWidget * mac_mouse_grabber;
 extern QWidget * mac_keyboard_grabber;
 
@@ -380,50 +295,8 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   QApplication cursor stack
  *****************************************************************************/
 
-/*!
-  \fn QCursor *QApplication::overrideCursor()
-
-  Returns the active application override cursor.
-
-  This function returns 0 if no application cursor has been defined
-  (i.e. the internal cursor stack is empty).
-
-  \sa setOverrideCursor(), restoreOverrideCursor()
-*/
-
 typedef QList<QCursor> QCursorList;
 static QCursorList *cursorStack = 0;
-
-/*!
-  Sets the application override cursor to \a cursor.
-
-  Application override cursors are intended for showing the user that
-  the application is in a special state, for example during an
-  operation that might take some time.
-
-  This cursor will be displayed in all the widgets of the application
-  until restoreOverrideCursor() or another setOverrideCursor() is
-  called.
-
-  Application cursors are stored on an internal stack.
-  setOverrideCursor() pushes the cursor onto the stack, and
-  restoreOverrideCursor() pops the active cursor off the stack. Every
-  setOverrideCursor() must eventually be followed by a corresponding
-  restoreOverrideCursor(), otherwise the stack will never be emptied.
-
-  If \a replace is TRUE, the new cursor will replace the last override
-  cursor (the stack keeps its depth). If \a replace is FALSE, the new
-  stack is pushed onto the top of the stack.
-
-  Example:
-  \code
-    QApplication::setOverrideCursor( Qt::waitCursor );
-    calculateHugeMandelbrot();			// lunch time...
-    QApplication::restoreOverrideCursor();
-  \endcode
-
-  \sa overrideCursor(), restoreOverrideCursor(), QWidget::setCursor()
-*/
 
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace)
 {
@@ -438,16 +311,6 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace)
     cursorStack->append( app_cursor );
 }
 
-/*!
-  Undoes the last setOverrideCursor().
-
-  If setOverrideCursor() has been called twice, calling
-  restoreOverrideCursor() will activate the first cursor set. Calling
-  this function a second time restores the original widgets cursors.
-
-  \sa setOverrideCursor(), overrideCursor().
-*/
-
 void QApplication::restoreOverrideCursor()
 {
     if ( !cursorStack )				// no cursor stack
@@ -461,43 +324,6 @@ void QApplication::restoreOverrideCursor()
 }
 
 #endif
-
-/*!
-  \fn bool QApplication::hasGlobalMouseTracking()
-
-  Returns TRUE if global mouse tracking is enabled, otherwise FALSE.
-
-  \sa setGlobalMouseTracking()
-*/
-
-/*!
-  Enables global mouse tracking if \a enable is TRUE or disables it
-  if \a enable is FALSE.
-
-  Enabling global mouse tracking makes it possible for widget event
-  filters or application event filters to get all mouse move events, even
-  when no button is depressed.  This is useful for special GUI elements,
-  e.g. tool tips.
-
-  Global mouse tracking does not affect widgets and their
-  mouseMoveEvent().  For a widget to get mouse move events when no button
-  is depressed, it must do QWidget::setMouseTracking(TRUE).
-
-  This function uses an internal counter.  Each
-  setGlobalMouseTracking(TRUE) must have a corresponding
-  setGlobalMouseTracking(FALSE):
-  \code
-    // at this point global mouse tracking is off
-    QApplication::setGlobalMouseTracking( TRUE );
-    QApplication::setGlobalMouseTracking( TRUE );
-    QApplication::setGlobalMouseTracking( FALSE );
-    // at this point it's still on
-    QApplication::setGlobalMouseTracking( FALSE );
-    // but now it's off
-  \endcode
-
-  \sa hasGlobalMouseTracking(), QWidget::hasMouseTracking()
-*/
 
 void QApplication::setGlobalMouseTracking( bool b)
 {
@@ -537,18 +363,6 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
     return widg;
 }
 
-/*!
-  Returns a pointer to the widget at global screen position \a (x,y), or a
-  null pointer if there is no Qt widget there.
-
-  If \a child is FALSE and there is a child widget at position \a
-  (x,y), the top-level widget containing it is returned. If \a child
-  is TRUE the child widget at position \a (x,y) is returned.
-
-  This function is normally rather slow.
-
-  \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
-*/
 QWidget *QApplication::widgetAt( int x, int y, bool child)
 {
   //find the tld
@@ -573,15 +387,6 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
   return widget;
 }
 
-/*!
-  \overload QWidget *QApplication::widgetAt( const QPoint &pos, bool child )
-*/
-
-
-/*!
-  Sounds the bell, using the default volume and sound.
-*/
-
 void QApplication::beep()
 {
 }
@@ -590,28 +395,6 @@ void QApplication::beep()
 /*****************************************************************************
   Main event loop
  *****************************************************************************/
-
-/*!
-  Enters the main event loop and waits until exit() is called or the
-  main widget is destroyed, and Returns the value that was set via to
-  exit() (which is 0 if exit() is called via quit()).
-
-  It is necessary to call this function to start event handling. The
-  main event loop receives events from the window system and
-  dispatches these to the application widgets.
-
-  Generally speaking, no user interaction can take place before
-  calling exec(). As a special case, modal widgets like QMessageBox
-  can be used before calling exec(), because modal widgets call exec()
-  to start a local event loop.
-
-  To make your application perform idle processing, i.e. executing a
-  special function whenever there are no pending events, use a QTimer
-  with 0 timeout. More advanced idle processing schemes can be
-  achieved by using processEvents() and processOneEvent().
-
-  \sa quit(), exit(), processEvents(), setMainWidget()
-*/
 
 int QApplication::exec()
 {
@@ -1056,15 +839,6 @@ static int sn_activate()
     return n_act;
 }
 
-/*!
-  Processes the next event and returns TRUE if there was an event
-  (excluding posted events or zero-timer events) to process.
-
-  This function returns immediately if \a canWait is FALSE. It might go
-  into a sleep/wait state if \a canWait is TRUE.
-
-  \sa processEvents()
-*/
 
 bool QApplication::processNextEvent( bool canWait )
 {
@@ -1478,8 +1252,6 @@ void QApplication::wakeUpGuiThread()
 }
 
 /*****************************************************************************
-  Modal widgets; Since Xlib has little support for this we roll our own
-  modal widget mechanism.
   A modal widget without a parent becomes application-modal.
   A modal widget with a parent becomes modal to its parent and grandparents..
 
@@ -1504,15 +1276,6 @@ void qt_leave_modal( QWidget * )
 }
 
 
-/*!
-  Processes pending events for \a maxtime milliseconds or until there
-  are no more events to process, whichever is shorter.
-
-  You can call this function occasionally when you program is busy doing a
-  long operation (e.g. copying a file).
-
-  \sa processOneEvent(), exec(), QTimer
-*/
 void QApplication::processEvents( int maxtime)
 {
     QTime start = QTime::currentTime();
@@ -1606,51 +1369,16 @@ void QApplication::closePopup( QWidget *popup )
  *****************************************************************************/
 
 
-/*!
-  Sets the text cursor's flash time to \a msecs milliseconds.  The
-  flash time is the time required to display, invert and restore the
-  caret display: A full flash cycle.  Usually, the text cursor is
-  displayed for \a msecs/2 milliseconds, then hidden for \a msecs/2
-  milliseconds, but this may vary.
-
-  Note that on Microsoft Windows, calling this function sets the
-  cursor flash time for all windows.
-
-  \sa cursorFlashTime()
- */
 void  QApplication::setCursorFlashTime( int msecs )
 {
     cursor_flash_time = msecs;
 }
 
 
-/*!
-  Returns the text cursor's flash time in milliseconds. The flash time
-  is the time required to display, invert and restore the caret
-  display.
-
-  The default value on X11 is 1000 milliseconds. On Windows, the
-  control panel value is used.
-
-  Widgets should not cache this value since it may vary any time the
-  user changes the global desktop settings.
-
-  \sa setCursorFlashTime()
- */
 int QApplication::cursorFlashTime()
 {
     return cursor_flash_time;
 }
-
-/*!
-  Sets the time limit that distinguishes a double click from two
-  consecutive mouse clicks to \a ms milliseconds.
-
-  Note that on Microsoft Windows, calling this function sets the
-  double click interval for all windows.
-
-  \sa doubleClickInterval()
-*/
 
 void QApplication::setDoubleClickInterval( int ms )
 {
@@ -1659,52 +1387,22 @@ void QApplication::setDoubleClickInterval( int ms )
 
 
 //FIXME: What is the default value on the Mac?
-/*!
-  Returns the maximum duration for a double click.
-
-  The default value on X11 is 400 milliseconds. On Windows, the control
-  panel value is used.
-
-  \sa setDoubleClickInterval()
-*/
-
 int QApplication::doubleClickInterval()
 {
     return mouse_double_click_time;
 }
 
 
-/*!
-  Sets the number of lines to scroll when the mouse wheel is
-  rotated.
-
-  If this number exceeds the number of visible lines in a certain
-  widget, the widget should interpret the scroll operation as a single
-  page up / page down operation instead.
-
-  \sa wheelScrollLines()
- */
 void QApplication::setWheelScrollLines( int n )
 {
     wheel_scroll_lines = n;
 }
 
-/*!
-  Returns the number of lines to scroll when the mouse wheel is rotated.
-
-  \sa setWheelScrollLines()
- */
 int QApplication::wheelScrollLines()
 {
     return wheel_scroll_lines;
 }
 
-/*!
-  Enables the UI effect \a effect if \a enable is TRUE, otherwise
-  the effect will not be used.
-
-  \sa isEffectEnabled(), Qt::UIEffect, setDesktopSettingsAware()
-*/
 void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 {
     switch (effect) {
@@ -1733,14 +1431,6 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
     }
 }
 
-/*!
-  Returns TRUE if \a effect is enabled, otherwise FALSE.
-
-  By default, Qt will try to use the desktop settings, and
-  setDesktopSettingsAware() must be called to prevent this.
-
-  sa\ setEffectEnabled(), Qt::UIEffect
-*/
 bool QApplication::isEffectEnabled( Qt::UIEffect )
 {
     return FALSE;

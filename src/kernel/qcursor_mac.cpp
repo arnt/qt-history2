@@ -129,11 +129,6 @@ QCursor *QCursor::find_cur( int shape )		// find predefined cursor
 
 
 static bool initialized = FALSE;
-/*!
-  Internal function that deinitializes the predefined cursors.
-  This function is called from the QApplication destructor.
-  \sa initialize()
-*/
 void QCursor::cleanup()
 {
     if ( !initialized )
@@ -148,14 +143,6 @@ void QCursor::cleanup()
 }
 
 
-/*!
-  Internal function that initializes the predefined cursors.
-  This function is called from the QApplication constructor.
-  \sa cleanup()
-*/
-
-
-
 void QCursor::initialize()
 {
     int shape;
@@ -166,9 +153,6 @@ void QCursor::initialize()
 }
 
 
-/*!
-  Constructs a cursor with the default arrow shape.
-*/
 QCursor::QCursor()
 {
     if ( !initialized ) {
@@ -184,34 +168,6 @@ QCursor::QCursor()
 }
 
 
-
-/*!
-  Constructs a cursor with the specified \a shape.
-
-  \a shape can be one of
-  <ul>
-  <li> \c ArrowCursor - standard arrow cursor
-  <li> \c UpArrowCursor - upwards arrow
-  <li> \c CrossCursor - crosshair
-  <li> \c WaitCursor - hourglass/watch
-  <li> \c IbeamCursor - ibeam/text entry
-  <li> \c SizeVerCursor - vertical resize
-  <li> \c SizeHorCursor - horizontal resize
-  <li> \c SizeBDiagCursor - diagonal resize (/)
-  <li> \c SizeFDiagCursor - diagonal resize (\)
-  <li> \c SizeAllCursor - all directions resize
-  <li> \c BlankCursor - blank/invisible cursor
-  <li> \c SplitVCursor - vertical splitting
-  <li> \c SplitHCursor - horziontal splitting
-  <li> \c PointingHandCursor - a pointing hand
-  <li> \c BitmapCursor - userdefined bitmap cursor
-  </ul>
-
-  These correspond to the <a href="#cursors">predefined</a>
-  global QCursor objects.
-
-  \sa setShape()
-*/
 
 QCursor::QCursor(int shape)
 {
@@ -259,10 +215,6 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 }
 
 
-/*!
-  Constructs a copy of the cursor \a c.
-*/
-
 QCursor::QCursor( const QCursor &c )
 {
     if ( !initialized )
@@ -272,20 +224,12 @@ QCursor::QCursor( const QCursor &c )
 }
 
 
-/*!
-  Destructs the cursor.
-*/
-
 QCursor::~QCursor()
 {
     if ( data && data->deref() )
 	delete data;
 }
 
-
-/*!
-  Assigns \a c to this cursor and returns a reference to this cursor.
-*/
 
 QCursor &QCursor::operator=( const QCursor &c )
 {
@@ -299,69 +243,12 @@ QCursor &QCursor::operator=( const QCursor &c )
 }
 
 
-/*!
-  Returns the cursor shape identifer. The return value is one of
-  following values (cast to an int)
-
-  <ul>
-  <li> \c ArrowCursor - standard arrow cursor
-  <li> \c UpArrowCursor - upwards arrow
-  <li> \c CrossCursor - crosshair
-  <li> \c WaitCursor - hourglass/watch
-  <li> \c IbeamCursor - ibeam/text entry
-  <li> \c SizeVerCursor - vertical resize
-  <li> \c SizeHorCursor - horizontal resize
-  <li> \c SizeBDiagCursor - diagonal resize (/)
-  <li> \c SizeFDiagCursor - diagonal resize (\)
-  <li> \c SizeAllCursor - all directions resize
-  <li> \c BlankCursor - blank/invisible cursor
-  <li> \c SplitVCursor - vertical splitting
-  <li> \c SplitHCursor - horziontal splitting
-  <li> \c PointingHandCursor - a pointing hand
-  <li> \c ForbiddenCursor - a slashed circle
-  <li> \c BitmapCursor - userdefined bitmap cursor
-  </ul>
-
-  These correspond to the <a href="#cursors">predefined</a>
-  global QCursor objects.
-
-  \sa setShape()
-*/
-
 int QCursor::shape() const
 {
     if ( !initialized )
 	initialize();
     return data->cshape;
 }
-
-/*!
-  Sets the cursor to the shape identified by \a shape.
-
-  <ul>
-  <li> \c ArrowCursor - standard arrow cursor
-  <li> \c UpArrowCursor - upwards arrow
-  <li> CrossCursor - crosshair
-  <li> \c WaitCursor - hourglass/watch
-  <li> \c IbeamCursor - ibeam/text entry
-  <li> \c SizeVerCursor - vertical resize
-  <li> \c SizeHorCursor - horizontal resize
-  <li> \c SizeBDiagCursor - diagonal resize (/)
-  <li> \c SizeFDiagCursor - diagonal resize (\)
-  <li> \c SizeAllCursor - all directions resize
-  <li> \c BlankCursor - blank/invisible cursor
-  <li> \c SplitVCursor - vertical splitting
-  <li> \c SplitHCursor - horziontal splitting
-  <li> \c PointingHandCursor - a pointing hand
-  <li> \c ForbiddenCursor - a slashed circle
-  <li> \c BitmapCursor - userdefined bitmap cursor
-  </ul>
-
-  These correspond to the <a href="#cursors">predefined</a>
-  global QCursor objects.
-
-  \sa shape()
-*/
 
 void QCursor::setShape( int shape )
 {
@@ -375,9 +262,6 @@ void QCursor::setShape( int shape )
 }
 
 
-/*!
-  Returns the cursor bitmap, or 0 if it is one of the standard cursors.
-*/
 const QBitmap *QCursor::bitmap() const
 {
     if ( !initialized )
@@ -385,9 +269,6 @@ const QBitmap *QCursor::bitmap() const
     return data->bm;
 }
 
-/*!
-  Returns the cursor bitmap mask, or 0 if it is one of the standard cursors.
-*/
 
 const QBitmap *QCursor::mask() const
 {
@@ -396,9 +277,6 @@ const QBitmap *QCursor::mask() const
     return data->bmm;
 }
 
-/*!
-  Returns the cursor hot spot, or (0,0) if it is one of the standard cursors.
-*/
 
 QPoint QCursor::hotSpot() const
 {
@@ -408,13 +286,6 @@ QPoint QCursor::hotSpot() const
 }
 
 
-/*!
-  Returns the window system cursor handle.
-
-  \warning
-  Portable in principle, but if you use it you are probably about to do
-  something non-portable. Be careful.
-*/
 
 Qt::HANDLE QCursor::handle() const
 {
@@ -426,15 +297,6 @@ Qt::HANDLE QCursor::handle() const
 }
 
 
-/*!
-  Returns the position of the cursor (hot spot) in global screen
-  coordinates.
-
-  You can call QWidget::mapFromGlobal() to translate it to widget
-  coordinates.
-
-  \sa setPos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
-*/
 
 QPoint QCursor::pos()
 {
@@ -443,16 +305,8 @@ QPoint QCursor::pos()
     return QPoint(p.h, p.v);
 }
 
-/*!
-  Moves the cursor (hot spot) to the global screen position \a x and \a y.
 
-  You can call QWidget::mapToGlobal() to translate widget coordinates
-  to global screen coordinates.
-
-  \sa pos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
-*/
-
-// some kruft I found on the web..
+// some kruft I found on the web.. it doesn't work, but I want to test more FIXME
 #define MTemp 0x828
 #define RawMouse 0x82c
 #define CrsrNewCouple 0x8ce
@@ -468,10 +322,6 @@ void QCursor::setPos( int x, int y)
     *((short *) CrsrNewCouple) = -1 ;
     ShowCursor ( ) ;
 }
-
-/*!
-  \internal Creates the cursor.
-*/
 
 void QCursor::update() const
 {

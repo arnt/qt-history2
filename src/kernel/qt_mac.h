@@ -24,6 +24,7 @@ class QMacSavedPortInfo
     RgnHandle clip;
     GWorldPtr world;
     GDHandle handle;
+    PenState pen; //go pennstate
 public:
     QMacSavedPortInfo();
     ~QMacSavedPortInfo();
@@ -35,6 +36,7 @@ inline QMacSavedPortInfo::QMacSavedPortInfo()
     GetGWorld(&world, &handle);
     clip = NewRgn();
     GetClip(clip);
+    GetPenState(&pen);
 }
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
@@ -42,6 +44,7 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     SetGWorld(world,handle);
     SetClip(clip);
     DisposeRgn(clip);
+    SetPenState(&pen);
 }
 
 #endif

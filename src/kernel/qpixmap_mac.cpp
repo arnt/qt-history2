@@ -20,7 +20,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
   GDHandle savedhandle;
   GetGWorld(&savedworld, &savedhandle);
   SetGWorld((GWorldPtr)hd,0);
-  LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+  ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 
   // Slow and icky
   RGBColor r;
@@ -121,7 +121,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   GDHandle savedhandle;
   GetGWorld(&savedworld, &savedhandle);
   SetGWorld((GWorldPtr)hd,0);
-  LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+  ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
   
   //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
   RGBColor r;
@@ -194,7 +194,7 @@ QImage QPixmap::convertToImage() const
     GDHandle savedhandle;
     GetGWorld(&savedworld, &savedhandle);
     SetGWorld((GWorldPtr)hd,0);
-    LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+    ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 
     //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
     RGBColor r;
@@ -239,7 +239,7 @@ void QPixmap::fill( const QColor &fillColor )
 	GDHandle savedhandle;
 	GetGWorld(&savedworld, &savedhandle);
 	SetGWorld((GWorldPtr)hd,0);
-	LockPixels(GetGWorldPixMap((GWorldPtr)hd));
+	ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 
 	rc.red=fillColor.red()*256;
 	rc.green=fillColor.green()*256;

@@ -310,10 +310,13 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-        if ( 0 && w->testWFlags(WPaintUnclipped) ) { // paint direct on device
+        if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
             setf( NoCache );
             updatePen();
             updateBrush();
+
+	    //just clip my bounding rect
+	    clippedreg = QRegion(0, 0, w->width(), w->height());
         }  else {
 	    if(paintEventDevice == pdev) {
 		clippedreg = *paintEventClipRegion;
@@ -336,7 +339,10 @@ bool QPainter::begin( const QPaintDevice *pd )
 
 	//setup the gworld
 	SetGWorld((GWorldPtr)pm->handle(),0);
-	LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));
+	ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+
+	//clip out my bounding rect
+	clippedreg = QRegion(0, 0, pm->width(), pm->height());
     } 
 
     if ( testf(ExtDev) ) {               // external device

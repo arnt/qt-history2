@@ -85,23 +85,6 @@ QPoint posInWindow(QWidget *w)
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-/*!
-  Creates a new widget window if \a window is null, otherwise sets the
-  widget's window to \a window.
-
-  Initializes the window (sets the geometry etc.) if \a initializeWindow
-  is TRUE.  If \a initializeWindow is FALSE, no initialization is
-  performed.  This parameter makes only sense if \a window is a valid
-  window.
-
-  Destroys the old window if \a destroyOldWindow is TRUE.  If \a
-  destroyOldWindow is FALSE, you are responsible for destroying
-  the window yourself (using platform native code).
-
-  The QWidget constructor calls create(0,TRUE,TRUE) to create a window for
-  this widget.
-*/
-
 WId parentw, destroyw = 0;
 WId myactive = -1;
 QWidget *mac_mouse_grabber = 0;
@@ -202,25 +185,15 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     setWState( WState_MouseTracking );
     setMouseTracking( FALSE );                  // also sets event mask
     clearWState(WState_Visible);
+    dirtyClippedRegion(TRUE);
 }
 
-
-/*!
-  Frees up window system resources.
-  Destroys the widget window if \a destroyWindow is TRUE.
-
-  destroy() calls itself recursively for all the child widgets,
-  passing \a destroySubWindows for the \a destroyWindow parameter.
-  To have more control over destruction of subwidgets,
-  destroy subwidgets selectively first.
-
-  This function is usually called from the QWidget destructor.
-*/
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
     deactivateWidgetCleanup();
     if ( testWState(WState_Created) ) {
+	dirtyClippedRegion(TRUE);
         clearWState( WState_Created );
         if ( children() ) {
             QObjectListIt it(*children());
@@ -258,31 +231,6 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     hd=0;
     setWinId( 0 );
 }
-
-/*!
-  Reparents the widget.  The widget gets a new \a parent, new widget
-  flags (\a f, but as usual, use 0) at a new position in its new
-  parent (\a p).
-
-  If \a showIt is TRUE, show() is called once the widget has been
-  reparented.
-
-  If the new parent widget is in a different top-level widget, the
-  reparented widget and its children are appended to the end of the
-  \link setFocusPolicy() TAB chain \endlink of the new parent widget,
-  in the same internal order as before.  If one of the moved widgets
-  had keyboard focus, reparent() calls clearFocus() for that widget.
-
-  If the new parent widget is in the same top-level widget as the old
-  parent, reparent doesn't change the TAB order or keyboard focus.
-
-  \warning Reparenting widgets should be a real exception. In normal
-  applications, you will almost never need it. Dynamic masks can be
-  achieved much easier and cleaner with classes like QWidgetStack or
-  on a higher abstraction level, QWizard.
-
-  \sa getWFlags()
-*/
 
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
@@ -349,13 +297,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 }
 
 
-/*!
-  Translates the widget coordinate \e pos to global screen coordinates.
-  For example, \code mapToGlobal(QPoint(0,0))\endcode would give the
-  global coordinates of the top-left pixel of the widget.
-  \sa mapFromGlobal() mapTo() mapToParent()
-*/
-
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
   Point mac_p;
@@ -369,11 +310,6 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
   return QPoint(mac_p.h, mac_p.v);
 }
 
-
-/*!
-  Translates the global screen coordinate \e pos to widget coordinates.
-  \sa mapToGlobal() mapFrom() mapFromParent()
-*/
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {
@@ -392,24 +328,6 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
-/*!
-  When a widget gets focus, it should call setMicroFocusHint for some
-  appropriate position and size - \a x, \a y and \a w by \a h.  This
-  has no \e visual effect, it just provides hints to any
-  system-specific input handling tools.
-
-  The \a text argument should be TRUE if this is a position for text
-  input.
-
-  In the Windows version of Qt, this method sets the system caret, which is
-  used for user Accessibility focus handling.  If \a text is TRUE, it also
-  sets the IME composition window in Far East Asian language input systems.
-
-  In the X11 version of Qt, if \a text is TRUE, this method sets the
-  XIM "spot" point for complex language input handling.
-
-  \sa microFocusHint()
-*/
 void QWidget::setMicroFocusHint(int, int, int, int, bool )
 {
 }
@@ -462,17 +380,6 @@ void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 }
 
 
-/*!
-  Sets the window-system background of the widget to nothing.
-
-  Note that `nothing' is actually a pixmap that isNull(), thus you
-  can check for an empty background by checking backgroundPixmap().
-
-  \sa setBackgroundPixmap(), setBackgroundColor()
-
-  This class should \e NOT be made virtual - it is an alternate usage
-  of setBackgroundPixmap().
-*/
 void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
@@ -480,21 +387,6 @@ void QWidget::setBackgroundEmpty()
     allow_null_pixmaps--;
 }
 
-
-/*!
-  Sets the widget cursor shape to \e cursor.
-
-  The mouse cursor will assume this shape when it's over this widget.
-  See a list of predefined cursor objects with a range of useful
-  shapes in the QCursor documentation.
-
-  An editor widget would for example use an I-beam cursor:
-  \code
-    setCursor( ibeamCursor );
-  \endcode
-
-  \sa cursor(), unsetCursor(), QApplication::setOverrideCursor()
-*/
 
 void QWidget::setCursor( const QCursor &cursor )
 {
@@ -507,15 +399,6 @@ void QWidget::setCursor( const QCursor &cursor )
 }
 
 
-/*!
-  Unset the cursor for this widget. The widget will use the cursor of
-  its parent from now on.
-
-  This functions does nothing for top-level windows.
-
-  \sa cursor(), setCursor(), QApplication::setOverrideCursor()
- */
-
 void QWidget::unsetCursor()
 {
     if ( !isTopLevel() ) {
@@ -527,107 +410,40 @@ void QWidget::unsetCursor()
     }
 }
 
-/*!
-  Sets the window caption (title) to \a caption.
-  \sa caption(), setIcon(), setIconText()
-*/
-
 void QWidget::setCaption( const QString &cap )
 {
     SetWTitle((WindowPtr)winid, p_str(cap.latin1()));
 }
-
-/*!
-  Sets the window icon to \a pixmap.
-  \sa icon(), setIconText(), setCaption(),
-      \link appicon.html Setting the Application Icon\endlink
-*/
 
 void QWidget::setIcon( const QPixmap & )
 {
 }
 
 
-/*!
-  Sets the text of the window's icon to \e iconText.
-  \sa iconText(), setIcon(), setCaption()
-*/
-
 void QWidget::setIconText( const QString & )
 {
 }
 
-
-/*!
-  Grabs the mouse input.
-
-  This widget will be the only one to receive mouse events until
-  releaseMouse() is called.
-
-  \warning Grabbing the mouse might lock the terminal.
-
-  It is almost never necessary to grab the mouse when using Qt since
-  Qt grabs and releases it sensibly.  In particular, Qt grabs the
-  mouse when a button is pressed and keeps it until the last button is
-  released.
-
-  \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
-*/
 
 void QWidget::grabMouse()
 {
     mac_mouse_grabber=this;
 }
 
-/*!
-  Grabs the mouse input and changes the cursor shape.
-
-  The cursor will assume shape \e cursor (for as long as the mouse focus is
-  grabbed) and this widget will be the only one to receive mouse events
-  until releaseMouse() is called().
-
-  \warning Grabbing the mouse might lock the terminal.
-
-  \sa releaseMouse(), grabKeyboard(), releaseKeyboard(), setCursor()
-*/
-
 void QWidget::grabMouse( const QCursor & )
 {
     mac_mouse_grabber=this;
 }
-
-/*!
-  Releases the mouse grab.
-
-  \sa grabMouse(), grabKeyboard(), releaseKeyboard()
-*/
 
 void QWidget::releaseMouse()
 {
     mac_mouse_grabber = NULL;
 }
 
-/*!
-  Grabs all keyboard input.
-
-  This widget will receive all keyboard events, independent of the active
-  window.
-
-  \warning Grabbing the keyboard might lock the terminal.
-
-  \sa releaseKeyboard(), grabMouse(), releaseMouse()
-*/
-
 void QWidget::grabKeyboard()
 {
     mac_keyboard_grabber = this;
 }
-
-/*!
-  Releases the keyboard grab.
-
-  \sa grabKeyboard(), grabMouse(), releaseMouse()
-*/
 
 void QWidget::releaseKeyboard()
 {
@@ -635,53 +451,16 @@ void QWidget::releaseKeyboard()
 }
 
 
-/*!
-  Returns a pointer to the widget that is currently grabbing the
-  mouse input.
-
-  If no widget in this application is currently grabbing the mouse, 0 is
-  returned.
-
-  \sa grabMouse(), keyboardGrabber()
-*/
-
 QWidget *QWidget::mouseGrabber()
 {
     return mac_mouse_grabber;
 }
-
-/*!
-  Returns a pointer to the widget that is currently grabbing the
-  keyboard input.
-
-  If no widget in this application is currently grabbing the keyboard, 0
-  is returned.
-
-  \sa grabMouse(), mouseGrabber()
-*/
 
 QWidget *QWidget::keyboardGrabber()
 {
     return mac_keyboard_grabber;
 }
 
-
-/*!
-  Sets the top-level widget containing this widget to be the active
-  window.
-
-  An active window is a visible top-level window that has the keyboard input
-  focus.
-
-  This function performs the same operation as clicking the mouse on
-  the title bar of a top-level window, at least on Windows. On X11,
-  the result depends on the Window Manager. If you want to ensure that
-  the window is stacked on top as well, call raise() in addition. Note
-  that the window has be to visible, otherwise setActiveWindow() has
-  no effect.
-
-  \sa isActiveWindow(), topLevelWidget(), show()
-*/
 
 void QWidget::setActiveWindow()
 {
@@ -703,45 +482,10 @@ void QWidget::setActiveWindow()
 }
 
 
-/*!
-  Updates the widget unless updates are disabled or the widget is hidden.
-
-  Updating the widget will erase the widget contents and generate an
-  appropriate paint event for the invalidated region. The paint event
-  is processed after the program has returned to the main event loop.
-  Calling update() many times in a row will generate a single paint
-  event.
-
-  If the widgets sets the WRepaintNoErase flag, update() will not erase
-  its contents.
-
-  \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(), setWFlags()
-*/
-
 void QWidget::update()
 {
     update( 0, 0, width(), height() );
 }
-
-/*!
-  Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
-  unless updates are disabled or the widget is hidden.
-
-  Updating the widget erases the widget area \e (x,y,w,h) and generate
-  an appropriate paint event for the invalidated region. The paint
-  event is processed after the program has returned to the main event
-  loop.  Calling update() many times in a row will generate a single
-  paint event.
-
-  If \e w is negative, it is replaced with <code>width() - x</code>.
-  If \e h is negative, it is replaced width <code>height() - y</code>.
-
-
-  If the widgets sets the WRepaintNoErase flag, update() will not erase
-  its contents.
-
-  \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
-*/
 
 void QWidget::update( int x, int y, int w, int h )
 {
@@ -754,43 +498,6 @@ void QWidget::update( int x, int y, int w, int h )
     }
 }
 
-/*!
-  \overload void QWidget::update( const QRect &r )
-*/
-
-/*!
-  \overload void QWidget::repaint( bool erase )
-
-  This version repaints the entire widget.
-*/
-
-/*!
-  \overload void QWidget::repaint()
-
-  This version erases and repaints the entire widget.
-*/
-
-/*!
-  Repaints the widget directly by calling paintEvent() directly,
-  unless updates are disabled or the widget is hidden.
-
-  Erases the widget area  \e (x,y,w,h) if \e erase is TRUE.
-
-  If \e w is negative, it is replaced with <code>width() - x</code>.
-  If \e h is negative, it is replaced width <code>height() - y</code>.
-
-  Use repaint if your widget needs to be repainted immediately, for
-  example when doing some animation. In all other cases, update() is
-  to be preferred. Calling update() many times in a row will generate
-  a single paint event.
-
-  \warning If you call repaint() in a function which may itself be called
-  from paintEvent(), you may see infinite recursion. The update() function
-  never generates recursion.
-
-  \sa update(), paintEvent(), setUpdatesEnabled(), erase()
-*/
-
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
     if ( w < 0 )
@@ -802,24 +509,6 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	return; // nothing to do
     repaint(QRegion(r), erase); //general function..
 }
-
-/*!
-  Repaints the widget directly by calling paintEvent() directly,
-  unless updates are disabled or the widget is hidden.
-
-  Erases the widget region  \a reg if \a erase is TRUE.
-
-  Use repaint if your widget needs to be repainted immediately, for
-  example when doing some animation. In all other cases, update() is
-  to be preferred. Calling update() many times in a row will generate
-  a single paint event.
-
-  \warning If you call repaint() in a function which may itself be called
-  from paintEvent(), you may see infinite recursion. The update() function
-  never generates recursion.
-
-  \sa update(), paintEvent(), setUpdatesEnabled(), erase()
-*/
 
 void QWidget::repaint( const QRegion &reg , bool erase )
 {
@@ -834,16 +523,6 @@ void QWidget::repaint( const QRegion &reg , bool erase )
     }
 }
 
-/*!
-  \overload void QWidget::repaint( const QRect &r, bool erase )
-*/
-
-
-/*!
-  \internal
-  Platform-specific part of QWidget::show().
-*/
-
 void QWidget::showWindow()
 {
     if ( isTopLevel() ) {
@@ -853,11 +532,6 @@ void QWidget::showWindow()
     update();
 }
 
-
-/*!
-  \internal
-  Platform-specific part of QWidget::hide().
-*/
 
 static void paint_children(QWidget * p,const QRegion& r)
 {
@@ -900,25 +574,10 @@ void QWidget::hideWindow()
 }
 
 
-/*!
-  Shows the widget minimized, as an icon.
-
-  Calling this function has no effect for other than \link isTopLevel()
-  top-level widgets\endlink.
-
-  \sa showNormal(), showMaximized(), show(), hide(), isVisible(), isMinimized()
-*/
-
 void QWidget::showMinimized()
 {
 }
 
-/*!
-  Returns TRUE if this widget is a top-level widget that is minimized
-  (iconified), or else FALSE.
-
-  \sa showMinimized(), isVisible(), show(), hide(), showNormal()
- */
 bool QWidget::isMinimized() const
 {
     return false;
@@ -930,60 +589,20 @@ bool QWidget::isMaximized() const
 }
 
 
-/*!
-  Shows the widget maximized.
-
-  Calling this function has no effect for other than \link isTopLevel()
-  top-level widgets\endlink.
-
-  On X11, this function may not work properly with certain window
-  managers. See the \link geometry.html Window Geometry
-  documentation\endlink for details on why.
-
-  \sa showNormal(), showMinimized(), show(), hide(), isVisible()
-*/
-
 void QWidget::showMaximized()
 {
 }
-
-/*!
-  Restores the widget after it has been maximized or minimized.
-
-  Calling this function has no effect for other than \link isTopLevel()
-  top-level widgets\endlink.
-
-  \sa showMinimized(), showMaximized(), show(), hide(), isVisible()
-*/
 
 void QWidget::showNormal()
 {
 }
 
 
-/*!
-  Raises this widget to the top of the parent widget's stack.
-
-  If there are any siblings of this widget that overlap it on the screen,
-  this widget will be visually in front of its siblings afterwards.
-
-  \sa lower(), stackUnder()
-*/
-
 void QWidget::raise()
 {
     if(isTopLevel())
 	SelectWindow((WindowPtr)hd);
 }
-
-/*!
-  Lowers the widget to the bottom of the parent widget's stack.
-
-  If there are siblings of this widget that overlap it on the screen, this
-  widget will be obscured by its siblings afterwards.
-
-  \sa raise(), stackUnder()
-*/
 
 void QWidget::lower()
 {
@@ -997,13 +616,6 @@ void QWidget::lower()
 }
 
 
-/*!
-  Places the widget under \a w in the parent widget's stack.
-
-  To make this work, the widget itself and \a w have to be siblings.
-
-  \sa raise(), lower()
-*/
 void QWidget::stackUnder( QWidget *w )
 {
     QWidget *p = parentWidget();
@@ -1018,18 +630,11 @@ void QWidget::stackUnder( QWidget *w )
 }
 
 
-
-/*
-  The global variable qt_widget_tlw_gravity defines the window gravity of
-  the next top level window to be created. We do this when setting the
-  main widget's geometry and the "-geometry" command line option contains
-  a negative position.
-*/
-
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
     if ( testWFlags(WType_Desktop) )
 	return;
+    dirtyClippedRegion(TRUE);
 
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
@@ -1089,24 +694,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     }
 }
 
-/*!
-  \overload void QWidget::setMinimumSize( const QSize &size )
-*/
-
-/*!
-  Sets the minimum size of the widget to \e w by \e h pixels.
-
-  The widget cannot be resized to a smaller size than the minimum widget
-  size. The widget's size is forced to the minimum size if the current
-  size is smaller.
-
-  If you use a layout inside the widget, the minimum size will be set by the layout and
-  not by setMinimumSize, unless you set the layouts resize mode to QLayout::FreeResize.
-
-  \sa minimumSize(), setMaximumSize(), setSizeIncrement(), resize(), size(), QLayout::setResizeMode()
-*/
-
-
 void QWidget::setMinimumSize( int minw, int minh)
 {
 #if defined(CHECK_RANGE)
@@ -1126,20 +713,6 @@ void QWidget::setMinimumSize( int minw, int minh)
     }
     updateGeometry();
 }
-
-/*!
-  \overload void QWidget::setMaximumSize( const QSize &size )
-*/
-
-/*!
-  Sets the maximum size of the widget to \e w by \e h pixels.
-
-  The widget cannot be resized to a larger size than the maximum widget
-  size. The widget's size is forced to the maximum size if the current
-  size is greater.
-
-  \sa maximumSize(), setMinimumSize(), setSizeIncrement(), resize(), size()
-*/
 
 void QWidget::setMaximumSize( int maxw, int maxh)
 {
@@ -1175,84 +748,19 @@ void QWidget::setMaximumSize( int maxw, int maxh)
 }
 
 
-/*!
-  Sets the size increment of the widget.  When the user resizes the
-  window, the size will move in steps of \e w pixels horizontally and
-  \e h pixels vertically, with baseSize() as basis. Preferred widget sizes are therefore for
-  non-negative integers \e i and \e j:
-  \code
-  width = baseSize().width() + i * sizeIncrement().width();
-  height = baseSize().height() + j * sizeIncrement().height();
-  \endcode
-
-  Note that while you can set the size increment for all widgets, it
-  has no effect except for top-level widgets.
-
-  \warning The size increment has no effect under Windows, and may be
-  disregarded by the window manager on X.
-
-  \sa sizeIncrement(), setMinimumSize(), setMaximumSize(), resize(), size()
-*/
-
 void QWidget::setSizeIncrement( int, int )
 {
 }
-/*!
-  \overload void QWidget::setSizeIncrement( const QSize& )
-*/
-
-
-/*!
-  Sets the base size of the widget.  The base size is important only
-  in combination with size increments. See setSizeIncrement() for details.
-
-  \sa baseSize()
-*/
 
 void QWidget::setBaseSize( int, int )
 {
 }
 
 
-
-/*!
-  \overload void QWidget::setBaseSize( const QSize& )
-*/
-
-/*!
-  \overload void QWidget::erase()
-  This version erases the entire widget.
-*/
-
-/*!
-  \overload void QWidget::erase( const QRect &r )
-*/
-
-/*!
-  Erases the specified area \e (x,y,w,h) in the widget without generating
-  a \link paintEvent() paint event\endlink.
-
-  If \e w is negative, it is replaced with <code>width() - x</code>.
-  If \e h is negative, it is replaced width <code>height() - y</code>.
-
-  Child widgets are not affected.
-
-  \sa repaint()
-*/
-
 void QWidget::erase( int x, int y, int w, int h )
 {
     erase( QRegion( x, y, w, h ) );
 }
-
-/*!
-  Erases the area defined by \a reg, without generating a
-  \link paintEvent() paint event\endlink.
-
-  Child widgets are not affected.
-*/
-
-bool shit = FALSE;
 
 void QWidget::erase( const QRegion& reg )
 {
@@ -1284,33 +792,11 @@ void QWidget::erase( const QRegion& reg )
 }
 
 
-/*! \overload
-
-  This version of the function scrolls the entire widget and moves the
-  widget's children along with the scroll.
-
-  \sa bitBlt() QScrollView
-*/
-
 void QWidget::scroll( int dx, int dy)
 {
     scroll( dx, dy, QRect() );
 }
 
-/*! Scrolls \a r \a dx pixels to the right and \a dy downwards.  Both
-  \a dx and \a dy may be negative.
-
-  If \a r is empty or invalid, the result is undefined.
-
-  After scrolling, scroll() sends a paint event for the the part of \a r
-  that is read but not written.  For example, when scrolling 10 pixels
-  rightwards, the leftmost ten pixels of \a r need repainting. The paint
-  event may be delivered immediately or later, depending on some heuristics.
-
-  This version of scroll() does not move the children of this widget.
-
-  \sa QScrollView erase() bitBlt()
-*/
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
     if ( testWState( WState_BlockUpdates ) )
@@ -1368,23 +854,6 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 }
 
 
-/*!
-  \overload void QWidget::drawText( const QPoint &pos, const QString& str )
-*/
-
-/*!
-  Writes \e str at position \e x,y.
-
-  The \e y position is the base line position of the text.  The text is
-  drawn using the default font and the default foreground color.
-
-  This function is provided for convenience.  You will generally get
-  more flexible results and often higher speed by using a a \link
-  QPainter painter\endlink instead.
-
-  \sa setFont(), foregroundColor(), QPainter::drawText()
-*/
-
 void QWidget::drawText( int x, int y, const QString &str )
 {
     if ( testWState(WState_Visible) ) {
@@ -1395,12 +864,6 @@ void QWidget::drawText( int x, int y, const QString &str )
     }
 }
 
-
-/*!
-  Internal implementation of the virtual QPaintDevice::metric() function.
-
-  Use the QPaintDeviceMetrics class instead.
-*/
 
 int QWidget::metric( int m ) const
 {
@@ -1455,46 +918,18 @@ void QWidget::deleteTLSysExtra()
 }
 
 
-/*!
-  Returns TRUE if drop events are enabled for this widget.
-
-  \sa setAcceptDrops()
-*/
-
 bool QWidget::acceptDrops() const
 {
     return false;
 }
 
-/*!
-  Announces to the system that this widget \e may be able to
-  accept drop events.
-
-  If the widgets is \link QWidget::isDesktop() the desktop\endlink,
-  this may fail if another application is using the desktop - you
-  can call acceptDrops() to test if this occurs.
-
-  \sa acceptDrops()
-*/
-
 void QWidget::setAcceptDrops( bool )
 {
 }
 
-/*!
-  Causes only the parts of the widget which overlap \a region
-  to be visible.  If the region includes pixels outside the
-  rect() of the widget, window system controls in that area
-  may or may not be visible, depending on the platform.
-
-  Note that this effect can be slow if the region is particularly
-  complex.
-
-  \sa setMask(QBitmap), clearMask()
-*/
-
 void QWidget::setMask( const QRegion &region )
 {
+    dirtyClippedRegion(TRUE);
     createExtra();
     if ( region.isNull() && extra->mask.isNull() )
 	return;
@@ -1503,38 +938,17 @@ void QWidget::setMask( const QRegion &region )
 	update();
 }
 
-/*!
-  Causes only the pixels of the widget for which \a bitmap
-  has a corresponding 1 bit
-  to be visible.  If the region includes pixels outside the
-  rect() of the widget, window system controls in that area
-  may or may not be visible, depending on the platform.
-
-  Note that this effect can be slow if the region is particularly
-  complex.
-
-  \sa setMask(const QRegion&), clearMask()
-*/
-
 void QWidget::setMask( const QBitmap &bitmap )
 {
     setMask( QRegion( bitmap ) );
 }
 
 
-/*!
-  Removes any mask set by setMask().
-
-  \sa setMask()
-*/
-
 void QWidget::clearMask()
 {
     setMask( QRegion() );
 }
 
-/*!\reimp
- */
 void QWidget::setName( const char * )
 {
 }
@@ -1567,11 +981,36 @@ void QWidget::propagateUpdates(int , int , int w, int h)
     }
 }
 
+void QWidget::dirtyClippedRegion(bool tell_parent)
+{
+    if(extra)
+	extra->clip_dirty = TRUE;
+    if(tell_parent && parentWidget())
+	parentWidget()->dirtyClippedRegion(FALSE);
+}
+
+bool QWidget::isClippedRegionDirty()
+{
+    if(!extra) {
+	return TRUE;
+    }
+    return extra->clip_dirty || (isTopLevel() || (parentWidget() && parentWidget()->isClippedRegionDirty()));
+}
+
 QRegion QWidget::clippedRegion()
 {
+    //I'm not too confident this is right, as it seemed to work immediatly, so I'll 
+    //comment this out when stuff starts breaking.
+#if 1
+    if(!isClippedRegionDirty())
+	return extra->clip_saved;
+#endif
+
+    createExtra();
+    extra->clip_dirty = FALSE;
     QPoint mp = posInWindow(this);
     QRegion mr(mp.x(), mp.y(), width(), height());
-    QRegion clippedRgn;
+    extra->clip_saved = QRegion();
 
     QPoint tmp;
     //clip out my children
@@ -1586,7 +1025,7 @@ QRegion QWidget::clippedRegion()
 			mask.translate(mp.x()+cw->x(), mp.y()+cw->y());
 			childrgn &= mask;
 		    }
-		    clippedRgn += childrgn;
+		    extra->clip_saved += childrgn;
 		}
 	    }
 	}
@@ -1609,21 +1048,21 @@ QRegion QWidget::clippedRegion()
 			    mask.translate(tmp.x(), tmp.y());
 			    sibrgn &= mask;
 			}
-			clippedRgn += sibrgn;
+			extra->clip_saved += sibrgn;
 		    }
 		}
 	    }
 	}
     }
 
-    clippedRgn = (mr & clippedRgn) ^ mr;
+    extra->clip_saved = (mr & extra->clip_saved) ^ mr;
     //clip my rect with my mask
     if(extra && !extra->mask.isNull()) {
 	QRegion mask = extra->mask;
 	mask.translate(mp.x(), mp.y());
-	clippedRgn &= mask;
+	extra->clip_saved &= mask;
     }
-    return clippedRgn;
+    return extra->clip_saved;
 }
 
 

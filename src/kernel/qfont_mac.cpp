@@ -209,14 +209,6 @@ int qFontGetWeight( const QCString &weightString, bool adjustScore )
     return (int) QFont::Normal;
 }
 
-/*!
-  Internal function that initializes the font system.
-
-  \internal
-  The font cache and font dict do not alloc the keys. The key is a QString
-  which is shared between QFontInternal and QXFontName.
-*/
-
 void QFont::initialize()
 {
 #if 0

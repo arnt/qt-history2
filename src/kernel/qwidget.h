@@ -505,6 +505,11 @@ protected:
     virtual void setKeyCompression(bool);
     virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE);
 
+#if defined(Q_WS_MAC)
+    void dirtyClippedRegion(bool);
+    bool isClippedRegionDirty();
+#endif
+
 private slots:
     void	 focusProxyDestroyed();
 
@@ -865,6 +870,8 @@ struct QWExtra {
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
+    bool clip_dirty;
+    QRegion clip_saved;
 #endif
     char     bg_mode;				// background mode
 #ifndef QT_NO_STYLE
