@@ -87,7 +87,8 @@ CursorView::CursorView()			// construct view
 	{ SplitHCursor,		"splitHCursor" },
 	{ PointingHandCursor,	"pointingHandCursor" },
 	{ ForbiddenCursor,	"forbiddenCursor" },
-	{ WhatsThisCursor,	"whatsThisCursor" }
+	{ WhatsThisCursor,	"whatsThisCursor" },
+	{ BusyCursor,		"busyCursor" }
     };
 
     setWindowTitle( "CursorView" );			// set window caption
@@ -109,6 +110,17 @@ CursorView::CursorView()			// construct view
 	}
     }
 
+
+    label = new QLabel( this );
+    label->setCursor( QCursor( list[i].shape ) );
+    label->setText( list[i].name );
+    label->setAlignment( AlignCenter );
+    label->setMargin( 10 );
+    label->setFrameStyle( QFrame::Box | QFrame::Raised );
+    grid->addWidget( label, 4, 0 );
+
+
+    
     QBitmap cb( cb_width, cb_height, cb_bits, TRUE );
     QBitmap cm( cm_width, cm_height, cm_bits, TRUE );
     QCursor custom( cb, cm );			// create bitmap cursor
@@ -119,7 +131,7 @@ CursorView::CursorView()			// construct view
     label->setAlignment( AlignCenter );
     label->setMargin( 10 );
     label->setFrameStyle( QFrame::Box | QFrame::Sunken );
-    grid->addWidget( label, 0, 3, 3, 1 );
+    grid->addMultiCellWidget( label, 4, 4, 1, 3 );
 
 }
 
