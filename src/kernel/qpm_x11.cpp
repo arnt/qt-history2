@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#34 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#34 $";
 #endif
 
 
@@ -129,9 +129,14 @@ QPixmap::QPixmap()
 
   The contents of the pixmap is uninitialized.
 
-  The \e depth can be either 1 (monochrome) or the default depth
-  supported by the hardware (normally 8 bits).
-  If \e depth is negative, then the hardware depth will be used.
+  The \e depth can be either 1 (monochrome) or the depth of the
+  current video mode.  If \e depth is negative, then the hardware
+  depth will be used.
+
+  If an illegal combination of width, height and depth is specified, a
+  null pixmap is constructed.
+
+  \sa isNull()
 */
 
 QPixmap::QPixmap( int w, int h, int depth )
@@ -161,9 +166,7 @@ QPixmap::QPixmap( int w, int h, int depth )
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
-/*!
-  Overloaded constructor; takes a QSize parameter instead of \e (w,h).
-*/
+/*! \overload QPixmap::QPixmap( const QSize &size, int depth ) */
 
 QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( PDT_PIXMAP )
@@ -1297,6 +1300,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
   This function returns the modified matrix, which maps points
   correctly from the original pixmap into the new pixmap.
+
   \sa xForm(), QWMatrix
 */
 
