@@ -187,7 +187,6 @@ static const MouseConfig mouseConfig[] = {
     { "MouseMan",	MouseMan },
     { "IntelliMouse",	IntelliMouse },
     { "Microsoft",      Microsoft },
-    { "QVFbMouse",      QVFBMouse },
     { "TPanel",         TPanel },
     { "BusMouse",       BusMouse },
     { 0,		Unknown }
@@ -658,7 +657,6 @@ static const MouseData mouseData[] = {
     { 3 },  // MouseMan
     { 4 },  // intelliMouse
     { 3 },  // Microsoft
-    { 0 },  // QVFBMouse,
     { 0 },  // TPanel,
     { 3 },  // BusMouse,
 };
@@ -1448,70 +1446,6 @@ void QCustomTPanelHandlerPrivate::readMouseData()
 #endif //QT_QWS_CUSTOMTOUCHPANEL
 
 /*
- * Virtual framebuffer mouse driver
- */
-
-#ifndef QT_NO_QWS_VFB
-#include "qvfbhdr.h"
-extern int qws_display_id;
-
-QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDev )
-{
-    mouseFD = -1;
-    if ( mouseDev.isEmpty() )
-	mouseDev = QString(QT_VFB_MOUSE_PIPE).arg(qws_display_id);
-
-    if ((mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
-	qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
-		strerror(errno));
-    } else {
-	// Clear pending input
-	char buf[2];
-	while (read(mouseFD, buf, 1) > 0) { }
-
-	mouseIdx = 0;
-
-	QSocketNotifier *mouseNotifier;
-	mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read, this );
-	connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
-    }
-}
-
-QVFbMouseHandlerPrivate::~QVFbMouseHandlerPrivate()
-{
-    if (mouseFD >= 0)
-	close(mouseFD);
-}
-
-void QVFbMouseHandlerPrivate::readMouseData()
-{
-    int n;
-    do {
-	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
-	if ( n > 0 )
-	    mouseIdx += n;
-    } while ( n > 0 );
-
-    int idx = 0;
-    while ( mouseIdx-idx >= int(sizeof( QPoint ) + sizeof( int )) ) {
-	uchar *mb = mouseBuf+idx;
-	QPoint *p = (QPoint *) mb;
-	mb += sizeof( QPoint );
-	int *bstate = (int *)mb;
-	mousePos = *p;
-	limitToScreen( mousePos );
-	mouseChanged(mousePos, *bstate);
-	idx += sizeof( QPoint ) + sizeof( int );
-    }
-
-    int surplus = mouseIdx - idx;
-    for ( int i = 0; i < surplus; i++ )
-	mouseBuf[i] = mouseBuf[idx+i];
-    mouseIdx = surplus;
-}
-#endif //QT_NO_QWS_VFB
-
-/*
  * return a QWSMouseHandler that supports /a spec.
  */
 
@@ -1576,11 +1510,6 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
     case Microsoft:
     case BusMouse:
 	handler = new QWSMouseHandlerPrivate( mouseProtocol, mouseDev );
-	break;
-#endif
-#ifndef QT_NO_QWS_VFB
-    case QVFBMouse:
-	handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
 	break;
 #endif
 #ifdef QT_QWS_CASSIOPEIA

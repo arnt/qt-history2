@@ -41,17 +41,7 @@
 #include "qtimer.h"
 #include "qwindowsystem_qws.h"
 #include "qgfxvnc_qws.h"
-#include "qsharedmemory.h"
 #include <qglobal.h>
-
-#if defined(Q_OS_QNX6)
-#define VNCSCREEN_BASE QQnxScreen
-#include "qwsgfx_qnx.h"
-#else
-#define VNCSCREEN_BASE QLinuxFbScreen
-#include "qgfxlinuxfb_qws.h"
-#endif
-
 
 extern QString qws_qtePipeFilename();
 
@@ -67,38 +57,165 @@ struct QVNCHeader
     uchar map[MAP_HEIGHT][MAP_WIDTH];
 };
 
-class QVNCScreen : public VNCSCREEN_BASE {
+static QVNCScreen *qvnc_screen = 0;
+
+//===========================================================================
+
+class QRfbRect
+{
 public:
-    QVNCScreen( int display_id );
-    virtual ~QVNCScreen();
-    virtual bool initDevice();
-    virtual bool connect( const QString &displaySpec );
-    virtual void disconnect();
-    virtual int initCursor(void*, bool);
-    virtual void shutdownDevice();
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-    virtual void save();
-    virtual void restore();
-    virtual void setMode(int nw,int nh,int nd);
+    QRfbRect() {}
+    QRfbRect( Q_UINT16 _x, Q_UINT16 _y, Q_UINT16 _w, Q_UINT16 _h ) {
+	x = _x; y = _y; w = _w; h = _h;
+    }
 
-    virtual void setDirty( const QRect& r )
-	{ hdr->dirty = TRUE;
-	  int x1 = r.x()/MAP_TILE_SIZE;
-	  int y1 = r.y()/MAP_TILE_SIZE;
-	  for ( int y = y1; y <= r.bottom()/MAP_TILE_SIZE && y < MAP_HEIGHT; y++ )
-	      for ( int x = x1; x <= r.right()/MAP_TILE_SIZE && x < MAP_WIDTH; x++ )
-		  hdr->map[y][x] = 1;
-	}
+    void read( QSocket *s );
+    void write( QSocket *s );
 
-    bool success;
-    QVNCServer *vncServer;
-    unsigned char *shmrgn;
-	QSharedMemory shm;
-    QVNCHeader *hdr;
-    bool virtualBuffer;
+    Q_UINT16 x;
+    Q_UINT16 y;
+    Q_UINT16 w;
+    Q_UINT16 h;
 };
 
-static QVNCScreen *qvnc_screen = 0;
+class QRfbPixelFormat
+{
+public:
+    static int size() { return 16; }
+
+    void read( QSocket *s );
+    void write( QSocket *s );
+
+    int bitsPerPixel;
+    int depth;
+    bool bigEndian;
+    bool trueColor;
+    int redBits;
+    int greenBits;
+    int blueBits;
+    int redShift;
+    int greenShift;
+    int blueShift;
+};
+
+class QRfbServerInit
+{
+public:
+    QRfbServerInit() { name = 0; }
+    ~QRfbServerInit() { delete name; }
+
+    int size() const { return QRfbPixelFormat::size() + 8 + strlen( name ); }
+    void setName( const char *n );
+
+    void read( QSocket *s );
+    void write( QSocket *s );
+
+    Q_UINT16 width;
+    Q_UINT16 height;
+    QRfbPixelFormat format;
+    char *name;
+};
+
+class QRfbSetEncodings
+{
+public:
+    bool read( QSocket *s );
+
+    Q_UINT16 count;
+};
+
+class QRfbFrameBufferUpdateRequest
+{
+public:
+    bool read( QSocket *s );
+
+    char incremental;
+    QRfbRect rect;
+};
+
+class QRfbKeyEvent
+{
+public:
+    bool read( QSocket *s );
+
+    char down;
+    int  keycode;
+    int  unicode;
+};
+
+class QRfbPointerEvent
+{
+public:
+    bool read( QSocket *s );
+
+    uint buttons;
+    Q_UINT16 x;
+    Q_UINT16 y;
+};
+
+class QRfbClientCutText
+{
+public:
+    bool read( QSocket *s );
+
+    Q_UINT32 length;
+};
+
+
+class QVNCServer : public QServerSocket
+{
+    Q_OBJECT
+public:
+    QVNCServer();
+    QVNCServer( int id );
+    ~QVNCServer();
+
+    virtual void newConnection( int socket );
+
+    enum ClientMsg { SetPixelFormat = 0,
+		     FixColourMapEntries = 1,
+		     SetEncodings = 2,
+		     FramebufferUpdateRequest = 3,
+		     KeyEvent = 4,
+		     PointerEvent = 5,
+		     ClientCutText = 6 };
+
+    enum ServerMsg { FramebufferUpdate = 0,
+		     SetColourMapEntries = 1 };
+
+private:
+    void setPixelFormat();
+    void setEncodings();
+    void frameBufferUpdateRequest();
+    void pointerEvent();
+    void keyEvent();
+    void clientCutText();
+    bool checkFill( const uchar *data, int numPixels );
+    int getPixel( uchar ** );
+    void sendHextile();
+    void sendRaw();
+
+private slots:
+    void readClient();
+    void checkUpdate();
+    void discardClient();
+
+private:
+    enum ClientState { Protocol, Init, Connected };
+    QTimer *timer;
+    QSocket *client;
+    ClientState state;
+    Q_UINT8 msgType;
+    bool handleMsg;
+    QRfbPixelFormat pixelFormat;
+    int keymod;
+    int encodingsPending;
+    int cutTextPending;
+    bool supportHextile;
+    bool wantUpdate;
+};
+
+//===========================================================================
 
 static struct {
     int keysym;
@@ -361,6 +478,8 @@ bool QRfbClientCutText::read( QSocket *s )
 
     return TRUE;
 }
+
+//===========================================================================
 
 /*
  */
@@ -927,6 +1046,7 @@ void QVNCScreenCursor::move( int x, int y )
 }
 #endif
 
+//===========================================================================
 
 template <const int depth, const int type>
 class QGfxVNC : public QGfxRaster<depth,type>
@@ -1063,6 +1183,7 @@ void QGfxVNC<depth,type>::tiledBlt( int x,int y,int w,int h )
     QWSDisplay::ungrab();
 }
 
+//===========================================================================
 
 /*
 */
@@ -1071,12 +1192,21 @@ QVNCScreen::QVNCScreen( int display_id ) : VNCSCREEN_BASE( display_id )
 {
     virtualBuffer = FALSE;
     qvnc_screen = this;
-    optype = (int *)malloc(sizeof(int));
-    lastop = (int *)malloc(sizeof(int));
 }
 
-QVNCScreen::~QVNCScreen() {
-	shm.destroy();
+QVNCScreen::~QVNCScreen()
+{
+    shm.destroy();
+}
+
+void QVNCScreen::setDirty( const QRect& r )
+{
+    hdr->dirty = TRUE;
+    int x1 = r.x()/MAP_TILE_SIZE;
+    int y1 = r.y()/MAP_TILE_SIZE;
+    for ( int y = y1; y <= r.bottom()/MAP_TILE_SIZE && y < MAP_HEIGHT; y++ )
+	for ( int x = x1; x <= r.right()/MAP_TILE_SIZE && x < MAP_WIDTH; x++ )
+	    hdr->map[y][x] = 1;
 }
 
 bool QVNCScreen::connect( const QString &displaySpec )
@@ -1103,8 +1233,6 @@ bool QVNCScreen::connect( const QString &displaySpec )
 #if !defined(Q_OS_QNX6)
 	dataoffset = 0;
 	canaccel = FALSE;
-	optype = &dummy_optype;
-	lastop = &dummy_lastop;
 	initted = TRUE;
 #endif
 	size = h * lstep;
@@ -1114,30 +1242,30 @@ bool QVNCScreen::connect( const QString &displaySpec )
 	QWSServer::setDefaultMouse( "None" );
 	QWSServer::setDefaultKeyboard( "None" );
     } else {
-		int next = displaySpec.find (':');
-		QString tmpSpec = displaySpec;
-		tmpSpec.remove (0, next + 1); 
-		VNCSCREEN_BASE::connect( tmpSpec );
+	int next = displaySpec.find (':');
+	QString tmpSpec = displaySpec;
+	tmpSpec.remove (0, next + 1); 
+	VNCSCREEN_BASE::connect( tmpSpec );
     }
-	shm = QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append('a'));
-	if (!shm.create())
-	    qDebug("create");
-	if (!shm.attach())
-	    qDebug("attach");
-	shmrgn = (unsigned char*)shm.base();
+    shm = QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append('a'));
+    if (!shm.create())
+	qDebug("create");
+    if (!shm.attach())
+	qDebug("attach");
+    shmrgn = (unsigned char*)shm.base();
 
     hdr = (QVNCHeader *) shmrgn;
 
     if ( virtualBuffer )
         data = shmrgn + ( sizeof(QVNCHeader) + 7 );
-	return TRUE;
+    return TRUE;
 }
 
 void QVNCScreen::disconnect()
 {
     if ( !virtualBuffer )
-		VNCSCREEN_BASE::disconnect();
-	shm.detach();
+	VNCSCREEN_BASE::disconnect();
+    shm.detach();
 }
 
 bool QVNCScreen::initDevice()
@@ -1156,7 +1284,7 @@ void QVNCScreen::shutdownDevice()
 {
     delete vncServer;
     if ( !virtualBuffer )
-		VNCSCREEN_BASE::shutdownDevice();
+	VNCSCREEN_BASE::shutdownDevice();
 }
 
 int QVNCScreen::initCursor(void* e, bool init)
@@ -1234,10 +1362,7 @@ QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     return ret;
 }
 
-extern "C" QScreen * qt_get_screen_vnc( int display_id )
-{
-    return new QVNCScreen( display_id );
-}
+#include "qgfxvnc_qws.moc"
 
 #endif // QT_NO_QWS_VNC
 

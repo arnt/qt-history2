@@ -245,23 +245,5 @@ private slots:
 };
 #endif
 
-#ifndef QT_NO_QWS_VFB
-class QVFbMouseHandlerPrivate : public QWSMouseHandler {
-    Q_OBJECT
-public:
-    QVFbMouseHandlerPrivate(MouseProtocol, QString dev);
-    ~QVFbMouseHandlerPrivate();
-
-    bool isOpen() const { return mouseFD > 0; }
-
-private:
-    int mouseFD;
-    int mouseIdx;
-    uchar mouseBuf[mouseBufSize];
-private slots:
-    void readMouseData();
-};
-#endif
-
 #endif
 

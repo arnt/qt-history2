@@ -30,12 +30,13 @@
 **
 **********************************************************************/
 
-#include "qgfxraster_qws.h"
+#include "qgfxtransformed_qws.h"
 
 #ifndef QT_NO_QWS_TRANSFORMED
 
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
+#include "qgfxraster_qws.h"
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -44,53 +45,6 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
-
-
-#ifndef Q_OS_QNX6
-#define QT_TRANS_SCREEN_BASE	QLinuxFbScreen
-//#define QT_TRANS_SCREEN_BASE	QVFbScreen
-#include "qgfxlinuxfb_qws.h"
-#else
-#define QT_TRANS_SCREEN_BASE	QQnxScreen
-#include "qwsgfx_qnx.h"
-#endif
-
-#define QT_TRANS_CURSOR_BASE	QScreenCursor
-#define QT_TRANS_GFX_BASE	QGfxRaster
-//#define QT_TRANS_CURSOR_BASE	QVFbScreenCursor
-//#define QT_TRANS_GFX_BASE	QGfxVFb
-
-
-class QTransformedScreen : public QT_TRANS_SCREEN_BASE
-{
-public:
-    QTransformedScreen( int display_id );
-    virtual ~QTransformedScreen();
-
-    virtual bool connect( const QString &displaySpec );
-    virtual int initCursor(void* e, bool init);
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-
-    enum Transformation { None, Rot90, Rot180, Rot270 };
-    Transformation transformation() const { return trans; }
-
-    virtual bool isTransformed() const;
-    virtual QSize mapToDevice( const QSize & ) const;
-    virtual QSize mapFromDevice( const QSize & ) const;
-    virtual QPoint mapToDevice( const QPoint &, const QSize & ) const;
-    virtual QPoint mapFromDevice( const QPoint &, const QSize & ) const;
-    virtual QRect mapToDevice( const QRect &, const QSize & ) const;
-    virtual QRect mapFromDevice( const QRect &, const QSize & ) const;
-    virtual QImage mapToDevice( const QImage & ) const;
-    virtual QImage mapFromDevice( const QImage & ) const;
-    virtual QRegion mapToDevice( const QRegion &, const QSize & ) const;
-    virtual QRegion mapFromDevice( const QRegion &, const QSize & ) const;
-    virtual int transformOrientation() const;
-
-private:
-    Transformation trans;
-    QScreen *driver;
-};
 
 static QTransformedScreen *qt_trans_screen;
 
@@ -321,29 +275,6 @@ QImage QTransformedScreen::mapToDevice( const QImage &img ) const
     #undef START_LOOP
     #undef END_LOOP
 
-/*
-    for ( int y = 0; y < img.height(); y++ ) {
-	for ( int x = 0; x < img.width(); x++ ) {
-	    int pixel;
-	    if ( img.depth() > 8 )
-		pixel = img.pixel(x, y);
-	    else
-		pixel = img.pixelIndex(x, y);
-	    switch ( trans ) {
-		case Rot90:
-		    rimg.setPixel( y, img.width() - x - 1, pixel );
-		    break;
-
-		case Rot270:
-		    rimg.setPixel( img.height() - y - 1, x, pixel );
-		    break;
-
-		default:
-		    rimg.setPixel( img.width() - x - 1, img.height() - y - 1, pixel );
-	    }
-	}
-    }
-*/
     rimg.setAlphaBuffer( img.hasAlphaBuffer() );
     rimg.setOffset( img.offset() );
 
@@ -420,29 +351,6 @@ QImage QTransformedScreen::mapFromDevice( const QImage &img ) const
     #undef START_LOOP
     #undef END_LOOP
 
-/*
-    for ( int y = 0; y < img.height(); y++ ) {
-	for ( int x = 0; x < img.width(); x++ ) {
-	    int pixel;
-	    if ( img.depth() > 8 )
-		pixel = img.pixel(x, y);
-	    else
-		pixel = img.pixelIndex(x, y);
-	    switch ( trans ) {
-		case Rot90:
-		    rimg.setPixel( img.height() - y - 1, x, pixel );
-		    break;
-
-		case Rot270:
-		    rimg.setPixel( y, img.width() - x - 1, pixel );
-		    break;
-
-		default:
-		    rimg.setPixel( img.width() - x - 1, img.height() - y - 1, pixel );
-	    }
-	}
-    }
-*/
     rimg.setAlphaBuffer( img.hasAlphaBuffer() );
     rimg.setOffset( img.offset() );
 
@@ -488,29 +396,7 @@ QRegion QTransformedScreen::mapToDevice( const QRegion &rgn, const QSize &s ) co
 	default:
 	    break;
     }
-/*
-    for ( int i = 0; i < (int)a.size(); i++ ) {
-	const QRect &r = a[i];
-	QRect tr;
-	switch ( trans ) {
-	    case Rot90:
-		tr.setCoords( r.y(), s.width() - r.x() - 1,
-			      r.bottom(), s.width() - r.right() - 1 );
-		break;
-	    case Rot180:
-		tr.setCoords( s.width() - r.x() - 1, s.height() - r.y() - 1,
-			      s.width() - r.right() - 1, s.height() - r.bottom() - 1 );
-		break;
-	    case Rot270:
-		tr.setCoords( s.height() - r.y() - 1, r.x(),
-			      s.height() - r.bottom() - 1, r.right() );
-		break;
-	    default:
-		break;
-	}
-	trgn |= tr.normalize();
-    }
-*/
+
     return trgn;
 }
 
@@ -554,67 +440,6 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
 	    break;
     }
 
-/*
-    QRegion trgn;
-    QArray<QRect> a = rgn.rects();
-    const QRect *r = a.data();
-    QRect tr;
-
-    int w = s.width();
-    int h = s.height();
-    int size = a.size();
-
-    switch ( trans ) {
-	case Rot270:
-	    for ( int i = 0; i < size; i++, r++ ) {
-		tr.setCoords( r->y(), w - r->x() - 1,
-			      r->bottom(), w - r->right() - 1 );
-		trgn |= tr.normalize();
-	    }
-	    break;
-	case Rot90:
-	    for ( int i = 0; i < size; i++, r++ ) {
-		tr.setCoords( h - r->y() - 1, r->x(),
-			      h - r->bottom() - 1, r->right() );
-		trgn |= tr.normalize();
-	    }
-	    break;
-	case Rot180:
-	    for ( int i = 0; i < size; i++, r++ ) {
-		tr.setCoords( w - r->x() - 1, h - r->y() - 1,
-			      w - r->right() - 1, h - r->bottom() - 1 );
-		trgn |= tr.normalize();
-	    }
-	    break;
-	default:
-	    break;
-    }
-
-/*
-    QRegion trgn;
-    QArray<QRect> a = rgn.rects();
-    for ( int i = 0; i < (int)a.size(); i++ ) {
-	const QRect &r = a[i];
-	QRect tr;
-	switch ( trans ) {
-	    case Rot90:
-		tr.setCoords( s.height() - r.y() - 1, r.x(),
-			      s.height() - r.bottom() - 1, r.right() );
-		break;
-	    case Rot180:
-		tr.setCoords( s.width() - r.x() - 1, s.height() - r.y() - 1,
-			      s.width() - r.right() - 1, s.height() - r.bottom() - 1 );
-		break;
-	    case Rot270:
-		tr.setCoords( r.y(), s.width() - r.x() - 1,
-			      r.bottom(), s.width() - r.right() - 1 );
-		break;
-	    default:
-		break;
-	}
-	trgn |= tr.normalize();
-    }
-*/
     return trgn;
 }
 
@@ -627,6 +452,8 @@ int QTransformedScreen::transformOrientation() const
 {
     return (int)trans;
 }
+
+//===========================================================================
 
 #ifndef QT_NO_QWS_CURSOR
 
@@ -654,6 +481,8 @@ void QTransformedScreenCursor::set( const QImage &image, int hotx, int hoty )
 }
 
 #endif
+
+//===========================================================================
 
 template <const int depth, const int type>
 class QGfxTransformedRaster : public QT_TRANS_GFX_BASE<depth,type>
@@ -945,10 +774,5 @@ QGfx *QTransformedScreen::createGfx(unsigned char * bytes,int w,int h,int d, int
     return ret;
 }
 
-
-extern "C" QScreen * qt_get_screen_transformed(int display_id)
-{
-    return new QTransformedScreen( display_id );
-}
 
 #endif // QT_NO_QWS_TRANSFORMED

@@ -484,27 +484,6 @@ private:
     QSocketNotifier *notifier;
 };
 
-class QWSVFbKeyboardHandler : public QWSKeyboardHandler
-{
-    Q_OBJECT
-public:
-    QWSVFbKeyboardHandler();
-    virtual ~QWSVFbKeyboardHandler();
-
-    bool isOpen() { return fd > 0; }
-
-private slots:
-    void readKeyboardData();
-
-private:
-    QString terminalName;
-    int fd;
-    int kbdIdx;
-    int kbdBufferLen;
-    unsigned char *kbdBuffer;
-    QSocketNotifier *notifier;
-};
-
 
 static void vtSwitchHandler(int /*sig*/)
 {
@@ -1213,80 +1192,6 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
 
 
 /*
- * Virtual framebuffer keyboard driver
- */
-
-#ifndef QT_NO_QWS_VFB
-#include "qvfbhdr.h"
-extern int qws_display_id;
-#endif
-
-QWSVFbKeyboardHandler::QWSVFbKeyboardHandler()
-{
-    kbdFD = -1;
-#ifndef QT_NO_QWS_VFB
-    kbdIdx = 0;
-    kbdBufferLen = sizeof( QVFbKeyData ) * 5;
-    kbdBuffer = new unsigned char [kbdBufferLen];
-
-    terminalName = QString(QT_VFB_KEYBOARD_PIPE).arg(qws_display_id);
-
-    if ((kbdFD = open( terminalName.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
-	qDebug( "Cannot open %s (%s)", terminalName.latin1(),
-	strerror(errno));
-    } else {
-	// Clear pending input
-	char buf[2];
-	while (read(kbdFD, buf, 1) > 0) { }
-
-	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
-	connect(notifier, SIGNAL(activated(int)),this, SLOT(readKeyboardData()));
-    }
-#endif
-}
-
-QWSVFbKeyboardHandler::~QWSVFbKeyboardHandler()
-{
-#ifndef QT_NO_QWS_VFB
-    if ( kbdFD >= 0 )
-	close( kbdFD );
-    delete [] kbdBuffer;
-#endif
-}
-
-
-void QWSVFbKeyboardHandler::readKeyboardData()
-{
-#ifndef QT_NO_QWS_VFB
-    int n;
-    do {
-	n  = read(kbdFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx );
-	if ( n > 0 )
-	    kbdIdx += n;
-    } while ( n > 0 );
-
-    int idx = 0;
-    while ( kbdIdx - idx >= (int)sizeof( QVFbKeyData ) ) {
-	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
-	if ( kd->unicode == 0 && kd->modifiers == 0 && kd->press ) {
-	    // magic exit key
-	    qWarning( "Instructed to quit by Virtual Keyboard" );
-	    qApp->quit();
-	}
-	processKeyEvent( kd->unicode&0xffff, kd->unicode>>16,
-				 kd->modifiers, kd->press, kd->repeat );
-	idx += sizeof( QVFbKeyData );
-    }
-
-    int surplus = kbdIdx - idx;
-    for ( int i = 0; i < surplus; i++ )
-	kbdBuffer[i] = kbdBuffer[idx+i];
-    kbdIdx = surplus;
-#endif
-}
-
-
-/*
  * keyboard driver instantiation
  */
 
@@ -1303,8 +1208,6 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
 #elif defined(QT_QWS_CASSIOPEIA)
 	handler = new QWSVr41xxButtonsHandler();
 #endif
-    } else if ( spec == "QVFbKeyboard" ) {
-	handler = new QWSVFbKeyboardHandler();
     } else if ( spec == "TTY" ) {
 	if(getenv("QWS_USB_KEYBOARD")) {
 	    handler = new QWSUsbKeyboardHandler();

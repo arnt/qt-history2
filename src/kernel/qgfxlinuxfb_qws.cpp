@@ -46,6 +46,17 @@
 #include "qgfxlinuxfb_qws.h"
 #include "qwindowsystem_qws.h"
 
+#if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
+#include <linux/fb.h>
+
+#ifdef __i386__
+#include <asm/mtrr.h>
+#endif
+#endif
+
+extern volatile int * optype;
+extern volatile int * lastop;
+
 /*!
   \class QLinuxFbScreen
   \ingroup qws
@@ -826,10 +837,4 @@ void QLinuxFbScreen::blank(bool on)
 #endif
 #endif
 }
-
-extern "C" QScreen * qt_get_screen_linuxfb(int display_id)
-{
-    return new QLinuxFbScreen( display_id );
-}
-
 

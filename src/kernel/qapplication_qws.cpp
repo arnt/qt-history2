@@ -567,9 +567,7 @@ void QWSDisplay::Data::init()
 	shm = QSharedMemory(0,pipe.latin1());
 	if (shm.create() && shm.attach()) {
 	    QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
-#ifndef QT_NO_QWS_SHADOWFB	 
 	    sharedRamSize += s->memoryNeeded(qws_display_spec);
-#endif
 	} else {
 	    perror("Can't attach to main ram memory.");
 	    exit(1);
@@ -584,10 +582,7 @@ void QWSDisplay::Data::init()
 	    qFatal( "Cannot get display lock" );
 
 	QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
-
-#ifndef QT_NO_QWS_SHADOWFB
 	sharedRamSize += s->memoryNeeded(qws_display_spec);
-#endif
 	
 #ifndef QT_NO_QWS_MULTIPROCESS
 	

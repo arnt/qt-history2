@@ -246,6 +246,11 @@ int QScreen::pixmapDepth() const
     return depth();
 }
 
+int QScreen::memoryNeeded(const QString&)
+{
+    return 0;
+}
+
 #ifdef QT_LOADABLE_MODULES
 
 // ### needs update after driver init changes

@@ -110,7 +110,22 @@ class QGfxRasterBase;
 
 #define SW_CURSOR_DATA_SIZE	4096  // 64x64 8-bit cursor
 
-class SWCursorData;
+struct SWCursorData {
+    unsigned char cursor[SW_CURSOR_DATA_SIZE];
+    unsigned char under[SW_CURSOR_DATA_SIZE*4]; // room for 32bpp display
+    QRgb clut[256];
+    unsigned char translut[256];
+    int colors;
+    int width;
+    int height;
+    int x;
+    int y;
+    int hotx;
+    int hoty;
+    bool enable;
+    QRect bound;
+};
+
 
 class QScreenCursor
 {
@@ -235,9 +250,7 @@ public:
 
     virtual void setDirty( const QRect& );
 
-#ifndef QT_NO_QWS_SHADOWFB
-    virtual int memoryNeeded(const QString&) { return 0; }
-#endif
+    virtual int memoryNeeded(const QString&);
 
 #ifndef QT_NO_QWS_REPEATER
     int * opType() { return screen_optype; }

@@ -30,6 +30,7 @@
 **********************************************************************/
 
 #ifndef QVFBHDR_H
+#define QVFBHDR_H
 
 #ifndef QT_H
 #include <qcolor.h>

@@ -240,13 +240,13 @@ CFG_FREETYPE=auto
 CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
 CFG_SQL_AUTODETECTED=
+CFG_GFX_AVAILABLE=
 CFG_TABLET=auto
 CFG_XKB=auto
 CFG_NIS=no
 CFG_STL=auto
 CFG_NAS=no
 CFG_REMOTE=no
-CFG_QWS_QVFB=prompted
 CFG_QWS_DEPTHS=prompted
 D_FLAGS=
 I_FLAGS=
@@ -309,7 +309,6 @@ do
 			PLATFORM=qws/qnx-rtp-g++
 			XPLATFORM=qws/qnx-rtp-g++
 			CFG_STL=no
-			CFG_QWS_QVFB=no
 		else
 			PLATFORM=qws/linux-generic-g++
 			XPLATFORM=qws/linux-${CFG_EMBEDDED}-g++;
@@ -327,30 +326,6 @@ do
 	;;
     -incremental)
 	CFG_INCREMENTAL=yes
-	;;
-    -accel-voodoo3)
-	CFG_QWS_VOODOO3=yes
-	;;
-    -accel-mach64)
-	CFG_QWS_MACH64=yes
-	;;
-    -shadowfb)
-	CFG_QWS_SHADOWFB=yes
-	;;
-    -repeater)
-	CFG_QWS_REPEATER=yes
-	;;
-    -accel-matrox)
-	CFG_QWS_MATROX=yes
-	;;
-    -qvfb)
-	CFG_QWS_QVFB=yes
-	;;
-    -no-qvfb)
-	CFG_QWS_QVFB=no
-	;;
-    -vnc)
-	CFG_QWS_VNC=yes
 	;;
     -qconfig)
 	shift
@@ -582,7 +557,7 @@ do
 	   then
 	      [ "$VAR" = "style" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
 	      VAR="${VAR}-${OPT}"
-	   elif [ "$VAR" = "sql" ]
+	   elif [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ]
 	   then
 	      VAR="${VAR}-driver"
 	   fi
@@ -591,7 +566,10 @@ do
 	then
 	   PLUG_VAR="${VAR}-plugin"
 	   IN_VAR="${VAR}"
-	   [ "$IN_VAR" = "sql" ] && IN_VAR="${IN_VAR}-driver"
+	   if [ "$IN_VAR" = "sql" ] || [ "$IN_VAR" = "gfx" ]
+	   then
+	      IN_VAR="${IN_VAR}-driver"
+	   fi
 	   QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
         fi
         if [ "$ERROR" = "yes" ]
@@ -845,7 +823,6 @@ then
 		PLATFORM=qws/qnx-rtp-g++
 		XPLATFORM=qws/qnx-rtp-g++
 		CFG_STL=no
-		CFG_QWS_QVFB=no
 	else
 		PLATFORM=qws/linux-generic-g++
 		XPLATFORM=qws/linux-${CFG_EMBEDDED}-g++
@@ -1223,6 +1200,12 @@ then
     fi
 fi
 
+# embedded
+if [ "$PLATFORM_QWS" = "yes" ]
+then
+    CFG_GFX_AVAILABLE=`find $relpath/plugins/src/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
+    CFG_GFX_AVAILABLE=`echo $CFG_GFX_AVAILABLE`
+fi
 
 #-------------------------------------------------------------------------------
 # help - interactive parts of the script _after_ this section please
@@ -1492,12 +1475,12 @@ Qt/Embedded only:
 			 depths, from:  v, 4, 8, 16, 24, and 32.
 			 ('v' is VGA16, '8g' is 8bpp greyscale.)
 
-    -accel-voodoo3 ..... Enable Voodoo3 acceleration.
-    -accel-mach64 ...... Enable Mach64 acceleration.
-    -accel-matrox ...... Enable Matrox MGA acceleration.
-    -qvfb .............. Enable X11-based Qt Virtual Frame Buffer.
-    -no-qvfb ........... Disable X11-based Qt Virtual Frame Buffer.
-    -vnc ............... Enable VNC server (requires network module).
+    -qt-gfx-<driver> ... Enable a graphics <driver> in the Qt Library.
+    -plugin-gfx-<driver> Enable graphics <driver> as a plugin to be
+                         linked to at run time.
+    -no-gfx-<driver> ... Disable graphics <driver> entirely.
+
+                         Possible values for <driver>: [ $CFG_GFX_AVAILABLE ]
 
 EOF
 fi
@@ -1833,48 +1816,6 @@ then
     fi
 fi
 
-### fix this: user input should be validated in a loop
-if [ "$CFG_QWS_QVFB" = "prompted" -a "$CFG_EMBEDDED" != "no" ]
-then
-    echo
-    echo "Enable Qt Virtual Framebuffer support for development on X11 (default yes)"
-    read CFG_QWS_QVFB
-    if [ "$CFG_QWS_QVFB" != "n" -a "$CFG_QWS_QVFB" != "no" ]
-    then
-	CFG_QWS_QVFB=yes
-    else
-	CFG_QWS_QVFB=no
-    fi
-fi
-
-if [ -z "$CFG_QWS_VOODOO3" -a "$CFG_EMBEDDED" != "no" ]
-then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_VOODOO3"
-fi
-if [ -z "$CFG_QWS_MACH64" -a "$CFG_EMBEDDED" != "no" ]
-then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MACH64"
-fi
-if [ -z "$CFG_QWS_SHADOWFB" -a "$CFG_EMBEDDED" != "no" ]
-then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_SHADOWFB"
-fi
-if [ -z "$CFG_QWS_REPEATER" -a "$CFG_EMBEDDED" != "no" ]
-then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_REPEATER"
-fi
-if [ -z "$CFG_QWS_MATROX" -a "$CFG_EMBEDDED" != "no" ]
-then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MATROX"
-fi
-if [ "$CFG_QWS_QVFB" = "no" -a "$CFG_EMBEDDED" != "no" ]
-then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_VFB"
-fi
-if [ -z "$CFG_QWS_VNC" -a "$CFG_EMBEDDED" != "no" ]
-then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_VNC"
-fi
 if [ "$CFG_EMBEDDED" != "no" ]
 then
     MODULES=`echo $MODULES | sed -e 's/opengl//'`

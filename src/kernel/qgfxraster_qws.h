@@ -52,6 +52,50 @@
 #include <stdlib.h>
 #include <math.h>
 
+#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
+# define GFX_START(r) bool swc_do_save=FALSE; \
+		    if(is_screen_gfx && gfx_swcursor) { \
+			if((*gfx_optype)) sync(); \
+			swc_do_save = gfx_screencursor->restoreUnder(r,this); \
+			beginDraw(); \
+		    }
+# define GFX_END if(is_screen_gfx && gfx_swcursor) { \
+		    if((*gfx_optype)) sync(); \
+		    endDraw(); \
+		    if(swc_do_save) \
+			gfx_screencursor->saveUnder(); \
+}
+#else //QT_NO_QWS_CURSOR
+
+# define GFX_START(r) if(is_screen_gfx) \
+			beginDraw();
+# define GFX_END if(is_screen_gfx) \
+		    endDraw();
+#endif //QT_NO_QWS_CURSOR
+
+
+#ifndef QT_NO_QWS_GFX_SPEED
+# define QWS_EXPERIMENTAL_FASTPATH
+# define GFX_INLINE inline
+#else
+# define GFX_INLINE
+#endif
+
+#if defined(QT_NO_QWS_GFX_SPEED)
+#define QWS_NO_WRITE_PACKING
+#endif
+
+#if !defined(__i386__)
+#define QWS_PACKING_4BYTE
+#endif
+
+# ifdef QWS_PACKING_4BYTE
+typedef unsigned int PackType;
+# else
+typedef long long PackType;
+# endif
+
+
 class QGfxRasterBase : public QGfx {
 
 public:

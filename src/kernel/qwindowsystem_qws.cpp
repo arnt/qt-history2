@@ -2333,10 +2333,6 @@ void QWSServer::openMouse()
     if ( mice.isEmpty() ) {
 #if defined(QT_QWS_CASSIOPEIA)
 	mice = "TPanel:/dev/tpanel";
-#elif !defined(QT_NO_QWS_VFB)
-	extern bool qvfbEnabled;
-	if ( qvfbEnabled )
-	    mice = "QVFbMouse";
 #endif
 	if ( mice.isEmpty() )
 	    mice = defaultMouse;
@@ -2390,10 +2386,10 @@ void QWSServer::openKeyboard()
     if ( keyboards.isEmpty() ) {
 #if defined( QT_QWS_CASSIOPEIA )
 	keyboards = "Buttons";
-#elif !defined(QT_NO_QWS_VFB)
-	extern bool qvfbEnabled;
-	if ( qvfbEnabled )
-	    keyboards = "QVFbKeyboard";
+//#elif !defined(QT_NO_QWS_VFB)
+//	extern bool qvfbEnabled;
+//	if ( qvfbEnabled )
+//	    keyboards = "QVFbKeyboard";
 #endif
 	if ( keyboards.isEmpty() ) {
 	    keyboards = defaultKeyboard;	// last resort

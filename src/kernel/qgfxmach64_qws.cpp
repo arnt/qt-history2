@@ -30,6 +30,10 @@
 **
 **********************************************************************/
 
+#include "qgfxraster_qws.h"
+
+#ifndef QT_NO_QWS_MACH64
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +44,8 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 
+#include "qgfxmach64_qws.h"
+#include "qgfxmach64defs_qws.h"
 #include <qapplication.h>
 
 // #define DEBUG_INIT
@@ -47,10 +53,6 @@
 #ifndef __sparc__
 #include <sys/io.h>
 #endif
-
-#include "qgfxraster_qws.h"
-#include "qgfxlinuxfb_qws.h"
-#include "qgfxmach64defs_qws.h"
 
 bool no3d=false;
 
@@ -1416,25 +1418,9 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 // This does card-specific setup and constructs accelerated gfx's and
 // the accelerated cursor
 
-class QMachScreen : public QLinuxFbScreen {
-
-public:
-
-    QMachScreen( int display_id );
-    virtual ~QMachScreen();
-    virtual bool connect( const QString &spec );
-    virtual bool initDevice();
-    virtual int initCursor(void*, bool);
-    virtual void shutdownDevice();
-    virtual bool useOffscreen() { return true; }
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-
-protected:
-
-    virtual int pixmapOffsetAlignment() { return 128; }
-    virtual int pixmapLinestepAlignment() { return 128; }
-
-};
+bool QMachScreen::useOffscreen() { return true; }
+int QMachScreen::pixmapOffsetAlignment() { return 128; }
+int QMachScreen::pixmapLinestepAlignment() { return 128; }
 
 #ifndef QT_NO_QWS_CURSOR
 class QMachCursor : public QScreenCursor
@@ -1777,11 +1763,6 @@ QGfx * QMachScreen::createGfx(unsigned char * b,int w,int h,int d,int linestep)
 
 extern bool qws_accel;
 
-extern "C" QScreen * qt_get_screen_mach64( int display_id )
-{
-    return new QMachScreen( display_id );
-}
-
 #ifndef QT_NO_QWS_CURSOR
 
 QMachCursor::QMachCursor()
@@ -1875,3 +1856,4 @@ void QMachCursor::move(int x,int y)
 
 #endif // QT_NO_QWS_CURSOR
 
+#endif

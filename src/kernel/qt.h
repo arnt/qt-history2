@@ -347,6 +347,8 @@
 #include "qwsevent_qws.h"
 #include <qwindowsystem_qws.h>
 #include <qwswindowsdecoration_qws.h>
+#include <qgfxdriverplugin_qws.h>
+#include <private/qgfxdriverinterface_p.h>
 #endif // Q_WS_QWS
 
 

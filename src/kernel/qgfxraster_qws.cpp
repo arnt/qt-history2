@@ -39,7 +39,6 @@
 
 
 #include <unistd.h>
-#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -59,96 +58,14 @@ typedef __signed__ int __s32;
 typedef unsigned int __u32;
 #endif
 
-#if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
-#include <linux/fb.h>
-
-#ifdef __i386__
-#include <asm/mtrr.h>
-#endif
-#endif
-
 // VGA16 code does not compile on sparc
 #if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)
 #define QT_NO_QWS_VGA_16
 #endif
 
-#ifndef QT_NO_QWS_GFX_SPEED
-# define QWS_EXPERIMENTAL_FASTPATH
-# define GFX_INLINE inline
-#else
-# define GFX_INLINE
-#endif
-
-//#if !defined(__i386__) || defined(QT_NO_QWS_GFX_SPEED)
-#if defined(QT_NO_QWS_GFX_SPEED)
-#define QWS_NO_WRITE_PACKING
-#endif
-
-#if !defined(__i386__)
-#define QWS_PACKING_4BYTE
-#endif
-
-// Oh dear, can't do ROPs on doubles....
-/*
-#if defined(__i386__) || !defined(__GNUC__)
-# ifdef QWS_PACKING_4BYTE
-typedef unsigned int PackType;
-# else
-typedef double PackType;
-# endif
-#else
-*/
-
-# ifdef QWS_PACKING_4BYTE
-typedef unsigned int PackType;
-# else
-typedef long long PackType;
-# endif
-
-// #endif
 
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
-
-#ifndef QT_NO_QWS_CURSOR
-
-struct SWCursorData {
-    unsigned char cursor[SW_CURSOR_DATA_SIZE];
-    unsigned char under[SW_CURSOR_DATA_SIZE*4];	// room for 32bpp display
-    QRgb clut[256];
-    unsigned char translut[256];
-    int colors;
-    int width;
-    int height;
-    int x;
-    int y;
-    int hotx;
-    int hoty;
-    bool enable;
-    QRect bound;
-};
-#endif
-
-#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
-# define GFX_START(r) bool swc_do_save=FALSE; \
-		     if(is_screen_gfx && gfx_swcursor) { \
-                        if((*gfx_optype)) sync(); \
-			swc_do_save = gfx_screencursor->restoreUnder(r,this); \
-			beginDraw(); \
-		     }
-# define GFX_END if(is_screen_gfx && gfx_swcursor) { \
-                    if((*gfx_optype)) sync(); \
-		    endDraw(); \
-		    if(swc_do_save) \
-			gfx_screencursor->saveUnder(); \
-		}
-#else //QT_NO_QWS_CURSOR
-
-# define GFX_START(r) if(is_screen_gfx) \
-			beginDraw();
-# define GFX_END if(is_screen_gfx) \
-		    endDraw();
-#endif //QT_NO_QWS_CURSOR
 
 // The VGA16 driver requires the qt_screen->alloc() GFX_8BPP_PIXEL macro,
 // but this slows down alpha blending a little in 8-bit modes, so we need
@@ -192,8 +109,10 @@ inline unsigned int gfxGetRgb24( unsigned char *d )
 static bool simple_8bpp_alloc=FALSE;
 
 // Used for synchronisation with accelerated drivers
-static volatile int * optype=0;
-static volatile int * lastop=0;
+static int dummy_optype = 0;
+static int dummy_lastop = 0;
+volatile int * optype = &dummy_optype;
+volatile int * lastop = &dummy_lastop;
 
 #ifndef QT_NO_QWS_CURSOR
 
@@ -6104,16 +6023,9 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 // that does accelerated mode stuff and returns accelerated QGfxen where
 // appropriate. This is stored in qt_screen
 
+/*
 #if defined(Q_OS_QNX6)
 #include "qwsgfx_qnx.cpp"
-#endif
-
-#if !defined(QT_NO_QWS_LINUXFB)
-#include "qgfxlinuxfb_qws.cpp"
-#endif
-
-#if !defined(QT_NO_QWS_MACH64)
-# include "qgfxmach64_qws.cpp"
 #endif
 
 #if !defined(QT_NO_QWS_VOODOO3)
@@ -6124,18 +6036,6 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxmatrox_qws.cpp"
 #endif
 
-#if !defined(QT_NO_QWS_VFB)
-# include "qgfxvfb_qws.cpp"
-#endif
-
-#if !defined(QT_NO_QWS_VNC)
-#include "qgfxvnc_qws.cpp"
-#endif
-
-#if !defined(QT_NO_QWS_TRANSFORMED)
-# include "qgfxtransformed_qws.cpp"
-#endif
-
 #if !defined(QT_NO_QWS_VGA_16)
 # include "qgfxvga16_qws.cpp"
 #endif
@@ -6144,18 +6044,12 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 #include "qgfxrepeater_qws.cpp"
 #endif
 
-#if !defined(QT_NO_QWS_SHADOWFB)
-#include "qgfxshadowfb_qws.cpp"
-#endif
-
-//#if !defined(QT_NO_QWS_SVGALIB)
-//# include "qgfxsvgalib_qws.cpp"
-//#endif
-
 #if defined(QT_QWS_EE)
 # include "qgfxee_qws.cpp"
 #endif
+*/
 
+/*
 struct DriverTable
 {
     char *name;
@@ -6165,20 +6059,11 @@ struct DriverTable
 #if defined(Q_OS_QNX6)
     { "QnxFb", qt_get_screen_qnxfb, 0 },
 #endif
-#if !defined(QT_NO_QWS_VFB)
-    { "QVFb", qt_get_screen_qvfb, 0 },
-#endif
 #if !defined(QT_NO_QWS_REPEATER)
     { "Repeater", qt_get_screen_repeater, 0 },
 #endif
 #if !defined(QT_NO_QWS_VGA_16)
     { "VGA16", qt_get_screen_vga16, 0 },
-#endif
-#if !defined(QT_NO_QWS_LINUXFB)
-    { "LinuxFb", qt_get_screen_linuxfb, 0 },
-#endif
-#if !defined(QT_NO_QWS_MACH64)
-    { "Mach64", qt_get_screen_mach64, 1 },
 #endif
 #if !defined(QT_NO_QWS_VOODOO3)
     { "Voodoo3", qt_get_screen_voodoo3, 1 },
@@ -6186,36 +6071,30 @@ struct DriverTable
 #if !defined(QT_NO_QWS_MATROX)
     { "Matrox", qt_get_screen_matrox, 1 },
 #endif
-#if !defined(QT_NO_QWS_TRANSFORMED)
-    { "Transformed", qt_get_screen_transformed, 0 },
-#endif
-#if !defined(QT_NO_QWS_SHADOWFB)
-    { "ShadowFb", qt_get_screen_shadowfb, 0 },
-#endif
 #if defined(QT_QWS_EE)
     { "EE", qt_get_screen_ee, 0 },
 #endif
 //#if !defined(QT_NO_QWS_SVGALIB)
 //    { "SVGALIB", qt_get_screen_svgalib, 1 },
 //#endif
-#if !defined(QT_NO_QWS_VNC)
-    { "VNC", qt_get_screen_vnc, 0 },
-#endif
     { 0, 0, 0 },
 };
+
+*/
+
+#include "qgfxdriverfactory_qws.h"
 
 #ifndef QT_NO_QWS_REPEATER
 QScreen *qt_lookup_screen( int display_id, QString driver )
 {
-    QScreen * ret;
-    int i = 0;
-    while ( driverTable[i].name ) {
-	if ( driver.isEmpty() || QString( driverTable[i].name ) == driver ) {
-	    ret = driverTable[i].qt_get_screen( display_id );
-	    if(ret)
+    QStringList driverList = QGfxDriverFactory::keys();
+    QStringList::Iterator it;
+    for ( it = driverList.begin(); it != driverList.end(); ++it ) {
+	if ( driver.isEmpty() || QString( *it ) == driver ) {
+	    QScreen *ret = QGfxDriverFactory::create( *it, display_id );
+	    if ( ret )
 		return ret;
 	}
-	i++;
     }
     return 0;
 }
@@ -6231,7 +6110,6 @@ People writing new graphics drivers should hook their own
 QScreen-descendant-returning function into the DriverTable.
 */
 
-
 QScreen *qt_get_screen( int display_id, const char *spec )
 {
     QString displaySpec( spec );
@@ -6240,10 +6118,11 @@ QScreen *qt_get_screen( int display_id, const char *spec )
     if ( colon >= 0 )
 	driver.truncate( colon );
 
-    int i = 0;
-    while ( driverTable[i].name ) {
-	if ( driver.isEmpty() || QString( driverTable[i].name ) == driver ) {
-	    qt_screen = driverTable[i].qt_get_screen( display_id );
+    QStringList driverList = QGfxDriverFactory::keys();
+    QStringList::Iterator it;
+    for ( it = driverList.begin(); it != driverList.end(); ++it ) {
+	if ( driver.isEmpty() || QString( *it ) == driver ) {
+	    qt_screen = QGfxDriverFactory::create( *it, display_id );
 	    if ( qt_screen ) {
 		if ( qt_screen->connect( spec ) ) {
 		    return qt_screen;
@@ -6253,7 +6132,6 @@ QScreen *qt_get_screen( int display_id, const char *spec )
 		}
 	    }
 	}
-	i++;
     }
 
     if ( driver.isNull() )

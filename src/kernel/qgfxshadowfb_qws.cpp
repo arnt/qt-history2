@@ -2,6 +2,15 @@
 
 #ifndef QT_NO_QWS_SHADOWFB
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+
+#if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
+#include <linux/fb.h>
+#endif
+
 #ifndef QT_NO_QWS_CURSOR
 
 QShadowScreenCursor::QShadowScreenCursor() : QScreenCursor()
@@ -352,11 +361,6 @@ int QShadowFbScreen::sharedRamSize(void * end)
     data=shadow_screen;
     int ret=QLinuxFbScreen::sharedRamSize((void *)shadow_screen);
     return ret+size;
-}
-
-extern "C" QScreen * qt_get_screen_shadowfb( int display_id )
-{
-    return new QShadowFbScreen( display_id );
 }
 
 #endif

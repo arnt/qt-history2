@@ -1,12 +1,11 @@
-/*****************************************************************************
+/****************************************************************************
 ** $Id: $
 **
-** Implementation of QGfxvnc (remote frame buffer driver)
-** Proof of concept driver only.
-** 
-** Created : 20000703
+** Implementation of QGfxMach64 (graphics context) class for Mach64 cards
+*
+** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -31,49 +30,32 @@
 **
 **********************************************************************/
 
-#ifndef QGFXVNC_QWS_H
-#define QGFXVNC_QWS_H
+#ifndef QGFXMACH64_QWS_H
+#define QGFXMACH64_QWS_H
 
-#if defined(Q_OS_QNX6)
-#define VNCSCREEN_BASE QQnxScreen
-#include "qwsgfx_qnx.h"
-#else
-#define VNCSCREEN_BASE QLinuxFbScreen
 #include "qgfxlinuxfb_qws.h"
-#endif
 
-#ifndef QT_NO_QWS_VNC
+#ifndef QT_NO_QWS_MACH64
 
-#include "qsharedmemory.h"
-
-class QVNCServer;
-class QVNCHeader;
-
-class QVNCScreen : public VNCSCREEN_BASE {
+class QMachScreen : public QLinuxFbScreen
+{
 public:
-    QVNCScreen( int display_id );
-    virtual ~QVNCScreen();
+    QMachScreen( int display_id );
+    virtual ~QMachScreen();
+
+    virtual bool connect( const QString &spec );
     virtual bool initDevice();
-    virtual bool connect( const QString &displaySpec );
-    virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
+    virtual bool useOffscreen();
     virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-    virtual void save();
-    virtual void restore();
-    virtual void setMode(int nw,int nh,int nd);
 
-    virtual void setDirty( const QRect& r );
-
-    bool success;
-    QVNCServer *vncServer;
-    unsigned char *shmrgn;
-    QSharedMemory shm;
-    QVNCHeader *hdr;
-    bool virtualBuffer;
+protected:
+    virtual int pixmapOffsetAlignment();
+    virtual int pixmapLinestepAlignment();
 };
 
-#endif // QT_NO_QWS_VNC
+#endif // QT_NO_QWS_MACH64
 
-#endif // QGFXVNC_QWS_H
+#endif // QGFXMACH64_QWS_H
 
