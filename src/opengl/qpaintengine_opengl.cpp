@@ -461,6 +461,10 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
 		return;
 	}
     }
+
+    // The below seems strange and gives different results on
+    // different systems - keep it like this for now since it seems to
+    // work best with newer GL drivers (e.g. from NVidia).
     w--;
     h--;
     y++;
