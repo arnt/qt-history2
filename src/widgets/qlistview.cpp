@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#16 $
 **
 ** Implementation of something useful
 **
@@ -19,7 +19,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#16 $");
 
 
 struct QListViewPrivate
@@ -229,7 +229,7 @@ static int cmp( const void *n1, const void *n2 )
   \sa key()
 */
 
-#ifdef 0
+#if 0
 QListViewItem * QListViewItem::sortSiblingItems( int column )
 {
     if ( nextSiblingItem == 0 )
@@ -774,11 +774,11 @@ void QListView::insertItem( QListViewItem * i )
 
 void QListView::clear()
 {
-    const QListViewItem * c = d->r->firstChild();
-    const QListViewItem * n;
+    QListViewItem *c = (QListViewItem *)d->r->firstChild();
+    QListViewItem *n;
     while( c ) {
-	n = c->nextSibling();
-	delete c; // ### deleting a const object?  should it work?
+	n = (QListViewItem *)c->nextSibling();
+	delete c;
 	c = n;
     }
 }
