@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.13 1999/05/21 12:09:23 paul Exp $
+** $Id: layout.doc,v 2.14 1999/06/02 15:35:11 paul Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -270,7 +270,8 @@ public:
 	: QLayout( parent, dist ) {}
     CardLayout( int dist )
 	: QLayout( dist ) {}
-    
+    ~CardLayout();
+
     void addItem(QLayoutItem *item);
     QSize sizeHint() const;
     QSize minimumSize() const;
@@ -353,6 +354,19 @@ QGridLayout::addMultiCell()\endlink.
 void CardLayout::addItem( QLayoutItem *item )
 {
     list.append(item);
+}
+\endcode
+
+
+The layout takes over responsibility of the items added. Since 
+QLayoutItem does not inherit QObject, we must delete the items
+manually. The function \link QLayout::deleteAllItems() deleteAllItems()\endlink
+uses the iterator we defined above to delete all items in the layout.
+
+\code
+CardLayout::~CardLayout()
+{
+    deleteChildren();
 }
 \endcode
 
