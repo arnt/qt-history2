@@ -3427,8 +3427,10 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
-    if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) )
-	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter, FALSE).first();
+    if( qt_use_native_dialogs && ( qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle") ) ) {
+	QStringList files = macGetOpenFileNames(filter, workingDirectory, parent, name, caption, selectedFilter, FALSE);
+	return files.isEmpty() ? QString::null : files.first();
+    }
 #endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );
