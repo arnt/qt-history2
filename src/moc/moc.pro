@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG+= console release qtinc yacc lex_included
+CONFIG = console release qtinc yacc lex_included
 DEFINES		= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT
 win32:DEFINES  += QT_NODLL
 LEXSOURCES	= moc.l
