@@ -151,7 +151,7 @@ void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, con
 
 QString LanguageInterfaceImpl::createEmptyFunction()
 {
-    return "{\n\n}";
+    return "{\n\n}\n";
 }
 
 bool LanguageInterfaceImpl::supports( Support s ) const
