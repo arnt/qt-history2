@@ -129,6 +129,15 @@ Funksjonalitet:
 
     Drag and drop før 1.3 (Patrice TROGNON venter)
 
+    qdatetime:
+
+>   qtremind is an appointment calendar program.  I used to use xcal, but 
+> the interface leaves alot to be desired.  I would have liked to use QDateTime
+> more than I did, but QDateTime does not support subtraction.  I would have 
+> liked to subtract 1 day, 10 days, etc... from a date time value.  Instead
+> I used mktime() and time() which I don't think are very portable (or maybe
+> they are).  Maybe QDateTime could support subtraction in a future release.
+
 
 Fra Andrew Pavlomanolakos <app@novanet.net.au>:
 > For menus I experimented with the following piece of code.
