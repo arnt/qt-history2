@@ -494,11 +494,11 @@ static void parse( MetaTranslator *tor, const char *initialContext,
     }
 
     if ( yyBraceDepth != 0 )
-	qWarning( "%s: Unbalanced braces in C++ code",
-		  (const char *) yyFileName );
+	qWarning( "%s: Unbalanced braces in C++ code (or abuse of the C++"
+		  " preprocessor)", (const char *) yyFileName );
     if ( yyParenDepth != 0 )
-	qWarning( "%s: Unbalanced parentheses in C++ code"
-		  " C++)", (const char *) yyFileName );
+	qWarning( "%s: Unbalanced parentheses in C++ code (or abuse of the C++"
+		  " preprocessor)", (const char *) yyFileName );
 }
 
 void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
