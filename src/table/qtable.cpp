@@ -958,44 +958,51 @@ bool QCheckTableItem::isChecked() const
 
   \brief The QTable class provides a flexible and editable table widget.
 
-  This allows the user to easily incorporate spreadsheet functionality
+  This allows the programmer to easily incorporate spreadsheet functionality
   into their applications.
 
   A QTable widget consists of a table grid of cells created by
-  interleaving
+  interweaving
   columns and rows and framed by a horizontal header above and
   a vertical header to the left. The default headers simply show
   consecutive row and column numbers beginning with \e 1 denoting the
   first row or column. Note that this visual numeration
   differs from the internal numbering within the Qt program:
   A QTable of numRows() rows and numCols() columns consists of rows and
-  columns from \e 0 til \e{numRows() - 1} or \e{numCols() - 1}, resp.
+  columns from \e 0 til \e{numRows() - 1} or \e{numCols() - 1}, respectively.
 
   QTable has been designed to use no more memory than strictly
   needed. Thus, for an empty cell, no memory at all is allocated.
 
   To begin with all cells of a QTable object are empty.
-  In order to add data, there are two possibilities: The first one
+  In order to add data, there are two possibilities: 
+
+  For common activities like setting cell text or pixmaps
+  the convenient functions setText() and setPixmap()
+  point out a first way of adding content to
+  a cell. When used directly upon a table object they
+  implicitly create a QTableItem that can be accessed via the
+  item() function.
+
+  The other and more general approach 
   is to explicitly create a QTableItem and use
   setItem() to make it the content of the specified cell.
-  <!-- code example -->
+
+  \walkthrough table/wineorder/productlist.cpp
+  \skipto discount
+  \printline QTableItem
+  \printline setItem
 
   Cells can also contain combo boxes and check boxes. In this
   case QComboTableItem and QCheckTableItem objects are
   linked to the relevant cells using setItem().
 
-  For common activities like setting cell text or pixmaps
-  the convenient functions setText() and setPixmap()
-  point out a second way to add content to
-  a cell: used directly upon a table object they
-  implicitly create a QTableItem that can be accessed via the
-  item() function.
   To clear a cell use clearCell().
 
   QTable supports various methods for selecting cells, both with
   keyboard and mouse, thus for example range selection or column and
   row selection via appropriate header cells. You can add and remove
-  selections using addSelection() and removeSelection(), resp., and
+  selections using addSelection() and removeSelection(), respectively, and
   gather information about current selections by means of
   numSelections(), selection(), and currentChanged().
 
@@ -1006,7 +1013,7 @@ bool QCheckTableItem::isChecked() const
   edit widget the user can use to enter data that should replace the
   current content, or you provide him or her with an editor to change
   the data stored in the cell. If you won't allow the content of a
-  cell to be replaced, however make it possible to edit the current
+  cell to be replaced, but still make it possible to edit the current
   data, simply set QTableItem::isReplaceable() to FALSE.
 
   When a user starts typing text in-place editing for the
@@ -1015,7 +1022,7 @@ bool QCheckTableItem::isChecked() const
 
   Sometimes it is required that a cell always shows an editor, that the
   editor shows off as soon as the relevant cell receives the focus, or
-  that the item shouldn't be edited at all. This \e{edit type} has to be
+  that the item shouldn't be editable at all. This \e{edit type} has to be
   specified in the constructor of a QTableItem and can be queried by
   QTableItem::editType().
 
@@ -1085,8 +1092,7 @@ bool QCheckTableItem::isChecked() const
 
   Returns the current column.
 
-  Note column numbering: if the first column is the current one
-  currentColumn() returns 0.
+  Note that the column counting starts with zero.
 
   \sa currentRow()
 */
@@ -1094,10 +1100,10 @@ bool QCheckTableItem::isChecked() const
 /*! \enum QTable::EditMode
 
 
-  \value NotEditing  The cell is currently not edited.
-  \value Editing  The cell is currently edited. To start with the
+  \value NotEditing  The cell is currently not being edited.
+  \value Editing  The cell is currently being edited. To start with the
                   user was presented with the old content.
-  \value Replacing  The cell is currently edited, and was cleared at the time
+  \value Replacing  The cell is currently being edited, and was cleared at the time
          editing started.
 */
 
@@ -1413,7 +1419,7 @@ QTable::SelectionMode QTable::selectionMode() const
   (Code taken from \link euroconvert-example.html table/euroconversion/converter.cpp
   \endlink)
 
-  \sa verticalHeader() QHeader
+  \sa verticalHeader() setTopMargin() QHeader
 */
 
 QHeader *QTable::horizontalHeader() const
@@ -1424,6 +1430,16 @@ QHeader *QTable::horizontalHeader() const
 /*! Returns the outer left vertical table header.
 
   Its section titles can be modified using QHeader::setLabel().
+
+  To hide the vertical header entirely use the following sequence:
+
+  \walkthrough table/euroconversion/converter.cpp
+  \skipto setLeftMargin
+  \printline setLeftMargin
+  \printline hide()
+
+  (Code taken from \link euroconvert-example.html table/euroconversion/converter.cpp
+  \endlink)
 
   \sa horizontalHeader()  setLeftMargin() QHeader
 */
@@ -1584,7 +1600,7 @@ void QTable::swapRows( int row1, int row2 )
   (Code taken from \link euroconvert-example.html table/euroconversion/converter.cpp
   \endlink)
 
-  \sa leftMargin() setTopMargin()
+  \sa leftMargin() setTopMargin() verticalHeader()
 */
 
 void QTable::setLeftMargin( int m )
@@ -1598,7 +1614,7 @@ void QTable::setLeftMargin( int m )
   To get rid of the top header entirely set the top margin to
   zero and QHeader::hide() the topheader().
 
-  \sa topMargin() setLeftMargin()
+  \sa topMargin() setLeftMargin() horizontalHeader()
 */
 
 void QTable::setTopMargin( int m )
@@ -1607,13 +1623,13 @@ void QTable::setTopMargin( int m )
     updateGeometries();
 }
 
-/*!  Exchanges \a col1 with \a col2 and vice versa.
+/*! Exchanges \a col1 with \a col2 and vice versa.
 
   This is useful for sorting, and it allows the user to rearrange
   columns in a different order.
 
   If you don't use QTableItems you will probably
-  reimplement this function.
+  need to reimplement this function.
 
   \sa swapCells()
 */
@@ -1720,7 +1736,7 @@ void QTable::swapCells( int row1, int col1, int row2, int col2 )
     widgets.setAutoDelete( TRUE );
 }
 
-/*!  Draws the table contents on the painter \a p. This function is
+/*! Draws the table contents on the painter \a p. This function is
   optimized to exclusively draw the cells inside the relevant clipping
   rectangle \a cx, \a cy, \a cw, \a ch.
 
@@ -2247,7 +2263,7 @@ int QTable::numSelections() const
 }
 
 /*! Returns selection number \a num, or an empty QTableSelection
-if \a num is out of range (see QTableSelection::isNull()).
+  if \a num is out of range (see QTableSelection::isNull()).
 */
 
 QTableSelection QTable::selection( int num ) const
@@ -2811,7 +2827,7 @@ static bool inUpdateCell = FALSE;
 
   This is for example necessary after you deleted
   cell contents using clearCell() and don't
-  wish the old content being visible anylonger.
+  wish the old content being visible any longer.
 */
 
 void QTable::updateCell( int row, int col )
@@ -2957,8 +2973,7 @@ void QTable::updateColWidgets( int col )
   from \a fromIndex to \a toIndex.
 
   If you want to change it programmatically, call
-  QHeader::moveSection() on horizontalHeader() or
-  verticalHeader().
+  QHeader::moveSection() on horizontalHeader().
 
   \sa QHeader::indexChange() rowIndexChanged()
 */
@@ -2974,7 +2989,7 @@ void QTable::columnIndexChanged( int, int, int )
   from \a fromIndex to \a toIndex.
 
   If you want to change the order programmatically, call
-  QHeader::moveSection() on the horizontalHeader() or
+  QHeader::moveSection() on the 
   verticalHeader().
 
   \sa QHeader::indexChange() columnIndexChanged()
@@ -3096,7 +3111,7 @@ int QTable::rowPos( int row ) const
 /*! Returns the column at \a pos. \a pos has to be given in
   content coordinates.
 
-  columnPos() rowAt()
+  \sa columnPos() rowAt()
 */
 
 int QTable::columnAt( int pos ) const
@@ -3303,17 +3318,23 @@ void QTable::setNumCols( int c )
   than a QLineEdit as default editor, reimplement this function and
   use a code like
 
-  \code
-    QTableItem *i = item( row, col );
-    if ( initFromCell || i && !i->isReplaceable() )
-        return QTable::createEditor( row, col, initFromCell );
-    else
-        return ...(create your editor)
-  \endcode
+  \walkthrough table/wineorder/productlist.cpp
+  \skipto item(
+  \printline item(
+  \printuntil createEditor 
+  \skipto ;
+  \skipto }
+  \printline }
+  \printline return create
+
+  (Code taken from \link wineorder-example.html table/wineorder/productlist.cpp
+  \endlink .) 
 
   So normally you do not need to reimplement this function. But if
   you want for example work without QTableItems, you will reimplement this
-  function to create the correct editor for the cells.
+  function and setCellContentFromEditor() to create the correct editor 
+  for the cells and make sure that the data is stored in the relevant
+  data structure.
 
   The ownership of the editor widget is transferred to the caller.
 
@@ -3444,13 +3465,13 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
   a QTableItem already exists for this cell, this is removed first (see
   clearCell()).
 
-  If you want to create e.g different QTableItems depending on the
+  If you for esample want to create different QTableItems depending on the
   contents of the editor, you might reimplement this function. Also if
-  you want to work without QTableItems, you will reimplement this
-  function to set the data which the user entered to your
-  datastructure.
+  you want to work without QTableItems, you need to reimplement this
+  function to save the data the user entered to your
+  data structure.
 
-  \sa QTableItem::setContentFromEditor()
+  \sa QTableItem::setContentFromEditor() createEditor()
 */
 
 void QTable::setCellContentFromEditor( int row, int col )
@@ -3652,7 +3673,7 @@ QRect QTable::rangeGeometry( int topRow, int leftCol,
 /*! This is called to activate the next cell if in-place editing was
   stopped by pressing the Return key.
 
-  If you want a different behaviour then going from top to bottom,
+  If you want a different behavior than going from top to bottom,
   reimplement this function.
 */
 
@@ -3928,7 +3949,7 @@ void QTable::setColumnStretchable( int col, bool stretch )
 
   This means that whenever the table widgets gets higher than its
   contents, stretchable rows are stretched so that the table contents fit
-  exactly into to widget.
+  exactly into the widget.
 
   \sa isRowStretchable() setColumnStretchable()
 */
@@ -3958,8 +3979,11 @@ bool QTable::isRowStretchable( int row ) const
     return leftHeader->isSectionStretchable( row );
 }
 
-/*! Takes the item \a i out of the table. This functions doesn't
+/*! Takes the item \a i out of the table. This function doesn't
   delete it.
+
+  takeItem() is crucial if you wish to use one table item
+  in several tables.
 */
 
 void QTable::takeItem( QTableItem *i )
