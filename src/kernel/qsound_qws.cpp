@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qapplication.h"
+
+#if QT_FEATURE_SOUND
+
 #include "qsound.h"
 
 class QAuServerNull : public QAuServer {
@@ -48,3 +51,4 @@ QAuServer* qt_new_audio_server()
     return new QAuServerNull(qApp);
 }
 
+#endif // QT_FEATURE_SOUND

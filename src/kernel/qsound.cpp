@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qsound.h"
+
+#if QT_FEATURE_SOUND
+
 #include "qapplication.h"
 #include "qlist.h"
 
@@ -171,3 +174,5 @@ bool QSound::available()
 {
     return QSoundData::server().okay();
 }
+
+#endif // QT_FEATURE_SOUND
