@@ -37,7 +37,7 @@ QStringList GfxTransformedDriver::keys() const
 
 QScreen* GfxTransformedDriver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "transformed")
+    if (driver.toLower() == "transformed")
         return new QTransformedScreen(displayId);
 
     return 0;

@@ -37,7 +37,7 @@ QStringList GfxShadowFbDriver::keys() const
 
 QScreen* GfxShadowFbDriver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "shadowfb")
+    if (driver.toLower() == "shadowfb")
         return new QShadowFbScreen(displayId);
 
     return 0;

@@ -4,7 +4,7 @@ TARGET	 = qgfxmach64
 CONFIG  += qt warn_off release plugin
 DESTDIR	 = ../../../gfxdrivers
 
-DEFINES	-= QT_NO_QWS_MACH64
+DEFINES	+= QT_QWS_MACH64
 unix:OBJECTS_DIR = .obj
 
 HEADERS		= ../../../../include/Qt/qgfxmach64_qws.h

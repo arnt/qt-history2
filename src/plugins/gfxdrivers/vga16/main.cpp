@@ -37,7 +37,7 @@ QStringList GfxVga16Driver::keys() const
 
 QScreen* GfxVga16Driver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "vga16")
+    if (driver.toLower() == "vga16")
         return new QVga16Screen(displayId);
 
     return 0;

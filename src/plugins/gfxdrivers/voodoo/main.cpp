@@ -37,7 +37,7 @@ QStringList GfxVoodooDriver::keys() const
 
 QScreen* GfxVoodooDriver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "voodoo3")
+    if (driver.toLower() == "voodoo3")
         return new QVoodooScreen(displayId);
 
     return 0;

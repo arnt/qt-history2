@@ -37,7 +37,7 @@ QStringList GfxMatroxDriver::keys() const
 
 QScreen* GfxMatroxDriver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "matrox")
+    if (driver.toLower() == "matrox")
         return new QMatroxScreen(displayId);
 
     return 0;

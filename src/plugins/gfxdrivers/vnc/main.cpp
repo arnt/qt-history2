@@ -37,7 +37,7 @@ QStringList GfxVncDriver::keys() const
 
 QScreen* GfxVncDriver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "vnc")
+    if (driver.toLower() == "vnc")
         return new QVNCScreen(displayId);
 
     return 0;

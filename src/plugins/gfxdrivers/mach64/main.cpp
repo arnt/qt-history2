@@ -13,6 +13,7 @@
 
 #include <qgfxdriverplugin_qws.h>
 #include <qgfxmach64_qws.h>
+#include <qstringlist.h>
 
 class GfxMach64Driver : public QGfxDriverPlugin
 {
@@ -37,7 +38,7 @@ QStringList GfxMach64Driver::keys() const
 
 QScreen* GfxMach64Driver::create(const QString& driver, int displayId)
 {
-    if (driver.lower() == "mach64")
+    if (driver.toLower() == "mach64")
         return new QMachScreen(displayId);
 
     return 0;
