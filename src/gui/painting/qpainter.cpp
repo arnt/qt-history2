@@ -4631,7 +4631,7 @@ void QPainter::setRedirected(const QPaintDevice *device,
     Q_ASSERT(redirections != 0);
 
     QPoint roffset;
-    QPaintDevice *rdev = redirected(device, &roffset);
+    QPaintDevice *rdev = redirected(replacement, &roffset);
     *redirections += QPaintDeviceRedirection(device, rdev ? rdev : replacement, offset + roffset);
 }
 
