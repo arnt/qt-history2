@@ -6,7 +6,7 @@ SOURCES		= main.cpp \
 
 win32 {
 	OBJECTS_DIR	= obj
-	LIBS	*= oci.lib
+	LIBS	*= -loci
 #	win32-msvc: {
 #		LIBS *= delayimp.lib
 #		QMAKE_LFLAGS += /DELAYLOAD:oci.dll
