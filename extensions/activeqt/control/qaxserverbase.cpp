@@ -2604,7 +2604,8 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
 	    spInPlaceUIWindow->Release();
 	}
 	if ( m_spInPlaceFrame ) {
-	    m_spInPlaceFrame->RemoveMenus( hmenuShared );
+	    if ( hmenuShared )
+		m_spInPlaceFrame->RemoveMenus( hmenuShared );
 	    holemenu = 0;
 	    m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
 	    if ( hmenuShared ) {
