@@ -5123,7 +5123,11 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		i = findItemByName( i );
 		if ( !i ) {
 		    d->currInputString = e->text();
-		    i = findItemByName( d->firstItem );
+		    if (d->currentItem && d->currentItem->next)
+			i = d->currentItem->next;
+		    else
+			i = d->firstItem;
+		    i = findItemByName(i);
 		}
 	    }
 	    if ( i ) {
