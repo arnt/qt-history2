@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#17 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#18 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -980,10 +980,13 @@ Window qt_XCreateWindow( const QWidget* qw, Display *display, Window parent,
     // ### This isA will not work - we are still in QWidget's constructor.
     if ( qw->isTopLevel() && !qw->isA("QNPWidget") ) {
 	// ### not sure it is good to use name() and className().
+	bool cmap = valuemask & CWColormap;
 	Widget xtw = XtVaAppCreateShell( qw->name(), qw->className(),
 	    applicationShellWidgetClass, display,
 	    XtNx, x, XtNy, y, XtNwidth, w, XtNheight, h,
 	    XtNborderWidth, borderwidth, XtNdepth, depth,
+	    XtNvisual, visual,
+	    cmap ? XtNcolormap : 0, cmap ? attributes->colormap : 0,
 	    0, 0 );
 
 	// Ensure it has a window, and get it.
