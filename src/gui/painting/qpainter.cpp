@@ -198,7 +198,7 @@ QFontMetrics QPainter::fontMetrics() const
 // 	return QFontMetrics( cfont );
 
 //     return QFontMetrics(this);
-    return QFontMetrics(d->state->font);
+    return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font);
 }
 
 
@@ -209,7 +209,7 @@ QFontInfo QPainter::fontInfo() const
 // 	return QFontInfo( cfont );
 
 //     return QFontInfo(this);
-    return QFontInfo(d->state->font);
+    return QFontInfo(d->state->pfont ? *d->state->pfont : d->state->font);
 }
 
 
@@ -1660,10 +1660,13 @@ void qt_format_text( const QFont& font, const QRect &_r,
     int underlinePositionStack[32];
     int *underlinePositions = underlinePositionStack;
 
-    // ### port properly
-    // QFont fnt(painter ? (painter->pfont ? *painter->pfont : painter->cfont) : font);
-    QFont fnt(painter ? painter->font() : font);
-    QFontMetrics fm( fnt );
+        // ### port properly
+    QFont fnt(painter
+	      ? (painter->d->state->pfont
+		 ? *painter->d->state->pfont
+		 : painter->d->state->font)
+	      : font);
+    QFontMetrics fm(fnt);
 
     QString text = str;
     // compatible behaviour to the old implementation. Replace
