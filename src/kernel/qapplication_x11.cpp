@@ -268,6 +268,10 @@ static short	mouseXPos, mouseYPos;		// mouse pres position in act window
 static short	mouseGlobalXPos, mouseGlobalYPos; // global mouse press position
 
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
+static bool	    ignoreNextMouseReleaseEvent = FALSE; // ignore the next mouse release
+							 // event if return from a modal
+							 // widget
+
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
@@ -1210,12 +1214,12 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( !resFont.isEmpty() ) {				// set application font
 	QFont fnt;
 	fnt.setRawName( resFont );
-	
+
 	if ( fnt != QApplication::font() )
 	    QApplication::setFont( fnt, TRUE );
     }
 
-    
+
     if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {// set app colors
 	QColor btn;
 	QColor bg;
@@ -3617,7 +3621,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
     switch ( event->type ) {
 
     case ButtonPress:			// mouse event
+	ignoreNextMouseReleaseEvent = FALSE;
+	// fallthrough intended
+
     case ButtonRelease:
+	if ( ignoreNextMouseReleaseEvent ) {
+	    ignoreNextMouseReleaseEvent = FALSE;
+	    break;
+	}
+	// fall through intended
+
     case MotionNotify:
 	widget->translateMouseEvent( event );
 	break;
@@ -3905,6 +3918,7 @@ void qt_enter_modal( QWidget *widget )
 	QEvent e( QEvent::Leave );
 	QApplication::sendEvent( w, &e );
     }
+    ignoreNextMouseReleaseEvent = FALSE;
 }
 
 
@@ -3921,6 +3935,7 @@ void qt_leave_modal( QWidget *widget )
 	}
     }
     app_do_modal = qt_modal_stack != 0;
+    ignoreNextMouseReleaseEvent = TRUE;
 }
 
 
