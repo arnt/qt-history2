@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#19 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#20 $
 **
 ** Definition of movie classes
 **
@@ -46,6 +46,9 @@ public:
     int timeOffset() const;
 
     void set( QPixmap& pix, int dx, int dy, int dtime );
+
+    bool operator==( const QMovieFrame& );
+    bool operator<( const QMovieFrame& );
 
 private:
     int x_offset;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#53 $
 **
 ** Implementation of movie classes
 **
@@ -564,8 +564,8 @@ void QMovieFilePrivate::updatePixmapFromImage()
     if ( save_image )
     {
       QString name;
-      name.sprintf("movie%i.bmp",image_number++);
-      gimg.save( name, "BMP" );
+      name.sprintf("movie%i.ppm",image_number++);
+      gimg.save( name, "PPM" );
     }
 #endif
 
@@ -1302,6 +1302,16 @@ void QMovieFrame::set( QPixmap& pix, int dx, int dy, int dtime )
   mypixmap = pix;
 }
 
+bool QMovieFrame::operator==( const QMovieFrame& )
+{
+  return false;
+}
+
+bool QMovieFrame::operator<( const QMovieFrame& _frame )
+{
+  return ( ( y_offset < _frame.yOffset() ) ? true : false );
+}
+
 QPixmap& QMovieFrame::pixmap() const
 {
   return mypixmap;
@@ -1377,7 +1387,7 @@ QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.52 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.53 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
