@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#323 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#324 $
 **
 ** Implementation of QMainWindow class
 **
@@ -1443,7 +1443,7 @@ void QMainWindow::childEvent( QChildEvent* e)
 	} else if ( e->child() == d->mc ) {
 	    d->mc = 0;
 	    triggerLayout();
-	} else if ( e->child()->isWidgetType() ) {
+	} else if ( e->child()->isWidgetType() && e->child()->inherits("QDockWindow")) {
 	    removeDockWindow( (QDockWindow *)(e->child()) );
 	    d->appropriate.remove( (QDockWindow*)e->child() );
 	    triggerLayout();
