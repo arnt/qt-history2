@@ -1,0 +1,112 @@
+Distributing Qt for Different Platforms
+
+\section2 Static Qt Applications
+
+To distribute static Qt applications, you need the following file for
+all platforms:
+
+\list
+\i application executable
+\endlist
+
+\section2 Dynamic Qt Applications
+
+To distribute dynamic Qt applications, you will need the following
+files for all platforms:
+
+\list
+\i application executable
+\i the Qt library 
+\endlist
+
+The Qt library needs to be either in the same directory as the application
+executable or in the directory which is included in the system library
+path.
+
+In addition, you need the following platform specific files:
+
+\list
+\i Windows: qt.dll
+\i Unix/Linux: libqt.so
+\i Mac: libqt.so##
+\endlist
+
+Finally, you need to include the following plugin files:
+
+\list
+\i Plugins used by the application (e.g. styles)
+\endlist
+
+Plugins have to be put into a subdirectory under a directory known to
+Qt as a plugin directory. The subdirectory has to have the name of the
+plugin category (e.g. styles, sqldrivers, designer, etc..). 
+
+
+\section2 Dynamic Dialogs 
+
+For dynamic dialogs if you use QWidgetFactory, you need the foolwoing
+files for all platforms:
+
+\list
+\i The same files as used for dynamic Qt applications
+\i The QUI Library 
+\endlist
+
+The QUI library needs to be either in the same directory as the application
+executable or in the directory which is included in the system library
+path.
+
+You also need the following platform specific files:
+
+\list
+\i Windows: qui.lib
+\i Unix/Linux: libqui.so
+\i Mac: libqui.so###
+\endlist
+
+
+\section2 Qt Applications that use QSA
+
+For Qt applications that use QSA, you need the following files for all
+platforms:
+
+\list 
+\i Same as dynamic dialogs
+\i QSA library 
+\endlist
+
+The QSA library needs to be either in the same directory as the application
+executable or in the directory which is included in the system library
+path.
+
+In addition, you need the following platform specific files:
+
+\list
+\i Windows: qsa.dll
+\i Unix/Linux: libqsa.so
+\i Mac: libqsa.so##
+\endlist
+
+Then you need the Qt Scripter plugin files. The Qt Scripter plugin has
+to be put into a subdirectory called "qsa",  under a directory known
+to Qt as a plugin directory. The platform specific files are as
+follows:
+
+\list
+\i Windows: quickide.dll
+\i Unix/Linux: quickide.so
+\i Mac: quickide.so##
+\endlist
+
+Finally, you need the QSA Custom Widgets plugin. The QSA Custom Widgets plugin plugin has to be put into a subdirectory called "qsa" under a directory known to Qt as a plugin directory. The following are the platform specific files:
+
+\list
+\i Windows: quickcustom.dll
+\i Unix/Linux: quickcustom.so
+\i Mac: quickcustom.so##
+\endlist
+
+
+
+
+
