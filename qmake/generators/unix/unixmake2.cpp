@@ -989,7 +989,6 @@ void UnixMakefileGenerator::init2()
 	    } else {
 		rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, FALSE);
 	    }
-	    qDebug("Got %s", rpath_destdir.latin1());
 	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_RPATH") + rpath_destdir;
 	}
     }
