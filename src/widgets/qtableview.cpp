@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#122 $
 **
 ** Implementation of QTableView class
 **
@@ -528,7 +528,6 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	    y		= yCellOffs*cellH;
 	    yCellDelta	= 0;
 	}
-	yCellDelta  = (short)(y % cellH);
     } else {
 	int yn=0, yrd=0, row=0;
 	while ( row < nRows-1 && y >= yn+(yrd=cellHeight(row)) ) {
