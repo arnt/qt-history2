@@ -67,7 +67,6 @@ QTOBJS= \
         qvsnprintf.obj \
 	qbytearraymatcher.obj \
 	qchar.obj \
-	qconfig.obj \
 	qdatastream.obj \
 	qdatetime.obj \
 	qdir.obj \
@@ -80,6 +79,7 @@ QTOBJS= \
 	qhash.obj \
 	qiodevice.obj \
 	qinternal.obj \
+	qlibraryinfo.obj \
 	qlist.obj \
 	qlocale.obj \
 	qmap.obj \
@@ -124,9 +124,6 @@ distclean:: clean
 .cxx.obj:
 	$(CXX) $(CXXFLAGS) $<
 
-qconfig.obj: ..\src\core\global\qconfig.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
-
 qsettings_win.obj: ..\src\core\io\qsettings_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
 
@@ -156,6 +153,9 @@ qiodevice.obj: ..\src\core\io\qiodevice.cpp
 
 qinternal.obj: ..\src\core\kernel\qinternal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qinternal.cpp
+
+qlibraryinfo.obj: ..\src\core\global\qlibraryinfo.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\global\qlibraryinfo.cpp
 
 qglobal.obj: ..\src\core\global\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qglobal.cpp
