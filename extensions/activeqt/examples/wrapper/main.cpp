@@ -9,8 +9,6 @@
 **
 *****************************************************************************/
 
-#include <qapplication.h>
-#include <qmessagebox.h>
 #include <qaxfactory.h>
 
 #include <qcheckbox.h>

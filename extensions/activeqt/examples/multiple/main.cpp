@@ -1,5 +1,3 @@
-#include <qapplication.h>
-#include <qmessagebox.h>
 #include <qaxfactory.h>
 
 #include "ax1.h"
