@@ -967,7 +967,6 @@ bool QODBCResult::exec()
 {
     SQLRETURN r;
     QList<QVirtualDestructor*> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
-    tmpStorage.setAutoDelete( TRUE );
 
     setActive( FALSE );
     setAt( QSql::BeforeFirst );
@@ -980,6 +979,7 @@ bool QODBCResult::exec()
 	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
 	if ( r != SQL_SUCCESS ) {
 	    qSqlWarning( "QODBCResult::exec: Unable to close statement handle", d );
+	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
     }
@@ -1134,6 +1134,7 @@ bool QODBCResult::exec()
 	if ( r != SQL_SUCCESS ) {
 	    qWarning( "QODBCResult::exec: unable to bind variable: %s", qODBCWarn( d ).local8Bit() );
 	    setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
+	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
     }
@@ -1141,6 +1142,7 @@ bool QODBCResult::exec()
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	qWarning( "QODBCResult::exec: Unable to execute statement: %s", qODBCWarn( d ).local8Bit() );
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	qDeleteAll(tmpStorage);
 	return FALSE;
     }
     SQLSMALLINT count;
@@ -1212,7 +1214,7 @@ bool QODBCResult::exec()
 		tmpStorage.removeFirst();
 	}
     }
-        
+    qDeleteAll(tmpStorage);
     return TRUE;
 }
 

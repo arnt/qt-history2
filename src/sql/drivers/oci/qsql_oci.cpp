@@ -1316,7 +1316,6 @@ bool QOCIResult::exec()
     int r = 0;
     ub2 stmtType;
     QList<QVirtualDestructor*> tmpStorage;
-    tmpStorage.setAutoDelete( TRUE );
     d->clearCache();
     
     // bind placeholders
@@ -1324,6 +1323,7 @@ bool QOCIResult::exec()
 	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
 	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
 	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
+	qDeleteAll(tmpStorage);
 	return FALSE;
     }
     
@@ -1347,6 +1347,7 @@ bool QOCIResult::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCIResult::exec: unable to execute select statement:", d );
 	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
+	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	ub4 parmCount = 0;
@@ -1381,6 +1382,7 @@ bool QOCIResult::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCIResult::exec: unable to execute statement:", d );
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	setSelect( FALSE );
@@ -1390,13 +1392,13 @@ bool QOCIResult::exec()
     
     if ( hasOutValues() )
 	d->outValues( boundValues(), tmpStorage );
-    
+
+    qDeleteAll(tmpStorage);
     return TRUE;
 }
 
 QSqlRecord QOCIResult::record() const
 {
-///    qDebug( "*** recordInfo Query" );
     QSqlRecord inf;
     if ( !isActive() || !isSelect() || !cols )
 	return inf;
@@ -1645,7 +1647,6 @@ bool QOCI9Result::exec()
     int r = 0;
     ub2 stmtType;
     QList<QVirtualDestructor*> tmpStorage;
-    tmpStorage.setAutoDelete( TRUE );
     d->clearCache();
     
 //    qDebug( "QOCI9Result::exec: %s", executedQuery().ascii() );
@@ -1655,6 +1656,7 @@ bool QOCI9Result::exec()
 	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
 	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
 	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
+	qDeleteAll(tmpStorage);
 	return FALSE;
     }
     
@@ -1681,6 +1683,7 @@ bool QOCI9Result::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCI9Result::reset: unable to execute select statement: ", d );
 	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
+	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	ub4 parmCount = 0;
@@ -1715,6 +1718,7 @@ bool QOCI9Result::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCI9Result::reset: unable to execute statement: ", d );
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	setSelect( FALSE );
@@ -1724,7 +1728,8 @@ bool QOCI9Result::exec()
     
     if ( hasOutValues() )
 	d->outValues( boundValues(), tmpStorage );
-    
+
+    qDeleteAll(tmpStorage);    
     return TRUE;
 }
 
