@@ -157,6 +157,7 @@ int QShortcutMap::removeShortcut(int id, const QWidget *owner, const QObject *mo
     while (i>=0)
     {
         const QShortcutEntry &entry = d->sequences.at(i);
+        int entryId = entry.id;
         if ((allOwners || entry.owner == owner)
             && (allMonitors || entry.monitor == monitor )
             && (allIds || entry.id == id)
@@ -164,7 +165,7 @@ int QShortcutMap::removeShortcut(int id, const QWidget *owner, const QObject *mo
             d->sequences.removeAt(i);
             ++itemsRemoved;
         }
-        if (id == entry.id)
+        if (id == entryId)
             return itemsRemoved;
         --i;
     }
