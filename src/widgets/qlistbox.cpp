@@ -2621,9 +2621,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		    } else {
 			d->inputTimer->stop();
 			d->currInputString += e->text();
+			int oldCurItem = curItem;
 			curItem = d->findItemByName( curItem, d->currInputString );
 			if ( curItem < 0 ) {
-			    curItem = d->findItemByName( 0, e->text() );
+			    curItem = d->findItemByName( ++oldCurItem, e->text() );
 			    d->currInputString = e->text();
 			}
 		    }
