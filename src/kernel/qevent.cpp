@@ -1056,6 +1056,29 @@ void QFocusEvent::resetReason()
   coordinates.
 */
 
+
+/*!
+  \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos )
+
+  Constructs a context event object with the accept parameter flag set to FALSE.
+
+  The \a reason parameter must be \c QContextMenuEvent::Mouse
+  or \c QContextMenuEvent::Keyboard.
+
+  The \a pos parameter specifies the position relative to the
+  receiving widget. 
+
+  The globalPos() is initialized to QCursor::pos(), which may not be
+  appropriate. Use the other constructor to specify the global position
+  explicitly.
+*/
+
+QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos )
+    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), reas( reason ) 
+{ 
+    gp = QCursor::pos();
+}
+
 /*!
   \fn const QPoint &QContextMenuEvent::pos() const
 

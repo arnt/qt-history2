@@ -342,6 +342,7 @@ public:
     enum Reason { Mouse, Keyboard, Other };
     QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos )
 	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( FALSE ), reas( reason ) {}
+    QContextMenuEvent( Reason reason, const QPoint &pos );
 
     int	    x() const { return p.x(); }
     int	    y() const { return p.y(); }
