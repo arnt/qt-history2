@@ -13,7 +13,7 @@
 #ifndef QT_H
 #endif // QT_H
 
-#if defined(Q_TEMPLATEDLL)
+#if defined(Q_TEMPLATEDLL) && ( !defined(Q_CC_BOR) || !defined(QT_MAKEDLL) || defined(Q_EXPORT_TEMPLATES) )
 // MOC_SKIP_BEGIN
 
 #if defined(Q_DEFINED_QASCIIDICT) && defined(Q_DEFINED_QCONNECTION_LIST) && !defined(Q_EXPORTED_QASCIIDICT_TEMPLATES)
