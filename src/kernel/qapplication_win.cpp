@@ -1926,7 +1926,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		{
 		    const QWidget *tlw = widget->topLevelWidget();
 		    // Do not change activation if the clicked widget is inside a floating dock window
-		    if ( tlw->inherits( "QDockWindow" ) && qApp->activeWindow() )
+		    if ( tlw->inherits( "QDockWindow" ) && qApp->activeWindow() 
+			 && !qApp->activeWindow()->inherits("QDockWindow") )
 			RETURN(MA_NOACTIVATE);
 		}
 #endif // 0
