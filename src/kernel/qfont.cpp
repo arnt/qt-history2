@@ -1310,7 +1310,7 @@ QString QFont::key() const
 /*! \internal
   Internal function that dumps font cache statistics.
 */
-#ifndef Q_WS_QWS
+#if !defined( Q_WS_QWS ) && !defined( Q_WS_MAC )
 void QFont::cacheStatistics()
 {
 

@@ -144,6 +144,33 @@ public:
 
 #endif // Q_WS_WIN
 
+#ifdef Q_WS_MAC
+
+#include "qt_mac.h"
+
+class QFontStruct : public QShared
+{
+public:
+    inline QFontStruct( const QFontDef& d ) :   s(d), info(NULL), cache_cost(0) { }
+    inline const QFontDef *spec()  const { return &s; }
+    int ascent() const { return info->ascent+2; /*2?? fixme!*/ }
+    int descent() const { return info->descent; /*2?? fixme!*/ }
+    int minLeftBearing() const { return 0; }
+    int minRightBearing() const { return 0; }
+    int leading() const { return info->leading; }
+    int maxWidth() const { return info->widMax; }
+
+    static short currentFnum;
+    static int currentFsize;
+    short fnum;
+    int psize;
+    QFontDef s;
+    FontInfo *info;
+    int cache_cost;
+};
+
+#endif
+
 #ifdef Q_WS_QWS
 class QFontStruct;
 #endif
@@ -271,7 +298,7 @@ public:
 	
 	charsetcompat = QFont::Unicode;
 	
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 		fin = 0;
 #endif // Q_WS_WIN
 		
@@ -284,7 +311,7 @@ public:
 	
 	charsetcompat = fp.charsetcompat;
 	
-#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
 	
@@ -403,6 +430,14 @@ public:
     void load();
     QFontStruct *fin;
 #endif
+
+#ifdef Q_WS_MAC
+    ~QFontPrivate() { if( fin ) fin->deref(); }
+    void macSetFont(QPaintDevice *);
+    void load();
+    QFontStruct *fin;
+#endif
+
     // source compatibility for QFont
     QFont::CharSet charsetcompat;
 

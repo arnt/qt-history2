@@ -1382,8 +1382,10 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     }
 }
 
-
-extern const unsigned char * p_str(const char * c);
+void QPainter::drawText( int x, int y, const QString &str, int from, int len) 
+{
+    drawText(x, y, str.mid(from), len);
+}
 
 void QPainter::drawText( int x, int y, const QString &str, int len)
 {
@@ -1490,13 +1492,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 	    map( x, y, &x, &y );
     }
 
-    QCString mapped='?';
-
-    const QTextCodec* mapper = cfont.d->mapper();
-    if ( mapper ) {
-	// translate from Unicode to font charset encoding here
-	mapped = mapper->fromUnicode(str,len);
-    }
+    QTextCodec *mapper = QTextCodec::codecForMib( 106 ); //utf8 always, this should do unicode FIXME
+    QCString mapped = mapper->fromUnicode(str,len);
 
     if(!mapped) {
 	char * soo=new char[2];
@@ -1512,13 +1509,13 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 	else {
 	    MoveTo(x+offx,y+offy);
 	    updatePen();
-	    DrawString(p_str(mapped));
+	    DrawText(mapped, 0, mapped.length());
 	}
     } else {
 	if ( !mapped.isNull() ) {
 	    MoveTo(x+offx,y+offy);
 	    updatePen();
-	    DrawString(p_str(mapped));
+	    DrawText(mapped, 0, mapped.length());
 	} else {
 	    // Unicode font
 
@@ -1531,7 +1528,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 
 	    MoveTo(x+offx,y+offy);
 	    updatePen();
-	    DrawString(p_str((char *)v.unicode()));
+	    DrawText(mapped, 0, mapped.length());
 	}
     }
 

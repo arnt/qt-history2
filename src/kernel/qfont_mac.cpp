@@ -11,34 +11,8 @@
 #include "qpainter.h"
 
 extern const unsigned char * p_str(const char * c);
-
-class QFontInternal {
-public:
-    inline QFontInternal::QFontInternal( const QFontDef& d ) :   s(d) { }
-    inline const QFontDef *spec()  const { return &s; }
-    int ascent() const { return info.ascent+2; /*2?? fixme!*/ }
-    int descent() const { return info.descent; /*2?? fixme!*/ }
-    int minLeftBearing() const { return 0; }
-    int minRightBearing() const { return 0; }
-    int leading() const { return info.leading; }
-    int maxWidth() const { return info.widMax; }
-
-    static short currentFnum;
-    static int currentFsize;
-    short fnum;
-    int psize;
-    FontInfo info;
-    QFontDef s;
-
-};
-short QFontInternal::currentFnum = 0;
-int QFontInternal::currentFsize = 0;
-
-#include <qdict.h>
-typedef QDict<QFontInternal>	      QFontDict;
-typedef QDictIterator<QFontInternal>  QFontDictIt;
-static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
-						// default character set:
+short QFontStruct::currentFnum = 0;
+int QFontStruct::currentFsize = 0;
 
 int QFontMetrics::lineSpacing() const
 {
@@ -51,38 +25,44 @@ int QFontMetrics::lineWidth() const
 }
 
 #undef FI
-#define FI (painter ? painter->cfont.d->fin : d->fin)
+#define FI (painter ? painter->cfont.d : d)
 
 int QFontMetrics::leading() const
 {
-    return FI->leading();
+    return FI->fin->leading();
 }
 
 int QFontMetrics::ascent() const
 {
-    return FI->ascent();
+    return FI->fin->ascent();
 }
 
 int QFontMetrics::descent() const
 {
-    return FI->descent();
+    return FI->fin->descent();
 }
 
 int char_widths[256];
 bool chars_init=false;
 
+int QFontMetrics::charWidth( const QString &str, int pos ) const
+{
+    return width(str.at(pos));
+}
+
 int QFontMetrics::width(QChar c) const
 {
     // Grr. How do we force the Mac to speak Unicode?
     // This currently won't work outside of ASCII
-    TextFont(FI->fnum);
-    TextSize(FI->psize);
+    TextFont(FI->fin->fnum);
+    TextSize(d->request.pointSize / 10);
     int char_width=CharWidth(c);
-    TextFont(QFontInternal::currentFnum);
-    TextSize(QFontInternal::currentFsize);
+    TextFont(QFontStruct::currentFnum);
+    TextSize(QFontStruct::currentFsize);
     return char_width;
 }
 
+#if 0
 const QFontDef *QFontMetrics::spec() const
 {
     if ( painter ) {
@@ -92,6 +72,7 @@ const QFontDef *QFontMetrics::spec() const
 	return d->fin->spec();
     }
 }
+#endif
 
 int QFontMetrics::width(const QString &s,int len) const
 {
@@ -102,18 +83,18 @@ int QFontMetrics::width(const QString &s,int len) const
     char * buf=new char[len+1];
     strncpy(buf,s.ascii(),len);
     int ret;
-    TextFont(FI->fnum);
-    TextSize(FI->psize);
+    TextFont(FI->fin->fnum);
+    TextSize(FI->request.pointSize / 10);
     ret=TextWidth(buf,0,len);
-    TextFont(QFontInternal::currentFnum);
-    TextSize(QFontInternal::currentFsize);
+    TextFont(QFontStruct::currentFnum);
+    TextSize(QFontStruct::currentFsize);
     delete[] buf;
     return ret;
 }
 
 int QFontMetrics::maxWidth() const
 {
-    return FI->maxWidth();
+    return FI->fin->maxWidth();
 }
 
 int QFontMetrics::height() const
@@ -123,12 +104,12 @@ int QFontMetrics::height() const
 
 int QFontMetrics::minRightBearing() const
 {
-    return FI->minRightBearing();
+    return FI->fin->minRightBearing();
 }
 
 int QFontMetrics::minLeftBearing() const
 {
-    return FI->minLeftBearing();
+    return FI->fin->minLeftBearing();
 }
 
 int QFontMetrics::leftBearing(QChar ch) const
@@ -159,97 +140,69 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 void QFont::cleanup()
 {
-    if ( fontDict )
-	fontDict->setAutoDelete( TRUE );
-    delete fontDict;
+    delete QFontPrivate::fontCache;
 }
 
 Qt::HANDLE QFont::handle() const
 {
-    if(d->req.dirty) {
-	load();
+    if(d->request.dirty) {
+	d->load();
     }
     return 0;
 }
 
 void QFont::macSetFont(QPaintDevice *v)
 {
+    d->macSetFont(v);
+}
+
+void QFontPrivate::macSetFont(QPaintDevice *v)
+{
     if(v && !v->paintingActive()) {
 	qDebug("I was really hoping it would never come to this...");
 	Q_ASSERT(0); //we need to figure out if this can really happen
     }
 
-    TextSize(pointSize());
+    TextSize(request.pointSize / 10);
     short fnum;
-    GetFNum(p_str(family().ascii()),&fnum);
+    GetFNum(p_str(request.family.ascii()),&fnum);
     TextFont(fnum);
-    QFontInternal::currentFnum = fnum;
-    QFontInternal::currentFsize = pointSize();
+    QFontStruct::currentFnum = fnum;
+    QFontStruct::currentFsize = request.pointSize / 10;
 
-    if(d && d->fin)
-	d->fin->fnum = fnum;
+    if(fin)
+	fin->fnum = fnum;
 }
 
-void QFont::load() const
+void QFontPrivate::load()
 {
-    d->req.dirty=FALSE;
+    request.dirty=FALSE;
 
     QString k = key();
-    QFontInternal* fin = fontDict->find(k);
-    if ( !fin ) {
-	fin = new QFontInternal(d->req);
-	fontDict->insert(k,fin);
+    QFontStruct* qfs = fontCache->find(k);
+    if ( !qfs ) {
+	qfs = new QFontStruct(request);
+	fontCache->insert(k, qfs, 1);
     }
-    d->fin=fin;
+    qfs->ref();
 
-    d->fin->psize=pointSize();
-    ((QFont *)this)->macSetFont(NULL);
-    GetFontInfo(&d->fin->info);
+    if(fin) 
+	fin->deref();
+    fin=qfs;
+
+    macSetFont(NULL);
+    fin->info = (FontInfo *)malloc(sizeof(FontInfo));
+    GetFontInfo(fin->info);
 
     // Our 'handle' is actually a structure with the information needed to load
     // the font into the current grafport
 }
 
-int qFontGetWeight( const QCString &weightString, bool adjustScore )
-{
-    // Test in decreasing order of commonness
-    //
-    if ( weightString == "medium" )       return QFont::Normal;
-    else if ( weightString == "bold" )    return QFont::Bold;
-    else if ( weightString == "demibold") return QFont::DemiBold;
-    else if ( weightString == "black" )   return QFont::Black;
-    else if ( weightString == "light" )   return QFont::Light;
-
-    QCString s = weightString;
-    s = s.lower();
-    if ( s.contains("bold") ) {
-	if ( adjustScore )
-	    return (int) QFont::Bold - 1;  // - 1, not sure that this IS bold
-	else
-	    return (int) QFont::Bold;
-    }
-    if ( s.contains("light") ) {
-	if ( adjustScore )
-	    return (int) QFont::Light - 1; // - 1, not sure that this IS light
-       else
-	    return (int) QFont::Light;
-    }
-    if ( s.contains("black") ) {
-	if ( adjustScore )
-	    return (int) QFont::Black - 1; // - 1, not sure this IS black
-	else
-	    return (int) QFont::Black;
-    }
-    if ( adjustScore )
-	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
-
-    return (int) QFont::Normal;
-}
-
 void QFont::initialize()
 {
-    fontDict  = new QFontDict( 29 );
-    Q_CHECK_PTR( fontDict );
+    if(!QFontPrivate::fontCache)
+	QFontPrivate::fontCache = new QFontCache();
+    Q_CHECK_PTR( QFontPrivate::fontCache );
 }
 
 void QFont::setPixelSizeFloat( float pixelSize )
@@ -259,11 +212,12 @@ void QFont::setPixelSizeFloat( float pixelSize )
 
 int QFont::pixelSize() const
 {
-    return d->req.pointSize;
+    return d->request.pointSize;
 }
 
 //
 
+#if 0
 const QFontDef *QFontInfo::spec() const
 {
     if ( painter ) {
@@ -273,25 +227,36 @@ const QFontDef *QFontInfo::spec() const
 	return fin->spec();
     }
 }
+#endif
 
-QUtf8Codec * quc=0;
-
-const QTextCodec * QFontData::mapper() const
+void QFont::cacheStatistics()
 {
-    if(!quc) {
-	quc=new QUtf8Codec();
-    }
-    return quc;
 }
 
-QFont::CharSet QFont::defaultCharSet=QFont::AnyCharSet;
+QString QFontPrivate::defaultFamily() const
+{
+    switch( request.styleHint ) {
+	case QFont::Times:
+	    return QString::fromLatin1("Times New Roman");
+	case QFont::Courier:
+	    return QString::fromLatin1("Courier New");
+	case QFont::Decorative:
+	    return QString::fromLatin1("Bookman Old Style");
+	case QFont::Helvetica:
+	    return QString::fromLatin1("Arial");
+	case QFont::System:
+	default:
+	    return QString::fromLatin1("MS Sans Serif");
+    }
+}
 
+QString QFontPrivate::lastResortFamily() const
+{
+    return QString::fromLatin1("helvetica");
+}
 
-
-
-
-
-
-
-
+QString QFontPrivate::lastResortFont() const
+{
+    return QString::fromLatin1("arial");
+}
 
