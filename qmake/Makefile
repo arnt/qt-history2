@@ -101,11 +101,11 @@ distclean:: clean
 qconfig.obj: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
 
-qlibrary.obj: ..\src\core\library\qlibrary.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\library\qlibrary.cpp
+qlibrary.obj: ..\src\core\plugin\qlibrary.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\plugin\qlibrary.cpp
 
-qlibrary_win.obj: ..\src\core\library\qlibrary_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\library\qlibrary_win.cpp
+qlibrary_win.obj: ..\src\core\plugin\qlibrary_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\plugin\qlibrary_win.cpp
 
 qtextstream.obj: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp
@@ -137,8 +137,8 @@ qstringmatcher.obj: ..\src\core\tools\qstringmatcher.cpp
 qlocale.obj: ..\src\core\tools\qlocale.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qlocale.cpp
 
-quuid.obj: ..\src\core\library\quuid.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\library\quuid.cpp
+quuid.obj: ..\src\core\plugin\quuid.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\plugin\quuid.cpp
 
 qdatastream.obj: ..\src\core\io\qdatastream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qdatastream.cpp
