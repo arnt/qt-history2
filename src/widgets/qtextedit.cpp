@@ -1668,6 +1668,7 @@ void QTextEdit::removeSelectedText( int selNum )
 
     doc->removeSelectedText( selNum, cursor );
     if ( cursor->isValid() ) {
+	lastFormatted = 0; // make sync a noop
 	ensureCursorVisible();
 	lastFormatted = cursor->paragraph();
 	formatMore();
