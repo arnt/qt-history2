@@ -289,9 +289,12 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
     Q_Q(QPainter);
 
     float width = state->pen.width();
+    int txop = state->txop;
     if (state->pen.width() == 0) {
-        if (state->txop != TxNone)
-            path = path * state->worldMatrix;
+        if (state->txop != TxNone) {
+            path = path * state->matrix;
+            txop = TxNone;
+        }
         width = 1;
     }
 
@@ -303,7 +306,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
 
     QPainterPath stroke = stroker.createStroke(path);
 
-    if (state->txop > TxNone)
+    if (txop > TxNone)
         stroke = stroke * state->worldMatrix;
 
     q->save();
@@ -1885,10 +1888,9 @@ void QPainter::drawPath(const QPainterPath &path)
     // Draw the outline of the path...
     if (d->state->pen.style() != Qt::NoPen) {
         d->engine->updateState(d->state);
-        // Only use helper if we have other than xform or a penwidth != 0.
+        // Only use helper if we have other than xform.
         if (d->engine->emulationSpecifier
-            && (d->engine->emulationSpecifier != QPaintEngine::CoordTransform)
-            && (d->state->pen.width() != 0)) {
+            && (d->engine->emulationSpecifier != QPaintEngine::CoordTransform)) {
             d->draw_helper(&path, path.fillRule(), QPainterPrivate::PathShape,
                            QPainterPrivate::StrokeDraw, d->engine->emulationSpecifier);
         } else {
