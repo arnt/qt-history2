@@ -52,6 +52,8 @@ public:
     virtual void setPageSize(const QSize &size) = 0;
     virtual QSize pageSize() const = 0;
 
+    QString anchorAt(const QPoint& pos) const;
+
 protected:
     QAbstractTextDocumentLayout(QAbstractTextDocumentLayoutPrivate &, QTextDocument *);
 

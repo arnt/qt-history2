@@ -67,8 +67,6 @@ public:
 
     void setHtml(const QString &html);
 
-    QString anchorAt(const QPoint& pos) const;
-
     QTextCursor find(const QString &exp, int from = 0, StringComparison flags = (CaseSensitive | Contains)) const;
     QTextCursor find(const QString &exp, const QTextCursor &from, StringComparison flags = (CaseSensitive | Contains)) const;
 

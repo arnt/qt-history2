@@ -224,7 +224,7 @@ void QWhatsThat::mousePressEvent(QMouseEvent* e)
     if (e->button() == LeftButton && rect().contains(e->pos())) {
 #ifndef QT_NO_RICHTEXT
         if (doc)
-            anchor = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
+            anchor = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
 #endif
         return;
     }
@@ -237,7 +237,7 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
         return;
 #ifndef QT_NO_RICHTEXT
     if (widget && e->button() == LeftButton && doc && rect().contains(e->pos())) {
-        QString a = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
+        QString a = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
         QString href;
         if (anchor == a)
             href = a;
@@ -258,7 +258,7 @@ void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
 #ifndef QT_NO_CURSOR
     if (!doc)
         return;
-    QString a = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
+    QString a = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
     if (!a.isEmpty())
         setCursor(PointingHandCursor);
     else

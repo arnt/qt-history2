@@ -190,3 +190,20 @@ const QTextDocument *QAbstractTextDocumentLayout::document() const
 {
     return qt_cast<QTextDocument *>(parent());
 }
+
+
+/*!
+    Returns the name of the anchor at point \a pos, or an empty string
+    if there's no anchor at that point.
+*/
+QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
+{
+    int cursorPos = hitTest(pos, QText::ExactHit);
+    if (cursorPos == -1)
+        return QString();
+
+    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->d_func();
+    QTextDocumentPrivate::FragmentIterator it = pieceTable->find(cursorPos);
+    QTextCharFormat fmt = pieceTable->formatCollection()->charFormat(it->format);
+    return fmt.anchorName();
+}

@@ -227,22 +227,6 @@ void QTextDocument::setHtml(const QString &html)
     cursor.insertFragment(fragment);
 }
 
-
-/*!
-    Returns the name of the anchor at point \a pos, or an empty string
-    if there's no anchor at that point.
-*/
-QString QTextDocument::anchorAt(const QPoint& pos) const
-{
-    int cursorPos = d->layout()->hitTest(pos, QText::ExactHit);
-    if (cursorPos == -1)
-        return QString();
-
-    QTextDocumentPrivate::FragmentIterator it = d->find(cursorPos);
-    QTextCharFormat fmt = d->formatCollection()->charFormat(it->format);
-    return fmt.anchorName();
-}
-
 /*!
     \overload
 
