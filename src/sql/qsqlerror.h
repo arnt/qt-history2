@@ -53,21 +53,22 @@ public:
 	Transaction,
 	Unknown
     };
-    explicit QSqlError(  const QString& driverText = QString::null,
+    QSqlError(  const QString& driverText = QString::null,
     		const QString& databaseText = QString::null,
 		int type = QSqlError::None,
 		int number = -1 );
-    QSqlError(const QSqlError& n);
-    QSqlError& operator=(const QSqlError& n);
+    QSqlError( const QSqlError& other );
+    QSqlError& operator=( const QSqlError& other );
     virtual ~QSqlError();
+    
     QString 	driverText() const;
-    void	setDriverText( const QString& driverText );
+    virtual void setDriverText( const QString& driverText );
     QString 	databaseText() const;
-    void	setDatabaseText( const QString& databaseText );
+    virtual void setDatabaseText( const QString& databaseText );
     int		type() const;
-    void	setType( int type );
+    virtual void setType( int type );
     int		number() const;
-    void	setNumber( int number );
+    virtual void setNumber( int number );
 private:
     QString 	driverError;
     QString	databaseError;
