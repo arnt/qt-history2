@@ -879,7 +879,7 @@ QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text, cons
 */
 void QActionGroup::removeAction(QAction *action)
 {
-    a->setActionGroup(0);
+    action->setActionGroup(0);
 }
 
 /*!
