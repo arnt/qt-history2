@@ -242,12 +242,9 @@ void QListViewToolTip::maybeTip( const QPoint &pos )
     if ( !item || !item->columns )
 	return;
     int col = view->header()->sectionAt( pos.x() );
-    QListViewPrivate::ItemColumnInfo *ci = 0;
-    while ( !ci ) {
-	    ci = (QListViewPrivate::ItemColumnInfo*)item->columns;
-	    for ( int i = 0; ci && ( i < col ); ++i )
-		ci = ci->next;
-    }
+    QListViewPrivate::ItemColumnInfo *ci = (QListViewPrivate::ItemColumnInfo*)item->columns;
+    for ( int i = 0; ci && ( i < col ); ++i )
+	ci = ci->next;
 
     if ( !ci || !ci->truncated )
 	return;
