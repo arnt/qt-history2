@@ -622,7 +622,7 @@ QFSFileEnginePrivate::doStat() const
 {
     if(!tried_stat) {
 	tried_stat = true;
-	could_stat = true;
+	could_stat = false;
 
         if(file.isEmpty())
             return could_stat;
