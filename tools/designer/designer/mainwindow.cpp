@@ -1674,8 +1674,8 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	    if ( oldDoWrap != doWrap ) {
 		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
 		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
-								  "wordwrap", QVariant( oldDoWrap ),
-								  QVariant( doWrap ), QString::null, QString::null );
+								  "wordwrap", QVariant( oldDoWrap, 0 ),
+								  QVariant( doWrap, 0 ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
 		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
@@ -2552,8 +2552,8 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	    if ( oldDoWrap != doWrap ) {
 		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
 		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
-								  "wordwrap", QVariant( oldDoWrap ),
-								  QVariant( doWrap ), QString::null, QString::null );
+								  "wordwrap", QVariant( oldDoWrap, 0 ),
+								  QVariant( doWrap, 0 ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
 		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
