@@ -242,7 +242,8 @@ public:
 	: QWidget( parent, name ), cusw( cw ) {
 	    alwaysExpand = parentWidget() && parentWidget()->inherits( "FormWindow" );
 	    setSizePolicy( cw->sizePolicy );
-	    setBackgroundMode( PaletteDark );
+	    if ( !alwaysExpand )
+		setBackgroundMode( PaletteDark );
     }
 
     QSize sizeHint() const {
