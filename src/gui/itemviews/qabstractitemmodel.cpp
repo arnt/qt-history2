@@ -471,7 +471,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 
     \ingroup model-view
 
-    The underlying data model is a hierarchy of rows. If you don't
+    The underlying data model is a hierarchy of tables. If you don't
     make use of the hierarchy, then the model is a simple table of
     rows and columns. Each item has a unique index specified by a
     QModelIndex.
