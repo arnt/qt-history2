@@ -761,8 +761,8 @@ void MainWindow::setupProjectActions()
     actionEditDatabaseConnections->setWhatsThis( tr("<b>Edit the database connections of the current project</b>"
 					     "<p>####TODO</p>") );
     connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
-    actionEditDatabaseConnections->setEnabled( FALSE );
-    connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditDatabaseConnections, SLOT( setEnabled(bool) ) );
+    //actionEditDatabaseConnections->setEnabled( FALSE );
+    //connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditDatabaseConnections, SLOT( setEnabled(bool) ) );
     actionEditDatabaseConnections->addTo( projectMenu );
 #endif
 
