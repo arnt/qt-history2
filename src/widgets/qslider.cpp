@@ -1,7 +1,19 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#3 $
+**
+** Implementation of QSlider class
+**
+** Created : 961020
+**
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#include "qslider.h"
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-#include "qslider.h"
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#3 $");
 
 #define SLIDE_BORDER	2
 #define SLIDE_WIDTH	30
@@ -12,11 +24,12 @@ static const int repeatTime    = 100;
 /*!
   \class QSlider qslider.h
 
-  \brief The QSlider widget class provides a vertical or horizontal slider.
+  \brief The QSlider widget provides a vertical or horizontal slider
+  (stripped down scrollbar).
 
   A slider is used to let the user control a value within a
   program-definable range. In contrast to a QScrollBar, the QSlider
-  widget has a constant size slider.
+  widget has a constant size slider and no arrow buttons.
 
   QSlider only offers integer ranges.
 
@@ -24,6 +37,39 @@ static const int repeatTime    = 100;
 
   \ingroup realwidgets
 */
+
+
+
+
+
+/*!
+  Constructs a vertical slider.
+
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
+QSlider::QSlider( QWidget *parent, const char *name )
+    : QWidget( parent, name )
+{
+    orient = Vertical;
+    init();
+}
+
+/*!
+  Constructs a slider.
+
+  The \e orientation must be QSlider::Vertical or QSlider::Horizontal.
+
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
+QSlider::QSlider( Orientation orientation, QWidget *parent,
+			const char *name )
+    : QWidget( parent, name )
+{
+    orient = orientation;
+    init();
+}
 
 
 /*!
@@ -82,6 +128,27 @@ void QSlider::init()
 */
 
 
+/*!
+  \fn void QSlider::valueChanged( int value )
+  This signal is emitted when the slider value is changed, with the
+  new slider value as an argument.
+*/
+
+/*!
+  \fn void QSlider::sliderPressed()
+  This signal is emitted when the user presses the slider with the mouse.
+*/
+
+/*!
+  \fn void QSlider::sliderMoved( int value )
+  This signal is emitted when the slider is dragged, with the
+  new slider value as an argument.
+*/
+
+/*!
+  \fn void QSlider::sliderReleased()
+  This signal is emitted when the user releases the slider with the mouse.
+*/
 
 /*!
   Calculates slider position corresponding to value \a v. Does not perform
@@ -104,7 +171,9 @@ int QSlider::valueFromPosition( int p ) const
     return available > 0 ? (2 * p * range + available ) / (2*available): 0;
 }
 
-
+/*!
+  Implements the virtual QRangeControl function.
+*/
 void QSlider::rangeChange()
 {
     int newPos = positionFromValue( value() );
@@ -114,6 +183,9 @@ void QSlider::rangeChange()
     }
 }
 
+/*!
+  Implements the virtual QRangeControl function.
+*/
 void QSlider::valueChange()
 {
     if ( sliderVal != value() ) {
@@ -126,6 +198,9 @@ void QSlider::valueChange()
 }
 
 
+/*!
+    Handles resize events for the slider.
+*/
 
 void QSlider::resizeEvent( QResizeEvent * )
 {
@@ -148,6 +223,31 @@ void QSlider::setPalette( const QPalette &p )
 
 
 
+/*!
+  Sets the slider orientation.  The \e orientation must be
+  QSlider::Vertical or QSlider::Horizontal.
+  \sa orientation()
+*/
+
+void QSlider::setOrientation( Orientation orientation )
+{
+    orient = orientation;
+    rangeChange();
+    repaint();	//slightly inefficient...
+}
+
+
+/*!
+  \fn Orientation QSlider::orientation() const
+  Returns the slider orientation; QSlider::Vertical or
+  QSlider::Horizontal.
+  \sa setOrientation()
+*/
+
+
+/*!
+  Returns the slider rectangle.
+  */
 QRect QSlider::sliderRect() const
 {
     if (orient == Horizontal )
@@ -158,9 +258,13 @@ QRect QSlider::sliderRect() const
 		       width() - 2 * SLIDE_BORDER, SLIDE_WIDTH );
 }
 
-
-void QSlider::timerEvent( QTimerEvent * )
+/*
+  Handles slider auto-repeat.
+  */
+void QSlider::timerEvent( QTimerEvent *t )
 {
+    if ( t->timerId() != timerId )
+	return; // Hmm, someone must have inherited us...
     switch ( state ) {
     case TimingDown:
 	subtractPage();
@@ -264,6 +368,9 @@ void QSlider::paintEvent( QPaintEvent * )
     p.end();
 }
 
+/*!
+  Handles mouse press events for the slider.
+ */
 void QSlider::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
@@ -272,7 +379,8 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
     if ( r.contains( e->pos() ) ) {
 	state = Dragging;
-	clickOffset = (QCOORD)( ( (orient == Horizontal) ? e->pos().x() : e->pos().y())
+	clickOffset = (QCOORD)( ( (orient == Horizontal) ?
+				  e->pos().x() : e->pos().y())
 				- sliderPos );
 	emit sliderPressed();
     } else if ( orient == Horizontal && e->pos().x() < r.left() 
@@ -330,6 +438,7 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
 	break;
     case Dragging: {
 	setValue( valueFromPosition( sliderPos ) );
+	emit sliderReleased();
 	break;
     }
     case None:

@@ -1,3 +1,16 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/widgets/qslider.h#2 $
+**
+** Definition of QSlider class
+**
+** Created : 961020
+**
+** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+#ifndef QSLIDER_H
+#define QSLIDER_H
 
 #include "qwidget.h"
 #include "qrangect.h"
@@ -40,7 +53,6 @@ protected:
     void	valueChange();
     void	rangeChange();
 
-    int		sliderStart() const;
     QRect	sliderRect() const;
 
 private:
@@ -72,3 +84,10 @@ inline bool QSlider::tracking() const
 {
     return track;
 }
+
+inline QSlider::Orientation QSlider::orientation() const
+{
+    return orient;
+}
+
+#endif //QSLIDER_H

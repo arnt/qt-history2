@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#12 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#13 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -34,8 +34,8 @@ public:
 
     bool	isReadOnly();
 
-    bool	atBeginning();
-    bool	atEnd();
+    bool	atBeginning() const;
+    bool	atEnd() const;
     void	setFont( const QFont &font );
 
 public slots:
@@ -65,6 +65,26 @@ protected:
     int		textWidth( int );
     int		textWidth( QString * );
 
+
+protected:
+    void	insertChar( char );
+    void 	newLine();
+    void 	killLine();
+    void	pageUp();
+    void	pageDown();
+    void	cursorLeft( bool mark=FALSE, int steps = 1 );
+    void	cursorRight( bool mark=FALSE, int steps = 1 );
+    void	cursorUp( bool mark=FALSE, int steps = 1 );
+    void	cursorDown( bool mark=FALSE, int steps = 1 );
+    void	backspace();
+    void	del();
+    void	home( bool mark=FALSE );
+    void	end( bool mark=FALSE );
+
+    int		lineLength( int row ) const;
+    QString	*getString( int row ) const;
+
+
 private slots:
     void	clipboardChanged();
 
@@ -84,25 +104,11 @@ private:
     int		markDragX;
     int		markDragY;
     int		curXPos;	// cell coord of cursor
+    int		blinkTimer;
+    int		scrollTimer;
 
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
-    int		lineLength( int row ) const;
-    QString	*getString( int row ) const;
-
-    void	insertChar( char );
-    void 	newLine();
-    void 	killLine();
-    void	pageUp();
-    void	pageDown();
-    void	cursorLeft( bool mark=FALSE, int steps = 1 );
-    void	cursorRight( bool mark=FALSE, int steps = 1 );
-    void	cursorUp( bool mark=FALSE, int steps = 1 );
-    void	cursorDown( bool mark=FALSE, int steps = 1 );
-    void	backspace();
-    void	del();
-    void	home( bool mark=FALSE );
-    void	end( bool mark=FALSE );
 
     void	updateCellWidth();
     bool 	partiallyInvisible( int row );
@@ -111,10 +117,13 @@ private:
 
     void	paste();
 
+    // SHOULD THESE BECOME PROTECTED:
     void	newMark( int posx, int posy, bool copy=TRUE );
     void	turnMarkOff();
     void	markWord( int posx, int posy );
     void	copyText();
+
+
 
 private:	// Disabled copy constructor and operator=
     QMultiLineEdit( const QMultiLineEdit & ) {}
@@ -128,13 +137,13 @@ inline int QMultiLineEdit::lineLength( int row ) const
     return contents->at( row )->length();
 }
 
-inline bool QMultiLineEdit::atEnd() 
+inline bool QMultiLineEdit::atEnd() const 
 { 
     return cursorY == (int)contents->count() - 1 
 	&& cursorX == lineLength( cursorY ) ; 
 }
 
-inline bool QMultiLineEdit::atBeginning() 
+inline bool QMultiLineEdit::atBeginning() const 
 { 
     return cursorY == 0 && cursorX == 0; 
 }

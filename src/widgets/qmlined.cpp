@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#16 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -108,7 +108,41 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     markAnchorY    = 0;
     markDragX      = 0;
     markDragY      = 0;
+    blinkTimer     = 0;
 }
+
+/*!
+  \fn int QMultiLineEdit::numLines()
+
+  Returns the number of lines in the editor.
+  */
+
+/*!
+  \fn bool QMultiLineEdit::atEnd() const
+  Returns TRUE if the cursor is placed at the end of the text.
+  */
+
+/*!
+  \fn bool QMultiLineEdit::atBeginning() const
+  Returns TRUE if the cursor is placed at the beginning of the text.
+*/
+
+
+/*!
+  \fn int QMultiLineEdit::lineLength( int row ) const
+  Returns the number of characters at line number \a row.
+  */
+/*!
+  \fn QString *QMultiLineEdit::getString( int row ) const
+  Returns a pointer to the text at line \a row.
+  */
+
+/*!
+  \fn void QMultiLineEdit::textChanged()
+  This signal should be emitted when the text is changed (not implemented)
+  */
+
+
 
 /*!
   \fn bool QMultiLineEdit::isReadOnly()
@@ -139,17 +173,13 @@ void QMultiLineEdit::setReadOnly( bool on )
 }
 
 /*!
-
+  Destroys the QMultiLineEdit
 */
 
 QMultiLineEdit::~QMultiLineEdit()
 {
     
 }
-
-/*!
-
-*/
 
 const int nBuffers = 3;
 static QPixmap *buffer[nBuffers] = { 0, 0, 0 };   // ### delete ved avslutning
@@ -185,6 +215,9 @@ static QPixmap *getCacheBuffer( QSize sz )
     return buffer[freeNext];
 }
 
+/*!
+  Implements the basic drawing logic.
+ */
 void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 {
     QColorGroup	 g    = colorGroup();
@@ -294,7 +327,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 }
 
 /*!
-
+  Returns the width in pixels of the string \a s.
 */
 
 int QMultiLineEdit::textWidth( QString *s )
@@ -304,7 +337,7 @@ int QMultiLineEdit::textWidth( QString *s )
 }
 
 /*!
-
+  Returns the width in pixels of the text at line \a row.
 */
 
 int QMultiLineEdit::textWidth( int row )
@@ -320,34 +353,35 @@ int QMultiLineEdit::textWidth( int row )
 }
 
 /*!
-
+  Starts the cursor blinking.
 */
 
 void QMultiLineEdit::focusInEvent( QFocusEvent * )
 {
     //debug( "startTimer" );
     //killTimers();
-    startTimer( blinkTime );
+    blinkTimer = startTimer( blinkTime );
     cursorOn = TRUE;
     updateCell( cursorY, 0, FALSE );
 }
 
 /*!
-
+  stops the cursor blinking.
 */
 
 void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
-    killTimers();
+    killTimer( blinkTimer );
+    blinkTimer = 0;
 }
 
 /*!
   Cursor blinking
 */
 
-void QMultiLineEdit::timerEvent( QTimerEvent * )
+void QMultiLineEdit::timerEvent( QTimerEvent *t )
 {
-    if ( hasFocus() ) {
+    if ( hasFocus() && t->timerId() == blinkTimer ) {
 	/*
 	if ( dragScrolling ) {
 	    if ( scrollingLeft )
@@ -362,7 +396,7 @@ void QMultiLineEdit::timerEvent( QTimerEvent * )
 }
 
 /*!
-
+  Returns TRUE if there is marked text.
 */
 
 bool QMultiLineEdit::hasMarkedText() const
@@ -370,6 +404,9 @@ bool QMultiLineEdit::hasMarkedText() const
     return markIsOn;
 }
 
+/*!
+  Returns a copy of the marked text.
+ */
 QString QMultiLineEdit::markedText() const
 {
     if ( !markIsOn )
@@ -451,7 +488,7 @@ QString QMultiLineEdit::text() const
 }
 
 /*!
-
+  Selects all text (unimplemented)
 */
 
 void QMultiLineEdit::selectAll()
@@ -460,7 +497,7 @@ void QMultiLineEdit::selectAll()
 }
 
 /*!
-
+  Sets the text to \a s, removing old text, if any.
 */
 
 void QMultiLineEdit::setText( const char *s )
@@ -644,7 +681,9 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
 }
-
+/*!
+  Moves the cursor one page up.
+ */
 void QMultiLineEdit::pageDown()
 {
     int delta = cursorY - topCell();
@@ -665,6 +704,9 @@ void QMultiLineEdit::pageDown()
     updateCell( oldY, 0, FALSE );
 }
 
+/*!
+  Moves the cursor one page down.
+ */
 void QMultiLineEdit::pageUp()
 {
     int delta = cursorY - topCell();
@@ -687,7 +729,6 @@ void QMultiLineEdit::pageUp()
 }
 
 /*!
-
   Inserts \a s at line number \a row. If \a row is less than zero, or
   larger than the number of rows, the new text is put at the end.
   If \a s contains newline characters, several lines are inserted.
@@ -850,7 +891,7 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	return;
     }
     if ( cursorX != 0 || cursorY != 0 ) {
-	killTimers();
+	killTimer( blinkTimer );
 	int ll = lineLength( cursorY );
 	if ( cursorX > ll )
 	    cursorX = ll;
@@ -867,7 +908,7 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	    }
 	    updateCell( oldY, 0, FALSE );
 	}
-	startTimer( blinkTime );
+	blinkTimer = startTimer( blinkTime );
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
@@ -893,7 +934,7 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
     int strl = lineLength( cursorY );
 
     if ( cursorX < strl || cursorY < (int)contents->count() - 1 ) {
-	killTimers();
+	killTimer( blinkTimer );
 	cursorOn = TRUE;
 	cursorX += steps;
 	if ( cursorX > strl ) {
@@ -907,7 +948,7 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
 	    updateCell( oldY, 0, FALSE );
 	}
 	updateCell( cursorY, 0, FALSE );
-	startTimer( blinkTime );
+	blinkTimer = startTimer( blinkTime );
     }
     curXPos  = 0;
     makeVisible();
@@ -933,7 +974,7 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 	if ( !curXPos )
 	    curXPos = mapToView( cursorX, cursorY );
 	int oldY = cursorY;
-	killTimers();
+	killTimer( blinkTimer );
 	cursorOn = TRUE;
 	cursorY -= steps;
 	if ( cursorY < 0 ) {
@@ -942,7 +983,7 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
         cursorX = mapFromView( curXPos, cursorY );
 	updateCell( oldY, 0, FALSE );
 	updateCell( cursorY, 0, FALSE );
-	startTimer( blinkTime );
+	blinkTimer = startTimer( blinkTime );
     }
     makeVisible();
     turnMarkOff();
@@ -967,7 +1008,7 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 	if ( !curXPos )
 	    curXPos = mapToView( cursorX, cursorY );
 	int oldY = cursorY;
-	killTimers();
+	killTimer( blinkTimer );
 	cursorOn = TRUE;
 	cursorY += steps;
 	if ( cursorY > lastLin ) {
@@ -976,13 +1017,15 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
         cursorX = mapFromView( curXPos, cursorY );
 	updateCell( oldY, 0, FALSE );
 	updateCell( cursorY, 0, FALSE );
-	startTimer( blinkTime );
+	blinkTimer = startTimer( blinkTime );
     }
     makeVisible();
     turnMarkOff();
 }
 
-
+/*!
+  Turns off marked text
+ */
 void QMultiLineEdit::turnMarkOff()
 {
     if ( markIsOn ) {
@@ -1109,7 +1152,7 @@ void QMultiLineEdit::del()
 void QMultiLineEdit::home( bool ) //mark
 {
     if ( cursorX != 0 ) {
-	killTimers();
+	killTimer( blinkTimer );
 	cursorX = 0;
 	/*
 	if ( mark ) {
@@ -1122,7 +1165,7 @@ void QMultiLineEdit::home( bool ) //mark
 	cursorOn = TRUE;
 	updateCell( cursorY, 0, FALSE );
 	//startTimer( dragScrolling ? scrollTime : blinkTime );
-	startTimer( blinkTime );
+	blinkTimer = startTimer( blinkTime );
     }
     curXPos  = 0;
     turnMarkOff();
@@ -1140,7 +1183,7 @@ void QMultiLineEdit::end( bool ) //mark
 {
     int tlen = lineLength( cursorY );
     if ( cursorX != tlen ) {
-	killTimers();
+	killTimer( blinkTimer );
 	cursorX = tlen;
 	/*
 	if ( mark ) {
@@ -1152,7 +1195,7 @@ void QMultiLineEdit::end( bool ) //mark
 	*/
 	cursorOn  = TRUE;
 	//startTimer( dragScrolling ? scrollTime : blinkTime );
-	startTimer( blinkTime );
+	blinkTimer = startTimer( blinkTime );
 	updateCell( cursorY, 0, FALSE );
     }
     curXPos  = 0;
@@ -1161,7 +1204,7 @@ void QMultiLineEdit::end( bool ) //mark
 }
 
 /*!
-
+  Handles mouse press events.
 */
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
@@ -1201,6 +1244,9 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	paste();		// Will repaint the cursor line.
 }
 
+/*!
+  Handles mouse move events.
+ */
 void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
     if ( readOnly || !dragMarking )
@@ -1222,6 +1268,10 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
+
+/*!
+  Handles mouse release events.
+ */
 void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 {
     dragScrolling = FALSE;
@@ -1232,10 +1282,20 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 	copyText();
 }
 
+
+/*!
+  Handles double click events.
+ */
+
 void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 {
     mousePressEvent( e );
 }
+
+
+/*!
+  Returns TRUE if line \a row is invisible or partially invisible.
+ */
 
 bool QMultiLineEdit::partiallyInvisible( int row )
 {
@@ -1253,7 +1313,7 @@ bool QMultiLineEdit::partiallyInvisible( int row )
 }
 
 /*!
-
+  Scrolls such that the cursor is visible
 */
 
 void QMultiLineEdit::makeVisible()
@@ -1278,7 +1338,8 @@ void QMultiLineEdit::makeVisible()
 }
 
 /*!
-
+  Computes the character position in line \a row which corresponds 
+  to pixel \a xPos
 */
 
 int QMultiLineEdit::mapFromView( int xPos, int row )
@@ -1293,7 +1354,8 @@ int QMultiLineEdit::mapFromView( int xPos, int row )
 }
 
 /*!
-
+  Computes the pixel position in line \a row which corresponds to 
+  character position \a xIndex
 */
 
 int QMultiLineEdit::mapToView( int xIndex, int row )
@@ -1327,7 +1389,7 @@ void QMultiLineEdit::updateCellWidth()
 
 
 /*!
-
+  Sets the bottommost visible line to \a row.
 */
 
 void QMultiLineEdit::setBottomCell( int row )
@@ -1337,10 +1399,11 @@ void QMultiLineEdit::setBottomCell( int row )
     int newYPos = rowY +  cellHeight() - viewHeight();
     setYOffset( QMAX( newYPos, 0 ) );
 }
+
 /*!
-
+  Copies text from the clipboard onto the current cursor position
+  replacing marked text, if any.
 */
-
 void QMultiLineEdit::paste()
 {
     //debug( "paste" );
@@ -1468,7 +1531,6 @@ void QMultiLineEdit::markWord( int posx, int posy )
 	cursorPos = markBegin;
     }
     */
-
     copyText();
 }
 
