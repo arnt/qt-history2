@@ -1050,8 +1050,8 @@ bool QSettings::sync()
 
 	if ( success ) {
 	    QDir dir( QFileInfo( file ).dir( TRUE ) );
-	    if ( ! dir.remove( filename ) ||
-		 ! dir.rename( file.name(), filename, TRUE ) ) {
+	    if ( dir.exists( filename ) && !dir.remove( filename ) ||
+		 !dir.rename( file.name(), filename, TRUE ) ) {
 
 #ifdef QT_CHECK_STATE
 		qWarning( "QSettings::sync: error writing file '%s'",
