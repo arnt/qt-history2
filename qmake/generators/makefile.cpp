@@ -243,6 +243,11 @@ MakefileGenerator::generateDependancies(QList<MakefileDependDir> &dirs, QString 
 	    }
 	    if(*(big_buffer + x) == '#') {
 		x++;
+		// skip spaces and tabs between the hash and text, so we can handle
+		// #  include
+		while(x < total_size_read &&
+		      (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
+		    x++;
 		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
 		    x += 8;
 		    char term = *(big_buffer + x);
