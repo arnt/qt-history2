@@ -24,6 +24,7 @@
 #include "glpainter.h"
 #endif
 #include "textoutline.h"
+#include "mandelbrotwidget.h"
 
 #include <qapplication.h>
 
@@ -39,6 +40,7 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("Paths", new Paths, "paths.cpp");
     viewer.addDemoWidget("On the road", new Roads, "roads.cpp");
     viewer.addDemoWidget("Stretched Pixmap", new Warpix, "warpix.cpp");
+    viewer.addDemoWidget("Threaded Mandelbrot", new MandelbrotWidget, "mandelbrotwidget.cpp");
 #if !(defined(QT_NO_XFT) && defined(Q_WS_X11))
     viewer.addDemoWidget("Outline", new TextOutline, "textoutline.cpp");
 #endif

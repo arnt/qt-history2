@@ -14,7 +14,10 @@ SOURCES = \
 	paths.cpp \
 	roads.cpp \
 	rotatinggradient.cpp \
-	warpix.cpp textoutline.cpp
+	warpix.cpp \
+	textoutline.cpp \
+  	mandelbrotwidget.cpp \
+	renderthread.cpp
 
 HEADERS = \
 	alphashade.h \
@@ -26,7 +29,9 @@ HEADERS = \
 	paths.h \
 	roads.h \
 	rotatinggradient.h \
-	warpix.h
+	warpix.h \
+	mandelbrotwidget.h \
+	renderthread.h
 
 contains(QT_CONFIG, opengl) {
 	HEADERS += glpainter.h
