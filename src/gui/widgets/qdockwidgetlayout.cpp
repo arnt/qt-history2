@@ -216,54 +216,40 @@ QLayoutItem *QDockWidgetLayout::takeAt(int index)
             continue;
 	if (x++ == index) {
 	    QLayoutItem *layoutitem = info.item;
+            QWidget *widget = info.item->widget();
 
-	    VDEBUG("QDockWidgetLayout::takeAt: layoutitem '%s'",
+	    VDEBUG("QDockWidgetLayout::takeAt: layoutitem '%s'\n"
+                   "  index %3d pos %4d size %4d %s",
                    (layoutitem->widget()
                     ? layoutitem->widget()->objectName().toLatin1().constData()
+                    : "dummy"),
+                   i, info.cur_pos, info.cur_size,
+                   (widget
+                    ? widget->objectName().toLatin1().constData()
                     : "dummy"));
 
-	    int prev_separator = -1;
-	    for (int it = 0; it < layout_info.count(); ++it) {
-		const QDockWidgetLayoutInfo &info = layout_info.at(it);
-		if (info.is_sep) {
-		    prev_separator = it;
-		    continue;
-		}
-		if (info.item != layoutitem)
-                    continue;
+            // remove the item
+            layout_info.removeAt(i);
 
-		QWidget *widget = info.item->widget();
-		VDEBUG("  index %3d pos %4d size %4d %s",
-		       it, info.cur_pos, info.cur_size,
-		       widget ? widget->objectName().toLatin1().constData() : "dummy");
+            // remove the separator
+            if (i == layout_info.count()) {
+                // we removed the last dockwidget, so we need to remove
+                // the separator that was above it
+                --i;
+            }
 
-		// remove the item
-		layout_info.removeAt(it);
+            if (i != -1) {
+                QDockWidgetLayoutInfo &sep_info = layout_info[i];
+                Q_ASSERT(sep_info.is_sep);
 
-		// remove the separator
-		if (it == layout_info.count()) {
-		    // we removed the last dockwidget, so we need to remove
-		    // the separator that was above it
-		    --it;
-		    if (prev_separator == it)
-			prev_separator = -1;
-		}
+                if (!save_layout_info) {
+                    delete sep_info.item->widget();
+                    delete sep_info.item;
+                }
 
-		if (it != -1) {
-		    QDockWidgetLayoutInfo &sep_info = layout_info[it];
-		    Q_ASSERT(sep_info.is_sep);
-
-		    if (!save_layout_info) {
-			delete sep_info.item->widget();
-			delete sep_info.item;
-		    }
-
-		    VDEBUG("    removing separator at %d", it);
-		    layout_info.removeAt(it);
-		}
-
-		break;
-	    }
+                VDEBUG("    removing separator at %d", i);
+                layout_info.removeAt(i);
+            }
 
 #ifdef LAYOUT_DEBUG_VERBOSE
 	    dump();
