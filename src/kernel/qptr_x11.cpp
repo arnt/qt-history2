@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#242 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#241 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#242 $");
 
 
 /*****************************************************************************
@@ -2265,23 +2265,27 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 /* Internal, used by drawTiledPixmap */
 
 static void drawTile( QPainter *p, int x, int y, int w, int h,
-		      const QPixmap &pixmap, int sx, int sy )
+		      const QPixmap &pixmap, int xOffset, int yOffset )
 {
-    int py, px, sh, sw, yy, xx;
-    for ( py=y; py<y+h; ) {
-	sh = pixmap.height();
-	yy = py == y ? sy : 0;
-	if ( py + sh > y + h )
-	    sh = y + h - py;
-	for ( px=x; px<x+w; ) {
-	    sw = pixmap.width();
-	    xx = px == x ? sx : 0;
-	    if ( px + sw > x + w )
-		sw = x + w - px;
-	    p->drawPixmap( px, py, pixmap, xx, yy, sw, sh );
-	    px += sw - xx;
+    int yPos, xPos, drawH, drawW, yOff, xOff;
+    yPos = y; 
+    yOff = yOffset;
+    while( yPos < y + h ) {
+	drawH = pixmap.height() - yOff;    // Cropping first row
+	if ( yPos + drawH > y + h )	   // Cropping last row
+	    drawH = y + h - yPos;
+	xPos = x; 
+	xOff = xOffset;
+	while( xPos < x + w ) {
+	    drawW = pixmap.width() - xOff; // Cropping first column
+	    if ( xPos + drawW > x + w )	   // Cropping last column
+		drawW = x + w - xPos;
+	    p->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH );
+	    xPos += drawW;
+	    xOff = 0;
 	}
-	py += sh - yy;
+	yPos += drawH;
+	yOff = 0;
     }
 }
 
