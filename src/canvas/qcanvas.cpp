@@ -888,11 +888,8 @@ viewing this QCanvas.  The QCanvasView class calls this.
 void QCanvas::addView(QCanvasView* view)
 {
     d->viewList.append(view);
-    if ( htiles>1 || vtiles>1 || pm.isNull() ) {
+    if ( htiles>1 || vtiles>1 || pm.isNull() )
 	view->viewport()->setBackgroundColor(backgroundColor());
-    } else {
-	view->viewport()->setBackgroundPixmap(backgroundPixmap());
-    }
 }
 
 /*!
@@ -1491,7 +1488,7 @@ void QCanvas::setBackgroundColor( const QColor& c )
 	bgcolor = c;
 	QCanvasView* view=d->viewList.first();
 	while ( view != 0 ) {
-	    view->viewport()->setBackgroundColor(backgroundColor());
+	    view->viewport()->setEraseColor( bgcolor );
 	    view=d->viewList.next();
 	}
 	setAllChanged();
@@ -1518,11 +1515,6 @@ QPixmap QCanvas::backgroundPixmap() const
 void QCanvas::setBackgroundPixmap( const QPixmap& p )
 {
     setTiles(p, 1, 1, p.width(), p.height());
-    QCanvasView* view=d->viewList.first();
-    while ( view != 0 ) {
-	view->viewport()->setBackgroundPixmap(backgroundPixmap());
-	view=d->viewList.next();
-    }
 }
 
 /*!
