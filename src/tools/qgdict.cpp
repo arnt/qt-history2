@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#48 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#48 $");
 
 
 /*!
@@ -367,7 +367,7 @@ void QGDict::clear()
 	n = vec[j];
 	while ( n ) {
 	    if ( copyk )
-		delete n->getKey();
+		delete [] n->getKey();
 	    deleteItem( n->getData() );
 	    QBucket *next = n->getNext();
 	    delete n;
