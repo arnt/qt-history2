@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#486 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#487 $
 **
 ** Implementation of QWidget class
 **
@@ -2538,18 +2538,21 @@ QFocusData * QWidget::focusData( bool create )
 
 
 /*!
-  Enables key event compression. Per default, the compression is
-  turned off.  If you enable it, the widget receives compressed key
-  press events whenever the user types too fast for your program. That
-  means you may receive an entire word in the QKeyEvent::text() field
-  of they QKeyEvent, instead of one event for each character. This
-  makes sense for a word processor, for example, since it takes almost
-  as much time to insert a single character as it takes to insert a
-  full word, because the required recalculation of the layout of the
-  paragraph is roughly the same.
+  Enables key event compression, if \a enable is TRUE, and disables it
+  if \a enable is FALSE.
 
-  If a widgets supports multiple byte unicode input, it is always safe
-  (and also recommended!) to turn the compression on.
+  By default key compression is off, so widgets receive one key press
+  event for each key press (or more, since autorepeat is usually on).
+  If you turn it on and your program doesn't keep up with key input,
+  Qt tries to compress key events so that more than one character can
+  be processed in each event.
+
+  For example, a word processor widget might receive 2, 3 or more
+  characters in each QKeyEvent::text(), if the layout recalculation
+  takes too long for the CPU.
+
+  If a widget supports multiple character unicode input, it is always
+  safe to turn the compression on.
 
   \sa QKeyEvent::text();
 */
