@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#250 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#251 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1580,6 +1580,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         if ( currentItem() >= 0 ) {
             QString tmp = item( currentItem() )->text();
             emit selected( currentItem());
+            emit selected( item( currentItem() ) );
             if ( !tmp.isEmpty() )
                 emit selected( tmp );
         }
