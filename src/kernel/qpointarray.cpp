@@ -23,13 +23,14 @@ const double Q_PI = 3.14159265358979323846;
 /*!
     \class QPointArray qpointarray.h
     \brief The QPointArray class provides an array of points.
+    \reentrant
 
     \ingroup images
     \ingroup graphics
     \ingroup shared
 
     A QPointArray is an array of QPoint objects. In addition to the
-    functions provided by QMemArray, QPointArray provides some
+    functions provided by QVector, QPointArray provides some
     point-specific functions.
 
     For convenient reading and writing of the point data use
@@ -44,23 +45,7 @@ const double Q_PI = 3.14159265358979323846;
     QPainter::drawPolyline(), QPainter::drawPolygon() and
     QPainter::drawCubicBezier().
 
-    Note that because this class is a QMemArray, copying an array and
-    modifying the copy modifies the original as well, i.e. a shallow
-    copy. If you need a deep copy use copy() or detach(), for example:
-
-    \code
-	void drawGiraffe( const QPointArray & r, QPainter * p )
-	{
-	    QPointArray tmp = r;
-	    tmp.detach();
-	    // some code that modifies tmp
-	    p->drawPoints( tmp );
-	}
-    \endcode
-
-    If you forget the tmp.detach(), the const array will be modified.
-
-    \sa QPainter QWMatrix QMemArray
+    \sa QPainter QWMatrix QVector
 */
 
 
@@ -134,25 +119,11 @@ QPointArray::QPointArray(int nPoints, const QCOORD *points)
 */
 
 
-/*!
-    \fn QPointArray &QPointArray::operator=( const QPointArray &a )
-
-    Assigns a shallow copy of \a a to this point array and returns a
-    reference to this point array.
-
-    Equivalent to assign(a).
-
-    \sa copy() detach()
-*/
-
-/*!
+/*! \obsolete
     \fn QPointArray QPointArray::copy() const
 
-    Creates a deep copy of the array.
-
-    \sa detach()
+    Returns a copy of this point array.
 */
-
 
 
 /*!
@@ -169,6 +140,12 @@ void QPointArray::translate(int dx, int dy)
 	++p;
     }
 }
+
+/*! \fn void QPointArray::translate(const QPoint &offset)
+    \overload
+
+    Translates all points in the array by \a offset.
+*/
 
 
 /*!
@@ -974,11 +951,12 @@ struct QShortPoint {			// Binary compatible with XPoint
     short x, y;
 };
 
-int QPointArray::splen = 0;
-void* QPointArray::sp = 0;		// Really a QShortPoint*
+static int splen = 0;
+static void *sp = 0;			// Really a QShortPoint*
 
 /*!
   \internal
+  \nonreentrant
 
   Converts the point coords to short (16bit) size, compatible with
   X11's XPoint structure. The pointer returned points to a static
@@ -1013,6 +991,7 @@ void* QPointArray::shortPoints(int index, int nPoints) const
 
 /*!
   \internal
+  \nonreentrant
 
   Deallocates the internal buffer used by shortPoints().
 */

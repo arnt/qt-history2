@@ -42,6 +42,7 @@ public:
 #endif
 
     void translate(int dx, int dy);
+    void translate(const QPoint &offset);
     QRect boundingRect() const;
 
     void point(int i, int *x, int *y) const;
@@ -61,11 +62,6 @@ public:
 
     void *shortPoints(int index = 0, int nPoints = -1) const;
     static void cleanBuffers();
-
-private:
-    // ### These are not thread safe.
-    static int splen;
-    static void *sp;
 };
 
 
@@ -82,19 +78,15 @@ Q_EXPORT QDataStream &operator>>(QDataStream &stream, QPointArray &array);
  *****************************************************************************/
 
 inline void QPointArray::setPoint(int index, const QPoint &pt)
-{
-    (*this)[index] = pt;
-}
+{ (*this)[index] = pt; }
 
 inline void QPointArray::setPoint(int index, int x, int y)
-{
-    (*this)[index] = QPoint(x, y);
-}
+{ (*this)[index] = QPoint(x, y); }
 
 inline QPoint QPointArray::point(int index) const
-{
-    return at(index);
-}
+{ return at(index); }
 
+inline void QPointArray::translate(const QPoint &offset)
+{ translate(offset.x(), offset.y()); }
 
 #endif // QPOINTARRAY_H
