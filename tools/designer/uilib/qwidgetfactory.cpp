@@ -212,7 +212,7 @@ static QSizePolicy::SizeType stringToSizeType( const QString& str )
   \list
 
   \i Dynamically creating widgets from \link designer-manual.book Qt
-  Designer\endlink\e{Qt Designer} user interface description files.
+  Designer\endlink user interface description files.
   You can do this using the static function QWidgetFactory::create().
   This function also performs signal and slot connections, tab
   ordering, etc., as defined in the .ui file, and returns the
