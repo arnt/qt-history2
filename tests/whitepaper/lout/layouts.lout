@@ -163,6 +163,10 @@ designer @Index { Designer }
 qtdesigner @Index { Qt Designer }
 fixedpositioning @Index { Fixed positioning }
 @PP
+@Figure
+    @Caption { Laying out a form in @QDR }
+@IncludeGraphic { "../images/countries-designer.eps" }
+@PP
 @QDR makes layouts even easier. With only 17 mouse clicks, you can
 create and lay out the widgets for the dialog shown above.
 @End @SubSection

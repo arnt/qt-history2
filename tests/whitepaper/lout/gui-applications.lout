@@ -362,7 +362,7 @@ wizards @Index { Wizards }
 @PP
 @Figure
     @Caption { QFontDialog }
-@IncludeGraphic { "../images/qfontdialog-etc.eps" }
+@Scale @IncludeGraphic { "../images/qfontdialog.eps" }
 @PP
 @Class QFontDialog is used to select a font.
 fontdialog @Index { Font fialog }

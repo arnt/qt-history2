@@ -52,7 +52,7 @@ sgi @Index { SGI }
 windows @Index { Windows }
 @Figure
     @Caption { Comboboxes in the different built-in styles }
-@IncludeGraphic { "../images/combobox-style.eps" }
+@IncludeGraphic { "../images/combobox.eps" }
 @PP
 A style is complemented by a theme, which encapsulates the user's
 preferences for colors, fonts, sounds, etc. Qt automatically adapts
