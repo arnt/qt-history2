@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#56 $
 **
 ** Definition of QIconView widget class
 **
@@ -123,7 +123,7 @@ struct QIconViewPrivate
     int maxItemWidth, maxItemTextLength;
     QPoint dragStart;
     bool drawDragShape;
-    QMap< QString, QIconViewItem* > textMap;
+    QMap< QString, QIconViewItem* > nameMap;
     QString currInputString;
 };
 
@@ -536,7 +536,7 @@ void QIconViewItem::setText( const QString &text, bool recalc )
 	return;
 
     itemText = text;
-    
+
     if ( recalc ) {
 	calcRect();
 	repaint();
@@ -551,7 +551,7 @@ void QIconViewItem::setText( const QString &text, bool recalc )
 void QIconViewItem::setIcon( const QIconSet &icon, bool recalc )
 {
     itemIcon = icon;
-    
+
     if ( recalc ) {
 	calcRect();
 	repaint();
@@ -1143,6 +1143,15 @@ void QIconViewItem::dragLeft()
 {
 }
 
+/*!
+  Sets the iconview of the item ot \a v.
+*/
+
+void QIconViewItem::setView( QIconView *v )
+{
+    view = v;
+}
+
 /*****************************************************************************
  *
  * Class QIconView
@@ -1364,6 +1373,8 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	}
     }
 
+    d->nameMap[ item->text() ] = item;
+    
     if ( isVisible() ) {
 	if ( d->updateTimer->isActive() )
 	    d->updateTimer->stop();

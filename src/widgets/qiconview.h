@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#24 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#25 $
 **
 ** Definition of QIconView widget class
 **
@@ -206,8 +206,9 @@ protected:
     virtual void dragEntered();
     virtual void dragLeft();
     virtual void init();
+    void setView( QIconView* v );
     
-protected:
+private:
     QIconView *view;
     QString itemText;
     QIconSet itemIcon;
