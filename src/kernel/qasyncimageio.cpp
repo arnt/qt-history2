@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#19 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -349,6 +349,9 @@ class QGIFDecoderFactory : public QImageFormatDecoderFactory {
     const char* formatName() const;
 };
 
+// this variable must exist to read gifs, and if it's static sgi cc 7
+// complains... so give it an obscure name and make it non-static
+QGIFDecoderFactory qt_internal_gif_decoder_factory;
 
 QImageFormatDecoder* QGIFDecoderFactory::decoderFor(
     const uchar* buffer, int length)
@@ -368,7 +371,6 @@ const char* QGIFDecoderFactory::formatName() const
 {
     return "GIF";
 }
-
 
 
 void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
