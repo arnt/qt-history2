@@ -1288,17 +1288,17 @@ template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 
 class QFlagInternal
 {
-    uint i;
+    int i;
 public:
-    inline QFlagInternal(uint i) : i(i) {}
-    inline operator uint() const { return i; }
+    inline QFlagInternal(int i) : i(i) {}
+    inline operator int() const { return i; }
 };
 
 template<typename Enum>
 class QFlags
 {
     typedef void *Zero;
-    uint u;
+    int u;
 public:
     inline QFlags(const QFlags &f) : u(f.u) {}
     inline QFlags(Enum f) : u(f) {}
