@@ -744,17 +744,18 @@ static bool block_set_alignment = FALSE;
   \sa setCursorPosition()
 */
 
-/*! \fn void QTextEdit::clicked( int para, int index )
+/*! \fn void QTextEdit::clicked( int para, int pos )
 
-  This signal is emitted when the mouse is clicked on a paragraph.
+  This signal is emitted when the mouse is clicked on the paragraph \a para
+  at the paragraph index \a pos.
 
   \sa doubleClicked()
 */
 
-/*! \fn void QTextEdit::doubleClicked( int para, int index )
+/*! \fn void QTextEdit::doubleClicked( int para, int pos )
 
-  This signal is emitted when the mouse is double-clicked on a
-  paragraph.
+  This signal is emitted when the mouse is double-clicked on the
+  paragraph \a para at the paragraph index \a pos.
 
   \sa clicked()
 */
@@ -2420,15 +2421,7 @@ void QTextEdit::handleMouseMove( const QPoint& pos )
     }
 }
 
-/*!
-  \fn void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
-  Places the cursor \a c at the character which is closest to position
-  \a pos (in contents coordinates). If \a c is 0, the default text
-  cursor is used.
-
-  \sa setCursorPosition()
-*/
-
+/*! \internal */
 void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c, bool link )
 {
     if ( !c )
@@ -5348,7 +5341,13 @@ void QTextEdit::updateCursor( const QPoint & pos )
     }
 }
 
-/*! \internal */
+/*!
+  Places the cursor \a c at the character which is closest to position
+  \a pos (in contents coordinates). If \a c is 0, the default text
+  cursor is used.
+
+  \sa setCursorPosition()
+*/
 void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
 {
     placeCursor( pos, c, FALSE );
@@ -5373,13 +5372,11 @@ void QTextEdit::clipboardChanged()
 
 */
 
-/*! \internal */
 void QTextEdit::setAllowTabs( bool b )
 {
     d->allowTabs = b;
 }
 
-/*! \internal */
 bool QTextEdit::allowTabs() const
 {
     return d->allowTabs;

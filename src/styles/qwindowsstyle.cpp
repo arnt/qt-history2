@@ -1809,6 +1809,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
     return ret;
 }
 
+/*! \reimp */
 QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect;

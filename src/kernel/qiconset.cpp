@@ -835,7 +835,7 @@ QPixmap *QIconFactory::createPixmap( const QIconSet& /* iconSet */,
 /*!
   Returns the default icon factory.
 
-  \sa setDefaultFactory()
+  \sa installDefaultFactory()
 */
 QIconFactory *QIconFactory::defaultFactory()
 {

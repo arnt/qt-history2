@@ -989,7 +989,6 @@ void QWhatsThis::display( const QString& text, const QPoint& pos, QWidget* w )
 
 /*!
   Sets the font for all "What's this?" helps to \a font.
-  \sa font()
 */
 void QWhatsThis::setFont( const QFont &font )
 {

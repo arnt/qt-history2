@@ -567,7 +567,7 @@ bool QIODevice::atEnd() const
 
   This virtual function must be reimplemented by all subclasses.
 
-  \sa writeBlock() isOpen isReadable()
+  \sa writeBlock() isOpen() isReadable()
 */
 
 /*!

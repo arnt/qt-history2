@@ -14941,7 +14941,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
 /*! \fn QString& QString::prepend( const QCString &s )
   \overload
 
-  Inserts \a ch s the beginning of the string and returns a reference to the string.
+  Inserts \a s at the beginning of the string and returns a reference to the string.
 
   Equivalent to insert(0, \a s).
 
@@ -15971,7 +15971,8 @@ QString& QString::operator+=( const QString &str )
     return *this;
 }
 
-/*!
+/*! \overload
+
   Appends \a str to the string and returns a reference to the string.
 */
 QString& QString::operator+=( const char *str )

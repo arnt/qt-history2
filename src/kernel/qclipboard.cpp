@@ -175,6 +175,8 @@ QClipboard::~QClipboard()
 // text handling is done directly in qclipboard_qws, for now
 
 /*!
+    \overload
+
     Returns the clipboard text in subtype \a subtype, or a null string
     if the clipboard does not contain any text. If \a subtype is null,
     any subtype is acceptable, and \a subtype is set to the chosen

@@ -112,7 +112,7 @@ public:
     QRect&  operator&=(const QRect &r);
 
     bool   contains( const QPoint &p, bool proper=FALSE ) const;
-    bool   contains( int x, int y ) const;
+    bool   contains( int x, int y ) const; //### merge with below for 4.0
     bool   contains( int x, int y, bool proper ) const;
     bool   contains( const QRect &r, bool proper=FALSE ) const;
     QRect  unite( const QRect &r ) const;
