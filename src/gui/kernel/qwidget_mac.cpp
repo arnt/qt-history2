@@ -526,7 +526,6 @@ bool QWidgetPrivate::qt_mac_update_sizer(QWidget *w, int up=0)
     if(!w || !w->isTopLevel())
         return false;
 
-    w->d->createTLExtra();
     w->d->extraData()->topextra->resizer += up;
     {
         WindowClass wclass;
@@ -900,7 +899,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if(dialog && !parentWidget() && !testWFlags(Qt::WShowModal))
             grp = GetWindowGroupOfClass(kDocumentWindowClass);
         if(testWFlags(Qt::WStyle_StaysOnTop)) {
-            d->createTLExtra();
             if(d->topData()->group)
                 qt_mac_release_window_group(d->topData()->group);
             d->topData()->group = qt_mac_get_stays_on_top_group();
@@ -1191,7 +1189,6 @@ void QWidget::setWindowTitle(const QString &cap)
 {
     if(d->topData() && d->topData()->caption == cap)
         return; // for less flicker
-    d->createTLExtra();
     d->topData()->caption = cap;
     if(isTopLevel())
         SetWindowTitleWithCFString(qt_mac_window_for(this), QCFString(cap));
@@ -1201,14 +1198,11 @@ void QWidget::setWindowTitle(const QString &cap)
 
 void QWidget::setWindowIcon(const QPixmap &pixmap)
 {
-    if(d->topData()) {
-        delete d->topData()->icon;
-        d->topData()->icon = 0;
-    } else {
-        d->createTLExtra();
-    }
+     QTLWExtra* x = d->topData();
+     delete x->icon;
+     x->icon = 0;
     if(!pixmap.isNull())
-        d->topData()->icon = new QPixmap(pixmap);
+        x->icon = new QPixmap(pixmap);
     if(isTopLevel()) {
         if(qApp && qApp->mainWidget() == this) {
             if(pixmap.isNull()) {
@@ -1231,7 +1225,6 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
 
 void QWidget::setWindowIconText(const QString &iconText)
 {
-    d->createTLExtra();
     d->topData()->iconText = iconText;
     if(isTopLevel() && !iconText.isEmpty())
         SetWindowAlternateTitle(qt_mac_window_for(this), QCFString(iconText));
@@ -1349,7 +1342,6 @@ void QWidget::show_sys()
         return;
 
     if(isTopLevel()) {
-        d->createTLExtra();
         QDesktopWidget *dsk = QApplication::desktop();
         if(!d->topData()->is_moved && dsk) {
             int movex = x(), movey = y();
@@ -1723,7 +1715,6 @@ void QWidgetPrivate::setWSGeometry()
 void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     if(isTopLevel() && isMove) {
-        d->createTLExtra();
         d->topData()->is_moved = 1;
     }
     if(isDesktop())
@@ -1856,14 +1847,12 @@ void QWidget::setMaximumSize(int maxw, int maxh)
 
 void QWidget::setSizeIncrement(int w, int h)
 {
-    d->createTLExtra();
     d->topData()->incw = w;
     d->topData()->inch = h;
 }
 
 void QWidget::setBaseSize(int w, int h)
 {
-    d->createTLExtra();
     d->topData()->basew = w;
     d->topData()->baseh = h;
 }
