@@ -2655,7 +2655,16 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 			n = findInMask( i, TRUE, FALSE, str[(int)strIndex] );
 			if ( n != -1 ) {
 			    s += fill.mid( i, n-i );
-			    s += str[(int)strIndex];
+			    switch ( maskData[ n ].caseMode ) {
+			    case MaskInputData::Upper:
+				s += str[(int)strIndex].upper();
+				break;
+			    case MaskInputData::Lower:
+				s += str[(int)strIndex].lower();
+				break;
+			    default:
+				s += str[(int)strIndex];
+			    }
 			    i = n + 1; // updates i to find + 1
 			}
 		    }
