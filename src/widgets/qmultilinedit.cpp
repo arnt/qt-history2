@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#120 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1859,6 +1859,8 @@ void QMultiLineEdit::paste()
 
 void QMultiLineEdit::clear()
 {
+    bool u = autoUpdate();
+    setAutoUpdate( FALSE );
     contents->first();
     while ( contents->remove() )
 	;
@@ -1867,7 +1869,9 @@ void QMultiLineEdit::clear()
     insertLine( "", -1 );
     dummy = TRUE;
     markIsOn = FALSE;
-    repaint( TRUE );
+    setAutoUpdate( u );
+    if ( u )
+	repaint( TRUE );
     if ( !mlData->isHandlingEvent ) //# && not already empty
 	emit textChanged();
 }
