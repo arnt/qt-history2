@@ -373,8 +373,7 @@ void LightStyle::drawBevelButton(QPainter *p, int x, int y, int w, int h,
 
 void LightStyle::getButtonShift(int &x, int &y) const
 {
-    x = 2;
-    y = 0;
+    x = y = 0;
 }
 
 
