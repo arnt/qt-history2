@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#97 $
 **
 ** Implementation of QScrollBar class
 **
@@ -25,6 +25,7 @@
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qkeycode.h"
+#include <limits.h>
 
 /*!
   \class QScrollBar qscrollbar.h
@@ -722,8 +723,15 @@ int QScrollBar_Private::rangeValueToSliderPos( int v ) const
     if ( maxValue() == minValue() )
 	return smin;
     int sliderMin=smin, sliderMax=smax;
-    return ((sliderMax-sliderMin)*2*(v-minValue())+1)/
-	   ((maxValue()-minValue())*2) + sliderMin;
+
+    int r;
+    if ( sliderMax * maxValue() * 16 > INT_MAX )
+	r = (int) (((sliderMax-sliderMin)*2*(v-minValue())+1.0)/
+		   ((maxValue()-minValue())*2)) + sliderMin;
+    else
+	r = ((sliderMax-sliderMin)*2*(v-minValue())+1)/
+	    ((maxValue()-minValue())*2) + sliderMin;
+    return r;
 }
 
 int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
@@ -734,8 +742,14 @@ int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
 	return minValue();
     if ( pos >= sliderMax )
 	return maxValue();
-    return (maxValue() - minValue() + 1)*(pos - sliderMin)/
-	   (sliderMax - sliderMin) + minValue();
+    int r;
+    if ( sliderMax * maxValue() * 16 > INT_MAX )
+        r = (int) ((maxValue() - minValue() + 1.0)*(pos - sliderMin)/
+		   (sliderMax - sliderMin)) + minValue();
+    else
+	r = (maxValue() - minValue() + 1)*(pos - sliderMin)/
+	    (sliderMax - sliderMin) + minValue();
+    return r;
 }
 
 
