@@ -73,7 +73,7 @@ The following options can be specified on the command line to <em>qmake</em>:
 
 <ul>
 <li>\c -o file <br>
-	<em>qmake</em> output will be directed to \a file. If this argument
+	<em>qmake</em> output will be directed to \e file. If this argument
 	is not specified qmake will try to guess a suitable name, if '-' is
 	specified output is directed to stdout. 
 <li>\c -unix <br>
@@ -119,9 +119,9 @@ supply the following arguments in this mode:
 <li>\c -nodepend <br>
 	<em>qmake</em> will not genereate any dependancy information.
 <li>\c -cache file <br>
-	<em>qmake</em> will use \a file as the cache file, ignoring any other .qmake.cache file found
+	<em>qmake</em> will use \e file as the cache file, ignoring any other .qmake.cache file found
 <li>\c -spec spec <br>
-	<em>qmake</em> will use \a spec as a path to platform-conpiler information and QMAKESPEC will be ignored.
+	<em>qmake</em> will use \e spec as a path to platform-conpiler information and QMAKESPEC will be ignored.
 </ul>
 
 The \c files argument can be a list of one or more project files, separated
@@ -287,7 +287,7 @@ Also see <a href="#DirectoryNote">this note</a>.
 <em>qmake</em> will generate dependancy information (unless -nodepend
 is specified on the <a href="#Commands">command line</a>) for the
 specified headers.  <em>qmake</em> will also automatically detect if
-\a moc is required by the classes in these headers, and add the
+\e moc is required by the classes in these headers, and add the
 appropriate dependancies and files to the project for generating and
 linking the moc files. 
 
@@ -320,7 +320,7 @@ For example:
 <dt><a name="INTERFACES"></a>\c INTERFACES
 
 <dd>This variable specifies the .ui files (see the <a
-href="designer.html">Designer</a>) to be processed through \a uic
+href="designer.html">Designer</a>) to be processed through \e uic
 before compiling.  All dependancies, headers and source files required
 to build these .ui files will automatically be added to the project.
 
@@ -1528,9 +1528,9 @@ Guide</a>.
 
 <dt><code>include( filename )</code>
 
-<dd>This function will include the contents of \a filename into the
+<dd>This function will include the contents of \e filename into the
 current project at the point it was included.  The function succeeds
-if \a filename was included, otherwise it fails. You can check the
+if \e filename was included, otherwise it fails. You can check the
 return value of this function using a <a
 href="qmake-guide.html#Scopes">scope</a>.
 
@@ -1547,8 +1547,8 @@ OPTIONS = standard custom
 
 <dt><code>contains( variablename, value )</code>
 
-<dd>This function will succeed if the variable \a variablename
-contains the value \a value.  You can check the return value of this
+<dd>This function will succeed if the variable \e variablename
+contains the value \e value.  You can check the return value of this
 function using a <a href="qmake-guide.html#Scopes">scope</a>.
 
 For example:
@@ -1564,8 +1564,8 @@ contains( drivers, network ) {
 
 <dt><code>count( variablename, number )</code>
 
-<dd>This function will succeed if the variable \a variablename
-contains \a number elements, otherwise it will fails.  You can check
+<dd>This function will succeed if the variable \e variablename
+contains \e number elements, otherwise it will fails.  You can check
 the return value of this function using a <a
 href="qmake-guide.html#Scopes">scope</a>.
 
@@ -1582,7 +1582,7 @@ count( MYVAR, 3 ) {
 
 <dt><code>isEmpty( variablename )</code>
 
-<dd>This function will succeed if the variable \a variablename is
+<dd>This function will succeed if the variable \e variablename is
 empty (same as <code>count(variable, 0)</code>).
 
 <dt><code>system( command )</code>
@@ -1601,11 +1601,11 @@ For example:
 <dt><code>message( string )</code>
 
 <dd>This function will always succeed, and will display the given
-\a string to the user.
+\e string to the user.
 
 <dt><code>error( string )</code>
 
-<dd>This function will never return.  It will display the given \a
+<dd>This function will never return.  It will display the given \e
 string to the user, and then exit <em>qmake</em>. This function should
 only be used for very fatal configurations
 

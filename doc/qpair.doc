@@ -96,7 +96,7 @@
 
 
 /*! \fn QPair::QPair()
-	Constructs an empty pair.  The \c first and \a second elements
+	Constructs an empty pair.  The \c first and \c second elements
 	are default constructed.  
 */
 

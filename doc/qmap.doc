@@ -371,15 +371,15 @@
 /*!
   \fn QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m )
   \relates QMap
-  Reads a map from the stream. The types \a Key and \a T must implement
-  the streaming operator, too.
+  Reads a map from the stream. The types \e Key and \e T must implement
+  the streaming operator as well.
 */
 
 /*!
   \fn QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m )
   \relates QMap
-  Writes a map to the stream. The types \a Key and \a T must implement
-  the streaming operator, too.
+  Writes a map to the stream. The types \e Key and \e T must implement
+  the streaming operator as well.
 */
 
 /*! \fn size_type QMap::size() const
@@ -391,8 +391,9 @@
 */
 
 /*! \fn QPair<iterator,bool> QMap::insert( const value_type& x )
+
   Inserts \a x into the map.  \a x is a QPair<> whose \c first
-  element is a key to be inserted and whose \a second element is the
+  element is a key to be inserted and whose \c second element is the
   associated value to be inserted.  Returns a pair<> whose \c first
   element is an iterator pointing at the inserted item and whose \c
   second element is a bool indicating TRUE if \a x was inserted and

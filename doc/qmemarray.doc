@@ -146,23 +146,23 @@
 
 /*!
   \fn QMemArray::QMemArray( int size )
-  Constructs an array with room for \e size elements.
-  Makes a null array if \e size == 0.
+  Constructs an array with room for \a size elements.
+  Makes a null array if \a size == 0.
 
-  Note that the elements are not initialized.
+  The elements are left uninitialized.
 
   \sa resize(), isNull()
 */
 
 /*!
   \fn QMemArray::QMemArray( const QMemArray<type> &a )
-  Constructs a shallow copy of \e a.
+  Constructs a shallow copy of \a a.
   \sa assign()
 */
 
 /*!
   \fn QMemArray::QMemArray( int, int )
-  Constructs an array <em>without allocating</em> array space.
+  Constructs an array \e {without allocating} array space.
   The arguments should be (0, 0). Use at your own risk.
 */
 
@@ -174,7 +174,7 @@
 
 /*!
   \fn QMemArray<type> &QMemArray::operator=( const QMemArray<type> &a )
-  Assigns a shallow copy of \e a to this array and returns a reference
+  Assigns a shallow copy of \a a to this array and returns a reference
   to this array.
 
   Equivalent to assign( a ).
@@ -215,12 +215,12 @@
   \fn bool QMemArray::isEmpty() const
   Returns TRUE if the array is empty, i.e., size() == 0; otherwise it returns FALSE.
 
-  isEmpty() is equivalent with isNull() for QMemArray.  Note that this is not
-  the case for QString::isEmpty().
+  isEmpty() is equivalent with isNull() for QMemArray (unlike QString).
 */
 
 /*!
   \fn bool QMemArray::isNull() const
+
   Returns TRUE if the array is null; otherwise it returns FALSE.
 
   A null array has size() == 0 and data() == 0.
@@ -228,8 +228,9 @@
 
 /*!
   \fn bool QMemArray::resize( uint size )
-  Resizes (expands or shrinks) the array to \e size elements. The array
-  becomes a null array if \e size == 0.
+
+  Resizes (expands or shrinks) the array to \a size elements. The array
+  becomes a null array if \a size == 0.
 
   Returns TRUE if successful, or FALSE if the memory cannot be allocated.
 
@@ -240,22 +241,23 @@
 
 /*!
   \fn bool QMemArray::truncate( uint pos )
-  Truncates the array at position \e pos.
+
+  Truncates the array at position \a pos.
 
   Returns TRUE if successful, or FALSE if the memory cannot be allocated.
 
-  Equivalent to resize(\e pos).
+  Equivalent to resize(\a pos).
 
   \sa resize()
 */
 
 /*!
   \fn bool QMemArray::fill( const type &v, int size )
-  Fills the array with the value \e v. If \e size is specified as different
+  Fills the array with the value \a v. If \a size is specified as different
   from -1, then the array will be resized before filled.
 
   Returns TRUE if successful, or FALSE if the memory cannot be allocated
-  (only when \e size != -1).
+  (only when \a size != -1).
 
   \sa resize()
 */
@@ -280,30 +282,30 @@
 /*!
   \fn QMemArray<type> &QMemArray::assign( const QMemArray<type> &a )
   Shallow copy. Dereferences the current array and references the data
-  contained in \e a instead. Returns a reference to this array.
+  contained in \a a instead. Returns a reference to this array.
   \sa operator=()
 */
 
 /*!
   \fn QMemArray<type> &QMemArray::assign( const type *data, uint size )
   Shallow copy. Dereferences the current array and references the
-  array data \e data, which contains \e size elements.
+  array data \a data, which contains \a size elements.
   Returns a reference to this array.
 
-  Do not delete \e data later; QMemArray takes care of that.
+  Do not delete \a data later; QMemArray takes care of that.
 */
 
 /*!
   \fn QMemArray<type> &QMemArray::duplicate( const QMemArray<type> &a )
   Deep copy. Dereferences the current array and obtains a copy of the data
-  contained in \e a instead. Returns a reference to this array.
+  contained in \a a instead. Returns a reference to this array.
   \sa copy()
 */
 
 /*!
   \fn QMemArray<type> &QMemArray::duplicate( const type *data, uint size )
   Deep copy. Dereferences the current array and obtains a copy of the
-  array data \e data instead.  Returns a reference to this array.
+  array data \a data instead.  Returns a reference to this array.
   \sa copy()
 */
 
@@ -312,10 +314,10 @@
 
   Sets raw data and returns a reference to the array.
 
-  Dereferences the current array and sets the new array data to \e data and
-  the new array size to \e size.  Do not attempt to resize or re-assign the
+  Dereferences the current array and sets the new array data to \a data and
+  the new array size to \a size.  Do not attempt to resize or re-assign the
   array data when raw data has been set.
-  Call resetRawData(d,len) to reset the array.
+  Call resetRawData(\a data, \a size) to reset the array.
 
   Setting raw data is useful because it sets QMemArray data without allocating
   memory or copying data.
@@ -338,7 +340,7 @@
     a.resize( 8 );				// will crash
     b = a;					// will crash
     a[2] = 123;					// might crash
-      // forget to resetRawData - will crash
+    // forget to resetRawData: will crash
   \endcode
 
   \warning If you do not call resetRawData(), QMemArray will attempt to
@@ -360,16 +362,16 @@
 
 /*!
   \fn int QMemArray::find( const type &v, uint index ) const
-  Finds the first occurrence of \e v, starting at position \e index.
+  Finds the first occurrence of \a v, starting at position \a index.
 
-  Returns the position of \e v, or -1 if \e v could not be found.
+  Returns the position of \a v, or -1 if \a v could not be found.
 
   \sa contains()
 */
 
 /*!
   \fn int QMemArray::contains( const type &v ) const
-  Returns the number of times \e v occurs in the array.
+  Returns the number of times \a v occurs in the array.
   \sa find()
 */
 
@@ -383,18 +385,18 @@
 
 /*!
   \fn int QMemArray::bsearch( const type &v ) const
-  In a sorted array, finds the first occurrence of \e v by using binary
+  In a sorted array, finds the first occurrence of \a v by using binary
   search. For a sorted array this is generally much faster than
   find(), which does a linear search.
 
-  Returns the position of \e v, or -1 if \e v could not be found.
+  Returns the position of \a v, or -1 if \a v could not be found.
 
   \sa sort(), find()
 */
 
 /*!
   \fn type &QMemArray::operator[]( int index ) const
-  Returns a reference to the element at position \e index in the array.
+  Returns a reference to the element at position \a index in the array.
 
   This can be used to both read and set an element.  Equivalent to at().
 
@@ -403,7 +405,7 @@
 
 /*!
   \fn type &QMemArray::at( uint index ) const
-  Returns a reference to the element at position \e index in the array.
+  Returns a reference to the element at position \a index in the array.
 
   This can be used to both read and set an element.
 
@@ -418,7 +420,7 @@
 
 /*!
   \fn bool QMemArray::operator==( const QMemArray<type> &a ) const
-  Returns TRUE if this array is equal to \e a; otherwise it returns FALSE.
+  Returns TRUE if this array is equal to \a a; otherwise it returns FALSE.
 
   The two arrays are compared bitwise.
 
@@ -427,7 +429,7 @@
 
 /*!
   \fn bool QMemArray::operator!=( const QMemArray<type> &a ) const
-  Returns TRUE if this array is different from \e a; otherwise it returns FALSE.
+  Returns TRUE if this array is different from \a a; otherwise it returns FALSE.
 
   The two arrays are compared bitwise.
 
@@ -446,7 +448,8 @@
   \fn Iterator QMemArray::end()
   Returns an iterator pointing behind the last element of this array.
   This iterator can be used as the iterators of QValueList and QMap,
-  for example. In fact, not only does it behave like a usual pointer, it is a pointer.
+  for example. In fact, not only does it behave like a usual pointer,
+  it is a pointer.
 */
 
 /*!
@@ -463,23 +466,4 @@
   This iterator can be used as the iterators of QValueList and QMap,
   for example. In fact, not only does it behave like a usual pointer,
   it is a pointer.
-*/
-
-
-/*****************************************************************************
-  QByteArray documentation
- *****************************************************************************/
-
-/*!
-  \class QByteArray qcstring.h
-  \brief The QByteArray class provides an array of bytes.
-
-  \inherit QMemArray
-
-  \ingroup tools
-
-  The QByteArray class provides an explicitly shared array of
-  bytes. It is useful for manipulating memory areas with custom
-  data. QByteArray is implemented as QMemArray<char>. See the QMemArray
-  documentation for further information.
 */

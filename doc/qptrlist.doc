@@ -933,8 +933,6 @@ typedef QPtrList<char> QPtrStrList
   \class QPtrStrList qptrstrlist.h
   \brief The QPtrStrList class provides a doubly-linked list of \c char*.
 
-  \inherit QPtrList
-
   \ingroup collection
   \ingroup tools
 
@@ -1037,8 +1035,6 @@ case-insensitive compare.
 /*!
   \class QPtrStrListIterator qptrstrlist.h
   \brief The QPtrStrListIterator class is an iterator for the QPtrStrList and QPtrStrIList classes.
-
-  \inherit QPtrListIterator
 
   \ingroup tools
 

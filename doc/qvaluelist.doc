@@ -441,10 +441,6 @@
   Inserts \a n copies of \a x before \a pos.
 */
 
-/*! \fn void QValueList::sort()
-  Sorts the list using \<. 
-*/
-
 /*!
   \fn void QValueList::detach()
   If the list does not share its data with another QValueList instance, nothing
