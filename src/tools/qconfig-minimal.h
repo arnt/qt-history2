@@ -79,3 +79,4 @@
 #define QT_NO_SIGNALMAPPER
 
 #define QT_NO_WHEELEVENT
+#define QT_NO_BEZIER

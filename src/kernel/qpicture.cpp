@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#114 $
 **
 ** Implementation of QPicture class
 **
@@ -427,7 +427,9 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcDrawCubicBezier:
 		s >> a;
+#ifndef QT_NO_BEZIER
 		painter->drawCubicBezier( a );
+#endif
 		break;
 	    case PdcDrawText:
 		s >> p >> str1;
@@ -681,11 +683,13 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    br = p[0].ptarr->boundingRect();
 	    corr = TRUE;
 	    break;
+#ifndef QT_NO_BEZIER
 	case PdcDrawCubicBezier:
 	    s << *p[0].ptarr;
 	    br = p[0].ptarr->cubicBezier().boundingRect();
 	    corr = TRUE;
 	    break;
+#endif
 	case PdcDrawPolygon:
 	    s << *p[0].ptarr << (Q_INT8)p[1].ival;
 	    br = p[0].ptarr->boundingRect();

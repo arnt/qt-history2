@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#178 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#179 $
 **
 ** Definition of QPainter class
 **
@@ -202,7 +202,9 @@ public:
 			     int index=0, int npoints=-1 );
     void	drawConvexPolygon( const QPointArray &,
 			     int index=0, int npoints=-1 );
+#ifndef QT_NO_BEZIER
     void	drawCubicBezier( const QPointArray &, int index=0 );
+#endif
     void	drawPixmap( int x, int y, const QPixmap &,
 			    int sx=0, int sy=0, int sw=-1, int sh=-1 );
     void	drawPixmap( const QPoint &, const QPixmap &,

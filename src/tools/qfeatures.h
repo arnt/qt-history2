@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfeatures.h#90 $
+** $Id: //depot/qt/main/src/tools/qfeatures.h#91 $
 **
 ** Global feature selection
 **
@@ -621,7 +621,10 @@
 # define QT_NO_SVG
 #endif
 
-
+/*!
+  Bezier curves
+*/
+//#define QT_NO_BEZIER
 
 /*!
     Printing
@@ -827,12 +830,6 @@
 #endif
 #if defined(QT_NO_SCROLLVIEW)
 /*!
-    QCanvas
-*/
-# ifndef QT_NO_CANVAS
-#  define QT_NO_CANVAS
-# endif
-/*!
     QIconView
 */
 # ifndef QT_NO_ICONVIEW
@@ -840,6 +837,14 @@
 # endif
 #endif
 
+#if defined(QT_NO_SCROLLVIEW) || defined(QT_NO_BEZIER)
+/*!
+    QCanvas
+*/
+# ifndef QT_NO_CANVAS
+#  define QT_NO_CANVAS
+# endif
+#endif
 
 #if defined(QT_NO_RICHTEXT) || defined(QT_NO_SCROLLVIEW)
 # define QT_NO_TEXTVIEW

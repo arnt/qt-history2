@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_qws.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qpainter_qws.cpp#45 $
 **
 ** Implementation of QPainter class for FB
 **
@@ -1280,7 +1280,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     gfx->drawPolygon(pa,winding,index,npoints);
 }
 
-
+#ifndef QT_NO_BEZIER
 void QPainter::drawCubicBezier( const QPointArray &a, int index )
 {
     if ( !isActive() )
@@ -1310,6 +1310,7 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
     param[0].ptarr = (QPointArray*)&pa;
     pdev->cmd(QPaintDevice::PdcDrawCubicBezier,this,param);
 }
+#endif //QT_NO_BEZIER
 
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 			   int sx, int sy, int sw, int sh )

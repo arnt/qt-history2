@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#114 $
 **
 ** Implementation of QPointArray class
 **
@@ -733,7 +733,7 @@ void QPointArray::makeEllipse( int x, int y, int w, int h )
 #endif
 }
 
-
+#ifndef QT_NO_BEZIER
 // Work functions for QPointArray::cubicBezier()
 static
 void split(const double *p, double *l, double *r)
@@ -763,6 +763,7 @@ void split(const double *p, double *l, double *r)
     r[0] = l[6];
     r[1] = l[7];
 }
+
 // Based on:
 //
 //   A Fast 2D Point-On-Line Test
@@ -977,7 +978,7 @@ QPointArray QPointArray::cubicBezier() const
 
 #endif
 }
-
+#endif //QT_NO_BEZIER
 
 /*****************************************************************************
   QPointArray stream functions
