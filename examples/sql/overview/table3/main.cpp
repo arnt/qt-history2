@@ -63,25 +63,19 @@ int main( int argc, char *argv[] )
     if ( create_connections() ) {
 	QSqlCursor staffCursor( "staff" );
 
-	staffCursor.setDisplayLabel( "forename", "Forename" );
-	staffCursor.setDisplayLabel( "surname", "Surname" );
-	staffCursor.setDisplayLabel( "salary", "Annual Salary" );
-	staffCursor.setAlignment( "salary", Qt::AlignRight );
-	staffCursor.setDisplayLabel( "statusid", "Status" );
-
-	QSqlTable	    *staffTable	    = new QSqlTable( &staffCursor );
-	QSqlPropertyMap	    *propMap	    = new QSqlPropertyMap();
-	CustomSqlEditorFactory *editorFactory  = new CustomSqlEditorFactory();
+	QSqlTable		*staffTable	= new QSqlTable( &staffCursor );
+	QSqlPropertyMap		*propMap	= new QSqlPropertyMap();
+	CustomSqlEditorFactory	*editorFactory	= new CustomSqlEditorFactory();
 	propMap->insert( "StatusPicker", "statusid" );
 	staffTable->installPropertyMap( propMap );
 	staffTable->installEditorFactory( editorFactory );
 
 	app.setMainWidget( staffTable );
 
-	staffTable->addColumn( staffCursor.field( "forename" ) );
-	staffTable->addColumn( staffCursor.field( "surname" ) );
-	staffTable->addColumn( staffCursor.field( "salary" ) );
-	staffTable->addColumn( staffCursor.field( "statusid" ) );
+	staffTable->addColumn( "forename", "Forename" );
+	staffTable->addColumn( "surname", "Surname" );
+	staffTable->addColumn( "salary", "Annual Salary" );
+	staffTable->addColumn( "statusid", "Status" );
 
 	QStringList order = QStringList() << "surname" << "forename";
 	staffTable->setSort( order );
