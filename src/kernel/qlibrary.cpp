@@ -38,7 +38,7 @@
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
-#define QT_DEBUG_COMPONENT
+//#define QT_DEBUG_COMPONENT
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
@@ -207,7 +207,7 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 /*!
   \class QCleanupHandler qcleanuphandler.h
 
-  \brief Provides a save class for memory cleanup.
+  \brief The QCleanupHandler class provides a save way for memory cleanup of static global objects.
 */
 
 /*!
@@ -241,16 +241,17 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 /*!
   \class QLibrary qlibrary.h
 
-  \brief This class provides a wrapper for library loading and unloading.
+  \brief The QLibrary class provides a wrapper for library loading and unloading.
   \ingroup component
 */
 
 /*!
   \enum QLibrary::Policy
 
-  This enum type is used to set and read the plugin's library
-  policy.
-  Defined values are:
+  This enum type defines the various policies a library can have with respect to
+  loading and unloading the shared library.
+
+  The \e policy can be:
   <ul>
   <li> \c Delayed - The library get's loaded as soon as needed
   <li> \c Immediately - The library is loaded immediately
@@ -274,7 +275,7 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 /*!
   Deletes the QLibrary object.
 
-  When the library policy is not Manual, the library will be unloaded.
+  When the policy is not Manual, the library will be unloaded.
 
   \sa setPolicy(), unload()
 */
@@ -417,7 +418,7 @@ QString QLibrary::library() const
 
 /*!
   Forwards the query to the component and returns the result.
-  If the current policy is not Manual, load() gets called if necessary.
+  If the current policy is not Manual, load() gets called as necessary.
 
   \sa QUnknownInterface::queryInterface
 */

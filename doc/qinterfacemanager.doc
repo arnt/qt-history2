@@ -41,19 +41,119 @@
 
 /*!
   \class QInterfaceManager qinterfacemanager.h
-  \brief The QInterfaceManager template provides basic functions to access features provided in libraries.
-
+  \brief The QInterfaceManager class provides basic functions to access a certain kind of functionality in libraries.
   \ingroup components
+
+  A common usage of components is to provide a certain kind of functionality in the form of plugins. The application
+  provides a set of built-in features, and different types of plugins can be loaded to add 3rd party commands to this
+  set.
+  The code to do this will be similar for all supported types of plugins: searching a specific directory for all shared
+  libraries, loading them and trying to get information about the features the plugin wants to add to the application.
+  The QInterfaceManager class provides a template based solution for this task making use of the COM-like interface 
+  architecture provided by the Qt library.
+  Specializing a QInterfaceManager is done by specifying the interface declaration and the QUuid that is used to query
+  for this kind of interface:
+
+  \code
+  QInterfaceManager<MyPluginInterface> manager = new QInterfaceManager<MyPluginInterface>( IID_MyPluginInterface );
+  \endcode
+
+  Any interface that is to be used in a manager has to have a function \e featureList declared like this:
+
+  \code
+  virtual QStringList featureList() const = 0;
+  \endcode
+
+  The strings returned by this function can then be used to easily access the interface that provides the requested
+  feature:
+
+  \code
+  MyPluginInterface *iface = manager->queryInterface( "feature" );
+  if ( iface )
+      iface->execute( "feature" );
+  \endcode
+
+  A standard example for this kind of component usage is support for 3rd party commands, e.g. in image processing
+  software. An interface could be declared like this:
+
+  \code
+  struct ImageFilterInterface : public QUnknownInterface
+  {
+      virtual QStringList featureList() const = 0;
+      virtual bool execute( const QString &filter, QImage *img ) = 0;
+  };
+  \endcode
+
+  A component could then implement this interface like this:
+
+  \code
+  class ColorFilter : public ImageFilterInterface
+  {
+  public:
+      ColorFilter();
+
+      // implement pure virtual functions from ImageFilterInterface
+      QStringList featureList() const;
+      bool execute( const QString &filter, QImage *img );
+
+      // implement pure virtual functions from QUnknownInterface
+  };
+
+  ColorFilter::ColorFilter()
+  {
+      //...
+  }
+
+  QStringList ColorFilter::featureList() const
+  {
+      QStringList list;
+      list << "Convert to Grayscale";
+      list << "Sepia";
+      //...
+
+      return list;
+  }
+
+  bool ColorFilter::execute( const QString &filter, QImage *img )
+  {
+      if ( !img )
+          return FALSE;
+      
+      if ( filter == "Convert to Grayscale" ) {
+          //...
+      } else if ( filter == "Sepia" ) {
+          //...
+      }
+  }
+  \endcode
+
+  In the application, a QInterfaceManager could be used to create the user interface based 
+  on the list of features relevant plugins provide:
+
+  \code
+  QInterfaceManager<ImageFilterInterface> *manager = new QInterfaceManager<ImageFilterInterface>( IID_ImageFilterInterface );
+  manager->addLibraryPath(...);
+
+  QStringList features = actionPluginManager->featureList();
+  for ( QStringList::Iterator it = features.begin(); it != features.end(); ++it ) {
+      ImageFilterInterface *iface = manager->queryInterface( *it );
+
+      // use QAction to provide toolbuttons and menuitems for each feature...
+  }
+  \endcode
 */
 
 /*!
-  \fn QInterfaceManager::QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Default )
+  \fn QInterfaceManager::QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 
-  Creates an QInterfaceManager that will load all library files in \a path that match \a filter. If the library provides an
-  interface that matches \a id, the functionality of that interface will be available using \code queryInterface( "feature" ) \endcode.
-  All managed libraries will stay in memory if the default policy is OptimizeSpeed, otherwise they are unloaded again.
+  Creates an QInterfaceManager that will load all library files in \a path that match \a filter, setting the default policy to \a pol. 
+  If the \a cs flag is set to FALSE the manager will handle feature strings case insensitive.
+  
+  \warning
+  Setting the cs flag to FALSE requires that components also convert to lower case when comparing with passed strings, so this has
+  to be handled with care and documented very well.
 
-  The \a appIface and \a pol parameters are propagated to the QLibrary object created for each library.
+  The \a pol parameter is propagated to the QLibrary object created for each library.
 */
 
 /*!
@@ -68,7 +168,7 @@
 /*!
   \fn QLibrary* QInterfaceManager::addLibrary( const QString& file )
 
-  Tries to load the library file \a file, adds the library to the managed list and
+  Tries to load the library \a file, adds the library to the managed list and
   returns the created QLibrary object if successful, otherwise returns 0.
   The library will stay in memory if the default policy is OptimizeSpeed, otherwise it gets unloaded again.
 
@@ -112,7 +212,7 @@
 /*!
   \fn QLibrary* QInterfaceManager::library( const QString& feature ) const
 
-  Returns a pointer to the QLibrary representing the library providing \a feature.
+  Returns a pointer to the QLibrary providing \a feature.
 
   \sa featureList, libraryList
 */
@@ -120,7 +220,7 @@
 /*!
   \fn QStringList QInterfaceManager::featureList() const
 
-  Returns a list of all features provided by the interfaces managed through this 
+  Returns a list of all features provided by the interfaces managed by this 
   interface manager.
 
   \sa library, queryInterface
@@ -129,7 +229,7 @@
 /*!
   \fn QLibrary* QInterfaceManager::libraryFromFile( const QString& fileName ) const
 
-  Returns a pointer to the QLibrary object representing library \a fileName.
+  Returns a pointer to the QLibrary object for \a fileName.
 
   \sa library, libraryList
 */
@@ -137,7 +237,7 @@
 /*!
   \fn QStringList QInterfaceManager::libraryList() const
 
-  Returns a list of all libraries managed through this interface manager.
+  Returns a list of all shared libraries managed by this interface manager.
 
   \sa libraryFromFile
 */
