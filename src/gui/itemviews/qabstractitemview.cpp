@@ -606,8 +606,10 @@ bool QAbstractItemView::autoScroll() const
 }
 
 /*!
+    \fn bool QAbstractItemView::event(QEvent *event)
+
     This function is used to handle tool tips, status tips, and What's
-    This? mode, if event \a e is a QEvent::ToolTip, a
+    This? mode, if the given \a event is a QEvent::ToolTip, a
     QEvent::WhatsThis, or a QEvent::StatusTip. It passes all other
     events on to its base class event() handler.
 */
@@ -1430,7 +1432,7 @@ void QAbstractItemView::stopAutoScroll()
 }
 
 /*!
-  internal
+  \internal
 */
 void QAbstractItemView::doAutoScroll()
 {
