@@ -6,7 +6,7 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 
-/*
+/* 
   Internal class to get access to protected QWidget-members
 */
 
@@ -16,11 +16,10 @@ class QAccessWidget : public QWidget
     friend class QRollEffect;
 public:
     QAccessWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 )
-	: QWidget( parent, name, f )
     {}
 };
 
-/*
+/* 
   Internal class QAlphaWidget.
 
   The QAlphaWidget is shown while the animation lasts
@@ -44,8 +43,6 @@ protected slots:
     void render();
 
 private:
-    void init();
-
     QPixmap pm;
     double alpha;
     QImage back;
@@ -64,7 +61,7 @@ static QAlphaWidget* blend = 0;
   Constructs a QAlphaWidget.
 */
 QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlags f )
-    : QWidget( parent, name,
+    : QWidget( parent, name, 
 	f | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
 {
     if ( blend )
@@ -84,29 +81,16 @@ void QAlphaWidget::paintEvent( QPaintEvent* )
 }
 
 /*
-  Grabs the images that are to be blended and moves
-  the alphawidget into position.
-*/
-void QAlphaWidget::init()
-{
-    move( widget->geometry().x(),widget->geometry().y() );
-    resize( widget->size().width(), widget->size().height() );
-
-    front = QImage( widget->size(), 32 );
-    front = QPixmap::grabWidget( widget );
-
-    back = QImage( widget->size(), 32 );
-    back = QPixmap::grabWindow( QApplication::desktop()->winId(),
-	widget->geometry().x(), widget->geometry().y(),
-	widget->geometry().width(), widget->geometry().height() );
-}
-
-/*
   Starts the alphablending animation.
   The animation will take about \a time ms
 */
 void QAlphaWidget::run( int time )
 {
+    duration = time;
+
+    if ( duration < 0 )
+	duration = 200;
+
     checkTime.start();
 
     if ( !widget )
@@ -114,7 +98,17 @@ void QAlphaWidget::run( int time )
 
     showWidget = TRUE;
     widget->installEventFilter( this );
-    init();
+    
+    move( widget->geometry().x(),widget->geometry().y() );
+    resize( widget->size().width(), widget->size().height() );
+
+    front = QImage( widget->size(), 32 );
+    front = QPixmap::grabWidget( widget );
+
+    back = QImage( widget->size(), 32 );
+    back = QPixmap::grabWindow( QApplication::desktop()->winId(), 
+	widget->geometry().x(), widget->geometry().y(), 
+	widget->geometry().width(), widget->geometry().height() );
 
     mixed = back.copy();
 
@@ -124,8 +118,6 @@ void QAlphaWidget::run( int time )
 	pm = mixed;
 	show();
 	raise();
-
-	duration = time;
 
 	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
 	anim.start( 10 );
@@ -212,8 +204,8 @@ void QAlphaWidget::alphaBlend()
 	    UINT32 bp = bl[sx];
 	    UINT32 fp = fl[sx];
 
-	    ((UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
-					    int (qGreen(bp)*ia + qGreen(fp)*alpha),
+	    ((UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha), 
+					    int (qGreen(bp)*ia + qGreen(fp)*alpha), 
 					    int (qBlue(bp)*ia + qBlue(fp)*alpha) );
 	}
     }
@@ -225,7 +217,7 @@ class QRollEffect : public QWidget
 {
     Q_OBJECT
 public:
-    QRollEffect( QWidget* w, Qt::Orientation orient );
+    QRollEffect( QWidget* w, int orient );
 
     void run( int time );
 
@@ -245,10 +237,9 @@ private:
     int totalWidth;
 
     int duration;
-    bool grow;
     bool done;
     bool showWidget;
-    Qt::Orientation orientation;
+    int orientation;
 
     QTimer anim;
     QTime checkTime;
@@ -264,8 +255,8 @@ static QRollEffect* roll = 0;
   The QRollEffect widget is shown while the animation lasts
   and displays the pixmap shifted.
 */
-QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
-: QWidget(0, 0,
+QRollEffect::QRollEffect( QWidget* w, int orient )
+: QWidget(0, 0, 
 	  WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
   , orientation(orient)
 {
@@ -287,18 +278,12 @@ QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
 	totalHeight = widget->sizeHint().height();
     }
 
-    if ( widget->testWState( WState_ForceHide) ) {
-	grow = TRUE;
-	currentHeight = orientation == Horizontal ? totalHeight : 0;
-	currentWidth = orientation == Vertical ? totalWidth : 0;
-    } else {
-	grow = FALSE;
-	currentHeight = totalHeight;
-	currentWidth = totalWidth;
-    }
+    currentHeight = currentWidth = 0;
 
-    move( widget->geometry().x(),widget->geometry().y() );
-    resize( widget->size().width(), widget->size().height() );
+    if ( orientation == 1 )
+	currentWidth = totalWidth;
+    else if ( orientation == 2 )
+	currentHeight = totalHeight;
 
     pm = QPixmap::grabWidget( widget );
 }
@@ -308,7 +293,8 @@ QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
 */
 void QRollEffect::paintEvent( QPaintEvent* )
 {
-    bitBlt( this, currentWidth - totalWidth,currentHeight - totalHeight,
+    bitBlt( this, QMIN(0, currentWidth - totalWidth),
+		  QMIN(0, currentHeight - totalHeight), 
 	&pm, 0,0, pm.width(), pm.height(), Qt::CopyROP, TRUE );
 }
 
@@ -338,25 +324,31 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 /*
   Start the animation.
 
-  The animation will take about \a time ms
+  The animation will take about \a time ms, or is 
+  calculated if \a time is negative
 */
 void QRollEffect::run( int time )
 {
-    duration  = time;
     if ( !widget )
 	return;
+
+    duration  = time;
+
+    if ( duration < 0 )
+	duration = QMIN( QMAX((totalWidth - currentWidth) + 
+		   (totalHeight - currentHeight), 200 ), 300 );
 
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
     widget->setWState( WState_Visible );
     widget->clearWState( WState_ForceHide );
 
+    move( widget->geometry().x(),widget->geometry().y() );
+    resize( QMIN( currentWidth, totalWidth ), QMIN( currentHeight, totalHeight ) );
+
     show();
 
-    if ( !grow )
-	widget->hide();
-
-    showWidget = grow;
+    showWidget = TRUE;
     done = FALSE;
     anim.start( 10 );
     checkTime.start();
@@ -368,39 +360,25 @@ void QRollEffect::run( int time )
 void QRollEffect::scroll()
 {
     if ( !done ) {
-	switch ( orientation )
-	{
-	case Horizontal:
-	    if ( grow ) {
-		currentWidth = totalWidth * checkTime.elapsed() / duration;
-		done = (currentWidth >= totalWidth);
-		resize( QMIN( currentWidth, totalWidth ), totalHeight );
-	    } else {
-		currentWidth = totalWidth - totalWidth * checkTime.elapsed() / duration;
-		done = (currentHeight <= 0 );
-		resize( QMAX( currentWidth, 0 ), currentHeight );
-	    }
-	    break;
-	case Vertical:
-	    if ( grow ) {
-		currentHeight = totalHeight * checkTime.elapsed() / duration;
-		done = (currentHeight >= totalHeight);
-		resize( totalWidth, QMIN( currentHeight, totalHeight ) );
-	    } else {
-		currentHeight = totalHeight - totalHeight * checkTime.elapsed() / duration;
-		done = (currentHeight <= 0 );
-		resize( currentWidth, QMAX( currentHeight, 0) );
-	    }
-	    break;
+	if ( currentWidth != totalWidth ) {
+	    currentWidth = totalWidth * checkTime.elapsed() / duration;
+	    done = (currentWidth >= totalWidth);
 	}
+	if ( currentHeight != totalHeight ) {
+	    currentHeight = totalHeight * checkTime.elapsed() / duration;
+	    done = (currentHeight >= totalHeight);
+	}
+	done = ( currentHeight >= totalHeight ) && 
+	       ( currentWidth >= totalWidth );
+	resize( QMIN( currentWidth, totalWidth ), QMIN( currentHeight, totalHeight ) );
     }
     if ( done ) {
 	anim.stop();
 	widget->removeEventFilter( this );
-	widget->clearWState( WState_Visible );
-	widget->setWState( WState_ForceHide );
         BackgroundMode bgm = widget->backgroundMode();
 	if ( showWidget ) {
+	    widget->clearWState( WState_Visible );
+	    widget->setWState( WState_ForceHide );
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
 	}
@@ -420,7 +398,7 @@ void QRollEffect::scroll()
 
 // global functions
 
-void scrollEffect( QWidget* w, Qt::Orientation orient, int time )
+void scrollEffect( QWidget* w, int orient, int time )
 {
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );

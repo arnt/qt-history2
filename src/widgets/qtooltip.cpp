@@ -528,7 +528,7 @@ void QTipManager::hideTip()
     if ( !preventAnimation )
 	preventAnimation = new QTimer( this );
     preventAnimation->stop();
-    preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
+    preventAnimation->singleShot( 250, this, SLOT(allowAnimation()) );
 
     if ( label && label->isVisible() ) {
 	label->hide();

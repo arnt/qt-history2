@@ -410,10 +410,14 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     blend = TRUE;
 #endif
     if ( animate && !preventAnimation ) {
-	if ( blend )
+	if ( blend ) {
 	    fadeEffect( this );
-	else
-	    scrollEffect( this, parentMenu && parentMenu->isPopupMenu ? Horizontal : Vertical );
+	} else {
+	    if ( parentMenu )
+		scrollEffect( this, parentMenu->isPopupMenu ? 2 : 1 ); // 2 is horizontal, 1 is vertical
+	    else
+		scrollEffect( this, 3 ); // 3 is diagonal
+	}
     } else {
 	show();
     }
@@ -544,7 +548,7 @@ void QPopupMenu::hideAllPopups()
     if ( !preventAnimation )
 	preventAnimation = new QTimer( qApp );
     preventAnimation->stop();
-    preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
+    preventAnimation->singleShot( 250, this, SLOT(allowAnimation()) );
 
     if ( !isPopup() )
 	return; // nothing to do
@@ -565,7 +569,7 @@ void QPopupMenu::hidePopups()
     if ( !preventAnimation )
 	preventAnimation = new QTimer( qApp );
     preventAnimation->stop();
-    preventAnimation->singleShot( 1000, this, SLOT(allowAnimation()) );
+    preventAnimation->singleShot( 250, this, SLOT(allowAnimation()) );
 
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
