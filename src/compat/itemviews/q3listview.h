@@ -257,6 +257,7 @@ public:
 
     void show();
 
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
     Q3ListViewItem * itemAt(const QPoint & screenPos) const;
     QRect itemRect(const Q3ListViewItem *) const;
     int itemPos(const Q3ListViewItem *);

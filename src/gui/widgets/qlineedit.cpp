@@ -569,7 +569,6 @@ bool QLineEdit::validateAndSet(const QString &newText, int newPos,
         d->cursor = newPos;
         d->selstart = qMin(newMarkAnchor, newMarkDrag);
         d->selend = qMax(newMarkAnchor, newMarkDrag);
-        d->updateMicroFocusHint();
         update();
         d->emitCursorPositionChanged();
         return true;
@@ -1255,7 +1254,6 @@ void QLineEdit::mousePressEvent(QMouseEvent* e)
     if (!mark && d->dragEnabled && d->echoMode == Normal &&
          e->button() == Qt::LeftButton && d->inSelection(e->pos().x())) {
         d->cursor = cursor;
-        d->updateMicroFocusHint();
         update();
         d->dndPos = e->pos();
         if (!d->dndTimer.isActive())
@@ -1654,7 +1652,6 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     switch(e->type()) {
     case QEvent::InputMethodStart:
         d->removeSelectedText();
-        d->updateMicroFocusHint();
         d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
         break;
     case QEvent::InputMethodCompose:
@@ -1689,9 +1686,13 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
 
 /*!\reimp
 */
-QVariant QLineEdit::inputMethodQuery(Qt::InputMethodQuery property)
+QVariant QLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 {
     switch(property) {
+    case Qt::ImMicroFocus:
+        return d->cursorRect();
+    case Qt::ImFont:
+        return font();
     case Qt::ImCursorPosition:
         return QVariant(d->cursor);
     case Qt::ImSurroundingText:
@@ -1721,7 +1722,6 @@ void QLineEdit::focusInEvent(QFocusEvent*)
         d->setCursorVisible(true);
     if ( d->hasIMSelection() )
 	d->cursor = d->imselstart;
-    d->updateMicroFocusHint();
 #ifdef Q_WS_MAC
     if(d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(true);
@@ -1816,14 +1816,6 @@ void QLineEdit::paintEvent(QPaintEvent *)
     } else if (widthUsed - d->hscroll < lineRect.width()) {
         d->hscroll = widthUsed - lineRect.width() + 1;
     }
-    // This updateMicroFocusHint() is corresponding to update() at
-    // InputMethodCompose event. Although the function is invoked from various
-    // other points, some situations such as "candidate selection on
-    // AlignHCenter'ed text" need this invocation because
-    // updateMicroFocusHint() requires updated contentsRect(), and
-    // there are no other chances in such situation that invoke the
-    // function.
-    d->updateMicroFocusHint();
     // the y offset is there to keep the baseline constant in case we have script changes in the text.
     QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent-fm.ascent());
 
@@ -2125,24 +2117,6 @@ QRect QLineEditPrivate::cursorRect() const
     return QRect(cix-4, cr.y() + (cr.height() -  ch) / 2, 8, ch);
 }
 
-void QLineEditPrivate::updateMicroFocusHint()
-{
-    // To reduce redundant microfocus update notification, we remember
-    // the old rect and update the microfocus if actual update is
-    // required. The rect o is intentionally static because some
-    // notifyee requires the microfocus information as global update
-    // rather than per notifyee update to place shared widget around
-    // microfocus.
-    static QRect o;
-    if (q->hasFocus()) {
-        QRect r = cursorRect();
-        if ( o != r ) {
-	    o = r;
-	    q->setMicroFocusHint(r.x(), r.y(), r.width(), r.height());
-	}
-    }
-}
-
 void QLineEditPrivate::moveCursor(int pos, bool mark)
 {
     if (pos != cursor) {
@@ -2172,7 +2146,6 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
         cursor = pos;
         setCursorVisible(true);
     }
-    updateMicroFocusHint();
     QStyleOptionFrame opt = getStyleOption();
     if (mark && !q->style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, q))
         setCursorVisible(false);
@@ -2213,7 +2186,6 @@ void QLineEditPrivate::finishChange(int validateFromState, bool update)
             textDirty = false;
         }
         updateTextLayout();
-        updateMicroFocusHint();
         lineDirty |= textDirty;
         if (textDirty) {
             textDirty = false;

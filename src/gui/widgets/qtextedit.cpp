@@ -548,13 +548,13 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
     d->vbar->setValue(y);
 }
 
-QRect QTextEditPrivate::cursorRect() const
-{
-    QTextFrame *frame = d->cursor.currentFrame();
-    QRect r = d->cursor.block().layout()->rect();
-    r.translate(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
-    return r;
-}
+// QRect QTextEditPrivate::cursorRect() const
+// {
+//     QTextFrame *frame = d->cursor.currentFrame();
+//     QRect r = d->cursor.block().layout()->rect();
+//     r.translate(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
+//     return r;
+// }
 
 void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
 {
@@ -1690,7 +1690,6 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     switch(e->type()) {
     case QEvent::InputMethodStart:
         d->cursor.removeSelectedText();
-        //d->updateMicroFocusHint();
         //d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
         break;
     case QEvent::InputMethodCompose:
@@ -1725,10 +1724,14 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 
 /*!\reimp
 */
-QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property)
+QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 {
    QTextBlock block = d->cursor.block();
     switch(property) {
+    case Qt::ImMicroFocus:
+        return d->cursorRect();
+    case Qt::ImFont:
+        return currentFont();
     case Qt::ImCursorPosition:
         return QVariant(d->cursor.position() - block.position());
     case Qt::ImSurroundingText:
@@ -2319,42 +2322,48 @@ void QTextEdit::append(const QString &text)
     if (atBottom && d->vbar->isVisible())
         d->vbar->setValue(d->vbar->maximum() - d->viewport->height());
 }
+
+/*!
+  Returns the current cursor rectangle.
+*/
+QRect QTextEditPrivate::cursorRect() const
+{
+    QTextFrame *frame = cursor.currentFrame();
+    const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
+    QTextBlock block = cursor.block();
+    QTextLayout *layout = block.layout();
+    QPoint layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
+    const int relativePos = cursor.position() - block.position();
+    QTextLine line = layout->findLine(relativePos);
+    if (!line.isValid())
+        return QRect(layoutPos.x(), layoutPos.y(), 1, 10); // ###
+
+    return QRect(layoutPos.x() + line.cursorToX(relativePos), layoutPos.y() + line.y(), 1, line.ascent() + line.descent());
+}
+
 /*!
     Ensures that the cursor is visible by scrolling the text edit if
     necessary.
 */
 void QTextEdit::ensureCursorVisible()
 {
-    QTextFrame *frame = d->cursor.currentFrame();
-    const QAbstractTextDocumentLayout *docLayout = d->doc->documentLayout();
-    QTextBlock block = d->cursor.block();
-    QTextLayout *layout = block.layout();
-    QPoint layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
-    const int relativePos = d->cursor.position() - block.position();
-    QTextLine line = layout->findLine(relativePos);
-    if (!line.isValid())
-        return;
-
-    const int cursorX = layoutPos.x() + line.cursorToX(relativePos);
-    const int cursorY = layoutPos.y() + line.y();
-    const int cursorWidth = 1;
-    const int cursorHeight = line.ascent() + line.descent();
+    QRect crect = d->cursorRect();
 
     const int visibleWidth = d->viewport->width();
     const int visibleHeight = d->viewport->height();
 
     if (d->hbar->isVisible()) {
-        if (cursorX < d->contentsX())
-            d->hbar->setValue(cursorX - cursorWidth);
-        else if (cursorX + cursorWidth > d->contentsX() + visibleWidth)
-            d->hbar->setValue(cursorX + cursorWidth - visibleWidth);
+        if (crect.x() < d->contentsX())
+            d->hbar->setValue(crect.x() - crect.width());
+        else if (crect.x() + crect.width() > d->contentsX() + visibleWidth)
+            d->hbar->setValue(crect.x() + crect.width() - visibleWidth);
     }
 
     if (d->vbar->isVisible()) {
-        if (cursorY < d->contentsY())
-            d->vbar->setValue(cursorY - cursorHeight);
-        else if (cursorY + cursorHeight > d->contentsY() + visibleHeight)
-            d->vbar->setValue(cursorY + cursorHeight - visibleHeight);
+        if (crect.y() < d->contentsY())
+            d->vbar->setValue(crect.y() - crect.height());
+        else if (crect.y() + crect.height() > d->contentsY() + visibleHeight)
+            d->vbar->setValue(crect.y() + crect.height() - visibleHeight);
     }
 }
 

@@ -271,6 +271,8 @@ public:
 
     bool showGrid() const;
 
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
+
     bool columnMovingEnabled() const;
     bool rowMovingEnabled() const;
 

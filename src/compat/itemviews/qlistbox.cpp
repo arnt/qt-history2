@@ -1590,6 +1590,13 @@ void QListBox::setCurrentItem(int index)
 }
 
 
+QVariant QListBox::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    if (query == Qt::ImMicroFocus)
+        return d->current ? itemRect(d->current) : QRect();
+    return QWidget::inputMethodQuery(query);
+}
+
 /*!
     \overload
 
@@ -1601,8 +1608,6 @@ void QListBox::setCurrentItem(QListBoxItem * i)
         return;
 
     QRect mfrect = itemRect(i);
-    if (mfrect.isValid())
-        setMicroFocusHint(mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), false);
 
     QListBoxItem * o = d->current;
     d->current = i;
@@ -2478,12 +2483,8 @@ void QListBox::focusInEvent(QFocusEvent*)
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelection();
 
-    if (d->current) {
+    if (d->current)
         updateItem(currentItem());
-        QRect mfrect = itemRect(d->current);
-        if (mfrect.isValid())
-            setMicroFocusHint(mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), false);
-    }
 }
 
 

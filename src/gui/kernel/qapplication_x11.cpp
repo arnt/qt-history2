@@ -4787,7 +4787,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
 
     // try the menukey first
     if (type == QEvent::KeyPress && code == Qt::Key_Menu) {
-        QPoint pos = microFocusHint().center();
+        QPoint pos = inputMethodQuery(Qt::ImMicroFocus).toRect().center();
         QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, mapToGlobal(pos), 0);
         QApplication::sendSpontaneousEvent(this, &e);
         if(e.isAccepted())

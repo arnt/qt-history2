@@ -4671,16 +4671,18 @@ void Q3ListView::focusInEvent(QFocusEvent*)
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         viewport()->repaint();
     }
-
-    QRect mfrect = itemRect(d->focusItem);
-    if (mfrect.isValid()) {
-        if (header() && header()->isVisible())
-            setMicroFocusHint(mfrect.x(), mfrect.y()+header()->height(), mfrect.width(), mfrect.height(), false);
-        else
-            setMicroFocusHint(mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), false);
-    }
 }
 
+QVariant Q3ListView::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    if (query == Qt::ImMicroFocus) {
+        QRect mfrect = itemRect(d->focusItem);
+        if (mfrect.isValid() && header() && header()->isVisible())
+            mfrect.moveBy(0, header()->height());
+        return mfrect;
+    }
+    return QWidget::inputMethodQuery(query);
+}
 
 /*!
     \reimp
@@ -5281,14 +5283,6 @@ void Q3ListView::setCurrentItem(Q3ListViewItem * i)
 
     Q3ListViewItem * prev = d->focusItem;
     d->focusItem = i;
-
-    QRect mfrect = itemRect(i);
-    if (mfrect.isValid()) {
-        if (header() && header()->isVisible())
-            setMicroFocusHint(mfrect.x(), mfrect.y()+header()->height(), mfrect.width(), mfrect.height(), false);
-        else
-            setMicroFocusHint(mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), false);
-    }
 
     if (i != prev) {
         if (i && d->selectionMode == Single) {

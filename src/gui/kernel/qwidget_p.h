@@ -125,7 +125,6 @@ struct QWExtra {
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif
-    QRect micro_focus_hint;                        // micro focus hint
     QSizePolicy size_policy;
 };
 

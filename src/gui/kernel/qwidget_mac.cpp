@@ -281,7 +281,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         {
             WindowPartCode wpc;
             if(GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, NULL,
-                                 sizeof(wpc), NULL, &wpc) == noErr && wpc != inContent) 
+                                 sizeof(wpc), NULL, &wpc) == noErr && wpc != inContent)
                 send_to_app = true;
         }
         if(!send_to_app) {
@@ -290,7 +290,7 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                                  sizeof(window), 0, &window) == noErr) {
                 HIViewRef hiview;
                 if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr) {
-                    if(QWidget *w = QWidget::find((WId)hiview)) 
+                    if(QWidget *w = QWidget::find((WId)hiview))
                         send_to_app = !w->isActiveWindow();
                 }
             }
@@ -455,13 +455,13 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
             SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
         } else if(ekind == kEventControlGetClickActivation) {
             ClickActivationResult clickT = kActivateAndIgnoreClick;
-            SetEventParameter(event, kEventParamClickActivation, typeClickActivationResult, 
+            SetEventParameter(event, kEventParamClickActivation, typeClickActivationResult,
                               sizeof(clickT), &clickT);
         } else if(ekind == kEventControlGetPartRegion) {
             handled_event = false;
             if(widget && !widget->isTopLevel()) {
                 ControlPartCode part;
-                GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0, 
+                GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0,
                                   sizeof(part), 0, &part);
                 if(part == kControlStructureMetaPart
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
@@ -469,7 +469,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 #endif
                     ) {
                     RgnHandle rgn;
-                    GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, NULL, 
+                    GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, NULL,
                                       sizeof(rgn), NULL, &rgn);
                     SetRectRgn(rgn, 0, 0, widget->width(), widget->height());
                     if(QWidgetPrivate::qt_widget_rgn(widget, kWindowStructureRgn, rgn, false))
@@ -488,7 +488,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
                     if(ekind == kEventControlDragEnter)
-                        SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, 
+                        SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
                                           sizeof(handled_event), &handled_event);
                 }
 #endif
@@ -507,7 +507,7 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
 {
     if(!widget_class) {
         if(HIObjectRegisterSubclass(kObjectQWidget, kHIViewClassID, 0, make_widget_eventUPP(),
-                                    GetEventTypeCount(widget_events), widget_events, 
+                                    GetEventTypeCount(widget_events), widget_events,
                                     NULL, &widget_class) != noErr)
             qWarning("That cannot happen!!! %d", __LINE__);
     }
@@ -878,7 +878,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if(testWFlags(Qt::WStyle_Tool) && testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash && !isModal())
             wattr |= kWindowHideOnSuspendAttribute;
         wattr |= kWindowLiveResizeAttribute;
-        
+
 #ifdef DEBUG_WINDOW_CREATE
 #define ADD_DEBUG_WINDOW_NAME(x) { x, #x }
         struct {
@@ -964,7 +964,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
                                       window_events, static_cast<void *>(qApp), &d->window_event);
         }
-	if(testWFlags(Qt::WStyle_StaysOnTop)) 
+	if(testWFlags(Qt::WStyle_StaysOnTop))
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(this) && parentWidget())
             SetDrawerParent(window, qt_mac_window_for(parentWidget()));
@@ -1166,18 +1166,6 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     HIPoint hi_pos = CGPointMake(pos.x()-win_rect.left, pos.y()-win_rect.top);
     HIViewConvertPoint(&hi_pos, 0, (HIViewRef)winId());
     return d->mapFromWS(QPoint((int)hi_pos.x, (int)hi_pos.y));
-}
-
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *)
-{
-    if(!width)
-        width = 1;
-    if(!height)
-        height = 1;
-    if(text && QRect(x, y, width, height) != microFocusHint()) {
-        d->createExtra();
-        d->extraData()->micro_focus_hint.setRect(x, y, width, height);
-    }
 }
 
 void QWidgetPrivate::setFont_sys(QFont *)
@@ -1441,7 +1429,7 @@ void QWidget::show_sys()
         } else if(qt_mac_is_macdrawer(this)) {
             OpenDrawer(window, kWindowEdgeDefault, false);
         } else {
-            ShowHide(window, true); 
+            ShowHide(window, true);
             d->toggleDrawers(true);
         }
         if(windowState() & Qt::WindowMinimized) //show in collapsed state
@@ -1524,7 +1512,7 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) 
+        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))
             CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
 
         if(newstate & Qt::WindowMaximized) {
@@ -1540,7 +1528,7 @@ void QWidget::setWindowState(uint newstate)
             d->topData()->normalGeometry = QRect(0, 0, -1, -1);
         }
         if(!(newstate & Qt::WindowMinimized) &&
-            ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized) 
+            ((oldstate & Qt::WindowMaximized) != (newstate & Qt::WindowMaximized)
              || (oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))) {
             if(newstate & Qt::WindowMaximized) {
                 Rect bounds;
@@ -1567,7 +1555,7 @@ void QWidget::setWindowState(uint newstate)
                     bounds.bottom -= tlextra->fbottom;
                 }
                 QRect orect(geometry().x(), geometry().y(), width(), height()),
-                      nrect(bounds.left, bounds.top, bounds.right - bounds.left, 
+                      nrect(bounds.left, bounds.top, bounds.right - bounds.left,
                             bounds.bottom - bounds.top);
                 if(orect != nrect) { // no real point..
                     Rect oldr;
@@ -1594,7 +1582,7 @@ void QWidget::setWindowState(uint newstate)
             } else {
                 ZoomWindow(window, inZoomIn, false);
             }
-        } 
+        }
     }
 
     data->widget_state &= ~(Qt::WState_Minimized | Qt::WState_Maximized | Qt::WState_FullScreen);

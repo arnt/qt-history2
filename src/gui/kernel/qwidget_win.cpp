@@ -523,22 +523,6 @@ void QWidgetPrivate::setFont_sys(QFont *f)
     QInputContext::setFont(q, (f ? *f : q->font()));
 }
 
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *f)
-{
-    CreateCaret(winId(), 0, width, height);
-    HideCaret(winId());
-    SetCaretPos(x, y);
-
-    if (text)
-        QInputContext::setFocusHint(x, y, width, height, this);
-    d->setFont_sys(f);
-
-    if (QRect(x, y, width, height) != microFocusHint()) {
-        if (d && d->extraData())
-            d->extraData()->micro_focus_hint.setRect(x, y, width, height);
-    }
-}
-
 void QWidget::resetInputContext()
 {
     QInputContext::accept();

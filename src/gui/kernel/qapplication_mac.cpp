@@ -2027,7 +2027,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
 
             if(qt_mac_get_document_id(widget)) {
-                QRect mr(widget->microFocusHint());
+                QRect mr(widget->inputMethodQuery(Qt::ImMicroFocus).toRect());
                 QPoint mp(widget->mapToGlobal(QPoint(mr.topLeft())));
                 Point pt;
                 pt.h = mp.x();

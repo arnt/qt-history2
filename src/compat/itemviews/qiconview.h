@@ -363,6 +363,8 @@ public:
 
     bool isRenaming() const;
 
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
+
 public slots:
     virtual void arrangeItemsInGrid(const QSize &grid, bool update = true);
     virtual void arrangeItemsInGrid(bool update = true);

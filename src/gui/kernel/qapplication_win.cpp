@@ -981,7 +981,7 @@ void QApplicationPrivate::createEventDispatcher()
     if (q->type() != QApplication::Tty)
         eventDispatcher = new QGuiEventDispatcherWin32(q);
     else
-        eventDispatcher = new QEventDispatcherWin32(q); 
+        eventDispatcher = new QEventDispatcherWin32(q);
 }
 
 /*****************************************************************************
@@ -1816,7 +1816,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                 }
                 QWidget *fw = qApp->focusWidget();
                 if (fw) {
-                    QPoint pos = fw->microFocusHint().center();
+                    QPoint pos = fw->inputMethodQuery(Qt::ImMicroFocus).center();
                     QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos));
                     result = qt_sendSpontaneousEvent(fw, &e);
                 }
@@ -2436,10 +2436,10 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
     if (button == Qt::XButton1) {
         switch(GET_XBUTTON_WPARAM(msg.wParam)) {
         case XBUTTON1:
-            button = Qt::XButton1; 
+            button = Qt::XButton1;
             break;
         case XBUTTON2:
-            button = Qt::XButton2; 
+            button = Qt::XButton2;
             break;
         }
     }

@@ -3129,6 +3129,14 @@ QIconViewItem *QIconView::currentItem() const
     return d->currentItem;
 }
 
+QVariant QIconView::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    if (query == Qt::ImMicroFocus) {
+        return d->currentItem ? d->currentItem->rect() : QRect();
+    }
+    return QWidget::inputMethodQuery(query);
+}
+
 /*!
     Makes \a item the new current item of the icon view.
 */
@@ -3137,8 +3145,6 @@ void QIconView::setCurrentItem(QIconViewItem *item)
 {
     if (!item || item == d->currentItem)
         return;
-
-    setMicroFocusHint(item->x(), item->y(), item->width(), item->height(), false);
 
     QIconViewItem *old = d->currentItem;
     d->currentItem = item;
@@ -5230,9 +5236,6 @@ void QIconView::focusInEvent(QFocusEvent*)
 
     if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelectedItems();
-
-    if (d->currentItem)
-        setMicroFocusHint(d->currentItem->x(), d->currentItem->y(), d->currentItem->width(), d->currentItem->height(), false);
 }
 
 /*!

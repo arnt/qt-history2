@@ -152,7 +152,6 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(bool fullScreen READ isFullScreen)
     Q_PROPERTY(QSize sizeHint READ sizeHint)
     Q_PROPERTY(QSize minimumSizeHint READ minimumSizeHint)
-    Q_PROPERTY(QRect microFocusHint READ microFocusHint)
     Q_PROPERTY(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
     Q_PROPERTY(bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false)
     Q_PROPERTY(QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isTopLevel)
@@ -441,7 +440,6 @@ public:
     QWidget *focusWidget() const;
     // #### Find a reasonable name
     QWidget *nextInFocusChain() const;
-    QRect microFocusHint() const;
 
     // drag and drop
     bool acceptDrops() const;
@@ -532,7 +530,7 @@ protected:
     virtual void polishEvent(QEvent *);
 
     virtual void inputMethodEvent(QInputMethodEvent *);
-    virtual QVariant inputMethodQuery(Qt::InputMethodQuery);
+    virtual QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 
 #if defined(Q_WS_MAC)
     virtual bool macEvent(EventHandlerCallRef, EventRef);
@@ -572,8 +570,6 @@ protected:
     void clearWFlags(Qt::WFlags f);
 
     virtual bool focusNextPrevChild(bool next);
-
-    void setMicroFocusHint(int x, int y, int w, int h, bool text=true, QFont *f = 0);
 
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, Qt::WFlags f);

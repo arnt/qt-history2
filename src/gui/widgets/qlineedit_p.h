@@ -159,7 +159,6 @@ public:
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::CursorBetweenCharacters) const;
     inline int visualAlignment() const { return alignment ? alignment : int(isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft); }
     QRect cursorRect() const;
-    void updateMicroFocusHint();
 
 #ifndef QT_NO_DRAGANDDROP
     // drag and drop

@@ -912,49 +912,6 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     return d->mapFromWS(QPoint(x, y));
 }
 
-/*!
-    When a widget gets focus, it should call setMicroFocusHint() with
-    some appropriate position and size, \a x, \a y, \a width and \a
-    height. This has no \e visual effect, it just provides hints to
-    any system-specific input handling tools.
-
-    The \a text argument should be true if this is a position for text
-    input.
-
-    In the Windows version of Qt, this method sets the system caret,
-    which is used for user Accessibility focus handling.  If \a text
-    is true, it also sets the IME composition window in Far East Asian
-    language input systems.
-
-    In the X11 version of Qt, if \a text is true, this method sets the
-    input method focus point in the preedit (XIM "spot" point) for
-    complex language input handling.
-
-    The font \a f is a rendering hint to the currently active input method.
-    If \a f is 0 the widget's font is used.
-
-    \sa microFocusHint()
-*/
-void QWidget::setMicroFocusHint(int x, int y, int width, int height,
-                                bool text, QFont *f)
-{
-#ifndef QT_NO_IM
-    if (text) {
-	QInputContext *qic = inputContext();
-	if(qic) {
-	    QPoint gp = mapToGlobal( QPoint( x, y ) );
-	    qic->setMicroFocus(QRect(gp.x(), gp.y(), width, height), f ? *f : font());
-        }
-    }
-#endif
-
-    if (QRect(x, y, width, height) != microFocusHint()) {
-        d->createExtra();
-        d->extraData()->micro_focus_hint.setRect(x, y, width, height);
-    }
-}
-
-
 void QWidgetPrivate::setFont_sys(QFont *)
 {
     // Nothing

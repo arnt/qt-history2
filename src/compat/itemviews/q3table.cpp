@@ -3210,6 +3210,15 @@ void Q3Table::setCurrentCell(int row, int col)
        leftMargin() \
 )
 
+QVariant Q3Table::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    if (query == Qt::ImMicroFocus)
+        return QRect(columnPos(curCol) + leftMargin() - contentsX(), rowPos(curRow) + topMargin() - contentsY(),
+                     columnWidth(curCol), rowHeight(curRow));
+    return QWidget::inputMethodQuery(query);
+
+}
+
 /*! \internal */
 
 void Q3Table::setCurrentCell(int row, int col, bool updateSelections, bool ensureVisible)
@@ -3258,8 +3267,6 @@ void Q3Table::setCurrentCell(int row, int col, bool updateSelections, bool ensur
 
     QPoint cellPos(columnPos(curCol) + leftMargin() - contentsX(),
 		    rowPos(curRow) + topMargin() - contentsY());
-    setMicroFocusHint(cellPos.x(), cellPos.y(), columnWidth(curCol),
-		       rowHeight(curRow), (itm && itm->editType() != Q3TableItem::Never));
 
     if (cellWidget(oldRow, oldCol) &&
 	 cellWidget(oldRow, oldCol)->hasFocus())
@@ -4264,7 +4271,6 @@ void Q3Table::focusInEvent(QFocusEvent*)
 
     QPoint cellPos(columnPos(curCol) + leftMargin() - contentsX(), rowPos(curRow) + topMargin() - contentsY());
     Q3TableItem *itm = item(curRow, curCol);
-    setMicroFocusHint(cellPos.x(), cellPos.y(), columnWidth(curCol), rowHeight(curRow), (itm && itm->editType() != Q3TableItem::Never));
 }
 
 

@@ -5116,9 +5116,7 @@ void QWidget::keyReleaseEvent(QKeyEvent *e)
     those that do not normally accept focus.)
 
     The default implementation updates the widget (except for top-level
-    widgets that do not specify a focusPolicy()). It also calls
-    setMicroFocusHint(), hinting any system-specific input tools about
-    the focus of the user's attention.
+    widgets that do not specify a focusPolicy()).
 
     \sa focusOutEvent(), setFocusPolicy(), keyPressEvent(),
     keyReleaseEvent(), event(), QFocusEvent
@@ -5130,7 +5128,6 @@ void QWidget::focusInEvent(QFocusEvent *)
         update();
         if (testWState(Qt::WState_AutoMask))
             updateMask();
-        setMicroFocusHint(width()/2, 0, 1, height(), false);
     }
 }
 
@@ -5147,9 +5144,7 @@ void QWidget::focusInEvent(QFocusEvent *)
     those that do not normally accept focus.)
 
     The default implementation updates the widget (except for top-level
-    widgets that do not specify a focusPolicy()). It also calls
-    setMicroFocusHint(), hinting any system-specific input tools about
-    the focus of the user's attention.
+    widgets that do not specify a focusPolicy()).
 
     \sa focusInEvent(), setFocusPolicy(), keyPressEvent(),
     keyReleaseEvent(), event(), QFocusEvent
@@ -5162,20 +5157,6 @@ void QWidget::focusOutEvent(QFocusEvent *)
         if (testWState(Qt::WState_AutoMask))
             updateMask();
     }
-}
-
-/*!
-    \property QWidget::microFocusHint
-    \brief the currently set micro focus hint for this widget.
-
-    See the documentation of setMicroFocusHint() for more information.
-*/
-QRect QWidget::microFocusHint() const
-{
-    if (!d->extra || d->extra->micro_focus_hint.isEmpty())
-        return QRect(width()/2, 0, 1, height());
-    else
-        return d->extra->micro_focus_hint;
 }
 
 /*!
@@ -5375,9 +5356,16 @@ void QWidget::inputMethodEvent(QInputMethodEvent *e)
 
   /sa Qt::ImQueryProperty QInputMethodEvent QInputContext
 */
-QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery)
+QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery query) const
 {
-    return QVariant();
+    switch(query) {
+    case Qt::ImMicroFocus:
+        return QRect(width()/2, 0, 1, height());
+    case Qt::ImFont:
+        return font();
+    default:
+        return QVariant();
+    }
 }
 
 #ifndef QT_NO_DRAGANDDROP

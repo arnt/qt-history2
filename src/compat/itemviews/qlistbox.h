@@ -100,6 +100,8 @@ public:
     void setMultiSelection(bool multi);
     bool isMultiSelection() const;
 
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
+
     virtual void setSelected(QListBoxItem *, bool);
     void setSelected(int, bool);
     bool isSelected(int) const;

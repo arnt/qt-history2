@@ -1519,7 +1519,7 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
 /*!
     \reimp
 */
-void Q3TextEdit::imEvent(QIMEvent *e)
+void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
 {
     if (isReadOnly()) {
         e->ignore();
@@ -1527,12 +1527,12 @@ void Q3TextEdit::imEvent(QIMEvent *e)
     }
 
     switch(e->type()) {
-    case QEvent::IMStart:
+    case QEvent::InputMethodStart:
         if (hasSelectedText())
             removeSelectedText();
         d->preeditStart = cursor->index();
         break;
-    case QEvent::IMCompose: {
+    case QEvent::InputMethodCompose: {
 
         doc->removeSelection(Q3TextDocument::IMCompositionText);
         doc->removeSelection(Q3TextDocument::IMSelectionText);
@@ -1563,7 +1563,7 @@ void Q3TextEdit::imEvent(QIMEvent *e)
 
         break;
     }
-    case QEvent::IMEnd:
+    case QEvent::InputMethodEnd:
 
         doc->removeSelection(Q3TextDocument::IMCompositionText);
         doc->removeSelection(Q3TextDocument::IMSelectionText);
@@ -1719,7 +1719,6 @@ void Q3TextEdit::doKeyboardAction(KeyboardAction action)
     repaintChanged();
     ensureCursorVisible();
     drawCursor(true);
-    updateMicroFocusHint();
     if (doUpdateCurrentFormat)
         updateCurrentFormat();
     setModified();
@@ -1834,7 +1833,6 @@ void Q3TextEdit::removeSelectedText(int selNum)
 #ifndef QT_NO_CURSOR
         viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
-        updateMicroFocusHint();
     } else {
         delete cursor;
         cursor = new Q3TextCursor(doc);
@@ -1931,7 +1929,6 @@ void Q3TextEdit::moveCursor(CursorAction action, bool select)
 
     drawCursor(true);
     updateCurrentFormat();
-    updateMicroFocusHint();
 }
 
 /*!
@@ -1980,7 +1977,6 @@ void Q3TextEdit::moveCursor(CursorAction action)
         cursor->gotoEnd();
         break;
     }
-    updateMicroFocusHint();
     updateCurrentFormat();
 }
 
@@ -2709,23 +2705,26 @@ void Q3TextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c, bool link)
     c->restoreState();
     Q3TextParagraph *s = doc->firstParagraph();
     c->place(pos, s, link);
-    updateMicroFocusHint();
 }
 
 
-void Q3TextEdit::updateMicroFocusHint()
+QVariant Q3TextEdit::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     Q3TextCursor c(*cursor);
     if (d->preeditStart != -1)
         c.setIndex(d->preeditStart);
 
-    if (hasFocus() || viewport()->hasFocus()) {
+    switch(query) {
+    case Qt::ImMicroFocus: {
         int h = c.paragraph()->lineHeightOfChar(cursor->index());
-        if (!readonly) {
-            QFont f = c.paragraph()->at(c.index())->format()->font();
-            setMicroFocusHint(c.x() - contentsX() + frameWidth(),
-                               c.y() + cursor->paragraph()->rect().y() - contentsY() + frameWidth(), 0, h, true, &f);
-        }
+        return QRect(c.x() - contentsX() + frameWidth(),
+                     c.y() + cursor->paragraph()->rect().y() - contentsY() + frameWidth(), 1, h);
+    }
+    case Qt::ImFont:
+            return c.paragraph()->at(c.index())->format()->font();
+    default:
+    // ##### fix the others!
+        return QWidget::inputMethodQuery(query);
     }
 }
 
@@ -2810,7 +2809,6 @@ bool Q3TextEdit::eventFilter(QObject *o, QEvent *e)
             if (QApplication::cursorFlashTime() > 0)
                 blinkTimer->start(QApplication::cursorFlashTime() / 2);
             drawCursor(true);
-            updateMicroFocusHint();
         } else if (e->type() == QEvent::FocusOut) {
             blinkTimer->stop();
             drawCursor(false);
@@ -2941,7 +2939,6 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
         doc->setSelectionEnd(Q3TextDocument::Standard, *cursor);
         repaintChanged();
     }
-    updateMicroFocusHint();
     setModified();
     emit textChanged();
 }
@@ -3087,7 +3084,6 @@ void Q3TextEdit::undo()
     ensureCursorVisible();
     repaintChanged();
     drawCursor(true);
-    updateMicroFocusHint();
     setModified();
     // ### If we get back to a completely blank textedit, it
     // is possible that cursor is invalid and further actions
@@ -3138,7 +3134,6 @@ void Q3TextEdit::redo()
     repaintChanged();
     ensureCursorVisible();
     drawCursor(true);
-    updateMicroFocusHint();
     setModified();
     emit undoAvailable(isUndoAvailable());
     emit redoAvailable(isRedoAvailable());
@@ -3169,7 +3164,6 @@ void Q3TextEdit::paste()
     }
 
     pasteSubType(subType.toLatin1());
-    updateMicroFocusHint();
 #endif
 }
 
@@ -3225,7 +3219,6 @@ void Q3TextEdit::cut()
         return;
     normalCopy();
     removeSelectedText();
-    updateMicroFocusHint();
 }
 
 void Q3TextEdit::normalCopy()

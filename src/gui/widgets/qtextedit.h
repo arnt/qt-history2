@@ -197,7 +197,7 @@ protected:
     virtual QMenu *createPopupMenu(const QPoint &pos);
 
     virtual void inputMethodEvent(QInputMethodEvent *);
-    QVariant inputMethodQuery(Qt::InputMethodQuery property);
+    QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 

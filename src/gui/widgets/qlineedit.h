@@ -161,7 +161,7 @@ protected:
 #endif
 
     void inputMethodEvent(QInputMethodEvent *);
-    QVariant inputMethodQuery(Qt::InputMethodQuery);
+    QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 
 public:
 #ifdef QT_COMPAT

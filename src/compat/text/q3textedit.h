@@ -402,7 +402,7 @@ protected:
 #ifndef QT_NO_WHEELEVENT
     void contentsWheelEvent(QWheelEvent *e);
 #endif
-    void imEvent(QIMEvent *);
+    void inputMethodEvent(QInputMethodEvent *);
 #ifndef QT_NO_DRAGANDDROP
     void contentsDragEnterEvent(QDragEnterEvent *e);
     void contentsDragMoveEvent(QDragMoveEvent *e);
@@ -483,7 +483,7 @@ private:
     void moveCursor(CursorAction action);
     void ensureFormatted(Q3TextParagraph *p);
     void placeCursor(const QPoint &pos, Q3TextCursor *c, bool link);
-    void updateMicroFocusHint();
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     bool checkOptimMode();
