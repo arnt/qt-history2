@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#4 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#4 $";
 #endif
 
 
@@ -152,7 +152,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		    return 0;
 		break;
 	    case BOW:				// match beginning of word
-		if ( !iswordchar(*p) || (p > bol &&  iswordchar(*(p-1)) ) )
+		if ( !iswordchar(*p) || (p > bol && iswordchar(*(p-1)) ) )
 		    return 0;
 		break;
 	    case EOW:				// match end of word
