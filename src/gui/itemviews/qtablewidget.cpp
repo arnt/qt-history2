@@ -442,6 +442,7 @@ public:
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index);
+    void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
 };
 
 void QTableWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -478,6 +479,11 @@ void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const Q
 void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
     emit q->itemEntered(model()->item(index));
+}
+
+void QTableWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
+{
+    emit q->aboutToShowContextMenu(menu, model()->item(index));
 }
 
 /*!
@@ -819,6 +825,8 @@ void QTableWidget::setup()
             SLOT(emitReturnPressed(const QModelIndex&)));
     connect(this, SIGNAL(itemEntered(const QModelIndex&)),
             SLOT(emitItemEntered(const QModelIndex&)));
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
+            SLOT(emitAboutToShowContextMenu(QMenu*, const QModelIndex&)));
     connect(selectionModel(),
             SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));

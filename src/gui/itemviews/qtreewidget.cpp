@@ -831,6 +831,7 @@ public:
     void emitCollapsed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index);
+    void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
 };
 
 void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -877,6 +878,11 @@ void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QM
 void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
     emit q->itemEntered(model()->item(index), index.column());
+}
+
+void QTreeWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
+{
+    emit q->aboutToShowContextMenu(menu, model()->item(index), index.column());
 }
 
 /*!
@@ -956,6 +962,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitCollapsed(const QModelIndex&)));
     connect(this, SIGNAL(itemEntered(const QModelIndex&)),
             SLOT(emitItemEntered(const QModelIndex&)));
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
+            SLOT(emitAboutToShowContextMenu(QMenu*, const QModelIndex&)));
     connect(selectionModel(),
             SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));

@@ -466,6 +466,7 @@ public:
     void emitReturnPressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index);
+    void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
 };
 
 void QListWidgetPrivate::emitPressed(const QModelIndex &index, int button)
@@ -502,6 +503,11 @@ void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QM
 void QListWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
     emit q->itemEntered(model()->at(index.row()));
+}
+
+void QListWidgetPrivate::emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index)
+{
+    emit q->aboutToShowContextMenu(menu, model()->at(index.row()));
 }
 
 #ifdef QT_COMPAT
@@ -784,6 +790,8 @@ void QListWidget::setup()
             SLOT(emitReturnPressed(const QModelIndex&)));
     connect(this, SIGNAL(itemEntered(const QModelIndex&)),
             SLOT(emitItemEntered(const QModelIndex&)));
+    connect(this, SIGNAL(aboutToShowContextMenu(QMenu*, const QModelIndex&)),
+            SLOT(emitAboutToShowContextMenu(QMenu*, const QModelIndex&)));
     connect(selectionModel(),
             SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
