@@ -301,7 +301,10 @@ struct QtFontFamily
 	hasXft( FALSE ), xftScriptCheck( FALSE ), xlfdLoaded( FALSE ),
 #endif
 #ifdef Q_WS_WIN
-	scriptCheck( false ),
+	scriptCheck( FALSE ),
+#endif
+#ifdef Q_OS_MAC
+	fixedPitchComputed(FALSE),
 #endif
 	fullyLoaded( FALSE ),
 	  name( n ), count( 0 ), foundries( 0 ) {
@@ -322,6 +325,9 @@ struct QtFontFamily
 #ifdef Q_WS_WIN
     bool scriptCheck : 1;
 #endif
+#ifdef Q_WS_MAC
+    bool fixedPitchComputed : 1;
+#endif
     bool fullyLoaded : 1;
     QString name;
     QString rawName;
@@ -329,7 +335,6 @@ struct QtFontFamily
     QByteArray fontFilename;
     int fontFileIndex;
 #endif
-
     int count;
     QtFontFoundry **foundries;
 
@@ -1390,6 +1395,16 @@ bool QFontDatabase::isFixedPitch(const QString &family,
     load( familyName );
 
     QtFontFamily *f = d->family( familyName );
+#ifdef Q_OS_MAC
+    if (f) {
+	if (!f->fixedPitchComputed) {
+	    QFontMetrics fm(familyName);
+	    f->fixedPitch = fm.width('i') == fm.width('m');
+	    f->fixedPitchComputed = TRUE;
+	}
+    }
+#endif
+
     return ( f && f->fixedPitch );
 }
 

@@ -2775,6 +2775,18 @@ bool QFontInfo::fixedPitch() const
 {
     QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
     Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+#ifdef Q_OS_MAC
+    if (!engine->fontDef.fixedPitchComputed) {
+	QChar ch[2] = { QChar('i'), QChar('m') };
+	glyph_t g[2];
+	int l = 2;
+	advance_t a[2];
+	engine->stringToCMap(ch, 2, g, a, &l, false);
+	engine->fontDef.fixedPitch = a[0] == a[1];
+	engine->fontDef.fixedPitchComputed = TRUE;
+    }
+#endif
     return engine->fontDef.fixedPitch;
 }
 

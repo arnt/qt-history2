@@ -65,7 +65,8 @@ struct QFontDef
     uint stretch    : 12; // 0-400
 
     uint ignorePitch : 1;
-    uint reserved   : 15; // for future extensions
+    uint fixedPitchComputed : 1; // for Mac OS X only
+    uint reserved   : 14; // for future extensions
 
     bool operator==( const QFontDef &other ) const;
     inline bool operator<( const QFontDef &other ) const
