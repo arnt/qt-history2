@@ -95,9 +95,9 @@ static void debugMessageOutput( QtMsgType type, const char *msg )
 	else if ( OutputWindow::oldMsgHandler )
 	    (*OutputWindow::oldMsgHandler)( type, msg );
 	else
-	    fprintf( stderr, "%s", s.latin1() );
+	    fputs( s.latin1(), stderr );
     } else {
-	fprintf( stderr, "%s", s.latin1() );
+	fputs( s.latin1(), stderr );
 	abort();
     }
 
