@@ -64,6 +64,7 @@ struct QPixmapData { // internal pixmap data
 #elif defined(Q_WS_MAC)
     CGImageRef cgimage;
     QPixmap *alphapm;
+    void copyAlpha(const QPixmapData *data);
 #elif defined(Q_WS_QWS)
     int id;
     QRgb * clut;
