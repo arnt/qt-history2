@@ -791,7 +791,6 @@ bool QODBCResult::prepare( const QString& query )
     SQLRETURN r;
 
     d->rInf.clear();
-    // If a statement handle exists - reuse it
     if ( d->hStmt ) {
 	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 	if ( r != SQL_SUCCESS ) {
@@ -800,17 +799,16 @@ bool QODBCResult::prepare( const QString& query )
 #endif
 	    return FALSE;
 	}
-    } //else {
-	r  = SQLAllocHandle( SQL_HANDLE_STMT,
-	    		     d->hDbc,
-			     &d->hStmt );
-	if ( r != SQL_SUCCESS ) {
+    } 
+    r  = SQLAllocHandle( SQL_HANDLE_STMT,
+	    		 d->hDbc,
+			 &d->hStmt );
+    if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-	    qSqlWarning( "QODBCResult::prepare: Unable to allocate statement handle", d );
+	qSqlWarning( "QODBCResult::prepare: Unable to allocate statement handle", d );
 #endif
-	    return FALSE;
-	}
-//    }
+	return FALSE;
+    }
 
     if ( isForwardOnly() ) {
 	r = SQLSetStmtAttr( d->hStmt,
@@ -855,7 +853,24 @@ bool QODBCResult::exec()
     SQLRETURN r;
     QPtrList<QVirtualDestructor> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
     tmpStorage.setAutoDelete( TRUE );
-  
+
+    setActive( FALSE );
+    setAt( QSql::BeforeFirst );
+    d->rInf.clear();
+
+    if ( !d->hStmt ) {
+#ifdef QT_CHECK_RANGE
+	    qSqlWarning( "QODBCResult::exec: No statement handle available", d );
+#endif
+	    return FALSE;
+    } else {
+	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
+	if ( r != SQL_SUCCESS ) {
+	    qSqlWarning( "QODBCResult::exec: Unable to close statement handle", d );
+	    return FALSE;
+	}
+    }
+
     // bind parameters - only positional binding allowed
     if ( extension()->index.count() > 0 ) {
 	QMap<int, QString>::Iterator it;
@@ -873,9 +888,9 @@ bool QODBCResult::exec()
 		    DATE_STRUCT * dt = new DATE_STRUCT;
 		    tmpStorage.append( qAutoDeleter(dt) );
 		    QDate qdt = val.toDate();
- 		    dt->year = qdt.year();
- 		    dt->month = qdt.month();
- 		    dt->day = qdt.day();
+		    dt->year = qdt.year();
+		    dt->month = qdt.month();
+		    dt->day = qdt.day();
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  qParamType[ (int)extension()->values[ it.data() ].typ ],
