@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#8 $
 **
 ** Implementation of QFont and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#8 $";
 #endif
 
 
@@ -240,7 +240,7 @@ void QFont::updateSubscribers()
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::wmapper()) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that use
-	if ( w->font().d == d )			//   this font
+	if ( w->fontRef().d == d )		//   this font
 	    w->setFont( *this );		// update the font
 	++it;
     }    
