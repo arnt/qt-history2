@@ -321,10 +321,10 @@ upgraded.
 \include tt1/main.cpp
 \caption \c main.cpp
 
-This example is a reworking of the \link t1.html "hello-world"
-\endlink example from the first Qt tutorial, with a Latin
-translation. The \e {Tutorial 1 Screenshot, English version}, above,
-shows the English version.
+This example is a reworking of the \link tutorial1-01.html
+"hello-world" \endlink example from \link tutorial.html Tutorial
+#1\endlink, with a Latin translation. The \e {Tutorial 1 Screenshot,
+English version}, above, shows the English version.
 
 \quotefile tt1/main.cpp
 
