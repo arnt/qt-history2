@@ -304,8 +304,13 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 			QString uip = inc.left(extn) + Option::ui_ext + "$";
 			QStringList uil = project->variables()["INTERFACES"];
 			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
-			    if((*it).find(QRegExp(uip)) != -1) {
-				fqn = (*it).left((*it).length()-3) + inc.right(inc.length()-extn);
+			    QString s = (*it);
+			    if(!project->isEmpty("UI_DIR")) {
+				int d = s.findRev(Option::dir_sep) + 1;
+				s = project->first("UI_DIR") + s.right(s.length()-d);
+			    }
+			    if(s.find(QRegExp(uip)) != -1) {
+				fqn = s.left(s.length()-3) + inc.right(inc.length()-extn);
 				break;
 			    }
 			}
@@ -481,8 +486,13 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 			QString uip = inc.left(extn) + Option::ui_ext + "$";
 			QStringList uil = project->variables()["INTERFACES"];
 			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
-			    if((*it).find(QRegExp(uip)) != -1) {
-				fqn = (*it).left((*it).length()-3) + inc.right(inc.length()-extn);
+			    QString s = (*it);
+			    if(!project->isEmpty("UI_DIR")) {
+				int d = s.findRev(Option::dir_sep) + 1;
+				s = project->first("UI_DIR") + s.right(s.length()-d);
+			    }
+			    if(s.find(QRegExp(uip)) != -1) {
+				fqn = s.left(s.length()-3) + inc.right(inc.length()-extn);
 				break;
 			    }
 			}
@@ -532,7 +542,7 @@ MakefileGenerator::init()
 		v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
 	}
 	QString currentDir = QDir::currentDirPath();
-	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
+	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_DIR"), QString("DESTDIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
 	    if ( !v[dirs[x]].isEmpty() ) {
 		{
@@ -619,12 +629,24 @@ MakefileGenerator::init()
 
     //UI files
     {
+	if(!project->variables()["UI_DIR"].isEmpty())
+	    project->variables()["INCLUDEPATH"].append(project->first("UI_DIR"));
 	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
 	QStringList &l = v["INTERFACES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
 	    QString impl, decl;
-            if ( fi.dirPath() == "." ) {
+	    if ( !project->isEmpty("UI_DIR") ) {
+		impl = project->first("UI_DIR") + fi.baseName() + Option::cpp_ext;
+		decl = project->first("UI_DIR") + fi.baseName() + Option::h_ext;
+
+		QString d = fi.dirPath();
+		if( d == ".") 
+		    d = QDir::currentDirPath();
+		fileFixify(d);
+		if( !project->variables()["INCLUDEPATH"].contains(d))
+		    project->variables()["INCLUDEPATH"].append(d);
+	    } else if ( fi.dirPath() == "." ) {
 	    	impl = fi.baseName() + Option::cpp_ext;
                 decl = fi.baseName() + Option::h_ext;
 	    } else {
@@ -775,6 +797,11 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	    decl = tmp.replace(QRegExp("\\.ui$"), Option::h_ext);
 	    tmp = (*it);
 	    impl = tmp.replace(QRegExp("\\.ui$"), Option::cpp_ext);
+	    if(!project->isEmpty("UI_DIR")) {
+		int dlen = (*it).findRev(Option::dir_sep) + 1;
+		decl = project->first("UI_DIR") + decl.right(decl.length() - dlen);
+		impl = project->first("UI_DIR") + impl.right(impl.length() - dlen);
+	    }
 	}
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
