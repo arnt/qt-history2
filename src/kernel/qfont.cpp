@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#26 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,15 +21,13 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#26 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
   \class QFont qfont.h
-
   \brief The QFont class specifies a font used for drawing text.
-
   \ingroup fonts
 
   A QFont has a series of attributes that can be set to specify an abstract
@@ -155,7 +153,9 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.pointSize = pointSize * 10;
     d->req.weight    = weight;
     d->req.italic    = italic;
+#if defined(_WS_X11_)
     d->xfd	     = 0;
+#endif
 }
 
 /*----------------------------------------------------------------------------
@@ -502,15 +502,15 @@ QFont::StyleHint QFont::styleHint() const
 
     int main( int argc, char **argv )
     {
-        QApplication app( argc, argv );
-        QPushButton  push("Push me");
+	QApplication app( argc, argv );
+	QPushButton  push("Push me");
 
-        QFont font( "Bavaria", 18 );	    // preferrred family is Bavaria
-        font.setStyleHint( QFont::Times );  // use Times if such family
+	QFont font( "Bavaria", 18 );	    // preferrred family is Bavaria
+	font.setStyleHint( QFont::Times );  // use Times if such family
 
-        push.setFont( font );
-        push.show();
-        return app.exec( &push );
+	push.setFont( font );
+	push.show();
+	return app.exec( &push );
     }
   \endcode
 
@@ -562,7 +562,7 @@ QFont::CharSet QFont::charSet() const
     QFont     font( "times", 14 );	     // default character set is Latin1
     QFontInfo info( font );
     if ( info.charSet() != Latin1 )	     // Check info, \e NOT font
-        fatal( "Cannot find a Latin 1 Times font" );
+	fatal( "Cannot find a Latin 1 Times font" );
   \endcode
   \sa charSet(), QFontInfo, \link fontmatch.html font matching\endlink
  ----------------------------------------------------------------------------*/
@@ -601,9 +601,9 @@ bool QFont::rawMode() const
   Example:
   \code
     #if defined(_WS_X11_)
-        QFont font( "-*-fixed-*-*-*-*-*-140-75-75-c-*-iso8859-1" );
-        font.setRawMode( TRUE );
-        if ( !font.exactMatch() )
+	QFont font( "-*-fixed-*-*-*-*-*-140-75-75-c-*-iso8859-1" );
+	font.setRawMode( TRUE );
+	if ( !font.exactMatch() )
 	    debug( "Sorry, could not find the X specific font" );
     #endif
   \endcode
@@ -743,7 +743,7 @@ static void initFontSubst()			// create substitution dict
   Example:
   \code
     QFont::insertSubstitution( "NewYork", "London" );
-    QFont::insertSubstitution( "Paris",   "Texas" );
+    QFont::insertSubstitution( "Paris",	  "Texas" );
 
     QFont::substitute( "NewYork" );	// returns "London"
     QFont::substitute( "PARIS" );	// returns "Texas"
@@ -884,7 +884,7 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
 }
 
 
-/***************************************************************************** 
+/*****************************************************************************
   QFontMetrics member functions
  *****************************************************************************/
 
@@ -931,14 +931,11 @@ void QFontMetrics::reset( const QPaintDevice *pdev )
 
 /*----------------------------------------------------------------------------
   \class QFontMetrics qfontmet.h
-
   \brief The QFontMetrics class provides font metrics information about
   the current font for a paint device.
 
-  \ingroup fonts
-
   QFontMetrics functions calculate size of characters and strings for a given
-  font.  A font metric object can be obtained for a
+  font.	 A font metric object can be obtained for a
   \link QPaintDevice paint device\endlink.
 
   \sa QPaintDevice::fontMetrics(), QPainter::fontMetrics(), QFont, QFontInfo
@@ -1063,11 +1060,8 @@ void QFontInfo::reset( const QPaintDevice *pdev )
 
 /*----------------------------------------------------------------------------
   \class QFontInfo qfontinf.h
-
   \brief The QFontInfo class provides information about the current
   font for a paint device.
-
-  \ingroup fonts
 
   The QFont class might not always map exactly to the specified font for
   a paint device.

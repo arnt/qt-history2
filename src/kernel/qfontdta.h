@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdta.h#12 $
+** $Id: //depot/qt/main/src/kernel/qfontdta.h#13 $
 **
 **                    ***   INTERNAL HEADER FILE   ***
 **
 **              This file is NOT a part of the Qt interface!
 **
-** Definition of QFontData struct
+*** Definition of QFontData struct
 **
 ** Author  : Eirik Eng
 ** Created : 941229
@@ -23,7 +23,7 @@
 #define QFONTDTA_H
 
 
-struct QFontDef	{				// font definition
+struct QFontDef {				// font definition
     QString	family;
     short	pointSize;
     uint	styleHint	: 8;
