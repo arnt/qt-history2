@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#14 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#14 $";
 #endif
 
 
@@ -178,7 +178,7 @@ The type parameter must be \c Event_MouseButtonPress,
 */
 
 /*!
-\fn QPoint &QMouseEvent::pos()
+\fn const QPoint &QMouseEvent::pos() const
 Returns the position of the mouse relative to the widget that received the
 event.
 */
@@ -233,7 +233,7 @@ Returns the code if the key that was pressed or released.
 The header file qkeycode.h lists the possible keybord codes.  These codes
 are independent of the underlying window system.
 
-Key code 0 meams that the event is not a result of a known key (e.g. it
+Key code 0 means that the event is not a result of a known key (e.g. it
 may be the result of a compose sequence or keyboard macro). */
 
 /*!
@@ -327,7 +327,7 @@ Constructs a paint event object with the rectangle that should be updated.
 */
 
 /*!
-\fn QRect &QPaintEvent::rect()
+\fn const QRect &QPaintEvent::rect() const
 Returns the rectangle that should be updated.
 */
 
@@ -345,14 +345,19 @@ The virtual function QWidget::moveEvent() receives move events.
 */
 
 /*!
-\fn QMoveEvent::QMoveEvent( const QPoint &pos )
-Constructs a move event with the new widget position.
+\fn QMoveEvent::QMoveEvent( const QPoint &pos, const QPoint &oldPos )
+Constructs a move event with the new and old widget positions.
 */
 
 /*!
-\fn QPoint &QMoveEvent::pos()
+\fn const QPoint &QMoveEvent::pos() const
 Returns the new position of the widget, which is the same as
 QWidget::pos().
+*/
+
+/*!
+\fn const QPoint &QMoveEvent::oldPos() const
+Returns the old position of the widget.
 */
 
 
@@ -368,14 +373,19 @@ The virtual function QWidget::resizeEvent() receives resize events.
 */
 
 /*!
-\fn QResizeEvent::QResizeEvent( const QSize &size )
-Constructs a resize event with the new widget size.
+\fn QResizeEvent::QResizeEvent( const QSize &size, const QSize &oldSize )
+Constructs a resize event with the new and old widget sizes.
 */
 
 /*!
-\fn QSize &QResizeEvent::size()
+\fn const QSize &QResizeEvent::size() const
 Returns the new size of the widget, which is the same as
 QWidget::size().
+*/
+
+/*!
+\fn QSize &QResizeEvent::oldSize() const
+Returns the old size of the widget.
 */
 
 

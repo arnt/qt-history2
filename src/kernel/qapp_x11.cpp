@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#80 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#79 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#80 $";
 #endif
 
 
@@ -104,8 +104,8 @@ void		qt_reset_color_avail();		// defined in qcol_x11.cpp
 
 class QETWidget : public QWidget {		// event translator widget
 public:
-    void setFlag( WFlags n )		{ QWidget::setFlag(n); }
-    void clearFlag( WFlags n )		{ QWidget::clearFlag(n); }
+    void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
+    void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );
     bool translateKeyEvent( const XEvent * );
     bool translatePaintEvent( const XEvent * );
@@ -497,7 +497,7 @@ void QApplication::setCursor( const QCursor &c )// set application cursor
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	if ( w->testFlag(WCursorSet) )		//   set a cursor
+	if ( w->testWFlags(WCursorSet) )	//   set a cursor
 	    XDefineCursor( w->display(), w->id(), appCursor->handle() );
 	++it;
     }
@@ -511,7 +511,7 @@ void QApplication::restoreCursor()		// restore application cursor
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// set back to original cursors
-	if ( w->testFlag(WCursorSet) )
+	if ( w->testWFlags(WCursorSet) )
 	    XDefineCursor( w->display(), w->id(), w->cursor().handle() );
 	++it;
     }
@@ -642,18 +642,18 @@ void qPRCreate( const QWidget *widget, Window oldwin )
     }
     wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
     QETWidget *w = (QETWidget *)widget;
-    w->setFlag( WRecreated );			// set recreated flag
+    w->setWFlags( WRecreated );			// set recreated flag
 }
 
 void qPRCleanup( QETWidget *widget )
 {
-    if ( !(wPRmapper && widget->testFlag(WRecreated)) )
+    if ( !(wPRmapper && widget->testWFlags(WRecreated)) )
 	return;					// not a recreated widget
     QWidgetIntDictIt it(*wPRmapper);
     QWidget *w;
     while ( (w=it.current()) ) {
 	if ( w == widget ) {			// found widget
-	    widget->clearFlag( WRecreated );	// clear recreated flag
+	    widget->clearWFlags( WRecreated );	// clear recreated flag
 	    wPRmapper->remove( it.currentKey());// old window no longer needed
 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
@@ -745,7 +745,7 @@ int QApplication::enter_loop()			// local event loop
 			    break;
 		    }
 		}
-		else if ( widget->testFlag(WRecreated) )
+		else if ( widget->testWFlags(WRecreated) )
 		    qPRCleanup( widget );	// remove from alt mapper
 	    }
 	    if ( !widget )			// don't know this window
@@ -820,17 +820,17 @@ int QApplication::enter_loop()			// local event loop
 		    break;			// ignored
 
 		case UnmapNotify:		// window hidden
-		    widget->clearFlag( WState_Visible );
+		    widget->clearWFlags( WState_Visible );
 		    break;
 
 		case MapNotify:			// window shown
-		    widget->setFlag( WState_Visible );
+		    widget->setWFlags( WState_Visible );
 		    break;
 
 		case ClientMessage:		// client message
 		    if ( (event.xclient.format == 32) ) {
 			long *l = event.xclient.data.l;
-			if ( *l == q_wm_delete_window ) {
+			if ( *l == (long)q_wm_delete_window ) {
 			    if ( widget->translateCloseEvent( &event )
 				 && app_loop_level < 2 )
 				delete widget;
@@ -969,17 +969,17 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    break;
     }
 
-    if ( widget->testFlag(WType_Modal) )	// widget is modal
+    if ( widget->testWFlags(WType_Modal) )	// widget is modal
 	modal = widget;
     else {					// widget is not modal
 	while ( widget->parentWidget() ) {	// find overlapped parent
-	    if ( widget->testFlag(WType_Overlap) )
+	    if ( widget->testWFlags(WType_Overlap) )
 		break;
 	    widget = widget->parentWidget();
 	}
-	if ( widget->testFlag(WType_Popup) )	// popups are ok
+	if ( widget->testWFlags(WType_Popup) )	// popups are ok
 	    return TRUE;
-	if ( widget->testFlag(WType_Modal) )	// is it modal?
+	if ( widget->testWFlags(WType_Modal) )	// is it modal?
 	    modal = widget;
     }
 
@@ -1410,7 +1410,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	state = translateButtonState( xevent->xmotion.state );
 	if ( !buttonDown ) {
 	    state &= ~(LeftButton|MidButton|RightButton);
-	    if ( !testFlag(WMouseTracking) )
+	    if ( !testWFlags(WMouseTracking) )
 		type = 0;			// don't send event
 	}
     }
@@ -1458,7 +1458,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
-	    if ( testFlag(WType_Popup) && rect().contains(pos) )
+	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
 		popup = this;
 	    else				// send to last popup
 		pos = popup->mapFromGlobal( mapToGlobal(pos) );
@@ -1483,7 +1483,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	QMouseEvent e( type, pos, button, state );
 	if ( popupCloseDownMode ) {
 	    popupCloseDownMode = FALSE;
-	    if ( testFlag(WType_Popup) )	// ignore replayed event
+	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
 	QApplication::sendEvent( this, &e );
@@ -1501,7 +1501,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 #include <X11/keysymdef.h>
 #include "qkeycode.h"
 
-static int KeyTbl[] = {				// keyboard mapping table
+static KeySym KeyTbl[] = {				// keyboard mapping table
     XK_Escape,		Key_Escape,		// misc keys
     XK_Tab,		Key_Tab,
     XK_BackSpace,	Key_Backspace,
@@ -1641,9 +1641,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     }
 
     QPaintEvent e( paintRect );
-    setFlag( WState_Paint );
+    setWFlags( WState_Paint );
     QApplication::sendEvent( this, &e );
-    clearFlag( WState_Paint );
+    clearWFlags( WState_Paint );
     return TRUE;
 }
 
@@ -1668,15 +1668,17 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 	QRect  r = geometry();
 	if ( newSize != size() ) {		// size changed
+	    QSize oldSize = size();
 	    r.setSize( newSize );
 	    setCRect( r );
-	    QResizeEvent e( newSize );
+	    QResizeEvent e( newSize, oldSize );
 	    QApplication::sendEvent( this, &e );
 	}
 	if ( newPos != geometry().topLeft() ) {
+	    QPoint oldPos = frameGeometry().topLeft();
 	    r.setTopLeft( newPos );
 	    setCRect( r );
-	    QMoveEvent e( frameGeometry().topLeft() );
+	    QMoveEvent e( frameGeometry().topLeft(), oldPos );
 	    QApplication::sendEvent( this, &e );
 	}
     }

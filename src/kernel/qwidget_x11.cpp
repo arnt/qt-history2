@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#74 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#73 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#74 $";
 #endif
 
 
@@ -61,20 +61,20 @@ Usually called from the QWidget constructor.
 
 bool QWidget::create()				// create widget
 {
-    if ( testFlag(WState_Created) )		// already created
+    if ( testWFlags(WState_Created) )		// already created
 	return FALSE;
-    setFlag( WState_Created );			// set created flag
+    setWFlags( WState_Created );		// set created flag
 
     if ( !parentWidget() )
-	setFlag( WType_Overlap );		// overlapping widget
+	setWFlags( WType_Overlap );		// overlapping widget
 
     int	   screen = qt_xscreen();		// X11 screen
     int	   sw = DisplayWidth( dpy, screen );	// screen width
     int	   sh = DisplayHeight( dpy, screen );	// screen height
-    bool   overlap = testFlag( WType_Overlap );
-    bool   popup   = testFlag( WType_Popup );
-    bool   modal   = testFlag( WType_Modal );
-    bool   desktop = testFlag( WType_Desktop );
+    bool   overlap = testWFlags( WType_Overlap );
+    bool   popup   = testWFlags( WType_Popup );
+    bool   modal   = testWFlags( WType_Modal );
+    bool   desktop = testWFlags( WType_Desktop );
     Window parentwin;
     int	   border = 0;
     WId	   id;
@@ -83,7 +83,7 @@ bool QWidget::create()				// create widget
 
     if ( modal ) {				// modal windows overlap
 	overlap = TRUE;
-	setFlag( WType_Overlap );
+	setWFlags( WType_Overlap );
     }
 
     if ( desktop ) {				// desktop widget
@@ -100,14 +100,14 @@ bool QWidget::create()				// create widget
 	parentwin = RootWindow( dpy, screen );
     else {					// child widget
 	parentwin = parentWidget()->id();
-	if ( testFlag(WStyle_Border) )		// has a border
+	if ( testWFlags(WStyle_Border) )	// has a border
 	    border = 1;
     }
 
     if ( desktop ) {				// desktop widget
 	id = parentwin;				// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
-	if ( otherDesktop && otherDesktop->testFlag(WPaintDesktop) ) {
+	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
 	    otherDesktop->set_id( 0 );		// remove id from widget mapper
 	    set_id( id );			// make sure otherDesktop is
 	    otherDesktop->set_id( id );		//   found first
@@ -163,7 +163,7 @@ bool QWidget::create()				// create widget
 	protocols[0] = q_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
-    if ( testFlag(WResizeNoErase) ) {
+    if ( testWFlags(WResizeNoErase) ) {
 	XSetWindowAttributes v;
 	v.bit_gravity = NorthWestGravity;	// don't erase when resizing
 	XChangeWindowAttributes( dpy, id,
@@ -174,7 +174,7 @@ bool QWidget::create()				// create widget
     if ( overlap ) {				// set X cursor
 	QCursor *appc = QApplication::cursor();
 	XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
-	setFlag( WCursorSet );
+	setWFlags( WCursorSet );
     }
     return TRUE;
 }
@@ -192,8 +192,8 @@ bool QWidget::destroy()				// destroy widget
 	qApp->focus_widget = 0;			// reset focus widget
     if ( parentWidget() && parentWidget()->focusChild == this )
 	parentWidget()->focusChild = 0;
-    if ( testFlag(WState_Created) ) {
-	clearFlag( WState_Created );
+    if ( testWFlags(WState_Created) ) {
+	clearWFlags( WState_Created );
 	focusChild = 0;
 	if ( children() ) {
 	    QObjectListIt it(*children());
@@ -205,11 +205,11 @@ bool QWidget::destroy()				// destroy widget
 		++it;
 	    }
 	}
-	if ( testFlag(WType_Modal) )		// just be sure we leave modal
+	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
-	else if ( testFlag(WType_Popup) )
+	else if ( testWFlags(WType_Popup) )
 	    qt_close_popup( this );
-	if ( !testFlag(WType_Desktop) )
+	if ( !testWFlags(WType_Desktop) )
 	    XDestroyWindow( dpy, ident );
 	set_id( 0 );
 	emit destroyed();			// send out destroyed signal
@@ -234,7 +234,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 {
     extern void qPRCreate( const QWidget *, Window );
     WId old_ident = ident;
-    if ( testFlag(WType_Desktop) )
+    if ( testWFlags(WType_Desktop) )
 	old_ident = 0;
     set_id( 0 );
     if ( parentObj )				// remove from parent
@@ -245,8 +245,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     QSize s = size();				// save size
     QColor bgc = bg_col;			// save colors
     flags = f;
-    clearFlag( WState_Created );
-    clearFlag( WState_Visible );
+    clearWFlags( WState_Created | WState_Visible );
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
@@ -275,18 +274,18 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 
 bool QWidget::setMouseTracking( bool enable )
 {
-    bool v = testFlag( WMouseTracking );
+    bool v = testWFlags( WMouseTracking );
     ulong m;
     if ( enable ) {
 	m = PointerMotionMask;
-	setFlag( WMouseTracking );
+	setWFlags( WMouseTracking );
     }
     else {
 	m = 0;
-	clearFlag( WMouseTracking );
+	clearWFlags( WMouseTracking );
     }
-    if ( testFlag(WType_Desktop) ) {		// desktop widget?
-	if ( testFlag(WPaintDesktop) )		// get desktop paint events
+    if ( testWFlags(WType_Desktop) ) {		// desktop widget?
+	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
 	    XSelectInput( dpy, ident, ExposureMask );
     }
     else
@@ -345,7 +344,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pm )
 {
     if ( !pm.isNull() ) {
 	XSetWindowBackgroundPixmap( dpy, ident, pm.handle() );
-	if ( testFlag(WType_Desktop) )		// save rootinfo later
+	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
 	update();
     }
@@ -417,7 +416,7 @@ void QWidget::setCursor( const QCursor &cursor )
     curs = cursor;
     QCursor *appc = QApplication::cursor();
     XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
-    setFlag( WCursorSet );
+    setWFlags( WCursorSet );
     XFlush( dpy );
 }
 
@@ -442,8 +441,8 @@ released.
 
 void QWidget::grabMouse()
 {
-    if ( !testFlag(WState_MGrab) ) {
-	setFlag( WState_MGrab );
+    if ( !testWFlags(WState_MGrab) ) {
+	setWFlags( WState_MGrab );
 	if ( !qt_nograb() )
 	    XGrabPointer( dpy, ident, TRUE,
 			  ButtonPressMask | ButtonReleaseMask |
@@ -467,8 +466,8 @@ until releaseMouse() is called().
 
 void QWidget::grabMouse( const QCursor &cursor )
 {
-    if ( !testFlag(WState_MGrab) ) {
-	setFlag( WState_MGrab );
+    if ( !testWFlags(WState_MGrab) ) {
+	setWFlags( WState_MGrab );
 	if ( !qt_nograb() )
 	    XGrabPointer( dpy, ident, TRUE,
 			  ButtonPressMask | ButtonReleaseMask |
@@ -487,8 +486,8 @@ Releases the mouse grab.
 
 void QWidget::releaseMouse()
 {
-    if ( testFlag(WState_MGrab) ) {
-	clearFlag( WState_MGrab );
+    if ( testWFlags(WState_MGrab) ) {
+	clearWFlags( WState_MGrab );
 	if ( !qt_nograb() ) {
 	    XUngrabPointer( dpy, CurrentTime );
 	    XFlush( dpy );
@@ -509,8 +508,8 @@ window.
 
 void QWidget::grabKeyboard()
 {
-    if ( !testFlag(WState_KGrab) ) {
-	setFlag( WState_KGrab );
+    if ( !testWFlags(WState_KGrab) ) {
+	setWFlags( WState_KGrab );
 	if ( !qt_nograb() )
 	    XGrabKeyboard( dpy, ident, TRUE, GrabModeSync, GrabModeSync,
 			   CurrentTime );
@@ -525,8 +524,8 @@ Releases the keyboard grab.
 
 void QWidget::releaseKeyboard()
 {
-    if ( testFlag(WState_KGrab) ) {
-	clearFlag( WState_KGrab );
+    if ( testWFlags(WState_KGrab) ) {
+	clearWFlags( WState_KGrab );
 	if ( !qt_nograb() )
 	    XUngrabKeyboard( dpy, CurrentTime );
     }
@@ -615,11 +614,11 @@ disabled, the widget will not receive repaint events.
 
 bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
 {
-    bool last = !testFlag( WNoUpdates );
+    bool last = !testWFlags( WNoUpdates );
     if ( enable )
-	clearFlag( WNoUpdates );
+	clearWFlags( WNoUpdates );
     else
-	setFlag( WNoUpdates );
+	setWFlags( WNoUpdates );
     return last;
 }
 
@@ -629,7 +628,7 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
 
 void QWidget::update()				// update widget
 {
-    if ( !testFlag(WNoUpdates) )
+    if ( !testWFlags(WNoUpdates) )
 	XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
 }
 
@@ -641,7 +640,7 @@ Calling update() will generate a paint event from the X server.
 
 void QWidget::update( int x, int y, int w, int h )
 {						// update part of widget
-    if ( !testFlag(WNoUpdates) )
+    if ( !testWFlags(WNoUpdates) )
 	XClearArea( dpy, ident, x, y, w, h, TRUE );
 }
 
@@ -673,7 +672,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( const QRect &r, bool eraseArea )
 {
-    if ( !isVisible() || testFlag(WNoUpdates) ) // ignore repaint
+    if ( !isVisible() || testWFlags(WNoUpdates) ) // ignore repaint
 	return;
     QPaintEvent e( r );				// send fake paint event
     if ( eraseArea )
@@ -686,7 +685,7 @@ void QWidget::repaint( const QRect &r, bool eraseArea )
 
 void QWidget::show()				// show widget
 {
-    if ( testFlag(WState_Visible) )
+    if ( testWFlags(WState_Visible) )
 	return;
     if ( children() ) {
 	QObjectListIt it(*children());
@@ -696,18 +695,18 @@ void QWidget::show()				// show widget
 	    object = it.current();		//   (except popups)
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->testFlag(WExplicitHide) )
+		if ( !widget->testWFlags(WExplicitHide) )
 		    widget->show();
 	    }
 	    ++it;
 	}
     }
     XMapWindow( dpy, ident );
-    setFlag( WState_Visible );
-    clearFlag( WExplicitHide );
-    if ( testFlag(WType_Modal) )
+    setWFlags( WState_Visible );
+    clearWFlags( WExplicitHide );
+    if ( testWFlags(WType_Modal) )
 	qt_enter_modal( this );
-    else if ( testFlag(WType_Popup) )
+    else if ( testWFlags(WType_Popup) )
 	qt_open_popup( this );
 }
 
@@ -715,19 +714,19 @@ void QWidget::show()				// show widget
 
 void QWidget::hide()				// hide widget
 {
-    setFlag( WExplicitHide );
-    if ( !testFlag(WState_Visible) )		// not visible
+    setWFlags( WExplicitHide );
+    if ( !testWFlags(WState_Visible) )		// not visible
 	return;
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget
     if ( parentWidget() && parentWidget()->focusChild == this )
 	parentWidget()->focusChild = 0;
-    if ( testFlag(WType_Modal) )
+    if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
-    else if ( testFlag(WType_Popup) )
+    else if ( testWFlags(WType_Popup) )
 	qt_close_popup( this );
     XUnmapWindow( dpy, ident );
-    clearFlag( WState_Visible );
+    clearWFlags( WState_Visible );
 }
 
 
@@ -773,6 +772,13 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
     XSetNormalHints( dpy, ident, s );
 }
 
+/*! \fn void QWidget::move( const QPoint &p )
+
+  Moves the widget to position \e p, which is relative to the widget's
+  arent.  If necessary, the window manager is told about the
+  change.  A \link moveEvent move event \endlink is sent at
+  once. \sa resize(), setGeometry(), moveEvent(). */
+
 /*! Moves the widget.  \e x and \e y are relative to the widget's
   parent.  If necessary, the window manager is told about the
   change. A \link QWidget::moveEvent move event \endlink is sent at
@@ -781,12 +787,13 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
 void QWidget::move( int x, int y )		// move widget
 {
     QPoint p(x,y);
-    QRect r = frect;
-    if ( testFlag(WType_Desktop) )
+    QPoint oldp = frameGeometry().topLeft();
+    QRect  r = frect;
+    if ( testWFlags(WType_Desktop) )
 	return;
     r.setTopLeft( p );
     setFRect( r );
-    if ( testFlag(WType_Overlap) ) {
+    if ( testWFlags(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PPosition;
 	size_hints.x = x;
@@ -794,16 +801,16 @@ void QWidget::move( int x, int y )		// move widget
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
     XMoveWindow( dpy, ident, x, y );
-    QMoveEvent e( r.topLeft() );
+    QMoveEvent e( r.topLeft(), oldp );
     QApplication::sendEvent( this, &e );	// send move event immediately
 }
 
-/*! \fn void QWidget::move( const QPoint &p )
 
-  Moves the widget to position \e p, which is relative to the widget's
-  arent.  If necessary, the window manager is told about the
-  change.  A \link moveEvent move event \endlink is sent at
-  once. \sa resize(), setGeometry(), moveEvent(). */
+/*! \fn void QWidget::resize(const QSize & p)
+
+  Resizes the widget to size \e p.  If necessary, the window manager
+  is told about the change.  A resize event is sent at once. \sa
+  move(), setGeometry(), resizeEvent(). */
 
 /*! Resizes the widget to size \e w pixels by \e h.  If necessary, the
   window manager is told about the change.  A resize event is sent at
@@ -817,11 +824,12 @@ void QWidget::resize( int w, int h )		// resize widget
 	h = 1;
     QRect r = crect;
     QSize s(w,h);
-    if ( testFlag(WType_Desktop) )
+    QSize olds = size();
+    if ( testWFlags(WType_Desktop) )
 	return;
     r.setSize( s );
     setCRect( r );
-    if ( testFlag(WType_Overlap) ) {
+    if ( testWFlags(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PSize;
 	size_hints.width = w;
@@ -829,15 +837,9 @@ void QWidget::resize( int w, int h )		// resize widget
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
     XResizeWindow( dpy, ident, w, h );
-    QResizeEvent e( s );
+    QResizeEvent e( s, olds );
     QApplication::sendEvent( this, &e );	// send resize event immediatly
 }
-
-/*! \fn void QWidget::resize(const QSize & p)
-
-  Resizes the widget to size \e p.  If necessary, the window manager
-  is told about the change.  A resize event is sent at once. \sa
-  move(), setGeometry(), resizeEvent(). */
 
 /*! \fn void QWidget::setGeometry( const QRect &r )
 
@@ -862,11 +864,13 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	w = 1;
     if ( h < 1 )
 	h = 1;
+    QPoint oldp = frameGeometry().topLeft();
+    QSize  olds = size();
     QRect  r( x, y, w, h );
-    if ( testFlag(WType_Desktop) )
+    if ( testWFlags(WType_Desktop) )
 	return;
     setCRect( r );
-    if ( testFlag(WType_Overlap) ) {
+    if ( testWFlags(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition | USSize;
 	size_hints.x = x;
@@ -876,9 +880,9 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
     XMoveResizeWindow( dpy, ident, x, y, w, h );
-    QResizeEvent e1( r.size() );
+    QResizeEvent e1( r.size(), olds );
     QApplication::sendEvent( this, &e1 );	// send resize event
-    QMoveEvent e2( r.topLeft() );
+    QMoveEvent e2( r.topLeft(), oldp );
     QApplication::sendEvent( this, &e2 );	// send move event
 }
 
@@ -889,7 +893,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
 void QWidget::setMinimumSize( int w, int h )	// set minimum size
 {
-    if ( testFlag(WType_Overlap) ) {
+    if ( testWFlags(WType_Overlap) ) {
 	createExtra();
 	extra->minw = w;
 	extra->minh = h;
@@ -906,7 +910,7 @@ void QWidget::setMinimumSize( int w, int h )	// set minimum size
 
 void QWidget::setMaximumSize( int w, int h )	// set maximum size
 {
-    if ( testFlag(WType_Overlap) ) {
+    if ( testWFlags(WType_Overlap) ) {
 	createExtra();
 	extra->maxw = w;
 	extra->maxh = h;
@@ -923,7 +927,7 @@ void QWidget::setMaximumSize( int w, int h )	// set maximum size
 
 void QWidget::setSizeIncrement( int w, int h )
 {						// set size increment
-    if ( testFlag(WType_Overlap) ) {
+    if ( testWFlags(WType_Overlap) ) {
 	createExtra();
 	extra->incw = w;
 	extra->inch = h;
@@ -1017,7 +1021,7 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 
 void QWidget::drawText( int x, int y, const char *str )
 {						// draw text in widget
-    if ( testFlag( WState_Visible ) ) {
+    if ( testWFlags( WState_Visible ) ) {
 	QPainter paint;
 	paint.begin( this );
 	paint.drawText( x, y, str );

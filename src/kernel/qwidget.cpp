@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#53 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#52 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#53 $";
 #endif
 
 /*!
@@ -232,21 +232,21 @@ internal dictionary that's used to map between the underlying window
 system's window IDs and Qt's widget pointers.
 \todo isn't this really const? */
 
-/*! \fn WFlags QWidget::getFlags() const
+/*! \fn WFlags QWidget::getWFlags() const
 \internal
 Returns the widget flags for this this widget.	Widget flags are
-internal, not meant for general use.  \sa testFlag(), setFlag(),
-clearFlag(). */
+internal, not meant for general use.  \sa testWFlags(), setWFlags(),
+clearWFlags() */
 
-/*! \fn void QWidget::setFlag( WFlags n )
+/*! \fn void QWidget::setWFlags( WFlags f )
 \internal
-Sets the widget flags \e n.  Widget flags are internal, not meant
-for general use.  \sa testFlag(), setFlag(), clearFlag(). */
+Sets the widget flags \e f.  Widget flags are internal, not meant
+for general use.  \sa testWFlags(), setWFlags(), clearWFlags() */
 
-/*! \fn void QWidget::clearFlag( WFlags n )
+/*! \fn void QWidget::clearWFlags( WFlags f )
 \internal
-Clears the widget flags \e n.  Widget flags are internal, not meant
-for general use.  \sa testFlag(), setFlag(), clearFlag(). */
+Clears the widget flags \e f.  Widget flags are internal, not meant
+for general use.  \sa testWFlags(), setWFlags(), clearWFlags() */
 
 /*! \fn void QWidget::destroyed()
 This signal is emitted immediately before the widget is destroyed.
@@ -293,7 +293,7 @@ Enables the widget so that it can receive mouse and keyboard events.
 
 void QWidget::enable()				// enable events
 {
-    clearFlag( WState_Disabled );
+    clearWFlags( WState_Disabled );
 }
 
 /*!
@@ -303,7 +303,7 @@ Disables the widget so that it will not receive mouse and keyboard events.
 
 void QWidget::disable()				// disable events
 {
-    setFlag( WState_Disabled );
+    setWFlags( WState_Disabled );
 }
 
 /*! \fn bool QWidget::isDisabled() const
@@ -323,33 +323,33 @@ and excluding frames and other decorations.
 
 /*! \fn int QWidget::x() const
 Returns the x coordinate of the widget, relative to its parent
-widget and excluding frames and other decorations.
-\sa geometry(), pos() and y(). */
+widget and including the frame.
+\sa frameGeometry(), y(), pos() */
 
 /*! \fn int QWidget::y() const
 Returns the y coordinate of the widget, relative to its parent
-widget and excluding frames and other decorations.
-\sa geometry(), pos() and x(). */
+widget and including the frame.
+\sa frameGeometry(), x(), pos() */
 
 /*! \fn QPoint QWidget::pos() const
-Returns the postion of the widget in its parent widget, excluding
-frames and other decorations.
-\sa frameGeometry(), x() and y(). */
+Returns the postion of the widget in its parent widget, including
+the frame.
+\sa frameGeometry(), x(), y() */
 
 /*! \fn QSize QWidget::size() const
-Returns the size of the widget, excluding any window frames.
-\sa geometry(), width() and height(). */
+Returns the size of the widget, excluding the window frame.
+\sa geometry(), width(), height() */
 
 /*! \fn int QWidget::width() const
-Returns the width of the widget, excluding any window frames.
-\sa size() and height(). */
+Returns the width of the widget, excluding the window frame.
+\sa geometry(), height(), size() */
 
 /*! \fn int QWidget::height() const
-Returns the height of the widget, excluding any window frames.
-\sa size() and width(). */
+Returns the height of the widget, excluding the window frame.
+\sa geometry(), width(), size() */
 
 /*! \fn QRect QWidget::rect() const
-Returns the the internal geometry of the widget, excluding any window frames.
+Returns the the internal geometry of the widget, excluding the window frame.
 rect() equals QRect(0,0,width(),height()).
 \sa size(). */
 
@@ -374,7 +374,7 @@ A normale widget returns the QPalette::normal() color group.<br>
 
 const QColorGroup &QWidget::colorGroup() const	// get current colors
 {
-    if ( testFlag(WState_Disabled) )
+    if ( testWFlags(WState_Disabled) )
 	return pal.disabled();
     else if ( qApp->focus_widget == this )
 	return pal.active();
@@ -433,11 +433,11 @@ mouse move events when a mouse button is pressed down.
 #if !defined(_WS_X11_)
 bool QWidget::setMouseTracking( bool enable )
 {
-    bool v = testFlag( WMouseTracking );
+    bool v = testWFlags( WMouseTracking );
     if ( enable )
-	setFlag( WMouseTracking );
+	setWFlags( WMouseTracking );
     else
-	clearFlag( WMouseTracking );
+	clearWFlags( WMouseTracking );
     return v;
 }
 #endif // _WS_X11_
@@ -503,9 +503,9 @@ Focus events are initially disabled.
 void QWidget::setAcceptFocus( bool enable )
 {
     if ( enable )
-	setFlag( WState_AcceptFocus );
+	setWFlags( WState_AcceptFocus );
     else
-	clearFlag( WState_AcceptFocus );
+	clearWFlags( WState_AcceptFocus );
 }
 
 
@@ -597,7 +597,7 @@ it does not have any parent widget.
 */
 
 /*!
-\fn bool QWidget::testFlag( WFlags n ) const
+\fn bool QWidget::testWFlags( WFlags n ) const
 
 Returns non-zero if any of the widget flags in \e n are set. The
 widget flags are listed in qwindefs.h, and are strictly for
@@ -712,7 +712,7 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    if ( !k->didAccel() ) {
 		k->setAccel();			// flag that we tried accel
 		while ( w ) {			// try all parents
-		    bool has_accel = w->testFlag(WHasAccel);
+		    bool has_accel = w->testWFlags(WHasAccel);
 		    if ( has_accel && w->children() ) {
 			QObjectListIt it( *w->children() );
 			QObject *obj;
@@ -728,10 +728,10 @@ bool QWidget::event( QEvent *e )		// receive event(),
 			    ++it;
 			}
 			if ( !found_accel )	// accel probably removed
-			    w->clearFlag( WHasAccel );
+			    w->clearWFlags( WHasAccel );
 		    }
 		    else if ( has_accel )	// accel but not children???
-			w->clearFlag( WHasAccel );
+			w->clearWFlags( WHasAccel );
 		    w = w->parentWidget();
 		}
 	    }
@@ -767,7 +767,7 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    QKeyEvent *k = (QKeyEvent*)e;
 	    keyReleaseEvent( k );
 #if defined(_WS_X11_)
-	    if ( !k->isAccepted() && !testFlag(WType_Overlap) && parentObj )
+	    if ( !k->isAccepted() && !testWFlags(WType_Overlap) && parentObj )
 		return parentObj->event( e );	// pass event to parent
 #endif
 	    }
@@ -802,7 +802,7 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    break;
 
 	case Event_AccelInserted:
-	    setFlag( WHasAccel );
+	    setWFlags( WHasAccel );
 	    break;
 
 	default:

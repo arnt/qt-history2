@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#6 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
@@ -17,7 +17,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#6 $";
 #endif
 
 
@@ -31,7 +31,7 @@ extern "C" MRESULT EXPENTRY WndProc( HWND, ULONG, MPARAM, MPARAM );
 
 bool QWidget::create()				// create widget
 {
-    if ( testFlag( WState_Created ) )		// already created
+    if ( testWFlags( WState_Created ) )		// already created
 	return FALSE;
 
     static bool wc_exists = FALSE;		// window class exists?
@@ -51,33 +51,33 @@ bool QWidget::create()				// create widget
     WId	  id;
 
     if ( overlap )
-	setFlag( WType_Overlap );
-    if ( testFlag(WType_Modal) && !testFlag(WStyle_Title) )
+	setWFlags( WType_Overlap );
+    if ( testWFlags(WType_Modal) && !testWFlags(WStyle_Title) )
 	 wflags |= FCF_DLGBORDER;
-    if ( !testFlag(WType_Modal) && overlap ) {
+    if ( !testWFlags(WType_Modal) && overlap ) {
 	wflags |= FCF_TITLEBAR | FCF_SYSMENU | FCF_SIZEBORDER |
 		  FCF_MINMAX | FCF_SHELLPOSITION | FCF_TASKLIST;
-	setFlag(WStyle_Border);
-	setFlag(WStyle_Title);
-	setFlag(WStyle_Close);
-	setFlag(WStyle_Resize);
-	setFlag(WStyle_MinMax);
+	setWFlags(WStyle_Border);
+	setWFlags(WStyle_Title);
+	setWFlags(WStyle_Close);
+	setWFlags(WStyle_Resize);
+	setWFlags(WStyle_MinMax);
     }
     else {
-	if ( testFlag(WStyle_Border) )
+	if ( testWFlags(WStyle_Border) )
 	    wflags |= FCF_BORDER;
-	if ( testFlag(WStyle_Title) )
+	if ( testWFlags(WStyle_Title) )
 	    wflags |= FCF_TITLEBAR;
-	if ( testFlag(WStyle_Close) )
+	if ( testWFlags(WStyle_Close) )
 	    wflags |= FCF_SYSMENU;
-	if ( testFlag(WStyle_Resize) )
+	if ( testWFlags(WStyle_Resize) )
 	    wflags |= FCF_SIZEBORDER;
-	if ( testFlag(WStyle_Minimize) )
+	if ( testWFlags(WStyle_Minimize) )
 	    wflags |= FCF_MINBUTTON;
-	if ( testFlag(WStyle_Maximize) )
+	if ( testWFlags(WStyle_Maximize) )
 	    wflags |= FCF_MAXBUTTON;
     }
-    if ( testFlag(WStyle_Title) )
+    if ( testWFlags(WStyle_Title) )
 	title = qAppName();
 
     HWND frame_win;
@@ -114,14 +114,14 @@ bool QWidget::create()				// create widget
     hps = 0;					// no drawing yet
     setCursor( arrowCursor );			// default cursor
 
-    setFlag( WState_Created );
+    setWFlags( WState_Created );
     return TRUE;
 }
 
 bool QWidget::destroy()				// destroy widget
 {
-    if ( testFlag( WState_Created ) ) {
-	clearFlag( WState_Created );
+    if ( testWFlags( WState_Created ) ) {
+	clearWFlags( WState_Created );
 	WinDestroyWindow( frm_wnd );
 	set_id( 0 );
     }
@@ -187,22 +187,22 @@ bool QWidget::update()				// update widget
 
 bool QWidget::show()				// show widget
 {
-    if ( testFlag( WState_Visible ) )
+    if ( testWFlags( WState_Visible ) )
 	return FALSE;
     WinSetWindowPos( frm_wnd, 0, ncrect.left(),
 		     convertYPos(ncrect.bottom()),
 		     ncrect.width(), ncrect.height(),
 		     SWP_MOVE | SWP_SIZE | SWP_SHOW );
-    setFlag( WState_Visible );
+    setWFlags( WState_Visible );
     return TRUE;
 }
 
 bool QWidget::hide()				// hide widget
 {
-    if ( !testFlag( WState_Visible ) )
+    if ( !testWFlags( WState_Visible ) )
 	return FALSE;
     WinShowWindow( frm_wnd, FALSE );
-    clearFlag(WState_Visible);
+    clearWFlags(WState_Visible);
     return TRUE;
 }
 
@@ -228,54 +228,54 @@ void qWinRequestConfig( WId, int, int, int, int, int );
 
 bool QWidget::move( int x, int y )		// move widget
 {
-    if ( testFlag( WWin_Config ) )		// processing config event
+    if ( testWFlags( WWin_Config ) )		// processing config event
 	qWinRequestConfig( ident, 0, x, y, 0, 0 );
     else {
-	if ( !testFlag( WState_Visible ) ) {
+	if ( !testWFlags( WState_Visible ) ) {
 	    ncrect = QRect(x,y,ncrect.width(),ncrect.height());
 	    rect = ncrect;
 	    return TRUE;
 	}
-	setFlag( WWin_Config );
+	setWFlags( WWin_Config );
 	WinSetWindowPos( frm_wnd, 0, x, convertYPos(y+ncrect.height()),
 			 0, 0, SWP_MOVE );
-	clearFlag( WWin_Config );
+	clearWFlags( WWin_Config );
     }
     return TRUE;
 }
 
 bool QWidget::resize( int w, int h )		// resize widget
 {
-    if ( testFlag( WWin_Config ) )		// processing config event
+    if ( testWFlags( WWin_Config ) )		// processing config event
 	qWinRequestConfig( ident, 1, 0, 0, w, h );
     else {
-	if ( !testFlag( WState_Visible ) ) {
+	if ( !testWFlags( WState_Visible ) ) {
 	    ncrect = QRect(ncrect.left(),ncrect.top(),w,h);
 	    rect = ncrect;
 	    return TRUE;
 	}
-	setFlag( WWin_Config );
+	setWFlags( WWin_Config );
 	WinSetWindowPos( frm_wnd, 0, 0, 0, w, h, SWP_SIZE );
-	clearFlag( WWin_Config );
+	clearWFlags( WWin_Config );
     }
     return TRUE;
 }
 
 bool QWidget::changeGeometry( int x, int y, int w, int h )
 {						// move and resize widget
-    if ( testFlag( WWin_Config ) )		// processing config event
+    if ( testWFlags( WWin_Config ) )		// processing config event
 	qWinRequestConfig( ident, 2, x, y, w, h );
     else {
-	if ( !testFlag( WState_Visible ) ) {
+	if ( !testWFlags( WState_Visible ) ) {
 	    ncrect = QRect(x,y,w,h);
 	    rect = ncrect;
 	    return TRUE;
 	}
-	setFlag( WWin_Config );
+	setWFlags( WWin_Config );
 	WinSetWindowPos( frm_wnd, 0, x, convertYPos(y+h), w, h,
 			 SWP_MOVE | SWP_SIZE );
 	reposChildren();
-	clearFlag( WWin_Config );
+	clearWFlags( WWin_Config );
     }
     return TRUE;
 }
@@ -284,7 +284,7 @@ bool QWidget::changeGeometry( int x, int y, int w, int h )
 int QWidget::convertYPos( int y )		// get correct y-pos
 {
     HWND h;					// parent window
-    if ( testFlag(WType_Overlap) )
+    if ( testWFlags(WType_Overlap) )
 	h = HWND_DESKTOP;
     else
 	h = parentWidget()->id();

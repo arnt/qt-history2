@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#49 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#49 $";
 #endif
 
 
@@ -228,7 +228,7 @@ void QApplication::setPalette( const QPalette &p, bool updateAllWidgets )
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( !w->testFlag(WType_Desktop) )	// (except desktop)
+	    if ( !w->testWFlags(WType_Desktop) )// (except desktop)
 		w->setPalette( *appPal );
 	}
     }
@@ -298,7 +298,7 @@ void QApplication::setFont( const QFont &f,  bool updateAllWidgets )
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( !w->testFlag(WType_Desktop) )	// (except desktop)
+	    if ( !w->testWFlags(WType_Desktop) )// (except desktop)
 		w->setFont( *appFont );
 	}
     }

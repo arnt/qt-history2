@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#98 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#97 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#98 $";
 #endif
 
 
@@ -1220,7 +1220,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	if ( reinit ) {
 	    cbrush = QBrush( NoBrush );
 	}
-	if ( w->testFlag(WPaintUnclipped) ) {	// paint direct on device
+	if ( w->testWFlags(WPaintUnclipped) ) {	// paint direct on device
 	    updateBrush();
 	    XSetSubwindowMode( w->display(), gc, IncludeInferiors );
 	    XSetSubwindowMode( w->display(), gc_brush, IncludeInferiors );
@@ -1686,7 +1686,7 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
 	return av;
     QPointArray a = av.copy();
     int x, y;
-    for ( int i=0; i<a.size(); i++ ) {
+    for ( int i=0; i<(int)a.size(); i++ ) {
 	a.point( i, &x, &y );
 	if ( testf(WxF) )
 	    WXFORM_P( x, y )
@@ -1765,7 +1765,7 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 	return ad;
     QPointArray a = ad.copy();
     int x, y;
-    for ( int i=0; i<a.size(); i++ ) {
+    for ( int i=0; i<(int)a.size(); i++ ) {
 	a.point( i, &x, &y );
 	if ( testf(WxF) ) {
 	    int xx = im11*x+im21*y+idx;
@@ -2455,7 +2455,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {						// draw line segments
     if ( nlines < 0 )
 	nlines = a.size()/2 - index/2;
-    if ( index + nlines*2 > a.size() )
+    if ( index + nlines*2 > (int)a.size() )
 	nlines = (a.size() - index)/2;
     if ( !isActive() || nlines < 1 || index < 0 )
 	return;
@@ -2464,7 +2464,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    updatePen();
 	if ( testf(ExtDev) ) {
 	    QPointArray tmp;
-	    if ( nlines == a.size()/2 )
+	    if ( nlines == (int)a.size()/2 )
 		tmp = a;
 	    else {
 		tmp.resize( nlines*2 );
@@ -2499,7 +2499,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 {						// draw connected lines
     if ( npoints < 0 )
 	npoints = a.size() - index;
-    if ( index + npoints > a.size() )
+    if ( index + npoints > (int)a.size() )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
@@ -2508,7 +2508,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    updatePen();
 	if ( testf(ExtDev) ) {
 	    QPointArray tmp;
-	    if ( npoints == a.size() )
+	    if ( npoints == (int)a.size() )
 		tmp = a;
 	    else {
 		tmp.resize( npoints );
@@ -2547,7 +2547,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 {						// draw polygon
     if ( npoints < 0 )
 	npoints = a.size() - index;
-    if ( index + npoints > a.size() )
+    if ( index + npoints > (int)a.size() )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
@@ -2560,7 +2560,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	    updateBrush();
 	if ( testf(ExtDev) ) {
 	    QPointArray tmp;
-	    if ( npoints == a.size() )
+	    if ( npoints == (int)a.size() )
 		tmp = a;
 	    else {
 		tmp.resize( npoints );
@@ -2639,15 +2639,15 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 #endif
     if ( npoints < 0 )
 	npoints = a.size() - index;
-    if ( index + npoints > a.size() )
+    if ( index + npoints > (int)a.size() )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
     QPointArray a2;
-    if ( npoints == a.size() )
+    if ( npoints == (int)a.size() )
 	a2 = a;
     else {
-	if ( npoints != a.size() ) {
+	if ( npoints != (int)a.size() ) {
 	    a2.resize( npoints );
 	    for ( int i=0; i<npoints; i++ )
 		a2.setPoint( i, a.point(index+i) );
@@ -2668,7 +2668,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
     if ( cpen.style() != NoPen ) {
 #if defined(BEZIER_CACHE)
 	int i;
-	for ( i=0; i<bezlist->count(); i++ ) {
+	for ( i=0; i<(int)bezlist->count(); i++ ) {
 	    if ( bezlist->at(i)->controls == a2 ) {
 		a2 = bezlist->at(i)->points;
 		i = -1;
