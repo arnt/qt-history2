@@ -202,25 +202,23 @@ void MainWindow::selProperties()
     QString qstr = pedlg.titleEdit->text().simplifyWhiteSpace();
     pages[currentPage]->label = qstrdup( qstr.local8Bit().data() );
 
-    if (pages[currentPage] -> minorTab != NULL)
-	XtFree(pages[currentPage] -> minorTab);
+    delete [] pages[currentPage] -> minorTab;
     qstr = pedlg.minorEdit->text().simplifyWhiteSpace();
     temp = qstrdup( qstr.local8Bit().data() );
     if (strlen(temp) > 0)
 	pages[currentPage] -> minorTab = temp;
     else {
-	XtFree(temp);
+	delete [] temp;
 	pages[currentPage] -> minorTab = NULL;
     }
 
-    if (pages[currentPage] -> majorTab != NULL)
-	XtFree(pages[currentPage] -> majorTab);
+    delete [] pages[currentPage] -> majorTab;
     qstr = pedlg.majorEdit->text().simplifyWhiteSpace();
     temp = qstrdup( qstr.local8Bit().data() );
     if (strlen(temp) > 0)
 	pages[currentPage] -> majorTab = temp;
     else {
-	XtFree(temp);
+	delete [] temp;
 	pages[currentPage] -> majorTab = NULL;
     }
 
