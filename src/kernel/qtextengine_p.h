@@ -59,10 +59,10 @@ typedef int advance_t;
 
 struct QScriptAnalysis
 {
-    unsigned int script    : 7;
-    unsigned int bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
-    unsigned int override  : 1;  // Set when in LRO/RLO embedding
-    unsigned int reserved  : 2;
+    unsigned short script    : 7;
+    unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
+    unsigned short override  : 1;  // Set when in LRO/RLO embedding
+    unsigned short reserved  : 2;
     bool operator == ( const QScriptAnalysis &other ) {
 	return
 	    script == other.script &&
@@ -86,10 +86,10 @@ typedef int advance_t;
 
 struct QScriptAnalysis
 {
-    unsigned int script    : 7;
-    unsigned int bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
-    unsigned int override  : 1;  // Set when in LRO/RLO embedding
-    unsigned int reserved  : 2;
+    unsigned short script    : 7;
+    unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
+    unsigned short override  : 1;  // Set when in LRO/RLO embedding
+    unsigned short reserved  : 2;
     bool operator == ( const QScriptAnalysis &other ) {
 	return
 	    script == other.script &&
@@ -115,24 +115,24 @@ struct offset_t {
 typedef int advance_t;
 
 struct QScriptAnalysis {
-    unsigned int script         :10;
-    unsigned int rtl            :1;
-    unsigned int layoutRTL      :1;
-    unsigned int linkBefore     :1;
-    unsigned int linkAfter      :1;
-    unsigned int logicalOrder   :1;
-    unsigned int noGlyphIndex   :1;
-    unsigned int bidiLevel         :5;
-    unsigned int override          :1;
-    unsigned int inhibitSymSwap    :1;
-    unsigned int charShape         :1;
-    unsigned int digitSubstitute   :1;
-    unsigned int inhibitLigate     :1;
-    unsigned int fDisplayZWG        :1;
-    unsigned int arabicNumContext  :1;
-    unsigned int gcpClusters       :1;
-    unsigned int reserved          :1;
-    unsigned int engineReserved    :2;
+    unsigned short script         :10;
+    unsigned short rtl            :1;
+    unsigned short layoutRTL      :1;
+    unsigned short linkBefore     :1;
+    unsigned short linkAfter      :1;
+    unsigned short logicalOrder   :1;
+    unsigned short noGlyphIndex   :1;
+    unsigned short bidiLevel         :5;
+    unsigned short override          :1;
+    unsigned short inhibitSymSwap    :1;
+    unsigned short charShape         :1;
+    unsigned short digitSubstitute   :1;
+    unsigned short inhibitLigate     :1;
+    unsigned short fDisplayZWG        :1;
+    unsigned short arabicNumContext  :1;
+    unsigned short gcpClusters       :1;
+    unsigned short reserved          :1;
+    unsigned short engineReserved    :2;
     bool operator == ( const QScriptAnalysis &other ) {
 	return
 	    script == other.script &&
@@ -165,25 +165,23 @@ struct GlyphAttributes {
 	Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
 	Arabic_Seen    = 14   // Highest Priority: Initial Shape Of Seen(U+633) (End)
     };
-    unsigned int justification   :4;  // Justification class
-    unsigned int clusterStart    :1;  // First glyph of representation of cluster
-    unsigned int mark            :1;  // needs to be positioned around base char
-    unsigned int zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
-    unsigned int reserved        :1;
-    unsigned char combiningClass :8;
+    unsigned short justification   :4;  // Justification class
+    unsigned short clusterStart    :1;  // First glyph of representation of cluster
+    unsigned short mark            :1;  // needs to be positioned around base char
+    unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
+    unsigned short reserved        :1;
+    unsigned short combiningClass  :8;
 };
-
 
 // also this is compatible to uniscribe. Do not change.
 struct QCharAttributes {
-    uint softBreak      :1;     // Potential linebreak point
-    uint whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
-    uint charStop       :1;     // Valid cursor position (for left/right arrow)
-    uint wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
-    uint invalid        :1;
-    uint reserved       :3;
+    uchar softBreak      :1;     // Potential linebreak point
+    uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
+    uchar charStop       :1;     // Valid cursor position (for left/right arrow)
+    uchar wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
+    uchar invalid        :1;
+    uchar reserved       :3;
 };
-
 
 struct QShapedItem
 {

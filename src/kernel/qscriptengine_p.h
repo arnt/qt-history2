@@ -1,10 +1,9 @@
 #ifndef SCRIPTENGINE_H
 #define SCRIPTENGINE_H
 
+#include "qtextengine_p.h"
 class QString;
 class QOpenType;
-struct QCharAttributes;
-struct QScriptItem;
 
 typedef void (*ShapeFunction)( int script, const QString &, int, int, QScriptItem * );
 typedef void (*AttributeFunction)( int script, const QString &, int, int, QCharAttributes * );

@@ -2559,8 +2559,11 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
 
     bool rightToLeft = si.analysis.bidiLevel % 2;
 
+    HDC oldDC = fe->hdc;
+    fe->hdc = hdc;
     fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
 		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+    fe->hdc = oldDC;
 }
 
 

@@ -141,7 +141,9 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     virtual Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const = 0;
 
+#ifdef Q_WS_X11
     virtual QOpenType *openType() const { return 0; }
+#endif
 
     virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 		       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse ) = 0;
@@ -183,6 +185,7 @@ public:
     } tm;
     int		lw;
     unsigned char *cmap;
+    void *script_cache;
 #endif
 };
 

@@ -797,12 +797,12 @@ int QFontMetrics::height() const
 
 int QFontMetrics::leading() const
 {
-    return TMX->tmExternalLeading + TMX->tmInternalLeading;
+    return TMX->tmExternalLeading;
 }
 
 int QFontMetrics::lineSpacing() const
 {
-    return TMX->tmHeight + TMX->tmExternalLeading + TMX->tmInternalLeading;
+    return TMX->tmHeight + TMX->tmExternalLeading;
 }
 
 int QFontMetrics::width( QChar ch ) const

@@ -227,14 +227,10 @@ public:
 
 #elif defined( Q_WS_WIN )
 
-class QOpenType;
-
 class QFontEngineWin : public QFontEngine
 {
 public:
     QFontEngineWin( const char * name );
-
-    QOpenType *openType() const;
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
@@ -258,33 +254,21 @@ public:
 };
 
 #if 0
-class QFontEngineUniscribe : public QFontEngine
+class QFontEngineUniscribe : public QFontEngineWin
 {
 public:
-    QFontEngineUniscribe( const char * name );
-    ~QFontEngineUniscribe();
-
-    QOpenType *openType() const;
+    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, advance_t *advances, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
 
     virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
 				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
     QGlyphMetrics boundingBox( glyph_t glyph );
 
-    int ascent() const;
-    int descent() const;
-    int leading() const;
-    int maxCharWidth() const;
-
-    const char *name() const;
-
     bool canRender( const QChar *string,  int len );
 
     Type type() const;
-
-    void *scriptCache;
 };
 #endif
 
