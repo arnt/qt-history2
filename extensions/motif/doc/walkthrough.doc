@@ -3,7 +3,7 @@
 \page motif-walkthrough.html
 \title Qt Motif Extension - A Migration Walkthrough
 
-[ \link motif-walkthrough-2.html Next: Getting Started\endlink ]
+[ \link motif-walkthrough-1.html Next: Getting Started\endlink ]
 
 This walkthrough covers a complete migration of a Motif based program
 to the Qt toolkit using the \e {Qt Motif Extension}.
@@ -134,7 +134,7 @@ the application runs as expected.
 
 We are now ready to start using the \e {Qt Motif Extension}.
 
-[ \link motif-walkthrough-2.html Next: Getting Started\endlink ]
+[ \link motif-walkthrough-1.html Next: Getting Started\endlink ]
 
 */
 
