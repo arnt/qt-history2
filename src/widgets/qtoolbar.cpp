@@ -161,7 +161,7 @@ QSizePolicy QToolBarSeparator::sizePolicy() const
   \ingroup application
 
   A toolbar is a panel that contains a set of controls, usually
-  represented by small icons.  It's purpose is to provide quick access
+  represented by small icons.  Its purpose is to provide quick access
   to frequently used commands or options. Within a main window, the
   user can drag toolbars freely around and hide them with a click on
   the toolbar handle.
