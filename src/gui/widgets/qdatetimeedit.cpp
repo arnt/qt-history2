@@ -29,7 +29,7 @@ public:
 	SecondsSection = 0x0004,
 	MinutesSection = 0x0008,
 	HoursSection = 0x0010,
-        TimeSectionMask = (AMPMSection|MSecsSection|SecondsSection|HoursSection),
+        TimeSectionMask = (AMPMSection|MSecsSection|SecondsSection|MinutesSection|HoursSection),
 	Internal = 0x8000,
 	AMPMLowerCaseSection = AMPMSection|Internal,
 	DaysSection = 0x0100,
