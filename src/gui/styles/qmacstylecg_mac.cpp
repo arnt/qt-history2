@@ -854,8 +854,8 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             int maxpmw = mi->maxIconWidth;
             bool active = mi->state & Style_Active;
             bool enabled = mi->state & Style_Enabled;
-            HIRect menuRect = qt_hirectForQRect(mi->menuRect);
-            HIRect itemRect = qt_hirectForQRect(mi->rect);
+            HIRect menuRect = qt_hirectForQRect(mi->menuRect, p);
+            HIRect itemRect = qt_hirectForQRect(mi->rect, p);
             HIThemeMenuItemDrawInfo mdi;
             mdi.version = qt_mac_hitheme_version;
             mdi.itemType = kThemeMenuItemPlain;
@@ -887,7 +887,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
             }
             int x, y, w, h;
             mi->rect.rect(&x, &y, &w, &h);
-            int xpos = x;
+            int xpos = x + 18;
             int checkcol = maxpmw;
             int xm = macItemFrame + maxpmw + macItemHMargin;
             if (!enabled)
@@ -914,7 +914,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 tti.truncationMaxLines = 1;
                 QCFString checkmark = QString(QChar(kCheckUnicode));
                 int mw = checkcol + macItemFrame;
-                int mh = h - 2*macItemFrame;
+                int mh = h - 2 * macItemFrame;
                 int xp = x;
                 xp += macItemFrame;
                 float outWidth, outHeight, outBaseline;
@@ -927,7 +927,6 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 HIThemeDrawTextBox(checkmark, &bounds, &tti,
                                    cg,
                                    kHIThemeOrientationNormal);
-                xpos += r.width() - 6;
             }
             if (!mi->icon.isNull()) {
                 QIconSet::Mode mode = (mi->state & Style_Enabled) ? QIconSet::Normal
@@ -957,7 +956,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 int m = 2;
                 int text_flags = Qt::AlignRight | Qt::AlignVCenter | Qt::NoAccel | Qt::SingleLine;
                 if (t >= 0) {
-                    int xp = xpos + w - tabwidth - macRightBorder
+                    int xp = x + w - tabwidth - macRightBorder
                              - macItemHMargin - macItemFrame + 1;
                     p->drawText(xp, y + m, tabwidth, h - 2 * m, text_flags, s.mid(t + 1));
                     s = s.left(t);
@@ -1727,7 +1726,6 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
         break;
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            bool checkable = mi->checkState != QStyleOptionMenuItem::NotCheckable;
             int maxpmw = mi->maxIconWidth;
             int w = sz.width(),
                 h = sz.height();
@@ -1747,8 +1745,8 @@ QSize QMacStyleCG::sizeFromContents(ContentsType ct, const QStyleOption *opt, co
                 w += 20;
             if (maxpmw)
                 w += maxpmw + 6;
-            if (checkable)
-                w += 12;
+            // add space for a check. All items have place for a check too.
+            w += 20;
             if (widget && ::qt_cast<QComboBox*>(widget->parentWidget())
                     && widget->parentWidget()->isVisible()) {
                 QStyleOptionComboBox cmb(0);
