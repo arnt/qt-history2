@@ -14,7 +14,7 @@ public:
     QAtomic ref;
 
     QSharedObject() { ref = 0; }
-    QSharedObject(const QSharedObject &o) { ref = 0; }
+    QSharedObject(const QSharedObject &) { ref = 0; }
 private:
     // using the assignment operator would lead to corruption in the refcounting.
     QSharedObject &operator=(const QSharedObject &);
