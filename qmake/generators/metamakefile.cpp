@@ -37,7 +37,7 @@ MetaMakefileGenerator::init()
 
     const QStringList &builds = project->variables()["BUILDS"];
     bool use_single_build = builds.isEmpty();
-    if(!builds.count() > 1 && Option::output.fileName() == "-") {
+    if(builds.count() > 1 && Option::output.fileName() == "-") {
         use_single_build = true;
         warn_msg(WarnLogic, "Cannot direct to stdout when using multiple BUILDS.");
     } else if(0 && !use_single_build && project->first("TEMPLATE") == "subdirs") {
