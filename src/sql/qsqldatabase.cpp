@@ -58,7 +58,6 @@
 #include "qinterfacemanager.h"
 #include "qobject.h"
 #include "qdict.h"
-#include "qapplication.h"
 #include <stdlib.h>
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultConnection = "qt_sql_default_connection";
