@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#5 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#5 $");
 
 
 
@@ -549,6 +549,15 @@ QGManager::~QGManager()
   pixels between the edge of the widget and the area controlled by the
   manager.
 */
+
+/*!
+  \fn void  QGManager::setMenuBar( QWidget *w ) { menuBar = w; }
+
+  Makes the geometry manager take account of the menu bar \a w. All
+  child widgets are placed below the bottom edge of the menu bar.
+
+*/
+
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#6 $
 **
 ** Implementation of layout classes
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#6 $");
 
 /*!
   \class QLayout qlayout.h
@@ -212,16 +212,16 @@ void QLayout::freeze( int w, int h )
 }
 
 
-
+#include "qmenubar.h"
 /*!
   Makes the geometry manager take account of the menu bar \a w. All
   child widgets are placed below the bottom edge of the menu bar.
 
-  Depending on the size of your generative organs, you may use this
-  function with other classes than QMenuBar.
+  A menu bar does its own geometry managing, never do addWidget()
+  on a menu bar.
 */
 
-void QLayout::setMenuBar( QWidget *w )
+void QLayout::setMenuBar( QMenuBar *w )
 {
     if ( !topLevel ) {
 	warning( "QLayout::setMenuBar(), called for sublayout." );

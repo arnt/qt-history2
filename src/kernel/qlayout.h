@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#4 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#5 $
 **
 ** Definition of layout classes
 **
@@ -15,6 +15,7 @@
 #include "qgmanagr.h"
 #include "qlist.h"
 
+class QMenuBar;
 
 struct QLayoutData;
 
@@ -30,7 +31,7 @@ public:
     void freeze( int w, int h );
     void freeze() { freeze( 0, 0 ); }
 
-    void  setMenuBar( QWidget *w );
+    void  setMenuBar( QMenuBar *w );
 
     QWidget *mainWidget();
     
