@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#11 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#12 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2028,7 +2028,7 @@ bool QFileDialog::showHiddenFiles() const
 
 void QFileDialog::rereadDir()
 {
-    d->url.listEntries();
+    d->url.listEntries( d->url.nameFilter() , bShowHiddenFiles ? QDir::All | QDir::Hidden : QDir::DefaultFilter );
 
 //     disconnect( files, SIGNAL( selectionChanged() ),	
 // 		this, SLOT( detailViewSelectionChanged() ) );
