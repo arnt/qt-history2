@@ -769,6 +769,7 @@ public:
     bool removeSelection( int id );
     void selectionStart( int id, int &paragId, int &index );
     QTextCursor selectionStartCursor( int id );
+    QTextCursor selectionEndCursor( int id );
     void selectionEnd( int id, int &paragId, int &index );
     void setFormat( int id, QTextFormat *f, int flags );
     QTextParag *selectionStart( int id );

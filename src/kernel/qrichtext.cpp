@@ -1506,7 +1506,20 @@ QTextCursor QTextDocument::selectionStartCursor( int id)
     if ( it == selections.end() )
 	return QTextCursor( this );
     QTextDocumentSelection &sel = *it;
-    return sel.startCursor;
+    if ( sel.swapped )
+	return sel.endCursor;
+    return sel.startCursor;	
+}
+
+QTextCursor QTextDocument::selectionEndCursor( int id)
+{
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
+    if ( it == selections.end() )
+	return QTextCursor( this );
+    QTextDocumentSelection &sel = *it;
+    if ( !sel.swapped )
+	return sel.endCursor;
+    return sel.startCursor;	
 }
 
 void QTextDocument::selectionEnd( int id, int &paragId, int &index )
@@ -1757,7 +1770,7 @@ QString QTextDocument::selectedText( int id ) const
     c1.restoreState();
 
     if ( c1.parag() == c2.parag() )
-	return c1.parag()->string()->toString().mid( c1.index(), c2.index() - c1.index() + 1 );
+	return c1.parag()->string()->toString().mid( c1.index(), c2.index() - c1.index() );
 
     QString s;
     s += c1.parag()->string()->toString().mid( c1.index() ) + "\n";
@@ -2236,8 +2249,6 @@ void QTextDocument::unregisterCustomItem( QTextCustomItem *i, QTextParag *p )
     flow_->unregisterFloatingItem( i );
     p->unregisterFloatingItem( i );
     customItems.removeRef( i );
-    if ( i->placement() != QTextCustomItem::PlaceInline )
-	delete i;
 }
 
 bool QTextDocument::focusNextPrevChild( bool next )
@@ -2435,7 +2446,6 @@ void QTextString::truncate( int index )
 		delete data[ i ].customItem();
 		if ( data[ i ].d.custom->format )
 		    data[ i ].d.custom->format->removeRef();
-		delete data[ i ].d.custom;
 		data[ i ].d.custom = 0;
 	    } else if ( data[ i ].format() ) {
 		data[ i ].format()->removeRef();
@@ -2453,7 +2463,6 @@ void QTextString::remove( int index, int len )
 	    delete data[ i ].customItem();
 	    if ( data[ i ].d.custom->format )
 		data[ i ].d.custom->format->removeRef();
-	    delete data[ i ].d.custom;
 	    data[ i ].d.custom = 0;
 	} else if ( data[ i ].format() ) {
 	    data[ i ].format()->removeRef();
@@ -2469,13 +2478,12 @@ void QTextString::clear()
 {
     for ( int i = 0; i < (int)data.count(); ++i ) {
 	if ( data[ i ].isCustom() ) {
-	    delete data[ i ].customItem();
-	    if ( data[ i ].d.custom->format )
-		data[ i ].d.custom->format->removeRef();
-	    delete data[ i ].d.custom;
+ 	    delete data[ i ].customItem();
+ 	    if ( data[ i ].d.custom->format )
+ 		data[ i ].d.custom->format->removeRef();
 	    data[ i ].d.custom = 0;
 	} else if ( data[ i ].format() ) {
-	    data[ i ].format()->removeRef();
+ 	    data[ i ].format()->removeRef();
 	}
     }
     data.resize( 0 );

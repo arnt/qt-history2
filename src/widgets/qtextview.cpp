@@ -648,16 +648,48 @@ void QTextView::removeSelectedText()
     }
     int oldLen = undoRedoInfo.d->text.length();
     undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
-    QTextCursor c = doc->selectionStartCursor( QTextDocument::Standard );
-    for ( int i = 0; i < undoRedoInfo.d->text.length() - oldLen; ++i ) {
-	if ( undoRedoInfo.d->text.at( oldLen + i ).c == '\n' )
-	    continue;
-	if ( c.parag()->at( c.index() )->format() ) {
-	    c.parag()->at( c.index() )->format()->addRef();
-	    undoRedoInfo.d->text.at( oldLen + i ).setFormat( c.parag()->at( c.index() )->format() );
+
+    QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
+    QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
+    c2.restoreState();
+    c1.restoreState();
+    if ( c1.parag() == c2.parag() ) {
+	for ( int i = c1.index(); i < c2.index(); ++i ) {
+	    if ( c1.parag()->at( i )->format() ) {
+		c1.parag()->at( i )->format()->addRef();
+		undoRedoInfo.d->text.at( oldLen + i - c1.index() ).setFormat( c1.parag()->at( i )->format() );
+	    }
 	}
-	c.gotoRight();
+    } else {
+	int lastIndex = oldLen;
+	int i;
+	for ( i = c1.index(); i < c1.parag()->length(); ++i ) {
+	    if ( c1.parag()->at( i )->format() ) {
+		c1.parag()->at( i )->format()->addRef();
+		undoRedoInfo.d->text.at( lastIndex ).setFormat( c1.parag()->at( i )->format() );
+		lastIndex++;
+	    }
+	}
+	lastIndex++;
+	QTextParag *p = c1.parag()->next();
+	while ( p && p != c2.parag() ) {
+	    for ( int i = 0; i < p->length(); ++i ) {
+		if ( p->at( i )->format() ) {
+		    p->at( i )->format()->addRef();
+		    undoRedoInfo.d->text.at( i + lastIndex ).setFormat( p->at( i )->format() );
+		}
+	    }
+	    lastIndex += p->length() + 1;
+	    p = p->next();
+	}
+	for ( i = 0; i < c2.index(); ++i ) {
+	    if ( c2.parag()->at( i )->format() ) {
+		c2.parag()->at( i )->format()->addRef();
+		undoRedoInfo.d->text.at( i + lastIndex ).setFormat( c2.parag()->at( i )->format() );
+	    }
+	}
     }
+
     doc->removeSelectedText( QTextDocument::Standard, cursor );
     ensureCursorVisible();
     lastFormatted = cursor->parag();
