@@ -743,7 +743,7 @@ public:
 };
 
 typedef QCache<int, QGLTexture> QGLTextureCache;
-static int qt_max_tex_cache_size = 64*1024; // cache ~64 MB worth of textures - this is not accurate though
+static int qt_tex_cache_limit = 64*1024; // cache ~64 MB worth of textures - this is not accurate though
 static QGLTextureCache *qt_tex_cache = 0;
 
 // DDS format structure
@@ -929,7 +929,7 @@ GLuint QGLContext::bindTexture(const QString &fname)
 	return 0;
 
     if (!qt_tex_cache)
-	qt_tex_cache = new QGLTextureCache(qt_max_tex_cache_size);
+	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
 
     int key = scramble(fname);
     QGLTexture *texture = qt_tex_cache->object(key);
@@ -1051,7 +1051,7 @@ GLuint QGLContext::bindTexture(const QPixmap &pm, GLint format)
     }
 
     if (!qt_tex_cache)
-	qt_tex_cache = new QGLTextureCache(qt_max_tex_cache_size);
+	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
 
     QGLTexture *texture = qt_tex_cache->object(pm.serialNumber());
     if (texture && texture->context == this) {
@@ -1109,22 +1109,22 @@ void QGLContext::deleteTexture(GLuint id)
 }
 
 /*!
-    This function sets the max size for the texture cache. The size is
-    in KB. By default the max cache size is ~64 MB.
+    This function sets the limit for the texture cache. The limit is
+    in kilobytes. By default the cache limit is ~64 megabyte.
 */
-void QGLContext::setMaxTextureCacheSize(int size)
+void QGLContext::setTextureCacheLimit(int size)
 {
-    qt_max_tex_cache_size = size;
+    qt_tex_cache_limit = size;
     if (qt_tex_cache)
-	qt_tex_cache->setMaxCost(qt_max_tex_cache_size);
+	qt_tex_cache->setMaxCost(qt_tex_cache_limit);
 }
 
 /*!
-    Returns the current max texture cache size in KB.
+    Returns the current texture cache limit in kilobytes.
 */
-int QGLContext::maxTextureCacheSize()
+int QGLContext::textureCacheLimit()
 {
-    return qt_max_tex_cache_size;
+    return qt_tex_cache_limit;
 }
 
 /*!

@@ -161,8 +161,8 @@ public:
     GLuint bindTexture(const QString &fname);
     void deleteTexture(GLuint tx_id);
 
-    void setMaxTextureCacheSize(int size);
-    int maxTextureCacheSize();
+    void setTextureCacheLimit(int size);
+    int textureCacheLimit();
 
     void *getProcAddress(const QString &proc) const;
     QPaintDevice* device() const;
