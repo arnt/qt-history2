@@ -967,8 +967,12 @@ void QFileDialog::lookInChanged(const QString &text)
 {
     if (d->lookInEdit->hasFocus()) {
 
+        // if the last character is '/', then don't autocomplete
+        if (text[text.length() - 1] == QDir::separator())
+            return;
+
         int key = d->lookInEdit->lastKeyPressed();
-        if (key == QDir::separator() || text == QString(QDir::separator()))
+        if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
             return;
 
         // text is the local path format (on windows separator is '\\')
@@ -990,7 +994,7 @@ void QFileDialog::lookInChanged(const QString &text)
             }
         }
 
-        if (result.isValid() && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
+        if (result.isValid()) {
             QString completed = d->convert(d->model->path(result)); // to native format
             int start = completed.length();
             int length = text.length() - start; // negative length
