@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#219 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#220 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -948,7 +948,7 @@ void QPopupMenu::drawItem( QPainter* p, int tab, QMenuItem* mi,
 
 
 
-    int cm = gs == MotifStyle ? 2 : 0;	// checkable margin
+    int cm = (gs == MotifStyle && checkcol )? 2 : 0; // checkable margin
 
     if ( mi->isChecked() ) {
 	if ( gs == WindowsStyle && act && !dis ) {
@@ -960,7 +960,7 @@ void QPopupMenu::drawItem( QPainter* p, int tab, QMenuItem* mi,
 			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
 	}
     } else if ( !act ) {
-	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm,
+	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm, 
 		    g.brush( QColorGroup::Button ));
     }		
 
