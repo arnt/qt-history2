@@ -15,11 +15,15 @@
 
 \title Issues to be aware of when porting Qt/Embedded
 
-Qt/Embedded is designed to be reasonably platform-independent. The
-only publically available version is a Linux implementation. The
-following dependencies will need to be addressed if you intend to port
-to another operating system (files that you need to modify are listed
-at the end of each section):
+Qt/Embedded is reasonably platform-independent, although the only
+publically available version is a Linux implementation. If you are
+looking for a non-Linux commercial implementation, it is worth
+contacting \link mailto:sales@trolltech.com
+sales@trolltech.com\endlink to see if we can help.
+
+If you plan to do your own port to another operating system, the
+following dependencies will need to be addressed (files that you'll
+need to modify are listed at the end of each section):
 
 
 \list 
@@ -28,7 +32,7 @@ at the end of each section):
 window regions between client and server. You will need to provide
 something similar unless you want a single-application setup (i.e.
 running only one program, which is the server). System V semaphores
-are also used for synchronising access to the framebuffer.
+are also used for synchronizing access to the framebuffer.
 
 Modify \c qwindowsystem_qws.cpp, \c qwsregionmanager_qws.cpp, \c
 qapplication_qws.cpp, and \c qlock_qws.cpp.
@@ -68,14 +72,14 @@ the Qt/Embedded sound server you'll need to reimplement it.
 
 Modify \c qsoundqss_qws.cpp.
 
-\i <b>select()</b> is used to implement QSocketDevices and listen for
+\i <b>select()</b> is used to implement \l{QSocketDevice}s and listen for
 events to/from the Qt/Embedded server application.
 
 Modify \c qapplication_qws.cpp.
 
 \endlist
 
-Qt/Embedded makes use of the standard C library and some Posix functions.
+Qt/Embedded makes use of the standard C library and some POSIX functions.
 Mostly the latter are concentrated in platform dependent code anyway
 (e.g. mmap() to map in the Linux framebuffer).
 

@@ -73,6 +73,7 @@ Solutions\endlink
 \i \link aboutqt.html About Qt\endlink
 \i \link commercialeditions.html Commercial Editions\endlink
 \i \link freeeditions.html Free Edition\endlink
+\i \link http://www.trolltech.com/developer/changes/ Change History\endlink
 \i \link troll.html About Trolltech\endlink
 \endlist
 </td>
@@ -98,7 +99,6 @@ Overviews
 \i \link functions.html All Functions (long)\endlink
 \i \link headers.html Header File Index\endlink
 \i \link faq.html FAQs\endlink
-\i \link http://www.trolltech.com/developer/changes/ Change History\endlink
 \endlist
 </td>
 <td valign="top">
@@ -124,7 +124,6 @@ Overviews
 \i \link i18n.html Internationalization (i18n)\endlink
 \i \link debug.html Debugging Techniques\endlink
 \i \link threads.html Thread Support in Qt\endlink
-\i \link plugins-howto.html Qt Plugins\endlink
 \i \link accelerators.html Standard Accelerators\endlink
 \endlist
 </tr>

@@ -1733,6 +1733,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     string representations in various languages.
 
     \reentrant
+    \ingroup i18n
     \ingroup text
 
     It is initialized with a country/language pair in its constructor

@@ -142,7 +142,7 @@ parameter, there is no char* to QString conversion overhead.
 
 Strings that are in "programmer space" (such as QObject names
 and file format texts) need not use QString; the traditional
-char* or the QCString class will suffice.
+char* or the QByteArray class will suffice.
 
 You're unlikely to notice that you are using Unicode;
 QString, and QChar are just like easier versions of the crude
@@ -188,12 +188,12 @@ directly:
 \endcode
 
 If you need to have translatable text completely
-outside a function, there are two macros to help: QT_TR_NOOP()
-and QT_TRANSLATE_NOOP(). They merely mark the text for
+outside a function, there are two macros to help: \c QT_TR_NOOP()
+and \c QT_TRANSLATE_NOOP(). They merely mark the text for
 extraction by the \e lupdate utility described below.
 The macros expand to just the text (without the context).
 
-Example of QT_TR_NOOP():
+Example of \c QT_TR_NOOP():
 \code
     QString FriendlyConversation::greeting( int greet_type )
     {
@@ -205,7 +205,7 @@ Example of QT_TR_NOOP():
     }
 \endcode
 
-Example of QT_TRANSLATE_NOOP():
+Example of \c QT_TRANSLATE_NOOP():
 \code
     static const char* greeting_strings[] = {
 	QT_TRANSLATE_NOOP( "FriendlyConversation", "Hello" ),
@@ -225,7 +225,7 @@ Example of QT_TRANSLATE_NOOP():
 \endcode
 
 If you disable the const char* to QString automatic conversion
-by compiling your software with the macro QT_NO_CAST_ASCII
+by compiling your software with the macro \c QT_NO_CAST_ASCII
 defined, you'll be very likely to catch any strings you are
 missing. See QString::fromLatin1() for more information.
 Disabling the conversion can make programming a bit cumbersome.
@@ -297,7 +297,7 @@ Translation of a Qt application is a three-step process:
 \i Run \e lupdate to extract translatable text from the C++ source
 code of the Qt application, resulting in a message file for
 translators (a \c .ts file). The utility recognizes the tr() construct
-and the QT_*_NOOP macros described above and produces \c .ts files
+and the \c{QT_*_NOOP} macros described above and produces \c .ts files
 (usually one per language).
 
 \i Provide translations for the source texts in the \c .ts file, using
@@ -397,7 +397,7 @@ The QTextCodec class and the facilities in QTextStream make it easy to
 support many input and output encodings for your users' data. When an
 application starts, the locale of the machine will determine the 8-bit
 encoding used when dealing with 8-bit data: such as for font
-selection, text display, 8-bit text I/O and character input.
+selection, text display, 8-bit text I/O, and character input.
 
 The application may occasionally require encodings other than the
 default local 8-bit encoding. For example, an application in a
@@ -419,7 +419,7 @@ available: the \link QString::local8Bit() local8Bit\endlink() method
 of QString returns such 8-bit data. Another useful shortcut is the
 \link QString::utf8() utf8\endlink() method, which returns text in the
 8-bit UTF-8 encoding: this perfectly preserves Unicode information
-while looking like plain US-ASCII if the text is wholly US-ASCII.
+while looking like plain ASCII if the text is wholly ASCII.
 
 For converting the other way, there are the QString::fromUtf8() and
 QString::fromLocal8Bit() convenience functions, or the general code,
@@ -486,9 +486,13 @@ it is and thereby use the 12-hour clock branch; but in Europe we would
 translate it as something else (anything else, e.g. "EU") and this
 will make the code use the 24-hour clock branch.
 
+For localized numbers use the QLocale() class.
+
 Localizing images is not recommended. Choose clear icons that are
 appropriate for all localities, rather than relying on local puns or
-stretched metaphors.
+stretched metaphors. The exception is for images of left and right
+pointing arrows which may need to be reversed for Arabic and Hebrew
+locales.
 
 \section1 System Support
 
