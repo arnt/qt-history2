@@ -189,11 +189,17 @@ QWSCommand *QWSCommand::factory( int type )
 	command = new QWSRepaintRegionCommand;
 	break;
 #ifndef QT_NO_QWS_IM
-    case QWSCommand::SetMicroFocus:
-	command = new QWSSetMicroFocusCommand;
+    case QWSCommand::SetIMInfo:
+	command = new QWSSetIMInfoCommand;
 	break;
     case QWSCommand::ResetIM:
 	command = new QWSResetIMCommand;
+	break;
+    case QWSCommand::SetIMFont:
+	command = new QWSSetIMFontCommand;
+	break;
+    case QWSCommand::IMMouse:
+	command = new QWSIMMouseCommand;
 	break;
 #endif
     default:

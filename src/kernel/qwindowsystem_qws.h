@@ -185,8 +185,8 @@ public:
 				bool autoRepeat);
 
 #ifndef QT_NO_QWS_IM
-    enum IMState { IMStart, IMCompose, IMEnd };
-
+    enum IMState { IMStart /*###remove this*/, IMCompose, IMEnd, IMMarkedText, IMInternal = 42 };
+    enum IMMouse { MousePress, MouseRelease, MouseMove }; //MouseMove reserved but not used
     void sendIMEvent( IMState state, const QString& txt, int cpos, int selLen );
 #endif
 
@@ -220,6 +220,7 @@ public:
     static void setCurrentInputMethod( QWSInputMethod *im );
     static void resetInputMethod();
     static void setMicroFocus( int x, int y );
+    static void requestMarkedText();
 #endif
 
     static void setDefaultMouse( const char * );
@@ -293,6 +294,9 @@ signals:
     void removedChannel(const QString& channel);
 
 #endif
+#ifndef QT_NO_QWS_IM
+    void markedText( const QString & );
+#endif
 private:
 #ifndef QT_NO_COP
     static void sendQCopEvent( QWSClient *c, const QByteArray &ch,
@@ -307,12 +311,15 @@ private:
     void name_region( const QWSRegionNameCommand * );
     void set_identity( const QWSIdentifyCommand * );
 #ifndef QT_NO_QWS_IM
-    void set_micro_focus( const QWSSetMicroFocusCommand * );
+///////    void set_micro_focus( const QWSSetMicroFocusCommand * );
+
+    void set_im_info( const QWSSetIMInfoCommand * );
     void reset_im( const QWSResetIMCommand * );
-    static void sendKeyEventUnfiltered(int unicode, int keycode,
+    void set_im_font( const QWSSetIMFontCommand * );
+    void send_im_mouse( const QWSIMMouseCommand * );
+    static void sendKeyEventUnfiltered(int unicode, int keycode, 
 				       int modifiers, bool isPress,
 				       bool autoRepeat);
-
 #endif
     static void emergency_cleanup();
 
@@ -359,10 +366,16 @@ private:
     void invokeRepaintRegion( QWSRepaintRegionCommand *cmd,
 			      QWSClient *client );
 #ifndef QT_NO_QWS_IM
-        void invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
-                                QWSClient *client );
-        void invokeResetIM( const QWSResetIMCommand *cmd,
-                                QWSClient *client );
+    void invokeSetIMInfo( const QWSSetIMInfoCommand *cmd,
+			  QWSClient *client );
+    void invokeSetIMFont( const QWSSetIMFontCommand *cmd,
+			  QWSClient *client );
+
+
+    //       void invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
+    //                          QWSClient *client );
+    //  void invokeResetIM( const QWSResetIMCommand *cmd,
+    //                          QWSClient *client );
 #endif
 
     QWSMouseHandler* newMouseHandler(const QString& spec);
@@ -489,11 +502,15 @@ extern QWSServer *qwsServer; //there can be only one
 			    bool isPress, bool autoRepeat)=0;
 	virtual void reset();
 	virtual void setMicroFocus( int x, int y );
-	virtual void setFont( const QFont& );
+	virtual void mouseHandler( int, int );
+	QFont font() const;
+	QRect inputRect() const; 
     protected:
 	void sendIMEvent( QWSServer::IMState, const QString& txt, int cpos, int selLen = 0 );
-	//void sendKeyEvent( int unicode, int keycode, int modifiers,
-	//		    bool isPress, bool autoRepeat);
+
+
+
+//////	virtual void setFont( const QFont& );
     };
 
 inline void QWSInputMethod::sendIMEvent( QWSServer::IMState state, const QString &txt, int cpos, int selLen )

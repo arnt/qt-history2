@@ -434,7 +434,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 void QWidget::setMicroFocusHint( int x, int y, int width, int height,
-				 bool /*text*/, QFont *)
+				 bool text, QFont *)
 {
     if ( QRect( x, y, width, height ) != microFocusHint() ) {
 	d->createExtra();
@@ -442,9 +442,24 @@ void QWidget::setMicroFocusHint( int x, int y, int width, int height,
     }
 #ifndef QT_NO_QWS_IM
     if ( text ) {
+	QWidget *tlw = topLevelWidget();
+	int winid = tlw->winId();
 	QPoint p( x, y + height );
 	QPoint gp = mapToGlobal( p );
-	qwsDisplay()->setMicroFocus( gp.x(), gp.y());
+
+	QRect r = QRect( mapToGlobal( QPoint(0,0) ),
+			 size() );
+			 
+	r.setBottom( tlw->geometry().bottom() );
+
+	//qDebug( "QWidget::setMicroFocusHint %d %d %d %d", r.x(),
+	//	r.y(),  r.width(), r.height() );
+	QInputContext::setMicroFocusWidget( this );
+	
+	qwsDisplay()->setIMInfo( winid, gp.x(), gp.y(), r);
+
+	//send font info,  ###if necessary
+	qwsDisplay()->setInputFont( winid, font() );
     }
 #endif
 }

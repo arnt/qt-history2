@@ -139,6 +139,14 @@ static int get_object_id()
 }
 #ifndef QT_NO_QWS_IM
 static QWSInputMethod *current_IM = 0;
+
+static QFont *current_IM_Font = 0;
+static QRect current_IM_Rect;
+static QWSServer::IMState current_IM_State = QWSServer::IMEnd;
+static int current_IM_y=0;
+static QWSWindow* current_IM_win=0;
+static int current_IM_winId=-1;
+
 #endif
 
 
@@ -360,6 +368,10 @@ void QWSWindow::operation( QWSWindowOperationEvent::Operation o )
 */
 QWSWindow::~QWSWindow()
 {
+#ifndef QT_NO_QWS_IM
+    if ( current_IM_win == this )
+	current_IM_win = 0;
+#endif
 }
 
 
@@ -932,6 +944,7 @@ void QWSServer::doClient()
     //### I hope we can find a cleaner way to do this.
     if ( microF && current_IM ) {
       current_IM->setMicroFocus( microX, microY );
+      current_IM_y = microY;
       microF = FALSE;
     }
 #endif
@@ -1025,15 +1038,33 @@ void QWSServer::doClient( QWSClient *client )
 #endif
 #ifndef QT_NO_QWS_IM
 	case QWSCommand::ResetIM:
-	    invokeResetIM( (QWSResetIMCommand*)cs->command, cs->client );
+	    resetInputMethod();
 	    break;
-	case QWSCommand::SetMicroFocus:
+	case QWSCommand::SetIMFont:
+	    invokeSetIMFont((QWSSetIMFontCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::SetIMInfo:
 	    //invokeSetMicroFocus( (QWSSetMicroFocusCommand*)cs->command, cs->client );
 	    {
-		QWSSetMicroFocusCommand *cmd = (QWSSetMicroFocusCommand*)cs->command;
+		QWSSetIMInfoCommand *cmd = (QWSSetIMInfoCommand*)cs->command;
 		microF = TRUE;
 		microX = cmd->simpleData.x;
 		microY = cmd->simpleData.y;
+		current_IM_Rect = QRect( cmd->simpleData.x1, 
+					 cmd->simpleData.y1,
+					 cmd->simpleData.w,
+					 cmd->simpleData.h );
+		//###reset ????
+		current_IM_winId = cmd->simpleData.windowid;
+	    }
+	    break;
+	case QWSCommand::IMMouse:
+	    {
+		if ( current_IM ) {
+		    QWSIMMouseCommand *cmd = (QWSIMMouseCommand *) cs->command;
+		    current_IM->mouseHandler( cmd->simpleData.index,
+					      cmd->simpleData.state );
+		}
 	    }
 	    break;
 #endif
@@ -1207,6 +1238,25 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     QWSClient *serverClient = qwsServer->client[-1];
     QWSClient *winClient = win ? win->client() : 0;
 
+#ifndef QT_NO_QWS_IM
+    //reset input method if we click outside
+    
+    static int oldstate = 0;
+    bool isPress = state > oldstate;
+    oldstate = state;
+    if ( isPress && current_IM && current_IM_winId != -1 ) {
+	QWSWindow *kbw = keyboardGrabber ? keyboardGrabber :
+			 qwsServer->focusw;
+
+	
+	//checking for virtual keyboards ### could be better
+	QWidget *target = winClient == serverClient ? 
+			  QApplication::widgetAt( pos ) : 0;
+	if ( kbw != win && (!target || !target->testWFlags( WStyle_Tool ) || target->focusPolicy() != QWidget::NoFocus) )
+	    resetInputMethod();
+    }
+#endif
+    
     if ( serverClient )
        serverClient->sendEvent( &event );
     if ( winClient && winClient != serverClient )
@@ -1351,6 +1401,13 @@ static int keyUnicode(int keycode)
 void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
   bool autoRepeat)
 {
+    qws_keyModifiers = modifiers;
+
+    if ( isPress ) {
+	if ( keycode != Key_F34 && keycode != Key_F35 )
+	    qwsServer->screenSaverWake();
+    }
+
 #ifndef QT_NO_QWS_IM
 
     if ( !current_IM || !current_IM->filter( unicode, keycode, modifiers,
@@ -1363,12 +1420,6 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
   bool autoRepeat)
 {
 #endif
-    if ( isPress ) {
-	if ( keycode != Key_F34 && keycode != Key_F35 )
-	    qwsServer->screenSaverWake();
-    }
-
-    qws_keyModifiers = modifiers;
 
     QWSKeyEvent event;
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
@@ -1481,6 +1532,9 @@ void QWSServer::sendIMEvent( IMState state, const QString& txt, int cpos, int se
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
 	qwsServer->focusw;
 
+    if ( current_IM_State == IMCompose && current_IM_win )
+	win = current_IM_win;
+
     event.simpleData.window = win ? win->winId() : 0;
     event.simpleData.type = state;
     event.simpleData.cpos = cpos;
@@ -1495,7 +1549,42 @@ void QWSServer::sendIMEvent( IMState state, const QString& txt, int cpos, int se
        serverClient->sendEvent( &event );
     if ( win && win->client() && win->client() != serverClient )
        win->client()->sendEvent( &event );
+
+    current_IM_State = state;
+    current_IM_win = win;
 }
+
+/*!  Asks for the marked text of the current input widget. If there is
+  a current input widget, and it has marked text, and it supports the
+  request, the server will emit the markedText() signal at a later time
+  (ie. asynchronously).
+*/
+
+void QWSServer::requestMarkedText()
+{
+    if ( !qwsServer )
+	return;
+    qwsServer->manager()->addProperty( 0, QT_QWS_PROPERTY_MARKEDTEXT );
+
+    QWSIMEvent event;
+    QWSWindow *win = keyboardGrabber ? keyboardGrabber :
+	qwsServer->focusw;
+
+    event.simpleData.window = win ? win->winId() : 0;
+    event.simpleData.type = IMMarkedText;
+    event.simpleData.cpos = 0;
+    event.simpleData.selLen = 0;
+    event.simpleData.textLen = 0;
+    event.setData( 0, 0 );
+
+    QWSClient *serverClient = qwsServer->client[-1];
+    if ( serverClient )
+       serverClient->sendEvent( &event );
+    if ( win && win->client() && win->client() != serverClient )
+       win->client()->sendEvent( &event );
+    
+}
+
 
 
 /*!
@@ -1505,6 +1594,8 @@ void QWSServer::sendIMEvent( IMState state, const QString& txt, int cpos, int se
 */
 void QWSServer::setCurrentInputMethod( QWSInputMethod *im )
 {
+    if ( current_IM_State != IMEnd && im != current_IM && qwsServer )
+	qwsServer->sendIMEvent( IMEnd, "", -1, 0 );
     current_IM = im;
 }
 
@@ -1671,6 +1762,20 @@ void QWSServer::invokeSetFocus( const QWSRequestFocusCommand *cmd, QWSClient *cl
 
 void QWSServer::setFocus( QWSWindow* changingw, bool gain )
 {
+#ifndef QT_NO_QWS_IM
+    /*
+      This is the logic:
+      QWSWindow *loser = 0;
+      if ( gain && focusw != changingw )
+         loser = focusw;
+      else if ( !gain && focusw == changingw )
+	 loser = focusw;
+      But these five lines can be reduced to one:
+    */
+    QWSWindow *loser =  (!gain == (focusw==changingw)) ? focusw : 0;
+    if ( loser && loser->winId() == current_IM_winId )
+	resetInputMethod();
+#endif
     if ( gain ) {
 	if ( focusw != changingw ) {
 	    if ( focusw ) focusw->focus(0);
@@ -1751,7 +1856,13 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 				    cmd->rawLen ) ) {
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSPropertyNotifyEvent::PropertyNewValue );
-   }
+#ifndef QT_NO_QWS_IM
+	if ( cmd->simpleData.property == QT_QWS_PROPERTY_MARKEDTEXT ) {
+	    QString s( (const QChar*)cmd->data, cmd->rawLen/2 );
+	    emit markedText( s );
+	}
+#endif	     
+    }
 }
 
 void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
@@ -1922,7 +2033,49 @@ void QWSServer::invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client )
 
 
 #ifndef QT_NO_QWS_IM
-void QWSServer::invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
+void QWSServer::invokeSetIMInfo( const QWSSetIMInfoCommand *cmd,
+                                  QWSClient * )
+{
+    current_IM_y = cmd->simpleData.y;
+
+    current_IM_Rect = QRect( cmd->simpleData.x1, 
+			     cmd->simpleData.y1,
+			     cmd->simpleData.w,
+			     cmd->simpleData.h );
+
+    //??? reset if  windowid != current_IM_winId  ???
+    
+    current_IM_winId = cmd->simpleData.windowid;
+    
+    if ( current_IM )
+      current_IM->setMicroFocus( cmd->simpleData.x, cmd->simpleData.y );
+}
+
+void QWSServer::resetInputMethod()
+{
+    if ( current_IM_State == IMEnd )
+	current_IM_State = IMInternal;
+    
+    if ( current_IM && qwsServer ) {
+      current_IM->reset();
+    }
+    if ( current_IM_State != IMEnd ) // IM didn't send IMEnd
+	qwsServer->sendIMEvent( IMEnd, QString::null, -1, -1 );
+    current_IM_winId = -1;
+}
+
+void QWSServer::invokeSetIMFont( const QWSSetIMFontCommand *cmd,
+				 QWSClient * )
+{
+    if ( !current_IM_Font )
+	current_IM_Font = new QFont( cmd->font );
+    else
+	*current_IM_Font = cmd->font;
+
+}
+
+/*
+  void QWSServer::invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
                                   QWSClient * )
 {
     if ( current_IM )
@@ -1936,6 +2089,7 @@ void QWSServer::invokeResetIM( const QWSResetIMCommand *cmd,
     if ( current_IM )
       current_IM->reset();
 }
+*/
 #endif
 
 
@@ -2443,15 +2597,27 @@ void QWSServer::name_region( const QWSRegionNameCommand *cmd )
     invokeRegionName( cmd, client[-1] );
 }
 
+
 #ifndef QT_NO_QWS_IM
-void QWSServer::set_micro_focus( const QWSSetMicroFocusCommand *cmd )
+void QWSServer::set_im_info( const QWSSetIMInfoCommand *cmd )
 {
-    invokeSetMicroFocus( cmd, client[-1] );
+    invokeSetIMInfo( cmd, client[-1] );
 }
 
-void QWSServer::reset_im( const QWSResetIMCommand *cmd )
+void QWSServer::reset_im( const QWSResetIMCommand * )
 {
-    invokeResetIM( cmd, client[-1] );
+    resetInputMethod();
+}
+
+void QWSServer::set_im_font( const QWSSetIMFontCommand *cmd )
+{
+    invokeSetIMFont( cmd, client[-1] );
+}
+
+void QWSServer::send_im_mouse( const QWSIMMouseCommand *cmd )
+{
+    if ( current_IM )
+	current_IM->mouseHandler( cmd->simpleData.index, cmd->simpleData.state );
 }
 #endif
 
@@ -2847,11 +3013,13 @@ void QWSServer::updateClientCursorPos()
     number of \c IMCompose events and ending with an \c IMEnd event or
     when the virtual reset() function is called.
 
-    The functions setMicroFocus() and setFont() can be reimplemented
-    to receive more information about the state of the focus widget.
+    The function setMicroFocus() is called when the focus widget changes
+    its cursor position.
+
+    The functions font() and inputRect() provide more information about
+    the state of the focus widget.
 
     Use QWSServer::setCurrentInputMethod() to install an input method.
-
 */
 
 /*!
@@ -2908,7 +3076,7 @@ void QWSInputMethod::reset()
 
     Implemented in subclasses to handle microFocusHint changes in the
     focus widget. \a x and \a y are the global coordinates of the
-    focus widget.
+    cursor position.
 
 */
 
@@ -2919,16 +3087,30 @@ void QWSInputMethod::setMicroFocus( int, int )
 
 
 /*!
-    Implemented in subclasses to handle font changes in the focus
-    widget.
+  \fn void QWSInputMethod::mouseHandler( int x, int state )
 
-    This functionality is provided for future expansion; it is not
-    used in this version of Qt/Embedded.
-*/
-
-void QWSInputMethod::setFont( const QFont& )
+  Implemented in subclasses to handle mouse presses/releases within
+  the on-the-spot text. The parameter \a x is the offset within
+  the string that was sent with the IMCompose event.
+  \a state is either \c QWSServer::MousePress or \c QWSServer::MouseRelease
+ */
+void QWSInputMethod::mouseHandler( int, int )
 {
+}
 
+
+/*!
+  Returns the input rectangle of the current input widget. The input
+  rectangle covers the width of the input widget, and may extend below it.
+  This can be used to determine the geometry of an input widget for
+  over-the-spot input methods.
+ */
+QRect QWSInputMethod::inputRect() const
+{
+    QRect r = current_IM_Rect;
+    //QFontMetrics fm( font() );
+    //r.setTop( current_IM_y - fm.height() );
+    return r;
 }
 
 

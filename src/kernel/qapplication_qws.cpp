@@ -1070,14 +1070,20 @@ void QWSDisplay::destroyRegion( int winId )
 }
 
 #ifndef QT_NO_QWS_IM
-void QWSDisplay::setMicroFocus( int x, int y )
+void QWSDisplay::setIMInfo( int winId, int x, int y, const QRect &r, bool reset)
 {
-    QWSSetMicroFocusCommand cmd;
+    QWSSetIMInfoCommand cmd;
+    cmd.simpleData.windowid = winId;
     cmd.simpleData.x = x;
     cmd.simpleData.y = y;
-    //XXX Font ???
+    cmd.simpleData.x1 = r.x();
+    cmd.simpleData.y1 = r.y();
+    cmd.simpleData.w = r.width();
+    cmd.simpleData.h = r.height();
+    cmd.simpleData.reset = reset;
+
     if ( d->directServerConnection() ) {
-	qwsServer->set_micro_focus( &cmd );
+	qwsServer->set_im_info( &cmd );
     } else {
 	d->sendCommand( cmd );
     }
@@ -1093,7 +1099,35 @@ void QWSDisplay::resetIM()
     }
 }
 
+void QWSDisplay::sendIMMouseEvent( int index, bool isPress )
+{
+    QWSIMMouseCommand cmd;
+    cmd.simpleData.index = index;
+    cmd.simpleData.state = isPress ? QWSServer::MousePress : QWSServer::MouseRelease;
+    if ( d->directServerConnection() ) {
+	qwsServer->send_im_mouse( &cmd );
+    } else {
+	d->sendCommand( cmd );
+    }
+}
 
+void QWSDisplay::setInputFont( int winId, const QFont &f )
+{
+    static QFont prevFont;
+    if ( prevFont != f ) {
+	prevFont = f;
+	QWSSetIMFontCommand cmd;
+	cmd.simpleData.windowid = winId;
+	cmd.setFont( f );
+	if ( d->directServerConnection() ) {
+	    qwsServer->set_im_font( &cmd );
+	} else {
+	    d->sendCommand( cmd );
+	}
+    }
+
+
+}
 #endif
 
 int QWSDisplay::takeId()
@@ -1584,6 +1618,12 @@ void qt_init(QApplicationPrivate *priv, int type )
 #ifndef QT_NO_NETWORK
 //    qInitNetworkProtocols();
 #endif
+}
+
+
+bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
+{
+    return QCoreApplication::sendSpontaneousEvent(obj, event);
 }
 
 /*****************************************************************************
@@ -2206,9 +2246,6 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		//active_window = 0;
 		if (old)
 		    old->repaintDecoration(desktop()->rect(), FALSE);
-#ifndef QT_NO_QWS_IM
-		QInputContext::reset();
-#endif
 		/* setActiveWindow() sends focus events
 		QFocusEvent out( QEvent::FocusOut );
 		QWidget *widget = focus_widget;
@@ -2530,6 +2567,15 @@ bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 	    for ( button = LeftButton; !type && button <= MidButton; button<<=1 ) {
 		if ( (mouse.state&button) != (old_state&button) ) {
 		    // button press or release
+
+#ifndef QT_NO_QWS_IM
+		    //############ We used to do a QInputContext::reset( oldFocus );
+		    // when we changed the focus widget. See change 93389 for where the
+		    // focus code went. The IM code was (after testing for ClickToFocus):
+		    //if ( mouse.state&button && w != QInputContext::microFocusWidget() ) //button press
+		    //	QInputContext::reset( oldFocus );
+		    
+#endif
 		    if ( mouse.state&button ) { //button press
 			qt_button_down = QApplication::findChildWidget( this, pos );	//magic for masked widgets
 			if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )

@@ -18,6 +18,9 @@
 #ifndef QT_H
 #include "qbytearray.h"
 #include "qwsutils_qws.h"
+
+#include "qfont.h"
+#include "qdatastream.h"
 #endif // QT_H
 
 #define QTE_PIPE "QtEmbedded-%1"
@@ -100,8 +103,10 @@ struct QWSCommand : QWSProtocolItem
 	Identify,
 	GrabKeyboard,
 	RepaintRegion,
-	SetMicroFocus,
-	ResetIM
+	SetIMFont,
+	ResetIM,
+	SetIMInfo,
+	IMMouse
     };
     static QWSCommand *factory( int type );
 };
@@ -498,19 +503,35 @@ struct QWSQCopSendCommand : public QWSCommand
 
 
 #ifndef QT_NO_QWS_IM
-struct QWSSetMicroFocusCommand : public QWSCommand
+struct QWSSetIMInfoCommand : public QWSCommand
 {
-    QWSSetMicroFocusCommand() :
-	QWSCommand( QWSCommand::SetMicroFocus,
+    QWSSetIMInfoCommand() :
+	QWSCommand( QWSCommand::SetIMInfo,
 		    sizeof( simpleData ), (char *)&simpleData ) {}
 
     struct SimpleData {
 	int windowid;
 	int x;
 	int y;
-	//bool textInput;
+	int x1;
+	int y1;
+	int w;
+	int h;
+	bool reset;
     } simpleData;
-    //XXX Font???
+};
+
+struct QWSIMMouseCommand : public QWSCommand
+{
+    QWSIMMouseCommand() :
+	QWSCommand( QWSCommand::IMMouse,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+	int state;
+	int index;
+    } simpleData;
 };
 
 struct QWSResetIMCommand : public QWSCommand
@@ -524,6 +545,34 @@ struct QWSResetIMCommand : public QWSCommand
     } simpleData;
 };
 
+struct QWSSetIMFontCommand : public QWSCommand
+{
+    QWSSetIMFontCommand() :
+	QWSCommand( QWSCommand::SetIMFont,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem ) {
+	QWSCommand::setData( d, len, allocateMem );
+
+	QByteArray  tmp;
+	tmp.setRawData( d, len );
+	QDataStream s( tmp, IO_ReadOnly );
+	s >> font;
+	tmp.resetRawData( d, len );
+    }
+    void setFont( const QFont & f )
+    {
+	QByteArray tmp;
+	QDataStream s( tmp, IO_WriteOnly );
+	s << f;
+	setData( tmp.data(), tmp.size(), TRUE );
+    }
+
+    struct SimpleData {
+	int windowid;
+    } simpleData;
+    QFont font;
+};
 #endif
 
 #endif // QWSCOMMAND_QWS_H

@@ -75,11 +75,22 @@ public:
 #endif // Q_WS_X11
 
 #ifdef Q_WS_QWS
+#ifndef QT_NO_QWS_IM
+
     static void translateIMEvent( QWSIMEvent *, QWidget * );
-    static void reset();
-private:
-    static QWidget* focusWidget;
+    static void reset( QWidget *focusW = 0 );
+
+    static void setMicroFocusWidget(QWidget *);
+    static QWidget *microFocusWidget() {return activeWidget;}
+    static void notifyWidgetDeletion( QWidget * );
+    
+private:    
+    static void retrieveMarkedText( QWidget * );
+    static void cleanup();
+    static QWidget* activeWidget;
     static QString* composition;
+    static bool composeMode;
+#endif //QT_NO_QWS_IM
 #endif //Q_WS_QWS
 
 #ifdef Q_WS_WIN

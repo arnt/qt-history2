@@ -41,6 +41,7 @@ public:
 
 #define QT_QWS_PROPERTY_CONVERTSELECTION 999
 #define QT_QWS_PROPERTY_WINDOWNAME 998
+#define QT_QWS_PROPERTY_MARKEDTEXT 997
 
 class QWSDisplay
 {
@@ -94,8 +95,10 @@ public:
     void repaintRegion(QRegion &);
 #endif
 #ifndef QT_NO_QWS_IM
-    void setMicroFocus( int x, int y );
+    void setIMInfo( int winId, int x, int y, const QRect &, bool = FALSE );
     void resetIM();
+    void setInputFont( int winId, const QFont & );
+    void sendIMMouseEvent( int index, bool isPress );
 #endif
     QWSQCopMessageEvent* waitForQCopResponse();
 
