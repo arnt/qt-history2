@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#62 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#62 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -459,14 +459,15 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int w = image.width();
     int h = image.height();
 
-    QPixmap pm( w, h, d == 1 ? 1 : -1 );
-    bool tmp_dc = pm.handle() == 0;
+    if ( width() != w || height() != h || (d == 1 && depth() != 1) ) {
+	QPixmap pm( w, h, d == 1 ? 1 : -1 );
+	pm.data->optim  = data->optim;		// keep optimization flag
+	pm.data->bitmap = data->bitmap;		// keep is-a flag
+	*this = pm;
+    }
+    bool tmp_dc = handle() == 0;
     if ( tmp_dc )
-	pm.allocMemDC();
-    pm.data->optim  = data->optim;		// keep optimization flag
-    pm.data->bitmap = data->bitmap;		// keep is-a flag
-    if ( pm.data->optim )
-	tmp_dc = FALSE;				// don't do pm.freeMemDC()
+	allocMemDC();
 
     bool native = qt_image_did_native_bmp();
 
@@ -520,10 +521,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
     delete [] bmi_data;
 
-    pm.data->uninit = FALSE;
+    data->uninit = FALSE;
     if ( tmp_dc )
-	pm.freeMemDC();
-    *this = pm;
+	freeMemDC();
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
