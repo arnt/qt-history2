@@ -448,10 +448,7 @@ void QTextCursor::place( const QPoint &pos, QTextParag *s )
 	if ( QABS( d ) < dist || (dist == d && dm == TRUE ) ) {
 	    dist = QABS( d );
 	    curpos = i;
-	} 
-
-	if ( pos.y() < y + cy || pos.y() > y + cy + h )
-	    break;
+	}
 	i++;
     }
 
@@ -2946,11 +2943,11 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	       selectionChange || chr->isCustom ) ) {
 	    if ( paintStart <= paintEnd ) {
 		if ( lastDirection ) // right to left
-		    drawParagString( painter, revstr, length()- paintEnd - 1, paintEnd - paintStart + 1, startX, lastY, 
+		    drawParagString( painter, revstr, length()- paintEnd - 1, paintEnd - paintStart + 1, startX, lastY,
 				     lastBaseLine, bw, lasth, drawSelections,
 				     lastFormat, i, selectionStarts, selectionEnds, cg );
 		else
-		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, startX, lastY, 
+		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, startX, lastY,
 				     lastBaseLine, bw, lasth, drawSelections,
 				     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    }
@@ -3019,7 +3016,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    }
 	}
 	if ( lastDirection ) // right to left
-	    drawParagString( painter, revstr, length() - paintEnd - 1, paintEnd-paintStart+1, startX, lastY, 
+	    drawParagString( painter, revstr, length() - paintEnd - 1, paintEnd-paintStart+1, startX, lastY,
 			     lastBaseLine, bw, h, drawSelections,
 			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	else
