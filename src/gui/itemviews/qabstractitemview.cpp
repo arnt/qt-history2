@@ -1102,8 +1102,8 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
 void QAbstractItemView::endEdit(const QModelIndex &index,
                                 QAbstractItemDelegate::EndEditAction action)
 {
-    if (d->state != Editing)
-        return;
+//    if (d->state != Editing)
+//        return;
 
     QModelIndex buddy = model()->buddy(index);
     QPersistentModelIndex persistent(buddy.isValid() ? buddy : index, model());
