@@ -2,6 +2,7 @@ Dokumentasjon:
 --------------
     temasider (programmers guide)
     qvector.doc
+    event-driven.html
     which/that
     riktig bruk av X windows, eller hva som naa var riktig...
 
