@@ -404,7 +404,7 @@ QDirModel::QDirModel(QDirModelPrivate &dd, const QDir &directory, QObject *paren
 
 QDirModel::~QDirModel()
 {
-    
+
 }
 
 /*!
@@ -771,7 +771,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     if (!p) {
         qWarning("decode: the node does not exist");
         return false;
-    }    
+    }
     QStringList files;    // FIXME: what about directories ?
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
@@ -1063,7 +1063,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
         qWarning("fileInfo: the index is invalid");
         return QFileInfo();
     }
-    
+
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("fileInfo: the node does not exist");
@@ -1078,7 +1078,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
   otherwise returns false.
 */
 
-bool QDirModel::isRoot(const QModelIndex &index) const4
+bool QDirModel::isRoot(const QModelIndex &index) const
 {
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
@@ -1116,7 +1116,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
         qWarning("mkdir: parent was invalid");
         return QModelIndex();
     }
-        
+
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
 
     if (!p) {
@@ -1128,9 +1128,9 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
         qWarning("mkdir: cannot create a new drive");
         return QModelIndex();
     }
-    
+
     d->savePersistentIndexes();
-    
+
     QDir dir = p->info.dir();
     if (!dir.mkdir(name)) {
         d->restorePersistentIndexes();
@@ -1177,7 +1177,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
         qWarning("rmdir: the parent node does not exist");
         return false;
     }
-    
+
     if (d->childrenAreDrives(p)) {
         qWarning("rmdir: the node is a drive");
         return false;
@@ -1356,14 +1356,14 @@ void QDirModelPrivate::refresh(QDirNode *parent)
         QDir dir = QDir(parent->info.filePath());
         info = dir.entryInfoList(nameFilters, filterSpec, sortSpec);
     }
-    
+
     QVector<QDirNode> *nodes = &(parent->children);
 
     if (nodes->count() != info.count()) {
         qWarning("refresh: the number of children has changed");
         nodes->resize(info.count());
     }
-    
+
     for (int i = 0; i < (int)info.count(); ++i) {
         (*nodes)[i].parent = parent;
         (*nodes)[i].info = info.at(i);
