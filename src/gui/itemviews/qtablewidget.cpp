@@ -394,42 +394,6 @@ QVariant QTableWidgetItem::data(int role) const
     return QVariant();
 }
 
-void QTableWidgetItem::openPersistentEditor()
-{
-    if (!model)
-        return;
-    QTableWidget *view = ::qt_cast<QTableWidget*>(static_cast<QObject*>(model)->parent());
-    if (view)
-        view->openPersistentEditor(this);
-}
-
-void QTableWidgetItem::closePersistentEditor()
-{
-    if (!model)
-        return;
-    QTableWidget *view = ::qt_cast<QTableWidget*>(static_cast<QObject*>(model)->parent());
-    if (view)
-        view->closePersistentEditor(this);
-}
-
-bool QTableWidgetItem::isSelected() const
-{
-    if (!model)
-        return false;
-    const QObject *parent = static_cast<QObject*>(model)->parent();
-    const QTableWidget *view = ::qt_cast<const QTableWidget*>(parent);
-    return (view && view->isSelected(this));
-}
-
-void QTableWidgetItem::setSelected(bool select)
-{
-    if (!model)
-        return;
-    QObject *parent = static_cast<QObject*>(model)->parent();
-    QTableWidget *view = ::qt_cast<QTableWidget*>(parent);
-    view->setSelected(this, select);
-}
-
 /*!
     \class QTableWidget qtablewidget.h
     \brief The QTableWidget class provides a table view that uses the

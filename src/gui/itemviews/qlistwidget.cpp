@@ -261,42 +261,6 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
     return text() < other.text();
 }
 
-void QListWidgetItem::openPersistentEditor()
-{
-    if (!model)
-        return;
-    QListWidget *view = ::qt_cast<QListWidget*>(static_cast<QObject*>(model)->parent());
-    if (view)
-        view->openPersistentEditor(this);
-}
-
-void QListWidgetItem::closePersistentEditor()
-{
-    if (!model)
-        return;
-    QListWidget *view = ::qt_cast<QListWidget*>(static_cast<QObject*>(model)->parent());
-    if (view)
-        view->closePersistentEditor(this);
-}
-
-bool QListWidgetItem::isSelected() const
-{
-    if (!model)
-        return false;
-    const QObject *parent = static_cast<QObject*>(model)->parent();
-    const QListWidget *view = ::qt_cast<const QListWidget*>(parent);
-    return (view && view->isSelected(this));
-}
-
-void QListWidgetItem::setSelected(bool select)
-{
-    if (!model)
-        return;
-    QObject *parent = static_cast<QObject*>(model)->parent();
-    QListWidget *view = ::qt_cast<QListWidget*>(parent);
-    view->setSelected(this, select);
-}
-
 /*!
     \fn QString QListWidgetItem::text() const
 

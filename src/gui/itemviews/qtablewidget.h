@@ -78,12 +78,6 @@ public:
     virtual void setData(int role, const QVariant &value);
     virtual bool operator<(const QTableWidgetItem &other) const;
 
-    void openPersistentEditor();
-    void closePersistentEditor();
-
-    bool isSelected() const;
-    void setSelected(bool select);
-
 protected:
     struct Data {
         Data() : role(-1) {}

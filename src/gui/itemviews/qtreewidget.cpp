@@ -918,32 +918,6 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
         setCurrentIndex(QModelIndex());
 }
 
-void QTreeWidgetItem::openPersistentEditor(int column)
-{
-    view->openPersistentEditor(this, column);
-}
-
-void QTreeWidgetItem::closePersistentEditor(int column)
-{
-    view->closePersistentEditor(this, column);
-}
-
-/*!
-*/
-
-bool QTreeWidgetItem::isSelected() const
-{
-    return view->isSelected(this);
-}
-
-/*!
-*/
-
-void QTreeWidgetItem::setSelected(bool select)
-{
-    view->setSelected(this, select);
-}
-
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 {
     Q_ASSERT(item);

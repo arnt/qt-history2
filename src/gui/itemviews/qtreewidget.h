@@ -84,12 +84,6 @@ public:
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
 
-    void openPersistentEditor(int column);
-    void closePersistentEditor(int column);
-
-    bool isSelected() const;
-    void setSelected(bool select);
-
 protected:
     QTreeWidgetItem();
 
