@@ -2,7 +2,7 @@
 <background>
     <source>st.png</source>
     <rect>
-	<x>0</x><y>0</y><width>339</width><height>213</height>
+	<x>0</x><y>0</y><width>339</width><height>214</height>
     </rect>
 </background>
 <color>
@@ -13,7 +13,7 @@
 <layout name="usit">
     <size>
 	<width>339</width>
-	<height>213</height>
+	<height>214</height>
     </size>
     <element name="Play">
        <rect>
@@ -57,10 +57,10 @@
    </element>
    <element name="Volume">
        <rect>
-           <x>210</x>
-	   <y>125</y>
-	   <width>90</width>
-	   <height>90</height>
+           <x>218</x>
+	   <y>133</y>
+	   <width>76</width>
+	   <height>76</height>
        </rect>
    </element>
 
@@ -69,12 +69,12 @@
 <mask>
     <source>st.png</source>
     <rect>
-	<x>0</x><y>0</y><width>339</width><height>213</height>
+	<x>0</x><y>0</y><width>339</width><height>214</height>
     </rect>
 </mask>
     <size>
         <width>339</width>
-	<height>213</height>
+	<height>214</height>
     </size>
 </widget>
 <widget type="QPushButton" name="Play">
@@ -242,5 +242,25 @@
 	    <height>13</height>
 	</rect>
     </image>
+</widget>
+<widget type="QSkinDial" name="Volume">
+   <size>
+       <width>76</width>
+       <height>76</height>
+   </size>
+   <imageset>
+       <source>stvol.png</source>
+       <rect>
+           <x>7</x>
+	   <y>0</y>
+	   <width>76</width>
+	   <height>76</height>
+       </rect>
+       <offset>
+           <x>86</x>
+	   <y>0</y>
+       </offset>
+       <count>83</count>
+   </imageset>
 </widget>
 </skin>
