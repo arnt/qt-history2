@@ -436,14 +436,14 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
     return QPoint( x, y );
 }
 
-void QWidget::setMicroFocusHint( int /*x*/, int /*y*/, int /*width*/, int /*height*/,
+void QWidget::setMicroFocusHint( int x, int y, int width, int height,
 				 bool /*text*/, QFont *)
 {
-    //XXX not implemented
-#if 0
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 
+//XXX not implemented
+#if 0
     if ( text ) {
 
     }
@@ -1103,9 +1103,15 @@ void QWidget::erase( const QRegion& reg )
 	if ( !extra->bg_pix->isNull() ) {
 	    int xoff = 0;
 	    int yoff = 0;
-	    if ( !isTopLevel() && backgroundOrigin() == QWidget::ParentOrigin ) {
-		xoff = x();
-		yoff = y();
+	    if ( !isTopLevel() ) {
+		if ( backgroundOrigin() == QWidget::ParentOrigin ) {
+		    xoff = x();
+		    yoff = y();
+		} else if ( backgroundOrigin() == QWidget::WindowOrigin ) {
+		    QPoint off = mapTo( topLevelWidget(), QPoint(0,0) );
+		    xoff = off.x();
+		    yoff = off.y();
+		}
 	    }
 	    p.drawTiledPixmap(rect(),*extra->bg_pix,
 			      QPoint(xoff%extra->bg_pix->width(),
