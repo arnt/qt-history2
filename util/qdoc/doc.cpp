@@ -66,6 +66,8 @@ static QString what( Doc::Kind kind )
 	return QString( "function" );
     case Doc::Enum:
 	return QString( "type" );
+    case Doc::Property:
+	return QString( "property" );
     case Doc::Class:
 	return QString( "class" );
     default:
@@ -310,8 +312,6 @@ public:
     OpenedList( Kind k = Bullet, int first = 1 )
 	: kind( k ), nextItem( first ) { }
 
-    // keep the default copy constructor and assignment operator
-
     QString begin();
     QString item();
     QString end();
@@ -429,8 +429,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     QString fileName;
     QString groupName;
     QString moduleName;
+    QString propName;
 
     QString enumPrefix;
+    QString propShortDesc;
     QString title;
     QString heading;
     QString prototype;
@@ -908,6 +910,27 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "\\printto " ) + substr + QChar( '\n' );
 		leaveWalkthroughSnippet();
 		break;
+	    case hash( 'p', 8 ):
+		consume( "property" );
+		propName = getWord( yyIn, yyPos );
+		propShortDesc = getRestOfLine( yyIn, yyPos );
+
+		if ( propName.isEmpty() ) {
+		    warning( 2, location(),
+			     "Expected property name after '\\property'" );
+		    setKindHasToBe( Doc::Property, command );
+		} else {
+		    setKind( Doc::Property, command );
+		}
+
+		if ( propShortDesc.isEmpty() )
+		    warning( 2, location(),
+			     "Expected short property description after "
+			     "'\\property %s'", propName.latin1() );
+		else
+		    yyOut += QString( "<p>This property represents the " ) +
+			     propShortDesc + QString( ".\n" );
+		break;
 	    case hash( 'p', 9 ):
 		if ( command.length() != 9 )
 		    break;
@@ -1176,6 +1199,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     case Doc::Enum:
 	sanitize( enumName );
 	doc = new EnumDoc( loc, yyOut, enumName, documentedValues );
+	break;
+    case Doc::Property:
+	doc = new PropertyDoc( loc, yyOut, propName, propShortDesc );
 	break;
     case Doc::Page:
 	sanitize( fileName );
@@ -2010,9 +2036,6 @@ QString Doc::htmlSeeAlso() const
 	QString name = *s;
 	QString text;
 
-	if ( name.right(1) != QChar(')') && resolver()->resolvefn(name) )
-	    name += QString( "()" );
-
 	if ( name.startsWith(QString("&#92;link")) ) {
 	    QStringList toks =
 		    QStringList::split( QChar(' '),
@@ -2050,8 +2073,8 @@ void Doc::printHtml( HtmlWriter& out ) const
 	  caused by '\important'.
 	*/
 	if ( linkBase(lnk) == out.fileName() ) {
-	    if ( resolver()->warnChangedSinceLastRun(location(), lnk, t)
-		 && !dependsOn().isEmpty() ) {
+	    if ( resolver()->warnChangedSinceLastRun(location(), lnk, t) &&
+		 !dependsOn().isEmpty() ) {
 		StringSet::ConstIterator d = dependsOn().begin();
 		while ( d != dependsOn().end() ) {
 		    warning( 0, Location(*d), "(influences the above)" );
@@ -2257,14 +2280,9 @@ QString Doc::finalHtml() const
 
 	    if ( begin < end &&
 		 offsetOK(&offsetMap, yyOut.length(), yyOut.mid(begin)) ) {
-		/*
-		  It's always a good idea to include the '()', as it
-		  provides some typing (in at least two senses of the
-		  word).
-		*/
 		if ( ch == QChar('(') && yyIn.mid(yyPos, 1) == QChar(')') ) {
 		    yyOut.replace( begin, end - begin,
-				   href(yyOut.mid(begin)) + QString("()") );
+				   href(yyOut.mid(begin) + QString("()")) );
 		    yyPos++;
 		} else {
 		    yyOut.replace( begin, end - begin, href(yyOut.mid(begin)) );
@@ -2281,7 +2299,7 @@ QString Doc::finalHtml() const
 		    end++;
 		QString t = yyIn.mid( begin, end - begin );
 
-		// we don't 'Qt' to links to the Qt class
+		// we don't want 'Qt' to link to the Qt class
 		if ( clist.contains(t) && t != config->product() &&
 		     offsetOK(&offsetMap, yyOut.length(), t) )
 		    t = href( t );
@@ -2468,8 +2486,14 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 }
 
 EnumDoc::EnumDoc( const Location& loc, const QString& html,
-		  const QString& enumName, const StringSet& documentedValues )
-    : Doc( Enum, loc, html, enumName ), values( documentedValues )
+		  const QString& name, const StringSet& documentedValues )
+    : Doc( Enum, loc, html, name ), values( documentedValues )
+{
+}
+
+PropertyDoc::PropertyDoc( const Location& loc, const QString& html,
+			  const QString& name, const QString& shortDesc )
+    : Doc( Property, loc, html, name ), sdesc( shortDesc )
 {
 }
 

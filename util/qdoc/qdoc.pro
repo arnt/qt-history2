@@ -1,7 +1,6 @@
 TEMPLATE	= app
-CONFIG+= warn_on console release qtinc
-DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT
-win32:DEFINES   += QT_NODLL
+CONFIG		+= warn_on console release qtinc
+DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT QT_NODLL
 INCLUDEPATH	= ../../include ../../src/tools
 DEPENDPATH	= ../../include ../../src/tools
 OBJECTS_DIR	= .
@@ -19,7 +18,6 @@ HEADERS		= binarywriter.h \
 		  location.h \
 		  messages.h \
 		  metaresolver.h \
-		  property.h \
 		  resolver.h \
 		  stringset.h \
 		  tokenizer.h \
@@ -41,7 +39,6 @@ SOURCES		= binarywriter.cpp \
 		  main.cpp \
 		  messages.cpp \
 		  metaresolver.cpp \
-		  property.cpp \
 		  resolver.cpp \
 		  stringset.cpp \
 		  tokenizer.cpp \
@@ -68,11 +65,9 @@ SOURCES		= binarywriter.cpp \
 		  ../../src/tools/qstring.cpp \
 		  ../../src/tools/qstringlist.cpp \
 		  ../../src/tools/qtextstream.cpp
-
 unix:SOURCES	+= ../../src/tools/qdir_unix.cpp \
 		  ../../src/tools/qfile_unix.cpp \
 		  ../../src/tools/qfileinfo_unix.cpp
-
 win32:SOURCES	+= ../../src/tools/qdir_win.cpp \
 		  ../../src/tools/qfile_win.cpp \
 		  ../../src/tools/qfileinfo_win.cpp

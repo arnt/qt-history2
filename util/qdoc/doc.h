@@ -52,8 +52,8 @@ class Doc
     friend DocParser;
 
 public:
-    enum Kind { Null, Fn, Class, Enum, Page, Base64, Plainpage, Defgroup,
-		Example };
+    enum Kind { Null, Fn, Class, Enum, Property, Page, Base64, Plainpage,
+		Defgroup, Example };
 
     static Doc *create( const Location& loc, const QString& text );
 
@@ -214,6 +214,18 @@ public:
 
 private:
     StringSet values;
+};
+
+class PropertyDoc : public Doc
+{
+public:
+    PropertyDoc( const Location& loc, const QString& html, const QString& name,
+		 const QString& shortDesc );
+
+    const QString& shortDesc() const { return sdesc; }
+
+private:
+    QString sdesc;
 };
 
 class PageLikeDoc : public Doc

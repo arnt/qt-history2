@@ -92,6 +92,7 @@
   \link #printline \\printline \endlink,
   \link #printto \\printto \endlink,
   \link #printuntil \\printuntil \endlink,
+  \link #property \\property \endlink,
   \link #quotelist \\quotelist \endlink,
   \link #r \\r \endlink,
   \link #reimp \\reimp \endlink,
@@ -244,6 +245,30 @@
     {
 	return createBubble( d, d );
     }</pre>
+
+   \i <a name="property"></a>
+    <b>\\property</b> starts the documentation of a property. A
+    property is defined using the Q_PROPERTY macro, like this:
+    <pre>
+    Q_PROPERTY( QString text READ text WRITE setText )</pre>
+
+    Previously, the getter (text()), the setter (setText()) and the
+    resetter (resetText()) were documented separately. Now, the
+    preferred style is to document only the property using
+    \\property:
+    <pre>
+    /*! \\property <u>QLabel::text</u> text on the label
+
+      The text will be interpreted either as a plain text or as
+      a rich text, depending on the text format string.
+    *&#47;</pre>
+
+    The \\property line expects the name of the property
+    (QLabel::text) followed by a short description ("text on the
+    label"). This short description will appear in the automatically
+    generated documentation for the getter, setter and resetter, as
+    well as in the starting sentence of the property documentation:
+    "This property represents the <u>text on the label</u>."
 
    \i <a name="l"></a>
     <b>\\l</b> (ell) makes an explicit link to almost anything that

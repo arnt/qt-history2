@@ -47,18 +47,6 @@ QString DeclResolver::resolve( const QString& name ) const
     }
 }
 
-QString DeclResolver::resolvefn( const QString& name ) const
-{
-    const Decl *x = c != 0 ? c : r;
-    const Decl *y = x->resolvePlain( name );
-
-    if ( y == 0 || y->kind() != Decl::Function ) {
-	return QString::null;
-    } else {
-	return resolved( y );
-    }
-}
-
 bool DeclResolver::changedSinceLastRun( const QString& link,
 					const QString& html ) const
 {

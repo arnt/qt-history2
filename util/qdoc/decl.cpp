@@ -14,6 +14,9 @@
 #include "htmlwriter.h"
 #include "messages.h"
 
+static QString gulbrandsen( "::" );
+static QString parenParen( "()" );
+
 static void printHtmlDataType( HtmlWriter& out, const CodeChunk& type,
 			       const Decl *context,
 			       const QString& var = QString::null )
@@ -73,6 +76,13 @@ static QString htmlShortName( const Decl *decl )
 	if ( decl->kind() == Decl::Function )
 	    warning( 2, decl->location(), "Undocumented function '%s'",
 		     decl->fullMangledName().latin1() );
+	else if ( decl->kind() == Decl::Property )
+#if 0
+	    warning( 2, decl->location(), "Undocumented property '%s'",
+		     decl->fullName().latin1() );
+#else
+	    ; // ###
+#endif
 	else
 	    warning( 3, decl->location(), "Undocumented member '%s'",
 		     decl->fullName().latin1() );
@@ -120,8 +130,10 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
 	    QValueList<Decl *> by = (*m)->reimplementedBy();
 	    if ( !by.isEmpty() ) {
-		// we don't want totally uninteresting
-		// reimplementations in this list ...
+		/*
+		  We don't want totally uninteresting
+		  reimplementations in this list.
+		*/
 		QValueList<Decl *>::ConstIterator r;
 		r = by.begin();
 		while( r != by.end() ) {
@@ -156,6 +168,54 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		    ++r;
 		}
 	    }
+
+	    if ( (*m)->kind() == Decl::Property ) {
+		PropertyDecl *prop = (PropertyDecl *) *m;
+
+		QStringList funcs;
+		QStringList roles;
+		if ( !prop->readFunction().isEmpty() ) {
+		    funcs.append( prop->readFunction() );
+		    roles.append( QString("retrieve") );
+		}
+		if ( !prop->writeFunction().isEmpty() ) {
+		    funcs.append( prop->writeFunction() );
+		    roles.append( QString("modify") );
+		}
+		if ( !prop->resetFunction().isEmpty() ) {
+		    funcs.append( prop->resetFunction() );
+		    roles.append( QString("reset") );
+		}
+
+		QStringList::ConstIterator f = funcs.begin();
+		QStringList::ConstIterator r = roles.begin();
+		QValueStack<QString> seps = separators( funcs.count(),
+							QString(".\n") );
+		out.putsMeta( "<p>Call " );
+		while ( f != funcs.end() ) {
+		    out.printfMeta( "<a href=\"#%s\">%s</a>() to ",
+				    Decl::ref(*f).latin1(), (*f).latin1() );
+		    out.puts( *r );
+		    out.puts( f == funcs.begin() ? " this property" : " it" );
+		    out.puts( seps.pop() );
+		    ++r;
+		    ++f;
+		}
+
+		if ( prop->stored() != prop->storedDefault() ) {
+		    out.puts( "This property is" );
+		    if ( !prop->stored() )
+			out.puts( "not " );
+		    out.puts( "stored.\n" );
+		}
+		if ( prop->designable() != prop->designableDefault() ) {
+		    out.puts( "This property is" );
+		    if ( !prop->designable() )
+			out.puts( "not " );
+		    out.puts( "designable.\n" );
+		}
+	    }
+
 	    ++m;
 	}
     }
@@ -165,6 +225,7 @@ static void tangle( Decl *child, QValueList<Decl *> *membersp,
 		    QValueList<Decl *> *slotsp, QValueList<Decl *> *signalsp,
 		    QValueList<Decl *> *staticMembersp,
 		    QMap<QString, Decl *> *memberTypesp,
+		    QMap<QString, Decl *> *memberPropertiesp,
 		    QMap<QString, Decl *> *memberFunctionsp )
 {
     // enum items are documented as part of the enum
@@ -176,13 +237,22 @@ static void tangle( Decl *child, QValueList<Decl *> *membersp,
 	return;
 
     if ( child->doc() != 0 ) {
-	if ( child->kind() == ClassDecl::Enum ||
-	     child->kind() == ClassDecl::Typedef ) {
+	switch ( child->kind() ) {
+	case ClassDecl::Enum:
+	case ClassDecl::Typedef:
 	    if ( memberTypesp != 0 )
 		memberTypesp->insert( child->sortName(), child );
-	} else if ( child->kind() == ClassDecl::Function ) {
+	    break;
+	case ClassDecl::Function:
 	    if ( memberFunctionsp != 0 )
 		memberFunctionsp->insert( child->sortName(), child );
+	    break;
+	case ClassDecl::Property:
+	    if ( memberPropertiesp != 0 )
+		memberPropertiesp->insert( child->sortName(), child );
+	    break;
+	default:
+	    ;
 	}
     }
 
@@ -203,7 +273,7 @@ static void tangle( Decl *child, QValueList<Decl *> *membersp,
 	    return;
 	}
     }
-    if ( membersp != 0 )
+    if ( membersp != 0 && child->kind() != Decl::Property )
 	membersp->append( child );
 }
 
@@ -321,9 +391,12 @@ void Decl::buildPlainSymbolTables( bool omitUndocumented )
 
 	child = children().begin();
 	while ( child != children().end() ) {
-	    if ( (*child)->doc() != 0 || !omitUndocumented )
-		symTable[PlainSymTable].insert( (*child)->uniqueName(),
-						*child );
+	    if ( (*child)->doc() != 0 || !omitUndocumented ) {
+		QString name = (*child)->name();
+		if ( (*child)->kind() == Function )
+		    name += parenParen;
+		symTable[PlainSymTable].insert( name, *child );
+	    }
 	    ++child;
 	}
     }
@@ -402,7 +475,7 @@ QString Decl::fullName() const
     } else {
 	QString m = context()->fullName();
 	if ( !m.isEmpty() )
-	    m += QString( "::" );
+	    m += gulbrandsen;
 	m += name();
 	return m;
     }
@@ -420,7 +493,7 @@ QString Decl::fullMangledName() const
     } else {
 	QString m = context()->fullMangledName();
 	if ( !m.isEmpty() )
-	    m += QString( "::" );
+	    m += gulbrandsen;
 	m += mangledName();
 	return m;
     }
@@ -468,7 +541,9 @@ Decl::Decl( Kind kind, const Location& loc, const QString& name, Decl *context )
       docsFilledIn( FALSE ), reimp( 0 )
 {
     if ( context != 0 ) {
-	a = context->cura;
+	// properties are always public, no matter where they are declared
+	if ( kind != Property )
+	    a = context->cura;
 	rootc = context->rootc;
 
 	QValueList<Decl *> *cat = 0;
@@ -510,11 +585,6 @@ void Decl::setRelates( Decl *context )
 
 Decl *Decl::resolveHere( int whichSymTable, const QString& name ) const
 {
-    static QString *gulbrandsen = 0;
-
-    if ( gulbrandsen == 0 )
-	gulbrandsen = new QString( "::" );
-
     if ( name.isEmpty() )
 	return (Decl *) this;
 
@@ -525,7 +595,7 @@ Decl *Decl::resolveHere( int whichSymTable, const QString& name ) const
     QString left = name;
     QString right;
 
-    int k = left.find( *gulbrandsen );
+    int k = left.find( gulbrandsen );
     if ( k != -1 ) {
 	int ell = left.find( QChar('(') );
 	if ( ell == -1 || ell > k ) {
@@ -565,17 +635,21 @@ void ClassDecl::buildPlainSymbolTables( bool omitUndocumented )
 
 	ch = c->children().begin();
 	while ( ch != c->children().end() ) {
+	    QString name = (*ch)->name();
 	    bool omit = ( omitUndocumented && (*ch)->doc() == 0 );
+
 	    if ( (*ch)->kind() == Decl::Function ) {
 		FunctionDecl *funcDecl = (FunctionDecl *) *ch;
-		if ( c != this && (funcDecl->isConstructor() ||
-				   funcDecl->isDestructor()) )
+		if ( c != this &&
+		     (funcDecl->isConstructor() || funcDecl->isDestructor()) )
 		    omit = TRUE;
-		if ( funcDecl->overloadNumber() > 1 )
+		else if ( funcDecl->overloadNumber() > 1 )
 		    omit = TRUE;
+		else
+		    name += parenParen;
 	    }
-	    if ( !omit && !symTable[PlainSymTable].contains((*ch)->name()) )
-		symTable[PlainSymTable].insert( (*ch)->name(), *ch );
+	    if ( !omit )
+		symTable[PlainSymTable].insert( name, *ch, FALSE );
 	    ++ch;
 	}
     }
@@ -615,6 +689,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     QValueList<Decl *> related;
 
     QMap<QString, Decl *> memberTypes;
+    QMap<QString, Decl *> memberProperties;
     QMap<QString, Decl *> memberFunctions;
     QMap<QString, Decl *> relatedFunctions;
 
@@ -679,7 +754,8 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     child = publicChildren().begin();
     while ( child != publicChildren().end() ) {
 	tangle( *child, &publicMembers, &publicSlots, &publicSignals,
-		&staticPublicMembers, &memberTypes, &memberFunctions );
+		&staticPublicMembers, &memberTypes, &memberProperties,
+		&memberFunctions );
 	++child;
     }
 
@@ -687,14 +763,14 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     while ( child != importantChildren().end() ) {
 	tangle( *child, &importantInheritedMembers, &importantInheritedMembers,
 		&importantInheritedMembers, &importantInheritedMembers,
-		&memberTypes, &memberFunctions );
+		&memberTypes, &memberProperties, &memberFunctions );
 	++child;
     }
 
     child = protectedChildren().begin();
     while ( child != protectedChildren().end() ) {
 	tangle( *child, &protectedMembers, &protectedSlots, 0,
-		&staticProtectedMembers, &memberTypes, &memberFunctions );
+		&staticProtectedMembers, &memberTypes, 0, &memberFunctions );
 	++child;
     }
 
@@ -702,14 +778,14 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	child = privateChildren().begin();
 	while ( child != privateChildren().end() ) {
 	    tangle( *child, &privateMembers, &privateSlots, 0,
-		    &staticPrivateMembers, &memberTypes, &memberFunctions );
+		    &staticPrivateMembers, &memberTypes, 0, &memberFunctions );
 	    ++child;
 	}
     }
 
     child = relatedChildren().begin();
     while ( child != relatedChildren().end() ) {
-	tangle( *child, &related, 0, 0, 0, 0, &relatedFunctions );
+	tangle( *child, &related, 0, 0, 0, 0, 0, &relatedFunctions );
 	++child;
     }
 
@@ -719,6 +795,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     printHtmlShortMembers( out, staticPublicMembers, "Static Public Members" );
     printHtmlShortMembers( out, importantChildren(),
 			   "Important Inherited Members" );
+    printHtmlShortMembers( out, (QValueList<Decl *>&) props, "Properties" );
     printHtmlShortMembers( out, protectedMembers, "Protected Members" );
     printHtmlShortMembers( out, protectedSlots, "Protected Slots" );
     printHtmlShortMembers( out, staticProtectedMembers,
@@ -729,42 +806,6 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 			   "Static Private Members" );
     printHtmlShortMembers( out, related, "Related Functions" );
 
-    if ( !properties().isEmpty() ) {
-	out.putsMeta( "<h2>Properties</h2>\n" );
-	out.putsMeta( "<table border=1 cellpadding=3 cellspacing=0>\n" );
-	out.putsMeta( "<tr><th>Type<th>Name<th>READ<th>WRITE<th>Options\n" );
-
-	QValueList<Property>::ConstIterator p = properties().begin();
-	while ( p != properties().end() ) {
-	    out.printfMeta( "<tr><td>%s<td>%s<td>%s<td>%s\n",
-			    (*p).type().latin1(), (*p).name().latin1(),
-			    ( (*p).readFunction().isEmpty()
-			      ? "&nbsp; " : (*p).readFunction().latin1() ),
-			    ( (*p).writeFunction().isEmpty()
-			      ? "&nbsp;" : (*p).writeFunction().latin1() ) );
-
-	    QString opts;
-	    if ( (*p).stored() != (*p).storedDefault() ) {
-		opts += " STORED ";
-		opts += (*p).stored() ? "true" : "false";
-	    }
-	    if ( (*p).designable() != (*p).designableDefault() ) {
-		opts += " DESIGNABLE ";
-		opts += (*p).designable() ? "true" : "false";
-	    }
-	    if ( !(*p).resetFunction().isEmpty() ) {
-		opts += " RESET ";
-		opts += (*p).resetFunction();
-	    }
-	    opts = opts.stripWhiteSpace();
-	    if ( opts.isEmpty() )
-		opts = "&nbsp;";
-	    out.printfMeta( "<td>\n%s", opts.latin1() );
-	    ++p;
-	}
-	out.putsMeta( "</table>\n" );
-    }
-
     out.putsMeta( "<hr><a name=\"details\"></a>"
 		  "<h2>Detailed Description</h2>\n" );
 
@@ -774,6 +815,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     printHtmlLongMembers( out, memberTypes, "Member Type Documentation" );
     printHtmlLongMembers( out, memberFunctions,
 			  "Member Function Documentation" );
+    printHtmlLongMembers( out, memberProperties, "Property Documentation" );
     printHtmlLongMembers( out, relatedFunctions, "Related Functions" );
 
     if ( !config->footer().isEmpty() ) {
@@ -787,11 +829,14 @@ void ClassDecl::fillInDeclsForThis()
     QValueStack<ClassDecl *> stack;
     QMap<QString, Decl *>::ConstIterator ent;
 
+    /*
+      Explore the ancestry of this class.
+    */
     stack.push( this );
     while ( !stack.isEmpty() ) {
 	ClassDecl *c = stack.pop();
 
-	QValueList<CodeChunk>::ConstIterator st = st = c->superTypes().begin();
+	QValueList<CodeChunk>::ConstIterator st = c->superTypes().begin();
 	while ( st != c->superTypes().end() ) {
 	    Decl *bd = rootContext()->resolveMangled( (*st).base() );
 	    if ( bd != 0 && bd->kind() == Decl::Class ) {
@@ -858,12 +903,88 @@ static void checkParams( const FunctionDecl *funcDecl,
 
 void ClassDecl::fillInDocsForThis()
 {
+    /*
+      Provide standard documentation for property getters and (re)setters.
+    */
+    QMap<QString, PropertyDecl *> propertyMap;
+    QMap<QString, PropertyDecl *>::Iterator q;
+
+    QValueList<PropertyDecl *>::ConstIterator p = props.begin();
+    while ( p != props.end() ) {
+	if ( (*p)->propertyDoc() != 0 ) {
+	    if ( !(*p)->readFunction().isEmpty() )
+		propertyMap.insert( (*p)->readFunction(), *p );
+	    if ( !(*p)->writeFunction().isEmpty() )
+		propertyMap.insert( (*p)->writeFunction(), *p );
+	    if ( !(*p)->resetFunction().isEmpty() )
+		propertyMap.insert( (*p)->resetFunction(), *p );
+	}
+	++p;
+    }
+
+    QValueList<Decl *>::ConstIterator child = children().begin();
+    while ( child != children().end() ) {
+	if ( (*child)->kind() == Function ) {
+	    FunctionDecl *func = (FunctionDecl *) *child;
+	    q = propertyMap.find( func->name() );
+	    if ( q != propertyMap.end() ) {
+		QString html;
+		StringSet documentedParams;
+
+		/*
+		  The function has the right name. Let's see if it
+		  also has the right parameter type.
+		*/
+		if ( func->name() == (*q)->readFunction() ) {
+		    if ( func->parameters().count() == 0 )
+			html = QString( "<p>Returns the %1. See also the"
+					" <a href=\"#%2\"><tt>%3</tt></a>"
+					" property documentation." )
+			       .arg( (*q)->propertyDoc()->shortDesc() )
+			       .arg( (*q)->ref() )
+			       .arg( (*q)->name() );
+		} else if ( func->name() == (*q)->resetFunction() ) {
+		    if ( func->parameters().count() == 0 )
+			html = QString( "<p>Resets the %1. See also the"
+					" <a href=\"#%2\"><tt>%3</tt></a>"
+					" property documentation." )
+			       .arg( (*q)->propertyDoc()->shortDesc() )
+			       .arg( (*q)->ref() )
+			       .arg( (*q)->name() );
+		} else {
+		    if ( func->parameters().count() == 1 &&
+			 func->parameters().first().dataType().toString()
+				 .find((*q)->dataType().toString()) != -1 &&
+			 func->parameterNames().count() == 1 ) {
+			html = QString( "<p>Sets the %1 to <em>%2</em>. See"
+					" also the <a href=\"#%3\"><tt>%4</tt>"
+					"</a> property documentation." )
+			       .arg( (*q)->propertyDoc()->shortDesc() )
+			       .arg( func->parameterNames().first() )
+			       .arg( (*q)->ref() )
+			       .arg( (*q)->name() );
+			documentedParams.insert( func->parameterNames()
+						 .first() );
+		    }
+		}
+
+		if ( !html.isEmpty() )
+		    func->setDoc( new FnDoc((*q)->location(), html,
+					    QString::null, QString::null,
+					    documentedParams, FALSE) );
+	    }
+	}
+	++child;
+    }
+    
+    /*
+      Do some other stuff.
+    */
     QValueList<Decl *> importantChildren;
 
     QMap<QString, QValueList<FunctionDecl *> > fmap;
     QMap<QString, QValueList<FunctionDecl *> >::Iterator f;
     QValueList<FunctionDecl *>::ConstIterator g;
-    QValueList<Decl *>::ConstIterator child;
 
     fillInImportantChildren( this, &importantChildren );
     setImportantChildren( importantChildren );
@@ -1146,12 +1267,12 @@ QString FunctionDecl::mangledName() const
     QString m = name();
 
     m += QChar( '(' );
-    ParameterIterator param = parameterBegin();
-    if ( param != parameterEnd() ) {
+    ParameterList::ConstIterator param = parameters().begin();
+    if ( param != parameters().end() ) {
 	m += (*param).dataType().toString();
 	param++;
     }
-    while ( param != parameterEnd() ) {
+    while ( param != parameters().end() ) {
 	m += QString( ", " );
 	m += (*param).dataType().toString();
 	++param;
@@ -1198,7 +1319,7 @@ void FunctionDecl::addParameter( const Parameter& param )
 	ps.insert( param.name() );
 }
 
-void FunctionDecl::borrowParameterNames( ParameterIterator p )
+void FunctionDecl::borrowParameterNames( ParameterList::ConstIterator p )
 {
     QValueList<Parameter>::Iterator oldp;
 
@@ -1222,7 +1343,7 @@ bool FunctionDecl::isConstructor() const
 
 bool FunctionDecl::isDestructor() const
 {
-    return context() != 0 && QChar( '~' ) + context()->name() == name();
+    return name()[0] == QChar( '~' );
 }
 
 void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
@@ -1236,11 +1357,11 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
     printHtmlShortName( out, this );
     out.putsMeta( " (" );
 
-    ParameterIterator param = parameterBegin();
-    if ( param != parameterEnd() ) {
+    ParameterList::ConstIterator param = parameters().begin();
+    if ( param != parameters().end() ) {
 	out.putsMeta( " " );
 	(*param).printHtmlShort( out );
-	while ( ++param != parameterEnd() ) {
+	while ( ++param != parameters().end() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlShort( out );
 	}
@@ -1261,11 +1382,11 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
     out.printfMeta( "<a name=\"%s\"></a>%s (", ref().latin1(),
 		    fullName().latin1() );
 
-    ParameterIterator param = parameterBegin();
-    if ( param != parameterEnd() ) {
+    ParameterList::ConstIterator param = parameters().begin();
+    if ( param != parameters().end() ) {
 	out.putsMeta( " " );
 	(*param).printHtmlLong( out, context() );
-	while ( ++param != parameterEnd() ) {
+	while ( ++param != parameters().end() ) {
 	    out.putsMeta( ", " );
 	    (*param).printHtmlLong( out, context() );
 	}
@@ -1364,4 +1485,47 @@ void TypedefDecl::printHtmlLong( HtmlWriter& out ) const
 {
     out.printfMeta( "<a name=\"%s\"></a><b>%s</b>", ref().latin1(),
 		    fullName().latin1() );
+}
+
+PropertyDecl::PropertyDecl( const Location& loc, const QString& name,
+			    Decl *context, const CodeChunk& type )
+    : Decl( Property, loc, name, context ), t( type ), store( Tdef ),
+      design( Tdef )
+{
+    if ( context->kind() == Class )
+	((ClassDecl *) context)->addProperty( this );
+}
+
+QString PropertyDecl::uniqueName() const
+{
+    return name() + QString( "-prop" );
+}
+
+void PropertyDecl::printHtmlShort( HtmlWriter& out ) const
+{
+    dataType().printHtml( out );
+    out.puts( " " );
+    printHtmlShortName( out, this );
+    if ( propertyDoc() != 0 && !propertyDoc()->shortDesc().isEmpty() ) {
+	out.puts( " - " );
+	out.putsMeta( propertyDoc()->shortDesc() );
+    }
+    if ( writeFunction().isEmpty() )
+	out.puts( "&nbsp; (read only)" );
+}
+
+void PropertyDecl::printHtmlLong( HtmlWriter& out ) const
+{
+    printHtmlDataType( out, dataType(), context() );
+    out.printfMeta( " <a name=\"%s\"></a>%s", ref().latin1(), name().latin1() );
+}
+
+PropertyDecl::Trool PropertyDecl::toTrool( bool b )
+{
+    return b ? Ttrue : Tfalse;
+}
+
+bool PropertyDecl::fromTrool( Trool tr, bool def )
+{
+    return tr == Tdef ? def : tr == Ttrue;
 }

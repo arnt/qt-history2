@@ -12,7 +12,6 @@
 #include "codechunk.h"
 #include "doc.h"
 #include "location.h"
-#include "property.h"
 #include "stringset.h"
 
 class HtmlWriter;
@@ -20,7 +19,7 @@ class HtmlWriter;
 class Decl
 {
 public:
-    enum Kind { Root, Class, Function, Enum, EnumItem, Typedef };
+    enum Kind { Root, Class, Function, Enum, EnumItem, Typedef, Property };
     enum Access { Public, Protected, Private };
 
     static QString ref( const QString& name );
@@ -125,6 +124,8 @@ private:
 #endif
 };
 
+class PropertyDecl;
+
 class ClassDecl : public Decl
 {
 public:
@@ -135,17 +136,18 @@ public:
     void setHeaderFile( const QString& headerFile ) { hfile = headerFile; }
     void addSuperType( const CodeChunk& superType )
     { supert.append( superType ); }
-    void addProperty( const Property& property ) { prop.append( property ); }
+    void addProperty( PropertyDecl *prop ) { props.append( prop ); }
 
     ClassDoc *classDoc() const { return (ClassDoc *) doc(); }
     QString whatsThis() const;
     const QValueList<CodeChunk>& superTypes() const { return supert; }
     const QValueList<CodeChunk>& subTypes() const { return subt; }
-    const QValueList<Property>& properties() const { return prop; }
 
     const QString& headerFile() const { return hfile; }
     virtual void printHtmlShort( HtmlWriter& out ) const;
     virtual void printHtmlLong( HtmlWriter& out ) const;
+
+    const QValueList<PropertyDecl *>& properties() const { return props; }
 
 protected:
     virtual void fillInDeclsForThis();
@@ -161,8 +163,8 @@ private:
 
     QValueList<CodeChunk> supert;
     QValueList<CodeChunk> subt;
-    QValueList<Property> prop;
     QString hfile;
+    QValueList<PropertyDecl *> props;
 };
 
 class Parameter
@@ -193,7 +195,7 @@ private:
 class FunctionDecl : public Decl
 {
 public:
-    typedef QValueList<Parameter>::ConstIterator ParameterIterator;
+    typedef QValueList<Parameter> ParameterList;
 
     FunctionDecl( const Location& loc, const QString& name, Decl *context,
 		  const CodeChunk& returnType );
@@ -210,7 +212,7 @@ public:
     void setSlot( bool slot ) { sl = slot; }
     void setOverloadNumber( int no );
     void addParameter( const Parameter& param );
-    void borrowParameterNames( ParameterIterator p );
+    void borrowParameterNames( ParameterList::ConstIterator p );
     const StringSet& parameterNames() const { return ps; }
 
     FnDoc *fnDoc() const { return (FnDoc *) doc(); }
@@ -224,8 +226,7 @@ public:
     int overloadNumber() const { return ovo; }
     bool isConstructor() const;
     bool isDestructor() const;
-    ParameterIterator parameterBegin() const { return pl.begin(); }
-    ParameterIterator parameterEnd() const { return pl.end(); }
+    const ParameterList& parameters() const { return pl; }
 
     virtual void printHtmlShort( HtmlWriter& out ) const;
     virtual void printHtmlLong( HtmlWriter& out ) const;
@@ -311,6 +312,56 @@ private:
 #endif
 
     CodeChunk t;
+};
+
+/*
+  The PropertyDecl class represents a Qt property. See
+  http://doc.trolltech.com/properties.html.
+*/
+class PropertyDecl : public Decl
+{
+public:
+    PropertyDecl( const Location& loc, const QString& name, Decl *context,
+		  const CodeChunk& type );
+
+    virtual QString uniqueName() const;
+
+    void setReadFunction( const QString& getter ) { read = getter; }
+    void setWriteFunction( const QString& setter ) { write = setter; }
+    void setStored( bool stored ) { store = toTrool( stored ); }
+    void setDesignable( bool designable ) { design = toTrool( designable ); }
+    void setResetFunction( const QString& resetter ) { reset = resetter; }
+
+    PropertyDoc *propertyDoc() const { return (PropertyDoc *) doc(); }
+    const CodeChunk& dataType() const { return t; }
+    const QString& readFunction() const { return read; }
+    const QString& writeFunction() const { return write; }
+    bool stored() const { return fromTrool( store, storedDefault() ); }
+    bool storedDefault() const { return true; }
+    bool designable() const { return fromTrool( design, designableDefault() ); }
+    bool designableDefault() const { return !read.isEmpty(); }
+    const QString& resetFunction() const { return reset; }
+
+    virtual void printHtmlShort( HtmlWriter& out ) const;
+    virtual void printHtmlLong( HtmlWriter& out ) const;
+
+private:
+    /*
+      A Trool is a bit like a bool, except that it admits three truth
+      values (true, false, and default).
+    */
+    enum Trool { Ttrue, Tfalse, Tdef };
+
+    static Trool toTrool( bool b );
+    static bool fromTrool( Trool tr, bool def );
+
+    CodeChunk t;
+    QString n;
+    QString read;
+    QString write;
+    Trool store;
+    Trool design;
+    QString reset;
 };
 
 #endif

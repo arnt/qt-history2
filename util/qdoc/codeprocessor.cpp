@@ -13,6 +13,9 @@
 #include "metaresolver.h"
 #include "stringset.h"
 
+static QString gulbrandsen( "::" );
+static QString parenParen( "()" );
+
 static QString untabified( const QString& in )
 {
     QString res;
@@ -148,8 +151,8 @@ OccurrenceMap occurrenceMap( const QString& code, const Resolver *res,
 	k = 0;
 	while ( (k = memberX.search(t, k)) != -1 ) {
 	    classAtOffset.insert( k, c.key() );
-	    QString link = metaRes.resolvefn( c.key() + QString("::") +
-					      memberX.cap(1) );
+	    QString link = metaRes.resolve( c.key() + gulbrandsen +
+					    memberX.cap(1) + parenParen );
 	    if ( !link.isEmpty() )
 		occMap[lineNoAtOffset[k]].insert( link );
 	    k += memberX.matchedLength();
@@ -200,8 +203,8 @@ OccurrenceMap occurrenceMap( const QString& code, const Resolver *res,
 
 	QStringList::ConstIterator s = types[x].begin();
 	while ( s != types[x].end() ) {
-	    QString link = metaRes.resolvefn( *s + QString("::") +
-					      xDotY.cap(2) );
+	    QString link = metaRes.resolve( *s + gulbrandsen + xDotY.cap(2) +
+					    parenParen );
 	    if ( !link.isEmpty() ) {
 		occMap[lineNoAtOffset[k]].insert( link );
 		break;
@@ -216,7 +219,7 @@ OccurrenceMap occurrenceMap( const QString& code, const Resolver *res,
     */
     k = 0;
     while ( (k = xIsStaticZOfY.search(t, k)) != -1 ) {
-	QString link = metaRes.resolvefn( xIsStaticZOfY.cap(1) );
+	QString link = metaRes.resolve( xIsStaticZOfY.cap(1) + parenParen );
 	if ( !link.isEmpty() )
 	    occMap[lineNoAtOffset[k]].insert( link );
 	k += xIsStaticZOfY.matchedLength();
@@ -227,7 +230,7 @@ OccurrenceMap occurrenceMap( const QString& code, const Resolver *res,
     */
     k = 0;
     while ( (k = globalY.search(t, k)) != -1 ) {
-	QString link = metaRes.resolvefn( globalY.cap(2) );
+	QString link = metaRes.resolve( globalY.cap(2) + parenParen );
 	if ( !link.isEmpty() )
 	    occMap[lineNoAtOffset[k]].insert( link );
 	k += globalY.matchedLength() - 1;
@@ -332,7 +335,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	    QString x = memberX.cap( 1 );
 	    int xpos = memberX.pos( 1 );
 
-	    QString newX = metaRes.href( c.key() + QString("::") + x, x );
+	    QString newX = metaRes.href( c.key() + gulbrandsen + x, x );
 	    if ( newX.length() == x.length() ) {
 		if ( localLinks && !mfunctions[c.key()].contains(x) ) {
 		    mfunctions[c.key()].insert( x,
@@ -420,7 +423,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 
 	QStringList::ConstIterator s = types[x].begin();
 	while ( s != types[x].end() ) {
-	    QString newY = metaRes.href( *s + QString("::") + y, y );
+	    QString newY = metaRes.href( *s + gulbrandsen + y, y );
 	    if ( newY.length() != y.length() ) {
 		t.replace( ypos, y.length(), newY );
 		k += newY.length() - y.length();
@@ -477,7 +480,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 
 	QString newY = metaRes.href( y );
 	if ( newY.length() == y.length() && !curClass.isEmpty() )
-	    newY = metaRes.href( curClass + QString("::") + y, y );
+	    newY = metaRes.href( curClass + gulbrandsen + y, y );
 
 	if ( newY.length() != y.length() )
 	    t.replace( k + x.length(), y.length(), newY );

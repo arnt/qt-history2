@@ -493,13 +493,19 @@ static bool matchProperty( ClassDecl *classDecl )
     if ( !match(Tok_LeftParen) )
 	return FALSE;
 
-    Property p;
+    QString name;
+    CodeChunk type;
+
+    type.append( yyTokenizer->lexeme() );
     yyTok = getToken();
-    p.setType( yyTokenizer->previousLexeme() );
+    matchTemplateAngles( &type );
 
     if ( !match(Tok_Ident) )
 	return FALSE;
-    p.setName( yyTokenizer->previousLexeme() );
+    name = yyTokenizer->previousLexeme();
+
+    PropertyDecl *propertyDecl = new PropertyDecl( yyTokenizer->location(),
+						   name, classDecl, type );
 
     while ( yyTok != Tok_RightParen && yyTok != Tok_Eoi ) {
 	if ( !match(Tok_Ident) )
@@ -511,18 +517,17 @@ static bool matchProperty( ClassDecl *classDecl )
 	QString value = yyTokenizer->previousLexeme();
 
 	if ( key == QString("READ") )
-	    p.setReadFunction( value );
+	    propertyDecl->setReadFunction( value );
 	else if ( key == QString("WRITE") )
-	    p.setWriteFunction( value );
+	    propertyDecl->setWriteFunction( value );
 	else if ( key == QString("STORED") )
-	    p.setStored( value.lower() == QString("true") );
+	    propertyDecl->setStored( value.lower() == QString("true") );
 	else if ( key == QString("DESIGNABLE") )
-	    p.setDesignable( value.lower() == QString("true") );
+	    propertyDecl->setDesignable( value.lower() == QString("true") );
 	else if ( key == QString("RESET") )
-	    p.setResetFunction( value );
+	    propertyDecl->setResetFunction( value );
     }
     match( Tok_RightParen );
-    classDecl->addProperty( p );
     return TRUE;
 }
 
@@ -713,7 +718,8 @@ static void matchDocsAndStuff( Emitter *emitter )
 			deleteDoc = FALSE;
 
 			((FunctionDecl *) decl)->borrowParameterNames(
-			    ((FunctionDecl *) yyLastDecl)->parameterBegin() );
+				((FunctionDecl *) yyLastDecl)->parameters()
+				.begin() );
 
 			/*
 			  Check unexisting parameters now. Check undocumented
@@ -822,6 +828,18 @@ static void matchDocsAndStuff( Emitter *emitter )
 			     "Enum or typedef '%s' specified with '\\enum' not"
 			     " found",
 			     en->name().latin1() );
+		}
+	    } else if ( doc->kind() == Doc::Property ) {
+		PropertyDoc *pd = (PropertyDoc *) doc;
+		decl = emitter->resolveMangled( pd->name() );
+		if ( decl != 0 && decl->kind() == Decl::Property ) {
+		    decl->setDoc( pd );
+		    deleteDoc = FALSE;
+		} else {
+		    warning( 1, doc->location(),
+			     "Property '%s' specified with '\\property' not"
+			     " found",
+			     pd->name().latin1() );
 		}
 	    } else if ( doc->kind() == Doc::Page ) {
 		PageDoc *pa = (PageDoc *) doc;

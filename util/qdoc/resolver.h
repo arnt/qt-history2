@@ -12,11 +12,9 @@ class Location;
 /*
   The Resolver class is a base class for resolvers of identifiers.
 
-  Member function resolve() returns a link to the documentation of an
-  identifier.  For example, resolving 'QRegExp::search' in Qt should give
-  'qregexp.html#search'.  Function resolvefn() does the same, except that the
-  result is guaranteed to be a link to a function.  (This is for resolving
-  ambiguity caused by constructors.)  Function href() is provided for
+  The function resolve() returns a link to the documentation of an
+  identifier. For example, resolving 'QRegExp::search()' in Qt should
+  give 'qregexp.html#search'. Function href() is provided for
   convenience.  It returns a string of the style
   '<a href=qregexp.html#search>QRegExp::search</a>()'.
 
@@ -32,7 +30,6 @@ public:
     virtual ~Resolver() { }
 
     virtual QString resolve( const QString& name ) const;
-    virtual QString resolvefn( const QString& name ) const;
     virtual bool changedSinceLastRun( const QString& link,
 				      const QString& html ) const;
     virtual bool warnChangedSinceLastRun( const Location& loc,

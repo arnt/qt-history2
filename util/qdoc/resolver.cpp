@@ -9,14 +9,6 @@ QString Resolver::resolve( const QString& /* name */ ) const
     return QString::null;
 }
 
-/*
-  By default, functions are resolved as anything else.
-*/
-QString Resolver::resolvefn( const QString& name ) const
-{
-    return resolve( name );
-}
-
 bool Resolver::changedSinceLastRun( const QString& /* link */,
 				    const QString& /* html */ ) const
 {
@@ -52,11 +44,7 @@ QString Resolver::href( const QString& name, const QString& text ) const
 	left = text;
     }
 
-    if ( k < (int) name.length() )
-	link = resolvefn( name.left(k) );
-    else
-	link = resolve( name );
-
+    link = resolve( name );
     if ( link.isEmpty() )
 	return left + right;
     else

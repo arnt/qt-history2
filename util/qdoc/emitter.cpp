@@ -104,8 +104,8 @@ void Emitter::nailDownDecls()
 void Emitter::nailDownDocs()
 {
     root.destructSymbolTables();
-    root.buildPlainSymbolTables( TRUE );
     root.fillInDocs();
+    root.buildPlainSymbolTables( TRUE );
 
     /*
       Extract miscellaneous information about classes.
@@ -118,16 +118,16 @@ void Emitter::nailDownDocs()
 	    /*
 	      Fetch properties for class.
 	    */
-	    QValueList<Property>::ConstIterator p =
+	    QValueList<PropertyDecl *>::ConstIterator p =
 		    classDecl->properties().begin();
 	    while ( p != classDecl->properties().end() ) {
-		QString key = classDecl->name() + QChar( '/' ) + (*p).name();
+		QString key = classDecl->name() + QChar( '/' ) + (*p)->name();
 		QString link = config->classRefHref( classDecl->name() );
-		if ( (*p).name() == (*p).readFunction() )
-		    link += QChar( '#' ) + Decl::ref( (*p).name() );
+		if ( (*p)->name() == (*p)->readFunction() )
+		    link += QChar( '#' ) + Decl::ref( (*p)->name() );
 
 		// avoid Q_OVERRIDE
-		if ( !(*p).readFunction().isEmpty() )
+		if ( !(*p)->readFunction().isEmpty() )
 		    pmap.insert( key, link );
 		++p;
 	    }
@@ -317,11 +317,6 @@ void Emitter::emitHtml() const
 		    c = (*groupies).begin();
 		    while ( c != (*groupies).end() ) {
 			QString link = (*c)->fileName();
-#ifndef Q_NO_DEBUG
-    qDebug( " [%s]", link.latin1() );
-    qDebug( "  [%p]", *c );
-    qDebug( "   [%s]", (*c)->name().latin1() );
-#endif
 			out.printfMeta( "<li><a href=\"%s\">%s</a>\n",
 					link.latin1(), (*c)->name().latin1() );
 			if ( !(*c)->whatsThis().isEmpty() )

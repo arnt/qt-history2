@@ -24,7 +24,6 @@ public:
     DeclResolver( const Decl *root );
 
     virtual QString resolve( const QString& name ) const;
-    virtual QString resolvefn( const QString& name ) const;
     virtual bool changedSinceLastRun( const QString& link,
 				      const QString& html ) const;
     virtual bool warnChangedSinceLastRun( const Location& loc,
