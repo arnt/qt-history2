@@ -84,7 +84,7 @@ void QAbstractItemViewPrivate::init()
 
     q->setHorizontalFactor(256);
     q->setVerticalFactor(256);
-    
+
     doDelayedItemsLayout();
 }
 
@@ -702,15 +702,19 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     if (d->state == Editing && d->currentEditor.first == index)
         return;
 
+    QPoint offset(horizontalOffset(), verticalOffset());
+    QItemSelectionModel::SelectionFlags command =
+        selectionCommand(e->state(), index, e->type());
     d->pressedItem = index;
     d->pressedState = e->state();
-    d->pressedPosition = pos + QPoint(horizontalOffset(), verticalOffset());
+    if ((command & QItemSelectionModel::Current) == 0)
+        d->pressedPosition = pos + offset;
 
     if (index.isValid())
         selectionModel()->setCurrentItem(index, QItemSelectionModel::NoUpdate);
 
-    QRect rect(pos, pos);
-    setSelection(rect.normalize(), selectionCommand(e->state(), index, e->type()));
+    QRect rect(d->pressedPosition - offset, pos);
+    setSelection(rect.normalize(), command);
 
     emit pressed(index, e->button());
     beginEdit(index, QAbstractItemDelegate::SelectedClicked, e);
@@ -743,7 +747,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (state() == Editing && d->currentEditor.first == index)
         return;
-    
+
     if (index != currentItem()) {
         if (index.isValid())
             emit onItem(index, e->state());
@@ -948,19 +952,18 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         }
 
         if (newCurrent != current && newCurrent.isValid()) {
-            QPoint offset(horizontalOffset(), verticalOffset());
             QItemSelectionModel::SelectionFlags command = selectionCommand(e->state(),
                                                                            newCurrent,
                                                                            e->type(),
                                                                            (Qt::Key)e->key());
-            if (e->state() & Qt::ShiftButton && d->selectionMode != SingleSelection) {
+            if (command & QItemSelectionModel::Current) {
                 selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+                QPoint offset(horizontalOffset(), verticalOffset());
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
                 setSelection(rect.normalize(), command);
-            } else if (e->state() & Qt::ControlButton && d->selectionMode != SingleSelection) {
-                selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
             } else {
                 selectionModel()->setCurrentItem(newCurrent, command);
+                QPoint offset(horizontalOffset(), verticalOffset());
                 d->pressedPosition = itemViewportRect(newCurrent).center() + offset;
             }
             return;
