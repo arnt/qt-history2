@@ -34,12 +34,12 @@ Dialog} appears.
 \i \Menu File|Save\BR Click this menu option (or press \Key Ctrl+S) to
 save the project along with its forms and files. For a new project
 that has forms or files, click 'Save' to save the project before
-exiting. For new forms, click 'Save' and the \l{Save As Dialog}
+exiting. For new forms, click 'Save' and the \l{Form Save As Dialog}
 appears. For forms that have been saved previously click 'Save'. For
 new files or for files that have been changed, click 'Save'. 
 
-\i \Menu {File|Save As}\BR Click this menu option to save and name the project.
-This option invokes the \l{File Save As Dialog}.
+\i \Menu {File|Save As}\BR Click this menu option to save and name the
+project. This option invokes the \l{Form Save As Dialog}.
 
 \i \Menu {File|Save All}\BR Click this menu option to save every open
 file and form in every open project.
@@ -61,7 +61,7 @@ listed to open it.
 \i \Menu File|Exit\BR Click this menu option to exit \QD. If any open
 files have unsaved changes, the 'Save Form' message box will appear
 for each of them, before \QD exits. Note that if any open projects
-have any files that begin with the word 'unnamed', the \l{Save Form As
+have any files that begin with the word 'unnamed', the \l{Form Save As
 Dialog} will appear for each of these files. If any open project's
 name begins with the word 'unnamed' the 'Save Project Settings'
 message box appears.  
@@ -305,7 +305,7 @@ click the form to place a ProgressBar on the form.
 click the form to place a TextBrowser on the form.
 
 \i \Menu {Tools|Custom|Edit Custom Widgets}\BR Click this menu option
-to invoke the \l{Edit Custom Widget Dialog}. 
+to invoke the \l{Edit Custom Widgets Dialog}. 
 
 \i \Menu {Tools|Custom|My Custom Widget}\BR Click this option and then click
 the form to place the Custom Widget on the form. Note: this menu option only
@@ -435,11 +435,11 @@ the \l{File Overview Window} visible, or to hide it if it is already
 visible.
 
 \i \Menu{Window|Views|Property Editors/Signal Handlers}\BR Click this
-menu option to make the \l{Property Editors/Signal Handlers} window
+menu option to make the \l{Property Editors/Signal Handlers Window}
 visible, or to hide it if it is already visible.
 
 \i \Menu{Window|Views|Object Explorer}\BR Click this menu option to make
-the \l{Object Explorer} window visible or to hide the window if you do
+the \l{Object Explorer Window} visible or to hide the window if you do
 not want it to be visible. 
 
 \i \Menu{Window|Views|Line Up}\BR Click this menu option to eliminate
@@ -461,7 +461,7 @@ Search toolbar buttons visible, or to hide them if they are already
 visible. if the toolbar buttons are currently visible, a check mark
 will appear next to the name in the menu. 
 
-\i \menu{window|toolbars|layout}\BR Click this menu option to make the
+\i \Menu{window|toolbars|layout}\BR Click this menu option to make the
 Layout toolbar buttons visible, or to hide them if they are already
 visible. If the toolbar buttons are currently visible, a check mark
 will appear next to the name in the menu. 

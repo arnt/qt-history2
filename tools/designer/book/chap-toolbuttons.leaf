@@ -23,7 +23,7 @@ then click the name of the tool palette you wish to restore.
 \list
 \i \Toolbutton New\BR Click this toolbar button (or press
 \Key Ctrl+N) to create a new project, form or file. This option
-invokes the \l{The New File Dialog}.
+invokes the \l{New File Dialog}.
 
 \i \Toolbutton Open\BR Click this toolbar button (or press\Key Ctrl+O)
 to open existing projects, forms or files. This button invokes the

@@ -2,30 +2,25 @@
 
 \section1 Introduction
 
-In \QD, some of the toolbars or menu options invoke wizards to help
-you create specific functionality. A wizard is a special type of input dialog
-that consists of a sequence of dialog pages. A wizard's purpose is to
-assist a user by automating a task by walking the user through the
-process step by step. Wizards are useful for complex or infrequently
-occurring tasks that people may find difficult to learn or do. This
-chapter will explain each wizard in \QD and it's options.
+In \QD, some of the toolbars, menu options and templates invoke
+wizards to take you step-by-step through particular tasks. In this
+chapter we explain each \QD wizard.
 
-\section1 MainWindow Wizard
+\section1 Main Window Wizard
 
-The MainWindow Wizard is invoked by clicking the MainWindow form in
-File|New. Use the main window wizard to build a main window. The wizard
-allows you to create actions, a menu bar and a toolbar through which
-the user can invoke the actions. 
+The Main Window Wizard is invoked by clicking the Main Window form
+template in the \l{New File Dialog}. This wizard helps you to create
+a main window with actions, menu options and toolbars.
 
 \section2 Choose Available Menus and Toolbars 
 
-The 'Choose available menus and toolbars' wizard page appears first. It
-presents three categories of default actions, File Actions, Edit
+The 'Choose available menus and toolbars' wizard page appears first.
+It presents three categories of default actions, File Actions, Edit
 Actions and Help Actions. For each category you can choose to have \QD
 create menu items, toolbar buttons and signal/slots connections for
 the relevant actions. You can always add or delete actions, menu
-items, toolbar buttons and connections later. Click the checkboxes for
-category to select or deselect items. 
+items, toolbar buttons and connections later. Check or uncheck the
+checkboxes to reflect your preferences.
 
 Click \Button Next to move on to the next wizard page.
 
@@ -39,22 +34,19 @@ category. The Toolbar listbox lists the toolbar buttons you want to
 create. Click the blue left and right arrow buttons to move actions
 into or out of the Toolbar list box. Click the blue up and down arrow
 buttons to move actions up and down within the Toolbar list
-box. Note that the '<Separator>' item in the Actions list box may be
+box. Note that the '\<Separator\>' item in the Actions list box may be
 moved to the Toolbar list box as often as required and will cause a
 separator to appear in the finished toolbar.
 
 Click \Button Back if you want to return to the 'Choose available
-menus and toolbars' wizard page. Click \Button Finish to populate the
-main window and to exit the wizard.
-
+menus and toolbars' wizard page. Click \Button Next, then \Button
+Finish to populate the main window and exit the wizard.
 
 \section1 Data Table Wizard 
 
 The Data Table Wizard is automatically invoked by clicking the
 datatable widget and placing it on the form. The datatable widget is
-used for table-based presentations of data. The Data Table wizard is
-used to create a flexible SQL table widget that supports browsing and
-editing. 
+used to create tabular views of database data. 
 
 \section2 Choose the Database and Table 
 
@@ -62,20 +54,25 @@ The 'Choose the Database and Table' wizard page appears first. The
 available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
 connections listed in the listbox, click \Button {Setup Database
-Connections} to invoke the \Dialog {Edit Database Connections Dialog}.
-The 'Table' listbox shows all the tables for the selected database.
-Select a table by clicking on it.
+Connections} to invoke the \l{Edit Database Connections Dialog}. The
+'Table' listbox shows all the tables and views that are available
+through the selected database connection. Select a table or view by
+clicking it.
 
 Click \Button Next to move on to the next wizard page.
 
 \section2 Displayed Fields 
 
 The 'Displayed Fields' wizard page is used to select fields 
-that will be displayed in the table. Click the blue left and right
-arrow buttons to move fields from the 'Available Fields' listbox and
-into or out of the 'Displayed Fields' listbox. Click the blue up and
-down arrow buttons to move actions up and down within the 'Displayed
-Fields' listbox.
+that will be displayed in the table. By default, every field except the
+table or view's primary key, is initially placed in the 'Displayed
+Fields' list. Click the blue left and right arrow buttons to move
+fields from the 'Available Fields' listbox and into or out of the
+'Displayed Fields' listbox. Click the blue up and down arrow buttons
+to move fields up and down within the 'Displayed Fields' listbox. The
+order in which fields appear in the 'Displayed Fields' listbox is the
+order they are shown in the Data Table, with the top-most field being
+in the left-most column.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Choose the Database and Table'
@@ -83,13 +80,13 @@ wizard page.
 
 \section2 Table Properties 
 
-The 'Table Properties' wizard page is used to choose options for
-asking the user to confirm table edits. Click the 'Read-Only' checkbox
-to prevent the editing, deleting and adding of rows. Click the
-checkboxes in the 'Confirmations' category to ask the user to confirm
-any modifications made to the table. Click 'Allow column sorting' to
-allow the sorting of data by clicking on a field in the top row of the
-table. 
+The 'Table Properties' wizard page is used to set the Data Table's
+initial editing options. Check the 'Read-Only' checkbox to prevent
+records from being edited, deleted or added. Check the checkboxes in
+the 'Confirmations' section to force the user to confirm their
+changes. By default users must confirm deletions. Click 'Allow column
+sorting' to allow the user to sort the data by clicking a column's
+header (which displays the field name).
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page. 
@@ -97,27 +94,29 @@ Back if you want to return to the 'Displayed Fields' wizard page.
 \section2 SQL
 
 The 'SQL' wizard page is used to apply filters and sorts to the data
-in the table. Click the 'Filter' line edit and type a valid SQL WHERE
-clause without the WHERE keyword. The filter applies to the data shown
-in the table.
+in the table. Click the 'Filter' line edit and enter a valid SQL \c
+WHERE clause without the WHERE keyword. The filter applies to the data
+shown in the table.
 
 To sort the available fields in the table, click the blue left and
-right arrow buttons to move fields from the 'Sort' listbox and into or
-out of the 'Sort By' listbox. Click the blue up and down arrow buttons
-to move actions up and down within the 'Sort By' listbox. Click the
-\### button to change the field sort in the 'Sort By' listbox from
-ascending to descending and vice-versa. 
+right arrow buttons to move fields from the 'Available Fields' listbox
+into or out of the 'Sort By' listbox. Click the blue up and down arrow
+buttons to move fields up and down within the 'Sort By' listbox. Click
+the \Button A-Z button to change the sort order of the selected field
+in the 'Sort By' listbox from ascending to descending and vice versa. 
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Table Properties' wizard page. 
 
 \section2 Finish 
 
-The 'Finish' wizard page is used to select auto-editing of the tables
-and to leave the wizard when you have finished selecting all datatable options.
-Click 'AutoEditing' to apply auto-editing to the table if inserts or
-updates are performed. If 'AutoEditing' is not clicked, inserts or
-updates are discarded.
+The 'Finish' wizard page is used to select auto-editing and to leave
+the wizard. If you want user edits, e.g. inserts and updates, to be
+automatically applied when the user navigates to another record, check
+the 'AutoEditing' checkbox. If 'AutoEditing' is unchecked, users must
+press \Key Enter to confirm their edit before moving to another
+record, or their edit will be lost. This property can be changed later
+if desired.
 
 Click \Button Finish to create the datatable widget with all of the
 options you selected in the wizard. Click \Button
@@ -126,9 +125,8 @@ Back if you want to return to the 'SQL' wizard page.
 \section1 Data Browser Wizard
 
 The Data Browser wizard is automatically invoked by clicking the
-databrowser widget and placing it on the form. The DataBrowser widget
-is used for presenting data in a form. The DataBrowser wizard is used
-to create data manipulation and navigation for data entry forms.
+DataBrowser widget and placing it on the form. The DataBrowser widget
+is used to create a form view of database data. 
 
 \section2 Choose the Database and Table
 
@@ -136,9 +134,10 @@ The 'Choose the Database and Table' wizard page appears first. The
 available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
 connections listed in the listbox, click \Button {Setup Database
-Connections} to invoke the \Dialog {Edit Database Connections Dialog}.
-The 'Table' listbox shows all the tables for the selected database.
-Select a table by clicking on it.
+Connections} to invoke the \l{Edit Database Connections Dialog}.
+The 'Table' listbox shows all the tables and views that are available
+through the selected database connection. Select a table or view by
+clicking it.
 
 Click \Button Next to move on to the next wizard page.
 
@@ -148,7 +147,7 @@ The 'Displayed Fields' wizard page is used to select fields that will
 be displayed in the table. Click the blue left and right arrow buttons
 to move fields from the 'Available Fields' listbox and into or out of
 the 'Displayed Fields' listbox. Click the blue up and down arrow
-buttons to move actions up and down within the 'Displayed Fields'
+buttons to move fields up and down within the 'Displayed Fields'
 listbox.
 
 Click \Button Next to move on to the next wizard page. Click \Button
@@ -157,25 +156,30 @@ wizard page.
 
 \section2 Navigation and Editing 
 
-The 'Navigation and Editing' wizard page is used to set the navigation
-and editing properties of the form. 
+The 'Navigation and Editing' wizard page is used to create navigation
+and editing buttons. 
 
-Click the 'Include Navigation Buttons' checkbox to activate the
-navigations bar. In the 'Navigation section, click 'Previous' to
-display the 'Previous' button on the form. This option allows you to
-navigate to the previous record in the table. Click 'Next' to display
-the 'next' button on the form. This button allows you to navigate to
-the next record in the table. Click 'First' to display the 'First'
-button on the form. This option allows you to navigate to the first
-record in the table. Click 'Last' to display the 'Last' button on the
-form. This button allows you to navigate to the last record in the
-table.
+Check the 'Include Navigation Buttons' checkbox to include navigation
+buttons. In the 'Navigation section, click 'Previous' to display the
+'Previous' button on the form. This option allows you to navigate to
+the previous record in the table. Click 'Next' to display the 'next'
+button on the form. This button allows you to navigate to the next
+record in the table. Click 'First' to display the 'First' button on
+the form. This option allows you to navigate to the first record in
+the table. Click 'Last' to display the 'Last' button on the form. This
+button allows you to navigate to the last record in the table.
 
-Click the 'Include Edit Buttons' checkbox to activate the
-edits bar. In the 'Editing' section, click the 'Insert' checkbox to
-allow the insertion of new rows. Click the 'Update' checkbox to allow
-the editing of existing rows. Click the 'Delete' checkbox to allow the
-deletion of rows. 
+Click the 'Include Edit Buttons' checkbox to include editing buttons.
+In the 'Editing' section, check the 'Insert' checkbox to create an
+'Insert' button for adding new records. Check the 'Update' checkbox to
+create an 'Update' button for updating existing records. Check the
+'Delete' checkbox to create a 'Delete' button for deleting records.
+
+The navigation buttons, and 'Update' and 'Delete' buttons will work
+without requiring any code. Since most database designs expect new
+records to be created with a unique key the 'Insert' button will not
+work. This can easily be fixed by generating the key in a slot
+connected to the \Func QDataTable::beforeInsert() signal.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page.
@@ -183,43 +187,49 @@ Back if you want to return to the 'Displayed Fields' wizard page.
 \section2 SQL
 
 The 'SQL' wizard page is used to apply filters and sorts to the data
-in the table. Click the 'Filter' line edit and type a valid SQL WHERE
-clause without the WHERE keyword. The filter applies to the data shown
-in the table.
+in the table. Click the 'Filter' line edit and type a valid SQL \c
+WHERE clause without the WHERE keyword. The filter applies to the data
+shown in the table.
 
 To sort the available fields in the table, click the blue left and
-right arrow buttons to move fields from the 'Sort' listbox and into or
-out of the 'Sort By' listbox. Click the blue up and down arrow buttons
-to move actions up and down within the 'Sort By' listbox. Click the
-\### button to change the field sort in the 'Sort By' listbox from
-ascending to descending and vice-versa.
+right arrow buttons to move fields from the 'Available Fields' listbox
+into or out of the 'Sort By' listbox. Click the blue up and down arrow
+buttons to move fields up and down within the 'Sort By' listbox. Click
+the \Button A-Z button to change the sort order of the selected field
+in the 'Sort By' listbox from ascending to descending and vice versa. 
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Navigation and Editing' wizard page.
 
 \section2 Layout
 
-The 'Layout' wizard page is used to design the layout of the database table. To
-choose the number of columns for the table, click the 'Number of
-Columns' spinbox. To create labels to the left of the data entry
-fields, click the 'Labels to left' radiobutton. To create labels above
-the data entry fields, click the 'Labels on top' radiobutton.
+The 'Layout' wizard page is used to design the layout of the database
+table. To choose the number of columns the form will use, click the
+'Number of Columns' spinbox. To make labels appear to the left of the
+data entry fields, click the 'Labels to left' radio button. To make
+labels appear above the data entry fields, click the 'Labels on top'
+radio button.
 
 Click the 'Create layout for fields' checkbox to arrange all fields
 inside of a box layout. Click the 'Create layout for buttons' checkbox
 to arrange all buttons inside of a box layout. Click 'Create layout
 for all' to create a box layout for the whole widget.
 
+You can always break the layouts and redo them later if you change
+your mind.
+
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'SQL' wizard page.
 
 \section2 Finish
 
-The 'Finish' wizard page is used to select auto-editing of the tables
-and to leave the wizard when you have finished selecting all datatable
-options. Click 'AutoEditing' to apply auto-editing to the table if inserts or
-updates are performed. If 'AutoEditing' is not clicked, inserts or
-updates are discarded.
+The 'Finish' wizard page is used to select auto-editing and to leave
+the wizard. If you want user edits, e.g. inserts and updates, to be
+automatically applied when the user navigates to another record, check
+the 'AutoEditing' checkbox. If 'AutoEditing' is unchecked, users must
+press \Key Enter to confirm their edit before moving to another
+record, or their edit will be lost. This property can be changed later
+if desired.
 
 Click \Button Finish to create the databrowser widget with all of the
 options you selected in the wizard. Click \Button
@@ -230,8 +240,7 @@ Back if you want to return to the 'Layout' wizard page.
 
 The Data View wizard is automatically invoked by clicking the
 dataview widget and placing it on the form. The Dataview widget
-is used for displaying read-only data from a SQL database. The
-DataBrowser wizard is used to create read-only forms.
+is used to create a read-only form view of database data. 
 
 \section2 Choose the Database and Table
 
@@ -239,9 +248,10 @@ The 'Choose the Database and Table' wizard page appears first. The
 available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
 connections listed in the listbox, click \Button {Setup Database
-Connections} to invoke the \Dialog {Edit Database Connections Dialog}.
-The 'Table' listbox shows all the tables for the selected database.
-Select a table by clicking on it.
+Connections} to invoke the \l{Edit Database Connections Dialog}.
+The 'Table' listbox shows all the tables and views that are available
+through the selected database connection. Select a table or view by
+clicking it.
 
 Click \Button Next to move on to the next wizard page.
 
@@ -251,7 +261,7 @@ The 'Displayed Fields' wizard page is used to select fields that will
 be displayed in the table. Click the blue left and right arrow buttons
 to move fields from the 'Available Fields' listbox and into or out of
 the 'Displayed Fields' listbox. Click the blue up and down arrow
-buttons to move actions up and down within the 'Displayed Fields'
+buttons to move fields up and down within the 'Displayed Fields'
 listbox.
 
 Click \Button Next to move on to the next wizard page. Click \Button
@@ -261,12 +271,11 @@ wizard page.
 \section2 Layout
 
 The 'Layout' wizard page is used to design the layout of the database
-table. To choose the number of columns for the table, click the
-'Number of Columns' spinbox. To create labels to the left of the data
-entry fields, click the 'Labels to left' radiobutton. To create labels
-above the data entry fields, click the 'Labels on top' radiobutton.
-Click 'Create layout for all' to create a box layout for the whole
-widget.
+table. To choose the number of columns the form will use, click the
+'Number of Columns' spinbox. To make labels appear to the left of the
+data entry fields, click the 'Labels to left' radio button. To make
+labels appear above the data entry fields, click the 'Labels on top'
+radio button.
 
 Click \Button Next to move on to the next wizard page. Click \Button
 Back if you want to return to the 'Displayed Fields' wizard page.
