@@ -1041,7 +1041,10 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		QRect ir = it.key().intersect( d->oldPosRect );
 		if ( rect_extend( ir, o, TRUE ) < 3 )
 		    continue;
-		if ( rect_extend( ir, o, TRUE ) < ( 2 * rect_extend( it.key(), o, TRUE ) ) / 5 ) {
+		int div = 3;
+		if ( d->opaque )
+		    div = 5;
+		if ( rect_extend( ir, o, TRUE ) < ( 2 * rect_extend( it.key(), o, TRUE ) ) / div ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
 #ifdef QMAINWINDOW_DEBUG
 			qDebug( "above" );
