@@ -92,6 +92,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 
     QStrList sigs = sender->metaObject()->signalNames( TRUE );
     sigs.remove( "destroyed()" );
+    sigs.remove( "accessibilityChanged(int)" );
     signalBox->insertStrList( sigs );
 
     if ( sender->inherits( "CustomWidget" ) ) {
