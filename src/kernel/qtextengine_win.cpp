@@ -427,7 +427,7 @@ static inline QFont::Script scriptForWinLanguage( DWORD langid )
 
 static inline bool isAsian( unsigned short ch )
 {
-    return (ch > 0x2dff && ch < 0xfb00) || (ch & 0xff00 == 0x1100);
+    return (ch > 0x2dff && ch < 0xfb00) || ((ch & 0xff00) == 0x1100);
 }
 
 
@@ -639,8 +639,10 @@ void QTextEngine::shape( int item ) const
 	    } else if ( res == USP_E_SCRIPT_NOT_IN_FONT ) {
 		si.analysis.script = 0;
 		hdc = 0;
-	    } else {
+	    } else if (res == E_OUTOFMEMORY) {
 		l += 32;
+	    } else {
+		break;
 	    }
 	} while( res != S_OK );
 
