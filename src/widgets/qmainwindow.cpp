@@ -1635,8 +1635,6 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     if ( !toolBar )
 	return;
 
-    emit toolBarPositionChanged( toolBar );
-
     if ( relative == toolBar || ipos == QMainWindowPrivate::SameIndex ) {
 #ifdef QMAINWINDOW_DEBUG
 	QMainWindowPrivate::ToolBarDock *dummy;
@@ -1644,6 +1642,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	qDebug( "move to same index, offset: %d", t ? t->extraOffset : -2 );
 #endif
 	triggerLayout();
+	emit toolBarPositionChanged( toolBar );
 	return;
     }
 
@@ -1792,6 +1791,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     triggerLayout();
     // update, so that the line below the menubar may be drawn/earsed
     update();
+    emit toolBarPositionChanged( toolBar );
 }
 
 /*!
@@ -2184,7 +2184,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 
   This signal is emitted when the \a toolbar has changed its position.
   This means it has been moved to another dock or inside the dock.
-  
+
   \sa getLocation()
 */
 
