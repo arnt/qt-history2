@@ -24,7 +24,6 @@ DEFINES += QT_WIDGETBOX_LIBRARY
 SOURCES += widgetbox.cpp
 HEADERS += widgetbox.h \
         widgetbox_global.h
-MOCABLES += widgetbox.cpp
 
 RESOURCES += widgetbox.qrc
 
