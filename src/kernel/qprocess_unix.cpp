@@ -390,8 +390,24 @@ void QProcessManager::sigchldHnd( int fd )
 #if defined(QT_QPROCESS_DEBUG)
 		qDebug( "QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess available)", proc->pid );
 #endif
+		/*
+		  Apparently, there is not consistency among different
+		  operating systems on how to use FIONREAD.
+
+		  FreeBSD, Linux and Solaris all expect the 3rd
+		  argument to ioctl() to be an int, which is normally
+		  32-bit even on 64-bit machines.
+
+		  IRIX, on the other hand, expects a size_t, which is
+		  64-bit on 64-bit machines.
+
+		  So, the solution is to use size_t initialized to
+		  zero to make sure all bits are set to zero,
+		  preventing underflow with the FreeBSD/Linux/Solaris
+		  ioctls.
+		*/
+		size_t nbytes = 0;
 		// read pending data
-		int nbytes = 0;
 		if ( ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
 #if defined(QT_QPROCESS_DEBUG)
 		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
@@ -563,7 +579,22 @@ void QProcess::reset()
 QByteArray* QProcess::bufStdout()
 {
     if ( d->proc && d->proc->socketStdout ) {
-	int nbytes = 0;
+	/*
+	  Apparently, there is not consistency among different
+	  operating systems on how to use FIONREAD.
+
+	  FreeBSD, Linux and Solaris all expect the 3rd argument to
+	  ioctl() to be an int, which is normally 32-bit even on
+	  64-bit machines.
+
+	  IRIX, on the other hand, expects a size_t, which is 64-bit
+	  on 64-bit machines.
+
+	  So, the solution is to use size_t initialized to zero to
+	  make sure all bits are set to zero, preventing underflow
+	  with the FreeBSD/Linux/Solaris ioctls.
+	*/
+	size_t nbytes = 0;
 	if ( ::ioctl(d->proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 )
 	    socketRead( d->proc->socketStdout );
     }
@@ -573,7 +604,22 @@ QByteArray* QProcess::bufStdout()
 QByteArray* QProcess::bufStderr()
 {
     if ( d->proc && d->proc->socketStderr ) {
-	int nbytes = 0;
+	/*
+	  Apparently, there is not consistency among different
+	  operating systems on how to use FIONREAD.
+
+	  FreeBSD, Linux and Solaris all expect the 3rd argument to
+	  ioctl() to be an int, which is normally 32-bit even on
+	  64-bit machines.
+
+	  IRIX, on the other hand, expects a size_t, which is 64-bit
+	  on 64-bit machines.
+
+	  So, the solution is to use size_t initialized to zero to
+	  make sure all bits are set to zero, preventing underflow
+	  with the FreeBSD/Linux/Solaris ioctls.
+	*/
+	size_t nbytes = 0;
 	if ( ::ioctl(d->proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 )
 	    socketRead( d->proc->socketStderr );
     }
