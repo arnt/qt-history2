@@ -1459,15 +1459,15 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 			SQL_IS_UINTEGER );
     r = SQLPrimaryKeys( hStmt,
 #ifdef UNICODE
-			(SQLWCHAR*)catalog.unicode(),
+			catalog.length() == 0 ? NULL : (SQLWCHAR*)catalog.unicode(),
 #else
-			(SQLCHAR*)catalog.latin1(),
+			catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.latin1(),
 #endif
 			catalog.length(),
 #ifdef UNICODE
-			(SQLWCHAR*)schema.unicode(),
+			schema.length() == 0 ? NULL : (SQLWCHAR*)schema.unicode(),
 #else
-			(SQLCHAR*)schema.latin1(),
+			schema.length() == 0 ? NULL : (SQLCHAR*)schema.latin1(),
 #endif
 			schema.length(),
 #ifdef UNICODE
@@ -1535,15 +1535,15 @@ QSqlRecordInfo QODBCDriver::recordInfo( const QString& tablename ) const
 			SQL_IS_UINTEGER );
     r =  SQLColumns( hStmt,
 #ifdef UNICODE
-		     (SQLWCHAR*)catalog.unicode(),
+		     catalog.length() == 0 ? NULL : (SQLWCHAR*)catalog.unicode(),
 #else
-		     (SQLCHAR*)catalog.latin1(),
+		     catalog.length() == 0 ? NULL : (SQLCHAR*)catalog.latin1(),
 #endif
 		     catalog.length(),
 #ifdef UNICODE
-		     (SQLWCHAR*)schema.unicode(),
+		     schema.length() == 0 ? NULL : (SQLWCHAR*)schema.unicode(),
 #else
-		     (SQLCHAR*)schema.latin1(),
+		     schema.length() == 0 ? NULL : (SQLCHAR*)schema.latin1(),
 #endif
 		     schema.length(),
 #ifdef UNICODE
