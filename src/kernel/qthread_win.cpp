@@ -79,20 +79,20 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
 void qthread_removePostedEvents( QObject *receiver )
 {
-    qthreadposteventprivate->eventmutex.lock();
+    qthreadposteventprivate->protect.enter();
 
     QThreadQtEvent *qte;
     for ( qte = qthreadposteventprivate->events.first();
 	  qte != 0;
 	  qte = qthreadposteventprivate->events.next() ) {
-	if ( qte->receiver == receiver ) {
-	    qte->receiver = 0;
+	if ( qte->object == receiver ) {
+	    qte->object = 0;
 	    delete qte->event;
 	    qte->event = 0;
 	}
     }
 
-    qthreadposteventprivate->eventmutex.unlock();
+    qthreadposteventprivate->protect.leave();
 }
 
 QThreadPostEventPrivate::QThreadPostEventPrivate()
@@ -106,7 +106,8 @@ void QThreadPostEventPrivate::sendEvents()
     protect.enter();
     QThreadQtEvent * qte;
     for( qte = events.first(); qte != 0; qte = events.next() )
-	qApp->postEvent( qte->object, qte->event );
+	if ( qte->object )
+	    qApp->postEvent( qte->object, qte->event );
     events.clear();
     protect.leave();
 }
