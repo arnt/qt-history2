@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#20 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#20 $")
 
 
 // --------------------------------------------------------------------------
@@ -1129,7 +1129,9 @@ static void cleanupTimers()			// remove pending timers
 	    KillTimer( 0, t->id );
     }
     delete timerDict;
+    timerDict = 0;
     delete timerVec;
+    timerVec  = 0;
 }
 
 
