@@ -1506,12 +1506,12 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
         return;
     }
 
-    initPaintDevice();
     if ( testf(ExtDev|VxF|WxF) ) {
 	if(txop == TxScale ) {
 	    // Plain scaling, then unclippedScaledBitBlt is fastest
 	    int w, h;
 	    map( x, y, sw, sh, &x, &y, &w, &h );
+	    initPaintDevice();
 	    unclippedScaledBitBlt( pdev, x, y, w, h, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 	    return;
         } else if ( testf(ExtDev) || txop == TxRotShear ) {
@@ -1551,7 +1551,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 		map( x, y, &x, &y );		// compute position of pixmap
 		int dx, dy;
 		mat.map( 0, 0, &dx, &dy );
-		unclippedBitBlt( pdev, x-dx, y-dy, &pm, 0, 0, pm.width(), pm.height(), (RasterOp)rop, FALSE );
+		initPaintDevice();
+		unclippedBitBlt( pdev, x-dx, y-dy, &pm, 0, 0, pm.width(), 
+				 pm.height(), (RasterOp)rop, FALSE );
 		return;
 	    }
 	}
@@ -1559,6 +1561,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
 	if ( txop == TxTranslate ) 
 	    map( x, y, &x, &y );
     }
+    initPaintDevice();
     unclippedBitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop, FALSE );
 }
 
