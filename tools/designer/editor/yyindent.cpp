@@ -571,7 +571,7 @@ static bool matchBracelessControlStatement()
 
   In many places, we'll use the terms "standalone line", "unfinished
   line" and "continuation line". The meaning of these should be
-  self-evident after considering an example:
+  evident:
 
       a = b;    // standalone line
       c = d +   // unfinished line
@@ -591,14 +591,15 @@ static bool isUnfinishedLine()
     QChar lastCh = (*yyLine)[(int) yyLine->length() - 1];
     if ( QString("{};").find(lastCh) == -1 ) {
 	/*
-	  It doesn't end with ';' or similar. If it's not "if ( x )",
-	  it must be an unfinished line.
+	  It doesn't end with ';' or similar. If it's not "Q_OBJECT"
+	  nor "if ( x )", it must be an unfinished line.
 	*/
-	unf = !matchBracelessControlStatement();
+	unf = ( yyLine->contains(QString("Q_OBJECT")) == 0 &&
+		!matchBracelessControlStatement() );
     } else if ( lastCh == QChar(';') ) {
 	if ( lastParen(*yyLine) == QChar('(') ) {
 	    /*
-	      Exceptional case:
+	      Exception:
 
 		  for ( int i = 1; i < 10;
 	    */
@@ -606,7 +607,7 @@ static bool isUnfinishedLine()
 	} else if ( readLine() && yyLine->endsWith(QChar(';')) &&
 		    lastParen(*yyLine) == QChar('(') ) {
 	    /*
-	      Exceptional case:
+	      Exception:
 
 		  for ( int i = 1;
 			i < 10;
@@ -620,7 +621,7 @@ static bool isUnfinishedLine()
 }
 
 /*
-  Returns TRUE if yyLine is an unfinished line; otherwise returns
+  Returns TRUE if yyLine is a continuation line; otherwise returns
   FALSE.
 */
 static bool isContinuationLine()
