@@ -17,7 +17,6 @@ public:
     ~HelpDemo();
 
 protected:
-    void keyPressEvent( QKeyEvent *e );
     void contextMenuEvent( QContextMenuEvent *e );
 
 private slots:
@@ -28,6 +27,7 @@ private slots:
     void showAssistantErrors( const QString &err );
     void assistantOpened();
     void assistantClosed();
+    void showHelp();
 
 private:
     QWidget* lookForWidget();

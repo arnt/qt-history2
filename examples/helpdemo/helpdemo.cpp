@@ -26,27 +26,19 @@ HelpDemo::HelpDemo( QWidget *parent, const char *name )
 
     menu = new QPopupMenu( this );
 
-    QAction *helpAction = new QAction( "Show Help", QKeySequence( tr("F1" ) ), this );
+    QAction *helpAction = new QAction( "Show Help", QKeySequence(tr("F1")), this );
     helpAction->addTo( menu );
 
-    connect( assistant, SIGNAL( error( const QString& ) ),
-	this, SLOT( showAssistantErrors( const QString& ) ) );
-
-    connect( assistant, SIGNAL( assistantOpened() ),
-	     this, SLOT( assistantOpened() ) );
-    connect( assistant, SIGNAL( assistantClosed() ),
-	     this, SLOT( assistantClosed() ));
-    closeQAButton->setEnabled( FALSE );
+    connect( helpAction, SIGNAL(activated()), this, SLOT(showHelp()) );
+    connect( assistant, SIGNAL(assistantOpened()), this, SLOT(assistantOpened()) );
+    connect( assistant, SIGNAL(assistantClosed()), this, SLOT(assistantClosed()));
+    connect( assistant, SIGNAL(error(const QString&)),
+	     this, SLOT(showAssistantErrors(const QString&)) );
+    closeQAButton->setEnabled(FALSE);
 }
 
 HelpDemo::~HelpDemo()
 {
-}
-
-void HelpDemo::keyPressEvent( QKeyEvent *e )
-{
-    if ( e->key() == Key_F1 )
-	showHelp( lookForWidget() );
 }
 
 void HelpDemo::contextMenuEvent( QContextMenuEvent *e )
@@ -66,6 +58,11 @@ QWidget* HelpDemo::lookForWidget()
 	    return w;
     }
     return 0;
+}
+
+void HelpDemo::showHelp()
+{
+    showHelp( lookForWidget() );  
 }
 
 void HelpDemo::showHelp( QWidget *w )
