@@ -5916,18 +5916,20 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		minw = QMAX( minw, tw );
 	}
 
-	if ( wrapEnabled && // if wrap enabled and
-	     // force a break, because last char was a hard break or
-	     lastChr == QChar_linesep ||
-	     // force a break, because the last item was a table or
-	     lastBreak == -2 ||
-	     // current char is not a space (because we don't let spaces be at the beginning of a line) and
-	     ( !c->c.isSpace() &&
-	       // a previous char (at lastBreak) is breakable, or we are allowed to break in words and
-	       (lastBreak != -1 || allowBreakInWords()) &&
-	       // we break at w pixels and x+ww (==would be new line width) is larger than w or
-	       // we break at a fixed column number and col is bigger than that
-	       ( (wrapAtColumn() == -1 && x + ww > w) || (wrapAtColumn() != -1 && col >= wrapAtColumn()) ) ) ) {
+	bool lastWasTable = lastBreak == -2;
+	bool hadBreakableChar = lastBreak != -1;
+
+	// we break if wrapping is enabled and
+	// 1. the last character was a hard break (QChar_linesep) or
+	// 2. the last charater was a table or
+	// 3. it was not a space and following condition is true:
+	// We either had a breakable  character previously or we ar allowed to  break in words and
+	// - either we break at w pixels and the current char would exceed that or
+	// - we break at a column and the current character would exceed that.
+	if ( wrapEnabled &&
+ 	     (lastChr == QChar_linesep || lastWasTable ||
+	     (!c->c.isSpace() && (hadBreakableChar || allowBreakInWords()) &&
+	      ( (wrapAtColumn() == -1 && x + ww > w) || (wrapAtColumn() != -1 && col >= wrapAtColumn()) ) ) ) ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
 	    if ( lastBreak < 0 || lastChr == QChar_linesep ) {
