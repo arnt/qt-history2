@@ -33,6 +33,8 @@
 class Q_EXPORT QMenuBar : public QFrame, public QMenuData
 {
     Q_OBJECT
+    Q_PROPERTY( Separator, "separator", separator, setSeparator )
+	
 public:
     QMenuBar( QWidget *parent=0, const char *name=0 );
    ~QMenuBar();
