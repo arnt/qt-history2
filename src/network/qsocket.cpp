@@ -27,6 +27,21 @@
 #endif
 
 //#define QSOCKET_DEBUG
+//#define QSOCKET_EXTRA_DEBUG
+
+#ifdef QSOCKET_EXTRA_DEBUG
+#include <stdio.h>
+static void hexDump( const char * data, int len )
+{
+    fprintf( stderr, "(%d bytes) ", len );
+      
+    for ( int i = 0; i < len; i++ ) {
+	uint c = (uchar)data[i];
+	fprintf( stderr, "%02x %c ", c, (c >' ' && c < '~') ? c : ' ' );
+    }
+    fprintf( stderr, "\n" );
+}
+#endif
 
 /*
   Perhaps this private functionality needs to be refactored.
@@ -733,19 +748,32 @@ void QSocket::flush()
 	    int s = a->size() - j;
 	    int n = 0;
 	    while (n < d->wba.count() && i+s < (int)out.size()) {
+#ifdef QSOCKET_EXTRA_DEBUG
+		fprintf( stderr, "small block #%d: ", n );
+		hexDump( a->constData()+j, s );
+#endif	    
 		memcpy( out.data()+i, a->constData()+j, s );
 		j = 0;
 		i += s;
 		++n;
-		s = n >= d->wba.count() ? 0 : d->wba.at(n)->size();
+		a = n >= d->wba.count() ? 0 : d->wba.at(n);
+		s = a ? a->size() : 0;
 	    }
 	    nwritten = d->socket->writeBlock( out, i );
+#ifdef QSOCKET_EXTRA_DEBUG
+	    fprintf( stderr, "writing concatenated block ");
+	    hexDump( out.data(), nwritten );
+#endif	    
 	    if ( d->wsn )
 		d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
 	} else {
 	    // Big block, write it immediately
 	    i = a->size() - d->windex;
 	    nwritten = d->socket->writeBlock( a->constData() + d->windex, i );
+#ifdef QSOCKET_EXTRA_DEBUG
+	    fprintf( stderr, "writing big block ");
+	    hexDump( a->constData() + d->windex, nwritten );
+#endif	    
 	    if ( d->wsn )
 		d->wsn->setEnabled( FALSE ); // the QSocketNotifier documentation says so
 	}
@@ -951,6 +979,10 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
     qDebug( "QSocket (%s): readBlock %d bytes", name(), (int)maxlen );
 #endif
     d->rba.consumeBytes( maxlen, data );
+#if defined(QSOCKET_EXTRA_DEBUG)
+    fprintf(stderr, "     ");
+    hexDump( data, maxlen );
+#endif
     // After we read data from our internal buffer, if we use the
     // setReadBufferSize() to limit our buffer, we might now be able to
     // read more data in our buffer. So enable the read socket notifier,
