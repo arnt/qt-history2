@@ -118,8 +118,12 @@ void CALLBACK qt_timer_proc(HWND hwnd, UINT message, UINT timerId, DWORD)
 
 LRESULT CALLBACK qt_socketnotifier_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
 {
-    if (message != WM_USER)
-        return  DefWindowProc(hwnd, message, wp, lp);
+    if (message != WM_USER) {
+        if (message == WM_NCCREATE)
+            return true;
+        else
+            return  DefWindowProc(hwnd, message, wp, lp);
+    }
       
     // socket notifier message
     MSG msg;
