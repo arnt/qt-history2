@@ -680,12 +680,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isMove ) {
 	    QMoveEvent e( pos(), oldp );
 	    QApplication::sendEvent( this, &e );
-	    QApplication::postEvent( this, new QPaintEvent(rect(), TRUE) );
+	    update(oldp.x(), oldp.y(), olds.width(), olds.height());
+	    update(rect());
 	}
 	if ( isResize ) {
 	    QResizeEvent e( size(), olds );
 	    QApplication::sendEvent( this, &e );
-	    QApplication::postEvent( this, new QPaintEvent(rect(), !testWFlags(QWidget::WResizeNoErase)) );
+	    update(oldp.x(), oldp.y(), olds.width(), olds.height());
+	    update(rect());
 	}
 
     } else {

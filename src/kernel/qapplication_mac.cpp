@@ -89,7 +89,11 @@ static char    *appName;                        // application name
 static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
-static unsigned int qt_last_mouse_down = 0;
+
+struct {
+    unsigned int when;
+    int x, y;
+} qt_last_mouse_down = { 0, 0, 0 };
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -1134,21 +1138,29 @@ int QApplication::macProcessEvent(MSG * m)
 	    if(er->what == mouseDown) {
 		//check if this is the second click, there must be a way to make the
 		//mac do this for us, FIXME!!
-		if(qt_last_mouse_down && (er->when - qt_last_mouse_down <= 
-					  (uint)mouse_double_click_time)) {
-		    etype = QEvent::MouseButtonDblClick;
-		    qt_last_mouse_down = 0;
-		} else {
-		    etype = QEvent::MouseButtonPress;
-		    qt_last_mouse_down = er->when;
+		if(qt_last_mouse_down.when && 
+		   (er->when - qt_last_mouse_down.when <= (uint)mouse_double_click_time)) {
+		    int x = er->where.h, y = er->where.v;
+		    if(x >= (qt_last_mouse_down.x-2) && x <= (qt_last_mouse_down.x+4) &&
+		       y >= (qt_last_mouse_down.y-2) && y <= (qt_last_mouse_down.y+4)) {
+			etype = QEvent::MouseButtonDblClick;
+			qt_last_mouse_down.when = 0;
+		    }
 		}
 
-		//gross, need to handle more mouse buttons, FIXME
+		if(etype == QEvent::None) { //guess it's just a press
+		    etype = QEvent::MouseButtonPress;
+		    qt_last_mouse_down.when = er->when;
+		    qt_last_mouse_down.x = er->where.h;
+		    qt_last_mouse_down.y = er->where.v;
+		}
+
+		//gross, need to handle more mouse buttons (and modifiers), FIXME
 		button = mouse_button_state = QMouseEvent::LeftButton; 
 	    } else {
 		etype = QEvent::MouseButtonRelease;
 
-		//gross, need to handle more mouse buttons, FIXME
+		//gross, need to handle more mouse buttons (and modifiers), FIXME
 		button = state = mouse_button_state;
 		mouse_button_state = Qt::NoButton;
 	    }
