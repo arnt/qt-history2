@@ -83,6 +83,9 @@
                         <property name="name">
                             <cstring>listProperties</cstring>
                         </property>
+                        <property name="allColumnsShowFocus">
+                            <bool>true</bool>
+                        </property>
                         <property name="resizeMode">
                             <enum>AllColumns</enum>
                         </property>
@@ -146,29 +149,23 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QTable">
+                    <widget class="QListView">
                         <column>
                             <property name="text">
                                 <string>Property</string>
                             </property>
+                            <property name="clickable">
+                                <bool>false</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>false</bool>
+                            </property>
                         </column>
                         <property name="name">
-                            <cstring>tableEditRequests</cstring>
+                            <cstring>listEditRequests</cstring>
                         </property>
-                        <property name="numRows">
-                            <number>0</number>
-                        </property>
-                        <property name="numCols">
-                            <number>1</number>
-                        </property>
-                        <property name="showGrid">
-                            <bool>false</bool>
-                        </property>
-                        <property name="selectionMode">
-                            <enum>Single</enum>
-                        </property>
-                        <property name="focusStyle">
-                            <enum>FollowStyle</enum>
+                        <property name="resizeMode">
+                            <enum>LastColumn</enum>
                         </property>
                     </widget>
                 </vbox>
@@ -189,7 +186,7 @@
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer7</cstring>
                     </property>
                     <property name="orientation">
@@ -242,12 +239,6 @@
         <receiver>ChangeProperties</receiver>
         <slot>close()</slot>
     </connection>
-    <connection>
-        <sender>tableEditRequests</sender>
-        <signal>valueChanged(int,int)</signal>
-        <receiver>ChangeProperties</receiver>
-        <slot>editRequestChanged(int,int)</slot>
-    </connection>
 </connections>
 <includes>
     <include location="global" impldecl="in implementation">qmetaobject.h</include>
@@ -255,6 +246,7 @@
     <include location="local" impldecl="in implementation">changeproperties.ui.h</include>
 </includes>
 <forwards>
+    <forward>class QCheckListItem;</forward>
     <forward>class QActiveX;</forward>
 </forwards>
 <variables>
@@ -265,7 +257,7 @@
     <slot>propertySelected( QListViewItem * item )</slot>
     <slot>setValue()</slot>
     <slot>init()</slot>
-    <slot specifier="non virtual">editRequestChanged( int r, int c )</slot>
+    <slot>editRequestChanged( QCheckListItem * item )</slot>
 </slots>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

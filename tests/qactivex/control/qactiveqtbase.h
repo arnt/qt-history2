@@ -1,6 +1,34 @@
+/****************************************************************************
+** $Id: $
+**
+** Declaration of the QActiveQtBase class
+**
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Active Qt integration.
+**
+** Licensees holding valid Qt Enterprise Edition
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #ifndef QACTIVEQTBASE_H
 #define QACTIVEQTBASE_H
 
+#include <qmetaobject.h>
 #include <qmap.h>
 #include <quuid.h>
 #include <qobject.h>
@@ -92,42 +120,52 @@ BEGIN_COM_MAP(QActiveQtBase)
     HRESULT WINAPI QueryInterface( REFIID iid, void **iface )
     {
 	*iface = 0;
-	if ( iid == IID_IUnknown )
-	    *iface = (IUnknown*)(IDispatch*)this;
-	else if ( iid == IID_IDispatch )
-	    *iface = (IDispatch*)this;
-	else if ( iid == IID_IViewObjectEx )
-	    *iface = (IViewObjectEx*)this;
-	else if ( iid == IID_IViewObject2 )
-	    *iface = (IViewObject2*)(IViewObjectEx*)this;
-	else if ( iid == IID_IViewObject )
-	    *iface = (IViewObject*)(IViewObjectEx*)this;
-	else if ( iid == IID_IOleInPlaceObjectWindowless )
-	    *iface = (IOleInPlaceObjectWindowless*)this;
-	else if ( iid == IID_IOleInPlaceObject )
-	    *iface = (IOleInPlaceObject*)(IOleInPlaceObjectWindowless*)this;
-	else if ( iid == IID_IOleWindow )
-	    *iface = (IOleWindow*)(IOleInPlaceObjectWindowless*)this;
-	else if ( iid == IID_IOleInPlaceActiveObject )
-	    *iface = (IOleInPlaceActiveObject*)this;
-	else if ( iid == IID_IOleControl )
-	    *iface = (IOleControl*)this;
-	else if ( iid == IID_IOleObject )
-	    *iface = (IOleObject*)this;
-	else if ( iid == IID_IQuickActivate )
-	    *iface = (IQuickActivate*)this;
-	else if ( iid == IID_IConnectionPointContainer )
-	    *iface = (IConnectionPointContainer*)this;
-	else if ( iid == IID_IProvideClassInfo )
-	    *iface = (IProvideClassInfo*)this;
-	else if ( iid == IID_IProvideClassInfo2 )
-	    *iface = (IProvideClassInfo2*)this;
-	else if ( iid == IID_IPersistPropertyBag )
-	    *iface = (IPersistPropertyBag*)this;
-	else
-	    return E_NOINTERFACE;
+	if ( activeqt ) {
+	    QActiveQt *aqt = (QActiveQt*)activeqt->qt_cast( "QActiveQt" );
+	    if ( aqt ) {
+		aqt->queryInterface( iid, iface );
+	    }
+	}
 
-	AddRef();
+	if ( !*iface ) {
+	    if ( iid == IID_IUnknown )
+		*iface = (IUnknown*)(IDispatch*)this;
+	    else if ( iid == IID_IDispatch )
+		*iface = (IDispatch*)this;
+	    else if ( iid == IID_IViewObjectEx )
+		*iface = (IViewObjectEx*)this;
+	    else if ( iid == IID_IViewObject2 )
+		*iface = (IViewObject2*)(IViewObjectEx*)this;
+	    else if ( iid == IID_IViewObject )
+		*iface = (IViewObject*)(IViewObjectEx*)this;
+	    else if ( iid == IID_IOleInPlaceObjectWindowless )
+		*iface = (IOleInPlaceObjectWindowless*)this;
+	    else if ( iid == IID_IOleInPlaceObject )
+		*iface = (IOleInPlaceObject*)(IOleInPlaceObjectWindowless*)this;
+	    else if ( iid == IID_IOleWindow )
+		*iface = (IOleWindow*)(IOleInPlaceObjectWindowless*)this;
+	    else if ( iid == IID_IOleInPlaceActiveObject )
+		*iface = (IOleInPlaceActiveObject*)this;
+	    else if ( iid == IID_IOleControl )
+		*iface = (IOleControl*)this;
+	    else if ( iid == IID_IOleObject )
+		*iface = (IOleObject*)this;
+	    else if ( iid == IID_IQuickActivate )
+		*iface = (IQuickActivate*)this;
+	    else if ( iid == IID_IConnectionPointContainer )
+		*iface = (IConnectionPointContainer*)this;
+	    else if ( iid == IID_IProvideClassInfo )
+		*iface = (IProvideClassInfo*)this;
+	    else if ( iid == IID_IProvideClassInfo2 )
+		*iface = (IProvideClassInfo2*)this;
+	    else if ( iid == IID_IPersistPropertyBag )
+		*iface = (IPersistPropertyBag*)this;
+	    else
+		return E_NOINTERFACE;
+
+	    AddRef();
+	}
+
 	return S_OK;
     }
 

@@ -1,3 +1,30 @@
+/****************************************************************************
+** $Id: $
+**
+** Implementation of the QActiveX class
+**
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Active Qt integration.
+**
+** Licensees holding valid Qt Enterprise Edition
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include "qactivex.h"
 
 #include <atlbase.h>
@@ -159,9 +186,10 @@ static OLE_COLOR QColorToOLEColor( const QColor &col )
     \brief The QActiveX class is a QWidget that wraps an ActiveX control.
 
     A QActiveX can be instantiated as an empty object or with the name of the ActiveX control
-    it should wrap.The properties, methods and events of the ActiveX control become available as Qt properties, 
-    slots and signals. The baseclass QComBase provides also an API to access the ActiveX directly 
-    through the IUnknown pointer.
+    it should wrap. The properties, methods and events of the ActiveX control become available as Qt properties, 
+    slots and signals as long as only supported data types are used (see the \link QComBase QComBase class
+    documentation \endlink for a list of supported and unsupported data types). The baseclass QComBase provides 
+    an API to access the ActiveX directly through the IUnknown pointer.
 
     QActiveX is a QWidget and can be used as such, e.g. it can be organized in a widget hierarchy, receive events 
     or act as an event filter. Standard widget properties, e.g. \link QWidget::enabled \endlink enabled are supported,

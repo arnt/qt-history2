@@ -310,6 +310,12 @@
     </connection>
     <connection>
         <sender>WebBrowser</sender>
+        <signal>NavigateComplete(const QString&amp;)</signal>
+        <receiver>addressEdit</receiver>
+        <slot>setText(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>WebBrowser</sender>
         <signal>TitleChange(const QString&amp;)</signal>
         <receiver>MainWindow</receiver>
         <slot>setTitle(const QString&amp;)</slot>
@@ -317,8 +323,26 @@
     <connection>
         <sender>WebBrowser</sender>
         <signal>NavigateComplete(const QString&amp;)</signal>
-        <receiver>addressEdit</receiver>
-        <slot>setText(const QString&amp;)</slot>
+        <receiver>MainWindow</receiver>
+        <slot>navigateComplete()</slot>
+    </connection>
+    <connection>
+        <sender>WebBrowser</sender>
+        <signal>CommandStateChange(int,bool)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setCommandState(int,bool)</slot>
+    </connection>
+    <connection>
+        <sender>WebBrowser</sender>
+        <signal>BeforeNavigate(const QString&amp;,int,const QString&amp;,QVariant*,const QString&amp;,bool*)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>navigateBegin()</slot>
+    </connection>
+    <connection>
+        <sender>actionStop</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>navigateComplete()</slot>
     </connection>
 </connections>
 <includes>
@@ -333,9 +357,12 @@
 <slots>
     <slot>go()</slot>
     <slot>newWindow()</slot>
-    <slot>setProgress(int a, int b)</slot>
+    <slot>setProgress( int a, int b )</slot>
     <slot>init()</slot>
-    <slot>setTitle(const QString &amp; title)</slot>
+    <slot>setTitle( const QString &amp; title )</slot>
+    <slot>setCommandState( int cmd, bool on )</slot>
+    <slot>navigateComplete()</slot>
+    <slot>navigateBegin()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

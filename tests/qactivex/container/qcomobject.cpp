@@ -1,3 +1,30 @@
+/****************************************************************************
+** $Id: $
+**
+** Implementation of the QComBase and QComObject classes
+**
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Active Qt integration.
+**
+** Licensees holding valid Qt Enterprise Edition
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include "qcomobject.h"
 
 #include <quuid.h>
@@ -20,7 +47,9 @@ void moduleLock()
 void moduleUnlock()
 {
     if ( !moduleLockCount ) {
+#ifndef QT_NO_DEBUG
 	qWarning( "Unbalanced module count!" );
+#endif
 	return;
     }
     if ( !--moduleLockCount ) {
@@ -38,6 +67,8 @@ static QMetaObject *tempMetaObj = 0;
 #define PropRequesting	0x00010000
 
 #include "../shared/types.h"
+
+static QMetaObjectCleanUp cleanUp_QComBase;
 
 /*
     \internal
@@ -344,26 +375,79 @@ private:
 
     QComBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
     QComObject and QActiveX. This class however provides the API to access the COM object directly through 
-    its IUnknown implementation. If the COM object implements the IDispatch interface, the properties, 
-    methods and events of that object become available as Qt properties, slots and signals.
+    its IUnknown implementation. If the COM object implements the IDispatch interface, the properties and
+    methods of that object become available as Qt properties and slots.
 
-    COM interfaces implemented by the object can be retrieved through queryInterface().
+    \code
+    connect( buttonBack, SIGNAL(clicked()), webBrowser, SLOT(GoBack()) );
+    \endcode
 
     Properties exposed by the object's IDispatch implementation can be read and written through the property
     system provided by the Qt Object Model (both subclasses are QObjects, so you can use 
     \link QObject::setProperty \endlink setProperty and \link QObject::property \endlink property as with
     QObject).
 
+    \code
+    activeX->setProperty( "text", "some text" );
+    int value = activeX->property( "value" );
+    \endcode
+
     Write-functions for properties and other methods exposed by the object's IDispatch implementation can be 
     called directly using dynamicCall(), or indirectly as slots connected to a signal.
 
+    \code
+    webBrowser->dynamicCall( "GoHome()" );
+    \endcode
+
     Outgoing events supported by the COM object are emitted as standard Qt signals.
 
+    \code
+    connect( webBrowser, SIGNAL(TitleChanged(const QString&)), this, SLOT(setCaption(const QString&)) );
+    \endcode
+
     QComBase transparently converts between Qt data type and the equivalent COM data types. Some COM types,
-    for example the VARIANT type VT_CY, has no equivalent Qt data structure. Therefore, QComBase provides 
-    a generic signal that delivers the event data as delivered by the COM object. If you need to access 
-    properties of unsupported datatypes you have to access the COM object directly through its IDispatch or 
-    other interfaces implemented.
+    for example the VARIANT type VT_CY, have no equivalent Qt data structure.
+
+    Supported OLE datatypes are
+    \list
+    \i char, unsigned char
+    \i short, unsigned short
+    \i int, unsigned int
+    \i long, unsigned long
+    \i float, double
+    \i bool
+    \i const char*
+    \i BSTR
+    \i DATE
+    \i SCODE and 
+    \i VARIANT
+    \endlist
+
+    Unsupported OLE datatypes are
+    \list
+    \i IUnknown*
+    \i IDispatch*
+    \i IFont*
+    \i OLE_COLOR and 
+    \i CY 
+    \endlist 
+    as well as references (BYREF) in properties.
+    
+    If you need to access properties or pass parameters of unsupported datatypes you have to access the COM 
+    object directly through its IDispatch or other interfaces implemented. Those interface can be retrieved
+    through queryInterface().
+
+    \code
+    IUnknown *iface = 0;
+    activeX->queryInterface( IID_IUnknown, (void**)&iface );
+    if ( iface ) {
+        // use the interface
+	iface->Release();
+    }
+    \endcode
+
+    If you need to react on events that pass parameters of unsupported datatypes you can use the generic
+    signal that delivers the event data as provided by the COM event.
 */
 
 /*! 
@@ -539,7 +623,7 @@ void QComBase::clear()
 	if ( metaobj->numSignals() )
 	    delete [] (QMetaData*)metaobj->signal( 0 );
 
-	for ( i = 1; i < metaobj->numProperties(); ++i ) {
+	for ( i = 0; i < metaobj->numProperties(); ++i ) {
 	    const QMetaProperty *property = metaobj->property( i );
 	    delete [] (char*)property->n;
 	    delete [] (char*)property->t;
@@ -581,8 +665,16 @@ long QComBase::queryInterface( const QUuid &uuid, void **iface ) const
     return E_NOTIMPL;
 }
 
+#define UNSUPPORTED(x) x == "UNSUPPORTED" || x == "IDispatch*" || x == "IUnknown*";
+
 /*!
     \reimp
+
+    This is where all the magic happens.
+    The metaobject is generated on the fly from the information provided by the 
+    IDispatch and ITypeInfo interface implementations in the COM object.
+
+    Yes, this is spaghetti code...
 */
 QMetaObject *QComBase::metaObject() const
 {
@@ -590,7 +682,7 @@ QMetaObject *QComBase::metaObject() const
 	return metaobj;
     QMetaObject* parentObject = parentMetaObject();
 
-    // one signal and one property are always there
+    // some signals and properties are always there
     static const QUParameter param_signal_0[] = {
 	{ "name", &static_QUType_QString, 0, QUParameter::In },
 	{ "argc", &static_QUType_int, 0, QUParameter::In },
@@ -610,6 +702,7 @@ QMetaObject *QComBase::metaObject() const
  	{ "QString","control", 259, (QMetaObject**)&tempMetaObj, 0, -1 }
     };
 
+    // return the default meta object if not yet initialized
     if ( !ptr ) {
 	if ( tempMetaObj )
 	    return tempMetaObj;
@@ -624,6 +717,7 @@ QMetaObject *QComBase::metaObject() const
 #endif // QT_NO_PROPERTIES
 	    0, 0 );
 
+	cleanUp_QComBase.setMetaObject( tempMetaObj );
 	return tempMetaObj;
     }
 
@@ -641,67 +735,12 @@ QMetaObject *QComBase::metaObject() const
     QDict<QString> enumlist; 
     enumlist.setAutoDelete( TRUE ); // deep copied when creating metaobject
 
-    // create default signal and slots
-/*
-    CComPtr<IProvideClassInfo> pci;
-    ptr->QueryInterface( IID_IProvideClassInfo, (void**)&pci );
-    if ( pci ) {
-	CComPtr<ITypeInfo> classinfo;
-	pci->GetClassInfo( &classinfo );
-	if ( classinfo ) {
-	    TYPEATTR *classTypeattr = 0;
-	    classinfo->GetTypeAttr( &classTypeattr );
-	    if ( classTypeattr ) {
-		QUuid classID( classTypeattr->guid );
-		QString classIDstr = classID.toString().upper();
-		classIDstr = iidnames.readEntry( "/CLSID/" + classIDstr + "/Default", classIDstr );
-		infolist.insert( "CoClass", new QString( classIDstr ) );
-		QString version( "%1.%1" );
-		version = version.arg( classTypeattr->wMajorVerNum ).arg( classTypeattr->wMinorVerNum );
-		infolist.insert( "Version", new QString( version ) );
+    // this string gets all the warnings, so that a client application
+    // can use the classInfo "debugInfo" to get debug information about
+    // what went wrong...
+    QCString debugInfo;
 
-		for ( int iType = 0; iType < classTypeattr->cImplTypes; ++iType ) {
-		    int typeflags = 0;
-		    classinfo->GetImplTypeFlags( iType, &typeflags );
-		    if ( ( typeflags & IMPLTYPEFLAG_FRESTRICTED ) || ( typeflags & IMPLTYPEFLAG_FDEFAULTVTABLE ) )
-			continue;
-		    bool eventtype = typeflags & IMPLTYPEFLAG_FSOURCE;
-		    HREFTYPE reftype;
-		    if ( classinfo->GetRefTypeOfImplType( iType, &reftype ) == S_OK ) {
-			CComPtr<ITypeInfo> typeinfo;
-			classinfo->GetRefTypeInfo( reftype, &typeinfo );
-			while ( typeinfo ) {
-			    TYPEATTR *typeattr = 0;
-			    typeinfo->GetTypeAttr( &typeattr );
-			    if ( typeattr ) {
-				QUuid uuid( typeattr->guid );
-				QString uuidstr = uuid.toString().upper();
-				uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-				if ( eventtype ) {
-				    static eventcount = 0;
-				    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
-				} else {
-				    static interfacecount = 0;
-				    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
-				}
-				typeinfo->ReleaseTypeAttr( typeattr );
-			    }
-			    // go up one class
-			    HREFTYPE pRefType;
-			    typeinfo->GetRefTypeOfImplType( 0, &pRefType );
-			    CComPtr<ITypeInfo> baseInfo;
-			    typeinfo->GetRefTypeInfo( pRefType, &baseInfo );
-			    if ( typeinfo == baseInfo ) // IUnknown inherits IUnknown ???
-				break;
-			    typeinfo = baseInfo;
-			}
-		    }
-		}
-		classinfo->ReleaseTypeAttr( classTypeattr );
-	    }
-	}
-    }
-*/
+    // create default signal and slots
     CComPtr<IDispatch> disp;
     ptr->QueryInterface( IID_IDispatch, (void**)&disp );
     if ( disp ) {
@@ -762,6 +801,8 @@ QMetaObject *QComBase::metaObject() const
 			paramTypes << returnType;
 		    }
 
+		    // parse function description
+		    bool unsupported = FALSE;
 		    BSTR bstrNames[256];
 		    UINT maxNames = 255;
 		    UINT maxNamesOut;
@@ -782,10 +823,11 @@ QMetaObject *QComBase::metaObject() const
 			QString ptype;
 			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			ptype = typedescToQString( tdesc );
-			if ( ptype == "UNSUPPORTED" ) {
-			    tdesc = funcdesc->lprgelemdescParam[p - 1].tdesc;
-			    ptype = typedescToQString( tdesc );
-			}
+			unsupported = unsupported || UNSUPPORTED(ptype)
+#if 0 // fallback disabled
+			tdesc = funcdesc->lprgelemdescParam[p - 1].tdesc;
+			ptype = typedescToQString( tdesc );
+#endif
 			if ( funcdesc->invkind == INVOKE_FUNC )
 			    ptype = constRefify( ptype );
 
@@ -803,12 +845,22 @@ QMetaObject *QComBase::metaObject() const
 		    QMetaProperty *prop = 0;
 
 		    // get type of function
-		    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {
+		    if ( !(funcdesc->wFuncFlags & FUNCFLAG_FHIDDEN) ) switch( funcdesc->invkind ) {			
 		    case INVOKE_PROPERTYGET: // property
 		    case INVOKE_PROPERTYPUT:
 			{
+			    if ( unsupported ) {
+#ifndef QT_NO_DEBUG
+				qWarning( "%s: Property is of unsupported datatype.", function.latin1() );
+#endif
+				debugInfo += QString( "%1: Property is of unsupported datatype.\n" ).arg( function );
+				break;
+			    }
 			    if ( funcdesc->cParams > 1 ) {
-				qWarning( "%s: Too many parameters in property", function.latin1() );
+#ifndef QT_NO_DEBUG
+				qWarning( "%s: Too many parameters in property.", function.latin1() );
+#endif
+				debugInfo += QString( "%1: Too many parameters in property.\n").arg( function );
 				break;
 			    }
 			    prop = proplist[function];
@@ -888,6 +940,13 @@ QMetaObject *QComBase::metaObject() const
 
 		    case INVOKE_FUNC: // method
 			{
+			    if ( unsupported ) {
+#ifndef QT_NO_DEBUG
+				qWarning( "%s: Function has parameters of unsupported datatype.", function.latin1() );
+#endif
+				debugInfo += QString( "%1: Function has parameters of unsupported datatype.\n" ).arg( function );
+				break;
+			    }
 			    if ( funcdesc->invkind == INVOKE_PROPERTYPUT && prop ) {
 				QString set;
 				QString pname = function;
@@ -899,19 +958,16 @@ QMetaObject *QComBase::metaObject() const
 				    function = firstletter.upper() + function.mid(1);
 				}
 				function = set + function;
-				QString ptype;
-				if ( prototype.right( 2 ) == "()" ) {
-				    ptype = prop->type();
-				    if ( ptype.isEmpty() )
-					ptype = returnType;
-				    prototype = function + "(" + constRefify(ptype) + ")";
-				} else {
-				    prototype = set + prototype;
-				}
-				if ( !!ptype ) {
-				    parameters.append( pname );
-				    paramTypes.append( constRefify(ptype) );
-				}
+				QString ptype = prop->type();
+				ptype = prop->type();
+				if ( ptype.isEmpty() )
+				    ptype = returnType;
+				ptype = constRefify( ptype );
+				prototype = function + "(" + ptype + ")";
+
+				if ( !!ptype )
+				    paramTypes = ptype;
+				parameters = pname;
 				if ( slotlist.find( prototype ) )
 				    break;
 			    }
@@ -979,7 +1035,6 @@ QMetaObject *QComBase::metaObject() const
 		    desc += "\n";
 		    SysFreeString( bstrDocu );
 #endif
-
 		    info->ReleaseFuncDesc( funcdesc );
 		}
 		
@@ -999,6 +1054,7 @@ QMetaObject *QComBase::metaObject() const
 		    // get variable type
 		    TYPEDESC typedesc = vardesc->elemdescVar.tdesc;
 		    QString variableType = typedescToQString( typedesc );
+		    bool unsupported = unsupported || UNSUPPORTED(variableType);
 
 		    // get variable name
 		    QString variableName;
@@ -1017,7 +1073,12 @@ QMetaObject *QComBase::metaObject() const
 			}
 		    }
 
-		    if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
+		    if ( unsupported ) {
+#ifndef QT_NO_DEBUG
+			qWarning( "%1: Property is of unsupported datatype", variableName.latin1() );
+#endif
+			debugInfo = QString( "%1: Property is of unsupported datatype" ).arg( variableName );
+		    } else if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 			// generate meta property
 			QMetaProperty *prop = proplist[variableName];
 			if ( !prop ) {
@@ -1226,6 +1287,7 @@ QMetaObject *QComBase::metaObject() const
 				    QStringList parameters;
 				    QStringList paramTypes;
 
+				    bool unsupported = FALSE;
 				    BSTR bstrNames[256];
 				    UINT maxNames = 255;
 				    UINT maxNamesOut;
@@ -1247,6 +1309,7 @@ QMetaObject *QComBase::metaObject() const
 					
 					TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 					QString ptype = typedescToQString( tdesc );
+					unsupported = unsupported || UNSUPPORTED(ptype);
 					if ( funcdesc->invkind == INVOKE_FUNC )
 					    ptype = constRefify( ptype );
 
@@ -1261,7 +1324,12 @@ QMetaObject *QComBase::metaObject() const
 				    if ( !!prototype )
 					prototype += ")";
 
-				    if ( !signallist.find( prototype ) ) {
+				    if ( unsupported ) {
+#ifndef QT_NO_DEBUG
+					qWarning( "%s: Event has parameter of unsupported datatype.", function.latin1() );
+#endif
+					debugInfo += QString( "%1: Event has parameter of unsupported datatype.\n" ).arg( function );
+				    } else if ( !signallist.find( prototype ) ) {
 					QUMethod *signal = new QUMethod;
 					signal->name = new char[function.length()+1];
 					signal->name = qstrcpy( (char*)signal->name, function );
@@ -1308,6 +1376,9 @@ QMetaObject *QComBase::metaObject() const
 	}
     }
 
+    if ( !!debugInfo )
+	infolist.insert( "debugInfo", new QString( debugInfo ) );
+
     // setup slot data
     int index = 0;
     QMetaData *const slot_data = slotlist.count() ? new QMetaData[slotlist.count()] : 0;
@@ -1349,11 +1420,15 @@ QMetaObject *QComBase::metaObject() const
     index = 0;
     QMetaProperty *const prop_data = new QMetaProperty[proplist.count()+1];
     if ( prop_data ) {
-	static const QMetaProperty props_tbl[1] = {
- 	    { "QString","control", 259, (QMetaObject**)&metaobj, 0, -1 }
-	};
+	prop_data[index].n = new char[8];
+	prop_data[index].n = qstrcpy( (char*)prop_data[index].n, "control" );
+	prop_data[index].t = new char[8];
+	prop_data[index].t = qstrcpy( (char*)prop_data[index].t, "QString" );
+	prop_data[index].flags = 259;
+	prop_data[index]._id = -1;
+	prop_data[index].enumData = 0;
+	prop_data[index].meta = (QMetaObject**)&metaobj;
 
-	prop_data[index] = props_tbl[index];
 	++index;
     }
     QDictIterator<QMetaProperty> prop_it( proplist );
@@ -1536,7 +1611,7 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
     if ( pret )
 	VARIANTToQUObject( ret, _o );
     // clean up
-    for ( p = 0; p < slot->count; ++p ) {
+    for ( p = 0; p < slotcount; ++p ) {
 	if ( params.rgvarg[p].vt == VT_BSTR )
 	    SysFreeString( params.rgvarg[p].bstrVal );
     }
@@ -1648,6 +1723,27 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
     and returns the value, or an invalid variant if the function does not return a value.
 
     To get the ID of a function, use QMetaObject::findSlot( function, TRUE ).
+
+    \code
+    int id = activeX->metaObject()->findSlot( "Navigate(const QString&)", TRUE );
+    if ( id != -1 )
+        activeX->dynamicCall( id, "www.trolltech.com" );
+    \endcode
+
+    It is only possible to call functions through dynamicCall that have parameters of
+    datatypes supported in QVariant. See the QComBase class documentation for a list of 
+    supported and unsupported datatypes. If you want to call functions that have
+    unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
+    COM interface and use the function directly.
+
+    \code
+    IWebBrowser2 *webBrowser = 0;
+    activeX->queryInterface( IID_IWebBrowser2, (void**)&webBrowser );
+    if ( webBrowser ) {
+        webBrowser->Navigate2( pvarURL );
+	webBrowser->Release();
+    }
+    \endcode
 */
 QVariant QComBase::dynamicCall( int id, const QVariant &var1, 
 							 const QVariant &var2, 
@@ -1737,6 +1833,10 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
     same function, get the function's ID using QMetaObject::findSlot( function, TRUE ) and
     use the overload above.
     \a function has to be provided as the full prototype, like e.g. in QObject::connect().
+
+    \code
+    activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
+    \endcode
 */
 QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1, 
 							 const QVariant &var2, 
@@ -1819,7 +1919,12 @@ private:
     Returns the values of all properties exposed by the COM object.
     
     This is more efficient than getting multiple properties individually if the COM object
-    supports property bags.
+    supports property bags. 
+    
+    \warning
+    It is not guaranteed that the property bag implementation of the COM object returns all 
+    properties, or that the properties returned are the same as available through the 
+    IDispatch interface.
 */
 QComBase::PropertyBag QComBase::propertyBag() const
 {
@@ -1849,6 +1954,12 @@ QComBase::PropertyBag QComBase::propertyBag() const
 /*!
     Sets the properties of the COM object to the matching values in \a bag.
 
+    \warning
+    You should only set property bags that have been returned before by the
+    propertyBag function, as it cannot be guaranteed that the property bag
+    implementation of the COM object supports the same properties as available 
+    through the IDispatch interface.
+
     \sa propertyBag()
 */
 void QComBase::setPropertyBag( const PropertyBag &bag )
@@ -1875,8 +1986,11 @@ void QComBase::setPropertyBag( const PropertyBag &bag )
 /*!
     Returns TRUE if the property \a prop is allowed to change,
     otherwise returns FALSE.
-    By default, all properties are allowed to change. Depending on the control
-    implementation this setting might be ignored.
+    By default, all properties are allowed to change. 
+    
+    \warning
+    Depending on the control implementation this setting might be ignored
+    for some properties.
 
     \sa setPropertyWritable(), propertyChanged()
 */
@@ -1894,8 +2008,11 @@ bool QComBase::propertyWritable( const char *prop ) const
 /*!
     Sets the property \a prop to writable if \a ok is TRUE,
     otherwise sets \a prop to be read-only.
-    By default, all properties are allowed to change. Depending on the control
-    implementation this setting might be ignored.
+    By default, all properties are allowed to change. 
+    
+    \warning
+    Depending on the control implementation this setting might be ignored
+    for some properties.
 
     \sa propertyWritable(), propertyChanged()
 */

@@ -1,11 +1,13 @@
 /****************************************************************************
-** ui.h extension file, included from the uic-generated form implementation.
+** $Id: $
 **
-** If you wish to add, delete or rename slots use Qt Designer which will
-** update this file, preserving your code. Create an init() slot in place of
-** a constructor, and a destroy() slot in place of a destructor.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for the ActiveQt integration.
+** This example program may be used, distributed and modified without 
+** limitation.
+**
 *****************************************************************************/
-
 
 void AmbientProperties::init()
 {

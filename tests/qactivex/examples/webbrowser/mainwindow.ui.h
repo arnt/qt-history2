@@ -1,16 +1,21 @@
 /****************************************************************************
-** ui.h extension file, included from the uic-generated form implementation.
+** $Id: $
 **
-** If you wish to add, delete or rename slots use Qt Designer which will
-** update this file, preserving your code. Create an init() slot in place of
-** a constructor, and a destroy() slot in place of a destructor.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of an example program for the ActiveQt integration.
+** This example program may be used, distributed and modified without 
+** limitation.
+**
 *****************************************************************************/
+
 
 #include <qprogressbar.h>
 #include <qstatusbar.h>
 
 void MainWindow::go()
 {
+    actionStop->setEnabled( TRUE );
     WebBrowser->dynamicCall( "Navigate(const QString&)", addressEdit->text() );
 }
 
@@ -21,9 +26,9 @@ void MainWindow::newWindow()
     if ( addressEdit->text().isEmpty() )
 	return;
     window->addressEdit->setText( addressEdit->text() );
+    window->actionStop->setEnabled( TRUE );
     window->go();
 }
-
 
 void MainWindow::setProgress( int a, int b )
 {
@@ -47,10 +52,33 @@ void MainWindow::init()
 
     connect( WebBrowser, SIGNAL(ProgressChange(int,int)), this, SLOT(setProgress(int,int)) );
     
+    actionStop->setEnabled( TRUE );
     WebBrowser->dynamicCall( "GoHome()" );
 }
 
 void MainWindow::setTitle( const QString &title )
 {
     setCaption( "Qt WebBrowser - " + title );
+}
+
+void MainWindow::setCommandState( int cmd, bool on )
+{
+    switch ( cmd ) {
+    case 1:
+	actionForward->setEnabled( on );
+	break;
+    case 2:
+	actionBack->setEnabled( on );
+	break;
+    }
+}
+
+void MainWindow::navigateComplete()
+{
+    actionStop->setEnabled( FALSE );
+}
+
+void MainWindow::navigateBegin()
+{
+    actionStop->setEnabled( TRUE );
 }

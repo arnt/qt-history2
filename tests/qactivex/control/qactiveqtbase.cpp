@@ -1,3 +1,30 @@
+/****************************************************************************
+** $Id: $
+**
+** Implementation of QActiveQt classes
+**
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Active Qt integration.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #define NOQT_ACTIVEX
 #include "qactiveqtbase.h"
 #include "qactiveqt.h"
@@ -331,6 +358,74 @@ void QActiveQt::propertyChanged( const char *property )
     }
 
     activex->emitPropertyChanged( dispId );
+}
+
+/*!
+    Reimplement this function if you want to support additional interfaces
+    in your ActiveX control. Set \a iface to point to the interface implementation
+    for interfaces of type \a iid.
+
+    Make sure you add a reference to interfaces using the API provided by the
+    COM interface model.
+
+    \code
+    QRESULT MyActiveX::queryInterface( const QUuid &iid, void **iface )
+    {
+        *iface = 0;
+	if ( iid == IID_IStream )
+	    *iface = (IStream*)this;
+	else
+	    return E_NOINTERFACE;
+
+        AddRef();
+	return S_OK;
+    }
+    \endcode
+   
+    Return the default COM results for QueryInterface (S_OK, E_NOINTERFACE).
+*/
+QRESULT QActiveQt::queryInterface( const QUuid &iid, void **iface )
+{
+    *iface = 0;
+    return E_NOINTERFACE;
+}
+
+/*!
+    Adds a reference to the ActiveX control.
+    When implementing additional interfaces in your ActiveX class, 
+    implement AddRef() to call this function.
+
+    \code
+    long MyActiveX::AddRef()
+    {
+        return addRef();
+    }
+    \endcode
+
+    \sa release(), queryInterface()
+*/
+long QActiveQt::addRef()
+{
+    return activex->AddRef();
+}
+
+/*!
+    Removes a reference from the ActiveX control.
+    When implementing additional interfaces in your ActiveX class, 
+    implement Release() to call this function.
+
+    \code
+    long MyActiveX::Release()
+    {
+        return release();
+    }
+    \endcode
+
+    \sa addRef(), queryInterface()
+*/
+long QActiveQt::release()
+{
+    return activex->Release();
 }
 
 /*
