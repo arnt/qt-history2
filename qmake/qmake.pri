@@ -71,7 +71,7 @@ bootstrap { #Qt code
    HEADERS+= \
         qbitarray.h \
         qbuffer.h \
-	qbufferedfsfileengine_p.h
+	qbufferedfsfileengine_p.h \
         qbytearray.h \
         qbytearraymatcher.h \
         qchar.h \
