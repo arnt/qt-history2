@@ -1467,7 +1467,9 @@ void QListViewItem::setup()
     if ( mlenabled ) {
 	h = ph;
 	for ( int c = 0; c < v->columns(); ++c ) {
-	    int tmph = v->fontMetrics().size( AlignVCenter, text( c ) ).height();
+	    int lines = text( c ).contains( QChar('\n') ) + 1;
+	    int tmph = v->d->fontMetricsHeight
+		       + v->fontMetrics().lineSpacing() * ( lines - 1 );
 	    h = QMAX( h, tmph );
 	}
 	h += 2*v->itemMargin();
@@ -6931,7 +6933,7 @@ bool QListView::clearRange( QListViewItem *from, QListViewItem *to, bool include
 	    break;
     }
 
-    // NOTE! This function does _not_ emit 
+    // NOTE! This function does _not_ emit
     // any signals about selection changed
     return changed;
 }
