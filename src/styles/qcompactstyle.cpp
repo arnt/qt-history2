@@ -29,7 +29,7 @@ QCompactStyle::QCompactStyle()
 }
 
 /*! \reimp */
-int QCompactStyle::pixelMetric( PixelMetric metric, const QWidget *widget )
+int QCompactStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 {
     int ret;
     switch ( metric ) {
