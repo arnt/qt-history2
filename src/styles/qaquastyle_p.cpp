@@ -29,6 +29,7 @@
 **
 **********************************************************************/
 
+#include <stdlib.h>
 #include "private/qaquastyle_p.h"
 #include <qapplication.h>
 #include <qobjectlist.h>

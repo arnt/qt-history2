@@ -14,8 +14,7 @@ styles {
 		styles += aqua mac cde motifplus sgi platinum compact interlace windows motif
 	}
 
-	!macx-*:styles -= aqua mac
-	embedded:styles -= aqua mac
+	embedded|!macx-*:styles -= mac
 	contains( styles, mac ) {
 		HEADERS +=$$STYLES_H/qmacstyle_mac.h
 		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp
@@ -29,6 +28,7 @@ styles {
         }
 	else:DEFINES += QT_NO_STYLE_MAC
 
+	embedded|!macx-*:styles -= aqua
 	contains( styles, aqua ) {
 		HEADERS += $$STYLES_H/qaquastyle.h 
 		SOURCES += $$STYLES_CPP/qaquastyle.cpp 
