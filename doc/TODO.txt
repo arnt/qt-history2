@@ -299,6 +299,10 @@ Qt/X11
    and Mod4Mask for MetaButton in translateButtonState(). We should query the
    current software mapping from X11, shouldn't we?
 
+Qt/X11
+   Search for the best visual when running under some X servers where the
+   default visual is psuedocolor, but a truecolor visual exists
+
 moc: (Matthias)
     new and faster signal and slot system
     Q_DISPATCH macro and Q_OBJECT extensions to support remote
