@@ -3,20 +3,20 @@
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
-#include <qfile.h> 
+#include <qfile.h>
 
-#include <process.h>
+#include <stdlib.h>
 
 class MoveMe : public QWidget
 {
 public:
-    MoveMe( QWidget *parent=0, const char *name=0, WFlags f = 0) 
+    MoveMe( QWidget *parent=0, const char *name=0, WFlags f = 0)
 	:QWidget(parent,name, f) {}
-    
+
 protected:
     void mousePressEvent( QMouseEvent *);
     void mouseMoveEvent( QMouseEvent *);
-private:    
+private:
     QPoint clickPos;
 };
 
@@ -39,13 +39,13 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     QString fn="tux.png";
-    
+
     if ( argc >= 2 )
 	fn = argv[1];
 
     if ( ! QFile::exists( fn ) )
 	exit( 1 );
-    
+
     QImage img( fn );
     QPixmap p;
     p.convertFromImage( img );
