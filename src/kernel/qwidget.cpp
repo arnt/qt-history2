@@ -865,8 +865,8 @@ QWidget::~QWidget()
 	hide();
 
     // A parent widget must destroy all its children before destroying itself
-    d->children.setAutoDelete(true);
-    d->children.clear();
+    while ( !d->children.isEmpty() )
+	delete d->children.takeFirst();
 
     QApplication::removePostedEvents( this );
 
