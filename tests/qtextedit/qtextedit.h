@@ -24,7 +24,8 @@ class QTextEdit : public QScrollView
     Q_OBJECT
 
 public:
-    QTextEdit( QWidget *parent, QTextEditDocument *d );
+    QTextEdit( QWidget *parent, const QString &fn, bool tabify = FALSE );
+    QTextEdit( QWidget *parent, const QString &text );
 
     QTextEditDocument *document() const;
     void insert( const QString &text, bool indent = FALSE, bool checkNewLine = FALSE );
@@ -54,7 +55,7 @@ signals:
     void currentColorChanged( const QColor &c );
     void currentAlignmentChanged( int );
     void currentParagTypeChanged( int );
-    
+
 protected:
     void setFormat( QTextEditFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
@@ -104,6 +105,7 @@ private:
     };
 
 private:
+    void init();
     void ensureCursorVisible();
     void drawCursor( bool visible );
     void placeCursor( const QPoint &pos, QTextEditCursor *c = 0 );
@@ -132,7 +134,7 @@ private:
     QPainter painter;
     QPixmap *doubleBuffer;
     int currentAlignment, currentParagType;
-    
+
 };
 
 inline QTextEditDocument *QTextEdit::document() const

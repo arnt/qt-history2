@@ -268,19 +268,17 @@ int main( int argc, char ** argv )
     MainWindow mw;
 
 #ifndef CPP_EDITOR
-    QTextEditDocument *d = new QTextEditDocument( fn, FALSE );
-    QTextEdit ed( &mw, d );
+    QTextEdit ed( &mw, fn, FALSE );
     mw.setCentralWidget( &ed );
     mw.setEdit( &ed );
 #else
-    QTextEditDocument *d = new QTextEditDocument( fn, TRUE );
-    d->setSyntaxHighlighter( new QCppSyntaxHighlighter( d ) );
-    d->setIndent( new QCppIndent( d ) );
-    d->setParenCheckingEnabled( TRUE );
-    d->setCompletionEnabled( TRUE );
-    QTextEdit ed( &mw, d );
+    QTextEdit ed( &mw, fn, TRUE );
+    ed.document()->setSyntaxHighlighter( new QCppSyntaxHighlighter( ed.document() ) );
+    ed.document()->setIndent( new QCppIndent( ed.document() ) );
+    ed.document()->setParenCheckingEnabled( TRUE );
+    ed.document()->setCompletionEnabled( TRUE );
     mw.setCentralWidget( &ed );
-    d->setFormatter( new QTextEditFormatterBreakInWords( d ) );
+    ed.document()->setFormatter( new QTextEditFormatterBreakInWords( ed.document() ) );
     mw.setEdit( &ed );
 #endif
     ed.viewport()->setFocus();

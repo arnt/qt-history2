@@ -787,6 +787,12 @@ void QTextEditDocument::loadRichText( const QString &fn )
     delete rt;
 }
 
+void QTextEditDocument::setText( const QString &text )
+{
+    qWarning( "QTextEditDocument::setText not implemented!" );
+    // ########### todo
+}
+
 void QTextEditDocument::invalidate()
 {
     QTextEditParag *s = fParag;

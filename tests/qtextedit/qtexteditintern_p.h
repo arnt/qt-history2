@@ -170,7 +170,8 @@ public:
 
     void loadPlainText( const QString &fn, bool tabify = FALSE );
     void loadRichText( const QString &fn );
-
+    void setText( const QString &text );
+    
     int x() const;
     int y() const;
     int width() const;
@@ -205,7 +206,6 @@ public:
     QTextEditParag *selectionStart( int id );
     QTextEditParag *selectionEnd( int id );
 
-    void load( const QString &fn );
     void save( const QString &fn = QString::null );
     QString fileName() const;
 
@@ -1110,7 +1110,7 @@ inline int QTextEditParag::lineY( int l ) const
 	qWarning( "QTextEditParag::lineY: line %d out of range!", l );
 	return 0;
     }
-    
+
     if ( !isValid() )
 	( (QTextEditParag*)this )->format();
 
@@ -1165,7 +1165,7 @@ inline void QTextEditParag::lineInfo( int l, int &y, int &h, int &bl ) const
 
     if ( !isValid() )
 	( (QTextEditParag*)this )->format();
-    
+
     QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;

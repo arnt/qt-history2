@@ -34,11 +34,25 @@ static QPixmap *bufferPixmap( const QSize &s )
     return buf_pixmap;
 }
 
-QTextEdit::QTextEdit( QWidget *parent, QTextEditDocument *d )
-    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ), doc( d ), undoRedoInfo( d )
+QTextEdit::QTextEdit( QWidget *parent, const QString &fn, bool tabify )
+    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ), 
+      doc( new QTextEditDocument( fn, tabify ) ), undoRedoInfo( doc )
+{
+    init();
+}
+
+QTextEdit::QTextEdit( QWidget *parent, const QString &text )
+    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ), 
+      doc( new QTextEditDocument( QString::null, FALSE ) ), undoRedoInfo( doc )
+{
+    doc->setText( text );
+    init();
+}
+
+void QTextEdit::init()
 {
     doubleBuffer = 0;
-    doc->setFormatter( new QTextEditFormatterBreakWords( d ) );
+    doc->setFormatter( new QTextEditFormatterBreakWords( doc ) );
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignLeft;
     currentParagType = QTextEditParag::Normal;
