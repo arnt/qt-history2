@@ -473,9 +473,9 @@ void QToolBox::itemDestroyed(QObject *object)
 }
 
 /*!
-    Removes the widget \a item from the toolbox. Note that the widget is
-    \e not deleted. Returns the removed widget's index, or -1 if the
-    widget was not in this tool box.
+    Removes the widget \a item from the toolbox. Note that the widget
+    is \e not deleted. Returns the removed widget's index, or -1 if
+    the widget was not in this tool box.
 */
 
 int QToolBox::removeItem( QWidget *item )
