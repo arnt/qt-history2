@@ -887,9 +887,8 @@ QSize QMessageBox::sizeHint() const
     int border = bh / 2 - style().pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if (border <= 0)
         border = 10;
-    int btn_spacing = 7;
-    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
-        btn_spacing = border;
+    int btn_spacing = style().styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing)
+                      ? border : 7;
 #ifndef Q_OS_TEMP
     int buttons = mbd->numButtons * bw + (n-1) * btn_spacing;
     int h = bh;

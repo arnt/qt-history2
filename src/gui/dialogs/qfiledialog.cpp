@@ -1837,7 +1837,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     // create a native dialog
 
 #if defined(Q_WS_WIN)
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
+    if (::qt_cast<QWindowsStyle*>(&qApp->style()))
         return qt_win_get_open_file_name(initialSelection, filter, &qt_working_dir,
                                          parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
@@ -2121,7 +2121,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     qt_get_dir_and_selection(dir, &qt_working_dir, 0);
 
 #if defined(Q_WS_WIN)
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
+    if (::qt_cast<QWindowsStyle*>(&qApp->style()))
         return qt_win_get_open_file_names(filter, &qt_working_dir, parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(&qApp->style()))
