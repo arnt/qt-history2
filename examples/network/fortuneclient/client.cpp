@@ -82,6 +82,7 @@ void Client::readFortune()
         requestNewFortune();
         return;
     }
+
     currentFortune = nextFortune;
     statusLabel->setText(currentFortune);
 }
