@@ -354,7 +354,7 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
 
     d->request.family = family;
     d->request.pointSize = pointSize * 10;
-    d->request.pixelSize = pixelSize();
+    d->request.pixelSize = -1;
     d->request.weight = weight;
     d->request.italic = italic;
 }
@@ -1995,6 +1995,15 @@ QString QFontInfo::family() const
 int QFontInfo::pointSize() const
 {
     return d->actual.pointSize / 10;
+}
+
+/*! Returns the pixel size of the matched window system font.
+
+  \sa QFont::pointSize()
+*/
+int QFontInfo::pointSize() const
+{
+    return d->actual.pixelSize;
 }
 
 

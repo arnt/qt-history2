@@ -53,6 +53,7 @@ public:
     QFontInfo	       &operator=( const QFontInfo & );
 
     QString   	        family()	const;
+    int			pixelSize()	const;
     int			pointSize()	const;
     bool		italic()	const;
     int			weight()	const;
