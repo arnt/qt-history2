@@ -27,13 +27,14 @@ defines			= Q_QDOC \
 			  QT_.*_SUPPORT \
 			  QT_COMPAT \
 			  Q_WS_.* \
-			  Q_OS_.*
+			  Q_OS_.* \
+			  beta
 
 extraimages.HTML	= logo32
 
 macro.key               = "\\bold"
 macro.menu              = "\\bold"
-macro.reg.HTML          = "&reg;"
+macro.reg.HTML          = "<sup>&reg;</sup>"
 macro.QD                = "\\e{Qt Designer}"
 
 Cpp.ignoretokens	= QAXFACTORY_EXPORT \
