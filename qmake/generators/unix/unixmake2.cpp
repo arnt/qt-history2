@@ -606,11 +606,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     QString clean_targets;
     if(mocAware()) {
 	t << "mocclean:" << "\n";
-	if(!objMoc.isEmpty() || !srcMoc.isEmpty()) {
+	if(!objMoc.isEmpty() || !srcMoc.isEmpty() || moc_incremental) {
 	    if(!objMoc.isEmpty())
 		t << "\t-rm -f $(OBJMOC)" << '\n';
 	    if(!srcMoc.isEmpty())
 		t << "\t-rm -f $(SRCMOC)" << '\n';
+	    if(moc_incremental)
+		t << "\t-rm -f $(INCREMENTAL_OBJMOC)" << '\n';
 	    clean_targets += " mocclean";
 	}
 	t << endl;
@@ -622,12 +624,21 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << endl;
 
+    if(do_incremental) {
+	t << "incrclean:" << "\n";
+	if(src_incremental)
+	    t << "\t-rm -f $(INCREMENTAL_OBJECTS)" << "\n";
+	if(moc_incremental)
+	    t << "\t-rm -f $(INCREMENTAL_OBJMOC)" << '\n';
+	t << endl;
+    }
+
     t << "clean:" << clean_targets << "\n\t"
       << "-rm -f $(OBJECTS) " << "\n\t";
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-rm -f ", " ", "") << "\n\t";
-    if(do_incremental)
-	t << "-rm -f $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)" << "\n\t";
+    if(src_incremental)
+	t << "-rm -f $(INCREMENTAL_OBJECTS)" << "\n\t";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
       << "-rm -f *~ core *.core" << "\n"
       << varGlue("CLEAN_FILES","\t-rm -f "," ","") << endl << endl;
