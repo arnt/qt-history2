@@ -3358,25 +3358,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( !widget->isTopLevel() )
 	    break;
-	if (event->xfocus.mode == NotifyWhileGrabbed && inPopupMode()) {
+	if (inPopupMode()) {
 	    QWidget* popup = QApplication::activePopupWidget();
 	    if ( popup ) {
-
-		/*
-		  That is more than suboptimal. The real solution should
-		  do some keyevent and buttonevent translation, so that
-		  the popup still continues to work as the user expects.
-		  Unfortunately this translation is currently only
-		  possible with a known widget. I'll change that soon
-		  (Matthias).
-		*/
-
 		// Danger - make sure we don't lock the server
 		do {
 		    popup->close();
 		} while ( (popup = qApp->activePopupWidget()) );
 	    }
-	} else if ( event->xfocus.mode != NotifyNormal )
+	}
+	if ( event->xfocus.mode != NotifyNormal )
 	    break;
 	if ( event->xfocus.detail != NotifyAncestor &&
 	     event->xfocus.detail != NotifyNonlinearVirtual &&
@@ -3761,17 +3752,14 @@ void QApplication::openPopup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse
-	int r;
-	r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
-			  (uint)(ButtonPressMask | ButtonReleaseMask |
-				 ButtonMotionMask | EnterWindowMask |
-				 LeaveWindowMask | PointerMotionMask),
-			  GrabModeSync, GrabModeAsync,
-			  None, None, CurrentTime );
+	int r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
+			      (uint)(ButtonPressMask | ButtonReleaseMask |
+				     ButtonMotionMask | EnterWindowMask |
+				     LeaveWindowMask | PointerMotionMask),
+			      GrabModeSync, GrabModeAsync,
+			      None, None, CurrentTime );
 	if ( (popupGrabOk = (r == GrabSuccess)) ) {
 	    XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
-	} else {
-	    XUngrabKeyboard( popup->x11Display(), CurrentTime );
 	}
     } else if ( popupGrabOk ) {
 	XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
