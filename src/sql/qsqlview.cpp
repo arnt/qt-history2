@@ -229,6 +229,7 @@ bool QSqlView::select( const QString & filter, const QSqlIndex & sort )
 	str += " order by " + sort.toString( d->nm );
     str += ";";
     d->srt = sort;
+    d->lastAt = QSqlResult::BeforeFirst;
     return setQuery( str );
 }
 
@@ -510,6 +511,7 @@ int QSqlView::apply( const QString& q, bool invalidate )
     int ar = 0;
     if ( invalidate ) {
 	setQuery( q );
+	d->lastAt = QSqlResult::BeforeFirst;	
 	ar = affectedRows();
     } else {
 	QSql sql( driver()->createResult() );
@@ -548,7 +550,7 @@ void QSqlView::detach()
 */
 void QSqlView::sync()
 {
-    if ( d->lastAt != at() ) {
+    if ( isActive() && isValid() && d->lastAt != at() ) {
 	d->lastAt = at();
 	uint i = 0;
 	for ( ; i < count(); ++i ){
