@@ -513,7 +513,6 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
     Q_ASSERT(delegate);
 
     if (d->delegate) {
-        // view
         disconnect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
                    this, SLOT(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
         disconnect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
@@ -522,7 +521,6 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
     d->delegate = delegate;
 
     if (d->delegate) {
-        // view
         connect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
                 this, SLOT(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
         connect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
@@ -617,7 +615,7 @@ void QAbstractItemView::reset()
     setState(NoState);
     if (isVisible())
         doItemsLayout();
-     // the view will be updated later
+    // the view will be updated later
 }
 
 /*!
