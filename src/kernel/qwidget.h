@@ -185,6 +185,8 @@ public:
     QPoint	 mapFromGlobal( const QPoint & ) const;
     QPoint	 mapToParent( const QPoint & )	 const;
     QPoint	 mapFromParent( const QPoint & ) const;
+    QPoint	 mapTo( QWidget *, const QPoint & ) const;
+    QPoint	 mapFrom( QWidget *, const QPoint & ) const;
 
     QWidget	*topLevelWidget()   const;
 
@@ -291,7 +293,7 @@ public:
 
     bool	 	isUpdatesEnabled() const;
 
-#if 0 //def _WS_QWS_    
+#if 0 //def _WS_QWS_
     void		repaintUnclipped( const QRegion &, bool erase = TRUE );
 #endif
 public slots:
@@ -535,7 +537,7 @@ private:
     QColor	 bg_col;
 #ifndef QT_NO_PALETTE
     QPalette	 pal;
-#endif    
+#endif
     QFont	 fnt;
 #ifndef QT_NO_LAYOUT
     QLayout 	*lay_out;

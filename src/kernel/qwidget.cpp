@@ -1661,11 +1661,53 @@ void QWidget::setFixedHeight( int h )
 }
 
 
+/*! Translates the widget coordinate \a pos to the coordinate system
+  of \a parent, which must be non-null and be a parent widget of this.
+
+  \sa mapFrom() mapToParent() mapToGlobal()
+*/
+
+QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
+{
+    QPoint p = pos;
+    if ( parent ) {
+	const QWidget * w = this;
+	while ( w != parent ) {
+	    p = w->mapToParent( p );
+	    w = w->parentWidget();
+	}
+    }
+    return p;
+}
+
+
+/*! Translates the widget coordinate \a pos from the coordinate system
+  of \a parent to this widget's coordinate system, which must be non-null
+  and be a parent widget of this.
+
+  \sa mapTo() mapFromParent() mapFromGlobal()
+*/
+
+QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
+{
+    QPoint p( pos );
+    if ( parent ) {
+	const QWidget * w = this;
+	while ( w != parent ) {
+	    p = w->mapFromParent( p );
+	    w = w->parentWidget();
+	}
+    }
+    return p;
+}
+
+
 /*!
   Translates the widget coordinate \a pos to a coordinate in the parent widget.
 
   Same as mapToGlobal() if the widget has no parent.
-  \sa mapFromParent()
+
+  \sa mapFromParent() mapTo() mapToGlobal()
 */
 
 QPoint QWidget::mapToParent( const QPoint &pos ) const
@@ -1678,7 +1720,7 @@ QPoint QWidget::mapToParent( const QPoint &pos ) const
 
   Same as mapFromGlobal() if the widget has no parent.
 
-  \sa mapToParent()
+  \sa mapToParent() mapFrom() mapFromGlobal()
 */
 
 QPoint QWidget::mapFromParent( const QPoint &pos ) const
@@ -4883,4 +4925,3 @@ void QWidget::showFullScreen()
 
   \sa setPalette(), unsetPalette()
  */
-

@@ -572,7 +572,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
   Translates the widget coordinate \e pos to global screen coordinates.
   For example, \code mapToGlobal(QPoint(0,0))\endcode would give the
   global coordinates of the top-left pixel of the widget.
-  \sa mapFromGlobal()
+  \sa mapFromGlobal() mapTo() mapToParent()
 */
 
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
@@ -587,7 +587,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 
 /*!
   Translates the global screen coordinate \e pos to widget coordinates.
-  \sa mapToGlobal()
+  \sa mapToGlobal() mapFrom() mapFromParent()
 */
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
@@ -622,8 +622,9 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 #ifndef NO_XIM
     if ( text ) {
 	QWidget* tlw = topLevelWidget();
-	if ( tlw->extra && tlw->extra->topextra && tlw->extra->topextra->xic ) {
-	    QPoint p( x, y );
+	if ( tlw->extra && tlw->extra->topextra &&
+	     tlw->extra->topextra->xic ) {
+	    QPoint p( x, y ); // ### use mapTo()
 	    QWidget * w = this;
 	    QWidget * tlw = topLevelWidget();
 	    while ( w != tlw ) {
