@@ -24,9 +24,9 @@ public:
     QDecorationHydro();
     virtual ~QDecorationHydro();
 
-    virtual QRegion region(const QWidget *, const QRect &rect, Region);
-    virtual void paint(QPainter *, const QWidget *);
-    virtual void paintButton(QPainter *, const QWidget *, Region, int state);
+    virtual QRegion region(const QWidget *, const QRect &rect, DecorItem);
+    virtual void paintItem(QPainter *, const QWidget *, DecorItem item = All,
+                           DecoreState state = Normal);
 protected:
 //    virtual int getTitleWidth(const QWidget *);
     virtual int getTitleHeight(const QWidget *);

@@ -30,7 +30,7 @@ QDecorationKDE::~QDecorationKDE()
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QDecorationKDE::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
+QRegion QDecorationKDE::region(const QWidget *widget, const QRect &rect, QDecoration::DecorItem type)
 {
     int titleHeight = getTitleHeight(widget);
 //  int titleWidth = getTitleWidth(widget);
@@ -65,13 +65,77 @@ QRegion QDecorationKDE::region(const QWidget *widget, const QRect &rect, QDecora
         case BottomLeft:
         case BottomRight:
         default:
-            region = QDecorationDefault::region(widget, rect, type);
+            region = QDecorationKDE::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
+void QDecorationKDE::paintItem(QPainter *painter, const QWidget *widget, DecorItem item,
+                                   DecoreState state)
+{
+    if (item == None)
+        return;
+
+    if (item == All) {
+        paintItem(painter, widget, Border, state);
+        paintItem(painter, widget, Title, state);
+        paintItem(painter, widget, Menu, state);
+        paintItem(painter, widget, Help, state);
+        paintItem(painter, widget, Minimize, state);
+        paintItem(painter, widget, Maximize, state);
+        paintItem(painter, widget, Normalize, state);
+        paintItem(painter, widget, Close, state);
+        return;
+    }
+
+    switch(item) {
+    case Border:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Border - NYI!");
+        break;
+    }
+    case Title:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Title - NYI!");
+        break;
+    }
+    case Menu:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Menu - NYI!");
+        break;
+    }
+    case Help:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Help - NYI!");
+        break;
+    }
+    case Minimize:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Minimize - NYI!");
+        break;
+    }
+    case Maximize:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Maximize - NYI!");
+        break;
+    }
+    case Normalize:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Normalize - NYI!");
+        break;
+    }
+    case Close:
+    {
+        qWarning("QDecorationKDE::paintEvent(): Close - NYI!");
+        break;
+    }
+    }
+}
+
+
+#if 0
 void QDecorationKDE::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
@@ -185,5 +249,6 @@ void QDecorationKDE::paintButton(QPainter *painter, const QWidget *w,
 #endif
 
 }
+#endif // 0 --------------------------------------------------------------------------
 
 #endif // QT_NO_QWS_DECORATION_KDE

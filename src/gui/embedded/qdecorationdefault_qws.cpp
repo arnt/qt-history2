@@ -229,7 +229,7 @@ const char **QDecorationDefault::normalizePixmap()
 #endif
 
 
-QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
+QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::DecorItem type, bool on, int& xoff, int& /*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
     static const char** staticHelpPixmapXPM=0;
@@ -314,7 +314,7 @@ int QDecorationDefault::getTitleHeight(const QWidget *)
     return 20;
 }
 
-QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
+QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, QDecoration::DecorItem type)
 {
 //    int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -488,6 +488,69 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, QDe
     return region;
 }
 
+void QDecorationDefault::paintItem(QPainter *painter, const QWidget *widget, DecorItem item,
+                                   DecoreState state)
+{
+    if (item == None)
+        return;
+
+    if (item == All) {
+        paintItem(painter, widget, Border, state);
+        paintItem(painter, widget, Title, state);
+        paintItem(painter, widget, Menu, state);
+        paintItem(painter, widget, Help, state);
+        paintItem(painter, widget, Minimize, state);
+        paintItem(painter, widget, Maximize, state);
+        paintItem(painter, widget, Normalize, state);
+        paintItem(painter, widget, Close, state);
+        return;
+    }
+
+    switch(item) {
+    case Border:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Border - NYI!");
+        break;
+    }
+    case Title:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Title - NYI!");
+        break;
+    }
+    case Menu:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Menu - NYI!");
+        break;
+    }
+    case Help:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Help - NYI!");
+        break;
+    }
+    case Minimize:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Minimize - NYI!");
+        break;
+    }
+    case Maximize:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Maximize - NYI!");
+        break;
+    }
+    case Normalize:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Normalize - NYI!");
+        break;
+    }
+    case Close:
+    {
+        qWarning("QDecorationDefault::paintEvent(): Close - NYI!");
+        break;
+    }
+    }
+}
+
+#if 0
 void QDecorationDefault::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
@@ -599,6 +662,10 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *w,
 #endif
 
 }
+#endif // 0 -------------------------------------------------
+
+
+
 #endif // QT_NO_QWS_DECORATION_DEFAULT
 
 #endif // QT_NO_QWS_MANAGER

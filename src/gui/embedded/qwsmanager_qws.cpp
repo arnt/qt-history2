@@ -46,7 +46,7 @@ class QWSManagerPrivate : public QObjectPrivate
 public:
     QWSManagerPrivate();
 
-    QDecoration::Region activeRegion;
+    QDecoration::DecorItem activeItem;
     QWidget *managed;
     QMenu *popup;
     QWSButton *menuBtn;
@@ -76,7 +76,7 @@ QPoint QWSManagerPrivate::mousePos;
 
 
 QWSManagerPrivate::QWSManagerPrivate()
-    : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0), menuBtn(0),
+    : QObjectPrivate(), activeItem(QDecoration::None), managed(0), popup(0), menuBtn(0),
       closeBtn(0), minimizeBtn(0), maximizeBtn(0), dx(0), dy(0)
 {
 }
@@ -124,14 +124,14 @@ QRegion QWSManager::region()
     return QApplication::qwsDecoration().region(d->managed, d->managed->geometry());
 }
 
-QDecoration::Region QWSManager::pointInRegion(const QPoint &p)
+QDecoration::DecorItem QWSManager::pointInDecorItem(const QPoint &p)
 {
     QDecoration &dec = QApplication::qwsDecoration();
     QRect rect(d->managed->geometry());
 
-    for (int i = QDecoration::LastRegion; i >= QDecoration::Title; i--) {
-        if (dec.region(d->managed, rect, (QDecoration::Region)i).contains(p))
-            return (QDecoration::Region)i;
+    for (int i = QDecoration::LastDecorItem; i >= QDecoration::Title; i--) {
+        if (dec.region(d->managed, rect, (QDecoration::DecorItem)i).contains(p))
+            return (QDecoration::DecorItem)i;
     }
 
     return QDecoration::None;
@@ -177,8 +177,8 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
     d->mousePos = e->globalPos();
     d->dx = 0;
     d->dy = 0;
-    d->activeRegion = pointInRegion(d->mousePos);
-    switch (d->activeRegion) {
+    d->activeItem = pointInDecorItem(d->mousePos);
+    switch (d->activeItem) {
     case QDecoration::Menu:
         menu(d->managed->geometry().topLeft());
         break;
@@ -194,15 +194,15 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
     default:
         break;
     }
-    if (d->activeRegion != QDecoration::None &&
-         d->activeRegion != QDecoration::Menu) {
+    if (d->activeItem != QDecoration::None &&
+         d->activeItem != QDecoration::Menu) {
         d->active = d->managed;
         d->managed->grabMouse();
     }
-    if (d->activeRegion != QDecoration::None &&
-         d->activeRegion != QDecoration::Close &&
-         d->activeRegion != QDecoration::Minimize &&
-         d->activeRegion != QDecoration::Menu) {
+    if (d->activeItem != QDecoration::None &&
+         d->activeItem != QDecoration::Close &&
+         d->activeItem != QDecoration::Minimize &&
+         d->activeItem != QDecoration::Menu) {
         d->managed->raise();
     }
     if (e->button() == Qt::RightButton) {
@@ -216,32 +216,32 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton) {
         handleMove();
         d->mousePos = e->globalPos();
-        QDecoration::Region rgn = pointInRegion(e->globalPos());
-        QDecoration::Region activatedRegion = d->activeRegion;
-        d->activeRegion = QDecoration::None;
+        QDecoration::DecorItem itm = pointInDecorItem(e->globalPos());
+        QDecoration::DecorItem activatedItem = d->activeItem;
+        d->activeItem = QDecoration::None;
         d->active = 0;
-        switch (activatedRegion) {
+        switch (activatedItem) {
             case QDecoration::Close:
                 setClicked(d->closeBtn, false);
-                if (rgn == QDecoration::Close) {
+                if (itm == QDecoration::Close) {
                     close();
                     return;
                 }
                 break;
             case QDecoration::Minimize:
                 setClicked(d->minimizeBtn, false);
-                if (rgn == QDecoration::Minimize)
+                if (itm == QDecoration::Minimize)
                     minimize();
                 break;
             case QDecoration::Maximize:
                 setClicked(d->maximizeBtn, false);
-                if (rgn == QDecoration::Maximize)
+                if (itm == QDecoration::Maximize)
                     toggleMaximize();
                 break;
             default:
                 break;
         }
-    } else if (d->activeRegion == QDecoration::None) {
+    } else if (d->activeItem == QDecoration::None) {
         d->active = 0;
     }
 }
@@ -257,14 +257,14 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-    if (d->activeRegion == QDecoration::None)
+    if (d->activeItem == QDecoration::None)
     {
         if (!QWidget::mouseGrabber()) {
-            QDecoration::Region r = pointInRegion(e->globalPos());
+            QDecoration::DecorItem r = pointInDecorItem(e->globalPos());
             qwsd->selectCursor(d->managed, shape[r]);
         }
     } else
-        qwsd->selectCursor(d->managed, shape[d->activeRegion]);
+        qwsd->selectCursor(d->managed, shape[d->activeItem]);
 #endif //QT_NO_CURSOR
     // resize/move regions
 
@@ -288,7 +288,7 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     handleMove();
 
     // button regions
-    QDecoration::Region r = pointInRegion(e->globalPos());
+    QDecoration::DecorItem r = pointInDecorItem(e->globalPos());
     setMouseOver(d->menuBtn, r == QDecoration::Menu);
     setMouseOver(d->closeBtn, r == QDecoration::Close);
     setMouseOver(d->minimizeBtn, r == QDecoration::Minimize);
@@ -310,7 +310,7 @@ void QWSManager::handleMove()
 
     QRect geom(d->managed->geometry());
 
-    switch (d->activeRegion) {
+    switch (d->activeItem) {
         case QDecoration::Title:
             geom = QRect(x + d->dx, y + d->dy, w, h);
             break;
@@ -416,13 +416,14 @@ void QWSManager::paintEvent(QPaintEvent *)
     pe->setWidgetDeviceRegion(r);
 
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
-    dec.paint(&painter, d->managed);
+    dec.paintItem(&painter, d->managed, QDecoration::Border, QDecoration::Normal);
+//    dec.paint(&painter, d->managed);
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
-    dec.paintButton(&painter, d->managed, QDecoration::Help, d->menuBtn->state());
-    dec.paintButton(&painter, d->managed, QDecoration::Menu, d->menuBtn->state());
-    dec.paintButton(&painter, d->managed, QDecoration::Close, d->closeBtn->state());
-    dec.paintButton(&painter, d->managed, QDecoration::Minimize, d->minimizeBtn->state());
-    dec.paintButton(&painter, d->managed, QDecoration::Maximize, d->maximizeBtn->state());
+//     dec.paintButton(&painter, d->managed, QDecoration::Help, d->menuBtn->state());
+//     dec.paintButton(&painter, d->managed, QDecoration::Menu, d->menuBtn->state());
+//     dec.paintButton(&painter, d->managed, QDecoration::Close, d->closeBtn->state());
+//     dec.paintButton(&painter, d->managed, QDecoration::Minimize, d->minimizeBtn->state());
+//     dec.paintButton(&painter, d->managed, QDecoration::Maximize, d->maximizeBtn->state());
     d->managed->clearWState(Qt::WState_InPaintEvent);
 }
 
@@ -499,12 +500,12 @@ void QWSManager::menuTriggered(QAction *item)
         toggleMaximize();
     } else if (item == d->menuActions[QWSManagerPrivate::TitleAction]) {
         d->mousePos = QCursor::pos();
-        d->activeRegion = QDecoration::Title;
+        d->activeItem = QDecoration::Title;
         d->active = d->managed;
         d->managed->grabMouse();
     } else if (item == d->menuActions[QWSManagerPrivate::BottomRightAction]) {
         d->mousePos = QCursor::pos();
-        d->activeRegion = QDecoration::BottomRight;
+        d->activeItem = QDecoration::BottomRight;
         d->active = d->managed;
         d->managed->grabMouse();
     } else {
@@ -569,13 +570,13 @@ void QWSManager::repaintButton(QWSButton *b)
     //optimization instead of calling paintEvent()
     QPainter painter(d->managed);
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
-    dec.paintButton(&painter, d->managed, b->type(), b->state());
+//    dec.paintButton(&painter, d->managed, b->type(), b->state());
     d->managed->clearWState(Qt::WState_InPaintEvent);
 }
 
 /*
 */
-QWSButton::QWSButton(QWSManager *m, QDecoration::Region t, bool tb)
+QWSButton::QWSButton(QWSManager *m, QDecoration::DecorItem t, bool tb)
     : flags(0), toggle(tb), typ(t), manager(m)
 {
 }

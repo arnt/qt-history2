@@ -215,7 +215,7 @@ int QDecorationWindows::getTitleWidth(const QWidget *widget)
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
+QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, QDecoration::DecorItem type)
 {
     int titleHeight = getTitleHeight(widget);
 //    int titleWidth = getTitleWidth(widget);
@@ -250,12 +250,77 @@ QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, QDe
         case BottomLeft:
         case BottomRight:
         default:
-            region = QDecorationDefault::region(widget, rect, type);
+            region = QDecorationWindows::region(widget, rect, type);
             break;
     }
 
     return region;
 }
+
+void QDecorationWindows::paintItem(QPainter *painter, const QWidget *widget, DecorItem item,
+                                   DecoreState state)
+{
+    if (item == None)
+        return;
+
+    if (item == All) {
+        paintItem(painter, widget, Border, state);
+        paintItem(painter, widget, Title, state);
+        paintItem(painter, widget, Menu, state);
+        paintItem(painter, widget, Help, state);
+        paintItem(painter, widget, Minimize, state);
+        paintItem(painter, widget, Maximize, state);
+        paintItem(painter, widget, Normalize, state);
+        paintItem(painter, widget, Close, state);
+        return;
+    }
+
+    switch(item) {
+    case Border:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Border - NYI!");
+        break;
+    }
+    case Title:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Title - NYI!");
+        break;
+    }
+    case Menu:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Menu - NYI!");
+        break;
+    }
+    case Help:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Help - NYI!");
+        break;
+    }
+    case Minimize:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Minimize - NYI!");
+        break;
+    }
+    case Maximize:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Maximize - NYI!");
+        break;
+    }
+    case Normalize:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Normalize - NYI!");
+        break;
+    }
+    case Close:
+    {
+        qWarning("QDecorationWindows::paintEvent(): Close - NYI!");
+        break;
+    }
+    }
+}
+
+
+#if 0
 
 void QDecorationWindows::paint(QPainter *painter, const QWidget *widget)
 {
@@ -369,5 +434,7 @@ void QDecorationWindows::paintButton(QPainter *painter, const QWidget *w,
     if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff, pm);
 #endif
 }
+
+#endif // 0 ----------------------------------------------------
 
 #endif // QT_NO_QWS_DECORATION_WINDOWS || QT_PLUGIN

@@ -46,7 +46,7 @@ int QDecorationBeOS::getTitleHeight(const QWidget *)
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QDecorationBeOS::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
+QRegion QDecorationBeOS::region(const QWidget *widget, const QRect &rect, QDecoration::DecorItem type)
 {
 //    int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -126,13 +126,77 @@ QRegion QDecorationBeOS::region(const QWidget *widget, const QRect &rect, QDecor
         case BottomLeft:
         case BottomRight:
         default:
-            region = QDecorationDefault::region(widget, rect, type);
+            region = QDecorationBeOS::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
+void QDecorationBeOS::paintItem(QPainter *painter, const QWidget *widget, DecorItem item,
+                                   DecoreState state)
+{
+    if (item == None)
+        return;
+
+    if (item == All) {
+        paintItem(painter, widget, Border, state);
+        paintItem(painter, widget, Title, state);
+        paintItem(painter, widget, Menu, state);
+        paintItem(painter, widget, Help, state);
+        paintItem(painter, widget, Minimize, state);
+        paintItem(painter, widget, Maximize, state);
+        paintItem(painter, widget, Normalize, state);
+        paintItem(painter, widget, Close, state);
+        return;
+    }
+
+    switch(item) {
+    case Border:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Border - NYI!");
+        break;
+    }
+    case Title:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Title - NYI!");
+        break;
+    }
+    case Menu:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Menu - NYI!");
+        break;
+    }
+    case Help:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Help - NYI!");
+        break;
+    }
+    case Minimize:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Minimize - NYI!");
+        break;
+    }
+    case Maximize:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Maximize - NYI!");
+        break;
+    }
+    case Normalize:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Normalize - NYI!");
+        break;
+    }
+    case Close:
+    {
+        qWarning("QDecorationBeOS::paintEvent(): Close - NYI!");
+        break;
+    }
+    }
+}
+
+
+#if 0
 void QDecorationBeOS::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
@@ -229,4 +293,5 @@ void QDecorationBeOS::paintButton(QPainter *painter, const QWidget *w,
 #endif
 }
 
+#endif // 0 --------------------------------------------------------------
 #endif // QT_NO_QWS_DECORATION_BEOS
