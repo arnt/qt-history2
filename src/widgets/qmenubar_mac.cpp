@@ -78,6 +78,14 @@ static void qt_mac_set_modal_state(bool b)
     }	
     ReleaseMenu(mr);
     qt_mac_command_set_enabled(kHICommandQuit, !b);
+    qt_mac_command_set_enabled(kHICommandPreferences, !b);
+}
+
+static void qt_mac_clear_menubar()
+{
+    ClearMenuBar();
+    qt_mac_command_set_enabled(kHICommandPreferences, FALSE);
+    InvalMenuBar();
 }
 
 //internal class
@@ -520,7 +528,7 @@ bool QMenuBar::updateMenuBar()
 {
     if(this != activeMenuBar)
 	qDebug("Shouldn't have happened! %s:%d", __FILE__, __LINE__);
-    ClearMenuBar();
+    qt_mac_clear_menubar();
     if(mac_d)
 	mac_d->clear();
     if(!CreateNewMenu(0, 0, &mac_d->apple_menu)) {
@@ -652,8 +660,7 @@ void QMenuBar::macRemoveNativeMenubar()
     mac_eaten_menubar = FALSE;
     if(this == activeMenuBar) {
 	activeMenuBar = 0;
-	ClearMenuBar();
-	InvalMenuBar();
+	qt_mac_clear_menubar();
     }
     if(mac_d) {
 	delete mac_d;
@@ -748,8 +755,7 @@ bool QMenuBar::macUpdateMenuBar()
     } else if(first || fall_back_to_empty) {
 	first = FALSE;
 	activeMenuBar = NULL;
-	ClearMenuBar();
-	InvalMenuBar();
+	qt_mac_clear_menubar();
     }
     return FALSE;
 }
