@@ -3141,10 +3141,7 @@ void QFileDialog::setDir( const QString & pathstr )
 
 #if defined(Q_OS_UNIX)
     if ( dr.length() && dr[0] == '~' ) {
-	struct passwd *pw;
-	int i;
-
-	i = 0;
+	int i = 0;
 	while( i < (int)dr.length() && dr[i] != '/' )
 	    i++;
 	QCString user;
@@ -3162,8 +3159,15 @@ void QFileDialog::setDir( const QString & pathstr )
 	} else
 	    user = dr.mid( 1, i-1 ).local8Bit();
 	dr = dr.mid( i, dr.length() );
+	struct passwd *pw;
+#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+	struct passwd mt_pw;
+	char buffer[2048];
+	if ( ::getpwnam_r( user, &mt_pw, buffer, 2048, &pw ) == 0 && pw == &mt_pw )
+#else
 	pw = ::getpwnam( user );
 	if ( pw )
+#endif
 	    dr.prepend( QString::fromLocal8Bit(pw->pw_dir) );
     }
 #endif
