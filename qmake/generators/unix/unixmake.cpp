@@ -586,9 +586,10 @@ UnixMakefileGenerator::init()
 	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty())
 	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
     }
-
     //version handling
-    if(project->variables()["VERSION"].isEmpty()) 
+    if ( project->variables()["VER_PAT"].isEmpty() )
+	project->variables()["VER_PAT"].append( "0" );
+    if(project->variables()["VERSION"].isEmpty())
 	project->variables()["VERSION"].append("1.0." + project->variables()["VER_PAT"].first() );
     QStringList l = QStringList::split('.', project->variables()["VERSION"].first()) << "0" << "0"; //make sure there are three
     project->variables()["VER_MAJ"].append(l[0]);
