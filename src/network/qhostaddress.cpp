@@ -19,7 +19,7 @@
 class QHostAddressPrivate
 {
 public:
-    QHostAddressPrivate( Q_UINT32 a_=0 ) : a(a_), isIp4(TRUE), isIp6(FALSE)
+    QHostAddressPrivate( Q_UINT32 a_=0 ) : a(a_), isIp4(TRUE)
     {
     }
     QHostAddressPrivate( Q_UINT8 *a_ );
@@ -42,19 +42,18 @@ private:
     Q_UINT32 a;     // ip 4 address
     Q_UINT8 a6[16]; // ip 6 address
     bool isIp4;
-    bool isIp6;
 
     friend class QHostAddress;
 };
 
-QHostAddressPrivate::QHostAddressPrivate(Q_UINT8 *a_) : a(0), isIp4(FALSE), isIp6(TRUE)
+QHostAddressPrivate::QHostAddressPrivate(Q_UINT8 *a_) : a(0), isIp4(FALSE)
 {
     for ( int i=0; i<16; i++ ) {
 	a6[i] = a_[i];
     }
 }
 
-QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(FALSE), isIp6(TRUE)
+QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(FALSE)
 {
     for (int i = 0; i < 16; i++) {
 	a6[i] = a_.c[i];
@@ -345,7 +344,7 @@ Q_UINT32 QHostAddress::toIPv4Address() const
 */
 bool QHostAddress::isIPv6Address() const
 {
-    return d->isIp6;
+    return !d->isIp4;
 }
 
 /*!
