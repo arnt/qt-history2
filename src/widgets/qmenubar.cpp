@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#86 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#86 $");
 
 
 /*!
@@ -257,6 +257,9 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	}
+	// ### ! block all accelerator events when the menu bar is active
+	if ( qApp && qApp->focusWidget() == this )
+	    return TRUE;
     }
 
     // look for Alt release
@@ -267,6 +270,14 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	    setFocus();
 	    if ( object->parent() )
 		object->removeEventFilter( this );
+	    QWidget * tlw = ((QWidget *)object)->topLevelWidget();
+	    if ( tlw ) {
+		// ### !
+		// make sure to be the first event filter, so we can kill
+		// accelerator events before the acceleators get to them.
+		tlw->removeEventFilter( this );
+		tlw->installEventFilter( this );
+	    }
 	} else if ( event->type() == Event_KeyPress && object->parent() ) {
 	    object->removeEventFilter( this );	    
 	}
@@ -716,13 +727,10 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	setWindowsAltMode( FALSE, -1 );
 	return;
     }
+
     register QMenuItem *mi = mitems->at(item);
-    if ( item != actItem ) {			// new item highlighted
-	setActItem( item, FALSE );
+    if ( item != actItem )			// new item highlighted
 	emit highlighted( mi->id() );
-    } else {
-	repaint( irects[actItem], FALSE );
-    }
 
     QPopupMenu *popup = mi->popup();
     if ( popup && mi->isEnabled() ) {
@@ -791,6 +799,11 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 		setWindowsAltMode( TRUE, item );
 		mi = mitems->at( item );
 		emit highlighted( mi->id() );
+	    } else if (actItem >= 0 && // ### uglehack alert!  beep beep beep!
+		       QRect(irects[actItem].left(), irects[actItem].top()-4,
+			     irects[actItem].width(),
+			     irects[actItem].height()+8 ).contains(e->pos())) {
+		// nothing
 	    } else {
 		setWindowsAltMode( FALSE, -1 );
 	    }
@@ -998,12 +1011,16 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 	    windowsaltactive = 1;
 	    setFocus();
 	}
+	if ( index == actItem ) // work around setActItem overoptimization
+	    actItem = -1;
 	setActItem( index, FALSE );
     } else {
 	if ( windowsaltactive ) {
 	    focusWidget()->setFocus();
 	    windowsaltactive = 0;
 	}
+	if ( index == actItem ) // work around setActItem overoptimization
+	    actItem = -1;
 	setActItem( index, FALSE );
     }
 }
