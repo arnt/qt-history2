@@ -888,8 +888,12 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 	if ( rlen == -1 )
 	    rlen = 0;
 	int i = 0;
-	while ( i < rlen )
-	    buf[rnum++] = cbuf[i++];
+	while ( i < rlen ) {
+	    buf[rnum].cell() = cbuf[i];
+	    buf[rnum].row() = 0;
+	    rnum++;
+	    i++;
+	}
 	delete[] cbuf;
 	if ( rnum < len && dev->atEnd() )
 	    buf[rnum++] = QEOF;
@@ -1585,7 +1589,7 @@ QString QTextStream::readLine()
 	readCharByChar = FALSE;
 	// use optimized read line
 	const int buf_size = 256;
-	QChar c[buf_size];
+	static QChar c[buf_size];
 	int pos = 0;
 	bool eof = FALSE;
 
