@@ -26,7 +26,7 @@
   Note that we explicitely check that the role is \c QAbstractItemModel::Role_Display, since
   we want the additional \c{#} character only when the value is displayed, and not
   when the user edits the value.
-  
+
   \skipto main(
   \printuntil }
 
