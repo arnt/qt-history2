@@ -402,31 +402,32 @@ static void makeVariables() {
 class ProgressDialog : public QSemiModal
 {
     Q_OBJECT
-    
+
 public:
     ProgressDialog( QWidget *parent, const QString &fn, int steps );
-    
+
     void setReadProgress( int p );
     void setWriteProgress( int p );
     void setWriteLabel( const QString &s );
-  
+
 signals:
     void cancelled();
-    
+
 private:
     QProgressBar *readBar;
     QProgressBar *writeBar;
     QLabel *writeLabel;
-    
+
 };
 
 ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
     : QSemiModal( parent, "", TRUE )
 {
+    setCaption( tr( "Copy or Move a File" ) );
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
-    
+
     layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this ) );
     readBar = new QProgressBar( steps, this );
     readBar->reset();
@@ -438,7 +439,7 @@ ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
     writeBar->reset();
     writeBar->setProgress( 0 );
     layout->addWidget( writeBar );
-    
+
     QPushButton *b = new QPushButton( tr( "&Cancel" ), this );
     b->setFixedSize( b->sizeHint() );
     layout->addWidget( b );
@@ -4057,7 +4058,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 {
     if ( !op )
 	return;
-    
+
     QString label;
     QUrl u( op->arg( 0 ) );
     if ( u.isLocalFile() ) {
@@ -4066,7 +4067,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	label = QString( "%1 (on %2)" );
 	label = label.arg( u.path() ).arg( u.host() );
     }
-    
+
     if ( !d->progressDia ) {
 	if ( bytesDone < bytesTotal) {
 	    d->ignoreStop = FALSE;
