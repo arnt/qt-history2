@@ -1061,7 +1061,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		} else {
 		    if (needfirst) {
 			firstcode=oldcode=code;
-			if (!out_of_bounds && line)
+			if (!out_of_bounds && line && firstcode!=trans_index)
 			    line[y][x] = color(firstcode);
 			x++;
 			if (x>=swidth) out_of_bounds = TRUE;
@@ -1106,7 +1106,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			oldcode=incode;
 			while (sp>stack) {
 			    --sp;
-			    if (!out_of_bounds)
+			    if (!out_of_bounds && *sp!=trans_index)
 				line[y][x] = color(*sp);
 			    x++;
 			    if (x>=swidth) out_of_bounds = TRUE;
