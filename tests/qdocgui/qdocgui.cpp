@@ -14,6 +14,10 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     setCaption( "qdoc GUI" );
     QVBoxLayout* vb = new QVBoxLayout(this);
     vb->setAutoAdd( TRUE );
+    QPushButton *quit = new QPushButton( "&Quit", this );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    QPushButton *redo = new QPushButton( "&Repopulate", this );
+    connect( redo, SIGNAL(clicked()), this, SLOT(populateListView()) );
     classList = new QListView( this );
     classList->addColumn( "Text" );
     classList->setRootIsDecorated( TRUE );
@@ -21,16 +25,22 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)) );
     classList->show();
     qtdirenv = getenv( "QTDIR" );
-    waitText = new QLabel( "Currently qdocing", this, "wait", WType_Modal | WStyle_Customize | WStyle_NormalBorder );
-    waitText->setCaption( "qdoc GUI - Waiting" );
-    waitText->setFont( QFont("times", 36) );
-    waitText->setAlignment( AlignCenter );
-    waitText->show();
     init();
 }
 
 void QDocMainWindow::init()
 {
+    populateListView();
+}
+
+void QDocMainWindow::populateListView()
+{
+    waitText = new QLabel( "Currently qdocing", this, "wait", WType_Modal | WStyle_Customize | WStyle_NormalBorder );
+    waitText->setCaption( "qdoc GUI - Waiting" );
+    waitText->setFont( QFont("times", 36) );
+    waitText->setAlignment( AlignCenter );
+    waitText->show();
+    classList->clear();
     proc = new QProcess( this );
     QDir e( qtdirenv + "/util/qdoc" );
     proc->setWorkingDirectory( e );

@@ -14,6 +14,7 @@ public:
 public slots:
     void readOutput();
     void activateEditor( QListViewItem* );
+    void populateListView();
     void editorFinished();
     void finished();
 private:
