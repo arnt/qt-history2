@@ -874,7 +874,11 @@ static bool canCast(QCoreVariant::Private *d, QCoreVariant::Type t)
             || d->type == QCoreVariant::Time || d->type == QCoreVariant::DateTime
             || d->type == QCoreVariant::LongLong || d->type == QCoreVariant::ULongLong;
     case QCoreVariant::ByteArray:
-        return d->type == QCoreVariant::CString || d->type == QCoreVariant::String;
+        return
+#ifdef QT_COMPAT
+            d->type == QCoreVariant::CString ||
+#endif
+            d->type == QCoreVariant::String;
     case QCoreVariant::Date:
         return d->type == QCoreVariant::String || d->type == QCoreVariant::DateTime;
     case QCoreVariant::Time:
