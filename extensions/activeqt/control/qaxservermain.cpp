@@ -67,9 +67,7 @@ void qAxInit()
     InitializeCriticalSection( &qAxModuleSection );
 
     QString libFile( qAxModuleFilename );
-    BSTR oleLibFile = QStringToBSTR( libFile );
-    LoadTypeLibEx( oleLibFile, REGKIND_NONE, &qAxTypeLibrary );
-    SysFreeString( oleLibFile );
+    LoadTypeLibEx( (ushort*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
 }
 
 void qAxCleanup()
