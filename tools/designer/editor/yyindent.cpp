@@ -57,9 +57,7 @@
   string literals are removed beforehand.
 */
 
-#include <qcleanuphandler.h>
 #include <qregexp.h>
-#include <qcleanuphandler.h>
 
 /*
   The indenter avoids getting stuck in almost infinite loops by
