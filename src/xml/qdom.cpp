@@ -3921,8 +3921,9 @@ QString QDomElementPrivate::text()
 
 void QDomElementPrivate::save( QTextStream& s, int indent ) const
 {
-    for ( int i = 0; i < indent; ++i )
-	s << " ";
+    if ( prev && !prev->isText() )
+	for ( int i = 0; i < indent; ++i )
+	    s << " ";
 
     QString qName( name );
     QString nsDecl( "" );
@@ -3962,7 +3963,9 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 	    for( int i = 0; i < indent; ++i )
 		s << " ";
 
-	s << "</" << qName << ">" << endl;
+	s << "</" << qName << ">";
+	if ( next && !next->isText() )
+	    s << endl;
     } else {
 	s << "/>" << endl;
     }
