@@ -12,12 +12,12 @@ QSqlDatabase* database;
 int main( int argc, char** argv )
 {
     qDebug("Qt SQL Catalog Test");
-    QApplication app( argc, argv );
+    QApplication app( argc, argv, FALSE );
 
     database = QSqlConnection::addDatabase( qApp->argv()[1],
-					    qApp->argv()[2], 
-					    qApp->argv()[3], 
-					    qApp->argv()[4], 
+					    qApp->argv()[2],
+					    qApp->argv()[3],
+					    qApp->argv()[4],
 					    qApp->argv()[5]);
     qDebug("Opening database...");
     database->open();
