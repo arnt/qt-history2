@@ -77,6 +77,7 @@ QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
     bool handled_event = TRUE;
     switch(eclass) {
     case kEventClassMenu: {
+	qDebug("happened %d", ekind);
 	MenuRef menu;
 	GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL,
 			  sizeof(menu), NULL, &menu);
@@ -88,6 +89,12 @@ QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
 	    MenuCommand cmd;
 	    GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	    QMenuItem *it = mpb->qpopup->findItem(cmd);
+	    if(!it->custom()) {
+		handled_event = FALSE;
+		break;
+	    }
+	    qDebug("made it here..");
+
 	    if(ekind == kEventMenuMeasureItemHeight) {
 		short h = it->custom()->sizeHint().height();
 		SetEventParameter(event, kEventParamMenuItemHeight, typeShortInteger,
@@ -282,10 +289,8 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 #endif
 		}
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
-		if(item->custom()) {
-		    qt_mac_install_menubar_event(ret);
+		if(item->custom()) 
 		    ChangeMenuItemAttributes(ret, id, kMenuItemAttrCustomDraw, 0);
-		}
 #endif
 		if(item->isEnabled())
 		    EnableMenuItem(ret, id);
@@ -330,7 +335,7 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 {
     static int mid = 0;
     MenuRef ret;
-    if(CreateNewMenu(0, 0, &ret) != noErr)
+    if(CreateNewMenu(0, kMenuItemAttrCustomDraw, &ret) != noErr)
 	return NULL;
 
     if(!activeMenuBar->mac_d->popups) {
@@ -338,6 +343,9 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 	activeMenuBar->mac_d->popups->setAutoDelete(TRUE);
     }
     SetMenuID(ret, ++mid);
+#if !defined(QMAC_QMENUBAR_NO_EVENT)
+    qt_mac_install_menubar_event(ret);
+#endif
     activeMenuBar->mac_d->popups->insert((int)mid, 
 					 new QMenuBar::MacPrivate::PopupBinding(d, ret, 
 										top_level));
