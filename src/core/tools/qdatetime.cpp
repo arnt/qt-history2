@@ -1497,7 +1497,7 @@ QString QTime::toString(Qt::DateFormat f) const
 #  endif
             {
                 // For Jaguar, must use the older non-recommended Stuff
-                Handle intlHandle = GetIntlResource(1);
+                Handle intlHandle = GetIntlResource(0);
                 LongDateTime oldDate;
                 UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, myTz),
                                                       &oldDate);
