@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#121 $
+** $Id: //depot/qt/main/src/moc/moc.y#122 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1461,7 +1461,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.55 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.56 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1554,12 +1554,12 @@ void generateClass()		      // generate C++ source code for a class
     if ( qualifiedSuperclassName().contains(':') ) { // Work around bug in MSVC
         fprintf( out, "#if defined(_CC_MSVC_)\n" );
 	fprintf ( out, 
-	      "// create a pointer to member function to workaround MSVC bug");
+	"    // create a pointer to member function to workaround MSVC bug\n");
 
-	fprintf( out, "const char* (%s::* fp)() const = %s::className;",
+	fprintf( out, "    const char* (%s::* fp)() const = %s::className;\n",
 		 (const char*)qualifiedSuperclassName(),
 		 (const char*)qualifiedSuperclassName() );
-	fprintf( out, "if ( strcmp((this->*fp)(), \"%s\") != 0 )\n"
+	fprintf( out, "    if ( strcmp((this->*fp)(), \"%s\") != 0 )\n"
 	         "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
 	         (const char*)qualifiedSuperclassName(),
 		 (const char*)qualifiedClassName(),
