@@ -73,6 +73,12 @@ static void qt_finalize_ft()
 QRegion* paintEventClipRegion = 0;
 QPaintDevice* paintEventDevice = 0;
 
+#ifdef Q_WS_X11
+extern "C" {
+    void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
+    void qt_clear_paintevent_clipping();
+}
+#else
 void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 {
     if (!paintEventClipRegion)
@@ -88,6 +94,7 @@ void qt_clear_paintevent_clipping()
     paintEventClipRegion = 0;
     paintEventDevice = 0;
 }
+#endif
 
 #ifdef Q_WS_WIN
 void qt_draw_text_item(const QPointF &point, const QTextItem &ti, HDC hdc,
