@@ -51,11 +51,9 @@ Q_EXPORT inline const char *qGLVersion() {
 }
 #endif
 
-#if defined(Q_OS_WIN32)
-#include <qt_windows.h>
-#endif
-
-#ifdef Q_WS_MAC
+#if defined(Q_WS_WIN)
+# include <qt_windows.h>
+#elif defined(Q_WS_MAC)
 # include <gl.h>
 # include <glu.h>
 #else
@@ -178,7 +176,7 @@ protected:
     virtual bool	chooseContext( const QGLContext* shareContext = 0 );
     virtual void	doneCurrent();
     
-#if defined(Q_OS_WIN32)
+#if defined(Q_WS_WIN)
     virtual int		choosePixelFormat( void* pfd, HDC pdc );
 #elif defined(Q_WS_X11)
     virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
@@ -194,7 +192,7 @@ protected:
     uint		colorIndex( const QColor& c ) const;
 
 protected:
-#if  defined(Q_OS_WIN32)
+#if  defined(Q_WS_WIN)
     HGLRC		rc;
     HDC			dc;
     WId	win;
@@ -302,7 +300,7 @@ private:
     QGLContext*		glcx;
     bool		autoSwap;
 
-#if  defined(Q_OS_WIN32)
+#if  defined(Q_WS_WIN)
     QGLContext*		olcx;
 #elif defined(Q_WS_X11)
     QGLOverlayWidget*	olw;
@@ -457,4 +455,4 @@ inline bool QGLWidget::autoBufferSwap() const
 }
 
 
-#endif // QGL_H
+#endif

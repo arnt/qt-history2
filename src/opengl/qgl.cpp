@@ -706,10 +706,10 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     : glFormat(format), reqFormat(format), paintDevice(device)
 {
     valid = FALSE;
-#if defined(Q_GLX)
+#if defined(Q_WS_X11)
     gpm = 0;
 #endif
-#if defined(Q_WGL)
+#if defined(Q_WS_WIN)
     dc = 0;
     win = 0;
     pixelFormatId = 0;
