@@ -10,7 +10,7 @@ LIBDIR	=	$(BASEDIR)/lib
 
 #######	Compiler
 
-CFLAGS	=	-g
+CFLAGS	=	-O2
 CC	=	gcc
 
 #######	Files
