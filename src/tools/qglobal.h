@@ -39,11 +39,11 @@
 #define QGLOBAL_H
 #include <stddef.h>
 
-#define QT_VERSION_STR   "3.2.0-beta1"
+#define QT_VERSION_STR   "3.255.255-almost4"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
-#define QT_VERSION 0x030200
+#define QT_VERSION 0x03ffff
 
 /*
    The operating system, must be one of: (Q_OS_x)
