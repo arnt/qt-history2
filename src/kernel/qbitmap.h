@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#3 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#4 $
 **
 ** Definition of QBitMap class
 **
@@ -15,7 +15,6 @@
 
 #include "qpixmap.h"
 
-class QWXFMatrix;
 
 class QBitMap : public QPixMap			// bitmap class
 {
@@ -33,8 +32,8 @@ public:
     void   clearBit( int x, int y );		// clear bit
     bool   toggleBit( int x, int y );		// toggle/invert bit
 
-    QBitMap *wxform( const QWXFMatrix & );	// world xform bitmap
-    static QWXFMatrix wxfTrueMatrix( const QWXFMatrix &, int w, int h );
+    QBitMap *xForm( const QWorldMatrix & );	// transform bitmap
+    static QWorldMatrix trueMatrix( const QWorldMatrix &, int w, int h );
 
 protected:
     char  *data;
