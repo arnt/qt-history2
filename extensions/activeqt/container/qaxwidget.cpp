@@ -21,6 +21,7 @@
 #include <qguardedptr.h>
 #include <qlayout.h>
 #include <qmenubar.h>
+#include <qpopupmenu.h>
 #include <qmetaobject.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
@@ -809,16 +810,22 @@ HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUP
 	QString menuText = mb->text( id );
 	if ( menuText == "&File" ) {
 	    QMenuItem *item = mb->findItem( id );
+            /* ###
 	    if ( item )
 		fileMenu = item->popup();
+            */
 	} else if ( menuText == "&View" ) {
 	    QMenuItem *item = mb->findItem( id );
+            /* ###
 	    if ( item )
 		viewMenu = item->popup();
+            */
 	} else if ( menuText == "&Window" ) {
 	    QMenuItem *item = mb->findItem( id );
+            /* ###
 	    if ( item )
 		windowMenu = item->popup();
+            */
 	}
     }
     if ( fileMenu )
@@ -990,10 +997,12 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
 	    int qtid = it.key();
 	    QMenuItem *qtitem = menuBar->findItem( qtid );
 	    if ( qtitem ) {
-		QPopupMenu *popupMenu = qtitem->popup();
+            /* ### QPopupMenu *popupMenu = qtitem->popup(); */
 		menuBar->removeItem( qtid );
+            /* ###
 		if ( popupMenu )
 		    delete popupMenu;
+*/
 	    }
 	}
 	menuItemMap.clear();
