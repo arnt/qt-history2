@@ -2155,7 +2155,7 @@ struct FileFixifyCacheKey
     }
     QString toString() const {
         return file + "--" + in_d + "--" + out_d + "--" + pwd + "--" +
-            QString::number(fixType) + "--" + QString::number(canonicalize);
+            QString::number(fixType) + "--" + QString::number((int)canonicalize);
     }
     bool operator==(const FileFixifyCacheKey &f) const
     {
