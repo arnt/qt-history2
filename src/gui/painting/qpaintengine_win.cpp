@@ -1336,9 +1336,9 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
             d->brushRef = stock_ptr;
             SelectObject(d->hdc, d->hbrush);
             if (hbrush_old) {
-                DeleteObject(hbrush_old);
                 if (d->hbrushbm && !d->pixmapBrush)
                     DeleteObject(d->hbrushbm);
+                DeleteObject(hbrush_old);
                 d->hbrushbm = 0;
                 d->pixmapBrush = d->nocolBrush = false;
             }
@@ -1347,9 +1347,9 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
         if (obtain_brush(&d->brushRef, &d->hbrush, d->bColor)) {
             SelectObject(d->hdc, d->hbrush);
             if (hbrush_old) {
-                DeleteObject(hbrush_old);
                 if (d->hbrushbm && !d->pixmapBrush)
                     DeleteObject(d->hbrushbm);
+                DeleteObject(hbrush_old);
                 d->hbrushbm = 0;
                 d->pixmapBrush = d->nocolBrush = false;
             }
@@ -1451,9 +1451,9 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
     SelectObject(d->hdc, d->hbrush);
 
     if (hbrush_old) {
-        DeleteObject(hbrush_old);                // delete last brush
         if (hbrushbm_old && !pixmapBrush_old)
             DeleteObject(hbrushbm_old);        // delete last brush pixmap
+        DeleteObject(hbrush_old);              // delete last brush
     }
 }
 
