@@ -1267,7 +1267,9 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
     int border = 12;
     if (compact)
         border = 6;
-    QHBoxLayout *topLay = new QHBoxLayout(dialog, border, 6);
+    QHBoxLayout *topLay = new QHBoxLayout(dialog);
+    topLay->setMargin(border);
+    topLay->setSpacing(6);
     QVBoxLayout *leftLay = 0;
 
     if (!compact)

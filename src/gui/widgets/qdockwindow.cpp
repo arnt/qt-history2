@@ -433,7 +433,9 @@ class QDockWindowPrivate : public QFramePrivate
 void QDockWindowPrivate::init() {
     q->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
-    d->top = new QVBoxLayout(q, 2, 2);
+    d->top = new QVBoxLayout(q);
+    d->top->setMargin(2);
+    d->top->setSpacing(2);
 
     d->title = new QDockWindowTitle(q);
     d->top->addWidget(d->title);
