@@ -631,7 +631,7 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
 
     HGDIOBJ oldPen;
     int reduction = 0;
-    if (d->penStyle == Qt::NoPen) {
+    if (d->penStyle == Qt::NoPen && d->brushStyle != Qt::NoBrush) {
         // ellipse outlines look so much better that this is worth it
         oldPen = SelectObject(d->hdc, CreatePen(PS_SOLID, 0, d->bColor));
         reduction = 1;
