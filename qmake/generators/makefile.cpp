@@ -1569,12 +1569,10 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
                 if(!out_fi.convertToAbs())
                     out_dir = out_fi.filePath();
             }
-            QString in_canonical_dir = QDir(in_dir).canonicalPath(),
-                   out_canonical_dir = QDir(out_dir).canonicalPath();
-            if(!in_canonical_dir.isEmpty())
-                in_dir = in_canonical_dir;
-            if(!out_canonical_dir.isEmpty())
-                out_dir = out_canonical_dir;
+            if(QFile::exists(in_dir))
+                in_dir = QDir(in_dir).canonicalPath();
+            if(QFile::exists(out_dir))
+                out_dir = QDir(out_dir).canonicalPath();
         }
         if(out_dir != in_dir || !QDir::isRelativePath(qfile)) {
             if(QDir::isRelativePath(qfile)) {
