@@ -141,8 +141,8 @@ void QAuServerNAS::play(QSound* s)
 {
     if (nas) {
 	if ( !inprogress )
-	    inprogress = new QHash<void*, void*>;
-	inprogress->insert(s,(void*)this);
+	    inprogress = new AuServerHash;
+	inprogress->insert(s,this);
 	int iv=100;
 	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
         QAuBucketNAS *b = bucket(s);
