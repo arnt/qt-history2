@@ -710,6 +710,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "refType = 3;" << "\n"
 	  << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR;" << "\n"
 	  << "\t\t" << "};" << "\n";
+	project->variables()["QMAKE_PBX_GROUPS"].append(keyFor("QMAKE_PBX_PREPROCESS_BUILDREFERENCE"));
 	//build phase
 	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_BUILDPHASE") << " = {" << "\n"
 	  << "\t\t\t" << "buildPhases = (" << "\n"
