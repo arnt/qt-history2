@@ -1479,7 +1479,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		else 
 		    x += ((tb->width() - x) / 2) - ( p->fontMetrics().width(tb->visibleText()) / 2);
 		y = (tb->height() / 2) - ( p->fontMetrics().height() / 2 );
-		if(tb->icon()) 
+		if(tb->icon() && !tb->caption().isEmpty()) 
 		    p->drawPixmap(x - iw, y, *tb->icon());
 		p->drawText( x, y + p->fontMetrics().ascent(), tb->visibleText() );
 		p->restore();

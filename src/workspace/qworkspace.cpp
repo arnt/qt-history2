@@ -1902,6 +1902,7 @@ void QWorkspaceChild::showMinimized()
 {
     Q_ASSERT( windowWidget()->testWFlags( WStyle_Minimize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
+    titlebar->setMovable( TRUE );
     widgetResizeHandler->setActive( FALSE );
 }
 
@@ -1909,6 +1910,7 @@ void QWorkspaceChild::showMaximized()
 {
     Q_ASSERT( windowWidget()->testWFlags( WStyle_Maximize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMaximized ) );
+    titlebar->setMovable( FALSE );
     widgetResizeHandler->setActive( FALSE );
 }
 
@@ -1916,6 +1918,7 @@ void QWorkspaceChild::showNormal()
 {
     Q_ASSERT( windowWidget()->testWFlags( WStyle_MinMax ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowNormal ) );
+    titlebar->setMovable( TRUE );
     widgetResizeHandler->setActive( TRUE );
 }
 
@@ -1942,6 +1945,7 @@ void QWorkspaceChild::showShaded()
 
 	resize( width(), titlebar->height() + 2*lineWidth() + 1 );
     }
+    titlebar->setMovable( !shademode );
     widgetResizeHandler->setActive( !shademode );
 }
 
