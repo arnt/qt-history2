@@ -199,13 +199,13 @@ static LONG getCompositionString( HIMC himc, DWORD dwIndex, LPVOID lpbuf, DWORD 
     else
 #endif
     {
-	QT_WA( {
+	if( qt_winver != Qt::WV_95 ) {
 	    len = ImmGetCompositionStringW( himc, dwIndex, lpbuf, dBufLen );
-	} , {
+	} else {
 	    len = ImmGetCompositionStringA( himc, dwIndex, lpbuf, dBufLen );
 	    if ( unicode ) 
 		*unicode = FALSE;
-	} );
+	}
     }
     return len;
 }
@@ -240,22 +240,15 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
 	    attrbuffer = new char[ attrbuflen ];
 	}
 	attrlen = getCompositionString( himc, GCS_COMPATTR, attrbuffer, attrbuflen );
-	if ( unicode ) {
-	    // rather simple, we just use every second char in the attr array
-	    *selStart = attrlen+1;
-	    *selLength = -1;
-	    for ( int i = 0; i < attrlen; i++ ) {
-		if ( attrbuffer[i] & ATTR_TARGET_CONVERTED ) {
-		    *selStart = QMIN( *selStart, i );
-		    *selLength = QMAX( *selLength, i );
-		}
+	*selStart = attrlen+1;
+	*selLength = -1;
+	for ( int i = 0; i < attrlen; i++ ) {
+	    if ( attrbuffer[i] & ATTR_TARGET_CONVERTED ) {
+		*selStart = QMIN( *selStart, i );
+		*selLength = QMAX( *selLength, i );
 	    }
-	    *selLength = QMAX(0, *selLength - *selStart + 1);
-	} else {
-	    // ### TODO: Make it work on Win95/Asian edition
-	    *selStart = 0;
-	    *selLength = 0;
 	}
+	*selLength = QMAX(0, *selLength - *selStart + 1);
     }
 
     if ( len <= 0 )
