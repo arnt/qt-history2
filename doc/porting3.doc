@@ -399,13 +399,33 @@ parameter list and a bad name:
 \i bool QRegExp::match( const QString \& str, int index = 0,
 			int * len = 0, bool indexIsStart = TRUE ) const
 \endlist
-It will be removed in a future version of Qt. Its documentation
-explains how to accomplish the same.
+It will be removed in a future version of Qt. Its \link
+QRegExp::match() documentation \endlink explains how to accomplish
+the same.
 
 \section2 QRegExp::find()
 
-This function was removed, after a brief appearance in Qt 2.2.  Its name was
-too confusing.  Use \l QRegExp::search() or \l QString::find() instead.
+This function was removed, after a brief appearance in Qt 2.2.  Its
+name clashed with QString::find().  Use \l QRegExp::search() or \l
+QString::find() instead.
+
+\section2 QString::findRev() and QString::contains()
+
+QString::findRev()'s and QString::contains()'s semantics have changed
+between 2.0 and 3.0 to be more coherent with the other overloads.
+
+For example,
+\code
+    QString("").contains(QRegExp(""))
+\endcode
+returns 1 in Qt 2.0; it returns 0 in Qt 3.0. Also, "^" now really means
+start of input, so
+\code
+    a("Heisan Hoppsan").contains(QRegExp("^.*$")
+\endcode
+returns 1, not 13 or 14.
+
+These changes affect very few existing programs.
 
 \section1 QTableView
 

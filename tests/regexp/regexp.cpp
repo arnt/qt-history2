@@ -1,9 +1,6 @@
-
-/* Test program for QRegExp to try to make sure that the 2.0 QRegExp
-   behaves sensibly and like the 1.x QRegExp.
-
-   Not a full regexp tester, only a brief exercising of each of the
-   case statements in QRegExp::compile() and ::match().
+/* Old test program for QRegExp 2.0 adapted for 3.0. There are other
+   tests in $(QTDIR)/tests/qregexp that concentrate on regexp-language
+   subtleties.
 */
 
 // TODO: 16bit chars testing
@@ -27,12 +24,6 @@ int res = 0;
 #define QString QCString
 #define TESTING_1XSTRING
 #endif
-#endif
-
-// Some bugs in 1.x have been fixed in 2.0:
-#if QT_VERSION > 190
-#define EMPTYRXWORKS
-#else
 #endif
 
 void test_cclass()
@@ -64,7 +55,7 @@ void test_16bit()
     ucstr[1] = QChar( 6, 5 );
     ucstr[2] = QChar( 6, 6 );
     QString str( ucstr, 3 );
-    
+
     QChar ucrx[2];
     ucrx[0] = QChar( '^' );
     ucrx[1] = QChar( 5, 5 );
@@ -86,14 +77,10 @@ int main( int argc, const char** argv )
 	return 0;
     }
 
-#ifndef EMPTYRXWORKS
-    warning("Not testing Empty regexp; in 1.x it crashes.");
-#endif
-
     test_16bit();
 
     test_cclass();
-    
+
     int len = -1;
 
     QRegExp r0;
@@ -102,12 +89,10 @@ int main( int argc, const char** argv )
     TEST( r0.isValid(), TRUE );		// true in 1.x, shouldn't it be false?
     TEST( r0.wildcard(), FALSE );
     TEST( r0.caseSensitive(), TRUE );
-#ifdef EMPTYRXWORKS
-    TEST( r0.match( s2 ), -1 );
-#endif
+    TEST( r0.match( s2 ), 0 ); // changed in 3.0
 
-    r0 = "[a-z";
-    TEST( r0.isEmpty(), TRUE );
+    r0.setPattern("[a-z");
+    TEST( r0.isEmpty(), FALSE );  // changed in 3.0
     TEST( r0.isValid(), FALSE );
     TEST( r0.wildcard(), FALSE );
     TEST( r0.caseSensitive(), TRUE );
@@ -125,7 +110,7 @@ int main( int argc, const char** argv )
     TEST( s.findRev(r0), -1 );
     TEST( s.contains(r0), 0 );
 
-    r0 = "[a-z]";
+    r0.setPattern("[a-z]");
     QString s0;
     TEST( s0.find(r0), -1 );
     TEST( s0.findRev(r0), -1 );
@@ -171,11 +156,11 @@ int main( int argc, const char** argv )
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
     TEST( es.find(r), 0 );
-    TEST( es.findRev(r), 0 );
-    TEST( es.contains(r), 1 );
+    TEST( es.findRev(r), -1 ); // changed in 3.0
+    TEST( es.contains(r), 0 ); // changed in 3.0
     TEST( ns.find(r), 0 );
-    TEST( ns.findRev(r), 0 );
-    TEST( ns.contains(r), 1 );
+    TEST( ns.findRev(r), -1 ); // changed in 3.0
+    TEST( ns.contains(r), 0 ); // changed in 3.0
 
     QRegExp r19( ".*a" );
     r = r19;
@@ -198,27 +183,27 @@ int main( int argc, const char** argv )
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
     TEST( es.find(r), 0 );
-    TEST( es.findRev(r), 0 );
-    TEST( es.contains(r), 1 );
+    TEST( es.findRev(r), -1 ); // changed in 3.0
+    TEST( es.contains(r), 0 ); // changed in 3.0
     TEST( ns.find(r), 0 );
-    TEST( ns.findRev(r), 0 );
-    TEST( ns.contains(r), 1 );
+    TEST( ns.findRev(r), -1 ); // changed in 3.0
+    TEST( ns.contains(r), 0 ); // changed in 3.0
 
     QRegExp r17( "^.*$" );
     r = r17;
     TEST( a.find(r), 0 );
-    TEST( a.findRev(r), 13 );
-    TEST( a.contains(r), 14 );
+    TEST( a.findRev(r), 0 ); // changed in 3.0
+    TEST( a.contains(r), 1 ); // changed in 3.0
     TEST( r.match( a, 0, &len ), 0 );
     TEST( len, 14 );
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
     TEST( es.find(r), 0 );
-    TEST( es.findRev(r), 0 );
-    TEST( es.contains(r), 1 );
+    TEST( es.findRev(r), -1 ); // changed in 3.0
+    TEST( es.contains(r), 0 ); // changed in 3.0
     TEST( ns.find(r), 0 );
-    TEST( ns.findRev(r), 0 );
-    TEST( ns.contains(r), 1 );
+    TEST( ns.findRev(r), -1 ); // changed in 3.0
+    TEST( ns.contains(r), 0 ); // changed in 3.0
 
     QRegExp r16( "^$" );
     r = r16;
@@ -228,11 +213,11 @@ int main( int argc, const char** argv )
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
     TEST( es.find(r), 0 );
-    TEST( es.findRev(r), 0 );
-    TEST( es.contains(r), 1 );
+    TEST( es.findRev(r), -1 ); // changed in 3.0
+    TEST( es.contains(r), 0 ); // changed in 3.0
     TEST( ns.find(r), 0 );
-    TEST( ns.findRev(r), 0 );
-    TEST( ns.contains(r), 1 );
+    TEST( ns.findRev(r), -1 ); // changed in 3.0
+    TEST( ns.contains(r), 0 ); // changed in 3.0
 
     QRegExp r15( "$" );
     r = r15;
@@ -243,15 +228,15 @@ int main( int argc, const char** argv )
     TEST( r.match( ns ), 0 );
     TEST( r.match( es ), 0 );
     TEST( es.find(r), 0 );
-    TEST( es.findRev(r), 0 );
-    TEST( es.contains(r), 1 );
+    TEST( es.findRev(r), -1 ); // changed in 3.0
+    TEST( es.contains(r), 0 ); // changed in 3.0
     TEST( ns.find(r), 0 );
-    TEST( ns.findRev(r), 0 );
-    TEST( ns.contains(r), 1 );
+    TEST( ns.findRev(r), -1 ); // changed in 3.0
+    TEST( ns.contains(r), 0 ); // changed in 3.0
 
     QRegExp r14( "He?", FALSE );
     r = r14;
-    
+
     TEST( a.find(r), 0 );
     TEST( a.findRev(r), 7 );
     TEST( a.contains(r), 2 );
@@ -267,7 +252,7 @@ int main( int argc, const char** argv )
     TEST( f.find(r), -1 );
     TEST( f.findRev(r), -1 );
     TEST( f.contains(r), 0 );
-    
+
     TEST( r.match( g, 0, &len ), 1 );
     TEST( len, 2 );
     TEST( r.match( a, 0, &len ), 0 );
@@ -280,12 +265,12 @@ int main( int argc, const char** argv )
     TEST( len, 2 );
     TEST( r.match( a, 0, &len ), 0 );
     TEST( len, 2 );
-    
+
 
 
     QRegExp r12( "He?" );
     r = r12;
-    
+
     TEST( a.find(r), 0 );
     TEST( a.findRev(r), 7 );
     TEST( a.contains(r), 2 );
@@ -297,16 +282,16 @@ int main( int argc, const char** argv )
     TEST( f.find(r), -1 );
     TEST( f.findRev(r), -1 );
     TEST( f.contains(r), 0 );
-    
+
     TEST( r.match( g, 0, &len ), 1 );
     TEST( len, 2 );
     TEST( r.match( a, 0, &len ), 0 );
     TEST( len, 2 );
 
-    
+
     QRegExp r11( "He*", FALSE );
     r = r11;
-    
+
     TEST( a.find(r), 0 );
     TEST( a.findRev(r), 7 );
     TEST( a.contains(r), 2 );
@@ -322,7 +307,7 @@ int main( int argc, const char** argv )
     TEST( f.find(r), -1 );
     TEST( f.findRev(r), -1 );
     TEST( f.contains(r), 0 );
-    
+
     TEST( r.match( g, 0, &len ), 1 );
     TEST( len, 4 );
     TEST( r.match( a, 0, &len ), 0 );
@@ -335,11 +320,11 @@ int main( int argc, const char** argv )
     TEST( len, 4 );
     TEST( r.match( a, 0, &len ), 0 );
     TEST( len, 2 );
-    
+
 
     QRegExp r10( "He*" );
     r = r10;
-    
+
     TEST( a.find(r), 0 );
     TEST( a.findRev(r), 7 );
     TEST( a.contains(r), 2 );
@@ -351,7 +336,7 @@ int main( int argc, const char** argv )
     TEST( f.find(r), -1 );
     TEST( f.findRev(r), -1 );
     TEST( f.contains(r), 0 );
-    
+
     TEST( r.match( g, 0, &len ), 1 );
     TEST( len, 4 );
     TEST( r.match( a, 0, &len ), 0 );
@@ -360,7 +345,7 @@ int main( int argc, const char** argv )
 
     QRegExp r9( "[xZ-Wnp1-9][\\sa-z]" );
     r = r9;
-    
+
     TEST( a.find(r), 5 );
     TEST( a.findRev(r), 10 );
     TEST( a.contains(r), 3 );
@@ -395,7 +380,7 @@ int main( int argc, const char** argv )
 
     QRegExp r7( "H[a-z][a-z]s" );
     r = r7;
-    
+
     TEST( a.find(r), 0 );
     TEST( a.findRev(r), 0 );
     TEST( a.contains(r), 1 );
@@ -430,10 +415,6 @@ int main( int argc, const char** argv )
     TEST( f.find(r), -1 );
     TEST( f.findRev(r), -1 );
     TEST( f.contains(r), 0 );
-    
-
-    // Note different treatment of '^' and '$' in 1.x; '$' means always
-    // end-of-string, but '^' is not start-of-string in findRev. 1.x bug?
 
     QRegExp r5("^Hei");
     TEST( a.find(r5), 0 );
@@ -441,7 +422,7 @@ int main( int argc, const char** argv )
     TEST( a.contains(r5), 1 );
 
     TEST( b.find(r5), 0 );
-    TEST( b.findRev(r5), 7 );		// 7 in 1.x; should be 0?
+    TEST( b.findRev(r5), 0 ); // changed in 3.0
     TEST( b.contains(r5), 1 );
 
     TEST( c.find(r5), 0 );
@@ -449,13 +430,13 @@ int main( int argc, const char** argv )
     TEST( c.contains(r5), 1 );
 
     TEST( d.find(r5), -1 );
-    TEST( d.findRev(r5), 1 );		// 1 in 1.x, should be -1?
+    TEST( d.findRev(r5), -1 ); // changed in 3.0
     TEST( d.contains(r5), 0 );
-    
+
 
     // The '.' special char
     QRegExp r4( "H..s", FALSE );
-    
+
     TEST( a.find(r4), 0 );
     TEST( a.findRev(r4), 0 );
     TEST( a.contains(r4), 1 );
@@ -470,7 +451,7 @@ int main( int argc, const char** argv )
 
 
     QRegExp r3( "H..s" );
-    
+
     TEST( a.find(r3), 0 );
     TEST( a.findRev(r3), 0 );
     TEST( a.contains(r3), 1 );
@@ -507,7 +488,7 @@ int main( int argc, const char** argv )
     TEST( c.find(r2), 0 );
     TEST( c.findRev(r2), 7 );
     TEST( c.contains(r2), 2 );
-    
+
 
 
     warning("\n%d error%s\n",err,"s"+(err==1));
@@ -568,7 +549,7 @@ void test_bruteforce( int argc, const char** argv )
 	    warning( "%s", (const char*)msg );
 	}
 	// do test
-	
+
 	QRegExp rx( rxs );
 	if ( rx.isValid() ) {
 	    int res = rx.match( ns );
@@ -591,6 +572,4 @@ void test_bruteforce( int argc, const char** argv )
     }
 
     warning( "Brute Force test of length %i completed", l );
-
 }
-    
