@@ -58,7 +58,7 @@
 #   undef INFINITY
 #endif
 
-#if defined (Q_CC_MIPS)
+#if defined (Q_OS_IRIX)
 #   define isinf(d) (!finite(d) && !isnan(d))
 #endif
 
