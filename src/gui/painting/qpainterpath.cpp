@@ -31,8 +31,8 @@
 
 // #define QPP_DEBUG
 
-void qt_find_ellipse_coords(const QRectFloat &r, float angle, float length,
-                            QPointFloat* startPoint, QPointFloat *endPoint)
+void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
+                            QPointF* startPoint, QPointF *endPoint)
 {
 #define ANGLE(t) ((t) * 2 * M_PI / 360.0)
     float a = r.width() / 2.0;
@@ -40,11 +40,11 @@ void qt_find_ellipse_coords(const QRectFloat &r, float angle, float length,
 
     if (startPoint) {
         *startPoint = r.center()
-                      + QPointFloat(a * cos(ANGLE(angle)), -b * sin(ANGLE(angle)));
+                      + QPointF(a * cos(ANGLE(angle)), -b * sin(ANGLE(angle)));
     }
     if (endPoint) {
         *endPoint = r.center()
-                    + QPointFloat(a * cos(ANGLE(angle + length)), -b * sin(ANGLE(angle + length)));
+                    + QPointF(a * cos(ANGLE(angle + length)), -b * sin(ANGLE(angle + length)));
     }
 }
 
@@ -55,7 +55,7 @@ void QPainterSubpath::close()
         lineTo(startPoint);
 }
 
-void QPainterSubpath::lineTo(const QPointFloat &p)
+void QPainterSubpath::lineTo(const QPointF &p)
 {
 #ifdef QPP_DEBUG
     printf("QPainterSubpath::lineTo() (%.2f,%.2f), current=(%.2f, %.2f)\n",
@@ -71,7 +71,7 @@ void QPainterSubpath::lineTo(const QPointFloat &p)
 
 }
 
-void QPainterSubpath::curveTo(const QPointFloat &c1, const QPointFloat &c2, const QPointFloat &end)
+void QPainterSubpath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &end)
 {
 #ifdef QPP_DEBUG
     printf("QPainterSubpath::curveTo() end=(%.2f,%.2f), c1=(%.2f,%.2f), c2=(%.2f,%.2f)\n",
@@ -90,10 +90,10 @@ void QPainterSubpath::curveTo(const QPointFloat &c1, const QPointFloat &c2, cons
     currentPoint = end;
 }
 
-void QPainterSubpath::arcTo(const QRectFloat &rect, float angle, float alen)
+void QPainterSubpath::arcTo(const QRectF &rect, float angle, float alen)
 {
-    QPointFloat startPoint;
-    QPointFloat endPoint;
+    QPointF startPoint;
+    QPointF endPoint;
     qt_find_ellipse_coords(rect, angle, alen, &startPoint, &endPoint);
 
     if (startPoint != currentPoint)
@@ -128,14 +128,14 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
         const QPainterPathElement &elm = elements.at(i);
         switch (elm.type) {
         case QPainterPathElement::Line:
-            p << (QPointFloat(elm.lineData.x, elm.lineData.y) * matrix).toPoint();
+            p << (QPointF(elm.lineData.x, elm.lineData.y) * matrix).toPoint();
             break;
         case QPainterPathElement::Curve: {
             QPointArray pa;
             pa << (p.isEmpty() ? (startPoint * matrix).toPoint() : p.last());
-            pa << (QPointFloat(elm.curveData.c1x, elm.curveData.c1y) * matrix).toPoint();
-            pa << (QPointFloat(elm.curveData.c2x, elm.curveData.c2y) * matrix).toPoint();
-            pa << (QPointFloat(elm.curveData.ex, elm.curveData.ey) * matrix).toPoint();
+            pa << (QPointF(elm.curveData.c1x, elm.curveData.c1y) * matrix).toPoint();
+            pa << (QPointF(elm.curveData.c2x, elm.curveData.c2y) * matrix).toPoint();
+            pa << (QPointF(elm.curveData.ex, elm.curveData.ey) * matrix).toPoint();
             p += pa.cubicBezier();
             break;
         }
@@ -270,9 +270,9 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
             if (!scanRect.intersects(curve.boundingRect()))
                 continue;
             Q_ASSERT(curve.size()>=2);
-            QPointFloat p1 = curve.at(curve.size()-1);
+            QPointF p1 = curve.at(curve.size()-1);
             for (int i=0; i<curve.size(); ++i) {
-                QPointFloat p2 = curve.at(i);
+                QPointF p2 = curve.at(i);
 
                 // Does the line cross the scan line?
                 if ((p1.y() <= scanLineY && p2.y() > scanLineY)
@@ -349,11 +349,11 @@ QPainterPath QPainterPathPrivate::createPathOutlineFlat(int, const QMatrix &)
 //             continue;
 
 //         for (int l=2; l<outline.size(); ++l) {
-//             QLineFloat l1(outline.at(l-2), outline.at(l-1));
-//             QLineFloat l2(outline.at(l), outline.at(l+1));
+//             QLineF l1(outline.at(l-2), outline.at(l-1));
+//             QLineF l2(outline.at(l), outline.at(l+1));
 
-//             QLineFloat n1 = l1.normalVector();
-//             QLineFloat n2 = l2.normalVector();
+//             QLineF n1 = l1.normalVector();
+//             QLineF n2 = l2.normalVector();
 
 //         }
 //     }
@@ -426,7 +426,7 @@ QPainterPath QPainterPathPrivate::createPathOutlineFlat(int, const QMatrix &)
 QPainterPath::QPainterPath()
 {
     d_ptr = new QPainterPathPrivate;
-    d->subpaths.append(QPainterSubpath(QPointFloat(0, 0)));
+    d->subpaths.append(QPainterSubpath(QPointF(0, 0)));
 }
 
 /*!
@@ -468,7 +468,7 @@ void QPainterPath::closeSubpath()
     if (d->subpaths.last().elements.isEmpty())
         return;
     d->subpaths.last().close();
-    d->subpaths.append(QPainterSubpath(QPointFloat(0, 0)));
+    d->subpaths.append(QPainterSubpath(QPointF(0, 0)));
 }
 
 /*!
@@ -482,7 +482,7 @@ void QPainterPath::closeSubpath()
     will also start a new subpath. The previously current path
     will not be closed implicitly before the new one is started.
 */
-void QPainterPath::moveTo(const QPointFloat &p)
+void QPainterPath::moveTo(const QPointF &p)
 {
 #ifdef QPP_DEBUG
     printf("QPainterPath::moveTo() (%.2f,%.2f)\n", p.x(), p.y());
@@ -508,7 +508,7 @@ void QPainterPath::moveTo(const QPointFloat &p)
     Adds a straight line from the current point to the point \a p. The current
     point is moved to \a p when this function returns.
  */
-void QPainterPath::lineTo(const QPointFloat &p)
+void QPainterPath::lineTo(const QPointF &p)
 {
     d->subpaths.last().lineTo(p);
 }
@@ -524,7 +524,7 @@ void QPainterPath::lineTo(const QPointFloat &p)
     ending in \a e. The current point is moved to \a e when this function returns.
 
 */
-void QPainterPath::curveTo(const QPointFloat &c1, const QPointFloat &c2, const QPointFloat &e)
+void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &e)
 {
     d->subpaths.last().curveTo(c1, c2, e);
 }
@@ -542,7 +542,7 @@ void QPainterPath::curveTo(const QPointFloat &c1, const QPointFloat &c2, const Q
     in degrees. This function connects the current point to
     the starting point of the arc if they are not already connected.
 */
-void QPainterPath::arcTo(const QRectFloat &rect, float startAngle, float sweepLength)
+void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
 {
     d->subpaths.last().arcTo(rect, startAngle, sweepLength);
 }
@@ -552,7 +552,7 @@ void QPainterPath::arcTo(const QRectFloat &rect, float startAngle, float sweepLe
     is added as a clockwise set of lines. An empty subpath with current
     position at (0, 0) is in use after this function returns.
 */
-void QPainterPath::addRect(const QRectFloat &r)
+void QPainterPath::addRect(const QRectF &r)
 {
     moveTo(r.topLeft());
     QPainterSubpath &sp = d->subpaths.last();
@@ -572,7 +572,7 @@ void QPainterPath::transform(const QMatrix &matrix)
             QPainterPathElement &elm = sp.elements[j];
             switch (elm.type) {
             case QPainterPathElement::Line: {
-                QPointFloat np = QPointFloat(elm.lineData.x, elm.lineData.y) * matrix;
+                QPointF np = QPointF(elm.lineData.x, elm.lineData.y) * matrix;
                 elm.lineData.x = np.x();
                 elm.lineData.y = np.y();
             }
@@ -580,15 +580,15 @@ void QPainterPath::transform(const QMatrix &matrix)
                 qWarning("QPainterPath::transform() arc elements not supported...");
             }
             case QPainterPathElement::Curve: {
-                QPointFloat p = QPointFloat(elm.curveData.c1x. elm.curveData.c1y) * matrix;
+                QPointF p = QPointF(elm.curveData.c1x. elm.curveData.c1y) * matrix;
                 elm.curveData.c1x = p.x();
                 elm.curveData.c1y = p.y();
 
-                p = QPointFloat(elm.curveData.c2x. elm.curveData.c2y) * matrix;
+                p = QPointF(elm.curveData.c2x. elm.curveData.c2y) * matrix;
                 elm.curveData.c2x = p.x();
                 elm.curveData.c2y = p.y();
 
-                p = QPointFloat(elm.curveData.ex. elm.curveData.ey) * matrix;
+                p = QPointF(elm.curveData.ex. elm.curveData.ey) * matrix;
                 elm.curveData.ex = p.x();
                 elm.curveData.ey = p.y();
             }
@@ -622,11 +622,11 @@ void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
 /*!
     Returns the bounding rectangle of this painter path
 */
-QRectFloat QPainterPath::boundingRect() const
+QRectF QPainterPath::boundingRect() const
 {
     if (d->subpaths.isEmpty())
-        return QRectFloat();
-    QRectFloat rect;
+        return QRectF();
+    QRectF rect;
     for (int j=0; j<d->subpaths.size(); ++j) {
         QPointArray pa = d->subpaths.at(j).toPolygon(QMatrix());
         rect |= pa.boundingRect();

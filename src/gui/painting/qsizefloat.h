@@ -20,12 +20,12 @@
 #endif // QT_H
 
 
-class Q_GUI_EXPORT QSizeFloat
+class Q_GUI_EXPORT QSizeF
 {
 public:
-    QSizeFloat();
-    QSizeFloat(const QSize &sz);
-    QSizeFloat(float w, float h);
+    QSizeF();
+    QSizeF(const QSize &sz);
+    QSizeF(float w, float h);
 
     bool isNull() const;
     bool isEmpty() const;
@@ -38,31 +38,31 @@ public:
     void transpose();
 
     void scale(float w, float h, Qt::ScaleMode mode);
-    void scale(const QSizeFloat &s, Qt::ScaleMode mode);
+    void scale(const QSizeF &s, Qt::ScaleMode mode);
 
-    QSizeFloat expandedTo(const QSizeFloat &) const;
-    QSizeFloat boundedTo(const QSizeFloat &) const;
+    QSizeF expandedTo(const QSizeF &) const;
+    QSizeF boundedTo(const QSizeF &) const;
 
     float &rwidth();
     float &rheight();
 
-    QSizeFloat &operator+=(const QSizeFloat &);
-    QSizeFloat &operator-=(const QSizeFloat &);
-    QSizeFloat &operator*=(int c);
-    QSizeFloat &operator*=(float c);
-    QSizeFloat &operator/=(int c);
-    QSizeFloat &operator/=(float c);
+    QSizeF &operator+=(const QSizeF &);
+    QSizeF &operator-=(const QSizeF &);
+    QSizeF &operator*=(int c);
+    QSizeF &operator*=(float c);
+    QSizeF &operator/=(int c);
+    QSizeF &operator/=(float c);
 
-    friend inline bool operator==(const QSizeFloat &, const QSizeFloat &);
-    friend inline bool operator!=(const QSizeFloat &, const QSizeFloat &);
-    friend inline const QSizeFloat operator+(const QSizeFloat &, const QSizeFloat &);
-    friend inline const QSizeFloat operator-(const QSizeFloat &, const QSizeFloat &);
-    friend inline const QSizeFloat operator*(const QSizeFloat &, int);
-    friend inline const QSizeFloat operator*(int, const QSizeFloat &);
-    friend inline const QSizeFloat operator*(const QSizeFloat &, float);
-    friend inline const QSizeFloat operator*(float, const QSizeFloat &);
-    friend inline const QSizeFloat operator/(const QSizeFloat &, int);
-    friend inline const QSizeFloat operator/(const QSizeFloat &, float);
+    friend inline bool operator==(const QSizeF &, const QSizeF &);
+    friend inline bool operator!=(const QSizeF &, const QSizeF &);
+    friend inline const QSizeF operator+(const QSizeF &, const QSizeF &);
+    friend inline const QSizeF operator-(const QSizeF &, const QSizeF &);
+    friend inline const QSizeF operator*(const QSizeF &, int);
+    friend inline const QSizeF operator*(int, const QSizeF &);
+    friend inline const QSizeF operator*(const QSizeF &, float);
+    friend inline const QSizeF operator*(float, const QSizeF &);
+    friend inline const QSizeF operator/(const QSizeF &, int);
+    friend inline const QSizeF operator/(const QSizeF &, float);
 
     inline QSize toSize() const;
 
@@ -73,137 +73,137 @@ private:
 
 
 /*****************************************************************************
-  QSizeFloat stream functions
+  QSizeF stream functions
  *****************************************************************************/
 
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QSizeFloat &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QSizeFloat &);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QSizeF &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QSizeF &);
 
 
 /*****************************************************************************
-  QSizeFloat inline functions
+  QSizeF inline functions
  *****************************************************************************/
 
-inline QSizeFloat::QSizeFloat()
+inline QSizeF::QSizeF()
 { wd = ht = -1.; }
 
-inline QSizeFloat::QSizeFloat(const QSize &sz)
+inline QSizeF::QSizeF(const QSize &sz)
     : wd(sz.width()), ht(sz.height())
 {
 }
 
-inline QSizeFloat::QSizeFloat(float w, float h)
+inline QSizeF::QSizeF(float w, float h)
 { wd = w; ht = h; }
 
-inline bool QSizeFloat::isNull() const
+inline bool QSizeF::isNull() const
 { return wd == 0 && ht == 0; }
 
-inline bool QSizeFloat::isEmpty() const
+inline bool QSizeF::isEmpty() const
 { return wd <= 0. || ht <= 0.; }
 
-inline bool QSizeFloat::isValid() const
+inline bool QSizeF::isValid() const
 { return wd >= 0. && ht >= 0.; }
 
-inline float QSizeFloat::width() const
+inline float QSizeF::width() const
 { return wd; }
 
-inline float QSizeFloat::height() const
+inline float QSizeF::height() const
 { return ht; }
 
-inline void QSizeFloat::setWidth(float w)
+inline void QSizeF::setWidth(float w)
 { wd = w; }
 
-inline void QSizeFloat::setHeight(float h)
+inline void QSizeF::setHeight(float h)
 { ht = h; }
 
-inline void QSizeFloat::scale(float w, float h, Qt::ScaleMode mode)
-{ scale(QSizeFloat(w, h), mode); }
+inline void QSizeF::scale(float w, float h, Qt::ScaleMode mode)
+{ scale(QSizeF(w, h), mode); }
 
-inline float &QSizeFloat::rwidth()
+inline float &QSizeF::rwidth()
 { return wd; }
 
-inline float &QSizeFloat::rheight()
+inline float &QSizeF::rheight()
 { return ht; }
 
-inline QSizeFloat &QSizeFloat::operator+=(const QSizeFloat &s)
+inline QSizeF &QSizeF::operator+=(const QSizeF &s)
 { wd += s.wd; ht += s.ht; return *this; }
 
-inline QSizeFloat &QSizeFloat::operator-=(const QSizeFloat &s)
+inline QSizeF &QSizeF::operator-=(const QSizeF &s)
 { wd -= s.wd; ht -= s.ht; return *this; }
 
-inline QSizeFloat &QSizeFloat::operator*=(int c)
+inline QSizeF &QSizeF::operator*=(int c)
 { wd *= c; ht *= c; return *this; }
 
-inline QSizeFloat &QSizeFloat::operator*=(float c)
+inline QSizeF &QSizeF::operator*=(float c)
 { wd *= c; ht *= c; return *this; }
 
-inline bool operator==(const QSizeFloat &s1, const QSizeFloat &s2)
+inline bool operator==(const QSizeF &s1, const QSizeF &s2)
 { return s1.wd == s2.wd && s1.ht == s2.ht; }
 
-inline bool operator!=(const QSizeFloat &s1, const QSizeFloat &s2)
+inline bool operator!=(const QSizeF &s1, const QSizeF &s2)
 { return s1.wd != s2.wd || s1.ht != s2.ht; }
 
-inline const QSizeFloat operator+(const QSizeFloat & s1, const QSizeFloat & s2)
-{ return QSizeFloat(s1.wd+s2.wd, s1.ht+s2.ht); }
+inline const QSizeF operator+(const QSizeF & s1, const QSizeF & s2)
+{ return QSizeF(s1.wd+s2.wd, s1.ht+s2.ht); }
 
-inline const QSizeFloat operator-(const QSizeFloat &s1, const QSizeFloat &s2)
-{ return QSizeFloat(s1.wd-s2.wd, s1.ht-s2.ht); }
+inline const QSizeF operator-(const QSizeF &s1, const QSizeF &s2)
+{ return QSizeF(s1.wd-s2.wd, s1.ht-s2.ht); }
 
-inline const QSizeFloat operator*(const QSizeFloat &s, int c)
-{ return QSizeFloat(s.wd*c, s.ht*c); }
+inline const QSizeF operator*(const QSizeF &s, int c)
+{ return QSizeF(s.wd*c, s.ht*c); }
 
-inline const QSizeFloat operator*(int c, const QSizeFloat &s)
-{  return QSizeFloat(s.wd*c, s.ht*c); }
+inline const QSizeF operator*(int c, const QSizeF &s)
+{  return QSizeF(s.wd*c, s.ht*c); }
 
-inline const QSizeFloat operator*(const QSizeFloat &s, float c)
-{ return QSizeFloat(s.wd*c, s.ht*c); }
+inline const QSizeF operator*(const QSizeF &s, float c)
+{ return QSizeF(s.wd*c, s.ht*c); }
 
-inline const QSizeFloat operator*(float c, const QSizeFloat &s)
-{ return QSizeFloat(s.wd*c, s.ht*c); }
+inline const QSizeF operator*(float c, const QSizeF &s)
+{ return QSizeF(s.wd*c, s.ht*c); }
 
-inline QSizeFloat &QSizeFloat::operator/=(int c)
+inline QSizeF &QSizeF::operator/=(int c)
 {
     Q_ASSERT(c != 0);
     wd /= c; ht /= c;
     return *this;
 }
 
-inline QSizeFloat &QSizeFloat::operator/=(float c)
+inline QSizeF &QSizeF::operator/=(float c)
 {
     Q_ASSERT(c != 0.0);
     wd = wd/c; ht = ht/c;
     return *this;
 }
 
-inline const QSizeFloat operator/(const QSizeFloat &s, int c)
+inline const QSizeF operator/(const QSizeF &s, int c)
 {
     Q_ASSERT(c != 0);
-    return QSizeFloat(s.wd/c, s.ht/c);
+    return QSizeF(s.wd/c, s.ht/c);
 }
 
-inline const QSizeFloat operator/(const QSizeFloat &s, float c)
+inline const QSizeF operator/(const QSizeF &s, float c)
 {
     Q_ASSERT(c != 0.0);
-    return QSizeFloat(s.wd/c, s.ht/c);
+    return QSizeF(s.wd/c, s.ht/c);
 }
 
-inline QSizeFloat QSizeFloat::expandedTo(const QSizeFloat & otherSize) const
+inline QSizeF QSizeF::expandedTo(const QSizeF & otherSize) const
 {
-    return QSizeFloat(qMax(wd,otherSize.wd), qMax(ht,otherSize.ht));
+    return QSizeF(qMax(wd,otherSize.wd), qMax(ht,otherSize.ht));
 }
 
-inline QSizeFloat QSizeFloat::boundedTo(const QSizeFloat & otherSize) const
+inline QSizeF QSizeF::boundedTo(const QSizeF & otherSize) const
 {
-    return QSizeFloat(qMin(wd,otherSize.wd), qMin(ht,otherSize.ht));
+    return QSizeF(qMin(wd,otherSize.wd), qMin(ht,otherSize.ht));
 }
 
-inline QSize QSizeFloat::toSize() const
+inline QSize QSizeF::toSize() const
 {
     return QSize(qRound(wd), qRound(ht));
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QSizeFloat &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QSizeF &);
 #endif
 
 #endif // QSIZE_H

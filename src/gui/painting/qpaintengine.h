@@ -24,9 +24,9 @@ class QPaintDevice;
 class QPaintEnginePrivate;
 class QPainterPath;
 class QPainterState;
-class QRectFloat;
-class QLineFloat;
-class QPointFloat;
+class QRectF;
+class QLineF;
+class QPointF;
 struct QGlyphLayout;
 
 class QTextItem {
@@ -122,9 +122,9 @@ public:
 
     // Float functions
     virtual void drawPath(const QPainterPath &path);
-    virtual void drawLine(const QLineFloat &line);
-    virtual void drawRect(const QRectFloat &rf);
-    virtual void drawPoint(const QPointFloat &pf);
+    virtual void drawLine(const QLineF &line);
+    virtual void drawRect(const QRectF &rf);
+    virtual void drawPoint(const QPointF &pf);
 
     virtual QPainter::RenderHints supportedRenderHints() const;
     QPainter::RenderHints renderHints() const;

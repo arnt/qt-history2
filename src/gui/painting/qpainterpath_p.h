@@ -38,7 +38,7 @@ struct QPainterPathElement
  */
 struct QPainterSubpath
 {
-    QPainterSubpath(const QPointFloat &p)
+    QPainterSubpath(const QPointF &p)
     {
         startPoint = p;
     };
@@ -47,7 +47,7 @@ struct QPainterSubpath
      * lastPoint. The addLine recursion is safe since we connect to lastPoint
      * so next call to connectLast will just do nothing..
      */
-    void connectLast(const QPointFloat &p);
+    void connectLast(const QPointF &p);
 
     /*! Closes the current path by connecting the last point
      * in the subpath path to the first one if they are different.
@@ -64,13 +64,13 @@ struct QPainterSubpath
     /*! Converts the path to a polygon */
     QPointArray toPolygon(const QMatrix &matrix) const;
 
-    void lineTo(const QPointFloat &p);
-    void curveTo(const QPointFloat &p2, const QPointFloat &p3, const QPointFloat &p4);
-    void arcTo(const QRectFloat &rect, float startAngle, float arcLength);
+    void lineTo(const QPointF &p);
+    void curveTo(const QPointF &p2, const QPointF &p3, const QPointF &p4);
+    void arcTo(const QRectF &rect, float startAngle, float arcLength);
 
     QList<QPainterPathElement> elements;
-    QPointFloat currentPoint;
-    QPointFloat startPoint;
+    QPointF currentPoint;
+    QPointF startPoint;
 };
 
 class QPainterPathPrivate
@@ -99,8 +99,8 @@ public:
     QPainterPath::FillMode fillMode;
 };
 
-void qt_find_ellipse_coords(const QRectFloat &r, float angle, float length,
-                            QPointFloat* startPoint, QPointFloat *endPoint);
+void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
+                            QPointF* startPoint, QPointF *endPoint);
 
 
 #endif //QPAINTERPATH_P_H

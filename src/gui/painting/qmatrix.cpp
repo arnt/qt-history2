@@ -358,7 +358,7 @@ QPoint QMatrix::map(const QPoint &p) const
 }
 
 /*!
-  \fn QPointFloat operator*(const QPointFloat &p, const QMatrix &m)
+  \fn QPointF operator*(const QPointF &p, const QMatrix &m)
 
   \relates QMatrix
 
@@ -375,11 +375,11 @@ QPoint QMatrix::map(const QPoint &p) const
         rety = m22*py + m12*px + dy
     \endcode
 */
-QPointFloat QMatrix::map(const QPointFloat &p) const
+QPointF QMatrix::map(const QPointF &p) const
 {
     double fx = p.x();
     double fy = p.y();
-    return QPointFloat(_m11*fx + _m21*fy + _dx, _m12*fx + _m22*fy + _dy);
+    return QPointF(_m11*fx + _m21*fy + _dx, _m12*fx + _m22*fy + _dy);
 }
 
 

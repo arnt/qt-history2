@@ -1339,7 +1339,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     if (p->painterState()->txop == QPainter::TxTranslate)
         p->painter()->map(xpos, ypos, &xpos, &ypos);
 
-    QPointFloat pos(xpos, ypos);
+    QPointF pos(xpos, ypos);
 
     QGlyphLayout *glyphs = si.glyphs;
 
@@ -1393,7 +1393,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
         while(i < si.num_glyphs) {
             pos -= glyphs[i].advance;
 
-            QPointFloat gpos = glyphs[i].offset;
+            QPointF gpos = glyphs[i].offset;
             if (transform)
                 gpos = gpos * p->painterState()->worldMatrix;
             int xp = qRound(gpos.x());
@@ -1413,7 +1413,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
                 for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
                     pos -= g[0].advance;
 
-                    QPointFloat gpos(pos);
+                    QPointF gpos(pos);
                     if (transform)
                         gpos = gpos * p->painterState()->worldMatrix;
                     int xp = qRound(gpos.x());
@@ -1439,7 +1439,7 @@ void QFontEngineXft::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem &
     } else {
         int i = 0;
         while (i < si.num_glyphs) {
-            QPointFloat gpos = pos;
+            QPointF gpos = pos;
             gpos += glyphs[i].offset;
             if (transform)
                 gpos = gpos * p->painterState()->worldMatrix;

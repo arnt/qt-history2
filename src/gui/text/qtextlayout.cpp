@@ -754,7 +754,7 @@ int QTextLayout::maximumWidth() const
 }
 
 static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
-                          const QRectFloat &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
+                          const QRectF &rect, const QTextLine &line, const QPoint &pos, int selectionIdx)
 {
     p->save();
     p->setClipRect(rect.toRect());
@@ -839,9 +839,9 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
                     continue;
 
                 if (s.from() + s.length() > from && s.from() < from+length) {
-                    QRectFloat highlight = QRectFloat(QPointFloat(position.x() + l.cursorToX(qMax(s.from(), from)),
+                    QRectF highlight = QRectF(QPointF(position.x() + l.cursorToX(qMax(s.from(), from)),
                                                      position.y() + sl.y),
-                                         QPointFloat(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
+                                         QPointF(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
                                                      position.y() + (sl.y + sl.height()))).normalize();
                     drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, position, j);
                 }

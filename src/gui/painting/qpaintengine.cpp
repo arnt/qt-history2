@@ -485,7 +485,7 @@ void QPaintEngine::drawPath(const QPainterPath &)
 /*!
     The default implementation calls the int version of drawLine
 */
-void QPaintEngine::drawLine(const QLineFloat &line)
+void QPaintEngine::drawLine(const QLineF &line)
 {
     drawLine(line.start().toPoint(), line.end().toPoint());
 }
@@ -495,7 +495,7 @@ void QPaintEngine::drawLine(const QLineFloat &line)
 
     The default implementation calls the int version of drawRect
 */
-void QPaintEngine::drawRect(const QRectFloat &rf)
+void QPaintEngine::drawRect(const QRectF &rf)
 {
     drawRect(rf.toRect());
 }
@@ -505,7 +505,7 @@ void QPaintEngine::drawRect(const QRectFloat &rf)
 
     The default implementation calls the int version of drawPoint
 */
-void QPaintEngine::drawPoint(const QPointFloat &pf)
+void QPaintEngine::drawPoint(const QPointF &pf)
 {
     drawPoint(pf.toPoint());
 }

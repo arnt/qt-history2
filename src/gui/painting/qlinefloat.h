@@ -18,19 +18,19 @@
 
 #include <qpointfloat.h>
 
-class Q_GUI_EXPORT QLineFloat {
+class Q_GUI_EXPORT QLineF {
 public:
 
     enum IntersectMode { Unbounded, Bounded };
 
-    inline QLineFloat();
-    inline QLineFloat(const QPointFloat &pt1, const QPointFloat &pt2);
-    inline QLineFloat(float x1, float y1, float x2, float y2);
+    inline QLineF();
+    inline QLineF(const QPointF &pt1, const QPointF &pt2);
+    inline QLineF(float x1, float y1, float x2, float y2);
 
     inline bool isNull() const;
 
-    inline QPointFloat start() const;
-    inline QPointFloat end() const;
+    inline QPointF start() const;
+    inline QPointF end() const;
 
     inline float startX() const;
     inline float startY() const;
@@ -44,82 +44,82 @@ public:
     float length() const;
     void setLength(float len);
 
-    QLineFloat unitVector() const;
+    QLineF unitVector() const;
 
-    QLineFloat normalVector() const;
+    QLineF normalVector() const;
 
-    inline bool intersects(const QLineFloat &l, IntersectMode mode = Unbounded) const;
+    inline bool intersects(const QLineF &l, IntersectMode mode = Unbounded) const;
 
-    QPointFloat intersect(const QLineFloat &l, IntersectMode mode = Unbounded, bool *intersected = 0) const;
+    QPointF intersect(const QLineF &l, IntersectMode mode = Unbounded, bool *intersected = 0) const;
 
-    inline void moveBy(const QLineFloat &p);
+    inline void moveBy(const QLineF &p);
 
-    inline void operator+=(const QPointFloat &d);
+    inline void operator+=(const QPointF &d);
 
 private:
-    QPointFloat p1, p2;
+    QPointF p1, p2;
 };
 
-inline QLineFloat::QLineFloat()
+inline QLineF::QLineF()
 {
 }
 
-inline QLineFloat::QLineFloat(const QPointFloat &pt1, const QPointFloat &pt2)
+inline QLineF::QLineF(const QPointF &pt1, const QPointF &pt2)
     : p1(pt1), p2(pt2)
 {
 }
 
-inline QLineFloat::QLineFloat(float x1, float y1, float x2, float y2)
+inline QLineF::QLineF(float x1, float y1, float x2, float y2)
     : p1(x1, y1), p2(x2, y2)
 {
 }
 
-inline bool QLineFloat::isNull() const
+inline bool QLineF::isNull() const
 {
     return p1 == p2;
 }
 
-inline float QLineFloat::startX() const
+inline float QLineF::startX() const
 {
     return p1.x();
 }
 
-inline float QLineFloat::startY() const
+inline float QLineF::startY() const
 {
     return p1.y();
 }
 
-inline float QLineFloat::endX() const
+inline float QLineF::endX() const
 {
     return p2.x();
 }
 
-inline float QLineFloat::endY() const
+inline float QLineF::endY() const
 {
     return p2.y();
 }
 
-inline QPointFloat QLineFloat::start() const
+inline QPointF QLineF::start() const
 {
     return p1;
 }
 
-inline QPointFloat QLineFloat::end() const
+inline QPointF QLineF::end() const
 {
     return p2;
 }
 
-inline float QLineFloat::vx() const
+inline float QLineF::vx() const
 {
     return p2.x() - p1.x();
 }
 
-inline float QLineFloat::vy() const
+inline float QLineF::vy() const
 {
     return p2.y() - p1.y();
 }
 
-inline bool QLineFloat::intersects(const QLineFloat &l, IntersectMode mode) const
+inline bool QLineF::intersects(const QLineF &l, IntersectMode mode) const
 {
     Q_ASSERT(!isNull());
     bool intersected = false;
@@ -127,26 +127,26 @@ inline bool QLineFloat::intersects(const QLineFloat &l, IntersectMode mode) cons
     return intersected;
 }
 
-inline QLineFloat QLineFloat::normalVector() const
+inline QLineF QLineF::normalVector() const
 {
     Q_ASSERT(!isNull());
-    return QLineFloat(start(), start() + QPointFloat(vy(), -vx()));
+    return QLineF(start(), start() + QPointF(vy(), -vx()));
 }
 
-inline void QLineFloat::moveBy(const QLineFloat &l)
+inline void QLineF::moveBy(const QLineF &l)
 {
-    QPointFloat pf(l.vx(), l.vy());
+    QPointF pf(l.vx(), l.vy());
     *this += pf;
 }
 
-inline void QLineFloat::setLength(float len)
+inline void QLineF::setLength(float len)
 {
     Q_ASSERT(!isNull());
-    QLineFloat v = unitVector();
-    p2 = QPointFloat(p1.x() + v.vx() * len, p1.y() + v.vy() * len);
+    QLineF v = unitVector();
+    p2 = QPointF(p1.x() + v.vx() * len, p1.y() + v.vy() * len);
 }
 
-inline void QLineFloat::operator+=(const QPointFloat &d)
+inline void QLineF::operator+=(const QPointF &d)
 {
     p1 += d;
     p2 += d;

@@ -55,7 +55,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         // we need to attach below the baseline, because of the hebrew iud.
         baseInfo.height = qMax(baseInfo.height, -baseInfo.y);
 
-    QRectFloat baseRect(baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height);
+    QRectF baseRect(baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height);
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast);
 //     qDebug("baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
@@ -68,13 +68,13 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 
     int i;
     unsigned char lastCmb = 0;
-    QRectFloat attachmentRect;
+    QRectF attachmentRect;
 
     for(i = 1; i <= nmarks; i++) {
         glyph_t mark = glyphs[gfrom+i].glyph;
-        QPointFloat p;
+        QPointF p;
         glyph_metrics_t markInfo = f->boundingBox(mark);
-        QRectFloat markRect(markInfo.x, markInfo.y, markInfo.width, markInfo.height);
+        QRectF markRect(markInfo.x, markInfo.y, markInfo.width, markInfo.height);
 
         float offset = offsetBase;
         unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
@@ -122,44 +122,44 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         case QChar::Combining_DoubleBelow:
                 // ### wrong in rtl context!
         case QChar::Combining_BelowLeft:
-            p += QPointFloat(0, offset);
+            p += QPointF(0, offset);
         case QChar::Combining_BelowLeftAttached:
             p += attachmentRect.bottomLeft() - markRect.topLeft();
             break;
         case QChar::Combining_Below:
-            p += QPointFloat(0, offset);
+            p += QPointF(0, offset);
         case QChar::Combining_BelowAttached:
             p += attachmentRect.bottomLeft() - markRect.topLeft();
-            p += QPointFloat((attachmentRect.width() - markRect.width())/2 , 0);
+            p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
             break;
             case QChar::Combining_BelowRight:
-            p += QPointFloat(0, offset);
+            p += QPointF(0, offset);
         case QChar::Combining_BelowRightAttached:
             p += attachmentRect.bottomRight() - markRect.topRight();
             break;
             case QChar::Combining_Left:
-            p += QPointFloat(-offset, 0);
+            p += QPointF(-offset, 0);
         case QChar::Combining_LeftAttached:
             break;
             case QChar::Combining_Right:
-            p += QPointFloat(offset, 0);
+            p += QPointF(offset, 0);
         case QChar::Combining_RightAttached:
             break;
         case QChar::Combining_DoubleAbove:
             // ### wrong in RTL context!
         case QChar::Combining_AboveLeft:
-            p += QPointFloat(0, -offset);
+            p += QPointF(0, -offset);
         case QChar::Combining_AboveLeftAttached:
             p += attachmentRect.topLeft() - markRect.bottomLeft();
             break;
             case QChar::Combining_Above:
-            p += QPointFloat(0, -offset);
+            p += QPointF(0, -offset);
         case QChar::Combining_AboveAttached:
             p += attachmentRect.topLeft() - markRect.bottomLeft();
-            p += QPointFloat((attachmentRect.width() - markRect.width())/2 , 0);
+            p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
             break;
             case QChar::Combining_AboveRight:
-            p += QPointFloat(0, -offset);
+            p += QPointF(0, -offset);
         case QChar::Combining_AboveRightAttached:
             p += attachmentRect.topRight() - markRect.bottomRight();
             break;
@@ -271,7 +271,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
             glyphs[pos].attributes.combiningClass = cmb;
             //                 qDebug("found a mark at position %d", pos);
             logClusters[pos] = cStart;
-            glyphs[pos].advance = QPointFloat();
+            glyphs[pos].advance = QPointF();
         }
 
         if (lastCat == QChar::Separator_Space)
@@ -1370,7 +1370,7 @@ static bool arabic_shape(QShaperItem *item)
 
     for (int i = 0; i < slen; ++i)
         if (item->glyphs[i].attributes.mark)
-            item->glyphs[i].advance = QPointFloat();
+            item->glyphs[i].advance = QPointF();
     q_heuristicPosition(item);
     return true;
 }

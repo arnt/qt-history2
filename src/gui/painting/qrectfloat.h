@@ -21,23 +21,23 @@
 #endif // QT_H
 
 #if defined(topLeft)
-#error "Macro definition of topLeft conflicts with QRectFloat"
+#error "Macro definition of topLeft conflicts with QRectF"
 // don't just silently undo people's defines: #undef topLeft
 #endif
 
-class Q_GUI_EXPORT QRectFloat                                        // rectangle class
+class Q_GUI_EXPORT QRectF                                        // rectangle class
 {
 public:
-    QRectFloat() { xp = yp = 0.; w = h = 0.; }
-    QRectFloat(const QPointFloat &topleft, const QPointFloat &bottomright);
-    QRectFloat(const QPointFloat &topleft, const QSizeFloat &size);
-    QRectFloat(float left, float top, float width, float height);
-    QRectFloat(const QRect &rect);
+    QRectF() { xp = yp = 0.; w = h = 0.; }
+    QRectF(const QPointF &topleft, const QPointF &bottomright);
+    QRectF(const QPointF &topleft, const QSizeF &size);
+    QRectF(float left, float top, float width, float height);
+    QRectF(const QRect &rect);
 
     bool isNull() const;
     bool isEmpty() const;
     bool isValid() const;
-    QRectFloat normalize() const;
+    QRectF normalize() const;
 
     float left() const;
     float top() const;
@@ -58,28 +58,28 @@ public:
     void setX(float x);
     void setY(float y);
 
-    void setTopLeft(const QPointFloat &p);
-    void setBottomRight(const QPointFloat &p);
-    void setTopRight(const QPointFloat &p);
-    void setBottomLeft(const QPointFloat &p);
+    void setTopLeft(const QPointF &p);
+    void setBottomRight(const QPointF &p);
+    void setTopRight(const QPointF &p);
+    void setBottomLeft(const QPointF &p);
 
-    QPointFloat topLeft() const;
-    QPointFloat bottomRight() const;
-    QPointFloat topRight() const;
-    QPointFloat bottomLeft() const;
-    QPointFloat center() const;
+    QPointF topLeft() const;
+    QPointF bottomRight() const;
+    QPointF topRight() const;
+    QPointF bottomLeft() const;
+    QPointF center() const;
 
     void moveLeft(float pos);
     void moveTop(float pos);
     void moveRight(float pos);
     void moveBottom(float pos);
-    void moveTopLeft(const QPointFloat &p);
-    void moveBottomRight(const QPointFloat &p);
-    void moveTopRight(const QPointFloat &p);
-    void moveBottomLeft(const QPointFloat &p);
-    void moveCenter(const QPointFloat &p);
+    void moveTopLeft(const QPointF &p);
+    void moveBottomRight(const QPointF &p);
+    void moveTopRight(const QPointF &p);
+    void moveBottomLeft(const QPointF &p);
+    void moveCenter(const QPointF &p);
     void moveBy(float dx, float dy);
-    void moveBy(const QPointFloat &p);
+    void moveBy(const QPointF &p);
 
     void setRect(float x, float y, float w, float h);
     void getRect(float *x, float *y, float *w, float *h) const;
@@ -88,27 +88,27 @@ public:
     void addCoords(float x1, float y1, float x2, float y2);
     void getCoords(float *x1, float *y1, float *x2, float *y2) const;
 
-    QSizeFloat size() const;
+    QSizeF size() const;
     float width() const;
     float height() const;
     void setWidth(float w);
     void setHeight(float h);
-    void setSize(const QSizeFloat &s);
+    void setSize(const QSizeF &s);
 
-    QRectFloat operator|(const QRectFloat &r) const;
-    QRectFloat operator&(const QRectFloat &r) const;
-    QRectFloat& operator|=(const QRectFloat &r);
-    QRectFloat& operator&=(const QRectFloat &r);
+    QRectF operator|(const QRectF &r) const;
+    QRectF operator&(const QRectF &r) const;
+    QRectF& operator|=(const QRectF &r);
+    QRectF& operator&=(const QRectF &r);
 
-    bool contains(const QPointFloat &p) const;
+    bool contains(const QPointF &p) const;
     bool contains(float x, float y) const;
-    bool contains(const QRectFloat &r) const;
-    QRectFloat unite(const QRectFloat &r) const;
-    QRectFloat intersect(const QRectFloat &r) const;
-    bool intersects(const QRectFloat &r) const;
+    bool contains(const QRectF &r) const;
+    QRectF unite(const QRectF &r) const;
+    QRectF intersect(const QRectF &r) const;
+    bool intersects(const QRectF &r) const;
 
-    friend Q_GUI_EXPORT bool operator==(const QRectFloat &, const QRectFloat &);
-    friend Q_GUI_EXPORT bool operator!=(const QRectFloat &, const QRectFloat &);
+    friend Q_GUI_EXPORT bool operator==(const QRectF &, const QRectF &);
+    friend Q_GUI_EXPORT bool operator!=(const QRectF &, const QRectF &);
 
     QRect toRect() const;
 
@@ -119,28 +119,28 @@ private:
     float h;
 };
 
-Q_GUI_EXPORT bool operator==(const QRectFloat &, const QRectFloat &);
-Q_GUI_EXPORT bool operator!=(const QRectFloat &, const QRectFloat &);
+Q_GUI_EXPORT bool operator==(const QRectF &, const QRectF &);
+Q_GUI_EXPORT bool operator!=(const QRectF &, const QRectF &);
 
 
 /*****************************************************************************
-  QRectFloat stream functions
+  QRectF stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QRectFloat &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRectFloat &);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QRectF &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRectF &);
 #endif
 
 /*****************************************************************************
-  QRectFloat inline member functions
+  QRectF inline member functions
  *****************************************************************************/
 
-inline QRectFloat::QRectFloat(float left, float top, float width, float height)
+inline QRectF::QRectF(float left, float top, float width, float height)
     : xp(left), yp(top), w(width), h(height)
 {
 }
 
-inline QRectFloat::QRectFloat(const QPointFloat &topLeft, const QPointFloat &bottomRight)
+inline QRectF::QRectF(const QPointF &topLeft, const QPointF &bottomRight)
 {
     xp = topLeft.x();
     yp = topLeft.y();
@@ -148,7 +148,7 @@ inline QRectFloat::QRectFloat(const QPointFloat &topLeft, const QPointFloat &bot
     h = bottomRight.y() - yp;
 }
 
-inline QRectFloat::QRectFloat(const QPointFloat &topLeft, const QSizeFloat &size)
+inline QRectF::QRectF(const QPointF &topLeft, const QSizeF &size)
 {
     xp = topLeft.x();
     yp = topLeft.y();
@@ -156,157 +156,157 @@ inline QRectFloat::QRectFloat(const QPointFloat &topLeft, const QSizeFloat &size
     h = size.height();
 }
 
-inline QRectFloat::QRectFloat(const QRect &r)
+inline QRectF::QRectF(const QRect &r)
     : xp(r.x()), yp(r.y()), w(r.width()), h(r.height())
 {
 }
 
-inline bool QRectFloat::isNull() const
+inline bool QRectF::isNull() const
 { return w == 0 && h == 0; }
 
-inline bool QRectFloat::isEmpty() const
+inline bool QRectF::isEmpty() const
 { return w <= 0. || h <= 0.; }
 
-inline bool QRectFloat::isValid() const
+inline bool QRectF::isValid() const
 { return w >= 0. && h >= 0.; }
 
-inline float QRectFloat::left() const
+inline float QRectF::left() const
 { return xp; }
 
-inline float QRectFloat::top() const
+inline float QRectF::top() const
 { return yp; }
 
-inline float QRectFloat::right() const
+inline float QRectF::right() const
 { return xp + w; }
 
-inline float QRectFloat::bottom() const
+inline float QRectF::bottom() const
 { return yp + h; }
 
-inline float &QRectFloat::rLeft()
+inline float &QRectF::rLeft()
 { return xp; }
 
-inline float & QRectFloat::rTop()
+inline float & QRectF::rTop()
 { return yp; }
 
-inline float & QRectFloat::rWidth()
+inline float & QRectF::rWidth()
 { return w; }
 
-inline float & QRectFloat::rHeight()
+inline float & QRectF::rHeight()
 { return h; }
 
-inline float QRectFloat::x() const
+inline float QRectF::x() const
 { return xp; }
 
-inline float QRectFloat::y() const
+inline float QRectF::y() const
 { return yp; }
 
-inline void QRectFloat::setLeft(float pos)
+inline void QRectF::setLeft(float pos)
 { xp = pos; }
 
-inline void QRectFloat::setTop(float pos)
+inline void QRectF::setTop(float pos)
 { yp = pos; }
 
-inline void QRectFloat::setRight(float pos)
+inline void QRectF::setRight(float pos)
 { w = pos - xp; }
 
-inline void QRectFloat::setBottom(float pos)
+inline void QRectF::setBottom(float pos)
 { h = pos - yp; }
 
-inline void QRectFloat::setTopLeft(const QPointFloat &p)
+inline void QRectF::setTopLeft(const QPointF &p)
 { xp = p.x(); yp = p.y(); }
 
-inline void QRectFloat::setBottomRight(const QPointFloat &p)
+inline void QRectF::setBottomRight(const QPointF &p)
 { w = p.x() - xp; h = p.y() - yp; }
 
-inline void QRectFloat::setTopRight(const QPointFloat &p)
+inline void QRectF::setTopRight(const QPointF &p)
 { w = p.x() - xp; yp = p.y(); }
 
-inline void QRectFloat::setBottomLeft(const QPointFloat &p)
+inline void QRectF::setBottomLeft(const QPointF &p)
 { xp = p.x(); h = p.y() - yp; }
 
-inline void QRectFloat::setX(float x)
+inline void QRectF::setX(float x)
 { xp = x; }
 
-inline void QRectFloat::setY(float y)
+inline void QRectF::setY(float y)
 { yp = y; }
 
-inline QPointFloat QRectFloat::topLeft() const
-{ return QPointFloat(xp, yp); }
+inline QPointF QRectF::topLeft() const
+{ return QPointF(xp, yp); }
 
-inline QPointFloat QRectFloat::bottomRight() const
-{ return QPointFloat(xp + w, yp + h); }
+inline QPointF QRectF::bottomRight() const
+{ return QPointF(xp + w, yp + h); }
 
-inline QPointFloat QRectFloat::topRight() const
-{ return QPointFloat(xp + w, yp); }
+inline QPointF QRectF::topRight() const
+{ return QPointF(xp + w, yp); }
 
-inline QPointFloat QRectFloat::bottomLeft() const
-{ return QPointFloat(xp, yp + h); }
+inline QPointF QRectF::bottomLeft() const
+{ return QPointF(xp, yp + h); }
 
-inline QPointFloat QRectFloat::center() const
-{ return QPointFloat(xp + w/2, yp + h/2); }
+inline QPointF QRectF::center() const
+{ return QPointF(xp + w/2, yp + h/2); }
 
-inline float QRectFloat::width() const
+inline float QRectF::width() const
 { return w; }
 
-inline float QRectFloat::height() const
+inline float QRectF::height() const
 { return h; }
 
-inline QSizeFloat QRectFloat::size() const
-{ return QSizeFloat(w, h); }
+inline QSizeF QRectF::size() const
+{ return QSizeF(w, h); }
 
-inline void QRectFloat::moveBy(float dx, float dy)
+inline void QRectF::moveBy(float dx, float dy)
 {
     xp += dx;
     yp += dy;
 }
 
-inline void QRectFloat::moveBy(const QPointFloat &p)
+inline void QRectF::moveBy(const QPointF &p)
 {
     xp += p.x();
     yp += p.y();
 }
 
-inline void QRectFloat::moveLeft(float pos)
+inline void QRectF::moveLeft(float pos)
 { xp = pos; }
 
-inline void QRectFloat::moveTop(float pos)
+inline void QRectF::moveTop(float pos)
 { yp = pos; }
 
-inline void QRectFloat::moveRight(float pos)
+inline void QRectF::moveRight(float pos)
 {
     xp = pos - w;
 }
 
-inline void QRectFloat::moveBottom(float pos)
+inline void QRectF::moveBottom(float pos)
 {
     yp = pos - h;
 }
 
-inline void QRectFloat::moveTopLeft(const QPointFloat &p)
+inline void QRectF::moveTopLeft(const QPointF &p)
 {
     xp = p.x();
     yp = p.y();
 }
 
-inline void QRectFloat::moveBottomRight(const QPointFloat &p)
+inline void QRectF::moveBottomRight(const QPointF &p)
 {
     xp = p.x() - w;
     yp = p.y() - h;
 }
 
-inline void QRectFloat::moveTopRight(const QPointFloat &p)
+inline void QRectF::moveTopRight(const QPointF &p)
 {
     xp = p.x() - w;
     yp = p.y();
 }
 
-inline void QRectFloat::moveBottomLeft(const QPointFloat &p)
+inline void QRectF::moveBottomLeft(const QPointF &p)
 {
     xp = p.x();
     yp = p.y() - h;
 }
 
-inline void QRectFloat::getRect(float *x, float *y, float *w, float *h) const
+inline void QRectF::getRect(float *x, float *y, float *w, float *h) const
 {
     *x = this->xp;
     *y = this->yp;
@@ -314,7 +314,7 @@ inline void QRectFloat::getRect(float *x, float *y, float *w, float *h) const
     *h = this->h;
 }
 
-inline void QRectFloat::setRect(float x, float y, float w, float h)
+inline void QRectF::setRect(float x, float y, float w, float h)
 {
     this->xp = x;
     this->yp = y;
@@ -322,7 +322,7 @@ inline void QRectFloat::setRect(float x, float y, float w, float h)
     this->h = h;
 }
 
-inline void QRectFloat::getCoords(float *xp1, float *yp1, float *xp2, float *yp2) const
+inline void QRectF::getCoords(float *xp1, float *yp1, float *xp2, float *yp2) const
 {
     *xp1 = xp;
     *yp1 = yp;
@@ -330,7 +330,7 @@ inline void QRectFloat::getCoords(float *xp1, float *yp1, float *xp2, float *yp2
     *yp2 = yp + h;
 }
 
-inline void QRectFloat::setCoords(float xp1, float yp1, float xp2, float yp2)
+inline void QRectF::setCoords(float xp1, float yp1, float xp2, float yp2)
 {
     xp = xp1;
     yp = yp1;
@@ -338,7 +338,7 @@ inline void QRectFloat::setCoords(float xp1, float yp1, float xp2, float yp2)
     h = yp2 - yp1;
 }
 
-inline void QRectFloat::addCoords(float xp1, float yp1, float xp2, float yp2)
+inline void QRectF::addCoords(float xp1, float yp1, float xp2, float yp2)
 {
     xp += xp1;
     yp += yp1;
@@ -346,68 +346,68 @@ inline void QRectFloat::addCoords(float xp1, float yp1, float xp2, float yp2)
     h += yp2 - yp1;
 }
 
-inline void QRectFloat::setWidth(float w)
+inline void QRectF::setWidth(float w)
 { this->w = w; }
 
-inline void QRectFloat::setHeight(float h)
+inline void QRectF::setHeight(float h)
 { this->h = h; }
 
-inline void QRectFloat::setSize(const QSizeFloat &s)
+inline void QRectF::setSize(const QSizeF &s)
 {
     w = s.width();
     h = s.height();
 }
 
-inline bool QRectFloat::contains(float x, float y) const
+inline bool QRectF::contains(float x, float y) const
 {
     return x >= xp && x < xp + w &&
            y >= yp && y < yp + h;
 }
 
-inline bool QRectFloat::contains(const QPointFloat &p) const
+inline bool QRectF::contains(const QPointF &p) const
 {
     return p.x() >= xp && p.x() < xp + w &&
            p.y() >= yp && p.y() < yp + h;
 }
 
-inline QRectFloat& QRectFloat::operator|=(const QRectFloat &r)
+inline QRectF& QRectF::operator|=(const QRectF &r)
 {
     *this = *this | r;
     return *this;
 }
 
-inline QRectFloat& QRectFloat::operator&=(const QRectFloat &r)
+inline QRectF& QRectF::operator&=(const QRectF &r)
 {
     *this = *this & r;
     return *this;
 }
 
-inline QRectFloat QRectFloat::intersect(const QRectFloat &r) const
+inline QRectF QRectF::intersect(const QRectF &r) const
 {
     return *this & r;
 }
-inline QRectFloat QRectFloat::unite(const QRectFloat &r) const
+inline QRectF QRectF::unite(const QRectF &r) const
 {
     return *this | r;
 }
 
-inline bool operator==(const QRectFloat &r1, const QRectFloat &r2)
+inline bool operator==(const QRectF &r1, const QRectF &r2)
 {
     return r1.xp == r2.xp && r1.yp == r2.yp && r1.w == r2.w && r1.h == r2.h;
 }
 
-inline bool operator!=(const QRectFloat &r1, const QRectFloat &r2)
+inline bool operator!=(const QRectF &r1, const QRectF &r2)
 {
     return r1.xp != r2.xp || r1.yp != r2.yp || r1.w != r2.w || r1.h != r2.h;
 }
 
-inline QRect QRectFloat::toRect() const
+inline QRect QRectF::toRect() const
 {
     return QRect(qRound(xp), qRound(yp), qRound(w), qRound(h));
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug, const QRectFloat &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QRectF &);
 #endif
 
 #endif // QRECT_H

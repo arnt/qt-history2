@@ -48,7 +48,7 @@ public:
     QRect mapRect(const QRect &) const;
 
     QPoint map(const QPoint &p) const;
-    QPointFloat map(const QPointFloat&p) const;
+    QPointF map(const QPointF&p) const;
     QPointArray map(const QPointArray &a) const;
     QRegion map(const QRegion &r) const;
     QRegion mapToRegion(const QRect &r) const;
@@ -88,7 +88,7 @@ private:
 // mathematical semantics
 inline Q_GUI_EXPORT QPoint operator*(const QPoint &p, const QMatrix &m)
 { return m.map(p); }
-inline Q_GUI_EXPORT QPointFloat operator*(const QPointFloat &p, const QMatrix &m)
+inline Q_GUI_EXPORT QPointF operator*(const QPointF &p, const QMatrix &m)
 { return m.map(p); }
 inline Q_GUI_EXPORT QPointArray operator *(const QPointArray &a, const QMatrix &m)
 { return m.map(a); }

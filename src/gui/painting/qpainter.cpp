@@ -1869,8 +1869,8 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     int rxx2 = 2*rxx;
     int ryy2 = 2*ryy;
 
-    QPointFloat startPoint;
-    qt_find_ellipse_coords(QRectFloat(x, y, rxx2, ryy2), 90, 90, &startPoint, 0);
+    QPointF startPoint;
+    qt_find_ellipse_coords(QRectF(x, y, rxx2, ryy2), 90, 90, &startPoint, 0);
     path.moveTo(startPoint);
     path.arcTo(x, y, rxx2, ryy2, 90, 90);
     path.arcTo(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
@@ -1966,7 +1966,7 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    QPointFloat startPoint;
+    QPointF startPoint;
     qt_find_ellipse_coords(r, a/16.0, alen/16.0, &startPoint, 0);
 
     QPainterPath path;
@@ -2013,7 +2013,7 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
     }
 
     QRect rect = r.normalize();
-    QPointFloat startPoint;
+    QPointF startPoint;
     qt_find_ellipse_coords(r, a/16.0, alen/16.0, &startPoint, 0);
 
     QPainterPath path;
@@ -2058,7 +2058,7 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
 
     QRect rect = r.normalize();
 
-    QPointFloat startPoint;
+    QPointF startPoint;
     qt_find_ellipse_coords(r, a/16.0, alen/16.0, &startPoint, 0);
 
     QPainterPath path;

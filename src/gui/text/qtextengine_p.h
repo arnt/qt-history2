@@ -158,8 +158,8 @@ struct QGlyphLayout
         unsigned short combiningClass  :8;
     };
     Attributes attributes;
-    QPointFloat advance;
-    QPointFloat offset;
+    QPointF advance;
+    QPointF offset;
 
     enum JustificationType {
         JustifyNone,

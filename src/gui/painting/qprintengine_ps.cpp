@@ -5828,7 +5828,7 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
                 break;
             }
             case QPainterPathElement::Arc: {
-                d->pageStream << RECT(QRectFloat(elm.arcData.x, elm.arcData.y, elm.arcData.w, elm.arcData.h))
+                d->pageStream << RECT(QRectF(elm.arcData.x, elm.arcData.y, elm.arcData.w, elm.arcData.h))
                               << elm.arcData.start << ' '
                               << elm.arcData.length
                               << " ARC\n";

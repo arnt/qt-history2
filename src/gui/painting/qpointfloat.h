@@ -19,12 +19,12 @@
 #include "qpoint.h"
 #endif // QT_H
 
-class Q_GUI_EXPORT QPointFloat
+class Q_GUI_EXPORT QPointF
 {
 public:
-    QPointFloat();
-    QPointFloat(const QPoint &p);
-    QPointFloat(float xpos, float ypos);
+    QPointF();
+    QPointF(const QPoint &p);
+    QPointF(float xpos, float ypos);
 
     bool isNull() const;
 
@@ -36,20 +36,20 @@ public:
     float &rx();
     float &ry();
 
-    QPointFloat &operator+=(const QPointFloat &p);
-    QPointFloat &operator-=(const QPointFloat &p);
-    QPointFloat &operator*=(float c);
-    QPointFloat &operator/=(float c);
+    QPointF &operator+=(const QPointF &p);
+    QPointF &operator-=(const QPointF &p);
+    QPointF &operator*=(float c);
+    QPointF &operator/=(float c);
 
-    friend inline bool operator==(const QPointFloat &, const QPointFloat &);
-    friend inline bool operator!=(const QPointFloat &, const QPointFloat &);
-    friend inline const QPointFloat operator+(const QPointFloat &, const QPointFloat &);
-    friend inline const QPointFloat operator-(const QPointFloat &, const QPointFloat &);
-    friend inline const QPointFloat operator*(const QPointFloat &, int);
-    friend inline const QPointFloat operator*(float, const QPointFloat &);
-    friend inline const QPointFloat operator*(const QPointFloat &, float);
-    friend inline const QPointFloat operator-(const QPointFloat &);
-    friend inline const QPointFloat operator/(const QPointFloat &, float);
+    friend inline bool operator==(const QPointF &, const QPointF &);
+    friend inline bool operator!=(const QPointF &, const QPointF &);
+    friend inline const QPointF operator+(const QPointF &, const QPointF &);
+    friend inline const QPointF operator-(const QPointF &, const QPointF &);
+    friend inline const QPointF operator*(const QPointF &, int);
+    friend inline const QPointF operator*(float, const QPointF &);
+    friend inline const QPointF operator*(const QPointF &, float);
+    friend inline const QPointF operator-(const QPointF &);
+    friend inline const QPointF operator/(const QPointF &, float);
 
     QPoint toPoint() const;
 
@@ -60,111 +60,111 @@ private:
 
 
 /*****************************************************************************
-  QPointFloat stream functions
+  QPointF stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPointFloat &);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPointFloat &);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPointF &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPointF &);
 #endif
 
 /*****************************************************************************
-  QPointFloat inline functions
+  QPointF inline functions
  *****************************************************************************/
 
-inline QPointFloat::QPointFloat() : xp(0), yp(0) { }
+inline QPointF::QPointF() : xp(0), yp(0) { }
 
-inline QPointFloat::QPointFloat(float xpos, float ypos) : xp(xpos), yp(ypos) { }
+inline QPointF::QPointF(float xpos, float ypos) : xp(xpos), yp(ypos) { }
 
-inline QPointFloat::QPointFloat(const QPoint &p) : xp(p.x()), yp(p.y()) { }
+inline QPointF::QPointF(const QPoint &p) : xp(p.x()), yp(p.y()) { }
 
-inline bool QPointFloat::isNull() const
+inline bool QPointF::isNull() const
 {
     return xp == 0 && yp == 0;
 }
 
-inline float QPointFloat::x() const
+inline float QPointF::x() const
 {
     return xp;
 }
 
-inline float QPointFloat::y() const
+inline float QPointF::y() const
 {
     return yp;
 }
 
-inline void QPointFloat::setX(float x)
+inline void QPointF::setX(float x)
 {
     xp = x;
 }
 
-inline void QPointFloat::setY(float y)
+inline void QPointF::setY(float y)
 {
     yp = y;
 }
 
-inline float &QPointFloat::rx()
+inline float &QPointF::rx()
 {
     return xp;
 }
 
-inline float &QPointFloat::ry()
+inline float &QPointF::ry()
 {
     return yp;
 }
 
-inline QPointFloat &QPointFloat::operator+=(const QPointFloat &p)
+inline QPointF &QPointF::operator+=(const QPointF &p)
 {
     xp+=p.xp;
     yp+=p.yp;
     return *this;
 }
 
-inline QPointFloat &QPointFloat::operator-=(const QPointFloat &p)
+inline QPointF &QPointF::operator-=(const QPointF &p)
 {
     xp-=p.xp; yp-=p.yp; return *this;
 }
 
-inline QPointFloat &QPointFloat::operator*=(float c)
+inline QPointF &QPointF::operator*=(float c)
 {
     xp*=c; yp*=c; return *this;
 }
 
-inline bool operator==(const QPointFloat &p1, const QPointFloat &p2)
+inline bool operator==(const QPointF &p1, const QPointF &p2)
 {
     return p1.xp == p2.xp && p1.yp == p2.yp;
 }
 
-inline bool operator!=(const QPointFloat &p1, const QPointFloat &p2)
+inline bool operator!=(const QPointF &p1, const QPointF &p2)
 {
     return p1.xp != p2.xp || p1.yp != p2.yp;
 }
 
-inline const QPointFloat operator+(const QPointFloat &p1, const QPointFloat &p2)
+inline const QPointF operator+(const QPointF &p1, const QPointF &p2)
 {
-    return QPointFloat(p1.xp+p2.xp, p1.yp+p2.yp);
+    return QPointF(p1.xp+p2.xp, p1.yp+p2.yp);
 }
 
-inline const QPointFloat operator-(const QPointFloat &p1, const QPointFloat &p2)
+inline const QPointF operator-(const QPointF &p1, const QPointF &p2)
 {
-    return QPointFloat(p1.xp-p2.xp, p1.yp-p2.yp);
+    return QPointF(p1.xp-p2.xp, p1.yp-p2.yp);
 }
 
-inline const QPointFloat operator*(const QPointFloat &p, float c)
+inline const QPointF operator*(const QPointF &p, float c)
 {
-    return QPointFloat(p.xp*c, p.yp*c);
+    return QPointF(p.xp*c, p.yp*c);
 }
 
-inline const QPointFloat operator*(float c, const QPointFloat &p)
+inline const QPointF operator*(float c, const QPointF &p)
 {
-    return QPointFloat(p.xp*c, p.yp*c);
+    return QPointF(p.xp*c, p.yp*c);
 }
 
-inline const QPointFloat operator-(const QPointFloat &p)
+inline const QPointF operator-(const QPointF &p)
 {
-    return QPointFloat(-p.xp, -p.yp);
+    return QPointF(-p.xp, -p.yp);
 }
 
-inline QPointFloat &QPointFloat::operator/=(float c)
+inline QPointF &QPointF::operator/=(float c)
 {
     Q_ASSERT(c != 0);
     xp/=c;
@@ -172,19 +172,19 @@ inline QPointFloat &QPointFloat::operator/=(float c)
     return *this;
 }
 
-inline const QPointFloat operator/(const QPointFloat &p, float c)
+inline const QPointF operator/(const QPointF &p, float c)
 {
     Q_ASSERT(c != 0);
-    return QPointFloat(p.xp/c, p.yp/c);
+    return QPointF(p.xp/c, p.yp/c);
 }
 
-inline QPoint QPointFloat::toPoint() const
+inline QPoint QPointF::toPoint() const
 {
     return QPoint(qRound(xp), qRound(yp));
 }
 
 #ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug d, const QPointFloat &p);
+Q_GUI_EXPORT QDebug operator<<(QDebug d, const QPointF &p);
 #endif
 
 #endif // QPOINTFLOAT_H

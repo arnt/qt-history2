@@ -15,19 +15,19 @@
 #include <qdebug.h>
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug d, const QPointFloat &p)
+QDebug operator<<(QDebug d, const QPointF &p)
 {
-    d << "QPointFloat(" << p.x() << ", " << p.y() << ")";
+    d << "QPointF(" << p.x() << ", " << p.y() << ")";
     return d;
 }
 #endif
 
 /*!
-    \class QPointFloat
-    \brief The QPointFloat class provides a point object that uses floating
+    \class QPointF
+    \brief The QPointF class provides a point object that uses floating
     point coordinates for accuracy.
 
-    A QPointFloat describes a point on a two-dimensional surface. The
+    A QPointF describes a point on a two-dimensional surface. The
     coordinates of the point are specified using floating point numbers
     for accuracy. If you only need the accuracy of integers, you may want to
     use QPoint instead of this class.
@@ -38,72 +38,72 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
     coordinates used to define the point: x(), y(), setX(), and setY().
 
 
-    \sa QPointFloat
+    \sa QPointF
 */
 
 /*!
-    \fn QPointFloat::QPointFloat()
+    \fn QPointF::QPointF()
 
     Constructs a null point.
 */
 
 /*!
-    \fn QPointFloat::QPointFloat(const QPoint &point)
+    \fn QPointF::QPointF(const QPoint &point)
 
     Copy constructor. Constructs a point using the values of the \a point
     specified.
 */
 
 /*!
-    \fn QPointFloat::QPointFloat(float x, float y)
+    \fn QPointF::QPointF(float x, float y)
 
     Constructs a point with coordinates specified by \a x and \a y.
 */
 
 /*!
-    \fn bool QPointFloat::isNull() const
+    \fn bool QPointF::isNull() const
 
     Returns true if the point is not set up; otherwise returns false.
 */
 
 /*!
-    \fn float QPointFloat::x() const
+    \fn float QPointF::x() const
 
     Returns the x-coordinate of the point.
 */
 
 /*!
-    \fn float QPointFloat::y() const
+    \fn float QPointF::y() const
 
     Returns the y-coordinate of the point.
 */
 
 /*!
-    \fn void QPointFloat::setX(float x)
+    \fn void QPointF::setX(float x)
 
     Sets the x-coordinate of the point to the value specified by \a x.
 */
 
 /*!
-    \fn void QPointFloat::setY(float y)
+    \fn void QPointF::setY(float y)
 
     Sets the y-coordinate of the point to the value specified by \a y.
 */
 
 /*!
-    \fn float QPointFloat::&rx()
+    \fn float QPointF::&rx()
 
     Returns a reference to the x-coordinate of the point.
 */
 
 /*!
-    \fn float QPointFloat::&ry()
+    \fn float QPointF::&ry()
 
     Returns a reference to the y-coordinate of the point.
 */
 
 /*!
-    \fn QPointFloat QPointFloat::&operator+=(const QPointFloat &other)
+    \fn QPointF QPointF::&operator+=(const QPointF &other)
 
     Adds the coordinates of this point to the corresponding coordinates of
     the \a other point, and returns a reference to this point with the new
@@ -113,7 +113,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn QPointFloat QPointFloat::&operator-=(const QPointFloat &other)
+    \fn QPointF QPointF::&operator-=(const QPointF &other)
 
     Subtracts the coordinates of the \a other point from the
     corresponding coordinates of this point, and returns a reference to this
@@ -123,7 +123,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn QPointFloat QPointFloat::&operator*=(float factor)
+    \fn QPointF QPointF::&operator*=(float factor)
 
     Multiplies the coordinates of this point by the given scale \a factor, and
     returns a reference to this point with the new coordinates. (Scalar
@@ -133,7 +133,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn QPointFloat QPointFloat::&operator/=(float factor)
+    \fn QPointF QPointF::&operator/=(float factor)
 
     Divides the coordinates of this point by the given scale \a factor, and
     returns a references to this point with the new coordinates. (Scalar
@@ -143,7 +143,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn bool operator==(const QPointFloat &, const QPointFloat &)
+    \fn bool operator==(const QPointF &, const QPointF &)
 
     Returns true if the \a point is the same as the \a other point given.
 
@@ -151,7 +151,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn bool operator!=(const QPointFloat &point, const QPointFloat &other)
+    \fn bool operator!=(const QPointF &point, const QPointF &other)
 
     Returns true if the \a point is not the same as the \a other point given.
 
@@ -159,7 +159,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn const QPointFloat operator+(const QPointFloat &point, const QPointFloat &other)
+    \fn const QPointF operator+(const QPointF &point, const QPointF &other)
 
     Adds the coordinates of the \a point to the corresponding coordinates of
     the \a other point, and returns a point with the new coordinates. (Vector
@@ -169,7 +169,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn const QPointFloat operator-(const QPointFloat &point, const QPointFloat &other)
+    \fn const QPointF operator-(const QPointF &point, const QPointF &other)
 
     Subtracts the coordinates of the \a other point from the
     corresponding coordinates of the given \a point, and returns a point with
@@ -179,7 +179,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn const QPointFloat operator*(const QPointFloat &point, int factor)
+    \fn const QPointF operator*(const QPointF &point, int factor)
 
     \overload
 
@@ -191,7 +191,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn const QPointFloat operator*(float factor, const QPointFloat &point)
+    \fn const QPointF operator*(float factor, const QPointF &point)
 
     \overload
 
@@ -203,7 +203,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn const QPointFloat operator*(const QPointFloat &point, float factor)
+    \fn const QPointF operator*(const QPointF &point, float factor)
 
     Multiplies the coordinates of the \a point by the given scale \a factor, and
     returns a point with the new coordinates. (Scalar multiplication of a vector.)
@@ -212,14 +212,14 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn const QPointFloat operator-(const QPointFloat &point)
+    \fn const QPointF operator-(const QPointF &point)
 
     Negates the coordinates of the \a point, and returns a point with the
     new coordinates. (Inversion).
 */
 
 /*!
-    \fn const QPointFloat operator/(const QPointFloat &point, float factor)
+    \fn const QPointF operator/(const QPointF &point, float factor)
 
     Divides the coordinates of the \a point by the given scale \a factor, and
     returns a point with the new coordinates. (Scalar division of a vector.)
@@ -228,7 +228,7 @@ QDebug operator<<(QDebug d, const QPointFloat &p)
 */
 
 /*!
-    \fn QPoint QPointFloat::toPoint() const
+    \fn QPoint QPointF::toPoint() const
 
     Converts the coordinates of this point to integers and returns a QPoint
     with these coordinates.
