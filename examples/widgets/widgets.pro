@@ -7,7 +7,7 @@ TARGET		= widgets
 DEPENDPATH=../../include
 REQUIRES=full-config
 
-macx-g++ {
+off:macx-g++ {
 	target.path=$${TARGET}.app/Contents/MacOS
 	INSTALLS += target
 }
