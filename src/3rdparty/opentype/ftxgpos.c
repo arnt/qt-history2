@@ -1719,11 +1719,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( context_length != 0xFFFF && context_length < 2 )
       return TTO_Err_Not_Covered;
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     error = Coverage_Index( &pp->Coverage, in->string[in->pos], &index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gpos->gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     /* second glyph */
@@ -1743,22 +1743,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
         break;
     }
 
-    switch ( pp->PosFormat )
-    {
-    case 1:
+    if ( pp->PosFormat == 1 )
       error = Lookup_PairPos1( gpi, &pp->ppf.ppf1, in, out,
                                first_pos, index,
                                pp->ValueFormat1, pp->ValueFormat2 );
-      break;
-
-    case 2:
+    else if ( pp->PosFormat == 2 )
       error = Lookup_PairPos2( gpi, &pp->ppf.ppf2, in, out, first_pos,
                                pp->ValueFormat1, pp->ValueFormat2 );
-      break;
-
-    default:
+    else
       return TTO_Err_Invalid_GPOS_SubTable_Format;
-    }
 
     /* adjusting the `next' glyph */
 
@@ -1931,6 +1924,16 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Not_Covered;
     }
 
+    error = Coverage_Index( &cp->Coverage, in->string[in->pos], &index );
+    if ( error )
+    {
+      gpi->last = 0xFFFF;
+      return error;
+    }
+
+    if ( index >= cp->EntryExitCount )
+      return TTO_Err_Invalid_GPOS_SubTable;
+
     /* Glyphs not having the right GDEF properties will be ignored, i.e.,
        gpi->last won't be reset (contrary to user defined properties). */
 
@@ -1946,15 +1949,6 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Not_Covered;
     }
 
-    error = Coverage_Index( &cp->Coverage, in->string[in->pos], &index );
-    if ( error )
-    {
-      gpi->last = 0xFFFF;
-      return error;
-    }
-
-    if ( index >= cp->EntryExitCount )
-      return TTO_Err_Invalid_GPOS_SubTable;
 
     eer = &cp->EntryExitRecord[index];
 
@@ -2353,13 +2347,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( flags & IGNORE_BASE_GLYPHS )
       return TTO_Err_Not_Covered;
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos],
-                         flags, &property ) )
-      return error;
-
     error = Coverage_Index( &mbp->MarkCoverage, in->string[in->pos],
                             &mark_index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gpos->gdef, in->string[in->pos],
+                         flags, &property ) )
       return error;
 
     /* now we search backwards for a base glyph */
@@ -2768,11 +2762,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     mark_glyph = in->string[in->pos];
 
-    if ( CHECK_Property( gpos->gdef, mark_glyph, flags, &property ) )
-      return error;
-
     error = Coverage_Index( &mlp->MarkCoverage, mark_glyph, &mark_index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gpos->gdef, mark_glyph, flags, &property ) )
       return error;
 
     /* now we search backwards for a ligature */
@@ -3101,14 +3095,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( flags & IGNORE_MARKS )
       return TTO_Err_Not_Covered;
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos],
-                         flags, &property ) )
-      return error;
-
     error = Coverage_Index( &mmp->Mark1Coverage, in->string[in->pos],
                             &mark1_index );
     if ( error )
       return error;
+
+    if ( CHECK_Property( gpos->gdef, in->string[in->pos],
+                         flags, &property ) )
+      return error;
+
 
     /* now we check the preceding glyph whether it is a suitable
        mark glyph                                                */
@@ -3959,14 +3954,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_PosRule*     pr;
     TTO_GDEFHeader*  gdef;
 
+    error = Coverage_Index( &cpf1->Coverage, in->string[in->pos], &index );
+    if ( error )
+      return error;
 
     gdef = gpos->gdef;
 
     if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
-    error = Coverage_Index( &cpf1->Coverage, in->string[in->pos], &index );
-    if ( error )
       return error;
 
     pr    = cpf1->PosRuleSet[index].PosRule;
@@ -4032,22 +4026,21 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_PosClassRule*  pr;
     TTO_GDEFHeader*    gdef;
 
-
-    gdef = gpos->gdef;
-
-    if ( ALLOC_ARRAY( classes, cpf2->MaxContextLength, FT_UShort ) )
-      return error;
-
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     /* Note: The coverage table in format 2 doesn't give an index into
              anything.  It just lets us know whether or not we need to
              do any lookup at all.                                     */
 
     error = Coverage_Index( &cpf2->Coverage, in->string[in->pos], &index );
     if ( error )
-      goto End;
+      return error;
+
+    gdef = gpos->gdef;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+      return error;
+
+    if ( ALLOC_ARRAY( classes, cpf2->MaxContextLength, FT_UShort ) )
+      return error;
 
     error = Get_Class( &cpf2->ClassDef, in->string[in->pos],
                        &classes[0], NULL );
@@ -4082,7 +4075,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
         while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
-            return error;
+            goto End;
 
           if ( in->pos + j < in->length )
             j++;
@@ -4096,7 +4089,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
           error = Get_Class( &cpf2->ClassDef, s_in[j], &classes[i], NULL );
           if ( error && error != TTO_Err_Not_Covered )
-            return error;
+            goto End;
           known_classes = i;
         }
 
@@ -4141,14 +4134,14 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     gdef = gpos->gdef;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     if ( context_length != 0xFFFF && context_length < cpf3->GlyphCount )
       return TTO_Err_Not_Covered;
 
     if ( in->pos + cpf3->GlyphCount > in->length )
       return TTO_Err_Not_Covered;         /* context is too long */
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+      return error;
 
     s_in = &in->string[in->pos];
     c    = cpf3->Coverage;
@@ -5247,13 +5240,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_GDEFHeader*    gdef;
 
 
+    error = Coverage_Index( &ccpf1->Coverage, in->string[in->pos], &index );
+    if ( error )
+      return error;
+
     gdef = gpos->gdef;
 
     if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
-    error = Coverage_Index( &ccpf1->Coverage, in->string[in->pos], &index );
-    if ( error )
       return error;
 
     cpr     = ccpf1->ChainPosRuleSet[index].ChainPosRule;
@@ -5399,15 +5392,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     gdef = gpos->gdef;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     /* Note: The coverage table in format 2 doesn't give an index into
              anything.  It just lets us know whether or not we need to
              do any lookup at all.                                     */
 
     error = Coverage_Index( &ccpf2->Coverage, in->string[in->pos], &index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     if ( ALLOC_ARRAY( backtrack_classes, ccpf2->MaxBacktrackLength, FT_UShort ) )
@@ -5464,7 +5457,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
           while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
           {
             if ( error && error != TTO_Err_Not_Covered )
-              return error;
+              goto End1;
 
             if ( j > curr_pos )
               j--;
@@ -5538,7 +5531,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
         while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
-            return error;
+            goto End1;
 
           if ( curr_pos + j < (int)in->length )
             j++;
@@ -5605,11 +5598,6 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_GDEFHeader*  gdef;
 
 
-    gdef = gpos->gdef;
-
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     bgc = ccpf3->BacktrackGlyphCount;
     igc = ccpf3->InputGlyphCount;
     lgc = ccpf3->LookaheadGlyphCount;
@@ -5621,6 +5609,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     if ( bgc > in->pos || in->pos + igc + lgc > in->length )
       return TTO_Err_Not_Covered;
+
+    gdef = gpos->gdef;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+      return error;
 
     if ( bgc )
     {

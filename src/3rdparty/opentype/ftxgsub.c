@@ -519,31 +519,33 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
                                        FT_UShort         context_length,
                                        TTO_GDEFHeader*   gdef )
   {
-    FT_UShort index, value[1], property;
+    FT_UShort index, value, property;
     FT_Error  error;
 
 
     if ( context_length != 0xFFFF && context_length < 1 )
       return TTO_Err_Not_Covered;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     error = Coverage_Index( &ss->Coverage, in->string[in->pos], &index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     switch ( ss->SubstFormat )
     {
     case 1:
-      glyph_copy( in, 1, out, ( in->string[in->pos] + ss->ssf.ssf1.DeltaGlyphID ) & 0xFFFF,
-		  in->components[in->pos], in->ligIDs[in->pos] );
+	value = ( in->string[in->pos] + ss->ssf.ssf1.DeltaGlyphID ) & 0xFFFF;
+	glyph_copy( in, 1, out, value,
+		    in->components[in->pos], in->ligIDs[in->pos] );
       break;
 
     case 2:
       if ( index >= ss->ssf.ssf2.GlyphCount )
         return TTO_Err_Invalid_GSUB_SubTable;
-      glyph_copy( in, 1, out, ss->ssf.ssf2.Substitute[index],
+      value = ss->ssf.ssf2.Substitute[index];
+      glyph_copy( in, 1, out, value,
 		  in->components[in->pos], in->ligIDs[in->pos] );
       break;
 
@@ -555,7 +557,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     {
       /* we inherit the old glyph class to the substituted glyph */
 
-      error = Add_Glyph_Property( gdef, value[0], property );
+      error = Add_Glyph_Property( gdef, value, property );
       if ( error && error != TTO_Err_Not_Covered )
         return error;
     }
@@ -729,11 +731,11 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     if ( context_length != 0xFFFF && context_length < 1 )
       return TTO_Err_Not_Covered;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     error = Coverage_Index( &ms->Coverage, in->string[in->pos], &index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     if ( index >= ms->SequenceCount )
@@ -928,11 +930,11 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     if ( context_length != 0xFFFF && context_length < 1 )
       return TTO_Err_Not_Covered;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     error = Coverage_Index( &as->Coverage, in->string[in->pos], &index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     aset = as->AlternateSet[index];
@@ -1206,16 +1208,15 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
     TTO_Ligature*  lig;
 
+    error = Coverage_Index( &ls->Coverage, in->string[in->pos], &index );
+    if ( error )
+      return error;
 
     if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     if ( property == TTO_MARK )
       first_is_mark = TRUE;
-
-    error = Coverage_Index( &ls->Coverage, in->string[in->pos], &index );
-    if ( error )
-      return error;
 
     if ( index >= ls->LigatureSetCount )
        return TTO_Err_Invalid_GSUB_SubTable;
@@ -2105,13 +2106,13 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     TTO_GDEFHeader*  gdef;
 
 
+    error = Coverage_Index( &csf1->Coverage, in->string[in->pos], &index );
+    if ( error )
+      return error;
+
     gdef = gsub->gdef;
 
     if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
-    error = Coverage_Index( &csf1->Coverage, in->string[in->pos], &index );
-    if ( error )
       return error;
 
     sr    = csf1->SubRuleSet[index].SubRule;
@@ -2180,19 +2181,18 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
     gdef = gsub->gdef;
 
-    if ( ALLOC_ARRAY( classes, csf2->MaxContextLength, FT_UShort ) )
-      return error;
-
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     /* Note: The coverage table in format 2 doesn't give an index into
              anything.  It just lets us know whether or not we need to
              do any lookup at all.                                     */
 
-    error = Coverage_Index( &csf2->Coverage, in->string[in->pos], &index );
-    if ( error )
-      goto End;
+    if ( (error = Coverage_Index( &csf2->Coverage, in->string[in->pos], &index ) ) )
+	 return error;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+      return error;
+
+    if ( ALLOC_ARRAY( classes, csf2->MaxContextLength, FT_UShort ) )
+      return error;
 
     error = Get_Class( &csf2->ClassDef, in->string[in->pos],
                        &classes[0], NULL );
@@ -2227,7 +2227,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
         while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
-            return error;
+            goto End;
 
           if ( in->pos + j < in->length )
             j++;
@@ -2241,7 +2241,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
           error = Get_Class( &csf2->ClassDef, s_in[j], &classes[i], NULL );
           if ( error && error != TTO_Err_Not_Covered )
-            return error;
+            goto End;
           known_classes = i;
         }
 
@@ -2286,14 +2286,14 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
     gdef = gsub->gdef;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     if ( context_length != 0xFFFF && context_length < csf3->GlyphCount )
       return TTO_Err_Not_Covered;
 
     if ( in->pos + csf3->GlyphCount > in->length )
       return TTO_Err_Not_Covered;         /* context is too long */
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+      return error;
 
     s_in = &in->string[in->pos];
     c    = csf3->Coverage;
@@ -3398,14 +3398,13 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     TTO_ChainSubRule   curr_csr;
     TTO_GDEFHeader*    gdef;
 
+    error = Coverage_Index( &ccsf1->Coverage, in->string[in->pos], &index );
+    if ( error )
+      return error;
 
     gdef = gsub->gdef;
 
     if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
-    error = Coverage_Index( &ccsf1->Coverage, in->string[in->pos], &index );
-    if ( error )
       return error;
 
     csr     = ccsf1->ChainSubRuleSet[index].ChainSubRule;
@@ -3551,15 +3550,15 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     gdef = gsub->gdef;
     memory = gsub->memory;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     /* Note: The coverage table in format 2 doesn't give an index into
              anything.  It just lets us know whether or not we need to
              do any lookup at all.                                     */
 
     error = Coverage_Index( &ccsf2->Coverage, in->string[in->pos], &index );
     if ( error )
+      return error;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     if ( ALLOC_ARRAY( backtrack_classes, ccsf2->MaxBacktrackLength, FT_UShort ) )
@@ -3758,9 +3757,6 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
     gdef = gsub->gdef;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
     bgc = ccsf3->BacktrackGlyphCount;
     igc = ccsf3->InputGlyphCount;
     lgc = ccsf3->LookaheadGlyphCount;
@@ -3772,6 +3768,9 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
     if ( bgc > in->pos || in->pos + igc + lgc > in->length )
       return TTO_Err_Not_Covered;
+
+    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+      return error;
 
     if ( bgc )
     {
@@ -3858,7 +3857,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
   }
 
 
-  static FT_Error  Lookup_ChainContextSubst(
+  static inline FT_Error  Lookup_ChainContextSubst(
                      TTO_GSUBHeader*         gsub,
                      TTO_ChainContextSubst*  ccs,
                      TTO_GSUB_String*        in,
@@ -3867,28 +3866,20 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
                      FT_UShort               context_length,
                      int                     nesting_level )
   {
-    switch ( ccs->SubstFormat )
-    {
-    case 1:
+    if ( ccs->SubstFormat == 1 )
       return Lookup_ChainContextSubst1( gsub, &ccs->ccsf.ccsf1, in, out,
                                         flags, context_length,
                                         nesting_level );
-
-    case 2:
+    else if ( ccs->SubstFormat == 2 )
       return Lookup_ChainContextSubst2( gsub, &ccs->ccsf.ccsf2, in, out,
                                         flags, context_length,
                                         nesting_level );
-
-    case 3:
+    else if ( ccs->SubstFormat == 3 )
       return Lookup_ChainContextSubst3( gsub, &ccs->ccsf.ccsf3, in, out,
                                         flags, context_length,
                                         nesting_level );
 
-    default:
-      return TTO_Err_Invalid_GSUB_SubTable_Format;
-    }
-
-    return TT_Err_Ok;               /* never reached */
+    return TTO_Err_Invalid_GSUB_SubTable_Format;
   }
 
 
@@ -4278,18 +4269,17 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     FT_UShort*  p_in       = in->properties;
     FT_UShort*  s_in       = in->string;
 
-    int      nesting_level = 0;
+    const int nesting_level = 0;
+    const int prop = properties[lookup_index];
 
 
     while ( in->pos < in->length )
     {
-      if ( ~p_in[in->pos] & properties[lookup_index] )
+      if ( ~p_in[in->pos] & prop )
       {
         /* 0xFFFF indicates that we don't have a context length yet */
         error = Do_Glyph_Lookup( gsub, lookup_index, in, out,
                                  0xFFFF, nesting_level );
-        if ( error && error != TTO_Err_Not_Covered )
-          return error;
       }
       else
         error = TTO_Err_Not_Covered;
@@ -4297,6 +4287,8 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
       if ( error == TTO_Err_Not_Covered )
 	  glyph_copy( in, 1, out, s_in[in->pos],
 		      in->components[in->pos], in->ligIDs[in->pos] );
+      else if ( error )
+	  return error;
     }
 
     return error;
@@ -4474,39 +4466,44 @@ EXPORT_FUNC
 
     tmp1.memory    = memory;
     tmp1.length    = in->length;
-    tmp1.allocated = in->length;
+    tmp1.allocated = 3*in->length + 1;
     tmp1.pos       = in->pos;
     tmp1.max_ligID = 1;
 
-    if ( ALLOC_ARRAY( tmp1.string, tmp1.length, FT_UShort ) )
+    if ( ALLOC_ARRAY( tmp1.string, tmp1.allocated, FT_UShort ) )
       return error;
     MEM_Copy( tmp1.string, in->string, in->length * sizeof ( FT_UShort ) );
 
     /* make sure that we always have a `properties', `components', and
        `ligIDs' array in the string object                             */
 
-    if ( ALLOC_ARRAY( tmp1.components, tmp1.length, FT_UShort ) )
+    if ( ALLOC_ARRAY( tmp1.components, tmp1.allocated, FT_UShort ) )
       return error;
-    if ( ALLOC_ARRAY( tmp1.ligIDs, tmp1.length, FT_UShort ) )
+    if ( ALLOC_ARRAY( tmp1.ligIDs, tmp1.allocated, FT_UShort ) )
       return error;
-    if ( ALLOC_ARRAY( tmp1.properties, tmp1.length, FT_UShort ) )
+    if ( ALLOC_ARRAY( tmp1.properties, tmp1.allocated, FT_UShort ) )
       return error;
     if ( in->properties )
       MEM_Copy( tmp1.properties, in->properties,
                 in->length * sizeof( FT_UShort ) );
-    if ( ALLOC_ARRAY( tmp1.logClusters, tmp1.length, FT_Int ) )
+    if ( ALLOC_ARRAY( tmp1.logClusters, tmp1.allocated, FT_Int ) )
       return error;
     MEM_Copy( tmp1.logClusters, in->logClusters,
 	      in->length * sizeof( FT_Int ) );
 
     tmp2.memory      = memory;
-    tmp2.allocated   = 0;
+    tmp2.allocated   = tmp1.allocated;
     tmp2.pos         = 0;
-    tmp2.string      = NULL;
-    tmp2.properties  = NULL;
-    tmp2.components  = NULL;
-    tmp2.ligIDs      = NULL;
-    tmp2.logClusters = NULL;
+    if ( ALLOC_ARRAY( tmp2.string, tmp2.allocated, FT_UShort ) )
+      return error;
+    if ( ALLOC_ARRAY( tmp2.components, tmp2.allocated, FT_UShort ) )
+      return error;
+    if ( ALLOC_ARRAY( tmp2.ligIDs, tmp2.allocated, FT_UShort ) )
+      return error;
+    if ( ALLOC_ARRAY( tmp2.properties, tmp2.allocated, FT_UShort ) )
+      return error;
+    if ( ALLOC_ARRAY( tmp2.logClusters, tmp2.allocated, FT_Int ) )
+      return error;
 
     ptmp1 = &tmp1;
     ptmp2 = &tmp2;

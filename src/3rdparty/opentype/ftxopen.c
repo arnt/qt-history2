@@ -892,15 +892,12 @@
                                     FT_UShort             glyphID,
                                     FT_UShort*            index )
   {
-    int min, max, middle;
-
-    FT_UShort*  array = cf1->GlyphArray;
-
+    FT_UShort *min, *max, *middle;
 
     /* binary search */
 
-    min = 0;
-    max = cf1->GlyphCount - 1;
+    min = cf1->GlyphArray;
+    max = min + cf1->GlyphCount - 1;
 
     do
     {
@@ -909,12 +906,12 @@
 
       middle = max - ( ( max - min ) >> 1 );
 
-      if ( glyphID == array[middle] )
+      if ( glyphID == *middle )
       {
-        *index = middle;
+        *index = middle - cf1->GlyphArray;
         return TT_Err_Ok;
       }
-      else if ( glyphID < array[middle] )
+      else if ( glyphID < *middle )
       {
         max = middle - 1;
       }
@@ -932,15 +929,12 @@
                                     FT_UShort             glyphID,
                                     FT_UShort*            index )
   {
-    int         min, max, middle;
-
-    TTO_RangeRecord*  rr = cf2->RangeRecord;
-
+    TTO_RangeRecord* min, *max, *middle;
 
     /* binary search */
 
-    min = 0;
-    max = cf2->RangeCount - 1;
+    min = cf2->RangeRecord;
+    max = min + cf2->RangeCount - 1;
 
     do
     {
@@ -950,12 +944,12 @@
 
       middle = max - ( ( max - min ) >> 1 );
 
-      if ( glyphID >= rr[middle].Start && glyphID <= rr[middle].End )
+      if ( glyphID >= middle->Start && glyphID <= middle->End )
       {
-        *index = rr[middle].StartCoverageIndex + glyphID - rr[middle].Start;
+        *index = middle->StartCoverageIndex + glyphID - middle->Start;
         return TT_Err_Ok;
       }
-      else if ( glyphID < rr[middle].Start )
+      else if ( glyphID < middle->Start )
       {
         max = middle - 1;
       }
