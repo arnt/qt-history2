@@ -10,14 +10,21 @@ embedded {
 		    $$EMBEDDED_H/qkbd_qws.h \
 		    $$EMBEDDED_P/qkbddriverinterface_p.h \
 		    $$EMBEDDED_H/qkbddriverplugin_qws.h \
-		    $$EMBEDDED_H/qkbddriverfactory_qws.h
+		    $$EMBEDDED_H/qkbddriverfactory_qws.h \
+		    $$EMBEDDED_H/qmouse_qws.h \
+		    $$EMBEDDED_P/qmousedriverinterface_p.h \
+		    $$EMBEDDED_H/qmousedriverplugin_qws.h \
+		    $$EMBEDDED_H/qmousedriverfactory_qws.h
 
 	SOURCES += $$EMBEDDED_CPP/qgfxdriverplugin_qws.cpp \
 		    $$EMBEDDED_CPP/qgfxdriverfactory_qws.cpp \
 		    $$EMBEDDED_CPP/qgfxlinuxfb_qws.cpp \
 		    $$EMBEDDED_CPP/qkbd_qws.cpp \
 		    $$EMBEDDED_CPP/qkbddriverplugin_qws.cpp \
-		    $$EMBEDDED_CPP/qkbddriverfactory_qws.cpp
+		    $$EMBEDDED_CPP/qkbddriverfactory_qws.cpp \
+		    $$EMBEDDED_CPP/qmouse_qws.cpp \
+		    $$EMBEDDED_CPP/qmousedriverplugin_qws.cpp \
+		    $$EMBEDDED_CPP/qmousedriverfactory_qws.cpp
 
 #
 # Graphics drivers
@@ -124,6 +131,32 @@ embedded {
 	contains( kbd-drivers, vr41xx ) {
 		HEADERS +=$$EMBEDDED_H/qkbdvr41xx_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qkbdvr41xx_qws.cpp
+	}
+
+#
+# Mouse drivers
+#
+
+	contains( mouse-drivers, pc ) {
+		HEADERS +=$$EMBEDDED_H/qmousepc_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qmousepc_qws.cpp
+	}
+	else:DEFINES += QT_NO_QWS_MOUSE_PC
+
+	contains( mouse-drivers, bus ) {
+		HEADERS +=$$EMBEDDED_H/qmousebus_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qmousebus_qws.cpp
+	}
+	else:DEFINES += QT_NO_QWS_MOUSE_BUS
+
+	contains( mouse-drivers, vr41xx ) {
+		HEADERS +=$$EMBEDDED_H/qmousevr41xx_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qmousevr41xx_qws.cpp
+	}
+
+	contains( mouse-drivers, yopy ) {
+		HEADERS +=$$EMBEDDED_H/qmouseyopy_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qmouseyopy_qws.cpp
 	}
 }
 

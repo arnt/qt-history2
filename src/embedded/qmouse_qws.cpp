@@ -119,14 +119,14 @@ void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
  *
  */
 
-QCalibratedMouseHandler::QCalibratedMouseHandler( const QString &, const QString & )
+QWSCalibratedMouseHandler::QWSCalibratedMouseHandler( const QString &, const QString & )
     : samples(5), currSample(0), numSamples(0)
 {
     clearCalibration();
     readCalibration();
 }
 
-void QCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd )
+void QWSCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd )
 {
     QPoint screen_tl = cd->screenPoints[ QWSPointerCalibrationData::TopLeft ];
     QPoint screen_br = cd->screenPoints[ QWSPointerCalibrationData::BottomRight ];
@@ -139,7 +139,7 @@ void QCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd )
 		tly - (s * (screen_tl.y() - screen_br.y() ) / e) );
 }
 
-void QCalibratedMouseHandler::clearCalibration()
+void QWSCalibratedMouseHandler::clearCalibration()
 {
     a = 1;
     b = 0;
@@ -150,7 +150,7 @@ void QCalibratedMouseHandler::clearCalibration()
     s = 1;
 }
 
-void QCalibratedMouseHandler::writeCalibration()
+void QWSCalibratedMouseHandler::writeCalibration()
 {
     QString calFile = "/etc/pointercal";
 #ifndef QT_NO_TEXTSTREAM
@@ -166,7 +166,7 @@ void QCalibratedMouseHandler::writeCalibration()
     }
 }
 
-void QCalibratedMouseHandler::readCalibration()
+void QWSCalibratedMouseHandler::readCalibration()
 {
     QString calFile = "/etc/pointercal";
 #ifndef QT_NO_TEXTSTREAM
@@ -181,7 +181,7 @@ void QCalibratedMouseHandler::readCalibration()
     }
 }
 
-void QCalibratedMouseHandler::calibrate( QWSPointerCalibrationData *cd )
+void QWSCalibratedMouseHandler::calibrate( QWSPointerCalibrationData *cd )
 {
     QPoint dev_tl = cd->devPoints[ QWSPointerCalibrationData::TopLeft ];
     QPoint dev_br = cd->devPoints[ QWSPointerCalibrationData::BottomRight ];
@@ -201,7 +201,7 @@ void QCalibratedMouseHandler::calibrate( QWSPointerCalibrationData *cd )
     writeCalibration();
 }
 
-QPoint QCalibratedMouseHandler::transform( const QPoint &p )
+QPoint QWSCalibratedMouseHandler::transform( const QPoint &p )
 {
     QPoint tp;
 
@@ -211,14 +211,14 @@ QPoint QCalibratedMouseHandler::transform( const QPoint &p )
     return tp;
 }
 
-void QCalibratedMouseHandler::setFilterSize( int s )
+void QWSCalibratedMouseHandler::setFilterSize( int s )
 {
     samples.resize( s );
     numSamples = 0;
     currSample = 0;
 }
 
-bool QCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
+bool QWSCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
 {
     if ( !button ) {
 	if ( numSamples >= samples.count() )

@@ -40,6 +40,7 @@
 #include "qapplication.h"
 #include "qmousepc_qws.h"
 #include "qmousebus_qws.h"
+#include "qmousevr41xx_qws.h"
 #include <stdlib.h>
 
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)

@@ -66,20 +66,21 @@ protected:
 };
 
 
-class QCalibratedMouseHandler : public QWSMouseHandler
+class QWSCalibratedMouseHandler : public QWSMouseHandler
 {
 public:
-    QCalibratedMouseHandler( const QString &device = QString::null, const QString &device = QString::null );
+    QWSCalibratedMouseHandler( const QString &device = QString::null, const QString &device = QString::null );
 
     virtual void clearCalibration();
     virtual void calibrate( QWSPointerCalibrationData * );
     virtual void getCalibration( QWSPointerCalibrationData * );
 
+    bool sendFiltered( const QPoint &, int button );
+    QPoint transform( const QPoint & );
+
 protected:
     void readCalibration();
     void writeCalibration();
-    QPoint transform( const QPoint & );
-    bool sendFiltered( const QPoint &, int button );
     void setFilterSize( int );
 
 private:
