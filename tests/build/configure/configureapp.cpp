@@ -323,15 +323,23 @@ void ConfigureApp::displayConfig()
 void ConfigureApp::buildQmake()
 {
     if( dictionary[ "BUILD_QMAKE" ] == "yes" ) {
-	if( dictionary[ "QMAKEPATH" ] == QString( "win32-msvc" ) )
+	QStringList args;
+	if( dictionary[ "QMAKEPATH" ] == QString( "win32-msvc" ) ) {
 	    dictionary[ "MAKE" ] = "nmake";
-	else
+	    dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+	}
+	else {
 	    dictionary[ "MAKE" ] = "make";
+	    dictionary[ "QMAKEMAKEFILE" ] = "Makefile.borland";
+	}
 
 	// Build qmake
 	cout << "Creating qmake..." << endl;
 	qmakeBuilder.setWorkingDirectory( qtDir + "/qmake" );
-	qmakeBuilder.setArguments( dictionary[ "MAKE" ] );
+	args += dictionary[ "MAKE" ];
+	args += "-f";
+	args += dictionary[ "QMAKEMAKEFILE" ];
+	qmakeBuilder.setArguments( args );
 	if( !qmakeBuilder.start() ) {
 	    cout << "Could not start qmake build process" << endl << endl;
 	    quit();
