@@ -568,6 +568,7 @@ bool qt_mac_is_macdrawer(QWidget *w)
 
 bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/Mac can use this..
 {
+#ifndef MACOSX_101
     if(!qt_mac_is_macdrawer(w))
 	return FALSE;
     OptionBits bits;
@@ -583,6 +584,9 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
 	return FALSE;
     SetDrawerPreferredEdge((WindowRef)w->handle(), bits);
     return TRUE;
+#else
+    return FALSE;
+#endif
 }
 
 bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=FALSE)
@@ -691,8 +695,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    wclass = kModalWindowClass;
 	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
+#ifndef MACOSX_101
 	else if(qt_mac_is_macdrawer(this))
 	    wclass = kDrawerWindowClass;
+#endif
 	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
 	    wclass = kFloatingWindowClass;
 	else if(dialog)
@@ -822,8 +828,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
+#ifndef MACOSX_101
 	if(qt_mac_is_macdrawer(this))
 	    SetDrawerParent((WindowRef)id, (WindowRef)parentWidget()->handle());
+#endif
 	if(dialog && !parentWidget() && !testWFlags(WShowModal))
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
 #ifdef Q_WS_MACX
@@ -871,8 +879,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	ReshapeCustomWindow((WindowPtr)hd);
 	if(qt_mac_is_macsheet(this))
 	    QMacSavedPortInfo::setAlphaTransparancy(this, 0.85);
+#ifndef MACOSX_101
 	else if(qt_mac_is_macdrawer(this))
 	    SetDrawerOffsets((WindowPtr)hd, 0.0, 25.0);
+#endif
     } else {
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
@@ -1406,10 +1416,12 @@ void QWidget::showWindow()
     dirtyClippedRegion(TRUE);
     if(isTopLevel()) {
 	SizeWindow((WindowPtr)hd, width(), height(), 1);
-	if(qt_mac_is_macdrawer(this))
-	    OpenDrawer((WindowPtr)hd, kWindowEdgeDefault, true);
-	else if(qt_mac_is_macsheet(this))
+	if(qt_mac_is_macsheet(this))
 	    qt_event_request_showsheet(this);
+#ifndef MACOSX_101
+	else if(qt_mac_is_macdrawer(this))
+	    OpenDrawer((WindowPtr)hd, kWindowEdgeDefault, true);
+#endif
 	else
 	    ShowHide((WindowPtr)hd, 1); 	//now actually show it
     } else if(!parentWidget(TRUE) || parentWidget(TRUE)->isVisible()) {
@@ -1424,10 +1436,13 @@ void QWidget::hideWindow()
 
     dirtyClippedRegion(TRUE);
     if(isTopLevel()) {
+#ifndef MACOSX_101
 	if(qt_mac_is_macdrawer(this))
 	    CloseDrawer((WindowPtr)hd, true);
-	else if(qt_mac_is_macsheet(this))
-	    HideSheetWindow((WindowPtr)hd);
+	else
+#endif
+       if(qt_mac_is_macsheet(this))
+           HideSheetWindow((WindowPtr)hd);
 	else
 	    ShowHide((WindowPtr)hd, 0); //now we hide
 	SizeWindow((WindowPtr)hd, 0, 0, 1);
