@@ -89,7 +89,7 @@ inline void *qt_getClipRects(const QRegion &r, int &num)
     return r.clipRectangles(num);
 }
 
-static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2, Qt::HANDLE draw, const QRegion &r)
+static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2, XftDraw *draw, const QRegion &r)
 {
     int num;
     XRectangle *rects = (XRectangle *)qt_getClipRects(r, num);
@@ -101,13 +101,13 @@ static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2, Qt::HANDLE draw
 
 #ifndef QT_NO_XFT
     if (draw)
-        XftDrawSetClipRectangles((XftDraw *) draw, 0, 0, rects, num);
+        XftDrawSetClipRectangles(draw, 0, 0, rects, num);
 #else
     Q_UNUSED(draw);
 #endif // QT_NO_XFT
 }
 
-static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2, Qt::HANDLE draw)
+static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2, XftDraw *draw)
 {
     if (gc)
         XSetClipMask(dpy, gc, XNone);
@@ -116,7 +116,7 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2, Qt::HANDLE dr
 
 #ifndef QT_NO_XFT
     if (draw)
-        XftDrawSetClip((XftDraw *) draw, 0);
+        XftDrawSetClip(draw, 0);
 #else
     Q_UNUSED(draw);
 #endif // QT_NO_XFT
@@ -544,9 +544,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->xinfo = qt_x11Info(pdev);
     d->hd = qt_x11Handle(pdev);
     if (pdev->devType() == QInternal::Widget)
-        d->xft_hd = static_cast<const QWidget *>(pdev)->xftDrawHandle();
+        d->xft_hd = (XftDraw *)static_cast<const QWidget *>(pdev)->xftDrawHandle();
     else if (pdev->devType() == QInternal::Pixmap)
-        d->xft_hd = static_cast<const QPixmap *>(pdev)->xftDrawHandle();
+        d->xft_hd = (XftDraw *)static_cast<const QPixmap *>(pdev)->xftDrawHandle();
 
     Q_ASSERT(d->xinfo != 0);
     d->dpy = d->xinfo->display(); // get display variable
@@ -581,7 +581,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
         XSetSubwindowMode(d->dpy, d->gc_brush, IncludeInferiors);
 #ifndef QT_NO_XFT
         if (d->xft_hd)
-                XftDrawSetSubwindowMode((XftDraw *) d->xft_hd, IncludeInferiors);
+                XftDrawSetSubwindowMode(d->xft_hd, IncludeInferiors);
 #endif
     } else if (d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap *)(pdev);
@@ -615,8 +615,8 @@ bool QX11PaintEngine::end()
 #if !defined(QT_NO_XFT)
     if (d->xft_hd) {
         // reset clipping/subwindow mode on our render picture
-        XftDrawSetClip((XftDraw *) d->xft_hd, 0);
-        XftDrawSetSubwindowMode((XftDraw *) d->xft_hd, ClipByChildren);
+        XftDrawSetClip(d->xft_hd, 0);
+        XftDrawSetSubwindowMode(d->xft_hd, ClipByChildren);
     }
 #endif
 
@@ -657,7 +657,7 @@ void QX11PaintEngine::drawRect(const QRect &r)
         return;
 
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-    ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
+    ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
 
     if (!testf(MonoDev) && pict && d->cbrush.style() != Qt::NoBrush
 	&& d->cbrush.color().alpha() != 255) {
@@ -765,7 +765,7 @@ void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
     if (X11->use_xrender) {
         XRenderPictureAttributes attrs;
         attrs.poly_edge = (hints & QPainter::LineAntialiasing) ? PolyEdgeSmooth : PolyEdgeSharp;
-	::Picture dst = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
+	::Picture dst = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
         if (dst)
             XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
     }
@@ -1078,8 +1078,8 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 	xfc.color.red   = (R | R << 8) * xfc.color.alpha / 0x10000;
 	xfc.color.green = (B | G << 8) * xfc.color.alpha / 0x10000;
 	xfc.color.blue  = (B | B << 8) * xfc.color.alpha / 0x10000;
-	::Picture src = d->xft_hd ? XftDrawSrcPicture((XftDraw *) d->xft_hd, &xfc) : 0;
-	::Picture dst = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
+	::Picture src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
+	::Picture dst = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
 
 	if (src && dst) {
 	    QVarLengthArray<XPointDouble> poly(pa.size());
@@ -1575,7 +1575,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
   	XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
+        ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;
 
         if (mode == Qt::ComposePixmap && pict && pixmap.xftPictureHandle() &&
@@ -1689,7 +1689,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, con
 
     if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= QPainter::TxTranslate) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
-        ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
+        ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;
 
         if (pict && pixmap.xftPictureHandle() && alpha && alpha->xftPictureHandle()) {
@@ -1999,7 +1999,7 @@ void QX11PaintEngine::drawXft(const QPoint &p, const QTextItem &si, int textFlag
 
     QFontEngineXft *xft = static_cast<QFontEngineXft *>(si.fontEngine);
     XftFont *fnt = d->txop >= QPainter::TxScale ? xft->transformedFont(state->matrix) : xft->xftFont();
-    XftDraw *draw = (XftDraw *)d->xft_hd;
+    XftDraw *draw = d->xft_hd;
     int screen = d->scrn;
 
     bool transform = d->txop >= QPainter::TxScale;

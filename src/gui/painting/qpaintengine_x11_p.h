@@ -51,7 +51,7 @@ public:
     Display *dpy;
     int scrn;
     Qt::HANDLE hd;
-    Qt::HANDLE xft_hd;
+    XftDraw *xft_hd;
     GC gc;
     GC gc_brush;
 
