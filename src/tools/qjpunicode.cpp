@@ -719,69 +719,68 @@ uint QJpUnicodeConv_Microsoft::UnicodeToJisx0212(uint h, uint l) const
 
 const QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 {
-    if (rule == JU_Default) {
-      const char *e = getenv("UNICODEMAP_JP");
-      if (e) {
-	  QCString env(e);
-	  for (int i = 0; i < (int)env.length(); ) {
-	      int j = env.find(',', i);
-	      QCString s;
-	      if (j < 0) {
-		  s = env.mid(i).stripWhiteSpace();
-		  i = env.length();
-	      } else {
-		  s = env.mid(i, j - i).stripWhiteSpace();
-		  i = j + 1;
-	      }
-	      if (stricmp(s, "unicode-0.9") == 0) {
-		    rule = (rule & 0xff00) | JU_Unicode;
-	      } else if (stricmp(s, "unicode-0201") == 0) {
-		  rule = (rule & 0xff00) | JU_Unicode_JISX0201;
-	      } else if (stricmp(s, "unicode-ascii") == 0) {
-		    rule = (rule & 0xff00) | JU_Unicode_ASCII;
-	      } else if (stricmp(s, "jisx0221-1995") == 0) {
-		  rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
-	      } else if ((stricmp(s, "open-0201") == 0) ||
-			 (stricmp(s, "open-19970715-0201") == 0)) {
-		    rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
-	      } else if ((stricmp(s, "open-ascii") == 0) ||
-			 (stricmp(s, "open-19970715-ascii") == 0)) {
-		    rule = (rule & 0xff00) | JU_JISX0221_ASCII;
-	      } else if ((stricmp(s, "open-ms") == 0) ||
-			 (stricmp(s, "open-19970715-ms") == 0)) {
-		  rule = (rule & 0xff00) | JU_Microsoft_CP932;
-	      } else if (stricmp(s, "cp932") == 0) {
-		  rule = (rule & 0xff00) | JU_Microsoft_CP932;
-	      } else if (stricmp(s, "jdk1.1.7") == 0) {
-		  rule = (rule & 0xff00) | JU_Sun_JDK117;
-	      } else if (stricmp(s, "nec-vdc") == 0) {
-		    rule = rule | JU_NEC_VDC;
-	      } else if (stricmp(s, "ibm-vdc") == 0) {
-		    rule = rule | JU_IBM_VDC;
-	      } else if (stricmp(s, "udc") == 0) {
-		    rule = rule | JU_UDC;
-		}
+    const char * e = 0;
+    if ( rule == JU_Default && (e=getenv("UNICODEMAP_JP")) != 0 ) {
+	QCString env( e );
+	for (int i = 0; i < (int)env.length(); ) {
+	    int j = env.find(',', i);
+	    QCString s;
+	    if (j < 0) {
+		s = env.mid(i).stripWhiteSpace();
+		i = env.length();
+	    } else {
+		s = env.mid(i, j - i).stripWhiteSpace();
+		i = j + 1;
+	    }
+	    if (stricmp(s, "unicode-0.9") == 0) {
+		rule = (rule & 0xff00) | JU_Unicode;
+	    } else if (stricmp(s, "unicode-0201") == 0) {
+		rule = (rule & 0xff00) | JU_Unicode_JISX0201;
+	    } else if (stricmp(s, "unicode-ascii") == 0) {
+		rule = (rule & 0xff00) | JU_Unicode_ASCII;
+	    } else if (stricmp(s, "jisx0221-1995") == 0) {
+		rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
+	    } else if ((stricmp(s, "open-0201") == 0) ||
+		       (stricmp(s, "open-19970715-0201") == 0)) {
+		rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
+	    } else if ((stricmp(s, "open-ascii") == 0) ||
+		       (stricmp(s, "open-19970715-ascii") == 0)) {
+		rule = (rule & 0xff00) | JU_JISX0221_ASCII;
+	    } else if ((stricmp(s, "open-ms") == 0) ||
+		       (stricmp(s, "open-19970715-ms") == 0)) {
+		rule = (rule & 0xff00) | JU_Microsoft_CP932;
+	    } else if (stricmp(s, "cp932") == 0) {
+		rule = (rule & 0xff00) | JU_Microsoft_CP932;
+	    } else if (stricmp(s, "jdk1.1.7") == 0) {
+		rule = (rule & 0xff00) | JU_Sun_JDK117;
+	    } else if (stricmp(s, "nec-vdc") == 0) {
+		rule = rule | JU_NEC_VDC;
+	    } else if (stricmp(s, "ibm-vdc") == 0) {
+		rule = rule | JU_IBM_VDC;
+	    } else if (stricmp(s, "udc") == 0) {
+		rule = rule | JU_UDC;
 	    }
 	}
     }
 
     switch (rule & 0x00ff) {
-      case JU_Unicode_JISX0201:
+    case JU_Unicode_JISX0201:
 	return new QJpUnicodeConv_Unicode_JISX0201(rule);
-      case JU_Unicode_ASCII:
+    case JU_Unicode_ASCII:
 	return new QJpUnicodeConv_Unicode_ASCII(rule);
-      case JU_JISX0221_JISX0201:
+    case JU_JISX0221_JISX0201:
 	return new QJpUnicodeConv_JISX0221_JISX0201(rule);
-      case JU_JISX0221_ASCII:
+    case JU_JISX0221_ASCII:
 	return new QJpUnicodeConv_JISX0221_ASCII(rule);
-      case JU_Sun_JDK117:
+    case JU_Sun_JDK117:
 	return new QJpUnicodeConv_Sun(rule);
-      case JU_Microsoft_CP932:
+    case JU_Microsoft_CP932:
 	return new QJpUnicodeConv_Microsoft(rule);
-      default:
+    default:
 	return new QJpUnicodeConv_Unicode_ASCII(rule);
     }
 }
+
 
 /*
  * JISX0208 <-> ShiftJIS conversion.
