@@ -456,26 +456,26 @@ void qt_erase_background(QPaintDevice *pd, int screen,
     }
 }
 
-void qt_draw_transformed_rect(QPaintEngine *pe,  int x, int y, int w,  int h, bool fill)
+void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
     QPainter *pp = p->painter();
 
     XPoint points[5];
     int xp = x,  yp = y;
-    pp->map(xp, yp, &xp, &yp);
+    p->state->matrix.map(xp, yp, &xp, &yp);
     points[0].x = xp;
     points[0].y = yp;
     xp = x + w; yp = y;
-    pp->map(xp, yp, &xp, &yp);
+    p->state->matrix.map(xp, yp, &xp, &yp);
     points[1].x = xp;
     points[1].y = yp;
     xp = x + w; yp = y + h;
-    pp->map(xp, yp, &xp, &yp);
+    p->state->matrix.map(xp, yp, &xp, &yp);
     points[2].x = xp;
     points[2].y = yp;
     xp = x; yp = y + h;
-    pp->map(xp, yp, &xp, &yp);
+    p->state->matrix.map(xp, yp, &xp, &yp);
     points[3].x = xp;
     points[3].y = yp;
     points[4] = points[0];

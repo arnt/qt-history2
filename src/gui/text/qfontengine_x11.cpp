@@ -47,28 +47,6 @@
 extern int qt_mib_for_xlfd_encoding(const char *encoding);
 extern int qt_xlfd_encoding_id(const char *encoding);
 
-extern void qt_draw_transformed_rect(QPaintEngine *p, int x, int y, int w, int h, bool fill);
-extern Drawable qt_x11Handle(const QPaintDevice *pd);
-
-static void drawLines(QPaintEngine *p, QFontEngine *fe, int baseline, int x1, int w, int textFlags)
-{
-    int lw = qRound(fe->lineThickness());
-    if (textFlags & Qt::TextUnderline) {
-        int pos = qRound(fe->underlinePosition());
-        qt_draw_transformed_rect(p, x1, baseline+pos, w, lw, true);
-    }
-    if (textFlags & Qt::TextOverline) {
-        int pos = qRound(fe->ascent()+1);
-        if (!pos) pos = 1;
-        qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);
-    }
-    if (textFlags & Qt::TextStrikeOut) {
-        int pos = qRound(fe->ascent()/3);
-        if (!pos) pos = 1;
-        qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);
-    }
-}
-
 QFontEngine::~QFontEngine()
 {
 }
