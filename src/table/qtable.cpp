@@ -857,18 +857,22 @@ QSize QTableItem::sizeHint() const
 	return table()->cellWidget( rw, cl )->sizeHint().expandedTo( strutSize );
 
     QSize s;
+    int x = 0;
     if ( !pix.isNull() ) {
 	s = pix.size();
 	s.setWidth( s.width() + 2 );
+	x = pix.width() + 2;
     }
 
-    if ( !wordwrap )
+    QString t = text();
+    if ( !wordwrap && t.find( '\n' ) == -1 )
 	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10,
 		      QMAX( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
-    QRect r = table()->fontMetrics().boundingRect( 0, 0, table()->columnWidth( col() ) - 4, 0,
+
+    QRect r = table()->fontMetrics().boundingRect( x + 2, 0, table()->columnWidth( col() ) - x  - 4, 0,
 						   wordwrap ? (alignment() | WordBreak) : alignment(), txt );
-    r.setWidth( QMAX( r.width(), table()->columnWidth( col() ) + 1 ) );
-    return QSize( s.width() + r.width(), QMAX( s.height(), r.height() ) ).expandedTo( strutSize );
+    r.setWidth( QMAX( r.width(), table()->columnWidth( col() ) ) );
+    return QSize( r.width(), QMAX( s.height(), r.height() ) ).expandedTo( strutSize );
 }
 
 /*!
