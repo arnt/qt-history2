@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#31 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#32 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -12,9 +12,11 @@
 #ifndef QMLINED_H
 #define QMLINED_H
 
+#ifndef QT_H
 #include "qtablevw.h"
 #include "qstring.h"
 #include "qlist.h"
+#endif // QT_H
 
 struct QMultiLineData;
 

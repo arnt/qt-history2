@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#13 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#14 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -18,7 +18,9 @@
 #ifndef QASYNCIMAGEIO_H
 #define QASYNCIMAGEIO_H
 
+#ifndef QT_H
 #include "qimage.h"
+#endif // QT_H
 
 
 

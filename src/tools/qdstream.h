@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#24 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#25 $
 **
 ** Definition of QDataStream class
 **
@@ -12,8 +12,10 @@
 #ifndef QDSTREAM_H
 #define QDSTREAM_H
 
+#ifndef QT_H
 #include "qiodev.h"
 #include "qstring.h"
+#endif // QT_H
 
 
 class QDataStream				// data stream class

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#9 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#10 $
 **
 ** Definition of validator classes.
 **
@@ -12,8 +12,10 @@
 #ifndef QVALIDATOR_H
 #define QVALIDATOR_H
 
+#ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
+#endif // QT_H
 
 
 class QValidator: public QObject

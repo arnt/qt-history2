@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#19 $
+** $Id: //depot/qt/main/src/tools/qarray.h#20 $
 **
 ** Definition of QArray template/macro class
 **
@@ -12,7 +12,9 @@
 #ifndef QARRAY_H
 #define QARRAY_H
 
+#ifndef QT_H
 #include "qgarray.h"
+#endif // QT_H
 
 
 #if defined(USE_MACROCLASS)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#30 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#31 $
 **
 ** Definition of QPushButton class
 **
@@ -12,7 +12,9 @@
 #ifndef QPUSHBT_H
 #define QPUSHBT_H
 
+#ifndef QT_H
 #include "qbutton.h"
+#endif // QT_H
 
 
 class QPushButton : public QButton

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.h#10 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.h#11 $
 **
 ** Definition of QMetaObject class
 **
@@ -12,7 +12,9 @@
 #ifndef QMETAOBJ_H
 #define QMETAOBJ_H
 
+#ifndef QT_H
 #include "qconnect.h"
+#endif // QT_H
 
 
 struct QMetaData				// member function meta data

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#19 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#20 $
 **
 ** Definition of QFileDialog class
 **
@@ -18,8 +18,10 @@ class QPushButton;
 class QListView;
 class QListViewItem;
 
+#ifndef QT_H
 #include "qdir.h"
 #include "qdialog.h"
+#endif // QT_H
 
 
 class QFileDialog : public QDialog

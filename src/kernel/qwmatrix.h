@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.h#6 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.h#7 $
 **
 ** Definition of QWMatrix class
 **
@@ -12,9 +12,11 @@
 #ifndef QWMATRIX_H
 #define QWMATRIX_H
 
+#ifndef QT_H
 #include "qwindefs.h"
 #include "qpntarry.h"
 #include "qrect.h"
+#endif // QT_H
 
 
 class QWMatrix					// 2D transform matrix

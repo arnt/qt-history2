@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#14 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#15 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -12,7 +12,9 @@
 #ifndef QHEADER_H
 #define QHEADER_H
 
+#ifndef QT_H
 #include "qtablevw.h"
+#endif // QT_H
 
 
 class QHeader : public QTableView

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjcoll.h#11 $
+** $Id: //depot/qt/main/src/kernel/qobjcoll.h#12 $
 **
 ** Definition of QObject and QMetaObject collections
 **
@@ -12,9 +12,11 @@
 #ifndef QOBJCOLL_H
 #define QOBJCOLL_H
 
+#ifndef QT_H
 #include "qmetaobj.h"
 #include "qlist.h"
 #include "qdict.h"
+#endif // QT_H
 
 
 // QObject collections

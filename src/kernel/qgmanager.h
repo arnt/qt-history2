@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#8 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#9 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -12,8 +12,10 @@
 #ifndef QGMANAGR_H
 #define QGMANAGR_H
 
+#ifndef QT_H
 #include "qintdict.h"
 #include "qwidget.h"
+#endif // QT_H
 
 
 class QChain;

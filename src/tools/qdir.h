@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#24 $
+** $Id: //depot/qt/main/src/tools/qdir.h#25 $
 **
 ** Definition of QDir class
 **
@@ -12,8 +12,10 @@
 #ifndef QDIR_H
 #define QDIR_H
 
+#ifndef QT_H
 #include "qstrlist.h"
 #include "qfileinf.h"
+#endif // QT_H
 
 typedef Q_DECLARE(QListM,QFileInfo)	    QFileInfoList;
 typedef Q_DECLARE(QListIteratorM,QFileInfo) QFileInfoListIterator;

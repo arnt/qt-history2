@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttonrow.h#2 $
+** $Id: //depot/qt/main/src/widgets/qbuttonrow.h#3 $
 **
 ** Definition of button row layout widget
 **
@@ -12,7 +12,9 @@
 #ifndef QBUTTONROW_H
 #define QBUTTONROW_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 class QGManager;
 class QChain;

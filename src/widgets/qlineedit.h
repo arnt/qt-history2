@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#48 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#49 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -18,8 +18,10 @@ class QComboBox;
 class QValidator;
 
 
+#ifndef QT_H
 #include "qwidget.h"
 #include "qstring.h"
+#endif // QT_H
 
 
 class QLineEdit : public QWidget

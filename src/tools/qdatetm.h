@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#25 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#26 $
 **
 ** Definition of date and time classes
 **
@@ -12,7 +12,9 @@
 #ifndef QDATETM_H
 #define QDATETM_H
 
+#ifndef QT_H
 #include "qstring.h"
+#endif // QT_H
 
 
 /*****************************************************************************

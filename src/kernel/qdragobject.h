@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#2 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#3 $
 **
 ** Definition of
 **
@@ -13,7 +13,9 @@
 struct QDragData;
 class QWidget;
 
+#ifndef QT_H
 #include "qobject.h"
+#endif // QT_H
 
 class QDragObject: public QObject {
     Q_OBJECT

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.h#22 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.h#23 $
 **
 ** Definition of QRadioButton class
 **
@@ -12,7 +12,9 @@
 #ifndef QRADIOBT_H
 #define QRADIOBT_H
 
+#ifndef QT_H
 #include "qbutton.h"
+#endif // QT_H
 
 
 class QRadioButton : public QButton

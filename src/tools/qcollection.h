@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.h#8 $
+** $Id: //depot/qt/main/src/tools/qcollection.h#9 $
 **
 ** Definition of base class for all collection classes
 **
@@ -12,7 +12,9 @@
 #ifndef QCOLLECT_H
 #define QCOLLECT_H
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 
 typedef void *GCI;				// generic collection item

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#99 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#100 $
 **
 ** Definition of QPainter class
 **
@@ -13,6 +13,7 @@
 #define QPAINTER_H
 
 
+#ifndef QT_H
 #include "qpaintd.h"
 #include "qcolor.h"
 #include "qfontmet.h"
@@ -22,6 +23,7 @@
 #include "qbrush.h"
 #include "qpntarry.h"
 #include "qwmatrix.h"
+#endif // QT_H
 
 
 enum BGMode					// background mode

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#14 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#15 $
 **
 ** Definition of QBuffer class
 **
@@ -12,8 +12,10 @@
 #ifndef QBUFFER_H
 #define QBUFFER_H
 
+#ifndef QT_H
 #include "qiodev.h"
 #include "qstring.h"
+#endif // QT_H
 
 
 class QBuffer : public QIODevice		// buffer I/O device class

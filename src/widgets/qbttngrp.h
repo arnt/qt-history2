@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.h#18 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.h#19 $
 **
 ** Definition of QButtonGroup class
 **
@@ -12,7 +12,9 @@
 #ifndef QBTTNGRP_H
 #define QBTTNGRP_H
 
+#ifndef QT_H
 #include "qgrpbox.h"
+#endif // QT_H
 
 
 class QButton;

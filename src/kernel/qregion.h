@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#31 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#32 $
 **
 ** Definition of QRegion class
 **
@@ -12,9 +12,11 @@
 #ifndef QREGION_H
 #define QREGION_H
 
+#ifndef QT_H
 #include "qshared.h"
 #include "qrect.h"
 #include "qstring.h"
+#endif // QT_H
 
 
 class QRegion

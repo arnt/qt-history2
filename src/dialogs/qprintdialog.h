@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#11 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#12 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -16,7 +16,9 @@
 #ifndef QPRNDLG_H
 #define QPRNDLG_H
 
+#ifndef QT_H
 #include "qdialog.h"
+#endif // QT_H
 
 
 class QPrintDialog : public QDialog

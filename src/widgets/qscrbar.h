@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#30 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#31 $
 **
 ** Definition of QScrollBar class
 **
@@ -12,9 +12,11 @@
 #ifndef QSCRBAR_H
 #define QSCRBAR_H
 
+#ifndef QT_H
 #include "qwidget.h"
 #include "qrangect.h"
 #include "qdrawutl.h"
+#endif // QT_H
 
 class QScrollBar : public QWidget, public QRangeControl
 {

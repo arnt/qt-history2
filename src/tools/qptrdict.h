@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrdict.h#2 $
+** $Id: //depot/qt/main/src/tools/qptrdict.h#3 $
 **
 ** Definition of QPtrDict template/macro class
 **
@@ -12,7 +12,9 @@
 #ifndef QPTRDICT_H
 #define QPTRDICT_H
 
+#ifndef QT_H
 #include "qgdict.h"
+#endif // QT_H
 
 
 #if defined(USE_MACROCLASS)

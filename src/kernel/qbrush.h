@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#30 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#31 $
 **
 ** Definition of QBrush class
 **
@@ -12,8 +12,10 @@
 #ifndef QBRUSH_H
 #define QBRUSH_H
 
+#ifndef QT_H
 #include "qcolor.h"
 #include "qshared.h"
+#endif // QT_H
 
 
 enum BrushStyle					// brush style

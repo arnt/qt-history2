@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#1 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#2 $
 **
 ** Definition of something or other
 **
@@ -12,10 +12,11 @@
 #ifndef QTOOLBUTTON_H
 #define QTOOLBUTTON_H
 
+#ifndef QT_H
 #include "qbutton.h"
-
 #include "qstring.h"
 #include "qpixmap.h"
+#endif // QT_H
 
 
 class QToolButtonPrivate;

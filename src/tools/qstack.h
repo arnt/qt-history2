@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstack.h#10 $
+** $Id: //depot/qt/main/src/tools/qstack.h#11 $
 **
 ** Definition of QStack template/macro class
 **
@@ -12,7 +12,9 @@
 #ifndef QSTACK_H
 #define QSTACK_H
 
+#ifndef QT_H
 #include "qglist.h"
+#endif // QT_H
 
 
 #if defined(USE_MACROCLASS)

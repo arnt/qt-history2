@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabelled.h#2 $
+** $Id: //depot/qt/main/src/widgets/qlabelled.h#3 $
 **
 ** Definition of QLabelled widget class
 **
@@ -12,7 +12,9 @@
 #ifndef QLABELLED_H
 #define QLABELLED_H
 
+#ifndef QT_H
 #include "qframe.h"
+#endif // QT_H
 
 class QLabelledPrivate;
 

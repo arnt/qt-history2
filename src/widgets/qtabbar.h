@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#9 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#10 $
 **
 ** Definition of QTabBar class
 **
@@ -10,9 +10,11 @@
 #ifndef QTABBAR_H
 #define QTABBAR_H
 
+#ifndef QT_H
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qlist.h"
+#endif // QT_H
 
 struct QTabPrivate;
 

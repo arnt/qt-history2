@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#13 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#14 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -12,7 +12,9 @@
 #ifndef QSOCKNOT_H
 #define QSOCKNOT_H
 
+#ifndef QT_H
 #include "qobject.h"
+#endif // QT_H
 
 
 class QSocketNotifier : public QObject

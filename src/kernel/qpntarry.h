@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#28 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#29 $
 **
 ** Definition of QPointArray class
 **
@@ -12,8 +12,10 @@
 #ifndef QPNTARRY_H
 #define QPNTARRY_H
 
+#ifndef QT_H
 #include "qarray.h"
 #include "qpoint.h"
+#endif // QT_H
 
 
 /*****************************************************************************

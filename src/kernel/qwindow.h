@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.h#9 $
+** $Id: //depot/qt/main/src/kernel/qwindow.h#10 $
 **
 ** Definition of QWindow class
 **
@@ -12,7 +12,9 @@
 #ifndef QWINDOW_H
 #define QWINDOW_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 
 class QWindow : public QWidget			// window widget class

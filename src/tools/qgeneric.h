@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#17 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#18 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
@@ -12,7 +12,9 @@
 #ifndef QGENERIC_H
 #define QGENERIC_H
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 
 // Try to include the system defines where it is sure to exist

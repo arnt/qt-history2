@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#32 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#33 $
 **
 ** Definition of QRect class
 **
@@ -12,7 +12,9 @@
 #ifndef QRECT_H
 #define QRECT_H
 
+#ifndef QT_H
 #include "qsize.h"
+#endif // QT_H
 
 
 class QRect					// rectangle class

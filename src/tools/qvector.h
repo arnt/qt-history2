@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvector.h#11 $
+** $Id: //depot/qt/main/src/tools/qvector.h#12 $
 **
 ** Definition of QVector template/macro class
 **
@@ -12,7 +12,9 @@
 #ifndef QVECTOR_H
 #define QVECTOR_H
 
+#ifndef QT_H
 #include "qgvector.h"
+#endif // QT_H
 
 
 #if defined(USE_MACROCLASS)

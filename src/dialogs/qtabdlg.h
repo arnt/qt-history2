@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#28 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#29 $
 **
 ** Definition of QTabDialog class
 **
@@ -12,7 +12,9 @@
 #ifndef QTABDLG_H
 #define QTABDLG_H
 
+#ifndef QT_H
 #include "qdialog.h"
+#endif // QT_H
 
 
 class  QTabBar;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#16 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#17 $
 **
 ** Definition of layout classes
 **
@@ -12,8 +12,10 @@
 #ifndef QLAYOUT_H
 #define QLAYOUT_H
 
+#ifndef QT_H
 #include "qgmanagr.h"
 #include "qlist.h"
+#endif // QT_H
 
 class QMenuBar;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.h#14 $
+** $Id: //depot/qt/main/src/kernel/qconnect.h#15 $
 **
 ** Definition of QConnection class
 **
@@ -12,7 +12,9 @@
 #ifndef QCONNECT_H
 #define QCONNECT_H
 
+#ifndef QT_H
 #include "qobject.h"
+#endif // QT_H
 
 
 typedef void (QObject::*QMember)();		// pointer to member function

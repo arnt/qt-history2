@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.h#5 $
+** $Id: //depot/qt/main/src/widgets/qgrid.h#6 $
 **
 ** Definition of grid layout widget
 **
@@ -12,7 +12,9 @@
 #ifndef QGRID_H
 #define QGRID_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 class QGridLayout;
 

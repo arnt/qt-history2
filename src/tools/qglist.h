@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#24 $
+** $Id: //depot/qt/main/src/tools/qglist.h#25 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -12,7 +12,9 @@
 #ifndef QGLIST_H
 #define QGLIST_H
 
+#ifndef QT_H
 #include "qcollect.h"
+#endif // QT_H
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#23 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#24 $
 **
 ** Definition of QFrame widget class
 **
@@ -12,7 +12,9 @@
 #ifndef QFRAME_H
 #define QFRAME_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 
 class QFrame : public QWidget			// frame class

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#21 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#22 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -10,8 +10,10 @@
 #ifndef QTOOLTIP_H
 #define QTOOLTIP_H
 
+#ifndef QT_H
 #include "qwidget.h"
 #include "qtimer.h"
+#endif // QT_H
 
 
 class QTipManager;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#5 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#6 $
 **
 ** Definition of something or other
 **
@@ -12,7 +12,9 @@
 #ifndef QMAINWINDOW_H
 #define QMAINWINDOW_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 class QMenuBar;
 class QToolBar;

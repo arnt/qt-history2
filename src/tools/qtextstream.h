@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#23 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#24 $
 **
 ** Definition of QTextStream class
 **
@@ -12,9 +12,11 @@
 #ifndef QTSTREAM_H
 #define QTSTREAM_H
 
+#ifndef QT_H
 #include "qiodev.h"
 #include "qstring.h"
 #include <stdio.h>
+#endif // QT_H
 
 
 class QTextStream				// text stream class

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#28 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#29 $
 **
 ** Definition of QListView widget class
 **
@@ -20,7 +20,9 @@ class QListView;
 struct QListViewPrivate;
 
 
+#ifndef QT_H
 #include "qscrollview.h"
+#endif // QT_H
 
 
 class QListViewItem

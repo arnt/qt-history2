@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qshared.h#10 $
+** $Id: //depot/qt/main/src/tools/qshared.h#11 $
 **
 ** Definition of QShared struct
 **
@@ -12,7 +12,9 @@
 #ifndef QSHARED_H
 #define QSHARED_H
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 
 struct QShared

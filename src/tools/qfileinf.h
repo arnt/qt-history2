@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.h#14 $
+** $Id: //depot/qt/main/src/tools/qfileinf.h#15 $
 **
 ** Definition of QFileInfo class
 **
@@ -12,8 +12,10 @@
 #ifndef QFILEINF_H
 #define QFILEINF_H
 
+#ifndef QT_H
 #include "qfile.h"
 #include "qdatetm.h"
+#endif // QT_H
 
 class QDir;
 struct QFileInfoCache;

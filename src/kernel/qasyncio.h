@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.h#3 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.h#4 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -18,9 +18,11 @@
 #ifndef QASYNCIO_H
 #define QASYNCIO_H
 
+#ifndef QT_H
 #include "qobject.h"
 #include "qsignal.h"
 #include "qtimer.h"
+#endif // QT_H
 
 class QIODevice;
 

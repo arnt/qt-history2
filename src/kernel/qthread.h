@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#3 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#4 $
 **
 ** Definition of QThread class
 **
@@ -12,8 +12,10 @@
 #ifndef QTHREAD_H
 #define QTHREAD_H
 
+#ifndef QT_H
 #include "qglobal.h"
 #include "qwindefs.h"
+#endif // QT_H
 
 
 #if (defined(MT) || defined(REENTRANT) || defined(PTHREADS)) && defined(UNIX)

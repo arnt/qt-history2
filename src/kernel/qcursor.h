@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#24 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#25 $
 **
 ** Definition of QCursor class
 **
@@ -12,8 +12,10 @@
 #ifndef QCURSOR_H
 #define QCURSOR_H
 
+#ifndef QT_H
 #include "qpoint.h"
 #include "qshared.h"
+#endif // QT_H
 
 
 struct QCursorData;				// internal cursor data

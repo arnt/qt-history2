@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#3 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.h#4 $
 **
 ** Definition of QFontDialog
 **
@@ -12,8 +12,10 @@
 #ifndef QFONTDIALOG_H
 #define QFONTDIALOG_H
 
+#ifndef QT_H
 #include "qdialog.h"
 #include "qfont.h"
+#endif // QT_H
 
 class  QListBox;
 struct QFontDialogPrivate;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.h#22 $
+** $Id: //depot/qt/main/src/tools/qbitarry.h#23 $
 **
 ** Definition of QBitArray class
 **
@@ -12,7 +12,9 @@
 #ifndef QBITARRY_H
 #define QBITARRY_H
 
+#ifndef QT_H
 #include "qstring.h"
+#endif // QT_H
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.h#4 $
+** $Id: //depot/qt/main/src/widgets/qhbox.h#5 $
 **
 ** Definition of hbox layout widget
 **
@@ -12,7 +12,9 @@
 #ifndef QHBOX_H
 #define QHBOX_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 class QBoxLayout;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#39 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#40 $
 **
 ** Definition of QPopupMenu class
 **
@@ -12,8 +12,10 @@
 #ifndef QPOPMENU_H
 #define QPOPMENU_H
 
+#ifndef QT_H
 #include "qtablevw.h"
 #include "qmenudta.h"
+#endif // QT_H
 
 
 class QPopupMenu : public QTableView, public QMenuData

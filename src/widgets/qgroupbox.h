@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#11 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#12 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -12,7 +12,9 @@
 #ifndef QGRPBOX_H
 #define QGRPBOX_H
 
+#ifndef QT_H
 #include "qframe.h"
+#endif // QT_H
 
 
 class QGroupBox : public QFrame

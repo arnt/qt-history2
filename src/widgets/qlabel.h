@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#33 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#34 $
 **
 ** Definition of QLabel widget class
 **
@@ -12,7 +12,9 @@
 #ifndef QLABEL_H
 #define QLABEL_H
 
+#ifndef QT_H
 #include "qframe.h"
+#endif // QT_H
 
 
 class QLabel : public QFrame

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#19 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#20 $
 **
 ** Definition of QTableView class
 **
@@ -12,7 +12,9 @@
 #ifndef QTABLEVW_H
 #define QTABLEVW_H
 
+#ifndef QT_H
 #include "qframe.h"
+#endif // QT_H
 
 class QScrollBar;
 class CornerSquare;

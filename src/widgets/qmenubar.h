@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#26 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#27 $
 **
 ** Definition of QMenuBar class
 **
@@ -12,7 +12,9 @@
 #ifndef QMENUBAR_H
 #define QMENUBAR_H
 
+#ifndef QT_H
 #include "qpopmenu.h"
+#endif // QT_H
 
 
 class QMenuBar : public QFrame, public QMenuData

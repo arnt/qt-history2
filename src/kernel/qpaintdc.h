@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#23 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#24 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -12,7 +12,9 @@
 #ifndef QPAINTDC_H
 #define QPAINTDC_H
 
+#ifndef QT_H
 #include "qwindefs.h"
+#endif // QT_H
 
 
 // Painter device cmd() identifiers (for programmable, extended devices)

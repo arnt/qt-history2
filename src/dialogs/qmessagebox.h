@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#33 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#34 $
 **
 ** Definition of QMessageBox class
 **
@@ -12,7 +12,9 @@
 #ifndef QMSGBOX_H
 #define QMSGBOX_H
 
+#ifndef QT_H
 #include "qdialog.h"
+#endif // QT_H
 
 class  QLabel;
 class  QPushButton;

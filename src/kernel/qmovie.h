@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#9 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#10 $
 **
 ** Definition of movie classes
 **
@@ -12,8 +12,10 @@
 #ifndef QMOVIE_H
 #define QMOVIE_H
 
+#ifndef QT_H
 #include "qobject.h"
 #include "qpixmap.h"
+#endif // QT_H
 
 class QIODevice;
 class QMoviePrivate;

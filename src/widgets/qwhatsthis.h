@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#1 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#2 $
 **
 ** Definition of
 **
@@ -10,7 +10,9 @@
 #ifndef QWHATSTHIS_H
 #define QWHATSTHIS_H
 
+#ifndef QT_H
 #include "qobject.h"
+#endif // QT_H
 
 class QToolButton;
 class QPopupMenu;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#10 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#11 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -17,8 +17,10 @@
 #ifndef QPSPRN_H
 #define QPSPRN_H
 
+#ifndef QT_H
 #include "qprinter.h"
 #include "qtstream.h"
+#endif // QT_H
 
 
 class QPSPrinter : public QPaintDevice

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#42 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#43 $
 **
 ** Definition of QFont class
 **
@@ -12,8 +12,10 @@
 #ifndef QFONT_H
 #define QFONT_H
 
+#ifndef QT_H
 #include "qwindefs.h"
 #include "qstring.h"
+#endif // QT_H
 
 
 class  QStrList;

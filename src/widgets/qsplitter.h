@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#2 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#3 $
 **
 **  Splitter widget
 **
@@ -11,7 +11,9 @@
 #ifndef QSPLITTER_H
 #define QSPLITTER_H
 
+#ifndef QT_H
 #include "qframe.h"
+#endif // QT_H
 
 class QSplitter : public QFrame
 {

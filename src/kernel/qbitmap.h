@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#27 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#28 $
 **
 ** Definition of QBitmap class
 **
@@ -12,7 +12,9 @@
 #ifndef QBITMAP_H
 #define QBITMAP_H
 
+#ifndef QT_H
 #include "qpixmap.h"
+#endif // QT_H
 
 
 class QBitmap : public QPixmap			// bitmap class

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#2 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#3 $
 **
 ** Definition of something or other
 **
@@ -12,8 +12,10 @@
 #ifndef QWIDGETSTACK_H
 #define QWIDGETSTACK_H
 
+#ifndef QT_H
 #include "qframe.h"
 #include "qintdict.h"
+#endif // QT_H
 
 
 class QWidgetStackPrivate;

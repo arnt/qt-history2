@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#50 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#51 $
 **
 ** Definition of QComboBox class
 **
@@ -12,7 +12,9 @@
 #ifndef QCOMBO_H
 #define QCOMBO_H
 
+#ifndef QT_H
 #include "qwidget.h"
+#endif // QT_H
 
 
 struct QComboData;

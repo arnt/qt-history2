@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmutex.h#3 $
+** $Id: //depot/qt/main/src/kernel/qmutex.h#4 $
 **
 ** Definition of QMutex class
 **
@@ -12,8 +12,10 @@
 #ifndef QMUTEX_H
 #define QMUTEX_H
 
+#ifndef QT_H
 #include "qglobal.h"
 #include "qwindefs.h"
+#endif // QT_H
 
 
 #if defined(QMutexED_POSIX)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#21 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#22 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -14,9 +14,11 @@
 #ifndef QSTRLIST_H
 #define QSTRLIST_H
 
+#ifndef QT_H
 #include "qstring.h"
 #include "qlist.h"
 #include "qdstream.h"
+#endif // QT_H
 
 
 #if defined(DEFAULT_TEMPLATECLASS)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#12 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#13 $
 **
 ** Definition of QSignal class
 **
@@ -12,7 +12,9 @@
 #ifndef QSIGNAL_H
 #define QSIGNAL_H
 
+#ifndef QT_H
 #include "qobject.h"
+#endif // QT_H
 
 
 class QSignal : private QObject			// signal class

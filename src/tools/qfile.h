@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#21 $
+** $Id: //depot/qt/main/src/tools/qfile.h#22 $
 **
 ** Definition of QFile class
 **
@@ -12,9 +12,11 @@
 #ifndef QFILE_H
 #define QFILE_H
 
+#ifndef QT_H
 #include "qiodev.h"
 #include "qstring.h"
 #include <stdio.h>
+#endif // QT_H
 
 class QDir;
 

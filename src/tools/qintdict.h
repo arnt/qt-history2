@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#13 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#14 $
 **
 ** Definition of QIntDict template/macro class
 **
@@ -12,7 +12,9 @@
 #ifndef QINTDICT_H
 #define QINTDICT_H
 
+#ifndef QT_H
 #include "qgdict.h"
+#endif // QT_H
 
 
 #if defined(USE_MACROCLASS)

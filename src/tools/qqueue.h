@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qqueue.h#8 $
+** $Id: //depot/qt/main/src/tools/qqueue.h#9 $
 **
 ** Definition of QQueue template/macro class
 **
@@ -12,7 +12,9 @@
 #ifndef QQUEUE_H
 #define QQUEUE_H
 
+#ifndef QT_H
 #include "qglist.h"
+#endif // QT_H
 
 
 #if defined(USE_MACROCLASS)

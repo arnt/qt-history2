@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.h#8 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.h#9 $
 **
 ** Definition of QClipboard class
 **
@@ -12,7 +12,9 @@
 #ifndef QCLIPBRD_H
 #define QCLIPBRD_H
 
+#ifndef QT_H
 #include "qobject.h"
+#endif // QT_H
 
 
 class QClipboard : public QObject

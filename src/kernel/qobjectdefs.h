@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#22 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#23 $
 **
 ** Macros and definitions related to QObject
 **
@@ -15,7 +15,9 @@
 #ifndef QOBJDEFS_H
 #define QOBJDEFS_H
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 
 // The following macros are our "extensions" to C++

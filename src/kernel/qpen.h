@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#24 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#25 $
 **
 ** Definition of QPen class
 **
@@ -12,8 +12,10 @@
 #ifndef QPEN_H
 #define QPEN_H
 
+#ifndef QT_H
 #include "qcolor.h"
 #include "qshared.h"
+#endif // QT_H
 
 
 enum PenStyle { NoPen, SolidLine, DashLine,	// pen style

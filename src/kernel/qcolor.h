@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#41 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#42 $
 **
 ** Definition of QColor class
 **
@@ -12,7 +12,9 @@
 #ifndef QCOLOR_H
 #define QCOLOR_H
 
+#ifndef QT_H
 #include "qwindefs.h"
+#endif // QT_H
 
 
 const QRgb  RGB_DIRTY	= 0x80000000;		// flags unset color

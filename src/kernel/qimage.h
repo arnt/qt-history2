@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#54 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#55 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -12,8 +12,10 @@
 #ifndef QIMAGE_H
 #define QIMAGE_H
 
+#ifndef QT_H
 #include "qpixmap.h"
 #include "qstrlist.h"
+#endif // QT_H
 
 
 class QImage

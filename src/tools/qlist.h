@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#20 $
+** $Id: //depot/qt/main/src/tools/qlist.h#21 $
 **
 ** Definition of QList template/macro class
 **
@@ -12,7 +12,9 @@
 #ifndef QLIST_H
 #define QLIST_H
 
+#ifndef QT_H
 #include "qglist.h"
+#endif // QT_H
 
 
 #if defined(USE_MACROCLASS)

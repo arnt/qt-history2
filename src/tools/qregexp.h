@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#10 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#11 $
 **
 ** Definition of QRegExp class
 **
@@ -12,7 +12,9 @@
 #ifndef QREGEXP_H
 #define QREGEXP_H
 
+#ifndef QT_H
 #include "qstring.h"
+#endif // QT_H
 
 
 class QRegExp

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.h#18 $
+** $Id: //depot/qt/main/src/tools/qiodev.h#19 $
 **
 ** Definition of QIODevice class
 **
@@ -12,7 +12,9 @@
 #ifndef QIODEV_H
 #define QIODEV_H
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 
 // IO device access types

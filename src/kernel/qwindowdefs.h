@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#103 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#104 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -13,7 +13,9 @@
 #ifndef QWINDEFS_H
 #define QWINDEFS_H
 
+#ifndef QT_H
 #include "qobjdefs.h"
+#endif // QT_H
 
 
 // Class forward definitions

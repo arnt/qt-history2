@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#22 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#23 $
 **
 ** Definition of QFontInfo class
 **
@@ -12,7 +12,9 @@
 #ifndef QFONTINF_H
 #define QFONTINF_H
 
+#ifndef QT_H
 #include "qfont.h"
+#endif // QT_H
 
 
 class QFontInfo

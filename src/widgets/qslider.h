@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#21 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#22 $
 **
 ** Definition of QSlider class
 **
@@ -12,8 +12,10 @@
 #ifndef QSLIDER_H
 #define QSLIDER_H
 
+#ifndef QT_H
 #include "qwidget.h"
 #include "qrangect.h"
+#endif // QT_H
 
 
 class QTimer;

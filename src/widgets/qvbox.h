@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.h#3 $
+** $Id: //depot/qt/main/src/widgets/qvbox.h#4 $
 **
 ** Definition of vbox layout widget
 **
@@ -12,7 +12,9 @@
 #ifndef QVBOX_H
 #define QVBOX_H
 
+#ifndef QT_H
 #include "qhbox.h"
+#endif // QT_H
 
 class QVBox : public QHBox
 {

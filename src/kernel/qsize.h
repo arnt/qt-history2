@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#16 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#17 $
 **
 ** Definition of QSize class
 **
@@ -12,7 +12,9 @@
 #ifndef QSIZE_H
 #define QSIZE_H
 
+#ifndef QT_H
 #include "qpoint.h"
+#endif // QT_H
 
 #if defined(QSIZE_C) || defined(DEBUG)
 #define QSIZE_DEBUG

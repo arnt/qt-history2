@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.h#18 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.h#19 $
 **
 ** Definition of QCheckBox class
 **
@@ -12,7 +12,9 @@
 #ifndef QCHKBOX_H
 #define QCHKBOX_H
 
+#ifndef QT_H
 #include "qbutton.h"
+#endif // QT_H
 
 
 class QCheckBox : public QButton

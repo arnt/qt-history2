@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#44 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#45 $
 **
 ** Definition of event classes
 **
@@ -12,9 +12,11 @@
 #ifndef QEVENT_H
 #define QEVENT_H
 
+#ifndef QT_H
 #include "qwindefs.h"
 #include "qrect.h"
 #include "qstring.h"
+#endif // QT_H
 
 
 #define Event_None		    0		// invalid event

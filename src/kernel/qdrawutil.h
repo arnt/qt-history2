@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.h#10 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.h#11 $
 **
 ** Definition of draw utilities
 **
@@ -12,8 +12,10 @@
 #ifndef QDRAWUTL_H
 #define QDRAWUTL_H
 
+#ifndef QT_H
 #include "qpainter.h"
 #include "qpalette.h"
+#endif // QT_H
 
 
 //

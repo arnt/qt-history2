@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#54 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#55 $
 **
 ** Definition of QListBox widget class
 **
@@ -12,8 +12,10 @@
 #ifndef QLISTBOX_H
 #define QLISTBOX_H
 
+#ifndef QT_H
 #include "qtablevw.h"
 #include "qpixmap.h"
+#endif // QT_H
 
 
 #define LBI_Undefined	0			// list box item types

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#21 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#22 $
 **
 ** Definition of QGArray class
 **
@@ -12,7 +12,9 @@
 #ifndef QGARRAY_H
 #define QGARRAY_H
 
+#ifndef QT_H
 #include "qshared.h"
+#endif // QT_H
 
 
 class QGArray					// generic array

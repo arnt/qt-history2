@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#28 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#29 $
 **
 ** Definition of QLCDNumber class
 **
@@ -12,8 +12,10 @@
 #ifndef QLCDNUM_H
 #define QLCDNUM_H
 
+#ifndef QT_H
 #include "qframe.h"
 #include "qbitarry.h"
+#endif // QT_H
 
 
 class QLCDNumber : public QFrame		// LCD number widget
