@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#10 $
 **
 ** Implementation of QWMatrix class
 **
@@ -18,7 +18,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#10 $")
 
 
 /*----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#9 $")
   vertical scaling.  The elements \e m12 and \e m21 specify horisontal
   and vertical shearing.
 
-  The identify matrix has \e m11 and \e m22 set to 1, all others set
+  The identity matrix has \e m11 and \e m22 set to 1, all others set
   to 0.	 This matrix maps a point to itself.
 
   Translation is the simplest transformation. Setting \e dx and \e dy
@@ -131,7 +131,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#9 $")
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  Constructs an identify matrix.  All elements are set to zero,
+  Constructs an identity matrix.  All elements are set to zero,
   except \e m11 and \e m22 (scaling) which are set to 1.
  ----------------------------------------------------------------------------*/
 
@@ -275,7 +275,7 @@ QPointArray QWMatrix::map( const QPointArray &a ) const
 
 
 /*----------------------------------------------------------------------------
-  Resets the matrix to an identify matrix.
+  Resets the matrix to an identity matrix.
 
   All elements are set to zero, except \e m11 and \e m22 (scaling)
   that are set to 1.
