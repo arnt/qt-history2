@@ -1586,15 +1586,13 @@ int QHeader::headerWidth() const
 
 void QHeader::calculatePositions( bool onlyVisible, int start )
 {
-    if ( count() == 0 )
-	return;
     d->positionsDirty = FALSE;
-    d->lastPos = d->positions[start];
+    d->lastPos = count() > 0 ? d->positions[start] : 0;
     for ( int i = start; i < count(); i++ ) {
 	d->positions[i] = d->lastPos;
 	d->lastPos += d->sizes[d->i2s[i]];
-	if ( onlyVisible && d->lastPos > offset() + ( orientation() == Horizontal ? width() : height() ) )
-	    break;
+ 	if ( onlyVisible && d->lastPos > offset() + ( orientation() == Horizontal ? width() : height() ) )
+ 	    break;
     }
 }
 
