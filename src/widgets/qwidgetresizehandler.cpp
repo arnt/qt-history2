@@ -77,7 +77,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     if ( !w )
 	return FALSE;
 
-    
+
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
     case QEvent::MouseButtonPress: {
@@ -120,7 +120,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 {
     QPoint pos = widget->mapFromGlobal( e->globalPos() );
-    if ( !buttonDown ) {
+    if ( !buttonDown || e->state() == NoButton ) {
 	if ( pos.y() <= RANGE && pos.x() <= RANGE)
 	    mode = TopLeft;
 	else if ( pos.y() >= widget->height()-RANGE && pos.x() >= widget->width()-RANGE)
