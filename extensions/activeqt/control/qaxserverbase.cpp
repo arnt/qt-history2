@@ -139,6 +139,7 @@ public:
     HWND create(HWND hWndParent, RECT& rcPos );
     HMENU createPopup( QPopupMenu *popup, HMENU oldMenu = 0 );
     void createMenu( QMenuBar *menuBar );
+    void removeMenu();
 
     static LRESULT CALLBACK ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -1385,6 +1386,23 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 	hmenuShared = 0;
 	OleDestroyMenuDescriptor( holemenu );
     }
+}
+
+/*!
+    Remove the Win32 menubar.
+*/
+void QAxServerBase::removeMenu()
+{
+    if ( hmenuShared )
+	m_spInPlaceFrame->RemoveMenus( hmenuShared );
+    holemenu = 0;
+    m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
+    if ( hmenuShared ) {
+	DestroyMenu( hmenuShared );
+	hmenuShared = 0;
+	menuMap.clear();
+    }
+    hwndMenuOwner = 0;
 }
 
 extern bool ignoreSlots( const char *test );
@@ -2731,16 +2749,7 @@ HRESULT WINAPI QAxServerBase::UIDeactivate()
 	    spInPlaceUIWindow->Release();
 	}
 	if ( m_spInPlaceFrame ) {
-	    if ( hmenuShared )
-		m_spInPlaceFrame->RemoveMenus( hmenuShared );
-	    holemenu = 0;
-	    m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
-	    if ( hmenuShared ) {
-		DestroyMenu( hmenuShared );
-		hmenuShared = 0;
-		menuMap.clear();
-	    }
-	    hwndMenuOwner = 0;
+	    removeMenu();
 	    menuBar = 0;
 	    statusBar = 0;
 	    m_spInPlaceFrame->SetActiveObject(0, 0);
@@ -3381,17 +3390,10 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	    if ( e->type() == QEvent::Hide ) {
 		createMenu( menuBar );
 	    } else if ( e->type() == QEvent::Show ) {
-		if ( hmenuShared )
-		    m_spInPlaceFrame->RemoveMenus( hmenuShared );
-		holemenu = 0;
-		m_spInPlaceFrame->SetMenu( 0, 0, m_hWnd );
-		if ( hmenuShared ) {
-		    DestroyMenu( hmenuShared );
-		    hmenuShared = 0;
-		    menuMap.clear();
-		}
-		hwndMenuOwner = 0;
+		removeMenu();
 	    }
+	} else if ( statusBar ) {
+	    statusBar->setSizeGripEnabled( FALSE );
 	}
 	updateGeometry();
 	if ( m_spInPlaceSite ) {
