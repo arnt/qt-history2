@@ -2227,8 +2227,23 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if ((static_cast<QWSFocusEvent*>(event))->simpleData.get_focus) {
             if (widget == static_cast<QWidget *>(desktop()))
                 return true; // not interesting
-            if (inPopupMode()) // some delayed focus event to ignore
+            if (inPopupMode()) {
+               //someone might have deleted or hidden the old focus widget
+               if ( !*activeBeforePopup || !(*activeBeforePopup)->isVisible() ) {
+                   (*activeBeforePopup) = widget;
+#ifndef QT_NO_QWS_MANAGER
+                   // the window that's going to be active should get "active" decorations
+                   // even if the popup is actually active. Therefore, we must lie to the
+                   // window decoration class.
+                   QWidget *save_active_window = QApplicationPrivate::active_window;
+                   QApplicationPrivate::active_window = widget;
+                   static_cast<QETWidget *>(widget)->repaintDecoration(desktop()->rect(),false);
+                   QApplicationPrivate::active_window = save_active_window;
+#endif
+               }
+               // otherwise, it was just some delayed focus event to ignore
                 break;
+            }
             setActiveWindow(widget);
             (static_cast<QETWidget *>(QApplicationPrivate::active_window))->repaintDecoration(desktop()->rect(), false);
 
