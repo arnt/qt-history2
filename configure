@@ -282,6 +282,7 @@ FROMMAKE=
 QT_CXX=""
 QMAKE_PROJECTS=""
 CONCURRENT=0
+LIBDL=auto
 
 QT_INSTALL_PREFIX=/usr/local/qt
 QT_INSTALL_DOCS=
@@ -555,6 +556,7 @@ then
 
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
+	LIBDL=no
 	PLATFORM=macx-g++
 	;;
      AIX*)
@@ -580,6 +582,7 @@ then
 	PLATFORM=ultrix-g++
 	;;
      FreeBSD:*)
+        LIBDL=no
 	PLATFORM=freebsd-g++
 	;;
      OpenBSD:*)
@@ -1254,8 +1257,15 @@ then
     echo Creating qmake...
     [ -f $outpath/qmake/GNUmakefile ] && chmod 666 $outpath/qmake/GNUmakefile
     [ -f $outpath/qmake/Makefile ] && chmod 666 $outpath/qmake/Makefile
-    sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" $relpath/qmake/GNUmakefile.in >$outpath/qmake/GNUmakefile
-    sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" $relpath/qmake/Makefile.unix >$outpath/qmake/Makefile
+    case "$LIBDL" in
+    auto) DYLIB_LINK="-ldl" ;;
+    no)   DYLIB_LINK="" ;;
+    *)    DYLIB_LINK="$LIBDL" ;;	
+    esac
+    sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
+        -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/GNUmakefile.in >$outpath/qmake/GNUmakefile
+    sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
+	-e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" $relpath/qmake/Makefile.unix >$outpath/qmake/Makefile
     (cd $outpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
