@@ -114,7 +114,7 @@ public:
     int keyboardInputInterval() const;
 
     virtual QRect itemViewportRect(const QModelIndex &index) const = 0;
-    virtual void ensureItemVisible(const QModelIndex &index) = 0;
+    virtual void ensureVisible(const QModelIndex &index) = 0;
     inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
     virtual QModelIndex itemAt(int x, int y) const = 0;
 

@@ -16,7 +16,7 @@
 #include <math.h>
 
 PlasmaModel::PlasmaModel(int rows, int cols, QObject *parent)
-    : QAbstractTableModel(parent), rows(rows), cols(cols)
+    : QAbstractTableModel(parent), numRows(rows), numCols(cols)
 {
 
     waves.resize(4);
@@ -41,7 +41,7 @@ PlasmaModel::PlasmaModel(int rows, int cols, QObject *parent)
         colors[c + 224] = rgb(z + e, z , z);
     }
 
-    values.resize(rows * cols);
+    values.resize(numRows * numCols);
     timer = startTimer(100);
 }
 
@@ -50,14 +50,14 @@ PlasmaModel::~PlasmaModel()
     killTimer(timer);
 }
 
-int PlasmaModel::rowCount() const
+int PlasmaModel::rows() const
 {
-    return rows;
+    return numRows;
 }
 
-int PlasmaModel::columnCount() const
+int PlasmaModel::columns() const
 {
-    return cols;
+    return numCols;
 }
 
 QVariant PlasmaModel::data(const QModelIndex &index, int role) const
@@ -74,10 +74,10 @@ void PlasmaModel::timerEvent(QTimerEvent *e)
 
     unsigned char a = waves.at(0);
     unsigned char b = waves.at(1);
-    for (int y = 0; y < rows; ++y) {
+    for (int y = 0; y < numRows; ++y) {
         unsigned char c = waves.at(2);
         unsigned char d = waves.at(3);
-        for (int x = 0; x < cols; ++x) {
+        for (int x = 0; x < numCols; ++x) {
             unsigned char color = cosinus.at(a) + cosinus.at(b) + cosinus.at(c) + cosinus.at(d);
             setValue(y, x, colors.at(color));
             c += 1;
@@ -92,6 +92,6 @@ void PlasmaModel::timerEvent(QTimerEvent *e)
     waves[3] += 3;
 
     QModelIndex topLeft = index(0, 0);
-    QModelIndex bottomRight = index(rows - 1, cols - 1);
+    QModelIndex bottomRight = index(numRows - 1, numCols - 1);
     emit dataChanged(topLeft, bottomRight);
 }

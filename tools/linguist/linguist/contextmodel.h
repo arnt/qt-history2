@@ -80,7 +80,7 @@ public:
     void updateItem(QModelIndex indx);
     void updateAll();
     void clearContextList();
-        
+
     static bool compare(const ContextItem *left, const ContextItem *right);
     bool sortParameters(Qt::SortOrder &so, int &sc) const;
 
@@ -89,8 +89,8 @@ public:
     void sort(int column, const QModelIndex &parent = QModelIndex::Null,
         Qt::SortOrder order = Qt::AscendingOrder);
 
-    int rowCount() const;
-    int columnCount() const;
+    int rows() const;
+    int columns() const;
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
 private:

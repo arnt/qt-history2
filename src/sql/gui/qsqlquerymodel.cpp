@@ -113,14 +113,14 @@ void QSqlQueryModel::fetchMore(const QModelIndex &parent)
 
 /*! \reimp
  */
-int QSqlQueryModel::rowCount() const
+int QSqlQueryModel::rows() const
 {
     return d->bottom.row() + 1;
 }
 
 /*! \reimp
  */
-int QSqlQueryModel::columnCount() const
+int QSqlQueryModel::columns() const
 {
     return d->rec.count();
 }

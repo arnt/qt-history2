@@ -448,7 +448,7 @@ QRect QTreeView::itemViewportRect(const QModelIndex &index) const
   Scroll the contents of the tree view until the given model item \a index
   is visible.
 */
-void QTreeView::ensureItemVisible(const QModelIndex &index)
+void QTreeView::ensureVisible(const QModelIndex &index)
 {
     // check if we really need to do anything
     if (isIndexHidden(index))
@@ -469,7 +469,7 @@ void QTreeView::ensureItemVisible(const QModelIndex &index)
     } else if (rect.bottom() > area.bottom()) { // below
         int i = d->viewIndex(index);
         if (i < 0) {
-            qWarning("ensureItemVisible: item index was illegal: %d", i);
+            qWarning("ensureVisible: item index was illegal: %d", i);
             return;
         }
         int y = area.height();

@@ -52,8 +52,8 @@ public:
     void setRowCount(int rows);
     void setColumnCount(int columns);
 
-    int rowCount() const;
-    int columnCount() const;
+    int rows() const;
+    int columns() const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
@@ -66,8 +66,8 @@ public:
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
-    static bool lessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
-    static bool greaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
+    static bool itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
+    static bool itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
 
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const
@@ -138,8 +138,8 @@ bool QTableModel::removeRows(int row, const QModelIndex &, int count)
     if (row >= 0 && row < vertical.count()) {
         emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
         // remove rows
-        int i = tableIndex(row, columnCount() - 1);
-        table.remove(qMax(i, 0), count * columnCount());
+        int i = tableIndex(row, columns() - 1);
+        table.remove(qMax(i, 0), count * columns());
         vertical.remove(row, count);
         // update persistent model indexes
         for (int j = 0; j < persistentIndexesCount(); ++j) {
@@ -159,7 +159,7 @@ bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
     if (column >= 0 && column < horizontal.count()) {
         emit columnsAboutToBeRemoved(QModelIndex::Null, column, column + count - 1);
         // remove columns
-        for (int row = rowCount()-1; row >= 0; --row)
+        for (int row = rows()-1; row >= 0; --row)
             table.remove(tableIndex(row, column), count);
         horizontal.remove(column, count);
         // update persistent model indexes
@@ -269,8 +269,8 @@ QTableWidgetItem *QTableModel::verticalHeaderItem(int section)
 QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 {
     int i = table.indexOf(const_cast<QTableWidgetItem*>(item));
-    int row = i / columnCount();
-    int col = i % columnCount();
+    int row = i / columns();
+    int col = i % columns();
     return index(row, col);
 }
 
@@ -305,12 +305,12 @@ void QTableModel::setColumnCount(int columns)
         removeColumns(qMax(columns - 1, 0), QModelIndex::Null, cc - columns);
 }
 
-int QTableModel::rowCount() const
+int QTableModel::rows() const
 {
     return vertical.count();
 }
 
-int QTableModel::columnCount() const
+int QTableModel::columns() const
 {
     return horizontal.count();
 }
@@ -361,21 +361,21 @@ bool QTableModel::isSortable() const
 void QTableModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
 {
     Q_UNUSED(parent);
-    QVector<QTableWidgetItem*> sorting(rowCount());
+    QVector<QTableWidgetItem*> sorting(rows());
     for (int i = 0; i < sorting.count(); ++i)
         sorting[i] = item(i, column);
-    LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
+    LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
     qHeapSort(sorting.begin(), sorting.end(), compare);
     for (int j = 0; j < sorting.count(); ++j)
         table[tableIndex(j, column)] = sorting.at(j);
 }
 
-bool QTableModel::lessThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
+bool QTableModel::itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
 {
     return *left < *right;
 }
 
-bool QTableModel::greaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
+bool QTableModel::itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
 {
     return !(*left < *right);
 }
@@ -908,7 +908,7 @@ public:
     void emitKeyPressed(const QModelIndex &index, Qt::Key key,
                         Qt::KeyboardModifiers modifiers);
     void emitReturnPressed(const QModelIndex &index);
-    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -945,9 +945,9 @@ void QTableWidgetPrivate::emitReturnPressed(const QModelIndex &index)
     emit q->returnPressed(model()->item(index));
 }
 
-void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    emit q->currentChanged(model()->item(current), model()->item(previous));
+    emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
 void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
@@ -1097,7 +1097,7 @@ void QTableWidget::setRowCount(int rows)
 
 int QTableWidget::rowCount() const
 {
-    return d->model()->rowCount();
+    return d->model()->rows();
 }
 
 /*!
@@ -1118,7 +1118,7 @@ void QTableWidget::setColumnCount(int columns)
 
 int QTableWidget::columnCount() const
 {
-    return d->model()->columnCount();
+    return d->model()->columns();
 }
 
 /*!
@@ -1222,7 +1222,7 @@ void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
 {
     QTableModel *model = d->model();
     QTableWidgetItem *item = 0;
-    for (int i = 0; i < model->rowCount() && i < labels.count(); ++i) {
+    for (int i = 0; i < model->rows() && i < labels.count(); ++i) {
         item = model->verticalHeaderItem(i);
         if (!item) {
             item = createItem();
@@ -1239,7 +1239,7 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 {
     QTableModel *model = d->model();
     QTableWidgetItem *item = 0;
-    for (int i = 0; i < model->columnCount() && i < labels.count(); ++i) {
+    for (int i = 0; i < model->columns() && i < labels.count(); ++i) {
         item = model->horizontalHeaderItem(i);
         if (!item) {
             item = createItem();
@@ -1419,7 +1419,7 @@ QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text,
 {
     QModelIndex topLeft = d->model()->index(0, 0);
     int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount() * d->model()->columnCount();
+    int hits = d->model()->rows() * d->model()->columns();
     QModelIndexList indexes = d->model()->match(topLeft, role, text, hits, flags);
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
@@ -1479,7 +1479,7 @@ void QTableWidget::ensureItemVisible(const QTableWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
-    QTableView::ensureItemVisible(index);
+    QTableView::ensureVisible(index);
 }
 
 /*!
@@ -1563,10 +1563,10 @@ void QTableWidget::setup()
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(selectionChanged()));
+            this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }

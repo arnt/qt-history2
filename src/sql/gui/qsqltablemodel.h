@@ -68,7 +68,7 @@ public:
     QString filter() const;
     virtual void setFilter(const QString &filter);
 
-    int rowCount() const;
+    int rows() const;
 
     bool removeColumns(int column, const QModelIndex &parent, int count);
 #ifdef Q_NO_USING_KEYWORD

@@ -1378,7 +1378,7 @@ QRect QHeaderView::itemViewportRect(const QModelIndex &) const
   Empty implementation because the header doesn't show QModelIndex items.
 */
 
-void QHeaderView::ensureItemVisible(const QModelIndex &)
+void QHeaderView::ensureVisible(const QModelIndex &)
 {
     // do nothing - the header only displays sections
 }

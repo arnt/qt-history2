@@ -537,7 +537,7 @@ QRect QListView::itemViewportRect(const QModelIndex &index) const
 /*!
   \reimp
 */
-void QListView::ensureItemVisible(const QModelIndex &index)
+void QListView::ensureVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(index);
@@ -690,7 +690,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
     if (e->source() == this && d->movement != Static) {
         // the ignore by default
-        e->ignore();        
+        e->ignore();
         if (d->canDecode(e)) {
             // get old dragged items rect
             QRect itemsRect = d->itemsRect(d->draggedItems);

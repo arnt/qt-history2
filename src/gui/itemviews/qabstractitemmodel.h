@@ -265,8 +265,8 @@ public:
     QAbstractTableModel(QObject *parent = 0);
     ~QAbstractTableModel();
 
-    virtual int rowCount() const = 0;
-    virtual int columnCount() const = 0;
+    virtual int rows() const = 0;
+    virtual int columns() const = 0;
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
 
@@ -314,8 +314,8 @@ public:
     QAbstractListModel(QObject *parent = 0);
     ~QAbstractListModel();
 
-    virtual int rowCount() const = 0;
-    int columnCount() const { return 1; }
+    virtual int rows() const = 0;
+    int columns() const { return 1; }
 
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null) const;
 

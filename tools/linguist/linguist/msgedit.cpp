@@ -155,7 +155,7 @@ void SourceTextEdit::copySelection()
     QApplication::clipboard()->setText(td.plainText());
 }
 
-QMenu *SourceTextEdit::createPopupMenu(const QPoint &pos)
+QMenu *SourceTextEdit::createPopupMenu(const QPoint &/*pos*/)
 {
     QMenu *pMenu = new QMenu(this);
     actCopy->setEnabled(textCursor().hasSelection());
@@ -195,7 +195,7 @@ void ShadowWidget::resizeEvent(QResizeEvent *)
 {
     if(childWgt) {
         childWgt->move(wMargin, wMargin);
-        childWgt->resize(width() - sWidth - wMargin, height() - sWidth - 
+        childWgt->resize(width() - sWidth - wMargin, height() - sWidth -
             wMargin);
     }
 }
@@ -407,7 +407,7 @@ void EditorPage::handleCommentChanges()
 void EditorPage::calculateFieldHeight(QTextEdit *field)
 {
     int contentsHeight = field->heightForWidth(field->width());
-    
+
     if (contentsHeight != field->height()) {
         int oldHeight = field->height();
         if(contentsHeight < 30)
@@ -454,7 +454,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     srcTextView->setSelectionMode(QAbstractItemView::SingleSelection);
     srcTextView->setRootIsDecorated(false);
 	srcTextView->setUniformRowHeights(true);
-        
+
     QFontMetrics fm(font());
     srcTextView->header()->setResizeMode(QHeaderView::Stretch, 1);
     srcTextView->header()->resizeSection(0, fm.width(MessageModel::tr("Done")) + 10);
@@ -474,7 +474,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     vl->setSpacing(6);
 
     phraseLbl = new QLabel( tr("Phrases and guesses:"), w );
-    
+
     phraseTv = new QTreeView(w);
     phraseTv->setObjectName("phrase list view");
     phrMdl = new PhraseModel(w);
@@ -493,7 +493,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     for (int i = 0; i < 9; ++i) {
         (void) new GuessShortcut(i, this, SLOT(guessActivated(int)));
     }
-    
+
     bottomDockWnd->setWidget(w);
     parent->addDockWindow(Qt::DockWindowAreaBottom, bottomDockWnd);
 
@@ -508,11 +508,11 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     sw = new ShadowWidget(editorPage, this);
     sw->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     sw->setMinimumSize(QSize(100, 150));
-    
+
     setWidget(sw);
     defFormat = editorPage->srcText->currentCharFormat();
     editorPage->transText->installEventFilter(this);
-    
+
     // Signals
     connect(editorPage->pageCurl, SIGNAL(nextPage()),
         SIGNAL(nextUnfinished()));
@@ -557,7 +557,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
 bool MessageEditor::eventFilter(QObject *o, QEvent *e)
 {
     // handle copying from the source
-    if ((e->type() == QEvent::KeyPress) || 
+    if ((e->type() == QEvent::KeyPress) ||
         (e->type() == QEvent::ShortcutOverride))
     {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
@@ -616,7 +616,7 @@ void MessageEditor::showNothing()
     editorPage->updateCommentField();
 }
 
-void MessageEditor::showMessage(const QString &text, 
+void MessageEditor::showMessage(const QString &text,
                                 const QString &comment,
                                 const QString &fullContext,
                                 const QString &translation,
@@ -632,7 +632,7 @@ void MessageEditor::showMessage(const QString &text,
     visualizeBackTabs(text, editorPage->srcText);
 
     if (!fullContext.isEmpty() && !comment.isEmpty())
-        visualizeBackTabs(fullContext.simplified() + "\n" + 
+        visualizeBackTabs(fullContext.simplified() + "\n" +
             comment.simplified(), editorPage->cmtText);
     else if (!fullContext.isEmpty() && comment.isEmpty())
         visualizeBackTabs(fullContext.simplified(), editorPage->cmtText);

@@ -40,8 +40,8 @@ public:
     QDefaultModel(QObject *parent) : QAbstractTableModel(parent) {}
     ~QDefaultModel() {}
 
-    int rowCount() const { return 0; }
-    int columnCount() const { return 0; }
+    int rows() const { return 0; }
+    int columns() const { return 0; }
     QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
@@ -134,7 +134,7 @@ void QAbstractItemViewPrivate::init()
 
     The root item is returned by root(), and the current item by
     currentIndex(). To make sure that an item is visible use
-    ensureItemVisible().
+    ensureVisible().
 
     Some of QAbstractItemView's functions are concerned with
     scrolling, for example setHorizontalFactor() and
@@ -251,7 +251,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::ensureItemVisible(const QModelIndex &index) = 0
+    \fn void QAbstractItemView::ensureVisible(const QModelIndex &index) = 0
 
     Scrolls the view if necessary to ensure that the item at \a index
     is visible.
@@ -1823,7 +1823,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
     }
 
     if (current.isValid()) {
-        ensureItemVisible(current);
+        ensureVisible(current);
         edit(current, CurrentChanged, 0);
     }
 }

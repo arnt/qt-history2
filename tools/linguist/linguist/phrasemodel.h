@@ -24,7 +24,7 @@ class PhraseModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    PhraseModel(QObject *parent = 0) 
+    PhraseModel(QObject *parent = 0)
         : QAbstractTableModel(parent) {}
 
     void removePhrases();
@@ -42,8 +42,8 @@ public:
     void resort();
 
     // from qabstracttablemodel
-    int rowCount() const;
-    int columnCount() const;
+    int rows() const;
+    int columns() const;
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
 
@@ -54,7 +54,7 @@ public:
 private:
     Qt::SortOrder sortOrder;
     int sortColumn;
-    
+
     QList<Phrase> plist;
 };
 

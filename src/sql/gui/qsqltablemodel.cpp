@@ -77,7 +77,7 @@ void QSqlTableModelPrivate::revertCachedRow(int row)
     case QSql::Delete:
         cache.remove(row);
         emit q->dataChanged(q->createIndex(row, 0),
-                            q->createIndex(row, q->columnCount() - 1));
+                            q->createIndex(row, q->columns() - 1));
         break;
     case QSql::Insert: {
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = cache.find(row);
@@ -394,7 +394,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         return QSqlQueryModel::setData(index, role, value);
 
     QSqlRecord rec = query().record();
-    if (index.column() >= rec.count() || index.row() >= rowCount())
+    if (index.column() >= rec.count() || index.row() >= rows())
         return false;
 
     bool isOk = true;
@@ -472,7 +472,7 @@ bool QSqlTableModel::updateRowInTable(int row, const QSqlRecord &values)
     QString where = d->db.driver()->sqlStatement(QSqlDriver::WhereStatement, d->tableName,
                                                  whereValues, prepStatement);
 
-    if (stmt.isEmpty() || where.isEmpty() || row < 0 || row >= rowCount()) {
+    if (stmt.isEmpty() || where.isEmpty() || row < 0 || row >= rows()) {
         d->error = QSqlError(QLatin1String("No Fields to update"), QString(),
                                  QSqlError::StatementError);
         return false;
@@ -682,7 +682,7 @@ void QSqlTableModel::revertAll()
             int oldIndex = d->editIndex;
             d->editIndex = -1;
             emit dataChanged(createIndex(oldIndex, 0),
-                             createIndex(oldIndex, columnCount()));
+                             createIndex(oldIndex, columns()));
         }
         d->revertInsertedRow();
         break;
@@ -877,7 +877,7 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
     case OnManualSubmit:
         for (i = 0; i < count; ++i) {
             int idx = row + i;
-            if (idx >= rowCount())
+            if (idx >= rows())
                 return false;
             if (d->cache.value(idx).op == QSql::Insert)
                 revertRow(idx);
@@ -905,7 +905,7 @@ bool QSqlTableModel::removeRows(int row, const QModelIndex &parent, int count)
  */
 bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
 {
-    if (row < 0 || count <= 0 || row > rowCount() || parent.isValid())
+    if (row < 0 || count <= 0 || row > rows() || parent.isValid())
         return false;
 
     switch (d->strategy) {
@@ -949,7 +949,7 @@ bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
 bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 {
     if (row < 0)
-        row = rowCount();
+        row = rows();
     if (!insertRow(row, QModelIndex::Null))
         return false;
     if (!setRecord(row, record))
@@ -961,9 +961,9 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 
 /*! \reimp
  */
-int QSqlTableModel::rowCount() const
+int QSqlTableModel::rows() const
 {
-    int rc = QSqlQueryModel::rowCount();
+    int rc = QSqlQueryModel::rows();
     if (d->strategy == OnManualSubmit) {
         for (QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
              it != d->cache.constEnd(); ++it) {
@@ -1058,7 +1058,7 @@ QSqlTableModel::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
  */
 bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
 {
-    if (row >= rowCount())
+    if (row >= rows())
         return false;
 
     bool isOk = true;

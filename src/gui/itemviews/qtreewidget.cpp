@@ -52,7 +52,7 @@ public:
     bool dropMimeData(const QMimeData *data, QDrag::DropAction action,
                       int row, const QModelIndex &parent);
     QDrag::DropActions supportedDropActions() const;
-    
+
     bool insertRows(int row, const QModelIndex &parent, int count);
     bool removeRows(int row, const QModelIndex &parent, int count);
 
@@ -62,8 +62,8 @@ public:
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
     void sortAll(int column, Qt::SortOrder);
 
-    static bool lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
-    static bool greaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
+    static bool itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
+    static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
     void emitDataChanged(QTreeWidgetItem *item, int column);
 
@@ -551,7 +551,7 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
         end = par->children.end();
     }
 
-    LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
+    LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
     qHeapSort(begin, end, compare);
 
     emit reset(); // items with their subtrees may have been moved
@@ -567,7 +567,7 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
 void QTreeModel::sortAll(int column, Qt::SortOrder order)
 {
     // sort top level
-    LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
+    LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
     qHeapSort(tree.begin(), tree.end(), compare);
 
     // sort the children
@@ -588,7 +588,7 @@ void QTreeModel::sortAll(int column, Qt::SortOrder order)
   Used by the sorting functions.
 */
 
-bool QTreeModel::lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
+bool QTreeModel::itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
 {
     return *left < *right;
 }
@@ -602,7 +602,7 @@ bool QTreeModel::lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *ri
   Used by the sorting functions.
 */
 
-bool QTreeModel::greaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
+bool QTreeModel::itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
 {
     return !(*left < *right);
 }
@@ -1167,7 +1167,7 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
     LessThan compare = (order == Qt::AscendingOrder
-                        ? &QTreeModel::lessThan : &QTreeModel::greaterThan);
+                        ? &QTreeModel::itemLessThan : &QTreeModel::itemGreaterThan);
     qHeapSort(children.begin(), children.end(), compare);
     if (!climb)
         return;
@@ -1195,7 +1195,7 @@ public:
     void emitReturnPressed(const QModelIndex &index);
     void emitExpanded(const QModelIndex &index);
     void emitCollapsed(const QModelIndex &index);
-    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -1243,9 +1243,9 @@ void QTreeWidgetPrivate::emitCollapsed(const QModelIndex &index)
     emit q->collapsed(model()->item(index));
 }
 
-void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    emit q->currentChanged(model()->item(current), model()->item(previous));
+    emit q->currentItemChanged(model()->item(current), model()->item(previous));
 }
 
 void QTreeWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
@@ -1463,10 +1463,10 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(selectionChanged()));
+            this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex,QModelIndex)));
     connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
@@ -1801,7 +1801,7 @@ void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    QTreeView::ensureItemVisible(index);
+    QTreeView::ensureVisible(index);
 }
 
 /*!

@@ -23,7 +23,7 @@ class ContextItem;
 class MessageItem : public QObject
 {
 public:
-    MessageItem(const MetaTranslatorMessage &message, 
+    MessageItem(const MetaTranslatorMessage &message,
         const QString &text, const QString &comment, ContextItem *ctxtI);
 
     inline virtual bool danger() const {return d;}
@@ -63,8 +63,8 @@ public:
     void updateItem(QModelIndex indx);
 
     // from qabstracttablemodel
-    int rowCount() const;
-    int columnCount() const;
+    int rows() const;
+    int columns() const;
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
 

@@ -21,7 +21,7 @@ static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
 ContextItem::ContextItem(QString c)
-: QObject(0), ctxt(c), com(""), sortColumn(-1)
+: QObject(0), sortColumn(-1), com(""), ctxt(c)
 {
     unfinishedCount = 0;
     dangerCount   = 0;
@@ -47,7 +47,7 @@ bool ContextItem::sortParameters(Qt::SortOrder &so, int &sc) const
 {
     if (sortColumn == -1)
         return false;
-        
+
     so = sortOrder;
     sc = sortColumn;
 
@@ -72,7 +72,7 @@ bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
             return true;
     }
     else if (sSortColumn == 2) {
-        res = QString::localeAwareCompare(left->translation().remove('&'), 
+        res = QString::localeAwareCompare(left->translation().remove('&'),
             right->translation().remove('&'));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
@@ -81,7 +81,7 @@ bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
     return false;
 }
 
-ContextModel::ContextModel(QObject *parent) 
+ContextModel::ContextModel(QObject *parent)
 : QAbstractTableModel(parent), sortColumn(-1)
 {
 
@@ -99,7 +99,7 @@ bool ContextModel::sortParameters(Qt::SortOrder &so, int &sc) const
 {
     if (sortColumn == -1)
         return false;
-        
+
     so = sortOrder;
     sc = sortColumn;
 
@@ -134,12 +134,12 @@ void ContextModel::updateAll()
     emit rowsInserted(QModelIndex::Null, 0, cntxtList.count()-1);
 }
 
-int ContextModel::rowCount() const
+int ContextModel::rows() const
 {
     return cntxtList.count();
 }
 
-int ContextModel::columnCount() const
+int ContextModel::columns() const
 {
     return 3;
 }

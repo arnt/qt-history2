@@ -79,7 +79,7 @@ public:
     int column() const;
 
     QRect itemViewportRect(const QModelIndex &index) const;
-    void ensureItemVisible(const QModelIndex &index);
+    void ensureVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
 
     void doItemsLayout();

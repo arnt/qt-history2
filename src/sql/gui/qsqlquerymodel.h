@@ -31,8 +31,8 @@ public:
     QSqlQueryModel(QObject *parent = 0);
     virtual ~QSqlQueryModel();
 
-    int rowCount() const;
-    int columnCount() const;
+    int rows() const;
+    int columns() const;
     QSqlRecord record(int row = -1) const;
 
     QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;

@@ -10,8 +10,8 @@ class ImageModel : public QAbstractTableModel
 public:
     ImageModel::ImageModel(const QImage &image, QObject *parent = 0);
 
-    int rowCount() const;
-    int columnCount() const;
+    int rows() const;
+    int columns() const;
 
     QVariant data(const QModelIndex &index, int role) const;
 

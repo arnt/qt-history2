@@ -33,7 +33,7 @@
 
 PhraseBookBox::PhraseBookBox(const QString& filename,
                              const PhraseBook& phraseBook, QWidget *parent)
-    : QDialog(parent), fn(filename), pb(phraseBook), blockListSignals(false)
+    : QDialog(parent), blockListSignals(false), fn(filename), pb(phraseBook)
 {
     setupUi(this);
     setModal(false);
@@ -54,7 +54,7 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
         this, SLOT(targetChanged(const QString&)));
     connect(definitionLed, SIGNAL(textChanged(const QString&)),
         this, SLOT(definitionChanged(const QString&)));
-    connect(phraseList->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, 
+    connect(phraseList->selectionModel(), SIGNAL(currentChanged(const QModelIndex &,
         const QModelIndex &)), this, SLOT(selectionChanged()));
     connect(newBut, SIGNAL(clicked()), this, SLOT(newPhrase()));
     connect(removeBut, SIGNAL(clicked()), this, SLOT(removePhrase()));
@@ -74,7 +74,7 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
 
 void PhraseBookBox::sortPhrases(int section, Qt::MouseButton state)
 {
-    if ((state == Qt::LeftButton) && 
+    if ((state == Qt::LeftButton) &&
         ((section >= 0) && (section <= 2))) {
         phraseList->clearSelection();
         Qt::SortOrder order;
@@ -99,10 +99,10 @@ void PhraseBookBox::sortPhrases(int section, Qt::MouseButton state)
 void PhraseBookBox::keyPressEvent(QKeyEvent *ev)
 {
     // TODO:
-    // does not work... 
+    // does not work...
     /*if (ev->key() == Qt::Key_Down || ev->key() == Qt::Key_Up ||
         ev->key() == Qt::Key_Next || ev->key() == Qt::Key_Prior)
-        QApplication::sendEvent(phraseList, new QKeyEvent(ev->type(), 
+        QApplication::sendEvent(phraseList, new QKeyEvent(ev->type(),
         ev->key(), ev->state(), ev->text(), ev->isAutoRepeat(), ev->count()));
     else*/
         QDialog::keyPressEvent( ev );
@@ -123,13 +123,13 @@ void PhraseBookBox::removePhrase()
 void PhraseBookBox::save()
 {
     pb.clear();
-    
+
     QList<Phrase> pl = phrMdl->phraseList();
     Phrase p;
 
     for (int i=0; i<pl.count(); i++) {
         p = pl.at(i);
-        if (!p.source().isEmpty() && p.source() != NewPhrase) 
+        if (!p.source().isEmpty() && p.source() != NewPhrase)
             pb.append(pl.at(i));
     }
 
@@ -192,7 +192,7 @@ void PhraseBookBox::selectionChanged()
 
 void PhraseBookBox::selectItem(const QModelIndex &index)
 {
-    phraseList->ensureItemVisible(index);
+    phraseList->ensureVisible(index);
     phraseList->setCurrentIndex(index);
 }
 

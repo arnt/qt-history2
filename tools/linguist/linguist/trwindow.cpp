@@ -184,7 +184,7 @@ TrWindow::TrWindow()
     tv->setModel(cmdl);
     tv->setAlternatingRowColors(true);
     tv->setOddRowColor(TREEVIEW_ODD_COLOR);
-    
+
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
     tv->setSelectionMode(QAbstractItemView::SingleSelection);
     tv->setRootIsDecorated(false);
@@ -195,7 +195,7 @@ TrWindow::TrWindow()
     tv->header()->setResizeMode(QHeaderView::Stretch, 1);
     tv->header()->resizeSection(0, fm.width(ContextModel::tr("Done")) + 10);
     tv->header()->resizeSection(2, 55);
-        
+
     me = new MessageEditor(&tor, this);
     setCentralWidget(me);
     stv = me->sourceTextView();
@@ -236,7 +236,7 @@ TrWindow::TrWindow()
     connect(me, SIGNAL(nextUnfinished()), this, SLOT(nextUnfinished()));
     connect(me, SIGNAL(focusSourceList()), this, SLOT(focusSourceList()));
     connect(me, SIGNAL(focusPhraseList()), this, SLOT(focusPhraseList()));
-    connect(finddlg, SIGNAL(findNext(const QString&, int, bool)), 
+    connect(finddlg, SIGNAL(findNext(const QString&, int, bool)),
         this, SLOT(findNext(const QString&, int, bool)));
     connect(tv->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
         this, SLOT(sortContexts(int, Qt::MouseButton)));
@@ -249,7 +249,7 @@ TrWindow::TrWindow()
     stv->setWhatsThis(tr("This panel lists the source texts. "
         "Items that violate validation rules "
         "are marked with a warning."));
-    
+
     QSize as( qApp->desktop()->size() );
     as -= QSize( 30, 30 );
     resize( QSize( 1000, 800 ).boundedTo( as ) );
@@ -294,7 +294,7 @@ void TrWindow::sortContexts(int section, Qt::MouseButton state)
 
 void TrWindow::sortMessages(int section, Qt::MouseButton state)
 {
-    if ((state == Qt::LeftButton) && 
+    if ((state == Qt::LeftButton) &&
         ((section == 1) || (section == 2))) {
         ContextItem *c = mmdl->contextItem();
         Qt::SortOrder order;
@@ -321,7 +321,7 @@ void TrWindow::sortMessages(int section, Qt::MouseButton state)
 
 void TrWindow::sortPhrases(int section, Qt::MouseButton state)
 {
-    if ((state == Qt::LeftButton) && 
+    if ((state == Qt::LeftButton) &&
         ((section >= 0) && (section <= 2))) {
         ptv->clearSelection();
 
@@ -337,7 +337,7 @@ void TrWindow::sortPhrases(int section, Qt::MouseButton state)
         else {
             order = Qt::AscendingOrder;
         }
-        
+
         ptv->header()->setSortIndicator(section, order);
         ptv->header()->setSortIndicatorShown(true);
         pmdl->sort(section, QModelIndex::Null, order);
@@ -348,7 +348,7 @@ void TrWindow::openFile( const QString& name )
 {
     if (name.isEmpty())
         return;
-    
+
     statusBar()->message(tr("Loading..."));
     qApp->processEvents();
     tor.clear();
@@ -497,7 +497,7 @@ void TrWindow::print()
         statusBar()->message(tr("Printing..."));
         PrintOut pout(&printer);
         ctxtList = cmdl->contextList();
-        
+
         for (int i=0; i<ctxtList.count(); i++) {
             c = ctxtList.at(i);
             pout.vskip();
@@ -572,7 +572,7 @@ void TrWindow::findAgain()
     int pass = 0;
     int scopeNo = 0;
     int itemNo = 0;
-    
+
     QModelIndex indxItem = stv->currentIndex();
     if (indxItem.isValid())
         itemNo = indxItem.row();
@@ -585,7 +585,7 @@ void TrWindow::findAgain()
     //scopeNo = foundScope;
     ContextItem *c = cmdl->contextItem(cmdl->index(scopeNo, 1));
     MessageItem *m; // = c->messageItem(foundItem);
-    
+
 #if 1
     /*
       As long as we don't implement highlighting of the text in the QTextView,
@@ -636,7 +636,7 @@ void TrWindow::findAgain()
             }
         }
         ++pass;
-        
+
         ++scopeNo;
         if (scopeNo >= cmdl->contextsInList()) {
             scopeNo = 0;
@@ -679,7 +679,7 @@ void TrWindow::newPhraseBook()
 {
     QString name;
     for (;;) {
-        name = QFileDialog::getSaveFileName(this, tr("Create New Phrase Book"), 
+        name = QFileDialog::getSaveFileName(this, tr("Create New Phrase Book"),
             QString::null, tr("Qt phrase books (*.qph)\nAll files (*)"));
         if (name.isEmpty())
             break;
@@ -828,14 +828,14 @@ void TrWindow::revertSorting()
 
 void TrWindow::manual()
 {
-    QString path = QDir::cleanPath(QString(qInstallPath()) + 
+    QString path = QDir::cleanPath(QString(qInstallPath()) +
         QDir::separator() + "bin/");
 #if defined(Q_OS_MAC)
     path += QDir::separator() + ".app/Contents/MacOS/";
 #endif
     if (ac == 0)
         ac = new QAssistantClient(path, this);
-    
+
     ac->showPage(QString(qInstallPath()) + "/doc/html/linguist-manual.html");
 }
 
@@ -924,7 +924,7 @@ void TrWindow::showNewScope(const QModelIndex &current, const QModelIndex &old)
         mmdl->setContextItem(c);
         Qt::SortOrder sortOrder;
         int sortColumn;
-        
+
         if (c->sortParameters(sortOrder, sortColumn)) {
             stv->header()->setSortIndicator(sortColumn, sortOrder);
             stv->header()->setSortIndicatorShown(true);
@@ -951,14 +951,14 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
         else
             statusBar()->clear();
 
-        doneAndNextAct->setEnabled(m->message().type() != 
+        doneAndNextAct->setEnabled(m->message().type() !=
             MetaTranslatorMessage::Obsolete);
     }
     else {
         me->showNothing();
         doneAndNextAct->setEnabled(false);
     }
-    
+
     doneAndNextAlt->setEnabled(doneAndNextAct->isEnabled());
     //selectAllAct->setEnabled(doneAndNextAct->isEnabled());
 
@@ -986,7 +986,7 @@ void TrWindow::updateTranslation(const QString &translation)
 
     if (translation != m->translation()) {
         m->setTranslation(translation);
-        
+
         updateDanger(m, true);
         mmdl->updateItem(item);
 
@@ -1198,7 +1198,7 @@ void TrWindow::prevUnfinished()
 void TrWindow::prev()
 {
     if(prev(false))
-        stv->ensureItemVisible(stv->currentIndex());
+        stv->ensureVisible(stv->currentIndex());
 }
 
 bool TrWindow::prev(bool checkUnfinished)
@@ -1332,11 +1332,11 @@ void TrWindow::setupMenuBar()
         this, SLOT(printPhraseBook(QAction *)));
 
     // File menu
-    openAct = filep->addAction(loadPixmap("fileopen.png"), 
+    openAct = filep->addAction(loadPixmap("fileopen.png"),
         tr("&Open..."), this, SLOT(open()));
     openAct->setShortcut(QKeySequence("Ctrl+O"));
     filep->addSeparator();
-    saveAct = filep->addAction(loadPixmap("filesave.png"), 
+    saveAct = filep->addAction(loadPixmap("filesave.png"),
         tr("&Save"), this, SLOT(save()));
     saveAct->setShortcut(QKeySequence("Ctrl+S"));
     saveAsAct = filep->addAction(tr("Save &As..."), this, SLOT(saveAs()));
@@ -1349,7 +1349,7 @@ void TrWindow::setupMenuBar()
 
     recentFilesMenu = new QMenu(this);
     filep->addMenu(recentFilesMenu)->setText(tr("Re&cently opened files"));
-    connect(recentFilesMenu, SIGNAL(aboutToShow()), this, 
+    connect(recentFilesMenu, SIGNAL(aboutToShow()), this,
         SLOT(setupRecentFilesMenu()));
     connect(recentFilesMenu, SIGNAL(triggered(QAction *)), this,
         SLOT(recentFileActivated(QAction *)));
@@ -1393,10 +1393,10 @@ void TrWindow::setupMenuBar()
 
     // Translation menu
     // when updating the accelerators, remember the status bar
-    prevUnfinishedAct = translationp->addAction(loadPixmap("prevunfinished.png"), 
+    prevUnfinishedAct = translationp->addAction(loadPixmap("prevunfinished.png"),
         tr("&Prev Unfinished"), this, SLOT(prevUnfinished()));
     prevUnfinishedAct->setShortcut(QKeySequence("Ctrl+K"));
-    nextUnfinishedAct = translationp->addAction(loadPixmap("nextunfinished.png"), 
+    nextUnfinishedAct = translationp->addAction(loadPixmap("nextunfinished.png"),
         tr("&Next Unfinished"), this, SLOT(nextUnfinished()));
     nextUnfinishedAct->setShortcut(QKeySequence("Ctrl+L"));
 
@@ -1472,7 +1472,7 @@ void TrWindow::setupMenuBar()
     viewp->addMenu(tbMenu)->setText(tr("&Toolbars"));
     viewp->addMenu(dwMenu)->setText(tr("Vie&ws"));
 
-    connect(viewp, SIGNAL(aboutToShow()), this, 
+    connect(viewp, SIGNAL(aboutToShow()), this,
         SLOT(updateViewMenu()));
 
     // Help
@@ -1566,7 +1566,7 @@ void TrWindow::setupToolBars()
     filet->setWindowTitle(tr("File"));
 	this->addToolBar(filet);
     tbMenu->addAction(filet->toggleViewAction());
-    
+
     QToolBar *editt = new QToolBar(this);
     editt->setWindowTitle(tr("Edit"));
 	this->addToolBar(editt);
@@ -1601,7 +1601,7 @@ void TrWindow::setupToolBars()
     editt->addAction(pasteAct);
     editt->addSeparator();
     editt->addAction(findAct);
-    
+
     translationst->addAction(prevAct);
     translationst->addAction(nextAct);
     translationst->addAction(prevUnfinishedAct);
@@ -1618,27 +1618,27 @@ void TrWindow::setupToolBars()
 void TrWindow::setCurrentContext(const QModelIndex &indx)
 {
     tv->setCurrentIndex(indx);
-    tv->ensureItemVisible(indx);
+    tv->ensureVisible(indx);
 }
 
 void TrWindow::setCurrentContextRow(int row)
 {
     QModelIndex mdlI = cmdl->index(row,1);
     tv->setCurrentIndex(mdlI);
-    tv->ensureItemVisible(mdlI);
+    tv->ensureVisible(mdlI);
 }
 
 void TrWindow::setCurrentMessage(const QModelIndex &indx)
 {
     stv->setCurrentIndex(indx);
-    stv->ensureItemVisible(indx);
+    stv->ensureVisible(indx);
 }
 
 void TrWindow::setCurrentMessageRow(int row)
 {
     QModelIndex mdlI = mmdl->index(row,1);
     stv->setCurrentIndex(mdlI);
-    stv->ensureItemVisible(mdlI);
+    stv->ensureVisible(mdlI);
 }
 
 QString TrWindow::friendlyPhraseBookName(const PhraseBook &pb) const
@@ -1939,7 +1939,7 @@ void TrWindow::toggleStatistics()
         }
         stats->show();
         updateStatistics();
-    } 
+    }
     else if (stats) {
         stats->close();
     }
@@ -1951,7 +1951,7 @@ void TrWindow::updateStatistics()
     // because this can be slow...
     if (!stats || !stats->isVisible())
         return;
-    
+
     QList<ContextItem *> ctxtList;
     QList<MessageItem *> msgList;
     const MessageItem *mi;

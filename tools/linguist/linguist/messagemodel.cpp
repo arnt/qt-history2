@@ -15,8 +15,8 @@
 #include "contextmodel.h"
 #include "trwindow.h"
 
-MessageItem::MessageItem(const MetaTranslatorMessage &message, 
-                         const QString &text, const QString &comment, ContextItem *ctxtI) 
+MessageItem::MessageItem(const MetaTranslatorMessage &message,
+                         const QString &text, const QString &comment, ContextItem *ctxtI)
                          : QObject(ctxtI), m(message), tx(text), com(comment), cntxtItem(ctxtI)
 {
     if (m.translation().isEmpty()) {
@@ -56,7 +56,7 @@ void MessageItem::setDanger(bool danger)
 MessageModel::MessageModel(QObject *parent)
 : QAbstractTableModel(parent), cntxtItem(0)
 {
-    
+
 }
 
 void MessageModel::setContextItem(ContextItem *ctxtI)
@@ -84,7 +84,7 @@ void MessageModel::updateItem(QModelIndex indx)
     emit dataChanged(strtindx, endindx);
 }
 
-int MessageModel::rowCount() const
+int MessageModel::rows() const
 {
     if (cntxtItem != 0)
         return cntxtItem->messageItemsInList();
@@ -92,7 +92,7 @@ int MessageModel::rowCount() const
     return 0;
 }
 
-int MessageModel::columnCount() const
+int MessageModel::columns() const
 {
     return 3;
 }
@@ -162,7 +162,7 @@ void MessageModel::sort(int column, const QModelIndex &parent, Qt::SortOrder ord
 {
     if (cntxtItem != 0) {
         cntxtItem->sortMessages(column, order);
-        emit dataChanged(index(0,0), 
+        emit dataChanged(index(0,0),
             index(cntxtItem->messageItemsInList()-1, 2));
     }
 

@@ -33,7 +33,7 @@ Phrase PhraseModel::phrase(const QModelIndex &index) const
 void PhraseModel::setPhrase(const QModelIndex &indx, Phrase ph)
 {
     int r = indx.row();
-    
+
     plist[r] = ph;
 
     // update item in view
@@ -45,9 +45,9 @@ void PhraseModel::setPhrase(const QModelIndex &indx, Phrase ph)
 QModelIndex PhraseModel::addPhrase(Phrase p)
 {
     int r = plist.count();
-    
+
     plist.append(p);
-    
+
     // update phrases as we add them
     emit rowsInserted(QModelIndex::Null, r, r);
     return QAbstractTableModel::index(r, 0);
@@ -64,7 +64,7 @@ bool PhraseModel::sortParameters(Qt::SortOrder &so, int &sc) const
 {
     if (sortColumn == -1)
         return false;
-        
+
     so = sortOrder;
     sc = sortColumn;
 
@@ -88,12 +88,12 @@ QModelIndex PhraseModel::index(const Phrase phr) const
     return QAbstractTableModel::index(row,0);
 }
 
-int PhraseModel::rowCount() const
+int PhraseModel::rows() const
 {
     return plist.count();
 }
 
-int PhraseModel::columnCount() const
+int PhraseModel::columns() const
 {
     return 3;
 }
@@ -147,7 +147,7 @@ void PhraseModel::sort(int column, const QModelIndex &parent, Qt::SortOrder orde
     sortColumn = sSortColumn = column;
 
     qHeapSort(plist.begin(), plist.end(), PhraseModel::compare);
-    emit dataChanged(QAbstractTableModel::index(0,0), 
+    emit dataChanged(QAbstractTableModel::index(0,0),
         QAbstractTableModel::index(plist.count()-1, 2));
 
     Q_UNUSED(parent);
@@ -158,13 +158,13 @@ bool PhraseModel::compare(const Phrase left, const Phrase right)
     int res;
     switch (sSortColumn) {
     case 0:
-        res = QString::localeAwareCompare(left.source().remove('&'), 
+        res = QString::localeAwareCompare(left.source().remove('&'),
             right.source().remove('&'));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
         break;
     case 1:
-        res = QString::localeAwareCompare(left.target().remove('&'), 
+        res = QString::localeAwareCompare(left.target().remove('&'),
             right.target().remove('&'));
         if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;

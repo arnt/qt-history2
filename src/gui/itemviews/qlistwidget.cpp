@@ -31,7 +31,7 @@ public:
     void remove(QListWidgetItem *item);
     QListWidgetItem *take(int row);
 
-    int rowCount() const;
+    int rows() const;
 
     QModelIndex index(QListWidgetItem *item) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
@@ -47,8 +47,8 @@ public:
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
-    static bool lessThan(const QListWidgetItem *left, const QListWidgetItem *right);
-    static bool greaterThan(const QListWidgetItem *left, const QListWidgetItem *right);
+    static bool itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right);
+    static bool itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right);
 
     void itemChanged(QListWidgetItem *item);
 
@@ -116,7 +116,7 @@ QListWidgetItem *QListModel::take(int row)
     return 0;
 }
 
-int QListModel::rowCount() const
+int QListModel::rows() const
 {
     return lst.count();
 }
@@ -157,7 +157,7 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
     // insert rows
     QListWidget *view = ::qt_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
-    if (row < rowCount()) {
+    if (row < rows()) {
         for (int r = row; r < row + count; ++r) {
             itm = new QListWidgetItem();
             itm->view = view;
@@ -184,7 +184,7 @@ bool QListModel::insertRows(int row, const QModelIndex &, int count)
 
 bool QListModel::removeRows(int row, const QModelIndex &, int count)
 {
-    if (row >= 0 && row < rowCount()) {
+    if (row >= 0 && row < rows()) {
         emit rowsAboutToBeRemoved(QModelIndex::Null, row, row + count - 1);
         // remove items
         QListWidgetItem *itm = 0;
@@ -223,17 +223,17 @@ void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
 {
     if (column != 0 || parent.isValid())
         return;
-    LessThan compare = (order == Qt::AscendingOrder ? &lessThan : &greaterThan);
+    LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qHeapSort(lst.begin(), lst.end(), compare);
     emit dataChanged(index(0, 0), index(lst.count() - 1, 0));
 }
 
-bool QListModel::lessThan(const QListWidgetItem *left, const QListWidgetItem *right)
+bool QListModel::itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right)
 {
     return *left < *right;
 }
 
-bool QListModel::greaterThan(const QListWidgetItem *left, const QListWidgetItem *right)
+bool QListModel::itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right)
 {
     return !(*left < *right);
 }
@@ -309,7 +309,7 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
     if (model)
-        model->insert(model->rowCount(), this);
+        model->insert(model->rows(), this);
 }
 
 /*!
@@ -329,7 +329,7 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     if (view)
         model = ::qt_cast<QListModel*>(view->model());
     if (model)
-        model->insert(model->rowCount(), this);
+        model->insert(model->rows(), this);
 }
 
 /*!
@@ -582,7 +582,7 @@ public:
                            Qt::KeyboardModifiers modifiers);
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void emitReturnPressed(const QModelIndex &index);
-    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -618,10 +618,11 @@ void QListWidgetPrivate::emitReturnPressed(const QModelIndex &index)
     emit q->returnPressed(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
+                                                const QModelIndex &previous)
 {
     QListWidgetItem *currentItem = model()->at(current.row());
-    emit q->currentChanged(currentItem, model()->at(previous.row()));
+    emit q->currentItemChanged(currentItem, model()->at(previous.row()));
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
 }
 
@@ -900,7 +901,7 @@ QListWidgetItem *QListWidget::takeItem(int row)
 
 int QListWidget::count() const
 {
-    return d->model()->rowCount();
+    return d->model()->rows();
 }
 
 /*!
@@ -995,7 +996,7 @@ QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
 {
     QModelIndex topLeft = d->model()->index(0, 0);
     int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount();
+    int hits = d->model()->rows();
     QModelIndexList indexes = d->model()->match(topLeft, role, text,hits, flags);
     QList<QListWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
@@ -1039,7 +1040,7 @@ void QListWidget::ensureItemVisible(const QListWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    QListView::ensureItemVisible(index);
+    QListView::ensureVisible(index);
 }
 
 /*!
@@ -1081,10 +1082,10 @@ void QListWidget::setup()
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(selectionChanged()));
+            this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 
