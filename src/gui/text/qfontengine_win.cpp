@@ -91,11 +91,11 @@ QFontEngine::~QFontEngine()
 }
 
 // ##### get these from windows
-Q26Dot6 QFontEngine::lineThickness() const
+float QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
-    int lw = score / 700;
+    float lw = score / 700.0;
 
     // looks better with thicker line for small pointsizes
     if (lw < 2 && score >= 1050) lw = 2;
@@ -105,9 +105,9 @@ Q26Dot6 QFontEngine::lineThickness() const
 }
 
 // ##### get these from windows
-Q26Dot6 QFontEngine::underlinePosition() const
+float QFontEngine::underlinePosition() const
 {
-    return ((lineThickness() * 2) + 3) / 6;
+    return (lineThickness() * 2 + 3) / 6.0;
 }
 
 
@@ -258,15 +258,15 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
     for(register int i = 0; i < len; i++) {
         glyph = glyphs[i].glyph;
-        glyphs[i].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
-        glyphs[i].advance.y = 0;
+        glyphs[i].advance.setX((glyph < widthCacheSize) ? widthCache[glyph] : 0);
+        glyphs[i].advance.setY(0);
         // font-width cache failed
-        if (!glyphs[i].advance.x) {
+        if (!glyphs[i].advance.x()) {
             SIZE size = {0, 0};
             GetTextExtentPoint32W(hdc, (wchar_t *)str, 1, &size);
-            glyphs[i].advance.x = size.cx - overhang;
+            glyphs[i].advance.setX(size.cx - overhang);
             // if glyph's within cache range, store it for later
-            if (glyph < widthCacheSize && glyphs[i].advance.x > 0 && glyphs[i].advance.x < 0x100)
+            if (glyph < widthCacheSize && glyphs[i].advance.x() > 0 && glyphs[i].advance.x() < 0x100)
                 widthCache[glyph] = size.cx - overhang;
         }
         str++;
@@ -359,30 +359,31 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
             for(int i = 0; i < si.num_glyphs; i++) {
                 QString str(QChar(glyphs->glyph));
                 QByteArray cstr = str.toLocal8Bit();
-                TextOutA(hdc, x + glyphs->offset.x.toInt(), y + glyphs->offset.y.toInt(), cstr.data(), cstr.length());
-                x += glyphs->advance.x.toInt();
+                TextOutA(hdc, x + qRound(glyphs->offset.x()), y + qRound(glyphs->offset.y()),
+                         cstr.data(), cstr.length());
+                x += qRound(glyphs->advance.x());
                 glyphs++;
             }
         } else {
             bool haveOffsets = false;
             int w = 0;
             for(int i = 0; i < si.num_glyphs; i++) {
-                if (glyphs[i].offset.x != 0 || glyphs[i].offset.y != 0) {
+                if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0) {
                     haveOffsets = true;
                     break;
                 }
-                w += glyphs[i].advance.x.toInt();
+                w += qRound(glyphs[i].advance.x());
             }
 
             if (haveOffsets || transform) {
                 for(int i = 0; i < si.num_glyphs; i++) {
                     wchar_t chr = glyphs->glyph;
-                    int xp = x + glyphs->offset.x.toInt();
-                    int yp = y + glyphs->offset.y.toInt();
+                    int xp = x + qRound(glyphs->offset.x());
+                    int yp = y + qRound(glyphs->offset.y());
                     if (transform)
                         state->painter->map(xp, yp, &xp, &yp);
                     ExtTextOutW(hdc, xp, yp, options, 0, &chr, 1, 0);
-                    x += glyphs->advance.x.toInt();
+                    x += qRound(glyphs->advance.x());
                     glyphs++;
                 }
             } else {
@@ -391,7 +392,10 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
                 for (int i = 0; i < si.num_glyphs; ++i)
                     g[i] = glyphs[i].glyph;
                 // fast path
-                ExtTextOutW(hdc, x + glyphs->offset.x.toInt(), y + glyphs->offset.y.toInt(), options, 0, g.data(), si.num_glyphs, 0);
+                ExtTextOutW(hdc,
+                            x + qRound(glyphs->offset.x()),
+                            y + qRound(glyphs->offset.y()),
+                            options, 0, g.data(), si.num_glyphs, 0);
                 x += w;
             }
         }
@@ -400,12 +404,12 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
         for(int i = 0; i < si.num_glyphs; i++) {
             glyphs--;
             wchar_t chr = glyphs->glyph;
-            int xp = x + glyphs->offset.x.toInt();
-            int yp = y + glyphs->offset.y.toInt();
+            int xp = x + qRound(glyphs->offset.x());
+            int yp = y + qRound(glyphs->offset.y());
             if (transform)
                 state->painter->map(xp, yp, &xp, &yp);
             ExtTextOutW(hdc, xp, yp, options, 0, &chr, 1, 0);
-            x += glyphs->advance.x.toInt();
+            x += qRound(glyphs->advance.x());
         }
     }
 
@@ -413,8 +417,8 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
         DeleteObject(SelectObject(hdc, hfont));
 
     if (textFlags & Qt::TextOverline) {
-        int lw = lineThickness().toInt();
-        int yp = y - ascent().toInt() -1;
+        int lw = qRound(lineThickness());
+        int yp = y - qRound(ascent()) -1;
         Rectangle(hdc, xo, yp, x, yp + lw);
 
     }
@@ -433,7 +437,7 @@ glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numG
     int w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
-        w += (--end)->advance.x.toInt();
+        w += qRound((--end)->advance.x());
 
     return glyph_metrics_t(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0);
 }
@@ -474,22 +478,22 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
     return glyph_metrics_t();
 }
 
-Q26Dot6 QFontEngineWin::ascent() const
+float QFontEngineWin::ascent() const
 {
     return tm.w.tmAscent;
 }
 
-Q26Dot6 QFontEngineWin::descent() const
+float QFontEngineWin::descent() const
 {
     return tm.w.tmDescent;
 }
 
-Q26Dot6 QFontEngineWin::leading() const
+float QFontEngineWin::leading() const
 {
     return tm.w.tmExternalLeading;
 }
 
-Q26Dot6 QFontEngineWin::maxCharWidth() const
+float QFontEngineWin::maxCharWidth() const
 {
     return tm.w.tmMaxCharWidth;
 }
@@ -520,7 +524,7 @@ static const ushort char_table[] = {
 static const int char_table_entries = sizeof(char_table)/sizeof(ushort);
 
 
-Q26Dot6 QFontEngineWin::minLeftBearing() const
+float QFontEngineWin::minLeftBearing() const
 {
     if (lbearing == SHRT_MIN)
         minRightBearing(); // calculates both
@@ -528,7 +532,7 @@ Q26Dot6 QFontEngineWin::minLeftBearing() const
     return lbearing;
 }
 
-Q26Dot6 QFontEngineWin::minRightBearing() const
+float QFontEngineWin::minRightBearing() const
 {
 #ifdef Q_OS_TEMP
         return 0;
@@ -700,7 +704,7 @@ bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
     *nglyphs = len;
 
     for (int i = 0; i < len; i++)
-        (glyphs++)->advance.x = _size;
+        (glyphs++)->advance.setX(_size);
 
     return true;
 }
@@ -735,23 +739,23 @@ glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
 
 
 
-Q26Dot6 QFontEngineBox::ascent() const
+float QFontEngineBox::ascent() const
 {
     return _size;
 }
 
-Q26Dot6 QFontEngineBox::descent() const
+float QFontEngineBox::descent() const
 {
     return 0;
 }
 
-Q26Dot6 QFontEngineBox::leading() const
+float QFontEngineBox::leading() const
 {
     int l = qRound(_size * 0.15);
     return (l > 0) ? l : 1;
 }
 
-Q26Dot6 QFontEngineBox::maxCharWidth() const
+float QFontEngineBox::maxCharWidth() const
 {
     return _size;
 }

@@ -383,7 +383,7 @@ int QFontMetrics::width(QChar ch) const
     int nglyphs = 7;
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
 
-    return glyphs[0].advance.x.toInt();
+    return int(glyphs[0].advance.x());
 }
 
 
@@ -394,7 +394,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 
     QTextEngine layout(str,  d);
     layout.itemize(QTextEngine::WidthOnly);
-    int w = layout.width(pos, 1).toInt();
+    int w = int(layout.width(pos, 1));
 
     if ((QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) == 0) {
         QFontEngine *engine = d->engineForScript((QFont::Script) fscript);

@@ -711,7 +711,7 @@ void QTextEngine::shapeText(int item) const
         si.width = 0;
         QGlyphLayout *end = g + si.num_glyphs;
         while (g < end)
-            si.width += (g++)->advance.x;
+            si.width += (g++)->advance.x();
 
     }
     QFontEngine *f = fontEngine(si);
