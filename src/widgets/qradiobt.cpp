@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#41 $
 **
 ** Implementation of QRadioButton class
 **
@@ -11,11 +11,12 @@
 *****************************************************************************/
 
 #include "qradiobt.h"
+#include "qbttngrp.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#41 $")
 
 
 /*----------------------------------------------------------------------------
@@ -64,9 +65,7 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
-    initMetaObject();
-    setToggleButton( TRUE );
-    noHit = FALSE;
+    init();
 }
 
 /*----------------------------------------------------------------------------
@@ -79,10 +78,23 @@ QRadioButton::QRadioButton( const char *text, QWidget *parent,
 			    const char *name )
 	: QButton( parent, name )
 {
-    initMetaObject();
+    init();
     setText( text );
+}
+
+/*----------------------------------------------------------------------------
+  Initializes the radio button.
+ ----------------------------------------------------------------------------*/
+
+void QRadioButton::init()
+{
+    initMetaObject();
     setToggleButton( TRUE );
     noHit = FALSE;
+    if ( parentWidget()->inherits("QButtonGroup") ) {
+	QButtonGroup *bgrp = (QButtonGroup *)parentWidget();
+	bgrp->setExclusive( TRUE );
+    }
 }
 
 
