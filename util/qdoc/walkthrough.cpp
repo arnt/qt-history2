@@ -67,6 +67,28 @@ void Walkthrough::skipuntil( const QString& substr, const Location& docLoc )
     xuntil( substr, docLoc, QString("skipuntil") );
 }
 
+static QString tabless( const QString & in )
+{
+    int i = 0;
+    int col = 0;
+    QString res;
+    QString spaces( "        " );
+    while( i < in.length() ) {
+	if ( in[i] == '\t' ) {
+	    res += spaces.mid( col&7 );
+	    col = (col|7)+1;
+	    i++;
+	} else if ( in[i] == '\n' ) {
+	    res += in[i++];
+	    col = 0;
+	} else {
+	    res += in[i++];
+	    col++;
+	}
+    }
+    return res;
+}
+
 QString Walkthrough::start( bool localLinks, const QString& fileName,
 			    const Resolver *resolver )
 {
@@ -95,7 +117,7 @@ QString Walkthrough::start( bool localLinks, const QString& fileName,
     }
 
     QTextStream t( &f );
-    QString fullText = t.read();
+    QString fullText = tabless( t.read() );
     f.close();
     if ( fullText.isEmpty() ) {
 	warning( 2, "Example file '%s' empty", filePath.latin1() );
@@ -169,7 +191,7 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 	    warning( 2, walkloc,
 		     "Text '%s' does not contain '%s' (see line %d of '%s')",
 		     plainlines.first().simplifyWhiteSpace().latin1(),
-		     subs.latin1(), 
+		     subs.latin1(),
 		     docLoc.lineNum(), docLoc.shortFilePath().latin1() );
 	    shutUp = TRUE;
 	}
