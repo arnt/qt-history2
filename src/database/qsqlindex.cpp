@@ -60,6 +60,17 @@ QSqlIndex::~QSqlIndex()
 }
 
 /*!
+  Clears the index.
+
+*/
+
+void QSqlIndex::clear()
+{
+    flist = "";
+    fieldList.clear();
+}
+
+/*!
   Returns an ordered list of fields used in the index.
 
 */
@@ -76,6 +87,17 @@ QSqlFieldList QSqlIndex::fields() const
 
 void QSqlIndex::append( QSqlField field )
 {
+    for( unsigned int i = 0; i < fieldList.count(); i++ )
+    {
+	if( fieldList.field(i).name() == field.name() ) 
+	    return;
+    }
+    
+    if( !flist.isEmpty() )
+	flist += ", " + field.name();
+    else
+	flist = field.name();
+    
     fieldList.append( field );
 }
 
@@ -99,6 +121,16 @@ void QSqlIndex::setName( const QString& name )
 QString QSqlIndex::name() const
 {
     return nm;
+}
+
+/*!
+  Returns a comma separated list of the fields in the index.
+
+*/
+
+QString QSqlIndex::toString() const
+{
+    return flist;
 }
 
 #endif

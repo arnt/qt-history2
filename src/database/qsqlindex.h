@@ -18,10 +18,14 @@ public:
     QString          tableName() const { return table; }
     QSqlFieldList    fields() const;
 
+    void             clear();
     void             append( QSqlField field );
     void             setName( const QString& name );
     QString          name() const;
+    QString          toString() const;
+    
 private:
+    QString          flist;
     QString          table;
     QSqlFieldList    fieldList;
     QString          nm;

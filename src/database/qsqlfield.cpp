@@ -138,6 +138,15 @@ QSqlFieldList::~QSqlFieldList()
 
 QVariant& QSqlFieldList::operator[]( int i )
 {
+#ifdef CHECK_RANGE
+    static QVariant dbg;
+    
+    if( (unsigned int) i > count() ){
+	qWarning( "QSqlFieldList warning: index out of range" );
+	return dbg;
+    }
+#endif // CHECK_RANGE
+    
     return QValueList<QSqlField>::operator[](i).value();
 }
 
@@ -149,6 +158,15 @@ QVariant& QSqlFieldList::operator[]( int i )
 
 QVariant& QSqlFieldList::operator[]( const QString& name )
 {
+#ifdef CHECK_RANGE
+    static QVariant dbg;
+    
+    if( (unsigned int) position( name ) > count() ){
+	qWarning( "QSqlFieldList warning: index out of range" );
+	return dbg;
+    }
+#endif // CHECK_RANGE
+
     return QValueList<QSqlField>::operator[]( position( name ) ).value();
 }
 
