@@ -28,7 +28,6 @@ public:
     }
     ~Dialog()
     {
-	delete popup;
     }
 
 public slots:
@@ -37,14 +36,8 @@ public slots:
 	Dialog d( this );
 	d.exec();
     }
-    void showPopup()
-    {
-	popup->move( x(), y() );
-	popup->show();
-    }
     
 private:
-    QLabel* popup;
 };
 
 #endif
