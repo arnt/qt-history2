@@ -1004,7 +1004,6 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
-    setRenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
     d->offx = d->offy = 0; // (quickdraw compat!!)
 
     setupCGClip(0); //get handle to drawable
@@ -1033,7 +1032,8 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)d->pdev;
         if(pm->depth() == 1)
-                clearRenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
+            clearRenderHints(QPainter::RenderHints(QPainter::LineAntialiasing
+                                                   | QPainter::TextAntialiasing));
         if(pm->isNull()) {
             qWarning("QCoreGraphicsPaintEngine::begin: Cannot paint null pixmap");
             end();
@@ -1540,23 +1540,8 @@ QPainter::RenderHints QCoreGraphicsPaintEngine::supportedRenderHints() const
     return QPainter::RenderHints(QPainter::LineAntialiasing | QPainter::TextAntialiasing);
 }
 
-QPainter::RenderHints QCoreGraphicsPaintEngine::renderHints() const
+void QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    QPainter::RenderHints hints = 0;
-    if (d->lineAntialiasingEnabled)
-        hints |= QPainter::LineAntialiasing;
-    if (d->textAntialiasingEnabled)
-        hints |= QPainter::TextAntialiasing;
-    return hints;
-}
-
-void QCoreGraphicsPaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
-{
-    if (hint == QPainter::LineAntialiasing) {
-        d->lineAntialiasingEnabled = enable;
-        CGContextSetShouldAntialias(d->hd, enable);
-    } else if (hint == QPainter::TextAntialiasing) {
-        d->textAntialiasingEnabled = enable;
-        CGContextSetShouldSmoothFonts(d->hd, enable);
-    }
+    CGContextSetShouldAntialias(d->hd, hints & QPainter::LineAntialiasing);
+    CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }

@@ -105,6 +105,7 @@ public:
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateXForm(const QWMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
+    void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QPoint &pt1, const QPoint &pt2);
     void drawRect(const QRect &r);
@@ -132,8 +133,6 @@ public:
     static void cleanup();
 
     QPainter::RenderHints supportedRenderHints() const;
-    QPainter::RenderHints renderHints() const;
-    void setRenderHint(QPainter::RenderHint hint, bool enable);
 
 protected:
     void setupCGClip(const QRegion *);

@@ -188,13 +188,13 @@ QPainter::RenderHints QPaintEngine::renderHints() const
     return d->renderhints;
 }
 
-void QPaintEngine::setRenderHints(QPainter::RenderHint hints)
+void QPaintEngine::setRenderHints(QPainter::RenderHints hints)
 {
     d->renderhints |= hints;
     setDirty(DirtyHints);
 }
 
-void QPaintEngine::clearRenderHints(QPainter::RenderHint hints)
+void QPaintEngine::clearRenderHints(QPainter::RenderHints hints)
 {
     d->renderhints &= ~hints;
     setDirty(DirtyHints);

@@ -148,8 +148,12 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
 
     bool textAA = p->renderHints() & QPainter::TextAntialiasing;
     bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
-    if (textAA != lineAA)
-        p->setRenderHint(QPainter::LineAntialiasing, textAA);
+    if (textAA != lineAA) {
+        if (textAA)
+            p->setRenderHints(QPainter::LineAntialiasing);
+        else
+            p->clearRenderHints(QPainter::LineAntialiasing);
+    }
 
     int w = 0;
     uchar task = DRAW;
@@ -177,8 +181,12 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
         if(textFlags & Qt::StrikeOut)
             p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
     }
-    if (textAA != lineAA)
-        p->setRenderHint(QPainter::LineAntialiasing, lineAA);
+    if (textAA != lineAA) {
+        if (textAA)
+            p->clearRenderHints(QPainter::LineAntialiasing);
+        else
+            p->setRenderHints(QPainter::LineAntialiasing);
+    }
 }
 
 glyph_metrics_t
