@@ -204,7 +204,8 @@ if [ "${platform}" = "x11" ]; then
   rm ${QTDIR}/src/moc/Makefile Makefile.inc
   ${QTDIR}/util/scripts/mkconfigs
   ${QTDIR}/util/scripts/makemake
-  (cd ${QTDIR}/src; tmake -t ../tmake/propagate.t qt.pro >Makefile.in)
+  (cd ${QTDIR}/src; tmake -t ../tmake/propagate.t qt.pro |
+	perl -p -e "s{$QTDIR}{\\\$(QTDIR)}" >Makefile.in )
   mv ${QTDIR}/util/scripts/propagate ${QTDIR}
   rm -rf ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
   mkdir ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
