@@ -49,40 +49,4 @@ private:
     bool snenabled;
 };
 
-//#define Q_WIN_EVENT_NOTIFIER
-#ifdef Q_WIN_EVENT_NOTIFIER
-//### for want of a better place
-
-//### for now
-
-class Q_CORE_EXPORT QWinEventNotifier : public QObject
-{
-    Q_OBJECT
-public:
-
-    QWinEventNotifier(QObject *parent = 0);
-    QWinEventNotifier(long hEvent, QObject *parent = 0);
-    ~QWinEventNotifier();
-
-    void setHandle(long hEvent);
-    long handle() const;
-
-    bool isEnabled() const;
-    void setEnabled(bool enable);
-
-signals:
-    void activated(long hEvent);
-
-protected:
-    bool event(QEvent * e);
-
-private:
-    Q_DISABLE_COPY(QWinEventNotifier)
-
-    long handleToEvent;
-    bool enabled;
-};
-
-#endif
-
 #endif // QSOCKETNOTIFIER_H

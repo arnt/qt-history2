@@ -2,9 +2,12 @@
 
 #include "qhash.h"
 #include "qsocketnotifier.h"
+#include "qwineventnotifier_p.h"
 
 #include "qabstracteventdispatcher_p.h"
 #include <private/qthread_p.h>
+
+#define NO_NEW_WIN_DISPATCHING
 
 struct QSockNot {
     QSocketNotifier *obj;
@@ -45,6 +48,12 @@ public:
     QSNDict sn_except;
     int activateSocketNotifiers();
     void setSocketNotifierPending(QSocketNotifier *notifier);
+
+
+    QVector<HANDLE> winEventNotifierHandles;
+    QList<QWinEventNotifier *> winEventNotifierList;
+    int activateEventNotifiers();
+    void activateEventNotifier(QWinEventNotifier * wen);
 };
 
 QEventDispatcherWin32Private::QEventDispatcherWin32Private()
@@ -115,6 +124,27 @@ int QEventDispatcherWin32Private::activateSocketNotifiers()
     }
     return n_act;
 }
+
+
+// will go throw the entire list an activate any that are set
+int QEventDispatcherWin32Private::activateEventNotifiers()
+{
+    int n_act = 0;
+    for (int i=0; i<winEventNotifierList.count(); i++) {
+        if (WaitForSingleObject(winEventNotifierList.at(i)->handle(), 0) == WAIT_OBJECT_0) {
+            activateEventNotifier(winEventNotifierList.at(i));
+            ++n_act;
+        }
+    }
+    return n_act;
+}
+
+void QEventDispatcherWin32Private::activateEventNotifier(QWinEventNotifier * wen)
+{
+    QEvent event(QEvent::SockAct);
+    QCoreApplication::sendEvent(wen, &event);
+}
+
 
 Q_CORE_EXPORT bool winPeekMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
                      UINT wMsgFilterMax, UINT wRemoveMsg)
@@ -266,6 +296,109 @@ QEventDispatcherWin32::~QEventDispatcherWin32()
 {
 }
 
+#ifndef NO_NEW_WIN_DISPATCHING
+bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
+{
+    Q_D(QEventDispatcherWin32);
+
+    MSG msg;
+
+    emit awake();
+
+    QCoreApplication::sendPostedEvents();
+
+    bool shortcut = d->interrupt;
+
+    QThreadData *data = QThreadData::current();
+    bool canWait = (data->postEventList.size() == 0
+                    && !d->interrupt
+                    && (flags & QEventLoop::WaitForMoreEvents));
+
+    if (flags & QEventLoop::ExcludeUserInputEvents) {
+        // purge all userinput messages from eventDispatcher
+        while (winPeekMessage(&msg, 0, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
+            ;
+        while (winPeekMessage(&msg, 0, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
+            ;
+        while (winPeekMessage(&msg, 0, WM_MOUSEWHEEL, WM_MOUSEWHEEL, PM_REMOVE))
+            ;
+        // ### tablet?
+
+        // now that we have eaten all userinput we shouldn't wait for the next one...
+        canWait = false;
+    }
+
+    // activate all full-speed timers until there is a message (timers have low priority)
+    bool message = false;
+    if (d->numZeroTimers) {
+        while (d->numZeroTimers && !(message=winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))) {
+            d->activateZeroTimers();
+        }
+    }
+
+    message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+    if (!message && !canWait) // still no message, and shouldn't block
+        return false;
+
+    // process all messages, unless userinput is blocked, then we process only one
+    if (flags & QEventLoop::ExcludeUserInputEvents) {
+        winProcessEvent(&msg);
+        shortcut = d->interrupt;
+    } else {
+        // ### Don't send two timers in a row, since it could potentially block
+        // other events from being fired.
+        bool lastWasTimer = false;
+        while (message && !shortcut && !lastWasTimer) {
+            winProcessEvent(&msg);
+            if (msg.message == WM_TIMER)
+                lastWasTimer = true;
+            message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
+            shortcut = d->interrupt;
+        }
+
+        if (lastWasTimer)
+            winProcessEvent(&msg);
+    }
+
+    // don't wait if there are pending socket notifiers
+    canWait = d->sn_pending_list.isEmpty() && canWait;
+
+    shortcut = d->interrupt;
+
+    // wait for next message if allowed to block
+    if (canWait && !shortcut) {
+        emit aboutToBlock();
+        
+        //### The message sould be empty at this point. This will not return untill
+        // a new message comes. This point is not reached so offten so maybe need 
+        // to do a zero timeout version out side of this "canWait" block 
+        
+        // has enough reserved space so this is cheap
+        d->winEventNotifierHandles.resize(d->winEventNotifierList.count());
+        for (int i=0; i<d->winEventNotifierList.count(); i++)
+            d->winEventNotifierHandles[i] = d->winEventNotifierList.at(i)->handle();
+        
+        DWORD ret = MsgWaitForMultipleObjectsEx(d->winEventNotifierHandles.count(), (LPHANDLE)d->winEventNotifierHandles.data(),
+                                                INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
+        if (ret - WAIT_OBJECT_0 >= 0 && ret - WAIT_OBJECT_0 < d->winEventNotifierHandles.count()) {
+            d->activateEventNotifier(d->winEventNotifierList.at(ret - WAIT_OBJECT_0));
+        }
+    }
+
+    if (!(flags & QEventLoop::ExcludeSocketNotifiers))
+        d->activateSocketNotifiers();
+
+    QCoreApplication::sendPostedEvents();
+
+    if (d->interrupt) {
+        d->interrupt = false;
+        return false;
+    }
+    return true;
+}
+
+#else
+
 bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherWin32);
@@ -355,6 +488,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     }
     return true;
 }
+#endif
 
 bool QEventDispatcherWin32::hasPendingEvents()
 {
@@ -548,6 +682,30 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
     return true;
 }
 
+bool QEventDispatcherWin32::registerEventNotifier(QWinEventNotifier *notifier)
+{
+    Q_D(QEventDispatcherWin32);
+
+    if (d->winEventNotifierList.contains(notifier))
+        return true;
+
+    if (d->winEventNotifierList.count() >= MAXIMUM_WAIT_OBJECTS - 2) {
+        qWarning("QWinEventNotifier: Can not have more then %d enabled at one time", MAXIMUM_WAIT_OBJECTS - 2);
+        return false;
+    }
+    d->winEventNotifierList.append(notifier);
+    return true;
+}
+
+void QEventDispatcherWin32::unregisterEventNotifier(QWinEventNotifier *notifier)
+{
+    Q_D(QEventDispatcherWin32);
+
+    int i = d->winEventNotifierList.indexOf(notifier);
+    if (i != -1)
+        d->winEventNotifierList.takeAt(i);
+}
+
 void QEventDispatcherWin32::wakeUp()
 {
     Q_D(QEventDispatcherWin32);
@@ -613,280 +771,3 @@ bool QEventDispatcherWin32::winEventFilter(void *message, long *result)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-
-
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
-#include "qeventdispatcher_p.h"
-#include "qeventdispatcher.h"
-#include "qcoreapplication.h"
-#include "qhash.h"
-#include "qsocketnotifier.h"
-#include "qt_windows.h"
-#include <private/qthread_p.h>
-#define d d_func()
-#define q q_func()
-
-
-
-
-extern Q_CORE_EXPORT int         numZeroTimers        = 0;                // number of full-speed timers
-
-
-
-// Activate a timer, used by both event-loop based and simple timers.
-
-
-//
-// Internal data structure for timers
-//
-
-//
-// Timer activation (called from the event loop when WM_TIMER arrives)
-//
-
-/*****************************************************************************
-  Socket notifier (type: 0=read, 1=write, 2=exception)
-
-  The QSocketNotifier class (qsocketnotifier.h) provides installable callbacks
-  for select() through the internal function qt_set_socket_handler().
- *****************************************************************************/
-
-
-
-
-/*****************************************************************************
-  QEventDispatcherWin32 Implementation
- *****************************************************************************/
-
-void QEventDispatcherWin32::init()
-{
-    d->threadId = GetCurrentThreadId();
-    d->sn_win = 0;
-
-#ifdef Q_WIN_EVENT_NOTIFIER
-    d->wen_handle_list.reserve(MAXIMUM_WAIT_OBJECTS - 1);
-#endif
-}
-
-void QEventDispatcherWin32::cleanup()
-{
-    if(!d->timerVec.isEmpty()) { //cleanup timers
-        register TimerInfo *t;
-        for (int i=0; i<d->timerVec.size(); i++) {                // kill all pending timers
-            t = d->timerVec.at(i);
-            if (t && !t->zero)
-                KillTimer(0, t->id);
-            delete t;
-        }
-
-        if (qt_win_use_simple_timers) {
-            // Dangerous to leave WM_TIMER events in the queue if they have our
-            // timerproc (eg. Qt-based DLL plugins may be unloaded)
-            MSG msg;
-            while (winPeekMessage(&msg, (HWND)-1, WM_TIMER, WM_TIMER, PM_REMOVE))
-                continue;
-        }
-    }
-
-    if (d->sn_win)
-        DestroyWindow(d->sn_win);
-    d->sn_win = 0;
-
-    QSNDict *sn_vec[3] = { &d->sn_read, &d->sn_write, &d->sn_except };
-    for (int i=0; i<3; i++) {
-        QSNDict *snDict= sn_vec[i];
-        for(QSNDict::Iterator it = snDict->begin(); it != snDict->end(); ++it)
-            delete (*it);
-    }
-}
-
-
-bool QEventDispatcherWin32::hasPendingEvents() const
-{
-}
-
-
-
-#ifdef Q_WIN_EVENT_NOTIFIER
-
-bool QEventDispatcherWin32::processEvents(ProcessEventsFlags flags)
-{
-    MSG         msg;
-
-    emit awake();
-
-    QCoreApplication::sendPostedEvents();
-
-    bool shortcut = d->exitloop || d->quitnow;
-
-    QThreadData *data = QThreadData::current();
-    bool canWait = (data->postEventList.size() == 0
-                    && !d->exitloop
-                    && !d->quitnow
-                    && (flags & WaitForMore));
-
-    if (flags & ExcludeUserInput) {
-        // purge all userinput messages from eventDispatcher
-        while (winPeekMessage(&msg, 0, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE))
-            ;
-        while (winPeekMessage(&msg, 0, WM_MOUSEFIRST, WM_MOUSELAST, PM_REMOVE))
-            ;
-        while (winPeekMessage(&msg, 0, WM_MOUSEWHEEL, WM_MOUSEWHEEL, PM_REMOVE))
-            ;
-        // ### tablet?
-
-        // now that we have eaten all userinput we shouldn't wait for the next one...
-        canWait = false;
-    }
-
-    // activate all full-speed timers until there is a message (timers have low priority)
-    bool message = false;
-    if (numZeroTimers) {
-        while (numZeroTimers && !(message=winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))) {
-            d->activateZeroTimers();
-        }
-    }
-
-    message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
-    if (!message && !canWait) // still no message, and shouldn't block
-        return false;
-
-    // process all messages, unless userinput is blocked, then we process only one
-    if (flags & ExcludeUserInput) {
-        winProcessEvent(&msg);
-        shortcut = d->exitloop || d->quitnow;
-    } else {
-        // ### Don't send two timers in a row, since it could potentially block
-        // other events from being fired.
-        bool lastWasTimer = false;
-        while (message && !shortcut && !lastWasTimer) {
-            winProcessEvent(&msg);
-            if (msg.message == WM_TIMER)
-                lastWasTimer = true;
-            message = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
-            shortcut = d->exitloop || d->quitnow;
-        }
-
-        if (lastWasTimer)
-            winProcessEvent(&msg);
-    }
-
-    // don't wait if there are pending socket notifiers
-    canWait = d->sn_pending_list.isEmpty() && canWait;
-
-    shortcut = d->exitloop || d->quitnow;
-
-    // wait for next message if allowed to block
-    if (canWait && !shortcut) {
-        emit aboutToBlock();
-        
-        //### The message sould be empty at this point. This will not return untill
-        // a new message comes. This point is not reached so offten so maybe need 
-        // to do a zero timeout version out side of this "canWait" block 
-        
-        // has enough reserved space so this is cheap
-        d->wen_handle_list.resize(d->wen_list.count());
-        for (int i=0; i<d->wen_list.count(); i++)
-            d->wen_handle_list[i] = d->wen_list.at(i)->handle();
-        
-        DWORD ret = MsgWaitForMultipleObjectsEx(d->wen_handle_list.count(), (LPHANDLE)d->wen_handle_list.data(), INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
-
-        if (ret == WAIT_OBJECT_0 + d->wen_handle_list.count() && winPeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-            //### instead of taking this message we should jump out and let the code above
-            // take care of the message incase there are some ExcludeUserInput flags
-            // or else remove input events from the dwWakeMask.
-            if (msg.message == WM_QUIT) {
-                exit(0);
-                return false;
-            }
-            winProcessEvent(&msg);
-        } else if (ret - WAIT_OBJECT_0 >= 0 && ret - WAIT_OBJECT_0 < d->wen_handle_list.count()) {
-            activateWinEventNotifier(d->wen_list.at(ret - WAIT_OBJECT_0));
-        }
-    }
-
-    if (!(flags & ExcludeSocketNotifiers))
-        activateSocketNotifiers();
-
-    QCoreApplication::sendPostedEvents();
-
-    return true;
-}
-#endif
-
-
-
-#ifdef Q_WIN_EVENT_NOTIFIER
-
-void QEventDispatcherWin32::registerWinEventNotifier(QWinEventNotifier * notifier)
-{
-    //### check that it is not in the list already
-    if (d->wen_list.contains(notifier))
-        qWarning("QWinEventNotifier: All ready registered");
-
-    if (d->wen_list.count() >= MAXIMUM_WAIT_OBJECTS - 1)
-        qWarning("QWinEventNotifier: Can not have more then %d enabled at one time", MAXIMUM_WAIT_OBJECTS - 1);
-    
-    d->wen_list.append(notifier);
-}
-
-void QEventDispatcherWin32::unregisterWinEventNotifier(QWinEventNotifier * notifier)
-{
-    int i = d->wen_list.indexOf(notifier);
-    if (i != -1)
-        d->wen_list.takeAt(i);
-}
-
-// will go throw the entire list an activate any that are set
-int QEventDispatcherWin32::activateWinEventNotifiers()
-{
-    int n_act = 0;
-    for (int i=0; i<d->wen_list.count(); i++) {
-        QEvent event(QEvent::SockAct); // if this was out of the for loop it would need to get reset each time
-        if (WaitForSingleObject((HANDLE)d->wen_list.at(i)->handle(), 0) == WAIT_OBJECT_0) {
-            QCoreApplication::sendEvent(d->wen_list.at(i), &event);
-            ++n_act;
-        }
-    }
-    return n_act;
-}
-
-void QEventDispatcherWin32::activateWinEventNotifier(QWinEventNotifier * wen)
-{
-    QEvent event(QEvent::SockAct);
-    QCoreApplication::sendEvent(wen, &event);
-}
-
-#endif
-
-#endif

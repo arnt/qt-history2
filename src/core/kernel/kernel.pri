@@ -43,9 +43,11 @@ SOURCES += \
 win32 {
 	SOURCES += \
 		kernel/qeventdispatcher_win.cpp \
-		kernel/qcoreapplication_win.cpp
+		kernel/qcoreapplication_win.cpp \
+		kernel/qwineventnotifier_p.cpp
 	HEADERS += \
-		kernel/qeventdispatcher_win.h
+		kernel/qeventdispatcher_win.h \
+		kernel/qwineventnotifier_p.h
 }
 
 mac {

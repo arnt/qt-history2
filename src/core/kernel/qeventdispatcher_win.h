@@ -3,6 +3,7 @@
 
 #include "qabstracteventdispatcher.h"
 
+class QWinEventNotifier;
 class QEventDispatcherWin32Private;
 
 class Q_CORE_EXPORT QEventDispatcherWin32 : public QAbstractEventDispatcher
@@ -23,6 +24,9 @@ public:
     int registerTimer(int interval, QObject *object);
     bool unregisterTimer(int timerId);
     bool unregisterTimers(QObject *object);
+
+    bool registerEventNotifier(QWinEventNotifier *notifier);
+    void unregisterEventNotifier(QWinEventNotifier *notifier);
 
     void wakeUp();
     void interrupt();
