@@ -5,6 +5,8 @@
 #include <qmap.h>
 #include <qdir.h>
 
+#include <qt_windows.h>
+
 static const int ntypes = 32;
 static const char* const type_map[ntypes][2] =
 {
@@ -400,17 +402,52 @@ QString parseFile( QStringList &tokens, QStringList::Iterator &t,
     return error;
 }
 
+
+static bool attachTypeLibrary( const QString &applicationName, char *resourceName, const QByteArray &data, QString *errorMessage )
+{
+    HANDLE hExe = BeginUpdateResourceA( applicationName.latin1(), FALSE );
+    if ( hExe == 0 ) {
+	if ( errorMessage )
+	    *errorMessage = QString("Could not load the executable %1.").arg(applicationName);
+	return FALSE;
+    }
+    if ( !UpdateResourceA(hExe,(char*)"TYPELIB",resourceName,0,data.data(),data.count()) ) {
+	EndUpdateResource( hExe, TRUE );
+	if ( errorMessage )
+	    *errorMessage = QString("Could not update the executable %1.").arg(applicationName);
+	return FALSE;
+    }
+    if ( !EndUpdateResource(hExe,FALSE) ) {
+	if ( errorMessage )
+	    *errorMessage = QString("Could not update the executable %1.").arg(applicationName);
+	return FALSE;
+    }
+
+    if ( errorMessage )
+	*errorMessage = QString("Updated the executable %1.").arg(applicationName);
+    return TRUE;
+}
+
 int main( int argc, char **argv )
 {
     QStringList input;
     QString output;
     QString resource;
     QString error;
+    QString tlbfile;
     int i = 1;
     while ( i < argc ) {
 	QCString p = QCString(argv[i]).lower();
 
-	if ( p == "/o" || p == "-o" ) {
+	if ( p == "/tlb" || p == "-tlb" ) {
+	    ++i;
+	    if ( i > argc ) {
+		error = "Missing name for type library file!";
+		break;
+	    }
+	    tlbfile = argv[i];
+	    tlbfile = tlbfile.stripWhiteSpace();
+	} else if ( p == "/o" || p == "-o" ) {
 	    if ( !!output ) {
 		error = "Too many output files specified!";
 		break;
@@ -454,8 +491,23 @@ int main( int argc, char **argv )
 		"Usage:\tidc [options] <files>\n"
 		      "\t-o file\t\tWrite output to file rather than stdout\n"
 		      "\t-r[c] file\tWrite resource file\n"
-		      "\t-v\t\tDisplay version of idc", i, error.latin1() );
+		      "\t-v\t\tDisplay version of idc"
+		      "\t-tlb file\t\tLink file into input file\n", i, error.latin1() );
 	return 1;
+    }
+    if ( !!tlbfile ) {
+	if ( input.count() > 1 ) {
+	    qFatal( "Too many input files for type library!" );
+	    return 1;
+	}
+	QFile file( tlbfile );
+	if ( !file.open( IO_ReadOnly ) )
+	    qFatal( "Couldn't open %s for read", tlbfile.latin1() );
+	QByteArray data = file.readAll();
+	QString error;
+	bool ok = attachTypeLibrary( input[0], MAKEINTRESOURCE(1), data, &error );
+	qDebug( error );
+	return ok ? 0 : -1;
     }
 
     QString filebase;

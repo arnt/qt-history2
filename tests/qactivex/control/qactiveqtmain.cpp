@@ -23,11 +23,16 @@
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
 **
-**********************************************************************/#include <qmetaobject.h>
+**********************************************************************/
 
+#include <qmetaobject.h>
 #include <qsettings.h>
 #include <qmap.h>
 #include <qapplication.h>
+#include <qfile.h>
+#include <qregexp.h>
+#include <private/qucom_p.h>
+#include <qdir.h>
 
 #include <qt_windows.h>
 
@@ -39,8 +44,13 @@
 
 #include "qactiveqtbase.h"
 
+#ifdef DEBUG
+const DWORD dwTimeOut = 1000; // time for EXE to be idle before shutting down
+const DWORD dwPause = 500; // time to wait for threads to finish up
+#else
 const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
 const DWORD dwPause = 1000; // time to wait for threads to finish up
+#endif
 
 // Passed to CreateThread to monitor the shutdown event
 static DWORD WINAPI MonitorProc(void* pv)
@@ -297,17 +307,320 @@ static HRESULT WINAPI UpdateRegistry(BOOL bRegister)
     return S_OK;
 }
 
-static int DumpIDL()
+#define SUPERCLASS FALSE
+
+static const int ntypes = 32;
+static const char* const type_map[ntypes][2] =
 {
-#if QT_VERSION < 310
-    return FALSE;
-#else
-    QStringList keys = _Module.factory()->featureList();
-    for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	QMetaObject *mo = QMetaObject::metaObject();
+    { "int",		"int" },
+    { "uint",		"int" },
+    { "bool",		"BOOL" },
+    { "QString",	"BSTR" },
+    { "double",		"double" },
+    { "QCString",	"BSTR" },
+    { "QColor",		"OLE_COLOR" },
+    { "QDate",		"DATE" },
+    { "QTime",		"DATE" },
+    { "QDateTime",	"DATE" },
+    { "QMap",		0 },
+    { "QValueList",	0 },
+    { "QStringList",	0 },
+    { "QFont",		0 },
+    { "QPixmap",	0 },
+    { "QBrush",		0 },
+    { "QRect",		0 },
+    { "QSize",		0 },
+    { "QPalette",	0 },
+    { "QColorGroup",	0 },
+    { "QIconSet",	0 },
+    { "QPoint",		0 },
+    { "QImage",		0 },
+    { "QPointArray",	0 },
+    { "QRegion",	0 },
+    { "QBitmap",	0 },
+    { "QCursor",	0 },
+    { "QSizePolicy",	0 },
+    { "QByteArray",	0 },
+    { "QBitArray",	0 },
+    { "QKeySequence",	0 }
+};
+
+static QString convertTypes( const QString &qtype, bool *ok )
+{
+    *ok = FALSE;
+    for ( int i = 0; i < ntypes; i++ ) {
+	if ( qtype == type_map[i][0] && type_map[i][1] ) {
+	    *ok = TRUE;
+	    return type_map[i][1];	    
+	}
     }
-    return TRUE;
+    return qtype;
+}
+
+static const char* const keyword_map[][2] =
+{
+    { "default",	"defaulted" },
+    { 0,		0	    }
+};
+
+static QString replaceKeyword( const QString &name )
+{
+    int i = 0;
+    while ( keyword_map[i][0] ) {
+	if ( name == keyword_map[i][0] && keyword_map[i][1] )
+	    return keyword_map[i][1];
+	++i;
+    }
+    return name;
+}
+
+static QMap<QString, int> *mapping = 0;
+
+static QString renameOverloads( const QString &name )
+{
+    QString newName = name;
+
+    if ( !mapping )
+	mapping = new QMap<QString, int>();
+
+    int n = (*mapping)[name];
+    if ( n ) {
+	int n = (*mapping)[name];
+	newName = name + "_" + QString::number(n);
+	(*mapping)[name] = n+1;
+    } else {
+	(*mapping)[name] = 1;
+    }
+
+    return newName;
+}
+
+#define STRIPCB(x) x = x.mid( 1, x.length()-2 )
+
+static int DumpIDL( const QString &outfile )
+{
+    QTextStream out;
+    QString outpath = outfile.left( outfile.findRev( "\\" ) );
+    QDir dir;
+    dir.mkdir( outpath, FALSE );
+    QFile file( outfile );
+    if ( !file.open( IO_WriteOnly ) )
+	qFatal( "Couldn't open %s for writing", outfile.latin1() );
+    out.setDevice( &file );
+
+    char modulefile[256];
+    GetModuleFileNameA( 0, modulefile, 255 );
+    QString filebase = modulefile;
+    filebase = filebase.left( filebase.findRev( "." ) );
+    
+    out << "/****************************************************************************" << endl;
+    out << "** Interface definition generated from '" << modulefile << "'" << endl;
+    out << "**" << endl;
+    out << "** Created:  " << QDateTime::currentDateTime().toString() << endl;
+    out << "**" << endl;
+    out << "** WARNING! All changes made in this file will be lost!" << endl;
+    out << "****************************************************************************/" << endl << endl;
+
+
+    out << "import \"oaidl.idl\";" << endl;
+    out << "import \"ocidl.idl\";" << endl;
+    out << "#include \"olectl.h\"" << endl << endl << endl;
+
+#if QT_VERSION < 310
+    // dummy application to create widgets
+    int argc;
+    QApplication app( argc, 0 );
 #endif
+
+    QString appID = _Module.factory()->appID().toString().upper();
+    STRIPCB(appID);
+    QString typeLibID = _Module.factory()->typeLibID().toString().upper();
+    STRIPCB(typeLibID);
+    QString typelib = filebase.right( filebase.length() - filebase.findRev( "\\" )-1 );
+
+    QStringList keys = _Module.factory()->featureList();
+    QStringList::Iterator key;
+    for ( key = keys.begin(); key != keys.end(); ++key ) {
+	delete mapping;
+	mapping = 0;
+
+	QString className = *key;
+#if QT_VERSION < 310
+	QWidget *w = _Module.factory()->create( className );
+	QMetaObject *mo = w ? w->metaObject() : 0;
+	delete w;
+#else
+	QMetaObject *mo = QMetaObject::metaObject( className );
+#endif
+	if ( !mo )
+	    return -1;
+
+	QString classID = _Module.factory()->classID( className ).toString().upper();
+	STRIPCB(classID);
+	QString interfaceID = _Module.factory()->interfaceID( className ).toString().upper();
+	STRIPCB(interfaceID);
+	QString eventsID = _Module.factory()->eventsID( className ).toString().upper();
+	STRIPCB(eventsID);
+	int id = 1;
+	int i;
+
+	out << "\t[" << endl;
+	out << "\t\tobject," << endl;
+	out << "\t\tuuid(" << interfaceID << ")," << endl;
+	out << "\t\tdual," << endl;
+	out << "\t\thelpstring(\"" << className << " Interface\")," << endl;
+	out << "\t\tpointer_default(unique)" << endl;
+	out << "\t]" << endl;
+	out << "\tinterface I" << className << " : IDispatch" << endl;
+	out << "\t{" << endl;
+
+	for ( i = 0; i < mo->numSlots( SUPERCLASS ); ++i ) {
+	    const QMetaData *slotdata = mo->slot( i, SUPERCLASS );
+	    if ( !slotdata || slotdata->access != QMetaData::Public )
+		continue;
+
+	    bool ok = TRUE;
+	    QString slotName = renameOverloads( replaceKeyword( slotdata->method->name ) );
+	    QString slot = slotName ;
+	    slot += "(";
+	    for ( int p = 0; p < slotdata->method->count && ok; ++p ) {
+		slot += convertTypes( slotdata->method->parameters[p].type->desc(), &ok );
+		if ( p+1 < slotdata->method->count )
+		    slot += ", ";
+	    }
+	    slot += ")";
+	    
+	    if ( !ok )
+		out << "\t/****** Slot parameter uses unsupported datatype" << endl;
+
+	    out << "\t\t[id(" << id << "), helpstring(\"method " << slotName << "\")] ";
+	    out << "HRESULT " << slot << ";" << endl;
+	    
+	    if ( !ok )
+		out << "\t******/" << endl;
+	    ++id;
+	}
+	for ( i = 0; i < mo->numProperties( SUPERCLASS ); ++i ) {
+	    const QMetaProperty *property = mo->property( i, SUPERCLASS );
+	    if ( !property || property->testFlags( QMetaProperty::Override ) )
+		continue;
+
+	    bool read = TRUE;
+	    bool write = property->writable();
+	    bool designable = TRUE;
+	    bool scriptable = TRUE;
+	    bool ok;
+	    QString type = convertTypes( property->type(), &ok );
+	    QString name = replaceKeyword( property->name() );
+
+	    if ( !ok )
+		out << "\t/****** Property is of unsupported datatype" << endl;
+
+	    if ( read ) {
+		out << "\t\t[propget, id(" << id << "), helpstring(\"property " << name << "\")";
+		if ( scriptable )
+		    out << ", bindable";
+		if ( !designable )
+		    out << ", nonbrowsable";
+		out << ", requestedit] HRESULT " << name << "([out, retval] " << type << " *pVal);" << endl;
+	    }
+	    if ( write ) {
+		out << "\t\t[propput, id(" << id << "), helpstring(\"property " << name << "\")";
+		if ( scriptable )
+		    out << ", bindable";
+		if ( !designable )
+		    out << ", nonbrowsable";
+		out << ", requestedit] HRESULT " << name << "([in] " << type << " newVal);" << endl;
+	    }
+
+	    if ( !ok )
+		out << "\t******/" << endl;
+	    ++id;
+	}
+	out << "\t};" << endl << endl;
+    }
+
+    out << "[" << endl;
+    out << "\tuuid(" << typeLibID << ")," << endl;
+    out << "\tversion(1.0)," << endl;
+    out << "\thelpstring(\"" << typelib << " 1.0 Type Library\")" << endl;
+    out << "]" << endl;
+    out << "library " << typelib << "Lib" << endl;
+    out << "{" << endl;
+    out << "\timportlib(\"stdole32.tlb\");" << endl;
+    out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
+
+    for ( key = keys.begin(); key != keys.end(); ++key ) {
+	delete mapping;
+	mapping = 0;
+
+	QString className = *key;
+#if QT_VERSION < 310
+	QWidget *w = _Module.factory()->create( className );
+	QMetaObject *mo = w ? w->metaObject() : 0;
+	delete w;
+#else
+	QMetaObject *mo = QMetaObject::metaObject( className );
+#endif
+	if ( !mo )
+	    return -1;
+
+	QString classID = _Module.factory()->classID( className ).toString().upper();
+	STRIPCB(classID);
+	QString interfaceID = _Module.factory()->interfaceID( className ).toString().upper();
+	STRIPCB(interfaceID);
+	QString eventsID = _Module.factory()->eventsID( className ).toString().upper();
+	STRIPCB(eventsID);
+
+	out << "\t[" << endl;
+	out << "\t\tuuid(" << eventsID << ")," << endl;
+	out << "\t\thelpstring(\"" << className << " Events Interface\")" << endl;
+	out << "\t]" << endl;
+	out << "\tdispinterface I" << className << "Events" << endl;
+	out << "\t{" << endl;
+	out << "\t\tproperties:" << endl;
+	out << "\t\tmethods:" << endl;
+	int id = 1;
+	for ( int i = 0; i < mo->numSignals( SUPERCLASS ); ++i ) {
+	    const QMetaData *signaldata = mo->signal( i, SUPERCLASS );
+	    if ( !signaldata )
+		continue;
+
+	    bool ok = TRUE;
+	    QString signal = renameOverloads( replaceKeyword( signaldata->method->name ) );
+	    signal += "(";
+	    for ( int p = 0; p < signaldata->method->count && ok; ++p ) {
+		signal += convertTypes( signaldata->method->parameters[p].type->desc(), &ok );
+		if ( p+1 < signaldata->method->count )
+		    signal += ", ";
+	    }
+	    signal += ")";
+
+	    if ( !ok )
+		out << "\t/****** Signal parameter uses unsupported datatype" << endl;
+
+	    out << "\t\t[id(" << id << ")] void " << signal << ";" << endl;
+
+	    if ( !ok )
+		out << "\t******/" << endl;
+	    ++id;
+	}
+	out << "\t};" << endl << endl;
+	
+	out << "\t[" << endl;
+	out << "\t\tuuid(" << classID << ")," << endl;
+	out << "\t\thelpstring(\"" << className << " Class\")" << endl;
+	out << "\t]" << endl;
+	out << "\tcoclass " << className << endl;
+	out << "\t{" << endl;
+	out << "\t\t[default] interface I" << className << ";" << endl;
+	out << "\t\t[default, source] dispinterface I" << className << "Events;" << endl;
+	out << "\t};" << endl;
+    }
+
+    out << "};" << endl;
+
+    return 0;
 }
 
 QInterfacePtr<QActiveQtFactoryInterface> CExeModule::_factory = 0;
@@ -352,7 +665,12 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
             bRun = FALSE;
             break;
 	} else if ( cmd == "-dumpidl" || cmd == "/dumpidl" ) {
-	    nRet = DumpIDL();
+	    ++it;
+	    if ( it != cmds.end() ) {
+		nRet = DumpIDL( *it );
+	    } else {
+		qWarning( "Wrong commandline syntax: <app> -dumpidl <idl file>" );
+	    }
 	    bRun = FALSE;
 	    break;
 	}

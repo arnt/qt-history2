@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of the QComBase and QComObject classes
+** Implementation of the QAxBase class
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -25,7 +25,8 @@
 **
 **********************************************************************/
 
-#include "qcomobject.h"
+
+#include "qaxobject.h"
 
 #include <quuid.h>
 #include <qdict.h>
@@ -72,11 +73,11 @@ static QMetaObject *tempMetaObj = 0;
 
 #include "../shared/types.h"
 
-static QMetaObjectCleanUp cleanUp_QComBase;
+static QMetaObjectCleanUp cleanUp_QAxBase;
 
 /*
     \internal
-    \class QAxEventSink qcomobject.cpp
+    \class QAxEventSink qaxobject.cpp
 
     \brief The QAxEventSink class implements the event sink for all
 	   IConnectionPoints implemented in the COM object.
@@ -86,7 +87,7 @@ class QAxEventSink : public IDispatch,
 		     public IPropertyNotifySink
 {
 public:
-    QAxEventSink( QComBase *com ) : combase( com ), ref( 1 ) {}
+    QAxEventSink( QAxBase *com ) : combase( com ), ref( 1 ) {}
     virtual ~QAxEventSink() {}
 
     // add a connection
@@ -197,7 +198,7 @@ public:
 
 	// emit the signal "as is"
 	int index = meta->findSignal( "signal(const QString&,int,void*)" );
-	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
+	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
 	    QUObject o[4];
 	    static_QUType_QString.set(o+1,signame);
 	    static_QUType_int.set(o+2,pDispParams->cArgs);
@@ -210,7 +211,7 @@ public:
 
 	// get the signal information from the metaobject
 	index = meta->findSignal( signame );
-	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
+	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
 	    const QMetaData *signal = meta->signal( index - meta->signalOffset() );
 	    if ( !signal )
 		return DISP_E_MEMBERNOTFOUND;
@@ -303,7 +304,7 @@ public:
 
 	// emit the generic signal
 	int index = meta->findSignal( "propertyChanged(const QString&)" );
-	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
+	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
 	    QUObject o[2];
 	    static_QUType_QString.set(o+1,propname);
 	    combase->qt_emit( index, o );
@@ -315,7 +316,7 @@ public:
 	    return S_OK;
 	// get the signal information from the metaobject
 	index = meta->findSignal( signame );
-	if ( index != -1 && ((QComObject*)qobject)->receivers( index ) ) {
+	if ( index != -1 && ((QAxObject*)qobject)->receivers( index ) ) {
 	    const QMetaData *signal = meta->signal( index - meta->signalOffset() );
 	    if ( !signal || signal->method->count != 1 )
 		return S_OK;
@@ -366,22 +367,22 @@ private:
     QMap<DISPID, QString> propsigs;
     QMap<DISPID, QString> props;
 
-    QComBase *combase;
+    QAxBase *combase;
     long ref;
 };
 
 
 
 /*!
-    \class QComBase qcomobject.h
+    \class QAxBase qaxbase.h
 
-    \brief The QComBase class is an abstract class that provides an API to initalize and access a COM object.
+    \brief The QAxBase class is an abstract class that provides an API to initalize and access a COM object.
 
     \module QAxWidget
     \extension ActiveQt
 
-    QComBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
-    QComObject and QAxWidget. This class however provides the API to access the COM object directly through 
+    QAxBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
+    QAxObject and QAxWidget. This class however provides the API to access the COM object directly through 
     its IUnknown implementation. If the COM object implements the IDispatch interface, the properties and
     methods of that object become available as Qt properties and slots.
 
@@ -412,7 +413,7 @@ private:
     connect( webBrowser, SIGNAL(TitleChanged(const QString&)), this, SLOT(setCaption(const QString&)) );
     \endcode
 
-    QComBase transparently converts between Qt data type and the equivalent COM data types. Some COM types,
+    QAxBase transparently converts between Qt data type and the equivalent COM data types. Some COM types,
     for example the VARIANT type VT_CY, have no equivalent Qt data structure.
 
     Supported OLE datatypes are
@@ -460,16 +461,16 @@ private:
 */
 
 /*! 
-    \enum QComBase::PropertyBag
+    \enum QAxBase::PropertyBag
 
     A QMap<QString,QVariant> that can store name - value pairs of properties.
 */
 
 /*!
-    Creates a QComBase object that wraps the COM object \a iface. If \a iface is null (the default),
+    Creates a QAxBase object that wraps the COM object \a iface. If \a iface is null (the default),
     use setControl() to instantiate a COM object.
 */
-QComBase::QComBase( IUnknown *iface )
+QAxBase::QAxBase( IUnknown *iface )
 : ptr( iface ), eventSink( 0 ), metaobj( 0 ), propWritable( 0 )
 {
     if ( ptr )
@@ -477,11 +478,11 @@ QComBase::QComBase( IUnknown *iface )
 }
 
 /*!
-    Shuts down the COM object and destroys the QComBase object.
+    Shuts down the COM object and destroys the QAxBase object.
 
     \sa clear()
 */
-QComBase::~QComBase()
+QAxBase::~QAxBase()
 {
     clear();
 
@@ -490,8 +491,8 @@ QComBase::~QComBase()
 }
 
 /*!
-    \property QComBase::control
-    \brief the name of the COM object wrapped by this QComBase object.
+    \property QAxBase::control
+    \brief the name of the COM object wrapped by this QAxBase object.
 
     Setting this property initilializes the COM object. Any COM object previously set is shut down.
 
@@ -510,7 +511,7 @@ QComBase::~QComBase()
     
     The read function of the control always returns the UUID of the control.
 */
-bool QComBase::setControl( const QString &c )
+bool QAxBase::setControl( const QString &c )
 {
     if ( c == ctrl )
 	return !ctrl.isEmpty();
@@ -541,7 +542,7 @@ bool QComBase::setControl( const QString &c )
     initialize( &ptr );
     if ( isNull() ) {
 #ifndef QT_NO_DEBUG
-	qWarning( "QComBase::setControl: requested control %s could not be instantiated.", c.latin1() );
+	qWarning( "QAxBase::setControl: requested control %s could not be instantiated.", c.latin1() );
 #endif
 	clear();
 	return FALSE;
@@ -549,7 +550,7 @@ bool QComBase::setControl( const QString &c )
     return TRUE;
 }
 
-QString QComBase::control() const
+QString QAxBase::control() const
 {
     return ctrl;
 }
@@ -561,7 +562,7 @@ QString QComBase::control() const
     the destructor to call clear(), and call this implementation at the
     end of your clear() function.
 */
-void QComBase::clear()
+void QAxBase::clear()
 {
     if ( eventSink ) {
 	eventSink->unadvise();
@@ -645,7 +646,7 @@ void QComBase::clear()
 }
 
 /*!
-    \fn bool QComBase::initialize( IUnknown **ptr )
+    \fn bool QAxBase::initialize( IUnknown **ptr )
 
     This virtual function is called by setControl. Reimplement this function to return
     the IUnknown pointer of the COM object in \a ptr, and return TRUE if the object
@@ -665,7 +666,7 @@ void QComBase::clear()
 
     \sa control
 */
-long QComBase::queryInterface( const QUuid &uuid, void **iface ) const
+long QAxBase::queryInterface( const QUuid &uuid, void **iface ) const
 {
     *iface = 0;
     if ( ptr && !uuid.isNull() )
@@ -676,6 +677,20 @@ long QComBase::queryInterface( const QUuid &uuid, void **iface ) const
 
 #define UNSUPPORTED(x) x == "UNSUPPORTED" || x == "IDispatch*" || x == "IUnknown*" || x == "USERDEFINED" || x == "USERDEFINED*";
 
+static QString guessTypes( const QString &type, const QString &function )
+{
+    if ( type == "USERDEFINED" ) {
+	if ( function.contains( "Color" ) || function.contains( "color" ) )
+	    return "QColor";
+	return "int"; //###
+    } else if ( type == "USERDEFINED*" ) {
+	if ( function.contains( "Font" ) || function.contains( "font" ) )
+	    return "QFont";
+	return "IUnknown*"; //###
+    }
+    return type;
+}
+
 /*!
     \reimp
 
@@ -685,7 +700,7 @@ long QComBase::queryInterface( const QUuid &uuid, void **iface ) const
 
     Yes, this is spaghetti code...
 */
-QMetaObject *QComBase::metaObject() const
+QMetaObject *QAxBase::metaObject() const
 {
     if ( metaobj )
 	return metaobj;
@@ -717,7 +732,7 @@ QMetaObject *QComBase::metaObject() const
 	    return tempMetaObj;
 
 	tempMetaObj = QMetaObject::new_metaobject(
-	    "QComBase", parentObject,
+	    "QAxBase", parentObject,
 	    0, 0,
 	    signal_tbl, 2,
 #ifndef QT_NO_PROPERTIES
@@ -726,12 +741,12 @@ QMetaObject *QComBase::metaObject() const
 #endif // QT_NO_PROPERTIES
 	    0, 0 );
 
-	cleanUp_QComBase.setMetaObject( tempMetaObj );
+	cleanUp_QAxBase.setMetaObject( tempMetaObj );
 	return tempMetaObj;
     }
 
     // the rest is generated from the IDispatch implementation
-    QComBase* that = (QComBase*)this; // mutable
+    QAxBase* that = (QAxBase*)this; // mutable
     QSettings iidnames;
     iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
 
@@ -797,18 +812,13 @@ QMetaObject *QComBase::metaObject() const
 			break;
 
 		    // get function prototype
+		    TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
+
 		    QString function;
+		    QString returnType;
 		    QString prototype;
 		    QStringList parameters;
 		    QStringList paramTypes;
-
-		    // get return value
-		    TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
-		    QString returnType = typedescToQString( typedesc );
-		    if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
-			parameters << "return";
-			paramTypes << returnType;
-		    }
 
 		    // parse function description
 		    bool unsupported = FALSE;
@@ -824,6 +834,17 @@ QMetaObject *QComBase::metaObject() const
 			if ( !p ) {
 			    function = paramName;
 			    prototype = function + "(";
+
+			    // get return value
+			    returnType = typedescToQString( typedesc );
+			    returnType = guessTypes( returnType, function );
+			    unsupported = unsupported || UNSUPPORTED(returnType)
+
+			    if ( funcdesc->invkind == INVOKE_FUNC && returnType != "void" ) {
+				parameters << "return";
+				paramTypes << returnType;
+			    }
+
 			    continue;
 			}
 
@@ -832,18 +853,9 @@ QMetaObject *QComBase::metaObject() const
 			QString ptype;
 			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			ptype = typedescToQString( tdesc );
-			if ( ptype == "USERDEFINED" ) {
-			    if ( function.endsWith( "Color" ) )
-				ptype = "QColor";
-			    else
-				ptype = "int"; //###
-			} else if ( ptype == "USERDEFINED*" ) {
-			    if ( function.endsWith( "Font" ) )
-				ptype = "QFont";
-			    else
-				ptype = "IUnknown*"; //###
-			}
+			ptype = guessTypes( ptype, function );
 			unsupported = unsupported || UNSUPPORTED(ptype)
+
 			if ( funcdesc->invkind == INVOKE_FUNC )
 			    ptype = constRefify( ptype );
 
@@ -1325,17 +1337,7 @@ QMetaObject *QComBase::metaObject() const
 					
 					TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 					QString ptype = typedescToQString( tdesc );
-					if ( ptype == "USERDEFINED" ) {
-					    if ( function.endsWith( "Color" ) )
-						ptype = "QColor";
-					    else
-						ptype = "int"; //###
-					} else if ( ptype == "USERDEFINED*" ) {
-					    if ( function.endsWith( "Font" ) )
-						ptype = "QFont";
-					    else
-						ptype = "IUnknown*"; //###
-					}
+					ptype = guessTypes( ptype, function );
 					unsupported = unsupported || UNSUPPORTED(ptype);
 					if ( funcdesc->invkind == INVOKE_FUNC )
 					    ptype = constRefify( ptype );
@@ -1517,7 +1519,7 @@ QMetaObject *QComBase::metaObject() const
 /*!
     \internal
 */
-bool QComBase::qt_invoke( int _id, QUObject* _o )
+bool QAxBase::qt_invoke( int _id, QUObject* _o )
 {
     const int index = _id - metaObject()->slotOffset();
     if ( !ptr || index < 0 )
@@ -1660,7 +1662,7 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
 /*!
     \reimp
 */
-bool QComBase::qt_property( int _id, int _f, QVariant* _v )
+bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 {
     const int index = _id - metaObject()->propertyOffset();
     if ( index == 0 ) { // control property
@@ -1709,7 +1711,7 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 		arg = QVariantToVARIANT( *_v, prop->type() );
 
 		if ( arg.vt == VT_EMPTY ) {
-		    qDebug( "QComBase::setProperty(): Unhandled property type" );
+		    qDebug( "QAxBase::setProperty(): Unhandled property type" );
 		    return FALSE;
 		}
 		DISPPARAMS params;
@@ -1782,7 +1784,7 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
         activeX->dynamicCall( id, "www.trolltech.com" );
     \endcode
 */
-QVariant QComBase::dynamicCall( int id, const QVariant &var1, 
+QVariant QAxBase::dynamicCall( int id, const QVariant &var1, 
 							 const QVariant &var2, 
 							 const QVariant &var3, 
 							 const QVariant &var4, 
@@ -1856,7 +1858,7 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
 #if defined(QT_CHECK_RANGE)
     else {
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QComBase::dynamicCall: %d: No such method in %s [%s]", id, control().latin1(), 
+	qWarning( "QAxBase::dynamicCall: %d: No such method in %s [%s]", id, control().latin1(), 
 	    coclass ? coclass: "unknown" );
     }
 #endif
@@ -1877,7 +1879,7 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
     and QObject::setProperty() respectively.
 
     It is only possible to call functions through dynamicCall that have parameters of
-    datatypes supported in QVariant. See the QComBase class documentation for a list of 
+    datatypes supported in QVariant. See the QAxBase class documentation for a list of 
     supported and unsupported datatypes. If you want to call functions that have
     unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
     COM interface and use the function directly.
@@ -1891,7 +1893,7 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
     }
     \endcode
 */
-QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1, 
+QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1, 
 							 const QVariant &var2, 
 							 const QVariant &var3, 
 							 const QVariant &var4, 
@@ -1906,7 +1908,7 @@ QVariant QComBase::dynamicCall( const QCString &function, const QVariant &var1,
 #if defined(QT_CHECK_RANGE)
     else {
 	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QComBase::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
+	qWarning( "QAxBase::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
 	    coclass ? coclass: "unknown" );
     }
 #endif
@@ -1962,7 +1964,7 @@ public:
 	return S_OK;
     }
 
-    QComBase::PropertyBag map;
+    QAxBase::PropertyBag map;
 
 private:
     unsigned long ref;
@@ -1979,7 +1981,7 @@ private:
     properties, or that the properties returned are the same as available through the 
     IDispatch interface.
 */
-QComBase::PropertyBag QComBase::propertyBag() const
+QAxBase::PropertyBag QAxBase::propertyBag() const
 {
     PropertyBag result;
     if ( !ptr )
@@ -1994,7 +1996,7 @@ QComBase::PropertyBag QComBase::propertyBag() const
 	pbag->Release();
 	return result;
     } else {
-	QComBase *that = (QComBase*)this;
+	QAxBase *that = (QAxBase*)this;
 	for ( int p = 1; p < metaObject()->numProperties( FALSE ); ++p ) {
 	    QVariant var;
 	    that->qt_property( p+metaObject()->propertyOffset(), 1, &var );
@@ -2015,7 +2017,7 @@ QComBase::PropertyBag QComBase::propertyBag() const
 
     \sa propertyBag()
 */
-void QComBase::setPropertyBag( const PropertyBag &bag )
+void QAxBase::setPropertyBag( const PropertyBag &bag )
 {
     if ( !ptr )
 	return;
@@ -2028,7 +2030,7 @@ void QComBase::setPropertyBag( const PropertyBag &bag )
 	persist->Load( pbag, 0 );
 	pbag->Release();
     } else {
-	QComBase *that = (QComBase*)this;
+	QAxBase *that = (QAxBase*)this;
 	for ( int p = 1; p < metaObject()->numProperties( FALSE ); ++p ) {
 	    QVariant var = bag[metaObject()->property( p, FALSE )->name()];
 	    that->qt_property( p+metaObject()->propertyOffset(), 0, &var );
@@ -2047,7 +2049,7 @@ void QComBase::setPropertyBag( const PropertyBag &bag )
 
     \sa setPropertyWritable(), propertyChanged()
 */
-bool QComBase::propertyWritable( const char *prop ) const
+bool QAxBase::propertyWritable( const char *prop ) const
 {
     if ( !propWritable )
 	return TRUE;
@@ -2069,7 +2071,7 @@ bool QComBase::propertyWritable( const char *prop ) const
 
     \sa propertyWritable(), propertyChanged()
 */
-void QComBase::setPropertyWritable( const char *prop, bool ok )
+void QAxBase::setPropertyWritable( const char *prop, bool ok )
 {
     if ( !propWritable )
 	propWritable = new QMap<QCString, bool>;
@@ -2078,22 +2080,22 @@ void QComBase::setPropertyWritable( const char *prop, bool ok )
 }
 
 /*!
-    \fn bool QComBase::qt_emit( int, QUObject* );
+    \fn bool QAxBase::qt_emit( int, QUObject* );
     \internal 
 */
 
 /*!
-    \fn const char *QComBase::className() const
+    \fn const char *QAxBase::className() const
     \internal
 */
 
 /*!
-    \fn QObject *QComBase::qObject()
+    \fn QObject *QAxBase::qObject()
     \internal
 */
 
 /*!
-    \fn bool QComBase::isNull() const
+    \fn bool QAxBase::isNull() const
 
     Returns TRUE if there is no COM object loaded by this wrapper, otherwise return FALSE.
 
@@ -2101,7 +2103,7 @@ void QComBase::setPropertyWritable( const char *prop, bool ok )
 */
 
 /*!
-    \fn void QComBase::signal( const QString &name, int argc, void *argv )
+    \fn void QAxBase::signal( const QString &name, int argc, void *argv )
 
     This generic signal gets emitted when the COM object issues the event \a name. \a argc
     is the number of parameters provided by the event (DISPPARAMS.cArgs), and \a argv is 
@@ -2112,160 +2114,8 @@ void QComBase::setPropertyWritable( const char *prop, bool ok )
 */
 
 /*!
-    \fn void QComBase::propertyChanged( const QString &name )
+    \fn void QAxBase::propertyChanged( const QString &name )
 
     If the COM object supports property notification, this signal gets emitted when the property
     \a name is changed.
-*/
-
-/*!
-    \class QComObject qcomobject.h
-    \brief The QComObject class provides a QObject that wraps a COM object.
-
-    \module QAxWidget
-    \extension ActiveQt
-
-    A QComObject can be instantiated as an empty object, with the name of the COM object
-    it should wrap, or with a pointer to the IUnknown that represents an existing COM object.
-    If the COM object implements the IDispatch interface, the properties, methods and events of
-    that object become available as Qt properties, slots and signals. The baseclass QComBase provides 
-    also an API to access the COM object directly through the IUnknown pointer.
-
-    QComObject is a QObject and can be used as such, e.g. it can be organized in an object hierarchy, 
-    receive events and connect to signals and slots.
-
-    \important dynamicCall()
-*/
-
-/*!
-    Creates an empty COM object and propagates \a parent and \a name to the QObject constructor. 
-    To initialize the object, call \link QComBase::setControl() setControl \endlink.
-*/
-QComObject::QComObject( QObject *parent, const char *name )
-: QObject( parent, name )
-{
-}
-
-/*! 
-    Creates a QComObject that wraps the COM object \a c.
-    \a parent and \a name are propagated to the QWidget contructor.
-*/
-QComObject::QComObject( const QString &c, QObject *parent, const char *name )
-: QObject( parent, name )
-{
-    setControl( c );
-}
-
-/*!
-    Creates a QComObject that wraps the COM object referenced by \a iface.
-    \a parent and \a name are propagated to the QWidget contructor.
-*/
-QComObject::QComObject( IUnknown *iface, QObject *parent, const char *name )
-: QObject( parent, name ), QComBase( iface )
-{
-}
-
-/*!
-    Releases the COM object and destroys the QComObject,
-    cleaning all allocated resources.
-*/
-QComObject::~QComObject()
-{
-}
-
-/*!
-    \reimp
-*/
-const char *QComObject::className() const
-{
-    return "QComObject";
-}
-
-/*!
-    \reimp
-*/
-bool QComObject::initialize( IUnknown **ptr )
-{
-    QUuid uuid( control() );
-    if ( *ptr || uuid.isNull() )
-	return FALSE;
-    moduleLock();
-
-    *ptr = 0;
-    CoCreateInstance( uuid, 0, CLSCTX_ALL, IID_IUnknown, (void**)ptr );
-    if ( !ptr ) {
-	moduleUnlock();
-	return FALSE;
-    }
-    metaObject();
-    return TRUE;
-}
-
-/*!
-    \reimp
-*/
-QMetaObject *QComObject::metaObject() const
-{
-    return QComBase::metaObject();
-}
-
-/*!
-    \reimp
-*/
-QMetaObject *QComObject::parentMetaObject() const
-{
-    return QObject::staticMetaObject();
-}
-
-/*!
-    \reimp
-*/
-void *QComObject::qt_cast( const char *cname )
-{
-    if ( !qstrcmp( cname, "QComObject" ) ) return this;
-    if ( !qstrcmp( cname, "QComBase" ) ) return (QComBase*)this;
-    return QObject::qt_cast( cname );
-}
-
-
-/*!
-    \reimp
-*/
-bool QComObject::qt_invoke( int _id, QUObject *_o )
-{
-    if ( QComBase::qt_invoke( _id, _o ) )
-	return TRUE;
-    return QObject::qt_invoke( _id, _o );
-}
-
-/*!
-    \reimp
-*/
-bool QComObject::qt_emit( int _id, QUObject* _o )
-{
-    const int index = _id - metaObject()->signalOffset();
-    if ( !isNull() && index >= 0 ) {
-	// get the list of connections
-	QConnectionList *clist = receivers( _id );
-	if ( clist ) // call the signal
-	    activate_signal( clist, _o );
-
-	return TRUE;
-    }
-    return QObject::qt_emit( _id, _o );
-}
-
-/*!
-  \reimp
-*/
-bool QComObject::qt_property( int _id, int _f, QVariant *_v )
-{
-    if ( QComBase::qt_property( _id, _f, _v ) )
-	return TRUE;
-    return QObject::qt_property( _id, _f, _v );
-}
-
-/*!
-    \fn QObject *QComObject::qObject()
-    \reimp
 */

@@ -170,8 +170,8 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 
     A QAxWidget can be instantiated as an empty object or with the name of the ActiveX control
     it should wrap. The properties, methods and events of the ActiveX control become available as Qt properties, 
-    slots and signals as long as only supported data types are used (see the \link QComBase QComBase class
-    documentation \endlink for a list of supported and unsupported data types). The baseclass QComBase provides 
+    slots and signals as long as only supported data types are used (see the \link QAxBase QAxBase class
+    documentation \endlink for a list of supported and unsupported data types). The baseclass QAxBase provides 
     an API to access the ActiveX directly through the IUnknown pointer.
 
     QAxWidget is a QWidget and can be used as such, e.g. it can be organized in a widget hierarchy, receive events 
@@ -184,7 +184,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 
 /*!
     Creates an empty QAxWidget widget and propagates \a parent, \a name and \a f to the QWidget constructor. 
-    To initialize a control, call \link QComBase::setControl() setControl \endlink.
+    To initialize a control, call \link QAxBase::setControl() setControl \endlink.
 */
 QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
 : QWidget( parent, name, f ), clientsite( 0 ), host( 0 )
@@ -369,7 +369,7 @@ void QAxWidget::clear()
     container = 0;
     initContainer();
 
-    QComBase::clear();
+    QAxBase::clear();
     setFocusPolicy( NoFocus );
 
     if ( clientsite ) {
@@ -400,7 +400,7 @@ const char *QAxWidget::className() const
 */
 QMetaObject *QAxWidget::metaObject() const
 {
-    return QComBase::metaObject();
+    return QAxBase::metaObject();
 }
 
 /*!
@@ -417,7 +417,7 @@ QMetaObject *QAxWidget::parentMetaObject() const
 void *QAxWidget::qt_cast( const char *cname )
 {
     if ( !qstrcmp( cname, "QAxWidget" ) ) return this;
-    if ( !qstrcmp( cname, "QComBase" ) ) return (QComBase*)this;
+    if ( !qstrcmp( cname, "QAxBase" ) ) return (QAxBase*)this;
     return QWidget::qt_cast( cname );
 }
 
@@ -427,7 +427,7 @@ void *QAxWidget::qt_cast( const char *cname )
 */
 bool QAxWidget::qt_invoke( int _id, QUObject *_o )
 {
-    if ( QComBase::qt_invoke( _id, _o ) )
+    if ( QAxBase::qt_invoke( _id, _o ) )
 	return TRUE;
     return QWidget::qt_invoke( _id, _o );
 }
@@ -454,7 +454,7 @@ bool QAxWidget::qt_emit( int _id, QUObject* _o )
 */
 bool QAxWidget::qt_property( int _id, int _f, QVariant *_v )
 {
-    if ( QComBase::qt_property( _id, _f, _v ) )
+    if ( QAxBase::qt_property( _id, _f, _v ) )
 	return TRUE;
     return QWidget::qt_property( _id, _f, _v );
 }

@@ -2,14 +2,14 @@
 
   \title The ActiveQt examples
 
-  \section1 Qt applications using ActiveX controls:
+  \section1 QAxContainer: Qt applications using ActiveX controls:
 
   \list
   \i \link examples-webbrowser.html A Web Browser \endlink
   \i \link examples-testcon.html An ActiveX Test Container \endlink
   \endlist
 
-  \section1 ActiveX controls written with Qt:
+  \section1 QAxServer: ActiveX controls written with Qt:
 
   \list
   \i \link examples-simple.html A Simple widget \endlink

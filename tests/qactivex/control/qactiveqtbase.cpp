@@ -65,55 +65,6 @@ QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 */
 
 /*!
-    \fn QWidget *QActiveQtFactory::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
-
-    Reimplement this function to return a new widget for \a key. Propagate \a parent and \a name to the
-    QWidget constructor. Return 0 if this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QMetaObject *QActiveQtFactory::metaObject( const QString &key ) const
-
-    Reimplement this function to return the QMetaObject for \a key. Use the QObject::staticMetaObject() for that.
-    The class implementing the ActiveX control has to use the Q_OBJECT macro to generate meta object information.
-    Return 0 if this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::classID( const QString &key ) const
-
-    Reimplement this function to return the class identifier for \a key, or an empty QUuid if
-    this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::interfaceID( const QString &key ) const
-
-    Reimplement this function to return the interface identifier for \a key, or an empty QUuid if
-    this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::eventsID( const QString &key ) const
-
-    Reimplement this function to return the identifier of the event interface for \a key, or an empty QUuid if
-    this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::typeLibID() const
-
-    Reimplement this function to return the type library identifier for this ActiveX server.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::appID() const
-
-    Reimplement this function to return the application identifier for this ActiveX server.
-*/
-
-
-/*!
     \class QActiveQtFactory qactiveqt.h
     \brief The QActiveQtFactory class is a factory for the creation of ActiveX components.
     \module QAxServer
@@ -264,15 +215,64 @@ QRESULT QActiveQtFactory::queryInterface( const QUuid &iid, QUnknownInterface **
     return QS_OK;
 }
 
+/*!
+    \fn QUuid QActiveQtFactory::typeLibID() const
+
+    Reimplement this function to return the type library identifier for this ActiveX server.
+*/
 QUuid QActiveQtFactory::typeLibID() const
 {
     return typelib;
 }
 
+/*!
+    \fn QUuid QActiveQtFactory::appID() const
+
+    Reimplement this function to return the application identifier for this ActiveX server.
+*/
 QUuid QActiveQtFactory::appID() const
 {
     return app;
 }
+
+/*!
+    \fn QWidget *QActiveQtFactory::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
+
+    Reimplement this function to return a new widget for \a key. Propagate \a parent and \a name to the
+    QWidget constructor. Return 0 if this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QMetaObject *QActiveQtFactory::metaObject( const QString &key ) const
+
+    Reimplement this function to return the QMetaObject for \a key. Use the QObject::staticMetaObject() for that.
+    The class implementing the ActiveX control has to use the Q_OBJECT macro to generate meta object information.
+    Return 0 if this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactory::classID( const QString &key ) const
+
+    Reimplement this function to return the class identifier for \a key, or an empty QUuid if
+    this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactory::interfaceID( const QString &key ) const
+
+    Reimplement this function to return the interface identifier for \a key, or an empty QUuid if
+    this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactory::eventsID( const QString &key ) const
+
+    Reimplement this function to return the identifier of the event interface for \a key, or an empty QUuid if
+    this factory doesn't support the value of \a key.
+*/
+
+
+
 
 
 /*!
@@ -294,8 +294,23 @@ QUuid QActiveQtFactory::appID() const
     };
     \endcode
 
-    If you use the IDC to generate an interface definition from your class declaration, use the QT_ACTIVEX 
-    macro to declare the class and the identifiers of the interfaces implemented by your class:
+    If your widget class defines Qt properties, signals or slots the framework will expose them to ActiveX 
+    clients as COM properties, events and methods. Properties, and signal/slot parameters of unsupported 
+    data types will be ignored.
+
+    Supported Qt data types are
+    \list
+    \i QString
+    \i QCString
+    \i QColor
+    \i int, unsigned int
+    \i bool
+    \i double
+    \i QDate, QTime, QDateTime
+    \endlist    
+
+    Use the QT_ACTIVEX macro to export the class as an ActiveX control. See the QAxServer module 
+    documentation for more details about how to make QWidget classes available to ActiveX clients.
 
     \code
     QT_ACTIVEX( MyActiveX,				    // class

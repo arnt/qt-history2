@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Declaration of the QComBase and QComObject classes
+** Declaration of the QAxBase class
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -29,27 +29,27 @@
 #define UNICODE
 #endif
 
-#ifndef QCOMOBJECT_H
-#define QCOMOBJECT_H
-
-#include <qobject.h>
-#include <qvariant.h>
-
-struct IUnknown;
-class QAxEventSink;
-struct QUuid;
+#ifndef QAXBASE_H
+#define QAXBASE_H
 
 #if defined(QT_DLL)
 #if defined(QT_PLUGIN)
-#define QCOM_EXPORT __declspec(dllexport)
+#define QAX_EXPORT __declspec(dllexport)
 #else
-#define QCOM_EXPORT __declspec(dllimport)
+#define QAX_EXPORT __declspec(dllimport)
 #endif
 #else
-#define QCOM_EXPORT
+#define QAX_EXPORT
 #endif
 
-class QCOM_EXPORT QComBase
+#include <qvariant.h>
+#include <qobject.h>
+
+struct IUnknown;
+struct QUuid;
+class QAxEventSink;
+
+class QAX_EXPORT QAxBase
 {
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
@@ -58,8 +58,8 @@ class QCOM_EXPORT QComBase
 public:
     typedef QMap<QCString, QVariant> PropertyBag;
 
-    QComBase( IUnknown *iface = 0 );
-    virtual ~QComBase();
+    QAxBase( IUnknown *iface = 0 );
+    virtual ~QAxBase();
 
     QString control() const;
 
@@ -123,9 +123,9 @@ private:
 };
 
 #ifndef QT_NO_DATASTREAM
-inline QDataStream &operator >>( QDataStream &s, QComBase &c )
+inline QDataStream &operator >>( QDataStream &s, QAxBase &c )
 {
-    QComBase::PropertyBag bag;
+    QAxBase::PropertyBag bag;
     c.qObject()->blockSignals( TRUE );
     QString control;
     s >> control;
@@ -137,36 +137,14 @@ inline QDataStream &operator >>( QDataStream &s, QComBase &c )
     return s;
 }
 
-inline QDataStream &operator <<( QDataStream &s, const QComBase &c )
+inline QDataStream &operator <<( QDataStream &s, const QAxBase &c )
 {
-    QComBase::PropertyBag bag = c.propertyBag();
+    QAxBase::PropertyBag bag = c.propertyBag();
     s << c.control();
     s << bag;
 
     return s;
 }
-#endif
+#endif // QT_NO_DATASTREAM
 
-class QCOM_EXPORT QComObject : public QObject, public QComBase
-{
-    friend class QAxEventSink;
-public:
-    QMetaObject *metaObject() const;
-    const char *className() const;
-    void* qt_cast( const char* );
-    bool qt_invoke( int, QUObject* );
-    bool qt_emit( int, QUObject* );
-    bool qt_property( int, int, QVariant* );
-    QObject* qObject() { return (QObject*)this; }
-
-    QComObject( QObject *parent = 0, const char *name = 0 );
-    QComObject( const QString &c, QObject *parent = 0, const char *name = 0 );
-    QComObject( IUnknown *iface, QObject *parent = 0, const char *name = 0 );
-    ~QComObject();
-
-private:
-    bool initialize( IUnknown** );
-    QMetaObject *parentMetaObject() const;
-};
-
-#endif //QCOMOBJECT_H
+#endif // QAXBASE_H

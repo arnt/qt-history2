@@ -1,12 +1,12 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on
-HEADERS		= qaxwidget.h qcomobject.h ../shared/types.h
-SOURCES		= qaxwidget.cpp qcomobject.cpp ../shared/types.cpp
+HEADERS		= qaxbase.h qaxwidget.h qaxobject.h ../shared/types.h
+SOURCES		= qaxbase.cpp qaxwidget.cpp qaxobject.cpp ../shared/types.cpp
 FORMS		= qactivexselect.ui
 
 DESTDIR		= $(QTDIR)/lib
 DLLDESTDIR	= $(QTDIR)/bin
-TARGET		= qaxwidget
+TARGET		= qaxcontainer
 
 shared {
     CONFIG	+= plugin

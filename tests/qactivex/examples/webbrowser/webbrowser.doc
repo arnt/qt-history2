@@ -3,12 +3,18 @@
   \title A Web Browser
 
 
-  This example...
+  This example utilizes the Microsoft Web Browser ActiveX control 
+  to implement a fully functional Web Browser application. The
+  user interface has been developed using the QAxWidget Designer
+  integration, and simple signal and slots connections handle most
+  of the user interaction.
 
-  It demonstrates the use of...
+  The code demonstrates the use of signals and slots to embed
+  ActiveX controls using the QAxWidget container class, and the
+  dynamicCall function.
 
   To build the example you must first build the
-  \link module-qaxwidget.html QAxWidget \endlink library.
+  \link module-qaxcontainer.html QAxContainer \endlink library.
   Then run your make tool in \c examples/webbrowser and
   run the resulting \c webbrowser.exe.
 */

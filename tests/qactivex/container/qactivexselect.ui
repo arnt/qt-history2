@@ -137,6 +137,6 @@
     <slot>setDesigner( DesignerInterface * des )</slot>
     <slot returnType="QString">selectedControl()</slot>
 </slots>
-<exportmacro>QCOM_EXPORT</exportmacro>
+<exportmacro>QAX_EXPORT</exportmacro>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

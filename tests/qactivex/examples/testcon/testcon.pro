@@ -1,10 +1,8 @@
-SOURCES	+= main.cpp 
+TEMPLATE    = app
+CONFIG	    += qt warn_off
 
-TARGET	    = testcon
-FORMS	= mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui controlinfo.ui 
-TEMPLATE	=app
-CONFIG	+= qt warn_off
-INCLUDEPATH	+= ../../container
-LIBS	+= $(QTDIR)/lib/qaxwidget.lib
-DBFILE	= testcon.db
-LANGUAGE	= C++
+SOURCES	    = main.cpp 
+FORMS	    = mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui controlinfo.ui 
+
+INCLUDEPATH += ../../container
+LIBS	    += $(QTDIR)/lib/qaxcontainer.lib

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Declaration of the QAxWidget class
+** Declaration of the QComBase and QComObject classes
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -25,17 +25,19 @@
 **
 **********************************************************************/
 
-#ifndef QAXWIDGET_H
-#define QAXWIDGET_H
+#ifndef UNICODE
+#define UNICODE
+#endif
+
+#ifndef QAXOBJECT_H
+#define QAXOBJECT_H
 
 #include "qaxbase.h"
-#include <qwidget.h>
+#include <qobject.h>
 
-struct IOleClientSite;
-
-class QAX_EXPORT QAxWidget : public QWidget, public QAxBase
+class QAX_EXPORT QAxObject : public QObject, public QAxBase
 {
-    friend class QClientSite;
+    friend class QAxEventSink;
 public:
     QMetaObject *metaObject() const;
     const char *className() const;
@@ -45,38 +47,14 @@ public:
     bool qt_property( int, int, QVariant* );
     QObject* qObject() { return (QObject*)this; }
 
-    QAxWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
-    QAxWidget( const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    ~QAxWidget();
-
-    void clear();
-
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
-
-    void reparent( QWidget *parent, WFlags f, const QPoint &, bool showIt = FALSE );
-    //void setAcceptDrops( bool on );
-    //bool customWhatsThis() const;
-    void setUpdatesEnabled( bool );
-    bool event( QEvent * );
-
-protected:
-    bool initialize( IUnknown** );
-
-    void enabledChange( bool old );
-    void paletteChange( const QPalette &old );
-    void fontChange( const QFont &old );
-    void windowActivationChange( bool old );
-    
-    void resizeEvent( QResizeEvent * );
+    QAxObject( QObject *parent = 0, const char *name = 0 );
+    QAxObject( const QString &c, QObject *parent = 0, const char *name = 0 );
+    QAxObject( IUnknown *iface, QObject *parent = 0, const char *name = 0 );
+    ~QAxObject();
 
 private:
+    bool initialize( IUnknown** );
     QMetaObject *parentMetaObject() const;
-    void initContainer();
-    QWidget *container;
-    IOleClientSite *clientsite;
-    IUnknown *host;
-    QSize extent;
 };
 
-#endif // QAXWIDGET_H
+#endif //QAXOBJECT_H

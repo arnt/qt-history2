@@ -3,12 +3,18 @@
   \title An ActiveX Test Container
 
 
-  This example...
+  This application implements a generic test container for ActiveX
+  controls. You can insert ActiveX controls installed on your
+  system and execute methods and modify properties. The container
+  will log information about events and property changes as well
+  as debug output in the log window.
 
-  It demonstrates the use of...
+  Use the application to view the slots, signals and porperties 
+  available through the QAxWidget class when instantiated with a 
+  certain ActiveX, and to test ActiveX controls you implement.
 
   To build the example you must first build the
-  \link module-qaxwidget.html QAxWidget \endlink library.
+  \link module-qaxcontainer.html QAxContainer \endlink library.
   Then run your make tool in \c examples/testcon and
   run the resulting \c testcon.exe.
 */

@@ -14,10 +14,10 @@
     The \link module-qaxserver.html QAxServer module \endlink is a 
     static library that implements ActiveX server functionality.
 
-    \section1 QAxWidget
+    \section1 QAxContainer
 
-    The \link module-qaxwidget.html QAxWidget module  \endlink is a 
-    library that implements a QWidget subclass QAxWidget that acts 
+    The \link module-qaxcontainer.html QAxContainer module  \endlink is a 
+    library implementing a QWidget subclass QAxWidget that acts 
     as a container for ActiveX controls. If the library is built 
     against a shared Qt library it integrates as a widget plugin into Qt 
     Designer.
@@ -47,7 +47,7 @@
     In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
     enter the \c control subdirectory and run \c qmake to generate the
     makefile, and the make tool (\c nmake for VC++, \c make for Borland)
-    to build the library. The library \c activeqt.lib will be linked into 
+    to build the library. The library \c qaxserver.lib will be linked into 
     \c QTDIR/lib.
     
     \section1 Using the library
@@ -65,12 +65,12 @@
     \endcode
 
     This modification will cause the \c qmake tool to add the required 
-    build steps to the build system.
-
+    build steps to the build system:
     \list
-    \i link the executable against activeqt.lib rather than qtmain.lib
-    \i search the sources for ActiveX controls and add an IDL generation
-       step for the relevant source files
+    \i link the executable against qaxserver.lib rather than qtmain.lib
+    \i generate an interface definition and link the type library into
+       the executable
+    \i register the executable as an ActiveX server
     \endlist
 
     \section1 Implementing Controls
@@ -99,6 +99,13 @@
 
     Declare a standard QWidget constructor, and functions, signals or
     slots as for any QWidget.
+    \footnote
+    If a standard constructor is not present the compiler will issue an error
+    "no overloaded function takes 2 parameters" when using the default factory
+    through the QT_ACTIVEX macro. If you cannot provide a standard constructor
+    you will have to implement a \l QActiveQtFactory custom factory and call the 
+    constructor you have in QActiveQtFactory::create.
+    \endfootnote
 
     \code
     public:
@@ -120,11 +127,17 @@
 
     The ActiveQt framework will expose all public slots as ActiveX
     methods, and all signals as ActiveX events.
+    \footnote
+    The data types you can use for properties or as parameters in signals
+    and slots are listed in the QActiveQt class documentation.
+    \endfootnote
 
     When implementing this class use the requestPropertyChange() and
-    propertyChanged() functions of QActiveQt class to allow ActiveX
-    clients to bind to the control properties. \footnote This is not
-    required, but gives the client more control over the ActiveX. 
+    propertyChanged() functions of the QActiveQt class to allow ActiveX
+    clients to bind to the control properties. 
+    \footnote 
+    This is not required, but gives the client more control over 
+    the ActiveX control.
     \endfootnote
 
     \section1 Serving the Controls
@@ -161,10 +174,11 @@
     application. Calling the application with the \c -regserver command
     line switch registers the controls provided in the system registry.
 
-    Other commandline switches are
+    Supported commandline switches are
     \list
     \i -unregserver Unregisters the server from the system registry
     \i -activex Starts the application as an ActiveX server
+    \i -dumpidl <file> Writes the IDL for this server to a file
     \endlist
 
     Starting the application without any of those commandlines starts
@@ -181,18 +195,18 @@
     the different example controls.
 */
 
-/*! \page module-qaxwidget.html
+/*! \page module-qaxcontainer.html
 
-    \title The QAxWidget Module
+    \title The QAxContainer Module
 
     The ActiveQt framework provides a library implementing a QWidget
     subclass QAxWidget that acts as a container for ActiveX controls.
 
     The module consists of three classes
     \list
-    \i QComBase is an abstract class that provides an API to initalize 
-       and access a COM object.
-    \i QComObject provides a QObject that wraps a COM object.
+    \i QAxBase is an abstract class that provides an API to initalize 
+       and access a COM/ActiveX object.
+    \i QAxObject provides a QObject that wraps a COM object.
     \i QAxWidget is a QWidget that wraps an ActiveX control.
     \endlist
 
@@ -205,18 +219,18 @@
     In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
     enter the \c container subdirectory and run \c qmake to generate the
     makefile, and the make tool (\c nmake for VC++, \c make for Borland)
-    to build the library. The library \c qaxwidget.lib will be linked into 
-    \c QTDIR/lib. If you build a shared library (ie. when Qt is a shared
-    library) the \c qaxwidget.dll will be copied into \c QTDIR/bin and
-    the Qt Designer plugin directory.
+    to build the library. The library \c qaxcontainer.lib will be linked 
+    into \c QTDIR/lib. If you build a shared library (ie. when Qt is a 
+    shared library) the \c qaxcontainer.dll will be copied into 
+    \c QTDIR/bin and the Qt Designer plugin directory.
     
     \section1 Using the library
 
     To use the classes implemented the application has to link against
-    the \c qaxwidget.lib file. Add
+    the \c qaxcontainer.lib file. Add
 
     \code
-    LIBS += $(QTDIR)/lib/qaxwidget.lib
+    LIBS += $(QTDIR)/lib/qaxcontainer.lib
     \endcode
 
     to your application .pro file.
