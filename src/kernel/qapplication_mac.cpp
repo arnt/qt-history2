@@ -914,11 +914,13 @@ bool QApplication::do_mouse_down( Point *pt )
 
 	    QMacSavedPortInfo savedInfo;
 	    SetPortWindowPort( wp );
-	    QRect orect(widget->x(), widget->y(), widget->width(), widget->height());
 	    Point p = { 0, 0 };
 	    LocalToGlobal(&p);
 	    widget->setCRect( QRect( p.h, p.v, bounds.right, bounds.bottom) );
+	    widget->dirtyClippedRegion(TRUE);
 
+	    //issue events
+	    QRect orect(widget->x(), widget->y(), widget->width(), widget->height());
 	    //issue a move
 	    QMoveEvent qme( QPoint( widget->x(), widget->y() ), 
 			    QPoint( orect.x(), orect.y()) );
