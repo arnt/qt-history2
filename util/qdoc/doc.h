@@ -118,14 +118,14 @@ class FnDoc : public Doc
 {
 public:
     FnDoc( const Location& loc, const QString& html, const QString& prototype,
-	   const QString& relates, const StringSet& parameters,
+	   const QString& relates, const StringSet& documentedParams,
 	   bool overloads );
 
     void setOverloads( bool overloads ) { over = overloads; }
 
     const QString& prototype() const { return proto; }
     const QString& relates() const { return rel; }
-    const StringSet& parameterNames() const { return params; }
+    const StringSet& documentedParameters() const { return params; }
     bool overloads() const { return over; }
 
 private:
@@ -160,7 +160,13 @@ private:
 class EnumDoc : public Doc
 {
 public:
-    EnumDoc( const Location& loc, const QString& html, const QString& name );
+    EnumDoc( const Location& loc, const QString& html, const QString& name,
+	     const StringSet& documentedValues );
+
+    const StringSet& documentedValues() const { return values; }
+
+private:
+    StringSet values;
 };
 
 class PageLikeDoc : public Doc

@@ -350,9 +350,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
     QString arg, brief;
     QString className, enumName, extName, fileName, groupName, moduleName;
-    QString enumPrefix, title, heading, prototype, relates, x;
-    StringSet groups, headers, parameters, keywords;
-    QStringList seeAlso, important, anamesToPrepend;
+    QString enumPrefix, title, heading, prototype, relates, value, x;
+    StringSet groups, headers, keywords, documentedParams, documentedValues;
+    QStringList seeAlso, important;
     bool obsolete = FALSE;
     int briefBegin = -1;
     int briefEnd = 0;
@@ -422,7 +422,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    QStringList tokl = QStringList::split( QChar(' '), toks );
 		    while ( !tokl.isEmpty() ) {
 			if ( tokl.first()[0].isLetter() )
-			    parameters.insert( tokl.first() );
+			    documentedParams.insert( tokl.first() );
 			tokl.remove( tokl.begin() );
 		    }
 		    yyOut += QString( "<em>" );
@@ -836,22 +836,24 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    inValue = TRUE;
 		}
 		yyOut += QString( "<li>" );
-		x = getWord( yyIn, yyPos );
-		k = x.findRev( QString("::") );
+		value = getWord( yyIn, yyPos );
+		k = value.findRev( QString("::") );
 		if ( k != -1 ) {
-		    if ( x.left(k + 2) == enumPrefix )
+		    if ( value.left(k + 2) == enumPrefix )
 			warning( 3, location(),
-				 "Redundant '%s' in enum '\\value'",
+				 "Needless '%s' in enum '\\value'",
 				 enumPrefix.latin1() );
 		    else
 			warning( 2, location(),
 				 "Contradictory '%s' in enum '\\value'",
-				 x.left(k + 2).latin1() );
-		    x = x.mid( k + 2 );
+				 value.left(k + 2).latin1() );
+		    value = value.mid( k + 2 );
 		}
+		yyOut += QString( "<a name=\"%1\"></a>" ).arg( value );
 		yyOut += QString( "<tt>" );
-		yyOut += enumPrefix + x;
+		yyOut += enumPrefix + value;
 		yyOut += QString( "</tt> - " );
+		documentedValues.insert( value );
 		break;
 	    case hash( 'w', 7 ):
 		consume( "warning" );
@@ -913,7 +915,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     case Doc::Fn:
 	sanitize( prototype );
 	sanitize( relates );
-	doc = new FnDoc( loc, yyOut, prototype, relates, parameters,
+	doc = new FnDoc( loc, yyOut, prototype, relates, documentedParams,
 			 overloads );
 	break;
     case Doc::Class:
@@ -941,7 +943,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	break;
     case Doc::Enum:
 	sanitize( enumName );
-	doc = new EnumDoc( loc, yyOut, enumName );
+	doc = new EnumDoc( loc, yyOut, enumName, documentedValues );
 	break;
     case Doc::Page:
 	sanitize( fileName );
@@ -1932,9 +1934,9 @@ QString Doc::finalHtml() const
 
 FnDoc::FnDoc( const Location& loc, const QString& html,
 	      const QString& prototype, const QString& relates,
-	      const StringSet& parameters, bool overloads )
+	      const StringSet& documentedParams, bool overloads )
     : Doc( Fn, loc, html ), proto( prototype ), rel( relates ),
-      params( parameters ), over( overloads )
+      params( documentedParams ), over( overloads )
 {
 }
 
@@ -2017,8 +2019,8 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 }
 
 EnumDoc::EnumDoc( const Location& loc, const QString& html,
-		  const QString& enumName )
-    : Doc( Enum, loc, html, enumName )
+		  const QString& enumName, const StringSet& documentedValues )
+    : Doc( Enum, loc, html, enumName ), values( documentedValues )
 {
 }
 

@@ -20,7 +20,7 @@ class HtmlWriter;
 class Decl
 {
 public:
-    enum Kind { Root, Class, Function, Enum, Typedef };
+    enum Kind { Root, Class, Function, Enum, EnumItem, Typedef };
     enum Access { Public, Protected, Private };
 
     static QString anchor( const QString& name );
@@ -76,8 +76,8 @@ public:
 protected:
     Decl( Kind kind, const Location& loc, const QString& name, Decl *context );
 
-    virtual void fillInDeclsThis();
-    virtual void fillInDocsThis();
+    virtual void fillInDeclsForThis() { }
+    virtual void fillInDocsForThis() { }
 
     void setImportantChildren( const QValueList<Decl *>& important );
 
@@ -148,8 +148,8 @@ public:
     virtual void printHtmlLong( HtmlWriter& out ) const;
 
 protected:
-    virtual void fillInDeclsThis();
-    virtual void fillInDocsThis();
+    virtual void fillInDeclsForThis();
+    virtual void fillInDocsForThis();
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -193,7 +193,7 @@ private:
 class FunctionDecl : public Decl
 {
 public:
-    typedef QValueList<Parameter>::ConstIterator ParameterIterator; // ###
+    typedef QValueList<Parameter>::ConstIterator ParameterIterator;
 
     FunctionDecl( const Location& loc, const QString& name, Decl *context,
 		  const CodeChunk& returnType );
@@ -248,33 +248,34 @@ private:
     StringSet ps;
 };
 
-class EnumItem
+class EnumItemDecl : public Decl
 {
 public:
-    EnumItem() { }
-    EnumItem( const QString& ident, const CodeChunk& value );
-    EnumItem( const EnumItem& item );
+    EnumItemDecl( const Location& loc, const QString& name, Decl *context,
+		  const CodeChunk& value );
 
-    EnumItem& operator=( const EnumItem& item );
-
-    const QString& ident() const { return id; }
     const CodeChunk& value() const { return v; }
 
-    void printHtml( HtmlWriter& out ) const;
+    virtual void printHtmlShort( HtmlWriter& out ) const;
 
 private:
-    QString id;
+#if defined(Q_DISABLE_COPY)
+    EnumItemDecl( const Decl& );
+    EnumItemDecl& operator=( const Decl& );
+#endif
+
     CodeChunk v;
 };
 
 class EnumDecl : public Decl
 {
 public:
-    typedef QValueList<EnumItem>::ConstIterator ItemIterator;
+    typedef QValueList<EnumItemDecl *>::ConstIterator ItemIterator;
 
     EnumDecl( const Location& loc, const QString& name, Decl *context );
 
-    void addItem( const EnumItem& item ) { il.append( item ); }
+    void addItem( EnumItemDecl *item ) { il.append( item ); }
+    // ### remove these two functions
     ItemIterator itemBegin() const { return il.begin(); }
     ItemIterator itemEnd() const { return il.end(); }
 
@@ -288,7 +289,7 @@ private:
     EnumDecl& operator=( const Decl& );
 #endif
 
-    QValueList<EnumItem> il;
+    QValueList<EnumItemDecl *> il;
 };
 
 class TypedefDecl : public Decl

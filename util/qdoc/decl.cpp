@@ -121,18 +121,18 @@ static void printHtmlLongMembers( HtmlWriter& out,
 	    QValueList<Decl *> by = (*m)->reimplementedBy();
 	    if ( !by.isEmpty() ) {
 		// we don't want totally uninteresting
-		// reimplementations in this list.
+		// reimplementations in this list ...
 		QValueList<Decl *>::ConstIterator r;
 		r = by.begin();
 		while( r != by.end() ) {
-		    Decl * d = *r;
+		    Decl *d = *r;
 		    ++r;
 		    if ( d->internal() )
 			by.remove( d );
 		}
 	    }
 	    if ( !by.isEmpty() ) {
-		// ... so we probably never get here.
+		// ... so we probably never get here
 		QValueList<Decl *>::ConstIterator r;
 		QValueStack<QString> seps = separators( by.count(),
 							QString(".\n") );
@@ -160,7 +160,12 @@ static void tangle( Decl *child, QValueList<Decl *> *membersp,
 		    QMap<QString, Decl *> *memberTypesp,
 		    QMap<QString, Decl *> *memberFunctionsp )
 {
-    if ( child->name().isEmpty() ) // protect from anonymous enums
+    // enum items are documented as part of the enum
+    if ( child->kind() == Decl::EnumItem )
+	return;
+
+    // protect from anonymous enums
+    if ( child->name().isEmpty() )
 	return;
 
     if ( child->doc() != 0 ) {
@@ -339,7 +344,7 @@ void Decl::fillInDecls()
     QValueList<Decl *>::ConstIterator child;
 
     if ( !declsFilledIn ) {
-	fillInDeclsThis();
+	fillInDeclsForThis();
 	declsFilledIn = TRUE;
     }
     child = children().begin();
@@ -355,7 +360,7 @@ void Decl::fillInDocs()
 	fillInDecls();
 
     if ( !docsFilledIn ) {
-	fillInDocsThis();
+	fillInDocsForThis();
 	docsFilledIn = TRUE;
     }
 
@@ -447,14 +452,6 @@ void Decl::printHtmlShort( HtmlWriter& out ) const
 void Decl::printHtmlLong( HtmlWriter& out ) const
 {
     out.printFnord();
-}
-
-void Decl::fillInDeclsThis()
-{
-}
-
-void Decl::fillInDocsThis()
-{
 }
 
 Decl::Decl( Kind kind, const Location& loc, const QString& name, Decl *context )
@@ -776,7 +773,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
     }
 }
 
-void ClassDecl::fillInDeclsThis()
+void ClassDecl::fillInDeclsForThis()
 {
     QValueStack<ClassDecl *> stack;
     QMap<QString, Decl *>::ConstIterator ent;
@@ -841,7 +838,7 @@ static void checkParams( const FunctionDecl *funcDecl,
     StringSet diff;
     StringSet::ConstIterator s;
 
-    diff = difference( declared, fn->parameterNames() );
+    diff = difference( declared, fn->documentedParameters() );
     s = diff.begin();
     while ( s != diff.end() ) {
 	warning( level, fn->location(), "Undocumented parameter '%s'",
@@ -850,7 +847,7 @@ static void checkParams( const FunctionDecl *funcDecl,
     }
 }
 
-void ClassDecl::fillInDocsThis()
+void ClassDecl::fillInDocsForThis()
 {
     QValueList<Decl *> importantChildren;
 
@@ -1290,26 +1287,15 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
     out.putsMeta( "\n" );
 }
 
-EnumItem::EnumItem( const QString& ident, const CodeChunk& value )
-    : id( ident ), v( value )
+EnumItemDecl::EnumItemDecl( const Location& loc, const QString& name,
+			    Decl *context, const CodeChunk& value )
+    : Decl( EnumItem, loc, name, context ), v( value )
 {
 }
 
-EnumItem::EnumItem( const EnumItem& item )
-    : id( item.id ), v( item.v )
+void EnumItemDecl::printHtmlShort( HtmlWriter& out ) const
 {
-}
-
-EnumItem& EnumItem::operator=( const EnumItem& item )
-{
-    id = item.id;
-    v = item.v;
-    return *this;
-}
-
-void EnumItem::printHtml( HtmlWriter& out ) const
-{
-    out.putsMeta( ident().latin1() );
+    out.putsMeta( name().latin1() );
     if ( !value().isEmpty() ) {
 	out.puts( " = " );
 	value().printHtml( out );
@@ -1333,10 +1319,10 @@ void EnumDecl::printHtmlShort( HtmlWriter& out ) const
     ItemIterator i = itemBegin();
     if ( i != itemEnd() ) {
 	out.putsMeta( " " );
-	(*i).printHtml( out );
+	(*i)->printHtmlShort( out );
 	while ( ++i != itemEnd() ) {
 	    out.putsMeta( ", " );
-	    (*i).printHtml( out );
+	    (*i)->printHtmlShort( out );
 	}
     }
     out.putsMeta( " }" );

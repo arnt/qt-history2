@@ -429,7 +429,7 @@ static bool matchEnumItem( EnumDecl *enumDecl )
     if ( !match(Tok_Ident) )
 	return FALSE;
 
-    QString id = yyTokenizer->previousLexeme();
+    QString name = yyTokenizer->previousLexeme();
     CodeChunk val;
 
     if ( match(Tok_Equal) ) {
@@ -439,7 +439,8 @@ static bool matchEnumItem( EnumDecl *enumDecl )
 	    yyTok = getToken();
 	}
     }
-    enumDecl->addItem( EnumItem(id, val) );
+    enumDecl->addItem( new EnumItemDecl(yyTokenizer->location(), name,
+		       enumDecl->context(), val) );
     return TRUE;
 }
 
@@ -631,6 +632,8 @@ void parseCppHeaderFile( Emitter *emitter, const QString& filePath )
 
 static void matchDocsAndStuff( Emitter *emitter )
 {
+    Decl *decl = 0;
+
     while ( yyTok != Tok_Eoi ) {
 	if ( yyTok == Tok_Doc ) {
 	    QString t = yyTokenizer->lexeme();
@@ -689,7 +692,6 @@ static void matchDocsAndStuff( Emitter *emitter )
 		}
 
 		if ( matchFunctionDecl(root) ) {
-		    Decl *decl;
 		    if ( root == 0 ) {
 			decl = emitter->resolveMangled(
 				yyLastDecl->mangledName() );
@@ -719,7 +721,7 @@ static void matchDocsAndStuff( Emitter *emitter )
 			StringSet diff;
 			StringSet::ConstIterator s;
 
-			diff = difference( fn->parameterNames(),
+			diff = difference( fn->documentedParameters(),
 				((FunctionDecl *) decl)->parameterNames() );
 			s = diff.begin();
 			while ( s != diff.end() ) {
@@ -750,7 +752,7 @@ static void matchDocsAndStuff( Emitter *emitter )
 		}
 	    } else if ( doc->kind() == Doc::Class ) {
 		ClassDoc *cl = (ClassDoc *) doc;
-		Decl *decl = emitter->resolveMangled( cl->name() );
+		decl = emitter->resolveMangled( cl->name() );
 		if ( decl != 0 && decl->kind() == Decl::Class ) {
 		    decl->setDoc( doc );
 		    setLink( emitter, cl, config->classRefHref(decl->name()),
@@ -763,7 +765,7 @@ static void matchDocsAndStuff( Emitter *emitter )
 		}
 	    } else if ( doc->kind() == Doc::Enum ) {
 		EnumDoc *en = (EnumDoc *) doc;
-		Decl *decl = emitter->resolveMangled( en->name() );
+		decl = emitter->resolveMangled( en->name() );
 		if ( decl != 0 && (decl->kind() == Decl::Enum ||
 				   decl->kind() == Decl::Typedef) ) {
 		    decl->setDoc( en );
@@ -807,8 +809,7 @@ static void matchDocsAndStuff( Emitter *emitter )
 		emitter->addGroupie( doc );
 	} else {
 	    if ( matchFunctionDecl((FunctionDecl *) 0) ) {
-		Decl *decl =
-			emitter->resolveMangled( yyLastDecl->mangledName() );
+		decl = emitter->resolveMangled( yyLastDecl->mangledName() );
 		// signals are defined in MOC files
 		if ( decl != 0 && decl->kind() == Decl::Function &&
 		     !((FunctionDecl *) decl)->isSignal() )
