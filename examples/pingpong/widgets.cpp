@@ -70,7 +70,8 @@ void TeamEditor::refreshTables()
 
 void TeamEditor::updateTeamMembers( const QSqlRecord * record )
 {
-    player2teamView.select( "teamid = " + record->value( "id" ).toString());
+    player2teamTable->setFilter( "teamid = " +
+                                 record->value( "id" ).toString() );
     player2teamTable->refresh();
     player2teamLabel->setText( "Players on <i>" +
                                teamCursor.value("name").toString() + "</i>");
