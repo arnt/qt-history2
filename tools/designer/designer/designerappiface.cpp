@@ -637,7 +637,7 @@ QWidget *DesignerOutputDockImpl::addView( const QString & )
 
 void DesignerOutputDockImpl::appendDebug( const QString &s )
 {
-    outWin->debugView->append( s );
+    outWin->appendDebug( s );
 }
 
 void DesignerOutputDockImpl::clearDebug()

@@ -18,15 +18,16 @@ public:
     ~OutputWindow();
 
     void setErrorMessages( const QStringList &errors, const QValueList<int> &lines, bool clear = TRUE );
-
-    static QTextEdit *debugView;
-    static QListView *errorView;
+    void appendDebug( const QString& );
 
     DesignerOutputDock *iFace();
 
 private:
     void setupError();
     void setupDebug();
+
+    QTextEdit *debugView;
+    QListView *errorView;
 
     QtMsgHandler oldMsgHandler;
 };

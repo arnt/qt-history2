@@ -8,11 +8,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-QTextEdit *OutputWindow::debugView = 0;
-QListView *OutputWindow::errorView = 0;
+static QTextEdit *debugoutput = 0;
 
 OutputWindow::OutputWindow( QWidget *parent )
-    : QTabWidget( parent, "output_window" )
+    : QTabWidget( parent, "output_window" ), errorView( 0 ), debugView( 0 )
 {
     setupDebug();
     setupError();
@@ -20,7 +19,7 @@ OutputWindow::OutputWindow( QWidget *parent )
 
 OutputWindow::~OutputWindow()
 {
-    debugView = 0;
+    debugoutput = debugView = 0;
     errorView = 0;
     qInstallMsgHandler( oldMsgHandler );
 }
@@ -28,6 +27,7 @@ OutputWindow::~OutputWindow()
 void OutputWindow::setupError()
 {
     errorView = new QListView( this, "OutputWindow::errorView" );
+
     addTab( errorView, tr( "Error Messages" ) );
     errorView->addColumn( tr( "Message" ) );
     errorView->addColumn( tr( "Line" ) );
@@ -35,24 +35,27 @@ void OutputWindow::setupError()
     errorView->setAllColumnsShowFocus( TRUE );
 }
 
-void debugMessageOutput( QtMsgType type, const char *msg )
+static void debugMessageOutput( QtMsgType type, const char *msg )
 {
     QString s;
     s = msg;
+
     if ( type != QtFatalMsg ) {
-	if ( OutputWindow::debugView )
-	    OutputWindow::debugView->append( s );
+	if ( debugoutput )
+	    debugoutput->append( s );
     } else {
 	fprintf( stderr, msg );
 	abort();
     }
+
     qApp->flushX();
 }
 
 void OutputWindow::setupDebug()
 {
-    debugView = new QTextEdit( this, "OutputWindow::debugView" );
+    debugoutput = debugView = new QTextEdit( this, "OutputWindow::debugView" );
     addTab( debugView, "Debug Output" );
+
     oldMsgHandler = qInstallMsgHandler( debugMessageOutput );
 }
 
@@ -70,4 +73,9 @@ void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList
 DesignerOutputDock *OutputWindow::iFace()
 {
     return new DesignerOutputDockImpl( this );
+}
+
+void OutputWindow::appendDebug( const QString &text )
+{
+    debugView->append( text );
 }
