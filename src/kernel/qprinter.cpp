@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#13 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#13 $";
 #endif
 
 
@@ -25,8 +25,8 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#12 $";
   \ingroup paintdevice
 
   All window systems that Qt supports, except X-Windows, have built-in
-  printer drivers.  For X-Windows, Qt provides Postscript (tm)
-  printing.  Note that the postscript support is incomplete and very
+  printer drivers.  For X-Windows, Qt provides PostScript (tm)
+  printing.  Note that the PostScript support is incomplete and very
   much beta-quality at the present time.
 
   drawPixmap(), clipping, even-odd filling, landscape orientation/page
@@ -197,7 +197,7 @@ void QPrinter::setOutputFileName( const char *fileName )
   If an output file has been defined, the printer driver will print to
   the output file instead of directly to the printer.
 
-  On X11, this function sets the program to call with the postscript
+  On X11, this function sets the program to call with the PostScript
   output.  On other platforms, it has no effect.
 
   \sa printProgram()
