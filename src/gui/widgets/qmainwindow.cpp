@@ -613,10 +613,12 @@ QMenu *QMainWindow::createPopupMenu()
     QList<QDockWindow *> dockwindows = qFindChildren<QDockWindow *>(this);
     if (toolbars.size() || dockwindows.size()) {
         menu = new QMenu(this);
+        if (!dockwindows.isEmpty()) {
         for (int i = 0; i < dockwindows.size(); ++i)
             menu->addAction(dockwindows.at(i)->toggleViewAction());
-        if (!toolbars.isEmpty()) {
             menu->addSeparator();
+        }
+        if (!toolbars.isEmpty()) {
             for (int i = 0; i < toolbars.size(); ++i)
                 menu->addAction(toolbars.at(i)->toggleViewAction());
         }
