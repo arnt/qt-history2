@@ -1,4 +1,5 @@
 #include "plugmainwindow.h"
+#include "qwidgetfactory.h"
 #include "qapplicationinterfaces.h"
 #include <qvariant.h>
 
@@ -20,14 +21,22 @@ QStrList PlugApplication::queryInterfaceList() const
 
 void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
-    mainWindow()->setProperty( p, v );
+    if ( p == "centralWidget" ) {
+	QWidget* w = QWidgetFactory::create( v.toString(), mainWindow() );
+	if ( w ) {
+	    delete mainWindow()->centralWidget();
+	    mainWindow()->setCentralWidget( w );
+	}
+    } else {
+	mainWindow()->setProperty( p, v );
+    }
 }
 
 void PlugMainWindowInterface::requestProperty( const QCString& p, QVariant& v )
 {
     if ( p == "mainWindow" ) {
 	v = QVariant( (uint)mainWindow() );
-    }    
+    }
     v = mainWindow()->property( p );
 }
 
