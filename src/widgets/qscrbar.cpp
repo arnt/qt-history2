@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#75 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#75 $");
 
 
 /*!
@@ -757,23 +757,26 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	p->setBrush( QBrush(white,Dense4Pattern) );
 	p->setPen( NoPen );
 	p->setBackgroundMode( OpaqueMode );
-	if ( controls & SUB_PAGE )
-	    p->drawRect( subPageR );
-	if ( controls & ADD_PAGE )
-	    p->drawRect( addPageR );
-	if ( controls & SLIDER ) {
-	    if ( maxedOut ) {
-		p->fillRect( sliderR, g.background().light( 120 ) );
-	    } else {
-		QBrush fill( g.background() );
-		qDrawWinPanel( p, sliderR.x(), sliderR.y(),
-			       sliderR.width(), sliderR.height(), g,
-			       FALSE, &fill );
+	if ( maxedOut ) {
+	    p->drawRect( sliderR );
+	} else {
+	    if ( controls & SUB_PAGE )
+		p->drawRect( subPageR );
+	    if ( controls & ADD_PAGE )
+		p->drawRect( addPageR );
+	    if ( controls & SLIDER ) {
+		if ( !maxedOut ) {
+		    QBrush fill( g.background() );
+		    qDrawWinPanel( p, sliderR.x(), sliderR.y(),
+				   sliderR.width(), sliderR.height(), g,
+				   FALSE, &fill );
+		}
 	    }
-	    if ( hasFocus() )
-		p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
-				     sliderR.width()-5, sliderR.height()-5 );
 	}
+	// ### perhaps this should not be able to accept focus if maxedOut?
+	if ( hasFocus() && (controls & SLIDER) )
+	    p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
+				 sliderR.width()-5, sliderR.height()-5 );
     } else {
 	if ( controls & ADD_LINE )
 	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
