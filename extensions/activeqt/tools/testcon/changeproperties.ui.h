@@ -136,9 +136,9 @@ void ChangeProperties::setValue()
 		QString str = svar.toString();
 		str = str.trimmed();
 		bool ok;
-		int i = str.toInt( &ok );
+		int n = str.toInt( &ok );
 		if ( ok ) {
-		    varList << i;
+		    varList << n;
 		    continue;
 		}
 		double d = str.toDouble( &ok );
