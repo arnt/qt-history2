@@ -55,7 +55,7 @@ fi
 MODULES=`$MAKE -f src/Makefile.in listallmodules`
 
 
-# Free edition - may only be used under the terms of the QPL.
+# Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f LICENSE.QPL -a -f LICENSE.GPL ]
 then
     Edition=free
