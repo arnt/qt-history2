@@ -88,6 +88,7 @@ extern UType *pUType_Null;
 // The magic UObject
 struct UObject
 {
+public: // scary MSVC bug makes this necessary
     UObject() : type( pUType_Null ) {}
     ~UObject() { type->clear( this ); }
 
