@@ -21,7 +21,7 @@
 
        b. Set QMAKESPEC depending on the compiler you are using to build Qt.
 	    - Microsoft Visual Studio: 		win32-msvc
-	    - Microsofr Visual Studio .NET: 	win32-msvc.net
+	    - Microsoft Visual Studio .NET: 	win32-msvc.net
           Other compilers are not supported for the tech preview.
 
        c. Extend your PATH variable by %QTDIR%\bin to make sure that the Qt
