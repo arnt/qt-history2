@@ -700,8 +700,11 @@ void QDialog::show()
 void QDialog::showEvent(QShowEvent *)
 {
     if (!testAttribute(WA_Moved)) {
+	uint state = windowState();
         adjustPosition(parentWidget());
         setAttribute(WA_Moved, false); // not really an explicit position
+	if (state != windowState())
+	    setWindowState(state);
     }
 }
 
