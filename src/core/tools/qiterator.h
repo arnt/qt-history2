@@ -41,7 +41,7 @@ class C##MutableIterator \
     typedef typename C<T>::iterator iterator; \
     C<T> *c; \
     iterator i, n; \
-    inline bool item_exists() const { return n != c->end(); } \
+    inline bool item_exists() const { return n != c->constEnd(); } \
 public: \
     inline C##MutableIterator(C<T> &container) \
     :c(&container), i(c->begin()), n(c->end()) {} \
@@ -49,24 +49,23 @@ public: \
     { c = &container; i = c->begin(); n = c->end(); } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = i; } \
-    inline bool hasNext() const { return c && i != c->end(); } \
+    inline bool hasNext() const { return c && i != c->constEnd(); } \
     inline T &next() { n = i++; return *n; } \
     inline T &peekNext() const { return *i; } \
-    inline bool hasPrev() const { return c && i != c->begin(); } \
+    inline bool hasPrev() const { return c && i != c->constBegin(); } \
     inline T &prev() { n = --i; return *n; } \
     inline T &peekPrev() const { iterator p = i; return *--p; } \
     inline void remove() \
-    { if (n != c->end()) { i = c->erase(n); n = c->end(); } } \
-    inline void setValue(const T &t) const { if (n != c->end()) *n = t; } \
+    { if (n != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
+    inline void setValue(const T &t) const { if (n != c->constEnd()) *n = t; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline void insert(const T &t) { n = i = c->insert(i, t); ++i; } \
     inline bool findNext(const T &t) \
-    { while (c && (n=i) != c->end()) if (*i++ == t) return true; return false; } \
+    { while (c && (n=i) != c->constEnd()) if (*i++ == t) return true; return false; } \
     inline bool findPrev(const T &t) \
-    { while (c && i != c->begin()) if (*(n=--i) == t) return true; \
+    { while (c && i != c->constBegin()) if (*(n=--i) == t) return true; \
       n = c->end(); return false;  } \
 };
-
 
 #define Q_DECLARE_ASSOCIATIVE_ITERATOR(C) \
 \
@@ -79,7 +78,7 @@ class C##Iterator \
     inline bool item_exists() const { return n != c->constEnd(); } \
 public: \
     inline C##Iterator(C<Key,T> &container) \
-    :c(&container), i(c->constBegin()), n(c->constEnd()) {} \
+    : c(&container), i(c->constBegin()), n(c->constEnd()) {} \
     inline void operator=(C<Key,T> &container) \
     { c = &container; i = c->constBegin(); n = c->constEnd(); } \
     inline void toFront() { i = c->constBegin(); n = c->constEnd(); } \
@@ -94,13 +93,49 @@ public: \
     { if (n != c->constEnd()) { i = c->erase(n); n = c->constEnd(); } } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline const Key &key() const { Q_ASSERT(item_exists()); return n.key(); } \
-    inline bool findKey(const Key &key) \
-    { if ((n = i = c->find(key)) != c->constEnd()) { ++i; return true; } return false; } \
     inline bool findNext(const T &t) \
     { while (c && (n=i) != c->constEnd()) if (*i++ == t) return true; return false; } \
     inline bool findPrev(const T &t) \
-    { while (c && i != c->begin()) if (*(n = --i) == t) return true; \
-      n = c->end(); return false; } \
+    { while (c && i != c->constBegin()) if (*(n = --i) == t) return true; \
+      n = c->constEnd(); return false; } \
+    inline bool findNextKey(const Key &key) \
+    {  \
+	if (i == c->constEnd() || key < i.key()) { \
+	    n = i = c->constEnd(); \
+            return false; \
+	} else if (i.key() < key) { \
+	    i = c->find(key); \
+            if ((n = i) != c->constEnd()) { \
+		++i; \
+                return true; \
+            } \
+            return false; \
+        } else { \
+	    n = i++; \
+            return true; \
+        } \
+    } \
+    inline bool findPrevKey(const Key &key) \
+    { \
+	if (i == c->constBegin() || (--i).key() < key) { \
+	    n = c->constEnd(); \
+            i = c->constBegin(); \
+            return false; \
+        } else if (key < i.key()) { \
+	    n = i = c->find(key); \
+            if (i == c->constEnd()) { \
+		i = c->constBegin(); \
+                return false; \
+            } \
+            while (++i != c->constEnd() && !(key < i.key())) \
+		; \
+	    n = --i; \
+            return true; \
+        } else { \
+	    n = i; \
+            return true; \
+        } \
+    } \
 }; \
 \
 template <class Key, class T> \
@@ -109,32 +144,36 @@ class C##MutableIterator \
     typedef typename C<Key,T>::iterator iterator; \
     C<Key,T> *c; \
     iterator i, n; \
-    inline bool item_exists() const { return n!=c->end(); } \
+    inline bool item_exists() const { return n != c->constEnd(); } \
 public: \
     inline C##MutableIterator(C<Key,T> &container)\
-    :c(&container), i(c->begin()), n(c->end()) {} \
+    : c(&container), i(c->begin()), n(c->end()) {} \
     inline void operator=(C<Key,T> &container) \
     { c = &container; i = c->begin(); n = c->end(); } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = c->end(); } \
-    inline bool hasNext() const { return c && i != c->end(); } \
+    inline bool hasNext() const { return c && i != c->constEnd(); } \
     inline iterator next() { n = i++; return n; } \
     inline iterator peekNext() const { return i; } \
-    inline bool hasPrev() const { return c && i != c->begin(); } \
+    inline bool hasPrev() const { return c && i != c->constBegin(); } \
     inline iterator prev() const { n = --i; return n; } \
     inline iterator peekPrev() const { iterator p = i; return --p; } \
     inline void remove() \
-    { if (n != c->end()) { i = c->erase(n); n = c->end(); } } \
-    inline void setValue(const T &t) { if (n != c->end()) *n = t; } \
+    { if (n != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
+    inline void setValue(const T &t) { if (n != c->constEnd()) *n = t; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline const Key &key() const { Q_ASSERT(item_exists()); return n.key(); } \
     inline bool findKey(const Key &key) \
-    { if ((n = i = c->find(key)) != c->end()) { ++i; return true; } return false; } \
+    { if ((n = i = c->find(key)) != c->constEnd()) { ++i; return true; } return false; } \
     inline bool findNext(const T &t) \
-    { while (c && (n=i) != c->end()) if (*i++ == t) return true; return false; } \
+    { while (c && (n=i) != c->constEnd()) if (*i++ == t) return true; return false; } \
     inline bool findPrev(const T &t) \
-    { while (c && i != c->begin()) if (*(n = --i) == t) return true; \
+    { while (c && i != c->constBegin()) if (*(n = --i) == t) return true; \
       n = c->end(); return false; } \
+    inline bool findNextKey(const Key &key) \
+    { return reinterpret_cast<C##Iterator<Key, T> *>(this)->findNextKey(key); } \
+    inline bool findPrevKey(const Key &key) \
+    { return reinterpret_cast<C##Iterator<Key, T> *>(this)->findPrevKey(key); } \
 };
 
 #endif // QITERATOR_H
