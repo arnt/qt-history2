@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#64 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -467,17 +467,16 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
 void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
 {
-    RevokeDragDrop(widget->winId());
     dst->releaseQt();
-    dst->Release();
     CoLockObjectExternal(dst, FALSE, TRUE);
+    RevokeDragDrop(widget->winId());
 }
 
 QOleDropTarget* qt_olednd_register( QWidget* widget )
 {
     QOleDropTarget* dst = new QOleDropTarget( widget );
-    CoLockObjectExternal(dst, TRUE, TRUE);
     RegisterDragDrop(widget->winId(), dst);
+    CoLockObjectExternal(dst, TRUE, TRUE);
     return dst;
 }
 
