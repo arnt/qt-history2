@@ -62,6 +62,8 @@
 #  include "qt_mac.h"
 #endif
 
+class QHideDock;
+
 /*
  QMainWindowPrivate - private variables of QMainWindow
 */
