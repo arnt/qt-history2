@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#277 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#278 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1291,8 +1291,6 @@ void QWidget::internalResize( int w, int h )
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
-    if ( isTopLevel() )
-	debug( "sg  %d,%d, %d,%d", x, y, w, h );
     if ( testWFlags(WType_Desktop) )
 	return;
     if ( w < 1 )				// invalid size
@@ -1340,8 +1338,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h )
 	size_hints.height = h;
 	do_size_hints( dpy, winid, extra, &size_hints );
     }
-    if ( isTopLevel() )
-	debug( "isg %d,%d, %d,%d", x, y, w, h );
     XMoveResizeWindow( dpy, winid, x, y, w, h );
 }
 
