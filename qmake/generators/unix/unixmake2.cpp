@@ -108,7 +108,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "LEXFLAGS = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS= " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH  = " << "-I" << specdir();
-    {
+    if(!project->isActiveConfig("no_include_pwd")) {
 	QString pwd = fileFixify(QDir::currentDirPath());
 	if(pwd.isEmpty())
 	    pwd = ".";
