@@ -857,8 +857,16 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
     char *addr = GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)px.handle()));
     if(!imask) {
         if(const QPixmap *alpha = px.data->alphapm) {
-            imask = true; //for now
-            qWarning("need to implement this (alpha fu %p)!!!", alphapm);
+            char *drow;
+            long *aptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)alpha->handle())), *arow;
+            unsigned short abpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)alpha->handle()));
+            const int h = alpha->height(), w = alpha->width();
+            for(int yy=0; yy<h; yy++) {
+                arow = (long*)(((char*)aptr) + (yy * abpr));
+                drow = addr + (yy * bpl);
+                for(int xx=0;xx<w;xx++) 
+                    *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
+            }
         } else if(const QBitmap *mask = px.mask()) {
             char *drow;
             long *mptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)mask->handle())), *mrow;
