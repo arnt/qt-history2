@@ -39,7 +39,6 @@ public:
     void setTable(const QString &tableName);
     QString tableName() const;
 
-    bool isModelReadOnly() const { return false; }
     bool isEditable(const QModelIndex &) const;
 
     QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::Role_Display) const;
