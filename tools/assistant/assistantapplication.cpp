@@ -1,4 +1,5 @@
 #include "assistantapplication.h"
+#include <qevent.h>
 
 AssistantApplication::AssistantApplication(int argc, char **argv, bool GUIEnabled)
     : QApplication(argc, argv, GUIEnabled), shiftKeyPressed(FALSE)

@@ -15,6 +15,7 @@
 #include "docuparser.h"
 
 #include <qapplication.h>
+#include <qdesktopwidget.h>
 #include <qfont.h>
 #include <qfontinfo.h>
 #include <qdir.h>
