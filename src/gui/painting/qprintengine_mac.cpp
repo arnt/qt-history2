@@ -554,10 +554,11 @@ void QMacPrintEngine::updateBrush(const QBrush &brush, const QPointF &pt)
     d->paintEngine->updateBrush(brush, pt);
 }
 
-void QMacPrintEngine::updateInternal(QPainterState *state, bool updateGC)
+void QMacPrintEngine::updateInternal(QPainterState *newState, bool updateGC)
 {
-    d->paintEngine->updateInternal(state, updateGC);
-    QPaintEngine::updateInternal(state, updateGC);
+    d->paintEngine->state = state; // ### QPainter changes my state without me knowing in begin().
+    d->paintEngine->updateInternal(newState, updateGC);
+    QPaintEngine::updateInternal(newState, updateGC);
 }
 
 void QMacPrintEngine::updateFont(const QFont &font)
