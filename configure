@@ -92,6 +92,15 @@ then
     rm -f $outpath/tools/linguist/doc
     ln -s $relpath/tools/linguist/doc $outpath/tools/linguist/doc
 
+    # symlink the designer/templates directory (to make the designer find
+    # the templates)
+    if [ ! -d $outpath/tools/designer ]
+    then
+	mkdir $outpath/tools/designer
+    fi
+    rm -f $outpath/tools/designer/templates
+    ln -s $relpath/tools/designer/templates $outpath/tools/designer/templates
+
     # create the include directory (will hold links and a real qconfig.h)
     if [ ! -d $outpath/include ]
     then
