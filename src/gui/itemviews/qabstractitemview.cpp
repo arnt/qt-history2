@@ -69,6 +69,9 @@ void QAbstractItemViewPrivate::init()
     viewport->installEventFilter(q);
 
     q->setModel(new QDefaultModel(q));
+
+    q->verticalScrollBar()->setRange(0, 0);
+    q->horizontalScrollBar()->setRange(0, 0);
     
     QObject::connect(q->verticalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(verticalScrollbarAction(int)));
