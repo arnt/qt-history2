@@ -200,8 +200,13 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                 //QMetaResource
                 out << "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_"
                     << resource_name << ", (" << resource_name << "))" << endl;
-                if(created)
-                    created->append("resource_" + resource_name);
+                if(created) {
+                    QString rc = "resource_" + resource_name;
+                    if(created->contains(rc)) 
+                        fprintf(stderr, "Warning: duplicate symbol %s[%s]!\n",
+                                rc.latin1(), inputQFile.fileName().latin1());
+                    created->append(rc);
+                }
             }
         }
     }
