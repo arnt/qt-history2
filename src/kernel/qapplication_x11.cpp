@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#427 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#428 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3775,7 +3775,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QPoint newPos( x, y );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
-  	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
 	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );
