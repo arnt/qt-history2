@@ -230,21 +230,21 @@ if [ "$DO_ID" = "auto" ]; then
     fi
 fi
 if [ "$DO_GZIP" = "auto" ]; then
-    if [ ! -z `which gzip` ]; then
+    if which gzip >/dev/null 2>&1; then
 	DO_GZIP=yes
     else
 	DO_GZIP=no
     fi
 fi
 if [ "$DO_BZIP" = "auto" ]; then
-    if [ ! -z `which bzip2` ]; then
+    if which bzip2 >/dev/null 2>&1; then
 	DO_BZIP=yes
     else
 	DO_BZIP=no
     fi
 fi
 if [ "$DO_STUFF" = "auto" ]; then
-    if [ ! -z `which stuff` ]; then
+    if which stuff >/dev/null 2>&1; then
 	DO_STUFF=yes
     else
 	DO_STUFF=no
