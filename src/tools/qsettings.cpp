@@ -941,8 +941,8 @@ bool QSettings::sync()
 		    if ( v.isNull() ) {
 			v = "\\0"; // escape null string
 		    } else {
-			v.replace(QRegExp("\\\\"), "\\\\"); // escape backslash
-			v.replace(QRegExp("\n"), "\\n"); // escape newlines
+			v.replace("\\", "\\\\"); // escape backslash
+			v.replace("\n", "\\n"); // escape newlines
 		    }
 
 		    stream << grpit.key() << "=" << v << endl;
@@ -1735,7 +1735,7 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 	if ( el.isNull() ) {
 	    el = "^0";
 	} else {
-	    el.replace(QRegExp("\\^"), "^^");
+	    el.replace("^", "^^");
 	}
 	s+=el;
 	s+="^e"; // end of element

@@ -36,7 +36,6 @@
 #include <qlabel.h>
 #include <qfileinfo.h>
 #include <qdir.h>
-#include <qregexp.h>
 #include <qpushbutton.h>
 #include <stdlib.h>
 #include <qcombobox.h>
@@ -293,7 +292,7 @@ void NewForm::insertTemplates( QIconView *tView,
 		    if ( !fi->isFile() || fi->extension() != "ui" )
 			continue;
 		    QString name = fi->baseName();
-		    name = name.replace( QRegExp( "_" ), " " );
+		    name = name.replace( '_', ' ' );
 		    CustomFormItem *ci = new CustomFormItem( tView, name );
 		    allItems.append( ci );
 		    ci->setDragEnabled( FALSE );

@@ -178,8 +178,8 @@ static const signed char charLookupTable[256]={
 */
 static bool stripTextDecl( QString& str )
 {
-    QRegExp textDeclStart( "^<\\?xml\\s" );
-    if ( str.contains( textDeclStart ) ) {
+    QString textDeclStart( "<?xml" );
+    if ( str.startsWith( textDeclStart ) ) {
 	QRegExp textDecl(
 	    "^<\\?xml\\s+"
 	    "(version\\s*=\\s*((['\"])[-a-zA-Z0-9_.:]+\\3))?"
@@ -6988,7 +6988,7 @@ bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, b
 {
     if ( inLiteral ) {
 	QString tmp = data;
-	d->xmlRef.push( tmp.replace( QRegExp("\""), "&quot;" ).replace( QRegExp("'"), "&apos;" ) );
+	d->xmlRef.push( tmp.replace( "\"", "&quot;" ).replace( "'", "&apos;" ) );
     } else {
 	d->xmlRef.push( data );
     }

@@ -13813,10 +13813,9 @@ QString &QString::sprintf( const char* cformat, ... )
 
 	    if ( wpos < 0 ) {
 		QRegExp num( fromLatin1("[0-9]+") );
-		QRegExp dot( fromLatin1("\\.") );
 		int p = num.search( f );
 		int nlen = num.matchedLength();
-		int q = dot.search( f );
+		int q = f.find( '.' );
 		if ( q < 0 || (p < q && p >= 0) )
 		    width = f.mid( p, nlen ).toInt();
 		if ( q >= 0 ) {

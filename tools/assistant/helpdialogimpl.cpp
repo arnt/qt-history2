@@ -476,7 +476,7 @@ void HelpDialog::loadIndexFile()
 
 	if ( s.isEmpty() )
 	    continue;
-	s = s.replace( QRegExp( "\\\\" ), "" );
+	s = s.replace( "\\", "" );
 	if ( !lastItem || lastItem->text() != s ){
 	    lastItem = new HelpNavigationListItem( listIndex, s );
 	}

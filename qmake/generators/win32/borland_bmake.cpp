@@ -97,7 +97,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
 	QString inc = (*incit);
 	inc.replace(QRegExp("\\\\*$"), "");
-	inc.replace(QRegExp("\""), "");
+	inc.replace("\"", "");
 	t << " -I\"" << inc << "\"";
     }
     t << " -I\"" << specdir() << "\""
@@ -443,7 +443,7 @@ BorlandMakefileGenerator::init()
 	    exit(666);
 	}
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-	project->variables()["RES_FILE"].first().replace(QRegExp("\\.rc"),".res");
+	project->variables()["RES_FILE"].first().replace(".rc",".res");
 	project->variables()["TARGETDEPS"] += project->variables()["RES_FILE"];
     }
     MakefileGenerator::init();

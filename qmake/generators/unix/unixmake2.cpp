@@ -426,7 +426,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		  << "ld -r  -o " << incr_target_dir << " " << link_deps << endl;
 		//communicated below
 		QStringList &cmd = project->variables()["QMAKE_LINK_SHLIB_CMD"];
-		cmd.first().replace(QRegExp("\\$\\(OBJECTS\\) \\$\\(OBJMOC\\)"),
+		cmd.first().replace("$(OBJECTS) $(OBJMOC)",
 				    "$(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)"); //ick
 		cmd.append(incr_target_dir);
 		deps.prepend(incr_target_dir + " ");
@@ -560,8 +560,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    t << "$(TARGET): $(UICDECLS) " << " $(TARGETDEPS) " 
 		      << valList(build) << "\n\t";
 		    ar = project->variables()["QMAKE_AR_CMD"].first();
-		    ar = ar.replace(QRegExp("\\$\\(OBJMOC\\)"), "").replace(QRegExp("\\$\\(OBJECTS\\)"), 
-									    build.join(" "));
+		    ar = ar.replace("$(OBJMOC)", "").replace("$(OBJECTS)", 
+							     build.join(" "));
 		} else {
 		    t << (*libit) << ": " << valList(build) << "\n\t";
 		    ar = "$(AR) " + (*libit) + " " + build.join(" ");
@@ -766,7 +766,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     t << "SUBTARGETS =	";
     for(it = subdirs.begin(); it != subdirs.end(); ++it) {
 	QString sr = (*it);
-	sr.replace(QRegExp("/"), "-");
+	sr.replace('/', '-');
 	t << " \\\n\t\tsub-" << sr;
     }
     t << endl << endl;
@@ -778,7 +778,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	QString sr = (*it), mkfile = (*it) + Option::dir_sep + "$(MAKEFILE)", out;
 	if(direct)
 	    out = " -o $(MAKEFILE)";
-	sr.replace(QRegExp("/"), "-");
+	sr.replace("/", "-");
 	//qmake it
 	t << mkfile << ": " << "\n\t"
 	  << "cd " << (*it) << " && $(QMAKE)" << buildArgs() << out << endl;
@@ -793,10 +793,10 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	it = subdirs.begin();
 	while (it != subdirs.end()) {
 	    tar = *it++;
-            tar.replace(QRegExp("/"), "-");
+            tar.replace('/', '-');
 	    if (it != subdirs.end()) {
 		dep = *it;
-                dep.replace(QRegExp("/"), "-");
+                dep.replace('/', '-');
 		t << "sub-" << dep << ": sub-" << tar << endl;
 	    }
 	}
@@ -861,7 +861,7 @@ void UnixMakefileGenerator::init2()
     } else {
 	project->variables()["TARGETA"].append(project->first("DESTDIR") + "lib" + project->first("TARGET") + ".a");
 	if ( !project->variables()["QMAKE_AR_CMD"].isEmpty() )
-	    project->variables()["QMAKE_AR_CMD"].first().replace(QRegExp("\\(TARGET\\)"),"(TARGETA)");
+	    project->variables()["QMAKE_AR_CMD"].first().replace("(TARGET)","(TARGETA)");
 	else
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
 	QString os = project->variables()["QMAKESPEC"].first().section( '-', 0, 0 );

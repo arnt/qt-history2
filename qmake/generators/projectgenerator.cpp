@@ -416,7 +416,7 @@ ProjectGenerator::getWritableVar(const QString &v, bool /*fixPath*/)
     // ### Commented out for now so that project generation works.
     // Sam: can you look at why this was needed?
     /*    if(fixPath)
-	join = join.replace(QRegExp("\\\\"), "/");*/
+	join = join.replace("\\", "/");*/
     return ret + join + "\n";
 }
 

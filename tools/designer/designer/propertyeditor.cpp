@@ -545,7 +545,7 @@ void PropertyItem::setText( int col, const QString &t )
 {
     QString txt( t );
     if ( col == 1 )
-	txt = txt.replace( QRegExp( "\n" ), " " );
+	txt = txt.replace( "\n", " " );
     QListViewItem::setText( col, txt );
 }
 

@@ -2265,7 +2265,7 @@ QString TrWindow::friendlyString( const QString& str )
 {
     QString f = str.lower();
     f.replace( QRegExp(QString("[.,:;!?()-]")), QString(" ") );
-    f.replace( QRegExp(QString("&")), QString("") );
+    f.replace( "&", QString("") );
     f = f.simplifyWhiteSpace();
     f = f.lower();
     return f;

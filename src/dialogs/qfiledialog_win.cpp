@@ -59,7 +59,7 @@ static QString extractFilter( const QString& rawFilter )
     int index = r.search( result );
     if ( index >= 0 )
 	result = r.cap( 2 );
-    return result.replace( QRegExp(QString::fromLatin1(" ")), QChar(';') );
+    return result.replace( QChar(' '), QChar(';') );
 }
 
 // Makes a list of filters from ;;-separated text.

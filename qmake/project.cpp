@@ -729,7 +729,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
 
 	QString file = args.first();
 	file = Option::fixPathToLocalOS(file);
-	file.replace(QRegExp("\""), "");
+	file.replace("\"", "");
 	doVariableReplace(file, place);
 	debug_msg(1, "Project Parser: Including file %s.", file.latin1());
 	parser_info pi = parser;
@@ -861,11 +861,11 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    } else {
 			QString glue, before, after;
 			if(args.count() >= 2)
-			    glue = args[1].replace(QRegExp("\""), "");
+			    glue = args[1].replace("\"", "" );
 			if(args.count() >= 3)
-			    before = args[2].replace(QRegExp("\""), "");
+			    before = args[2].replace("\"", "" );
 			if(args.count() == 4)
-			    after = args[3].replace(QRegExp("\""), "");
+			    after = args[3].replace("\"", "" );
 			const QStringList &var = place[varMap(args.first())];
 			if(!var.isEmpty())
 			    replacement = before + var.join(glue) + after;
@@ -875,7 +875,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			fprintf(stderr, "%s:%d find(var, str) requires two arguments\n",
 				parser.file.latin1(), parser.line_no);
 		    } else {
-			QRegExp regx = QRegExp(args[1]);
+			QRegExp regx(args[1]);
 			const QStringList &var = place[varMap(args.first())];
 			for(QStringList::ConstIterator vit = var.begin();
 			    vit != var.end(); ++vit) {

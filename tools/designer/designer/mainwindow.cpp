@@ -63,7 +63,6 @@
 #include <qlistbox.h>
 #include <stdlib.h>
 #include <qdockwindow.h>
-#include <qregexp.h>
 #include <qstylefactory.h>
 #include "actioneditorimpl.h"
 #include "actiondnd.h"
@@ -1884,7 +1883,7 @@ void MainWindow::selectionChanged()
 static QString fixArgs( const QString &s2 )
 {
     QString s = s2;
-    return s.replace( QRegExp( "," ), ";" );
+    return s.replace( ',', ';' );
 }
 
 void MainWindow::writeConfig()
@@ -1986,7 +1985,7 @@ void MainWindow::writeConfig()
 static QString fixArgs2( const QString &s2 )
 {
     QString s = s2;
-    return s.replace( QRegExp( ";" ), "," );
+    return s.replace( ';', ',' );
 }
 
 void MainWindow::readConfig()

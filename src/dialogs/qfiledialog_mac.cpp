@@ -67,7 +67,7 @@ static qt_mac_filter_name *extractFilter( const QString& rawFilter )
     }
     if(ret->description.isEmpty()) 
 	ret->description = result;
-    ret->regxp = result.replace(QRegExp(QString::fromLatin1(" ")), QChar(';'));
+    ret->regxp = result.replace(QChar(' '), QChar(';'));
     return ret;
 }
 

@@ -223,11 +223,11 @@ static AttributeMap attribute( const QString& name, const QString& val )
 static QString entitize( const QString& str )
 {
     QString t = str;
-    t.replace( QRegExp(QChar('&')), QString("&amp;") );
-    t.replace( QRegExp(QChar('>')), QString("&gt;") );
-    t.replace( QRegExp(QChar('<')), QString("&lt;") );
-    t.replace( QRegExp(QChar('"')), QString("&quot;") );
-    t.replace( QRegExp(QChar('\'')), QString("&apos;") );
+    t.replace( '&', QString("&amp;") );
+    t.replace( '>', QString("&gt;") );
+    t.replace( '<', QString("&lt;") );
+    t.replace( '"', QString("&quot;") );
+    t.replace( '\'', QString("&apos;") );
     return t;
 }
 
@@ -433,9 +433,9 @@ void Glade2Ui::emitAttribute( const QString& prop, const QVariant& val,
 static QString accelerate( const QString& gtkLabel )
 {
     QString qtLabel = gtkLabel;
-    qtLabel.replace( QRegExp(QChar('&')), QString("&&") );
+    qtLabel.replace( '&', QString("&&") );
     // close but not quite right
-    qtLabel.replace( QRegExp(QChar('_')), QChar('&') );
+    qtLabel.replace( '_', QChar('&') );
     return qtLabel;
 }
 
@@ -443,7 +443,7 @@ static QString decelerate( const QString& gtkLabel )
 {
     QString qtLabel = gtkLabel;
     // ditto
-    qtLabel.replace( QRegExp(QChar('_')), QString::null );
+    qtLabel.replace( '_', QString::null );
     return qtLabel;
 }
 

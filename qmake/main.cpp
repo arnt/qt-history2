@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 			ofile = Option::output.name();
 			int slashfind = ofile.findRev('\\');
 			if (slashfind == -1)
-			    ofile = ofile.replace(QRegExp("-"), "_");
+			    ofile = ofile.replace('-', '_');
 			else { 
 			    int hypenfind = ofile.find('-', slashfind);
 			    while (hypenfind != -1 && slashfind < hypenfind) {

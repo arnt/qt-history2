@@ -654,11 +654,11 @@ static QString makeIndent2( int indent )
 static QString entitize2( const QString &s )
 {
     QString s2 = s;
-    s2 = s2.replace( QRegExp( "\"" ), "&quot;" );
-    s2 = s2.replace( QRegExp( "&" ), "&amp;" );
-    s2 = s2.replace( QRegExp( ">" ), "&gt;" );
-    s2 = s2.replace( QRegExp( "<" ), "&lt;" );
-    s2 = s2.replace( QRegExp( "'" ), "&apos;" );
+    s2 = s2.replace( "\"", "&quot;" );
+    s2 = s2.replace( "&", "&amp;" );
+    s2 = s2.replace( ">", "&gt;" );
+    s2 = s2.replace( "<", "&lt;" );
+    s2 = s2.replace( "'", "&apos;" );
     return s2;
 }
 

@@ -260,14 +260,14 @@ static void parseEtcLpPrinters( QListView * printers )
 			 printer->fileName().ascii() );
 	    QFile configuration( tmp );
 	    char * line = new char[1025];
-	    QRegExp remote( QString::fromLatin1("^Remote:") );
-	    QRegExp contentType( QString::fromLatin1("^Content types:") );
+	    QString remote( QString::fromLatin1("Remote:") );
+	    QString contentType( QString::fromLatin1("Content types:") );
 	    QString printerHost;
 	    bool canPrintPostscript = FALSE;
 	    if ( configuration.open( IO_ReadOnly ) ) {
 		while ( !configuration.atEnd() &&
 			configuration.readLine( line, 1024 ) > 0 ) {
-		    if ( remote.search(QString::fromLatin1(line)) == 0 ) {
+		    if ( QString::fromLatin1(line).startsWith( remote ) ) {
 			const char * p = line;
 			while ( *p != ':' )
 			    p++;
@@ -276,8 +276,7 @@ static void parseEtcLpPrinters( QListView * printers )
 			    p++;
 			printerHost = QString::fromLocal8Bit(p);
 			printerHost = printerHost.simplifyWhiteSpace();
-		    } else if ( contentType.search(QString::fromLatin1(line))
-				== 0 ) {
+		    } else if ( QString::fromLatin1(line).startsWith( contentType ) ) {
 			char * p = line;
 			while ( *p != ':' )
 			    p++;
@@ -638,25 +637,25 @@ static void parseSpoolInterface( QListView * printers )
 	QString hostPrinter;
 	QString printerType;
 
-	QRegExp nameKey( QString::fromLatin1("^NAME=") );
-	QRegExp typeKey( QString::fromLatin1("^TYPE=") );
-	QRegExp hostKey( QString::fromLatin1("^HOSTNAME=") );
-	QRegExp hostPrinterKey( QString::fromLatin1("^HOSTPRINTER=") );
+	QString nameKey( QString::fromLatin1("NAME=") );
+	QString typeKey( QString::fromLatin1("TYPE=") );
+	QString hostKey( QString::fromLatin1("HOSTNAME=") );
+	QString hostPrinterKey( QString::fromLatin1("HOSTPRINTER=") );
 
 	while ( !configFile.atEnd() &&
 		(configFile.readLine(line.data(), 1024)) > 0 ) {
-
-	    if ( typeKey.search(line) == 0 ) {
-		printerType = line.mid( typeKey.matchedLength() );
+	    QString uline = line;
+	    if ( uline.startsWith( typeKey )  ) {
+		printerType = line.mid( nameKey.length() );
 		printerType = printerType.simplifyWhiteSpace();
-	    } else if ( hostKey.search(line) == 0 ) {
-		hostName = line.mid( hostKey.matchedLength() );
+	    } else if ( uline.startsWith( hostKey ) ) {
+		hostName = line.mid( hostKey.length() );
 		hostName = hostName.simplifyWhiteSpace();
-	    } else if ( hostPrinterKey.search(line) == 0 ) {
-		hostPrinter = line.mid( hostPrinterKey.matchedLength() );
+	    } else if ( uline.startsWith( hostPrinterKey ) ) {
+		hostPrinter = line.mid( hostPrinterKey.length() );
 		hostPrinter = hostPrinter.simplifyWhiteSpace();
-	    } else if (nameKey.search(line) == 0 ) {
-		namePrinter = line.mid(nameKey.matchedLength());
+	    } else if ( uline.startsWith( nameKey ) ) {
+		namePrinter = line.mid( nameKey.length() );
 		namePrinter = namePrinter.simplifyWhiteSpace();
 	    }
 	}

@@ -241,7 +241,7 @@ bool QProcess::start( QStringList *env )
     for ( ; it != _arguments.end(); ++it ) {
 	QString tmp = *it;
 	// escape a single " because the arguments will be parsed
-	tmp.replace( QRegExp("\""), "\\\"" );
+	tmp.replace( "\"", "\\\"" );
 	// The argument must not end with a \ since this would be interpreted
 	// as escaping the quote -- rather put the \ behind the quote: e.g.
 	// rather use "foo"\ than "foo\"

@@ -30,7 +30,6 @@
 #include "workspace.h"
 #include <qmessagebox.h>
 #include <qfile.h>
-#include <qregexp.h>
 #include <qstatusbar.h>
 #include "propertyeditor.h"
 #include <qworkspace.h>
@@ -42,12 +41,12 @@ static QString make_func_pretty( const QString &s )
     QString res = s;
     if ( res.find( ")" ) - res.find( "(" ) == 1 )
 	return res;
-    res.replace( QRegExp( "[(]" ), "( " );
-    res.replace( QRegExp( "[)]" ), " )" );
-    res.replace( QRegExp( "&" ), " &" );
-    res.replace( QRegExp( "[*]" ), " *" );
-    res.replace( QRegExp( "," ), ", " );
-    res.replace( QRegExp( ":" ), " : " );
+    res.replace( "(", "( " );
+    res.replace( ")", " )" );
+    res.replace( "&", " &" );
+    res.replace( "*", " *" );
+    res.replace( ",", ", " );
+    res.replace( ":", " : " );
     res = res.simplifyWhiteSpace();
     return res;
 }

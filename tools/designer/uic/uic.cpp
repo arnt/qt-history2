@@ -62,9 +62,10 @@ bool Uic::toBool( const QString& s )
 QString Uic::fixString( const QString &str )
 {
     QString s( str );
-    s.replace( QRegExp( "\\\\" ), "\\\\" );
-    s.replace( QRegExp( "\"" ), "\\\"" );
-    s.replace( QRegExp( "\r?\n" ), "\\n\"\n\"" );
+    s.replace( "\\", "\\\\" );
+    s.replace( "\"", "\\\"" );
+    s.replace( "\r", "" );
+    s.replace( "\n", "\\n\"\n\"" );
     return "\"" + s + "\"";
 }
 

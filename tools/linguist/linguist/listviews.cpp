@@ -96,8 +96,8 @@ int LVI::compare( QListViewItem *other, int column, bool ascending ) const
 	QString nicerThisKey = thisKey;
 	QString nicerOtherKey = otherKey;
 
-	nicerThisKey.replace( QRegExp("&"), "" );
-	nicerOtherKey.replace( QRegExp("&"), "" );
+	nicerThisKey.replace( "&", "" );
+	nicerOtherKey.replace( "&", "" );
 
 	int delta = nicerThisKey.localeAwareCompare( nicerOtherKey );
 	if ( delta != 0 )

@@ -179,8 +179,8 @@ Win32MakefileGenerator::findLibraries(const QString &where)
         bool remove = FALSE;
         if(opt.left(2) == "-L" || opt.left(2) == "/L") {
             QString r = opt.right(opt.length() - 2), l = Option::fixPathToLocalOS(r);
-            dirs.append(new MakefileDependDir(r.replace(QRegExp("\""),""), 
-                                              l.replace(QRegExp("\""),"")));
+            dirs.append(new MakefileDependDir(r.replace("\"",""), 
+                                              l.replace("\"","")));
             remove = TRUE;
         } else if(opt.left(2) == "-l" || opt.left(2) == "/l") {
             QString lib = opt.right(opt.length() - 2), out;

@@ -30,9 +30,9 @@ QMap<QString, QString> proFileTagMap( const QString& text )
     */
     t.replace( QRegExp(QString("#[^\n]$")), QString(" ") );
     t.replace( QRegExp(QString("\\\\\\s*\n")), QString(" ") );
-    t.replace( QRegExp(QString("=")), QString(" = ") );
-    t.replace( QRegExp(QString("\\+ =")), QString(" += ") );
-    t.replace( QRegExp(QString("\n")), QString(";") );
+    t.replace( "=", QString(" = ") );
+    t.replace( "+ =", QString(" += ") );
+    t.replace( "\n", QString(";") );
     t = t.simplifyWhiteSpace();
 
     QMap<QString, QString> tagMap;

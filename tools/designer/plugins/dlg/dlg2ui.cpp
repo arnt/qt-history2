@@ -246,11 +246,11 @@ static AttributeMap attribute( const QString& name, const QString& val )
 static QString entitize( const QString& str )
 {
     QString t = str;
-    t.replace( QRegExp(QChar('&')), QString("&amp;") );
-    t.replace( QRegExp(QChar('>')), QString("&gt;") );
-    t.replace( QRegExp(QChar('<')), QString("&lt;") );
-    t.replace( QRegExp(QChar('"')), QString("&quot;") );
-    t.replace( QRegExp(QChar('\'')), QString("&apos;") );
+    t.replace( '&', QString("&amp;") );
+    t.replace( '>', QString("&gt;") );
+    t.replace( '<', QString("&lt;") );
+    t.replace( '"', QString("&quot;") );
+    t.replace( '\'', QString("&apos;") );
     return t;
 }
 

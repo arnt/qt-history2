@@ -414,9 +414,9 @@ Option::fixPathToLocalOS(const QString& in, bool fix_env, bool canonical)
     if(canonical)
 	tmp = fixPath(tmp);
 #if defined(Q_OS_WIN32)
-    return tmp.replace(QRegExp("/"), "\\");
+    return tmp.replace('/', '\\');
 #else
-    return tmp.replace(QRegExp("\\\\"), "/");
+    return tmp.replace('\\', '/');
 #endif
 }
 

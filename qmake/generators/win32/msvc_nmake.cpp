@@ -95,7 +95,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
 	QString inc = (*incit);
 	inc.replace(QRegExp("\\\\$"), "\\\\");
-	inc.replace(QRegExp("\""), "");
+	inc.replace("\"", "");
 	t << " -I\"" << inc << "\"";
     }
     t << " -I\"" << specdir() << "\""
@@ -448,7 +448,7 @@ NmakeMakefileGenerator::init()
 	int firstDot = version.find( "." );
 	QString major = version.left( firstDot );
 	QString minor = version.right( version.length() - firstDot - 1 );
-	minor.replace( QRegExp( "\\." ), "" );
+	minor.replace( ".", "" );
 	project->variables()["QMAKE_LFLAGS"].append( "/VERSION:" + major + "." + minor );
     }
     if ( !project->variables()["RC_FILE"].isEmpty()) {
@@ -458,7 +458,7 @@ NmakeMakefileGenerator::init()
 	    exit(666);
 	}
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
-	project->variables()["RES_FILE"].first().replace(QRegExp("\\.rc"),".res");
+	project->variables()["RES_FILE"].first().replace(".rc",".res");
 	project->variables()["TARGETDEPS"] += project->variables()["RES_FILE"];
     }
     if ( !project->variables()["RES_FILE"].isEmpty()) 

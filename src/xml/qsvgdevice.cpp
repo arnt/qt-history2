@@ -1086,7 +1086,7 @@ void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
 
 void QSvgDevice::setStyle( const QString &s )
 {
-    QStringList rules = QStringList::split( QRegExp( ";" ), s );
+    QStringList rules = QStringList::split( QChar(';'), s );
 
     QPen pen = pt->pen();
     QFont font = pt->font();

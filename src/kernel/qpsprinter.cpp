@@ -61,7 +61,6 @@
 #include "qstring.h"
 #include "qdict.h"
 #include "qmemarray.h"
-#include "qregexp.h"
 #include "qfile.h"
 #include "qbuffer.h"
 #include "qintdict.h"
@@ -5700,9 +5699,9 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 			 " [ m s s s ] [ s m s s ]"      //   dash dot line
 			 " [ m s s s s ] [ s m s s s s ]"         //   dash dot dot line
 			 " ] d\n";
-    lineStyles.replace( QRegExp( "w" ), QString::number( 10./scale ) );
-    lineStyles.replace( QRegExp( "m" ), QString::number( 5./scale ) );
-    lineStyles.replace( QRegExp( "s" ), QString::number( 3./scale ) );
+    lineStyles.replace( "w", QString::number( 10./scale ) );
+    lineStyles.replace( "m", QString::number( 5./scale ) );
+    lineStyles.replace( "s", QString::number( 3./scale ) );
 
     outStream << lineStyles;
 

@@ -341,7 +341,7 @@ bool P4Submit::execute()
     if ( dialog.exec() != QDialog::Accepted )
 	return FALSE;
 
-    QString description = dialog.description->text().replace( QRegExp("\\n"), "\n\t" );
+    QString description = dialog.description->text().replace( "\n", "\n\t" );
 
     QString buffer = "Change:\tnew\n\n";
     buffer += "Client:\t" + P4Info::clientName + "\n\n";
@@ -490,14 +490,14 @@ void P4Diff::processExited()
     if ( success() ) {
 	int fstEndl = data().find( '\n' );
 	QString caption = data().mid( 4, fstEndl-9 );
-	caption = caption.replace( QRegExp("===="), "" );
+	caption = caption.replace( "====", "" );
 	QString diff = data();
 	QStringList lst = QStringList::split( '\n', diff );
 	diff = "";
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    QString s( *it );
-	    s = s.replace( QRegExp( "<" ), "&lt;" );
-	    s = s.replace( QRegExp( ">"), "&gt;" );
+	    s = s.replace( "<", "&lt;" );
+	    s = s.replace( ">", "&gt;" );
 	    if ( s[ 0 ] == '-' )
 		s = "<font color=\"red\"><pre>" + s + "</pre></font>";
 	    else if ( s[ 0 ] == '+' )

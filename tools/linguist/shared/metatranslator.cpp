@@ -18,7 +18,6 @@
 #include <qcstring.h>
 #include <qfile.h>
 #include <qmessagebox.h>
-#include <qregexp.h>
 #include <qtextcodec.h>
 #include <qtextstream.h>
 #include <qxml.h>
@@ -162,7 +161,7 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
 bool TsHandler::characters( const QString& ch )
 {
     QString t = ch;
-    t.replace( QRegExp(QChar('\r')), "" );
+    t.replace( "\r", "" );
     accum += t;
     return TRUE;
 }

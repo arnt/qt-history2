@@ -216,7 +216,7 @@ bool QPSQLResult::fetchLast()
 QPoint pointFromString( const QString& s)
 {
     // format '(x,y)'
-    int pivot = s.find( QRegExp(",") );
+    int pivot = s.find( ',' );
     if ( pivot != -1 ) {
 	int x = s.mid( 1, pivot-1 ).toInt();
 	int y = s.mid( pivot+1, s.length()-pivot-2 ).toInt();
@@ -286,7 +286,7 @@ QVariant QPSQLResult::data( int i )
 	return QVariant( pointFromString( val ) );
     case QVariant::Rect: // format '(x,y),(x',y')'
 	{
-	    int pivot = val.find( QRegExp( "\\),\\(" ) );
+	    int pivot = val.find( "),(" );
 	    if ( pivot != -1 )
 		return QVariant( QRect( pointFromString( val.mid(0,pivot+1) ), pointFromString( val.mid(pivot+2,val.length()) ) ) );
 	    return QVariant( QRect() );
@@ -301,7 +301,7 @@ QVariant QPSQLResult::data( int i )
 		int start = val.find( pointPattern, idx );
 		int end = -1;
 		if ( start != -1 ) {
-		    end = val.find( QRegExp("\\)"), start+1 );
+		    end = val.find( ')', start+1 );
 		    if ( end != -1 ) {
 			parray.setPoint( i, pointFromString( val.mid(idx, end-idx+1) ) );
 		    }
@@ -876,7 +876,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 	case QVariant::CString: {
 	    // Escape '\' characters
 	    r = QSqlDriver::formatValue( field );
-	    r.replace( QRegExp( "\\\\" ), "\\\\" );
+	    r.replace( "\\", "\\\\" );
 	    break;
 	}
 	case QVariant::Bool:

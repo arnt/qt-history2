@@ -35,7 +35,6 @@
 #include "qsettings.h"
 #include <private/qsettings_p.h>
 #ifndef QT_NO_SETTINGS
-#include "qregexp.h"
 #include "qstring.h"
 #include "qptrlist.h"
 // ### remove this hack, tools shouldn't include kernel files
@@ -56,7 +55,7 @@ static QString *qt_mac_settings_base = NULL;
 #if 1
 #define MACKEY_SEP '.'
 static void qt_mac_fix_key(QString &k) {
-    k.replace(QRegExp("//"), "/");
+    k.replace("//", "/");
     if(k.length() && k[0] == '/')
 	k = k.mid(1);
     for ( int i=0; i<(int)k.length(); i++ ) {

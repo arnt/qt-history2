@@ -599,8 +599,8 @@ MakefileGenerator::init()
 		incDirs += v["INCLUDEPATH"];
 	    for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it) {
 		QString r = (*it), l = Option::fixPathToLocalOS((*it));
-		deplist.append(new MakefileDependDir(r.replace(QRegExp("\""),""),
-						     l.replace(QRegExp("\""),"")));
+		deplist.append(new MakefileDependDir(r.replace("\"",""),
+						     l.replace("\"","")));
 	    }
 	    debug_msg(1, "Dependancy Directories: %s", incDirs.join(" :: ").latin1());
 	    if(Option::output.name() != "-" && project->isActiveConfig("qmake_cache")) {
@@ -1216,8 +1216,8 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 
     QStringList::Iterator oit = objl.begin();
     QStringList::Iterator sit = srcl.begin();
-    QRegExp regexpSrc("\\$src");
-    QRegExp regexpObj("\\$obj");
+    QString stringSrc("$src");
+    QString stringObj("$obj");
     for( ;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
 	if((*sit).isEmpty())
 	    continue;
@@ -1251,8 +1251,8 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	}
 	if ( !project->isEmpty("OBJECTS_DIR") || project->variables()[cimp].isEmpty()) {
 	    QString p = var(comp);
-	    p.replace(regexpSrc, (*sit));
-	    p.replace(regexpObj, (*oit));
+	    p.replace(stringSrc, (*sit));
+	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
 	}
 	t << endl << endl;
@@ -1301,8 +1301,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 {
     QStringList &objl = project->variables()[obj];
     QStringList::Iterator oit = objl.begin();
-    QRegExp regexpSrc("\\$src");
-    QRegExp regexpObj("\\$obj");
+    QString stringSrc("$src");
+    QString stringObj("$obj");
 
     QString mocdir;
     if(!project->isEmpty("MOC_DIR"))
@@ -1323,8 +1323,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("MOC_DIR") ||
 	     project->isEmpty("QMAKE_RUN_CXX_IMP")) {
 	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace( regexpSrc, src);
-	    p.replace( regexpObj, (*oit));
+	    p.replace( stringSrc, src);
+	    p.replace( stringObj, (*oit));
 	    t << "\n\t" << p;
 	}
 	t << endl << endl;
@@ -1400,8 +1400,8 @@ void
 MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
 {
     QStringList &objl = project->variables()[obj];
-    QRegExp regexpSrc("\\$src");
-    QRegExp regexpObj("\\$obj");
+    QString stringSrc("$src");
+    QString stringObj("$obj");
 
     QString uidir;
     for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
@@ -1410,8 +1410,8 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
 	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("UI_DIR") ||
 	     !project->isEmpty("UI_SOURCES_DIR") || project->isEmpty("QMAKE_RUN_CXX_IMP")) {
 	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace( regexpSrc, src);
-	    p.replace( regexpObj, (*oit));
+	    p.replace( stringSrc, src);
+	    p.replace( stringObj, (*oit));
 	    t << "\n\t" << p;
 	}
 	t << endl << endl;

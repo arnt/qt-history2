@@ -38,7 +38,6 @@
 #include <private/qlibrary_p.h>
 
 #ifndef QT_NO_LIBRARY
-#include <qregexp.h>
 
 // uncomment this to get error messages
 //#define QT_DEBUG_COMPONENT 1
@@ -137,7 +136,7 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 QLibrary::QLibrary( const QString& filename )
     : libfile( filename ), aunload( TRUE )
 {
-    libfile.replace( QRegExp("\\\\"), "/" );
+    libfile.replace( '\\', '/' );
     d = new QLibraryPrivate( this );
 }
 

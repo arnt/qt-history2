@@ -556,7 +556,7 @@ QString QMYSQLDriver::formatValue( const QSqlField* field, bool trimStrings ) co
 	case QVariant::CString: {
 	    // Escape '\' characters
 	    r = QSqlDriver::formatValue( field );
-	    r.replace( QRegExp( "\\\\" ), "\\\\" );
+	    r.replace( "\\", "\\\\" );
 	    break;
 	}
 	default:
