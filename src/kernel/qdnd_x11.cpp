@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#31 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -279,11 +279,12 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
 	}
 	QDragEnterEvent de( p );
+	de.ignore( c->rect() );
 	QApplication::sendEvent( c, &de );
 	if ( de.isAccepted() )
 	    response.data.l[1] = 1; // yess!!!!
-	answerRect= QRect( c->mapToGlobal( de.answerRect().topLeft() ),
-			   de.answerRect().size() );
+	answerRect = QRect( c->mapToGlobal( de.answerRect().topLeft() ),
+			    de.answerRect().size() );
     }
 
     qt_xdnd_current_widget = c;
@@ -297,8 +298,21 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     answerRect= QRect( c->mapToGlobal( me.answerRect().topLeft() ),
 		       me.answerRect().size() );
 
-    response.data.l[2] = answerRect.x() << 16 + answerRect.y();
-    response.data.l[2] = answerRect.width() << 16 + answerRect.height();
+    if ( answerRect.width() < 0 )
+	answerRect.setWidth( 0 );
+    if ( answerRect.height() < 0 )
+	answerRect.setHeight( 0 );
+    if ( answerRect.left() < 0 )
+	answerRect.setLeft( 0 );
+    if ( answerRect.right() > 4096 )
+	answerRect.setRight( 4096 );
+    if ( answerRect.top() < 0 )
+	answerRect.setTop( 0 );
+    if ( answerRect.bottom() > 4096 )
+	answerRect.setBottom( 4096 );
+
+    response.data.l[2] = (answerRect.x() << 16) + answerRect.y();
+    response.data.l[3] = (answerRect.width() << 16) + answerRect.height();
 
     QWidget * source = QWidget::find( qt_xdnd_dragsource_xid );
     if ( source )
@@ -315,6 +329,15 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe )
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
     QDragResponseEvent e( (int)(l[1] & 1) );
     QApplication::sendEvent( w, &e );
+
+    QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
+    QSize s( (l[3] & 0xffff0000) >> 16, l[3] & 0x0000ffff );
+    if ( s.width() < 4096 && s.height() < 4097 &&
+	 s.width() > 0 && s.height() > 0 ) {
+	qt_xdnd_source_sameanswer = QRect( p, s );
+    }
+    else
+	qt_xdnd_source_sameanswer = QRect( p, QSize( 1, 1 ) );
 }
 
 
@@ -452,6 +475,8 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
     } else if ( e->type() == Event_MouseButtonRelease ) {
 	if ( willDrop )
 	    drop();
+	else
+	    cancel();
 	dragSource->removeEventFilter( this );
 	object = 0;
 	dragSource = 0;
@@ -510,7 +535,9 @@ void QDragManager::cancel()
 
 void QDragManager::move( const QPoint & globalPos )
 {
-    if ( qt_xdnd_source_sameanswer.contains( globalPos ) )
+    if ( qt_xdnd_source_sameanswer.contains( globalPos ) && 
+	 qt_xdnd_source_sameanswer.isValid() && 
+	 !qt_xdnd_source_sameanswer.isEmpty() ) // ### probably unnecessary
 	return;
 
     Window target = 0;
@@ -602,8 +629,6 @@ void QDragManager::drop()
     drop.data.l[2] = 0; // ###
     drop.data.l[3] = 0;
     drop.data.l[4] = 0;
-    
-    debug( "i am here" );
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
     if ( w )
