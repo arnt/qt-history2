@@ -44,7 +44,6 @@
 #include "qdir.h"
 #include "qmap.h"
 #include "qstringlist.h"
-#include "qregexp.h"
 #endif // QT_H
 
 #ifndef QT_NO_PLUGIN
@@ -52,12 +51,12 @@
 class QApplicationInterface;
 
 template<class Type>
-class Q_EXPORT QInterfaceManager : public Type
+class Q_EXPORT QInterfaceManager
 {
 public:
-    QInterfaceManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
+    QInterfaceManager( const QString& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so",
 	 QApplicationInterface* appIface = 0, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
-	: defPol( pol ), appInterface( appIface )
+	: interfaceId( id ), defPol( pol ), appInterface( appIface )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
@@ -90,7 +89,7 @@ public:
 	bool useful = FALSE;
 
 	if ( plugin->load() ) {
-	    Type* iFace = (Type*)plugin->queryInterface( interfaceID() );
+	    Type* iFace = (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
 	    if ( iFace ) {
 		QStringList fl = iFace->featureList();
 		for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
@@ -126,7 +125,7 @@ public:
 	if ( !plugin )
 	    return FALSE;
 
-	Type *iFace = (Type*)plugin->queryInterface( interfaceID() );
+	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace && iFace->interfaceID() == interfaceID() ) {
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
@@ -162,7 +161,7 @@ public:
 	QPlugIn* plugin = plugDict[feature];
 	if ( !plugin )
 	    return 0;
-	return (Type*)plugin->queryInterface( interfaceID() );
+	return (Type*)plugin->queryInterface( "*/"+interfaceId+"*" );
     }
 
     QPlugIn* plugIn( const QString& feature ) const
@@ -235,6 +234,7 @@ public:
     }
 
 private:
+    QString interfaceId;
     QDict<QPlugIn> plugDict;	    // Dict to match feature with plugin
     QDict<QPlugIn> libDict;	    // Dict to match library file with plugin
 
