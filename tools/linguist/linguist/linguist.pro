@@ -80,7 +80,10 @@ win32 {
     LIBS	+= $$QT_BUILD_TREE/lib/qassistantclient.lib
     RC_FILE	= linguist.rc
 }
-mac:staticlib:CONFIG -= global_init_link_order #yuck
+mac {
+    staticlib:CONFIG -= global_init_link_order #yuck
+    RC_FILE = linguist.icns
+}
 
 PROJECTNAME	= Qt Linguist
 

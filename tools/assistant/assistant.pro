@@ -18,6 +18,8 @@ include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 
 win32:RC_FILE = assistant.rc
+mac:RC_FILE = assistant.icns
+
 
 target.path=$$bins.path
 INSTALLS += target
