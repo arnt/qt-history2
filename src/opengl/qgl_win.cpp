@@ -18,6 +18,7 @@
 #include <qpixmap.h>
 #include <qevent.h>
 #include <private/qgl_p.h>
+#include <qcolormap.h>
 
 #include <windows.h>
 
@@ -527,13 +528,12 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
         else {
             if (lpfd.dwFlags & LPD_TRANSPARENT)
-                d->transpColor = QColor(qRgb(1, 2, 3), lpfd.crTransparent);
+                d->transpColor = QColor(qRgb(1, 2, 3));//, lpfd.crTransparent);
             else
-                d->transpColor = QColor(qRgb(1, 2, 3), 0);
+                d->transpColor = QColor(qRgb(1, 2, 3));//, 0);
 
             cmap = new QGLCmap(1 << lpfd.cColorBits);
-            cmap->setEntry(lpfd.crTransparent, qRgb(1, 2, 3),
-                            QGLCmap::Reserved);
+            cmap->setEntry(lpfd.crTransparent, qRgb(1, 2, 3));//, QGLCmap::Reserved);
         }
 
         if (shareContext && shareContext->isValid())
@@ -789,8 +789,9 @@ void QGLContext::makeCurrent()
         dc = GetDC(win);
     else
         dc = qt_winHDC(d->paintDevice);
-    if (QColor::hPal()) {
-        SelectPalette(dc, QColor::hPal(), false);
+    HPALETTE hpal = QColormap::hPal();
+    if (hpal) {
+        SelectPalette(dc, hpal, false);
         RealizePalette(dc);
     }
     if (glFormat.plane()) {

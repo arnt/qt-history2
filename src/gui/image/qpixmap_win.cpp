@@ -15,6 +15,7 @@
 #include "qimage.h"
 #include "qpaintdevicemetrics.h"
 #include "qmatrix.h"
+#include "qcolormap.h"
 #include "qapplication.h"
 #include <private/qapplication_p.h>
 #include "qt_windows.h"
@@ -86,8 +87,9 @@ static inline HDC alloc_mem_dc(HBITMAP hbm, HBITMAP *old_hbm)
         qSystemWarning("alloc_mem_dc: CreateCompatibleDC failed");
         return hdc;
     }
-    if (QColor::hPal()) {
-        SelectPalette(hdc, QColor::hPal(), false);
+    HPALETTE hpal = QColormap::hPal();
+    if (hpal) {
+        SelectPalette(hdc, hpal, false);
         RealizePalette(hdc);
     }
     *old_hbm = (HBITMAP)SelectObject(hdc, hbm);
@@ -792,8 +794,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     bmh->biClrUsed          = ncols;
     bmh->biClrImportant          = ncols;
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
-    bool doAlloc = (QApplication::colorSpec() == QApplication::CustomColor
-                     && QColor::hPal());
 #else
     int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD) * (d > 8 ? 3 : ncols);
     char *bmi_data        = new char[bmi_data_len];
@@ -812,8 +812,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     bmh->biClrUsed          = ncols;
     bmh->biClrImportant          = ncols;
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
-    bool doAlloc = (QApplication::colorSpec() == QApplication::CustomColor
-                     && QColor::hPal());
     if (ncols == 0 && d > 8) {
         coltbl[0] = 0xff0000; // R
         coltbl[1] = 0x00ff00; // G
@@ -829,10 +827,6 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
         r->rgbGreen = qGreen(c);
         r->rgbRed   = qRed  (c);
         r->rgbReserved = 0;
-        if (doAlloc) {
-            QColor cl(c);
-            cl.alloc();
-        }
     }
 
     HDC dc;

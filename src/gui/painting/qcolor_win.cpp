@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#if 0
 
 #include "qcolor.h"
 #include <private/qcolor_p.h>
@@ -395,3 +396,4 @@ void QColor::destroyAllocContext(int context)
     //# Should reset unused entries in hpal to 0, to minimize the app's demand
 
 }
+#endif

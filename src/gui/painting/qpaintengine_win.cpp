@@ -27,6 +27,7 @@
 #include "qt_windows.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
+#include "qcolormap.h"
 
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
@@ -362,8 +363,9 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     if (region)
         SelectClipRgn(d->hdc, region->handle());
 
-    if (QColor::hPal()) {
-        d->holdpal = SelectPalette(d->hdc, QColor::hPal(), true);
+    HPALETTE hpal = QColormap::hPal();
+    if (hpal) {
+        d->holdpal = SelectPalette(d->hdc, hpal, true);
         RealizePalette(d->hdc);
     }
 

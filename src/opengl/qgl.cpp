@@ -19,6 +19,7 @@
 #include "qgl_p.h"
 #include "qpaintengine_opengl.h"
 #include "qcleanuphandler.h"
+#include "qcolormap.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -1916,14 +1917,12 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
     else {
 #if defined (Q_WS_WIN)
         res = QImage(w, h, 8);
-        glReadPixels(0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE,
-                      res.bits());
-        int palSize = 0;
-        const QRgb* pal = QColor::palette(&palSize);
-        if (pal && palSize) {
-            res.setNumColors(palSize);
-            for (int i = 0; i < palSize; i++)
-                res.setColor(i, pal[i]);
+        glReadPixels(0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, res.bits());
+        const QVector<QColor> pal = QColormap::instance().colormap();
+        if (pal.size()) {
+            res.setNumColors(pal.size());
+            for (int i = 0; i < pal.size(); i++)
+                res.setColor(i, pal.at(i).rgb());
         }
 #endif
     }

@@ -29,6 +29,7 @@
 #include "qstyle.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qwidget.h"
+#include "qcolormap.h"
 #include "qt_windows.h"
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
@@ -213,8 +214,9 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
     if (brush.pixmap() && brush.pixmap()->isNull())        // empty background
         return;
     HPALETTE oldPal = 0;
-    if (QColor::hPal()) {
-        oldPal = SelectPalette(hdc, QColor::hPal(), false);
+    HPALETTE hpal = QColormap::hPal();
+    if (hpal) {
+        oldPal = SelectPalette(hdc, hpal, false);
         RealizePalette(hdc);
     }
     if (brush.style() == Qt::LinearGradientPattern) {
@@ -231,12 +233,13 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
         SelectObject(hdc, oldBrush);
         DeleteObject(hbrush);
     }
-    if (QColor::hPal()) {
+    if (hpal) {
         SelectPalette(hdc, oldPal, true);
         RealizePalette(hdc);
     }
 }
 
+// ##### get rid of this!
 QRgb qt_colorref2qrgb(COLORREF col)
 {
     return qRgb(GetRValue(col),GetGValue(col),GetBValue(col));
@@ -605,7 +608,7 @@ void qt_init(QApplicationPrivate *priv, int)
 #endif
 
     QWindowsMime::initialize();
-    QColor::initialize();
+    QColormap::initialize();
     QFont::initialize();
     QCursor::initialize();
     QWin32PaintEngine::initialize();
@@ -657,7 +660,7 @@ void qt_cleanup()
 
     QCursor::cleanup();
     QFont::cleanup();
-    QColor::cleanup();
+    QColormap::cleanup();
     if (displayDC) {
         ReleaseDC(0, displayDC);
         displayDC = 0;
@@ -1639,13 +1642,13 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                 break;
 
         case WM_PALETTECHANGED:                        // our window changed palette
-            if (QColor::hPal() && (WId)wParam == widget->winId())
+            if (QColormap::hPal() && (WId)wParam == widget->winId())
                 RETURN(0);                        // otherwise: FALL THROUGH!
             // FALL THROUGH
         case WM_QUERYNEWPALETTE:                // realize own palette
-            if (QColor::hPal()) {
+            if (QColormap::hPal()) {
                 HDC hdc = GetDC(widget->winId());
-                HPALETTE hpalOld = SelectPalette(hdc, QColor::hPal(), false);
+                HPALETTE hpalOld = SelectPalette(hdc, QColormap::hPal(), false);
                 uint n = RealizePalette(hdc);
                 if (n)
                     InvalidateRect(widget->winId(), 0, true);
@@ -3457,7 +3460,7 @@ void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 
 bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 {
-    if (QColor::numBitPlanes() < 16)
+    if (QColormap::instance().depth() < 16)
         return false;
 
     if (!effect_override && desktopSettingsAware() && !(QSysInfo::WindowsVersion == QSysInfo::WV_95 || QSysInfo::WindowsVersion == QSysInfo::WV_NT)) {

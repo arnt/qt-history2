@@ -4,6 +4,7 @@
 #include <qatomic.h>
 #include <qrgb.h>
 #include <qvector.h>
+#include <qwindowdefs.h>
 
 class QColor;
 class QColormapPrivate;
@@ -29,7 +30,13 @@ public:
     int size() const;
 
     uint pixel(const QColor &color) const;
-    QColor colorAt(uint pixel) const;
+    const QColor colorAt(uint pixel) const;
+
+    const QVector<QColor> colormap() const;
+
+#ifdef Q_WS_WIN
+    static HPALETTE hPal();
+#endif
 
 private:
     QColormap();
