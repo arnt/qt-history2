@@ -250,7 +250,7 @@ void QFileInfo::doStat() const
 
     r = QT_STAT( QFile::encodeName(fn), b );
 
-    if ( r != 0 ) {
+    if ( r != 0 && !that->symLink ) {
 	delete that->fic;
 	that->fic = 0;
     }
