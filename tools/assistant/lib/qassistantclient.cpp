@@ -17,12 +17,13 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#include "qassistantclient.h"
+
 #include <qsocket.h>
 #include <qtextstream.h>
 #include <qprocess.h>
 #include <qtimer.h>
-
-#include "qassistantclient.h"
 
 /*!
     \class QAssistantClient qassistantclient.h

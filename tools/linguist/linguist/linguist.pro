@@ -50,7 +50,7 @@ IMAGES		+= images/accel.xpm \
 		   images/endpunct.xpm \
 		   images/fileopen.png \
 		   images/filesave.png \
-		   images/icon.png \
+		   images/appicon.png \
 		   images/next.png \
 		   images/nextunfinished.png \
 		   images/pagecurl.png \

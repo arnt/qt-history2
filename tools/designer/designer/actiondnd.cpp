@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,6 +18,15 @@
 **
 **********************************************************************/
 
+#include "actiondnd.h"
+#include "command.h"
+#include "defs.h"
+#include "formwindow.h"
+#include "mainwindow.h"
+#include "metadatabase.h"
+#include "widgetfactory.h"
+#include "hierarchyview.h"
+
 #include <qaction.h>
 #include <qapplication.h>
 #include <qbitmap.h>
@@ -31,15 +40,6 @@
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qtimer.h>
-
-#include "actiondnd.h"
-#include "command.h"
-#include "defs.h"
-#include "formwindow.h"
-#include "mainwindow.h"
-#include "metadatabase.h"
-#include "widgetfactory.h"
-#include "hierarchyview.h"
 
 
 void QDesignerAction::init()

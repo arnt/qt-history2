@@ -18,6 +18,10 @@
 **
 **********************************************************************/
 
+#include "mainwindow.h"
+#include "docuparser.h"
+#include "helpdialogimpl.h"
+
 #include <qapplication.h>
 #include <qserversocket.h>
 #include <qsocket.h>
@@ -28,12 +32,8 @@
 #include <qdir.h>
 #include <qmessagebox.h>
 #include <qguardedptr.h>
-#include <stdlib.h>
 #include <iostream.h>
-
-#include "mainwindow.h"
-#include "docuparser.h"
-#include "helpdialogimpl.h"
+#include <stdlib.h>
 
 class AssistantSocket : public QSocket
 {
@@ -222,11 +222,6 @@ void EditDocs::initDocFiles()
     settings.writeEntry( keybase + "FirstRun", FALSE );
     settings.writeEntry( keybase + "NewDoc", TRUE );
 }
-
-#if defined(Q_OS_MACX)
-#include <stdlib.h>
-#include <qdir.h>
-#endif
 
 int main( int argc, char ** argv )
 {

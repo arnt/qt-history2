@@ -31,7 +31,7 @@ QPtrList<MainWindow> *MainWindow::windows = 0;
 void MainWindow::init()
 {
 #ifndef Q_WS_MACX
-    setIcon( QPixmap::fromMimeSource( "icon.png" ) );
+    setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
 #endif
 
     if ( !windows )

@@ -36,7 +36,7 @@ FORMS	= mainwindow.ui \
 	finddialog.ui \
 	helpdialog.ui \
 	settingsdialog.ui
-IMAGES	= images/icon.png \
+IMAGES	= images/appicon.png \
 	images/editcopy.png \
 	images/find.png \
 	images/home.png \

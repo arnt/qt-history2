@@ -240,7 +240,7 @@ TrWindow::TrWindow()
 {
 
 #ifndef Q_WS_MACX
-    setIcon( QPixmap::fromMimeSource( "icon.png" ) );
+    setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
 #endif
 
     // Create the application global listview symbols

@@ -32,11 +32,6 @@
 extern void qt_wait_for_window_manager( QWidget * );
 #endif
 
-#if defined(Q_OS_MACX)
-#include <stdlib.h>
-#include <qdir.h>
-#endif
-
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
@@ -53,7 +48,7 @@ int main( int argc, char **argv )
      if ( showSplash )
  	timer.start( 1000, TRUE );
 
-    QString   keybase("/Qt Linguist/3.1/");
+    QString keybase("/Qt Linguist/3.1/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
