@@ -304,7 +304,7 @@ new \e ApplicationWindow and shows it.
 \printuntil }
 
 The \e choose() slot is connected to the \e Open menu item and
-tool button.  With a little help from \l FileDialog::getOpenFileName(), it
+tool button.  With a little help from \l QFileDialog::getOpenFileName(), it
 asks the user for a file name and then either loads that file or gives an
 error message in the statusbar.
 

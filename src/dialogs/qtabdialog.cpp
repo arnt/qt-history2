@@ -411,6 +411,8 @@ void QTabDialog::addTab( QWidget *child, const QIconSet& iconset, const QString 
 }
 
 /*!
+  \overload
+
   This is a lower-level method for adding tabs, similar to the other
   addTab() method.  It is useful if you are using setTabBar() to set a
   QTabBar subclass with an overridden QTabBar::paint() routine for a
@@ -1001,7 +1003,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
 
 
 /*!
-  Set the OK button's text to \a text.
+  Adds an OK button to the dialog and sets the button's text to \a text.
 
   When the OK button is clicked, the applyButtonPressed() signal is emitted,
   and the current settings in the dialog box should be applied to
@@ -1033,6 +1035,8 @@ void QTabDialog::setOkButton( const QString &text )
     }
 }
 /*!
+  \overload
+  
   Adds an OK button to the dialog.  The button's text is set to
   a localizable "OK".
  */
