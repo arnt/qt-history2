@@ -2259,6 +2259,7 @@ echo "Configuration ....... $QMAKE_CONFIG"
 echo "Remote support ...... $CFG_REMOTE"
 echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
+echo "NIS support ......... $CFG_NIS"
 echo "GIF support ......... $CFG_GIF"
 if [ "$CFG_MNG" = "no" ]
 then
