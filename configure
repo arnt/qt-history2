@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Configures to build the Qt library
 #
