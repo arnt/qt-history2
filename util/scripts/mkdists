@@ -1,1129 +1,592 @@
-#!/usr/bin/perl -w
-#
-# Creates a new Qt source distribution
-#
-# Copyright 2000 Trolltech AS.  All rights reserved.
-#
-# ----------------------------------------------------------------
-#
-# Usage:
-#	mkdists [options] {version}
-#
-# Options:
-#	-local	Use Qt and Tmake from $QTDIR and $TMAKEDIR
-#	-nodoc	Don't generate documentation
-#	-nowin	Don't generate Windows
-#	-nox11	Don't generate X11
-#	-noqws	Don't generate Qt/Embedded
-#	-nofree Don't generate free editions 
-#	-nozip	Don't compress tar files
-#
+#!/bin/sh
 
-use File::Find;
-use File::Copy;
-$/ = undef;
+BRANCH=
+OUT_TREE=`pwd`
+LOCAL_TREE=
+DO_DOC=yes
+DO_WIN=yes
+DO_X11=yes
+DO_MAC=no
+DO_QWS=yes
+DO_FREE=yes
+DO_GZIP=yes
 
-($j,$j,$j,$j,$j,$year,$j,$j,$j) = localtime (time);
-
-# option parsing.
-
-$doc = 1;
-$version = 0;
-$dozip = 1;
-$dofree = 1;
-
-for $a ( @ARGV ) {
-    if ( $a eq "-local" ) {
-	$local_qt = $ENV{QTDIR};
-	$local_tmake = $ENV{TMAKEDIR};
-	print "Using:\n\tQt:    $local_qt\n\tTMake: $local_tmake\n";
-    } elsif ( $a eq "-nozip" ) {
-	$dozip = 0;
-    } elsif ( $a eq "-nodoc" ) {
-	$doc = undef;
-	print "Will not generate documentation.\n";
-    } elsif ( $a eq "-nofree" ) {
-	$dofree = 0;
-    } elsif ( $a =~ /^-no((x11)|(qws)|(win))$/ ) {
-	$notplatform{$1}=1;
-	print "Will not generate \"$1\" platform.\n";
-    } else {
-	$version = $a;
-    }
+die()
+{
+    echo $1
+    exit 666
 }
 
-# okay, figure out what version of Qt to look at, and make a directory
-
-if ( $local_qt ) {
-    $version = "0.0.0";
-} else {
-    if ( $version =~ /(.*)\.\d+/ ) {
-	$branch = $1;
-    } else {
-	die "could not figure out what branch to use, stopped";
-    }
-}
-$label = "qt/$version";
-$version_digits = $version;
-$version_digits =~ s/\.//g;
-$version_digits =~ s/(\d\d\d).*/$1/;
-
-$name = getlogin() || getpwuid($<) || "sexybaby";
-
-$distdir="/tmp/qt-$version-$name";
-sub deletefiles {
-    -f $_ ? unlink $_ : rmdir $_;
-    $deleted++;
-}
-finddepth( \&deletefiles, $distdir ) if -d $distdir;
-print "Deleted $deleted files from last time\n" if ( $deleted );
-mkdir $distdir, 0755;
-
-# at this point, we have a directory structure, possibly full of empty
-# directories.  let's fill it.
-
-if ( $local_qt ) {
-    print "Copying local Qt and tmake\n";
-
-    copy_source($local_qt,"$distdir/qt");
-    copy_source($local_tmake,"$distdir/tmake");
-} else {
-    print "Checking out Qt $version and tmake\n";
-
-    open( I, "p4 fstat //depot/qt/$branch/doc.conf |" ) ||
-      die "could not run p4 fstat, stopped";
-    $_ = <I>;
-    close I;
-    die "//depot/qt/$branch/... is not in the depot, stopped"
-      unless ( $_ =~ / depotFile /s );
-
-    open( I, "p4 labels |" ) || die "could not run p4 labels, stopped";
-    $_ = "\n" . <I>;
-    close I;
-    die "Label $label does not exist, stopped" unless ( $_ =~ /\nLabel $label /s );
-
-    open( I, "p4 label -o $label |" ) || die "could not run p4 label, stopped";
-    $_ = join "",<I>;
-    close I;
-    if ( /\nOptions:[^\n]*\blocked\b/s ) {
-	print "Note: label $label is locked, USING FILES LOCKED AT LABEL\n";
-	$checkoutlabel="\@$label";
-    } else {
-	$checkoutlabel="";
-    }
-
-    print "Exporting the entire Qt and tmake depots $checkoutlabel\n";
-
-    $tmpclient="qt-release-tmp-$name-$$";
-    open( I, "p4 client -t qt-release -o $tmpclient |" ) ||
-      die "could not run p4 client, stopped";
-    $client = <I>;
-    close I;
-    $client =~ s@\nRoot:[^\n]*@\nRoot: $distdir@s;
-    $client =~ s@/qt/X.Y/@/qt/$branch/@gs;
-    $client =~ s@(\nClient: )[^\n]*@$1qt-release-tmp-$$@s;
-    $client =~ s@\bnomodtime\b@modtime@s;
-
-    open O, "| p4 -s client -i | egrep -v '^(info|exit):'";
-    print O $client;
-    close O;
-
-    open( I1, "p4 -s -c $tmpclient sync $distdir/qt/...$checkoutlabel | grep -v '^info:' |" )
-      || die "could not sync qt, stopped";
-    open( I2, "p4 -s -c $tmpclient sync $distdir/tmake/...$checkoutlabel | grep -v '^info:' |" )
-      || die "could not sync tmake, stopped";
-    $_ = <I1> . <I2>;
-    s/\bexit: [^\n]*\n//g;
-    print $_ if $_;
-    close I1;
-    close I2;
-
-    open( I, "p4 label -o $label |" ) || die "could not run p4 label, stopped";
-    $_ = <I>;
-    close I;
-    if ( !$checkoutlabel ) {
-	print "Updating label $label to head of $branch branch\n";
-	open I, "p4 -u qtwin labelsync -l $label //depot/qt/$branch/... //depot/tmake/... |";
-	$_ = <I>;
-	close I;
-    }
-
-    open( I, "p4 -s client -d $tmpclient |" )
-      || die "could not run p4 client -d $tmpclient, stopped";
-    $_ = "\n" . <I>;
-    close I;
-    s/\ninfo: [^\n]*//g;
-    s/\nexit: [^\n]*//g;
+#parse commandline
+showhelp() 
+{
+    [ ! -z "$1" ] && echo "Unknown Option: $1"
+    echo "$0 [options]"
+    echo
+    echo "Options:"
+    echo "-local <directory>"
+    echo "-nodoc"
+    echo "-nowin"
+    echo "-nox11"
+    echo "-noqws"
+    echo "-nofree"
+    echo "-nogzip"
+    echo "-outdir <directory>"
+    exit 666
 }
 
-$qtdir = "$distdir/qt";
-$ENV{ "QTDIR" } = $qtdir;
+while [ -n "$1" ]; do
+   case $1 in
+   -version)
+       shift
+       VAR=version
+       VAL=$1
+       ;;
+   -help)
+       showhelp
+       ;;
+   -outdir)
+	shift
+	VAR=outdir
+	VAL=$1
+	;;
+   -local)
+   	shift
+   	VAR=local   
+        VAL=$1
+	;;
+   -no*)
+   	VAR=`echo $1 | sed "s,^-no,,g"`
+	VAL=no
+	;;
+   -do*)
+   	VAR=`echo $1 | sed "s,^-do,,g"`
+	VAL=yes
+	;;
+   --*=*)
+        VAR=`echo $1 | sed "s,^--\(.*\)=.*$,\1,"`
+        VAL=`echo $1 | sed "s,^--.*=\(.*\)$,\1,"`
+	;;
+   *)
+        showhelp $1
+	;;
+   esac
+   shift
+
+   case $VAR in
+   doc) DO_DOC=$VAL ;;
+   win) DO_WIN=$VAL ;;
+   x11) DO_X11=$VAL ;;
+   mac) DO_MAC=$VAL ;;
+   qws) DO_QWS=$VAL ;;
+   free)DO_FREE=$VAL;;
+   gzip)DO_GZIP=$VAL;;
+   version) 
+       if ! expr "$VAL" : ".*\.\d*" >/dev/null 2>&1; then
+	  die "Can't figure out version from $VAL"
+       fi
+       BRANCH=`echo $VAL | sed "s,\([0-9]*\.[0-9]*\).*,\1,"`
+       LABEL="qt/$VAL";;
+   local) 
+       if [ ! -d "$VAL" ]; then
+	  die "Unknown directory: $VAL"
+       fi
+       BRANCH="0.0.0"
+       LOCAL_TREE=$VAL;;
+   outdir)
+	[ ! -d "$VAL" ] && mkdir -p "$VAL"
+	OUT_TREE=$VAL;;
+   esac
+done
+BRANCH="main"
+
+BRANCH_DIGITS=`echo $BRANCH | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
+MYNAME=`whoami`
+[ -z $MYNAME ] && MYNAME="shellssuck"
+DISTDIR="/tmp/qt-$BRANCH-$MYNAME-$$"
+
+
+#Checkout P4
+if [ -z $LOCAL_TREE ]; then
+    if ! p4 fstat //depot/qt/$BRANCH/doc.conf 2>&1 | grep " depotFile " >/dev/null 2>&1 ; then
+	die "//depot/qt/$BRANCH/... is not in the depot, stopped" 
+    fi
+    if ! p4 labels 2>&1 | grep "^Label $LABEL" >/dev/null 2>&1 ; then
+        die "Label $LABEL does not exist, stopped"
+    fi
+    checkoutlabel=""
+    if p4 label -o $LABEL | grep '^Options:.*locked' >/dev/null 2>&1; then
+        checkoutlabel="@${LABEL}"
+    fi
+    echo "Exporting the entire Qt depot $checkoutlabel..";
+
+    tmpclient="qt-release-tmp-$MYNAME";
+    p4 client -t qt-release -o $tmpclient >/tmp/tmp_file
+    sed /tmp/tmp_file -e "s,^Root:.*,Root: $DISTDIR," -e "s,/qt/X.Y/,/qt/$BRANCH/,g" \
+	    -e "s,^\(Client: \).*,\1qt-release-tmp-$$," -e "s,\bnomodtime\b,modtime," | \
+      p4 -s client -i 2>&1 >/dev/null
+
+    p4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel}| grep -v '^info:'
+else
+    echo "Copying Qt depot.."
+    cp -ar $LOCAL_TREE $DISTDIR
+fi
+
+myexpr () {
+    echo "$1" | egrep "$3" >/dev/null 2>&1
+    return
+}
+
+if /bin/false; then
+#Remove non-dist files (tests-dir, util-dir, ... )
+echo "Cleaning up distributions.."
+FILES=`find $DISTDIR/qt/`
+for file in $FILES; do
+    [ -d $file ] && continue
+
+    file_DIR=`dirname $file`
+    file_BASE=`basename $file`
+    file_WHOLE=$file
+    file=`echo $file | sed "s,^$DISTDIR/qt/,,"`
+    KEEP=
+
+    if
+    	 # no qdoc conf
+	 [ "$file_BASE" = "doc.conf" ] ||
+
+	 # no make.help
+	 [ "$file_BASE" = "make.help" ] ||
+
+	 # Everything under dist
+	 myexpr "$file" : '^dist\/' ||
+
+	 # no tests
+	 myexpr "$file" : '.*\/tests\/' ||
+	 myexpr "$file" : '^tests\/' ||
+
+	 # utils, except scripts
+	 { myexpr "$file" : '^util\/' && ! myexpr "$file" : '^util\/scripts\/' } ||
+
+	 # no ~ files
+	 myexpr "$file_BASE" : '.*~$' ||
+
+	 # no gif
+	 myexpr "$file" : 'gif\/' ||
+
+	 # no configs
+	 myexpr "$file" : 'configs\/' ||
+	 [ "$file" = "LICENSE.TROLL" ] ||
+
+	 # no makefiles, except freetype2
+	 { [ "$file_BASE" = "GNUmakefile" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' }   ||
+	 { [ "$file_BASE" = "GNUmakefile-kde" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' } ||
+	 { [ "$file_BASE" = "Makefile" ] && myexpr "$file" : 'src\/3rdparty\/freetype2\/' } ||
+	 myexpr "$file" : 'src\/Makefile\..*' ||
+
+	 # no mak files
+	 { myexpr "$file_BASE" : '.*\.mak$' && ! myexpr "$file_BASE" : '.*\/libpng\/' } ||
+
+	 # no *.inc files
+	 myexpr "$file_BASE" : '.*\.inc$' ||
+
+	 # some bins
+	 myexpr "$file_BASE" : 'bin\/.*_make_.*$' ||
+	 myexpr "$file" : 'bin\/syncqt.*$'
+     then
+	    KEEP=no
+     elif
+	 # the scripts, for now
+	 myexpr "$file" : "^util\/scripts\/" ||
+
+	 # everything in the subdirectories of src/doc/
+	 { myexpr "$file" : "^src\/doc\/" && [ ! "$file_BASE" = "Makefile" ] } ||
+
+	 # all c++ files under .../src/
+	 myexpr "$file" : "\(^|\/\)src\/.*\.\(\(cpp\)|h|c|\(pro\)\)$" ||
+	 myexpr "$file" : "\(^|\/\)src\/qt\.t$" ||
+
+	 # include (empty)
+	 [ "$file" = "include" ] ||
+
+	 # all doc files except in tests
+	 myexpr "$file_BASE" : ".*\.doc$" ||
+
+	 # the changes files
+	 myexpr "$file" : "^changes-" ||
+
+	 # /configure
+	 [ "$file" = "configure" ] ||
+
+	 # the tools files
+	 myexpr "$file" : "^tools\/.*\.\(\(cpp\)|h|\(pro\)|\(qm\)|\(po\)|\(xpm\)|\(xbm\)|\(png\)|\(bmp\)|\(gif\)|\(ui\)|1|\(txt\)|\(html\)|\(css\)\)$" ||
+	 myexpr "$file" : "^tools\/designer\/integration\/.*\.\(\(clw\)|\(def\)|\(odl\)|\(rc\)|\(dsp\)|\(rc2\)|\(el\)|t\)" ||
+	 myexpr "$file" : "^tools\/.*\/README" ||
+	 myexpr "$file" : "^tools\/.*\/COPYING" ||
+	 myexpr "$file" : "^tools\/.*\/HTML.manifest$" ||
+	 myexpr "$file" : "^tools\/.*\/mkimages$" ||
+	 myexpr "$file" : "^tools\/.*\/makeall$" ||
+	 myexpr "$file" : "^tools\/designer\/designer\/.*\.\(\(rc\)|\(ico\)\)$" ||
+	 myexpr "$file" : "^tools\/.*\/mksplash$" ||
+
+	 # the tutorials
+	 myexpr "$file" : "^tutorial\/t[0-9]*\/$" ||
+	 # all c++ and pro files under tutorial
+	 myexpr "$file" : "^tutorial\/.*\.\(\(cpp\)|h|\(pro\)\)$" ||
+
+	 # the examples
+	 myexpr "$file" : "^examples\/.*\/$" ||
+	 # all c++, pro, qm, po and xpm files under examples
+	 myexpr "$file" : "^examples\/.*\.\(\(cpp\)|h|\(pro\)|\(qm\)|\(po\)|\(xpm\)|\(map\)|\(txt\)|\(bmp\)|\(gif\)|\(pic\)|\(ppm\)|\(png\)|\(wav\)|\(any\)|\(xml\)\)$" ||
+	 # all the junk from mpegplay in the kiosk example
+	 myexpr "$file" : "^examples\/kiosk\/.+\..+$" ||
+	 myexpr "$file" : "^examples\/kiosk\/README.*$" ||
+	 myexpr "$file" : "^examples\/kiosk\/tags$" ||
+	 # all the launcher files
+	 myexpr "$file" : "^examples\/launcher\/.*\(\(\.im\)|\(\.pl\)|\(perpetual_launch\)|\(start_demo\)\)$" ||
+	 # misc
+	 [ "$file" = "examples/load/isdninfo" ] ||
+	 myexpr "$file" : "examples/overlay_x11/README" ||
+	 myexpr "$file" : "examples\/.*\.c$" ||
+
+	 # the extensions
+	 myexpr "$file" : "^extensions\/.*\/$" ||
+	 # all c++, pro, qm, po and xpm files under extensions
+	 myexpr "$file" : "^extensions\/.*\.\(\(cpp\)|h|\(pro\)|\(qm\)|\(po\)|\(xpm\)|\(map\)|\(txt\)|\(bmp\)|\(gif\)|\(pic\)|\(ppm\)|\(png\)|\(wav\)|\(any\)|c\)$" |
+	 myexpr "$file" : "^extensions\/.*\/isdninfo$" ||
+
+	 # READMEs, NOTICE and such
+	 myexpr "$file" : "^src\/\(\(.*\/\)|\)[A-Z]+$" ||
+	 myexpr "$file" : "^src\/\(\(.*\/\)|\)[A-Z]+$" ||
+	 myexpr "$file" : "^examples\/\(\(.*\/\)|\)[A-Z]+$" ||
+	 myexpr "$file" : "^tutorial\/\(\(.*\/\)|\)[A-Z]+$" ||
+	 myexpr "$file" : "^extensions\/\(\(.*\/\)|\)[A-Z]+$" ||
+	 myexpr "$file" : "^extensions\/.*\/README\..*$" ||
+
+	 # the moc
+	 myexpr "$file" : "^src\/moc\/.*\.\(1|l|t|y\)$" ||
+
+	 # All of tmake
+	 myexpr "$file" : "^tmake\/" ||
+
+	 # 3rdparty
+	 myexpr "$file" : "src\/3rdparty\/$" ||
+	 myexpr "$file" : "src\/3rdparty\/.*README$" ||
+	 myexpr "$file" : "src\/3rdparty\/libmng\/" ||
+	 myexpr "$file" : "src\/3rdparty\/libpng\/" ||
+	 myexpr "$file" : "src\/3rdparty\/freetype2\/" ||
+	 { myexpr "$file" : 'src\/3rdparty\/zlib\/' && [ ! "$file_BASE" = "Makefile" ] } ||
+	 # More  of nsplugin example
+	 myexpr "$file" : "extensions\/nsplugin\/examples\/.*\.\(\(mng\)|\(def\)|\(rc\)|\(cgi\)|\(g1n\)\)$" ||
+
+	 # some bins
+	 myexpr "$file" : "bin\/$" ||
+	 myexpr "$file" : "bin\/findtr$" ||
+	 myexpr "$file" : "bin\/qt20fix$" ||
+	 myexpr "$file" : "bin\/qtrename140$"
+     then
+         KEEP=yes
+     else
+         echo -n "I've no idea what to do with $file, keep it? (yes or no): "
+	 read KEEP
+     fi
+
+     [ "x$KEEP" = "xno" ] && rm -rf $file
+done
+fi
 
 # fixify qglobal's version number
+qglobal="$DISTDIR/qt/src/tools/qglobal.h"
+sed -e "s,\(\#define\s*QT_VERSION\s*\)[0-9]*,\1$BRANCH_DIGITS,g" \
+    -e "s,\(\#define\s*QT_VERSION_STR\s+\"\)\([0-9.]*\),/1$BRANCH,g" $qglobal >/tmp/tmpf
+mv /tmp/tmpf $qglobal
+type=`grep QT_VERSION_STR ~/troll/qt3.x/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
+if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
+    die "The qt version is $BRANCH$type, which confuses me terribly";
+fi
 
-$qglobal = "$distdir/qt/src/tools/qglobal.h";
-open( I, "< $qglobal" ) || die "cannot open $qglobal, stopped";
-$_ = <I>;
-close I;
-s/(\n\#define\s+QT_VERSION\s+)\d+/$1$version_digits/;
-s/(\n\#define\s+QT_VERSION_STR\s+\")([\d\.]+)/$1$version/;
-open( O, "> $qglobal.new" ) || die "cannot open $qglobal, stopped";
-print O $_;
-close O;
-unlink( $qglobal );
-rename( "$qglobal.new", $qglobal );
-# and fetch the remainder of QT_VERSION_STR
-if ( /\n\#define\s+QT_VERSION_STR\s+\"[\d\.]+(-[^\"]+)/ ) {
-    $type = $1;
-    if ( $type ne "-snapshot" && $type !~ /^-beta\d*$/ ) {
-	die "The qt version is $version$type, which confuses me terribly";
-    }
-} else {
-    $type = "";
-}
+#TBD
+#echo "Marking \$ID\$..."
+#sub idify {
+#    if ( -f $_ && ! -l $_ && -T $_ && open( I, "< $_" ) ) {
+#	my $f = <I>;
+#	my $o;
+#	close I;
+#	if ( defined( $f ) && $f =~ /\$Id(?::[^\$\n]*)?\$/s ) {
+#	    my ( $mday, $mon, $year, $d );
+#	    ($j,$j,$j,$mday,$mon,$year,$j,$j,$j) = localtime ( (stat($_))[9] );
+#	    $d = $File::Find::dir;
+#	    $d =~ s/^$qtdir/qt/;
+#	    $d = sprintf( "%s/%s   %s%s   edited %04d-%02d-%02d",
+#			  $d, $_, $version, $type, $year+1900, $mon+1, $mday );
+#	    $o = $f;
+#	    $f =~ s@\$Id(?::[^\$\n]*)?\$@\$Id\: $d \$@gsi;
+#	    if ( $f ne $o ) {
+#		my $x = ( -x $_ );
+#		chmod 0644, $_;
+#		open( O, "> $_" ) || die "could not write $File::Find::dir/$_";
+#		print O $f;
+#		close O;
+#		if ( $x ) {
+#		    chmod 0555, $_;
+#		} else {
+#		    chmod 0444, $_;
+#		}
+#	    }
+#	}
+#    }
+#}
+#find( \&idify, "$qtdir" );
 
-print "Marking \$", "Id...\$\n";
+#get include files
+mkdir -p "$DISTDIR/qt/include"
+includefiles=`$DISTDIR/qt/bin/syncqt -show`
+for fullname in $includefiles; do
+    fullname=`echo $fullname | sed "s,.*/,,"`
+    ln -sf "../$fullname" "$DISTDIR/qt/include/$fullname"
+done
 
-sub idify {
-    if ( -f $_ && ! -l $_ && -T $_ && open( I, "< $_" ) ) {
-	my $f = <I>;
-	my $o;
-	close I;
-	if ( defined( $f ) && $f =~ /\$Id(?::[^\$\n]*)?\$/s ) {
-	    my ( $mday, $mon, $year, $d );
-	    ($j,$j,$j,$mday,$mon,$year,$j,$j,$j) = localtime ( (stat($_))[9] );
-	    $d = $File::Find::dir;
-	    $d =~ s/^$qtdir/qt/;
-	    $d = sprintf( "%s/%s   %s%s   edited %04d-%02d-%02d",
-			  $d, $_, $version, $type, $year+1900, $mon+1, $mday );
-	    $o = $f;
-	    $f =~ s@\$Id(?::[^\$\n]*)?\$@\$Id\: $d \$@gsi;
-	    if ( $f ne $o ) {
-		my $x = ( -x $_ );
-		chmod 0644, $_;
-		open( O, "> $_" ) || die "could not write $File::Find::dir/$_";
-		print O $f;
-		close O;
-		if ( $x ) {
-		    chmod 0555, $_;
-		} else {
-		    chmod 0444, $_;
-		}
-	    }
-	}
-    }
-}
-
-find( \&idify, "$qtdir" );
-
-print "Making temporary include files\n";
-
-mkdir "$qtdir/include", 0777;
-open( I, "$qtdir/bin/syncqt -show |" ) || die "could not run syncqt, stopped";
-@includefiles = split( /\n/, <I> );
-close I;
-
-foreach $fullname ( @includefiles ) {
-    $_ = $fullname;
-    s-.*/--;
-    if ( $fullname =~ m{src/([^/]*)/([^/]*\.h)$} ) {
-	$module_h{$1}.=" " if defined $module_h{$1};
-	$module_h{$1}.=$2;
-    }
-    symlink( "../$fullname", "$qtdir/include/$_" );
-}
-
-# time to run qdoc.  maybe.
-
-mkdir( "$distdir/qt/doc", 0777 );
-mkdir( "$distdir/qt/doc/html", 0777 );
-mkdir( "$distdir/qt/doc/man", 0777 );
-mkdir( "$distdir/qt/doc/html/designer", 0777 );
-mkdir( "$distdir/qt/doc/html/designer/figures", 0777 );
-mkdir( "$distdir/qt/doc/html/designer/arrows", 0777 );
-mkdir( "$distdir/qt/doc/man/man1", 0777 );
-mkdir( "$distdir/qt/doc/man/man3", 0777 );
+#Generate documentation
+mkdir -p "$DISTDIR/qt/doc"
+mkdir -p "$DISTDIR/qt/doc/html"
+mkdir -p "$DISTDIR/qt/doc/man"
+mkdir -p "$DISTDIR/qt/doc/html/designer"
+mkdir -p "$DISTDIR/qt/doc/html/designer/figures"
+mkdir -p "$DISTDIR/qt/doc/html/designer/arrows"
+mkdir -p "$DISTDIR/qt/doc/man/man3"
 # and do the moc.1 hack here
-rename( "$distdir/qt/src/moc/moc.1", "$distdir/qt/doc/man/man1" );
+mkdir -p "$DISTDIR/qt/doc/man/man1"
+mv "$DISTDIR/qt/src/moc/moc.1" "$DISTDIR/qt/doc/man/man1"
+if [ "x$DO_DOC" = "xyes" ]; then
+    cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
+    cp $DISTDIR/qt/tools/designer/manual/figures/*.png $DISTDIR/qt/doc/html/designer/figures
+    cp $DISTDIR/qt/tools/designer/manual/arrows/*.png $DISTDIR/qt/doc/html/designer/arrows
+    rm -rf $DISTDIR/qt/tools/designer/manual
+    rm -rf $DISTDIR/qt/tools/designer/doc
 
-if ( $doc ) {
-    system( "cp $qtdir/tools/designer/manual/*.html $distdir/qt/doc/html/designer" );
-    system( "cp $qtdir/tools/designer/manual/figures/*.png $distdir/qt/doc/html/designer/figures" );
-    system( "cp $qtdir/tools/designer/manual/arrows/*.png $distdir/qt/doc/html/designer/arrows" );
-    system( "rm -rf $qtdir/tools/designer/manual" );
-    system( "rm -rf $qtdir/tools/designer/doc" );
-    print "Running qdoc\n";
-    open( I, "$distdir/qt/util/qdoc/qdoc $distdir/qt |" )
-      || die "could not run qdoc, stopped";
-    $_ = <I>;
-    close I;
-    open( I, "$distdir/qt/util/qdoc/man $distdir/qt |" )
-      || die "could not run util/qdoc/man, stopped";
-    $_ = <I>;
-    close I;
+    echo "Running qdoc..";
+    $DISTDIR/qt/util/qdoc/qdoc $DISTDIR/qt >/dev/null 2>&1 || die "could not run qdoc, stopped"
+    $DISTDIR/qt/util/qdoc/man  $DISTDIR/qt >/dev/null 2>&1 || die "could not run qdoc, stopped"
 
-    sub moveimages {
-	if ( -f $_ && ( /\.png$/ || /\.jpg$/ ) ) {
-	    move( $_, "$distdir/qt/doc/html/$_" );
-	}
-    }
-
-    find( \&moveimages, "$qtdir/gif" );
-}
-
-print "Transmogrifying various files\n";
+    find $DISTDIR/qt/gif -exec mv {} $DISTDIR/qt/doc/html/ \; >/dev/null 2>&1
+fi
 
 # Replace Netscape-owned code with dummies (direct user to PluginSDK)
-
-sub fixnetscape {
-    if ( /^((np)|(jri))/ ) {
-	unlink $_;
-	open( O, "> $_" );
-	print O "#error \"$_ must be provided by Netscape.\n
-#error \"This file just a placeholder.  Please see the documentation\"
-#error \"to learn how to obtain the real file.\"
-";
-	close O;
-    }
-}
-find( \&fixnetscape, "$distdir/qt/extensions/nsplugin/src" );
+for a in `find $DISTDIR/qt/extensions/nsplugin/src -name 'np*' -o -name 'jri*'`; do
+    rm -f $a
+    echo "#error \"$a must be provided by Netscape\"" > $a
+    echo "#error \"This file is just a placeholder. Please see the documentation\"" >>$a
+    echo "#error \"to learn how to obtain the real file\"" >>$a
+done
 
 # changelogs?
-
-print "Warning: qt/dist/changes-$version does not exist\n"
-  unless ( -f "$distdir/qt/dist/changes-$version" );
+[ ! -f "$DISTDIR/qt/dist/changes-$BRANCH" ] && echo "Warning: qt/dist/changes-$BRANCH does not exist"
 
 # qt.h
+rm -f "$DISTDIR/qt/include/qt.h"
 
-unlink "$distdir/qt/include/qt.h";
-if ( 0 ) { ### left out for now
-    open( I, "$distdir/qt/util/scripts/make_qt_dot_h |" )
-      || die "could not run make_qt_dot_h, stopped";
-    $_ = <I>;
-    close I;
-    open( O, "> $distdir/qt/include/qt.h" )
-      || die "could not write to include/qt.h, stopped";
-    print O $_;
-    close O;
-}
-
+#TBD
 # qt/src/moc stuff
-
-open( I, "make -C $distdir/qt/src/moc -o moc.pro -o GNUmakefile mocgen.cpp |" )
-  || die "could not run make, stopped";
-$_ = <I>; # do anything with the input?  no?
-close I;
-open( I, "< $distdir/qt/src/moc/lex.yy.c" )
-  || die "could not read lex.yy.c, stopped";
-$_ = "/* Automatically generated at Trolltech by mkdists, Qt $version */\n"
-  . <I>;
-close I;
-s/\n\#include\s+\<unistd\.h\>[^\n]*/\n\#if !defined(_OS_WIN32_)$&\n\#endif/g;
-open( O, "> $distdir/qt/src/moc/lex.yy.c" )
-  || die "could not write lex.yy.c, stopped";
-print O $_;
-close O;
-sleep 2; # Make very certain that mocgen.cpp has later timestamp than lex.yy.c
-open( I, "< $distdir/qt/src/moc/mocgen.cpp" )
-  || die "could not read mocgen.cpp, stopped";
-$_ = "/* Automatically generated at Trolltech by mkdists, Qt $version */\n"
-  . <I>;
-close I;
-open( O, "> $distdir/qt/src/moc/mocgen.cpp" )
-  || die "could not write mocgen.cpp, stopped";
-print O $_;
-close O;
+#open( I, "make -C $distdir/qt/src/moc -o moc.pro -o GNUmakefile mocgen.cpp |" ) || die "could not run make, stopped";
+#$_ = <I>; # do anything with the input?  no?
+#close I;
+#open( I, "< $distdir/qt/src/moc/lex.yy.c" ) || die "could not read lex.yy.c, stopped";
+#$_ = "/* Automatically generated at Trolltech by mkdists, Qt $version */\n" . <I>;
+#close I;
+#s/\n\#include\s+\<unistd\.h\>[^\n]*/\n\#if !defined(_OS_WIN32_)$&\n\#endif/g;
+#open( O, "> $distdir/qt/src/moc/lex.yy.c" ) || die "could not write lex.yy.c, stopped";
+#print O $_;
+#close O;
+#sleep 2; # Make very certain that mocgen.cpp has later timestamp than lex.yy.c
+#open( I, "< $distdir/qt/src/moc/mocgen.cpp" ) || die "could not read mocgen.cpp, stopped";
+#$_ = "/* Automatically generated at Trolltech by mkdists, Qt $version */\n" . <I>;
+#close I;
+#open( O, "> $distdir/qt/src/moc/mocgen.cpp" ) || die "could not write mocgen.cpp, stopped";
+#print O $_;
+#close O;
 
 #  qgif.h
-
-$qgif = "$qtdir/src/kernel/qgif.h";
-
-open( I, "< $qgif" )
-    || die "could not read $qgif, stopped";
-$_ = <I>;
-close I;
-s/(\n\#define QT_BUILTIN_GIF_READER\s+)\S+/$1 0/g;
-open( O, "> $qgif.new" ) || die "could not write $qgif.new, stopped";
-print O $_;
-close O;
-unlink( $qgif );
-rename( "$qgif.new", $qgif );
+#$qgif = "$qtdir/src/kernel/qgif.h";
+#open( I, "< $qgif" ) || die "could not read $qgif, stopped";
+#$_ = <I>;
+#close I;
+#s/(\n\#define QT_BUILTIN_GIF_READER\s+)\S+/$1 0/g;
+#open( O, "> $qgif.new" ) || die "could not write $qgif.new, stopped";
+#print O $_;
+#close O;
+#unlink( $qgif );
+#rename( "$qgif.new", $qgif );
 
 # changes files
-
-$major = $version;
-$major =~ s/^(\d+\.\d+).*/$1/;
-opendir( D, "$distdir/qt/dist" );
-foreach ( readdir( D ) ) {
-    move( "$distdir/qt/dist/$_", "$distdir/qt/$_" ) if ( /^changes-$major\./ ||
-						         0 );
-}
-closedir( D );
-
-# doc -> src/doc
-
-&rmrf( "$qtdir/src/doc" );
-rename( "$qtdir/doc", "$qtdir/src/doc" );
-
-# tmake common stuff
-
-$ENV{"TMAKEDIR"}="$distdir/tmake";
-$ENV{"PATH"}="$ENV{TMAKEDIR}/bin:$ENV{PATH}";
-
-# modules
-open PRO, "$qtdir/src/qt.pro" || die "Cannot open $qtdir/src/qt.pro";
-$_ = <PRO>;
-m{\nMODULES_ENT\s*=\s*([^\n]*)\n}s;
-@modules_ent = split " ",$1;
-close PRO;
-print "Enterprise modules: ",join(", ",@modules_ent),"\n";
-
-# copy the tree to new platform-specific trees
-
-for $platform ( "x11", "win", "qws" ) {
-    next if $notplatform{$platform};
-    print "Making $distdir/$platform\n";
-    mkdir "$distdir/$platform", 0777;
-    if ( $platform eq "win" ) {
-	$newdir = "$distdir/$platform/qt";
-    } else {
-	$newdir = "$distdir/$platform/qt-$version$type"
-    }
-    mkdir $newdir, 0777;
-    $files = 0;
-    sub populate {
-	$outfile = "$File::Find::dir/$_";
-	$outfile =~ s@^$qtdir/@@;
-	$outfile =~ s-/\./-/-g;
-	if ( -l $_ ) {
-	    # skip all symlinks
-	} elsif ( -f $_ && public( $outfile ) ) {
-	    my $d;
-	    $d = "$newdir/$outfile";
-	    $d =~ s-/[^/]*$--;
-	    &mkdir_steroids( $d );
-	    $files++;
-	    link( $_, "$newdir/$outfile" );
-	}
-    }
-    find( \&populate, "$distdir/qt" );
-    print "  ($files files)\n";
-    if ( !$local_qt && $undecideds ) { # Local-copied files are full of junk
-	print "Could not decide whether to kill or keep$undecideds\n";
-	die;
-    }
-}
-
-sub clean_platform
-{
-    find(
-	sub {
-	    unlink $_ if ( ( /_[a-z][a-z1]+.c(pp)?$/
-		&& !/_$platform.c(pp)?$/ && !/_$platform2.c(pp)?$/ ) ||
-	       ( /_[a-z][a-z1]+.h$/ && !/_$platform[a-z]*.h$/ ) );
-	}, $qtdir
-    );
-
-    &rmrf("$qtdir/examples/kiosk");
-    &rmrf("$qtdir/src/3rdparty/libmng");
-    unlink("$qtdir/etc/fonts/unifont.bdf");
-    if ( $platform ne "x11" ) {
-	&rmrf("$qtdir/examples/biff");
-	&rmrf("$qtdir/examples/desktop");
-	&rmrf("$qtdir/examples/overlay_x11");
-	&rmrf("$qtdir/extensions/xt");
-    }
-    if ( $platform ne "qws" ) {
-	&rmrf("$qtdir/examples/winmanager");
-	&rmrf("$qtdir/examples/compact");
-	&rmrf("$qtdir/examples/notepad");
-	&rmrf("$qtdir/examples/launcher");
-	&rmrf("$qtdir/extensions/imageio");
-	&rmrf("$qtdir/src/3rdparty/freetype2");
-	unlink "$qtdir/src/widgets/qcompactstyle.h";
-	unlink "$qtdir/src/widgets/qcompactstyle.cpp";
-    }
-#    if ( $platform eq "qws" ) {
-#      &rmrf("$qtdir/extensions/nsplugin");
-#    }
-}
-
-# X11 and QWS stuff.
-
-for $platform ( "x11", "qws" ) {
-    next if $notplatform{$platform};
-
-    $platformname = $platform eq "qws" ? "embedded" : $platform;
-    $platform2 = "unix";
-
-    print "Processing \U$platform\E ($distdir/$platform)\n";
-
-    $qtdir = "$distdir/$platform/qt-$version$type";
-
-    $ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
-    $ENV{ "QTDIR" } = $qtdir;
-
-    # make symlinks
-    mkdir "$qtdir/include", 0777;
-    foreach $fullname ( @includefiles ) {
-	$_ = $fullname;
-	s-.*/--;
-	symlink( "../$fullname", "$qtdir/include/$_" );
-    }
-
-
-    &clean_platform();
-
-    # copy the dist things into a supplemental directory
-    for $freedom ( "free", "commercial" ) {
-	next if $freedom eq "free" and !$dofree;
-	mkdir "$distdir/$platform-$freedom/", 0777;
-	mkdir "$distdir/$platform-$freedom/qt-$version$type", 0777;
-
-	opendir( D, "$distdir/qt/dist/$freedom" );
-	foreach ( readdir( D ) ) {
-	    next if /^\./;
-	    $to=$_;
-	    if ( $platform eq "qws" ) {
-		next if $_ eq 'MANIFEST';
-		next if $_ eq 'ANNOUNCE';
-		next if $_ eq 'README.QT';
-		next if $_ eq 'README';
-		next if $_ eq 'LICENSE.QPL';
-		$to='README' if $_ eq "README.qws";
-	    } else {
-		next if $_ eq 'README.qws';
-	    }
-	    &copy_version( "$distdir/qt/dist/$freedom/$_",
-			   "$distdir/$platform-$freedom/qt-$version$type/$to" );
-	}
-	closedir( D );
-
-	opendir( D, "$distdir/qt/dist/$platformname" );
-	for ( readdir( D ) ) {
-	    next if /^\./;
-	    if ( $platform eq "qws" ) {
-		if ( $freedom eq "free" ) {
-		    next if $_ eq 'LICENSE'; # qws license
-		    next if $_ eq 'README'; # qws license
-		}
-	    }
-	    $d = "$distdir/qt/dist/$platformname/$_";
-	    if ( -f $d ) {
-		&copy_version( $d,
-			   "$distdir/$platform-$freedom/qt-$version$type/$_" );
-	    } else {
-		# Copy it verbatim
-		system("cp -a $d $distdir/$platform-$freedom/qt-$version$type");
-	    }
-	}
-	closedir( D );
-    }
-
-    link( "$distdir/qt/util/scripts/configure", "$qtdir/configure" );
-
-    # move the doc back
-
-    mkdir "$qtdir/doc", 0777;
-    rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
-    rename( "$qtdir/src/doc/man", "$qtdir/doc/man" );
-    rename( "$qtdir/src/doc/html/designer", "$qtdir/doc/html/designer" );
-    rename( "$qtdir/src/doc/html/designer/figures", "$qtdir/doc/html/designer/figures" );
-    rename( "$qtdir/src/doc/html/designer/arrows", "$qtdir/doc/html/designer/arrows" );
-
-    # Generate makefiles
-
-    open( I, "$qtdir/util/scripts/makeunixmake -s -v $platform 2>&1 |" )
-      || die "could not run makeunixmake, stopped";
-    $_ = <I>; # what do we do with it? nothing for now...
-    close I;
-
-    # copy the templates into configs, and lose tmake
-    opendir( D, "$qtdir/tmake" );
-    foreach ( readdir( D ) ) {
-	move( $_, "$qtdir/configs" ) if ( /\.t$/ &&
-					  $_ ne "propagate.t" &&
-					  $_ ne "subdirs.t" );
-    }
-    closedir( D );
-    rmrf( "$qtdir/tmake" );
-    rmrf( "$qtdir/makefiles" );
-
-    # lose util well and truly
-
-    &rmrf( "$qtdir/util" );
-
-    # lose empty directories
-
-    &prune( "qtdir" );
-
-    # Move Makefile.in / Makefile-pro.in to free/commercial
-#    find(
-#	sub {
-#	    my $d = "$File::Find::dir";
-#	    $d = substr $d, length "$distdir/$platform";
-#	    if ( $_ eq "Makefile.in" || ( !/-pro\.pro$/ && /\.pro$/ ) )
-#	    {
-#		system("mkdir -p $distdir/$platform-free/$d");
-#		system("mkdir -p $distdir/$platform-commercial/$d");
-#		copy("$File::Find::dir/$_", "$distdir/$platform-free/$d/$_");
-#		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/$_");
-#		unlink $_;
-#	    }
-#	}, "$distdir/$platform"
-#    );
-#    find(
-#	sub {
-#	    my $d = "$File::Find::dir";
-#	    $d = substr $d, length "$distdir/$platform";
-#	    if ( $_ eq "Makefile-pro.in" ) {
-#		system("mkdir -p $distdir/$platform-commercial/$d");
-#		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/Makefile.in");
-#		unlink $_;
-#	    } elsif ( $_ =~ /(.*)-pro\.pro$/ ) {
-#		system("mkdir -p $distdir/$platform-commercial/$d");
-#		copy("$File::Find::dir/$_", "$distdir/$platform-commercial/$d/$1.pro");
-#		unlink $_;
-#	    }
-#	}, "$distdir/$platform"
-#    );
-
-    # tar up the two supplementals
-
-    chdir( "$distdir/$platform-free" ) if $dofree;
-    system( "tar cf ../qt-$platformname-$version$type.tar qt-$version$type" ) if $dofree;
-    chdir( "$distdir/$platform-commercial" );
-    system( "tar cf ../qt-$platformname-$version$type-commercial.tar qt-$version$type" );
-
-    # then run tar for real, on the unix tree.
-    chdir( "$distdir/$platform" );
-    open( "TAR1$platformname", "tar rf ../qt-$platformname-$version$type.tar qt-$version$type |" ) if $dofree;
-    open( "TAR2$platformname", "tar rf ../qt-$platformname-$version$type-commercial.tar qt-$version$type |" );
-    # those will run in the background, accessing the same files at the
-    # same time, mostly.  later, we'll compress.
-
-}
-
-# windows stuff
-
-if (!$notplatform{win}) {
-    print "Processing Windows ($distdir/win)\n";
-
-    $qtdir = "$distdir/win/qt";
-    $ENV{ "QTDIR" } = $qtdir;
-
-    $platform = "win";
-    $platform2 = "win";
-    &clean_platform();
-
-    # move the files into include
-
-    mkdir "$qtdir/include", 0777 unless ( -d "$qtdir/include" );
-    copy("$qtdir/src/tools/qconfig-dist.h", "$qtdir/xx");
-    foreach $fullname ( @includefiles ) {
-	$_ = $fullname;
-	s-.*/--;
-	move( "$qtdir/$fullname", "$qtdir/include/$_" );
-    }
-    move( "$qtdir/xx", "$qtdir/src/tools/qconfig-dist.h" );
-
-    # delete the xt estension
-
-    &rmrf( "$qtdir/extensions/xt" );
-
-    # Generate makefiles
-
-    mkdir "$qtdir/lib",0777 unless ( -d "$qtdir/lib" );
-    mkdir "$qtdir/mkfiles",0777 unless ( -d "$qtdir/mkfiles" );
-
-    $ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
-
-    mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
-    $fixed_util = 0;
-    foreach $enterprise ( 0, 1 ) {
-	@builds = qw {
-	    borland  borland-mt
-	    msvc     msvc-dll     msvc-mt     msvc-dll-mt
-	};
-	foreach $build ( @builds ) {
-	    $buildtype = "";
-	    $comp = $build; $comp =~ s/-.*//;
-	    $zipfile = "$build.zip";
-	    unlink "$qtdir/include/qconfig.h";
-	    copy("$qtdir/src/tools/qconfig-dist.h", "$qtdir/include/qconfig.h")
-		|| die "Cannot copy $qtdir/src/tools/qconfig-dist.h";
-	    open QC, ">>$qtdir/include/qconfig.h";
-	    print QC "#define QT_NO_IMAGEIO_MNG // not defined by default.\n";
-	    close QC;
-	    if ( $build =~ /(.*)-dll(.*)/ ) {
-	        $buildtype .= " -dll";
-		open QC, ">>$qtdir/include/qconfig.h";
-		print QC "#ifndef QT_DLL\n";
-		print QC "#define QT_DLL\n";
-		print QC "#endif\n";
-		close QC;
-	    }
-	    if ( $build =~ /(.*)-mt(.*)/ ) {
-	        $buildtype .= " -mt";
-		open QC, ">>$qtdir/include/qconfig.h";
-		# Silly external build system adds this via cmdline options.
-		# print QC "#define QT_THREAD_SUPPORT\n";
-		close QC;
-	    }
-	    $zipdir = "mkfiles";
-	    if ( $enterprise ) {
-	        $buildtype .= " -enterprise";
-	        $zipdir .= "-ent";
-	       if ( $fixed_util ne 2 ) {
-		 system( "rm -f y$qtdir/tools/designer/util/util.pro" );
-		 system( "cp -f $qtdir/tools/designer/util/util-ent.pro $qtdir/tools/designer/util/util.pro" );
-		 $fixed_util = 2;
-	       }
-	    } else {
-	       $zipdir .= "-pro";
-	       if ( $fixed_util ne 1 ) {
-		 system( "cp -f $qtdir/tools/designer/util/util.pro $qtdir/tools/designer/util/util-ent.pro" );
-		 system( "rm -f y$qtdir/tools/designer/util/util.pro" );
-		 system( "cp -f $qtdir/tools/designer/util/util-pro.pro $qtdir/tools/designer/util/util.pro" );
-		 $fixed_util = 1;
-	       }
-	    }
-	    mkdir "$qtdir/$zipdir", 0777;
-	    print "  ", ($enterprise ? "Enterprise" : "Professional"),
-		  " $build makefiles\n";
-	    open( O, "> $qtdir/lib/qt$version_digits.lib" ) || die;
-	    close O;
-	    copy( "$distdir/qt/src/Makefile.win32-dll", "$qtdir/src/Makefile" )
-	        if ( $build =~ /-dll/ );
-	    $ENV{"TMAKEPATH"} = $ENV{"TMAKEDIR"} . "/lib/win32-$comp";
-	    open( I, "$qtdir/util/scripts/buildmakefiles -win32 $buildtype 2>&1|" )
-	      || die "could not run buildmakefiles, stopped";
-	    $_ = <I>;
-	    close I;
-
-	    chdir $qtdir;
-	    open( I, "find . -name Makefile -o -name \"qt*.mak\" -o -name qconfig.h |".
-			" xargs zip -rml9 $qtdir/$zipdir/$zipfile |" )
-	      || die "could not run zip, stopped";
-	    $_ = <I>;
-	    close I;
-
-	    foreach ( "lib/qt$version_digits.lib", "src/Makefile", "src/qtdll.mak",
-		    "src/qtmain.mak", "src/Makefile.win32-dll" )
-	    {
-	      unlink $_ if ( -f $_ );
-	    }
-	}
-    }
-
-    # copy Windows dist/* stuff
-
-    opendir( D, "$distdir/qt/dist/commercial" );
-    foreach ( readdir( D ) ) {
-	&copy_version( "$distdir/qt/dist/commercial/$_", "$qtdir/$_" );
-    }
-    closedir( D );
-
-    opendir( D, "$distdir/qt/dist/win/" );
-    foreach ( readdir( D ) ) {
-	&copy_version( "$distdir/qt/dist/win/$_", "$qtdir/$_" );
-    }
-    closedir( D );
-
-    copy( "$distdir/qt/dist/win/Makefile", "$qtdir" );
-
-    mkdir "$qtdir/bin", 0777 unless( -d "$qtdir/bin" );
-    opendir( D, "$distdir/qt/dist/win/bin" );
-    foreach ( readdir( D ) ) {
-	copy( "$distdir/qt/dist/win/bin/$_", "$qtdir/bin/$_" );
-    }
-    closedir( D );
-
-    # lose the man pages and util
-
-    &rmrf( "$qtdir/src/doc/man" );
-    &rmrf( "$qtdir/util" );
-    &rmrf( "$qtdir/tmake" );
-
-    # move the doc from doc/html/* to doc/*
-
-    mkdir "$qtdir/doc", 0777;
-    rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
-
-    # make a lib/dummy
-    mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
-    open( O, "> $qtdir/lib/README" ) || die;
-    print O "If this directory is empty, you forgot to build the Qt library\n";
-    close O;
-
-    # lose empty directories
-    &prune( "qtdir" );
-
-    foreach $enterprise ( 1, 0 ) {
-	# install one set of makefiles, and zip up the thing
-
-	$zipdir = "mkfiles";
-	if ( $enterprise ) {
-	    $buildtype .= " -enterprise";
-	    $zipdir .= "-ent";
-	} else {
-	    $zipdir .= "-pro";
-	    system( "rm -f $qtdir/include/qmodules.h" );
-	    system( "touch $qtdir/include/qmodules.h" );
-	    open QM, ">>$qtdir/include/qmodules.h";
-	    print QM "#define QT_MODULE_ICONVIEW\n";
-	    print QM "#define QT_MODULE_WORKSPACE\n";
-	    close QM;
-	  }
-	rename "$qtdir/$zipdir", "$qtdir/mkfiles";
-
-	open( I, "unzip -o -aq -d $qtdir $qtdir/mkfiles/msvc.zip |" )
-	  || die "could not unzip msvc makefiles, stopped";
-	$_ = <I>;
-	close I;
-
-	print "unzip said:\n$_\n" if ( defined( $_ ) && $_ ne "" );
-
-	@binaryfiles = undef;
-	@textfiles = undef;
-
-	sub addfile {
-	    my $s = $_;
-	    $s =~ s/.*\.//;
-	    my $f = "$File::Find::dir/$_";
-	    $f =~ s@^$qtdir/@qt/@;
-	    if ( $s eq "dll" || $s eq "gif" || $s eq "png" || $s eq "jpg" ||
-		 $s eq "bmp" || $s eq "any" || $s eq "pic" || $s eq "ppm" ||
-		 $s eq "exe" || $s eq "zip" || $s eq "qm" ) {
-		push @binaryfiles, "$f";
-		#print "$f is binary\n";
-	    } else {
-		push @textfiles, "$f";
-	    }
-	}
-
-	find( \&addfile, $qtdir );
-
-	$pe = $enterprise ? "ent" : "pro";
-	$zipfile = "$distdir/qtwin${version_digits}$pe$type.zip";
-	chdir( "$distdir/win" );
-	open( O, "| zip -r9q@ $zipfile" )
-	  || die "could not zip up $zipfile, stopped";
-	foreach $_ ( @binaryfiles ) {
-	    print O "$_\n" if ( defined( $_ ) && -f $_ );
-	}
-	close O;
-	open( O, "| zip -r9ql@ $zipfile" )
-	  || die "could not zip up $zipfile, stopped";
-	foreach $_ ( @textfiles ) {
-	    print O "$_\n" if ( defined( $_ ) && -f $_ );
-	}
-	close O;
-
-	open( O, "| zip -dq@ $zipfile" );
-	if ( $enterprise ) {
-	    print O "qt/mkfiles-pro/*\n";
-	} else {
-	    # Generate Professional Edition by removing most
-	    # Enterprise Edition modules. (not those used by the designer)
-	    # Headerfiles are still left.
-	    for $m ( @modules_ent ) {
-		next if $m eq "xml"; # Needed by designer
-		print O "qt/src/$m/*\n";
-		if ( defined $module_h{$m} ) {
-		    for $h ( split " ", $module_h{$m} ) {
-			print O "qt/include/$h\n";
-		    }
-		}
-	    }
-	    print O "qt/mkfiles-ent/*\n";
-	}
-	close O;
-
-	rename "$qtdir/mkfiles", "$qtdir/$zipdir";
-    }
-}
-
-# back to unix - close the tars, and compress the results after the
-# thing is done
-
-print "Packing to distribution archives\n";
-
-for $platform ( "x11", "qws" ) {
-    next if $notplatform{$platform};
-
-    $platformname = $platform eq "qws" ? "embedded" : $platform;
-
-    close "TAR1$platformname" if $dofree;
-    close "TAR2$platformname";
-
-    if ( $dozip ) {
-	# Get both gzips going...
-	open ( GZIP1, "gzip -9 $distdir/qt-$platformname-$version$type.tar |" ) if $dofree;
-	open ( GZIP2, "gzip -9 $distdir/qt-$platformname-$version$type-commercial.tar |" );
-	# And wait for them to complete...
-	close GZIP1 if $dofree;
-	close GZIP2;
-    }
-}
-
-
-sub rmrfhelper {
-    if ( -d $_ ) {
-	rmdir $_;
-    } else {
-	unlink $_;
-    }
-}
-
-sub rmrf {
-    finddepth( \&rmrfhelper, $_[0] ) if ( -d $_[0] );
-}
-
-
-sub mkdir_steroids {
-    my $d = $_[0];
-    if ( ! -d $d ) {
-	my $p;
-	$p = $d;
-	$p =~ s-/[^/]+$--;
-	mkdir_steroids( $p ) if ( $p ne $d );
-	mkdir $d, 0777;
-    }
-}
-
-
-# Function killInternalFiles
-# Identifies and kills internal files and folders.
-#
-# Usage: killInternalFiles( path )
-#
-
-sub public {
-    my $file  = $_[0];
-
-    my ( $keep, $kill );
-
-    my $basename;
-    $basename = $file;
-    $basename =~ s-.*/--;
-
-    $keep = (
-	     # the scripts, for now
-	     $file =~ /^util\/scripts\//
-
-	     # everything in the subdirectories of src/doc/
-	     || ( $file =~ /^src\/doc\// && $basename ne "Makefile" )
-
-	     # all c++ files under .../src/
-	     || $file =~ /(^|\/)src\/.*\.((cpp)|h|c|(pro))$/
-	     || $file =~ /(^|\/)src\/qt\.t$/
-
-	     # include (empty)
-	     || $file eq "include"
-
-	     # all doc files except in tests
-	     || $basename =~ /.*\.doc$/
-
-	     # the changes files
-	     || $file =~ /^changes-/
-
-	     # /configure
-	     || $file eq "configure"
-
-	     # the tools files
-	     || $file =~ /^tools\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(xbm)|(png)|(bmp)|(gif)|(ui)|1|(txt)|(html)|(css))$/
-	     || $file =~ /^tools\/designer\/integration\/.*\.((clw)|(def)|(odl)|(rc)|(dsp)|(rc2)|(el)|t)/
-	     || $file =~ /^tools\/.*\/README/
-	     || $file =~ /^tools\/.*\/COPYING/
-	     || $file =~ /^tools\/.*\/HTML.manifest$/
-	     || $file =~ /^tools\/.*\/mkimages$/
-	     || $file =~ /^tools\/.*\/makeall$/
-	     || $file =~ /^tools\/designer\/designer\/.*\.((rc)|(ico))$/
-	     || $file =~ /^tools\/.*\/mksplash$/
-
-	     # the tutorials
-	     || $file =~ /^tutorial\/t[0-9]*\/$/
-	     # all c++ and pro files under tutorial
-	     || $file =~ /^tutorial\/.*\.((cpp)|h|(pro))$/
-
-	     # the examples
-	     || $file =~ /^examples\/.*\/$/
-	     # all c++, pro, qm, po and xpm files under examples
-	     || $file =~ /^examples\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any)|(xml))$/
-	     # all the junk from mpegplay in the kiosk example
-	     || $file =~ /^examples\/kiosk\/.+\..+$/
-	     || $file =~ /^examples\/kiosk\/README.*$/
-	     || $file =~ /^examples\/kiosk\/tags$/
-	     # all the launcher files
-	     || $file =~ /^examples\/launcher\/.*((\.im)|(\.pl)|(perpetual_launch)|(start_demo))$/
-	     # misc
-	     || $file eq "examples/load/isdninfo"
-	     || $file =~ "examples/overlay_x11/README"
-	     || $file =~ /examples\/.*\.c$/
-
-	     # the extensions
-	     || $file =~ /^extensions\/.*\/$/
-	     # all c++, pro, qm, po and xpm files under extensions
-	     || $file =~ /^extensions\/.*\.((cpp)|h|(pro)|(qm)|(po)|(xpm)|(map)|(txt)|(bmp)|(gif)|(pic)|(ppm)|(png)|(wav)|(any)|c)$/
-	     || $file =~ /^extensions\/.*\/isdninfo$/
-
-	     # READMEs, NOTICE and such
-	     || $file =~ /^src\/((.*\/)|)[A-Z]+$/
-	     || $file =~ /^src\/((.*\/)|)[A-Z]+$/
-	     || $file =~ /^examples\/((.*\/)|)[A-Z]+$/
-	     || $file =~ /^tutorial\/((.*\/)|)[A-Z]+$/
-	     || $file =~ /^extensions\/((.*\/)|)[A-Z]+$/
-	     || $file =~ /^extensions\/.*\/README\..*$/
-
-	     # the moc
-	     || $file =~ /^src\/moc\/.*\.(1|l|t|y)$/
-
-	     # All of tmake
-	     || $file =~ /^tmake\//
-
-	     # 3rdparty
-	     || $file =~/src\/3rdparty\/$/
-	     || $file =~/src\/3rdparty\/.*README$/
-	     || $file =~/src\/3rdparty\/libmng\//
-	     || $file =~/src\/3rdparty\/libpng\//
-	     || $file =~/src\/3rdparty\/freetype2\//
-	     || ( $file =~/src\/3rdparty\/zlib\// &&
-		  not $basename eq "Makefile" )
-	     # More  of nsplugin example
-	     || $file =~/extensions\/nsplugin\/examples\/.*\.((mng)|(def)|(rc)|(cgi)|(g1n))$/
-
-	     # some bins
-	     || $file =~/bin\/$/
-	     || $file =~/bin\/findtr$/
-	     || $file =~/bin\/qt20fix$/
-	     || $file =~/bin\/qtrename140$/
-
-	    );
-
-    # but afterwards, change all the rules for the tests
-    $keep = 0 if ( $file =~ m-tests/- );
-
-    $kill = (
-	     # no qdoc conf
-	     $basename eq "doc.conf"
-
-	     # no make.help
-	     || $basename eq "make.help"
-
-	     # Everything under dist
-	     || $file =~/^dist\//
-
-	     # no tests conf
-	     || $file =~/.*\/tests\//
-
-	     # no tests
-	     || $file =~ /^tests\//
-
-	     # utils, except scripts
-	     || ( $file =~ /^util\// && $file !~ /^util\/scripts\// )
-
-	     # no ~ files
-	     || $basename =~/.*~$/
-
-	     # no gif
-	     || $file =~/gif\//
-
-	     # no configs
-	     || $file =~/configs\//
-	     || $file eq "LICENSE.TROLL"
-
-	     # no makefiles, except freetype2
-	     || $basename eq "GNUmakefile" && $file !~ /src\/3rdparty\/freetype2\//
-	     || $basename eq "GNUmakefile-kde" && $file !~ /src\/3rdparty\/freetype2\//
-	     || $basename eq "Makefile" && $file !~ /src\/3rdparty\/freetype2\//
-	     || $file =~ /src\/Makefile\..*/
-
-	     # no mak files
-	     || ( $basename =~/.*\.mak$/  && not $file =~ /.*\/libpng\// )
-
-	     # no *.inc files
-	     || $basename =~/.*\.inc$/
-
-	     # some bins
-	     || $file =~ /bin\/.*_make_.*$/
-	     || $file =~ /bin\/syncqt.*$/
-
-	    );
-    if ( $keep == $kill ) {
-	$undecideds .= "\n  $file (".($keep ? "both" : "neither").")";
-	$keep = undef;
-    }
-    $keep;
-}
-
-
-sub copy_version {
-    my( $in, $out ) = @_;
-    local $_;
-
-    unlink $out if ( -f $out );
-    if ( -f $in && ! -e $out ) {
-	open( I, "< $in" ) || die "could not open $in, stopped";
-	$_ = <I>;
-	close I;
-	s/%YEAR%/$year/g;
-	s/%VERSION%/$version$type/g;
-	s/%VERSIONWIN%/$version_digits/g;
-	if ( $type eq "-snapshot" ) {
-	    s/%SNAPSHOTONLY([^%]*)%/$1/g;
-	    s/%STABLEONLY[^%]*%//g;
-	} else {
-	    s/%SNAPSHOTONLY[^%]*%//g;
-	    s/%STABLEONLY([^%]*)%/$1/g;
-	}
-	open( O, "> $out" ) || die "could not open $out, stopped";
-	print O $_;
-	close O;
-    }
-}
-
-
-sub prunehelp {
-    rmdir $_ if ( -d $_ );
-}
-
-sub prune {
-    finddepth( \&prunehelp, $_[0] ) if ( -d $_[0] );
-}
-
-sub copy_source {
-    my $ddir;
-    ($sdir,$ddir) = @_;
-    mkdir $ddir, 0755;
-    open CPIO, "| ( cd $sdir; cpio -p 2>/dev/null --make-directories $ddir; )";
-    find(
-	sub {
-	    my $d = "$File::Find::dir";
-	    if (
-		   /\.o$/
-		|| /^core$/
-		|| /\.obj$/
-		|| /~$/
-		|| /\.bak$/
-		|| /\.moc$/
-		|| /^moc_/
-		|| /^tests$/
-		|| /^html$/
-		|| /^lex.yy.c$/
-		|| $d =~ /\/bin$/
-		    && (!defined($_) || !/^syncqt$/)
-		|| /^\.../
-		|| /^lib(-[^\/]*)$/
-		|| -s $_ > 300000 && !/\.cpp$/ && !/\.qpf$/ && !/\.h$/
-		|| $d =~ /examples/ && -f $_ && !/\.pro$/ && -x $_
-	    ) {
-		$File::Find::prune = 1 if -d $_;
-		return;
-	    }
-	    $d =~ s/^$sdir/./;
-	    print CPIO "$d/$_\n" unless -d $_;
-	}, $sdir
-    );
-    close CPIO;
-}
+#$major = $version;
+#$major =~ s/^(\d+\.\d+).*/$1/;
+#opendir( D, "$distdir/qt/dist" );
+#foreach ( readdir( D ) ) {
+#    move( "$distdir/qt/dist/$_", "$distdir/qt/$_" ) if ( /^changes-$major\./ ||
+#						         0 );
+#}
+#closedir( D );
+
+#copy distributions
+[ "x$DO_MAC" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_mac"
+[ "x$DO_WIN" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_win"
+[ "x$DO_X11" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_x11"
+[ "x$DO_QWS" = "xyes" ] && cp -ar "$DISTDIR/qt" "$DISTDIR/qt_qws"
+
+for plat in mac win x11 qws; do
+    PLATDIR="$DISTDIR/qt_${plat}"
+    [ ! -d "$PLATDIR" ] && continue
+    free=no
+    plat2=
+    case $plat in
+    mac)
+        plat2=unix
+	;;
+    x11|qws) 
+	plat2=unix
+	free=$DO_FREE
+        ;;
+    esac
+    echo "****** Packing for platform: $plat ****"
+    
+    #Remove the platform dependent files
+    for file in `find $PLATDIR -name '*_[a-z][a-z1][a-z1].cpp' -o \
+                               -name '*_[a-z][a-z1][a-z1].h' -o \
+                               -name '*_[a-z][a-z1][a-z1].c'`
+    do
+        [ -d $file ] && continue
+	match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
+	[ "$match" != "$plat" ] && [ "$match" != "$plat2" ] && rm -rf $file
+    done
+
+    rm -rf "$PLATDIR/examples/kiosk"
+    rm -rf "$PLATDIR/src/3rdparty/libmng"
+    rm -f "$PLATDIR/etc/fonts/unifont.bdf"
+    rm -rf "$PLATDIR/tmake"
+    rm -rf "$PLATDIR/util"
+    mkdir -p $PLATDIR/lib
+    echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
+    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	if [ "$plat" = "x11" ]; then
+	    rm -rf "$PLATDIR/examples/biff"
+	    rm -rf "$PLATDIR/examples/desktop"
+	    rm -rf "$PLATDIR/examples/overlay_x11"
+	    rm -rf "$PLATDIR/extensions/xt"
+	elif [ "$plat" = "qws" ]; then
+	    rm -rf "$PLATDIR/examples/winmanager"
+	    rm -rf "$PLATDIR/examples/compact"
+	    rm -rf "$PLATDIR/examples/notepad"
+	    rm -rf "$PLATDIR/examples/launcher"
+	    rm -rf "$PLATDIR/extensions/imageio"
+	    rm -rf "$PLATDIR/src/3rdparty/freetype2"
+	    rm -f "$PLATDIR/src/widgets/qcompactstyle.h"
+	    rm -f "$PLATDIR/src/widgets/qcompactstyle.cpp"
+	fi
+    elif [ "$plat" = "win" ]; then
+	rm -rf "$PLATDIR/doc/man"
+	#since there is no man pages, move all docs to doc/
+        mv $PLATDIR/doc/html/* $PLATDIR/doc
+	rm -rf $PLATDIR/doc/html
+	# delete the xt estension
+	rm -rf "$PLATDIR/extensions/xt"
+
+	# move the files into include
+	[ ! -d "$PLATDIR/include" ] && mkdir -p "$PLATDIR/include"
+	cp "$PLATDIR/src/tools/qconfig-dist.h" "$PLATDIR/xxx"
+	for a in `find $PLATDIR/include -name '*.h'`; do
+	    OFILE=`ls -l $a | cut -d'>' -f2 | sed "s, ,,"`
+	    #mv $OFILE $a
+	done
+	mv "$PLATDIR/xxx" "$PLATDIR/src/tools/qconfig-dist.h"
+    fi
+
+    #don't need empty directories
+    find $PLATDIR/ -type d -exec rmdir {} \; >/dev/null 2>&1
+
+    platformname=$plat
+    [ "$plat" = "qws" ] && platformname="embedded"
+    for d in "$DISTDIR/qt/dist/commercial" "$DISTDIR/qt/dist/$platformname"; do
+	[ ! -d $d ] && continue
+	for a in `find $d`; do
+	    a_file=`echo $a | sed "s,$d,,"`
+	    if [ "$plat" = "qws" ]; then
+		case `basename $a` in
+		LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
+		README) a_file="${a_file}.qws" ;;
+		esac
+	    elif [ "$plat" = "x11" ]; then
+		[ `basename $a` = "README.qws" ] && continue
+	    fi
+	    #do copy
+	    [ -f $PLATDIR/$a_file ] && rm -f $PLATDIR/$a_file
+	    if [ -f $d/$a_file ] && [ ! -e $PLATDIR/$a_file ]; then
+		sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${type}/g" \
+                    -e "s/$VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >/tmp/tmpf
+		if [ "$type" = "-snapshot" ]; then
+		    sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" /tmp/tmpf >$PLATDIR/$a_file
+		else
+		    sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" /tmp/tmpf >$PLATDIR/$a_file
+		fi
+	    else
+		[ -f $PLATDIR/$a_file ] && rm -f $a_file
+		cp -ar $d/$a_file $PLATDIR/$a_file
+            fi
+        done
+    done
+
+    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
+	cd "$DISTDIR"
+	tar cf $OUT_TREE/qt_${plat}_commercial.tar qt_${plat}
+	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/qt_${plat}_commercial.tar >$OUT_TREE/qt_${plat}_commercial.tar.gz
+    elif [ "$plat" = "win" ]; then
+	cd "$DISTDIR"
+	find qt_${plat} | zip $OUT_TREE/qt_${plat}_commercial.zip - >/dev/null 2>&1
+    fi
+
+    #Remove database sources
+    [ -d "$PLATDIR/src/sql" ] && rm -rf "$PLATDIR/src/sql"
+
+    if [ "x$free" = "xyes" ]; then
+        echo "Doing free.."
+        #remove commercial licenses
+	for a in `find $DISTDIR/qt/dist/commercial`; do
+	    FILE=`echo $a | sed "s,$DISTDIR/qt/dist/commercial,,"`
+	    [ -z $FILE ] && continue
+	    rm -f $PLATDIR/$FILE
+        done
+
+        #copy free licenses
+	for a in `find $DISTDIR/qt/dist/free`; do
+	    a_file=`echo $a | sed "s,$DISTDIR/qt/dist/free,,"`
+	    if [ "$plat" = "qws" ]; then
+		case `basename $a` in
+		LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
+		README) a_file="${a_file}.qws" ;;
+		esac
+	    elif [ "$plat" = "x11" ]; then
+		[ `basename $a` = "README.qws" ] && continue
+	    fi
+	    #do copy
+	    [ -f $PLATDIR/$a_file ] && rm -f $PLATDIR/$a_file
+	    if [ -f $d/$a_file ] && [ ! -e $PLATDIR/$a_file ]; then
+		sed -e "s/%YEAR%/2000/g" -e "s/%VERSION%/${BRANCH}$type/g" \
+                    -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $d/$a_file >/tmp/tmpf
+		if [ "$type" = "-snapshot" ]; then
+		    sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" /tmp/tmpf >$PLATDIR/$a_file
+		else
+		    sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" /tmp/tmpf >$PLATDIR/$a_file
+		fi
+	    else
+		[ -f $PLATDIR/$a_file ] && rm -f $a_file
+		cp -ar $DISTDIR/qt/dist/free/$a_file $PLATDIR/$a_file
+            fi
+        done
+	
+        #zip free editions
+	cd "$DISTDIR"
+	tar cf $OUT_TREE/qt_${plat}_free.tar qt_${plat}
+	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/qt_${plat}_free.tar >$OUT_TREE/qt_${plat}_free.tar.gz
+    fi
+    echo "******** Done Packaging $plat *********"
+    rm -rf $PLATDIR
+done
+rm -rf $DISTDIR
