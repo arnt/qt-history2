@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_MIME
@@ -95,6 +96,8 @@ public:
     static QMimeSourceFactory* defaultFactory();
     static void setDefaultFactory( QMimeSourceFactory* );
     static QMimeSourceFactory* takeDefaultFactory();
+    static void addFactory( QMimeSourceFactory *f );
+    static void removeFactory( QMimeSourceFactory *f );
 
     virtual const QMimeSource* data(const QString& abs_name) const;
     virtual QString makeAbsolute(const QString& abs_or_rel_name, const QString& context) const;
@@ -110,6 +113,7 @@ public:
     virtual void setExtensionType( const QString& ext, const char* mimetype );
 
 private:
+    QMimeSource *dataInternal(const QString& abs_name, const QMap<QString, QString> &extensions ) const;
     QMimeSourceFactoryData* d;
 };
 

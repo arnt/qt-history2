@@ -173,6 +173,7 @@ public:
     QMap<QString, QString> extensions;
     QStringList path;
     QMimeSource* last;
+    QList<QMimeSourceFactory> factories;
 };
 
 
@@ -255,8 +256,7 @@ QMimeSourceFactory::~QMimeSourceFactory()
     delete d;
 }
 
-static QMimeSource* data_internal(const QString& abs_name,
-				  const QMap<QString, QString> extensions )
+QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMap<QString, QString> &extensions ) const
 {
     QMimeSource* r = 0;
     QFileInfo fi(abs_name);
@@ -280,6 +280,15 @@ static QMimeSource* data_internal(const QString& abs_name,
 	    r = sr;
 	}
     }
+
+    if ( !r ) {
+	for ( QMimeSourceFactory *f = QMimeSourceFactory::defaultFactory()->d->factories.first(); f; f = defaultFactory()->d->factories.next() ) {
+	    r = (QMimeSource*)f->data( abs_name );
+	    if ( r )
+		return r;
+	}
+    }
+	
     return r;
 }
 
@@ -338,7 +347,7 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
     )
     {
 	// handle absolute file names directly
-	r = data_internal( abs_name, d->extensions );
+	r = dataInternal( abs_name, d->extensions);
     }
     else { // check list of paths
 	for ( it = d->path.begin(); !r && it != d->path.end(); ++it ) {
@@ -346,9 +355,19 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 	    if ( filename[(int)filename.length()-1] != '/' )
 		filename += '/';
 	    filename += abs_name;
-	    r = data_internal( filename, d->extensions );
+	    r = dataInternal( filename, d->extensions );
 	}
     }
+
+    if ( !r ) {
+	for ( QMimeSourceFactory *f = QMimeSourceFactory::defaultFactory()->d->factories.first(); f; f = defaultFactory()->d->factories.next() ) {
+	    r = (QMimeSource*)f->data( abs_name );
+	    if ( r )
+		return r;
+	}
+    }
+
+
     delete d->last;
     d->last = r;
     return r;
@@ -516,6 +535,30 @@ QMimeSourceFactory* QMimeSourceFactory::takeDefaultFactory()
     QMimeSourceFactory *f = defaultfactory;
     defaultfactory = 0;
     return f;
+}
+
+/* Adds the QMimeSourceFactory \a f to the list of available
+   mimesource factories. If the defaultFactory() can't resolve a
+   data() it iterates over the list of installed mimesource factories
+   until the data could be resolved.
+
+   \sa removeFactory();
+*/
+
+void QMimeSourceFactory::addFactory( QMimeSourceFactory *f )
+{
+    QMimeSourceFactory::defaultFactory()->d->factories.append( f );
+}
+
+/*! Removes the mimesource factory \a f from the list of available
+  mimesource factories.
+
+  \sa addFactory();
+*/
+
+void QMimeSourceFactory::removeFactory( QMimeSourceFactory *f )
+{
+    QMimeSourceFactory::defaultFactory()->d->factories.removeRef( f );
 }
 
 #endif // QT_NO_MIME
