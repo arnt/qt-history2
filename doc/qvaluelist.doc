@@ -80,7 +80,7 @@
   this is sufficient.
 
   QValueList's function naming is consistent with the other Qt
-  classes (e.g., count(), isEmpty()). QMap also provides extra
+  classes (e.g., count(), isEmpty()). QValueList also provides extra
   functions for compatibility with STL algorithms, such as size() and
   empty(). Programmers already familiar with the STL \c list can use
   these functions instead.
