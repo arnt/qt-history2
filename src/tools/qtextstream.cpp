@@ -826,7 +826,7 @@ void QTextStream::ts_ungetc( QChar c )
 
   The buffer \e s must be preallocated.
 
-  \note No Encoding is done by this function.
+  Note that no encoding is done by this function.
 
   \warning The behaviour of this function is undefined unless the
   stream's encoding is set to Unicode or Latin1.
@@ -844,7 +844,7 @@ QTextStream &QTextStream::readRawBytes( char *s, uint len )
   Writes the \e len bytes from \e s to the stream and returns a reference to
   the stream.
 
-  \note No Encoding is done by this function.
+  Note that no encoding is done by this function.
 
   \sa QIODevice::writeBlock()
 */
@@ -1434,19 +1434,28 @@ QString QTextStream::readLine()
 	return QString::null;
     }
 #endif
-    QChar c = ts_getc();
-    if ( c == QEOF )
-	return QString::null;
+    const int buf_size = 256;
+    QChar c[buf_size];
+    int pos = 0;
+
+    c[pos] = ts_getc();
+    if ( c[pos] == QEOF )
+        return QString::null;
 
     QString result( "" );
-    while ( c != QEOF && c != '\n' ) { // ##### reggie: breaks some code:  && c != 0x2028 ) { // U+2028 is Unicode newline
-	result += c;
-	c = ts_getc();
+    while ( c[pos] != QEOF && c[pos] != '\n' ) { // ##### reggie: breaks some code:  && c != 0x2028 ) { // U+2028 is Unicode newline
+        pos++;
+        if ( pos >= buf_size ) {
+            result += QString( c, pos );
+            pos = 0;
+        }
+        c[pos] = ts_getc();
     }
+    result += QString( c, pos );
 
     int len = (int)result.length();
     if ( len && result[len-1] == '\r' )
-	result.truncate(len-1);		// (if there are two \r, let one stay)
+        result.truncate(len-1);         // (if there are two \r, let one stay)
 
     return result;
 }
@@ -2079,11 +2088,12 @@ QTextStream &reset( QTextStream &s )
   writing to non-persistent storage used by a single process.
   </ul>
 
-  \c Locale and all Unicode encodings, except \c RawUnicode, will look
-  at the first two bytes in a input stream to determine the byte
-  order. The initial byte order marker will be stripped off before data is read.
+  \c Locale and all Unicode encodings, except \c RawUnicode, will look at
+  the first two bytes in a input stream to determine the byte order. The
+  initial byte order marker will be stripped off before data is read.
 
-  \note This function should be called before any data is read to/written from the stream.
+  Note that this function should be called before any data is read
+  to/written from the stream.
   \sa setCodec()
 */
 
@@ -2142,11 +2152,13 @@ void QTextStream::setEncoding( Encoding e )
 }
 
 
-/*!
-  Sets the codec for this stream to \a codec. Will not try to autodetect Unicode.
+/*!  Sets the codec for this stream to \a codec. Will not try to
+  autodetect Unicode.
 
-    \note This function should be called before any data is read to/written from the stream.
-    \sa setEncoding()
+  Note that this function should be called before any data is read
+  to/written from the stream.
+
+  \sa setEncoding()
 */
 
 void QTextStream::setCodec( QTextCodec *codec )
