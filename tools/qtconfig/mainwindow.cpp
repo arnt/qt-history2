@@ -282,7 +282,7 @@ MainWindow::MainWindow()
 
 #ifdef Q_WS_X11
     xftcheckbox->setChecked(qt_has_xft);
-#elseif
+#else
     xftcheckbox->setEnabled(false);
 #endif
 
