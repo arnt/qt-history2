@@ -134,11 +134,15 @@ QPointArray QPainterSubpath::toPolygon() const
 	case QPainterPathElement::Line:
 	    p << QPoint(elm.lineData.x2, elm.lineData.y2);
 	    break;
-        case QPainterPathElement::Bezier:
-            p << QPoint(elm.bezierData.x2, elm.bezierData.y2);
-            p << QPoint(elm.bezierData.x3, elm.bezierData.y3);
-            p << QPoint(elm.bezierData.x4, elm.bezierData.y4);
-            break;
+        case QPainterPathElement::Bezier: {
+	    QPointArray pa;
+	    pa.setPoints(4, elm.bezierData.x1, elm.bezierData.y1,
+			 elm.bezierData.x2, elm.bezierData.y2,
+			 elm.bezierData.x3, elm.bezierData.y3,
+			 elm.bezierData.x4, elm.bezierData.y4);
+	    p += pa.cubicBezier();
+	    break;
+	}
         case QPainterPathElement::Arc: {
             QPointArray ar;
             ar.makeArc(elm.arcData.x, elm.arcData.y,

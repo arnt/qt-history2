@@ -1265,7 +1265,11 @@ void QPainter::drawPath(const QPainterPath &path)
             for (int i=0; i<polygons.size(); ++i)
                 drawPolygon(polygons.at(i), true);
         } else {
-
+	    QRegion buildUp;
+            for (int i=0; i<polygons.size(); ++i)
+                buildUp ^= polygons.at(i);
+	    setClipRegion(buildUp);
+	    drawRect(buildUp.boundingRect());
         }
 	restore();
     }
