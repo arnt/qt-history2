@@ -2319,10 +2319,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 if (old)
                     old->repaintDecoration(desktop()->rect(), false);
                 /* activateWindow() sends focus events
-                QFocusEvent out(QEvent::FocusOut);
-                QWidget *widget = QApplicationPrivate::focus_widget;
-                QApplicationPrivate::focus_widget = 0;
-                QApplication::sendEvent(widget, &out);
+                QApplication::setFocusWidget(0);
                 */
             }
         }

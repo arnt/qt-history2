@@ -871,7 +871,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
     // send and post remaining QObject events
-    if (q->parent()) {
+    if (q->parent() && sendChildEvents) {
         QChildEvent e(QEvent::ChildAdded, q);
         QApplication::sendEvent(q->parent(), &e);
 #ifdef QT_COMPAT
@@ -3095,7 +3095,7 @@ QWidget * QWidget::focusProxy() const
     \brief whether this widget (or its focus proxy) has the keyboard
     input focus
 
-    Effectively equivalent to \c {qApp->focusWidget() == this}.
+    Effectively equivalent to \c {QApplication::focusWidget() == this}.
 
     \sa setFocus(), clearFocus(), setFocusPolicy(), QApplication::focusWidget()
 */
@@ -3104,7 +3104,7 @@ bool QWidget::hasFocus() const
     const QWidget* w = this;
     while (w->d_func()->extra && w->d_func()->extra->focus_proxy)
         w = w->d_func()->extra->focus_proxy;
-    return (qApp->focusWidget() == w);
+    return (QApplication::focusWidget() == w);
 }
 
 /*!
@@ -3143,7 +3143,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
     while (f->d_func()->extra && f->d_func()->extra->focus_proxy)
         f = f->d_func()->extra->focus_proxy;
 
-    if (qApp->focusWidget() == f
+    if (QApplication::focusWidget() == f
 #if defined(Q_WS_WIN)
         && GetFocus() == f->winId()
 #endif
@@ -3165,7 +3165,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
     }
 
     if (f->isActiveWindow()) {
-        QWidget *prev = qApp->focusWidget();
+        QWidget *prev = QApplication::focusWidget();
         if (prev) {
 	    // This part is never executed when Q_WS_X11? Preceding XFocusOut
 	    // had already reset focus_widget when received XFocusIn
@@ -3188,7 +3188,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
             QInputContext::endComposition();
         }
 #endif
-        qApp->setFocusWidget(f);
+        QApplication::setFocusWidget(f, reason);
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
         f->d_func()->focusInputContext();
 #endif
@@ -3204,18 +3204,6 @@ void QWidget::setFocus(Qt::FocusReason reason)
 #if defined(Q_WS_WIN)
         }
 #endif
-
-        if (prev != f) {
-            if (prev) {
-                QFocusEvent out(QEvent::FocusOut, reason);
-                QApplication::sendEvent(prev, &out);
-            }
-
-            if (qApp->focusWidget() == f) {
-                QFocusEvent in(QEvent::FocusIn, reason);
-                QApplication::sendEvent(f, &in);
-            }
-        }
     }
 }
 
@@ -3245,11 +3233,7 @@ void QWidget::clearFocus()
         Q_D(QWidget);
 	d->unfocusInputContext();
 #endif
-        QWidget* w = qApp->focusWidget();
-        // clear active focus
-        qApp->setFocusWidget(0);
-        QFocusEvent out(QEvent::FocusOut);
-        QApplication::sendEvent(w, &out);
+        QApplication::setFocusWidget(0, Qt::OtherFocusReason);
 #if defined(Q_WS_WIN)
         if (!isPopup() && GetFocus() == w->winId())
             SetFocus(0);
@@ -3879,7 +3863,8 @@ void QWidget::show()
         updateGeometry();
 
 #ifdef QT_COMPAT
-    QApplication::sendPostedEvents(this, QEvent::ChildInserted);
+    if(d->sendChildEvents)
+        QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
 #ifndef QT_NO_LAYOUT
     if (!isTopLevel() && parentWidget()->d_func()->layout)
@@ -3923,7 +3908,8 @@ void QWidgetPrivate::show_recursive()
     q->ensurePolished();
 
 #ifdef QT_COMPAT
-    QApplication::sendPostedEvents(q, QEvent::ChildInserted);
+    if(sendChildEvents)
+        QApplication::sendPostedEvents(q, QEvent::ChildInserted);
 #endif
 #ifndef QT_NO_LAYOUT
     if (!q->isTopLevel() && q->parentWidget()->d_func()->layout)
@@ -3961,7 +3947,7 @@ void QWidgetPrivate::show_helper()
     showChildren(false);
 
 #ifdef QT_COMPAT
-    if (q->parentWidget())
+    if (q->parentWidget() && sendChildEvents)
         QApplication::sendPostedEvents(q->parentWidget(),
                                         QEvent::ChildInserted);
 #endif
@@ -4093,7 +4079,7 @@ void QWidgetPrivate::hide_helper()
 
         // next bit tries to move the focus if the focus widget is now
         // hidden.
-        if (qApp && qApp->focusWidget() == q)
+        if (QApplication::focusWidget() == q)
             q->focusNextPrevChild(true);
     }
 
@@ -4669,7 +4655,8 @@ bool QWidget::event(QEvent *e)
             d->resolvePalette();
 #endif
 #ifdef QT_COMPAT
-        QApplication::sendPostedEvents(this, QEvent::ChildInserted);
+        if(d->sendChildEvents)
+            QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
     }
         break;
@@ -6191,6 +6178,9 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
             d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
     }
     switch (attribute) {
+    case Qt::WA_NoChildEventsForParent:
+        d->sendChildEvents = !on;
+        break;
     case Qt::WA_MacMetalStyle:
 #ifdef Q_WS_MAC
         extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp

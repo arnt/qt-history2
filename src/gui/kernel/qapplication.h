@@ -283,7 +283,7 @@ private:
     bool inPopupMode() const;
     void closePopup(QWidget *popup);
     void openPopup(QWidget *popup);
-    void setFocusWidget(QWidget *focus);
+    static void setFocusWidget(QWidget *focus, Qt::FocusReason reason);
 
 private:
     Q_DISABLE_COPY(QApplication)

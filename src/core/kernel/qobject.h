@@ -56,7 +56,8 @@ public:
     uint blockSig : 1;
     uint wasDeleted : 1;
     uint ownObjectName : 1;
-    uint unused : 27;
+    uint sendChildEvents : 1;
+    uint unused : 26;
     int postedEvents;
 #ifdef QT_COMPAT
     int postedChildInsertedEvents;

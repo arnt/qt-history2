@@ -1667,9 +1667,24 @@ QWidget *QApplication::focusWidget()
     return QApplicationPrivate::focus_widget;
 }
 
-void QApplication::setFocusWidget(QWidget *focus)
+void QApplication::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
 {
-    QApplicationPrivate::focus_widget = focus;
+    if (focus != QApplicationPrivate::focus_widget) {
+        QWidget *prev = QApplicationPrivate::focus_widget;
+        QApplicationPrivate::focus_widget = focus;
+
+        //send events
+        if (prev) {
+            QFocusEvent out(QEvent::FocusOut, reason);
+            QApplication::sendEvent(prev, &out);
+            QApplication::sendEvent(prev->style(), &out);
+        }
+        if(focus && QApplicationPrivate::focus_widget == focus) {
+            QFocusEvent in(QEvent::FocusIn, reason);
+            QApplication::sendEvent(focus, &in);
+            QApplication::sendEvent(focus->style(), &in);
+        }
+    }
 }
 
 
@@ -1965,15 +1980,12 @@ void QApplication::setActiveWindow(QWidget* act)
 
     // then focus events
     if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
-        QFocusEvent out(QEvent::FocusOut, Qt::ActiveWindowFocusReason);
-        QWidget *tmp = QApplicationPrivate::focus_widget;
-        QApplicationPrivate::focus_widget = 0;
 #ifdef Q_WS_WIN
-        QInputContext::accept(tmp);
+        QInputContext::accept(focusWidget());
 #elif defined(Q_WS_X11) || defined(Q_WS_QWS)
-	tmp->d->unfocusInputContext();
+	focusWidget()->d->unfocusInputContext();
 #endif
-        sendSpontaneousEvent(tmp, &out);
+        setFocusWidget(0, Qt::ActiveWindowFocusReason);
     } else if (QApplicationPrivate::active_window) {
         QWidget *w = QApplicationPrivate::active_window->focusWidget();
         if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
@@ -2582,10 +2594,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                "QApplication::sendEvent",
                QString::fromLatin1("Cannot send events to objects owned by a different thread "
                                    "(%1). Receiver '%2' (of type '%3') was created in thread %4")
-               .arg(QString::number((qulonglong) QThread::currentThread(), 16))
+               .arg(QString::number((int)QThread::currentThread(), 16))
                .arg(receiver->objectName())
                .arg(receiver->metaObject()->className())
-               .arg(QString::number((qulonglong) receiver->thread(), 16))
+               .arg(QString::number((int)receiver->thread(), 16))
                .toLatin1().constData());
 
 #ifdef QT_COMPAT

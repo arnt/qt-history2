@@ -745,6 +745,12 @@
     wants QLayout to operate on the entire QWidget::rect(), not only
     on QWidget::contentsRect(). This is set by the widget's author.
 
+    \value WA_NoChildEventsForParent Indicates that the widget does
+    not want ChildAdded or ChildRemoved events sent to its
+    parent. This is rarely necessary but can help to avoid automatic
+    insertion widgets like splitters and layouts. This is set by a
+    widget's author.
+
     \omitvalue WA_SetWindowIcon
     \omitvalue WA_PendingUpdate
     \omitvalue WA_MouseTracking

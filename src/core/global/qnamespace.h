@@ -342,6 +342,7 @@ public:
         WA_DeleteOnClose,
         WA_RightToLeft,
         WA_SetLayoutDirection,
+        WA_NoChildEventsForParent,
 
         // Add new attributes above this!
         WA_AttributeCount

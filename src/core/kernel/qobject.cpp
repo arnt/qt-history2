@@ -246,6 +246,7 @@ QObjectPrivate::QObjectPrivate(int version)
     pendTimer = false;                          // no timers yet
     blockSig = false;                           // not blocking signals
     wasDeleted = false;                         // double-delete catcher
+    sendChildEvents = true;                     // if we should send ChildInsert and ChildRemove events to parent
     postedEvents = 0;
 #ifdef QT_COMPAT
     postedChildInsertedEvents = 0;
@@ -1312,8 +1313,10 @@ void QObjectPrivate::setParent_helper(QObject *parent)
     if (parent == d->parent)
         return;
     if (d->parent && !d->parent->d->wasDeleted && d->parent->d->children.removeAll(q)) {
-        QChildEvent e(QEvent::ChildRemoved, q);
-        QCoreApplication::sendEvent(d->parent, &e);
+        if(d->sendChildEvents) {
+            QChildEvent e(QEvent::ChildRemoved, q);
+            QCoreApplication::sendEvent(d->parent, &e);
+        }
     }
     d->parent = parent;
     if (d->parent) {
@@ -1321,18 +1324,20 @@ void QObjectPrivate::setParent_helper(QObject *parent)
         Q_ASSERT_X(d->thread == d->parent->d->thread, "QObject::setParent",
                    "New parent must be in the same thread as the previous parent");
         d->parent->d->children.append(q);
-        if (!d->isWidget) {
-            QChildEvent e(QEvent::ChildAdded, q);
-            QCoreApplication::sendEvent(d->parent, &e);
+        if(d->sendChildEvents) {
+            if (!d->isWidget) {
+                QChildEvent e(QEvent::ChildAdded, q);
+                QCoreApplication::sendEvent(d->parent, &e);
 #ifdef QT_COMPAT
-            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
+                QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
+#endif
+            }
+#ifdef QT_COMPAT
+            else {
+                QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
+            }
 #endif
         }
-#ifdef QT_COMPAT
-        else {
-            QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
-        }
-#endif
     }
 }
 
