@@ -2409,7 +2409,7 @@ void checkIdentifier( const char* ident )
     }
     if ( !( *p >= 'A' && *p <= 'Z' ) && !( *p >= 'a' && *p <= 'z' )  )
     {
-	moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", ident );
+	moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", (char*) ident );
 	return;
     }
 
@@ -2417,7 +2417,7 @@ void checkIdentifier( const char* ident )
     {
     	if ( !( *p >= 'A' && *p <= 'Z' ) && !( *p >= 'a' && *p <= 'z' ) && !( *p >= '0' && *p <= '9' ) && *p != '_' )
         {
-	    moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", ident );
+	    moc_err( "'%s' is not a valid property name. It must match the pattern [A-Za-z][A-Za-z0-9_]*", (char*) ident );
             return;
         }
 	++p;
