@@ -349,7 +349,7 @@ public:
     QSettingsPrivate();
 
     QSettingsGroup readGroup();
-    bool removeGroup(const QString &);
+    void removeGroup(const QString &);
     void writeGroup(const QString &, const QString &);
     QDateTime modificationTime();
 
@@ -400,7 +400,7 @@ QSettingsGroup QSettingsPrivate::readGroup()
 }
 
 
-bool QSettingsPrivate::removeGroup(const QString &key)
+void QSettingsPrivate::removeGroup(const QString &key)
 {
     QSettingsHeading hd;
     QSettingsGroup grp;
@@ -450,8 +450,6 @@ bool QSettingsPrivate::removeGroup(const QString &key)
 
 	modified = TRUE;
     }
-
-    return found;
 }
 
 
@@ -1015,7 +1013,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 /*!
   Removes the entry specified by \a key.
 
-    Returns TRUE if the entry existed and was removed, FALSE otherwise.
+  Returns TRUE if the entry is removed or doesn't exist, otherwise returns FALSE.
 
   \sa readEntry(), writeEntry()
 */
@@ -1062,7 +1060,8 @@ bool QSettings::removeEntry(const QString &key)
     } else
 	realkey = key;
 
-    return d->removeGroup(realkey);
+    d->removeGroup(realkey);
+    return TRUE;
 }
 
 
