@@ -1191,6 +1191,8 @@ void QFileDialogPrivate::deleteCurrent()
 {
     // FIXME: should we delete all selected indexes ?
     QModelIndex index = selections->currentIndex();
+    if(!index.isValid())
+        return;
     if (model->isReadOnly())
         return;
     if (model->isDir(index))
