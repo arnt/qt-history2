@@ -125,7 +125,7 @@ static bool block_set_alignment = FALSE;
     text formatting using HTML-style tags. It is optimized to handle
     large documents and to respond quickly to user input.
 
-    QTextEdit has four modes of operation:
+    QTextEdit has three modes of operation:
     \table
     \header \i Mode \i Command \i Notes
     \row \i Plain Text Editor \i setTextFormat(PlainText)
@@ -139,18 +139,11 @@ static bool block_set_alignment = FALSE;
 	 correctly display files that have margins set and that
 	 include images). This mode is mostly useful for editing small
 	 amounts of rich text. <sup>2.</sup>
-    \row \i Text Viewer \i setReadOnly(TRUE)
+    \row \i Text Viewer<sup>3.</sup> \i setReadOnly(TRUE)
          \i Set text with setText() or append() (which has no undo
 	 history so is faster and uses less memory); text() returns
 	 plain or rich text depending on the textFormat(). This mode
 	 can correctly display a large subset of HTML tags.
-    \row \i Log Viewer<sup>3.</sup> \i setTextFormat(LogText)<br>
-				       (automatically calls<br>
-				       setReadOnly(TRUE))
-         \i Set text with append() (which has no undo
-	 history so is fast and uses less memory); text() returns
-	 plain text. It is possible to set text attributes (e.g.
-	 colors, italic, bold, etc.)
     \endtable
 
     <sup>1.</sup><small>We do \e not recommend using QTextEdit to
@@ -162,9 +155,9 @@ static bool block_set_alignment = FALSE;
     <sup>2.</sup><small>A more complete API that supports setting
     margins, images, etc., is planned for a later Qt release.</small>
 
-    <sup>3.</sup><small>LogText format is optimized for showing large
-    amounts of text and for quickly appending text.  Qt \>= 3.1
-    only.</small>
+    <sup>3.</sup><small>Qt 3.1 will provide a Log Viewer mode which is
+    optimised for the fast and memory efficient display of large
+    amounts of read only text.</small>
 
     We recommend that you always call setTextFormat() to set the mode
     you want to use. If you use \c AutoText then setText() and
@@ -324,58 +317,6 @@ static bool block_set_alignment = FALSE;
     the locations of files and images. It is passed to the
     mimeSourceFactory() when quering data. (See QTextEdit() and
     \l{context()}.)
-
-    \section1 Using QTextEdit as a Log Viewer
-
-    Call setTextFormat(LogText) to put the QTextEdit into log text
-    mode. This mode is is optimized (in terms of memory use and speed)
-    for very large amounts of text. In text log mode, editing and full
-    rich text support are disabled (the widget is automatically set to
-    \link setReadOnly() read-only\endlink mode).
-
-    In log text mode, QTextEdit recognises a small set of rich text
-    tags; additional tags can be specified using a style sheet. Log
-    text mode tags have the same HTML format used for rich text mode,
-    i.e. \c{<}, tag name, \c{>} for an opening tag and \c{</},
-    tagname, \c{>} for a closing tag. Tags may be nested, with the
-    order of closing matching the order of opening, e.g. \c{<b><u>bold
-    underlined</u></b>} is valid, but \c{<b><u>bold
-    underlined</b></u>} will produce an error message.
-
-    Tags can be used to set the color, bold, italic and
-    underline attributes of a piece of text. A color is specified
-    using the HTML font tag \c{<font color=colorname>}. The color
-    name can be one of the color names from the X11 color database (on
-    all Qt platforms), or an RGB hex value (e.g \c{#00ff00}). For
-    example, \c{<font color=red>red text</font>},
-    \c{<font color="light blue">light blue text</font>},
-    \c {<font color="#223344">blue-ish text</font>}. Bold, italic and
-    underline attributes are specified using \c {<b>bold</b>},
-    \c{<i>italic</i>} and \c{<u>underline</u>} respecively.
-
-    Stylesheets can also be used in log text mode. To create and use a
-    custom tag, you could do the following:
-    \code
-    QTextEdit *log = new QTextEdit( this );
-    log->setTextFormat( Qt::LogText );
-    QStyleSheetItem * item = new QStyleSheetItem( log->styleSheet(), "mytag" );
-    item->setColor( "red" );
-    item->setFontWeight( QFont::Bold );
-    item->setFontUnderline( TRUE );
-    log->append( "This is a <mytag>custom tag</mytag>!" );
-    \endcode
-    Only the color, bold, underline and italic attributes of a
-    QStyleSheetItem are used in log text mode.
-
-    There are a few things to be aware of when working in log text
-    mode:
-    \list
-    \i Functions that deal with rich text formatting will not work or
-    return anything valid.
-    \i Lines are equivalent to paragraphs.
-    \i Inserting lines is not supported. It is only possible to
-    append() lines.
-    \endlist
 
     \section1 Using QTextEdit as an Editor
 
@@ -1527,7 +1468,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 		cursor->gotoNextLetter();
 	    else
 		cursor->setIndex( cursor->paragraph()->length() - 1 );
-	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );	
+	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );
 	    removeSelectedText( QTextDocument::Temp );
 	    break;
     }
@@ -4382,7 +4323,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
     QString t = QApplication::clipboard()->text(st);
     removeSelection( QTextDocument::Standard );
     if ( !t.isEmpty() ) {
-	
+
 #if 0
 	// we cannot undo that yet :-(
 	undoRedoInfo.clear();
@@ -4391,7 +4332,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	if ( lastFormatted->prev() )
 	    lastFormatted = lastFormatted->prev();
 	doc->setRichTextInternal( t, cursor );
-	
+
 	// cursor now at end. Reggie, please do undo magic with readFormats
 	formatMore();
 	setModified();
@@ -4400,7 +4341,7 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 	ensureCursorVisible();
 	return;
 #endif
-	
+
 #if defined(Q_OS_WIN32)
 	// Need to convert CRLF to LF
 	int index = t.find( QString::fromLatin1("\r\n"), 0 );
