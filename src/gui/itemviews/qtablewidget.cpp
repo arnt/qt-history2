@@ -94,21 +94,27 @@ QTableModel::~QTableModel()
 
 bool QTableModel::insertRows(int row, const QModelIndex &, int count)
 {
+    int rc = vertical.count();
+    int cc = horizontal.count();
     vertical.insert(row, count, 0);
-    int i = tableIndex(row, qMax(horizontal.count() - 1, 0));
-    table.insert(i, count * horizontal.count(), 0);
+    if (rc == 0)
+        table.resize(cc * count);
+    else
+        for (int column = 0; column < count; ++column)
+            table.insert(tableIndex(row, column), cc, 0);
     emit rowsInserted(QModelIndex::Null, row, row + count - 1);
     return true;
 }
 
 bool QTableModel::insertColumns(int column, const QModelIndex &, int count)
 {
+    int rc = vertical.count();
     int cc = horizontal.count();
     horizontal.insert(column, count, 0);
     if (cc == 0)
-        table.resize(vertical.count() * count);
+        table.resize(rc * count);
     else
-        for (int row = 0; row < vertical.count(); ++row)
+        for (int row = 0; row < rc; ++row)
             table.insert(tableIndex(row, column), count, 0);
     emit columnsInserted(QModelIndex::Null, column, column + count - 1);
     return true;
