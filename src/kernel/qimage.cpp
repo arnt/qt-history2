@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#351 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#352 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1100,7 +1100,6 @@ void QImage::freeBits()
     if ( data->bits ) {				// dealloc image bits
 	free( data->bits );
 	data->bits = 0;
-	data->bits_mine = TRUE;
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#113 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#114 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -230,7 +230,6 @@ private:
 #ifndef QT_NO_IMAGE_TEXT
 	QImageDataMisc* misc;			// less common stuff
 #endif
-	bool    bits_mine;			// this allocated bits
 	bool    ctbl_mine;			// this allocated ctbl
     } *data;
 #ifndef QT_NO_IMAGE_TEXT
