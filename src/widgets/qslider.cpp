@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#26 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#26 $");
 
 
 static const int motifBorder = 2;
@@ -48,6 +48,7 @@ static int sliderStartVal = 0; //##### class member?
   default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
   enable keyboard focus.
 */
+
 
 /*!
   Constructs a vertical slider.
@@ -90,8 +91,8 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
 */
 
 QSlider::QSlider( int minValue, int maxValue, int step,
-			int value,  Orientation orientation,
-			QWidget *parent, const char *name )
+		  int value, Orientation orientation,
+		  QWidget *parent, const char *name )
     : QWidget( parent, name ),
       QRangeControl( minValue, maxValue, 1, step, value )
 {
@@ -132,8 +133,6 @@ void QSlider::initTicks()
     } else {
 	tickOffset = 0;
     }
-	
-
 }
 
 
@@ -338,9 +337,9 @@ QRect QSlider::sliderRect() const
 enum SlDir {SlUp,SlDown,SlLeft,SlRight};
 
 static void drawWinPointedSlider( QPainter *p,
-				const QRect r,
-				const QColorGroup &g,
-				SlDir dir)
+				  const QRect r,
+				  const QColorGroup &g,
+				  SlDir dir)
 {
     const QColor c1 = g.light();
     const QColor c2 = black;
@@ -446,6 +445,7 @@ static void drawWinPointedSlider( QPainter *p,
 
 }
 
+
 /*!
   Paints the slider button using painter \a p with size and
   position given by \a r. Reimplement this function to change the
@@ -497,7 +497,6 @@ void QSlider::reallyMoveSlider( int newPos )
 }
 
 
-
 /*!
   Draws the "groove" on which the slider moves, using the painter \a p.
   \a c gives the distance from the top (or left) edge of the widget to
@@ -516,7 +515,6 @@ void QSlider::drawWinGroove( QPainter *p, QCOORD c )
 	p->drawLine( c - 1, 1, c - 1, height() - 3 );
     }
 }
-
 
 
 /*!
@@ -813,7 +811,6 @@ int QSlider::slideLength() const
 }
 
 
-
 /*!
   Makes QRangeControl::setValue() available as a slot.
 */
@@ -994,4 +991,3 @@ void QSlider::setTickInterval( int i )
   chooses between pageStep() and lineStep().
   \sa setTickInterval()
 */
-
