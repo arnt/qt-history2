@@ -22,21 +22,21 @@ HEADERS =	qbttngrp.h	qbutton.h	qchkbox.h	qcombo.h      \
 		qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
 		qpopmenu.h	qpushbt.h	qradiobt.h	qrangect.h    \
 		qslider.h	qscrbar.h	qtablevw.h	qtooltip.h    \
-		qmlined.h       qheader.h	qtabbar.h	qspinbox.h    \
+		qmlined.h       qheader.h	qtabbar.h	\
 		qprogbar.h	qscrollview.h	qvalidator.h
 SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qframe.cpp	qgrpbox.cpp	qlabel.cpp	qlcdnum.cpp   \
 		qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
 		qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		qslider.cpp	qscrbar.cpp	qtablevw.cpp	qtooltip.cpp  \
-		qmlined.cpp     qheader.cpp	qtabbar.cpp	qspinbox.cpp  \
+		qmlined.cpp     qheader.cpp	qtabbar.cpp	\
 		qprogbar.cpp	qscrollview.cpp	qvalidator.cpp
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qlabel.o	qlcdnum.o     \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
 		qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
 		qslider.o	qscrbar.o	qtablevw.o	qtooltip.o    \
-		qmlined.o       qheader.o	qtabbar.o	qspinbox.o    \
+		qmlined.o       qheader.o	qtabbar.o	\
 		qprogbar.o	qscrollview.o	qvalidator.o
 SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	mlabel.cpp	mlcdnum.cpp   \
