@@ -998,7 +998,7 @@ void QWidget::setMouseTracking( bool enable )
 /*!
   Grabs the mouse input.
 
-  This widget reveives all mouse events and other widgets none until
+  This widget receives all mouse events and other widgets none until
   releaseMouse() is called. Keyboard events are not affected. Use
   grabKeyboard() if you want to grab that.
 
