@@ -784,10 +784,10 @@ static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<Q
 	    QString userTypeName = BSTRToQString( usertypename );
 	    SysFreeString( usertypename );
 	    // known enum?
-	    QMetaEnum *metaEnum = enumlist.find( userTypeName );				    
+	    QMetaEnum *metaEnum = enumlist.find( userTypeName );
 	    if ( metaEnum )
 		return userTypeName;
-	    if ( userTypeName == "OLE_COLOR" )
+	    if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
 		return "QColor";
 	    if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" )
 		return "QFont";
@@ -1348,7 +1348,7 @@ QMetaObject *QAxBase::metaObject() const
 				slotlist.insert( prototype, slot );
 			    } else {
 #ifndef QT_NO_DEBUG
-				    qWarning( "%s: Function has parameter of unsupported type: ", prototype );
+				    qWarning( "%s: Function has parameter of unsupported type: ", prototype.latin1() );
 #endif
 				    debugInfo += QString( "%1: Function has parameter of unsupported type.\n" ).arg( prototype );
 			    }			    
