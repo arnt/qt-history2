@@ -5682,7 +5682,7 @@ void QWidget::ensurePolished() const
         if ((child = children.at(i))->isWidgetType())
             static_cast<QWidget*>(child)->ensurePolished();
 
-    if (d->parent) {
+    if (d->parent && d->sendChildEvents) {
         QChildEvent e(QEvent::ChildPolished, const_cast<QWidget *>(this));
         QCoreApplication::sendEvent(d->parent, &e);
     }
@@ -5962,7 +5962,7 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     d->resolvePalette();
 #endif
     d->resolveLayoutDirection();
-    if (parent){
+    if (parent && d->sendChildEvents){
         const QMetaObject *polished = d->polished;
         QChildEvent e(QEvent::ChildAdded, this);
         QCoreApplication::sendEvent(parent, &e);
