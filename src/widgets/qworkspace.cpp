@@ -1055,7 +1055,8 @@ void QWorkspace::tile()
     int rows = 1;
     int cols = 1;
     int n = 0;
-    for ( QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+    QWorkspaceChild* c;
+    for ( c = d->windows.first(); c; c = d->windows.next() ) {
 	if ( !c->windowWidget()->testWState( WState_ForceHide ) )
 	    n++;
     }
@@ -1075,7 +1076,7 @@ void QWorkspace::tile()
     int col = 0;
     int w = width() / cols;
     int h = height() / rows;
-    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+    for ( c = d->windows.first(); c; c = d->windows.next() ) {
 	if ( c->windowWidget()->testWState( WState_ForceHide ) )
 	    continue;
 	c->showNormal();
