@@ -129,13 +129,12 @@ void QSqlNavigator::refresh()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return;
+        return;
     QString currentFilter = cursor->filter();
-    if ( currentFilter.isEmpty() )
-	currentFilter = d->ftr;
+    currentFilter = d->ftr;
     QStringList currentSort = cursor->sort().toStringList( QString::null, TRUE );
     if ( !currentSort.count() )
-	currentSort = d->srt;
+        currentSort = d->srt;
     QSqlIndex newSort = QSqlIndex::fromStringList( currentSort, cursor );
     cursor->select( currentFilter, newSort );
 }
@@ -154,13 +153,13 @@ bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
 {
     bool indexEquals = FALSE;
     for ( uint i = 0; i < idx.count(); ++i ) {
-	const QString fn( idx.field(i)->name() );
-	if ( idx.field(i)->value() == buf->value( fn ) )
-	    indexEquals = TRUE;
-	else {
-	    indexEquals = FALSE;
-	    break;
-	}
+        const QString fn( idx.field(i)->name() );
+        if ( idx.field(i)->value() == buf->value( fn ) )
+            indexEquals = TRUE;
+        else {
+            indexEquals = FALSE;
+            break;
+        }
     }
     return indexEquals;
 }
@@ -178,36 +177,36 @@ int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& 
 
     //    for ( uint i = 0; i < idx.count(); ++i ) {
     int i = 0;
-	const QString fn( idx.field(i)->name() );
-	const QSqlField* f1 = buf1->field( fn );
-	bool reverse = FALSE;
-	if ( idx.isDescending( i ) )
-	     reverse = TRUE;
-	if ( f1 ) {
-	    switch( f1->type() ) { // ## more types?
-	    case QVariant::String:
-	    case QVariant::CString:
-		if ( f1->value().toString().simplifyWhiteSpace() < buf2->value( fn ).toString().simplifyWhiteSpace() )
-		    cmp = -1;
-		else if ( f1->value().toString().simplifyWhiteSpace() > buf2->value( fn ).toString().simplifyWhiteSpace() )
-		    cmp = 1;
-		break;
-	    default:
-		if ( f1->value().toDouble() < buf2->value( fn ).toDouble() )
-		    cmp = -1;
-		else if ( f1->value().toDouble() > buf2->value( fn ).toDouble() )
-		    cmp = 1;
-		break;
-	    }
-	}
-	s1 = f1->value().toString().simplifyWhiteSpace() + ";";
-	s2 = buf2->value( fn ).toString().simplifyWhiteSpace() + ";";
-	//    }
+        const QString fn( idx.field(i)->name() );
+        const QSqlField* f1 = buf1->field( fn );
+        bool reverse = FALSE;
+        if ( idx.isDescending( i ) )
+             reverse = TRUE;
+        if ( f1 ) {
+            switch( f1->type() ) { // ## more types?
+            case QVariant::String:
+            case QVariant::CString:
+                if ( f1->value().toString().simplifyWhiteSpace() < buf2->value( fn ).toString().simplifyWhiteSpace() )
+                    cmp = -1;
+                else if ( f1->value().toString().simplifyWhiteSpace() > buf2->value( fn ).toString().simplifyWhiteSpace() )
+                    cmp = 1;
+                break;
+            default:
+                if ( f1->value().toDouble() < buf2->value( fn ).toDouble() )
+                    cmp = -1;
+                else if ( f1->value().toDouble() > buf2->value( fn ).toDouble() )
+                    cmp = 1;
+                break;
+            }
+        }
+        s1 = f1->value().toString().simplifyWhiteSpace() + ";";
+        s2 = buf2->value( fn ).toString().simplifyWhiteSpace() + ";";
+        //    }
     if ( reverse ) {
-	if ( cmp < 0 )
-	    cmp = 1;
-	else if ( cmp > 0 )
-	    cmp = -1;
+        if ( cmp < 0 )
+            cmp = 1;
+        else if ( cmp > 0 )
+            cmp = -1;
     }
     return cmp;
 
@@ -241,9 +240,9 @@ bool QSqlNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return FALSE;
+        return FALSE;
     if ( !cursor->isActive() )
-	return FALSE;
+        return FALSE;
     QSqlRecord* buf = cursor->editBuffer();
 
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
@@ -253,90 +252,90 @@ bool QSqlNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 
     if ( seekPrimary ) {
 
-	indexEquals = FALSE;
+        indexEquals = FALSE;
 
-	/* check the hint */
-	if ( cursor->seek( atHint ) )
-	    indexEquals = q_index_matches( cursor, idx );
+        /* check the hint */
+        if ( cursor->seek( atHint ) )
+            indexEquals = q_index_matches( cursor, idx );
 
-	if ( !indexEquals ) {
-	    /* check current page */
-	    int pageSize = 20;
-	    int startIdx = QMAX( atHint - pageSize, 0 );
-	    int endIdx = atHint + pageSize;
-	    for ( int j = startIdx; j <= endIdx; ++j ) {
-		if ( cursor->seek( j ) ) {
-		    indexEquals = q_index_matches( cursor, idx );
-		    if ( indexEquals )
-			break;
-		}
-	    }
-	}
+        if ( !indexEquals ) {
+            /* check current page */
+            int pageSize = 20;
+            int startIdx = QMAX( atHint - pageSize, 0 );
+            int endIdx = atHint + pageSize;
+            for ( int j = startIdx; j <= endIdx; ++j ) {
+                if ( cursor->seek( j ) ) {
+                    indexEquals = q_index_matches( cursor, idx );
+                    if ( indexEquals )
+                        break;
+                }
+            }
+        }
 
-	if ( !indexEquals && cursor->driver()->hasQuerySizeSupport() ) {
-	    /* binary search based on record buffer and current sort fields */
-	    int lo = 0;
-	    int hi = cursor->size();
-	    int mid;
-	    if ( q_compare( buf, cursor, cursor->sort() ) >= 0 )
-		lo = cursor->at();
-	    while( lo != hi ) {
-		mid = lo + (hi - lo) / 2;
-		if ( !cursor->seek( mid ) )
-		    break;
-		if ( q_index_matches( cursor, idx ) ) {
-		    indexEquals = TRUE;
-		    break;
-		}
-		int c = q_compare( buf, cursor, cursor->sort() );
-		if ( c < 0 )
-		    hi = mid;
-		else if ( c == 0 ) {
-		    // found it, but there may be duplicates
-		    int at = mid;
-		    do {
-			mid--;
-			if ( !cursor->seek( mid ) )
-			    break;
-			if ( q_index_matches( cursor, idx ) ) {
-			    indexEquals = TRUE;
-			    break;
-			}
-		    } while ( q_compare( buf, cursor, cursor->sort() ) == 0 );
-		    if ( !indexEquals ) {
-			mid = at;
-			do {
-			    mid++;
-			    if ( !cursor->seek( mid ) )
-				break;
-			    if ( q_index_matches( cursor, idx ) ) {
-				indexEquals = TRUE;
-				break;
-			    }
-			} while ( q_compare( buf, cursor, cursor->sort() ) == 0 );
-		    }
-		    break;
-		} else if ( c > 0 ) {
-		    lo = mid + 1;
-		}
-	    }
-	}
+        if ( !indexEquals && cursor->driver()->hasQuerySizeSupport() ) {
+            /* binary search based on record buffer and current sort fields */
+            int lo = 0;
+            int hi = cursor->size();
+            int mid;
+            if ( q_compare( buf, cursor, cursor->sort() ) >= 0 )
+                lo = cursor->at();
+            while( lo != hi ) {
+                mid = lo + (hi - lo) / 2;
+                if ( !cursor->seek( mid ) )
+                    break;
+                if ( q_index_matches( cursor, idx ) ) {
+                    indexEquals = TRUE;
+                    break;
+                }
+                int c = q_compare( buf, cursor, cursor->sort() );
+                if ( c < 0 )
+                    hi = mid;
+                else if ( c == 0 ) {
+                    // found it, but there may be duplicates
+                    int at = mid;
+                    do {
+                        mid--;
+                        if ( !cursor->seek( mid ) )
+                            break;
+                        if ( q_index_matches( cursor, idx ) ) {
+                            indexEquals = TRUE;
+                            break;
+                        }
+                    } while ( q_compare( buf, cursor, cursor->sort() ) == 0 );
+                    if ( !indexEquals ) {
+                        mid = at;
+                        do {
+                            mid++;
+                            if ( !cursor->seek( mid ) )
+                                break;
+                            if ( q_index_matches( cursor, idx ) ) {
+                                indexEquals = TRUE;
+                                break;
+                            }
+                        } while ( q_compare( buf, cursor, cursor->sort() ) == 0 );
+                    }
+                    break;
+                } else if ( c > 0 ) {
+                    lo = mid + 1;
+                }
+            }
+        }
 
-	if ( !indexEquals ) {
-	    /* give up, use brute force */
-	    int startIdx = 0;
-	    if ( cursor->at() != startIdx ) {
-		cursor->seek( startIdx );
-	    }
-	    for ( ;; ) {
-		indexEquals = FALSE;
-		indexEquals = q_index_matches( cursor, idx );
-		if ( indexEquals )
-		    break;
-		if ( !cursor->next() )
-		    break;
-	    }
-	}
+        if ( !indexEquals ) {
+            /* give up, use brute force */
+            int startIdx = 0;
+            if ( cursor->at() != startIdx ) {
+                cursor->seek( startIdx );
+            }
+            for ( ;; ) {
+                indexEquals = FALSE;
+                indexEquals = q_index_matches( cursor, idx );
+                if ( indexEquals )
+                    break;
+                if ( !cursor->next() )
+                    break;
+            }
+        }
     }
     QApplication::restoreOverrideCursor();
     return indexEquals;
@@ -421,11 +420,11 @@ int QSqlFormNavigator::insertRecord()
     QSqlCursor* cursor = defaultCursor();
     QSqlForm* form = defaultForm();
     if ( !cursor || !form )
-	return 0;
+        return 0;
     form->writeFields();
     int ar = cursor->insert();
     if ( !ar || !cursor->isActive() )
-	handleError( cursor->lastError() );
+        handleError( cursor->lastError() );
     refresh();
     findBuffer( cursor->primaryIndex() );
     updateBoundry();
@@ -444,16 +443,16 @@ int QSqlFormNavigator::updateRecord()
     QSqlCursor* cursor = defaultCursor();
     QSqlForm* form = defaultForm();
     if ( !cursor || !form )
-	return 0;
+        return 0;
     form->writeFields();
     int ar = cursor->update();
     if ( !ar || !cursor->isActive() )
-	handleError( cursor->lastError() );
+        handleError( cursor->lastError() );
     else {
-	refresh();
-	findBuffer( cursor->primaryIndex() );
-	updateBoundry();
-	form->readFields();
+        refresh();
+        findBuffer( cursor->primaryIndex() );
+        updateBoundry();
+        form->readFields();
     }
     return ar;
 }
@@ -471,22 +470,22 @@ int QSqlFormNavigator::deleteRecord()
     QSqlCursor* cursor = defaultCursor();
     QSqlForm* form = defaultForm();
     if ( !cursor || !form )
-	return 0;
+        return 0;
     int n = cursor->at();
     int ar = cursor->del();
     if ( ar ) {
-	refresh();
-	if ( !cursor->seek( n ) )
-	    lastRecord();
-	else
-	    updateBoundry();
-	cursor->primeUpdate();
-	QSqlForm* form = defaultForm();
-	if ( form )
-	    form->readFields();
+        refresh();
+        if ( !cursor->seek( n ) )
+            lastRecord();
+        else
+            updateBoundry();
+        cursor->primeUpdate();
+        QSqlForm* form = defaultForm();
+        if ( form )
+            form->readFields();
     } else {
-	if ( !cursor->isActive() )
-	    handleError( cursor->lastError() );
+        if ( !cursor->isActive() )
+            handleError( cursor->lastError() );
     }
     return ar;
 }
@@ -501,14 +500,14 @@ bool QSqlFormNavigator::firstRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return FALSE;
+        return FALSE;
     if ( cursor->first() ) {
-	cursor->primeUpdate();
-	QSqlForm* form = defaultForm();
-	if ( form )
-	    form->readFields();
-	updateBoundry();
-	return TRUE;
+        cursor->primeUpdate();
+        QSqlForm* form = defaultForm();
+        if ( form )
+            form->readFields();
+        updateBoundry();
+        return TRUE;
     }
     updateBoundry();
     return FALSE;
@@ -524,14 +523,14 @@ bool QSqlFormNavigator::lastRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return FALSE;
+        return FALSE;
     if ( cursor->last() ) {
-	cursor->primeUpdate();
-	QSqlForm* form = defaultForm();
-	if ( form )
-	    form->readFields();
-	updateBoundry();
-	return TRUE;
+        cursor->primeUpdate();
+        QSqlForm* form = defaultForm();
+        if ( form )
+            form->readFields();
+        updateBoundry();
+        return TRUE;
     }
     updateBoundry();
     return FALSE;
@@ -548,14 +547,14 @@ bool QSqlFormNavigator::nextRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return FALSE;
+        return FALSE;
     bool b = cursor->next();
     if( !b )
-	cursor->last();
+        cursor->last();
     cursor->primeUpdate();
     QSqlForm* form = defaultForm();
     if ( form )
-	form->readFields();
+        form->readFields();
     updateBoundry();
     return b;
 }
@@ -571,14 +570,14 @@ bool QSqlFormNavigator::prevRecord()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return FALSE;
+        return FALSE;
     bool b = cursor->prev();
     if( !b )
-	cursor->first();
+        cursor->first();
     cursor->primeUpdate();
     QSqlForm* form = defaultForm();
     if ( form )
-	form->readFields();
+        form->readFields();
     updateBoundry();
     return b;
 }
@@ -592,10 +591,10 @@ void QSqlFormNavigator::clearForm()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( cursor )
-	cursor->editBuffer()->clearValues();
+        cursor->editBuffer()->clearValues();
     QSqlForm* form = defaultForm();
     if ( form )
-	form->clearValues();
+        form->clearValues();
 }
 
 /*! Returns a pointer to the default form used during navigation, or 0
@@ -630,27 +629,27 @@ QSqlFormNavigator::Boundry QSqlFormNavigator::boundry()
 {
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
-	return Unknown;
+        return Unknown;
     if ( !cursor->isActive() )
-	return Unknown;
+        return Unknown;
     if ( !cursor->isValid() ) {
-	if ( cursor->at() == QSqlResult::BeforeFirst )
-	    return BeforeBeginning;
-	if ( cursor->at() == QSqlResult::AfterLast )
-	    return AfterEnd;
-	return Unknown;
+        if ( cursor->at() == QSqlResult::BeforeFirst )
+            return BeforeBeginning;
+        if ( cursor->at() == QSqlResult::AfterLast )
+            return AfterEnd;
+        return Unknown;
     }
     if ( cursor->at() == 0 )
-	return Beginning;
+        return Beginning;
     // otherwise...
     int currentAt = cursor->at();
     Boundry b = None;
     if ( !cursor->prev() )
-	b = Beginning;
+        b = Beginning;
     else
-	cursor->seek( currentAt );
+        cursor->seek( currentAt );
     if ( b == None && !cursor->next() )
-	b = End;
+        b = End;
     cursor->seek( currentAt );
     return b;
 }
@@ -673,45 +672,45 @@ classes can reimplement to emit signals.
 void QSqlFormNavigator::updateBoundry()
 {
     if ( boundryCheck ) {
-	Boundry bound = boundry();
-	switch ( bound ) {
-	case Unknown:
-	case None:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( TRUE );
-	    emitNextRecordAvailable( TRUE );
-	    emitLastRecordAvailable( TRUE );
-	    break;
+        Boundry bound = boundry();
+        switch ( bound ) {
+        case Unknown:
+        case None:
+            emitFirstRecordAvailable( TRUE );
+            emitPrevRecordAvailable( TRUE );
+            emitNextRecordAvailable( TRUE );
+            emitLastRecordAvailable( TRUE );
+            break;
 
-	case BeforeBeginning:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( FALSE );
-	    emitNextRecordAvailable( TRUE );
-	    emitLastRecordAvailable( TRUE );
-	    break;
+        case BeforeBeginning:
+            emitFirstRecordAvailable( TRUE );
+            emitPrevRecordAvailable( FALSE );
+            emitNextRecordAvailable( TRUE );
+            emitLastRecordAvailable( TRUE );
+            break;
 
-	case Beginning:
-	    emitFirstRecordAvailable( FALSE );
-	    emitPrevRecordAvailable( FALSE );
-	    emitNextRecordAvailable( TRUE );
-	    emitLastRecordAvailable( TRUE );
-	    break;
+        case Beginning:
+            emitFirstRecordAvailable( FALSE );
+            emitPrevRecordAvailable( FALSE );
+            emitNextRecordAvailable( TRUE );
+            emitLastRecordAvailable( TRUE );
+            break;
 
-	case End:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( TRUE );
-	    emitNextRecordAvailable( FALSE );
-	    emitLastRecordAvailable( FALSE );
-	    break;
+        case End:
+            emitFirstRecordAvailable( TRUE );
+            emitPrevRecordAvailable( TRUE );
+            emitNextRecordAvailable( FALSE );
+            emitLastRecordAvailable( FALSE );
+            break;
 
-	case AfterEnd:
-	    emitFirstRecordAvailable( TRUE );
-	    emitPrevRecordAvailable( TRUE );
-	    emitNextRecordAvailable( FALSE );
-	    emitLastRecordAvailable( TRUE );
-	    break;
+        case AfterEnd:
+            emitFirstRecordAvailable( TRUE );
+            emitPrevRecordAvailable( TRUE );
+            emitNextRecordAvailable( FALSE );
+            emitLastRecordAvailable( TRUE );
+            break;
 
-	}
+        }
     }
 }
 
