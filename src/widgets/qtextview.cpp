@@ -822,14 +822,15 @@ void QTextView::keyPressEvent( QKeyEvent * e)
 	scrollBy( 0, visibleHeight() );
 	break;
 #ifndef QT_NO_DRAGANDDROP
+    case Key_Copy:
+	copy();
+	break;
+#if defined (_WS_WIN_)
+    case Key_Insert:
+#endif
     case Key_C:
 	if ( e->state() & ControlButton )
 	    copy();
-#if defined (_WS_WIN_)
-    case Key_Insert:
-	if ( e->state() & ControlButton )
-	    copy();
-#endif
 	break;
 #endif
     default:
