@@ -491,7 +491,6 @@ void QGenericListView::dropEvent(QDropEvent *e)
         QPoint start = d->viewport->mapFromGlobal(d->rubberBand->pos());
         QPoint delta = (d->movement == Snap ? d->snapToGrid(e->pos()) - d->snapToGrid(start) : e->pos() - start);
         QList<QModelIndex> items = selectionModel()->selectedItems();
-        QPoint dest;
         int i;
         for (i = 0; i < items.count(); ++i) {
             QModelIndex item = items.at(i);

@@ -97,12 +97,12 @@ class QGenericListViewPrivate: public QAbstractItemViewPrivate
 public:
     QGenericListViewPrivate()
         : QAbstractItemViewPrivate(),
-            wrap(false),
             flow(QGenericListView::TopToBottom),
             movement(QGenericListView::Static),
             size(QGenericListView::Small),
             resizeMode(QGenericListView::Fixed),
             layoutMode(QGenericListView::Instant),
+            wrap(false),
             spacing(5),
             arrange(false),
             layoutStart(0),
