@@ -24,7 +24,7 @@ PlasmaModel::PlasmaModel(int rows, int cols, QObject *parent)
     cosinus.resize(256);
     float pi_over_half = 3.14159f / 128;
     for (int t = 0; t < 256; ++t)
-        cosinus[t] = (int)(30 * cos(t * pi_over_half));
+        cosinus[t] = (int)(64 * cos(t * pi_over_half));
 
     colors.resize(256);
     for (int c = 0; c < 32; ++c) {
@@ -93,6 +93,5 @@ void PlasmaModel::timerEvent(QTimerEvent *e)
 
     QModelIndex topLeft = index(0, 0);
     QModelIndex bottomRight = index(rows - 1, cols - 1);
-
     emit dataChanged(topLeft, bottomRight);
 }

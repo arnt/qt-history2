@@ -44,8 +44,8 @@ void HexDelegate::paint(QPainter *painter,
     static QPoint pt;
 
     textHex.resize(2);
-    textHex += QString::number(
-                model->data(index, QAbstractItemModel::DisplayRole).toInt(), 16).toUpper();
+    uint col = model->data(index, QAbstractItemModel::DisplayRole).toInt();
+    textHex += QString::number(col, 16).toUpper();
 
     // Layout text
     QRect textRect(pt, painter->fontMetrics().size(0, textHex) + sz);

@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     QSplitter splitter;
 
     int rc = 100;
-    int cc = 160;
+    int cc = 100;
  
     QAbstractItemModel *data = new PlasmaModel(rc, cc, &splitter);
     QItemSelectionModel *selections = new QItemSelectionModel(data, data);
@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
 
     splitter.setWindowIcon(QPixmap(":/images/interview.png"));
     app.setMainWidget(&splitter);
+    splitter.resize(800, 450);
     splitter.show();
 
     return app.exec();
