@@ -1719,12 +1719,18 @@ void QLineEdit::dropEvent( QDropEvent *e )
 
 void QLineEdit::blinkSlot()
 {
-	if ( hasFocus() || d->cursorOn ) {
-		d->cursorOn = !d->cursorOn;
-		update();
+    if( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected )) {
+	if(!d->cursorOn) {
+	    d->cursorOn = TRUE;
+	    update();
 	}
-
-    if ( hasFocus() )
+	d->blinkTimer.stop();
+    }
+    if ( hasFocus() || d->cursorOn ) {
+	d->cursorOn = !d->cursorOn;
+	update();
+    }
+    if( hasFocus() )
 	d->blinkTimer.start( QApplication::cursorFlashTime()/2, TRUE );
     else
 	d->blinkTimer.stop();

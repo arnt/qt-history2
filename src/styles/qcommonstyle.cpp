@@ -2283,6 +2283,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, const QStyleOption &,
 	ret = Qt::AlignCenter;
 	break;
 
+    case SH_BlinkCursorWhenTextSelected:
+	ret = 1;
+	break;
+
     default:
 	ret = 0;
 	break;

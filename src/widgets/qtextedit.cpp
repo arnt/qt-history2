@@ -46,6 +46,7 @@
 #include "qpixmap.h"
 #include "qfont.h"
 #include "qcolor.h"
+#include "qstyle.h"
 #include "qsize.h"
 #include "qevent.h"
 #include "qtimer.h"
@@ -717,7 +718,8 @@ void QTextEdit::init()
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
 {
     bool drawCur = hasFocus() || viewport()->hasFocus();
-    if ( isReadOnly() || !cursorVisible )
+    if (( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) ) || 
+	isReadOnly() || !cursorVisible )
 	drawCur = FALSE;
     QColorGroup g = colorGroup();
     if ( doc->paper() )
@@ -1559,6 +1561,7 @@ void QTextEdit::drawCursor( bool visible )
 	 !viewport()->isUpdatesEnabled() ||
 	 !cursor->parag() ||
 	 !cursor->parag()->isValid() ||
+	 ( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected )) || 
 	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
 	 isReadOnly() )
 	return;

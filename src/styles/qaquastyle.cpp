@@ -1988,6 +1988,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
     case SH_TabBar_SelectMouseType:
         ret = QEvent::MouseButtonRelease;
         break;
+    case SH_BlinkCursorWhenTextSelected:
+	ret = FALSE;
+	break;
     case SH_ScrollBar_StopMouseOverSlider:
         ret = TRUE;
         break;

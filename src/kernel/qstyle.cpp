@@ -1567,7 +1567,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_ScrollBar_StopMouseOverSlider stops paging when slider reaches mouse
 
-    \value SH_CustomBase  base value for custom StyleHints.  All values above
+    \value SH_BlinkCursorWhenTextSelected whether should cursor blink when text is selected
+
+    \value SH_CustomBase  base value for custom ControlElements.  All values above
            this are reserved for custom use.  Therefore, custom values must be
 	   greater than this value.
 
