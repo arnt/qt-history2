@@ -11,100 +11,45 @@
 class JPTextCodecs : public QTextCodecPlugin
 {
 public:
-    JPTextCodecs();
+    JPTextCodecs() {}
 
-    QStringList keys() const;
+    QStringList names() const { return QStringList() << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0"; }
+    QValueList<int> mibEnums() const { return QValueList<int>() << 16 << 17 << 18 << 63; }
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
-
-private:
-    QPtrList<QTextCodec> codecs;
 };
-
-
-JPTextCodecs::JPTextCodecs()
-{
-}
-
-
-QStringList JPTextCodecs::keys() const
-{
-    QStringList list;
-    list << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0";
-    list << "MIB-16" << "MIB-17" << "MIB-18" << "MIB-63";
-    return list;
-}
-
 
 QTextCodec *JPTextCodecs::createForMib( int mib )
 {
-    QTextCodec *codec = 0;
-
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->mibEnum() == mib)
-	    break;
+    switch (mib) {
+    case 16:
+	return new QJisCodec;
+    case 17:
+	return new QSjisCodec;
+    case 18:
+	return new QEucJpCodec;
+    case 63:
+	return new QFontJis0208Codec;
+    default:
+	;
     }
 
-    if (! codec ) {
-	switch (mib) {
-	case 16:
-	    codec = new QJisCodec;
-	    break;
-
-	case 17:
-	    codec = new QSjisCodec;
-	    break;
-
-	case 18:
-	    codec = new QEucJpCodec;
-	    break;
-
-	case 63:
-	    codec = new QFontJis0208Codec;
-	    break;
-
-	default:
-	    ;
-	}
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
 QTextCodec *JPTextCodecs::createForName( const QString &name )
 {
-    QTextCodec *codec = 0;
+    if (name == "JIS7")
+	return new QJisCodec;
+    if (name == "SJIS")
+	return new QSjisCodec;
+    if (name == "eucJP")
+	return new QEucJpCodec;
+    if (name == "jisx0208.1983-0")
+	return new QFontJis0208Codec;
 
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->name() == name)
-	    break;
-    }
-
-    if (! codec) {
-	if (name == "JIS7")
-	    codec = new QJisCodec;
-	else if (name == "SJIS")
-	    codec = new QSjisCodec;
-	else if (name == "eucJP")
-	    codec = new QEucJpCodec;
-	else if (name == "jisx0208.1983-0")
-	    codec = new QFontJis0208Codec;
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
