@@ -70,6 +70,7 @@ public:
     void invalidate();
 
     void addItem( QLayoutItem * );
+    void addItem( QLayoutItem *item, int row, int col );
     void addMultiCell( QLayoutItem *, int fromRow, int toRow,
 			       int fromCol, int toCol, int align = 0 );
     // void setAlignment( QWidget* );

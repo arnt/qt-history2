@@ -1073,6 +1073,15 @@ void QGridLayout::addItem( QLayoutItem *item )
     add( item, r, c );
 }
 
+/*!
+  Adds \a item at position \a row, \a col. The layout takes over ownership
+  of \a item.
+*/
+
+void QGridLayout::addItem( QLayoutItem *item, int row, int col )
+{
+    add( item, row, col );
+}
 
 
 /*!
