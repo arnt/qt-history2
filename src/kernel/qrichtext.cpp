@@ -3106,6 +3106,13 @@ void QTextParag::format( int start, bool doMove )
     QMap<int, QTextParagLineStart*> oldLineStarts = lineStarts;
     lineStarts.clear();
     int y = formatter()->format( doc, this, start, oldLineStarts );
+    if ( !prev() && topMargin() > 0 ) {
+	QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.find( 0 );
+	if ( it != lineStarts.end() ) {
+	    (*it)->h += topMargin();
+	    (*it)->baseLine += topMargin();
+	}
+    }
     r.setWidth( QMAX( r.width(), minimumWidth() ) );
     QMap<int, QTextParagLineStart*>::Iterator it = oldLineStarts.begin();
     for ( ; it != oldLineStarts.end(); ++it )
@@ -3502,7 +3509,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
     // if we should draw a cursor, draw it now
     if ( curx != -1 && cursor ) {
-	painter.fillRect( QRect( curx, cury, 1, curh ), Qt::black );
+	painter.fillRect( QRect( curx, cury, 1, curh - lineSpacing() ), Qt::black );
 	painter.save();
 	if ( string()->isBidi() ) {
 	    const int d = 4;
