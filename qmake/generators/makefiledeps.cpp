@@ -413,83 +413,98 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     inc = buffer + x;
                 }
             }
+            //read past new line now..
+            for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
+            line_count++;
         } else if(file->type == QMakeSourceFileInfo::TYPE_QRC) {
         } else if(file->type == QMakeSourceFileInfo::TYPE_C) {
-            if(*(buffer + x) == '/') {
-                x++;
-                if(buffer_len >= x) {
-                    if(*(buffer + x) == '/') { //c++ style comment
-                        for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
-                    } else if(*(buffer + x) == '*') { //c style comment
-                        for(; x < buffer_len; x++) {
-                            if(*(buffer + x) == '*') {
-                                if(buffer_len >= (x+1) && *(buffer + (x+1)) == '/') {
-                                    x += 2;
-                                    break;
+            for(; x < buffer_len; ++x) {
+                if(*(buffer+x) == '/') {
+                    ++x;
+                    if(buffer_len >= x) {
+                        if(*(buffer+x) == '/') { //c++ style comment
+                            for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
+                        } else if(*(buffer+x) == '*') { //c style comment
+                            while(x < buffer_len) {
+                                ++x;
+                                if(*(buffer+x) == '*') {
+                                    if(x < buffer_len-1 && *(buffer + (x+1)) == '/') {
+                                        x += 2;
+                                        break;
+                                    }
+                                } else if(qmake_endOfLine(*(buffer+x))) {
+                                    line_count++;
                                 }
-                            } else if(qmake_endOfLine(*(buffer + x))) {
-                                line_count++;
                             }
                         }
                     }
                 }
-            }
-            while(x < buffer_len && //Skip spaces
-                  (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
-                x++;
-            if(*(buffer + x) == '#') {
-                x++;
-                while(x < buffer_len && //Skip spaces after hash
-                      (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
-                    x++;
-
-                int keyword_len = 0;
-                const char *keyword = buffer+x;
-                while(x+keyword_len < buffer_len) {
-                    if((*(buffer+x+keyword_len) == ' ' || *(buffer+x+keyword_len) == '\t')) {
-                        for(x+=keyword_len; //skip spaces after keyword
-                            x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
-                            x++);
-                        break;
-                    } else if(qmake_endOfLine(*(buffer+x+keyword_len))) {
-                        x += keyword_len;
-                        keyword_len = 0;
-                        break;
-                    }
-                    keyword_len++;
+                const bool eol = qmake_endOfLine(*(buffer+x));
+                if(eol)
+                    line_count++;
+                if((!x && *(buffer+x) == '#') || (eol && x < buffer_len-1 && *(buffer+(x+1)) == '#')) {
+                    if(eol)
+                        ++x;
+                    break;
                 }
+            }
+            if(x >= buffer_len)
+                break;
 
-                if(keyword_len == 7 && !strncmp(keyword, "include", keyword_len)) {
-                    char term = *(buffer + x);
-                    if(term == '<') {
-                        try_local = false;
-                        term = '>';
-                    } else if(term != '"') { //wtf?
-                        continue;
-                    }
-                    x++;
+            //got a preprocessor symbol
+            ++x;
+            while(x < buffer_len) {
+                if(*(buffer+x) != ' ' || *(buffer+x) != '\t')
+                    break;
+                ++x;
+            }
 
-                    int inc_len;
-                    for(inc_len = 0; *(buffer + x + inc_len) != term && !qmake_endOfLine(*(buffer + x + inc_len)); inc_len++);
-                    *(buffer + x + inc_len) = '\0';
-                    inc = buffer + x;
-                } else if(buffer_len >= x + 14 && !strncmp(buffer + x,  "qmake_warning ", 14)) {
-                    for(x+=14; //skip spaces after keyword
+            int keyword_len = 0;
+            const char *keyword = buffer+x;
+            while(x+keyword_len < buffer_len) {
+                if((*(buffer+x+keyword_len) == ' ' || *(buffer+x+keyword_len) == '\t')) {
+                    for(x+=keyword_len; //skip spaces after keyword
                         x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
                         x++);
-                    char term = 0;
-                    if(*(buffer + x) == '"')
-                        term = '"';
-                    if(*(buffer + x) == '\'')
-                        term = '\'';
-                    if(term)
-                        x++;
-
-                    int msg_len;
-                    for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !qmake_endOfLine(*(buffer + x + msg_len)); msg_len++);
-                    *(buffer + x + msg_len) = '\0';
-                    debug_msg(0, "%s:%d qmake_warning -- %s", file->file.local().toLatin1().constData(), line_count, buffer+x);
+                    break;
+                } else if(qmake_endOfLine(*(buffer+x+keyword_len))) {
+                    x += keyword_len;
+                    keyword_len = 0;
+                    break;
                 }
+                keyword_len++;
+            }
+
+            if(keyword_len == 7 && !strncmp(keyword, "include", keyword_len)) {
+                char term = *(buffer + x);
+                if(term == '<') {
+                    try_local = false;
+                    term = '>';
+                } else if(term != '"') { //wtf?
+                    continue;
+                }
+                x++;
+
+                int inc_len;
+                for(inc_len = 0; *(buffer + x + inc_len) != term && !qmake_endOfLine(*(buffer + x + inc_len)); inc_len++);
+                *(buffer + x + inc_len) = '\0';
+                inc = buffer + x;
+            } else if(buffer_len >= x + 14 && !strncmp(buffer + x,  "qmake_warning ", 14)) {
+                for(x+=14; //skip spaces after keyword
+                    x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
+                    x++);
+                char term = 0;
+                if(*(buffer + x) == '"')
+                    term = '"';
+                if(*(buffer + x) == '\'')
+                    term = '\'';
+                if(term)
+                    x++;
+
+                int msg_len;
+                for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !qmake_endOfLine(*(buffer + x + msg_len)); msg_len++);
+                *(buffer + x + msg_len) = '\0';
+                debug_msg(0, "%s:%d qmake_warning -- %s", file->file.local().toLatin1().constData(), line_count, buffer+x);
             }
         }
 
@@ -550,9 +565,6 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 }
             }
         }
-        //read past new line now..
-        for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
-        line_count++;
     }
     if(dependencyMode() == Recursive) { //done last because buffer is shared
         for(int i = 0; i < file->deps->used_nodes; i++) {
