@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#39 $
 **
 ** Implementation of QStatusBar class
 **
@@ -152,7 +152,8 @@ QStatusBar::~QStatusBar()
 void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 {
     QStatusBarPrivate::StatusBarPrivateItem * item
-	= new QStatusBarPrivate::StatusBarPrivateItem( widget, stretch, permanent );
+	= new QStatusBarPrivate::StatusBarPrivateItem( widget, stretch,
+						       permanent );
 
     d->items.last();
     while( !permanent && d->items.current() && d->items.current()->p )
@@ -300,7 +301,7 @@ void QStatusBar::hideOrShow()
 
 /*!  Shows the temporary message, if appropriate. */
 
-void QStatusBar::paintEvent( QPaintEvent * event )
+void QStatusBar::paintEvent( QPaintEvent * )
 {
     QStatusBarPrivate::StatusBarPrivateItem * i;
     bool b = (d->temporary.length() == 0);
