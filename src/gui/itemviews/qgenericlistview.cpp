@@ -475,9 +475,15 @@ void QGenericListView::contentsChanged(const QModelIndex &topLeft, const QModelI
     QAbstractItemView::contentsChanged(topLeft, bottomRight);
 }
 
-void QGenericListView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &)
+void QGenericListView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QModelIndex parent = model()->parent(topLeft);
+    contentsRemoved(parent, topLeft, bottomRight);
+}
+
+void QGenericListView::contentsRemoved(const QModelIndex &parent,
+				       const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
     if (parent != root())
 	return;
 
@@ -492,11 +498,6 @@ void QGenericListView::contentsInserted(const QModelIndex &topLeft, const QModel
     if (needMore)
         QApplication::postEvent(model(), new QMetaCallEvent(QEvent::InvokeSlot,
 					 model()->metaObject()->indexOfSlot("fetchMore()"), this));
-}
-
-void QGenericListView::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    contentsInserted(topLeft, bottomRight); // does the same thing
 }
 
 void QGenericListView::contentsDragMoveEvent(QDragMoveEvent *e)

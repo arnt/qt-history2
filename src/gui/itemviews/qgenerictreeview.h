@@ -34,7 +34,7 @@ protected slots:
 protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void startItemsLayout();
     bool doItemsLayout(int num);
     void drawContents(QPainter *p, int cx, int cy, int cw, int ch);

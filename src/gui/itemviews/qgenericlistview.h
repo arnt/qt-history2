@@ -32,7 +32,8 @@ public:
 protected:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &parent,
+			 const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     void startItemsLayout();
     bool doItemsLayout(int num);

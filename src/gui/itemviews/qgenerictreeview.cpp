@@ -342,17 +342,18 @@ void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelI
     QAbstractItemView::contentsChanged(topLeft, bottomRight);
 }
 
-void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &)
+void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     QModelIndex parent = model()->parent(topLeft);
+    contentsRemoved(parent, topLeft, bottomRight);
+}
+
+void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
+				       const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
     int pi = d->viewIndex(parent);
     d->close(pi);
     d->open(pi); // force relayout
-}
-
-void QGenericTreeView::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    contentsInserted(topLeft, bottomRight);
 }
 
 void QGenericTreeView::columnCountChanged(int, int)

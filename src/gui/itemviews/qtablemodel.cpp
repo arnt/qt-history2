@@ -35,7 +35,7 @@ void QTableModel::setRowCount(int rows)
     if (r > _r)
 	emit contentsInserted(index(_r - 1, 0, 0), index(r - 1, c - 1, 0));
     else
-	emit contentsRemoved(index(r - 1, 0, 0), index(_r - 1, c - 1, 0));
+	emit contentsRemoved(0, index(r - 1, 0, 0), index(_r - 1, c - 1, 0));
 }
 
 void QTableModel::setColumnCount(int columns)
@@ -60,7 +60,7 @@ void QTableModel::setColumnCount(int columns)
     if (c > _c)
 	emit contentsInserted(index(0, _c - 1, 0), index(r - 1, c - 1, 0));
     else
-	emit contentsRemoved(index(0, c - 1, 0), index(r - 1, _c - 1, 0));
+	emit contentsRemoved(0, index(0, c - 1, 0), index(r - 1, _c - 1, 0));
 }
 
 void QTableModel::setText(int row, int column, const QString &text)

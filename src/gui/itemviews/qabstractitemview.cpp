@@ -169,8 +169,8 @@ QAbstractItemView::QAbstractItemView(QGenericItemModel *model, QWidget *parent, 
 		     this, SLOT(contentsChanged(const QModelIndex &, const QModelIndex &)));
     QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex &)),
 		     this, SLOT(contentsInserted(const QModelIndex &, const QModelIndex &)));
-    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex &)),
-		     this, SLOT(contentsRemoved(const QModelIndex &, const QModelIndex &)));
+    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)),
+		     this, SLOT(contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)));
 
     viewport()->setFocusProxy(this);
     viewport()->setFocusPolicy(WheelFocus);
@@ -587,7 +587,7 @@ void QAbstractItemView::contentsInserted(const QModelIndex &, const QModelIndex 
     // do nothing
 }
 
-void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &)
+void QAbstractItemView::contentsRemoved(const QModelIndex &parent, const QModelIndex &, const QModelIndex &)
 {
     // do nothing
 }

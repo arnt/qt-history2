@@ -59,7 +59,7 @@ void QTreeModel::setColumnCount(int columns)
     if (c > _c)
 	emit contentsInserted(index(0, _c - 1, 0), index(r - 1, c - 1, 0));
     else
-	emit contentsRemoved(index(0, c - 1, 0), index(r - 1, _c - 1, 0));
+	emit contentsRemoved(0, index(0, c - 1, 0), index(r - 1, _c - 1, 0));
 }
 
 int QTreeModel::columnCount() const

@@ -48,7 +48,8 @@ public:
 protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    virtual void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    virtual void contentsRemoved(const QModelIndex &parent,
+				 const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     virtual void selectionChanged(const QItemSelectionPointer &deselected,
 				  const QItemSelectionPointer &selected);
