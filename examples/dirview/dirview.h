@@ -23,7 +23,7 @@ class QDragMoveEvent;
 class QDragLeaveEvent;
 class QDropEvent;
 
-class FileItem : QListViewItem
+class FileItem : public QListViewItem
 {
 public:
     FileItem( QListViewItem *parent, const QString &s1, const QString &s2 )
