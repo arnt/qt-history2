@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#36 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1811,10 +1811,6 @@ bool QMultiLineEdit::autoUpdate() const
     return QTableView::autoUpdate();
 }
 
-
-/*!
-
-*/
 
 /*!
   Sets the auto-update option of multi-line editor to \e enable.
