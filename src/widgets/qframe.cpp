@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#26 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#26 $")
 
 
 /*!
@@ -34,8 +34,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#25 $")
     if ( style() == MotifStyle ) {
         setFrameStyle( QFrame::Panel | QFrame::Raised );
         setLineWidth( motifBarFrame );
-    }
-    else {
+    } else {
         setFrameStyle( QFrame::NoFrame );
     }
   \endcode
