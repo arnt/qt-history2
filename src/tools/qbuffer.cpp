@@ -375,8 +375,13 @@ Q_LONG QBuffer::writeBlock( const char *p, Q_ULONG len )
 
 Q_LONG QBuffer::readLine( char *p, Q_ULONG maxlen )
 {
+#if defined(QT_CHECK_NULL)
+    if ( p == 0 ) {
+        qWarning( "QBuffer::readLine: Null pointer error" );
+        return -1;
+    }
+#endif
 #if defined(QT_CHECK_STATE)
-    Q_CHECK_PTR( p );
     if ( !isOpen() ) {                          // buffer not open
         qWarning( "QBuffer::readLine: Buffer not open" );
         return -1;
