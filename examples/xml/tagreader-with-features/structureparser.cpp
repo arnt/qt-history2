@@ -5,15 +5,15 @@ $Id$
 #include "structureparser.h"
 
 #include <qstring.h>
-#include <qlistview.h>
+#include <q3listview.h>
 
-StructureParser::StructureParser( QListView * t )
+StructureParser::StructureParser( Q3ListView * t )
                 : QXmlDefaultHandler()
 {
     setListView( t );
 }
 
-void StructureParser::setListView( QListView * t )
+void StructureParser::setListView( Q3ListView * t )
 {
     table = t;
     table->setSorting( -1 );
@@ -26,24 +26,24 @@ bool StructureParser::startElement( const QString& namespaceURI,
                                     const QString& qName,
                                     const QXmlAttributes& attributes)
 {
-    QListViewItem * element;
+    Q3ListViewItem * element;
 
     if ( ! stack.isEmpty() ){
-	QListViewItem *lastChild = stack.top()->firstChild();
+	Q3ListViewItem *lastChild = stack.top()->firstChild();
 	if ( lastChild ) {
 	    while ( lastChild->nextSibling() )
 		lastChild = lastChild->nextSibling();
 	}
-	element = new QListViewItem( stack.top(), lastChild, qName, namespaceURI );
+	element = new Q3ListViewItem( stack.top(), lastChild, qName, namespaceURI );
     } else {
-	element = new QListViewItem( table, qName, namespaceURI );
+	element = new Q3ListViewItem( table, qName, namespaceURI );
     }
     stack.push( element );
     element->setOpen( TRUE );
 
     if ( attributes.length() > 0 ) {
 	for ( int i = 0 ; i < attributes.length(); i++ ) {
-	    new QListViewItem( element, attributes.qName(i), attributes.uri(i) );
+	    new Q3ListViewItem( element, attributes.qName(i), attributes.uri(i) );
 	}
     }
     return TRUE;

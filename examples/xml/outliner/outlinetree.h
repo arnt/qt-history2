@@ -13,10 +13,10 @@
 #ifndef OUTLINETREE_H
 #define OUTLINETREE_H
 
-#include <qlistview.h>
+#include <q3listview.h>
 #include <qdom.h>
 
-class OutlineTree : public QListView
+class OutlineTree : public Q3ListView
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ public:
 private:
     QDomDocument domTree;
     void getHeaderInformation( const QDomElement &header );
-    void buildTree( QListViewItem *parentItem, const QDomElement &parentElement );
+    void buildTree( Q3ListViewItem *parentItem, const QDomElement &parentElement );
 };
 
 #endif // OUTLINETREE_H

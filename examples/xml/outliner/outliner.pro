@@ -9,3 +9,4 @@ HEADERS		= outlinetree.h
 SOURCES		= main.cpp \
 		  outlinetree.cpp
 INTERFACES	=
+QT	+= compat xml

@@ -15,7 +15,7 @@
 #include <qmessagebox.h>
 
 OutlineTree::OutlineTree( const QString fileName, QWidget *parent, const char *name )
-    : QListView( parent, name )
+    : Q3ListView( parent, name )
 {
     // div. configuration of the list view
     addColumn( "Outlines" );
@@ -86,17 +86,17 @@ void OutlineTree::getHeaderInformation( const QDomElement &header )
     }
 }
 
-void OutlineTree::buildTree( QListViewItem *parentItem, const QDomElement &parentElement )
+void OutlineTree::buildTree( Q3ListViewItem *parentItem, const QDomElement &parentElement )
 {
-    QListViewItem *thisItem = 0;
+    Q3ListViewItem *thisItem = 0;
     QDomNode node = parentElement.firstChild();
     while ( !node.isNull() ) {
 	if ( node.isElement() && node.nodeName() == "outline" ) {
 	    // add a new list view item for the outline
 	    if ( parentItem == 0 )
-		thisItem = new QListViewItem( this, thisItem );
+		thisItem = new Q3ListViewItem( this, thisItem );
 	    else
-		thisItem = new QListViewItem( parentItem, thisItem );
+		thisItem = new Q3ListViewItem( parentItem, thisItem );
 	    thisItem->setText( 0, node.toElement().attribute( "text" ) );
 	    // recursive build of the tree
 	    buildTree( thisItem, node.toElement() );

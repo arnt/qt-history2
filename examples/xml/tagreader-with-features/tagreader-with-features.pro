@@ -9,3 +9,4 @@ HEADERS		= structureparser.h
 SOURCES		= tagreader.cpp \
                   structureparser.cpp
 INTERFACES	=
+QT	+= compat xml
