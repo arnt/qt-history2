@@ -5,7 +5,7 @@
 
 class QArchive : public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     QArchive( const QString& archivePath = QString::null );
     ~QArchive();
