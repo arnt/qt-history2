@@ -577,12 +577,13 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
         opt.state |= QStyle::Style_Active;
     if (mouseDown)
         opt.state |= QStyle::Style_Down;
-    if (!checkable)
-        opt.checkState = QStyleOptionMenuItem::NotCheckable;
-    else
-        opt.checkState = action->isChecked() ? QStyleOptionMenuItem::Checked
-                                             : QStyleOptionMenuItem::Unchecked;
-    opt.exclusive = (action->actionGroup() && action->actionGroup()->isExclusive());
+    if (!checkable) {
+        opt.checkType = QStyleOptionMenuItem::NotCheckable;
+    } else {
+        opt.checkType = (action->actionGroup() && action->actionGroup()->isExclusive())
+                            ? QStyleOptionMenuItem::Exclusive : QStyleOptionMenuItem::NonExclusive;
+        opt.checked = action->isChecked();
+    }
     if (action->menu())
         opt.menuItemType = QStyleOptionMenuItem::SubMenu;
     else if (action->isSeparator())
@@ -1351,7 +1352,7 @@ void QMenu::paintEvent(QPaintEvent *e)
     QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
     menuOpt.state = QStyle::Style_None;
-    menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
+    menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
     menuOpt.menuRect = rect();
     menuOpt.maxIconWidth = 0;
     menuOpt.tabWidth = 0;
@@ -1410,7 +1411,7 @@ void QMenu::paintEvent(QPaintEvent *e)
     p.setClipRegion(emptyArea);
     menuOpt.state = QStyle::Style_None;
     menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
-    menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
+    menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
     menuOpt.rect = rect();
     menuOpt.menuRect = rect();
     style().drawControl(QStyle::CE_MenuEmptyArea, &menuOpt, &p, this);

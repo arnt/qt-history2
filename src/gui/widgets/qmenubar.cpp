@@ -308,7 +308,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
         opt.state |= QStyle::Style_HasFocus;
     opt.menuRect = q->rect();
     opt.menuItemType = QStyleOptionMenuItem::Normal;
-    opt.checkState = QStyleOptionMenuItem::NotCheckable;
+    opt.checkType = QStyleOptionMenuItem::NotCheckable;
     opt.text = action->text();
     opt.icon = action->icon();
     return opt;
@@ -640,7 +640,7 @@ void QMenuBar::paintEvent(QPaintEvent *e)
     menuOpt.palette = palette();
     menuOpt.state = QStyle::Style_None;
     menuOpt.menuItemType = QStyleOptionMenuItem::EmptyArea;
-    menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
+    menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
     menuOpt.rect = rect();
     menuOpt.menuRect = rect();
     style().drawControl(QStyle::CE_MenuBarEmptyArea, &menuOpt, &p, this);
@@ -1087,7 +1087,7 @@ QSize QMenuBar::sizeHint() const
         opt.menuRect = rect();
         opt.state = QStyle::Style_None;
         opt.menuItemType = QStyleOptionMenuItem::Normal;
-        opt.checkState = QStyleOptionMenuItem::NotCheckable;
+        opt.checkType = QStyleOptionMenuItem::NotCheckable;
         opt.palette = palette();
         return (style().sizeFromContents(QStyle::CT_MenuBar, &opt,
                                          ret.expandedTo(QApplication::globalStrut()), fontMetrics(),
@@ -1128,7 +1128,7 @@ int QMenuBar::heightForWidth(int max_width) const
         opt.menuRect = rect();
         opt.state = QStyle::Style_None;
         opt.menuItemType = QStyleOptionMenuItem::Normal;
-        opt.checkState = QStyleOptionMenuItem::NotCheckable;
+        opt.checkType = QStyleOptionMenuItem::NotCheckable;
         opt.palette = palette();
         return style().sizeFromContents(QStyle::CT_MenuBar, &opt, QSize(0, height), fontMetrics(),
                                         this).height(); //not pretty..

@@ -1750,7 +1750,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             else
                 p->setPen(mi->palette.buttonText());
 
-            if (mi->checkState == QStyleOptionMenuItem::Checked) {
+            if (mi->checked) {
                 // Use the HIThemeTextInfo foo to draw the check mark correctly, if we do it,
                 // we somehow need to use a special encoding as it doesn't look right with our
                 // drawText().
@@ -1766,7 +1766,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 tti.truncationPosition = kHIThemeTextTruncationNone;
                 tti.truncationMaxLines = 1;
                 QCFString checkmark;
-                if(mi->exclusive)
+                if (mi->checkType == QStyleOptionMenuItem::Exclusive)
                     checkmark = QString(QChar(kDiamondUnicode));
                 else
                     checkmark = QString(QChar(kCheckUnicode));
@@ -3348,7 +3348,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             bool dis = !(mi->state & QStyle::Style_Enabled);
             int tab = mi->tabWidth;
             int maxpmw = mi->maxIconWidth;
-            bool checkable = mi->checkState != QStyleOptionMenuItem::NotCheckable;
+            bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
             bool act = mi->state & QStyle::Style_Active;
             Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
             irect = *qt_glb_mac_rect(mi->rect, p, false);
@@ -3389,7 +3389,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             else
                 p->setPen(mi->palette.buttonText());
 
-            if (mi->checkState == QStyleOptionMenuItem::Checked) {
+            if (mi->checkType != QStyleOptionMenuItem::NotCheckable && mi->checked) {
                 ThemeDrawState menuTDS = tds;
                 if (act)
                     menuTDS = kThemeStatePressed;

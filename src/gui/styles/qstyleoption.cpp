@@ -524,7 +524,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 
 QStyleOptionMenuItem::QStyleOptionMenuItem()
     : QStyleOption(QStyleOptionMenuItem::Version, SO_MenuItem), menuItemType(Normal),
-      checkState(NotCheckable), maxIconWidth(0), tabWidth(0)
+      checkType(NotCheckable), checked(false), maxIconWidth(0), tabWidth(0)
 {
 }
 
@@ -533,7 +533,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem()
 */
 QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     : QStyleOption(version, SO_MenuItem), menuItemType(Normal),
-      checkState(NotCheckable), maxIconWidth(0), tabWidth(0)
+      checkType(NotCheckable), checked(false), maxIconWidth(0), tabWidth(0)
 {
 }
 
@@ -554,16 +554,16 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \enum QStyleOptionMenuItem::CheckState
+    \enum QStyleOptionMenuItem::CheckType
 
     These enums are used to indicate whether or not a check mark should be
     drawn for the item, or even if it should be drawn at all.
 
     \value NotCheckable The item is not checkable.
-    \value Checked The item is checked.
-    \value Unchecked The item can be checked, but currently is not checked.
+    \value Exclusive The item is an exclusive check item (like a radio button).
+    \value NonExclusive The item is a non-exclusive check item (like a check box).
 
-    \sa QAction::checkable QAction::checked
+    \sa QAction::checkable QAction::checked QActionGroup::exculsive
 */
 
 /*!
@@ -575,14 +575,14 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \property QStyleOptionMenuItem::checkState
-    \brief The checkmark state of the menu item
-    \sa CheckState
+    \property QStyleOptionMenuItem::checkType
+    \brief The type of checkmark of the menu item
+    \sa CheckType
 */
 
 /*!
-    \property QStyleOptionMenuItem::exclusive
-    \brief whether the menu option is exclusive or not
+    \property QStyleOptionMenuItem::checked
+    \brief whether the menu item is checked or not.
 */
 
 /*!

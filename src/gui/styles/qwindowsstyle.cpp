@@ -1414,13 +1414,14 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             int tab = menuitem->tabWidth;
             int maxpmw = menuitem->maxIconWidth;
             bool dis = !(menuitem->state & Style_Enabled);
-            bool checked = menuitem->checkState == QStyleOptionMenuItem::Checked;
+            bool checked = menuitem->checkType != QStyleOptionMenuItem::NotCheckable
+                            ? menuitem->checked : false;
             bool act = menuitem->state & Style_Active;
 
             int x, y, w, h;
             menuitem->rect.getRect(&x, &y, &w, &h);
 
-            if (menuitem->checkState != QStyleOptionMenuItem::NotCheckable) {
+            if (menuitem->checkType != QStyleOptionMenuItem::NotCheckable) {
                 // space for the checkmarks
                 if (use2000style)
                     maxpmw = qMax(maxpmw, 20);
@@ -1477,7 +1478,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     pixmap = menuitem->icon.pixmap(QIcon::Small, mode);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
-                if (act && !dis && menuitem->checkState == QStyleOptionMenuItem::Unchecked)
+                if (act && !dis && !checked)
                     qDrawShadePanel(p, xvis, y, checkcol, h, menuitem->palette, false, 1,
                                     &menuitem->palette.brush(QPalette::Button));
                 QRect pmr(0, 0, pixw, pixh);
@@ -2172,7 +2173,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
                  sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(QIcon::Small, QIcon::Normal).height()
                               + 2 * windowsItemFrame));
-            bool checkable = mi->checkState != QStyleOptionMenuItem::NotCheckable;
+            bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
             int maxpmw = mi->maxIconWidth;
             int tabSpacing = use2000style ? 20 :windowsTabSpacing;
             if (mi->text.contains('\t'))

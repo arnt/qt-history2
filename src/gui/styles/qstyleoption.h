@@ -202,11 +202,11 @@ public:
 
     enum MenuItemType { Normal, DefaultItem, Separator, SubMenu, Scroller, TearOff, Margin,
                         EmptyArea };
-    enum CheckState { NotCheckable, Checked, Unchecked };
+    enum CheckType { NotCheckable, Exclusive, NonExclusive };
 
     MenuItemType menuItemType;
-    CheckState checkState;
-    bool exclusive;
+    CheckType checkType;
+    bool checked;
     QRect menuRect;
     QString text;
     QIcon icon;

@@ -59,7 +59,7 @@ protected:
         QStyleOptionMenuItem menuOpt;
         menuOpt.palette = palette();
         menuOpt.state = QStyle::Style_None;
-        menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
+        menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
         menuOpt.menuRect = rect();
         menuOpt.rect = rect();
         menuOpt.maxIconWidth = 0;
@@ -140,11 +140,8 @@ private:
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)
             menuOption.state |= QStyle::Style_Active;
-        if (mCombo->currentItem() == index.row())
-            menuOption.checkState = QStyleOptionMenuItem::Checked;
-        else
-            menuOption.checkState = QStyleOptionMenuItem::Unchecked;
-        menuOption.exclusive = false;
+        menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
+        menuOption.checked = mCombo->currentItem() == index.row();
         menuOption.menuItemType = QStyleOptionMenuItem::Normal;
         menuOption.icon = model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
         menuOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
