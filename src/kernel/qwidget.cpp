@@ -4254,6 +4254,19 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 #endif
+	case QEvent::WindowActivate:
+	case QEvent::WindowDeactivate:
+	    {
+		QObjectList *cl = queryList( "QWidget", 0, FALSE, FALSE );
+		QObjectListIt it (*cl );
+		QObject *obj = 0;
+		while ( (obj=it.current() ) ) {
+		    ++it;
+		    QApplication::sendEvent( obj, e );
+		}
+		delete cl;
+	    }
+	    break;
         default:
 	    if ( e->type() >= QEvent::User ) {
 		customEvent( (QCustomEvent*) e );
