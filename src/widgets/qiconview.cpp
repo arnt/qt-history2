@@ -4176,6 +4176,9 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     bool selectCurrent = TRUE;
 
     switch ( e->key() ) {
+    case Key_Escape:
+	e->ignore();
+	break;
     case Key_F2: {
 	if ( d->currentItem->renameEnabled() ) {
 	    d->currentItem->rename();
