@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#45 $
 **
 ** Definition of QIconView widget class
 **
@@ -993,7 +993,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     int h = 0;
     int w = 0;
     QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth(),
-			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak,
+			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak | Qt::BreakWithinWords,
 			       t ) );
     w = r.width();
     h = r.height();
@@ -1046,7 +1046,7 @@ void QIconViewItem::paintItem( QPainter *p )
     else
 	p->setPen( view->colorGroup().text() );
 
-    p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
+    p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak | Qt::BreakWithinWords , itemText );
 
     p->restore();
 }
@@ -1171,7 +1171,7 @@ void QIconViewItem::dragLeft()
 */
 
 /*! \fn void  QIconView::dropped (QDropEvent * e)
-  This signal is emitted, when a drop event occured onto the viewport (not onto an icon), 
+  This signal is emitted, when a drop event occured onto the viewport (not onto an icon),
   which the iconview itself can't handle
 */
 
@@ -1184,7 +1184,7 @@ void QIconViewItem::dragLeft()
   This signal is emitted, if the user doubleclicked on the item \a item.
 */
 
-/*! \fn void  QIconView::itemRightClicked (QIconViewItem * item) 
+/*! \fn void  QIconView::itemRightClicked (QIconViewItem * item)
   This signal is emitted, if the user clicked on the item \a item using the right mouse button.
 */
 
@@ -1193,20 +1193,20 @@ void QIconViewItem::dragLeft()
   (not on an item)
 */
 
-/*! \fn void  QIconView::selectionChanged () 
+/*! \fn void  QIconView::selectionChanged ()
   This signal is emitted when the selection has been changed.
 */
 
-/*! \fn void  QIconView::selectionChanged (int numItems) 
+/*! \fn void  QIconView::selectionChanged (int numItems)
   This signal is emitted when the selection has been changed.
   \a numItems specifies the number of selected items.
 */
 
-/*! \fn void QIconView::currentChanged () 
+/*! \fn void QIconView::currentChanged ()
   This signal is emitted, when the different items got current.
 */
 
-/*! \fn void QIconView::currentChanged ( QIconViewItem *item ) 
+/*! \fn void QIconView::currentChanged ( QIconViewItem *item )
   This signal is emitted, when the different items got current.
   \a item is the new current item of 0, if no items is current now.
 */
