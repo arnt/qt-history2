@@ -1223,6 +1223,22 @@ static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, Q
 
     gf.width = w;
 }
+
+static qreal alignLine(QTextEngine *eng, const QScriptLine &line)
+{
+    qreal x = 0;
+    eng->justify(line);
+    if (!line.justified) {
+        int align = eng->option.alignment();
+        if (align & Qt::AlignJustify && eng->option.layoutDirection() == Qt::RightToLeft)
+            align = Qt::AlignRight;
+        if (align & Qt::AlignRight)
+            x = line.width - line.textWidth;
+        else if (align & Qt::AlignHCenter)
+            x = (line.width - line.textWidth)/2;
+    }
+    return x;
+}
 /*!
     \internal
 
@@ -1251,11 +1267,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
     x += line.x;
     y += line.y + line.ascent;
 
-    eng->justify(line);
-    if (eng->option.alignment() & Qt::AlignRight)
-        x += line.width - line.textWidth;
-    else if (eng->option.alignment() & Qt::AlignHCenter)
-        x += (line.width - line.textWidth)/2;
+    x += alignLine(eng, line);
 
     QVarLengthArray<int> visualOrder(nItems);
     QVarLengthArray<uchar> levels(nItems);
@@ -1424,20 +1436,15 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
 qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
 {
     eng->itemize();
+    const QScriptLine &line = eng->lines[i];
+
+    qreal x = line.x;
+    x += alignLine(eng, line);
 
     if (!i && !eng->layoutData->items.size()) {
         *cursorPos = 0;
-        const QScriptLine &line = eng->lines[0];
-        qreal x = line.x;
-        if (eng->option.alignment() & Qt::AlignRight)
-            x += line.width - line.textWidth;
-        else if (eng->option.alignment() & Qt::AlignHCenter)
-            x += (line.width - line.textWidth)/2;
         return x;
     }
-
-    const QScriptLine &line = eng->lines[i];
-    eng->justify(line);
 
     int pos = *cursorPos;
     int itm = eng->findItem(pos);
@@ -1467,7 +1474,6 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
             glyph_pos++;
     }
 
-    qreal x = 0;
     bool reverse = eng->layoutData->items[itm].analysis.bidiLevel % 2;
 
     int lineEnd = line.from + line.length;
@@ -1493,13 +1499,6 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     int firstItem = eng->findItem(line.from);
     int lastItem = eng->findItem(lineEnd - 1);
     int nItems = lastItem-firstItem+1;
-
-    x += line.x;
-
-    if (eng->option.alignment() & Qt::AlignRight)
-        x += line.width - line.textWidth;
-    else if (eng->option.alignment() & Qt::AlignHCenter)
-        x += (line.width - line.textWidth)/2;
 
     QVarLengthArray<int> visualOrder(nItems);
     QVarLengthArray<uchar> levels(nItems);
@@ -1564,12 +1563,7 @@ int QTextLine::xToCursor(qreal x, CursorPosition cpos) const
     int nItems = lastItem-firstItem+1;
 
     x -= line.x;
-
-    eng->justify(line);
-    if (eng->option.alignment() & Qt::AlignRight)
-        x -= line.width - line.textWidth;
-    else if (eng->option.alignment() & Qt::AlignHCenter)
-        x -= (line.width - line.textWidth)/2;
+    x -= alignLine(eng, line);
 //     qDebug("xToCursor: x=%f, cpos=%d", x, cpos);
 
     QVarLengthArray<int> visualOrder(nItems);

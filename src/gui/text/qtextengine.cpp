@@ -1134,6 +1134,9 @@ void QTextEngine::justify(const QScriptLine &line)
     if ((option.alignment() & Qt::AlignHorizontal_Mask) != Qt::AlignJustify)
         return;
 
+    if (line.from + (int)line.length == layoutData->string.length())
+        return;
+
     itemize();
 
     // justify line
@@ -1147,10 +1150,8 @@ void QTextEngine::justify(const QScriptLine &line)
     // subtract one char more, as we can't justfy after the last character
     --line_length;
 
-    if (!line_length) {
-        const_cast<QScriptLine &>(line).justified = true;
+    if (!line_length)
         return;
-    }
 
     int firstItem = findItem(line.from);
     int nItems = findItem(line.from + line_length - 1) - firstItem + 1;
@@ -1233,13 +1234,6 @@ void QTextEngine::justify(const QScriptLine &line)
             ++nPoints;
         }
     }
-
-    // don't justify last line. Return here, so we ensure justificationType etc. are reset.
-    if (line.from + (int)line.length == layoutData->string.length()) {
-        const_cast<QScriptLine &>(line).justified = true;
-        return;
-    }
-
 
     qreal need = line.width - line.textWidth;
     if (need < 0) {
