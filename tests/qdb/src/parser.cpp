@@ -102,7 +102,7 @@ void Parser::error( const char *format, ... )
     va_list ap;
 
     va_start( ap, format );
-    fprintf( stderr, "stdin:%d:%d: ", yyLineNo, yyColumnNo );
+    fprintf( stderr, "%d:%d: ", yyLineNo, yyColumnNo );
     vfprintf( stderr, format, ap );
     putc( '\n', stderr );
     va_end( ap );
@@ -413,7 +413,7 @@ int Parser::getToken()
 			break;
 		    yyStr += QChar( '\'' );
 		    readChar();
-		} 
+		}
 		return Tok_String;
 	    case '(':
 		return Tok_LeftParen;
@@ -495,7 +495,7 @@ QString Parser::matchName()
 QString Parser::matchTable()
 {
     QString name;
-    
+
     name = matchName();
     if ( yyTok == Tok_Dot ) {
 	yyTok = getToken();
