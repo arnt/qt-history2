@@ -259,7 +259,6 @@ struct XPair {
 
 // void streamSPair( QTextStream &strm, const char *n, const QString &s )
 
-
 // Streaming operators for property Pairs ---------------------------
 QTextStream &operator<<( QTextStream &strm, const TPair &prop )
 {
@@ -296,7 +295,7 @@ QTextStream &operator<<( QTextStream &strm, const LPair &prop )
 QTextStream &operator<<( QTextStream &strm, const SPair &prop )
 {
     if ( !prop.value.isEmpty() )
-	strm << prop.name << prop.value.latin1() << "\"";
+	strm << prop.name << QString(prop.value).remove("\"") << "\"";
     return strm;
 }
 
@@ -465,7 +464,7 @@ bool VCCLCompilerTool::parseOption( const char* option )
 	break;
     case 'E':
 	if ( second == 'H' ) {
-	    if ( third == 'a' 
+	    if ( third == 'a'
 	    	|| (third == 'c' && fourth != 's')
 	    	|| (third == 's' && fourth != 'c') ) {
 		// ExceptionHandling must be false, or it will override
