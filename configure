@@ -2805,18 +2805,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     [ $NOTYPE = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fpermissive\""
 fi
 
-# find if the compiler supports enough of STL for our purposes
-if [ $PLATFORM = "hpux-acc" -a "$CFG_STL" != "no" ]; then
-   echo
-   echo "As of aCC A.3.0.30 you may enable STL support in Qt by adding -AA"
-   echo "to the QMAKE_CXXFLAGS and QMAKE_LFLAGS variables in"
-   echo "$XQMAKESPEC/qmake.conf"
-   echo "and re-running configure. Make sure to use the -AA compiler switch"
-   echo "in all your software projects using Qt as it turns on the new C++"
-   echo "Standard Library which is not binary compatible with the old one."
-   echo
-fi
-
 if [ "$CFG_ENDIAN" = "auto" ]; then
     if $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
         CFG_ENDIAN="Q_LITTLE_ENDIAN"
