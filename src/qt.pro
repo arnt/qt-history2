@@ -73,7 +73,6 @@ win32 {
 
         tablet {
 		DEFINES += QT_WINTAB_SUPPORT
-		LIBS += wintab32.lib
 	}
 }
 win32-borland:INCLUDEPATH += kernel
