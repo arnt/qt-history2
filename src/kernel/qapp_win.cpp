@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#48 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#48 $")
 
 
 /*****************************************************************************
@@ -1536,7 +1536,6 @@ bool QETWidget::translateCloseEvent( const MSG & )
 	    qApp->quit();
 	else if ( testWFlags(WDestructiveClose) )
 	    return TRUE;
-	}
     }
     return FALSE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#13 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#13 $")
 
 
 // QPrinter states
@@ -81,7 +81,7 @@ bool QPrinter::setup( QWidget *parent )
     memset( &pd, 0, sizeof(PRINTDLG) );
     pd.lStructSize = sizeof(PRINTDLG);
     pd.Flags	 = PD_RETURNDC;
-    pd.hwndOwner = parent ? parent->topLevelWidget()->id() : 0;
+    pd.hwndOwner = parent ? parent->topLevelWidget()->winId() : 0;
     pd.nFromPage = QMAX(from_pg,min_pg);
     pd.nToPage	 = QMIN(to_pg,max_pg);
     if ( pd.nFromPage > pd.nToPage )
