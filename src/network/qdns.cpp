@@ -74,6 +74,7 @@ static Q_UINT32 now()
 
 static QList<QHostAddress*> *ns = 0;
 static QList<QByteArray> *domains = 0;
+static bool ipv6support = FALSE;
 
 
 class QDnsPrivate {
@@ -872,12 +873,18 @@ QDnsManager::QDnsManager()
     connect( rn4, SIGNAL(activated(int)), SLOT(answer()) );
 
 #if !defined (QT_NO_IPV6)
-    QSocketNotifier * rn6 = new QSocketNotifier( ipv6Socket->socket(),
-						 QSocketNotifier::Read,
-						 this, "dns IPv6 socket watcher" );
-    ipv6Socket->setAddressReusable( FALSE );
-    ipv6Socket->setBlocking( FALSE );
-    connect( rn6, SIGNAL(activated(int)), SLOT(answer()) );
+    // Don't connect the IPv6 socket notifier if the host does not
+    // support IPv6.
+    if ( ipv6Socket->socket() != -1 ) {
+	QSocketNotifier * rn6 = new QSocketNotifier( ipv6Socket->socket(),
+						     QSocketNotifier::Read,
+						     this, "dns IPv6 socket watcher" );
+
+	ipv6support = TRUE;
+	ipv6Socket->setAddressReusable( FALSE );
+	ipv6Socket->setBlocking( FALSE );
+	connect( rn6, SIGNAL(activated(int)), SLOT(answer()) );
+    }
 #endif
 
     if ( !ns )
@@ -2453,10 +2460,14 @@ void QDns::doResInit()
 
 	    if ( type == "nameserver" ) {
 		QHostAddress *address = new QHostAddress();
-		if ( address->setAddress( QString(line[1]) ) )
-		    ns->append( address );
-		else
+		if ( address->setAddress( QString(line[1]) ) ) {
+		    // only add ipv6 addresses from resolv.conf if
+		    // this host supports ipv6.
+		    if ( address->isIPv4Address() || ipv6support )
+			ns->append( address );
+		} else {
 		    delete address;
+		}
 	    } else if ( type == "search" ) {
 		QStringList srch = QStringList::split( " ", list[1] );
 		for ( QStringList::Iterator i = srch.begin(); i != srch.end(); ++i )
