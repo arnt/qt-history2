@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#74 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#75 $
 **
 ** Implementation of QRegExp class
 **
@@ -959,7 +959,7 @@ void QRegExp::compile()
 		    }
 		    bool nextIsEscaped = ( (char)*p == '\\' );
 		    cch = char_val( &p, &pl );
-		    if ( cch == (uint)']' )
+		    if ( cch == (uint)']' && !nextIsEscaped )
 			break;
 		    if ( !pl ) {		// End, should have seen ']'
 			error = PatSyntax;
