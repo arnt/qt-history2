@@ -49,6 +49,7 @@
 class QActionPrivate;
 class QActionGroupPrivate;
 class QStatusBar;
+class QPopupMenu;
 
 class Q_EXPORT QAction : public QObject
 {
@@ -96,6 +97,7 @@ public:
 
 protected:
     virtual void addedTo( QWidget *actionWidget, QWidget *container );
+    virtual void addedTo( int index, QPopupMenu *menu );
 
 public slots:
     virtual void setEnabled( bool );
