@@ -42,16 +42,19 @@ public:
    ~QToolTipGroup();
 
     bool delay() const;
+    bool enabled() const;
 
 public slots:
     void setDelay( bool );
+    void setEnabled( bool );
 
 signals:
     void showTip( const QString &);
     void removeTip();
 
 private:
-    bool d;
+    uint del:1;
+    uint ena:1;
 
     friend class QTipManager;
 };
@@ -78,6 +81,9 @@ public:
     static void	    setFont( const QFont & );
     static QPalette palette();
     static void	    setPalette( const QPalette & );
+
+    static void	    setEnabled( bool );
+    static bool	    enabled();
 
 protected:
     virtual void maybeTip( const QPoint & ) = 0;

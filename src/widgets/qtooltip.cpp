@@ -27,6 +27,8 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 
+static bool globally_enabled = TRUE;
+
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
 // entire widget.
@@ -100,9 +102,6 @@ private slots:
     void    labelDestroyed();
     void    clientWidgetDestroyed();
     void    showTip();
-
-protected:
-    void    maybeTip( const QPoint & );
 
 private:
     QTimer  wakeUp;
@@ -204,7 +203,7 @@ void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
 
     tips->insert( w, t );
 
-    if ( a && t->rect.contains( pos ) )
+    if ( a && t->rect.contains( pos ) && (!g || g->enabled()) )
 	showTip();
 
     if ( !isApplicationFilter && qApp ) {
@@ -384,7 +383,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 			previousTip = 0;
 			wakeUp.start( 700, TRUE );
 		    }
-		    if ( t->group && !t->group->d && !t->groupText.isEmpty() )
+		    if ( t->group && t->group->ena &&
+			    !t->group->del && !t->groupText.isEmpty() )
 			emit t->group->showTip( t->groupText );
 		}
 		widget = w;
@@ -411,7 +411,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
 void QTipManager::showTip()
 {
-    if ( !widget )
+    if ( !widget || !globally_enabled )
 	return;
 
     QTipManager::Tip *t = (*tips)[ widget ];
@@ -424,6 +424,9 @@ void QTipManager::showTip()
 	t->tip->maybeTip( pos );
 	return;
     }
+
+    if ( t->group && !t->group->ena )
+	return;
 
     if ( label ) {
 	label->setText( t->text );
@@ -445,7 +448,7 @@ void QTipManager::showTip()
 	fallAsleep.start( 10000, TRUE );
     }
 
-    if ( t->group && t->group->d && !t->groupText.isEmpty() )
+    if ( t->group && t->group->del && !t->groupText.isEmpty() )
 	emit t->group->showTip( t->groupText );
     currentTip = t;
     previousTip = 0;
@@ -463,7 +466,7 @@ void QTipManager::hideTip()
     } else if ( wakeUp.isActive() ) {
 	wakeUp.stop();
 	if ( currentTip && currentTip->group &&
-	     !currentTip->group->d && !currentTip->groupText.isEmpty() )
+	     !currentTip->group->del && !currentTip->groupText.isEmpty() )
 	    emit currentTip->group->removeTip();
     }
 
@@ -558,6 +561,9 @@ void QTipManager::hideTip()
   the user lets the mouse rest within the same rectangle again.  You
   can forcibly remove the tip by calling remove() with no arguments.
   This is handy if the widget scrolls.
+
+  Tooltips can be globally disabled using QToolTip::setEnabled(), or
+  disabled in groups with QToolTipGroup::setEnabled().
 
   \sa QStatusBar QWhatsThis QToolTipGroup
   <a href="guibooks.html#fowler">GUI Design Handbook: Tool Tip</a>
@@ -931,7 +937,8 @@ void QToolTip::clear()
 QToolTipGroup::QToolTipGroup( QObject *parent, const char *name )
     : QObject( parent, name )
 {
-    // nothing
+    del = TRUE;
+    ena = TRUE;
 }
 
 
@@ -954,7 +961,7 @@ as the tip) and FALSE if it is shown immediately.
 
 bool QToolTipGroup::delay() const
 {
-    return d;
+    return del;
 }
 
 
@@ -968,11 +975,57 @@ TRUE.  The default is TRUE.
 void QToolTipGroup::setDelay( bool enable )
 {
 #if 0
-    if ( enable && !d ) {
+    if ( enable && !del ) {
 	// maybe we should show the text at once?
     }
 #endif
-    d = enable;
+    del = enable;
+}
+
+/*!
+  Sets the group to be enabled (all tool tips in the group show
+  when activated),
+  or disabled (tool tips in the group are never shown).
+
+  \sa QToolTip::setEnabled(), enabled()
+*/
+
+void QToolTipGroup::setEnabled( bool enable )
+{
+    ena = enable;
+}
+
+/*!
+  Returns whether tooltips in the group are enabled.
+  \sa setEnabled()
+*/
+bool QToolTipGroup::enabled() const
+{
+    return (bool)ena;
+}
+
+/*!
+  Sets the all tool tips to be enabled (shown when needed)
+  or disabled (never shown).
+
+  By default, tool tips are enabled. Note that this function
+  effects all tooltips in the entire application.
+
+  \sa QToolTipGroup::setEnabled()
+*/
+
+void QToolTip::setEnabled( bool enable )
+{
+    globally_enabled = enable;
+}
+
+/*!
+  Returns whether tooltips are enabled globally.
+  \sa setEnabled()
+*/
+bool QToolTip::enabled()
+{
+    return globally_enabled;
 }
 
 #include "qtooltip.moc"
