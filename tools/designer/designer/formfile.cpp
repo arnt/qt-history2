@@ -201,6 +201,24 @@ bool FormFile::save( bool withMsgBox )
 	}
     }
 
+    if ( QFile::exists( pro->makeAbsolute( codeFile() ) ) ) {
+	QString fn( pro->makeAbsolute( codeFile() ) );
+#if defined(Q_OS_WIN32)
+	fn += ".bak";
+#else
+	fn += "~";
+#endif
+	QFile f( pro->makeAbsolute( codeFile() ) );
+	if ( f.open( IO_ReadOnly ) ) {
+	    QFile f2( fn );
+	    if ( f2.open( IO_WriteOnly ) ) {
+		QCString data( f.size() );
+		f.readBlock( data.data(), f.size() );
+		f2.writeBlock( data );
+	    }
+	}
+    }
+
     Resource resource( MainWindow::self );
     resource.setWidget( formWindow() );
     if ( !resource.save( pro->makeAbsolute( filename ) ) ) {
