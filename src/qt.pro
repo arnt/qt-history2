@@ -4,6 +4,8 @@ CONFIG		= qt warn_on release
 # Comment out the next line if you don't want use png/zlib in 3rdparty
 CONFIG		+= png zlib
 
+MODULES		= opengl
+
 #CONFIG		+= png zlib cups
 
 # Uncomment the next line if you want to use NAS sound
@@ -511,6 +513,13 @@ ZLIB_SOURCES	= 3rdparty/zlib/adler32.c \
 
 png:SOURCES    += $$PNG_SOURCES
 zlib:SOURCES   += $$ZLIB_SOURCES
+
+opengl:HEADERS += opengl/qgl.h
+OPENGL_SOURCES	= opengl/qgl.cpp
+unix:OPENGL_SOURCES += opengl/qgl_x11.cpp
+win32:OPENGL_SOURCES += opengl/qgl_win.cpp
+
+opengl:SOURCES    += $$OPENGL_SOURCES
 
 TARGET		= qt
 VERSION		= 2.2.0

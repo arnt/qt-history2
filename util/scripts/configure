@@ -50,6 +50,7 @@ L_FLAGS=
 l_FLAGS=
 XPLATFORM=
 QT_CXX=""
+MODULES=opengl
 
 # Parse the arguments, setting things to "yes" or "no".
 
@@ -116,7 +117,14 @@ while [ -n "$1" ]; do
        NAS_SOUND=yes
 	;;
    -no-*)
-       QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
+       MODULE=`echo $1 | sed -e "s/-no-//"`;
+       if [ -d "$MODULE" ]
+       then
+	    
+       else
+	   FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
+	   QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
+       fi
 	   
     buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
 	;;
@@ -454,12 +462,23 @@ fi
 [ "x$LIBPNG" = "xyes" ] && I_FLAGS="${I_FLAGS} -I\$(QTDIR)/src/3rdparty/libpng"
 
 QT_LIBS=""
-QT_PNG=""
-QT_ZLIB=""
+QT_MODOBJ=""
 [ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lSM -lICE"
 [ "x$THREAD" = "xyes" ] && QT_LIBS="${QT_LIBS} -lpthread"
-[ "x$LIBPNG" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
-[ "x$ZLIB" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
+[ "x$LIBPNG" = "xyes" ] && QT_MODOBJ=$QT_MODOBJ' $(PNG_OBJECTS)'
+[ "x$ZLIB" = "xyes" ] && QT_MODOBJ=$QT_MODOBJ' $(ZLIB_OBJECTS)'
+for MODULE in $MODULES
+do
+    if [ -d src/$MODULE ]
+    then
+        QT_MODOBJ=$QT_MODOBJ' $(OBJECTS_$MODULE)'
+	if [ $MODULE = opengl ]
+	then
+	    I_FLAGS=$I_FLAGS' $(SYSCONF_CXXFLAGS_OPENGL)'
+	    QT_LIBS=$QT_LIBS' $(SYSCONF_LFLAGS_OPENGL) $(SYSCONF_LIBS_OPENGL)'
+	fi
+    fi
+done
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$JPEG" = "xyes" ] && QT_LIBS="${QT_LIBS} -ljpeg"
@@ -473,8 +492,7 @@ cat > .buildopts <<EOF
 QT_CXXFLAGS_OPT =$QT_CXX $I_FLAGS
 QT_CFLAGS_OPT   =$I_FLAGS
 QT_LIBS_OPT	=$QT_LIBS
-QT_PNG_OBJ      =$QT_PNG
-QT_ZLIB_OBJ	=$QT_ZLIB
+QT_MODULE_OBJ      =$QT_MODOBJ
 
 EOF
 

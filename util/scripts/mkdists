@@ -15,6 +15,7 @@
 #	-nowin	Don't generate Windows
 #	-nox11	Don't generate X11
 #	-noqws	Don't generate Qt/Embedded
+#	-nomod	Don't generate extension modules
 #
 
 use File::Find;
@@ -26,6 +27,7 @@ $/ = undef;
 # option parsing.
 
 $doc = 1;
+$modules = 1;
 $version = 0;
 
 for $a ( @ARGV ) {
@@ -36,6 +38,9 @@ for $a ( @ARGV ) {
     } elsif ( $a eq "-nodoc" ) {
 	$doc = undef;
 	print "Will not generate documentation.\n";
+    } elsif ( $a eq "-nomod" ) {
+	$modules = undef;
+	print "Will not extension modules.\n";
     } elsif ( $a =~ /^-no(x11|qws|win)$/ ) {
 	$notplatform{$1}=1;
 	print "Will not generate \"$1\" platform.\n";

@@ -81,6 +81,17 @@
 
     StdInit();
 
+    my ($module,$label);
+    for $module ( split / /, $project{"MODULES"} ) {
+	my $o = "";
+	for $label ( "OBJECTS", "OBJMOC" ) {
+	    while ( $project{$label} =~ s/\s*\b($module\/\S*)// ) {
+		$o .= " $1";
+	    }
+	}
+	$project{"OBJECTS_$module"} = $o;
+    }
+
     $project{"DESTDIR"} = FixPath($project{"DESTDIR"});
     $project{"VERSION"} || ($project{"VERSION"} = "1.0.0");
     ($project{"VER_MAJ"},
@@ -131,13 +142,21 @@ TARGET1 = lib$(TARGET).so.$(VER_MAJ)
 
 HEADERS =	#$ ExpandList("HEADERS");
 SOURCES =	#$ ExpandList("SOURCES");
-OBJECTS =	#$ ExpandList("OBJECTS"); (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") && ($text = $text . ' $(QT_PNG_OBJ) $(QT_ZLIB_OBJ)');
+OBJECTS =	#$ ExpandList("OBJECTS"); Project("TARGET") eq "qt" && ($text = $text . ' $(QT_EXT_OBJ)');
 SRCMOC	=	#$ ExpandList("SRCMOC");
 OBJMOC	=	#$ ExpandList("OBJMOC");
 #$ (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") || DisableOutput();
 PNG_OBJECTS  = #$ ExpandList("PNG_OBJECTS");
 ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 #$ (Project("TARGET") eq "qt" && Project('TEMPLATE') ne "qt.t") || EnableOutput();
+
+#${
+    my $module;
+    for $module ( split / /, $project{"MODULES"} ) {
+	$text .= "\nOBJECTS_$module = ";
+	ExpandList("OBJECTS_$module");
+    }
+#$}
 
 ####### Implicit rules
 
