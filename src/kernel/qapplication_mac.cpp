@@ -629,6 +629,7 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowShown },
     { kEventClassWindow, kEventWindowHidden },
     { kEventClassWindow, kEventWindowBoundsChanged },
+    { kEventClassWindow, kEventWindowExpanded },
 
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
@@ -2194,6 +2195,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    widget->propagateUpdates(ekind == kEventWindowUpdate);
 	} else if(ekind == kEventWindowDispose) {
 	    qt_mac_unicode_cleanup(widget);
+	} else if(ekind == kEventWindowExpanded) {
+	    QShowEvent qse;
+	    QApplication::sendSpontaneousEvent(widget, &qse);
 	} else if(ekind == kEventWindowBoundsChanged) {
 	    handled_event = FALSE;
 	    UInt32 flags;
