@@ -25,6 +25,8 @@ private slots:
     void editCopy();
     void editPaste();
     void editFormat();
+    void editFormatBold();
+    void editFormatItalic();
     void editFormatLeftAlign();
     void editFormatRightAlign();
     void editFormatJustify();

@@ -3,7 +3,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    QVBox *vbox = new QVBox(this);
+    QVBoxWidget *vbox = new QVBoxWidget(this);
     vbox->setMargin(11);
     setCentralWidget(vbox);
 
@@ -89,6 +89,16 @@ void MainWindow::editFormat()
     infoLabel->setText("Invoked <b>Edit|Format</b>");
 }
 
+void MainWindow::editFormatBold()
+{
+    infoLabel->setText("Invoked <b>Edit|Format|Bold</b>");
+}
+
+void MainWindow::editFormatItalic()
+{
+    infoLabel->setText("Invoked <b>Edit|Format|Italic</b>");
+}
+
 void MainWindow::editFormatLeftAlign()
 {
     infoLabel->setText("Invoked <b>Edit|Format|Left Align</b>");
@@ -150,6 +160,17 @@ void MainWindow::createMenus()
 
     QList<QAction *> alignmentActions;
     formatMenu = editMenu->addMenu(tr("&Format"));
+    QAction *boldAction = formatMenu->addAction(tr("&Bold"), this,
+                                SLOT(editFormatBold()), tr("Ctrl+B"));
+    QFont font = boldAction->font();
+    font.setBold(true);
+    boldAction->setFont(font);
+    QAction *italicAction = formatMenu->addAction(tr("&Italic"), this,
+                                   SLOT(editFormatItalic()), tr("Ctrl+I"));
+    font = italicAction->font();
+    font.setItalic(true);
+    italicAction->setFont(font);
+    formatMenu->addSeparator();
     alignmentActions.append(formatMenu->addAction(tr("&Left Align"), this,
                             SLOT(editFormatLeftAlign()), tr("Ctrl+L")));
     alignmentActions.append(formatMenu->addAction(tr("&Right Align"), this,
