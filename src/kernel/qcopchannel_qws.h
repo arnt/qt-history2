@@ -55,6 +55,9 @@ public:
     static bool send( const QCString &channel, const QCString &msg,
 		      const QByteArray &data );
 
+    static void sendLocally(  const QCString &ch, const QCString &msg,
+			       const QByteArray &data );
+
     virtual void receive( const QCString &msg, const QByteArray &data );
 
 signals:
@@ -67,8 +70,6 @@ private:
     static void answer( QWSClient *cl, const QCString &ch,
 			const QCString &msg, const QByteArray &data );
     // client side
-    static void processEvent(  const QCString &ch, const QCString &msg,
-			       const QByteArray &data );
     class Private;
     Private *d;
 

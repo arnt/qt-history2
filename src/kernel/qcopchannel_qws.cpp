@@ -357,7 +357,7 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
   Client side: distribute received event to the QCop instance managing the
   channel.
  */
-void QCopChannel::processEvent( const QCString &ch, const QCString &msg,
+void QCopChannel::sendLocally( const QCString &ch, const QCString &msg,
 				const QByteArray &data )
 {
     Q_ASSERT( qcopClientMap );
