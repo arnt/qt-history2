@@ -571,7 +571,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
     int dockWindowIndex = findDockWindow( w );
     if ( dockWindowIndex == -1 ) {
 	dockWindow = w;
-	dockWindow->reparent( this, QPoint( 0, 0 ), TRUE );
+	dockWindow->reparent( this, QPoint( 0, 0 ), isVisible() );
 	w->installEventFilter( this );
 	updateLayout();
 	setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
@@ -579,7 +579,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, int index )
 	dockWindows->append( w );
     } else {
         if ( w->parent() != this )
-	    w->reparent( this, QPoint( 0, 0 ), TRUE );
+	    w->reparent( this, QPoint( 0, 0 ), isVisible() );
         if ( index == - 1 ) {
 	    dockWindows->removeRef( w );
 	    dockWindows->append( w );
@@ -676,7 +676,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	}
     } else {
 	dockWindow = w;
-	dockWindow->reparent( this, QPoint( 0, 0 ), TRUE );
+	dockWindow->reparent( this, QPoint( 0, 0 ), isVisible() );
 	if ( swap )
 	    dockWindow->resize( dockWindow->height(), dockWindow->width() );
 	w->installEventFilter( this );
