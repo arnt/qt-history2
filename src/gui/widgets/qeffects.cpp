@@ -95,7 +95,8 @@ QAlphaWidget::QAlphaWidget(QWidget* w, Qt::WFlags f)
 */
 void QAlphaWidget::paintEvent(QPaintEvent*)
 {
-    bitBlt(this, QPoint(0,0), &pm);
+    QPainter p(this);
+    p.drawPixmap(0, 0, pm);
 }
 
 /*
@@ -360,8 +361,8 @@ void QRollEffect::paintEvent(QPaintEvent*)
     int x = orientation & RightScroll ? qMin(0, currentWidth - totalWidth) : 0;
     int y = orientation & DownScroll ? qMin(0, currentHeight - totalHeight) : 0;
 
-    bitBlt(this, x, y, &pm,
-                  0, 0, pm.width(), pm.height(), true);
+    QPainter p(this);
+    p.drawPixmap(x, y, pm, 0, 0, pm.width(), pm.height(), Qt::IgnoreMask);
 }
 
 /*

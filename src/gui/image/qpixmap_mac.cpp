@@ -675,7 +675,13 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
         if(h == -1)
             h = widget->height() - y;
         pm = QPixmap(w, h, 32);
-        bitBlt(&pm, 0, 0, widget, x, y, w, h);
+        extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
+        const BitMap *windowPort = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for(widget)));
+        const BitMap *pixmapPort = GetPortBitMapForCopyBits(static_cast<GWorldPtr>(pm.handle()));
+        Rect macSrcRect, macDstRect;
+        SetRect(&macSrcRect, x, y, x + w, y + h);
+        SetRect(&macDstRect, 0, 0, w, h);
+        CopyBits(windowPort, pixmapPort, &macSrcRect, &macDstRect, srcCopy, 0);
     }
     return pm;
 }
