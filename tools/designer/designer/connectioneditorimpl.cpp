@@ -26,6 +26,7 @@
 #include "widgetfactory.h"
 #include "editslotsimpl.h"
 #include "project.h"
+#include "pixmapchooser.h"
 
 #include <qmetaobject.h>
 #include <qlistbox.h>
@@ -120,6 +121,8 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	}
 	lst << it.current()->name();
 	if ( it.current()->isVisibleTo( this ) &&
+	     !it.current()->inherits( "QLayoutWidget" ) &&
+	     !it.current()->inherits( "Spacer" ) &&
 	    qstrcmp( it.current()->name(), "central widget" ) != 0 &&
 	     ( includeMainContainer || !formWindow->isMainContainer( it.current() ) ) )
 	    comboReceiver->insertItem( it.current()->name() );
@@ -127,6 +130,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	    comboReceiver->setCurrentItem( comboReceiver->count() - 1 );
 	++it;
     }
+    comboReceiver->listBox()->sort();
 
     signalBox->setCurrentItem( signalBox->firstItem() );
 
@@ -139,6 +143,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 		continue;
 	    MetaDataBase::Connection conn = *it;
 	    QListViewItem *i = new QListViewItem( connectionView );
+	    i->setPixmap( 0, PixmapChooser::loadPixmap( "connecttool.xpm" ) );
 	    i->setText( 0, conn.sender->name() );
 	    i->setText( 1, conn.signal );
 	    i->setText( 2, conn.receiver->name() );
@@ -249,6 +254,7 @@ void ConnectionEditor::connectClicked()
     conn.slot = slotBox->currentText();
     conn.receiver = receiver;
     QListViewItem *i = new QListViewItem( connectionView );
+    i->setPixmap( 0, PixmapChooser::loadPixmap( "connecttool.xpm" ) );
     i->setText( 0, sender->name() );
     i->setText( 1, conn.signal );
     i->setText( 2, receiver->name() );
