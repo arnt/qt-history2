@@ -1614,17 +1614,16 @@ done
 
 if echo "$LD_LIBRARY_PATH" | grep >/dev/null $outpath/lib
 then
+    echo
+else
     if grep >/dev/null QMAKE_RPATH $XQMAKESPEC/qmake.conf
     then
 	echo # Using -R/-rpath, so no need to warn
     else
-	if [ -n "$FROMMAKE" ]
-	then
-	    echo
-	    echo "WARNING: \$LD_LIBRARY_PATH does not contain \$outpath/lib"
-	    echo "         many platforms require this."
-	    echo
-	fi
+	echo
+	echo "WARNING: \$LD_LIBRARY_PATH does not contain $outpath/lib"
+	echo "         You will need to add it to correctly compile Qt."
+	echo
     fi
 fi
 rm -f .sorted.projects
