@@ -82,7 +82,8 @@ static QString htmlShortName( const Decl *decl )
 	else
 	    warning( 3, decl->location(), "Undocumented member '%s'",
 		     decl->fullName().latin1() );
-    } else if ( config->isInternal() || !decl->internal() ) {
+    } else if ( !decl->obsolete() &&
+		(config->isInternal() || !decl->internal()) ) {
 	html = QString( "<a href=\"#%1\">%2</a>" ).arg( decl->ref() )
 	       .arg( html );
     }
@@ -948,9 +949,11 @@ void ClassDecl::fillInDocsForThis()
 				     " property for details." );
 		    html = html.arg( (*q)->ref() ).arg( (*q)->name() );
 
-		    func->setDoc( new FnDoc((*q)->location(), html,
-					    QString::null, QString::null,
-					    documentedParams, FALSE) );
+		    Doc *doc = new FnDoc( (*q)->location(), html, QString::null,
+					  QString::null, documentedParams,
+					  FALSE );
+		    doc->setObsolete( (*q)->obsolete() );
+		    func->setDoc( doc );
 		    func->setRelatedProperty( *q );
 		}
 	    }
