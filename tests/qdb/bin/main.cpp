@@ -215,7 +215,6 @@ int main( int argc, char** argv )
     QDb env;
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
-	//	QString FILENAME = "test";
 	if ( analyse )
 	    outstream << env.program()->listing().join( "\n" ) << endl;
 	else if ( !env.execute( verbose ) )
