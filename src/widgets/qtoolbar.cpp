@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#6 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#6 $");
 
 
 
@@ -109,7 +109,7 @@ void QToolBar::setUpGM()
 
     if ( style() == WindowsStyle )
 	b->addSpacing( 8 );
-    
+
     QBoxLayout * fl = 0;
 
     const QObjectList * c = children();
@@ -123,13 +123,13 @@ void QToolBar::setUpGM()
 		 !strcmp( "QFrame", o->className() ) ) {
 		QFrame * f = (QFrame *)o;
 		if ( orientation() == Vertical ) {
-		    f->setMinimumSize( 0, 4 );
-		    f->setMaximumSize( 32767, 4 );
+		    f->setMinimumSize( 0, 8 );
+		    f->setMaximumSize( 32767, 8 );
 		    f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
 		    fl = new QBoxLayout( QBoxLayout::LeftToRight );
 		} else {
-		    f->setMinimumSize( 4, 0 );
-		    f->setMaximumSize( 4, 32767 );
+		    f->setMinimumSize( 8, 0 );
+		    f->setMaximumSize( 8, 32767 );
 		    f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
 		    fl = new QBoxLayout( QBoxLayout::Down );
 		}
