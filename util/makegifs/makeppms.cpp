@@ -39,6 +39,7 @@ class WidgetDepicter : QObject
     QWidget* widget;
     QString filename;
     QString suffix;
+    bool includeframe;
     bool done;
 
 public:
@@ -53,21 +54,32 @@ public:
 	if (widget) widget->hide();
     }
 
-    void depict(QProgressDialog* w, const char* savefile)
+    void depict(QProgressDialog* w, const char* savefile,
+		const char* widgetname)
+    // Special case QDialog:  need to get it visible first
     {
 	w->setProgress(0);
 	sleep(3);
 	w->setProgress(33);
 	sleep(1);
 	w->setProgress(34);
-	depict((QWidget*)w, savefile);
+	depict((QDialog*)w, savefile, widgetname);
     }
 
-    void depict(QWidget* w, const char* savefile)
+    void depict(QDialog* w, const char* savefile, const char* widgetname)
+    // Special case QWidget:  want WM frame
+    {
+	depict(w, savefile, widgetname, TRUE);
+    }
+
+    void depict(QWidget* w, const char* savefile, const char* widgetname,
+		bool frame=FALSE)
     {
 	if (widget) widget->hide();
 	widget=w;
+	includeframe=frame;
 	filename=savefile + suffix;
+	widget->setCaption(widgetname);
 	widget->show();
 	done = false;
 	startTimer(200);
@@ -88,7 +100,7 @@ public:
 
     void takePicture()
     {
-	QRect r = widget->geometry();
+	QRect r = includeframe ? widget->frameGeometry() : widget->geometry();
 	QPixmap pm = QPixmap::grabWindow( QApplication::desktop()->winId(),
 	    r.x(), r.y(), r.width(), r.height() );
 	pm.save( filename, "PPM" );
@@ -504,9 +516,9 @@ public:
 	life.nextGeneration();
 	life.nextGeneration();
 
-	centerOn(100,100);
-
 	resize(190,160);
+
+	centerOn(150,150);
     }
 };
 
@@ -522,8 +534,8 @@ int main( int argc, char **argv )
     while ( 1 ) {
 	WidgetDepicter wd(suffix);
 
-#define DEPICT(eg, ofile, label) \
-    wd.depict( new eg(), ofile );
+#define DEPICT(eg, ofile, wname) \
+    wd.depict( new eg(), ofile, wname );
 
 	DEPICT( EgQButtonGroup, "qbttngrp", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
