@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#36 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#37 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2264,7 +2264,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 }
 
 /*! \overload
-  Parses the XML document input. Returns FALSE if the parsing detetects an
+  Parses the XML document input. Returns FALSE if the parsing detects an
   error.
 
   If \a incremental is TRUE, the parser does not return FALSE when it reaches
@@ -2279,7 +2279,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource& input )
 
   \sa parseContinue() QSocket
 */
-// ### How to detetct when end is reached? (If incremental is TRUE, the
+// ### How to detect when end is reached? (If incremental is TRUE, the
 // returned TRUE doesn't mean that parsing is finished!)
 bool QXmlSimpleReader::parse( const QXmlInputSource& input, bool /*incremental*/ )
 {
