@@ -1435,6 +1435,31 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 	fix_neg_rect(&x, &y, &w, &h);
     }
 
+
+#ifdef USE_CORE_GRAPHICS
+    // I need to test how close this is to other platforms, I only rolled this without testing --Sam
+    float cg_x, cg_y;
+    d->cg_mac_point(x, y, &cg_x, &cg_y);
+
+    int offx = xRnd, offy = yRnd;
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, 0, cg_x, cg_y - offy);                             //start
+    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y, cg_x + offx, cg_y);         //top left
+    CGPathAddLineToPoint(path, 0, cg_x+(w-offx), cg_y);                        //top
+    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y, cg_x+w, cg_y-offy);       //top right
+    CGPathAddLineToPoint(path, 0, cg_x+w, cg_y-(h-offy));                      //right
+    CGPathAddQuadCurveToPoint(path, 0, cg_x+w, cg_y-h, cg_x+(w-offx), cg_y-h); //bottom right
+    CGPathAddLineToPoint(path, 0, cg_x+offx, cg_y-h);                          //bottom
+    CGPathAddQuadCurveToPoint(path, 0, cg_x, cg_y-h, cg_x, cg_y-(h-offy));     //bottom left
+    CGPathAddLineToPoint(path, 0, cg_x, cg_y-offy);                            //left
+    CGContextBeginPath((CGContextRef)hd);
+    CGContextAddPath((CGContextRef)hd, path);
+    if(cbrush.style() != NoBrush)
+	CGContextFillPath((CGContextRef)hd);
+    if(cpen.style() != NoPen) 
+	CGContextStrokePath((CGContextRef)hd);
+    CGPathRelease(path);
+#else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
 	return;
@@ -1449,6 +1474,7 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 	updatePen();
 	FrameRoundRect(&rect, w*xRnd/100, h*yRnd/100);
     }
+#endif
 }
 
 void QPainter::drawEllipse(int x, int y, int w, int h)
@@ -1837,7 +1863,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 void QPainter::drawConvexPolygon(const QPointArray &pa,
 			     int index, int npoints)
 {
-    // Any efficient way?
+    // Implemented identically as drawPolygon() [no optimization]
     drawPolygon(pa,FALSE,index,npoints);
 }
 
