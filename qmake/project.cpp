@@ -41,7 +41,8 @@ struct parser_info {
 
 static QString remove_quotes(QString arg)
 {
-    if((arg.at(0) == '\'' || arg.at(0) == '"') && arg.at(arg.length()-1) == arg.at(0))
+    if(arg.size() >= 2 && 
+       (arg.at(0) == '\'' || arg.at(0) == '"') && arg.at(arg.length()-1) == arg.at(0))
         return arg.mid(1, arg.length()-2);
     return arg;
 }
@@ -112,7 +113,7 @@ bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, QString &func
     p->variables()["ARGS"] = args;
     for(int i = 0; i < args.count(); i++) {
         va.append(p->variables()[QString::number(i+1)]);
-        p->variables()[QString::number(i+1)] = remove_quotes(args[i]);
+        p->variables()[QString::number(i+1)] = args[i];
     }
     bool ret = ParsableBlock::eval(p);
     functionReturn = return_value;
@@ -175,7 +176,7 @@ bool IteratorBlock::exec(QMakeProject *p)
             if(loop_forever)
                 p->variables()[variable] = QString::number(iterate_count);
             else
-                p->variables()[variable] = remove_quotes((*it));
+                p->variables()[variable] = (*it);
         }
         //do the iterations
         bool succeed = true;
@@ -330,11 +331,8 @@ static QStringList split_arg_list(QString params)
             last = x+1;
         }
     }
-    for(int i = 0; i < args.count(); i++) {
-        QString &arg = args[i];
-        if((arg[0] == '\"' || arg[0] == '\'') && arg[arg.length()-1] == arg[0])
-            arg = arg.mid(1, arg.length()-2);
-    }
+    for(int i = 0; i < args.count(); i++) 
+        args[i] = remove_quotes(args[i]);
     return args;
 }
 
@@ -574,11 +572,8 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                         }
                         QString func = comp_scope.left(lparen);
                         QStringList args = split_arg_list(comp_scope.mid(lparen+1, rparen - lparen - 1));
-                        for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-                            QString tmp = (*arit).trimmed();
-                            if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
-                                tmp = tmp.mid(1, tmp.length() - 2);
-                        }
+                        for(int i = 0; i < args.size(); ++i) 
+                            args[i] = remove_quotes(args[i].trimmed());
                         if(function) {
                             fprintf(stderr, "%s:%d: No tests can come after a function definition!\n",
                                     parser.file.latin1(), parser.line_no);
@@ -1182,13 +1177,7 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
 bool
 QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QString, QStringList> &place)
 {
-    QStringList args = split_arg_list(params);
-    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-        QString tmp = (*arit).trimmed();
-        if((tmp[0] == '\'' || tmp[0] == '"') && tmp.right(1) == tmp.left(1))
-            tmp = tmp.mid(1, tmp.length() - 2);
-    }
-    return doProjectTest(func.trimmed(), args, place);
+    return doProjectTest(func.trimmed(), split_arg_list(params), place);
 }
 
 /* If including a feature it will look in:
@@ -1408,7 +1397,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
                     parser.line_no);
             return false;
         }
-        QString file = remove_quotes(args.first());
+        QString file = args.first();
         file = Option::fixPathToLocalOS(file);
 
         if(QFile::exists(file))
@@ -1621,7 +1610,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
                     parser.line_no, func.latin1());
             return false;
         }
-        QString msg = remove_quotes(args.first());
+        QString msg = args.first();
         fixEnvVariables(msg);
         fprintf(stderr, "Project %s: %s\n", func.toUpper().latin1(), msg.latin1());
         if(func == "error")
@@ -1653,9 +1642,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 {
     bool ret = false;
     for(QStringList::ConstIterator it = deps.begin(); it != deps.end(); ++it) {
-        QString chk = (*it).trimmed();
-        if(!chk.isEmpty() && (chk[0] == '\'' || chk[0] == '"') && chk.right(1) == chk.left(1))
-            chk = chk.mid(1, chk.length() - 2);
+        QString chk = remove_quotes((*it).trimmed());
         if(chk.isEmpty())
             continue;
         bool invert_test = (chk.left(1) == "!");
