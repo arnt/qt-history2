@@ -931,6 +931,7 @@ class Q_EXPORT QTextDeleteCommand : public QTextCommand
 public:
     QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str );
     QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str );
+    ~QTextDeleteCommand();
     virtual Commands type() const { return Delete; };
 
     virtual QTextCursor *execute( QTextCursor *c );

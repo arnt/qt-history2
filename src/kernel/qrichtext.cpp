@@ -164,6 +164,15 @@ QTextDeleteCommand::QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTe
     }
 }
 
+QTextDeleteCommand::~QTextDeleteCommand()
+{
+    for ( int i = 0; i < (int)text.size(); ++i ) {
+	if ( text[ i ].format() )
+	    text[ i ].format()->removeRef();
+    }
+    text.resize( 0 );
+}
+
 QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
 {
     QTextParag *s = doc ? doc->paragAt( id ) : parag;
