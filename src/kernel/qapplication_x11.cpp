@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#543 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#544 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2145,7 +2145,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	} else {
 	    if ( focus_widget )
 		keywidget = (QETWidget*)focus_widget;
-	    else
+	    else if ( widget )
 		keywidget = (QETWidget*)widget->topLevelWidget();
 	}
     }
