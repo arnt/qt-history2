@@ -7,9 +7,9 @@ $charset='iso-8859-1';
 $translator='';
 
 $real_mark = "tr";
-$noop_mark = "qt_tr_noop";
+$noop_mark = "QT_TR_NOOP";
 $scoped_mark = "qApp->translate";
-$noop_scoped_mark = "qt_translate_noop";
+$noop_scoped_mark = "QT_TRANSLATE_NOOP";
 
 $header='msgid ""
 msgstr ""
