@@ -116,7 +116,6 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "COMPAT" ]	    = "yes";
     dictionary[ "ACCESSIBILITY" ]   = "yes";
     dictionary[ "BIG_CODECS" ]	    = "yes";
-    dictionary[ "TABLET" ]	    = "no";
     dictionary[ "OPENGL" ]	    = "yes";
     dictionary[ "IPV6" ]            = "yes"; // Always, dynamicly loaded
 
@@ -527,11 +526,6 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-big-codecs" )
 	    dictionary[ "BIG_CODECS" ] = "yes";
 
-	else if( configCmdLine.at(i) == "-tablet" )
-	    dictionary[ "TABLET" ] = "yes";
-	else if( configCmdLine.at(i) == "-no-tablet" )
-	    dictionary[ "TABLET" ] = "no";
-
 	else if( ( configCmdLine.at(i) == "-override-version" ) || ( configCmdLine.at(i) == "-version-override" ) ){
 	    ++i;
 	    if (i==argCount)
@@ -725,9 +719,6 @@ bool Configure::displayHelp()
 	cout << "-accessibility     " << MARK_OPTION(ACCESSIBILITY,yes) << " Enable Windows Active Accessibility." << endl;
 	cout << "-no-accessibility  " << MARK_OPTION(ACCESSIBILITY,no)  << " Disable Windows Active Accessibility." << endl  << endl;
 
-	cout << "-tablet            " << MARK_OPTION(TABLET,yes)    << " Enable tablet support." << endl;
-	cout << "-no-tablet         " << MARK_OPTION(TABLET,no)	    << " Disable tablet support." << endl  << endl;
-
 	cout << "-big-codecs        " << MARK_OPTION(BIG_CODECS,yes)<< " Enable the building of big codecs." << endl;
 	cout << "-no-big-codecs     " << MARK_OPTION(BIG_CODECS,no) << " Disable the building of big codecs." << endl << endl;
 
@@ -875,11 +866,6 @@ void Configure::generateOutputVars()
 	qtConfig += "bigcodecs";
     else if( dictionary[ "BIG_CODECS" ] == "no" )
 	qtConfig += "no-bigcodecs";
-
-    if( dictionary[ "TABLET" ] == "yes" )
-	qtConfig += "tablet";
-    else if( dictionary[ "TABLET" ] == "no" )
-	qtConfig += "no-tablet";
 
     if (dictionary["IPV6"] == "yes")
         qtConfig += "ipv6";
@@ -1177,7 +1163,6 @@ void Configure::generateConfigfiles()
         if(dictionary["ACCESSIBILITY"] == "no")     qconfigList += "QT_NO_ACCESSIBILITY";
         if(dictionary["EXCEPTIONS"] == "no")        qconfigList += "QT_NO_EXCEPTIONS";
         if(dictionary["BIG_CODECS"] == "no")        qconfigList += "QT_NO_BIG_CODECS";
-        if(dictionary["TABLET"] == "yes")           qconfigList += "QT_TABLET_SUPPORT";
         if(dictionary["OPENGL"] == "no")            qconfigList += "QT_NO_OPENGL";
         if(dictionary["IPV6"] == "no")              qconfigList += "QT_NO_IPV6";
 
@@ -1372,7 +1357,6 @@ void Configure::displayConfig()
 
     cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
-    cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;
     cout << "STL support................." << dictionary[ "STL" ] << endl;
     cout << "Exception support..........." << dictionary[ "EXCEPTIONS" ] << endl;
     cout << "RTTI support................" << dictionary[ "RTTI" ] << endl;
