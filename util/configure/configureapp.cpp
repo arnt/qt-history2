@@ -175,17 +175,29 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "ACCESSIBILITY" ] = "yes";
 	else if( (*args) == "-no-accessibility" )
 	    dictionary[ "ACCESSIBILITY" ] = "no";
-
-	// Scan to see if any specific modules and drivers are enabled or disabled
-	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
-	    if( (*args) == QString( "-enable-" ) + (*module) )
-		enabledModules += (*module);
-	    if( (*args) == QString( "-disable-" ) + (*module) )
-		disabledModules += (*module);
+	else if( (*args).find( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
+	    // Scan to see if any specific modules and drivers are enabled or disabled
+	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
+		if( (*args) == QString( "-enable-" ) + (*module) ) {
+		    enabledModules += (*module);
+		    break;
+		}
+		else if( (*args) == QString( "-disable-" ) + (*module) ) {
+		    disabledModules += (*module);
+		    break;
+		}
+	    }
+	    for( QStringList::Iterator sql = sqlDrivers.begin(); sql != sqlDrivers.end(); ++sql ) {
+		if( (*args) == QString( "-sql-" ) + (*sql) ) {
+		    qmakeSql += (*sql);
+		    break;
+		}
+	    }
 	}
-	for( QStringList::Iterator sql = sqlDrivers.begin(); sql != sqlDrivers.end(); ++sql ) {
-	    if( (*args) == QString( "-sql-" ) + (*sql) )
-		qmakeSql += (*sql);
+	else {
+	    dictionary[ "HELP" ] = "yes";
+	    cout << "Unknown option " << (*args) << endl;
+	    break;
 	}
 
     }
@@ -252,6 +264,7 @@ bool ConfigureApp::displayHelp()
 	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp                Enable the generation of VC++ .DSP-files." << endl;
+	cout << "-no-qmake           Do not build qmake." << endl;
 	cout << "-lean               Only process the Qt core projects." << endl;
 	cout << "                    (qt.pro, qtmain.pro)." << endl;
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
