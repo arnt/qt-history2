@@ -74,17 +74,17 @@ signals:
     void preparePorgress( int );
     void incProcess();
     void finishProgress();
-    
+
 private slots:
     void searchInIndexLine( const QString &s );
     void showTopic( QListBoxItem * );
     void setIndexTopic( QListBoxItem * );
     void showContents( QListViewItem * );
     void startSearch();
-    
+
 private:
-    QListViewItem *doSearch( const QString &fn, const QString &query, QListViewItem *after );
-    
+    QListViewItem *doSearch( const QString &fn, const QStringList &query, QListViewItem *after );
+
     QTabWidget *tabWidget;
     QLineEdit *indexEdit;
     QListBox *indexList;
@@ -95,7 +95,7 @@ private:
     QComboBox *searchCombo;
     QPushButton *searchButton;
     bool inSearch;
-    
+
 };
 
 #endif

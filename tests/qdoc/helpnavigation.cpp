@@ -544,35 +544,41 @@ void HelpNavigation::startSearch()
 
     emit preparePorgress( files.count() );
 
-    QString query = searchCombo->currentText();
+    QString s = searchCombo->currentText();
+    QStringList query = QStringList::split( '+', s );
     QStringList::Iterator it = files.begin();
     QListViewItem *after = 0;
     for ( ; it != files.end(); ++it ) {
 	qApp->processEvents();
 	emit incProcess();
 	after = doSearch( docDir + "/" + *it, query, after );
-	if ( !inSearch )
-	    break;
+	if ( !inSearch ) {
+	    emit finishProgress();
+	    return;
+	}
     }
 
     emit finishProgress();
     startSearch();
 }
 
-QListViewItem *HelpNavigation::doSearch( const QString &fn, const QString &query, QListViewItem *after )
+QListViewItem *HelpNavigation::doSearch( const QString &fn, const QStringList &query, QListViewItem *after )
 {
     QFile f( fn );
     if ( !f.open( IO_ReadOnly ) )
 	return after;
     QTextStream ts( &f );
-    QString contents = ts.read().lower();
+    QString contents = ts.read();
     f.close();
 
-    if ( contents.find( query ) != -1 ) {
-	HelpNavigationContentsItem *i = new HelpNavigationContentsItem( searchList, after );
-	i->setText( 0, titleOfLink( fn ) );
-	i->setLink( QUrl( fn ).fileName() );
-	return i;
+    QStringList::ConstIterator it = query.begin();
+    for ( ; it != query.end(); ++it ) {
+	if ( contents.find( *it, 0, FALSE ) == -1 )
+	    return after;
     }
-    return after;
+
+    HelpNavigationContentsItem *i = new HelpNavigationContentsItem( searchList, after );
+    i->setText( 0, titleOfLink( fn ) );
+    i->setLink( QUrl( fn ).fileName() );
+    return i;
 }
