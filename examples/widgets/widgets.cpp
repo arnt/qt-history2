@@ -129,7 +129,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QColor col;
 
     // Set the window caption/title
-    setCaption( "Qt Example - Widgets Demo Application" );
+    setWindowTitle( "Qt Example - Widgets Demo Application" );
 
     // create a toolbar
     QToolBar *tools = new QToolBar( this, "toolbar" );
@@ -328,7 +328,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 	else
 	    lb->insertItem( str );
     }
-    grid->addMultiCellWidget( lb, 2, 4, 0, 0 );
+    grid->addWidget( lb, 0, 0, 4, 6);
     connect( lb, SIGNAL(selected(int)), SLOT(listBoxItemSelected(int)) );
     QToolTip::add( lb, "list box" );
     (void)new MyWhatsThis( lb );
@@ -399,7 +399,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     tabs = new QTabWidget( central );
     //tabs->setTabPosition( QTabWidget::Bottom );
     tabs->setMargin( 4 );
-    grid->addMultiCellWidget( tabs, 3, 3, 1, 2 );
+    grid->addWidget( tabs, 1, 2, 3, 2 );
     QMultiLineEdit *mle = new QMultiLineEdit( tabs, "multiLineEdit" );
     edit = mle;
     mle->setWordWrap( QMultiLineEdit::WidgetWidth );
@@ -436,7 +436,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QLineEdit *le = new QLineEdit( central, "lineEdit" );
 
 
-    grid->addMultiCellWidget( le, 4, 4, 1, 2 );
+    grid->addWidget( le, 1, 2, 4, 3 );
     connect( le, SIGNAL(textChanged(const QString&)),
 	     SLOT(lineEditTextChanged(const QString&)) );
     QToolTip::add( le, "single line editor" );
@@ -568,7 +568,7 @@ void WidgetView::movieStatus( int s )
       break;
       default:
 	if ( movielabel->movie() )	 	// for flicker-free animation:
-	    movielabel->setBackgroundMode( NoBackground );
+	    movielabel->setAttribute(WA_NoSystemBackground, true);
     }
 }
 
@@ -631,24 +631,26 @@ void WidgetView::sliderValueChanged( int value )
 void WidgetView::comboBoxItemActivated( int index )
 {
     msg->setText( tr("Combo box item %1 activated").arg(index) );
+    QPalette p(QApplication::palette());
     switch ( index ) {
     default:
     case 0:
-	QApplication::setWinStyleHighlightColor( darkBlue );
+	p.setColor(QPalette::Highlight, darkBlue);
 	break;
     case 1:
-	QApplication::setWinStyleHighlightColor( darkRed );
+	p.setColor(QPalette::Highlight, darkRed);
 	break;
     case 2:
-	QApplication::setWinStyleHighlightColor( darkGreen );
+	p.setColor(QPalette::Highlight, darkGreen);
 	break;
     case 3:
-	QApplication::setWinStyleHighlightColor( blue );
+	p.setColor(QPalette::Highlight, blue);
 	break;
     case 4:
-	QApplication::setWinStyleHighlightColor( red );
+	p.setColor(QPalette::Highlight, red);
 	break;
     }
+    QApplication::setPalette(p);
 }
 
 
@@ -689,8 +691,8 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
 	    QString str = "The clicked widget is a\n";
 	    str += obj->className();
 	    str += "\nThe widget's name is\n";
-	    if ( obj->name() )
-		str += obj->name();
+	    if ( obj->objectName() )
+		str += obj->objectName();
 	    else
 		str += "<no name>";
 	    identify_now = FALSE;		// don't do it in message box

@@ -106,7 +106,7 @@ void AnalogClock::drawClock( QPainter *paint )
     paint->setWindow( -500,-500, 1000,1000 );
 
     QRect v = paint->viewport();
-    int d = QMIN( v.width(), v.height() );
+    int d = qMin( v.width(), v.height() );
     paint->setViewport( v.left() + (v.width()-d)/2,
 			v.top() + (v.height()-d)/2, d, d );
 
@@ -137,8 +137,8 @@ void AnalogClock::drawClock( QPainter *paint )
 void AnalogClock::setAutoMask(bool b)
 {
     if (b) 
-	setBackgroundMode( PaletteForeground );
+	setBackgroundRole( QPalette::Foreground );
     else 
-	setBackgroundMode( PaletteBackground );
+	setBackgroundRole( QPalette::Background );
     QWidget::setAutoMask(b);
 }
