@@ -83,7 +83,10 @@ LIBEXPORT bool onConnect( QApplication* theApp )
 
 LIBEXPORT bool onDisconnect( QApplication* theApp )
 {
-    if ( theApp && !widgets->clean() ) {
+    // this is wrong now, as the interface gets destroyed (indirectly) when 
+    // the toplevel widget gets closed, so the application is of course
+    // not closing down yet (or at least it doesn't know it)
+    if ( theApp && !theApp->closingDown() && !widgets->clean() ) {
 	qDebug("Widget-Plugin: Can't be unloaded. Library is still use!" );
 	return FALSE;
     }
