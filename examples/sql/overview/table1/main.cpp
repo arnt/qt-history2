@@ -13,13 +13,13 @@
 #include <qsqlcursor.h>
 #include <qsqltable.h>
 
-bool create_connections();
+bool createConnections();
 
 int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( create_connections() ) {
+    if ( createConnections() ) {
 	QSqlCursor staffCursor( "staff" );
 	QSqlTable *staffTable = new QSqlTable( &staffCursor, TRUE );
 	app.setMainWidget( staffTable );
@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

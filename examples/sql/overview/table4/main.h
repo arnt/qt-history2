@@ -18,7 +18,7 @@
 #include <qsqleditorfactory.h>
 #include <qsqlpropertymap.h>
 
-bool create_connections();
+bool createConnections();
 
 
 class StatusPicker : public QComboBox

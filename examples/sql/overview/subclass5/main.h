@@ -16,7 +16,7 @@
 
 class QSqlRecord;
 
-bool create_connections();
+bool createConnections();
 
 
 class InvoiceItemCursor : public QSqlCursor

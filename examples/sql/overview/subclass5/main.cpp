@@ -32,22 +32,22 @@ QVariant InvoiceItemCursor::calculateField( const QString & name )
 {
 
     if ( name == "productname" ) {
-	QSqlQuery q( "SELECT name FROM prices WHERE id=" +
+	QSqlQuery query( "SELECT name FROM prices WHERE id=" +
 		     field( "pricesid" )->value().toString() + ";" );
-	if ( q.next() ) 
-	    return q.value( 0 );
+	if ( query.next() ) 
+	    return query.value( 0 );
     }
     else if ( name == "price" ) {
-	QSqlQuery q( "SELECT price FROM prices WHERE id=" +
+	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
 		     field( "pricesid" )->value().toString() + ";" );
-	if ( q.next() ) 
-	    return q.value( 0 );
+	if ( query.next() ) 
+	    return query.value( 0 );
     }
     else if ( name == "cost" ) {
-	QSqlQuery q( "SELECT price FROM prices WHERE id=" +
+	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
 		     field( "pricesid" )->value().toString() + ";" );
-	if ( q.next() ) 
-	    return QVariant( q.value( 0 ).toDouble() * 
+	if ( query.next() ) 
+	    return QVariant( query.value( 0 ).toDouble() * 
 			     value( "quantity").toDouble() );
     }
 
@@ -58,9 +58,9 @@ QVariant InvoiceItemCursor::calculateField( const QString & name )
 QSqlRecord *InvoiceItemCursor::primeInsert()
 {
     QSqlRecord *buffer = editBuffer();
-    QSqlQuery q( "SELECT NEXTVAL( 'invoiceitem_seq' );" );
-    if ( q.next() ) 
-	buffer->setValue( "id", q.value( 0 ) );
+    QSqlQuery query( "SELECT NEXTVAL( 'invoiceitem_seq' );" );
+    if ( query.next() ) 
+	buffer->setValue( "id", query.value( 0 ) );
     buffer->setValue( "paiddate", QDate::currentDate() );
     buffer->setValue( "quantity", 1 );
 
@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( create_connections() ) {
+    if ( createConnections() ) {
 	InvoiceItemCursor invoiceItemCursor;
 
 	QSqlTable *invoiceItemTable = new QSqlTable( &invoiceItemCursor );
@@ -95,7 +95,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

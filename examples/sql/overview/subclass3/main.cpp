@@ -23,10 +23,10 @@ InvoiceItemCursor::InvoiceItemCursor() :
 QVariant InvoiceItemCursor::calculateField( const QString & name )
 {
     if ( name == "productname" ) {
-	QSqlQuery q( "SELECT name FROM prices WHERE id=" +
+	QSqlQuery query( "SELECT name FROM prices WHERE id=" +
 		     field( "pricesid" )->value().toString() + ";" );
-	if ( q.next() ) 
-	    return q.value( 0 );
+	if ( query.next() ) 
+	    return query.value( 0 );
     }
 
     return QVariant( QString::null );
@@ -37,7 +37,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( create_connections() ) {
+    if ( createConnections() ) {
 	InvoiceItemCursor invoiceItemCursor;
 
 	QSqlTable *invoiceItemTable = new QSqlTable( &invoiceItemCursor );
@@ -58,7 +58,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

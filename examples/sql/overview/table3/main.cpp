@@ -60,7 +60,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( create_connections() ) {
+    if ( createConnections() ) {
 	QSqlCursor staffCursor( "staff" );
 
 	QSqlTable		*staffTable	= new QSqlTable( &staffCursor );
@@ -90,7 +90,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

@@ -12,29 +12,31 @@
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
 
-bool create_connections();
+bool createConnections();
 
 
 int main( int argc, char *argv[] )
 {
-    if ( create_connections() ) {
+    QApplication app( argc, argv );
+
+    if ( createConnections() ) {
 	int i;
-	QSqlQuery q( "SELECT id, name FROM people ORDER BY name;" );
-	if ( ! q.isActive() ) return 1; // Query failed
-	i = q.size();		// In this example we have 9 records; i == 9.
-	q.first();		// Moves to the first record. 
-	i = q.at();		// i == 0
-	q.last();		// Moves to the last record.  
-	i = q.at();		// i == 8
-	q.seek( q.size() / 2 ); // Moves to the middle record. 
-	i = q.at();		// i == 4
+	QSqlQuery query( "SELECT id, name FROM people ORDER BY name;" );
+	if ( ! query.isActive() ) return 1; // Query failed
+	i = query.size();		// In this example we have 9 records; i == 9.
+	query.first();		// Moves to the first record. 
+	i = query.at();		// i == 0
+	query.last();		// Moves to the last record.  
+	i = query.at();		// i == 8
+	query.seek( query.size() / 2 ); // Moves to the middle record. 
+	i = query.at();		// i == 4
     }
 
     return 0;
 }
 
 
-bool create_connections()
+bool createConnections()
 {
 
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

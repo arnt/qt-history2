@@ -19,7 +19,7 @@
 #include <qsqlform.h>
 #include <qsqlpropertymap.h>
 
-bool create_connections();
+bool createConnections();
 
 
 class CustomEdit : public QLineEdit
@@ -33,7 +33,7 @@ class CustomEdit : public QLineEdit
     public slots:
 	void changed( const QString &line );
     private:
-	QString upper_line;
+	QString upperLineText;
 };
 
 

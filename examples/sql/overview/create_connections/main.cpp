@@ -11,11 +11,13 @@
 #include <qapplication.h>
 #include <qsqldatabase.h>
 
-bool create_connections();
+bool createConnections();
 
 int main( int argc, char *argv[] )
 {
-    if ( create_connections() ) {
+    QApplication app( argc, argv );
+
+    if ( createConnections() ) {
 	// Databases successfully opened; get pointers to them:
 	QSqlDatabase *oracledb = QSqlDatabase::database( "ORACLE" );
 	// Now we can now issue SQL commands to the oracle connection
@@ -26,7 +28,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

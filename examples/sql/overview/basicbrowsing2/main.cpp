@@ -12,22 +12,24 @@
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
 
-bool create_connections();
+bool createConnections();
 
 int main( int argc, char *argv[] )
 {
-    if ( create_connections() ) {
+    QApplication app( argc, argv );
+
+    if ( createConnections() ) {
 	QSqlDatabase *oracledb = QSqlDatabase::database( "ORACLE" );
 	// Copy data from the oracle database to the ODBC (default)
 	// database
 	QSqlQuery target;
-	QSqlQuery q( "SELECT id, name FROM people;", oracledb );
+	QSqlQuery query( "SELECT id, name FROM people;", oracledb );
 	int count = 0;
-        if ( q.isActive() ) {
-            while ( q.next() ) {
+        if ( query.isActive() ) {
+            while ( query.next() ) {
                 target.exec( "INSERT INTO people ( id, name ) VALUES ( " + 
-                              q.value(0).toString() + 
-                              ", '" + q.value(1).toString() +  "' );" );
+                              query.value(0).toString() + 
+                              ", '" + query.value(1).toString() +  "' );" );
                 if ( target.isActive() ) 
                     count += target.numRowsAffected();
             }
@@ -38,7 +40,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
 
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

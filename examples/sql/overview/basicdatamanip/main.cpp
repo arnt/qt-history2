@@ -12,30 +12,32 @@
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
 
-bool create_connections();
+bool createConnections();
 
 
 int main( int argc, char *argv[] )
 {
+    QApplication app( argc, argv );
+
     int rows = 0;
 
-    if ( create_connections() ) {
-	QSqlQuery q( "INSERT INTO staff ( id, forename, surname, salary ) "
+    if ( createConnections() ) {
+	QSqlQuery query( "INSERT INTO staff ( id, forename, surname, salary ) "
 		     "VALUES ( 1155, 'Ginger', 'Davis', 50000 );" );
-	if ( q.isActive() ) rows += q.numRowsAffected() ;
+	if ( query.isActive() ) rows += query.numRowsAffected() ;
 
-	q.exec( "UPDATE staff SET salary=60000 WHERE id=1155;" );
-	if ( q.isActive() ) rows += q.numRowsAffected() ;
+	query.exec( "UPDATE staff SET salary=60000 WHERE id=1155;" );
+	if ( query.isActive() ) rows += query.numRowsAffected() ;
 
-	q.exec( "DELETE FROM staff WHERE id=1155;" ); 
-	if ( q.isActive() ) rows += q.numRowsAffected() ;
+	query.exec( "DELETE FROM staff WHERE id=1155;" ); 
+	if ( query.isActive() ) rows += query.numRowsAffected() ;
     }
 
     return ( rows == 3 ) ? 0 : 1; 
 }
 
 
-bool create_connections()
+bool createConnections()
 {
 
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

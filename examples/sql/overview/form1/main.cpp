@@ -17,7 +17,7 @@
 #include <qsqlcursor.h>
 #include <qsqlform.h>
 
-bool create_connections();
+bool createConnections();
 
 
 class FormDialog : public QDialog
@@ -62,7 +62,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( ! create_connections() ) return 1;
+    if ( ! createConnections() ) return 1;
 
     FormDialog *formDialog = new FormDialog();
     formDialog->show();
@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

@@ -12,17 +12,19 @@
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
 
-bool create_connections();
+bool createConnections();
 
 
 int main( int argc, char *argv[] )
 {
-    if ( create_connections() ) {
-	QSqlQuery q( "SELECT id, surname FROM staff;" );
-	if ( q.isActive() ) {
-	    while ( q.next() ) {
-		qDebug( q.value(0).toString() + ": " +
-		        q.value(1).toString() );
+    QApplication app( argc, argv );
+
+    if ( createConnections() ) {
+	QSqlQuery query( "SELECT id, surname FROM staff;" );
+	if ( query.isActive() ) {
+	    while ( query.next() ) {
+		qDebug( query.value(0).toString() + ": " +
+		        query.value(1).toString() );
 	    }
 	}
     }
@@ -31,7 +33,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

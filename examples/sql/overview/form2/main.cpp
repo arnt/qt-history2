@@ -64,7 +64,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( ! create_connections() )
+    if ( ! createConnections() )
 	return 1;
 
     FormDialog *formDialog = new FormDialog();
@@ -75,7 +75,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
 
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

@@ -18,7 +18,7 @@
 #include <qsqlcursor.h>
 #include <qsqlform.h>
 
-bool create_connections();
+bool createConnections();
 
 
 class FormDialog : public QDialog

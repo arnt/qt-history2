@@ -12,11 +12,13 @@
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
 
-bool create_connections();
+bool createConnections();
 
 int main( int argc, char *argv[] )
 {
-   if ( create_connections() ) {
+    QApplication app( argc, argv );
+
+    if ( createConnections() ) {
    	QSqlCursor cur( "staff" );
 	QStringList fields = QStringList() << "id" << "forename";
 	QSqlIndex order = cur.index( fields );
@@ -34,7 +36,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
 
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );

@@ -27,14 +27,14 @@ void CustomEdit::changed( const QString &line )
 
 void CustomEdit::setUpperLine( const QString &line )
 {
-    upper_line = line.upper();
-    setText( upper_line );
+    upperLineText = line.upper();
+    setText( upperLineText );
 }
 
 
 QString CustomEdit::upperLine() const 
 {
-    return upper_line;
+    return upperLineText;
 }
 
 
@@ -96,7 +96,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( ! create_connections() ) 
+    if ( ! createConnections() ) 
 	return 1;
 
     FormDialog *formDialog = new FormDialog();
@@ -107,7 +107,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
