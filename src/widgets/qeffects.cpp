@@ -6,7 +6,7 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 
-/* 
+/*
   Internal class to get access to protected QWidget-members
 */
 
@@ -16,10 +16,11 @@ class QAccessWidget : public QWidget
     friend class QRollEffect;
 public:
     QAccessWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 )
+	: QWidget( parent, name, f )
     {}
 };
 
-/* 
+/*
   Internal class QAlphaWidget.
 
   The QAlphaWidget is shown while the animation lasts
@@ -63,7 +64,7 @@ static QAlphaWidget* blend = 0;
   Constructs a QAlphaWidget.
 */
 QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlags f )
-    : QWidget( parent, name, 
+    : QWidget( parent, name,
 	f | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
 {
     if ( blend )
@@ -95,8 +96,8 @@ void QAlphaWidget::init()
     front = QPixmap::grabWidget( widget );
 
     back = QImage( widget->size(), 32 );
-    back = QPixmap::grabWindow( QApplication::desktop()->winId(), 
-	widget->geometry().x(), widget->geometry().y(), 
+    back = QPixmap::grabWindow( QApplication::desktop()->winId(),
+	widget->geometry().x(), widget->geometry().y(),
 	widget->geometry().width(), widget->geometry().height() );
 }
 
@@ -211,8 +212,8 @@ void QAlphaWidget::alphaBlend()
 	    UINT32 bp = bl[sx];
 	    UINT32 fp = fl[sx];
 
-	    ((UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha), 
-					    int (qGreen(bp)*ia + qGreen(fp)*alpha), 
+	    ((UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
+					    int (qGreen(bp)*ia + qGreen(fp)*alpha),
 					    int (qBlue(bp)*ia + qBlue(fp)*alpha) );
 	}
     }
@@ -264,7 +265,7 @@ static QRollEffect* roll = 0;
   and displays the pixmap shifted.
 */
 QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
-: QWidget(0, 0, 
+: QWidget(0, 0,
 	  WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
   , orientation(orient)
 {
@@ -293,7 +294,7 @@ QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
     } else {
 	grow = FALSE;
 	currentHeight = totalHeight;
-	currentWidth = totalWidth;   
+	currentWidth = totalWidth;
     }
 
     move( widget->geometry().x(),widget->geometry().y() );
@@ -307,7 +308,7 @@ QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
 */
 void QRollEffect::paintEvent( QPaintEvent* )
 {
-    bitBlt( this, currentWidth - totalWidth,currentHeight - totalHeight, 
+    bitBlt( this, currentWidth - totalWidth,currentHeight - totalHeight,
 	&pm, 0,0, pm.width(), pm.height(), Qt::CopyROP, TRUE );
 }
 
