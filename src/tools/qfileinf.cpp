@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#21 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#21 $")
 
 
 #if defined(_OS_FATFS_)
@@ -573,14 +573,13 @@ bool QFileInfo::isDir() const
 
 /*----------------------------------------------------------------------------
   Returns TRUE if we are pointing to a symbolic link.
-  \sa isFile(), isDir()
+  \sa isFile(), isDir(), readLink()
  ----------------------------------------------------------------------------*/
 
 bool QFileInfo::isSymLink() const
 {
-#if defined( UNIX ) && defined( S_IFLNK )
+#if defined( UNIX ) && defined(S_IFLNK)
     STATBUF st;
-
     return lstat( fn.data(), &st ) == 0 && S_ISLNK( st.st_mode );
 #else
     return FALSE;
@@ -588,7 +587,7 @@ bool QFileInfo::isSymLink() const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the name a symlink points to, or a null QString if the
   object does not refer to a symbolic link.
 
@@ -596,7 +595,8 @@ bool QFileInfo::isSymLink() const
   QFileInfo::exists() returns TRUE if the symlink points to an
   existing file.
 
-  \sa exists() isDir() isFile() */
+  \sa exists(), isSymLink(), isDir(), isFile()
+ ----------------------------------------------------------------------------*/
 
 QString QFileInfo::readLink() const
 {
@@ -604,14 +604,11 @@ QString QFileInfo::readLink() const
 #if defined(UNIX)
     if ( !isSymLink() )
 	return s;
-    s.resize( PATH_MAX + 1 );
-    int len = readlink( (const char *)fn, s.data(), s.length() );
-    if ( len < 0 ) {
-	// we forget the reason for the failure here
-	QString empty;
-	return empty;
-    }
-    s[len] = '\0';
+    s.resize( PATH_MAX+1 );
+    int len = readlink( fn, s.data(), s.size() );
+    if ( len < 0 )
+	len = 0;				// error, return empty string
+    s.truncate( len );
 #endif
     return s;
 }
