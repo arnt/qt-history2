@@ -3494,5 +3494,5 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 void QApplication::flush()
 {
     sendPostedEvents();
-#error "flush the socket, how?"
+    (void)qt_fbdpy->eventPending(); // flush
 }
