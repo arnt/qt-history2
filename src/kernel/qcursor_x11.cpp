@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#50 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#50 $");
 
 
 /*****************************************************************************
@@ -269,7 +269,7 @@ int QCursor::shape() const			// get cursor shape
 }
 
 /*!
-  Sets the cursor to the shape identified by \e shape. 
+  Sets the cursor to the shape identified by \e shape.
 
   The allowed shapes are: \c ArrowCursor, \c UpArrowCursor, \c
   CrossCursor, \c WaitCursor, \c IbeamCursor, \c SizeVerCursor, \c
@@ -440,17 +440,25 @@ void QCursor::update() const
     Display *dpy = qt_xdisplay();
     if ( d->cshape == BitmapCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
-	bg.red = bg.green = bg.blue = 255 << 8;
-	fg.red = fg.green = fg.blue = 0;
+	bg.red   = 255 << 8;
+	bg.green = 255 << 8;
+	bg.blue  = 255 << 8;
+	fg.red   = 0;
+	fg.green = 0;
+	fg.blue  = 0;
 	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),
 					&fg, &bg, d->hx, d->hy );
 	return;
     }
-    if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor || 
+    if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ||
 	 d->cshape == BlankCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
-	bg.red = bg.green = bg.blue = 255 << 8;
-	fg.red = fg.green = fg.blue = 0;
+	bg.red   = 255 << 8;
+	bg.green = 255 << 8;
+	bg.blue  = 255 << 8;
+	fg.red   = 0;
+	fg.green = 0;
+	fg.blue  = 0;
 	int i = (d->cshape - SizeVerCursor)*2;
 	Window rootwin = qt_xrootwin();
 	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits[i],
