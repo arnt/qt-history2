@@ -463,6 +463,12 @@ void LayoutCommand::redo()
 void LayoutCommand::undo()
 {
     m_layout->undoLayout();
+
+    AbstractFormEditor *core = formWindow()->core();
+    ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), m_layoutBase);
+
+    delete deco; // release the extension
+
     checkSelection(m_parentWidget);
     foreach (QWidget *widget, m_widgets)
         formWindow()->emitGeometryChanged(widget);
