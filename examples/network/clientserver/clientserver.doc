@@ -23,7 +23,7 @@ $Id: $
 
   Implementation server (server.cpp):
  
-  \include clientserver/server/server.cpp
+  \include network/clientserver/server/server.cpp
 
   <hr>
 
