@@ -1528,9 +1528,8 @@ bool QFontDatabase::isBitmapScalable(const QString &family,
         QtFontFoundry *foundry = f->foundries[j];
         if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
             for (int k = 0; k < foundry->count; k++)
-                if (foundry->styles[k]->key == styleKey &&
-                     foundry->styles[k]->bitmapScalable &&
-                     !foundry->styles[k]->smoothScalable) {
+                if ((style.isEmpty() || foundry->styles[k]->key == styleKey)
+                    && foundry->styles[k]->bitmapScalable && !foundry->styles[k]->smoothScalable) {
                     bitmapScalable = true;
                     goto end;
                 }
@@ -1565,11 +1564,9 @@ bool  QFontDatabase::isSmoothlyScalable(const QString &family,
 
     for (int j = 0; j < f->count; j++) {
         QtFontFoundry *foundry = f->foundries[j];
-        if (foundryName.isEmpty() ||
-             ucstricmp(foundry->name, foundryName) == 0) {
+        if (foundryName.isEmpty() || ucstricmp(foundry->name, foundryName) == 0) {
             for (int k = 0; k < foundry->count; k++)
-                if (foundry->styles[k]->key == styleKey &&
-                     foundry->styles[k]->smoothScalable) {
+                if ((style.isEmpty() || foundry->styles[k]->key == styleKey) && foundry->styles[k]->smoothScalable) {
                     smoothScalable = true;
                     goto end;
                 }
