@@ -74,7 +74,6 @@ Configure::Configure( int& argc, char** argv )
 
     dictionary[ "DEBUG" ]	    = "no";
     dictionary[ "SHARED" ]	    = "yes";
-    dictionary[ "THREAD" ]	    = "no";
 
     dictionary[ "GIF" ]		    = "no";
     dictionary[ "ZLIB" ]	    = "yes";
@@ -229,10 +228,6 @@ void Configure::parseCmdLine()
 	else if( configCmdLine.at(i) == "-static" )
 	    dictionary[ "SHARED" ] = "no";
 
-	else if( configCmdLine.at(i) == "-no-thread" )
-	    dictionary[ "THREAD" ] = "no";
-	else if( configCmdLine.at(i) == "-thread" )
-	    dictionary[ "THREAD" ] = "yes";
 #endif
 
 	else if( configCmdLine.at(i) == "-spec" ) {
@@ -645,9 +640,6 @@ bool Configure::displayHelp()
 
 	cout << "-shared            " << MARK_OPTION(SHARED,yes)    << " Build Qt as a shared library." << endl;
 	cout << "-static            " << MARK_OPTION(SHARED,no)	    << " Build Qt as a static library." << endl << endl;
-
-	cout << "-thread            " << MARK_OPTION(THREAD,yes)    << " Configure Qt with thread support." << endl;
-	cout << "-no-thread         " << MARK_OPTION(THREAD,no)	    << " Configure Qt without thread support." << endl << endl;
 #endif
 
 	cout << "-spec                Specify a platform, uses %QMAKESPEC% as default." << endl;
@@ -782,11 +774,6 @@ void Configure::generateOutputVars()
     } else {
 	qmakeConfig += "release";
 	dictionary[ "QMAKE_OUTDIR" ] = "release";
-    }
-
-    if( dictionary[ "THREAD" ] == "yes" ) {
-	qmakeConfig += "thread";
-	dictionary[ "QMAKE_OUTDIR" ] += "_mt";
     }
 
     if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
@@ -1022,8 +1009,6 @@ void Configure::generateCachefile()
 	configStream << "CONFIG+=";
 	if( dictionary[ "SHARED" ] == "yes" )
 	    configStream << " shared";
-	if ( dictionary[ "THREAD" ] == "yes" )
-	    configStream << " thread";
 	if ( dictionary[ "DEBUG" ] == "yes" )
 	    configStream << " debug";
 	else
@@ -1221,8 +1206,6 @@ void Configure::generateConfigfiles()
 
 	QString version = dictionary["VERSION"];
 	QString prodFile = "qt";
-	if ( dictionary["THREAD"] == "yes" )
-	    prodFile += "-mt";
 	if ( dictionary["SHARED"] == "yes" ) {
 	    prodFile += version;
 	    prodFile.remove('.');
@@ -1309,7 +1292,6 @@ void Configure::displayConfig()
     cout << "    " << qmakeConfig.join( "\r\n    " ) << endl;
 
     cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
-    cout << "Thread support.............." << dictionary[ "THREAD" ] << endl << endl;
 
     cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
@@ -1652,7 +1634,7 @@ void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
 	QFile outFile( dictionary[ "QT_SOURCE_TREE" ] + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
-	if( outFile.open( IO_WriteOnly ) ) {
+	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
 	    QTextStream outStream( &outFile );
 	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it ) {
 		outStream << (*it) << " " << endl;
