@@ -201,7 +201,8 @@ bool QProcess::start( QStringList *env )
     reset();
 
     // Open the pipes.  Make non-inheritable copies of input write and output
-    // read handles to avoid non-closable handles.
+    // read handles to avoid non-closable handles (this is done by the
+    // DuplicateHandle() call).
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
 #ifndef Q_OS_TEMP
     // I guess there is no stdin stdout and stderr on Q_OS_TEMP to dup
