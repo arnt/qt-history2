@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#12 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#13 $
 **
 ** Definition of QListBox widget class
 **
@@ -114,9 +114,6 @@ protected:
     bool	itemVisible( int index );
 
     int		cellHeight( long );
-    int		cellWidth( long );
-    int		cellHeight() { return QTableWidget::cellHeight(); }
-    int		cellWidth()  { return QTableWidget::cellHeight(); }
     void	paintCell( QPainter *, long row, long col );
 
     void	mousePressEvent( QMouseEvent * );
