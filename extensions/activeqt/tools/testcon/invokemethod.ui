@@ -251,12 +251,12 @@
         </spacer>
       </item>
       <item row="2" column="1" >
-        <widget class="QPushButton" name="PushButton2" >
+        <widget class="QPushButton" name="buttonClose" >
           <property name="objectName" >
-            <string notr="true" >PushButton2</string>
+            <string notr="true" >buttonClose</string>
           </property>
           <property name="text" >
-            <string>Close</string>
+            <string>C&amp;lose</string>
           </property>
           <property name="autoDefault" >
             <bool>false</bool>

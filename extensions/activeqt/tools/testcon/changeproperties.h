@@ -12,16 +12,17 @@ public:
     ChangeProperties(QWidget *parent);
 
     void setControl(QAxWidget *control);
-    void editRequestChanged(QTreeWidgetItem *item);
 
-protected:
+public slots:
     void updateProperties();
 
 protected slots:
-    void propertySelected();
-    void setValue();
+    void on_listProperties_currentItemChanged(QTreeWidgetItem *current);
+    void on_listEditRequests_itemChanged(QTreeWidgetItem *item);
+    void on_buttonSet_clicked();
 
 private:
+
     QAxWidget *activex;
 };
 

@@ -16,14 +16,49 @@ InvokeMethod::InvokeMethod(QWidget *parent)
 : QDialog(parent), activex(0)
 {
     setupUi(this);
+
+    listParameters->setColumnCount(3);
+    listParameters->headerItem()->setText(0, "Parameter");
+    listParameters->headerItem()->setText(1, "Type");
+    listParameters->headerItem()->setText(2, "Value");
 }
 
-void InvokeMethod::invoke()
+void InvokeMethod::setControl(QAxBase *ax)
+{
+    activex = ax;
+    bool hasControl = activex && !activex->isNull();
+    labelMethods->setEnabled(hasControl);
+    comboMethods->setEnabled(hasControl);
+    buttonInvoke->setEnabled(hasControl);
+    boxParameters->setEnabled(hasControl);
+    
+    comboMethods->clear();
+    listParameters->clear();
+    
+    if (!hasControl) {
+	editValue->clear();
+	return;
+    }
+
+    const QMetaObject *mo = activex->metaObject();
+    if (mo->memberCount()) {
+	for (int i = mo->memberOffset(); i < mo->memberCount(); ++i) {
+	    const QMetaMember member = mo->member(i);
+            if (member.memberType() == QMetaMember::Slot)
+	        comboMethods->insertItem(member.signature());
+	}
+        comboMethods->model()->sort(0);
+
+	on_comboMethods_activated(comboMethods->currentText());
+    }
+}
+
+void InvokeMethod::on_buttonInvoke_clicked()
 {
     if (!activex)
 	return;
 
-    setValue();
+    on_buttonSet_clicked();
     QString method = comboMethods->currentText();
     QList<QVariant> vars;
 
@@ -45,7 +80,7 @@ void InvokeMethod::invoke()
     editReturn->setText(resType + " " + resString);
 }
 
-void InvokeMethod::methodSelected(const QString &method)
+void InvokeMethod::on_comboMethods_activated(const QString &method)
 {
     if (!activex)
 	return;
@@ -77,18 +112,18 @@ void InvokeMethod::methodSelected(const QString &method)
     editReturn->setText(slot.typeName());
 }
 
-void InvokeMethod::parameterSelected(QTreeWidgetItem *item)
+void InvokeMethod::on_listParameters_currentItemChanged(QTreeWidgetItem *item)
 {
     if (!activex)
 	return;
-    editValue->setEnabled(item !=  0);
-    buttonSet->setEnabled(item != 0 );
+    editValue->setEnabled(item != 0);
+    buttonSet->setEnabled(item != 0);
     if (!item)
 	return;
     editValue->setText(item->text(2));
 }
 
-void InvokeMethod::setValue()
+void InvokeMethod::on_buttonSet_clicked()
 {
     if (!activex)
 	return;
@@ -98,32 +133,3 @@ void InvokeMethod::setValue()
     item->setText(2, editValue->text());
 }
 
-void InvokeMethod::setControl(QAxBase *ax)
-{
-    activex = ax;
-    bool hasControl = activex && !activex->isNull();
-    labelMethods->setEnabled(hasControl);
-    comboMethods->setEnabled(hasControl);
-    buttonInvoke->setEnabled(hasControl);
-    boxParameters->setEnabled(hasControl);
-    
-    comboMethods->clear();
-    listParameters->clear();
-    
-    if (!hasControl) {
-	editValue->clear();
-	return;
-    }
-
-    const QMetaObject *mo = activex->metaObject();
-    if (mo->memberCount()) {
-	for (int i = mo->memberOffset(); i < mo->memberCount(); ++i) {
-	    const QMetaMember member = mo->member(i);
-            if (member.memberType() == QMetaMember::Slot)
-	        comboMethods->insertItem(member.signature());
-	}
-        comboMethods->model()->sort(0);
-
-	methodSelected(comboMethods->currentText());
-    }
-}

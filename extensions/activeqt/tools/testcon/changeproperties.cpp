@@ -17,110 +17,93 @@ ChangeProperties::ChangeProperties(QWidget *parent)
 : QDialog(parent), activex(0)
 {
     setupUi(this);
+
+    listProperties->setColumnCount(2);
+    listProperties->headerItem()->setText(0, "Name");
+    listProperties->headerItem()->setText(1, "Value");
+
+    listEditRequests->setColumnCount(1);
+    listEditRequests->headerItem()->setText(0, "Name");
 }
 
-class CheckListItem : public QTreeWidgetItem
-{
-public:
-    CheckListItem(QTreeWidget *parent, const QString &text)
-	    : QTreeWidgetItem(parent)
-    {
-        setCheckState(0, Qt::Unchecked);
-        setText(0, text);
-	dialog = (ChangeProperties*)parent->window()->qt_metacast("ChangeProperties");
-    }
-
-protected:
-    void stateChange( bool on )
-    {
-	if ( dialog )
-	    dialog->editRequestChanged(this);
-    }
-
-private:
-    ChangeProperties *dialog;
-};
-
-void ChangeProperties::setControl( QAxWidget *ax )
+void ChangeProperties::setControl(QAxWidget *ax)
 {
     activex = ax;
     updateProperties();
 }
 
-void ChangeProperties::propertySelected()
+void ChangeProperties::on_listProperties_currentItemChanged(QTreeWidgetItem *current)
 {
-    QTreeWidgetItem *item = listProperties->currentItem();
-
-    editValue->setEnabled( item != 0 );
-    buttonSet->setEnabled( item != 0 );
-    valueLabel->setEnabled( item != 0 );
+    editValue->setEnabled(current != 0);
+    buttonSet->setEnabled(current != 0);
+    valueLabel->setEnabled(current != 0);
     
-    if ( !item )
+    if (!current)
 	return;
 
-    editValue->setText( item->text( 2 ) );
-    QString prop = item->text(0);
-    valueLabel->setText( prop + " =" );
+    editValue->setText(current->text(2));
+    QString prop = current->text(0);
+    valueLabel->setText(prop + " =");
 
     const QMetaObject *mo = activex->metaObject();
     const QMetaProperty property = mo->property(mo->indexOfProperty(prop.latin1()));
 
-    valueLabel->setEnabled( property.isWritable() );
-    editValue->setEnabled( property.isWritable() );
-    buttonSet->setEnabled( property.isWritable() );
+    valueLabel->setEnabled(property.isWritable());
+    editValue->setEnabled(property.isWritable());
+    buttonSet->setEnabled(property.isWritable());
 }
 
-void ChangeProperties::setValue()
+void ChangeProperties::on_buttonSet_clicked()
 {
     QTreeWidgetItem *item = listProperties->currentItem();
-    if ( !item )
+    if (!item)
 	return;
     
     QString prop = item->text(0);
     QVariant value = activex->property(prop.latin1());
     QVariant::Type type = value.type();
-    if ( !value.isValid() ) {
+    if (!value.isValid()) {
 	const QMetaObject *mo = activex->metaObject();
 	const QMetaProperty property = mo->property(mo->indexOfProperty(prop.latin1()));
-	type = QVariant::nameToType( property.typeName() );
+	type = QVariant::nameToType(property.typeName());
     }
-    switch ( type ) {
+    switch (type) {
     case QVariant::Color:
 	{
 	    QColor col;
-	    col.setNamedColor( editValue->text() );
-	    if ( col.isValid() ) {
+	    col.setNamedColor(editValue->text());
+	    if (col.isValid()) {
 		value = qVariant(col);
 	    } else {
-		QMessageBox::warning( this, tr("Can't parse input"), 
-		                            QString( tr("Failed to create a color from %1\n"
+		QMessageBox::warning(this, tr("Can't parse input"), 
+		                            QString(tr("Failed to create a color from %1\n"
 					                "The string has to be a valid color name (e.g. 'red')\n"
 							"or a RGB triple of format '#rrggbb'."
-							).arg( editValue->text() ) ) );
+							).arg(editValue->text())));
 	    }
 	}
 	break;
     case QVariant::Font:
 	{
 	    QFont fnt;
-	    if ( fnt.fromString( editValue->text() ) ) {
+	    if (fnt.fromString(editValue->text())) {
 		value = qVariant(fnt);
 	    } else {
-		QMessageBox::warning( this, tr("Can't parse input"), 
-		                            QString( tr("Failed to create a font from %1\n"
+		QMessageBox::warning(this, tr("Can't parse input"), 
+		                            QString(tr("Failed to create a font from %1\n"
 					                "The string has to have a format family,<point size> or\n"
 							"family,pointsize,stylehint,weight,italic,underline,strikeout,fixedpitch,rawmode."
-							).arg( editValue->text() ) ) );
+							).arg(editValue->text())));
 	    }
 	}
 	break;
     case QVariant::Pixmap:
 	{
 	    QString fileName = editValue->text();
-	    if ( fileName.isEmpty() )
-		fileName = QFileDialog::getOpenFileName( QString::null, QString::null, this );
-	    QPixmap pm( fileName );
-	    if ( pm.isNull() )
+	    if (fileName.isEmpty())
+		fileName = QFileDialog::getOpenFileName(QString::null, QString::null, this);
+	    QPixmap pm(fileName);
+	    if (pm.isNull())
 		return;
 
 	    value = qVariant(pm);
@@ -129,25 +112,25 @@ void ChangeProperties::setValue()
     case QVariant::Bool:
 	{
 	    QString txt = editValue->text().toLower();
-	    value = QVariant(txt != "0" && txt != "false" );
+	    value = QVariant(txt != "0" && txt != "false");
 	}
 	break;
     case QVariant::List:
 	{
-	    QStringList txtList = editValue->text().split(QRegExp( "[,;]" ));
+	    QStringList txtList = editValue->text().split(QRegExp("[,;]"));
 	    QList<QVariant> varList;
 	    for (int i = 0; i < txtList.count(); ++i) {
 		QVariant svar(txtList.at(i));
 		QString str = svar.toString();
 		str = str.trimmed();
 		bool ok;
-		int n = str.toInt( &ok );
-		if ( ok ) {
+		int n = str.toInt(&ok);
+		if (ok) {
 		    varList << n;
 		    continue;
 		}
-		double d = str.toDouble( &ok );
-		if ( ok ) {
+		double d = str.toDouble(&ok);
+		if (ok) {
 		    varList << d;
 		    continue;
 		}
@@ -162,14 +145,14 @@ void ChangeProperties::setValue()
 	break;
     }
  
-    activex->setProperty(prop.latin1(), value);
-    setControl( activex );
-    listProperties->setCurrentItem( listProperties->findItems(QRegExp(prop)).at(0) );
+    Q_ASSERT(activex->setProperty(prop.latin1(), value));
+    setControl(activex);
+    listProperties->setCurrentItem(listProperties->findItems(QRegExp(prop)).at(0));
 }
 
-void ChangeProperties::editRequestChanged(QTreeWidgetItem *item)
+void ChangeProperties::on_listEditRequests_itemChanged(QTreeWidgetItem *item)
 {
-    if ( !item )
+    if (!item)
 	return;
 
     QString property = item->text(0);
@@ -240,12 +223,12 @@ void ChangeProperties::updateProperties()
 		item->setText(2, var.toString());
 		break;
 	    }
- /*
-	    if (property.testFlags(PropRequesting)) {
-		CheckListItem *check = new CheckListItem(listEditRequests, property->name());
-		check->setOn(activex->propertyWritable(property->name()));
-	    }
-*/
+
+//	    if (property.testFlags(PropRequesting)) { ###
+		QTreeWidgetItem *check = new QTreeWidgetItem(listEditRequests);
+                check->setText(0, property.name());
+                check->setCheckState(0, activex->propertyWritable(property.name()) ? Qt::Checked : Qt::Unchecked);
+//	    }
 	}
 	listProperties->setCurrentItem(listProperties->topLevelItem(0));
     } else {
