@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#13 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#14 $
 **
 ** Global type declarations and definitions
 **
@@ -141,7 +141,7 @@ typedef const char     *pcchar;
 
 #ifndef TRUE
 const bool FALSE = 0;
-const bool TRUE = !FALSE;
+const bool TRUE = !0;
 #endif
 
 
