@@ -30,7 +30,7 @@
 class QSimpleTextCodec: public QTextCodec
 {
 public:
-    enum { numSimpleCodecs = 29 };
+    enum { numSimpleCodecs = 30 };
     QSimpleTextCodec(int);
     ~QSimpleTextCodec();
 
