@@ -523,7 +523,7 @@ void MenuBarEditor::hideItem( int index )
 
     if ( (uint)index < itemList.count() ) {
 	PopupMenuEditor * m = itemList.at( index )->menu();
-	m->hideCurrentItemMenu();
+	m->hideSubMenu();
 	m->hide();
     }
 }

@@ -54,7 +54,7 @@ public:
 
     void showMenu( int x, int y );
     void hideMenu();
-    void focusMenu();
+    void focusOnMenu();
     PopupMenuEditor * menu() const { return s; }
 
     int count() const;
@@ -97,29 +97,29 @@ public:
 
     void init();
 
-    void insert( PopupMenuEditorItem * item, int index = -1 );
-    void insert( QAction * action, int index = -1 );
-    void insert( QActionGroup * actionGroup, int index = -1 );
-    int find( QAction * action );
+    void insert( PopupMenuEditorItem * item, const int index = -1 );
+    void insert( QAction * action, const int index = -1 );
+    void insert( QActionGroup * actionGroup, const int index = -1 );
+    int find( const QAction * action );
     int count();
-    PopupMenuEditorItem * at( int index );
-    void exchange( int a, int b );
+    PopupMenuEditorItem * at( const int index );
+    void exchange( const int a, const int b );
 
-    void cut( int index );
-    void copy( int index );
-    void paste( int index );
+    void cut( const int index );
+    void copy( const int index );
+    void paste( const int index );
 
     void insertedActions( QPtrList<QAction> & list );
 
     void show();
-    void choosePixmap( int index = -1 );
-    void showLineEdit( int index = -1);
-    void setAccelerator( int key, Qt::ButtonState state, int index = -1 );
+    void choosePixmap( const int index = -1 );
+    void showLineEdit( const int index = -1);
+    void setAccelerator( const int key, const Qt::ButtonState state, const int index = -1 );
     void resizeToContents();
 
-    void showCurrentItemMenu();
-    void hideCurrentItemMenu();
-    void focusCurrentItemMenu();
+    void showSubMenu( const int index = - 1 );
+    void hideSubMenu( const int index = - 1 );
+    void focusOnSubMenu( const int index = - 1 );
 
     FormWindow * formWindow() { return formWnd; }
     bool isCreatingAccelerator() { return ( currentField == 2 ); }
@@ -131,15 +131,17 @@ signals:
     void removed(  QAction * );
     
 public slots:
-    void cut();
-    void copy();
-    void paste();
-    void remove( int index );
-    void remove( QAction * );
+
+    void cut() { cut( currentIndex ); }
+    void copy() { copy( currentIndex ); }
+    void paste() { paste( currentIndex ); }
+
+    void remove( const int index );
+    void remove( QAction * a ) { remove( find( a ) ); }
     
 protected:
     PopupMenuEditorItem * createItem( QAction * a = 0 );
-    void deleteCurrentItem();
+    void removeItem( const int index = -1 );
     PopupMenuEditorItem * currentItem();
     PopupMenuEditorItem * itemAt( const int y );
     void setFocusAt( const QPoint & pos );
@@ -161,9 +163,6 @@ protected:
     void drawWinFocusRect( QPainter * p, const int y ) const;
 
     QSize contentsSize();
-    int itemSize( QPainter * p, PopupMenuEditorItem * i );
-    int actionSize( QPainter * p, QAction * a );
-    int actionGroupSize( QPainter * p, QActionGroup * g );
 
     int currentItemYCoord();
     int snapToItem( int y );
@@ -189,16 +188,17 @@ private:
     PopupMenuEditorItem addItem;
     PopupMenuEditorItem addSeparator;
     QWidget * parentMenu;
+
     int iconWidth;
     int textWidth;
-    int acceleratorWidth;
+    int accelWidth;
     int arrowWidth;
-    int widgetWidth;
+    int actionHeight;
     int separatorHeight;
-    int itemHeight;
     int borderSize;
+    
     int currentField;
-    uint currentIndex;
+    int currentIndex;
     QPoint mousePressPos;
     static PopupMenuEditorItem * draggedItem;
 
