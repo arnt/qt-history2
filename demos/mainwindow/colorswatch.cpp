@@ -34,9 +34,6 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
 
     setWidget(swatch);
 
-    showHideAction = new QAction(this);
-    connect(showHideAction, SIGNAL(triggered()), SLOT(showHide()));
-
     closableAction = new QAction(tr("Closable"), this);
     closableAction->setCheckable(true);
     connect(closableAction, SIGNAL(checked(bool)), SLOT(changeClosable(bool)));
@@ -111,7 +108,11 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
     connect(movableAction, SIGNAL(checked(bool)), floatableAction, SLOT(setEnabled(bool)));
 
     menu = new QMenu(colorName, this);
-    menu->addAction(showHideAction);
+
+    QAction *toggleViewAction = this->toggleViewAction();
+    toggleViewAction->setText(tr("Visible"));
+    menu->addAction(toggleViewAction);
+
     menu->addSeparator();
     menu->addAction(closableAction);
     menu->addAction(movableAction);
@@ -123,9 +124,9 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
     menu->addActions(areaActions->actions());
 
     if(colorName == "Black") {
-         leftAction->setShortcut(Qt::CTRL|Qt::Key_W);
-         rightAction->setShortcut(Qt::CTRL|Qt::Key_E);
-         showHideAction->setShortcut(Qt::CTRL|Qt::Key_R);
+        leftAction->setShortcut(Qt::CTRL|Qt::Key_W);
+        rightAction->setShortcut(Qt::CTRL|Qt::Key_E);
+        toggleViewAction->setShortcut(Qt::CTRL|Qt::Key_R);
     }
 }
 
@@ -176,19 +177,6 @@ void ColorSwatch::polishEvent(QEvent *)
         bottomAction->setEnabled(areas & Qt::DockWindowAreaBottom);
     }
 }
-
-void ColorSwatch::hideEvent(QHideEvent *)
-{
-    showHideAction->setText(tr("Show"));
-}
-
-void ColorSwatch::showEvent(QShowEvent *)
-{
-    showHideAction->setText(tr("Hide"));
-}
-
-void ColorSwatch::showHide()
-{ setShown(!isShown()); }
 
 void ColorSwatch::allow(Qt::DockWindowArea area, bool a)
 {

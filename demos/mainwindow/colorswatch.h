@@ -24,8 +24,6 @@ class ColorSwatch : public QDockWindow
 {
     Q_OBJECT
 
-    QAction *showHideAction;
-
     QAction *closableAction;
     QAction *movableAction;
     QAction *floatableAction;
@@ -52,16 +50,11 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void polishEvent(QEvent *);
 
-    virtual void hideEvent(QHideEvent *);
-    virtual void showEvent(QShowEvent *);
-
 private:
     void allow(Qt::DockWindowArea area, bool allow);
     void place(Qt::DockWindowArea area, bool place);
 
 private slots:
-    void showHide();
-
     void changeClosable(bool on);
     void changeMovable(bool on);
     void changeFloatable(bool on);
