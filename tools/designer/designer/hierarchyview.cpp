@@ -101,7 +101,7 @@ void HierarchyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     g.setColor( QColorGroup::Text, Qt::black );
     QString txt = text( 0 );
     if ( rtti() == Function &&
-	 MainWindow::self->currProject()->language() == "C++" &&
+	 MainWindow::self->currProject()->isCpp() &&
 	 ( txt == "init()" || txt == "destroy()" ) ) {
 	listView()->setUpdatesEnabled( FALSE );
 	if ( txt == "init()" )
@@ -365,8 +365,8 @@ void HierarchyList::setup()
 	}
     }
 #endif
-    lastWidgetStack = 0;    
-    if ( w ) 
+    lastWidgetStack = 0;
+    if ( w )
 	insertObject( w, 0 );
     lastWidgetStack = 0;
 }
@@ -485,10 +485,10 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    insertObject( it.current(), item );
 	}
     }
-    
+
     if ( fakeMainWindow ) {
 	QObjectList *l = o->parent()->queryList( "QDesignerToolBar" );
-	for ( QObject *obj = l->first(); obj; obj = l->next() ) 
+	for ( QObject *obj = l->first(); obj; obj = l->next() )
 	    insertObject( obj, item );
 	delete l;
 	QMenuBar *m = (QMenuBar*)o->parent()->child( 0, "QDesignerMenuBar" );
@@ -661,6 +661,8 @@ void FormDefinitionView::setup()
 {
     if ( popupOpen || !formWindow )
 	return;
+    if ( !formWindow->project()->isCpp() )
+	return;
     if ( !folderPixmap ) {
 	folderPixmap = new QPixmap( folder_xpm );
     }
@@ -694,6 +696,8 @@ void FormDefinitionView::refresh( bool doDelete )
 	return;
     if ( !formWindow )
 	return;
+    if ( !formWindow->project()->isCpp() )
+	return;
     QListViewItem *i = firstChild();
     while ( i ) {
 	if ( doDelete && i->rtti() == HierarchyItem::SlotParent ) {
@@ -726,8 +730,8 @@ void FormDefinitionView::refresh( bool doDelete )
 				       tr( "protected" ), QString::null, QString::null );
     itemFunctPubl = new HierarchyItem( HierarchyItem::FunctPublic, itemFunct,
 				       tr( "public" ), QString::null, QString::null );
-    
-    if ( formWindow->project()->language() == "C++" ) {
+
+    if ( formWindow->project()->isCpp() ) {
 	itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
 				       this, tr( "Slots" ), QString::null, QString::null );
 	itemSlots->setPixmap( 0, *folderPixmap );
@@ -776,8 +780,8 @@ void FormDefinitionView::refresh( bool doDelete )
     itemFunctPriv->setOpen( TRUE );
     itemFunctProt->setOpen( TRUE );
     itemFunctPubl->setOpen( TRUE );
-    
-    if ( formWindow->project()->language() == "C++" ) {
+
+    if ( formWindow->project()->isCpp() ) {
         itemPrivate->setOpen( TRUE );
 	itemProtected->setOpen( TRUE );
 	itemPublic->setOpen( TRUE );
@@ -853,7 +857,7 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
     HierarchyItem::Type t = getChildType( i->rtti() );
     if ( (int)t == i->rtti() )
 	i = i->parent();
-    if ( formWindow->project()->language() == "C++" &&
+    if ( formWindow->project()->isCpp() &&
 	 ( i->rtti() == HierarchyItem::SlotPublic ||
 	   i->rtti() == HierarchyItem::SlotProtected ||
 	   i->rtti() == HierarchyItem::SlotPrivate ) ) {
@@ -865,7 +869,7 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	    access = "private";
 	dlg.functionAdd( access, "slot" );
 	dlg.exec();
-    } else if ( formWindow->project()->language() == "C++" &&
+    } else if ( formWindow->project()->isCpp() &&
 		( i->rtti() == HierarchyItem::FunctPublic ||
 		  i->rtti() == HierarchyItem::FunctProtected ||
 		  i->rtti() == HierarchyItem::FunctPrivate ) ) {
@@ -889,9 +893,9 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     if ( !i )
 	return;
 
-    if ( i->rtti() == HierarchyItem::FunctParent && formWindow->project()->language() != "C++" )
+    if ( i->rtti() == HierarchyItem::FunctParent && !formWindow->project()->isCpp() )
 	return;
-    
+
     if ( i->rtti() == HierarchyItem::SlotParent ) {
 	QPopupMenu menu;
 	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ) );
@@ -921,7 +925,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	const int REMOVE = 3;
 	const int NEW_ITEM = 4;
 	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
-	if ( formWindow->project()->language() == "C++" )
+	if ( formWindow->project()->isCpp() )
 	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
         if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
 	    menu.insertItem( tr( "Goto Implementation" ), EDIT );
@@ -931,7 +935,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	int res = menu.exec( pos );
 	popupOpen = FALSE;
 	if ( res == NEW_ITEM ) {
-	    if ( formWindow->project()->language() == "C++" ) {
+	    if ( formWindow->project()->isCpp() ) {
 		EditFunctions dlg( this, formWindow );
 		QString access = "public";
 		if ( i->parent() && i->parent()->rtti() == HierarchyItem::SlotProtected )
@@ -964,7 +968,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	const int REMOVE = 3;
 	const int NEW_ITEM = 4;
 	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
-	if ( formWindow->project()->language() == "C++" )
+	if ( formWindow->project()->isCpp() )
 	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
 	if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
 	    menu.insertItem( tr( "Goto Implementation" ), EDIT );
@@ -974,7 +978,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	int res = menu.exec( pos );
 	popupOpen = FALSE;
 	if ( res == NEW_ITEM ) {
-	    if ( formWindow->project()->language() == "C++" ) {
+	    if ( formWindow->project()->isCpp() ) {
 		EditFunctions dlg( this, formWindow );
 		QString access = "public";
 		if ( i->parent() && i->parent()->rtti() == HierarchyItem::FunctProtected )
@@ -1029,7 +1033,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	HierarchyItem::Type t = getChildType( i->rtti() );
 	if ( (int)t == i->rtti() )
 	    i = i->parent();
-	if ( formWindow->project()->language() == "C++" &&
+	if ( formWindow->project()->isCpp() &&
 	     ( i->rtti() == HierarchyItem::SlotPublic ||
 	       i->rtti() == HierarchyItem::SlotProtected ||
 	       i->rtti() == HierarchyItem::SlotPrivate ) ) {
@@ -1041,7 +1045,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 		access = "private";
 	    dlg.functionAdd( access, "slot" );
 	    dlg.exec();
-	} else if ( formWindow->project()->language() == "C++" &&
+	} else if ( formWindow->project()->isCpp() &&
 	    ( i->rtti() == HierarchyItem::FunctPublic ||
 	      i->rtti() == HierarchyItem::FunctProtected ||
 	      i->rtti() == HierarchyItem::FunctPrivate ) ) {
@@ -1196,18 +1200,21 @@ void HierarchyView::setFormWindow( FormWindow *fw, QObject *o )
     }
 
     setTabEnabled( listview, TRUE );
-    setTabEnabled( fView, TRUE );
+    setTabEnabled( fView, fw && fw->project()->isCpp() );
 
     if ( fw == formwindow ) {
-	if ( !fake )
-	    listview->setCurrent( (QWidget*)o );
-	else
-	    listview->clear();
-	if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
-	    showPage( listview );
-	else
-	    showPage( fView );
-	return;
+	if ( fw ) {
+	    if ( !fake )
+		listview->setCurrent( (QWidget*)o );
+	    else
+		listview->clear();
+	    if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
+		showPage( listview );
+	    else if ( fw->project()->isCpp() )
+		showPage( fView );
+	    else
+		showClasses( fw->formFile()->editor() );
+	}
     }
 
     formwindow = fw;
@@ -1225,16 +1232,19 @@ void HierarchyView::setFormWindow( FormWindow *fw, QObject *o )
     }
     fView->setup();
 
-    if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
-	showPage( listview );
-    else
-	showPage( fView );
-
     for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers->begin();
 	  it != classBrowsers->end(); ++it ) {
 	(*it).iface->clear();
-	setTabEnabled( (*it).lv, FALSE );
+	setTabEnabled( (*it).lv, fw && !fw->project()->isCpp() );
     }
+
+    if ( MainWindow::self->qWorkspace()->activeWindow() == fw )
+	showPage( listview );
+    else if ( fw && fw->project()->isCpp() )
+	showPage( fView );
+    else if ( fw )
+	showClasses( fw->formFile()->editor() );
+
     editor = 0;
 }
 
@@ -1254,14 +1264,14 @@ void HierarchyView::showClassesTimeout()
     SourceEditor *se = (SourceEditor*)lastSourceEditor;
     if ( !se->object() )
 	return;
-    if ( se->formWindow() ) {
+    if ( se->formWindow() && se->formWindow()->project()->isCpp() ) {
 	setFormWindow( se->formWindow(), se->formWindow()->currentWidget() );
 	MainWindow::self->propertyeditor()->setWidget( se->formWindow()->currentWidget(),
 						       se->formWindow() );
 	return;
     }
 
-    setTabEnabled( listview, FALSE );
+    setTabEnabled( listview, !!se->formWindow() && !se->formWindow()->isFake() );
     setTabEnabled( fView, FALSE );
 
     formwindow = 0;
@@ -1269,7 +1279,8 @@ void HierarchyView::showClassesTimeout()
     fView->setFormWindow( 0 );
     listview->clear();
     fView->clear();
-    MainWindow::self->propertyeditor()->setWidget( 0, 0 );
+    if ( !se->formWindow() )
+	MainWindow::self->propertyeditor()->setWidget( 0, 0 );
     editor = se;
 
     for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers->begin();

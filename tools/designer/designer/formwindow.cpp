@@ -197,19 +197,8 @@ void FormWindow::initSlots()
 {
     if ( isFake() )
 	return;
-    QString lang = "C++";
-    if ( project() )
-	lang = project()->language();
-    else
-	lang = MainWindow::self->currProject()->language();
-    if ( lang != "C++" ) {
-	if ( !MetaDataBase::hasFunction( this, "init()" ) )
-	    MetaDataBase::addFunction( this, "init()", "", "private", "function",
-				   mainWindow()->currProject()->language(), "void" );
-	if ( !MetaDataBase::hasFunction( this, "destroy()" ) )
-	    MetaDataBase::addFunction( this, "destroy()", "", "private", "function",
-				   mainWindow()->currProject()->language(), "void" );
-    } else {
+    Project *p = project() ? project() : MainWindow::self->currProject();
+    if ( p && p->isCpp() ) {
 	QString code = formFile()->code();
 	if ( code.isEmpty() ) {
 	    code =
@@ -2482,11 +2471,18 @@ void FormWindow::setMainContainer( QWidget *w )
     }
     if ( project() ) {
 	LanguageInterface *iface = MetaDataBase::languageInterface( project()->language() );
-	if ( iface && !MetaDataBase::hasEventFunctions( mainContainer() ) ) {
-	    QMap<QString, QString> eventFuncs;
-	    iface->initEventFunctions( eventFuncs );
-	    for ( QMap<QString, QString>::Iterator it = eventFuncs.begin(); it != eventFuncs.end(); ++it )
-		MetaDataBase::setEventFunctions( mainContainer(), this, project()->language(), it.key(), QStringList( *it ) );
+	if ( iface && !project()->isCpp() && !isFake() ) {
+	    if ( !MetaDataBase::hasFunction( this, "init()" ) )
+		MetaDataBase::addFunction( this, "init()", "", "private", "function",
+					   project()->language(), "void" );
+	    if ( !MetaDataBase::hasFunction( this, "destroy()" ) )
+		MetaDataBase::addFunction( this, "destroy()", "", "private", "function",
+					   project()->language(), "void" );
+	    if ( !MetaDataBase::hasConnection( this, mainContainer(), "init()", mainContainer(), "init" ) )
+		MetaDataBase::addConnection( this, mainContainer(), "init()", mainContainer(), "init" );
+	    if ( !MetaDataBase::hasConnection( this, mainContainer(), "destroyed()", mainContainer(), "destroy"  ) )
+		MetaDataBase::addConnection( this, mainContainer(), "destroyed()",
+					     mainContainer(), "destroy" );
 	}
     }
 }

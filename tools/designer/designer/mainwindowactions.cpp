@@ -1195,10 +1195,8 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 		filterlist << *it;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
-	    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-		filterlist +=  iface->fileFilterList();
-		additionalSources += iface->fileExtensionList();
-	    }
+	    filterlist +=  iface->fileFilterList();
+	    additionalSources += iface->fileExtensionList();
 	    filterlist << tr( "All Files (*)" );
 	} else {
 	    filterlist << filter;
@@ -1235,13 +1233,10 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		    addRecentlyOpened( filename, recentlyFiles );
 		} else if ( !extension.isEmpty() && extension.find( ";" + fi.extension( FALSE ) ) != -1 ||
 			    additionalSources.find( fi.extension( FALSE ) ) != additionalSources.end() ) {
-		    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
-		    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-			SourceFile *sf = project->findSourceFile( project->makeRelative( filename ) );
-			if ( !sf )
-			    sf = new SourceFile( project->makeRelative( filename ), FALSE, project );
-			editSource( sf );
-		    }
+		    SourceFile *sf = project->findSourceFile( project->makeRelative( filename ) );
+		    if ( !sf )
+			sf = new SourceFile( project->makeRelative( filename ), FALSE, project );
+		    editSource( sf );
 		} else if ( extension.isEmpty() ) {
 		    QString filter;
 		    for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
@@ -1543,7 +1538,7 @@ void MainWindow::createNewTemplate()
 	if ( QFile::exists( (*it) + "/templates/" )) {
 	    QString tmpfn = (*it) + "/templates/" + fn + ".ui";
 	    f.setName(tmpfn);
-	    if(f.open(IO_WriteOnly)) 
+	    if(f.open(IO_WriteOnly))
 		break;
 	}
     }

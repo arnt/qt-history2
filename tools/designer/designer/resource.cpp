@@ -181,7 +181,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     toplevel = formwindow = new FormWindow( ff, mainwindow->qWorkspace(), 0 );
     formwindow->setProject( MainWindow::self->currProject() );
     formwindow->setMainWindow( mainwindow );
-    MetaDataBase::addEntry( formwindow );  
+    MetaDataBase::addEntry( formwindow );
 
     if (!langIface) {
 	langIface = MetaDataBase::languageInterface( mainwindow->currProject()->language() );
@@ -370,11 +370,11 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 		else
 		    MetaDataBase::changeFunctionAttributes( formwindow, function.function,
 							    function.specifier, function.access,
-							    "slot", function.language, 
+							    "slot", function.language,
 							    function.returnType );
 	    }
     }
-    
+
     if ( !functions.isNull() ) {
 	for ( QDomElement n = functions.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( n.tagName() == "function" ) {
@@ -395,7 +395,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 		function.function = n.firstChild().toText().data();
 		if ( !MetaDataBase::hasFunction( formwindow, function.function, TRUE ) )
 		    MetaDataBase::addFunction( formwindow, function.function, function.specifier,
-					       function.access, function.type, function.language, 
+					       function.access, function.type, function.language,
 					       function.returnType );
 		else
 		    MetaDataBase::changeFunctionAttributes( formwindow, function.function,
@@ -403,8 +403,8 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 							    function.type, function.language, function.returnType );
 	    }
 	}
-    }    
-    
+    }
+
     if ( !actions.isNull() )
 	loadActions( actions );
     if ( !toolbars.isNull() )
@@ -414,7 +414,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 
     if ( !connections.isNull() )
 	loadConnections( connections );
-    
+
     if ( !tabOrder.isNull() )
 	loadTabOrder( tabOrder );
 
@@ -456,7 +456,7 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
 	if ( langIface )
 	    langIface->addRef();
     }
-    if ( formCodeOnly && langIface && langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+    if ( formCodeOnly && langIface ) {
 	saveFormCode();
 	return TRUE; // missing error checking in saveFormCode ?
     }
@@ -1140,7 +1140,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 		num = MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
 	    else if ( name == "margin" )
 		num = MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) );
-	    if ( num != -1 ) 
+	    if ( num != -1 )
 		ts << makeIndent( indent ) << "<number>" << QString::number( num ) << "</number>" << endl;
 	} else {
 	    num = value.toInt();
@@ -1447,9 +1447,6 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    createItem( n, w );
 	} else if ( n.tagName() == "column" || n.tagName() =="row" ) {
 	    createColumn( n, w );
-	} else if ( n.tagName() == "event" ) {
-	    MetaDataBase::setEventFunctions( obj, formwindow, MainWindow::self->currProject()->language(),
-					     n.attribute( "name" ), QStringList::split( ',', n.attribute( "functions" ) ), FALSE );
 	}
 
 	n = n.nextSibling().toElement();
@@ -1694,7 +1691,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 
     QString comment;
     QVariant v( DomTool::elementToVariant( e, defVarient, comment ) );
-    
+
     if ( !comment.isEmpty() ) {
 	MetaDataBase::addEntry( obj );
 	MetaDataBase::setPropertyComment( obj, prop, comment );
@@ -1943,6 +1940,8 @@ QImage Resource::loadFromCollection( const QString &name )
 
 void Resource::saveConnections( QTextStream &ts, int indent )
 {
+    if ( !formwindow->project()->isCpp() )
+	return;
     ts << makeIndent( indent ) << "<connections>" << endl;
     indent++;
     QValueList<MetaDataBase::Connection> connections = MetaDataBase::connections( formwindow );
@@ -1981,33 +1980,6 @@ void Resource::saveConnections( QTextStream &ts, int indent )
     }
 
     QString lang = formwindow->project()->language();
-    LanguageInterface *iface = langIface;
-    if ( iface && MetaDataBase::hasEvents( lang ) ) {
-	QObjectList *l = formwindow->queryList( "QWidget" );
-	if ( !formwindow->isFake() )
-	    l->append( formwindow );
-	else
-	    l->append( MainWindow::self->currProject()->objectForFakeForm( formwindow ) );
-	QPtrList<QAction> lst = formwindow->actionList();
-	for ( QAction *a = lst.first(); a; a = lst.next() )
-	    l->append( a );
-	for ( QObject *o = l->first(); o; o = l->next() ) {
-	    if ( !MetaDataBase::hasObject( o ) )
-		continue;
-	    QMap<QString, QStringList> eventFunctions = MetaDataBase::eventFunctions( o );
-	    QMap<QString, QStringList>::ConstIterator it = eventFunctions.begin();
-	    for ( ; it != eventFunctions.end(); ++it ) {
-		QString sls = (*it).join( "," );
-		MetaDataBase::Connection conn;
-		conn.sender = o;
-		conn.signal = it.key();
-		conn.slot = sls;
-		langConnections[ lang ].append( conn );
-	    }
-	}
-	delete l;
-    }
-
     indent--;
     ts << makeIndent( indent ) << "</connections>" << endl;
 }
@@ -2067,9 +2039,6 @@ void Resource::loadConnections( const QDomElement &e )
 		if ( lang == "C++" ) {
 		    MetaDataBase::addConnection( formwindow ? formwindow : toplevel,
 						 conn.sender, conn.signal, conn.receiver, conn.slot );
-		} else if ( MetaDataBase::hasEvents( lang ) ) {
-		    MetaDataBase::setEventFunctions( conn.sender, formwindow, lang, conn.signal,
-						     QStringList::split( ',', conn.slot ), FALSE );
 		}
 	    }
 	} else if ( n.tagName() == "slot" ) { // compatibility with 2.x
@@ -2295,11 +2264,11 @@ void Resource::saveMetaInfoBefore( QTextStream &ts, int indent )
 void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 {
     MetaDataBase::MetaInfo info = MetaDataBase::metaInfo( formwindow );
-    if ( !langIface || formwindow->project()->language() == "C++" ) {
+    if ( !langIface || formwindow->project()->isCpp() ) {
 	QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formwindow );
 	QString extensionInclude;
 	bool needExtensionInclude = FALSE;
-	if ( langIface && formwindow->project()->language() == "C++"  &&
+	if ( langIface && formwindow->project()->isCpp()  &&
 	     formwindow->formFile()->hasFormCode() ) {
 	    extensionInclude = QFileInfo( currFileName ).fileName() + langIface->formCodeExtension();
 	    needExtensionInclude = TRUE;
@@ -2349,30 +2318,6 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	    indent--;
 	    ts << makeIndent( indent ) << "</signals>" << endl;
 	}
-	/*
-	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
-	if ( !slotList.isEmpty() ) {
-	    ts << makeIndent( indent ) << "<slots>" << endl;
-	    indent++;
-	    QString lang = formwindow->project()->language();
-	    QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin();
-	    for ( ; it != slotList.end(); ++it ) {
-		MetaDataBase::Slot slot = *it;
-		ts << makeIndent( indent ) << "<slot";
-		if ( slot.access != "public" )
-		    ts << " access=\"" << slot.access << "\"";
-		if ( slot.specifier != "virtual" )
-		    ts << " specifier=\"" << slot.specifier << "\"";
-		if ( slot.language != "C++" )
-		    ts << " language=\"" << slot.language<< "\"";
-		if ( slot.returnType != "void" )
-		    ts << " returnType=\"" << entitize( slot.returnType ) << "\"";
-		ts << ">" << entitize( slot.slot ) << "</slot>" << endl;
-	    }
-	    indent--;
-	    ts << makeIndent( indent ) << "</slots>" << endl;
-	}
-	*/
 	QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formwindow );
 	if ( !functionList.isEmpty() ) {
 	    ts << makeIndent( indent ) << "<functions>" << endl;
@@ -2514,10 +2459,6 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
 		setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
-	    } else if ( n2.tagName() == "event" ) {
-		MetaDataBase::setEventFunctions( a, formwindow, MainWindow::self->currProject()->language(),
-						 n2.attribute( "name" ),
-						 QStringList::split( ',', n2.attribute( "functions" ) ), FALSE );
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
@@ -2533,10 +2474,6 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	    } else if ( n2.tagName() == "action" ||
 			n2.tagName() == "actiongroup" ) {
 		loadChildAction( a, n2 );
-	    } else if ( n2.tagName() == "event" ) {
-		MetaDataBase::setEventFunctions( a, formwindow, MainWindow::self->currProject()->language(),
-						 n2.attribute( "name" ),
-						 QStringList::split( ',', n2.attribute( "functions" ) ), FALSE );
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
@@ -2709,80 +2646,13 @@ void Resource::saveFormCode()
     LanguageInterface *iface = langIface;
     if ( !iface )
 	return;
-    QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formwindow );
-    if ( langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
-	if ( formwindow->formFile()->code().isEmpty() || !formwindow->formFile()->hasFormCode() )
-	    return;
-	QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
-	if ( f.open( IO_WriteOnly ) ) {
-	    QTextStream ts( &f );
-	    ts << formwindow->formFile()->code();
-	}
-    } else {
-	QValueList<LanguageInterface::Function> funcs;
-	/*
-	QValueList<MetaDataBase::Function> slotList = MetaDataBase::slotList( formwindow );
-	QValueList<MetaDataBase::Function>::Iterator sit = slotList.begin();
-	for ( ; sit != slotList.end(); ++sit ) {
-	    MetaDataBase::Function function = *sit;
-	    QMap<QString, QString>::Iterator it =
-		functionBodies.find( MetaDataBase::normalizeFunction( (*sit).function ) );
-	    LanguageInterface::Function func;
-	    func.name = slot.function;
-	    func.body = *it;
-	    func.comments = MetaDataBase::functionComments( formwindow, func.name );
-	    func.returnType = slot.returnType;
-	    func.access = slot.access;
-	    funcs.append( func );	
-	}
-	*/
-	QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formwindow );
-	QValueList<MetaDataBase::Function>::Iterator fit = functionList.begin();
-	for ( ; fit != functionList.end(); ++fit ) {
-	    MetaDataBase::Function function = *fit;
-	    QMap<QString, QString>::Iterator it =
-		functionBodies.find( MetaDataBase::normalizeFunction( (*fit).function ) );
-	    LanguageInterface::Function func;
-	    func.name = function.function;
-	    func.body = *it;
-	    func.comments = MetaDataBase::functionComments( formwindow, func.name );
-	    func.returnType = function.returnType;
-	    func.access = function.access;
-	    funcs.append( func );	
-	}
-
-	QValueList<LanguageInterface::Connection> conns;
-	QValueList<MetaDataBase::Connection> mconns = langConnections[ lang ];
-	for ( QValueList<MetaDataBase::Connection>::Iterator it = mconns.begin();
-	      it != mconns.end(); ++it ) {
-	    LanguageInterface::Connection conn;
-	    conn.sender = (*it).sender->name();
-	    conn.signal = (*it).signal;
-	    conn.slot = (*it).slot;
-	    conns.append( conn );
-	}
-
-	iface->saveFormCode( formwindow->name(), currFileName + iface->formCodeExtension(),
-			     funcs, QStringList(), QStringList(), QStringList(),
-			     MetaDataBase::variables( formwindow ), conns );
+    if ( formwindow->formFile()->code().isEmpty() || !formwindow->formFile()->hasFormCode() )
+	return;
+    QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
+    if ( f.open( IO_WriteOnly ) ) {
+	QTextStream ts( &f );
+	ts << formwindow->formFile()->code();
     }
-}
-
- // compatibility with early 3.0 betas
-
-static QString make_function_pretty( const QString &s )
-{
-    QString res = s;
-    if ( res.find( ")" ) - res.find( "(" ) == 1 )
-	return res;
-    res.replace( QRegExp( "[(]" ), "( " );
-    res.replace( QRegExp( "[)]" ), " )" );
-    res.replace( QRegExp( "&" ), " &" );
-    res.replace( QRegExp( "[*]" ), " *" );
-    res.replace( QRegExp( "," ), ", " );
-    res.replace( QRegExp( ":" ), " : " );
-    res = res.simplifyWhiteSpace();
-    return res;
 }
 
 void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileName,
@@ -2800,55 +2670,24 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
     QValueList<LanguageInterface::Connection> connections;
 
     iface->loadFormCode( formwindow->name(), currFileName + iface->formCodeExtension(),
-			 functions, forwards, includesImpl, includesDecl, vars, connections );
+			 functions, vars, connections );
 
-    if ( iface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
-	QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
-	QString code;
-	if ( f.open( IO_ReadOnly ) ) {
-	    QTextStream ts( &f );
-	    code = ts.read();
-	}
-	formwindow->formFile()->setCode( code );
+    QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
+    QString code;
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream ts( &f );
+	code = ts.read();
     }
+    formwindow->formFile()->setCode( code );
 
-    for ( QValueList<LanguageInterface::Connection>::Iterator cit = connections.begin();
-	  cit != connections.end(); ++cit ) {
-	QObject *sender  = 0;
-	QString name = (*cit).sender;
-	QObject *o = formwindow;
-	if ( formwindow->isFake() ) {
-	    o = MainWindow::self->currProject()->objectForFakeForm( formwindow );
-	    sender = o;
-	} else {
-	    if ( name == "this" || qstrcmp( formwindow->name(), name ) == 0 ) {
-		sender = ( (FormWindow*)formwindow )->mainContainer();
-	    } else {
-		if ( name == "this" )
-		    name = formwindow->name();
-		QObjectList *l = formwindow->queryList( 0, name, FALSE );
-		if ( l ) {
-		    if ( l->first() )
-			sender = l->first();
-		    delete l;
-		}
-		if ( !sender )
-		    sender = formwindow->findAction(  name );
-	    }
-	}
-	
-	MetaDataBase::setEventFunctions( sender, o, lang, (*cit).signal,
-					 QStringList::split( ',', (*cit).slot ), FALSE );
-    }
+    MetaDataBase::setupConnections( formwindow, connections );
 
-    QMap<QString, QString> bodies = MetaDataBase::functionBodies( formwindow );
-    
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
 	  fit != functions.end(); ++fit ) {
 	
 	if ( MetaDataBase::hasFunction( formwindow, (*fit).name.latin1() ) ) {
 	    QString access = (*fit).access;
-	    if ( lang != "C++" )
+	    if ( !MainWindow::self->currProject()->isCpp() )
 		MetaDataBase::changeFunction( formwindow, (*fit).name.latin1(), (*fit).name.latin1(),
 					      access );
 	} else {
@@ -2858,37 +2697,5 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 	    MetaDataBase::addFunction( formwindow, (*fit).name.latin1(), "virtual", (*fit).access,
 				       "function", lang, (*fit).returnType );
 	}
-	
-	MetaDataBase::setFunctionComments( formwindow, (*fit).name, (*fit).comments );
-	bodies.insert( MetaDataBase::normalizeFunction( (*fit).name ), (*fit).body );
     }
-    
-    
-    MetaDataBase::setFunctionBodies( formwindow, bodies, QString::null, QString::null );
-
-    QStringList v = MetaDataBase::variables( formwindow );
-    QStringList::Iterator vit;
-    for ( vit = vars.begin(); vit != vars.end(); ++vit )
-	v << *vit;
-    MetaDataBase::setVariables( formwindow, v );
-
-    QStringList f = MetaDataBase::forwards( formwindow );
-    for ( vit = forwards.begin(); vit != forwards.end(); ++vit )
-	f << *vit;
-    MetaDataBase::setForwards( formwindow, f );
-
-    QValueList<MetaDataBase::Include> incls = MetaDataBase::includes( formwindow );
-    for ( vit = includesImpl.begin(); vit != includesImpl.end(); ++vit ) {
-	MetaDataBase::Include inc;
-	inc.header = *vit;
-	inc.location = "in implementation";
-	incls << inc;
-    }
-    for ( vit = includesDecl.begin(); vit != includesDecl.end(); ++vit ) {
-	MetaDataBase::Include inc;
-	inc.header = *vit;
-	inc.location = "in declaration";
-	incls << inc;
-    }
-    MetaDataBase::setIncludes( formwindow, incls );
 }

@@ -32,6 +32,7 @@
 #include <qcursor.h>
 
 #include "pixmapchooser.h"
+#include "../interfaces/languageinterface.h"
 
 class QObject;
 class QPixmap;
@@ -64,11 +65,11 @@ public:
 		     specifier == f.specifier &&
 		     access == f.access &&
 		     type == f.type &&
-		     language == f.language 
+		     language == f.language
 		     );
 	}
-    };    
-    
+    };
+
     struct Property
     {
 	QCString property;
@@ -124,15 +125,6 @@ public:
 	QString author;
     };
 
-    struct EventDescription
-    {
-	QString name;
-	QStringList args;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator==( const EventDescription& ) const { return FALSE; }
-#endif
-    };
-
     MetaDataBase();
     static void clearDataBase();
 
@@ -154,19 +146,22 @@ public:
     static int margin( QObject *o );
 
     static void addConnection( QObject *o, QObject *sender, const QCString &signal,
-			       QObject *receiver, const QCString &slot );
+			       QObject *receiver, const QCString &slot, bool addCode = TRUE );
     static void removeConnection( QObject *o, QObject *sender, const QCString &signal,
 				  QObject *receiver, const QCString &slot );
+    static bool hasConnection( QObject *o, QObject *sender, const QCString &signal,
+			       QObject *receiver, const QCString &slot );
+    static void setupConnections( QObject *o, const QValueList<LanguageInterface::Connection> &conns );
     static QValueList<Connection> connections( QObject *o );
     static QValueList<Connection> connections( QObject *o, QObject *sender, QObject *receiver );
     static QValueList<Connection> connections( QObject *o, QObject *object );
     static void doConnections( QObject *o );
 
-    static void addFunction( QObject *o, const QCString &function, const QString &specifier, 
-			     const QString &access, const QString &type, const QString &language, 
+    static void addFunction( QObject *o, const QCString &function, const QString &specifier,
+			     const QString &access, const QString &type, const QString &language,
 			     const QString &returnType );
-    static void removeFunction( QObject *o, const QCString &function, const QString &specifier, 
-				const QString &access, const QString &type, const QString &language, 
+    static void removeFunction( QObject *o, const QCString &function, const QString &specifier,
+				const QString &access, const QString &type, const QString &language,
 				const QString &returnType );
     static void removeFunction( QObject *o, const QString &function );
     static QValueList<Function> functionList( QObject *o );
@@ -178,7 +173,7 @@ public:
 				const QString &access );
     static void changeFunctionAttributes( QObject *o, const QCString &function,
 				      const QString &specifier, const QString &access,
-				      const QString &type, const QString &language, 
+				      const QString &type, const QString &language,
 				      const QString &returnType );
     static QString languageOfFunction( QObject *o, const QCString &function );
     static void setFunctionList( QObject *o, const QValueList<Function> &functionList );
@@ -223,36 +218,16 @@ public:
     static void setColumnFields( QObject *o, const QMap<QString, QString> &columnFields );
     static QMap<QString, QString> columnFields( QObject *o );
 
-    static bool hasEvents( const QString &lang );
-
     static void setEditor( const QStringList &langs );
     static bool hasEditor( const QString &lang );
 
-    static QValueList<EventDescription> events( QObject *o, const QString &lang );
-    static bool setEventFunctions( QObject *o, QObject *form, const QString &lang,
-				   const QString &event, const QStringList &functions, bool = TRUE );
-    static QStringList eventFunctions( QObject *o, const QString &event, const QString &lang );
-    static bool hasEventFunctions( QObject *o );
-    static QMap<QString, QStringList> eventFunctions( QObject *o );
-    
-    
-    
-    static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang, const QString &returnType );
-    static void addFunctionBody( QObject *o, const QString &func, const QString &body );
-    static void setFunctionComments( QObject *o, const QString &func, const QString &comments );
-    static QMap<QString, QString> functionBodies( QObject *o );
-    static QString functionComments( QObject *o, const QString &func );
-
-    
-    
-    
     static void setupInterfaceManagers();
     static QStringList languages();
 
     static LanguageInterface *languageInterface( const QString &lang );
 
     static QString normalizeFunction( const QString &f );
-    
+
     static void clear( QObject *o );
 
     static void setBreakPoints( QObject *o, const QValueList<int> &l );

@@ -199,6 +199,7 @@ Project::Project( const QString &fn, const QString &pName,
     pixCollection = new PixmapCollection( this );
     iface = 0;
     lang = l;
+    is_cpp = lang == "C++";
     cfg.insert( "(all)", "qt warn_on release" );
     templ = "app";
     setFileName( fn );
@@ -400,8 +401,10 @@ void Project::parse()
     int i = contents.find( "LANGUAGE" );
     if ( i != -1 ) {
 	lang = "";
+	is_cpp = FALSE;
 	QString part = contents.mid( i + QString( "LANGUAGE" ).length() );
 	lang = parse_part( part );
+	is_cpp = lang == "C++";
     }
 
     i = contents.find( "DBFILE" );
@@ -1037,6 +1040,7 @@ void Project::setLanguage( const QString &l )
     if ( l == lang )
 	return;
     lang = l;
+    is_cpp = lang == "C++";
     updateCustomSettings();
     modified = TRUE;
 }
@@ -1243,6 +1247,7 @@ void Project::addObject( QObject *o )
     ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
     FormWindow *fw = new FormWindow( ff, MainWindow::self,
 				     MainWindow::self->qWorkspace(), "qt_fakewindow" );
+    fw->setProject( this );
     fakeForms.insert( (void*)o, fw );
     MetaDataBase::addEntry( o );
     if ( QFile::exists( ff->absFileName() ) )

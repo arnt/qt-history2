@@ -25,7 +25,6 @@
 #include "../interfaces/actioninterface.h" // for GCC 2.7.* compatibility
 #include "../interfaces/editorinterface.h"
 #include "../interfaces/templatewizardiface.h"
-#include "../interfaces/eventinterface.h"
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/filterinterface.h"
 #include "../interfaces/programinterface.h"

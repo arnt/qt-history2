@@ -58,11 +58,6 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
       cm( FALSE )
 {
     fake = qstrcmp( name, "qt_fakewindow" ) == 0;
-    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
-    if ( iface )
-	seperateSource = iface->supports( LanguageInterface::StoreFormCodeSeperate );
-    else
-	seperateSource = FALSE;
     pro->addFormFile( this );
     loadCode();
     if ( !temp )
@@ -85,8 +80,7 @@ void FormFile::setFormWindow( FormWindow *f )
     fw = f;
     if ( fw )
 	fw->setFormFile( this );
-    if ( seperateSource )
-	parseCode( cod, FALSE );
+    parseCode( cod, FALSE );
 }
 
 void FormFile::setEditor( SourceEditor *e )
@@ -142,59 +136,7 @@ QString FormFile::codeFile() const
 
 QString FormFile::code()
 {
-    bool createSource = TRUE;
-    QString txt;
-    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
-    if ( iface && iface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
-	createSource = FALSE;
-	txt = cod;
-    }
-    if ( createSource ) {
-	/*
-	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
-	QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow() );
-	for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	    if ( (*it).language != pro->language() )
-		continue;
-	    QString sl( (*it).slot );
-	    QString comments = MetaDataBase::functionComments( formWindow(), sl );
-	    if ( !comments.isEmpty() )
-		txt += comments + "\n";
-	    txt += iface->createFunctionStart( formWindow()->name(), make_func_pretty( sl ),
-					       ( (*it).returnType.isEmpty() ?
-						 QString( "void" ) :
-						 (*it).returnType ),
-					       (*it).access );
-	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
-	    if ( bit != bodies.end() )
-		txt += "\n" + *bit + "\n\n";
-	    else
-		txt += "\n" + iface->createEmptyFunction() + "\n\n";
-	}
-	*/
-
-	QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow() );
-	QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow() );
-	for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
-	    if ( (*it).language != pro->language() )
-		continue;
-	    QString fu( (*it).function );
-	    QString comments = MetaDataBase::functionComments( formWindow(), fu );
-	    if ( !comments.isEmpty() )
-		txt += comments + "\n";
-	    txt += iface->createFunctionStart( formWindow()->name(), make_func_pretty( fu ),
-					       ( (*it).returnType.isEmpty() ?
-						 QString( "void" ) :
-						 (*it).returnType ),
-					       (*it).access );
-	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeFunction( (*it).function ) );
-	    if ( bit != bodies.end() )
-		txt += "\n" + *bit + "\n\n";
-	    else
-		txt += "\n" + iface->createEmptyFunction() + "\n\n";
-	}
-    }
-    return txt;
+    return cod;
 }
 
 bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage )
@@ -242,7 +184,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
     }
 
     cm = FALSE;
-    if ( isModified( WFormCode ) && seperateSource ) {
+    if ( isModified( WFormCode ) ) {
 	if ( QFile::exists( pro->makeAbsolute( codeFile() ) ) ) {
 	    QString fn( pro->makeAbsolute( codeFile() ) );
 #if defined(Q_OS_WIN32)
@@ -266,7 +208,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
 
     Resource resource( MainWindow::self );
     resource.setWidget( formWindow() );
-    bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow ) && seperateSource;
+    bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow );
     if ( !resource.save( pro->makeAbsolute( filename ), formCodeOnly ) ) {
 	MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( filename ), 5000 );
 	return saveAs();
@@ -481,17 +423,15 @@ static const char * const comment =
 "** ui.h extension file, included from the uic-generated form implementation.\n"
 "**\n"
 "** If you wish to add, delete or rename functions respectively slots use\n"
-"** Qt Designer which will update this file, preserving your code. Create an\n" 
-"** init() function in place of a constructor, and a destroy() function in\n" 
+"** Qt Designer which will update this file, preserving your code. Create an\n"
+"** init() function in place of a constructor, and a destroy() function in\n"
 "** place of a destructor.\n"
 "*****************************************************************************/\n";
 
 
 bool FormFile::hasFormCode() const
 {
-    if ( seperateSource )
-	return !cod.isEmpty() && cod != QString( comment );
-    return TRUE;
+    return !cod.isEmpty() && cod != QString( comment );
 }
 
 void FormFile::createFormCode()
@@ -501,16 +441,15 @@ void FormFile::createFormCode()
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( !iface )
 	return;
-    if ( seperateSource )
+    if ( pro->isCpp() )
 	cod = comment;
-    else
-	cod = "";
     QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow() );
     for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
-	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), make_func_pretty((*it).function),
-						    (*it).returnType.isEmpty() ?
-						    QString( "void" ) :
-						    (*it).returnType, (*it).access ) +
+	cod += (!cod.isEmpty() ? "\n\n" : "") +
+	       iface->createFunctionStart( formWindow()->name(), make_func_pretty((*it).function),
+					   (*it).returnType.isEmpty() ?
+					   QString( "void" ) :
+					   (*it).returnType, (*it).access ) +
 	       "\n" + iface->createEmptyFunction();
     }
     parseCode( cod, FALSE );
@@ -571,7 +510,7 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 		function.function = make_func_pretty( (*it).name );
 		function.specifier = (*fit).specifier;
 		function.type = (*fit).type;
-		if ( pro->language() != "C++" )
+		if ( !pro->isCpp() )
 		    function.access = (*it).access;
 		else
 		    function.access = (*fit).access;
@@ -598,14 +537,12 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 	    if ( allowModify )
 		setFormWindowModified( TRUE );
 	}
-	MetaDataBase::setFunctionComments( formWindow(), (*it).name, (*it).comments );
     }
 
     if ( allowModify && oldFunctions.count() > 0 )
 	setFormWindowModified( TRUE );
 	
     MetaDataBase::setFunctionList( formWindow(), newFunctions );
-    MetaDataBase::setFunctionBodies( formWindow(), funcs, pro->language(), QString::null );
 }
 
 void FormFile::syncCode()
@@ -613,14 +550,12 @@ void FormFile::syncCode()
     if ( !editor() )
 	return;
     parseCode( editor()->editorInterface()->text(), TRUE );
-    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
-    if ( iface && iface->supports( LanguageInterface::StoreFormCodeSeperate ) )
-	cod = editor()->editorInterface()->text();
+    cod = editor()->editorInterface()->text();
 }
 
 void FormFile::checkTimeStamp()
 {
-    if ( timeStamp.isUpToDate() || !seperateSource )
+    if ( timeStamp.isUpToDate() )
 	return;
     timeStamp.update();
     if ( codeEdited ) {
@@ -643,14 +578,24 @@ void FormFile::checkTimeStamp()
 
 void FormFile::addFunctionCode( MetaDataBase::Function function )
 {
-    if ( !hasFormCode() && !codeEdited )
+    if ( pro->isCpp() && !hasFormCode() && !codeEdited )
 	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( !iface )
 	return;
-    QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formWindow() );
-    QMap<QString, QString>::Iterator it = functionBodies.find( MetaDataBase::normalizeFunction( function.function ) );
-    if ( it == functionBodies.end() ) {
+
+    QValueList<LanguageInterface::Function> funcs;
+    iface->functions( cod, &funcs );
+    bool hasFunc = FALSE;
+    for ( QValueList<LanguageInterface::Function>::Iterator it = funcs.begin();
+	  it != funcs.end(); ++it ) {
+	if ( (*it).name == QString( function.function ) ) {
+	    hasFunc = TRUE;
+	    break;
+	}
+    }
+
+    if ( !hasFunc ) {
 	if ( !codeEdited && !timeStamp.isUpToDate() )
 	    loadCode();
 	MetaDataBase::MetaInfo mi = MetaDataBase::metaInfo( formWindow() );
@@ -664,8 +609,6 @@ void FormFile::addFunctionCode( MetaDataBase::Function function )
 							    function.returnType, function.access ) +
 		       "\n" + iface->createEmptyFunction();
 	cod += body;
-	MetaDataBase::addFunctionBody( formWindow(),
-				       MetaDataBase::normalizeFunction( function.function ), iface->createEmptyFunction() );
 	if ( codeEdited ) {
 	    setModified( TRUE );
 	    emit somethingChanged( this );
@@ -759,6 +702,25 @@ bool FormFile::checkFileName( bool allowBreak )
     return TRUE;
 }
 
+void FormFile::addConnection( const QString &sender, const QString &signal,
+			      const QString &receiver, const QString &slot )
+{
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    if ( iface )
+	iface->addConnection( sender, signal, receiver, slot, &cod );
+    if ( ed )
+	ed->editorInterface()->setText( cod );
+}
+
+void FormFile::removeConnection( const QString &sender, const QString &signal,
+				 const QString &receiver, const QString &slot )
+{
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    if ( iface )
+	iface->removeConnection( sender, signal, receiver, slot, &cod );
+    if ( ed )
+	ed->editorInterface()->setText( cod );
+}
 
 #if defined(PACKAGE_SUPPORT)
 bool FormFile::isPackage() const

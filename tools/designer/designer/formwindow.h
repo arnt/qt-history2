@@ -195,7 +195,7 @@ public:
     void setMarginFunction( const QString &func );
     bool hasLayoutFunctions() const;
     void hasLayoutFunctions( bool b );
-    
+
     void initSlots();
     FormFile *formFile() const;
     void setFormFile( FormFile *f );

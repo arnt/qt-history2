@@ -38,6 +38,7 @@
 #include <qvaluelist.h>
 #include <qstringlist.h>
 #include <qmap.h>
+#include <qstrlist.h>
 
 // {f208499a-6f69-4883-9219-6e936e55a330}
 #ifndef IID_Language
@@ -79,16 +80,14 @@ struct LanguageInterface : public QUnknownInterface
     {
 	ReturnType,
 	ConnectionsToCustomSlots,
-	AdditionalFiles,
-	StoreFormCodeSeperate,
 	CompressProject
     };
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;
-    virtual void initEventFunctions( QMap<QString, QString> &eventFuncs ) = 0;
+    virtual void connections( const QString &code, QValueList<Connection> *connections ) const = 0;
     virtual QString createFunctionStart( const QString &className, const QString &func,
 					 const QString &returnType, const QString &access ) = 0;
-    virtual QString createArguments( const QStringList &args ) = 0;
+    virtual QString createArguments( const QString &cpp_signature ) = 0;
     virtual QString createEmptyFunction() = 0;
     virtual QStringList definitions() const = 0;
     virtual QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const = 0;
@@ -100,18 +99,8 @@ struct LanguageInterface : public QUnknownInterface
     virtual QString projectKeyForExtension( const QString &extension ) const = 0;
     virtual void sourceProjectKeys( QStringList &keys ) const = 0;
     virtual QString cleanSignature( const QString &sig ) = 0;
-    virtual void saveFormCode( const QString &form, const QString &filename,
-			       const QValueList<Function> &functions,
-			       const QStringList &forwards,
-			       const QStringList &includesImpl,
-			       const QStringList &includesDecl,
-			       const QStringList &vars,
-			       const QValueList<Connection> &connections ) = 0;
     virtual void loadFormCode( const QString &form, const QString &filename,
 			       QValueList<Function> &functions,
-			       QStringList &forwards,
-			       QStringList &includesImpl,
-			       QStringList &includesDecl,
 			       QStringList &vars,
 			       QValueList<Connection> &connections ) = 0;
     virtual QString formCodeExtension() const = 0;
@@ -122,6 +111,14 @@ struct LanguageInterface : public QUnknownInterface
 				      bool withWarning ) = 0;
     virtual QString uncompressProject( const QString &projectFile, const QString &destDir ) = 0;
     virtual QString aboutText() const = 0;
+
+    virtual void addConnection( const QString &sender, const QString &signal,
+				const QString &receiver, const QString &slot,
+				QString *code ) = 0;
+    virtual void removeConnection( const QString &sender, const QString &signal,
+				   const QString &receiver, const QString &slot,
+				   QString *code ) = 0;
+    virtual QStrList signalNames( QObject *obj ) const = 0;
 
 };
 

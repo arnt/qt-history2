@@ -3399,52 +3399,56 @@ EventList::EventList( QWidget *parent, FormWindow *fw, PropertyEditor *e )
 	     this, SLOT( renamed( QListViewItem * ) ) );
 }
 
+QString clean_arguments( const QString &s )
+{
+    QString slot = s;
+    QString arg = slot.mid( slot.find( '(' ) + 1 );
+    arg = arg.left( arg.findRev( ')' ) );
+    QStringList args = QStringList::split( ',', arg );
+    slot = slot.left( slot.find( '(' ) + 1 );
+    int num = 0;
+    for ( QStringList::Iterator it = args.begin(); it != args.end(); ++it, ++num ) {
+	QString a = *it;
+	int i;
+	if ( ( i =a.find( ':' ) ) == -1 )
+	    slot += a.simplifyWhiteSpace();
+	else
+	    slot += a.mid( i + 1 ).simplifyWhiteSpace();
+	if ( num < (int)args.count() - 1 )
+	    slot += ",";
+    }
+
+    slot += ")";
+
+    return slot;
+}
+
+
 void EventList::setup()
 {
     clear();
 
-    if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
-	QValueList<MetaDataBase::EventDescription> events =
-	    MetaDataBase::events( editor->widget(), formWindow->project()->language() );
-	if ( events.isEmpty() )
-	    return;
-	for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
-	    HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this, (*it).name,
-							  QString::null, QString::null );
-	    eventItem->setOpen( TRUE );
-	    QStringList funcs = MetaDataBase::eventFunctions( editor->widget(),
-							      (*it).name,
-							      formWindow->project()->language() );
-	    for ( QStringList::Iterator fit = funcs.begin(); fit != funcs.end(); ++fit ) {
-		HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
-							 *fit, QString::null, QString::null );
-		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-	    }
-#if 0 // ### for conversation from old to new
-	    if ( !funcs.isEmpty() )
-		save( eventItem );
-#endif
+    LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
+    QStrList sigs;
+    if ( iface )
+	sigs = iface->signalNames( editor->widget() );
+    QStrListIterator it( sigs );
+    while ( it.current() ) {
+	HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this,
+						      it.current(), QString::null, QString::null );
+	eventItem->setOpen( TRUE );
+	QValueList<MetaDataBase::Connection> conns =
+	    MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
+	for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin(); cit != conns.end(); ++cit ) {
+	    QString s = it.current();
+	    if ( MetaDataBase::normalizeFunction( clean_arguments( QString( (*cit).signal ) ) ) !=
+		 MetaDataBase::normalizeFunction( clean_arguments( s ) ) )
+		continue;
+	    HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
+						     (*cit).slot, QString::null, QString::null );
+	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	}
-    } else {
-	QStrList sigs = editor->widget()->metaObject()->signalNames( TRUE );
-	sigs.remove( "destroyed()" );
-	QStrListIterator it( sigs );
-	while ( it.current() ) {
-	    HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this,
-							  it.current(), QString::null, QString::null );
-	    eventItem->setOpen( TRUE );
-	    QValueList<MetaDataBase::Connection> conns =
-		MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
-	    for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin(); cit != conns.end(); ++cit ) {
-		if ( MetaDataBase::normalizeFunction( QString( (*cit).signal ) ) !=
-		     MetaDataBase::normalizeFunction( QString( it.current() ) ) )
-		    continue;
-		HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
-							 (*cit).slot, QString::null, QString::null );
-		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-	    }
-	    ++it;
-	}
+	++it;
     }
 }
 
@@ -3456,7 +3460,7 @@ void EventList::contentsMouseDoubleClickEvent( QMouseEvent *e )
     if ( !i || i->parent() )
 	return;
     QString s;
-    if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+    if ( !formWindow->project()->isCpp() ) {
 	QString s1 = i->text( 0 );
 	int pt = s1.find( "(" );
 	if ( pt != -1 )
@@ -3492,7 +3496,7 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
 	QString s;
-	if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+	if ( !formWindow->project()->isCpp() ) {
 	    QString s1 = ( i->parent() ? i->parent() : i )->text( 0 );
 	    int pt = s1.find( "(" );
 	    if ( pt != -1 )
@@ -3503,24 +3507,18 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	}
 	insertEntry( i->parent() ? i->parent() : i, PixmapChooser::loadPixmap( "editslots.xpm" ), s );
     } else if ( res == DEL_ITEM && i->parent() ) {
-	if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
-	    QListViewItem *p = i->parent();
-	    delete i;
-	    save( p );
-	} else {
-	    MetaDataBase::Connection conn;
-	    conn.sender = editor->widget();
-	    conn.receiver = formWindow->mainContainer();
-	    conn.signal = i->parent()->text( 0 );
-	    conn.slot = i->text( 0 );
-	    delete i;
-	    RemoveConnectionCommand *cmd = new RemoveConnectionCommand( tr( "Remove connection" ),
-									formWindow,
-									conn );
-	    formWindow->commandHistory()->addCommand( cmd );
-	    cmd->execute();
-	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	}
+	MetaDataBase::Connection conn;
+	conn.sender = editor->widget();
+	conn.receiver = formWindow->mainContainer();
+	conn.signal = i->parent()->text( 0 );
+	conn.slot = i->text( 0 );
+	delete i;
+	RemoveConnectionCommand *cmd = new RemoveConnectionCommand( tr( "Remove connection" ),
+								    formWindow,
+								    conn );
+	formWindow->commandHistory()->addCommand( cmd );
+	cmd->execute();
+	editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
     }
 }
 
@@ -3543,31 +3541,35 @@ void EventList::renamed( QListViewItem *i )
     if ( del ) {
 	delete i;
     } else {
-	if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
-	    save( i->parent() );
-	    editor->formWindow()->mainWindow()->
-		editFunction( i->text( 0 ), editor->formWindow()->project()->language(), TRUE );
-	} else {
-	    MetaDataBase::Connection conn;
-	    conn.sender = editor->widget();
-	    conn.receiver = formWindow->mainContainer();
-	    conn.signal = i->parent()->text( 0 );
-	    conn.slot = i->text( 0 );
-	    AddConnectionCommand *cmd = new AddConnectionCommand( tr( "Add connection" ),
-								  formWindow,
-								  conn );
-	    formWindow->commandHistory()->addCommand( cmd );
-	    // #### we should look if the specified slot already
-	    // exists and if we can connect to this one
-	    MetaDataBase::addFunction( formWindow, i->text( 0 ).latin1(), "virtual", "public",
-				       "slot", formWindow->project()->language(), "void" );
-	    editor->formWindow()->mainWindow()->
-		editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
-			      editor->formWindow()->project()->language(), TRUE );
-	    cmd->execute();
-	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    editor->formWindow()->formFile()->setModified( TRUE );
+	MetaDataBase::Connection conn;
+	conn.sender = editor->widget();
+	conn.receiver = formWindow->mainContainer();
+	conn.signal = i->parent()->text( 0 );
+	conn.slot = i->text( 0 );
+	AddConnectionCommand *cmd = new AddConnectionCommand( tr( "Add connection" ),
+							      formWindow,
+							      conn );
+	formWindow->commandHistory()->addCommand( cmd );
+	// #### we should look if the specified slot already
+	// exists and if we can connect to this one
+	QString funcname = i->text( 0 ).latin1();
+	if ( funcname.find( '(' ) == -1 ) { // try to create a signature
+	    QString sig = i->parent()->text( 0 );
+	    sig = sig.mid( sig.find( '(' ) + 1 );
+	    sig.remove( (int)sig.length() - 1, 1 );
+	    LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
+	    if ( iface )
+		sig = iface->createArguments( sig.simplifyWhiteSpace() );
+	    funcname += "(" + sig + ")";
 	}
+	MetaDataBase::addFunction( formWindow, funcname.latin1(), "virtual", "public",
+				   "slot", formWindow->project()->language(), "void" );
+	editor->formWindow()->mainWindow()->
+	    editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
+			  editor->formWindow()->project()->language(), TRUE );
+	cmd->execute();
+	editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+	editor->formWindow()->formFile()->setModified( TRUE );
     }
 }
 
@@ -3578,13 +3580,6 @@ void EventList::save( QListViewItem *p )
     while ( i ) {
 	lst << i->text( 0 );
 	i = i->nextSibling();
-    }
-
-    if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
-	if ( MetaDataBase::setEventFunctions( editor->widget(), formWindow,
-					      formWindow->project()->language(), p->text( 0 ), lst ) )
-	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    editor->formWindow()->formFile()->setModified( TRUE );
     }
 }
 

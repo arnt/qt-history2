@@ -202,6 +202,8 @@ public:
     bool hasParentObject( QObject *o );
     QString qualifiedName( QObject *o );
 
+    bool isCpp() const { return is_cpp; }
+
 signals:
     void projectModified();
     void sourceFileAdded( SourceFile* );
@@ -244,6 +246,7 @@ private:
     QObjectList objs;
     QPtrDict<FormWindow> fakeForms;
     QString singleProFileName;
+    bool is_cpp;
 
 };
 

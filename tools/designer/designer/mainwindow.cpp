@@ -633,15 +633,12 @@ QObjectList *MainWindow::runProject( bool execMain )
 	    iiface->onFinish( this, SLOT( finishedRun() ) );
 	}
 
-	LanguageInterface *liface = MetaDataBase::languageInterface( lang );
 	if ( iiface )
 	    iiface->init();
-	if ( liface && liface->supports( LanguageInterface::AdditionalFiles ) ) {
-	    for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
-		  sources.current(); ++sources ) {
-		SourceFile* f = sources.current();
-		iiface->exec( f, f->text() );
-	    }
+	for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
+	      sources.current(); ++sources ) {
+	    SourceFile* f = sources.current();
+	    iiface->exec( f, f->text() );
 	}
     }
 
@@ -2556,44 +2553,55 @@ ActionEditor *MainWindow::actioneditor() const
 
 bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 {
-    if ( f && f->project()->language() != "C++" && !WidgetFactory::isPassiveInteractor( w ) ) {
+    if ( f && !f->project()->isCpp() && !WidgetFactory::isPassiveInteractor( w ) ) {
 	QString defSignal = WidgetFactory::defaultSignal( w );
 	if ( defSignal.isEmpty() ) {
 	    editSource();
 	} else {
 	    QString s = QString( w->name() ) + "_" + defSignal;
-	    QStringList funcs = MetaDataBase::eventFunctions( w, defSignal, f->project()->language() );
-	    if ( funcs.find( s ) == funcs.end() )
-		funcs << s;
-	    QValueList<MetaDataBase::EventDescription> l =
-		MetaDataBase::events( w, f->project()->language() );
-	    QString ev;
-	    for ( QValueList<MetaDataBase::EventDescription>::Iterator it = l.begin(); it != l.end(); ++it ) {
-		if ( (*it).name.left( (*it).name.find( '(' ) ) == defSignal ) {
-		    ev = (*it).name;
-		    break;
+	    LanguageInterface *iface = MetaDataBase::languageInterface( f->project()->language() );
+	    if ( iface ) {
+		QStrList sigs = iface->signalNames( w );
+		QString fullSignal;
+		for ( int i = 0; i < (int)sigs.count(); ++i ) {
+		    QString sig = sigs.at( i );
+		    if ( sig.left( sig.find( '(' ) ) == defSignal ) {
+			fullSignal = sig;
+			break;
+		    }
+		}
+		if ( !fullSignal.isEmpty() ) {
+		    fullSignal = fullSignal.mid( fullSignal.find( '(' ) + 1 );
+		    fullSignal.remove( (int)fullSignal.length() - 1, 1 );
+		    fullSignal = iface->createArguments( fullSignal.simplifyWhiteSpace() );
+		    s += "(" + fullSignal + ")";
+		    if ( !MetaDataBase::hasFunction( f, s.latin1() ) )
+			MetaDataBase::addFunction( f, s.latin1(), "", "public", "function",
+						   f->project()->language(), "void" );
+		    s = s.left( s.find( '(' ) ).latin1();
+		    if ( !MetaDataBase::hasConnection( f, w, defSignal.latin1(), f->mainContainer(), s.latin1() ) ) {
+			MetaDataBase::Connection conn;
+			conn.sender = w;
+			conn.receiver = f->mainContainer();
+			conn.signal = defSignal;
+			conn.slot = s;
+			AddConnectionCommand *cmd =
+			    new AddConnectionCommand( tr( "Add connection" ), f, conn );
+			f->commandHistory()->addCommand( cmd );
+			cmd->execute();
+			f->formFile()->setModified( TRUE );
+		    }
 		}
 	    }
-
-	    if ( ev.isEmpty() ) {
-		editSource();
-	    } else {
-		if ( MetaDataBase::setEventFunctions( w, f, f->project()->language(), ev, funcs ) ) {
-		    objectHierarchy()->updateFormDefinitionView();
-		    propertyEditor->eventList()->setup();
-		    editFunction( s, f->project()->language(), TRUE );
-		    f->formFile()->setModified( TRUE );
-		} else {
-		    editFunction( s, f->project()->language(), TRUE );
-		}
-	    }
+	    editFunction( s, f->project()->language(), TRUE );
 	}
 	return TRUE;
     }
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::
 					  idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
 	statusBar()->message( tr( "Edit %1..." ).arg( w->className() ) );
-	WidgetFactory::editWidget( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ), this, w, formWindow() );
+	WidgetFactory::editWidget( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ),
+				   this, w, formWindow() );
 	statusBar()->clear();
 	return TRUE;
     }
@@ -3202,8 +3210,18 @@ void MainWindow::updateFunctionList()
 {
     if ( !qWorkspace()->activeWindow() || !qWorkspace()->activeWindow()->inherits( "SourceEditor" ) )
 	return;
-    ( (SourceEditor*)qWorkspace()->activeWindow() )->save();
+    SourceEditor *se = (SourceEditor*)qWorkspace()->activeWindow();
+    se->save();
     hierarchyView->formDefinitionView()->refresh();
+    if ( !currentProject->isCpp() && se->formWindow() ) {
+	LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
+	if ( !iface )
+	    return;
+	QValueList<LanguageInterface::Connection> conns;
+	iface->connections( se->text(), &conns );
+	MetaDataBase::setupConnections( se->formWindow(), conns );
+	propertyEditor->eventList()->setup();
+    }
 }
 
 void MainWindow::updateWorkspace()

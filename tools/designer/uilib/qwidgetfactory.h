@@ -112,7 +112,7 @@ private:
     void inputMenuItem( QObject **objects, const UibStrTable& strings,
 			QDataStream& in, QMenuBar *menuBar );
     QObject *inputObject( QObject **objects, int& numObjects,
-			  const UibStrTable& strings, QDataStream& in, 
+			  const UibStrTable& strings, QDataStream& in,
 			  QWidget *ancestorWidget, QObject *parent,
 			  QCString className = "" );
     QWidget *createFromUiFile( QDomDocument doc, QObject *connector,
@@ -142,15 +142,6 @@ private:
 #endif
     };
 
-    struct EventFunction
-    {
-	EventFunction() {}
-	EventFunction( const QString &e, const QStringList &f )
-	    : events( e ) { functions.append( f ); }
-	QStringList events;
-	QValueList<QStringList> functions;
-    };
-
     struct SqlWidgetConnection
     {
 	SqlWidgetConnection() {}
@@ -159,11 +150,6 @@ private:
 	QString conn;
 	QString table;
 	QMap<QString, QString> *dbControls;
-    };
-
-    struct Functions
-    {
-	QString functions;
     };
 
     QValueList<Image> images;
@@ -175,14 +161,13 @@ private:
     QMap<QString, QString> buddies;
     QMap<QTable*, QValueList<Field> > fieldMaps;
     QPtrList<QAction> actionList;
-    QMap<QObject *, EventFunction> eventMap;
     QMap<QString, QString> languageSlots;
-    QMap<QString, Functions*> languageFunctions;
-    QStringList vars;
     QStringList noDatabaseWidgets;
     bool usePixmapCollection;
     int defMargin;
     int defSpacing;
+    QString code;
+
 };
 
 #endif

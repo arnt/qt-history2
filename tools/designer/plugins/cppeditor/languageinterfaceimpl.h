@@ -35,13 +35,13 @@ public:
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
 
     void functions( const QString &code, QValueList<Function> *funcs ) const;
-    void initEventFunctions( QMap<QString, QString> & ) {}
+    void connections( const QString &, QValueList<Connection> * ) const {};
     QString createFunctionStart( const QString &className, const QString &func,
 				 const QString &returnType, const QString &access );
     QStringList definitions() const;
     QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const;
     void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface );
-    QString createArguments( const QStringList &args );
+    QString createArguments( const QString & ) { return QString::null; }
     QString createEmptyFunction();
     bool supports( Support s ) const;
     QStringList fileFilterList() const;
@@ -50,18 +50,8 @@ public:
     void sourceProjectKeys( QStringList &keys ) const;
     QString projectKeyForExtension( const QString &extension ) const;
     QString cleanSignature( const QString &sig ) { return sig; } // #### implement me
-    void saveFormCode( const QString &, const QString &,
-		       const QValueList<Function> &,
-		       const QStringList &,
-		       const QStringList &,
-		       const QStringList &,
-		       const QStringList &,
-		       const QValueList<Connection> & );
     void loadFormCode( const QString &, const QString &,
 		       QValueList<Function> &,
-		       QStringList &,
-		       QStringList &,
-		       QStringList &,
 		       QStringList &,
 		       QValueList<Connection> & );
     QString formCodeExtension() const { return ".h"; }
@@ -69,6 +59,14 @@ public:
     void compressProject( const QString &, const QString &, bool ) {}
     QString uncompressProject( const QString &, const QString & ) { return QString::null; }
     QString aboutText() const { return ""; }
+
+    void addConnection( const QString &, const QString &,
+			const QString &, const QString &,
+			QString * ) {}
+    void removeConnection( const QString &, const QString &,
+			   const QString &, const QString &,
+			   QString * ) {}
+    QStrList signalNames( QObject *obj ) const;
 
 private:
     QUnknownInterface *parent;

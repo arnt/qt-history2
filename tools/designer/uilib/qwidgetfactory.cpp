@@ -20,7 +20,6 @@
 
 #include "qwidgetfactory.h"
 
-#include "../interfaces/eventinterface.h"
 #include "../interfaces/interpreterinterface.h"
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/widgetinterface.h"
@@ -103,7 +102,6 @@ struct QWidgetFactoryPrivate
 };
 
 static QPtrList<QWidgetFactory> widgetFactories;
-static QPluginManager<EventInterface> *eventInterfaceManager = 0;
 static QPluginManager<InterpreterInterface> *interpreterInterfaceManager = 0;
 static QPluginManager<LanguageInterface> *languageInterfaceManager = 0;
 static QPluginManager<WidgetInterface> *widgetInterfaceManager = 0;
@@ -242,8 +240,6 @@ QWidgetFactory::~QWidgetFactory()
     languageInterfaceManager = 0;
     delete interpreterInterfaceManager;
     interpreterInterfaceManager = 0;
-    delete eventInterfaceManager;
-    eventInterfaceManager = 0;
 #endif
 }
 
@@ -318,7 +314,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     }
 
     if ( !languageInterfaceManager )
-	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
+	languageInterfaceManager =
+	    new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
     if ( !interpreterInterfaceManager )
 	interpreterInterfaceManager =
 	    new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), "/designer" );
@@ -329,19 +326,24 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 #ifndef QT_NO_SQL
 	QMap<QWidget*, SqlWidgetConnection>::Iterator cit = widgetFactory->sqlWidgetConnections.begin();
 	for( ; cit != widgetFactory->sqlWidgetConnections.end(); ++cit ) {
-	    if ( widgetFactory->noDatabaseWidgets.find( cit.key()->name() ) != widgetFactory->noDatabaseWidgets.end() )
+	    if ( widgetFactory->noDatabaseWidgets.find( cit.key()->name() ) !=
+		 widgetFactory->noDatabaseWidgets.end() )
 		continue;
 	    if ( cit.key()->inherits( "QDesignerDataBrowser2" ) )
-		( (QDesignerDataBrowser2*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+		( (QDesignerDataBrowser2*)cit.key() )->initPreview( (*cit).conn, (*cit).table,
+								    cit.key(), *(*cit).dbControls );
 	    else if ( cit.key()->inherits( "QDesignerDataView2" ) )
-		( (QDesignerDataView2*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+		( (QDesignerDataView2*)cit.key() )->initPreview( (*cit).conn, (*cit).table,
+								 cit.key(), *(*cit).dbControls );
 	}
 
-	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
+	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin();
+	      it != widgetFactory->dbTables.end(); ++it ) {
 	    QDataTable *table = (QDataTable*)widgetFactory->toplevel->child( it.key(), "QDataTable" );
 	    if ( !table )
 		continue;
-	    if ( widgetFactory->noDatabaseWidgets.find( table->name() ) != widgetFactory->noDatabaseWidgets.end() )
+	    if ( widgetFactory->noDatabaseWidgets.find( table->name() ) !=
+		 widgetFactory->noDatabaseWidgets.end() )
 		continue;
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
 	    QString conn = (*it)[ 0 ];
@@ -361,66 +363,20 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	}
 #endif
 
-	if ( !eventInterfaceManager )
-	    eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event, QApplication::libraryPaths(), "/designer" );
-
-	if ( eventInterfaceManager && interpreterInterfaceManager && languageInterfaceManager ) {
-	    QStringList langs = languageInterfaceManager->featureList();
-	    for ( QStringList::Iterator lit = langs.begin(); lit != langs.end(); ++lit ) {
-		EventInterface *eventInterface = 0;
-		eventInterfaceManager->queryInterface( *lit, &eventInterface );
-		InterpreterInterface *interpreterInterface = 0;
-		interpreterInterfaceManager->queryInterface( *lit, &interpreterInterface );
-		if ( eventInterface && interpreterInterface ) {
-		    interpreterInterface->init();		    
-		    QMap<QString, Functions*>::Iterator fit = widgetFactory->languageFunctions.find( *lit );
-		    if ( fit != widgetFactory->languageFunctions.end() ) {
-			QString funcs = (*fit)->functions;
-			funcs += "\n";
-			for ( QStringList::Iterator vit = widgetFactory->vars.begin();
-			      vit != widgetFactory->vars.end(); ++vit )
-			    funcs += interpreterInterface->createVariableDeclaration( *vit ) + "\n";
-			if ( qwf_execute_code ) {
-			    if ( qwf_form_object )
-				interpreterInterface->exec( qwf_form_object, funcs );
-			    else
-				interpreterInterface->exec( widgetFactory->toplevel, funcs );
-			}
-		    }
-		    
-		    if ( widgetFactory->languageFunctions.isEmpty() && qwf_execute_code )
-			interpreterInterface->exec( widgetFactory->toplevel, "dummy=0;" );		    
-		    
-		    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
-			  it != widgetFactory->eventMap.end(); ++it ) {
-			QStringList::Iterator eit;
-			QValueList<QStringList>::Iterator fit;
-			for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
-			    QStringList funcs = *fit;
-			    for ( QStringList::Iterator fit2 = funcs.begin(); fit2 != funcs.end(); ++fit2 ) {
-				if ( widgetFactory->languageSlots.find( *fit2 ) !=
-				     widgetFactory->languageSlots.end() && qwf_execute_code ) {
-				    if ( qwf_form_object )
-					eventInterface->addEventHandler( it.key(),
-									 qwf_form_object
-									 , *eit, *fit2 );
-				    else
-					eventInterface->addEventHandler( it.key(),
-									 widgetFactory->toplevel,
-									 *eit, *fit2 );
-				}
-			    }
-			}
-		    }
-		    eventInterface->release();
-		    interpreterInterface->release();
-		}
+	if ( qwf_language && interpreterInterfaceManager && qwf_execute_code ) {
+	    InterpreterInterface *interpreterInterface = 0;
+	    interpreterInterfaceManager->queryInterface( *qwf_language, &interpreterInterface );
+	    if ( interpreterInterface ) {
+		interpreterInterface->init();		
+		interpreterInterface->exec( qwf_form_object ? qwf_form_object : widgetFactory->toplevel,
+					    widgetFactory->code );
 	    }
 	}
 
     }
 
-    for ( QMap<QString, QString>::Iterator it = widgetFactory->buddies.begin(); it != widgetFactory->buddies.end(); ++it ) {
+    for ( QMap<QString, QString>::Iterator it = widgetFactory->buddies.begin();
+	  it != widgetFactory->buddies.end(); ++it ) {
 	QLabel *label = (QLabel*)widgetFactory->toplevel->child( it.key(), "QLabel" );
 	QWidget *buddy = (QWidget*)widgetFactory->toplevel->child( *it, "QWidget" );
 	if ( label && buddy )
@@ -483,8 +439,6 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
 	    d->translationContext = e.firstChild().toText().data();
 	} else if ( e.tagName() == "widget" ) {
 	    widget = e;
-	} else if ( e.tagName() == "variable" ) { // compatibility with old betas
-	    vars << e.firstChild().toText().data();
 	} else if ( e.tagName() == "pixmapinproject" ) {
 	    usePixmapCollection = TRUE;
 	} else if ( e.tagName() == "layoutdefaults" ) {
@@ -502,29 +456,6 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
     if ( !w )
 	return 0;
 
-    if ( !variables.isNull() ) {
-	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
-	    if ( n.tagName() == "variable" )
-		vars << n.firstChild().toText().data();
-    }
-    if ( !slots.isNull() ) {   // for compatibility
-	for ( QDomElement n = slots.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
-	    if ( n.tagName() == "slot" ) {
-		QString s = n.firstChild().toText().data();
-		languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language", "C++" ) );
-	    }
-    }
-
-    if ( !functions.isNull() ) {
-	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
-	    if ( n.tagName() == "function" ) {
-		QString type = n.attribute( "type", "function" );				
-		QString s = n.firstChild().toText().data();
-		if ( type == "slot" )  // just neccessary for slots
-		    languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language", "C++" ) );
-	    }
-    }
-
     if ( !actions.isNull() )
 	loadActions( actions );
     if ( !toolbars.isNull() )
@@ -541,7 +472,7 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
 	loadTabOrder( tabOrder );
 
 #if 0
-    if ( !functions.isNull() ) // compatibiliy with early 3.0 betas 
+    if ( !functions.isNull() ) // compatibiliy with early 3.0 betas
 	loadFunctions( functions );
 #endif
 
@@ -738,7 +669,7 @@ void QWidgetFactory::inputSpacer( const UibStrTable& strings, QDataStream& in,
 		vertical = ( value == "Vertical" );
 	    } else if ( name == "sizeHint" ) {
 		w = value.toSize().width();
-		h = value.toSize().height();	    
+		h = value.toSize().height();	
 	    } else if ( name == "sizeType" ) {
 		sizeType = stringToSizeType( value.toString() );
 	    }
@@ -1684,7 +1615,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    QLayout *parentLayout = layout;
 	    if ( layout && layout->inherits( "QGridLayout" ) )
 		layout = createLayout( 0, 0, QWidgetFactory::Grid );
-	    else 
+	    else
 		layout = createLayout( w, layout, QWidgetFactory::Grid, TRUE );
 	    obj = layout;
 	    n = n.firstChild().toElement();
@@ -2163,37 +2094,27 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		delete l;
 	    }
 
-	    if ( lang == "C++" ) {
-		QString s = "2""%1";
-		s = s.arg( conn.signal );
-		QString s2 = "1""%1";
-		s2 = s2.arg( conn.slot );
+	    QString s = "2""%1";
+	    s = s.arg( conn.signal );
+	    QString s2 = "1""%1";
+	    s2 = s2.arg( conn.slot );
+	
+	    QStrList signalList = sender->metaObject()->signalNames( TRUE );
+	    QStrList slotList = receiver->metaObject()->slotNames( TRUE );
 
-		QStrList signalList = sender->metaObject()->signalNames( TRUE );
-		QStrList slotList = receiver->metaObject()->slotNames( TRUE );
-
-		// if this is a connection to a custom slot and we have a connector, try this as receiver
-		if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector ) {
-		    slotList = connector->metaObject()->slotNames( TRUE );
-		    receiver = connector;
-		}
-
-		// avoid warnings
-		if ( signalList.find( conn.signal ) == -1 ||
-		     slotList.find( conn.slot ) == -1 ) {
-		    n = n.nextSibling().toElement();
-		    continue;
-		}
-		QObject::connect( sender, s, receiver, s2 );
-	    } else {
-		EventFunction ef = eventMap[ conn.sender ];
-		ef.events.append( conn.signal );
-		ef.functions.append( QStringList::split( ',', conn.slot ) );
-		eventMap.replace( conn.sender, ef );
+	    // if this is a connection to a custom slot and we have a connector, try this as receiver
+	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector ) {
+		slotList = connector->metaObject()->slotNames( TRUE );
+		receiver = connector;
 	    }
-	} else if ( n.tagName() == "slot" ) {
-	    QString s = n.firstChild().toText().data();
-	    languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language" ) );
+
+	    // avoid warnings
+	    if ( signalList.find( conn.signal ) == -1 ||
+		 slotList.find( conn.slot ) == -1 ) {
+		n = n.nextSibling().toElement();
+		continue;
+	    }
+	    QObject::connect( sender, s, receiver, s2 );
 	}
 	n = n.nextSibling().toElement();
     }
@@ -2437,16 +2358,12 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 {
     QDomElement n = e;
     QAction *a = 0;
-    EventFunction ef;
     if ( n.tagName() == "action" ) {
 	a = new QAction( parent );
 	QDomElement n2 = n.firstChild().toElement();
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
 		setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
-	    } else if ( n2.tagName() == "event" ) {
-		ef.events.append( n2.attribute( "name" ) );
-		ef.functions.append( QStringList::split( ',', n2.attribute( "functions" ) ) );
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
@@ -2461,17 +2378,13 @@ void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
 	    } else if ( n2.tagName() == "action" ||
 			n2.tagName() == "actiongroup" ) {
 		loadChildAction( a, n2 );
-	    } else if ( n2.tagName() == "event" ) {
-		ef.events.append( n2.attribute( "name" ) );
-		ef.functions.append( QStringList::split( ',', n2.attribute( "functions" ) ) );
+
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
 	if ( !parent->inherits( "QAction" ) )
 	    actionList.append( a );
     }
-    if ( a )
-	eventMap.insert( a, ef );
 }
 
 void QWidgetFactory::loadActions( const QDomElement &e )
@@ -2593,78 +2506,11 @@ void QWidgetFactory::loadExtraSource()
     languageInterfaceManager->queryInterface( lang, &iface );
     if ( !iface )
 	return;
-
-    QValueList<LanguageInterface::Function> functions;
-    QStringList forwards;
-    QStringList includesImpl;
-    QStringList includesDecl;
-    QStringList extraVars;
-    QValueList<LanguageInterface::Connection> connections;
-
-    iface->loadFormCode( toplevel->name(), qwf_currFileName + iface->formCodeExtension(),
-			 functions, forwards, includesImpl, includesDecl, extraVars, connections );
-
-    for ( QValueList<LanguageInterface::Connection>::Iterator cit = connections.begin();
-	  cit != connections.end(); ++cit ) {
-	QObject *sender  = 0;
-	QString name = (*cit).sender;
-	if ( !qwf_form_object ) {
-	    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
-		sender = toplevel;
-	    } else {
-		if ( name == "this" )
-		    name = toplevel->name();
-		QObjectList *l = toplevel->queryList( 0, name, FALSE );
-		if ( l ) {
-		    if ( l->first() )
-			sender = l->first();
-		    delete l;
-		}
-	    }
-	    if ( !sender )
-		sender = findAction( name );
-	} else {
-	    sender = qwf_form_object;
-	}
-
-	EventFunction ef = eventMap[ sender ];
-	ef.events.append( (*cit).signal );
-	ef.functions.append( QStringList::split( ',', (*cit).slot ) );
-	eventMap.replace( sender, ef );
+    QFile f( qwf_currFileName + iface->formCodeExtension() );
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream ts( &f );
+	code = ts.read();
     }
-
-    if ( interpreterInterfaceManager ) {
-	InterpreterInterface *interpreterInterface = 0;
-	interpreterInterfaceManager->queryInterface( lang, &interpreterInterface );
-	if ( interpreterInterface ) {
-	    Functions *funcs = 0;
-	    QMap<QString, Functions*>::Iterator fit = languageFunctions.find( lang );
-	    if ( fit == languageFunctions.end() ) {
-		funcs = new Functions;
-		languageFunctions.insert( lang, funcs );
-	    } else {
-		funcs = *fit;
-	    }
-	    for ( QValueList<LanguageInterface::Function>::Iterator fit2 = functions.begin();
-		  fit2 != functions.end(); ++fit2 ) {
-		// should this be really interpreted as slot?
-		languageSlots.insert( (*fit2).name.left( (*fit2).name.find( '(' ) ), lang );
-		QString s;
-		QString comments = (*fit2).comments;
-		if ( !comments.isEmpty() )
-		    s += comments + "\n";
-		 s += interpreterInterface->createFunctionDeclaration( (*fit2).name, (*fit2).body );
-		funcs->functions += s;
-		if ( !qwf_functions )
-		    qwf_functions = new QMap<QWidget*, QString>;
-		if ( !qwf_forms )
-		    qwf_forms = new QMap<QWidget*, QString>;
-		(*(qwf_functions))[ toplevel ].append( s );
-	    }
-	    interpreterInterface->release();
-	}
-    }
-    vars += extraVars;
 }
 
 QString QWidgetFactory::translate( const char *sourceText, const char *comment )

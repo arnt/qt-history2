@@ -90,6 +90,11 @@ public:
 
     void parseCode( const QString &txt, bool allowModify );
 
+    void addConnection( const QString &sender, const QString &signal,
+			const QString &receiver, const QString &slot );
+    void removeConnection( const QString &sender, const QString &signal,
+			   const QString &receiver, const QString &slot );
+
 signals:
     void somethingChanged( FormFile* );
 
@@ -113,7 +118,6 @@ private:
     QString cod;
     TimeStamp timeStamp;
     bool codeEdited;
-    bool seperateSource;
     QString cachedFormName;
     bool fake;
     bool pkg;

@@ -24,6 +24,7 @@
 #include <designerinterface.h>
 #include <qfile.h>
 #include "yyreg.h"
+#include <qmetaobject.h>
 
 LanguageInterfaceImpl::LanguageInterfaceImpl( QUnknownInterface *outer )
     : parent( outer ), ref( 0 )
@@ -152,17 +153,6 @@ void LanguageInterfaceImpl::setDefinitionEntries( const QString &definition, con
     iface->release();
 }
 
-QString LanguageInterfaceImpl::createArguments( const QStringList &args )
-{
-    QString s;
-    for ( QStringList::ConstIterator it = args.begin(); it != args.end(); ++it ) {
-	if ( it != args.begin() )
-	    s += ",";
-	s += *it;
-    }
-    return s;
-}
-
 QString LanguageInterfaceImpl::createEmptyFunction()
 {
     return "{\n\n}";
@@ -173,10 +163,6 @@ bool LanguageInterfaceImpl::supports( Support s ) const
     if ( s == ReturnType )
 	return TRUE;
     if ( s == ConnectionsToCustomSlots )
-	return TRUE;
-    if ( s == AdditionalFiles )
-	return TRUE;
-    if ( s == StoreFormCodeSeperate )
 	return TRUE;
     return FALSE;
 }
@@ -221,38 +207,8 @@ bool LanguageInterfaceImpl::canConnect( const QString &signal, const QString &sl
     return o.checkConnectArgs( signal.latin1(), slot.latin1() );
 }
 
-void LanguageInterfaceImpl::saveFormCode( const QString &form, const QString &filename,
-					       const QValueList<Function> &functions,
-					       const QStringList &,
-					       const QStringList &,
-					       const QStringList &,
-					       const QStringList &,
-					       const QValueList<Connection> & )
-{
-    QFile f( filename );
-    if ( !f.open( IO_WriteOnly ) )
-	return;
-    QTextStream ts( &f );
-
-    if ( !functions.isEmpty() ) {
-	for ( QValueList<Function>::ConstIterator it = functions.begin();
-	      it != functions.end(); ++it ) {
-	    if ( (*it).returnType.isEmpty() )
-		ts << "void ";
-	    else
-		ts << (*it).returnType << " ";
-	    ts << form << "::" << (*it).name << endl;
-	    ts <<  (*it).body;
-	    ts << endl << endl;
-	}
-    }
-}
-
 void LanguageInterfaceImpl::loadFormCode( const QString &, const QString &filename,
 					       QValueList<Function> &functions,
-					       QStringList &,
-					       QStringList &,
-					       QStringList &,
 					       QStringList &,
 					       QValueList<Connection> & )
 {
@@ -268,4 +224,12 @@ void LanguageInterfaceImpl::preferedExtensions( QMap<QString, QString> &extensio
 {
     extensionMap.insert( "cpp", "C++ Source File" );
     extensionMap.insert( "h", "C++ Header File" );
+}
+
+QStrList LanguageInterfaceImpl::signalNames( QObject *obj ) const
+{
+    QStrList sigs;
+    sigs = obj->metaObject()->signalNames( TRUE );
+    sigs.remove( "destroyed()" );
+    return sigs;
 }
