@@ -1490,7 +1490,7 @@ struct Q_EXPORT Tag {
 #endif
 };
 
-#define NEWPAR       do{if ( !curpar || ( curtag.name != "table" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
+#define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
 		    hasNewPar = TRUE; \
 		    space = TRUE; \
 		    QPtrVector<QStyleSheetItem> vec( (uint)tags.count() + 1); \
@@ -1498,7 +1498,7 @@ struct Q_EXPORT Tag {
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec.insert( i++, (*it).style ); \
 		    vec.insert( i, curtag.style ); \
-		    curpar->setStyleSheetItems( vec ); }}while(FALSE)
+		    curpar->setStyleSheetItems( vec ); }while(FALSE)
 
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
@@ -6074,12 +6074,10 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
     QString tagname;
     (void) eatSpace(doc, pos);
     while ( pos < int(doc.length() )) {
-	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
 		tagname = parseCloseTag( doc, pos );
 		if ( tagname == "table" ) {
-		    pos = beforePos;
 #if defined(PARSER_DEBUG)
 		    debug_indent.remove( debug_indent.length() - 3, 2 );
 #endif
@@ -7191,7 +7189,7 @@ int QTextTableCell::heightForWidth( int w ) const
     return richtext->height() + 2 * parent->innerborder + 2* parent->cellpadding;
 }
 
-void QTextTableCell::setPainter( QPainter* p, bool adjust ) 
+void QTextTableCell::setPainter( QPainter* p, bool adjust )
 {
     richtext->formatCollection()->setPainter( p );
     QTextParag *parag = richtext->firstParag();
