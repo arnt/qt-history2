@@ -34,7 +34,7 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
   \ingroup model-view
 
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
@@ -188,7 +188,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 /*!
   \class QItemSelectionModel
 
-  \brief QItemSelectionModel keeps track of a views selected items and
+  \brief QItemSelectionModel keeps track of a view's selected items and
   it's current item.
 
   \ingroup model-view
@@ -213,11 +213,11 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   items. All functions operate on both layers, so for instance
   selectedItems() will return items from both layers.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+  \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 /*!
-  Constructs a selectionmodel that operates on the itemmodel \a model.
+  Constructs a selection model that operates on the item \a model.
 */
 QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *parent)
     : QObject(*new QItemSelectionModelPrivate, parent)
@@ -273,21 +273,19 @@ void QItemSelectionModel::select(const QModelIndex &item, int selectionCommand)
 /*!
   \enum QItemSelectionModel::SelectionCommand
 
-  This enum type is used to describe in what way the selectionmodel will be updated.
+  This enum describes the way the selection model will be updated.
 
-  The states are
-
-  \value NoUpdate No selection will happen
-  \value Clear The complete selection will be cleared
-  \value Select All specified indices will be selected
-  \value  Deselect All specified indices will be deselected
-  \value Toggle All specified indicies will be selected or deselected depending on their current state
-  \value Current The current selection will be updated
-  \value Rows All indices will be expanded to span rows
-  \value Columns All indices will be expanded to span columns
-  \value SelectCurrent Convenience combination of Select and Current
-  \value ToggleCurrent  Convenience combination of Toggle and Current
-  \value ClearAndSelect Convenience combination of Clear and Select
+  \value NoUpdate No selection will happen.
+  \value Clear The complete selection will be cleared.
+  \value Select All specified indices will be selected.
+  \value  Deselect All specified indices will be deselected.
+  \value Toggle All specified indicies will be selected or deselected depending on their current state.
+  \value Current The current selection will be updated.
+  \value Rows All indices will be expanded to span rows.
+  \value Columns All indices will be expanded to span columns.
+  \value SelectCurrent Convenience combination of Select and Current.
+  \value ToggleCurrent  Convenience combination of Toggle and Current.
+  \value ClearAndSelect Convenience combination of Clear and Select.
 */
 
 /*!
@@ -501,7 +499,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 }
 
 /*!
-  Returns the itemmodel the selectionmodel operates on.
+  Returns the item model operated on by the selection model.
 */
 QAbstractItemModel *QItemSelectionModel::model() const
 {
