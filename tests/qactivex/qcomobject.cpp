@@ -9,6 +9,7 @@
 #include <qvariant.h>
 #include <qdatetime.h>
 #include <private/qcom_p.h>
+#include <qsettings.h>
 
 #include <atlbase.h>
 CComModule _Module;
@@ -100,8 +101,8 @@ static inline QString vartypeToQt( VARTYPE vt )
     case VT_CARRAY:
 	// str = "[C array]";
 	break;
-    case VT_USERDEFINED: // most USERDEFINED types are actually long or int wrappers
-	str = "int";
+    case VT_USERDEFINED:
+	str = "USERDEFINED";
 	break;
     case VT_LPSTR:
 	str = "const char*";
@@ -179,6 +180,11 @@ static inline QString typedescToQString( TYPEDESC typedesc )
     }
     if ( ptype.isEmpty() )
 	ptype = "UNSUPPORTED";
+    else if ( ptype == "USERDEFINED" ) // most USERDEFINED types are long or ints, or interfaces
+	ptype = "int";
+    else if ( ptype == "USERDEFINED*" )
+	ptype = "IUnknown*";
+	
     return ptype;
 }
 
@@ -365,7 +371,7 @@ static inline DATE QDateTimeToDATE( const QDateTime &dt )
     return ole;
 }
 
-static inline QString BSTRToQString( BSTR bstr )
+QString BSTRToQString( BSTR bstr )
 {
     QString str;
     if ( !bstr )
@@ -729,12 +735,13 @@ public:
 
 	// emit the signal "as is"
 	int index = meta->findSignal( "signal(const QString&,int,void*)" );
-	Q_ASSERT( index != -1 );
-	QUObject o[4];
-	static_QUType_QString.set(o+1,signame);
-	static_QUType_int.set(o+2,pDispParams->cArgs);
-	static_QUType_ptr.set(o+3,pDispParams->rgvarg);
-	combase->qt_emit( index, o );
+	if ( index != -1 ) {
+	    QUObject o[4];
+	    static_QUType_QString.set(o+1,signame);
+	    static_QUType_int.set(o+2,pDispParams->cArgs);
+	    static_QUType_ptr.set(o+3,pDispParams->rgvarg);
+	    combase->qt_emit( index, o );
+	}
 
 	// get the signal information from the metaobject
 	index = meta->findSignal( signame );
@@ -818,8 +825,16 @@ public:
 	if ( !meta || signame.isEmpty() )
 	    return S_OK;
 
+	// emit the generic signal
+	int index = meta->findSignal( "propertyChanged(const QString&)" );
+	if ( index != -1 ) {
+	    QUObject o[2];
+	    static_QUType_QString.set(o+1,propname);
+	    combase->qt_emit( index, o );
+	}
+
 	// get the signal information from the metaobject
-	int index = meta->findSignal( signame );
+	index = meta->findSignal( signame );
 	const QMetaData *signal = meta->signal( index - meta->signalOffset() );
 	if ( !signal || signal->method->count != 1 )
 	    return S_OK;
@@ -1051,7 +1066,7 @@ QMetaObject *QComBase::metaObject() const
 	tempMetaObj = QMetaObject::new_metaobject(
 	    "QComBase", parentObject,
 	    0, 0,
-	    signal_tbl, 1,
+	    0, 0,
 #ifndef QT_NO_PROPERTIES
 	    props_tbl, 1,
 	    0, 0,
@@ -1063,6 +1078,8 @@ QMetaObject *QComBase::metaObject() const
 
     // the rest is generated from the IDispatch implementation
     QComBase* that = (QComBase*)this; // mutable
+    QSettings iidnames;
+    iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
 
     QDict<QUMethod> slotlist; // QUMethods deleted in ~QActiveX
     QDict<QUMethod< signallist; // QUMethods deleted in ~QActiveX
@@ -1101,7 +1118,9 @@ QMetaObject *QComBase::metaObject() const
 		    
 		    // UUID
 		    QUuid uuid( typeattr->guid );
-		    infolist.insert( QString("Interface %1").arg(infolist.count()+1), new QString( uuid.toString().upper() ) );
+		    QString uuidstr = uuid.toString().upper();
+		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+		    infolist.insert( QString("Interface %1").arg(infolist.count()+1), new QString( uuidstr ) );
 
 		    // get number of functions, variables, and implemented interfaces
 		    nFuncs = typeattr->cFuncs;
@@ -1177,13 +1196,35 @@ QMetaObject *QComBase::metaObject() const
 		    case INVOKE_PROPERTYGET: // property
 		    case INVOKE_PROPERTYPUT:
 			{
-			    if ( funcdesc->cParams > 1 )
-				qFatal( "%s: Too many parameters in property", function.latin1() );
+			    if ( funcdesc->cParams > 1 ) {
+				qWarning( "%s: Too many parameters in property", function.latin1() );
+				break;
+			    }
 			    QMetaProperty *prop = proplist[function];
 			    if ( !prop ) {
 				if ( bindable ) {
 				    if ( !eventSink )
 					that->eventSink = new QAxEventSink( that );
+				    // generate generic changed signal
+				    if ( !signallist.find( "propertyChanged(const QString&)" ) ) {
+					QString signalName = "propertyChanged";
+					QString signalParam = "const QString&";
+					QString signalProto = signalName + "(" + signalParam + ")";
+					QString paramName = "name";
+
+					QUMethod *signal = new QUMethod;
+					signal->name = new char[signalName.length()+1];
+					signal->name = qstrcpy( (char*)signal->name, signalName );
+					signal->count = 1;
+					QUParameter *param = new QUParameter;
+					param->name = new char[paramName.length()+1];
+					param->name = qstrcpy( (char*)param->name, paramName );
+					param->inOut = QUParameter::In;
+					QStringToQUType( signalParam, param );
+					signal->parameters = param;
+
+					signallist.insert( signalProto, signal );
+				    }
 				    // generate changed signal
 				    QString signalName = function + "Changed";
 				    QString signalParam = constRefify( paramTypes[0] );
@@ -1218,25 +1259,49 @@ QMetaObject *QComBase::metaObject() const
 				    prop->flags |= QMetaProperty::Scriptable;
 
 				QString ptype = paramTypes[0];
-				prop->t = new char[ptype.length()+1];
-				prop->t = qstrcpy( (char*)prop->t, ptype );
+				if ( ptype.isEmpty() )
+				    ptype = returnType;
+				if ( ptype != "void" ) {
+				    prop->t = new char[ptype.length()+1];
+				    prop->t = qstrcpy( (char*)prop->t, ptype );
+				} else {
+				    prop->t = 0;
+				}
 				prop->n = new char[function.length()+1];
 				prop->n = qstrcpy( (char*)prop->n, function );
+			    } else if ( !prop->t ) {
+				QString ptype = paramTypes[0];
+				if ( ptype.isEmpty() )
+				    ptype = returnType;
+				if ( paramTypes.isEmpty() )
+				    paramTypes.append( ptype );
+				else
+				    paramTypes[0] = ptype;
+				prop->t = new char[ptype.length()+1];
+				prop->t = qstrcpy( (char*)prop->t, ptype );
 			    }
 			    if ( funcdesc->invkind == INVOKE_PROPERTYGET ) {
 				prop->flags |= QMetaProperty::Readable;
-				break;
 			    } else {
 				prop->flags |= QMetaProperty::Writable;
-				// fall through to generate put function as slot
 			    }
+			    if ( !prop->t )
+				break;
+			    // fall through to generate put function as slot
 			}
 
 		    case INVOKE_FUNC: // method
 			{
-			    if ( funcdesc->invkind == INVOKE_PROPERTYPUT ) {
+			    if ( funcdesc->invkind != INVOKE_FUNC ) {
 				function = "set" + function;
-				prototype = "set" + prototype;
+				if ( prototype.right( 2 ) == "()" ) {
+				    QString ptype = paramTypes[0];
+				    if ( ptype.isEmpty() )
+					ptype = returnType;
+				    prototype = function + "(" + constRefify(ptype) + ")";
+				} else {
+				    prototype = "set" + prototype;
+				}
 				if ( slotlist.find( prototype ) )
 				    break;
 			    }
@@ -1355,6 +1420,26 @@ QMetaObject *QComBase::metaObject() const
 			    if ( bindable ) {
 				if ( !eventSink )
 				    that->eventSink = new QAxEventSink( that );
+				// generate generic changed signal
+				if ( !signallist.find( "propertyChanged(const QString&)" ) ) {
+				    QString signalName = "propertyChanged";
+				    QString signalParam = "const QString&";
+				    QString signalProto = signalName + "(" + signalParam + ")";
+				    QString paramName = "name";
+
+				    QUMethod *signal = new QUMethod;
+				    signal->name = new char[signalName.length()+1];
+				    signal->name = qstrcpy( (char*)signal->name, signalName );
+				    signal->count = 1;
+				    QUParameter *param = new QUParameter;
+				    param->name = new char[paramName.length()+1];
+				    param->name = qstrcpy( (char*)param->name, paramName );
+				    param->inOut = QUParameter::In;
+				    QStringToQUType( signalParam, param );
+				    signal->parameters = param;
+
+				    signallist.insert( signalProto, signal );
+				}
 				// generate changed signal
 				QString signalName = variableName + "Changed";
 				QString signalParam = constRefify( variableType );
@@ -1484,7 +1569,9 @@ QMetaObject *QComBase::metaObject() const
 			    // UUID
 			    if ( !infolist.find( "CoClass" ) ) {
 				QUuid uuid( typeattr->guid );
-				infolist.insert( "CoClass", new QString( uuid.toString().upper() ) );
+				QString uuidstr = uuid.toString().upper();
+				uuidstr = iidnames.readEntry( "/CLSID/" + uuidstr + "/Default", uuidstr );
+				infolist.insert( "CoClass", new QString( uuidstr ) );
 				QString version( "%1.%1" );
 				version = version.arg( typeattr->wMajorVerNum ).arg( typeattr->wMinorVerNum );
 				infolist.insert( "Version", new QString( version ) );
@@ -2144,11 +2231,11 @@ const char *QComObject::className() const
 /*!
     Initializes the COM object.
 */
-void QComObject::initialize( IUnknown **ptr )
+bool QComObject::initialize( IUnknown **ptr )
 {
     QUuid uuid( control() );
     if ( *ptr || uuid.isNull() )
-	return;
+	return FALSE;
     CoInitialize( 0 );
     _Module.Init( 0, GetModuleHandle( 0 ) );
 
@@ -2157,7 +2244,9 @@ void QComObject::initialize( IUnknown **ptr )
     if ( !ptr ) {
 	_Module.Term();
 	CoUninitialize();
+	return FALSE;
     }
+    return TRUE;
 }
 
 /*!

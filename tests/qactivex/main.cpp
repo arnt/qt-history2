@@ -4,12 +4,16 @@
 #include <qlineedit.h>
 #include <qlistview.h>
 #include <qsplitter.h>
-#include "qactivex.h"
-
+#include <qcombobox.h>
+#include <qlistbox.h>
 #include <qvbox.h>
 #include <qlayout.h>
 #include <qvariant.h>
 #include <qmetaobject.h>
+#include <qsettings.h>
+
+#include "qactivex.h"
+
 
 class Browser : public QDialog
 {
@@ -26,7 +30,25 @@ public:
 	activex = new QActiveX( control, vbox );
 	activex->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 	QHBox *hbox = new QHBox( vbox );
-	leControl = new QLineEdit( "QTTESTCONTROL.QtTestControlCtrl.1", hbox );
+
+	QComboBox *cbox = new QComboBox( TRUE, hbox );
+	cbox->setAutoCompletion( TRUE );
+	cbox->setAutoResize( TRUE );
+
+	QSettings controls;
+	QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
+	for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
+	    QString clsid = *it;
+	    QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
+	    if ( subkeys.contains( "Control" ) ) {
+		QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
+		axcontrols.insert( name, clsid );
+		cbox->insertItem( name );
+	    }
+	}
+	cbox->listBox()->sort();
+
+	leControl = cbox->lineEdit();
 	pbInstantiate = new QPushButton( "Create", hbox );
 
 	connect( pbInstantiate, SIGNAL(clicked()), this, SLOT(instantiate()) );
@@ -45,7 +67,6 @@ public:
 	connect( pbInvoke, SIGNAL(clicked()), this, SLOT(invoke()) );
 
 	connect( listview, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(invoke(QListViewItem*)) );
-	connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
     }
 
 public slots:
@@ -69,15 +90,24 @@ public slots:
 
     void slot( const QString &name, int argc, void *args )
     {
-	//qDebug( "Signal %s emitted!", name.latin1() );
+	qDebug( "Signal \"%s\" emitted!", name.latin1() );
+    }
+    void propertyChanged( const QString &name )
+    {
+	qDebug( "Property \"%s\" changed!", name.latin1() );
     }
 
     void instantiate() 
     {
 	pbInvoke->setDefault( TRUE );
 	leSlot->setFocus();
-	activex->setControl( leControl->text() );
+	QString name = leControl->text();
+	activex->setControl( axcontrols[name] );
 	populate();
+	if ( !activex->isNull() ) {
+	    connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
+	    connect( activex, SIGNAL(propertyChanged(const QString&)), this, SLOT(propertyChanged(const QString&)) );
+	}
     }
 
     void populate()
@@ -115,6 +145,8 @@ private:
     QPushButton *pbInstantiate;
     QPushButton *pbInvoke;
     QActiveX *activex;
+
+    QMap<QString, QString> axcontrols;
 };
 
 #include "tmp/moc/debug_mt_shared/main.moc"

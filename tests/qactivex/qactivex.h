@@ -29,15 +29,16 @@ public:
     //void reparent( QWidget *parent, WFlags f, const QPoint &, bool showIt = FALSE );
     //void setAcceptDrops( bool on );
     //bool customWhatsThis() const;
-    //void paletteChange( const QPalette & );
-    void fontChange( const QFont & );
     void setUpdatesEnabled( bool );
 
 protected:
     void enabledChange( bool old );
+    void paletteChange( const QPalette &old );
+    void fontChange( const QFont &old );
+    void windowActivationChange( bool old );
 
 private:
-    void initialize( IUnknown** );
+    bool initialize( IUnknown** );
     QMetaObject *parentMetaObject() const;
 
     QClientSite *clientsite;

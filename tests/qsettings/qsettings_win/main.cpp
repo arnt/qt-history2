@@ -8,6 +8,11 @@ int main ( int argc, char **argv )
     settings.writeEntry( "/Trolltech/QSettings/bool", true );
     settings.writeEntry( "/Trolltech/QSettings/double", 3.1415927 );
 
+    QStringList subkeys = settings.subkeyList( "/Trolltech" );
+    for ( QStringList::Iterator it = subkeys.begin(); it != subkeys.end(); ++it ) {
+	qDebug( "/Trolltech/%s", (*it).latin1() );
+    }
+
     qDebug( settings.readEntry( "/Trolltech/QSettings/string" ) );
     qDebug( "%d", settings.readNumEntry( "/Trolltech/QSettings/int" ) );
     qDebug( "%d", settings.readBoolEntry( "/Trolltech/QSettings/bool" ) );

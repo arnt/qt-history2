@@ -10,6 +10,8 @@ extern CComModule _Module;
 
 #include <qapplication.h>
 #include <qmetaobject.h>
+#include <qobjectlist.h>
+#include <qstatusbar.h>
 
 static HHOOK hhook = 0;
 static int hhookref = 0;
@@ -102,6 +104,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 }
 
 extern BSTR QStringToBSTR( const QString &str );
+extern QString BSTRToQString( BSTR bstr );
 
 /*!
     \class QClientSite
@@ -115,10 +118,11 @@ class QClientSite : public IDispatch,
 		    public IOleContainer,
 		    public IOleInPlaceSiteEx,
 		    public IOleInPlaceFrame,
+		    public IOleDocumentSite,
 		    public ISimpleFrameSite
 {
 public:
-    QClientSite( QActiveX *ax ) : ref( 0 ), activex( ax )
+    QClientSite( QActiveX *ax ) : ref( 0 ), oleconnection( 0 ), activex( ax ), activeObject( 0 )
     {
 	control = ax->iface();
 	if ( control ) {
@@ -141,21 +145,17 @@ public:
 		RECT rc = { 0, 0, activex->width(), activex->height() };
 		ole->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)this, 0/*reserved*/, activex->winId(), &rc );
 	    }
+	    CComPtr<IOleDocumentView> document;
+	    control->QueryInterface( IID_IOleDocumentView, (void**)&document );
+	    if ( document ) {
+		document->SetInPlaceSite( (IOleInPlaceSite*)(IOleInPlaceSiteEx*)this );
+		document->UIActivate( TRUE );
+	    }
+
 	    CComPtr<IViewObject> view;
 	    control->QueryInterface( IID_IViewObject, (void**)&view );
 	    if ( view ) {
 		view->SetAdvise( DVASPECT_CONTENT, ADVF_ONLYONCE, (IAdviseSink*)(IAdviseSink2*)this );
-	    }
-
-	    CComPtr<IOleInPlaceActiveObject> inplace;
-	    control->QueryInterface( IID_IOleInPlaceActiveObject, (void**)&inplace );
-	    if ( inplace ) {
-		RECT rc;
-		rc.left = 0;
-		rc.top = 0;
-		rc.right = activex->width();
-		rc.bottom = activex->height();
-		inplace->ResizeBorder( &rc, (IOleInPlaceUIWindow*)this, TRUE );
 	    }
 	}
     }
@@ -167,14 +167,16 @@ public:
 	    if ( ole )
 		ole->Unadvise( oleconnection );
 
-	    control->Release();
-
 	    CComPtr<IViewObject> view;
 	    control->QueryInterface( IID_IViewObject, (void**)&view );
 	    if ( view ) {
 		view->SetAdvise( DVASPECT_CONTENT, ADVF_ONLYONCE, 0 );
 	    }
+
+	    control->Release();
 	}
+	if ( activeObject )
+	    activeObject->Release();
     }
 
     // IUnknown
@@ -221,6 +223,8 @@ public:
 	    *ppvObject = (IOleInPlaceSiteEx*)this;
 	else if ( riid == IID_IOleInPlaceFrame )
 	    *ppvObject = (IOleInPlaceFrame*)this;
+	else if ( riid == IID_IOleDocumentSite )
+	    *ppvObject = (IOleDocumentSite*)this;
 	else if ( riid == IID_ISimpleFrameSite )
 	    *ppvObject = (ISimpleFrameSite*)this;
 	else
@@ -260,7 +264,8 @@ public:
 	    pVarResult->vt = VT_BSTR;
 	    pVarResult->bstrVal = SysAllocStringByteLen( 0, 0 );
 	    break;
-	case DISPID_AMBIENT_FONT: // OLE_FONT
+	case DISPID_AMBIENT_FONT: // OLE_FONT; IFont
+	    // OleCreateFontIndirect( LPFONTDESC, IID_IFont, (void**)&ifont );
 	    break;
 	case DISPID_AMBIENT_FORECOLOR: // OLE_COLOR
 	    pVarResult->vt = VT_I4;
@@ -351,17 +356,26 @@ public:
     // IAdviseSink2
     void __stdcall OnLinkSrcChange( IMoniker *pmk )
     {
+	qDebug( "IAdviseSink2::OnLinkSrcChange" );
     }
 
     // IAdviseSinkEx
     void __stdcall OnViewStatusChange( DWORD dwViewStatus )
     {
+	qDebug( "IAdviseSinkEx::OnViewStatusChange" );
     }
 
     // IOleControlSite
     HRESULT __stdcall OnControlInfoChanged()
     {
 	qDebug( "IOleControlSite::OnControlinfoChanged" );
+	CComPtr<IOleControl> ole;
+	control->QueryInterface( IID_IOleControl, (void**)&ole );
+	if ( ole ) {
+	    CONTROLINFO info;
+	    info.cb = sizeof(CONTROLINFO);
+	    ole->GetControlInfo( &info );
+	}
 	return S_OK;
     }
     HRESULT __stdcall LockInPlaceActive( BOOL fLock )
@@ -374,12 +388,16 @@ public:
 	if ( !ppDisp )
 	    return E_POINTER;
 	*ppDisp = 0;
+
+	qDebug( "IOleControlSite::GetExtendedControl" );
 	return E_NOTIMPL;
     }
     HRESULT __stdcall TransformCoords( POINTL *pPtlHimetric, POINTF *pPtfContainer, DWORD dwFlags )
     {
 	if ( !pPtlHimetric || !pPtfContainer )
 	    return E_POINTER;
+
+	qDebug( "IOleControlSite::TransformCoords" );
 	return E_NOTIMPL;
     }
     HRESULT __stdcall TranslateAccelerator( MSG *pMsg, DWORD grfModifiers )
@@ -420,12 +438,14 @@ public:
     HRESULT __stdcall GetBorder( RECT *lprectBorder )
     {
 	qDebug( "IOleInPlaceUIWindow::GetBorder" );
-	return INPLACE_E_NOTOOLSPACE;
+	RECT border = { 0, 0, 200, 50 };
+	*lprectBorder = border;
+	return S_OK; //INPLACE_E_NOTOOLSPACE;
     }
     HRESULT __stdcall RequestBorderSpace( LPCBORDERWIDTHS pborderwidths )
     {
 	qDebug( "IOleInPlaceUIWindow::RequestBorderSpace" );
-	return INPLACE_E_NOTOOLSPACE;
+	return S_OK; //INPLACE_E_NOTOOLSPACE;
     }
     HRESULT __stdcall SetBorderSpace( LPCBORDERWIDTHS pborderwidths )
     {
@@ -435,6 +455,19 @@ public:
     HRESULT __stdcall SetActiveObject( IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName )
     {
 	qDebug( "IOleInPlaceUIWindow::SetActiveObject" );
+	if ( !pActiveObject )
+	    return E_INVALIDARG;
+
+	activeObject = pActiveObject;
+	activeObject->AddRef();
+/*
+	RECT rc;
+	rc.left = 0;
+	rc.top = 0;
+	rc.right = activex->width();
+	rc.bottom = activex->height();
+	activeObject->ResizeBorder( &rc, (IOleInPlaceUIWindow*)this, TRUE );
+*/
 	return S_OK;
     }
 
@@ -467,7 +500,13 @@ public:
     HRESULT __stdcall RequestNewObjectLayout()
     {
 	qDebug( "IOleClientSite::RequestNewObjectLayout" );
-	return E_NOTIMPL;
+	SIZE sz;
+	CComPtr<IOleObject> ole;
+	control->QueryInterface( IID_IOleObject, (void**)&ole );
+	if ( ole ) {
+	    ole->GetExtent( DVASPECT_CONTENT, &sz );
+	}
+	return E_NOTIMPL;//###
     }
 
     // IParseDisplayName
@@ -475,6 +514,7 @@ public:
     {
 	*ppmkOut = 0;
 
+	qDebug( "IParseDisplayName::ParseDisplayName" );
 	if ( *ppmkOut )
 	    (*ppmkOut)->AddRef();
 	return S_OK;
@@ -483,11 +523,13 @@ public:
     // IOleContainer
     HRESULT __stdcall EnumObjects( DWORD grfFlags, IEnumUnknown **ppenum )
     {
+	qDebug( "IOleContainer::EnumObjects" );
 	*ppenum = 0;
 	return E_NOTIMPL;
     }
     HRESULT __stdcall LockContainer( BOOL fLock )
     {
+	qDebug( "IOleContainer::LockContainer" );
 	return S_OK;
     }
 
@@ -509,19 +551,40 @@ public:
     }
     HRESULT __stdcall GetWindowContext( IOleInPlaceFrame **ppFrame, 
 					IOleInPlaceUIWindow **ppDoc, 
-					LPRECT lprecPosRect, 
+					LPRECT lprcPosRect, 
 					LPRECT lprcClipRect, 
 					LPOLEINPLACEFRAMEINFO lpFrameInfo )
     {
+	if ( !lprcPosRect || !lprcClipRect || !lpFrameInfo ) {
+	    *ppFrame = 0;
+	    *ppDoc = 0;
+	    return E_INVALIDARG;
+	}
+
 	qDebug( "IOleInPlaceSite::GetWindowContext" );
 	QueryInterface( IID_IOleInPlaceFrame, (void**)ppFrame );
 	QueryInterface( IID_IOleInPlaceUIWindow, (void**)ppDoc );
+	RECT posRect = { 0, 0, activex->width(), activex->height() };
+	RECT clipRect = posRect;
+	*lprcPosRect = posRect;
+	*lprcClipRect = clipRect;
+
+	lpFrameInfo->fMDIApp = FALSE;
+	lpFrameInfo->cAccelEntries = 0;
+	lpFrameInfo->haccel = 0;
+	lpFrameInfo->hwndFrame = activex->winId();
 
 	return S_OK;
     }
     HRESULT __stdcall Scroll( SIZE scrollExtant )
     {
 	qDebug( "IOleInPlaceSite::Scroll" );
+	//###
+	CComPtr<IOleInPlaceObject> inplace;
+	control->QueryInterface( IID_IOleInPlaceObject, (void**)&inplace );
+	if ( inplace ) {
+	    // inplace->SetObjectRects( &posRect, &clipRect );
+	}
 	return S_OK;
     }
     HRESULT __stdcall OnUIDeactivate( BOOL fUndoable )
@@ -547,7 +610,13 @@ public:
     HRESULT __stdcall OnPosRectChange( LPCRECT lprcPosRect )
     {
 	qDebug( "IOleInPlaceSite::OnPosRectChange" );
-	// IOleInPlaceObject::SetObjectRects( ... );
+	CComPtr<IOleInPlaceObject> inplace;
+	control->QueryInterface( IID_IOleInPlaceObject, (void**)&inplace );
+	if ( inplace ) {
+	    RECT posRect = { 0, 0, activex->width(), activex->height() };
+	    RECT clipRect = { 0, 0, activex->width(), activex->height() };
+	    inplace->SetObjectRects( &posRect, &clipRect );
+	}
 	return S_OK;
     }
 
@@ -587,6 +656,16 @@ public:
     HRESULT __stdcall SetStatusText( LPCOLESTR pszStatusText )
     {
 	qDebug( "IOleInPlaceFrame::SetStatusText" );
+	QWidget *tlw = activex->topLevelWidget();
+	QObjectList *list = tlw->queryList( "QStatusBar" );
+	QObjectListIt it( *list );
+	while ( it.current() ) {
+	    QStatusBar *bar = (QStatusBar*)it.current();
+	    ++it;
+	    bar->message( BSTRToQString( (BSTR)pszStatusText ) );
+	}
+	delete list;
+
 	return S_OK;
     }
     HRESULT __stdcall EnableModeless( BOOL fEnable )
@@ -600,10 +679,17 @@ public:
 	return S_FALSE;
     }
 
+    // IOleDocumentSite
+    HRESULT __stdcall ActivateMe( IOleDocumentView *pViewToActivate )
+    {
+	qDebug( "IOleDocumentSite::ActivateMe" );
+	pViewToActivate->SetInPlaceSite( (IOleInPlaceSite*)(IOleInPlaceSiteEx*)this );
+	return S_OK;
+    }
+
     // ISimpleFrameSite
     HRESULT __stdcall PreMessageFilter( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, LRESULT *plResult, DWORD *pdwCookie )
     {
-	qDebug( "SimpleFrame" );
 	return S_OK;
     }
     HRESULT __stdcall PostMessageFilter( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp, LRESULT *plResult, DWORD pdwCookie )
@@ -613,9 +699,11 @@ public:
 
 private:
     ulong ref;
-    IUnknown *control;
     DWORD oleconnection;
     QActiveX *activex;
+
+    IUnknown *control;
+    IOleInPlaceActiveObject *activeObject;
 };
 
 
@@ -663,10 +751,10 @@ QActiveX::~QActiveX()
 /*!
     Initializes the ActiveX control.  
 */
-void QActiveX::initialize( IUnknown **ptr )
+bool QActiveX::initialize( IUnknown **ptr )
 {
     if ( *ptr || control().isEmpty() )
-	return;
+	return FALSE;
     CoInitialize( 0 );
     _Module.Init( 0, GetModuleHandle( 0 ) );
 
@@ -676,7 +764,7 @@ void QActiveX::initialize( IUnknown **ptr )
     if ( !*ptr ) {
 	_Module.Term();
 	CoUninitialize();
-	return;
+	return FALSE;
     }
 
     if ( clientsite )
@@ -692,7 +780,7 @@ void QActiveX::initialize( IUnknown **ptr )
     if ( parentWidget() )
 	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
 
-    fontChange( font() );
+    return TRUE;
 }
 
 /*!
@@ -816,8 +904,13 @@ bool QActiveX::qt_property( int _id, int _f, QVariant *_v )
 /*!
     \reimp
 */
-void QActiveX::enabledChange( bool /*old*/ )
+void QActiveX::enabledChange( bool old )
 {
+    QWidget::enabledChange( old );
+
+    if ( old == isEnabled() )
+	return;
+
     CAxWindow ax = winId();
     ax.EnableWindow( isEnabled() );
 }
@@ -854,11 +947,39 @@ QSize QActiveX::minimumSizeHint() const
 /*!
     \reimp
 */
-void QActiveX::fontChange( const QFont &/*old*/ )
+void QActiveX::fontChange( const QFont &old )
 {
+    QWidget::fontChange( old );
+
     QFont f = font();
+    if ( f == old )
+	return;
+
     CAxWindow ax = winId();
     ax.SetFont( f.handle(), TRUE );
+
+    CComPtr<IOleControl> ole;
+    queryInterface( IID_IOleControl, (void**)&ole );
+    if ( ole ) {
+	ole->OnAmbientPropertyChange( DISPID_AMBIENT_FONT );
+    }
+}
+
+/*!
+    \reimp
+*/
+void QActiveX::paletteChange( const QPalette &old )
+{
+    QWidget::paletteChange( old );
+    if ( palette() == old )
+	return;
+
+    CComPtr<IOleControl> ole;
+    queryInterface( IID_IOleControl, (void**)&ole );
+    if ( ole ) {
+	ole->OnAmbientPropertyChange( DISPID_AMBIENT_BACKCOLOR );
+	ole->OnAmbientPropertyChange( DISPID_AMBIENT_FORECOLOR );
+    }
 }
 
 /*!
@@ -870,4 +991,17 @@ void QActiveX::setUpdatesEnabled( bool on )
     ax.SetRedraw( on );
 
     QWidget::setUpdatesEnabled( on );
+}
+
+/*!
+    \reimp
+*/
+void QActiveX::windowActivationChange( bool old )
+{
+    QWidget::windowActivationChange( old );
+
+    CComPtr<IOleInPlaceActiveObject> inplace;
+    queryInterface( IID_IOleInPlaceActiveObject, (void**)&inplace );
+    if ( inplace )
+	inplace->OnFrameWindowActivate( isActiveWindow() );
 }

@@ -44,7 +44,7 @@ protected:
     QMetaObject *metaobj;
 
 private:
-    virtual void initialize( IUnknown** ptr ) = 0;
+    virtual bool initialize( IUnknown** ptr ) = 0;
     virtual QMetaObject *parentMetaObject() const = 0;
 
     IUnknown *ptr;
@@ -69,7 +69,7 @@ public:
     ~QComObject();
 
 private:
-    void initialize( IUnknown** );
+    bool initialize( IUnknown** );
     QMetaObject *parentMetaObject() const;
 };
 
