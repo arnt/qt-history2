@@ -1,19 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#70 $
 **
 ** Definition of QMultiLineEdit widget class
 **
 ** Created : 961005
 **
 ** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
-**
-**
-**
-**
-**
-**
-**
-**
 **
 ***********************************************************************/
 
@@ -27,7 +19,8 @@
 #include <ctype.h>
 
 
-/*! \class QMultiLineEdit qmlined.h
+/*!
+  \class QMultiLineEdit qmlined.h
 
   \brief The QMultiLineEdit widget is a simple editor for inputting text.
 
@@ -841,6 +834,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Return:
 	    newLine();
 	    emit returnPressed();
+	    e->ignore();
 	    break;
 	default:
 	    unknown++;

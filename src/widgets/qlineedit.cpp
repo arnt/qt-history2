@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#92 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#92 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -362,6 +362,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
 	emit returnPressed();
+	e->ignore();
 	return;
     }
     QValidator * v = validator();
