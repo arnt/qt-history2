@@ -33,8 +33,8 @@
 **
 **********************************************************************/
 
-#ifndef QTHREADSTORAGE
-#define QTHREADSTORAGE
+#ifndef QTHREADSTORAGE_H
+#define QTHREADSTORAGE_H
 
 #include "qglobal.h"
 
@@ -138,4 +138,4 @@ public:
     { return d.ensure_constructed(deleteData); }
 };
 
-#endif // QTHREADSTORAGE
+#endif // QTHREADSTORAGE_H
