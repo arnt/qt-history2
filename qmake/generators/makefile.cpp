@@ -48,22 +48,46 @@ QString mkdir_p_asstring(const QString &dir)
     return ret;
 }
 
-static bool createDir(const QString& fullPath)
+static bool createDir(QString path)
 {
-    if(QFile::exists(fullPath))
-        return false;
-    QDir dirTmp;
+    if(QFile::exists(path))
+        return true;
+
+    QDir d;
+    if(path.startsWith(Option::dir_sep)) {
+        d.cd(Option::dir_sep);
+        path = path.right(path.length() - 1);
+    }
     bool ret = true;
-    QString pathComponent, tmpPath;
-    QStringList hierarchy = fullPath.split(QString(Option::dir_sep));
-    for(QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it) {
-        pathComponent = *it + QDir::separator();
-        tmpPath += pathComponent;
-        if(!dirTmp.mkdir(tmpPath)) {
-            ret = false;
-//            break;
+#ifdef Q_WS_WIN
+    bool driveExists = true;
+    if(!QDir::isRelativePath(path)) {
+        if(QFile::exists(path.left(3))) {
+            d.cd(path.left(3));
+            path = path.right(path.length() - 3);
+        } else {
+            warn_msg(WarnLogic, "%s: Cannot access drive '%s' (%s)", dirs[x].latin1(),
+                     path.left(3).latin1(), path.latin1());
+            driveExists = false;
         }
     }
+    if(driveExists) {
+#endif
+        QStringList subs = path.split(Option::dir_sep);
+        for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
+            if(!d.cd(*subit)) {
+                d.mkdir((*subit));
+                if(d.exists((*subit))) {
+                    d.cd((*subit));
+                } else {
+                    ret = false;
+                    break;
+                }
+            }
+        }
+#ifdef Q_WS_WIN
+    }
+#endif
     return ret;
 }
 
@@ -82,6 +106,7 @@ MakefileGenerator::initOutPaths()
         return;
     init_opath_already = true;
     QMap<QString, QStringList> &v = project->variables();
+    //for shadow builds
     if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
         if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() &&
            v.contains("QMAKE_ABSOLUTE_SOURCE_ROOT")) {
@@ -106,9 +131,11 @@ MakefileGenerator::initOutPaths()
         if(asp.isEmpty() || asp == Option::output_dir) //if they're the same, why bother?
             v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
     }
-    QString currentDir = QDir::currentDirPath();
-    QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("UI_HEADERS_DIR"),
-                       QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString("DESTDIR"),
+
+    QString currentDir = QDir::currentDirPath(); //just to go back to
+
+    //some builtin directories
+    QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"),
                        QString("SUBLIBS_DIR"), QString("DLLDESTDIR"), QString::null };
     for(int x = 0; true; x++) {
         if(dirs[x] == QString::null)
@@ -130,47 +157,35 @@ MakefileGenerator::initOutPaths()
                 continue;
 
             QString path = project->first(dirs[x]); //not to be changed any further
-            path = Option::fixPathToTargetOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
+            path = Option::fixPathToLocalOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
             debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].latin1(), orig_path.latin1(),
                       v[dirs[x]].join("::").latin1(), path.latin1());
-
-            QDir d;
-            if(path.startsWith(Option::dir_sep)) {
-                d.cd(Option::dir_sep);
-                path = path.right(path.length() - 1);
-            }
-#ifdef Q_WS_WIN
-            bool driveExists = true;
-            if(!QDir::isRelativePath(path)) {
-                if(QFile::exists(path.left(3))) {
-                    d.cd(path.left(3));
-                    path = path.right(path.length() - 3);
-                } else {
-                    warn_msg(WarnLogic, "%s: Cannot access drive '%s' (%s)", dirs[x].latin1(),
-                             path.left(3).latin1(), path.latin1());
-                    driveExists = false;
-                }
-            }
-            if(driveExists) {
-#endif
-                QStringList subs = path.split(Option::dir_sep);
-                for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
-                    if(!d.cd(*subit)) {
-                        d.mkdir((*subit));
-                        if(d.exists((*subit))) {
-                            d.cd((*subit));
-                        } else {
-                            warn_msg(WarnLogic, "%s: Cannot access directory '%s' (%s)", dirs[x].latin1(),
-                                     (*subit).latin1(), path.latin1());
-                            break;
-                        }
-                    }
-                }
-#ifdef Q_WS_WIN
-            }
-#endif
+            if(!createDir(path))
+                warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].latin1(), path.latin1());
         }
     }
+
+    //out paths from the extra compilers
+    const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+        QString tmp_out = project->variables()[(*it) + ".output"].first();
+        if(tmp_out.isEmpty())
+            continue;
+        const QStringList &tmp = project->variables()[(*it) + ".input"];
+        for(QStringList::ConstIterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+            const QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
+                QString path = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+                int slash = path.lastIndexOf(Option::dir_sep);
+                if(slash != -1) {
+                    path = path.left(slash);
+                    if(path != "." && !createDir(path))
+                        warn_msg(WarnLogic, "%s: Cannot access directory '%s'", (*it).latin1(), path.latin1());
+                }
+            }
+        }
+    }
+
     if(!v["DESTDIR"].isEmpty()) {
         QDir d(v["DESTDIR"].first());
         if(Option::fixPathToLocalOS(d.absPath()) == Option::fixPathToLocalOS(Option::output_dir))
@@ -432,13 +447,6 @@ MakefileGenerator::init()
     if(mocAware()) {
         if(!project->isEmpty("MOC_DIR"))
             project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
-
-        // uniqueify the list :)
-        QMap<QString, bool> uniqList;
-        QStringList &tmp_list = project->variables()["_HDRMOC"];
-        for (int i = 0; i < tmp_list.size(); ++i)
-            uniqList.insert(tmp_list.at(i), true);
-        project->variables()["_HDRMOC"] = uniqList.keys();
 
         if(Option::h_moc_ext == Option::cpp_ext.first())
             v["OBJMOC"] = createObjectList("_HDRMOC");
@@ -1229,7 +1237,6 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
         ret.replace("${QMAKE_FILE_BASE}", fi.baseName());
         ret.replace("${QMAKE_FILE_NAME}", fi.fileName());
         ret.replace("${QMAKE_FILE_IN}", fi.filePath());
-        ret.replace("${QMAKE_MOC_DIR}", project->first("MOC_DIR"));
     }
     if(!out.isNull()) {
         ret.replace("${QMAKE_FILE_OUT}", out);
@@ -1397,10 +1404,10 @@ void
 MakefileGenerator::writeExtraCompilerVariables(QTextStream &t)
 {
     bool first = true;
-    QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
-        QStringList &vars = project->variables()[(*compit) + ".variables"];
-        for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
+    const QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::ConstIterator compit = comps.begin(); compit != comps.end(); ++compit) {
+        const QStringList &vars = project->variables()[(*compit) + ".variables"];
+        for(QStringList::ConstIterator varit = vars.begin(); varit != vars.end(); ++varit) {
             if(first) {
                 t << "\n####### Custom Compiler Variables" << endl;
                 first = false;
@@ -1992,8 +1999,8 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
             }
         }
         { //is it from an EXTRA_COMPILER
-            QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-            for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+            const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+            for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
                 QString tmp_out = project->variables()[(*it) + ".output"].first();
                 if(tmp_out.isEmpty())
                     continue;

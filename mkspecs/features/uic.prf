@@ -9,8 +9,12 @@ isEmpty(QMAKE_UIC3) {
    else:QMAKE_UIC = $(QTDIR)/bin/uic
 ##### }
 
+isEmpty(UI_DIR):UI_DIR = .
+isEmpty(UI_SOURCES_DIR):UI_SOURCES_DIR = $$UI_DIR
+isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
+
 uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-uic.output = ui_${QMAKE_FILE_BASE}.h
+uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}.h
 uic.input = FORMS
 uic.variable_out = HEADERS
 uic.CONFIG += no_link
@@ -18,7 +22,7 @@ QMAKE_EXTRA_COMPILERS += uic
 
 uic3 {
     uic3_decl.commands = $$QMAKE_UIC3 -decl ui_${QMAKE_FILE_BASE}.h ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-    uic3_decl.output = ${QMAKE_FILE_BASE}.h
+    uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}.h
     uic3_decl.depends = ui_${QMAKE_FILE_BASE}.h
     uic3_decl.input = FORMS
     uic3_decl.CONFIG += no_link
@@ -26,15 +30,16 @@ uic3 {
     QMAKE_EXTRA_COMPILERS += uic3_decl
 
     uic3_impl.commands = $$QMAKE_UIC3 -impl ${QMAKE_FILE_BASE}.h ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-    uic3_impl.output = ${QMAKE_FILE_BASE}.cpp
+    uic3_impl.output = $$UI_SOURCES_DIR/${QMAKE_FILE_BASE}.cpp
     uic3_impl.depends = ${QMAKE_FILE_BASE}.h
     uic3_impl.input = FORMS
     uic3_impl.variable_out = SOURCES
     QMAKE_EXTRA_COMPILERS += uic3_impl
 
-### add a moc step
+    ### add a moc step
     uic3_moc.commands = $$QMAKE_MOC $(DEFINES) $(INCPATH) ${QMAKE_FILE_BASE}.h -o ${QMAKE_FILE_OUT}
-    uic3_moc.output = ${QMAKE_MOC_DIR}moc_${QMAKE_FILE_BASE}.cpp
+    isEmpty(MOC_DIR):MOC_DIR = . #we just default to .
+    uic3_moc.output = $$MOC_DIR/moc_${QMAKE_FILE_BASE}.cpp
     uic3_moc.depends = ${QMAKE_FILE_BASE}.h
     uic3_moc.input = FORMS
     uic3_moc.variable_out = _HDRMOC
@@ -43,7 +48,7 @@ uic3 {
 #### we don't have a replacement for `uic3 -embed' yet!
 
 uic3_emb.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-uic3_emb.output = qmake_image_collection.cpp
+uic3_emb.output = $$UI_SOURCES_DIR/qmake_image_collection.cpp
 uic3_emb.variable_out = SOURCES
 uic3_emb.depends = $$QMAKE_UIC3
 uic3_emb.input = IMAGES
