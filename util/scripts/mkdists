@@ -411,7 +411,7 @@ if [ "$DO_EXPORTS" = "yes" ]; then
   status "Creating libqt.map.."
   pushd $DISTDIR/qt/src >>$LOG 2>&1
   $EXPORTS_PATH $DISTDIR/qt/src
-  popd >>$LOG 2>71
+  popd >>$LOG 2>&1
 fi
 
 #cleanup documentation directories
