@@ -1820,8 +1820,8 @@ void QHeader::adjustHeaderSize( int diff )
 	return;
 
     if ( d->fullSize >= 0 ) {
-	int sec = mapToIndex( d->fullSize );
-	int ns = sectionSize( sec ) + ( orientation() == Horizontal ? width() : height() ) - ( sectionPos( count()-1 ) + sectionSize( count()-1 ) );
+	int sec = mapToSection( d->fullSize );
+	int ns = sectionSize( sec ) + ( orientation() == Horizontal ? width() : height() ) - ( sectionPos( sec ) + sectionSize( sec ) );
 	int os = sectionSize( sec );
 	if ( ns < 20 )
 	    ns = 20;
@@ -1868,7 +1868,7 @@ void QHeader::calculatePositions( bool onlyVisible, int start )
     d->positionsDirty = FALSE;
     d->lastPos = count() > 0 ? d->positions[start] : 0;
     for ( int i = start; i < count(); i++ ) {
-	d->positions[i] = d->lastPos;
+  	d->positions[i] = d->lastPos;
 	d->lastPos += d->sizes[d->i2s[i]];
  	if ( onlyVisible && d->lastPos > offset() + ( orientation() == Horizontal ? width() : height() ) )
  	    break;
