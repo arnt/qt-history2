@@ -529,13 +529,13 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	if ( propName == "hAlign" ) {
 	    p = widget->metaObject()->property( "alignment", TRUE );
 	    int align = widget->property( "alignment" ).toInt();
-	    align &= ~( AlignLeft  | AlignHCenter | AlignRight );
+	    align &= ~( AlignHorizontal_Mask );
 	    align |= p->keyToValue( currentItemText );
 	    widget->setProperty( "alignment", QVariant( align ) );
 	} else if ( propName == "vAlign" ) {
 	    p = widget->metaObject()->property( "alignment", TRUE );
 	    int align = widget->property( "alignment" ).toInt();
-	    align &= ~( AlignTop | AlignVCenter | AlignBottom );
+	    align &= ~( AlignVertical_Mask );
 	    align |= p->keyToValue( currentItemText );
 	    widget->setProperty( "alignment", QVariant( align ) );
 	} else if ( propName == "wordwrap" ) {

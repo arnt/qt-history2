@@ -2396,9 +2396,11 @@ void PropertyList::setupProperties()
 	    if ( p->isSetType() ) {
 		if ( QString( p->name() ) == "alignment" ) {
 		    QStringList lst;
-		    lst << p->valueToKey( AlignLeft )
+		    lst << p->valueToKey( AlignAuto )
+			<< p->valueToKey( AlignLeft )
 			<< p->valueToKey( AlignHCenter )
-			<< p->valueToKey( AlignRight );
+			<< p->valueToKey( AlignRight )
+			<< p->valueToKey( AlignJustify );
 		    item = new PropertyListItem( this, item, 0, "hAlign", FALSE );
 		    item->setValue( lst );
 		    setPropertyValue( item );
@@ -2702,6 +2704,16 @@ void PropertyList::refetchData()
     updateEditorSize();
 }
 
+static void clearAlignList( QStrList &l )
+{
+    if ( l.count() == 1 )
+	return;
+    if ( l.find( "AlignAuto" ) != -1 )
+	l.remove( "AlignAuto" );
+    if ( l.find( "WordBreak" ) != -1 )
+	l.remove( "WordBreak" );
+}
+
 /*!  This method initializes the value of the item \a i to the value
   of the corresponding property.
 */
@@ -2713,13 +2725,15 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	if ( i->name() == "hAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    p = editor->widget()->metaObject()->property( "alignment", TRUE );
-	    align &= AlignLeft | AlignHCenter | AlignRight;
-	    ( (PropertyListItem*)i )->setCurrentItem( p->valueToKeys( align ).first() );
+	    align &= ~AlignVertical_Mask;
+	    QStrList l = p->valueToKeys( align );
+	    clearAlignList( l );
+	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
 	} else if ( i->name() == "vAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    p = editor->widget()->metaObject()->property( "alignment", TRUE );
-	    align &= AlignTop | AlignVCenter | AlignBottom;
-	    ( (PropertyListItem*)i )->setCurrentItem( p->valueToKeys( align ).first() );
+	    align &= ~AlignHorizontal_Mask;
+	    ( (PropertyListItem*)i )->setCurrentItem( p->valueToKeys( align ).last() );
 	} else if ( i->name() == "wordwrap" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    if ( align & WordBreak )

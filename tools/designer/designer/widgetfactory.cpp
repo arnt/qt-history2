@@ -1071,12 +1071,16 @@ QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
     if ( !p ) {
 	int v = defaultValue( w, "alignment" ).toInt();
 	if ( propName == "hAlign" ) {
+	    if ( ( v & AlignAuto ) == AlignAuto )
+		return "AlignAuto";
 	    if ( ( v & AlignLeft ) == AlignLeft )
 		return "AlignLeft";
 	    if ( ( v & AlignCenter ) == AlignCenter || ( v & AlignHCenter ) == AlignHCenter )
 		return "AlignHCenter";
 	    if ( ( v & AlignRight ) == AlignRight )
 		return "AlignRight";
+	    if ( ( v & AlignJustify ) == AlignJustify )
+		return "AlignJustify";
 	} else if ( propName == "vAlign" ) {
 	    if ( ( v & AlignTop ) == AlignTop )
 		return "AlignTop";
