@@ -225,65 +225,69 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
 
     int pos = startPos;
     QTextBlockIterator currentBlock = p->blocksFind(pos);
-    int remainingBlockLen = qMin(currentBlock.length() - 1, endPos - pos);
+    int charsLeftInCurrentBlock = qMin(currentBlock.length() - 1, endPos - pos);
 
-    QTextPieceTable::FragmentIterator currentFragment = p->find(pos);
+    QTextPieceTable::FragmentIterator fragIt = p->find(pos);
 
     while (pos < endPos) {
-        int inFragmentOffset = qMax(0, pos - currentFragment.position());
+        const QTextFragment *frag = fragIt.value();
 
-        int position = currentFragment.value()->stringPosition + inFragmentOffset;
+        const QChar *fragText = originalText.constData() + frag->stringPosition;
 
-        int size = qMin(int(currentFragment.value()->size - inFragmentOffset), endPos - pos);
+        int inFragmentOffset = qMax(0, pos - fragIt.position());
+        int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
 
-        while (size > remainingBlockLen) {
-            const int formatIdx = currentFragment.value()->format;
-            usedFormats << formatIdx;
+        // if the current fragment spans over the current block boundary we
+        // need to create a new block. it's a loop actually as the fragment
+        // may be larger than only one block
+        while (charsToCopy > charsLeftInCurrentBlock) {
+            usedFormats.append(frag->format);
 
-            appendText(QConstString(originalText.constData() + position, remainingBlockLen), formatIdx);
+            appendText(QConstString(fragText + inFragmentOffset, charsLeftInCurrentBlock), frag->format);
 
-            pos += remainingBlockLen;
-            size -= remainingBlockLen;
-            position += remainingBlockLen;
+            pos += charsLeftInCurrentBlock;
+            charsToCopy -= charsLeftInCurrentBlock;
+            inFragmentOffset += charsLeftInCurrentBlock;
 
             ++currentBlock;
 
             Q_ASSERT(currentBlock.position() == pos + 1);
             ++pos;
-            --size;
-            ++position;
+            --charsToCopy;
+            ++inFragmentOffset;
 
             const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
             const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
 
-            usedFormats << blockFormat << charFormat;
+            usedFormats.append(blockFormat);
+            usedFormats.append(charFormat);
 
             appendBlock(blockFormat, charFormat);
 
-            remainingBlockLen = qMin(currentBlock.length() - 1, endPos - pos);
+            charsLeftInCurrentBlock = qMin(currentBlock.length() - 1, endPos - pos);
         }
 
-        const int formatIdx = currentFragment.value()->format;
-        usedFormats << formatIdx;
+        usedFormats.append(frag->format);
 
-        appendText(QConstString(originalText.constData() + position, size), formatIdx);
-        pos += size;
+        appendText(QConstString(fragText + inFragmentOffset, charsToCopy), frag->format);
+        pos += charsToCopy;
 
-        if (size == remainingBlockLen && pos < endPos) {
+        if (charsToCopy == charsLeftInCurrentBlock && pos < endPos) {
             ++currentBlock;
             ++pos;
 
             const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
             const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
 
-            usedFormats << blockFormat << charFormat;
+            usedFormats.append(blockFormat);
+            usedFormats.append(charFormat);
 
             appendBlock(blockFormat, charFormat);
 
-            remainingBlockLen = qMin(currentBlock.length() - 1, endPos - pos);
+            charsLeftInCurrentBlock = qMin(currentBlock.length() - 1, endPos - pos);
         }
 
-        ++currentFragment;
+        ++fragIt;
     }
 
     QTextFormatCollectionState collState(pieceTable->formatCollection(), usedFormats);
