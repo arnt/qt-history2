@@ -324,7 +324,7 @@ void MainWindow::setupMenuBar()
     m_formActionList.append(act);
     menu->addAction(act);
     act = m_formWindowManager->actionRedo();
-    act->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
+    act->setShortcut(QKeySequence("Ctrl+Shift+Z"));
     m_formActionList.append(act);
     menu->addAction(act);
     menu->addSeparator();

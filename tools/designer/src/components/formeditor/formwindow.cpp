@@ -1260,6 +1260,8 @@ void FormWindow::paste()
     }
 
     if (w && LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
+        clearSelection(true);
+        
         QByteArray code = qApp->clipboard()->text().toAscii();
         QBuffer b(&code);
         b.open(QIODevice::ReadOnly);
@@ -1273,10 +1275,10 @@ void FormWindow::paste()
             InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
             cmd->init(w);
             m_commandHistory->push(cmd);
+            selectWidget(w, true);
         }
         endCommand();
 
-        clearSelection(true);
     } else {
         QMessageBox::information(this, tr("Paste error"),
                                   tr("Can't paste widgets. Designer couldn't find a container\n"
