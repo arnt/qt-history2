@@ -118,7 +118,7 @@ public:
         : doc(0), cursorOn(false), readOnly(false),
           autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false), trippleClickTimerActive(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
-          lastSelectionState(false)
+          lastSelectionState(false), textFormat(Qt::AutoText)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
