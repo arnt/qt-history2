@@ -45,7 +45,11 @@ static QPixmap* qdb_shared_pixmap = 0;
 static QSharedDoubleBuffer* qdb_owner = 0;
 static QCleanupHandler<QPixmap> qdb_cleanup_pixmap;
 
-static const bool buffer_disabled = FALSE;
+#ifdef Q_WS_MACX
+bool QSharedDoubleBuffer::dblbufr = TRUE;
+#else
+bool QSharedDoubleBuffer::dblbufr = FALSE;
+#endif
 
 
 /*
@@ -122,7 +126,7 @@ bool QSharedDoubleBuffer::begin( QPainter* painter, int x, int y, int w, int h )
 	    w = wid->width();
 	if ( h < 0 )
 	    h = wid->height();
-	if ( !buffer_disabled &&
+	if ( dblbufr &&
 	     ( hardLimitWidth < 0 ||  w <= hardLimitWidth ) &&
 	     ( hardLimitHeight < 0 ||  h <= hardLimitHeight ) &&
 	     ( !mustsh || ( w <= sharedLimitWidth && h <= sharedLimitHeight )
@@ -182,7 +186,7 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
     rw = w;
     rh = h;
     
-    if ( buffer_disabled || 
+    if ( !dblbufr || 
 	 ( hardLimitWidth >= 0 && w > hardLimitWidth ) || 
 	 ( hardLimitHeight >= 0 && h > hardLimitHeight ) || 
 	 ( mustsh  && ( w > sharedLimitWidth || h > sharedLimitWidth )

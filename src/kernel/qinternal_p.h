@@ -79,7 +79,8 @@ public:
     bool isActive() const;
     bool isBuffered() const;
     void flush();
-    
+
+    static bool isDoubleBuffered() { return dblbufr; }
     static QPixmap* getRawPixmap( int w, int h );
 
 private:
@@ -89,6 +90,7 @@ private:
     QPixmap *pix, *xpix;
     uint mustsh : 1;
     uint initbg : 1;
+    static bool dblbufr;
 };
 
 inline bool QSharedDoubleBuffer::begin( QWidget* widget, const QRect &r )

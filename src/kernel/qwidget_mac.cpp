@@ -1298,7 +1298,7 @@ void QWidget::erase( const QRegion& reg )
 	    QWidget *topl = this;
 	    while(!topl->isTopLevel() && !topl->testWFlags(WSubWindow))
 		topl = topl->parentWidget(TRUE);
-	    QPoint p = widget->mapTo( topl, QPoint(0,0) );
+	    QPoint p = mapTo( topl, QPoint(0,0) );
 	    xoff = p.x();
 	    yoff = p.y();
 	}
