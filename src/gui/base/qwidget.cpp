@@ -3118,6 +3118,12 @@ bool QWidget::isActiveWindow() const
 	tlw = parentWidget()->topLevelWidget();
     if(tlw == qApp->activeWindow() || ( isVisible() && tlw->isPopup() ))
 	return TRUE;
+#ifdef Q_WS_MAC
+    extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
+    if(qt_mac_is_macdrawer(tlw) && 
+       tlw->parentWidget() && tlw->parentWidget()->isActiveWindow()) 
+	return TRUE;
+#endif
 #ifndef QT_NO_STYLE
     if(style().styleHint(QStyle::SH_Widget_ShareActivation, this )) {
 	if(tlw->isDialog() && !tlw->testWFlags(WShowModal) &&

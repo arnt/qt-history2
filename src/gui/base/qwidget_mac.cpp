@@ -852,10 +852,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(!desktop) //setup an event callback handler on the window
 	    InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
 				      window_events, static_cast<void *>(qApp), &d->window_event);
-#if 0
-	if(wclass == kFloatingWindowClass) //these dialogs don't hide
-	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowNoActivatesAttribute);
-#endif
 #if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
 	    SetDrawerParent(window, qt_mac_window_for((HIViewRef)parentWidget()->winId()));
@@ -1273,7 +1269,7 @@ void QWidget::setActiveWindow()
 	return;
     qt_event_remove_activate();
     WindowPtr window = qt_mac_window_for((HIViewRef)winId());
-    if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool)) {
+    if(tlw->isPopup() || tlw->testWFlags(WStyle_Tool) || qt_mac_is_macdrawer(tlw)) {
 	ActivateWindow(window, true);
     } else {
 	if(IsWindowActive(window)) {

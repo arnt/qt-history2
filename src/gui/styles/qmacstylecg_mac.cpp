@@ -892,6 +892,9 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
 {
     SInt32 ret = 0;
     switch (sh) {
+    case SH_Widget_ShareActivation:
+        ret = true;
+        break;
     case SH_UnderlineAccelerator:
         ret = false;
         break;

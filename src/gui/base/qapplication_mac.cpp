@@ -146,14 +146,15 @@ inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 /*****************************************************************************
   External functions
  *****************************************************************************/
+extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =false); //qwidget_mac.cpp
 extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp
-QString pstring2qstring(const unsigned char *); //qglobal.cpp
-void qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
+extern QString pstring2qstring(const unsigned char *); //qglobal.cpp
+extern void qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
 
 /* Unicode input entry magic */
 class QTSMDocumentWrapper
@@ -1305,7 +1306,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	if(set_active) {
 	    widget->raise();
 	    if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
-	       (widget->isModal() || !::qt_cast<QDockWindow *>(widget)))
+	       !qt_mac_is_macsheet(widget) && (widget->isModal() || !::qt_cast<QDockWindow *>(widget)))
 		widget->setActiveWindow();
 	}
     }
@@ -1868,7 +1869,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    w = w->focusProxy();
 		QWidget *tlw = w->topLevelWidget();
 		tlw->raise();
-		if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() &&
+		if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && !qt_mac_is_macsheet(tlw) &&
 		   (tlw->isModal() || !::qt_cast<QDockWindow *>(tlw)))
 		    tlw->setActiveWindow();
 	    }
@@ -2395,8 +2396,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	    if(widget && widget->topLevelWidget()->isVisible()) {
 		QWidget *tlw = widget->topLevelWidget();
-		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
-							    !tlw->testWFlags(WStyle_Tool))) {
+		if(tlw->isTopLevel() && !tlw->isPopup() && !qt_mac_is_macdrawer(tlw) && 
+		   (tlw->isModal() || !tlw->testWFlags(WStyle_Tool))) {
 		    bool just_send_event = false;
 		    {
 			WindowActivationScope scope;
