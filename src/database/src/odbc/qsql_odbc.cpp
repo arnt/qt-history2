@@ -495,33 +495,34 @@ QSqlFieldList QODBCResult::fields()
 
 int QODBCResult::size()
 {
-    int size(-1);
-    int at(0);
-    SQLINTEGER currRow(0);
-    SQLRETURN r = SQLGetStmtAttr( d->hStmt,
-    			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0);
-    at = currRow;
-    r = SQLFetchScroll( d->hStmt,
-                        SQL_FETCH_LAST,
-                        0);
-    if ( r == SQL_SUCCESS ) {
-	r = SQLGetStmtAttr( d->hStmt,
-    			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0);
-	if ( r == SQL_SUCCESS )
-	    size = currRow;
-	r = SQLFetchScroll( d->hStmt,
-                        SQL_FETCH_ABSOLUTE,
-                        currRow);
-	if ( r != SQL_SUCCESS )
-	    qSystemWarning("QODBCDriver::size: Unable to restore position", d );
-    }
-    return size;
+    return -1;
+//     int size(-1);
+//     int at(0);
+//     SQLINTEGER currRow(0);
+//     SQLRETURN r = SQLGetStmtAttr( d->hStmt,
+//     			SQL_ROW_NUMBER,
+// 			&currRow,
+// 			SQL_IS_INTEGER,
+// 			0);
+//     at = currRow;
+//     r = SQLFetchScroll( d->hStmt,
+//                         SQL_FETCH_LAST,
+//                         0);
+//     if ( r == SQL_SUCCESS ) {
+// 	r = SQLGetStmtAttr( d->hStmt,
+//     			SQL_ROW_NUMBER,
+// 			&currRow,
+// 			SQL_IS_INTEGER,
+// 			0);
+// 	if ( r == SQL_SUCCESS )
+// 	    size = currRow;
+// 	r = SQLFetchScroll( d->hStmt,
+//                         SQL_FETCH_ABSOLUTE,
+//                         currRow);
+// 	if ( r != SQL_SUCCESS )
+// 	    qSystemWarning("QODBCDriver::size: Unable to restore position", d );
+//     }
+//     return size;
 }
 
 int QODBCResult::affectedRows()
@@ -550,6 +551,8 @@ QODBCDriver::QODBCDriver( QObject * parent, const char * name )
 
 void QODBCDriver::init()
 {
+    // transaction support set in open()
+    setQuerySizeSupport( FALSE );
     d = new QODBCPrivate();
 }
 
