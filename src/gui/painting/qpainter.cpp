@@ -1114,7 +1114,7 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
 	    engine->items[i].analysis.bidiLevel = level;
     }
 
-    QTextLine line = layout.createLine(0, 0, 0, INT_MAX);
+    QTextLine line = layout.createLine(0, 0, 0, 0x01000000);
     const QScriptLine &sl = engine->lines[0];
 
     int textFlags = 0;
