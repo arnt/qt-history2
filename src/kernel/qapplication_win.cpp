@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#110 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#109 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#110 $");
 
 
 /*****************************************************************************
@@ -100,7 +100,7 @@ public:
     bool	translateMouseEvent( const MSG &msg );
     void	translateKeyEvent( const MSG &msg, bool grab );
     void	sendKeyEvent( int type, int code, int ascii, int state,
-			      bool grab )
+			      bool grab );
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
@@ -1016,7 +1016,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		widget = (QETWidget*)qApp->focusWidget();
 	    widget->translateKeyEvent( msg, g != 0 );
 	    break;
-
+	  }
 	case WM_PAINT:				// paint event
 	    result = widget->translatePaintEvent( msg );
 	    break;
@@ -1786,19 +1786,25 @@ struct KeyRec {
     KeyRec() { }
     int code, ascii;
 };
-static const int maxrecs=8;
+static const int maxrecs=64; // User has LOTS of fingers...
 static KeyRec key_rec[maxrecs];
 static int nrecs=0;
 KeyRec* find_key_rec( int code, bool remove )
 {
-    int result = 0;
+    KeyRec *result = 0;
     for (int i=0; i<nrecs; i++) {
-	if (key_rec[i]==code) {
-	    result = key_rec+i;
+	if (key_rec[i].code == code) {
 	    if (remove) {
-		while (i+1 < nrecs)
+		static KeyRec tmp;
+		tmp = key_rec[i];
+		while (i+1 < nrecs) {
 		    key_rec[i] = key_rec[i+1];
+		    i++;
+		}
 		nrecs--;
+		result = &tmp;
+	    } else {
+		result = &key_rec[i];
 	    }
 	    break;
 	}
@@ -1819,8 +1825,6 @@ void store_key_rec( int code, int ascii )
 
 void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 {
-    int type;
-    int code;
     int ascii = 0;
     int state = 0;
 
@@ -1840,6 +1844,12 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	int code = translateKeyCode( msg.wParam );
         if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
 	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
+	    MSG wm_char;
+	    if (!PeekMessage( &wm_char, 0,
+		    WM_CHAR, WM_CHAR, PM_REMOVE ))
+	    {
+		wm_char.wParam = 0;
+	    }
 	    if ( rec ) {
 		debug("Auto-repeating");
 		// it is already down (so it is auto-repeating)
@@ -1847,12 +1857,6 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		sendKeyEvent( Event_KeyPress, code, rec->ascii, state, grab );
 	    } else {
 		debug("Key down");
-		MSG wm_char;
-		if (!PeekMessage( &wm_char, (void*)-1,
-			    WM_CHAR, WM_CHAR, PM_REMOVE ))
-		{
-		    wm_char.wParam = 0;
-		}
 		store_key_rec( msg.wParam, wm_char.wParam );
 		sendKeyEvent( Event_KeyPress, code,
 			      wm_char.wParam, state, grab );
