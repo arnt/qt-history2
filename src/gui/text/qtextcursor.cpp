@@ -1417,6 +1417,18 @@ void QTextCursor::insertImage(const QTextImageFormat &format)
 }
 
 /*!
+    \overload
+
+    Convenience method for inserting an image at the current position().
+*/
+void QTextCursor::insertImage(const QString &name)
+{
+    QTextImageFormat format;
+    format.setName(name);
+    insertImage(format);
+}
+
+/*!
     \fn bool QTextCursor::operator!=(const QTextCursor &other) const
 
     Returns true if the \a other cursor is at a different position in

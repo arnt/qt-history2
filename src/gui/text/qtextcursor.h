@@ -138,6 +138,7 @@ public:
     void insertFragment(const QTextDocumentFragment &fragment);
 
     void insertImage(const QTextImageFormat &format);
+    void insertImage(const QString &name);
 
     void beginEditBlock();
     void endEditBlock();
