@@ -12,8 +12,8 @@
 
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
     if ( Project('TEMPLATE') eq "qt.t" ) {
-	# Qt/Embedded hackery.
-	Project('TMAKE_LIBS += -L'.$project{"OBJECTS_DIR"});
+	#! Qt/Embedded hackery.
+	Project('TMAKE_LIBS += -L'.$project{'OBJECTS_DIR'});
 	Project('TMAKE_LIBS += -freetype2');
     }
 
@@ -181,8 +181,8 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 	$text .= '$(DESTDIR)' . $targ . "\n\n";
 	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
 	if ( Project('TEMPLATE') eq "qt.t" ) {
-	    # Qt/Embedded hackery.
-	    $text .= $project{"OBJECTS_DIR"}.'/libfreetype.a ';
+	    #! Qt/Embedded hackery.
+	    $text .= $project{'OBJECTS_DIR'}.'/libfreetype.a ';
 	}
 	Expand("TARGETDEPS");
 	$text .= "\n\t";
