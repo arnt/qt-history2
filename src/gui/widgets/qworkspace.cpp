@@ -48,70 +48,69 @@
 #define BUTTON_HEIGHT 14
 
 /*!
-\class QWorkspace qworkspace.h
-\brief The QWorkspace widget provides a workspace window that be
-used in an MDI application.
+    \class QWorkspace qworkspace.h
+    \brief The QWorkspace widget provides a workspace window that be
+    used in an MDI application.
 
-\module workspace
+    \module workspace
 
-\ingroup application
-\ingroup organizers
-\mainclass
+    \ingroup application
+    \ingroup organizers
+    \mainclass
 
-Multiple Document Interface (MDI) applications are typically
-composed of a main window containing a menu bar, a toolbar, and
-a central QWorkspace widget. The workspace itself is used to display
-a number of child windows, each of which is a widget.
+    Multiple Document Interface (MDI) applications are typically
+    composed of a main window containing a menu bar, a toolbar, and
+    a central QWorkspace widget. The workspace itself is used to display
+    a number of child windows, each of which is a widget.
 
-The workspace itself is an ordinary Qt widget. It has a standard
-constructor that takes a parent widget and an object name.
-Workspaces can be placed in any layout, but are typically given
-as the central widget in a QMainWindow:
+    The workspace itself is an ordinary Qt widget. It has a standard
+    constructor that takes a parent widget and an object name.
+    Workspaces can be placed in any layout, but are typically given
+    as the central widget in a QMainWindow:
 
-\quotefile examples/mdi/application.cpp
-\skipto ws = new
-\printuntil setCentralWidget( vb );
+    \quotefile examples/mdi/application.cpp
+    \skipto ws = new
+    \printuntil setCentralWidget( vb );
 
-Child windows (MDI windows) are standard Qt widgets that
-have the workspace as their parent widget. As with top-level widgets,
-you can call functions such as show(), hide(), showMaximized(),
-and setWindowTitle() on a child window to change its appearance
-within the workspace. You can also provide widget flags to
-determine the layout of the decoration or the behavior of the
-widget itself.
+    Child windows (MDI windows) are standard Qt widgets that
+    have the workspace as their parent widget. As with top-level widgets,
+    you can call functions such as show(), hide(), showMaximized(),
+    and setWindowTitle() on a child window to change its appearance
+    within the workspace. You can also provide widget flags to
+    determine the layout of the decoration or the behavior of the
+    widget itself.
 
-To change or retrieve the geometry of a child window, you must
-operate on its parentWidget(). The parentWidget() provides
-access to the decorated frame that contains the child window
-widget. When a child window is maximised, its decorated frame
-is hidden. If the top-level widget contains a menu bar, it will display
-the maximised window's operations menu to the left of the menu
-entries, and the window's controls to the right.
+    To change or retrieve the geometry of a child window, you must
+    operate on its parentWidget(). The parentWidget() provides
+    access to the decorated frame that contains the child window
+    widget. When a child window is maximised, its decorated frame
+    is hidden. If the top-level widget contains a menu bar, it will display
+    the maximised window's operations menu to the left of the menu
+    entries, and the window's controls to the right.
 
-A child window becomes active when it gets the keyboard focus,
-or when setFocus() is called. The user can activate a window by moving
-focus in the usual ways, for example by clicking a window or by pressing
-Tab. The workspace emits a signal windowActivated() when the active
-window changes, and the function activeWindow() returns a pointer to the
-active child window, or 0 if no window is active.
+    A child window becomes active when it gets the keyboard focus,
+    or when setFocus() is called. The user can activate a window by moving
+    focus in the usual ways, for example by clicking a window or by pressing
+    Tab. The workspace emits a signal windowActivated() when the active
+    window changes, and the function activeWindow() returns a pointer to the
+    active child window, or 0 if no window is active.
 
-The convenience function windowList() returns a list of all
-child windows. This information could be used in a
-popup menu containing a list of windows, for example.
-This feature is also available as part of the
-\link http://www.trolltech.com/products/solutions/catalog/Widgets/qtwindowlistmenu/
-Window Menu \endlink Qt Solution.
+    The convenience function windowList() returns a list of all
+    child windows. This information could be used in a
+    popup menu containing a list of windows, for example.
+    This feature is also available as part of the
+    \link http://www.trolltech.com/products/solutions/catalog/Widgets/qtwindowlistmenu/
+    Window Menu \endlink Qt Solution.
 
-QWorkspace provides two built-in layout strategies for child
-windows: cascade() and tile(). Both are slots so you can easily
-connect menu entries to them.
+    QWorkspace provides two built-in layout strategies for child
+    windows: cascade() and tile(). Both are slots so you can easily
+    connect menu entries to them.
 
-\img qworkspace-arrange.png
+    \img qworkspace-arrange.png
 
-If you want your users to be able to work with child windows
-larger than the visible workspace area, set the scrollBarsEnabled
-property to true.
-
+    If you want your users to be able to work with child windows
+    larger than the visible workspace area, set the scrollBarsEnabled
+    property to true.
 */
 
 static bool inTitleChange = false;
@@ -183,10 +182,10 @@ private:
     QSize windowSize;
     QSize shadeRestore;
     QSize shadeRestoreMin;
-    bool act                    :1;
+    bool act                  :1;
     bool shademode            :1;
-    bool snappedRight            :1;
-    bool snappedDown            :1;
+    bool snappedRight         :1;
+    bool snappedDown          :1;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QWorkspaceChild(const QWorkspaceChild &);
     QWorkspaceChild &operator=(const QWorkspaceChild &);
@@ -350,13 +349,15 @@ QWorkspacePrivate::init()
     q->topLevelWidget()->installEventFilter(q);
 }
 
-/*!  Destroys the workspace and frees any allocated resources. */
+/*!
+    Destroys the workspace and frees any allocated resources.
+*/
 
 QWorkspace::~QWorkspace()
 {
 }
 
-/*!\reimp */
+/*! \reimp */
 QSize QWorkspace::sizeHint() const
 {
     QSize s(QApplication::desktop()->size());
@@ -440,8 +441,7 @@ void QWorkspace::childEvent(QChildEvent * e)
     }
 }
 
-/*! \reimp
-*/
+/*! \reimp */
 #ifndef QT_NO_WHEELEVENT
 void QWorkspace::wheelEvent(QWheelEvent *e)
 {
@@ -531,8 +531,8 @@ void QWorkspacePrivate::activateWindow(QWidget* w, bool change_focus)
 
 
 /*!
-Returns a pointer to the widget corresponding to the active child
-window, or 0 if no window is active.
+    Returns a pointer to the widget corresponding to the active child
+    window, or 0 if no window is active.
 */
 QWidget* QWorkspace::activeWindow() const
 {
@@ -950,11 +950,11 @@ QWorkspaceChild* QWorkspacePrivate::findChild(QWidget* w)
 }
 
 /*!
-Returns a list of all child windows. If \a order is CreationOrder
-(the default), the windows are listed in the order in which they
-were inserted into the workspace. If \a order is StackingOrder,
-the windows are listed in their stacking order, with the topmost
-window as the last item in the list.
+    Returns a list of all child windows. If \a order is CreationOrder
+    (the default), the windows are listed in the order in which they
+    were inserted into the workspace. If \a order is StackingOrder,
+    the windows are listed in their stacking order, with the topmost
+    window as the last item in the list.
 */
 QWidgetList QWorkspace::windowList(WindowOrder order) const
 {
@@ -978,7 +978,7 @@ QWidgetList QWorkspace::windowList(WindowOrder order) const
     return windows;
 }
 
-/*!\reimp*/
+/*! \reimp */
 bool QWorkspace::eventFilter(QObject *o, QEvent * e)
 {
     static QTime* t = 0;
@@ -1381,10 +1381,10 @@ void QWorkspacePrivate::operationMenuActivated(QAction *action)
 }
 
 /*!
-Gives the input focus to the next window in the list of child
-windows.
+    Gives the input focus to the next window in the list of child
+    windows.
 
-\sa activatePreviousWindow()
+    \sa activatePreviousWindow()
 */
 void QWorkspace::activateNextWindow()
 {
@@ -1407,10 +1407,10 @@ void QWorkspace::activateNextWindow()
 }
 
 /*!
-Gives the input focus to the previous window in the list of child
-windows.
+    Gives the input focus to the previous window in the list of child
+    windows.
 
-\sa activateNextWindow()
+    \sa activateNextWindow()
 */
 void QWorkspace::activatePreviousWindow()
 {
@@ -1436,16 +1436,14 @@ void QWorkspace::activatePreviousWindow()
 
 
 /*!
-\fn void QWorkspace::windowActivated(QWidget* w)
+    \fn void QWorkspace::windowActivated(QWidget* w)
 
-This signal is emitted when the child window \a w becomes active.
-Note that \a w can be 0, and that more than one signal may be
-emitted for a single activation event.
+    This signal is emitted when the child window \a w becomes active.
+    Note that \a w can be 0, and that more than one signal may be
+    emitted for a single activation event.
 
-\sa activeWindow(), windowList()
+    \sa activeWindow(), windowList()
 */
-
-
 
 /*!
     Arranges all the child windows in a cascade pattern.
@@ -1520,9 +1518,9 @@ void QWorkspace::cascade()
 }
 
 /*!
-Arranges all child windows in a tile pattern.
+    Arranges all child windows in a tile pattern.
 
-\sa cascade()
+    \sa cascade()
 */
 void QWorkspace::tile()
 {
@@ -2113,7 +2111,6 @@ QWidget* QWorkspaceChild::iconWidget() const
     if (!iconw) {
         QWorkspaceChild* that = (QWorkspaceChild*) this;
 
-        // ### why do we even need the vbox? -Brad
         QVBox* vbox = new QVBox(that, "qt_vbox", Qt::WType_TopLevel);
         QTitleBar *tb = new QTitleBar(windowWidget(), vbox, "_workspacechild_icon_");
         int th = style().pixelMetric(QStyle::PM_TitleBarHeight, tb);
@@ -2307,18 +2304,18 @@ bool QWorkspace::scrollBarsEnabled() const
 }
 
 /*!
-\property QWorkspace::scrollBarsEnabled
-\brief whether the workspace provides scrollbars
+    \property QWorkspace::scrollBarsEnabled
+    \brief whether the workspace provides scrollbars
 
-If this property is true, the workspace will provide scrollbars if any
-of the child windows extend beyond the edges of the visible
-workspace. The workspace area will automatically increase to
-contain child windows if they are resized beyond the right or
-bottom edges of the visible area.
+    If this property is true, the workspace will provide scrollbars if any
+    of the child windows extend beyond the edges of the visible
+    workspace. The workspace area will automatically increase to
+    contain child windows if they are resized beyond the right or
+    bottom edges of the visible area.
 
-If this property is false (the default), resizing child windows
-out of the visible area of the workspace is not permitted, although
-it is still possible to position them partially outside the visible area.
+    If this property is false (the default), resizing child windows
+    out of the visible area of the workspace is not permitted, although
+    it is still possible to position them partially outside the visible area.
 */
 void QWorkspace::setScrollBarsEnabled(bool enable)
 {
@@ -2469,12 +2466,12 @@ void QWorkspacePrivate::scrollBarChanged()
 }
 
 /*!
-\enum QWorkspace::WindowOrder
+    \enum QWorkspace::WindowOrder
 
-Specifies the order in which child windows are returned from windowList().
+    Specifies the order in which child windows are returned from windowList().
 
-\value CreationOrder The windows are returned in the order of their creation
-\value StackingOrder The windows are returned in the order of their stacking
+    \value CreationOrder The windows are returned in the order of their creation
+    \value StackingOrder The windows are returned in the order of their stacking
 */
 
 #ifndef QT_NO_STYLE
