@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QListView widget class
 **
@@ -1742,7 +1742,6 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     }
 
     QString t = text( column );
-    int lc = 1;
 
     if ( columns ) {
 	QListViewPrivate::ItemColumnInfo *ci = 0;
@@ -1778,7 +1777,6 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 		ci->tmpText += "...";
 	    } else if ( mlenabled && fm.width( t ) + pw > width ) {
 		QStringList list = QStringList::split( QChar('\n'), t, TRUE );
-		lc = list.count();
 		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 		    QString z = (*it).latin1();
 		    if ( fm.width( z ) + pw > width ) {
