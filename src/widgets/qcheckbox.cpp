@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#58 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#58 $");
 
 
 /*!
@@ -123,8 +123,9 @@ QSize QCheckBox::sizeHint() const
   \sa drawButtonLabel()
 */
 
-void QCheckBox::drawButton( QPainter *p )
+void QCheckBox::drawButton( QPainter *paint )
 {
+    QPainter	*p = paint;
     GUIStyle	 gs = style();
     QColorGroup	 g  = colorGroup();
     int		 x, y, w, h;
@@ -132,6 +133,37 @@ void QCheckBox::drawButton( QPainter *p )
     getSizeOfBitmap( gs, &w, &h );
     x = gs == MotifStyle ? 1 : 0;
     y = height()/2 - h/2;
+
+#define SAVE_CHECKBOX_PIXMAPS
+#if defined(SAVE_CHECKBOX_PIXMAPS)
+    QString pmkey;				// pixmap key
+    int kf = 0;
+    if ( isDown() )
+	kf |= 1;
+    if ( isOn() )
+	kf |= 2;
+    if ( isEnabled() )
+	kf |= 4;
+    pmkey.sprintf( "$qt_check_%d_%d_%d", gs, palette().serialNumber(), kf );
+    QPixmap *pm = QPixmapCache::find( pmkey );
+    if ( pm ) {					// pixmap exists
+	p->drawPixmap( x, y, *pm );
+	drawButtonLabel( p );
+	return;
+    }
+    bool use_pm = TRUE;
+    QPainter pmpaint;
+    int wx, wy;
+    if ( use_pm ) {
+	pm = new QPixmap( w, h );		// create new pixmap
+	CHECK_PTR( pm );
+	pmpaint.begin( pm );
+	p = &pmpaint;				// draw in pixmap
+	wx=x;  wy=y;				// save x,y coords
+	x = y = 0;
+	p->setBackgroundColor( g.background() );
+    }
+#endif
 
     if ( gs == WindowsStyle ) {			// Windows check box
 	QColor fillColor;
@@ -167,6 +199,16 @@ void QCheckBox::drawButton( QPainter *p )
 	qDrawShadePanel( p, x, y, w, h, g, !showUp, 2, &fill );
     }
 
+#if defined(SAVE_CHECKBOX_PIXMAPS)
+    if ( use_pm ) {
+	pmpaint.end();
+	p = paint;				// draw in default device
+	p->drawPixmap( wx, wy, *pm );
+	w += wx;
+	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
+	    delete pm;
+    }
+#endif
     drawButtonLabel( p );
 }
 
