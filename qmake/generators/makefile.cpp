@@ -1405,7 +1405,15 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
     }
 
     QString orig_file = file;
-    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //relative
+    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
+	file = Option::fixPathToTargetOS(file);
+	if(!QDir::isRelativePath(file)) //already absolute
+	    return FALSE;
+	QFileInfo fi(file);
+	if(fi.convertToAbs()) //strange
+	    return FALSE;
+	file = fi.filePath();
+    } else if(!project->isActiveConfig("no_fixpath")) { //relative
 	file = Option::fixPathToTargetOS(file, FALSE);
 	if(QDir::isRelativePath(file))
 	    return FALSE;
@@ -1434,14 +1442,8 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
 		}
 	    }
 	}
-    } else { //absoluteify it
-	file = Option::fixPathToTargetOS(file);
-	if(!QDir::isRelativePath(file)) //already absolute
-	    return FALSE;
-	QFileInfo fi(file);
-	if(fi.convertToAbs()) //strange
-	    return FALSE;
-	file = fi.filePath();
+    } else { //just clean it
+	file = Option::fixPathToTargetOS(file, FALSE);
     }
     debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
     return TRUE;
