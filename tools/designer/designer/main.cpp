@@ -108,6 +108,7 @@ static void exitHandler( int )
     exit( -1 );
 }
 
+#if defined(QT_NO_DEBUG)
 #if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
 static void crashHandler()
 #else
@@ -118,6 +119,7 @@ static void crashHandler( int )
 	MainWindow::self->saveAllTemp();
     ::exit( -1 );
 }
+#endif
 
 #if defined(Q_C_CALLBACKS)
 }
