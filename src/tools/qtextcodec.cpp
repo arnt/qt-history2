@@ -464,7 +464,7 @@ static const char * const iso8859_7locales[] = {
     "el", "el_GR", "greek", 0 };
 
 static const char * const iso8859_8locales[] = {
-    "hebrew", "iw", "iw_IL", 0 };
+    "hebrew", "he", "he_IL", "iw", "iw_IL", 0 };
 
 static const char * const iso8859_9locales[] = {
     "tr", "tr_TR", "turkish", 0 };
@@ -531,6 +531,16 @@ static QTextCodec * ru_RU_hack( const char * i ) {
 #endif
 
 static QTextCodec * localeMapper = 0;
+
+/*!
+  Allows you to set the codec that will be returned by \sa codecForLocale.
+  This might be needed for some applications, that want to use their own mechanism
+  for setting the locale.
+*/
+void QTextCodec::setCodecForLocale(QTextCodec *c)
+{
+    localeMapper = c;
+}
 
 /*!  Returns a pointer to the codec most suitable for this locale. */
 
