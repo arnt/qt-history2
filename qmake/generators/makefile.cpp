@@ -1235,6 +1235,15 @@ MakefileGenerator::init()
 	    }
 	}
     }
+
+    // Make sure the INCLUDEPATH doesn't contain any empty(/null) entries
+    QStringList &ipl = project->variables()["INCLUDEPATH"];
+    for(QStringList::Iterator ipl_it = ipl.begin(); ipl_it != ipl.end();) {
+	if ((*ipl_it).isEmpty())
+	    ipl_it = ipl.remove(ipl_it);
+	else
+	    ++ipl_it;
+    }
 }
 
 bool
