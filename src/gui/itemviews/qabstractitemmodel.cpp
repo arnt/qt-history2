@@ -37,7 +37,6 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
     }
     if (d == &QPersistentModelIndexData::shared_null) {
         d = new QPersistentModelIndexData();
-        d->model = model;
         d->index = index;
         persistentIndexes->append(d);
     }
@@ -47,12 +46,11 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
     if (data && data != &QPersistentModelIndexData::shared_null) {
-        QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
+        QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->index.model());
         // a valid persistent model index with a null model pointer can only happen if the model was destroyed
-        if (model) {
+        if (model)
             model->d_func()->persistentIndexes.removeAll(data);
-            delete data;
-        }
+        delete data;
     }
 }
 
@@ -605,7 +603,6 @@ QAbstractItemModel::~QAbstractItemModel()
     for (; it != d->persistentIndexes.end(); ++it) {
         Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
         (*it)->index = QModelIndex::Null;
-        (*it)->model = 0;
     }
 }
 
@@ -934,7 +931,7 @@ bool QAbstractItemModel::insertRows(int, const QModelIndex &, int)
 
   If \a column is 0, the columns are prepended to any existing columns.
   If \a column is columnCount(), the columns are appended to any existing
-  columns. 
+  columns.
   If \a parent has no children, a single row with \a count columns is inserted.
 
   Returns true if the columns were successfully inserted; otherwise returns
