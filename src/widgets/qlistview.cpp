@@ -4901,9 +4901,8 @@ int QListView::itemPos( const QListViewItem * item )
 }
 
 
-/*!
-    \property QListView::multiSelection
-    \brief whether the list view is in multi-selection mode
+/*! \property QListView::multiSelection
+    \brief whether the list view is in multi-selection or extended-selection mode
 
     If you enable multi-selection, \c Multi, mode, it is possible to
     specify whether or not this mode should be extended. \c Extended
