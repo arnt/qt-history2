@@ -3,7 +3,6 @@
 
 #include <qapplication.h>
 
-
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
 const int XFocusOut = FocusOut;
 const int XFocusIn = FocusIn;
@@ -15,25 +14,11 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
-#if QT_VERSION < 310
-// no QEventLoop class available
-typedef void (*ForeignEventProc)(XEvent*);
-void qt_np_add_event_proc( ForeignEventProc fep );       // defined in qnpsupport.cpp
-void qt_np_remove_event_proc( ForeignEventProc fep );    // defined in qnpsupport.cpp
-
-void qmotif_event_proc( XEvent* event )
-{
-    (void) QMotif::redeliverEvent( event );
-    event->xany.window = None;
-}
-#endif
 
 QMotifPrivate::QMotifPrivate()
     : appContext(NULL)
 {
-#if QT_VERSION >= 310
     eventloop = 0;
-#endif
 }
 
 void QMotifPrivate::hookMeUp()
@@ -49,10 +34,6 @@ void QMotifPrivate::hookMeUp()
 	dispatchers[ et ] =
 	    XtSetEventDispatcher( QPaintDevice::x11AppDisplay(),
 				  et, ::qmotif_event_dispatcher );
-
-#if QT_VERSION < 310
-    qt_np_add_event_proc( qmotif_event_proc );
-#endif
 }
 
 void QMotifPrivate::unhook()
@@ -66,90 +47,113 @@ void QMotifPrivate::unhook()
 	(void) XtSetEventDispatcher( QPaintDevice::x11AppDisplay(),
 				     et, dispatchers[ et ] );
     dispatchers.resize( 0 );
-
-#if QT_VERSION < 310
-    qt_np_remove_event_proc( qmotif_event_proc );
-#endif
 }
 
 
 static QMotif *QMotif_INSTANCE = 0;
 
+static XEvent* last_xevent = 0;
+
+
+extern bool qt_try_modal( QWidget *, XEvent * ); // defined in qapplication_x11.cpp
 Boolean qmotif_event_dispatcher( XEvent *event )
 {
-#if QT_VERSION < 310
-    if ( qApp->loopLevel() == 0 ) {
-#endif
+    QApplication::sendPostedEvents();
 
-        QApplication::sendPostedEvents();
+    QWidgetIntDict *mapper = QMotif::mapper();
+    QWidget* qMotif = mapper->find( event->xany.window );
+    if ( !qMotif && QWidget::find( event->xany.window) == 0 ) {
+	// event is not for Qt, try Xt
+	Display* dpy = QPaintDevice::x11AppDisplay();
+	Widget w = XtWindowToWidget( dpy, event->xany.window );
+	while ( w && ! ( qMotif = mapper->find( XtWindow( w ) ) ) ) {
+	    if ( XtIsShell( w ) ) {
+		break;
+	    }
+	    w = XtParent( w );
+	}
 
-#if QT_VERSION >= 310
-        // ### WARNING - this is an ugly nasty horrible icky hack.  Please look away
-        // now
-        QWidgetIntDict *widgetmapper = ( (QWidgetIntDict *) QWidget::wmapper() );
-
-        QWidget *motiftarget = QMotif::mapper()->find( event->xany.window );
-        if ( motiftarget ) {
-            if ( ! widgetmapper->find( event->xany.window ) ) {
-                widgetmapper->insert( event->xany.window, motiftarget );
-            } else {
-                motiftarget = 0;
-                qWarning( "ERROR: window 0x%lx is already in QWidget::mapper!",
-                          event->xany.window );
-            }
-        }
-#endif
-
-        bool delivered = ( qApp->x11ProcessEvent( event ) != -1 );
-
-#if QT_VERSION >= 310
-        // Please look away again.
-        if ( motiftarget )
-            widgetmapper->remove( event->xany.window );
-#endif
-
-        if ( delivered )
-            // Qt handled the event.
-            return True;
-
-#if QT_VERSION < 310
-        if ( event->xany.window == None ) {
-            return True;
-        }
-#endif
-
-        if ( QApplication::activePopupWidget() )
-            // we get all events through the popup grabs.  discard the event
-            return True;
-
-        if ( QApplication::activeModalWidget() ) {
-            // disable all user events in modal mode, but let all other events through
-            switch ( event->type ) {
-            case ButtonPress:
-            case ButtonRelease:
-            case MotionNotify:
-            case XKeyPress:
-            case XKeyRelease:
-            case EnterNotify:
-            case LeaveNotify:
-            case XFocusIn:
-            case XFocusOut:
-                return True;
-
-            default:
-                break;
-            }
-        }
-
-#if QT_VERSION < 310
+	if ( qMotif &&
+	     ( event->type == XKeyPress || event->type == XKeyRelease ) )  {
+	    // remap key events
+	    event->xany.window = qMotif->winId();
+	}
     }
-#endif
+
+    last_xevent = event;
+    bool delivered = ( qApp->x11ProcessEvent( event ) != -1 );
+    last_xevent = 0;
+    if ( qMotif ) {
+	switch ( event->type ) {
+	case EnterNotify:
+	case LeaveNotify:
+	    event->xcrossing.focus = False;
+	    delivered = FALSE;
+	    break;
+	case XKeyPress:
+	case XKeyRelease:
+	    delivered = TRUE;
+	    break;
+	case XFocusIn:
+	case XFocusOut:
+	    delivered = FALSE;
+	    break;
+	default:
+	    delivered = FALSE;
+	    break;
+	}
+    }
+
+    if ( delivered )
+	return True;
+
+
+    if ( QApplication::activePopupWidget() )
+	// we get all events through the popup grabs.  discard the event
+	return True;
+
+    if ( qMotif && QApplication::activeModalWidget() ) {
+	if ( !qt_try_modal(qMotif, event) )
+	    return True;
+
+    }
 
     if ( QMotif_INSTANCE->d->dispatchers[ event->type ]( event ) )
 	// Xt handled the event.
 	return True;
 
     return False;
+}
+
+
+bool QMotif::dispatchQEvent( QEvent* e, QWidget* w)
+{
+    switch ( e->type() ) {
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+	if ( last_xevent ) {
+	    last_xevent->xany.window = w->winId();
+	    redeliverEvent( last_xevent );
+	}
+	break;
+    case QEvent::FocusIn:
+    {
+	XFocusInEvent ev = { XFocusIn, 0, TRUE, w->x11Display(), w->winId(),
+			       NotifyNormal, NotifyPointer  };
+	redeliverEvent( (XEvent*)&ev );
+	break;
+    }
+    case QEvent::FocusOut:
+    {
+	XFocusOutEvent ev = { XFocusOut, 0, TRUE, w->x11Display(), w->winId(),
+			       NotifyNormal, NotifyPointer  };
+	redeliverEvent( (XEvent*)&ev );
+	break;
+    }
+    default:
+	break;
+    }
+    return FALSE;
 }
 
 /*!
@@ -164,35 +168,35 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     connection to the X server, this is done by using QApplication.
 
     The only member function in QMotif that depends on an X server
-    connection is QMotif::initialize().  QMotif can be created before
+    connection is QMotif::initialize().	 QMotif can be created before
     or after QApplication.
 
     Example usage of QMotif and QApplication:
 
     \code
     static char *resources[] = {
-        ...
+	...
     };
 
     int main(int argc, char **argv)
     {
-        QMotif integrator;
+	QMotif integrator;
 
-        XtAppSetFallbackResources( integrator.applicationContext(),
-                                   resources );
+	XtAppSetFallbackResources( integrator.applicationContext(),
+				   resources );
 
-        QApplication app( argc, argv );
-        integrator.initialize( &argc, argv, "AppClass", NULL, 0 );
+	QApplication app( argc, argv );
+	integrator.initialize( &argc, argv, "AppClass", NULL, 0 );
 
-        ...
+	...
 
 
 	int ret = app.exec();
 
-        XtDestroyApplication( integrator.applicationContext() );
-        integrator.setApplicationContext( 0 );
+	XtDestroyApplication( integrator.applicationContext() );
+	integrator.setApplicationContext( 0 );
 
-        return ret;
+	return ret;
     }
     \endcode
 */

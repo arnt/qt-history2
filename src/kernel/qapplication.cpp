@@ -355,7 +355,7 @@ QMutex *QApplication::qt_mutex		= 0;
 static QMutex *postevent_mutex		= 0;
 #endif // QT_THREAD_SUPPORT
 
-static QEventLoop *static_eventloop = 0;	// application event loop
+QEventLoop *QApplication::eventloop = 0;	// application event loop
 
 
 #if defined(QT_TABLET_SUPPORT)
@@ -987,9 +987,6 @@ QApplication::~QApplication()
 #endif
 
     qt_cleanup();
-
-    delete static_eventloop;
-    static_eventloop = 0;
 
 #ifndef QT_NO_COMPONENT
     delete app_libpaths;
@@ -2294,32 +2291,13 @@ void QApplication::processOneEvent()
   Returns the application event loop.  This function will return
   zero if called during and after destroying QApplication.
 */
-QEventLoop *QApplication::eventLoop() const
+QEventLoop *QApplication::eventLoop()
 {
-    if ( ! static_eventloop && ! is_app_closing )
-	qApp->setEventLoop( new QEventLoop( qApp, "default event loop" ) );
-    return static_eventloop;
+    if ( !eventloop && qApp &&  !is_app_closing )
+	(void) new QEventLoop( qApp, "default event loop" );
+    return eventloop;
 }
 
-/*!
-   Sets the application event loop object to \a eventloop.
-*/
-void QApplication::setEventLoop( QEventLoop *eventloop )
-{
-    delete static_eventloop;
-    static_eventloop = eventloop;
-    if ( static_eventloop ) {
-	connect( static_eventloop, SIGNAL(destroyed()), SLOT(eventLoopDestroyed()) );
-    }
-}
-
-/*! \internal
-    Prevents double deletion of the event loop object.
-*/
-void QApplication::eventLoopDestroyed()
-{
-    static_eventloop = 0;
-}
 
 /*!
     Enters the main event loop and waits until exit() is called or the
@@ -2781,8 +2759,8 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     l->append( pe );
     globalPostedEvents->append( pe );
 
-    if (static_eventloop)
-	static_eventloop->wakeUp();
+    if (eventloop)
+	eventloop->wakeUp();
 }
 
 

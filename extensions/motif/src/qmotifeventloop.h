@@ -14,8 +14,8 @@ class QMotifEventLoop : public QEventLoop
     Q_OBJECT
 
 public:
-    QMotifEventLoop( QMotif *motif, QObject *parent, const char *name = 0 );
-    virtual ~QMotifEventLoop();
+    QMotifEventLoop( QMotif *motif, QObject *parent = 0, const char *name = 0 );
+    ~QMotifEventLoop();
 
     void registerSocketNotifier( QSocketNotifier * );
     void unregisterSocketNotifier( QSocketNotifier * );

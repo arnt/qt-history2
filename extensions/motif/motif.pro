@@ -1,7 +1,7 @@
 TEMPLATE	= subdirs
 CONFIG		+= ordered
 
-contains( QT_PRODUCT, qt-(enterprise|free) ) {
+contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     SUBDIRS	= src \
 		  examples
 } else {

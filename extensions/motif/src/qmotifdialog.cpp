@@ -1,6 +1,7 @@
 #include "qmotifdialog.h"
 #include "qmotif.h"
 
+#include <qapplication.h>
 #include <qobjectlist.h>
 #include <qwidgetintdict.h>
 
@@ -121,11 +122,10 @@ externaldef(qmotifdialogwidgetclass)
 class QMotifDialogPrivate
 {
 public:
-    QMotifDialogPrivate() : shell( NULL ), dialog( NULL ), wdict(  ) { }
+    QMotifDialogPrivate() : shell( NULL ), dialog( NULL ) { }
 
     Widget shell;
     Widget dialog;
-    QWidgetIntDict wdict;
 };
 
 /*!
@@ -370,7 +370,7 @@ QMotifDialog::QMotifDialog( Widget parent, ArgList args, Cardinal argcount,
 */
 QMotifDialog::~QMotifDialog()
 {
-    tearDownWidgetDict( d->shell );
+    QMotif::mapper()->remove( winId() );
     ( (QMotifDialogWidget) d->shell )->qmotifdialog.dialog = 0;
     XtDestroyWidget( d->shell );
     delete d;
@@ -419,9 +419,6 @@ void QMotifDialog::show()
     XtManageChildren( motifdialog->composite.children,
 		      motifdialog->composite.num_children );
 
-    if ( d->dialog != NULL )
-	buildWidgetDict( d->dialog );
-
     QDialog::show();
 }
 
@@ -442,17 +439,9 @@ void QMotifDialog::hide()
 
     The widget is passed in \a widget and the data in \a client_data.
 */
-void QMotifDialog::acceptCallback( Widget widget, XtPointer client_data, XtPointer )
+void QMotifDialog::acceptCallback( Widget, XtPointer client_data, XtPointer )
 {
     QMotifDialog *dialog = (QMotifDialog *) client_data;
-
-#ifdef QT_CHECK_STATE
-    if ( ! dialog->d->wdict.find( XtWindow( widget ) ) ) {
-	qWarning( "QMotifDialog::acceptCallback: dialog does not contain widget." );
-	return;
-    }
-#endif // QT_CHECK_STATE
-
     dialog->accept();
 }
 
@@ -461,39 +450,10 @@ void QMotifDialog::acceptCallback( Widget widget, XtPointer client_data, XtPoint
 
     The widget is passed in \a widget and the data in \a client_data.
 */
-void QMotifDialog::rejectCallback( Widget widget, XtPointer client_data, XtPointer )
+void QMotifDialog::rejectCallback( Widget, XtPointer client_data, XtPointer )
 {
     QMotifDialog *dialog = (QMotifDialog *) client_data;
-
-#ifdef QT_CHECK_STATE
-    if ( ! dialog->d->wdict.find( XtWindow( widget ) ) ) {
-	qWarning( "QMotifDialog::rejectCallback: dialog does not contain widget." );
-	return;
-    }
-#endif // QT_CHECK_STATE
-
     dialog->reject();
-}
-
-/*! \reimp
-  Delivers \a event to the dialog, or to any Xt/Motif child.
-*/
-bool QMotifDialog::x11Event( XEvent *event )
-{
-    // here, lookup a the event window id to see if we have a child motif widget,
-    // and if so, resend the event... the QMotifEventLoop has a reentrancy
-    // check, so all we need to do is use XtDispatchEvent
-
-    if ( d->wdict.find( event->xany.window ) ) {
-	if ( QMotif::redeliverEvent( event ) )
-	    return TRUE;
-	// Xt didn't handle the event, so we pass it onto Qt instead
-    } else if ( event->xany.window == winId() ) {
-	// for the dialog window itself, let Xt and Qt process the event
-	(void) QMotif::redeliverEvent( event );
-    }
-
-    return QDialog::x11Event( event );
 }
 
 /*! \internal
@@ -515,11 +475,12 @@ void QMotifDialog::realize( Widget w )
 				     newid,
 				     widget->x(),
 				     widget->y() );
-		    if ( widget->isVisible() )
+		    if ( !widget->isHidden() )
 			XMapWindow( QPaintDevice::x11AppDisplay(), widget->winId() );
 		}
 	    }
 	}
+	QApplication::syncX();
 
 	create( newid, TRUE, TRUE );
 
@@ -558,6 +519,7 @@ void QMotifDialog::realize( Widget w )
 	    XSetTransientForHint( QPaintDevice::x11AppDisplay(), newid,
 				  XtWindow( XtParent( d->shell ) ) );
     }
+    QMotif::mapper()->insert( winId(), this );
 }
 
 /*! \internal
@@ -589,67 +551,14 @@ void QMotifDialog::deleteChild( Widget w )
 	return;
     }
 
-    if ( d->dialog && d->dialog != w ) {
+    if ( d->dialog != w ) {
 	qWarning( "QMotifDialog::deleteChild: cannot delete widget different from\n"
 		  "                           inserted child" );
 	return;
     }
 #endif
 
-    tearDownWidgetDict( d->dialog );
     d->dialog = NULL;
-}
-
-/*! \internal
-    Builds a dict to map all Xt/Motif widgets to this QMotifDialog.
-    This is used to keep modality working in both Qt and Xt/Motif.
-*/
-void QMotifDialog::buildWidgetDict( Widget w )
-{
-    if ( ! XtIsRealized( w ) )
-	XtRealizeWidget( w );
-
-    if ( ! d->wdict.find( XtWindow( w ) ) )
-	d->wdict.insert( XtWindow( w ), this );
-    if ( ! QMotif::mapper()->find( XtWindow( w ) ) )
-	QMotif::mapper()->insert( XtWindow( w ), this );
-
-    if ( ! XtIsComposite( w ) )
-	return;
-    CompositeWidget cmp = (CompositeWidget) w;
-
-    // traverse the widget tree and insert all window ids for all the widgets' children
-    // dialog's children.
-    uint i;
-    for ( i = 0; i < cmp->composite.num_children; i++ ) {
-	Widget child = cmp->composite.children[ i ];
-	// recurse over all children
-	buildWidgetDict( child );
-    }
-}
-
-/*! \internal
-    Tears down the dict built by buildWidgetDict().  Only \a w and its children
-    are removed from the mapper.
-*/
-void QMotifDialog::tearDownWidgetDict( Widget w )
-{
-    if ( XtIsRealized( w ) && XtWindow( w ) ) {
-	d->wdict.remove( XtWindow( w ) );
-	QMotif::mapper()->remove( XtWindow( w ) );
-    }
-
-    if ( ! XtIsComposite( w ) )
-	return;
-    CompositeWidget cmp = (CompositeWidget) w;
-
-    // traverse the widget tree and remove all window ids for all the widgets' children
-    uint i;
-    for ( i = 0; i < cmp->composite.num_children; i++ ) {
-	Widget child = cmp->composite.children[ i ];
-	// recurse over all children
-	tearDownWidgetDict( child );
-    }
 }
 
 /*! \internal
@@ -721,4 +630,11 @@ void qmotif_dialog_change_managed( Widget w )
     if ( d != r ) {
 	dialog->setGeometry( r );
     }
+}
+
+bool QMotifDialog::event( QEvent* e )
+{
+    if ( QMotif::dispatchQEvent( e, this ) )
+	return TRUE;
+    return QWidget::event( e );
 }

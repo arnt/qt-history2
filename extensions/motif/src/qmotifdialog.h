@@ -48,7 +48,7 @@ public slots:
     void reject();
 
 protected:
-    bool x11Event( XEvent * );
+    bool event( QEvent * );
 
 private:
     QMotifDialogPrivate *d;
@@ -56,8 +56,6 @@ private:
     void realize( Widget );
     void insertChild( Widget );
     void deleteChild( Widget );
-    void buildWidgetDict( Widget );
-    void tearDownWidgetDict( Widget );
 
     friend void qmotif_dialog_realize( Widget, XtValueMask *, XSetWindowAttributes *);
     friend void qmotif_dialog_insert_child( Widget );

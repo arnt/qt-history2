@@ -10,9 +10,8 @@ int main( int argc, char **argv )
     XtSetLanguageProc( NULL, NULL, NULL );
 
     QMotif integrator;
+    QMotifEventLoop eventloop( &integrator);
     QApplication app( argc, argv );
-    QMotifEventLoop eventloop( &integrator, &app );
-    app.setEventLoop( &eventloop );
 
     integrator.initialize( &argc, argv, "customwidget", NULL, 0 );
 

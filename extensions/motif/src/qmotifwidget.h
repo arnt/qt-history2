@@ -6,6 +6,7 @@
 
 
 class QMotifWidgetPrivate;
+class QKeyEvent;
 
 class QMotifWidget : public QWidget
 {
@@ -22,7 +23,7 @@ public:
     void hide();
 
 protected:
-    bool x11Event( XEvent * );
+    bool event( QEvent * );
 
 private:
     QMotifWidgetPrivate *d;

@@ -30,6 +30,7 @@ private:
     friend class QMotifEventLoop;
     friend class QMotifDialog;
     friend class QMotifWidget;
+    static bool dispatchQEvent( QEvent*, QWidget*);
     friend Boolean qmotif_event_dispatcher( XEvent * );
 };
 

@@ -35,10 +35,8 @@
 
 #include "qeventloop_p.h" // includes qplatformdefs.h
 #include "qeventloop.h"
+#include "qapplication.h"
 #include "qdatetime.h"
-
-static QEventLoop *INSTANCE = 0;
-
 
 /*!
     \class QEventLoop
@@ -90,16 +88,15 @@ QEventLoop::QEventLoop( QObject *parent, const char *name )
     : QObject( parent, name )
 {
 #if defined(QT_CHECK_STATE)
-    if ( INSTANCE )
-	qFatal( "QEventLoop: there should only be one event loop object." );
+    if ( QApplication::eventloop )
+	qFatal( "QEventLoop: there must be only one event loop object. \nConstruct it before QApplication." );
     // for now ;)
 #endif // QT_CHECK_STATE
 
     d = new QEventLoopPrivate;
 
     init();
-
-    INSTANCE = this;
+    QApplication::eventloop = this;
 }
 
 /*!
@@ -109,7 +106,7 @@ QEventLoop::~QEventLoop()
 {
     cleanup();
     delete d;
-    INSTANCE = 0;
+    QApplication::eventloop = 0;
 }
 
 /*!

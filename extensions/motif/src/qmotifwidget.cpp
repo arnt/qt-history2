@@ -1,14 +1,25 @@
 #include "qmotifwidget.h"
 #include "qmotif.h"
 
+#include <qapplication.h>
 #include <qobjectlist.h>
 #include <qwidgetintdict.h>
+#include <qevent.h>
 
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
-#include <Xm/RowColumn.h>
 
 #include <X11/Xatom.h>
+
+const int XFocusOut = FocusOut;
+const int XFocusIn = FocusIn;
+#undef FocusOut
+#undef FocusIn
+
+const int XKeyPress = KeyPress;
+const int XKeyRelease = KeyRelease;
+#undef KeyPress
+#undef KeyRelease
 
 // ApplicationShell subclass to wrap toplevel motif widgets into QWidgets
 
@@ -19,14 +30,14 @@ typedef struct {
 typedef struct _QMotifWidgetShellRec
 {
     // full instance record declaration
-    CorePart                    core;
-    CompositePart               composite;
-    ShellPart                   shell;
-    WMShellPart                 wmshell;
-    VendorShellPart             vendorshell;
-    TopLevelShellPart           toplevelshell;
-    ApplicationShellPart        applicationshell;
-    QMotifWidgetShellPart       qmotifwidgetshell;
+    CorePart			core;
+    CompositePart		composite;
+    ShellPart			shell;
+    WMShellPart			wmshell;
+    VendorShellPart		vendorshell;
+    TopLevelShellPart		toplevelshell;
+    ApplicationShellPart	applicationshell;
+    QMotifWidgetShellPart	qmotifwidgetshell;
 } QMotifWidgetShellRec;
 
 typedef struct
@@ -36,28 +47,28 @@ typedef struct
 } QMotifWidgetShellClassPart;
 
 typedef struct _QMotifWidgetShellClassRec {
-    CoreClassPart               core_class;
-    CompositeClassPart          composite_class;
-    ShellClassPart              shell_class;
-    WMShellClassPart            wmshell_class;
-    VendorShellClassPart        vendorshell_class;
-    TopLevelShellClassPart      toplevelshell_class;
-    ApplicationShellClassPart   applicationshell_class;
-    QMotifWidgetShellClassPart  qmotifwidgetshell_class;
+    CoreClassPart		core_class;
+    CompositeClassPart		composite_class;
+    ShellClassPart		shell_class;
+    WMShellClassPart		wmshell_class;
+    VendorShellClassPart	vendorshell_class;
+    TopLevelShellClassPart	toplevelshell_class;
+    ApplicationShellClassPart	applicationshell_class;
+    QMotifWidgetShellClassPart	qmotifwidgetshell_class;
 } QMotifWidgetShellClassRec;
 
-externalref QMotifWidgetShellClassRec           qmotifWidgetShellClassRec;
-externalref WidgetClass                         qmotifWidgetShellWidgetClass;
-typedef struct _QMotifWidgetShellClassRec       *QMotifWidgetShellWidgetClass;
-typedef struct _QMotifWidgetShellRec            *QMotifWidgetShellWidget;
+externalref QMotifWidgetShellClassRec		qmotifWidgetShellClassRec;
+externalref WidgetClass				qmotifWidgetShellWidgetClass;
+typedef struct _QMotifWidgetShellClassRec	*QMotifWidgetShellWidgetClass;
+typedef struct _QMotifWidgetShellRec		*QMotifWidgetShellWidget;
 
 externaldef(qmotifwidgetshellclassrec)
     QMotifWidgetShellClassRec qmotifWidgetShellClassRec = {
-        // core
-        {
-            (WidgetClass) &applicationShellClassRec,    // superclass
-            "QMotifWidgetShell",                        // class name
-            sizeof(QMotifWidgetShellRec),               // widget size
+	// core
+	{
+	    (WidgetClass) &applicationShellClassRec,	// superclass
+	    "QMotifWidgetShell",			// class name
+	    sizeof(QMotifWidgetShellRec),		// widget size
 	    NULL,					/* class_initialize proc */
 	    NULL,					/* class_part_initialize proc */
 	    FALSE,					/* class_inited flag */
@@ -65,18 +76,18 @@ externaldef(qmotifwidgetshellclassrec)
 	    NULL,					/* init_hook proc */
 	    qmotif_widget_shell_realize,		/* realize widget proc */
 	    NULL,					/* action table for class */
-            0,						/* num_actions */
+	    0,						/* num_actions */
 	    NULL,					/* resource list of class */
 	    0,						/* num_resources in list */
 	    NULLQUARK,					/* xrm_class ? */
 	    FALSE,					/* don't compress_motion */
-	    XtExposeCompressSeries,		 	/* compressed exposure */
+	    XtExposeCompressSeries,			/* compressed exposure */
 	    FALSE,					/* do compress enter-leave */
 	    FALSE,					/* do have visible_interest */
 	    NULL,					/* destroy widget proc */
 	    XtInheritResize,				/* resize widget proc */
 	    NULL,					/* expose proc */
-	    NULL,		 			/* set_values proc */
+	    NULL,					/* set_values proc */
 	    NULL,					/* set_values_hook proc */
 	    XtInheritSetValuesAlmost,			/* set_values_almost proc */
 	    NULL,					/* get_values_hook */
@@ -85,29 +96,29 @@ externaldef(qmotifwidgetshellclassrec)
 	    NULL,					/* callback offset    */
 	    XtInheritTranslations,			/* default translation table */
 	    XtInheritQueryGeometry,			/* query geometry widget proc */
-	    NULL,					/* display accelerator    */
-	    NULL					/* extension record      */
-        },
-        // composite
-        {
-            XtInheritGeometryManager,			/* geometry_manager */
+	    NULL,					/* display accelerator	  */
+	    NULL					/* extension record	 */
+	},
+	// composite
+	{
+	    XtInheritGeometryManager,			/* geometry_manager */
 	    qmotif_widget_shell_change_managed,		// change managed
-	    XtInheritInsertChild,                       // insert_child
-	    XtInheritDeleteChild,               	// delete_child
+	    XtInheritInsertChild,			// insert_child
+	    XtInheritDeleteChild,			// delete_child
 	    NULL					// extension record
-        },
-        // shell extension record
-        { NULL },
-        // wmshell extension record
-        { NULL },
-        // vendorshell extension record
-        { NULL },
-        // toplevelshell extension record
-        { NULL },
-        // applicationshell extension record
-        { NULL },
-        // qmotifwidgetshell extension record
-        { NULL }
+	},
+	// shell extension record
+	{ NULL },
+	// wmshell extension record
+	{ NULL },
+	// vendorshell extension record
+	{ NULL },
+	// toplevelshell extension record
+	{ NULL },
+	// applicationshell extension record
+	{ NULL },
+	// qmotifwidgetshell extension record
+	{ NULL }
     };
 
 externaldef(qmotifwidgetshellwidgetclass)
@@ -121,7 +132,6 @@ public:
 
     Widget widget;
     Widget shell;
-    QWidgetIntDict wdict;
 };
 
 /*!
@@ -143,8 +153,8 @@ public:
     application.
 
     Applications moving to Qt can have custom Xt/Motif widgets that
-    will take time to rewrite with Qt.  Such applications can use
-    these custom widgets as QMotifWidget with QWidget parents.  This
+    will take time to rewrite with Qt.	Such applications can use
+    these custom widgets as QMotifWidget with QWidget parents.	This
     allows the interface of the application to be replaced gradually.
 */
 
@@ -166,22 +176,23 @@ public:
     Xt/Motif dialogs or QMotifDialogs.
 */
 QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
-                            ArgList args, Cardinal argcount,
-                            const char *name, WFlags flags )
+			    ArgList args, Cardinal argcount,
+			    const char *name, WFlags flags )
     : QWidget( parent, name, flags )
 {
+    setFocusPolicy( StrongFocus );
     d = new QMotifWidgetPrivate;
 
     Widget motifparent = NULL;
     if ( parent && parent->inherits( "QMotifWidget" ) )
-        motifparent = ( (QMotifWidget *) parent )->motifWidget();
+	motifparent = ( (QMotifWidget *) parent )->motifWidget();
 
-    if ( ! motifparent ) {
-        d->shell = XtAppCreateShell( name, name, qmotifWidgetShellWidgetClass,
-                                     QPaintDevice::x11AppDisplay(),
-                                     args, argcount );
-        ( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = this;
-        motifparent = d->shell;
+    if ( ! motifparent || widgetclass == applicationShellWidgetClass ) {
+	d->shell = XtAppCreateShell( name, name, qmotifWidgetShellWidgetClass,
+				     QPaintDevice::x11AppDisplay(),
+				     args, argcount );
+	( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = this;
+	motifparent = d->shell;
     }
 
     if ( widgetclass == applicationShellWidgetClass )
@@ -191,14 +202,15 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 }
 
 /*!
-    Destroys the QMotifWidget.  The special ApplicationShell is also
+    Destroys the QMotifWidget.	The special ApplicationShell is also
     destroyed, if it was created during construction.
 */
 QMotifWidget::~QMotifWidget()
 {
+    QMotif::mapper()->remove( winId() );
     if ( d->shell ) {
-        ( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = 0;
-        XtDestroyWidget( d->shell );
+	( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = 0;
+	XtDestroyWidget( d->shell );
     }
     XtDestroyWidget( d->widget );
     delete d;
@@ -221,10 +233,10 @@ Widget QMotifWidget::motifWidget() const
 void QMotifWidget::show()
 {
     if ( d->shell ) {
-        // since we have a shell, we need to manage it's children
-        QMotifWidgetShellWidget motifshell = (QMotifWidgetShellWidget) d->shell;
-        XtManageChildren( motifshell->composite.children,
-                          motifshell->composite.num_children );
+	// since we have a shell, we need to manage it's children
+	QMotifWidgetShellWidget motifshell = (QMotifWidgetShellWidget) d->shell;
+	XtManageChildren( motifshell->composite.children,
+			  motifshell->composite.num_children );
 	if ( ! XtIsRealized( d->shell ) )
 	    XtRealizeWidget( d->shell );
     }
@@ -238,35 +250,15 @@ void QMotifWidget::show()
 void QMotifWidget::hide()
 {
     if ( d->shell ) {
-        // since we have a shell, we need to manage it's children
-        QMotifWidgetShellWidget motifshell = (QMotifWidgetShellWidget) d->shell;
-        XtUnmanageChildren( motifshell->composite.children,
-                            motifshell->composite.num_children );
+	// since we have a shell, we need to manage it's children
+	QMotifWidgetShellWidget motifshell = (QMotifWidgetShellWidget) d->shell;
+	XtUnmanageChildren( motifshell->composite.children,
+			    motifshell->composite.num_children );
     }
 
     QWidget::hide();
 }
 
-/*!
-    Delivers \a event to the widget, or to any Xt/Motif child.
-*/
-bool QMotifWidget::x11Event( XEvent *event )
-{
-    // here, lookup a the event window id to see if we have a child motif widget,
-    // and if so, resend the event... the QMotifEventLoop has a reentrancy
-    // check, so all we need to do is use XtDispatchEvent
-
-    if ( d->wdict.find( event->xany.window ) ) {
-	if ( QMotif::redeliverEvent( event ) )
-	    return TRUE;
-	// Xt didn't handle the event, so we pass it onto Qt instead
-    } else if ( event->xany.window == winId() ) {
-	// for the dialog window itself, let Xt and Qt process the event
-	QMotif::redeliverEvent( event );
-    }
-
-    return QWidget::x11Event( event );
-}
 
 /*! \internal
     Wraps the Motif widget by setting the X window for the
@@ -277,12 +269,12 @@ void QMotifWidget::realize( Widget w )
     // use the winid of the dialog shell, reparent any children we
     // have
     if ( XtWindow( w ) != winId() ) {
-        // save the geometry of the motif widget, since it has the
-        // geometry we want
+	// save the geometry of the motif widget, since it has the
+	// geometry we want
 	QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
 
 	Window newid = XtWindow( w );
-       	if ( children() ) {
+	if ( children() ) {
 	    QObjectListIt it( *children() );
 	    for ( ; it.current(); ++it ) {
 		if ( it.current()->isWidgetType() ) {
@@ -292,15 +284,16 @@ void QMotifWidget::realize( Widget w )
 				     newid,
 				     widget->x(),
 				     widget->y() );
-		    if ( widget->isVisible() )
+		    if ( !widget->isHidden() )
 			XMapWindow( QPaintDevice::x11AppDisplay(), widget->winId() );
 		}
 	    }
 	}
+	QApplication::syncX();
 
-        // re-create this QWidget with the winid from the motif
-        // widget... the geometry will be reset to roughly 1/4 of the
-        // screen, so we need to restore it below
+	// re-create this QWidget with the winid from the motif
+	// widget... the geometry will be reset to roughly 1/4 of the
+	// screen, so we need to restore it below
 	create( newid, TRUE, TRUE );
 
 	QString cap;
@@ -333,7 +326,7 @@ void QMotifWidget::realize( Widget w )
 
 	setCaption( cap );
 
-        // restore geometry of the shell
+	// restore geometry of the shell
 	XMoveResizeWindow( QPaintDevice::x11AppDisplay(), winId(),
 			   save.x(), save.y(), save.width(), save.height() );
 
@@ -346,6 +339,7 @@ void QMotifWidget::realize( Widget w )
 			     x(), y() );
 	}
     }
+    QMotif::mapper()->insert( winId(), this );
 }
 
 /*! \internal
@@ -353,11 +347,11 @@ void QMotifWidget::realize( Widget w )
     QMotifWidget::realize().
 */
 void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
-                                  XSetWindowAttributes *attr )
+				  XSetWindowAttributes *attr )
 {
     XtRealizeProc realize =
-        ((CoreWidgetClass)applicationShellClassRec.core_class.
-         superclass)->core_class.realize;
+	((CoreWidgetClass)applicationShellClassRec.core_class.
+	 superclass)->core_class.realize;
     (*realize)( w, mask, attr );
 
     QMotifWidget *widget =
@@ -374,8 +368,8 @@ void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
 void qmotif_widget_shell_change_managed( Widget w )
 {
     XtWidgetProc change_managed =
-        ((CompositeWidgetClass)applicationShellClassRec.core_class.
-         superclass)->composite_class.change_managed;
+	((CompositeWidgetClass)applicationShellClassRec.core_class.
+	 superclass)->composite_class.change_managed;
     (*change_managed)( w );
 
     QMotifWidget *widget =
@@ -390,4 +384,11 @@ void qmotif_widget_shell_change_managed( Widget w )
     if ( d != r ) {
 	widget->setGeometry( r );
     }
+}
+
+bool QMotifWidget::event( QEvent* e )
+{
+    if ( QMotif::dispatchQEvent( e, this ) )
+	return TRUE;
+    return QWidget::event( e );
 }

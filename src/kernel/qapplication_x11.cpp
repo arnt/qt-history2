@@ -361,7 +361,7 @@ extern bool     qt_check_clipboard_sentinel( XEvent* ); //def in qclipboard_x11.
 extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11.cpp
 
 static void	qt_save_rootinfo();
-static bool	qt_try_modal( QWidget *, XEvent * );
+bool	qt_try_modal( QWidget *, XEvent * );
 
 int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;
@@ -3225,6 +3225,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    }
 		}
 	    }
+	}  else {
+	    return -1; // don't know this window
 	}
 	return 0;
     }
@@ -3627,7 +3629,7 @@ void qt_leave_modal( QWidget *widget )
 }
 
 
-static bool qt_try_modal( QWidget *widget, XEvent *event )
+bool qt_try_modal( QWidget *widget, XEvent *event )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;

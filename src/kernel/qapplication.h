@@ -136,8 +136,7 @@ public:
     static QWidget  *widgetAt( int x, int y, bool child=FALSE );
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
 
-    QEventLoop *eventLoop() const;
-    void setEventLoop( QEventLoop * );
+    static QEventLoop *eventLoop();
 
     int		     exec();
     void	     processEvents();
@@ -287,9 +286,6 @@ protected:
         void setArgs(int, char **);
 #endif
 
-private slots:
-    void	     eventLoopDestroyed();
-
 private:
     void	     construct( int &argc, char **argv, Type );
     bool	     processNextEvent( bool );
@@ -331,6 +327,7 @@ private:
 #ifndef QT_NO_CURSOR
     static QCursor  *app_cursor;
 #endif
+    static QEventLoop* eventloop;
     static int	     app_tracking;
     static bool	     is_app_running;
     static bool	     is_app_closing;

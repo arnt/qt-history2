@@ -57,8 +57,8 @@ class Q_EXPORT QEventLoop : public QObject
     Q_OBJECT
 
 public:
-    QEventLoop( QObject *parent, const char *name = 0 );
-    virtual ~QEventLoop();
+    QEventLoop( QObject *parent = 0, const char *name = 0 );
+    ~QEventLoop();
 
     enum ProcessEvents {
 	AllEvents              = 0x00,
@@ -82,9 +82,9 @@ public:
     virtual int exec();
     virtual void exit( int retcode = 0 );
 
-    int enterLoop();
-    void exitLoop();
-    int loopLevel() const;
+    virtual int enterLoop();
+    virtual void exitLoop();
+    virtual int loopLevel() const;
 
     virtual void wakeUp();
 
