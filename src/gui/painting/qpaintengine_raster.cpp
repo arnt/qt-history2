@@ -355,6 +355,9 @@ public:
                 m_tags.add(QT_FT_CURVE_TAG_CUBIC);         // Control point 2
                 m_tags.add(QT_FT_CURVE_TAG_ON);            // End point
                 break;
+
+            default:
+                break; // This will never hit..
             }
             last = pt;
         }
@@ -471,7 +474,6 @@ QRasterPaintEngine::~QRasterPaintEngine()
 {
     Q_D(QRasterPaintEngine);
 
-    qt_finalize_ft();
     delete d->rasterBuffer;
     delete d->outlineMapper;
     delete d->fontRasterBuffer;
@@ -2418,6 +2420,9 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
     int i, j, si;
     bool mdp;
     ARGB *line;
+
+    p = 0;
+    dp = 0;
 
     dx0 = rect.x() - cdata->center.x();
     dy0 = rect.y() - cdata->center.y();
