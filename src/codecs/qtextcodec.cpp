@@ -2796,6 +2796,7 @@ function returns 0 (the default), tr() assumes Latin-1.
  */
 
 /*! \fn void QTextCodec::setCodecForTr(QTextCodec *c)
+  \nonreentrant
 
   Sets the codec used by QObject::tr() on its argument to \a c. If \a
   is 0 (the default), tr() assumes Latin-1.
@@ -2837,6 +2838,7 @@ assumes Latin-1.
  */
 
 /*! \fn void QTextCodec::setCodecForCStrings(QTextCodec *c)
+  \nonreentrant
 
 Sets the codec used by QString to convert from and to const char* and
 QCStrings.  If \a is 0 (the default), QString assumes Latin-1.

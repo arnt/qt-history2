@@ -389,7 +389,7 @@ public:
     QString( const char *str );                 // deep copy
 #endif
 #ifndef QT_NO_STL
-    QString( const string& );                   // deep copy
+    QString( const std::string& );                   // deep copy
 #endif
     ~QString();
 
@@ -398,7 +398,7 @@ public:
     QString    &operator=( const char * );      // deep copy
 #endif
 #ifndef QT_NO_STL
-    QString    &operator=( const string& );     // deep copy
+    QString    &operator=( const std::string& );     // deep copy
 #endif
     QString    &operator=( const QCString& );   // deep copy
     QString    &operator=( QChar c );
@@ -505,7 +505,7 @@ public:
     QString    &append( const char * );
 #endif
 #ifndef QT_NO_STL
-    QString    &append( const string& );
+    QString    &append( const std::string& );
 #endif
     QString    &prepend( char );
     QString    &prepend( QChar );
@@ -515,7 +515,7 @@ public:
     QString    &prepend( const char * );
 #endif
 #ifndef QT_NO_STL
-    QString    &prepend( const string& );
+    QString    &prepend( const std::string& );
 #endif
     QString    &remove( uint index, uint len );
     QString    &remove( QChar c );
@@ -573,7 +573,7 @@ public:
     QString    &operator+=( const char *str );
 #endif
 #ifndef QT_NO_STL
-    QString    &operator+=( const string& );
+    QString    &operator+=( const std::string& );
 #endif
     QString    &operator+=( QChar c );
     QString    &operator+=( char c );
@@ -608,7 +608,7 @@ public:
     operator const char *() const { return ascii(); }
 #endif
 #ifndef QT_NO_STL
-    operator string() const { return ascii(); }
+    operator std::string() const { return ascii(); }
 #endif
 
     static QString fromUcs2( const unsigned short *ucs2 );
@@ -823,7 +823,7 @@ inline QString &QString::prepend( const QByteArray & s )
 #endif
 
 #ifndef QT_NO_STL
-inline QString &QString::prepend( const string& s )
+inline QString &QString::prepend( const std::string& s )
 { return insert(0, s); }
 #endif
 
@@ -850,7 +850,7 @@ inline QString &QString::operator+=( const QByteArray &s )
 #endif
 
 #ifndef QT_NO_STL
-inline QString &QString::append( const string& s )
+inline QString &QString::append( const std::string& s )
 { return operator+=(s); }
 #endif
 

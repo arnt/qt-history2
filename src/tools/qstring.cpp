@@ -13294,7 +13294,7 @@ QString::QString( const char *str )
     This is the same as fromAscii(\a str).
 */
 
-QString::QString( const string &str )
+QString::QString( const std::string &str )
 {
 #ifndef QT_NO_TEXTCODEC
     if ( QTextCodec::codecForCStrings() ) {
@@ -15248,7 +15248,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
   \sa insert()
  */
 
-/*! \fn QString& QString::prepend( const string &s )
+/*! \fn QString& QString::prepend( const std::string &s )
   \overload
 
   Inserts \a s at the beginning of the string and returns a reference to the string.
@@ -16468,7 +16468,7 @@ void QString::setExpand( uint index, QChar c )
   Equivalent to operator+=().
  */
 
-/*! \fn QString& QString::append( const string &str )
+/*! \fn QString& QString::append( const std::string &str )
   \overload
 
   Appends \a str to the string and returns a reference to the result.
@@ -16567,7 +16567,7 @@ QString &QString::operator+=( char c )
 */
 
 /*!
-  \fn QString &QString::operator+=( const string &str )
+  \fn QString &QString::operator+=( const std::string &str )
   \overload
 
   Appends \a str to the string and returns a reference to the string.
@@ -16617,17 +16617,19 @@ const char* QString::latin1() const
 */
 const char* QString::ascii() const
 {
-    if ( !QTextCodec::codecForCStrings() )
-	return latin1();
-
-    if ( !d->ascii || d->islatin1 ) {
-	QCString s = QTextCodec::codecForCStrings()->fromUnicode( *this );
-	s.detach();
-	d->ascii = s.data();
-	d->islatin1 = FALSE;
-	s.resetRawData( s.data(), s.size() ); // we have stolen the data
+#ifndef QT_NO_TEXTCODEC
+    if ( QTextCodec::codecForCStrings() ) {
+	if ( !d->ascii || d->islatin1 ) {
+	    QCString s = QTextCodec::codecForCStrings()->fromUnicode( *this );
+	    s.detach();
+	    d->ascii = s.data();
+	    d->islatin1 = FALSE;
+	    s.resetRawData( s.data(), s.size() ); // we have stolen the data
+	}
+	return d->ascii;
     }
-    return d->ascii;
+#endif // QT_NO_TEXTCODEC
+    return latin1();
 }
 
 /*!
@@ -17102,10 +17104,13 @@ QString& QString::setUnicodeCodes( const ushort* unicode_as_ushorts, uint len )
 
 QString &QString::setAscii( const char *str, int len )
 {
-    if ( !QTextCodec::codecForCStrings() )
-	return setLatin1( str, len );
-    *this = QString::fromAscii( str, len );
-    return *this;
+#ifndef QT_NO_TEXTCODEC
+    if ( QTextCodec::codecForCStrings() ) {
+	*this = QString::fromAscii( str, len );
+	return *this;
+    }
+#endif // QT_NO_TEXTCODEC
+    return setLatin1( str, len );
 }
 
 /*!
