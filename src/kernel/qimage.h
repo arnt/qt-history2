@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#61 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#62 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -63,11 +63,11 @@ public:
     Endian 	bitOrder()	const	{ return (Endian) data->bitordr; }
 
     QRgb	color( int i )	const;
-    virtual void	setColor( int i, QRgb c );
-    virtual void	setNumColors( int );
+    void	setColor( int i, QRgb c );
+    void	setNumColors( int );
 
     bool	hasAlphaBuffer() const;
-    virtual void	setAlphaBuffer( bool );
+    void	setAlphaBuffer( bool );
 
     bool	allGray() const;
     bool        isGrayscale() const;
@@ -120,7 +120,7 @@ public:
     bool	valid( int x, int y ) const;
     int		pixelIndex( int x, int y ) const;
     QRgb	pixel( int x, int y ) const;
-    virtual void	setPixel( int x, int y, uint index_or_rgb );
+    void	setPixel( int x, int y, uint index_or_rgb );
 
 private:
     void	init();
@@ -170,13 +170,13 @@ public:
     const char *parameters()	const	{ return params; }
     const char *description()	const	{ return descr; }
 
-    virtual void	setImage( const QImage & );
-    virtual void	setStatus( int );
-    virtual void	setFormat( const char * );
-    virtual void	setIODevice( QIODevice * );
-    virtual void	setFileName( const char * );
-    virtual void	setParameters( const char * );
-    virtual void	setDescription( const char * );
+    void	setImage( const QImage & );
+    void	setStatus( int );
+    void	setFormat( const char * );
+    void	setIODevice( QIODevice * );
+    void	setFileName( const char * );
+    void	setParameters( const char * );
+    void	setDescription( const char * );
 
     bool	read();
     bool	write();
