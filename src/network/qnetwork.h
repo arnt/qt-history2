@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: //depot/qt/main/src/network/qnetwork.h#5 $
 **
 ** Definition of qInitNetworkProtocols function.
 **
