@@ -127,7 +127,7 @@ void Streamer::paintPrimitives( QPainter& p )
     p.drawPixmap( 650 - pm.width()/2, 150-pm.height()/2, pm );
 
     QImage im( open_xpm );
-    p.drawImage( 750 - pm.width()/2, 150-pm.height()/2, im );
+    p.drawImage( 750 - im.width()/2, 150-im.height()/2, im );
 
     p.drawTiledPixmap( 820, 120, 70, 70, pm );
 
