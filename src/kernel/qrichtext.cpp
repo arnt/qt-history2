@@ -5438,10 +5438,6 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 
 void QTextFormatter::insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls )
 {
-    if ( index > 0 ) { // we can assume that only first line starts are insrted multiple times
-	parag->lineStartList().insert( index, ls );
-	return;
-    }
     QMap<int, QTextLineStart*>::Iterator it;
     if ( ( it = parag->lineStartList().find( index ) ) == parag->lineStartList().end() ) {
 	parag->lineStartList().insert( index, ls );
