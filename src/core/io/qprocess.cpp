@@ -17,6 +17,7 @@
 #include "qprocess_p.h"
 
 #include <qbytearray.h>
+#include <qdatetime.h>
 #include <qcoreapplication.h>
 #include <qfile.h>
 #include <qsocketnotifier.h>
@@ -343,6 +344,16 @@ bool QProcess::waitForStarted(int msecs)
 bool QProcess::waitForReadyRead(int msecs)
 {
     Q_D(QProcess);
+
+    if (d->processState != QProcess::Running) {
+        QTime stopWatch;
+        stopWatch.start();
+        bool started = waitForStarted(msecs);
+        if (!started)
+            return false;
+        msecs -= stopWatch.elapsed();
+    }
+
     if (!d->waitForReadyRead(msecs)) {
         emit error(d->processError);
         return false;
@@ -368,13 +379,23 @@ bool QProcess::waitForReadyRead(int msecs)
 bool QProcess::waitForFinished(int msecs)
 {
     Q_D(QProcess);
+    if (d->processState == QProcess::NotRunning)
+        return true;
+    if (d->processState == QProcess::Starting) {
+        QTime stopWatch;
+        stopWatch.start();
+        bool started = waitForStarted(msecs);
+        if (!started)
+            return false;
+        msecs -= stopWatch.elapsed();
+    }
+
     return d->waitForFinished(msecs);
 }
 
 Q_LONGLONG QProcess::readData(char *data, Q_LONGLONG maxlen)
 {
     Q_D(QProcess);
-
     QRingBuffer *readBuffer = (d->processChannel == QProcess::StandardError)
                               ? &d->errorReadBuffer
                               : &d->outputReadBuffer;
@@ -445,7 +466,7 @@ void QProcess::start(const QString &program, const QStringList &arguments)
 
     d->arguments = arguments;
     d->program = QFile::encodeName(program);
-    
+
     QCoreApplication::flush();
 
     d->startProcess();

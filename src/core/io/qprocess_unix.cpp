@@ -405,7 +405,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     int fd = (processChannel == QProcess::StandardOutput)
              ? standardReadPipe[0] : errorReadPipe[0];
 
-    int ret = qt_native_select(QList<int>() << fd, msecs, true);
+    int ret = qt_native_select(QList<int>() << fd, msecs < 0 ? 0 : msecs, true);
     if (ret == 0) {
         processError = QProcess::Timedout;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
@@ -418,7 +418,6 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 bool QProcessPrivate::waitForFinished(int msecs)
 {
     Q_Q(QProcess);
-
     if (QProcessManager::instance().has(pid)) {
         int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0],
                                    msecs, true);
@@ -437,7 +436,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 
 bool QProcessPrivate::waitForWrite(int msecs)
 {
-    return qt_native_select(QList<int>() << writePipe[1], msecs, false) == 1;
+    return qt_native_select(QList<int>() << writePipe[1], msecs < 0 ? 0 : msecs, false) == 1;
 }
 
 #include "qprocess_unix.moc"
