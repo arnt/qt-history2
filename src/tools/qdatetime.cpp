@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#24 $
 **
 ** Implementation of date and time classes
 **
@@ -24,12 +24,12 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#24 $";
 #endif
 
 
 static const ulong FIRST_DAY	 = 2361222L;	// Julian day for 17520914
-static const uint  FIRST_YEAR	 = 1752;
+static const int   FIRST_YEAR	 = 1752;
 static const ulong SECS_PER_DAY	 = 86400L;
 static const ulong MSECS_PER_DAY = 86400000L;
 static const ulong SECS_PER_HOUR = 3600L;
