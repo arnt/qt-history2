@@ -8,33 +8,30 @@
 **
 *****************************************************************************/
 
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef QIP_H
+#define QIP_H
 
-#include "clientbase.h"
+#include <qnetworkprotocol.h>
 
 class QSocket;
-class QTextEdit;
-class QLineEdit;
-class QListBox;
-class QLabel;
 
 static const Q_UINT16 infoPort = 42417;
 
-class ClientInfo : public ClientInfoBase
+
+class Qip : public QNetworkProtocol
 {
     Q_OBJECT
-public:
-    ClientInfo( QWidget *parent = 0, const char *name = 0);
 
-private:
-    enum Operation { List, Get };
+public:
+    Qip();
+    virtual int supportedOperations() const;
+
+protected:
+    virtual void operationListChildren( QNetworkOperation *op ); 
+    virtual void operationGet( QNetworkOperation *op );
+    virtual bool checkConnection( QNetworkOperation *op );
 
 private slots:
-    void connectToServer();
-    void selectItem( const QString& item );
-    void stepBack();
-    void sendToServer( Operation op, const QString& location );
     void socketConnected();
     void socketReadyRead();
     void socketConnectionClosed();
@@ -42,6 +39,10 @@ private slots:
 
 private:
     QSocket *socket;
+    enum State { Start, List, Data } state;
+    void error( int code, const QString& msg );
 };
 
-#endif // CLIENT_H
+
+
+#endif // QIP_H

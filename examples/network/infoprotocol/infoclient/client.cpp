@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Copyright (C) 2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -20,8 +20,8 @@
 #include "client.h"
 
 
-ClientInfo::ClientInfo( const QString &host, Q_UINT16 port ) :
-    socket( 0 )
+ClientInfo::ClientInfo( QWidget *parent, const char *name ) :
+    ClientInfoBase( parent, name ), socket( 0 )
 {
     edHost->setText( "localhost" );
     edPort->setText( QString::number( infoPort ) );
@@ -35,10 +35,7 @@ ClientInfo::ClientInfo( const QString &host, Q_UINT16 port ) :
 
 void ClientInfo::connectToServer()
 {
-    if ( socket ) {
-	delete socket;
-	socket = 0;
-    }
+    delete socket;
     socket = new QSocket( this );
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(connectionClosed()), SLOT(socketConnectionClosed()) );
@@ -52,51 +49,49 @@ void ClientInfo::selectItem( const QString& item )
 {
     // item in listBox selected, use LIST or GET depending of the node type.
     if ( item.endsWith( "/" ) ) {
-	sendToServer( "LIST " + infoPath->text() + item );
-    } else {
-	sendToServer( "GET " + infoPath->text() + item );
-    }
+	sendToServer( List, infoPath->text() + item );
+	infoPath->setText( infoPath->text() + item );
+    } else 
+	sendToServer( Get, infoPath->text() + item );
 }
 
 void ClientInfo::stepBack()
 {
     // go back (up) in path hierarchy
     int i = infoPath->text().findRev( '/', -2 );
-    if ( i > 0 ) {
+    if ( i > 0 ) 
 	infoPath->setText( infoPath->text().left( i + 1 ) );
-    } else
+    else
 	infoPath->setText( "/" );
-    sendToServer( "LIST " + infoPath->text() );
+    infoList->clear();
+    sendToServer( List, infoPath->text() );
 }
 
 
-void ClientInfo::sendToServer( const QString& line )
+void ClientInfo::socketConnected()
 {
-    // send full command line to the server via socket
-    if ( line.startsWith( "LIST" ) ) {
-	QString path = line.mid( 5 );
-	if ( !path.endsWith( "/" ) )
-	    path += "/";
-	if ( !path.startsWith( "/" ) )
-	    path = "/" + path;
-	infoPath->setText( path );
-	infoList->clear();
+    sendToServer( List, "/" );
+}
+
+void ClientInfo::sendToServer( Operation op, const QString& location )
+{
+    QString line;
+    switch (op) {
+	case List:
+	    infoList->clear();
+	    line = "LIST " + location;
+	    break;
+	case Get:
+	    line = "GET " + location;
+	    break;
     }
     infoText->clear();
-
-    // write to the server
     QTextStream os(socket);
     os << line << "\r\n";
 }
 
-void ClientInfo::socketConnected()
-{
-    sendToServer( "LIST" );
-}
-
 void ClientInfo::socketReadyRead()
 {
-    // read from the server
     QTextStream stream( socket );
     QString line;
     while ( socket->canReadLine() ) {

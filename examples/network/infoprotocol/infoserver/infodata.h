@@ -8,28 +8,24 @@
 **
 *****************************************************************************/
 
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef INFODATA_H
+#define INFODATA_H
 
-#include <qurloperator.h>
+#include <qdict.h>
+#include <qstringlist.h>
 
-#include "clientbase.h"
 
-
-class ClientInfo : public ClientInfoBase
+// The InfoData class manages data, organized in tree structure.
+class InfoData
 {
-    Q_OBJECT
-
 public:
-    ClientInfo();
-
-private slots:
-    void downloadFile();
-    void newData( const QByteArray &ba );
+    InfoData();
+    QStringList list( QString path, bool *found ) const;
+    QString get( QString path, bool *found ) const;
 
 private:
-    QUrlOperator op;
-    QString getOpenFileName();
+    QDict< QStringList > nodes;
+    QDict< QString > data;
 };
 
-#endif // CLIENT_H
+#endif // INFODATA_H
