@@ -311,31 +311,17 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
     if (!pixmap.isNull())
         painter->drawPixmap(rect.topLeft(), pixmap);
 
-    if (option.state & QStyle::Style_Selected) {
-#if 0
-        painter->save();
-        if (pixmap.mask()) {
-            QRegion r(*pixmap.mask());
-            r.translate(rect.topLeft());
-            painter->setClipRegion(r);
-        }
+    if (option.state & QStyle::Style_Selected && !rect.isEmpty()) {
         QColor col = option.palette.highlight();
         col.setRgba(col.red(),  col.green(), col.blue(), 127);
         painter->fillRect(rect, col);
-        painter->restore();
-#else
-        if (!rect.isEmpty()) {
-            QColor col = option.palette.highlight();
-            col.setRgba(col.red(),  col.green(), col.blue(), 127);
-            painter->fillRect(rect, col);
-        }
-#endif
     }
 }
 
 /*!
     Renders the region within the rectangle specified by \a rect, indicating
-    that it has the focus, using the given \a painter and style \a option.*/
+    that it has the focus, using the given \a painter and style \a option.
+*/
 
 void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
                               const QRect &rect) const
@@ -462,7 +448,8 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
 
     Returns the pixmap used to decorate the root of the item view.
     The style \a option controls the appearance of the root; the \a variant
-    refers to the data associated with an item.  */
+    refers to the data associated with an item.
+*/
 
 QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVariant &variant) const
 {
