@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#27 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#28 $
 **
 ** Implementation of QProcess class
 **
@@ -45,6 +45,8 @@
 #endif // QT_H
 
 #ifndef QT_NO_PROCESS
+
+class QProcessPrivate;
 
 
 class Q_EXPORT QProcess : public QObject
@@ -112,9 +114,7 @@ private slots:
     void closeStdinLaunch();
 
 private:
-    class Private;
-    Private *d;
-    friend class Private;
+    QProcessPrivate *d;
 
     QDir        workingDir;
     QStringList _arguments;
@@ -127,6 +127,7 @@ private:
     bool notifyOnExit; // automatically set be (dis)connectNotify
     bool wroteToStdinConnected; // automatically set be (dis)connectNotify
 
+    friend class QProcessPrivate;
 #if defined(Q_OS_UNIX)
     friend class QProcessManager;
     friend class QProc;

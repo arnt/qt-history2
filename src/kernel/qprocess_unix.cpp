@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#57 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -99,11 +99,11 @@ static void qt_C_sigchldHnd( int );
 
 class QProc;
 class QProcessManager;
-class QProcess::Private
+class QProcessPrivate
 {
 public:
-    Private();
-    ~Private();
+    QProcessPrivate();
+    ~QProcessPrivate();
 
     void closeOpenSocketsForChild();
     void newProc( pid_t pid, QProcess *process );
@@ -285,7 +285,7 @@ void QProcessManager::remove( QProc *p )
 
 void QProcessManager::removeMe()
 {
-    QProcess::Private::procManager = 0;
+    QProcessPrivate::procManager = 0;
     qprocess_cleanup_procmanager.remove( this );
     delete this;
 }
@@ -342,15 +342,15 @@ void QProcessManager::sigchldHnd( int fd )
 
 /***********************************************************************
  *
- * Private
+ * QProcessPrivate
  *
  **********************************************************************/
-QProcessManager *QProcess::Private::procManager = 0;
+QProcessManager *QProcessPrivate::procManager = 0;
 
-QProcess::Private::Private()
+QProcessPrivate::QProcessPrivate()
 {
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::Private: Constructor" );
+    qDebug( "QProcessPrivate: Constructor" );
 #endif
     stdinBufRead = 0;
 
@@ -370,10 +370,10 @@ QProcess::Private::Private()
     proc = 0;
 }
 
-QProcess::Private::~Private()
+QProcessPrivate::~QProcessPrivate()
 {
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::Private: Destructor" );
+    qDebug( "QProcessPrivate: Destructor" );
 #endif
 
     if ( proc != 0 )
@@ -404,7 +404,7 @@ QProcess::Private::~Private()
   process. Otherwise one child may have an open socket on standard input, etc.
   of another child.
 */
-void QProcess::Private::closeOpenSocketsForChild()
+void QProcessPrivate::closeOpenSocketsForChild()
 {
     ::close( socketStdin[1] );
     ::close( socketStdout[0] );
@@ -430,7 +430,7 @@ void QProcess::Private::closeOpenSocketsForChild()
     }
 }
 
-void QProcess::Private::newProc( pid_t pid, QProcess *process )
+void QProcessPrivate::newProc( pid_t pid, QProcess *process )
 {
     proc = new QProc( pid, process );
     if ( procManager == 0 ) {
@@ -451,13 +451,13 @@ void qt_C_sigchldHnd()
 void qt_C_sigchldHnd( int )
 #endif
 {
-    if ( QProcess::Private::procManager == 0 )
+    if ( QProcessPrivate::procManager == 0 )
 	return;
-    if ( QProcess::Private::procManager->sigchldFd[0] == 0 )
+    if ( QProcessPrivate::procManager->sigchldFd[0] == 0 )
 	return;
 
     char a = 1;
-    ::write( QProcess::Private::procManager->sigchldFd[0], &a, sizeof(a) );
+    ::write( QProcessPrivate::procManager->sigchldFd[0], &a, sizeof(a) );
 }
 
 
@@ -471,7 +471,7 @@ void qt_C_sigchldHnd( int )
 */
 void QProcess::init()
 {
-    d = new Private();
+    d = new QProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
 }
@@ -483,7 +483,7 @@ void QProcess::init()
 void QProcess::reset()
 {
     delete d;
-    d = new Private();
+    d = new QProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
     bufStdout.resize( 0 );
@@ -716,7 +716,7 @@ bool QProcess::isRunning() const
     if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid )
     {
 	// compute the exit values
-	QProcess *that = (QProcess*)this; // mutable
+	QProcess *that = (QProcess*)this; // mutable 
 	that->exitNormal = WIFEXITED( status ) != 0;
 	if ( exitNormal ) {
 	    that->exitStat = WEXITSTATUS( status );
@@ -752,7 +752,7 @@ void QProcess::writeToStdin( const QByteArray& buf )
 #endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
-	d->notifierStdin->setEnabled( TRUE );
+        d->notifierStdin->setEnabled( TRUE );
 }
 
 
