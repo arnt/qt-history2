@@ -1112,7 +1112,7 @@ void MainWindow::aboutDesigner()
                       "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
                       " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
                       " PARTICULAR PURPOSE.<br/> ")
-                      .arg(tr("Qt Designer")).arg("4.0 beta 1");
+                      .arg(tr("Qt Designer")).arg(QT_VERSION_STR);
     QMessageBox mb(this);
     mb.setWindowTitle(tr("About Qt Designer"));
     mb.setText(text);
