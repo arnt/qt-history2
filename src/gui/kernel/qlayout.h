@@ -28,10 +28,6 @@
 
 #ifndef QT_NO_LAYOUT
 
-#if 0
-Q_OBJECT
-#endif
-
 static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
 
 class QGridLayoutBox;
@@ -43,43 +39,29 @@ class QMenuBar;
 class QSpacerItem;
 class QWidget;
 
-class Q_GUI_EXPORT QGLayoutIterator
-{
-public:
-    QAtomic ref;
-    inline QGLayoutIterator() { ref = 1; }
-    virtual ~QGLayoutIterator();
-    virtual QLayoutItem *next() = 0;
-    virtual QLayoutItem *current() = 0;
-    virtual QLayoutItem *takeCurrent() = 0;
-};
-
+#if 0 //QT_COMPAT
 class Q_GUI_EXPORT QLayoutIterator
 {
 public:
-    inline QLayoutIterator(QGLayoutIterator *i) : it(i) {}
-    inline QLayoutIterator(const QLayoutIterator &i) : it(i.it) {
-        if (it)
-            ++it->ref;
+    inline QLayoutIterator(QLayout *i) : layout(i), idx(0) {}
+    inline QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), idx(i.idx) {
     }
-    inline ~QLayoutIterator() { if (it && !--it->ref) delete it; }
     inline QLayoutIterator &operator=(const QLayoutIterator &i) {
-        QGLayoutIterator *x = i.it;
-        if (x)
-            ++x->ref;
-        x = qAtomicSetPtr(&it, x);
-        if (!--x->ref)
-            delete x;
+        layout = i.layout;
+        idx = i.idx;
         return *this;
     }
-    inline QLayoutItem *operator++() { return it ? it->next() : 0; }
-    inline QLayoutItem *current() { return it ? it->current() : 0; }
-    inline QLayoutItem *takeCurrent() { return it ? it->takeCurrent() : 0; }
-    void deleteCurrent();
+    inline QT_COMPAT QLayoutItem *operator++() { return layout->itemAt(++idx); }
+    inline QT_COMPAT QLayoutItem *current() { return layout->itemAt(idx); }
+    inline QT_COMPAT QLayoutItem *takeCurrent() { layout->takeAt(idx); }
+    inline QT_COMPAT void deleteCurrent() { delete takeCurrent(); }
 
 private:
-    QGLayoutIterator *it;
+    QLayout *layout;
+    int idx;
 };
+#endif
+
 
 class Q_GUI_EXPORT QLayoutItem
 {
@@ -99,7 +81,6 @@ public:
     virtual void invalidate();
 
     virtual QWidget *widget();
-    virtual QLayoutIterator iterator();
     virtual QLayout *layout();
     virtual QSpacerItem *spacerItem();
 
@@ -209,7 +190,8 @@ public:
     QSize minimumSize() const;
     QSize maximumSize() const;
     void setGeometry(const QRect&) = 0;
-    QLayoutIterator iterator() = 0;
+    virtual QLayoutItem *itemAt(int idx) = 0;
+    virtual QLayoutItem *takeAt(int idx) = 0;
     bool isEmpty() const;
 
     int totalHeightForWidth(int w) const;
@@ -269,13 +251,12 @@ public:
 
     inline QT_COMPAT void setAutoAdd(bool a) { autoNewChild = a; }
     inline QT_COMPAT bool autoAdd() const { return autoNewChild; }
+# if 0
+    inline QT_COMPAT QLayoutIterator iterator() { return QLayoutIterator(this); }
+# endif
 #endif
 };
 
-inline void QLayoutIterator::deleteCurrent()
-{
-    delete takeCurrent();
-}
 
 class Q_GUI_EXPORT QGridLayout : public QLayout
 {
@@ -323,7 +304,8 @@ public:
 
     void setOrigin(Corner);
     Corner origin() const;
-    QLayoutIterator iterator();
+    QLayoutItem *itemAt(int);
+    QLayoutItem *takeAt(int);
     void setGeometry(const QRect&);
 
     void addItem(QLayoutItem *item, int row, int col, int rowSpan = 1, int colSpan = 1, Alignment = 0);
@@ -403,7 +385,8 @@ public:
 
     QSizePolicy::ExpandData expanding() const;
     void invalidate();
-    QLayoutIterator iterator();
+    QLayoutItem *itemAt(int);
+    QLayoutItem *takeAt(int);
     void setGeometry(const QRect&);
 
     int findWidget(QWidget* w);

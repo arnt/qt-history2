@@ -270,16 +270,6 @@ int QLayoutItem::minimumHeightForWidth(int w) const
     return heightForWidth(w);
 }
 
-/*!
-    Returns an iterator over this item's QLayoutItem children. The
-    default implementation returns an empty iterator.
-
-    Reimplement this function in subclasses that can have children.
-*/
-QLayoutIterator QLayoutItem::iterator()
-{
-    return QLayoutIterator(0);
-}
 
 /*!
     Returns the preferred height for this layout item, given the width
@@ -563,11 +553,11 @@ bool QWidgetItem::isEmpty() const
     \l setResizeMode() or setMenuBar(). See the \link layout.html layout
     overview page \endlink for more information.
 
-    To make your own layout manager, subclass QGLayoutIterator and
-    implement the functions addItem(), sizeHint(), setGeometry(), and
-    iterator(). You should also implement minimumSize() to ensure your
-    layout isn't resized to zero size if there is too little space. To
-    support children whose heights depend on their widths, implement
+    To make your own layout manager, implement the functions
+    addItem(), sizeHint(), setGeometry(), itemAt() and takeAt(). You
+    should also implement minimumSize() to ensure your layout isn't
+    resized to zero size if there is too little space. To support
+    children whose heights depend on their widths, implement
     hasHeightForWidth() and heightForWidth(). See the \link
     customlayout.html custom layout page \endlink for an in-depth
     description.
@@ -669,23 +659,6 @@ QLayout::QLayout(int spacing, const char *name)
 
     The ownership of \a item is transferred to the layout, and it's
     the layout's responsibility to delete it.
-*/
-
-/*!
-    \fn QLayoutIterator QLayout::iterator()
-
-    Implemented in subclasses to return an iterator that iterates over
-    this layout's children.
-
-    A typical implementation will be:
-    \code
-        QLayoutIterator MyLayout::iterator()
-        {
-            QGLayoutIterator *i = new MyLayoutIterator(internal_data);
-            return QLayoutIterator(i);
-        }
-    \endcode
-    where MyLayoutIterator is a subclass of QGLayoutIterator.
 */
 
 /*!
@@ -794,23 +767,25 @@ void QLayout::invalidate()
     update();
 }
 
-static bool removeWidgetRecursively(QLayoutItem *lay, QWidget *w)
+static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w)
 {
-    bool didSomething = false;
-    QLayoutIterator it = lay->iterator();
+    QLayout *lay = li->layout();
+    if (!lay)
+        return false;
+    int i = 0;
     QLayoutItem *child;
-    while ((child = it.current()) != 0) {
+    while ((child = lay->itemAt(i))) {
         if (child->widget() == w) {
-            it.deleteCurrent();
+            delete lay->takeAt(i);
             lay->invalidate();
-            didSomething = true;
+            return true;
         } else if (removeWidgetRecursively(child, w)) {
-            didSomething = true;
+            return true;
         } else {
-            ++it;
+            ++i;
         }
     }
-    return didSomething;
+    return false;
 }
 
 /*!
@@ -894,15 +869,16 @@ void QLayout::childEvent(QChildEvent *e)
 
     if (e->type() == QEvent::ChildRemoved) {
         QChildEvent *c = (QChildEvent*)e;
-        QLayoutIterator it = iterator();
+        int i = 0;
+
         QLayoutItem *item;
-        while ((item = it.current())) {
-            if (item == (QLayout*)c->child()) {
-                it.takeCurrent();
+        while ((item = itemAt(i))) {
+            if (item == static_cast<QLayout*>(c->child())) {
+                takeAt(i);
                 invalidate();
                 break;
             } else {
-                ++it;
+                ++i;
             }
         }
     }
@@ -1030,9 +1006,8 @@ QLayout::~QLayout()
 */
 void QLayout::deleteAllItems()
 {
-    QLayoutIterator it = iterator();
     QLayoutItem *l;
-    while ((l = it.takeCurrent()))
+    while ((l = takeAt(0)))
         delete l;
 }
 
@@ -1168,15 +1143,14 @@ QSizePolicy::ExpandData QLayout::expanding() const
 void QLayout::activateRecursiveHelper(QLayoutItem *item)
 {
     item->invalidate();
-    QLayoutIterator it = item->iterator();
-    QLayoutItem *child;
-    while ((child = it.current()) != 0) {
-        activateRecursiveHelper(child);
-        ++it;
-    }
     QLayout *layout = item->layout();
-    if (layout)
+    if (layout) {
+        QLayoutItem *child;
+        int i=0;
+        while ((child = layout->itemAt(i++))) 
+            activateRecursiveHelper(child);
         layout->activated = true;
+    }
 }
 
 /*!
@@ -1539,86 +1513,25 @@ bool QLayout::activate()
 */
 
 /*!
-    \class QGLayoutIterator
-    \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
+  \fn QLayoutItem *QLayout::itemAt(int index)
 
-    \ingroup appearance
-    \ingroup geomanagement
+  Must be implemented in subclasses to return the layout item at \a
+  index. If there is no such item, the function must return 0.
+  Items are numbered consecutively from 0. If an item is deleted, other items will be renumbered.
 
-    (This class is \e not OpenGL related, it just happens to start with
-    the letters QGL...)
-
-    Subclass this class to create a custom layout. The functions that
-    must be implemented are next(), current(), and takeCurrent().
-
-    The QGLayoutIterator implements the functionality of
-    QLayoutIterator. Each subclass of QLayout needs a
-    QGLayoutIterator subclass.
-*/
-
-/*!
-    \fn QLayoutItem *QGLayoutIterator::next()
-
-    Implemented in subclasses to move the iterator to the next item
-    and return that item, or 0 if there is no next item.
-*/
-
-/*!
-    \fn QLayoutItem *QGLayoutIterator::current()
-
-    Implemented in subclasses to return the current item, or 0 if
-    there is no current item.
-*/
-
-/*!
-    \fn QLayoutItem *QGLayoutIterator::takeCurrent()
-
-    Implemented in subclasses. The function must remove the current
-    item from the layout without deleting it, move the iterator to the
-    next item and return the removed item, or 0 if no item was
-    removed.
-*/
-
-/*!
-    Destroys the iterator
-*/
-QGLayoutIterator::~QGLayoutIterator()
-{
-}
-
-/*!
-    \class QLayoutIterator
-    \brief The QLayoutIterator class provides iterators over QLayoutItem.
-
-    \ingroup appearance
-    \ingroup geomanagement
-
-    Use QLayoutItem::iterator() to create an iterator over a layout.
-
-    QLayoutIterator uses \e explicit sharing with a reference count.
-    If an iterator is copied and one of the copies is modified, both
-    iterators will be modified.
-
-    A QLayoutIterator is not protected against changes in its layout. If
-    the layout is modified or deleted the iterator will become invalid.
-    It is not possible to test for validity. It is safe to delete an
-    invalid layout; any other access may lead to an illegal memory
-    reference and the abnormal termination of the program.
-
-    Calling takeCurrent() or deleteCurrent() leaves the iterator in a
-    valid state, but may invalidate any other iterators that access the
-    same layout.
-
-    The following code will draw a rectangle for each layout item in
-    the layout structure of the widget.
+  This function can be used to iterate over a layout. The following
+  code will draw a rectangle for each layout item in the layout structure of the widget.
     \code
-    static void paintLayout(QPainter *p, QLayoutItem *lay)
+    static void paintLayout(QPainter *p, QLayoutItem *item)
     {
-        QLayoutIterator it = lay->iterator();
-        QLayoutItem *child;
-        while ((child = it.current()) != 0) {
-            paintLayout(p, child);
-            ++it;
+        QLayout *layout = item->layout();
+        if (layout) {
+            QLayoutItem *child;
+            int i = 0;
+            while ((child = layout->itemAt(i)) != 0) {
+                paintLayout(p, child);
+                ++i;
+            }
         }
         p->drawRect(lay->geometry());
     }
@@ -1629,74 +1542,29 @@ QGLayoutIterator::~QGLayoutIterator()
             paintLayout(&p, layout());
     }
     \endcode
-
-    All the functionality of QLayoutIterator is implemented by
-    subclasses of \l QGLayoutIterator. QLayoutIterator itself is not
-    designed to be subclassed.
 */
 
 /*!
-    \fn QLayoutIterator::QLayoutIterator(QGLayoutIterator *gi)
+ \fn QLayoutItem *QLayout::takeAt(int index)
 
-    Constructs an iterator based on \a gi. The constructed iterator
-    takes ownership of \a gi and will delete it.
+  Must be implemented in subclasses to remove the layout item at \a
+  index from the layout, and return the item. If there is no such
+  item, the function must do nothing and return 0.  Items are numbered
+  consecutively from 0. If an item is deleted, other items will be
+  renumbered.
 
-    This constructor is provided for layout implementors. Application
-    programmers should use QLayoutItem::iterator() to create an
-    iterator over a layout.
+  The following code fragment shows a safe way to remove all items from a layout:
+  \code
+  
+  QLayoutItem *child;
+  while((child = layout->takeAt(0)) != 0) {
+     //process child...
+  }
+  \endcode
+  
 */
 
-/*!
-    \fn QLayoutIterator::QLayoutIterator(const QLayoutIterator &i)
 
-    Creates a shallow copy of \a i, i.e. if the copy is modified, then
-    the original will also be modified.
-*/
-
-/*!
-    \fn QLayoutIterator::~QLayoutIterator()
-
-    Destroys the iterator.
-*/
-
-/*!
-    \fn QLayoutIterator &QLayoutIterator::operator=(const QLayoutIterator &i)
-
-    Assigns \a i to this iterator and returns a reference to this
-    iterator.
-*/
-
-/*!
-    \fn QLayoutItem *QLayoutIterator::operator++()
-
-    Moves the iterator to the next child item and returns that item,
-    or 0 if there is no such item.
-*/
-
-/*!
-    \fn QLayoutItem *QLayoutIterator::current()
-
-    Returns the current item, or 0 if there is no current item.
-*/
-
-/*!
-    \fn QLayoutItem *QLayoutIterator::takeCurrent()
-
-    Removes the current child item from the layout without deleting
-    it, and moves the iterator to the next item. Returns the removed
-    item, or 0 if there was no item to be removed. This iterator will
-    still be valid, but any other iterator over the same layout may
-    become invalid.
-*/
-
-/*!
-    \fn void QLayoutIterator::deleteCurrent()
-
-    Removes and deletes the current child item from the layout and
-    moves the iterator to the next item. This iterator will still be
-    valid, but any other iterator over the same layout may become
-    invalid.
-*/
 
 /*!
     \enum QLayout::ResizeMode
@@ -1846,14 +1714,14 @@ QRect QLayout::alignmentRect(const QRect &r) const
 */
 void QLayout::removeWidget(QWidget *widget)
 {
-    QLayoutIterator it = iterator();
+    int i = 0;
     QLayoutItem *child;
-    while ((child = it.current()) != 0) {
+    while ((child = itemAt(i))) {
         if (child->widget() == widget) {
-            it.deleteCurrent();
+            delete takeAt(i);
             invalidate();
         } else {
-            ++it;
+            ++i;
         }
     }
 }
@@ -1869,14 +1737,14 @@ void QLayout::removeWidget(QWidget *widget)
 */
 void QLayout::removeItem(QLayoutItem *item)
 {
-    QLayoutIterator it = iterator();
+    int i = 0;
     QLayoutItem *child;
-    while ((child = it.current()) != 0) {
+    while ((child = itemAt(i))) {
         if (child == item) {
-            it.takeCurrent();
+            takeAt(i);
             invalidate();
         } else {
-            ++it;
+            ++i;
         }
     }
 }
@@ -1908,15 +1776,15 @@ bool QLayout::isEnabled() const
 
 void QLayout::propagateSpacing(QLayout *parent)
 {
-    QLayoutIterator it = parent->iterator();
+    int i = 0;
     QLayoutItem *child;
-    while ((child = it.current())) {
+    while ((child = parent->itemAt(i))) {
         QLayout *childLayout = child->layout();
         if (childLayout && childLayout->insideSpacing < 0) {
             childLayout->insideSpacing = parent->insideSpacing;
             propagateSpacing(childLayout);
         }
-        ++it;
+        ++i;
     }
 }
 

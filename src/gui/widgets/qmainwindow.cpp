@@ -113,7 +113,9 @@ public:
     bool hasHeightForWidth() const { return false; }
     QSize sizeHint() const;
     QSize minimumSize() const;
-    QLayoutIterator iterator();
+    QLayoutItem *itemAt(int idx) { return 0; } //###
+    QLayoutItem *takeAt(int) { return 0; } //###
+
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
 
 protected:
@@ -244,13 +246,6 @@ int QMainWindowLayout::extraPixels() const
 void QMainWindowLayout::addItem(QLayoutItem * /* item */)
 {
 }
-
-
-QLayoutIterator QMainWindowLayout::iterator()
-{
-    return 0;
-}
-
 
 /*
   QHideToolTip and QHideDock - minimized dock
@@ -1406,9 +1401,8 @@ void QMainWindow::setUpLayout()
         d->tll->setResizeMode(minimumSize().isNull() ? QLayout::Minimum : QLayout::FreeResize);
     } else {
         d->tll->setMenuBar(0);
-        QLayoutIterator it = d->tll->iterator();
         QLayoutItem *item;
-        while ((item = it.takeCurrent()))
+        while ((item = d->tll->takeAt(0)))
             delete item;
     }
 

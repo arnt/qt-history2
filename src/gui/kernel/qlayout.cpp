@@ -106,17 +106,17 @@ public:
     inline int numRows() const { return rr; }
     inline int numCols() const { return cc; }
     inline void expand(int rows, int cols)
-    { setSize(qMax(rows, rr), qMax(cols, cc)); }
+        { setSize(qMax(rows, rr), qMax(cols, cc)); }
     inline void setRowStretch(int r, int s)
-    { expand(r + 1, 0); rStretch[r] = s; setDirty(); }
+        { expand(r + 1, 0); rStretch[r] = s; setDirty(); }
     inline void setColStretch(int c, int s)
-    { expand(0, c + 1); cStretch[c] = s; setDirty(); }
+        { expand(0, c + 1); cStretch[c] = s; setDirty(); }
     inline int rowStretch(int r) const { return rStretch[r]; }
     inline int colStretch(int c) const { return cStretch[c]; }
     inline void setRowSpacing(int r, int s)
-    { expand(r + 1, 0); rSpacing[r] = s; setDirty(); }
+        { expand(r + 1, 0); rSpacing[r] = s; setDirty(); }
     inline void setColSpacing(int c, int s)
-    { expand(0, c + 1); cSpacing[c] = s; setDirty(); }
+        { expand(0, c + 1); cSpacing[c] = s; setDirty(); }
     inline int rowSpacing(int r) const { return rSpacing[r]; }
     inline int colSpacing(int c) const { return cSpacing[c]; }
 
@@ -135,6 +135,33 @@ public:
     inline int count() const { return things.count() + multi.count(); }
     QRect cellGeometry(int row, int col) const;
 
+    inline QLayoutItem *itemAt(int idx) {
+        if (idx < things.count())
+            return things.at(idx)->item();
+        else if (idx - things.count() < multi.count())
+            return multi.at(idx - things.count())->box()->item();
+        else
+            return 0;
+    }
+    
+    inline QLayoutItem *takeAt(int idx) {
+        QLayoutItem *item = 0;
+        if (idx < things.count()) {
+            QGridBox *b = things.takeAt(idx);
+            if (b) {
+                item = b->takeItem();
+                delete b;
+            }
+        } else if (idx - things.count() < multi.count()) {
+            QGridMultiBox *b = multi.takeAt(idx -things.count());
+            if (b) {
+                item = b->takeItem();
+                delete b;
+            }
+        } 
+        return item;
+    }
+    
 private:
     void setNextPosAfter(int r, int c);
     void recalcHFW(int w, int s);
@@ -769,58 +796,6 @@ QRect QGridLayoutData::cellGeometry(int row, int col) const
     return QRect(colData[col].pos, (*rDataPtr)[row].pos, colData[col].size, (*rDataPtr)[row].size);
 }
 
-class QGridLayoutDataIterator : public QGLayoutIterator
-{
-public:
-    inline QGridLayoutDataIterator(QGridLayoutData *d) : data(d) { toFirst(); }
-    inline int count() const { return data->count(); }
-    inline QLayoutItem *current() {
-        if (multi) {
-            if (idx >= (int)data->multi.count())
-                return 0;
-            return data->multi.at(idx)->box()->item();
-        } else {
-            if (idx >= (int)data->things.count())
-                return 0;
-            return data->things.at(idx)->item();
-        }
-    }
-    inline void toFirst() {
-        multi = data->things.isEmpty();
-        idx = 0;
-    }
-    inline QLayoutItem *next() {
-        idx++;
-        if (!multi && idx >= (int)data->things.count()) {
-            multi = true;
-            idx = 0;
-        }
-        return current();
-    }
-    inline QLayoutItem *takeCurrent() {
-        QLayoutItem *item = 0;
-        if (multi) {
-            QGridMultiBox *b = data->multi.takeAt(idx);
-            if (b) {
-                item = b->takeItem();
-                delete b;
-            }
-        } else {
-            QGridBox *b = data->things.takeAt(idx);
-            if (b) {
-                item = b->takeItem();
-                delete b;
-            }
-        }
-        return item;
-    }
-
-private:
-    QGridLayoutData *data;
-    bool multi;
-    int idx;
-};
-
 /*!
     \class QGridLayout
 
@@ -1037,6 +1012,24 @@ bool QGridLayout::findWidget(QWidget* w, int *row, int *col)
 {
     return data->findWidget(w, row, col);
 }
+
+/*!
+    \reimp
+*/
+QLayoutItem *QGridLayout::itemAt(int idx)
+{
+    return data->itemAt(idx);
+}
+
+
+/*!
+    \reimp
+*/
+QLayoutItem *QGridLayout::takeAt(int idx)
+{
+    return data->takeAt(idx);
+}
+
 
 /*!
     Resizes managed widgets within the rectangle \a r.
@@ -1358,12 +1351,6 @@ void QGridLayout::invalidate()
     QLayout::invalidate();
 }
 
-/*! \reimp */
-QLayoutIterator QGridLayout::iterator()
-{
-    return QLayoutIterator(new QGridLayoutDataIterator(data));
-}
-
 struct QBoxLayoutItem
 {
     QBoxLayoutItem(QLayoutItem *it, int stretch_ = 0)
@@ -1435,37 +1422,6 @@ QBoxLayoutData::~QBoxLayoutData()
     while (!list.isEmpty())
         delete list.takeFirst();
 }
-
-class QBoxLayoutIterator : public QGLayoutIterator
-{
-public:
-    inline QBoxLayoutIterator(QBoxLayoutData *d) : data(d), idx(0) { }
-    inline QLayoutItem *current() {
-        if (idx >= data->list.count())
-            return 0;
-        return data->list.at(idx)->item;
-    }
-    inline QLayoutItem *next() {
-        idx++;
-        return current();
-    }
-    inline QLayoutItem *takeCurrent() {
-        QLayoutItem *item = 0;
-
-        QBoxLayoutItem *b = data->list.size() > idx ? data->list.takeAt(idx) : 0;
-        if (b) {
-            item = b->item;
-            b->item = 0;
-            delete b;
-        }
-        data->setDirty();
-        return item;
-    }
-
-private:
-    QBoxLayoutData *data;
-    int idx;
-};
 
 /*!
     \class QBoxLayout
@@ -1722,10 +1678,26 @@ void QBoxLayout::invalidate()
 /*!
     \reimp
 */
-QLayoutIterator QBoxLayout::iterator()
+QLayoutItem *QBoxLayout::itemAt(int idx)
 {
-    return QLayoutIterator(new QBoxLayoutIterator(data));
+    return idx >= 0 && idx < data->list.count() ? data->list.at(idx)->item : 0;
 }
+
+
+/*!
+    \reimp
+*/
+QLayoutItem *QBoxLayout::takeAt(int idx)
+{
+    if (idx < 0 || idx >= data->list.count())
+        return 0;
+    QBoxLayoutItem *b =  data->list.takeAt(idx);
+    QLayoutItem *item = b->item;
+    b->item = 0;
+    delete b;
+    return item;
+}
+
 
 /*!
     Returns whether this layout can make use of more space than

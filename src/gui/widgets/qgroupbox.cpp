@@ -188,10 +188,11 @@ void QGroupBoxPrivate::setTextSpacer()
             int m = layout->margin();
             int sp = layout->spacing();
             // do we have a child layout?
-            for (QLayoutIterator it = layout->iterator(); it.current(); ++it) {
-                if (it.current()->layout()) {
-                    m += it.current()->layout()->margin();
-                    sp = qMax(sp, it.current()->layout()->spacing());
+            int i = 0;
+            while (QLayoutItem *child = layout->itemAt(i++)) {
+                if (QLayout *childLayout = child->layout()) {
+                    m += childLayout->margin();
+                    sp = qMax(sp, childLayout->spacing());
                     break;
                 }
             }

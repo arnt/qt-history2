@@ -68,9 +68,14 @@ void QDockAreaLayout::setGeometry(const QRect &r)
     layoutItems(r);
 }
 
-QLayoutIterator QDockAreaLayout::iterator()
+QLayoutItem *QDockAreaLayout::itemAt(int idx)
 {
-    return 0;
+    return 0; //###
+}
+
+QLayoutItem *QDockAreaLayout::takeAt(int idx)
+{
+    return 0; //###
 }
 
 QSize QDockAreaLayout::sizeHint() const
