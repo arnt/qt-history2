@@ -476,7 +476,8 @@ void QWhatsThis::remove(QWidget *w)
     w->setWhatsThis(QString::null);
 }
 
-/*!
+/*! \obsolete
+
     This function returns a "What's this?" QToolButton with parent \a
     parent. When the user clicks this tool button the user interface
     goes into "What's this?" mode".
