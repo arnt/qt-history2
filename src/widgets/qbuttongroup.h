@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#6 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#7 $
 **
 ** Definition of QButtonGroup class
 **
@@ -28,7 +28,7 @@ public:
     QButtonGroup( const char *title, QWidget *parent=0, const char *name=0 );
    ~QButtonGroup();
 
-    void insert( QButton *, int id=-1 );
+    int  insert( QButton *, int id=-1 );
     void remove( QButton * );
 
 signals:

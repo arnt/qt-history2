@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#22 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#22 $";
 #endif
 
 
@@ -56,8 +56,6 @@ QMenuItem::~QMenuItem()
 // ---------------------------------------------------------------------------
 // QMenuData member functions
 //
-
-static int auto_id_count = 0;
 
 /*!
 Constructs an empty list.
@@ -148,6 +146,7 @@ int QMenuData::count() const
 int QMenuData::insertAny( const char *text, const QPixmap *pixmap,
 			  QPopupMenu *popup, int id, int index )
 {						// insert pixmap + sub menu
+    static int auto_id_count = 0;
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
 	warning( "QMenuData::insertItem: Index %d out of range", index );
