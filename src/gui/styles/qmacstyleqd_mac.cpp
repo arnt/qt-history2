@@ -23,6 +23,7 @@
 #include <qpaintengine_mac.h>
 #include <qmap.h>
 #include <qt_mac.h>
+#include <qrubberband.h>
 class QMacStyleQDPainter : public QPainter
 {
 public:
@@ -344,11 +345,11 @@ void QMacStyleQD::polish(QWidget* w)
     }
 #endif
 
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR) {
-	if (::qt_cast<QGroupBox*>(w))
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR) {
+	if(::qt_cast<QGroupBox*>(w))
 	    w->setAttribute(QWidget::WA_ContentsPropagated, true);
     }
-    if (QLineEdit *lined = ::qt_cast<QLineEdit*>(w)) {
+    if(QLineEdit *lined = ::qt_cast<QLineEdit*>(w)) {
 #if 0
         if(::qt_cast<QComboBox*>(w->parentWidget()))
 	    lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
@@ -359,29 +360,31 @@ void QMacStyleQD::polish(QWidget* w)
 	Q_UNUSED(lined);
 # warning "Do we need to replace this with something else for the new QLineEdit? --Sam"	
 #endif
-    } else if (QDialogButtons *btns = ::qt_cast<QDialogButtons*>(w)) {
+    } else if(QDialogButtons *btns = ::qt_cast<QDialogButtons*>(w)) {
 	if(btns->buttonText(QDialogButtons::Help).isNull())
 	    btns->setButtonText(QDialogButtons::Help, "?");
-    } else if (QToolButton *btn = ::qt_cast<QToolButton*>(w)) {
+    } else if(QToolButton *btn = ::qt_cast<QToolButton*>(w)) {
         btn->setAutoRaise(FALSE);
-    } else if (QToolBar *bar = ::qt_cast<QToolBar*>(w)) {
+    } else if(QToolBar *bar = ::qt_cast<QToolBar*>(w)) {
 	QBoxLayout * layout = bar->boxLayout();
 	layout->setSpacing(0);
 	layout->setMargin(0);
-    } else if (w->inherits("QTipLabel")) {   // QTipLabel is declared in qtooltip.cpp :-(
+    } else if(w->inherits("QTipLabel")) {   // QTipLabel is declared in qtooltip.cpp :-(
         QLabel *label = (QLabel*)w;
 	label->setFrameStyle(QFrame::NoFrame);
 	label->setLineWidth(1);
 	label->setWindowOpacity(0.95);
 #ifdef QT_COMPAT
-    } else if (QPopupMenu *popup = ::qt_cast<QPopupMenu*>(w)) {
+    } else if(QPopupMenu *popup = ::qt_cast<QPopupMenu*>(w)) {
 	popup->setMargin(0);
 	popup->setLineWidth(0);
 	w->setWindowOpacity(0.95);
 #endif
-    } else if (Q4Menu *menu = ::qt_cast<Q4Menu*>(w)) {
+    } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
+	rubber->setWindowOpacity(0.2);
+    } else if(Q4Menu *menu = ::qt_cast<Q4Menu*>(w)) {
 	menu->setWindowOpacity(0.95);
-    } else if (QTitleBar *tb = ::qt_cast<QTitleBar *>(w)) {
+    } else if(QTitleBar *tb = ::qt_cast<QTitleBar *>(w)) {
 //	w->font().setPixelSize(10);
 	tb->setAutoRaise(TRUE);
     }
@@ -391,14 +394,16 @@ void QMacStyleQD::unPolish(QWidget* w)
 {
     d->removeWidget(w);
     QToolButton *btn = ::qt_cast<QToolButton*>(w);
-    if (btn) {
+    if(btn) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(TRUE);
 #ifdef QT_COMPAT
-    } else if (::qt_cast<QPopupMenu*>(w)) {
+    } else if(::qt_cast<QPopupMenu*>(w)) {
 	w->setWindowOpacity(1.0);
 #endif
-    } else if (::qt_cast<Q4Menu*>(w)) {
+    } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
+	rubber->setWindowOpacity(1.0);
+    } else if(::qt_cast<Q4Menu*>(w)) {
 	w->setWindowOpacity(1.0);
     }
 }
@@ -455,11 +460,11 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	    break;
 	QWidget *w = NULL;
 	//This is terrible, if I we just passed the widget in this wouldn't be necesary!
-	if (p && p->device() && p->device()->devType() == QInternal::Widget)
+	if(p && p->device() && p->device()->devType() == QInternal::Widget)
 	    w = (QWidget*)p->device();
 	((QMacStyleQDPainter *)p)->setport();
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-        if (w && ::qt_cast<QGroupBox*>(w->parentWidget()))
+        if(w && ::qt_cast<QGroupBox*>(w->parentWidget()))
 	    DrawThemeSecondaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
 	else
 #endif
@@ -523,8 +528,8 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	break;
     case PE_HeaderArrow:
 #ifndef QT_NO_TABLE
-	if (p && p->device() && p->device()->devType() == QInternal::Widget) {
-	    if (static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
+	if(p && p->device() && p->device()->devType() == QInternal::Widget) {
+	    if(static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
 		DrawThemePopupArrow(qt_glb_mac_rect(r, p),
 				    flags & Style_Up ? kThemeArrowDown : kThemeArrowUp,
 				    kThemeArrow9pt, tds, 0, 0);
@@ -542,10 +547,10 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
         // design decisions we have to explictily turn it off for every header section.
         // We can tell if something is selected by looking at the boldness of the font,
         // icky, but it does the job.
-        if (p && p->device() && p->device()->devType() == QInternal::Widget) {
-	    if (static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
+        if(p && p->device() && p->device()->devType() == QInternal::Widget) {
+	    if(static_cast<QWidget *>(p->device())->parentWidget()->inherits("QTable")) {
                 bkind = kThemeBevelButton;
-                if (p->font().bold())
+                if(p->font().bold())
                     flags |= Style_Sunken;
                 else
                     flags &= ~Style_Sunken;
@@ -554,7 +559,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 #endif
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
         QWidget *w = 0;
-        if (p->device()->devType() == QInternal::Widget)
+        if(p->device()->devType() == QInternal::Widget)
             w = (QWidget*)p->device();
 
 	if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
@@ -588,7 +593,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
     case PE_ExclusiveIndicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
         QWidget *w = 0;
-        if (p->device()->devType() == QInternal::Widget)
+        if(p->device()->devType() == QInternal::Widget)
             w = (QWidget *)p->device();
 	if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
 	    info.adornment |= kThemeAdornmentFocus;
@@ -615,7 +620,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
     case PE_Indicator: {
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
         QWidget *w = 0;
-        if (p->device()->devType() == QInternal::Widget)
+        if(p->device()->devType() == QInternal::Widget)
             w = (QWidget*)p->device();
         if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
 	    info.adornment |= kThemeAdornmentFocus;
@@ -640,15 +645,16 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 			    &info, NULL, NULL, NULL, 0);
 	}
 	break; }
+    case PE_RubberBandMask:
     case PE_RubberBand:
 	p->fillRect(r, pal.highlight());
 	break;
     case PE_TreeBranch: {
-        if (!(flags & Style_Children))
+        if(!(flags & Style_Children))
             break;
         ThemeButtonDrawInfo currentInfo;
         currentInfo.state = (flags & Style_Enabled) ? kThemeStateActive : kThemeStateInactive;
-        if (flags & Style_Down)
+        if(flags & Style_Down)
             currentInfo.state |= kThemeStatePressed;
         currentInfo.value = flags & Style_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
         currentInfo.adornment = kThemeAdornmentNone;
@@ -839,13 +845,13 @@ void QMacStyleQD::drawControl(ControlElement element,
 	    xpos += xm;
 	if(mi) {
 	    QString s = mi->text();
-	    if (!s.isNull()) {                        // draw text
+	    if(!s.isNull()) {                        // draw text
 		int t = s.indexOf('\t');
 		int m = macItemVMargin;
 		int text_flags = AlignRight | AlignVCenter | NoAccel | SingleLine;
-		if (t >= 0) {                         // draw tab text
+		if(t >= 0) {                         // draw tab text
 		    int xp;
-		    if (reverse)
+		    if(reverse)
 			xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
 		    else
 			xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame + 1;
@@ -983,13 +989,13 @@ void QMacStyleQD::drawControl(ControlElement element,
 	}
 	if(mi) {
 	    QString s = mi->text();
-	    if (!s.isNull()) {                        // draw text
+	    if(!s.isNull()) {                        // draw text
 		int t = s.indexOf('\t');
 		int m = macItemVMargin;
 		int text_flags = AlignRight | AlignVCenter | NoAccel | DontClip | SingleLine;
-		if (t >= 0) {                         // draw tab text
+		if(t >= 0) {                         // draw tab text
 		    int xp;
-		    if (reverse)
+		    if(reverse)
 			xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
 		    else
 			xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame + 1;
@@ -1241,7 +1247,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 	// change the color to bright text if we are a table header and selected.
         const QColor *penColor = &pal.buttonText().color();
 #ifndef QT_NO_TABLE
-        if (header->parentWidget()->inherits("QTable") && p->font().bold())
+        if(header->parentWidget()->inherits("QTable") && p->font().bold())
             penColor = &pal.color(QColorGroup::BrightText);
 #endif
         drawItem(p, textr, AlignVCenter, pal, how & Style_Enabled,
@@ -1312,7 +1318,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 		// If the background color is set then make the toolbutton
 		// translucent so the background color is visible
-		if (widget->palette().color(widget->backgroundRole()) != white) {
+		if(widget->palette().color(widget->backgroundRole()) != white) {
 		    p->fillRect( r, widget->palette().color(widget->backgroundRole()));
 		    info.state = kThemeStateInactive;
 		}
@@ -1561,7 +1567,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-        if (scrollbar->invertedAppearance())
+        if(scrollbar->invertedAppearance())
             ttdi.attributes |= kThemeTrackRightToLeft;
 	if(!qAquaActive(pal))
 	    ttdi.enableState = kThemeTrackInactive;
@@ -1605,7 +1611,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 #endif
 	if(horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-        if (!horizontal == !invertedAppearance)
+        if(!horizontal == !invertedAppearance)
             ttdi.attributes |= kThemeTrackRightToLeft;
 	if(widget->isEnabled())
 	    ttdi.enableState |= kThemeTrackActive;
@@ -1722,7 +1728,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #endif
 	break;
     case PM_DefaultFrameWidth:
-	if (widget && (widget->isTopLevel() || !widget->parentWidget()
+	if(widget && (widget->isTopLevel() || !widget->parentWidget()
                 || (::qt_cast<QMainWindow*>(widget->parentWidget())
                    && ((QMainWindow*)widget->parentWidget())->centralWidget() == widget))
 		&& (::qt_cast<QScrollView*>(widget) || widget->inherits("QWorkspaceChild")))
@@ -1956,7 +1962,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-        if (!horizontal == !invertedAppearance)
+        if(!horizontal == !invertedAppearance)
             ttdi.attributes |= kThemeTrackRightToLeft;
 	if(!qAquaActive(sldr->palette()))
 	    ttdi.enableState = kThemeTrackInactive;
@@ -2194,7 +2200,7 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
 	ret = Qt::AlignTop;
 	break;
     case SH_ScrollView_FrameOnlyAroundContents:
-	if (w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
+	if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
             && (::qt_cast<QScrollView*>(w) || w->inherits("QWorkspaceChild")))
 	    ret = TRUE;
 	else
@@ -2345,7 +2351,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
 	    w += 20 - maxpmw;
 	if(checkable || maxpmw > 0)
 	    w += 2;
-        if (::qt_cast<QComboBox*>(widget->parentWidget())
+        if(::qt_cast<QComboBox*>(widget->parentWidget())
             && widget->parentWidget()->isVisible())
 	    w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
 			SC_ComboBoxEditField).width());
@@ -2396,7 +2402,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
 	    w += 20 - maxpmw;
 	if(checkable || maxpmw > 0)
 	    w += 2;
-        if (::qt_cast<QComboBox*>(widget->parentWidget())
+        if(::qt_cast<QComboBox*>(widget->parentWidget())
             && widget->parentWidget()->isVisible())
 	    w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
 			SC_ComboBoxEditField).width());

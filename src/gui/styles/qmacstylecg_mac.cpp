@@ -13,6 +13,8 @@
 #include <qscrollbar.h>
 #include <qslider.h>
 #include <qtabbar.h>
+#include <qrubberband.h>
+#include <qmenu.h>
 #include <qt_mac.h>
 
 #include <private/qaquastyle_p.h>
@@ -21,7 +23,7 @@ QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
 
 const int qt_mac_hitheme_version = 0; //the HITheme version we speak
 // Utility to generate correct rectangles for AppManager internals
-static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=0,
+static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice * =0,
 					    bool off=true, const QRect &rect=QRect())
 {
     static HIRect r;
@@ -168,8 +170,7 @@ void QMacStyleCG::polish(QWidget *w)
         p.end();
     }
 
-    QPopupMenu *pop = ::qt_cast<QPopupMenu *>(w);
-    if (pop) {
+    if (::qt_cast<QPopupMenu *>(w) || ::qt_cast<Q4Menu*>(w)) {
         px.resize(200, 200);
         QPainter p(&px);
         HIThemeMenuDrawInfo mtinfo;
@@ -179,7 +180,11 @@ void QMacStyleCG::polish(QWidget *w)
         HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(p.handle()),
                                   kHIThemeOrientationNormal);
         p.end();
+	w->setWindowOpacity(0.95);
     }
+
+    if(::qt_cast<QRubberBand*>(w)) 
+	w->setWindowOpacity(0.75);
 
     if (!px.isNull()) {
         QPalette pal = w->palette();
@@ -194,14 +199,17 @@ void QMacStyleCG::polish(QWidget *w)
 void QMacStyleCG::unPolish(QWidget *w)
 {
     d->removeWidget(w);
-    if (::qt_cast<QPopupMenu *>(w) || qt_mac_is_metal(w)) {
+    if (::qt_cast<QPopupMenu *>(w) || ::qt_cast<Q4Menu*>(w) || qt_mac_is_metal(w)) {
         QPalette pal = w->palette();
         QPixmap tmp;
         QBrush background(tmp);
         pal.setBrush(QPalette::Background, background);
         pal.setBrush(QPalette::Button, background);
         w->setPalette(pal);
+	w->setWindowOpacity(1.0);
     }
+    if(::qt_cast<QRubberBand*>(w)) 
+	w->setWindowOpacity(1.0);
     QWindowsStyle::unPolish(w);
 }
 
@@ -242,6 +250,10 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
     }
 
     switch (pe) {
+    case PE_RubberBandMask:
+    case PE_RubberBand:
+	p->fillRect(r, pal.highlight());
+	break;
     case PE_CheckListController:
 	break;
     case PE_CheckListExclusiveIndicator:

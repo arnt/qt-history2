@@ -593,9 +593,16 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	drawPrimitive( PE_Panel, p, r, pal, flags, opt );
 	break;
 
-    case PE_RubberBand:
-	drawPrimitive(PE_FocusRect, p, r, pal, flags, opt);
-	break;
+    case PE_RubberBandMask:
+    case PE_RubberBand: {
+	QPen oldPen = p->pen();
+	p->setPen(pal.foreground());
+	if(flags & Style_Rectangle)
+	    p->drawRect(r);
+	else
+	    p->fillRect(r, pal.foreground());
+	p->setPen(oldPen);
+	break; }
 
     case PE_TreeBranch: {
 	static QPixmap open(tree_branch_open_xpm);

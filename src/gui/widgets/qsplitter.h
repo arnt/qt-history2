@@ -30,6 +30,7 @@ template <typename T> class QList;
 class Q_GUI_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QSplitter);
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
     Q_PROPERTY( bool opaqueResize READ opaqueResize WRITE setOpaqueResize )
     Q_PROPERTY( int handleWidth READ handleWidth WRITE setHandleWidth )
@@ -44,7 +45,7 @@ public:
     ~QSplitter();
 
     virtual void setOrientation( Orientation );
-    Orientation orientation() const { return orient; }
+    Orientation orientation() const;
 
     // ### Qt 4.0: make setChildrenCollapsible() and setCollapsible() virtual
 
@@ -106,19 +107,6 @@ private:
     int findWidgetJustBeforeOrJustAfter( int id, int delta, int &collapsibleSize );
     void updateHandles();
 
-    inline QCOORD pick( const QPoint &p ) const
-    { return orient == Horizontal ? p.x() : p.y(); }
-    inline QCOORD pick( const QSize &s ) const
-    { return orient == Horizontal ? s.width() : s.height(); }
-
-    inline QCOORD trans( const QPoint &p ) const
-    { return orient == Vertical ? p.x() : p.y(); }
-    inline QCOORD trans( const QSize &s ) const
-    { return orient == Vertical ? s.width() : s.height(); }
-
-    QSplitterPrivate *d;
-
-    Orientation orient;
     friend class QSplitterHandle;
 
 #ifndef QT_NO_TEXTSTREAM

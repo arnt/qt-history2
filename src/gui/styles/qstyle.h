@@ -175,7 +175,7 @@ public:
 	Style_Selected =		0x00008000,
 	Style_Active =			0x00010000,
 	Style_ButtonDefault =		0x00020000,
-
+	Style_Rectangle =               0x00040000,
 	Style_Open =			0x00100000,
 	Style_Children =		0x00200000,
 	Style_Item =			0x00400000,
@@ -252,12 +252,14 @@ public:
 	PE_CheckListExclusiveIndicator,
 
 	PE_PanelGroupBox,
-	PE_RubberBand,
 
 	PE_TreeBranch,
 
 	PE_MenuFrame,
 	PE_MenuBarFrame,
+
+	PE_RubberBand,
+	PE_RubberBandMask,
 
 	// do not add any values below/greater this
 	PE_CustomBase =			0xf000000

@@ -60,6 +60,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qdatetimeedit.h \
 	widgets/qwidgetinterface_p.h \
 	widgets/qwidgetplugin.h \
+        widgets/qrubberband.h \
 	widgets/qworkspace.h
 
 SOURCES += widgets/qbuttongroup.cpp \
@@ -118,6 +119,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qdatetimeedit.cpp \
 	widgets/qeffects.cpp \
 	widgets/qwidgetplugin.cpp \
+        widgets/qrubberband.cpp \
 	widgets/qworkspace.cpp
    
 

@@ -9,7 +9,7 @@
 class Q4MenuPrivate;
 class Q4MenuBarPrivate;
 
-class Q4Menu : public QWidget
+class Q_GUI_EXPORT Q4Menu : public QWidget
 {
 private:
     Q_OBJECT
@@ -76,7 +76,7 @@ private:
 #endif
 };
 
-class Q4MenuBar : public QWidget
+class Q_GUI_EXPORT Q4MenuBar : public QWidget
 {   
     Q_OBJECT
     Q_DECLARE_PRIVATE(Q4MenuBar);
