@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#8 $
 **
 ** Implementation of QRegExp class
 **
@@ -21,7 +21,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#8 $";
 #endif
 
 
@@ -637,7 +637,7 @@ int QString::findRev( const QRegExp &r, int index ) const
 {						// reverse find substring
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( size() )
-	    index = size() - 1;
+	    index = strlen( data() );
 	else					// empty string
 	    return -1;
     }
