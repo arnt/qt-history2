@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#12 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#12 $";
 #endif
 
 
@@ -285,10 +285,7 @@ void QLineEdit::pixmapPaint()
     p.fillRect( clientRect(), backgroundColor() );
     paintText( &p, pm->size() , TRUE );
     p.end();
-//    p.begin( this );
-//    p.drawPixMap( 0, 0 , *pm );
-    pm->bitBlt( pm->rect(), this, QPoint( 0, 0 ) );
-//    p.end();
+    bitBlt( this, 0, 0, pm, 0, 0, -1, -1 );
 }
 
 
