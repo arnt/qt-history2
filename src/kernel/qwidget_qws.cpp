@@ -259,9 +259,9 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( topLevel ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	if ( name( 0 ) )
-	    qwsDisplay()->nameRegion( winId(), name(), windowCaption() );
+	    qwsDisplay()->nameRegion( winId(), name(), windowTitle() );
 	else
-	    qwsDisplay()->nameRegion( winId(), "", windowCaption() );
+	    qwsDisplay()->nameRegion( winId(), "", windowTitle() );
 	d->createTLExtra();
 #else
 	qwsDisplay()->nameRegion( winId(), name(), QString::null );
@@ -379,7 +379,7 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     QSize    s	    = size();
     //QBrush   bgc    = background();			// save colors
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    QString capt = windowCaption();
+    QString capt = windowTitle();
 #endif
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);

@@ -1207,7 +1207,7 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 #endif
 
 
-void QWSDisplay::setWindowTitle( QWidget *w, const QString &c )
+void QWSDisplay::setWindowCaption( QWidget *w, const QString &c )
 {
     if ( w->isTopLevel() ) {
 	nameRegion( w->winId(), w->name(), c );
