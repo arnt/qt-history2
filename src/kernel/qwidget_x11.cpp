@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#54 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#53 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#54 $";
 #endif
 
 
@@ -56,9 +56,7 @@ bool QWidget::create()				// create widget
 {
     if ( testFlag( WState_Created ) )		// already created
 	return FALSE;
-
     setFlag( WState_Created );			// set created flag
-    setDevType( PDT_WIDGET );			// set widget paint device flag
 
     if ( !parentWidget() )
 	setFlag( WType_Overlap );		// overlapping widget
