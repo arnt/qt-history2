@@ -67,7 +67,9 @@
 #include "qwindowsstyle.h" // ######## dependency
 #include "qmotifplusstyle.h" // ######## dependency
 #include "qpaintdevicemetrics.h"
+#ifdef QMAC_QMENUBAR_TOPLEVEL
 #include "qmenubar.h"
+#endif
 #include "qvariant.h"
 
 #ifdef Q_WS_MACX
@@ -1204,6 +1206,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 		    tlw->raise();
 		    if(tlw->isTopLevel() && !tlw->isPopup() &&
 		       (tlw->isModal() || !tlw->isDialog())) {
+#ifdef QMAC_QMENUBAR_TOPLEVEL
 			if(IsMenuBarVisible()) {
 			    if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
 				QMenuBar *bar = (QMenuBar *)mb;
@@ -1211,6 +1214,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 				    HideMenuBar();
 			    }
 			}
+#endif
 			app->setActiveWindow(tlw);
 		    }
 		}
@@ -1309,48 +1313,50 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 	widget = QWidget::find( (WId)wid );
 	if(!widget) {
 	    qWarning("Couldn't find EventClasWindow widget for %d", (int)wid);
-        break;
-    }
+	    break;
+	}
 
 	if(ekind == kEventWindowUpdate) {
-		int metricWidth = widget->metric (QPaintDeviceMetrics::PdmWidth );
-		int metricHeight = widget->metric( QPaintDeviceMetrics::PdmHeight );
-		widget->crect.setWidth( metricWidth - 1 );
-		widget->crect.setHeight( metricHeight - 1 );
+	    int metricWidth = widget->metric (QPaintDeviceMetrics::PdmWidth );
+	    int metricHeight = widget->metric( QPaintDeviceMetrics::PdmHeight );
+	    widget->crect.setWidth( metricWidth - 1 );
+	    widget->crect.setHeight( metricHeight - 1 );
 
-		QMacSavedPortInfo savedInfo;
-		BeginUpdate((WindowPtr)widget->handle());
-		widget->propagateUpdates();
-		EndUpdate((WindowPtr)widget->handle());
+	    QMacSavedPortInfo savedInfo;
+	    BeginUpdate((WindowPtr)widget->handle());
+	    widget->propagateUpdates();
+	    EndUpdate((WindowPtr)widget->handle());
 	} else if(ekind == kEventWindowActivated) {
-		if(widget) {
-		    widget->raise();
-		    QWidget *tlw = widget->topLevelWidget();
-		    if(tlw->isTopLevel() && !tlw->isPopup() &&
-		       (tlw->isModal() || !tlw->isDialog())) {
-				if(IsMenuBarVisible()) {
-			    	if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
-						QMenuBar *bar = (QMenuBar *)mb;
-						if(bar->isTopLevel() && bar->isVisible())
-				   		 	HideMenuBar();
-			    	}
-				}
-				app->setActiveWindow(tlw);
+	    if(widget) {
+		widget->raise();
+		QWidget *tlw = widget->topLevelWidget();
+		if(tlw->isTopLevel() && !tlw->isPopup() &&
+		   (tlw->isModal() || !tlw->isDialog())) {
+#ifdef QMAC_QMENUBAR_TOPLEVEL
+		    if(IsMenuBarVisible()) {
+			if(QObject *mb = tlw->child(0, "QMenuBar", FALSE)) {
+			    QMenuBar *bar = (QMenuBar *)mb;
+			    if(bar->isTopLevel() && bar->isVisible())
+				HideMenuBar();
 			}
-			if (widget->focusWidget())
-				widget->focusWidget()->setFocus();
-			else
-				widget->setFocus();
+		    }
+#endif
+		    app->setActiveWindow(tlw);
 		}
+		if (widget->focusWidget())
+		    widget->focusWidget()->setFocus();
+		else
+		    widget->setFocus();
+	    }
 	} else if(ekind == kEventWindowDeactivated) {
-		if(active_window && widget == active_window)
-		    app->setActiveWindow(NULL);
-		while(app->inPopupMode())
-		    app->activePopupWidget()->close();
+	    if(active_window && widget == active_window)
+		app->setActiveWindow(NULL);
+	    while(app->inPopupMode())
+		app->activePopupWidget()->close();
 	} else if(ekind == kEventWindowShown || ekind == kEventWindowHidden) {
 
 	}
-    break;
+	break;
     case kEventClassApplication:
 	if(ekind == kEventAppActivated)
 	    app->clipboard()->loadScrap(FALSE);
