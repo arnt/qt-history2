@@ -1143,7 +1143,6 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
     if ( state != curPlace && state == InDock ) {
 	doUpdate = FALSE;
 	curPlace = state;
-	emit placeChanged( curPlace );
 	updateGui();
 	QApplication::sendPostedEvents();
     }
@@ -1163,7 +1162,6 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 		if ( doUpdate ) {
 		    doUpdate = FALSE;
 		    curPlace = state;
-		    emit placeChanged( curPlace );
 		    updateGui();
 		}
 		emit orientationChanged( tmpDockArea->orientation() );
@@ -1189,7 +1187,6 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
     }
     if ( doUpdate ) {
 	curPlace = state;
-	emit placeChanged( curPlace );
 	updateGui();
     }
     if ( doOrientationChange )
@@ -1203,6 +1200,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	if ( parentWidget() && isTopLevel() )
 	    parentWidget()->setActiveWindow();
     }
+    emit placeChanged( curPlace );
 }
 
 /*! Sets the dock window's main widget to \a w.
