@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#4 $
 **
 ** Implementation of date and time classes
 **
@@ -14,17 +14,24 @@
 #include "qdstream.h"
 #include <stdio.h>
 #include <time.h>
+#if defined(UNIX)
+#include <sys/time.h>
+#include <unistd.h>
+#endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#4 $";
 #endif
 
 
 static const ulong FIRST_DAY	 = 2361222L;	// Julian day for 17520914
 static const uint  FIRST_YEAR	 = 1752;
 static const ulong SECS_PER_DAY	 = 86400L;
+static const ulong MSECS_PER_DAY = 86400000L;
 static const ulong SECS_PER_HOUR = 3600L;
+static const ulong MSECS_PER_HOUR= 3600000L;
 static const uint  SECS_PER_MIN	 = 60;
+static const ulong MSECS_PER_MIN = 60000L;
 
 static ushort monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -233,40 +240,46 @@ void QDate::jul2greg( ulong jd, uint &y, uint &m, uint &d )
 // QTime class member functions
 //
 
-QTime::QTime( uint h, uint m, uint s )		// set time
+QTime::QTime( uint h, uint m, uint s, uint ms )	// set time
 {
 #if defined(CHECK_RANGE)
-    if ( !isValid(h,m,s) )
+    if ( !isValid(h,m,s,ms) )
 	warning( "QTime: Invalid time" );
 #endif
-    ds = h*SECS_PER_HOUR + m*SECS_PER_MIN + s;
+    ds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
 #if defined(DEBUG)
     ASSERT( hour() == h );
     ASSERT( minute() == m );
     ASSERT( second() == s );
+    ASSERT( msec() == ms );
 #endif
 }
 
 
 bool QTime::isValid() const			// valid time
 {
-    return ds < SECS_PER_DAY;
+    return ds < MSECS_PER_DAY;
 }
 
 
 uint QTime::hour() const			// 0..23
 {
-    return (uint)(ds / SECS_PER_HOUR);
+    return (uint)(ds / MSECS_PER_HOUR);
 }
 
 uint QTime::minute() const			// 0..59
 {
-    return (uint)((ds % SECS_PER_HOUR)/SECS_PER_MIN);
+    return (uint)((ds % MSECS_PER_HOUR)/MSECS_PER_MIN);
 }
 
 uint QTime::second() const			// 0..59
 {
-    return (uint)(ds % SECS_PER_MIN);
+    return (uint)((ds / 1000)%SECS_PER_MIN);
+}
+
+uint QTime::msec() const			// 0..999
+{
+    return (uint)(ds % 1000);
 }
 
 
@@ -278,15 +291,15 @@ QString QTime::asString() const			// time as string
 }
 
 
-bool QTime::setHMS( uint h, uint m, uint s )	// set hour, minute, second
+bool QTime::setHMS( uint h, uint m, uint s, uint ms ) // set time of day
 {
-    if ( !isValid(h,m,s) ) {
+    if ( !isValid(h,m,s,ms) ) {
 #if defined(CHECK_RANGE)
 	 warning( "QTime::setHMS: Invalid time" );
 #endif
 	 return FALSE;
     }
-    ds = h*SECS_PER_HOUR + m*SECS_PER_MIN + s;
+    ds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
     return TRUE;
 }
 
@@ -294,11 +307,23 @@ bool QTime::setHMS( uint h, uint m, uint s )	// set hour, minute, second
 QTime QTime::addSecs( long secs ) const		// add seconds
 {
     QTime t;
-    t.ds = (ds + secs) % SECS_PER_DAY;
+    t.ds = (ds + secs*1000) % MSECS_PER_DAY;
     return t;
 }
 
 long QTime::secsTo( const QTime &t ) const	// seconds difference
+{
+    return ((long)t.ds - (long)ds)/1000L;
+}
+
+QTime QTime::addMSecs( long ms ) const		// add milliseconds
+{
+    QTime t;
+    t.ds = (ds + ms) % MSECS_PER_DAY;
+    return t;
+}
+
+long QTime::msecsTo( const QTime &t ) const	// milliseconds difference
 {
     return t.ds - ds;
 }
@@ -306,17 +331,26 @@ long QTime::secsTo( const QTime &t ) const	// seconds difference
 
 QTime QTime::currentTime()			// get current time
 {
-    time_t ltime;
-    time( &ltime );
-    tm *t = localtime( &ltime );
+    static long msdiff = -1;			// msec diff from GMT
+    struct timeval tv;
     QTime ct;
-    ct.ds = SECS_PER_HOUR*t->tm_hour + SECS_PER_MIN*t->tm_min + t->tm_sec;
+    gettimeofday( &tv, 0 );
+    if ( msdiff == -1 ) {
+	++msdiff;
+	tm *t = localtime( &tv.tv_sec );
+	long ms = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+	    	  1000L*t->tm_sec;
+	ct.ds = ms + (tv.tv_usec)/1000;
+	msdiff = ms - (tv.tv_sec % 86400L)*1000L;
+    }
+    else
+	ct.ds = (tv.tv_sec % 86400L)*1000L + msdiff + tv.tv_usec/1000L;
     return ct;
 }
 
-bool QTime::isValid( uint h, uint m, uint s )	// is valid time?
+bool QTime::isValid( uint h, uint m, uint s, uint ms ) // is valid time?
 {
-    return h < 24 && m < 60 && s < 60;
+    return h < 24 && m < 60 && s < 60 && ms < 1000;
 }
 
 
@@ -353,8 +387,7 @@ QDateTime QDateTime::addDays( long days ) const // add days
 
 QDateTime QDateTime::addSecs( long secs ) const // add seconds
 {
-    long ds = t.ds + secs;
-    long dd = ds / SECS_PER_DAY;
+    long dd = (t.ds + secs*1000)/MSECS_PER_DAY;
     return QDateTime( d.addDays(dd), t.addSecs(secs) );
 }
 
@@ -410,11 +443,8 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
 
 QDateTime QDateTime::currentDateTime()		// get current datetime
 {
-    time_t ltime;
-    ::time( &ltime );
-    tm *t = localtime( &ltime );
-    QDate dd( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
-    QTime tt( t->tm_hour, t->tm_min, t->tm_sec );
+    QDate dd = QDate::currentDate();
+    QTime tt = QTime::currentTime();
     return QDateTime( dd, tt );
 }
 

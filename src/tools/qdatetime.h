@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#3 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#4 $
 **
 ** Definition of date and time classes
 **
@@ -80,7 +80,7 @@ friend QDataStream &operator<<( QDataStream &, const QTime & );
 friend QDataStream &operator>>( QDataStream &, QTime & );
 public:
     QTime() { ds=0; }				// set null time
-    QTime( uint h, uint m, uint s=0 );		// set time
+    QTime( uint h, uint m, uint s=0, uint ms=0);// set time
 
     bool   isNull()	 const { return ds == 0; }
     bool   isValid()	 const;			// valid time
@@ -88,13 +88,16 @@ public:
     uint   hour()	 const;			// 0..23
     uint   minute()	 const;			// 0..59
     uint   second()	 const;			// 0..59
+    uint   msec()	 const;			// 0..999
 
     virtual QString asString()		const;	// time as string
 
-    bool   setHMS( uint h, uint m, uint s );	// set hour, minute, seconds
+    bool   setHMS( uint h, uint m, uint s, uint ms=0 );	// set time of day
 
     QTime  addSecs( long secs )		const;	// add seconds
     long   secsTo( const QTime & )	const;	// seconds difference
+    QTime  addMSecs( long ms )		const;	// add milliseconds
+    long   msecsTo( const QTime & )	const;	// milliseconds difference
 
     bool   operator==( const QTime &d ) const { return ds == d.ds; }
     bool   operator!=( const QTime &d ) const { return ds != d.ds; }
@@ -104,7 +107,7 @@ public:
     bool   operator>=( const QTime &d ) const { return ds >= d.ds; }
 
     static QTime currentTime();			// get current time
-    static bool	 isValid( uint h, uint m, uint s );
+    static bool	 isValid( uint h, uint m, uint s, uint ms=0 );
 
 protected:
     ulong  ds;					// seconds
