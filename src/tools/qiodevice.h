@@ -38,12 +38,18 @@
 #ifndef QIODEVICE_H
 #define QIODEVICE_H
 
+#define QT_LARGE_FILE_SUPPORT
+
 #ifndef QT_H
-#include "qglobal.h"
-#include "qcstring.h"
 #ifdef QT_LARGE_FILE_SUPPORT
+// ### Should be included first. This is a problem in the current
+// ### "qplatformdefs.h" strategy which is OK for source files but
+// ### not for header files. Do we need defines back in qmake.conf?
+#define _FILE_OFFSET_BITS 64
 #include "qplatformdefs.h"
 #endif
+#include "qglobal.h"
+#include "qcstring.h"
 #endif // QT_H
 
 
