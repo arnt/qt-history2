@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#12 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#13 $
 **
 ** Definition of QPen class
 **
@@ -45,6 +45,7 @@ public:
 					{ return !(operator==(p)); }
 
 private:
+    QPen	copy()	const;
     void	detach();
 #if defined(_WS_WIN_)
     void	update( HDC );

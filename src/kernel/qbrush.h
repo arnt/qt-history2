@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#16 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#17 $
 **
 ** Definition of QBrush class
 **
@@ -50,6 +50,7 @@ public:
 					{ return !(operator==(b)); }
 
 private:
+    QBrush	copy()	const;
     void	detach();
 #if defined(_WS_WIN_)
     bool	update( HDC );
