@@ -170,3 +170,20 @@ exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {
 #install directives
 include(qt_install.pri)
 !staticlib:PRL_EXPORT_DEFINES += QT_SHARED
+
+wince-* {
+	message( ...removing plugin stuff... (not permanent) )
+	HEADERS -=$$TOOLS_CPP/qcomlibrary.h \
+		  $$KERNEL_CPP/qgplugin.h \
+		  $$KERNEL_CPP/qimageformatplugin.h \
+		  $$STYLES_CPP/qstyleplugin.h \
+		  $$CODECS_CPP/qtextcodecplugin.h \
+		  $$WIDGETS_CPP/qwidgetplugin.h
+
+	SOURCES -=$$TOOLS_CPP/qcomlibrary.cpp \
+		  $$KERNEL_CPP/qgplugin.cpp \
+		  $$KERNEL_CPP/qimageformatplugin.cpp \
+		  $$STYLES_CPP/qstyleplugin.cpp \
+		  $$CODECS_CPP/qtextcodecplugin.cpp \
+		  $$WIDGETS_CPP/qwidgetplugin.cpp \
+}
