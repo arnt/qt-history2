@@ -70,7 +70,7 @@ void QTextEdit::init()
     viewport()->setBackgroundMode( PaletteBase );
     resizeContents( 0, doc->lastParag() ?
 		    ( doc->lastParag()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
-    
+
     setKeyCompression( TRUE );
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( AlwaysOn );
@@ -79,16 +79,16 @@ void QTextEdit::init()
     viewport()->setFocusPolicy( WheelFocus );
 
     cursor = new QTextEditCursor( doc );
-    
+
     formatTimer = new QTimer( this );
     connect( formatTimer, SIGNAL( timeout() ),
 	     this, SLOT( formatMore() ) );
     lastFormatted = doc->firstParag();
-    
+
     scrollTimer = new QTimer( this );
     connect( scrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
-    
+
     interval = 0;
     changeIntervalTimer = new QTimer( this );
     connect( changeIntervalTimer, SIGNAL( timeout() ),
@@ -98,7 +98,7 @@ void QTextEdit::init()
     blinkTimer = new QTimer( this );
     connect( blinkTimer, SIGNAL( timeout() ),
 	     this, SLOT( blinkCursor() ) );
-    
+
     formatMore();
 
     completionPopup = new QVBox( this, 0, WType_Popup );
@@ -544,7 +544,7 @@ void QTextEdit::ensureCursorVisible()
     int y = 0; int dummy;
     cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
     y += cursor->parag()->rect().y();
-    int w = 2;
+    int w = 1;
     ensureVisible( x, y + h / 2, w, h / 2 + 2 );
 }
 
@@ -552,9 +552,9 @@ void QTextEdit::drawCursor( bool visible )
 {
     if ( !cursor->parag()->isValid() )
 	return;
-    
+
     cursorVisible = visible;
-    
+
     QPainter p;
     p.begin( viewport() );
     p.translate( -contentsX(), -contentsY() );
@@ -601,7 +601,7 @@ void QTextEdit::drawCursor( bool visible )
 
     if ( visible ) {
 	int x = chr->x;
-	int w = 2;
+	int w = 1;
 	painter.fillRect( QRect( x, y, w, h ), black );
     }
 	

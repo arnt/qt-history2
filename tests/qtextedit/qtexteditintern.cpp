@@ -1789,7 +1789,7 @@ void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditC
 	
     // if we should draw a cursor, draw it now
     if ( curx != -1 && cursor )
-	painter.fillRect( QRect( curx, cury, 2, curh ), Qt::black );
+	painter.fillRect( QRect( curx, cury, 1, curh ), Qt::black );
 }
 
 void QTextEditParag::drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
