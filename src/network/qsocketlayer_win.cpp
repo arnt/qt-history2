@@ -897,8 +897,9 @@ Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxLength)
 int QSocketLayerPrivate::nativeSelect(int timeout, bool selectForRead) const
 {
     fd_set fds;
-    FD_ZERO(&fds);
-    FD_SET(socketDescriptor, &fds);
+    memset(&fds, 0, sizeof(fd_set));
+    fds.fd_count = 1;
+    fds.fd_array[0] = socketDescriptor;
 
     struct timeval tv;
     tv.tv_sec = timeout / 1000;
