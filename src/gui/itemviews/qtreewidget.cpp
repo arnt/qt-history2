@@ -17,6 +17,7 @@
 #include <qpainter.h>
 #include <qitemdelegate.h>
 #include <qvector.h>
+#include <qdebug.h>
 #include <private/qtreeview_p.h>
 #include <private/qwidgetitemdata_p.h>
 
@@ -520,22 +521,15 @@ bool QTreeModel::itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetI
 QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
 {
     QList<QTreeWidgetItem*> result;
-    QList<QTreeWidgetItem*> parents;
-    QList<QTreeWidgetItem*> children = tree;
-    do {
-        QList<QTreeWidgetItem*>::const_iterator it = children.begin();
-        for (; it != children.end(); ++it) {
-            if (rx.exactMatch((*it)->text(column)))
-                result << (*it);
-            if ((*it)->children.count())
-                parents.push_back(*it);// depth first
-        }
-        if (parents.count()) {
-            children = parents.back()->children;
-            parents.pop_back();
-        }
-    } while (!parents.isEmpty());
-
+    QList<QTreeWidgetItem*> remaining = tree;
+    while (!remaining.isEmpty()) {
+        QTreeWidgetItem *item = remaining.last();
+        remaining.pop_back();
+        Q_ASSERT(item);
+        if (rx.exactMatch(item->text(column)))
+            result << item;
+        remaining += item->children;
+    }
     return result;
 }
 
