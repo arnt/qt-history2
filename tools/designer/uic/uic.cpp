@@ -65,8 +65,7 @@ QString Uic::fixString( const QString &str )
     QString s( str );
     s.replace( QRegExp( "\\\\" ), "\\\\" );
     s.replace( QRegExp( "\"" ), "\\\"" );
-    s.replace( QRegExp( "\n" ), "\\n\"\n\"" );
-    s.replace( QRegExp( "\r" ), "\\r" );
+    s.replace( QRegExp( "\r?\n" ), "\\n\"\n\"" );
     return "\"" + s + "\"";
 }
 
