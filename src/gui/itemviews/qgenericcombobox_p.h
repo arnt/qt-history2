@@ -73,6 +73,7 @@ class ListViewContainer : public QFrame
 public:
     ListViewContainer(QGenericListView *listView, QWidget *parent = 0);
     QGenericListView *listView() const;
+    bool ignoreNextMousePress();
 
 public slots:
     void scrollListView(int action);
@@ -81,11 +82,13 @@ public slots:
 protected:
     bool eventFilter(QObject *o, QEvent *e);
     void keyPressEvent(QKeyEvent *e);
+    void mousePressEvent(QMouseEvent *e);
 
 signals:
     void itemSelected(const QModelIndex &);
 
 private:
+    bool ignoreMousePress;
     QGenericListView *list;
     Scroller *top;
     Scroller *bottom;
