@@ -349,7 +349,7 @@ protected:
 	pressedHandle = -1;
 
 	if ( e->button() == RightButton && win->isDockMenuEnabled() ) {
-	    qDebug( "todo: hidedock menu" );
+	    qDebug( "todo: hidedock menu" ); // ### TODO: HideDock menu
 	} else {
 	    mouseMoveEvent( e );
 	}
@@ -1517,7 +1517,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    setUpLayout();
 	d->tll->activate();
     } else if ( e->type() == QEvent::ContextMenu && d->dockMenu &&
-	 ( o->inherits( "QDockArea" ) && dockMainWindow( o ) || o == d->hideDock ) ) {
+	 ( o->inherits( "QDockArea" ) && dockMainWindow( o ) || o == d->hideDock || o == d->mb ) ) {
 	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) ) {
 	    ( (QContextMenuEvent*)e )->accept();
 	    return TRUE;
