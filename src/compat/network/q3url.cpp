@@ -20,8 +20,8 @@
 
 #include <stdlib.h>
 
-// also used in q3filedialog.cpp
-Q_COMPAT_EXPORT bool qt_resolve_symlinks = true;
+// used by q3filedialog.cpp
+bool qt_resolve_symlinks = true;
 
 class Q3UrlPrivate
 {
@@ -978,8 +978,6 @@ void Q3Url::setEncodedPathAndQuery( const QString& pathAndQuery )
     decode( d->path );
     d->cleanPathDirty = true;
 }
-
-extern Q_CORE_EXPORT bool qt_resolve_symlinks; // defined in qapplication.cpp
 
 /*!
     Returns the path of the URL. If \a correct is true, the path is
