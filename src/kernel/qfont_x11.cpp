@@ -70,7 +70,7 @@
 #include "qt_x11.h"
 
 
-#define QFONTLOADER_DEBUG
+//#define QFONTLOADER_DEBUG
 // #define QFONTLOADER_DEBUG_VERBOSE
 
 
