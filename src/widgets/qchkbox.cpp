@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#30 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,13 +16,15 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#30 $";
 #endif
 
 
 /*!
 \class QCheckBox qchkbox.h
 \brief The QCheckBox widget provides a check box with a text label.
+
+\ingroup realwidgets
 
 QCheckBox and QRadioButton are both toggle buttons, but a check box
 represents an independent switch that can be on (checked) or off
