@@ -10,7 +10,8 @@
 
 class Main : public QWidget {
 public:
-    Main() :
+    Main(QWidget* parent=0) :
+	QWidget(parent),
 	log(this)
     {
 	log.setReadOnly(TRUE);
@@ -42,6 +43,7 @@ public:
     void mouseDoubleClickEvent(QMouseEvent* e)
     {
 	dump("Mv2", e);
+	if ( parentWidget() ) hide();
     }
 
     void mouseReleaseEvent(QMouseEvent* e)
@@ -81,6 +83,8 @@ int main( int argc, char **argv )
     QApplication::setFont( QFont("Helvetica") );
 
     Main m;
+    Main mm(&m);
+    mm.setGeometry(m.width()*3/4,0,80,80);
     a.setMainWidget( &m );
     m.show();
     return a.exec();
