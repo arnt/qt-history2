@@ -735,7 +735,7 @@ public:
 
     void setPainter( QPainter *p );
     QPainter *painter() const { return pntr; }
-    
+
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -776,7 +776,7 @@ private:
     int tabStopWidth;
     void *eData;
     QPainter *pntr;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1000,12 +1000,14 @@ class QTextHorizontalLine : public QTextCustomItem
 public:
     QTextHorizontalLine( QTextDocument *p );
     ~QTextHorizontalLine();
-    void realize( QPainter* );
+    void adjustToPainter( QPainter* );
     void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
 
     bool ownLine() const { return TRUE; }
 
 private:
+    int tmpheight;
+    
 };
 
 class QTextFlow
@@ -1150,7 +1152,7 @@ private:
     int outerborder;
     int stretch;
     int innerborder;
-    int us_ib, us_b;
+    int us_ib, us_b, us_ob, us_cs;
     int lastX, lastY;
 
     int currCell;

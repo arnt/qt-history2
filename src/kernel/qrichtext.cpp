@@ -4560,19 +4560,19 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
 	p->drawPixmap( cx , cy, pm, cx - x, cy - y, cw, ch );
 }
 
-void QTextHorizontalLine::realize( QPainter* p )
+void QTextHorizontalLine::adjustToPainter( QPainter* p )
 {
     if ( !is_printer( p ) )
 	return;
     QPaintDeviceMetrics metrics(p->device());
-    height = int( height * scale_factor( metrics.logicalDpiY() ) );
+    height = int( tmpheight * scale_factor( metrics.logicalDpiY() ) );
 }
 
 
 QTextHorizontalLine::QTextHorizontalLine( QTextDocument *p )
     : QTextCustomItem( p )
 {
-    height = 8;
+    height = tmpheight = 8;
 }
 
 
@@ -5076,7 +5076,9 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 
     if ( border )
 	cellspacing += 2;
+    us_cs = cellspacing;
     outerborder = cellspacing + border;
+    us_ob = outerborder;
     layout = new QGridLayout( 1, 1, cellspacing );
 
     fixwidth = 0;
@@ -5115,10 +5117,10 @@ void QTextTable::adjustToPainter( QPainter* p)
 	double xscale = QMAX( scale_factor( metrics.logicalDpiX() ),
 			      scale_factor( metrics.logicalDpiY() ) );
 	xscale = QMAX( xscale, 1 );
-	cellspacing = int(cellspacing * xscale);
-	border = int(border * xscale);
-	innerborder = int(innerborder * xscale);
-	outerborder = int(outerborder * xscale);
+	cellspacing = int(us_cs * xscale);
+	border = int(us_b * xscale);
+	innerborder = int(us_ib * xscale);
+	outerborder = int(us_ob * xscale);
     }
     for ( QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
 	cell->adjustToPainter();
