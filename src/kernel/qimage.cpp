@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#47 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#47 $")
 
 
 /*!
@@ -234,13 +234,7 @@ QImage QImage::copy() const
     QImage image;
     if ( !isNull() ) {
 	image.create( width(), height(), depth(), numColors(), bitOrder() );
-	if ( contiguousBits() && image.contiguousBits() )
-	    memcpy( image.bits(), bits(), numBytes() );
-	else {
-	    int bpl = bytesPerLine();
-	    for ( int y=0; y<height(); y++ )
-		memcpy( image.scanLine(y), scanLine(y), bpl );
-	}
+	memcpy( image.bits(), bits(), numBytes() );
 	memcpy( image.colorTable(), colorTable(), numColors()*sizeof(ulong) );
     }
     return image;
@@ -305,7 +299,7 @@ QImage QImage::copy() const
   \fn uchar **QImage::jumpTable() const
   Returns a pointer to the scanline pointer table.
 
-  This is the beginning of the data block for contiguous images.
+  This is the beginning of the data block for the image.
 */
 
 /*!
@@ -330,7 +324,7 @@ QImage QImage::copy() const
   A color value is an RGB triplet. Use the QRED, QGREEN and QBLUE functions
   (defined in qcolor.h) to get the color value components.
 
-  \sa setColor() QColor
+  \sa setColor(), QColor
 */
 
 ulong QImage::color( int i ) const
@@ -339,7 +333,7 @@ ulong QImage::color( int i ) const
     if ( i >= data->ncols )
 	warning( "QImage::color: Index %d out of range", i );
 #endif
-    return data->ctbl ? data->ctbl[i] : -1L;
+    return data->ctbl ? data->ctbl[i] : (ulong)-1;
 }
 
 /*!
@@ -378,11 +372,7 @@ uchar *QImage::scanLine( int i ) const
 /*!
   \fn uchar *QImage::bits() const
   Returns a pointer to the first pixel data. Similar to scanLine(0).
-
-  If the image data is segmented (not contiguous), use the scanLine() function
-  to get a pointer to each scanline of image data.
-
-  \sa contiguousBits(), scanLine()
+  \sa scanLine()
 */
 
 
@@ -397,9 +387,6 @@ void QImage::reset()				// resets params/deallocs
     data->w = data->h = data->d = 0;
     data->nbytes = 0;
     data->bitordr = IgnoreEndian;
-#if defined(_WS_WIN16_)
-    data->contig  = FALSE;
-#endif
 }
 
 
@@ -488,14 +475,12 @@ void QImage::setNumColors( int numColors )
   QImage::LittleEndian or QImage::BigEndian.  If \e depth is greater
   than 1, \e bitOrder must be QImage::IgnoreEndian.
 
-  On 32-bit systems, the image data is always allocated as one block
-  (contiguous data).
-  On Windows 3.x (16 bit) the image data is allocated in smaller chunks,
-  (one block per scanline) when the image data occupies more than 64k.
-  The image data structure ('bits' member of QImage) consists of a
-  table of pointers to each scanline.
+  The image buffer is allocated as one block that consists of a table of
+  scanline pointers (jumpTable()) and the image data (bits()).
 
-  \sa contiguousBits() */
+  \sa width(), height(), depth(), numColors(), bitOrder(), jumpTable(),
+  scanLine(), bits()
+*/
 
 bool QImage::create( int width, int height, int depth, int numColors,
 		     QImage::Endian bitOrder )
@@ -509,10 +494,8 @@ bool QImage::create( int width, int height, int depth, int numColors,
 #endif
 	return FALSE;
     }
-#if defined(CHECK_RANGE)
-    else if ( depth != 1 && bitOrder != IgnoreEndian )
-	warning( "QImage::create: Bit order makes not sense if depth != 1" );
-#endif
+    if ( depth != 1 )
+	bitOrder = IgnoreEndian;
     long nbytes;
     switch ( depth ) {
 	case 1:
@@ -528,35 +511,13 @@ bool QImage::create( int width, int height, int depth, int numColors,
 	    return FALSE;
     }
     setNumColors( numColors );
-    if ( data->ncols != numColors )		// couldn't alloc color table
+    if ( data->ncols != numColors )		// could not alloc color table
 	return FALSE;
 
     long bpl  = nbytes/height;			// bytes per line
     long ptbl = height*sizeof(uchar*);		// pointer table size
     long size = nbytes + ptbl;			// total size of data block
-    uchar **p;
-#if defined(_WS_WIN16_)
-    if ( size < 64000L )			// try to alloc one block
-	p = (uchar **)calloc( (uint)size, 1 );
-    data->contig = p != 0;
-    if ( !p ) {					// one block per scanline
-	p = (uchar **)malloc( ptbl );
-	if ( p ) {
-	    for ( int i=0; i<h; i++ ) {
-		p[i] = (uchar *)calloc( bpl, 1 );
-		if ( p[i] == 0 ) {		// alloc error -> cleanup
-		    while ( --i >= 0 )
-			free( p[i] );
-		    free( p );
-		    p = 0;
-		    break;
-		}
-	    }
-	}
-    }
-#else
-    p = (uchar **)calloc( size, 1 );		// alloc one block
-#endif
+    uchar **p = (uchar **)calloc( size, 1 );	// alloc image bits
     if ( !p ) {					// no memory
 	setNumColors( 0 );
 	return FALSE;
@@ -567,12 +528,10 @@ bool QImage::create( int width, int height, int depth, int numColors,
     data->nbytes  = nbytes;
     data->bitordr = bitOrder;
     data->bits = p;				// set image pointer
-    if ( contiguousBits() ) {
-	uchar *d = (uchar*)p + ptbl;		// setup ptrs to scanlines
-	while ( height-- ) {
-	    *p++ = d;
-	    d += bpl;
-	}
+    uchar *d = (uchar*)p + ptbl;		// setup scanline pointers
+    while ( height-- ) {
+	*p++ = d;
+	d += bpl;
     }
     return TRUE;
 }
@@ -600,31 +559,10 @@ void QImage::init()
 void QImage::freeBits()
 {
     if ( data->bits ) {				// dealloc image bits
-#if defined(_WS_WIN16_)
-	if ( !data->contig {			// segmented
-	    uchar **p = (uchar **)data->bits;
-	    for ( int i=0; i<data->h; i++ )
-		free( p[i] );
-	}
-#endif
 	free( data->bits );
 	data->bits = 0;
     }
 }
-
-/*!
-\fn bool QImage::contiguousBits() const
-
-Returns TRUE if the image data bits are encoded as a contiguous array of
-bytes, or FALSE if the data is segmented into separate buffers for each
-scanline.
-
-Segmented data can only occur on 16-bits systems, like Windows 3.x, when
-the total image data takes more than 64 kbytes of memory.  All 32-bit
-operating systems (UNIX/X, Win32, OS/2 etc.) use contiguous image data.
-
-\sa create()
-*/
 
 
 // ---------------------------------------------------------------------------
@@ -654,7 +592,6 @@ static bool convert_24_to_8( const QImage *src, QImage *dst )
     p = src->bits()-1;
     b = dst->bits();
     end = p + src->numBytes();
-    ASSERT( src->contiguousBits() );
     char *pixel=0, *pix;			// hack: use ptr as int value
     while ( p < end ) {				// check if <= 256 colors
 	ulong rgb = (uchar)*++p + ((ushort)*++p << 8) + ((ulong)*++p <<16);
@@ -860,9 +797,12 @@ static bool dither_image( const QImage *src, QImage *dst )
   Converts the depth (bpp) of the image to \e depth and returns the
   converted image.
 
-  The depth parameter can be 1, 8 or 24.
+  The \e depth argument can be 1, 8 or 24.
 
-  \sa depth()
+  Returns \c *this if \e depth is equal to the image depth, or a null
+  image if this image cannot be converted.
+
+  \sa depth(), isNull()
 */
 
 QImage QImage::convertDepth( int depth ) const
@@ -879,7 +819,7 @@ QImage QImage::convertDepth( int depth ) const
     else if ( data->d == 1 && depth == 24 )	// 1 -> 24
 	convert_1_to_24( this, &image );
     else if ( data->d == depth )
-	image = copy();
+	image = *this;				// no conversion
     else {
 #if defined(CHECK_RANGE)
 	if ( isNull() )
@@ -895,42 +835,33 @@ QImage QImage::convertDepth( int depth ) const
 /*!
   Converts the bit order of the image to \e bitOrder and returns the converted
   image.
+
+  Returns \c *this if the \e bitOrder is equal to the image bit order, or a
+  null image if this image cannot be converted.
+
   \sa bitOrder(), setBitOrder()
 */
 
 QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 {
-    QImage image;
-    if ( isNull() || data->d != 1 ||		// cannot convert bit order
+    if ( isNull() || data->d != 1 ||		// invalid argument(s)
 	 !(bitOrder == BigEndian || bitOrder == LittleEndian) ) {
-	return image;				// null image
+	QImage nullImage;
+	return nullImage;
     }
-    else if ( data->bitordr == bitOrder ) {	// copy the data
-	image = copy();
-	return image;
-    }
-    image.create( data->w, data->h, 1, data->ncols, bitOrder );
+    if ( data->bitordr == bitOrder )		// nothing to do
+	return *this;
+
+    QImage image( data->w, data->h, 1, data->ncols, bitOrder );
     setup_bitflip();
     register uchar *p;
     uchar *end;
     uchar *b;
-    if ( contiguousBits() ) {			// contiguous data
-	p = bits();
-	b = image.bits();
-	end = p + numBytes();
-	while ( p < end )
-	    *b++ = bitflip[*p++];
-    }
-    else {					// segmented data
-	int bpl = bytesPerLine();
-	for ( int y=0; y<height(); y++ ) {
-	    p = scanLine(y);
-	    b = image.scanLine(y);
-	    end = p + bpl;
-	    while ( p < end )
-		*b++ = bitflip[*p++];
-	}
-    }
+    p = bits();
+    b = image.bits();
+    end = p + numBytes();
+    while ( p < end )
+	*b++ = bitflip[*p++];
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(ulong) );
     return image;
 }
@@ -1021,7 +952,8 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
   \bug
   PNM files can only be read, not written.
 
-  \sa QImage QPixmap QFile */
+  \sa QImage, QPixmap, QFile
+*/
 
 /*!
   Constructs a QImageIO object with all parameters set to zero.
@@ -1065,9 +997,9 @@ QImageIO::QImageIO( const char *fileName, const char *format )
 QImageIO::~QImageIO()
 {
     if ( params )
-	delete params;
+	delete [] params;
     if ( descr )
-	delete descr;
+	delete [] descr;
 }
 
 
@@ -1324,7 +1256,7 @@ void QImageIO::setFileName( const char *fileName )
 void QImageIO::setParameters( const char *parameters )
 {
     if ( params )
-	delete params;
+	delete [] params;
     params = qstrdup( parameters );
 }
 
@@ -1338,7 +1270,7 @@ void QImageIO::setParameters( const char *parameters )
 void QImageIO::setDescription( const char *description )
 {
     if ( descr )
-	delete descr;
+	delete [] descr;
     descr = qstrdup( description );
 }
 
@@ -2030,17 +1962,8 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     if ( image.isNull() )
 	return;
 
-    if ( raw ) {				// read raw data
-	if ( image.contiguousBits() )		// read everything at once
-	    d->readBlock( (char *)image.bits(), image.numBytes() );
-	else {
-	    long bpl = image.bytesPerLine();
-	    for ( int i=0; i<h; i++ ) {		// read each scanline
-		if ( d->readBlock((char *)image.scanLine(i),bpl) != bpl )
-		    break;
-	    }
-	}
-    }
+    if ( raw )					// read raw data
+	d->readBlock( (char *)image.bits(), image.numBytes() );
     else {					// read ascii data
 	register uchar *p = image.bits();
 	long n = image.numBytes();
@@ -2270,7 +2193,7 @@ static int read_xpm_char( QIODevice *d )
 }
 
 
-static void read_xpm_image( QImageIO * /* iio */ )	// read XPM image data
+static void read_xpm_image( QImageIO * /* iio */ ) // read XPM image data
 {
 #if 0
     const	buflen = 200;
@@ -2305,7 +2228,7 @@ static void read_xpm_image( QImageIO * /* iio */ )	// read XPM image data
 }
 
 
-static void write_xpm_image( QImageIO * /* image */ )	// write XPM image data
+static void write_xpm_image( QImageIO * /* iio */ ) // write XPM image data
 {
 #if 0
     QIODevice *d = image->iodev;
