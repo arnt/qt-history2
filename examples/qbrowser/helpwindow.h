@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#2 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -30,7 +30,8 @@ public:
     void textChanged();
     void about();
     void aboutQt();
-    void open();
+    void openFile();
+    void newWindow();
 
 private:
     QTextBrowser* browser;

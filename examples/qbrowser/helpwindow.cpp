@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#7 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -21,9 +21,10 @@
 #include <qstylesheet.h>
 #include <qmessagebox.h>
 #include <qfiledialog.h>
+#include <qapplication.h>
 
 HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* parent, const char *name )
-    : QMainWindow( parent, name )
+    : QMainWindow( parent, name, WDestructiveClose )
 {
 
     browser = new QTextBrowser( this );
@@ -43,9 +44,11 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     resize( 640,700 );
 
     QPopupMenu* file = new QPopupMenu( this );
-    file->insertItem( tr("&Open"), this, SLOT( open() ) );
+    file->insertItem( tr("&New Window"), this, SLOT( newWindow() ), ALT | Key_N );
+    file->insertItem( tr("&Open File"), this, SLOT( openFile() ), ALT | Key_O );
     file->insertSeparator();
-    file->insertItem( tr("&Close"), this, SLOT( close() ) );
+    file->insertItem( tr("&Close"), this, SLOT( close() ), ALT | Key_Q );
+    file->insertItem( tr("E&xit"), qApp, SLOT( closeAllWindows() ), ALT | Key_X );
 
     QPopupMenu* navigate = new QPopupMenu( this );
     backwardId = navigate->insertItem( QPixmap("back.xpm"),
@@ -127,9 +130,14 @@ void HelpWindow::aboutQt()
     QMessageBox::aboutQt( this, "QBrowser" );
 }
 
-void HelpWindow::open()
+void HelpWindow::openFile()
 {
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	browser->setSource( fn );
+}
+
+void HelpWindow::newWindow()
+{
+    ( new HelpWindow(browser->source(), "qbrowser") )->show();
 }
