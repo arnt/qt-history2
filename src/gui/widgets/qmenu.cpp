@@ -1582,7 +1582,7 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
             break;
         }
     }
-    if (action) {
+    if (action && action == d->currentAction) {
         if (action->menu())
             action->menu()->d->setFirstActionActive();
         else
