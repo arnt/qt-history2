@@ -15,6 +15,7 @@
 #include <qmenubar.h>
 #include <qmessagebox.h>
 #include <qtextedit.h>
+#include <qpixmap.h>
 
 #include "menus.h"
 
@@ -28,60 +29,67 @@ QMenus::QMenus(QWidget *parent)
 
     QMenu *file = new QMenu(this);
 
-    action = new QAction(QPixmap((const char**)fileopen), "&Open", CTRL+Key_O, this);
-    connect(action, SIGNAL(activated()), this, SLOT(fileOpen()));
+    action = new QAction(QPixmap((const char**)fileopen), "&Open", this);
+    action->setShortcut(tr("CTRL+O"));
+    connect(action, SIGNAL(triggered()), this, SLOT(fileOpen()));
     file->addAction(action);
 
-    action = new QAction(QPixmap((const char**)filesave),"&Save", CTRL+Key_S, this);
-    connect(action, SIGNAL(activated()), this, SLOT(fileSave()));
+    action = new QAction(QPixmap((const char**)filesave),"&Save", this);
+    action->setShortcut(tr("CTRL+S"));
+    connect(action, SIGNAL(triggered()), this, SLOT(fileSave()));
     file->addAction(action);
 
     QMenu *edit = new QMenu(this);
 
-    action = new QAction("&Normal", CTRL+Key_N, this);
+    action = new QAction("&Normal", this);
+    action->setShortcut(tr("CTRL+N"));
     action->setToolTip("Normal");
     action->setStatusTip("Toggles Normal");
     action->setCheckable(true);
-    connect(action, SIGNAL(activated()), this, SLOT(editNormal()));
+    connect(action, SIGNAL(triggered()), this, SLOT(editNormal()));
     edit->addAction(action);
 
-    action = new QAction("&Bold", CTRL+Key_B, this);
+    action = new QAction("&Bold", this);
+    action->setShortcut(tr("CTRL+B"));
     action->setCheckable(true);
-    connect(action, SIGNAL(activated()), this, SLOT(editBold()));
+    connect(action, SIGNAL(triggered()), this, SLOT(editBold()));
     edit->addAction(action);
 
-    action = new QAction("&Underline", CTRL+Key_U, this);
+    action = new QAction("&Underline", this);
+    action->setShortcut(tr("CTRL+U"));
     action->setCheckable(true);
-    connect(action, SIGNAL(activated()), this, SLOT(editUnderline()));
+    connect(action, SIGNAL(triggered()), this, SLOT(editUnderline()));
     edit->addAction(action);
 
     QMenu *advanced = new QMenu(this);
     action = new QAction("&Font...", this);
-    connect(action, SIGNAL(activated()), this, SLOT(editAdvancedFont()));
+    connect(action, SIGNAL(triggered()), this, SLOT(editAdvancedFont()));
     advanced->addAction(action);
 
     action = new QAction("&Style...", this);
-    connect(action, SIGNAL(activated()), this, SLOT(editAdvancedStyle()));
+    connect(action, SIGNAL(triggered()), this, SLOT(editAdvancedStyle()));
     advanced->addAction(action);
 
     edit->addMenu("&Advanced", advanced);
 
     edit->addSeparator();
 
-    action = new QAction("Una&vailable", CTRL+Key_V, this);
+    action = new QAction("Una&vailable", this);
+    action->setShortcut(tr("CTRL+V"));
     action->setCheckable(true);
     action->setEnabled(false);
-    connect(action, SIGNAL(activated()), this, SLOT(editUnderline()));
+    connect(action, SIGNAL(triggered()), this, SLOT(editUnderline()));
     edit->addAction(action);
 
     QMenu *help = new QMenu(this);
 
-    action = new QAction("&About...", Key_F1, this);
-    connect(action, SIGNAL(activated()), this, SLOT(helpAbout()));
+    action = new QAction("&About...", this);
+    action->setShortcut(tr("F1"));
+    connect(action, SIGNAL(triggered()), this, SLOT(helpAbout()));
     help->addAction(action);
 
-    action = new QAction("&About Qt...", 0, this);
-    connect(action, SIGNAL(activated()), this, SLOT(helpAboutQt()));
+    action = new QAction("&About Qt...", this);
+    connect(action, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
     help->addAction(action);
 
     if (!QAxFactory::isServer())
@@ -89,8 +97,8 @@ QMenus::QMenus(QWidget *parent)
     menuBar()->addMenu("&Edit", edit);
     menuBar()->addMenu("&Help", help);
 
-    editor = new QTextEdit(this, "editor");
-    setCentralWidget(editor);
+    editor = new QTextEdit(this);
+    setCenterWidget(editor);
 
     statusBar();
 }
