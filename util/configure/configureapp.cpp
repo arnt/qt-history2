@@ -24,13 +24,15 @@ using namespace std;
 bool writeToFile(const char* text, const QString &filename)
 {
     QByteArray symFile(text);
-    QFile v1(filename);
-    if (v1.open(IO_WriteOnly)) {
-        v1.writeBlock(symFile);
-    } else {
-        cout << "Couldn't write to " << filename.latin1() << ": " << v1.errorString().latin1() << endl;
+    QFile file(filename);
+    QDir dir(QFileInfo(file).dir(true));
+    if (!dir.exists())
+        dir.mkdir(dir.absPath());
+    if (!file.open(IO_WriteOnly)) {
+        cout << "Couldn't write to " << filename.latin1() << ": " << file.errorString().latin1() << endl;
         return false;
     }
+    file.writeBlock(symFile);
     return true;
 }
 
@@ -1136,10 +1138,13 @@ void Configure::generateConfigfiles()
 	    outStream << "#endif" << endl;
 	}
 	outFile.close();
-        writeToFile("#include \"../../src/core/global/qconfig.h\"\n", 
-                    dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/qconfig.h");
-        writeToFile("#include \"../../src/core/global/qconfig.h\"\n", 
-                    dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/qconfig.h");
+        if (!writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
+                         dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/qconfig.h")
+            || !writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
+                            dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/qconfig.h")) {
+            dictionary["DONE"] = "error";
+            return;
+        }
     }
 
     QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/i386/arch/qatomic.h";
@@ -1684,7 +1689,7 @@ void Configure::saveCmdLine()
 
 bool Configure::isDone()
 {
-    return( dictionary[ "DONE" ] == "yes" );
+    return !dictionary["DONE"].isEmpty();
 }
 
 bool Configure::isOk()
