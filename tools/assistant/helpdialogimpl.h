@@ -117,7 +117,6 @@ signals:
 
 private slots:
     void lastWinClosed();
-    void showResultPage( int page );
     void showResultPage( QListBoxItem *i );
     void setIndexingProgress( int prog );
     void showItemMenu( QListBoxItem *item, const QPoint &pos );
