@@ -667,8 +667,14 @@ static bool verifyKey( const QString &key )
 
 static inline QString groupKey( const QString &group, const QString &key )
 {
-    if ( group.endsWith( "/" ) || key.startsWith( "/" ) )
+    if ( group.isEmpty() || ( group.length() == 1 && group[0] == '/' ) ) {
+	// group is empty, or it contains a single '/', so we just return the key
+	if ( key.startsWith( "/" ) )
+	    return key;
+	return "/" + key;
+    } else if ( group.endsWith( "/" ) || key.startsWith( "/" ) ) {
 	return group + key;
+    }
     return group + "/" + key;
 }
 
@@ -1945,7 +1951,7 @@ QString QSettings::group() const
 	    QString group = *it;
 	    ++it;
 	    if ( group[0] != '/' )
-		group = "/" + group;
+		group.prepend( "/" );
 	    d->groupPrefix += group;
 	}
     }
