@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#264 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#265 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -424,8 +424,12 @@ void qt_init( int *argcptr, char **argv )
   // Get the application name/instance if qWinMain() was not invoked
 
     set_winapp_name();
-    if ( appInst == 0 )
-	appInst = GetModuleHandleA( 0 );
+    if ( appInst == 0 ) {
+	if ( qt_winver == Qt::WV_NT )
+	    appInst = GetModuleHandle( 0 );
+	else
+	    appInst = GetModuleHandleA( 0 );
+    }
 
   // Detect the Windows version
 
