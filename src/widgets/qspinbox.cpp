@@ -875,7 +875,7 @@ void QSpinBox::styleChange( QStyle& )
 */
 
 /*!  Sets the spin box to display \a newSymbols on its buttons.  \a
-  newSymbols can be either \c UpDownArrows (the default) or \a PlusMinus.
+  newSymbols can be either \c UpDownArrows (the default) or \c PlusMinus.
 
   \sa buttonSymbols() ButtonSymbols
 */
