@@ -200,21 +200,19 @@ QImage QPixmap::convertToImage() const
         ncols = 0;
     }
 #else
-    //do we want to FIXME??? Might want to support indexed color modes?
-    if( depth() != 1 ) {
+    if( d != 1 ) { //do we want to FIXME??? Might want to support indexed color modes?
 	d = 32;
 	ncols = 0;
     }
 #endif
 
     QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
-
     //first we copy the clut
     //handle bitmap case, what about other indexed depths?
     if(d == 1) {
 	image->setNumColors( 2 );
-	image->setColor( 0, qRgba(255,255,255, 0) );
-	image->setColor( 1, qRgba(0,0,0, 0) );
+	image->setColor( 0, qRgba(255, 255, 255, 0) );
+	image->setColor( 1, qRgba(0, 0, 0, 0) );
     } else if(d == 8) {
 	//figure out how to copy clut into image FIXME???
     }
