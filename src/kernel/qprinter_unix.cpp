@@ -647,7 +647,7 @@ bool QPrinterPageSize::isValid() const
     return FALSE;
 }
 
-QPrinterPageSize::QPrinterPageSize pageSize( const QString & )
+QPrinterPageSize QPrinterPageSize::pageSize( const QString & )
 {
     // ###
     return QPrinterPageSize();
