@@ -2191,6 +2191,113 @@ bool QVariant::canCast( Type t ) const
     return FALSE;
 }
 
+/*!
+  Casts the variant to the requested type.  If the cast cannot be done, 
+  the variant is set to the default value of the requested type (e.g., an 
+  empty string if the requested type \a t is QVariant::String, an empty point array
+  if the requested type \a t is QVariant::PointArray, etc).  Returns TRUE 
+  if the current type of the variant was successfully casted, otherwise FALSE 
+  is returned.  
+  
+  \sa canCast()
+*/
+
+bool QVariant::cast( Type t )
+{
+    switch ( t ) {
+    case QVariant::Map:
+	asMap();
+	break;
+    case QVariant::List:
+	asList();
+	break;
+    case QVariant::String:
+	asString();
+	break;
+    case QVariant::StringList:
+	asStringList();
+	break;
+    case QVariant::Font:
+	asFont();
+	break;
+    case QVariant::Pixmap:
+	asPixmap();
+	break;
+    case QVariant::Brush:
+	asBrush();
+	break;
+    case QVariant::Rect:
+	asRect();
+	break;
+    case QVariant::Size:
+	asSize();
+	break;
+    case QVariant::Color:
+	asColor();
+	break;
+    case QVariant::Palette:
+	asPalette();
+	break;
+    case QVariant::ColorGroup:
+	asColorGroup();
+	break;
+    case QVariant::IconSet:
+	asIconSet();
+	break;
+    case QVariant::Point:
+	asPoint();
+	break;
+    case QVariant::Image:
+	asImage();
+	break;
+    case QVariant::Int:
+	asInt();
+	break;
+    case QVariant::UInt:
+	asUInt();
+	break;
+    case QVariant::Bool:
+	asBool();
+	break;
+    case QVariant::Double:
+	asDouble();
+	break;
+    case QVariant::CString:
+	asCString();
+	break;
+    case QVariant::PointArray:
+	asPointArray();
+	break;
+    case QVariant::Region:
+	asRegion();
+	break;
+    case QVariant::Bitmap:
+	asBitmap();
+	break;
+    case QVariant::Cursor:
+	asCursor();
+	break;
+    case QVariant::SizePolicy:
+	asSizePolicy();
+	break;
+    case QVariant::Date:
+	asDate();
+    case QVariant::Time:
+	asTime();
+	break;
+    case QVariant::DateTime:
+	asDateTime();
+	break;
+    case QVariant::ByteArray:
+	asByteArray();
+	break;
+    default:
+    case QVariant::Invalid:
+	(*this) = QVariant();
+    }
+    return canCast( t );
+}
+
 /*!  Compares this QVariant with \a v and returns TRUE if they are
   equal, FALSE otherwise.
 */
