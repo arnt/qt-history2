@@ -1553,7 +1553,7 @@ void QTextDocument::setText( const QString &text, const QString &context )
 {
     oText = text;
     focusIndicator.parag = 0;
-    removeSelection( Standard );
+    selections.clear();
     if ( txtFormat == Qt::AutoText && QStyleSheet::mightBeRichText( text ) ||
 	 txtFormat == Qt::RichText )
 	setRichText( text, context );
