@@ -364,9 +364,8 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     else
 	dllDefs = "/D QT_DLL";
 
-    const CComBSTR dllDefine( dllDefs );	
+    const CComBSTR dllDefine( dllDefs );
     const CComBSTR incPath(" /I$(QTDIR)\\include");
-    const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
     CString sharedLibText = CString("$(QTDIR)\\lib\\") + libname;
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
@@ -380,7 +379,8 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     VERIFY_OK(pConfig->AddToolSettings( compiler, incPath, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->RemoveToolSettings( linker, defLibs, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( linker, sysLibs, CComVariant(VARIANT_FALSE) ));    
-    VERIFY_OK(pConfig->RemoveToolSettings( linker, staticLib, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->RemoveToolSettings( linker, CComBSTR("$(QTDIR)\\lib\\qt-mt.lib"), CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->RemoveToolSettings( linker, CComBSTR("$(QTDIR)\\lib\\qt.lib"), CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( linker, sharedLib, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->RemoveToolSettings( compiler, threadLibD, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( compiler, correctLibD, CComVariant(VARIANT_FALSE) ));
@@ -403,9 +403,9 @@ void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig )
     else
 	dllDefs = "/D QT_DLL";
 
-    const CComBSTR dllDefine( dllDefs );	
+    const CComBSTR dllDefine( dllDefs );
     const CComBSTR incPath(" /I$(QTDIR)\\include");
-    const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
+    CComBSTR staticLib = useThreads ? "$(QTDIR)\\lib\\qt-mt.lib" : "$(QTDIR)\\lib\\qt.lib";
     CString sharedLibText = CString("$(QTDIR)\\lib\\") + libname;
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
