@@ -518,8 +518,11 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     if (ct == QStyle::CT_PushButton) {
 	const QPushButton *psh = static_cast<const QPushButton *>(widg);
 	int minw = -1;
-	if (psh->text() == qApp->translate("QAquaStyle", "OK") ||
-	   psh->text() == qApp->translate("QAquaStyle", "Cancel"))
+        // Aqua Style guidelines restrict the size of OK and Cancel buttons to 68 pixels.
+        // However, this doesn't work for German, therefore only do it for English,
+        // I suppose it would be better to do some sort of lookups for languages
+        // that like to have really long words.
+	if (psh->text() == "OK" || psh->text() == "Cancel")
 	    minw = 69;
 #ifdef Q_WS_MAC
 	if (sz == QAquaSizeLarge)
