@@ -400,7 +400,7 @@ void MainWindow::about()
     "<p><b>About Qt Assistant</b></p>"
     "<p>The Qt documentation browser.</p>"
     "<p>Version 1.0</p>"
-    "<p>(C) 2001 Trolltech AS</p>";
+    "<p>Copyright (C) 2001-2002 Trolltech AS</p>";
     QMessageBox::about( this, tr("Qt Assistant"), tr( about_text ) );
 }
 
