@@ -408,14 +408,14 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
 
 QWidget *QApplication::widgetAt( int x, int y, bool child)
 {
-  //find the tld
-  Point p;
-  p.h=x;
-  p.v=y;
-  WindowPtr wp;
-  FindWindow(p,&wp);
-  if(!wp)
-      return NULL; //oh well, not my widget!
+    //find the tld
+    Point p;
+    p.h=x;
+    p.v=y;
+    WindowPtr wp;
+    FindWindow(p,&wp);
+    if(!wp)
+	return NULL; //oh well, not my widget!
 
     //get that widget
     QWidget * widget=QWidget::find((WId)wp);
@@ -1370,7 +1370,15 @@ int QApplication::macProcessEvent(MSG * m)
 	if( inPopupMode() ) {
 	    QMacSavedPortInfo savedInfo;
 
-	    popupwidget = activePopupWidget();
+	    WindowPtr wp;
+	    FindWindow(er->where,&wp);
+	    if(wp) {
+		QWidget *clt=QWidget::find((WId)wp);
+		if(clt && clt->isPopup())
+		    popupwidget = clt;
+	    }
+	    if(!popupwidget)
+		popupwidget = activePopupWidget();
 	    SetPortWindowPort((WindowPtr)popupwidget->handle());
 	    Point gp = er->where;
 	    GlobalToLocal( &gp ); //now map it to the window
@@ -1428,11 +1436,21 @@ int QApplication::macProcessEvent(MSG * m)
 
     } else if(er->what == osEvt) {
 	if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
+	    widget = NULL;
 	    qt_last_point = er->where;
 	    if( inPopupMode() ) {
 		QMacSavedPortInfo savedInfo;
 
-		widget = activePopupWidget();
+		WindowPtr wp;
+		FindWindow(er->where,&wp);
+		QWidget *clt = NULL;
+		if(wp) {
+		    clt=QWidget::find((WId)wp);
+		    if(clt && clt->isPopup())
+			widget = clt;
+		}
+		if(!widget)
+		    widget = activePopupWidget();
 		SetPortWindowPort((WindowPtr)widget->handle());
 		Point p = er->where;
 		GlobalToLocal( &p ); //now map it to the window
