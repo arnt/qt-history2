@@ -4327,13 +4327,11 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     // tabs by spaces
     QChar *chr = text.data();
     const QChar *end = chr + len;
-    bool haveLineSep = false;
     while (chr != end) {
         if (*chr == QLatin1Char('\r') || (singleline && *chr == QLatin1Char('\n'))) {
             *chr = ' ';
         } else if (*chr == QLatin1Char('\n')) {
             *chr = QChar::LineSeparator;
-            haveLineSep = true;
         } else if (*chr == QLatin1Char('&')) {
             ++maxUnderlines;
         }
@@ -4520,7 +4518,8 @@ QPixmap qt_image_linear_gradient(const QRect &rect,
         }
     }
 
-    QPixmap pixmap = image;
+    QPixmap pixmap;
+    pixmap.fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
     QPixmapCache::insert(key, pixmap);
 
     return pixmap;
