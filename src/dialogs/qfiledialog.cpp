@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#138 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#139 $
 **
 ** Implementation of QFileDialog class
 **
@@ -51,10 +51,6 @@
 #else
 #include <windows.h>
 #endif
-
-extern const TCHAR* qt_winTchar(const QString& str, bool addnul);
-extern TCHAR* qt_winTchar_new(const QString& str);
-extern QString qt_winQString(TCHAR* tc);
 
 #endif
 
@@ -1291,8 +1287,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     memcpy(tcfile, qt_winTchar(file,FALSE),sizeof(TCHAR)*l);
     tcfile[l] = 0;
 
-    TCHAR* filt = qt_winTchar_new(win_filter);
-    TCHAR* idir = qt_winTchar_new(*workingDirectory);
+    TCHAR* filt = (TCHAR*)qt_winTchar_new(win_filter);
+    TCHAR* idir = (TCHAR*)qt_winTchar_new(*workingDirectory);
 
     if ( parent )
 	parent = parent->topLevelWidget();
@@ -1307,7 +1303,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     ofn.lpstrFile	= tcfile;
     ofn.nMaxFile	= maxstrlen;
     ofn.lpstrInitialDir = idir;
-    ofn.lpstrTitle	= qt_winTchar("Open",TRUE);
+    ofn.lpstrTitle	= (TCHAR*)qt_winTchar("Open",TRUE);
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
@@ -1431,8 +1427,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     memcpy(tcfile, qt_winTchar(win_filter,FALSE),sizeof(TCHAR)*l);
     tcfile[l] = 0;
 
-    TCHAR* filt = qt_winTchar_new(win_filter);
-    TCHAR* idir = qt_winTchar_new(*workingDirectory);
+    TCHAR* filt = (TCHAR*)qt_winTchar_new(win_filter);
+    TCHAR* idir = (TCHAR*)qt_winTchar_new(*workingDirectory);
 
     if ( parent )
 	parent = parent->topLevelWidget();
@@ -1447,7 +1443,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     ofn.lpstrFile	= tcfile;
     ofn.nMaxFile	= maxstrlen;
     ofn.lpstrInitialDir = idir;
-    ofn.lpstrTitle	= qt_winTchar("Save",TRUE);
+    ofn.lpstrTitle	= (TCHAR*)qt_winTchar("Save",TRUE);
     ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;

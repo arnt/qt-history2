@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#142 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#143 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -3879,11 +3879,11 @@ const void* qt_winTchar(const QString& str, bool addnul)
 {
 #ifdef UNICODE
     static uint buflen = 256;
-    static WCHAR *buf = new WCHAR[buflen];
+    static TCHAR *buf = new TCHAR[buflen];
 
     const QChar* uc = str.unicode();
 
-#define EXTEND if (str.length() > buflen) { delete buf; buf = new WCHAR[buflen=str.length()+1]; }
+#define EXTEND if (str.length() > buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
 
 #if defined(_WS_WIN_BYTESWAP_)
     EXTEND
@@ -3892,10 +3892,10 @@ const void* qt_winTchar(const QString& str, bool addnul)
     if ( addnul )
 	buf[str.length()] = 0;
 #else
-    // Same endianness of WCHAR
+    // Same endianness of TCHAR
     if ( addnul ) {
 	EXTEND
-	memcpy(buf,uc,sizeof(WCHAR)*str.length());
+	memcpy(buf,uc,sizeof(TCHAR)*str.length());
 	buf[str.length()] = 0;
     } else {
 	return uc;
@@ -3936,7 +3936,7 @@ QString qt_winQString(void* tc)
 	r += QChar(((TCHAR*)tc)[i]&0xff,((TCHAR*)tc)[i]>>8);
     return r;
 #else
-    // Same endianness of WCHAR
+    // Same endianness of TCHAR
     return QString((QChar*)tc,len);
 #endif
 #undef EXTEND
