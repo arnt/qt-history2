@@ -11,14 +11,22 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_DECLARE_PRIVATE(QDockWindow)
     Q_OBJECT
 
-    Q_PROPERTY(bool closable READ isClosable WRITE setClosable)
-    Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
-    Q_PROPERTY(bool floatable READ isFloatable WRITE setFloatable)
-    Q_PROPERTY(bool floated READ isFloated WRITE setFloated)
+    Q_FLAGS(DockWindowFeature)
+    Q_PROPERTY(DockWindowFeatures features READ features WRITE setFeatures)
     Q_PROPERTY(Qt::DockWindowAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(Qt::DockWindowArea area READ area WRITE setArea)
 
 public:
+    enum DockWindowFeature {
+        DockWindowClosable    = 0x01,
+        DockWindowMovable     = 0x02,
+        DockWindowFloatable   = 0x04,
+
+        DockWindowFeatureMask = 0x07,
+        AllDockWindowFeatures = DockWindowFeatureMask
+    };
+    Q_DECLARE_FLAGS(DockWindowFeatures, DockWindowFeature)
+
     QDockWindow(QMainWindow *parent);
     QDockWindow(QMainWindow *parent, Qt::DockWindowArea area);
     ~QDockWindow();
@@ -29,17 +37,12 @@ public:
     QWidget *widget() const;
     void setWidget(QWidget *widget);
 
-    void setClosable(bool closable = true);
-    bool isClosable() const;
+    void setFeatures(DockWindowFeatures features);
+    void setFeature(DockWindowFeature features, bool on = true);
+    DockWindowFeatures features() const;
+    bool hasFeature(DockWindowFeature feature) const;
 
-    void setMovable(bool movable = true);
-    bool isMovable() const;
-
-    void setFloatable(bool floatable = true);
-    bool isFloatable() const;
-
-    void setFloated(bool floated = true, const QPoint &pos = QPoint());
-    bool isFloated() const;
+    void setTopLevel(bool topLevel = true, const QPoint &pos = QPoint());
 
     void setAllowedAreas(Qt::DockWindowAreas areas);
     Qt::DockWindowAreas allowedAreas() const;
@@ -58,5 +61,7 @@ protected:
     void closeEvent(QCloseEvent *event);
     bool event(QEvent *event);
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWindow::DockWindowFeatures)
 
 #endif // QDOCKWINDOW_H

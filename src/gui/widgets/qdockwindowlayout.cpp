@@ -1009,9 +1009,9 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
     relayout(QInternal::RelayoutDropped);
     info.is_dropped = false;
 
-    if (dockwindow->isFloated()) {
+    if (dockwindow->isTopLevel()) {
         // reparent the dockwindow to the new dock
-        dockwindow->setFloated(false);
+        dockwindow->setTopLevel(false);
         dockwindow->show();
     }
 
