@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#3 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#4 $
 **
 ** Definition of QLineEdit class
 **
@@ -24,7 +24,6 @@ public:
     QLineEdit( QWidget *parent=0, const char *name=0 );
    ~QLineEdit();
 
-    void    keyFocusEvent( bool inFocus );
     void    setText( const char * );
     char   *text() const;
     void    setMaxLength( int );
@@ -34,8 +33,9 @@ signals:
     void    textChanged(char*);
 
 protected:
-    bool    event( QEvent * );
     bool    keyPressEvent( QKeyEvent * );
+    bool    focusInEvent( QEvent * );
+    void    focusOutEvent( QEvent * );
     void    paintEvent( QPaintEvent * );
     void    timerEvent( QTimerEvent * );
     void    resizeEvent( QResizeEvent * );

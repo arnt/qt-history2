@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#6 $
 **
 ** Implementation of QLineEdit class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#6 $";
 #endif
 
 
@@ -87,26 +87,6 @@ QLineEdit::~QLineEdit()
 }
 
 
-void QLineEdit::keyFocusEvent( bool inFocus )
-{
-    if ( inFocus && inTextFocus || !inFocus && !inTextFocus )
-	return;
-
-    inTextFocus = inFocus;
-    if ( inFocus ) {
-	pm = new QPixMap( clientSize().width(), clientSize().height());
-	CHECK_PTR( pm );
-	startTimer( blinkTime );
-    } else {
-	killTimers();
-	delete pm;
-	pm = 0;
-    }
-    cursorOn = TRUE;
-    paint();
-}
-
-
 void QLineEdit::setText( const char *s )
 {
     if ( t == s )				// no change
@@ -145,24 +125,8 @@ int QLineEdit::maxLength() const
 }
 
 
-bool QLineEdit::event( QEvent *e )
-{
-    if ( e->type() == Event_Enter ) {
-	keyFocusEvent( TRUE );
-	return TRUE;
-    }
-    if ( e->type() == Event_Leave ) {
-	keyFocusEvent( FALSE );
-	return TRUE;
-    }
-    return QWidget::event( e );
-}
-
-
 bool QLineEdit::keyPressEvent( QKeyEvent *k )
 {
-    if ( !inTextFocus )
-	keyFocusEvent( TRUE );
     if ( k->ascii() >= 32 && k->key() != Key_Delete ) {
 	if ( t.length() >= maxLen )
 	    return TRUE;
@@ -236,6 +200,30 @@ bool QLineEdit::keyPressEvent( QKeyEvent *k )
 }
 
 
+bool QLineEdit::focusInEvent( QEvent * )
+{
+    inTextFocus = TRUE;
+    debug( "IN focus" );
+    pm = new QPixMap( clientSize().width(), clientSize().height());
+    CHECK_PTR( pm );
+    startTimer( blinkTime );
+    cursorOn = TRUE;
+    paint();
+    return TRUE;
+}
+
+void QLineEdit::focusOutEvent( QEvent * )
+{
+    inTextFocus = FALSE;
+    debug( "OUT focus" );
+    killTimers();
+    delete pm;
+    pm = 0;
+    cursorOn = TRUE;
+    paint();
+}
+
+
 void QLineEdit::paintEvent( QPaintEvent * )
 {
     paint( TRUE );
@@ -267,9 +255,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *m )
 		xPosToCursorPos( &t[ offset ], font(),
 			    m->pos().x() - LEFT_MARGIN,
 			    clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN);
-    if ( !inTextFocus )
-	keyFocusEvent( TRUE );
-    else
+    if ( inTextFocus )
 	paint();
 }
 
