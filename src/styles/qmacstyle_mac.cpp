@@ -34,6 +34,7 @@
 //hack, but usefull
 #define private protected //I don't much like doing this.. but I need updateFont(), sorry. -Sam
 #include <qpainter.h>
+#include <qmap.h>
 #undef private
 class QMacPainter : public QPainter
 {
