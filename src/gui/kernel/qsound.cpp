@@ -24,10 +24,8 @@ static QList<QAuServer*> *servers=0;
 QAuServer::QAuServer(QObject* parent)
     : QObject(parent)
 {
-    if (!servers) {
+    if (!servers)
         servers = new QList<QAuServer*>;
-        // ### add cleanup
-    }
     servers->prepend(this);
 }
 
