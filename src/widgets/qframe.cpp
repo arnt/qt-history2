@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#42 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#42 $");
 
 
 /*!
@@ -373,6 +373,18 @@ QRect QFrame::contentsRect() const
     int	  w = frameWidth();			// total width
     r.setRect( r.x()+w, r.y()+w, r.width()-w*2, r.height()-w*2 );
     return r;
+}
+
+QSize QFrame::sizeHint() const
+{
+    switch (fstyle & MShape) {
+      case HLine:
+	return QSize(-1,3);
+      case VLine:
+	return QSize(3,-1);
+      default:
+	return QWidget::sizeHint();
+    }
 }
 
 
