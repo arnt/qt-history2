@@ -528,7 +528,7 @@ QKeyEvent::~QKeyEvent()
     \fn QString QKeyEvent::text() const
 
     Returns the Unicode text that this key generated. The text
-    returned can be a null string (text().isNull == true) in cases
+    returned can be an empty string in cases
     where modifier keys, such as Shift, Control, Alt, and Meta,
     are being pressed or released. In such cases key() will contain
     a valid value.
