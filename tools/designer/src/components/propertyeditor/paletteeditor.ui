@@ -498,5 +498,11 @@
       </item>
     </layout>
   </widget>
+  <customwidgets>
+      <customwidget>
+          <class>PreviewWidget</class>
+          <header loaction="local">previewwidget.h</header>
+      </customwidget>
+  </customwidgets>
   <layoutdefault spacing="6" margin="11" />
 </ui>
