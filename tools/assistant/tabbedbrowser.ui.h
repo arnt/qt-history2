@@ -120,7 +120,7 @@ void TabbedBrowser::zoomOut()
 }
 
 void TabbedBrowser::init()
-{
+{    
     tabLinkUnderline = FALSE;
     tabStyleSheet = new QStyleSheet( QStyleSheet::defaultSheet() );
     lastCurrentTab = 0;
@@ -137,18 +137,25 @@ void TabbedBrowser::init()
     connect( tab, SIGNAL( currentChanged( QWidget* ) ),
 	     this, SLOT( transferFocus() ) );
 
+    QTabBar *tabBar = (QTabBar*)tab->child( 0, "QTabBar", FALSE );
+    int m = ( tabBar ? style().pixelMetric( QStyle::PM_TabBarTabVSpace, (QWidget*)tabBar )
+	      + style().pixelMetric( QStyle::PM_TabBarBaseHeight, (QWidget*)tabBar ) : 0 );
+    int s = tab->height() - m;
+    
     QToolButton *newTabButton = new QToolButton( this );
     tab->setCornerWidget( newTabButton, Qt::TopLeft );
     newTabButton->setCursor( arrowCursor );
+    newTabButton->setAutoRaise( TRUE );
     newTabButton->setPixmap( QPixmap( tab_widget_new_xpm ) );
-    newTabButton->setFixedSize( 12, 12 );
+    newTabButton->setFixedSize( s, s );
     QObject::connect( newTabButton, SIGNAL( clicked() ), this, SLOT( newTab() ) );
 
     QToolButton *closeTabButton = new QToolButton( this );
     tab->setCornerWidget( closeTabButton, Qt::TopRight );
     closeTabButton->setCursor( arrowCursor );
-    closeTabButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeTabButton ) );
-    closeTabButton->setFixedSize( 12, 12 );
+    closeTabButton->setAutoRaise( TRUE );
+    closeTabButton->setPixmap( style().stylePixmap( QStyle::SP_TitleBarCloseButton, closeTabButton ) );
+    closeTabButton->setFixedSize( s, s );
     QObject::connect( closeTabButton, SIGNAL( clicked() ), this, SLOT( closeTab() ) );
 }
 
