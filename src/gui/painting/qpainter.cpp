@@ -123,6 +123,7 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
     if (QPixmap *pixmap = QPixmapCache::find(key)) {
         QRect bounds;
         q->save();
+        q->setClipPath(path, Qt::IntersectClip);
         if (xform) {
             bounds = pathBounds.toRect();
         } else {
