@@ -4,7 +4,10 @@ unix {
   MOC_DIR = .moc
   OBJECTS_DIR = .obj
 }
-FORMS	= mainform.ui
+FORMS	= mainform.ui \
+	colornameform.ui \
+	findform.ui \
+	optionsform.ui
 IMAGES	= images/filenew \
 	images/fileopen \
 	images/filesave \
@@ -19,7 +22,7 @@ IMAGES	= images/filenew \
 	images/table.png \
 	images/iconview.png \
 	images/richtextedit.png \
-	images/pixlabel.png
+	images/widgetstack.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= colortool.db

@@ -16,6 +16,11 @@ const int COL_WEB = 2;
 
 void MainForm::init()
 {
+    clipboard = QApplication::clipboard();
+    if ( clipboard->supportsSelection() )
+	clipboard->setSelectionMode( TRUE );
+
+    findForm = 0;
     m_clip_as = CLIP_AS_HEX;
     m_show_web = TRUE;
     m_filename = "";
@@ -199,9 +204,12 @@ void MainForm::fileSaveAs()
 void MainForm::load( const QString& filename )
 {
     clearData( FALSE );
+    m_filename = filename;
     QRegExp regex( "^\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\S+.*)$" );
     QFile file( filename );
     if ( file.open( IO_ReadOnly ) ) {
+	statusBar()->message( QString( "Loading '%1'..." ).
+			      arg( filename ) );
 	QTextStream stream( &file );
 	QString line;
 	while ( !stream.eof() ) {
@@ -215,11 +223,10 @@ void MainForm::load( const QString& filename )
 					    regex.cap( 3 ).toInt() );
 	}
 	file.close();
-	setCaption( QString( "Color Tool -- %1" ).arg( m_filename ) );
-	statusBar()->message( QString( "Loaded %1 colors from '%2'" ).
-				arg( m_colors.count() ).
-				arg( m_filename ), 3000 );
 	m_filename = filename;
+	setCaption( QString( "Color Tool -- %1" ).arg( m_filename ) );
+	statusBar()->message( QString( "Loaded '%1'" ).
+				arg( m_filename ), 3000 );
 	m_table_dirty = TRUE;
 	m_icons_dirty = TRUE;
 	populate();
@@ -262,64 +269,124 @@ void MainForm::fileExit()
 	QApplication::exit( 0 );
 }
 
-void MainForm::editUndo()
-{
-
-}
-
-void MainForm::editRedo()
-{
-
-}
-
 void MainForm::editCut()
 {
-	QString name;
-	QWidget *visible = colorWidgetStack->visibleWidget();
+    QString name;
+    QWidget *visible = colorWidgetStack->visibleWidget();
+    statusBar()->message( QString( "Deleting '%1'" ).arg( name ) );
+    
+    if ( visible == tablePage && colorTable->numRows() ) {
+	int row = colorTable->currentRow();
+	name = colorTable->text( row, 0 );
+	colorTable->removeRow( colorTable->currentRow() );
+	if ( row < colorTable->numRows() )
+	    colorTable->setCurrentCell( row, 0 );
+	else if ( colorTable->numRows() )
+	    colorTable->setCurrentCell( colorTable->numRows() - 1, 0 );
+	m_icons_dirty = TRUE;
+    }
+    else if ( visible == iconsPage && colorIconView->currentItem() ) {
+	QIconViewItem *item = colorIconView->currentItem();
+	name = item->text();
+	QIconViewItem *current = item->nextItem();
+	if ( !current )
+	    current = item->prevItem();
+	delete item;
+	if ( current )
+	    colorIconView->setCurrentItem( current );
+	colorIconView->arrangeItemsInGrid();
+	m_table_dirty = TRUE;
+    }
 
-	if ( visible == tablePage && colorTable->numRows() ) {
-	    int row = colorTable->currentRow();
-	    name = colorTable->text( row, 0 );
-	    colorTable->removeRow( colorTable->currentRow() );
-	    if ( row < colorTable->numRows() )
-		colorTable->setCurrentCell( row, 0 );
-	    else if ( colorTable->numRows() )
-		colorTable->setCurrentCell( colorTable->numRows() - 1, 0 );
-	    m_icons_dirty = TRUE;
-	}
-	else if ( visible == iconsPage && colorIconView->currentItem() ) {
-	    QIconViewItem *item = colorIconView->currentItem();
-	    name = item->text();
-	    QIconViewItem *current = item->nextItem();
-	    if ( !current ) current = item->prevItem();
-	    delete item;
-	    if ( current )
-		colorIconView->setCurrentItem( current );
-	    colorIconView->arrangeItemsInGrid();
-	    m_table_dirty = TRUE;
-	}
-
-	if ( name ) {
-	    m_colors.remove( name );
-	    m_changed = TRUE;
-	    statusBar()->message( QString( "Deleted %1" ).arg( name ), 5000 );
-	}
+    if ( !name.isNull() ) {
+	m_colors.remove( name );
+	m_changed = TRUE;
+	statusBar()->message( QString( "Deleted '%1'" ).arg( name ), 5000 );
+    }
+    else
+	statusBar()->message( QString( "Failed to delete '%1'" ).arg( name ), 5000 );
 }
 
 void MainForm::editCopy()
 {
+    QString text;
+    QWidget *visible = colorWidgetStack->visibleWidget();
 
-}
-
-void MainForm::editPaste()
-{
-
+    if ( visible == tablePage && colorTable->numRows() ) {
+	int row = colorTable->currentRow();
+	text = colorTable->text( row, 0 );
+    }
+    else if ( visible == iconsPage && colorIconView->currentItem() ) {
+	QIconViewItem *item = colorIconView->currentItem();
+	text = item->text();
+    }
+    if ( !text.isNull() ) {
+	QColor color = m_colors[text];
+	switch ( m_clip_as ) {
+	case CLIP_AS_HEX: text = color.name(); break;
+	case CLIP_AS_NAME: break;
+	case CLIP_AS_RGB:
+		text = QString( "%1,%2,%3" ).
+		       arg( color.red() ).
+		       arg( color.green() ).
+		       arg( color.blue() );
+		break;
+	}
+	clipboard->setText( text );
+	statusBar()->message( "Copied '" + text + "' to the clipboard" );
+    }
 }
 
 void MainForm::editFind()
 {
-
+    if ( !findForm ) {
+	findForm = new FindForm( this );
+	connect( findForm, SIGNAL( lookfor(const QString&) ),
+		 this, SLOT( lookfor(const QString&) ) );
+    }
+    findForm->show();
 }
+
+void MainForm::lookfor( const QString& text )
+{
+    QString ltext = text.lower();
+    QWidget *visible = colorWidgetStack->visibleWidget();
+    bool found = false;
+    
+    if ( visible == tablePage && colorTable->numRows() ) {
+	int row = colorTable->currentRow();
+	for ( int i = row + 1; i < colorTable->numRows(); ++i )
+	    if ( colorTable->text( i, 0 ).lower().contains( ltext ) ) {
+		colorTable->setCurrentCell( i, 0 );
+		colorTable->clearSelection();
+		colorTable->selectRow( i );
+		found = true;
+		break;
+	}
+	if ( !found )
+	    colorTable->setCurrentCell( row, 0 );
+
+    }
+    else if ( visible == iconsPage ) {
+	QIconViewItem *start = colorIconView->currentItem();
+	for ( QIconViewItem *item = start->nextItem(); item; item = item->nextItem() )
+	    if ( item->text().lower().contains( ltext ) ) {
+		colorIconView->setCurrentItem( item );
+		colorIconView->ensureItemVisible( item );
+		found = true;
+		break;
+	    }
+	if ( !found && start )
+	    colorIconView->setCurrentItem( start );
+    }
+    if ( !found ) {
+	statusBar()->message( QString( "Could not find '%1' beyond here" ).
+			      arg( text ) );
+	findForm->notfound();
+    }
+}
+
+
 
 void MainForm::helpIndex()
 {
@@ -339,12 +406,12 @@ void MainForm::helpAbout()
 
 void MainForm::changedTableColor( int row, int )
 {
-    	changedColor( colorTable->text( row, 0 ) );
+    changedColor( colorTable->text( row, 0 ) );
 }
 
 void MainForm::changedIconColor( QIconViewItem *item )
 {
-	changedColor( item->text() );
+    changedColor( item->text() );
 }
 
 void MainForm::changedColor( const QString& name )
@@ -378,14 +445,12 @@ void MainForm::changeView(QAction* action)
 bool MainForm::isWebColor( int r, int g, int b )
 {
     return ( ( r ==   0 || r ==  51 || r == 102 ||
-		r == 153 || r == 204 || r == 255 ) &&
-		( g ==   0 || g ==  51 || g == 102 ||
-		g == 153 || g == 204 || g == 255 ) &&
-		( b ==   0 || b ==  51 || b == 102 ||
-		b == 153 || b == 204 || b == 255 ) );
+	       r == 153 || r == 204 || r == 255 ) &&
+	     ( g ==   0 || g ==  51 || g == 102 ||
+	       g == 153 || g == 204 || g == 255 ) &&
+	     ( b ==   0 || b ==  51 || b == 102 ||
+	       b == 153 || b == 204 || b == 255 ) );
 }
-
-
 
 
 void MainForm::editAdd()
@@ -395,32 +460,35 @@ void MainForm::editAdd()
 	QWidget *visible = colorWidgetStack->visibleWidget();
 	if ( visible == tablePage )
 	    color = colorTable->text( colorTable->currentRow(),
-					colorTable->currentColumn() );
+				      colorTable->currentColumn() );
 	else
 	    color = colorIconView->currentItem()->text();
     }
     color = QColorDialog::getColor( color, this );
-    /*
     if ( color.isValid() ) {
 	QPixmap pixmap( 80, 10 );
 	pixmap.fill( color );
 	ColorNameForm *colorForm = new ColorNameForm( this, "color", TRUE );
 	colorForm->setColors( m_colors );
-	colorForm->colorTextLabel->setPixmap( pixmap );
+	colorForm->colorLabel->setPixmap( pixmap );
 	if ( colorForm->exec() ) {
-	    QString name = colorForm->nameLineEdit->text();
+	    QString name = colorForm->colorLineEdit->text();
 	    m_colors[name] = color;
 	    QPixmap pixmap( 22, 22 );
 	    pixmap.fill( color );
-	    int row = m_table->currentRow();
+	    int row = colorTable->currentRow();
 	    colorTable->insertRows( row, 1 );
-	    colorTable->setItem( row, COL_NAME,
-				 new TableItem( colorTable, QTableItem::Never,
-						name, pixmap ) ) ;
+	    colorTable->setText( row, COL_NAME, name );
+	    colorTable->setPixmap( row, COL_NAME, pixmap );
 	    colorTable->setText( row, COL_HEX, color.name().upper() );
+	    if ( m_show_web ) {
+		QCheckTableItem *item = new QCheckTableItem( colorTable, "" );
+		item->setChecked(
+		    isWebColor( color.red(), color.green(), color.blue() ) );
+		colorTable->setItem( row, COL_WEB, item );
+	    }
 	    colorTable->setCurrentCell( row, colorTable->currentColumn() );
-	    if ( m_show_web &&
-		isWebColor( color.red(), color.green(), color.blue() ) )
+
 	    (void) new QIconViewItem( colorIconView, name,
 				      colorSwatch( color ) );
 	    m_changed = TRUE;
@@ -428,5 +496,35 @@ void MainForm::editAdd()
 	    m_icons_dirty = TRUE;
 	}
     }
-    */
+}
+
+void MainForm::editOptions()
+{
+    OptionsForm *options = new OptionsForm( this, "options", TRUE );
+    switch ( m_clip_as ) {
+    case CLIP_AS_HEX:
+	options->hexRadioButton->setChecked( true );
+	break;
+    case CLIP_AS_NAME:
+	options->nameRadioButton->setChecked( true );
+	break;
+    case CLIP_AS_RGB:
+	options->rgbRadioButton->setChecked( true );
+	break;
+    }
+    options->webCheckBox->setChecked( m_show_web );
+
+    if ( options->exec() ) {
+	if ( options->hexRadioButton->isChecked() )
+	    m_clip_as = CLIP_AS_HEX;
+	else if ( options->nameRadioButton->isChecked() )
+	    m_clip_as = CLIP_AS_NAME;
+	else if ( options->rgbRadioButton->isChecked() )
+	    m_clip_as = CLIP_AS_RGB;
+	m_table_dirty = m_show_web != 
+			options->webCheckBox->isChecked();
+	m_show_web = options->webCheckBox->isChecked();
+
+	populate();
+    }
 }

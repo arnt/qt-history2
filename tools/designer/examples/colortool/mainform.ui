@@ -130,6 +130,7 @@
         <action name="fileOpenAction"/>
         <action name="fileSaveAction"/>
         <separator/>
+        <action name="editAddAction"/>
         <action name="editCutAction"/>
         <action name="editCopyAction"/>
         <action name="editFindAction"/>
@@ -389,7 +390,7 @@
             <cstring>editAddAction</cstring>
         </property>
         <property name="iconSet">
-            <iconset>pixlabel.png</iconset>
+            <iconset>widgetstack.png</iconset>
         </property>
         <property name="text">
             <string>Add</string>
@@ -499,18 +500,32 @@
         <receiver>MainForm</receiver>
         <slot>editAdd()</slot>
     </connection>
+    <connection>
+        <sender>optionsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>editOptions()</slot>
+    </connection>
 </connections>
 <includes>
-    <include location="local" impldecl="in implementation">qcolordialog.h</include>
-    <include location="local" impldecl="in implementation">qregexp.h</include>
-    <include location="local" impldecl="in implementation">qfile.h</include>
-    <include location="local" impldecl="in implementation">qfiledialog.h</include>
-    <include location="local" impldecl="in implementation">qapplication.h</include>
-    <include location="local" impldecl="in implementation">qcolor.h</include>
-    <include location="local" impldecl="in implementation">qstring.h</include>
-    <include location="local" impldecl="in implementation">qpainter.h</include>
-    <include location="local" impldecl="in implementation">qstatusbar.h</include>
+    <include location="local" impldecl="in declaration">findform.h</include>
+    <include location="local" impldecl="in implementation">optionsform.h</include>
+    <include location="local" impldecl="in implementation">qlineedit.h</include>
+    <include location="local" impldecl="in implementation">qlabel.h</include>
+    <include location="local" impldecl="in implementation">qclipboard.h</include>
     <include location="local" impldecl="in implementation">qmessagebox.h</include>
+    <include location="local" impldecl="in implementation">qstatusbar.h</include>
+    <include location="local" impldecl="in implementation">qpainter.h</include>
+    <include location="local" impldecl="in implementation">qstring.h</include>
+    <include location="local" impldecl="in implementation">qcolor.h</include>
+    <include location="local" impldecl="in implementation">qapplication.h</include>
+    <include location="local" impldecl="in implementation">qfiledialog.h</include>
+    <include location="local" impldecl="in implementation">qfile.h</include>
+    <include location="local" impldecl="in implementation">qregexp.h</include>
+    <include location="local" impldecl="in implementation">qcolordialog.h</include>
+    <include location="local" impldecl="in implementation">colornameform.h</include>
+    <include location="local" impldecl="in implementation">qcheckbox.h</include>
+    <include location="local" impldecl="in implementation">qradiobutton.h</include>
     <include location="local" impldecl="in implementation">mainform.ui.h</include>
 </includes>
 <forwards>
@@ -526,6 +541,8 @@
     <variable>int m_clip_as;</variable>
     <variable>bool m_show_web;</variable>
     <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
+    <variable>QClipboard *clipboard;</variable>
+    <variable>FindForm *findForm;</variable>
 </variables>
 <functions>
     <function type="function" access="private">init()</function>
@@ -539,12 +556,10 @@
     <function type="function">load( const QString &amp; filename )</function>
     <function type="function" returnType="bool">okToClear()</function>
     <function type="slot">fileExit()</function>
-    <function type="function">editUndo()</function>
-    <function type="function">editRedo()</function>
     <function type="slot">editCut()</function>
     <function type="slot">editCopy()</function>
-    <function type="function">editPaste()</function>
     <function type="slot">editFind()</function>
+    <function type="slot">lookfor( const QString &amp; text )</function>
     <function type="slot">helpIndex()</function>
     <function type="slot">helpContents()</function>
     <function type="slot">helpAbout()</function>
@@ -555,6 +570,7 @@
     <function type="slot">changeView( QAction * action )</function>
     <function type="function" returnType="bool">isWebColor( int r, int g, int b )</function>
     <function type="slot">editAdd()</function>
+    <function type="slot">editOptions()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

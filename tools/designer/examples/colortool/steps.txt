@@ -1,6 +1,11 @@
 ROUGH NOTES FOR WHAT ACTIONS TO PERFORM TO CREATE THE colortool
 EXAMPLE.
 
+Before each part give a brief overview of what we want to achieve and
+why. Make sure that every generic action has a sidebar.
+
+
+CHAPTER ONE Main Window
 
 open QD
 
@@ -79,8 +84,11 @@ Action.
 
 Change the action's name to 'editAddAction'. Click the elipsis to
 change its icon to pixlabel.png. Change the text property to 'Add' and
-the menu property to '&Add...'. Now click the action and drag it to
-be the first item in the Edit menu. Give it a shortcut of CTRL+A.
+the menu property to '&Add...'. Give it a shortcut of CTRL+A.
+Set its iconSet property to widgetstack.png. Now click the action and
+drag it to be the first item in the Edit menu. Click the action again
+and drag it to the toolbar, dropping it to the left of the Scissors
+(Delete) toolbar button.
 
 Click the form's Edit menu, then right click the Find option and click
 Insert Separator.
@@ -248,19 +256,322 @@ colors is that used by the X Consortium.)
 
 Now we'll implement the edit menu options.
 
+We'll leave Add until the next chapter when we cover custom dialogs.
+
+Now we'll implement editDelete().
+
+Now editCopy().
+Add QClipboard *clipboard to class variables and set it in init(). and
+qclipboard.h to includes.
+
+We don't do pasting so delete editPaste() from the object explorer.
+Similarly delete editUndo() and editRedo(). After these deletions you
+may need to make clean before making.
+
+CHAPTER TWO Dialogs
+
+ADD 
 Before we can implement Add we must make a signal/slot connection.
 Click Edit|Connections to invoke the View and Edit Connections dialog.
 Click New and set the sender to be editAddAction, signal activated,
 receiver, MainForm and slot (a newly created editAdd()).
 
-Now we'll write the code for the editAdd() slot.
-We need to include qcolordialog.h. The code lets the use choose a
-color, but doesn't let them give it a name and doesn't actually add it
-to our table or icon view. In the next chapter we'll create a dialog
-to let the user name the color and we'll complete the implementation of
-this function.
+We can use a standard dialog to get the user to choose a color, but we
+need our own dialog to get the name of the color.
+
+Click File|New, then click Dialog, then click OK. Drag a corner of the
+form to make it smaller. Change the form's name to 'ColorNameForm' and
+its caption to 'Color Form -- Color Name'. 
+Click File|Save, then OK.
+
+[Explain not having to worry about precise layout.]
+
+Click the TextLabel tool in the Toolbox, then click of the form, on
+the left hand side. Change this label's name property to colorLabel,
+and delete the text in the text property. Click the pixmap property's
+ellipsis button and choose the editraise.xpm image. Change the
+scaledContents property to true and set the minimumSize property's
+width and sub-property to 80.
+
+Click the TextLabel tool again, and click on the form at the right of
+the colorLabel, towards the top of the form. Change the text property
+to '&Name'. Note that the ampersand is displayed; this is because we
+haven't yet set a buddy [explain].
+
+Click the LineEdit tool and click to the right of the 'Name' label.
+Change the name property to 'colorLineEdit'. Click on the 'Name'
+label, and change it's buddy property to 'colorLineEdit'.
+
+Click the PushButton tool and click below the Name label. Change the
+button's name to 'okPushButton', its text to OK and its default
+property to True.
+
+Click the PushButton tool again and click to the right of the OK
+button. Change the button's name to 'cancelPushButton' and its text to
+'Cancel'.
+
+Now we're ready to lay out the form.
+
+Click the form to deselect any selected widgets. 
+Click the form above the Name label and drag so that the rectangle
+touches both the Name label and the line edit; then release. Click the
+Lay Out Horizontally toolbar button.
+
+Click the form to deselect any selected widgets. 
+Click the cancel button in the Object Explorer's
+Objects tab. Shift+Click the OK button. Click the Lay Out Horizontally
+toolbar button.
+
+Click the form to deselect any selected widgets. 
+Click Layout1 (which contains the Name label and line edit) in the
+Object Explorer. Shift+Click Layout2 (which contains the buttons) in
+the Object Explorer. Click the Lay Out Vertically toolbar button.
+
+Click the form to deselect any selected widgets. 
+Click the Lay Out Horizontally toolbar button to lay out the form.
+
+Unfortunately, this stretches the buttons in a rather unattractive
+way. We need the buttons to stay a reasonable width and have the
+excess space consumed.
+
+Click the red rectangle of Layout3 (that lays out the form), then
+click the Break Layout toolbar button. Click one of the buttons and
+click the Break Layout toolbar button. Roughly resize the OK button to
+be half as wide, leaving space to its left. Click the Spacer toolbar
+button, then click on the form to the left of the OK button, and drag
+to the right a little, then release. This produces a horizontal
+spacer. (If you slipped and got a vertical spacer, just change its
+orientation property to vertical.)
+
+Click the form to deselect any selected widgets. 
+Click and drag from below the spacer so that the rectangle touches the
+spacer and both buttons, then release. Click Lay Out Horizontally.
+
+Click the form to deselect any selected widgets. 
+Click Layout1 in the Object Explorer to select the name label and line
+edit, and Shift+Click the layout (Layout4) that contains the spacer
+and buttons. Click Lay Out Vertically.
+
+Click the form to deselect any selected widgets. 
+Click Lay Out Horizontally.
+
+Now the buttons are laid out more pleasingly. Drag a corner of the
+form to make it as small as possible. Now drag the form so that it is
+a little higher and especially wider to make it more attractive.
+
+Try previewing to see that the form looks good. (Ctrl+T). When you
+preview try Tabbing to see the tab order. The tab order is almost
+certainly correct (line edit, OK button, Cancel button). You can
+change it by clicking the Tab Order toolbar (See the tab order sidebar).
+
+[Tab order sidebar]
+
+We want the user to be able to give the color they've chosen a name.
+But we don't want to allow the name to be a duplicate of an existing
+name. So we'll need a function that the caller can use to pass in the
+list of color names, and a validation slot that is called when the
+user clicks OK.
+
+We'll start with the Cancel button since that's easiest. Click
+Edit|Connections to invoke the View and Edit Connections dialog.
+
+Click New. Change the Sender to cancelPushButton, signal to clicked()
+and receiver to ColorNameForm and slot to reject(). Because this
+functionality is achieved purely through signal and slot connections,
+it will work in preview mode. Click OK to close the View and Edit
+Connections dialog, then click Ctrl+T to preview. Clicking the Cancel
+button will now close the dialog.
+
+Click Edit|Connections to invoke the View and Edit Connections dialog.
+Click New. Change the Sender to okPushButton, signal to clicked() and
+receiver to ColorNameForm. Click the Edit Slots button to invoke the
+Edit Functions dialog. Change the Function name to validate() and
+click OK. Now change the slot to validate(). Click OK to close the
+dialog.
+
+Click colornameform.ui.h in the Project Overview window to invoke the
+code editor.
+
+Instead of adding in class variables and include files in the Object
+Explorer's Members tab, we'll enter them straight into the .ui.h file.
+
+Now well add the setColors() function that the caller must call to
+provide the ColorNameForm with its list of color names.
+
+And now we'll code the validate() slot.
+
+Now that this dialog is complete we can write the code for the
+editAdd() slot. We need to include qcolordialog.h and of course our
+own colornameform.h. Also required are qlabel.h and qlineedit.h since
+we refer to objects of these types. 
+
+FIND
+
+Just like the add dialog, we'll create the form, then add code to the
+main window to make use of it.
+
+Click File|New, then click Dialog, then click OK.
+
+Drag a corner of the form to make it smaller. Change the form's name
+to FindForm and its caption to 'Color Tool -- Find Color'. Click
+File|Save, then OK.
+
+Click the TextLabel tool and click on the form on the left hand side.
+Change the text property to '&Look for'.
+
+Click the LineEdit tool and click on the form to the right of the
+'Look for' label. Change its name to findLineEdit. Click on the 'Look
+for' label and change its buddy property to findLineEdit.
+
+Click the PushButton tool and click on the form below the line edit.
+Change its name to findPushButton and its text to '&Find'. Change its
+default property to True.
+
+Click the PushButton tool and click on the form to the right of the
+'Find' button. Change its name to closePushButton and its text to
+Close.
+
+We know from experience with the ColorNameForm that we'll need a
+spacer to the left of the buttons. Click the Spacer toolbar button,
+then click the form to the left of the Find button and drag to the
+right a little; then release. 
+
+Click the spacer, then Shift+Click the Find button and Shift+Click the
+Close button. Click Lay Out Horizontally.
+
+Click the 'Look for' label, then Shift+Click the line edit. Click Lay
+Out Horizontally.
+
+Click the form, then click Lay Out Vertically. Drag a corner to reduce
+the size of the form to make it more pleasing.
+
+We're going to use this as a modeless dialog with all the
+functionality performed in the main form; when the user clicks Find it
+will emit a signal that we'll recieve and act upon. We'll also give it
+a slot which we'll call if ther is no match.
+
+Click Edit|Connections to invoke the View and Edit Connections dialog.
+
+Click New. Change the Sender to closePushButton, signal to clicked(),
+reciever to FindForm and slot to accept(). This will work in preview
+mode; it will close the form when the user clicks Close.
+
+Click New. Change the Sender to findPushButton, signal to clicked(),
+receiver to FindForm. Click the Edit Slots button to invoke the Edit
+Functions dialog. Change the Function's name to find(), then click OK.
+Change the receiver's slot to find().
+
+Click OK to close the View and Edit Connections dialog.
+
+When the user clicks Find we want a signal to be emitted so that we
+can look for the text. Click the Object Explorer's Members tab 
+and right click Signals, then click New. Enter 'lookfor(const
+QString&)'.
+
+Now click findform.ui.h in the Project Overview. The implementation of
+find() is trivial. We'll also implement a 'notfound' function. Simply
+type it in; Designer will automatically update the Members tab.
+
+Now we're ready to make use of the find form.
+
+Click on mainform.ui.h in the Project Overview to invoke the code
+editor. Add findform.h to the Includes, but this time in Includes (in
+Declaration). In the class variables add
+'FindForm *findForm;'. The implementation of editFind() is simple.
+The code for our lookfor slot is straightforward. Enter the text into
+Designer's code editor. We also need to update init() to set findForm
+= 0.
+
+By default designer makes functions that are typed in into public
+functions. We need lookfor() to be a slot. Right click lookfor() in
+Object Explorer's Members tab, then click Properties. This invokes the
+Edit Function dialog. Change the Type to slot, then click OK.
+
+The last functionality: the options dialog.
+
+Click File|New, then click Dialog, then click OK.
+
+Drag a corner of the form to make it smaller. Change the form's name
+to OptionsForm and its caption to 'Color Tool -- Options'. Click
+File|Save, then OK.
+
+Click the GroupBox tool (in the Containers toolbox) and click towards
+the top left of the form. Roughly drag the group box to make it wider.
+Change its title to 'Table View'.
+
+Click the CheckBox tool (in the Common Widgets toolbox) and click
+inside the group box. Change the checkbox's name to webCheckBox and
+its caption to 'Indicate &Web Colors'. Change its checked property to
+True. Click the group box in Object Explorer's Objects tab, then click
+Lay Out Horizontally.
+
+Click the ButtonGroup tool and click below the table view group box.
+Change this group's title to 'Copy to Clipboard As' and drag a corner
+to make it a bit taller.
+
+DOUBLE click the RadioButton tool to enter multiple placement mode.
+Click inside the copy to clipboard group box near the top, then click
+again below the first click then again below the second click so that
+the group box contains three radio buttons. Click the Pointer toolbar
+button to switch of multiple placement mode.
+
+Click the first RadioButton. Change its name to hexRadioButton and its
+text to '&Hex, e.g. #AB52F7'. Change its checked property to True.
+Click the second RadioButton. Change its name to nameRadioButton and
+its text to '&Name, e.g. light blue'.
+Click the third RadioButton. Change its name to rgbRadioButton and
+its text to '&RGB, e.g. 51,255,102'.
+
+Click the ButtonGroup in Object Explorer (i.e. the one that contains
+the radio buttons). Click Lay Out Vertically.
+
+Click the PushButton tool and click on the form below the button
+group. Change the button's name to okPushButton and its text to OK and
+its default to True.
+
+Click the PushButton tool and click to the right of the OK button.
+Change this button's name to cancelPushButton and its text to Cancel.
+
+Click the Spacer tool and click on the form to the left of the OK
+button; drag to the right a little and release.
+
+Shift+Click the okPushButton and Shift+Click the cancelPushButton so
+that the Spacer and both buttons are selected. 
+
+Click Lay Out Horizontally. Click the form, then click Lay Out
+Vertically. Drag a corner to resize the form to an aesthetically
+pleasing size.
+
+This form will be modal and the caller will get and set its values.
+All that we need to do is connect the OK button to accept() and the
+Cancel button to reject(). 
+
+Click Edit|Connections. 
+
+Click New. Change the Sender to okPushButton, the signal to clicked(),
+the receiver to OptionsForm and the slot to accept().
+
+Click New. Change the Sender to cancelPushButton, the signal to clicked(),
+the receiver to OptionsForm and the slot to reject().
+
+Click File|Save.
+
+Click on MainForm (mainform.ui) in the Project Overview to return to
+the main form. 
+
+Click Edit|Connections.
+
+Click New. Change the sender to optionsAction, the signal to
+activated, the receiver to MainForm. Click Edit Slots to invoke the
+Edit Functions dialog.  Change the Function's name to editOptions()
+and click OK. Change the slot to editOptions() then click OK.
+
+We can now go to the code editor (click mainform.ui.h to invoke it)
+and enter the code for editOptions(). We must also add optionsform.h,
+qradiobutton.h and qcheckbox.h to our includes in implementation.
+
+The application is complete! 
 
 
-Now we'll implement editDelete().
-
-
+[EXTRA HINTS AND TIPS in sidebars, e.g. multi-select, multi-click of a
+tool for one click placement, etc.]
