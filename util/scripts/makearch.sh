@@ -308,6 +308,9 @@ cat << EOF
 	@echo
 	@echo \"make alldirs\" creates _all_ the build directories.
 
+patchtest:
+	@patch --unified </dev/null >/dev/null 2>/dev/null || ( echo "You need patch version 2.1 or later to build Qt.  You have:" ; patch -v ; /bin/false )
+
 list: 
 	@echo Supported configurations:
 EOF
@@ -334,7 +337,7 @@ done
 for a in ../makefiles/*[a-z] ; do
     PLATFORM=`basename $a`
     cat << EOF
-${PLATFORM}:
+${PLATFORM}: patchtest
 	mkdir ${PLATFORM}
 	cd template ; tar cf - . | ( cd ../${PLATFORM} ; tar xf - )
 EOF
