@@ -1586,12 +1586,10 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
-    bool isMax = isMaximized();
-    if (isMax && isVisible())
-        return;
+    if (isMaximized() && isVisible() && !isMinimized())
+	return;
 
-    if (!isMax)
-        setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
+    setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
     if (!isTopLevel())
         QApplication::sendPostedEvents(this, QEvent::ShowMaximized);
