@@ -2182,6 +2182,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    if (mi->custom()) {
 		w = mi->custom()->sizeHint().width();
 		h = mi->custom()->sizeHint().height();
+	    } else if ( mi->widget() ) {
 	    } else if (mi->isSeparator()) {
 		w = 10;
 		h = 2;

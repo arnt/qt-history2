@@ -854,7 +854,7 @@ void QPopupMenu::updateSize()
 	if ( mi->widget() ) {
 	    hasWidgetItems = TRUE;
 	    QSize s( mi->widget()->sizeHint() );
-	    s.expandedTo( mi->widget()->minimumSize() );
+	    s = s.expandedTo( mi->widget()->minimumSize() );
 	    mi->widget()->resize( s );
 	    if ( s.width()  > maxWidgetWidth )
 		maxWidgetWidth = s.width();
