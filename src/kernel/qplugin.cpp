@@ -2,8 +2,8 @@
 
 #ifndef QT_NO_PLUGIN
 #include "qplugin_p.h"
-#include <qapplication.h>
-#include <qapplicationinterface.h>
+#include "qapplication.h"
+#include "qapplicationinterface.h"
 
 /*!
   \class QPlugInInterface qplugininterface.h
