@@ -40,7 +40,7 @@ static QString buddyString(const QWidget *widget)
 {
     if (!widget)
         return QString();
-    const QWidget *parent = widget->parentWidget();
+    QWidget *parent = widget->parentWidget();
     if (!parent)
         return QString();
     QObjectList ol = parent->children();

@@ -33,7 +33,7 @@
 
 //#define QSPLITTER_DEBUG
 
-static QSize verySmartMinSize(QWidget *widget)
+static QSize verySmartMinSize(const QWidget *widget)
 {
     QSize ret = qSmartMinSize(widget);
     if (ret.width() <= 1)

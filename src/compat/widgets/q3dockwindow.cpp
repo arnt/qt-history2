@@ -1706,7 +1706,7 @@ Qt::Orientation Q3DockWindow::orientation() const
 {
     if (dockArea)
         return dockArea->orientation();
-    if (qt_cast<Q3ToolBar*>(this))
+    if (qt_cast<const Q3ToolBar*>(this))
         return Qt::Horizontal;
     return (((Q3DockWindow*)this)->boxLayout()->direction() == QBoxLayout::LeftToRight ||
              ((Q3DockWindow*)this)->boxLayout()->direction() == QBoxLayout::RightToLeft ?

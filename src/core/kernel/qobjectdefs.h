@@ -23,7 +23,7 @@ class QString;
 class QByteArray;
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 47
+#define Q_MOC_OUTPUT_REVISION 48
 #endif
 
 // The following macros are our "extensions" to C++
@@ -72,7 +72,7 @@ class QByteArray;
 public: \
     static const QMetaObject staticMetaObject; \
     virtual const QMetaObject *metaObject() const { return &staticMetaObject; } \
-    virtual void *qt_metacast(const char *) const; \
+    virtual void *qt_metacast(const char *); \
     QT_TR_FUNCTIONS \
     virtual int qt_metacall(QMetaObject::Call, int, void **); \
 private:
@@ -132,7 +132,7 @@ struct Q_CORE_EXPORT QMetaObject
     const char *className() const;
     const QMetaObject *superClass() const;
 
-    QObject *cast(const QObject *obj) const;
+    QObject *cast(QObject *obj) const;
 
 #ifndef QT_NO_TRANSLATION
     QString tr(const char *s, const char *c) const;
@@ -178,7 +178,7 @@ struct Q_CORE_EXPORT QMetaObject
                            const QObject *receiver,
                            int membcode, int member_index);
     // internal slot-name based connect
-    static void connectSlotsByName(const QObject *o);
+    static void connectSlotsByName(QObject *o);
 
     // internal index-based signal activation
     static void activate(QObject *obj, int signal_index, void **argv);

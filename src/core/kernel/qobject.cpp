@@ -1036,7 +1036,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
 */
 QObject *QObject::findChild(const QString &name) const
 {
-    return findChild_helper(name, QObject::staticMetaObject);
+    return qFindChild_helper(this, name, QObject::staticMetaObject);
 }
 
 /*!
@@ -1048,9 +1048,9 @@ QObject *QObject::findChild(const QString &name) const
 */
 QObjectList QObject::findChildren(const QString &name) const
 {
-    QList<QObject *> list;
-    findChildren_helper(name, 0, QObject::staticMetaObject,
-                        reinterpret_cast<QList<void *>*>(&list));
+    QObjectList list;
+    qFindChildren_helper(this, name, 0, QObject::staticMetaObject,
+                         reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
 
@@ -1066,47 +1066,53 @@ QObjectList QObject::findChildren(const QString &name) const
 */
 QObjectList QObject::findChildren(const QRegExp &re) const
 {
-    QList<QObject *> list;
-    findChildren_helper(QString(), &re, QObject::staticMetaObject,
-                        reinterpret_cast<QList<void *>*>(&list));
+    QObjectList list;
+    qFindChildren_helper(this, QString(), &re, QObject::staticMetaObject,
+                         reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
 #endif
 
 /*! \internal
  */
-void QObject::findChildren_helper(const QString &name, const QRegExp *re,
-                         const QMetaObject &mo, QList<void*> *list) const
+void qFindChildren_helper(const QObject *parent, const QString &name, const QRegExp *re,
+                         const QMetaObject &mo, QList<void*> *list)
 {
+    if (!parent || !list)
+        return;
+    const QObjectList &children = parent->children();
     QObject *obj;
-    for (int i = 0; i < d->children.size(); ++i) {
-        obj = d->children.at(i);
+    for (int i = 0; i < children.size(); ++i) {
+        obj = children.at(i);
         if (mo.cast(obj)) {
             if (re) {
-                if (re->indexIn(obj->d->objectName) != -1)
+                if (re->indexIn(obj->objectName()) != -1)
                     list->append(obj);
             } else {
-                if (name.isNull() || obj->d->objectName == name)
+                if (name.isNull() || obj->objectName() == name)
                     list->append(obj);
             }
         }
-        obj->findChildren_helper(name, re, mo, list);
+        qFindChildren_helper(obj, name, re, mo, list);
     }
 }
 
 /*! \internal
  */
-QObject *QObject::findChild_helper(const QString &name, const QMetaObject &mo) const
+QObject *qFindChild_helper(const QObject *parent, const QString &name, const QMetaObject &mo)
 {
+    if (!parent)
+        return 0;
+    const QObjectList &children = parent->children();
     QObject *obj;
     int i;
-    for (i = 0; i < d->children.size(); ++i) {
-        obj = d->children.at(i);
-        if (mo.cast(obj) && (name.isNull() || obj->d->objectName == name))
+    for (i = 0; i < children.size(); ++i) {
+        obj = children.at(i);
+        if (mo.cast(obj) && (name.isNull() || obj->objectName() == name))
             return obj;
     }
-    for (i = 0; i < d->children.size(); ++i) {
-        obj = d->children.at(i)->findChild_helper(name, mo);
+    for (i = 0; i < children.size(); ++i) {
+        obj = qFindChild_helper(children.at(i), name, mo);
         if (obj)
             return obj;
     }
@@ -1758,7 +1764,7 @@ void QObjectPrivate::resetActive(Connections *connections, bool was_active)
      undefined if the slot is called as a normal C++ function.
 */
 
-const QObject *QObject::sender()
+QObject *QObject::sender()
 {
     if (d->senders) return d->senders->current;
     return 0;
@@ -2290,7 +2296,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 
 /*!\internal
  */
-void QMetaObject::connectSlotsByName(const QObject *o)
+void QMetaObject::connectSlotsByName(QObject *o)
 {
     if (!o)
         return;

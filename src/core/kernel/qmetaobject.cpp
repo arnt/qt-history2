@@ -159,7 +159,7 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
     Returns \a obj if object \a obj inherits from this meta
     object; otherwise returns 0.
 */
-QObject *QMetaObject::cast(const QObject *obj) const
+QObject *QMetaObject::cast(QObject *obj) const
 {
     if (obj) {
         const QMetaObject *m = obj->metaObject();
@@ -170,7 +170,6 @@ QObject *QMetaObject::cast(const QObject *obj) const
     }
     return 0;
 }
-
 
 #ifndef QT_NO_TRANSLATION
 /*!

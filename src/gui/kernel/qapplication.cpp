@@ -1443,7 +1443,7 @@ QPalette QApplication::palette(const QWidget* w)
         if (it != hash->constEnd())
             return *it;
         for (it = hash->constBegin(); it != hash->constEnd(); ++it) {
-            if (w->qt_metacast(it.key()))
+            if (w->inherits(it.key()))
                 return it.value();
         }
     }

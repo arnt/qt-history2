@@ -257,14 +257,8 @@ bool Moc::parseClassHead(ClassDef *def)
     if (test(COLON)) {
         do {
             test(VIRTUAL);
-
-            if (!test(PUBLIC)
-                 && !test(PROTECTED)
-                 && !test(PRIVATE))
-                error();
-
+            test(PUBLIC) || test(PROTECTED) || test(PRIVATE);
             test(VIRTUAL);
-
             def->superclassList += parseType();
         } while (test(COMMA));
     }
@@ -337,6 +331,8 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     while (hasNext()) {
         ArgumentDef  arg;
         arg.type = parseType();
+        if (arg.type == "void")
+            break;
         if (test(IDENTIFIER))
             arg.name = lexem();
         if (test(LBRACK))
@@ -512,6 +508,8 @@ void Moc::parse()
                     break;
                 case Q_OBJECT_TOKEN:
                     def.hasQObject = true;
+                    if (def.classname != "Qt" && def.classname != "QObject" && def.superclassList.isEmpty())
+                        error("Class contains Q_OBJECT macro but does not inherit from QObject");
                     break;
                 case Q_PROPERTY_TOKEN:
                     parseProperty(&def, false);

@@ -270,7 +270,7 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 */
 const QTextDocument *QAbstractTextDocumentLayout::document() const
 {
-    return qt_cast<QTextDocument *>(parent());
+    return qt_cast<const QTextDocument *>(parent());
 }
 
 
@@ -286,7 +286,7 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
     if (cursorPos == -1)
         return QString();
 
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
+    QTextDocumentPrivate *pieceTable = qt_cast<const QTextDocument *>(parent())->docHandle();
     QTextDocumentPrivate::FragmentIterator it = pieceTable->find(cursorPos);
     QTextCharFormat fmt = pieceTable->formatCollection()->charFormat(it->format);
     return fmt.anchorName();

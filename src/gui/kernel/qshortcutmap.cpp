@@ -43,7 +43,7 @@ struct QShortcutEntry
         : keyseq(0), context(Qt::ShortcutOnActiveWindow), enabled(false), id(0), owner(0)
     {}
 
-    QShortcutEntry(const QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i)
+    QShortcutEntry(QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i)
         : keyseq(k), context(c), enabled(true), id(i), owner(o)
     {}
 
@@ -54,7 +54,7 @@ struct QShortcutEntry
     Qt::ShortcutContext context;
     bool enabled : 1;
     int id : 31;
-    const QObject *owner;
+    QObject *owner;
 };
 
 #ifndef QT_NO_DEBUG
@@ -118,7 +118,7 @@ QShortcutMap::~QShortcutMap()
     Adds a shortcut to the global map.
     Returns the id of the newly added shortcut.
 */
-int QShortcutMap::addShortcut(const QObject *owner, const QKeySequence &key, Qt::ShortcutContext context)
+int QShortcutMap::addShortcut(QObject *owner, const QKeySequence &key, Qt::ShortcutContext context)
 {
     Q_ASSERT_X(owner, "QShortcutMap::addShortcut", "All shortcuts need an owner");
     Q_ASSERT_X(!key.isEmpty(), "QShortcutMap::addShortcut", "Cannot add keyless shortcuts to map");
@@ -143,7 +143,7 @@ int QShortcutMap::addShortcut(const QObject *owner, const QKeySequence &key, Qt:
     Returns the number of sequences removed from the map.
 */
 
-int QShortcutMap::removeShortcut(int id, const QObject *owner, const QKeySequence &key)
+int QShortcutMap::removeShortcut(int id, QObject *owner, const QKeySequence &key)
 {
     int itemsRemoved = 0;
     bool allOwners = (owner == 0);
@@ -188,7 +188,7 @@ int QShortcutMap::removeShortcut(int id, const QObject *owner, const QKeySequenc
     are changed.
     Returns the number of sequences which are matched in the map.
 */
-int QShortcutMap::setShortcutEnabled(bool enable, int id, const QObject *owner, const QKeySequence &key)
+int QShortcutMap::setShortcutEnabled(bool enable, int id, QObject *owner, const QKeySequence &key)
 {
     int itemsChanged = 0;
     bool allOwners = (owner == 0);
@@ -222,7 +222,7 @@ int QShortcutMap::setShortcutEnabled(bool enable, int id, const QObject *owner, 
     Returns the id of the first shortcutentry matching the \a owner and \a key.
     Returns 0, if no matching shortcut entry.
 */
-int QShortcutMap::changeShortcut(const QObject *owner, const QKeySequence &key, bool enabled)
+int QShortcutMap::changeShortcut(QObject *owner, const QKeySequence &key, bool enabled)
 {
     Q_ASSERT(owner);
     QList<QShortcutEntry> newEntries;
@@ -536,7 +536,7 @@ bool QShortcutMap::checkWidgetContext(QWidget *w, QWidget *active_window)
     while (sw && !sw->testWFlags(Qt::WSubWindow) && !sw->isTopLevel())
         sw = sw->parentWidget();
     if (sw && sw->testWFlags(Qt::WSubWindow)) {
-        QWidget *actW = ::qt_cast<QWorkspace*>(sw->parentWidget())->activeWindow();
+        const QWidget *actW = ::qt_cast<const QWorkspace*>(sw->parentWidget())->activeWindow();
         // If workspace has no active window return false
         if (!actW)
             return false;

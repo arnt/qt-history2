@@ -125,7 +125,7 @@ QTextDocument *QTextObject::document() const
 */
 QTextDocumentPrivate *QTextObject::docHandle() const
 {
-    return qt_cast<QTextDocument *>(parent())->docHandle();
+    return qt_cast<const QTextDocument *>(parent())->docHandle();
 }
 
 /*!

@@ -302,9 +302,9 @@ Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i)
     return s;
 }
 
-Q_GUI_EXPORT QSize qSmartMinSize(QWidget *w)
+Q_GUI_EXPORT QSize qSmartMinSize(const QWidget *w)
 {
-    QWidgetItem item(w);
+    QWidgetItem item(const_cast<QWidget *>(w));
     return qSmartMinSize(&item);
 }
 
@@ -331,9 +331,9 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align)
     return s;
 }
 
-Q_GUI_EXPORT QSize qSmartMaxSize(QWidget *w, Qt::Alignment align)
+Q_GUI_EXPORT QSize qSmartMaxSize(const QWidget *w, Qt::Alignment align)
 {
-    QWidgetItem item(w);
+    QWidgetItem item(const_cast<QWidget *>(w));
     return qSmartMaxSize(&item, align);
 }
 
