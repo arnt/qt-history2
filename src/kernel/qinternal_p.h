@@ -145,6 +145,7 @@ class QAutoDeleter : public QVirtualDestructor {
 public:
     QAutoDeleter( T* p ) : ptr( p ) {}
     ~QAutoDeleter() { delete ptr; }
+    T* data() const { return ptr; }
 private:
     T* ptr;
 };
