@@ -37,7 +37,6 @@ INCLUDEPATH += ../uilib \
     ../components/propertyeditor \
     ../../../assistant/lib
 
-
 LIBS += -L../../lib \
     -lformeditor \
     -lobjectinspector \
@@ -83,3 +82,5 @@ target.path=$$bins.path
 INSTALLS += target
 
 include(../sharedcomponents.pri)
+
+unix:!mac:LIBS += -lm
