@@ -36,6 +36,7 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdialog.h \
 		  $$KERNEL_H/qdragobject.h \
+		  $$WIDGETS_H/qwhatsthis.h \
 		  $$KERNEL_H/qdrawutl.h \
 		  $$KERNEL_H/qevent.h \
 		  $$KERNEL_H/qfont.h \
@@ -207,6 +208,7 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qbttngrp.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qchkbox.cpp \
+		  widgets/qwhatsthis.cpp \
 		  widgets/qcombo.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrpbox.cpp \
