@@ -37,12 +37,7 @@ extern Q_CORE_EXPORT bool        qt_win_use_simple_timers = false;
 #endif
 void CALLBACK   qt_simple_timer_func(HWND, UINT, UINT, DWORD);
 
-static TimerVec  *timerVec = 0;
-static TimerDict *timerDict = 0;
-
 Q_CORE_EXPORT bool qt_dispatch_timer(uint, MSG *);
-Q_CORE_EXPORT bool activateTimer(uint);
-Q_CORE_EXPORT void activateZeroTimers();
 
 extern Q_CORE_EXPORT int         numZeroTimers        = 0;                // number of full-speed timers
 
@@ -82,6 +77,7 @@ Q_CORE_EXPORT bool winGetMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 
 void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
 {
+    qDebug("::qt_simple_timer_func(), idEvent: %d", idEvent);
     qt_dispatch_timer(idEvent, 0);
 }
 
@@ -91,8 +87,11 @@ void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
 bool qt_dispatch_timer(uint timerId, MSG *msg)
 {
     long res = 0;
-    if (!msg || !QCoreApplication::instance() || !QEventLoop::instance()->winEventFilter(msg, &res))
-        return activateTimer(timerId);
+    qDebug("::qt_dispatch_timer() 1");
+    QEventLoop *eventLoop = QEventLoop::instance();
+    qDebug(" - threadId is %p", eventLoop->thread());
+    if (!msg || !QCoreApplication::instance() || !eventLoop->winEventFilter(msg, &res))
+        return eventLoop->d->activateTimer(timerId);
     return true;
 }
 
@@ -101,31 +100,31 @@ bool qt_dispatch_timer(uint timerId, MSG *msg)
 // Timer activation (called from the event loop when WM_TIMER arrives)
 //
 
-bool activateTimer(uint id)                // activate timer
+bool QEventLoopPrivate::activateTimer(uint id)    // activate timer
 {
-    if (!timerVec)                                // should never happen
+    if (timerVec.isEmpty())                                // should never happen
         return false;
-    register TimerInfo *t = timerDict->value(id);
-    if (!t)                                        // no such timer id
+    register TimerInfo *t = d->timerDict.value(id);
+    if (!t)                                       // no such timer id
         return false;
     QTimerEvent e(t->ind + 1);
-    QCoreApplication::sendEvent(t->obj, &e);        // send event
-    return true;                                // timer event was processed
+    QCoreApplication::sendEvent(t->obj, &e);      // send event
+    return true;                                  // timer event was processed
 }
 
-void activateZeroTimers()                // activate full-speed timers
+void QEventLoopPrivate::activateZeroTimers()                // activate full-speed timers
 {
-    if (!timerVec)
+    if (timerVec.isEmpty())
         return;
     uint i=0;
     register TimerInfo *t = 0;
     int n = numZeroTimers;
     while (n--) {
         for (;;) {
-            t = timerVec->at(i++);
+            t = d->timerVec.at(i++);
             if (t && t->zero)
                 break;
-            else if (i == timerVec->size())                // should not happen
+            else if (i == d->timerVec.size())                // should not happen
                 return;
         }
         QTimerEvent e(t->ind + 1);
@@ -141,24 +140,18 @@ void activateZeroTimers()                // activate full-speed timers
 
 int QEventLoop::registerTimer(int interval, QObject *obj)
 {
-    register TimerInfo *t;
-    if (!timerVec) {                                // initialize timer data
-        timerVec = new TimerVec;
-        timerDict = new TimerDict;
-    }
-    int ind = timerVec->size();
-    t = new TimerInfo;                                // create timer entry
-    t->ind  = ind;
+    register TimerInfo *t = new TimerInfo;
+    t->ind  = d->timerVec.isEmpty() ? 1 : d->timerVec.last()->ind + 1;
     t->obj  = obj;
 
     if (qt_win_use_simple_timers) {
         t->zero = false;
         t->id = SetTimer(0, 0, (uint)interval,
-                          (TIMERPROC)qt_simple_timer_func);
+                         (TIMERPROC)qt_simple_timer_func);
     } else {
         t->zero = interval == 0;
         if (t->zero) {                        // add zero timer
-            t->id = (uint)50000 + ind;                // unique, high id ##########
+            t->id = (uint)50000 + t->ind;     // unique, high id ##########
             numZeroTimers++;
         } else {
             t->id = SetTimer(0, 0, (uint)interval, 0);
@@ -166,23 +159,25 @@ int QEventLoop::registerTimer(int interval, QObject *obj)
     }
     if (t->id == 0) {
         qSystemWarning("registerTimer: Failed to create a timer");
-        delete t;                                // could not set timer
+        delete t;                               // could not set timer
         return 0;
     }
-    timerVec->append(t);                        // store in timer vector
-    timerDict->insert(t->id, t);                // store in dict
-    return ind + 1;                                // return index in vector
+    d->timerVec.append(t);                        // store in timer vector
+    d->timerDict.insert(t->id, t);                // store in dict
+    qDebug("QEventLoop::registerTimer:: id: %d, ind: %d", t->id, t->ind);
+    return t->ind;                              // return index in vector
 }
 
 bool QEventLoop::unregisterTimer(int ind)
 {
-    if (!timerVec || ind <= 0)
+    if (d->timerVec.isEmpty() || ind <= 0)
         return false;
 
+    qDebug("QEventLoop::unregisterTimer:: ind: %d", ind);
     TimerInfo *t = 0;
-    for (int i=0; i<timerVec->size(); ++i) {
-        if (timerVec->at(i)->ind == ind-1) {
-            t = timerVec->at(i);
+    for (int i=0; i<d->timerVec.size(); ++i) {
+        if (d->timerVec.at(i)->ind == ind) {
+            t = d->timerVec.at(i);
             break;
         }
     }
@@ -193,26 +188,26 @@ bool QEventLoop::unregisterTimer(int ind)
         numZeroTimers--;
     else
         KillTimer(0, t->id);
-    timerDict->remove(t->id);
-    timerVec->removeAll(t);
+    d->timerDict.remove(t->id);
+    d->timerVec.removeAll(t);
     delete t;
     return true;
 }
 
 bool QEventLoop::unregisterTimers(QObject *obj)
 {
-    if (!timerVec)
+    if (d->timerVec.isEmpty())
         return false;
     register TimerInfo *t;
-    for (int i=0; i<timerVec->size(); i++) {
-        t = timerVec->at(i);
+    for (int i=0; i<d->timerVec.size(); i++) {
+        t = d->timerVec.at(i);
         if (t && t->obj == obj) {                // object found
             if (t->zero)
                 numZeroTimers--;
             else
                 KillTimer(0, t->id);
-            timerDict->remove(t->id);
-            timerVec->removeAt(i);
+            d->timerDict.remove(t->id);
+            d->timerVec.removeAt(i);
             delete t;
         }
     }
@@ -284,18 +279,14 @@ void QEventLoop::init()
 
 void QEventLoop::cleanup()
 {
-    if(timerVec) { //cleanup timers
+    if(!d->timerVec.isEmpty()) { //cleanup timers
         register TimerInfo *t;
-        for (int i=0; i<timerVec->size(); i++) {                // kill all pending timers
-            t = timerVec->at(i);
+        for (int i=0; i<d->timerVec.size(); i++) {                // kill all pending timers
+            t = d->timerVec.at(i);
             if (t && !t->zero)
                 KillTimer(0, t->id);
             delete t;
         }
-        delete timerDict;
-        timerDict = 0;
-        delete timerVec;
-        timerVec = 0;
 
         if (qt_win_use_simple_timers) {
             // Dangerous to leave WM_TIMER events in the queue if they have our
@@ -314,7 +305,7 @@ void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
     int type;
     if (notifier == 0 || (sockfd = notifier->socket()) < 0
         || (type = notifier->type()) < 0 || type > 2) {
-        qWarning("QSocketNotifier: Internal error");
+        qWarning("SocketNotifier: Internal error");
         return;
     }
 
@@ -501,7 +492,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     bool message = false;
     if (numZeroTimers) {
         while (numZeroTimers && !(message=winPeekMessage(&msg, 0, 0, 0, PM_NOREMOVE))) {
-            activateZeroTimers();
+            d->activateZeroTimers();
         }
     }
 

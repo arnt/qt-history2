@@ -77,7 +77,7 @@ public:
     virtual void winProcessEvent(void *message);
     virtual bool winEventFilter(void *message, long *result);
 #endif
-    
+
     ProcessEventHandler setProcessEventHandler(ProcessEventHandler handler);
     EventFilter setEventFilter(EventFilter filter);
 
@@ -96,6 +96,10 @@ private:
 
     friend class QApplication;
     friend class QCoreApplication;
+
+#ifdef Q_WS_WIN
+    friend Q_CORE_EXPORT bool qt_dispatch_timer(uint timerId, MSG *msg);
+#endif
 };
 
 #endif // QEVENTLOOP_H

@@ -146,6 +146,13 @@ public:
     void timerRepair(const timeval &);
 #endif
 
+#if defined (Q_WS_WIN)
+    void activateZeroTimers();
+    bool activateTimer(uint id);
+    TimerVec timerVec;
+    TimerDict timerDict;
+#endif
+
     QEventLoop::ProcessEventHandler process_event_handler;
     QEventLoop::EventFilter event_filter;
 
