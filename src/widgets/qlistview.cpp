@@ -1942,7 +1942,9 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	data[0] = this;
 	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
 					QRect( 0, y, w, h ),
-					cg, QStyle::Style_Default,
+					cg,
+					lv->isEnabled() ? QStyle::Style_Enabled :
+					QStyle::Style_Default,
 					(QStyle::SC_ListViewBranch |
 					 QStyle::SC_ListViewExpand),
 					QStyle::SC_None, data);
