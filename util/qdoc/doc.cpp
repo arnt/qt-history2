@@ -1166,8 +1166,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     }
 
     // add a "see also" for the groups
-    if ( seeAlso.isEmpty() && !groups.isEmpty() )
+    if ( seeAlso.isEmpty() && !groups.isEmpty() ) {
+	legaleseEnd = yyOut.length();
 	yyOut += QString( "\\sa" );
+    }
 
     yyOut += QChar( '\n' );
 
