@@ -47,11 +47,19 @@ public:
         StandardOutput,
         StandardError
     };
+    enum ProcessChannelMode {
+        SeparateChannels,
+        MergedChannels,
+        ForwardedChannels
+    };
 
     explicit QProcess(QObject *parent = 0);
     virtual ~QProcess();
 
     void start(const QString &program, const QStringList &arguments = QStringList(), OpenMode mode = ReadWrite);
+
+    ProcessChannelMode inputChannelMode() const;
+    void setInputChannelMode(ProcessChannelMode mode);
 
     ProcessChannel inputChannel() const;
     void setInputChannel(ProcessChannel channel);
@@ -92,14 +100,14 @@ public:
 signals:
     void started();
     void finished(int exitCode);
-    void error(QProcess::ProcessError error);
-    void stateChanged(QProcess::ProcessState state);
+    void error(ProcessError error);
+    void stateChanged(ProcessState state);
 
     void readyReadStandardOutput();
     void readyReadStandardError();
 
 protected:
-    void setProcessState(QProcess::ProcessState state);
+    void setProcessState(ProcessState state);
 
     // QIODevice
     Q_LONGLONG readData(char *data, Q_LONGLONG maxlen);

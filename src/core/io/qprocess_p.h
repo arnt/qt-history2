@@ -63,6 +63,7 @@ public:
     void notified();
 
     QProcess::ProcessChannel processChannel;
+    QProcess::ProcessChannelMode processChannelMode;
     QProcess::ProcessError processError;
     QProcess::ProcessState processState;
     QString workingDirectory;
