@@ -695,7 +695,7 @@ QRect QTextLayout::boundingRect() const
             ymin = qMin(ymin, si.y);
             xmax = qMax(xmax, si.x+si.width);
             // ### shouldn't the ascent be used in ymin???
-            ymax = qMax(ymax, si.y+si.ascent+si.descent);
+            ymax = qMax(ymax, si.y+si.ascent+si.descent+1);
         }
         d->boundingRect = QRect(xmin.toInt(), ymin.toInt(), (xmax-xmin).toInt(), (ymax-ymin).toInt());
     }
