@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#48 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#48 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -71,8 +71,8 @@ private:
     QLabel	     *label;
     QPoint	      pos;
     QWidget	     *widget;
-    QTipManager::Tip *currentTip;
-    QTipManager::Tip *previousTip;
+    Tip *currentTip;
+    Tip *previousTip;
     bool isApplicationFilter;
 };
 
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.42 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.43 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
