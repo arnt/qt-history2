@@ -23,16 +23,25 @@ void GLControlWidget::transform()
     glRotatef( xRot, 1.0, 0.0, 0.0 );
     glRotatef( yRot, 0.0, 1.0, 0.0 );
     glRotatef( zRot, 0.0, 0.0, 1.0 );
+}
 
-    GLboolean light, texture;
-    glGetBooleanv( GL_LIGHTING, &light );
-    glGetBooleanv( GL_TEXTURE_2D, &texture );
-    if ( light ) {
-	glDisable( GL_LIGHTING );
-    }
-    if ( texture ) {
-	glDisable( GL_TEXTURE_2D );
-    }
+void GLControlWidget::drawText()
+{
+//     GLboolean light, texture;
+//     glGetBooleanv( GL_LIGHTING, &light );
+//     glGetBooleanv( GL_TEXTURE_2D, &texture );
+
+//     if ( light ) {
+// 	glDisable( GL_LIGHTING );
+//     }
+//     if ( texture ) {
+// 	glDisable( GL_TEXTURE_2D );
+//     }
+
+    glPushAttrib( GL_LIGHTING_BIT | GL_TEXTURE_BIT );
+    glDisable( GL_LIGHTING );
+    glDisable( GL_TEXTURE_2D );
+    
     qglColor( white );
     QString str( "Rendering text in OpenGL is easy with Qt" );
     QFontMetrics fm( font() );
@@ -47,12 +56,15 @@ void GLControlWidget::transform()
     z = (zRot >= 0) ? (int) zRot % 360 : 359 - (QABS((int) zRot) % 360);
     str.sprintf( "Rot X: %03d - Rot Y: %03d - Rot Z: %03d", x, y, z );
     renderText( (width() - fmc.width( str )) / 2, height() - 15, str, f );
-    if ( light ) {
-	glEnable( GL_LIGHTING );
-    }
-    if ( texture ) {
-	glEnable( GL_TEXTURE_2D );
-    }
+
+
+    glPopAttrib();
+//     if ( light ) {
+// 	glEnable( GL_LIGHTING );
+//     }
+//     if ( texture ) {
+// 	glEnable( GL_TEXTURE_2D );
+//     }
 }
 
 /*!

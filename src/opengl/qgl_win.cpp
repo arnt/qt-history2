@@ -884,6 +884,25 @@ uint QGLContext::colorIndex( const QColor& c ) const
     return c.pixel() & 0x00ffffff;		// Assumes standard palette
 }
 
+void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
+{
+    WId winId;
+    HDC glHdc;
+    if ( !isValid() )
+	return;
+    if ( deviceIsPixmap() ) {
+	winId = 0;
+	glHdc = d->paintDevice->handle();
+    } else {
+	winId = ((QWidget*)d->paintDevice)->winId();
+	glHdc = GetDC( winId );
+    }
+    SelectObject( glHdc, fnt.handle() );
+    wglUseFontBitmaps( glHdc, 0, 256, listBase );
+    if ( winId )
+	ReleaseDC( winId, glHdc );
+}
+
 /*****************************************************************************
   QGLWidget Win32/WGL-specific code
  *****************************************************************************/
@@ -1099,12 +1118,3 @@ void QGLWidget::cleanupColormaps()
 void QGLWidget::macInternalFixBufferRect()
 {
 }
-
-void QGLWidget::generateFontDisplayLists( const QFont & fnt, int listBase )
-{
-    HDC glHdc = GetDC( winId() );
-    SelectObject( glHdc, fnt.handle() );
-    wglUseFontBitmaps( glHdc, 0, 256, listBase );
-    ReleaseDC( winId(), glHdc );
-}
-

@@ -246,7 +246,11 @@ void GLGear::paintGL()
     glPushMatrix();
     transform();
     draw();
+    drawText();
+    
+    glPushAttrib( GL_LIGHTING_BIT | GL_TEXTURE_BIT );
     glDisable( GL_LIGHTING );
+    glDisable( GL_TEXTURE_2D );
     qglColor( green );
     glLineWidth( 1.0 );
     glBegin( GL_LINES );
@@ -256,8 +260,8 @@ void GLGear::paintGL()
     }
     glEnd();
     renderText( 3.0, 3.0, 3.0, "Gears", QFont( "helvetica", 12, QFont::Bold, TRUE ) );
-    glEnable( GL_LIGHTING );
     glPopMatrix();
+    glPopAttrib();
 }
 
 void GLGear::animate()

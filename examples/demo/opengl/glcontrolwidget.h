@@ -25,6 +25,7 @@ public slots:
 
     virtual void	setRotationImpulse( double x, double y, double z );
     virtual void	setTranslationImpulse( double x, double y, double z );
+    void		drawText();
 
 protected:
     void		setAnimationDelay( int ms );

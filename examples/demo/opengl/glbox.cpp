@@ -60,6 +60,7 @@ void GLBox::paintGL()
     glLoadIdentity();
     transform();
     glCallList( object );
+    drawText();
     qglColor( green );
     glLineWidth( 1.0 );
     glBegin( GL_LINES );

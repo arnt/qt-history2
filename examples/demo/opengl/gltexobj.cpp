@@ -52,7 +52,8 @@ void GLTexobj::paintGL()
     glPushMatrix();
     transform();
     glCallList( object );
-    
+    drawText();
+    glPushAttrib( GL_LIGHTING_BIT | GL_TEXTURE_BIT );
     glDisable( GL_LIGHTING );
     glDisable( GL_TEXTURE_2D );
     qglColor( green );
@@ -63,10 +64,8 @@ void GLTexobj::paintGL()
 	glVertex3f( 0.98, 0.98, 0.98 );
     }
     glEnd();
-    renderText( 1.0, 1.0, 1.0, "Can", QFont( "helvetica", 12, QFont::Bold, TRUE ) );
-    glEnable( GL_LIGHTING );
-    glEnable( GL_TEXTURE_2D );
-
+    renderText( 1.0, 1.0, 1.0, "Can", QFont( "helvetica", 12, QFont::Bold, TRUE ) );    
+    glPopAttrib();
     glPopMatrix();
 }
 
