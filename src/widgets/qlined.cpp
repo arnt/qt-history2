@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#69 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#69 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 
@@ -703,7 +703,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
     case Normal:
 	displayText = tbuf.mid( offset, tbuf.length() );
 	break;
-    case None:
+    case NoEcho:
 	displayText = "";
 	break;
     case Password:
@@ -768,7 +768,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
     p->setClipping( FALSE );
     if ( cursorOn ) {
 	int curXPos = margin;
-	if ( echoMode() != None )
+	if ( echoMode() != NoEcho )
 	    curXPos += fm.width( displayText, cursorPos - offset ) - 1;
 	int curYPos   = ypos - fm.ascent();
 	if ( hasFocus() ) {
