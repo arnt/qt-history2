@@ -39,6 +39,7 @@
 #include <qdatetime.h>
 #include <qmap.h>
 #include <qsqlrecord.h>
+#include <qregexp.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
 
@@ -540,6 +541,13 @@ QString QMYSQLDriver::formatValue( const QSqlField* field, bool trimStrings ) co
 	    delete[] buffer;
 	}
 	break;
+	case QVariant::String:
+	case QVariant::CString: {
+	    // Escape '\' characters
+	    r = QSqlDriver::formatValue( field );
+	    r.replace( QRegExp( "\\\\" ), "\\\\" );
+	    break;
+	}
 	default:
 	    r = QSqlDriver::formatValue( field, trimStrings );
 	}

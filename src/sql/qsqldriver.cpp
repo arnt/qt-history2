@@ -404,9 +404,8 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 		    end--;
 		result.truncate( end );
 	    }
-	    /* escape the "'" and "\" characters */
+	    /* escape the "'" character */
 	    result.replace( QRegExp( "'" ), "''" );
-	    result.replace( QRegExp( "\\\\" ), "\\\\" );
 	    r = "'" + result + "'";
 	    break;
 	}

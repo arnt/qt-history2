@@ -833,6 +833,13 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 		r = nullText();
 	    }
 	    break;
+	case QVariant::String:
+	case QVariant::CString: {
+	    // Escape '\' characters
+	    r = QSqlDriver::formatValue( field );
+	    r.replace( QRegExp( "\\\\" ), "\\\\" );
+	    break;
+	}
 	case QVariant::Bool:
 	    if ( field->value().toBool() )
 		r = "TRUE";
