@@ -111,7 +111,7 @@ void ActionEditor::newAction()
     if ( actionParent )
 	i = new ActionItem( actionParent );
     else
-	i = new ActionItem( listActions, FALSE );
+	i = new ActionItem( listActions, (bool)FALSE );
     MetaDataBase::addEntry( i->action() );
     QString n = "Action";
     formWindow->unify( i->action(), n, TRUE );
