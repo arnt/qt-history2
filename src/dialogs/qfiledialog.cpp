@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#284 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#285 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1520,7 +1520,7 @@ void QFileDialog::init()
     d->hadDotDot = FALSE;
     d->ignoreNextKeyPress = FALSE;
     d->progressDia = 0;
-    
+
     d->waitFor.setAutoDelete( TRUE );
 
     d->url = QUrl( "file:/" );
@@ -2212,7 +2212,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     QString result;
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
-	*workingDirectory = dlg->dirPath();
+	*workingDirectory = dlg->url();
     }
     delete dlg;
     return result;
@@ -2298,7 +2298,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     dlg->setFilters( filters );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
-	*workingDirectory = dlg->dirPath();
+	*workingDirectory = dlg->url();
     }
     delete dlg;
     return result;
@@ -2312,7 +2312,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 void QFileDialog::okClicked()
 {
-    *workingDirectory = d->url.path();
+    *workingDirectory = d->url;
     detailViewMode = files->isVisible();
 
     // if we're in multi-selection mode and something is selected,
@@ -3530,7 +3530,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	    }
 	    i = i->nextSibling();
 	}
-	*workingDirectory = dlg->dirPath();
+	*workingDirectory = dlg->url();
     }
     delete dlg;
     return s;
@@ -3595,7 +3595,7 @@ void QFileDialog::urlFinished( int action )
 	    ui.setDir( TRUE );
 	    insertEntry( ui );
 	}
-    } else if ( ( action == QUrl::ActCopyFiles || action == QUrl::ActMoveFiles ) && 
+    } else if ( ( action == QUrl::ActCopyFiles || action == QUrl::ActMoveFiles ) &&
 		d->progressDia ) {
 	delete d->progressDia;
 	d->progressDia = 0;
@@ -3608,7 +3608,7 @@ void QFileDialog::copyProgress( const QString &from, const QString &to,
 {
     if ( !d->progressDia )
 	return;
-    
+
     if ( !d->progressDia->isVisible() || step == -1 ) {
 	QLabel *l = new QLabel( d->progressDia );
 	l->setText( tr( "From: %1\nTo: %2" ).arg( from ).arg( to ) );
@@ -3618,7 +3618,7 @@ void QFileDialog::copyProgress( const QString &from, const QString &to,
 	d->progressDia->setTotalSteps( total );
 	d->progressDia->show();
     }
-    
+
     d->progressDia->setProgress( step );
 }
 
