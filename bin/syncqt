@@ -10,6 +10,7 @@
 
 use File::Basename;
 use File::Path;
+use Cwd;
 use Config;
 use strict;
 
@@ -34,7 +35,7 @@ while($#ARGV >= 0) {
 	shift;
 	my $outdir = $ARGV[0];
 	if($outdir !~ /^\//) {
-	    $includedir = `pwd`;
+	    $includedir = getcwd();
 	    chomp $includedir;
 	    $includedir .= "/" . $outdir;
 	} else {
@@ -313,7 +314,7 @@ sub sync_header {
 		mkpath $header_out_dir, 0777;
 
 		#write it
-		my $iheader_out = fix_paths($iheader, $header);
+		my $iheader_out = fix_paths($iheader, $header_out);
 		open HEADER, ">$header_out" || die "Could not open $header_out for writing!\n";
 		print HEADER "#include \"$iheader_out\"\n";
 		close HEADER;
@@ -336,6 +337,11 @@ sub fix_paths {
     my $ret = $file1;
     my $file1_dir = dirname($file1);
     my $file2_dir = dirname($file2);
+    return basename($file1) if("$file1" eq "$file2");
+    $file1_dir = getcwd() if($file1_dir eq ".");
+    $file1_dir =~ s,/cygdrive/([a-zA-Z])/,$1:,g;
+    $file2_dir = getcwd() if($file2_dir eq ".");
+    $file2_dir =~ s,/cygdrive/([a-zA-Z])/,$1:/,g;
 
     #guts
     my $match_dir = 0;
@@ -368,7 +374,7 @@ sub symlink_file
     if (check_unix()) {
 	print "symlink created for $file ";
 	if ( $force_relative && ($ifile =~ /^$basedir/)) {
-	    my $t = `pwd`; 
+	    my $t = getcwd(); 
 	    my $c = -1; 
 	    my $p = "../";
 	    $t =~ s-^$basedir/--;
