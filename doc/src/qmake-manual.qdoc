@@ -457,12 +457,12 @@
     \list
     \i \c -unix \BR
         \c qmake will run in unix mode.  In this mode, Unix file
-        naming and path conventions will be used, additionally testing for \c unix 
-        (as a scope) will succeed. This is the default mode on all Unices. 
+        naming and path conventions will be used, additionally testing for \c unix
+        (as a scope) will succeed. This is the default mode on all Unices.
     \i \c -macx \BR
         \c qmake will run in Mac OS X mode.  In this mode, Unix file
         naming and path conventions will be used, additionally testing for \c macx
-        (as a scope) will succeed. This is the default mode on Mac OS X. 
+        (as a scope) will succeed. This is the default mode on Mac OS X.
     \i \c -win32 \BR
         \c qmake will run in win32 mode.  In this mode, Windows file naming and path
         conventions will be used, additionally testing for \c win32 (as a scope)
@@ -538,7 +538,7 @@
     Therefore, the line can be simplified on Unix to:
 
     \code
-        qmake "CONFIG+=test" test.pro 
+        qmake "CONFIG+=test" test.pro
     \endcode
 
     If you are certain you want your variables processed after the
@@ -605,27 +605,28 @@
 
     \list
     \o \l{qmake Variable Reference#CONFIG}{CONFIG}
-    \o \l{qmake Variable Reference#DEFINES}{DEFINES}
     \o \l{qmake Variable Reference#DEF_FILE}{DEF_FILE}
+    \o \l{qmake Variable Reference#DEFINES}{DEFINES}
     \o \l{qmake Variable Reference#DESTDIR}{DESTDIR}
+    \o \l{qmake Variable Reference#DISTFILES}{DISTFILES}
     \o \l{qmake Variable Reference#DLLDESTDIR}{DLLDESTDIR}
+    \o \l{qmake Variable Reference#FORMS}{FORMS}
     \o \l{qmake Variable Reference#HEADERS}{HEADERS}
     \o \l{qmake Variable Reference#INCLUDEPATH}{INCLUDEPATH}
-    \o \l{qmake Variable Reference#FORMS}{FORMS}
     \o \l{qmake Variable Reference#LEXSOURCES}{LEXSOURCES}
     \o \l{qmake Variable Reference#LIBS}{LIBS}
     \o \l{qmake Variable Reference#MOC_DIR}{MOC_DIR}
     \o \l{qmake Variable Reference#OBJECTS_DIR}{OBJECTS_DIR}
-    \o \l{qmake Variable Reference#UI_DIR}{UI_DIR}
-    \o \l{qmake Variable Reference#UI_HEADERS_DIR}{UI_HEADERS_DIR}
-    \o \l{qmake Variable Reference#UI_SOURCES_DIR}{UI_SOURCES_DIR}
+    \o \l{qmake Variable Reference#RCC_DIR}{RCC_DIR}
     \o \l{qmake Variable Reference#REQUIRES}{REQUIRES}
     \o \l{qmake Variable Reference#SOURCES}{SOURCES}
     \o \l{qmake Variable Reference#SUBDIRS}{SUBDIRS}
     \o \l{qmake Variable Reference#TARGET}{TARGET}
     \o \l{qmake Variable Reference#TEMPLATE}{TEMPLATE}
+    \o \l{qmake Variable Reference#UI_DIR}{UI_DIR}
+    \o \l{qmake Variable Reference#UI_HEADERS_DIR}{UI_HEADERS_DIR}
+    \o \l{qmake Variable Reference#UI_SOURCES_DIR}{UI_SOURCES_DIR}
     \o \l{qmake Variable Reference#VERSION}{VERSION}
-    \o \l{qmake Variable Reference#DISTFILES}{DISTFILES}
     \o \l{qmake Variable Reference#YACCSOURCES}{YACCSOURCES}
     \endlist
 
@@ -652,7 +653,7 @@
     compiler options.  The values will be recognized internally by
     \c qmake and have special meaning.  They are as follows.
 
-    These \c CONFIG values control compilation flags: 
+    These \c CONFIG values control compilation flags:
 
     \list
     \i release - Compile with optimization enabled, ignored if
@@ -704,14 +705,14 @@
     These options define specific things depending on the platform and/or template:
 
     \list
-    \i flat - When using the vcapp template this will put all the source files into the source group and 
+    \i flat - When using the vcapp template this will put all the source files into the source group and
         the header files into the header group regardless of what directory they reside in.  Turning this
-        option off will group the files within the source/header group depending on the directory they 
+        option off will group the files within the source/header group depending on the directory they
         reside.  This is turned on by default.
     \endlist
 
     The \c CONFIG variable will also be checked when resolving
-    scopes.  You may assign anything to this variable.  
+    scopes.  You may assign anything to this variable.
 
     For example:
 
@@ -729,11 +730,11 @@
     \section3 DEFINES
 
     \c qmake adds the values of this variable as compiler C
-    preprocessor macros (-D option).  
+    preprocessor macros (-D option).
 
     For example:
 
-    \code 
+    \code
         DEFINES += USE_MY_STUFF QT_DLL
     \endcode
 
@@ -749,11 +750,11 @@
     \target DESTDIR
     \section3 DESTDIR
 
-    Specifies where to put the \l{#TARGET}{target} file. 
+    Specifies where to put the \l{#TARGET}{target} file.
 
     For example:
 
-    \code 
+    \code
         DESTDIR = ../../lib
     \endcode
 
@@ -777,14 +778,14 @@
     \target HEADERS
     \section3 HEADERS
 
-    Defines the header files for the project.  
+    Defines the header files for the project.
 
     \c qmake will generate dependency information (unless \c -nodepend
     is specified on the \l{Running qmake#Commands}{command line})
     for the specified headers. \c qmake will also automatically detect if
     \c moc is required by the classes in these headers, and add the
     appropriate dependencies and files to the project for generating and
-    linking the moc files. 
+    linking the moc files.
 
     For example:
 
@@ -802,7 +803,7 @@
 
     This variable specifies the #include directories which should be
     searched when compiling the project. Use ';' or a space as the
-    directory separator. 
+    directory separator.
 
     For example:
 
@@ -833,7 +834,7 @@
 
     This variable contains a list of lex source files.  All
     dependencies, headers and source files will automatically be added to
-    the project for building these lex files.  
+    the project for building these lex files.
 
     For example:
 
@@ -864,7 +865,7 @@
     \section3 MOC_DIR
 
     This variable specifies the directory where all intermediate moc
-    files should be placed.  
+    files should be placed.
 
     For example:
 
@@ -878,7 +879,7 @@
     \section3 OBJECTS_DIR
 
     This variable specifies the directory where all intermediate
-    objects should be placed.  
+    objects should be placed.
 
     For example:
 
@@ -929,6 +930,20 @@
     \endcode
 
 
+    \target RCC_DIR
+    \section3 RCC_DIR
+
+    This variable specifies the directory where all intermediate
+    resource files should be placed.
+
+    For example:
+
+    \code
+        unix:RCC_DIR = ../myproject/resources
+        win32:RCC_DIR = c:\myproject\resources
+    \endcode
+
+
     \target REQUIRES
     \section3 REQUIRES
 
@@ -943,7 +958,7 @@
     \target SOURCES
     \section3 SOURCES
 
-    This variable contains the name of all source files in the project.  
+    This variable contains the name of all source files in the project.
 
     For example:
 
@@ -1103,8 +1118,8 @@
     \section3 OBJECTS
 
     This variable is generated from the \link #SOURCES SOURCES
-    \endlink variable.  The extension of each source file will have been 
-    replaced by .o (Unix) or .obj (Win32).  The value of this variable is 
+    \endlink variable.  The extension of each source file will have been
+    replaced by .o (Unix) or .obj (Win32).  The value of this variable is
     typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and
     rarely needs to be modified.
 
@@ -1132,7 +1147,7 @@
     This variable contains a list of header files that require some
     sort of pre-compilation step (such as with moc). The value of this
     variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be
-    modified.  
+    modified.
 
     \target QMAKE
     \section3 QMAKE
@@ -1177,7 +1192,7 @@
     This variable is empty unless the \c app or \c dll
     \l{#TEMPLATE}{TEMPLATE} is specified.  The value of this
     variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be
-    modified.  
+    modified.
 
 
 
@@ -1188,7 +1203,7 @@
 
     This variable contains the command for invoking the program which
     creates, modifies and extracts archives. The value of this variable is
-    typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} 
+    typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
 
 
@@ -1197,7 +1212,7 @@
     \section3 QMAKE_CFLAGS_DEBUG
 
     This variable contains the flags for the C compiler in debug mode.The value of this variable is
-    typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} 
+    typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
 
 
@@ -1208,8 +1223,8 @@
 
     This variable contains the compiler flags for creating a
     multi-threaded application or when the version of Qt that you link
-    against is a multi-threaded statically linked library.  The value of 
-    this variable is typically handled by \c qmake or 
+    against is a multi-threaded statically linked library.  The value of
+    this variable is typically handled by \c qmake or
     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
 
@@ -1220,8 +1235,8 @@
 
     This variable contains the compiler flags for creating a debuggable
     multi-threaded application or when the version of Qt that you link
-    against is a debuggable multi-threaded statically linked library.  The 
-    value of this variable is typically handled by \c qmake or 
+    against is a debuggable multi-threaded statically linked library.  The
+    value of this variable is typically handled by \c qmake or
     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
 
@@ -1232,7 +1247,7 @@
 
     \e {This is used on Windows only}
 
-    This variable contains the compiler flags for creating a 
+    This variable contains the compiler flags for creating a
     multi-threaded dll or when the version of Qt that you link
     against is a multi-threaded dll.  The value of this variable is typically
     handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and
@@ -1248,8 +1263,8 @@
 
     This variable contains the compiler flags for creating a debuggable
     multi-threaded dll or when the version of Qt that you link
-    against is a debuggable multi-threaded statically linked library. 
-    The value of this variable is typically handled by \c qmake or 
+    against is a debuggable multi-threaded statically linked library.
+    The value of this variable is typically handled by \c qmake or
     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
 
@@ -1294,8 +1309,8 @@
     \section3 QMAKE_CFLAGS_WARN_OFF
 
     This variable is not empty if the warn_off
-    \l{#TEMPLATE}{TEMPLATE} option is specified.  The value of this 
-    variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} 
+    \l{#TEMPLATE}{TEMPLATE} option is specified.  The value of this
+    variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
 
 
@@ -1315,7 +1330,7 @@
     \target QMAKE_CLEAN
     \section3 QMAKE_CLEAN
 
-    This variable contains any files which are not generated files (such as moc and uic 
+    This variable contains any files which are not generated files (such as moc and uic
     generated files) and object files that should be removed when using "make clean".
 
 
@@ -1381,7 +1396,7 @@
     \target QMAKE_CXXFLAGS_RELEASE
     \section3 QMAKE_CXXFLAGS_RELEASE
 
-    This variable contains the C++ compiler flags for creating an 
+    This variable contains the C++ compiler flags for creating an
     application. The value of this variable is typically handled by
     \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs
     to be modified.
@@ -1433,8 +1448,8 @@
     \target QMAKE_EXTENSION_SHLIB
     \section3 QMAKE_EXTENSION_SHLIB
 
-    This variable contains the extention for shared libraries.  The value of this 
-    variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} 
+    This variable contains the extention for shared libraries.  The value of this
+    variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
 
 
@@ -1444,8 +1459,8 @@
     \section3 QMAKE_FAILED_REQUIREMENTS
 
     This variable contains the list of requirements that were failed to be met when
-    \c qmake was used.  For example, the sql module is needed and wasn't compiled into Qt.  The 
-    value of this variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} 
+    \c qmake was used.  For example, the sql module is needed and wasn't compiled into Qt.  The
+    value of this variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
 
 
@@ -1455,7 +1470,7 @@
     \section3 QMAKE_FILETAGS
 
     This variable contains the file tags needed to be entered into the Makefile, such as SOURCES
-    and HEADERS.  The value of this variable is typically handled by \c qmake or 
+    and HEADERS.  The value of this variable is typically handled by \c qmake or
     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
 
@@ -1464,9 +1479,9 @@
     \target QMAKE_INCDIR
     \section3 QMAKE_INCDIR
 
-    This variable contains the location of all known header files to be added to 
-    INCLUDEPATH when building an application.  The value of this variable is 
-    typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely 
+    This variable contains the location of all known header files to be added to
+    INCLUDEPATH when building an application.  The value of this variable is
+    typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
     needs to be modified.
 
 
@@ -1509,7 +1524,7 @@
     \section3 QMAKE_INCDIR_QT
 
     This variable contains the location of all known header file
-    paths to be added to INCLUDEPATH when building a Qt application. The value 
+    paths to be added to INCLUDEPATH when building a Qt application. The value
     of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1520,7 +1535,7 @@
     \section3 QMAKE_INCDIR_THREAD
 
     This variable contains the location of all known header file
-    paths to be added to INCLUDEPATH when building a multi-threaded application. 
+    paths to be added to INCLUDEPATH when building a multi-threaded application.
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1596,7 +1611,7 @@
 
     \section3 QMAKE_LFLAGS_RELEASE
 
-    This variable contains link flags when building applications for 
+    This variable contains link flags when building applications for
     release. The value of this variable is typically handled by
     \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1785,7 +1800,7 @@
 
     \e {This is used on Windows only}
 
-    This variable contains all Qt libraries when Qt is built as a dll.  The 
+    This variable contains all Qt libraries when Qt is built as a dll.  The
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1795,8 +1810,8 @@
 
     \section3 QMAKE_LIBS_QT_OPENGL
 
-    This variable contains all the libraries needed to link against if 
-    OpenGL support is turned on. The 
+    This variable contains all the libraries needed to link against if
+    OpenGL support is turned on. The
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1804,8 +1819,8 @@
 
     \section3 QMAKE_LIBS_QT_THREAD
 
-    This variable contains all the libraries needed to link against if 
-    thread support is turned on.  The 
+    This variable contains all the libraries needed to link against if
+    thread support is turned on.  The
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1818,7 +1833,7 @@
     \e {This is used with Borland compilers only}
 
     This variable contains the runtime library needed to link against when
-    building an application.  The 
+    building an application.  The
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1831,7 +1846,7 @@
     \e {This is used with Borland compilers only}
 
     This variable contains the runtime library needed to link against when
-    building a multi-threaded application.  The 
+    building a multi-threaded application.  The
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1842,7 +1857,7 @@
     \e {This is used on Unix platforms only}
 
     This variable contains all libraries that need to be linked against
-    when building a multi-threaded application.  The 
+    when building a multi-threaded application.  The
     value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -1952,7 +1967,7 @@
 
     \section3 QMAKE_QMAKE
 
-    This variable contains the location of qmake if it is not in the path.  
+    This variable contains the location of qmake if it is not in the path.
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -2007,11 +2022,11 @@
 
     \section3 QMAKE_UIC
 
-    This variable contains the location of uic if it is not in the path.  
+    This variable contains the location of uic if it is not in the path.
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
-    It can be used to specify arguments to uic as well, such as additional plugin 
+    It can be used to specify arguments to uic as well, such as additional plugin
     paths.  For example:
 
     \code
@@ -2022,7 +2037,7 @@
 
     \section3 RC_FILE
 
-    This variable contains the name of the resource file for the application.  
+    This variable contains the name of the resource file for the application.
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -2032,7 +2047,7 @@
 
     \section3 RES_FILE
 
-    This variable contains the name of the resource file for the application.  
+    This variable contains the name of the resource file for the application.
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
@@ -2069,7 +2084,7 @@
 
     \section3 UICIMPLS
 
-    This variable contains a list of the generated implementation files by UIC.  
+    This variable contains a list of the generated implementation files by UIC.
     The value of this variable
     is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be
     modified.
@@ -2080,8 +2095,8 @@
 
     \section3 UICOBJECTS
 
-    This variable is generated from the UICIMPLS variable.  The extension of each 
-    file will have been replaced by .o (Unix) or .obj (Win32).  The value of this variable is 
+    This variable is generated from the UICIMPLS variable.  The extension of each
+    file will have been replaced by .o (Unix) or .obj (Win32).  The value of this variable is
     typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and
     rarely needs to be modified.
 
@@ -2114,7 +2129,7 @@
 
     \section3 QMAKE_EXT_MOC
 
-    This variable changes the extention used on included moc files. 
+    This variable changes the extention used on included moc files.
 
     See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
 
@@ -2122,7 +2137,7 @@
 
     \section3 QMAKE_EXT_UI
 
-    This variable changes the extention used on /e Designer UI files. 
+    This variable changes the extention used on /e Designer UI files.
 
     See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
 
@@ -2130,9 +2145,9 @@
 
     \section3 QMAKE_EXT_PRL
 
-    This variable changes the extention used on created PRL files. 
+    This variable changes the extention used on created PRL files.
 
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}, 
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions},
              \l{Configuring qmake's Environment#libdepend}{Library Dependencies}.
 
 
@@ -2156,7 +2171,7 @@
 
     \section3 QMAKE_EXT_OBJ
 
-    This variable changes the extention used on generated object files. 
+    This variable changes the extention used on generated object files.
 
     See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
 
@@ -2342,7 +2357,7 @@
     iterate over the values 1 through 10.
 
     The use of an else scope afer a condition line with a for() loop is
-    disallowed. 
+    disallowed.
 
     For example:
 
@@ -2408,7 +2423,7 @@
     returned. \e variablename is the only required field. If not specified,
     \c position defaults to the first value in the list (0).
 
-    \section3 message(string) 
+    \section3 message(string)
 
     This function simply writes a message to the console. Unlike the
     \c error() function, this function allows processing to continue.
@@ -2672,7 +2687,7 @@
 
     Under normal circumstances \c qmake will try to use appropriate file extensions
     for your platform. There may be times, however, that you would like to override
-    the behavior of these extensions. To do this, you must modify builtin variables 
+    the behavior of these extensions. To do this, you must modify builtin variables
     in your .pro file, which will in turn changes \c qmake's interpretation of these
     files. You may do this as:
 
@@ -2685,7 +2700,7 @@
     \list
     \i QMAKE_EXT_MOC - This modifies the extension placed on included moc files.
     \i QMAKE_EXT_UI - This modifies the extension used for designer UI files (usually in FORMS).
-    \i QMAKE_EXT_PRL - This modifies the extension placed on 
+    \i QMAKE_EXT_PRL - This modifies the extension placed on
                        \l{#LibDepend}{library dependency files}.
     \i QMAKE_EXT_LEX - This changes the suffix used in files (usually in LEXSOURCES).
     \i QMAKE_EXT_YACC - This changes the suffix used in files (usually in YACCSOURCES).
@@ -2693,14 +2708,14 @@
     \endlist
 
     All the above accept just the first value, so you must assign to it one value that
-    will be used through your Makefile. There are two variables that accept a list of values, 
+    will be used through your Makefile. There are two variables that accept a list of values,
     they are:
 
     \list
     \i QMAKE_EXT_CPP - Changes interpretation all files with these suffixes to be
-                       C++ source files. 
+                       C++ source files.
     \i QMAKE_EXT_H - Changes interpretation all files with these suffixes to be
-                       C header files. 
+                       C header files.
     \endlist
 
 
@@ -2711,7 +2726,7 @@
     than ideal when you really need to run special platform dependent
     commands. This can be achieved with specific instructions to the different
     \c qmake backends (currently this is only supported by the UNIX
-    \l{qmake Variable Reference#MAKEFILE_GENERATOR}{generator}). 
+    \l{qmake Variable Reference#MAKEFILE_GENERATOR}{generator}).
 
     The interfaces to customizing the Makefile are done through "objects" as in
     other places in qmake. The notation for this is quite simple, first you
@@ -2972,7 +2987,7 @@
 
     There are no restricitions on what you do to your own variables, as \c
     qmake will ignore them unless it needs to evaluate them when processing
-    a scope.  
+    a scope.
 
     You can also assign the value of a current variable to another
     variable by prefixing $$ to the variable name. For example:
@@ -2984,7 +2999,7 @@
     Now the MY_DEFINES variable contains what is in the DEFINES variable at
     this point in the project file.  This is also equivalent to:
 
-    \code 
+    \code
         MY_DEFINES = $${DEFINES}
     \endcode
 
@@ -3049,7 +3064,7 @@
 
     \quotefromfile snippets/qmake/replacefunction.pro
     \skipto defineReplace
-    \printuntil 
+    \printuntil
 
     \target ConditionalFunctions
     \section1 Conditional Functions
@@ -3244,7 +3259,7 @@
     it's written in Qt.  First, using your favorite plain text editor,
     create a file called \c hello.pro in \c {qt/qmake/tutorial}.  The
     first thing you need to do is add the lines that tell \c qmake about
-    the source and header files that are part of your development project.  
+    the source and header files that are part of your development project.
 
     We'll add the source files to the project file first.  To do this you
     need to use the SOURCES variable.  Just start a new line with \c
@@ -3280,8 +3295,8 @@
 
     \code
         HEADERS += hello.h
-        SOURCES += hello.cpp 
-        SOURCES += main.cpp 
+        SOURCES += hello.cpp
+        SOURCES += main.cpp
     \endcode
 
     The target name is set automatically; it is the same as the project
@@ -3305,7 +3320,7 @@
         CONFIG += qt
         HEADERS += hello.h
         SOURCES += hello.cpp
-        SOURCES += main.cpp 
+        SOURCES += main.cpp
     \endcode
 
     You can now use \c qmake to generate a makefile for your application.
@@ -3315,7 +3330,7 @@
         qmake -o Makefile hello.pro
     \endcode
 
-    Then type \c make or \c nmake depending on the compiler you use.  
+    Then type \c make or \c nmake depending on the compiler you use.
 
     \section1 Making an Application Debuggable
 
@@ -3331,7 +3346,7 @@
         CONFIG += qt debug
         HEADERS += hello.h
         SOURCES += hello.cpp
-        SOURCES += main.cpp 
+        SOURCES += main.cpp
     \endcode
 
     Use \c qmake as before to generate a makefile and you will be able to
@@ -3369,7 +3384,7 @@
         CONFIG += qt debug
         HEADERS += hello.h
         SOURCES += hello.cpp
-        SOURCES += main.cpp 
+        SOURCES += main.cpp
         win32 {
             SOURCES += hellowin.cpp
         }
@@ -3378,7 +3393,7 @@
         }
     \endcode
 
-    Use \c qmake as before to generate a makefile.  
+    Use \c qmake as before to generate a makefile.
 
     \section1 Stopping qmake If a File Doesn't Exist
 
@@ -3402,7 +3417,7 @@
         CONFIG += qt debug
         HEADERS += hello.h
         SOURCES += hello.cpp
-        SOURCES += main.cpp 
+        SOURCES += main.cpp
         win32 {
             SOURCES += hellowin.cpp
         }
@@ -3446,7 +3461,7 @@
         CONFIG += qt debug
         HEADERS += hello.h
         SOURCES += hello.cpp
-        SOURCES += main.cpp 
+        SOURCES += main.cpp
         win32 {
             SOURCES += hellowin.cpp
         }
@@ -3524,9 +3539,9 @@
     list.
 
     The HEADERS line is used to specify the header files created for use
-    by the application, e.g. 
+    by the application, e.g.
 
-    \code 
+    \code
         HEADERS += hello.h
     \endcode
 
@@ -3536,7 +3551,7 @@
     The CONFIG line is used to give \c qmake information about the
     application's configuration.
 
-    \code 
+    \code
         CONFIG += qt warn_on release
     \endcode
 
@@ -3585,7 +3600,7 @@
     Makefiles are generated from the \c .pro files like this:
 
     \code
-        qmake -o Makefile hello.pro 
+        qmake -o Makefile hello.pro
     \endcode
 
     For Visual Studio users, \c qmake can also generate \c .dsp files, for
@@ -3605,7 +3620,7 @@
     This chapter describes how to set up \c qmake project files for three
     common types of project that are based on Qt. Although all kinds of
     project use many of the same variables, each of them use special
-    variables to define 
+    variables to define
 
     \tableofcontents
 
@@ -3644,7 +3659,7 @@
     \i DEFINES - A list of any additional pre-processor defines needed for the application.
     \i INCLUDEPATH - A list of any additional include paths needed for the application.
     \i DEPENDPATH - The dependency search path for the application.
-    \i VPATH - The search path to find supplied files. 
+    \i VPATH - The search path to find supplied files.
     \i DEF_FILE - Windows only: A .def file to be linked against for the application.
     \i RC_FILE - Windows only: A resource file for the application.
     \i RES_FILE - Windows only: A resource file to be linked against for the application.
@@ -3659,7 +3674,7 @@
         TEMPLATE = app
         DESTDIR  = c:\helloapp
         HEADERS += hello.h
-        SOURCES += hello.cpp 
+        SOURCES += hello.cpp
         SOURCES += main.cpp
         DEFINES += QT_DLL
         CONFIG  += qt warn_on release
