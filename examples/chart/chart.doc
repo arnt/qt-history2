@@ -24,7 +24,6 @@
 
     Header files:
 
-    \include chart/globals.h
     \include chart/element.h
     \include chart/chartform.h
 
