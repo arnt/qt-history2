@@ -76,7 +76,7 @@ public:
     int		number() const;
     virtual void setNumber( int number );
     QString 	text() const;
-    void 	display( const QString& msg = QString::null ) const;
+    void 	showMessage( const QString& msg = QString::null ) const;
     
 private:
     QString	driverError;

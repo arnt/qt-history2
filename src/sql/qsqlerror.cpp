@@ -193,7 +193,7 @@ void QSqlError::setNumber( int number )
     This is a convenience function that returns databaseText() and
     driverText() concatenated into a single string.
     
-    \sa driverText(), databaseText()
+    \sa showMessage(), driverText(), databaseText()
 */
 
 QString QSqlError::text() const
@@ -207,12 +207,12 @@ QString QSqlError::text() const
 /*!
     This is a convenience function that pops up a QMessageBox
     containing the message returned by text(). An additional string
-    can be passed in through the \a msg parameter, which will be
+    can be passed in via the \a msg parameter, which will be
     concatenated with the text() message.
     
     \sa text(), driverText(), databaseText()
 */
-void QSqlError::display( const QString& msg ) const
+void QSqlError::showMessage( const QString& msg ) const
 {
     QMessageBox::warning( NULL, "SQL Error", msg + text(), 
 			  QMessageBox::Ok, QMessageBox::NoButton ); 
