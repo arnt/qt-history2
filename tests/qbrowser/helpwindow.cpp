@@ -68,7 +68,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path, QWidget* par
 
     QPopupMenu* go = new QPopupMenu( this );
     backwardId = go->insertItem( QPixmap("back.xpm"),
-				 tr("&Ba ckward"), browser, SLOT( backward() ),
+				 tr("&Backward"), browser, SLOT( backward() ),
 				 ALT | Key_Left );
     forwardId = go->insertItem( QPixmap("forward.xpm"),
 				tr("&Forward"), browser, SLOT( forward() ),
