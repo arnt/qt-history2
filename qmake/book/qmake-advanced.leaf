@@ -166,7 +166,7 @@ colons as above) for example:
     } else:debug {
 	DEFINES += QT_NOTHREAD_DEBUG
     } else {
-	warning("Unknown configuration")
+	message("Unknown configuration")
     }
 \endcode
 
