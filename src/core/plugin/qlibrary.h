@@ -16,18 +16,18 @@
 #define QLIBRARY_H
 
 #ifndef QT_H
-#include "qobjectdefs.h"
-#include "qstring.h"
+#include "qobject.h"
 #endif // QT_H
 
 class QLibraryPrivate;
 
-class Q_CORE_EXPORT QLibrary
+class Q_CORE_EXPORT QLibrary : public QObject
 {
+    Q_OBJECT
     QDOC_PROPERTY(QString fileName READ fileName WRITE setFileName)
 public:
-    QLibrary();
-    QLibrary(const QString& fileName);
+    QLibrary(QObject *parent = 0);
+    QLibrary(const QString& fileName, QObject *parent = 0);
     ~QLibrary();
 
     void *resolve(const char *symbol);

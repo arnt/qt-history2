@@ -72,8 +72,8 @@ unix {
 
 win32 {
    SOURCES += qfsfileengine_win.cpp qfsfileinfoengine_win.cpp qfsdirengine_win.cpp \
-              qsettings_win.cpp qlibrary_win.cpp qlibrary.cpp 
-   HEADERS += qsettings.h qlibrary.h qlibrary.h 
+              qsettings_win.cpp
+   HEADERS += qsettings.h
    win32-msvc*:LIBS += ole32.lib advapi32.lib
 }
 macx-*: LIBS += -framework CoreServices

@@ -469,10 +469,10 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
         SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, false);
         defPath = QString::fromUtf16(path);
 #else
-    QLibrary library("shell32");
     QT_WA({
+        HINSTANCE pHnd = LoadLibraryW(L"shell32.dll");
         typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
-        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");
+        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)GetProcAddress(pHnd, "SHGetSpecialFolderPathW");;
         if (SHGetSpecialFolderPath) {
             TCHAR path[MAX_PATH];
             SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
@@ -481,8 +481,9 @@ QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
             defPath = QString::fromUtf16((ushort*)path);
         }
     } , {
+        HINSTANCE pHnd = LoadLibraryA("shell32.dll");
         typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
-        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathA");
+        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)GetProcAddress(pHnd, "SHGetSpecialFolderPathA");;
         if (SHGetSpecialFolderPath) {
             char path[MAX_PATH];
             SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);

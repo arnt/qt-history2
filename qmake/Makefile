@@ -64,8 +64,6 @@ QTOBJS= \
 	qglobal.obj \
 	qhash.obj \
 	qiodevice.obj \
-	qlibrary.obj \
-	qlibrary_win.obj \
 	qlist.obj \
 	qlocale.obj \
 	qmap.obj \
@@ -100,12 +98,6 @@ distclean:: clean
 
 qconfig.obj: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
-
-qlibrary.obj: ..\src\core\plugin\qlibrary.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\plugin\qlibrary.cpp
-
-qlibrary_win.obj: ..\src\core\plugin\qlibrary_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\plugin\qlibrary_win.cpp
 
 qtextstream.obj: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp

@@ -616,16 +616,16 @@ bool QLibrary::isLoaded() const
 
 
 /*!
-  Constructs a library.
+  Constructs a library with parent \a parent.
  */
-QLibrary::QLibrary()
-    :d(0), did_load(false)
+QLibrary::QLibrary(QObject *parent)
+    :QObject(parent), d(0), did_load(false)
 {
 }
 
 
 /*!
-    Constructs a library with file name \a fileName.
+    Constructs a library with parent \a parent, and file name \a fileName.
 
     When setting the file name, the platform specific file suffixes
     can be omitted. If the file cannot be found, QLibrary probes
@@ -636,8 +636,8 @@ QLibrary::QLibrary()
 
     See \l fileName for details.
  */
-QLibrary::QLibrary(const QString& fileName)
-    :d(0), did_load(false)
+QLibrary::QLibrary(const QString& fileName, QObject *parent)
+    :QObject(parent), d(0), did_load(false)
 {
     setFileName(fileName);
 }
