@@ -43,27 +43,46 @@ QPS2Screen::~QPS2Screen()
 bool
 QPS2Screen::initCard()
 {
-    gsosSave();
+    gsosSave(); //save the current state
 
-    /* stolen more-or-less verabim from the gsx code base */
-    static int framerate[4][3]= {
-	/* 60, 75, 85 Hz */
-	{   1,  3,  4},	/*  640x 480 */
-	{   2,  4,  5}, /*  800x 600 */
-	{   1,  3,  4}, /* 1024x 786 */
-	{   1,  2,  0}  /* 1280x1024 */
-    };
+    int output = 0; //default to vesa
+    int fr = 75; //default to 75 hrtz
+    if(char *o = getenv("QWS_MONITOR")) {
+	bool fr_spec = FALSE;
+	const char *m = o;
+	if(char *colon = strchr(o, ':')) {
+	    fr_spec = TRUE;
+	    *colon = '\0';
+	    fr = atoi(++colon);
+	}
 
-    int output = 0, fr = 0; //default to vesa
-    if(const char *o = getenv("QWS_MONITOR")) {
-	if(!strcasecmp(o, "VESA"))
+	if(!strcasecmp(m, "VESA"))
 	    output = 0;
-	else if(!strcasecmp(o, "NTSC"))
+	else if(!strcasecmp(m, "NTSC")) {
+	    if(!fr_spec)
+		fr = 0; /* default to non-interlaced */
 	    output = 2;
-	else if(!strcasecmp(o, "PAL"))
+	}
+	else if(!strcasecmp(m, "PAL")) {
+	    if(!fr_spec)
+		fr = 1; /* default to interlaced */
 	    output = 3;
+	}
+	else {
+	    fprintf(stderr, "Unknown monitor: %s\n", m);
+	    exit(2);
+	}
     }
     if(output == 0) {
+	/* stolen more-or-less verabim from the gsx code base */
+	static int framerate[4][3]= {
+	    /* 60, 75, 85 Hz */
+	    {   1,  3,  4},	/*  640x 480 */
+	    {   2,  4,  5}, /*  800x 600 */
+	    {   1,  3,  4}, /* 1024x 786 */
+	    {   1,  2,  0}  /* 1280x1024 */
+	};
+
 	int res, frIndex;
 	switch(dw){
 	case 800:    // 800x600
@@ -81,7 +100,7 @@ QPS2Screen::initCard()
 	    break;
 	}
 
-	switch(75) { /* I'm just taking this code incase this becomes choosable later.. */
+	switch(fr) {
 	case 60:
 	    frIndex = 0;
 	    break;
@@ -94,11 +113,16 @@ QPS2Screen::initCard()
 	    break;
 	}
 	fr = ((framerate[res][frIndex])<<8) | res;
-    } else {
-	fr = 1;
-    }
+    } 
     gsosSetScreen(output, fr, dw, dh, 0x00, 0, 0, 0, 0);
 
+#if 0
+    int realwidth, realheight;
+    if(gsosGetScreenSize(&realwidth, &realheight)) {
+	dw=w=realwidth;
+	dh=h=realheight;
+    }
+#endif
     return TRUE;
 }
 
@@ -137,10 +161,11 @@ QPS2Screen::connect( const QString & )
 void
 QPS2Screen::disconnect()
 {
-    // a reasonable screensaver timeout
     gsosClose();
-    printf( "\033[9;15]" );
-    fflush( stdout );
+
+    // a reasonable screensaver timeout
+    printf("\033[9;15]");
+    fflush(stdout);
 }
 
 int QPS2Screen::initCursor(void*, bool)
@@ -158,7 +183,7 @@ QPS2Screen::shutdownCard()
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->hide();
 #endif
-    gsosRestore();
+    gsosRestore(); //restore the original state of the card
 }
 
 extern "C" QScreen * qt_get_screen_ps2( int display_id, const char *spec, char *,unsigned char *)
@@ -487,22 +512,20 @@ QGfxPS2::drawPolyline( const QPointArray &pa, int index, int npoints)
 
     for(int clp = 0; clp < ncliprect; clp++) {
 
-	gsosMakeGiftag( 4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
-			0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
-	gsosSetPacketAddrData( GSOS_TEST_1, GsosTestData( 1, 1, 0, 0, 0, 0, 0, 0 ) ) ;
-	gsosSetPacketAddrData4( GSOS_SCISSOR_1, 
+	gsosMakeGiftag(4, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
+	gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData(1, 1, 0, 0, 0, 0, 0, 0));
+	gsosSetPacketAddrData4(GSOS_SCISSOR_1, 
 				(GSOSbit64)cliprect[clp].topLeft().x(), (GSOSbit64)cliprect[clp].bottomRight().x(),
 				(GSOSbit64)cliprect[clp].topLeft().y(), (GSOSbit64)cliprect[clp].bottomRight().y() ) ;
-	gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 0, 0, 0, 0, 1, 0, 0 ) ) ;
-	gsosSetPacketAddrData( GSOS_PRIM, GSOS_PRIM_LSTRIP ) ;
+	gsosSetPacketAddrData(GSOS_PRMODE, GsosPrmodeData(0, 0, 0, 0, 0, 1, 0, 0 )) ;
+	gsosSetPacketAddrData(GSOS_PRIM, GSOS_PRIM_LSTRIP) ;
 
 	int end = (index+npoints) > (int)pa.size() ? pa.size() : index+npoints;
-	gsosMakeGiftag( (end - index-1), GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
+	gsosMakeGiftag((end - index), GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
 			GSOS_GIF_FLG_PACKED, 2,(GSOS_GIF_REG_XYZ2<<4) | (GSOS_GIF_REG_RGBAQ));
-	for(int x=index+1; x < end; x++) {
-	    gsosSetPacket4( r, g, b, a ) ;
-	    gsosSetPacket4( GSOS_SUBPIX_OFST(pa[x].x() + xoffs), 
-			    GSOS_SUBPIX_OFST(pa[x].y() + yoffs), 0, 0 ) ;
+	for(int x=index; x < end; x++) {
+	    gsosSetPacket4(r, g, b, a);
+	    gsosSetPacket4(GSOS_SUBPIX_OFST(pa[x].x() + xoffs), GSOS_SUBPIX_OFST(pa[x].y() + yoffs), 0, 0);
 	}
 
     }
@@ -519,10 +542,10 @@ QGfxPS2::drawPolygon( const QPointArray &pa, bool winding, int index, int npoint
 
     GFX_START(clipbounds);
 
-    if (cbrush.style()!=QBrush::NoBrush )
+    if(cbrush.style()!=QBrush::NoBrush)
 	scan(pa,winding,index,npoints);
     drawPolyline(pa, index, npoints);
-    if (pa[index] != pa[index+npoints-1])
+    if(pa[index] != pa[index+npoints-1])
 	drawLine(pa[index].x(), pa[index].y(), pa[index+npoints-1].x(), pa[index+npoints-1].y());
 
     GFX_END;
@@ -638,8 +661,8 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 
     /* take care of the alpha */
     if(!tex_psm) { //need to add support for non rgba alpha blending FIXME!
-	unsigned int rgb;
-	unsigned char alpha_channel;
+	unsigned int rgb=0; //quiet compiler
+	unsigned char alpha_channel=0; //quiet compiler
 	if(srctype == SourcePen) {
 	    usePen();
 	    alpha_channel = 255;
@@ -680,13 +703,23 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 		// do not add a default case so the compiler whines when new alphas are added!
 		}
 		out[dy+x] = ((alpha_channel / 2) << 24) | //divide by two because GS says 0x80 is 1.0
-			    ((rgb << 16) & 0x00ff0000) | (rgb & 0x0000ff00) | ((rgb >> 16) & 0xff); //swap bloody RGB!!!
+			    ((rgb << 16) & 0x00ff0000) | (rgb & 0x0000ff00) | ((rgb >> 16) & 0xff); //swap to BGR!!!
 	    }
 	}
     }
 
-    /* throw it in the texture */
+    /* now's my last chance to clean up all registers */
     flushRegisters(TRUE);
+
+    /* setup the texture buffer */
+    int nw = 0, nh = 0 ;
+    while((1<<nw) < tex_width) nw++;
+    while((1<<nh) < tex_height) nh++;
+    gsosMakeGiftag(1, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
+    gsosSetPacketAddrData(GSOS_TEX0_1, GsosTex0Data(0x3000, (tex_width+63)/64, tex_psm, nw, nh, 1, 1, 0, 0, 0, 0, 0));
+    gsosExec();
+
+    /* throw it in the texture */
     gsosWriteImage(0, 0, aligned_width, tex_height, 0x3000, aligned_width / 64, tex_psm, (uchar *)bits);
     free(bits);
     return TRUE;
@@ -695,26 +728,19 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 bool
 QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
 {
-    flushRegisters();
+//    flushRegisters();
 
     if(w == -1) 
 	w = tex_width;
     if(h == -1)
 	h = tex_height;
 
-    gsosMakeGiftag( 6, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
+    gsosMakeGiftag(5, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD);
 
     //do alpha blending
     bool do_alpha = (alphatype != IgnoreAlpha);
     gsosSetPacketAddrData(GSOS_ALPHA_1, GsosAlphaData(0, 1, 0, 1, 0));
     gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( do_alpha, 7, 0, 0, 0, 0, 0, 0 ));
-
-    //handle log() fu..
-    int nw = 0, nh = 0 ;
-    while((1<<nw) < tex_width) nw++;
-    while((1<<nh) < tex_height) nh++;
-    gsosSetPacketAddrData( GSOS_TEX0_1, GsosTex0Data(0x3000, (tex_width+63)/64, tex_psm, nw, nh,
-						     1, 1, 0, 0, 0, 0, 0 ));
 
     //handle clips
     QRect clip;
@@ -722,8 +748,8 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
 	clip = clipbounds;
     else
 	clip = cliprect[clp];
-    gsosSetPacketAddrData4( GSOS_SCISSOR_1,(GSOSbit64)clip.topLeft().x(), (GSOSbit64)clip.bottomRight().x(),
-			    (GSOSbit64)clip.topLeft().y(), (GSOSbit64)clip.bottomRight().y() ) ;
+    gsosSetPacketAddrData4(GSOS_SCISSOR_1,(GSOSbit64)clip.topLeft().x(), (GSOSbit64)clip.bottomRight().x(),
+			   (GSOSbit64)clip.topLeft().y(), (GSOSbit64)clip.bottomRight().y()) ;
 
     //do it on a sprite..
     gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 1, 0, do_alpha, 0, 1, 0, 0 ) ) ;
@@ -736,7 +762,7 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
     gsosSetPacket4(GSOS_SUBPIX_OFST(0), GSOS_SUBPIX_OFST(0),0,0);
     gsosSetPacket4(GSOS_SUBPIX_OFST(x), GSOS_SUBPIX_OFST(y),0,0);
 
-    gsosSetPacket4(GSOS_SUBPIX_OFST((w+1)), GSOS_SUBPIX_OFST(h+1),0,0);
+    gsosSetPacket4(GSOS_SUBPIX_OFST((w+1)), GSOS_SUBPIX_OFST((h+1)),0,0);
     gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)), GSOS_SUBPIX_OFST((y+h)),0,0);
 
     gsosExec();
@@ -746,7 +772,7 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
 
 
 void
-QGfxPS2::blt( int rx, int ry, int w, int h, int sx,int sy)
+QGfxPS2::blt(int rx, int ry, int w, int h, int sx,int sy)
 {
     if(!ncliprect)
 	return;
@@ -975,8 +1001,7 @@ void QPS2Cursor::init(SWCursorData *, bool)
     mydata->d.bound = QRect(); //null at first!
     mydata->d.x = gfx->pixelWidth()/2;
     mydata->d.y = gfx->pixelHeight()/2;
-    gsosReadImage(mydata->d.x-5, mydata->d.x-5, 
-		  64, 64, 0x00, (qt_screen->width()+63)/64, 0, mydata->grabdata);
+    gsosReadImage(mydata->d.x-5, mydata->d.x-5, 64, 64, 0x00, (qt_screen->width()+63)/64, 0, mydata->grabdata);
     mydata->d.enable = TRUE;
 }
 
