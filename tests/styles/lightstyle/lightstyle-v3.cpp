@@ -38,6 +38,7 @@
 #include "qcombobox.h"
 #include "qslider.h"
 #include "qstylefactory.h"
+#include "qprogressbar.h"
 
 #include <limits.h>
 
@@ -64,40 +65,7 @@ void LightStyleV3::polishPopupMenu( QPopupMenu *menu )
 }
 
 /*
-  A LightBevel looks like this:
-
-  EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-  ESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSE
-  ESBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBSE
-  ESBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBSE
-  ESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSE
-  EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-
-  where:
-      E is the sunken etching ( optional, not drawn by default )
-      S is the border (optional, drawn by default )
-      B is the bevel (draw with the line width, minus the width of
-                      the etching and border )
-      F is the fill ( optional, not drawn by default )
+  A LightEtch is a low-contrast 1-pixel bevel
 */
 static void drawLightEtch( QPainter *p,
 			   const QRect &rect,
@@ -121,32 +89,57 @@ static void drawLightEtch( QPainter *p,
     p->drawLineSegments( pts );
 }
 
+/*
+  A LightBevel looks like this:
+
+  SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+  SBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBS
+  SBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBS
+  SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+
+  where:
+      S is the border (optional, drawn by default )
+      B is the bevel (draw with the line width, minus the width of
+                      the etching and border )
+      F is the fill ( optional, not drawn by default )
+*/
 static void drawLightBevel( QPainter *p,
 			    const QRect &rect,
 			    const QColorGroup &cg,
 			    QStyle::SFlags flags,
  			    int linewidth,
-			    bool etch = false,       // light sunken bevel around border
 			    bool border = true,      // rectangle around bevel
 			    const QBrush *fill = 0 ) // contents fill
 {
     QRect br = rect;
-    bool darken = ( flags & ( QStyle::Style_ButtonDefault ) );
     bool bevel = ( flags & ( QStyle::Style_Down | QStyle::Style_On |
 			     QStyle::Style_Sunken | QStyle::Style_Raised ) );
     bool sunken = (flags & (QStyle::Style_Down | QStyle::Style_On |
 			    QStyle::Style_Sunken));
 
-    if ( etch && linewidth > 0 ) {
-	drawLightEtch( p, br, darken ? cg.dark() : cg.background(), true );
-	linewidth--;
-	br.addCoords( 1, 1, -1, -1 );
-    }
-
     if ( ! br.isValid() )
 	return;
     if ( border && linewidth > 0 ) {
-	p->setPen( darken ? cg.shadow() : cg.dark() );
+	p->setPen( cg.dark() );
 	p->drawRect( br );
 	linewidth--;
 	br.addCoords( 1, 1, -1, -1 );
@@ -162,7 +155,7 @@ static void drawLightBevel( QPainter *p,
 	// copied form qDrawShadePanel - just changed the highlight colors...
 	QPointArray a( 4*linewidth );
 	if ( sunken )
-	    p->setPen( border ? cg.mid() : cg.dark() );
+	    p->setPen( border ? cg.mid().light( 115 ) : cg.dark() );
 	else
 	    p->setPen( cg.light() );
 	int x1, y1, x2, y2;
@@ -186,7 +179,7 @@ static void drawLightBevel( QPainter *p,
 	if ( sunken )
 	    p->setPen( cg.light() );
 	else
-	    p->setPen( border ? cg.mid() : cg.dark() );
+	    p->setPen( border ? cg.mid().light( 115 ) : cg.dark() );
 	x1 = x;
 	y1 = y2 = y+h-1;
 	x2 = x+w-1;
@@ -267,8 +260,8 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 		    fill = &cg.brush(QColorGroup::Button);
 	    } else
 		fill = &cg.brush(QColorGroup::Background);
-	    drawLightBevel( p, r, cg, flags, pixelMetric( PM_DefaultFrameWidth ) + 1,
-			    true, true, fill );
+	    drawLightBevel( p, r, cg, flags, pixelMetric( PM_DefaultFrameWidth ),
+			    true, fill );
 	    break;
 	}
 
@@ -287,7 +280,7 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	    bool border = ( ! ( flags & QStyle::Style_AutoRaise ) );
 	    drawLightBevel( p, r, cg, flags,
 			    pixelMetric( PM_DefaultFrameWidth ) - ( border ? 0 : 1 ),
-			    false, border, fill );
+			    border, fill );
 	    break;
 	}
 
@@ -339,42 +332,47 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_ButtonDefault:
+	if ( flags & Style_HasFocus ) p->setPen( cg.highlight() );
+	else p->setPen( cg.dark() );
+	p->setBrush( cg.brush( QColorGroup::Midlight ) );
+	p->drawRect( r );
 	break;
 
     case PE_Indicator:
-	const QBrush *fill;
-	if (! (flags & Style_Enabled))
-	    fill = &cg.brush(QColorGroup::Background);
-	else if (flags & Style_Down)
-	    fill = &cg.brush(QColorGroup::Mid);
-	else
-	    fill = &cg.brush(QColorGroup::Base);
-	drawLightBevel( p, r, cg, flags | Style_Sunken, 2, true, true, fill );
+	{
+	    QRect br = r;
+	    drawLightEtch( p, br, cg.background(), TRUE );
+	    br.addCoords( 1, 1, -1, -1 );
 
-	p->setPen(cg.foreground());
-	if (flags & Style_NoChange) {
-	    p->drawLine(r.x() + 3, r.y() + r.height() / 2,
-			r.x() + r.width() - 4, r.y() + r.height() / 2);
-	    p->drawLine(r.x() + 3, r.y() + 1 + r.height() / 2,
-			r.x() + r.width() - 4, r.y() + 1 + r.height() / 2);
-	    p->drawLine(r.x() + 3, r.y() - 1 + r.height() / 2,
-			r.x() + r.width() - 4, r.y() - 1 + r.height() / 2);
-	} else if (flags & Style_On) {
-	    p->drawLine(r.x() + 4, r.y() + 3,
-			r.x() + r.width() - 4, r.y() + r.height() - 5);
-	    p->drawLine(r.x() + 3, r.y() + 3,
-			r.x() + r.width() - 4, r.y() + r.height() - 4);
-	    p->drawLine(r.x() + 3, r.y() + 4,
-			r.x() + r.width() - 5, r.y() + r.height() - 4);
-	    p->drawLine(r.x() + 3, r.y() + r.height() - 5,
-			r.x() + r.width() - 5, r.y() + 3);
-	    p->drawLine(r.x() + 3, r.y() + r.height() - 4,
-			r.x() + r.width() - 4, r.y() + 3);
-	    p->drawLine(r.x() + 4, r.y() + r.height() - 4,
-			r.x() + r.width() - 4, r.y() + 4);
+	    p->setPen( cg.dark() );
+	    p->setBrush( flags & Style_Down ? cg.mid() :
+			 ( flags & Style_Enabled ? cg.base() : cg.background() ) );
+	    p->drawRect( br );
+
+	    p->setPen(cg.foreground());
+	    if (flags & Style_NoChange) {
+		p->drawLine(r.x() + 3, r.y() + r.height() / 2,
+			    r.x() + r.width() - 4, r.y() + r.height() / 2);
+		p->drawLine(r.x() + 3, r.y() + 1 + r.height() / 2,
+			    r.x() + r.width() - 4, r.y() + 1 + r.height() / 2);
+		p->drawLine(r.x() + 3, r.y() - 1 + r.height() / 2,
+			    r.x() + r.width() - 4, r.y() - 1 + r.height() / 2);
+	    } else if (flags & Style_On) {
+		p->drawLine(r.x() + 4, r.y() + 3,
+			    r.x() + r.width() - 4, r.y() + r.height() - 5);
+		p->drawLine(r.x() + 3, r.y() + 3,
+			    r.x() + r.width() - 4, r.y() + r.height() - 4);
+		p->drawLine(r.x() + 3, r.y() + 4,
+			    r.x() + r.width() - 5, r.y() + r.height() - 4);
+		p->drawLine(r.x() + 3, r.y() + r.height() - 5,
+			    r.x() + r.width() - 5, r.y() + 3);
+		p->drawLine(r.x() + 3, r.y() + r.height() - 4,
+			    r.x() + r.width() - 4, r.y() + 3);
+		p->drawLine(r.x() + 4, r.y() + r.height() - 4,
+			    r.x() + r.width() - 4, r.y() + 4);
+	    }
+	    break;
 	}
-
-	break;
 
     case PE_ExclusiveIndicator:
 	{
@@ -524,7 +522,7 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
     case PE_PanelPopup:
 	drawLightBevel( p, r, cg, flags,
 			( data.isDefault() ? pixelMetric(PM_DefaultFrameWidth) :
-			  data.lineWidth() ), false, true );
+			  data.lineWidth() ), true );
 	break;
 
     case PE_Panel:
@@ -541,7 +539,7 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 
 	    if ( ! ( flags & Style_Sunken ) )
 		flags |= Style_Raised;
-	    drawLightBevel( p, br, cg, flags, 1, false, false );
+	    drawLightBevel( p, br, cg, flags, 1, false );
 	    br.addCoords( 1, 1, -1, -1 );
 
 	    while ( cover-- > 0 ) {
@@ -565,14 +563,14 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
     case PE_PanelDockWindow:
 	drawLightBevel( p, r, cg, flags, ( data.isDefault() ?
 					   pixelMetric(PM_DefaultFrameWidth) :
-					   data.lineWidth() ), false, false,
+					   data.lineWidth() ), false,
 			&cg.brush( QColorGroup::Button ) );
 	break;
 
     case PE_PanelMenuBar:
 	drawLightBevel( p, r, cg, flags, ( data.isDefault() ?
 					   pixelMetric(PM_MenuBarFrameWidth) :
-					   data.lineWidth() ), false, false,
+					   data.lineWidth() ), false,
 			&cg.brush( QColorGroup::Button ) );
 	break;
 
@@ -733,10 +731,6 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	p->drawRect( r );
 	break;
 
-    case PE_ProgressBarChunk:
-	p->fillRect(r.x(), r.y() + 2, r.width(), r.height() - 4, cg.highlight());
-	break;
-
     default:
 	if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
 	    QPointArray a;
@@ -797,6 +791,61 @@ void LightStyleV3::drawControl( ControlElement control,
 			      const QStyleOption &data ) const
 {
     switch (control) {
+    case CE_PushButton:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    QRect br = r;
+
+	    // draw the command button first
+	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
+	    if (button->isDefault()) {
+		// then draw the default indicator
+		br = subRect(SR_PushButtonFocusRect, widget);
+		drawPrimitive(PE_ButtonDefault, p, br, cg, flags);
+	    }
+	    break;
+	}
+
+    case CE_PushButtonLabel:
+	{
+	    const QPushButton *button = (const QPushButton *) widget;
+	    QRect ir = r;
+
+	    if (button->isMenuButton()) {
+		int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+		QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
+		drawPrimitive(PE_ArrowDown, p, ar, cg, flags, data);
+		ir.setWidth(ir.width() - mbi);
+	    }
+
+	    if ( button->iconSet() && ! button->iconSet()->isNull() ) {
+		QIconSet::Mode mode =
+		    button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
+		if ( mode == QIconSet::Normal && button->hasFocus() )
+		    mode = QIconSet::Active;
+
+		QIconSet::State state = QIconSet::Off;
+		if ( button->isToggleButton() && button->isOn() )
+		    state = QIconSet::On;
+
+		QPixmap pixmap = button->iconSet()->pixmap( QIconSet::Small, mode, state );
+		int pixw = pixmap.width();
+		int pixh = pixmap.height();
+		p->drawPixmap( ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
+
+		ir.moveBy(pixw + 4, 0);
+		ir.setWidth(ir.width() - (pixw + 4));
+	    }
+	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
+		     flags & Style_Enabled, button->pixmap(), button->text(),
+		     button->text().length(), &(cg.buttonText()) );
+
+	    if (! button->isDefault() && (flags & Style_HasFocus))
+		drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
+			      cg, flags);
+	    break;
+	}
+
     case CE_TabBarTab:
 	{
 	    const QTabBar *tb = (const QTabBar *) widget;
@@ -1029,9 +1078,24 @@ void LightStyleV3::drawControl( ControlElement control,
 	    break;
 	}
 
+    case CE_ProgressBarContents:
+	{
+	    const QProgressBar *progressbar = (const QProgressBar *) widget;
+
+	    if ( progressbar->totalSteps() && progressbar->progress() > 0 ) {
+		const int pg = progressbar->progress();
+		const int ts = progressbar->totalSteps() ? progressbar->totalSteps() : 1;
+
+		QRect br( r.x(), r.y(), r.width() * pg / ts, r.height() );
+		br.addCoords( 2, 2, -2, -2 );
+		p->fillRect( br, cg.brush( QColorGroup::Highlight ) );
+	    }
+
+	    break;
+	}
+
     case CE_ProgressBarGroove:
-	drawLightBevel( p, r, cg, Style_Sunken, pixelMetric( PM_DefaultFrameWidth ),
-			true, true, &cg.brush( QColorGroup::Background ) );
+	drawPrimitive( PE_Panel, p, r, cg, flags | Style_Sunken );
 	break;
 
     default:
@@ -1065,7 +1129,7 @@ QRect LightStyleV3::subRect(SubRect subrect, const QWidget *widget) const
     case SR_PushButtonFocusRect:
 	{
 	    rect = widget->rect();
- 	    int delta = ( pixelMetric( PM_ButtonMargin, widget ) / 2 ) +
+ 	    int delta = ( pixelMetric( PM_ButtonMargin, widget ) / 3 ) +
 			pixelMetric( PM_DefaultFrameWidth, widget );
 	    rect.addCoords( delta, delta, -delta, -delta );
   	    break;
@@ -1295,18 +1359,16 @@ void LightStyleV3::drawComplexControl( ComplexControl control,
 						  data);
 
 	    if ((controls & SC_SliderGroove) && groove.isValid()) {
-		drawLightBevel( p, groove, cg,
-				( ( flags | Style_Raised ) ^ Style_Raised ) |
-				( ( flags & Style_Enabled ) ? Style_Sunken :
-				  Style_Default ), 2, true, true,
-				&cg.brush( QColorGroup::Midlight ) );
-		groove.addCoords( 2, 2, -2, -2 );
-		drawLightEtch( p, groove, cg.midlight(), false );
-
-		if (flags & Style_HasFocus) {
-		    groove.addCoords( -2, -2, 2, 2 );
+		if (flags & Style_HasFocus)
 		    drawPrimitive( PE_FocusRect, p, groove, cg, flags );
-		}
+
+		groove.addCoords( 1, 1, -1, -1 );
+		p->setPen( cg.dark() );
+		p->setBrush( NoBrush );
+		p->drawRect( groove );
+
+		groove.addCoords( 1, 1, -1, -1 );
+		drawLightEtch( p, groove, cg.button(), false );
 	    }
 
 	    if ((controls & SC_SliderHandle) && handle.isValid()) {
@@ -1348,7 +1410,7 @@ void LightStyleV3::drawComplexControl( ComplexControl control,
 
     default:
 	QCommonStyle::drawComplexControl(control, p, widget, r, cg, flags,
-				      controls, active, data);
+					 controls, active, data);
 	break;
     }
 }
