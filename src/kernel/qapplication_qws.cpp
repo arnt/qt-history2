@@ -121,6 +121,11 @@ QWidget *qt_pressGrab = 0;
 QWidget *qt_mouseGrb = 0;
 int *qt_last_x = 0;
 int *qt_last_y = 0;
+
+static int mouse_x_root = -1;
+static int mouse_y_root = -1;
+static int mouse_state = 0;
+
 bool qws_overrideCursor = FALSE;
 static bool qws_regionRequest = FALSE;
 #ifndef QT_NO_QWS_MANAGER
@@ -224,7 +229,6 @@ static bool	app_do_modal	= FALSE;	// modal mode
 QWSDisplay*	qt_fbdpy = 0;			// QWS `display'
 
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
-static int	mouseButtonState     = 0;	// mouse button state
 static int	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
 
@@ -254,9 +258,7 @@ public:
     void clearWState( WFlags f )	{ QWidget::clearWState(f); }
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
-    bool translateMouseEvent( const QWSMouseEvent * );
-    bool dispatchMouseEvent( const QWSMouseEvent * );
-
+    bool translateMouseEvent( const QWSMouseEvent *, int oldstate );
     bool translateKeyEvent( const QWSKeyEvent *, bool grab );
     bool translateRegionModifiedEvent( const QWSRegionModifiedEvent * );
 #ifndef QT_NO_WHEELEVENT
@@ -1945,8 +1947,20 @@ void QApplication::beep()
 */
 int QApplication::qwsProcessEvent( QWSEvent* event )
 {
+    int oldstate = -1;
+    bool isMove = FALSE;
+    if ( event->type == QWSEvent::Mouse ) {
+	QWSMouseEvent::SimpleData &mouse = event->asMouse()->simpleData;
+	isMove = mouse_x_root != mouse.x_root || mouse_y_root != mouse.y_root;
+	oldstate = mouse_state;
+	mouse_x_root = mouse.x_root;
+	mouse_y_root = mouse.y_root;
+	mouse_state = mouse.state;
+    }
+
     if ( qwsEventFilter(event) )			// send through app filter
 	return 1;
+
 #ifndef QT_NO_QWS_PROPERTIES
     if ( event->type == QWSEvent::PropertyNotify ) {
 	QWSPropertyNotifyEvent *e = (QWSPropertyNotifyEvent*)event;
@@ -2124,13 +2138,30 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 
     if ( widget->qwsEvent(event) )		// send through widget filter
 	return 1;
-
     switch ( event->type ) {
 
-    case QWSEvent::Mouse:			// mouse event
-	widget->translateMouseEvent( event->asMouse() );
-	break;
+    case QWSEvent::Mouse: {			// mouse event
+	QWSMouseEvent *me = event->asMouse();
+	QWSMouseEvent::SimpleData &mouse = me->simpleData;
 
+	//  Translate a QWS event into separate move
+	// and press/release events
+	// Beware of reentrancy: we can enter a modal state
+	// inside translateMouseEvent
+
+	if ( isMove ) {
+	    QWSMouseEvent move = *me;
+	    move.simpleData.state = oldstate;
+	    widget->translateMouseEvent( &move, oldstate );
+	}
+	if ( (mouse.state&MouseButtonMask) != (oldstate&MouseButtonMask) ) {
+	    widget->translateMouseEvent( me, oldstate );
+	}
+	if ( qt_button_down && ( mouse_state & MouseButtonMask ) == 0 )
+	    qt_button_down = 0;
+
+	break;
+    }
     case QWSEvent::Key:				// keyboard event
 	if ( keywidget ) // should always exist
 	    keywidget->translateKeyEvent( (QWSKeyEvent*)event, grabbed );
@@ -2457,63 +2488,18 @@ void QApplication::closePopup( QWidget *popup )
 // comparing window, time and position between two mouse press events.
 //
 
-static int translateButtonState( int s )
-{
-    // No translation required at this time
-    return s;
-}
 
 // Needed for QCursor::pos
 
 static const int AnyButton = (Qt::LeftButton | Qt::MidButton | Qt::RightButton );
 
 
-//The logic got a little too complex, so I split the function in
-//two. This one translates a QWS event into separate move
-//and press/release events
-//There is code duplication for now, I don't want to rock the boat
-//too much at this stage.
-bool QETWidget::translateMouseEvent( const QWSMouseEvent *event )
-{
-    static int old_x_root = -1;
-    static int old_y_root = -1;
-    static int old_state = 0;
-    const QWSMouseEvent::SimpleData &mouse = event->simpleData;
-
-    //since we compress mouse events with the same state, the
-    //press/release will have been at the end of the move
-
-    if ( mouse.x_root != old_x_root || mouse.y_root != old_y_root ) {
-	old_x_root = mouse.x_root;
-	old_y_root = mouse.y_root;
-	QWSMouseEvent move = *event;
-	move.simpleData.state = old_state;
-	dispatchMouseEvent( &move );
-    }
-
-    if ( (mouse.state&AnyButton) != (old_state&AnyButton) ) {
-	old_state = mouse.state;
-	dispatchMouseEvent( event );
-    }
-    //Must ensure that mouse release event gets to the widget
-    //that got the mouse press
-    if ( qt_button_down && ( mouse.state & AnyButton ) == 0 )
-	qt_button_down = 0;
-
-    return TRUE;
-}
-
-bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
+bool QETWidget::translateMouseEvent( const QWSMouseEvent *event, int oldstate )
 {
     static bool manualGrab = FALSE;
     QPoint pos;
     QPoint globalPos;
     int	   button = 0;
-    int	   state;
-
-    static int old_x_root = -1;
-    static int old_y_root = -1;
-    static int old_state = 0;
 
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
@@ -2525,22 +2511,15 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
     }
     globalPos.rx() = mouse.x_root;
     globalPos.ry() = mouse.y_root;
-    state = translateButtonState( mouse.state );
 
     //    for (;;) { // Extract move and press/release from one QWSEvent
 	QEvent::Type type = QEvent::None;
 
-	if ( mouse.x_root != old_x_root || mouse.y_root != old_y_root ) {
-	    old_x_root = mouse.x_root;
-	    old_y_root = mouse.y_root;
+	if ( mouse.state == oldstate ) {
 	    // mouse move
-	    // XXX compress motion events
 	    type = QEvent::MouseMove;
-	} else if ( 0 ) {
-	    type = QEvent::MouseMove;
-	    if ( !qt_button_down )
-		state = state & ~AnyButton;
-	} else if ( (mouse.state&AnyButton) != (old_state&AnyButton) ) {
+	} else if ( (mouse.state&AnyButton) != (oldstate&AnyButton) ) {
+	    int old_state = oldstate;
 	    for ( button = LeftButton; !type && button <= MidButton; button<<=1 ) {
 		if ( (mouse.state&button) != (old_state&button) ) {
 		    // button press or release
@@ -2579,7 +2558,6 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	//XXX mouseActWindow = winId();			// save some event params
 
 	if ( type == 0 ) {				// event consumed
-	    mouseButtonState = state;
 	    return FALSE; //EXIT in the normal case
 	}
 
@@ -2603,7 +2581,6 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    }
 
 	    if ( !popupTarget->isEnabled() ) {
-		mouseButtonState = state;
 		return FALSE; //EXIT special case
 	    }
 
@@ -2622,7 +2599,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 
 	    if ( popupButtonFocus ) {
 		QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
-			       globalPos, button, mouseButtonState );
+			       globalPos, button, oldstate );
 		QApplication::sendSpontaneousEvent( popupButtonFocus, & e );
 		if ( releaseAfter ) {
 		    popupButtonFocus = 0;
@@ -2630,10 +2607,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		}
 	    } else if ( popupChild ) {
 		QMouseEvent e( type, popupChild->mapFromGlobal(globalPos),
-			       globalPos, button, mouseButtonState );
+			       globalPos, button, oldstate );
 		QApplication::sendSpontaneousEvent( popupChild, & e );
 	    } else {
-		QMouseEvent e( type, pos, globalPos, button, mouseButtonState );
+		QMouseEvent e( type, pos, globalPos, button, oldstate );
 		QApplication::sendSpontaneousEvent( popupChild ? popupChild : popup, & e );
 	    }
 
@@ -2658,13 +2635,13 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    }
 
 	    if ( type == QEvent::MouseButtonRelease &&
-		 (state & (~button) & ( LeftButton |
+		 (mouse.state & (~button) & ( LeftButton |
 					MidButton |
 					RightButton)) == 0 ) {
 		qt_button_down = 0;
 	    }
 
-	    QMouseEvent e( type, pos, globalPos, button, mouseButtonState );
+	    QMouseEvent e( type, pos, globalPos, button, oldstate );
 #ifndef QT_NO_QWS_MANAGER
 	    if (widget->isTopLevel() && widget->d->topData()->qwsManager
 		&& (widget->d->topData()->qwsManager->region().contains(globalPos)
@@ -2691,7 +2668,6 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    }
 	}
 	// }
-    mouseButtonState = state;
     return TRUE;
 }
 
