@@ -2342,6 +2342,10 @@ void QTextEdit::insertParagraph( const QString &text, int para )
 
 void QTextEdit::removeParagraph( int para )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode )
+	return;
+#endif
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return;
@@ -2949,6 +2953,14 @@ QString QTextEdit::text() const
 
 QString QTextEdit::text( int para ) const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode && (od->numLines >= para) ) {
+	QString paraStr = od->lines[ para ];
+	if ( paraStr.isEmpty() )
+	    paraStr = "\n";
+	return paraStr;
+    } else
+#endif
     return doc->text( para );
 }
 
@@ -3247,6 +3259,11 @@ void QTextEdit::setTextFormat( TextFormat format )
 
 Qt::TextFormat QTextEdit::textFormat() const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode ) {
+	return Qt::PlainText;
+    }
+#endif    
     return doc->textFormat();
 }
 
@@ -3255,6 +3272,11 @@ Qt::TextFormat QTextEdit::textFormat() const
 
 int QTextEdit::paragraphs() const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode ) {
+	return od->numLines;
+    }
+#endif
     return doc->lastParag()->paragId() + 1;
 }
 
@@ -3263,6 +3285,14 @@ int QTextEdit::paragraphs() const
 
 int QTextEdit::linesOfParagraph( int para ) const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode ) {
+	if ( od->numLines >= para )
+	    return 1;
+	else
+	    return 0;
+    }
+#endif
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return -1;
@@ -3274,6 +3304,14 @@ int QTextEdit::linesOfParagraph( int para ) const
 
 int QTextEdit::paragraphLength( int para ) const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode && (od->numLines >= para) ) {
+	if ( od->lines[ para ].isEmpty() )
+	    return 1;
+	else
+	    return od->lines[ para ].length();
+    }
+#endif
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return -1;
@@ -3289,6 +3327,11 @@ int QTextEdit::paragraphLength( int para ) const
 
 int QTextEdit::lines() const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode ) {
+	return od->numLines;
+    }
+#endif
     QTextParag *p = doc->firstParag();
     int l = 0;
     while ( p ) {
