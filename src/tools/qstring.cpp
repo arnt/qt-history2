@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#54 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#54 $")
 
 
 /*****************************************************************************
@@ -630,10 +630,10 @@ int QString::find( const char *str, int index, bool cs ) const
  ----------------------------------------------------------------------------*/
 
 int QString::findRev( char c, int index, bool cs ) const
-{						// reverse find char
+{
     if ( index < 0 ) {				// neg index ==> start from end
-	index = length();
-	if ( index == 0 )
+	index = length() - 1;
+	if ( index <= 0 )
 	    return -1;
     }
     else if ( (uint)index >= size() )		// bad index
