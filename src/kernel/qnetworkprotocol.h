@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#14 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#15 $
 **
 ** Implementation of QFileDialog class
 **
@@ -86,7 +86,7 @@ public:
     enum ConnectionState {
 	ConHostFound,
 	ConConnected,
-	ConClosed,
+	ConClosed
     };
 
     enum Error {
@@ -127,7 +127,7 @@ public:
     QUrlOperator *url() const;
     QNetworkOperation *operationInProgress() const;
     void clearOperationQueue();
-    
+
 signals:
     void data( const QString &, QNetworkOperation *res );
     void connectionStateChanged( int state, const QString &data );

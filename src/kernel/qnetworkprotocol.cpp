@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#17 $
 **
 ** Implementation of QFileDialog class
 **
@@ -46,7 +46,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::finished( int action )
+  \fn void QNetworkProtocol::finished( QNetworkOperation *res )
 
   This signal is emitted when a data transfer of some sort finished.
   \a action gives more information about it, this can be one of
@@ -57,7 +57,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::start( int action )
+  \fn void QNetworkProtocol::start( QNetworkOperation *res )
 
   This signal is emitted when a data transfer of some sort started.
   \a action gives more information about it, this can be one of
@@ -68,24 +68,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::error( int ecode, const QString &msg )
-
-  This signal is emitted whenever an error occures. \a ecode
-  is the error code, and \a msg an error message which can be
-  e.g. displayed to the user.
-
-  \a ecode is one of
-	ErrDeleteFile
-	ErrRenameFile
-	ErrCopyFile
-	ErrReadDir
-	ErrCreateDir
-	ErrUnknownProtocol
-	ErrParseError
-*/
-
-/*!
-  \fn void QNetworkProtocol::data( const QString &data )
+  \fn void QNetworkProtocol::data( const QString &data, QNetworkOperation *res )
 
   This signal is emitted when new \a data has been received.
 */
@@ -98,7 +81,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::entry( const QUrlInfo &i )
+  \fn void QNetworkProtocol::newChild( const QUrlInfo &i, QNetworkOperation *res )
 
   This signal is emitted after listEntries() was called and
   a new entry (file) has been read from the list of files. \a i
@@ -106,7 +89,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::createdDirectory( const QUrlInfo &i )
+  \fn void QNetworkProtocol::createdDirectory( const QUrlInfo &i, QNetworkOperation * )
 
   This signal is emitted when mkdir() has been succesful
   and the directory has been created. \a i holds the information
@@ -114,7 +97,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::removed( const QString &name )
+  \fn void QNetworkProtocol::removed( const QString &name, QNetworkOperation *res )
 
   This signal is emitted when remove() has been succesful
   and the file has been removed. \a name is the filename
@@ -122,7 +105,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::itemChanged( const QString &oldname, const QString &newname )
+  \fn void QNetworkProtocol::itemChanged( QNetworkOperation *res )
 
   This signal is emitted whenever a file, which is a child of this URL,
   has been changed e.g. by successfully calling rename(). \a oldname is
@@ -131,7 +114,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::copyProgress( const QString &from, const QString &to, int step, int total )
+  \fn void QNetworkProtocol::copyProgress( int step, int total, QNetworkOperation *res )
 
   When copying a file this signal is emitted. \a from is the file which
   is copied, \a to the destination. \a step is the progress
