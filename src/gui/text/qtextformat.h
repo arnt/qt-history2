@@ -165,7 +165,7 @@ public:
     inline bool isListFormat() const { return type() == ListFormat; }
     inline bool isFrameFormat() const { return type() == FrameFormat; }
     inline bool isImageFormat() const { return type() == CharFormat && objectType() == ImageObject; }
-    inline bool isTableFormat() const { return type() == CharFormat && objectType() == TableObject; }
+    inline bool isTableFormat() const { return type() == FrameFormat && objectType() == TableObject; }
 
     QTextBlockFormat toBlockFormat() const;
     QTextCharFormat toCharFormat() const;
