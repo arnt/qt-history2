@@ -19,7 +19,7 @@ public:
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
     Role	role(int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
 protected:
     QHeader *header() const;
@@ -35,7 +35,7 @@ public:
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
     Role	role(int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
     bool	doAction(int action, int child);
     bool	setSelected(int child, bool on, bool extend);
@@ -60,7 +60,7 @@ public:
     QString	text(Text t, int child) const;
     QRect	rect(int child) const;
     Role	role(int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
     bool	doAction(int action, int child);
 
@@ -78,7 +78,7 @@ public:
     QString	text(Text t, int child) const;
     QRect	rect(int child) const;
     Role	role(int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
     bool	doAction(int action, int child);
 

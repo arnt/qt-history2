@@ -17,7 +17,7 @@ public:
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
     Role	role(int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
     bool	doAction(int action, int child);
 
@@ -36,7 +36,7 @@ public:
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
     Role	role(int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
     bool	doAction(int action, int child);
 

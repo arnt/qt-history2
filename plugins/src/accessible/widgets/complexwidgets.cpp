@@ -75,7 +75,7 @@ QAccessible::Role QAccessibleHeader::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleHeader::state(int child) const
+int QAccessibleHeader::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
 
@@ -90,7 +90,7 @@ QAccessible::State QAccessibleHeader::state(int child) const
 	state |= Sizeable;
     if (child && header()->isMovingEnabled())
 	state |= Moveable;
-    return (State)state;
+    return state;
 }
 
 /*!
@@ -185,23 +185,23 @@ QAccessible::Role QAccessibleTabBar::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleTabBar::state(int child) const
+int QAccessibleTabBar::state(int child) const
 {
     int st = QAccessibleWidget::state(0);
 
     if (!child)
-	return (State)st;
+	return st;
 
     if (child > tabBar()->count()) {
 	QWidget *bt = button(child);
 	if (!bt->isEnabled())
 	    st |= Unavailable;
-	return (State)st;
+	return st;
     }
 
     QTab *tab = tabBar()->tabAt(child - 1);
     if (!tab)
-	return (State)st;
+	return st;
 
     if (!tab->isEnabled())
 	st |= Unavailable;
@@ -211,7 +211,7 @@ QAccessible::State QAccessibleTabBar::state(int child) const
     if (tabBar()->currentTab() == tab->identifier())
 	st |= Selected;
 
-    return (State)st;
+    return st;
 }
 
 /*! \reimp */
@@ -394,7 +394,7 @@ QAccessible::Role QAccessibleComboBox::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleComboBox::state(int /*child*/) const
+int QAccessibleComboBox::state(int /*child*/) const
 {
     return QAccessibleWidget::state(0);
 }
@@ -576,7 +576,7 @@ QAccessible::Role QAccessibleTitleBar::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleTitleBar::state(int child) const
+int QAccessibleTitleBar::state(int child) const
 {
     return QAccessibleWidget::state(child);
 }

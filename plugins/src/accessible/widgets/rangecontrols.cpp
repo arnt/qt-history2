@@ -117,22 +117,22 @@ QAccessible::Role QAccessibleSpinBox::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleSpinBox::state(int child) const
+int QAccessibleSpinBox::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
     switch(child) {
     case 2:
 	if (spinBox()->value() >= spinBox()->maxValue())
 	    state |= Unavailable;
-	return (State)state;
+	return state;
     case 3:
 	if (spinBox()->value() <= spinBox()->minValue())
 	    state |= Unavailable;
-	return (State)state;
+	return state;
     default:
 	break;
     }
-    return (State)state;
+    return state;
 }
 
 /*! \reimp */

@@ -97,7 +97,7 @@ QAccessible::Role QAccessibleViewport::role(int child) const
     return scrollView()->role(child);
 }
 
-QAccessible::State QAccessibleViewport::state(int child) const
+int QAccessibleViewport::state(int child) const
 {
     return scrollView()->state(child);
 }
@@ -215,12 +215,12 @@ QAccessible::Role QAccessibleListBox::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleListBox::state(int child) const
+int QAccessibleListBox::state(int child) const
 {
     int state = QAccessibleScrollView::state(child);
     QListBoxItem *item;
     if (!child || !(item = listBox()->item(child - 1)))
-	return (State)state;
+	return state;
 
     if (item->isSelectable()) {
 	if (listBox()->selectionMode() == QListBox::Multi)
@@ -240,7 +240,7 @@ QAccessible::State QAccessibleListBox::state(int child) const
     if (!listBox()->itemVisible(item))
 	state |= Invisible;
 
-    return (State)state;
+    return state;
 }
 
 /*! \reimp
@@ -399,12 +399,12 @@ QAccessible::Role QAccessibleListView::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleListView::state(int child) const
+int QAccessibleListView::state(int child) const
 {
     int state = QAccessibleScrollView::state(child);
     QListViewItem *item;
     if (!child || !(item = findLVItem(listView(), child)))
-	return (State)state;
+	return state;
 
     if (item->isSelectable()) {
 	if (listView()->selectionMode() == QListView::Multi)
@@ -434,7 +434,7 @@ QAccessible::State QAccessibleListView::state(int child) const
 	if (((QCheckListItem*)item)->isOn())
 	    state|=Checked;
     }
-    return (State)state;
+    return state;
 }
 
 /*! \reimp
@@ -606,12 +606,12 @@ QAccessible::Role QAccessibleIconView::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleIconView::state(int child) const
+int QAccessibleIconView::state(int child) const
 {
     int state = QAccessibleScrollView::state(child);
     QIconViewItem *item;
     if (!child || !(item = findIVItem(iconView(), child)))
-	return (State)state;
+	return state;
 
     if (item->isSelectable()) {
 	if (iconView()->selectionMode() == QIconView::Multi)
@@ -631,7 +631,7 @@ QAccessible::State QAccessibleIconView::state(int child) const
 	    state |= Focused;
     }
 
-    return (State)state;
+    return state;
 }
 
 /*! \reimp

@@ -82,7 +82,7 @@ QString QAccessibleButton::text(Text t, int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleButton::state(int child) const
+int QAccessibleButton::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
 
@@ -90,7 +90,7 @@ QAccessible::State QAccessibleButton::state(int child) const
     if (b->state() == QButton::On)
 	state |= Checked;
     else if (b->state() == QButton::NoChange)
-	    state |= Mixed;
+	state |= Mixed;
     if (b->isDown())
 	state |= Pressed;
     QPushButton *pb = qt_cast<QPushButton*>(b);
@@ -100,7 +100,7 @@ QAccessible::State QAccessibleButton::state(int child) const
     if (tb && tb->autoRaise())
 	state |= HotTracked;
 
-    return (State)state;
+    return state;
 }
 
 
@@ -229,7 +229,7 @@ QString QAccessibleLineEdit::text(Text t, int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleLineEdit::state(int child) const
+int QAccessibleLineEdit::state(int child) const
 {
     int state = QAccessibleWidget::state(child);
 
@@ -242,5 +242,5 @@ QAccessible::State QAccessibleLineEdit::state(int child) const
     if (l->hasSelectedText())
 	state |= Selected;
 
-    return (State)state;
+    return state;
 }

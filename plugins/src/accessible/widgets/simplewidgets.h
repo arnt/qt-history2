@@ -12,7 +12,7 @@ public:
     QAccessibleButton(QWidget *o, Role r);
 
     QString	text(Text t, int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
     bool	doAction(int action, int child);
 
@@ -37,7 +37,7 @@ public:
     QAccessibleLineEdit(QWidget *o, const QString &name = QString());
 
     QString	text(Text t, int child) const;
-    State	state(int child) const;
+    int		state(int child) const;
 
 protected:
     QLineEdit *lineEdit() const;

@@ -105,16 +105,16 @@ QAccessible::Role QAccessiblePopup::role(int child) const
     return MenuItem;
 }
 
-QAccessible::State QAccessiblePopup::state(int child) const
+int QAccessiblePopup::state(int child) const
 {
     int s = QAccessibleWidget::state(child);
     if (!child)
-	return (State)s;
+	return s;
 
     int id = popupMenu()->idAt(child -1);
     QMenuItem *item = popupMenu()->findItem(id);
     if (!item)
-	return (State)s;
+	return s;
 
     if (popupMenu()->style().styleHint(QStyle::SH_PopupMenu_MouseTracking))
 	s |= HotTracked;
@@ -125,7 +125,7 @@ QAccessible::State QAccessiblePopup::state(int child) const
     if (popupMenu()->isItemActive(id))
 	s |= Focused;
 
-    return (State)s;
+    return s;
 }
 
 bool QAccessiblePopup::doAction(int action, int child)
@@ -254,16 +254,16 @@ QAccessible::Role QAccessibleMenuBar::role(int child) const
     return MenuItem;
 }
 
-QAccessible::State QAccessibleMenuBar::state(int child) const
+int QAccessibleMenuBar::state(int child) const
 {
     int s = QAccessibleWidget::state(child);
     if (!child)
-	return (State)s;
+	return s;
 
     int id = menuBar()->idAt(child -1);
     QMenuItem *item = menuBar()->findItem(id);
     if (!item)
-	return (State)s;
+	return s;
 
     if (menuBar()->style().styleHint(QStyle::SH_PopupMenu_MouseTracking))
 	s |= HotTracked;
@@ -272,7 +272,7 @@ QAccessible::State QAccessibleMenuBar::state(int child) const
     if (menuBar()->isItemActive(id))
 	s |= Focused;
 
-    return (State)s;
+    return s;
 }
 
 bool QAccessibleMenuBar::doAction(int action, int child)
