@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#89 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#88 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#89 $";
 #endif
 
 
@@ -113,11 +113,6 @@ public:
 
 #if defined(_OS_SUN_)
 #define SIG_HANDLER SIG_PF
-#if defined(__SVR4)
-extern "C" int gettimeofday( struct timeval *, void * );
-#else
-extern "C" int gettimeofday( struct timeval * );
-#endif
 #else
 #define SIG_HANDLER __sighandler_t
 #endif
@@ -235,11 +230,7 @@ void qt_init( int *argcptr, char **argv )
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
-#if defined(_OS_SUN_) && !defined(__SVR4)
-    gettimeofday( &watchtime );
-#else
-    gettimeofday( &watchtime, 0 );
-#endif
+    X_GETTIMEOFDAY( &watchtime );
 
     qApp->setName( appName );
     if ( appFont ) {				// set application font
@@ -1222,8 +1213,8 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 
 static inline void getTime( timeval &t )	// get time of day
 {
-#if defined(_OS_SUN_) && !defined(__SVR4)
-    gettimeofday( &t );
+    X_GETTIMEOFDAY( &t );
+#if defined(_OS_SUN_)
     while ( t.tv_usec >= 1000000 ) {		// correct if NTP daemon bug
 	t.tv_usec -= 1000000;
 	t.tv_sec++;
@@ -1238,8 +1229,6 @@ static inline void getTime( timeval &t )	// get time of day
 	    break;
 	}
     }
-#else
-    gettimeofday( &t, 0 );
 #endif
 }
 
