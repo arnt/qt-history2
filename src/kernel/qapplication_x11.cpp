@@ -2534,10 +2534,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xcrossing.detail != NotifyAncestor  )
 	    break;
 	curWin = widget->winId();
-// 	qDebug("Enter for %s (%d)", widget->className(), event->xcrossing.detail );
+//  	qDebug("Enter for %s (%d)", widget->className(), event->xcrossing.detail );
 	QEvent e( QEvent::Enter );
 	QApplication::sendEvent( widget, &e );
-	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
+	if ( !widget->isDesktop() )
+	  widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
     }
     break;
     case LeaveNotify: {			// leave window
@@ -2548,8 +2549,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( event->xcrossing.mode != NotifyNormal )
 	    break;
-// 	qDebug("Leave for %s (%d)", widget->className(), event->xcrossing.detail  );
-	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
+//  	qDebug("Leave for %s (%d)", widget->className(), event->xcrossing.detail  );
+	if ( !widget->isDesktop() )
+	  widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
 	QEvent e( QEvent::Leave );
 	QApplication::sendEvent( widget, &e );
     }
