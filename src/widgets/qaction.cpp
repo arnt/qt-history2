@@ -510,6 +510,9 @@ QString QAction::text() const
 */
 void QAction::setMenuText( const QString& text )
 { 	
+    if ( d->menutext == text )
+	return;
+
     d->menutext = text;
     d->update();
 }
@@ -533,6 +536,9 @@ QString QAction::menuText() const { return d->menuText(); }
 */
 void QAction::setToolTip( const QString& tip )
 {
+    if ( d->tooltip == tip )
+	return;
+
     d->tooltip = tip;
     d->update();
 }
@@ -561,6 +567,9 @@ QString QAction::toolTip() const
 //#### reimplementation.
 void QAction::setStatusTip( const QString& tip )
 {
+    if ( d->statustip == tip )
+	return;
+
     d->statustip = tip;
     d->update();
 }
@@ -610,6 +619,9 @@ QString QAction::whatsThis() const
 //#### reimplementation.
 void QAction::setAccel( const QKeySequence& key )
 {
+    if ( d->key == key )
+	return;
+
     d->key = key;
     delete d->accel;
     d->accel = 0;
@@ -742,6 +754,7 @@ void QAction::setEnabled( bool enable )
 {
     if ( (bool)d->enabled == enable )
 	return;
+
     d->enabled = enable;
     d->update( QActionPrivate::State );
 }
