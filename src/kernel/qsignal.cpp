@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#8 $
 **
 ** Implementation of QSignal class
 **
@@ -15,13 +15,15 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#8 $";
 #endif
 
 /*! \class QSignal qsignal.h
 
   \brief The QSignal class is an internal class, used in the
   signal/slot mechanism.
+
+  \internal
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the
