@@ -97,14 +97,13 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     }
     QPtrListIterator<SubDir> it(subdirs);
 
-    if(!project->isEmpty("MAKEFILE"))
-	t << "MAKEFILE=	" << var("MAKEFILE") << endl;
+    t << "MAKEFILE = " << (project->isEmpty("MAKEFILE") ? QString("Makefile") : var("MAKEFILE")) << endl;
     t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "SUBTARGETS	= ";
     for( it.toFirst(); it.current(); ++it)
 	t << " \\\n\t\t" << it.current()->target;
     t << endl << endl;
-    t << "all: qmake_all $(SUBTARGETS)" << endl << endl;
+    t << "all: $(MAKEFILE) $(SUBTARGETS)" << endl << endl;
 
     for( it.toFirst(); it.current(); ++it) {
 	bool have_dir = !(*it)->directory.isEmpty();
@@ -114,8 +113,6 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	if(have_dir)
 	    mkfile.prepend((*it)->directory + Option::dir_sep);
 	t << mkfile << ":";
-	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
-	    t << " FORCE";
 	if(have_dir)
 	    t << "\n\t" << "cd " << (*it)->directory;
 	t << "\n\t" << "$(QMAKE) " << (*it)->profile << " " << buildArgs();
