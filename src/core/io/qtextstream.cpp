@@ -19,36 +19,67 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \brief The QTextStream class provides a convenient interface for
     reading and writing text.
 
+    \ingroup io
+    \ingroup text
+    \reentrant
+
     QTextStream can operate on a QIODevice, a QByteArray or a
     QString. Using QTextStream's streaming operators, you can
-    conveniently read and write strings, lines and numbers. With
-    support for formatting options similar to those of C++ iostreams,
-    you can use QTextStream to write any type of text output. Example:
+    conveniently read and write words, lines and numbers. For
+    generating text, QTextStream supports formatting options for field
+    padding and alignment, and formatting of numbers. Example:
 
     \code
         QFile data("output.txt");
-        data.open(QFile::WriteOnly);
-
-        QTextStream stream(&data);
-        data << "Result: " << qSetW(10) << 3.14 << endl;
+        if (data.open(QFile::WriteOnly | QFile::Truncate)) {
+            QTextStream stream(&data);
+            stream << "Result: " << qSetFieldWidth(10) << left << 3.14 << 2.7 << endl;
+            // writes "Result: 3.14      2.7       \n"
+        }
     \endcode
 
-    Internally, QTextStream uses a Unicode buffer, and QTextCodec is
-    used by QTextStream to support different character sets. By
-    default, QTextCodec::codecForLocale() is used for reading and
-    writing, but you can also set the codec by calling
-    setCodec(). Automatic Unicode detection is also supported. When
-    this feature is enabled, which it is by default, QTextStream will
-    detect the UTF-16 BOM (Byte Order Mark) and switch to the
-    appropriate UTF-16 codec when reading.
+    Besides using QTextStream's constructors, you can also set the
+    device or string QTextStream operates on by calling setDevice() or
+    setString(). You can seek to a position by calling seek(), and
+    atEnd() will return true when there is no data left to be read. If
+    you call flush(), QTextStream will empty all data from its write
+    buffer into the device and call flush() on the device.
+
+    Internally, QTextStream uses a Unicode based buffer, and
+    QTextCodec is used by QTextStream to automatically support
+    different character sets. By default, QTextCodec::codecForLocale()
+    is used for reading and writing, but you can also set the codec by
+    calling setCodec(). Automatic Unicode detection is also
+    supported. When this feature is enabled, (the default behavior,)
+    QTextStream will detect the UTF-16 BOM (Byte Order Mark) and
+    switch to the appropriate UTF-16 codec when reading. When
+    QTextStream operates on a QString directly, the codec is disabled.
+
+    There are three general ways to use QTextStream when reading text
+    files:
+
+    \list
+
+    \o Chunk by chunk, by calling readLine() or readAll().
+
+    \o Word by word. QTextStream supports streaming into QStrings,
+    QByteArrays and char* buffers. Words are delimited by space, and
+    leading white space is automatically skipped.
+
+    \o Character by character, by streaming into QChar or char types.
+    This method is often used for convenient input handling when
+    parsing files, independent of character encoding and end-of-line
+    semantics. To skip white space, call skipWhiteSpace().
+
+    \endlist
 
     By default, when reading numbers from a stream of text,
-    QTextStream will automatically detect the number's textual
+    QTextStream will automatically detect the number's base
     representation. For example, if the number starts with "0x", it is
     assumed to be in hexadecimal form. If it starts with the digits
     1-9, it is assumed to be in decimal form, and so on. You can set
-    the representation type, disabling the automatic detection, by
-    calling setFlags() or using a manipulator function. Example:
+    the integer base, thereby disabling the automatic detection, by
+    calling setIntegerBase(). Example:
 
     \code
         QTextStream stream("0x50 0x20");
@@ -61,9 +92,69 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
         stream >> ch; // ch == 'x'
     \endcode
 
+    QTextStream supports many formatting options for generating text.
+    You can set the field width and pad character by calling
+    setFieldWidth() and setPadChar(). Use setFieldAlignment() to set
+    the alignment within each field. For real numbers, call
+    setRealNumberNotation() and setRealNumberPrecision() to set the
+    notation (Smart, Scientific, Fixed) and precision in digits of the
+    generated number. Some extra number formatting options are also
+    available through setNumberFlags().
 
+    Like iostream in the standard C++ library, QTextStream also
+    defines several global manipulator functions:
 
+    \table
+    \header \o Function          \o Description
+    \row    \o bin               \o Same as calling setBase(2).
+    \row    \o oct               \o Same as calling setBase(8).
+    \row    \o dec               \o Same as calling setBase(10).
+    \row    \o hex               \o Same as calling setBase(16).
+    \row    \o showbase          \o Same as calling setNumberFlags(ShowBase).
+    \row    \o forcesign         \o Same as calling setNumberFlags(ForceSign).
+    \row    \o forcepoint        \o Same as calling setNumberFlags(ForcePoint).
+    \row    \o noshowbase        \o Same as calling setNumberFlags(numberFlags() & ~ShowBase).
+    \row    \o noforcesign       \o Same as calling setNumberFlags(numberFlags() & ~ForcePoint).
+    \row    \o noforcepoint      \o Same as calling setNumberFlags(numberFlags() & ~NoForcePoint).
+    \row    \o uppercasebase     \o Same as calling setNumberFlags(UppercaseBase).
+    \row    \o uppercasedigits   \o Same as calling setNumberFlags(UppercaseDigits).
+    \row    \o nouppercasebase   \o Same as calling setNumberFlags(numberFlags() & ~UppercaseBase).
+    \row    \o nouppercasedigits \o Same as calling setNumberFlags(numberFlags() & ~UppercaseDigits).
+    \row    \o fixed             \o Same as calling setRealNumberNotation(FixedNotation).
+    \row    \o scientific        \o Same as calling setRealNumberNotation(ScientificNotation).
+    \row    \o left              \o Same as calling setFieldAlignment(AlignLeft).
+    \row    \o right             \o Same as calling setFieldAlignment(AlignRight).
+    \row    \o center            \o Same as calling setFieldAlignment(AlignCenter).
+    \row    \o endl              \o Same as calling operator<<('\n').
+    \row    \o flush             \o Same as calling flush().
+    \row    \o reset             \o Same as calling reset().
+    \endtable
 
+    \sa QDataStream, QFile, QBuffer, QTcpSocket
+*/
+
+/*! \enum QTextStream::RealNumberNotation
+
+    \value SmartNotation
+    \value FixedNotation
+    \value ScientificNotation
+*/
+
+/*! \enum QTextStream::FieldAlignment
+
+    \value AlignLeft
+    \value AlignRight
+    \value AlignCenter
+    \value AlignAccountingStyle
+*/
+
+/*! \enum QTextStream::NumberFlag
+
+    \value ShowBase
+    \value ForcePoint
+    \value ForceSign
+    \value UppercaseBase
+    \value UppercaseDigits
 */
 
 #include "qtextstream.h"
@@ -255,22 +346,24 @@ public:
     QTextStream *q_ptr;
 };
 
-/*****************************************************************************
-  QTextStreamPrivate implementation
- *****************************************************************************/
-
+/*! \internal
+*/
 QTextStreamPrivate::QTextStreamPrivate(QTextStream *q_ptr)
 {
     this->q_ptr = q_ptr;
     reset();
 }
 
+/*! \internal
+*/
 QTextStreamPrivate::~QTextStreamPrivate()
 {
     if (deleteDevice)
         delete device;
 }
 
+/*! \internal
+*/
 void QTextStreamPrivate::reset()
 {
     realNumberPrecision = 6;
@@ -300,6 +393,8 @@ void QTextStreamPrivate::reset()
 #endif
 }
 
+/*! \internal
+*/
 bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
 {
     // no buffer next to the QString itself; this function should only
@@ -382,6 +477,8 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
     return true;
 }
 
+/*! \internal
+*/
 bool QTextStreamPrivate::flushWriteBuffer()
 {
     // no buffer next to the QString itself; this function should only
@@ -530,6 +627,8 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
     return true;
 }
 
+/*! \internal
+*/
 inline const QChar *QTextStreamPrivate::readPtr() const
 {
     Q_ASSERT(readBufferOffset <= readBuffer.size());
@@ -538,6 +637,8 @@ inline const QChar *QTextStreamPrivate::readPtr() const
     return readBuffer.constData() + readBufferOffset;
 }
 
+/*! \internal
+*/
 inline void QTextStreamPrivate::consumeLastToken()
 {
     if (lastTokenSize)
@@ -545,6 +646,8 @@ inline void QTextStreamPrivate::consumeLastToken()
     lastTokenSize = 0;
 }
 
+/*! \internal
+*/
 inline void QTextStreamPrivate::consume(int size)
 {
 #if defined (QTEXTSTREAM_DEBUG)
@@ -563,6 +666,8 @@ inline void QTextStreamPrivate::consume(int size)
     }
 }
 
+/*! \internal
+*/
 inline bool QTextStreamPrivate::write(const QString &data)
 {
     if (string) {
@@ -575,6 +680,8 @@ inline bool QTextStreamPrivate::write(const QString &data)
     return true;
 }
 
+/*! \internal
+*/
 inline bool QTextStreamPrivate::getChar(QChar *ch)
 {
     if ((string && stringOffset == string->size())
@@ -589,6 +696,8 @@ inline bool QTextStreamPrivate::getChar(QChar *ch)
     return true;
 }
 
+/*! \internal
+*/
 inline void QTextStreamPrivate::ungetChar(const QChar &ch)
 {
     if (string) {
@@ -607,6 +716,8 @@ inline void QTextStreamPrivate::ungetChar(const QChar &ch)
     readBuffer[--readBufferOffset] = ch;
 }
 
+/*! \internal
+*/
 inline bool QTextStreamPrivate::putString(const QString &s)
 {
     QString tmp = s;
@@ -632,10 +743,12 @@ inline bool QTextStreamPrivate::putString(const QString &s)
     return write(tmp);
 }
 
-/*****************************************************************************
-  QTextStream implementation
- *****************************************************************************/
+/*!
+    Constructs a QTextStream. Before you can use it for reading or
+    writing, you must assign a device or a string.
 
+    \sa setDevice(), setString()
+*/
 QTextStream::QTextStream()
     : d_ptr(new QTextStreamPrivate(this))
 {
@@ -645,9 +758,8 @@ QTextStream::QTextStream()
 }
 
 /*!
-    Constructs a text stream that uses the IO device \a device.
+    Constructs a QTextStream that operates on \a device.
 */
-
 QTextStream::QTextStream(QIODevice *device)
     : d_ptr(new QTextStreamPrivate(this))
 {
@@ -663,35 +775,9 @@ QTextStream::QTextStream(QIODevice *device)
 }
 
 /*!
-    \fn QTextStream::QTextStream(QString *str, QIODevice::OpenMode mode)
-
-    Constructs a text stream that operates on the Unicode QString, \a
-    str, through an internal device. The \a mode argument is passed
-    to the device's open() function; see \l{QIODevice::mode()}.
-
-    If you set an encoding or codec with setEncoding() or setCodec(),
-    this setting is ignored for text streams that operate on QString.
-
-    Example:
-    \code
-        QString str;
-        QTextStream ts(&str, QIODevice::WriteOnly);
-        ts << "pi = " << 3.14; // str == "pi = 3.14"
-    \endcode
-
-    Writing data to the text stream will modify the contents of the
-    string. The string will be expanded when data is written beyond
-    the end of the string. Note that the string will not be truncated:
-    \code
-        QString str = "pi = 3.14";
-        QTextStream ts(&str, QIODevice::WriteOnly);
-        ts <<  "2+2 = " << 2+2; // str == "2+2 = 414"
-    \endcode
-
-    Note that because QString is Unicode, you should not use
-    readRawBytes() or writeRawBytes() on such a stream.
+    Constructs a QTextStream that operates on \a string, using \a
+    openMode to define the open mode.
 */
-
 QTextStream::QTextStream(QString *string, QIODevice::OpenMode openMode)
     : d_ptr(new QTextStreamPrivate(this))
 {
@@ -705,39 +791,10 @@ QTextStream::QTextStream(QString *string, QIODevice::OpenMode openMode)
 }
 
 /*!
-    \fn QTextStream::QTextStream(QByteArray *a, QIODevice::OpenMode mode)
-
-    Constructs a text stream that operates on a byte array, \a a. The
-    \a mode is a QIODevice::mode(), usually either \c QIODevice::ReadOnly or
-    \c QIODevice::WriteOnly. Use QTextStream(const QByteArray&, int) if you
-    just want to read from a byte array.
-
-    Since QByteArray is not a QIODevice subclass, internally a QBuffer
-    is created to wrap the byte array.
-
-    Example:
-    \code
-        QByteArray array;
-        QTextStream ts(array, QIODevice::WriteOnly);
-        ts << "pi = " << 3.14 << '\0';
-        // array == "pi = 3.14"
-    \endcode
-
-    Writing data to the text stream will modify the contents of the
-    byte array. The byte array will be expanded when data is written
-    beyond the end of the string.
-
-    Same example, using a QBuffer:
-    \code
-        QByteArray array;
-        QBuffer buf(array);
-        buf.open(QIODevice::WriteOnly);
-        QTextStream ts(&buf);
-        ts << "pi = " << 3.14 << '\0'; // array == "pi = 3.14"
-        buf.close();
-    \endcode
+    Constructs a QTextStream that operates on \a array, using \a
+    openMode to define the open mode. Internally, the array is wrapped
+    by a QBuffer.
 */
-
 QTextStream::QTextStream(QByteArray *array, QIODevice::OpenMode openMode)
     : d_ptr(new QTextStreamPrivate(this))
 {
@@ -755,16 +812,25 @@ QTextStream::QTextStream(QByteArray *array, QIODevice::OpenMode openMode)
 }
 
 /*!
-    \fn QTextStream::QTextStream(const QByteArray &a, QIODevice::OpenMode mode)
+    Constructs a QTextStream that operates on \a array, using \a
+    openMode to define the open mode. The array is accessed as
+    read-only, regardless of the values in \a openMode.
 
-    Constructs a text stream that operates on byte array \a a. Since
-    the byte array is passed as a const it can only be read from; use
-    QTextStream(QByteArray*, int) if you want to write to a byte
-    array. The \a mode is a QIODevice::mode() and should normally be
-    \c QIODevice::ReadOnly.
+    This constructor is convenient for working on constant
+    strings. Example:
 
-    Since QByteArray is not a QIODevice subclass, internally a QBuffer
-    is created to wrap the byte array.
+    \code
+        int main(int argc, char *argv[])
+        {
+            // read numeric arguments (123, 0x20, 4.5...)
+            for (int i = 1; i < argc; ++i) {
+                  int number;
+                  QTextStream stream(argv[i]);
+                  stream >> number;
+                  ...
+            }
+        }
+    \endcode
 */
 QTextStream::QTextStream(const QByteArray &array, QIODevice::OpenMode openMode)
     : d_ptr(new QTextStreamPrivate(this))
@@ -786,16 +852,22 @@ QTextStream::QTextStream(const QByteArray &array, QIODevice::OpenMode openMode)
 }
 
 /*!
-    \fn QTextStream::QTextStream(FILE *fh, QIODevice::OpenMode mode)
+    Constructs a QTextStream that operates on \a fileHandle, using \a
+    openMode to define the open mode. Internally, a QFile is created
+    to handle the FILE pointer.
 
-    Constructs a text stream that operates on an existing file handle
-    \a fh, through an internal QFile device. The \a mode argument is
-    passed to the device's open() function; see \l{QIODevice::mode()}.
+    This constructor is useful for working directly with the common
+    FILE based input and output streams: stdin, stdout and stderr. Example:
 
-    \warning If you create a QTextStream \c cout or another name that
-    is also used for another variable of a different type, some
-    linkers may confuse the two variables, which will often cause
-    crashes.
+    \code
+        int main()
+        {
+            QString input;
+            QTextStream stream(stdin);
+            stream >> input;
+            ...
+        }
+    \endcode
 */
 
 QTextStream::QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode)
@@ -817,11 +889,11 @@ QTextStream::QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode)
 }
 
 /*!
-    Destroys the text stream.
+    Destroys the QTextStream.
 
-    The destructor does not affect the current IO device.
+    If the stream operates on a device, flush() will be called
+    implicitly. Otherwise, the device is unaffected.
 */
-
 QTextStream::~QTextStream()
 {
     Q_D(QTextStream);
@@ -835,6 +907,11 @@ QTextStream::~QTextStream()
     d_ptr = 0;
 }
 
+/*!
+    Resets QTextStream's formatting options, bringing it back to its
+    original constructed state. The device, string and any buffered
+    data is left untouched.
+*/
 void QTextStream::reset()
 {
     Q_D(QTextStream);
@@ -848,12 +925,44 @@ void QTextStream::reset()
     d->numberFlags = 0;
 }
 
+/*!
+    Flushes any buffered data waiting to be written to the device,
+    then calls QIODevice::flush() on the device.
+
+    If QTextStream operates on a string, this function does nothing.
+*/
 void QTextStream::flush()
 {
     Q_D(QTextStream);
     d->flushWriteBuffer();
 }
 
+/*!
+    Seeks to the position \a pos in the device. Returns true on
+    success; otherwise returns false.
+
+    If QTextStream operates on a string, this function does nothing
+    and returns false.
+*/
+bool QTextStream::seek(qint64 pos)
+{
+    Q_D(QTextStream);
+    if (d->device)
+        return d->device->seek(pos);
+    return false;
+}
+
+/*!
+    Reads and discards whitespace from the stream until either a
+    non-space character is detected, or until atEnd() returns
+    true. This function is useful when reading a stream character by
+    character.
+
+    Whitespace characters are all characters for which
+    QChar::isSpace() returns true.
+
+    \sa operator>>(QChar &), operator>>(char &)
+*/
 void QTextStream::skipWhiteSpace()
 {
     Q_D(QTextStream);
@@ -863,24 +972,12 @@ void QTextStream::skipWhiteSpace()
 }
 
 /*!
-    Returns the IO device currently set.
+    Sets the current device to \a device. If a device has already been
+    assigned, QTextStream will call flush() before the old device is
+    replaced.
 
-    \sa setDevice(), unsetDevice()
+    \sa device(), setString()
 */
-
-QIODevice *QTextStream::device() const
-{
-    Q_D(const QTextStream);
-    return d->device;
-}
-
-
-/*!
-    Sets the IO device to \a iod.
-
-    \sa device(), unsetDevice()
-*/
-
 void QTextStream::setDevice(QIODevice *device)
 {
     Q_D(QTextStream);
@@ -893,179 +990,227 @@ void QTextStream::setDevice(QIODevice *device)
         d->deleteDevice = false;
     }
     d->device = device;
+    d->string = 0;
 #ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
 #endif
 }
 
+/*!
+    Returns the current device associated with the QTextStream,
+    or 0 if no device has been assigned.
+
+    \sa setDevice(), string()
+*/
+QIODevice *QTextStream::device() const
+{
+    Q_D(const QTextStream);
+    return d->device;
+}
+
+/*!
+    Sets the current string to \a string, using the \l OpenMode \a
+    openMode. If a device has already been assigned, QTextStream will
+    call flush() before replacing it.
+
+    \sa string(), setDevice()
+*/
+void QTextStream::setString(QString *string, QIODevice::OpenMode openMode)
+{
+    Q_D(QTextStream);
+    flush();
+    if (d->deleteDevice) {
+#ifndef QT_NO_QOBJECT
+        d->deviceClosedNotifier.disconnect();
+#endif
+        delete d->device;
+        d->deleteDevice = false;
+    }
+    d->string = string;
+    d->device = 0;
+    d->stringOpenMode = openMode;
+}
+
+/*!
+    Returns the current string assigned to the QTextStream, or 0 if no
+    string has been assigned.
+
+    \sa setString(), device()
+*/
 QString *QTextStream::string() const
 {
     Q_D(const QTextStream);
     return d->string;
 }
 
-void QTextStream::setString(QString *string)
-{
-    Q_D(QTextStream);
-    flush();
-    d->string = string;
-}
+/*!
+    Sets the field alignment to \a mode. When used together with
+    setFieldWidth(), this function allows you to generate formatted
+    output with text aligned to the left, to the right or center
+    aligned.
 
-
+    \sa fieldAlignment(), FieldAlignment, setFieldWidth()
+*/
 void QTextStream::setFieldAlignment(FieldAlignment mode)
 {
     Q_D(QTextStream);
     d->fieldAlignment = mode;
 }
 
+/*!
+    Returns the current field alignment.
+
+    \sa setFieldAlignment(), FieldAlignment
+*/
 QTextStream::FieldAlignment QTextStream::fieldAlignment() const
 {
     Q_D(const QTextStream);
     return d->fieldAlignment;
 }
 
+/*!
+    Sets the pad character to \a ch. The default value is the ASCII
+    space character (' '), or QChar(0x20). This character is used to
+    fill in the space in fields when generating text. Example:
+
+    \code
+        QString s;
+        QTextStream stream(&s);
+        stream.setFieldWidth(10);
+        stream.setPadChar('-');
+        stream << "Qt" << endl << "rocks!" << endl;
+        // ----Qt----
+        // --rocks!--
+    \endcode
+
+    \sa padChar(), setFieldWidth()
+*/
 void QTextStream::setPadChar(QChar ch)
 {
     Q_D(QTextStream);
     d->padChar = ch;
 }
 
+/*!
+    Returns the current pad character.
+
+    \sa setPadChar(), setFieldWidth()
+*/
 QChar QTextStream::padChar() const
 {
     Q_D(const QTextStream);
     return d->padChar;
 }
 
+/*!
+    Sets the current field width to \a width. If \a width is 0 (the
+    default), the field width is equal to the length of the generated
+    text.
+
+    \sa fieldWidth(), setPadChar()
+*/
 void QTextStream::setFieldWidth(int width)
 {
     Q_D(QTextStream);
     d->fieldWidth = width;
 }
 
+/*!
+    Returns the current field width.
+
+    \sa setFieldWidth()
+*/
 int QTextStream::fieldWidth() const
 {
     Q_D(const QTextStream);
     return d->fieldWidth;
 }
 
+/*!
+    Sets the current number flags to \a flags. \a flags is a set of
+    flags from the NumberFlags enum, and describes options for
+    formatting generated code (e.g., whether or not to always write
+    the base or sign of a number).
+
+    \sa numberFlags(), NumberFlags
+*/
 void QTextStream::setNumberFlags(NumberFlags flags)
 {
     Q_D(QTextStream);
     d->numberFlags = flags;
 }
 
+/*!
+    Returns the current number flags.
+
+    \sa setNumberFlags(), NumberFlags
+*/
 QTextStream::NumberFlags QTextStream::numberFlags() const
 {
     Q_D(const QTextStream);
     return d->numberFlags;
 }
 
+/*!
+    Sets the base of integers to \a base, both for reading and for
+    generating numbers. \a base can be either 2 (binary), 8 (octal),
+    10 (decimal) or 16 (hexadecimal). If \a base is 0, QTextStream
+    will attempt to detect the base by inspecting the data on the
+    stream. When generating numbers, QTextStream assumes base is 10
+    unless the base has been set explicitly.
+
+    \sa integerBase(), QString::number()
+*/
 void QTextStream::setIntegerBase(int base)
 {
     Q_D(QTextStream);
     d->integerBase = base;
 }
 
+/*!
+    Returns the current base of integers. 0 means that the base is
+    detected when reading, or 10 (decimal) when generating numbers.
+
+    \sa setIntegerBase()
+*/
 int QTextStream::integerBase() const
 {
     Q_D(const QTextStream);
     return d->integerBase;
 }
 
-void QTextStream::setRealNumberNotation(RealNumberNotation mode)
+/*!
+    Sets the real number notation to \a notation (SmartNotation,
+    FixedNotation, ScientificNotation). When reading and generating
+    numbers, QTextStream uses this value to detect the formatting of
+    real numbers.
+
+    \sa realNumberNotation(), RealNumberNotation
+*/
+void QTextStream::setRealNumberNotation(RealNumberNotation notation)
 {
     Q_D(QTextStream);
-    d->realNumberNotation = mode;
+    d->realNumberNotation = notation;
 }
 
+/*!
+    Returns the current real number notation.
+
+    \sa setRealNumberNotation(), RealNumberNotation
+*/
 QTextStream::RealNumberNotation QTextStream::realNumberNotation() const
 {
     Q_D(const QTextStream);
     return d->realNumberNotation;
 }
 
-#ifdef QT3_SUPPORT
-int QTextStream::flagsInternal() const
-{
-    Q_D(const QTextStream);
+/*!
+    Sets the precision of real numbers to \a precision. This value
+    describes the number of fraction digits QTextStream should
+    write when generating real numbers.
 
-    int f = 0;
-    switch (d->fieldAlignment) {
-    case AlignLeft: f |= left; break;
-    case AlignRight: f |= right; break;
-    case AlignCenter: f |= internal; break;
-    default:
-        break;
-    }
-    switch (d->integerBase) {
-    case 2: f |= bin; break;
-    case 8: f |= oct; break;
-    case 10: f |= dec; break;
-    case 16: f |= hex; break;
-    default:
-        break;
-    }
-    switch (d->realNumberNotation) {
-    case FixedNotation: f |= fixed; break;
-    case ScientificNotation: f |= scientific; break;
-    default:
-        break;
-    }
-    if (d->numberFlags & ShowBase)
-        f |= showbase;
-    if (d->numberFlags & ForcePoint)
-        f |= showpoint;
-    if (d->numberFlags & ForceSign)
-        f |= showpos;
-    if (d->numberFlags & UppercaseBase)
-        f |= uppercase;
-    return f;
-}
-
-int QTextStream::flagsInternal(int newFlags)
-{
-    int oldFlags = flagsInternal();
-
-    if (newFlags & left)
-        setFieldAlignment(AlignLeft);
-    else if (newFlags & right)
-        setFieldAlignment(AlignRight);
-    else if (newFlags & internal)
-        setFieldAlignment(AlignCenter);
-
-    if (newFlags & bin)
-        setIntegerBase(2);
-    else if (newFlags & oct)
-        setIntegerBase(8);
-    else if (newFlags & dec)
-        setIntegerBase(10);
-    else if (newFlags & hex)
-        setIntegerBase(16);
-
-    if (newFlags & showbase)
-        setNumberFlags(numberFlags() | ShowBase);
-    if (newFlags & showpos)
-        setNumberFlags(numberFlags() | ForceSign);
-    if (newFlags & showpoint)
-        setNumberFlags(numberFlags() | ForcePoint);
-    if (newFlags & uppercase)
-        setNumberFlags(numberFlags() | UppercaseBase);
-
-    if (newFlags & fixed)
-        setRealNumberNotation(FixedNotation);
-    else if (newFlags & scientific)
-        setRealNumberNotation(ScientificNotation);
-
-    return oldFlags;
-}
-#endif
-
-int QTextStream::realNumberPrecision() const
-{
-    Q_D(const QTextStream);
-    return d->realNumberPrecision;
-}
-
+    \sa realNumberPrecision(), setRealNumberNotation()
+*/
 void QTextStream::setRealNumberPrecision(int precision)
 {
     Q_D(QTextStream);
@@ -1073,13 +1218,22 @@ void QTextStream::setRealNumberPrecision(int precision)
 }
 
 /*!
-    \fn bool QTextStream::atEnd() const
+    Returns the current real number precision, or the number of fraction
+    digits QTextStream will write when generating real numbers.
 
-    Returns true if the IO device has reached the end position (end of
-    the stream or file) or if there is no IO device set; otherwise
-    returns false.
+    \sa setRealNumberNotation()
+*/
+int QTextStream::realNumberPrecision() const
+{
+    Q_D(const QTextStream);
+    return d->realNumberPrecision;
+}
 
-    \sa QIODevice::atEnd()
+/*!
+    Returns true if there is no more data to be read from the
+    QTextStream; otherwise returns false. This is similar to, but not
+    the same as calling QIODevice::atEnd(), as QTextStream also takes
+    into account its internal Unicode buffer.
 */
 bool QTextStream::atEnd() const
 {
@@ -1091,10 +1245,16 @@ bool QTextStream::atEnd() const
     return d->readBuffer.isEmpty() && d->device->atEnd();
 }
 
-/*****************************************************************************
-  QTextStream read functions
- *****************************************************************************/
+/*!
+    Reads the entire content of the stream, and returns it as a
+    QString. Avoid this function when working on large files, as it
+    will consume a significant amount of memory.
 
+    Calling readLine() is better if you do not know how much data is
+    available.
+
+    \sa readLine()
+*/
 QString QTextStream::readAll()
 {
     Q_D(QTextStream);
@@ -1110,6 +1270,20 @@ QString QTextStream::readAll()
     return tmp;
 }
 
+/*!
+    Reads one line of text from the stream, and returns it as a
+    QString. The maximum allowed line length is set to \a maxlen. If
+    the stream contains lines longer than this, then the lines will be
+    split after \a maxlen characters and returned in parts.
+
+    If \a maxlen is 0, the lines can be of any length. A common value
+    for \a maxlen is 75.
+
+    The returned line has no trailing end-of-line characters, so
+    calling QString::trimmed() is unnecessary.
+
+    \sa readAll()
+*/
 QString QTextStream::readLine(qint64 maxlen)
 {
     Q_D(QTextStream);
@@ -1125,7 +1299,8 @@ QString QTextStream::readLine(qint64 maxlen)
     return tmp;
 }
 
-
+/*! \internal
+*/
 bool QTextStreamPrivate::getNumber(qulonglong *ret)
 {
     scan(0, 0, 0, NotSpace);
@@ -1253,6 +1428,9 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
     return true;
 }
 
+/*! \internal
+    (hihi)
+*/
 bool QTextStreamPrivate::getReal(double *f)
 {
     // We use a table-driven FSM to parse floating point numbers
@@ -1346,23 +1524,17 @@ bool QTextStreamPrivate::getReal(double *f)
 }
 
 /*!
-    \overload
+    Reads a character from the stream and stores it in \a c. Returns a
+    reference to the QTextStream, so several operators can be
+    nested. Example:
 
-    Reads a char \a c from the stream and returns a reference to the
-    stream. Note that whitespace is skipped.
-*/
+    \code
+        QTextStream stream(file);
+        QChar ch1, ch2, ch3;
+        stream >> ch1 >> ch2 >> ch3;
+    \endcode
 
-QTextStream &QTextStream::operator>>(char &c)
-{
-    QChar ch;
-    *this >> ch;
-    c = ch.toLatin1();
-    return *this;
-}
-
-/*!
-    Reads a char \a c from the stream and returns a reference to the
-    stream. Note that whitespace is \e not skipped.
+    Whitespace is \e not skipped.
 */
 
 QTextStream &QTextStream::operator>>(QChar &c)
@@ -1377,162 +1549,149 @@ QTextStream &QTextStream::operator>>(QChar &c)
 /*!
     \overload
 
-    Reads a signed \c short integer \a i from the stream and returns a
-    reference to the stream. See flags() for an explanation of the
-    expected input format.
-*/
+    Reads a character from the stream and stores it in \a c. The
+    character from the stream is converted to ISO-5589-1 before it is
+    stored.
 
+    \sa QChar::toLatin1()
+*/
+QTextStream &QTextStream::operator>>(char &c)
+{
+    QChar ch;
+    *this >> ch;
+    c = ch.toLatin1();
+    return *this;
+}
+
+/*!
+    Reads an integer from the stream and stores it in \a i, then
+    returns a reference to the QTextStream. The number is casted to
+    the correct type before it is stored. If no number was detected on
+    the stream, \a i is set to 0.
+
+    By default, QTextStream will attempt to detect the base of the
+    number using the following rules:
+
+    \table
+    \header \o Prefix                \o Base
+    \row    \o "0b" or "0B"          \o 2 (binary)
+    \row    \o "0" followed by "0-7" \o 8 (octal)
+    \row    \o "0" otherwise         \o 10 (decimal)
+    \row    \o "0x" or "0X"          \o 16 (hexadecimal)
+    \row    \o "1" to "9"            \o 10 (decimal)
+    \endtable
+
+    By calling setIntegerBase(), you can specify the integer base
+    explicitly. This will disable the auto-detection, and speed up
+    QTextStream slightly.
+
+    Leading whitespace is skipped.
+*/
 QTextStream &QTextStream::operator>>(signed short &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(signed short);
 }
 
-
 /*!
     \overload
 
-    Reads an unsigned \c short integer \a i from the stream and
-    returns a reference to the stream. See flags() for an explanation
-    of the expected input format.
+    Stores the integer in the unsigned short \a i.
 */
-
 QTextStream &QTextStream::operator>>(unsigned short &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(unsigned short);
 }
 
-
 /*!
     \overload
 
-    Reads a signed \c int \a i from the stream and returns a reference
-    to the stream. See flags() for an explanation of the expected
-    input format.
+    Stores the integer in the signed int \a i.
 */
-
 QTextStream &QTextStream::operator>>(signed int &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(signed int);
 }
 
-
 /*!
     \overload
 
-    Reads an unsigned \c int \a i from the stream and returns a
-    reference to the stream. See flags() for an explanation of the
-    expected input format.
+    Stores the integer in the unsigned int \a i.
 */
-
 QTextStream &QTextStream::operator>>(unsigned int &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(unsigned int);
 }
 
-
 /*!
     \overload
 
-    Reads a signed \c long int \a i from the stream and returns a
-    reference to the stream. See flags() for an explanation of the
-    expected input format.
+    Stores the integer in the signed long \a i.
 */
-
 QTextStream &QTextStream::operator>>(signed long &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(signed long);
 }
 
-
 /*!
     \overload
 
-    Reads an unsigned \c long int \a i from the stream and returns a
-    reference to the stream. See flags() for an explanation of the
-    expected input format.
+    Stores the integer in the unsigned long \a i.
 */
-
 QTextStream &QTextStream::operator>>(unsigned long &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(unsigned long);
 }
 
+/*!
+    \overload
 
+    Stores the integer in the qlonglong \a i.
+*/
 QTextStream &QTextStream::operator>>(qlonglong &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(qlonglong);
 }
 
+/*!
+    \overload
+
+    Stores the integer in the qulonglong \a i.
+*/
 QTextStream &QTextStream::operator>>(qulonglong &i)
 {
     IMPLEMENT_STREAM_RIGHT_INT_OPERATOR(qulonglong);
 }
 
-
 /*!
-    \overload
+    Reads a real number from the stream and stores it in \a f, then
+    returns a reference to the QTextStream. The number is casted to
+    the correct type. If no real number is detect on the stream, \a f
+    is set to 0.0.
 
-    Reads a \c float \a f from the stream and returns a reference to
-    the stream. See flags() for an explanation of the expected input
-    format.
+    Leading whitespace is skipped.
 */
-
 QTextStream &QTextStream::operator>>(float &f)
 {
     IMPLEMENT_STREAM_RIGHT_REAL_OPERATOR(float);
 }
 
-
 /*!
     \overload
 
-    Reads a \c double \a f from the stream and returns a reference to
-    the stream. See flags() for an explanation of the expected input
-    format.
+    Stores the real number in the double \a f.
 */
-
 QTextStream &QTextStream::operator>>(double &f)
 {
     IMPLEMENT_STREAM_RIGHT_REAL_OPERATOR(double);
 }
 
 /*!
-    \overload
+    Reads a word from the stream and stores it in \a str, then returns
+    a reference to the stream. Words are separated by whitespace
+    (i.e., all characters for which QChar::isSpace() returns true).
 
-    Reads a "word" from the stream into \a s and returns a reference
-    to the stream.
-
-    A word consists of characters for which isspace() returns false.
+    Leading whitespace is skipped.
 */
-
-QTextStream &QTextStream::operator>>(char *c)
-{
-    Q_D(QTextStream);
-    CHECK_VALID_STREAM(*this);
-    d->scan(0, 0, 0, QTextStreamPrivate::NotSpace);
-    d->consumeLastToken();
-
-    const QChar *ptr;
-    int length;
-    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space))
-        return *this;
-
-    for (int i = 0; i < length; ++i)
-        *c++ = ptr[i].toLatin1();
-    *c = '\0';
-    d->consumeLastToken();
-    return *this;
-}
-
-/*!
-    \overload
-
-    Reads a "word" from the stream into \a str and returns a reference
-    to the stream.
-
-    A word consists of characters for which isspace() returns false.
-*/
-
 QTextStream &QTextStream::operator>>(QString &str)
 {
     Q_D(QTextStream);
@@ -1555,12 +1714,10 @@ QTextStream &QTextStream::operator>>(QString &str)
 /*!
     \overload
 
-    Reads a "word" from the stream into \a str and returns a reference
-    to the stream.
+    Converts the word to ISO-8859-1, then stores it in \a array.
 
-    A word consists of characters for which isspace() returns false.
+    \sa QString::toLatin1()
 */
-
 QTextStream &QTextStream::operator>>(QByteArray &array)
 {
     Q_D(QTextStream);
@@ -1582,10 +1739,39 @@ QTextStream &QTextStream::operator>>(QByteArray &array)
     return *this;
 }
 
-/*****************************************************************************
-  QTextStream write functions
- *****************************************************************************/
+/*!
+    \overload
 
+    Stores the word in \a c.
+
+    Warning: Although convenient, this operator is dangerous and must
+    be used with care. QTextStream assumes that \a c points to a
+    buffer with enough space to hold the word. If the buffer is too
+    small, your application may crash.
+
+    If possible, use the QByteArray operator instead.
+*/
+QTextStream &QTextStream::operator>>(char *c)
+{
+    Q_D(QTextStream);
+    CHECK_VALID_STREAM(*this);
+    d->scan(0, 0, 0, QTextStreamPrivate::NotSpace);
+    d->consumeLastToken();
+
+    const QChar *ptr;
+    int length;
+    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space))
+        return *this;
+
+    for (int i = 0; i < length; ++i)
+        *c++ = ptr[i].toLatin1();
+    *c = '\0';
+    d->consumeLastToken();
+    return *this;
+}
+
+/*! \internal
+ */
 bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 {
     QString tmp;
@@ -1611,11 +1797,10 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 }
 
 /*!
-    Writes character \c char to the stream and returns a reference to
-    the stream.
+    Writes the character \a c to the stream, then returns a reference
+    to the QTextStream.
 
-    The character \a c is assumed to be Latin1 encoded independent of
-    the Encoding set for the QTextStream.
+    \sa setFieldWidth()
 */
 QTextStream &QTextStream::operator<<(QChar c)
 {
@@ -1628,8 +1813,7 @@ QTextStream &QTextStream::operator<<(QChar c)
 /*!
     \overload
 
-    Writes character \a c to the stream and returns a reference to the
-    stream.
+    Converts \a c from ASCII to a QChar, then writes it to the stream.
 */
 QTextStream &QTextStream::operator<<(char c)
 {
@@ -1640,12 +1824,13 @@ QTextStream &QTextStream::operator<<(char c)
 }
 
 /*!
-    \overload
+    Writes the integer number \a i to the stream, then returns a
+    reference to the QTextStream. By default, the number is stored in
+    decimal form, but you can also set the base by calling
+    setIntegerBase().
 
-    Writes a \c short integer \a i to the stream and returns a
-    reference to the stream.
+    \sa setFieldWidth(), setNumberFlags()
 */
-
 QTextStream &QTextStream::operator<<(signed short i)
 {
     Q_D(QTextStream);
@@ -1654,14 +1839,11 @@ QTextStream &QTextStream::operator<<(signed short i)
     return *this;
 }
 
-
 /*!
     \overload
 
-    Writes an \c unsigned \c short integer \a i to the stream and
-    returns a reference to the stream.
+    Writes the unsigned short \a i to the stream.
 */
-
 QTextStream &QTextStream::operator<<(unsigned short i)
 {
     Q_D(QTextStream);
@@ -1670,14 +1852,11 @@ QTextStream &QTextStream::operator<<(unsigned short i)
     return *this;
 }
 
-
 /*!
     \overload
 
-    Writes an \c int \a i to the stream and returns a reference to the
-    stream.
+    Writes the signed int \a i to the stream.
 */
-
 QTextStream &QTextStream::operator<<(signed int i)
 {
     Q_D(QTextStream);
@@ -1686,14 +1865,11 @@ QTextStream &QTextStream::operator<<(signed int i)
     return *this;
 }
 
-
 /*!
     \overload
 
-    Writes an \c unsigned \c int \a i to the stream and returns a
-    reference to the stream.
+    Writes the unsigned int \a i to the stream.
 */
-
 QTextStream &QTextStream::operator<<(unsigned int i)
 {
     Q_D(QTextStream);
@@ -1702,14 +1878,11 @@ QTextStream &QTextStream::operator<<(unsigned int i)
     return *this;
 }
 
-
 /*!
     \overload
 
-    Writes a \c long \c int \a i to the stream and returns a reference
-    to the stream.
+    Writes the signed long \a i to the stream.
 */
-
 QTextStream &QTextStream::operator<<(signed long i)
 {
     Q_D(QTextStream);
@@ -1718,14 +1891,11 @@ QTextStream &QTextStream::operator<<(signed long i)
     return *this;
 }
 
-
 /*!
     \overload
 
-    Writes an \c unsigned \c long \c int \a i to the stream and
-    returns a reference to the stream.
+    Writes the unsigned long \a i to the stream.
 */
-
 QTextStream &QTextStream::operator<<(unsigned long i)
 {
     Q_D(QTextStream);
@@ -1734,14 +1904,11 @@ QTextStream &QTextStream::operator<<(unsigned long i)
     return *this;
 }
 
-
 /*!
     \overload
 
-    Writes a \c long \c int \a i to the stream and returns a reference
-    to the stream.
+    Writes the qlonglong \a i to the stream.
 */
-
 QTextStream &QTextStream::operator<<(qlonglong i)
 {
     Q_D(QTextStream);
@@ -1750,14 +1917,11 @@ QTextStream &QTextStream::operator<<(qlonglong i)
     return *this;
 }
 
-
 /*!
     \overload
 
-    Writes an \c unsigned \c long \c int \a i to the stream and
-    returns a reference to the stream.
+    Writes the qulonglong \a i to the stream.
 */
-
 QTextStream &QTextStream::operator<<(qulonglong i)
 {
     Q_D(QTextStream);
@@ -1766,14 +1930,17 @@ QTextStream &QTextStream::operator<<(qulonglong i)
     return *this;
 }
 
-
 /*!
-    \overload
+    Writes the real number \a f to the stream, then returns a
+    reference to the QTextStream. By default, QTextStream stores it
+    using SmartNotation, with up to 6 digits of precision. You can
+    change the textual representation QTextStream will use for real
+    numbers by calling setRealNumberNotation(),
+    setRealNumberPrecision() and setNumberFlags().
 
-    Writes a \c float \a f to the stream and returns a reference to
-    the stream.
+    \sa setFieldWidth(), setRealNumberNotation(),
+    setRealNumberPrecision(), setNumberFlags()
 */
-
 QTextStream &QTextStream::operator<<(float f)
 {
     return *this << double(f);
@@ -1782,10 +1949,8 @@ QTextStream &QTextStream::operator<<(float f)
 /*!
     \overload
 
-    Writes a \c double \a f to the stream and returns a reference to
-    the stream.
+    Writes the double \a f to the stream.
 */
-
 QTextStream &QTextStream::operator<<(double f)
 {
     Q_D(QTextStream);
@@ -1828,34 +1993,28 @@ QTextStream &QTextStream::operator<<(double f)
     return *this;
 }
 
-
 /*!
-    \overload
+    Writes the string \a string to the stream, and returns a reference
+    to the QTextStream. The string is first encoded using the assigned
+    codec (the default codec is QTextCodec::codecForLocale()) before
+    it is written to the stream.
 
-    Writes a string to the stream and returns a reference to the
-    stream.
-
-    The string \a s is assumed to be Latin1 encoded independent of the
-    Encoding set for the QTextStream.
+    \sa setFieldWidth(), setCodec()
 */
-
-QTextStream &QTextStream::operator<<(const char *s)
+QTextStream &QTextStream::operator<<(const QString &string)
 {
     Q_D(QTextStream);
     CHECK_VALID_STREAM(*this);
-    d->putString(QLatin1String(s));
+    d->putString(string);
     return *this;
 }
 
 /*!
     \overload
 
-    Writes \a s to the stream and returns a reference to the stream.
-
-    The string \a s is assumed to be Latin1 encoded independent of the
-    Encoding set for the QTextStream.
+    Writes \a array to the stream. The contents of \a array are
+    assumed to be in ISO-8859-1 encoding.
 */
-
 QTextStream &QTextStream::operator<<(const QByteArray &array)
 {
     Q_D(QTextStream);
@@ -1867,28 +2026,33 @@ QTextStream &QTextStream::operator<<(const QByteArray &array)
 /*!
     \overload
 
-    Writes \a s to the stream and returns a reference to the stream.
-*/
+    Writes the constant string pointed to by \a string to the stream. \a
+    string is assumed to be in ISO-8859-1 encoding. This operator
+    is convenient when working with constant string data. Example:
 
-QTextStream &QTextStream::operator<<(const QString &s)
+    \code
+        QTextStream stream(stdout);
+        stream << "Qt rocks!" << endl;
+    \endcode
+
+    Warning: QTextStream assumes that \a string points to a string of
+    text, terminated by a '\0' character. If there is no terminating
+    '\0' character, your application may crash.
+*/
+QTextStream &QTextStream::operator<<(const char *string)
 {
     Q_D(QTextStream);
     CHECK_VALID_STREAM(*this);
-    d->putString(s);
+    d->putString(QLatin1String(string));
     return *this;
 }
-
 
 /*!
     \overload
 
-    Writes a pointer to the stream and returns a reference to the
-    stream.
-
-    The \a ptr is output as an unsigned long hexadecimal integer.
+    Writes \a ptr to the stream as a hexadecimal number with a base.
 */
-
-QTextStream &QTextStream::operator<<(const void *p)
+QTextStream &QTextStream::operator<<(const void *ptr)
 {
     Q_D(QTextStream);
     CHECK_VALID_STREAM(*this);
@@ -1896,236 +2060,287 @@ QTextStream &QTextStream::operator<<(const void *p)
     NumberFlags oldFlags = d->numberFlags;
     d->integerBase = 16;
     d->numberFlags |= ShowBase;
-    d->putNumber(reinterpret_cast<qint64>(p), false);
+    d->putNumber(reinterpret_cast<qint64>(ptr), false);
     d->integerBase = oldBase;
     d->numberFlags = oldFlags;
-
     return *this;
 }
 
+/*!
+    \fn QTextStream &bin(QTextStream &stream)
+    \relates QTextStream
 
-
- /*****************************************************************************
-  QTextStream manipulators
- *****************************************************************************/
-
-QTextStream &bin(QTextStream &s)
+    Calls stream.setIntegerBase(2) and returns \a stream.
+*/
+QTextStream &bin(QTextStream &stream)
 {
-    s.setIntegerBase(2);
-    return s;
+    stream.setIntegerBase(2);
+    return stream;
 }
 
-QTextStream &oct(QTextStream &s)
+/*!
+    \fn QTextStream &oct(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setIntegerBase(8) and returns \a stream.
+*/
+QTextStream &oct(QTextStream &stream)
 {
-    s.setIntegerBase(8);
-    return s;
+    stream.setIntegerBase(8);
+    return stream;
 }
 
-QTextStream &dec(QTextStream &s)
+/*!
+    \fn QTextStream &dec(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setIntegerBase(10) and returns \a stream.
+*/
+QTextStream &dec(QTextStream &stream)
 {
-    s.setIntegerBase(10);
-    return s;
+    stream.setIntegerBase(10);
+    return stream;
 }
 
-QTextStream &hex(QTextStream &s)
+/*!
+    \fn QTextStream &hex(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setIntegerBase(16) and returns \a stream.
+*/
+QTextStream &hex(QTextStream &stream)
 {
-    s.setIntegerBase(16);
-    return s;
+    stream.setIntegerBase(16);
+    return stream;
 }
 
-QTextStream &showbase(QTextStream &s)
+/*!
+    \fn QTextStream &showbase(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::ShowBase) and returns \a stream.
+*/
+QTextStream &showbase(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() | QTextStream::ShowBase);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() | QTextStream::ShowBase);
+    return stream;
 }
 
-QTextStream &forcesign(QTextStream &s)
+/*!
+    \fn QTextStream &forcesign(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::ForceSign) and returns \a stream.
+*/
+QTextStream &forcesign(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() | QTextStream::ForceSign);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() | QTextStream::ForceSign);
+    return stream;
 }
 
-QTextStream &forcepoint(QTextStream &s)
+/*!
+    \fn QTextStream &forcepoint(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::ForcePoint) and returns \a stream.
+*/
+QTextStream &forcepoint(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() | QTextStream::ForcePoint);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() | QTextStream::ForcePoint);
+    return stream;
 }
 
-QTextStream &noshowbase(QTextStream &s)
+/*!
+    \fn QTextStream &noshowbase(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::ShowBase) and returns \a stream.
+*/
+QTextStream &noshowbase(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() &= ~QTextStream::ShowBase);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() &= ~QTextStream::ShowBase);
+    return stream;
 }
 
-QTextStream &noforcesign(QTextStream &s)
+/*!
+    \fn QTextStream &noforcesign(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::ForceSign) and returns \a stream.
+*/
+QTextStream &noforcesign(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() &= ~QTextStream::ForceSign);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() &= ~QTextStream::ForceSign);
+    return stream;
 }
 
-QTextStream &noforcepoint(QTextStream &s)
+/*!
+    \fn QTextStream &noforcepoint(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::ForcePoint) and returns \a stream.
+*/
+QTextStream &noforcepoint(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() &= ~QTextStream::ForcePoint);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() &= ~QTextStream::ForcePoint);
+    return stream;
 }
 
-QTextStream &uppercasebase(QTextStream &s)
+/*!
+    \fn QTextStream &uppercasebase(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::UppercaseBase) and returns \a stream.
+*/
+QTextStream &uppercasebase(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() | QTextStream::UppercaseBase);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() | QTextStream::UppercaseBase);
+    return stream;
 }
 
-QTextStream &uppercasedigits(QTextStream &s)
+/*!
+    \fn QTextStream &uppercasedigits(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() | QTextStream::UppercaseDigits) and returns \a stream.
+*/
+QTextStream &uppercasedigits(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() | QTextStream::UppercaseDigits);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() | QTextStream::UppercaseDigits);
+    return stream;
 }
 
-QTextStream &nouppercasebase(QTextStream &s)
+/*!
+    \fn QTextStream &nouppercasebase(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseBase) and returns \a stream.
+*/
+QTextStream &nouppercasebase(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() & ~QTextStream::UppercaseBase);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseBase);
+    return stream;
 }
 
-QTextStream &nouppercasedigits(QTextStream &s)
+/*!
+    \fn QTextStream &nouppercasedigits(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseDigits) and returns \a stream.
+*/
+QTextStream &nouppercasedigits(QTextStream &stream)
 {
-    s.setNumberFlags(s.numberFlags() & ~QTextStream::UppercaseDigits);
-    return s;
+    stream.setNumberFlags(stream.numberFlags() & ~QTextStream::UppercaseDigits);
+    return stream;
 }
 
-QTextStream &fixed(QTextStream &s)
+/*!
+    \fn QTextStream &fixed(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setRealNumberNotation(QTextStream::FixedNotation) and returns \a stream.
+*/
+QTextStream &fixed(QTextStream &stream)
 {
-    s.setRealNumberNotation(QTextStream::FixedNotation);
-    return s;
+    stream.setRealNumberNotation(QTextStream::FixedNotation);
+    return stream;
 }
 
+/*!
+    \fn QTextStream &scientific(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setRealNumberNotation(QTextStream::ScientificNotation) and returns \a stream.
+*/
 QTextStream &scientific(QTextStream &s)
 {
     s.setRealNumberNotation(QTextStream::ScientificNotation);
     return s;
 }
 
-QTextStream &left(QTextStream &s)
+/*!
+    \fn QTextStream &left(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setFieldAlignment(QTextStream::AlignLeft) and returns \a stream.
+*/
+QTextStream &left(QTextStream &stream)
 {
-    s.setFieldAlignment(QTextStream::AlignLeft);
-    return s;
+    stream.setFieldAlignment(QTextStream::AlignLeft);
+    return stream;
 }
 
-QTextStream &right(QTextStream &s)
+/*!
+    \fn QTextStream &right(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setFieldAlignment(QTextStream::AlignRight) and returns \a stream.
+*/
+QTextStream &right(QTextStream &stream)
 {
-    s.setFieldAlignment(QTextStream::AlignRight);
-    return s;
+    stream.setFieldAlignment(QTextStream::AlignRight);
+    return stream;
 }
 
-QTextStream &center(QTextStream &s)
+/*!
+    \fn QTextStream &center(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.setFieldAlignment(QTextStream::AlignCenter) and returns \a stream.
+*/
+QTextStream &center(QTextStream &stream)
 {
-    s.setFieldAlignment(QTextStream::AlignCenter);
-    return s;
+    stream.setFieldAlignment(QTextStream::AlignCenter);
+    return stream;
 }
 
-QTextStream &endl(QTextStream &s)
+/*!
+    \fn QTextStream &endl(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream << '\n' and returns \a stream.
+*/
+QTextStream &endl(QTextStream &stream)
 {
-    return s << QLatin1Char('\n');
+    return stream << QLatin1Char('\n');
 }
 
-QTextStream &flush(QTextStream &s)
+/*!
+    \fn QTextStream &flush(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.flush() and returns \a stream.
+*/
+QTextStream &flush(QTextStream &stream)
 {
-    s.flush();
-    return s;
+    stream.flush();
+    return stream;
 }
 
-QTextStream &reset(QTextStream &s)
+/*!
+    \fn QTextStream &reset(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.reset() and returns \a stream.
+*/
+QTextStream &reset(QTextStream &stream)
 {
-    s.reset();
-    return s;
+    stream.reset();
+    return stream;
 }
-
-
-/*!
-    \class QTextIStream
-    \brief The QTextIStream class is a convenience class for input streams.
-
-    \reentrant
-    \ingroup io
-    \ingroup text
-
-    This class provides a shorthand for creating simple input
-    \l{QTextStream}s without having to pass a \e mode argument to the
-    constructor.
-
-    This class makes it easy to write things like this:
-    \code
-    QString data = "123 456";
-    int a, b;
-    QTextIStream(&data) >> a >> b;
-    \endcode
-
-    \sa QTextOStream
-*/
-
-/*!
-    \fn QTextIStream::QTextIStream(const QString *s)
-
-    Constructs a stream to read from the string \a s.
-*/
-/*!
-    \fn QTextIStream::QTextIStream(QByteArray *ba)
-
-    Constructs a stream to read from the byte array \a ba.
-*/
-/*!
-    \fn QTextIStream::QTextIStream(FILE *f)
-
-    Constructs a stream to read from the file handle \a f.
-*/
-
-
-/*!
-    \class QTextOStream
-    \brief The QTextOStream class is a convenience class for output streams.
-
-    \reentrant
-    \ingroup io
-    \ingroup text
-
-    This class provides a shorthand for creating simple output
-    \l{QTextStream}s without having to pass a \e mode argument to the
-    constructor.
-
-    This makes it easy to write things like this:
-    \code
-    QString result;
-    QTextOStream(&result) << "pi = " << 3.14;
-    \endcode
-*/
-
-/*!
-    \fn QTextOStream::QTextOStream(QString *s)
-
-    Constructs a stream to write to string \a s.
-*/
-/*!
-    \fn QTextOStream::QTextOStream(QByteArray *ba)
-
-    Constructs a stream to write to the byte array \a ba.
-*/
-/*!
-    \fn QTextOStream::QTextOStream(FILE *f)
-
-    Constructs a stream to write to the file handle \a f.
-*/
 
 #ifndef QT_NO_TEXTCODEC
 /*!
-    Sets the codec for this stream to \a codec. Will not try to
-    autodetect Unicode.
+    Sets the codec for this stream to \a codec. The codec is used for
+    decoding any data that is read from the assigned device, and for
+    encoding any data that is written. By default,
+    QTextCodec::codecForLocale() is used, and automatic unicode
+    detection is enabled.
 
-    Note that this function should be called before any data is read
-    to/written from the stream.
+    If QTextStream operates on a string, this function does nothing.
 
-    \sa setEncoding(), codec()
+    \sa codec(), setAutoDetectUnicode()
 */
-
 void QTextStream::setCodec(QTextCodec *codec)
 {
     Q_D(QTextStream);
@@ -2133,33 +2348,189 @@ void QTextStream::setCodec(QTextCodec *codec)
 }
 
 /*!
-    Returns the codec actually used for this stream.
+    Returns the codec that is current assigned to the stream.
 
-    If Unicode is automatically detected on input, a codec with \link
-    QTextCodec::name() name() \endlink "ISO-10646-UCS-2" is returned.
-
-    \sa setCodec()
+    \sa setCodec(), setAutoDetectUnicode()
 */
-
 QTextCodec *QTextStream::codec() const
 {
     Q_D(const QTextStream);
     return d->codec;
 }
 
+/*!
+    If \a enabled is true, QTextStream will attempt to detect Unicode
+    encoding by peeking into the stream data to see if it can find the
+    UTF-16 BOM (Byte Order Mark). If this mark is found, QTextStream
+    will replace the current codec with the UTF-16 codec.
+
+    This function can be used together with setCodec(). It is common
+    to set the codec to UTF-8, and then enable UTF-16 detection.
+
+    \sa autoDetectUnicode(), setCodec()
+*/
 void QTextStream::setAutoDetectUnicode(bool enabled)
 {
     Q_D(QTextStream);
     d->autoDetectUnicode = enabled;
 }
 
+/*!
+    Returns true if automatic Unicode detection is enabled; otherwise
+    returns false.
+
+    \sa setAutoDetectUnicode(), setCodec()
+*/
 bool QTextStream::autoDetectUnicode() const
 {
     Q_D(const QTextStream);
     return d->autoDetectUnicode;
 }
 
+#endif
+
 #ifdef QT3_SUPPORT
+/*!
+    \class QTextIStream
+    \brief The QTextIStream class is a convenience class for input streams.
+
+    \obsolete
+    \reentrant
+    \ingroup io
+    \ingroup text
+
+    Use QTextStream instead.
+*/
+
+/*!
+    \fn QTextIStream::QTextIStream(const QString *)
+    \obsolete
+
+    Use QTextStream(&string, QIODevice::ReadOnly) instead.
+*/
+/*!
+    \fn QTextIStream::QTextIStream(QByteArray *)
+    \obsolete
+
+    Use QTextStream(&byteArray, QIODevice::ReadOnly) instead.
+*/
+/*!
+    \fn QTextIStream::QTextIStream(FILE *)
+
+    Use QTextStream(file, QIODevice::ReadOnly) instead.
+*/
+
+/*!
+    \class QTextOStream
+    \brief The QTextOStream class is a convenience class for output streams.
+
+    \obsolete
+    \reentrant
+    \ingroup io
+    \ingroup text
+
+    Use QTextStream instead.
+*/
+
+/*!
+    \fn QTextOStream::QTextOStream(QString *)
+
+    Use QTextStream(&string, QIODevice::WriteOnly) instead.
+*/
+/*!
+    \fn QTextOStream::QTextOStream(QByteArray *)
+
+    Use QTextStream(&byteArray, QIODevice::WriteOnly) instead.
+*/
+/*!
+    \fn QTextOStream::QTextOStream(FILE *)
+
+    Use QTextStream(file, QIODevice::WriteOnly) instead.
+*/
+
+/*! \internal
+*/
+int QTextStream::flagsInternal() const
+{
+    Q_D(const QTextStream);
+
+    int f = 0;
+    switch (d->fieldAlignment) {
+    case AlignLeft: f |= left; break;
+    case AlignRight: f |= right; break;
+    case AlignCenter: f |= internal; break;
+    default:
+        break;
+    }
+    switch (d->integerBase) {
+    case 2: f |= bin; break;
+    case 8: f |= oct; break;
+    case 10: f |= dec; break;
+    case 16: f |= hex; break;
+    default:
+        break;
+    }
+    switch (d->realNumberNotation) {
+    case FixedNotation: f |= fixed; break;
+    case ScientificNotation: f |= scientific; break;
+    default:
+        break;
+    }
+    if (d->numberFlags & ShowBase)
+        f |= showbase;
+    if (d->numberFlags & ForcePoint)
+        f |= showpoint;
+    if (d->numberFlags & ForceSign)
+        f |= showpos;
+    if (d->numberFlags & UppercaseBase)
+        f |= uppercase;
+    return f;
+}
+
+/*! \internal
+*/
+int QTextStream::flagsInternal(int newFlags)
+{
+    int oldFlags = flagsInternal();
+
+    if (newFlags & left)
+        setFieldAlignment(AlignLeft);
+    else if (newFlags & right)
+        setFieldAlignment(AlignRight);
+    else if (newFlags & internal)
+        setFieldAlignment(AlignCenter);
+
+    if (newFlags & bin)
+        setIntegerBase(2);
+    else if (newFlags & oct)
+        setIntegerBase(8);
+    else if (newFlags & dec)
+        setIntegerBase(10);
+    else if (newFlags & hex)
+        setIntegerBase(16);
+
+    if (newFlags & showbase)
+        setNumberFlags(numberFlags() | ShowBase);
+    if (newFlags & showpos)
+        setNumberFlags(numberFlags() | ForceSign);
+    if (newFlags & showpoint)
+        setNumberFlags(numberFlags() | ForcePoint);
+    if (newFlags & uppercase)
+        setNumberFlags(numberFlags() | UppercaseBase);
+
+    if (newFlags & fixed)
+        setRealNumberNotation(FixedNotation);
+    else if (newFlags & scientific)
+        setRealNumberNotation(ScientificNotation);
+
+    return oldFlags;
+}
+
+/*!
+    \obsolete
+
+    Use setCodec() and setAutoDetectUnicode() instead.
+*/
 void QTextStream::setEncoding(Encoding encoding)
 {
     Q_D(QTextStream);
@@ -2207,8 +2578,106 @@ void QTextStream::setEncoding(Encoding encoding)
         break;
     }
 }
+
+/*!
+    \enum QTextStream::Encoding
+    \obsolete
+
+    Use fieldAlignment(), padChar(), fieldWidth(), numberFlags(),
+    integerBase(), realNumberNotation(), and realNumberNotation
+    instead.
+
+    \omitvalue Latin1
+    \omitvalue Locale
+    \omitvalue RawUnicode
+    \omitvalue Unicode
+    \omitvalue UnicodeNetworkOrder
+    \omitvalue UnicodeReverse
+    \omitvalue UnicodeUTF8
+*/
+
+/*!
+    \fn int QTextStream::flags() const
+    \obsolete
+
+    Use fieldAlignment(), padChar(), fieldWidth(), numberFlags(),
+    integerBase(), realNumberNotation(), and realNumberNotation
+    instead.
+*/
+
+/*!
+    \fn int QTextStream::flags(int)
+    \obsolete
+
+    Use setFieldAlignment(), setPadChar(), setFieldWidth(),
+    setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
+    setRealNumberNotation instead.
+*/
+
+/*!
+    \fn int QTextStream::setf(int)
+    \obsolete
+
+    Use setFieldAlignment(), setPadChar(), setFieldWidth(),
+    setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
+    setRealNumberNotation instead.
+*/
+
+/*!
+    \fn int QTextStream::setf(int,int)
+    \obsolete
+
+    Use setFieldAlignment(), setPadChar(), setFieldWidth(),
+    setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
+    setRealNumberNotation instead.
+*/
+
+/*!
+    \fn int QTextStream::unsetf(int)
+    \obsolete
+
+    Use setFieldAlignment(), setPadChar(), setFieldWidth(),
+    setNumberFlags(), setIntegerBase(), setRealNumberNotation(), and
+    setRealNumberNotation instead.
+*/
+
+/*!
+    \fn int QTextStream::width(int)
+    \obsolete
+
+    Use setFieldWidth() instead.
+*/
+
+/*!
+    \fn int QTextStream::fill(int)
+    \obsolete
+
+    Use setPadChar() instead.
+*/
+
+/*!
+    \fn int QTextStream::precision(int)
+    \obsolete
+
+    Use setRealNumberPrecision() instead.
+*/
+
+/*!
+    \fn int QTextStream::read()
+    \obsolete
+
+    Use readAll() or readLine() instead.
+*/
+
+/*!
+    \fn int QTextStream::unsetDevice()
+    \obsolete
+
+    This function does nothing anymore; don't call it.
+*/
+
 #endif
 
+#ifndef QT_NO_QOBJECT
 #include "qtextstream.moc"
-
 #endif

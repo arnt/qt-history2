@@ -73,13 +73,13 @@ public:
     void setDevice(QIODevice *device);
     QIODevice *device() const;
 
-    void setString(QString *string);
+    void setString(QString *string, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
     QString *string() const;
 
     bool atEnd() const;
     void reset();
     void flush();
-    bool seek(qint64 offset);
+    bool seek(qint64 pos);
 
     void skipWhiteSpace();
 
@@ -119,9 +119,9 @@ public:
     QTextStream &operator>>(qulonglong &i);
     QTextStream &operator>>(float &f);
     QTextStream &operator>>(double &f);
-    QTextStream &operator>>(char *c);
     QTextStream &operator>>(QString &s);
     QTextStream &operator>>(QByteArray &array);
+    QTextStream &operator>>(char *c);
 
     QTextStream &operator<<(QChar ch);
     QTextStream &operator<<(char ch);
@@ -135,9 +135,9 @@ public:
     QTextStream &operator<<(qulonglong i);
     QTextStream &operator<<(float f);
     QTextStream &operator<<(double f);
-    QTextStream &operator<<(const char *c);
     QTextStream &operator<<(const QString &s);
     QTextStream &operator<<(const QByteArray &array);
+    QTextStream &operator<<(const char *c);
     QTextStream &operator<<(const void *ptr);
 
 #ifdef QT_USE_FIXED_POINT
