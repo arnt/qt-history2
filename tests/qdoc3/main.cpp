@@ -167,18 +167,18 @@ int main( int argc, char **argv )
 
     trees.setAutoDelete( TRUE );
 
-    (void) new CCodeParser;
-    CodeParser *cppParser = new CppCodeParser;
-    (void) new QsCodeParser( treeForLanguage(cppParser->language()) );
+    CCodeParser cParser;
+    CppCodeParser cppParser;
+    QsCodeParser qsParser( treeForLanguage(cppParser.language()) );
 
-    (void) new PlainCodeMarker;
-    (void) new CppCodeMarker;
-    (void) new QsCodeMarker;
+    PlainCodeMarker plainMarker;
+    CppCodeMarker cppMarker;
+    QsCodeMarker qsMarker;
 
-    (void) new HtmlGenerator;
-    (void) new LoutGenerator;
-    (void) new ManGenerator;
-    (void) new SgmlGenerator;
+    HtmlGenerator htmlGenerator;
+    LoutGenerator loutGenerator;
+    ManGenerator manGenerator;
+    SgmlGenerator smglGenerator;
 
     QStringList qdocFiles;
     QString opt;
@@ -213,9 +213,5 @@ int main( int argc, char **argv )
     }
 
     trees.clear();
-    CodeParser::deleteAllParsers();
-    CodeMarker::deleteAllMarkers();
-    Generator::deleteAllGenerators();
-
     return EXIT_SUCCESS;
 }

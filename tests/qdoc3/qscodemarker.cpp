@@ -49,8 +49,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
     if ( style == Overview )
         name = linkTag( node, name );
     name = "<@name>" + name + "</@name>";
-    if ( style == Detailed && !node->parent()->name().isEmpty() &&
-	 node->type() != Node::Property )
+    if ( style == Detailed && !node->parent()->name().isEmpty() )
 	name.prepend( taggedNode(node->parent()) + "." );
 
     switch ( node->type() ) {
@@ -89,11 +88,11 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         break;
     case Node::Property:
         property = (const PropertyNode *) node;
-        synopsis = property->dataType() + " " + name;
-        if ( style == Overview ) {
-            if ( property->setter().isEmpty() )
-                extras << "(read only)";
-        }
+	if ( style == Overview )
+	    synopsis = "var ";
+	synopsis += name + " : " + property->dataType();
+	if ( property->setter().isEmpty() )
+	    extras << "(read only)";
         break;
     case Node::Namespace:
     case Node::Enum:

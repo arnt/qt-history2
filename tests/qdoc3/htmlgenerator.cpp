@@ -483,6 +483,7 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     }
     out() << highlightedCode( marked, relative );
 
+#if 0
     if ( node->type() == Node::Property ) {
 	Text brief = node->doc().body().subText( Atom::BriefLeft,
 						 Atom::BriefRight );
@@ -493,6 +494,7 @@ void HtmlGenerator::generateSynopsis( const Node *node,
 	    }
 	}
     }
+#endif
 }
 
 QString HtmlGenerator::cleanRef( const QString& ref )

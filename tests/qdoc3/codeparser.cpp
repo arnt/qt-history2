@@ -50,16 +50,6 @@ void CodeParser::terminate()
     }
 }
 
-void CodeParser::deleteAllParsers()
-{
-    QValueList<CodeParser *>::ConstIterator p = parsers.begin();
-    while ( p != parsers.end() ) {
-	delete *p;
-	++p;
-    }
-    parsers.clear();
-}
-
 CodeParser *CodeParser::parserForLanguage( const QString& language )
 {
     QValueList<CodeParser *>::ConstIterator p = parsers.begin();

@@ -33,7 +33,6 @@ public:
 
     static void initialize( const Config& config );
     static void terminate();
-    static void deleteAllGenerators();
     static Generator *generatorForFormat( const QString& format );
 
 protected:

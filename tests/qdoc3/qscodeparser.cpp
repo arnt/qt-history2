@@ -288,6 +288,8 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
     if ( func->metaness() != FunctionNode::Plain &&
 	 !blackList->contains(func->name()) ) {
 	FunctionNode *quickFunc = new FunctionNode( quickClass, func->name() );
+	if ( func->metaness() == FunctionNode::Signal )
+	    quickFunc->setMetaness( FunctionNode::Signal );
 	quickFunc->setLocation( func->location() );
 	quickFunc->setReturnType( quickifiedDataType(func->returnType()) );
 

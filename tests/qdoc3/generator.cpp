@@ -100,16 +100,6 @@ void Generator::terminate()
     }
 }
 
-void Generator::deleteAllGenerators()
-{
-    QValueList<Generator *>::ConstIterator g = generators.begin();
-    while ( g != generators.end() ) {
-	delete *g;
-	++g;
-    }
-    generators.clear();
-}
-
 Generator *Generator::generatorForFormat( const QString& format )
 {
     QValueList<Generator *>::ConstIterator g = generators.begin();
