@@ -167,6 +167,11 @@ int QWindowsMimeAnyMime::cfFor(const char* mime)
     for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
 	if ( 0==qstricmp(mt->mime, mime) )
 	    return mt->cf;
+    // try to register the mime type
+    registerMimeType(mime);
+    mt = mimetypes.current();
+    if( mt && 0 == qstricmp(mt->mime, mime) )
+	return mt->cf;
     return 0;
 }
 
