@@ -1190,14 +1190,20 @@ qint64 QFile::readLineData(char *data, qint64 maxlen)
 
         char *buffer = d->buffer.alloc(bytesToRead);
         qint64 bytesRead = fileEngine()->read(buffer, bytesToRead);
+
+        if (bytesRead != bytesToRead) {
+            if (bytesRead < 0)
+                d->buffer.truncate(bytesToRead);
+            else
+                d->buffer.truncate(bytesToRead - bytesRead);
+        }
+
         if (bytesRead <= 0) {
             if (readSoFar < maxlen)
                 data[readSoFar] = '\0';
             return readSoFar > 0 ? readSoFar : qint64(-1);
         }
 
-        if (bytesRead < bytesToRead)
-            d->buffer.truncate(bytesToRead - bytesRead);
     }
 #endif
 }
