@@ -365,6 +365,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 		VariantInit(&var);
 		QVariantToVARIANT(elem, var, elem.typeName());
 		SafeArrayPutElement(array, &index, &var);
+                clearVARIANT(&var);
 	    }
 
 	    if (out && arg.vt == (VT_ARRAY|VT_VARIANT|VT_BYREF)) {
@@ -981,6 +982,7 @@ void clearVARIANT( VARIANT *var )
 	    break;
 	case VT_ARRAY|VT_VARIANT|VT_BYREF:
 	case VT_ARRAY|VT_UI1|VT_BYREF:
+        case VT_ARRAY|VT_BSTR|VT_BYREF:
 	    SafeArrayDestroy( *var->pparray );
 	    delete var->pparray;
 	    break;
