@@ -1069,20 +1069,9 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawPixmap(r, pixmap, sr, mode);
         return;
-    } else if (!d->forceGdi
-               && (pixmap.hasAlpha() && d->txop > QPainter::TxScale)) {
-        // Try to use GDI+ since we don't support alpha in GDI at the moment, and
-        // rotated/sheared masked pixmaps looks bad.
-        d->forceGdiplus = true;
-        d->beginGdiplus();
-        d->forceGdiplus = false;
-        if (d->usesGdiplus()) {
-            d->gdiplusEngine->drawPixmap(r, pixmap, sr, mode);
-            return;
-        }
     }
 
-    QPixmap *pm          = (QPixmap*)&pixmap;
+    QPixmap *pm = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
 
     HDC pm_dc;
