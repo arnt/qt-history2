@@ -279,6 +279,7 @@ void QWhatsThat::hide()
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
 #endif
+    close(true);
 }
 
 void QWhatsThat::mousePressEvent( QMouseEvent* e )
@@ -487,9 +488,6 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 	delete i;
     }
     delete dict;
-    if ( whatsThat && !whatsThat->parentWidget() ) {
-	delete whatsThat;
-    }
     // and finally lose wt
     wt = 0;
 }
@@ -619,7 +617,6 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     if ( text.isEmpty() )
 	return;
     // make a fresh widget, and set it up
-    delete whatsThat;
     whatsThat = new QWhatsThat(
 			       widget, text,
 #if defined(Q_WS_X11)
