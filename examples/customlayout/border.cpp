@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.cpp#1 $
+** $Id: //depot/qt/main/examples/customlayout/border.cpp#2 $
 **
 ** Implementing your own layout: flow example
 **
@@ -16,32 +16,96 @@ public:
         : idx( 0 ) , list( (QList<BorderLayout::BorderLayoutStruct>*)l )
     {}
 
-    uint count() const
-    { return list->count(); }
-
-    QLayoutItem *current()
-    { return idx < (int)count() ? list->at( idx )->item : 0; }
-
-    BorderLayout::BorderLayoutStruct *currentStruct()
-    { return idx < (int)count() ? list->at( idx ) : 0; }
-
-    void toFirst()
-    { idx = 0; }
-
-    QLayoutItem *next()
-    { idx++;  return current(); }
-
-    void removeCurrent()
-    { list->remove(  idx  ); }
-
-    BorderLayoutIterator &operator++()
-    { next();  return *this; }
+    uint count() const;
+    QLayoutItem *current();
+    BorderLayout::BorderLayoutStruct *currentStruct();
+    void toFirst();
+    QLayoutItem *next();
+    void removeCurrent();
+    BorderLayoutIterator &operator++();
 
 private:
     int idx;
     QList<BorderLayout::BorderLayoutStruct> *list;
 
 };
+
+uint BorderLayoutIterator::count() const
+{ 
+    return list->count(); 
+}
+
+QLayoutItem *BorderLayoutIterator::current()
+{ 
+    return idx < (int)count() ? list->at( idx )->item : 0; 
+}
+
+BorderLayout::BorderLayoutStruct *BorderLayoutIterator::currentStruct()
+{ 
+    return idx < (int)count() ? list->at( idx ) : 0; 
+}
+
+void BorderLayoutIterator::toFirst()
+{ 
+    idx = 0; 
+}
+
+QLayoutItem *BorderLayoutIterator::next()
+{ 
+    idx++;  
+    return current(); 
+}
+
+void BorderLayoutIterator::removeCurrent()
+{ 
+    list->remove(  idx  ); 
+}
+
+BorderLayoutIterator &BorderLayoutIterator::operator++()
+{ 
+    next();  
+    return *this; 
+}
+
+
+
+void BorderLayout::addItem( QLayoutItem *item )
+{
+    add( item, West ); 
+}
+
+void BorderLayout::addWidget( QWidget *widget, Position pos )
+{ 
+    add( new BorderWidgetItem( widget ), pos ); 
+}
+
+void BorderLayout::add( QLayoutItem *item, Position pos ) 
+{
+    list.append( new BorderLayoutStruct( item, pos ) );
+    sizeDirty = TRUE; msizeDirty = TRUE;
+    calcSize( SizeHint ); calcSize( Minimum );
+}
+
+bool BorderLayout::hasHeightForWidth() const
+{
+    return FALSE;
+}
+
+QSize BorderLayout::sizeHint() const
+{ 
+    return cached; 
+}
+
+QSize BorderLayout::minimumSize() const
+{ 
+    return cached; 
+}
+
+QSizePolicy::ExpandData BorderLayout::expanding() const
+    
+{ 
+    return QSizePolicy::BothDirections; 
+}
 
 QLayoutIterator BorderLayout::iterator()
 {

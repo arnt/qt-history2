@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/card.cpp#1 $
+** $Id: //depot/qt/main/examples/customlayout/card.cpp#2 $
 **
 ** Implementing your own layout: flow example
 **
@@ -9,26 +9,37 @@
 
 #include "card.h"
 
-//Normally it's a very bad idea to inline virtual functions
 class CardLayoutIterator :public QGLayoutIterator
 {
 public:
     CardLayoutIterator( QList<QLayoutItem> *l )
         : idx( 0 ), list( l )  {}
 
-    QLayoutItem *current()
-    { return idx < int( list->count() ) ? list->at( idx ) : 0;  }
-
-    QLayoutItem *next()
-    { idx++; return current(); }
-
-    void removeCurrent()
-    { list->remove(  idx  ); }
+    QLayoutItem *current();
+    QLayoutItem *next();
+    void removeCurrent();
 
 private:
     int idx;
     QList<QLayoutItem> *list;
 };
+
+QLayoutItem *CardLayoutIterator::current()
+{ 
+    return idx < int( list->count() ) ? list->at( idx ) : 0;  
+}
+
+QLayoutItem *CardLayoutIterator::next()
+{ 
+    idx++; return current(); 
+}
+
+void CardLayoutIterator::removeCurrent()
+{ 
+    list->remove(  idx  ); 
+}
+
+
 
 QLayoutIterator CardLayout::iterator()
 {

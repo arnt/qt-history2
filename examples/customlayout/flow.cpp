@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/flow.cpp#1 $
+** $Id: //depot/qt/main/examples/customlayout/flow.cpp#2 $
 **
 ** Implementing your own layout: flow example
 **
@@ -8,6 +8,43 @@
 *****************************************************************************/
 
 #include "flow.h"
+
+class SimpleFlowIterator :public QGLayoutIterator
+{
+public:
+    SimpleFlowIterator( QList<QLayoutItem> *l ) :idx(0), list(l)  {}
+    uint count() const;
+    QLayoutItem *current();
+    QLayoutItem *next();
+    void removeCurrent();
+
+private:
+    int idx;
+    QList<QLayoutItem> *list;
+
+};
+
+uint SimpleFlowIterator::count() const 
+{ 
+    return list->count(); 
+}
+
+QLayoutItem *SimpleFlowIterator::current() 
+{ 
+    return idx < (int)count() ? list->at(idx) : 0;  
+}
+
+QLayoutItem *SimpleFlowIterator::next() 
+{ 
+    idx++; return current(); 
+}
+
+void SimpleFlowIterator::removeCurrent() 
+{ 
+    list->remove( idx ); 
+}
+
+
 
 int SimpleFlow::heightForWidth( int w ) const
 {
@@ -26,19 +63,20 @@ void SimpleFlow::addItem( QLayoutItem *item)
     list.append( item );
 }
 
-//Normally it's a very bad idea to inline virtual functions
-class SimpleFlowIterator :public QGLayoutIterator
-{
-public:
-    SimpleFlowIterator( QList<QLayoutItem> *l ) :idx(0), list(l)  {}
-    uint count() const { return list->count(); }
-    QLayoutItem *current() { return idx < (int)count() ? list->at(idx) : 0;  }
-    QLayoutItem *next() { idx++; return current(); }
-    void removeCurrent() { list->remove( idx ); }
-private:
-    int idx;
-    QList<QLayoutItem> *list;
-};
+bool SimpleFlow::hasHeightForWidth() const 
+{ 
+    return TRUE; 
+}
+
+QSize SimpleFlow::sizeHint() const 
+{ 
+    return minimumSize(); 
+}
+
+QSizePolicy::ExpandData SimpleFlow::expanding() const
+{ 
+    return QSizePolicy::NoDirection; 
+}
 
 QLayoutIterator SimpleFlow::iterator()
 {
