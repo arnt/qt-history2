@@ -5058,8 +5058,9 @@ QString QTextEdit::optimText() const
 void QTextEdit::optimSetText( const QString &str )
 {
     optimRemoveSelection();
-    if ( str == optimText() )
-	return;
+// this is just too slow - but may have to go in due to compatibility reasons
+//     if ( str == optimText() )
+// 	return;
     d->od->numLines = 0;
     d->od->lines.clear();
     d->od->len = str.length();
@@ -5069,6 +5070,7 @@ void QTextEdit::optimSetText( const QString &str )
 	QStringList strl = QStringList::split( '\n', str, TRUE );
 	int lWidth = 0;
 	for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
+	    optimParseTags( &*it );
 	    d->od->lines[ d->od->numLines++ ] = *it;
 	    lWidth = fm.width( *it );
 	    if ( lWidth > d->od->maxLineWidth )
