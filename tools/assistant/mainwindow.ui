@@ -366,7 +366,7 @@
             <string>New Window</string>
         </property>
         <property name="menuText">
-            <string>New Window...</string>
+            <string>New Window</string>
         </property>
         <property name="whatsThis">
             <string>Open a new window.</string>
