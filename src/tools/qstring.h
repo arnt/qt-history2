@@ -308,10 +308,7 @@ public:
 #endif
 
     // compatibility
-    struct Null {
-	inline bool operator==(const Null&){return true; }
-	inline bool operator!=(const Null&){return false; }
-    };
+    struct Null { };
     static const Null null;
     inline QString(const Null &): d(&shared_null) { ++d->ref; }
     inline QString &operator=(const Null &) { *this = QString(); return *this; }
@@ -592,8 +589,10 @@ Q_CORE_EXPORT bool operator==(const QString &s1, const QString &s2);
 Q_CORE_EXPORT bool operator>(const QString &s1, const QString &s2);
 Q_CORE_EXPORT bool operator>=(const QString &s1, const QString &s2);
 
+inline bool operator==(QString::Null, QString::Null) { return true; }
 inline bool operator==(QString::Null, const QString &s) { return s.isNull(); }
 inline bool operator==(const QString &s, QString::Null) { return s.isNull(); }
+inline bool operator!=(QString::Null, QString::Null) { return false; }
 inline bool operator!=(QString::Null, const QString &s) { return !s.isNull(); }
 inline bool operator!=(const QString &s, QString::Null) { return !s.isNull(); }
 
