@@ -177,7 +177,7 @@ QString QSqlCursor::name() const
   \reimpl
 */
 
-QString QSqlCursor::toString( const QString& prefix = QString::null ) const
+QString QSqlCursor::toString( const QString& prefix ) const
 {
     QString pflist;
     QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
