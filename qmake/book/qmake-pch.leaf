@@ -30,63 +30,6 @@ platforms and build environments, including:
     \endlist
 \endlist
 
-\target Rules
-\section1 Rules for using PCH
-
-Since different compilers handle PCH differently, you must take
-certain measures to be able to use precompiled headers on all
-supported platforms. There are currently two schemes:
-
-\target GCC_scheme
-\section2 GCC scheme
-
-\list
-\i Load PCH
-\i Compile source file from start
-\endlist
-
-\target MSVC_scheme
-\section2 MSVC scheme
-
-\list
-\i Load PCH
-\i Skip code in source file until the marker (include file, or pragma)
-\i If no markers are found, then fail
-\i If any skipped code break \link #MSVC_RULES consistency rules \endlink,
-   go back to the start of the file
-\i Compile the rest of the source file
-\endlist
-
-For your source code to be cross platform, it must follow the MSVC
-scheme. \Bold{This means that every source file must contain an
-include statement for the header file being precompiled.} \e qmake
-will ensure that all generated files from \e uic and \e moc will also
-contain include statements to this header file.
-
-\sidebar Precompiled Headers Consistency Rules using Microsoft Visual
-C++ 
-
-\target MSVC_RULES
-Here is a selection of the most important rules when using PCH in your project.
-\list 1
-\i Macros created using the preprocessor (/D) option must be the same
-   for the compilation that created the PCH and for the current
-   compilation. The state of defined constants is not checked, but
-   unpredictable results can occur if these change.
-\i PCH do not work when preprocessing a sourcefile.
-\i The compiler ignores all preprocessor directives (including
-   pragmas) that appear in the source code that will be precompiled.
-   The compilation specified by such preprocessor directives must be
-   the same as the compilation creating the PCH. 
-\i The PCH must be compiled with debug, to get debug information for
-   local symbols in object file.
-\endlist
-A more complete set of rules can be found at 
-\link http://msdn.microsoft.com/library/en-us/vccore/html/vclrfprecompiledheaderconsistencyrules.asp \endlink
-
-\e {Not all of the rules described in the Microsoft documentation 
-are important, since qmake will enforce them automatically.}
-\endsidebar
 
 \target ADD_PCH
 \section1 Adding PCH to your project
@@ -103,6 +46,10 @@ like this:
 \section3 stable.h
 
 \code
+	/* Add C includes here */
+	
+	#if defined __cplusplus
+	/* Add C++ includes here */
 	#include <stdlib>
 	#include <iostream>
 	#include <vector>
@@ -110,33 +57,12 @@ like this:
 	#include "thirdparty/include/libmain.h"
 	#include "my_stable_class.h"
 	...
+	#endif
 \endcode
 
-
-\target SORT_INCLUDES
-\section2 Sorting include statements
-
-Since some compilers skip code in your source files until they hit the
-include statement for the precompiled header file, you must order
-your include statements in a \Bold stable and \Bold unstable fashion,
-separated by the include statement for the precompiled header file,
-for example, like this:
-\section3 mydialog.cpp
-
-\code
-	#include <qlabel.h>
-	#include <qtextedit.h>
-	#include <qpushbutton.h>
-	#include "stable.h"   // PCH, compiler stops skipping here
-	#include "mydialog.h" // MyDialog's own header file
-	#include "code_under_development.h"
-	#include "very_unstable_code.h"
-	...
-\endcode
-
-Note that a class's own header file \Bold must be included \e after
-the PCH include statement. If not, then on some platforms the compiler
-will skip the code, and miss the class definition.
+Note that a precompiled header file needs to separate C includes from
+CPP includes, since C files and CPP files cannot share the same
+precompiled header file.
 
 
 \target PROJECT_OPTIONS
@@ -184,8 +110,8 @@ You can find the following source code in the
 
 \Bold stable.h
 \quotefile precompile/stable.h
-\skipto #include
-\printuntil <qlabel.h>
+\skipto /*
+\printuntil #endif
 
 \Bold myobject.h
 \quotefile precompile/myobject.h
@@ -199,7 +125,7 @@ You can find the following source code in the
 
 \Bold util.cpp
 \quotefile precompile/util.cpp
-\skipto #include
+\skipto void
 \printuntil }
 
 \Bold main.cpp

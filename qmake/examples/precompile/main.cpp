@@ -1,8 +1,7 @@
 #include <qapplication.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
-#include "stable.h"    // Last stable header
-#include "myobject.h"  // Unstable
+#include "myobject.h"
 #include "mydialog.h"
 
 int main(int argc, char **argv)

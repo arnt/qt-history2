@@ -1,7 +1,6 @@
 #include <iostream>
 #include <qobject.h>
-#include "stable.h"    // Last stable header
-#include "myobject.h"  // Own header
+#include "myobject.h"
 
 MyObject::MyObject()
     : QObject()
