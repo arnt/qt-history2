@@ -617,7 +617,7 @@ bool QListViewItem::acceptDrop( const QMimeSource * ) const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*!  This method is called when something was dropped on the item.  
+/*!  This method is called when something was dropped on the item.
   \a e contains all the information about the drop.
 
   The default implementation does nothing, subclasses should
@@ -1460,8 +1460,10 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
 
     // (lars) what does this do???
+#if 0 // RS: ####
     if ( align != AlignLeft )
 	marg -= lv->d->minRightBearing;
+#endif
     if ( isSelected() &&
 	 (column==0 || listView()->allColumnsShowFocus()) ) {
 	p->fillRect( r - marg, 0, width - r + marg, height(),
