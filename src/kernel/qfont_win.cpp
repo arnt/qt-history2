@@ -790,7 +790,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QChar ch = QComplexText::shapedCharacter( str, pos );
-    return ch ? width( ch ) : 0; 
+    return ch.unicode() ? width( ch ) : 0; 
 }
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
