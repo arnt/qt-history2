@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#358 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#359 $
 **
 ** Implementation of QWidget class
 **
@@ -2812,9 +2812,15 @@ void QWidget::show()
     }
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
 	QSize s = sizeHint();
-	if ( layout() && layout()->hasHeightForWidth() )
-	    s.setHeight( layout()->heightForWidth( s.width() ) );
-	if ( s.isValid() )
+	if ( layout() ) {
+	    if ( layout()->hasHeightForWidth() )
+		s.setHeight( layout()->heightForWidth( s.width() ) );
+	    if ( layout()->expanding() & QSizePolicy::Horizontal )
+		s.setWidth( QMAX( s.width(), 200 ) );
+	    if ( layout()->expanding() & QSizePolicy::Vertical )
+		s.setHeight( QMAX( s.height(), 150 ) );
+	}
+	if ( !s.isEmpty() )
 	    resize( s );
     }
     if ( testWFlags(WStyle_Tool) ) {
