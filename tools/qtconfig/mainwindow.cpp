@@ -408,7 +408,23 @@ MainWindow::MainWindow()
 
     modified = TRUE;
 
-    gstylecombo->insertStringList(QStyleFactory::styles());
+    QStringList gstyles = QStyleFactory::styles();
+    gstylecombo->insertStringList(gstyles);
+
+    QSettings settings;
+    QString currentstyle = settings.readEntry("/qt/style");
+    if (! currentstyle.isNull()) {
+	int s = 0;
+	QStringList::Iterator git = gstyles.begin();
+	while (git != gstyles.end()) {
+	    if (*git == currentstyle)
+		break;
+	    s++;
+	    git++;
+	}
+
+	gstylecombo->setCurrentItem(s);
+    }
 
     buttonMainColor->setColor(palette().color(QPalette::Active,
 					      QColorGroup::Button));
@@ -524,7 +540,6 @@ MainWindow::MainWindow()
     xftcheckbox->setEnabled(false);
 #endif
 
-    QSettings settings;
     fontembeddingcheckbox->setChecked( settings.readBoolEntry("/qt/embedFonts", TRUE) );
     fontpaths = settings.readListEntry("/qt/fontPath");
     fontpathlistbox->insertStringList(fontpaths);
