@@ -2658,15 +2658,20 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     QByteArray proptype(prop.typeName());
     switch (call) {
     case QMetaObject::ReadProperty:
-        params.cArgs = 0;
-        params.cNamedArgs = 0;
-        params.rgdispidNamedArgs = 0;
-        params.rgvarg = 0;
+        {
+            params.cArgs = 0;
+            params.cNamedArgs = 0;
+            params.rgdispidNamedArgs = 0;
+            params.rgvarg = 0;
         
-        hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0);
+            hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0);
         
-        // map result VARIANTARG to void*
-        QVariantToVoidStar(VARIANTToQVariant(arg, proptype, prop.type()), *v, proptype);
+            // map result VARIANTARG to void*
+            uint type = QVariant::Int;
+            if (!prop.isEnumType())
+                type = prop.type();
+            QVariantToVoidStar(VARIANTToQVariant(arg, proptype, type), *v, proptype, type);
+        }
         break;
         
     case QMetaObject::WriteProperty:
