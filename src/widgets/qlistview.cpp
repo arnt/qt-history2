@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#204 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#205 $
 **
 ** Implementation of QListView widget class
 **
@@ -2650,12 +2650,12 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Return:
 	d->currentPrefix.truncate( 0 );
 	if ( i && !i->isSelectable() &&
-	     !i->isOpen() && ( i->childCount() || i->isExpandable() ) ) {
+	     ( i->childCount() || i->isExpandable() ) ) {
 	    e->accept();
-	    i->setOpen( TRUE );
+	    i->setOpen( !i->isOpen() );
 	    return;
 	}
-	e->ignore();
+ 	e->ignore();
 	emit returnPressed( currentItem() );
 	// do NOT accept.  QDialog.
 	return;
