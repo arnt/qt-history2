@@ -467,10 +467,9 @@ void QTextLayout::beginLayout()
         const QTextBlockData *b = d->block.p->blockMap().fragment(d->block.n);
         if (b->textDirty)
             d->updateTextFromDocument();
-    } else {
-        d->items.clear();
-        d->itemize();
     }
+    d->items.clear();
+    d->itemize();
 }
 
 void QTextLayout::endLayout()
@@ -1432,6 +1431,9 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
         return eng->lines[0].x;
     }
 
+    if (!eng->items.size())
+        eng->itemize();
+
     const QScriptLine &line = eng->lines[i];
     eng->justify(line);
 
@@ -1543,6 +1545,9 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 */
 int QTextLine::xToCursor(float x, CursorPosition cpos) const
 {
+    if (!eng->items.size())
+        eng->itemize();
+
     const QScriptLine &line = eng->lines[i];
 
     if (!line.length)

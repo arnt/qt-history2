@@ -1048,6 +1048,9 @@ void QTextEngine::itemize()
     }
     if ((itemization_mode & QTextEngine::WidthOnly) == WidthOnly)
         widthOnly = true;
+
+    if (docLayout)
+        setFormatsFromDocument();
 }
 
 int QTextEngine::findItem(int strPos) const
@@ -1424,9 +1427,9 @@ void QTextEngine::freeMemory()
         lines[i].justified = 0;
         lines[i].gridfitted = 0;
     }
-    for (int i = 0; i < items.size(); ++i)
-        items[i].num_glyphs = 0;
-//     items.clear();
+//     for (int i = 0; i < items.size(); ++i)
+//         items[i].num_glyphs = 0;
+    items.clear();
 }
 
 void QTextEngine::invalidate()
@@ -1442,12 +1445,11 @@ void QTextEngine::invalidate()
 void QTextEngine::updateTextFromDocument()
 {
     invalidate();
-
     string = block.text();
-    if (string.isEmpty())
-        return;
-    itemize();
+}
 
+void QTextEngine::setFormatsFromDocument()
+{
     int lastTextPosition = 0;
     int textLength = 0;
 

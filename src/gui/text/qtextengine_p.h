@@ -314,6 +314,7 @@ public:
 
     int findItem(int strPos) const;
     void updateTextFromDocument();
+    void setFormatsFromDocument();
     void invalidate();
 
     mutable QScriptItemArray items;
