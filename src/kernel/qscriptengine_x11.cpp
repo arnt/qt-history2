@@ -921,7 +921,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 	si->fontEngine->stringToCMap( shapedChars, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
     }
 
-    heuristicSetGlyphAttributes( string, from, len, si );
+    q_calculateAdvances( si );
     heuristicPosition( si );
 }
 
