@@ -26,21 +26,21 @@
 class PixmapView : public QScrollView
 {
     Q_OBJECT
-    
+
 public:
     PixmapView( QWidget *parent )
 	: QScrollView( parent ) {}
-    
+
     void setPixmap( const QPixmap &pix ) {
 	pixmap = pix;
 	resizeContents( pixmap.size().width(), pixmap.size().height() );
 	viewport()->repaint( FALSE );
     }
-    
+
     void drawContents( QPainter *p, int, int, int, int ) {
 	p->drawPixmap( 0, 0, pixmap );
     }
-    
+
 private:
     QPixmap pixmap;
 
@@ -69,19 +69,21 @@ public:
 		raiseWidget( normalText );
 		return;
 	    }
-	    
+	
 	    QPixmap pix( path );
 	    if ( pix.isNull() ) {
 		if ( fi.isFile() ) {
 		    QFile f( path );
 		    if ( f.open( IO_ReadOnly ) ) {
-			QTextStream ts( &f );
-			QString text = ts.read();
 			if ( fi.extension().lower().contains( "htm" ) ) {
-			    html->setText( text ); 	
+			    f.close();
+			    html->setSource( path ); 	
 			    raiseWidget( html );
 			    return;
 			} else {
+			    QTextStream ts( &f );
+			    QString text = ts.read();
+			    f.close();
 			    normalText->setText( text ); 	
 			    raiseWidget( normalText );
 			    return;
@@ -104,13 +106,13 @@ private:
     QMultiLineEdit *normalText;
     QTextBrowser *html;
     PixmapView *pixmap;
-    
+
 };
 
 class PreviewWidget : public QVBox
 {
     Q_OBJECT
-    
+
 public:
     PreviewWidget( QWidget *parent )
 	: QVBox( parent ) {
@@ -125,16 +127,16 @@ public:
 	    row->setFixedHeight( 10 + sizeSpinBox->sizeHint().height() );
 	    preview = new Preview( this );
     }
-    
+
 public slots:
     void showPreview( const QUrl &u ) {
 	preview->showPreview( u, sizeSpinBox->value() );
     }
-    
+
 private:
     QSpinBox *sizeSpinBox;
     Preview *preview;
-    
+
 };
 
 int main( int argc, char ** argv )

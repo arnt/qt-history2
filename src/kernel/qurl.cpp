@@ -105,7 +105,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   QUrl u( "http://www.troll.no" );
   QString trollHome = u;
   // or
-  QString trollHome( "http://www.kde.org" );
+  QString trollHome( "http://www.troll.no" );
   QUrl u( trollHome );
   \endcode
 
