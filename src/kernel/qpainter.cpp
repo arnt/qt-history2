@@ -2897,7 +2897,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 
 	    if ( state != QTextLayout::LineEmpty || linesep ) {
 		//qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
-		height += ascent + descent;
+		height += ascent + descent + 1;
 		add = 0;
 		if ( linesep )
 		    textLayout.nextItem();

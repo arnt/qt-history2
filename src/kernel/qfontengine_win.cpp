@@ -224,7 +224,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
 	if ( p->m11() != p->m22() && p->m12() != -p->m21() ) {
 	    // shearing transformation, have to do the work by hand
-            QRect bbox( 0, 0, si->width, si->ascent + si->descent );
+            QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
@@ -263,14 +263,14 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
             x = qRound(nfx-dx);
             y = qRound(nfy-dy);
-#if 0	    
+#if 0
 	    if ( p->testf(QPainter::ExtDev) ) {		// to printer
 		QRegion reg( *wx_bm );
 		reg.translate( x, y );
 		HBRUSH brush = CreateSolidBrush( COLOR_VALUE(p->cpen.data->color) );
 		FillRgn( hdc, reg.handle(), brush );
 		DeleteObject( brush );
-	    } else 
+	    } else
 #endif
 	    {				// to screen/pixmap
 		// this code is also used in bitBlt() in qpaintdevice_win.cpp

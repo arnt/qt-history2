@@ -425,7 +425,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	}
 	if ( xlfd_transformations == XlfdTrUnsupported ) {
 	    // XServer or font don't support server side transformations, need to do it by hand
-            QRect bbox( 0, 0, si->width, si->ascent + si->descent );
+            QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
