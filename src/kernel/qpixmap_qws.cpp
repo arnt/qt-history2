@@ -279,7 +279,8 @@ void QPixmap::detach()
 int QPixmap::defaultDepth()
 {
     QWSDisplay *d = qwsDisplay();
-    return d ? d->depth() : 16;
+    int dd = d ? d->depth() : 16;
+    return (dd == 4) ? 8 : dd;
 }
 
 
