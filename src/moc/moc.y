@@ -845,6 +845,7 @@ type_name:		  elaborated_type_specifier { $$ = $1; }
 simple_type_names:	  simple_type_names simple_type_name
 						    { $$ = straddSpc($1,$2); }
 			| simple_type_name	    { $$ = $1; }
+                        ;
 
 simple_type_name:	  CHAR			    { $$ = "char"; }
 			| SHORT			    { $$ = "short"; }
@@ -977,6 +978,7 @@ fct_decl:		  '('
 			  cv_qualifier_list_opt
 			  ctor_initializer_opt
 			  exception_spec_opt
+                          opt_identifier
 			  fct_body_or_semicolon
 						{ tmpFunc->args	     = $2;
 						  tmpFunc->qualifier = $4; }
@@ -1090,6 +1092,7 @@ full_class_head:	  class_head
 nested_class_head:	  class_key
 			  qualified_class_name
 			  opt_base_spec		{ templateClass = templateClassOld; }
+                        ;
 
 exception_spec_opt:		/* empty */
 			| exception_spec
