@@ -87,6 +87,8 @@ static inline int scale( int value, QPainter *painter )
 
 inline bool isBreakable( QTextString *string, int pos )
 {
+    if (string->at(pos).nobreak)
+	return FALSE;
     return (pos < string->length()-1 && string->at(pos+1).softBreak);
 }
 
@@ -1784,16 +1786,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    curtag.style = nstyle;
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
-		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined ) {
+		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined )
 			curtag.wsm = nstyle->whiteSpaceMode();
-
-			// when starting a new paragraph, set it to
-			// non-breakable if we detect non-normal
-			// whitespace ie. when doing <code> or <nobr>
-			if (curtag.wsm != QStyleSheetItem::WhiteSpaceNormal
-			    && curpar->length() == 1)
-				curpar->breakable = FALSE;
-		    }
 
 		    /* netscape compatibility: eat a newline and only a newline if a pre block starts */
 		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre &&
@@ -1962,10 +1956,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    // in white space pre mode: treat any space as non breakable
 		    // and expand tabs to eight character wide columns.
 		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre ) {
-			if ( c == ' ' ) {
-			    c = QChar::nbsp;
-			} else if  ( c == '\t' ) {
-			    c = QChar::nbsp;
+			if  ( c == '\t' ) {
+			    c = ' ';
 			    while( (++tabExpansionColumn)%8 )
 				s += c;
 			}
@@ -2010,6 +2002,12 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		hasNewPar = FALSE;
 		int index = QMAX( curpar->length(),1) - 1;
 		curpar->append( s );
+		if (curtag.wsm != QStyleSheetItem::WhiteSpaceNormal) {
+		    QTextString *str = curpar->string();
+		    for (uint i = index; i < index + s.length(); ++i)
+			str->at(i).nobreak = TRUE;
+		}
+
 		QTextFormat* f = formatCollection()->format( &curtag.format );
 		curpar->setFormat( index, s.length(), f, FALSE ); // do not use collection because we have done that already
 		f->ref += s.length() -1; // that what friends are for...
@@ -3632,6 +3630,7 @@ void QTextString::insert( int index, const QChar *unicode, int len, QTextFormat 
 	ch.x = 0;
 	ch.lineStart = 0;
 	ch.d.format = 0;
+	ch.nobreak = FALSE;
 	ch.type = QTextStringChar::Regular;
 	ch.rightToLeft = 0;
 	ch.c = unicode[i];
@@ -3660,6 +3659,7 @@ void QTextString::insert( int index, QTextStringChar *c, bool doAddRefFormat  )
     ch.rightToLeft = 0;
     ch.d.format = 0;
     ch.type = QTextStringChar::Regular;
+    ch.nobreak = FALSE;
     if ( doAddRefFormat && c->format() )
 	c->format()->addRef();
     ch.setFormat( c->format() );
@@ -3780,7 +3780,6 @@ void QTextString::checkBidi() const
 	ch->whiteSpace = ca->whiteSpace;
 	ch->charStop = ca->charStop;
 	ch->wordStop = ca->wordStop;
-	ch->invalid = ca->invalid;
 	ch->bidiLevel = bidiLevel;
 	ch->rightToLeft = (bidiLevel%2);
 	--ch;
@@ -5663,7 +5662,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
     int col = 0;
     int ww = 0;
     QChar lastChr;
-    bool lastSpaceWasNonBreakable = !parag->isBreakable();
     for ( ; i < len; ++i, ++col ) {
 	if ( c )
 	    lastChr = c->c;
@@ -5675,13 +5673,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	if ( painter )
 	    c->format()->setPainter( painter );
 	c = &string->at( i );
-
-	// hack: keep <nobr> working... we do this by ignoring all
-	// breakpoints preceeded by a non-breakable space
-	if (c->c == QChar::nbsp)
-	    lastSpaceWasNonBreakable = TRUE;
-	else if (c->c.isSpace())
-	    lastSpaceWasNonBreakable = FALSE;
 
 	if ( i > 0 && (x > curLeft || ww == 0) || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
@@ -5812,8 +5803,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		tmpBaseLine = lineStart->baseLine;
 		lastBreak = -1;
 		col = 0;
-		if ( allowBreakInWords() || lastWasHardBreak )
+		if ( allowBreakInWords() || lastWasHardBreak ) {
+		    minw = QMAX(minw, tminw);
 		    tminw = marg;
+		}
 	    } else { // ... otherwise if we had a breakable char, break there
   		DO_FLOW( lineStart );
 		c->x = x;
@@ -5841,10 +5834,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		tmpBaseLine = lineStart->baseLine;
 		lastBreak = -1;
 		col = 0;
+		minw = QMAX(minw, tminw);
 		tminw = marg;
 		continue;
 	    }
-	} else if (lineStart && !lastSpaceWasNonBreakable && isBreakable(string, i)) {
+	} else if (lineStart && isBreakable(string, i)) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() );
@@ -7197,10 +7191,7 @@ QChar QTextDocument::parseChar(const QChar* doc, int length, int& pos, QStyleShe
 	    while ( pos< length &&
 		    doc[pos].isSpace()  && doc[pos] != QChar( QChar::nbsp ) )
 		pos++;
-	    if ( wsm == QStyleSheetItem::WhiteSpaceNoWrap )
-		return QChar::nbsp;
-	    else
-		return ' ';
+	    return ' ';
 	}
     }
     else if ( c == '&' )

@@ -78,7 +78,7 @@ class Q_EXPORT QTextStringChar
 
 public:
     // this is never called, initialize variables in QTextString::insert()!!!
-    QTextStringChar() : lineStart( 0 ), type( Regular ) {d.format=0;}
+    QTextStringChar() : nobreak(FALSE), lineStart( 0 ), type( Regular ) {d.format=0;}
     ~QTextStringChar();
 
     struct CustomData
@@ -98,7 +98,7 @@ public:
     uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     uchar charStop       :1;     // Valid cursor position (for left/right arrow)
     uchar wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
-    uchar invalid        :1;
+    uchar nobreak        :1;
 
     uchar lineStart : 1;
     uchar /*Type*/ type : 2;
