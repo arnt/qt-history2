@@ -54,7 +54,7 @@ constructor, so using it as value is impossible. You may choose be
 store pointers to QObjects in a QValueList, but using QList directly
 seems to be the better choice for this kind of application
 domain. QList, like all other QCollection based containers, provides
-far more sanity checking than a speed-optimized value 
+far more sanity checking than a speed-optimized value
 based container.
 
 If you have objects that implement value semantics, use the Qt
@@ -62,7 +62,7 @@ template library.  Value semantics require at least
 <ul>
 <li>a copy constructor,
 <li>an assignment operator and
-<li> a default constructor, i.e. a constructor that does not take 
+<li> a default constructor, i.e. a constructor that does not take
 any arguments.
 </ul>
 Note that a fast copy constructor is absolutely crucial for a good
@@ -235,7 +235,7 @@ some \l QDataStream:
 	str << l;
 \endcode
 
-The container can be read in again like this:
+The container can be read in again with:
 
 \code
 	QValueList<QRect> l;
