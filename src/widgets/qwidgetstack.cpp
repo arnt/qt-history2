@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#30 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -82,6 +82,8 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     focusWidgets = 0;
     l = 0;
     topWidget = 0;
+    invisible = new QWidget( this );
+    invisible->setBackgroundMode( NoBackground );
     setFontPropagation( AllChildren );
     setPalettePropagation( AllChildren );
 }
@@ -104,7 +106,7 @@ QWidgetStack::~QWidgetStack()
 
 void QWidgetStack::addWidget( QWidget * w, int id )
 {
-    if (!w)
+    if ( !w || w == invisible )
 	return;
 
     dict->insert( id+1, w );
@@ -119,8 +121,10 @@ void QWidgetStack::addWidget( QWidget * w, int id )
 	focusWidgets->replace( w, w->focusWidget() );
     }
 
-    if ( w->parent() != this )
+    if ( w->parent() != this ) {
 	w->reparent( this, 0, QPoint(0,0), FALSE );
+	w->setGeometry( invisible->geometry() );
+    }
 }
 
 
@@ -159,10 +163,9 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( !w || !isMyChild( w ) )
 	return;
 
-    BackgroundMode bgMode = backgroundMode();
-    setBackgroundMode( NoBackground );
-
     topWidget = w;
+    if ( !isVisible() )
+	return;
 
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
@@ -196,8 +199,10 @@ void QWidgetStack::raiseWidget( QWidget * w )
 		    if ( wc->isWidgetType() ) {
 			if ( f == wc ) {
 			    done = TRUE;
-			} else if ( ((QWidget *)wc)->focusPolicy() == QWidget::StrongFocus ||
-				    ((QWidget *)wc)->focusPolicy() == QWidget::TabFocus ) {
+			} else if ( ((QWidget *)wc)->focusPolicy() ==
+				    QWidget::StrongFocus ||
+				    ((QWidget *)wc)->focusPolicy() ==
+				    QWidget::TabFocus ) {
 			    QButton * b = (QButton *)wc;
 			    if ( wc->inherits( "QButton" ) &&
 				 b->group() && b->isOn() &&
@@ -237,7 +242,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	f->setFocus();
 
     if ( isVisible() ) {
-	
 	emit aboutToShow( w );
 	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
 	    // ### O(n)
@@ -248,8 +252,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
     }
 
     w->show();
-
-    setBackgroundMode( bgMode );
 }
 
 
@@ -258,7 +260,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 bool QWidgetStack::isMyChild( QWidget * w )
 {
     const QObjectList * c = children();
-    if ( !c )
+    if ( !c || !w || w == invisible )
 	return FALSE;
     QObjectListIt it( *c );
     QObject * o;
@@ -296,20 +298,10 @@ void QWidgetStack::setChildGeometries()
     }
     l->setRowStretch( 1, 1 );
     l->setColStretch( 1, 1 );
-
-    const QObjectList * c = children();
-    if ( c ) {
-	QObjectListIt it( *c );
-	QObject * o;
-	
-	while( (o=it.current()) != 0 ) {
-	    ++it;
-	    if ( o->isWidgetType() ) {
-		l->addWidget( (QWidget *)o, 1, 1 );
-	    }
-	}
-    }
+    l->addWidget( invisible, 1, 1 );
     l->activate();
+    if ( topWidget && invisible )
+	topWidget->setGeometry( invisible->geometry() );
 }
 
 
@@ -398,12 +390,9 @@ QWidget * QWidgetStack::visibleWidget() const
 
 /*! \reimp */
 
-bool QWidgetStack::event( QEvent * e )
+void QWidgetStack::resizeEvent( QResizeEvent * e )
 {
-    if ( e->type() == QEvent::ChildInserted ) {
-	QChildEvent* ce = (QChildEvent*)e;
-	if ( ce->child()->isWidgetType() )
-	    setChildGeometries();
-    }
-    return QFrame::event( e );
+    QFrame::resizeEvent( e );
+    if ( topWidget && invisible )
+	topWidget->setGeometry( invisible->geometry() );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#14 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#15 $
 **
 ** Definition of QWidgetStack class
 **
@@ -56,8 +56,6 @@ public:
 
     QWidget * visibleWidget() const;
 
-    bool event( QEvent * );
-
 signals:
     void aboutToShow( int );
     void aboutToShow( QWidget * );
@@ -68,6 +66,7 @@ public slots:
 
 protected:
     void frameChanged();
+    void resizeEvent( QResizeEvent * );
 
     virtual void setChildGeometries();
 
@@ -78,6 +77,7 @@ private:
     QPtrDict<QWidget> * focusWidgets;
     QGridLayout * l;
     QWidget * topWidget;
+    QWidget * invisible;
 };
 
 
