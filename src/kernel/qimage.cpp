@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#147 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#146 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#147 $");
 
 
 /*!
@@ -2052,9 +2052,9 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
   Returns a string that specifies the image format of the file \e fileName,
   or null if the file cannot be read or if the format cannot be recognized.
 
-  The QImageIO documentation lists the garranteed
-  supported image formats, or use the QImage::inputFormats()
-  QImage::outputFormats() to get lists that include installed formats.
+  The QImageIO documentation lists the guaranteed supported image
+  formats, or use the QImage::inputFormats() QImage::outputFormats()
+  to get lists that include installed formats.
 
   \sa load(), save()
 */
@@ -3960,8 +3960,8 @@ static void write_xpm_image( QImageIO * iio )
 	return;
 
     QImage image;
-    if ( iio->image().depth() != 8 )
-	image = iio->image().convertDepth( 8, AvoidDither );
+    if ( iio->image().depth() != 32 )
+	image = iio->image().convertDepth( 32 );
     else
 	image = iio->image();
 
@@ -3972,7 +3972,7 @@ static void write_xpm_image( QImageIO * iio )
 
     // build color table
     for( y=0; y<h; y++ ) {
-	uchar * yp = image.scanLine( y );
+	QRgb * yp = (QRgb *)image.scanLine( y );
 	for( x=0; x<w; x++ ) {
 	    int color = (int)*(yp + x);
 	    if ( !colorMap.find( color ) )
@@ -3992,7 +3992,7 @@ static void write_xpm_image( QImageIO * iio )
     // write palette
     QIntDictIterator<int> c( colorMap );
     while ( c.current() ) {
-	QRgb color = image.color( c.currentKey() );
+	QRgb color = c.currentKey();
 	if ( image.hasAlphaBuffer() && color == (color & RGB_MASK) )
 	    line.sprintf( "\"%s c None\"",
 			  xpm_color_name( cpp, (int)c.current() ) );
@@ -4008,11 +4008,12 @@ static void write_xpm_image( QImageIO * iio )
 
     // write pixels
     for( y=0; y<h; y++ ) {
-	uchar * yp = image.scanLine( y );
+	QRgb * yp = (QRgb *) image.scanLine( y );
 	line.resize( cpp*w + 1 );
 	for( x=0; x<w; x++ ) {
-	    int color = (int)colorMap[ (int)(*(yp + x)) ];
-	    const char * chars = xpm_color_name( cpp, color );
+	    int color = (int)(*(yp + x));
+	    const char * chars = xpm_color_name( cpp, 
+						 (int)colorMap.find(color) );
 	    line[ x*cpp ] = chars[0];
 	    if ( cpp == 2 )
 		line[ x*cpp + 1 ] = chars[1];
