@@ -352,7 +352,7 @@ bool QAquaAnimate::eventFilter( QObject * o, QEvent * e )
 		d->defaultButton = 0;
 		if( tmp )
 		    tmp->repaint( FALSE );
-//		if(pb->topLevelWidget()->isActiveWindow()) 
+		if(pb->topLevelWidget()->isActiveWindow()) 
 		    d->defaultButton = pb;
 		break;
 	    }

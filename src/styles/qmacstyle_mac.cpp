@@ -122,8 +122,9 @@ QMacStylePrivate::control(QAquaAnimate::Animates as)
 					0, &button)) {
 		qDebug("Unexpected error: %s:%d", __FILE__, __LINE__);
 	    } else {
+		Boolean t = true;
+		SetControlData(button, 0, kControlPushButtonDefaultTag, sizeof(t), &t);
 		ShowControl(button);
-		SetWindowDefaultButton((WindowPtr)qt_mac_safe_pdev->handle(), button);
 	    }
 	}
 	return button;
@@ -140,14 +141,17 @@ QMacStylePrivate::~QMacStylePrivate()
     if(progressbar)
 	DisposeControl(progressbar);
 }
+#define QMAC_NO_MACSTYLE_ANIMATE
 void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
 {
+#ifndef QMAC_NO_MACSTYLE_ANIMATE
     if(QWidgetList *list = qApp->topLevelWidgets()) {
 	for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
 	    if(widget->isActiveWindow()) 
 		IdleControls((WindowPtr)widget->handle());
 	}
     }
+#endif
 }
 
 #define private public //ugh, what I'll do..
@@ -197,7 +201,9 @@ void QMacStyle::polish( QApplication* app )
 
 void QMacStyle::polish( QWidget* w )
 {
+#ifndef QMAC_NO_MACSTYLE_ANIMATE
     d->addWidget(w);
+#endif
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
@@ -215,7 +221,9 @@ void QMacStyle::polish( QWidget* w )
 
 void QMacStyle::unPolish( QWidget* w )
 {
+#ifndef QMAC_NO_MACSTYLE_ANIMATE
     d->removeWidget(w);
+#endif
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( TRUE );
@@ -533,78 +541,81 @@ void QMacStyle::drawControl( ControlElement element,
 		p->setBackgroundMode( TransparentMode );
 	}
 	break; }
- case CE_MenuBarItem: {
-     if(!widget)
-	 break;
-     const QMenuBar *mbar = (const QMenuBar *)widget;
-     Rect mrect = *qt_glb_mac_rect(mbar->rect(), p->device()),
-	  irect = *qt_glb_mac_rect(r, p->device());
-     ThemeMenuState tms = kThemeMenuActive;
-     if(!(how & Style_Active))
-	 tms |= kThemeMenuDisabled;
-     if(how & Style_Down)
-	 tms |= kThemeMenuSelected;
-     ((QMacPainter *)p)->noop();
-     DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
-     QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
-     break; }
- case CE_ProgressBarContents: {
-     if(!widget)
-	 break;
-     QProgressBar *pbar = (QProgressBar *) widget;
-     ThemeTrackDrawInfo ttdi;
-     memset(&ttdi, '\0', sizeof(ttdi));
-     ttdi.kind = kThemeLargeProgressBar;
-     ttdi.bounds = *qt_glb_mac_rect(r, p->device());
-     ttdi.max = pbar->totalSteps();
-     ttdi.value = pbar->progress();
-     ttdi.attributes |= kThemeTrackHorizontal;
-     if(widget->isEnabled())
-	 ttdi.enableState |= kThemeTrackActive;
-     if(!pbar->isEnabled())
-	 ttdi.enableState |= kThemeTrackDisabled;
-     ((QMacPainter *)p)->noop();
-     DrawThemeTrack(&ttdi, NULL, NULL, 0);
-     break; }
- case CE_TabBarTab: {
-     if(!widget)
-	 break;
-     if(how & Style_Sunken)
-	 tds |= kThemeStatePressed;
-     QTabBar * tb = (QTabBar *) widget;
-     ThemeTabStyle tts = kThemeTabNonFront;
-     if(how & Style_Selected) {
-	 if(!(how & Style_Enabled))
-	     tts = kThemeTabFrontInactive;
-	 else
-	     tts = kThemeTabFront;
-     } else if(!(how & Style_Enabled)) {
-	 tts = kThemeTabNonFrontPressed;
-     } else if((how & Style_Sunken) && (how & Style_MouseOver)) {
-	 tts = kThemeTabNonFrontPressed;
-     }
-     ThemeTabDirection ttd = kThemeTabNorth;
-     if( tb->shape() == QTabBar::RoundedBelow )
-	 ttd = kThemeTabSouth;
-     ((QMacPainter *)p)->noop();
-     DrawThemeTab(qt_glb_mac_rect(r, p->device(), FALSE), tts, ttd, NULL, 0);
-     break; }
- case CE_PushButton: {
-     if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
-	 ControlRef btn = d->control(QAquaAnimate::AquaPushButton);
-	 SetControlBounds(btn, qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)));
-	 ((QMacPainter *)p)->noop();
-	 DrawControlInCurrentPort(btn);
-     } else {
-	 ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	 ((QMacPainter *)p)->noop();
-	 DrawThemeButton(qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)), 
-		     kThemePushButton, &info, NULL, NULL, NULL, 0);
-     }
-     break; }
- default:
-     QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
-}
+    case CE_MenuBarItem: {
+	if(!widget)
+	    break;
+	const QMenuBar *mbar = (const QMenuBar *)widget;
+	Rect mrect = *qt_glb_mac_rect(mbar->rect(), p->device()),
+	     irect = *qt_glb_mac_rect(r, p->device());
+	ThemeMenuState tms = kThemeMenuActive;
+	if(!(how & Style_Active))
+	    tms |= kThemeMenuDisabled;
+	if(how & Style_Down)
+	    tms |= kThemeMenuSelected;
+	((QMacPainter *)p)->noop();
+	DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
+	QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
+	break; }
+    case CE_ProgressBarContents: {
+	if(!widget)
+	    break;
+	QProgressBar *pbar = (QProgressBar *) widget;
+	ThemeTrackDrawInfo ttdi;
+	memset(&ttdi, '\0', sizeof(ttdi));
+	ttdi.kind = kThemeLargeProgressBar;
+	ttdi.bounds = *qt_glb_mac_rect(r, p->device());
+	ttdi.max = pbar->totalSteps();
+	ttdi.value = pbar->progress();
+	ttdi.attributes |= kThemeTrackHorizontal;
+	if(widget->isEnabled())
+	    ttdi.enableState |= kThemeTrackActive;
+	if(!pbar->isEnabled())
+	    ttdi.enableState |= kThemeTrackDisabled;
+	((QMacPainter *)p)->noop();
+	DrawThemeTrack(&ttdi, NULL, NULL, 0);
+	break; }
+    case CE_TabBarTab: {
+	if(!widget)
+	    break;
+	if(how & Style_Sunken)
+	    tds |= kThemeStatePressed;
+	QTabBar * tb = (QTabBar *) widget;
+	ThemeTabStyle tts = kThemeTabNonFront;
+	if(how & Style_Selected) {
+	    if(!(how & Style_Enabled))
+		tts = kThemeTabFrontInactive;
+	    else
+		tts = kThemeTabFront;
+	} else if(!(how & Style_Enabled)) {
+	    tts = kThemeTabNonFrontPressed;
+	} else if((how & Style_Sunken) && (how & Style_MouseOver)) {
+	    tts = kThemeTabNonFrontPressed;
+	}
+	ThemeTabDirection ttd = kThemeTabNorth;
+	if( tb->shape() == QTabBar::RoundedBelow )
+	    ttd = kThemeTabSouth;
+	((QMacPainter *)p)->noop();
+	DrawThemeTab(qt_glb_mac_rect(r, p->device(), FALSE), tts, ttd, NULL, 0);
+	break; }
+    case CE_PushButton: {
+#ifndef QMAC_NO_MACSTYLE_ANIMATE
+	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
+	    ControlRef btn = d->control(QAquaAnimate::AquaPushButton);
+	    SetControlBounds(btn, qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)));
+	    ((QMacPainter *)p)->noop();
+	    DrawControlInCurrentPort(btn);
+	} else 
+#endif
+	{
+	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	    ((QMacPainter *)p)->noop();
+	    DrawThemeButton(qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)), 
+			    kThemePushButton, &info, NULL, NULL, NULL, 0);
+	}
+	break; }
+    default:
+	QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
+    }
 }
 
 void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
@@ -722,7 +733,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	QSpinWidget * sw = (QSpinWidget *) widget;
 	if ( sub & SC_SpinWidgetFrame )
 	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, 
-					   SC_SpinWidgetFrame, subActive, opt);
+					      SC_SpinWidgetFrame, subActive, opt);
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
 	    if(subActive == SC_SpinWidgetDown)
 		tds |= kThemeStatePressedDown;
