@@ -714,18 +714,15 @@ public:
         ExactMatch      = 0x00010  // 1 0000
     };
 
-    // "handle" type for system objects.
+    // "handle" type for system objects
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
-#endif
-#if defined(Q_WS_WIN)
+#elif defined(Q_WS_WIN)
     typedef void *HANDLE;
-#endif
-#if defined(Q_WS_X11)
-    typedef unsigned long  HANDLE;
-#endif
-#if defined(Q_WS_QWS)
-    typedef void* HANDLE;
+#elif defined(Q_WS_X11)
+    typedef unsigned long HANDLE;
+#elif defined(Q_WS_QWS)
+    typedef void * HANDLE;
 #endif
 };
 
