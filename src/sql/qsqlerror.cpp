@@ -42,7 +42,7 @@
 
     \brief Class used for reporting errors from a SQL database
 
-    \module database
+    \module sql
 
      This class is used to report database-specific errors.  An error
      description and (if appropriate) a database-specific error number

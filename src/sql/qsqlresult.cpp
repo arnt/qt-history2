@@ -53,7 +53,7 @@ public:
 
   \brief QSqlResult provides an abstract interface for accessing data via SQL
 
-  \module database
+  \module sql
 
   QSqlResult provides an abstract interface for accessing data via
   SQL.  Normally, this class is not used directly.  Rather, QSqlQuery

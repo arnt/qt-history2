@@ -43,7 +43,7 @@
     \class QSqlIndex qsqlindex.h
     \brief Class used for describing SQL database indexes
 
-    \module database
+    \module sql
 
      This class is used to describe SQL database indexes.  An index
      can belong to only one table in a database.  Information about

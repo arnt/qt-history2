@@ -52,7 +52,7 @@ public:
 	QString label;
 	bool    visible;
     };
-    
+
     QSqlRecordPrivate() {}
     QSqlRecordPrivate( const QSqlRecordPrivate& other )
 	: fieldList( other.fieldList ),
@@ -73,7 +73,7 @@ public:
     \class QSqlRecord qsqlfield.h
     \brief Template class used for manipulating a list of SQL database fields.
 
-    \module database
+    \module sql
 */
 
 
@@ -295,7 +295,7 @@ void QSqlRecord::setGenerated( const QString& name, bool generated )
 /*! Returns TRUE if the field \a name is to be generated (the
   default), otherwise FALSE is returned.  If the field does not exist,
   FALSE is returned.
-  
+
   \sa setGenerated()
 */
 
@@ -323,16 +323,16 @@ void QSqlRecord::setAlignment( const QString& name, int align )
    field does not exist, Qt::AlignLeft is returned.  If the field \a
    name has not been assigned an alignment (using setAlignment()),
    then the following rules are used:
-   
+
    If the field is a string data type, Qt::AlignLeft is returned.
    Otherwise, Qt::AlignRight is returned.
-   
+
    \sa setAlignment()
 */
 
 int QSqlRecord::alignment( const QString& name ) const
 {
-    if ( !field( name ) ) 
+    if ( !field( name ) )
 	return Qt::AlignLeft;
 
     if ( !d->fieldInfo.contains( position( name ) ) ) {
@@ -353,7 +353,7 @@ int QSqlRecord::alignment( const QString& name ) const
 
 /*! Sets the display label of field \a name to \a label.  If the field
   does not exist, nothing happens.
-  
+
   \sa displayLabel()
 */
 
@@ -366,13 +366,13 @@ void QSqlRecord::setDisplayLabel( const QString& name, const QString& label )
 
 /*! Returns the display label associated with the field \a name.  If
    the field does not exist, \a name is returned.
-    
+
    \sa setDisplayLabel()
 */
 
 QString QSqlRecord::displayLabel( const QString& name ) const
 {
-    if ( !field( name ) ) 
+    if ( !field( name ) )
 	return name;
     return d->fieldInfo[ position( name ) ].label;
 }
@@ -385,7 +385,7 @@ QString QSqlRecord::displayLabel( const QString& name ) const
 
 void QSqlRecord::setVisible( const QString& name, bool visible )
 {
-    if ( !field( name ) ) 
+    if ( !field( name ) )
 	return;
     d->fieldInfo[ position( name ) ].visible = visible;
 }
@@ -393,13 +393,13 @@ void QSqlRecord::setVisible( const QString& name, bool visible )
 /*! Returns TRUE if the field \a name is visible (the default),
  otherwise FALSE is returned.  If the field does not exist, FALSE is
  returned.
- 
+
  \sa setVisible()
 */
 
 bool QSqlRecord::isVisible( const QString& name ) const
 {
-    if ( !field( name ) ) 
+    if ( !field( name ) )
 	return FALSE;
     if ( !d->fieldInfo.contains( position( name ) ) )
 	return TRUE;

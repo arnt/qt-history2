@@ -52,7 +52,7 @@ QSqlResultShared::~QSqlResultShared()
 
     \brief Class used for executing and manipulating SQL queries.
 
-    \module database
+    \module sql
 
     This class is used to execute SQL queries on a QSqlDatabase.  QSqlQuery
     encapsulates the functionality involved in creating, navigating

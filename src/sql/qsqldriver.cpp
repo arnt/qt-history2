@@ -47,7 +47,7 @@
   \class QSqlDriver qsqldriver.h
   \brief Class used for accessing databases
 
-  \module database
+  \module sql
 
   This is an abstract base class which defines an interface for accessing SQL databases.  This
   class should not be used directly.  Use QSqlDatabase instead.

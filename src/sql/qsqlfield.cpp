@@ -42,13 +42,13 @@
     \class QSqlField qsqlfield.h
     \brief Class used for manipulating SQL database fields
 
-    \module database
+    \module sql
 */
 
 
 /*!  Constructs an empty SQL field using the field name \a fieldName,
   field type \a type.
-  
+
   \sa setReadOnly()
 
 */
@@ -106,7 +106,7 @@ QSqlField::~QSqlField()
   QSqlField* myField = myCursor.field( "student_count" ); // an integer field
   ...
   myField->setValue( myLineEdit->text() ); // cast the line edit to an integer
-  
+
   \sa isReadOnly()
 
 */
@@ -127,7 +127,7 @@ void QSqlField::setValue( const QVariant& value )
 }
 
 /*! \fn void QSqlField::clear()
-  
+
   Clears the value of the field, if the field is not read-only,
 */
 
@@ -154,7 +154,7 @@ void QSqlField::clear()
 
 /*! \fn void QSqlField::setReadOnly( bool readOnly )
   Sets the read only flag of the field's value to \a readOnly.
-  
+
   \sa setValue()
 */
 
@@ -163,10 +163,10 @@ void QSqlField::clear()
 */
 
 /*! \fn void QSqlField::setNull( bool n )
-  
+
   Sets the null flag of the field to \a n, if the field is not
   read-only.  If \a n is TRUE, the field is also cleared with clear().
-  
+
   \sa isReadOnly()
 */
 
