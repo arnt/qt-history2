@@ -2715,6 +2715,13 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 void QTextDocument::setTextFormat( Qt::TextFormat f )
 {
     txtFormat = f;
+    if ( txtFormat == Qt::RichText && fParag && fParag == lParag && fParag->length() <= 1 ) {
+	QPtrVector<QStyleSheetItem> v = fParag->styleSheetItems();
+	v.resize( v.size() + 1 );
+	v.insert( v.size() - 1, styleSheet()->item( "p" ) );
+	fParag->setStyleSheetItems( v );
+    }
+	
 }
 
 Qt::TextFormat QTextDocument::textFormat() const
