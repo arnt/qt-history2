@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#4 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -946,6 +946,7 @@ QCString QCString::right( uint len ) const
 
 QCString QCString::mid( uint index, uint len ) const
 {
+    if ( len == 0xffffffff ) len = length()-index;
     uint slen = strlen( data() );
     if ( isEmpty() || index >= slen ) {
 	QCString empty;
