@@ -355,7 +355,6 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bo
 	bool isIt;
 	if ( regexp ) {
 	    QRegExp re( request, TRUE, TRUE );
-	    QString iid = it.current()->interfaceId();
 	    isIt = re.match( it.current()->interfaceId() );
 	} else {
 	    isIt = it.current()->interfaceId() == request;
