@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.13 1998/03/26 22:21:18 aavit Exp $
+** $Id: indices.doc,v 2.14 1998/03/31 09:05:36 aavit Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.13 1998/03/26 22:21:18 aavit Exp $";
+static char ident[] = "$Id: indices.doc,v 2.14 1998/03/31 09:05:36 aavit Exp $";
 #endif
 
 /*! \page index.html
@@ -20,7 +20,7 @@ static char ident[] = "$Id: indices.doc,v 2.13 1998/03/26 22:21:18 aavit Exp $";
 
 <h1 align="center">
 Reference Documentation
-</h1>
+</h1><br clear="all">
 
 <br clear="all"><table border=0><tr>
 
@@ -94,7 +94,7 @@ href="http://www.troll.no/dl/">download</a>.
 
 \postheader
 
-<h1 align="center">API Structure Overview</h1>
+<h1 align="center">API Structure Overview</h1><br clear="all">
 
 The Qt API consists the following modules:
 
@@ -161,7 +161,7 @@ The Qt API consists the following modules:
 
 /*! \defgroup tools.html
 
-<h1 align="center">The Tool Classes</h1>
+<h1 align="center">The Tool Classes</h1><br clear="all">
 
 The tool classes are general-purpose collection classes that may be used
 independently of the GUI classes.
@@ -176,7 +176,7 @@ classes</a>.
 
 /*! \defgroup fonts.html
 
-<h1 align="center">Font-related Classes</h1>
+<h1 align="center">Font-related Classes</h1><br clear="all">
 
 These classes are used to manipulate fonts.  See also <a
 href="fontmatch.html">Font matching.</a>
@@ -185,7 +185,7 @@ href="fontmatch.html">Font matching.</a>
 
 /*! \defgroup io.html
 
-<h1 align="center">I/O Classes</h1>
+<h1 align="center">I/O Classes</h1><br clear="all">
 
 These classes are used to handle input and output to and from external
 devices, files etc., as well as manipulating files and directories.
@@ -194,7 +194,7 @@ devices, files etc., as well as manipulating files and directories.
 
 /*! \defgroup realwidgets.html
 
-<h1 align="center">Widgets</h1>
+<h1 align="center">Widgets</h1><br clear="all">
 
 These widgets are meant for direct use.  There are also some <a
 href="abstractwidgets.html">abstract widget classes,</a> meant for
@@ -204,7 +204,7 @@ subclassing, and some <a href="dialogs.html">more complex widgets.</a>
 
 /*! \defgroup abstractwidgets.html
 
-<h1 align="center">Abstract Widget Classes</h1>
+<h1 align="center">Abstract Widget Classes</h1><br clear="all">
 
 These classes are abstract widgets; they are generally not usable in
 themselves, but provide functionality that can be used by inheriting
@@ -214,7 +214,7 @@ these classes.
 
 /*! \defgroup dialogs.html
 
-<h1 align="center">Dialog Classes</h1>
+<h1 align="center">Dialog Classes</h1><br clear="all">
 
 These classes are complex widgets, composed of simpler widgets; dialog
 boxes, generally.
@@ -223,7 +223,7 @@ boxes, generally.
 
 /*! \defgroup images.html
 
-<h1 align="center">Image Processing Classes</h1>
+<h1 align="center">Image Processing Classes</h1><br clear="all">
 
 These classes are used for manipulating images.
 
@@ -231,7 +231,7 @@ These classes are used for manipulating images.
 
 /*! \defgroup drawing.html
 
-<h1 align="center">Drawing Classes</h1>
+<h1 align="center">Drawing Classes</h1><br clear="all">
 
 These classes provide powerful graphics drawing primitives. 
 
@@ -243,7 +243,7 @@ coordinate system</a>.
 
 /*! \defgroup shared.html
 
-<h1 align="center">Implicitly Shared Classes</h1>
+<h1 align="center">Implicitly Shared Classes</h1><br clear="all">
 
 These classes are normally-heavy classes which in Qt have been
 optimized by the use of reference counter and common data so they can
@@ -256,7 +256,7 @@ be passed around as arguments, even though they may seem heavyweight.
 
 /*! \defgroup time.html
 
-<h1 align="center">Time and Date</h1>
+<h1 align="center">Time and Date</h1><br clear="all">
 
 These classes provide system-independent date and time abtractions.
 
@@ -266,7 +266,7 @@ These classes provide system-independent date and time abtractions.
 
 /*! \defgroup application.html
 
-<h1 align="center">Application Parts</h1>
+<h1 align="center">Application Parts</h1><br clear="all">
 
 These classes provide the top level application GUI functionality,
 like main window, menu and tool bars, tool tip help etc.
@@ -276,7 +276,7 @@ like main window, menu and tool bars, tool tip help etc.
 
 /*! \defgroup geomanagement.html
 
-<h1 align="center">Geometry Management</h1>
+<h1 align="center">Geometry Management</h1><br clear="all">
 
 These classes provide automatic geometry management of widgets.
 
@@ -285,7 +285,7 @@ These classes provide automatic geometry management of widgets.
 
 /*! \defgroup kernel.html
 
-<h1 align="center">Kernel Classes</h1>
+<h1 align="center">Kernel Classes</h1><br clear="all">
 
 These classes provide access to low-level parts of the window system
 
@@ -294,7 +294,7 @@ These classes provide access to low-level parts of the window system
 
 /*! \defgroup misc.html
 
-<h1 align="center">Miscellaneous Classes</h1>
+<h1 align="center">Miscellaneous Classes</h1><br clear="all">
 
 Useful classes not fitting into any other category.
 

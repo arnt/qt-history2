@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: y2k.doc,v 2.3 1998/03/26 22:21:19 aavit Exp $
+** $Id: y2k.doc,v 2.4 1998/03/31 09:05:37 aavit Exp $
 **
 ** Qt will crash and burn on Feb 32, 2000.  Not.
 **
@@ -14,7 +14,7 @@
 
 \postheader
 
-<h1 align="center">Year 2000 Compliance Statement</h1>
+<h1 align="center">Year 2000 Compliance Statement</h1><br clear="all">
 
 Troll Tech defines <i>Year 2000 Compliance</i> as a requirement that a
 product or part of product does not contain errors related to

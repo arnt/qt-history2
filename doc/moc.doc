@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.9 1998/03/26 22:21:18 aavit Exp $
+** $Id: moc.doc,v 2.10 1998/03/31 09:05:36 aavit Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -15,7 +15,7 @@ Qt toolkit - Using the Meta Object Compiler
 
 \postheader
 
-<h1 align=center>Using the Meta Object Compiler</h1>
+<h1 align=center>Using the Meta Object Compiler</h1><br clear="all">
 
 The Meta Object Compiler, moc among friends, is the program which
 handles the <a href="metaobjects.html">C++ extensions in Qt.</a>

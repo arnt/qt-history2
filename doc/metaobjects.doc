@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.7 1998/03/26 22:21:18 aavit Exp $
+** $Id: metaobjects.doc,v 2.8 1998/03/31 09:05:36 aavit Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -15,7 +15,7 @@ Qt toolkit - Meta Object Compiler description
 
 \postheader
 
-<h1 align=center>Signals, Slots and the Meta Object Compiler</h1>
+<h1 align=center>Signals, Slots and the Meta Object Compiler</h1><br clear="all">
 
 Signals and slots are used for communication between objects.  The
 signal/slot mechanism is a central feature of Qt and probably the

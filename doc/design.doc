@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: design.doc,v 2.3 1998/03/26 22:21:17 aavit Exp $
+** $Id: design.doc,v 2.4 1998/03/31 09:05:35 aavit Exp $
 **
 ** The design of Qt
 **
@@ -14,7 +14,7 @@
 
 \postheader
 
-<h1 align=center>Design Principles</h1>
+<h1 align=center>Design Principles</h1><br clear="all">
 
 Here are the design principles behind Qt.  These are guiding principles,
 not rules, but they're <em>good</em> principles, and we've stuck to

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.3 1998/03/26 22:21:17 aavit Exp $
+** $Id: debug.doc,v 2.4 1998/03/31 09:05:35 aavit Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -14,7 +14,7 @@
 </head><body bgcolor="#ffffff">
 \postheader
 
-<h1 align=center>Debugging Techniques</h1>
+<h1 align=center>Debugging Techniques</h1><br clear="all">
 
 Here we present some useful methods for debugging your Qt-based software.
 

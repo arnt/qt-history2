@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: annotated.doc,v 1.3 1998/03/26 22:21:17 aavit Exp $
+** $Id: annotated.doc,v 1.4 1998/03/31 09:05:35 aavit Exp $
 **
 ** Documentation for class overview
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: annotated.doc,v 1.3 1998/03/26 22:21:17 aavit Exp $";
+static char ident[] = "$Id: annotated.doc,v 1.4 1998/03/31 09:05:35 aavit Exp $";
 #endif
 
 
@@ -20,7 +20,7 @@ static char ident[] = "$Id: annotated.doc,v 1.3 1998/03/26 22:21:17 aavit Exp $"
 
 \postheader
 
-<h1 align=center>Annotated Class Index</h1>
+<h1 align=center>Annotated Class Index</h1><br clear="all">
 <p>Here are the classes in Qt, with brief descriptions:
 
 \annotatedclasslist

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 2.5 1998/03/26 22:21:19 aavit Exp $
+** $Id: shclass.doc,v 2.6 1998/03/31 09:05:36 aavit Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -15,7 +15,7 @@
 
 \postheader
 
-<h1 align=center>Shared Classes</h1>
+<h1 align=center>Shared Classes</h1><br clear="all">
 
 Many C++ classes in Qt utilize a data sharing mechanism to maximize
 resource usage and minimize copying of data. We use two techniques:

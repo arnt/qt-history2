@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#172 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#173 $
 #
 # this is a massive hack, written very quickly
 #
@@ -931,7 +931,7 @@ sub readfiles {
 ", $module_long, " - ", $filename, " include file
 </title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>", $filename, "</h1>
+<h1 align=center>", $filename, "</h1><br clear=\"all\">
 This is the verbatim text of the ", $filename," include file.  It is is
 provided only for illustration; the <a href=\"license.html\">copyright</a>
 remains with ", $company, ".
@@ -1602,7 +1602,7 @@ sub printclass {
     $class, 
     " Class</title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "\n",
-    "<h1 align=center>", $name{$url}, " Class Reference</h1>\n";
+    "<h1 align=center>", $name{$url}, " Class Reference</h1><br clear=\"all\">\n";
 
     my ($i, $family);
     if (defined($brief{$url})) {
@@ -1966,7 +1966,7 @@ sub classindex {
 <head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title>", $style, "
 </head>
 <body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>", $module, " Class Index</h1>
+<h1 align=center>", $module, " Class Index</h1><br clear=\"all\">
 <multicol cols=3>
 <ul compact>
 ";
@@ -1977,7 +1977,7 @@ sub classindex {
 <head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title>", $style, "
 </head>
 <body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>Annotated ", $module, " Class Index</h1>
+<h1 align=center>Annotated ", $module, " Class Index</h1><br clear=\"all\">
 <p>Here are the classes in ", $module, ", with brief descriptions:
 <ul compact>
 ";
@@ -2013,7 +2013,7 @@ sub enumindex {
     open(O, "> $outputdir/enums.html")
 	|| die "can't open $outputdir/enums.html for writing";
     print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, ", enum type indexe</title>", $style, "
-</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " enum type index</h1>\n<p>Here are the enums defined in ", $module, ":\n<ul compact>";
+</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " enum type index</h1><br clear=\"all\">\n<p>Here are the enums defined in ", $module, ":\n<ul compact>";
     foreach $url ( sort keys %type ) {
 	print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "enum");
@@ -2029,7 +2029,7 @@ sub headerindex {
     open(O, "> $outputdir/headers.html")
 	|| die "can't open $outputdir/headers.html for writing";
     print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - header file index</title>", $style, "
-</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " header file index</h1>\n<p>Here are the header files that make up the ", $module, " API:\n<ul compact>";
+</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " header file index</h1><br clear=\"all\">\n<p>Here are the header files that make up the ", $module, " API:\n<ul compact>";
     foreach $filename ( sort keys %headerfiles ) {
 	$_ = $filename;
 	s/\./-/;
@@ -2048,7 +2048,7 @@ sub exampleindex {
     open(O, "> $outputdir/examples.html")
 	|| die "can't open $outputdir/examples.html for writing";
     print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Example Programs</title>", $style, "
-</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " Example Programs</h1>\n<p>Here are some of the example programs that are included with ", $module, ":\n<ul compact>";
+</head><body bgcolor=\"#ffffff\">\n", $postheader, "\n<h1 align=center>", $module, " Example Programs</h1><br clear=\"all\">\n<p>Here are some of the example programs that are included with ", $module, ":\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
 	$htmlfilename = $filename;
@@ -2136,7 +2136,7 @@ sub inheritanceindex {
 <head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class Hierarchy</title>", $style, "
 </head>
 <body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>", $module, " Class Hierarchy</h1>
+<h1 align=center>", $module, " Class Hierarchy</h1><br clear=\"all\">
 
 <p>This inheritance list is sorted roughly, but not completely,
 alphabetically.
@@ -2209,7 +2209,7 @@ sub memberlists {
 <html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - ", $_, " member list
 </title>", $style, "
 </head><body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>Complete Member List for ", $_, "</h1>
+<h1 align=center>Complete Member List for ", $_, "</h1><br clear=\"all\">
 <p>This is the complete list of member functions and enum types for 
 <a href=\"", $anchor{$_}, "\">", $_, "</a>, including all inherited members.
 
@@ -2291,7 +2291,7 @@ sub functionlist {
 <head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Member Function Index</title>", $style, "
 </head>
 <body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>", $module, " Member Function Index</h1>
+<h1 align=center>", $module, " Member Function Index</h1><br clear=\"all\">
 
 Here is a list of all of the documented member functions in the ", $module, "
 API with links to the class documentation for each function.

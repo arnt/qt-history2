@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: primes.doc,v 2.2 1998/03/26 22:21:18 aavit Exp $
+** $Id: primes.doc,v 2.3 1998/03/31 09:05:36 aavit Exp $
 **
 ** Prime numbers
 **
@@ -16,7 +16,7 @@
 
 \postheader
 
-<h1 align=center>Table of Prime Numbers 2 - 49999</h1>
+<h1 align=center>Table of Prime Numbers 2 - 49999</h1><br clear="all">
 <hr>
 
 <pre>

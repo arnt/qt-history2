@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.25 1998/03/26 22:21:18 aavit Exp $
+** $Id: misc.doc,v 2.26 1998/03/31 09:05:36 aavit Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.25 1998/03/26 22:21:18 aavit Exp $";
+static char ident[] = "$Id: misc.doc,v 2.26 1998/03/31 09:05:36 aavit Exp $";
 #endif
 
 
@@ -18,7 +18,7 @@ static char ident[] = "$Id: misc.doc,v 2.25 1998/03/26 22:21:18 aavit Exp $";
 </head><body bgcolor="#ffffff">
 \postheader
 
-<h1 align=center>Free Edition License</h1>
+<h1 align=center>Free Edition License</h1><br clear="all">
 
 <p>
 This is license for Qt Free Edition version 1.32; it mainly
@@ -140,7 +140,7 @@ to the license.)
 <body bgcolor="#ffffff">
 \postheader
 
-<h1 align=center>Contact Information</h1>
+<h1 align=center>Contact Information</h1><br clear="all">
 
 <center>
 <img width="168" height="98" src="ttlogo-small.jpg" alt="Troll Tech Logo">
@@ -206,7 +206,7 @@ NORWAY<br></td></tr>
 
 <title>Qt Mailing Lists Information</title></head><body bgcolor="#ffffff">
 \postheader
-<h1 align=center>Mailing Lists</h1>
+<h1 align=center>Mailing Lists</h1><br clear="all">
 
 Troll Tech operates two mailing lists for Qt users:
 <code>qt-announce</code> and <code>qt-interest</code>.
@@ -257,6 +257,15 @@ list, similarly send an email containing just the word
 <tt>unsubscribe <em>your@email.address</em></tt> to <a
 href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
 
+<h2>snapshot-users</h2>
+
+There is a special mailing list, <tt>snapshot-users@troll.no</tt>, for
+discussion of Qt snapshot-related issues. To subscribe, send a message
+containing just the word "subscribe" (without the quotes) to <a
+href="mailto:snapshot-users-request@troll.no">snapshot-users-request@troll.no</a>. We
+encourage you to use this mailing list in stead of
+<tt>qt-interest</tt> for snapshot-specific issues.
+
 <small>Troll Tech does not sell or in any way redistribute the
 adresses on our mailing lists. We also employ active filtering to
 ensure the mailing lists are virtually free from spam.</small>
@@ -268,7 +277,7 @@ ensure the mailing lists are virtually free from spam.</small>
 
 <title>Trademarks</title></head><body bgcolor="#ffffff">
 \postheader
-<h1 align=center>Trademarks</h1>
+<h1 align=center>Trademarks</h1><br clear="all">
 
 The <a href="qtlogo.jpg">Qt logo</a> and <a
 href="ttlogo-small.jpg">Troll Tech logo</a> are copyright © Troll
@@ -292,7 +301,7 @@ SunOS, SunPRO, Symantec, Tetris, Visual C++</tt> and <tt> Watcom.</tt>
 </head><body bgcolor="#ffffff">
 
 <center><h1>Congratulations!<br>
-You've found our easter egg</h1>
+You've found our easter egg</h1><br clear="all">
 <p><small>No prizes, though</small>
 </center>
 
@@ -330,7 +339,7 @@ Amen!
 </head><body bgcolor="#ffffff">
 
 <center><h1>Congratulations!<br>
-You've found our easter egg</h1>
+You've found our easter egg</h1><br clear="all">
 <p><small>No prizes, though</small>
 </center>
 

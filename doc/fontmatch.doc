@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: fontmatch.doc,v 2.3 1998/03/26 22:21:17 aavit Exp $
+** $Id: fontmatch.doc,v 2.4 1998/03/31 09:05:35 aavit Exp $
 **
 ** Explanation of font matching
 **
@@ -13,7 +13,7 @@
 
 \postheader
 
-<h1 align=center> Font Matching </h1>
+<h1 align=center> Font Matching </h1><br clear="all">
 
 <p>
 
