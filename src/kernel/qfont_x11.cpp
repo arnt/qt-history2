@@ -133,8 +133,7 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
 
     { "jisx0208.1983-0",
       "gb2312.1980-0",
-      "big5*-0",
-      "big5-1",
+      "big5*-*",
       "ksc5601.1987-0",    0 }, // UnifiedHan
     { "jisx0208.1983-0",   0 }, // Hiragana
     { "jisx0208.1983-0"  , 0 }, // Katakana
@@ -147,8 +146,7 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // CanadianAboriginal
     { 0                      }, // Mongolian
 
-    { "big5*-0",
-      "big5-1"           , 0 }, // UnifiedHanX11
+    { "big5*-*"          , 0 }, // UnifiedHanX11
 
     { "iso8859-3"        , 0 }, // LatinExtendedA_3
     { "iso8859-4"        , 0 }, // LatinExtendedA_4
@@ -296,6 +294,11 @@ QFontStruct::~QFontStruct()
     if (xfthandle) {
 	XftFreeTypeClose(QPaintDevice::x11AppDisplay(), (XftFontStruct *) xfthandle);
 	xfthandle = 0;
+    }
+
+    if (xftpattern) {
+	XftPatternDestroy((XftPattern *) xftpattern);
+	xftpattern = 0;
     }
 #endif // QT_NO_XFTFREETYPE
 
@@ -1264,62 +1267,62 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	if (bestName.isNull()) {
-	    if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+	    if (! qt_x11encodings[script][++qt_x11indices[script]])
 		qt_x11indices[script] = 0;
-	    }
 
-	    if (qt_x11indices[script] == start_index) {
+	    if (qt_x11indices[script] == start_index)
 		done = TRUE;
-	    }
-	} else {
+	} else
 	    done = TRUE;
-	}
     }
 
     if ( score < exactScore )
 	*exact = FALSE;
 
-    if (script == QFont::Unicode) {
+    if (! bestName.isNull())
 	return bestName;
-    } else if (! bestName.isNull()) {
-	return bestName;
-    }
 
     // try substitution
     QStringList list = QFont::substitutes( request.family );
     QStringList::Iterator sit = list.begin();
 
     while (sit != list.end() && bestName.isNull()) {
-	if (familyName != *sit) {
+	familyName = *sit++;
+
+	if (request.family != familyName) {
 	    done = FALSE;
 	    qt_x11indices[script] = start_index;
 
+	    if ( familyName.contains('-') ) {
+		int i = familyName.find('-');
+		foundry = familyName.left( i );
+		familyName = familyName.right( familyName.length() - i - 1 );
+	    }
+
 	    while (! done) {
-		bestName = bestFamilyMember(script, foundry, *sit, &score);
+		bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 		if (bestName.isNull()) {
-		    if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		    if (! qt_x11encodings[script][++qt_x11indices[script]])
 			qt_x11indices[script] = 0;
-		    }
 
-		    if (qt_x11indices[script] == start_index) {
+		    if (qt_x11indices[script] == start_index)
 			done = TRUE;
-		    }
-		} else {
+		} else
 		    done = TRUE;
-		}
 	    }
 	}
-
-	++sit;
     }
 
-    if (! bestName.isNull()) return bestName;
+    if (script == QFont::Unicode)
+	return bestName;
+    if (! bestName.isNull())
+	return bestName;
 
     // try default family for style
     QString f = defaultFamily();
 
-    if ( familyName != f ) {
+    if ( request.family != f ) {
 	familyName = f;
 	done = FALSE;
 	qt_x11indices[script] = start_index;
@@ -1328,25 +1331,23 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	    if (bestName.isNull()) {
-		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		if (! qt_x11encodings[script][++qt_x11indices[script]])
 		    qt_x11indices[script] = 0;
-		}
 
-		if (qt_x11indices[script] == start_index) {
+		if (qt_x11indices[script] == start_index)
 		    done = TRUE;
-		}
-	    } else {
+	    } else
 		done = TRUE;
-	    }
 	}
     }
 
-    if (! bestName.isNull()) return bestName;
+    if (! bestName.isNull())
+	return bestName;
 
     // try system default family
     f = lastResortFamily();
 
-    if ( familyName != f ) {
+    if ( request.family != f ) {
 	familyName = f;
 	done = FALSE;
 	qt_x11indices[script] = start_index;
@@ -1355,25 +1356,23 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	    if (bestName.isNull()) {
-		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		if (! qt_x11encodings[script][++qt_x11indices[script]])
 		    qt_x11indices[script] = 0;
-		}
 
-		if (qt_x11indices[script] == start_index) {
+		if (qt_x11indices[script] == start_index)
 		    done = TRUE;
-		}
-	    } else {
+	    } else
 		done = TRUE;
-	    }
 	}
     }
 
-    if (! bestName.isNull()) return bestName;
+    if (! bestName.isNull())
+	return bestName;
 
     // try *any* family
     f = "*";
 
-    if (familyName != f) {
+    if (request.family != f) {
 	familyName = f;
 	done = FALSE;
 	qt_x11indices[script] = start_index;
@@ -1382,23 +1381,19 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	    if (bestName.isNull()) {
-		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
+		if (! qt_x11encodings[script][++qt_x11indices[script]])
 		    qt_x11indices[script] = 0;
-		}
 
-		if (qt_x11indices[script] == start_index) {
+		if (qt_x11indices[script] == start_index)
 		    done = TRUE;
-		}
-	    } else {
+	    } else
 		done = TRUE;
-	    }
 	}
     }
 
     // no matching fonts found
-    if (bestName.isNull() && script == defaultScript) {
+    if (bestName.isNull() && script == defaultScript)
 	bestName = lastResortFont().latin1();
-    }
 
     return bestName;
 }
@@ -2150,6 +2145,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 #ifndef QT_NO_XFTFREETYPE
     XftFontStruct *xftfs = 0;
+    XftPattern *xftmatch = 0;
 
     if (script == QFont::Unicode && qt_has_xft) {
 	// generate XftPattern to open the font
@@ -2207,31 +2203,32 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	}
 
 	XftResult res;
-	XftPattern *match = 0,
-		     *pat = XftPatternBuild(0,
-					    XFT_ENCODING, XftTypeString, "iso10646-1",
-					    XFT_FAMILY, XftTypeString, family_value,
-					    XFT_FAMILY, XftTypeString, generic_value,
-					    XFT_WEIGHT, XftTypeInteger, weight_value,
-					    XFT_SLANT, XftTypeInteger, slant_value,
-					    XFT_SIZE, XftTypeDouble, size_value,
-					    XFT_SPACING, XftTypeInteger, mono_value,
-					    0);
+	XftPattern *pat = XftPatternBuild(0,
+					  XFT_ENCODING, XftTypeString, "iso10646-1",
+					  XFT_FAMILY, XftTypeString, family_value,
+					  XFT_FAMILY, XftTypeString, generic_value,
+					  XFT_WEIGHT, XftTypeInteger, weight_value,
+					  XFT_SLANT, XftTypeInteger, slant_value,
+					  XFT_SIZE, XftTypeDouble, size_value,
+					  XFT_SPACING, XftTypeInteger, mono_value,
+					  0);
 
 	if (pat) {
-	    match = XftFontMatch(QPaintDevice::x11AppDisplay(),
-				 QPaintDevice::x11AppScreen(), pat, &res);
+	    xftmatch = XftFontMatch(QPaintDevice::x11AppDisplay(),
+				    QPaintDevice::x11AppScreen(), pat, &res);
 	    XftPatternDestroy(pat);
 	}
 
-	if (match) {
+	if (xftmatch)
 	    xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
-				    match);
-	    XftPatternDestroy(match);
-	}
+				    xftmatch);
 
-	if (xftfs)
+	if (xftfs) {
 	    use_core = FALSE;
+	} else if (xftmatch) {
+	    XftPatternDestroy(xftmatch);
+	    xftmatch = 0;
+	}
     }
 #endif // QT_NO_XFTFREETYPE
 
@@ -2283,9 +2280,9 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
     qfs = new QFontStruct((Qt::HANDLE) f,
 #ifndef QT_NO_XFTFREETYPE
-			  (Qt::HANDLE) xftfs,
+			  (Qt::HANDLE) xftfs, (Qt::HANDLE) xftmatch,
 #else
-			  0,
+			  0, 0,
 #endif // QT_NO_XFTFREETYPE
 			  n, codec, cost);
     x11data.fontstruct[script] = qfs;
