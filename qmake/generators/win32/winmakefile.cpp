@@ -101,7 +101,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	t << "MAKEFILE=	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "SUBTARGETS	= ";
-    for( it.toFirst(); it.current(); ++it) 
+    for( it.toFirst(); it.current(); ++it)
 	t << " \\\n\t\t" << it.current()->target;
     t << endl << endl;
     t << "all: qmake_all $(SUBTARGETS)" << endl << endl;
@@ -116,7 +116,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	t << mkfile << ":";
 	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	    t << " FORCE";
-	if(have_dir) 
+	if(have_dir)
 	    t << "\n\t" << "cd " << (*it)->directory;
 	t << "\n\t" << "$(QMAKE) " << (*it)->profile << " " << buildArgs();
 	if((*it)->makefile != "$(MAKEFILE)")
@@ -133,7 +133,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	t << (*it)->target << ": " << mkfile;
 	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	    t << " FORCE";
-	if(have_dir) 
+	if(have_dir)
 	    t << "\n\t" << "cd " << (*it)->directory;
 	t << "\n\t" << "$(MAKE)";
 	if((*it)->makefile != "$(MAKEFILE)")
@@ -155,14 +155,17 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     if ( !subdirs.isEmpty() ) {
 	for( it.toFirst(); it.current(); ++it) {
 	    QString subdir = (*it)->directory;
+	    QString profile = (*it)->profile;
 	    int subLevels = subdir.contains(Option::dir_sep) + 1;
 	    t << "\n\t"
 	      << "cd " << subdir << "\n\t";
 	    int lastSlash = subdir.findRev(Option::dir_sep);
 	    if(lastSlash != -1)
 		subdir = subdir.mid( lastSlash + 1 );
-	    t << "$(QMAKE) " << subdir << ".pro"
-	      << (!project->isEmpty("MAKEFILE") ? QString(" -o ") + var("MAKEFILE") : QString(""))
+
+	    t << "$(QMAKE) "
+	      << ( !profile.isEmpty() ? profile : subdir + ".pro" )
+	      << " -o " << (*it)->makefile
 	      << " " << buildArgs() << "\n\t"
 	      << "@cd ..";
 	    for(int i = 1; i < subLevels; i++ )
@@ -192,7 +195,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		t << "\n\t" << "$(MAKE) " << in_file << " " << targs[x];
 		if(have_dir) {
 		    t << "\n\t" << "@cd ..";
-		    for(int i = 1; i < subLevels; i++ ) 
+		    for(int i = 1; i < subLevels; i++ )
 			t << Option::dir_sep << "..";
 		}
 	    }
