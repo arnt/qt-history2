@@ -1936,7 +1936,10 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
 
 void QAbstractItemViewPrivate::fetchMore()
 {
-    QModelIndex index = model->index(model->rowCount(root) - 1, 0, root);
+    int last = model->rowCount(root) - 1;
+    if (last < 0)
+        return;
+    QModelIndex index = model->index(last, 0, root);
     QRect rect = q->itemViewportRect(index);
     if (viewport->rect().contains(rect))
         model->fetchMore(root);
