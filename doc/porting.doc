@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.3 1998/08/17 02:59:50 warwick Exp $
+** $Id: porting.doc,v 1.4 1998/08/17 03:32:23 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -46,18 +46,18 @@ No longer changes the text.
 <p>
 QString
 Now uses Unicode.  data() is obsolete - you cannot directly access the
-string as an array of bytes, because it isn't one.  Often, ascii() is
-what you want rather than data(), or just leave it to convert to
-const char* automatically.  data() is only used now to aide porting to Qt 2.0
+ string as an array of bytes, because it isn't one.  Often, ascii() is
+ what you want rather than data(), or just leave it to convert to
+ const char* automatically.  data() is only used now to aide porting to Qt 2.0
 detach() is obsolete - QString is always shared.  It is now a no-op.
 size() should be replaced by length()+1.
 Code that uses QString as an array of bytes should use QByteArray
-or char[].  THEN convert that to a QString if needed.
+ or char[].  THEN convert that to a QString if needed.
 Assigning 0 to a QString should be assigning the empty string QString()
-A BIG advantage of the new QString is that it automatically expands - 
- write to an indexed position and it is there.
+A BIG advantage of the new QString is that it automatically expands
+ when you write to an indexed position.
 Try to always use QString.  If you MUST, use Q1String which is the
-implementation used in Qt 1.x.
+ implementation used in Qt 1.x.
 Every conversion to and from ascii is wasted time, so try to use QString
  as much as possible rather than const char*.  This also ensures you have
  full 16-bit support. [should we have a warning feature/copy count?]
@@ -68,7 +68,7 @@ Expect your code to become simpler with the new QString, especially
  than using indexes into the string.
 This hack:
   use_sub_string( &my_string[index] )
-should be replaced by:
+ should be replaced by:
   use_sub_string( my_string.mid(index) )
 You may find yourself needing ascii() for passing to the operating system
  or other libraries, and be tempted to use Q1String to save the conversion,
@@ -94,10 +94,9 @@ changed to QMultiLineEdit::textWidth(QString)
 
 <p> 
 Some repaint problems problems might occur with subclasses on QFrame,
-QPushButton, and QComboBox, which now use WResizeNoErase to improve
-resize repainting.  Be sure to call the resizeEvent() of your base
-class if your derive a widget subclass.  The quickest fix is to
-add:
+ QPushButton, and QComboBox, which now use WResizeNoErase to improve
+ resize repainting.  Be sure to call the resizeEvent() of your base
+ class if your derive a widget subclass.  The quickest fix is to add:
    resizeEvent(QResizeEvent* e)
    {
        repaint( e->rect(), TRUE );
