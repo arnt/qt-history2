@@ -1829,7 +1829,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	ok_key = FALSE;
 
     }
-    if ( !ok_key && ( !e->state() || e->state() == AltButton ) && e->text().length()==1 ) {
+    if ( !ok_key && 
+	 ( !e->state() || e->state() == AltButton || e->state() == ShiftButton ) && 
+	 e->text().length()==1 ) {
 	QChar c = e->text()[0].upper();
 
 	QMenuItemListIt it(*mitems);
