@@ -1891,7 +1891,7 @@ QMetaObject* QObject::staticMetaObject()
     slot_tbl[0].method = &method_slot_1;
     slot_tbl[0].access = QMetaData::Private;
     slot_tbl[1].name = "receiverDestroyed()";
-    slot_tbl[1].ptr = 0;
+    slot_tbl[1].ptr = 1;
     slot_tbl[1].method = &method_slot_2;
     slot_tbl[1].access = QMetaData::Private;
     QMetaData *signal_tbl = new QMetaData[1];
@@ -1962,7 +1962,7 @@ void QObject::activate_signal( int signal )
 	    else
 		object->qt_invoke( c->member(), o );
 	}
-    }	
+    }
 }
 
 void QObject::activate_signal( int signal, UObject *o )
