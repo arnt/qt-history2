@@ -20,6 +20,35 @@
 #include "qtextengine_p.h"
 #include "qopentype_p.h"
 
+#include <qdebug.h>
+
+
+#ifndef QT_NO_QWS_QPF
+
+#include "qfile.h"
+#include "qdir.h"
+
+#define QT_USE_MMAP
+#include <stdlib.h>
+
+#ifdef QT_USE_MMAP
+// for mmap
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <errno.h>
+#endif
+
+#endif // QT_NO_QWS_QPF
+
+
+
+
+
+
+
 FT_Library QFontEngineFT::ft_library = 0;
 
 class QGlyph {
@@ -451,7 +480,7 @@ bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, 
     *nglyphs = len;
 
     for(int i = 0; i < len; i++) {
-        (glyphs++)->advance.rx() = _size;
+        glyphs->advance.rx() = _size;
         (glyphs++)->advance.ry() = 0.;
     }
 
@@ -543,3 +572,514 @@ float QFontEngine::underlinePosition() const
 QFontEngine::~QFontEngine()
 {
 }
+
+
+
+
+
+#ifndef QT_NO_QWS_QPF
+
+
+#define FM_SMOOTH 1
+
+
+class Q_PACKED QPFGlyphMetrics {
+
+public:
+    Q_UINT8 linestep;
+    Q_UINT8 width;
+    Q_UINT8 height;
+    Q_UINT8 flags;
+
+    Q_INT8 bearingx;      // Difference from pen position to glyph's left bbox
+    Q_UINT8 advance;       // Difference between pen positions
+    Q_INT8 bearingy;      // Used for putting characters on baseline
+
+    Q_INT8 reserved;      // Do not use
+
+    // Flags:
+    // RendererOwnsData - the renderer is responsible for glyph data
+    //                    memory deletion otherwise QPFGlyphTree must
+    //                    delete [] the data when the glyph is deleted.
+    enum Flags { RendererOwnsData=0x01 };
+};
+
+class QPFGlyph {
+public:
+    QPFGlyph() { metrics=0; data=0; }
+    QPFGlyph(QPFGlyphMetrics* m, uchar* d) :
+	metrics(m), data(d) { }
+    ~QPFGlyph() {}
+
+    QPFGlyphMetrics* metrics;
+    uchar* data;
+};
+
+struct Q_PACKED QPFFontMetrics{
+    Q_INT8 ascent,descent;
+    Q_INT8 leftbearing,rightbearing;
+    Q_UINT8 maxwidth;
+    Q_INT8 leading;
+    Q_UINT8 flags;
+    Q_UINT8 underlinepos;
+    Q_UINT8 underlinewidth;
+    Q_UINT8 reserved3;
+};
+
+
+class QPFGlyphTree {
+public:
+    /* reads in a tree like this:
+
+       A-Z
+       /   \
+       0-9   a-z
+
+       etc.
+
+    */
+    glyph_t min,max;
+    QPFGlyphTree* less;
+    QPFGlyphTree* more;
+    QPFGlyph* glyph;
+public:
+#ifdef QT_USE_MMAP
+    QPFGlyphTree(uchar*& data)
+    {
+        read(data);
+    }
+#else
+    QPFGlyphTree(QIODevice& f)
+    {
+        read(f);
+    }
+#endif
+
+    ~QPFGlyphTree()
+    {
+        // NOTE: does not delete glyph[*].metrics or .data.
+        //       the caller does this (only they know who owns
+        //       the data).  See clear().
+        delete less;
+        delete more;
+        delete [] glyph;
+    }
+
+    bool inFont(glyph_t g) const
+    {
+        if ( g < min ) {
+            if ( !less )
+                return false;
+            return less->inFont(g);
+        } else if ( g > max ) {
+            if ( !more )
+                return false;
+            return more->inFont(g);
+        }
+        return true;
+    }
+
+    QPFGlyph* get(glyph_t g)
+    {
+        if ( g < min ) {
+            if ( !less )
+                return 0;
+            return less->get(g);
+        } else if ( g > max ) {
+            if ( !more )
+                return 0;
+            return more->get(g);
+        }
+        return &glyph[g - min];
+    }
+    int totalChars() const
+    {
+        if ( !this ) return 0;
+        return max-min+1 + less->totalChars() + more->totalChars();
+    }
+    int weight() const
+    {
+        if ( !this ) return 0;
+        return 1 + less->weight() + more->weight();
+    }
+
+    void dump(int indent=0)
+    {
+        for (int i=0; i<indent; i++) printf(" ");
+        printf("%d..%d",min,max);
+        //if ( indent == 0 )
+        printf(" (total %d)",totalChars());
+        printf("\n");
+        if ( less ) less->dump(indent+1);
+        if ( more ) more->dump(indent+1);
+    }
+
+private:
+    QPFGlyphTree()
+    {
+    }
+
+#ifdef QT_USE_MMAP
+    void read(uchar*& data)
+    {
+        // All node data first
+        readNode(data);
+        // Then all non-video data
+        readMetrics(data);
+        // Then all video data
+        readData(data);
+    }
+#else
+    void read(QIODevice& f)
+    {
+        // All node data first
+        readNode(f);
+        // Then all non-video data
+        readMetrics(f);
+        // Then all video data
+        readData(f);
+    }
+#endif
+
+#ifdef QT_USE_MMAP
+    void readNode(uchar*& data)
+    {
+        uchar rw = *data++;
+        uchar cl = *data++;
+        min = (rw << 8) | cl;
+        rw = *data++;
+        cl = *data++;
+        max = (rw << 8) | cl;
+        int flags = *data++;
+        if ( flags & 1 )
+            less = new QPFGlyphTree;
+        else
+            less = 0;
+        if ( flags & 2 )
+            more = new QPFGlyphTree;
+        else
+            more = 0;
+        int n = max-min+1;
+        glyph = new QPFGlyph[n];
+
+        if ( less )
+            less->readNode(data);
+        if ( more )
+            more->readNode(data);
+    }
+#else
+    void readNode(QIODevice& f)
+    {
+        uchar rw = f.getch();
+        uchar cl = f.getch();
+        min = (rw << 8) | cl;
+        rw = f.getch();
+        cl = f.getch();
+        max = (rw << 8) | cl;
+        int flags = f.getch();
+        if ( flags & 1 )
+            less = new QPFGlyphTree;
+        else
+            less = 0;
+        if ( flags & 2 )
+            more = new QPFGlyphTree;
+        else
+            more = 0;
+        int n = max-min+1;
+        glyph = new QPFGlyph[n];
+
+        if ( less )
+            less->readNode(f);
+        if ( more )
+            more->readNode(f);
+    }
+#endif
+
+#ifdef QT_USE_MMAP
+    void readMetrics(uchar*& data)
+    {
+        int n = max-min+1;
+        for (int i=0; i<n; i++) {
+            glyph[i].metrics = (QPFGlyphMetrics*)data;
+            data += sizeof(QPFGlyphMetrics);
+        }
+        if ( less )
+            less->readMetrics(data);
+        if ( more )
+            more->readMetrics(data);
+    }
+#else
+    void readMetrics(QIODevice& f)
+    {
+        int n = max-min+1;
+        for (int i=0; i<n; i++) {
+            glyph[i].metrics = new QPFGlyphMetrics;
+            f.readBlock((char*)glyph[i].metrics, sizeof(QPFGlyphMetrics));
+        }
+        if ( less )
+            less->readMetrics(f);
+        if ( more )
+            more->readMetrics(f);
+    }
+#endif
+
+#ifdef QT_USE_MMAP
+    void readData(uchar*& data)
+    {
+        int n = max-min+1;
+        for (int i=0; i<n; i++) {
+            QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
+            //######### s = qt_screen->mapToDevice( s );
+            uint datasize = glyph[i].metrics->linestep * s.height();
+            glyph[i].data = data; data += datasize;
+        }
+        if ( less )
+            less->readData(data);
+        if ( more )
+            more->readData(data);
+    }
+#else
+    void readData(QIODevice& f)
+    {
+        int n = max-min+1;
+        for (int i=0; i<n; i++) {
+            QSize s( glyph[i].metrics->width, glyph[i].metrics->height );
+            //############### s = qt_screen->mapToDevice( s );
+            uint datasize = glyph[i].metrics->linestep * s.height();
+            glyph[i].data = new uchar[datasize]; // ### deleted?
+            f.readBlock((char*)glyph[i].data, datasize);
+        }
+        if ( less )
+            less->readData(f);
+        if ( more )
+            more->readData(f);
+    }
+#endif
+
+};
+
+class QFontEngineQPFData
+{
+public:
+    QPFFontMetrics fm;
+    QPFGlyphTree *tree;
+};
+
+
+QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QPaintDevice *, const QString &fn)
+{
+    qDebug("QPF font engine created!");
+    cache_cost = 1;
+
+
+
+
+
+    int f = ::open( QFile::encodeName(fn), O_RDONLY );
+    Q_ASSERT(f>=0);
+    struct stat st;
+    if ( fstat( f, &st ) )
+        qFatal("Failed to stat %s",QFile::encodeName(fn).data());
+    uchar* data = (uchar*)mmap( 0, // any address
+                                st.st_size, // whole file
+                                PROT_READ, // read-only memory
+#if !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX4)
+                                MAP_FILE | MAP_PRIVATE, // swap-backed map from file
+#else
+                                MAP_PRIVATE,
+#endif
+                                f, 0 ); // from offset 0 of f
+#if defined(Q_OS_QNX4) && !defined(MAP_FAILED)
+#define MAP_FAILED ((void *)-1)
+#endif
+    if ( !data || data == (uchar*)MAP_FAILED )
+        qFatal("Failed to mmap %s",QFile::encodeName(fn).data());
+    ::close(f);
+
+    d = new QFontEngineQPFData;
+    memcpy(reinterpret_cast<char*>(&d->fm),data,sizeof(d->fm));
+
+    data += sizeof(d->fm);
+    d->tree = new QPFGlyphTree(data);
+
+#if 0
+    qDebug() << "font file" << fn
+             << "ascent" << d->fm.ascent << "descent" << d->fm.descent
+             << "leftbearing" << d->fm.leftbearing
+             << "rightbearing" << d->fm.rightbearing
+             << "maxwidth" << d->fm.maxwidth
+             << "leading" << d->fm.leading
+             << "flags" << d->fm.flags
+             << "underlinepos" << d->fm.underlinepos
+             << "underlinewidth" << d->fm.underlinewidth;
+#endif
+}
+
+QFontEngineQPF::~QFontEngineQPF()
+{
+}
+
+QFontEngine::FECaps QFontEngineQPF::capabilites() const
+{
+    return NoTransformations;
+}
+
+bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
+{
+    if(*nglyphs < len) {
+        *nglyphs = len;
+        return false;
+    }
+
+    for(int i = 0; i < len; i++)
+        glyphs[i].glyph = str[i].unicode();
+    *nglyphs = len;
+
+    for(int i = 0; i < len; i++) {
+        QGlyphLayout &g=glyphs[i];
+        QPFGlyph *glyph = d->tree->get(g.glyph);
+
+        g.advance.rx() = glyph->metrics->advance;
+        g.advance.ry() = 0.;
+    }
+
+    return true;
+}
+
+void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
+{
+    qDebug("QFontEngineQPF::draw(%d, %d, numglyphs=%d", x, y, si.num_glyphs);
+
+    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
+
+    if (p->painterState()->txop == QPainterPrivate::TxTranslate)
+        p->painterState()->painter->map(x, y, &x, &y);
+
+
+    QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
+
+    if (textFlags) {
+        int lw = qRound(lineThickness());
+        lw = qMax(1, lw);
+
+        p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
+
+        if (textFlags & Qt::TextUnderline)
+            qpe->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
+        if (textFlags & Qt::TextStrikeOut)
+            qpe->fillRect(x, y-qRound(ascent())/3, si.width, lw);
+        if (textFlags & Qt::TextOverline)
+            qpe->fillRect(x, y-qRound(ascent())-1, si.width, lw);
+
+        p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
+    }
+
+    QGlyphLayout *glyphs = si.glyphs;
+
+    if (si.right_to_left)
+        glyphs += si.num_glyphs - 1;
+
+    for(int i = 0; i < si.num_glyphs; i++) {
+        const QGlyphLayout *g = glyphs + (si.right_to_left ? -i : i);
+        const QPFGlyph *glyph = d->tree->get(g->glyph);
+        Q_ASSERT(glyph);
+        int myw = glyph->metrics->width;
+        int myh = glyph->metrics->height;
+        int myx = x + qRound(g->offset.x() + glyph->metrics->bearingx);
+        int myy = y + qRound(g->offset.y() - glyph->metrics->bearingy);
+
+
+        int mono = !(d->fm.flags & FM_SMOOTH);
+        int bpl = mono ? (myw+7)/8 : myw;
+
+        if(myw != 0 && myh != 0 && bpl != 0)
+            qpe->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh,0,0);
+
+        x += qRound(g->advance.x());
+    }
+
+    //##### grab/ungrab
+}
+
+glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
+{
+   if (numGlyphs == 0)
+        return glyph_metrics_t();
+
+    float w = 0;
+    const QGlyphLayout *end = glyphs + numGlyphs;
+    while(end > glyphs)
+        w += (--end)->advance.x();
+    w *= _scale;
+    return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0);
+}
+
+glyph_metrics_t QFontEngineQPF::boundingBox(glyph_t glyph)
+{
+    const QPFGlyph *g = d->tree->get(glyph);
+    Q_ASSERT(g);
+    return glyph_metrics_t(g->metrics->bearingx, g->metrics->bearingy,
+                            g->metrics->width, g->metrics->height,
+                            g->metrics->advance, 0);
+}
+
+float QFontEngineQPF::ascent() const
+{
+    return d->fm.ascent;
+}
+
+float QFontEngineQPF::descent() const
+{
+    return d->fm.descent;
+}
+
+float QFontEngineQPF::leading() const
+{
+    return d->fm.leading;
+}
+
+float QFontEngineQPF::maxCharWidth() const
+{
+    return d->fm.maxwidth;
+}
+/*
+const char *QFontEngineQPF::name() const
+{
+    return "qt";
+}
+*/
+bool QFontEngineQPF::canRender(const QChar *str, int len)
+{
+    for(int i = 0; i < len; i++)
+        if (!d->tree->inFont(str[i].unicode()))
+            return false;
+    return true;
+}
+
+QFontEngine::Type QFontEngineQPF::type() const
+{
+    return QPF;
+}
+
+float QFontEngineQPF::minLeftBearing() const
+{
+    return d->fm.leftbearing;
+}
+
+float QFontEngineQPF::minRightBearing() const
+{
+    return d->fm.rightbearing;
+}
+
+float QFontEngineQPF::underlinePosition() const
+{
+    return d->fm.underlinepos;
+}
+
+float QFontEngineQPF::lineThickness() const
+{
+    return d->fm.underlinewidth;
+}
+
+
+#endif //QT_NO_QWS_QPF

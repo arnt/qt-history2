@@ -52,7 +52,8 @@ public:
         Mac,
 
         // Trolltech QWS types
-        Freetype
+        Freetype,
+        QPF
 #ifndef QT_NO_DEBUG
         ,  TestFontEngine = 0x1000
 #endif
@@ -199,6 +200,41 @@ public:
     friend class QFontDatabase;
     static FT_Library ft_library;
 };
+
+class QFontEngineQPFData;
+
+class QFontEngineQPF : public QFontEngine
+{
+public:
+    QFontEngineQPF(const QFontDef&, const QPaintDevice *, const QString &fn);
+   ~QFontEngineQPF();
+
+    FECaps capabilites() const;
+    bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
+
+    void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
+
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(glyph_t glyph);
+
+    float ascent() const;
+    float descent() const;
+    float leading() const;
+    float maxCharWidth() const;
+    float minLeftBearing() const;
+    float minRightBearing() const;
+    float underlinePosition() const;
+    float lineThickness() const;
+
+    Type type() const;
+
+    bool canRender(const QChar *string,  int len);
+    inline const char *name() const { return 0; }
+
+
+    QFontEngineQPFData *d;
+};
+
 #endif // QWS
 
 

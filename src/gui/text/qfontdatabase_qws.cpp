@@ -81,9 +81,9 @@ static void initializeDb()
     } while (!feof(fontdef));
     fclose(fontdef);
 
-#if 0 //ndef QT_NO_DIR
+#ifndef QT_NO_DIR
 
-    QDir dir(qInstallPath()+"/lib/fonts/","*.qpf");
+    QDir dir(QString::fromLatin1(qInstallPath())+"/lib/fonts/","*.qpf");
     for (int i=0; i<(int)dir.count(); i++) {
         int u0 = dir[i].find('_');
         int u1 = dir[i].find('_',u0+1);
@@ -183,12 +183,17 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
                          QtFontStyle *style, QtFontSize *size)
 {
     Q_UNUSED(script);
-    Q_UNUSED(family);
-    Q_UNUSED(foundry);
-    Q_UNUSED(style);
+    //Q_UNUSED(family);
+//    Q_UNUSED(style);
     QPaintDevice *paintdevice = fp->paintdevice;
 
     Q_ASSERT(size);
+
+    int pixelSize = size->pixelSize;
+    if (!pixelSize)
+        pixelSize = request.pixelSize;
+
+    if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
 
     FT_Face face;
 
@@ -200,12 +205,17 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
         FM_DEBUG("loading font file %s failed, err=%x", file.constData(), err);
         Q_ASSERT(!err);
     }
-    int pixelSize = size->pixelSize;
-    if (!pixelSize)
-        pixelSize = request.pixelSize;
     FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
     FD_DEBUG("setting pixel size to %d", pixelSize);
 
     QFontEngine *fe = new QFontEngineFT(request, paintdevice, face);
     return fe;
+    } else {
+        QString fn= QLatin1String(qInstallPath())+QLatin1String("/lib/fonts/") + family->name.toLower() + "_" + QString::number(pixelSize*10) + "_" + QString::number(style->key.weight) + (style->key.italic ? "i.qpf" : ".qpf");
+        //###rotation ###
+
+        qDebug("creating QFontEngineQPF size->fileName: %s fn: %s", size->fileName.data(), fn.latin1());
+        QFontEngine *fe = new QFontEngineQPF(request, paintdevice, fn);
+        return fe;
+    }
 }

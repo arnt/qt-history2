@@ -219,6 +219,7 @@ private:
     friend class QFontEngineMac;
     friend class QFontEngineWin;
     friend class QFontEngineFT;
+    friend class QFontEngineQPF;
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
     friend class QPSPrintEngine;
