@@ -25,6 +25,7 @@
 //
 //
 #include <qatomic.h>
+#include <qglobal.h>
 # if defined (Q_WS_MAC)
 #  include <private/qt_mac_p.h>
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
