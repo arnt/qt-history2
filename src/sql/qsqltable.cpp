@@ -762,7 +762,7 @@ void QSqlTable::updateCurrent()
 	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endUpdate();
 	refresh( d->cursor, idx );
-	emit cursorChanged( QSqlCursor::Update );	
+	emit cursorChanged( QSqlCursor::Update );
 	setCurrentCell( currentRow(), currentColumn() );
 	break;
     }
@@ -817,7 +817,7 @@ void QSqlTable::deleteCurrent()
 	if ( !b )
 	    handleError( d->cursor->lastError() );
 	refresh( d->cursor );
-	emit cursorChanged( QSqlCursor::Delete );		
+	emit cursorChanged( QSqlCursor::Delete );
 	setCurrentCell( currentRow(), currentColumn() );
 	updateRow( currentRow() );
 	break;
@@ -1619,7 +1619,6 @@ QSqlRecord QSqlTable::currentFieldSelection() const
     int row = currentRow();
     if ( !d->cursor->seek( row ) )
 	return fil;
-    //    qDebug("finished seek to row:" + QString::number(row));
     fil = *d->cursor;
     return fil;
 }
