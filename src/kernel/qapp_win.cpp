@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#141 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#140 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#141 $");
 
 
 /*****************************************************************************
@@ -1534,7 +1534,7 @@ static void activateZeroTimers()		// activate full-speed timers
 {
     if ( !timerVec )
 	return;
-    int i=0;
+    uint i=0;
     register TimerInfo *t;
     int n = numZeroTimers;
     while ( n-- ) {
@@ -1569,7 +1569,7 @@ static void cleanupTimers()			// remove pending timers
     register TimerInfo *t;
     if ( !timerVec )				// no timers were used
 	return;
-    for ( int i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
+    for ( uint i=0; i<timerVec->size(); i++ ) {		// kill all pending timers
 	t = timerVec->at( i );
 	if ( t && !t->zero )
 	    KillTimer( 0, t->id );
@@ -1601,7 +1601,7 @@ int qStartTimer( int interval, QObject *obj )
 	initTimers();
     int ind = timerVec->findRef( 0 );		// get free timer
     if ( ind == -1 || !obj ) {
-	int = timerVec->size();			// increase the size
+	ind = timerVec->size();			// increase the size
 	timerVec->resize( ind * 4 );
     }
     t = new TimerInfo;				// create timer entry
@@ -1636,7 +1636,7 @@ int qStartTimer( int interval, QObject *obj )
 
 bool qKillTimer( int ind )
 {
-    if ( !timerVec || ind <= 0 || ind > timerVec->size() )
+    if ( !timerVec || ind <= 0 || (uint)ind > timerVec->size() )
 	return FALSE;
     register TimerInfo *t = timerVec->at(ind-1);
     if ( !t )
@@ -1655,7 +1655,7 @@ bool qKillTimer( QObject *obj )
     if ( !timerVec )
 	return FALSE;
     register TimerInfo *t;
-    for ( int i=0; i<timerVec->size(); i++ ) {
+    for ( uint i=0; i<timerVec->size(); i++ ) {
 	t = timerVec->at( i );
 	if ( t && t->obj == obj ) {		// object found
 	    if ( t->zero )
