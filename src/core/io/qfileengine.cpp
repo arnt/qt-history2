@@ -316,9 +316,9 @@ QFSFileEngine::errorStatus() const
 }
 
 QString 
-QFSFileEngine::errorMessage() const
+QFSFileEngine::errorString() const
 {
-    return d->errorMessage;
+    return d->errorString;
 }
 
 QIOEngine::Type 

@@ -77,7 +77,7 @@ QIODevice::Status QIOEngine::errorStatus() const
     return QIODevice::UnspecifiedError;
 }
 
-QString QIOEngine::errorMessage() const
+QString QIOEngine::errorString() const
 {
     return QString::null;
 }

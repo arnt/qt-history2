@@ -58,7 +58,7 @@ public:
     virtual int ungetch(int) = 0;
 
     virtual QIODevice::Status errorStatus() const;
-    virtual QString errorMessage() const;
+    virtual QString errorString() const;
 
 protected:
     QIOEngine();

@@ -114,7 +114,7 @@ public:
     virtual int ungetch(int);
     virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
     virtual Q_LONG writeBlock(const char *data, Q_LONG len);
-    virtual QString errorMessage() const;
+    virtual QString errorString() const;
     virtual QIODevice::Status errorStatus() const;
     virtual Type type() const;
 

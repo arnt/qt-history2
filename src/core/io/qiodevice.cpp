@@ -578,7 +578,7 @@ QIODevice::open(int mode)
     QIODevice::Status error = ioEngine()->errorStatus();
     if(error == QIODevice::UnspecifiedError)
         error = QIODevice::OpenError;
-    setStatus(error, ioEngine()->errorMessage());
+    setStatus(error, ioEngine()->errorString());
     return false;
 }
 
@@ -601,7 +601,7 @@ QIODevice::close()
         QIODevice::Status error = ioEngine()->errorStatus();
         if(error == QIODevice::UnspecifiedError)
             error = QIODevice::UnspecifiedError;
-        setStatus(error, ioEngine()->errorMessage());
+        setStatus(error, ioEngine()->errorString());
     }
     if(closed) {
         setFlags(QIODevice::Direct);
@@ -676,7 +676,7 @@ QIODevice::seek(QIODevice::Offset offset)
     QIODevice::Status error = ioEngine()->errorStatus();
     if(error == QIODevice::UnspecifiedError)
         error = QIODevice::PositionError;
-    setStatus(error, ioEngine()->errorMessage());
+    setStatus(error, ioEngine()->errorString());
     return false;
 }
 
@@ -743,7 +743,7 @@ QIODevice::readBlock(char *data, Q_LONG len)
         QIODevice::Status error = ioEngine()->errorStatus();
         if(error == QIODevice::UnspecifiedError)
             error = QIODevice::ReadError;
-        setStatus(error, ioEngine()->errorMessage());
+        setStatus(error, ioEngine()->errorString());
     }
     return ret;
 }
@@ -823,7 +823,7 @@ QIODevice::writeBlock(const char *data, Q_LONG len)
         QIODevice::Status error = ioEngine()->errorStatus();
         if(error == QIODevice::UnspecifiedError)
             error = QIODevice::WriteError;
-        setStatus(error, ioEngine()->errorMessage());
+        setStatus(error, ioEngine()->errorString());
     }
     return ret;
 }
