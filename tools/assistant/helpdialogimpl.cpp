@@ -515,12 +515,18 @@ void HelpDialog::insertContents()
 	setupTitleMap();
 
     listContents->setSorting( -1 );
-    QListViewItem *qtDocu, *handbook, *linguistDocu;
-    qtDocu = new QListViewItem( listContents, tr( "Qt Class Documentation" ) );
+    HelpNavigationContentsItem *qtDocu, *handbook, *linguistDocu;
+    qtDocu = new HelpNavigationContentsItem( listContents, 0 );
+    qtDocu->setText( 0, tr( "Qt Class Documentation" ) );
+    qtDocu->setLink( "index.html" );
     //    qtDocu->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
-    handbook = new QListViewItem( listContents, tr( "Designer Handbook" ) );
+    handbook = new HelpNavigationContentsItem( listContents, 0 );
+    handbook->setText( 0, tr( "Designer Handbook" ) );
+    handbook->setLink( "book1.html" );
 //     handbook->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
-    linguistDocu = new QListViewItem( listContents, tr( "Qt Linguist Manual" ) );
+    linguistDocu = new HelpNavigationContentsItem( listContents, 0 );
+    linguistDocu->setText( 0, tr( "Qt Linguist Manual" ) );
+    linguistDocu->setLink( "qt-translation-tools.html" );
 
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
@@ -704,8 +710,6 @@ void HelpDialog::currentContentsChanged( QListViewItem * )
 
 void HelpDialog::showContentsTopic()
 {
-    if ( !listContents->currentItem()->parent() )
-	return;
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listContents->currentItem();
     emit showLink( i->link(), i->text( 0 ) );
 }
