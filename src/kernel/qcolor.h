@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#57 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#58 $
 **
 ** Definition of QColor class
 **
@@ -72,6 +72,7 @@ public:
     QColor( int x, int y, int z, Spec );
     QColor( QRgb rgb, uint pixel=0xffffffff);
     QColor( const QString& name );
+    QColor( const char *name );
     QColor( const QColor & );
     QColor &operator=( const QColor & );
 

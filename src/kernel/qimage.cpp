@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#222 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4091,7 +4091,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		colorMap.insert( index, (void*)(rgb+1) );
 	    }
 	} else if ( buf[0] == 'c' ) {
-	    QColor c( buf.mid( 2, buf.length() ) );
+	    QColor c( QString(buf.mid( 2, buf.length() )) );
 	    if ( image.depth() == 8 ) {
 		image.setColor( currentColor, 0xff000000 | c.rgb() );
 		colorMap.insert( index, (void*)(currentColor+1) );

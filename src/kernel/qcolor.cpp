@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#91 $
 **
 ** Implementation of QColor class
 **
@@ -258,6 +258,18 @@ QColor::QColor( const QString& name )
 {
     setNamedColor( name );
 }
+
+
+/*!
+  Constructs a named color in the same way as setNamedColor().
+  \sa setNamedColor()
+*/
+
+QColor::QColor( const char *name )
+{
+    setNamedColor( QString(name) );
+}
+
 
 
 /*!

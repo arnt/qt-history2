@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#469 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#470 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -617,11 +617,11 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	QColor bg;
 	QColor fg;
 	if ( !resBG.isEmpty() )
-	    bg = QColor(resBG);
+	    bg = QColor(QString(resBG));
 	else
 	    bg = Qt::lightGray;
 	if ( !resFG.isEmpty() )
-	    fg = QColor(resFG);
+	    fg = QColor(QString(resFG));
 	else
 	    fg = Qt::black;
 	if (button)
@@ -2265,7 +2265,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		
 		{
 		    // check whether the widget was embedded rather than managed.
-		    
+		
 		    //#### get rid of XGetWindowProperty (round trip!), observe propertynotify instead.
 		    Atom type;
 		    int format;
@@ -2949,7 +2949,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
-    
+
     if ( event->type == MotionNotify ) {	// mouse move
 	XEvent *xevent = (XEvent *)event;
 	unsigned int xstate = event->xmotion.state;
@@ -3422,7 +3422,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
-    
+
     Display *dpy = x11Display();
     QWidget *tlw = topLevelWidget();
 
