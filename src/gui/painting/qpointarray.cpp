@@ -452,6 +452,8 @@ QPointArray QPointArray::cubicBezier() const
 }
 #endif //QT_NO_BEZIER
 
+#endif // QT_COMPAT
+
 #ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug dbg, const QPointArray &a)
 {
@@ -468,8 +470,6 @@ QDebug operator<<(QDebug dbg, const QPointArray &a)
 #endif
 }
 #endif
-
-#endif // QT_COMPAT
 
 /*!
    \fn QPointArray QPointArray::copy() const
