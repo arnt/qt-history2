@@ -169,7 +169,7 @@ void ABCentralWidget::setupTabWidget()
     sEMail->resize( sEMail->sizeHint() );
     grid2->addWidget( sEMail, 1, 3 );
 
-    find = new QPushButton( "&Find", search );
+    find = new QPushButton( "F&ind", search );
     find->resize( find->sizeHint() );
     grid2->addWidget( find, 1, 4 );
     connect( find, SIGNAL( clicked() ), this, SLOT( findEntries() ) );
