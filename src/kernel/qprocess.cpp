@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#42 $
 **
 ** Implementation of QProcess class
 **
@@ -78,10 +78,9 @@
   with the Qt Designer) and make some operations on the output (the \c uic
   outputs the code it generates to standard output by default). Consider the
   case, that you want to start it with the command line options "-tr i18n" on
-  the file "small_dialog.ui" (notice the space in the filename). On the command
-  line you would do that with
+  the file "small_dialog.ui". On the command line you would do that with
   \code
-  uic -tr i18n "small_dialog.ui"
+  uic -tr i18n small_dialog.ui
   \endcode
 
   \walkthrough process/process.cpp
