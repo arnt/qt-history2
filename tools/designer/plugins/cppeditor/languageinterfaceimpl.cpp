@@ -77,6 +77,8 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	func.name.remove( 0, func.name.find( "::" ) + 2 );
 	func.body = (*it).body();
 	func.returnType = (*it).returnType();
+	func.start = (*it).functionStartLineNum();
+	func.end = (*it).closingBraceLineNum();
 	functionMap->append( func );
     }
 }

@@ -44,8 +44,12 @@ protected slots:
     void currentTypeChanged( const QString &type );
 
 private:
+    void removeSlotFromCode( const QString &slot );
+
+private:
     FormWindow *formWindow;
     QMap<QListViewItem*, QString> oldSlotNames;
+    QStringList removedSlots;
 
 };
 

@@ -146,6 +146,9 @@ void EditSlots::okClicked()
 	return;
     }
 
+    for ( QStringList::Iterator rsit = removedSlots.begin(); rsit != removedSlots.end(); ++rsit )
+	removeSlotFromCode( *rsit );
+
     if ( rmSlt || addSlt ) {
 	QPtrList<Command> commands;
 	if ( rmSlt )
@@ -181,6 +184,7 @@ void EditSlots::slotRemove()
 	return;
 
     slotListView->blockSignals( TRUE );
+    removedSlots << slotListView->currentItem()->text( 0 );
     delete slotListView->currentItem();
     if ( slotListView->currentItem() )
 	slotListView->setSelected( slotListView->currentItem(), TRUE );
@@ -239,4 +243,48 @@ void EditSlots::currentTypeChanged( const QString &type )
 	return;
 
     slotListView->currentItem()->setText( 3, type );
+}
+
+void EditSlots::removeSlotFromCode( const QString &slot )
+{
+    QString code = MetaDataBase::formCode( formWindow );
+    if ( code.isEmpty() )
+	return;
+    LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
+    if ( !iface )
+	return;
+    QValueList<LanguageInterface::Function> functions;
+    iface->functions( code, &functions );
+    QString sl = MetaDataBase::normalizeSlot( slot );
+    for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin(); fit != functions.end(); ++fit ) {
+	if ( MetaDataBase::normalizeSlot( (*fit).name ) == sl ) {
+	    int line = 0;
+	    int start = 0;
+	    while ( line < (*fit).start - 1 ) {
+		start = code.find( '\n', start );
+		if ( start == -1 )
+		    return;
+		start++;
+		line++;
+	    }
+	    if ( start == -1 )
+		return;
+	    int end = start;
+	    while ( line < (*fit).end + 1 ) {
+		end = code.find( '\n', end );
+		if ( end == -1 ) {
+		    if ( line <= (*fit).end )
+			end = code.length() - 1;
+		    else
+			return;
+		}
+		end++;
+		line++;
+	    }
+	    if ( end < start )
+		return;
+	    code.remove( start, end - start );
+	    MetaDataBase::setFormCode( formWindow, code );
+	}
+    }
 }

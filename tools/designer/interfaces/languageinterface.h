@@ -52,6 +52,8 @@ struct LanguageInterface : public QUnknownInterface
 	QString body;
 	QString returnType;
 	QString comments;
+	int start;
+	int end;
 	bool operator==( const Function &f ) const {
 	    return ( name == f.name &&
 		     body == f.body &&
