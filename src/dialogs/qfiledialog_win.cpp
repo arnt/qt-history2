@@ -48,8 +48,8 @@
 
 extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
-const int maxNameLen = 255;
-const int maxMultiLen = 16383;
+const int maxNameLen = 1023;
+const int maxMultiLen = 65535;
 
 // Returns the wildcard part of a filter.
 static QString extractFilter( const QString& rawFilter )
