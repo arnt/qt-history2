@@ -164,8 +164,14 @@ public:
     void drawListItem(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                       QTextBlock bl, const QTextLayout::Selection &selection) const;
 
-    int hitTest(QTextFrame *frame, const QPoint &point, QText::HitTestAccuracy accuracy) const;
-    int hitTest(QTextBlock bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
+    enum HitPoint {
+        PointBefore,
+        PointAfter,
+        PointInside,
+        PointExact
+    };
+    HitPoint hitTest(QTextFrame *frame, const QPoint &point, int *position) const;
+    HitPoint hitTest(QTextBlock bl, const QPoint &point, int *position) const;
 
     void relayoutDocument();
     void setTableWidths(QTextTable *table);
@@ -182,81 +188,107 @@ public:
 #define d d_func()
 #define q q_func()
 
-int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, QText::HitTestAccuracy accuracy) const
+QTextDocumentLayoutPrivate::HitPoint
+QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, int *position) const
 {
     QTextFrameData *fd = data(frame);
 
     LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point;
     if (!fd->boundingRect.contains(point) && frame != q->document()->rootFrame()) {
-        LDEBUG << "outside";
-        return -1;
+        if (point.y() < fd->boundingRect.top()) {
+            *position = frame->firstPosition() - 1;
+            LDEBUG << "before pos=" << *position;
+            return PointBefore;
+        } else {
+            *position = frame->lastPosition() + 1;
+            LDEBUG << "after pos=" << *position;
+            return PointAfter;
+        }
     }
     INC_INDENT;
 
     QPoint p = point - fd->boundingRect.topLeft();
 
     int pos = -1;
+    HitPoint hit = PointInside;
     QTextFrame::Iterator end = frame->end();
     for (QTextFrame::Iterator it = frame->begin(); it != end; ++it) {
         QTextFrame *c = it.currentFrame();
+        HitPoint hp;
         if (c) {
-            pos = hitTest(c, p, accuracy);
+            hp = hitTest(c, p, &pos);
         } else {
-            pos = hitTest(it.currentBlock(), p, accuracy);
+            hp = hitTest(it.currentBlock(), p, &pos);
         }
-        if (pos != -1)
+        if (hp >= PointInside) {
+            hit = hp;
+            *position = pos;
             break;
+        }
+        if (hp == PointBefore && pos < *position) {
+            *position = pos;
+            hit = hp;
+        } else if (hp == PointAfter && pos > *position) {
+            *position = pos;
+            hit = hp;
+        }
     }
 
     DEC_INDENT;
-    if (pos == -1 && accuracy == QText::FuzzyHit) {
-        --end;
-        QTextBlock b = end.currentBlock();
-        QRect r = b.layout()->rect();
-        QPoint relative(point.x(), r.bottom() - 1);
-
-        pos = d->hitTest(b, relative, accuracy);
-
-        if (pos == -1)
-            pos = qMax(frame->lastPosition() - 1, 0);
-    }
-
-    return pos;
+    LDEBUG << "inside=" << hit << " pos=" << *position;
+    return hit;
 }
 
-int QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, QText::HitTestAccuracy accuracy) const
+QTextDocumentLayoutPrivate::HitPoint
+QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPoint &point, int *position) const
 {
+    LDEBUG << "    checking block" << bl.position() << "point=" << point;
     const QTextLayout *tl = bl.layout();
     QRect textrect = tl->rect();
-    if (!textrect.contains(point))
-        return -1;
+    if (!textrect.contains(point)) {
+        *position = bl.position();
+        if (point.y() < textrect.top()) {
+            LDEBUG << "    before pos=" << *position;
+            return PointBefore;
+        } else {
+            *position += bl.length();
+            LDEBUG << "    after pos=" << *position;
+            return PointAfter;
+        }
+    }
 
-    LDEBUG << "    block" << bl.position() << "point=" << point;
     QPoint pos = point - textrect.topLeft();
 
     QTextBlockFormat blockFormat = bl.blockFormat();
 
     // ### rtl?
 
-    int textStartPos = blockFormat.leftMargin() + indent(bl);
-
-    LDEBUG << "    x=" << pos.x() << "textStartPos=" << textStartPos;
-    // ###### Use per line testing
-    if (pos.x() < textStartPos) {
-        if (accuracy == QText::ExactHit)
-            return -1;
-
-        return bl.position();
-    }
-
+    HitPoint hit = PointInside;
+    *position = bl.position();
+    int off = 0;
     for (int i = 0; i < tl->numLines(); ++i) {
         QTextLine line = tl->lineAt(i);
-
-        if (line.rect().contains(pos))
-            return bl.position() + line.xToCursor(point.x());
+        QRect lr = line.rect();
+        if (lr.top() > pos.y()) {
+            off = qMin(off, line.from());
+        } else if (lr.bottom() <= pos.y()) {
+            off = qMax(off, line.from() + line.length());
+        } else {
+            if (lr.left() > pos.x()) {
+                off = line.from();
+            } else if (lr.right() < pos.x()) {
+                off = line.from() + line.length();
+            } else {
+                hit = PointExact;
+                off = line.xToCursor(pos.x());
+            }
+            break;
+        }
     }
+    *position += off;
 
-    return -1;
+    LDEBUG << "    inside=" << hit << " pos=" << *position;
+    return hit;
 }
 
 // ### could be moved to QTextBlock
@@ -918,7 +950,11 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
     QTextFrame *f = document()->rootFrame();
-    return d->hitTest(f, point, accuracy);
+    int position = 0;
+    QTextDocumentLayoutPrivate::HitPoint p = d->hitTest(f, point, &position);
+    if (accuracy == QText::ExactHit && p < QTextDocumentLayoutPrivate::PointExact)
+        return -1;
+    return position;
 }
 
 void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &format)
