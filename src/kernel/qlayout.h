@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#8 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#9 $
 **
 ** Definition of layout classes
 **
@@ -77,7 +77,7 @@ public:
 		const char *name=0 );
 
     ~QBoxLayout();
-    void addWidget( QWidget *, int stretch = 0, int alignment = AlignCenter );
+    void addWidget( QWidget *, int stretch = 0, int alignment = 0 );
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addLayout( QLayout *layout, int stretch = 0 );

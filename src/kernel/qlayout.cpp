@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#17 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#17 $");
 
 
 /*!
@@ -508,6 +508,8 @@ void QBoxLayout::addMaxStrut( int size)
   <li> \c AlignRight aligns to the right border of the box.
   </ul>
 
+  Alignment 0 is "do what I mean" alignment.
+
   Alignment only has effect if the size of the box is greater than the
   widget's maximum size.
 
@@ -533,7 +535,26 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
     const int first = AlignLeft | AlignTop;
     const int last  = AlignRight | AlignBottom;
+    bool noMinSize = ( widget->minimumSize().isNull() );
+    if ( noMinSize ) {
+	QSize hint = widget->sizeHint();
+	if ( !hint.isEmpty() ) {
+	    QGManager::Direction dir = (QGManager::Direction)direction();
+	    if ( stretch == 0 ) {
+		if ( horz( dir ) )
+		    widget->setFixedWidth( hint.width() );
+		else
+		    widget->setFixedHeight( hint.height() );
+	    }
+	    if ( align != 0 ) {
+		if ( horz( dir ) )
+		    widget->setFixedHeight( hint.height() );
+		else
+		    widget->setFixedWidth( hint.width() );
 
+	    }
+	}
+    }
     if ( !pristine && defaultBorder() )
 	basicManager()->addSpacing( serChain, defaultBorder(), 0,
 				    defaultBorder() );
@@ -543,11 +564,11 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
     } else {
 	QGManager::Direction d = perp( dir );
 	QChain *sc = basicManager()->newSerChain( d );
-	if ( align & last || align & AlignCenter ) {
+	if ( align & last || align & AlignCenter || !align ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->addWidget( sc, widget, 1 );
-	if ( align & AlignCenter || align & first ) {
+	if ( align & AlignCenter || align & first || !align) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->add( parChain, sc );
@@ -698,6 +719,13 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 #endif
 	return;
     }
+    if ( rows->size() == 0 || cols->size() == 0   ) {
+#if defined(CHECK_RANGE)
+	warning( "QGridLayout::addWidget: Zero sized grid" );
+#endif
+	return;
+    }
+
     addMultiCellWidget( w, row, row, col, col, align );
 }
 
@@ -723,6 +751,12 @@ void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 	warning( "QGridLayout::addMultiCellWidget: "
 		 "Grid must have a widget parent or be\n"
 		 "        added in another layout before use." );
+#endif
+	return;
+    }
+    if ( rows->size() == 0 || cols->size() == 0   ) {
+#if defined(CHECK_RANGE)
+	warning( "QGridLayout::addMultiCellWidget: Zero sized grid" );
 #endif
 	return;
     }
@@ -780,6 +814,12 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
 #endif
 	return;
     }
+    if ( rows->size() == 0 || cols->size() == 0   ) {
+#if defined(CHECK_RANGE)
+	warning( "QGridLayout::addLayout: Zero sized grid" );
+#endif
+	return;
+    }
     addChildLayout( layout );
     QChain *c =	 (*cols)[ col ];
     basicManager()->add( c, QLayout::horChain( layout ) );
@@ -809,6 +849,13 @@ void QGridLayout::setRowStretch( int row, int stretch )
 #endif
 	return;
     }
+    if ( rows->size() == 0 ) {
+#if defined(CHECK_RANGE)
+	warning( "QGridLayout::setRowStretch: Zero sized grid" );
+#endif
+	return;
+    }
+
     QChain *c =	 (*rows)[ row ];
     basicManager()->setStretch( c, stretch );
 }
@@ -835,6 +882,12 @@ void QGridLayout::setColStretch( int col, int stretch )
 #endif
 	return;
     }
+    if ( cols->size() == 0 ) {
+#if defined(CHECK_RANGE)
+	warning( "QGridLayout::setColStretch: Zero sized grid" );
+#endif
+	return;
+    }
     QChain *c =	 (*cols)[ col ];
     basicManager()->setStretch( c, stretch );
 }
@@ -852,6 +905,13 @@ void QGridLayout::addRowSpacing( int row, int minsize )
 #endif
 	return;
     }
+    if ( rows->size() == 0 ) {
+#if defined(CHECK_RANGE)
+	warning( "QGridLayout::addRowSpacing: Zero sized grid" );
+#endif
+	return;
+    }
+
     QChain *c =	 (*rows)[ row ];
     basicManager()->addSpacing( c, minsize );
 }
@@ -865,6 +925,12 @@ void QGridLayout::addColSpacing( int col, int minsize )
 #if defined(CHECK_STATE)
 	warning( "QGridLayout::setColStretch: Grid must have a widget parent\n"
 		 "        or be added in another layout before use.");
+#endif
+	return;
+    }
+    if ( cols->size() == 0 ) {
+#if defined(CHECK_RANGE)
+	warning( "QGridLayout::setColStretch: Zero sized grid" );
 #endif
 	return;
     }
