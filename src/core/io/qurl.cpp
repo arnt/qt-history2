@@ -2221,7 +2221,7 @@ QString QUrl::fromPunycode(const QByteArray &pc)
     // find the last delimiter character '-' in the input array. copy
     // all data before this delimiter directly to the output array.
     int delimiterPos = inputTrimmed.lastIndexOf(0x2d);
-    QString output = QLatin1String(delimiterPos == -1 ? "" : inputTrimmed.left(delimiterPos));
+    QString output = QLatin1String(delimiterPos == -1 ? "" : inputTrimmed.left(delimiterPos).constData());
 
     // if a delimiter was found, skip to the position after it;
     // otherwise start at the front of the input string. everything
