@@ -445,7 +445,8 @@ QAction *QMenuBar::addAction(const QString &text, const QObject *receiver, const
 */
 QAction *QMenuBar::addMenu(const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, menu);
+    QAction *ret = new QAction(text, this);
+    ret->setMenu(menu);
     addAction(ret);
     return ret;
 }
@@ -472,7 +473,8 @@ QAction *QMenuBar::addSeparator()
 */
 QAction *QMenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, menu);
+    QAction *ret = new QAction(text, this);
+    ret->setMenu(menu);
     insertAction(before, ret);
     return ret;
 }
