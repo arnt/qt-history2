@@ -6479,7 +6479,7 @@ bool QDomDocument::isDocument() const
 
     \sa isAttr()
 */
-QDomAttr QDomNode::toAttr()
+QDomAttr QDomNode::toAttr() const
 {
     if ( impl && impl->isAttr() )
 	return QDomAttr( ((QDomAttrPrivate*)impl) );
@@ -6493,7 +6493,7 @@ QDomAttr QDomNode::toAttr()
 
     \sa isCDATASection()
 */
-QDomCDATASection QDomNode::toCDATASection()
+QDomCDATASection QDomNode::toCDATASection() const
 {
     if ( impl && impl->isCDATASection() )
 	return QDomCDATASection( ((QDomCDATASectionPrivate*)impl) );
@@ -6507,7 +6507,7 @@ QDomCDATASection QDomNode::toCDATASection()
 
     \sa isDocumentFragment()
 */
-QDomDocumentFragment QDomNode::toDocumentFragment()
+QDomDocumentFragment QDomNode::toDocumentFragment() const
 {
     if ( impl && impl->isDocumentFragment() )
 	return QDomDocumentFragment( ((QDomDocumentFragmentPrivate*)impl) );
@@ -6521,7 +6521,7 @@ QDomDocumentFragment QDomNode::toDocumentFragment()
 
     \sa isDocument()
 */
-QDomDocument QDomNode::toDocument()
+QDomDocument QDomNode::toDocument() const
 {
     if ( impl && impl->isDocument() )
 	return QDomDocument( ((QDomDocumentPrivate*)impl) );
@@ -6535,7 +6535,7 @@ QDomDocument QDomNode::toDocument()
 
     \sa isDocumentType()
 */
-QDomDocumentType QDomNode::toDocumentType()
+QDomDocumentType QDomNode::toDocumentType() const
 {
     if ( impl && impl->isDocumentType() )
 	return QDomDocumentType( ((QDomDocumentTypePrivate*)impl) );
@@ -6549,7 +6549,7 @@ QDomDocumentType QDomNode::toDocumentType()
 
     \sa isElement()
 */
-QDomElement QDomNode::toElement()
+QDomElement QDomNode::toElement() const
 {
     if ( impl && impl->isElement() )
 	return QDomElement( ((QDomElementPrivate*)impl) );
@@ -6563,7 +6563,7 @@ QDomElement QDomNode::toElement()
 
     \sa isEntityReference()
 */
-QDomEntityReference QDomNode::toEntityReference()
+QDomEntityReference QDomNode::toEntityReference() const
 {
     if ( impl && impl->isEntityReference() )
 	return QDomEntityReference( ((QDomEntityReferencePrivate*)impl) );
@@ -6576,7 +6576,7 @@ QDomEntityReference QDomNode::toEntityReference()
 
     \sa isText()
 */
-QDomText QDomNode::toText()
+QDomText QDomNode::toText() const
 {
     if ( impl && impl->isText() )
 	return QDomText( ((QDomTextPrivate*)impl) );
@@ -6590,7 +6590,7 @@ QDomText QDomNode::toText()
 
     \sa isEntity()
 */
-QDomEntity QDomNode::toEntity()
+QDomEntity QDomNode::toEntity() const
 {
     if ( impl && impl->isEntity() )
 	return QDomEntity( ((QDomEntityPrivate*)impl) );
@@ -6604,7 +6604,7 @@ QDomEntity QDomNode::toEntity()
 
     \sa isNotation()
 */
-QDomNotation QDomNode::toNotation()
+QDomNotation QDomNode::toNotation() const
 {
     if ( impl && impl->isNotation() )
 	return QDomNotation( ((QDomNotationPrivate*)impl) );
@@ -6618,7 +6618,7 @@ QDomNotation QDomNode::toNotation()
 
     \sa isProcessingInstruction()
 */
-QDomProcessingInstruction QDomNode::toProcessingInstruction()
+QDomProcessingInstruction QDomNode::toProcessingInstruction() const
 {
     if ( impl && impl->isProcessingInstruction() )
 	return QDomProcessingInstruction( ((QDomProcessingInstructionPrivate*)impl) );
@@ -6632,7 +6632,7 @@ QDomProcessingInstruction QDomNode::toProcessingInstruction()
 
     \sa isCharacterData()
 */
-QDomCharacterData QDomNode::toCharacterData()
+QDomCharacterData QDomNode::toCharacterData() const
 {
     if ( impl && impl->isCharacterData() )
 	return QDomCharacterData( ((QDomCharacterDataPrivate*)impl) );
@@ -6646,7 +6646,7 @@ QDomCharacterData QDomNode::toCharacterData()
 
     \sa isComment()
 */
-QDomComment QDomNode::toComment()
+QDomComment QDomNode::toComment() const
 {
     if ( impl && impl->isComment() )
 	return QDomComment( ((QDomCommentPrivate*)impl) );

@@ -179,19 +179,19 @@ public:
     bool isNull() const;
     void clear();
 
-    QDomAttr toAttr();
-    QDomCDATASection toCDATASection();
-    QDomDocumentFragment toDocumentFragment();
-    QDomDocument toDocument();
-    QDomDocumentType toDocumentType();
-    QDomElement toElement();
-    QDomEntityReference toEntityReference();
-    QDomText toText();
-    QDomEntity toEntity();
-    QDomNotation toNotation();
-    QDomProcessingInstruction toProcessingInstruction();
-    QDomCharacterData toCharacterData();
-    QDomComment toComment();
+    QDomAttr toAttr() const;
+    QDomCDATASection toCDATASection() const;
+    QDomDocumentFragment toDocumentFragment() const;
+    QDomDocument toDocument() const;
+    QDomDocumentType toDocumentType() const;
+    QDomElement toElement() const;
+    QDomEntityReference toEntityReference() const;
+    QDomText toText() const;
+    QDomEntity toEntity() const;
+    QDomNotation toNotation() const;
+    QDomProcessingInstruction toProcessingInstruction() const;
+    QDomCharacterData toCharacterData() const;
+    QDomComment toComment() const;
 
     void save( QTextStream&, int ) const;
 
