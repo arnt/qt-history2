@@ -2050,6 +2050,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    break;
 		}
 	    }
+	    if(!handled_event) {
+		EventRecord erec;
+		if(!ConvertEventRefToEventRecord(event, &erec)) 
+		    qDebug("Whoa, this can't happen! %s:%d", __FILE__, __LINE__);
+		else if(AEProcessAppleEvent(&erec) == noErr)
+		    handled_event = TRUE;
+	    }
 	}
 	break;
     case kEventClassCommand:
@@ -2108,7 +2115,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
     if(!handled_event) //let the event go through
 	return eventNotHandledErr;
-    QuitApplicationEventLoop();
     return noErr; //we eat the event
 }
 
