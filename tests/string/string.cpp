@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <qlabel.h>
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>
@@ -7,10 +8,8 @@
 
 main(int argc, char** argv)
 {
-    QApplication app(argc,argv);
-
     // Tests every QString function.
-    //#define USE_Qt200_QString // or Q2String if you prefer
+    //#define USE_Qt100_QString // or Q1String if you prefer
 
     int err=0;
     #define TEST(A,E) /*printf("%d\n",__LINE__);*/\
@@ -18,17 +17,17 @@ main(int argc, char** argv)
 
     // In a perfect world, these would all be defined, and QString would work.
     //
-    #ifdef USE_Qt200_QString
-	#define QString Q2String
-
+    #ifndef USE_Qt100_QString
 	#define IMPLICIT
 	//#define MAXLEN_EXCLUDES_NULL   // Needs discussion
 	#define RELATIONS_WORK
-	//#define TOSHORT_WORKS          // Needs discussion
-	//#define TOUINT_WORKS           // Needs discussion
+	#define TOSHORT_WORKS          // Needs discussion
+	#define TOUINT_WORKS           // Needs discussion
 	#define SAFE_INDEXING
 	#define SELF_INSERT_WORKS
+	//#define FINDREV_INDEX_CHECK
     #else
+	#define QString Q1String
 	//#define IMPLICIT
 	//#define MAXLEN_EXCLUDES_NULL
 	//#define RELATIONS_WORK
@@ -36,6 +35,7 @@ main(int argc, char** argv)
 	//#define TOUINT_WORKS
 	//#define SAFE_INDEXING
 	//#define SELF_INSERT_WORKS
+	//#define FINDREV_INDEX_CHECK
     #endif
 
     #ifndef IMPLICIT
@@ -61,10 +61,11 @@ main(int argc, char** argv)
     #ifndef SELF_INSERT_WORKS
 	printf("WARNING: Not inserting into self - it's broken\n");
     #endif
+    #ifndef FINDREV_INDEX_CHECK
+	printf("WARNING: findRev('c',length()) succeeds\n");
+    #endif
 
     QString a;
-
-    printf("sizeof(a) == %d",sizeof(a));
 
     QString b(10);
     QString bb((int)0);
@@ -121,11 +122,21 @@ main(int argc, char** argv)
     TEST(f,"fff")
     f.fill('F');
     TEST(f,"FFF")
+    e.simplifyWhiteSpace();
+    e.setLength(0);
+    e.setLength(0);
+    e.setLength(0);
+    e.setLength(0);
 
+    e = "String E";
+    e.truncate(0);
+    TEST(e,"")
     e = "String E";
     QString ce = e.copy();
     e = "XXX";
     TEST(ce,"String E")
+    QString j;
+    j.simplifyWhiteSpace();
 
     a.sprintf(0);
     TEST(a.isNull(),FALSE)   // I thought it would be TRUE
@@ -148,6 +159,10 @@ main(int argc, char** argv)
 	TEST(a.length(),3);
     #endif
 
+    a="";
+    TEST(a.find('A'),-1)
+    a=QString();
+    TEST(a.find('A'),-1)
     a="ABCDEFGHIEfGEFG"; // 15 chars
     TEST(a.find('A'),0)
     TEST(a.find('C'),2)
@@ -176,7 +191,11 @@ main(int argc, char** argv)
     TEST(a.findRev('G',14),14)
     TEST(a.findRev('G',13),11)
     TEST(a.findRev("efg",99,FALSE),-1)
+#ifdef FINDREV_INDEX_CHECK
+    TEST(a.findRev("efg",15,FALSE),-1)
+#else
     TEST(a.findRev("efg",15,FALSE),12)
+#endif
     TEST(a.findRev("efg",16,FALSE),-1)
     TEST(a.findRev("efg",14,FALSE),12)
     TEST(a.findRev("efg",12,FALSE),12)
@@ -431,6 +450,26 @@ main(int argc, char** argv)
 	in >> a;
 	TEST(a,"This");
     }
+    {
+	a="";
+	QTextStream ts( a, IO_WriteOnly );
+	ts << "pi = " << 3.125;
+	TEST(a,"pi = 3.125");
+    }
 
     printf("\n%d error%s\n",err,"s"+(err==1));
+
+    QApplication app(argc,argv);
+
+    QString s;
+    for (int lo=33; lo<125; lo+=1) {
+	for (int hi=33; hi<125; hi+=1)
+	    s += QChar(lo,hi);
+	s += "\n";
+    }
+
+    QLabel m(s);
+    app.setMainWidget(&m);
+    m.show();
+    return app.exec();
 }
