@@ -30,6 +30,10 @@
 #include <qaction.h>
 #include <qfileinfo.h>
 
+#if defined(Q_OS_WIN32)
+#include <windows.h>
+#endif
+
 #include "mainwindow.h"
 
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
@@ -62,7 +66,15 @@ void HelpWindow::setSource( const QString &name )
 	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 	QString webbrowser = settings.readEntry( "/Qt Assistant/3.1/Webbrowser" );
 	if ( webbrowser.isEmpty() ) {
+#if defined(Q_OS_WIN32)
+	    QT_WA( {
+		ShellExecute( winId(), 0, (TCHAR*)name.ucs2(), 0, 0, SW_SHOWNORMAL );
+	    } , {
+		ShellExecuteA( winId(), 0, name.local8Bit(), 0, 0, SW_SHOWNORMAL );
+	    } );
+#else
 	    QMessageBox::information( this, tr( "Help" ), tr( "Currently no webbrowser is selected.\nPlease use the settingsdialog to specify one!\n" ) );
+#endif
 	    return;
 	}
 	QProcess *proc = new QProcess();

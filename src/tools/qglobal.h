@@ -652,15 +652,6 @@ class QDataStream;
 
 
 //
-// Some platform specific stuff
-//
-
-#if defined(Q_WS_WIN)
-extern bool qt_winunicode;
-#endif
-
-
-//
 // Feature subsetting
 //
 // Note that disabling some features will produce a libqt that is not
@@ -777,6 +768,15 @@ extern bool qt_winunicode;
 
 #ifndef Q_EXPORT
 #  define Q_EXPORT
+#endif
+
+
+//
+// Some platform specific stuff
+//
+
+#if defined(Q_WS_WIN)
+extern Q_EXPORT bool qt_winunicode;
 #endif
 
 
