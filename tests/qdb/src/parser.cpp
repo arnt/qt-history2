@@ -124,11 +124,6 @@ enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
        Node_Sum, Node_Translate, Node_UnresolvedField,
        Node_UnresolvedStar, Node_Upper };
 
-/*
-  Yes, that's the representation of 'null' in the virtual machine.
-*/
-static QPoint NullRep( 0, 0 );
-
 static int ResultId = 0;
 static int AuxResultId = 1;
 
@@ -1620,7 +1615,7 @@ QVariant Parser::matchPrimaryExpr()
 	yyTok = getToken();
 	break;
     case Tok_null:
-	right = NullRep;
+	right = LOCALSQL_NULL;
 	yyTok = getToken();
 	break;
     default:
@@ -1847,14 +1842,14 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	yyTok = getToken();
 	right = matchScalarExpr();
 
-	if ( left == NullRep || right == NullRep ) {
+	if ( left == LOCALSQL_NULL || right == LOCALSQL_NULL ) {
 	    /*
 	      We have 'foo = null' or 'null = foo'. Node_Eq has the
 	      wrong semantics for null values. We have to use
 	      Node_IsNull.
 	    */
 	    pred.append( (int) Node_IsNull );
-	    pred.append( left == NullRep ? right : left );
+	    pred.append( left == LOCALSQL_NULL ? right : left );
 	} else {
 	    pred.append( (int) Node_Eq );
 	    pred.append( left );
@@ -1871,10 +1866,10 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	right = matchScalarExpr();
 	unot = TRUE;
 
-	if ( left == NullRep || right == NullRep ) {
+	if ( left == LOCALSQL_NULL || right == LOCALSQL_NULL ) {
 	    // see Tok_Eq above
 	    pred.append( (int) Node_IsNull );
-	    pred.append( left == NullRep ? right : left );
+	    pred.append( left == LOCALSQL_NULL ? right : left );
 	} else {
 	    pred.append( (int) Node_Eq );
 	    pred.append( left );
