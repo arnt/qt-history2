@@ -1323,7 +1323,8 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
     int hour( s.mid( 0, 2 ).toInt() );
     int minute( s.mid( 3, 2 ).toInt() );
     int second( s.mid( 6, 2 ).toInt() );
-    return QTime( hour, minute, second );
+    int msec( s.mid( 9, 3 ).toInt() );
+    return QTime( hour, minute, second, msec );
 }
 
 /*!
@@ -1951,7 +1952,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
     }
     if ( f == Qt::ISODate ) {
 	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
-			  QTime::fromString( s.mid(11,8), Qt::ISODate ) );
+			  QTime::fromString( s.mid(11), Qt::ISODate ) );
     }
 #if !defined(QT_NO_REGEXP) && !defined(QT_NO_TEXTDATE)
     else if ( f == Qt::TextDate ) {
