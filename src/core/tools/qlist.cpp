@@ -215,9 +215,9 @@ void **QListData::erase(void **xi)
     \i For most purposes, QList is the right class to use. Its
        index-based API is more convenient than QLinkedList's
        iterator-based API, and it is usually faster than
-       QVector\<T\>, because of the way it stores its items in
+       QVector, because of the way it stores its items in
        memory.
-    \i If you need a real linked list, with guaranteed \l{constant
+    \i If you need a real linked list, with guarantees \l{constant
        time} insertions in the middle of the list and iterators to
        items rather than indexes, use QLinkedList.
     \i If you want the items to occupy adjacent memory positions,
@@ -268,7 +268,7 @@ void **QListData::erase(void **xi)
         }
     \endcode
 
-    For subtle technical reasons, at() is slightly faster than
+    For technical reasons, at() is slightly faster than
     operator[](). We therefore recommend that you use it whenever
     possible.
 
@@ -479,7 +479,7 @@ void **QListData::erase(void **xi)
 
 /*! \fn void QList::prepend(const T &t)
 
-    Inserts \a at the beginning of the list.
+    Inserts \a t at the beginning of the list.
 
     Example:
     \code
@@ -733,7 +733,7 @@ void **QListData::erase(void **xi)
     list, and returns an iterator to the next item in the list (which
     may be end()).
 
-    \sa remove()
+    \sa insert(), remove()
 */
 
 /*! \fn QList::iterator QList::erase(iterator begin, iterator end)
@@ -1098,7 +1098,7 @@ void **QListData::erase(void **xi)
 /*! \fn QList::iterator QList::iterator::operator+(int j) const
 
     Returns an iterator to the item at \a j positions forward from
-    this iterator.
+    this iterator. (If \a j is negative, the iterator goes backward.)
 
     \sa operator-(), operator+=()
 */
@@ -1106,7 +1106,7 @@ void **QListData::erase(void **xi)
 /*! \fn QList::iterator QList::iterator::operator-(int j) const
 
     Returns an iterator to the item at \a j positions backward from
-    this iterator.
+    this iterator. (If \a j is negative, the iterator goes forward.)
 
     \sa operator+(), operator-=()
 */
@@ -1286,7 +1286,7 @@ void **QListData::erase(void **xi)
 /*! \fn QList::const_iterator QList::const_iterator::operator+(int j) const
 
     Returns an iterator to the item at \a j positions forward from
-    this iterator.
+    this iterator. (If \a j is negative, the iterator goes backward.)
 
     \sa operator-(), operator+=()
 */
@@ -1294,7 +1294,7 @@ void **QListData::erase(void **xi)
 /*! \fn QList::const_iterator QList::const_iterator::operator-(int j) const
 
     Returns an iterator to the item at \a j positions backward from
-    this iterator.
+    this iterator. (If \a j is negative, the iterator goes forward.)
 
     \sa operator+(), operator-=()
 */
