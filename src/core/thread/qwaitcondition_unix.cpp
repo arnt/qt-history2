@@ -15,7 +15,6 @@
 #include "qwaitcondition.h"
 #include "qmutex.h"
 #include "qmutex_p.h"
-#include <pthread.h>
 #include <errno.h>
 #include <string.h>
 

@@ -28,12 +28,11 @@
 
 #ifndef QT_NO_THREAD
 
-#include <qglobal.h>
+#include <qplatformdefs.h>
 #include <qatomic.h>
 #include <qnamespace.h>
 
 #ifdef Q_OS_UNIX
-#  include <pthread.h>
 
 class QSpinLockPrivate
 {

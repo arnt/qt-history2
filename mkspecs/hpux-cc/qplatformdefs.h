@@ -13,10 +13,7 @@
 // We are hot - unistd.h should have turned on the specific APIs we requested
 
 
-#ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
-#endif
-
 #include <dirent.h>
 #include <fcntl.h>
 #include <grp.h>
