@@ -581,6 +581,8 @@ void QButton::animateClick()
 
 void QButton::setDown( bool enable )
 {
+    if ( d )
+	timer()->stop();
     mlbDown = FALSE;				// the safe setting
     if ( (bool)buttonDown != enable ) {
 	buttonDown = enable;
