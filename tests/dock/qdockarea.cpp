@@ -290,10 +290,12 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     }
     if ( !testonly )
 	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
-    if ( orientation() == Horizontal )
-	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
-    else
-	lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
+    if ( !lines.count() ) {
+	if ( orientation() == Horizontal )
+	    lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
+	else
+	    lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
+    }
     return sectionpos + linestrut;
 }
 
@@ -388,19 +390,26 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		dockLine++;
 	    }
 	}
+	qDebug( "insert in line %d, and insert that line: %d", dockLine, insertLine );
 	QDockWidget *dw = 0;
-	if ( dockLine >= (int)dockWidgets->count() ) {
+	if ( dockLine >= (int)lines.count() ) {
 	    dockWidgets->append( dockWidget );
 	    dockWidget->setNewLine( TRUE );
+	    qDebug( "insert at the end" );
 	} else if ( dockLine == 0 && insertLine ) {
 	    dockWidgets->insert( 0, dockWidget );
 	    dockWidgets->at( 1 )->setNewLine( TRUE );
+	    qDebug( "insert at the begin" );
 	} else {
 	    int searchLine = dockLine;
 	    QList<QDockWidget> lineStarts = layout->lineStarts();
+	    for ( dw = lineStarts.first(); dw; dw = lineStarts.next() )
+		dw->setNewLine( TRUE );
 	    if ( insertLine )
 		searchLine--;
+	    qDebug( "search line start of %d", searchLine );
 	    int index = dockWidgets->find( lineStarts.at( searchLine ) );
+	    qDebug( "     which starts at %d", index );
 	    int lastPos = 0;
 	    for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
 		if ( point_pos( dw->pos(), orientation() ) < lastPos )
@@ -409,7 +418,9 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		    break;
 		index++;
 	    }
+	    qDebug( "insert at index: %d", index );
 	    if ( index >= 0 && index < (int)dockWidgets->count() && dockWidgets->at( index )->newLine() ) {
+		qDebug( "get rid of the old newline and get me one" );
 		dockWidgets->at( index )->setNewLine( FALSE );
 		dockWidget->setNewLine( TRUE );
 	    }
