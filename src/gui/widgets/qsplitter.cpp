@@ -138,14 +138,13 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 void QSplitterHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyleOptionFrame opt(0);
+    QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
     if (orientation() == Qt::Horizontal)
         opt.state = QStyle::Style_Horizontal;
     else
         opt.state = QStyle::Style_Default;
-    opt.lineWidth = 0;
     parentWidget()->style().drawPrimitive(QStyle::PE_Splitter, &opt, &p, s);
 }
 
