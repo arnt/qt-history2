@@ -1,12 +1,12 @@
 #ifndef QEVENTDISPATCHER_MAC_H
 #define QEVENTDISPATCHER_MAC_H
 
-#include "qeventdispatcher_unix.h"
+#include "qabstracteventdispatcher.h"
 #include "qwindowdefs.h"
 
 class QEventDispatcherMacPrivate;
 
-class QEventDispatcherMac : public QEventDispatcherUNIX
+class QEventDispatcherMac : public QAbstractEventDispatcher
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QEventDispatcherMac)
@@ -27,6 +27,7 @@ public:
 
     void wakeUp();
     void flush();
+    void interrupt();
 
 private:
     friend void qt_mac_select_timer_callbk(__EventLoopTimer*, void*);
