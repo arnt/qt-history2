@@ -43,7 +43,7 @@
     The functions you are most likely to find useful are these:
     \list
     \i className() returns the name of a class.
-    \i superClass() returns the superclass's meta object.
+    \i superClass() returns the super-class's meta object.
     \i slotCount(), slot(), signalCount(), and signal() provide information
        about a class's signals and slots.
     \i enumeratorCount() and enumerator() provide information about
@@ -53,12 +53,12 @@
     \endlist
 
     The index functions indexOfSlot(), indexOfSignal(),
-    indexOfEnumerator(), and indexOfProperty(), map names of member
-    functions, enumerators or properties to indices in the meta
-    object. Qt uses e.g. indexOfSignal() and indexOfSlot() internally
-    when you connect a signal to a slot.
+    indexOfEnumerator(), and indexOfProperty() map names of member
+    functions, enumerators, or properties to indices in the meta
+    object. For example, Qt uses indexOfSignal() and indexOfSlot()
+    internally when you connect a signal to a slot.
 
-    Classes can also have a list of name--value pairs of additonal
+    Classes can also have a list of name--value pairs of additional
     \link QMetaClassInfo class information\endlink. The number of
     pairs is returned by classInfoCount(), single pairs are returned
     by classInfo(), and you can search for pairs with
@@ -139,7 +139,8 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
 { return reinterpret_cast<const QMetaObjectPrivate*>(data); }
 
 
-/*! \fn const char *QMetaObject::className() const
+/*! 
+    \fn const char *QMetaObject::className() const
 
     Returns the class name.
 
@@ -149,7 +150,7 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
 /*!
     \fn QMetaObject *QMetaObject::superClass() const
 
-    Returns the meta object of the super class or 0 if there is no
+    Returns the meta object of the super-class, or 0 if there is no
     such object.
 */
 
@@ -176,7 +177,7 @@ QObject *QMetaObject::cast(const QObject *obj) const
 /*!
     \internal
 
-    Forwards a tr() call from the \c Q_OBJECT macro to QApplication.
+    Forwards a tr() call from the \c Q_OBJECT macro to the QApplication.
 */
 QString QMetaObject::tr(const char *s, const char *c) const
 {
@@ -188,7 +189,7 @@ QString QMetaObject::tr(const char *s, const char *c) const
 /*!
     \internal
 
-    Forwards a trUtf8() call from the \c Q_OBJECT macro to
+    Forwards a trUtf8() call from the \c Q_OBJECT macro to the
     QApplication.
 */
 QString QMetaObject::trUtf8(const char *s, const char *c) const
@@ -202,9 +203,9 @@ QString QMetaObject::trUtf8(const char *s, const char *c) const
 
 
 /*!
-    Returns the slot offset for this class, i.e. the index position of
+    Returns the slot offset for this class; i.e. the index position of
     this class's first slot. The offset is the sum of all the slots in
-    the class's super classes (which is always positive since QObject
+    the class's super-classes (which is always positive since QObject
     has the deleteLater() slot).
  */
 int QMetaObject::slotOffset() const
@@ -219,10 +220,10 @@ int QMetaObject::slotOffset() const
 }
 
 /*!
-    Returns the signal offset for this class, i.e. the index position
+    Returns the signal offset for this class; i.e. the index position
     of this class's first signal. The offset is the sum of all the
-    signals in the class's super classes (which is always positive
-    since QObject has slots destroyed() and destroyed(QObject*)).
+    signals in the class's super-classes (which is always positive
+    since QObject has the slots destroyed() and destroyed(QObject*)).
  */
 int QMetaObject::signalOffset() const
 {
@@ -236,11 +237,11 @@ int QMetaObject::signalOffset() const
 }
 
 /*!
-    Returns the enumerator offset for this class, i.e. the index
+    Returns the enumerator offset for this class; i.e. the index
     position of this class's first enumerator. If the class has no
-    super classes with enumerators, the offset is 0, otherwise the
-    offset is the sum of all the enumerators in the class's super
-    classes.
+    super-classes with enumerators, the offset is 0; otherwise the
+    offset is the sum of all the enumerators in the class's
+    super-classes.
  */
 int QMetaObject::enumeratorOffset() const
 {
@@ -254,9 +255,9 @@ int QMetaObject::enumeratorOffset() const
 }
 
 /*!
-    Returns the property offset for this class, i.e. the index
+    Returns the property offset for this class; i.e. the index
     position of this class's first property. The offset is the sum of
-    all the properties in the class's super classes (which is always
+    all the properties in the class's super-classes (which is always
     positive since QObject has the name() property).
  */
 int QMetaObject::propertyOffset() const
@@ -271,11 +272,11 @@ int QMetaObject::propertyOffset() const
 }
 
 /*!
-    Returns the class information offset for this class, i.e. the
+    Returns the class information offset for this class; i.e. the
     index position of this class's first class information item. If
-    the class has no super classes with class information, the offset
-    is 0, otherwise the offset is the sum of all the class information
-    items in the class's super classes.
+    the class has no super-classes with class information, the offset
+    is 0; otherwise the offset is the sum of all the class information
+    items in the class's super-classes.
  */
 int QMetaObject::classInfoOffset() const
 {
@@ -388,7 +389,6 @@ int QMetaObject::indexOfSlot(const char *slot) const
 }
 
 /*!
-
     Finds \a signal and returns its index; otherwise returns -1.
 
     \sa signal(), signalCount()
@@ -756,7 +756,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
 
 
 /*!
-    Normalizes the signature of \a member.
+    Normalizes the signature of the given \a member.
 
     Qt uses normalized signatures to decide whether two given signals
     and slots are compatible. Normalization reduces whitespace to a
@@ -855,7 +855,7 @@ const char *QMetaMember::signature() const
 }
 
 /*!
-    Returns a comma separated list of parameter names.
+    Returns a comma-separated list of parameter names.
 */
 const char *QMetaMember::parameters() const
 {
@@ -927,13 +927,13 @@ QMetaMember::Access QMetaMember::access() const
     Use name() for the enumerator's name. The enumerator's keys (names
     of each enumerated item) are returned by key(); the number of keys
     is given by keyCount(). isFlag() returns whether the enumerator is
-    meant to be used as a flag, meaning that its values can be OR'ed
-    together.
+    meant to be used as a flag, meaning that its values can be combined
+    using the bitwise OR operator.
 
-    The conversion functions keyToValue(), valueToKey(), keysToValue()
+    The conversion functions keyToValue(), valueToKey(), keysToValue(),
     and valueToKeys() allow conversion between the integer
     representation of an enumeration or set value and its literal
-    representation. The function scope() returns the class scope this
+    representation. The scope() function returns the class scope this
     enumerator was declared in.
 */
 
@@ -975,8 +975,7 @@ int QMetaEnum::keyCount() const
 
 
 /*!
-    Returns the key with index \a index; or returns 0 if there is no
-    such key.
+    Returns the key with the given \a index, or 0 if no such key exists.
 
     \sa keyCount() value()
 */
@@ -1010,8 +1009,11 @@ int QMetaEnum::value(int index) const
 
 
 /*!
-    Returns true if this enumerator is used as a flag, i.e. the
-    enumeration values can be OR'ed together; otherwise returns false.
+    Returns true if this enumerator is used as a flag; otherwise returns
+    false.
+
+    When used as flags, enumerators can be combined using the bitwise OR
+    operator.
 
     \sa keysToValue(), valueToKeys()
 */
@@ -1031,7 +1033,7 @@ const char *QMetaEnum::scope() const
 
 /*!
     Returns the integer value of the given enumeration \a key, or -1
-    if \a key isn't found.
+    if \a key is not defined.
 
     For set types, use keysToValue().
 
@@ -1061,7 +1063,7 @@ int QMetaEnum::keyToValue(const char *key) const
 
 /*!
     Returns the string that is used as the name of the given
-    enumeration \a value, or 0 if \a value isn't found.
+    enumeration \a value, or 0 if \a value is not defined.
 
     For set types, use valueToKeys().
 
@@ -1080,9 +1082,9 @@ const char* QMetaEnum::valueToKey(int value) const
 }
 
 /*!
-    Returns the value derived from OR'ing together the values of the
-    keys given in \a keys. Note that the strings in \a keys must be
-    '|'-separated.
+    Returns the value derived from combining together the values of the
+    \a keys using the bitwise OR operator. Note that the strings in \a keys
+    must be '|'-separated.
 
     \sa isFlag(), valueToKey(), keysToValue()
 */
@@ -1155,18 +1157,19 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     \ingroup objectmodel
 
     A property has a name() and a type(), as well as various
-    attributes that specify whether it isReadable(), isWritable(),
-    isDesignable(), isScriptable(), isStored(), or isEditable().
+    attributes that specify its behavior: isReadable(), isWritable(),
+    isDesignable(), isScriptable(), isStored(), and isEditable().
 
-    If the property is an enumeration isEnumType() returns true; and
-    if the property is an enumeration that is a flag (i.e. its values
-    can be OR'ed together), isEnumType() and isFlagType() both return
-    true. The enumerator for these types is available from
-    enumerator().
+    If the property is an enumeration, isEnumType() returns true; if the
+    property is an enumeration that is also a flag (i.e. its values
+    can be combined using the bitwise OR operator), isEnumType() and
+    isFlagType() both return true. The enumerator for these types is
+    available from enumerator().
 
     The property's values are set and retrieved with read(), write(),
-    and reset(); or through QObject's set and get functions. See
-    QObject::setProperty() and QObject::property() for details.
+    and reset(); they can also be changed through QObject's set and get
+    functions. See QObject::setProperty() and QObject::property() for
+    details.
 
     You get meta property data through an object's meta object. See
     QMetaObject::property() and QMetaObject::propertyCount() for
@@ -1230,9 +1233,10 @@ uint QMetaProperty::type() const
 
 /*!
     Returns true if the property's type is an enumeration value that
-    is used as a flag, i.e. if the enumeration values can be OR'ed
-    together; otherwise returns false. A set type is implicitly also
-    an enum type.
+    is used as a flag; otherwise returns false.
+
+    Flags can be combined using the bitwise OR operator. A set type is
+    implicitly also an enum type.
 
     \sa isEnumType(), enumerator()
 */
@@ -1288,7 +1292,9 @@ QMetaEnum QMetaProperty::enumerator() const
 
 
 /*!
-    Reads the property's value from object \a obj. Returns the value
+    \fn QCoreVariant QMetaProperty::read(const QObject *object) const
+
+    Reads the property's value from the given \a object. Returns the value
     if it was able to read it; otherwise returns an invalid variant.
 
     \sa write() isReadable()
@@ -1332,7 +1338,9 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
 }
 
 /*!
-    Writes \a value as the property's value to object \a obj. Returns
+    \fn bool QMetaProperty::write(QObject *object, const QCoreVariant &value) const
+
+    Writes \a value as the property's value to the given \a object. Returns
     true if the write succeeded; otherwise returns false.
 
     \sa read() isWritable()
@@ -1377,7 +1385,9 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
 }
 
 /*!
-    Resets the property for object \a obj with a reset method.
+    \fn bool QMetaProperty::reset(QObject *object) const
+
+    Resets the property for the given \a object with a reset method.
     Returns true if the reset worked; otherwise returns false.
 
     Reset methods are optional; only a few properties support them.
@@ -1439,13 +1449,14 @@ static bool qt_query_property(const QMetaObject*const*mobj,const int *idx, uint 
 }
 
 /*!
-    Returns true if this property is designable for object \a obj;
+    \fn bool QMetaProperty::isDesignable(const QObject *object) const
+
+    Returns true if this property is designable for the given \a object;
     otherwise returns false.
 
-    If no object \a obj is given, the function returns false if the
-    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
-    (i.e. if the attribute is true or is a function or expression),
-    returns true.
+    If no \a object is given, the function returns false if the
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise
+    returns true (if the attribute is true or is a function or expression).
  */
 bool QMetaProperty::isDesignable(const QObject *obj) const
 {
@@ -1457,13 +1468,14 @@ bool QMetaProperty::isDesignable(const QObject *obj) const
 }
 
 /*!
-    Returns true if the property is scriptable for object \a obj;
+    \fn bool QMetaProperty::isScriptable(const QObject *object) const
+
+    Returns true if the property is scriptable for the given \a object;
     otherwise returns false.
 
-    If no object \a obj is given, the function returns false if the
-    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
-    (i.e. if the attribute is true or is a function or expression),
-    returns true.
+    If no \a object is given, the function returns false if the
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise returns
+    true (if the attribute is true or is a function or expression).
  */
 bool QMetaProperty::isScriptable(const QObject *obj) const
 {
@@ -1473,13 +1485,14 @@ bool QMetaProperty::isScriptable(const QObject *obj) const
 }
 
 /*!
-    Returns true if the property is stored for object \a obj;
-    otherwise returns false.
+    \fn bool QMetaProperty::isStored(const QObject *object) const
 
-    If no object \a obj is given, the function returns false if the
-    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
-    (i.e. if the attribute is true or is a function or expression),
-    returns true.
+    Returns true if the property is stored for \a object; otherwise returns
+    false.
+
+    If no \a object is given, the function returns false if the
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise returns
+    true (if the attribute is true or is a function or expression).
  */
 bool QMetaProperty::isStored(const QObject *obj) const
 {
@@ -1489,13 +1502,14 @@ bool QMetaProperty::isStored(const QObject *obj) const
 }
 
 /*!
-    Returns true if the property is editable for object \a obj;
+    \fn bool QMetaProperty::isEditable(const QObject *object) const
+
+    Returns true if the property is editable for the given \a object;
     otherwise returns false.
 
-    If no object \a obj is given, the function returns false if the
-    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise,
-    (i.e. if the attribute is true or is a function or expression),
-    returns true.
+    If no \a object is given, the function returns false if the
+    \c{Q_PROPERTY}'s \c DESIGNABLE attribute is false; otherwise returns
+    true (if the attribute is true or is a function or expression).
  */
 bool QMetaProperty::isEditable(const QObject *obj) const
 {
@@ -1619,7 +1633,7 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
 }
 
 /*!
-   Returns the type name associated with the given \a type or 0 if no
+   Returns the type name associated with the given \a type, or 0 if no
    matching type was found. The returned pointer must not be deleted.
  */
 const char *QMetaType::typeName(int type)
@@ -1780,7 +1794,7 @@ void *QMetaType::copy(int type, const void *data)
 }
 
 /*!
-    Destroys the \a data, assuming it is of type \a type.
+    Destroys the \a data, assuming it is of the \a type given.
  */
 void QMetaType::destroy(int type, void *data)
 {
