@@ -130,6 +130,8 @@ public:
     static void initialize();
     static void cleanup();
 
+    enum { Dirt = 0x44495254, Invalid = 0x494E5641 };
+
 private:
     void setSystemNamedColor( const QString& name );
     void setPixel( uint pixel );
@@ -142,7 +144,6 @@ private:
     static HPALETTE hpal;
 #endif
     static enum ColorModel { d8, d32 } colormodel;
-    enum { Dirt = 0x44495254, Invalid = 0x494E5641 };
     union {
 	QRgb argb;
 	struct {
