@@ -48,7 +48,7 @@ Qt Designer
    Designer is handled has been changed. Originally the code for these
    slots was saved into the .ui XML file together with the user
    interface description and the uic did put this code into the
-   generated source files. This was a bit unclean.
+   generated source files.
    Now, if code of custom slots is edited directly in the Qt Designer,
    additionally to the <filename>.ui of a form, a <filename>.ui.h file
    is created. The code is written into this source file now instead
@@ -63,11 +63,22 @@ Qt Designer
    this code file has not to be added to the project Makefile. If the
    source file does not exist, uic falls back to the old behavior and
    creates the empty stubs in the generated source.
+   If a user does not want to subclass to implement the custom slots,
+   but also does not want to edit the code of the custom slots in the
+   Qt Designer, it is possible to always create the <formname>.ui.h
+   for a form (even if it was not edited in the Qt Designer) and edit
+   that file in a seperate editor. This feature can be configured in
+   the project settings dialog.
    This way, the old approach of subclassing keeps working (and all
    old .ui files keep working without any change). Also, for users of
    the previous Qt 3.0 Beta versions, Qt Designer can still read the
    .ui files which contain code. So also .ui files created with Qt 3.0
    Beta versions of the Qt Designer keep working without any change.
+   Details about the possible concepts which can be used to add code
+   to a form created by the Qt Designer (subclassing and uic +
+   <filename>.ui.h) and related information about project management
+   can be found in the chapter about new features in Qt Designer 3.0
+   in the Qt Designer manual.
 
 Qt Functions
 ========================================
