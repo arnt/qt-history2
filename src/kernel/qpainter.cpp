@@ -2761,7 +2761,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
 #endif
 	parag->setDocumentRect( rect );
-	parag->setAlignment( QApplication::horizontalAlignment( tf ) );
+	parag->setAlignment( tf & Qt::AlignHorizontal_Mask );
 	parag->invalidate( 0 );
 	parag->format();
 	f->setPainter( 0 );
