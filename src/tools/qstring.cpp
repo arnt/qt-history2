@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#151 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#152 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -1088,7 +1088,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	if ( pos < 0 ) {
 	    // The rest
 //debug("THE REST = %s",format.mid(last).ascii());
-	    if ( last < format.length() )
+	    if ( last < (int)format.length() )
 		result += format.mid(last);
 	    break;
 	}

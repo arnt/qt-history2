@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#65 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#66 $
 **
 ** Implementation of QDir class
 **
@@ -1396,7 +1396,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #define IS_ARCH	    FILE_ATTRIBUTE_ARCHIVE
 #define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
 #define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
+#if defined(_WIN32_X11_)
+#define FF_GETFIRST(f,i) FindFirstFile(f.data(),i)
+#else
 #define FF_GETFIRST(f,i) FindFirstFile((TCHAR*)qt_winTchar(f,TRUE),i)
+#endif
 #define FF_GETNEXT  FindNextFile
 #define FF_ERROR    INVALID_HANDLE_VALUE
 #else
@@ -1456,7 +1460,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	bool isHidden	= (attrib & IS_HIDDEN) != 0;
 	bool isSystem	= (attrib & IS_SYSTEM) != 0;
 
-#if defined(_OS_WIN32_)
+#if defined(_WIN32_X11_)
+	QString fname = finfo.cFileName;
+#elif defined(_OS_WIN32_)
 	QString fname = qt_winQString(finfo.cFileName);
 #else
 	QString fname = finfo.name;
