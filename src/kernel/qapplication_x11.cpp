@@ -3475,6 +3475,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		break;				// nothing for mouse move
 	}
 
+	Display* dpy = x11Display(); // store display, send() may destroy us
+	
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			   globalPos, button, state );
@@ -3492,13 +3494,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    qt_button_down = 0;
 
 	if ( qApp->inPopupMode() ) {			// still in popup mode
-	    if ( popupGrabOk )
-		XAllowEvents( x11Display(), SyncPointer, CurrentTime );
+ 	    if ( popupGrabOk )
+ 		XAllowEvents( dpy, SyncPointer, CurrentTime );
 	} else {
 	    if ( type != QEvent::MouseButtonRelease && state != 0 &&
 		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
-		XGrabPointer( x11Display(), mouseActWindow, FALSE,
+		XGrabPointer( dpy, mouseActWindow, FALSE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 			      ButtonMotionMask |
 			      EnterWindowMask | LeaveWindowMask),
