@@ -1,9 +1,9 @@
 #include <QtGui>
 #include <QtNetwork>
 
-#include "client.h"
+#include "receiver.h"
 
-Client::Client(QWidget *parent)
+Receiver::Receiver(QWidget *parent)
     : QDialog(parent)
 {
     statusLabel = new QLabel(tr("Listening for broadcasted messages"), this);
@@ -22,11 +22,11 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
 
-    setWindowTitle(tr("Broadcast Client"));
+    setWindowTitle(tr("Broadcast Receiver"));
     udpSocket->bind(45454);
 }
 
-void Client::processPendingDatagrams()
+void Receiver::processPendingDatagrams()
 {
     while (udpSocket->hasPendingDatagrams()) {
         QByteArray datagram;
