@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#12 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#13 $
 **
 ** Definition of QGArray class
 **
@@ -31,6 +31,8 @@ protected:
     QGArray( int size );			// allocate 'size' bytes
     QGArray( const QGArray &a );		// shallow copy
     virtual ~QGArray();
+
+    QGArray    &operator=( const QGArray &a ) { return assign( a ); }
 
     virtual void detach()	{ duplicate(*this); }
 
