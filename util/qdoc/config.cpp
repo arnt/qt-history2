@@ -505,6 +505,73 @@ bool Config::isDef( const QString& symbol ) const
     return defsym.exactMatch( symbol );
 }
 
+/*
+  Returns TRUE if the condition evaluates as true, otherwise FALSE.  The
+  condition is represented by a string.  Unsophisticated parsing techniques are
+  used.  The preprocessing method could be named StriNg Oriented PreProcessing,
+  as SNOBOL stands for StriNg Oriented symBOlic Language.
+*/
+bool Config::isExpressionTrue( const QString& condition ) const
+{
+    static QRegExp *definedX = 0;
+
+    if ( definedX == 0 )
+	definedX = new QRegExp( QString("defined ?\\( ?([A-Z_0-9a-z]+) ?\\)") );
+
+    int firstOr = -1;
+    int firstAnd = -1;
+    int parenDepth = 0;
+
+    /*
+      Find the first logical operator at top level, but be careful about
+      precedence.  Examples:
+
+	  X || Y          // the or
+	  X || Y || Z     // the leftmost or
+	  X || Y && Z     // the or
+	  X && Y || Z     // the or
+	  (X || Y) && Z   // the and
+    */
+    for ( int i = 0; i < (int) condition.length() - 1; i++ ) {
+	QChar ch = condition[i];
+	if ( ch == QChar('(') ) {
+	    parenDepth++;
+	} else if ( ch == QChar(')') ) {
+	    parenDepth--;
+	} else if ( parenDepth == 0 ) {
+	    if ( condition[i + 1] == ch ) {
+		if ( ch == QChar('|') ) {
+		    firstOr = i;
+		    break;
+		} else if ( ch == QChar('&') ) {
+		    if ( firstAnd == -1 )
+			firstAnd = i;
+		}
+	    }
+	}
+    }
+    if ( firstOr != -1 )
+	return isExpressionTrue( condition.left(firstOr) ) ||
+	       isExpressionTrue( condition.mid(firstOr + 2) );
+    if ( firstAnd != -1 )
+	return isExpressionTrue( condition.left(firstAnd) ) &&
+	       isExpressionTrue( condition.mid(firstAnd + 2) );
+
+    QString t = condition.simplifyWhiteSpace();
+    if ( t.isEmpty() )
+	return TRUE;
+
+    if ( t[0] == QChar('!') )
+	return !isExpressionTrue( t.mid(1) );
+    if ( t[0] == QChar('(') && t.right(1)[0] == QChar(')') )
+	return isExpressionTrue( t.mid(1, t.length() - 2) );
+
+    if ( definedX->exactMatch(t) )
+	return isDef( definedX->cap(1) );
+    else
+	return isTrue( t );
+}
+
 bool Config::generateFile( const QString& fileName ) const
 {
     return onlyfn.exactMatch( fileName );

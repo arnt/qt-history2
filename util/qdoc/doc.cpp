@@ -456,6 +456,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 		setKind( Doc::Enum, command );
 		break;
+	    case HASH( 'e', 5 ):
+		CONSUME( "endif" );
+		break;
 	    case HASH( 'e', 7 ):
 		if ( command[5] == QChar('d') ) {
 		    CONSUME( "endcode" );
@@ -613,6 +616,19 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    }
 		} else {
 		    yyOut += openedLists.top().itemHtml();
+		}
+		break;
+	    case HASH( 'i', 2 ):
+		CONSUME( "if" );
+		x = getRestOfLine( yyIn, yyPos );
+
+		if ( !config->isExpressionTrue(x) ) {
+		    end = yyIn.find( QString("\\endif"), yyPos );
+		    if ( end == -1 ) {
+			yyPos = yyIn.length();
+		    } else {
+			yyPos = end + 6;
+		    }
 		}
 		break;
 	    case HASH( 'i', 3 ):

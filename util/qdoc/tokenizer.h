@@ -86,7 +86,6 @@ private:
     int getTokenAfterPreprocessor();
     void pushSkipping( bool skip );
     bool popSkipping();
-    bool isTrue( const QString& condition ) const;
 
     Location yyTokLoc;
     Location yyCurLoc;

@@ -50,6 +50,7 @@ public:
     const QString& style() const { return styl; }
     bool isTrue( const QString& condition ) const;
     bool isDef( const QString& symbol ) const;
+    bool isExpressionTrue( const QString& condition ) const;
     bool generateFile( const QString& fileName ) const;
     bool serialComma() const { return TRUE; }
     bool isInternal() const { return internal; }
