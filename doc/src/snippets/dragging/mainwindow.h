@@ -18,7 +18,6 @@ public:
     MainWindow(QWidget *parent = 0);
 
 protected:
-    void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
 
 private:

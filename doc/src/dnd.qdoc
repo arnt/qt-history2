@@ -46,14 +46,29 @@
     \section1 Dragging
 
     To start a drag, create a QDrag object, and call its
-    start() function. This is all you need to enable simple dragging
-    from widgets.
-
-    For example, to start dragging some text from a custom text editor widget,
-    we can reimplement the widget's \l{QWidget::mousePressEvent()}{mousePressEvent()}
-    function to record to start position of the drag:
+    start() function. The simplest way to enable dragging from a widget is
+    to reimplement the widget's \l{QWidget::mousePressEvent()}{mousePressEvent()}
+    and start a drag operation:
 
     \quotefromfile snippets/dragging/mainwindow.cpp
+    \skipto mousePressEvent
+    \printuntil drag->start
+    \dots
+    \skipto statusBar
+    \skipto }
+    \printuntil /^\}/
+
+    Although the user may take some time to complete the dragging operation,
+    as far as the application is concerned the start() function returns
+    immediately with \l{Qt::DropActions}{one of several values}. These
+    indicate how the operation ended, and are described in more detail below.
+
+    For widgets that need to distinguish between mouse clicks and drags, it
+    is useful to reimplement the widget's
+    \l{QWidget::mousePressEvent()}{mousePressEvent()} function to record to
+    start position of the drag:
+
+    \quotefromfile snippets/draganddrop/dragwidget.cpp
     \skipto mousePressEvent
     \printuntil /^\}/
 
@@ -61,18 +76,13 @@
     whether a drag should begin, and construct a drag object to handle the
     operation:
 
-    \quotefromfile snippets/dragging/mainwindow.cpp
+    \quotefromfile snippets/draganddrop/dragwidget.cpp
     \skipto mouseMoveEvent
-    \printuntil setPixmap
-    \skipto drag->start()
-    \printuntil drag->start()
+    \printuntil drag->start(
+    \dots
     \skipto /^\}/
     \printuntil /^\}/
 
-    Although the user may take some time to complete the dragging operation,
-    as far as the application is concerned the start() function returns
-    immediately with \l{Qt::DropActions}{one of several values}. These
-    indicate how the operation ended, and are described in more detail below.
 
     \section1 Dropping
 
