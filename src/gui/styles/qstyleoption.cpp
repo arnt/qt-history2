@@ -121,9 +121,12 @@ void QStyleOption::init(const QWidget *w)
 /*!
     \property QStyleOption::state
 
-    \brief The QStyle::SFlags that are used when drawing the control.
+    \brief The QStyle::StyleFlags that are used when drawing the control.
 
-    \sa QStyle::drawPrimitive() QStyle::drawControl() QStyle::drawComplexControl() QStyle::SFlags
+    Several flags can be OR'd together. See drawControl and drawPrimitive for
+    further information.
+
+    \sa QStyle::drawPrimitive() QStyle::drawControl() QStyle::drawComplexControl() QStyle::StyleFlags
 */
 
 /*!

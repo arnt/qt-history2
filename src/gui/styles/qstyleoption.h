@@ -37,7 +37,7 @@ struct Q_GUI_EXPORT QStyleOption {
     void init(const QWidget *w);
     QDOC_PROPERTY(int version);
     QDOC_PROPERTY(int type);
-    QDOC_PROPERTY(QStyle::SFlags state);
+    QDOC_PROPERTY(SFlags state);
     QDOC_PROPERTY(QRect rect);
     QDOC_PROPERTY(QPalette palette);
 };
