@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#99 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#100 $
 **
 ** Definition of QListBox widget class
 **
@@ -87,7 +87,7 @@ public:
 
     long maxItemWidth() const;
 
-    enum SelectionMode { Single, Multi, Extended };
+    enum SelectionMode { Single, Multi, Extended, NoSelection };
     virtual void setSelectionMode( SelectionMode );
     SelectionMode selectionMode() const;
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#306 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#307 $
 **
 ** Implementation of QListBox widget class
 **
@@ -448,7 +448,7 @@ int QListBoxPixmap::width( const QListBox* ) const
 
   \ingroup realwidgets
 
-  This is typically a single-column list where zero or one item items
+  This is typically a single-column list where zero or one items
   are selected at once, but can also be used in many other ways.
 
   QListBox will add scroll bars as necessary, but isn't intended for
@@ -457,9 +457,9 @@ int QListBoxPixmap::width( const QListBox* ) const
   scroll bars won't provide very good navigation, but also because
   QListBox may become slow at larger sizes.
 
-  There is a variety of \link QListBox::SelectionMode
-  selection modes. \endlink The default is single-selection, but you
-  can change it using setSelectionMode().
+  There is a variety of selection modes, described in the
+  QListBox::SelectionMode documentation. The default is
+  single-selection, and you can change it using setSelectionMode().
 
   The list box normally arranges its items in a single column with a
   vertical scroll bar if necessary, but it is also possible to have a
@@ -488,12 +488,8 @@ int QListBoxPixmap::width( const QListBox* ) const
 
   You can also create a QListBoxItem such as QListBoxText or
   QListBoxPixmap with the list box as first parameter. The item will
-  then append itself. When deleteting an item, it will automatically
-  be remove from the listbox again.
-
-
-
-
+  then append itself. When you delete an item, it is automatically
+  removed from the listbox.
 
   The list of items can be arbitrarily big; if necessary, QListBox
   adds scroll bars.  It can be single-column (as most list boxes are)
@@ -544,7 +540,7 @@ int QListBoxPixmap::width( const QListBox* ) const
 /*! \enum QListBox::SelectionMode
 
   This enumerated type is used by QListBox to indicate how it reacts
-  to selection by the user.  It has three values: <ul>
+  to selection by the user.  It has four values: <ul>
 
   <li> \c Single - When the user selects an item, any already-selected
   item becomes unselected, and the user cannot unselect the selected
@@ -562,12 +558,15 @@ int QListBoxPixmap::width( const QListBox* ) const
   way, the selection status of that item is toggled and the other
   items are left alone.
 
+  <li> \c NoSelection - Items cannot be selected.
+
   </ul>
 
   In other words, \c Single is a real single-selection list box, \c
   Multi a real multi-selection list box, and \c Extended list box
   where users can select multiple items but usually want to select
-  either just one or a range of contiguous items.
+  either just one or a range of contiguous items, and \c NoESelection
+  is for a list box where the user can look but not touch.
 */
 
 
@@ -1311,8 +1310,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 		d->current->s = FALSE;
 		updateItem( d->current );
 	    }
-	}/* else
-	    clearSelection();*/
+	}
     }
 
     switch( selectionMode() ) {
@@ -1332,6 +1330,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	    //d->current = i;
 	    setSelected( i, !i->s );
 	}
+	break;
+    case NoSelection:
 	break;
     }
     if ( i ) {
@@ -1390,6 +1390,9 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
     bool ok = TRUE;
     QListBoxItem *i = itemAt( e->pos() );
     if ( numColumns() > 1 && !i )
+	ok = FALSE;
+
+    if ( selectionMode() == NoSelection )
 	ok = FALSE;
 
     if ( d->current && ok ) {
@@ -1495,7 +1498,7 @@ void QListBox::updateSelection()
 	if ( selectionMode() == Single ) {
 	    if ( i )
 		setSelected( i, TRUE );
-	} else {
+	} else if ( selectionMode() != NoSelection ) {
 	    int c = QMIN( d->mouseMoveColumn, d->mousePressColumn );
 	    int r = QMIN( d->mouseMoveRow, d->mousePressRow );
 	    int c2 = QMAX( d->mouseMoveColumn, d->mousePressColumn );
@@ -1563,7 +1566,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		toggleCurrentItem();
 	} else if ( numColumns() > 1 && currentItem() > 0 ) {
 	    int row = currentRow();
-	    setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
+	    setCurrentItem( currentRow() - 1 + (numColumns()-1) * numRows() );
 
 	    if ( currentItem() == -1 )
 		setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
@@ -1676,7 +1679,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
     case Key_Return:
     case Key_Enter:
-	if ( currentItem() >= 0 ) {
+	if ( currentItem() >= 0 && selectionMode() != NoSelection ) {
 	    QString tmp = item( currentItem() )->text();
 	    emit selected( currentItem());
 	    emit selected( item( currentItem() ) );
@@ -1816,20 +1819,20 @@ QListBox::SelectionMode QListBox::selectionMode() const
 
 
 /*!  Returns TRUE if the listbox is in multi-selection mode or
-  extended selection mode, and FALSE if it is in single-selection mode.
+  extended selection mode, and FALSE if it is in single-selection mode
+  or no-selection more.
 
   \sa selectionMode() setSelectionMode()
 */
 
 bool QListBox::isMultiSelection() const
 {
-    return selectionMode() != Single;
+    return selectionMode() == Multi || selectionMode() == Extended;
 }
 
 /*!  Sets the list box to multi-selection mode if \a enable is TRUE, and
   to single-selection mode if \a enable is FALSE.  We recommend using
-  setSelectionMode() instead; that function also offers a third mode
-  of selection.
+  setSelectionMode() instead; that function also offers two other modes.
 
   \sa setSelectionMode() selectionMode()
 */
@@ -1844,14 +1847,14 @@ void QListBox::setMultiSelection( bool enable )
   Toggles the selection status of currentItem() and repaints, if
   the listbox is a multi-selection listbox.
 
-  Does nothing if the listbox is a single-selection listbox.
-
   \sa setMultiSelection()
 */
 
 void QListBox::toggleCurrentItem()
 {
-    if ( selectionMode() == Single || !d->current )
+    if ( selectionMode() == Single || 
+	 selectionMode() == NoSelection || 
+	 !d->current )
 	return;
 
     d->current->s = !d->current->s;
@@ -1886,18 +1889,22 @@ void QListBox::setSelected( int index, bool select )
   is FALSE, and repaints the item appropriately.
 
   If the listbox is a single-selection listbox and and \a select is TRUE,
-  setCurrentItem will be called.
+  setCurrentItem is called.
 
-  If the listbox is a single-selection listbox and and \a select is FALSE,
-  clearSelection() will be called if \a index is the currently selected
-  item.
+  If the listbox is a single-selection listbox and and \a select is
+  FALSE, clearSelection() is called if \a index is the currently
+  selected item.
+
+  Note that for this function, no-selection means multi-selection.
+  The user cannot select items in a no-selection list box, but the
+  application programmer can.
 
   \sa setMultiSelection(), setCurrentItem(), clearSelection(), currentItem()
 */
 
 void QListBox::setSelected( QListBoxItem * item, bool select )
 {
-    if ( !item )//|| item->s == (uint)select )
+    if ( !item )
 	return;
 
     if ( selectionMode() == Single && select &&
@@ -2992,14 +2999,14 @@ bool QListBox::itemYPos( int index, int *yPos ) const
 
 /*! \fn bool QListBoxItem::selected() const
   Returns TRUE if the item is selected, else FALSE.
-  
+
   \sa QListBox::isSelected()
 */
 
 /*! \fn void QListBox::centerCurrentItem()
   If there is a current item, the listbox is scrolled,
   so that this item is displayed centered.
-  
+
   \sa QListBox::ensureCurrentVisible()
 */
 
