@@ -44,7 +44,7 @@
 class MakefileGenerator
 {
     QString spec;
-    bool init_opath_already, init_already, moc_aware;
+    bool init_opath_already, init_already, moc_aware, no_io;
     QStringList createObjectList(const QString &var);
     QString build_args();
     QMap<QString, QString> depHeuristics, depKeyMap;
@@ -82,6 +82,9 @@ protected:
     QString findMocSource(const QString &moc_file) const;
     QString findMocDestination(const QString &src_file) const;
     QStringList &findDependencies(const QString &file);
+
+    void setNoIO(bool o);
+    bool noIO() const;
 
     void setMocAware(bool o);
     bool mocAware() const;
@@ -150,6 +153,12 @@ inline void MakefileGenerator::setMocAware(bool o)
 
 inline bool MakefileGenerator::mocAware() const
 { return moc_aware; }
+
+inline void MakefileGenerator::setNoIO(bool o)
+{ no_io = o; }
+
+inline bool MakefileGenerator::noIO() const
+{ return no_io; }
 
 inline QString MakefileGenerator::defaultInstall(const QString &)
 { return QString(""); }

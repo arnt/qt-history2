@@ -70,17 +70,128 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
         debug_msg(1, "Generator: MSVC.NET: Writing project file" );
 	t << vcProject;
 	return TRUE;
-    }
-
-    // Generate recursive project
-    else if(project->first("TEMPLATE") == "subdirs") {
-        debug_msg(1, "Generator: MSVC.NET: Writing subdirs file" );
-	writeHeader(t);
+    } else if(project->first("TEMPLATE") == "vcsubdirs") {    // Generate recursive project
+        debug_msg(1, "Generator: MSVC.NET: Writing solution file" );
 	writeSubDirs(t);
 	return TRUE;
     }
     return FALSE;
 
+}
+
+struct VcsolutionDepend {
+    QString vcprojFile, orig_target, target;
+    QStringList dependencies;
+};
+
+void VcprojGenerator::writeSubDirs(QTextStream &t)
+{
+    if(project->first("TEMPLATE") == "subdirs") {
+	writeHeader(t);
+	Win32MakefileGenerator::writeSubDirs(t);
+	return;
+    }
+
+    QPtrList<VcsolutionDepend> solution_depends;
+    solution_depends.setAutoDelete(TRUE);
+    QStringList subdirs = project->variables()["SUBDIRS"];
+    QString oldpwd = QDir::currentDirPath();
+    for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
+	QFileInfo fi((*it));
+	if(fi.exists()) {
+	    if(fi.isDir()) {
+		QString profile = (*it);
+		if(!profile.endsWith(Option::dir_sep))
+		    profile += Option::dir_sep;
+		profile += fi.baseName() + ".pro";
+		subdirs.append(profile);
+	    } else {
+		QMakeProject tmp_proj;
+		QString dir = fi.dirPath(), fn = fi.fileName();
+		if(!dir.isEmpty()) {
+		    if(!QDir::setCurrent(dir))
+			fprintf(stderr, "Cannot find directory: %s\n", dir.latin1());
+		}
+		if(tmp_proj.read(fn, oldpwd)) {
+		    if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
+			subdirs += tmp_proj.variables()["SUBDIRS"];
+		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" ||
+			      tmp_proj.first("TEMPLATE") == "vclib") {
+			QString vcproj = fi.baseName() + ".vcproj";
+			if(QFile::exists(vcproj) || 1) {
+			    VcprojGenerator tmp_dsp(&tmp_proj);
+			    tmp_dsp.setNoIO(TRUE);
+			    tmp_dsp.init();
+			    VcsolutionDepend *newDep = new VcsolutionDepend;
+			    newDep->vcprojFile = vcproj;
+			    newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
+			    newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
+			    if(!tmp_proj.isEmpty("FORMS"))
+				newDep->dependencies << "uic";
+			    {
+				QStringList where("QMAKE_LIBS");
+				if(!tmp_proj.isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+				    where = tmp_proj.variables()["QMAKE_INTERNAL_PRL_LIBS"];
+				QPtrList<MakefileDependDir> libdirs;
+				libdirs.setAutoDelete(TRUE);
+				{
+				    QStringList &libpaths = tmp_proj.variables()["QMAKE_LIBDIR"];
+				    for(QStringList::Iterator libpathit = libpaths.begin(); 
+					libpathit != libpaths.end(); ++libpathit) {
+					QString r = (*libpathit), l = r;
+					fixEnvVariables(l);
+					libdirs.append(new MakefileDependDir(r.replace("\"",""),
+									     l.replace("\"","")));
+				    }
+				}
+				for(QStringList::iterator wit = where.begin(); 
+				    wit != where.end(); ++wit) {
+				    QStringList &l = tmp_proj.variables()[(*wit)];
+				    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+					QString opt = (*it);
+					if(opt.startsWith("/")) {
+					    if(opt.startsWith("/LIBPATH:")) {
+						QString r = opt.mid(strlen("/LIBPATH:")), l = r;
+						fixEnvVariables(l);
+						libdirs.append(new MakefileDependDir(r.replace("\"",""),
+										     l.replace("\"","")));
+					    }
+					} else if(opt.endsWith(".lib")) {
+					    bool found = TRUE;
+					    QString prl = opt.left(opt.length() - 4) + Option::prl_ext;
+					    if(!QFile::exists(prl)) {
+						found = FALSE;
+						for(MakefileDependDir *mdd = libdirs.first(); mdd; 
+						    mdd = libdirs.next() ) {
+						    QString prl2 = mdd->local_dir + Option::dir_sep + prl;
+						    if(QFile::exists(prl2)) {
+							prl = prl2;
+							found = TRUE;
+							break;
+						    }
+						}
+					    }
+					    if(found) {
+						QMakeProject prl_proj;
+						if(prl_proj.read(prl, oldpwd)) 
+						    newDep->dependencies << prl_proj.first("QMAKE_PRL_TARGET");
+					    }
+					}
+				    }
+				}
+			    }
+			    solution_depends.append(newDep);
+			}
+		    }
+		}
+		QDir::setCurrent(oldpwd);
+	    }
+	}
+    }
+
+    for(VcsolutionDepend *vc = solution_depends.first(); vc; vc = solution_depends.next()) {
+	qDebug("Whee %s -- %s", vc->vcprojFile.latin1(), vc->dependencies.join("::").latin1());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -90,6 +201,11 @@ void VcprojGenerator::init()
 {
     if( init_flag )
 	return;
+    if(project->first("TEMPLATE") == "vcsubdirs") { //too much work for subdirs
+	init_flag = TRUE;
+	return;
+    }
+
     debug_msg(1, "Generator: MSVC.NET: Initializing variables" );
 
 /*
@@ -141,13 +257,12 @@ void VcprojGenerator::init()
     // Figure out what we're trying to build
     if ( project->first("TEMPLATE") == "vcapp" ) {
 	projectTarget = Application;
-    } else {
+    } else if ( project->first("TEMPLATE") == "vclib") {
 	if ( project->isActiveConfig( "staticlib" ) )
 	    projectTarget = StaticLib;
 	else
 	    projectTarget = SharedLib;
     }
-
     initProject(); // Fills the whole project with proper data
 }
 
@@ -867,7 +982,7 @@ void VcprojGenerator::initOld()
 	    project->variables()["SOURCES"].append( *it + ".h" );
     }
 
-    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCPROJ_LIBS";
+    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCPROJ_LFLAGS" << "MSVCPROJ_LIBS";
 
     // Verbose output if "-d -d"...
     outputVariables();

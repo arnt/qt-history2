@@ -52,6 +52,7 @@ class VcprojGenerator : public Win32MakefileGenerator
     bool writeVcprojParts(QTextStream &);
 
     bool writeMakefile(QTextStream &);
+    virtual void writeSubDirs(QTextStream &t);
     QString findTemplate(QString file);
     void init();
 

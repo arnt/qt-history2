@@ -77,8 +77,9 @@ static bool createDir(const QString& fullPath)
 }
 
 
-MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(FALSE),
-							init_already(FALSE), moc_aware(FALSE), project(p)
+MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(FALSE), 
+							init_already(FALSE), moc_aware(FALSE), 
+							no_io(FALSE), project(p)
 {
 }
 
@@ -544,6 +545,9 @@ MakefileGenerator::initOutPaths()
 		    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 			path += Option::dir_sep;
 		}
+		if(noIO())
+		    continue;
+
 		QString path = project->first(dirs[x]); //not to be changed any further
 		path = Option::fixPathToTargetOS(fileFixify(path, QDir::currentDirPath(), Option::output_dir));
 		debug_msg(3, "Fixed output_dir %s (%s) into %s (%s)", dirs[x].latin1(), orig_path.latin1(),
@@ -587,7 +591,6 @@ MakefileGenerator::initOutPaths()
 	    }
 	}
 	QDir::current().cd( currentDir );
-
 }
 
 void
@@ -611,8 +614,8 @@ MakefileGenerator::init()
     /* get deps and mocables */
     QDict<void> cache_found_files;
     QString cache_file(Option::output_dir + QDir::separator() + ".qmake.internal.cache");
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
-       Option::mkfile::do_deps || Option::mkfile::do_mocs) {
+    if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
+	Option::mkfile::do_deps || Option::mkfile::do_mocs) && !noIO()) {
 	QPtrList<MakefileDependDir> deplist;
 	deplist.setAutoDelete(TRUE);
 	if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT || Option::mkfile::do_deps) &&
@@ -729,135 +732,137 @@ MakefileGenerator::init()
 		}
 	    }
 	}
-	QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
+	if(!noIO()) {
+	    QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
 				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"),
-			      QString::null };
-	depHeuristics.clear();
-	bool write_cache = FALSE, read_cache = QFile::exists(cache_file);
-	for(int x = 0; sources[x] != QString::null; x++) {
-	    QStringList vpath, &l = v[sources[x]];
-	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-		if(!(*val_it).isEmpty()) {
-		    QString file = Option::fixPathToLocalOS((*val_it));
-		    if(!QFile::exists(file)) {
-			bool found = FALSE;
-			if(QDir::isRelativePath(file)) {
-			    if(vpath.isEmpty())
-				vpath = v["VPATH_" + sources[x]] + v["VPATH"] +
-					v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
+				  QString::null };
+	    depHeuristics.clear();
+	    bool write_cache = FALSE, read_cache = QFile::exists(cache_file);
+	    for(int x = 0; sources[x] != QString::null; x++) {
+		QStringList vpath, &l = v[sources[x]];
+		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+		    if(!(*val_it).isEmpty()) {
+			QString file = Option::fixPathToLocalOS((*val_it));
+			if(!QFile::exists(file)) {
+			    bool found = FALSE;
+			    if(QDir::isRelativePath(file)) {
+				if(vpath.isEmpty())
+				    vpath = v["VPATH_" + sources[x]] + v["VPATH"] +
+					    v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
 
-			    for(QStringList::Iterator vpath_it = vpath.begin();
-				vpath_it != vpath.end(); ++vpath_it) {
-				QString real_dir = Option::fixPathToLocalOS((*vpath_it));
-				if(QFile::exists(real_dir + QDir::separator() + (*val_it))) {
-				    QString dir = (*vpath_it);
-				    if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
-					dir += Option::dir_sep;
-				    (*val_it) = fileFixify(dir + (*val_it));
-				    found = TRUE;
-				    debug_msg(1, "Found file through vpath %s -> %s",
-					      file.latin1(), (*val_it).latin1());
-				    break;
+				for(QStringList::Iterator vpath_it = vpath.begin();
+				    vpath_it != vpath.end(); ++vpath_it) {
+				    QString real_dir = Option::fixPathToLocalOS((*vpath_it));
+				    if(QFile::exists(real_dir + QDir::separator() + (*val_it))) {
+					QString dir = (*vpath_it);
+					if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
+					    dir += Option::dir_sep;
+					(*val_it) = fileFixify(dir + (*val_it));
+					found = TRUE;
+					debug_msg(1, "Found file through vpath %s -> %s",
+						  file.latin1(), (*val_it).latin1());
+					break;
+				    }
 				}
 			    }
-			}
-			if(!found) {
-			    QString dir, regex = (*val_it), real_dir;
-			    if(regex.findRev(Option::dir_sep) != -1) {
-				dir = regex.left(regex.findRev(Option::dir_sep) + 1);
-				real_dir = fileFixify(Option::fixPathToLocalOS(dir), QDir::currentDirPath(),
-						      Option::output_dir);
-				regex = regex.right(regex.length() - dir.length());
-			    }
-			    if(real_dir.isEmpty() || QFile::exists(real_dir)) {
-				QDir d(real_dir, regex);
-				if(!d.count()) {
-				    debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
-					      __FILE__, __LINE__,
-					      (*val_it).latin1(), vpath.join("::").latin1());
-				    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
-				    continue;
+			    if(!found) {
+				QString dir, regex = (*val_it), real_dir;
+				if(regex.findRev(Option::dir_sep) != -1) {
+				    dir = regex.left(regex.findRev(Option::dir_sep) + 1);
+				    real_dir = fileFixify(Option::fixPathToLocalOS(dir), 
+							  QDir::currentDirPath(), Option::output_dir);
+				    regex = regex.right(regex.length() - dir.length());
+				}
+				if(real_dir.isEmpty() || QFile::exists(real_dir)) {
+				    QDir d(real_dir, regex);
+				    if(!d.count()) {
+					debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
+						  __FILE__, __LINE__,
+						  (*val_it).latin1(), vpath.join("::").latin1());
+					warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+					continue;
+				    } else {
+					(*val_it) = dir + d[0];
+					for(int i = 1; i < (int)d.count(); i++)
+					    l.insert(val_it, dir + d[i]);
+				    }
 				} else {
-				    (*val_it) = dir + d[0];
-				    for(int i = 1; i < (int)d.count(); i++)
-					l.insert(val_it, dir + d[i]);
+				    debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
+					      __FILE__, __LINE__,
+					      real_dir.latin1(), QDir::separator(), regex.latin1(),
+					      real_dir.latin1());
+				    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
 				}
-			    } else {
-				debug_msg(1, "%s:%d Cannot match %s%c%s, as %s does not exist.",
-					  __FILE__, __LINE__,
-					  real_dir.latin1(), QDir::separator(), regex.latin1(),
-					  real_dir.latin1());
-				warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
 			    }
 			}
-		    }
 
-		    QString val_file = fileFixify((*val_it));
-		    bool found_cache_moc = FALSE, found_cache_dep = FALSE;
-		    if(read_cache && Option::output.name() != "-" &&
-		       project->isActiveConfig("qmake_cache")) {
-			if(!findDependencies(val_file).isEmpty())
-			    found_cache_dep = TRUE;
-			if(cache_found_files[(*val_it)] == (void *)2)
-			    found_cache_moc = TRUE;
-			if(!found_cache_moc || !found_cache_dep)
-			    write_cache = TRUE;
-		    }
-		    if(!found_cache_dep && sources[x] != "OBJECTS") {
-			debug_msg(5, "Looking for dependancies for %s", (*val_it).latin1());
-			generateDependencies(deplist, (*val_it), doDepends());
-		    }
-		    if(found_cache_moc) {
-			QString moc = findMocDestination(val_file);
-			if(!moc.isEmpty()) {
-			    for(QStringList::Iterator cppit = Option::cpp_ext.begin();
-				cppit != Option::cpp_ext.end(); ++cppit) {
-				if(val_file.endsWith((*cppit))) {
-				    QStringList &deps = findDependencies(val_file);
-				    if(!deps.contains(moc))
-					deps.append(moc);
-				    break;
+			QString val_file = fileFixify((*val_it));
+			bool found_cache_moc = FALSE, found_cache_dep = FALSE;
+			if(read_cache && Option::output.name() != "-" &&
+			   project->isActiveConfig("qmake_cache")) {
+			    if(!findDependencies(val_file).isEmpty())
+				found_cache_dep = TRUE;
+			    if(cache_found_files[(*val_it)] == (void *)2)
+				found_cache_moc = TRUE;
+			    if(!found_cache_moc || !found_cache_dep)
+				write_cache = TRUE;
+			}
+			if(!found_cache_dep && sources[x] != "OBJECTS") {
+			    debug_msg(5, "Looking for dependancies for %s", (*val_it).latin1());
+			    generateDependencies(deplist, (*val_it), doDepends());
+			}
+			if(found_cache_moc) {
+			    QString moc = findMocDestination(val_file);
+			    if(!moc.isEmpty()) {
+				for(QStringList::Iterator cppit = Option::cpp_ext.begin();
+				    cppit != Option::cpp_ext.end(); ++cppit) {
+				    if(val_file.endsWith((*cppit))) {
+					QStringList &deps = findDependencies(val_file);
+					if(!deps.contains(moc))
+					    deps.append(moc);
+					break;
+				    }
 				}
 			    }
+			} else if(mocAware() && (sources[x] == "SOURCES" || sources[x] == "HEADERS") &&
+				  (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
+				   Option::mkfile::do_mocs)) {
+			    generateMocList((*val_it));
 			}
-		    } else if(mocAware() && (sources[x] == "SOURCES" || sources[x] == "HEADERS") &&
-			      (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
-			       Option::mkfile::do_mocs)) {
-			generateMocList((*val_it));
 		    }
 		}
 	    }
-	}
-	if(project->isActiveConfig("qmake_cache") && (write_cache || !read_cache)) {
-	    QFile cachef(cache_file);
-	    if(cachef.open(IO_WriteOnly | IO_Translate)) {
-		debug_msg(2, "Writing internal cache information: %s", cache_file.latin1());
-		QTextStream cachet(&cachef);
-		cachet << "[check]" << "\n"
-		       << "QMAKE_CACHE_VERSION = " << qmake_version() << "\n"
-		       << "QMAKE_ABSOLUTE_SOURCE_PATH = " << var("QMAKE_ABSOLUTE_SOURCE_PATH") << "\n"
-		       << "MOC_DIR = " << var("MOC_DIR") << "\n"
-		       << "UI_DIR = " <<  var("UI_DIR") << "\n"
-		       << "UI_HEADERS_DIR = " <<  var("UI_HEADERS_DIR") << "\n"
-		       << "UI_SOURCES_DIR = " <<  var("UI_SOURCES_DIR") << "\n";
-		cachet << "[depend]" << endl;
-		for(QMap<QString, QStringList>::Iterator it = depends.begin();
-		    it != depends.end(); ++it)
-		    cachet << depKeyMap[it.key()] << " = " << it.data().join(" ") << endl;
-		cachet << "[mocable]" << endl;
-		QString mc, moc_sources[] = { QString("HEADERS"), QString("SOURCES"), QString::null };
-		for(int x = 0; moc_sources[x] != QString::null; x++) {
-		    QStringList &l = v[moc_sources[x]];
-		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-			if(!(*val_it).isEmpty()) {
-			    mc = mocablesToMOC[(*val_it)];
-			    if(mc.isEmpty())
-				mc = "*qmake_ignore*";
-			    cachet << (*val_it) << " = " << mc << endl;
+	    if(project->isActiveConfig("qmake_cache") && (write_cache || !read_cache)) {
+		QFile cachef(cache_file);
+		if(cachef.open(IO_WriteOnly | IO_Translate)) {
+		    debug_msg(2, "Writing internal cache information: %s", cache_file.latin1());
+		    QTextStream cachet(&cachef);
+		    cachet << "[check]" << "\n"
+			   << "QMAKE_CACHE_VERSION = " << qmake_version() << "\n"
+			   << "QMAKE_ABSOLUTE_SOURCE_PATH = " << var("QMAKE_ABSOLUTE_SOURCE_PATH") << "\n"
+			   << "MOC_DIR = " << var("MOC_DIR") << "\n"
+			   << "UI_DIR = " <<  var("UI_DIR") << "\n"
+			   << "UI_HEADERS_DIR = " <<  var("UI_HEADERS_DIR") << "\n"
+			   << "UI_SOURCES_DIR = " <<  var("UI_SOURCES_DIR") << "\n";
+		    cachet << "[depend]" << endl;
+		    for(QMap<QString, QStringList>::Iterator it = depends.begin();
+			it != depends.end(); ++it)
+			cachet << depKeyMap[it.key()] << " = " << it.data().join(" ") << endl;
+		    cachet << "[mocable]" << endl;
+		    QString mc, moc_sources[] = { QString("HEADERS"), QString("SOURCES"), QString::null };
+		    for(int x = 0; moc_sources[x] != QString::null; x++) {
+			QStringList &l = v[moc_sources[x]];
+			for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+			    if(!(*val_it).isEmpty()) {
+				mc = mocablesToMOC[(*val_it)];
+				if(mc.isEmpty())
+				    mc = "*qmake_ignore*";
+				cachet << (*val_it) << " = " << mc << endl;
+			    }
 			}
 		    }
+		    cachef.close();
 		}
-		cachef.close();
 	    }
 	}
     }
@@ -1013,13 +1018,15 @@ MakefileGenerator::init()
 	    v["QMAKE_IMAGE_COLLECTION"] = QStringList(imgfile);
 	}
 	logicWarn(imgfile, "SOURCES");
-	QStringList &l = v["IMAGES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    if(!QFile::exists((*it))) {
-		warn_msg(WarnLogic, "Failure to open: %s", (*it).latin1());
-		continue;
+	if(!noIO()) {
+	    QStringList &l = v["IMAGES"];
+	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		if(!QFile::exists((*it))) {
+		    warn_msg(WarnLogic, "Failure to open: %s", (*it).latin1());
+		    continue;
+		}
+		findDependencies(imgfile).append(fileFixify((*it)));
 	    }
-	    findDependencies(imgfile).append(fileFixify((*it)));
 	}
 	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_COLLECTION"));
     }
@@ -1059,7 +1066,8 @@ MakefileGenerator::processPrlFile(QString &file)
 	prl_file = tmp + Option::prl_ext;
     }
     prl_file = fileFixify(prl_file);
-    if(!QFile::exists(fileFixify(prl_file, QDir::currentDirPath(), Option::output_dir)) && project->isActiveConfig("qt")) {
+    if(!QFile::exists(fileFixify(prl_file, QDir::currentDirPath(), Option::output_dir)) && 
+       project->isActiveConfig("qt")) {
 	QString stem = prl_file, dir, extn;
 	int slsh = stem.findRev('/'), hadlib = 0;
 	if(slsh != -1) {
@@ -1177,6 +1185,10 @@ MakefileGenerator::writePrlFile(QTextStream &t)
     if(bdir.isEmpty())
 	bdir = QDir::currentDirPath();
     t << "QMAKE_PRL_BUILD_DIR = " << bdir << endl;
+
+    if(!project->projectFile().isEmpty() && project->projectFile() != "-")
+	t << "QMAKE_PRO_INPUT = " << project->projectFile().section('/', -1);
+
     if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
 	t << "QMAKE_PRL_SOURCE_DIR = " << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
     t << "QMAKE_PRL_TARGET = " << target << endl;
