@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#22 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#22 $";
 #endif
 
 
@@ -620,7 +620,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 #if defined(CHECK_RANGE)
 	default :
 	    warning( "QLCDNumber::drawSegment: Internal error."
-		     "  Illegal segment id: %s\n", segmentNo );
+		     "  Illegal segment id: %d\n", segmentNo );
 #endif
     }
 #undef LINETO
