@@ -65,8 +65,8 @@
   </ul>
 */  
 
-/*!  Constructs an error containing the error text \a text,
-     database-specific error text \a databaseText, of type \a type and
+/*!  Constructs an error containing the driver error text \a driverText,
+    the database-specific error text \a databaseText, the type \a type and
      the optional error number \a number.
 */
 
@@ -151,8 +151,7 @@ void QSqlError::setDatabaseText( const QString& databaseText )
     databaseError = databaseText;
 }
 
-/*!  Returns the error type, or -1 if the type cannot the be
-  determined.  
+/*!  Returns the error type, or -1 if the type cannot be determined.  
 
   \sa QSqlError::Type.
 
@@ -182,7 +181,7 @@ int QSqlError::number() const
     return errorNumber;
 }
 
-/*!  Sets the database-specific error number to the value of \a type.
+/*!  Sets the database-specific error number to the value of \a number.
 
 */
 
