@@ -711,7 +711,7 @@ void HelpDialog::toggleContents()
 
 void HelpDialog::toggleIndex()
 {
-    if ( !isVisible() || tabWidget->currentPageIndex() != 1 ) {
+    if ( !isVisible() || tabWidget->currentPageIndex() != 1 || !editIndex->hasFocus() ) {
 	tabWidget->setCurrentPage( 1 );
 	parentWidget()->show();
 	editIndex->setFocus();
