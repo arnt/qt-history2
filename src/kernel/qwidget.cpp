@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#243 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#244 $
 **
 ** Implementation of QWidget class
 **
@@ -648,8 +648,11 @@ QWidget::~QWidget()
 	deferredMoves->take( (long)this );	// clean deferred move/resize
 	deferredResizes->take( (long)this );
     }
-    if ( QApplication::main_widget == this )	// reset main widget
+    if ( QApplication::main_widget == this ) {	// reset main widget
 	QApplication::main_widget = 0;
+	if (qApp)
+	    qApp->quit();
+    }
     if ( focusWidget() == this )
 	clearFocus();
     if ( testWFlags(WExportFontMetrics) )	// remove references to this
