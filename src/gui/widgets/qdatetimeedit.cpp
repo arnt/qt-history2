@@ -1099,13 +1099,28 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     setDigit(&v, s, val); // if this sets year or month it will make sure that days are lowered if needed.
 
     //changing one section should only modify that section, if possible
-    if (!(s&AMPMSection)) {
-        if (v < minimum) {
-            val = getDigit(wrapping ? maximum : minimum, s);
-            setDigit(&v, s, val);
-        } else if (v > maximum) {
-            val = getDigit(wrapping ? minimum : maximum, s);
-            setDigit(&v, s, val);
+    if (!(s&AMPMSection) && (v < minimum || v > maximum)) {
+        const int localmin = getDigit(minimum, s);
+        const int localmax = getDigit(maximum, s);
+
+        if (wrapping) {
+            //just because we hit the roof in one direction, it doesn't mean that we hit the floor in the other
+            QCoreVariant oldv = v;
+            if (steps > 0) {
+                setDigit(&v, s, min);
+                if (v < minimum) {
+                    v = oldv;
+                    setDigit(&v, s, localmin);
+                }
+            } else {
+                setDigit(&v, s, max);
+                if (v > maximum) {
+                    v = oldv;
+                    setDigit(&v, s, localmax);
+                }
+            }
+        } else {
+            setDigit(&v, s, (steps>0) ? localmax : localmin);
         }
     }
     if (!test && tmp != v.toDate().day() && s != DaysSection) { // this should not happen when called from stepEnabled
