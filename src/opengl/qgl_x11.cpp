@@ -1122,7 +1122,7 @@ static bool qCanAllocColors(QWidget * w)
                 case TrueColor:
                 case StaticColor:
                 case StaticGray:
-                case GrayScale:
+                case XGrayScale:
                     validVisual = false;
                     break;
                 case DirectColor:

@@ -405,7 +405,8 @@ enum {
     XKeyPress = KeyPress,
     XKeyRelease = KeyRelease,
     XNone = None,
-    XRevertToNone = RevertToNone
+    XRevertToNone = RevertToNone,
+    XGrayScale = GrayScale
 };
 #undef FocusOut
 #undef FocusIn
@@ -413,6 +414,7 @@ enum {
 #undef KeyRelease
 #undef None
 #undef RevertToNone
+#undef GrayScale
 
 #ifdef FontChange
 #undef FontChange
