@@ -1580,12 +1580,13 @@ struct Q_EXPORT QTextDocumentTag {
 #endif
 };
 
+
 #define NEWPAR       do{ if ( !hasNewPar) { \
-		    if ( curpar->tm == -2 /*incicates linebreak!*/&& \
-			curpar->prev() ) curpar->prev()->ubm = 0; \
+		    if ( doLineBreak && curpar->prev() ) curpar->prev()->ubm = 0; \
 		    curpar = createParag( this, curpar ); } \
-		    curpar->utm = curpar->tm = -1; \
+		    curpar->utm = -1; \
 		    hasNewPar = TRUE; \
+		    doLineBreak = FALSE; \
 		    curpar->align = curtag.alignment; \
 		    curpar->listS = curtag.liststyle; \
 		    curpar->str->setDirection( (QChar::Direction)curtag.direction ); \
@@ -1618,6 +1619,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
+    bool doLineBreak = FALSE;
 
     bool preserveWhitespace = FALSE;
     bool preserveEmptyParagraphs = FALSE;
@@ -1701,11 +1703,11 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			       the stack */
 			    tags.push( curtag );
 			    curtag.name = tagname;
-			    curtag.style = nstyle;
+			    curtag.style = sheet_->item("");
 			}
 			NEWPAR;
 			curpar->utm = 0;
-			curpar->tm = -2; // indicate line break, see NEWPAR macro
+			doLineBreak = TRUE;
 		    }  else if ( tagname == "hr" ) {
 			emptyTag = TRUE;
 			custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
@@ -5631,7 +5633,7 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
     int oldHeight = parag->rect().height();
     QMap<int, QTextParagLineStart*>& lineStarts = parag->lineStartList();
     QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
-    int h = parag->prev() ? parag->topMargin() : 0;
+    int h = parag->prev() ? ( parag->prev()->bottomMargin() + parag->topMargin() ) / 2: 0;
     for ( ; it != lineStarts.end() ; ++it  ) {
 	QTextParagLineStart * ls = it.data();
 	ls->y = h;
@@ -5658,6 +5660,8 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
     int m = parag->bottomMargin();
     if ( !parag->next() )
 	m = 0;
+    else
+	m = ( m + parag->next()->topMargin() ) / 2;
     h += m;
     parag->setHeight( h );
     return h - oldHeight;
@@ -5677,7 +5681,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     int left = doc ? parag->leftMargin() + doc->leftMargin() : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
     int dw = parag->documentVisibleWidth() - ( doc ? doc->rightMargin() : 0 );
-    int y = parag->prev() ? parag->topMargin() : 0;
+    int y = parag->prev() ? QMAX(parag->prev()->bottomMargin(),parag->topMargin()) / 2: 0;
     int h = y;
     int len = parag->length();
     if ( doc )
@@ -5777,6 +5781,8 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     int m = parag->bottomMargin();
     if ( !parag->next() )
 	m = 0;
+    else
+	m = QMAX(m, parag->next()->topMargin() ) / 2;
     parag->setFullWidth( fullWidth );
     y += h + m;
     if ( doc )
@@ -5810,7 +5816,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     QTextString *string = parag->string();
     int left = doc ? parag->leftMargin() + doc->leftMargin() : 0;
     int x = left + ( doc ? parag->firstLineMargin() : 0 );
-    int y = parag->prev() ? parag->topMargin() : 0;
+    int y = parag->prev() ? QMAX(parag->prev()->bottomMargin(),parag->topMargin()) / 2: 0;
     int h = y;
     int len = parag->length();
     if ( doc )
@@ -6054,8 +6060,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( !parag->next() )
 	m = 0;
     else
-	m = QMAX( m, parag->next()->topMargin() );
-	
+	m = QMAX(m, parag->next()->topMargin() ) / 2;
     parag->setFullWidth( fullWidth );
     y += h + m;
 
