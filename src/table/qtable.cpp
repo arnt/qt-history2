@@ -210,6 +210,18 @@ QTableSelection::QTableSelection()
 {
 }
 
+/*! Creatses an active selection, starting at \a start_row and \a
+  start_col, ending at \a end_row and \a end_col;
+*/
+
+QTableSelection::QTableSelection( int start_row, int start_col, int end_row, int end_col )
+    : active( FALSE ), inited( FALSE ), tRow( -1 ), lCol( -1 ),
+      bRow( -1 ), rCol( -1 ), aRow( -1 ), aCol( -1 )
+{
+    init( start_row, start_col );
+    expandTo( end_row, end_col );
+}
+
 /*! Sets the selection anchor to cell \a row, \a col and
   the selection to contain only this cell.
 
@@ -3111,6 +3123,32 @@ int QTable::currentSelection() const
     if ( !currentSel )
 	return -1;
     return ( (QTable*)this )->selections.findRef( currentSel );
+}
+
+/*! Selects the range starting at \a start_row and \a start_col and
+  edning at \a end_row and \a end_col.
+ */
+
+void QTable::selectCells( int start_row, int start_col, int end_row, int end_col )
+{
+    QTableSelection sel( start_row, start_col, end_row, end_col );
+    addSelection( sel );
+}
+
+/*! Selects the row \a row */
+
+void QTable::selectRow( int row )
+{
+    QTableSelection sel( row, 0, row, numCols() );
+    addSelection( sel );
+}
+
+/*! Selects the column \a col */
+
+void QTable::selectColumn( int col )
+{
+    QTableSelection sel( 0, col, numRows(), col );
+    addSelection( sel );
 }
 
 /*! \reimp

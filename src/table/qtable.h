@@ -71,6 +71,7 @@ class Q_EXPORT QTableSelection
 {
 public:
     QTableSelection();
+    QTableSelection( int start_row, int start_col, int end_row, int end_col );
     void init( int row, int col );
     void expandTo( int row, int col );
     bool operator==( const QTableSelection &s ) const;
@@ -289,6 +290,10 @@ public:
     virtual void removeSelection( const QTableSelection &s );
     virtual void removeSelection( int num );
     virtual int currentSelection() const;
+
+    void selectCells( int start_row, int start_col, int end_row, int end_col );
+    void selectRow( int row );
+    void selectColumn( int col );
 
     bool showGrid() const;
 
