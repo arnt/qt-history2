@@ -2503,7 +2503,6 @@ QString QString::fromUtf8( const char* utf8, int len )
 		*qch++ = 0xde00+((uchar)utf8[i]);
 		need = 0;
 	    }
-	    error = -1;
 	} else {
 	    if ( ch < 128 ) {
 		*qch++ = ch;
@@ -2519,10 +2518,14 @@ QString QString::fromUtf8( const char* utf8, int len )
 		uc = ch & 0x07;
 		need = 3;
 		error = i;
-	    }
+	    } else {
+	        // Error
+	        *qch++ = QChar(0xdbff);
+		*qch++ = QChar(0xde00+((uchar)utf8[i]));
+ 	    }
 	}
     }
-    if (error != -1) {
+    if (need) {
 	// we have some invalid characters remaining we need to add to the string
 	for (int i = error; i < len; ++i) {
 	    *qch++ = 0xdbff;
