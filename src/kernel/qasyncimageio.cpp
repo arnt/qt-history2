@@ -902,7 +902,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		} else {
 		    if (gcmap) {
 			int n=ncols; if (n<256) n++; // +1 for trans_index
-			if ( !img.colorTable() )
+			if ( !img.colorTable() || img.numColors() < n )
 			    img.setNumColors( n );
 			memcpy(img.colorTable(), globalcmap,
 			    n * sizeof(QRgb));
