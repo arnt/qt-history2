@@ -1834,6 +1834,8 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     }
 
     if(isMove || isResize) {
+	if(isResize && isTopLevel())
+	    qt_mac_destroy_cg_hd(this, true);
 	if(!visible) {
 	    if (isMove && pos() != oldp)
 		setAttribute(WA_PendingMoveEvent, true);
@@ -1871,8 +1873,6 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 				    olds.width(), olds.height(), Qt::CopyROP, true, true);
 		}
 	    }
-	    if(isResize && isTopLevel())
-		qt_mac_destroy_cg_hd(this, true);
 	    if((!newreg_empty || !oldreg_empty) &&
 	       (isResize || !isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))) {
 		//finally issue "expose" event
