@@ -2668,9 +2668,7 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
 
 void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 {
-    if ( !focusData() || 
-	 parentWidget() == 0 ? !parentObj : parentWidget()->topLevelWidget() == topLevelWidget() ||
-	 oldtlw == topLevelWidget() )
+    if ( oldtlw == topLevelWidget() )
 	return; // nothing to do
 
     QFocusData * from = oldtlw->focusData();
@@ -2695,6 +2693,9 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 	}
     } while( from->focusWidgets.current() );
 
+    if ( to->focusWidgets.findRef(this) < 0 )
+	to->focusWidgets.append( this );
+    
     if ( !isTopLevel() && extra && extra->topextra && extra->topextra->focusData ) {
 	// this widget is no longer a top-level widget, so get rid
 	// of old focus data
