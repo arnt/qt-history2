@@ -6,134 +6,11 @@
 #include "qsocketnotifier.h"
 #include "qthread.h"
 
-#include "qabstracteventdispatcher_p.h"
+#include "qeventdispatcher_unix_p.h"
 #include <private/qthread_p.h>
 
 #include <errno.h>
 #include <stdio.h>
-
-// internal timer info
-struct QTimerInfo;
-
-// list of TimerInfo structs
-typedef QList<QTimerInfo*> QTimerList;
-
-struct Q_CORE_EXPORT QSockNot
-{
-    QSocketNotifier *obj;
-    int fd;
-    fd_set *queue;
-#ifdef Q_OS_MAC
-    QMacSockNotPrivate *mac_d;
-#endif
-};
-
-class Q_CORE_EXPORT QSockNotType
-{
-public:
-    QSockNotType();
-    ~QSockNotType();
-
-    QList<QSockNot*> list;
-    fd_set select_fds;
-    fd_set enabled_fds;
-    fd_set pending_fds;
-
-};
-
-class QEventDispatcherUNIXPrivate : public QAbstractEventDispatcherPrivate
-{
-    Q_DECLARE_PUBLIC(QEventDispatcherUNIX)
-
-public:
-    QEventDispatcherUNIXPrivate();
-    ~QEventDispatcherUNIXPrivate();
-
-    void handleSignals();
-
-    int eventloopSelect(uint, timeval *);
-    int thread_pipe[2];
-
-    // watch if time is turned back
-    timeval watchtime;
-
-    // highest fd for all socket notifiers
-    int sn_highest;
-    // 3 socket notifier types - read, write and exception
-    QSockNotType sn_vec[3];
-
-    QBitArray *timerBitVec;
-    QTimerList *timerList;
-    bool timerWait(timeval &);
-    void timerInsert(QTimerInfo *);
-    void timerRepair(const timeval &);
-
-    // pending socket notifiers list
-    QList<QSockNot*> sn_pending_list;
-};
-
-QEventDispatcherUNIX::QEventDispatcherUNIX(QObject *parent)
-    : QAbstractEventDispatcher(*new QEventDispatcherUNIXPrivate, parent)
-{ }
-
-QEventDispatcherUNIX::QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &dd, QObject *parent)
-    : QAbstractEventDispatcher(dd, parent)
-{ }
-
-QEventDispatcherUNIX::~QEventDispatcherUNIX()
-{ }
-
-int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
-                                 timeval *timeout)
-{ return ::select(nfds, readfds, writefds, exceptfds, timeout); }
-
-#if 0
-
-
-bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
-{
-    return false;
-}
-
-bool QEventDispatcherUNIX::hasPendingEvents()
-{
-    return false;
-}
-
-void QEventDispatcherUNIX::registerSocketNotifier(QSocketNotifier *notifier)
-{
-}
-
-void QEventDispatcherUNIX::unregisterSocketNotifier(QSocketNotifier *notifier)
-{
-}
-
-int QEventDispatcherUNIX::registerTimer(int timerInterval, QObject *object)
-{
-    return 0;
-}
-
-bool QEventDispatcherUNIX::unregisterTimer(int timerId)
-{
-    return false;
-}
-
-bool QEventDispatcherUNIX::unregisterTimers(QObject *object)
-{
-    return false;
-}
-
-void QEventDispatcherUNIX::wakeUp()
-{
-}
-
-void QEventDispatcherUNIX::flush()
-{
-}
-
-#endif
-
-
 
 bool qt_disable_lowpriority_timers=false;
 
@@ -300,7 +177,21 @@ bool QEventDispatcherUNIXPrivate::timerWait(timeval &tm)
     return true;
 }
 
-// Main timer functions for starting and killing timers
+QEventDispatcherUNIX::QEventDispatcherUNIX(QObject *parent)
+    : QAbstractEventDispatcher(*new QEventDispatcherUNIXPrivate, parent)
+{ }
+
+QEventDispatcherUNIX::QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &dd, QObject *parent)
+    : QAbstractEventDispatcher(dd, parent)
+{ }
+
+QEventDispatcherUNIX::~QEventDispatcherUNIX()
+{ }
+
+int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+                                 timeval *timeout)
+{ return ::select(nfds, readfds, writefds, exceptfds, timeout); }
+
 /*!
     \internal
 */
