@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#343 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#344 $
 **
 ** Implementation of QWidget class
 **
@@ -535,6 +535,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
 						    crect.size()) );
 #warning "Arnt, can you have a look at this - tabtofocus no longer widget flag"
+#if 0
     if ( isTopLevel() ||			// kludge alert
 	 testWState(QWS_TabToFocus) ) {		// focus was set using WFlags
 	QFocusData *fd = focusData( TRUE );
@@ -552,6 +553,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	    }
 	}
     }
+#endif
 }
 
 
@@ -2142,7 +2144,7 @@ void QWidget::setFocus()
 	return;
 
     if ( isFocusEnabled() ) {
-	if ( testWState(QWS_TabToFocus) ) {
+	if ( focusPolicy() == TabFocus || focusPolicy() == StrongFocus ) {
 	    // move the tab focus pointer only if this widget can be
 	    // tabbed to or from.
 	    f->it.toFirst();
@@ -2238,18 +2240,16 @@ bool QWidget::focusNextPrevChild( bool next )
 	return p->focusNextPrevChild(next);
 
     QFocusData *f = focusData( TRUE );
-
     QWidget *startingPoint = f->it.current();
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
 
-    do {
-	if ( w && w != startingPoint &&
-	     w->testWState( QWS_TabToFocus ) && !w->focusProxy() &&
-	     w->isVisibleToTLW() && w->isEnabledToTLW() )
+    while ( w && !candidate && w != startingPoint ) {
+	if ( (w->focusPolicy() == TabFocus || w->focusPolicy() == StrongFocus)
+	     && w->isEnabledToTLW() && !w->focusProxy() && w->isVisibleToTLW())
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
-    } while( w && !(candidate && w==startingPoint) );
+    }
 
     if ( !candidate )
 	return FALSE;
@@ -2679,14 +2679,7 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 	if ( f->focusWidgets.findRef( this ) < 0 )
  	    f->focusWidgets.append( this );
     }
-    if ( policy & TabFocus )
-	setWState( QWS_TabToFocus );
-    else
-	clearWState( QWS_TabToFocus );
-    if ( policy & ClickFocus )
-	setWState( QWS_ClickToFocus );
-    else
-	clearWState( QWS_ClickToFocus );
+    focus_policy = (uint)policy;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#324 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#325 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -125,7 +125,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	return;
     setWState( QWS_Created );			// set created flag
     clearWState( QWS_USPositionX );
-    clearWState(QWS_DND);
+    clearWState( QWS_DND );
 
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top-level widget

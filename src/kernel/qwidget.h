@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#205 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#206 $
 **
 ** Definition of QWidget class
 **
@@ -521,7 +521,7 @@ inline bool QWidget::hasMouseTracking() const
 { return testWState(QWS_MouseTracking); }
 
 inline bool  QWidget::isFocusEnabled() const
-{ return testWState(QWS_TabToFocus|QWS_ClickToFocus); }
+{ return (FocusPolicy)focus_policy != NoFocus; }
 
 inline QWidget::FocusPolicy QWidget::focusPolicy() const
 { return (FocusPolicy)focus_policy; }
