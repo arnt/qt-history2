@@ -97,6 +97,13 @@ static QString domToString(const QDomElement &elt)
     return result;
 }
 
+static QDomDocument stringToDom(const QString &xml)
+{
+    QDomDocument result;
+    result.setContent(xml);
+    return result;
+}
+
 static DomWidget *xmlToUi(QString xml)
 {
     QDomDocument doc;
@@ -659,7 +666,20 @@ void WidgetBoxTreeView::updateItemData(QTreeWidgetItem *item)
         return;
 
     Widget widget = qvariant_cast<Widget>(item->data(0, Qt::UserRole));
+
+    if (item->text(0).isEmpty()) {
+        item->setText(0, widget.name());
+        return;
+    }
+
     widget.setName(item->text(0));
+    QDomDocument doc = stringToDom(widget.domXml());
+    QDomElement widget_elt = doc.firstChildElement(QLatin1String("widget"));
+    if (!widget_elt.isNull()) {
+        widget_elt.setAttribute(QLatin1String("name"), item->text(0));
+        widget.setDomXml(domToString(widget_elt));
+    }
+
     bool block = blockSignals(true);
     item->setData(0, Qt::UserRole, qVariantFromValue(widget));
     blockSignals(block);
