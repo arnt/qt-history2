@@ -11,7 +11,7 @@ EditorBrowser::EditorBrowser( Editor *e )
     curEditor->installEventFilter( this );
     QFont fn( curEditor->font() );
     fn.setUnderline( TRUE );
-    highlightedFormat = curEditor->document()->formatCollection()->format( fn, blue );
+    highlightedFormat = new QTextFormat( fn, blue );
 }
 
 EditorBrowser::~EditorBrowser()
@@ -38,6 +38,9 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		    oldHighlightedParag = 0;
 		}
 		if ( findCursor( c, from, to ) && from.parag() == to.parag() ) {
+		    // avoid collision with other selections
+		    for ( int i = 0; i < curEditor->document()->numSelections(); ++i )
+			curEditor->document()->removeSelection( i );
 		    from.parag()->setFormat( from.index(), to.index() - from.index() + 1, highlightedFormat, FALSE );
 		    lastWord = from.parag()->string()->toString().mid( from.index(), to.index() - from.index() + 1 );
 		    oldHighlightedParag = from.parag();
