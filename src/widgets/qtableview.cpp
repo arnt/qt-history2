@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#113 $
 **
 ** Implementation of QTableView class
 **
@@ -64,7 +64,7 @@ void QCornerSquare::paintEvent( QPaintEvent * )
 
 /*!
   \class QTableView qtableview.h
-  \brief This is the abstract base class of all the table views.
+  \brief This is an abstract base class for implementing tables
 
   \ingroup abstractwidgets
 
@@ -74,7 +74,7 @@ void QCornerSquare::paintEvent( QPaintEvent * )
   column 0.
 
   The behavior of the widget can be finely tuned using
-  setTableFlags(); subclasses like QListBox are little more than a
+  setTableFlags(); a typical subclass will consist of little more than a
   call to setTableFlags(), some table content manipulation, and an
   implementation of paintCell().  Subclasses that need cells with
   variable width or height must reimplement cellHeight() and/or
@@ -111,12 +111,11 @@ void QCornerSquare::paintEvent( QPaintEvent * )
 
   <img src=qtablevw-m.gif> <img src=qtablevw-w.gif>
 
-  \warning in the current (and previous) version of the library, the
-  functions setNumRows(), setNumCols(), setCellHeight(),
+  \warning the functions setNumRows(), setNumCols(), setCellHeight(),
   setCellWidth(), setTableFlags() and clearTableFlags() may cause
-  virtual functions like cellWidth() and cellHeight() to be called, even
-  if autoUpdate() is FALSE.
-  This may cause errors if relevant state variables are not initialized.
+  virtual functions like cellWidth() and cellHeight() to be called,
+  even if autoUpdate() is FALSE.  This may cause errors if relevant
+  state variables are not initialized.
 
   \warning Experience has shown that use of this widget tends to bring
   more bugs than expected, and our analysis indicates that widget's
