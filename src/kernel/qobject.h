@@ -59,9 +59,9 @@ public:
     const char *name(const char *defaultName) const;
 
     virtual void setName(const char *name);
-    bool isWidgetType()	  const { return isWidget; }
+    inline bool isWidgetType() const { return isWidget; }
 
-    bool signalsBlocked()  const { return blockSig; }
+    inline bool signalsBlocked() const { return blockSig; }
     bool blockSignals(bool b);
 
     int startTimer(int interval);
@@ -87,15 +87,15 @@ public:
 			const QObject *receiver, const char *member);
     inline bool connect(const QObject *sender, const char *signal,
 			const char *member) const
-    { return connect(sender, signal, this, member); }
+	{ return connect(sender, signal, this, member); }
 
     static bool disconnect(const QObject *sender, const char *signal,
 			   const QObject *receiver, const char *member);
     inline bool disconnect(const char *signal = 0,
 			   const QObject *receiver = 0, const char *member = 0)
-    { return disconnect(this, signal, receiver, member); }
+	{ return disconnect(this, signal, receiver, member); }
     inline bool disconnect(const QObject *receiver, const char *member = 0)
-    { return disconnect(this, 0, receiver, member); }
+	{ return disconnect(this, 0, receiver, member); }
 
     void dumpObjectTree();
     void dumpObjectInfo();
@@ -139,9 +139,9 @@ protected:
 #ifndef QT_NO_COMPAT
 public:
     inline bool isA(const char *classname) const
-    { return qstrcmp(classname, className() ) == 0; }
+	{ return qstrcmp(classname, className() ) == 0; }
     inline bool inherits(const char *classname) const
-    { return metaObject()->inherits(classname); }
+	{ return metaObject()->inherits(classname); }
 protected:
     inline bool checkConnectArgs(const char *signal,
 				  const QObject *,
@@ -220,9 +220,9 @@ public:
 	{ QMetaObject::changeGuard(&o, obj); return *this; }
 
     inline bool operator==( const QPointer<T> &p ) const
-	{ return (o == p.o); }
+	{ return o == p.o; }
     inline bool operator!= ( const QPointer<T>& p ) const
-	{ return (o != p.o); }
+	{ return o != p.o; }
 
     inline bool isNull() const
 	{ return !o; }
@@ -243,17 +243,13 @@ class Q_EXPORT QEvent: public Qt		// event base class
 {
 public:
     enum Type {
-
 	/*
 	  If you get a strange compiler error on the line with None,
 	  it's probably because you're also including X11 headers,
 	  which #define the symbol None. Put the X11 includes after
 	  the Qt includes to solve this problem.
 	*/
-
 	None = 0,				// invalid event
-
-
 	Timer = 1,				// timer event
 	MouseButtonPress = 2,			// mouse button pressed
 	MouseButtonRelease = 3,			// mouse button released
@@ -327,11 +323,10 @@ public:
 	MaxUser = 65535				// last user event id
     };
 
-
-    QEvent( Type type ) : t(type), posted(FALSE), spont(FALSE) {}
+    QEvent(Type type) : t(type), posted(FALSE), spont(FALSE) {}
     virtual ~QEvent();
-    Type  type() const	{ return (Type)t; }
-    bool spontaneous() const 	{ return spont; }
+    inline Type type() const { return static_cast<Type>(t); }
+    inline bool spontaneous() const { return spont; }
 protected:
     ushort  t;
 private:
