@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#66 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#67 $
 **
 ** Definition of QListView widget class
 **
@@ -166,6 +166,8 @@ public:
     virtual void setTreeStepSize( int );
 
     virtual void insertItem( QListViewItem * );
+    virtual void removeItem( QListViewItem * );
+
     virtual void clear();
 
     QHeader * header() const;
@@ -225,9 +227,6 @@ public:
 
     QSize sizeHint() const;
     QSizePolicy sizePolicy() const;
-
-    virtual void insertItem( QListViewItem * );
-    virtual void removeItem( QListViewItem * );
 
 public slots:
     void triggerUpdate();

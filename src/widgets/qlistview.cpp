@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#180 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#181 $
 **
 ** Implementation of QListView widget class
 **
@@ -1795,9 +1795,11 @@ int QListView::treeStepSize() const
 }
 
 
-/*!  Inserts a top-level QListViewItem into this list view.  You
-  generally do not need to call this; the QListViewItem constructor
-  does it for you.
+/*!  Inserts \a i into the list view as a top-level item.  You do not
+  need to call this unless you've called removeItem( \a i ) or
+  QListViewItem::removeItem( i ) and need to reinsert \a i elsewhere.
+
+  \sa QListViewItem::removeItem() (important) removeItem()
 */
 
 void QListView::insertItem( QListViewItem * i )
@@ -3934,26 +3936,11 @@ int QListViewItem::itemPos() const
 }
 
 
-/*!  Inserts \a i into the list view as a top-level item.  You do not
-  need to call this unless you've called removeItem( \a i ) or
-  QListViewItem::removeItem( i ) and need to reinsert \a i elsewhere.
-
-  \sa QListViewItem::removeItem() (important) removeItem()
-*/
-
-void QListView::insertItem( QListViewItem * i )
-{
-    d->r->insertItem( i );
-}
-
-
 /*!  Removes \a i from the list view; \a i must be a top-level item.
   The warnings regarding QListViewItem::removeItem( i ) apply to this
   function too.
 
   \sa QListViewItem::removeItem() (important) insertItem()
-/*!
-
 */
 
 void QListView::removeItem( QListViewItem * i )
