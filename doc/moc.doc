@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.6 1997/11/20 14:25:13 eiriken Exp $
+** $Id: moc.doc,v 2.7 1997/12/11 12:12:19 warwick Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -302,5 +302,20 @@ of the illegal syntax:
     [...]
     };
 \endcode
+
+<h3>Signals and slots may not have default arguments</h3>
+
+Since signal->slot binding occurs at run-time, it is
+conceptually difficult to use default parameters, which are a
+compile-time phenomenon.  This will fail:
+
+\code
+    class SomeClass : public QObject {
+        Q_OBJECT
+    public slots:
+        void someSlot(int x=100);
+    };
+\endcode
+
 
 */
