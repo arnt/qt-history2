@@ -36,7 +36,7 @@ unix {
    SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
 }
 win32 {
-   VPATH = $$QTDIR/src/tools
+   VPATH = $(QTDIR)/src/tools
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp 
    *-msvc:LIBS += ole32.lib
 }
