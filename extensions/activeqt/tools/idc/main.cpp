@@ -191,12 +191,14 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Failed to register server!\n");
 		return 1;
 	    }
+            fprintf(stderr, "Server registered successfully!\n");
 	    return 0;
 	} else if (p == "/unregserver" || p == "-unregserver") {
 	    if (!unregisterServer(input)) {
 		fprintf(stderr, "Failed to unregister server!\n");
 		return 1;
 	    }
+            fprintf(stderr, "Server unregistered successfully!\n");
 	    return 0;
 	} else if (p[0] == '/' || p[0] == '-') {
 	    error = "Unknown option \"" + p + "\"";
