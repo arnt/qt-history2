@@ -52,7 +52,7 @@
 
   A cache is a least recently used (LRU) list of cache items.  The
   cache items are accessed via \c char* keys.  QAsciiCache cannot handle
-  Unicode keys, instead use the QCache template, which uses \c QString
+  Unicode keys; use the QCache template instead, which uses \c QString
   keys.  A QCache has the same performace as a QAsciiCache.
 
   Each cache item has a cost.  The sum of item costs, totalCost(), will not
@@ -68,7 +68,7 @@
   There are also methods to remove() or take() an object from the
   cache.  Calling setAutoDelete(TRUE) for a cache tells it to delete
   items that are removed.  The default is to not delete items when
-  then are removed (i.e. remove() and take() are equivalent).
+  then are removed (i.e., remove() and take() are equivalent).
 
   When inserting an item into the cache, only the pointer is copied, not
   the item itself. This is called a shallow copy. It is possible to make the
@@ -77,8 +77,8 @@
   QCollection::newItem() for the item to be inserted.
   Inherit a dictionary and reimplement it if you want deep copies.
 
-  When removing a cache item, the virtual function
-  QCollection::deleteItem() is called.  It's default implementation
+  When removing a cache item the virtual function
+  QCollection::deleteItem() is called.  Its default implementation
   in QAsciiCache is to delete the item if auto-deletion is enabled.
 
   There is a QAsciiCacheIterator which may be used to traverse the
@@ -107,9 +107,9 @@
   \arg \a copyKeys specifies whether to copy the key strings.
 
   Each inserted item is associated with a cost.  When inserting a new
-  item, if the total cost of all items in the cache will exceeds
+  item, if the total cost of all items in the cache will exceed
   \a maxCost, the cache will start throwing out the older (recently least
-  used)  items until there is room enough for the new item to be inserted.
+  used) items until there is enough room for the new item to be inserted.
 
   Setting \a size to a suitably large \link primes.html prime
   number\endlink (equal to or greater than the expected number of entries)
@@ -201,22 +201,22 @@
 
   \warning If this function returns FALSE, you must delete \a d
   yourself.  Additionally, be very careful about using \a d after
-  calling this function, as any other insertions into the cache, from
-  anywhere in the application, or within Qt itself, could cause the
-  object to be discarded from the cache, and the pointer to become
+  calling this function, because any other insertions into the cache, from
+  anywhere in the application or within Qt itself, could cause the
+  object to be discarded from the cache and the pointer to become
   invalid.
 */
 
 /*!
   \fn bool QAsciiCache::remove( const char *k )
 
-  Removes the item associated with \e k, and returns TRUE if the item
-  was present in the cache or FALSE if it was not.
+  Removes the item associated with \e k and returns TRUE if the item
+  was present in the cache, or FALSE if it was not.
 
-  The item is deleted if auto-deletion has been enabled, i.e. you have
+  The item is deleted if auto-deletion has been enabled, i.e., you have
   called setAutoDelete(TRUE).
 
-  If there are two or more items with equal keys, then the one that
+  If there are two or more items with equal keys, the one that
   was inserted last is is removed.
 
   All iterators that refer to the removed item are set to point to the
@@ -229,10 +229,10 @@
   \fn type *QAsciiCache::take( const char *k )
 
   Takes the item associated with \e k out of the cache without
-  deleting it, and returns a pointer to the item taken out, or null if
+  deleting it and returns a pointer to the item taken out, or null if
   the key does not exist in the cache.
 
-  If there are two or more items with equal keys, then the one that
+  If there are two or more items with equal keys, the one that
   was inserted last is taken.
 
   All iterators that refer to the taken item are set to point to the
@@ -259,7 +259,7 @@
   exist in the cache.  If \a ref is TRUE (the default), the item is
   moved to the front of the LRU list.
 
-  If there are two or more items with equal keys, then the one that
+  If there are two or more items with equal keys, the one that
   was inserted last is returned.
 */
 
@@ -269,7 +269,7 @@
   Returns the item associated with \a k, or null if \a k does not
   exist in the cache, and moves the item to the front of the LRU list.
 
-  If there are two or more items with equal keys, then the one that
+  If there are two or more items with equal keys, the one that
   was inserted last is returned.
 
   This is the same as find( k, TRUE ).
@@ -296,7 +296,7 @@
   \ingroup collection
   \ingroup tools
 
-  Note that the traversal order is arbitrary, you are not guaranteed
+  Note that the traversal order is arbitrary; you are not guaranteed
   any particular order.  If new objects are inserted into the cache
   while the iterator is active, the iterator may or may not see them.
 
@@ -304,11 +304,11 @@
   operate on the same QAsciiCache. QAsciiCache updates all iterators that refer
   an item when that item is removed.
 
-  QAsciiCacheIterator provides an operator++(), and an operator+=() to
-  traverse the cache, current() and currentKey() to access the current
-  cache item and its key, atFirst() atLast() which return TRUE if the
-  iterator points to the first/last item in the cache, isEmpty() which
-  returns TRUE if the cache is empty and finally count() which returns
+  QAsciiCacheIterator provides an operator++() and an operator+=() to
+  traverse the cache; current() and currentKey() to access the current
+  cache item and its key; atFirst() atLast(), which return TRUE if the
+  iterator points to the first/last item in the cache; isEmpty(), which
+  returns TRUE if the cache is empty; and count(), which returns
   the number of items in the cache.
 
   Note that atFirst() and atLast() refer to the iterator's arbitrary
@@ -321,7 +321,7 @@
   \fn QAsciiCacheIterator::QAsciiCacheIterator( const QAsciiCache<type> &cache )
 
   Constructs an iterator for \e cache.  The current iterator item is
-  set to point on the first item in the \e cache (or rather, the first
+  set to point on the first item in the \e cache (rather, the first
   item is defined to be the item at which this constructor sets the
   iterator to point).
 */
@@ -330,7 +330,7 @@
   \fn QAsciiCacheIterator::QAsciiCacheIterator (const QAsciiCacheIterator<type> & ci)
 
   Constructs an iterator for the same cache as \a ci.  The new
-  iterator starts at the same item as ci.current(), but moves
+  iterator starts at the same item as ci.current() but moves
   independently from there on.
 */
 
@@ -352,8 +352,8 @@
 /*!
   \fn bool QAsciiCacheIterator::isEmpty() const
 
-  Returns TRUE if the cache is empty, i.e. count() == 0, otherwise
-  FALSE.  \sa count()
+  Returns TRUE if the cache is empty, i.e. count() == 0; otherwise
+  it returns FALSE.  \sa count()
 */
 
 /*!
@@ -382,7 +382,7 @@
   Sets the iterator to point to the first item in the cache and
   returns a pointer to the item.
 
-  Sets the iterator to null and returns null if if the cache is empty.
+  Sets the iterator to null and returns null if the cache is empty.
 
   \sa toLast() isEmpty()
 */
@@ -393,7 +393,7 @@
   Sets the iterator to point to the last item in the cache and
   returns a pointer to the item.
 
-  Sets the iterator to null and returns null if if the cache is empty.
+  Sets the iterator to null and returns null if the cache is empty.
 
   \sa toLast() isEmpty()
 */

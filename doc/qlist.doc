@@ -40,12 +40,12 @@
 
 /*!
   \class QList qlist.h
-  \brief The QList class is a template class that provides doubly linked lists.
+  \brief The QList class is a template class that provides doubly-linked lists.
 
   \ingroup collection
   \ingroup tools
 
-  In Qt 2.0 QList is only implemented as a template class. Define a
+  In Qt 2.0, QList is only implemented as a template class. Define a
   template instance QList\<X\> to create a list that operates on pointers
   to X, or X*.
 
@@ -97,21 +97,21 @@
   traverse the same list, independent of each other and independent of
   the current list item.
 
-  In the example above, we make the call setAutoDelete(TRUE).
+  In the example above we make the call setAutoDelete(TRUE).
   Enabling auto-deletion tells the list to delete items that are removed
   from the list.  The default is to not delete items when they are
-  removed, but that would cause a memory leak in our example since we have
+  removed but that would cause a memory leak in our example because we have
   no other references to the list items.
 
   List items are stored as \c void* in an internal QLNode, which also
   holds pointers to the next and previous list items.  The functions
-  currentNode(), removeNode() and takeNode() operate directly on the
+  currentNode(), removeNode(), and takeNode() operate directly on the
   QLNode, but they should be used with care.
 
-  When inserting an item into a list, only the pointer is copied, not the
+  When inserting an item into a list only the pointer is copied, not the
   item itself. This is called a shallow copy. It is possible to make the
   list copy all of the item's data (known as a deep copy) when an item is
-  inserted.  insert(), inSort() and append() call the virtual function
+  inserted.  insert(), inSort(), and append() call the virtual function
   QCollection::newItem() for the item to be inserted.
   Inherit a list and reimplement it if you want deep copies.
 
@@ -127,7 +127,7 @@
   These functions are somewhat faster than those that call compareItems().
 
   The QStrList class in qstrlist.h is a list of \c char*.  QStrList is
-  a good example of a list that reimplements newItem(), deleteItem() and
+  a good example of a list that reimplements newItem(), deleteItem(), and
   compareItems()
 
   \sa QListIterator, \link collection.html Collection Classes\endlink
@@ -160,16 +160,16 @@
   \fn QList<type> &QList::operator=(const QList<type> &list)
   Assigns \e list to this list and returns a reference to this list.
 
-  This list is first cleared, then each item in \e list is
+  This list is first cleared and then each item in \e list is
   \link append() appended\endlink to this list.  Only the pointers are copied
-  (shallow copy), unless newItem() has been reimplemented().
+  (shallow copy) unless newItem() has been reimplemented().
 */
 
 /*!
   \fn bool QList::operator==(const QList<type> &list ) const
 
-  Compares this list with \a list. Retruns TRUE if the lists
-  contain the same data, else FALSE.
+  Compares this list with \a list. Returns TRUE if the lists
+  contain the same data, otherwise FALSE.
 */
 
 /*!
@@ -187,8 +187,8 @@
   O(n*log n) compares.  This is the asymptotic optimal solution of the
   sorting problem.
 
-  If the items in your list support operator< and operator== then you
-  might be better off with QSortedList since it implements the
+  If the items in your list support operator< and operator==, you
+  might be better off with QSortedList because it implements the
   compareItems() function for you using these two operators.
 
   \sa inSort()
@@ -196,8 +196,8 @@
 
 /*!
   \fn bool QList::isEmpty() const
-  Returns TRUE if the list is empty, i.e. count() == 0. Returns FALSE
-   otherwise.
+  Returns TRUE if the list is empty, i.e., count() == 0, otherwise it returns FALSE.
+  
   \sa count()
 */
 
@@ -205,7 +205,7 @@
   \fn bool QList::insert( uint index, const type *item )
   Inserts the \e item at the position \e index in the list.
 
-  Returns TRUE if successful, or FALSE if \e index is out of range.
+  Returns TRUE if successful or FALSE if \e index is out of range.
   The valid range is <code>0 .. count()</code> inclusive.
   The item is appended if \e index == count().
 
@@ -228,11 +228,11 @@
   The \e item must not be a null pointer.
 
   Please note that inSort is slow. If you want to insert lots of items
-  in a list and sort after inserting then you should use sort().
+  in a list and sort after inserting, you should use sort().
   inSort() takes up to O(n) compares. That means inserting n items in
-  your list will need O(n^2) compares while sort() only needs O(n*logn)
-  for the same task. So you inSort() only if you already have a pre-sorted
-  list and want to insert only few additional items.
+  your list will need O(n^2) compares whereas sort() only needs O(n*log n)
+  for the same task. So you inSort() only if you already have a presorted
+  list and want to insert only a few additional items.
 
   \sa insert(), QGList::compareItems(), current(), sort()
 */
@@ -376,7 +376,7 @@
   The current item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point to
-  the item succeeding this item, or the preceding item if the removed item
+  the item succeeding this item or to the preceding item if the removed item
   was the last item.
 
   \warning Do not call this function unless you are an expert.
@@ -470,7 +470,7 @@
   The first item in the list becomes the new current list item.
 
   All list iterators that refer to the taken item will be set to point to
-  the item succeeding this item, or the preceding item if the taken item
+  the item succeeding this item or to the preceding item if the taken item
   was the last item.
 
   \warning Do not call this function unless you are an expert.
@@ -497,7 +497,7 @@
   If the item is found, the list sets the current item to point to
   the found item and returns the index of this item.
   If the item is not found, the list sets the current item to null,
-  the current index to -1 and returns -1.
+  the current index to -1, and returns -1.
 
   The compareItems() function is called when searching for the item
   in the list. If compareItems() is not reimplemented, it is more
@@ -514,7 +514,7 @@
   If the item is found, the list sets the current item to point to
   the found item and returns the index of this item.
   If the item is not found, the list sets the current item to null,
-  the current index to -1 and returns -1.
+  the current index to -1, and returns -1.
 
   The compareItems() function is called when searching for the item
   in the list. If compareItems() is not reimplemented, it is more
@@ -530,9 +530,9 @@
   If the item is found, the list sets the current item to point to
   the found item and returns the index of this item.
   If the item is not found, the list sets the current item to null,
-  the current index to -1 and returns -1.
+  the current index to -1, and returns -1.
 
-  Calling this function is must faster than find(), because find()
+  Calling this function is much faster than find() because find()
   compares \e item with each list item using compareItems().
   This function only compares the pointers.
 
@@ -547,9 +547,9 @@
   If the item is found, the list sets the current item to point to
   the found item and returns the index of this item.
   If the item is not found, the list sets the current item to null,
-  the current index to -1 and returns -1.
+  the current index to -1, and returns -1.
 
-  Calling this function is must faster than findNext(), because findNext()
+  Calling this function is much faster than findNext() because findNext()
   compares \e item with each list item using compareItems().
   This function only compares the pointers.
 
@@ -573,7 +573,7 @@
   \fn uint QList::containsRef( const type *item ) const
   Counts and returns the number of occurrences of \e item in the list.
 
-  Calling this function is must faster than contains(), because contains()
+  Calling this function is much faster than contains() because contains()
   compares \e item with each list item using compareItems().
   This function only compares the pointers.
 
@@ -591,7 +591,7 @@
   The valid range is <code>0 .. (count() - 1)</code> inclusive.
 
   This function is very efficient.  It starts scanning from the first
-  item, last item or current item, whichever is closest to \e index.
+  item, last item, or current item, whichever is closest to \e index.
 
   \sa current()
 */
@@ -745,16 +745,16 @@
 	Ron earns 60000
   \endcode
 
-  Although QList has member functions to traverse the doubly linked list
+  Although QList has member functions to traverse the doubly-linked list
   structure, using a list iterator is a much more robust way of traversing
-  the list, because multiple list iterators can operate on the same list,
+  the list because multiple list iterators can operate on the same list,
   independent of each other and independent of the QList's current item.
   An iterator has its own current list item and can get the next and
   previous list items.  It can only traverse the list, never modify it.
 
   A QList knows about all list iterators that are operating on the list.
-  When an item is removed from the list, the list update all iterators
-  that are pointing the removed item to point to the new current list item.
+  When an item is removed from the list, the list updates all iterators
+  pointing the removed item to point to the new current list item.
 
   Example:
   \code
@@ -816,7 +816,7 @@
 
 /*!
   \fn bool QListIterator::isEmpty() const
-  Returns TRUE if the list is empty, i.e. count() == 0, otherwise FALSE.
+  Returns TRUE if the list is empty (i.e., count() == 0), otherwise FALSE.
   \sa count()
 */
 
@@ -894,7 +894,7 @@
 
 /*!
   \fn type *QListIterator::operator+=( uint jump )
-  Sets the current item to the item \e jump positions after the current item,
+  Sets the current item to the item \e jump positions after the current item
   and returns a pointer to that item.
 
   If that item is beyond the last item or if the dictionary is  empty,
@@ -903,7 +903,7 @@
 
 /*!
   \fn type *QListIterator::operator--()
-  Prefix -- makes the preceding item current and returns the new current
+  Prefix - makes the preceding item current and returns the new current
   item.
 
   If the current iterator item was the first item in the list or if it was
@@ -912,7 +912,7 @@
 
 /*!
   \fn type *QListIterator::operator-=( uint jump )
-  Returns the item \e jump positions before the current item, or null if
+  Returns the item \e jump positions before the current item or null if
   it is beyond the first item.  Makes this the current item.
 */
 
@@ -931,7 +931,7 @@ typedef QList<char> QStrList
 
 /*!
   \class QStrList qstrlist.h
-  \brief The QStrList class provides a doubly linked list of \c char*.
+  \brief The QStrList class provides a doubly-linked list of \c char*.
 
   \inherit QList
 
@@ -946,20 +946,19 @@ typedef QList<char> QStrList
   data into it.  A shallow copy is just a copy of the pointer value and not
   the string data.
 
-  The disadvantage with shallow copies is that since a pointer can only
-  be deleted once, the program must put all strings in a central place and
-  know when it is safe to delete them (i.e. when the strings are no longer
+  The disadvantage of shallow copies is that because a pointer can
+  be deleted only once, the program must put all strings in a central place and
+  know when it is safe to delete them (i.e., when the strings are no longer
   referenced by other parts of the program).  This can make the program
   more complex.  The advantage of shallow copies is that shallow copies
   consume far less memory than deep copies.  It is also much faster
   to copy a pointer (typically 4 or 8 bytes) than to copy string data.
 
-  A QStrList that operates on deep copies will by default turn on
-  auto-deletion (see setAutoDelete()). Thus, by default, QStrList will
+  A QStrList that operates on deep copies will, by default, turn on
+  auto-deletion (see setAutoDelete()). Thus, by default QStrList will
   deallocate any string copies it allocates.
 
-  The virtual compareItems() function is reimplemented and does a case
-  sensitive string comparison. The inSort() function will insert
+  The virtual compareItems() function is reimplemented and does a case-sensitive string comparison. The inSort() function will insert
   strings in a sorted order.
 
   The QStrListIterator class is an iterator for QStrList.
@@ -1002,18 +1001,18 @@ typedef QList<char> QStrList
 
 /*!
   \class QStrIList qstrlist.h
-  \brief The QStrIList class provides a doubly linked list of \c char* with
-case insensitive compare.
+  \brief The QStrIList class provides a doubly-linked list of \c char* with
+case-insensitive compare.
 
   \ingroup collection
   \ingroup tools
 
   This class is a QList\<char\> instance (a list of char*).
 
-  QStrIList is similar to QStrList except that it is case insensitive.
+  QStrIList is similar to QStrList except that it is case-insensitive.
   The virtual compareItems() function is reimplemented and does a
-  case insensitive string comparison.
-  The inSort() function will insert strings in a sorted order.
+  case-insensitive string comparison.
+  The inSort() function inserts strings in a sorted order.
 
   The QStrListIterator class is an iterator for QStrList.
 */

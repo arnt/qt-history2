@@ -49,7 +49,7 @@
   instance QStack\<X\> to create a stack that operates on pointers to
   X, or X*.
 
-  A stack is a Last In, First Out (LIFO) structure. Items are added to
+  A stack is a last in, first out (LIFO) structure. Items are added to
   the top of the stack with push() and retrieved from the top
   with pop().
 
@@ -57,7 +57,7 @@
 */
 
 /*! \fn QStack::QStack () 
-  Creates and empty stack.
+  Creates an empty stack.
 */
 
 /*! \fn QStack::QStack (const QStack<type>& s) 

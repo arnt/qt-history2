@@ -47,9 +47,9 @@
   QArray is implemented as a template class. Define a template
   instance QArray\<X\> to create an array that contains X items.
 
-  QArray stores the array elements directly in the array. It can only
-  deal with simple types, i.e. C++ types, structs and classes that have
-  no constructors, destructors or virtual functions.  QArray uses
+  QArray stores the array elements directly in the array. It can
+  deal only with simple types (i.e., C++ types, structs, and classes that have
+  no constructors, destructors, or virtual functions).  QArray uses
   bitwise operations to copy and compare array elements.
 
   The QVector collection class is also a kind of array.  Like most
@@ -57,7 +57,7 @@
   contained items.
 
   QArray uses explicit \link shclass.html sharing\endlink with a reference
-  count.  If more than one array share common data, and one array is
+  count.  If more than one array share common data and one array is
   modified, all arrays will be modified.
 
   The benefit of sharing is that a program does not need to duplicate
@@ -76,7 +76,7 @@
 
         f[0] = f[1] = 1;			// initialize first two numbers
 	for ( int i=2; i<num; i++ )
-	    f[i] = f[i-1] + f[i-2];	
+	    f[i] = f[i-1] + f[i-2];
 
 	return f;
     }
@@ -109,7 +109,7 @@
   Note about using QArray for manipulating structs or classes:
   Compilers will often pad the size of structs of odd sizes up to the
   nearest word boundary. This will then be the size QArray will use
-  for its bitwise element comparisons. Since the remaining bytes will
+  for its bitwise element comparisons. Because the remaining bytes will
   typically be uninitialized, this can cause find() etc. to fail to
   find the element. Example:
 
@@ -130,8 +130,8 @@
     int i = a.find( x );          // May return -1 if the pad bytes differ
   \endcode
 
-  To workaround this, make sure that you use a struct where sizeof()
-  returns the same as the sum of the sizes of the members, either by
+  To work around this, make sure that you use a struct where sizeof()
+  returns the same as the sum of the sizes of the members either by
   changing the types of the struct members or by adding dummy members.
 
   \sa \link shclass.html Shared Classes\endlink
@@ -163,7 +163,7 @@
 /*!
   \fn QArray::QArray( int, int )
   Constructs an array <em>without allocating</em> array space.
-  The arguments should be (0, 0). Use at own risk.
+  The arguments should be (0, 0). Use at your own risk.
 */
 
 /*!
@@ -213,7 +213,7 @@
 
 /*!
   \fn bool QArray::isEmpty() const
-  Returns TRUE if the array is empty, i.e. size() == 0, otherwise FALSE.
+  Returns TRUE if the array is empty, i.e., size() == 0; otherwise it returns FALSE.
 
   isEmpty() is equivalent with isNull() for QArray.  Note that this is not
   the case for QString::isEmpty().
@@ -221,7 +221,7 @@
 
 /*!
   \fn bool QArray::isNull() const
-  Returns TRUE if the array is null, otherwise FALSE.
+  Returns TRUE if the array is null; otherwise it returns FALSE.
 
   A null array has size() == 0 and data() == 0.
 */
@@ -262,10 +262,10 @@
 
 /*!
   \fn void QArray::detach()
-  Detaches this array from shared array data, i.e. makes a private, deep
+  Detaches this array from shared array data; i.e., it makes a private, deep
   copy of the data.
 
-  Copying will only be performed if the
+  Copying will be performed only if the
   \link nrefs() reference count\endlink is greater than one.
 
   \sa copy()
@@ -290,7 +290,7 @@
   array data \e data, which contains \e size elements.
   Returns a reference to this array.
 
-  Do not delete \e data later, QArray takes care of that.
+  Do not delete \e data later; QArray takes care of that.
 */
 
 /*!
@@ -383,8 +383,8 @@
 
 /*!
   \fn int QArray::bsearch( const type &v ) const
-  In a sorted array, finds the first occurrence of \e v using binary
-  search. For a sorted array, this is generally much faster than
+  In a sorted array, finds the first occurrence of \e v by using binary
+  search. For a sorted array this is generally much faster than
   find(), which does a linear search.
 
   Returns the position of \e v, or -1 if \e v could not be found.
@@ -418,18 +418,18 @@
 
 /*!
   \fn bool QArray::operator==( const QArray<type> &a ) const
-  Returns TRUE if this array is equal to \e a, otherwise FALSE.
+  Returns TRUE if this array is equal to \e a; otherwise it returns FALSE.
 
-  The two arrays are bitwise compared.
+  The two arrays are compared bitwise.
 
   \sa operator!=()
 */
 
 /*!
   \fn bool QArray::operator!=( const QArray<type> &a ) const
-  Returns TRUE if this array is different from \e a, otherwise FALSE.
+  Returns TRUE if this array is different from \e a; otherwise it returns FALSE.
 
-  The two arrays are bitwise compared.
+  The two arrays are compared bitwise.
 
   \sa operator==()
 */
@@ -437,33 +437,32 @@
 /*!
   \fn Iterator QArray::begin()
   Returns an iterator pointing at the beginning of this array.
-  This iterator can be used as the iterators of QValueList and QMap
-  for example. In fact it does not only behave like a usual pointer:
-  It is a pointer.
+  This iterator can be used as the iterators of QValueList and QMap,
+  for example. In fact, not only does it behave like a usual pointer,
+  it is a pointer.
 */
 
 /*!
   \fn Iterator QArray::end()
   Returns an iterator pointing behind the last element of this array.
-  This iterator can be used as the iterators of QValueList and QMap
-  for example. In fact it does not only behave like a usual pointer:
-  It is a pointer.
+  This iterator can be used as the iterators of QValueList and QMap,
+  for example. In fact, not only does it behave like a usual pointer, it is a pointer.
 */
 
 /*!
   \fn ConstIterator QArray::begin() const
   Returns a const iterator pointing at the beginning of this array.
-  This iterator can be used as the iterators of QValueList and QMap
-  for example. In fact it does not only behave like a usual pointer:
-  It is a pointer.
+  This iterator can be used as the iterators of QValueList and QMap,
+  for example. In fact, not only does it behave like a usual pointer,
+  it is a pointer.
 */
 
 /*!
   \fn ConstIterator QArray::end() const
   Returns a const iterator pointing behind the last element of this array.
-  This iterator can be used as the iterators of QValueList and QMap
-  for example. In fact it does not only behave like a usual pointer:
-  It is a pointer.
+  This iterator can be used as the iterators of QValueList and QMap,
+  for example. In fact, not only does it behave like a usual pointer,
+  it is a pointer.
 */
 
 

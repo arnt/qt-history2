@@ -50,8 +50,8 @@
 
   A dictionary is a collection that associates an item with a key.
   The key is used for inserting and looking up an item.  QAsciiDict has
-  \c char* keys.  QAsciiDict cannot handle Unicode keys, instead use the
-  QDict template which uses \l QString keys.  A QDict has the same performace
+  \c char* keys.  QAsciiDict cannot handle Unicode keys; use the
+  QDict template instead, which uses \l QString keys.  A QDict has the same performace
   as a QAsciiDict.
 
   The dictionary has very fast insertion and lookup.
@@ -88,9 +88,9 @@
   \endcode
 
   The dictionary in our example maps \c char* keys to \c char* items.
-  Note that the mapping is case insensitive (specified in the
+  Note that the mapping is case-insensitive (specified in the
   \link QAsciiDict::QAsciiDict() constructor\endlink).
-  QAsciiDict implements the \link operator[] [] operator\endlink to lookup an item.
+  QAsciiDict implements the \link operator[] [] operator\endlink to look up an item.
 
   QAsciiDict is implemented by QGDict as a hash array with a fixed number of
   entries. Each array entry points to a singly linked list of buckets, in
@@ -102,12 +102,12 @@
 
   Looking up an item is normally very fast. The key is again hashed to an
   array index. Then QAsciiDict scans the list of buckets and returns the item
-  found or null if the item was not found.  You cannot insert null pointers
+  found, or null if the item was not found.  You cannot insert null pointers
   into a dictionary.
 
   The size of the hash array is very important. In order to get good
-  performance, you should use a suitably large \link primes.html prime
-  number\endlink.  Suitable means equal to or larger than the maximum
+  performance, you should use a suitably large prime
+  number.  Suitable means equal to or larger than the maximum
   expected number of dictionary items.
 
   Items with equal keys are allowed.  When inserting two items with the
@@ -144,7 +144,7 @@
   same dictionary.
 
   Calling setAutoDelete(TRUE) for a dictionary tells it to delete items
-  that are removed .  The default is to not delete items when they are
+  that are removed.  The default is to not delete items when they are
   removed.
 
   When inserting an item into a dictionary, only the pointer is copied, not
@@ -167,17 +167,17 @@
   \fn QAsciiDict::QAsciiDict( int size, bool caseSensitive, bool copyKeys )
   Constructs a dictionary with the following properties:
   \arg \e size is the size of the internal hash array.
-  \arg \e caseSensitive specifies whether to use case sensitive lookup or not.
+  \arg \e caseSensitive specifies whether to use case-sensitive lookup or not.
   \arg \e copyKeys specifies whether to copy the key strings.
 
-  Setting \e size to a suitably large \link primes.html prime
-  number\endlink (equal to or greater than the expected number of entries)
+  Setting \e size to a suitably large prime
+  number (equal to or greater than the expected number of entries)
   makes the hash distribution better and hence the loopup faster.
 
   Setting \e caseSensitive to TRUE will treat "abc" and "Abc" as different
   keys.  Setting it to FALSE will make the dictionary ignore case.
-  Case insensitive comparison includes only the 26 standard letters A..Z,
-  not French or German accents or Scandinavian letters.
+  Case-insensitive comparison includes only the 26 standard letters (A to Z),
+  no French or German accents or Scandinavian letters.
 
   Setting \e copyKeys to TRUE will make the dictionary copy the key
   when an item is inserted.  Setting it to FALSE will make the dictionary
@@ -188,7 +188,7 @@
   \fn QAsciiDict::QAsciiDict( const QAsciiDict<type> &dict )
   Constructs a copy of \e dict.
 
-  Each item in \e dict are inserted into this dictionary.
+  Each item in \e dict is inserted into this dictionary.
   Only the pointers are copied (shallow copy).
 */
 
@@ -206,9 +206,9 @@
   Assigns \e dict to this dictionary and returns a reference to this
   dictionary.
 
-  This dictionary is first cleared, then each item in \e dict is inserted
+  This dictionary is first cleared and then each item in \e dict is inserted
   into this dictionary.
-  Only the pointers are copied (shallow copy), unless newItem() has been
+  Only the pointers are copied (shallow copy) unless newItem() has been
   reimplemented().
 */
 
@@ -227,15 +227,14 @@
 
 /*!
   \fn void QAsciiDict::resize( uint newsize )
-  Changes the size of the hashtable the \a newsize.
-  The contents of the dictionary are preserved,
+  Changes the size of the hashtable to \a newsize.
+  The contents of the dictionary are preserved
   but all iterators on the dictionary become invalid.
 */
 
 /*!
   \fn bool QAsciiDict::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
-  otherwise.
+  Returns TRUE if the dictionary is empty, i.e. count() == 0; otherwise it returns FALSE.
   \sa count()
 */
 
@@ -255,7 +254,7 @@
 /*!
   \fn void QAsciiDict::replace( const char *key, const type *item )
 
-  Replaces an item which has a key equal to \e key with \e item.
+  Replaces an item that has a key equal to \e key with \e item.
 
   If the item does not already exist, it will be inserted.
 
@@ -290,7 +289,7 @@
   auto-deletion\endlink is enabled.
 
   All dictionary iterators that refer to the removed item will be set to
-  point to the next item in the dictionary traversing order.
+  point to the next item in the dictionary traversal order.
 
   \sa take(), clear(), setAutoDelete()
 */
@@ -412,12 +411,12 @@
 	France -> Paris
   \endcode
 
-  Note that the traversal order is arbitrary, you are not guaranteed the
+  Note that the traversal order is arbitrary; you are not guaranteed the
   order above.
 
   Multiple iterators may independently traverse the same dictionary.
   A QAsciiDict knows about all iterators that are operating on the dictionary.
-  When an item is removed from the dictionary, QAsciiDict update all iterators
+  When an item is removed from the dictionary, QAsciiDict updates all iterators
   that are referring the removed item to point to the next item in the
   traversing order.
 
@@ -451,7 +450,7 @@
   \fn type *QAsciiDictIterator::toFirst()
   Sets the current iterator item to point to the first item in the
   dictionary and returns a pointer to the item.
-  If the dictionary is  empty it sets the current item to null and 
+  If the dictionary is empty it sets the current item to null and
   returns null.
 */
 

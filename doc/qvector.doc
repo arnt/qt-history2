@@ -47,24 +47,24 @@
 
   \ingroup tools
 
-  QVector is implemented as a template class. Define a template
+  QVector is implemented as a template class. Defines a template
   instance QVector\<X\> to create a vector that contains pointers to
-  X, or X*.
+  X or X*.
 
   A vector is the same as an array. The main difference between
   QVector and QArray is that QVector stores pointers to the elements,
-  while QArray stores the elements themselves (i.e. QArray is
+  whereas QArray stores the elements themselves (i.e., QArray is
   value-based).
 
-  Unless where otherwise stated, all functions that remove items from
+  Unless otherwise stated, all functions that remove items from
   the vector will also delete the element pointed to if auto-deletion
   is enabled - see setAutoDelete(). By default, auto-deletion is
-  disabled. This behaviour can be changed in a subclass by
+  disabled - see setAutoDelete(). By default auto-deletion is disabled. This behaviour can be changed in a subclass by
   reimplementing the virtual method deleteItem().
 
-  Functions that compares items, e.g. find() and sort(), will do so
+  Functions that compare items (find() and sort(),for example) will do so
   using the virtual function compareItems(). The default
-  implementation of this function will only compare the absolute
+  implementation of this function will compare only the absolute
   pointer values. Reimplement compareItems() in a subclass to get
   searching and sorting based on the item contents.
 
@@ -93,7 +93,7 @@
 /*!
   \fn QVector::QVector( const QVector<type> &v )
 
-  Constructs a copy of \a v. Only the pointers are copied (i.e. shallow copy).
+  Constructs a copy of \a v. Only the pointers are copied (i.e., shallow copy).
 */
 
 /*!
@@ -109,8 +109,8 @@
 
   Assigns \a v to this vector and returns a reference to this vector.
 
-  This vector is first cleared, then all the items from \a v is copied
-  into this vector. Only the pointers are copied (i.e. shallow copy).
+  This vector is first cleared and then all the items from \a v are copied
+  into the vector. Only the pointers are copied (i.e., shallow copy).
 
   \sa clear()
 */
@@ -127,7 +127,7 @@
 /*!
   \fn uint QVector::size() const
 
-  Returns the size of the vector, i.e. the number of vector
+  Returns the size of the vector, i.e., the number of vector
   positions. This is also the maximum number of items the vector can
   hold.
 
@@ -148,7 +148,7 @@
 /*!
   \fn bool QVector::isEmpty() const
 
-  Returns TRUE if the vector is empty, i.e. count() == 0, otherwise FALSE.
+  Returns TRUE if the vector is empty, i.e., count() == 0, otherwise FALSE.
 
   \sa count()
 */
@@ -265,9 +265,9 @@
 /*!
   \fn int QVector::findRef( const type *d, uint i ) const
 
-  Finds the first occurrence of the item pointer \a d in the vector,
+  Finds the first occurrence of the item pointer \a d in the vector
   using linear search. The search starts at position \a i, which must
-  be less than size(). \a i is by default 0; i.e. the search starts at
+  be less than size(). \a i is by default 0; i.e., the search starts at
   the start of the vector.
 
   Returns the position of \a d, or -1 if \a d could not be found.
@@ -280,9 +280,9 @@
 /*!
   \fn int QVector::find( const type *d, uint i ) const
 
-  Finds the first occurrence of item \a d in the vector, using linear
+  Finds the first occurrence of item \a d in the vector using linear
   search. The search starts at position \a i, which must be less than
-  size(). \a i is by default 0; i.e. the search starts at the start of
+  size(). \a i is by default 0; i.e., the search starts at the start of
   the vector.
 
   Returns the position of \e v, or -1 if \e v could not be found.
@@ -336,8 +336,8 @@
 /*!
   \fn void QVector::toList( QGList *list ) const
 
-  Copies all items in this vector to the list \a list. First, \a list
-  is cleared, then all items are appended to \a list.
+  Copies all items in this vector to the list \a list. \a list
+  is first cleared and then all items are appended to \a list.
 
   \sa QList, QStack, QQueue
 */

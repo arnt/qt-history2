@@ -52,14 +52,11 @@ Here's the header file in full:
 
 \include application/application.h
 
-It declares a class that
-inherits \l QMainWindow, with slots and private variables.
-The class predeclaration of \l QTextEdit 
-at the beginning (instead of an include) helps to speed up compiles. 
-With this trick, make depend won't insist on
-recompiling every \e .cpp file that
-includes \e application.h when \e qtextedit.h
-changes.
+It declares a class that inherits \l QMainWindow, with slots and private
+variables.  The class predeclaration of \l QTextEdit at the beginning
+(instead of an include) helps to speed up compiles.  With this trick, make
+depend won't insist on recompiling every \e .cpp file that includes \e
+application.h when \e qtextedit.h changes.
 
 <a name="simplemain"></a>
 <h2>A simple main()</h2>
@@ -97,18 +94,17 @@ the signal and the slot are predefined members of QApplication.
 
 Having completed the application's initialization, we start the main
 event loop (the GUI), and eventually return the error code
-QApplication returns when it leaves the event loop.
+that QApplication returns when it leaves the event loop.
 
 \printline }
 
-<h2>The implementation of ApplicationWindow</h2>
+<h2>The Implementation of ApplicationWindow</h2>
 
 \dontinclude application/application.cpp
 
 Since the implementation is much larger (almost 300 lines) we won't
-include it all at once but comment on bits and pieces instead.
-We skip the preliminary \e #include, and start
-with the constructor.
+include it all at once but comment on bits and pieces instead.  We skip
+the preliminary \e #include, and start with the constructor.
 
 <a name="ApplicationWindow"></a>
 \skipto ApplicationWindow::ApplicationWindow
@@ -153,12 +149,12 @@ This we use as the icon to illustrate our first tool-button.
 
 Likewise we create two more tool-buttons in this toolbar, each with 
 appropriate icons and tool-tip text.  All three buttons are connected
-to appropriate slots in this object, for example the "Print File" button 
+to appropriate slots in this object; for example, the "Print File" button 
 to <A HREF="#printer">\e ApplicationWindow::print()</A>.
 
 \printline whatsThisButton
 
-The fourth button in the toolbar is somewhat special: it's the one that
+The fourth button in the toolbar is somewhat peculiar: it's the one that
 provides "What's This?" help.  This must be set up using a special
 function, as its mouse interface is different from usual.
 
@@ -169,11 +165,9 @@ With the above line we add the "What's This?" help-text to the
 
 \printline openIcon
 
-... and tell the
-rich-text engine that when a help-text (like the one saved in
-\e fileOpenText) requests an image named "fileopen", 
-the \e openIcon pixmap is used.
-
+... and tell the rich-text engine that when a help-text (like the one
+saved in \e fileOpenText) requests an image named "fileopen", the \e
+openIcon pixmap is used.
 
 \printuntil fileSaveText )
 \printuntil filePrintText )
@@ -192,9 +186,9 @@ we allow the user to use the shortcut \e Alt+F to open this menu.
 
 \printline &New
 
-Its first entry is connected to the -- yet to implement -- 
-slot \e newDoc(). When the user chooses this \e New entry (e.g. via 
-typing the letter N as marked by the ampersand) or uses the
+Its first entry is connected to the (yet to be implementled) slot \e
+newDoc(). When the user chooses this \e New entry (e.g. via typing the
+letter N as marked by the ampersand) or uses the
 \e Ctrl+N accelerator, a new editor-window will pop up.  
 
 \printuntil &Open
@@ -203,10 +197,9 @@ typing the letter N as marked by the ampersand) or uses the
 \printuntil fileSaveText
 
 We populate the \e File menu with three more commands (\e Open, \e Save and
-\e Save as), and set "What's This?" help for them. 
-Note in particular how "What's This?" help and pixmaps are used in both
-the toolbar (above) and the menu bar (here).
-
+\e Save as), and set "What's This?" help for them.  Note in particular
+that "What's This?" help and pixmaps are used in both the toolbar (above)
+and the menu bar (here).
 
 \printline insertSeparator(
 
@@ -222,8 +215,9 @@ In case of the \e Close command, the signal is connected
 to the \e close() slot of the respective \e ApplicationWindow object whilst
 the \e Quit command affects the entire application.
 
-Because \e ApplicationWindow is a QWidget, the \e close() function triggers 
-a call to <A HREF="#closeEvent">\e closeEvent()</A> which we will implement later.
+Because \e ApplicationWindow is a QWidget, the \e close() function
+triggers a call to <A HREF="#closeEvent">\e closeEvent()</A> which we will
+implement later.
 
 <A NAME="common_constructor"></A>
 \printline insertSeparator
@@ -247,11 +241,10 @@ side of the menu bar or not.
 Now we create a simple text-editor, set the initial focus to it,
 and make it the central widget of this window.
 
-\l QMainWindow::centralWidget() is the heart of the entire application: 
-It's what menu bar,
-statusbar and toolbars are all arranged around.  Since the central 
-widget is a text editing widget, we reveal at this line that our
-simple application is a text-editor. :)
+\l QMainWindow::centralWidget() is the heart of the entire application:
+It's what menu bar, statusbar and toolbars are all arranged around.  Since
+the central widget is a text editing widget, we reveal at this line that
+our simple application is a text editor. :)
 
 \printline "Ready"
 
@@ -297,19 +290,19 @@ new \e ApplicationWindow and shows it.
 \printuntil getOpenFileName
 \printuntil }
 
-The \e choose() slot is connected to the \e Open menu item and tool-button.
-With a little help from \l FileDialog::getOpenFileName() , it asks the user for a 
-file name and then either loads
-that file or gives an error message in the statusbar.
+The \e choose() slot is connected to the \e Open menu item and
+tool-button.  With a little help from \l FileDialog::getOpenFileName(), it
+asks the user for a file name and then either loads that file or gives an
+error message in the statusbar.
 
 \printline ::load
 \printuntil statusBar
 \printline }
 
-This function loads a file into the editor. When
-it's done, it sets the window system caption to the file name and
-displays a success message in the statusbar -- two seconds long.
-With files that exist but are not readable, nothing happens.
+This function loads a file into the editor. When it's done, it sets the
+window system caption to the file name and displays a success message in
+the statusbar for two seconds.  With files that exist but are not
+readable, nothing happens.
 
 <A NAME="save()"></A>
 \printline ::save
@@ -357,16 +350,16 @@ and implicitly changes the window system caption to the new name.
 \printuntil pageNo
 
 \e print() is called by the \e File->Print menu item and the \e filePrint 
-tool-button.
+tool button.
 
-Since we don't want to print to the very edges of the paper, we use a
+Because we don't want to print to the very edges of the paper, we use a
 little margin: 10 points.  Furthermore we keep track of the page count.
 
 \printline setup
 
 \l QPrinter::setup() invokes a print dialog, configures the printer
 object, and returns TRUE if the user wants to print or FALSE if not.
-So, we test the return value, and if it's TRUE, we...
+So we test the return value; if it's TRUE, we...
 
 \printline message
 
@@ -380,12 +373,12 @@ on the printer or do nothing at all.
 
 \printuntil surface
 
-Then we select the font our \l QTextEdit object returns as the current 
+Then we select the font our \l QTextEdit object returns as its current
 one, and set up some variables we'll need.
 
 \printline for
 
-As long as the text editing widget contains lines, we want to print them.
+As long as the editing widget contains more lines, we want to print them.
 
 \printline if
 
@@ -395,7 +388,7 @@ the current page.  If not, we start a new page:
 \printline QString
 \printuntil yPos
 
-Four lines to tell the user what we're doing, two lines to do it.
+(Four lines to tell the user what we're doing, two lines to do it.)
 
 \printline }
 
@@ -408,12 +401,12 @@ Now we know that there's space for the current line ...
 
 In Qt, output to printers uses the exact same code as output to screen,
 pixmaps and picture metafiles.  Therefore, we don't call a QPrinter
-function to draw text, instead we call a QPainter function.  QPainter works on
-all the output devices mentioned and has a device independent API.  Most of its
-code is device independent, too, therefore it is less likely
-that your application will have odd bugs.  (If the same code is used
-to print and to draw on the screen, it's less likely that you'll have
-print-only or screen-only bugs.)
+function to draw text, but a QPainter function.  QPainter works on all the
+output devices mentioned and has a device independent API.  Most of its
+code is device independent, too, therefore it is less likely that your
+application will have odd bugs.  (If the same code is used to print and to
+draw on the screen, it's less likely that you'll have print-only or
+screen-only bugs.)
 
 \printline yPos
 
@@ -447,9 +440,9 @@ an \e ApplicationWindow.
 \printline ::closeEvent
 \printline {
 
-This event get to process window system close events.  A close event
-is subtly different from a hide event: hide often means "iconify"
-whereas close means that the window is going away for good.
+This event gets to process window system close events.  A close event is
+subtly different from a hide event: hide often means "iconify" whereas
+close means that the window is going away for good.
 
 \printline isModified
 \printline accept
@@ -457,7 +450,7 @@ whereas close means that the window is going away for good.
 \printline }
 
 If the text hasn't been edited, we just accept the event.  The window
-will be closed, and since we used the \e WDestructiveClose widget
+will be closed, and because we used the \e WDestructiveClose widget
 flag in the <a href="#ApplicationWindow">\e ApplicationWindow() constructor</a>, 
 the widget will be deleted.
 
@@ -474,14 +467,13 @@ If he/she wants to save and then exit, we do that.
 
 \printuntil break
 
-If the
-user however doesn't want to exit, we ignore the close event (there is a chance
-that we can't block it but we try).  
+If the user however doesn't want to exit, we ignore the close event (there
+is a chance that we can't block it but we try).
 
 \printuntil break
 
-The last case -- the user wants to exit 
-abandoning the edits -- is very simple.
+The last case -- the user wants to abandon the edits and exit -- is very
+simple.
 
 \printline }
 \printline }
@@ -492,16 +484,14 @@ Last but not least we implement the slots used by the help menu entries.
 \printuntil aboutQt
 \printuntil }
 
-These two slots use ready-made about functions to provide some
-information about
-this program and the GUI toolkit it uses.  (You don't need to provide
-an "About Qt" in your programs, but if you use Qt for free we'd
-appreciate it if you tell people what you're using.)
+These two slots use ready-made "about" functions to provide some
+information about this program and the GUI toolkit it uses.  (Although you
+don't need to provide an About Qt in your programs, if you use Qt for free
+we would appreciate it if you tell people what you're using.)
 
-That was all we needed to write a complete, almost useful application with 
-nice help-functions,
-almost as good as the "editors" some computer vendors ship
-with their desktops, in less than 300 lines of code. As we promised - a simple
-application.
+That was all we needed to write a complete, almost useful application with
+nice help-functions, almost as good as the "editors" some computer vendors
+ship with their desktops, in less than 300 lines of code. As we promised -
+a simple application.
 
 */

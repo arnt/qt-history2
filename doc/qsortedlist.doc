@@ -40,14 +40,14 @@
 
 /*!
   \class QSortedList qsortedlist.h
-  \brief The QSortedList class provides a list sorted by operator< and operator==
+  \brief The QSortedList class provides a list sorted by operator< and operator==.
 
   \ingroup collection
   \ingroup tools
 
   If you want to sort a QList you have to reimplement the
   QGList::compareItems() method.  If the elements of your list support
-  operator<() and operator==() then you can use QSortedList instead.
+  operator<() and operator==(), you can use QSortedList instead.
   Its compareItems() calls operator<() and operator==() and returns an
   appropriate result.
 
@@ -80,9 +80,9 @@
   \fn QSortedList<type>& QSortedList::operator=(const QSortedList<type>& list)
   Assigns \e list to this list and returns a reference to this list.
 
-  This list is first cleared, then each item in \e list is
+  This list is first cleared; each item in \e list is then
   appended to this list.  Only the pointers are copied
-  (shallow copy), unless newItem() has been reimplemented().
+  (shallow copy) unless newItem() has been reimplemented().
 */
 
 /*!

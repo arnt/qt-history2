@@ -49,50 +49,50 @@
   instance QQueue\<X\> to create a queue that operates on pointers to
   X, or X*.
 
-  A queue is a First In, First Out (FIFO) structure. Items are added
+  A queue is a first in, first out (FIFO) structure. Items are added
   to the back of the queue with enqueue() and retrieved from the front
   with dequeue().
 
   \sa \link collection.html Collection Classes\endlink
 */
 
-/*! \fn QQueue::QQueue () 
+/*! \fn QQueue::QQueue ()
   Creates an empty queue.
 */
 
-/*! \fn QQueue::QQueue (const QQueue<type>& queue) 
+/*! \fn QQueue::QQueue (const QQueue<type>& queue)
   Creates a queue from another.
 
   Only the pointers are copied (shallow copy).
 */
 
-/*! \fn QQueue::~QQueue () 
+/*! \fn QQueue::~QQueue ()
   Destroys the list.  Items in the list are destroyed if autoDelete() is TRUE.
 */
 
-/*! \fn QQueue<type>& QQueue::operator= (const QQueue<type>& queue) 
+/*! \fn QQueue<type>& QQueue::operator= (const QQueue<type>& queue)
   Assigns \e queue to this queue and returns a reference to this queue.
 
-  This queue is first cleared, then each item in \e queue is
+  This queue is first cleared and then each item in \e queue is
   enqueued to this queue.  Only the pointers are copied (shallow copy).
 */
 
-/*! \fn bool QQueue::isEmpty () const 
+/*! \fn bool QQueue::isEmpty () const
 
   Returns TRUE if there are no items to be \link dequeue() dequeued \endlink.
 */
 
-/*! \fn void QQueue::enqueue (const type* d) 
+/*! \fn void QQueue::enqueue (const type* d)
 
   Adds an item to the back of the queue.  First in, first out.
 */
 
-/*! \fn type* QQueue::dequeue () 
+/*! \fn type* QQueue::dequeue ()
 
   Takes the front item from the queue.  First in, first out.
 */
 
-/*! \fn bool QQueue::remove () 
+/*! \fn bool QQueue::remove ()
 
   Removes the front item from the queue.  First in, first out.
   The item is deleted if autoDelete() is TRUE.
@@ -112,18 +112,18 @@
   \sa isEmpty()
 */
 
-/*! \fn type* QQueue::head () const 
+/*! \fn type* QQueue::head () const
   Returns a reference to the front item in the queue.  The queue is
   not changed.
 */
 
-/*! \fn QQueue::operator type* ()const 
+/*! \fn QQueue::operator type* ()const
 
   Returns a reference to the front item in the queue.  The queue is
   not changed.
 */
 
-/*! \fn type* QQueue::current () const 
+/*! \fn type* QQueue::current () const
 
   Returns a reference to the front item in the queue.  The queue is
   not changed.
@@ -136,10 +136,10 @@
   \sa setAutoDelete()
 */
 
-/*! \fn void QQueue::setAutoDelete( bool enable ) 
+/*! \fn void QQueue::setAutoDelete( bool enable )
 
   The same as QCollection::setAutoDelete().
- 
+
   \sa autoDelete()
 */
 
