@@ -10,7 +10,7 @@
 
 #define PEN_INPUT
 #ifdef PEN_INPUT
-#include "input_pen.h"
+#include "inputpen.h"
 #endif
 
 #include "keyboard.h"

@@ -1,6 +1,6 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS	= input_pen.h \
+HEADERS	= inputpen.h \
 	keyboard.h \ 
 	unikeyboard.h \
 	  qimpen/qimpeninput.h \
@@ -8,7 +8,7 @@ HEADERS	= input_pen.h \
 	  qimpen/qimpenwidget.h \
 	 qimpen/qimpenstroke.h \
 	qimpen/qimpensetup.h 
-SOURCES =  input_pen.cpp \
+SOURCES =  inputpen.cpp \
 	keyboard.cpp \ 
 	unikeyboard.cpp \
 	 qimpen/qimpeninput.cpp \

@@ -1,6 +1,6 @@
 
 
-#include "input_pen.h"
+#include "inputpen.h"
 #include <qwindowsystem_qws.h>
 #include <qwsevent_qws.h>
 
