@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#11 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -41,6 +41,11 @@
 #include <errno.h>
 #endif
 
+
+#ifdef _OS_SOLARIS_
+#include <sys/filio.h>
+#define FNDELAY O_NDELAY
+#endif
 
 #define QSOCKETDEVICE_DEBUG
 
