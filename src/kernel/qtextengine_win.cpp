@@ -618,7 +618,7 @@ void QTextEngine::shapeText( int item ) const
 #endif
 
 #if 0
-    if ( hasUsp10 ) {
+    if ( hasUsp10 && si.fontEngine->ttf ) {
 	int l = len;
 	si.analysis.logicalOrder = TRUE;
 	HRESULT res = E_OUTOFMEMORY;
