@@ -500,9 +500,11 @@ void QMenuBar::openActPopup()
     int ph = popup->sizeHint().height();
     pos = mapToGlobal(pos);
     int sh = QApplication::desktop()->height();
-    if ( pos.y() + ph > sh ) {
-	pos = mapToGlobal( r.topLeft() );
-	pos.ry() -= (QCOORD)ph;
+    if ( popup->isDefaultUp() || (pos.y() + ph > sh) ) {
+	QPoint t = mapToGlobal( r.topLeft() );
+	t.ry() -= (QCOORD)ph;
+	if ( !popup->isDefaultUp() || t.y() >= 0 )
+	    pos = t;
     }
 
     //avoid circularity

@@ -207,6 +207,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     tab = 0;
     checkable = 0;
     tearedOff = 0;
+    defaultUp = 0;
     maxPMWidth = 0;
 
     tab = 0;
@@ -271,6 +272,34 @@ bool QPopupMenu::isCheckable() const
 {
     return checkable;
 }
+
+/*!
+  Sets the default popup orientation. By default, menus pop "down" the
+  screen.  By calling setDefaultUp(TRUE) the menu will pop "up".  You
+  might call this for menus that are \e below the document to which
+  they refer.
+
+  If the menu would not fit on the screen, the other direction is used
+  rather than the default.
+
+  \sa defaultUp();
+*/
+void QPopupMenu::setDefaultUp( bool on )
+{
+    defaultUp = on;
+}
+
+/*!
+  Returns whether the menu defaults to popping "down" the screen
+  (the default), or "up".
+
+  \sa setDefaultUp();
+*/
+bool QPopupMenu::isDefaultUp() const
+{
+    return defaultUp;
+}
+
 
 
 void QPopupMenu::menuContentsChanged()
@@ -1449,11 +1478,13 @@ void QPopupMenu::subMenuTimer() {
     p = mapToGlobal( p );
 
     QSize ps = popup->sizeHint();
+    // ### does not handle defaultUp yet
     if (p.y() + ps.height() > QApplication::desktop()->height()
 	&& p.y() - ps.height()
 	+ (QCOORD)(popup->itemHeight( popup->count()-1)) >= 0)
 	p.setY( p.y() - ps.height()
 		+ (QCOORD)(popup->itemHeight( popup->count()-1)));
+
     popupActive = actItem;
     bool left = FALSE;
     if ( ( parentMenu && parentMenu->isPopupMenu &&

@@ -45,6 +45,9 @@ public:
     virtual void	setCheckable( bool );
     bool	isCheckable() const;
 
+    void	setDefaultUp( bool );
+    bool	isDefaultUp() const;
+
     void	setFont( const QFont & );	// reimplemented set font
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
@@ -130,6 +133,7 @@ private:
     uint checkable : 1;
     uint connectModalRecursionSafety : 1;
     uint tearedOff : 1;
+    uint defaultUp : 1;
     int maxPMWidth;
     int ncols;
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
