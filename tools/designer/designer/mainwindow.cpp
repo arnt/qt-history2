@@ -3631,3 +3631,9 @@ void MainWindow::setupActionManager()
 	a->addTo( tb );
     }
 }
+
+void MainWindow::editFunction( const QString &func )
+{
+    if ( !lastActiveFormWindow || !MetaDataBase::hasEditor() )
+	return;
+}

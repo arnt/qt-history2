@@ -108,6 +108,8 @@ public:
 
     QString templatePath() const { return templPath; }
 
+    void editFunction( const QString &func );
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );

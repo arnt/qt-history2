@@ -498,7 +498,7 @@ void HierarchyList::removeTabPage()
 // ------------------------------------------------------------
 
 FunctionList::FunctionList( QWidget *parent, HierarchyView *view )
-    : HierarchyList( parent, view, FALSE )
+    : HierarchyList( parent, view, TRUE )
 {
     header()->hide();
 }
@@ -531,6 +531,17 @@ void FunctionList::setCurrent( QWidget * )
 {
 }
 
+void FunctionList::objectClicked( QListViewItem *i )
+{
+    if ( !i )
+	return;
+    hierarchyView->formWindow()->mainWindow()->editFunction( i->text( 0 ) );
+}
+
+void FunctionList::showRMBMenu( QListViewItem *, const QPoint & )
+{
+}
+
 // ------------------------------------------------------------
 
 HierarchyView::HierarchyView( QWidget *parent )
@@ -541,10 +552,7 @@ HierarchyView::HierarchyView( QWidget *parent )
     listview = new HierarchyList( this, this );
     addTab( listview, tr( "Widgets" ) );
     fList = new FunctionList( this, this );
-    if ( MetaDataBase::hasEditor() )
-	addTab( fList, tr( "Functions" ) );
-    else
-	fList->hide();
+    addTab( fList, tr( "Functions" ) );
 	
     formwindow = 0;
 }

@@ -87,8 +87,8 @@ private:
 
 private slots:
     void updateHeader();
-    void objectClicked( QListViewItem *i );
-    void showRMBMenu( QListViewItem *, const QPoint & );
+    virtual void objectClicked( QListViewItem *i );
+    virtual void showRMBMenu( QListViewItem *, const QPoint & );
 
 protected:
     HierarchyView *hierarchyView;
@@ -99,11 +99,17 @@ protected:
 
 class FunctionList : public HierarchyList
 {
+    Q_OBJECT
+
 public:
     FunctionList( QWidget *parent, HierarchyView *view );
 
     void setup();
     void setCurrent( QWidget *w );
+
+private slots:
+    void objectClicked( QListViewItem *i );
+    void showRMBMenu( QListViewItem *, const QPoint & );
 
 };
 

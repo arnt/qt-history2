@@ -18,8 +18,7 @@
 **
 **********************************************************************/
 
-#if defined(DESIGNER)
-#include "../designer/formwindow.h"
+#if !defined(UIC)
 #include "../designer/pixmapchooser.h"
 #endif
 
@@ -549,7 +548,7 @@ QIconSet WidgetDatabase::iconSet( int id )
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
 	return QIconSet();
-#if defined(DESIGNER)
+#if !defined(UIC)
     if ( !r->icon )
 	r->icon = new QIconSet( PixmapChooser::loadPixmap( r->iconSet, PixmapChooser::Small ),
 				PixmapChooser::loadPixmap( r->iconSet, PixmapChooser::Large ) );

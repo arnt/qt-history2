@@ -13,7 +13,6 @@ HEADERS	= command.h \
 		  sizehandle.h \
 		  orderindicator.h \
 		  widgetfactory.h \
-		  config.h \
 		  hierarchyview.h \
 		  listboxeditorimpl.h \
 		  connectioneditorimpl.h \
@@ -33,9 +32,6 @@ HEADERS	= command.h \
 		  multilineeditorimpl.h \
 		  formsettingsimpl.h \
 		  asciivalidator.h \
-		  ../shared/widgetdatabase.h \
-		  ../shared/domtool.h \
-		  ../integration/kdevelop/kdewidgets.h \
 		  splashloader.h \
 		  ../shared/widgetinterface.h \
 		  designerapp.h \
@@ -45,7 +41,6 @@ HEADERS	= command.h \
 		  actioneditorimpl.h \
 		  actionlistview.h \
 		  actiondnd.h \
-		  database.h \
 		  project.h \
 		  projectsettingsimpl.h \
 		  dbconnectionsimpl.h \
@@ -64,7 +59,6 @@ SOURCES	= command.cpp \
 		  sizehandle.cpp \
 		  orderindicator.cpp \
 		  widgetfactory.cpp \
-		  config.cpp \
 		  hierarchyview.cpp \
 		  listboxeditorimpl.cpp \
 		  connectioneditorimpl.cpp \
@@ -84,16 +78,12 @@ SOURCES	= command.cpp \
 		  multilineeditorimpl.cpp \
 		  formsettingsimpl.cpp \
 		  asciivalidator.cpp \
-		  ../shared/widgetdatabase.cpp \
-		  ../integration/kdevelop/kdewidgets.cpp \
-		  ../shared/domtool.cpp \
 		  splashloader.cpp \
 		  designerapp.cpp \
 		  designerappiface.cpp \
 		  actioneditorimpl.cpp \
 		  actionlistview.cpp \
 		  actiondnd.cpp \
-		  database.cpp \
 		  project.cpp \
 		  projectsettingsimpl.cpp \
 		  dbconnectionsimpl.cpp \
