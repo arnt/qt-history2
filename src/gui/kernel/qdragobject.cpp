@@ -1581,6 +1581,7 @@ QByteArray QUriDrag::unicodeUriToUri(const QString& uuri)
     QByteArray utf8 = uuri.toUtf8();
     QByteArray escutf8;
     int n = utf8.length();
+    bool isFile = uuri.startsWith("file://");
     for (int i=0; i<n; i++) {
         if (utf8[i] >= 'a' && utf8[i] <= 'z'
           || utf8[i] == '/'
@@ -1594,7 +1595,7 @@ QByteArray QUriDrag::unicodeUriToUri(const QString& uuri)
           || utf8[i] == '\''
 
           // Allow this through, so that all URI-references work.
-          || utf8[i] == '#'
+          || (!isFile && utf8[i] == '#')
 
           || utf8[i] == ';'
           || utf8[i] == '?' || utf8[i] == ':'
