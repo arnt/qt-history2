@@ -470,17 +470,24 @@ do
    -no-freetype)
 	FT=no
 	;;
+   -no-zlib)
+	ZLIB=no
+	LIBPNG=no
+	;;
    -qt-zlib)
 	ZLIB=yes
 	;;
    -system-zlib)
-	ZLIB=no
+	ZLIB=system
+	;;
+   -no-png)
+	LIBPNG=no
 	;;
    -qt-libpng)
 	LIBPNG=yes
 	;;
    -system-libpng)
-	LIBPNG=no
+	LIBPNG=system
 	;;
    -no-mng)
 	MNG=no
@@ -1058,6 +1065,9 @@ Qt/Embedded only:
     -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
 
+    -no-png ............ Turn off PNG support
+    -no-zlib ........... No compression library -- implies -no-png
+
     -qconfig local ..... Use src/tools/qconfig-local.h rather than the
 			 default ($QCONFIG).
 
@@ -1278,7 +1288,9 @@ if [ "$X11_PLATFORM" = "yes" ]; then
 fi
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
+[ "x$ZLIB" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
+[ "x$LIBPNG" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG no-png"
 
 [ "x$BIG_CODECS" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
