@@ -106,6 +106,7 @@ widgets {
 		  $$WIDGETS_CPP/qtabbar.cpp \
 		  $$WIDGETS_CPP/qtabwidget.cpp \
 		  $$WIDGETS_CPP/qtableview.cpp \
+		  $$WIDGETS_CPP/qtitlebar.cpp \
 		  $$WIDGETS_CPP/qtoolbar.cpp \
 		  $$WIDGETS_CPP/qtoolbutton.cpp \
 		  $$WIDGETS_CPP/qtooltip.cpp \
