@@ -100,20 +100,20 @@ void QBitArray::resize(int size)
   \sa fill()
 */
 
-bool QBitArray::fill(bool val, int first, int last)
+void QBitArray::fill(bool val, int first, int last)
 {
     while (first <= last && first & 0x00000007)
 	setBit(first++, val);
     int len = last - first;
     if (len < 0)
-	return true;
+	return;
     int s = len & 0xfffffff8;
     uchar *c = (uchar*)d.data();
     memset(c + (first >> 3) + 1, val ? 0xff : 0, s >> 3);
     s += first;
     while (s <= last)
 	setBit(s++, val);
-    return true;
+    return;
 }
 
 /*! \fn void QBitArray::detach()
