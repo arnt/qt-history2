@@ -204,8 +204,8 @@ bool QSocketLayer::initialize(Qt::SocketType socketType, Qt::NetworkLayerProtoco
     if (!d->createNewSocket(socketType, protocol)) {
 #if defined (QSOCKETLAYER_DEBUG)
         QString typeStr = "UnknownSocketType";
-        if (type == Qt::TcpSocket) typeStr = "TcpSocket";
-        else if (type == Qt::UdpSocket) typeStr = "UdpSocket";
+        if (socketType == Qt::TcpSocket) typeStr = "TcpSocket";
+        else if (socketType == Qt::UdpSocket) typeStr = "UdpSocket";
         QString protocolStr = "UnknownProtocol";
         if (protocol == Qt::IPv4Protocol) protocolStr = "IPv4Protocol";
         else if (protocol == Qt::IPv6Protocol) protocolStr = "IPv6Protocol";
