@@ -1397,10 +1397,9 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 #endif
         case QEvent::ContextMenu:
             viewportContextMenuEvent( (QContextMenuEvent*)e );
-	    if (((QContextMenuEvent *)e)->isAccepted())
+	    if ( ((QContextMenuEvent*)e)->isAccepted() )
 		return TRUE;
-	    else 
-		return FALSE;
+            break;
         case QEvent::ChildRemoved:
             removeChild((QWidget*)((QChildEvent*)e)->child());
             break;

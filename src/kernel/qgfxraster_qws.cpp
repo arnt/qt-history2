@@ -3260,7 +3260,7 @@ template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 {
     QRect cr;
-#if !defined(_OS_QNX6_) // small optimisation for QNX by moving this lower
+#if !defined(Q_OS_QNX6) // small optimisation for QNX by moving this lower
 	unsigned char *l=scanLine(y);
 #endif
     bool plot=inClip(x1,y,&cr);
@@ -3269,28 +3269,28 @@ GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 	int xr = cr.right();
 	if ( xr >= x2 ) {
 	if (plot) {
-#if defined(_OS_QNX6_) // Qnx-style hline takes x,y not pointer
+#if defined(Q_OS_QNX6) // Qnx-style hline takes x,y not pointer
 		if (isScreenGfx()) {
 			hlineUnclipped(x,x2,y);
 		} else {
 			unsigned char *l=scanLine(y);
 #endif
 			hlineUnclipped(x,x2,l); // only call made for non-QNX
-#if defined(_OS_QNX6_)
+#if defined(Q_OS_QNX6)
 		}
 #endif
 	}
 	    break;
 	} else {
 	    if (plot) {
-#if defined(_OS_QNX6_)
+#if defined(Q_OS_QNX6)
 			if (isScreenGfx()) {
 				hlineUnclipped(x,xr,y);
 			} else {
 				unsigned char *l=scanLine(y);
 #endif
 				hlineUnclipped(x,xr,l); // only call made for non-QNX
-#if defined(_OS_QNX6_)
+#if defined(Q_OS_QNX6)
 			}
 #endif
 		}

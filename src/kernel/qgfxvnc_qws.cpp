@@ -44,7 +44,7 @@
 #include "qsharedmemory.h"
 #include <qglobal.h>
 
-#if defined(_OS_QNX6_)
+#if defined(Q_OS_QNX6)
 #define VNCSCREEN_BASE QQnxScreen
 #include "qwsgfx_qnx.h"
 #else
@@ -1100,7 +1100,7 @@ bool QVNCScreen::connect( const QString &displaySpec )
 	    dh=h=480;
 	}
 	lstep = ( dw * d + 7 ) / 8;
-#if !defined(_OS_QNX6_)
+#if !defined(Q_OS_QNX6)
 	dataoffset = 0;
 	canaccel = FALSE;
 	optype = &dummy_optype;

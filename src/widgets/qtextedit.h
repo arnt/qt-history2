@@ -388,6 +388,7 @@ private:
     };
 
 private:
+    void updateCursor( const QPoint & pos );
     void drawContents( QPainter * );
     virtual bool linksEnabled() const { return FALSE; }
     void init();

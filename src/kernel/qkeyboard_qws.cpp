@@ -33,8 +33,6 @@
 #include "qwsutils_qws.h"
 #include "qgfx_qws.h"
 
-#if !defined(Q_OS_QNX6)
-
 #include "qapplication.h"
 #include "qsocketnotifier.h"
 #include "qnamespace.h"
@@ -57,6 +55,10 @@
 
 #ifndef QT_NO_QWS_KEYBOARD
 
+#ifdef Q_OS_QNX6
+#include "qwskeyboard_qnx.cpp"
+#endif
+
 #ifdef QT_QWS_YOPY
 #include <qwidgetlist.h>
 #include <linux/kd.h>
@@ -67,10 +69,8 @@ extern "C" {
 }
 #endif
 
-#if !defined(_OS_QNX6_)
-
 #include <termios.h>
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX6)
 #include <sys/kd.h>
 #include <sys/vt.h>
 #endif
@@ -112,8 +112,6 @@ private:
     struct termios newT, oldT;
     QSocketNotifier *notifier;
 };
-
-#endif // QNX6
 
 #ifdef QT_QWS_CUSTOM
 static const QWSServer::KeyMap keyM[] = {
@@ -510,7 +508,7 @@ private:
 
 static void vtSwitchHandler(int /*sig*/)
 {
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX6)
     if (vtActive) {
 	qwsServer->enablePainting(false);
 	qt_screen->save();
@@ -577,7 +575,12 @@ QWSPC101KeyboardHandler::~QWSPC101KeyboardHandler()
 {
 }
 
+#ifdef Q_OS_QNX6
+void QWSPC101KeyboardHandler::doKey(uchar code){};
+void QWSQnxKeyboardHandler::doKey(uchar code) 
+#else
 void QWSPC101KeyboardHandler::doKey(uchar code)
+#endif
 {
     int keyCode = Qt::Key_unknown;
     bool release = false;
@@ -729,7 +732,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     if (term && !release) {
 	ctrl = false;
 	alt = false;
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX6)
 	ioctl(kbdFD, VT_ACTIVATE, term);
 #endif
 	return;
@@ -875,7 +878,7 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
     struct termios termdata;
     tcgetattr( kbdFD, &termdata );
 
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX6)
     ioctl(kbdFD, KDSKBMODE, K_RAW);
 #endif
 
@@ -891,7 +894,7 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
 
     signal(VTSWITCHSIG, vtSwitchHandler);
 
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX6)
     struct vt_mode vtMode;
     ioctl(kbdFD, VT_GETMODE, &vtMode);
 
@@ -911,7 +914,7 @@ QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
 {
     if (kbdFD >= 0)
     {
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_QNX6)
 	ioctl(kbdFD, KDSKBMODE, K_XLATE);
 #endif
 	tcsetattr(kbdFD, TCSANOW, &origTermData);
@@ -1291,6 +1294,9 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
 {
     QWSKeyboardHandler *handler = 0;
 
+#ifdef Q_OS_QNX6
+    handler = new QWSQnxKeyboardHandler();
+#else
     if ( spec == "Buttons" ) {
 #if defined(QT_QWS_YOPY)
 	handler = new QWSyopyButtonsHandler();
@@ -1308,7 +1314,7 @@ QWSKeyboardHandler *QWSServer::newKeyboardHandler( const QString &spec )
     } else {
 	qWarning( "Keyboard type %s unsupported", spec.latin1() );
     }
-
+#endif // Q_OS_QNX6
     return handler;
 }
 
@@ -1321,4 +1327,3 @@ const QWSServer::KeyMap *QWSServer::keyMap()
 
 #endif // QT_NO_QWS_KEYBOARD
 
-#endif // QNX6

@@ -46,7 +46,7 @@
 #include <errno.h>
 
 
-#ifndef Q_OS_QNX6_
+#ifndef Q_OS_QNX6
 #define QT_TRANS_SCREEN_BASE	QLinuxFbScreen
 //#define QT_TRANS_SCREEN_BASE	QVFbScreen
 #include "qgfxlinuxfb_qws.h"

@@ -5217,7 +5217,7 @@ static void read_xbm_image( QImageIO *iio )
     int		w=-1, h=-1;
     QImage	image;
 
-    r1 = QString::fromLatin1("^#define[ \t]+[a-zA-Z0-9_]+[ \t]+");
+    r1 = QString::fromLatin1("^#define[ \t]+[a-zA-Z0-9._]+[ \t]+");
     r2 = QString::fromLatin1("[0-9]+");
     d->readLine( buf, buflen );			// "#define .._width <num>"
     QString sbuf;

@@ -3425,6 +3425,7 @@ void QTextString::checkBidi() const
     if ( dir == QChar::DirR ) {
 	((QTextString *)this)->bidi = TRUE;
 	((QTextString *)this)->rightToLeft = TRUE;
+	rtlKnown = TRUE;
 	return;
     } else if ( dir == QChar::DirL ) {
 	((QTextString *)this)->rightToLeft = FALSE;
@@ -3460,7 +3461,8 @@ void QTextString::checkBidi() const
 	uchar row = c->c.row();
 	if( (row > 0x04 && row < 0x09) || (row > 0xfa && row < 0xff) ) {
 	    ((QTextString *)this)->bidi = TRUE;
-	    return;
+	    if ( rtlKnown )
+		return;
 	}
 	len--;
 	++c;
@@ -5354,6 +5356,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	if ( c )
 	    lastChr = c->c;
 	c = &parag->string()->at( i );
+	c->rightToLeft = FALSE;
 	// ### the lines below should not be needed
 	if ( painter )
 	    c->format()->setPainter( painter );
@@ -5499,6 +5502,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( painter )
 	    c->format()->setPainter( painter );
 	c = &string->at( i );
+	c->rightToLeft = FALSE;
 	if ( i > 0 && (x > curLeft || ww == 0) || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
 	} else {

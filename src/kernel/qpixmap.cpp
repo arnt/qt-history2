@@ -1,3 +1,4 @@
+//depot/qt/3.0/src/kernel/qpixmap.cpp#4 - edit change 54179 (text)
 /****************************************************************************
 ** $Id: $
 **
@@ -1305,14 +1306,14 @@ bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
 	    switch ( type ) {
 		case QT_XFORM_TYPE_MSBFIRST:
 		    while ( dptr < maxp ) {
-			IWX_MSB(128);
-			IWX_MSB(64);
-			IWX_MSB(32);
-			IWX_MSB(16);
-			IWX_MSB(8);
-			IWX_MSB(4);
-			IWX_MSB(2);
 			IWX_MSB(1);
+			IWX_MSB(2);
+			IWX_MSB(4);
+			IWX_MSB(8);
+			IWX_MSB(16);
+			IWX_MSB(32);
+			IWX_MSB(64);
+			IWX_MSB(128);
 			dptr++;
 		    }
 		    break;

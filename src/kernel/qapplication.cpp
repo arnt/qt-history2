@@ -2254,7 +2254,7 @@ void QApplication::syncX()	{}		// do nothing
   \list
   \i Qt::WV_95 - Windows 95
   \i Qt::WV_98 - Windows 98
-  \i Qt::WV_ME - Windows ME
+  \i Qt::WV_Me - Windows Me
   \i Qt::WV_NT - Windows NT 4.x
   \i Qt::WV_2000 - Windows 2000 (NT5)
   \i Qt::WV_XP - Windows XP
@@ -2469,7 +2469,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
 //see also notify(), which does the removal of ChildInserted when ChildRemoved.
 
 /*!
-  Adds the event \a event with the object \a receiver as the reciever of the
+  Adds the event \a event with the object \a receiver as the receiver of the
   event to an event queue and returns immediately.
 
   The event must be allocated on the heap since the post event queue

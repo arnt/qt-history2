@@ -164,6 +164,10 @@ static void limitToScreen( QPoint &pt )
 
 static QPoint &mousePos = QWSServer::mousePosition;
 
+#ifdef Q_OS_QNX6
+#include "qwsmouse_qnx.cpp"
+#endif
+
 /*!
    When a mouse event occurs this function is called with the mouse's
    position in \a pos, and the state of its buttons in \a bstate.
@@ -341,7 +345,7 @@ protected:
 	tty.c_oflag     = 0;
 	tty.c_lflag     = 0;
 	tty.c_cflag     = f | CREAD | CLOCAL | HUPCL;
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(QT_QWS_QNX)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
 	tty.c_line      = 0;
 #endif
 	tty.c_cc[VTIME] = 0;
@@ -857,7 +861,7 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 
 		tty.c_iflag = IGNBRK | IGNPAR;
 		tty.c_oflag = 0;
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(QT_QWS_QNX)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
 		tty.c_line = 0;
 #endif // _OS_FREEBSD_
 		tty.c_cc[VTIME] = 0;
@@ -1555,6 +1559,9 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
     handler=new QTPanelHandlerPrivate(mouseProtocol,mouseDev);
 #endif
 
+#ifdef Q_OS_QNX6
+    handler=new QQnxMouseHandlerPrivate(mouseProtocol, mouseDev );
+#else
 #ifndef QWS_CUSTOMTOUCHPANEL
 #if !defined(QT_QWS_IPAQ) && !defined(QT_QWS_EBX)
     switch ( mouseProtocol ) {
@@ -1586,6 +1593,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
     }
 #endif
 #endif
+#endif //Q_OS_QNX6
 
     return handler;
 }
