@@ -23,6 +23,7 @@
 
 // components
 #include <formeditor/formeditor.h>
+#include <taskmenu/taskmenu_component.h>
 
 // sdk ### remove me
 #include <abstractformwindowmanager.h>
@@ -44,8 +45,8 @@ QDesignerWorkbench::QDesignerWorkbench(QDesignerMainWindow *mainWindow)
       m_workspace(0)
 {
     Q_ASSERT(mainWindow);
+
     initialize();
-    // switchToNeutralMode();
 }
 
 QDesignerWorkbench::~QDesignerWorkbench()
@@ -122,6 +123,8 @@ void QDesignerWorkbench::initialize()
     m_integration = new QDesignerIntegration(core(), this);
     connect(m_integration, SIGNAL(propertyChanged(AbstractFormWindow*, const QString&, const QVariant& )),
             this, SLOT(updateWorkbench(AbstractFormWindow*, const QString&, const QVariant& )));
+
+    m_taskMenuComponent = new TaskMenuComponent(core(), this);
 
     emit initialized();
 }

@@ -27,7 +27,7 @@ public:
     virtual ~Delegate();
 
     virtual bool eventFilter(QObject *object, QEvent *event);
-    
+
     bool isReadOnly() const;
     void setReadOnly(bool readOnly);
 
@@ -57,7 +57,7 @@ public slots:
 protected:
     virtual void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                 const QRect &rect, const QPixmap &pixmap) const;
-                                
+
 private:
     bool m_readOnly;
 };

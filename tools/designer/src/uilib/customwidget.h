@@ -40,13 +40,13 @@ struct ICustomWidget
 
 //
 // IDesignerCustomWidget
-//    
-    virtual bool isInitialized() const 
+//
+    virtual bool isInitialized() const
     { return false; }
-    
-    virtual void initialize(AbstractFormEditor *core) 
+
+    virtual void initialize(AbstractFormEditor *core)
     { Q_UNUSED(core); }
-    
+
     virtual QString codeTemplate() const
     { return QString::null; }
 };

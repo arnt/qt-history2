@@ -12,12 +12,23 @@
 ****************************************************************************/
 
 #include "taskmenu_component.h"
+#include "button_taskmenu.h"
+
 #include <abstractformeditor.h>
+
+#include <extension.h>
+#include <qextensionmanager.h>
 
 TaskMenuComponent::TaskMenuComponent(AbstractFormEditor *core, QObject *parent)
     : QObject(parent),
       m_core(core)
 {
+    Q_ASSERT(m_core != 0);
+
+    QExtensionManager *mgr = core->extensionManager();
+
+    ButtonTaskMenuFactory *button_factory = new ButtonTaskMenuFactory(mgr);
+    mgr->registerExtensions(button_factory, Q_TYPEID(ITaskMenu));
 }
 
 TaskMenuComponent::~TaskMenuComponent()
