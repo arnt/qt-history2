@@ -3921,7 +3921,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     d->pressedEmptyArea = e->y() > contentsHeight();
     if ( i && !i->isEnabled() )
 	return;
-    if ( d->startEdit && i != currentItem() )
+    if ( d->startEdit && ( i != currentItem() || !i->isSelected() ) )
 	d->startEdit = FALSE;
     QListViewItem *oldCurrent = currentItem();
 
