@@ -1103,7 +1103,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     else
 	qApp->d->cursor_list.prepend(cursor);
 
-    SetCursor( qApp->cursor_list.first().handle() );
+    SetCursor( qApp->d->cursor_list.first().handle() );
 }
 
 void QApplication::restoreOverrideCursor()

@@ -37,7 +37,7 @@ class QWidget;
 class QPainter;
 class QPixmap;
 
-class Q_EXPORT QMembuf
+class QMembuf
 {
 public:
     QMembuf();
