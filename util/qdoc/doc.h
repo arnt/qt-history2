@@ -20,33 +20,37 @@ class ExampleLocation
 {
 public:
     ExampleLocation() : ininc( TRUE ), ln( 0 ), uniq( 0 ) { }
-    ExampleLocation( const QString& exampleFile, bool inInclude,
-		     int lineNo, int unique )
-	    : exfile( exampleFile ), ininc( inInclude ), ln( lineNo ),
+    ExampleLocation( const QString& fileName, bool inInclude, int lineNo,
+		     int unique )
+	    : fname( fileName ), ininc( inInclude ), ln( lineNo ),
 	      uniq( unique ) { }
     ExampleLocation( const ExampleLocation& el )
-	    : exfile( el.exfile ), ininc( el.ininc ), ln( el.ln ),
+	    : fname( el.fname ), ininc( el.ininc ), ln( el.ln ),
 	      uniq( el.uniq ) { }
 
     ExampleLocation& operator=( const ExampleLocation& el );
 
-    const QString& exampleFile() const { return exfile; }
+    const QString& fileName() const { return fname; }
     bool inInclude() const { return ininc; }
     int lineNum() const { return ln; }
     int uniqueNum() const { return uniq; }
 
 private:
-    QString exfile;
+    QString fname;
     bool ininc;
     int ln;
     int uniq;
 };
+
+class DocParser;
 
 /*
   The Doc class represents a doc comment.
 */
 class Doc
 {
+    friend DocParser;
+
 public:
     enum Kind { Null, Fn, Class, Enum, Page, Base64, Plainpage, Defgroup,
 		Example };
@@ -141,6 +145,20 @@ private:
     static QMap<QString, QString> clist;
     static QMap<QString, StringSet> findex;
     static QMap<QString, StringSet> chierarchy;
+
+    // QMap<example file, LinkMap>
+    static QMap<QString, LinkMap> includeLinkMaps;
+    static QMap<QString, LinkMap> walkthroughLinkMaps;
+
+    // QMap<function link, QMap<score, ExampleLocation> >
+    static QMap<QString, QMap<int, ExampleLocation> > megaExampleMap;
+
+    static StringSet includedExamples;
+    static StringSet thruwalkedExamples;
+
+    // QMap<example file, example link>
+    static QMap<QString, QString> includedExampleLinks;
+    static QMap<QString, QString> thruwalkedExampleLinks;
 };
 
 class FnDoc : public Doc
