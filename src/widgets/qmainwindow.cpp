@@ -1433,7 +1433,8 @@ void QMainWindow::setUpLayout()
 	delete l;
     }
 
-    QLayout::ResizeMode tll_rm = QLayout::Auto;
+    QLayout::ResizeMode tll_rm = bQLayout::Auto : QLayout::FreeResize;
+
     if ( d->tll )
 	tll_rm = d->tll->resizeMode();
     delete d->tll;
