@@ -2763,8 +2763,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
     bool noaccel = ( tf & Qt::NoAccel ) == Qt::NoAccel;
 
     bool isRightToLeft = str.isRightToLeft();
-    if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && isRightToLeft )
-	tf |= Qt::AlignRight;
+    if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto )
+	tf |= isRightToLeft ? Qt::AlignRight : Qt::AlignLeft;
 
     bool expandtabs = ( (tf & Qt::ExpandTabs) && (tabstops || tabarraylen) &&
 			( ( (tf & Qt::AlignLeft) && !isRightToLeft ) ||
