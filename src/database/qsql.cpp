@@ -168,19 +168,6 @@ bool QSql::setQuery ( const QString& query )
 
 */
 
-QVariant QSql::operator[] ( int i )
-{
-    return value( i );
-}
-
-/*! Returns the value of field \a i (zero based) in the result as reported by the database, or
-    QVariant() if it cannot be determined.
-    Note that the result must be active and positioned on a valid record.
-
-    \sa previous(), next(), first(), last(), seek(), isActive(), isValid()
-
-*/
-
 QVariant QSql::value( int i )
 {
     if ( isActive() && isValid() && ( i > QSqlResult::BeforeFirst ) ) {
