@@ -34,11 +34,12 @@ class Project
 public:
     struct DatabaseConnection
     {
-	DatabaseConnection() : connection( 0 ) {}
+	DatabaseConnection( Project *p ) : connection( 0 ), project( p ) {}
 	QString name;
 	QString driver, dbName, username, password, hostname;
 	QSqlDatabase *connection;
-
+	Project *project;
+	
 	QStringList tables;
 	QMap<QString, QStringList> fields;
 	
@@ -83,11 +84,13 @@ public:
     QStringList databaseConnectionList();
     QStringList databaseTableList( const QString &connection );
     QStringList databaseFieldList( const QString &connection, const QString &table );
+    void saveConnections();
+    void loadConnections();
     
 private:
     void parse();
     void clear();
-
+    
 private:
     QString filename;
     QStringList uifiles;

@@ -20,6 +20,7 @@
 
 #include "project.h"
 #include "formwindow.h"
+#include "config.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -150,6 +151,8 @@ void Project::parse()
 	    }
 	}
     }
+
+    loadConnections();
 }
 
 void Project::clear()
@@ -320,6 +323,7 @@ void Project::setDatabaseConnections( const QList<Project::DatabaseConnection> &
 void Project::addDatabaseConnection( Project::DatabaseConnection *conn )
 {
     dbConnections.append( conn );
+    saveConnections();
 }
 
 Project::DatabaseConnection *Project::databaseConnection( const QString &name )
@@ -357,6 +361,7 @@ bool Project::DatabaseConnection::connect()
     }
 
     connection->close();
+
     return TRUE;
 }
 
@@ -365,7 +370,7 @@ bool Project::DatabaseConnection::sync()
     return TRUE;
 }
 
-QStringList Project::databaseConnectionList() 
+QStringList Project::databaseConnectionList()
 {
     QStringList lst;
     for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() )
@@ -373,7 +378,7 @@ QStringList Project::databaseConnectionList()
     return lst;
 }
 
-QStringList Project::databaseTableList( const QString &connection ) 
+QStringList Project::databaseTableList( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
     if ( !conn )
@@ -381,10 +386,61 @@ QStringList Project::databaseTableList( const QString &connection )
     return conn->tables;
 }
 
-QStringList Project::databaseFieldList( const QString &connection, const QString &table ) 
+QStringList Project::databaseFieldList( const QString &connection, const QString &table )
 {
     DatabaseConnection *conn = databaseConnection( connection );
     if ( !conn )
 	return QStringList();
     return conn->fields[ table ];
+}
+
+void Project::saveConnections()
+{
+    if ( !QFile::exists( dbFile ) )
+	setDatabaseDescription( QFileInfo( filename ).dirPath( TRUE ) + "/" + "database.db" );
+    
+    Config conf( dbFile );
+    conf.setGroup( "Connections" );
+    conf.writeEntry( "Connections", databaseConnectionList(), ',' );
+    
+    for ( Project::DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
+	conf.setGroup( conn->name );
+	conf.writeEntry( "Tables", conn->tables, ',' );
+	for ( QStringList::Iterator it = conn->tables.begin(); it != conn->tables.end(); ++it ) 
+	    conf.writeEntry( "Fields[" + *it + "]", conn->fields[ *it ], ',' );
+	conf.writeEntry( "Driver", conn->driver );
+	conf.writeEntry( "DatabaseName", conn->dbName );
+	conf.writeEntry( "Username", conn->username );
+	conf.writeEntry( "Password", conn->password ); // ##################### Critical: figure out how to save passwd
+	conf.writeEntry( "Hostname", conn->hostname );
+    }
+    
+    conf.write();
+}
+
+void Project::loadConnections()
+{
+    if ( !QFile::exists( dbFile ) )
+	return;
+    
+    Config conf( dbFile );
+    conf.setGroup( "Connections" );
+    
+    QStringList conns = conf.readListEntry( "Connections", ',' );
+    for ( QStringList::Iterator it = conns.begin(); it != conns.end(); ++it ) {
+	DatabaseConnection *conn = new DatabaseConnection( this );
+	conn->name = *it;
+	conf.setGroup( *it );
+	conn->tables = conf.readListEntry( "Tables", ',' );
+	for ( QStringList::Iterator it2 = conn->tables.begin(); it2 != conn->tables.end(); ++it2 ) {
+	    QStringList lst = conf.readListEntry( "Fields[" + *it2 + "]", ',' );
+	    conn->fields.insert( *it2, lst );
+	}
+	conn->driver = conf.readEntry( "Driver" );
+	conn->dbName = conf.readEntry( "DatabaseName" );
+	conn->username = conf.readEntry( "Username" );
+	conn->password = conf.readEntry( "Password" );
+	conn->hostname = conf.readEntry( "Hostname" );
+	dbConnections.append( conn );
+    }
 }

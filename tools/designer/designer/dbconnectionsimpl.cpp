@@ -63,7 +63,7 @@ void DatabaseConnection::doConnect()
 {
     if ( listConnections->currentItem() == -1 ) { // new connection
 	// ### do error checking for duplicated connection names
-	Project::DatabaseConnection *conn = new Project::DatabaseConnection;
+	Project::DatabaseConnection *conn = new Project::DatabaseConnection( project );
 	conn->name = editName->text();
 	conn->driver = comboDriver->lineEdit()->text();
 	conn->dbName = comboDatabase->lineEdit()->text();
