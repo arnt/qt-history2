@@ -413,7 +413,7 @@ private:
     QString onLink;
     WordWrap wrapMode;
     WrapPolicy wPolicy;
-    int wrapWidth : 1;
+    int wrapWidth;
     QString pressedLink;
     QTextEditPrivate *d;
     bool inDoubleClick : 1;
