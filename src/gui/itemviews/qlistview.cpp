@@ -676,8 +676,7 @@ void QListView::ensureItemVisible(const QModelIndex &item)
 void QListView::reset()
 {
     d->prepareItemsLayout();
-    if (isVisible())
-        doItemsLayout();
+    QAbstractItemView::reset();
 }
 
 /*!
@@ -1048,7 +1047,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
         if (rect.top() < spacing)
             rect.moveTop(contents.height() - rect.height());
     case MoveUp:
-        if (d->movement == Static && cursorAction != MovePageUp)
+        if (d->movement == Static && cursorAction != MovePageUp && current.row() > 0)
             return model()->index(current.row() - 1, 0, root());
         while (d->intersectVector.count() == 0) {
             if (rect.top() > spacing)
@@ -1069,7 +1068,8 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
         if (rect.top() > contents.height())
             rect.moveTop(0);
     case MoveDown:
-        if (d->movement == Static && cursorAction != MovePageDown)
+        if (d->movement == Static && cursorAction != MovePageDown
+            && current.row() < model()->rowCount(root()) - 1)
             return model()->index(current.row() + 1, 0, root());
         while (d->intersectVector.count() == 0) {
             if (rect.bottom() < contents.height() - spacing)

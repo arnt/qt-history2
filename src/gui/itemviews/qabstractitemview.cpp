@@ -544,6 +544,21 @@ QModelIndex QAbstractItemView::currentItem() const
     return selectionModel()->currentItem();
 }
 
+
+/*!
+  Reset the internal state of the view.
+*/
+void QAbstractItemView::reset()
+{
+    setRoot(QModelIndex::Null);
+    bool block = d->selectionModel->blockSignals(true);
+    d->selectionModel->setCurrentItem(d->model->index(0, 0, root()),
+                                      QItemSelectionModel::NoUpdate);
+    d->selectionModel->blockSignals(block);
+    if (isVisible())
+        doItemsLayout();
+}
+        
 /*!
     Sets the ``root'' item to the item at \a index.
 
@@ -554,7 +569,6 @@ void QAbstractItemView::setRoot(const QModelIndex &index)
     QModelIndex old = d->root;
     d->root = QPersistentModelIndex(index, d->model);
     emit rootChanged(old, index);
-    reset();
     if (isVisible())
         doItemsLayout();
 }
@@ -596,7 +610,6 @@ void QAbstractItemView::clearSelections()
 */
 void QAbstractItemView::doItemsLayout()
 {
-    // do nothing
     d->layoutPosted = false;
     d->viewport->update();
 }
@@ -1167,14 +1180,6 @@ void QAbstractItemView::horizontalScrollbarAction(int)
 void QAbstractItemView::selectionModelDestroyed()
 {
     d->selectionModel = 0;
-}
-
-/*!
-  \internal
-*/
-void QAbstractItemView::reset()
-{
-    //do nothing
 }
 
 /*!

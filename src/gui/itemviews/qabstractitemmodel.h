@@ -174,6 +174,7 @@ signals:
     void rowsRemoved(const QModelIndex &parent, int first, int last);
     void columnsInserted(const QModelIndex &parent, int first, int last);
     void columnsRemoved(const QModelIndex &parent, int first, int last);
+    void reset();
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);

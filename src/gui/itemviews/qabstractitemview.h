@@ -93,6 +93,7 @@ public:
     void setPersistentEditor(const QModelIndex &index, QWidget *editor = 0);
 
 public slots:
+    virtual void reset();
     virtual void setRoot(const QModelIndex &index);
     virtual void doItemsLayout();
     void edit(const QModelIndex &index);
@@ -110,7 +111,6 @@ protected slots:
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
     virtual void selectionModelDestroyed();
-    virtual void reset();
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);

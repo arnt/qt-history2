@@ -830,6 +830,7 @@ void QTreeView::reset()
 {
     d->opened.clear();
     d->items.clear();
+    QAbstractItemView::reset();
 }
 
 /*!
@@ -900,7 +901,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 /*!
   This slot is called whenever the items in the tree view are changed.
 
-*/
+*/s
 
 void QTreeView::dataChanged()
 {
@@ -1275,7 +1276,7 @@ int QTreeViewPrivate::coordinate(int item) const
     int i = itemAt(v); // first item (may start above the page)
     int ih = delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
     int y = coordinateAt(v, ih); // the part of the item above the page
-    int h = q->viewport()->height();
+    int h = viewport->height();
     if (i <= item) {
         while (y < h && i < items.count()) {
             if (i == item)
@@ -1302,7 +1303,7 @@ int QTreeViewPrivate::item(int coordinate) const
 
     int s = delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
     int y = coordinateAt(v, s);
-    int h = q->viewport()->height();
+    int h = viewport->height();
     if (coordinate >= y) {
         // search for item in viewport
         while (y < h && i < items.count()) {
