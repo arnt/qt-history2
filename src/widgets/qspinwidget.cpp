@@ -126,8 +126,13 @@ void QSpinWidget::setEditWidget( QWidget * w )
 
 void QSpinWidget::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton ) {
+	d->stopTimer();
+	d->buttonDown = 0;
+	d->theButton = 0;
+	repaint( d->down.unite( d->up ), FALSE );
 	return;
+    }
 
     uint oldButtonDown = d->buttonDown;
 
@@ -217,11 +222,11 @@ void QSpinWidget::timerDoneEx()
 void QSpinWidget::windowActivationChange( bool oldActive )
 {
     //was active, but lost focus
-    if ( oldActive && d->buttonDown ) { 
+    if ( oldActive && d->buttonDown ) {
 	d->stopTimer();
 	d->buttonDown = 0;
 	d->theButton = 0;
-    }    
+    }
     QWidget::windowActivationChange( oldActive );
 }
 
@@ -311,7 +316,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
     QPainter p( this );
 
     QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled()) 
+    if (isEnabled())
 	flags |= QStyle::Style_Enabled;
     if (hasFocus() || focusProxy() && focusProxy()->hasFocus())
 	flags |= QStyle::Style_HasFocus;
