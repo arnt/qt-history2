@@ -142,7 +142,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             QIconSet is = action->icon();
             if(!is.isNull()) {
                 QSize is_sz = is.pixmap(QIconSet::Small, QIconSet::Normal).size();
-                if(is_sz.height() > sz.height())
+                if(is_sz.height() > sz.height()) 
                     sz.setHeight(is_sz.height());
             }
         }
@@ -1053,15 +1053,19 @@ QSize QMenu::sizeHint() const
     QMap<QAction*, QRect> actionRects;
     QList<QAction*> actionList;
     d->calcActionRects(actionRects, actionList);
-    QRect r;
+
+    QSize s;
     QStyleOption opt(0);
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_Default;
-    for (QMap<QAction*, QRect>::const_iterator i = d->actionRects.begin();
-         i != d->actionRects.constEnd(); ++i)
-        r = r.unite(i.value());
-    QSize s = r.size();
+    for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
+         i != actionRects.constEnd(); ++i) {
+        if(i.value().bottom() > s.height()) 
+            s.setHeight(i.value().y()+i.value().height());
+        if(i.value().right() > s.width())
+            s.setWidth(i.value().right());
+    }
     if(d->tearoff)
         s.rheight() += style().pixelMetric(QStyle::PM_MenuTearoffHeight, &opt, this);
     if(const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, &opt, this)) {
@@ -1070,8 +1074,10 @@ QSize QMenu::sizeHint() const
     }
     s.rwidth() +=2 * style().pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
     s.rheight() += 2 * style().pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
-    return style().sizeFromContents(QStyle::CT_Menu, &opt,
-                                    s.expandedTo(QApplication::globalStrut()), fontMetrics(), this);
+
+    return style().sizeFromContents(QStyle::CT_Menu, &opt, 
+                                    s.expandedTo(QApplication::globalStrut()), 
+                                    fontMetrics(), this);
 }
 
 /*!
@@ -1323,7 +1329,6 @@ void QMenu::paintEvent(QPaintEvent *e)
 
     QPainter p(this);
     QRegion emptyArea = QRegion(rect());
-    const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, 0, this);
 
     //draw the items that need updating..
     for (int i = 0; i < d->actionList.count(); ++i) {
@@ -1341,6 +1346,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         style().drawControl(QStyle::CE_MenuItem, &opt, &p, this);
     }
 
+    const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, 0, this);
     QStyleOptionMenuItem menuOpt;
     menuOpt.palette = palette();
     menuOpt.state = QStyle::Style_Default;
@@ -1464,7 +1470,7 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
 */
 void QMenu::changeEvent(QEvent *e)
 {
-    if(e->type() == QEvent::StyleChange) {
+    if(e->type() == QEvent::StyleChange || e->type() == QEvent::FontChange) {
         d->itemsDirty = 1;
         setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
         if(isVisible())
