@@ -38,17 +38,6 @@ void Validator::accept(DomWidget *node)
     if (widgetClass == QLatin1String("Line"))
         node->setAttributeClass(QLatin1String("QFrame"));
 
-    QString menuName = driver->findOrInsertWidget(node);
-    if (uic->customWidgetsInfo()->extends(widgetClass, QLatin1String("QMenu"))) {
-        DomAction *menuAction = new DomAction();
-        menuAction->setAttributeName(menuName + QLatin1String("Action"));
-        menuAction->setAttributeMenu(menuName);
-
-        QList<DomAction*> actions = node->elementAction();
-        actions.append(menuAction);
-        node->setElementAction(actions);
-    }
-
     TreeWalker::accept(node);
 }
 

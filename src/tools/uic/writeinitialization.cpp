@@ -226,10 +226,6 @@ void WriteInitialization::accept(DomWidget *node)
         refreshOut << option.indent << parentWidget << "->setTitle("
                    << varName << ", " << trCall(title, className) << ");\n";
 
-    } else if ((uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QMenuBar"))
-                || uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QMenu")))
-                    && uic->customWidgetsInfo()->extends(className, QLatin1String("QMenu"))) {
-        refreshOut << option.indent << varName << "Action->setText(" << trCall(title, className) << ");\n";
     }
 
     if (node->elementLayout().isEmpty())
@@ -429,11 +425,14 @@ void WriteInitialization::accept(DomActionRef *node)
 {
     QString actionName = node->attributeName();
     bool isSeparator = actionName == QLatin1String("separator");
+    bool isMenu = false;
 
     if (actionName.isEmpty() || !m_widgetChain.top()) {
         return;
     } else if (driver->actionGroupByName(actionName)) {
         return;
+    } else if (DomWidget *w = driver->widgetByName(actionName)) {
+        isMenu = uic->isMenu(w->attributeClass());
     } else if (!(driver->actionByName(actionName) || isSeparator)) {
         fprintf(stderr, "Warning: action `%s' not declared\n",
             actionName.latin1());
@@ -450,7 +449,10 @@ void WriteInitialization::accept(DomActionRef *node)
         return;
     }
 
-    actionOut << option.indent << varName << "->addAction(" << node->attributeName() << ");\n";
+    if (isMenu)
+        actionName += QLatin1String("->menuAction()");
+
+    actionOut << option.indent << varName << "->addAction(" << actionName << ");\n";
 }
 
 void WriteInitialization::writeProperties(const QString &varName,

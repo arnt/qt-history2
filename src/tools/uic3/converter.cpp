@@ -425,7 +425,7 @@ QString Ui3Reader::fixHeaderName(const QString &headerName) const
         return QLatin1String("q3dockwindow.h");
     else if (headerName == QLatin1String("qfiledialog.h"))
         return QLatin1String("q3filedialog.h");
-        
+
     return headerName;
 }
 
@@ -481,14 +481,14 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
         } else if (t == QLatin1String("widget")) {
             DomWidget *ui_child = createWidget(e);
             Q_ASSERT(ui_child != 0);
-            
+
             if (ui_child->attributeClass() == QLatin1String("QLayoutWidget")
                     && ui_child->elementLayout().size() == 1) {
                 QList<DomLayout*> layouts = ui_child->elementLayout();
-                
+
                 ui_child->setElementLayout(QList<DomLayout*>());
                 delete ui_child;
-                ui_layout_list.append(layouts.at(0));        
+                ui_layout_list.append(layouts.at(0));
             } else {
                 if (ui_child->attributeClass() == QLatin1String("QLayoutWidget"))
                     ui_child->setAttributeClass(QLatin1String("QWidget"));
@@ -523,7 +523,6 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             QString accel = e.attribute(QLatin1String("accel"));
 
             QList<DomProperty*> properties;
-            QList<DomProperty*> attributes;
 
             DomProperty *ptext = new DomProperty();
             ptext = new DomProperty();
@@ -539,16 +538,15 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomString *str = new DomString();
             str->setText(text);
             atitle->setElementString(str);
-            attributes.append(atitle);
+            properties.append(atitle);
 
             DomWidget *menu = createWidget(e, QLatin1String("QMenu"));
             menu->setAttributeName(name);
             menu->setElementProperty(properties);
-            menu->setElementAttribute(attributes);
             ui_child_list.append(menu);
 
             DomActionRef *a = new DomActionRef();
-            a->setAttributeName(name + QLatin1String("Action"));
+            a->setAttributeName(name);
             ui_action_list.append(a);
 
         } else if (t == QLatin1String("item")) {
@@ -643,18 +641,18 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
     if (tagName == QLatin1String("widget")) {
         DomWidget *ui_widget = createWidget(e);
         Q_ASSERT(ui_widget != 0);
-        
+
         if (ui_widget->attributeClass() == QLatin1String("QLayoutWidget")
                     && ui_widget->elementLayout().size() == 1) {
             QList<DomLayout*> layouts = ui_widget->elementLayout();
-                
+
             ui_widget->setElementLayout(QList<DomLayout*>());
             delete ui_widget;
             lay_item->setElementLayout(layouts.at(0));
         } else {
             if (ui_widget->attributeClass() == QLatin1String("QLayoutWidget"))
                 ui_widget->setAttributeClass(QLatin1String("QWidget"));
-                
+
             lay_item->setElementWidget(ui_widget);
         }
     } else if (tagName == QLatin1String("spacer")) {
@@ -852,7 +850,7 @@ DomProperty *Ui3Reader::readProperty(const QDomElement &e)
 
     if (p->kind() == DomProperty::Unknown) {
         delete p;
-        p = 0;    
+        p = 0;
     }
 
     return p;
@@ -879,22 +877,22 @@ void Ui3Reader::createAttributes(const QDomElement &n, QList<DomProperty*> *prop
 QString Ui3Reader::fixDeclaration(const QString &d) const
 {
     QString text;
-    
+
     int i = 0;
     while (i < d.size()) {
         QChar ch = d.at(i);
-        
+
         if (ch.isLetter() || ch == QLatin1Char('_')) {
             int start = i;
             while (i < d.size() && (d.at(i).isLetterOrNumber() || d.at(i) == QLatin1Char('_')))
                 ++i;
-                
+
             text += fixClassName(d.mid(start, i-start));
         } else {
             text += ch;
             ++i;
         }
     }
-    
+
     return text;
 }
