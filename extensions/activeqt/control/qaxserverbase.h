@@ -71,8 +71,7 @@ class QAxServerBase :
     public QObject,
     public IAxServerBase,
     public IDispatch,
-    public CComObjectRootEx<CComSingleThreadModel>,
-    public CComControl<QAxServerBase>,
+    public CWindowImpl<QAxServerBase>,
 
     public IOleObject,
     public IOleControl,
@@ -96,31 +95,6 @@ public:
 
     ~QAxServerBase();
 
-BEGIN_COM_MAP(QAxServerBase)
-    COM_INTERFACE_ENTRY(IDispatch)
-    {&IID_IAxServerBase,
-    offsetofclass(IAxServerBase, _ComMapClass),
-    _ATL_SIMPLEMAPENTRY},
-
-    COM_INTERFACE_ENTRY(IOleObject)
-    COM_INTERFACE_ENTRY(IViewObject)
-    COM_INTERFACE_ENTRY(IViewObject2)
-#ifdef QAX_VIEWOBJECTEX
-    COM_INTERFACE_ENTRY(IViewObjectEx)
-#endif
-    COM_INTERFACE_ENTRY(IOleControl)
-    COM_INTERFACE_ENTRY(IOleWindow)
-    COM_INTERFACE_ENTRY(IOleInPlaceObject)
-    COM_INTERFACE_ENTRY(IConnectionPointContainer)
-    COM_INTERFACE_ENTRY(IProvideClassInfo)
-    COM_INTERFACE_ENTRY(IProvideClassInfo2)
-    COM_INTERFACE_ENTRY(IPersistPropertyBag)
-    COM_INTERFACE_ENTRY(ISpecifyPropertyPages)
-    COM_INTERFACE_ENTRY(IPropertyPage)
-    COM_INTERFACE_ENTRY(IPropertyPage2)
-{NULL, 0, 0}}; return _entries;}
-
-
     unsigned long WINAPI AddRef()
     {
 	return ++ref;
@@ -135,22 +109,7 @@ BEGIN_COM_MAP(QAxServerBase)
     }
     HRESULT WINAPI QueryInterface( REFIID iid, void **iface );
 
-BEGIN_MSG_MAP(QAxServerBase)
-    CHAIN_MSG_MAP(CComControl<QAxServerBase>)
-    DEFAULT_REFLECTION_HANDLER()
-    MESSAGE_HANDLER(WM_CREATE, OnCreate)
-    MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-    MESSAGE_HANDLER(WM_SHOWWINDOW, ForwardMessage )
-    MESSAGE_HANDLER(WM_PAINT, ForwardMessage )
-    MESSAGE_HANDLER(WM_SIZE, ForwardMessage )
-    MESSAGE_HANDLER(WM_ACTIVATE, ForwardMessage)
-    MESSAGE_HANDLER(WM_KEYUP, ForwardMessage)
-    MESSAGE_HANDLER(WM_KEYDOWN, ForwardMessage)
-    MESSAGE_HANDLER(WM_CHAR, ForwardMessage)
-    MESSAGE_HANDLER(WM_SETFOCUS, ForwardMessage )
-    MESSAGE_HANDLER(WM_KILLFOCUS, ForwardMessage )
-    MESSAGE_HANDLER(WM_ACTIVATE, ForwardMessage )
-END_MSG_MAP()
+    BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0);
 
 // IAxServerBase
     QObject *qObject()
@@ -330,20 +289,34 @@ private:
     bool internalCreate();
     HRESULT internalActivate();
 
-    LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-    LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-    LRESULT ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-
     friend class QAxBindable;
     friend class QAxPropertyPage;
 
     QWidget* activeqt;
     ConnectionPoints points;
 
-    uint initNewCalled :1;
-    uint dirtyflag :1;
-    uint hasStockEvents :1;
+    unsigned initNewCalled	:1;
+    unsigned dirtyflag		:1;
+    unsigned hasStockEvents	:1;
+    unsigned m_bWindowOnly	:1;
+    unsigned m_bAutoSize	:1;
+    unsigned m_bInPlaceActive	:1;
+    unsigned m_bUIActive	:1;
+    unsigned m_bWndLess		:1;
+    unsigned m_bInPlaceSiteEx	:1;
+    unsigned m_bWasOnceWindowless:1;
+    unsigned m_bRequiresSave	:1;
+    unsigned m_bNegotiatedWnd	:1;
+    short m_nFreezeEvents;
 
+    union {
+	HWND& m_hWndCD;
+	HWND* m_phWndCD;
+    };
+
+    SIZE m_sizeExtent;
+    SIZE m_sizeNatural;
+    RECT m_rcPos;
     unsigned long ref;
 
     QString class_name;
@@ -352,6 +325,12 @@ private:
     QMap<int,DISPID>* signallist;
     QIntDict<QMetaProperty>* proplist;
     QMap<int, DISPID>* proplist2;
+
+    CComPtr<IAdviseSink> m_spAdviseSink;
+    CComPtr<IOleAdviseHolder> m_spOleAdviseHolder;
+    CComDispatchDriver m_spAmbientDispatch;
+    CComPtr<IOleClientSite> m_spClientSite;
+    CComPtr<IOleInPlaceSiteWindowless> m_spInPlaceSite;    
 
     IPropertyPageSite *propPageSite;
     QAxPropertyPage *propPage;

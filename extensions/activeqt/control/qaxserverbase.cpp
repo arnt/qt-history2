@@ -296,12 +296,31 @@ private:
     respective CLSID.
 */
 QAxServerBase::QAxServerBase( const QString &classname )
-: activeqt( 0 ), initNewCalled(FALSE), dirtyflag( FALSE ), hasStockEvents( FALSE ),
-  ref( 0 ), class_name( classname ), slotlist(0), signallist(0),proplist(0), proplist2(0),
-  propPageSite( 0 ), propPage( 0 )
+: activeqt( 0 ), ref( 0 ), class_name( classname ), slotlist(0), signallist(0),proplist(0), 
+  proplist2(0), propPageSite( 0 ), propPage( 0 ), m_hWndCD( m_hWnd )
 {
-    m_bWindowOnly = TRUE;
-    m_bAutoSize = TRUE;
+    m_bWindowOnly	= TRUE;
+    m_bAutoSize		= TRUE;
+    initNewCalled	= FALSE;
+    dirtyflag		= FALSE;
+    hasStockEvents	= FALSE;
+    m_bInPlaceActive	= FALSE;
+    m_bUIActive		= FALSE;
+    m_bWndLess		= FALSE;
+    m_bInPlaceSiteEx	= FALSE;
+    m_bWasOnceWindowless= FALSE;
+    m_bRequiresSave	= FALSE;
+    m_bNegotiatedWnd	= FALSE;
+    m_nFreezeEvents = 0;
+
+    m_sizeExtent.cx = 2500;
+    m_sizeExtent.cy = 2500;
+
+    m_sizeNatural = m_sizeExtent;
+    m_rcPos.left = m_rcPos.top = 0;
+    m_rcPos.right = m_rcPos.bottom = 20;
+
+
     _Module.Lock();
     if ( !typeInfoHolderList ) {
 	typeInfoHolderList = new QPtrList<CComTypeInfoHolder>;
@@ -374,7 +393,48 @@ HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
     
     if ( *iface )
 	return S_OK;
-    return _InternalQueryInterface( iid, iface );
+
+    if ( iid == IID_IUnknown) 
+	*iface = (IUnknown*)(IDispatch*)this;
+    else if ( iid == IID_IDispatch) 
+	*iface = (IDispatch*)this;
+    else if ( iid == IID_IAxServerBase) 
+	*iface = (IAxServerBase*)this;
+    else if ( iid == IID_IOleObject) 
+	*iface = (IOleObject*)this;
+    else if ( iid == IID_IViewObject) 
+	*iface = (IViewObject*)this;
+    else if ( iid == IID_IViewObject2) 
+	*iface = (IViewObject2*)this;
+#ifdef QAX_VIEWOBJECTEX
+    else if ( iid == IID_IViewObjectEx) 
+	*iface = (IViewObjectEx*)this;
+#endif
+    else if ( iid == IID_IOleControl) 
+	*iface = (IOleControl*)this;
+    else if ( iid == IID_IOleWindow) 
+	*iface = (IOleWindow*)this;
+    else if ( iid == IID_IOleInPlaceObject) 
+	*iface = (IOleInPlaceObject*)this;
+    else if ( iid == IID_IConnectionPointContainer) 
+	*iface = (IConnectionPointContainer*)this;
+    else if ( iid == IID_IProvideClassInfo) 
+	*iface = (IProvideClassInfo*)this;
+    else if ( iid == IID_IProvideClassInfo2) 
+	*iface = (IProvideClassInfo2*)this;
+    else if ( iid == IID_IPersistPropertyBag) 
+	*iface = (IPersistPropertyBag*)this;
+    else if ( iid == IID_ISpecifyPropertyPages) 
+	*iface = (ISpecifyPropertyPages*)this;
+    else if ( iid == IID_IPropertyPage) 
+	*iface = (IPropertyPage*)this;
+    else if ( iid == IID_IPropertyPage2)
+	*iface = (IPropertyPage2*)this;
+    else
+	return E_NOINTERFACE;
+
+    AddRef();
+    return S_OK;
 }
 
 class HackWidget : public QWidget
@@ -429,43 +489,33 @@ bool QAxServerBase::internalCreate()
 }
 
 /*!
-    Makes sure that the Qt widget for the ActiveX has been initialized.
+    Message handler.
 */
-LRESULT QAxServerBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+BOOL QAxServerBase::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID )
 {
-    internalCreate();
-    return 0;
-}
-
-/*!
-    Destroys the Qt widget.
-*/
-LRESULT QAxServerBase::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-    if ( activeqt ) {
-	delete activeqt;
-	activeqt = 0;
-    }
-    return 0;
-}
-
-/*!
-    Forwards all messages sent to the ActiveX window to the Qt widget.
-*/
-LRESULT QAxServerBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
-{
-    if ( activeqt ) {
-	switch( uMsg ) {
-	case WM_SIZE:
-	    activeqt->resize( LOWORD(lParam), HIWORD(lParam) );
+    BOOL bHandled = TRUE;
+    hWnd;
+    uMsg;
+    wParam;
+    lParam;
+    lResult;
+    bHandled;
+    switch(dwMsgMapID)
+    {
+    case 0:
+	switch ( uMsg ) {
+	case WM_CREATE:
+	    internalCreate();
 	    break;
-	case WM_PAINT:
-	    activeqt->update();
-	    return 0;
-	case WM_SETFOCUS:
-	    ::SendMessage( activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
-	    break;
-	case WM_SHOWWINDOW: 
+
+	case WM_DESTROY:
+	    if ( activeqt ) {
+		delete activeqt;
+		activeqt = 0;
+	    }
+ 	    break;
+
+	case WM_SHOWWINDOW:
 	    {
 		QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
 		if ( !axb || !axb->stayTopLevel() ) {
@@ -478,14 +528,50 @@ LRESULT QAxServerBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, 
 		else
 		    activeqt->hide();
 	    }
-	    return 0;
+	    break;
+
+	case WM_PAINT:
+	    activeqt->update();
+	    break;
+
+	case WM_SIZE:
+	    activeqt->resize( LOWORD(lParam), HIWORD(lParam) );
+	    break;
+
+	case WM_SETFOCUS:
+	    if (m_bInPlaceActive)
+	    {
+		DoVerb(OLEIVERB_UIACTIVATE, NULL, m_spClientSite, 0, m_hWndCD, &m_rcPos);
+		CComQIPtr<IOleControlSite, &IID_IOleControlSite> spSite(m_spClientSite);
+		if (m_bInPlaceActive && spSite != NULL)
+		    spSite->OnFocus(TRUE);
+	    }
+	    ::SendMessage( activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
+	    break;
+
+	case WM_KILLFOCUS:
+	    {
+		CComQIPtr<IOleControlSite, &IID_IOleControlSite> spSite(m_spClientSite);
+		if (m_bInPlaceActive && spSite != NULL && !::IsChild(m_hWndCD, ::GetFocus()))
+		    spSite->OnFocus(FALSE);
+	    }
+	    break;
+
+	case WM_MOUSEACTIVATE:
+	    DoVerb(OLEIVERB_UIACTIVATE, NULL, m_spClientSite, 0, m_hWndCD, &m_rcPos);
+	    break;
+
 	default:
 	    break;
 	}
-	return ::SendMessage( activeqt->winId(), uMsg, wParam, lParam );
+	break;
+
+    default:
+	break;
     }
-    return 0;
+    return FALSE;
 }
+
 
 /*!
     Creates mappings between DISPIDs and Qt signal/slot/property data.
@@ -1639,7 +1725,7 @@ HRESULT QAxServerBase::internalActivate()
 		if (!::IsChild(m_hWndCD, ::GetFocus()))
 		    ::SetFocus(m_hWndCD);
 	    } else {
-		CreateControlWindow(hwndParent, rcPos); //###!
+		Create(hwndParent, rcPos); //###!
 	    }
 	}
 	
