@@ -486,7 +486,7 @@ static Q_INT64 read_int_ascii( QDataStream *s )
     buf[n] = '\0';
 
 #ifdef Q_OS_WIN
-    return atoi64( buf );
+    return _atoi64( buf );
 #elif defined(Q_OS_AIX)
     return strtoll( buf, (char**)0, 10 );
 #elif defined(Q_OS_HPUX)
