@@ -1320,7 +1320,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
 const QMimeData* QClipboard::mimeData(Mode mode) const
 {
-    QClipboardData *d;
+    QClipboardData *d = 0;
     switch (mode) {
     case Selection:
         d = selectionData();
