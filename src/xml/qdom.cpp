@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#30 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#31 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -4397,11 +4397,11 @@ void QDomNotationPrivate::save( QTextStream& s, int ) const
 {
     s << "<!NOTATION " << name << " ";
     if ( !m_pub.isEmpty() )  {
-	s << "PUBLIC " << m_pub;
+	s << "PUBLIC \"" << m_pub << "\"";
 	if ( !m_sys.isEmpty() )
-	    s << " " << m_sys;
+	    s << " \"" << m_sys << "\"";
     }  else {
-	s << "SYSTEM " << m_sys;
+	s << "SYSTEM \"" << m_sys << "\"";
     }
     s << ">";
 }
@@ -4599,9 +4599,9 @@ void QDomEntityPrivate::save( QTextStream& s, int ) const
     } else {
 	s << "<!ENTITY " << name << " ";
 	if ( m_pub.isEmpty() )
-	    s << "SYSTEM " << m_sys;
+	    s << "SYSTEM \"" << m_sys << "\"";
 	else
-	    s << "PUBLIC " << m_pub << " " << m_sys;
+	    s << "PUBLIC \"" << m_pub << "\" \"" << m_sys << "\"";
 	s << ">";
     }
 }
