@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#35 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#36 $
 **
 ** Definition of QRect class
 **
@@ -87,8 +87,8 @@ public:
     QRect  intersect( const QRect &r ) const;
     bool   intersects( const QRect &r ) const;
 
-    friend bool operator==( const QRect &, const QRect & );
-    friend bool operator!=( const QRect &, const QRect & );
+    friend Q_EXPORT bool operator==( const QRect &, const QRect & );
+    friend Q_EXPORT bool operator!=( const QRect &, const QRect & );
 
 private:
 #if defined(_OS_MAC_)
@@ -104,15 +104,16 @@ private:
 #endif
 };
 
-bool operator==( const QRect &, const QRect & );
-bool operator!=( const QRect &, const QRect & );
+Q_EXPORT bool operator==( const QRect &, const QRect & );
+Q_EXPORT bool operator!=( const QRect &, const QRect & );
+
 
 /*****************************************************************************
   QRect stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QRect & );
-QDataStream &operator>>( QDataStream &, QRect & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QRect & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QRect & );
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#46 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#47 $
 **
 ** Definition of QColor class
 **
@@ -35,26 +35,26 @@ const QRgb  RGB_DIRECT	= 0x20000000;		// flags directly set pixel
 const QRgb  RGB_MASK	= 0x00ffffff;		// masks RGB values
 
 
-inline int qRed( QRgb rgb )			// get red part of RGB
+Q_EXPORT inline int qRed( QRgb rgb )		// get red part of RGB
 { return (int)(rgb & 0xff); }
 
-inline int qGreen( QRgb rgb )			// get green part of RGB
+Q_EXPORT inline int qGreen( QRgb rgb )		// get green part of RGB
 { return (int)((rgb >> 8) & 0xff); }
 
-inline int qBlue( QRgb rgb )			// get blue part of RGB
+Q_EXPORT inline int qBlue( QRgb rgb )		// get blue part of RGB
 { return (int)((rgb >> 16) & 0xff); }
 
-inline QRgb qRgb( int r, int g, int b )		// set RGB value
+Q_EXPORT inline QRgb qRgb( int r, int g, int b )// set RGB value
 { return (uint)(r & 0xff) |((uint)(g & 0xff) << 8) |((uint)(b & 0xff) << 16); }
 
-inline int qGray( int r, int g, int b )		// convert R,G,B to gray 0..255
+Q_EXPORT inline int qGray( int r, int g, int b )// convert R,G,B to gray 0..255
 { return (r*11+g*16+b*5)/32; }
 
-inline int qGray( QRgb rgb )			// convert RGB to gray 0..255
+Q_EXPORT inline int qGray( QRgb rgb )		// convert RGB to gray 0..255
 { return qGray( qRed(rgb), qGreen(rgb), qBlue(rgb) ); }
 
 
-class Q_EXPORT QColor					// color class
+class Q_EXPORT QColor
 {
 public:
     enum Spec { Rgb, Hsv };
@@ -174,33 +174,33 @@ inline bool QColor::operator!=( const QColor &c ) const
   Global colors
  *****************************************************************************/
 
-extern const QColor color0;
-extern const QColor color1;
-extern const QColor black;
-extern const QColor white;
-extern const QColor darkGray;
-extern const QColor gray;
-extern const QColor lightGray;
-extern const QColor red;
-extern const QColor green;
-extern const QColor blue;
-extern const QColor cyan;
-extern const QColor magenta;
-extern const QColor yellow;
-extern const QColor darkRed;
-extern const QColor darkGreen;
-extern const QColor darkBlue;
-extern const QColor darkCyan;
-extern const QColor darkMagenta;
-extern const QColor darkYellow;
+extern Q_EXPORT const QColor color0;
+extern Q_EXPORT const QColor color1;
+extern Q_EXPORT const QColor black;
+extern Q_EXPORT const QColor white;
+extern Q_EXPORT const QColor darkGray;
+extern Q_EXPORT const QColor gray;
+extern Q_EXPORT const QColor lightGray;
+extern Q_EXPORT const QColor red;
+extern Q_EXPORT const QColor green;
+extern Q_EXPORT const QColor blue;
+extern Q_EXPORT const QColor cyan;
+extern Q_EXPORT const QColor magenta;
+extern Q_EXPORT const QColor yellow;
+extern Q_EXPORT const QColor darkRed;
+extern Q_EXPORT const QColor darkGreen;
+extern Q_EXPORT const QColor darkBlue;
+extern Q_EXPORT const QColor darkCyan;
+extern Q_EXPORT const QColor darkMagenta;
+extern Q_EXPORT const QColor darkYellow;
 
 
 /*****************************************************************************
   QColor stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QColor & );
-QDataStream &operator>>( QDataStream &, QColor & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QColor & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QColor & );
 
 
 #endif // QCOLOR_H

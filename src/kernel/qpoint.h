@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#20 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#21 $
 **
 ** Definition of QPoint class
 **
@@ -66,8 +66,8 @@ public:
     friend inline QPoint operator*( double, const QPoint & );
     friend inline QPoint operator-( const QPoint & );
 #if defined(QPOINT_DEBUG)
-    friend	  QPoint operator/( const QPoint &, int );
-    friend	  QPoint operator/( const QPoint &, double );
+    friend Q_EXPORT QPoint operator/( const QPoint &, int );
+    friend Q_EXPORT QPoint operator/( const QPoint &, double );
 #else
     friend inline QPoint operator/( const QPoint &, int );
     friend inline QPoint operator/( const QPoint &, double );
@@ -88,8 +88,8 @@ private:
   QPoint stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QPoint & );
-QDataStream &operator>>( QDataStream &, QPoint & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QPoint & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QPoint & );
 
 
 /*****************************************************************************

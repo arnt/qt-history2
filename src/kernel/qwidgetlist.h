@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#6 $
+** $Id: //depot/qt/main/src/kernel/qwidgetlist.h#7 $
 **
 ** Definition of QWidgetList
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-#if defined(QT_DLL)
+#if defined(Q_TEMPLATEDLL)
 template class Q_EXPORT QList<QWidget>;
 template class Q_EXPORT QListIterator<QWidget>;
 #endif

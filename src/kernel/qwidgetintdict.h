@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#6 $
+** $Id: //depot/qt/main/src/kernel/qwidgetintdict.h#7 $
 **
 ** Definition of QWidgetIntDict
 **
@@ -30,7 +30,7 @@
 #endif // QT_H
 
 
-#if defined(QT_DLL)
+#if defined(Q_TEMPLATEDLL)
 template class Q_EXPORT QIntDict<QWidget>;
 template class Q_EXPORT QIntDictIterator<QWidget>;
 #endif

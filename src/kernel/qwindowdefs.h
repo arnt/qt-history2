@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#115 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#116 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -68,7 +68,7 @@ class QTimer;
 class QClipboard;
 
 
-// Widget list (defined in qwidcoll.h)
+// Widget list (defined in qwidgetlist.h)
 
 class QWidgetList;
 class QWidgetListIt;
@@ -110,6 +110,7 @@ class QWidgetListIt;
 #if defined(_WS_WIN_)
 
 #if defined(_WS_WIN32_)
+#define NO_STRICT
 typedef void *HANDLE;
 typedef void *WId;
 typedef void *HDC;
@@ -121,10 +122,10 @@ typedef uint HDC;
 typedef struct tagMSG MSG;
 
 
-HANDLE qWinAppInst();
-HANDLE qWinAppPrevInst();
-int    qWinAppCmdShow();
-HANDLE qt_display_dc();
+Q_EXPORT HANDLE qWinAppInst();
+Q_EXPORT HANDLE qWinAppPrevInst();
+Q_EXPORT int    qWinAppCmdShow();
+Q_EXPORT HANDLE qt_display_dc();
 
 enum WindowsVersion { WV_NT, WV_95, WV_32s };
 
@@ -157,11 +158,11 @@ typedef union  _XEvent XEvent;
 typedef struct _XGC *GC;
 typedef struct _XRegion *Region;
 
-Display *qt_xdisplay();
-int	 qt_xscreen();
-WId	 qt_xrootwin();
-GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
-GC	 qt_xget_temp_gc( bool monochrome=FALSE );
+Q_EXPORT Display *qt_xdisplay();
+Q_EXPORT int	 qt_xscreen();
+Q_EXPORT WId	 qt_xrootwin();
+Q_EXPORT GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
+Q_EXPORT GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 #endif // _WS_X11_
 
@@ -179,16 +180,16 @@ const int QCOORD_MAX =	32767;
 
 typedef unsigned int QRgb;			// RGB triplet
 
-char *qAppName();				// get application name
+Q_EXPORT char *qAppName();			// get application name
 
 
 // Misc functions
 
 typedef void (*CleanUpFunction)();
-void  qAddPostRoutine( CleanUpFunction );
+Q_EXPORT void qAddPostRoutine( CleanUpFunction );
 
 
-void *qt_find_obj_child( QObject *, const char *, const char * );
+Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
 #define CHILD(parent,type,name) \
 	((type*)qt_find_obj_child(parent,#type,name))
 
@@ -232,7 +233,7 @@ const uint WStyle_Minimize	= 0x00020000;
 const uint WStyle_Maximize	= 0x00040000;
 const uint WStyle_MinMax	= WStyle_Minimize | WStyle_Maximize;
 const uint WStyle_Tool		= 0x00080000;
-const uint WStyle_Sizegrip		= 0x00100000;
+const uint WStyle_Sizegrip	= 0x00100000;	// ### no effect, bad flag
 const uint WStyle_Mask		= 0x000ff000;
 
 const uint WCursorSet		= 0x00100000;	// misc widget flags

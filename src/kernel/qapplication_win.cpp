@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#170 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -109,7 +109,7 @@ static bool	qt_try_modal( QWidget *, MSG * );
 
 static int	translateKeyCode( int );
 
-extern void qt_init_windows_mime();  // qdnd_win.cpp
+void		qt_init_windows_mime();		// qdnd_win.cpp
 
 
 #if defined(_WS_WIN32_)
@@ -153,21 +153,23 @@ static void set_winapp_name()
 
 
 /*****************************************************************************
-  WinMain() - Initializes Windows and calls user's startup function main().
-  NOTE: WinMain() won't be called if the application was linked as a "console"
-  application.
+  qWinMain() - Initializes Windows. Called from WinMain() in qtmain_win.cpp
  *****************************************************************************/
 
-#if defined(NEEDS_QMAIN)
-int qMain( int, char ** );
-#else
-extern "C" int main( int, char ** );
-#endif
-
-extern "C"
-int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
-		      LPSTR  cmdParam, int cmdShow )
+Q_EXPORT
+void qWinMain( HANDLE instance, HANDLE prevInstance, LPSTR cmdParam,
+	       int cmdShow, int &argc, QArray<pchar> &argv )
 {
+    static bool already_called = FALSE;
+
+    if ( already_called ) {
+#if defined(CHECK_STATE)
+	warning( "Qt internal error: qWinMain should be called only once" );
+#endif
+	return;
+    }
+    already_called = TRUE;
+
   // Install default debug handler
 
     qInstallMsgHandler( msgHandler );
@@ -177,8 +179,7 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     set_winapp_name();
 
     char *p = cmdParam;
-    int	 argc = 1;
-    ArgV argv( 8 );
+    argc = 1;
     argv[0] = appName;
 
     while ( *p ) {				// parse cmd line arguments
@@ -235,12 +236,6 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
     appInst = instance;
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
-
-    qt_init_windows_mime();
-
-  // Call user main()
-
-    return main( argc, argv.data() );
 }
 
 
@@ -272,7 +267,7 @@ void qt_init( int *argcptr, char **argv )
     *argcptr = j;
 #endif // DEBUG
 
-  // Get the application name if WinMain() was not invoked
+  // Get the application name if qWinMain() was not invoked
 
     set_winapp_name();
 
@@ -302,14 +297,17 @@ void qt_init( int *argcptr, char **argv )
 	    qt_winver = WV_NT;
     }
 
-  // Misc. initialization
-
   // Initialize OLE
     if ( OleInitialize(0) != S_OK ) {
 #if defined(CHECK_STATE)
 	warning( "Qt: Could not initialize OLE" );
 #endif
     }
+
+  // Misc. initialization
+
+    qt_init_windows_mime();
+
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -424,9 +422,9 @@ bool qt_nograb()				// application no-grab option
 static bool widget_class_registered = FALSE;
 static bool popup_class_registered = FALSE;
 
-QString qt_reg_winclass( int type )		// register window class
+const char *qt_reg_winclass( int type )		// register window class
 {
-    QString className;
+    const char *className;
     uint style = 0;
     if ( type == 0 ) {
 	className = "QWidget";

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#51 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#52 $
 **
 ** Definition of QFont class
 **
@@ -66,7 +66,7 @@ public:
     virtual ~QFont();
     QFont      &operator=( const QFont & );
 
-    QString family()	const;
+    QString	family()	const;
     void	setFamily( const QString &);
     int		pointSize()	const;
     void	setPointSize( int );
@@ -97,7 +97,7 @@ public:
 
     HANDLE	handle( HANDLE=0 ) const;
 
-    QString rawName() const;
+    QString	rawName() const;
 
     QString	key() const;
 
@@ -137,8 +137,8 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
-    friend QDataStream &operator<<( QDataStream &, const QFont & );
-    friend QDataStream &operator>>( QDataStream &, QFont & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 
     QFontData	 *d;				// internal font data
     static QFont *defFont;
@@ -156,8 +156,8 @@ inline void QFont::setBold( bool enable )
   QFont stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QFont & );
-QDataStream &operator>>( QDataStream &, QFont & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 
 
 #endif // QFONT_H

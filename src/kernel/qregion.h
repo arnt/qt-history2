@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#41 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#42 $
 **
 ** Definition of QRegion class
 **
@@ -90,8 +90,8 @@ public:
     Region  handle() const { return data->rgn; }
 #endif
 
-    friend QDataStream &operator<<( QDataStream &, const QRegion & );
-    friend QDataStream &operator>>( QDataStream &, QRegion & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
 
 private:
     QRegion( bool );
@@ -134,8 +134,8 @@ private:
   QRegion stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QRegion & );
-QDataStream &operator>>( QDataStream &, QRegion & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
 
 
 #endif // QREGION_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#31 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#32 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -113,11 +113,11 @@ private:
   QColorGroup/QPalette stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QColorGroup & );
-QDataStream &operator>>( QDataStream &, QColorGroup & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QColorGroup & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QColorGroup & );
 
-QDataStream &operator<<( QDataStream &, const QPalette & );
-QDataStream &operator>>( QDataStream &, QPalette & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QPalette & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QPalette & );
 
 
 #endif // QPALETTE_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdict.h#6 $
+** $Id: //depot/qt/main/src/kernel/qobjectdict.h#7 $
 **
 ** Definition of QObjectDictionary
 **
@@ -35,7 +35,7 @@
 //
 
 
-#if defined(QT_DLL)
+#if defined(Q_TEMPLATEDLL)
 template class Q_EXPORT QDict<QMetaObject>;
 #endif
 

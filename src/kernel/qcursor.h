@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#29 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#30 $
 **
 ** Definition of QCursor class
 **
@@ -88,27 +88,27 @@ enum QCursorShape {
   Global cursors
  *****************************************************************************/
 
-extern const QCursor arrowCursor;		// standard arrow cursor
-extern const QCursor upArrowCursor;		// upwards arrow
-extern const QCursor crossCursor;		// crosshair
-extern const QCursor waitCursor;		// hourglass/watch
-extern const QCursor ibeamCursor;		// ibeam/text entry
-extern const QCursor sizeVerCursor;		// vertical resize
-extern const QCursor sizeHorCursor;		// horizontal resize
-extern const QCursor sizeBDiagCursor;		// diagonal resize (/)
-extern const QCursor sizeFDiagCursor;		// diagonal resize (\)
-extern const QCursor sizeAllCursor;		// all directions resize
-extern const QCursor blankCursor;		// blank/invisible cursor
-extern const QCursor splitVCursor;		// vertical bar with left-rigth arrows
-extern const QCursor splitHCursor;		// horizontal bar with up-down arrows
+extern Q_EXPORT const QCursor arrowCursor;	// standard arrow cursor
+extern Q_EXPORT const QCursor upArrowCursor;	// upwards arrow
+extern Q_EXPORT const QCursor crossCursor;	// crosshair
+extern Q_EXPORT const QCursor waitCursor;	// hourglass/watch
+extern Q_EXPORT const QCursor ibeamCursor;	// ibeam/text entry
+extern Q_EXPORT const QCursor sizeVerCursor;	// vertical resize
+extern Q_EXPORT const QCursor sizeHorCursor;	// horizontal resize
+extern Q_EXPORT const QCursor sizeBDiagCursor;	// diagonal resize (/)
+extern Q_EXPORT const QCursor sizeFDiagCursor;	// diagonal resize (\)
+extern Q_EXPORT const QCursor sizeAllCursor;	// all directions resize
+extern Q_EXPORT const QCursor blankCursor;	// blank/invisible cursor
+extern Q_EXPORT const QCursor splitVCursor;	// vertical bar with left-rigth arrows
+extern Q_EXPORT const QCursor splitHCursor;	// horizontal bar with up-down arrows
 
 
 /*****************************************************************************
   QCursor stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QCursor & );
-QDataStream &operator>>( QDataStream &, QCursor & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QCursor & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QCursor & );
 
 
 #endif // QCURSOR_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#67 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#68 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -138,15 +138,16 @@ private:
 	bool	alpha;				// alpha buffer
     } *data;
 
-    friend void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
-		int sx, int sy, int sw, int sh, int conversion_flags );
+    friend Q_EXPORT void bitBlt( QImage* dst, int dx, int dy,
+				 const QImage* src, int sx, int sy,
+				 int sw, int sh, int conversion_flags );
 };
 
 
 // QImage stream functions
 
-QDataStream &operator<<( QDataStream &, const QImage & );
-QDataStream &operator>>( QDataStream &, QImage & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QImage & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
 
 
 class QIODevice;
@@ -166,9 +167,9 @@ public:
     int		status()	const	{ return iostat; }
     const char *format()	const	{ return frmt; }
     QIODevice  *ioDevice()	const	{ return iodev; }
-    QString fileName()	const	{ return fname; }
+    QString	fileName()	const	{ return fname; }
     const char *parameters()	const	{ return params; }
-    QString description()	const	{ return descr; }
+    QString	description()	const	{ return descr; }
 
     void	setImage( const QImage & );
     void	setStatus( int );
@@ -209,8 +210,9 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
-	    int sx=0, int sy=0, int sw=-1, int sh=-1, int conversion_flags=0 );
+Q_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
+		      int sx=0, int sy=0, int sw=-1, int sh=-1,
+		      int conversion_flags=0 );
 
 
 /*****************************************************************************

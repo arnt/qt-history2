@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#87 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#88 $
 **
 ** Definition of QPixmap class
 **
@@ -158,10 +158,12 @@ private:
     QPixmap	copy() const;
     static bool optimAll;
     static Optimization defOpt;
-    friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
-			int, int, int, int, RasterOp, bool );
-    friend void bitBlt( QPaintDevice *, int, int, const QImage* src,
-			int, int, int, int, int conversion_flags );
+    friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
+				 const QPaintDevice *,
+				 int, int, int, int, RasterOp, bool );
+    friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
+				 const QImage* src,
+				 int, int, int, int, int conversion_flags );
 };
 
 
@@ -226,8 +228,8 @@ inline bool QPixmap::isQBitmap() const
   QPixmap stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QPixmap & );
-QDataStream &operator>>( QDataStream &, QPixmap & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QPixmap & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
 
 
 #endif // QPIXMAP_H

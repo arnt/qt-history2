@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#21 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#22 $
 **
 ** Definition of QSize class
 **
@@ -71,8 +71,8 @@ public:
     friend inline QSize operator*( const QSize &, float );
     friend inline QSize operator*( float, const QSize & );
 #if defined(QSIZE_DEBUG)
-    friend	  QSize operator/( const QSize &, int );
-    friend	  QSize operator/( const QSize &, float );
+    friend Q_EXPORT QSize operator/( const QSize &, int );
+    friend Q_EXPORT QSize operator/( const QSize &, float );
 #else
     friend inline QSize operator/( const QSize &, int );
     friend inline QSize operator/( const QSize &, float );
@@ -88,8 +88,8 @@ private:
   QSize stream functions
  *****************************************************************************/
 
-QDataStream &operator<<( QDataStream &, const QSize & );
-QDataStream &operator>>( QDataStream &, QSize & );
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QSize & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QSize & );
 
 
 /*****************************************************************************

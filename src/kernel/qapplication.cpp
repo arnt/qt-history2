@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#150 $
 **
 ** Implementation of QApplication class
 **
@@ -82,10 +82,15 @@
 */
 
 
-void qt_init( int *, char ** );			// defined in qapp_xyz.cpp
+/*
+  The qt_init() and qt_cleanup() functions are implemented in the
+  qapplication_xyz.cpp file.
+*/
+
+void qt_init( int *, char ** );
 void qt_cleanup();
 #if defined(_WS_X11_)
-void qt_init( Display* dpy );			// defined in qapplication_x11.cpp
+void qt_init( Display* dpy );
 #endif
 
 QApplication *qApp = 0;				// global application object
@@ -98,8 +103,8 @@ bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
 int	  QApplication::loop_level     = 0;	// event loop level
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
-QWidget	 *QApplication::active_window   = 0;	// toplevel that has keyboard input focus
-QWidgetList *QApplication::popupWidgets   = 0;	// has keyboard input focus
+QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input focus
+QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 
 
 int	 QApplication::app_cspec = QApplication::NormalColor;

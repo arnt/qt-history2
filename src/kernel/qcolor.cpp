@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#74 $
 **
 ** Implementation of QColor class
 **
@@ -25,6 +25,7 @@
 #include "qdatastream.h"
 #include <stdlib.h>
 #include <ctype.h>
+
 
 /*!
   \class QColor qcolor.h
