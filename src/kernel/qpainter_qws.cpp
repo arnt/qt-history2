@@ -420,7 +420,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
 
-    gfx = ((QPaintDevice *)pd)->graphicsContext();
+    gfx = ((QPaintDevice *)pdev)->graphicsContext();
 //  if gfx == 0 we might have an invalid pixmap
     if ( gfx == 0 && !testf(ExtDev) ) {
 #if defined(QT_CHECK_NULL)
