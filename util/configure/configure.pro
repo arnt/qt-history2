@@ -4,7 +4,8 @@ DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COM
 PRECOMPILED_HEADER = configure_pch.h
 
 INCPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
-           $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/include/QtCore \
+           $$QT_SOURCE_TREE/include \
+           $$QT_SOURCE_TREE/include/QtCore \
 
 HEADERS	 = configureapp.h \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.h \
@@ -22,7 +23,7 @@ HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.h \
-           $$QT_SOURCE_TREE/src/corelib/io/qfileengine.h \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.h \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtextstream.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtemporaryfile.h \
@@ -53,7 +54,8 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfileengine.cpp \
-           $$QT_SOURCE_TREE/src/corelib/io/qfileengine_win.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.cpp \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_win.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qtextstream.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qtemporaryfile.cpp \
