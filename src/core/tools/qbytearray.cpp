@@ -1555,7 +1555,7 @@ QByteArray &QByteArray::insert(int i, char ch)
 
 QByteArray &QByteArray::remove(int pos, int len)
 {
-    if (len == 0 || pos >= d->size)
+    if (len <= 0 || pos >= d->size)
         return *this;
     detach();
     if (pos + len >= d->size) {
