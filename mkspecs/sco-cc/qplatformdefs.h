@@ -31,6 +31,7 @@
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/filio.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
 #include <sys/shm.h>
