@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#152 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#153 $
 **
 ** Implementation of QListBox widget class
 **
@@ -172,20 +172,24 @@ QListBoxItem::~QListBoxItem()
 */
 
 /*!
-  \fn QString QListBoxItem::text() const
-
   Returns the text of the item, which is used for sorting.
 
   \sa setText()
 */
+QString QListBoxItem::text() const
+{
+    return txt;
+}
 
 /*!
-  \fn const QPixmap *QListBoxItem::pixmap() const
-
   Returns the pixmap connected with the item, if any.
 
   The default implementation of this function returns a null pointer.
 */
+const QPixmap *QListBoxItem::pixmap() const
+{
+    return 0;
+}
 
 
 /*!

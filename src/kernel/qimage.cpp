@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#180 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2597,7 +2597,7 @@ void QImageIO::defineIOHandler( const char *format,
 */
 
 /*!
-  \fn QString QImageIO::format() const
+  \fn const char *QImageIO::format() const
   Returns the image format string, or 0 if no format has been explicitly set.
 */
 
@@ -2614,7 +2614,7 @@ void QImageIO::defineIOHandler( const char *format,
 */
 
 /*!
-  \fn QString QImageIO::parameters() const
+  \fn const char *QImageIO::parameters() const
   Returns image parameters string.
   \sa setParameters()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#8 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -152,11 +152,11 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
 */
 
 /*!
-  \fn void QSignalMapper::mapped(const char*)
+  \fn void QSignalMapper::mapped(QString)
 
 
   This signal is emitted when map() is signalled from an object which
   has a string mapping set.
 
-  \sa setMapping(const char*)
+  \sa setMapping(QString)
 */

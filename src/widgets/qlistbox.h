@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#62 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#63 $
 **
 ** Definition of QListBox widget class
 **
@@ -48,8 +48,8 @@ public:
     QListBoxItem();
     virtual ~QListBoxItem();
 
-    virtual const char	  *text()   const { return txt; }
-    virtual const QPixmap *pixmap() const { return 0; }
+    virtual QString text() const;
+    virtual const QPixmap *pixmap() const;
 
     virtual int	 height( const QListBox * ) const = 0;
     virtual int	 width( const QListBox * )  const = 0;
