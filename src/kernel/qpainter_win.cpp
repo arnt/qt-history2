@@ -2421,6 +2421,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	FillPath(hdc);
 #endif
 	SelectObject( hdc, hbrush );
+	DeleteObject( tbrush );
     }
 
     if ( nat_xf )
