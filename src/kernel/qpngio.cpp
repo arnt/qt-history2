@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#8 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -827,7 +827,7 @@ int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
     // debug("Got %ld-byte %s chunk", length, png_ptr->chunk_name);
     if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFg") ) {
 
-	//###hanord### 	QPNGImageWriter::DisposalMethod disposal = data[0] = disposal;
+	QPNGImageWriter::DisposalMethod disposal = data[0];
 	// TODO: use the disposal method
 	int ms_delay = ((data[2] << 8) | data[3])*10;
 	consumer->setFramePeriod(ms_delay);
