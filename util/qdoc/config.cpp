@@ -102,13 +102,7 @@ Config::Config( int argc, char **argv )
     while ( i < argc ) {
 	QString opt( argv[i++] );
 
-	if ( opt == QString("--help") || opt == QString("-h") ) {
-	    argv[i - 1][0] = '\0';
-	    showHelp();
-	} else if ( opt == QString("--help-short") || opt == QString("-H") ) {
-	    argv[i - 1][0] = '\0';
-	    showHelpShort();
-	} else if ( opt == QString("--version") || opt == QString("-v") ) {
+	if ( opt == QString("--version") || opt == QString("-v") ) {
 	    argv[i - 1][0] = '\0';
 	    showVersion();
 	} else if ( opt == QString("--") ) {
@@ -227,6 +221,10 @@ Config::Config( int argc, char **argv )
 		setPattern( &defsym, val, plus );
 	    } else if ( opt == QString("--false") ) {
 		setPattern( &falsesym, val, plus );
+	    } else if ( opt == QString("--help") ) {
+		showHelp();
+	    } else if ( opt == QString("--help-short") ) {
+		showHelpShort();
 	    } else if ( opt == QString("--internal") ) {
 		internal = isYes( val );
 	    } else if ( opt == QString("--max-similar") ) {
@@ -260,6 +258,10 @@ Config::Config( int argc, char **argv )
 		setPattern( &defsym, opt.mid(2), TRUE );
 	    } else if ( opt.startsWith(QString("-F")) ) {
 		setPattern( &falsesym, opt.mid(2), TRUE );
+	    } else if ( opt == QString("-h") ) {
+		showHelp();
+	    } else if ( opt == QString("-H") ) {
+		showHelpShort();
 	    } else if ( opt == QString("-i") ) {
 		internal = TRUE;
 	    } else if ( opt == QString("-I") ) {
@@ -462,6 +464,6 @@ void Config::showHelpShort()
 void Config::showVersion()
 {
     // $\lim_{t\rightarrow\infty} {\it qdoc\_version}(t) = 2$
-    printf( "qdoc version 1.96\n" );
+    printf( "qdoc version 1.97\n" );
     exit( EXIT_SUCCESS );
 }

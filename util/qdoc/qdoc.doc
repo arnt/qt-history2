@@ -28,19 +28,19 @@
 
   This manual has four sections:
 
-  <ul>
-   <li>\link #commands Giving commands to qdoc \endlink
-   <li>\link #food Feeding qdoc \endlink
-   <li>\link #run Running qdoc\endlink
-   <li>\link #join Joining the qdoc community\endlink
-  </ul>
+  \list 1
+   \i \link #commands Giving commands to qdoc \endlink
+   \i \link #food Feeding qdoc \endlink
+   \i \link #run Running qdoc\endlink
+   \i \link #join Joining the qdoc community\endlink
+  \endlist
 
   <a name="commands"></a>
 
   <img src="commands.png" align=right width=192 height=192
   alt="An obeying duck">
 
-  <h2>Giving commands to qdoc</h2>
+  \section 1 Giving commands to qdoc
 
   A happy qdoc recognizes the following commands:
   \link #_amp \\\& \endlink,
@@ -51,13 +51,15 @@
   \link #annotatedclasslist \\annotatedclasslist \endlink,
   \link #arg \\arg \endlink,
   \link #base64 \\base64 \endlink,
+  \link #box \\box...\\endbox \endlink,
   \link #brief \\brief \endlink,
   \link #bug \\bug \endlink,
   \link #c \\c \endlink,
+  \link #caption \\caption \endlink,
   \link #class \\class \endlink,
   \link #classhierarchy \\classhierarchy \endlink,
   \link #classlist \\classlist \endlink,
-  \link #code \\code ... \\endcode \endlink,
+  \link #code \\code...\\endcode \endlink,
   \link #defgroup \\defgroup \endlink,
   \link #define \\define \endlink,
   \link #e \\e \endlink,
@@ -65,17 +67,21 @@
   \link #extension \\extension \endlink,
   \link #extensionlist \\extensionlist \endlink,
   \link #fn \\fn \endlink,
+  \link #footnote \\footnote...\\endfootnote \endlink,
   \link #functionindex \\functionindex \endlink,
   \link #header \\header \endlink,
   \link #headerfilelist \\headerfilelist \endlink,
   \link #heading \\heading \endlink,
+  \link #i \\i \endlink,
+  \link #img \\img \endlink,
   \link #important \\important \endlink,
   \link #include \\include \endlink,
   \link #ingroup \\ingroup \endlink,
   \link #internal \\internal \endlink,
   \link #keyword \\keyword \endlink,
   \link #l \\l&nbsp;(ell) \endlink,
-  \link #link \\link ... \\end<!-- ignore me -->link \endlink,
+  \link #link \\link...\\end<!-- ignore me -->link \endlink,
+  \link #list \\list...\\endlist \endlink,
   \link #module \\module \endlink,
   \link #mustquote \\mustquote \endlink,
   \link #note \\note \endlink,
@@ -87,22 +93,25 @@
   \link #printto \\printto \endlink,
   \link #printuntil \\printuntil \endlink,
   \link #quotelist \\quotelist \endlink,
+  \link #r \\r \endlink,
   \link #reimp \\reimp \endlink,
   \link #relates \\relates \endlink,
   \link #sa \\sa \endlink,
+  \link #section \\section \endlink
   \link #skipline \\skipline \endlink,
   \link #skipto \\skipto \endlink,
   \link #skipuntil \\skipuntil \endlink,
+  \link #table \\table...\\endtable \endlink,
   \link #title \\title \endlink,
   \link #value \\value \endlink,
   \link #version \\version \endlink,
   \link #walkthrough \\walkthrough \endlink,
   \link #warning \\warning \endlink.
 
-  <h3>Ubiquitous commands</h3>
+  \section 2 Ubiquitous commands
 
-  <ul>
-   <p><li><a name="a"></a>
+  \list
+    \i <a name="a"></a>
     <b>\\a</b> indicates that the next word is a parameter name.
     Whenever you mention a parameter, you should precede it by this
     command. That way, the parameter is rendered in italic, and
@@ -133,9 +142,10 @@
 	// #<!-- ignore me -->## remove in Qt 4.0
     }</pre>
 
-   <p><li><a name="e"></a>
+   \i <a name="e"></a>
     <b>\\e</b> emphasizes (italicizes) the next word. In the old days,
-    \\e was used for parameters. Please change that as you see it.
+    \\e was used for parameters. Please turn these \\e to
+    \link #a \\a \endlink as you see them.
 
     You may also apply emphasis to arbitrarily braced text:
     <pre>
@@ -146,20 +156,20 @@
     precedes a word (such as \link #a \\a \endlink and
     \link #c \\c \endlink).
 
-   <p><li><a name="c"></a>
+   \i <a name="c"></a>
     <b>\\c</b> renders a tiny piece of code with a typewriter font:
     <pre>
     /*!
       Please avoid \\c <u>Qt::WindowsStyle</u>.
     *&#47;</pre>
     This command, like its cousin
-    \link #code \\code ... \\endcode \endlink, expects raw code:
+    \link #code \\code...\\endcode \endlink, expects raw code:
     <pre>
     /*!
       QPainter is declared in \\c <u>\<qpainter.h\></u>.
     *&#47;</pre>
-    (Not "\\\<qpainter.h\\\>" nor "\&lt;qpainter.h\&gt;", only
-    "\<qpainter.h\>".)
+    Raw code means that "\<qpainter.h\>" is right, while
+    "\\\<qpainter.h\\\>" and "\&lt;qpainter.h\&gt;" are wrong.
 
     Like \link #a \\a \endlink and \link #e \\e \endlink, \\c supports
     the brace syntax. However, qdoc is smart enough to balance all
@@ -171,7 +181,7 @@
       good-looking widget set.
     *&#47;</pre>
 
-   <p><li><a name="fn"></a> <b>\\fn</b> allows documentation of an
+   \i <a name="fn"></a> <b>\\fn</b> allows documentation of an
     inline function by naming it explicitly. The naming convention is
     that of a member function definition outside the class
     definition:
@@ -180,7 +190,7 @@
 
       This protected function is underused.
     *&#47;</pre>
-    When \\fn is missing, a comment documents the function definition
+    When \\fn is missing, a comment hangs to the function definition
     that immediately follows it:
     <pre>
     /*!
@@ -191,7 +201,7 @@
 	...
     }</pre>
 
-   <p><li><a name="overload"></a>
+   \i <a name="overload"></a>
     <b>\\overload</b> indicates that this function is a secondary
     overload of this name. For any overloaded function (except
     constructors), qdoc expects one primary version and the rest as
@@ -235,7 +245,7 @@
 	return createBubble( d, d );
     }</pre>
 
-   <p><li><a name="l"></a>
+   \i <a name="l"></a>
     <b>\\l</b> (ell) makes an explicit link to almost anything that
     has a name. Normally, qdoc tries to keep down the number of
     automatic links. This command guarantees the next word will get a
@@ -251,24 +261,24 @@
     *&#47;</pre>
 
     The command support many kinds of links:
-    <ul>
-     <li> \c {\l QMembuf} - a class
-     <li> \c {\l QMembuf::pullup()} - a member function
-     <li> \c {\l qmembuf.h} - a header file
-     <li> \c {\l nfs/main.cpp} - an example
-     <li> \c {\l {memory management}} - a
+    \list
+     \i \c {\l QMembuf} - a class
+     \i \c {\l QMembuf::pullup()} - a member function
+     \i \c {\l qmembuf.h} - a header file
+     \i \c {\l nfs/main.cpp} - an example
+     \i \c {\l {memory management}} - a
        \link #keyword \\keyword \endlink
-     <li> \c {\l memory-buffers.html} - a HTML page of the
+     \i \c {\l memory-buffers.html} - a HTML page of the
        documentation (typically a \link #page \\page \endlink)
-     <li> \c {\l http://www.trolltech.com/} - a URL.
-    </ul>
+     \i \c {\l http://www.trolltech.com/} - a URL.
+    \endlist
 
     The automatic links provided by qdoc are almost always sufficient.
     Otherwise, the commands \\l and
-    \link #link \\link ... \\end<!-- ignore me -->link \endlink
+    \link #link \\link...\\end<!-- ignore me -->link \endlink
     replace \<a href="..."\> totally.
 
-   <p><li><a name="sa"></a>
+   \i <a name="sa"></a>
     <b>\\sa</b> starts the "see also" section. The rest of the doc
     comment is a comma or white-space separated list of links.
     <pre>
@@ -293,24 +303,24 @@
 
     This command supports the same kinds of links as the
     \link #l \\l&nbsp;(ell) \endlink command.
-  </ul>
+  \endlist
 
-  <h3>Fairly common commands</h3>
+  \section 2 Fairly common commands
 
-  <ul>
-   <p><li><a name="_amp"></a>
+  \list
+   \i <a name="_amp"></a>
     <b>\\\&</b> expands to an ampersand (\&). The ampersand alone
     starts a HTML entity such as "\&nbsp;" and "\&#47".
 
-   <p><li><a name="_lt"></a>
+   \i <a name="_lt"></a>
     <b>\\\<</b> expands to a "less than" (\<). A "less than" without
     the backslash starts a HTML tag such as "\<b\>".
 
-   <p><li><a name="_gt"></a>
+   \i <a name="_gt"></a>
     <b>\\\></b> expands to a "greater than" (\>). A "greater than"
     without the backslash ends a HTML tag.
 
-   <p><li><a name="_backslash"></a>
+   \i <a name="_backslash"></a>
     <b>\\\\</b> (two backslashes) expands to a backslash (\\). A
     backslash alone starts a qdoc command. Thus, "\\version" expands
     to "2.2.3" (or whatever), while "\\\\version" expands to
@@ -321,7 +331,11 @@
     C:\\windows\\desktop, since there are no such commands as
     \\windows or \\desktop.
 
-   <p><li><a name="class"></a>
+    Also, do not attempt to use \\&, \\<, \\> and \\\\ within
+    \link #c \\c \endlink or \link #code \\code...\\endcode \endlink,
+    unless you want \\&, \\<, \\> or \\\\ to appear verbatim.
+
+   \i <a name="class"></a>
     <b>\\class</b> starts a class documentation unit.
     <pre>
     /*! <u>\\class</u> QButton
@@ -348,7 +362,7 @@
     \link #extension \\extension \endlink or
     \link #module \\module \endlink somewhere in the \\class comment.
 
-   <p><li><a name="brief"></a>
+   \i <a name="brief"></a>
     <b>\\brief</b> introduces a one-sentence description of a class.
     This is used for
     \link #annotatedclasslist \\annotatedclasslist \endlink and for
@@ -356,16 +370,16 @@
 
     For qdoc to parse the text correctly, stick to these standard
     wordings:
-    <ul>
-     <li>The QButton class is ...
-     <li>The QButton class provides ...
-     <li>The QButton class contains ...
-     <li>The QButton class specifies ...
-    </ul>
+    \list
+     \i The QButton class is ...
+     \i The QButton class provides ...
+     \i The QButton class contains ...
+     \i The QButton class specifies ...
+    \endlist
 
     The \link #class \\class \endlink entry has an example.
 
-   <p><li><a name="ingroup"></a>
+   \i <a name="ingroup"></a>
 
     <b>\\ingroup</b> indicates that this class belongs to a certain
     group of related classes defined using
@@ -377,48 +391,14 @@
 
     See also the \link #class \\class \endlink entry for an example.
 
-   <p><li><a name="obsolete"></a>
+   \i <a name="obsolete"></a>
     <b>\\obsolete</b> expands to the following text: "<b>This method
     is obsolete.</b> It is provided to keep old source working, and
     will probably be removed in a future version of Qt. We strongly
     advise against using it in new code." It has other minor
     consequences.
 
-   <p><li><a name="enum"></a>
-    <b>\\enum</b> documents a type that is in a class declaration,
-    usually an enum or a typedef.
-    <pre>
-    /*! <u>\\enum</u> QWidget::MotusPolicy
-
-      This enum type defines the various policies a widget
-      can have with respect to acquiring keyboard motus.
-
-      The policy can be:
-
-      <u>\\value</u> TabMotus The widget accepts motus by tabbing.
-      <u>\\value</u> ClickMotus The widget accepts motus by clicking.
-      <u>\\value</u> StrongMotus The widget accepts motus by both
-	tabbing and clicking.
-      <u>\\value</u> WheelMotus Like StrongMotus plus the widget
-	accepts motus by using the mouse wheel.
-      <u>\\value</u> NoMotus The widget does not accept motus.
-
-      \\c TabMotus is the default for most widgets.
-    *&#47;</pre>
-    Notice the \link #value \\value \endlink syntax.
-
-   <p><li><a name="value"></a>
-    <b>\\value</b> starts the documentation of a C++ enum item. The
-    first argument is the enum item. Its associated documentation
-    follows and ends at the next blank line or \\value.
-
-    See above for a complete example.
-  </ul>
-
-  <h3>Less common commands</h3>
-
-  <ul>
-   <p><li><a name="code"></a>
+   \i <a name="code"></a>
     <b>\\code ... \\endcode</b> delimits example C++ code. The
     example code is plain code; qdoc commands are disabled and
     special characters need not be escaped. It's a good idea to
@@ -446,7 +426,41 @@
     to include code snippets directly from C++ example files. This is
     more maintainable than duplicating the code.
 
-   <p><li><a name="internal"></a>
+   \i <a name="enum"></a>
+    <b>\\enum</b> documents a type that is in a class declaration,
+    usually an enum or a typedef.
+    <pre>
+    /*! <u>\\enum</u> QWidget::MotusPolicy
+
+      This enum type defines the various policies a widget
+      can have with respect to acquiring keyboard motus.
+
+      The policy can be:
+
+      <u>\\value</u> TabMotus The widget accepts motus by tabbing.
+      <u>\\value</u> ClickMotus The widget accepts motus by clicking.
+      <u>\\value</u> StrongMotus The widget accepts motus by both
+	tabbing and clicking.
+      <u>\\value</u> WheelMotus Like StrongMotus plus the widget
+	accepts motus by using the mouse wheel.
+      <u>\\value</u> NoMotus The widget does not accept motus.
+
+      \\c TabMotus is the default for most widgets.
+    *&#47;</pre>
+    Notice the \link #value \\value \endlink syntax.
+
+   \i <a name="value"></a>
+    <b>\\value</b> starts the documentation of a C++ enum item. The
+    first argument is the enum item. Its associated documentation
+    follows and ends at the next blank line or \\value.
+
+    See above for a complete example.
+  \endlist
+
+  \section 2 Less common commands
+
+  \list
+   \i <a name="internal"></a>
     <b>\\internal</b> indicates that the function is not part of the
     public interface, although it is not private C++ senso. It is
     rendered as "For internal use only."
@@ -456,7 +470,7 @@
     when using the \link #--internal --internal \endlink command-line
     option for example, and preceded by "<b>Internal comment:</b>".
 
-   <p><li><a name="reimp"></a>
+   \i <a name="reimp"></a>
     <b>\\reimp</b> indicates that this function is a reimplementation
     of a virtual function, where the reimplementation has no effect on
     the interface. Most often it is used as follows:
@@ -472,7 +486,7 @@
     Think twice before doing so; who knows whether the next version of
     Qt will introduce some failure here?
 
-   <p><li><a name="relates"></a>
+   \i <a name="relates"></a>
     <b>\\relates</b> attaches the documentation of a global function
     to that of a related class. In the following example, the
     documentation of qWarning() ends up in qapplication.html, in the
@@ -488,7 +502,7 @@
     }</pre>
     Otherwise, the documentation would end nowhere.
 
-   <p><li><a name="important"></a>
+   \i <a name="important"></a>
     <b>\\important</b> allows you to inherit documentation from a
     parent class. This helps reduce the number of bug reports
     concerning missing documentation that is in fact elsewhere.
@@ -502,11 +516,11 @@
 	setOn() isOn()
     *&#47;</pre>
 
-   <p><li><a name="warning"></a>
+   \i <a name="warning"></a>
     <b>\\warning</b> introduces a warning. It expands to
     "<b>Warning:</b>".
 
-   <p><li><a name="bug"></a>
+   \i <a name="bug"></a>
     <b>\\bug</b> introduces the documentation of a bug. It expands to
     some HTML magic. This command should appear at the end of a
     comment, just before the \link #sa \\sa \endlink (see also)
@@ -523,7 +537,36 @@
     *&#47;</pre>
     This will be rendered in a fashionable way.
 
-   <p><li><a name="page"></a>
+   \i <a name="list"></a>
+    <b>\\list ... \\endlist</b> delimit a list of items. Items start
+    with \link #i \\i \endlink. The list
+    <pre>
+    /*!
+      <u>\\list</u>
+       \\i Orange juice
+       \\i Ringnes
+      <u>\\endlist</u>
+    *&#47;</pre>
+    is rendered as
+
+    \list
+     \i Orange juice
+     \i Ringnes
+    \endlist
+
+    Items can also be numbered by putting a start number (or letter)
+    just after the "\\list" command. For example, "\\list 5" gives
+
+    \list 5
+     \i Orange juice
+     \i Ringnes
+    \endlist
+
+   \i <a name="i"></a>
+    <b>\\i</b> introduces an item in a \link #list \\list \endlink.
+    See above for an example.
+
+   \i <a name="page"></a>
     <b>\\page</b> starts a documentation parcel that will end up in
     its own HTML file:
     <pre>
@@ -541,7 +584,7 @@
    The command should stand on its own line with the name of the HTML
    file to generate as argument (mouse.html).
 
-   <p><li><a name="title"></a>
+   \i <a name="title"></a>
     <b>\\title</b> sets the title of a documentation page, or allows
     you to override it. It is used in conjunction with
     \link #page \\page \endlink or similar commands. Use
@@ -549,14 +592,16 @@
     between the title (\<title\>...\</title\>) and the heading
     (\<h1\>...\</h1\>).
 
-   <p><li><a name="heading"></a>
+   \i <a name="heading"></a>
     <b>\\heading</b> sets the heading of a documentation page, or
     allows you to override it. See also the
     \link #title \\title \endlink entry.
 
     Do not confuse this command with \link #header \\header \endlink.
 
-   <p><li><a name="base64"></a>
+    ### heading is obsoleted by section 1
+
+   \i <a name="base64"></a>
     <b>\\base64</b> embeds binary files
     <img src="finland.png" width=26 height=16 alt="finland.png">
     in C++ comments:
@@ -569,12 +614,15 @@
       PxgAMQAAABRJREFUeNpj+M///wADTgInwKUD
       APLOHtC/EegpAAAAAElFTkSuQmCC
     *&#47;</pre>
-    You may use dedicated tools (such as mimencode) to generate the
+    You may use dedicated tools such as mimencode to generate the
     base64-encoded data, or you may use your email client cleverly.
     If your encoded PNG files don't start with "iVBOR", try another
     email client.
 
-   <p><li><a name="plainpage"></a>
+    Binary files are typically images, which \link #img \\img \endlink
+    can include in documentation.
+
+   \i <a name="plainpage"></a>
     <b>\\plainpage</b> embeds plain text files in C++ files.
     <pre>
     /*! <u>\\plainpage</u> graph.g1n
@@ -592,7 +640,7 @@
     The above comment makes qdoc generate a file called graph.g1n
     containing "num label 10 A ... 19 G".
 
-   <p><li><a name="defgroup"></a>
+   \i <a name="defgroup"></a>
     <b>\\defgroup</b> defines a group of related classes:
     <pre>
     /*! <u>\\defgroup</u> abstractwidgets
@@ -612,12 +660,85 @@
     automatically listed. The \link #ingroup \\ingroup \endlink
     command inside a \link #class \\class \endlink comment binds a
     class to a group.
-  </ul>
 
-  <h3>Exotic commands</h3>
+   \i <a name="section"></a>
+    <b>\\section</b> starts a new section, subsection, subsubsection
+    or whatever. The first level is "\\section 1"; the second level is
+    "\\section 2"; and so on up to "\\section 5":
+    <pre>
+    /*! \\page norway-sports.html
 
-  <ul>
-   <p><li><a name="keyword"></a>
+      \\title Sports in Norway
+
+      <u>\\section 1</u> Winter Sports
+
+      ...
+
+	<u>\\section 2</u> Skating
+
+	...
+
+	  <u>\\section 3</u> Conventional Skating
+
+	  ...
+
+	  <u>\\section 3</u> Long-distance Skating
+
+	  ...
+
+      <u>\\section 1</u> Summer Sports
+	
+      ...
+    *&#47;</pre>
+    After "\\section \e {N}" comes the section heading, until the next
+    blank line.
+
+    Skipping from section \e N to section \e N + \e k where \e k \> 1
+    is prohibited.
+
+   \i <a name="footnote"></a>
+    <b>\\footnote ... \\endfootnote</b> delimits a footnote:
+    <pre>
+    /*!
+      The properties of permutations are of great importance in
+      the analysis of algorithms, and we will deduce many interesting
+      facts about them later in this book. <u>\\footnote</u> In fact,
+      permutations are so important, Vaughan Pratt has suggested
+      calling them "perms". As soon as Pratt's convention is
+      established, textbooks of computer science will be somewhat
+      shorter (and perhaps less expensive). <u>\\endfootnote</u>
+    *&#47;</pre><!-- D. E. Knuth, TAOCP 1 3rd ed. p. 45 -->
+    This will be rendered like this:
+    <blockquote>
+      The properties of permutations are of great importance in
+      the analysis of algorithms, and we will deduce many interesting
+      facts about them later in this book. \footnote In fact,
+      permutations are so important, Vaughan Pratt has suggested
+      calling them "perms". As soon as Pratt's convention is
+      established, textbooks of computer science will be somewhat
+      shorter (and perhaps less expensive). \endfootnote
+    </blockquote>
+
+   \i <a name="box"></a>
+    <b>\\box ... \\endbox</b> ...
+
+   \i <a name="img"></a>
+    <b>\\img</b> inclu ###
+
+   \i <a name="caption"></a>
+    <b>\\caption</b> ...
+
+   \i <a name="table"></a>
+    <b>\\table ... \\endtable</b> ...
+
+   \i <a name="r"></a>
+    <b>\\r</b> ...
+  \endlist
+
+  \section 2 Exotic commands
+
+  \list
+   \i <a name="keyword"></a>
     <b>\\keyword</b> turns a phrase into a giant magnet. Nearly all
     occurrences of the phrase link to the \\keyword definition.
 
@@ -645,7 +766,7 @@
     coordsys.html#coordinate-system. Incidentally, it takes more than
     an s to fool qdoc.
 
-   <p><li><a name="extension"></a>
+   \i <a name="extension"></a>
     <b>\\extension</b> identifies a class as part of an extension to
     the software. Put it anywhere in a \link #class \\class \endlink
     comment:
@@ -660,7 +781,7 @@
     Extension</b>." just after the first occurrence of the
     \link #brief \\brief \endlink text.
 
-   <p><li><a name="module"></a>
+   \i <a name="module"></a>
     <b>\\module</b> identifies a class as part of a module of the
     software. Put in anywhere in a \link #class \\class \endlink
     comment:
@@ -675,7 +796,7 @@
     below the "QTable Class Reference" heading. The difference between
     extension and module is subtle and beyond the scope of qdoc.
 
-   <p><li><a name="header"></a>
+   \i <a name="header"></a>
     <b>\\header</b> generates an idiomatic #include directive similar
     to that generated by \\class automatically. It is very rarely
     needed.
@@ -691,7 +812,7 @@
     Do not confuse this command with \link #heading \\heading \endlink
     or \link #include \\include \endlink.
 
-   <p><li><a name="include"></a>
+   \i <a name="include"></a>
     <b>\\include</b> expands to the content of the example file given
     as argument. Thus,
     <pre>
@@ -701,14 +822,14 @@
 
     Do not confuse this command with \link #header \\header \endlink.
 
-   <p><li><a name="walkthrough"></a>
+   \i <a name="walkthrough"></a>
     <b>\\walkthrough</b> enables use of walkthrough commands
     (\link #printline \\printline \endlink and friends) to explain the
     example code chunk by chunk:
     <pre>
     /*! <u>\\walkthrough</u> hello/main.cpp *&#47;</pre>
 
-   <p><li><a name="printline"></a>
+   \i <a name="printline"></a>
     <b>\\printline</b> expands to the next non-blank source code line
     of the current \link #walkthrough \\walkthrough \endlink file.
 
@@ -730,16 +851,21 @@
      \link #skipto \\skipto \endlink and
     \link #skipuntil \\skipuntil \endlink.
 
-   <p><li><a name="printto"></a>
+   \i <a name="printto"></a>
     <b>\\printto</b> expands to all the lines from the current
     position up to and \e excluding the next line containing a given
     substring.
 
-   <p><li><a name="printuntil"></a>
+   \i <a name="printuntil"></a>
     <b>\\printuntil</b> expands to all source code lines from the
     current position up to and \e including the first line containing
     the given substring.
 
+    Let's consider this example program:
+    <pre>
+    QColor c1 = red;
+    QColor c2 = green;
+    QColor c3 = blue;</pre>
     The command
     <pre>
     /*!
@@ -755,22 +881,18 @@
       \\printto blue
       \\printline blue
     *&#47;</pre>
+    and expands to the three lines of code above.
 
-   <p><li><a name="skipline"></a>
+   \i <a name="skipline"></a>
     <b>\\skipline</b> skips the next non-black source code line of the
     current \link #walkthrough \\walkthrough \endlink file. This is
     useful to hide redundant or otherwise boring portions of code. See
     also \link #printline \\printline \endlink.
 
-   <p><li><a name="skipto"></a>
+   \i <a name="skipto"></a>
     <b>\\skipto</b> skips all source code lines up to and \e excluding
     the next line containing the given substring.
 
-    Let's consider this example program:
-    <pre>
-    QColor c1 = red;
-    QColor c2 = green;
-    QColor c3 = blue;</pre>
     The walkthrough commands
     <pre>
     /*!
@@ -779,16 +901,17 @@
       <u>\\skipto</u> blue
       \\printline blue
     *&#47;</pre>
-    skip the first two lines and then expand to the third one. The
+    skip the first two lines and then expand to the third one of the
+    example program for \link #printuntil \\printuntil \endlink. The
     generated documentation is
     <pre>
-    QColor c3 = blue;</pre>
+    <a href="#fnord">QColor</a> c3 = blue;</pre>
 
-   <p><li><a name="skipuntil"></a>
+   \i <a name="skipuntil"></a>
     <b>\\skipuntil</b> skips all source code lines up to and
     \e including the first line containing the given substring.
 
-   <p><li><a name="mustquote"></a>
+   \i <a name="mustquote"></a>
     <b>\\mustquote</b> records the rest of the comment (excluding the
     optional "see also" section) as licensing stuff:
     <pre>
@@ -806,12 +929,12 @@
     All licensing stuff can be retrieved later using
     \link #quotelist \\quotelist \endlink.
 
-   <p><li><a name="quotelist"></a>
+   \i <a name="quotelist"></a>
     <b>\\quotelist</b> expands to all the licensing stuff gathered
     with \link #mustquote \\mustquote \endlink. The stuff is put in
     some arbitrary order, without duplicates.
 
-   <p><li><a name="annotatedclasslist"></a>
+   \i <a name="annotatedclasslist"></a>
     <b>\\annotatedclasslist</b> generates a list of classes documented
     using \link #class \\class \endlink comments with the
     \link #brief \\brief \endlink texts. Here's a typical entry of the
@@ -823,7 +946,7 @@
       <td>Combines actions into a group
     </table>
 
-   <p><li><a name="classlist"></a>
+   \i <a name="classlist"></a>
     <b>\\classlist</b> expands to a five-column list of all classes
     documented using \link #class \\class \endlink. Here's a fragment
     of such a list:
@@ -853,26 +976,26 @@
       <td>\link #fnord QUriDrag \endlink
     </table>
 
-   <p><li><a name="classhierarchy"></a>
+   \i <a name="classhierarchy"></a>
     <b>\\classhierarchy</b> expands to an alphabetized class
     hierarchy of all classes documented with
     \link #class \\class \endlink.
 
-    <ul>
-     <li>\link #fnord QPaintDevice \endlink
-      <ul>
-       <li>\link #fnord QPicture \endlink
-       <li>\link #fnord QPixmap \endlink
-	<ul>
-	 <li>\link #fnord QBitmap \endlink
-	 <li>\link #fnord QCanvasPixmap \endlink
-	</ul>
-       <li>\link #fnord QPrinter \endlink
-       <li>\link #fnord QSvgDevice \endlink
-      </ul>
-    </ul>
+    \list
+     \i \link #fnord QPaintDevice \endlink
+      \list
+       \i \link #fnord QPicture \endlink
+       \i \link #fnord QPixmap \endlink
+	\list
+	 \i \link #fnord QBitmap \endlink
+	 \i \link #fnord QCanvasPixmap \endlink
+	\endlist
+       \i \link #fnord QPrinter \endlink
+       \i \link #fnord QSvgDevice \endlink
+      \endlist
+    \endlist
 
-   <p><li><a name="extensionlist"></a>
+   \i <a name="extensionlist"></a>
     <b>\\extensionlist</b> expands to "* Extension classes of
     \e {X}<sub>1</sub>, \e {X}<sub>2</sub>, ... and
     \e {X}<sub>\e {n}</sub>.", where each \e {X}<sub>\e {i}</sub> is
@@ -880,35 +1003,35 @@
     using \link #extension \\extension \endlink elsewhere, the command
     expands to "* Extension classes of NSPlugin and Xt/Motif."
 
-   <p><li><a name="functionindex"></a>
+   \i <a name="functionindex"></a>
     <b>\\functionindex</b> expands to an alphabetized index of all
     documented functions. A typical entry looks like this:
-    <ul>
-     <li>isEmpty: \link #fnord QRegExp \endlink
+    \list
+     \i isEmpty: \link #fnord QRegExp \endlink
        \link #fnord QString \endlink
        \link #fnord QValueList \endlink
-    </ul>
+    \endlist
 
-   <p><li><a name="headerfilelist"></a>
+   \i <a name="headerfilelist"></a>
     <b>\\headerfilelist</b> expands to the list of all header files
     for which verbatim HTML files were generated. These header files
     are those containing the definitions of classes documented with
     \link #class \\class \endlink, plus those specified with
     \link #header \\header \endlink. A typical entry looks like this:
-    <ul>
-     <li>\link #fnord qapplication.h \endlink
-    </ul>
+    \list
+     \i \link #fnord qapplication.h \endlink
+    \endlist
 
-   <p><li><a name="version"></a>
+   \i <a name="version"></a>
     <b>\\version</b> expands to the version of the documented software
     (say, Qt). See also the documentation for the configuration
     variable \link #VERSIONSTR VERSIONSTR \endlink.
-  </ul>
+  \endlist
 
-  <h3>Discouraged commands</h3>
+  \section 2 Discouraged commands
 
-  <ul>
-   <p><li><a name="link"></a>
+  \list
+   \i <a name="link"></a>
     <b>\\link ... \\endlink</b> makes an explicit link in the manner
     of \link #l \\l&nbsp;(ell) \endlink, but allows arbitrary
     user-visible text.
@@ -939,28 +1062,28 @@
     *&#47;</pre>
     as you see them.
 
-   <p><li><a name="note"></a>
+   \i <a name="note"></a>
     <b>\\note</b> expands to "Note:". qdoc knows about it only because
     at least two people thought it did and started using it. Avoid it.
-  </ul>
+  \endlist
 
-  <h3>Antediluvian commands</h3>
+  \section 2 Antediluvian commands
 
-  <ul>
-   <p><li><a name="arg"></a>
+  \list
+   \i <a name="arg"></a>
     <b>\\arg</b> gave way to \link #a \\a \endlink. When you see it,
     consider rewording the sentence and replace it with \\a.
 
-   <p><li><a name="define"></a>
+   \i <a name="define"></a>
     <b>\\define</b> means nothing. Just remove it when you see it.
-  </ul>
+  \endlist
 
   <a name="food"></a>
 
   <img src="food.png" align=right width=192 height=192
   alt="A piece of meat">
 
-  <h2>Feeding qdoc</h2>
+  \section 1 Feeding qdoc
 
   qdoc will run only if you provide it with a configuration file. The
   name of that configuration file can be passed to qdoc as
@@ -1000,47 +1123,47 @@
 		      tools \\
 		      widgets</pre>
 
-  <h3>Boring variables</h3>
+  \section 2 Boring variables
 
   All projects require setting up most of the following variables.
 
-  <ul>
-   <p><li><a name="SOURCEDIRS"></a>
+  \list
+   \i <a name="SOURCEDIRS"></a>
     <b>SOURCEDIRS</b> specifies the directories containing the C++
     source files (.cpp files). Example:
     <pre>
     SOURCEDIRS = $QTDIR/src/kernel $QTDIR/src/tools</pre>
 
-   <p><li><a name="DOCDIRS"></a>
+   \i <a name="DOCDIRS"></a>
     <b>DOCDIRS</b> specifies the directories containing the qdoc
     documentation files (.doc files). These files are treated mostly
     the same way as C++ source files. Example:
     <pre>
     DOCDIRS = $QTDIR/doc</pre>
 
-   <p><li><a name="INCLUDEDIRS"></a>
+   \i <a name="INCLUDEDIRS"></a>
     <b>INCLUDEDIRS</b> specifies the directories containing the C++
     header files (.h files). Example:
     <pre>
     INCLUDEDIRS = $QTDIR/include</pre>
 
-   <p><li><a name="EXAMPLEDIRS"></a>
+   \i <a name="EXAMPLEDIRS"></a>
     <b>EXAMPLEDIRS</b> specifies the directories containing the source
     code of the example files. Example:
     <pre>
     EXAMPLEDIRS = $QTDIR/examples</pre>
 
-   <p><li><a name="COMPANY"></a>
+   \i <a name="COMPANY"></a>
     <b>COMPANY</b> represents the name of the company. Example:
     <pre>
     COMPANY = Ximian</pre>
 
-   <p><li><a name="PRODUCT"></a>
+   \i <a name="PRODUCT"></a>
     <b>PRODUCT</b> represents the name of the product. Example:
     <pre>
     PRODUCT = Gnomovision</pre>
 
-   <p><li><a name="VERSIONSTR"></a>
+   \i <a name="VERSIONSTR"></a>
     <b>VERSIONSTR</b> represents the version number of the product.
     Its value is then accessible with the
     \link #version \\version \endlink command. Example:
@@ -1051,7 +1174,7 @@
     be possible to use \link #VERSIONSYM VERSIONSYM \endlink instead
     and avoid redundancy.
 
-   <p><li><a name="VERSIONSYM"></a>
+   \i <a name="VERSIONSYM"></a>
     <b>VERSIONSYM</b> specifies the C++ preprocessor symbol expanding
     to the version number of the product. If the source code of the
     product contains no such preprocessor symbol,
@@ -1067,43 +1190,43 @@
     \link #version \\version \endlink expands to 2.04 wherever it
     appears.
 
-   <p><li><a name="STYLE"></a>
+   \i <a name="STYLE"></a>
     <b>STYLE</b> is some CSS stuff that ends up between \<style\> and
     \</style\> in all generated HTML files. In Qt, this is used to
     get clean links without underlining, among other things.
 
-   <p><li><a name="POSTHEADER"></a>
+   \i <a name="POSTHEADER"></a>
     <b>POSTHEADER</b> is some HTML stuff that ends up before the
     document heading in all generated HTML files. In Qt, this is used
     for the "Qt Reference Documentation" banner with the Qt logo at
     the top of all pages.
 
-   <p><li><a name="FOOTER"></a>
+   \i <a name="FOOTER"></a>
     <b>FOOTER</b> is some HTML stuff that ends up at the bottom of
     any class's documentation. In Qt, this is used for the "Search
     the documentation, FAQ, qt-interest archive and more" part of
     class documentation pages.
 
-   <p><li><a name="ADDRESS"></a>
+   \i <a name="ADDRESS"></a>
     <b>ADDRESS</b> is some HTML stuff that ends up at the bottom of
     all generated HTML files (below the footer, if any). In Qt, this
     is used for the copyright notice at the bottom of every page.
-  </ul>
+  \endlist
 
-  <h3>Exciting variables</h3>
+  \section 2 Exciting variables
 
   The following configuration variables are interesting enough to
   deserve a command-line option with a similar name.
 
-  <ul>
-   <p><li><a name="AUTOHREFS"></a>
+  \list
+   \i <a name="AUTOHREFS"></a>
     <b>AUTOHREFS</b> (cf. \link #--auto-hrefs --auto-hrefs \endlink)
     controls whether automatic links are to be generated or not. The
     following line turns off automatic links:
     <pre>
     AUTOHREFS = no</pre>
 
-   <p><li><a name="BASE"></a>
+   \i <a name="BASE"></a>
     <b>BASE</b> (cf. \link #--base --base \endlink) represents the URL
     prefix to use when emitting editorial warnings.
 
@@ -1114,7 +1237,7 @@
     <pre>
     BASE = file://$QTDIR/doc/html/</pre>
 
-   <p><li><a name="DEFINE"></a>
+   \i <a name="DEFINE"></a>
     <b>DEFINE</b> (cf. \link #--define --define \endlink) defines
     preprocessor symbols so that qdoc knows what to do when it meets
     "#ifdef FOO" or "#if defined(FOO)". By default, no symbol is
@@ -1149,7 +1272,7 @@
     ...
     #endif</pre>
 
-   <p><li><a name="FALSE"></a>
+   \i <a name="FALSE"></a>
     <b>FALSE</b> (cf. \link #--false --false \endlink) tells qdoc what
     atomic preprocessor predicates to consider as false. By default,
     all atomic predicates except "defined(.*)" are taken true.
@@ -1160,7 +1283,7 @@
     will make qdoc behave as if "0" were false (indeed, it is in C++)
     and "GNOMOVISION_VER < 3" were false.
 
-   <p><li><a name="INTERNAL"></a>
+   \i <a name="INTERNAL"></a>
     <b>INTERNAL</b> (cf. \link #--internal --internal \endlink)
     controls whether to generate internal or public documentation.
     By default, qdoc generates public documentation. To generate
@@ -1168,7 +1291,7 @@
     <pre>
     INTERNAL = yes</pre>
 
-   <p><li><a name="MAXSIMILAR"></a>
+   \i <a name="MAXSIMILAR"></a>
     <b>MAXSIMILAR</b> (cf.
     \link #--max-similar --max-similar \endlink) sets a limit on the
     number of similar warnings emitted, to avoid overwhelming amounts
@@ -1177,7 +1300,7 @@
     <pre>
     MAXSIMILAR = 16</pre>
 
-   <p><li><a name="MAXWARNINGS"></a>
+   \i <a name="MAXWARNINGS"></a>
     <b>MAXWARNINGS</b> (cf.
     \link #--max-warnings --max-warnings \endlink) sets a global limit
     on the number of warnings emitted. By default,
@@ -1185,21 +1308,21 @@
     MAXWARNINGS = 64</pre>
     so only the first 64 warnings are emitted.
 
-   <p><li><a name="ONLY"></a>
+   \i <a name="ONLY"></a>
     <b>ONLY</b> (cf. \link #--only --only \endlink) allows you to
     generate only a subset of the HTML files. For example, to
     generate only qpushbutton.html and tutorial.html, use
     <pre>
     ONLY = qpushbutton tutorial</pre>
 
-   <p><li><a name="OUTPUTDIR"></a>
+   \i <a name="OUTPUTDIR"></a>
     <b>OUTPUTDIR</b> (cf. \link #--output-dir --output-dir \endlink)
     sets the directory where qdoc puts the generated documentation.
     Example:
     <pre>
     OUTPUTDIR = $QTDIR/doc/html</pre>
 
-   <p><li><a name="SUPERVISOR"></a>
+   \i <a name="SUPERVISOR"></a>
     <b>SUPERVISOR</b> (cf. \link #--supervisor --supervisor \endlink)
     instructs qdoc to warn or not about changes in the documentation
     since the previous run.
@@ -1207,7 +1330,7 @@
     This is useful almost exclusively for technical writers who want
     to go over the editorial changes made by other people.
 
-   <p><li><a name="WARNINGLEVEL"></a>
+   \i <a name="WARNINGLEVEL"></a>
     <b>WARNINGLEVEL</b>
     (cf. \link #--warning-level --warning-level \endlink) sets the
     warning level (between 0 and 4). A higher level means more
@@ -1216,14 +1339,14 @@
     The default warning level
     <pre>
     WARNINGLEVEL = 2</pre>
-  </ul>
+  \endlist
 
   <a name="run"></a>
 
   <img src="run.png" align=right width=192 height=192
   alt="A running duck">
 
-  <h2>Running qdoc</h2>
+  \section 1 Running qdoc
 
   Let's assume you have a \link #food qdoc.conf \endlink file in the
   current directory. The command
@@ -1239,20 +1362,20 @@
   user and the lazy typists. However, since the author of this manual
   is a lazy typist, only long options are listed here:
 
-  <ul>
-   <p><li><a name="--auto-hrefs"></a>
+  \list
+   \i <a name="--auto-hrefs"></a>
     <b>--auto-hrefs</b> (cf. \link #AUTOHREFS AUTOHREFS \endlink)
     enables or disables automatic links. Passing "--auto-hrefs=no" to
     qdoc makes it run faster.
 
-   <p><li><a name="--base"></a>
+   \i <a name="--base"></a>
     <b>--base</b> (cf. \link #BASE BASE \endlink) sets the URL prefix
     to use when emitting editorial warnings. To get a
     Netscape-friendly prefix, pass
     "--base=file:///home/warwick/qt/doc/html" to qdoc (assuming that
     the documentation is in /home/warwick/qt/doc/html).
 
-   <p><li><a name="--define"></a>
+   \i <a name="--define"></a>
     <b>--define</b> (cf. \link #DEFINE DEFINE \endlink) defines
     preprocessor symbols to guide qdoc. You can write
     "--define=DEBUG,GUBED" to define the preprocessor symbols DEBUG
@@ -1260,36 +1383,36 @@
     characters interpreted by your command interpreter. To ease
     typing, "," can be used instead of "|" to mean "or".
 
-   <p><li><a name="--false"></a>
+   \i <a name="--false"></a>
     <b>--false</b> (cf. \link #FALSE FALSE \endlink) specifies what
     atomic preprocessor predicates to consider as false. The syntax
     is similar to that of \link #--define --define \endlink.
 
-   <p><li><a name="--help"></a>
+   \i <a name="--help"></a>
     <b>--help</b> displays the list of long options, together with the
     current values of some options in brackets, and exits.
 
-   <p><li><a name="--help-short"></a>
+   \i <a name="--help-short"></a>
     <b>--help-short</b> displays the list of short options, together
     with the current values of some options in brackets, and exits.
 
-   <p><li><a name="--internal"></a>
+   \i <a name="--internal"></a>
     <b>--internal</b> (cf. \link #INTERNAL INTERNAL \endlink) controls
     whether qdoc generates internal or public documentation. Use
     "--internal" (or "--internal=yes") to generate internal
     documentation, and "--internal=no" to generate public
     documentation.
 
-   <p><li><a name="--max-similar"></a>
+   \i <a name="--max-similar"></a>
     <b>--max-similar</b> (cf. \link #MAXSIMILAR MAXSIMILAR \endlink)
     sets a limit on the number of similar warnings.
 
-   <p><li><a name="--max-warnings"></a>
+   \i <a name="--max-warnings"></a>
     <b>--max-warnings</b> is equivalent to
     \link #MAXWARNINGS MAXWARNINGS \endlink. It sets a global limit on
     the number of warnings emitted.
 
-   <p><li><a name="--only"></a>
+   \i <a name="--only"></a>
     <b>--only</b> is equivalent to \link #ONLY ONLY \endlink. It
     allows you to generate a subset of the HTML files. For example,
     "--only=qpushbutton,tutorial" makes qdoc run much faster by
@@ -1302,18 +1425,18 @@
 
     The generated files have the same quality as usual, because all
     the include files and source files are read anyway.
-   <p><li><a name="--output-dir"></a>
+   \i <a name="--output-dir"></a>
     <b>--output-dir</b> sets the directory where qdoc puts the
     generated documentation. Example:
     "--output-dir=/home/warwick/qt/doc/html".
 
-   <p><li><a name="--supervisor"></a>
+   \i <a name="--supervisor"></a>
     <b>--supervisor</b> instructs qdoc to warn or not about changes in
     the documentation since the previous run. Use "--supervisor" (or
     "--supervisor=yes") to enable supervisor mode and
     "--supervisor=no" to disable it.
 
-   <p><li><a name="--version"></a>
+   \i <a name="--version"></a>
     <b>--version</b> prints the qdoc version number and exits.
 
     Try this option now. You should get the following message:
@@ -1323,15 +1446,15 @@
     \link mailto:jasmin@trolltech.com somebody \endlink to update this
     manual.
 
-   <p><li><a name="--warning-level"></a>
+   \i <a name="--warning-level"></a>
     <b>--warning-level</b> sets the warning level (between 0 and 4).
     Use "--warning-level=0" to get only errors, and
     "--warning-level=4" to get important and unimportant warnings
     alike. At level 4, you still might miss some warnings, if the
     maximum number of warnings is reached (cf.
     \link #--max-warnings --max-warnings \endlink and
-    \link #--max-similar --max-similar \endlink.
-  </ul>
+    \link #--max-similar --max-similar \endlink).
+  \endlist
 
   The full list of short options can be obtained by running
   <pre>
@@ -1345,7 +1468,7 @@
   <img src="join.png" align=right width=192 height=192
   alt="Three bath ducks">
 
-  <h2>Joining the qdoc community</h2>
+  \section 1 Joining the qdoc community
 
   To join Badegakk (the qdoc user group), send your name with your
   address and a $2.56 check to
