@@ -562,6 +562,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	    w = xw * 80;
 	else if ( w < 0 )
 	    w = 2000;
+	w -= hextra;
 	br = fm.boundingRect( 0, 0, w ,2000, alignment(), text() );
 	if ( tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2 )
 		br = fm.boundingRect( 0, 0, w/2, 2000, alignment(), text() );
