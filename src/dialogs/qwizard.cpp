@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#12 $
 **
 ** Implementation of something useful.
 **
@@ -511,6 +511,7 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 
     h->addSpacing( 6 );
 
+    debug( "1" );
     if ( hasEarlyFinish ) {
 	d->nextButton->show();
 	d->finishButton->show();
@@ -518,9 +519,22 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 	h->addSpacing( 12 );
 	h->addWidget( d->finishButton );
     } else if ( d->current->finishEnabled ) {
+    debug( "2" );
+	d->nextButton->show();
+	d->finishButton->hide();
+	h->addWidget( d->nextButton );
+	d->nextButton->setText( "Finish!" );
+	d->nextButton->setEnabled( TRUE );
+	connect( d->nextButton, SIGNAL(clicked()),
+		 this, SLOT(finish()) );
+#if 0	
 	d->nextButton->hide();
 	d->finishButton->show();
+	d->finishButton->show();
+	d->finishButton->show();
+	d->finishButton->show();
 	h->addWidget( d->finishButton );
+#endif
     } else {
 	d->nextButton->show();
 	d->finishButton->hide();
@@ -588,4 +602,5 @@ void QWizard::layOut()
     d->v->addLayout( l );
     layOutButtonRow( l );
     d->v->activate();
+    QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
 }
