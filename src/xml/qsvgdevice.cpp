@@ -444,7 +444,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     QString str;
     QRect rect;
     QPointArray a;
-    int i;
+    int i, width, height, x, y;
     switch ( c ) {
     case PdcNOP:
 	break;
@@ -470,10 +470,22 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     case PdcDrawRect:
     case PdcDrawRoundRect:
 	e = doc.createElement( "rect" );
-	e.setAttribute( "x", p[0].rect->x() );
-	e.setAttribute( "y", p[0].rect->y() );
-	e.setAttribute( "width", p[0].rect->width() );
-	e.setAttribute( "height", p[0].rect->height() );
+	x = p[0].rect->x();
+	y = p[0].rect->y();
+	width = p[0].rect->width();
+	height = p[0].rect->height();
+	if ( width < 0 ) {
+	    width = -width;
+	    x -= width - 1;
+	}
+	if ( height < 0 ) {
+	    height = -height;
+	    y -= height - 1;
+	}
+	e.setAttribute( "x", x );
+	e.setAttribute( "y", y );
+	e.setAttribute( "width", width );
+	e.setAttribute( "height", height );
 	if ( c == PdcDrawRoundRect ) {
 	    e.setAttribute( "rx", (p[1].ival*p[0].rect->width())/200 );
 	    e.setAttribute( "ry", (p[2].ival*p[0].rect->height())/200 );
