@@ -1688,10 +1688,11 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
     syncMenu = this;
     syncMenuId = -1;
 
-    connectModal( this, TRUE );
+    QGuardedPtr<QPopupMenu> that = this;
+    connectModal( that, TRUE );
     popup( pos, indexAtPoint );
     qApp->enter_loop();
-    connectModal( this, FALSE );
+    connectModal( that, FALSE );
 
     syncMenu = priorSyncMenu;
     return syncMenuId;
@@ -1705,6 +1706,9 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
  */
 void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
 {
+    if ( !receiver )
+	return;
+
     connectModalRecursionSafety = doConnect;
 
     if ( doConnect )

@@ -47,9 +47,9 @@
 #include "qdragobject.h"
 #include "qtimer.h"
 #include "qpopupmenu.h"
-
+#include "qstringlist.h"
+#include "qguardedptr.h"
 #include <ctype.h>
-
 
 struct QLineEditUndoItem
 {
@@ -841,7 +841,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     d->dnd_startpos = e->pos();
     d->dnd_primed = FALSE;
     if ( e->button() == RightButton ) {
-	QPopupMenu *popup = new QPopupMenu( this );
+	QGuardedPtr<QPopupMenu> popup = new QPopupMenu( this );
 	int id[ 7 ];
 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
