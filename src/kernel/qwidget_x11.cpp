@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#401 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#402 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -787,14 +787,18 @@ qstring_to_xtp( const QString& s )
 {
     static XTextProperty tp;
     static const QTextCodec* mapper = QTextCodec::codecForLocale();
+    int errCode = 0;
     if ( mapper ) {
 	QCString mapped = mapper->fromUnicode(s);
 	char* tl[2];
 	tl[0] = mapped.data();
 	tl[1] = 0;
-	XmbTextListToTextProperty( QPaintDevice::x11AppDisplay(),
-	    tl, 1, XStdICCTextStyle, &tp );
-    } else {
+	errCode = XmbTextListToTextProperty( QPaintDevice::x11AppDisplay(),
+					     tl, 1, XStdICCTextStyle, &tp );
+	if ( errCode < 0 )
+	    qDebug( "qstring_to_xtp result code %d", errCode );
+    }
+    if ( !mapper || errCode < 0 ) {
 	static QCString qcs = s.ascii();
 	tp.value = (uchar*)qcs.data();
 	tp.encoding = XA_STRING;
