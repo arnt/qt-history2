@@ -191,7 +191,7 @@ Option::parseCommandLine(int argc, char **argv)
 	    } else if(opt == "d") {
 		Option::debug_level++;
 	    } else if(opt == "version" || opt == "v" || opt == "-version") {
-		fprintf(stderr, "Qmake version: %s\n", QMAKE_VERSION);
+		fprintf(stderr, "Qmake version: %s\n", qmake_version());
 		fprintf(stderr, "Qmake is free software from Trolltech AS.\n");
 		return FALSE;
 	    } else if(opt == "h" || opt == "help") {
@@ -405,6 +405,16 @@ Option::fixPathToLocalOS(const QString& in, bool fix_env)
 #else
     return tmp.replace(QRegExp("\\\\"), "/");
 #endif
+}
+
+const char *qmake_version()
+{
+    static char *ret = NULL;
+    if(ret)
+	return ret;
+    ret = (char *)malloc(15);
+    sprintf(ret, "%d.%02d%c", QMAKE_VERSION_MAJOR, QMAKE_VERSION_MINOR, 'a' + QMAKE_VERSION_PATCH);
+    return ret;
 }
 
 void debug_msg(int level, const char *fmt, ...)

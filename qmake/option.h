@@ -43,9 +43,9 @@
 #include <qfile.h>
 
 #define QMAKE_VERSION_MAJOR 1
-#define QMAKE_VERSION_MINOR 00
-#define QMAKE_VERSION_PATCH a
-#define QMAKE_VERSION "1.00a"
+#define QMAKE_VERSION_MINOR 0
+#define QMAKE_VERSION_PATCH 0
+const char *qmake_version();
 
 void fixEnvVariables(QString &x);
 void debug_msg(int level, const char *fmt, ...);
