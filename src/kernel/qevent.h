@@ -348,8 +348,8 @@ public:
     int	    globalX() const { return gp.x(); }
     int	    globalY() const { return gp.y(); }
 
-    QPoint  pos() const { return p; }
-    QPoint  globalPos() const { return gp; }
+    const QPoint&   pos() const { return p; }
+    const QPoint&   globalPos() const { return gp; }
 
     bool    isAccepted() const	{ return accpt; }
     void    accept()		{ accpt = TRUE; }

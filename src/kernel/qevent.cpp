@@ -1056,6 +1056,13 @@ void QFocusEvent::resetReason()
   coordinates.
 */
 
+/*!
+  \fn const QPoint &QContextMenuEvent::pos() const
+
+  Returns the position of the mouse pointer relative to the widget that received the event. 
+
+  \sa x(), y(), globalPos()
+*/
 
 /*!
   \fn int QContextMenuEvent::x() const
@@ -1073,6 +1080,14 @@ void QFocusEvent::resetReason()
   received the event.
 
   \sa x(), pos()
+*/
+
+/*!
+  \fn const QPoint &QContextMenuEvent::globalPos() const
+
+  Returns the global position of the mouse pointer at the time of the event.
+
+  \sa x(), y(), pos()
 */
 
 /*!
@@ -1134,7 +1149,7 @@ void QFocusEvent::resetReason()
 
 
 /*!
-  \fn void QContextMenuEvent::reason()
+  \fn QContextMenuEvent::Reason QContextMenuEvent::reason() const
   Returns the reason for this context event.
 */
 

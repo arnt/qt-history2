@@ -1735,7 +1735,7 @@ void QScrollView::setContentsPos( int x, int y )
 }
 
 /*!
- Scrolls the content by \a x to the left and \a y upwards.
+ Scrolls the content by \a dx to the left and \a dy upwards.
 */
 void QScrollView::scrollBy( int dx, int dy )
 {
