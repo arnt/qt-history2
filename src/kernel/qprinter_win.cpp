@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#45 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -239,7 +239,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    if ( !hdc )
 		ok = FALSE;
 	}
-	if ( qt_winver == WV_NT ) {
+	if ( qt_winver == Qt::WV_NT ) {
 	    DOCINFO di;
 	    memset( &di, 0, sizeof(DOCINFO) );
 	    di.cbSize = sizeof(DOCINFO);
