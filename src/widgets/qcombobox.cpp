@@ -808,7 +808,7 @@ void QComboBox::setCurrentText( const QString& txt )
 	setCurrentItem( i );
     else if ( d->ed )
 	d->ed->setText( txt );
-    else 
+    else
 	changeItem( txt, currentItem() );
 }
 
@@ -1226,13 +1226,11 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 		d->arrowDown    = TRUE;
 		repaint( FALSE );
 	    }
-	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
-	    d->shortClick = TRUE;
 	} else {
 	    popup();
-	    QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
-	    d->shortClick = TRUE;
 	}
+	QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
+	d->shortClick = TRUE;
     }
 }
 
