@@ -3371,7 +3371,6 @@ int QFontMetrics::maxWidth() const
     return w;
 }
 
-
 /*!
   Returns the distance from the base line to where an underscore should be
   drawn.
@@ -3394,7 +3393,7 @@ int QFontMetrics::strikeOutPos() const
 {
     int pos = ascent() / 3;
 
-    return pos ? pos : 1;
+    return pos > 0 ? pos : 1;
 }
 
 
