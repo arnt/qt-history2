@@ -116,7 +116,6 @@ QVariant::Type qDecodePSQLType( int t )
     case CIDOID         :
 	//    case OIDVECTOROID   : // 7.x
     case UNKNOWNOID     :
-    case CASHOID        : // deprecated
     case INETOID        :
     case CIDROID        :
 	//    case TINTERVALOID   : // 7.x
@@ -134,6 +133,7 @@ QVariant::Type qDecodePSQLType( int t )
     case TEXTOID	:
     case NAMEOID	:
     case BYTEAOID	:
+    case CASHOID        :
 	type = QVariant::String;
 	break;
     }
