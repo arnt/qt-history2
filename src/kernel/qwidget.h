@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#164 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#165 $
 **
 ** Definition of QWidget class
 **
@@ -230,7 +230,7 @@ public:
     virtual QSize sizeHint() const;
     virtual void  adjustSize();
 
-    void	 reparent( QWidget *parent, WFlags, const QPoint &,
+    virtual void reparent( QWidget *parent, WFlags, const QPoint &,
 			   bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
     void	 recreate( QWidget *parent, WFlags f, const QPoint & p,
@@ -313,18 +313,20 @@ protected:
 
 #if 1	/* OBSOLETE */
     bool	 acceptFocus()	const;
-    virtual void	 setAcceptFocus( bool );
+    virtual void setAcceptFocus( bool );
 #endif
     int		 metric( int )	const;
 
-    void	 create( WId );
-    void	 create( WId, bool initializeWindow, bool destroyOldWindow );
-    void	 destroy( bool destroyWindow, bool destroySubWindows );
+    virtual void create( WId = 0, bool initializeWindow = TRUE,
+			 bool destroyOldWindow = TRUE );
+    virtual void destroy( bool destroyWindow = TRUE,
+			  bool destroySubWindows = TRUE );
     WFlags	 getWFlags()	const;
-    virtual void	 setWFlags( WFlags );
+    virtual void setWFlags( WFlags );
     void	 clearWFlags( WFlags n );
-    virtual void	 setFRect( const QRect & );
-    virtual void	 setCRect( const QRect & );
+
+    virtual void setFRect( const QRect & );
+    virtual void setCRect( const QRect & );
 
     virtual bool focusNextPrevChild( bool next );
 
@@ -344,9 +346,7 @@ private slots:
     void	 focusProxyDestroyed();
 
 private:
-    virtual void	 setWinId( WId );
-    bool	 create();
-    bool	 destroy();
+    virtual void setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
     void	 createExtra();

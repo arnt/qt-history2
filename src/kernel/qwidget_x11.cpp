@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#263 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#264 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -326,37 +326,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 }
 
 
-#warning "Cleanup here -- Haavard"
-//
-// Remove create(window) and create().  Return void.
-// Default arguments: (window=0, destroyW=TRUE)
-
-
-/*!
-  \internal
-  Creates the widget's window. Equivalent with create(window,TRUE).
-  This function is usually called from the QWidget constructor.
-*/
-
-void QWidget::create( WId window )
-{
-    create( window, TRUE, TRUE );
-}
-
-
-/*!
-  \internal
-  Creates the widget's window. Equivalent with create(0,TRUE).
-  This function is usually called from the QWidget constructor.
-*/
-
-bool QWidget::create()
-{
-    create( 0, TRUE, TRUE );
-    return TRUE;
-}
-
-
 /*!
   Frees up window system resources.
   Destroys the widget window if \a destroyWindow is TRUE.
@@ -404,20 +373,6 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    qt_XDestroyWindow( this, dpy, winid );
 	setWinId( 0 );
     }
-}
-
-
-/*!
-  \internal
-  Destroys the widget's window and frees up window system resources.
-  Equivalent with destroy(TRUE).
-  This function is usually called from the QWidget destructor.
-*/
-
-bool QWidget::destroy()
-{
-    destroy( TRUE, TRUE );
-    return TRUE;
 }
 
 

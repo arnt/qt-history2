@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#127 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -265,19 +265,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 }
 
 
-void QWidget::create( WId window )
-{
-    create( window, TRUE, TRUE );
-}
-
-
-bool QWidget::create()
-{
-    create( 0, TRUE, TRUE );
-    return TRUE;
-}
-
-
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
     if ( testWFlags(WState_Created) ) {
@@ -305,13 +292,6 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	}
 	setWinId( 0 );
     }
-}
-
-
-bool QWidget::destroy()
-{
-    destroy( TRUE, TRUE );
-    return TRUE;
 }
 
 
