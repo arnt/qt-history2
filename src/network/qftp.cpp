@@ -603,7 +603,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 void QFtp::okButNeedMoreInfo( int code, const QCString & )
 {
     switch ( code ) {
-    case 331: // expect PASSWORD
+    case 331: {		// expect PASSWORD
 #if defined(QFTP_DEBUG)
 	qDebug( "QFtp: write password" );
 #endif
@@ -614,7 +614,7 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
 #endif
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
-	break;
+    } break;
     }
 }
 

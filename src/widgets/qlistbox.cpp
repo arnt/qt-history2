@@ -1309,6 +1309,7 @@ void QListBox::clear()
     clearSelection();
     blockSignals( FALSE );
     triggerUpdate( TRUE );
+    d->last = 0;
     d->clearing = FALSE;
 }
 

@@ -818,6 +818,7 @@ void QTable::init( int rows, int cols )
 QTable::~QTable()
 {
     delete d;
+    contents.setAutoDelete( TRUE );
     contents.clear();
     widgets.clear();
 }

@@ -5232,6 +5232,7 @@ void QFileDialog::resortDir()
 
     if ( files->childCount() > 0 || d->moreFiles->count() > 0 ) {
 	files->clear();
+	d->last = 0;
 	d->moreFiles->clear();
 	files->setSorting( -1 );
     }
