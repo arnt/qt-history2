@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#122 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#122 $");
 
 
 /*!
@@ -436,8 +436,8 @@ QPalette *QApplication::palette()
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
-	warning( "QApplication::palette: This function must be "
-		 "called after the QApplication object is created" );
+	warning( "QApplication::palette: This function can only be "
+		 "called after the QApplication object has been created" );
     }
 #endif
     return app_pal;
