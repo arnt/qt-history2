@@ -4,3 +4,4 @@ HEADERS		= application.h
 SOURCES		= application.cpp \
 		  main.cpp 
 TARGET		= mdi
+DEPENDPATH=../../include

@@ -8,3 +8,4 @@ SOURCES		= main.cpp \
 		  qfileiconview.cpp \
 		../dirview/dirview.cpp
 TARGET		= fileiconview
+DEPENDPATH=../../include
