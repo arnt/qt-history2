@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#3 $
 **
 ** Implementation of QColor class for Windows + NT
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#3 $";
 #endif
 
 
@@ -123,14 +123,28 @@ QColor::QColor( int r, int g, int b )		// specify RGB
 
 QColor::QColor( const char *name )		// load color from database
 {
-#if defined(DEBUG)
-    warning( "QColor::QColor: Named colors currently unsupported" );
-#endif
-    pix = rgb = _RGB(255,255,255);
+    setNamedColor( name );
 }
 
 QColor::~QColor()
 {
+}
+
+
+bool QColor::alloc()				// allocate color
+{
+    rgb &= RGB_MASK;
+    return TRUE;
+}
+
+
+bool QColor::setNamedColor( const char * )	// load color from database
+{
+#if defined(DEBUG)
+    warning( "QColor::setNamedColor: Named colors currently unsupported" );
+#endif
+    pix = rgb = _RGB(0,0,0);
+    return FALSE;
 }
 
 
