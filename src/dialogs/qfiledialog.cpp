@@ -4355,9 +4355,18 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 
 	HICON si;
 	UINT res;
-	res = ExtractIconExA( (const char*)lst[ 0 ].simplifyWhiteSpace().latin1(),
-			      lst[ 1 ].simplifyWhiteSpace().toInt(),
-			      0, &si, 1 );
+	QString filepath = lst[ 0 ].stripWhiteSpace();
+	if ( filepath.find("%1") != -1 ) {
+	    filepath = filepath.arg( fi.filePath() );
+	    if ( ext.lower() == ".dll" ) {
+		pix = defaultFile;
+		return &pix;
+	    }
+	}
+
+	res = ExtractIconExA( filepath.latin1(),
+			      lst[ 1 ].stripWhiteSpace().toInt(),
+			      NULL, &si, 1 );
 
 	if ( res != -1 ) {
 	    pix.resize( pixw, pixh );
@@ -4763,6 +4772,10 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	return;
 
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	if ( isRoot( d->url ) )
+	    d->cdToParent->setEnabled( FALSE );
+	else
+	    d->cdToParent->setEnabled( TRUE );
 	d->mimeTypeTimer->stop();
 	qApp->processEvents();
 	d->sortedList.clear();
@@ -4784,10 +4797,6 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	d->paths->setCurrentItem( i );
 	d->last = 0;
 	d->hadDotDot = FALSE;
-	if ( isRoot( d->url ) )
-	    d->cdToParent->setEnabled( FALSE );
-	else
-	    d->cdToParent->setEnabled( TRUE );
 
 	if ( d->goBack && d->history.last() != d->url.toString() ) {
 	    d->history.append( d->url.toString() );
