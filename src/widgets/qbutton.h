@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#33 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#34 $
 **
 ** Definition of QButton widget class
 **
@@ -49,6 +49,7 @@ signals:
 protected:
     void	setToggleButton( bool );
     void	setOn( bool );
+    void	setDown( bool );
 
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );

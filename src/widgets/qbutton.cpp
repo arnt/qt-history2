@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#43 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#43 $")
 
 
 /*----------------------------------------------------------------------------
@@ -48,9 +48,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#42 $")
   texts and pixmaps.
 
   Another convention thing about QButtons is \link setAutoResize()
-  auto-resizing\endlink.  Enabling
-  auto-resizing will make a label resize itself whenever the contents
-  change.
+  auto-resizing\endlink.  Enabling auto-resizing will make a label
+  resize itself whenever the contents change.
 
   \sa QButtonGroup
  ----------------------------------------------------------------------------*/
@@ -236,8 +235,27 @@ void QButton::setAutoResize( bool enable )
   \sa setOn(), toggleButton()
  ----------------------------------------------------------------------------*/
 
+
+/*! Set the state of the button to \e pressed and redraw it if
+  necessary.  If the button is a toggle button, it is \e not toggled,
+  call toggle() as well if you need to do that.
+
+  This method is provided in case you need to override the mouse event
+  handlers.
+
+  \sa setOn(), isDown(), toggle(), toggled() */
+
+void QButton::setDown( bool pressed )
+{
+    if ( buttonDown != pressed ) {
+	buttonDown = pressed;
+	repaint( FALSE );
+    }
+}
+
+
 /*----------------------------------------------------------------------------
-  Swithes a toggle button on if \e enable is TRUE or off if \e enable is
+  Switches a toggle button on if \e enable is TRUE or off if \e enable is
   FALSE.  This function should be called only for toggle buttons.
   \sa isOn(), toggleButton()
  ----------------------------------------------------------------------------*/
@@ -254,6 +272,8 @@ void QButton::setOn( bool enable )
 	emit toggled( buttonOn );
     }
 }
+
+
 
 
 /*----------------------------------------------------------------------------
