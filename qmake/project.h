@@ -34,8 +34,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __QMAKE_H__
-#define __QMAKE_H__
+#ifndef __PROJECT_H__
+#define __PROJECT_H__
 
 #include <qstringlist.h>
 #include <qstring.h>
@@ -111,4 +111,4 @@ inline QString QMakeProject::first(const QString &v)
 inline QMap<QString, QStringList> &QMakeProject::variables()
 { return vars; }
 
-#endif /* __QMAKE_H__ */
+#endif /* __PROJECT_H__ */
