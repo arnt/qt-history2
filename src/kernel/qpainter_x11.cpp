@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#247 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#248 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2448,8 +2448,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
-	    QString newstr = str;
-	    newstr.truncate( len );
+	    QString newstr( str, len+1 );
 	    param[0].point = &p;
 	    param[1].str = newstr.data();
 	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hd )
