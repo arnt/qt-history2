@@ -103,19 +103,19 @@ QWidgetPrivate::~QWidgetPrivate()
     clipped by its parent and by the widgets in front of it.
 
     A widget that isn't embedded in a parent widget is called a
-    top-level widget. Usually, top-level widgets are windows with a
-    frame and a title bar (although it is also possible to create
-    top-level widgets without such decoration if suitable widget flags
-    are used). In Qt, QMainWindow and the various subclasses of
-    QDialog are the most common top-level windows.
+    window. Usually, windows have a frame and a title bar,  although
+    it is also possible to create windows without such decoration using
+    suitable \l{Qt::WindowFlags}{window flags}). In Qt,
+    QMainWindow and the various subclasses of QDialog are the most
+    common window types.
 
-    A widget without a parent widget is always a top-level widget.
+    A widget without a parent widget is always an independent window.
 
-    Non-top-level widgets are child widgets. These are child windows
+    Non-window widgets are child widgets. These are child windows
     in their parent widgets. You cannot usually distinguish a child
     widget from its parent visually. Most other widgets in Qt are
     useful only as child widgets. (It is possible to make, say, a
-    button into a top-level widget, but most people prefer to put
+    button into a window, but most people prefer to put
     their buttons inside other widgets, e.g. QDialog.)
 
     If you want to use a QWidget to hold child widgets you will
@@ -288,13 +288,13 @@ QWidgetPrivate::~QWidgetPrivate()
     Every widget's constructor accepts one or two standard arguments:
     \list 1
     \i \c{QWidget *parent = 0} is the parent of the new widget.
-    If it is 0 (the default), the new widget will be a top-level window.
+    If it is 0 (the default), the new widget will be a window.
     If not, it will be a child of \e parent, and be constrained by \e
     parent's geometry (unless you specify \c Qt::WType_TopLevel as
     widget flag).
     \i \c{Qt::WFlags f = 0} (where available) sets the widget flags; the
     default is suitable for almost all widgets, but to get, for
-    example, a top-level widget without a window system frame, you
+    example, a window without a window system frame, you
     must use special flags.
     \endlist
 
@@ -428,7 +428,7 @@ QWidgetPrivate::~QWidgetPrivate()
     other widgets can contain and manage yours easily. sizeHint()
     indicates a "good" size for the widget.
 
-    \i If your widget is a top-level window, setWindowTitle() and
+    \i If your widget is a window, setWindowTitle() and
     setWindowIcon() set the title bar and icon respectively.
 
     \endlist
@@ -500,13 +500,13 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     Constructs a widget which is a child of \a parent, with  widget
     flags set to \a f.
 
-    If \a parent is 0, the new widget becomes a top-level window. If
+    If \a parent is 0, the new widget becomes a window. If
     \a parent is another widget, this widget becomes a child window
     inside \a parent. The new widget is deleted when its \a parent is
     deleted.
 
     The widget flags argument, \a f, is normally 0, but it can be set
-    to customize the window frame of a top-level widget (i.e. \a
+    to customize the frame of a window (i.e. \a
     parent must be 0). To customize the frame, set the \c
     Qt::WStyle_Customize flag OR'ed with any of the \l{Qt::WFlag}s.
 
@@ -1271,31 +1271,31 @@ QStyle* QWidget::setStyle(const QString &style)
 
 /*!
     \property QWidget::isWindow
-    \brief whether the widget is a top-level widget
+    \brief whether the widget is an independent window
 
-    A top-level widget is a widget which usually has a frame and a
+    A window is a widget that isn't visually the child of any other
+    widget and that usually has a frame and a
     \l{QWidget::setWindowTitle()}{window title}.
 
-    A top-level widget can have a \l{QWidget::parentWidget()}{parent
-    widget}. It will then be grouped with its parent and deleted
-    when the parent is deleted, minimized when the parent is minimized
-    etc. If supported by the window manager, it will also have a
-    common taskbar entry with its parent.
+    A window can have a \l{QWidget::parentWidget()}{parent widget}.
+    It will then be grouped with its parent and deleted when the
+    parent is deleted, minimized when the parent is minimized etc. If
+    supported by the window manager, it will also have a common
+    taskbar entry with its parent.
 
-    QDialog and QMainWindow widgets are by default top-level, even if
-    a parent widget is specified in the constructor. This behavior is
-    specified by the \c Qt::WType_TopLevel widget flag.
+    QDialog and QMainWindow widgets are by default windows, even if a
+    parent widget is specified in the constructor. This behavior is
+    specified by the Qt::Window flag.
 
     \sa window(), isModal(), parentWidget()
 */
 
 /*!
-    \property QWidget::isModal
+    \property QWidget::modal
     \brief whether the widget is a modal widget
 
-    This property only makes sense for top-level widgets. A modal
-    widget prevents widgets in all other top-level widgets from
-    getting any input.
+    This property only makes sense for windows. A modal widget
+    prevents widgets in all other windows from getting any input.
 
     \sa isWindow(), QDialog
 */
@@ -1316,7 +1316,7 @@ QStyle* QWidget::setStyle(const QString &style)
     \property QWidget::minimized
     \brief whether this widget is minimized (iconified)
 
-    This property is only relevant for top-level widgets.
+    This property is only relevant for windows.
 
     \sa showMinimized(), visible, show(), hide(), showNormal(), maximized
 */
@@ -1326,8 +1326,7 @@ bool QWidget::isMinimized() const
 /*!
     Shows the widget minimized, as an icon.
 
-    Calling this function only affects \l{isWindow()}{top-level
-    widgets}.
+    Calling this function only affects \l{isWindow()}{windows}.
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible(),
         isMinimized()
@@ -1352,7 +1351,7 @@ void QWidget::showMinimized()
     \property QWidget::maximized
     \brief whether this widget is maximized
 
-    This property is only relevant for top-level widgets.
+    This property is only relevant for windows.
 
     Note that due to limitations in some window-systems, this does not
     always report the expected results (e.g. if the user on X11
@@ -1429,7 +1428,7 @@ bool QWidget::isFullScreen() const
 /*!
     Shows the widget in full-screen mode.
 
-    Calling this function only affects top-level widgets.
+    Calling this function only affects windows.
 
     To return from full-screen mode, call showNormal().
 
@@ -1501,8 +1500,7 @@ void QWidget::showMaximized()
 /*!
     Restores the widget after it has been maximized or minimized.
 
-    Calling this function only affects \link isWindow() top-level
-    widgets\endlink.
+    Calling this function only affects \l{isWindow()}{windows}.
 
     \sa setWindowState(), showMinimized(), showMaximized(), show(), hide(), isVisible()
 */
@@ -1778,7 +1776,7 @@ void QWidget::setDisabled(bool disable)
     window frame
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of geometry issues with top-level widgets.
+    for an overview of geometry issues with windows.
 
     \sa geometry() x() y() pos()
 */
@@ -1804,7 +1802,7 @@ QRect QWidget::frameGeometry() const
     any window frame
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of top-level widget geometry.
+    for an overview of window geometry.
 
     \sa frameGeometry, y, pos
 */
@@ -1825,7 +1823,7 @@ int QWidget::x() const
     including any window frame
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of top-level widget geometry.
+    for an overview of window geometry.
 
     \sa frameGeometry, x, pos
 */
@@ -1844,8 +1842,8 @@ int QWidget::y() const
     \property QWidget::pos
     \brief the position of the widget within its parent widget
 
-    If the widget is a top-level widget, the position is that of the
-    widget on the desktop, including its frame.
+    If the widget is a window, the position is that of the widget on
+    the desktop, including its frame.
 
     When changing the position, the widget, if visible, receives a
     move event (moveEvent()) immediately. If the widget is not
@@ -1859,7 +1857,7 @@ int QWidget::y() const
     lead to infinite recursion.
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of top-level widget geometry.
+    for an overview of window geometry.
 
     \sa frameGeometry, size x(), y()
 */
@@ -1892,7 +1890,7 @@ QPoint QWidget::pos() const
     can lead to infinite recursion.
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of top-level widget geometry.
+    for an overview of window geometry.
 
     \sa frameGeometry(), rect(), move(), resize(), moveEvent(),
         resizeEvent(), minimumSize(), maximumSize()
@@ -1916,7 +1914,7 @@ QPoint QWidget::pos() const
     visible, it is guaranteed to receive an event before it is shown.
 
     The size is adjusted if it lies outside the range defined by
-    minimumSize() and maximumSize(). For top-level widgets, the minimum size
+    minimumSize() and maximumSize(). For windows, the minimum size
     is always at least QSize(1, 1), and it might be larger, depending on
     the window manager.
 
@@ -1931,7 +1929,7 @@ QPoint QWidget::pos() const
     \brief the width of the widget excluding any window frame
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of top-level widget geometry.
+    for an overview of window geometry.
 
     \sa geometry, height, size
 */
@@ -1941,7 +1939,7 @@ QPoint QWidget::pos() const
     \brief the height of the widget excluding any window frame
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of top-level widget geometry.
+    for an overview of window geometry.
 
     \sa geometry, width, size
 */
@@ -1954,7 +1952,7 @@ QPoint QWidget::pos() const
     The rect property equals QRect(0, 0, width(), height()).
 
     See the \link geometry.html Window Geometry documentation\endlink
-    for an overview of top-level widget geometry.
+    for an overview of window geometry.
 
     \sa size
 */
@@ -2112,7 +2110,7 @@ QSize QWidget::maximumSize() const
     \endcode
 
     Note that while you can set the size increment for all widgets, it
-    only affects top-level widgets.
+    only affects windows.
 
     \warning The size increment has no effect under Windows, and may
     be disregarded by the window manager on X.
@@ -2313,7 +2311,7 @@ QPoint QWidget::mapFromParent(const QPoint &pos) const
     Returns the window for this widget, i.e. the next ancestor widget
     that has (or could have) a window-system frame.
 
-    If the widget is a top-level, the widget itself is returned.
+    If the widget is a window, the widget itself is returned.
 
     Typical usage is changing the window title:
 
@@ -2762,7 +2760,7 @@ void QWidget::unsetLayoutDirection()
 
     If no cursor has been set, or after a call to unsetCursor(), the
     parent's cursor is used. The function unsetCursor() has no effect
-    on top-level widgets.
+    on windows.
 
     \sa QApplication::setOverrideCursor()
 */
@@ -2784,7 +2782,7 @@ QCursor QWidget::cursor() const
     \property QWidget::windowTitle
     \brief the window title (caption)
 
-    This property only makes sense for top-level widgets. If no
+    This property only makes sense for windows. If no
     caption has been set, the title is an empty string.
 
     \sa windowIcon windowIconText
@@ -2801,7 +2799,7 @@ QString QWidget::windowTitle() const
     \property QWidget::windowIcon
     \brief the widget's icon
 
-    This property only makes sense for top-level widgets. If no icon
+    This property only makes sense for windows. If no icon
     has been set, windowIcon() returns the application icon.
 
     \sa windowIconText, windowTitle \link appicon.html Setting the Application Icon\endlink
@@ -2842,7 +2840,7 @@ void QWidget::setWindowIcon(const QIcon &icon)
     \property QWidget::windowIconText
     \brief the widget's icon text
 
-    This property only makes sense for top-level widgets. If no icon
+    This property only makes sense for windows. If no icon
     text has been set, this functions returns an empty string.
 
     \sa windowIcon, windowTitle
@@ -2868,7 +2866,7 @@ QString QWidget::windowRole() const
 
 /*!
     Sets the window's role to \a role. This only makes sense for
-    top-level widgets on X11.
+    windows on X11.
 */
 void QWidget::setWindowRole(const QString &role)
 {
@@ -3116,9 +3114,9 @@ void QWidget::clearFocus()
     first link on the "page".
 
     Child widgets call focusNextPrevChild() on their parent widgets,
-    but only the top-level widget decides where to redirect focus. By
-    overriding this method for an object, you thus gain control of
-    focus traversal for all child widgets.
+    but only the window that contains the child widgets decides where
+    to redirect focus. By reimplementing this function for an object,
+    you thus gain control of focus traversal for all child widgets.
 */
 
 bool QWidget::focusNextPrevChild(bool next)
@@ -4037,7 +4035,7 @@ bool QWidget::close()
     \brief whether the widget is visible
 
     Calling show() sets the widget to visible status if all its parent
-    widgets up to the top-level widget are visible. If an ancestor is
+    widgets up to the window are visible. If an ancestor is
     not visible, the widget won't become visible until all its
     ancestors are shown.
 
@@ -4053,7 +4051,7 @@ bool QWidget::close()
 
     A widget that happens to be obscured by other windows on the
     screen is considered to be visible. The same applies to iconified
-    top-level widgets and windows that exist on another virtual
+    windows and windows that exist on another virtual
     desktop (on platforms that support this concept). A widget
     receives spontaneous show and hide events when its mapping status
     is changed by the window system, e.g. a spontaneous hide event
@@ -4860,8 +4858,8 @@ void QWidget::keyReleaseEvent(QKeyEvent *e)
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
-    The default implementation updates the widget (except for top-level
-    widgets that do not specify a focusPolicy()).
+    The default implementation updates the widget (except for windows
+    that do not specify a focusPolicy()).
 
     \sa focusOutEvent(), setFocusPolicy(), keyPressEvent(),
     keyReleaseEvent(), event(), QFocusEvent
@@ -4888,8 +4886,8 @@ void QWidget::focusInEvent(QFocusEvent *)
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
-    The default implementation updates the widget (except for top-level
-    widgets that do not specify a focusPolicy()).
+    The default implementation updates the widget (except for windows
+    that do not specify a focusPolicy()).
 
     \sa focusInEvent(), setFocusPolicy(), keyPressEvent(),
     keyReleaseEvent(), event(), QFocusEvent
@@ -5180,9 +5178,9 @@ void QWidget::dropEvent(QDropEvent *)
     This event handler can be reimplemented in a subclass to receive
     widget show events which are passed in the \a event parameter.
 
-    Non-spontaneous show events are sent to widgets immediately before
-    they are shown. The spontaneous show events of top-level widgets
-    are delivered afterwards.
+    Non-spontaneous show events are sent to widgets immediately
+    before they are shown. The spontaneous show events of windows are
+    delivered afterwards.
 
     Note: A widget receives spontaneous show and hide events when its
     mapping status is changed by the window system, e.g. a spontaneous
@@ -5635,14 +5633,14 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags f)
     Sets the parent of the widget to \a parent. The widget is moved
     to position (0,0) in its new parent.
 
-    If the new parent widget is in a different top-level widget, the
+    If the new parent widget is in a different window, the
     reparented widget and its children are appended to the end of the
     \link setFocusPolicy() tab chain \endlink of the new parent
     widget, in the same internal order as before. If one of the moved
     widgets had keyboard focus, setParent() calls clearFocus() for that
     widget.
 
-    If the new parent widget is in the same top-level widget as the
+    If the new parent widget is in the same window as the
     old parent, setting the parent doesn't change the tab order or
     keyboard focus.
 
