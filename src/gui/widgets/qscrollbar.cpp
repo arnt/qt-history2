@@ -391,7 +391,7 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
     QStyleOptionSlider opt = d->getStyleOption();
 
     if (d->maximum == d->minimum // no range
-        || (e->buttons() ^ e->button()) // another button was clicked before
+        || (e->buttons() & (~e->button())) // another button was clicked before
         || !(e->button() == Qt::LeftButton || (midButtonAbsPos && e->button() == Qt::MidButton)))
         return;
 
@@ -430,7 +430,7 @@ void QScrollBar::mouseReleaseEvent(QMouseEvent *e)
     if (!d->pressedControl)
         return;
 
-    if (e->buttons()) // some other button is still pressed
+    if (e->buttons() & (~e->button())) // some other button is still pressed
         return;
 
     QStyle::SubControl tmp = d->pressedControl;
