@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#5 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#5 $");
 
 
 
@@ -109,6 +109,8 @@ void QToolBar::setUpGM()
 
     if ( style() == WindowsStyle )
 	b->addSpacing( 8 );
+    
+    QBoxLayout * fl = 0;
 
     const QObjectList * c = children();
     QObjectListIt it( *c );
@@ -123,19 +125,21 @@ void QToolBar::setUpGM()
 		if ( orientation() == Vertical ) {
 		    f->setMinimumSize( 0, 4 );
 		    f->setMaximumSize( 32767, 4 );
-		    // f->setFrameStyle( QFrame::HLine + QFRame::Raised );
+		    f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
+		    fl = new QBoxLayout( QBoxLayout::LeftToRight );
 		} else {
 		    f->setMinimumSize( 4, 0 );
 		    f->setMaximumSize( 4, 32767 );
-		    // f->setFrameStyle( QFrame::VLine + QFRame::Raised );
+		    f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
+		    fl = new QBoxLayout( QBoxLayout::Down );
 		}
+		b->addLayout( fl );
+		fl->addSpacing( 1 );
+		fl->addWidget( (QWidget *)o, 1 );
+		fl->addSpacing( 1 );
+	    } else {
+		b->addWidget( (QWidget *)o, 0 );
 	    }
-	    b->addWidget( (QWidget *)o, 0 );
-	    //QWidget * dbg = (QWidget *)o;
-	
-	    //debug( "%s/%s: %d,%d %d,%d", o->name(), o->className(),
-	    //	   dbg->width(), dbg->height(),
-	    //	   dbg->minimumSize().width(), dbg->minimumSize().height() );
 	}
     }
 
