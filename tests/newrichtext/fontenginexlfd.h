@@ -14,9 +14,9 @@ public:
     FontEngineXLFD( XFontStruct *fs, const char *name, QTextCodec *codec, int cmap );
     ~FontEngineXLFD();
 
-    Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const;
+    Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const;
 
-    void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
+    void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs, bool reverse );
 
     Offset advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
     QGlyphInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );

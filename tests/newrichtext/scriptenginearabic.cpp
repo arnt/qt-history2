@@ -114,20 +114,18 @@ void ScriptEngineArabic::shape( ShapedItem *result )
     int from = d->from;
     int len = d->length;
 
-    QPainter::TextDirection dir = d->analysis.bidiLevel % 2 ? QPainter::RTL : QPainter::LTR;
-    // ### this is hacky and should work on glyphs
-    QString shaped = QComplexText::shapedString( text, from, len, dir );
+    QString shaped = QComplexText::shapedString( text, from, len, QPainter::LTR );
     len = shaped.length();
 
     d->num_glyphs = len;
     d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-    int error = d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
+    int error = d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs );
     if ( error == FontEngineIface::OutOfMemory ) {
 	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-	d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
+	d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs );
     }
 
-    // ######## wrong!!!!!!
+    // ######## wrong due to ligatures!!!!!!
     heuristicSetGlyphAttributes( result );
 
     d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
@@ -143,12 +141,11 @@ void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedIte
     int len = d->length;
 
     d->num_glyphs = len;
-    bool reverse = d->analysis.bidiLevel % 2;
     d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-    int error = d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs, reverse );
+    int error = d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs );
     if ( error == FontEngineIface::OutOfMemory ) {
 	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-	d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs, reverse );
+	d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs );
     }
 
     heuristicSetGlyphAttributes( result );
@@ -165,16 +162,8 @@ void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedIte
 	allocated = TRUE;
     }
 
-    if ( reverse ) {
-	int pos = d->num_glyphs - 1;
-	for ( int i = 0; i < d->num_glyphs; i++ ) {
-	    featuresToApply[pos] = glyphVariantLogical( text, from + i );
-	    pos--;
-	}
-    } else {
-	for ( int i = 0; i < d->num_glyphs; i++ )
-	    featuresToApply[i] = glyphVariantLogical( text, from + i );
-    }
+    for ( int i = 0; i < d->num_glyphs; i++ )
+	featuresToApply[i] = glyphVariantLogical( text, from + i );
 
     ((OpenTypeIface *) openType)->applyGlyphSubstitutions( OpenTypeIface::Arabic, result, featuresToApply );
 

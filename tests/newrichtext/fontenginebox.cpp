@@ -23,7 +23,7 @@ FontEngineBox::~FontEngineBox()
 {
 }
 
-FontEngineIface::Error FontEngineBox::stringToCMap( const QChar *,  int len, GlyphIndex *glyphs, int *nglyphs, bool ) const
+FontEngineIface::Error FontEngineBox::stringToCMap( const QChar *,  int len, GlyphIndex *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -36,7 +36,7 @@ FontEngineIface::Error FontEngineBox::stringToCMap( const QChar *,  int len, Gly
     return NoError;
 }
 
-void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*/, const Offset */*offsets*/, int numGlyphs, bool )
 {
 //     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 

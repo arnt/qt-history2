@@ -3118,7 +3118,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	FontEngineIface *fe = cfont.engineForScript( script );
  	qDebug("drawing item %d, script=%d, fe=%p", current, script, fe );
 	if ( fe && fe != (FontEngineIface *)-1 ) {
-	    fe->draw( this, x,  y, shaped.glyphs(), shaped.offsets(), shaped.count() );
+	    fe->draw( this, x,  y, shaped.glyphs(), shaped.offsets(), shaped.count(),
+		      (shaped.d->analysis.bidiLevel%2) );
 	    Offset advance = fe->advance( shaped.glyphs(), shaped.offsets(), shaped.count() );
 // 	    qDebug("width = %d",  advance.x );
 	    x += advance.x;

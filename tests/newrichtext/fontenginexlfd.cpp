@@ -82,7 +82,7 @@ FontEngineXLFD::~FontEngineXLFD()
     _fs = 0;
 }
 
-FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const
+FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -95,35 +95,17 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
 	QCString cstr = _codec->fromUnicode( string );
 
 	// ### doesn't work with chinese!
-	if ( reverse ) {
-	    int pos = len - 1;
-	    for ( int i = 0; i < len; i++ ) {
-		glyphs[i] = (uchar)cstr[pos];
-		pos--;
-	    }
-	} else {
-	    for ( int i = 0; i < len; i++ ) {
-		glyphs[i] = (uchar)cstr[i];
-	    }
-	}
+	for ( int i = 0; i < len; i++ )
+	    glyphs[i] = (uchar)cstr[i];
     } else {
-	if ( reverse ) {
-	    int pos = len - 1;
-	    for ( int i = 0; i < len; i++ ) {
-		glyphs[i] = str[pos].unicode();
-		pos--;
-	    }
-	} else {
-	    for ( int i = 0; i < len; i++ ) {
-		glyphs[i] = str[i].unicode();
-	    }
-	}
+	for ( int i = 0; i < len; i++ )
+	    glyphs[i] = str[i].unicode();
     }
     *nglyphs = len;
     return NoError;
 }
 
-void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs, bool reverse )
 {
 //     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
@@ -160,32 +142,46 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, 
 	chars[i].byte2 = glyphs[i] & 0xff;
     }
 
-
-    int start = 0;
-    int i = 1;
-    while ( i < numGlyphs ) {
-	if ( offsets[i].x || offsets[i].y ) {
-// 	    qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+    if ( reverse ) {
+	int i = numGlyphs;
+	while( i-- ) {
+	    // ### might not work correctly with marks!
 	    if (bgmode != Qt::TransparentMode)
-		XDrawImageString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y, chars+start, i-start );
+		XDrawImageString16(dpy, hd, gc, x+offsets[i].x, y+offsets[i].y, chars+i, 1 );
 	    else
-		XDrawString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y, chars+start, i-start );
-	    Offset adv = advance( glyphs+start, offsets+start, i-start );
-// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+		XDrawString16(dpy, hd, gc, x+offsets[i].x, y+offsets[i].y, chars+i, 1 );
+	    Offset adv = advance( glyphs+i, offsets+i, 1 );
+	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv.x;
 	    y += adv.y;
-	    start = i;
 	}
-	i++;
-    }
-    if ( start < numGlyphs ) {
-// 	qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
-	if (bgmode != Qt::TransparentMode)
-	    XDrawImageString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y,
-			       (chars+start), numGlyphs - start );
-	else
-	    XDrawString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y,
-			       (chars+start), numGlyphs - start );
+    } else {
+	int start = 0;
+	int i = 1;
+	while ( i < numGlyphs ) {
+	    if ( offsets[i].x || offsets[i].y ) {
+		// 	    qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+		if (bgmode != Qt::TransparentMode)
+		    XDrawImageString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y, chars+start, i-start );
+		else
+		    XDrawString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y, chars+start, i-start );
+		Offset adv = advance( glyphs+start, offsets+start, i-start );
+		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+		x += adv.x;
+		y += adv.y;
+		start = i;
+	    }
+	    i++;
+	}
+	if ( start < numGlyphs ) {
+	    // 	qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+	    if (bgmode != Qt::TransparentMode)
+		XDrawImageString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y,
+				   (chars+start), numGlyphs - start );
+	    else
+		XDrawString16(dpy, hd, gc, x+offsets[start].x, y+offsets[start].y,
+			      (chars+start), numGlyphs - start );
+	}
     }
 
     if ( numGlyphs > 255 )
@@ -315,9 +311,9 @@ bool FontEngineXLFD::canRender( const QChar *string,  int len )
     GlyphIndex glyphs[256];
     int nglyphs = 255;
     GlyphIndex *g = glyphs;
-    if ( stringToCMap( string, len, g, &nglyphs, FALSE ) == OutOfMemory ) {
+    if ( stringToCMap( string, len, g, &nglyphs ) == OutOfMemory ) {
 	g = (GlyphIndex *)malloc( nglyphs*sizeof(GlyphIndex) );
-	stringToCMap( string, len, g, &nglyphs, FALSE );
+	stringToCMap( string, len, g, &nglyphs );
     }
 
     bool allExist = TRUE;

@@ -156,7 +156,7 @@ void ScriptEngine::heuristicPositionMarks( ShapedItem *shaped )
 
 
 // set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars ang glyphs
-// and no reordering (except for reversing if (bidiLevel % 2 ) )
+// and no reordering.
 // also computes logClusters heuristically
 void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 {
@@ -174,102 +174,32 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
 
     // honour the logClusters array if it exists.
     const QChar *uc = d->string.unicode() + d->from;
-    if ( d->analysis.bidiLevel % 2 ) {
-	// reversed
-	for ( int i = 0; i < d->num_glyphs; i++ )
-	    d->logClusters[i] = d->num_glyphs-i-1;
 
-	int gpos = d->length - 2;
-	int cpos = 1;
+    for ( int i = 0; i < d->num_glyphs; i++ )
+	d->logClusters[i] = i;
 
-	// first char in a run is never (treated as) a mark
-	int cStart = 0;
-	d->glyphAttributes[0].mark = FALSE;
-	d->glyphAttributes[0].clusterStart = TRUE;
+    int pos = 1;
 
-	bool hasMark = FALSE;
-	while ( gpos >= 0 ) {
-	    if ( isMark( uc[cpos] ) ) {
-		d->glyphAttributes[gpos].mark = TRUE;
-		d->glyphAttributes[gpos].combiningClass = combiningClass( uc[cpos] );
-		d->glyphAttributes[gpos].clusterStart = FALSE;
-// 		qDebug("found a mark at position %d", cpos );
-		d->logClusters[cpos] = cpos;
-		hasMark = TRUE;
-	    } else {
-		d->glyphAttributes[gpos].mark = FALSE;
-		d->glyphAttributes[gpos].clusterStart = TRUE;
-		cStart = gpos;
-	    }
-	    cpos++;
-	    gpos--;
+    // first char in a run is never (treated as) a mark
+    int cStart = 0;
+    d->glyphAttributes[0].mark = FALSE;
+    d->glyphAttributes[0].clusterStart = TRUE;
+
+    while ( pos < d->length ) {
+	if ( isMark( uc[pos] ) ) {
+	    d->glyphAttributes[pos].mark = TRUE;
+	    d->glyphAttributes[pos].clusterStart = FALSE;
+	    d->glyphAttributes[pos].combiningClass = combiningClass( uc[pos] );
+	    // 		qDebug("found a mark at position %d", pos );
+	    d->logClusters[pos] = cStart;
+	} else {
+	    d->glyphAttributes[pos].mark = FALSE;
+	    d->glyphAttributes[pos].clusterStart = TRUE;
+	    cStart = pos;
 	}
-
-
-	if ( hasMark ) {
-	    // reorder marks to follow the base char. Also brings the clusterstar flag into the correct position
-	    int gpos = 0;
-	    int clusterstart = -1;
-	    while ( gpos < d->length ) {
-		// since the order is still reversed, FALSE indicates the first glyph in a cluster, the next true will be the last one
-		if ( clusterstart == -1 && !d->glyphAttributes[gpos].clusterStart ) {
-		    clusterstart = gpos;
-		} else if ( clusterstart != -1 && d->glyphAttributes[gpos].clusterStart ) {
-		    // reverse from clusterstart to gpos
-		    {
-			GlyphIndex *cp = d->glyphs + clusterstart;
-			GlyphIndex *ch = d->glyphs + cpos;
-			while ( ch > cp ) {
-			    GlyphIndex tmpGlyph = *cp;
-			    *cp = *ch;
-			    *ch = tmpGlyph;
-			    cp++;
-			    ch--;
-			}
-		    }
-		    GlyphAttributes *cp = d->glyphAttributes + clusterstart;
-		    GlyphAttributes *ch = d->glyphAttributes + cpos;
-		    while ( ch > cp ) {
-			GlyphAttributes tmp = *cp;
-			*cp = *ch;
-			*ch = tmp;
-			cp++;
-			ch--;
-		    }
-		}
-		gpos++;
-	    }
-
-	}
-    } else {
-	for ( int i = 0; i < d->num_glyphs; i++ )
-	    d->logClusters[i] = i;
-
-	int pos = 1;
-
-	// first char in a run is never (treated as) a mark
-	int cStart = 0;
-	d->glyphAttributes[0].mark = FALSE;
-	d->glyphAttributes[0].clusterStart = TRUE;
-
-	while ( pos < d->length ) {
-	    if ( isMark( uc[pos] ) ) {
-		d->glyphAttributes[pos].mark = TRUE;
-		d->glyphAttributes[pos].clusterStart = FALSE;
-		d->glyphAttributes[pos].combiningClass = combiningClass( uc[pos] );
-// 		qDebug("found a mark at position %d", pos );
-		d->logClusters[pos] = cStart;
-	    } else {
-		d->glyphAttributes[pos].mark = FALSE;
-		d->glyphAttributes[pos].clusterStart = TRUE;
-		cStart = pos;
-	    }
-	    pos++;
-	}
+	pos++;
     }
 }
-
-
 
 void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
 {
@@ -293,11 +223,10 @@ void ScriptEngineBasic::shape( ShapedItem *result )
     ShapedItemPrivate *d = result->d;
     d->num_glyphs = len;
     d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-    bool reverse = d->analysis.bidiLevel % 2;
-    int error = d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs, reverse );
+    int error = d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs );
     if ( error == FontEngineIface::OutOfMemory ) {
 	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
-	d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs, reverse );
+	d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs );
     }
 
     heuristicSetGlyphAttributes( result );

@@ -67,7 +67,7 @@ FontEngineXft::~FontEngineXft()
     delete _openType;
 }
 
-FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const
+FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -76,37 +76,17 @@ FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, 
 
     XftFontStruct *fs = getFontStruct( _font );
     if ( !fs ) {
-	if ( reverse ) {
-	    int pos = len - 1;
-	    for ( int i = 0; i < len; i++ ) {
-		glyphs[i] = str[pos].unicode();
-		pos--;
-	    }
-	} else {
-	    for ( int i = 0; i < len; i++ ) {
-		glyphs[i] = str[i].unicode();
-	    }
-	}
-	*nglyphs = len;
-	return NoError;
-    }
-
-    if ( reverse ) {
-	int pos = len - 1;
-	for ( int i = 0; i < len; i++ ) {
-	    glyphs[i] = FT_Get_Char_Index (fs->face, str[pos].unicode() );
-	    pos--;
-	}
+	for ( int i = 0; i < len; i++ )
+	    glyphs[i] = str[i].unicode();
     } else {
-	for ( int i = 0; i < len; i++ ) {
+	for ( int i = 0; i < len; i++ )
 	    glyphs[i] = FT_Get_Char_Index (fs->face, str[i].unicode() );
-	}
     }
     *nglyphs = len;
     return NoError;
 }
 
-void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
+void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs, bool reverse )
 {
     Qt::BGMode bgmode = p->backgroundMode();
     XftDraw *draw = ((HackPaintDevice *)p->device())->xftDrawHandle();
@@ -143,25 +123,38 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, c
     int xp = x;
     int yp = y;
 #endif
-    int start = 0;
-    int i = 1;
-    while ( i < numGlyphs ) {
-	if ( offsets[i].x || offsets[i].y ) {
-// 	    qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
-	    XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
-			     (XftChar16 *) (glyphs+start), i-start);
-	    Offset adv = advance( glyphs+start, offsets+start, i-start );
-// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+    if ( reverse ) {
+	int i = numGlyphs;
+	while( i-- ) {
+	    // ### might not work correctly with marks!
+	    XftDrawString16 (draw, &col, _font, x+offsets[i].x, y+offsets[i].y,
+			     (XftChar16 *) (glyphs+i), 1);
+	    Offset adv = advance( glyphs+i, offsets+i, 1 );
+	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv.x;
 	    y += adv.y;
-	    start = i;
 	}
-	i++;
-    }
-    if ( start < numGlyphs ) {
-// 	qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
-	XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
-			 (XftChar16 *) (glyphs+start), numGlyphs - start );
+    } else {
+	int start = 0;
+	int i = 1;
+	while ( i < numGlyphs ) {
+	    if ( offsets[i].x || offsets[i].y ) {
+		// 	    qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+		XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
+				 (XftChar16 *) (glyphs+start), i-start);
+		Offset adv = advance( glyphs+start, offsets+start, i-start );
+		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
+		x += adv.x;
+		y += adv.y;
+		start = i;
+	    }
+	    i++;
+	}
+	if ( start < numGlyphs ) {
+	    // 	qDebug("drawing from %d to %d at (%d/%d)", start, i-1, x+offsets[start].x, y+offsets[start].y );
+	    XftDrawString16 (draw, &col, _font, x+offsets[start].x, y+offsets[start].y,
+			     (XftChar16 *) (glyphs+start), numGlyphs - start );
+	}
     }
 #ifdef FONTENGINE_DEBUG
     x = xp;
@@ -283,9 +276,9 @@ bool FontEngineXft::canRender( const QChar *string,  int len )
     GlyphIndex glyphs[256];
     int nglyphs = 255;
     GlyphIndex *g = glyphs;
-    if ( stringToCMap( string, len, g, &nglyphs, FALSE ) == OutOfMemory ) {
+    if ( stringToCMap( string, len, g, &nglyphs ) == OutOfMemory ) {
 	g = (GlyphIndex *)malloc( nglyphs*sizeof(GlyphIndex) );
-	stringToCMap( string, len, g, &nglyphs, FALSE );
+	stringToCMap( string, len, g, &nglyphs );
     }
 
     bool allExist = TRUE;

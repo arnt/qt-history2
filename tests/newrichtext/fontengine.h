@@ -51,13 +51,12 @@ public:
     virtual ~FontEngineIface() = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
-    virtual Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const = 0;
+    virtual Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const = 0;
 
     virtual const OpenTypeIface *openTypeIface() const { return 0; }
     virtual int cmap() const = 0;
 
-    // #### pass in offsets array
-    virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs, bool reverse ) = 0;
 
     virtual Offset advance( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
     virtual QGlyphInfo boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
