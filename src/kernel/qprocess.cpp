@@ -135,6 +135,20 @@
     readyReadStdout() and readyReadStderr() signals and read the data
     as soon as it becomes available.
 
+    Please note that QProcess does not emulate a shell. This means that
+    QProcess does not do any expansion of arguments: a '*' is passed as a '*'
+    to the program and is \e not replaced by all the files, a '$HOME' is also
+    passed literally and is \e not replaced by the environment variable HOME
+    and the special characters for IO redirection ('>', '|', etc.) are also
+    passed literally and do \e not have the special meaning as they have in a
+    shell.
+
+    Also note that QProcess does not emulate a terminal. This means that
+    certain programs which need direct terminal control, do not work as
+    expected with QProcess. Such programs include console email programs (like
+    pine and mutt) but also programs which require the user to enter a password
+    (like su and ssh).
+
     \section1 Notes for Windows users
 
     Some Windows commands, for example, \c dir, are not provided by
