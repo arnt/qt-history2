@@ -31,7 +31,7 @@ public:
 
     QTreeWidgetItem *item(const QModelIndex &index) const;
 
-    QModelIndex index(QTreeWidgetItem *item) const;
+    QModelIndex index(QTreeWidgetItem *item, int column = 0) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent = QModelIndex::Null) const;
@@ -141,13 +141,13 @@ QTreeWidgetItem *QTreeModel::item(const QModelIndex &index) const
   Returns the model index that refers to the tree view \a item.
 */
 
-QModelIndex QTreeModel::index(QTreeWidgetItem *item) const
+QModelIndex QTreeModel::index(QTreeWidgetItem *item, int column) const
 {
     if (!item)
         return QModelIndex::Null;
     const QTreeWidgetItem *par = item->parent();
     int row = par ? par->children.indexOf(item) : tree.indexOf(item);
-    return createIndex(row, 0, item);
+    return createIndex(row, column, item);
 }
 
 /*!
@@ -533,6 +533,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 */
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (column < values.size()) {
         const QVector<Data> column_values = values.at(column);
         for (int i = 0; i < column_values.count(); ++i)
@@ -675,14 +676,14 @@ void QTreeWidget::setCurrentTreeItem(QTreeWidgetItem *item)
         setCurrentItem(QModelIndex());
 }
 
-void QTreeWidgetItem::openPersistentEditor()
+void QTreeWidgetItem::openPersistentEditor(int column)
 {
-    view->openPersistentEditor(this);
+    view->openPersistentEditor(this, column);
 }
 
-void QTreeWidgetItem::closePersistentEditor()
+void QTreeWidgetItem::closePersistentEditor(int column)
 {
-    view->closePersistentEditor(this);
+    view->closePersistentEditor(this, column);
 }
 
 bool QTreeWidgetItem::isSelected()
@@ -690,14 +691,14 @@ bool QTreeWidgetItem::isSelected()
     return view->isSelected(this);
 }
 
-void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item)
+void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::openPersistentEditor(index);
 }
 
-void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item)
+void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(item);

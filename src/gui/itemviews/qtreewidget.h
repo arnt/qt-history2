@@ -84,8 +84,8 @@ public:
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
 
-    void openPersistentEditor();
-    void closePersistentEditor();
+    void openPersistentEditor(int column);
+    void closePersistentEditor(int column);
     bool isSelected();
 
 protected:
@@ -127,8 +127,8 @@ public:
     QTreeWidgetItem *currentTreeItem() const;
     void setCurrentTreeItem(QTreeWidgetItem *item);
 
-    void openPersistentEditor(QTreeWidgetItem *item);
-    void closePersistentEditor(QTreeWidgetItem *item);
+    void openPersistentEditor(QTreeWidgetItem *item, int column = 0);
+    void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
     
     bool isSelected(const QTreeWidgetItem *item) const;
 
