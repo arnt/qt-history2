@@ -18,6 +18,9 @@ Check that GIFs made by util/makegifs/Makefile are up-to-date, and do not
 Check that qdoc reports 0 undocumented member functions
     (alternative: make mkdist fail)
 
+Do a copy-and-paste job from faq-general.html into dist/free/FAQ
+(easily done using netscape resized to ~80 cols, and emacs).
+
 Pack the distributions.
 	Go through the file list, any files that shouldn't be there?
 
