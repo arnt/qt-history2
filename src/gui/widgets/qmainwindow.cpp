@@ -313,7 +313,7 @@ void QMainWindow::insertToolBarBreak(QToolBar *before)
 */
 void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 {
-    Q_ASSERT_X(toolbar->isDockable(area),
+    Q_ASSERT_X(toolbar->isAreaAllowed(area),
                "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
 
     connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
@@ -359,7 +359,7 @@ QToolBar *QMainWindow::addToolBar(const QString &title)
 */
 void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
-    Q_ASSERT_X(toolbar->isDockable(toolBarArea(before)),
+    Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
                "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
     connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
@@ -399,7 +399,7 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 */
 void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow)
 {
-    Q_ASSERT_X(dockwindow->isDockable(area),
+    Q_ASSERT_X(dockwindow->isAreaAllowed(area),
                "QMainWindow::addDockWindow", "specified 'area' is not an allowed area");
     Qt::Orientation orientation = Qt::Horizontal;
     switch (area) {
@@ -433,7 +433,7 @@ void QMainWindow::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *doc
                                        Qt::Orientation orientation)
 {
     // add a window to an area, placing done relative to the previous
-    Q_ASSERT_X(dockwindow->isDockable(area),
+    Q_ASSERT_X(dockwindow->isAreaAllowed(area),
                "QMainWindow::extendDockWindowArea", "specified 'area' is not an allowed area");
     d->layout->extendDockWindowArea(area, dockwindow, orientation);
     if (isVisible())
@@ -460,7 +460,7 @@ void QMainWindow::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
 {
     Qt::DockWindowArea area = dockWindowArea(after);
     Q_UNUSED(area);
-    Q_ASSERT_X(dockwindow->isDockable(area),
+    Q_ASSERT_X(dockwindow->isAreaAllowed(area),
                "QMainWindow::splitDockWindow", "specified 'area' is not an allowed area");
     d->layout->splitDockWindow(after, dockwindow, orientation);
     if (isVisible())

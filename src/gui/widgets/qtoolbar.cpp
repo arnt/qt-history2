@@ -166,12 +166,12 @@ int QToolBarPrivate::indexOf(QAction *action) const
 
     A toolbar can be fixed in place in a particular area() (e.g. at the
     top of the window), or it can be movable() between toolbar areas, or
-    it can be floatable: see \l{allowedAreas} and isDockable().
+    it can be floatable: see \l{allowedAreas} and isAreaAllowed().
 
 */
 
 /*!
-    \fn bool QToolBar::isDockable(Qt::ToolBarArea area)
+    \fn bool QToolBar::isAreaAllowed(Qt::ToolBarArea area)
 
     Returns true if this toolbar is dockable in the given \a area;
     otherwise returns false.
@@ -438,78 +438,6 @@ QAction *QToolBar::addAction(const QIcon &icon, const QString &text,
     return action;
 }
 
-/*! \fn void QToolBar::insertAction(QAction *before, QAction *action)
-
-    Inserts the given \a action into the toolbar in front of the tool
-    bar item associated with the \a before action.
-
-    \sa addAction()
-*/
-
-/*!
-    \overload
-
-    Creates a new action with the given \a text. This action is
-    inserted into the toolbar in front of the toolbar item
-    associated with the \a before action.
-*/
-QAction *QToolBar::insertAction(QAction *before, const QString &text)
-{
-    QAction *action = new QAction(text, this);
-    insertAction(before, action);
-    return action;
-}
-
-/*!
-    \overload
-
-    Creates a new action with the given \a icon and \a text. This
-    action is inserted into the toolbar in front of the toolbar item
-    associated with the \a before action.
-*/
-QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QString &text)
-{
-    QAction *action = new QAction(icon, text, this);
-    insertAction(before, action);
-    return action;
-}
-
-/*!
-    \overload
-
-    Creates a new action with the given \a text. This action is inserted
-    into the toolbar in front of the toolbar item associated with
-    the \a before action. The action's \link QAction::triggered()
-    triggered()\endlink signal is connected to the \a member in \a
-    receiver.
-*/
-QAction *QToolBar::insertAction(QAction *before, const QString &text,
-				 const QObject *receiver, const char* member)
-{
-    QAction *action = new QAction(text, this);
-    QObject::connect(action, SIGNAL(triggered()), receiver, member);
-    insertAction(before, action);
-    return action;
-}
-
-/*!
-    \overload
-
-    Creates a new action with the given \a icon and \a text. This
-    action is inserted into the toolbar in front of the toolbar item
-    associated with the \a before action. The action's \link
-    QAction::triggered() triggered()\endlink signal is connected to
-    the \a member in the \a receiver.
-*/
-QAction *QToolBar::insertAction(QAction *before, const QIcon &icon, const QString &text,
-                                const QObject *receiver, const char* member)
-{
-    QAction *action = new QAction(icon, text, this);
-    QObject::connect(action, SIGNAL(triggered()), receiver, member);
-    insertAction(before, action);
-    return action;
-}
-
 /*!
      Adds a separator to the end of the toolbar.
 
@@ -580,22 +508,14 @@ QRect QToolBar::actionGeometry(QAction *action) const
 }
 
 /*!
-    \fn QAction *QToolBar::actionAt(const QPoint &p) const
-
-    \overload
-
-    Returns the action at point \a p.
-*/
-
-/*!
-    Returns the action at the point \a x, \a y. This function returns
-    zero if no action was found.
+    Returns the action at point \a p. This function returns zero if no
+    action was found.
 
     \sa QWidget::childAt()
 */
-QAction *QToolBar::actionAt(int x, int y) const
+QAction *QToolBar::actionAt(const QPoint &p) const
 {
-    QWidget *widget = childAt(x, y);
+    QWidget *widget = childAt(p);
     for (int i = 0; i < d->items.size(); ++i) {
         const QToolBarItem &item = d->items.at(i);
         if (item.widget == widget)
@@ -603,6 +523,13 @@ QAction *QToolBar::actionAt(int x, int y) const
     }
     return 0;
 }
+
+/*! \fn QAction *QToolBar::actionAt(int x, int y) const
+    \overload
+
+    Returns the action at the point \a x, \a y. This function returns
+    zero if no action was found.
+*/
 
 /*! \reimp */
 void QToolBar::actionEvent(QActionEvent *event)

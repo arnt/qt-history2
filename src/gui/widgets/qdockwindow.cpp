@@ -33,6 +33,10 @@
 #include "qdockwindowlayout_p.h"
 
 
+inline bool hasFeature(QDockWindow *dockwindow, QDockWindow::DockWindowFeature feature)
+{ return (dockwindow->features() & feature) == feature; }
+
+
 /*
     A Dock Window:
 
@@ -214,7 +218,7 @@ void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
     if (event->button() != Qt::LeftButton) return;
 
     // check if the tool window is movable... do nothing if it is not
-    if (!dockwindow->hasFeature(QDockWindow::DockWindowMovable))
+    if (!::hasFeature(dockwindow, QDockWindow::DockWindowMovable))
         return;
 
     QMainWindowLayout *layout =
@@ -281,7 +285,7 @@ void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
 
     state->canDrop = target.isValid();
     if (!state->canDrop) {
-        if (dockwindow->hasFeature(QDockWindow::DockWindowFloatable)) {
+        if (hasFeature(dockwindow, QDockWindow::DockWindowFloatable)) {
             /*
               main window refused to accept the tool window,
               recalculate absolute position as if the tool window
@@ -350,7 +354,7 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
         }
     }
 
-    if (!dropped && dockwindow->hasFeature(QDockWindow::DockWindowFloatable)) {
+    if (!dropped && hasFeature(dockwindow, QDockWindow::DockWindowFloatable)) {
         target = state->floating;
         target.moveTopLeft(event->globalPos() - state->offset);
 
@@ -385,15 +389,15 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
             opt.state |= QStyle::State_MouseOver;
     }
     opt.title = dockwindow->windowTitle();
-    opt.closable = dockwindow->hasFeature(QDockWindow::DockWindowClosable);
-    opt.moveable = dockwindow->hasFeature(QDockWindow::DockWindowMovable);
-    opt.floatable = dockwindow->hasFeature(QDockWindow::DockWindowFloatable);
+    opt.closable = hasFeature(dockwindow, QDockWindow::DockWindowClosable);
+    opt.moveable = hasFeature(dockwindow, QDockWindow::DockWindowMovable);
+    opt.floatable = hasFeature(dockwindow, QDockWindow::DockWindowFloatable);
     style()->drawControl(QStyle::CE_DockWindowTitle, &opt, &p, this);
 }
 
 void QDockWindowTitle::updateButtons()
 {
-    if (dockwindow->hasFeature(QDockWindow::DockWindowFloatable)) {
+    if (hasFeature(dockwindow, QDockWindow::DockWindowFloatable)) {
         if (!floatButton) {
             floatButton = new QDockWindowTitleButton(this);
             floatButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
@@ -409,7 +413,7 @@ void QDockWindowTitle::updateButtons()
         floatButton = 0;
     }
 
-    if (dockwindow->hasFeature(QDockWindow::DockWindowClosable)) {
+    if (hasFeature(dockwindow, QDockWindow::DockWindowClosable)) {
         if (!closeButton) {
             closeButton = new QDockWindowTitleButton(this);
             closeButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarCloseButton));
@@ -437,8 +441,15 @@ void QDockWindowTitle::updateWindowTitle()
 
 void QDockWindowTitle::toggleTopLevel()
 {
-    dockwindow->setTopLevel(!dockwindow->isTopLevel(),
-                           dockwindow->mapToGlobal(QPoint(height(), height())));
+    QPoint p = dockwindow->mapToGlobal(QPoint(height(), height()));
+    bool visible = dockwindow->isVisible();
+    if (visible)
+        dockwindow->hide();
+    dockwindow->setTopLevel(!dockwindow->isTopLevel());
+    if (dockwindow->isTopLevel())
+        dockwindow->move(p);
+    if (visible)
+        dockwindow->show();
 }
 
 
@@ -615,8 +626,9 @@ void QDockWindow::setWidget(QWidget *widget)
     \property QDockWindow::features
     \brief whether the dock window is movable, closable, and floatable
 
-    \sa DockWindowFeature setFeature() hasFeature()
+    \sa DockWindowFeature
 */
+
 void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
 {
     Q_D(QDockWindow);
@@ -629,19 +641,6 @@ void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
     emit featuresChanged(d->features);
 }
 
-/*!
-    Switches on the given \a feature if \a on is true; otherwise
-    switches it off.
-
-    \sa hasFeature() features
-*/
-void QDockWindow::setFeature(DockWindowFeature feature, bool on)
-{
-    Q_D(QDockWindow);
-    setFeatures(on ? d->features | feature : d->features & ~feature);
-}
-
-
 QDockWindow::DockWindowFeatures QDockWindow::features() const
 {
     Q_D(const QDockWindow);
@@ -649,25 +648,9 @@ QDockWindow::DockWindowFeatures QDockWindow::features() const
 }
 
 /*!
-    Returns true if the dock window has the given \a feature;
-    otherwise returns false.
-
-    \sa setFeature() features
+    Sets the doc window to be \a topLevel.
 */
-bool QDockWindow::hasFeature(DockWindowFeature feature) const
-{
-    Q_D(const QDockWindow);
-    return d->features & feature;
-}
-
-/*!
-    \internal
-
-    Sets the doc window to be top level. If \a topLevel is true it has
-    no parent and floats free at position \a pos; if \a topLevel is
-    false it is reparented to the main window.
-*/
-void QDockWindow::setTopLevel(bool topLevel, const QPoint &pos)
+void QDockWindow::setTopLevel(bool topLevel)
 {
     Q_D(QDockWindow);
     if (topLevel == isTopLevel())
@@ -680,8 +663,6 @@ void QDockWindow::setTopLevel(bool topLevel, const QPoint &pos)
                                : (getWFlags() & ~Qt::WType_TopLevel)));
 
     if (topLevel) {
-        if (!pos.isNull())
-            move(pos);
         QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
         if (layout)
             layout->invalidate();
@@ -721,7 +702,7 @@ Qt::DockWindowAreas QDockWindow::allowedAreas() const
 }
 
 /*!
-    \fn bool QDockWindow::isDockable(Qt::DockWindowArea area)
+    \fn bool QDockWindow::isAreaAllowed(Qt::DockWindowArea area) const
 
     Returns true if this dock window can be placed in the given \a area;
     otherwise returns false.

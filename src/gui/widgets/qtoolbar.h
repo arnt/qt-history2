@@ -45,7 +45,7 @@ public:
     void setAllowedAreas(Qt::ToolBarAreas areas);
     Qt::ToolBarAreas allowedAreas() const;
 
-    inline bool isDockable(Qt::ToolBarArea area)
+    inline bool isAreaAllowed(Qt::ToolBarArea area) const
     { return (allowedAreas() & area) == area; }
 
     void setOrientation(Qt::Orientation orientation);
@@ -53,22 +53,18 @@ public:
 
     void clear();
 
+#ifdef Q_NO_USING_KEYWORD
     inline void addAction(QAction *action)
     { QWidget::addAction(action); }
-    inline void insertAction(QAction *before, QAction *action)
-    { QWidget::insertAction(before, action); }
+#else
+    using QWidget::addAction;
+#endif
 
     QAction *addAction(const QString &text);
     QAction *addAction(const QIcon &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member);
     QAction *addAction(const QIcon &icon, const QString &text,
 		       const QObject *receiver, const char* member);
-    QAction *insertAction(QAction *before, const QString &text);
-    QAction *insertAction(QAction *before, const QIcon &icon, const QString &text);
-    QAction *insertAction(QAction *before, const QString &text,
-			  const QObject *receiver, const char* member);
-    QAction *insertAction(QAction *before, const QIcon &icon, const QString &text,
-			  const QObject *receiver, const char* member);
 
     QAction *addSeparator();
     QAction *insertSeparator(QAction *before);
@@ -77,9 +73,9 @@ public:
     QAction *insertWidget(QAction *before, QWidget *widget);
 
     QRect actionGeometry(QAction *action) const;
-    QAction *actionAt(int x, int y) const;
-    inline QAction *actionAt(const QPoint &p) const
-    { return actionAt(p.x(), p.y()); }
+    QAction *actionAt(const QPoint &p) const;
+    inline QAction *actionAt(int x, int y) const
+    { return actionAt(QPoint(x, y)); }
 
     QAction *toggleViewAction() const;
 

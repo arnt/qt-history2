@@ -42,21 +42,21 @@ public:
 
         DockWindowFeatureMask = 0x07,
         AllDockWindowFeatures = DockWindowFeatureMask,
-        NoDockWindowFeatures  = 0x00
+        NoDockWindowFeatures  = 0x00,
+
+        Reserved              = 0xff
     };
     Q_DECLARE_FLAGS(DockWindowFeatures, DockWindowFeature)
 
     void setFeatures(DockWindowFeatures features);
-    void setFeature(DockWindowFeature features, bool on = true);
     DockWindowFeatures features() const;
-    bool hasFeature(DockWindowFeature feature) const;
 
-    void setTopLevel(bool topLevel = true, const QPoint &pos = QPoint());
+    void setTopLevel(bool topLevel = true);
 
     void setAllowedAreas(Qt::DockWindowAreas areas);
     Qt::DockWindowAreas allowedAreas() const;
 
-    inline bool isDockable(Qt::DockWindowArea area)
+    inline bool isAreaAllowed(Qt::DockWindowArea area) const
     { return (allowedAreas() & area) == area; }
 
     QAction *toggleViewAction() const;

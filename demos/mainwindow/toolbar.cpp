@@ -186,10 +186,10 @@ void ToolBar::polishEvent(QEvent *)
 
     movableAction->setChecked(isMovable());
 
-    allowLeftAction->setChecked(isDockable(Qt::LeftToolBarArea));
-    allowRightAction->setChecked(isDockable(Qt::RightToolBarArea));
-    allowTopAction->setChecked(isDockable(Qt::TopToolBarArea));
-    allowBottomAction->setChecked(isDockable(Qt::BottomToolBarArea));
+    allowLeftAction->setChecked(isAreaAllowed(Qt::LeftToolBarArea));
+    allowRightAction->setChecked(isAreaAllowed(Qt::RightToolBarArea));
+    allowTopAction->setChecked(isAreaAllowed(Qt::TopToolBarArea));
+    allowBottomAction->setChecked(isAreaAllowed(Qt::BottomToolBarArea));
 
     if (allowedAreasActions->isEnabled()) {
         allowLeftAction->setEnabled(area != Qt::LeftToolBarArea);

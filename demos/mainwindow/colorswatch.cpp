@@ -139,22 +139,22 @@ void ColorSwatch::polishEvent(QEvent *)
     const Qt::DockWindowArea area = mainWindow->dockWindowArea(this);
     const Qt::DockWindowAreas areas = allowedAreas();
 
-    closableAction->setChecked(hasFeature(QDockWindow::DockWindowClosable));
+    closableAction->setChecked(features() & QDockWindow::DockWindowClosable);
     if (testWFlags(Qt::WMacDrawer)) {
         floatableAction->setEnabled(false);
         topLevelAction->setEnabled(false);
         movableAction->setEnabled(false);
     } else {
-        floatableAction->setChecked(hasFeature(QDockWindow::DockWindowFloatable));
+        floatableAction->setChecked(features() & QDockWindow::DockWindowFloatable);
         topLevelAction->setChecked(isTopLevel());
         // done after topLevel, to get 'floatable' correctly initialized
-        movableAction->setChecked(hasFeature(QDockWindow::DockWindowMovable));
+        movableAction->setChecked(features() & QDockWindow::DockWindowMovable);
     }
 
-    allowLeftAction->setChecked(isDockable(Qt::LeftDockWindowArea));
-    allowRightAction->setChecked(isDockable(Qt::RightDockWindowArea));
-    allowTopAction->setChecked(isDockable(Qt::TopDockWindowArea));
-    allowBottomAction->setChecked(isDockable(Qt::BottomDockWindowArea));
+    allowLeftAction->setChecked(isAreaAllowed(Qt::LeftDockWindowArea));
+    allowRightAction->setChecked(isAreaAllowed(Qt::RightDockWindowArea));
+    allowTopAction->setChecked(isAreaAllowed(Qt::TopDockWindowArea));
+    allowBottomAction->setChecked(isAreaAllowed(Qt::BottomDockWindowArea));
 
     if (allowedAreasActions->isEnabled()) {
         allowLeftAction->setEnabled(area != Qt::LeftDockWindowArea);
@@ -216,18 +216,16 @@ void ColorSwatch::place(Qt::DockWindowArea area, bool p)
 }
 
 void ColorSwatch::changeClosable(bool on)
-{ setFeature(DockWindowClosable, on); }
+{ setFeatures(on ? features() | DockWindowClosable : features() & ~DockWindowClosable); }
 
 void ColorSwatch::changeMovable(bool on)
-{ setFeature(DockWindowMovable, on); }
+{ setFeatures(on ? features() | DockWindowMovable : features() & ~DockWindowMovable); }
 
 void ColorSwatch::changeFloatable(bool on)
-{ setFeature(DockWindowFloatable, on); }
+{ setFeatures(on ? features() | DockWindowFloatable : features() & ~DockWindowFloatable); }
 
 void ColorSwatch::changeTopLevel(bool topLevel)
-{
-    setTopLevel(topLevel, mapToGlobal(QPoint(20, 20)));
-}
+{ setTopLevel(topLevel); }
 
 void ColorSwatch::allowLeft(bool a)
 { allow(Qt::LeftDockWindowArea, a); }
