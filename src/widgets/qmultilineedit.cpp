@@ -450,7 +450,7 @@ void QMultiLineEdit::cursorWordBackward( bool mark )
 
 void QMultiLineEdit::insertAt( const QString &s, int line, int col, bool mark )
 {
-    insertAt( s, line, col );
+    QTextEdit::insertAt( s, line, col );
     if ( mark )
 	setSelection( line, col, line, col + s.length() );
 }
