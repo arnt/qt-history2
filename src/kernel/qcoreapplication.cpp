@@ -1353,7 +1353,7 @@ QStringList QCoreApplication::libraryPaths()
 	QString app_location = self ? self->applicationDirPath()
 #ifdef Q_WS_WIN
 	    : qAppFileName();
-	app_location.truncate( app_location.findRev( '\\' ) );
+	app_location.truncate( app_location.lastIndexOf( '\\' ) );
 #else
 	    : QString::null;
 #endif

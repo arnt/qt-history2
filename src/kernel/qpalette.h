@@ -138,45 +138,42 @@ private:
 };
 
 #ifdef QT_COMPAT
-class Q_GUI_EXPORT QT_COMPAT QColorGroup : public QPalette
+class Q_GUI_EXPORT QColorGroup : public QPalette
 {
 public:
-    inline QColorGroup() : QPalette() { init(); }
+    inline QColorGroup() : QPalette() { is_colorgroup = 1; }
     inline QColorGroup(const QBrush &foreground, const QBrush &button, const QBrush &light,
 		const QBrush &dark, const QBrush &mid, const QBrush &text,
 		const QBrush &bright_text, const QBrush &base, const QBrush &background)
 	: QPalette(foreground, button, light, dark, mid, text, bright_text, base, background)
-    { init(); }
+    { is_colorgroup = 1; }
     inline QColorGroup(const QColor &foreground, const QColor &background, const QColor &light,
 		const QColor &dark, const QColor &mid, const QColor &text, const QColor &base)
-	: QPalette(foreground, background, light, dark, mid, text, base) { init(); }
-    inline QColorGroup(const QColorGroup &cg) : QPalette(cg) { init(); }
-    inline QColorGroup(const QPalette &pal) : QPalette(pal) { init(); }
+	: QPalette(foreground, background, light, dark, mid, text, base) { is_colorgroup = 1; }
+    inline QColorGroup(const QColorGroup &cg) : QPalette(cg) { is_colorgroup = 1; }
+    inline QColorGroup(const QPalette &pal) : QPalette(pal) { is_colorgroup = 1; }
 
-    inline const QColor &foreground() const { return color(Foreground); }
-    inline const QColor &button() const { return color(Button); }
-    inline const QColor &light() const { return color(Light); }
-    inline const QColor &dark() const { return color(Dark); }
-    inline const QColor &mid() const { return color(Mid); }
-    inline const QColor &text() const { return color(Text); }
-    inline const QColor &base() const { return color(Base); }
-    inline const QColor &background() const { return color(Background); }
-    inline const QColor &midlight() const { return color(Midlight); }
-    inline const QColor &brightText() const { return color(BrightText); }
-    inline const QColor &buttonText() const { return color(ButtonText); }
-    inline const QColor &shadow() const { return color(Shadow); }
-    inline const QColor &highlight() const { return color(Highlight); }
-    inline const QColor &highlightedText() const { return color(HighlightedText); }
-    inline const QColor &link() const { return color(Link); }
-    inline const QColor &linkVisited() const { return color(LinkVisited); }
-
-private:
-    void init();
+    inline QT_COMPAT const QColor &foreground() const { return color(Foreground); }
+    inline QT_COMPAT const QColor &button() const { return color(Button); }
+    inline QT_COMPAT const QColor &light() const { return color(Light); }
+    inline QT_COMPAT const QColor &dark() const { return color(Dark); }
+    inline QT_COMPAT const QColor &mid() const { return color(Mid); }
+    inline QT_COMPAT const QColor &text() const { return color(Text); }
+    inline QT_COMPAT const QColor &base() const { return color(Base); }
+    inline QT_COMPAT const QColor &background() const { return color(Background); }
+    inline QT_COMPAT const QColor &midlight() const { return color(Midlight); }
+    inline QT_COMPAT const QColor &brightText() const { return color(BrightText); }
+    inline QT_COMPAT const QColor &buttonText() const { return color(ButtonText); }
+    inline QT_COMPAT const QColor &shadow() const { return color(Shadow); }
+    inline QT_COMPAT const QColor &highlight() const { return color(Highlight); }
+    inline QT_COMPAT const QColor &highlightedText() const { return color(HighlightedText); }
+    inline QT_COMPAT const QColor &link() const { return color(Link); }
+    inline QT_COMPAT const QColor &linkVisited() const { return color(LinkVisited); }
 };
 
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<(QDataStream &ds, const QColorGroup &cg);
-Q_GUI_EXPORT QDataStream &operator>>(QDataStream &ds, QColorGroup &cg);
+Q_GUI_EXPORT QT_COMPAT QDataStream &operator<<(QDataStream &ds, const QColorGroup &cg);
+Q_GUI_EXPORT QT_COMPAT QDataStream &operator>>(QDataStream &ds, QColorGroup &cg);
 #endif
 
 inline QColorGroup QPalette::inactive() const { return createColorGroup(Inactive); }

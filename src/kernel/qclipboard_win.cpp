@@ -179,12 +179,9 @@ public:
 		    if ( h ) {
 			char *src = (char *)GlobalLock(h);
 			int s = GlobalSize(h);
-			r.setRawData(src,s);
-			QByteArray tr = c->convertToMime(r,mime,cf);
-			tr.detach();
-			r.resetRawData(src,s);
+			QConstByteArray cr(src,s);
+			r = c->convertToMime(cr,mime,cf);
 			GlobalUnlock(h);
-			r = tr;
 			break;
 		    }
 #ifndef QT_NO_DEBUG

@@ -398,14 +398,10 @@ QByteArray qt_olednd_obtain_data( const char *format )
 		HGLOBAL hText = medium.hGlobal;
 		char* d = (char*)GlobalLock(hText);
 		int len = GlobalSize(hText);
-		QByteArray r;
-		r.setRawData(d,len);
-		QByteArray tr = wm->convertToMime(r,format,cf);
-		tr.detach();
-		r.resetRawData(d,len);
+		QConstByteArray r(d, len);
+		result = wm->convertToMime(r,format,cf);
 		GlobalUnlock(hText);
 		ReleaseStgMedium(&medium);
-		result = tr;
 	    }
 	}
     }
@@ -918,7 +914,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 #ifdef QT_DND_RESPECT_ACCEPTACTION
     else if (!acceptact)
 	*pdwEffect = DROPEFFECT_COPY;
-#endif    
+#endif
 	else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )
@@ -956,7 +952,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
 	de.acceptAction(acceptact);
 	de.accept(acceptfmt);
-	
+
 	QApplication::sendEvent( widget, &de );
 
 	acceptfmt = de.isAccepted();
@@ -967,7 +963,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 #ifdef QT_DND_RESPECT_ACCEPTACTION
     else if (!acceptact)
 	*pdwEffect = DROPEFFECT_COPY;
-#endif    
+#endif
     else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )

@@ -773,10 +773,10 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 	    return r;
 	QString text( d->txt );
 #if defined(Q_WS_WIN)
-	int index = text.find( QString::fromLatin1("\r\n"), 0 );
+	int index = text.indexOf( QString::fromLatin1("\r\n"), 0 );
 	while ( index != -1 ) {
 	    text.replace( index, 2, QChar('\n') );
-	    index = text.find( "\r\n", index );
+	    index = text.indexOf( "\r\n", index );
 	}
 #endif
 	r = codec->fromUnicode(text);
@@ -1432,7 +1432,7 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
 #ifdef Q_WS_WIN
     // Slosh -> Slash
     int slosh;
-    while ( (slosh=r.find('\\')) >= 0 ) {
+    while ( (slosh=r.indexOf('\\')) >= 0 ) {
 	r[slosh] = '/';
     }
 

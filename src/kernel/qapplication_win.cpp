@@ -425,13 +425,13 @@ static void qt_set_windows_resources()
 	smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,TRUE);
     } );
 
-    QApplication::setFont( menuFont, TRUE, "QPopupMenu" );
-    QApplication::setFont( menuFont, TRUE, "QMenuBar" );
-    QApplication::setFont( messageFont, TRUE, "QMessageBox" );
-    QApplication::setFont( statusFont, TRUE, "QTipLabel" );
-    QApplication::setFont( statusFont, TRUE, "QStatusBar" );
-    QApplication::setFont( titleFont, TRUE, "QTitleBar" );
-    QApplication::setFont( smallTitleFont, TRUE, "QDockWindowTitleBar" );
+    QApplication::setFont( menuFont, "QPopupMenu" );
+    QApplication::setFont( menuFont, "QMenuBar" );
+    QApplication::setFont( messageFont, "QMessageBox" );
+    QApplication::setFont( statusFont, "QTipLabel" );
+    QApplication::setFont( statusFont, "QStatusBar" );
+    QApplication::setFont( titleFont, "QTitleBar" );
+    QApplication::setFont( smallTitleFont, "QDockWindowTitleBar" );
 #else
     LOGFONT lf;
     HGDIOBJ stockFont = GetStockObject( SYSTEM_FONT );
@@ -494,7 +494,7 @@ static void qt_set_windows_resources()
     pal.setColor( QPalette::Disabled, QPalette::HighlightedText,
 		  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
-    QApplication::setPalette( pal, TRUE );
+    QApplication::setPalette( pal );
     *qt_std_pal = pal;
 
     QColor menuCol(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
@@ -529,7 +529,7 @@ static void qt_set_windows_resources()
 	if ( qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95 )
 	    menu.setColor( QPalette::Inactive, QPalette::Button,
 			  pal.color(QPalette::Inactive, QPalette::Dark));
-	QApplication::setPalette( menu, TRUE, "QPopupMenu");
+	QApplication::setPalette( menu, "QPopupMenu");
 
 	if ( qWinVersion() == Qt::WV_XP ) {
 	    BOOL isFlat;
@@ -541,7 +541,7 @@ static void qt_set_windows_resources()
 		menu.setColor( QPalette::Inactive, QPalette::Button, menubar );
 	    }
 	}
-	QApplication::setPalette( menu, TRUE, "QMenuBar");
+	QApplication::setPalette( menu, "QMenuBar");
     }
 
     QColor ttip(qt_colorref2qrgb(GetSysColor(COLOR_INFOBK)));
@@ -565,7 +565,7 @@ static void qt_set_windows_resources()
 	tiplabel.setColor( QPalette::Disabled, QPalette::Text, disabled );
 	tiplabel.setColor( QPalette::Disabled, QPalette::Base, Qt::white );
 	tiplabel.setColor( QPalette::Disabled, QPalette::BrightText, Qt::white );
-	QApplication::setPalette( tiplabel, TRUE, "QTipLabel");
+	QApplication::setPalette( tiplabel, "QTipLabel");
     }
 }
 
@@ -638,7 +638,7 @@ void qt_init( QApplicationPrivate *priv, int )
 #else
     QPainter::initialize();
 #endif
-    qApp->setName( appName );
+    qApp->setObjectName( appName );
 
     // default font
     if ( !qt_app_has_font ) {
@@ -2769,7 +2769,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( t == WM_SYSKEYDOWN &&
 		     uch.isLetter() && (msg.lParam & KF_ALTDOWN) ) {
 		    // (See doc of WM_SYSCHAR)
-		    uch = uch.lower(); //Alt-letter
+		    uch = uch.toLower(); //Alt-letter
 		}
 		if ( !code && !uch.row() )
 		    code = asciiToKeycode(uch.cell(), state);

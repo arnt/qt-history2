@@ -243,10 +243,10 @@ int QWindowsMimeText::cfFor(const char* mime)
     if ( 0==qstricmp( mime, "text/plain" ) )
 	return CF_TEXT;
     QByteArray m(mime);
-    int i = m.find("charset=");
+    int i = m.indexOf("charset=");
     if ( i >= 0 ) {
 	QByteArray cs(m.data()+i+8);
-	i = cs.find(";");
+	i = cs.indexOf(";");
 	if ( i>=0 )
 	    cs = cs.left(i);
 	if ( cs == "system" )
@@ -355,7 +355,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	QString res;
 	const int s = str.length();
 	int maxsize = s + s/40 + 3;
-	res.setLength( maxsize );
+	res.resize( maxsize );
 	int ri = 0;
 	bool cr = FALSE;
 	for ( int i=0; i < s; ++i ) {
@@ -369,7 +369,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	    res[ri++] = *u;
 	    if ( ri+3 >= maxsize ) {
 		maxsize += maxsize/4;
-		res.setLength( maxsize );
+		res.resize( maxsize );
 	    }
 	    ++u;
 	}
@@ -618,7 +618,7 @@ QByteArray QWindowsMimeImage::convertToMime( QByteArray data, const char* mime, 
 	QByteArray ba;
 	QBuffer iod(ba);
 	iod.open(IO_WriteOnly);
-	QImageIO iio(&iod, ofmt.upper());
+	QImageIO iio(&iod, ofmt.toUpper());
 	iio.setImage(img);
 	if (iio.write()) {
 	    iod.close();
@@ -740,7 +740,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     t.setEncodedData(data);
     QStringList fn;
     QUriDrag::decodeLocalFiles(&t, fn);
-	
+
     QStringList::Iterator i1;
     for ( i1 = fn.begin(); i1!=fn.end(); ++i1 )
 	(*i1).replace("/", "\\");
@@ -787,7 +787,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	}
 	*f = 0;
     } );
-	
+
     return result;
 }
 

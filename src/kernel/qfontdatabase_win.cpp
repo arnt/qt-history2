@@ -521,7 +521,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 	    deffnt = SYSTEM_FONT;
 	else
 	    deffnt = DEFAULT_GUI_FONT;
-	QString fam = family->rawName.lower();
+	QString fam = family->rawName.toLower();
 	if ( fam == "default" )
 	    f = deffnt;
 	else if ( fam == "system" )

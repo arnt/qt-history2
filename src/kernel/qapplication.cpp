@@ -484,7 +484,7 @@ static void qt_fix_tooltips()
     QPalette pal( Qt::black, QColor(255,255,220),
 		  QColor(96,96,96), Qt::black, Qt::black,
 		  Qt::black, QColor(255,255,220) );
-    QApplication::setPalette( pal, TRUE, "QTipLabel");
+    QApplication::setPalette( pal, "QTipLabel");
 }
 #endif
 
@@ -1142,7 +1142,7 @@ void QApplication::setStyle( QStyle *style )
     if ( !qt_std_pal )
 	qt_create_std_palette();
     QPalette tmpPal = *qt_std_pal;
-    setPalette( tmpPal, TRUE );
+    setPalette( tmpPal );
 
     // initialize the application with the new style
     app_style->polish( qApp );

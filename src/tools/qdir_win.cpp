@@ -21,7 +21,6 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
-#include "qvaluelist.h"
 
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
@@ -317,7 +316,7 @@ QString QDir::rootDirPath()
 bool QDir::isRelativePath( const QString &path )
 {
     if ( path.length() >= 2 )
-	return !((path[0].isLetter() && path[1] == ':') || 
+	return !((path[0].isLetter() && path[1] == ':') ||
 		 (path[0] == '\\' && path[1] == '\\') ||
 		 (path[0] == '/' && path[1] == '/'));		// drive, e.g. a:
     return TRUE;
@@ -350,7 +349,7 @@ void QDir::readDirEntries( const QString &nameFilter,
     bool doSystem   = (filterSpec & System)	!= 0;
 
     bool      first = TRUE;
-    QString   p = dPath.copy();
+    QString   p = dPath;
     int	      plen = p.length();
     HANDLE    ff;
     WIN32_FIND_DATA finfo;
@@ -438,7 +437,7 @@ void QDir::readDirEntries( const QString &nameFilter,
 	    QString name = fname;
 	    slashify(name);
 	    if ( doExecable ) {
-		QString ext = name.right(4).lower();
+		QString ext = name.right(4).toLower();
 		if ( ext == ".exe" || ext == ".com" || ext == ".bat" ||
 		     ext == ".pif" || ext == ".cmd" )
 		    isExecable = TRUE;
@@ -539,7 +538,7 @@ QFileInfoList QDir::drives()
 
 	    while( driveBits ) {
 		if ( driveBits & 1 )
-		    drives.append(QString::fromLatin1(driveName).upper());
+		    drives.append(QString::fromLatin1(driveName).toUpper());
 		driveName[0]++;
 		driveBits = driveBits >> 1;
 	    }

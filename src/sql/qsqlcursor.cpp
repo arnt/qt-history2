@@ -83,7 +83,7 @@ QString qWhereClause( const QString& prefix, QSqlField* field, const QSqlDriver*
     return f;
 }
 
-QString qWhereClause( QSqlRecord* rec, const QString& prefix, const QString& sep, 
+QString qWhereClause( QSqlRecord* rec, const QString& prefix, const QString& sep,
 		      const QSqlDriver* driver )
 {
     static QString blank( " " );
@@ -372,7 +372,7 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
     d->nm = name;
     if ( autopopulate ) {
 	if ( driver() ) {
-	    d->infoBuffer = driver()->recordInfo( name );
+	    d->infoBuffer = driver()->record( name );
 	    *this = d->infoBuffer.toRecord();
 	    d->editBuffer = *this;
 	    d->priIndx = driver()->primaryIndex( name );

@@ -34,18 +34,15 @@ static QColor qt_mix_colors(QColor a, QColor b)
 }
 
 #ifdef QT_COMPAT
-void QColorGroup::init()
-{
-    is_colorgroup = 1;
-}
 
 #ifndef QT_NO_DATASTREAM
 QDataStream &operator<<(QDataStream &s, const QColorGroup &g)
 {
     if(s.version() == 1) {
 	// Qt 1.x
-	s << g.foreground() << g.background() << g.light()
-	  << g.dark() << g.mid() << g.text() << g.base();
+	s << g.color(QPalette::Foreground) << g.color(QPalette::Background)
+	  << g.color(QPalette::Light) << g.color(QPalette::Dark)
+	  << g.color(QPalette::Mid) << g.color(QPalette::Text) << g.color(QPalette::Base);
     } else {
 	int max = QPalette::NColorRoles;
 	if(s.version() <= 3) // Qt 2.x
@@ -62,14 +59,13 @@ QDataStream &operator>>(QDataStream &s, QColorGroup &g)
 	QColor fg, bg, light, dark, mid, text, base;
 	s >> fg >> bg >> light >> dark >> mid >> text >> base;
 	QPalette p(bg);
-	QColorGroup n(p.active());
-	n.setColor(QPalette::Foreground, fg);
-	n.setColor(QPalette::Light, light);
-	n.setColor(QPalette::Dark, dark);
-	n.setColor(QPalette::Mid, mid);
-	n.setColor(QPalette::Text, text);
-	n.setColor(QPalette::Base, base);
-	g = n;
+	p.setColor(QPalette::Active, QPalette::Foreground, fg);
+	p.setColor(QPalette::Active, QPalette::Light, light);
+	p.setColor(QPalette::Active, QPalette::Dark, dark);
+	p.setColor(QPalette::Active, QPalette::Mid, mid);
+	p.setColor(QPalette::Active, QPalette::Text, text);
+	p.setColor(QPalette::Active, QPalette::Base, base);
+	g = p.active();
     } else {
 	int max = QPalette::NColorRoles;
 	if (s.version() <= 3) // Qt 2.x

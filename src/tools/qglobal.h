@@ -656,7 +656,7 @@ typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 #  endif
 #  if defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
 #    define QT_COMPAT __attribute__ ((__deprecated__))
-#  elif defined(Q_CC_MSVC) && (_MSC_VER > 1300)
+#  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
 #    define QT_COMPAT __declspec(deprecated)
 #  else
 #    define QT_COMPAT
@@ -667,7 +667,7 @@ typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 #if defined(QT_DEPRECATED_WARNINGS)
 #  if defined(Q_CC_GNU) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
 #    define QT_DEPRECATED __attribute__ ((__deprecated__))
-#  elif defined(Q_CC_MSVC) && (_MSC_VER > 1300)
+#  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
 #    define QT_DEPRECATED __declspec(deprecated)
 #  else
 #    define QT_DEPRECATED
