@@ -300,8 +300,9 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
   QClipboard member functions for mac.
  *****************************************************************************/
 
-void QClipboard::clear()
+void QClipboard::clear( Mode mode )
 {
+    if ( mode != Clipboard ) return;
     ClearCurrentScrap();
 }
 
