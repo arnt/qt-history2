@@ -16,8 +16,8 @@
     The rest of this file assumes that Qt is unpacked in /Developer/qt.
 
 
-2.  Set some environment variables in the file .login (or .profile,
-    depending on your shell) in your home directory. Create the
+2.  Set some environment variables in the file .login (or .profile or something else
+    depending on your shell) in your home directory. Create this
     file if it is not already there. You can check your shell by typing:
 
     finger Your_Login
