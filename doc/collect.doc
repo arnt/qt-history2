@@ -98,13 +98,13 @@ The rest of this page talks about the pointer based containers only.
 \section1 Architecture of the pointer based containers
 
 There are three internal base classes for the pointer based
-containers; \l QGCache, \l QGDict and \l QGList that operate on \c
-void* pointers.  A thin template layer implements the actual
-collections by casting item pointers to and from \c void*.
+containers; QGCache, QGDict and QGList that operate on
+void pointers.  A thin template layer implements the actual
+collections by casting item pointers to and from void pointers.
 
 This strategy allows Qt's templates to be very economical on space
 (instantiating one of these templates adds only inline-able calls to
-the base classes), while it does not hurt performance too much.
+the base classes), while it does not hurt performance much.
 
 \section1 A QPtrList Example
 
@@ -224,14 +224,14 @@ QCacheIterator.
 
 Qt has the following predefined collection classes:
 <ul>
-<li> String lists; \l QPtrStrList, \l QPtrStrIList (\l qptrstrlist.h) and
+<li> String lists: \l QPtrStrList, \l QPtrStrIList (\l qptrstrlist.h) and
 	\l QStringList (\l qstringlist.h)
-<li> String vectors; \l QStrVec  and \l QStrIVec (\l qstrvec.h)
+<li> String vectors: QStrVec and QStrIVec (qstrvec.h); these are obsolete
 </ul>
 
-In almost all cases you would choose QStringList, which is a value
+In almost all cases you would choose \l QStringList, a value
 list of implicitly shared QString unicode strings. QPtrStrList and
-QPtrStrIList only store char* pointers.
+QPtrStrIList store only char pointers, not the strings themselves.
 
 \section1 Full Class List
 
