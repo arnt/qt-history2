@@ -99,6 +99,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(const QPoint &point);
     inline QVariant(const QSize &size);
     inline QVariant(const QRect &rect);
+    inline QVariant(const QUrl &url);
 
     inline QVariant(const QDate &date);
     inline QVariant(const QTime &time);
@@ -194,6 +195,7 @@ inline QVariant::QVariant(const QStringList &stringlist) : QCoreVariant(stringli
 inline QVariant::QVariant(const QSize &size): QCoreVariant(size) {}
 inline QVariant::QVariant(const QPoint &point): QCoreVariant(point) {}
 inline QVariant::QVariant(const QRect &rect): QCoreVariant(rect) {}
+inline QVariant::QVariant(const QUrl &url): QCoreVariant(url) {}
 
 inline QVariant::QVariant(const QDate &date) : QCoreVariant(date) {}
 inline QVariant::QVariant(const QTime &time) : QCoreVariant(time) {}

@@ -24,6 +24,7 @@
 
 class QByteArray;
 class QUrlPrivate;
+class QDataStream;
 
 class Q_CORE_EXPORT QUrl
 {
@@ -188,5 +189,14 @@ protected:
 private:
     QUrlPrivate *d;
 };
+
+Q_DECLARE_TYPEINFO(QUrl, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QUrl);
+
+#ifndef QT_NO_DATASTREAM
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QUrl &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QUrl &);
+#endif
+
 
 #endif

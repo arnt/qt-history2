@@ -154,6 +154,9 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         case QCoreVariant::Size:
             QCONSTRUCT(QSize);
             break;
+        case QCoreVariant::Url:
+            QCONSTRUCT(QUrl);
+            break;
         case QCoreVariant::Rect:
             QCONSTRUCT(QRect);
             break;
@@ -233,6 +236,9 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             break;
         case QCoreVariant::Size:
             QCONSTRUCT_EMPTY(QSize);
+            break;
+        case QCoreVariant::Url:
+            QCONSTRUCT_EMPTY(QUrl);
             break;
         case QCoreVariant::Point:
             QCONSTRUCT_EMPTY(QPoint);
@@ -322,6 +328,9 @@ static void clear(QCoreVariant::Private *d)
     case QCoreVariant::Size:
         QCLEAR(QSize);
         break;
+    case QCoreVariant::Url:
+        QCLEAR(QUrl);
+        break;
     case QCoreVariant::Rect:
         QCLEAR(QRect);
         break;
@@ -381,6 +390,7 @@ static bool isNull(const QCoreVariant::Private *d)
         QISNULL(QRect);
     case QCoreVariant::Point:
         QISNULL(QPoint);
+    case QCoreVariant::Url:
     case QCoreVariant::StringList:
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
@@ -436,6 +446,9 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         break;
     case QCoreVariant::Size:
         QLOAD(QSize);
+        break;
+    case QCoreVariant::Url:
+        QLOAD(QUrl);
         break;
     case QCoreVariant::Rect:
         QLOAD(QRect);
@@ -518,6 +531,9 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         break;
     case QCoreVariant::Size:
         QSAVE(QSize);
+        break;
+    case QCoreVariant::Url:
+        QSAVE(QUrl);
         break;
     case QCoreVariant::Point:
         QSAVE(QPoint);
@@ -611,6 +627,8 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         QCOMPARE(QStringList);
     case QCoreVariant::Size:
         QCOMPARE(QSize);
+    case QCoreVariant::Url:
+        QCOMPARE(QUrl);
     case QCoreVariant::Rect:
         QCOMPARE(QRect);
     case QCoreVariant::Point:
@@ -2253,6 +2271,8 @@ const void *QCoreVariant::constData() const
         QDATA(QStringList);
     case Rect:
         QDATA(QRect);
+    case Url:
+        QDATA(QUrl);
     case Point:
         QDATA(QPoint);
     case Size:

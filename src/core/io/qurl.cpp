@@ -76,12 +76,12 @@
     \value RemovePassword  Any password in the URL is removed.
     \value RemoveUserInfo  Any user information in the URL is removed.
     \value RemovePort      Any specified port is removed from the URL.
-    \value RemoveAuthority 
+    \value RemoveAuthority
     \value RemovePath   The URL's path is removed, leaving only the scheme,
                         host address, and port (if present).
     \value RemoveQuery  The query part of the URL (following a '?' character)
                         is removed.
-    \value RemoveFragment  
+    \value RemoveFragment
     \value StripTrailingSlash  The trailing slash is removed if one is present.
 */
 
@@ -2647,3 +2647,35 @@ bool QUrl::isParentOf(const QUrl &childUrl) const
 
     Use QFileInfo(path()).absolutePath() or QFileInfo(path()) instead.
 */
+
+
+#ifndef QT_NO_DATASTREAM
+/*! \relates QUrl
+
+    Writes url \a url to the stream \a out and returns a reference
+    to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+QDataStream &operator<<(QDataStream &out, const QUrl &url)
+{
+    QByteArray u = url.toEncoded();
+    out << u;
+    return out;
+}
+
+/*! \relates QUrl
+
+    Reads a url into \a url from the stream \a in and returns a
+    reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+QDataStream &operator>>(QDataStream &in, QUrl &url)
+{
+    QByteArray u;
+    in >> u;
+    url = QUrl::fromEncoded(u);
+    return in;
+}
+#endif
