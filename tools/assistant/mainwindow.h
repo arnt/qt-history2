@@ -49,6 +49,7 @@ public slots:
     void updateBookmarkMenu();
 
 private slots:
+    void on_actionNewWindow_triggered();
     void on_actionGoHome_triggered();
     void on_actionEditFind_triggered();
     void on_actionEditFindAgain_triggered();

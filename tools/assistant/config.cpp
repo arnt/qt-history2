@@ -58,12 +58,12 @@ Config *Config::loadConfig(const QString &profileFileName)
 
     QFile file(profileFileName);
     if (!file.exists()) {
-        qWarning( (QLatin1String("File does not exist: ") + profileFileName).ascii() );
+        qWarning( (QLatin1String("File does not exist: ") + profileFileName).toAscii().constData() );
         return 0;
     }
     DocuParser *parser = DocuParser::createParser( profileFileName );
     if (!parser) {
-        qWarning( (QLatin1String("Failed to create parser for file: ") + profileFileName).ascii() );
+        qWarning( (QLatin1String("Failed to create parser for file: ") + profileFileName).toAscii().constData() );
         return 0;
     }
     if (parser->parserVersion() < DocuParser::Qt320) {
@@ -74,7 +74,7 @@ Config *Config::loadConfig(const QString &profileFileName)
     parser->parse(&file);
     config->profil = profileParser->profile();
     if (!config->profil) {
-        qWarning( (QLatin1String("Config::loadConfig(), no profile in: ") + profileFileName).ascii() );
+        qWarning( (QLatin1String("Config::loadConfig(), no profile in: ") + profileFileName).toAscii().constData() );
         return 0;
     }
     config->profil->setProfileType(Profile::UserProfile);

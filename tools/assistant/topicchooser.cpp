@@ -14,7 +14,7 @@
 #include "topicchooser.h"
 
 #include <qlabel.h>
-#include <q3listbox.h>
+#include <qlistwidget.h>
 #include <qpushbutton.h>
 
 TopicChooser::TopicChooser(QWidget *parent, const QStringList &lnkNames,
@@ -24,16 +24,17 @@ TopicChooser::TopicChooser(QWidget *parent, const QStringList &lnkNames,
     ui.setupUi(this);
 
     ui.label->setText(tr("Choose a topic for <b>%1</b>").arg(title));
-    ui.listbox->insertStringList(linkNames);
-    ui.listbox->setCurrentItem(ui.listbox->firstItem());
+    ui.listbox->addItems(linkNames);
+    if (ui.listbox->count() != 0)
+        ui.listbox->setCurrentRow(0);
     ui.listbox->setFocus();
 }
 
 QString TopicChooser::link() const
 {
-    if (ui.listbox->currentItem() == -1)
+    if (ui.listbox->currentRow() == -1)
         return QString::null;
-    QString s = ui.listbox->currentText();
+    QString s = ui.listbox->item(ui.listbox->currentRow())->text();
     if (s.isEmpty())
         return s;
     int i = linkNames.indexOf(s);
@@ -61,13 +62,7 @@ void TopicChooser::on_buttonCancel_clicked()
     reject();
 }
 
-void TopicChooser::on_listbox_doubleClicked(Q3ListBoxItem *item)
-{
-    Q_UNUSED(item);
-    accept();
-}
-
-void TopicChooser::on_listbox_returnPressed(Q3ListBoxItem *item)
+void TopicChooser::on_listbox_itemActivated(QListWidgetItem *item)
 {
     Q_UNUSED(item);
     accept();

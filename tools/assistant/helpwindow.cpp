@@ -31,6 +31,7 @@
 #include <qtextstream.h>
 #include <qtextcodec.h>
 #include <qstatusbar.h>
+#include <qtextcursor.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -187,7 +188,7 @@ void HelpWindow::contextMenuEvent(QContextMenuEvent *e)
     QMenu *m = new QMenu(0);
     lastAnchor = anchorAt(pos);
     if (!lastAnchor.isEmpty()) {
-        lastAnchor = source().resolved(lastAnchor);
+        lastAnchor = source().resolved(lastAnchor).toString();
         if (lastAnchor.at(0) == QLatin1Char('#')) {
             QString src = source().toString();
             int hsh = src.indexOf(QLatin1Char('#'));
@@ -216,13 +217,13 @@ void HelpWindow::ensureCursorVisible()
 
 void HelpWindow::mousePressEvent(QMouseEvent *e)
 {
-    shiftPressed = e->modifiers() & Qt::ShiftButton;
+    shiftPressed = e->modifiers() & Qt::ShiftModifier;
     QTextBrowser::mousePressEvent(e);
 }
 
 void HelpWindow::keyPressEvent(QKeyEvent *e)
 {
-    shiftPressed = e->modifiers() & Qt::ShiftButton;
+    shiftPressed = e->modifiers() & Qt::ShiftModifier;
     QTextBrowser::keyPressEvent(e);
 }
 

@@ -41,8 +41,8 @@ QDataStream &operator>>( QDataStream &s, Document &l )
 
 QDataStream &operator<<( QDataStream &s, const Document &l )
 {
-    s << (Q_INT16)l.docNumber;
-    s << (Q_INT16)l.frequency;
+    s << (qint16)l.docNumber;
+    s << (qint16)l.frequency;
     return s;
 }
 
@@ -140,14 +140,17 @@ void Index::insertInDict( const QString &str, int docNum )
 void Index::parseDocument( const QString &filename, int docNum )
 {
     QFile file( filename );
-    if ( !file.open( IO_ReadOnly ) ) {
-        qWarning( (QLatin1String("can not open file ") + filename).ascii() );
+    if ( !file.open(QFile::ReadOnly) ) {
+        qWarning( (QLatin1String("can not open file ") + filename).toAscii().constData() );
         return;
     }
 
     QTextStream s( &file );
+#if 0 // ### port me
     s.setEncoding(QTextStream::Latin1);
-    QString text = s.read();
+#endif
+
+    QString text = s.readAll();
     if (text.isNull())
         return;
 
@@ -193,7 +196,7 @@ void Index::parseDocument( const QString &filename, int docNum )
 void Index::writeDict()
 {
     QFile f( dictFile );
-    if ( !f.open( IO_WriteOnly ) )
+    if ( !f.open(QFile::WriteOnly ) )
         return;
     QDataStream s( &f );
     for(QHash<QString, Entry *>::Iterator it = dict.begin(); it != dict.end(); ++it) {
@@ -207,7 +210,7 @@ void Index::writeDict()
 void Index::writeDocumentList()
 {
     QFile f( docListFile );
-    if ( !f.open( IO_WriteOnly ) )
+    if ( !f.open(QFile::WriteOnly ) )
         return;
     QDataStream s( &f );
     s << docList;
@@ -216,7 +219,7 @@ void Index::writeDocumentList()
 void Index::readDict()
 {
     QFile f( dictFile );
-    if ( !f.open( IO_ReadOnly ) )
+    if ( !f.open(QFile::ReadOnly ) )
         return;
 
     dict.clear();
@@ -235,7 +238,7 @@ void Index::readDict()
 void Index::readDocumentList()
 {
     QFile f( docListFile );
-    if ( !f.open( IO_ReadOnly ) )
+    if ( !f.open(QFile::ReadOnly ) )
         return;
     QDataStream s( &f );
     s >> docList;
@@ -302,12 +305,12 @@ QString Index::getDocumentTitle( const QString &fullFileName )
     QUrl url(fullFileName);
     QString fileName = url.toLocalFile();
     QFile file( fileName );
-    if ( !file.open( IO_ReadOnly ) ) {
-        qWarning( (QLatin1String("cannot open file ") + fileName).ascii() );
+    if ( !file.open( QFile::ReadOnly ) ) {
+        qWarning( (QLatin1String("cannot open file ") + fileName).toAscii().constData() );
         return fileName;
     }
     QTextStream s( &file );
-    QString text = s.read();
+    QString text = s.readAll();
 
     int start = text.indexOf(QLatin1String("<title>"), 0, Qt::CaseInsensitive) + 7;
     int end = text.indexOf(QLatin1String("</title>"), 0, Qt::CaseInsensitive);
@@ -418,8 +421,8 @@ void Index::buildMiniDict( const QString &str )
 bool Index::searchForPattern( const QStringList &patterns, const QStringList &words, const QString &fileName )
 {
     QFile file( fileName );
-    if ( !file.open( IO_ReadOnly ) ) {
-        qWarning( (QLatin1String("cannot open file ") + fileName).ascii() );
+    if ( !file.open( QFile::ReadOnly ) ) {
+        qWarning( (QLatin1String("cannot open file ") + fileName).toAscii().constData() );
         return false;
     }
 
@@ -430,7 +433,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
         miniDict.insert( *cIt, new PosEntry( 0 ) );
 
     QTextStream s( &file );
-    QString text = s.read();
+    QString text = s.readAll();
     bool valid = true;
     const QChar *buf = text.unicode();
     QChar str[64];

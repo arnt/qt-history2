@@ -57,7 +57,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Q3ListBox" name="listbox" >
+    <widget class="QListWidget" name="listbox" >
      <property name="objectName" >
       <string notr="true">listbox</string>
      </property>

@@ -15,9 +15,9 @@
 #include "helpdialog.h"
 #include "config.h"
 
+#include <qtcpserver.h>
+#include <qtcpsocket.h>
 #include <qapplication.h>
-#include <q3serversocket.h>
-#include <q3socket.h>
 #include <qpixmap.h>
 #include <qstringlist.h>
 #include <qdir.h>
@@ -35,7 +35,8 @@
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf( stderr, text "\n" ); return 1; }
 #endif
 
-class AssistantSocket : public Q3Socket
+
+class AssistantSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
@@ -51,36 +52,36 @@ private slots:
 };
 
 
-class AssistantServer : public Q3ServerSocket
+class AssistantServer : public QTcpServer
 {
     Q_OBJECT
 public:
     AssistantServer( QObject* parent = 0 );
-    void newConnection( int socket );
-    Q_UINT16 getPort() const;
+    quint16 getPort() const;
 
 signals:
     void showLinkRequest( const QString& );
     void newConnect();
 
+public slots:
+    virtual void incomingConnection( int socket );
+
 private:
-    Q_UINT16 p;
+    quint16 p;
 };
 
 
 AssistantSocket::AssistantSocket( int sock, QObject *parent )
-    : Q3Socket( parent )
+    : QTcpSocket( parent )
 {
-    connect( this, SIGNAL( readyRead() ),
-             SLOT( readClient() ) );
-    connect( this, SIGNAL( connectionClosed() ),
-             SLOT( connectionClosed() ) );
-    setSocket( sock );
+    connect( this, SIGNAL( readyRead() ), SLOT( readClient() ) );
+    connect( this, SIGNAL( disconnected() ), SLOT( connectionClosed() ) );
+    setSocketDescriptor( sock );
 }
 
 void AssistantSocket::readClient()
 {
-    QString link = QString::null;
+    QString link = QString();
     while ( canReadLine() )
         link = readLine();
     if ( !link.isNull() ) {
@@ -94,26 +95,27 @@ void AssistantSocket::readClient()
 
 void AssistantSocket::connectionClosed()
 {
-    delete this;
+    deleteLater();
 }
 
 AssistantServer::AssistantServer( QObject *parent )
-    : Q3ServerSocket( QHostAddress::LocalHost, 0, 1, parent )
+    : QTcpServer( parent )
 {
-    if ( !ok() ) {
+    listen(QHostAddress::LocalHost, 0);
+    if ( !isListening() ) {
         QMessageBox::critical( 0, tr( "Qt Assistant" ),
-                tr( "Failed to bind to port %1" ).arg( port() ) );
+                tr( "Failed to bind to port %1" ).arg( serverPort() ) );
         exit( 1 );
     }
-    p = port();
+    p = serverPort();
 }
 
-Q_UINT16 AssistantServer::getPort() const
+quint16 AssistantServer::getPort() const
 {
     return p;
 }
 
-void AssistantServer::newConnection( int socket )
+void AssistantServer::incomingConnection( int socket )
 {
     AssistantSocket *as = new AssistantSocket( socket, this );
     connect( as, SIGNAL( showLinkRequest( const QString& ) ),
@@ -167,11 +169,11 @@ int main( int argc, char ** argv )
                 profileName = QFile::decodeName(argv[++i]);
             } else if ( opt == QLatin1String("-addcontentfile") ) {
                 INDEX_CHECK( "Missing content file!" );
-                Config *c = Config::loadConfig( QString::null );
+                Config *c = Config::loadConfig( QString() );
                 QFileInfo file( QFile::decodeName(argv[i+1]) );
                 if( !file.exists() ) {
                     fprintf( stderr, "Could not locate content file: '%s'\n",
-                             file.absoluteFilePath().latin1() );
+                             file.absoluteFilePath().toLatin1().constData() );
                     fflush( stderr );
                     return 1;
                 }
@@ -180,7 +182,7 @@ int main( int argc, char ** argv )
                     QFile f( QFile::decodeName(argv[i+1]) );
                     if( !parser->parse( &f ) ) {
                         fprintf( stderr, "Failed to parse file: '%s'\n, ",
-                                 file.absoluteFilePath().latin1() );
+                                 file.absoluteFilePath().toLatin1().constData() );
                         fflush( stderr );
                         return 1;
                     }
@@ -191,7 +193,7 @@ int main( int argc, char ** argv )
                 return 0;
             } else if ( opt == QLatin1String("-removecontentfile") ) {
                 INDEX_CHECK( "Missing content file!" );
-                Config *c = Config::loadConfig( QString::null );
+                Config *c = Config::loadConfig( QString() );
                 Profile *profile = c->profile();
                 QStringList entries = profile->docs.filter(QString::fromAscii(argv[i+1]));
                 if (entries.count() == 0) {
@@ -208,7 +210,7 @@ int main( int argc, char ** argv )
                     QFileInfo file(entries[0]);
                     if( !file.exists() ) {
                         fprintf( stderr, "Could not locate content file: '%s'\n",
-                            file.absoluteFilePath().latin1() );
+                            file.absoluteFilePath().toLatin1().constData() );
                         fflush( stderr );
                         return 1;
                     }
@@ -237,7 +239,7 @@ int main( int argc, char ** argv )
                 QMessageBox::information( 0, QLatin1String("Qt Assistant"),
                     QLatin1String("<pre>") + helpText + QLatin1String("</pre>") );
 #else
-                printf( "%s\n", helpText.latin1() );
+                printf( "%s\n", helpText.toLatin1().constData() );
 #endif
                 exit( 0 );
             } else if ( opt == QLatin1String("-resourcedir") ) {
@@ -255,16 +257,16 @@ int main( int argc, char ** argv )
         resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 
     QTranslator translator( 0 );
-    translator.load( QLatin1String("assistant_") + QLatin1String(QLocale::system().name().toLower()), resourceDir );
+    translator.load( QLatin1String("assistant_") + QLocale::system().name().toLower(), resourceDir );
     a.installTranslator( &translator );
 
     QTranslator qtTranslator( 0 );
-    qtTranslator.load( QLatin1String("qt_") + QLatin1String(QLocale::system().name().toLower()), resourceDir );
+    qtTranslator.load( QLatin1String("qt_") + QLocale::system().name().toLower(), resourceDir );
     a.installTranslator( &qtTranslator );
 
     Config *conf = Config::loadConfig( profileName );
     if ( !conf ) {
-        fprintf( stderr, "Profile '%s' does not exist!\n", profileName.latin1() );
+        fprintf( stderr, "Profile '%s' does not exist!\n", profileName.toLatin1().constData() );
         fflush( stderr );
         return -1;
     }
@@ -278,7 +280,7 @@ int main( int argc, char ** argv )
 
     if ( server ) {
         as = new AssistantServer();
-        printf("%d\n", as->port() );
+        printf("%d\n", as->serverPort() );
         fflush( stdout );
         as->connect( as, SIGNAL( showLinkRequest( const QString& ) ),
                      mw, SLOT( showLinkFromClient( const QString& ) ) );

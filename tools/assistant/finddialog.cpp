@@ -18,6 +18,7 @@
 #include "helpwindow.h"
 
 #include <qtextbrowser.h>
+#include <qtextcursor.h>
 #include <qstatusbar.h>
 #include <qlineedit.h>
 #include <qdatetime.h>

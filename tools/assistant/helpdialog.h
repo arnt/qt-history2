@@ -19,8 +19,8 @@
 #include "helpwindow.h"
 #include "docuparser.h"
 
-#include <q3listbox.h>
-#include <q3listview.h>
+#include <qlistwidget.h>
+#include <qtreewidget.h>
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qvalidator.h>
@@ -31,10 +31,10 @@ class QProgressBar;
 class MainWindow;
 class QTextBrowser;
 
-class HelpNavigationListItem : public Q3ListBoxText
+class HelpNavigationListItem : public QListWidgetItem
 {
 public:
-    HelpNavigationListItem(Q3ListBox *ls, const QString &txt);
+    HelpNavigationListItem(QListWidget *ls, const QString &txt);
 
     void addLink(const QString &link);
     QStringList links() const { return linkList; }
@@ -51,19 +51,6 @@ public:
         : QValidator(parent) {}
     ~SearchValidator() {}
     QValidator::State validate(QString &str, int &) const;
-};
-
-class HelpNavigationContentsItem : public Q3ListViewItem
-{
-public:
-    HelpNavigationContentsItem(Q3ListView *v, Q3ListViewItem *after);
-    HelpNavigationContentsItem(Q3ListViewItem *v, Q3ListViewItem *after);
-
-    void setLink(const QString &lnk);
-    QString link() const;
-
-private:
-    QString theLink;
 };
 
 class HelpDialog : public QWidget
@@ -96,31 +83,26 @@ private slots:
     void on_termsEdit_returnPressed();
     void on_helpButton_clicked();
     void on_searchButton_clicked();
-    void on_resultBox_returnPressed(Q3ListBoxItem*);
-    void on_resultBox_mouseButtonClicked(int, Q3ListBoxItem*, const QPoint &);
+    void on_resultBox_itemActivated(QListWidgetItem*);
 
-    void showResultPage(Q3ListBoxItem *);
+    void showResultPage(QListWidgetItem *);
 
-    void showTopic(int, Q3ListBoxItem *, const QPoint &);
-    void showTopic(int, Q3ListViewItem *, const QPoint &);
-    void showTopic(Q3ListViewItem *);
+    void showTopic(QTreeWidgetItem *);
     void loadIndexFile();
     void insertContents();
     void setupFullTextIndex();
     void currentTabChanged(int index);
-    void currentIndexChanged(Q3ListBoxItem *i);
+    void currentIndexChanged(QListWidgetItem *i);
     void showTopic();
     void searchInIndex(const QString &s);
-    void currentBookmarkChanged(Q3ListViewItem *i);
-    void currentContentsChanged(Q3ListViewItem *i);
     void toggleContents();
     void toggleIndex();
     void toggleBookmarks();
     void toggleSearch();
     void lastWinClosed();
     void setIndexingProgress(int prog);
-    void showItemMenu(Q3ListBoxItem *item, const QPoint &pos);
-    void showItemMenu(Q3ListViewItem *item, const QPoint &pos);
+    void showListItemMenu(const QPoint &pos);
+    void showTreeItemMenu(const QPoint &pos);
     void insertBookmarks();
     void processEvents();
 
@@ -128,7 +110,7 @@ private:
     typedef QList<ContentItem> ContentList;
     void removeOldCacheFiles();
     void buildKeywordDB();
-    Q_UINT32 getFileAges();
+    quint32 getFileAges();
     void showIndexTopic();
     void showBookmarkTopic();
     void setupTitleMap();

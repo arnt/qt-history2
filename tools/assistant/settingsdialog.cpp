@@ -23,7 +23,7 @@
 #include <qfiledialog.h>
 #include <qfileinfo.h>
 #include <qlineedit.h>
-#include <q3listbox.h>
+#include <qlistwidget.h>
 #include <qmessagebox.h>
 #include <qsettings.h>
 #include <qtimer.h>

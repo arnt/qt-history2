@@ -22,7 +22,7 @@
 #include <qdir.h>
 #include <qtimer.h>
 #include <qstatusbar.h>
-#include <q3accel.h>
+#include <qshortcut.h>
 #include <qmessagebox.h>
 #include <qpainter.h>
 #include <qeventloop.h>
@@ -137,20 +137,14 @@ void MainWindow::setup()
 
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
-    Q3Accel *acc = new Q3Accel(this);
-//     acc->connectItem(acc->insertItem(Key_F5), browser, SLOT(reload()));
-    acc->connectItem(acc->insertItem(tr("SHIFT+CTRL+=")), ui.actionZoomIn, SIGNAL(triggered()));
+    QShortcut *acc = new QShortcut(tr("SHIFT+CTRL+="), this);
+    connect(acc, SIGNAL(activated()), ui.actionZoomIn, SIGNAL(triggered()));
 #endif
 
-    Q3Accel *a = new Q3Accel(this, dw);
-    a->connectItem(a->insertItem(tr("Ctrl+T")),
-                    helpDock, SLOT(toggleContents()));
-    a->connectItem(a->insertItem(tr("Ctrl+I")),
-                    helpDock, SLOT(toggleIndex()));
-    a->connectItem(a->insertItem(tr("Ctrl+B")),
-                    helpDock, SLOT(toggleBookmarks()));
-    a->connectItem(a->insertItem(tr("Ctrl+S")),
-                    helpDock, SLOT(toggleSearch()));
+    connect(new QShortcut(tr("Ctrl+T"), this), SIGNAL(activated()), helpDock, SLOT(toggleContents()));
+    connect(new QShortcut(tr("Ctrl+I"), this), SIGNAL(activated()), helpDock, SLOT(toggleIndex()));
+    connect(new QShortcut(tr("Ctrl+B"), this), SIGNAL(activated()), helpDock, SLOT(toggleBookmarks()));
+    connect(new QShortcut(tr("Ctrl+S"), this), SIGNAL(activated()), helpDock, SLOT(toggleSearch()));
 
     Config *config = Config::configuration();
 
@@ -160,7 +154,7 @@ void MainWindow::setup()
     viewsAction->setText(tr("Views"));
     ui.PopupMenu->addAction(viewsAction);
 
-    helpDock->tabWidget()->setCurrentPage(config->sideBarPage());
+    helpDock->tabWidget()->setCurrentIndex(config->sideBarPage());
 
     qApp->restoreOverrideCursor();
     ui.actionGoPrevious->setEnabled(false);
@@ -264,7 +258,7 @@ void MainWindow::on_actionAboutApplication_triggered()
     }
     QString text;
     QFile file(url);
-    if(file.exists() && file.open(IO_ReadOnly))
+    if(file.exists() && file.open(QFile::ReadOnly))
         text = QString::fromAscii(file.readAll());
     if(text.isNull())
         text = tr("Failed to open about application contents in file: '%1'").arg(url);
@@ -341,8 +335,8 @@ void MainWindow::on_actionFilePrint_triggered()
     QPrinter printer(QPrinter::ScreenResolution);
     printer.setFullPage(true);
 
-    QPrintDialog *dlg = new QPrintDialog(&printer, this);    
-        
+    QPrintDialog *dlg = new QPrintDialog(&printer, this);
+
     const int dpiy = printer.logicalDpiY();
     const int margin = (int) ((2/2.54)*dpiy);
     QRectF body(margin, margin, printer.width() - 2*margin, printer.height() - 2*margin);
@@ -355,14 +349,14 @@ void MainWindow::on_actionFilePrint_triggered()
     layout->setPaintDevice(&printer);
     doc->setPageSize(body.size());
 
-    int maxPages = doc->pageCount();    
+    int maxPages = doc->pageCount();
     dlg->addEnabledOption(QPrintDialog::PrintPageRange);
     dlg->setMinMax(1, maxPages);
     dlg->setFromTo(1, maxPages);
-        
+
     if (dlg->exec() == QDialog::Accepted) {
         int from = 1;
-        int to = maxPages;        
+        int to = maxPages;
         if (dlg->printRange() & QPrintDialog::PageRange) {
             from = dlg->fromPage();
             to = dlg->toPage();
@@ -375,9 +369,9 @@ void MainWindow::on_actionFilePrint_triggered()
             delete doc;
             return;
         }
-                
+
         p.translate(body.left(), body.top()-body.height()*(from-1));
-        
+
         int page = from;
         do {
             QAbstractTextDocumentLayout::PaintContext ctx;
@@ -401,9 +395,9 @@ void MainWindow::on_actionFilePrint_triggered()
             page++;
             if (page <= to)
                 printer.newPage();
-        } while (page <= to);        
+        } while (page <= to);
     }
-    delete doc;    
+    delete doc;
 }
 
 void MainWindow::updateBookmarkMenu()
@@ -420,7 +414,7 @@ void MainWindow::setupBookmarkMenu()
 
     QFile f(QDir::homePath() + QLatin1String("/.assistant/bookmarks.") +
         Config::configuration()->profileName());
-    if (!f.open(IO_ReadOnly))
+    if (!f.open(QFile::ReadOnly))
         return;
     QTextStream ts(&f);
     ui.bookmarkMenu->addSeparator();
@@ -441,7 +435,7 @@ void MainWindow::showLinkFromClient(const QString &link)
 {
     setWindowState(windowState() & ~Qt::WindowMinimized);
     raise();
-    setActiveWindow();
+    activateWindow();
     QString l = MainWindow::urlifyFileName(link);
     showLink(l);
     if (isMinimized())
@@ -526,10 +520,10 @@ void MainWindow::showSettingsDialog(int page)
     }
     QFontDatabase fonts;
     settingsDia->fontCombo()->clear();
-    settingsDia->fontCombo()->insertStringList(fonts.families());
+    settingsDia->fontCombo()->addItems(fonts.families());
     settingsDia->fontCombo()->lineEdit()->setText(tabs->browserFont().family());
     settingsDia->fixedFontCombo()->clear();
-    settingsDia->fixedFontCombo()->insertStringList(fonts.families());
+    settingsDia->fixedFontCombo()->addItems(fonts.families());
     // ### FIXME
     //settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
     settingsDia->linkUnderlineCB()->setChecked(tabs->linkUnderline());
@@ -539,7 +533,7 @@ void MainWindow::showSettingsDialog(int page)
     settingsDia->colorButton()->setPalette(pal);
 
     if (page != -1)
-        settingsDia->settingsTab()->setCurrentPage(page);
+        settingsDia->settingsTab()->setCurrentIndex(page);
 
     int ret = settingsDia->exec();
 
@@ -626,12 +620,12 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
 {
     HelpWindow * hw = tabs->currentBrowser();
     hw->blockScrolling(true);
-    hw->setCursor(Qt::waitCursor);
+    hw->setCursor(Qt::WaitCursor);
     if (hw->source() == link)
         hw->reload();
     else
         showLink(link);
-    hw->setCursor(Qt::arrowCursor);
+    hw->setCursor(Qt::ArrowCursor);
 
     hw->viewport()->setUpdatesEnabled(false);
 
@@ -738,6 +732,11 @@ void MainWindow::setupPopupMenu(QMenu *m)
     m->addSeparator();
     m->addAction(ui.actionEditCopy);
     m->addAction(ui.actionEditFind);
+}
+
+void MainWindow::on_actionNewWindow_triggered()
+{
+    newWindow()->show();
 }
 
 void MainWindow::on_actionClose_triggered()

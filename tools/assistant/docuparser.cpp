@@ -43,7 +43,7 @@ const QString DocuParser::DocumentKey = QLatin1String("/Qt Assistant/") + QLatin
 DocuParser *DocuParser::createParser(const QString &fileName)
 {
     QFile file(fileName);
-    if(!file.open(IO_ReadOnly)) {
+    if(!file.open(QFile::ReadOnly)) {
         return 0;
     }
 

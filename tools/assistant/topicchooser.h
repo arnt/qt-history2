@@ -34,8 +34,7 @@ public:
 private slots:
     void on_buttonDisplay_clicked();
     void on_buttonCancel_clicked();
-    void on_listbox_doubleClicked(Q3ListBoxItem *item);
-    void on_listbox_returnPressed(Q3ListBoxItem *item);
+    void on_listbox_itemActivated(QListWidgetItem *item);
 
 private:
     Ui::TopicChooser ui;

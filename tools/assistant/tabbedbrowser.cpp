@@ -91,14 +91,14 @@ HelpWindow *TabbedBrowser::currentBrowser() const
 void TabbedBrowser::nextTab()
 {
     if(ui.tab->currentIndex()<=ui.tab->count()-1)
-        ui.tab->setCurrentPage(ui.tab->currentIndex()+1);
+        ui.tab->setCurrentIndex(ui.tab->currentIndex()+1);
 }
 
 void TabbedBrowser::previousTab()
 {
     int idx = ui.tab->currentIndex()-1;
     if(idx>=0)
-        ui.tab->setCurrentPage(idx);
+        ui.tab->setCurrentIndex(idx);
 }
 
 HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
@@ -121,7 +121,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
              mainWin, SLOT(forwardAvailable(bool)));
     connect(win, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(sourceChanged()));
 
-    ui.tab->cornerWidget(Qt::TopRight)->setEnabled(ui.tab->count() > 1);
+    ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);
     return win;
 }
 
@@ -140,7 +140,7 @@ void TabbedBrowser::newTab(const QString &lnk)
             link = w->source().toString();
     }
     HelpWindow *win = createHelpWindow(link);
-    ui.tab->showPage(win);
+    ui.tab->setCurrentIndex(ui.tab->indexOf(win));
     if(!link.isNull()) {
          win->setSource(link);
     }
@@ -194,8 +194,8 @@ void TabbedBrowser::init()
     pal.setColor(QPalette::Inactive, QPalette::Button, pal.color(QPalette::Inactive, QPalette::Background));
 
     QToolButton *newTabButton = new QToolButton(this);
-    ui.tab->setCornerWidget(newTabButton, Qt::TopLeft);
-    newTabButton->setCursor(Qt::arrowCursor);
+    ui.tab->setCornerWidget(newTabButton, Qt::TopLeftCorner);
+    newTabButton->setCursor(Qt::ArrowCursor);
     newTabButton->setAutoRaise(true);
     newTabButton->setIcon(QPixmap(QString::fromUtf8(":/trolltech/assistant/images/addtab.png")));
     QObject::connect(newTabButton, SIGNAL(clicked()), this, SLOT(newTab()));
@@ -203,8 +203,8 @@ void TabbedBrowser::init()
 
     QToolButton *closeTabButton = new QToolButton(this);
     closeTabButton->setPalette(pal);
-    ui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
-    closeTabButton->setCursor(Qt::arrowCursor);
+    ui.tab->setCornerWidget(closeTabButton, Qt::TopRightCorner);
+    closeTabButton->setCursor(Qt::ArrowCursor);
     closeTabButton->setAutoRaise(true);
     closeTabButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/closetab.png")));
     QObject::connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));
@@ -263,9 +263,9 @@ void TabbedBrowser::setup()
 
     QPalette pal = palette();
     QColor lc(config->linkColor());
-    pal.setColor(QPalette::Active, QColorGroup::Link, lc);
-    pal.setColor(QPalette::Inactive, QColorGroup::Link, lc);
-    pal.setColor(QPalette::Disabled, QColorGroup::Link, lc);
+    pal.setColor(QPalette::Active, QPalette::Link, lc);
+    pal.setColor(QPalette::Inactive, QPalette::Link, lc);
+    pal.setColor(QPalette::Disabled, QPalette::Link, lc);
     setPalette(pal);
 
     tabLinkUnderline = config->isLinkUnderline();
@@ -332,9 +332,9 @@ void TabbedBrowser::closeTab()
     if(ui.tab->count()==1)
         return;
     HelpWindow *win = currentBrowser();
-    ui.tab->removePage(win);
+    ui.tab->removeTab(ui.tab->indexOf(win));
     QTimer::singleShot(0, win, SLOT(deleteLater()));
-    ui.tab->cornerWidget(Qt::TopRight)->setEnabled(ui.tab->count() > 1);
+    ui.tab->cornerWidget(Qt::TopRightCorner)->setEnabled(ui.tab->count() > 1);
 }
 
 QStringList TabbedBrowser::sources() const
