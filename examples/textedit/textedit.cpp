@@ -193,6 +193,9 @@ void TextEdit::setupTextActions()
 
     actionTextBold = new QAction(QPixmap(":/textbold.xpm"), tr("&Bold"), this);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
+    QFont bold;
+    bold.setBold(true);
+    actionTextBold->setFont(bold);
     connect(actionTextBold, SIGNAL(triggered()), this, SLOT(textBold()));
     tb->addAction(actionTextBold);
     menu->addAction(actionTextBold);
@@ -200,6 +203,9 @@ void TextEdit::setupTextActions()
 
     actionTextItalic = new QAction(QPixmap(":/textitalic.xpm"), tr("&Italic"), this);
     actionTextItalic->setShortcut(Qt::CTRL + Qt::Key_I);
+    QFont italic;
+    italic.setItalic(true);
+    actionTextItalic->setFont(italic);
     connect(actionTextItalic, SIGNAL(triggered()), this, SLOT(textItalic()));
     tb->addAction(actionTextItalic);
     menu->addAction(actionTextItalic);
@@ -207,6 +213,9 @@ void TextEdit::setupTextActions()
 
     actionTextUnderline = new QAction(QPixmap(":/textunder.xpm"), tr("&Underline"), this);
     actionTextUnderline->setShortcut(Qt::CTRL + Qt::Key_U);
+    QFont underline;
+    underline.setUnderline(true);
+    actionTextUnderline->setFont(underline);
     connect(actionTextUnderline, SIGNAL(triggered()), this, SLOT(textUnderline()));
     tb->addAction(actionTextUnderline);
     menu->addAction(actionTextUnderline);
