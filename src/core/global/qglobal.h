@@ -906,7 +906,7 @@ class QDataStream;
 #       endif
 #    endif
 #  endif
-#  ifndef Q_DEC_EXPORT
+#  ifndef Q_DECL_EXPORT
 #    define Q_DECL_EXPORT
 #  endif
 #endif
