@@ -1,0 +1,70 @@
+#include <qobject.h>
+#include <qprocess.h>
+#include <qvbox.h>
+#include <qtextview.h>
+#include <qpushbutton.h>
+#include <qapplication.h>
+
+class UicManager : public QVBox
+{
+    Q_OBJECT
+
+public:
+    UicManager()
+    {
+	// Layout
+	output = new QTextView( this );
+	quitButton = new QPushButton( "Quit", this );
+	connect( quitButton, SIGNAL(clicked()),
+		qApp, SLOT(quit()) );
+	resize( 500, 500 );
+
+	// QProcess related code
+	proc = new QProcess( this );
+
+	// Set up the command and arguments.
+	// On the command line you would do:
+	//   uic -tr i18n "small dialog.ui"
+	proc->addArgument( "uic" );
+	proc->addArgument( "-tr" );
+	proc->addArgument( "i18n" );
+	proc->addArgument( "small dialog.ui" );
+
+	connect( proc, SIGNAL(readyReadStdout()),
+		this, SLOT(readStdout()) );
+	connect( proc, SIGNAL(processExited()),
+		this, SLOT(scrollToTop()) );
+
+	proc->start();
+    }
+    ~UicManager() {}
+
+public slots:
+    void readStdout()
+    {
+	// keep in mind that you might read the output in chunks
+	output->append( proc->readStdout() );
+    }
+
+    void scrollToTop()
+    {
+	output->setContentsPos( 0, 0 );
+    }
+
+private:
+    QProcess *proc;
+    QTextView *output;
+    QPushButton *quitButton;
+};
+
+
+int main( int argc, char **argv )
+{
+    QApplication a( argc, argv );
+    UicManager manager;
+    a.setMainWidget( &manager );
+    manager.show();
+    return a.exec();
+}
+
+#include "process.moc"
