@@ -223,7 +223,7 @@ void Viewer::openImageFile(QString &imageFile)
         createImage();
     }
     else
-        (void) QMessageBox::warning(this, tr("Cannot open file"),
+        (void) QMessageBox::showWarning(this, tr("Cannot open file"),
             tr("The selected file could not be opened."),
             QMessageBox::Cancel, QMessageBox::NoButton, QMessageBox::NoButton);
 }
@@ -296,13 +296,13 @@ void Viewer::saveImage()
             info.baseName() + ".png").absoluteFilePath();
 
         if (!finalWidget->pixmap()->save(newImageFile, "PNG"))
-            (void) QMessageBox::warning(this, tr("Cannot save file"),
+            (void) QMessageBox::showWarning(this, tr("Cannot save file"),
                 tr("The file could not be saved."),
                 QMessageBox::Cancel, QMessageBox::NoButton,
                 QMessageBox::NoButton);
     }
     else
-        (void) QMessageBox::warning(this, tr("Cannot save file"),
+        (void) QMessageBox::showWarning(this, tr("Cannot save file"),
             tr("Please enter a valid filename."),
             QMessageBox::Cancel, QMessageBox::NoButton,
             QMessageBox::NoButton);
