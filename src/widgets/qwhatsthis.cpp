@@ -234,7 +234,9 @@ QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const c
     setBackgroundMode( NoBackground );
     setPalette( QToolTip::palette() );
     setMouseTracking( TRUE );
+#ifndef QT_NO_CURSOR
     setCursor( arrowCursor );
+#endif
 
     if ( widget )
 	connect( widget, SIGNAL( destroyed() ), this, SLOT( hide() ) );
@@ -319,6 +321,7 @@ void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
 void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
 {
 #ifndef QT_NO_RICHTEXT
+#ifndef QT_NO_CURSOR
     if ( !doc )
 	return;
     QString a = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin ) );
@@ -326,6 +329,7 @@ void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
 	setCursor( pointingHandCursor );
     else
 	setCursor( arrowCursor );
+#endif
 #endif
 }
 

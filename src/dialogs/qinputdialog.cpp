@@ -122,10 +122,12 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
 			  bool modal, Type type)
     : QDialog( parent, name, modal )
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() &&!parent->icon()->isNull() )
 	setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	QDialog::setIcon( *qApp->mainWidget()->icon() );
+#endif
 
     d = new QInputDialogPrivate;
     d->lineEdit = 0;
@@ -293,7 +295,9 @@ QString QInputDialog::getText( const QString &caption, const QString &label, QLi
 {
     QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_gettext", TRUE, LineEdit );
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
+#endif
     dlg->lineEdit()->setText( text );
     dlg->lineEdit()->setEchoMode( mode );
     if ( !text.isEmpty() )
@@ -346,7 +350,9 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
 			    bool *ok, QWidget *parent, const char *name )
 {
     QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getint", TRUE, SpinBox );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
+#endif
     dlg->spinBox()->setRange( from, to );
     dlg->spinBox()->setSteps( step, 0 );
     dlg->spinBox()->setValue( num );
@@ -400,7 +406,9 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
 				bool *ok, QWidget *parent, const char *name )
 {
     QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getdbl", TRUE, LineEdit );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
+#endif
     dlg->lineEdit()->setValidator( new QDoubleValidator( from, to, decimals, dlg->lineEdit() ) );
     dlg->lineEdit()->setText( QString::number( num ) );
 	dlg->lineEdit()->selectAll();
@@ -468,7 +476,9 @@ QString QInputDialog::getItem( const QString &caption, const QString &label, con
 			       bool *ok, QWidget *parent, const char *name )
 {
     QInputDialog *dlg = new QInputDialog( label, parent, name ? name : "qt_inputdlg_getitem", TRUE, editable ? EditableComboBox : ComboBox );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( caption );
+#endif
     if ( editable ) {
 	dlg->editableComboBox()->insertStringList( list );
 	dlg->editableComboBox()->setCurrentItem( current );

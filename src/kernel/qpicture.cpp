@@ -808,7 +808,9 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    br.setCoords( br.left() - w2, br.top() - w2,
 			  br.right() + w2, br.bottom() + w2 );
 	}
+#ifndef QT_NO_TRANSFORMATIONS
 	br = pt->worldMatrix().map( br );
+#endif
 	if ( pt->hasClipping() ) {
 	    QRect cr = pt->clipRegion().boundingRect();
 	    br &= cr;

@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #endif // QT_H
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_RESIZEHANDLER
 class QMouseEvent;
 class QKeyEvent;
 
@@ -109,5 +109,5 @@ private:	// Disabled copy constructor and operator=
 
 };
 
-#endif //QT_NO_MAINWINDOW
+#endif //QT_NO_RESIZEHANDLER
 #endif

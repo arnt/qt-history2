@@ -575,10 +575,13 @@ void QGroupBox::fixFocus()
 	while( p && p != this && !p->isTopLevel() )
 	    p = p->parentWidget();
 	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus ) {
-	    if ( w->hasFocus() ||
-		 ( !best &&
+	    if ( w->hasFocus()
+#ifndef QT_NO_RADIOBUTTON
+		 || ( !best &&
 		   w->inherits( "QRadioButton" ) &&
-		   ((QRadioButton*)w)->isChecked() ) )
+		   ((QRadioButton*)w)->isChecked() )
+#endif
+		    )
 		// we prefer a checked radio button or a widget that
 		// already has focus, if there is one
 		best = w;

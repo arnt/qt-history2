@@ -1030,7 +1030,7 @@ void QMenuData::setItemEnabled( int id, bool enable )
     QMenuItem *mi = findItem( id, &parent );
     if ( mi && (bool)mi->is_enabled != enable ) {
 	mi->is_enabled = enable;
-#ifndef QT_NO_ACCEL
+#if !defined(QT_NO_ACCEL) && !defined(QT_NO_POPUPMENU)
 	if ( mi->popup() )
 	    mi->popup()->enableAccel( enable );
 #endif

@@ -1580,8 +1580,10 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	    dragStartTimer->stop();
 	    if ( ( e->pos() - dragStartPos ).manhattanLength() > QApplication::startDragDistance() )
 		startDrag();
+#ifndef QT_NO_CURSOR
 	    if ( !isReadOnly() )
 		viewport()->setCursor( ibeamCursor );
+#endif
 	    return;
 	}
 #endif
@@ -1590,12 +1592,14 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	oldMousePos = mousePos;
     }
 
+#ifndef QT_NO_CURSOR
     if ( !isReadOnly() && !mousePressed ) {
 	if ( doc->hasSelection( QTextDocument::Standard ) && doc->inSelection( QTextDocument::Standard, e->pos() ) )
 	    viewport()->setCursor( arrowCursor );
 	else
 	    viewport()->setCursor( ibeamCursor );
     }
+#endif
 
     if ( isReadOnly() && linksEnabled() ) {
 	QTextCursor c = *cursor;
@@ -1658,7 +1662,9 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     if ( !onLink.isEmpty() && onLink == pressedLink && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
 	emitLinkClicked( u.toString( FALSE, FALSE ) );
+#ifndef QT_NO_CURSOR
 	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
     }
 #endif
     drawCursor( TRUE );
@@ -3397,7 +3403,9 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 	if ( !doc->focusIndicator.href.isEmpty() ) {
 	    QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
 	    emitLinkClicked( u.toString( FALSE, FALSE ) );
+#ifndef QT_NO_CURSOR
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 	}
     } break;
 #endif
@@ -4069,10 +4077,12 @@ void QTextEdit::setReadOnly( bool b )
     if ( readonly == b )
 	return;
     readonly = b;
+#ifndef QT_NO_CURSOR
     if ( readonly )
 	viewport()->setCursor( arrowCursor );
     else
 	viewport()->setCursor( ibeamCursor );
+#endif
 }
 
 /*! Scrolls to the bottom of the document and does formatting if

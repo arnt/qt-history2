@@ -1007,7 +1007,9 @@ void QLineEdit::doDrag()
     QTextDrag *tdo = new QTextDrag( selectedText(), this );
     if ( tdo->drag() )
 	del();
+#ifndef QT_NO_CURSOR
     setCursor( ibeamCursor );
+#endif
     d->mousePressed = FALSE;
 }
 
@@ -1017,6 +1019,7 @@ void QLineEdit::doDrag()
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
+#ifndef QT_NO_CURSOR
     if ( !d->mousePressed ) {
 	if ( !isReadOnly() && dragEnabled() ) {
 	    if ( hasSelectedText() &&
@@ -1026,6 +1029,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 		setCursor( ibeamCursor );
 	}
     }
+#endif
 
 #ifndef QT_NO_DRAGANDDROP
     if ( dragEnabled() ) {

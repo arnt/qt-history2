@@ -173,9 +173,11 @@ void QMotifPlusStyle::polish(QPalette &)
 /*! \reimp */
 void QMotifPlusStyle::polish(QWidget *widget)
 {
+#ifndef QT_NO_FRAME
     if (widget->inherits("QFrame") &&
         ((QFrame *) widget)->frameStyle() == QFrame::Panel)
         ((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
+#endif
 
 #ifndef QT_NO_MENUBAR
     if (widget->inherits("QMenuBar") &&
@@ -183,9 +185,10 @@ void QMotifPlusStyle::polish(QWidget *widget)
         ((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 #endif
 
+#ifndef QT_NO_TOOLBAR
     if (widget->inherits("QToolBar"))
         widget->layout()->setMargin(2);
-
+#endif
     if (useHoveringHighlight) {
 	if (widget->inherits("QButton") ||
 	    widget->inherits("QComboBox"))
@@ -788,6 +791,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 
     case CE_CheckBoxLabel:
 	{
+#ifndef QT_NO_CHECKBOX
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
@@ -798,11 +802,13 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
+#endif
 	    break;
 	}
 
     case CE_RadioButtonLabel:
 	{
+#ifndef QT_NO_RADIOBUTTON
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
@@ -813,7 +819,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 		QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
-
+#endif
 	    break;
 	}
 
@@ -1366,6 +1372,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
     case CC_SpinWidget:
 	{
+#ifndef QT_NO_SPINWIDGET
 	    const QSpinWidget * sw = (const QSpinWidget *) widget;
 	    SFlags flags = Style_Default;
 
@@ -1403,7 +1410,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		QColorGroup dcg = sw->isDownEnabled() ? cg : sw->palette().disabled();
 		drawPrimitive(pe, p, re, dcg, flags);
 	    }
-
+#endif
 	    break;
 	}
 

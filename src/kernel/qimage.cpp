@@ -1509,6 +1509,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	    }
 	}
 
+#ifndef QT_NO_IMAGE_DITHER_TO_1
 	if ( src->hasAlphaBuffer() ) {
 	    const int trans = 216;
 	    dst->setColor(trans, 0x00000000);	// transparent
@@ -1530,6 +1531,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		}
 	    }
 	}
+#endif
 
 	if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::DiffuseDither ) {
 	    delete [] line1[0];

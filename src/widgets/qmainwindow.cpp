@@ -273,6 +273,7 @@ QLayoutIterator QMainWindowLayout::iterator()
   QHideToolTip and QHideDock - minimized dock
 */
 
+#ifndef QT_NO_TOOLTIP
 class QHideToolTip : public QToolTip
 {
 public:
@@ -280,6 +281,7 @@ public:
 
     void maybeTip( const QPoint &pos );
 };
+#endif
 
 
 class QHideDock : public QWidget
@@ -295,9 +297,16 @@ public:
 	pressed = FALSE;
 	setMouseTracking( TRUE );
 	win = parent;
+#ifndef QT_NO_TOOLTIP
 	tip = new QHideToolTip( this );
+#endif
     }
-    ~QHideDock() { delete tip; }
+    ~QHideDock()
+    {
+#ifndef QT_NO_TOOLTIP
+	delete tip;
+#endif
+    }
 
 protected:
     void paintEvent( QPaintEvent *e ) {
@@ -449,12 +458,13 @@ private:
     QMainWindow *win;
     int pressedHandle;
     bool pressed;
+#ifndef QT_NO_TOOLTIP
     QHideToolTip *tip;
-
     friend class QHideToolTip;
-
+#endif
 };
 
+#ifndef QT_NO_TOOLTIP
 void QHideToolTip::maybeTip( const QPoint &pos )
 {
     if ( !parentWidget() )
@@ -481,6 +491,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 	x += 30;
     }
 }
+#endif
 
 /*! \class QMainWindow qmainwindow.h
 
@@ -952,11 +963,13 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
     if ( d->sb )
 	delete d->sb;
     d->sb = newStatusBar;
+#ifndef QT_NO_TOOLTIP
     // ### this code can cause unnecessary creation of a tool tip group
     connect( toolTipGroup(), SIGNAL(showTip(const QString&)),
 	     d->sb, SLOT(message(const QString&)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     d->sb, SLOT(clear()) );
+#endif
     d->sb->installEventFilter( this );
     triggerLayout();
 }
@@ -990,6 +1003,7 @@ QStatusBar * QMainWindow::statusBar() const
 }
 
 
+#ifndef QT_NO_TOOLTIP
 /*!  Sets this main window to use the tool tip group \a newToolTipGroup.
 
   The existing tool tip group (if any) is deleted along with its
@@ -1030,6 +1044,7 @@ QToolTipGroup * QMainWindow::toolTipGroup() const
     ((QMainWindowPrivate*)d)->ttg = t;
     return t;
 }
+#endif
 
 
 /*!
@@ -1214,8 +1229,10 @@ void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
 			      Dock edge, bool newLine )
 {
     addDockWindow( dockWindow, edge, newLine );
+#ifndef QT_NO_TOOLBAR
     if ( dockWindow->inherits( "QToolBar" ) )
 	( (QToolBar*)dockWindow )->setLabel( label );
+#endif
 }
 
 /*!
@@ -1256,8 +1273,10 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
     case Unmanaged:
 	break;
     }
+#ifndef QT_NO_TOOLBAR
     if ( dockWindow->inherits( "QToolBar" ) )
 	( (QToolBar*)dockWindow )->setOrientation( dockWindow->orientation() );
+#endif
 }
 
 /*! \overload
@@ -1312,8 +1331,10 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
     case Unmanaged:
 	break;
     }
+#ifndef QT_NO_TOOLBAR
     if ( dockWindow->inherits( "QToolBar" ) )
 	( (QToolBar*)dockWindow )->setOrientation( dockWindow->orientation() );
+#endif
 }
 
 /*!
@@ -1711,7 +1732,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
  */
 void QMainWindow::whatsThis()
 {
-#ifndef QT_WHATSTHIS
+#ifndef QT_NO_WHATSTHIS
     QWhatsThis::enterWhatsThisMode();
 #endif
 }
@@ -1768,6 +1789,7 @@ bool QMainWindow::getLocation( QDockWindow *dw, Dock &dock, int &index, bool &nl
     return TRUE;
 }
 
+#ifndef QT_NO_TOOLBAR
 /*!  Returns a list of all the toolbars which are in the \a dock dock
  area, regardless of their state.
 
@@ -1787,6 +1809,7 @@ QPtrList<QToolBar> QMainWindow::toolBars( Dock dock ) const
     }
     return tbl;
 }
+#endif
 
 /*!  Returns a list of all the dock windows which are in the \a dock
  dock area, regardless of their state.
@@ -2041,6 +2064,7 @@ void QMainWindow::menuAboutToShow()
 
 	empty = TRUE;
 
+#ifndef QT_NO_TOOLBAR
 	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
 	    for ( o = l->first(); o; o = l->next() ) {
 		QDockWindow *dw = (QDockWindow*)o;
@@ -2053,9 +2077,8 @@ void QMainWindow::menuAboutToShow()
 		    empty = FALSE;
 		}
 	    }
-	} else {
-	    empty = TRUE;
 	}
+#endif
 
     }
 
@@ -2097,8 +2120,10 @@ void QMainWindow::slotPlaceChanged()
 {
     if ( sender()->inherits( "QDockWindow" ) )
 	emit dockWindowPositionChanged( (QDockWindow*)sender() );
+#ifndef QT_NO_TOOLBAR
     if ( sender()->inherits( "QToolBar" ) )
 	emit toolBarPositionChanged( (QToolBar*)sender() );
+#endif
 }
 
 /*!

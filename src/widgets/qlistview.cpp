@@ -214,6 +214,7 @@ struct QListViewPrivate
 
 };
 
+#ifndef QT_NO_TOOLTIP
 class QListViewToolTip : public QToolTip
 {
 public:
@@ -254,6 +255,7 @@ void QListViewToolTip::maybeTip( const QPoint &pos )
     r.setLeft( view->header()->sectionPos( col ) );
     tip( r, item->text( col ) );
 }
+#endif
 
 // these should probably be in QListViewPrivate, for future thread safety
 static bool activatedByClick;
@@ -2306,7 +2308,9 @@ void QListView::init()
     d->startDragItem = 0;
     d->was_visible = FALSE;
     d->toolTips = TRUE;
+#ifndef QT_NO_TOOLTIP
     d->toolTip = new QListViewToolTip( viewport(), this );
+#endif
     d->updateHeader = FALSE;
     d->fullRepaintOnComlumnChange = FALSE;
     d->resizeMode = NoColumn;
@@ -2442,8 +2446,10 @@ QListView::~QListView()
     d->drawables = 0;
     delete d->vci;
     d->vci = 0;
+#ifndef QT_NO_TOOLTIP
     delete d->toolTip;
     d->toolTip = 0;
+#endif
     delete d;
     d = 0;
 }

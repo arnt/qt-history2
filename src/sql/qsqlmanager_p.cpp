@@ -446,7 +446,9 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 #ifdef QT_DEBUG_DATAMANAGER
 	qDebug(" Using brute search...");
 #endif
+#ifndef QT_NO_CURSOR
 	QApplication::setOverrideCursor( Qt::waitCursor );
+#endif
 	/* give up, use brute force */
 	int startIdx = 0;
 	if ( cur->at() != startIdx ) {
@@ -460,7 +462,9 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	    if ( !cur->next() )
 		break;
 	}
+#ifndef QT_NO_CURSOR
 	QApplication::restoreOverrideCursor();
+#endif
     }
 #ifdef QT_DEBUG_DATAMANAGER
 	qDebug(" Done, result:" + QString::number( indexEquals ) );

@@ -1435,12 +1435,14 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 {
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	dlg->setIcon( *qApp->mainWidget()->icon() );
 
     dlg->setCaption( QColorDialog::tr( "Select color" ) );
+#endif
     dlg->setColor( initial );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();

@@ -427,10 +427,12 @@ static const char *mb_texts[] = {
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE, WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu )
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() && !parent->icon()->isNull() )
         QDialog::setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
         QDialog::setIcon( *qApp->mainWidget()->icon() );
+#endif
 
     init( Ok, 0, 0 );
 }
@@ -501,13 +503,17 @@ QMessageBox::QMessageBox( const QString& caption,
 			  bool modal, WFlags f )
     : QDialog( parent, name, modal, f | WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu )
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() && !parent->icon()->isNull() )
         QDialog::setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
         QDialog::setIcon( *qApp->mainWidget()->icon() );
+#endif
 
     init( button0, button1, button2 );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     setCaption( caption );
+#endif
     setText( text );
     setIcon( icon );
 }
@@ -1165,6 +1171,7 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
                                        parent, "qt_msgbox_simple_about_box" );
     Q_CHECK_PTR( mb );
     QPixmap i;
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon())
         i = *(parent->icon());
     if ( i.isNull() && parent &&
@@ -1173,6 +1180,7 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
     if ( i.isNull() && qApp && qApp->mainWidget() &&
          qApp->mainWidget()->icon() )
         i = *(qApp->mainWidget()->icon());
+#endif
     if ( !i.isNull() )
         mb->setIconPixmap( i );
     mb->exec();
@@ -1368,7 +1376,9 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     if ( c.isNull() )
         c = "About Qt";
     QMessageBox *mb = new QMessageBox( parent, "qt_msgbox_about_qt" );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
+#endif
     mb->setText( *translatedTextAboutQt );
     QPixmap pm;
     QImage logo( (const char **)qtlogo_xpm);
@@ -1405,7 +1415,9 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 void QMessageBox::setIcon( const QPixmap &pix )
 {
     //reimplemented to avoid compiler warning.
+#ifndef QT_NO_WIDGET_TOPEXTRA
     QDialog::setIcon( pix );
+#endif
 }
 
 

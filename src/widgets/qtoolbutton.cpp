@@ -532,6 +532,7 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 				       QStyle::SC_ToolButtonMenu);
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
 
+#ifndef QT_NO_POPUPMENU
     if ( d->discardNextMouseEvent ) {
 	d->discardNextMouseEvent = FALSE;
 	d->instantPopup = FALSE;
@@ -542,6 +543,8 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 	openPopup();
 	return;
     }
+#endif
+
     d->instantPopup = FALSE;
     QButton::mousePressEvent( e );
 }
@@ -549,6 +552,7 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 /*! \reimp */
 bool QToolButton::eventFilter( QObject *o, QEvent *e )
 {
+#ifndef QT_NO_POPUPMENU
     if ( o != d->popup )
 	return QButton::eventFilter( o, e );
     switch ( e->type() ) {
@@ -564,6 +568,7 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
+#endif
     return QButton::eventFilter( o, e );
 }
 
@@ -572,8 +577,11 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 
 bool QToolButton::uses3D() const
 {
-    return !autoRaise() || ( threeDeeButton == this && isEnabled() ) ||
-	( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup;
+    return !autoRaise() || ( threeDeeButton == this && isEnabled() )
+#ifndef QT_NO_POPUPMENU
+	|| ( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup
+#endif
+	;
 }
 
 
@@ -742,6 +750,7 @@ QIconSet QToolButton::iconSet( bool /* on */ ) const
     return iconSet();
 }
 
+#ifndef QT_NO_POPUPMENU
 /*!
   Associates the popup menu \a popup with this tool button.
 
@@ -868,6 +877,7 @@ int QToolButton::popupDelay() const
 {
     return d->delay;
 }
+#endif
 
 
 /*!

@@ -924,10 +924,14 @@ bool QDataTable::insertCurrent()
 	conf = confirmEdit( QSql::Insert );
     switch ( conf ) {
     case QSql::Yes: {
+#ifndef QT_NO_CURSOR
 	QApplication::setOverrideCursor( Qt::waitCursor );
+#endif
 	emit beforeInsert( d->editBuffer );
 	b = sqlCursor()->insert();
+#ifndef QT_NO_CURSOR
 	QApplication::restoreOverrideCursor();
+#endif
 	if ( ( !b && !sqlCursor()->isActive() ) || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
 	    refresh();
@@ -1002,10 +1006,14 @@ bool QDataTable::updateCurrent()
 	conf = confirmEdit( QSql::Update );
     switch ( conf ) {
     case QSql::Yes: {
+#ifndef QT_NO_CURSOR
 	QApplication::setOverrideCursor( Qt::waitCursor );
+#endif
 	emit beforeUpdate( d->editBuffer );
 	b = sqlCursor()->update();
+#ifndef QT_NO_CURSOR
 	QApplication::restoreOverrideCursor();
+#endif
 	if ( ( !b && !sqlCursor()->isActive() ) || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
 	    endUpdate();
@@ -1074,12 +1082,16 @@ bool QDataTable::deleteCurrent()
 	return FALSE;
     switch ( conf ) {
 	case QSql::Yes:{
+#ifndef QT_NO_CURSOR
 	    QApplication::setOverrideCursor( Qt::waitCursor );
+#endif
 	    sqlCursor()->primeDelete();
 	    emit primeDelete( sqlCursor()->editBuffer() );
 	    emit beforeDelete( sqlCursor()->editBuffer() );
 	    b = sqlCursor()->del();
+#ifndef QT_NO_CURSOR
 	    QApplication::restoreOverrideCursor();
+#endif
 	    if ( !b )
 		handleError( sqlCursor()->lastError() );
 	    refresh();
@@ -1152,7 +1164,9 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
     else
 	tmp = str;
 
+#ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor( Qt::waitCursor );
+#endif
     while( wrap ){
 	while( !found && r->seek( row ) ){
 	    for( int i = col; backwards ? (i >= 0) : (i < (int) numCols());
@@ -1194,7 +1208,9 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 	    row = numRows() - 1;
 	}
     }
+#ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
+#endif
 }
 
 

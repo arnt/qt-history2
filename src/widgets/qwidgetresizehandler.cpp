@@ -37,7 +37,7 @@
 
 #include "qwidgetresizehandler_p.h"
 
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_RESIZEHANDLER
 #include "qframe.h"
 #include "qapplication.h"
 #include "qcursor.h"
@@ -244,6 +244,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 
 void QWidgetResizeHandler::setMouseCursor( MousePosition m )
 {
+#ifndef QT_NO_CURSOR
     switch ( m ) {
     case TopLeft:
     case BottomRight:
@@ -265,6 +266,7 @@ void QWidgetResizeHandler::setMouseCursor( MousePosition m )
 	widget->setCursor( arrowCursor );
 	break;
     }
+#endif
 }
 
 void QWidgetResizeHandler::keyPressEvent( QKeyEvent * e )
@@ -433,4 +435,4 @@ void QWidgetResizeHandler::doMove()
     widget->grabKeyboard();
 }
 
-#endif //QT_NO_MAINWINDOW
+#endif //QT_NO_RESIZEHANDLER

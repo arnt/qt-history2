@@ -753,9 +753,11 @@ bool QSvgDevice::play( const QDomNode &node )
 		}
 		if ( pix.width() == w && pix.height() == h ) {
 		    pt->drawPixmap( x1, y1, pix );
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
 		} else {
 		    QImage img = pix.convertToImage();
 		    pt->drawImage( x1, y1, img.smoothScale( w, h ) );
+#endif
 		}
 	    }
 	    break;

@@ -750,7 +750,9 @@ void QLabel::drawContents( QPainter *p )
 	if ( scaledcontents ) {
 	    p->save();
 	    p->translate( cr.x(), cr.y() );
+#ifndef QT_NO_TRANSFORMATIONS
 	    p->scale( (double)cr.width()/rw, (double)cr.height()/rh );
+#endif
 	    p->drawPicture( -br.x(), -br.y(), *lpicture );
 	    p->restore();
 	} else {

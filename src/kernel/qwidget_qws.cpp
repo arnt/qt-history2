@@ -557,7 +557,11 @@ void QWidget::setIcon( const QPixmap &unscaledPixmap )
     } else {
 	QImage unscaledIcon = unscaledPixmap.convertToImage();
 	QPixmap pixmap;
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
 	pixmap.convertFromImage( unscaledIcon.smoothScale( 16, 16 ) );
+#else
+	pixmap.convertFromImage( unscaledIcon );
+#endif
 	extra->topextra->icon = new QPixmap( pixmap );
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }

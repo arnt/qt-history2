@@ -2158,7 +2158,9 @@ void QPopupMenu::toggleTearOff()
 	// create a tear off menu
 	QPopupMenu* p = new QPopupMenu( parentWidget(), "tear off menu" );
 	connect( p, SIGNAL( activated(int) ), this, SIGNAL( activated(int) ) );
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	p->setCaption( caption() );
+#endif
 	p->setCheckable( isCheckable() );
 	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |
 		     WRepaintNoErase | WDestructiveClose,

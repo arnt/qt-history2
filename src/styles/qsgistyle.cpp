@@ -223,6 +223,7 @@ QSGIStyle::polish( QWidget* w )
 	f.setBold( TRUE );
 	f.setItalic( TRUE );
 	w->setFont( f );
+#ifndef QT_NO_MENUBAR
     } else if ( w->inherits("QMenuBar") ) {
         ((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
         w->setBackgroundMode( QWidget::PaletteBackground );
@@ -230,12 +231,15 @@ QSGIStyle::polish( QWidget* w )
 	f.setBold( TRUE );
 	f.setItalic( TRUE );
 	w->setFont( f );
+#endif
+#ifndef QT_NO_POPUPMENU
     } else if ( w->inherits("QPopupMenu") ) {
         ((QFrame*) w)->setLineWidth( pixelMetric( PM_DefaultFrameWidth ) + 1 );
 	QFont f = QApplication::font();
 	f.setBold( TRUE );
 	f.setItalic( TRUE );
 	w->setFont( f );
+#endif
     } else if ( w->inherits("QToolBar") ) {
         w->setBackgroundMode( QWidget::PaletteBackground );
     } else if ( w->inherits("QToolBarSeparator") ) {
@@ -247,13 +251,17 @@ QSGIStyle::polish( QWidget* w )
 void
 QSGIStyle::unPolish( QWidget* w )
 {
-    if ( w->inherits("QButton") || w->inherits("QSlider") || w->inherits("QScrollBar") )
+    if ( w->inherits("QButton") || w->inherits("QSlider") || w->inherits("QScrollBar") ) {
         w->removeEventFilter( this );
-    else if ( w->inherits( "QPopupMenu" ) ) {
+#ifndef QT_NO_POPUPMENU
+    } else if ( w->inherits( "QPopupMenu" ) ) {
 	((QFrame*)w)->setLineWidth( pixelMetric( PM_DefaultFrameWidth ) );
 	w->setFont( QApplication::font() );
+#endif
+#if !defined(QT_NO_MENUBAR) || !defined(QT_NO_COMBOBOX)
     } else if ( w->inherits( "QMenuBar" ) || w->inherits( "QComboBox" ) ) {
 	w->setFont( QApplication::font() );
+#endif
     }
 }
 
@@ -895,7 +903,7 @@ void QSGIStyle::drawControl( ControlElement element,
 
     case CE_PopupMenuItem:
 	{
-#ifndef QT_NO_MENUDATA
+#ifndef QT_NO_POPUPMENU
 	    if (! widget || ! data)
 		break;
 	    QMenuItem *mi = (QMenuItem *) data[0];

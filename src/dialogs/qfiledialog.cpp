@@ -767,7 +767,9 @@ private:
 QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int steps )
     : QSemiModal( parent, "", TRUE )
 {
+#ifndef QT_NO_WIDGET_TOPEXTRA
     setCaption( QFileDialog::tr( "Copy or Move a File" ) );
+#endif
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
@@ -3205,16 +3207,17 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	dlg->setIcon( *qApp->mainWidget()->icon() );
 
-    Q_CHECK_PTR( dlg );
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
 	dlg->setCaption( QFileDialog::tr( "Open" ) );
+#endif
 
     dlg->setFilters( filters );
     if ( selectedFilter )
@@ -3321,6 +3324,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gsfn", TRUE );
 
     Q_CHECK_PTR( dlg );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
@@ -3330,6 +3334,8 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	dlg->setCaption( caption );
     else
 	dlg->setCaption( QFileDialog::tr( "Save As" ) );
+#endif
+
     QString result;
     dlg->setFilters( filters );
     if ( selectedFilter )
@@ -4182,10 +4188,12 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 #endif
 
     QFileDialog *dialog = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
 	dialog->setCaption( caption );
     else
 	dialog->setCaption( QFileDialog::tr("Find Directory") );
+#endif
 
     dialog->setMode( dirOnly ? DirectoryOnly : Directory );
 
@@ -5235,18 +5243,22 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofns", TRUE );
 
     Q_CHECK_PTR( dlg );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	dlg->setIcon( *qApp->mainWidget()->icon() );
+#endif
 
     dlg->setFilters( filters );
     if ( selectedFilter )
 	dlg->setFilter( *selectedFilter );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
 	dlg->setCaption( QFileDialog::tr("Open") );
+#endif
     dlg->setMode( QFileDialog::ExistingFiles );
     QString result;
     QStringList lst;

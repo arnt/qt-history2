@@ -225,6 +225,7 @@ struct QTabPrivate {
     QTabBarToolTip * toolTips;
 };
 
+#ifndef QT_NO_TOOLTIP
 /* \internal
 */
 class QTabBarToolTip : public QToolTip
@@ -271,18 +272,20 @@ protected:
 	if ( tb->d->scrolls && (rectL.contains( p ) || rectR.contains( p )) )
 	     return;
 
+#ifndef QT_NO_TOOLTIP
 	// find and show the tool tip for the tab under the point p
 	QMapIterator<QTab *, QString> it;
 	for ( it = tabTips.begin(); it != tabTips.end(); ++it ) {
 	    if ( it.key()->rect().contains( p ) )
 		tip( it.key()->rect(), it.data() );
 	}
+#endif
     }
 
 private:
     QMap<QTab *, QString> tabTips;
 };
-
+#endif
 
 /*!
   \fn void QTabBar::selected( int id )
@@ -334,8 +337,10 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 
 QTabBar::~QTabBar()
 {
+#ifndef QT_NO_TOOLTIP
     if ( d->toolTips )
 	delete d->toolTips;
+#endif
     delete d;
     d = 0;
     delete l;
@@ -406,10 +411,11 @@ int QTabBar::insertTab( QTab * newTab, int index )
 */
 void QTabBar::removeTab( QTab * t )
 {
-
     //#### accelerator labels??
+#ifndef QT_NO_TOOLTIP
     if ( d->toolTips )
 	d->toolTips->remove( t );
+#endif
     if ( d->a )
 	d->a->removeItem( t->id );
     // remove the TabBar Reference
@@ -1152,31 +1158,37 @@ void QTabBar::updateArrowButtons()
  */
 void QTabBar::removeToolTip( int index )
 {
+#ifndef QT_NO_TOOLTIP
     QTab * tab = tabAt( index );
     if ( !tab || !d->toolTips )
 	return;
     d->toolTips->remove( tab );
+#endif
 }
 
 /*! Sets the tool tip for the tab at index \a index to \a tip.
  */
 void QTabBar::setToolTip( int index, const QString & tip )
 {
+#ifndef QT_NO_TOOLTIP
     QTab * tab = tabAt( index );
     if ( !tab )
 	return;
     if ( d->toolTips == 0 )
 	d->toolTips = new QTabBarToolTip( this );
     d->toolTips->add( tab, tip );
+#endif
 }
 
 /*! Returns the tool tip for the tab at index \a index.
  */
 QString QTabBar::toolTip( int index ) const
 {
+#ifndef QT_NO_TOOLTIP
     if ( d->toolTips )
 	return d->toolTips->tipForTab( tabAt( index ) );
     else
+#endif
 	return QString();
 }
 

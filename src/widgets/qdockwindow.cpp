@@ -1636,13 +1636,17 @@ bool QDockWindow::opaqueMoving() const
 void QDockWindow::setCaption( const QString &s )
 {
     titleBar->setText( s );
+#ifndef QT_NO_WIDGET_TOPEXTRA
     QFrame::setCaption( s );
+#endif
+#ifndef QT_NO_TOOLTIP
     QToolTip::remove( horHandle );
     QToolTip::remove( verHandle );
     if ( !s.isEmpty() ) {
 	QToolTip::add( horHandle, s );
 	QToolTip::add( verHandle, s );
     }
+#endif
 }
 
 void QDockWindow::updateSplitterVisibility( bool visible )
@@ -1681,6 +1685,13 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 
     return QFrame::eventFilter( o, e );
 }
+
+#ifdef QT_NO_WIDGET_TOPEXTRA
+QString QDockWindow::caption() const
+{
+    return titleBar->text();
+}
+#endif
 
 /*! \reimp */
 void QDockWindow::contextMenuEvent( QContextMenuEvent *e )

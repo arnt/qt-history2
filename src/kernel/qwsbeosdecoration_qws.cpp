@@ -211,11 +211,13 @@ void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
 	    painter->fillRect( rect.left() - 4, rect.top() - titleHeight - 4,
 			    rect.width() + 8, rect.height() + titleHeight + 8, QBrush( c1 ) );
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	painter->setPen(titlePen);
 	painter->setFont(widget->font());
 	painter->drawText( titleLeft, -titleHeight,
 	 		rect.width() - titleHeight - 10, titleHeight-1,
 			QPainter::AlignVCenter, widget->caption());
+#endif
     }
 
 #endif //QT_NO_PALETTE

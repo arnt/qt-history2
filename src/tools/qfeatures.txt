@@ -1,6 +1,6 @@
 Feature: WORKSPACE
 Section: Widgets
-Requires: MAINWINDOW
+Requires: TITLEBAR RESIZEHANDLER POPUPMENU LAYOUT LABEL TOOLBUTTON
 Name: QWorkSpace
 SeeAlso: ???
 
@@ -12,7 +12,7 @@ SeeAlso: ???
 
 Feature: TABLE
 Section: Widgets
-Requires: SCROLLVIEW HEADER LINEEDIT
+Requires: HEADER COMBOBOX CHECKBOX
 Name: QTable
 SeeAlso: ???
 
@@ -24,7 +24,7 @@ SeeAlso: ???
 
 Feature: SQL
 Section: Sound
-Requires: PROPERTIES TABLE
+Requires: PROPERTIES TABLE LABEL SPINBOX
 Name: SQL classes
 SeeAlso: ???
 
@@ -78,7 +78,7 @@ SeeAlso: ???
 
 Feature: ICONSET
 Section: Data structures
-Requires: IMAGE_SMOOTHSCALE PALETTE IMAGEIO
+Requires: IMAGE_SMOOTHSCALE PALETTE IMAGEIO IMAGE_HEURISTIC_MASK
 Name: QIconSet
 SeeAlso: ???
 
@@ -108,7 +108,7 @@ SeeAlso: ???
 
 Feature: COMPONENT
 Section: File I/O
-Requires: SETTINGS
+Requires: SETTINGS QUUID_STRING
 Name: Dynamic module linking
 SeeAlso: ???
 
@@ -252,7 +252,7 @@ SeeAlso: ???
 
 Feature: RICHTEXT
 Section: Internationalization
-Requires: MIME TEXTSTREAM DRAWUTIL
+Requires: MIME TEXTSTREAM DRAWUTIL LAYOUT
 Name: RichText (HTML) display
 SeeAlso: ???
 
@@ -306,7 +306,7 @@ SeeAlso: ???
 
 Feature: NETWORKPROTOCOL_FTP
 Section: Networking
-Requires: NETWORKPROTOCOL DNS
+Requires: NETWORKPROTOCOL DNS TEXTDATE
 Name: FTP file access
 SeeAlso: ???
 
@@ -444,37 +444,31 @@ SeeAlso: ???
 
 Feature: QWS_KDE2_WM_STYLE
 Section: Qt/Embedded-specific
-Requires: 
+Requires: QWS_MANAGER
 Name: Window Manager Styles
 SeeAlso: ???
 
 Feature: QWS_HYDRO_WM_STYLE
 Section: Qt/Embedded-specific
-Requires: 
+Requires: QWS_MANAGER
 Name: The "Hydro" style
 SeeAlso: ???
 
 Feature: QWS_BEOS_WM_STYLE
 Section: Qt/Embedded-specific
-Requires: 
+Requires: QWS_MANAGER
 Name: The "BeOS" style
 SeeAlso: ???
 
 Feature: QWS_KDE_WM_STYLE
 Section: Qt/Embedded-specific
-Requires: 
+Requires: QWS_MANAGER
 Name: The "KDE" style
-SeeAlso: ???
-
-Feature: QWS_QPE_WM_STYLE
-Section: Qt/Embedded-specific
-Requires: 
-Name: The "QPE" style
 SeeAlso: ???
 
 Feature: QWS_WINDOWS_WM_STYLE
 Section: Qt/Embedded-specific
-Requires: 
+Requires: QWS_MANAGER
 Name: The "Windows" style
 SeeAlso: ???
 
@@ -708,13 +702,13 @@ SeeAlso: ???
 
 Feature: GROUPBOX
 Section: Widgets
-Requires: FRAME
+Requires: FRAME LAYOUT
 Name: Group boxes
 SeeAlso: ???
 
 Feature: BUTTONGROUP
 Section: Widgets
-Requires: GROUPBOX
+Requires: GROUPBOX BUTTON
 Name: Button groups
 SeeAlso: ???
 
@@ -756,25 +750,31 @@ SeeAlso: ???
 
 Feature: MAINWINDOW
 Section: Widgets
-Requires: STRINGLIST FRAME POPUPMENU
+Requires: STRINGLIST POPUPMENU TITLEBAR RESIZEHANDLER LAYOUT BUTTON
 Name: Main-windows
+SeeAlso: ???
+
+Feature: RESIZEHANDLER
+Section: Widgets
+Requires: FRAME
+Name: Internal resize handler
 SeeAlso: ???
 
 Feature: MENUDATA
 Section: Widgets
-Requires: ICONSET
+Requires: ICONSET VARIANT
 Name: Menu-like widgets
 SeeAlso: ???
 
 Feature: POPUPMENU
 Section: Widgets
-Requires: MENUDATA STYLE
+Requires: MENUDATA FRAME
 Name: Popup-menus
 SeeAlso: ???
 
 Feature: MENUBAR
 Section: Widgets
-Requires: MENUDATA STYLE
+Requires: MENUDATA FRAME
 Name: Menu bars
 SeeAlso: ???
 
@@ -828,7 +828,7 @@ SeeAlso: ???
 
 Feature: ICONVIEW
 Section: Widgets
-Requires: SCROLLVIEW IMAGEIO_XPM
+Requires: SCROLLVIEW IMAGEIO_XPM IMAGE_HEURISTIC_MASK
 Name: QIconView
 SeeAlso: ???
 
@@ -870,13 +870,13 @@ SeeAlso: ???
 
 Feature: SPINBOX
 Section: Widgets
-Requires: RANGECONTROL SPINWIDGET LINEEDIT
+Requires: RANGECONTROL SPINWIDGET LINEEDIT VALIDATOR
 Name: Spin boxes
 SeeAlso: ???
 
 Feature: SPLITTER
 Section: Widgets
-Requires: FRAME
+Requires: FRAME LAYOUT
 Name: Splitters
 SeeAlso: ???
 
@@ -954,7 +954,7 @@ SeeAlso: ???
 
 Feature: TITLEBAR
 Section: Widgets
-Requires: WORKSPACE
+Requires: STYLE
 Name: Internal class
 SeeAlso: ???
 
@@ -966,7 +966,7 @@ SeeAlso: ???
 
 Feature: ACTION
 Section: Widgets
-Requires: COMBOBOX
+Requires: COMBOBOX TOOLBUTTON
 Name: QAction
 SeeAlso: ???
 
@@ -1038,25 +1038,25 @@ SeeAlso: ???
 
 Feature: COLORDIALOG
 Section: Widgets
-Requires: LAYOUT LABEL PUSHBUTTON DIALOG LINEEDIT
+Requires: LABEL PUSHBUTTON DIALOG LINEEDIT VALIDATOR
 Name: QColorDialog
 SeeAlso: ???
 
 Feature: MESSAGEBOX
 Section: Widgets
-Requires: DIALOG PUSHBUTTON
+Requires: DIALOG PUSHBUTTON LABEL
 Name: QMessageBox
 SeeAlso: ???
 
 Feature: TABDIALOG
 Section: Widgets
-Requires: DIALOG TABBAR
+Requires: DIALOG TABBAR PUSHBUTTON LAYOUT
 Name: QTabDialog
 SeeAlso: ???
 
 Feature: WIZARD
 Section: Widgets
-Requires: WIDGETSTACK DIALOG PUSHBUTTON
+Requires: WIDGETSTACK DIALOG PUSHBUTTON LAYOUT LABEL
 Name: QWizard
 SeeAlso: ???
 
@@ -1068,13 +1068,13 @@ SeeAlso: ???
 
 Feature: FONTDIALOG
 Section: Widgets
-Requires: DIALOG FONTDATABASE COMBOBOX
+Requires: DIALOG FONTDATABASE COMBOBOX LABEL CHECKBOX PUSHBUTTON
 Name: QFontDialog
 SeeAlso: ???
 
 Feature: PRINTDIALOG
 Section: Widgets
-Requires: DIALOG LISTVIEW PRINTER COMBOBOX LAYOUT LABEL
+Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX
 Name: QPrintDialog
 SeeAlso: ???
 
@@ -1086,13 +1086,13 @@ SeeAlso: ???
 
 Feature: INPUTDIALOG
 Section: Widgets
-Requires: DIALOG COMBOBOX
+Requires: DIALOG COMBOBOX LABEL PUSHBUTTON SPINBOX
 Name: QInputDialog
 SeeAlso: ???
 
 Feature: ERRORMESSAGE
 Section: Widgets
-Requires: DIALOG LAYOUT RICHTEXT PUSHBUTTON
+Requires: DIALOG RICHTEXT PUSHBUTTON LABEL CHECKBOX
 Name: QErrorMessage
 SeeAlso: ???
 

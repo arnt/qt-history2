@@ -245,7 +245,9 @@ const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::
 
     switch (type) {
 	case Menu:
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	    pm = w->icon();
+#endif
 	    if ( !pm ) {
 		xoff = 1;
 		pm = staticMenuPixmap;
@@ -498,19 +500,23 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 			    cg, TRUE, 1, &titleBrush);
 #endif
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	    painter->setPen(titlePen);
 	    painter->setFont(widget->font());
 	    painter->drawText( titleLeft, -titleHeight,
 			    titleWidth-5, titleHeight - 1,
 			    QPainter::AlignVCenter, widget->caption());
+#endif
 	    return;
 	}
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
 	painter->setPen(titlePen);
 	painter->setFont(widget->font());
 	painter->drawText( titleLeft, -titleHeight,
 	 		rect.width() - titleHeight - 10, titleHeight-1,
 			QPainter::AlignVCenter, widget->caption());
+#endif
     }
 
 #endif //QT_NO_PALETTE

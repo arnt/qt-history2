@@ -889,6 +889,7 @@ void QMotifStyle::drawControl( ControlElement element,
 
     case CE_ProgressBarLabel:
 	{
+#ifndef QT_NO_PROGRESSBAR
 	    const QProgressBar * pb = (const QProgressBar *) widget;
 	    const int unit_width = pixelMetric( PM_ProgressBarChunkWidth, pb );
 	    int u = r.width() / unit_width;
@@ -917,6 +918,7 @@ void QMotifStyle::drawControl( ControlElement element,
 		    p->drawText( r, AlignCenter | SingleLine, pb->progressString() );
 		}
 	    }
+#endif
 	    break;
 	}
 
@@ -1749,6 +1751,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
     case SR_ProgressBarGroove:
     case SR_ProgressBarContents:
 	{
+#ifndef QT_NO_PROGRESSBAR
 	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
 			       QApplication::fontMetrics() ) );
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
@@ -1763,11 +1766,13 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    else
 		rect.setCoords(wrect.left(), wrect.top(),
 			       wrect.right() - textw, wrect.bottom());
+#endif
 	    break;
 	}
 
     case SR_ProgressBarLabel:
 	{
+#ifndef QT_NO_PROGRESSBAR
 	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
 			       QApplication::fontMetrics() ) );
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
@@ -1782,6 +1787,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    else
 		rect.setCoords(wrect.right() - textw, wrect.top(),
 			       wrect.right(), wrect.bottom());
+#endif
 	    break;
 	}
 

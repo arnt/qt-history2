@@ -5775,9 +5775,10 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 			height = img.height() * width / img.width();
 		    }
 		}
-
 		if ( img.width() != width || img.height() != height ){
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
 		    img = img.smoothScale(width, height);
+#endif
 		    width = img.width();
 		    height = img.height();
 		}

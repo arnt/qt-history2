@@ -236,6 +236,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 			    done = TRUE;
 			} else if ( (((QWidget *)wc)->focusPolicy()&QWidget::TabFocus)
 				    == QWidget::TabFocus ) {
+#ifndef QT_NO_BUTTONGROUP
 			    QButton * b = (QButton *)wc;
 			    if ( wc->inherits( "QButton" ) &&
 				 b->group() && b->isOn() &&
@@ -244,7 +245,9 @@ void QWidgetStack::raiseWidget( QWidget * w )
 				   !fc->inherits( "QButton" ) ||
 				   ((QButton*)fc)->group() == b->group() ) )
 				fb = b;
-			    else if ( !fc )
+			    else
+#endif
+			    if ( !fc )
 				fc = (QWidget*)wc;
 			}
 		    }

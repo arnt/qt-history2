@@ -139,6 +139,10 @@ public:
 
     bool eventFilter( QObject *o, QEvent *e );
 
+#ifdef QT_NO_WIDGET_TOPEXTRA
+    QString caption() const;
+#endif
+
 signals:
     void orientationChanged( Orientation o );
     void placeChanged( QDockWindow::Place p );

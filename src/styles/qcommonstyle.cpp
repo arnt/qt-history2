@@ -431,6 +431,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 
     case PE_GroupBoxFrame: {
+#ifndef QT_NO_FRAME
 	if ( !data )
 	    break;
 
@@ -481,6 +482,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	default:
 	    break;
 	}
+#endif
 	break; }
 
     case PE_ProgressBarChunk:
@@ -586,6 +588,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_CheckBoxLabel:
 	{
+#ifndef QT_NO_CHECKBOX
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
@@ -596,6 +599,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
+#endif
 	    break;
 	}
 
@@ -605,6 +609,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_RadioButtonLabel:
 	{
+#ifndef QT_NO_RADIOBUTTON
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
@@ -615,6 +620,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
+#endif
 	    break;
 	}
 
@@ -928,14 +934,17 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_CheckBoxContents:
 	{
+#ifndef QT_NO_CHECKBOX
 	    QRect ir = subRect(SR_CheckBoxIndicator, widget);
 	    rect.setRect(ir.right() + 10, wrect.y(),
 			 wrect.width() - ir.width() - 10, wrect.height());
+#endif
 	    break;
 	}
 
     case SR_CheckBoxFocusRect:
 	{
+#ifndef QT_NO_CHECKBOX
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 	    QRect cr = subRect(SR_CheckBoxContents, widget);
 
@@ -947,6 +956,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
 	    rect.addCoords( -3, -2, 3, 2 );
 	    rect = rect.intersect(wrect);
+#endif
 	    break;
 	}
 
@@ -968,6 +978,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_RadioButtonFocusRect:
 	{
+#ifndef QT_NO_RADIOBUTTON
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 	    QRect cr = subRect(SR_RadioButtonContents, widget);
 
@@ -979,6 +990,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
 	    rect.addCoords( -3, -2, 3, 2 );
 	    rect = rect.intersect(wrect);
+#endif
 	    break;
 	}
 
@@ -1025,6 +1037,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     case SR_ProgressBarGroove:
     case SR_ProgressBarContents:
 	{
+#ifndef QT_NO_PROGRESSBAR
 	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
 			       QApplication::fontMetrics() ) );
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
@@ -1038,11 +1051,13 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 			       wrect.right() - textw, wrect.bottom());
 	    else
 		rect = wrect;
+#endif
 	    break;
 	}
 
     case SR_ProgressBarLabel:
 	{
+#ifndef QT_NO_PROGRESSBAR
 	    QFontMetrics fm( ( widget ? widget->fontMetrics() :
 			       QApplication::fontMetrics() ) );
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
@@ -1056,6 +1071,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 			       wrect.right(), wrect.bottom());
 	    else
 		rect = wrect;
+#endif
 	    break;
 	}
 
@@ -1381,6 +1397,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 #endif //QT_NO_TITLEBAR
 
     case CC_SpinWidget: {
+#ifndef QT_NO_SPINWIDGET
 	const QSpinWidget * sw = (const QSpinWidget *) widget;
 	SFlags flags;
 	PrimitiveElement pe;
@@ -1423,6 +1440,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    drawPrimitive(PE_ButtonBevel, p, re, dcg, flags);
 	    drawPrimitive(pe, p, re, dcg, flags);
 	}
+#endif
 	break; }
 
 #ifndef QT_NO_SLIDER
@@ -1734,7 +1752,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	}
 #endif // QT_NO_SLIDER
 
-#ifndef QT_NO_TOOLBUTTON
+#if !defined(QT_NO_TOOLBUTTON) && !defined(QT_NO_POPUPMENU)
     case CC_ToolButton:
 	{
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
@@ -1758,7 +1776,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    }
 	    break;
 	}
-#endif // QT_NO_TOOLBUTTON
+#endif // QT_NO_TOOLBUTTON && QT_NO_POPUPMENU
 
 #ifndef QT_NO_TITLEBAR
     case CC_TitleBar:
@@ -2102,21 +2120,25 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_CheckBox:
 	{
+#ifndef QT_NO_CHECKBOX
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 	    QRect irect = subRect(SR_CheckBoxIndicator, widget);
 	    int h = pixelMetric( PM_IndicatorHeight, widget );
 	    sz += QSize(irect.right() + (checkbox->text().isEmpty() ? 0 : 10), 4 );
 	    sz.setHeight( QMAX( sz.height(), h ) );
+#endif
 	    break;
 	}
 
     case CT_RadioButton:
 	{
+#ifndef QT_NO_PUSHBUTTON
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 	    QRect irect = subRect(SR_RadioButtonIndicator, widget);
 	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
 	    sz += QSize(irect.right() + (radiobutton->text().isEmpty() ? 0 : 10), 4 );
 	    sz.setHeight( QMAX( sz.height(), h ) );
+#endif
 	    break;
 	}
 

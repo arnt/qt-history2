@@ -140,7 +140,9 @@ public:
     uint enabled : 1;
     uint toggleaction :1;
     uint on : 1;
+#ifndef QT_NO_TOOLTIP
     QToolTipGroup* tipGroup;
+#endif
 
     struct MenuItem {
 	MenuItem():popup(0),id(0){}
@@ -180,7 +182,9 @@ QActionPrivate::QActionPrivate()
     on = 0;
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
+#ifndef QT_NO_TOOLTIP
     tipGroup = new QToolTipGroup( 0 );
+#endif
 }
 
 QActionPrivate::~QActionPrivate()
@@ -206,7 +210,9 @@ QActionPrivate::~QActionPrivate()
     delete accel;
 #endif
     delete iconset;
+#ifndef QT_NO_TOOLTIP
     delete tipGroup;
+#endif
 }
 
 void QActionPrivate::update( Update upd )
@@ -254,11 +260,13 @@ void QActionPrivate::update( Update upd )
 	    btn->setToggleButton( toggleaction );
 	    if ( !text.isEmpty() )
 		btn->setTextLabel( text, FALSE );
+#ifndef QT_NO_TOOLTIP
 	    QToolTip::remove( btn );
 	    QToolTip::add( btn, toolTip(), tipGroup, statusTip() );
 	    QWhatsThis::remove( btn );
 	    if ( !whatsthis.isEmpty() )
 		QWhatsThis::add( btn, whatsthis );
+#endif
 	}
     }
     // Only used by actiongroup
@@ -708,6 +716,7 @@ void QAction::toolButtonToggled( bool on )
 */
 bool QAction::addTo( QWidget* w )
 {
+#ifndef QT_NO_TOOLBAR
     if ( w->inherits( "QToolBar" ) ) {
 	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
 	    ((QToolBar*)w)->addSeparator();
@@ -724,10 +733,14 @@ bool QAction::addTo( QWidget* w )
 	    connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	    connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
 	    connect( btn, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+#ifndef QT_NO_TOOLTIP
 	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), this, SLOT(showStatusText(const QString&)) );
 	    connect( d->tipGroup, SIGNAL(removeTip()), this, SLOT(clearStatusText()) );
+#endif
 	}
-    } else if ( w->inherits( "QPopupMenu" ) ) {
+    } else
+#endif
+    if ( w->inherits( "QPopupMenu" ) ) {
 	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
 	    ((QPopupMenu*)w)->insertSeparator();
 	} else {
@@ -852,6 +865,7 @@ void QAction::clearStatusText()
 */
 bool QAction::removeFrom( QWidget* w )
 {
+#ifndef QT_NO_TOOLBAR
     if ( w->inherits( "QToolBar" ) ) {
 	QPtrListIterator<QToolButton> it( d->toolbuttons);
 	QToolButton* btn;
@@ -864,7 +878,9 @@ bool QAction::removeFrom( QWidget* w )
 		// no need to disconnect from statusbar
 	    }
 	}
-    } else if ( w->inherits( "QPopupMenu" ) ) {
+    } else
+#endif
+    if ( w->inherits( "QPopupMenu" ) ) {
 	QPtrListIterator<QActionPrivate::MenuItem> it( d->menuitems);
 	QActionPrivate::MenuItem* mi;
 	while ( ( mi = it.current() ) ) {
@@ -984,12 +1000,14 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     for ( QPtrListIterator<QComboBox> cb( comboboxes ); cb.current(); ++cb ) {
 	cb.current()->setEnabled( that->isEnabled() );
 
+#ifndef QT_NO_TOOLTIP
 	QToolTip::remove( cb.current() );
 	QWhatsThis::remove( cb.current() );
 	if ( !!that->toolTip() )
 	    QToolTip::add( cb.current(), that->toolTip() );
 	if ( !!that->whatsThis() )
 	    QWhatsThis::add( cb.current(), that->whatsThis() );
+#endif
     }
     for ( QPtrListIterator<QToolButton> mb( menubuttons ); mb.current(); ++mb ) {
 	mb.current()->setEnabled( that->isEnabled() );
@@ -999,12 +1017,14 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	if ( !that->iconSet().isNull() )
 	    mb.current()->setIconSet( that->iconSet() );
 
+#ifndef QT_NO_TOOLTIP
 	QToolTip::remove( mb.current() );
 	QWhatsThis::remove( mb.current() );
 	if ( !!that->toolTip() )
 	    QToolTip::add( mb.current(), that->toolTip() );
 	if ( !!that->whatsThis() )
 	    QWhatsThis::add( mb.current(), that->whatsThis() );
+#endif
     }
     for ( QPtrListIterator<QActionGroupPrivate::MenuItem> pu( menuitems ); pu.current(); ++pu ) {
 	QWidget* parent = pu.current()->popup->parentWidget();
@@ -1264,6 +1284,7 @@ void QActionGroup::addSeparator()
 */
 bool QActionGroup::addTo( QWidget* w )
 {
+#ifndef QT_NO_TOOLBAR
     if ( w->inherits( "QToolBar" ) ) {
 	if ( d->dropdown ) {
 	    if ( !d->exclusive ) {
@@ -1286,6 +1307,7 @@ bool QActionGroup::addTo( QWidget* w )
 		    btn->setTextLabel( text() );
 		else if ( !!defAction->text() )
 		    btn->setTextLabel( defAction->text() );
+#ifndef QT_NO_TOOLTIP
 		if ( !!toolTip() )
 		    QToolTip::add( btn, toolTip() );
 		else if ( !!defAction->toolTip() )
@@ -1294,6 +1316,7 @@ bool QActionGroup::addTo( QWidget* w )
 		    QWhatsThis::add( btn, whatsThis() );
 		else if ( !!defAction->whatsThis() )
 		    QWhatsThis::add( btn, defAction->whatsThis() );
+#endif
 
 		connect( btn, SIGNAL( clicked() ), defAction, SIGNAL( activated() ) );
 		connect( btn, SIGNAL( toggled(bool) ), defAction, SLOT( toolButtonToggled(bool) ) );
@@ -1313,10 +1336,12 @@ bool QActionGroup::addTo( QWidget* w )
 		addedTo( box, w );
 		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->comboboxes.append( box );
+#ifndef QT_NO_TOOLTIP
 		if ( !!toolTip() )
 		    QToolTip::add( box, toolTip() );
 		if ( !!whatsThis() )
 		    QWhatsThis::add( box, whatsThis() );
+#endif
 
 		for ( QPtrListIterator<QAction> it( d->actions); it.current(); ++it ) {
 		    it.current()->addTo( box );
@@ -1325,7 +1350,9 @@ bool QActionGroup::addTo( QWidget* w )
 		return TRUE;
 	    }
 	}
-    } else if ( w->inherits( "QPopupMenu" ) ) {
+    } else
+#endif
+    if ( w->inherits( "QPopupMenu" ) ) {
 	QPopupMenu *popup;
 	if ( d->dropdown ) {
 	    QPopupMenu *menu = (QPopupMenu*)w;
@@ -1377,7 +1404,8 @@ bool QActionGroup::removeFrom( QWidget* w )
     for ( QPtrListIterator<QAction> it( d->actions); it.current(); ++it ) {
 	it.current()->removeFrom( w );
     }
-
+ 
+#ifndef QT_NO_TOOLBAR
     if ( w->inherits( "QToolBar" ) ) {
 	QPtrListIterator<QComboBox> cb( d->comboboxes );
 	while( cb.current() ) {
@@ -1393,7 +1421,9 @@ bool QActionGroup::removeFrom( QWidget* w )
 	    if ( btn->parentWidget() == w )
 		delete btn;
 	}
-    } else if ( w->inherits( "QPopupMenu" ) ) {
+    } else
+#endif
+    if ( w->inherits( "QPopupMenu" ) ) {
 	QPtrListIterator<QActionGroupPrivate::MenuItem> pu( d->menuitems );
 	while ( pu.current() ) {
 	    QActionGroupPrivate::MenuItem *mi = pu.current();

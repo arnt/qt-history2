@@ -2661,10 +2661,12 @@ void QCanvasPixmap::init(const QImage& image)
     convertFromImage(image);
     hotx = image.offset().x();
     hoty = image.offset().y();
+#ifndef QT_NO_IMAGE_DITHER_TO_1
     if( image.hasAlphaBuffer() ) {
 	QImage i = image.createAlphaMask();
 	collision_mask = new QImage(i);
     } else
+#endif
 	collision_mask = 0;
 }
 

@@ -311,6 +311,7 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
 #endif
 
 
+#ifndef QT_NO_TOOLTIP
 class QIconViewToolTip : public QToolTip
 {
 public:
@@ -320,7 +321,6 @@ public:
 
 private:
     QIconView *view;
-
 };
 
 QIconViewToolTip::QIconViewToolTip( QWidget *parent, QIconView *iv )
@@ -343,6 +343,7 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
     r2 = QRect( view->contentsToViewport( QPoint( r2.x(), r2.y() ) ), QSize( r2.width(), r2.height() ) );
     tip( r, r2, item->itemText );
 }
+#endif
 
 
 class QIconViewItemPrivate
@@ -2640,7 +2641,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( QWidget::WheelFocus );
 
+#ifndef QT_NO_TOOLTIP
     d->toolTip = new QIconViewToolTip( viewport(), this );
+#endif
     d->showTips = TRUE;
 }
 
@@ -2724,8 +2727,10 @@ QIconView::~QIconView()
     }
     delete d->fm;
     d->fm = 0;
+#ifndef QT_NO_TOOLTIP
     delete d->toolTip;
     d->toolTip = 0;
+#endif
     delete d;
 }
 

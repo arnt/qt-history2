@@ -705,6 +705,7 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 		}
 	    } else if ( pm.depth() == 1 ) {	// monochrome pixmap, no mask
 		pm.setMask( *((QBitmap *)&pm) );
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
 	    } else {				// color pixmap, no mask
 		QString k;
 		k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
@@ -717,6 +718,7 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 		}
 		pm = *mask;
 		if (del) delete mask;
+#endif
 	    }
 	    if ( gs == Qt::WindowsStyle ) {
 		p->setPen( g.light() );

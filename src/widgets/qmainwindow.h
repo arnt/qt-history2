@@ -70,7 +70,9 @@ public:
     QMenuBar * menuBar() const;
 #endif
     QStatusBar * statusBar() const;
+#ifndef QT_NO_TOOLTIP
     QToolTipGroup * toolTipGroup() const;
+#endif
 
     virtual void setCentralWidget( QWidget * );
     QWidget * centralWidget() const;
@@ -110,17 +112,19 @@ public:
     bool isDockMenuEnabled() const;
 
     // compatibility stuff
+    bool hasDockWindow( QDockWindow *dw );
+#ifndef QT_NO_TOOLBAR
     void addToolBar( QDockWindow *, Dock = Top, bool newLine = FALSE );
     void addToolBar( QDockWindow *, const QString &label,
 		     Dock = Top, bool newLine = FALSE );
     void moveToolBar( QDockWindow *, Dock = Top );
     void moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
     void removeToolBar( QDockWindow * );
-    bool hasDockWindow( QDockWindow *dw );
 
     bool toolBarsMovable() const;
     QPtrList<QToolBar> toolBars( Dock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
+#endif
 
     virtual QDockArea *dockingArea( const QPoint &p );
     QDockArea *leftDock() const;
@@ -154,8 +158,10 @@ signals:
     void usesTextLabelChanged( bool );
     void dockWindowPositionChanged( QDockWindow * );
 
+#ifndef QT_NO_TOOLBAR
     // compatibility stuff
     void toolBarPositionChanged( QToolBar * );
+#endif
 
 protected slots:
     virtual void setUpLayout();
@@ -181,7 +187,9 @@ private:
     virtual void setMenuBar( QMenuBar * );
 #endif
     virtual void setStatusBar( QStatusBar * );
+#ifndef QT_NO_TOOLTIP
     virtual void setToolTipGroup( QToolTipGroup * );
+#endif
 
     friend class QDockWindow;
     friend class QMenuBar;
@@ -195,6 +203,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#ifndef QT_NO_TOOLBAR
 inline void QMainWindow::addToolBar( QDockWindow *w, ToolBarDock dock, bool newLine )
 {
     addDockWindow( w, dock, newLine );
@@ -235,6 +244,7 @@ inline void QMainWindow::setToolBarsMovable( bool b )
 {
     setDockWindowsMovable( b );
 }
+#endif
 
 #ifndef QT_NO_TEXTSTREAM
 Q_EXPORT QTextStream &operator<<( QTextStream &, const QMainWindow & );
