@@ -89,7 +89,6 @@ static QColor qt_aqua_text_inactive_color = Qt::black;
 #endif
 static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
-AquaMode aquaMode = AquaModeUnknown;
 
 class QAquaStyleFocusWidget : public QAquaFocusWidget
 {
@@ -348,34 +347,34 @@ void QAquaStyle::drawPrimitive(PrimitiveElement pe,
 {
     switch( pe ) {
     case PE_Panel:
-    case PE_PanelLineEdit:
+    case PE_PanelLineEdit: {
 	if(flags & Style_Sunken) {
-	  //Top
-	  p->setPen(QColor(120, 124, 120));
-	  p->drawLine(r.x(), r.y(), r.right(), r.y());
-	  p->setPen(QColor(192, 192, 192));
-	  p->drawLine(r.x(), r.y() + 1, r.right(), r.y() + 1);
-	  p->setPen(QColor(240, 240, 240));
-	  p->drawLine(r.x() + 2, r.y() + 2, r.right() - 2, r.y() + 2);
-	  p->setPen(QColor(255, 255, 255));
-	  p->drawLine(r.x() + 3, r.y() + 3, r.right() - 6, r.y() + 3);
-	  //Bottom
-	  p->setPen(QColor(200, 204, 200));
-	  p->drawLine(r.x() + 1, r.bottom(), r.right() - 1, r.bottom());
-	  p->setPen(QColor(232, 236, 232));
-	  p->drawLine(r.x() + 2, r.bottom() - 1, r.right() - 2, r.bottom() - 1);
-	  p->setPen(QColor(255, 255, 255));
-	  p->drawLine(r.x() + 3, r.bottom() - 2, r.right() - 3, r.bottom() - 2);
-	  //Left/Right
-	  p->setPen(QColor(184, 184, 184));
-	  p->drawLine(r.x(), r.y() + 1, r.x(), r.bottom());
-	  p->drawLine(r.right(), r.y() + 1, r.right(), r.bottom());
-	  p->setPen(QColor(224, 224, 224));
-	  p->drawLine(r.x() + 1, r.y() + 2, r.x() + 1, r.bottom() - 1);
-	  p->drawLine(r.right() - 1, r.y() + 2, r.right() - 1, r.bottom() - 1);
-	  p->setPen(QColor(255, 255, 255));
-	  p->drawLine(r.x() + 2, r.y() + 3, r.x() + 2, r.bottom() - 2);
-	  p->drawLine(r.right() - 2, r.y() + 3, r.right() - 2, r.bottom() - 2);
+	    //Top
+	    p->setPen(QColor(120, 124, 120));
+	    p->drawLine(r.x(), r.y(), r.right(), r.y());
+	    p->setPen(QColor(192, 192, 192));
+	    p->drawLine(r.x(), r.y() + 1, r.right(), r.y() + 1);
+	    p->setPen(QColor(240, 240, 240));
+	    p->drawLine(r.x() + 2, r.y() + 2, r.right() - 2, r.y() + 2);
+	    p->setPen(QColor(255, 255, 255));
+	    p->drawLine(r.x() + 3, r.y() + 3, r.right() - 6, r.y() + 3);
+	    //Bottom
+	    p->setPen(QColor(200, 204, 200));
+	    p->drawLine(r.x() + 1, r.bottom(), r.right() - 1, r.bottom());
+	    p->setPen(QColor(232, 236, 232));
+	    p->drawLine(r.x() + 2, r.bottom() - 1, r.right() - 2, r.bottom() - 1);
+	    p->setPen(QColor(255, 255, 255));
+	    p->drawLine(r.x() + 3, r.bottom() - 2, r.right() - 3, r.bottom() - 2);
+	    //Left/Right
+	    p->setPen(QColor(184, 184, 184));
+	    p->drawLine(r.x(), r.y() + 1, r.x(), r.bottom());
+	    p->drawLine(r.right(), r.y() + 1, r.right(), r.bottom());
+	    p->setPen(QColor(224, 224, 224));
+	    p->drawLine(r.x() + 1, r.y() + 2, r.x() + 1, r.bottom() - 1);
+	    p->drawLine(r.right() - 1, r.y() + 2, r.right() - 1, r.bottom() - 1);
+	    p->setPen(QColor(255, 255, 255));
+	    p->drawLine(r.x() + 2, r.y() + 3, r.x() + 2, r.bottom() - 2);
+	    p->drawLine(r.right() - 2, r.y() + 3, r.right() - 2, r.bottom() - 2);
 	} else {
 	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
 	}
