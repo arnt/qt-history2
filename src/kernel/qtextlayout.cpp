@@ -342,7 +342,8 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 			if ( w + tmpWidth + tmpItemWidth > d->lineWidth )
 			    goto found;
 		    }
-		    if ( lastWasSpace || itemAttrs->softBreak ) {
+		    if ( (lastWasSpace || itemAttrs->softBreak) &&
+			 (i != d->firstItemInLine || pos != 0) ) {
 			if ( breakItem != i )
 			    itemWidth = 0;
 			breakItem = i;
