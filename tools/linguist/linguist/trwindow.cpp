@@ -913,6 +913,9 @@ void TrWindow::updateCaption()
 //
 void TrWindow::showNewScope(const QModelIndex &current, const QModelIndex &old)
 {
+    stv->clearSelection();
+    statusBar()->clear();
+
     if (current.isValid()) {
         ContextItem *c = cmdl->contextItem(current);
         mmdl->setContextItem(c);
@@ -927,9 +930,6 @@ void TrWindow::showNewScope(const QModelIndex &current, const QModelIndex &old)
             stv->header()->setSortIndicatorShown(false);
         }
     }
-
-    stv->clearSelection();
-    statusBar()->clear();
 
     Q_UNUSED(old);
 }
@@ -2079,7 +2079,7 @@ QIcon TrWindow::loadPixmap(const QString &imageName)
         QIcon s(enabledPix);
         if (imageName != QLatin1String("whatsthis.xpm")) {
             QPixmap disabledPix(":/images/d_" + imageName);
-            s.setPixmap(disabledPix, QIcon::Small, QIcon::Disabled);
+            s.setPixmap(disabledPix, Qt::SmallIconSize, QIcon::Disabled);
         }
         return s;
 	}

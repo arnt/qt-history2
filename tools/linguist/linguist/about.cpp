@@ -21,7 +21,6 @@ AboutDialog::AboutDialog(QWidget* parent, Qt::WFlags fl)
     : QDialog(parent, fl)
 {
     setupUi(this);
-    setModal(true);
     
     PixmapLabel1->setPixmap(QPixmap(":/images/splash.png"));
     connect(PushButton1, SIGNAL(clicked()), this, SLOT(accept()));

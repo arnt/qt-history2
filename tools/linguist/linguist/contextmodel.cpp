@@ -115,7 +115,7 @@ void ContextModel::updateItem(QModelIndex indx)
 void ContextModel::clearContextList()
 {
     int r = cntxtList.count();
-    emit rowsRemoved(QModelIndex::Null, 0, r-1);
+    emit rowsAboutToBeRemoved(QModelIndex::Null, 0, r-1);
 
     if (r <= 0) // no items
         return;

@@ -66,7 +66,7 @@ void MessageModel::setContextItem(ContextItem *ctxtI)
 
     if (cntxtItem != 0) {
         int r = cntxtItem->messageItemsInList();
-        emit rowsRemoved(QModelIndex::Null, 0, r-1);
+        emit rowsAboutToBeRemoved(QModelIndex::Null, 0, r-1);
         cntxtItem = 0;
     }
 

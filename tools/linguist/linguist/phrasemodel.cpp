@@ -20,7 +20,7 @@ void PhraseModel::removePhrases()
 {
     int r = plist.count();
     if (r > 0) {
-        emit rowsRemoved(QModelIndex::Null, 0, r-1);
+        emit rowsAboutToBeRemoved(QModelIndex::Null, 0, r-1);
         plist.clear();
     }
 }
@@ -56,7 +56,7 @@ QModelIndex PhraseModel::addPhrase(Phrase p)
 void PhraseModel::removePhrase(const QModelIndex &index)
 {
     int r = index.row();
-    emit rowsRemoved(QModelIndex::Null, r, r);
+    emit rowsAboutToBeRemoved(QModelIndex::Null, r, r);
     plist.removeAt(r);
 }
 

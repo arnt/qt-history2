@@ -542,6 +542,8 @@ void MessageEditor::showMessage(const QString &text,
                                 MetaTranslatorMessage::Type type,
                                 const QList<Phrase> &phrases)
 {
+    phraseTv->clearSelection();
+
     bool obsolete = (type == MetaTranslatorMessage::Obsolete);
     setEditionEnabled(!obsolete);
     sourceText = text;
@@ -583,7 +585,6 @@ void MessageEditor::showMessage(const QString &text,
         }
     }
     phrMdl->resort();
-    phraseTv->clearSelection();
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
     editorPage->handleTranslationChanges();
