@@ -36,9 +36,17 @@ for(QTLIB, $$list($$unique(QT))) {
          }
 	 isEqual(QTLIB, opengl):CONFIG += opengl
 	 false:CONFIG(debug, debug|release) {
-	    LIBS   += -l$${qlib}_debug
+	    mac:qt_framework {
+	        LIBS   += -framework $${qlib}
+            } else {
+	        LIBS   += -l$${qlib}_debug
+            }
 	 } else { 
-	    LIBS   += -l$${qlib}
+	    mac:qt_framework {
+ 	         LIBS   += -framework $${qlib}
+            } else {
+ 	         LIBS   += -l$${qlib}
+            }
          }
       }
    }
