@@ -95,7 +95,7 @@ void AssistantSocket::connectionClosed()
 }
 
 AssistantServer::AssistantServer( QObject *parent )
-    : QServerSocket( 0x7f000001, 0, 1, parent )
+    : QServerSocket( QHostAddress::LocalhostAddress, 0, 1, parent )
 {
     if ( !ok() ) {
         QMessageBox::critical( 0, tr( "Qt Assistant" ),
