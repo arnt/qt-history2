@@ -190,8 +190,8 @@ private:
     bool readIniFile(QIODevice &device, SettingsKeyMap *map);
     bool writeIniFile(QIODevice &device, const SettingsKeyMap &map);
 #ifdef Q_OS_MAC
-    static bool readPlistFile(const QString &fileName, SettingsKeyMap *map);
-    static bool writePlistFile(const QString &fileName, const SettingsKeyMap &map);
+    bool readPlistFile(const QString &fileName, SettingsKeyMap *map) const;
+    bool writePlistFile(const QString &fileName, const SettingsKeyMap &map) const;
 #endif
 
     QConfFile *confFiles[NumConfFiles];

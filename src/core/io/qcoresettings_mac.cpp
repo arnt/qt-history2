@@ -34,19 +34,22 @@ static QString qtKey(CFStringRef cfkey)
     return swapSlashesAndDots(QCFString::toQString(cfkey));
 }
 
-static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value);
+static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
+                                        QCoreSettingsPrivate::VariantToStringFunc variantToString);
 
-static CFArrayRef macList(const QList<QCoreVariant> &list)
+static CFArrayRef macList(const QList<QCoreVariant> &list,
+                          QCoreSettingsPrivate::VariantToStringFunc variantToString)
 {
     int n = list.size();
     QVarLengthArray<QCFType<CFPropertyListRef> > cfvalues(n);
     for (int i = 0; i < n; ++i)
-        cfvalues[i] = macValue(list.at(i));
+        cfvalues[i] = macValue(list.at(i), variantToString);
     return CFArrayCreate(kCFAllocatorDefault, reinterpret_cast<const void **>(cfvalues.data()),
                          CFIndex(n), &kCFTypeArrayCallBacks);
 }
 
-static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
+static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value,
+                                        QCoreSettingsPrivate::VariantToStringFunc variantToString)
 {
     CFPropertyListRef result;
 
@@ -61,7 +64,7 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
     case QCoreVariant::List:
     case QCoreVariant::StringList:
     case QCoreVariant::PointArray:
-        result = macList(value.toList());
+        result = macList(value.toList(), variantToString);
         break;
     case QCoreVariant::Map:
         {
@@ -89,7 +92,7 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
                 } while (i != map.constEnd() && i.key() == key);
 
                 cfkeys[numUniqueKeys] = QCFString::toCFStringRef(key);
-                cfvalues[numUniqueKeys] = macList(values);
+                cfvalues[numUniqueKeys] = macList(values, variantToString);
                 ++numUniqueKeys;
             }
 
@@ -143,12 +146,13 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
     case QCoreVariant::String:
     string_case:
     default:
-        result = QCFString::toCFStringRef(value.toString());
+        result = QCFString::toCFStringRef(variantToString(value));
     }
     return result;
 }
 
-static QCoreVariant qtValue(CFPropertyListRef cfvalue)
+static QCoreVariant qtValue(CFPropertyListRef cfvalue,
+                            QCoreSettingsPrivate::StringToVariantFunc stringToVariant)
 {
     if (!cfvalue)
         return QCoreVariant();
@@ -159,7 +163,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
         Sorted grossly from most to least frequent type.
     */
     if (typeId == CFStringGetTypeID()) {
-        return QCFString::toQString(static_cast<CFStringRef>(cfvalue));
+        return stringToVariant(QCFString::toQString(static_cast<CFStringRef>(cfvalue)));
     } else if (typeId == CFNumberGetTypeID()) {
         CFNumberRef cfnumber = static_cast<CFNumberRef>(cfvalue);
         if (CFNumberIsFloatType(cfnumber)) {
@@ -180,7 +184,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
         QList<QCoreVariant> list;
         CFIndex size = CFArrayGetCount(cfarray);
         for (CFIndex i = 0; i < size; ++i)
-            list << qtValue(CFArrayGetValueAtIndex(cfarray, i));
+            list << qtValue(CFArrayGetValueAtIndex(cfarray, i), stringToVariant);
         return list;
     } else if (typeId == CFBooleanGetTypeID()) {
         return (bool)CFBooleanGetValue(static_cast<CFBooleanRef>(cfvalue));
@@ -204,9 +208,9 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
                 CFArrayRef cfarray = static_cast<CFArrayRef>(values[i]);
                 CFIndex arraySize = CFArrayGetCount(cfarray);
                 for (CFIndex j = arraySize - 1; j >= 0; --j)
-                    map.insert(key, qtValue(CFArrayGetValueAtIndex(cfarray, j)));
+                    map.insert(key, qtValue(CFArrayGetValueAtIndex(cfarray, j), stringToVariant));
             } else {
-                map.insert(key, qtValue(values[i]));
+                map.insert(key, qtValue(values[i], stringToVariant));
             }
         }
         return map;
@@ -316,7 +320,7 @@ void QMacSettingsPrivate::remove(const QString &key)
 
 void QMacSettingsPrivate::set(const QString &key, const QCoreVariant &value)
 {
-    CFPreferencesSetValue(macKey(key), macValue(value), domains[0].applicationOrSuiteId,
+    CFPreferencesSetValue(macKey(key), macValue(value, variantToString), domains[0].applicationOrSuiteId,
                           domains[0].userName, hostName);
 }
 
@@ -330,7 +334,7 @@ bool QMacSettingsPrivate::get(const QString &key, QCoreVariant *value) const
                                            hostNames[j]);
             if (ret) {
                 if (value)
-                    *value = qtValue(ret);
+                    *value = qtValue(ret, stringToVariant);
                 return true;
             }
         }
@@ -399,7 +403,9 @@ QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
                                                     StringToVariantFunc stv)
 {
     if (format == Qt::NativeFormat) {
-        return new QMacSettingsPrivate(scope, organization, application);
+        QMacSettingsPrivate *p = new QMacSettingsPrivate(scope, organization, application);
+        p->setStreamingFunctions(vts, stv);
+        return p;
     } else {
         QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
                                                                 organization, application);
@@ -415,7 +421,7 @@ static QCFType<CFURLRef> urlFromFileName(const QString &fileName)
                                          kCFURLPOSIXPathStyle, false);
 }
 
-bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, SettingsKeyMap *map)
+bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, SettingsKeyMap *map) const
 {
     QCFType<CFDataRef> resource;
     SInt32 code;
@@ -442,12 +448,13 @@ bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, SettingsKe
 
     for (int i = 0; i < size; ++i) {
         QString key = qtKey(static_cast<CFStringRef>(keys[i]));
-        map->insert(QSettingsKey(key, Qt::CaseSensitive), qtValue(values[i]));
+        map->insert(QSettingsKey(key, Qt::CaseSensitive), qtValue(values[i], stringToVariant));
     }
     return true;
 }
 
-bool QConfFileSettingsPrivate::writePlistFile(const QString &fileName, const SettingsKeyMap &map)
+bool QConfFileSettingsPrivate::writePlistFile(const QString &fileName,
+                                              const SettingsKeyMap &map) const
 {
     QVarLengthArray<QCFType<CFStringRef> > cfkeys(map.size());
     QVarLengthArray<QCFType<CFPropertyListRef> > cfvalues(map.size());
@@ -455,7 +462,7 @@ bool QConfFileSettingsPrivate::writePlistFile(const QString &fileName, const Set
     SettingsKeyMap::const_iterator j;
     for (j = map.constBegin(); j != map.constEnd(); ++j) {
         cfkeys[i] = macKey(j.key());
-        cfvalues[i] = macValue(j.value());
+        cfvalues[i] = macValue(j.value(), variantToString);
         ++i;
     }
 
