@@ -43,6 +43,7 @@ QMAKE_LFLAGS		=
 QMAKE_LFLAGS_RELEASE	=
 QMAKE_LFLAGS_DEBUG	=
 QMAKE_LFLAGS_SHLIB	= -shared
+QMAKE_LFLAGS_PLUGIN     = $$QMAKE_LFLAGS_SHLIB
 # "Frithjof.Brestrich" <brest@infp.fzk.de> suggests -h not -soname
 QMAKE_LFLAGS_SONAME	= -Wl,-h,
 

@@ -319,9 +319,9 @@ UnixMakefileGenerator::init()
 
     bool extern_libs = !project->isActiveConfig("dll")  || (project->variables()["TARGET"].first() == "qt" ||
 							    project->variables()["TARGET"].first() == "qt-mt");
-    /* ported directly from generic.t */
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) {
+    if ( (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) ||
+	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
 	if(configs.findIndex("dll") == -1) configs.append("dll");
     } else if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() || project->isActiveConfig("dll") ) {
 	configs.remove("staticlib");
@@ -529,6 +529,9 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
 	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHAPP"];
+	} else if( project->isActiveConfig("plugin") ) {
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PLUGIN"];
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
 	} else {
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHLIB"];
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];

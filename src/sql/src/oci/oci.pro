@@ -1,7 +1,5 @@
 TEMPLATE	= lib
-CONFIG		= qt warn_on debug
-win32:DEFINES  += QT_DLL
-win32:CONFIG   += dll
+CONFIG		= qt warn_on debug plugin
 HEADERS		= qsql_oci.h
 SOURCES		= main.cpp \
 		  qsql_oci.cpp 

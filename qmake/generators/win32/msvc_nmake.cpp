@@ -188,6 +188,10 @@ NmakeMakefileGenerator::init()
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
     if ( project->isActiveConfig("qt") ) {
+	if ( project->isActiveConfig( "plugin" ) ) {
+	    project->variables()["CONFIG"].append("dll");
+	    project->variables()["DEFINES"].append("QT_DLL");
+	}
 	if ( (project->variables()["DEFINES"].findIndex("QT_NODLL") == -1) &&
          ((project->variables()["DEFINES"].findIndex("QT_MAKEDLL") != -1 ||
            project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||

@@ -196,6 +196,7 @@ will be created upon executing Qmake.
   console   The target is a Win32 console application (app.t only).
   dll       The target is a shared object/DLL.
   staticlib The target is a static library (lib.t only).
+  plugin    The target is a plugin (QInterface).
 
   release   Compile with optimization enabled, ignored if "debug" is specified.
   debug     Compile with debug options enabled.
