@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
                 showHelp(argv[0]);
                 return -1;
             }
-            driver.option().outputFile = QFile::encodeName(argv[argc]);
+            driver.option().outputFile = QFile::encodeName(argv[arg]);
         } else if (opt == QLatin1String("-tr") || opt == QLatin1String("--translate")) {
             ++arg;
             if (!argv[arg]) {
