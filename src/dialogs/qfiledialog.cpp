@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#237 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#238 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1473,6 +1473,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 {
     init();
     cwd.convertToAbs();
+    emit dirEntered( cwd.canonicalPath() );
     rereadDir();
 }
 
@@ -1501,6 +1502,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
         cwd.setPath( dirName );
 
     cwd.convertToAbs();
+    emit dirEntered( cwd.canonicalPath() );
     rereadDir();
 }
 
@@ -1897,6 +1899,7 @@ void QFileDialog::setDir( const QDir &dir )
     QFileInfo i( cwd, nameEdit->text() );
     trySetSelection( i, FALSE );
     rereadDir();
+    emit dirEntered( cwd.canonicalPath() );
 }
 
 /*!
@@ -2827,6 +2830,7 @@ void QFileDialog::cdUpClicked()
 {
     if ( cwd.cdUp() ) {
         cwd.convertToAbs();
+        emit dirEntered( cwd.canonicalPath() );
         rereadDir();
     }
 }
