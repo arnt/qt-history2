@@ -1464,7 +1464,7 @@ void QPainter::drawRect(const QRect &r)
 /*!
   Draws the one or more edges of the rectangle \a r. Edges to draw are
   specified in \a edges. Drawing all edges are equivalent to setting
-  the current pen to Qt::NoBrush and calling QPainter::drawRect().
+  the current brush to Qt::NoBrush and calling QPainter::drawRect().
 
   \sa drawRect(),
 */
