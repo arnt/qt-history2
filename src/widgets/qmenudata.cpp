@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#21 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#21 $";
 #endif
 
 
@@ -56,6 +56,8 @@ QMenuItem::~QMenuItem()
 // ---------------------------------------------------------------------------
 // QMenuData member functions
 //
+
+static int auto_id_count = 0;
 
 /*!
 Constructs an empty list.
@@ -142,28 +144,27 @@ int QMenuData::count() const
     return mitems->count(); 
 }
 
-void QMenuData::insertAny( const char *string, const QPixmap *pixmap,
-			   QPopupMenu *popup, int id, int index )
+
+int QMenuData::insertAny( const char *text, const QPixmap *pixmap,
+			  QPopupMenu *popup, int id, int index )
 {						// insert pixmap + sub menu
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
 	warning( "QMenuData::insertItem: Index %d out of range", index );
 #endif
-	return;
+	return 0;
     }
     if ( index < 0 )				// append
 	index = mitems->count();
     if ( popup && popup->parentMenu )		// popup already in use
-	return;
+	return 0;
     register QMenuItem *mi = new QMenuItem;
     CHECK_PTR( mi );
-    mi->ident = id == -1 ? index : id;
-    if ( mi->ident == -2 )
-	mi->ident = -1;
-    if ( string == 0 && pixmap == 0 && popup == 0 )
+    mi->ident = id == -1 ? --auto_id_count : id;
+    if ( text == 0 && pixmap == 0 && popup == 0 )
 	mi->is_separator = TRUE;		// separator
     else {
-	mi->string_data = string;
+	mi->text_data = text;
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
 	mi->popup_menu = popup;
@@ -177,12 +178,13 @@ void QMenuData::insertAny( const char *string, const QPixmap *pixmap,
 		warning( "QMenuData::insertItem: Circular popup menu ignored");
 #endif
 		delete mi;
-		return;
+		return 0;
 	    }
 	}
     }
     mitems->insert( index, mi );
     menuContentsChanged();			// menu data changed
+    return mi->ident;
 }
 
 void QMenuData::removePopup( QPopupMenu *popup )
@@ -199,42 +201,116 @@ void QMenuData::removePopup( QPopupMenu *popup )
 	removeItemAt( index );
 }
 
+
 /*!
-Inserts a menu item with a text.
+Inserts a menu item with a text and optional accelerator key, and
+connects it to an object/slot.
+Returns the menu item identifier.
+
+Example of use:
+\code
+  QPopupMenu *fileMenu = new QPopupMenu;
+  fileMenu->insert( "New",  myView, SLOT(newFile()), CTRL+Key_N );
+  fileMenu->insert( "Open", myView, SLOT(open()),    CTRL+Key_O );
+\endcode
+
+\sa setAccel() and connectItem().
 */
 
-void QMenuData::insertItem( const char *string, int id, int index )
-{						// insert string item
-    insertAny( string, 0, 0, id, index );
+int QMenuData::insertItem( const char *text,
+			   const QObject *receiver, const char *member,
+			   long accel )
+{
+    int id = insertAny( text, 0, 0, -1, -1 );
+    connectItem( id, receiver, member );
+    if ( accel )
+	setAccel( accel, id );
+    return id;
+}
+
+/*!
+Inserts a menu item with a text. Returns the menu item identifier.
+
+The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+identifier if \e id == -1 (default).
+The \e id must not be 0 or less than -1.
+
+The \e index specifies the position in the menu.  The menu item is
+appended at the end of the list if \e index is negative.
+*/
+
+int QMenuData::insertItem( const char *text, int id, int index )
+{
+#if defined(CHECK_RANGE)
+    if ( id < -1 || id == 0 )
+	warning( "QMenuData::insertItem: Invalid identifier %d", id );
+#endif
+    return insertAny( text, 0, 0, id, index );
 }
 
 /*!
 Inserts a menu item with a text and a sub menu.
+Returns the menu item identifier.
+
+The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+identifier if \e id == -1 (default).
+The \e id must not be 0 or less than -1.
+
+The \e index specifies the position in the menu.  The menu item is
+appended at the end of the list if \e index is negative.
 */
 
-void QMenuData::insertItem( const char *string, QPopupMenu *popup,
-			    int id, int index )
-{						// insert string + popup menu
-    insertAny( string, 0, popup, id, index );
+int QMenuData::insertItem( const char *text, QPopupMenu *popup,
+			   int id, int index )
+{
+#if defined(CHECK_RANGE)
+    if ( id < -1 || id == 0 )
+	warning( "QMenuData::insertItem: Invalid identifier %d", id );
+#endif
+    return insertAny( text, 0, popup, id, index );
 }
 
 /*!
 Inserts a menu item with a pixmap.
+Returns the menu item identifier.
+
+The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+identifier if \e id == -1 (default).
+The \e id must not be 0 or less than -1.
+
+The \e index specifies the position in the menu.  The menu item is
+appended at the end of the list if \e index is negative.
 */
 
-void QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
-{						// insert pixmap item
-    insertAny( 0, &pixmap, 0, id, index );
+int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
+{
+#if defined(CHECK_RANGE)
+    if ( id < -1 || id == 0 )
+	warning( "QMenuData::insertItem: Invalid identifier %d", id );
+#endif
+    return insertAny( 0, &pixmap, 0, id, index );
 }
 
 /*!
 Inserts a menu item with a pixmap and a sub menu.
+Returns the menu item identifier.
+
+The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+identifier if \e id == -1 (default).
+The \e id must not be 0 or less than -1.
+
+The \e index specifies the position in the menu.  The menu item is
+appended at the end of the list if \e index is negative.
 */
 
-void QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
-			    int id, int index )
-{						// insert bitmap + popup menu
-    insertAny( 0, &pixmap, popup, id, index );
+int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
+			   int id, int index )
+{
+#if defined(CHECK_RANGE)
+    if ( id < -1 || id == 0 )
+	warning( "QMenuData::insertItem: Invalid identifier %d", id );
+#endif
+    return insertAny( 0, &pixmap, popup, id, index );
 }
 
 /*!
@@ -244,7 +320,7 @@ menu item if \e index is negative.
 
 void QMenuData::insertSeparator( int index )	// insert menu separator
 {
-    insertAny( 0, 0, 0, -2, index );
+    insertAny( 0, 0, 0, 0, index );
 }
 
 /*!
@@ -319,11 +395,11 @@ bar.
 
 Example of use:
 \code
-  QPopupMenu fm;			\/ file sub menu
-  fm.insertItem( "Open Document", 67 );	\/ add "Open" item
-  fm.setAccel( CTRL + Key_O, 67 );
-  fm.insertItem( "Quit", 69 );		\/ add "Quit" item
-  fm.setAccel( CTRL + ALT + Key_Delete, 69 );
+  QPopupMenu *fm = new QPopupMenu;	 // file sub menu
+  fm->insertItem( "Open Document", 67 ); // add "Open" item
+  fm->setAccel( CTRL + Key_O, 67 );
+  fm->insertItem( "Quit", 69 );		 // add "Quit" item
+  fm->setAccel( CTRL + ALT + Key_Delete, 69 );
 \endcode
 */
 
@@ -342,10 +418,10 @@ Returns the text that has been set for menu item \e id, or 0 if no text
 has been set.
 */
 
-const char *QMenuData::string( int id ) const	// get string
+const char *QMenuData::text( int id ) const	// get text
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->string() : 0;
+    return mi ? mi->text() : 0;
 }
 
 /*!
@@ -363,17 +439,17 @@ QPixmap *QMenuData::pixmap( int id ) const	// get pixmap
 Changes the text of the menu item \e id.
 */
 
-void QMenuData::changeItem( const char *string, int id )
+void QMenuData::changeItem( const char *text, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
-	if ( mi->string_data == string )	// same string
+	if ( mi->text_data == text )		// same text
 	    return;
 	if ( mi->pixmap ) {			// delete pixmap
 	    delete mi->pixmap_data;
 	    mi->pixmap_data = 0;
 	}
-	mi->string_data = string;
+	mi->text_data = text;
 	menuContentsChanged();
     }
 }
@@ -386,8 +462,8 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
-	if ( !mi->string_data.isNull() )	// delete string
-	    mi->string_data.resize( 0 );
+	if ( !mi->text_data.isNull() )		// delete text
+	    mi->text_data.resize( 0 );
 	register QPixmap *i = mi->pixmap_data;
 	bool fast_refresh = i != 0 &&
 	    i->width() == pixmap.width() &&
