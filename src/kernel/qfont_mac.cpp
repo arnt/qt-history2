@@ -347,7 +347,7 @@ static int do_text_task( const QFontPrivate *d, const QChar *s, int len, uchar t
 	    short fn = runs[i].script == sc ? fi.font() : GetScriptVariable(runs[i].script, smScriptSysFond);
 	    TextFont(fn);
 
-	    //crap font scaling
+	    //font scaling
 	    FontInfo info;
 	    GetFontInfo(&info);
 	    int msz = sz;
