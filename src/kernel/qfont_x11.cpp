@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#140 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -2279,12 +2279,29 @@ int  QFontStyle::weight() const
 
 const QArray<int> &QFontStyle::pointSizes() const
 {
+#if 0
     return d->pointSizes;
+#else
+    static int s[]={ 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72};
+    static bool first = TRUE;
+    static QArray<int> def(16);
+    if ( first ) {
+	first = FALSE;
+	int i;
+	for( i = 0 ; i < 16 ; i++ )
+	    def[i] = s[i];
+    }
+    return def;
+#endif
 }
 
 int QFontStyle::nSizes() const
 {
+#if 0
     return d->pIndex;
+#else
+    return 16;
+#endif
 }
 
 QFont QFontStyle::font( int pointSize ) const
