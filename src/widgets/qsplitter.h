@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#18 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#19 $
 **
 ** Defintion of  QSplitter class
 **
@@ -82,10 +82,10 @@ private:
     void storeSizes();
     QSplitterLayoutStruct *addWidget( QWidget*, bool first = FALSE );
     void recalcId();
-    void moveBefore( int pos, int id );
-    void moveAfter( int pos, int id );
+    void moveBefore( int pos, int id, bool upLeft );
+    void moveAfter( int pos, int id, bool upLeft );
     void setG( QWidget *w, int p, int s );
-    
+
     // Josef Wagmann <josef.wagmann@passau.netsurf.de> wants access to these
     QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#46 $
 **
 **  Splitter widget
 **
@@ -448,8 +448,13 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 void QSplitter::moveSplitter( QCOORD p, int id )
 {
     p = adjustPos( p, id );
-    moveAfter( p, id );
-    moveBefore( p-1, id-1 );
+    
+    QSplitterLayoutStruct *s = data->list.at(id);
+    int oldP = orient == Horizontal? s->wid->x() : s->wid->y();
+    bool upLeft = p < oldP;
+    
+    moveAfter( p, id, upLeft );
+    moveBefore( p-1, id-1, upLeft );
 
     storeSizes();
 }
@@ -466,7 +471,7 @@ void QSplitter::setG( QWidget *w, int p, int s )
 /*!
   Places the right/bottom edge of the widget at \a id at position \a pos.
 */
-void QSplitter::moveBefore( int pos, int id )
+void QSplitter::moveBefore( int pos, int id, bool upLeft )
 {
     QSplitterLayoutStruct *s = data->list.at(id);
     if ( !s )
@@ -474,8 +479,13 @@ void QSplitter::moveBefore( int pos, int id )
     QWidget *w = s->wid;
     if ( s->isSplitter ) {
 	int d = s->sizer;
-	setG( w, pos-d+1, d );
-	moveBefore( pos-d, id-1 );
+	if ( upLeft ) {
+	    setG( w, pos-d+1, d );
+	    moveBefore( pos-d, id-1, upLeft );
+	} else {
+	    moveBefore( pos-d, id-1, upLeft );
+	    setG( w, pos-d+1, d );
+	}
     } else {
 	int left = pick( w->pos() );
 	int d = pos - left + 1;
@@ -483,7 +493,7 @@ void QSplitter::moveBefore( int pos, int id )
 	int newLeft = pos-d+1;
 	setG( w, newLeft, d );
 	if ( left != newLeft )
-	    moveBefore( newLeft-1, id-1 );
+	    moveBefore( newLeft-1, id-1, upLeft );
     }
 }
 
@@ -491,7 +501,7 @@ void QSplitter::moveBefore( int pos, int id )
 /*!
   Places the left/top edge of the widget at \a id at position \a pos.
 */
-void QSplitter::moveAfter( int pos, int id )
+void QSplitter::moveAfter( int pos, int id, bool upLeft )
 {
     QSplitterLayoutStruct *s = data->list.at(id);
     if ( !s )
@@ -499,8 +509,13 @@ void QSplitter::moveAfter( int pos, int id )
     QWidget *w = s->wid;
     if ( s->isSplitter ) {
 	int d = s->sizer;
-	setG( w, pos, d );
-	moveAfter( pos+d, id+1 );
+	if ( upLeft ) {
+	    setG( w, pos, d );
+	    moveAfter( pos+d, id+1, upLeft );
+	} else {
+	    moveAfter( pos+d, id+1, upLeft );
+	    setG( w, pos, d );
+	}
     } else {
 	int right = pick( w->geometry().bottomRight() );
 
@@ -509,7 +524,7 @@ void QSplitter::moveAfter( int pos, int id )
 	int newRight = pos+d-1;
 	setG( w, pos, d );
 	if ( right != newRight )
-	    moveAfter( newRight+1, id+1 );
+	    moveAfter( newRight+1, id+1, upLeft );
     }
 }
 
