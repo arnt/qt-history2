@@ -879,7 +879,6 @@ bool QApplication::processNextEvent( bool canWait )
 	   otherwise these hacks will have to be left in until we can
 	   convince apple to fix it
 	*/
-	EventRecord event_hack; //wtf?
 	EventRef event;
 	OSStatus ret;
 	while(GetNumEventsInQueue(GetCurrentEventQueue())) {
@@ -889,10 +888,12 @@ bool QApplication::processNextEvent( bool canWait )
 		    broke_early = TRUE;
 		    break;
 		}
+
 		//wtf^4: That's right kids, apple is that lame!
 		UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
 		if(eclass == kEventClassMouse && ekind == kEventMouseDown) {
-		    if(GetNextEvent(everyEvent, &event_hack))
+		    EventRecord event_hack;
+		    if(WaitNextEvent(mDownMask, &event_hack, 0, NULL))
 			nevents++;
 		} else {
 		    ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
