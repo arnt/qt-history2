@@ -2194,9 +2194,9 @@ void QFtp::piFinished(const QString&)
             return;
         }
     }
+    d->pending.removeFirst();
     emit commandFinished(c->id, false);
 
-    d->pending.removeFirst();
     delete c;
 
     if (d->pending.isEmpty()) {
