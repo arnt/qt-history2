@@ -4716,7 +4716,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
 
     tf = QStyle::visualAlignment(painter ? painter->layoutDirection() : QApplication::layoutDirection(), QFlag(tf));
 
-    bool isRightToLeft = str.isRightToLeft();
+    bool isRightToLeft = (painter ? painter->layoutDirection() : qApp->layoutDirection()) == Qt::RightToLeft;
     bool expandtabs = ((tf & Qt::TextExpandTabs) &&
                         (((tf & Qt::AlignLeft) && !isRightToLeft) ||
                           ((tf & Qt::AlignRight) && isRightToLeft)));
