@@ -1654,10 +1654,10 @@ void QWidgetFactory::loadExtraSource()
 	    } else {
 		funcs = *fit;
 	    }
-	    for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
-		  fit != functions.end(); ++fit ) {
-		languageSlots.insert( (*fit).name.left( (*fit).name.find( '(' ) ), lang );
-		QString s = interpreterInterface->createFunctionDeclaration( (*fit).name, (*fit).body );
+	    for ( QValueList<LanguageInterface::Function>::Iterator fit2 = functions.begin();
+		  fit2 != functions.end(); ++fit2 ) {
+		languageSlots.insert( (*fit2).name.left( (*fit2).name.find( '(' ) ), lang );
+		QString s = interpreterInterface->createFunctionDeclaration( (*fit2).name, (*fit2).body );
 		funcs->functions += s;
 		if ( !qwf_functions )
 		    qwf_functions = new QMap<QWidget*, QString>;
