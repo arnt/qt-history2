@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#25 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#26 $
 **
 ** Definition of QPainter class
 **
@@ -196,8 +196,8 @@ public:
     void	setTabArray( int * );
 
 private:
-    static void changedPen( const QPen *, bool );
-    static void changedBrush( const QBrush *, bool );
+    static void changedPen( const QPen *, int );
+    static void changedBrush( const QBrush *, int );
 
     void	updateFont();			// update font data
     void	updatePen();			// update pen data
@@ -222,7 +222,6 @@ private:
     QPoint	bro;				// brush origin
     QFont	cfont;				// current font
     QPen	cpen;				// current pen
-    QPen       *xpen;				// old pen
     QBrush	cbrush;				// current brush
     QRegion	crgn;				// current region
     int		tabstops;			// tab stops
