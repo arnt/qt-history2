@@ -5,10 +5,35 @@
 RenderArea::RenderArea(QWidget *parent)
     : QWidget(parent)
 {
-    font.setPixelSize(12);
-    QFontMetrics fontMetrics(font);
+    QFont newFont = font();
+    newFont.setPixelSize(12);
+    setFont(newFont);
+
+    QFontMetrics fontMetrics(newFont);
     xBoundingRect = fontMetrics.boundingRect(tr("x"));
     yBoundingRect = fontMetrics.boundingRect(tr("y"));
+}
+
+void RenderArea::setOperations(const QList<Operation> &operations)
+{
+    this->operations = operations;
+    update();
+}
+
+void RenderArea::setShape(const QPainterPath &shape)
+{
+    this->shape = shape;
+    update();
+}
+
+QSize RenderArea::minimumSizeHint() const
+{
+    return QSize(50, 50);
+}
+
+QSize RenderArea::sizeHint() const
+{
+    return QSize(232, 232);
 }
 
 void RenderArea::paintEvent(QPaintEvent *event)
@@ -35,7 +60,6 @@ void RenderArea::paintEvent(QPaintEvent *event)
 void RenderArea::drawCoordinates(QPainter &painter)
 {
     painter.setPen(Qt::red);
-    painter.setFont(font);
 
     painter.drawLine(0, 0, 50, 0);
     painter.drawLine(48, -2, 50, 0);
@@ -60,36 +84,13 @@ void RenderArea::drawOutline(QPainter &painter)
 
 void RenderArea::drawShape(QPainter &painter)
 {
-    painter.setBrush(Qt::black);
-    painter.drawPath(painterShape);
-}
-
-QSize RenderArea::minimumSizeHint() const
-{
-    return QSize(232, 232);
-}
-
-QList<Operation> RenderArea::operations() const
-{
-    return transforms;
-}
-
-void RenderArea::setOperations(const QList<Operation> &operations)
-{
-    transforms = operations;
-    update();
-}
-
-void RenderArea::setShape(const QPainterPath &shape)
-{
-    painterShape = shape;
-    update();
+    painter.fillPath(shape, Qt::blue);
 }
 
 void RenderArea::transformPainter(QPainter &painter)
 {
-    for (int i = 0; i < transforms.count(); ++i) {
-        switch (transforms[i]) {
+    for (int i = 0; i < operations.size(); ++i) {
+        switch (operations[i]) {
         case Translate:
             painter.translate(50, 50);
             break;

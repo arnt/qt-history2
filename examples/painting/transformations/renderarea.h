@@ -18,10 +18,11 @@ class RenderArea : public QWidget
 public:
     RenderArea(QWidget *parent = 0);
 
-    QSize minimumSizeHint() const;
-    QList<Operation> operations() const;
     void setOperations(const QList<Operation> &operations);
     void setShape(const QPainterPath &shape);
+
+    QSize minimumSizeHint() const;
+    QSize sizeHint() const;
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -32,9 +33,8 @@ private:
     void drawShape(QPainter &painter);
     void transformPainter(QPainter &painter);
 
-    QFont font;
-    QList<Operation> transforms;
-    QPainterPath painterShape;
+    QList<Operation> operations;
+    QPainterPath shape;
     QRect xBoundingRect;
     QRect yBoundingRect;
 };

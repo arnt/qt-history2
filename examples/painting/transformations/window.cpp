@@ -4,52 +4,34 @@
 
 Window::Window()
 {
-    operations << NoTransformation << NoTransformation << NoTransformation;
-
-    QStringList operationStrings;
-    operationStrings << tr("No transformation")
-                     << tr("Rotate clockwise by 60\xB0")
-                     << tr("Scale to 75%")
-                     << tr("Translate by (50, 50)");
+    originalRenderArea = new RenderArea(this);
 
     shapeComboBox = new QComboBox(this);
     shapeComboBox->insertItem(tr("Clock"));
     shapeComboBox->insertItem(tr("House"));
     shapeComboBox->insertItem(tr("Truck"));
 
-    firstOperation = new QComboBox(this);
-    firstOperation->insertStringList(operationStrings);
-    secondOperation = new QComboBox(this);
-    secondOperation->insertStringList(operationStrings);
-    thirdOperation = new QComboBox(this);
-    thirdOperation->insertStringList(operationStrings);
-
-    operationsList << NoTransformation << Rotate << Scale << Translate;
-
-    originalRenderArea = new RenderArea(this);
-    firstRenderArea = new RenderArea(this);
-    secondRenderArea = new RenderArea(this);
-    thirdRenderArea = new RenderArea(this);
-
-    setupShapes();
-
-    connect(firstOperation, SIGNAL(activated(int)),
-            this, SLOT(changeOperations(int)));
-    connect(secondOperation, SIGNAL(activated(int)),
-            this, SLOT(changeOperations(int)));
-    connect(thirdOperation, SIGNAL(activated(int)),
-            this, SLOT(changeOperations(int)));
-
     QGridLayout *layout = new QGridLayout(this);
     layout->addWidget(originalRenderArea, 0, 0);
-    layout->addWidget(firstRenderArea, 0, 1);
-    layout->addWidget(secondRenderArea, 0, 2);
-    layout->addWidget(thirdRenderArea, 0, 3);
     layout->addWidget(shapeComboBox, 1, 0);
-    layout->addWidget(firstOperation, 1, 1);
-    layout->addWidget(secondOperation, 1, 2);
-    layout->addWidget(thirdOperation, 1, 3);
 
+    for (int i = 0; i < NumTransformedAreas; ++i) {
+        transformedRenderAreas[i] = new RenderArea(this);
+
+        operationComboBoxes[i] = new QComboBox(this);
+        operationComboBoxes[i]->insertItem(tr("No transformation"));
+        operationComboBoxes[i]->insertItem(tr("Rotate by 60\xB0"));
+        operationComboBoxes[i]->insertItem(tr("Scale to 75%"));
+        operationComboBoxes[i]->insertItem(tr("Translate by (50, 50)"));
+
+        connect(operationComboBoxes[i], SIGNAL(activated(int)),
+                this, SLOT(operationChanged()));
+
+        layout->addWidget(transformedRenderAreas[i], 0, i + 1);
+        layout->addWidget(operationComboBoxes[i], 1, i + 1);
+    }
+
+    setupShapes();
     shapeSelected(0);
 
     setWindowTitle(tr("Transformations"));
@@ -98,43 +80,32 @@ void Window::setupShapes()
     house.addRect(15.0, 5.0, 20.0, 35.0);
     house.addRect(-35.0, -15.0, 25.0, 25.0);
 
-    shapesList.append(clock);
-    shapesList.append(house);
-    shapesList.append(truck);
+    shapes.append(clock);
+    shapes.append(house);
+    shapes.append(truck);
 
     connect(shapeComboBox, SIGNAL(activated(int)),
             this, SLOT(shapeSelected(int)));
 }
 
-void Window::changeOperations(int index)
+void Window::operationChanged()
 {
-    Operation operation = operationsList[index];
+    static const Operation operationTable[] = {
+        NoTransformation, Rotate, Scale, Translate
+    };
 
-    if (sender() == firstOperation)
-        operations[0] = operation;
-    else if (sender() == secondOperation)
-        operations[1] = operation;
-    else if (sender() == thirdOperation)
-        operations[2] = operation;
-
-    QList<Operation> paintOperations;
-
-    paintOperations << operations[0];
-    firstRenderArea->setOperations(paintOperations);
-
-    paintOperations << operations[1];
-    secondRenderArea->setOperations(paintOperations);
-
-    paintOperations << operations[2];
-    thirdRenderArea->setOperations(paintOperations);
+    QList<Operation> operations;
+    for (int i = 0; i < NumTransformedAreas; ++i) {
+        int index = operationComboBoxes[i]->currentItem();
+        operations.append(operationTable[index]);
+        transformedRenderAreas[i]->setOperations(operations);
+    }
 }
 
 void Window::shapeSelected(int index)
 {
-    QPainterPath shape = shapesList[index];
-
+    QPainterPath shape = shapes[index];
     originalRenderArea->setShape(shape);
-    firstRenderArea->setShape(shape);
-    secondRenderArea->setShape(shape);
-    thirdRenderArea->setShape(shape);
+    for (int i = 0; i < NumTransformedAreas; ++i)
+        transformedRenderAreas[i]->setShape(shape);
 }

@@ -17,23 +17,18 @@ public:
     Window();
 
 public slots:
-    void changeOperations(int index);
+    void operationChanged();
     void shapeSelected(int index);
 
 private:
     void setupShapes();
 
+    enum { NumTransformedAreas = 3 };
     RenderArea *originalRenderArea;
-    RenderArea *firstRenderArea;
-    RenderArea *secondRenderArea;
-    RenderArea *thirdRenderArea;
+    RenderArea *transformedRenderAreas[NumTransformedAreas];
     QComboBox *shapeComboBox;
-    QComboBox *firstOperation;
-    QComboBox *secondOperation;
-    QComboBox *thirdOperation;
-    QList<Operation> operations;
-    QList<Operation> operationsList;
-    QList<QPainterPath> shapesList;
+    QComboBox *operationComboBoxes[NumTransformedAreas];
+    QList<QPainterPath> shapes;
 };
 
 #endif
