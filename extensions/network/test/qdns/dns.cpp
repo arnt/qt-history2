@@ -72,18 +72,13 @@ public slots:
 
     void reportPtr()
     {
-#if 0
-	MailServer list = dns->mailServers();
-	if ( list.count() < 1 )
-	    return;
+	QStringList list = dns->hostNames();
 	cout << "Found " << list.count() << " results" << endl;
-	MailServer::Iterator it;
+	QStringList::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it ) {
-	    cout << (*it).name.latin1() <<
-		" (" << (*it).priority << ")" << endl;
+	    cout << (*it).latin1() << endl;
 	}
 	qApp->quit();
-#endif
     }
 
     void reportTxt()
@@ -134,6 +129,9 @@ int main( int argc, char **argv )
 	QObject::connect( &dns, SIGNAL(resultsReady()),
 		&reporter, SLOT(reportCname()) );
     } else if ( strcmp( argv[2], "ptr" ) == 0) {
+	QHostAddress address;
+	if ( address.setAddress( argv[1] ) )
+	    dns.setLabel( address );
 	dns.setRecordType( QDns::Ptr );
 	QObject::connect( &dns, SIGNAL(resultsReady()),
 		&reporter, SLOT(reportPtr()) );

@@ -50,10 +50,12 @@ public:
 
     QDns();
     QDns( const QString & label, RecordType rr = A );
+    QDns( const QHostAddress & address, RecordType rr = Ptr );
     ~QDns();
 
     // to set/change the query
     virtual void setLabel( const QString & label );
+    virtual void setLabel( const QHostAddress & address );
     QString label() const { return l; }
 
     virtual void setRecordType( RecordType rr = A );
@@ -93,6 +95,8 @@ public:
     };
     QValueList<Server> servers() const;
 
+    QStringList hostNames() const;
+
     QStringList texts() const;
 
     QString canonicalName() const; // ### real-world but uncommon: QStringList
@@ -107,6 +111,7 @@ private slots:
 
 private:
     void setStartQueryTimer();
+    QString toInAddrArpaDomain( const QHostAddress &address );
 
     QString l;
     QStringList n;

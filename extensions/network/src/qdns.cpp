@@ -38,7 +38,7 @@
 #include "qptrdict.h"
 
 
-//#define DEBUG_QDNS
+#define DEBUG_QDNS
 
 
 static Q_UINT16 id; // ### start somewhere random
@@ -1300,6 +1300,28 @@ QDns::QDns( const QString & label, QDns::RecordType rr )
 
 
 
+/*!
+  Constructs a DNS query object that will return \a rr information about
+  \a address.  The label is set to the IN-ADDR.ARPA domain name. This is useful
+  in combination with the Ptr record type (i.e. if you want to look up a
+  hostname for a given address.
+
+  The DNS lookup is started the next time the application goes into the event
+  loop. When the result is found the signal resultsReady() is emmitted.
+
+  \a rr defaults to \c Ptr, that maps addresses to hostnames.
+*/
+
+QDns::QDns( const QHostAddress & address, QDns::RecordType rr )
+{
+    d = new QDnsPrivate;
+    t = rr;
+    setLabel( address );
+    setStartQueryTimer(); // start query the next time we enter event loop
+}
+
+
+
 
 /*! Destroys the query object and frees its allocated resources. */
 
@@ -1363,6 +1385,26 @@ void QDns::setLabel( const QString & label )
 	qDebug( "QDns::setLabel: %d: %s", i, n[i].ascii() );
 #endif
 }
+
+
+/*!
+  Sets this query object to query for information about the address \a address.
+  The label is set to the IN-ADDR.ARPA domain name. This is useful in
+  combination with the Ptr record type (i.e. if you want to look up a hostname
+  for a given address.
+
+  This does not change the recordType(), but its isWorking() most
+  likely changes as a result.
+
+  The DNS lookup is started the next time the application goes into the event
+  loop. When the result is found the signal resultsReady() is emmitted.
+*/
+
+void QDns::setLabel( const QHostAddress & address )
+{
+    setLabel( toInAddrArpaDomain( address ) );
+}
+
 
 /*!
   \fn QStringList QDns::qualifiedNames() const
@@ -1452,6 +1494,24 @@ void QDns::setStartQueryTimer()
 	d->startQueryTimer = TRUE;
     }
 }
+
+/*!
+  Transform a host address to the IN-ADDR.ARPA domain name.
+*/
+QString QDns::toInAddrArpaDomain( const QHostAddress &address )
+{
+    if ( address.isIp4Addr() ) {
+	Q_UINT32 i = address.ip4Addr();
+	QString s;
+	s.sprintf( "%d.%d.%d.%d.IN-ADDR.ARPA",
+		i & 0xff, (i >> 8) & 0xff, (i>>16) & 0xff, (i>>24) & 0xff );
+	return s;
+    } else {
+	qWarning( "QDns: IPv6 addresses not supported for this operation yet" );
+	return QString::null;
+    }
+}
+
 
 /*! \fn QDns::RecordType QDns::recordType() const
 
@@ -1639,6 +1699,34 @@ QValueList<QDns::Server> QDns::servers() const
 	if ( rr->current && !rr->nxdomain ) {
 	    Server s( rr->target, rr->priority, rr->weight, rr->port );
 	    result.append( s );
+	}
+	cached->next();
+    }
+    delete cached;
+    return result;
+}
+
+
+// #### QStringList or QString as return value?
+/*!
+  Returns a list of host names if the record type is \c Ptr.
+*/
+QStringList QDns::hostNames() const
+{
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns::hostNames (%s)", l.ascii() );
+#endif
+    QStringList result;
+    if ( t != Ptr )
+	return result;
+
+    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+
+    QDnsRR * rr;
+    while( (rr=cached->current()) != 0 ) {
+	if ( rr->current && !rr->nxdomain ) {
+	    QString t( rr->target );
+	    result.append( t );
 	}
 	cached->next();
     }
