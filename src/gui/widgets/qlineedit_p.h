@@ -67,6 +67,7 @@ public:
     QAction *actions[NCountActs];
 
     inline void emitCursorPositionChanged();
+    bool sendMouseEventToInputContext(QMouseEvent *e);
 
     void finishChange(int validateFromState = -1, bool setModified = true);
 
@@ -144,12 +145,17 @@ public:
 
     // input methods
     int imstart, imend, imselstart, imselend;
+    bool composeMode() const { return preeditLength(); }
+    bool hasIMSelection() const { return imSelectionLength(); }
+    int preeditLength() const { return ( imend - imstart ); }
+    int imSelectionLength() const { return ( imselend - imselstart ); }
 
     // complex text layout
     QTextLayout textLayout;
     void updateTextLayout();
     void moveCursor(int pos, bool mark = false);
     void setText(const QString& txt, int pos = -1);
+    int xToPosInternal( int x, QTextLine::CursorPosition ) const;
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::CursorBetweenCharacters) const;
     inline int visualAlignment() const { return alignment ? alignment : int(isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft); }
     QRect cursorRect() const;

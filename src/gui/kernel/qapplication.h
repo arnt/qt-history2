@@ -35,6 +35,9 @@ class QDesktopWidget;
 class QStyle;
 class QEventLoop;
 template <typename T> class QList;
+#if defined(Q_WS_X11)
+class QIMEvent;
+#endif
 #if defined(Q_WS_QWS)
 class QDecoration;
 #endif
@@ -193,8 +196,10 @@ public:
     virtual void saveState(QSessionManager& sm);
 #endif
 #if defined(Q_WS_X11)
-    static void create_xim();
-    static void close_xim();
+    void setInputContext(const QString &);
+    static QString defaultInputMethod();
+    static void close_im();
+
     static bool x11_apply_settings();
 #endif
 

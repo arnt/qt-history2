@@ -37,6 +37,10 @@
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
+#ifndef QT_NO_IM
+#include "qinputcontext.h"
+#include "qlist.h"
+#endif
 
 #ifndef QT_NO_ACCEL
 #include "qkeysequence.h"
@@ -1229,6 +1233,8 @@ bool QLineEdit::event(QEvent * e)
 */
 void QLineEdit::mousePressEvent(QMouseEvent* e)
 {
+    if (d->sendMouseEventToInputContext(e))
+	return;
     if (e->button() == Qt::RightButton)
         return;
     if (d->tripleClickTimer.isActive() && (e->pos() - d->tripleClick).manhattanLength() <
@@ -1259,6 +1265,9 @@ void QLineEdit::mousePressEvent(QMouseEvent* e)
 */
 void QLineEdit::mouseMoveEvent(QMouseEvent * e)
 {
+    if (d->sendMouseEventToInputContext(e))
+	return;
+
 #ifndef QT_NO_CURSOR
     if (!e->buttons()) {
         if (!d->readOnly && d->dragEnabled
@@ -1287,6 +1296,8 @@ void QLineEdit::mouseMoveEvent(QMouseEvent * e)
 */
 void QLineEdit::mouseReleaseEvent(QMouseEvent* e)
 {
+    if (d->sendMouseEventToInputContext(e))
+	return;
 #ifndef QT_NO_DRAGANDDROP
     if (e->button() == Qt::LeftButton) {
         if (d->dndTimer.isActive()) {
@@ -1312,6 +1323,8 @@ void QLineEdit::mouseReleaseEvent(QMouseEvent* e)
 */
 void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
 {
+    if (d->sendMouseEventToInputContext(e))
+	return;
     if (e->button() == Qt::LeftButton) {
         deselect();
         d->cursor = d->xToPos(e->pos().x());
@@ -1591,49 +1604,79 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         e->accept();
 }
 
+/*!
+  This function is not intended as polymorphic usage. Just a shared code
+  fragment that calls QInputContext::mouseHandler for this
+  class.
+ */
+bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
+{
+    // ##### currently X11 only
+#ifdef Q_WS_X11
+#ifndef QT_NO_IM
+    if ( composeMode() ) {
+	int cursor = xToPosInternal( e->pos().x(), QTextLine::CursorOnCharacter );
+	int mousePos = cursor - d->imstart;
+	if ( mousePos < 0 || mousePos >= d->preeditLength() ) {
+            mousePos = -1;
+	    // don't send move events outside the preedit area
+            if ( e->type() == QEvent::MouseMove )
+                return TRUE;
+        }
+
+        QInputContext *qic = q->inputContext();
+        if ( qic )
+            // may be causing reset() in some input methods
+            qic->mouseHandler(mousePos, e);
+	return TRUE;
+    }
+#endif
+#endif
+    return FALSE;
+}
+
 /*! \reimp
  */
-void QLineEdit::imStartEvent(QIMEvent *e)
+void QLineEdit::imEvent(QIMEvent *e)
 {
     if (d->readOnly) {
         e->ignore();
         return;
     }
-    d->removeSelectedText();
-    d->updateMicroFocusHint();
-    d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
-}
-
-/*! \reimp
- */
-void QLineEdit::imComposeEvent(QIMEvent *e)
-{
-    if (d->readOnly) {
-        e->ignore();
-	return;
+    switch(e->type()) {
+    case QEvent::IMStart:
+        d->removeSelectedText();
+        d->updateMicroFocusHint();
+        d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
+        break;
+    case QEvent::IMCompose:
+        d->text.replace(d->imstart, d->imend - d->imstart, e->text());
+        d->imend = d->imstart + e->text().length();
+        d->imselstart = d->imstart + e->cursorPos();
+        d->imselend = d->imselstart + e->selectionLength();
+#if 0
+        d->cursor = e->selectionLength() ? d->imend : d->imselend;
+#else
+        // Cursor placement code is changed for Asian input method that
+        // shows candidate window. This behavior is same as Qt/E 2.3.7
+        // which supports Asian input methods. Asian input methods need
+        // start point of IM selection text to place candidate window as
+        // adjacent to the selection text.
+        d->cursor = d->imselstart;
+#endif
+        d->updateTextLayout();
+        update();
+        d->emitCursorPositionChanged();
+        break;
+    case QEvent::IMEnd:
+        d->text.remove(d->imstart, d->imend - d->imstart);
+        d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
+        d->textDirty = true;
+        insert(e->text());
+        break;
+    default:
+        Q_ASSERT(false);
     }
-    d->text.replace(d->imstart, d->imend - d->imstart, e->text());
-    d->imend = d->imstart + e->text().length();
-    d->imselstart = d->imstart + e->cursorPos();
-    d->imselend = d->imselstart + e->selectionLength();
-    d->cursor = e->selectionLength() ? d->imend : d->imselend;
-    d->updateTextLayout();
-    update();
-    d->emitCursorPositionChanged();
-}
-
-/*! \reimp
- */
-void QLineEdit::imEndEvent(QIMEvent *e)
-{
-    if (d->readOnly) {
-        e->ignore();
-	return;
-    }
-    d->text.remove(d->imstart, d->imend - d->imstart);
-    d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
-    d->textDirty = true;
-    insert(e->text());
 }
 
 /*!\reimp
@@ -1652,6 +1695,8 @@ void QLineEdit::focusInEvent(QFocusEvent*)
     QStyleOptionFrame opt = d->getStyleOption();
     if(!hasSelectedText() || style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
         d->setCursorVisible(true);
+    if ( d->hasIMSelection() )
+	d->cursor = d->imselstart;
     d->updateMicroFocusHint();
 #ifdef Q_WS_MAC
     if(d->echoMode == Password || d->echoMode == NoEcho)
@@ -1747,6 +1792,14 @@ void QLineEdit::paintEvent(QPaintEvent *)
     } else if (widthUsed - d->hscroll < lineRect.width()) {
         d->hscroll = widthUsed - lineRect.width() + 1;
     }
+    // This updateMicroFocusHint() is corresponding to update() at
+    // IMCompose event. Although the function is invoked from various
+    // other points, some situations such as "candidate selection on
+    // AlignHCenter'ed text" need this invocation because
+    // updateMicroFocusHint() requires updated contentsRect(), and
+    // there are no other chances in such situation that invoke the
+    // function.
+    d->updateMicroFocusHint();
     // the y offset is there to keep the baseline constant in case we have script changes in the text.
     QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent-fm.ascent());
 
@@ -1768,13 +1821,13 @@ void QLineEdit::paintEvent(QPaintEvent *)
         sel[nSel].setType(QTextLayout::Highlight);
         ++nSel;
     }
-    if (d->imstart < d->imend) {
-        sel[nSel].setRange(d->imstart, d->imend - d->imstart);
+    if (d->composeMode()) {
+        sel[nSel].setRange(d->imstart, d->preeditLength());
         sel[nSel].setType(QTextLayout::ImText);
         ++nSel;
     }
-    if (d->imselstart < d->imselend) {
-        sel[nSel].setRange(d->imselstart, d->imselend - d->imselstart);
+    if (d->hasIMSelection()) {
+        sel[nSel].setRange(d->imselstart, d->imSelectionLength());
         sel[nSel].setType(QTextLayout::ImSelection);
         ++nSel;
     }
@@ -1784,7 +1837,11 @@ void QLineEdit::paintEvent(QPaintEvent *)
         ++nSel;
     }
 
-    d->textLayout.draw(&p, topLeft, (d->cursorVisible && !supressCursor) ? d->cursor : -1, sel, nSel);
+    // Asian users regard IM selection text as cursor on candidate
+    // selection phase of input method, so ordinary cursor should be
+    // invisible if IM selection text exists.
+    bool showCursor = (d->cursorVisible && !supressCursor && !d->hasIMSelection());
+    d->textLayout.draw(&p, topLeft, showCursor ? d->cursor : -1, sel, nSel);
 
 }
 
@@ -1879,6 +1936,10 @@ void QLineEditPrivate::drag()
 void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
 {
 #ifndef QT_NO_POPUPMENU
+#ifndef QT_NO_IM
+    if (d->composeMode())
+	return;
+#endif
     d->separate();
 
     QMenu *popup = createPopupMenu();
@@ -1925,6 +1986,11 @@ QMenu *QLineEdit::createPopupMenu()
     popup->addAction(d->actions[QLineEditPrivate::ClearAct]);
     popup->addSeparator();
     popup->addAction(d->actions[QLineEditPrivate::SelectAllAct]);
+#ifndef QT_NO_IM
+    QInputContext *qic = inputContext();
+    if ( qic )
+	qic->addActionsTo(popup);
+#endif
     return popup;
 #else
     return 0;
@@ -1954,7 +2020,7 @@ void QLineEditPrivate::init(const QString& txt)
     q->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
 #endif
     q->setFocusPolicy(Qt::StrongFocus);
-    q->setInputMethodEnabled(true);
+    q->setAttribute(Qt::WA_InputMethodEnabled);
     //   Specifies that this widget can use more, but is able to survive on
     //   less, horizontal space; and is fixed vertically.
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
@@ -2009,13 +2075,20 @@ void QLineEditPrivate::updateTextLayout()
     ascent = l.ascent();
 }
 
-int QLineEditPrivate::xToPos(int x, QTextLine::CursorPosition betweenOrOn) const
+int QLineEditPrivate::xToPosInternal(int x, QTextLine::CursorPosition betweenOrOn) const
 {
     x-= q->contentsRect().x() - hscroll + innerMargin;
     QTextLine l = textLayout.lineAt(0);
     if (x >= 0 && x < l.textWidth())
         return l.xToCursor(x, betweenOrOn);
-    return x < 0 ? 0 : text.length();
+    return x < 0 ? -1 : text.length();
+}
+
+
+int QLineEditPrivate::xToPos(int x, QTextLine::CursorPosition betweenOrOn) const
+{
+    int pos = xToPosInternal(x, betweenOrOn);
+    return (pos < 0) ? 0 : pos;
 }
 
 
@@ -2031,9 +2104,19 @@ QRect QLineEditPrivate::cursorRect() const
 
 void QLineEditPrivate::updateMicroFocusHint()
 {
+    // To reduce redundant microfocus update notification, we remember
+    // the old rect and update the microfocus if actual update is
+    // required. The rect o is intentionally static because some
+    // notifyee requires the microfocus information as global update
+    // rather than per notifyee update to place shared widget around
+    // microfocus.
+    static QRect o;
     if (q->hasFocus()) {
         QRect r = cursorRect();
-        q->setMicroFocusHint(r.x(), r.y(), r.width(), r.height());
+        if ( o != r ) {
+	    o = r;
+	    q->setMicroFocusHint(r.x(), r.y(), r.width(), r.height());
+	}
     }
 }
 

@@ -50,8 +50,9 @@ extern void qt_erase_background(QPaintDevice *pd, int screen,
                                 const QBrush &brush, int offx, int offy);
 
 
-#ifndef QT_NO_XIM
-#include "qinputcontext_p.h"
+#if !defined(QT_NO_IM)
+#include "qinputcontext.h"
+#include "qinputcontextfactory.h"
 #endif
 
 #include "qwidget_p.h"
@@ -684,6 +685,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     // system position
     if (!topLevel && !parentWidget()->data->wrect.topLeft().isNull())
         d->setWSGeometry();
+
+#if !defined(QT_NO_IM)
+    d->ic = 0;
+#endif
 }
 
 
@@ -744,6 +749,16 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         extern void qPRCleanup(QWidget *widget); // from qapplication_x11.cpp
         if (testWState(Qt::WState_Reparented))
             qPRCleanup(this);
+
+	if(d->ic) {
+	    delete d->ic;
+	} else {
+	    // release previous focus information participating with
+	    // preedit preservation of qic
+	    QInputContext *qic = inputContext();
+	    if (qic)
+		qic->releaseComposingWidget(this);
+	}
     }
 }
 
@@ -774,13 +789,12 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
     XReparentWindow(d->xinfo.display(), old_winid,
                      RootWindow(d->xinfo.display(), d->xinfo.screen()), 0, 0);
 
-    if (isTopLevel()) {
-        // input contexts are associated with toplevel widgets, so we need
-        // destroy the context here.  if we are reparenting back to toplevel,
-        // then we will have another context created, otherwise we will
-        // use our new toplevel's context
-        d->destroyInputContext();
-    }
+    if (parent && d->ic && !testAttribute(Qt::WA_OwnInputContext))
+	// input contexts are sometimes associated with toplevel widgets, so
+	// we need destroy the context here.  if we are reparenting back to
+	// toplevel, then we may have another context created, otherwise we
+	// will use our new ic holder's context
+        delete d->ic;
 
     if (isTopLevel() || !parent) // we are toplevel, or reparenting to toplevel
         d->topData()->parentWinId = 0;
@@ -911,7 +925,8 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     language input systems.
 
     In the X11 version of Qt, if \a text is true, this method sets the
-    XIM "spot" point for complex language input handling.
+    input method focus point in the preedit (XIM "spot" point) for
+    complex language input handling.
 
     The font \a f is a rendering hint to the currently active input method.
     If \a f is 0 the widget's font is used.
@@ -921,22 +936,12 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 void QWidget::setMicroFocusHint(int x, int y, int width, int height,
                                 bool text, QFont *f)
 {
-#ifndef QT_NO_XIM
+#ifndef QT_NO_IM
     if (text) {
-        QWidget* tlw = topLevelWidget();
-        QTLWExtra *topdata = tlw->d->topData();
-
-        // trigger input context creation if it hasn't happened already
-        d->createInputContext();
-        QInputContext *qic = (QInputContext *) topdata->xic;
-
-        if (X11->xim && qic) {
-            QPoint p(x, y);
-            QPoint p2 = mapTo(topLevelWidget(), QPoint(0, 0));
-            p = mapTo(topLevelWidget(), p);
-            qic->setXFontSet(f ? *f : data->fnt);
-            qic->setComposePosition(p.x(), p.y() + height);
-            qic->setComposeArea(p2.x(), p2.y(), this->width(), this->height());
+	QInputContext *qic = inputContext();
+	if(qic) {
+	    QPoint gp = mapToGlobal( QPoint( x, y ) );
+	    qic->setMicroFocus(QRect(gp.x(), gp.y(), width, height), *f);
         }
     }
 #endif
@@ -1346,6 +1351,7 @@ void QWidget::setActiveWindow()
     QWidget *tlw = topLevelWidget();
     if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
         XSetInputFocus(d->xinfo.display(), tlw->winId(), XRevertToParent, X11->time);
+ 	d->focusInputContext();
     }
 }
 
@@ -2539,13 +2545,12 @@ void QWidgetPrivate::deleteSysExtra()
 
 void QWidgetPrivate::createTLSysExtra()
 {
-    // created lazily
-    extra->topextra->xic = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
-    destroyInputContext();
+    // don't destroy input context here. it will be destroyed in
+    // QWidget::destroy() destroyInputContext();
 }
 
 /*
@@ -2759,74 +2764,132 @@ void QWidget::updateFrameStrut() const
     data->fstrut_dirty = 0;
 }
 
-
-void QWidgetPrivate::createInputContext()
+/*!
+    This function returns the QInputContext instance for this widget.
+    This instance is used for text input to this widget, etc.
+    It is simply the accessor function.
+*/
+QInputContext *QWidget::inputContext()
 {
-    QWidget *tlw = q->topLevelWidget();
-    QTLWExtra *topdata = tlw->d->topData();
+    if (!testAttribute(Qt::WA_InputMethodEnabled))
+        return 0;
 
-#ifndef QT_NO_XIM
-    if (X11->xim) {
-        if (! topdata->xic) {
-            QInputContext *qic = new QInputContext(tlw);
-            topdata->xic = (void *) qic;
-        }
-    } else
-#endif // QT_NO_XIM
-        {
-            // qDebug("QWidget::createInputContext: no xim");
-            topdata->xic = 0;
-        }
-}
+    QWidget *icWidget = testAttribute(Qt::WA_OwnInputContext) ? this : topLevelWidget();
+    if (!icWidget->d->ic)
+        d->createInputContext();
+    return icWidget->d->ic;
 
-
-void QWidgetPrivate::destroyInputContext()
-{
-#ifndef QT_NO_XIM
-    QInputContext *qic = (QInputContext *) d->extra->topextra->xic;
-    delete qic;
-#endif // QT_NO_XIM
-    d->extra->topextra->xic = 0;
 }
 
 
 /*!
-    This function is called when the user finishes input composition,
-    e.g. changes focus to another widget, moves the cursor, etc.
+    This function replaces the QInputContext instance used for text
+    input to this widget. The \a identifierName is the identifier name
+    of newly choosed input method.
 */
-void QWidget::resetInputContext()
+void QWidget::setInputContext( const QString& identifierName )
 {
-#ifndef QT_NO_XIM
-    if (X11->xim_style & XIMPreeditCallbacks) {
-        QWidget *tlw = topLevelWidget();
-        QTLWExtra *topdata = tlw->d->topData();
+    QWidget *icWidget = testAttribute(Qt::WA_OwnInputContext) ? this : topLevelWidget();
 
-        // trigger input context creation if it hasn't happened already
-        d->createInputContext();
-
-        if (topdata->xic) {
-            QInputContext *qic = (QInputContext *) topdata->xic;
-            qic->reset();
-        }
-    }
-#endif // QT_NO_XIM
+    if (icWidget->d->ic)
+	delete icWidget->d->ic;
+    // an input context that has the identifierName is generated.
+    icWidget->d->ic = QInputContextFactory::create( identifierName, icWidget );
 }
 
 
+/*!
+  \internal
+    This is an internal function, you should never call this.
+
+    This function is called to generate an input context
+    according to a configuration for default input method
+
+    input context is generated only when WA_InputMethodEnabled is set.
+    returns TRUE.
+*/
+void QWidgetPrivate::createInputContext()
+{
+    if(!q->testAttribute(Qt::WA_InputMethodEnabled))
+	return;
+
+    QWidget *icWidget = q->testAttribute(Qt::WA_OwnInputContext) ? q : q->topLevelWidget();
+#ifndef QT_NO_IM
+    if (icWidget->d->ic)
+        return;
+    q->setInputContext(QApplication::defaultInputMethod());
+#endif // QT_NO_IM
+}
+
+
+/*!
+    This function is called when text widgets need to be neutral state to
+    execute text operations properly. See qlineedit.cpp and qtextedit.cpp as
+    example.
+
+    Ordinary reset that along with changing focus to another widget,
+    moving the cursor, etc, is implicitly handled via
+    unfocusInputContext() because whether reset or not when such
+    situation is a responsibility of input methods. So we delegate the
+    responsibility to the input context via unfocusInputContext(). See
+    'Preedit preservation' section of the class description of
+    QInputContext for further information.
+
+    \sa QInputContext, unfocusInputContext(), QInputContext::unsetFocus()
+*/
+void QWidget::resetInputContext()
+{
+#ifndef QT_NO_IM
+    QInputContext *qic = q->inputContext();
+    if( qic )
+	qic->reset();
+#endif // QT_NO_IM
+}
+
+
+/*!
+    \internal
+    This is an internal function, you should never call this.
+
+    This function is called to focus associated input context. The
+    code intends to eliminate duplicate focus for the context even if
+    the context is shared between widgets
+
+    \sa QInputContext::setFocus()
+ */
 void QWidgetPrivate::focusInputContext()
 {
-#ifndef QT_NO_XIM
-    QWidget *tlw = q->topLevelWidget();
-    QTLWExtra *topdata = tlw->d->topData();
-
-    // trigger input context creation if it hasn't happened already
-    createInputContext();
-
-    if (topdata->xic) {
-        QInputContext *qic = (QInputContext *) topdata->xic;
-        qic->setFocus();
+#ifndef QT_NO_IM
+    QInputContext *qic = q->inputContext();
+    if (qic) {
+	if(qic->focusWidget() != q) {
+	    qic->setFocusWidget(q);
+	    qic->setFocus();
+	}
     }
-#endif // QT_NO_XIM
+#endif // QT_NO_IM
+}
+
+
+/*!
+    \internal
+    This is an internal function, you should never call this.
+
+    This function is called to remove focus from associated input
+    context.
+
+    \sa QInputContext::unsetFocus()
+ */
+void QWidgetPrivate::unfocusInputContext()
+{
+#ifndef QT_NO_IM
+    QInputContext *qic = q->inputContext();
+    if ( qic ) {
+	// may be caused reset() in some input methods
+	qic->unsetFocus();
+	qic->setFocusWidget( 0 );
+    }
+#endif // QT_NO_IM
 }
 
 void QWidget::setWindowOpacity(double)

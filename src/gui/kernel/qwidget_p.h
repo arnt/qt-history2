@@ -85,7 +85,6 @@ struct QTLWExtra {
     uint     dnd : 1;                                // DND properties installed
     uint     uspos : 1;                                // User defined position
     uint     ussize : 1;                        // User defined size
-    void    *xic;                                // XIM Input Context
 #endif
 #if defined(Q_WS_MAC)
     WindowGroupRef group;
@@ -183,8 +182,8 @@ public:
 
 #if defined(Q_WS_X11)
     void createInputContext();
-    void destroyInputContext();
     void focusInputContext();
+    void unfocusInputContext();
     void checkChildrenDnd();
     void removePendingPaintEvents();
     QRegion invalidated_region;
@@ -202,6 +201,9 @@ public:
     QList<QAction*> actions;
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
+#endif
+#if defined(Q_WS_X11) && !defined(QT_NO_IM)
+    QPointer<QInputContext> ic;
 #endif
 
     int leftmargin, topmargin, rightmargin, bottommargin;

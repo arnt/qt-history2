@@ -257,10 +257,6 @@ struct QX11Data
     Display *display;
     char *displayName;
     bool foreignDisplay;
-#if !defined(QT_NO_XIM)
-    XIM xim;
-    XIMStyle xim_style;
-#endif
     // current focus model
     enum {
         FM_Unknown = -1,
@@ -297,6 +293,8 @@ struct QX11Data
 
     Time time;
     Time userTime;
+
+    QString default_im;
 
     // starts to ignore bad window errors from X
     static inline void ignoreBadwindow() {

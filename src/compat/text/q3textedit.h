@@ -402,9 +402,7 @@ protected:
 #ifndef QT_NO_WHEELEVENT
     void contentsWheelEvent(QWheelEvent *e);
 #endif
-    void imStartEvent(QIMEvent *);
-    void imComposeEvent(QIMEvent *);
-    void imEndEvent(QIMEvent *);
+    void imEvent(QIMEvent *);
 #ifndef QT_NO_DRAGANDDROP
     void contentsDragEnterEvent(QDragEnterEvent *e);
     void contentsDragMoveEvent(QDragMoveEvent *e);

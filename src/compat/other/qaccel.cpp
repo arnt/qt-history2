@@ -447,7 +447,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
                 }
             }
         }
-        pe = QKeyEvent(QEvent::Accel, pe.key(), pe.state()&~Qt::ShiftButton, pe.text());
+        pe = QKeyEvent(QEvent::Accel, pe.key(), 0, pe.state()&~Qt::ShiftButton, pe.text());
     } while (hasShift-- && !matchFound && !identicalDisabled);
 
 #ifndef QT_NO_STATUSBAR

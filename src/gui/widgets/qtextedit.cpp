@@ -417,6 +417,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
     doc->setUndoRedoEnabled(false);
 
     q->clear();
+    q->setAttribute(Qt::WA_InputMethodEnabled);
 
     QTextCharFormat fmt;
     fmt.setFont(q->font());
@@ -1713,6 +1714,50 @@ void QTextEdit::dropEvent(QDropEvent *ev)
 
     d->setCursorPosition(ev->pos());
     d->paste(ev);
+}
+
+/*! \reimp
+ */
+void QTextEdit::imEvent(QIMEvent *e)
+{
+    if (d->readOnly) {
+        e->ignore();
+        return;
+    }
+    switch(e->type()) {
+    case QEvent::IMStart:
+        d->cursor.removeSelectedText();
+        //d->updateMicroFocusHint();
+        //d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
+        break;
+    case QEvent::IMCompose:
+        //d->text.replace(d->imstart, d->imend - d->imstart, e->text());
+        d->imend = d->imstart + e->text().length();
+        d->imselstart = d->imstart + e->cursorPos();
+        d->imselend = d->imselstart + e->selectionLength();
+#if 0
+        d->cursor = e->selectionLength() ? d->imend : d->imselend;
+#else
+        // Cursor placement code is changed for Asian input method that
+        // shows candidate window. This behavior is same as Qt/E 2.3.7
+        // which supports Asian input methods. Asian input methods need
+        // start point of IM selection text to place candidate window as
+        // adjacent to the selection text.
+        //d->cursor = d->imselstart;
+#endif
+        //d->updateTextLayout();
+        update();
+        //d->emitCursorPositionChanged();
+        break;
+    case QEvent::IMEnd:
+        //d->text.remove(d->imstart, d->imend - d->imstart);
+        //d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
+        //d->textDirty = true;
+        //insert(e->text());
+        break;
+    default:
+        Q_ASSERT(false);
+    }
 }
 
 /*! \reimp

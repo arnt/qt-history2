@@ -54,6 +54,7 @@ class QDragLeaveEvent;
 class QDropEvent;
 class QShowEvent;
 class QHideEvent;
+class QInputContext;
 #if defined(Q_WS_X11)
 class QX11Info;
 #endif
@@ -152,7 +153,6 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QRect microFocusHint READ microFocusHint)
     Q_PROPERTY(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
     Q_PROPERTY(bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false)
-    Q_PROPERTY(bool inputMethodEnabled READ isInputMethodEnabled WRITE setInputMethodEnabled DESIGNABLE false SCRIPTABLE false)
     Q_PROPERTY(QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isTopLevel)
     Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isTopLevel)
     Q_PROPERTY(QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isTopLevel)
@@ -333,9 +333,6 @@ public:
     void setFocusProxy(QWidget *);
     QWidget *focusProxy() const;
 
-    void setInputMethodEnabled(bool b);
-    bool isInputMethodEnabled() const;
-
     // Grab functions
     void grabMouse();
 #ifndef QT_NO_CURSOR
@@ -488,6 +485,11 @@ public:
 
     void ensurePolished() const;
 
+#if defined(Q_WS_X11)
+    QInputContext *inputContext();
+    void setInputContext(const QString &);
+#endif
+
 protected:
     // Event handlers
     bool event(QEvent *);
@@ -509,9 +511,7 @@ protected:
     virtual void resizeEvent(QResizeEvent *);
     virtual void closeEvent(QCloseEvent *);
     virtual void contextMenuEvent(QContextMenuEvent *);
-    virtual void imStartEvent(QIMEvent *);
-    virtual void imComposeEvent(QIMEvent *);
-    virtual void imEndEvent(QIMEvent *);
+    virtual void imEvent(QIMEvent *);
     virtual void tabletEvent(QTabletEvent *);
     virtual void actionEvent(QActionEvent *);
 
@@ -721,6 +721,9 @@ public:
     inline QT_COMPAT QString caption() const             { return windowTitle(); }
     QT_COMPAT const QPixmap *icon() const;
     inline QT_COMPAT QString iconText() const            { return windowIconText(); }
+    inline QT_COMPAT void setInputMethodEnabled(bool b) { setAttribute(Qt::WA_InputMethodEnabled, b); }
+    inline QT_COMPAT bool isInputMethodEnabled() const { return testAttribute(Qt::WA_InputMethodEnabled); }
+
 private:
     void drawText_helper(int x, int y, const QString &);
     void erase_helper(int x, int y, int w, int h);
@@ -883,9 +886,6 @@ inline void QWidget::clearWFlags(Qt::WFlags f)
 
 inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
 { setSizePolicy(QSizePolicy(hor, ver, hfw)); }
-
-inline bool QWidget::isInputMethodEnabled() const
-{ return data->im_enabled; }
 
 inline bool QWidget::testAttribute(Qt::WidgetAttribute attribute) const
 {

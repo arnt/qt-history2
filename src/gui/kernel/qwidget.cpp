@@ -3039,8 +3039,21 @@ void QWidget::setFocus()
     if (f->isActiveWindow()) {
         QWidget *prev = qApp->focusWidget();
         if (prev) {
-            if (prev != f)
-                prev->resetInputContext();
+	    // This part is never executed when Q_WS_X11? Preceding XFocusOut
+	    // had already reset focus_widget when received XFocusIn
+
+	    // Don't reset input context explicitly here. Whether reset or not
+	    // when focusing out is a responsibility of input methods. So we
+	    // delegate the responsibility to input context via
+	    // unfocusInputContext(). See 'Preedit preservation' section of
+	    // QInputContext.
+            if (prev != f) {
+#ifndef Q_WS_X11
+		prev->resetInputContext();
+#else
+		prev->d->unfocusInputContext();
+#endif
+	    }
         }
 #if defined(Q_WS_WIN)
         else {
@@ -3100,6 +3113,9 @@ void QWidget::clearFocus()
         w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     if (hasFocus()) {
+#if defined(Q_WS_X11)
+	d->unfocusInputContext();
+#endif
         QWidget* w = qApp->focusWidget();
         // clear active focus
         qApp->setFocusWidget(0);
@@ -3199,6 +3215,7 @@ QWidget *QWidget::nextInFocusChain() const
 }
 
 /*!
+  \obsolete
     \property QWidget::inputMethodEnabled
     \brief enables or disables the use of input methods for this widget.
 
@@ -3207,14 +3224,6 @@ QWidget *QWidget::nextInFocusChain() const
 
     If a widget handles text input it should set this property to true.
 */
-
-void QWidget::setInputMethodEnabled(bool b)
-{
-    data->im_enabled = b;
-#ifdef Q_WS_WIN
-    QInputContext::enable(this, data->im_enabled && isEnabled());
-#endif
-}
 
 /*!
     \property QWidget::isActiveWindow
@@ -4465,7 +4474,13 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::MouseButtonPress:
+	// Don't reset input context here. Whether reset or not is
+	// a responsibility of input method. reset() will be
+	// called by mouseHandler() of input method if necessary
+	// via mousePressEvent() of text widgets.
+#if 0
         resetInputContext();
+#endif
         mousePressEvent((QMouseEvent*)e);
         if (! ((QMouseEvent*)e)->isAccepted())
             return d->compositeEvent(e);
@@ -4532,25 +4547,11 @@ bool QWidget::event(QEvent *e)
             return d->compositeEvent(e);
         break;
 
-    case QEvent::IMStart: {
-        QIMEvent *i = (QIMEvent *) e;
-        imStartEvent(i);
-        if (! i->isAccepted())
-            return false;
-    }
-        break;
-
-    case QEvent::IMCompose: {
-        QIMEvent *i = (QIMEvent *) e;
-        imComposeEvent(i);
-        if (! i->isAccepted())
-            return false;
-    }
-        break;
-
+    case QEvent::IMStart:
+    case QEvent::IMCompose:
     case QEvent::IMEnd: {
         QIMEvent *i = (QIMEvent *) e;
-        imEndEvent(i);
+        imEvent(i);
         if (! i->isAccepted())
             return false;
     }
@@ -5314,7 +5315,7 @@ void QWidget::contextMenuEvent(QContextMenuEvent *e)
 /*!
     This event handler, for event \a e, can be reimplemented in a
     subclass to receive Input Method composition events. This handler
-    is called when the user begins entering text using an Input Method.
+    is called when the state of the input method changes.
 
     The default implementation calls e->ignore(), which rejects the
     Input Method event. See the \l QIMEvent documentation for more
@@ -5322,45 +5323,10 @@ void QWidget::contextMenuEvent(QContextMenuEvent *e)
 
     \sa event(), QIMEvent
 */
-void QWidget::imStartEvent(QIMEvent *e)
+void QWidget::imEvent(QIMEvent *e)
 {
     e->ignore();
 }
-
-/*!
-    This event handler, for event \a e, can be reimplemented in a
-    subclass to receive Input Method composition events. This handler
-    is called when the user has entered some text using an Input Method.
-
-    The default implementation calls e->ignore(), which rejects the
-    Input Method event. See the \l QIMEvent documentation for more
-    details.
-
-    \sa event(), QIMEvent
-*/
-void QWidget::imComposeEvent(QIMEvent *e)
-{
-    e->ignore();
-}
-
-
-/*!
-    This event handler, for event \a e, can be reimplemented in a
-    subclass to receive Input Method composition events. This handler
-    is called when the user has finished inputting text via an Input
-    Method.
-
-    The default implementation calls e->ignore(), which rejects the
-    Input Method event. See the \l QIMEvent documentation for more
-    details.
-
-    \sa event(), QIMEvent
-*/
-void QWidget::imEndEvent(QIMEvent *e)
-{
-    e->ignore();
-}
-
 
 #ifndef QT_NO_DRAGANDDROP
 

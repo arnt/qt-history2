@@ -795,6 +795,8 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
         return;
     }
     p->fillRect(rect.toRect(), bg);
+    if (type == QTextLayout::ImText)
+        p->drawLine(rect.bottomLeft().toPoint(), rect.bottomRight().toPoint());
     if (text.isValid())
         p->setPen(text);
     line.draw(p, pos.x(), pos.y(), selectionIdx);
@@ -848,7 +850,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         if (selections) {
             for (int j = 0; j < nSelections; ++j) {
                 const Selection &s = selections[j];
-                if (s.type() != Highlight)
+                if (s.type() == NoSelection)
                     continue;
                 if (!d->pal)
                     continue;

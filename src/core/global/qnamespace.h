@@ -305,6 +305,8 @@ public:
         WA_Mapped,
         WA_MacNoClickThrough, //mac only
         WA_PaintOutsidePaintEvent,
+        WA_InputMethodEnabled,
+        WA_OwnInputContext,
 
         WA_ForceDisabled = 32,
         WA_KeyCompression,
@@ -534,8 +536,6 @@ public:
         Key_BraceRight = 0x7d,
         Key_AsciiTilde = 0x7e,
 
-        // Latin 1 codes adapted from X: keysymdef.h,v 1.21 94/08/28 16:17:06
-
         Key_nobreakspace = 0x0a0,
         Key_exclamdown = 0x0a1,
         Key_cent = 0x0a2,
@@ -636,6 +636,86 @@ public:
         Key_thorn = Key_THORN,
 #endif
         Key_ydiaeresis = 0x0ff,
+
+	// International input method support (X keycode - 0xEE00, the
+	// definition follows Qt/Embedded 2.3.7) Only interesting if
+	// you are writing your own input method
+
+	// International & multi-key character composition
+	Key_Multi_key           = 0x01001120,  // Multi-key character compose
+	Key_Codeinput           = 0x01001137,
+	Key_SingleCandidate     = 0x0100113c,
+	Key_MultipleCandidate   = 0x0100113d,
+	Key_PreviousCandidate   = 0x0100113e,
+
+	// Misc Functions
+	Key_Mode_switch         = 0x0100117e,  // Character set switch
+	//Key_script_switch       = 0x0100117e,  // Alias for mode_switch
+
+	// Japanese keyboard support
+	Key_Kanji               = 0x01001121,  // Kanji, Kanji convert
+	Key_Muhenkan            = 0x01001122,  // Cancel Conversion
+	//Key_Henkan_Mode         = 0x01001123,  // Start/Stop Conversion
+	Key_Henkan              = 0x01001123,  // Alias for Henkan_Mode
+	Key_Romaji              = 0x01001124,  // to Romaji
+	Key_Hiragana            = 0x01001125,  // to Hiragana
+	Key_Katakana            = 0x01001126,  // to Katakana
+	Key_Hiragana_Katakana   = 0x01001127,  // Hiragana/Katakana toggle
+	Key_Zenkaku             = 0x01001128,  // to Zenkaku
+	Key_Hankaku             = 0x01001129,  // to Hankaku
+	Key_Zenkaku_Hankaku     = 0x0100112a,  // Zenkaku/Hankaku toggle
+	Key_Touroku             = 0x0100112b,  // Add to Dictionary
+	Key_Massyo              = 0x0100112c,  // Delete from Dictionary
+	Key_Kana_Lock           = 0x0100112d,  // Kana Lock
+	Key_Kana_Shift          = 0x0100112e,  // Kana Shift
+	Key_Eisu_Shift          = 0x0100112f,  // Alphanumeric Shift
+	Key_Eisu_toggle         = 0x01001130,  // Alphanumeric toggle
+	//Key_Kanji_Bangou        = 0x01001137,  // Codeinput
+	//Key_Zen_Koho            = 0x0100113d,  // Multiple/All Candidate(s)
+	//Key_Mae_Koho            = 0x0100113e,  // Previous Candidate
+
+	// Korean keyboard support
+	//
+	// In fact, many Korean users need only 2 keys, Key_Hangul and
+	// Key_Hangul_Hanja. But rest of the keys are good for future.
+
+	Key_Hangul              = 0x01001131,  // Hangul start/stop(toggle)
+	Key_Hangul_Start        = 0x01001132,  // Hangul start
+	Key_Hangul_End          = 0x01001133,  // Hangul end, English start
+	Key_Hangul_Hanja        = 0x01001134,  // Start Hangul->Hanja Conversion
+	Key_Hangul_Jamo         = 0x01001135,  // Hangul Jamo mode
+	Key_Hangul_Romaja       = 0x01001136,  // Hangul Romaja mode
+	//Key_Hangul_Codeinput    = 0x01001137,  // Hangul code input mode
+	Key_Hangul_Jeonja       = 0x01001138,  // Jeonja mode
+	Key_Hangul_Banja        = 0x01001139,  // Banja mode
+	Key_Hangul_PreHanja     = 0x0100113a,  // Pre Hanja conversion
+	Key_Hangul_PostHanja    = 0x0100113b,  // Post Hanja conversion
+	//Key_Hangul_SingleCandidate   = 0x0100113c,  // Single candidate
+	//Key_Hangul_MultipleCandidate = 0x0100113d,  // Multiple candidate
+	//Key_Hangul_PreviousCandidate = 0x0100113e,  // Previous candidate
+	Key_Hangul_Special      = 0x0100113f,  // Special symbols
+	//Key_Hangul_switch       = 0x0100117e,  // Alias for mode_switch
+
+        // dead keys (X keycode - 0xED00 to avoid the conflict)
+        Key_Dead_Grave          = 0x01001250,
+        Key_Dead_Acute          = 0x01001251,
+        Key_Dead_Circumflex     = 0x01001252,
+        Key_Dead_Tilde          = 0x01001253,
+        Key_Dead_Macron         = 0x01001254,
+        Key_Dead_Breve          = 0x01001255,
+        Key_Dead_Abovedot       = 0x01001256,
+        Key_Dead_Diaeresis      = 0x01001257,
+        Key_Dead_Abovering      = 0x01001258,
+        Key_Dead_Doubleacute    = 0x01001259,
+        Key_Dead_Caron          = 0x0100125a,
+        Key_Dead_Cedilla        = 0x0100125b,
+        Key_Dead_Ogonek         = 0x0100125c,
+        Key_Dead_Iota           = 0x0100125d,
+        Key_Dead_Voiced_Sound   = 0x0100125e,
+        Key_Dead_Semivoiced_Sound = 0x0100125f,
+        Key_Dead_Belowdot       = 0x01001260,
+        Key_Dead_Hook           = 0x01001261,
+        Key_Dead_Horn           = 0x01001262,
 
         // multimedia/internet keys - ignored by default - see QKeyEvent c'tor
 

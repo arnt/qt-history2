@@ -42,7 +42,7 @@
 #include "qsocketnotifier.h"
 #include "qsessionmanager.h"
 #include "qclipboard.h"
-#include "qwhatsthis.h" // ######## dependency
+#include "qwhatsthis.h"
 #include "qsettings.h"
 #include "qstylefactory.h"
 #include "qfileinfo.h"
@@ -54,7 +54,10 @@
 #include "qpaintengine_x11.h"
 
 // Input method stuff - UNFINISHED
-#include "qinputcontext_p.h"
+#ifndef QT_NO_IM
+#include "qinputcontext.h"
+#include "qinputcontextfactory.h"
+#endif // QT_NO_IM
 
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
@@ -257,9 +260,11 @@ static const char *appFGCol        = 0;                // application fg color
 static const char *appBTNCol        = 0;                // application btn color
 static const char *mwGeometry        = 0;                // main widget geometry
 static const char *mwTitle        = 0;                // main widget title
-static char    *ximServer        = 0;                // XIM Server will connect to
+char    *qt_ximServer        = 0;                // XIM Server will connect to
 static bool        mwIconic        = false;        // main widget iconified
+#if 0
 static bool        noxim                = false;        // connect to xim or not
+#endif
 static bool        appSync                = false;        // X11 synchronization
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // X11 grabbing enabled
@@ -351,12 +356,11 @@ static bool qt_x11EventFilter(XEvent* ev)
 
 
 #if !defined(QT_NO_XIM)
-static const XIMStyle xim_default_style = XIMPreeditCallbacks | XIMStatusNothing;
-static XIMStyle        xim_preferred_style = 0;
+XIMStyle        qt_xim_preferred_style = 0;
 #endif
 
-static int composingKeycode=0;
-static QTextCodec * input_mapper = 0;
+int qt_ximComposingKeycode=0;
+QTextCodec * qt_input_mapper = 0;
 
 extern bool     qt_check_clipboard_sentinel(); //def in qclipboard_x11.cpp
 extern bool        qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
@@ -410,7 +414,7 @@ public:
     void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const XEvent *);
     bool translateKeyEventInternal(const XEvent *, int& count, QString& text, int& state, int &code,
-                                    QEvent::Type &type, bool willRepeat=false);
+                                    QEvent::Type &type, bool willRepeat=false, bool statefulTranslation=true);
     bool translateKeyEvent(const XEvent *, bool grab);
     bool translatePaintEvent(const XEvent *);
     bool translateConfigEvent(const XEvent *);
@@ -427,132 +431,48 @@ public:
 
 
 // ************************************************************************
-// X Input Method support
+// Input Method support
 // ************************************************************************
 
-#if !defined(QT_NO_XIM)
-
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif // Q_C_CALLBACKS
-
-#ifdef USE_X11R6_XIM
-    static void xim_create_callback(XIM /*im*/,
-                                    XPointer /*client_data*/,
-                                    XPointer /*call_data*/)
-    {
-        // qDebug("xim_create_callback");
-        QApplication::create_xim();
-    }
-
-    static void xim_destroy_callback(XIM /*im*/,
-                                     XPointer /*client_data*/,
-                                     XPointer /*call_data*/)
-    {
-        // qDebug("xim_destroy_callback");
-        QApplication::close_xim();
-        XRegisterIMInstantiateCallback(X11->display, 0, 0, 0,
-                                       (XIMProc) xim_create_callback, 0);
-    }
-
-#endif // USE_X11R6_XIM
-
-#if defined(Q_C_CALLBACKS)
-}
-#endif // Q_C_CALLBACKS
-
-#endif // QT_NO_XIM
-
-
-/*! \internal
-  Creates the application input method.
- */
-void QApplication::create_xim()
+static void changeInputContextForChildren(QWidget *parent, const QString &newIM)
 {
-#ifndef QT_NO_XIM
-    X11->xim = XOpenIM(X11->display, 0, 0, 0);
-    if (X11->xim) {
-
-#ifdef USE_X11R6_XIM
-        XIMCallback destroy;
-        destroy.callback = (XIMProc) xim_destroy_callback;
-        destroy.client_data = 0;
-        if (XSetIMValues(X11->xim, XNDestroyCallback, &destroy, (char *) 0) != 0)
-            qWarning("Xlib dosn't support destroy callback");
-#endif // USE_X11R6_XIM
-
-        XIMStyles *styles = 0;
-        XGetIMValues(X11->xim, XNQueryInputStyle, &styles, (char *) 0, (char *) 0);
-        if (styles) {
-            int i;
-            for (i = 0; !X11->xim_style && i < styles->count_styles; i++) {
-                if (styles->supported_styles[i] == xim_preferred_style) {
-                    X11->xim_style = xim_preferred_style;
-                    break;
-                }
-            }
-            // if the preferred input style couldn't be found, look for
-            // Nothing
-            for (i = 0; !X11->xim_style && i < styles->count_styles; i++) {
-                if (styles->supported_styles[i] == (XIMPreeditNothing |
-                                                     XIMStatusNothing)) {
-                    X11->xim_style = XIMPreeditNothing | XIMStatusNothing;
-                    break;
-                }
-            }
-            // ... and failing that, None.
-            for (i = 0; !X11->xim_style && i < styles->count_styles; i++) {
-                if (styles->supported_styles[i] == (XIMPreeditNone |
-                                                     XIMStatusNone)) {
-                    X11->xim_style = XIMPreeditNone | XIMStatusNone;
-                    break;
-                }
-            }
-
-            // qDebug("QApplication: using im style %lx", X11->xim_style);
-            XFree((char *)styles);
-        }
-
-        if (X11->xim_style) {
-
-#ifdef USE_X11R6_XIM
-            XUnregisterIMInstantiateCallback(X11->display, 0, 0, 0,
-                                             (XIMProc) xim_create_callback, 0);
-#endif // USE_X11R6_XIM
-
-            QWidgetList list = qApp->topLevelWidgets();
-            for (int i = 0; i < list.size(); ++i) {
-                QWidget *w = list.at(i);
-                w->d->createTLSysExtra();
-            }
-        } else {
-            // Give up
-            qWarning("No supported input style found."
-                      "  See InputMethod documentation.");
-            close_xim();
-        }
+    QObjectList children = parent->children();
+    for (QObjectList::const_iterator it = children.constBegin(); it != children.constEnd(); ++it) {
+        QWidget *c = qt_cast<QWidget *>(*it);
+        if (!c)
+            continue;
+        if (c->testAttribute(Qt::WA_OwnInputContext))
+            c->setInputContext(newIM);
+        changeInputContextForChildren(c, newIM);
     }
-#endif // QT_NO_XIM
 }
 
-
-/*! \internal
-  Closes the application input method.
+/*!
+    This function replaces all QInputContext instances in the
+    application. The function's argument is the identifier name of
+    the newly selected input method.
 */
-void QApplication::close_xim()
+void QApplication::setInputContext( const QString &identifierName )
 {
-#ifndef QT_NO_XIM
-    // Calling XCloseIM gives a Purify FMR error
-    // XCloseIM(X11->xim);
-    // We prefer a less serious memory leak
-
-    X11->xim = 0;
-    QWidgetList list = qApp->topLevelWidgets();
-    for (int i = 0; i < list.size(); ++i)
-        list.at(i)->d->destroyInputContext();
-#endif // QT_NO_XIM
+    // #### iterating over all widgets might be a bit slow
+    QWidgetList widgets = qApp->topLevelWidgets();
+    for (QWidgetList::const_iterator it = widgets.constBegin(); it != widgets.constEnd(); ++it) {
+        (*it)->setInputContext(identifierName);
+        changeInputContextForChildren(*it, identifierName);
+    }
 }
 
+/*!
+    This function returns the identifier name of the default input
+    method in this Application. The value is identical to the value of
+    QApplication::defaultIM.
+*/
+QString QApplication::defaultInputMethod()
+{
+    if (!X11)
+        return QString();
+    return X11->default_im;
+}
 
 /*****************************************************************************
   Default X error handlers
@@ -763,8 +683,8 @@ bool QApplication::x11_apply_settings()
     // read library (ie. plugin) path list
     QString libpathkey =
         QString(QLatin1String("%1.%2/libraryPath"))
-                    .arg(QT_VERSION >> 16)
-                    .arg((QT_VERSION & 0xff00) >> 8);
+        .arg(QT_VERSION >> 16)
+        .arg((QT_VERSION & 0xff00) >> 8);
     QStringList pathlist = settings.value(libpathkey).toString().split(QLatin1Char(':'));
     if (! pathlist.isEmpty()) {
         QStringList::ConstIterator it = pathlist.begin();
@@ -783,21 +703,21 @@ bool QApplication::x11_apply_settings()
 
     int num =
         settings.value(QLatin1String("doubleClickInterval"),
-                        QApplication::doubleClickInterval()).toInt();
+                       QApplication::doubleClickInterval()).toInt();
     QApplication::setDoubleClickInterval(num);
 
     num =
         settings.value(QLatin1String("cursorFlashTime"),
-                        QApplication::cursorFlashTime()).toInt();
+                       QApplication::cursorFlashTime()).toInt();
     QApplication::setCursorFlashTime(num);
 
     num =
         settings.value(QLatin1String("wheelScrollLines"),
-                        QApplication::wheelScrollLines()).toInt();
+                       QApplication::wheelScrollLines()).toInt();
     QApplication::setWheelScrollLines(num);
 
     QString colorspec = settings.value(QLatin1String("colorSpec"),
-                                        QVariant(QLatin1String("default"))).toString();
+                                       QVariant(QLatin1String("default"))).toString();
     if (colorspec == QLatin1String("normal"))
         QApplication::setColorSpec(QApplication::NormalColor);
     else if (colorspec == QLatin1String("custom"))
@@ -808,7 +728,7 @@ bool QApplication::x11_apply_settings()
         colorspec = QLatin1String("default");
 
     QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
-                                            QVariant(QLatin1String("none"))).toString();
+                                          QVariant(QLatin1String("none"))).toString();
     if (defaultcodec != QLatin1String("none")) {
         QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
         if (codec)
@@ -823,19 +743,19 @@ bool QApplication::x11_apply_settings()
 
     QStringList effects = settings.value(QLatin1String("GUIEffects")).toStringList();
     QApplication::setEffectEnabled(Qt::UI_General,
-                                    effects.contains(QLatin1String("general")));
+                                   effects.contains(QLatin1String("general")));
     QApplication::setEffectEnabled(Qt::UI_AnimateMenu,
-                                    effects.contains(QLatin1String("animatemenu")));
+                                   effects.contains(QLatin1String("animatemenu")));
     QApplication::setEffectEnabled(Qt::UI_FadeMenu,
-                                    effects.contains(QLatin1String("fademenu")));
+                                   effects.contains(QLatin1String("fademenu")));
     QApplication::setEffectEnabled(Qt::UI_AnimateCombo,
-                                    effects.contains(QLatin1String("animatecombo")));
+                                   effects.contains(QLatin1String("animatecombo")));
     QApplication::setEffectEnabled(Qt::UI_AnimateTooltip,
-                                    effects.contains(QLatin1String("animatetooltip")));
+                                   effects.contains(QLatin1String("animatetooltip")));
     QApplication::setEffectEnabled(Qt::UI_FadeTooltip,
-                                    effects.contains(QLatin1String("fadetooltip")));
+                                   effects.contains(QLatin1String("fadetooltip")));
     QApplication::setEffectEnabled(Qt::UI_AnimateToolBox,
-                                    effects.contains(QLatin1String("animatetoolbox")));
+                                   effects.contains(QLatin1String("animatetoolbox")));
 
     settings.beginGroup(QLatin1String("Font Substitutions"));
     QStringList fontsubs = settings.childGroups();
@@ -862,18 +782,22 @@ bool QApplication::x11_apply_settings()
         settings.value(QLatin1String("hasAcceleratedXrender"), false).toBool();
 
 #ifndef QT_NO_XIM
-    if (xim_preferred_style == 0) {
+    if (qt_xim_preferred_style == 0) {
         QString ximInputStyle = settings.value(QLatin1String("XIMInputStyle"),
-                                                QVariant(QLatin1String("on the spot"))).toString();
+                                               QVariant(QLatin1String("on the spot"))).toString();
         if (ximInputStyle == QLatin1String("on the spot"))
-            xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
+            qt_xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
         else if (ximInputStyle == QLatin1String("over the spot"))
-            xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
+            qt_xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
         else if (ximInputStyle == QLatin1String("off the spot"))
-            xim_preferred_style = XIMPreeditArea | XIMStatusArea;
+            qt_xim_preferred_style = XIMPreeditArea | XIMStatusArea;
         else if (ximInputStyle == QLatin1String("root"))
-            xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+            qt_xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
     }
+
+    X11->default_im = settings.value( "DefaultInputMethodSwitcher", QLatin1String("imsw-multi") ).toString();
+    if (!QInputContextFactory::keys().contains(X11->default_im))
+        X11->default_im = QLatin1String("xim");
 #endif
 
     if (update_timestamp) {
@@ -909,19 +833,19 @@ static void qt_set_input_encoding()
         // Always use the locale codec, since we have no examples of non-local
         // XIMs, and since we cannot get a sensible answer about the encoding
         // from the XIM.
-        input_mapper = QTextCodec::codecForLocale();
+        qt_input_mapper = QTextCodec::codecForLocale();
 
     } else {
         if (!qstricmp(data, "locale"))
-            input_mapper = QTextCodec::codecForLocale();
+            qt_input_mapper = QTextCodec::codecForLocale();
         else
-            input_mapper = QTextCodec::codecForName(data);
+            qt_input_mapper = QTextCodec::codecForName(data);
         // make sure we have an input codec
-        if(!input_mapper)
-            input_mapper = QTextCodec::codecForName("ISO 8859-1");
+        if(!qt_input_mapper)
+            qt_input_mapper = QTextCodec::codecForName("ISO 8859-1");
     }
-    if (input_mapper->mibEnum() == 11) // 8859-8
-        input_mapper = QTextCodec::codecForName("ISO 8859-8-I");
+    if (qt_input_mapper->mibEnum() == 11) // 8859-8
+        qt_input_mapper = QTextCodec::codecForName("ISO 8859-8-I");
     if(data)
         XFree((char *)data);
 }
@@ -1309,6 +1233,8 @@ static bool isXInputSupported(Display *dpy, int *event_base)
 
 #define XK_MISCELLANY
 #define XK_LATIN1
+#define XK_KOREAN
+#define XK_XKB_KEYS
 #include <X11/keysymdef.h>
 
 // ### This should be static but it isn't because of the friend declaration
@@ -1322,10 +1248,6 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->display = display;
     X11->displayName = 0;
     X11->foreignDisplay = (display != 0);
-#ifndef QT_NO_XIM
-    X11->xim = 0;
-    X11->xim_style = 0;
-#endif
     X11->focus_model = -1;
     X11->use_xrandr = false;
     X11->use_xrender = false;
@@ -1341,6 +1263,8 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->userTime = CurrentTime;
     X11->ignore_badwindow = false;
     X11->seen_badwindow = false;
+
+    X11->default_im = "imsw-multi";
 
     // colormap control
     X11->visual_class = -1;
@@ -1425,9 +1349,11 @@ void qt_init(QApplicationPrivate *priv, int,
                     mwGeometry = argv[i];
             } else if (arg == "-im") {
                 if (++i < argc)
-                    ximServer = argv[i];
+                    qt_ximServer = argv[i];
+#if 0
             } else if (arg == "-noxim") {
                 noxim=true;
+#endif
             } else if (arg == "-iconic") {
                 mwIconic = !mwIconic;
             } else if (arg == "-ncols") {   // xv and netscape use this name
@@ -1456,16 +1382,16 @@ void qt_init(QApplicationPrivate *priv, int,
                 if (++i < argc) {
                     QString s = QString(argv[i]).toLower();
                     if (s == "onthespot")
-                        xim_preferred_style = XIMPreeditCallbacks |
+                        qt_xim_preferred_style = XIMPreeditCallbacks |
                                               XIMStatusNothing;
                     else if (s == "overthespot")
-                        xim_preferred_style = XIMPreeditPosition |
+                        qt_xim_preferred_style = XIMPreeditPosition |
                                               XIMStatusNothing;
                     else if (s == "offthespot")
-                        xim_preferred_style = XIMPreeditArea |
+                        qt_xim_preferred_style = XIMPreeditArea |
                                               XIMStatusArea;
                     else if (s == "root")
-                        xim_preferred_style = XIMPreeditNothing |
+                        qt_xim_preferred_style = XIMPreeditNothing |
                                               XIMStatusNothing;
                 }
 #endif
@@ -1708,35 +1634,6 @@ void qt_init(QApplicationPrivate *priv, int,
             QApplication::setFont(f);
         }
 
-#ifndef QT_NO_XIM
-        if (! xim_preferred_style) // no configured input style, use the default
-            xim_preferred_style = xim_default_style;
-
-        X11->xim = 0;
-        QString ximServerName(ximServer);
-        if (ximServer)
-            ximServerName.prepend("@im=");
-        else
-            ximServerName = "";
-
-        if (!XSupportsLocale())
-            qWarning("Qt: Locales not supported on X server");
-
-#ifdef USE_X11R6_XIM
-        else if (XSetLocaleModifiers (ximServerName.ascii()) == 0)
-            qWarning("Qt: Cannot set locale modifiers: %s",
-                      ximServerName.ascii());
-        else if (! noxim)
-            XRegisterIMInstantiateCallback(X11->display, 0, 0, 0,
-                                           (XIMProc) xim_create_callback, 0);
-#else // !USE_X11R6_XIM
-        else if (XSetLocaleModifiers ("") == 0)
-            qWarning("Qt: Cannot set locale modifiers");
-        else if (! noxim)
-            QApplication::create_xim();
-#endif // USE_X11R6_XIM
-#endif // QT_NO_XIM
-
 #if defined (QT_TABLET_SUPPORT)
         int event_base;
         if (isXInputSupported(X11->display, &event_base)) {
@@ -1769,7 +1666,7 @@ void qt_init(QApplicationPrivate *priv, int,
             for (devs = devices, i = 0; i < ndev; i++, devs++) {
                 gotStylus = false;
                 gotEraser = false;
-                
+
                 QString devName = devs->name;
                 devName = devName.toLower();
 #if defined(Q_OS_IRIX)
@@ -1790,12 +1687,12 @@ void qt_init(QApplicationPrivate *priv, int,
 
                 if (gotStylus || gotEraser) {
                     dev = XOpenDevice(X11->display, devs->id);
-                    
+
                     if (!dev) {
                         qWarning("Failed to open device");
                         continue;
-                    }                    
-                        
+                    }
+
                     TabletDeviceData device_data;
                     device_data.deviceType = deviceType;
                     device_data.eventCount = 0;
@@ -1805,7 +1702,7 @@ void qt_init(QApplicationPrivate *priv, int,
                     device_data.xinput_key_release = -1;
                     device_data.xinput_button_press = -1;
                     device_data.xinput_button_release = -1;
-                    
+
                     if (dev->num_classes > 0) {
                         for (ip = dev->classes, j = 0; j < devs->num_classes;
                                 ip++, j++) {
@@ -1838,7 +1735,7 @@ void qt_init(QApplicationPrivate *priv, int,
                             }
                         }
                     }
-                    
+
                     // get the min/max value for pressure!
                     any = (XAnyClassPtr) ( devs->inputclassinfo );
                     for (j = 0; j < devs->num_classes; j++) {
@@ -1861,17 +1758,17 @@ void qt_init(QApplicationPrivate *priv, int,
                             device_data.minPressure = a[2].min_value;
                             device_data.maxPressure = a[2].max_value;
 #endif
-                            
+
                             // got the max pressure no need to go further...
                             break;
                         }
                         any = (XAnyClassPtr) ((char *) any + any->length);
                     } // end of for loop
-                    
+
                     tablet_devices()->append(device_data);
                 } // if (gotStylus || gotEraser)
             }
-            XFreeDeviceList(devices);            
+            XFreeDeviceList(devices);
         }
 #endif // QT_TABLET_SUPPORT
     } else {
@@ -1962,6 +1859,27 @@ void QApplication::x11_initialize_style()
 /*****************************************************************************
   qt_cleanup() - cleans up when the application is finished
  *****************************************************************************/
+static void deleteInputContexts(QWidget *parent)
+{
+    QObjectList children = parent->children();
+    for (QObjectList::const_iterator it = children.constBegin(); it != children.constEnd(); ++it) {
+        QWidget *c = qt_cast<QWidget *>(*it);
+        if (!c)
+            continue;
+        // change to something that doesn't exist
+	c->setInputContext("qt_nonexistant_im");
+        deleteInputContexts(c);
+    }
+}
+
+void QApplication::close_im()
+{
+    QWidgetList widgets = topLevelWidgets();
+    for (QWidgetList::const_iterator it = widgets.constBegin(); it != widgets.constEnd(); ++it) {
+	delete (*it)->d->ic;
+        deleteInputContexts(*it);
+    }
+}
 
 void qt_cleanup()
 {
@@ -1984,9 +1902,8 @@ void qt_cleanup()
         XCloseDevice(X11->display, (XDevice*)devices->at(i).device);
 #endif
 
-#if !defined(QT_NO_XIM)
-    if (X11->xim)
-        QApplication::close_xim();
+#if !defined(QT_NO_IM)
+    QApplication::close_im();
 #endif
 
 #define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<X11->screenCount;i++){if(g[i])XFreeGC(X11->display,g[i]);} delete [] g; g = 0; }
@@ -2668,77 +2585,53 @@ int QApplication::x11ProcessEvent(XEvent* event)
         }
     }
 
-    int xkey_keycode = event->xkey.keycode;
-    if (XFilterEvent(event,
-                       keywidget ? keywidget->topLevelWidget()->winId() : (WId)XNone)) {
-        if (keywidget)
-            composingKeycode = xkey_keycode; // ### not documented in xlib
+#ifndef QT_NO_IM
+    // Filtering input events by the input context. It has to be taken
+    // place before any other key event consumers such as eventfilters
+    // and accelerators because some input methods require quite
+    // various key combination and sequences. It often conflicts with
+    // accelerators and so on, so we must give the input context the
+    // filtering opportunity first to ensure all input methods work
+    // properly regardless of application design.
 
-#ifndef QT_NO_XIM
-        if (event->type != XKeyPress || ! (X11->xim_style & XIMPreeditCallbacks))
-            return 1;
+    if( keywidget && keywidget->isEnabled() && keywidget->testAttribute(Qt::WA_InputMethodEnabled) ) {
+	if( ( event->type==XKeyPress || event->type==XKeyRelease ) &&
+	    sm_blockUserInput ) // block user interaction during session management
+	    return TRUE;
 
-        /*
-         * The Solaris htt input method will transform a ClientMessage
-         * event into a filtered KeyPress event, in which case our
-         * keywidget is still zero.
-         */
-        if (! keywidget) {
-            keywidget = (QETWidget*)QWidget::keyboardGrabber();
-            if (keywidget) {
-                grabbed = true;
-            } else {
-                if (QApplicationPrivate::focus_widget)
-                    keywidget = (QETWidget*)QApplicationPrivate::focus_widget;
-                if (!keywidget) {
-                    if (inPopupMode()) // no focus widget, see if we have a popup
-                        keywidget = (QETWidget*) activePopupWidget();
-                    else if (widget)
-                        keywidget = (QETWidget*)widget->topLevelWidget();
-                }
-            }
-        }
+        // for XIM handling
+	QInputContext *qic = keywidget->inputContext();
+	if( qic && qic->x11FilterEvent( keywidget, event ) )
+	    return TRUE;
 
-        /*
-          if the composition string has been emptied, we need to send
-          an IMEnd event.  however, we have no way to tell if the user
-          has cancelled input, or if the user has accepted the
-          composition.
+	// filterEvent() accepts QEvent *event rather than preexpanded
+	// key event attribute values. This is intended to pass other
+	// QInputEvent in future. Other non IM-related events should
+	// not be forwarded to input contexts to prevent weird event
+	// handling.
+	if ( ( event->type == XKeyPress || event->type == XKeyRelease ) ) {
+	    int code = -1;
+	    int count = 0;
+	    int state;
+	    QEvent::Type type;
+	    QString text;
 
-          so, we have to look for the next keypress and see if it is
-          the 'commit' key press (keycode == 0).  if it is, we deliver
-          an IMEnd event with the final text, otherwise we deliver an
-          IMEnd with empty text (meaning the user has cancelled the
-          input).
-        */
-        QInputContext *qic =
-            (QInputContext *) keywidget->topLevelWidget()->d->topData()->xic;
-        extern bool qt_compose_emptied; // qinputcontext_x11.cpp
-        if (qic && qic->composing && qic->focusWidget && qt_compose_emptied) {
-            XEvent event2;
-            bool found = false;
-            if (XCheckTypedEvent(QX11Info::display(),
-                                   XKeyPress, &event2)) {
-                if (event2.xkey.keycode == 0) {
-                    // found a key event with the 'commit' string
-                    found = true;
-                    XPutBackEvent(QX11Info::display(), &event2);
-                }
-            }
+	    keywidget->translateKeyEventInternal( event, count, text,
+						  state, code, type,
+						  FALSE, FALSE );
 
-            if (!found) {
-                // no key event, so the user must have cancelled the composition
-                QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
-                QApplication::sendEvent(qic->focusWidget, &endevent);
+	    // both key press/release is required for some complex
+	    // input methods. don't eliminate anything.
+	    QKeyEvent keyevent( type, code, 0, state, text, FALSE, count );
 
-                qic->focusWidget = 0;
-            }
-
-            qt_compose_emptied = false;
-        }
-#endif // QT_NO_XIM
-
-        return 1;
+	    if( qic && qic->filterEvent( &keyevent ) )
+		return TRUE;
+	}
+    } else
+#endif // QT_NO_IM
+    {
+	if ( XFilterEvent( event, XNone ) )
+	    return TRUE;
     }
 
     if (qt_x11EventFilter(event))                // send through app filter
@@ -2889,40 +2782,13 @@ int QApplication::x11ProcessEvent(XEvent* event)
         qt_net_update_user_time(widget->topLevelWidget());
         // fallthrough intended
     case XKeyRelease:
-        {
-            if (keywidget && keywidget->isEnabled()) { // should always exist
-#ifndef QT_NO_XIM
-                QInputContext *qic =
-                    (QInputContext *) keywidget->topLevelWidget()->d->topData()->xic;
-
-                if ((X11->xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 &&
-                     qic && qic->composing && qic->focusWidget) {
-                    // input method has sent us a commit string
-                    QByteArray data;
-                    data.resize(513);
-                    KeySym sym;    // unused
-                    Status status; // unused
-                    QString text;
-                    int count = qic->lookupString(&(event->xkey), data,
-                                                   &sym, &status);
-                    if (count > 0)
-                        text = input_mapper->toUnicode(data, count);
-
-                    // qDebug("sending IMEnd with %d chars", text.length());
-                    QIMEvent endevent(QEvent::IMEnd, text, -1);
-                    QApplication::sendEvent(qic->focusWidget, &endevent);
-
-                    qic->focusWidget = 0;
-                    qic->text = QString::null;
-                } else
-#endif // !QT_NO_XIM
-                    {
-                        // qDebug("sending key event");
-                        keywidget->translateKeyEvent(event, grabbed);
-                    }
-            }
-            break;
+    {
+        if (keywidget && keywidget->isEnabled()) { // should always exist
+            // qDebug("sending key event");
+            keywidget->translateKeyEvent(event, grabbed);
         }
+        break;
+    }
 
     case GraphicsExpose:
     case Expose:                                // paint event
@@ -2942,8 +2808,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (!widget->isTopLevel())
             break;
         if (event->xfocus.detail != NotifyAncestor &&
-             event->xfocus.detail != NotifyInferior &&
-             event->xfocus.detail != NotifyNonlinear)
+            event->xfocus.detail != NotifyInferior &&
+            event->xfocus.detail != NotifyNonlinear)
             break;
         widget->d->createInputContext();
         setActiveWindow(widget);
@@ -2966,8 +2832,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (event->xfocus.mode != NotifyNormal)
             break;
         if (event->xfocus.detail != NotifyAncestor &&
-             event->xfocus.detail != NotifyNonlinearVirtual &&
-             event->xfocus.detail != NotifyNonlinear)
+            event->xfocus.detail != NotifyNonlinearVirtual &&
+            event->xfocus.detail != NotifyNonlinear)
             break;
         if (!inPopupMode() && widget == QApplicationPrivate::active_window)
             setActiveWindow(0);
@@ -2979,11 +2845,11 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (inPopupMode() && widget->topLevelWidget() != activePopupWidget())
             break;
         if (event->xcrossing.mode != NotifyNormal ||
-             event->xcrossing.detail == NotifyVirtual  ||
-             event->xcrossing.detail == NotifyNonlinearVirtual)
+            event->xcrossing.detail == NotifyVirtual  ||
+            event->xcrossing.detail == NotifyNonlinearVirtual)
             break;
         if (event->xcrossing.focus &&
-             !widget->isDesktop() && !widget->isActiveWindow()) {
+            !widget->isDesktop() && !widget->isActiveWindow()) {
             if (X11->focus_model == QX11Data::FM_Unknown) // check focus model
                 qt_check_focus_model();
             if (X11->focus_model == QX11Data::FM_PointerRoot) // PointerRoot mode
@@ -3003,13 +2869,13 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (event->xcrossing.mode != NotifyNormal)
             break;
         if (!widget->isDesktop())
-             widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
+            widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
 
         QWidget* enter = 0;
         XEvent ev;
         while (XCheckMaskEvent(X11->display, EnterWindowMask
-                                 | LeaveWindowMask , &ev)
-                && !qt_x11EventFilter(&ev)) {
+                               | LeaveWindowMask , &ev)
+               && !qt_x11EventFilter(&ev)) {
             QWidget* event_widget = QWidget::find(ev.xcrossing.window);
             if(event_widget && event_widget->x11Event(&ev))
                 break;
@@ -3019,12 +2885,12 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 break;
             }
             if ( ev.xcrossing.mode != NotifyNormal ||
-                  ev.xcrossing.detail == NotifyVirtual  ||
-                  ev.xcrossing.detail == NotifyNonlinearVirtual)
+                 ev.xcrossing.detail == NotifyVirtual  ||
+                 ev.xcrossing.detail == NotifyNonlinearVirtual)
                 continue;
             enter = event_widget;
             if (ev.xcrossing.focus &&
-                 enter && !enter->isDesktop() && !enter->isActiveWindow()) {
+                enter && !enter->isDesktop() && !enter->isActiveWindow()) {
                 if (X11->focus_model == QX11Data::FM_Unknown) // check focus model
                     qt_check_focus_model();
                 if (X11->focus_model == QX11Data::FM_PointerRoot) // PointerRoot mode
@@ -3034,8 +2900,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
         }
 
         if ((! enter || enter->isDesktop()) &&
-             event->xcrossing.focus && widget == QApplicationPrivate::active_window &&
-             X11->focus_model == QX11Data::FM_PointerRoot // PointerRoot mode
+            event->xcrossing.focus && widget == QApplicationPrivate::active_window &&
+            X11->focus_model == QX11Data::FM_PointerRoot // PointerRoot mode
             ) {
             setActiveWindow(0);
         }
@@ -3064,11 +2930,11 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (widget->isTopLevel() && !widget->isPopup()) {
             widget->setAttribute(Qt::WA_Mapped);
             if (widget->d->topData()->spont_unmapped) {
-                 widget->d->topData()->spont_unmapped = 0;
-                 widget->showChildren(true);
-                 QShowEvent e;
-                 QApplication::sendSpontaneousEvent(widget, &e);
-             }
+                widget->d->topData()->spont_unmapped = 0;
+                widget->showChildren(true);
+                QShowEvent e;
+                QApplication::sendSpontaneousEvent(widget, &e);
+            }
         }
         break;
 
@@ -3077,9 +2943,9 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     case ReparentNotify:                        // window manager reparents
         while (XCheckTypedWindowEvent(widget->x11Info().display(),
-                                        widget->winId(),
-                                        ReparentNotify,
-                                        event))
+                                      widget->winId(),
+                                      ReparentNotify,
+                                      event))
             ;        // skip old reparent events
         if (event->xreparent.parent == QX11Info::appRootWindow()) {
             if (widget->isTopLevel()) {
@@ -3815,7 +3681,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             t = QEvent::TabletRelease;
         }
         button = (XDeviceButtonEvent*)ev;
-        
+
         global = QPoint(button->x_root, button->y_root);
         curr = QPoint(button->x, button->y);
     }
@@ -3869,9 +3735,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             qDebug() << ((XDevice*)t.device)->device_id;
             break;
         }
-    }    
-    
-    if (motion) {        
+    }
+
+    if (motion) {
         xTilt = short(motion->axis_data[3]);
         yTilt = short(motion->axis_data[4]);
         pressure = motion->axis_data[2];
@@ -3889,7 +3755,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
 #endif
 
     QTabletEvent e(t, curr, global, hiRes, tablet->minX, tablet->maxX, tablet->minY, tablet->maxY,
-                    deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt, 
+                    deviceType, pressure, tablet->minPressure, tablet->maxPressure, xTilt, yTilt,
                     Qt::KeyboardModifiers(state), tId);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
@@ -4155,6 +4021,92 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XK_Help,                Qt::Key_Help,
     0x1000FF74,         Qt::Key_BackTab,     // hardcoded HP backtab
 
+    // International input method support keys
+
+    // International & multi-key character composition
+    XK_Multi_key,		Qt::Key_Multi_key,
+    XK_Codeinput,		Qt::Key_Codeinput,
+    XK_SingleCandidate,		Qt::Key_SingleCandidate,
+    XK_MultipleCandidate,	Qt::Key_MultipleCandidate,
+    XK_PreviousCandidate,	Qt::Key_PreviousCandidate,
+
+    // Misc Functions
+    XK_Mode_switch,		Qt::Key_Mode_switch,
+    //XK_script_switch,		Qt::Key_script_switch,
+    XK_script_switch,		Qt::Key_Mode_switch,
+
+    // Japanese keyboard support
+    XK_Kanji,			Qt::Key_Kanji,
+    XK_Muhenkan,		Qt::Key_Muhenkan,
+    //XK_Henkan_Mode,		Qt::Key_Henkan_Mode,
+    XK_Henkan_Mode,		Qt::Key_Henkan,
+    XK_Henkan,			Qt::Key_Henkan,
+    XK_Romaji,			Qt::Key_Romaji,
+    XK_Hiragana,		Qt::Key_Hiragana,
+    XK_Katakana,		Qt::Key_Katakana,
+    XK_Hiragana_Katakana,	Qt::Key_Hiragana_Katakana,
+    XK_Zenkaku,			Qt::Key_Zenkaku,
+    XK_Hankaku,			Qt::Key_Hankaku,
+    XK_Zenkaku_Hankaku,		Qt::Key_Zenkaku_Hankaku,
+    XK_Touroku,			Qt::Key_Touroku,
+    XK_Massyo,			Qt::Key_Massyo,
+    XK_Kana_Lock,		Qt::Key_Kana_Lock,
+    XK_Kana_Shift,		Qt::Key_Kana_Shift,
+    XK_Eisu_Shift,		Qt::Key_Eisu_Shift,
+    XK_Eisu_toggle,		Qt::Key_Eisu_toggle,
+    //XK_Kanji_Bangou,		Qt::Key_Kanji_Bangou,
+    //XK_Zen_Koho,		Qt::Key_Zen_Koho,
+    //XK_Mae_Koho,		Qt::Key_Mae_Koho,
+    XK_Kanji_Bangou,		Qt::Key_Codeinput,
+    XK_Zen_Koho,		Qt::Key_MultipleCandidate,
+    XK_Mae_Koho,		Qt::Key_PreviousCandidate,
+
+#ifdef XK_KOREAN
+    // Korean keyboard support
+    XK_Hangul,			Qt::Key_Hangul,
+    XK_Hangul_Start,		Qt::Key_Hangul_Start,
+    XK_Hangul_End,		Qt::Key_Hangul_End,
+    XK_Hangul_Hanja,		Qt::Key_Hangul_Hanja,
+    XK_Hangul_Jamo,		Qt::Key_Hangul_Jamo,
+    XK_Hangul_Romaja,		Qt::Key_Hangul_Romaja,
+    //XK_Hangul_Codeinput,	Qt::Key_Hangul_Codeinput,
+    XK_Hangul_Codeinput,	Qt::Key_Codeinput,
+    XK_Hangul_Jeonja,		Qt::Key_Hangul_Jeonja,
+    XK_Hangul_Banja,		Qt::Key_Hangul_Banja,
+    XK_Hangul_PreHanja,		Qt::Key_Hangul_PreHanja,
+    XK_Hangul_PostHanja,	Qt::Key_Hangul_PostHanja,
+    //XK_Hangul_SingleCandidate,	Qt::Key_Hangul_SingleCandidate,
+    //XK_Hangul_MultipleCandidate, Qt::Key_Hangul_MultipleCandidate,
+    //XK_Hangul_PreviousCandidate, Qt::Key_Hangul_PreviousCandidate,
+    XK_Hangul_SingleCandidate,	Qt::Key_SingleCandidate,
+    XK_Hangul_MultipleCandidate, Qt::Key_MultipleCandidate,
+    XK_Hangul_PreviousCandidate, Qt::Key_PreviousCandidate,
+    XK_Hangul_Special,		Qt::Key_Hangul_Special,
+    //XK_Hangul_switch,		Qt::Key_Hangul_switch,
+    XK_Hangul_switch,		Qt::Key_Mode_switch,
+#endif  // XK_KOREAN
+
+    // dead keys
+    XK_dead_grave,              Qt::Key_Dead_Grave,
+    XK_dead_acute,              Qt::Key_Dead_Acute,
+    XK_dead_circumflex,         Qt::Key_Dead_Circumflex,
+    XK_dead_tilde,              Qt::Key_Dead_Tilde,
+    XK_dead_macron,             Qt::Key_Dead_Macron,
+    XK_dead_breve,              Qt::Key_Dead_Breve,
+    XK_dead_abovedot,           Qt::Key_Dead_Abovedot,
+    XK_dead_diaeresis,          Qt::Key_Dead_Diaeresis,
+    XK_dead_abovering,          Qt::Key_Dead_Abovering,
+    XK_dead_doubleacute,        Qt::Key_Dead_Doubleacute,
+    XK_dead_caron,              Qt::Key_Dead_Caron,
+    XK_dead_cedilla,            Qt::Key_Dead_Cedilla,
+    XK_dead_ogonek,             Qt::Key_Dead_Ogonek,
+    XK_dead_iota,               Qt::Key_Dead_Iota,
+    XK_dead_voiced_sound,       Qt::Key_Dead_Voiced_Sound,
+    XK_dead_semivoiced_sound,   Qt::Key_Dead_Semivoiced_Sound,
+    XK_dead_belowdot,           Qt::Key_Dead_Belowdot,
+    XK_dead_hook,               Qt::Key_Dead_Hook,
+    XK_dead_horn,               Qt::Key_Dead_Horn,
+
     // Special multimedia keys
     // currently only tested with MS internet keyboard
 
@@ -4359,9 +4311,9 @@ typedef QHash<int, KeySym> KeyHash;
 Q_GLOBAL_STATIC(KeyHash, keyHash)
 
 bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QString& text, int& state,
-                                           int& code, QEvent::Type &type, bool willRepeat)
+                                           int& code, QEvent::Type &type, bool willRepeat, bool statefulTranslation)
 {
-    QTextCodec *mapper = input_mapper;
+    QTextCodec *mapper = qt_input_mapper;
     // some XmbLookupString implementations don't return buffer overflow correctly,
     // so we increase the input buffer to allow for long strings...
     // 256 chars * 2 bytes + 1 null-term == 513 bytes
@@ -4398,6 +4350,11 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
 
     if (type == QEvent::KeyPress) {
         bool mb=false;
+	// commit string handling is done by
+	// QXIMInputContext::x11FilterEvent() and are passed to
+	// widgets via QIMEvent regardless of XIM style, so the
+	// following code is commented out.
+#if 0
         if (X11->xim) {
             QTLWExtra*  xd = tlw->d->topData();
             QInputContext *qic = (QInputContext *) xd->xic;
@@ -4406,13 +4363,14 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
                 count = qic->lookupString(&xkeyevent, chars, &key, &status);
             }
         }
+#endif
         if (!mb) {
             count = XLookupString(&xkeyevent,
                                    chars.data(), chars.size(), &key, 0);
         }
         if (count && !keycode) {
-            keycode = composingKeycode;
-            composingKeycode = 0;
+            keycode = qt_ximComposingKeycode;
+            qt_ximComposingKeycode = 0;
         }
         if (key)
             (*keyHash())[keycode] = key;
@@ -4486,15 +4444,18 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     state = translateButtonState(keystate);
 
     static int directionKeyEvent = 0;
-    if (qt_use_rtl_extensions && type == QEvent::KeyRelease) {
+    static unsigned int lastWinId = 0;
+    if (statefulTranslation && qt_use_rtl_extensions && type == QEvent::KeyRelease) {
         if (directionKeyEvent == Qt::Key_Direction_R || directionKeyEvent == Qt::Key_Direction_L) {
             type = QEvent::KeyPress;
             code = directionKeyEvent;
             text = QString();
             directionKeyEvent = 0;
+	    lastWinId = 0;
             return true;
         } else {
             directionKeyEvent = 0;
+	    lastWinId = 0;
         }
     }
 
@@ -4504,10 +4465,14 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     // (to figure out whether the Ctrl modifier is held while Shift is pressed,
     // or Shift is held while Ctrl is pressed) since the 'state' doesn't tell
     // us whether the modifier held is Left or Right.
-    if (qt_use_rtl_extensions && type  == QEvent::KeyPress)
+    if (statefulTranslation && qt_use_rtl_extensions && type  == QEvent::KeyPress)
         if (key == XK_Control_L || key == XK_Control_R || key == XK_Shift_L || key == XK_Shift_R) {
-           if (!directionKeyEvent)
-              directionKeyEvent = key;
+	    if (!directionKeyEvent) {
+		directionKeyEvent = key;
+		// This code exists in order to check that
+		// the event is occurred in the same widget.
+		lastWinId = winId();
+	    }
         } else {
            // this can no longer be a direction-changing accel.
            // if any other key was pressed.
@@ -4521,9 +4486,9 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     // Qt keycodes between 128 and 255, but should rather use the
     // QKeyEvent::text().
     //
-    if (key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4))) {
+    if (key < 128 || (key < 256 && (!qt_input_mapper || qt_input_mapper->mibEnum()==4))) {
         code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
-    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f) {
+    } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f && !(key >= XK_dead_grave && key <= XK_dead_horn)) {
         code = text.unicode()->toUpper().unicode();
     } else if (key >= XK_F1 && key <= XK_F35) {
         code = Qt::Key_F1 + ((int)key - XK_F1);        // function keys
@@ -4574,8 +4539,8 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
             text = QString();
         }
 
-        if (qt_use_rtl_extensions && type  == QEvent::KeyPress) {
-            if (directionKeyEvent) {
+        if (statefulTranslation && qt_use_rtl_extensions && type  == QEvent::KeyPress) {
+            if (directionKeyEvent && lastWinId == winId()) {
                 if (key == XK_Shift_L && directionKeyEvent == XK_Control_L ||
                      key == XK_Control_L && directionKeyEvent == XK_Shift_L) {
                     directionKeyEvent = Qt::Key_Direction_L;
@@ -4678,8 +4643,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, state, text, autor,
-                     qMax(qMax(count,1), int(text.length())));
+        QKeyEvent a(type, code, 0, state, text, autor, qMax(qMax(count,1), int(text.length())));
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
@@ -4695,8 +4659,34 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
         translateKeyEventInternal(event, count, text, state, code, type);
     }
 
+#ifndef QT_NO_IM
+    QInputContext *qic = inputContext();
+#endif
+
     // compress keys
     if (!text.isEmpty() && testAttribute(Qt::WA_KeyCompression) &&
+#ifndef QT_NO_IM
+	 // Ordinary input methods require discrete key events to work
+	 // properly, so key compression has to be disabled when input
+	 // context exists.
+	 //
+	 // And further consideration, some complex input method
+	 // require all key press/release events discretely even if
+	 // the input method awares of key compression and compressed
+	 // keys are ordinary alphabets. For example, the uim project
+	 // is planning to implement "combinational shift" feature for
+	 // a Japanese input method, uim-skk. It will work as follows.
+	 //
+	 // 1. press "r"
+	 // 2. press "u"
+	 // 3. release both "r" and "u" in arbitrary order
+	 // 4. above key sequence generates "Ru"
+	 //
+	 // Of course further consideration about other participants
+	 // such as key repeat mechanism is required to implement such
+	 // feature.
+	 !qic &&
+#endif // QT_NO_IM
          // do not compress keys if the key event we just got above matches
          // one of the key ranges used to compute stopCompression
          !((code >= Qt::Key_Escape && code <= Qt::Key_SysReq)
@@ -4785,7 +4775,12 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
 
     // autorepeat compression makes sense for all widgets (Windows
     // does it automatically ....)
-    if (event->type == XKeyPress && text.length() <= 1) {
+    if (event->type == XKeyPress && text.length() <= 1
+#ifndef QT_NO_IM
+	 // input methods need discrete key events
+	 && !qic
+#endif// QT_NO_IM
+	) {
         XEvent dummy;
 
         for (;;) {
@@ -4818,8 +4813,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
             return true;
     }
 
-    QKeyEvent e(type, code, state, text, autor,
-                 qMax(qMax(count,1), int(text.length())));
+    QKeyEvent e(type, code, 0, state, text, autor, qMax(qMax(count,1), int(text.length())));
     return QApplication::sendSpontaneousEvent(this, &e);
 }
 

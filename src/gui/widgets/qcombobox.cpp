@@ -810,7 +810,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     d->lineEdit->setAttribute(Qt::WA_CompositeChild);
     setAttribute(Qt::WA_CompositeParent);
     setFocusProxy(d->lineEdit);
-    setInputMethodEnabled(true);
+    setAttribute(Qt::WA_InputMethodEnabled);
     d->updateLineEditGeometry();
 
     if (isVisible())

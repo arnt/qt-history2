@@ -41,15 +41,15 @@ private:
 class Q_GUI_EXPORT QMouseEvent : public QInputEvent
 {
 public:
-    QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button, 
+    QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
                 Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers);
     inline QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
-                       Qt::MouseButton button, Qt::MouseButtons buttons, 
+                       Qt::MouseButton button, Qt::MouseButtons buttons,
                        Qt::KeyboardModifiers modifiers)
         : QInputEvent(type), p(pos), g(globalPos), b(button), mouseState(buttons), keyState(modifiers) {}
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, Qt::ButtonState button, int state);
-    QT_COMPAT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos, 
+    QT_COMPAT_CONSTRUCTOR QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                                       Qt::ButtonState button, int state);
 #endif
 
@@ -60,9 +60,9 @@ public:
     inline int globalX() const { return g.x(); }
     inline int globalY() const { return g.y(); }
 #ifdef QT_COMPAT
-    inline QT_COMPAT Qt::ButtonState state() const 
+    inline QT_COMPAT Qt::ButtonState state() const
     { return Qt::ButtonState(int(mouseState)|int(keyState)); }
-    inline QT_COMPAT Qt::ButtonState stateAfter() const 
+    inline QT_COMPAT Qt::ButtonState stateAfter() const
     { return Qt::ButtonState(int(buttons())|int(modifiers())); }
 #endif
     inline Qt::MouseButton button() const { return b; }
@@ -81,18 +81,18 @@ protected:
 class Q_GUI_EXPORT QWheelEvent : public QInputEvent
 {
 public:
-    QWheelEvent(const QPoint &pos, int delta, 
+    QWheelEvent(const QPoint &pos, int delta,
                 Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
                 Qt::Orientation orient = Qt::Vertical);
-    inline QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
+    inline QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta,
                        Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
                        Qt::Orientation orient = Qt::Vertical)
-        : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), mouseState(buttons), 
+        : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), mouseState(buttons),
           keyState(modifiers),o(orient) {}
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QWheelEvent(const QPoint &pos, int delta, int state, 
+    QT_COMPAT_CONSTRUCTOR QWheelEvent(const QPoint &pos, int delta, int state,
                                       Qt::Orientation orient = Qt::Vertical);
-    QT_COMPAT_CONSTRUCTOR QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state, 
+    QT_COMPAT_CONSTRUCTOR QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state,
                                       Qt::Orientation orient = Qt::Vertical);
 #endif
     inline int delta() const { return d; }
@@ -103,7 +103,7 @@ public:
     inline int globalX() const { return g.x(); }
     inline int globalY() const { return g.y(); }
 #ifdef QT_COMPAT
-    inline QT_COMPAT Qt::ButtonState state() const 
+    inline QT_COMPAT Qt::ButtonState state() const
     { return static_cast<Qt::ButtonState>(int(buttons())|int(modifiers())); }
 #endif
     inline Qt::MouseButtons buttons() const { return mouseState; }
@@ -124,7 +124,7 @@ class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
-    QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos, 
+    QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos,
                   int minX, int maxX, int minY, int maxY, int device,
                   int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
                   Qt::KeyboardModifiers keyState, const QPair<int,int> &uId);
@@ -149,7 +149,7 @@ public:
     inline int maxHiResX() const { return mHiResMaxX; }
     inline int maxHiResY() const { return mHiResMaxY; }
     inline Qt::KeyboardModifiers modifiers() const { return mKeyState; }
-        
+
 protected:
     QPoint mPos, mGPos, mHiResPos;
     int mHiResMinX, mHiResMaxX, mHiResMinY, mHiResMaxY;
@@ -162,8 +162,8 @@ protected:
 class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 {
 public:
-    inline QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, 
-                     const QString& text = QString::null, 
+    inline QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers,
+                     const QString& text = QString::null,
                      bool autorep = FALSE, ushort count = 1)
         : QInputEvent(type), txt(text), k(key), m(modifiers), c(count), autor(autorep)
     {
@@ -172,25 +172,16 @@ public:
     }
     int key() const   { return k; }
 #ifdef QT_COMPAT
-    inline QT_COMPAT_CONSTRUCTOR QKeyEvent(Type type, int key, int modifiers, 
-                                           const QString& text = QString::null, 
-                                           bool autorep = FALSE, ushort count = 1)
-        : QInputEvent(type), txt(text), k(key), m((Qt::KeyboardModifiers)modifiers), 
-          c(count), autor(autorep)
-    {
-        if(key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
-            ignore();
-    }
-    inline QT_COMPAT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/, 
+    inline QT_COMPAT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,
                                            int modifiers, const QString& text = QString::null,
                                            bool autorep = FALSE, ushort count = 1)
-        : QInputEvent(type), txt(text), k(key), m((Qt::KeyboardModifiers)modifiers), 
+        : QInputEvent(type), txt(text), k(key), m((Qt::KeyboardModifiers)modifiers),
           c(count), autor(autorep)
     {
         if (key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
             ignore();
     }
-    inline QT_COMPAT int ascii() const 
+    inline QT_COMPAT int ascii() const
     { return (txt.length() ? txt.unicode()->latin1() : 0); }
     inline QT_COMPAT Qt::ButtonState state() const { return Qt::ButtonState(m); }
     inline QT_COMPAT Qt::ButtonState stateAfter() const { return Qt::ButtonState(modifiers()); }
@@ -268,7 +259,7 @@ public:
 class Q_GUI_EXPORT QMoveEvent : public QEvent
 {
 public:
-    inline QMoveEvent(const QPoint &pos, const QPoint &oldPos): 
+    inline QMoveEvent(const QPoint &pos, const QPoint &oldPos):
         QEvent(Move), p(pos), oldp(oldPos) {}
     inline const QPoint &pos() const { return p; }
     inline const QPoint &oldPos() const { return oldp;}
@@ -334,7 +325,7 @@ public:
         : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason) {}
     QContextMenuEvent(Reason reason, const QPoint &pos);
 #ifdef QT_COMPAT
-    inline QT_COMPAT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos, 
+    inline QT_COMPAT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos,
                                                    const QPoint &globalPos, int)
         : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason) {}
     QT_COMPAT_CONSTRUCTOR QContextMenuEvent(Reason reason, const QPoint &pos, int);

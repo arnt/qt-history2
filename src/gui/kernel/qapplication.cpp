@@ -1012,7 +1012,8 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 #ifdef Q_WS_QWS
           || event->type() == QEvent::QWSUpdate
 #endif
-          || event->type() == QEvent::LanguageChange)) {
+          || event->type() == QEvent::LanguageChange
+	  || event->type() == QEvent::IMCompose)) {
         for (int i = 0; i < postedEvents->size(); ++i) {
             const QPostEvent &cur = postedEvents->at(i);
             if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type())
@@ -1036,6 +1037,8 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 #endif
             } else if (cur.event->type() == QEvent::LanguageChange) {
                 ;
+	    } else if ( cur.event->type() == QEvent::IMCompose ) {
+                *(QIMEvent *)(cur.event) = *(QIMEvent *)event;
             } else {
                 continue;
             }
@@ -1997,6 +2000,8 @@ void QApplication::setActiveWindow(QWidget* act)
         QApplicationPrivate::focus_widget = 0;
 #ifdef Q_WS_WIN
         QInputContext::accept(tmp);
+#elif defined(Q_WS_X11)
+	tmp->d->unfocusInputContext();
 #endif
         sendSpontaneousEvent(tmp, &out);
     } else if (QApplicationPrivate::active_window) {

@@ -183,6 +183,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *ev);
     virtual void mouseReleaseEvent(QMouseEvent *ev);
     virtual void mouseDoubleClickEvent(QMouseEvent *ev);
+    virtual void imEvent(QIMEvent *);
     virtual bool focusNextPrevChild(bool next);
     virtual void contextMenuEvent(QContextMenuEvent *ev);
     virtual void dragEnterEvent(QDragEnterEvent *ev);

@@ -15,7 +15,8 @@ class QTextEditPrivate : public QViewportPrivate
     Q_DECLARE_PUBLIC(QTextEdit)
 public:
     inline QTextEditPrivate()
-        : doc(0), cursorOn(false), readOnly(false),
+        : doc(0), cursorOn(false),
+	  imstart(0), imend(0), imselstart(0), imselend(0), readOnly(false),
           autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText)
@@ -70,10 +71,18 @@ public:
 
     void setBlinkingCursorEnabled(bool enable);
 
+    // input methods
+    bool composeMode() const { return preeditLength(); }
+    bool hasIMSelection() const { return imSelectionLength(); }
+    int preeditLength() const { return ( imend - imstart ); }
+    int imSelectionLength() const { return ( imselend - imselstart ); }
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
     QTextCharFormat currentCharFormat;
+
+    int imstart, imend, imselstart, imselend;
 
     bool readOnly; /* ### move to document? */
 

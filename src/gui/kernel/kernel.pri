@@ -19,7 +19,6 @@ HEADERS += \
 	kernel/qevent.h \
 	kernel/qguieventloop.h\
 	kernel/qguieventloop_p.h \
-	kernel/qinputcontext_p.h \
 	kernel/qkeysequence.h \
 	kernel/qlayout.h \
 	kernel/qmime.h \
@@ -79,7 +78,8 @@ win32 {
 
 unix:x11 {
 	HEADERS += \
-		kernel/qx11info_x11.h
+		kernel/qx11info_x11.h \
+		kernel/qinputcontext.h
 
 	SOURCES += \
 		kernel/qapplication_x11.cpp \
@@ -88,12 +88,14 @@ unix:x11 {
 		kernel/qdnd_x11.cpp \
 		kernel/qdesktopwidget_x11.cpp \
 		kernel/qguieventloop_x11.cpp \
-		kernel/qinputcontext_x11.cpp \
+		kernel/qinputcontext.cpp \
 		kernel/qmotifdnd_x11.cpp \
 		kernel/qsound_x11.cpp \
 		kernel/qwidget_x11.cpp \
 		kernel/qwidgetcreate_x11.cpp \
 		kernel/qx11info_x11.cpp
+} else {
+	HEADERS += kernel/qinputcontext_p.h
 }
 
 embedded {

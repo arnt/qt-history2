@@ -280,6 +280,8 @@ CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
 CFG_MOUSE_ON="pc"   #default, see QMAKE_VARS above
 CFG_MOUSE_OFF=
 CFG_STYLE_AVAILABLE=
+CFG_IM=yes
+CFG_IM_EXT=no
 CFG_DECORATION_AVAILABLE=
 CFG_DECORATION_ON=
 CFG_DECORATION_PLUGIN=
@@ -383,7 +385,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility|-confirm-license)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -504,6 +506,20 @@ while [ "$#" -gt 0 ]; do
 	else
 	    UNKNOWN_OPT=yes
         fi
+	;;
+    inputmethod)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_IM="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    inputmethod-ext)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_IM_EXT="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
 	;;
     prefix)
 	QT_INSTALL_PREFIX="$VAL"
@@ -1984,6 +2000,14 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi # QWS
 
+# immodule extensions
+if [ "$CFG_IM" = "no" ]; then
+    CFG_IM_EXT=no
+fi
+if [ "$CFG_IM_EXT" = "yes" ]; then
+    CFG_IM=yes
+fi
+
 
 #-------------------------------------------------------------------------------
 # help - interactive parts of the script _after_ this section please
@@ -2278,6 +2302,20 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         XKY="*"
         XKN=" "
     fi
+    if [ "$CFG_IM" = "no" ]; then
+        IMY=" "
+        IMN="*"
+    else
+        IMY="*"
+        IMN=" "
+    fi
+    if [ "$CFG_IM_EXT" = "no" ]; then
+        IXY=" "
+        IXN="*"
+    else
+        IXY="*"
+        IXN=" "
+    fi
     cat << EOF
 
 Qt/X11 only:
@@ -2322,6 +2360,12 @@ Qt/X11 only:
  $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
  $XKY  -xkb ............... Compile XKB support.
 
+ $IMN  -no-inputmethod .... Do not compile immodule (extensible input method)
+			 support.
+ $IMY  -inputmethod ....... Compile immodule support.
+
+ $IXN  -no-inputmethod-ext  Do not compile more immodule extensions support.
+ $IXY  -inputmethod-ext ... Compile more immodule extensions support.
 EOF
 fi
 
@@ -3077,6 +3121,17 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_XKB" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xkb"
     fi
+
+    if [ "$CFG_IM" = "yes" ]; then
+        QT_CONFIG="$QT_CONFIG inputmethod"
+    elif [ "$CFG_IM" = "no" ]; then
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IM"
+    fi
+    if [ "$CFG_IM_EXT" = "yes" ]; then
+        QT_CONFIG="$QT_CONFIG inputmethod-ext"
+    elif [ "$CFG_IM_EXT" = "no" ]; then
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IM_EXTENSIONS"
+    fi
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_TABLET" = "yes" ]; then
 	QT_CONFIG="$QT_CONFIG tablet"
@@ -3178,13 +3233,15 @@ esac
 #     minimal-config small-config medium-config large-config full-config
 #
 #   Modules:
-#     styles tools kernel widgets dialogs iconview workspace
+#     styles tools kernel widgets dialogs iconview workspace inputmethod
 #
 #   Enterprise/Free edition modules:
 #     network canvas table xml opengl sql
 #
 #   Options:
 #     stl
+#
+#     X11     : inputmethod-ext
 #
 # Things that do not affect the Qt API/ABI:
 #     system-jpeg no-jpeg jpeg
@@ -3206,7 +3263,7 @@ esac
 #     tablet
 #     ipv6
 #
-#     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb
+#     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb inputmethod
 #     Embedded: embedded ft
 #
 ALL_OPTIONS="stl"
@@ -3698,6 +3755,8 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "XRender support ..... $CFG_XRENDER"
     echo "Xft support ......... $CFG_XFT"
     echo "XKB Support ......... $CFG_XKB"
+    echo "immodule support .... $CFG_IM"
+    echo "immodule ext support  $CFG_IM_EXT"
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     echo "Tablet support ...... $CFG_TABLET"
 fi

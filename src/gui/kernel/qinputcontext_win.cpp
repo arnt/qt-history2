@@ -573,6 +573,7 @@ static HIMC defaultContext = 0;
 
 void QInputContext::enable(QWidget *w, bool b)
 {
+    // ######################## do on focus in now!
 #ifdef Q_IME_DEBUG
     qDebug("enable: w=%s, enable = %s", w ? w->className() : "(null)" , b ? "true" : "false");
 #endif

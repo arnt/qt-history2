@@ -1519,79 +1519,65 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
 /*!
     \reimp
 */
-void Q3TextEdit::imStartEvent(QIMEvent *e)
+void Q3TextEdit::imEvent(QIMEvent *e)
 {
     if (isReadOnly()) {
         e->ignore();
         return;
     }
 
-    if (hasSelectedText())
-        removeSelectedText();
-    d->preeditStart = cursor->index();
-}
+    switch(e->type()) {
+    case QEvent::IMStart:
+        if (hasSelectedText())
+            removeSelectedText();
+        d->preeditStart = cursor->index();
+        break;
+    case QEvent::IMCompose: {
 
-/*!
-    \reimp
-*/
-void Q3TextEdit::imComposeEvent(QIMEvent *e)
-{
-    if (isReadOnly()) {
-        e->ignore();
-        return;
-    }
+        doc->removeSelection(Q3TextDocument::IMCompositionText);
+        doc->removeSelection(Q3TextDocument::IMSelectionText);
 
-    doc->removeSelection(Q3TextDocument::IMCompositionText);
-    doc->removeSelection(Q3TextDocument::IMSelectionText);
-
-    if (d->preeditLength > 0 && cursor->paragraph())
-        cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
-    cursor->setIndex(d->preeditStart);
-    insert(e->text());
-    d->preeditLength = e->text().length();
-
-    cursor->setIndex(d->preeditStart + d->preeditLength);
-    Q3TextCursor c = *cursor;
-    cursor->setIndex(d->preeditStart);
-    doc->setSelectionStart(Q3TextDocument::IMCompositionText, *cursor);
-    doc->setSelectionEnd(Q3TextDocument::IMCompositionText, c);
-
-    cursor->setIndex(d->preeditStart + e->cursorPos());
-
-    int sellen = e->selectionLength();
-    if (sellen > 0) {
-        cursor->setIndex(d->preeditStart + e->cursorPos() + sellen);
-        c = *cursor;
-        cursor->setIndex(d->preeditStart + e->cursorPos());
-        doc->setSelectionStart(Q3TextDocument::IMSelectionText, *cursor);
-        doc->setSelectionEnd(Q3TextDocument::IMSelectionText, c);
-        cursor->setIndex(d->preeditStart + d->preeditLength);
-    }
-
-    repaintChanged();
-}
-
-/*!
-    \reimp
-*/
-void Q3TextEdit::imEndEvent(QIMEvent *e)
-{
-    if (isReadOnly()) {
-        e->ignore();
-        return;
-    }
-
-    doc->removeSelection(Q3TextDocument::IMCompositionText);
-    doc->removeSelection(Q3TextDocument::IMSelectionText);
-
-    if (d->preeditLength > 0 && cursor->paragraph())
-        cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
-    if (d->preeditStart >= 0) {
+        if (d->preeditLength > 0 && cursor->paragraph())
+            cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
         cursor->setIndex(d->preeditStart);
         insert(e->text());
-    }
-    d->preeditStart = d->preeditLength = -1;
+        d->preeditLength = e->text().length();
 
+        cursor->setIndex(d->preeditStart + d->preeditLength);
+        Q3TextCursor c = *cursor;
+        cursor->setIndex(d->preeditStart);
+        doc->setSelectionStart(Q3TextDocument::IMCompositionText, *cursor);
+        doc->setSelectionEnd(Q3TextDocument::IMCompositionText, c);
+
+        cursor->setIndex(d->preeditStart + e->cursorPos());
+
+        int sellen = e->selectionLength();
+        if (sellen > 0) {
+            cursor->setIndex(d->preeditStart + e->cursorPos() + sellen);
+            c = *cursor;
+            cursor->setIndex(d->preeditStart + e->cursorPos());
+            doc->setSelectionStart(Q3TextDocument::IMSelectionText, *cursor);
+            doc->setSelectionEnd(Q3TextDocument::IMSelectionText, c);
+            cursor->setIndex(d->preeditStart + d->preeditLength);
+        }
+
+        break;
+    }
+    case QEvent::IMEnd:
+
+        doc->removeSelection(Q3TextDocument::IMCompositionText);
+        doc->removeSelection(Q3TextDocument::IMSelectionText);
+
+        if (d->preeditLength > 0 && cursor->paragraph())
+            cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
+        if (d->preeditStart >= 0) {
+            cursor->setIndex(d->preeditStart);
+            insert(e->text());
+        }
+        d->preeditStart = d->preeditLength = -1;
+    default:
+        Q_ASSERT(false);
+    }
     repaintChanged();
 }
 

@@ -144,9 +144,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *);
     void mouseDoubleClickEvent(QMouseEvent *);
     void keyPressEvent(QKeyEvent *);
-    void imStartEvent(QIMEvent *);
-    void imComposeEvent(QIMEvent *);
-    void imEndEvent(QIMEvent *);
+    void imEvent(QIMEvent *);
     void focusInEvent(QFocusEvent *);
     void focusOutEvent(QFocusEvent *);
     void paintEvent(QPaintEvent *);

@@ -150,7 +150,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 
 
 
-QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button, 
+QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
                          Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
     : QInputEvent(type), p(pos), b(button), mouseState(buttons), keyState(modifiers)
 {
@@ -337,7 +337,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
     keyState = Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask);
 }
 
-QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state, 
+QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state,
                          Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), o(orient)
 {
@@ -346,10 +346,10 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
 }
 #endif
 
-QWheelEvent::QWheelEvent(const QPoint &pos, int delta, 
-                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, 
+QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
+                         Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers,
                          Qt::Orientation orient)
-    : QInputEvent(Wheel), p(pos), d(delta), mouseState(buttons), 
+    : QInputEvent(Wheel), p(pos), d(delta), mouseState(buttons),
       keyState(modifiers), o(orient)
 {
     g = QCursor::pos();
@@ -1224,7 +1224,7 @@ void QFocusEvent::resetReason()
     \ingroup events
 
     Context menu events are sent to widgets when a user performs
-    an action associated with opening a context menu. 
+    an action associated with opening a context menu.
     The actions required to open context menus vary between platforms;
     for example, on Windows, pressing the menu button or clicking the
     right mouse button will cause this event to be sent.
@@ -1253,9 +1253,9 @@ void QFocusEvent::resetReason()
 */
 
 #ifdef QT_COMPAT
-Qt::ButtonState QContextMenuEvent::state() const 
-{ 
-    return Qt::ButtonState(int(QApplication::keyboardModifiers())|QApplication::mouseButtons()); 
+Qt::ButtonState QContextMenuEvent::state() const
+{
+    return Qt::ButtonState(int(QApplication::keyboardModifiers())|QApplication::mouseButtons());
 }
 
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
@@ -1417,34 +1417,32 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
     \endlist
 
     These three stages are represented by three different types of
-    events: IMStartEvent, IMComposeEvent, and IMEndEvent. When a
-    new input context is created, an IMStartEvent will be sent to the
-    widget and delivered to the \l QWidget::imStartEvent() function.
-    The widget can then update internal data structures to reflect
-    this.
+    events: IMStart, IMCompose, and IMEnd. All of these events are
+    delivered to the imEvent() method. When a new input context is
+    created, an IMStart event will be sent to the widget.  The widget
+    can then update internal data structures to reflect this.
 
-    After this, an IMComposeEvent will be sent to the widget for
+    After this, an IMCompose event will be sent to the widget for
     every key the user presses. It will contain the current
     composition string the widget has to show and the current cursor
     position within the composition string. This string is temporary
     and can change with every key the user types, so the widget will
     need to store the state before the composition started (the state
-    it had when it received the IMStartEvent). IMComposeEvents will be
-    delivered to the \l QWidget::imComposeEvent() function.
+    it had when it received the IMStart event).
 
     Usually, widgets try to mark the part of the text that is part of
     the current composition in a way that is visible to the user. A
     commonly used visual cue is to use a dotted underline.
 
-    After the user has selected the final string, an IMEndEvent will
+    After the user has selected the final string, an IMEnd event will
     be sent to the widget. The event contains the final string the
     user selected, and could be empty if they canceled the
     composition. This string should be accepted as the final text the
     user entered, and the intermediate composition string should be
-    cleared. These events are delivered to \l QWidget::imEndEvent().
+    cleared.
 
     If the user clicks another widget, taking the focus out of the
-    widget where the composition is taking place, the IMEndEvent will
+    widget where the composition is taking place, the IMEnd event will
     be sent and the string it holds will be the result of the
     composition up to that point (which may be an empty string).
 
@@ -1453,27 +1451,26 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
 /*!
     \fn QIMEvent::QIMEvent(Type type, const QString &text, int cursorPosition, int selLength)
 
-    Constructs a new QIMEvent with the accept flag set to false.
-    The event \a type can be QEvent::IMStartEvent,
-    QEvent::IMComposeEvent, or QEvent::IMEndEvent. The \a text contains
-    the current compostion string, and \a cursorPosition is the current
-    position of the cursor inside the \a text.
-    \a selLength characters are selected (default is 0).
+    Constructs a new QIMEvent with the accept flag set to false.  The
+    event \a type can be QEvent::IMStart, QEvent::IMCompose, or
+    QEvent::IMEnd. The \a text contains the current compostion string,
+    and \a cursorPosition is the current position of the cursor inside
+    the \a text.  \a selLength characters are selected (default is 0).
 */
 
 /*!
     \fn const QString &QIMEvent::text() const
 
     Returns the composition text. This is a null string for an
-    IMStartEvent, and contains the final accepted string (which may be
-    empty) in the IMEndEvent.
+    IMStart event, and contains the final accepted string (which may be
+    empty) in the IMEnd event.
 */
 
 /*!
     \fn int QIMEvent::cursorPos() const
 
     Returns the current cursor position inside the composition string.
-    Will return -1 for IMStartEvent and IMEndEvent.
+    Will return -1 for IMStart event and IMEnd event.
 */
 
 /*!
@@ -1482,7 +1479,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
     Returns the number of characters in the composition string,
     starting at cursorPos(), that should be marked as selected by the
     input widget receiving the event.
-    Will return 0 for IMStartEvent and IMEndEvent.
+    Will return 0 for IMStart event and IMEnd event.
 */
 
 
@@ -1552,7 +1549,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
   \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId()
 */
 
-QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos, 
+QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPoint &hiResPos,
                   int minX, int maxX, int minY, int maxY, int device,
                   int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
                   Qt::KeyboardModifiers keyState, const QPair<int,int> &uId)
