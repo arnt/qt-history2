@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#111 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#110 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#111 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1070,17 +1070,22 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
 
 /*----------------------------------------------------------------------------
-  Sets the minimum size of the widget to \e w by \e h pixels.
-  The user will not be able to resize the window to a smaller size.
+  Sets the minimum size of the widget to \e w by \e h pixels.  The
+  user will not be able to resize the window to a smaller size.  The
+  programmer may, however.
+
+  Note that while you can set the minimum size for all widgets, it has
+  no effect except for top-level widgets.
+
   \sa minimumSize(), setMaximumSize(), setSizeIncrement(), size()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setMinimumSize( int w, int h )
 {
+    createExtra();
+    extra->minw = w;
+    extra->minh = h;
     if ( testWFlags(WType_Overlap) ) {
-	createExtra();
-	extra->minw = w;
-	extra->minh = h;
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, ident, extra, &size_hints );
@@ -1089,16 +1094,21 @@ void QWidget::setMinimumSize( int w, int h )
 
 /*----------------------------------------------------------------------------
   Sets the maximum size of the widget to \e w by \e h pixels.
-  The user will not be able to resize the window to a larger size.
+  The user will not be able to resize the window to a larger size.  The
+  programmer may, however.
+
+  Note that while you can set the maximum size for all widgets, it has
+  no effect except for top-level widgets.
+
   \sa maximumSize(), setMinimumSize(), setSizeIncrement(), size()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setMaximumSize( int w, int h )
 {
+    createExtra();
+    extra->maxw = w;
+    extra->maxh = h;
     if ( testWFlags(WType_Overlap) ) {
-	createExtra();
-	extra->maxw = w;
-	extra->maxh = h;
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, ident, extra, &size_hints );
@@ -1110,6 +1120,9 @@ void QWidget::setMaximumSize( int w, int h )
   window, the size will move in steps of \e w pixels horizontally and
   \e h pixels vertically.
 
+  Note that while you can set the size increment for all widgets, it
+  has no effect except for top-level widgets.
+
   \warning The size increment has no effect under Windows.
 
   \sa sizeIncrement(), setMinimumSize(), setMaximumSize(), size()
@@ -1117,10 +1130,10 @@ void QWidget::setMaximumSize( int w, int h )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
+    createExtra();
+    extra->incw = w;
+    extra->inch = h;
     if ( testWFlags(WType_Overlap) ) {
-	createExtra();
-	extra->incw = w;
-	extra->inch = h;
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, ident, extra, &size_hints );
