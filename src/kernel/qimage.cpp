@@ -6,7 +6,7 @@
 **
 ** Created : 950207
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -1037,11 +1037,21 @@ QImage::Endian QImage::systemByteOrder()
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #if defined(Q_OS_WIN32)
-#undef open					// kill utterly stupid #defines
+#undef open
 #undef close
 #undef read
 #undef write
 #endif
+#endif
+
+// POSIX Large File Support on broken compilers redefines open -> open64
+#if defined(open)
+#undef open
+#endif
+
+// POSIX Large File Support on broken compilers redefines truncate -> truncate64
+#if defined(truncate)
+#undef truncate
 #endif
 
 /*!

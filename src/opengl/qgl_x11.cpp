@@ -5,7 +5,7 @@
 **
 ** Created : 970112
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the opengl module of the Qt GUI Toolkit.
 **
@@ -54,6 +54,10 @@
 #include <X11/Xatom.h>
 #include <X11/Xmu/StdCmap.h>
 
+// POSIX Large File Support on broken compilers redefines truncate -> truncate64
+#if defined(truncate)
+#undef truncate
+#endif
 
 
 /*
