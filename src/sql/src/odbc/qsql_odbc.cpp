@@ -605,7 +605,10 @@ QVariant QODBCResult::data( int field )
 		if ( lengthIndicator == SQL_NULL_DATA )
 		    isNull = TRUE;
 	    }
-	    fieldCache[ current ] = QVariant( QDate( dbuf.year, dbuf.month, dbuf.day ) );
+	    if ( !isNull )
+		fieldCache[ current ] = QVariant( QDate( dbuf.year, dbuf.month, dbuf.day ) );
+	    else
+		fieldCache[ current ] = QVariant( QDate() );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Time:
@@ -621,7 +624,10 @@ QVariant QODBCResult::data( int field )
 		if ( lengthIndicator == SQL_NULL_DATA )
 		    isNull = TRUE;
 	    }
-	    fieldCache[ current ] = QVariant( QTime( tbuf.hour, tbuf.minute, tbuf.second ) );
+	    if ( !isNull )
+		fieldCache[ current ] = QVariant( QTime( tbuf.hour, tbuf.minute, tbuf.second ) );
+	    else
+		fieldCache[ current ] = QVariant( QTime() );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::DateTime:
@@ -637,7 +643,10 @@ QVariant QODBCResult::data( int field )
 		if ( lengthIndicator == SQL_NULL_DATA )
 		    isNull = TRUE;
 	    }
-	    fieldCache[ current ] = QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ), QTime( dtbuf.hour, dtbuf.minute, dtbuf.second ) ) );
+	    if ( !isNull )
+		fieldCache[ current ] = QVariant( QDateTime( QDate( dtbuf.year, dtbuf.month, dtbuf.day ), QTime( dtbuf.hour, dtbuf.minute, dtbuf.second ) ) );
+	    else
+		fieldCache[ current ] = QVariant( QDateTime() );		
 	    nullCache[ current ] = isNull;
 	    break;
 	default:
@@ -1120,6 +1129,9 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 	count++;
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
+    QSqlIndex priIdx = primaryIndex( tablename );
+    for ( uint i = 0; i < priIdx.count(); ++i ) 
+	fil.field( priIdx.field(i)->name() )->setPrimaryIndex( TRUE );
     return fil;
 }
 
