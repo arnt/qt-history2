@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#29 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#30 $
 **
 ** Implementation of Network Extension Library
 **
@@ -36,7 +36,8 @@ QFtp::QFtp()
 {
     commandSocket = new QSocket( this );
     dataSocket = new QSocket( this );
-
+    dataSocket->setMode( QSocket::Ascii );
+    
     connect( commandSocket, SIGNAL( hostFound() ),
 	     this, SLOT( hostFound() ) );
     connect( commandSocket, SIGNAL( connected() ),
@@ -208,39 +209,92 @@ void QFtp::readyRead()
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 
-    emit data( s, operationInProgress() );
-
     if ( !url() )
 	return;
 
-    if ( s.left( 3 ) == "220" ) { // expect USERNAME
+    int code = s.left( 3 ).toInt();
+    if ( s.left( 1 ) == "1" )
+	okButTryLater( code, s );
+    else if ( s.left( 1 ) == "2" )
+	okGoOn( code, s );
+    else if ( s.left( 1 ) == "3" )
+	okButNeedMoreInfo( code, s );
+    else if ( s.left( 1 ) == "4" )
+	errorForNow( code, s );
+    else if ( s.left( 1 ) == "5" )
+	errorForgetIt( code, s );
+    else
+	;// starnge things happen...
+}
+
+void QFtp::okButTryLater( int code, const QCString & )
+{
+    switch ( code ) {
+    }
+}
+
+void QFtp::okGoOn( int code, const QCString &data )
+{
+    switch ( code ) {
+    case 220: { // expect USERNAME
 	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
 	QString cmd = "USER " + user + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
-    } else if ( s.left( 3 ) == "331" ) { // expect PASSWORD
+    } break;
+    case 230: // succesfully logged in
+	connectionReady = TRUE;
+	break;
+    case 227: { // open the data connection for LIST (passive mode)
+	if ( operationInProgress() &&
+	     operationInProgress()->operation() == OpListChildren ) { 
+	    QCString s = data;
+	    int i = s.find( "(" );
+	    int i2 = s.find( ")" );
+	    s = s.mid( i + 1, i2 - i - 1 );
+	    if ( !dataSocket->host().isEmpty() )
+		dataSocket->close();
+	    QStringList lst = QStringList::split( ',', s );
+	    int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
+	    dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
+	}
+    } break;
+    case 250: { // cwd succesfully
+	// list dir
+	if ( operationInProgress() && !passiveMode &&
+	     operationInProgress()->operation() == OpListChildren ) { 
+	    commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
+	    emit start( operationInProgress() );
+	    passiveMode = TRUE;
+	}
+    } break;
+    case 226: // listing directory (in passive mode) finished and data socket closing
+	break;
+    }
+}
+
+void QFtp::okButNeedMoreInfo( int code, const QCString & )
+{
+    switch ( code ) {
+    case 331: // expect PASSWORD
 	QString pass = url()->pass().isEmpty() ? QString( "info@troll.no" ) : url()->pass();
 	QString cmd = "PASS " + pass + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
-    } else if ( s.left( 3 ) == "230" ) { // succesfully logged in
-	connectionReady = TRUE;
-    } else if ( s.left( 3 ) == "227" && operationInProgress() &&
-		operationInProgress()->operation() == OpListChildren ) { // open the data connection for LIST
-	int i = s.find( "(" );
-	int i2 = s.find( ")" );
-	s = s.mid( i + 1, i2 - i - 1 );
-	if ( !dataSocket->host().isEmpty() )
-	    dataSocket->close();
-	QStringList lst = QStringList::split( ',', s );
-	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
-	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-    } else if ( s.left( 3 ) == "250" && operationInProgress() && !passiveMode &&
-		operationInProgress()->operation() == OpListChildren ) { // cwd succesfully, list dir
-	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
-	emit start( operationInProgress() );
-	passiveMode = TRUE;
-    } else if ( s.left( 3 ) == "530" ) { // Login incorrect
+	break;
+    }
+}
+
+void QFtp::errorForNow( int code, const QCString & )
+{
+    switch ( code ) {
+    }
+}
+
+void QFtp::errorForgetIt( int code, const QCString & )
+{
+    switch ( code ) {
+    case 530: // Login incorrect
 	close();
 	QString msg( tr( "Login Incorrect" ) );
 	QNetworkOperation *op = operationInProgress();
@@ -252,8 +306,8 @@ void QFtp::readyRead()
 	clearOperationQueue();
 	emit finished( op );
 	reinitCommandSocket();
-    } else
-	;//qWarning( "unknown result: %s", s.data() );
+    break;
+    }
 }
 
 void QFtp::dataHostFound()
@@ -262,6 +316,7 @@ void QFtp::dataHostFound()
 
 void QFtp::dataConnected()
 {
+    // change dir first
     if ( operationInProgress() && operationInProgress()->operation() == OpListChildren ) {
 	QString path = url()->path().isEmpty() ? QString( "/" ) : url()->path();
 	QString cmd = "CWD " + path + "\r\n";
@@ -273,6 +328,7 @@ void QFtp::dataConnected()
 void QFtp::dataClosed()
 {
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
+
     passiveMode = FALSE;
     emit finished( operationInProgress() );
 
@@ -294,6 +350,7 @@ void QFtp::dataClosed()
 	     this, SLOT( dataClosed() ) );
     connect( dataSocket, SIGNAL( readyRead() ),
 	     this, SLOT( dataReadyRead() ) );
+    dataSocket->setMode( QSocket::Ascii );
     reinitCommandSocket();
 }
 
@@ -304,11 +361,10 @@ void QFtp::dataReadyRead()
 	s.resize( dataSocket->bytesAvailable() );
 	dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
 	QString ss = QString::fromLatin1( s.copy() );
-	emit data( s, operationInProgress() );
 	if ( !tmp.isEmpty() )
 	    ss.prepend( tmp );
 	tmp = QString::null;
-	QStringList lst = QStringList::split( '\n', ss );
+	QStringList lst = QStringList::split( "\r\n", ss );
 	QStringList::Iterator it = lst.begin();
 	for ( ; it != lst.end(); ++it ) {
 	    QUrlInfo inf;
