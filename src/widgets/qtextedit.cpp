@@ -2235,13 +2235,18 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
     if ( !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) && removeSelected )
 	removeSelectedText();
     QTextCursor c2 = *cursor;
-    checkUndoRedoInfo( UndoRedoInfo::Insert );
-    if ( !undoRedoInfo.valid() ) {
-	undoRedoInfo.id = cursor->parag()->paragId();
-	undoRedoInfo.index = cursor->index();
-	undoRedoInfo.d->text = QString::null;
+    int oldLen = 0;
+
+    if ( undoEnabled && !isReadOnly() ) {
+	checkUndoRedoInfo( UndoRedoInfo::Insert );
+	if ( !undoRedoInfo.valid() ) {
+	    undoRedoInfo.id = cursor->parag()->paragId();
+	    undoRedoInfo.index = cursor->index();
+	    undoRedoInfo.d->text = QString::null;
+	}
+	oldLen = undoRedoInfo.d->text.length();
     }
-    int oldLen = undoRedoInfo.d->text.length();
+    
     lastFormatted = checkNewLine && cursor->parag()->prev() ?
 		    cursor->parag()->prev() : cursor->parag();
     QTextCursor oldCursor = *cursor;
@@ -2259,15 +2264,17 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
-    undoRedoInfo.d->text += txt;
-
-    if ( !doc->preProcessor() ) {
-	for ( int i = 0; i < (int)txt.length(); ++i ) {
-	    if ( txt[ i ] != '\n' && c2.parag()->at( c2.index() )->format() ) {
-		c2.parag()->at( c2.index() )->format()->addRef();
-		undoRedoInfo.d->text.setFormat( oldLen + i, c2.parag()->at( c2.index() )->format(), TRUE );
+    
+    if ( undoEnabled && !isReadOnly() ) {
+	undoRedoInfo.d->text += txt;
+	if ( !doc->preProcessor() ) {
+	    for ( int i = 0; i < (int)txt.length(); ++i ) {
+		if ( txt[ i ] != '\n' && c2.parag()->at( c2.index() )->format() ) {
+		    c2.parag()->at( c2.index() )->format()->addRef();
+		    undoRedoInfo.d->text.setFormat( oldLen + i, c2.parag()->at( c2.index() )->format(), TRUE );
+		}
+		c2.gotoNextLetter();
 	    }
-	    c2.gotoNextLetter();
 	}
     }
 
@@ -2957,6 +2964,8 @@ QString QTextEdit::text( int para ) const
   QMimeSourceFactory uses to resolve the locations of files and images.
   (See \l{QTextEdit::QTextEdit()}.) It is passed to the text edit's
   QMimeSourceFactory when quering data.
+  
+  Note that the undo/redo history is cleared by this function.
 
   \sa text(), setTextFormat()
 */
@@ -3654,6 +3663,7 @@ int QTextEdit::heightForWidth( int w ) const
 }
 
 /*! Appends the text \a text to the end of the text edit.
+    Note that the undo/redo history is cleared by this function.
  */
 
 void QTextEdit::append( const QString &text )
@@ -3664,6 +3674,11 @@ void QTextEdit::append( const QString &text )
 	return;
     }
 #endif
+    // flush and clear the undo/redo stack if necessary
+    if ( isReadOnly() && undoRedoInfo.valid() ) {
+	undoRedoInfo.clear();
+	doc->commands()->clear(); 
+    }
     doc->removeSelection( QTextDocument::Standard );
     TextFormat f = doc->textFormat();
     if ( f == AutoText ) {
@@ -3682,10 +3697,11 @@ void QTextEdit::append( const QString &text )
 	cursor->gotoEnd();
 	if ( cursor->index() > 0 )
 	    cursor->splitAndInsertEmptyParag();
-	insert( text, FALSE, TRUE );
+ 	cursor->insert( text, TRUE );
 	*cursor = oldc;
 	if ( !scrollToEnd )
 	    blockEnsureCursorVisible = FALSE;
+	emit textChanged();
     } else if ( f == RichText ) {
 	doc->setRichTextInternal( text );
 	repaintChanged();
