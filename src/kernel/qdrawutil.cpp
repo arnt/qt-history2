@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#46 $
 **
 ** Implementation of draw utilities
 **
@@ -877,6 +877,8 @@ void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 	default:
 #if defined(CHECK_RANGE)
 	    warning( "qDrawArrow: Requested GUI style not supported" );
+#else
+	    ;
 #endif
     }
 }

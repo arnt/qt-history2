@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#33 $
 **
 ** Implementation of QGVector class
 **
@@ -399,6 +399,8 @@ void QGVector::warningIndexRange( uint i )
 {
 #if defined(DEBUG)
     warning( "QGVector::operator[]: Index %d out of range", i );
+#else
+    Q_UNUSED( i )
 #endif
 }
 

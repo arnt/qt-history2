@@ -314,7 +314,7 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     // process only len chars...
     int l;
-    if( l>0 )
+    if( len_in_out > 0 )
 	l = QMIN((int)uc.length(),len_in_out);
     else
 	l = (int)uc.length();

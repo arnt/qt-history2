@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#29 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2148,7 +2148,7 @@ void QMultiLineEdit::setFont( const QFont &font )
   Sets a new marked text limit, does not repaint the widget.
 */
 
-void QMultiLineEdit::newMark( int posx, int posy, bool copy )
+void QMultiLineEdit::newMark( int posx, int posy, bool /*copy*/ )
 {
     if ( markIsOn && markDragX == posx && markDragY == posy &&
 	 cursorX   == posx && cursorY   == posy )

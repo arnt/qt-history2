@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#149 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#150 $
 **
 ** Global type declarations and definitions
 **
@@ -426,6 +426,13 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #define Q_NO_DEAD_CODE
 #endif
 
+//
+// Use to avoid "unused parameter" warnings
+//
+
+#define Q_UNUSED(x) x=x;
+
+
 
 Q_EXPORT void debug( const char *, ... )	// print debug message
 #if defined(_CC_GNU_)
@@ -445,12 +452,18 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #endif
 ;
 
+#if !defined(ASSERT)
+#if !defined(NO_CHECK)
 #if defined(QT_FATAL_ASSERT)
 #define ASSERT(x)  if ( !(x) )\
 	fatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #else
 #define ASSERT(x)  if ( !(x) )\
 	warning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
+#endif
+#else
+#define ASSERT(x)
+#endif
 #endif
 
 Q_EXPORT bool qt_check_pointer( bool c, const char *, int );

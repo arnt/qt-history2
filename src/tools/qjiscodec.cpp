@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qjiscodec.cpp#6 $
 **
 ** Implementation of QJisCodec class
 **
@@ -109,7 +109,8 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
     QCString result;
-    Iso2022State state, prev = Ascii;
+    Iso2022State state = Ascii;
+    Iso2022State prev = Ascii;
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	uint j;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#209 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#210 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12801,7 +12801,7 @@ int QLigature::match(QString & str, unsigned int index)
     if(!current()) return 0;
 	
     Q_UINT16 lig = current() + 2;
-    Q_UINT16 ch;
+    Q_UINT16 ch = 0;
 
     while ((i < str.length()) && (ch = decomp_map[lig])) {
 	if (str[(int)i] != QChar(ch))

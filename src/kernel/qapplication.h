@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#109 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#110 $
 **
 ** Definition of QApplication class
 **
@@ -36,13 +36,6 @@
 #endif // QT_H
 
 class QStyle;
-
-
-#if defined(TrueColor)
-// X11/X.h #defines TrueColor, so it can't be used in any class or enum
-#error "TrueColor already #defined by X11/X.h. Include X11/X.h after qapplication.h"
-#endif
-
 
 extern Q_EXPORT QApplication *qApp;		// global application object
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#44 $
 **
 ** Implementation of QGArray class
 **
@@ -653,5 +653,7 @@ void QGArray::msg_index( uint index )
 {
 #if defined(CHECK_RANGE)
     warning( "QGArray::at: Absolute index %d out of range", index );
+#else
+    Q_UNUSED( index )
 #endif
 }

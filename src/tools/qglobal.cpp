@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#64 $
 **
 ** Global functions
 **
@@ -153,7 +153,7 @@ static msg_handler handler = 0;			// pointer to debug handler
   sent to the debugger.
 
   \warning The internal buffer is limited to 512 bytes (including the
-  0-terminator.
+  0-terminator).
 
   \sa warning(), fatal(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
@@ -197,7 +197,7 @@ void debug( const char *msg, ... )
   sent to the debugger.
 
   \warning The internal buffer is limited to 512 bytes (including the
-  0-terminator.
+  0-terminator).
 
   \sa debug(), fatal(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
@@ -243,7 +243,7 @@ void warning( const char *msg, ... )
   sent to the debugger.
 
   \warning The internal buffer is limited to 512 bytes (including the
-  0-terminator.
+  0-terminator).
 
   \sa debug(), warning(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
@@ -313,10 +313,6 @@ void fatal( const char *msg, ... )
   and exits.  If \e p is not null, nothing happens.
 
   This is really a macro defined in qglobal.h.
-
-  \warning CHECK_PTR only works for the development release of the Qt
-  library.  In the release library, CHECK_PTR will be substituted with
-  nothing.
 
   Example:
   \code

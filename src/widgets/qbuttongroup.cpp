@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#67 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -457,7 +457,7 @@ void QButtonGroup::moveFocus( int key )
 	return;
 
     QWidget * candidate = 0;
-    int bestScore;
+    int bestScore = -1;
 
     QPoint goal( f->mapToGlobal( f->geometry().center() ) );
 

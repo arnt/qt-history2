@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#346 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#347 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -325,6 +325,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    // #Handling of various X11 factors can be added here
 	    QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	    xd->x_depth = a.depth;
+	    //### also set visual!
 	    setX11Data( xd );
 	    delete xd;
 	}

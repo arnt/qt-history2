@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#197 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#198 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -216,6 +216,9 @@ static inline bool checkInsertIndex( const char *method, const char * name,
     if ( range_err )
 	warning( "QComboBox::%s: (%s) Index %d out of range",
 		 method, name ? name : "<no name>", *index );
+#else
+    Q_UNUSED( method )
+    Q_UNUSED( name )
 #endif
     if ( *index < 0 )				// append
 	*index = count;
@@ -231,6 +234,9 @@ static inline bool checkIndex( const char *method, const char * name,
     if ( range_err )
 	warning( "QComboBox::%s: (%s) Index %i out of range",
 		 method, name ? name : "<no name>", index );
+#else
+    Q_UNUSED( method )
+    Q_UNUSED( name )
 #endif
     return !range_err;
 }

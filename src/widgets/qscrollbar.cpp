@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#126 $
 **
 ** Implementation of QScrollBar class
 **
@@ -743,10 +743,12 @@ void QScrollBar::action( QStyle::ScrollControl control )
 	    emit prevPage();
 	    subtractPage();
 	    break;
-#if defined(CHECK_RANGE)
 	default:
+#if defined(CHECK_RANGE)
 	    warning( "QScrollBar::action: (%s) internal error",
 		     name( "unnamed" ) );
+#else
+	    ;
 #endif
     }
 }

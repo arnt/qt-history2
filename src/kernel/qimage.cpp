@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#216 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -484,10 +484,14 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 */
 
 
+
 void QImage::warningIndexRange( const char *func, int i )
 {
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
     warning( "QImage::%s: Index %d out of range", func, i );
+#else
+    Q_UNUSED( func )
+    Q_UNUSED( i )
 #endif
 }
 

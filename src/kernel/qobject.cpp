@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#193 $
 **
 ** Implementation of QObject class
 **
@@ -23,15 +23,14 @@
 **
 *****************************************************************************/
 
+#include "qapplication.h"
 #include "qobject.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qsignalslotimp.h"
 #include "qregexp.h"
 #include <ctype.h>
-#if defined(DEBUG)
-#include "qapplication.h"
-#endif
+
 
 /*! \class Qt qnamespace.h
   \brief The Qt class is a namespace for miscellaneous identifiers
@@ -1343,6 +1342,9 @@ void QObject::badSuperclassWarning( const char *className,
     "    Signal/slot behavior is undefined.\n",
     className, className,
     superclassName );
+#else
+    Q_UNUSED( className )
+    Q_UNUSED( superclassName )
 #endif
 }
 
@@ -1907,6 +1909,9 @@ static void dumpRecursive( int level, QObject *object )
 	    }
 	}
     }
+#else
+    Q_UNUSED( level )
+    Q_UNUSED( object )
 #endif
 }
 
