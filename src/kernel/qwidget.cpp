@@ -4744,7 +4744,7 @@ bool QWidget::customWhatsThis() const
 
   Call this function if the sizeHint() or sizePolicy() have changed.
 
-  For explicitely hidden widgets, updateGeometry() is a noop. The
+  For explicitly hidden widgets, updateGeometry() is a no-op. The
   layout system will be notified as soon as the widget is shown.
 */
 
