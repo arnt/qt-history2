@@ -1,0 +1,108 @@
+#include <qapplication.h>
+#include <qtablewidget.h>
+
+class SpreadSheetItem : public QTableWidgetItem
+{
+public:
+    SpreadSheetItem(QTableWidget *t) : table(t) {}
+
+    QVariant display() const {
+        QStringList list = formula.split(" ");
+        if (list.count() < 3)
+            return formula;
+
+        QString op = list.at(0).toLower();
+        int r1 = list.at(1).at(0).digitValue() - 1;
+        int c1 = list.at(1).at(1).digitValue() - 1;
+        int r2 = list.at(2).at(0).digitValue() - 1;
+        int c2 = list.at(2).at(1).digitValue() - 1;
+        QTableWidgetItem *start = table->item(r1, c1);
+        QTableWidgetItem *end = table->item(r2, c2);
+
+        if (!start || !end)
+            return "Error: Item does not exist!";
+
+        if (op == "sum") {
+            int sum = 0;
+            for (int r=table->row(start); r<=table->row(end);  ++r)
+                for (int c=table->column(start); c<=table->column(end); ++c)
+                    sum += table->item(r, c)->text().toInt();
+            return (sum);
+        } else if (op == "+") {
+            return (start->text().toInt() + end->text().toInt());
+        } else if (op == "-") {
+            return (start->text().toInt() - end->text().toInt());
+        } else if (op == "*") {
+            return (start->text().toInt() * end->text().toInt());
+        } else if (op == "/") {
+            return (start->text().toInt() / end->text().toInt());
+        } else {
+            return "Error: Operaion does not exist!";
+        }
+        return QVariant::Invalid;
+    }
+
+    QVariant data(int role) const {
+        if (role == QAbstractItemModel::DisplayRole)
+            return display();
+        if (role == QAbstractItemModel::EditRole)
+            return formula;
+
+        QString t = text();
+        bool numberOk;
+        int number = t.toInt(&numberOk);
+
+        // text color
+        if (role == QAbstractItemModel::TextColorRole) {
+            if (!numberOk)
+                return QColor(Qt::black);
+            else if (number < 0)
+                return QColor(Qt::red);
+            return QColor(Qt::blue);
+        }
+
+        // text alignment
+        if (role == QAbstractItemModel::TextAlignmentRole) {
+            if (!t.isEmpty() && (t.at(0).isNumber() || t.at(0) == '-'))
+                return (int)(Qt::AlignRight | Qt::AlignVCenter);
+        }
+
+        // font
+        if (role == QAbstractItemModel::FontRole) {
+            if (numberOk)
+                return QFont("Courier", 14, QFont::Bold);
+            return QFont("Arial", 14, QFont::Normal);
+        }
+
+        return QTableWidgetItem::data(role);
+    }
+
+    void setData(int role, const QVariant &value) {
+        if (role == QAbstractItemModel::EditRole || role == QAbstractItemModel::DisplayRole) {
+            formula = value.toString();
+            table->viewport()->update();
+            return;
+        }
+        QTableWidgetItem::setData(role, value);
+    }
+
+private:
+    QString formula;
+    QTableWidget *table;
+};
+
+static const int numRows = 9;
+static const int numColumns = 9;
+
+int main(int argc, char** argv) {
+    QApplication app(argc, argv);
+    QTableWidget table(numRows, numColumns, 0);
+    app.setMainWidget(&table);
+
+    for (int r=0; r<numRows; ++r)
+        for (int c=0; c<numColumns; ++c)
+            table.setItem(r, c, new SpreadSheetItem(&table));
+
+    table.show();
+    return app.exec();
+}
