@@ -3682,22 +3682,45 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    widget->topData()->parentWinId = event->xreparent.parent;
 	break;
 
-    case SelectionRequest:
-	if ( qt_xdnd_selection ) {
-	    XSelectionRequestEvent *req = &event->xselectionrequest;
-	    if ( req && req->selection == qt_xdnd_selection ) {
-		qt_xdnd_handle_selection_request( req );
-		break;
-	    }
-	}
-	// FALL THROUGH
-    case SelectionClear:
-    case SelectionNotify:
-	if ( qt_clipboard ) {
+    case SelectionRequest: {
+	XSelectionRequestEvent *req = &event->xselectionrequest;
+	if (! req)
+	    break;
+
+	if ( qt_xdnd_selection && req->selection == qt_xdnd_selection ) {
+	    qt_xdnd_handle_selection_request( req );
+
+	} else if (qt_clipboard) {
 	    QCustomEvent e( QEvent::Clipboard, event );
 	    QApplication::sendSpontaneousEvent( qt_clipboard, &e );
 	}
 	break;
+    }
+    case SelectionClear: {
+	XSelectionClearEvent *req = &event->xselectionclear;
+	// don't deliver dnd events to the clipboard, it gets confused
+	if (! req || qt_xdnd_selection && req->selection == qt_xdnd_selection)
+	    break;
+
+	if (qt_clipboard) {
+	    QCustomEvent e( QEvent::Clipboard, event );
+	    QApplication::sendSpontaneousEvent( qt_clipboard, &e );
+	}
+	break;
+    }
+
+    case SelectionNotify: {
+	XSelectionEvent *req = &event->xselection;
+	// don't deliver dnd events to the clipboard, it gets confused
+	if (! req || qt_xdnd_selection && req->selection == qt_xdnd_selection)
+	    break;
+
+	if (qt_clipboard) {
+	    QCustomEvent e( QEvent::Clipboard, event );
+	    QApplication::sendSpontaneousEvent( qt_clipboard, &e );
+	}
+	break;
+    }
 
     default:
 	break;
