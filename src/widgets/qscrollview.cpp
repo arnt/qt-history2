@@ -480,8 +480,11 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     setLineWidth( style().defaultFrameWidth() );
 }
 
-/*! Destructs the QScrollView.  Any children added with addChild()
-  will be destructed. */
+
+/*!
+  Destructs the QScrollView.  Any children added with addChild()
+  will be destructed.
+*/
 
 QScrollView::~QScrollView()
 {
