@@ -67,12 +67,15 @@ int main( int argc, char **argv )
 	    TML all = tor.messages();
 	    TML::Iterator it;
 	    for ( it = all.begin(); it != all.end(); ++it ) {
-		if ( (*it).context() == 0 || (*it).sourceText() == 0 ) {
+		if ( (*it).sourceText() == 0 ) {
 		    ignored++;
 		} else {
-		    metator.insert( MetaTranslatorMessage((*it).context(),
+		    QCString context = (*it).context();
+		    if ( context.isEmpty() )
+			context = "@default";
+		    metator.insert( MetaTranslatorMessage(context,
 				    (*it).sourceText(), (*it).comment(),
-				    (*it).translation(),
+				    (*it).translation(), FALSE,
 				    MetaTranslatorMessage::Finished) );
 		}
 	    }
