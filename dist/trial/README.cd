@@ -4,14 +4,12 @@ Qt C++ Toolkit for Cross-Platform GUI & Application Development
 
 Evaluation CD
 =============
-
 Thank you for choosing to evaluate Qt!
 
 This CD contains evaluation versions of Qt/X11, Qt/Windows, Qt/Mac, 
 and Qt/Embedded. Qt/X11 is supported on Linux, Solaris, HP-UX, Irix, AIX, 
 Tru64, and most other Unix systems. Qt/Windows is supported on 
-Microsoft Windows 95, 98, NT, 2000, and XP. Qt/Mac is supported on Mac OS X.
-Qt/Embedded is supported on embedded Linux.
+Microsoft Windows 95, 98, NT, 2000, and XP. Qt/Mac is supported on Mac OS X 10.2. Qt/Embedded is supported on embedded Linux.
 
 Installation instructions for each platform are given below. Please read 
 the file LICENSE, found in the package for each platform, and agree to its 
@@ -30,13 +28,12 @@ The Trolltech Team
 
 Installation instructions for Qt/Windows
 ========================================
-
-To use the evaluation, you need to have Microsoft Visual C++ v.6 or
+To use the evaluation, you need to have Microsoft Visual C++ v.6, .NET or
 Borland C++ v. 5.5 installed. In the Windows directory on this CD, you
 will find two versions of the Qt/Windows evaluation package:
 
-qt-win-eval-msvc-3.0.5.exe
-qt-win-eval-borland-3.0.5.exe
+qt-win-eval-msvc-3.1.1.exe
+qt-win-eval-borland-3.1.1.exe
 
 If you want to use Qt with Microsoft Visual C++, select the "msvc"
 package. Otherwise, select the "borland" package to use Qt with
@@ -48,7 +45,7 @@ selected and follow the instructions in the installation wizard.
 You will be asked to enter the following information:
 Name:    Qt Evaluator
 Company: CD
-Serial:  jri3ul9j55a0
+Serial:  2beemfpv92c2
 
 Note: all fields are case-sensitive!
 
@@ -62,13 +59,13 @@ Installation instructions for Qt/Mac
 You will find the Qt/Mac evaluation version in the MacOS directory on 
 this CD.
 
-Start the installation by double-clicking on the qt-mac-eval-3.0.5.sit
-package to unstuff it. Then double-click the qt-mac-eval-3.0.5 file.
+Start the installation by double-clicking on the QtMac-Eval-3.1.1.sit
+package to unstuff it. Then double-click the QtMac-Eval-3.1.1 application.
 
 The installation wizard will ask you for the following information:
 Name:    Qt Evaluator
 Company: CD
-Serial:  jri3ul9j55a0
+Serial:  2beemfpv92c2
 
 Note: all fields are case-sensitive!
 
@@ -83,16 +80,16 @@ Installation instructions for Qt/X11
 In the Unix directory on this CD, you will find the Qt/X11 evaluation
 package:
 
-qt-x11-eval-3.0.5.tar
+qt-x11-eval-3.1.1.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
-tar xf /cdrom/Unix/qt-x11-eval-3.0.5.tar
+tar xf /cdrom/Unix/qt-x11-eval-3.1.1.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-x11-eval-3.0.5. Further installation
-instructions are then available in the file qt-x11-eval-3.0.5/INSTALL.
+create a directory called qt-x11-eval-3.1.1. Further installation
+instructions are then available in the file qt-x11-eval-3.1.1/INSTALL.
 
 
 Installation instructions for Qt/Embedded
@@ -101,20 +98,20 @@ Installation instructions for Qt/Embedded
 In the Embedded directory on this CD, you will find the Qt/Embedded 
 evaluation packages:
 
-qt-embedded-eval-2.3.2.tar
-qt-embedded-eval-3.0.5.tar
+qt-embedded-2.3.2-eval.tar
+qt-embedded-eval-3.1.1.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
-tar xf /cdrom/Unix/qt-embedded-eval-2.3.2.tar 
+tar xf /cdrom/Unix/qt-embedded-eval-2.3.2.tar
 and/or:
-tar xf /cdrom/Unix/qt-embedded-eval-3.0.5.tar
+tar xf /cdrom/Unix/qt-embedded-eval-3.1.1.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.0.5.
+create a directory called qt-embedded-eval-2.3.2 or qt-embedded-eval-3.1.1.
 Further installation instructions are then available in the file 
-qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.0.5/INSTALL.
+qt-embedded-eval-2.3.2/INSTALL or qt-embedded-eval-3.1.1/INSTALL.
 
 
 The Qt Reference Manual
