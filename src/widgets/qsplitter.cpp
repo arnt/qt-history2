@@ -620,7 +620,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	}
     } else {
 	int left = pick( w->pos() );
-	int right, dd, newRight, newLeft, nextPos;
+	int right, dd,/* newRight,*/ newLeft, nextPos;
 	if ( QApplication::reverseLayout() && orient == Horizontal ) {
 	    dd = pos - left + 1;
 	    dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
@@ -630,12 +630,12 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	    right = pick( w->geometry().bottomRight() );
 	    dd = right - pos + 1;
 	    dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
-	    newRight = pos+dd-1;
+	    /*newRight = pos+dd-1;*/
 	    newLeft = pos;
 	    nextPos = newLeft + dd;
 	}
 	setG( w, newLeft, dd, true );
-	//if( right != newRight )
+	/*if( right != newRight )*/
 	moveAfter( nextPos, id+1, upLeft );
     }
 }

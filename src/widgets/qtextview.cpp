@@ -1609,9 +1609,11 @@ int QTextView::heightForWidth( int w ) const
     int oldw = doc->width();
     doc->doLayout( 0, w );
     return doc->height();
+/* ### what is this dead code for?
     doc->setWidth( oldw );
     doc->invalidate();
     ( (QTextView*)this )->formatMore();
+*/
 }
 
 void QTextView::append( const QString& text )

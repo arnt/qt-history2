@@ -338,8 +338,10 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    QString month( QString::number( m ).rightJustify( 2, '0' ) );
 	    QString day( QString::number( d ).rightJustify( 2, '0' ) );
 	    return QString::number( y ) + "-" + month + "-" + day;
-	    break;
 	}
+#if !defined(Q_STATEMENT_NOT_REACHED)
+	break;
+#endif
     default:
     case Qt::TextDate:
 	{
@@ -350,12 +352,11 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    t.sprintf( " %d %d", d, y);
 	    buf += t;
 	    return buf;
-	    break;
 	}	
-    }
-#if defined(Q_MISSING_RETURN_STATEMENT)
-    return QString::null;
+#if !defined(Q_STATEMENT_NOT_REACHED)
+	break;
 #endif
+    }
 }
 
 /*!
@@ -935,9 +936,13 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 	    int second( s.mid( 6, 2 ).toInt() );
 	    return QTime( hour, minute, second );
 	}
+#if !defined(Q_STATEMENT_NOT_REACHED)
 	break;
+#endif
     }
+#if !defined(Q_STATEMENT_NOT_REACHED)
     return QTime();
+#endif
 }
 
 /*!
@@ -1265,8 +1270,10 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     case Qt::ISODate:
 	{
 	    return QString( d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate ) );
-	    break;
 	}
+#if !defined(Q_STATEMENT_NOT_REACHED)
+	break;
+#endif
     default:
     case Qt::TextDate:
 	{
@@ -1280,12 +1287,11 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 	    buf += ' ';
 	    buf += QString().setNum(d.year());
 	    return buf;	    
-	    break;
 	}	
-    }
-#if defined(Q_MISSING_RETURN_STATEMENT)
-    return QString::null;
+#if !defined(Q_STATEMENT_NOT_REACHED)
+	break;
 #endif
+    }
 }
 
 /*!

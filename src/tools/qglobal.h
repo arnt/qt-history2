@@ -171,7 +171,6 @@
 // does not define __EDG__
 #  define Q_HAS_BOOL_TYPE
 #  define Q_STATEMENT_NOT_REACHED
-#  define Q_MISSING_RETURN_STATEMENT
 #elif defined(applec)
 #  define _CC_MPW_
 #elif defined(__MWERKS__)
