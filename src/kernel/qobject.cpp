@@ -1827,7 +1827,7 @@ static const QMetaEnum::Item enum_QObject0[10] = {
     { "AlignHCenter",  (int) Qt::AlignHCenter },
     { "AlignTop",  (int) Qt::AlignTop },
     { "AlignBottom",  (int) Qt::AlignBottom },
-    { "AlignVCenter",  (int) Qt::AlignTop },
+    { "AlignVCenter",  (int) Qt::AlignVCenter },
     { "AlignCenter", (int) Qt::AlignCenter },
     { "AlignAuto", (int) Qt::AlignAuto },
     { "AlignJustify", (int) Qt::AlignJustify },
@@ -1846,11 +1846,12 @@ static const QMetaEnum::Item enum_QObject2[3] = {
 };
 
 static const QMetaEnum enum_tbl_QObject[3] = {
-    { "Alignment", 10, enum_QObject0, FALSE },
+    { "Alignment", 10, enum_QObject0, TRUE },
     { "Orientation", 2, enum_QObject1, FALSE },
     { "TextFormat", 3, enum_QObject2, FALSE }
 };
 #endif // QT_NO_PROPERTIES
+
 /*!
   Initializes the \link metaObject() meta object\endlink of this
   object. This method is automatically executed on demand.
