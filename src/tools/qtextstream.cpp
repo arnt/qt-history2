@@ -456,7 +456,10 @@ int QStringBuffer::getch()
 	setStatus( IO_ReadError );
 	return -1;
     }
-    return *((char*)s->unicode() + ioIndex++);
+    QChar *ch = (QChar*)((ushort*)s->unicode() + ioIndex/2);
+    int retval = (ioIndex&01) ? ch->row() : ch->cell();
+    ioIndex++;
+    return retval;
 }
 
 int QStringBuffer::putch( int ch )
