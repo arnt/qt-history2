@@ -105,10 +105,10 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     list of fields which correspond to the fields in the table or
     view.
 
-    When positioned on a valid record, the browse buffer
-    contains the values of the current record's fields from the
-    database.  The edit buffer is used for editing existing records
-    and inserting new records.
+    When positioned on a valid record, the browse buffer contains the
+    values of the current record's fields from the database.  The edit
+    buffer is separate, and is used for editing existing records and
+    inserting new records.
 
     For browsing data, a cursor must first select() data from the
     database. After a successful select() the cursor is active
@@ -130,23 +130,23 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 
     In the above example, a cursor is created specifying a table or
     view name in the database. Then, select() is called, which can be
-    parameterised to filter and order the records retrieved. Each
-    record in the cursor is retrieved using next().  When next()
-    returns FALSE, there are no more records to process, and the loop
-    terminates.
+    optionally parameterised to filter and order the records
+    retrieved. Each record in the cursor is retrieved using next().
+    When next() returns FALSE, there are no more records to process,
+    and the loop terminates.
 
     For editing records (rows of data), a cursor contains a separate
-    edit buffer which is independent of the fields used when
-    navigating.  The functions insert(), update() and del() operate on
-    the edit buffer.  This allows the cursor to be repositioned to
-    other records while simultaneously maintaining a separate buffer
-    for edits.  You can get a handle to the cursor's edit buffer using
+    edit buffer which is independent of the fields used when browsing.
+    The functions insert(), update() and del() operate on the edit
+    buffer.  This allows the cursor to be repositioned to other
+    records while simultaneously maintaining a separate buffer for
+    edits.  You can get a pointer to the edit buffer using
     editBuffer().  The primeInsert(), primeUpdate() and primeDelete()
-    functions prepare the edit buffer for insert, update and delete
-    respectively.  Edit operations only affect a single row at a time.
-    Note that update() and del() require that the table or view
-    contain a primaryIndex() to ensure that edit operations affect a
-    unique record within the database.
+    functions also return a pointer to the edit buffer and prepare it
+    for insert, update and delete respectively.  Edit operations only
+    affect a single row at a time.  Note that update() and del()
+    require that the table or view contain a primaryIndex() to ensure
+    that edit operations affect a unique record within the database.
 
     For example:
 
@@ -180,7 +180,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     made to the database will not be visible until select() is called
     to refresh the cursor. You can change this behavior by passing
     FALSE to insert(), update() or del() which will prevent the cursor
-    from becoming inactive. These edits will then not be visible when
+    from becoming invalid. These edits will then not be visible when
     navigating the cursor until select() is called.
 
     QSqlCursor contains virtual methods which allow editing behavior
