@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#118 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#117 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#118 $");
 
 
 // Motif style parameters
@@ -1073,7 +1073,6 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		}
 		p->setPen( itemg.light() );
 		p->drawPixmap( pmr.left()+1, pmr.top()+1, *mask );
-	    }
 		p->setPen( itemg.text() );
 		p->drawPixmap( pmr.topLeft(), *mask );
 	    } else {
