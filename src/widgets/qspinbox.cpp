@@ -75,6 +75,7 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
 {
     QString pref = spinBox->prefix();
     QString suff = spinBox->suffix();
+    QString suffStriped = suff.stripWhiteSpace();
     uint overhead = pref.length() + suff.length();
     State state = Invalid;
 
@@ -83,8 +84,13 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
     if ( overhead == 0 ) {
 	state = QIntValidator::validate( str, pos );
     } else {
-	if ( str.length() >= overhead && str.startsWith(pref) &&
-	     str.endsWith(suff) ) {
+	bool stripedVersion;
+	if ( str.length() >= overhead && str.startsWith(pref)
+	     && (str.endsWith(suff)
+		 || (stripedVersion = str.endsWith(suffStriped))) ) {
+	    if ( stripedVersion ) {
+		overhead = pref.length() + suffStriped.length();
+	    }
 	    QString core = str.mid( pref.length(), str.length() - overhead );
 	    int corePos = pos - pref.length();
 	    state = QIntValidator::validate( core, corePos );
