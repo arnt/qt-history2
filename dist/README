@@ -12,6 +12,7 @@ For this release, the following platforms have been tested:
 
 win32-borland
 win32-g++
+win32-icc
 win32-msvc
 win32-msvc.net
 
@@ -34,6 +35,7 @@ solaris-cc
 solaris-cc-64
 solaris-g++
 solaris-g++-64
+tru64-g++
 
 macx-g++
 macx-pbuilder

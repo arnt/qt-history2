@@ -6,9 +6,9 @@ system and compiler you are using.
 Supported platforms and compilers:
 
   aix-g++       hpux-g++       linux-g++       solaris-cc-64    win32-g++
-  aix-xlc       hpux-g++-64    linux-g++-64    solaris-g++      win32-msvc
-  aix-xlc-64    irix-cc        linux-icc       solaris-g++-64   win32-msvc.net
-  freebsd-g++   irix-cc-64     macx-g++        tru64-cxx
+  aix-xlc       hpux-g++-64    linux-g++-64    solaris-g++      win32-icc
+  aix-xlc-64    irix-cc        linux-icc       solaris-g++-64   win32-msvc
+  freebsd-g++   irix-cc-64     macx-g++        tru64-cxx        win32-msvc.net
   freebsd-icc   irix-g++       macx-pbuilder   tru64-g++
   hpux-acc      linux-ecc-64   solaris-cc      win32-borland
 

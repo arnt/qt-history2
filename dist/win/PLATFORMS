@@ -8,15 +8,15 @@ Supported platforms and compilers:
 
   win32-borland
   win32-g++
+  win32-icc
   win32-msvc
-  win32-msvc.net 
+  win32-msvc.net
 
 Compilation problems:
 
-  Qt 3.x has problems compiling on some combinations of operating
-  system versions and compiler versions.  Information about such
-  problems will be posted on http://www.trolltech.com/platforms/
-  as we become aware of them.
+  If you experience problems compiling Qt 3.x consult the platform
+  notes found at http://www.trolltech.com/developer/platforms/ where
+  we post workarounds and known issues as we become aware of them.
 
 Example:
 

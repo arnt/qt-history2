@@ -8,6 +8,12 @@ Supported platforms and compilers:
   macx-g++ 
   macx-pbuilder -- Cannot be used for building the Qt library.
 
+Compilation problems:
+
+  If you experience problems compiling Qt 3.x consult the platform
+  notes found at http://www.trolltech.com/developer/platforms/ where
+  we post workarounds and known issues as we become aware of them.
+
 Example:
 
   ./configure -platform macx-g++ -shared -debug
@@ -17,11 +23,4 @@ Customization:
   You can create your own custom configuration by adding new files to
   the mkspecs directory. The configuration macx-g++ is included
   as an example. It uses GNU g++ as a C/C++ compiler.
-
-Compilation problems:
-
-  Qt 3.x may have problems compiling on some combinations of operating
-  system versions and compiler versions. Information about such
-  problems will be posted on http://www.trolltech.com/platforms/ as we
-  become aware of them.
 
