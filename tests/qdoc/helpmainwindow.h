@@ -62,6 +62,7 @@ private slots:
     void updateViewMenu();
 
     void findDialogClosed();
+    void find( const QString &query, bool cs, bool ww, bool fromStart );
     
 private:
     QPopupMenu *history;
@@ -73,7 +74,7 @@ private:
     int forward_id, backward_id, contents_id, index_id, bookmarks_id, search_id;
     QPopupMenu *go, *view;
     HelpFindDialog *findDialog;
-    
+
 };
 
 #endif

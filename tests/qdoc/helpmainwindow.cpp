@@ -234,7 +234,7 @@ HelpMainWindow::HelpMainWindow()
     label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
 
     findDialog = 0;
-    
+
     connect( navigation, SIGNAL( preparePorgress( int ) ),
 	     this, SLOT( preparePorgress( int ) ) );
     connect( navigation, SIGNAL( incProcess() ),
@@ -331,6 +331,8 @@ void HelpMainWindow::slotEditFind()
 	findDialog->show();
 	connect( findDialog, SIGNAL( closed() ),
 		 this, SLOT( findDialogClosed() ) );
+	connect( findDialog, SIGNAL( find( const QString &, bool, bool, bool ) ),
+		 this, SLOT( find( const QString &, bool, bool, bool ) ) );
     }
 }
 
@@ -506,4 +508,9 @@ void HelpMainWindow::findDialogClosed()
 {
     delete findDialog;
     findDialog = 0;
+}
+
+void HelpMainWindow::find( const QString &query, bool cs, bool ww, bool fromStart )
+{
+    qDebug( "find in topic: %s %d %d %d", query.latin1(), cs, ww, fromStart );
 }
