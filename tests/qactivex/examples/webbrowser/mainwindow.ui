@@ -204,9 +204,6 @@
             <property name="name">
                 <cstring>actionNewWindow</cstring>
             </property>
-            <property name="toggleAction">
-                <bool>true</bool>
-            </property>
             <property name="text">
                 <string>Window</string>
             </property>
@@ -317,6 +314,12 @@
         <receiver>MainWindow</receiver>
         <slot>setTitle(const QString&amp;)</slot>
     </connection>
+    <connection>
+        <sender>WebBrowser</sender>
+        <signal>NavigateComplete(const QString&amp;)</signal>
+        <receiver>addressEdit</receiver>
+        <slot>setText(const QString&amp;)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
@@ -329,10 +332,10 @@
 </variables>
 <slots>
     <slot>go()</slot>
-    <slot>init()</slot>
     <slot>newWindow()</slot>
-    <slot>setProgress( int a, int b )</slot>
-    <slot>setTitle( const QString &amp; title )</slot>
+    <slot>setProgress(int a, int b)</slot>
+    <slot>init()</slot>
+    <slot>setTitle(const QString &amp; title)</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

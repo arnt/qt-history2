@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>671</width>
-            <height>421</height>
+            <width>728</width>
+            <height>584</height>
         </rect>
     </property>
     <property name="caption">
@@ -25,105 +25,154 @@
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QGroupBox">
+        <widget class="QTabWidget">
             <property name="name">
-                <cstring>boxProperties</cstring>
+                <cstring>tabWidget</cstring>
             </property>
-            <property name="title">
-                <string>&amp;Properties</string>
-            </property>
-            <vbox>
+            <widget class="QWidget">
                 <property name="name">
-                    <cstring>unnamed</cstring>
+                    <cstring>tab</cstring>
                 </property>
-                <property name="margin">
-                    <number>11</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QListView">
-                    <column>
-                        <property name="text">
-                            <string>Property</string>
-                        </property>
-                        <property name="clickable">
-                            <bool>false</bool>
-                        </property>
-                        <property name="resizeable">
-                            <bool>true</bool>
-                        </property>
-                    </column>
-                    <column>
-                        <property name="text">
-                            <string>Type</string>
-                        </property>
-                        <property name="clickable">
-                            <bool>false</bool>
-                        </property>
-                        <property name="resizeable">
-                            <bool>true</bool>
-                        </property>
-                    </column>
-                    <column>
-                        <property name="text">
-                            <string>Value</string>
-                        </property>
-                        <property name="clickable">
-                            <bool>false</bool>
-                        </property>
-                        <property name="resizeable">
-                            <bool>true</bool>
-                        </property>
-                    </column>
+                <attribute name="title">
+                    <string>&amp;Properties</string>
+                </attribute>
+                <vbox>
                     <property name="name">
-                        <cstring>listProperties</cstring>
+                        <cstring>unnamed</cstring>
                     </property>
-                    <property name="resizeMode">
-                        <enum>AllColumns</enum>
+                    <property name="margin">
+                        <number>11</number>
                     </property>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>Layout14</cstring>
+                    <property name="spacing">
+                        <number>6</number>
                     </property>
-                    <hbox>
+                    <widget class="QListView">
+                        <column>
+                            <property name="text">
+                                <string>Property</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>false</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Type</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>false</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Value</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>false</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
                         <property name="name">
-                            <cstring>unnamed</cstring>
+                            <cstring>listProperties</cstring>
                         </property>
-                        <property name="margin">
+                        <property name="resizeMode">
+                            <enum>AllColumns</enum>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>Layout14</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>valueLabel</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Property &amp;Value:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>editValue</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>editValue</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QToolButton">
+                                <property name="name">
+                                    <cstring>buttonSet</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Set</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Property Edit &amp;Requests</string>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QTable">
+                        <column>
+                            <property name="text">
+                                <string>Property</string>
+                            </property>
+                        </column>
+                        <property name="name">
+                            <cstring>tableEditRequests</cstring>
+                        </property>
+                        <property name="numRows">
                             <number>0</number>
                         </property>
-                        <property name="spacing">
-                            <number>6</number>
+                        <property name="numCols">
+                            <number>1</number>
                         </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>valueLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Property &amp;Value:</string>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>editValue</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>editValue</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QToolButton">
-                            <property name="name">
-                                <cstring>buttonSet</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;Set</string>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-            </vbox>
+                        <property name="showGrid">
+                            <bool>false</bool>
+                        </property>
+                        <property name="selectionMode">
+                            <enum>Single</enum>
+                        </property>
+                        <property name="focusStyle">
+                            <enum>FollowStyle</enum>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
@@ -193,6 +242,12 @@
         <receiver>ChangeProperties</receiver>
         <slot>close()</slot>
     </connection>
+    <connection>
+        <sender>tableEditRequests</sender>
+        <signal>valueChanged(int,int)</signal>
+        <receiver>ChangeProperties</receiver>
+        <slot>editRequestChanged(int,int)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="global" impldecl="in implementation">qmetaobject.h</include>
@@ -206,9 +261,11 @@
     <variable>QActiveX *activex;</variable>
 </variables>
 <slots>
-    <slot>setControl(QActiveX * ax)</slot>
-    <slot>propertySelected(QListViewItem * item)</slot>
+    <slot>setControl( QActiveX * ax )</slot>
+    <slot>propertySelected( QListViewItem * item )</slot>
     <slot>setValue()</slot>
+    <slot>init()</slot>
+    <slot specifier="non virtual">editRequestChanged( int r, int c )</slot>
 </slots>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

@@ -9,31 +9,31 @@
 
 void AmbientProperties::init()
 {
-    activex = 0;
+    container = 0;
 }
 
-void AmbientProperties::setControl( QActiveX *ax )
+void AmbientProperties::setControl( QWidget *widget )
 {
-    activex = ax;
-    backSample->setPaletteBackgroundColor( activex->paletteBackgroundColor() );
-    foreSample->setPaletteBackgroundColor( activex->paletteForegroundColor() );
-    fontSample->setFont( activex->font() );
-    enabledButton->setOn( activex->isEnabled() );
-    enabledSample->setEnabled( activex->isEnabled() );
+    container = widget;
+    backSample->setPaletteBackgroundColor( container->paletteBackgroundColor() );
+    foreSample->setPaletteBackgroundColor( container->paletteForegroundColor() );
+    fontSample->setFont( container->font() );
+    enabledButton->setOn( container->isEnabled() );
+    enabledSample->setEnabled( container->isEnabled() );
 }
 
 void AmbientProperties::backColor()
 {
     QColor col = QColorDialog::getColor( backSample->paletteBackgroundColor(), this );
     backSample->setPaletteBackgroundColor( col );
-    activex->setPaletteBackgroundColor( col );
+    container->setPaletteBackgroundColor( col );
 }
 
 void AmbientProperties::foreColor()
 {
     QColor col = QColorDialog::getColor( foreSample->paletteBackgroundColor(), this );
     foreSample->setPaletteBackgroundColor( col );
-    activex->setPaletteForegroundColor( col );
+    container->setPaletteForegroundColor( col );
 }
 
 void AmbientProperties::pickFont()
@@ -43,11 +43,11 @@ void AmbientProperties::pickFont()
     if ( !ok )
 	return;
     fontSample->setFont( f );
-    activex->setFont( f );
+    container->setFont( f );
 }
 
 void AmbientProperties::toggleEnabled(bool on)
 {
     enabledSample->setEnabled( on );
-    activex->setEnabled( on );
+    container->setEnabled( on );
 }

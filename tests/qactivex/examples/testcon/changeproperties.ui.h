@@ -6,14 +6,21 @@
 ** a constructor, and a destroy() slot in place of a destructor.
 *****************************************************************************/
 
+#define PropDesignable  0x00001000
+#define PropScriptable	0x00002000
+#define PropStored	0x00004000
+#define PropBindable	0x00008000
+#define PropRequesting	0x00010000
 
 void ChangeProperties::setControl( QActiveX *ax )
 {
     activex = ax;
     bool hasControl = activex && !activex->isNull();
-    boxProperties->setEnabled( hasControl );
-    
-    listProperties->clear();    
+    tabWidget->setEnabled( hasControl );
+     
+    listProperties->clear();
+    while ( tableEditRequests->numRows() )
+	tableEditRequests->removeRow(0);
     if ( hasControl ) {
 	const QMetaObject *mo = activex->metaObject();
 	const int numprops = mo->numProperties( FALSE );
@@ -24,6 +31,13 @@ void ChangeProperties::setControl( QActiveX *ax )
 	    item->setText( 1, property->type() );
 	    QVariant var = activex->property( property->name() );
 	    item->setText( 2, var.toString() );
+ 
+	    if ( property->testFlags( PropRequesting ) ) {
+		tableEditRequests->insertRows( tableEditRequests->numRows(), 1 );
+		QCheckTableItem *check = new QCheckTableItem( tableEditRequests, property->name() );
+		tableEditRequests->setItem( tableEditRequests->numRows()-1, 0, check );
+		check->setChecked( activex->propertyWritable( property->name() ) );
+	    }
 	}
 	listProperties->setCurrentItem( listProperties->firstChild() );
     } else {
@@ -63,4 +77,23 @@ void ChangeProperties::setValue()
     activex->setProperty( prop, value );
     setControl( activex );
     listProperties->setCurrentItem( listProperties->findItem( prop, 0 ) );
+}
+
+
+void ChangeProperties::init()
+{
+    tableEditRequests->verticalHeader()->hide();
+    tableEditRequests->setLeftMargin( 0 );
+    tableEditRequests->horizontalHeader()->setClickEnabled( FALSE );
+    tableEditRequests->setColumnStretchable( 0, TRUE );
+}
+
+void ChangeProperties::editRequestChanged( int r, int c )
+{
+    QCheckTableItem *item = (QCheckTableItem*)tableEditRequests->item( r, c );
+    if ( !item )
+	return;
+    
+    QString property = item->text();
+    activex->setPropertyWritable( property.latin1(), item->isChecked() );
 }

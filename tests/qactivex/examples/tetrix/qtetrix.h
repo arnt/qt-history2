@@ -39,11 +39,11 @@ private:
 };
 
 
-class QTetrix : public QActiveQt
+class QTetrix : public QWidget, public QActiveQt
 {
     Q_OBJECT
 public:
-    QTetrix( QWidget *parent=0, const char *name=0, WFlags f = 0 );
+    QTetrix( QWidget *parent=0, const char *name=0 );
     void startGame() { board->startGame(); }
 
 public slots:

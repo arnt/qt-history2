@@ -24,7 +24,7 @@ static const char* const type_map[ntypes][2] =
     { "QImage",		0 },
     { "int",		"int" },
     { "uint",		"int" },
-    { "bool",		"boolean" },
+    { "bool",		"BOOL" },
     { "double",		"double" },
     { "QCString",	"BSTR" },
     { "QPointArray",	0 },
@@ -61,18 +61,40 @@ static bool convertTypes( QString &f )
     return TRUE;
 }
 
-static QString parseFile( QTextStream &in,
-			QString &coclass,
-			QString &iid_coclass, QString &iid_iface, QString &iid_events, QString &iid_typelib,
-			QStringList &signallist, QStringList &slotlist, QStringList &proplist )
+static QStringList readFile( QTextStream &in )
 {
     QString token;
     int x = 0;
     QStringList tokens;
+    bool inCppComment = FALSE;
     while ( !in.atEnd() ) {
 	in >> token;
 	token = token.stripWhiteSpace();
 	token = token.simplifyWhiteSpace();
+
+	do {
+	    if ( inCppComment && !token.contains( "*/" ) ) {
+		in >> token;
+		continue;
+	    }
+	    if ( inCppComment )
+		token = token.right( token.length() - token.find( "*/" )-2 );
+	    inCppComment = FALSE;
+
+	    if ( token.contains( "/*" ) && !inCppComment ) {
+		QString before = token.left( token.find( "/*" ) );
+		if ( !before.isEmpty() )
+		    tokens << before;
+		inCppComment = TRUE;
+	    }
+	} while ( inCppComment );
+	
+	if ( token.contains( "//" ) ) {
+	    tokens << token.left( token.find( "//" ) );
+	    in.readLine();
+	    continue;
+	}
+
 	if ( token == "#include" ) {
 	    in.readLine();
 	    continue;
@@ -82,7 +104,14 @@ static QString parseFile( QTextStream &in,
 	}
 	tokens << token;
     }
+    return tokens;
+}
 
+QString parseFile( QStringList &tokens, QStringList::Iterator &t,
+			QString &coclass,
+			QString &iid_coclass, QString &iid_iface, QString &iid_events, QString &iid_typelib,
+			QStringList &signallist, QStringList &slotlist, QStringList &proplist )
+{
     enum State {
 	Default,
 	Error,
@@ -106,6 +135,7 @@ static QString parseFile( QTextStream &in,
     } state;
 
     state = Default;
+    QString token;
     QString property;  // type name
     QString propflags; // read,write,designable,scriptable
     QString signal;
@@ -114,8 +144,7 @@ static QString parseFile( QTextStream &in,
     QString iid;
 
     int curlybrackets = 0;
-    QStringList::Iterator t;
-    for ( t = tokens.begin(); t != tokens.end(); ++t ) {
+    for ( ; t != tokens.end(); ++t ) {
 	token = *t;
 	curlybrackets += token.contains( '{' );
 	curlybrackets -= token.contains( '}' );
@@ -162,16 +191,12 @@ static QString parseFile( QTextStream &in,
 		    break;
 		}
 		token = *t;
-		if ( token != "QActiveQt" ) {
-		    state = Default;
-		    coclass = QString::null;
-		} else {
-		    state = HaveActiveX;
-		}
-	    } else if ( token == "QActiveQt" || token == "QActiveQt," ) {
+	    }
+	    if ( token == "QActiveQt" || token == "QActiveQt," ) {
 		state = HaveActiveX;
 	    } else if ( token == "{" ) {
 		state = Default;
+		coclass = QString::null;
 	    }
 	    break;
 	case HaveActiveX:
@@ -246,11 +271,12 @@ static QString parseFile( QTextStream &in,
 	    if ( token == "void" ) {
 		state = HaveSlot;
 		slot = QString::null;
-	    } else if ( token == "signals:" || 
-		        token == "public:" || 
+	    } else if ( token == "public:" || 
 			token == "protected:" || 			
 			token == "private:" ) {
 		state = HaveActiveX;
+	    } else if ( token == "signals:" ) {
+		state = HaveSignals;
 	    } else if ( token == "public" || 
 			token == "protected" || 
 			token == "private" ) {
@@ -351,7 +377,7 @@ static QString parseFile( QTextStream &in,
 		QStringList iids = QStringList::split( ",", iid );
 		if ( !coclass.isEmpty() && iids[0] != coclass ) {
 		    error = QString("Classnames not matching (%1 != %1)").arg(coclass).arg(iids[0]);
-		    state = Error;
+		    return error;
 		}
 		coclass = iids[0];
 		iid_coclass = iids[1].mid( 2, iids[1].length()-4 );;
@@ -360,7 +386,8 @@ static QString parseFile( QTextStream &in,
 		iid_typelib = iids[4].mid( 2, iids[4].length()-4 );;
 		--t;
 
-		state = Default;
+		if ( state == DoneIID )
+		    return error;
 	    }
 	    break;
 
@@ -369,9 +396,6 @@ static QString parseFile( QTextStream &in,
 	}
     }
 
-    if ( coclass.isEmpty() ) {
-	error = "No relevant classes found.";
-    }
     return error;
 }
 
@@ -464,30 +488,39 @@ int main( int argc, char **argv )
 	
 	QTextStream in( &infile );
 	{
-	    QString coclass;
-	    QString iid_coclass;
-	    QString iid_iface;
-	    QString iid_events;
-	    QString iid_typelib;
-	    QStringList signallist;
-	    QStringList slotlist;
-	    QStringList proplist;
-	    
-	    QString error = parseFile( in, coclass, iid_coclass, iid_iface, iid_events, iid_typelib, signallist, slotlist, proplist );
-	    if ( !error.isEmpty() ) {
-		qFatal( "%s: Error parsing file: %s", (*it).latin1(), error.latin1() );
+	    QStringList tokens = readFile( in );
+
+	    QStringList::Iterator t = tokens.begin();
+	    while ( t != tokens.end() ) {
+		QString coclass;
+		QString iid_coclass;
+		QString iid_iface;
+		QString iid_events;
+		QString iid_typelib;
+		QStringList signallist;
+		QStringList slotlist;
+		QStringList proplist;
+
+		QString error = parseFile( tokens, t, coclass, iid_coclass, iid_iface, iid_events, iid_typelib, signallist, slotlist, proplist );
+		if ( coclass.isEmpty() )
+		    break;
+		if ( t != tokens.end() )
+		    ++t;
+		if ( !error.isEmpty() ) {
+		    qFatal( "%s: Error parsing file: %s", (*it).latin1(), error.latin1() );
+		}
+		if ( !!typelib_iid && typelib_iid != iid_typelib ) {
+		    qFatal( "%s: Multiple typelibraries are not supported", (*it).latin1() );
+		}
+		typelib_iid = iid_typelib;
+		coclasses.append( coclass );
+		coclass_clsid.insert( coclass, iid_coclass );
+		coclass_iface.insert( coclass, iid_iface );
+		coclass_events.insert( coclass, iid_events );
+		coclass_signals.insert( coclass, signallist );
+		coclass_slots.insert( coclass, slotlist );
+		coclass_properties.insert( coclass, proplist );
 	    }
-	    if ( !!typelib_iid && typelib_iid != iid_typelib ) {
-		qFatal( "%s: Multiple typelibraries are not supported" );
-	    }
-	    typelib_iid = iid_typelib;
-	    coclasses.append( coclass );
-	    coclass_clsid.insert( coclass, iid_coclass );
-	    coclass_iface.insert( coclass, iid_iface );
-	    coclass_events.insert( coclass, iid_events );
-	    coclass_signals.insert( coclass, signallist );
-	    coclass_slots.insert( coclass, slotlist );
-	    coclass_properties.insert( coclass, proplist );
 	}
     }
     QTextStream out;
@@ -516,7 +549,7 @@ int main( int argc, char **argv )
 	out << "\t\tobject," << endl;
 	out << "\t\tuuid(" << iid_iface << ")," << endl;
 	out << "\t\tdual," << endl;
-	out << "\t\thelpstring(\"I" << coclass << " Interface\")," << endl;
+	out << "\t\thelpstring(\"" << coclass << " Interface\")," << endl;
 	out << "\t\tpointer_default(unique)" << endl;
 	out << "\t]" << endl;
 	out << "\tinterface I" << coclass << " : IDispatch" << endl;
@@ -632,7 +665,7 @@ int main( int argc, char **argv )
 	out << "\t\tuuid(" << iid_events << ")," << endl;
 	out << "\t\thelpstring(\"" << coclass << " Events Interface\")" << endl;
 	out << "\t]" << endl;
-	out << "\tdispinterface _I" << coclass << "Events" << endl;
+	out << "\tdispinterface I" << coclass << "Events" << endl;
 	out << "\t{" << endl;
 	out << "\t\tproperties:" << endl;
 	out << "\t\tmethods:" << endl;
@@ -650,8 +683,12 @@ int main( int argc, char **argv )
 	out << "\t]" << endl;
 	out << "\tcoclass " << coclass << endl;
 	out << "\t{" << endl;
+#ifdef QDISPATCH
 	out << "\t\t[default] dispinterface I" << coclass << ";" << endl;
-	out << "\t\t[default, source] dispinterface _I" << coclass << "Events;" << endl;
+#else
+	out << "\t\t[default] interface I" << coclass << ";" << endl;
+#endif
+	out << "\t\t[default, source] dispinterface I" << coclass << "Events;" << endl;
 	out << "\t};" << endl;
     }
     out << "};" << endl;

@@ -8,12 +8,34 @@
 
 #include <atlbase.h>
 CComModule _Module;
+int moduleLockCount = 0;
+void moduleLock()
+{
+    if ( !moduleLockCount ) {
+	CoInitialize(0);
+	_Module.Init( 0, GetModuleHandle(0) );	
+    }
+    ++moduleLockCount;
+}
+void moduleUnlock()
+{
+    if ( !moduleLockCount ) {
+	qWarning( "Unbalanced module count!" );
+	return;
+    }
+    if ( !--moduleLockCount ) {
+	_Module.Term();
+	CoUninitialize();
+    }
+}
 
 static QMetaObject *tempMetaObj = 0;
 
-#define PropDesignable	1000
-#define PropScriptable	2000
-#define PropStored	4000
+#define PropDesignable  0x00001000
+#define PropScriptable	0x00002000
+#define PropStored	0x00004000
+#define PropBindable	0x00008000
+#define PropRequesting	0x00010000
 
 #include "../shared/types.h"
 
@@ -135,6 +157,8 @@ public:
 	    return DISP_E_MEMBERNOTFOUND;
 
 	QObject *qobject = combase->qObject();
+	if ( qobject->signalsBlocked() )
+	    return S_OK;
 
 	// emit the signal "as is"
 	int index = meta->findSignal( "signal(const QString&,int,void*)" );
@@ -239,6 +263,8 @@ public:
 	    return S_OK;
 
 	QObject *qobject = combase->qObject();
+	if ( qobject->signalsBlocked() )
+	    return S_OK;
 
 	// emit the generic signal
 	int index = meta->findSignal( "propertyChanged(const QString&)" );
@@ -283,7 +309,7 @@ public:
 	    return S_OK;
 	}
 	QString propname = props[dispID];
-	return combase->allowPropertyChange( propname ) ? S_OK : S_FALSE;
+	return combase->propertyWritable( propname ) ? S_OK : S_FALSE;
     }
 
 private:
@@ -353,7 +379,7 @@ private:
     use setControl() to instantiate a COM object.
 */
 QComBase::QComBase( IUnknown *iface )
-: ptr( iface ), eventSink( 0 ), metaobj( 0 )
+: ptr( iface ), eventSink( 0 ), metaobj( 0 ), propWritable( 0 )
 {
     if ( ptr )
 	ptr->AddRef();
@@ -367,6 +393,9 @@ QComBase::QComBase( IUnknown *iface )
 QComBase::~QComBase()
 {
     clear();
+
+    delete propWritable;
+    propWritable = 0;
 }
 
 /*!
@@ -383,7 +412,7 @@ QComBase::~QComBase()
     \code
     ctrl->setControl( "MSCal.Calendar" );
     \endcode
-    The slowest, but easiest to use way is to use the full name of the control, e.g.
+    The slowest, but easiest way to use is to use the full name of the control, e.g.
     \code
     ctrl->setControl( "Calendar Control 9.0" );
     \endcode
@@ -452,9 +481,7 @@ void QComBase::clear()
     if ( ptr ) {
 	ptr->Release();
 	ptr = 0;
-
-	_Module.Term();
-	CoUninitialize();
+	moduleUnlock();
     }
 
     ctrl = QString::null;
@@ -617,7 +644,66 @@ QMetaObject *QComBase::metaObject() const
     enumlist.setAutoDelete( TRUE ); // deep copied when creating metaobject
 
     // create default signal and slots
+/*
+    CComPtr<IProvideClassInfo> pci;
+    ptr->QueryInterface( IID_IProvideClassInfo, (void**)&pci );
+    if ( pci ) {
+	CComPtr<ITypeInfo> classinfo;
+	pci->GetClassInfo( &classinfo );
+	if ( classinfo ) {
+	    TYPEATTR *classTypeattr = 0;
+	    classinfo->GetTypeAttr( &classTypeattr );
+	    if ( classTypeattr ) {
+		QUuid classID( classTypeattr->guid );
+		QString classIDstr = classID.toString().upper();
+		classIDstr = iidnames.readEntry( "/CLSID/" + classIDstr + "/Default", classIDstr );
+		infolist.insert( "CoClass", new QString( classIDstr ) );
+		QString version( "%1.%1" );
+		version = version.arg( classTypeattr->wMajorVerNum ).arg( classTypeattr->wMinorVerNum );
+		infolist.insert( "Version", new QString( version ) );
 
+		for ( int iType = 0; iType < classTypeattr->cImplTypes; ++iType ) {
+		    int typeflags = 0;
+		    classinfo->GetImplTypeFlags( iType, &typeflags );
+		    if ( ( typeflags & IMPLTYPEFLAG_FRESTRICTED ) || ( typeflags & IMPLTYPEFLAG_FDEFAULTVTABLE ) )
+			continue;
+		    bool eventtype = typeflags & IMPLTYPEFLAG_FSOURCE;
+		    HREFTYPE reftype;
+		    if ( classinfo->GetRefTypeOfImplType( iType, &reftype ) == S_OK ) {
+			CComPtr<ITypeInfo> typeinfo;
+			classinfo->GetRefTypeInfo( reftype, &typeinfo );
+			while ( typeinfo ) {
+			    TYPEATTR *typeattr = 0;
+			    typeinfo->GetTypeAttr( &typeattr );
+			    if ( typeattr ) {
+				QUuid uuid( typeattr->guid );
+				QString uuidstr = uuid.toString().upper();
+				uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+				if ( eventtype ) {
+				    static eventcount = 0;
+				    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
+				} else {
+				    static interfacecount = 0;
+				    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
+				}
+				typeinfo->ReleaseTypeAttr( typeattr );
+			    }
+			    // go up one class
+			    HREFTYPE pRefType;
+			    typeinfo->GetRefTypeOfImplType( 0, &pRefType );
+			    CComPtr<ITypeInfo> baseInfo;
+			    typeinfo->GetRefTypeInfo( pRefType, &baseInfo );
+			    if ( typeinfo == baseInfo ) // IUnknown inherits IUnknown ???
+				break;
+			    typeinfo = baseInfo;
+			}
+		    }
+		}
+		classinfo->ReleaseTypeAttr( classTypeattr );
+	    }
+	}
+    }
+*/
     CComPtr<IDispatch> disp;
     ptr->QueryInterface( IID_IDispatch, (void**)&disp );
     if ( disp ) {
@@ -626,7 +712,7 @@ QMetaObject *QComBase::metaObject() const
 	// this is either 0 or 1, but anyway...
 	if ( count ) {
 	    CComPtr<ITypeInfo> info;
-	    disp->GetTypeInfo( 0, LOCALE_SYSTEM_DEFAULT, &info );
+	    disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
 	    // read type information
 	    while ( info ) {
 		ushort nFuncs = 0;
@@ -646,7 +732,8 @@ QMetaObject *QComBase::metaObject() const
 		    QUuid uuid( typeattr->guid );
 		    QString uuidstr = uuid.toString().upper();
 		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-		    infolist.insert( QString("Interface %1").arg(infolist.count()+1), new QString( uuidstr ) );
+		    static interfacecount = 0;
+		    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
 
 		    // get number of functions, variables, and implemented interfaces
 		    nFuncs = typeattr->cFuncs;
@@ -695,7 +782,7 @@ QMetaObject *QComBase::metaObject() const
 			// parameter
 			bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
 			QString ptype;
-			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ].tdesc;
+			TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 			ptype = typedescToQString( tdesc );
 			if ( ptype == "UNSUPPORTED" ) {
 			    tdesc = funcdesc->lprgelemdescParam[p - 1].tdesc;
@@ -715,7 +802,6 @@ QMetaObject *QComBase::metaObject() const
 		    if ( !!prototype )
 			prototype += ")";
 
-		    bool bindable = (funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE) || (funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT);
 		    QMetaProperty *prop = 0;
 
 		    // get type of function
@@ -739,6 +825,8 @@ QMetaObject *QComBase::metaObject() const
 				    prop->flags |= PropDesignable;
 				if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED) )
 				    prop->flags |= PropScriptable;
+				if ( funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT )
+				    prop->flags |= PropRequesting;
 
 				QString ptype = paramTypes[0];
 				if ( ptype.isEmpty() )
@@ -752,7 +840,8 @@ QMetaObject *QComBase::metaObject() const
 				prop->n = new char[function.length()+1];
 				prop->n = qstrcpy( (char*)prop->n, function );
 
-				if ( bindable ) {
+				if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE ) {
+				    prop->flags |= PropBindable;
 				    if ( !eventSink )
 					that->eventSink = new QAxEventSink( that );
 				    // generate changed signal
@@ -803,6 +892,7 @@ QMetaObject *QComBase::metaObject() const
 			{
 			    if ( funcdesc->invkind == INVOKE_PROPERTYPUT && prop ) {
 				QString set;
+				QString pname = function;
 				QString firstletter = function.left(1);
 				if ( firstletter == firstletter.upper() ) {
 				    set = "Set";
@@ -811,14 +901,17 @@ QMetaObject *QComBase::metaObject() const
 				    function = firstletter.upper() + function.mid(1);
 				}
 				function = set + function;
+				QString ptype;
 				if ( prototype.right( 2 ) == "()" ) {
-				    QString ptype = prop->type();
+				    ptype = prop->type();
 				    if ( ptype.isEmpty() )
 					ptype = returnType;
 				    prototype = function + "(" + constRefify(ptype) + ")";
 				} else {
 				    prototype = set + prototype;
 				}
+				parameters.append( pname );
+				paramTypes.append( constRefify(ptype) );
 				if ( slotlist.find( prototype ) )
 				    break;
 			    }
@@ -924,12 +1017,6 @@ QMetaObject *QComBase::metaObject() const
 			}
 		    }
 
-		    bool bindable = FALSE;
-		    if ( vardesc->wVarFlags & VARFLAG_FBINDABLE )
-			bindable = TRUE;
-		    if ( vardesc->wVarFlags & VARFLAG_FREQUESTEDIT )
-			bindable = TRUE;
-
 		    if ( !(vardesc->wVarFlags & VARFLAG_FHIDDEN) ) {
 			// generate meta property
 			QMetaProperty *prop = proplist[variableName];
@@ -946,13 +1033,16 @@ QMetaObject *QComBase::metaObject() const
 				prop->flags |= PropDesignable;
 			    if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
 				prop->flags |= PropScriptable;
+			    if ( vardesc->wVarFlags & VARFLAG_FREQUESTEDIT )
+				prop->flags |= PropRequesting;
 
 			    prop->t = new char[variableType.length()+1];
 			    prop->t = qstrcpy( (char*)prop->t, variableType );
 			    prop->n = new char[variableName.length()+1];
 			    prop->n = qstrcpy( (char*)prop->n, variableName );
 
-			    if ( bindable ) {
+			    if ( vardesc->wVarFlags & VARFLAG_FBINDABLE ) {
+				prop->flags |= PropBindable;
 				if ( !eventSink )
 				    that->eventSink = new QAxEventSink( that );
 				// generate changed signal
@@ -1096,7 +1186,8 @@ QMetaObject *QComBase::metaObject() const
 					QUuid uuid( iid );
 					QString uuidstr = uuid.toString().upper();
 					uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-					infolist.insert( QString("Events %1").arg(infolist.count()+1), new QString( uuidstr ) );
+					static eventcount = 0;
+					infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
 					eventinfo = eventtype;
 					eventtype->ReleaseTypeAttr( eventattr );
 					break;
@@ -1154,7 +1245,7 @@ QMetaObject *QComBase::metaObject() const
 					// parameter
 					bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
 					
-					TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ].tdesc;
+					TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
 					QString ptype = typedescToQString( tdesc );
 					if ( funcdesc->invkind == INVOKE_FUNC )
 					    ptype = constRefify( ptype );
@@ -1348,15 +1439,16 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
     bool fakedslot = FALSE;
     DISPID dispid;
     OLECHAR *names = (TCHAR*)qt_winTchar(slot->name, TRUE );
-    disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
+    disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
     if ( dispid == DISPID_UNKNOWN ) {
 	// see if we are calling a property set function as a slot
-	if ( QString( slot->name ).left( 3 ) != "set" )
+	if ( QString( slot->name ).left( 3 ) != "set" &&
+	     QString( slot->name ).left( 3 ) != "Set" )
 	    return FALSE;
 	QString realname = slot->name;
 	realname = realname.right( realname.length() - 3 );
 	OLECHAR *realnames = (TCHAR*)qt_winTchar(realname, TRUE );
-	disp->GetIDsOfNames( IID_NULL, &realnames, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
+	disp->GetIDsOfNames( IID_NULL, &realnames, 1, LOCALE_USER_DEFAULT, &dispid );
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
 
@@ -1435,9 +1527,9 @@ bool QComBase::qt_invoke( int _id, QUObject* _o )
     UINT argerr = 0;
     HRESULT hres;
     if ( fakedslot && slotcount == 1 ) {
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, 0, &argerr );
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, 0, &argerr );
     } else {
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &params, pret, 0, &argerr );	    
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, pret, 0, &argerr );	    
     }
 
     // get return value
@@ -1481,7 +1573,7 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 	//  get the Dispatch ID of the function to be called
 	DISPID dispid;
 	OLECHAR *names = (TCHAR*)qt_winTchar(prop->n, TRUE );
-	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_SYSTEM_DEFAULT, &dispid );
+	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
 	
@@ -1514,7 +1606,7 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 		params.cNamedArgs = 1;
 
 		UINT argerr = 0;
-		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, 0, &argerr );
+		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, 0, &argerr );
 		if ( arg.vt == VT_BSTR )
 		    SysFreeString( arg.bstrVal );
 		return checkHRESULT( hres );
@@ -1528,7 +1620,7 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 		params.rgdispidNamedArgs = 0;
 		params.rgvarg = 0;
 
-		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, 0, 0 );
+		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, 0, 0 );
 		if ( !checkHRESULT( hres ) )
 		    return FALSE;
 
@@ -1578,7 +1670,7 @@ QVariant QComBase::dynamicCall( int id, const QVariant &var1,
 	// obj[0] is the result
 	int o;
 	int ret = slot->count && slot->parameters[0].inOut == QUParameter::Out;
-	for ( o = 0; o < slot->count; ++o ) {
+	for ( o = 0; o < slot->count-ret; ++o ) {
 	    obj[o+1].type = slot->parameters[o+ret].type;
 	}
 	QVariantToQUObject( var1, obj[1] );
@@ -1700,16 +1792,17 @@ public:
     {
 	if ( !var )
 	    return E_POINTER;
-	*var = QVariantToVARIANT( map[BSTRToQString((TCHAR*)name)] );
+
+	QCString property = BSTRToQString((TCHAR*)name).local8Bit();
+	QVariant qvar = map[property];
+	*var = QVariantToVARIANT( qvar );
 	return S_OK;
     }
     HRESULT __stdcall Write( LPCOLESTR name, VARIANT *var )
     {
 	if ( !var )
 	    return E_POINTER;
-	QString property = BSTRToQString((TCHAR*)name);
-	if ( !map.contains( property ) )
-	    return E_INVALIDARG;
+	QCString property = BSTRToQString((TCHAR*)name).local8Bit();
 	QVariant qvar = VARIANTToQVariant( *var );
 	map[property] = qvar;
 
@@ -1735,19 +1828,16 @@ QComBase::PropertyBag QComBase::propertyBag() const
 	return result;
     CComPtr<IPersistPropertyBag> persist;
     ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
-    if ( 0 && persist ) {
+    if ( persist ) {
 	QtPropertyBag *pbag = new QtPropertyBag();
 	pbag->AddRef();
-	for ( int p = 0; p < metaObject()->numProperties( FALSE ); ++p ) {
-	    pbag->map.insert( metaObject()->property( p+metaObject()->propertyOffset(), FALSE )->name(), QVariant() );
-	}
 	persist->Save( pbag, FALSE, TRUE );
 	result = pbag->map;
 	pbag->Release();
 	return result;
     } else {
 	QComBase *that = (QComBase*)this;
-	for ( int p = 0; p < metaObject()->numProperties( FALSE ); ++p ) {
+	for ( int p = 1; p < metaObject()->numProperties( FALSE ); ++p ) {
 	    QVariant var;
 	    that->qt_property( p+metaObject()->propertyOffset(), 1, &var );
 	    result.insert( metaObject()->property( p, FALSE )->name(), var );
@@ -1767,7 +1857,7 @@ void QComBase::setPropertyBag( const PropertyBag &bag )
 	return;
     CComPtr<IPersistPropertyBag> persist;
     ptr->QueryInterface( IID_IPersistPropertyBag, (void**)&persist );
-    if ( 0 && persist ) {
+    if ( persist ) {
 	QtPropertyBag *pbag = new QtPropertyBag();
 	pbag->map = bag;
 	pbag->AddRef();
@@ -1775,11 +1865,46 @@ void QComBase::setPropertyBag( const PropertyBag &bag )
 	pbag->Release();
     } else {
 	QComBase *that = (QComBase*)this;
-	for ( int p = 0; p < metaObject()->numProperties( FALSE ); ++p ) {
+	for ( int p = 1; p < metaObject()->numProperties( FALSE ); ++p ) {
 	    QVariant var = bag[metaObject()->property( p, FALSE )->name()];
 	    that->qt_property( p+metaObject()->propertyOffset(), 0, &var );
 	}
     }
+}
+
+/*!
+    Returns TRUE if the property \a prop is allowed to change,
+    otherwise returns FALSE.
+    By default, all properties are allowed to change. Depending on the control
+    implementation this setting might be ignored.
+
+    \sa setPropertyWritable(), propertyChanged()
+*/
+bool QComBase::propertyWritable( const char *prop ) const
+{
+    if ( !propWritable )
+	return TRUE;
+
+    if ( !propWritable->contains( prop ) )
+	return TRUE;
+    else
+	return (*propWritable)[prop];
+}
+
+/*!
+    Sets the property \a prop to writable if \a ok is TRUE,
+    otherwise sets \a prop to be read-only.
+    By default, all properties are allowed to change. Depending on the control
+    implementation this setting might be ignored.
+
+    \sa propertyWritable(), propertyChanged()
+*/
+void QComBase::setPropertyWritable( const char *prop, bool ok )
+{
+    if ( !propWritable )
+	propWritable = new QMap<QCString, bool>;
+
+    (*propWritable)[prop] = ok;
 }
 
 /*!
@@ -1803,15 +1928,6 @@ void QComBase::setPropertyBag( const PropertyBag &bag )
     Returns TRUE if there is no COM object loaded by this wrapper, otherwise return FALSE.
 
     \sa control
-*/
-
-/*!
-    \fn bool QComBase::allowPropertyChange( const QString &property ) const
-
-    Reimplement this function to return whether a \a property should be allowed to change or not.
-    The default implementation always return TRUE.
-
-    \sa propertyChanged()
 */
 
 /*!
@@ -1900,16 +2016,15 @@ bool QComObject::initialize( IUnknown **ptr )
     QUuid uuid( control() );
     if ( *ptr || uuid.isNull() )
 	return FALSE;
-    CoInitialize( 0 );
-    _Module.Init( 0, GetModuleHandle( 0 ) );
+    moduleLock();
 
     *ptr = 0;
     CoCreateInstance( uuid, 0, CLSCTX_ALL, IID_IUnknown, (void**)ptr );
     if ( !ptr ) {
-	_Module.Term();
-	CoUninitialize();
+	moduleUnlock();
 	return FALSE;
     }
+    metaObject();
     return TRUE;
 }
 

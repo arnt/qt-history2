@@ -3,20 +3,10 @@
 #include "qactiveqt.h"
 #undef NOQT_ACTIVEX
 
-#include <qsettings.h>
-#include <private/qwidgetinterface_p.h>
-#include <qintdict.h>
+#include <qapplication.h>
 #include "../shared/types.h"
 
-static QIntDict<QMetaData>* slotlist = 0;
-static QMap<int,DISPID>* signallist = 0;
-static QIntDict<QMetaProperty>* proplist = 0;
-static QMap<int, DISPID>* proplist2 = 0;
-
-extern "C" QUnknownInterface *ucm_instantiate();
-extern QActiveQt *qt_activeqt( QWidget *parent, const char *name, Qt::WFlags f );
-extern QMetaObject *qt_activeqt_meta();
-
+QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 
 /*!
     \class QActiveQt qactiveqt.h
@@ -30,8 +20,8 @@ extern QMetaObject *qt_activeqt_meta();
     using the widget flags \ f.
     \a parent, \a name and \a f are propagated to the QWidget constructor.
 */
-QActiveQt::QActiveQt( QWidget *parent, const char *name, WFlags f )
-    :QWidget( parent, name, f ), activex(0)
+QActiveQt::QActiveQt()
+    :activex(0)
 {
 }
 
@@ -61,11 +51,11 @@ bool QActiveQt::requestPropertyChange( const char *property )
 {
     if ( !activex )
 	return TRUE;
-    if ( !proplist )
+    if ( !activex->proplist )
 	activex->readMetaData();
 
     DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *proplist );
+    QIntDictIterator <QMetaProperty> it( *activex->proplist );
     while ( it.current() && dispId < 0 ) {
 	QMetaProperty *mp = it.current();
 	if ( !qstrcmp( property, mp->name() ) )
@@ -89,11 +79,11 @@ void QActiveQt::propertyChanged( const char *property )
     if ( !activex )
 	return;
 
-    if ( !proplist )
+    if ( !activex->proplist )
 	activex->readMetaData();
 
     DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *proplist );
+    QIntDictIterator <QMetaProperty> it( *activex->proplist );
     while ( it.current() && dispId < 0 ) {
 	QMetaProperty *mp = it.current();
 	if ( !qstrcmp( property, mp->name() ) )
@@ -208,7 +198,7 @@ public:
     typedef QValueList<CONNECTDATA>::Iterator Iterator;
 
     QAxConnection( QActiveQtBase *parent, const QUuid &uuid )
-	: that(parent), iid( uuid )
+	: that(parent), iid( uuid ), ref( 2 )
     {
     }
     QAxConnection( const QAxConnection &old )
@@ -266,16 +256,18 @@ public:
 	CONNECTDATA cd;
 	cd.dwCookie = cookie++;
 	cd.pUnk = pUnk;
+	cd.pUnk->AddRef();
 	connections.append(cd);
 
 	*pdwCookie = 0;
 	return S_OK;
-    }	
+    }
     STDMETHOD(Unadvise)(DWORD dwCookie)
     {
 	for ( QValueList<CONNECTDATA>::Iterator i = connections.begin(); i != connections.end(); ++i ) {
 	    CONNECTDATA cd = *i;
 	    if ( cd.dwCookie == dwCookie ) {
+		cd.pUnk->Release();
 		connections.remove(i);
 		return S_OK;
 	    }
@@ -336,11 +328,42 @@ private:
 };
 
 
-QActiveQtBase::QActiveQtBase()
-: initNewCalled(FALSE), dirtyflag( FALSE ), activeqt( 0 )
+QActiveQtBase::QActiveQtBase( IID QAxClass )
+: initNewCalled(FALSE), dirtyflag( FALSE ), activeqt( 0 ), ref( 0 ),
+  IID_QAxClass( QAxClass ), slotlist(0), signallist(0),proplist(0), proplist2(0)
+
 {
+    _Module.Lock();
+    if ( !typeInfoHolderList ) {
+	typeInfoHolderList = new QPtrList<CComTypeInfoHolder>;
+	typeInfoHolderList->setAutoDelete( TRUE );
+    }
+
+    QString clsid = QUuid(QAxClass).toString();
+    _tih = new CComTypeInfoHolder();
+    _tih->m_pguid = new GUID( _Module.factory()->interfaceID(clsid) );
+    _tih->m_plibid = new GUID( _Module.factory()->typeLibID() );
+    _tih->m_wMajor = 1;
+    _tih->m_wMinor = 0;
+    _tih->m_dwRef = 0;
+    _tih->m_pInfo = NULL;
+    _tih->m_pMap = NULL;
+    _tih->m_nCount = 0;
+    typeInfoHolderList->append( _tih );
+
+    _tih2 = new CComTypeInfoHolder();
+    _tih2->m_pguid = &IID_QAxClass;
+    _tih2->m_plibid = new GUID( _Module.factory()->typeLibID() );
+    _tih2->m_wMajor = 1;
+    _tih2->m_wMinor = 0;
+    _tih2->m_dwRef = 0;
+    _tih2->m_pInfo = NULL;
+    _tih2->m_pMap = NULL;
+    _tih2->m_nCount = 0;
+    typeInfoHolderList->append( _tih2 );
+
     points[IID_IPropertyNotifySink] = new QAxConnection( this, IID_IPropertyNotifySink );
-    points[IID_QAxEvents] = new QAxConnection( this, IID_QAxEvents );
+    points[_Module.factory()->eventsID(clsid)] = new QAxConnection( this, _Module.factory()->eventsID(clsid) );
 }
 
 QActiveQtBase::~QActiveQtBase()
@@ -351,20 +374,41 @@ QActiveQtBase::~QActiveQtBase()
 	activeqt->disconnect( this );
 	delete activeqt;
     }
+
+    _Module.Unlock();
+    delete slotlist;
+    delete signallist;
+    delete proplist;
+    delete proplist2;
 }
+
+class HackWidget : public QWidget
+{
+    friend class QActiveQtBase;
+};
 
 LRESULT QActiveQtBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    activeqt = qt_activeqt( 0, 0, Qt::WStyle_Customize );
-    activeqt->activex = this;
+    activeqt = _Module.factory()->create( QUuid(IID_QAxClass) );
     Q_ASSERT(activeqt);
+    if ( !activeqt )
+	return 0;
+    QActiveQt *aqt = (QActiveQt*)activeqt->qt_cast( "QActiveQt" );
+    if ( aqt )
+	aqt->activex = this;
+    ((HackWidget*)activeqt)->clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
+    ((HackWidget*)activeqt)->topData()->ftop = 0;
+    ((HackWidget*)activeqt)->topData()->fright = 0;
+    ((HackWidget*)activeqt)->topData()->fleft = 0;
+    ((HackWidget*)activeqt)->topData()->fbottom = 0;
     ::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
 
     // connect the generic slot to all signals of activeqt
-    QMetaObject *mo = activeqt->metaObject();
+    const QMetaObject *mo = activeqt->metaObject();
     for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
 	connectInternal( activeqt, isignal, this, 2, isignal );
     
+    activeqt->installEventFilter( this );
     return 0;
 }
 
@@ -398,123 +442,6 @@ LRESULT QActiveQtBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, 
     return 0;
 }
 
-HRESULT QActiveQtBase::UpdateRegistry(BOOL bRegister)
-{
-    char filename[MAX_PATH];
-    GetModuleFileNameA( 0, filename, MAX_PATH-1 );
-    QString file = QString::fromLocal8Bit(filename );
-    QString path = file.left( file.findRev( "\\" )+1 );
-    QString module = file.right( file.length() - path.length() );
-    module = module.left( module.findRev( "." ) );
-    
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    const QString appID = QUuid( IID_QAxApp ).isNull() ? QString::null : QUuid( IID_QAxApp ).toString().upper();
-    const QString classID = QUuid( IID_QAxClass ).toString().upper();
-    const QString eventID = QUuid( IID_QAxEvents ).toString().upper();
-    const QString libID = QUuid( IID_QAxTypeLib ).toString().upper();
-    const QString ifaceID = QUuid( IID_QAxInterface ).toString().upper();
-    
-    QMetaObject *mo = qt_activeqt_meta();
-    const QString className = mo->className();
-    
-    if ( bRegister ) {
-	if ( !appID.isNull() ) {
-	    settings.writeEntry( "/AppID/" + appID + "/.", module );
-	    settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appID );
-	}
-	
-	settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
-	settings.writeEntry( "/" + module + "." + className + ".1/CLSID/.", classID );
-	settings.writeEntry( "/" + module + "." + className + ".1/Insertable/.", QString::null );
-	
-	settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
-	settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classID );
-	settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + ".1" );
-	
-	settings.writeEntry( "/CLSID/" + classID + "/.", className + " Class" );
-	if ( !appID.isNull() )
-	    settings.writeEntry( "/CLSID/" + classID + "/AppID", appID );
-	settings.writeEntry( "/CLSID/" + classID + "/Control/.", QString::null );
-	settings.writeEntry( "/CLSID/" + classID + "/Insertable/.", QString::null );
-	settings.writeEntry( "/CLSID/" + classID + "/LocalServer32/.", file + " -activex" );
-	settings.writeEntry( "/CLSID/" + classID + "/MiscStatus/.", "0" );
-	settings.writeEntry( "/CLSID/" + classID + "/MiscStatus/1/.", "131473" );
-	settings.writeEntry( "/CLSID/" + classID + "/Programmable/.", QString::null );
-	settings.writeEntry( "/CLSID/" + classID + "/ToolboxBitmap32/.", file + ", 101" );
-	settings.writeEntry( "/CLSID/" + classID + "/TypeLib/.", libID );
-	settings.writeEntry( "/CLSID/" + classID + "/Version/.", "1.0" );
-	settings.writeEntry( "/CLSID/" + classID + "/VersionIndependentProgID/.", module + "." + className );
-	settings.writeEntry( "/CLSID/" + classID + "/ProgID/.", module + "." + className + ".1" );
-	settings.writeEntry( "/CLSID/" + classID + "/Implemented Categories/.", QString::null );
-	//### TODO: write some list of categories
-	
-	settings.writeEntry( "/Interface/" + ifaceID + "/.", "I" + className );
-	settings.writeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid/.", "{00020424-0000-0000-C000-000000000046}" );
-	settings.writeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid32/.", "{00020424-0000-0000-C000-000000000046}" );
-	settings.writeEntry( "/Interface/" + ifaceID + "/TypeLib/.", libID );
-	settings.writeEntry( "/Interface/" + ifaceID + "/TypeLib/Version", "1.0" );
-	
-	settings.writeEntry( "/Interface/" + eventID + "/.", "_I" + className + "Events" );
-	settings.writeEntry( "/Interface/" + eventID + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
-	settings.writeEntry( "/Interface/" + eventID + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
-	settings.writeEntry( "/Interface/" + eventID + "/TypeLib/.", libID );
-	settings.writeEntry( "/Interface/" + eventID + "/TypeLib/Version", "1.0" );
-	
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/0/win32/.", file );
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/FLAGS/.", "0" );
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/HELPDIR/.", path );
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/.", module + " 1.0 Type Library" );
-    } else {
-	settings.removeEntry( "/AppID/" + module + ".EXE/AppID" );
-	settings.removeEntry( "/AppID/" + appID + "/." );
-	
-	settings.removeEntry( "/" + module + "." + className + ".1/CLSID/." );
-	settings.removeEntry( "/" + module + "." + className + ".1/Insertable/." );
-	settings.removeEntry( "/" + module + "." + className + ".1/." );
-	
-	settings.removeEntry( "/" + module + "." + className + "/CLSID/." );
-	settings.removeEntry( "/" + module + "." + className + "/CurVer/." );
-	settings.removeEntry( "/" + module + "." + className + "/." );
-	
-	settings.removeEntry( "/CLSID/" + classID + "/AppID" );
-	settings.removeEntry( "/CLSID/" + classID + "/Control/." );
-	settings.removeEntry( "/CLSID/" + classID + "/Insertable/." );
-	settings.removeEntry( "/CLSID/" + classID + "/LocalServer32/." );
-	settings.removeEntry( "/CLSID/" + classID + "/MiscStatus/1/." );
-	settings.removeEntry( "/CLSID/" + classID + "/MiscStatus/." );	    
-	settings.removeEntry( "/CLSID/" + classID + "/Programmable/." );
-	settings.removeEntry( "/CLSID/" + classID + "/ToolboxBitmap32/." );
-	settings.removeEntry( "/CLSID/" + classID + "/TypeLib/." );
-	settings.removeEntry( "/CLSID/" + classID + "/Version/." );
-	settings.removeEntry( "/CLSID/" + classID + "/VersionIndependentProgID/." );
-	settings.removeEntry( "/CLSID/" + classID + "/ProgID/." );
-	//### TODO: remove some list of categories
-	settings.removeEntry( "/CLSID/" + classID + "/Implemented Categories/." );
-	settings.removeEntry( "/CLSID/" + classID + "/." );
-	
-	settings.removeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid/." );
-	settings.removeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid32/." );
-	settings.removeEntry( "/Interface/" + ifaceID + "/TypeLib/Version" );
-	settings.removeEntry( "/Interface/" + ifaceID + "/TypeLib/." );
-	settings.removeEntry( "/Interface/" + ifaceID + "/." );
-	
-	settings.removeEntry( "/Interface/" + eventID + "/ProxyStubClsid/." );
-	settings.removeEntry( "/Interface/" + eventID + "/ProxyStubClsid32/." );
-	settings.removeEntry( "/Interface/" + eventID + "/TypeLib/Version" );
-	settings.removeEntry( "/Interface/" + eventID + "/TypeLib/." );
-	settings.removeEntry( "/Interface/" + eventID + "/." );
-	
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/0/win32/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/0/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/FLAGS/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/HELPDIR/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/." );
-    }
-    
-    return S_OK;
-}
-
 void QActiveQtBase::readMetaData()
 {
     if ( !slotlist ) {
@@ -530,7 +457,7 @@ void QActiveQtBase::readMetaData()
 	    BSTR bstrNames = QStringToBSTR( slot->method->name );
 	    UINT cNames = 1;
 	    DISPID dispId;
-	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_SYSTEM_DEFAULT, &dispId );
+	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_USER_DEFAULT, &dispId );
 	    if ( dispId >= 0 ) {
 		for ( int p = 0; p < (int)cNames; ++ p ) {
 		    slotlist->insert( dispId, slot );
@@ -561,7 +488,7 @@ void QActiveQtBase::readMetaData()
 				TYPEATTR *eventattr;
 				eventtype->GetTypeAttr( &eventattr );
 				// this is it
-				if ( eventattr && eventattr->guid == IID_QAxEvents ) {
+				if ( eventattr && eventattr->guid == _Module.factory()->eventsID(QUuid(IID_QAxClass)) ) {
 				    eventinfo = eventtype;
 				    eventtype->ReleaseTypeAttr( eventattr );
 				    break;
@@ -581,10 +508,11 @@ void QActiveQtBase::readMetaData()
 			DISPID dispId;
 			eventinfo->GetIDsOfNames( (BSTR*)&bstrNames, cNames, &dispId );
 			if ( dispId >= 0 ) {
-			    for ( int p = 0; p < (int)cNames; ++ p ) {
-				signallist->insert( isignal, dispId );
+			    signallist->insert( isignal, dispId );
+			    for ( int p = 0; p < (int)cNames; ++ p )
 				SysFreeString( bstrNames );
-			    }
+			} else {
+			    signallist->insert( isignal, -1 );
 			}
 		    }
 		}
@@ -596,11 +524,11 @@ void QActiveQtBase::readMetaData()
 	    BSTR bstrNames = QStringToBSTR( property->name() );
 	    UINT cNames = 1;
 	    DISPID dispId;
-	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_SYSTEM_DEFAULT, &dispId );
+	    GetIDsOfNames( IID_NULL, (BSTR*)&bstrNames, cNames, LOCALE_USER_DEFAULT, &dispId );
 	    if ( dispId >= 0 ) {
 		for ( int p = 0; p < (int)cNames; ++p ) {
 		    proplist->insert( dispId, property );
-		    proplist2->insert( p, dispId );
+		    proplist2->insert( iproperty, dispId );
 		    SysFreeString( bstrNames );
 		}
 	    }
@@ -624,9 +552,11 @@ bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
 
     // Get the Dispatch ID of the method to be called
     DISPID eventId = signallist->operator [](isignal);
+    if ( eventId == -1 )
+	return FALSE;
 
     CComPtr<IConnectionPoint> cpoint;
-    FindConnectionPoint( IID_QAxEvents, &cpoint );
+    FindConnectionPoint( _Module.factory()->eventsID(QUuid(IID_QAxClass)), &cpoint );
     if ( cpoint ) {
 	CComPtr<IEnumConnections> clist;
 	cpoint->EnumConnections( &clist );
@@ -697,12 +627,13 @@ bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
 		    dispParams.rgvarg[ signalcount - p - 1 ] = arg;
 		}
 		// call listeners
+		GUID IID_QAxEvents = _Module.factory()->eventsID(QUuid(IID_QAxClass));
 		while ( cc ) {
 		    if ( c->pUnk ) {
 			CComPtr<IDispatch> disp;
 			c->pUnk->QueryInterface( IID_QAxEvents, (void**)&disp );
 			if ( disp ) {
-			    disp->Invoke( eventId, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
+			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
 			}
 			c->pUnk->Release();
 		    }
@@ -798,7 +729,7 @@ HRESULT QActiveQtBase::Invoke( DISPID dispidMember, REFIID riid,
 	    const QMetaData *slot = slotlist->find( dispidMember );
 	    if ( !slot )
 		break;
-	    int index = activeqt->metaObject()->findSlot( slot->name );
+	    int index = activeqt->metaObject()->findSlot( slot->name, TRUE );
 	    if ( index == -1 )
 		break;
 	    // verify parameter count
@@ -881,8 +812,7 @@ HRESULT QActiveQtBase::Invoke( DISPID dispidMember, REFIID riid,
 
     if ( res == S_OK )
 	return res;
-    return IDispatchImpl<IDispatch, &IID_QAxInterface, &IID_QAxTypeLib>::
-	Invoke( dispidMember, riid, lcid, wFlags, pDispParams, pvarResult, pexcepinfo, puArgErr );
+    return E_FAIL;
 }
 
 HRESULT QActiveQtBase::EnumConnectionPoints( IEnumConnectionPoints **epoints )
@@ -901,8 +831,10 @@ HRESULT QActiveQtBase::FindConnectionPoint( REFIID iid, IConnectionPoint **cpoin
 
     IConnectionPoint *cp = points[iid];
     *cpoint = cp;
-    if ( cp )
+    if ( cp ) {
+	cp->AddRef();
 	return S_OK;
+    }
     return CONNECT_E_NOCONNECTION;
 }
 
@@ -991,7 +923,7 @@ HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
 
     VARIANT var;
     DISPPARAMS params = { 0, 0, 0, 0 };
-    disp->Invoke( dispID, IID_NULL, LOCALE_SYSTEM_DEFAULT, DISPATCH_PROPERTYGET, &params, &var, 0, 0 );
+    disp->Invoke( dispID, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &var, 0, 0 );
 
     switch( dispID ) {
     case DISPID_AMBIENT_APPEARANCE:
@@ -1001,7 +933,12 @@ HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
     case DISPID_AMBIENT_BACKCOLOR:
     case DISPID_AMBIENT_FORECOLOR:
 	{
-	    if ( var.vt != VT_I4 )
+	    long rgb;
+	    if ( var.vt == VT_UI4 )
+		rgb = var.ulVal;
+	    else if ( var.vt == VT_I4 )
+		rgb = var.lVal;
+	    else
 		break;
 	    QPalette pal = activeqt->palette();
 	    // OLE_COLOR is BGR
@@ -1079,6 +1016,11 @@ HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
 	break;
     case DISPID_AMBIENT_USERMODE:
 	break;
+    case DISPID_AMBIENT_RIGHTTOLEFT:
+	if ( var.vt != VT_BOOL )
+	    break;
+	qApp->setReverseLayout( var.boolVal );
+	break;
     }
 
     return S_OK;
@@ -1089,18 +1031,85 @@ HRESULT QActiveQtBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserType)
     if ( !pszUserType )
 	return E_POINTER;
 
-    if ( !activeqt )
-	return IOleObjectImpl<QActiveQtBase>::GetUserType( dwFormOfType, pszUserType );
+    const QMetaObject *mo = _Module.factory()->metaObject( QUuid(IID_QAxClass) );
 
     switch ( dwFormOfType ) {
     case USERCLASSTYPE_FULL:
-	return IOleObjectImpl<QActiveQtBase>::GetUserType( dwFormOfType, pszUserType );
+	*pszUserType = QStringToBSTR( mo->className() );
+	break;
     case USERCLASSTYPE_SHORT:
-	*pszUserType = QStringToBSTR( activeqt->name() ? activeqt->name() : activeqt->className() );
+	if ( !activeqt || activeqt->caption().isEmpty() )
+	    *pszUserType = QStringToBSTR( mo->className() );
+	else
+	    *pszUserType = QStringToBSTR( activeqt->caption() );
 	break;
     case USERCLASSTYPE_APPNAME:
-	*pszUserType = QStringToBSTR( activeqt->caption() );
+	*pszUserType = QStringToBSTR( qApp->name() );
 	break;
     }
+
     return S_OK;
+}
+
+HRESULT QActiveQtBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
+{
+    ATLTRACE2(atlTraceControls,2,_T("IOleObjectImpl::GetMiscStatus\n"));
+    return OleRegGetMiscStatus( IID_QAxClass, dwAspect, pdwStatus);
+}
+
+HRESULT QActiveQtBase::SetExtent( DWORD dwDrawAspect, SIZEL *psizel )
+{
+    SIZEL sizel = *psizel;
+    if ( activeqt ) {
+	SIZE sz;
+	AtlHiMetricToPixel( &sizel, &sz );
+	QSize min = activeqt->minimumSizeHint();
+	sz.cx = QMAX( min.width(), sz.cx );
+	sz.cy = QMAX( min.height(), sz.cy );
+	AtlPixelToHiMetric( &sz, &sizel );
+    }
+    return IOleObjectImpl<QActiveQtBase>::SetExtent( dwDrawAspect, &sizel );
+}
+
+bool QActiveQtBase::eventFilter( QObject *o, QEvent *e )
+{
+    if ( !activeqt )
+	return QObject::eventFilter( o, e );
+
+    switch( e->type() ) {
+    case QEvent::ChildInserted:
+	{
+	    QChildEvent *ce = (QChildEvent*)e;
+	    ce->child()->installEventFilter( this );
+	}
+	break;
+    case QEvent::ChildRemoved:
+	{
+	    QChildEvent *ce = (QChildEvent*)e;
+	    ce->child()->removeEventFilter( this );
+	}
+	break;
+    case QEvent::MouseButtonPress:
+	{
+	    if ( activeqt->focusWidget() == qApp->focusWidget() )
+		break;
+	}
+	// FALL THROUGH
+    case QEvent::FocusIn:    
+	{
+	    CComPtr<IOleClientSite> clientsite;
+	    GetClientSite( &clientsite );
+	    if ( clientsite ) {
+		CComPtr<IOleControlSite> controlsite;
+		clientsite->QueryInterface( IID_IOleControlSite, (void**)&controlsite );
+		if ( controlsite )
+		    controlsite->OnFocus( TRUE );
+	    }
+	}
+	break;
+    default:
+	break;
+    }    
+
+    return QObject::eventFilter( o, e );
 }

@@ -79,8 +79,8 @@ void ShowNextPiece::drawNextSquare(int x, int y,QColor *color)
 }
 
 
-QTetrix::QTetrix( QWidget *parent, const char *name, WFlags f )
-    : QActiveQt( parent, name, f )
+QTetrix::QTetrix( QWidget *parent, const char *name )
+    : QWidget( parent, name )
 {
     QTime t = QTime::currentTime();
     TetrixPiece::setRandomSeed( (((double)t.hour())+t.minute()+t.second())/

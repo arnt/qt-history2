@@ -21,7 +21,7 @@ class QCOM_EXPORT QComBase
     Q_PROPERTY( QString control READ control WRITE setControl )
 #endif
 public:
-    typedef QMap<QString, QVariant> PropertyBag;
+    typedef QMap<QCString, QVariant> PropertyBag;
 
     QComBase( IUnknown *iface = 0 );
     virtual ~QComBase();
@@ -54,9 +54,11 @@ public:
     virtual const char *className() const = 0;
     virtual QObject *qObject() = 0;
 
-    virtual bool allowPropertyChange( const QString& ) const { return TRUE; }
     PropertyBag propertyBag() const;
     void setPropertyBag( const PropertyBag& );
+
+    virtual bool propertyWritable( const char* ) const;
+    virtual void setPropertyWritable( const char*, bool );
 
     bool isNull() const { return !ptr; }
 
@@ -81,14 +83,20 @@ private:
     IUnknown *ptr;
     QAxEventSink *eventSink;
     QString ctrl;
+    QMap<QCString, bool> *propWritable;
 };
 
 #ifndef QT_NO_DATASTREAM
 inline QDataStream &operator >>( QDataStream &s, QComBase &c )
 {
     QComBase::PropertyBag bag;
+    c.qObject()->blockSignals( TRUE );
+    QString control;
+    s >> control;
+    c.setControl( control );
     s >> bag;
     c.setPropertyBag( bag );
+    c.qObject()->blockSignals( FALSE );
 
     return s;
 }
@@ -96,6 +104,7 @@ inline QDataStream &operator >>( QDataStream &s, QComBase &c )
 inline QDataStream &operator <<( QDataStream &s, const QComBase &c )
 {
     QComBase::PropertyBag bag = c.propertyBag();
+    s << c.control();
     s << bag;
 
     return s;

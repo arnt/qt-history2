@@ -5,6 +5,7 @@
 #include "qcomobject.h"
 
 struct IOleClientSite;
+class QHBoxLayout;
 
 class QCOM_EXPORT QActiveX : public QWidget, public QComBase
 {
@@ -18,8 +19,8 @@ public:
     bool qt_property( int, int, QVariant* );
     QObject* qObject() { return (QObject*)this; }
 
-    QActiveX( QWidget* parent = 0, const char* name = 0 );
-    QActiveX( const QString &c, QWidget *parent = 0, const char *name = 0);
+    QActiveX( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
+    QActiveX( const QString &c, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     ~QActiveX();
 
     void clear();
@@ -27,22 +28,28 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    //void reparent( QWidget *parent, WFlags f, const QPoint &, bool showIt = FALSE );
+    void reparent( QWidget *parent, WFlags f, const QPoint &, bool showIt = FALSE );
     //void setAcceptDrops( bool on );
     //bool customWhatsThis() const;
     void setUpdatesEnabled( bool );
+    bool event( QEvent * );
 
 protected:
+    bool initialize( IUnknown** );
+
     void enabledChange( bool old );
     void paletteChange( const QPalette &old );
     void fontChange( const QFont &old );
     void windowActivationChange( bool old );
 
-private:
-    bool initialize( IUnknown** );
-    QMetaObject *parentMetaObject() const;
 
+private:
+    QMetaObject *parentMetaObject() const;
+    void initContainer();
+    QWidget *container;
+    QHBoxLayout *boxlayout;
     IOleClientSite *clientsite;
+    IUnknown *host;
     QSize extent;
 };
 

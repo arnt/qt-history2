@@ -1,0 +1,178 @@
+import "oaidl.idl";
+import "ocidl.idl";
+#include "olectl.h"
+
+
+	[
+		object,
+		uuid(6DA689FB-928F-423c-8632-678C3D3606DB),
+		dual,
+		helpstring("QButton Interface"),
+		pointer_default(ptr)
+	]
+	interface IQButton : IDispatch
+	{
+		[id(1), helpstring("Animated click")] HRESULT animateClick();
+		[id(2), helpstring("Toggles the button")] HRESULT toggle();
+		[propget, id(3), helpstring("Property text")] HRESULT text([out, retval] BSTR *pVal);
+		[propput, id(3), helpstring("Property text")] HRESULT text([in] BSTR newVal);
+		[propget, id(4), helpstring("Property autoRepeat")] HRESULT autoRepeat([out, retval] BOOL *pVal );
+		[propput, id(4), helpstring("Property autoRepeat")] HRESULT autoRepeat([in] BOOL newVal );
+	};
+
+	[
+		object,
+		uuid(4FD39DD7-2DE0-43c1-A8C2-27C51A052810),
+		dual,
+		helpstring("QCheckBox Interface"),
+		pointer_default(ptr)
+	]
+	interface IQCheckBox : IQButton
+	{
+		[propget, id(10), helpstring("Property checked")] HRESULT checked([out, retval] BOOL *pVal);
+		[propput, id(10), helpstring("Property checked")] HRESULT checked([in] BOOL newVal);
+		[propget, id(11), helpstring("Property tristate")] HRESULT tristate([out, retval] BOOL *pVal );
+		[propput, id(11), helpstring("Property tristate")] HRESULT tristate([in] BOOL newVal );
+	};
+
+	[
+		object,
+		uuid(7CC8AE30-206C-48a3-A009-B0A088026C2F),
+		dual,
+		helpstring("QRadioButton Interface"),
+		pointer_default(ptr)
+	]
+	interface IQRadioButton : IQButton
+	{
+		[propget, id(10), helpstring("Property checked")] HRESULT checked([out, retval] BOOL *pVal);
+		[propput, id(10), helpstring("Property checked")] HRESULT checked([in] BOOL newVal);
+	};
+
+	[
+		object,
+		uuid(06831CC9-59B6-436a-9578-6D53E5AD03D3),
+		dual,
+		helpstring("QPushButton Interface"),
+		pointer_default(ptr)
+	]
+	interface IQPushButton : IQButton
+	{
+		[propget, id(10), helpstring("Property autoDefault")] HRESULT autoDefault([out, retval] BOOL *pVal);
+		[propput, id(10), helpstring("Property autoDefault")] HRESULT autoDefault([in] BOOL newVal);
+		[propget, id(11), helpstring("Property toggleButton")] HRESULT toggleButton([out, retval] BOOL *pVal);
+		[propput, id(11), helpstring("Property toggleButton")] HRESULT toggleButton([in] BOOL newVal);
+		[propget, id(12), helpstring("Property on")] HRESULT on([out, retval] BOOL *pVal);
+		[propput, id(12), helpstring("Property on")] HRESULT on([in] BOOL newVal);
+		[propget, id(13), helpstring("Property flat")] HRESULT flat([out, retval] BOOL *pVal);
+		[propput, id(13), helpstring("Property flat")] HRESULT flat([in] BOOL newVal);
+	};
+
+[
+	uuid(3B756301-0075-4e40-8BE8-5A81DE2426B7),
+	version(1.0),
+	helpstring("QAx 1.0 Type Library")
+]
+library QAxLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(73A5D03F-8ADE-4d84-9AE0-A93B4F85A130),
+		helpstring("QButton Events Interface")
+	]
+	dispinterface IQButtonEvents
+	{
+		properties:
+		methods:
+		[id(1)] void pressed();
+		[id(2)] void released();
+		[id(3)] void clicked();
+		[id(4)] void toggled(bool);
+		[id(5)] void stateChanged(int);
+	};
+
+	[
+		uuid(23F5012A-7333-43d3-BCA8-836AABC61B4A),
+		helpstring("QButton Class")
+	]
+	coclass QButton
+	{
+		[default] interface IQButton;
+		[default, source] dispinterface IQButtonEvents;
+	};
+
+	[
+		uuid(FDB6FFBE-56A3-4e90-8F4D-198488418B3A),
+		helpstring("QCheckBox Events Interface")
+	]
+	dispinterface IQCheckBoxEvents
+	{
+		properties:
+		methods:
+		[id(1)] void pressed();
+		[id(2)] void released();
+		[id(3)] void clicked();
+		[id(4)] void toggled(BOOL);
+		[id(5)] void stateChanged(int);
+	};
+
+	[
+		uuid(6E795DE9-872D-43cf-A831-496EF9D86C68),
+		helpstring("QCheckBox Class")
+	]
+	coclass QCheckBox
+	{
+		[default] interface IQCheckBox;
+		[default, source] dispinterface IQCheckBoxEvents;
+	};
+	[
+		uuid(73EE4860-684C-4a66-BF63-9B9EFFA0CBE5),
+		helpstring("QRadioButton Events Interface")
+	]
+	dispinterface IQRadioButtonEvents
+	{
+		properties:
+		methods:
+		[id(1)] void pressed();
+		[id(2)] void released();
+		[id(3)] void clicked();
+		[id(4)] void toggled(BOOL);
+		[id(5)] void stateChanged(int);
+	};
+
+	[
+		uuid(AFCF78C8-446C-409a-93B3-BA2959039189),
+		helpstring("QRadioButton Class")
+	]
+	coclass QRadioButton
+	{
+		[default] interface IQRadioButton;
+		[default, source] dispinterface IQRadioButtonEvents;
+	};
+
+	[
+		uuid(3CC3F17F-EA59-4b58-BBD3-842D467131DD),
+		helpstring("QRadioButton Events Interface")
+	]
+	dispinterface IQPushButtonEvents
+	{
+		properties:
+		methods:
+		[id(1)] void pressed();
+		[id(2)] void released();
+		[id(3)] void clicked();
+		[id(4)] void toggled(BOOL);
+		[id(5)] void stateChanged(int);
+	};
+
+	[
+		uuid(2B262458-A4B6-468b-B7D4-CF5FEE0A7092),
+		helpstring("QPushButton Class")
+	]
+	coclass QPushButton
+	{
+		[default] interface IQPushButton;
+		[default, source] dispinterface IQPushButtonEvents;
+	};
+};

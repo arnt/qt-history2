@@ -8,14 +8,14 @@
 #define QT_ACTIVEXIMPL
 #include <qactiveqt.h>
 
-class QSimpleAX : public QActiveQt
+class QSimpleAX : public QWidget, public QActiveQt
 {
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( int value READ value WRITE setValue )
 public:
-    QSimpleAX( QWidget *parent = 0, const char *name = 0, WFlags f = 0 )
-    : QActiveQt( parent, name, f )
+    QSimpleAX( QWidget *parent = 0, const char *name = 0 )
+    : QWidget( parent, name )
     {
 	QVBoxLayout *vbox = new QVBoxLayout( this );
 
