@@ -467,10 +467,11 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	if ( d->maxtools ) {
 	    if ( !!w->windowIcon() ) {
 		QPixmap pm(w->windowIcon());
-		if(pm.width() != 14 || pm.height() != 14) {
+		int iconSize = d->maxtools->size().height();
+		if(pm.width() > iconSize || pm.height() > iconSize) {
 		    QImage im;
 		    im = pm;
-		    pm = im.smoothScale( 14, 14 );
+		    pm = im.smoothScale( qMin(iconSize, pm.width()), qMin(iconSize, pm.height()) );
 		}
 		d->maxtools->setPixmap( pm );
 	    } else
@@ -1136,14 +1137,14 @@ void QWorkspace::showMaximizeControls()
 	}
 	if ( d->active->windowWidget() && !!d->active->windowWidget()->windowIcon() ) {
 	    QPixmap pm(d->active->windowWidget()->windowIcon());
-	    if(pm.width() != 14 || pm.height() != 14) {
+	    int iconSize = d->maxtools->size().height();
+	    if(pm.width() > iconSize || pm.height() > iconSize) {
 		QImage im;
 		im = pm;
-		pm = im.smoothScale( 14, 14 );
+		pm = im.smoothScale( QMIN(iconSize, pm.width()), QMIN(iconSize, pm.height()) );
 	    }
 	    d->maxtools->setPixmap( pm );
-	} else
-	{
+	} else {
 	    QPixmap pm(14,14);
 	    pm.fill( color1 );
 	    pm.setMask(pm.createHeuristicMask());
@@ -1672,13 +1673,13 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     if ( titlebar ) {
-	int iconSize = th - frameWidth() * 2;
+	int iconSize = th ;
 	if( !!childWidget->windowIcon() ) {
 	    QPixmap pm(childWidget->windowIcon());
-	    if(pm.width() != iconSize || pm.height() != iconSize) {
+	    if(pm.width() > iconSize || pm.height() > iconSize) {
 		QImage im;
 		im = pm;
-		pm = im.smoothScale( iconSize, iconSize );
+		pm = im.smoothScale( qMin(iconSize, pm.width()), qMin(iconSize, pm.height()) );
 	    }
 	    titlebar->setWindowIcon( pm );
 	}
@@ -1716,6 +1717,7 @@ QWorkspaceChild::~QWorkspaceChild()
 {
     if ( iconw )
 	delete iconw->parentWidget();
+
     QWorkspace *workspace = qt_cast<QWorkspace*>(parentWidget());
     if ( workspace ) {
 	if ( workspace->d->active == this )
@@ -1866,18 +1868,16 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    QWorkspace* ws = (QWorkspace*)parentWidget();
 	    if ( !titlebar )
 		break;
-
 	    QPixmap pm;
-	    int iconSize = titlebar->size().height() - frameWidth() * 2;
+	    int iconSize = titlebar->size().height();
 	    if ( !!childWidget->windowIcon() ) {
 		pm = childWidget->windowIcon();
-		if(pm.width() != iconSize || pm.height() != iconSize) {
+		if(pm.width() > iconSize || pm.height() > iconSize) {
 		    QImage im;
 		    im = pm;
-		    pm = im.smoothScale( iconSize, iconSize );
+		    pm = im.smoothScale( qMin(iconSize, pm.width()), qMin(iconSize, pm.height()) );
 		}
-	    } else
-	    {
+	    } else {
 		pm.resize( iconSize, iconSize );
 		pm.fill( color1 );
 		pm.setMask(pm.createHeuristicMask());
@@ -2115,13 +2115,13 @@ QWidget* QWorkspaceChild::iconWidget() const
     if ( windowWidget() ) {
 	iconw->setWindowTitle( windowWidget()->windowTitle() );
 	if ( !!windowWidget()->windowIcon() ) {
-	    int iconSize = iconw->sizeHint().height() - frameWidth()*2;
+	    int iconSize = iconw->sizeHint().height();
 
 	    QPixmap pm(childWidget->windowIcon());
-	    if(pm.width() != iconSize || pm.height() != iconSize) {
+	    if(pm.width() > iconSize || pm.height() > iconSize) {
 		QImage im;
 		im = pm;
-		pm = im.smoothScale( iconSize, iconSize );
+		pm = im.smoothScale( qMin(iconSize, pm.width()), qMin(iconSize, pm.height()) );
 	    }
 	    iconw->setWindowIcon( pm );
 	}
