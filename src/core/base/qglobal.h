@@ -838,20 +838,11 @@ class QDataStream;
 
 // prune to local config
 #include "qmodules.h"
-#ifndef QT_MODULE_ICONVIEW
-# define QT_NO_ICONVIEW
-#endif
-#ifndef QT_MODULE_WORKSPACE
-# define QT_NO_WORKSPACE
-#endif
 #ifndef QT_MODULE_NETWORK
 #define QT_NO_NETWORK
 #endif
 #ifndef QT_MODULE_CANVAS
 # define QT_NO_CANVAS
-#endif
-#ifndef QT_MODULE_TABLE
-#define QT_NO_TABLE
 #endif
 #ifndef QT_MODULE_XML
 # define QT_NO_XML
