@@ -825,6 +825,10 @@ QX11PaintEngine::QX11PaintEngine()
     d->hd = 0;
     d->xft_hd = 0;
     d->xinfo = 0;
+    if (!X11->use_xrender) {
+        gccaps &= ~AlphaFillPolygon;
+        gccaps &= ~LinearGradientFillPolygon;
+    }
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
@@ -840,6 +844,10 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     d->hd = 0;
     d->xft_hd = 0;
     d->xinfo = 0;
+    if (!X11->use_xrender) {
+        gccaps &= ~AlphaFillPolygon;
+        gccaps &= ~LinearGradientFillPolygon;
+    }
 }
 
 QX11PaintEngine::~QX11PaintEngine()
