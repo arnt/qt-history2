@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#37 $
 **
 ** Implementation of QSlider class
 **
@@ -15,12 +15,12 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#37 $");
 
 
 static const int motifBorder = 2;
 static const int motifLength = 30;
-static const int winLength = 10;
+static const int winLength = 9; // Must be odd
 static const int thresholdTime = 500;
 static const int repeatTime    = 100;
 
@@ -343,10 +343,21 @@ static void drawWinPointedSlider( QPainter *p,
 				  const QColorGroup &g,
 				  SlDir dir)
 {
-    const QColor c1 = g.light();
-    const QColor c2 = black;
-    const QColor c3 = g.background();
-    const QColor c4 = g.dark();
+    // 3333330
+    // 3444410
+    // 3422210
+    // 3422210
+    // 3422210
+    // 3422210
+    //  34210
+    //   340
+    //    0
+
+    const QColor c0 = black;
+    const QColor c1 = g.dark();
+    const QColor c2 = g.background();
+    const QColor c3 = g.light();
+    const QColor c4 = g.highlight();
 
     int x1 = r.left();
     int x2 = r.right();
@@ -355,7 +366,7 @@ static void drawWinPointedSlider( QPainter *p,
 
 
     QBrush oldBrush = p->brush();
-    p->setBrush( c3 );
+    p->setBrush( c2 );
     p->setPen( NoPen );
     p->drawRect( r );
     p->setBrush( oldBrush );
@@ -377,69 +388,73 @@ static void drawWinPointedSlider( QPainter *p,
     }
 
     if ( dir != SlUp ) {
-	p->setPen( c1 );
+	p->setPen( c4 );
 	p->drawLine( x1, y1, x2, y1 );
+	p->setPen( c3 );
+	p->drawLine( x1, y1+1, x2, y1+1 );
     }
     if ( dir != SlLeft ) {
-	p->setPen( c1 );
+	p->setPen( c3 );
+	p->drawLine( x1+1, y1+1, x1+1, y2 );
+	p->setPen( c4 );
 	p->drawLine( x1, y1, x1, y2 );
     }
     if ( dir != SlRight ) {
-	p->setPen( c2 );
+	p->setPen( c0 );
 	p->drawLine( x2, y1, x2, y2 );
-	p->setPen( c4 );
+	p->setPen( c1 );
 	p->drawLine( x2-1, y1+1, x2-1, y2-1 );
     }
     if ( dir != SlDown ) {
-	p->setPen( c2 );
+	p->setPen( c0 );
 	p->drawLine( x1, y2, x2, y2 );
-	p->setPen( c4 );
+	p->setPen( c1 );
 	p->drawLine( x1+1, y2-1, x2-1, y2-1 );
     }
 
     int d = 0;
     switch ( dir ) {
     case SlUp:
-	p->setPen( c1 );
+	p->setPen( c4 );
 	d =  (r.width() + 1) / 2 - 1;
 	p->drawLine( x1, y1, x1+d, y1-d);
-	p->setPen( c2 );
+	p->setPen( c0 );
 	d = r.width() - d - 1;
 	p->drawLine( x2, y1, x2-d, y1-d);
-	p->setPen( c4 );
+	p->setPen( c1 );
 	d--;
 	p->drawLine( x2-1, y1, x2-1-d, y1-d);
 	break;
     case SlDown:
-	p->setPen( c1 );
+	p->setPen( c4 );
 	d =  (r.width() + 1) / 2 - 1;
 	p->drawLine( x1, y2, x1+d, y2+d);
-	p->setPen( c2 );
+	p->setPen( c0 );
 	d = r.width() - d - 1;
 	p->drawLine( x2, y2, x2-d, y2+d);
-	p->setPen( c4 );
+	p->setPen( c1 );
 	d--;
 	p->drawLine( x2-1, y2, x2-1-d, y2+d);
 	break;
     case SlLeft:
-	p->setPen( c1 );
+	p->setPen( c4 );
 	d =  (r.height() + 1) / 2 - 1;
 	p->drawLine( x1, y1, x1-d, y1+d);
-	p->setPen( c2 );
+	p->setPen( c0 );
 	d = r.height() - d - 1;
 	p->drawLine( x1, y2, x1-d, y2-d);
-	p->setPen( c4 );
+	p->setPen( c1 );
 	d--;
 	p->drawLine( x1, y2-1, x1-d, y2-1-d);
 	break;
     case SlRight:
-	p->setPen( c1 );
+	p->setPen( c4 );
 	d =  (r.height() + 1) / 2 - 1;
 	p->drawLine( x2, y1, x2+d, y1+d);
-	p->setPen( c2 );
+	p->setPen( c0 );
 	d = r.height() - d - 1;
 	p->drawLine( x2, y2, x2+d, y2-d);
-	p->setPen( c4 );
+	p->setPen( c1 );
 	d--;
 	p->drawLine( x2, y2-1, x2+d, y2-1-d);
 	break;
