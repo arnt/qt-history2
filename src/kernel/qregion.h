@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#37 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#38 $
 **
 ** Definition of QRegion class
 **
@@ -90,9 +90,6 @@ private:
     void    cmd( int id, void *, const QRegion * = 0, const QRegion * = 0 );
     void    exec( const QByteArray & );
     struct QRegionData : public QShared {
-	QRegionData() : unused(unused_shared) {}
-	QByteArray unused;
-	static QByteArray unused_shared;
 #if defined(_WS_WIN_)
 	HANDLE rgn;
 #elif defined(_WS_PM_)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#34 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -17,7 +17,7 @@
 /*!
   \class QImageConsumer qasyncimageio.h
   \brief An abstraction used by QImageDecoder.
-  
+
   \ingroup images
 
   A QImageConsumer consumes information about changes to the
@@ -107,17 +107,27 @@ struct QImageDecoderPrivate {
 	count = 0;
     }
 
-    static QList<QImageFormatType> factories;
+    static QList<QImageFormatType> * factories;
 
     // Builtins...
-    static QGIFFormatType gif_decoder_factory;
+    static QGIFFormatType * gif_decoder_factory;
 
     uchar header[max_header];
     int count;
 };
 
-QList<QImageFormatType> QImageDecoderPrivate::factories;
-QGIFFormatType QImageDecoderPrivate::gif_decoder_factory;
+QList<QImageFormatType> * QImageDecoderPrivate::factories = 0;
+QGIFFormatType * QImageDecoderPrivate::gif_decoder_factory = 0;
+
+
+void cleanup()
+{
+    delete QImageDecoderPrivate::factories;
+    QImageDecoderPrivate::factories = 0;
+    delete QImageDecoderPrivate::gif_decoder_factory;
+    QImageDecoderPrivate::gif_decoder_factory = 0;
+}
+
 
 /*!
   Constructs a QImageDecoder which will send change information to
@@ -166,10 +176,16 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	while (consumed < length && d->count < max_header) {
 	    d->header[d->count++] = buffer[consumed++];
 	}
+	
+	if ( !QImageDecoderPrivate::factories ) {
+	    QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	    QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
+	    qAddPostRoutine( cleanup );
+	}
 
-	for (QImageFormatType* f = QImageDecoderPrivate::factories.first();
+	for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	    f && !actual_decoder;
-	    f = QImageDecoderPrivate::factories.next())
+	    f = QImageDecoderPrivate::factories->next())
 	{
 	    actual_decoder = f->decoderFor(d->header, d->count);
 	}
@@ -204,10 +220,16 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 */
 const char* QImageDecoder::formatName(const uchar* buffer, int length)
 {
+    if ( !QImageDecoderPrivate::factories ) {
+	QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
+	qAddPostRoutine( cleanup );
+    }
+
     const char* name = 0;
-    for (QImageFormatType* f = QImageDecoderPrivate::factories.first();
+    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	f && !name;
-	f = QImageDecoderPrivate::factories.next())
+	f = QImageDecoderPrivate::factories->next())
     {
 	QImageFormat *decoder = f->decoderFor(buffer, length);
 	if (decoder) {
@@ -223,10 +245,17 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 */
 QStrList QImageDecoder::inputFormats()
 {
+    if ( !QImageDecoderPrivate::factories ) {
+	QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
+	qAddPostRoutine( cleanup );
+    }
+
     QStrList result;
 
-    for (QImageFormatType* f = QImageDecoderPrivate::factories.first();
-	f; f = QImageDecoderPrivate::factories.next())
+    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
+	 f;
+	 f = QImageDecoderPrivate::factories->next())
     {
 	if ( !result.contains(  f->formatName() ) ) {
 	    result.inSort(  f->formatName() );
@@ -242,7 +271,13 @@ QStrList QImageDecoder::inputFormats()
 */
 void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 {
-    QImageDecoderPrivate::factories.insert(0,f);
+    if ( !QImageDecoderPrivate::factories ) {
+	QImageDecoderPrivate::factories = new QListT<QImageFormatType>;
+	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
+	qAddPostRoutine( cleanup );
+    }
+
+    QImageDecoderPrivate::factories->insert(0,f);
 }
 
 /*!
@@ -251,7 +286,10 @@ void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 */
 void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
 {
-    QImageDecoderPrivate::factories.remove(f);
+    if ( !QImageDecoderPrivate::factories )
+	return;
+
+    QImageDecoderPrivate::factories->remove(f);
 }
 
 /*!
@@ -346,7 +384,7 @@ QImageFormatType::~QImageFormatType()
   \ingroup images
 
   This subclass of QImageFormat decodes GIF format images,
-  including animated GIFs.  Internally in 
+  including animated GIFs.  Internally in
 */
 
 /*!

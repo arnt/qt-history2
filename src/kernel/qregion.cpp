@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#26 $
 **
 ** Implementation of QRegion class
 **
@@ -49,13 +49,6 @@
 
   \sa QPainter::setClipRegion(), QPainter::setClipRect()
 */
-
-
-#if QT_VERSION == 200
-#error "Remove QRegionData::unused* entirely"
-#endif
-
-QByteArray QRegion::QRegionData::unused_shared;	// ### remove in 2.0
 
 
 /*****************************************************************************
