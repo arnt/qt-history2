@@ -560,19 +560,17 @@ void QPainter::drawWinFocusRect(int x, int y, int w, int h, const QColor &bgColo
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    if (d->txop == TxRotShear) {
-		QPen cpen = ds->pen;
-		ds->pen = QPen(black, 0, DotLine);
-		dgc->updatePen(ds);
-		drawPolygon(QPointArray(QRect(x, y, w, h)));
-		ds->pen = cpen;
-		dgc->updatePen(ds);
-		return;
-	    }
-	    map(x, y, w, h, &x, &y, &w, &h);
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxRotShear) {
+	    QPen cpen = ds->pen;
+	    ds->pen = QPen(black, 0, DotLine);
+	    dgc->updatePen(ds);
+	    drawPolygon(QPointArray(QRect(x, y, w, h)));
+	    ds->pen = cpen;
+	    dgc->updatePen(ds);
+	    return;
 	}
+	map(x, y, w, h, &x, &y, &w, &h);
     }
 
     dgc->drawWinFocusRect(x, y, w, h, false, bgColor);
@@ -689,40 +687,38 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    if (d->txop == TxRotShear) {
-		w--; // ###?
-		h--; // ###?
-		int rxx = w*xRnd/200;
-		int ryy = h*yRnd/200;
-		// were there overflows?
-		if ( rxx < 0 )
-		    rxx = w/200*xRnd;
-		if ( ryy < 0 )
-		    ryy = h/200*yRnd;
-		int rxx2 = 2*rxx;
-		int ryy2 = 2*ryy;
-		QPointArray a[4];
-		a[0].makeArc( x, y, rxx2, ryy2, 1*16*90, 16*90, ds->matrix );
-		a[1].makeArc( x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, ds->matrix );
-		a[2].makeArc( x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, ds->matrix );
-		a[3].makeArc( x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, ds->matrix );
-		// ### is there a better way to join QPointArrays?
-		QPointArray aa;
-		aa.resize( a[0].size() + a[1].size() + a[2].size() + a[3].size() );
-		uint j = 0;
-		for ( int k=0; k<4; k++ ) {
-		    for ( int i=0; i<a[k].size(); i++ ) {
-			aa.setPoint( j, a[k].point(i) );
-			j++;
-		    }
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxRotShear) {
+	    w--; // ###?
+	    h--; // ###?
+	    int rxx = w*xRnd/200;
+	    int ryy = h*yRnd/200;
+	    // were there overflows?
+	    if ( rxx < 0 )
+		rxx = w/200*xRnd;
+	    if ( ryy < 0 )
+		ryy = h/200*yRnd;
+	    int rxx2 = 2*rxx;
+	    int ryy2 = 2*ryy;
+	    QPointArray a[4];
+	    a[0].makeArc( x, y, rxx2, ryy2, 1*16*90, 16*90, ds->matrix );
+	    a[1].makeArc( x, y+h-ryy2, rxx2, ryy2, 2*16*90, 16*90, ds->matrix );
+	    a[2].makeArc( x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*16*90, 16*90, ds->matrix );
+	    a[3].makeArc( x+w-rxx2, y, rxx2, ryy2, 0*16*90, 16*90, ds->matrix );
+	    // ### is there a better way to join QPointArrays?
+	    QPointArray aa;
+	    aa.resize( a[0].size() + a[1].size() + a[2].size() + a[3].size() );
+	    uint j = 0;
+	    for ( int k=0; k<4; k++ ) {
+		for ( int i=0; i<a[k].size(); i++ ) {
+		    aa.setPoint( j, a[k].point(i) );
+		    j++;
 		}
-		dgc->drawPolygon(aa, false, 0, aa.size());
-		return;
 	    }
-	    map(x, y, w, h, &x, &y, &w, &h);
+	    dgc->drawPolygon(aa, false, 0, aa.size());
+	    return;
 	}
+	map(x, y, w, h, &x, &y, &w, &h);
     }
     dgc->drawRoundRect(x, y, w, h, xRnd, yRnd);
 }
@@ -735,16 +731,14 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    if (d->txop == TxRotShear) {
-		QPointArray a;
-		a.makeArc(x, y, w, h, 0, 360*16, ds->matrix);
-		dgc->drawPolygon(a, false, 0, a.size());
-		return;
-	    }
-	    map(x, y, w, h, &x, &y, &w, &h);
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxRotShear) {
+	    QPointArray a;
+	    a.makeArc(x, y, w, h, 0, 360*16, ds->matrix);
+	    dgc->drawPolygon(a, false, 0, a.size());
+	    return;
 	}
+	map(x, y, w, h, &x, &y, &w, &h);
     }
 
     dgc->drawEllipse(x, y, w, h);
@@ -758,16 +752,14 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    if (d->txop == TxRotShear) {
-		QPointArray pa;
-		pa.makeArc(x, y, w, h, a, alen, ds->matrix);
-		dgc->drawPolyline(pa, 0, pa.size());
-		return;
-	    }
-	    map(x, y, w, h, &x, &y, &w, &h);
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxRotShear) {
+	    QPointArray pa;
+	    pa.makeArc(x, y, w, h, a, alen, ds->matrix);
+	    dgc->drawPolyline(pa, 0, pa.size());
+	    return;
 	}
+	map(x, y, w, h, &x, &y, &w, &h);
     }
     dgc->drawArc(x, y, w, h, a, alen);
 }
@@ -780,22 +772,20 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    if (d->txop == TxRotShear) {		// rotate/shear
-		QPointArray pa;
-		pa.makeArc( x, y, w, h, a, alen, ds->matrix ); // arc polyline
-		int n = pa.size();
-		int cx, cy;
-		ds->matrix.map(x+w/2, y+h/2, &cx, &cy);
-		pa.resize(n+2);
-		pa.setPoint(n, cx, cy);	// add legs
-		pa.setPoint(n+1, pa.at(0));
-		dgc->drawPolygon(pa, false, 0, pa.size());
-		return;
-	    }
-	    map( x, y, w, h, &x, &y, &w, &h );
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxRotShear) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc( x, y, w, h, a, alen, ds->matrix ); // arc polyline
+	    int n = pa.size();
+	    int cx, cy;
+	    ds->matrix.map(x+w/2, y+h/2, &cx, &cy);
+	    pa.resize(n+2);
+	    pa.setPoint(n, cx, cy);	// add legs
+	    pa.setPoint(n+1, pa.at(0));
+	    dgc->drawPolygon(pa, false, 0, pa.size());
+	    return;
 	}
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     dgc->drawPie(x, y, w, h, a, alen);
 }
@@ -808,19 +798,17 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    if (d->txop == TxRotShear) {		// rotate/shear
-		QPointArray pa;
-		pa.makeArc(x, y, w-1, h-1, a, alen, ds->matrix); // arc polygon
-		int n = pa.size();
-		pa.resize(n+1);
-		pa.setPoint(n, pa.at(0));		// connect endpoints
-		dgc->drawPolygon(pa, false, 0, pa.size());
-		return;
-	    }
-	    map( x, y, w, h, &x, &y, &w, &h );
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	if (d->txop == TxRotShear) {		// rotate/shear
+	    QPointArray pa;
+	    pa.makeArc(x, y, w-1, h-1, a, alen, ds->matrix); // arc polygon
+	    int n = pa.size();
+	    pa.resize(n+1);
+	    pa.setPoint(n, pa.at(0));		// connect endpoints
+	    dgc->drawPolygon(pa, false, 0, pa.size());
+	    return;
 	}
+	map( x, y, w, h, &x, &y, &w, &h );
     }
     dgc->drawChord(x, y, w, h, a, alen);
 }
@@ -838,17 +826,15 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     if ( !isActive() || nlines < 1 || index < 0 )
 	return;
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    QPointArray pa = xForm(a, index, nlines*2);
-	    if ( pa.size() != a.size()) {
-		index  = 0;
-		nlines = pa.size()/2;
-	    }
-	    pa.translate(-d->redirection_offset);
-	    dgc->drawLineSegments(pa, index, nlines);
-	    return;
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	QPointArray pa = xForm(a, index, nlines*2);
+	if ( pa.size() != a.size()) {
+	    index  = 0;
+	    nlines = pa.size()/2;
 	}
+	pa.translate(-d->redirection_offset);
+	dgc->drawLineSegments(pa, index, nlines);
+	return;
     }
 
     dgc->drawLineSegments(a, index, nlines);
@@ -867,12 +853,10 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
 	return;
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    QPointArray ar = xForm(a, index, npoints);
-	    dgc->drawPolyline(ar, index, npoints);
-	    return;
-	}
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	QPointArray ar = xForm(a, index, npoints);
+	dgc->drawPolyline(ar, index, npoints);
+	return;
     }
 
     dgc->drawPolyline(a, index, npoints);
@@ -891,12 +875,10 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     if (!isActive() || npoints < 2 || index < 0)
 	return;
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    QPointArray ar = xForm(a, index, npoints);
-	    dgc->drawPolygon(ar, winding, index, npoints);
-	    return;
-	}
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	QPointArray ar = xForm(a, index, npoints);
+	dgc->drawPolygon(ar, winding, index, npoints);
+	return;
     }
     dgc->drawPolygon(a, winding, index, npoints);
 }
@@ -914,12 +896,10 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
 	return;
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    QPointArray ar = xForm(a, index, npoints);
-	    dgc->drawConvexPolygon(ar, index, npoints);
-	    return;
-	}
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	QPointArray ar = xForm(a, index, npoints);
+	dgc->drawConvexPolygon(ar, index, npoints);
+	return;
     }
     dgc->drawConvexPolygon(a, index, npoints);
 }
@@ -932,17 +912,15 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
 
     if ( (int)a.size() - index < 4 ) {
 	qWarning( "QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
-		 "points" );
+		  "points" );
 	return;
     }
 
-    if (ds->VxF || ds->WxF) {
-	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
-	    QPointArray pa = xForm(a);
-	    pa.translate(-d->redirection_offset);
-	    dgc->drawCubicBezier(pa, index);
-	    return;
-	}
+    if ((ds->VxF || ds->WxF) && !dgc->hasCapability(QAbstractGC::CoordTransform)) {
+	QPointArray pa = xForm(a);
+	pa.translate(-d->redirection_offset);
+	dgc->drawCubicBezier(pa, index);
+	return;
     }
 
     dgc->drawCubicBezier(a, index);
