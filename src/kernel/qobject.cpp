@@ -48,6 +48,7 @@
 
 #ifdef QT_THREAD_SUPPORT
 #include <qmutex.h>
+#include <private/qmutexpool_p.h>
 #endif
 
 #include <ctype.h>
@@ -271,7 +272,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 /*
   Preliminary signal interceptor
  */
-QObject* qt_preliminary_signal_interceptor = 0;
+Q_EXPORT QObject* qt_preliminary_signal_interceptor = 0;
 static QObject* qt_intercept_signal_sender = 0;
 
 static void qt_intercept_signal( QObject* sender, int signal, QUObject* o )
@@ -290,6 +291,13 @@ static void qt_intercept_signal( QObject* sender, int signal, QUObject* o )
 	s.sprintf( "%s_%s", mo->className(), sigData->name );
 	int slot = qt_preliminary_signal_interceptor->metaObject()->findSlot( s, TRUE );
 	if ( slot >= 0 ) {
+#ifdef QT_THREAD_SUPPORT
+	    // protect access to qt_intercept_signal_sender
+	    void * const address = &qt_intercept_signal_sender;
+	    QMutexLocker locker( qt_global_mutexpool ?
+				 qt_global_mutexpool->get( address ) : 0 );
+#endif // QT_THREAD_SUPPORT
+
 	    QObject* old_sender = qt_intercept_signal_sender;
 	    qt_intercept_signal_sender = sender;
 	    qt_preliminary_signal_interceptor->qt_invoke( slot, o );
@@ -1496,8 +1504,15 @@ static void err_info_about_candidates( int code,
 const QObject *QObject::sender()
 {
 #ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
-    if ( this == qt_preliminary_signal_interceptor )
+    if ( this == qt_preliminary_signal_interceptor ) {
+#  ifdef QT_THREAD_SUPPORT
+	// protect access to qt_intercept_signal_sender
+	void * const address = &qt_intercept_signal_sender;
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( address ) : 0 );
+#  endif // QT_THREAD_SUPPORT
 	return qt_intercept_signal_sender;
+    }
 #endif
     if ( senderObjects &&
 	 senderObjects->currentSender &&
