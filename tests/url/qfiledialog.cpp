@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#33 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#34 $
 **
 ** Implementation of QFileDialog class
 **
@@ -679,12 +679,12 @@ void QFileListBox::doDragScroll()
     int l = 16;
 
     int dx = 0,dy = 0;
-    if ( p.y() < 16 ) {
+    if ( p.y() < 16 && contentsY() != 0 ) {
 	dy = -l;
     } else if ( p.y() > visibleHeight() - 16 ) {
 	dy = +l;
     }
-    if ( p.x() < 16 ) {
+    if ( p.x() < 16 && contentsX() != 0  ) {
 	dx = -l;
     } else if ( p.x() > visibleWidth() - 16 ) {
 	dx = +l;
@@ -694,6 +694,7 @@ void QFileListBox::doDragScroll()
 	scrollBy( dx, dy );
 	filedialog->drawDragShapes( oldDragPos, TRUE, urls );
     } else {
+	changeDirTimer->start( 750, TRUE );
 	dragScrollTimer->stop();
     }
 }
@@ -717,7 +718,7 @@ bool QFileListBox::acceptDrop( const QPoint &pnt, QWidget *source )
 void QFileListBox::setCurrentDropItem( const QPoint &pnt )
 {
     changeDirTimer->stop();
-
+    
     QListBoxItem *item = itemAt( pnt );
     if ( pnt == QPoint( -1, -1 ) )
 	item = 0;
@@ -1054,12 +1055,12 @@ void QFileListView::doDragScroll()
     int l = 16;
 
     int dx = 0,dy = 0;
-    if ( p.y() < 16 ) {
+    if ( p.y() < 16 && contentsY() != 0 ) {
 	dy = -l;
     } else if ( p.y() > visibleHeight() - 16 ) {
 	dy = +l;
     }
-    if ( p.x() < 16 ) {
+    if ( p.x() < 16 && contentsX() != 0 ) {
 	dx = -l;
     } else if ( p.x() > visibleWidth() - 16 ) {
 	dx = +l;
@@ -1069,6 +1070,7 @@ void QFileListView::doDragScroll()
 	scrollBy( dx, dy );
 	filedialog->drawDragShapes( oldDragPos, FALSE, urls );
     } else {
+	changeDirTimer->start( 750, TRUE );
 	dragScrollTimer->stop();
     }
 }
@@ -1661,7 +1663,7 @@ void QFileDialog::init()
     d->extraWidget = 0;
     d->extraButton = 0;
     d->extraWidgetsSpace = 0;
-    
+
     QHBoxLayout * h;
 
     if ( d->infoPreview || d->contentsPreview ) {
@@ -1711,15 +1713,7 @@ void QFileDialog::init()
     h->addSpacing( 15 );
     h->addWidget( cancelB );
 
-    //d->url.setMatchAllDirs( TRUE );
-    //d->url.setSorting( d->url.sorting() );
-
     updateGeometries();
-
-//     d->cdToParent->setFocusPolicy( NoFocus );
-//     d->newFolder->setFocusPolicy( NoFocus );
-//     d->detailView->setFocusPolicy( NoFocus );
-//     d->mcView->setFocusPolicy( NoFocus );
 
     setTabOrder( d->paths, d->cdToParent );
     setTabOrder( d->cdToParent, d->newFolder );
@@ -2004,93 +1998,6 @@ void QFileDialog::rereadDir()
     d->url.listEntries( d->url.nameFilter() , bShowHiddenFiles ? QDir::All | QDir::Hidden : QDir::DefaultFilter,
 			QDir::DirsFirst | ( sortFilesBy != 0x16 ? sortFilesBy : QDir::Name ) );
 
-//     disconnect( files, SIGNAL( selectionChanged() ),	
-// 		this, SLOT( detailViewSelectionChanged() ) );
-//     disconnect( d->moreFiles, SIGNAL( selectionChanged() ),
-// 		this, SLOT( listBoxSelectionChanged() ) );
-
-//     if ( d ) {
-// 	QString cp( d->url.canonicalPath() );
-// 	int i = d->paths->count()-1;
-// 	while( i >= 0 && d->paths->text( i ) <= cp )
-// 	    i--;
-// 	if ( i < d->paths->count() )
-// 	    i++;
-// 	if ( i == d->paths->count() || d->paths->text( i ) != cp )
-// 	    d->paths->insertItem( d->url.canonicalPath(), i );
-// 	d->paths->setCurrentItem( i );
-// 	d->last = 0;
-//     }
-
-//     files->setSorting( -1 );
-
-//     d->cdToParent->setEnabled( !d->url.isRoot() );
-
-//     const QFileInfoList *filist = 0;
-
-//     while ( !filist ) {
-// 	filist = d->url.entryInfoList( bShowHiddenFiles ? QDir::All | QDir::Hidden : QDir::DefaultFilter,
-// 				    QDir::DirsFirst | ( sortFilesBy != 0x16 ? sortFilesBy : QDir::Name ) );
-// 	if ( !filist &&
-// 	     QMessageBox::warning( this, tr("Open File"),
-// 				   QString( tr("Unable to read directory\n") )
-// 				   + d->url.absPath()
-// 				   + QString::fromLatin1("\n\n")
-// 				   + tr("Please make sure that the directory\n"
-// 					"is readable.\n"),
-// 				   tr("Use parent directory"),
-// 				   tr("Use old contents") ) ) {
-// 	    return;
-// 	}
-// 	if ( !filist ) {
-// 	    // change to parent, reread
-// 	    // ...
-
-// 	    // but for now
-// 	    // QString tmp( d->url.absPath() );
-
-// 	    return;
-// 	}
-//     }
-
-//     d->moreFiles->clear();
-//     files->clear();
-
-//     if ( !d->url.isRoot() ) {
-// 	QFileInfo *fi = new QFileInfo( d->url, ".." );
-// 	QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi , files );
-// 	if ( mode() == ExistingFiles && fi->isDir() )
-// 	    i->setSelectable( FALSE );
-// 	QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
-// 	i->i = i2;	
-//     }
-
-//     QFileInfoListIterator it( *filist );
-//     QFileInfo *fi;
-//     while ( (fi = it.current()) != 0 ) {
-// 	++it;
-// 	if ( fi->fileName() != QString::fromLatin1(".") &&
-// 	     fi->fileName() != QString::fromLatin1("..") ) {
-// 	    QFileDialogPrivate::File * i = new QFileDialogPrivate::File( d, fi, files );
-// 	    if ( mode() == ExistingFiles && fi->isDir() )
-// 		i->setSelectable( FALSE );
-// 	    QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
-// 	    if ( mode() == ExistingFiles && fi->isDir() )
-// 		i2->setSelectable( FALSE );
-// 	    i->i = i2;	
-// 	}
-
-//     }
-//     d->moreFiles->setCurrentItem( 0 );
-//     files->setCurrentItem( files->firstChild() );
-
-//     if ( d->mode == ExistingFiles )
-// 	nameEdit->setText( "" );
-
-//     connect( files, SIGNAL( selectionChanged() ),	
-// 	     this, SLOT( detailViewSelectionChanged() ) );
-//     connect( d->moreFiles, SIGNAL( selectionChanged() ),
-// 	     this, SLOT( listBoxSelectionChanged() ) );
 }
 
 
@@ -2509,7 +2416,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	t = d->extraWidgetsSpace->sizeHint();
 	RM;
     }
-    
+
     okB->setFixedSize( r );
     cancelB->setFixedSize( r );
     if ( d->extraButton )
@@ -2612,7 +2519,7 @@ void QFileDialog::fileNameEditDone()
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 {
-    *workingDirectory = d->url;//.absPath();
+    *workingDirectory = d->url;
     detailViewMode = files->isVisible();
 
     if ( !newItem )
@@ -2621,15 +2528,6 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 
     if ( i->info.isDir() ) {
-// 	if ( mode() == ExistingFiles ) {
-// 	    QListViewItem * i = files->firstChild();
-// 	    while( i && !i->isSelected() )
-// 		i = i->nextSibling();
-// 	    if ( i ) {
-// 		accept();
-// 		return;
-// 	    }
-// 	}
 	setDir( i->info.makeUrl( d->url ) );
 	if ( mode() == Directory ) {
 	    QUrlInfo f ( d->url, QString::fromLatin1(".") );
@@ -2892,12 +2790,6 @@ void QFileDialog::pathSelected( int )
 void QFileDialog::cdUpClicked()
 {
     setDir( d->url + "/.." );
-
-//     if ( d->url.cdUp() ) {
-// 	//d->url.convertToAbs();
-// 	emit dirEntered( d->url.path() );
-// 	rereadDir();
-//     }
 }
 
 void QFileDialog::newFolderClicked()
@@ -3014,7 +2906,6 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 void QFileDialog::setMode( Mode newMode )
 {
     if ( d->mode != newMode ) {
-	//d->url.setFilter( QDir::All );
 	d->mode = newMode;
 	QString sel = d->currentFileName;
 	if ( newMode == Directory ) {
@@ -3030,7 +2921,7 @@ void QFileDialog::setMode( Mode newMode )
 	    d->moreFiles->setMultiSelection( FALSE );
 	}
 	rereadDir();
-	QUrlInfo f( d->url, "." );//sel );
+	QUrlInfo f( d->url, "." );
 	trySetSelection( f, d->url, TRUE );
     }
 }
@@ -3065,11 +2956,11 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 
     if ( d->extraLabel || d->extraWidget || d->extraButton )
 	return;
-    
+
     d->extraWidgetsLayout = new QHBoxLayout();
     d->topLevelLayout->addLayout( d->extraWidgetsLayout );
 
-    if ( !l ) 
+    if ( !l )
 	l = new QLabel( this );
     d->extraLabel = l;
     if ( l )
@@ -3082,7 +2973,7 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 	d->extraWidgetsLayout->addWidget( w );
 	d->extraWidgetsLayout->addSpacing( 15 );
     }
-    
+
     d->extraButton = b;
     if ( b )
 	d->extraWidgetsLayout->addWidget( b );
@@ -3090,7 +2981,7 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 	d->extraWidgetsSpace = new QLabel( this );
 	d->extraWidgetsLayout->addWidget( d->extraWidgetsSpace );
     }
-    
+
     updateGeometries();
 }
 
