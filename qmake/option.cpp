@@ -66,6 +66,7 @@ QString Option::output_dir;
 QStringList Option::before_user_vars;
 QStringList Option::after_user_vars;
 QString Option::user_template;
+QString Option::user_template_prefix;
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
 #elif defined(Q_OS_MAC9)
@@ -130,6 +131,7 @@ bool usage(const char *a0)
 	    "\t-macx          Run in Mac OS X mode\n"
 	    "\t-d             Increase debug level\n"
 	    "\t-t templ       Overrides TEMPLATE as templ\n"
+	    "\t-tp prefix     Overrides TEMPLATE so that prefix is prefixed into the value\n"
 	    "\t-help          This help\n"
 	    "\t-v             Version information\n"
 	    "\t-after         All variable assignments after this will be\n"
@@ -188,6 +190,8 @@ Option::parseCommandLine(int argc, char **argv)
 		before = FALSE;
 	    } else if(opt == "t" || opt == "template") {
 		Option::user_template = argv[++x];
+	    } else if(opt == "tp" || opt == "template_prefix") {
+		Option::user_template_prefix = argv[++x];
 	    } else if(opt == "mac9") {
 		Option::target_mode = TARG_MAC9_MODE;
 	    } else if(opt == "macx") {

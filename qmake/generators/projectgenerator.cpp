@@ -56,7 +56,10 @@ ProjectGenerator::init()
     init_flag = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
-    v["TEMPLATE_ASSIGN"] += Option::user_template.isEmpty() ? QString("app") : Option::user_template;
+    QString templ = Option::user_template.isEmpty() ? QString("app") : Option::user_template;
+    if(!Option::user_template_prefix.isEmpty())
+	templ.prepend(Option::user_template_prefix);
+    v["TEMPLATE_ASSIGN"] += templ;
 
     //figure out target
     if(Option::output.name() == "-" || Option::output.name().isEmpty())

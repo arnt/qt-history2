@@ -93,7 +93,7 @@ struct Option
     static QStringList before_user_vars, after_user_vars;
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
     static TARG_MODE target_mode;
-    static QString user_template;
+    static QString user_template, user_template_prefix;
 
     //QMAKE_GENERATE_PROJECT options
     struct projfile {

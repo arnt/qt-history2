@@ -490,6 +490,8 @@ QMakeProject::read(QString project, QString)
 	vars["TEMPLATE"].append(QString("app"));
     else
 	vars["TEMPLATE"].first().replace(QRegExp("\\.t$"), "");
+    if(!Option::user_template_prefix.isEmpty())
+	vars["TEMPLATE"].first().prepend(Option::user_template_prefix);
 
     if(vars["TARGET"].isEmpty()) {
 	QFileInfo fi(pfile);
