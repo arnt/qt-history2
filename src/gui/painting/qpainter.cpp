@@ -11,21 +11,24 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "qpaintdevice.h"
-#include "qpainter.h"
-#include "qpainter_p.h"
-#include "qpaintengine.h"
+
 #include "qbitmap.h"
 #include "qimage.h"
+#include "qpaintdevice.h"
+#include "qpaintengine.h"
+#include "qpainter.h"
+#include "qpainter_p.h"
+#include "qpicture.h"
 #include "qwidget.h"
+
 #ifdef Q_WS_WIN
 #include "qpaintengine_win.h"
 #endif
-#include <private/qwidget_p.h>
 #include "qpaintdevicemetrics.h"
-#include <private/qtextlayout_p.h>
-#include <private/qtextengine_p.h>
 #include <private/qfontengine_p.h>
+#include <private/qtextengine_p.h>
+#include <private/qtextlayout_p.h>
+#include <private/qwidget_p.h>
 
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
@@ -1276,8 +1279,10 @@ void QPainter::drawPicture(int x, int y, const QPicture &p)
     if (!isActive())
 	return;
     d->engine->updateState(d->state);
-
-    qWarning("QPainter::drawPicture() not implemetned yet...\n");
+    save();
+    translate(x, y);
+    const_cast<QPicture *>(&p)->play(this);
+    restore();
 }
 
 void QPainter::eraseRect(int x, int y, int w, int h)
