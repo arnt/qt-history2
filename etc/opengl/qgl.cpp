@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#6 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#7 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#7 $");
 
 
 #if defined(_CC_MSVC_)
@@ -83,13 +83,9 @@ QGLFormat::~QGLFormat()
 void QGLFormat::detach()
 {
     if ( data->count != 1 ) {
-	QGLFormat f( data->doubleBuffer );
-	f.data->depth   = data->depth;
-	f.data->rgba    = data->rgba;
-	f.data->alpha   = data->alpha;
-	f.data->accum   = data->accum;
-	f.data->stencil = data->stencil;
-	f.data->stereo  = data->stereo;
+	QGLFormat f;
+	*f.data = *data;
+	f.data->count = 1;
 	*this = f;
     }
 }
@@ -405,26 +401,14 @@ bool QGLContext::chooseContext()
     } else {
 	if ( !SetPixelFormat( dc, pixelFormatId, &pfd ) ) {
 	    LPVOID lpMsgBuf;
- 
-FormatMessage( 
-    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-    NULL,
-    GetLastError(),
-    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-    (LPTSTR) &lpMsgBuf,
-    0,
-    NULL 
-);
-
-// Display the string.
-//MessageBox( NULL, lpMsgBuf, "GetLastError", MB_OK|MB_ICONINFORMATION );
-debug( (const char *)lpMsgBuf );
-
-// Free the buffer.
-LocalFree( lpMsgBuf );
- 
-
-	}
+	    FormatMessage( 
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		0, GetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR) &lpMsgBuf, 0, 0 );
+	    debug( (const char *)lpMsgBuf );
+	    LocalFree( lpMsgBuf );
+ 	}
 	rc = wglCreateContext( dc );
     }
     if ( win ) {
