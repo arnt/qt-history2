@@ -361,13 +361,14 @@ bool QLinuxFbScreen::initDevice()
 	} else {
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
 	    // Build greyscale palette
-	    unsigned int loopc;
-	    for(loopc=0;loopc<256;loopc++) {
-		cmap.red[loopc]=loopc << 8;
-		cmap.green[loopc]=loopc << 8;
-		cmap.blue[loopc]=loopc << 8;
-		cmap.transp[loopc]=0;
-		screenclut[loopc]=qRgb(loopc,loopc,loopc);
+	    unsigned int i;
+	    for(i=0;i<256;i++) {
+		ushort val = (i << 8) | i;
+		cmap.red[i] = val;
+		cmap.green[i] = val;
+		cmap.blue[i] = val;
+		cmap.transp[i] = 0;
+		screenclut[i] = qRgb(i,i,i);
 	    }
 #else
 	    // 6x6x6 216 color cube
