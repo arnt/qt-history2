@@ -112,7 +112,7 @@ contains(sql-drivers, ibase) {
 
 contains(sql-drivers, sqlite) {
         !contains( LIBS, .*sqlite.* ) {
-                INCLUDEPATH +=  ../3rdparty/sqlite/
+                INCLUDEPATH +=  ../3rdparty/sqlite
 
                 SOURCES +=      ../3rdparty/sqlite/attach.c \
                                 ../3rdparty/sqlite/auth.c \
