@@ -1288,3 +1288,37 @@ bool QPixmap::hasAlpha() const
     return data->realAlphaBits || data->mask;
 }
 
+bool QPixmap::hasAlphaChannel() const
+{
+    return data->realAlphaBits != 0;
+}
+
+Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+		       QPixmap *src, int sx, int sy, int sw, int sh )
+{
+    if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
+#ifdef QT_CHECK_NULL
+	Q_ASSERT( dst != 0 );
+	Q_ASSERT( src != 0 );
+#endif
+	return;
+    }
+
+    // copy pixel data
+    bitBlt( dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+
+    // copy mask data
+    if ( src->data->mask ) {
+	if ( ! dst->data->mask ) {
+	    dst->data->mask = new QBitmap( dst->width(), dst->height() );
+
+	    // new masks are fully opaque by default
+	    dst->data->mask->fill( Qt::color1 );
+	}
+
+	bitBlt( dst->data->mask, dx, dy,
+		src->data->mask, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+    }
+
+    qDebug( "TODO: copy the alpha bits from \a src to \a dst" );
+}

@@ -98,6 +98,7 @@ public:
     void	setMask( const QBitmap & );
     bool	selfMask() const;
     bool	hasAlpha() const;
+    bool	hasAlphaChannel() const;
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QBitmap	createHeuristicMask( bool clipTight = TRUE ) const;
 #endif
@@ -237,14 +238,11 @@ private:
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QImage* src,
 				 int, int, int, int, int conversion_flags );
+    friend Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+				  const QPixmap *src, int sx, int sy,
+				  int sw, int sh );
 
-#if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
-    friend void qt_x11_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src);
-    friend void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
-					 const QPixmap *src, int sx = 0, int sy = 0,
-					 int sw = -1, int sh = -1);
-#elif defined(Q_WS_MAC)
-    friend void qt_mac_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src);
+#if defined(Q_WS_MAC)
     friend void unclippedScaledBitBlt(QPaintDevice *, int, int, int, int,
 				      const QPaintDevice *, int, int, int, int,
 				      Qt::RasterOp, bool, bool);
@@ -332,5 +330,9 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
 #  endif
 bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
 #endif
+
+Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+		       const QPixmap *src, int sx = 0, int sy = 0,
+		       int sw = -1, int sh = -1 );
 
 #endif // QPIXMAP_H

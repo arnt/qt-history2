@@ -437,6 +437,7 @@ void QPixmap::detach()
 	data->uninit = FALSE;
     else
 	*this = copy();
+
     // reset the cache data
     if ( data->ximage ) {
 	qSafeXDestroyImage( (XImage*)data->ximage );
@@ -1926,20 +1927,82 @@ void QPixmap::x11SetScreen( int screen )
     convertFromImage( img );
 }
 
-#ifndef QT_NO_XFTFREETYPE
+/*!
+  Returns TRUE if painting with this pixmap might not necessarily
+  paint all pixels in its rectangular area.
+*/
+bool QPixmap::hasAlpha() const
+{
+    return data->alphapm || data->mask;
+}
 
 /*!
-  \internal
-  helper for blitting alpha data into another pixmap
+    Returns TRUE if the pixmap has an alpha channel; otherwise it
+    returns FALSE.
+
+    NOTE: If the pixmap has a mask but not alpha channel, this
+    function returns FALSE.
 */
-Q_EXPORT void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
-			      const QPixmap *src, int sx, int sy,
-			      int sw, int sh)
+bool QPixmap::hasAlphaChannel() const
 {
-    if (! dst || ! src || ! src->data->alphapm)
+    return data->alphapm != 0;
+}
+
+/*!
+    \relates QPixmap
+
+    Copies a block of pixels from \a src to \a dst.  The alpha channel
+    and mask data (if any) is also copied from \a src.  NOTE: \a src
+    is \e not alpha blended or masked when copied to \a dst.  Use
+    bitBlt() or QPainter::drawPixmap() to perform alpha blending or
+    masked drawing.
+
+    \a sx, \a sy is the top-left pixel in \a src (0, 0 by default), \a
+    dx, \a dy is the top-left position in \a dst and \a sw, \sh is the
+    size of the copied block (all of \a src by default).
+
+    If \a src, \a dst, \a sw or \a sh is 0 (zero), copyBlt() does
+    nothing.  If \a sw or \a sh is negative, copyBlt() copies starting
+    at \a sx (and respectively, \a sy) and ending at the right edge
+    (and respectively, the bottom edge) of \a src.
+
+    copyBlt() does nothing if \a src and \a dst have different depths.
+*/
+Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+		       const QPixmap *src, int sx, int sy, int sw, int sh )
+{
+    if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
+#ifdef QT_CHECK_NULL
+	Q_ASSERT( dst != 0 );
+	Q_ASSERT( src != 0 );
+#endif
+	return;
+    }
+
+    // copy pixel data
+    bitBlt( dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+
+    // copy mask data
+    if ( src->data->mask ) {
+	if ( ! dst->data->mask ) {
+	    dst->data->mask = new QBitmap( dst->width(), dst->height() );
+
+	    // new masks are fully opaque by default
+	    dst->data->mask->fill( Qt::color1 );
+	}
+
+	bitBlt( dst->data->mask, dx, dy,
+		src->data->mask, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+    }
+
+#ifndef QT_NO_XFTFREETYPE
+    // copy alpha data
+    extern bool qt_use_xrender; // from qapplication_x11.cpp
+    if ( ! qt_use_xrender )
 	return;
 
     // create an alpha pixmap for dst if it doesn't exist
+    bool do_init = FALSE;
     if ( ! dst->data->alphapm ) {
 	dst->data->alphapm = new QPixmap;
 
@@ -1954,6 +2017,9 @@ Q_EXPORT void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
 			  RootWindow(dst->x11Display(), dst->x11Screen()),
 			  dst->width(), dst->height(), 8);
 
+	// new alpha pixmaps should be fully opaque by default
+	do_init = TRUE;
+
 	dst->data->alphapm->rendhd =
 	    (Qt::HANDLE) XftDrawCreateAlpha( dst->x11Display(),
 					     dst->data->alphapm->hd, 8 );
@@ -1965,36 +2031,18 @@ Q_EXPORT void qt_x11_blit_alpha_pixmap(QPixmap *dst, int dx, int dy,
 	sh = src->height() - sy;
 
     GC gc = XCreateGC(dst->x11Display(), dst->data->alphapm->hd, 0, 0);
+
+    if ( do_init ) {
+	// the alphapm was just created, make it fully opaque
+	XSetForeground( dst->x11Display(), gc, 255 );
+	XSetBackground( dst->x11Display(), gc, 255 );
+	XFillRectangle( dst->x11Display(), dst->data->alphapm->hd, gc,
+			0, 0, dst->data->alphapm->data->w,
+			dst->data->alphapm->data->h );
+    }
+
     XCopyArea(dst->x11Display(), src->data->alphapm->hd, dst->data->alphapm->hd, gc,
 	      sx, sy, sw, sh, dx, dy);
     XFreeGC(dst->x11Display(), gc);
+#endif // QT_NO_XFTFREETYPE
 }
-
-/*!
-  \internal
-  helper for copying alpha data into another pixmap
-*/
-void qt_x11_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src)
-{
-    if (! dst || ! src)
-	return;
-
-    // delete any alpha pixmap dst might have
-    delete dst->data->alphapm;
-    dst->data->alphapm = 0;
-
-    // blit the alpha channel
-    qt_x11_blit_alpha_pixmap(dst, 0, 0, src, 0, 0, dst->width(), dst->height());
-}
-
-#endif // !QT_NO_XFTFREETYPE
-
-/*!
-  Returns TRUE if painting with this pixmap might not necessarily
-  paint all pixels in its rectangular area.
-*/
-bool QPixmap::hasAlpha() const
-{
-    return data->alphapm || data->mask;
-}
-
