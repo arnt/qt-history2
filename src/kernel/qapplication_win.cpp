@@ -452,7 +452,7 @@ static void qt_show_system_menu( QWidget* tlw)
 				0);
     if (ret)
 #ifdef Q_OS_TEMP
-	    DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+	DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 #else
 	QtWndProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 #endif
