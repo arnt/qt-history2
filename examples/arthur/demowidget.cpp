@@ -77,7 +77,7 @@ void DemoWidget::fillBackground(QPainter *p)
 }
 
 /*!
-  Returns the x value of a random continous function.
+  Returns the x value of a random continuous function.
 */
 double DemoWidget::xfunc(double t)
 {
@@ -85,7 +85,7 @@ double DemoWidget::xfunc(double t)
 }
 
 /*!
-  Returns the x value of a random continous function.
+  Returns the x value of a random continuous function.
 */
 double DemoWidget::yfunc(double t)
 {
