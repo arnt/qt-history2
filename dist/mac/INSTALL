@@ -94,6 +94,10 @@ where you choose to install Qt.
     ln -s $QTDIR/lib/libqt.dylib.3.0.0 /usr/lib
     ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib
 
+    You may need to have 'administrator' access to do this, to gain this 
+    access you may need to prefix the lines above with sudo, which will then
+    prompt for a password.
+
 
 That's all.  Qt is now installed. You will find all documentation for Qt in
 $QTDIR/doc/html.
