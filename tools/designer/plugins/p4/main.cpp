@@ -649,7 +649,7 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	    actionRevert->setEnabled( TRUE );
 	    actionDiff->setEnabled( TRUE );
 	} else {
-	    actionSync->setEnabled( TRUE );
+	    actionSync->setEnabled( !p4i->uptodate );
 	    actionEdit->setEnabled( TRUE );
 	    actionSubmit->setEnabled( FALSE );
 	    actionRevert->setEnabled( FALSE );
