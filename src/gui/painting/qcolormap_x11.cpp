@@ -528,9 +528,9 @@ uint QColormap::pixel(const QColor &color) const
     if (rgb == 0x01000000)
         return 1;
 
-    const uint r = (c.argb.red   * d->r_max) >> 16;
-    const uint g = (c.argb.green * d->g_max) >> 16;
-    const uint b = (c.argb.blue  * d->b_max) >> 16;
+    const uint r = (c.ct.argb.red   * d->r_max) >> 16;
+    const uint g = (c.ct.argb.green * d->g_max) >> 16;
+    const uint b = (c.ct.argb.blue  * d->b_max) >> 16;
     if (d->mode != Direct) {
         if (d->mode == Gray)
             return d->pixels.at((r * 30 + g * 59 + b * 11) / 100);

@@ -165,10 +165,6 @@ private:
 
     void invalidate();
 
-#ifdef Q_CC_XLC
-// suppress bogus "An anonymous union should only define non-static data members."
-#pragma report(disable, CPPC1608)
-#endif
     Spec cspec;
     union {
         struct {
@@ -192,10 +188,7 @@ private:
             ushort yellow;
             ushort black;
         } acmyk;
-    };
-#ifdef Q_CC_XLC
-#pragma report(pop)
-#endif
+    } ct;
 
     friend class QColormap;
 #ifndef QT_NO_DATASTREAM
@@ -218,7 +211,7 @@ inline QColor::QColor(const QString& name)
 
 inline QColor::QColor(const QColor &color)
     : cspec(color.cspec)
-{ argb = color.argb; }
+{ ct.argb = color.ct.argb; }
 
 inline bool QColor::isValid() const
 { return cspec != Invalid; }
