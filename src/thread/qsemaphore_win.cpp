@@ -77,6 +77,7 @@ int QSemaphore::operator--(int)
 	qSystemWarning( "Semaphore release failure" );
     } else {
 	c = ++d->count;
+	d->dontBlock.wakeAll();
     }
     d->protect.unlock();
 
@@ -99,6 +100,7 @@ int QSemaphore::operator -=(int s)
     if ( d->count > d->maxCount )
 	d->count = d->maxCount;
     c = d->count;
+    d->dontBlock.wakeAll();
     d->protect.unlock();
     return c;
 }
@@ -122,6 +124,10 @@ int QSemaphore::operator++(int)
 
 int QSemaphore::operator +=(int s)
 {
+    while ( d->count < s )
+	d->dontBlock.wait();
+
+    d->protect.enter();
     for ( int i = 0; i < s; i++ ) {
 	switch ( WaitForSingleObject( d->handle, INFINITE ) ) {
 	case WAIT_TIMEOUT:
@@ -135,7 +141,10 @@ int QSemaphore::operator +=(int s)
 	d->count--;
 	d->protect.unlock();
     }
-    return d->count;
+    int c = d->count;
+    d->protect.leave();
+
+    return c;
 }
 
 bool QSemaphore::tryAccess( int n )
