@@ -899,12 +899,8 @@ class QDataStream;
 #ifndef Q_DECL_EXPORT
 #  ifdef Q_OS_WIN
 #    define Q_DECL_EXPORT __declspec(dllexport)
-#  else
-#    if defined(__GNUC__)
-#       if __GNUC__ >= 4
-#         define Q_DECL_EXPORT __attribute__((visibility("default")))
-#       endif
-#    endif
+#  elif defined(__GNUC__) && __GNUC__ >= 4
+#    define Q_DECL_EXPORT __attribute__((visibility("default")))
 #  endif
 #  ifndef Q_DECL_EXPORT
 #    define Q_DECL_EXPORT
@@ -983,35 +979,30 @@ class QDataStream;
 #    define Q_TEMPLATEDLL
 #  endif
 #  define Q_NO_UNRESOLVED_EXTERNALS
-#elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
-#  define Q_TEMPLATEDLL
-#  define Q_NO_UNRESOLVED_EXTERNALS
 #else
+#  if defined(Q_OS_LINUX) && defined(Q_CC_BOR)
+#    define Q_TEMPLATEDLL
+#    define Q_NO_UNRESOLVED_EXTERNALS
+#  endif
 #  undef QT_MAKEDLL /* ignore these for other platforms */
 #  undef QT_DLL
-#endif
-
-//defaults
-#ifndef Q_CORE_EXPORT
-#  define Q_CORE_EXPORT Q_DECL_EXPORT
-#endif
-#ifndef Q_GUI_EXPORT
-#  define Q_GUI_EXPORT Q_DECL_EXPORT
-#endif
-#ifndef Q_SQL_EXPORT
-#  define Q_SQL_EXPORT Q_DECL_EXPORT
-#endif
-#ifndef Q_NETWORK_EXPORT
-#  define Q_NETWORK_EXPORT Q_DECL_EXPORT
-#endif
-#ifndef Q_OPENGL_EXPORT
-#  define Q_OPENGL_EXPORT Q_DECL_EXPORT
-#endif
-#ifndef Q_XML_EXPORT
-#  define Q_XML_EXPORT Q_DECL_EXPORT
-#endif
-#ifndef Q_COMPAT_EXPORT
-#  define Q_COMPAT_EXPORT Q_DECL_EXPORT
+#  ifdef QT_SHARED
+#    define Q_CORE_EXPORT Q_DECL_EXPORT
+#    define Q_GUI_EXPORT Q_DECL_EXPORT
+#    define Q_SQL_EXPORT Q_DECL_EXPORT
+#    define Q_NETWORK_EXPORT Q_DECL_EXPORT
+#    define Q_OPENGL_EXPORT Q_DECL_EXPORT
+#    define Q_XML_EXPORT Q_DECL_EXPORT
+#    define Q_COMPAT_EXPORT Q_DECL_EXPORT
+#  else
+#    define Q_CORE_EXPORT
+#    define Q_GUI_EXPORT
+#    define Q_SQL_EXPORT
+#    define Q_NETWORK_EXPORT
+#    define Q_OPENGL_EXPORT
+#    define Q_XML_EXPORT
+#    define Q_COMPAT_EXPORT
+#  endif
 #endif
 
 //
