@@ -7,6 +7,11 @@
 
 #define QRESOLVER_DEBUG
 
+/*
+    Performs a blocking call to gethostbyname or getaddrinfo, stores
+    the results in a QResolverHostInfo structure and emits the
+    resultsReady() signal.
+*/
 void QResolverAgent::run()
 {
 #if defined(QRESOLVER_DEBUG)
@@ -16,6 +21,8 @@ void QResolverAgent::run()
     QResolverHostInfo results;
 
 #if !defined (QT_NO_GETADDRINFO)
+    // Call getaddrinfo, and place all IPv4 addresses at the start and
+    // the IPv6 addresses at the end of the address list in results.
     addrinfo hints;
     addrinfo *res = 0;
     int result = getaddrinfo(hostName.latin1(), 0, 0, &res);
@@ -48,35 +55,31 @@ void QResolverAgent::run()
     }
     
 #else
+    // Fall back to the reentrant GNU extension gethostbyname_r for
+    // platforms that don't define getaddrinfo. gethostbyname_r does
+    // not support IPv6.
     char auxbuf[512];    
     hostent ent;
     hostent *result;
     int err;
     if (gethostbyname_r(hostName.latin1(), &ent, auxbuf, sizeof(auxbuf), &result, &err) == 0) {
-        char **p;
-        switch (ent.h_addrtype) {
-            case AF_INET:
-		for (p = ent.h_addr_list; *p != 0; p++)
-		    results.addresses << QHostAddress(ntohl(*((long *)*p)));
-		break;
-	    case AF_INET6:
-		for (p = ent.h_addr_list; *p != 0; p++)
-		    results.addresses << QHostAddress((Q_UINT8 *) *p);
-		break;
-	    default:
-		results.error = QResolver::UnknownError;
-		results.errorString = tr("Unknown address type");
-		break;
+        if (ent.h_addrtype == AF_INET) {
+            for (char **p = ent.h_addr_list; *p != 0; p++) {
+                QHostAddress addr(ntohl(*((long *)*p)));
+                if (!results.addresses.contains(addr))
+                    results.addresses.prepend(addr);
+            }
+        } else {
+            results.error = QResolver::UnknownError;
+            results.errorString = tr("Unknown address type");
 	}
     } else if (h_errno == HOST_NOT_FOUND) {
         results.error = QResolver::HostNotFound;
         results.errorString = tr("Host not found");
     } else if (h_errno != NO_DATA) {
         results.error = QResolver::UnknownError;
-        results.errorString = tr("Unknown error");
+        results.errorString = QString::fromLocal8Bit(hstrerror(h_errno));
     }
-
-    results.errorString = QString::fromLocal8Bit(hstrerror(h_errno));
 #endif //  !defined (QT_NO_GETADDRINFO)
 
 #if defined(QRESOLVER_DEBUG)
