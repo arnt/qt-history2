@@ -272,6 +272,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
     mygfx->setSource(src);
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
+    mygfx->setRop(rop);
     if(mymask) {
 	if(!(mymask->isNull())) {
 	    unsigned char * thebits=mymask->scanLine(0);

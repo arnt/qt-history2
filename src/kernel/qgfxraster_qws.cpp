@@ -4977,7 +4977,8 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
     if ( srcdepth == depth && alphatype == IgnoreAlpha &&
 	 pixeltype == srcpixeltype &&
-	 (depth > 8 || (depth == 8 && src_normal_palette)) ) {
+	 (depth > 8 || (depth == 8 && src_normal_palette)) &&
+         myrop == CopyROP ) {
 	int bytesPerPixel = depth/8;
 	if ( xrev ) {
 	    for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
