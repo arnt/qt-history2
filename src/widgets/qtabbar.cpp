@@ -170,6 +170,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     lstatic = new QList<QTab>;
     lstatic->setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
+    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 
     connect( d->a, SIGNAL(activated(int)), this, SLOT(setCurrentTab(int)) );
 }
@@ -342,7 +343,8 @@ QSize QTabBar::sizeHint() const
 */
 QSizePolicy QTabBar::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 
@@ -696,7 +698,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 
 /*!  Returns a pointer to the tab with ID \a id, or 0 if there is no
   such tab.
-  
+
   \sa count()
 */
 
@@ -711,7 +713,7 @@ QTab * QTabBar::tab( int id )
 
 
 /*! Returns the number of tabs in the tab bar.
-  
+
   \sa tab()
 */
 int QTabBar::count() const

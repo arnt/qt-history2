@@ -43,6 +43,7 @@
 #include "qpointarray.h"
 #include "qbitmap.h"
 #include "qcursor.h"
+#include "qsizepolicy.h"
 #include "qshared.h"
 
 // Uncomment to test for memory leaks or to run qt/test/qvariant/main.cpp
@@ -663,6 +664,16 @@ QVariant::QVariant( const QValueList<QVariant>& val )
 }
 
 /*!
+  Constructs a new variant with a size policy value.
+*/
+QVariant::QVariant( QSizePolicy val )
+{
+    d = new QVariantPrivate;
+    d->typ = SizePolicy;
+    d->value.ptr = new QSizePolicy( val );
+}
+
+/*!
   Assigns the value of some \a other variant to this variant.
   This is a deep copy.
 */
@@ -723,7 +734,7 @@ void QVariant::clear()
   For dependency reasons, this table is duplicated in moc.y. If you
   change one, change both.
 */
-static const int ntypes = 25;
+static const int ntypes = 26;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -750,7 +761,8 @@ static const char* const type_map[ntypes] =
     "QPointArray",
     "QRegion",
     "QBitmap",
-    "QCursor"
+    "QCursor",
+    "QSizePolicy"
 };
 
 /*!
@@ -1446,6 +1458,14 @@ const QValueList<QVariant> QVariant::toList() const
     return QValueList<QVariant>();
 }
 
+QSizePolicy QVariant::toSizePolicy() const
+{
+    if ( d->typ == SizePolicy )
+	return *((QSizePolicy*)d->value.ptr);
+
+    return QSizePolicy();
+}
+
 
 #define Q_VARIANT_AS( f ) Q##f& QVariant::as##f() { \
    if ( d->typ != f ) *this = QVariant( to##f() ); else detach(); return *((Q##f*)d->value.ptr);}
@@ -1468,6 +1488,7 @@ Q_VARIANT_AS(PointArray)
 Q_VARIANT_AS(Bitmap)
 Q_VARIANT_AS(Region)
 Q_VARIANT_AS(Cursor)
+Q_VARIANT_AS(SizePolicy)
 
 /*! \fn QString& QVariant::asString()
 
@@ -1733,6 +1754,7 @@ QMap<QString,QVariant>& QVariant::asMap()
     return *((QMap<QString,QVariant>*)d->value.ptr);
 }
 
+
 /*!
   Returns TRUE if the current type of the variant can be casted to
   the requested type. The casting is done automatically when calling
@@ -1847,6 +1869,8 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toBool() == toBool();
     case Double:
 	return v.toDouble() == toDouble();
+    case SizePolicy:
+	return v.toSizePolicy() == toSizePolicy();
     case Invalid: // fall through
     default:
 	return FALSE;

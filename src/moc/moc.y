@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#174 $
+** $Id: //depot/qt/main/src/moc/moc.y#175 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -197,7 +197,7 @@ public:
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 25;
+static const int ntypes = 26;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -224,7 +224,8 @@ static const char* const type_map[ntypes] =
     "QPointArray",
     "QRegion",
     "QBitmap",
-    "QCursor"
+    "QCursor",
+    "QSizePolicy"
 };
 
 int qvariant_nameToType( const char* name )
@@ -1819,7 +1820,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 		functype, list->count() );
 
     }
-    
+
     //### remove 3.0
     if ( qstrcmp( functype, "slot" )  == 0 ) {
 	if ( list->count() )
@@ -1829,7 +1830,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	    fprintf(out,"    QMetaData::Access *%s_tbl_access = 0;\n",
 		    functype );
     }
-    
+
 
     for ( f=list->first(); f; f=list->next() ) {
 	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
@@ -2435,7 +2436,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#174 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#175 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2594,11 +2595,11 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tclassinfo_tbl, %d );\n", n_infos );
     else
 	fprintf( out, "\t0, 0 );\n" );
-    
-    
+
+
     //### remove 3.0
     fprintf( out, "    metaObj->set_slot_access( slot_tbl_access );\n" );
-    
+
 //
 // Finish property array in staticMetaObject()
 //

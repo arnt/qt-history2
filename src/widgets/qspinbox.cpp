@@ -188,6 +188,7 @@ void QSpinBox::initSpinBox()
     setPalettePropagation( AllChildren );
     setFontPropagation( AllChildren );
 
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     updateDisplay();
 
     connect( up, SIGNAL(pressed()), SLOT(stepUp()) );
@@ -471,7 +472,8 @@ void QSpinBox::arrangeWidgets()
 */
 QSizePolicy QSpinBox::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 

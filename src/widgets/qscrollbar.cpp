@@ -238,6 +238,11 @@ void QScrollBar::init()
 	setBackgroundMode( PaletteMid );
     else
 	setBackgroundMode( PaletteBackground );
+    
+    if ( orient == Horizontal )
+	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    else
+	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Minimum ) );
 }
 
 
@@ -330,10 +335,8 @@ QSize QScrollBar::sizeHint() const
 */
 QSizePolicy QScrollBar::sizePolicy() const
 {
-    if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
-    else
-	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::Minimum );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 

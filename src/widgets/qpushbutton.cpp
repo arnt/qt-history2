@@ -242,6 +242,7 @@ void QPushButton::init()
     hasMenuArrow = FALSE;
     autoDefButton = topLevelWidget()->inherits("QDialog");
     setBackgroundMode( PaletteButton );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 }
 
 
@@ -417,7 +418,8 @@ QSize QPushButton::sizeHint() const
 */
 QSizePolicy QPushButton::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 /*!\reimp

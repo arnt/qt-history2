@@ -168,6 +168,7 @@ void QToolButton::init()
 
     setFocusPolicy( NoFocus );
     setBackgroundMode( PaletteButton);
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 }
 
 
@@ -324,7 +325,8 @@ QSize QToolButton::sizeHint() const
 */
 QSizePolicy QToolButton::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 
@@ -600,13 +602,13 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 
     if ( tl == newLabel )
 	return;
-    
+
     tl = newLabel;
     if ( usesTextLabel() && isVisible() ) {
 	update();
 	updateGeometry();
     }
-    
+
 }
 
 /*!

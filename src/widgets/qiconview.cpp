@@ -1897,7 +1897,7 @@ void QIconViewItem::checkRect()
   The simplest usage of QIconView is to create the object, create some
   QIconViewItems with the view as parent, set the view's geometry, and
   show it.
-  
+
   When an item is inserted, QIconView allocates a spot for it. The
   default Arrangement is \c LeftToRight - QIconView fills up the
   leftmost column first, then goes rightwards. You can change that
@@ -1911,7 +1911,7 @@ void QIconViewItem::checkRect()
   settings. The default is \c Single - when one item is selected, the
   previously selected item is unselected.
 
-  
+
 
   The QIconView provides a widget which can contain lots of iconview
   items which can be selected, dragged and so on.
@@ -4772,7 +4772,8 @@ QSize QIconView::minimumSizeHint() const
 
 QSizePolicy QIconView::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    //### removeme 3.0
+    return QScrollView::sizePolicy();
 }
 
 /*!

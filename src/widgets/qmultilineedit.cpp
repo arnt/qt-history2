@@ -162,7 +162,7 @@ static const char * const arrow_xpm[] = {
     ".#####.."
 };
 
-enum { 
+enum {
     IdUndo,
     IdRedo,
 #if QT_FEATURE_CLIPBOARD
@@ -457,6 +457,11 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setNumRows( 1 );
     setWidth( w );
     setAcceptDrops(TRUE);
+    if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+    } else {
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    }
 }
 
 /*! \fn int QMultiLineEdit::numLines() const
@@ -2836,11 +2841,8 @@ QPoint QMultiLineEdit::cursorPoint() const
 */
 QSizePolicy QMultiLineEdit::sizePolicy() const
 {
-    if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
-	return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
-    } else {
-	return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-    }
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 
@@ -3143,6 +3145,11 @@ void QMultiLineEdit::setMaxLines(int m)
 {
     bool trunc = d->maxlines >= 0 && d->maxlines < m;
     d->maxlines = m;
+    if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+    } else {
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    }
     if ( trunc ) {
 	if ( cursorY > m ) {
 	    cursorX = 0;

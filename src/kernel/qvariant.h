@@ -51,6 +51,7 @@ class QRegion;
 class QBitmap;
 class QCursor;
 class QStringList;
+class QSizePolicy;
 // Relevant header files rejected after QVariant declaration
 // for GCC 2.7.* compatibility
 class QVariant;
@@ -94,7 +95,8 @@ public:
 	PointArray,
 	Region,
 	Bitmap,
-	Cursor
+	Cursor,
+	SizePolicy
     };
 
     QVariant();
@@ -128,6 +130,7 @@ public:
     // ### Problems on some compilers ?
     QVariant( bool, int );
     QVariant( double );
+    QVariant( QSizePolicy );
 
     QVariant& operator= ( const QVariant& );
     bool operator==( const QVariant& ) const;
@@ -166,6 +169,7 @@ public:
     double toDouble() const;
     const QValueList<QVariant> toList() const;
     const QMap<QString,QVariant> toMap() const;
+    QSizePolicy toSizePolicy() const;
 
     QValueListConstIterator<QVariant> listBegin() const;
     QValueListConstIterator<QVariant> listEnd() const;
@@ -199,6 +203,7 @@ public:
     double& asDouble();
     QValueList<QVariant>& asList();
     QMap<QString,QVariant>& asMap();
+    QSizePolicy& asSizePolicy();
 
     void load( QDataStream& );
     void save( QDataStream& ) const;

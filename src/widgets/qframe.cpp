@@ -262,6 +262,17 @@ void QFrame::setFrameStyle( int style )
 		 name( "unnamed" ) );
 #endif
     fstyle = (short)style;
+    //   If this is a line, it may stretch in the direction of the
+    //   line, but it is fixed in the other direction. If this is a
+    //   normal frame, use QWidget's default behavior.
+    switch (fstyle & MShape) {
+    case HLine:
+	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    case VLine:
+	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+    default:
+	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+    }
     updateFrameWidth();
 }
 
@@ -498,19 +509,9 @@ QSize QFrame::sizeHint() const
 */
 QSizePolicy QFrame::sizePolicy() const
 {
-    //   If this is a line, it may stretch in the direction of the
-    //   line, but it is fixed in the other direction. If this is a
-    //   normal frame, use QWidget's default behavior.
-    switch (fstyle & MShape) {
-    case HLine:
-	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
-    case VLine:
-	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
-    default:
-	return QWidget::sizePolicy();
-    }
-
-
+    //### removeme 3.0
+    return QWidget::sizePolicy();
+   
 }
 
 

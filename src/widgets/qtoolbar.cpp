@@ -116,6 +116,7 @@ QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
     setOrientation( o );
     setBackgroundMode( parent->backgroundMode() );
     setBackgroundOrigin( ParentOrigin );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 }
 
 
@@ -145,7 +146,8 @@ QSize QToolBarSeparator::sizeHint() const
 
 QSizePolicy QToolBarSeparator::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 #include "qtoolbar.moc"

@@ -70,7 +70,7 @@ struct QHeaderData
 	sortColumn = -1;
 	sortDirection = TRUE;
     }
-    
+
 
     QArray<QCOORD>	sizes;
     QArray<QCOORD>	heights;
@@ -88,8 +88,8 @@ struct QHeaderData
     bool sortDirection;
     int sortColumn;
     int count;
-    
-    
+
+
     void calculatePositions(){
 	// positions is sorted by index, not by section
 	int p = 0;
@@ -100,7 +100,7 @@ struct QHeaderData
     }
     int sectionAt( int pos ) {
 	// positions is sorted by index, not by section
-	if ( !count ) 
+	if ( !count )
 	    return -1;
 	int l = 0;
 	int r = count - 1;
@@ -202,7 +202,7 @@ QHeader::~QHeader()
 
   This signal is emitted when the user clicked onto the section
   \a section.
-  
+
   \sa pressed(), released()
 */
 
@@ -210,7 +210,7 @@ QHeader::~QHeader()
   \fn void QHeader::pressed( int section )
 
   This signal is emitted when the user presses section \a section down.
-  
+
   \sa released()
 */
 
@@ -218,7 +218,7 @@ QHeader::~QHeader()
   \fn void QHeader::released( int section )
 
   This signal is emitted when section \a section is released.
-  
+
   \sa pressed()
 */
 
@@ -340,6 +340,7 @@ void QHeader::init( int n )
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
     setBackgroundMode( PaletteButton );
+    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 }
 
 /*!
@@ -355,6 +356,10 @@ void QHeader::setOrientation( Orientation orientation )
 {
     if (orient==orientation) return;
     orient = orientation;
+    if ( orient == Horizontal )
+	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
+    else
+	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred ) );
     update();
     updateGeometry();
 }
@@ -575,7 +580,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
-    
+
     switch( state ) {
     case Idle:
 	hit = FALSE;
@@ -649,7 +654,7 @@ void QHeader::handleColumnResize( int index, int c, bool final )
     d->sizes[section] = newSize;
 
     d->calculatePositions();
-    
+
     int pos = d->positions[index]-offset();
     if ( orient == Horizontal )
 	repaint( pos, 0, width() - pos, height() );
@@ -668,11 +673,11 @@ void QHeader::handleColumnResize( int index, int c, bool final )
 
 QRect QHeader::sRect( int index )
 {
-    
+
     int section = mapToSection( index );
     if ( section < 0 )
 	return rect(); // ### eeeeevil
-    
+
     if ( orient == Horizontal )
 	return QRect(  d->positions[index]-offset(), 0, d->sizes[section], height() );
     else
@@ -855,7 +860,7 @@ int QHeader::addLabel( const QString &s, int size )
     d->resize.setBit( section, d->resize_default );
 
     update();
-    return index; 
+    return index;
 }
 
 
@@ -889,10 +894,8 @@ QSize QHeader::sizeHint() const
 */
 QSizePolicy QHeader::sizePolicy() const
 {
-    if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
-    else
-	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 
@@ -914,7 +917,7 @@ void QHeader::setOffset( int x )
 
 
 /*!
-  
+
   Returns the position of actual division line \a i in widget
   coordinates. May return a position outside the widget.
 
@@ -1089,7 +1092,7 @@ void QHeader::setClickEnabled( bool enable, int section )
 /*!
   Paints actual section \a index of the header, inside rectangle \a fr in
   widget coordinates.
-  
+
   Calls paintSectionLabel().
 */
 
@@ -1098,7 +1101,7 @@ void QHeader::paintSection( QPainter *p, int index, QRect fr )
     int section = mapToSection( index );
     if ( section < 0 )
 	return;
-    
+
     bool down = (index==handleIdx) && ( state == Pressed || state == Moving );
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
@@ -1150,12 +1153,12 @@ void QHeader::paintSection( QPainter *p, int index, QRect fr )
     }
 
     paintSectionLabel( p, index, fr );
-}   
+}
 
 /*!
   Paints the label of actual section \a index of the header, inside rectangle \a fr in
   widget coordinates.
-  
+
   Called by paintSection()
 */
 void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
@@ -1293,7 +1296,7 @@ int QHeader::sectionSize( int section ) const
 
 /*!
   Returns the position (in pixels) at which the \a section starts.
-  
+
   \sa offset()
 */
 
@@ -1306,7 +1309,7 @@ int QHeader::sectionPos( int section ) const
 
 /*!
   Returns the \a section which contains the position \a pos given in pixels.
-  
+
   \sa offset()
 */
 

@@ -1826,11 +1826,11 @@ QMetaObject* QObject::staticMetaObject()
     QMetaData *slot_tbl = new QMetaData[1];
     slot_tbl[0].name = "cleanupEventFilter()";
     slot_tbl[0].ptr = *((QMember*)&v1_0);
-    
+
     //### remove 3.0, replace with slot_tbl[0].access = QMetaData::Private;
     QMetaData::Access *slot_tbl_access = new QMetaData::Access[1];
     slot_tbl_access[0] = QMetaData::Private;
-    
+
     typedef void(QObject::*m2_t0)();
     m2_t0 v2_0 = &QObject::destroyed;
     QMetaData *signal_tbl = new QMetaData[1];
@@ -2200,6 +2200,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     typedef void (QObject::*ProtoMap)( QMap<QString,QVariant> );
     typedef void (QObject::*RProtoMap)( const QMap<QString,QVariant>& );
 
+    typedef void (QObject::*ProtoSizePolicy)( QSizePolicy );
+    typedef void (QObject::*RProtoSizePolicy)( const QSizePolicy& );
+
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return FALSE;
@@ -2535,6 +2538,18 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    ASSERT( 0 );
 	}
 	return TRUE;
+	
+    case QVariant::SizePolicy:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoSizePolicy m = (ProtoSizePolicy)p->set;
+	    (this->*m)( value.toSizePolicy() );
+	} else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoSizePolicy m = (RProtoSizePolicy)p->set;
+	    (this->*m)( value.toSizePolicy() );
+	} else {
+	    ASSERT( 0 );
+	}
+	return TRUE;
     }
 
     return FALSE;
@@ -2655,6 +2670,10 @@ QVariant QObject::property( const char *name ) const
     typedef const QMap<QString,QVariant>* (QObject::*PProtoMap)() const;
     typedef const QMap<QString,QVariant>& (QObject::*RProtoMap)() const;
 
+    typedef QSizePolicy (QObject::*ProtoSizePolicy)() const;
+    typedef const QSizePolicy* (QObject::*PProtoSizePolicy)() const;
+    typedef const QSizePolicy& (QObject::*RProtoSizePolicy)() const;
+    
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return value;
@@ -3137,7 +3156,27 @@ QVariant QObject::property( const char *name ) const
 	    ASSERT( 0 );
 	}
 	return value;
+	
+    case QVariant::SizePolicy:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoSizePolicy m = (ProtoSizePolicy)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoSizePolicy m = (RProtoSizePolicy)p->get;
+	    value = QVariant( (this->*m)() );
+	} else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoSizePolicy m = (PProtoSizePolicy)p->get;
+	    const QSizePolicy *p = (this->*m)();
+	    if ( p )
+		value = QVariant( *p );
+	    else
+		value = QVariant( 0 );
+	} else {
+	    ASSERT( 0 );
+	}
+	return value;
     }
+    
     return value;
 }
 

@@ -323,6 +323,7 @@ void QLCDNumber::init()
     setNumDigits( ndigits );
     setSegmentStyle( Outline );
     d = 0;
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
 }
 
 /*!
@@ -1148,6 +1149,7 @@ QSize QLCDNumber::sizeHint() const
 */
 QSizePolicy QLCDNumber::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 #endif

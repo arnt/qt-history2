@@ -74,6 +74,9 @@ public:
 					      :  data | ( 1 << 2*HSize ); }
     bool hasHeightForWidth() const { return data & ( 1 << 2*HSize ); }
 
+    bool operator==( const QSizePolicy& s) const { return data == s.data; }
+    bool operator!=( const QSizePolicy& s) const { return data != s.data; }
+    
 private:
     QSizePolicy( int i ): data( i ) {}
 

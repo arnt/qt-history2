@@ -201,7 +201,10 @@ public:
 struct QComboData
 {
     QComboData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
-    { duplicatesEnabled = TRUE; }
+    { 
+	duplicatesEnabled = TRUE; 
+	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    }
     ~QComboData()
     {
 	delete pop;
@@ -947,7 +950,8 @@ QSize QComboBox::sizeHint() const
 */
 QSizePolicy QComboBox::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 

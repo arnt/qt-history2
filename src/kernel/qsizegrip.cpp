@@ -90,7 +90,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     : QWidget( parent, name )
 {
     setCursor( sizeFDiagCursor );
-
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 #if defined(_WS_X11_)
     if ( !qt_sizegrip_workspace( this ) ) {
 	WId id = winId();
@@ -201,11 +201,10 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 
 
 
-/*!
-  The size grip has a fixed height, but can grow horizontally.
+/*!\reimp
 */
-
 QSizePolicy QSizeGrip::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }

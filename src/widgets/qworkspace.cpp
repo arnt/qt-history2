@@ -476,6 +476,8 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 		    this, SLOT( activatePreviousWindow() ) );
     a->connectItem( a->insertItem( CTRL +  ALT + SHIFT + Key_Tab),
 		    this, SLOT( activatePreviousWindow() ) );
+
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 }
 
 
@@ -491,7 +493,8 @@ QWorkspace::~QWorkspace()
 */
 QSizePolicy QWorkspace::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 /*!\reimp

@@ -69,6 +69,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
       auto_indicator( TRUE ),
       d( 0 )
 {
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     initFrame();
 }
 
@@ -98,6 +99,7 @@ QProgressBar::QProgressBar( int totalSteps,
       auto_indicator( TRUE ),
       d( 0 )
 {
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     initFrame();
 }
 
@@ -200,7 +202,8 @@ QSize QProgressBar::minimumSizeHint() const
 */
 QSizePolicy QProgressBar::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 /*!

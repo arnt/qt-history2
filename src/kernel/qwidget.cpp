@@ -116,6 +116,7 @@
 	width(),
 	height(),
 	sizePolicy(),
+	setSizePolicy(),
 	sizeHint(),
 	updateGeometry(),
 	layout(),
@@ -380,11 +381,12 @@
   <li> In the constructor, be sure to set up your member variables
   early on, before there's any chance that you might receive an event.
 
-  <li>It is almost always useful to reimplement sizePolicy or at least
-  sizeHint(), so users of your class can set up layout management more
-  easily.  sizePolicy() lets you supply good defaults for the layout
-  management handling, so that other widgets can contain and manage
-  yours easily.  sizeHint() indicates a "good" size for the widget.
+  <li>It is almost always useful to reimplement sizeHint() and to set
+  the correct size policy with setSizePolicy(), so users of your class
+  can set up layout management more easily.  A size policy lets you
+  supply good defaults for the layout management handling, so that
+  other widgets can contain and manage yours easily.  sizeHint()
+  indicates a "good" size for the widget.
 
   <li>If your widget is a top-level window, setCaption() and setIcon() set
   the title bar and icon respectively.
@@ -675,6 +677,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     focus_policy = 0;
     own_font = 0;
     own_palette = 0;
+    sizehint_forced = 0;
     lay_out = 0;
     extra = 0;					// no extra widget info
     bg_col = pal.normal().background();		// default background color
@@ -3349,7 +3352,7 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   finished.
 
   After this function, the widget has a proper font and palette and
-  QApplication::polish() has been called. 
+  QApplication::polish() has been called.
 
   Remember to call QWidget's implementation when reimplementing this
   function.
@@ -4583,16 +4586,29 @@ void QWidget::setLayout( QLayout *l )
 }
 
 
-/*!  This function can be reimplemented in subclasses to specify the
-  default layout behaviour of that subclass.
+/*!  
+  Returns the default layout behaviour of this widget.
 
   If there is a QLayout that manages this widget's children, the size
   policy specified by that layout is used. If there is no such
   QLayout, the result of this function is used.
 
-  The default implementation returns a value which means that the
+  \sa setSizePolicy(), sizeHint() QLayout QSizePolicy, updateGeometry()
+*/
+
+QSizePolicy QWidget::sizePolicy() const
+{
+    return extra ? extra->size_policy : QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+}
+
+/*!  
+  
+  Sets the size policy for this widget to \a policy. The size policy
+  specifies the default layout behaviour.
+
+  The default policy is Preferred/Preferred, which means that the
   widget can be freely resized, but prefers to be the size sizeHint()
-  returns. Button-like widgets reimplement sizeHint to specify that
+  returns. Button-like widgets set the size policy to specify that
   they may stretch horizontally, but are fixed vertically. The same
   applies to lineedit controls (such as QLineEdit, QSpinBox or an
   editable QComboBox) and other horizontally orientated widgets (such
@@ -4607,10 +4623,15 @@ void QWidget::setLayout( QLayout *l )
   \sa sizeHint() QLayout QSizePolicy, updateGeometry()
 */
 
-QSizePolicy QWidget::sizePolicy() const
+void QWidget::setSizePolicy( QSizePolicy policy )
 {
-    return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+    if ( policy == sizePolicy() )
+	return;
+    createExtra();
+    extra->size_policy = policy;
+    updateGeometry();
 }
+
 
 /*!
   Returns the preferred height for this widget, given the width \a w.
@@ -4661,7 +4682,7 @@ void QWidget::updateGeometry()
     if ( !isTopLevel() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
-}
+}	
 
 
 
@@ -4778,7 +4799,7 @@ void QWidget::showFullScreen()
   \fn bool QWidget::ownFont() const
   Returns whether the widget uses its own font or its natural
   default font.
-  
+
   \sa setFont(), unsetFont()
  */
 
@@ -4786,6 +4807,7 @@ void QWidget::showFullScreen()
   \fn bool QWidget::ownPalette() const
   Returns whether the widget uses its own palette or its natural
   default palette.
-  
+
   \sa setPalette(), unsetPalette()
  */
+

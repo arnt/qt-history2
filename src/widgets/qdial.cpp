@@ -127,6 +127,7 @@ QDial::QDial( QWidget *parent, const char *name )
     d->onlyOutside = FALSE;
     setFocusPolicy( QWidget::/*Weak*/WheelFocus );
     setBackgroundMode( NoBackground );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 }
 
 
@@ -151,6 +152,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
     d->onlyOutside = FALSE;
     setFocusPolicy( QWidget::/*Weak*/WheelFocus );
     setBackgroundMode( NoBackground );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 }
 
 /*!
@@ -751,7 +753,8 @@ QSize QDial::sizeHint() const
 
 QSizePolicy QDial::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 /*!

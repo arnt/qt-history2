@@ -149,6 +149,8 @@ void QTabWidget::init()
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     d->stack->setLineWidth( style().defaultFrameWidth() );
+
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 }
 
 /*!
@@ -638,7 +640,8 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 
 QSizePolicy QTabWidget::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 #endif

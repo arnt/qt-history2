@@ -43,7 +43,6 @@ class Q_EXPORT QLabel : public QFrame
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( int indent READ indent WRITE setIndent )
-    Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )
 	
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );

@@ -67,6 +67,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect rect READ rect )
     Q_PROPERTY( QRect childrenRect READ childrenRect )
     Q_PROPERTY( QRegion childrenRegion READ childrenRegion )
+    Q_PROPERTY( QSizePolicy sizePolicy READ sizePolicy WRITE setSizePolicy )
     Q_PROPERTY( QSize minimumSize READ minimumSize WRITE setMinimumSize )
     Q_PROPERTY( QSize maximumSize READ maximumSize WRITE setMaximumSize )
     Q_PROPERTY( int minimumWidth READ minimumWidth WRITE setMinimumWidth STORED false )
@@ -175,7 +176,7 @@ public:
     void	setFixedSize( int w, int h );
     void	setFixedWidth( int w );
     void	setFixedHeight( int h );
-
+    
     // Widget coordinate mapping
 
     QPoint	 mapToGlobal( const QPoint & )	 const;
@@ -331,7 +332,8 @@ public:
 
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;
-    virtual QSizePolicy sizePolicy() const;
+    virtual QSizePolicy	sizePolicy() const;
+    void 		setSizePolicy( QSizePolicy );
     virtual int heightForWidth(int) const;
 
     virtual void  	adjustSize();
@@ -511,6 +513,7 @@ private:
     uint	 focus_policy : 4;
     uint 	own_font :1;
     uint 	own_palette :1;
+    uint 	sizehint_forced :1;
     QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;
@@ -812,6 +815,7 @@ struct QWExtra {
     char     bg_mode;				// background mode
     QStyle* style;
     QRect micro_focus_hint;                     // micro focus hint
+    QSizePolicy size_policy;
 };
 
 

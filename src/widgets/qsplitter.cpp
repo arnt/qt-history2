@@ -78,11 +78,8 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o,
 
 QSizePolicy QSplitterHandle::sizePolicy() const
 {
-    if ( orient == Horizontal )
-	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
-    else
-    	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
-
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 QSize QSplitterHandle::sizeHint() const
@@ -258,6 +255,11 @@ QSplitter::~QSplitter()
 void QSplitter::init()
 {
     data = new QSplitterData;
+    if ( orient == Horizontal )
+	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+    else
+    	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+
 }
 
 
@@ -281,6 +283,10 @@ void QSplitter::setOrientation( Orientation o )
 	return;
     orient = o;
 
+    if ( orient == Horizontal )
+	setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ) );
+    else
+    	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {

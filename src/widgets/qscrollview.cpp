@@ -467,6 +467,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     setLineWidth( style().defaultFrameWidth() );
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 }
 
 
@@ -2212,7 +2213,8 @@ void QScrollView::viewportToContents(int vx, int vy, int& x, int& y)
 */
 QSizePolicy QScrollView::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 

@@ -110,6 +110,7 @@ QRadioButton::QRadioButton( const QString &text, QWidget *parent,
 
 void QRadioButton::init()
 {
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setToggleButton( TRUE );
     if ( parentWidget() && parentWidget()->inherits("QButtonGroup") ) {
 	QButtonGroup *bgrp = (QButtonGroup *)parentWidget();
@@ -168,7 +169,8 @@ QSize QRadioButton::sizeHint() const
 
 QSizePolicy QRadioButton::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 

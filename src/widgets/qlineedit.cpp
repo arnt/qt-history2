@@ -52,7 +52,7 @@ struct QLineEditUndoItem
     int pos;
 };
 
-enum { 
+enum {
     IdUndo,
     IdRedo,
 #if QT_FEATURE_CLIPBOARD
@@ -240,6 +240,9 @@ void QLineEdit::init()
     setKeyCompression( TRUE );
     alignmentFlag = Qt::AlignLeft;
     setAcceptDrops( TRUE );
+    //   Specifies that this widget can use more, but is able to survive on
+    //   less, horizontal space; and is fixed vertically.
+    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     ed = FALSE;
 }
 
@@ -1391,9 +1394,8 @@ QSize QLineEdit::minimumSizeHint() const
 */
 QSizePolicy QLineEdit::sizePolicy() const
 {
-    //   Specifies that this widget can use more, but is able to survive on
-    //   less, horizontal space; and is fixed vertically.
-    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 

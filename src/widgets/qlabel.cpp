@@ -189,6 +189,8 @@ void QLabel::init()
     autoresize = FALSE;
     textformat = Qt::AutoText;
     doc = 0;
+    
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
     d = new QLabelPrivate;
 }
 
@@ -248,6 +250,11 @@ void QLabel::setText( const QString &text )
 	doc->setWidth( 10 );
 	d->minimumWidth = doc->widthUsed();
     }
+    
+    if ( doc || align & WordBreak )
+	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE ) );
+    else
+	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum,  FALSE ) );
 
     updateLabel( osh );
 }
@@ -547,12 +554,8 @@ QSize QLabel::minimumSizeHint() const
 */
 QSizePolicy QLabel::sizePolicy() const
 {
-    if ( doc || align & WordBreak )
-	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred,
-			    TRUE );
-    else
-	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum,
-			    FALSE );
+    //### removeme 3.0
+    return QWidget::sizePolicy();
 }
 
 
