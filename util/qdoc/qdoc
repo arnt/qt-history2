@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#99 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#100 $
 #
 # this is a massive hack, written very quickly
 #
@@ -299,6 +299,7 @@ sub handlecodeincludes {
 
     if ( $cmd eq "include" || $cmd eq "dontinclude" ) {
 	$basefile = "/local/qt/tutorial/" . $arg;
+	$basefile = "/local/qt/examples/" . $arg unless ( -f $basefile );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
 	$slash = $/;
@@ -814,8 +815,11 @@ remains with Troll Tech.
      }
 
     foreach $filename ( keys %examples ) {
-	my (%a, $a);
+	my (%a, $a, $doc);
 
+	$doc = &codeincludes($examples{$filename});
+	$doc =~ s/<linebreak>//gs;
+	
 	open(F, "expand < /local/qt/examples/$filename |")
 	    || open(F, "expand < /local/qt/tutorial/$filename |")
 		|| die "can't open $filename for reading";
@@ -851,6 +855,7 @@ remains with Troll Tech.
 		sprintf("%s%s%s", $1, $2, $3);
 	    }
 	@egsx;
+
 	print H $doctype, "
 <html><head><title>
 Qt Toolkit - ", $filename, " example file
@@ -859,7 +864,7 @@ Qt Toolkit - ", $filename, " example file
 The example program on this page may be used, distributed and modified
 without limitation.
 
-", &codeincludes($examples{$filename}), "
+", $doc, "
 <hr>
 ", $h, $address;
 	close H;
@@ -1567,6 +1572,7 @@ sub printclass {
 			$a =~ s/^.*?\((\)\()?\s*//s;
 			$a =~ s/\s*\).*?$//s;
 			$a =~ s-<a href=.*?>(.*?)</a>-$1-g;
+			$a = &html( $a );
 			#print "but $a\n";
 		    }
 		    $_ = join("", &html($t), "<a href=", $u,
