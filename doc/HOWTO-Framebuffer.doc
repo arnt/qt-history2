@@ -37,8 +37,8 @@ See <a href=file:/usr/src/linux/README><tt>/usr/src/linux/README</tt></a> and
 <a href=file:/usr/src/linux/Documentation/fb/><tt>/usr/src/linux/Documentation/fb/</tt></a>
 for detailed information.
 There is also a detailed explanation at:
-<a href=http://www.tahallah.demon.co.uk/programming/Framebuffer-HOWTO-1.1-4.html>
-http://www.tahallah.demon.co.uk/programming/Framebuffer-HOWTO-1.1-4.html</a>
+<a href=http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html>
+http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html</a>
 
 <ol>
 <li> Make sure that you have the Linux kernel source code in
