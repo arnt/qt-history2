@@ -99,7 +99,7 @@ public:
     bool unregisterClient( FormWindow *w );
     void editorClosed( SourceEditor *e );
     QWidget *isAFormWindowChild( QObject *o ) const;
-    bool isAToolBarChild( QObject *o ) const;
+    QWidget *isAToolBarChild( QObject *o ) const;
 
     void insertFormWindow( FormWindow *fw );
     QWorkspace *workSpace() const;

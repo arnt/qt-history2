@@ -1317,8 +1317,11 @@ void FormWindow::deleteWidgets()
     QWidgetList widgets;
     QPtrDictIterator<WidgetSelection> it( usedSelections );
     for ( ; it.current(); ++it ) {
-	if ( !mainWindow()->isAToolBarChild( it.current()->widget() ) )
+	QWidget *tb = 0;
+	if ( !( tb = mainWindow()->isAToolBarChild( it.current()->widget() ) ) )
 	     widgets.append( it.current()->widget() );
+	else
+	    ( (QDesignerToolBar*)tb )->removeWidget( it.current()->widget() );
     }
 
     if ( widgets.isEmpty() )

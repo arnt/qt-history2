@@ -378,6 +378,21 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
     dragStartPos = e->pos();
 }
 
+void QDesignerToolBar::removeWidget( QWidget *w )
+{
+    QMap<QWidget*, QAction*>::Iterator it = actionMap.find( w );
+    if ( it == actionMap.end() )
+	return;
+    QAction *a = *it;
+    int index = actionList.find( a );
+    RemoveActionFromToolBarCommand *cmd =
+	new RemoveActionFromToolBarCommand( tr( "Remove Action '%1' from Toolbar '%2'" ).
+					    arg( a->name() ).arg( caption() ),
+					    formWindow, a, this, index );
+    formWindow->commandHistory()->addCommand( cmd );
+    cmd->execute();
+}
+
 void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
 {
     if ( widgetInserting || ( e->state() & LeftButton ) == 0 )
@@ -391,9 +406,10 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
     if ( !a )
 	return;
     int index = actionList.find( a );
-    RemoveActionFromToolBarCommand *cmd = new RemoveActionFromToolBarCommand( tr( "Remove Action '%1' from Toolbar '%2'" ).
-									      arg( a->name() ).arg( caption() ),
-									      formWindow, a, this, index );
+    RemoveActionFromToolBarCommand *cmd =
+	new RemoveActionFromToolBarCommand( tr( "Remove Action '%1' from Toolbar '%2'" ).
+					    arg( a->name() ).arg( caption() ),
+					    formWindow, a, this, index );
     formWindow->commandHistory()->addCommand( cmd );
     cmd->execute();
 

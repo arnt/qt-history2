@@ -131,6 +131,7 @@ public:
     void appendAction( QAction *a ) { actionList.append( a ); }
     void removeAction( QAction *a ) { actionList.remove( a ); }
     void reInsert();
+    void removeWidget( QWidget *w );
 
 protected:
     bool eventFilter( QObject *, QEvent * );

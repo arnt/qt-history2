@@ -2873,16 +2873,16 @@ QWidget *MainWindow::isAFormWindowChild( QObject *o ) const
     return 0;
 }
 
-bool MainWindow::isAToolBarChild( QObject *o ) const
+QWidget *MainWindow::isAToolBarChild( QObject *o ) const
 {
     while ( o ) {
 	if ( o->inherits( "QDesignerToolBar" ) )
-	    return TRUE;
+	    return (QWidget*)o;
 	if ( o->inherits( "FormWindow" ) )
-	    return FALSE;
+	    return 0;
 	o = o->parent();
     }
-    return FALSE;
+    return 0;
 }
 
 FormWindow *MainWindow::formWindow()
