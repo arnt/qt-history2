@@ -55,16 +55,11 @@ public:
     bool utf16bind;
     QString user;
 
-    typedef QVector<QCoreVariant> RowCache;
-    typedef QVector<RowCache*> RowsetCache;
-    RowsetCache rowCache;
-    void clearCache();
-    
-    text* oraText( const QString& str ) const;    
-    sb4 oraTextLength( const QString& str ) const;    
+    text* oraText( const QString& str ) const;
+    sb4 oraTextLength( const QString& str ) const;
     sb4 oraByteLength( const QString& str ) const;
-    void setCharset( OCIBind* hbnd );    
-    int bindValues( QVector<QCoreVariant>& values, QList<QVirtualDestructor*> & tmpStorage );    
+    void setCharset( OCIBind* hbnd );
+    int bindValues( QVector<QCoreVariant>& values, QList<QVirtualDestructor*> & tmpStorage );
     void outValues( QVector<QCoreVariant> &values, QList<QVirtualDestructor*> & tmpStorage );
 };
 
@@ -75,14 +70,6 @@ QOCIPrivate::QOCIPrivate(): env(0), err(0), svc(0), sql(0), transaction( FALSE )
 
 QOCIPrivate::~QOCIPrivate()
 {
-    clearCache();
-}
-
-void QOCIPrivate::clearCache()
-{
-    for (int i = 0; i < rowCache.count(); ++i)
-	delete rowCache.at(i);
-    rowCache.clear();
 }
 
 text* QOCIPrivate::oraText( const QString& str ) const
@@ -109,24 +96,24 @@ sb4 QOCIPrivate::oraByteLength( const QString& str ) const
 void QOCIPrivate::setCharset( OCIBind* hbnd )
 {
     int r = 0;
-    
+
 #ifdef QOCI_USES_VERSION_9
     if ( serverVersion > 8 && !CSID_UTF16 ) {
-	
+
 	r = OCIAttrSet( (void*)hbnd,
 			OCI_HTYPE_BIND,
 			(void*) &CSID_NCHAR,
 			(ub4) 0,
 			(ub4) OCI_ATTR_CHARSET_FORM,
 			err );
-	
+
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
 	    qOraWarning( "QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", this );
 #endif
     }
 #endif //QOCI_USES_VERSION_9
-    
+
     const ub2* csid = utf16bind ? &CSID_UTF16 : &CSID_UTF8;
     r = OCIAttrSet( (void*)hbnd,
 		    OCI_HTYPE_BIND,
@@ -142,7 +129,7 @@ void QOCIPrivate::setCharset( OCIBind* hbnd )
 
 int QOCIPrivate::bindValues( QVector<QCoreVariant>& values, QList<QVirtualDestructor*> & tmpStorage )
 {
-    int r = OCI_SUCCESS;	
+    int r = OCI_SUCCESS;
     int i;
     for ( i = 0; i < values.count(); ++i ) {
 	QCoreVariant val( values.at( i ) );
@@ -218,17 +205,17 @@ void QOCIPrivate::outValues( QVector<QCoreVariant> &values, QList<QVirtualDestru
 	    return;
 	bool isNull = (*indPtr == -1);
 	tmpStorage.removeFirst();
-	
+
 	if ( isNull ) {
 	    values[ i ] = QCoreVariant(typ);
 	    if ( !tmpStorage.isEmpty() && typ != QCoreVariant::ByteArray && typ != QCoreVariant::Int && typ != QCoreVariant::Double )
 		tmpStorage.removeFirst();
 	    continue;
-	}	    
-	
+	}
+
 	if (tmpStorage.isEmpty())
 	    return;
-    
+
 	switch ( typ ) {
 	    case QCoreVariant::ByteArray:
 	    case QCoreVariant::Int:
@@ -256,7 +243,7 @@ void QOCIPrivate::outValues( QVector<QCoreVariant> &values, QList<QVirtualDestru
 		values[ i ] = QString::fromUcs2( str->ucs2() );
 		tmpStorage.removeFirst();
 		break; }
-	}			
+	}
     }
 }
 
@@ -278,7 +265,7 @@ QString qOraWarn( const QOCIPrivate* d )
     text errbuf[1024];
     errbuf[0] = 0;
     errbuf[1] = 0;
-    
+
     OCIErrorGet((dvoid *)d->err,
 		(ub4) 1,
 		(text *)NULL,
@@ -528,7 +515,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 }
 
 
-/*! \internal Convert QDateTime to the internal Oracle DATE format 
+/*! \internal Convert QDateTime to the internal Oracle DATE format
   NB! It does not handle BCE dates.
 */
 QByteArray qMakeOraDate( const QDateTime& dt )
@@ -564,7 +551,7 @@ QDateTime qMakeDate( const char* oraDate )
 
 class QOCIResultPrivate
 {
-public:    
+public:
     QOCIResultPrivate( int size, QOCIPrivate* dp );
     ~QOCIResultPrivate();
     void setCharset( OCIDefine* dfn );
@@ -579,9 +566,9 @@ public:
     OCILobLocator* lobLocator( int i );
     int length( int i );
     QCoreVariant value( int i );
-    
+
     QSqlRecord fs;
-    
+
 private:
     char* create( int position, int size );
     OCILobLocator** createLobLocator( int position, OCIEnv* env );
@@ -598,8 +585,8 @@ private:
 	OCIDefine *def;
 	OCILobLocator **lob;
     };
-    
-    QVector<OraFieldInf> fieldInf;    
+
+    QVector<OraFieldInf> fieldInf;
     QOCIPrivate* d;
 };
 
@@ -616,11 +603,11 @@ QOCIResultPrivate::OraFieldInf::~OraFieldInf()
 QOCIResultPrivate::QOCIResultPrivate( int size, QOCIPrivate* dp )
     : fieldInf(size), d(dp)
 //    : data( size ), len( size ), ind( size ), typ( size ), def( size ), lobs( size ), d( dp )
-{   
+{
     ub4 dataSize(0);
     OCIDefine* dfn = 0;
     int r;
-    
+
     OCIParam* param = 0;
     sb4 parmStatus = 0;
     ub4 count = 1;
@@ -630,7 +617,7 @@ QOCIResultPrivate::QOCIResultPrivate( int size, QOCIPrivate* dp )
 			      d->err,
 			      (void**)&param,
 			      count );
-    
+
     while ( parmStatus == OCI_SUCCESS ) {
 	OraFieldInfo ofi = qMakeOraField( d, param );
 #ifdef SQLT_INTERVAL_YM
@@ -683,7 +670,7 @@ QOCIResultPrivate::QOCIResultPrivate( int size, QOCIPrivate* dp )
 					(dvoid *) createInd( count-1 ),
 					(ub2 *) 0,
 					(ub2 *) 0,
-					OCI_DEFAULT ); // piecewise 
+					OCI_DEFAULT ); // piecewise
 		    if ( r == 0 )
 			setCharset( dfn );
 		}
@@ -799,22 +786,22 @@ OCILobLocator** QOCIResultPrivate::createLobLocator( int position, OCIEnv* env )
 void QOCIResultPrivate::setCharset( OCIDefine* dfn )
 {
     int r = 0;
-    
+
 #ifdef QOCI_USES_VERSION_9
     if ( d->serverVersion > 8 && !CSID_UTF16 ) {
-	
+
 	r = OCIAttrSet( (void*)dfn,
 			OCI_HTYPE_DEFINE,
 			(void*) &CSID_NCHAR,
 			(ub4) 0,
 			(ub4) OCI_ATTR_CHARSET_FORM,
 			d->err );
-	
+
 	if ( r != 0 )
 	    qOraWarning( "QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", d );
     }
 #endif //QOCI_USES_VERSION_9
-    
+
     if (d->serverVersion > 8) {
 	const ub2* csid = d->utf16bind ? &CSID_UTF16 : &CSID_UTF8;
 	r = OCIAttrSet( (void*)dfn,
@@ -823,8 +810,8 @@ void QOCIResultPrivate::setCharset( OCIDefine* dfn )
 			(ub4) 0,
 			(ub4) OCI_ATTR_CHARSET_ID,
 			d->err );
-	if ( r != 0 )
-	    qOraWarning( "QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", d );
+//	if ( r != 0 )
+//	    qOraWarning( "QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", d );
     }
 }
 
@@ -871,34 +858,13 @@ int QOCIResultPrivate::readPiecewise( QSqlRecord& res )
 	    break;
 	}
 	if ( nullField || !chunkSize ) {
-	    //		if ( res.value( fieldNum ).type() == QCoreVariant::CString ) {
-	    //		    res.setValue( fieldNum, QCString() );
-	    //		} else {
 	    res.setValue( fieldNum, QByteArray() );
-	    //		}
 	} else {
-	    //		QByteArray * ba;
-	    //		if ( res.value( fieldNum ).type() == QCoreVariant::CString ) {
-	    //		    ba = new QCString();
-	    //		    *ba = res.value( fieldNum ).toCString();
-	    //		} else {
-	    //		    ba = new QByteArray();
-	    //		    *ba = res.value( fieldNum ).toByteArray();
-	    //		}
-	    // NB! not a leak - tmp is deleted by QByteArray/QCString later on
-	    //		char * tmp = (char *)malloc( chunkSize + ba->size() );
-	    //		memcpy( tmp, ba->data(), ba->size() );
-	    //		memcpy( tmp + ba->size(), col, chunkSize );
-	    //		*ba = ba->assign( tmp, chunkSize + ba->size() );
-	    
-	    res.value( fieldNum ) = res.value(fieldNum).toByteArray().append( QByteArray( (char*)col, chunkSize ) );
-	    
-	    //		if ( res.value( fieldNum ).type() == QCoreVariant::CString ) {
-	    //		    res.setValue( fieldNum, *((QCString *) ba) );
-	    //		} else {
-	    //		    res.setValue( fieldNum, *ba );
-	    //		}
-	    //		delete ba;		
+            QByteArray ba = res.value(fieldNum).toByteArray();
+            int sz = ba.size();
+            ba.resize(sz + chunkSize);
+            memcpy(ba.data() + sz, (char*)col, chunkSize);
+	    res.value( fieldNum ) = ba;
 	}
 	if ( status == OCI_SUCCESS_WITH_INFO ||
 	     status == OCI_NEED_DATA ) {
@@ -930,7 +896,7 @@ int QOCIResultPrivate::readLOBs( QSqlRecord& res )
 	    buf = new QByteArray();
 	    buf->resize(amount);
 	    //		}
-	    
+
 	    // get lob charset ID and tell oracle to transform it into UTF-8
 	    ub1 csfrm = 0;
 	    r = OCILobCharSetForm( d->env, d->err, lob, &csfrm );
@@ -938,7 +904,7 @@ int QOCIResultPrivate::readLOBs( QSqlRecord& res )
 		qOraWarning( "OCIResultPrivate::readLOBs: Can't get encoding of LOB: ", d );
 		csfrm = 0;
 	    }
-	    
+
 	    r = OCILobRead( d->svc,
 			    d->err,
 			    lob,
@@ -981,7 +947,7 @@ void QOCIResultPrivate::getOraFields( QSqlRecord &rinf )
 				  d->err,
 				  (void**)&param,
 				  count );
-    
+
     while ( parmStatus == OCI_SUCCESS ) {
 	OraFieldInfo ofi = qMakeOraField( d, param );
 	QSqlField inf( ofi.name, ofi.type, (int)ofi.oraIsNull == 0 ? 1 : 0, (int)ofi.oraFieldLength,
@@ -1068,7 +1034,7 @@ QCoreVariant QOCIResultPrivate::value( int i )
 ////////////////////////////////////////////////////////////////////////////
 
 QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
-: QSqlResult(db),
+: QtSqlCachedResult(db),
   cols(0)
 {
     d = new QOCIPrivate();
@@ -1094,21 +1060,20 @@ OCIStmt* QOCIResult::statement()
 bool QOCIResult::reset ( const QString& query )
 {
     if ( !prepare( query ) )
-	return FALSE;
+        return FALSE;
     return exec();
 }
 
-bool QOCIResult::cacheNext()
+bool QOCIResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
 {
     if ( at() == QSql::AfterLast )
-	return FALSE;
+        return FALSE;
     cols->fs.clearValues();
-    int currentRecord = at() + 1;
     int r = 0;
     r = OCIStmtFetch (d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT);
 
     if ( r == OCI_SUCCESS_WITH_INFO ) {
-	qOraWarning( "QOCIResult::cacheNext: ", d );
+	qOraWarning( "QOCIResult::gotoNext: ", d );
 	r = 0; //ignore it
     } else if ( r == OCI_NEED_DATA ) { /* piecewise */
 	r = cols->readPiecewise( cols->fs );
@@ -1120,27 +1085,16 @@ bool QOCIResult::cacheNext()
 	    r = 0; /* ignore it */
 	    break;
 	default:
-	    qOraWarning( "QOCIResult::cacheNext: ", d );
+	    qOraWarning( "QOCIResult::gotoNext: ", d );
 	}
     }
+    if (index < 0) //not interested in values
+        return r == 0;
     // fetch LOBs
     if ( r == 0 ) {
 	r = cols->readLOBs( cols->fs );
     }
     if ( r == 0 ) {
-	QOCIPrivate::RowCache* cache = 0;
-	if (!isForwardOnly()) {
-	    //resize the cache if necessary
-	    if (d->rowCache.capacity() <= currentRecord) {
-		if ( d->rowCache.isEmpty())
-		    d->rowCache.reserve(QOCI_DYNAMIC_CHUNK_SIZE);
-		else
-		    d->rowCache.reserve(d->rowCache.capacity() << 1);
-	    }
-	    cache = new QOCIPrivate::RowCache(cols->size());
-//	    qDebug("Appending record %d to cache %d, count %d", cache->size(), d->rowCache.size(), d->rowCache.count());
-	}
-
 	for ( int i = 0; i < cols->size(); ++i ) {
 	    if ( cols->fs.isNull( i ) && !cols->isNull( i ) ) {
 		QCoreVariant v = QCoreVariant( cols->value( i ) );
@@ -1148,114 +1102,12 @@ bool QOCIResult::cacheNext()
 	    }
 	    if ( cols->isNull( i ) )
 		cols->fs.setNull( i );
-	    if (!isForwardOnly() && cache) {
-//		qDebug("adding to cache%p, %d, '%s'", cache, i, cols->fs.value(i).toString().ascii());
-		(*cache)[i] = cols->fs.value(i);
-	    }
-	    //qDebug( "got Value %d: '%s'", i, cols->fs.value(i).toString().ascii() );
+            values[index + i] = cols->fs.value(i);
 	}
-	if (!isForwardOnly() && cache)
-	    d->rowCache.append(cache);
     } else {
 	setAt( QSql::AfterLast );
     }
     return r == 0;
-}
-
-bool QOCIResult::fetchNext()
-{
-//    qDebug( "fetchNext: count %d, at %d", d->rowCache.count(), at() );
-    if ( !isForwardOnly() && (d->rowCache.count() - 1 >= at() + 1) ) {
-	setAt( at() + 1 );
-	return TRUE;
-    }
-    if ( cacheNext() ) {
-	setAt( at() + 1 );
-	return TRUE;
-    }
-    return FALSE;
-}
-
-bool QOCIResult::fetch( int i )
-{
-    if ( !isForwardOnly() && (d->rowCache.count() - 1 >= i) ) {
-	setAt( i );
-	return TRUE;
-    }
-    if ( isForwardOnly() && at() > i )
-	return FALSE;
-    setAt( d->rowCache.count() - 1 );
-    while ( at() < i ) {
-	if ( !cacheNext() )
-	    return FALSE;
-	setAt( at() + 1 );
-    }
-    if ( at() == i ) {
-	return TRUE;
-    }
-    return FALSE;
-}
-
-bool QOCIResult::fetchFirst()
-{
-//    qDebug("fetchFirst at %d count %d forwardOnly %d", at(), d->rowCache.count(), isForwardOnly());
-    if ( isForwardOnly() && at() != QSql::BeforeFirst )
-	return FALSE;
-    if ( !isForwardOnly() && (d->rowCache.count() > 0) ) {
-	setAt( 0 );
-	return TRUE;
-    }
-    if ( cacheNext() ) {
-	setAt( 0 );
-	return TRUE;
-    }
-    return FALSE;
-}
-
-bool QOCIResult::fetchLast()
-{
-    if ( !isForwardOnly() && at() == QSql::AfterLast && d->rowCache.count() > 0 ) {
-	setAt( d->rowCache.count() - 1 );
-	return TRUE;
-    }
-    if ( at() >= QSql::BeforeFirst ) {
-	int i = at();
-	while ( fetchNext() )
-	    i++; /* brute force */
-	if ( isForwardOnly() && at() == QSql::AfterLast ) {
-	    setAt( i );
-	    return TRUE;
-	} else
-	    return fetch( d->rowCache.count() - 1 );
-    }
-    return FALSE;
-}
-
-QCoreVariant QOCIResult::data( int field )
-{
-//   qDebug("data: count %d, size %d, at %d, field %d", d->rowCache.count(), d->rowCache.size(), at(), field);
-    if (field >= cols->fs.count()) {
-	qWarning( "QOCIResult::data: column %d out of range", field );
-	return QCoreVariant();
-    }
-    if (isForwardOnly())
-	return cols->fs.value(field);
-    if (d->rowCache.count() > at())
-	return d->rowCache.at(at())->at(field);
-    return QCoreVariant();
-}
-
-bool QOCIResult::isNull( int field )
-{
-    if (field >= cols->fs.count()) {
-	qWarning( "QOCIResult::isNull: column %d out of range", field );
-	return TRUE;
-    }
-    if ( isForwardOnly() )
-	return cols->fs.isNull(field);
-    if (d->rowCache.count() > at())
-	return d->rowCache.at(at())->at(field).isNull();
-    return TRUE;
 }
 
 int QOCIResult::size()
@@ -1281,8 +1133,8 @@ bool QOCIResult::prepare( const QString& query )
 
     delete cols;
     cols = 0;
+    QtSqlCachedResult::cleanup();
 
-    d->clearCache();
     if ( d->sql ) {
 	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
 	if ( r != 0 )
@@ -1311,7 +1163,7 @@ bool QOCIResult::prepare( const QString& query )
 	setLastError( qMakeError( "Unable to prepare statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
-    // do something with the placeholders? into a map?    
+    // do something with the placeholders? into a map?
     return TRUE;
 }
 
@@ -1320,8 +1172,8 @@ bool QOCIResult::exec()
     int r = 0;
     ub2 stmtType;
     QList<QVirtualDestructor*> tmpStorage;
-    d->clearCache();
-    
+    QtSqlCachedResult::clear();
+
     // bind placeholders
     if ( boundValueCount() > 0
 	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
@@ -1330,7 +1182,7 @@ bool QOCIResult::exec()
 	qDeleteAll(tmpStorage);
 	return FALSE;
     }
-    
+
     r = OCIAttrGet( d->sql,
 		    OCI_HTYPE_STMT,
 		    (dvoid*)&stmtType,
@@ -1377,6 +1229,7 @@ bool QOCIResult::exec()
 				      (void**)&param,
 				      count );
 	}
+        QtSqlCachedResult::init(parmCount);
 	setSelect( TRUE );
     } else { /* non-SELECT */
 	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
@@ -1393,7 +1246,7 @@ bool QOCIResult::exec()
     }
     setAt( QSql::BeforeFirst );
     setActive( TRUE );
-    
+
     if ( hasOutValues() )
 	d->outValues( boundValues(), tmpStorage );
 
@@ -1612,7 +1465,7 @@ int QOCI9Result::numRowsAffected()
 bool QOCI9Result::prepare( const QString& query )
 {
 //    qDebug( "QOCI9Result::prepare: " + query );
-    
+
     int r = 0;
     delete cols;
     cols = 0;
@@ -1651,10 +1504,9 @@ bool QOCI9Result::exec()
     int r = 0;
     ub2 stmtType;
     QList<QVirtualDestructor*> tmpStorage;
-    d->clearCache();
-    
+
 //    qDebug( "QOCI9Result::exec: %s", executedQuery().ascii() );
-    
+
     // bind placeholders
     if ( boundValueCount() > 0
 	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
@@ -1663,7 +1515,7 @@ bool QOCI9Result::exec()
 	qDeleteAll(tmpStorage);
 	return FALSE;
     }
-    
+
     r = OCIAttrGet( d->sql,
 		    OCI_HTYPE_STMT,
 		    (dvoid*)&stmtType,
@@ -1729,11 +1581,11 @@ bool QOCI9Result::exec()
     }
     setAt( QSql::BeforeFirst );
     setActive( TRUE);
-    
+
     if ( hasOutValues() )
 	d->outValues( boundValues(), tmpStorage );
 
-    qDeleteAll(tmpStorage);    
+    qDeleteAll(tmpStorage);
     return TRUE;
 }
 
@@ -1890,7 +1742,7 @@ bool QOCIDriver::open( const QString & db,
     setOpen( TRUE );
     setOpenError( FALSE );
     d->user = user.toUpper();
-    
+
     QSqlQuery q = createQuery();
     q.setForwardOnly( TRUE );
     if ( q.exec( "select parameter, value from nls_database_parameters "
@@ -1911,7 +1763,7 @@ bool QOCIDriver::open( const QString & db,
 	qWarning( "QOCIDriver::open: could not get Oracle server character set." );
 #endif
     }
-        
+
     return TRUE;
 }
 
@@ -2061,7 +1913,7 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
-    
+
     QSqlQuery t = createQuery();
     // using two separate queries for this is A LOT faster than using
     // eg. a sub-query on the sys.synonyms table
@@ -2135,7 +1987,7 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     tmpStmt += " and a.owner='" + owner + "'";
     t.setForwardOnly( TRUE );
     t.exec( tmpStmt );
-    
+
     if ( !t.next() ) {
 	stmt += " and a.table_name=(select tname from sys.synonyms "
                 "where sname='" + table + "' and creator=a.owner)";
@@ -2148,13 +2000,13 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
     } else {
 	buildIndex = TRUE;
     }
-    if ( buildIndex ) {	
+    if ( buildIndex ) {
 	QSqlQuery tt = createQuery();
 	tt.setForwardOnly( TRUE );
 	idx.setName( t.value(1).toString() );
 	do {
-	    tt.exec( "select data_type from all_tab_columns where table_name='" + 
-		     t.value(2).toString() + "' and column_name='" + 
+	    tt.exec( "select data_type from all_tab_columns where table_name='" +
+		     t.value(2).toString() + "' and column_name='" +
 		     t.value(0).toString() + "' and owner='" + owner + "'" );
 	    if ( !tt.next() ) {
 		return QSqlIndex();

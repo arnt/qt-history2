@@ -17,6 +17,7 @@
 
 #include <qsqlresult.h>
 #include <qsqldriver.h>
+#include "../cache/qsqlcachedresult.h"
 
 #include <oci.h>
 
@@ -35,33 +36,27 @@ class QOCIPrivate;
 class QOCIResultPrivate;
 class QOCIDriver;
 
-class QOCIResult : public QSqlResult
+class QOCIResult : public QtSqlCachedResult
 {
     friend class QOCIDriver;
     friend class QOCIPrivate;
 public:
     QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCIResult();
-    OCIStmt*    statement();
-    bool 	prepare( const QString& query );
-    bool 	exec();
-    
+    OCIStmt* statement();
+    bool prepare( const QString& query );
+    bool exec();
+
 protected:
-    bool	fetchNext();
-    bool	fetchFirst();
-    bool	fetchLast();
-    bool	fetch(int i);
-    bool	reset ( const QString& query );
-    QCoreVariant	data( int field );
-    bool	isNull( int field );
-    int         size();
-    int         numRowsAffected();
+    bool gotoNext(ValueCache &values, int index);
+    bool reset ( const QString& query );
+    int size();
+    int numRowsAffected();
     QSqlRecord record() const;
 
 private:
     QOCIPrivate*	d;
     QOCIResultPrivate*  cols;
-    bool                cacheNext();
 };
 
 #ifdef QOCI_USES_VERSION_9
