@@ -2080,8 +2080,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( txop == TxScale && !mask ) {
 	// Plain scaling and no mask, then StretchBlt is fastest
 	int w, h;
-	map( x, y, sw, sh, &x, &y, &w, &h );
-	StretchBlt( hdc, x, y, w, h, pm_dc, sx,sy+pm_offset, sw,sh, SRCCOPY );
+	map( x, y, sw+1, sh+1, &x, &y, &w, &h );
+	StretchBlt( hdc, x, y, w-1, h-1, pm_dc, sx,sy+pm_offset, sw,sh, SRCCOPY );
     } else {
 	// We have a complex xform or scaling with mask, then xform the
 	// pixmap (and possible mask) and bitBlt again.
