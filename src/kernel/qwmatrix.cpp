@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#7 $
 **
 ** Implementation of QWMatrix class
 **
@@ -18,7 +18,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#7 $")
 
 
 /*----------------------------------------------------------------------------
@@ -26,14 +26,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#6 $")
   \brief The QWMatrix class specifies 2D transformations of a
   coordinate system.
 
-  The standard coordinate system of a \link QPaintDevice paint device\endlink
-  has the origin located at the top left position.  X
+  The standard coordinate system of a \link QPaintDevice paint
+  device\endlink has the origin located at the top left position. X
   values increase to the left, and Y values increase to the bottom.
 
-  This coordinate system is default for the \link QPainter painter\endlink,
-  which renders graphics in a paint device.
-  A user-defined coordinate system can be specified by setting a
-  QWMatrix for the painter.
+  This coordinate system is default for the \link QPainter
+  painter\endlink, which renders graphics in a paint device. A
+  user-defined coordinate system can be specified by setting a QWMatrix
+  for the painter.
 
   Example:
   \code
@@ -41,9 +41,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#6 $")
     {
       QPainter p;			// our painter
       QWMatrix m;			// our transformation matrix
-      p.begin( this );			// start painting
       m.rotate( 22.5 );			// rotated coordinate system
-      p.setMatrix( m );			// use it for painting
+      p.begin( this );			// start painting
+      p.setWorldMatrix( m );		// use rotated coordinate system
       p.drawText( 30,20, "detator" );	// draw rotated text at 30,20
       p.end();				// painting done
     }
@@ -96,24 +96,32 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#6 $")
 
   QWMatrix lets you combine transformations like this:
   \code
-    QWMatrix m;				// identity matrix
-    m.translate(10, -20);		// first translate (10,-20)
-    m.rotate(25);			// then rotate 25 degrees
-    m.scale(1.2, 0.7);			// finally scale it
+    QWMatrix m;					// identity matrix
+    m.translate(10, -20);			// first translate (10,-20)
+    m.rotate(25);				// then rotate 25 degrees
+    m.scale(1.2, 0.7);				// finally scale it
   \endcode
 
   The same example, but using basic matrix operations:
   \code
-    float a    = pi/180 * 25;		// convert 25 to radians
+    float a    = pi/180 * 25;			// convert 25 to radians
     float sina = sin(a);
     float cosa = cos(a);
-    QWMatrix m1(0, 0, 0, 0, 10, -20);	// translation matrix
-    QWMatrix m2( cosa, sina,		// rotation matrix
+    QWMatrix m1(0, 0, 0, 0, 10, -20);		// translation matrix
+    QWMatrix m2( cosa, sina,			// rotation matrix
 		-sina, cosa, 0, 0 );
-    QWMatrix m3(1.2, 0, 0, 0.7, 0, 0);	// scaling matrix
+    QWMatrix m3(1.2, 0, 0, 0.7, 0, 0);		// scaling matrix
     QWMatrix m;
-    m = m3 * m2 * m1;			// combine all transformations
+    m = m3 * m2 * m1;				// combine all transformations
   \endcode
+
+  QPainter has functions that \link QPainter::translate()
+  translate\endlink, \link QPainter::scale() scale\endlink, \link
+  QPainter::shear() shear\endlink and \link QPainter::rotate()
+  rotate\endlink and the coordinate system without using a QWMatrix.
+  These functions are very convenient, however, if you want to perform
+  more than one transform operation, it is more efficient to define a
+  QWMatrix and then call QPainter::setWorldMatrix().
 
   \sa QPainter::setWorldMatrix(), QPixmap::xForm()
  ----------------------------------------------------------------------------*/
@@ -139,7 +147,7 @@ QWMatrix::QWMatrix()
  ----------------------------------------------------------------------------*/
 
 QWMatrix::QWMatrix( float m11, float m12, float m21, float m22,
-		      float dx, float dy )
+		    float dx, float dy )
 {
     _m11 = m11;	 _m12 = m12;
     _m21 = m21;	 _m22 = m22;
@@ -148,11 +156,11 @@ QWMatrix::QWMatrix( float m11, float m12, float m21, float m22,
 
 
 /*----------------------------------------------------------------------------
-  Sets the elements of the matrix to the specified values.
+  Sets the matrix elements to the specified values.
  ----------------------------------------------------------------------------*/
 
 void QWMatrix::setMatrix( float m11, float m12, float m21, float m22,
-			   float dx, float dy )
+			  float dx, float dy )
 {
     _m11 = m11;	 _m12 = m12;
     _m21 = m21;	 _m22 = m22;
@@ -228,7 +236,7 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 QPoint QWMatrix::map( const QPoint &p ) const
 {
     return QPoint( qRound(_m11*p.x() + _m21*p.y() + _dx),
-		   qRound(_m12*p.y() + _m22*p.y() + _dy) );
+		   qRound(_m12*p.x() + _m22*p.y() + _dy) );
 }
 
 /*----------------------------------------------------------------------------
@@ -287,7 +295,7 @@ void QWMatrix::reset()
 
   Returns a reference to the matrix.
 
-  \sa scale(), shear(), rotate(), QPixmap::trueMatrix()
+  \sa scale(), shear(), rotate()
  ----------------------------------------------------------------------------*/
 
 QWMatrix &QWMatrix::translate( float dx, float dy )
@@ -302,7 +310,7 @@ QWMatrix &QWMatrix::translate( float dx, float dy )
 
   Returns a reference to the matrix.
 
-  \sa translate(), shear(), rotate(), QPixmap::trueMatrix()
+  \sa translate(), shear(), rotate()
  ----------------------------------------------------------------------------*/
 
 QWMatrix &QWMatrix::scale( float sx, float sy )
@@ -316,7 +324,7 @@ QWMatrix &QWMatrix::scale( float sx, float sy )
 
   Returns a reference to the matrix.
 
-  \sa translate(), scale(), rotate(), QPixmap::trueMatrix()
+  \sa translate(), scale(), rotate()
  ----------------------------------------------------------------------------*/
 
 QWMatrix &QWMatrix::shear( float sh, float sv )
@@ -332,7 +340,7 @@ const float deg2rad = .017453292519943295769F;	// pi/180
 
   Returns a reference to the matrix.
 
-  \sa translate(), scale(), shear(), QPixmap::trueMatrix()
+  \sa translate(), scale(), shear()
  ----------------------------------------------------------------------------*/
 
 QWMatrix &QWMatrix::rotate( float a )
@@ -358,8 +366,6 @@ QWMatrix &QWMatrix::rotate( float a )
 
   If \e *invertible is not null, then the value of \e *invertible will
   be set to TRUE or FALSE to tell if the matrix is invertible or not.
-
-  \sa QPixmap::trueMatrix()
  ----------------------------------------------------------------------------*/
 
 QWMatrix QWMatrix::invert( bool *invertible ) const
@@ -376,9 +382,9 @@ QWMatrix QWMatrix::invert( bool *invertible ) const
 	    *invertible = TRUE;
 	double dinv = 1.0/det;
 	QWMatrix imatrix( (float)(_m22*dinv),	(float)(-_m12*dinv),
-			   (float)(-_m21*dinv), (float)( _m11*dinv),
-			   (float)((_m21*_dy - _m22*_dx)*dinv),
-			   (float)((_m12*_dx - _m11*_dy)*dinv) );
+			  (float)(-_m21*dinv), (float)( _m11*dinv),
+			  (float)((_m21*_dy - _m22*_dx)*dinv),
+			  (float)((_m12*_dx - _m11*_dy)*dinv) );
 	return imatrix;
     }
 }
@@ -456,10 +462,10 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 
 /*----------------------------------------------------------------------------
   \relates QWMatrix
-  Writes a matrix to the stream as 6 float values: m11, m12, m21, m22,
-  dx, dy.
+  Writes a matrix to the stream and returns a reference to the stream.
 
-  Output format: [m11 m12 m21 m22 dx dy] as \c float.
+  Serialization format: m11, m12, m21, m22, dx and dy are serialized as
+  \c float in the listed order.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
@@ -470,7 +476,7 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 
 /*----------------------------------------------------------------------------
   \relates QWMatrix
-  Reads a matrix from the stream.
+  Reads a matrix from the stream and returns a reference to the stream.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QWMatrix &m )
