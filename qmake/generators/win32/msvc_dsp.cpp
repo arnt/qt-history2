@@ -647,7 +647,7 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
 
     QStringList specialBuilds;
     int i = 0;  
-    for (int i = 0; i < mergedProjects.count(); ++i)
+    for (i = 0; i < mergedProjects.count(); ++i)
         specialBuilds += writeBuildstepForFileForConfig(file, listName, mergedProjects.at(i));
     
     // no specail build just return
