@@ -23,14 +23,13 @@ You may use the Qt Free Edition to create application programs
 provided that: 
 
       You accept this license. 
-      Your software does not require modifications to Qt Free Edition. 
-      %SPECIAL-snapshot
+      Your software does not require modifications to Qt Free Edition.%SPECIAL-snapshot
       You clearly specify in all releases of your software which uses a
        snapshot release that your software relies on that specific version
        of Qt by including the file README.QT which was provided with the
        snapshot release (this is the only difference between this and the
-       free edition license for non-snashot releases).
-      %You satisfy ONE of the following three requirements 
+       free edition license for non-snashot releases).%
+      You satisfy ONE of the following three requirements 
       EITHER 
             Users of your software can freely obtain source code for the
             software, freely modify the source code (possibly with
