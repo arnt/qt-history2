@@ -375,7 +375,7 @@ bool QFile::open( int m, int f )
   \sa at()
 */
 
-uint QFile::size() const
+Q_ULONG QFile::size() const
 {
     QT_STATBUF st;
     if ( isOpen() ) {
@@ -411,7 +411,7 @@ uint QFile::size() const
   \sa size(), open()
 */
 
-bool QFile::at( int pos )
+bool QFile::at( Q_ULONG pos )
 {
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE)
@@ -450,7 +450,7 @@ bool QFile::at( int pos )
   \sa writeBlock()
 */
 
-int QFile::readBlock( char *p, uint len )
+Q_ULONG QFile::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( !p )
@@ -459,11 +459,11 @@ int QFile::readBlock( char *p, uint len )
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::readBlock: File not open" );
-	return -1;
+	return 0;
     }
     if ( !isReadable() ) {			// reading not permitted
 	qWarning( "QFile::readBlock: Read operation not permitted" );
-	return -1;
+	return 0;
     }
 #endif
     int nread = 0;					// number of bytes read
@@ -497,7 +497,7 @@ int QFile::readBlock( char *p, uint len )
     return nread;
 }
 
-/*! \overload int QFile::writeBlock( const QByteArray& data )
+/*! \overload Q_ULONG QFile::writeBlock( const QByteArray& data )
 */
 
 /*! \reimp
@@ -514,7 +514,7 @@ int QFile::readBlock( char *p, uint len )
   \sa readBlock()
 */
 
-int QFile::writeBlock( const char *p, uint len )
+Q_ULONG QFile::writeBlock( const char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )

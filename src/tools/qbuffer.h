@@ -58,15 +58,15 @@ public:
     void  close();
     void  flush();
 
-    uint  size() const;
-    int	  at()	 const;
-    bool  at( int );
+    Q_ULONG  size() const;
+    Q_ULONG  at()	 const;
+    bool  at( Q_ULONG );
 
-    int	  readBlock( char *p, uint );
-    int	  writeBlock( const char *p, uint );
-    int	  writeBlock( const QByteArray& data )
+    Q_LONG	  readBlock( char *p, Q_ULONG );
+    Q_LONG	  writeBlock( const char *p, Q_ULONG );
+    Q_LONG	  writeBlock( const QByteArray& data )
 	      { return QIODevice::writeBlock(data); }
-    int	  readLine( char *p, uint );
+    Q_LONG	  readLine( char *p, Q_ULONG );
 
     int	  getch();
     int	  putch( int );
@@ -90,10 +90,10 @@ private:	// Disabled copy constructor and operator=
 inline QByteArray QBuffer::buffer() const
 { return a; }
 
-inline uint QBuffer::size() const
+inline Q_ULONG QBuffer::size() const
 { return a.size(); }
 
-inline int QBuffer::at() const
+inline Q_ULONG QBuffer::at() const
 { return ioIndex; }
 
 

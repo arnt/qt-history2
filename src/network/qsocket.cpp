@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#32 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#33 $
 **
 ** Implementation of QSocket class.
 **
@@ -65,8 +65,8 @@ public:
     QSocketNotifier    *rsn, *wsn;		// socket notifiers
     QList<QByteArray>	rba, wba;		// list of read/write bufs
     QHostAddress	addr;			// connection address
-    int			rsize, wsize;		// read/write total buf size
-    int			rindex, windex;		// read/write index
+    Q_ULONG		rsize, wsize;		// read/write total buf size
+    Q_ULONG		rindex, windex;		// read/write index
 #ifndef QT_NO_DNS
     QDns	       *dns;
 #endif
@@ -511,7 +511,7 @@ void QSocket::close()
   copies it into \a sink.
 */
 
-bool QSocket::consumeReadBuf( int nbytes, char *sink )
+bool QSocket::consumeReadBuf( Q_ULONG nbytes, char *sink )
 {
     if ( nbytes <= 0 || nbytes > d->rsize )
 	return FALSE;
@@ -552,7 +552,7 @@ bool QSocket::consumeReadBuf( int nbytes, char *sink )
   into another buffer.
 */
 
-bool QSocket::consumeWriteBuf( int nbytes )
+bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
 {
     if ( nbytes <= 0 || nbytes > d->wsize )
 	return FALSE;
@@ -721,7 +721,7 @@ void QSocket::flush()
   (like bytesAvailable()).
 */
 
-uint QSocket::size() const
+Q_ULONG QSocket::size() const
 {
     return bytesAvailable();
 }
@@ -732,7 +732,7 @@ uint QSocket::size() const
   device, the current read index is always zero.
 */
 
-int QSocket::at() const
+Q_ULONG QSocket::at() const
 {
     return 0;
 }
@@ -744,7 +744,7 @@ int QSocket::at() const
   data.
 */
 
-bool QSocket::at( int index )
+bool QSocket::at( Q_ULONG index )
 {
     if ( index < 0 || index > d->rsize )
 	return FALSE;
@@ -827,7 +827,7 @@ int QSocket::bytesToWrite() const
   the number of bytes read.  Returns -1 if an error occurred.
 */
 
-int QSocket::readBlock( char *data, uint maxlen )
+Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
 {
     if ( data == 0 && maxlen != 0 ) {
 #if defined(QT_CHECK_NULL)
@@ -856,7 +856,7 @@ int QSocket::readBlock( char *data, uint maxlen )
   the number of bytes written.  Returns -1 if an error occurred.
 */
 
-int QSocket::writeBlock( const char *data, uint len )
+Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && len != 0 ) {
@@ -983,7 +983,7 @@ bool QSocket::canReadLine() const
   \internal
     So that it's not hidden by our other readLine().
 */
-int QSocket::readLine( char *data, uint maxlen )
+Q_LONG QSocket::readLine( char *data, Q_ULONG maxlen )
 {
     return QIODevice::readLine(data,maxlen);
 }

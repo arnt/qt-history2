@@ -116,16 +116,16 @@ public:
     virtual void close() = 0;
     virtual void flush() = 0;
 
-    virtual uint size()	  const = 0;
-    virtual int	 at()	  const;
-    virtual bool at( int );
+    virtual Q_ULONG size()  const = 0;
+    virtual Q_ULONG at()  const;
+    virtual bool at( Q_ULONG );
     virtual bool atEnd()  const;
     bool	 reset() { return at(0); }
 
-    virtual int	 readBlock( char *data, uint maxlen ) = 0;
-    virtual int	 writeBlock( const char *data, uint len ) = 0;
-    virtual int	 readLine( char *data, uint maxlen );
-    int writeBlock( const QByteArray& data );
+    virtual Q_LONG readBlock( char *data, Q_ULONG maxlen ) = 0;
+    virtual Q_LONG writeBlock( const char *data, Q_ULONG len ) = 0;
+    virtual Q_LONG readLine( char *data, Q_ULONG maxlen );
+    Q_LONG writeBlock( const QByteArray& data );
     virtual QByteArray readAll();
 
     virtual int	 getch() = 0;
@@ -138,7 +138,7 @@ protected:
     void	 setMode( int );
     void	 setState( int );
     void	 setStatus( int );
-    int		 ioIndex;
+    Q_ULONG	 ioIndex;
 
 private:
     int		 ioMode;

@@ -76,17 +76,17 @@ public:
     void	close();
     void	flush();
 
-    uint	size()	const;
-    int		at()	const;
-    bool	at( int );
+    Q_ULONG	size()	const;
+    Q_ULONG	at()	const;
+    bool	at( Q_ULONG );
     bool	atEnd() const;
 
-    int		readBlock( char *data, uint len );
-    int		writeBlock( const char *data, uint len );
-    int		writeBlock( const QByteArray& data )
+    Q_LONG	readBlock( char *data, Q_ULONG len );
+    Q_LONG	writeBlock( const char *data, Q_ULONG len );
+    Q_LONG	writeBlock( const QByteArray& data )
 		      { return QIODevice::writeBlock(data); }
-    int		readLine( char *data, uint maxlen );
-    int		readLine( QString &, uint maxlen );
+    Q_LONG	readLine( char *data, Q_ULONG maxlen );
+    Q_LONG	readLine( QString &, Q_ULONG maxlen );
 
     int		getch();
     int		putch( int );
@@ -98,7 +98,7 @@ protected:
     QString	fn;
     FILE       *fh;
     int		fd;
-    int		length;
+    Q_ULONG	length;
     bool	ext_f;
     void * 	d;
 
@@ -117,7 +117,7 @@ private:	// Disabled copy constructor and operator=
 inline QString QFile::name() const
 { return fn; }
 
-inline int QFile::at() const
+inline Q_ULONG QFile::at() const
 { return ioIndex; }
 
 

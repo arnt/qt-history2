@@ -265,7 +265,7 @@ bool QFile::atEnd() const
   \sa readBlock(), QTextStream::readLine()
 */
 
-int QFile::readLine( char *p, uint maxlen )
+Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 {
     if ( maxlen == 0 )				// application bug?
 	return 0;
@@ -280,7 +280,7 @@ int QFile::readLine( char *p, uint maxlen )
 	return -1;
     }
 #endif
-    int nread;					// number of bytes read
+    Q_LONG nread;				// number of bytes read
     if ( isRaw() ) {				// raw file
 	nread = QIODevice::readLine( p, maxlen );
     } else {					// buffered file
@@ -313,10 +313,10 @@ int QFile::readLine( char *p, uint maxlen )
   \sa readBlock(), QTextStream::readLine()
 */
 
-int QFile::readLine( QString& s, uint maxlen )
+Q_LONG QFile::readLine( QString& s, Q_ULONG maxlen )
 {
     QByteArray ba(maxlen);
-    int l = readLine(ba.data(),maxlen);
+    Q_LONG l = readLine(ba.data(),maxlen);
     if ( l >= 0 ) {
 	ba.truncate(l);
 	s = QString(ba);

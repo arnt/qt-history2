@@ -248,7 +248,7 @@ void QBuffer::flush()
   \reimp
 */
 
-bool QBuffer::at( int pos )
+bool QBuffer::at( Q_ULONG pos )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
@@ -256,7 +256,7 @@ bool QBuffer::at( int pos )
 	return FALSE;
     }
 #endif
-    if ( (uint)pos > a_len ) {
+    if ( pos > a_len ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QBuffer::at: Index %d out of range", pos );
 #endif
@@ -271,7 +271,7 @@ bool QBuffer::at( int pos )
   \reimp
 */
 
-int QBuffer::readBlock( char *p, uint len )
+Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
@@ -284,12 +284,12 @@ int QBuffer::readBlock( char *p, uint len )
 	return -1;
     }
 #endif
-    if ( (uint)ioIndex + len > a.size() ) {	// overflow
-	if ( (uint)ioIndex >= a.size() ) {
+    if ( ioIndex + len > a.size() ) {	// overflow
+	if ( ioIndex >= a.size() ) {
 	    setStatus( IO_ReadError );
 	    return -1;
 	} else {
-	    len = a.size() - (uint)ioIndex;
+	    len = a.size() - ioIndex;
 	}
     }
     memcpy( p, a.data()+ioIndex, len );
@@ -309,7 +309,7 @@ int QBuffer::readBlock( char *p, uint len )
   \sa readBlock()
 */
 
-int QBuffer::writeBlock( const char *p, uint len )
+Q_LONG QBuffer::writeBlock( const char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )
@@ -325,8 +325,8 @@ int QBuffer::writeBlock( const char *p, uint len )
 	return -1;
     }
 #endif
-    if ( (uint)ioIndex + len >= a_len ) {		// overflow
-	uint new_len = a_len + a_inc*(((uint)ioIndex+len-a_len)/a_inc+1);
+    if ( ioIndex + len >= a_len ) {		// overflow
+	Q_ULONG new_len = a_len + a_inc*((ioIndex+len-a_len)/a_inc+1);
 	if ( !a.resize( new_len ) ) {		// could not resize
 #if defined(QT_CHECK_NULL)
 	    qWarning( "QBuffer::writeBlock: Memory allocation error" );
@@ -336,12 +336,12 @@ int QBuffer::writeBlock( const char *p, uint len )
 	}
 	a_inc *= 2;				// double increment
 	a_len = new_len;
-	a.shd->len = (uint)ioIndex + len;
+	a.shd->len = ioIndex + len;
     }
     memcpy( a.data()+ioIndex, p, len );
     ioIndex += len;
-    if ( a.shd->len < (uint)ioIndex )
-	a.shd->len = (uint)ioIndex;		// fake (not alloc'd) length
+    if ( a.shd->len < ioIndex )
+	a.shd->len = ioIndex;			// fake (not alloc'd) length
     return len;
 }
 
@@ -350,7 +350,7 @@ int QBuffer::writeBlock( const char *p, uint len )
   \reimp
 */
 
-int QBuffer::readLine( char *p, uint maxlen )
+Q_LONG QBuffer::readLine( char *p, Q_ULONG maxlen )
 {
 #if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
@@ -365,18 +365,18 @@ int QBuffer::readLine( char *p, uint maxlen )
 #endif
     if ( maxlen == 0 )
 	return 0;
-    uint start = (uint)ioIndex;
+    Q_ULONG start = ioIndex;
     char *d = a.data() + ioIndex;
     maxlen--;					// make room for 0-terminator
-    if ( a.size() - (uint)ioIndex < maxlen )
-	maxlen = a.size() - (uint)ioIndex;
+    if ( a.size() - ioIndex < maxlen )
+	maxlen = a.size() - ioIndex;
     while ( maxlen-- ) {
 	if ( (*p++ = *d++) == '\n' )
 	    break;
     }
     *p = '\0';
     ioIndex = d - a.data();
-    return (uint)ioIndex - start;
+    return ioIndex - start;
 }
 
 
@@ -396,7 +396,7 @@ int QBuffer::getch()
 	return -1;
     }
 #endif
-    if ( (uint)ioIndex+1 > a.size() ) {		// overflow
+    if ( ioIndex+1 > a.size() ) {		// overflow
 	setStatus( IO_ReadError );
 	return -1;
     }
@@ -426,15 +426,15 @@ int QBuffer::putch( int ch )
 	return -1;
     }
 #endif
-    if ( (uint)ioIndex + 1 >= a_len ) {		// overflow
+    if ( ioIndex + 1 >= a_len ) {		// overflow
 	char buf[1];
 	buf[0] = (char)ch;
 	if ( writeBlock(buf,1) != 1 )
 	    return -1;				// write error
     } else {
 	*(a.data() + ioIndex++) = (char)ch;
-	if ( a.shd->len < (uint)ioIndex )
-	    a.shd->len = (uint)ioIndex;
+	if ( a.shd->len < ioIndex )
+	    a.shd->len = ioIndex;
     }
     return ch;
 }

@@ -279,7 +279,7 @@ bool QFile::open( int m, int f )
     return TRUE;
 }
 
-uint QFile::size() const
+Q_ULONG QFile::size() const
 {
     QT_STATBUF st;
     if ( isOpen() ) {
@@ -294,7 +294,7 @@ uint QFile::size() const
     return st.st_size;
 }
 
-bool QFile::at( int pos )
+bool QFile::at( Q_ULONG pos )
 {
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE)
@@ -318,7 +318,7 @@ bool QFile::at( int pos )
     return okay;
 }
 
-int QFile::readBlock( char *p, uint len )
+Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( !p )
@@ -334,12 +334,12 @@ int QFile::readBlock( char *p, uint len )
 	return -1;
     }
 #endif
-    int nread = 0;					// number of bytes read
+    Q_ULONG nread = 0;					// number of bytes read
     if ( !ungetchBuffer.isEmpty() ) {
 	// need to add these to the returned string.
-	int l = ungetchBuffer.length();
+	Q_ULONG l = ungetchBuffer.length();
 	while( nread < l ) {
-	    *p = ungetchBuffer[ l - nread - 1 ];
+	    *p = ungetchBuffer[ int(l - nread - 1) ];
 	    p++;
 	    nread++;
 	}
@@ -365,7 +365,7 @@ int QFile::readBlock( char *p, uint len )
     return nread;
 }
 
-int QFile::writeBlock( const char *p, uint len )
+Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )
@@ -381,7 +381,7 @@ int QFile::writeBlock( const char *p, uint len )
 	return -1;
     }
 #endif
-    int nwritten;				// number of bytes written
+    Q_ULONG nwritten;				// number of bytes written
     if ( isRaw() )				// raw file
 	nwritten = QT_WRITE( fd, p, len );
     else					// buffered file

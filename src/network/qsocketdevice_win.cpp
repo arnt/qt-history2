@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#12 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#13 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -478,7 +478,7 @@ int QSocketDevice::waitForMore( int msecs ) const
 }
 
 
-int QSocketDevice::readBlock( char *data, uint maxlen )
+Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
@@ -500,7 +500,7 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
     }
 #endif
     bool done = FALSE;
-    int r = 0;
+    Q_ULONG r = 0;
     while ( done == FALSE ) {
 	if ( t == Datagram ) {
 	    struct sockaddr_in a;
@@ -570,7 +570,7 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 }
 
 
-int QSocketDevice::writeBlock( const char *data, uint len )
+Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 {
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
@@ -597,7 +597,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 	return -1;
     }
     bool done = FALSE;
-    int r = 0;
+    Q_ULONG r = 0;
     while ( !done ) {
 	// Don't write more than 64K (see Knowledge Base Q201213).
 	r = ::send( fd, data, ( len>64*1024 ? 64*1024 : len ), 0 );
@@ -651,7 +651,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
 }
 
 
-int QSocketDevice::writeBlock( const char * data, uint len,
+Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 			       const QHostAddress & host, Q_UINT16 port )
 {
     if ( t != Datagram ) {
@@ -699,7 +699,7 @@ int QSocketDevice::writeBlock( const char * data, uint len,
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
     // but apparently Stevens and most implementors disagree
     bool done = FALSE;
-    int r = 0;
+    Q_ULONG r = 0;
     while ( !done ) {
 	r = ::sendto( fd, data, len, 0,
 		      (struct sockaddr *)(&a), sizeof(sockaddr_in) );

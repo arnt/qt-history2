@@ -279,7 +279,7 @@ bool QFile::open( int m, int f )
 }
 
 
-uint QFile::size() const
+Q_ULONG QFile::size() const
 {
     STATBUF st;
     if ( isOpen() ) {
@@ -291,7 +291,7 @@ uint QFile::size() const
 }
 
 
-bool QFile::at( int pos )
+bool QFile::at( Q_ULONG pos )
 {
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE)
@@ -316,7 +316,7 @@ bool QFile::at( int pos )
 }
 
 
-int QFile::readBlock( char *p, uint len )
+Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( !p )
@@ -364,7 +364,7 @@ int QFile::readBlock( char *p, uint len )
 }
 
 
-int QFile::writeBlock( const char *p, uint len )
+Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )

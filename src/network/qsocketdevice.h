@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#6 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#7 $
 **
 ** Definition of QSocketDevice class.
 **
@@ -68,9 +68,9 @@ public:
     void	 flush();
 
     // Implementation of QIODevice abstract virtual functions
-    uint	 size() const;
-    int		 at() const;
-    bool	 at( int );
+    Q_ULONG	 size() const;
+    Q_ULONG	 at() const;
+    bool	 at( Q_ULONG );
     bool	 atEnd() const;
 
     bool	 blocking() const;
@@ -92,9 +92,9 @@ public:
 
     int		 bytesAvailable() const;
     int		 waitForMore( int msecs ) const;
-    int		 readBlock( char *data, uint maxlen );
-    int		 writeBlock( const char *data, uint len );
-    virtual int  writeBlock( const char *data, uint len,
+    Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
+    Q_LONG	 writeBlock( const char *data, Q_ULONG len );
+    virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,
 			    const QHostAddress & host, Q_UINT16 port );
 
     int		 getch();

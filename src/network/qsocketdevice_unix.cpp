@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#44 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#45 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -553,7 +553,7 @@ int QSocketDevice::waitForMore( int msecs ) const
   Reads max \a maxlen bytes from the socket into \a data and returns
   the number of bytes read.  Returns -1 if an error occurred.
 */
-int QSocketDevice::readBlock( char *data, uint maxlen )
+Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 {
 #if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
@@ -630,7 +630,7 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 
   This is used for \c QSocketDevice::Stream sockets.
 */
-int QSocketDevice::writeBlock( const char *data, uint len )
+Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 {
     if ( data == 0 && len != 0 ) {
 #if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
@@ -704,7 +704,7 @@ int QSocketDevice::writeBlock( const char *data, uint len )
   This is used for \c QSocketDevice::Datagram sockets. You have to specify the
   \a host and \a port of the destination of the data.
 */
-int QSocketDevice::writeBlock( const char * data, uint len,
+Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 			       const QHostAddress & host, Q_UINT16 port )
 {
     if ( t != Datagram ) {

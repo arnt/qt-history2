@@ -469,7 +469,7 @@ void QIODevice::setStatus( int s )
   \sa size()
 */
 
-int QIODevice::at() const
+Q_ULONG QIODevice::at() const
 {
     return ioIndex;
 }
@@ -479,7 +479,7 @@ int QIODevice::at() const
   \sa size()
 */
 
-bool QIODevice::at( int pos )
+bool QIODevice::at( Q_ULONG pos )
 {
 #if defined(QT_CHECK_RANGE)
     if ( (uint)pos > size() ) {
@@ -505,7 +505,7 @@ bool QIODevice::atEnd() const
 	that->ungetch(c);
 	return result;
     } else {
-	return at() == (int)size();
+	return at() == size();
     }
 }
 
@@ -576,7 +576,7 @@ QByteArray QIODevice::readAll()
   This convenience function is the same as calling
   writeBlock( data.data(), data.size() ).
 */
-int QIODevice::writeBlock( const QByteArray& data )
+Q_LONG QIODevice::writeBlock( const QByteArray& data )
 {
     return writeBlock( data.data(), data.size() );
 }
@@ -593,12 +593,12 @@ int QIODevice::writeBlock( const QByteArray& data )
   \sa readBlock(), QTextStream::readLine()
 */
 
-int QIODevice::readLine( char *data, uint maxlen )
+Q_LONG QIODevice::readLine( char *data, Q_ULONG maxlen )
 {
     if ( maxlen == 0 )				// application bug?
 	return 0;
-    int pos = at();				// get current position
-    int s  = (int)size();			// size of I/O device
+    Q_ULONG pos = at();				// get current position
+    Q_ULONG s  = size();			// size of I/O device
     char *p = data;
     if ( pos >= s )
 	return 0;
@@ -608,7 +608,7 @@ int QIODevice::readLine( char *data, uint maxlen )
 	    break;
     }
     *p++ = '\0';
-    return (int)((long)p - (long)data);
+    return p - data;
 }
 
 

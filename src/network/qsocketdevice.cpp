@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#9 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#10 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -266,7 +266,7 @@ void QSocketDevice::flush()
 
   The size is meaningless for a socket, therefore this function returns 0.
 */
-uint QSocketDevice::size() const
+Q_ULONG QSocketDevice::size() const
 {
     return 0;
 }
@@ -277,7 +277,7 @@ uint QSocketDevice::size() const
   The read/write index is meaningless for a socket, therefore
   this function returns 0.
 */
-int QSocketDevice::at() const
+Q_ULONG QSocketDevice::at() const
 {
     return 0;
 }
@@ -288,7 +288,7 @@ int QSocketDevice::at() const
   The read/write index is meaningless for a socket, therefore
   this function does nothing and returns TRUE.
 */
-bool QSocketDevice::at( int )
+bool QSocketDevice::at( Q_ULONG )
 {
     return TRUE;
 }

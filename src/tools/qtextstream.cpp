@@ -263,11 +263,11 @@ public:
     bool  open( int m );
     void  close();
     void  flush();
-    uint  size() const;
-    int   at()   const;
-    bool  at( int pos );
-    int   readBlock( char *p, uint len );
-    int writeBlock( const char *p, uint len );
+    Q_ULONG  size() const;
+    Q_ULONG  at()   const;
+    bool  at( Q_ULONG pos );
+    Q_LONG readBlock( char *p, Q_ULONG len );
+    Q_LONG writeBlock( const char *p, Q_ULONG len );
     int   getch();
     int   putch( int ch );
     int   ungetch( int ch );
@@ -330,17 +330,17 @@ void QStringBuffer::flush()
 {
 }
 
-uint QStringBuffer::size() const
+Q_ULONG QStringBuffer::size() const
 {
     return s ? s->length()*sizeof(QChar) : 0;
 }
 
-int  QStringBuffer::at()   const
+Q_ULONG  QStringBuffer::at()   const
 {
     return ioIndex;
 }
 
-bool QStringBuffer::at( int pos )
+bool QStringBuffer::at( Q_ULONG pos )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
@@ -348,7 +348,7 @@ bool QStringBuffer::at( int pos )
 	return FALSE;
     }
 #endif
-    if ( (uint)pos >= s->length()*2 ) {
+    if ( pos >= s->length()*2 ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QStringBuffer::at: Index %d out of range", pos );
 #endif
@@ -359,7 +359,7 @@ bool QStringBuffer::at( int pos )
 }
 
 
-int  QStringBuffer::readBlock( char *p, uint len )
+Q_LONG  QStringBuffer::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
@@ -372,7 +372,7 @@ int  QStringBuffer::readBlock( char *p, uint len )
 	return -1;
     }
 #endif
-    if ( (uint)ioIndex + len > s->length()*sizeof(QChar) ) {
+    if ( ioIndex + len > s->length()*sizeof(QChar) ) {
 	// overflow
 	if ( (uint)ioIndex >= s->length()*sizeof(QChar) ) {
 	    setStatus( IO_ReadError );
@@ -386,7 +386,7 @@ int  QStringBuffer::readBlock( char *p, uint len )
     return len;
 }
 
-int QStringBuffer::writeBlock( const char *p, uint len )
+Q_LONG QStringBuffer::writeBlock( const char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )

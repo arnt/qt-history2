@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.h#9 $
+** $Id: //depot/qt/main/src/network/qsocket.h#10 $
 **
 ** Definition of QSocket class.
 **
@@ -82,18 +82,18 @@ public:
     bool	 open( int mode );
     void	 close();
     void	 flush();
-    uint	 size() const;
-    int		 at() const;
-    bool	 at( int );
+    Q_ULONG	 size() const;
+    Q_ULONG	 at() const;
+    bool	 at( Q_ULONG );
     bool	 atEnd() const;
 
     int		 bytesAvailable() const;
     int		 waitForMore( int msecs ) const;
     int		 bytesToWrite() const;
 
-    int		 readBlock( char *data, uint maxlen );
-    int		 writeBlock( const char *data, uint len );
-    int		 readLine( char *data, uint maxlen );
+    Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
+    Q_LONG	 writeBlock( const char *data, Q_ULONG len );
+    Q_LONG	 readLine( char *data, Q_ULONG maxlen );
 
     int		 getch();
     int		 putch( int );
@@ -126,8 +126,8 @@ private slots:
 private:
     QSocketPrivate *d;
 
-    bool	 consumeReadBuf( int nbytes, char * );
-    bool	 consumeWriteBuf( int nbytes );
+    bool	 consumeReadBuf( Q_ULONG nbytes, char * );
+    bool	 consumeWriteBuf( Q_ULONG nbytes );
     bool	 scanNewline( QByteArray * = 0 );
     void	 tryConnection();
     void         setSocketIntern( int socket );
