@@ -305,7 +305,7 @@ public slots:
     inline QT_MOC_COMPAT void undo() const
     { document()->undo(); }
     inline QT_MOC_COMPAT void redo() const
-    { document()->undo(); }
+    { document()->redo(); }
 
 #endif
 };
