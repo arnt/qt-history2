@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#17 $
 **
 ** Implementation of something useful.
 **
@@ -54,7 +54,7 @@ public:
     double target;
     QTimer *blinkTimer;
     QColor color;
-    
+
     QPointArray lines;
 };
 
@@ -299,8 +299,13 @@ void QDial::paintEvent( QPaintEvent * e )
 		       (int)(0.5+yc-back*sin(a+m_pi*5/6)) );
     arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-m_pi*5/6)),
 		       (int)(0.5+yc-back*sin(a-m_pi*5/6)) );
-    p.setPen( d->color );
-    p.setBrush( d->color );
+    if ( isEnabled() ) {
+        p.setPen( d->color );
+        p.setBrush( d->color );
+    } else {
+        p.setPen( colorGroup().foreground() );
+        p.setBrush( colorGroup().foreground() );
+    }
     //p.setPen( red );
     //p.setBrush( green );
     p.drawPolygon( arrow );
@@ -359,7 +364,7 @@ void QDial::mousePressEvent( QMouseEvent * e )
         d->color = colorGroup().foreground();
         repaint( FALSE );
     }
-    
+
     setValue( valueFromPoint( e->pos() ) );
     emit dialPressed();
 }
@@ -412,7 +417,7 @@ void QDial::focusInEvent( QFocusEvent * )
 {
     if ( !d->blinkTimer )
         return;
-    
+
     d->blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 }
 
@@ -425,7 +430,7 @@ void QDial::focusOutEvent( QFocusEvent * )
 {
     if ( !d->blinkTimer )
         return;
-    
+
     d->blinkTimer->stop();
     d->color = colorGroup().foreground();
     repaint( FALSE );
