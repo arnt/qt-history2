@@ -1360,6 +1360,9 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
     QWidget::mousePressEvent(e);
 }
 
+/*!
+    \reimp
+*/
 void QComboBox::mouseReleaseEvent(QMouseEvent *e)
 {
     d->arrowDown = false;
