@@ -497,7 +497,7 @@ fi
 [ "$DO_WIN" = "yes" ] && ! strings $DISTDIR/qt/dist/win/bin/moc.exe | grep "$VERSION_STR" >>$LOG 2>&1 && status "!! Warning: qt/dist/win/bin/moc.exe might not match !!"
 sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
     -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
-mv ${TMP_FILE} $qglobal
+mv -f ${TMP_FILE} $qglobal
 
 #fix $Id
 if [ "x$DO_ID" = "xyes" ]; then
