@@ -381,7 +381,7 @@ void QMacStyleQD::polish(QWidget* w)
 	w->setWindowOpacity(0.95);
 #endif
     } else if(QRubberBand *rubber = ::qt_cast<QRubberBand*>(w)) {
-	rubber->setWindowOpacity(0.2);
+	rubber->setWindowOpacity(0.75);
     } else if(Q4Menu *menu = ::qt_cast<Q4Menu*>(w)) {
 	menu->setWindowOpacity(0.95);
     } else if(QTitleBar *tb = ::qt_cast<QTitleBar *>(w)) {
