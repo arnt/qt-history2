@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#147 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#146 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#147 $");
 
 
 /*!
@@ -34,11 +34,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#146 $");
   rectangular, and they are sorted in a Z-order.  A widget is clipped
   by its parent and by the widgets in front of it.
 
-  A widget without a parent, called a top-level widget, is a window with a
-  frame and a title bar (it is also possible to create top level widgets
-  without such decoration).  A widget with a parent is a child window in
-  its parent.  You usually cannot distinguish a child widget from its
-  parent visually.
+  A widget without a parent, called a top-level widget, is a window
+  with a frame and a title bar (though it is also possible to create
+  top level widgets without such decoration).  A widget with a parent
+  is a child window in its parent.  You usually cannot distinguish a
+  child widget from its parent visually.
 
   QWidget has many member functions, but many of them have little direct
   functionality - for example it has a setFont() function but never uses
