@@ -1746,10 +1746,10 @@ const char* QLocalePrivate::systemLocaleName()
                 language = QString::fromUtf16((ushort*)out);
             if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
                 sublanguage = QString::fromUtf16((ushort*)out).toLower();
-            lang = language.local8Bit();
+            lang = language.toLocal8Bit();
             if (sublanguage != language && !sublanguage.isEmpty()) {
                 lang += '_';
-                lang += sublanguage.local8Bit();
+                lang += sublanguage.toLocal8Bit();
             }
         } , {
             char out[256];
@@ -1759,10 +1759,10 @@ const char* QLocalePrivate::systemLocaleName()
                 language = QString::fromLocal8Bit(out);
             if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
                 sublanguage = QString::fromLocal8Bit(out).toLower();
-            lang = language.local8Bit();
+            lang = language.toLocal8Bit();
             if (sublanguage != language && !sublanguage.isEmpty()) {
                 lang += '_';
-                lang += sublanguage.local8Bit();
+                lang += sublanguage.toLocal8Bit();
             }
         });
     }
@@ -3484,7 +3484,7 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
     while (idx < l) {
         const QChar &in = uc[idx];
         char out = 0;
-        
+
         if (in.unicode() >= zero().unicode() && in.unicode() < zero().unicode() + 10)
             out = digitToCLocale(zero(), in);
         else if (in == plus())
@@ -3511,7 +3511,7 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
             out = in.latin1();
         else
             break;
-            
+
         result->append(out);
 
         ++idx;
@@ -3522,14 +3522,14 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
         if (!uc[idx].isSpace())
             return false;
     }
-        
+
     // Check separators
     if (group_sep_mode == ParseGroupSeparators
             && !removeGroupSeparators(result))
         return false;
 
     result->append('\0');
-    
+
     return true;
 }
 
@@ -3586,7 +3586,7 @@ double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok)
 
     if (qstrcmp(num, "-inf") == 0)
         return -Q_INFINITY;
-            
+
     bool _ok;
 #ifdef QT_QLOCALE_USES_FCVT
     char *endptr;

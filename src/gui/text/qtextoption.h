@@ -17,7 +17,7 @@
 #include <qnamespace.h>
 
 template <typename T> class QList;
-class QTextOptionPrivate;
+struct QTextOptionPrivate;
 
 class Q_GUI_EXPORT QTextOption
 {

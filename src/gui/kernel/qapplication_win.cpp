@@ -764,7 +764,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
             classExists &= classExists ? wcinfo.lpfnWndProc != QtWndProc : 0;
         }, {
             WNDCLASSA wcinfo;
-            classExists = GetClassInfoA((HINSTANCE)qWinAppInst(), cname.latin1(), &wcinfo);
+            classExists = GetClassInfoA((HINSTANCE)qWinAppInst(), cname.toLatin1(), &wcinfo);
             classExists &= classExists ? wcinfo.lpfnWndProc != QtWndProc : 0;
         });
     }
@@ -813,7 +813,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
-        wc.lpszClassName= cname.latin1();
+        wc.lpszClassName= cname.toLatin1();
         atom = RegisterClassA(&wc);
     });
 #else
@@ -854,7 +854,7 @@ static void unregWinClasses()
         QT_WA({
             UnregisterClass((TCHAR*)it.key().utf16(), (HINSTANCE)qWinAppInst());
         } , {
-            UnregisterClassA(it.key().latin1(), (HINSTANCE)qWinAppInst());
+            UnregisterClassA(it.key().toLatin1(), (HINSTANCE)qWinAppInst());
         });
         ++it;
     }
@@ -3329,7 +3329,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
                 QT_WA({
                     SetWindowText(winId(), (TCHAR*)txt.utf16());
                 } , {
-                    SetWindowTextA(winId(), txt.local8Bit());
+                    SetWindowTextA(winId(), txt.toLocal8Bit());
                 });
             }
         }

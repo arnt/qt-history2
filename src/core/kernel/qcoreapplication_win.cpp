@@ -210,9 +210,9 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     The message procedure calls this function for every message
     received. Reimplement this function if you want to process window
     messages \a msg that are not processed by Qt. If you don't want
-    the event to be processed by Qt, then return true and set \a result 
+    the event to be processed by Qt, then return true and set \a result
     to the value that the window procedure should return. Otherwise
-    return false. 
+    return false.
 */
 bool QCoreApplication::winEventFilter(MSG *msg, long *result)        // Windows event filter
 {
@@ -638,7 +638,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                                 FLAG_STRING(WA_INACTIVE,    "Deactivate"),
                                                 FLAG_STRING(WA_CLICKACTIVE, "Activate by mouseclick"),
                                                 FLAG_STRING());
-                parameters.sprintf("%s Hwnd (0x%08x)", activation.latin1(), (uint)msg.hwnd);
+                parameters.sprintf("%s Hwnd (0x%08x)", activation.toLatin1().data(), (uint)msg.hwnd);
             }
             break;
 #endif
@@ -757,8 +757,9 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                          (int)wcslen(reinterpret_cast<const wchar_t *>(lpcs->lpszName)));
 
                 parameters.sprintf("x,y(%4d,%4d) w,h(%4d,%4d) className(%s) windowName(%s) parent(0x%08x) style(%s) exStyle(%s)",
-                                    lpcs->x, lpcs->y, lpcs->cx, lpcs->cy, className.latin1(), windowName.latin1(),
-                                    (uint)lpcs->hwndParent, styles.latin1(), exStyles.latin1());
+                                   lpcs->x, lpcs->y, lpcs->cx, lpcs->cy, className.toLatin1().data(),
+                                   windowName.toLatin1().data(), (uint)lpcs->hwndParent,
+                                   styles.toLatin1().data(), exStyles.toLatin1().data());
             }
             break;
 #endif
@@ -785,7 +786,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                             FLGSTR(IMN_SETSENTENCEMODE),
                                             FLGSTR(IMN_SETSTATUSWINDOWPOS),
                                             FLAG_STRING());
-                parameters.sprintf("Command(%s : 0x%08x)", imnCommand.latin1(), (uint)lParam);
+                parameters.sprintf("Command(%s : 0x%08x)", imnCommand.toLatin1().data(), (uint)lParam);
             }
             break;
 #endif
@@ -809,7 +810,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                              FLGSTR(ISC_SHOWUICANDIDATEWINDOW << 2),
                                              FLGSTR(ISC_SHOWUICANDIDATEWINDOW << 3),
                                              FLAG_STRING());
-                parameters.sprintf("Input context(%s) Show flags(%s)", (fSet?"Active":"Inactive"), showFlgs.latin1());
+                parameters.sprintf("Input context(%s) Show flags(%s)", (fSet?"Active":"Inactive"), showFlgs.toLatin1().data());
             }
             break;
 #endif
@@ -853,7 +854,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
         case WM_MOUSEACTIVATE:
             {
                 QString mouseMsg = findWMstr(HIWORD(lParam));
-                parameters.sprintf("TLW(0x%08x) HittestCode(0x%x) MouseMsg(%s)", wParam, LOWORD(lParam), mouseMsg.latin1());
+                parameters.sprintf("TLW(0x%08x) HittestCode(0x%x) MouseMsg(%s)", wParam, LOWORD(lParam), mouseMsg.toLatin1().data());
             }
             break;
 #endif
@@ -910,7 +911,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                             FLGSTR(MK_XBUTTON2),
 #endif
                                             FLAG_STRING());
-                parameters.sprintf("x,y(%4d,%4d) Virtual Keys(%s)", GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), vrtKeys.latin1());
+                parameters.sprintf("x,y(%4d,%4d) Virtual Keys(%s)", GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), vrtKeys.toLatin1().data());
             }
             break;
 #endif
@@ -933,7 +934,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
         case WM_SETCURSOR:
             {
                 QString mouseMsg = findWMstr(HIWORD(lParam));
-                parameters.sprintf("HitTestCode(0x%x) MouseMsg(%s)", LOWORD(lParam), mouseMsg.latin1());
+                parameters.sprintf("HitTestCode(0x%x) MouseMsg(%s)", LOWORD(lParam), mouseMsg.toLatin1().data());
             }
             break;
 #endif
@@ -944,7 +945,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 #endif
 #ifdef WM_SETTEXT
         case WM_SETTEXT:
-            parameters.sprintf("Set Text (%s)", QString((QChar*)lParam, (int)wcslen(reinterpret_cast<const wchar_t *>(lParam))).latin1()); //Unicode string
+            parameters.sprintf("Set Text (%s)", QString((QChar*)lParam, (int)wcslen(reinterpret_cast<const wchar_t *>(lParam))).toLatin1().data()); //Unicode string
             break;
 #endif
 #ifdef WM_SIZE
@@ -958,7 +959,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                               FLGSTR(SIZE_RESTORED),
                                               FLAG_STRING());
 
-                parameters.sprintf("w,h(%4d,%4d) showmode(%s)", LOWORD(lParam), HIWORD(lParam), showMode.latin1());
+                parameters.sprintf("w,h(%4d,%4d) showmode(%s)", LOWORD(lParam), HIWORD(lParam), showMode.toLatin1().data());
             }
             break;
 #endif
@@ -995,7 +996,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                           FLGSTR(SWP_NOZORDER),
                                           FLGSTR(SWP_SHOWWINDOW),
                                           FLAG_STRING());
-                parameters.sprintf("x,y(%4d,%4d) w,h(%4d,%4d) flags(%s) hwndAfter(%s)", winPos->x, winPos->y, winPos->cx, winPos->cy, flags.latin1(), hwndAfter.latin1());
+                parameters.sprintf("x,y(%4d,%4d) w,h(%4d,%4d) flags(%s) hwndAfter(%s)", winPos->x, winPos->y, winPos->cx, winPos->cy, flags.toLatin1().data(), hwndAfter.toLatin1().data());
             }
             break;
 #endif

@@ -707,7 +707,7 @@ void QWin32PrintEnginePrivate::queryDefault()
 	}
     }, {
 	char buffer[256];
-	GetProfileStringA("windows", "device", noPrinters.latin1(), buffer, 256);
+	GetProfileStringA("windows", "device", noPrinters.toLatin1(), buffer, 256);
         output = QString::fromLocal8Bit(buffer);
 	if (output == noPrinters) { // no printers
 	    qWarning("System has no default printer, are any printers installed?");
@@ -736,7 +736,7 @@ void QWin32PrintEnginePrivate::initialize()
     QT_WA( {
         ok = OpenPrinterW((LPWSTR)name.utf16(), (LPHANDLE)&hPrinter, 0);
     }, {
-        ok = OpenPrinterA((LPSTR)name.latin1(), (LPHANDLE)&hPrinter, 0);
+        ok = OpenPrinterA((LPSTR)name.toLatin1().data(), (LPHANDLE)&hPrinter, 0);
     } );
 
     if (!ok) {
@@ -773,7 +773,7 @@ void QWin32PrintEnginePrivate::initialize()
         hdc = CreateDC(reinterpret_cast<const wchar_t *>(program.utf16()),
                        reinterpret_cast<const wchar_t *>(name.utf16()), 0, devModeW());
     }, {
-        hdc = CreateDCA(program.latin1(), name.latin1(), 0, devModeA());
+        hdc = CreateDCA(program.toLatin1(), name.toLatin1(), 0, devModeA());
     } );
 
     Q_ASSERT(hPrinter);
@@ -829,9 +829,9 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions() const
 	                            reinterpret_cast<const wchar_t *>(port.utf16()),
 				    DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0);
     }, {
-	numRes = DeviceCapabilitiesA(name.local8Bit(), port.local8Bit(), DC_ENUMRESOLUTIONS, 0, 0);
+	numRes = DeviceCapabilitiesA(name.toLocal8Bit(), port.toLocal8Bit(), DC_ENUMRESOLUTIONS, 0, 0);
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
-	errRes = DeviceCapabilitiesA(name.local8Bit(), port.local8Bit(), DC_ENUMRESOLUTIONS, (LPSTR)enumRes, 0);
+	errRes = DeviceCapabilitiesA(name.toLocal8Bit(), port.toLocal8Bit(), DC_ENUMRESOLUTIONS, (LPSTR)enumRes, 0);
     });
 
     QList<int> list;
@@ -1039,7 +1039,7 @@ void QWin32PrintEngine::setPaperSource(QPrinter::PaperSource src)
     QT_WA( {
         caps = DeviceCapabilitiesW((TCHAR*)d->name.utf16(), 0, DC_BINS, 0, 0);
     }, {
-        caps = DeviceCapabilitiesA(d->name.latin1(), 0, DC_BINS, 0, 0);
+        caps = DeviceCapabilitiesA(d->name.toLatin1(), 0, DC_BINS, 0, 0);
     } );
     // Skip it altogether if it's not supported...
     if (caps != DWORD(-1) && caps != 0) {
@@ -1048,7 +1048,7 @@ void QWin32PrintEngine::setPaperSource(QPrinter::PaperSource src)
         QT_WA( {
             gotCaps = DeviceCapabilitiesW((wchar_t *)d->name.utf16(), 0, DC_BINS, (wchar_t *) bins, 0);
         }, {
-            gotCaps = DeviceCapabilitiesA(d->name.latin1(), 0, DC_BINS, (char*) bins, 0);
+            gotCaps = DeviceCapabilitiesA(d->name.toLatin1(), 0, DC_BINS, (char*) bins, 0);
         } );
         if (gotCaps) {
             bool ok = false;
@@ -1208,9 +1208,9 @@ HGLOBAL *QWin32PrintEnginePrivate::createDevNames()
         dn->wDeviceOffset = dn->wDriverOffset + program.length() + 1;
         dn->wOutputOffset = dn->wDeviceOffset + name.length() + 1;
 
-        memcpy((char*)dn + dn->wDriverOffset, program.latin1(), program.length() + 2);
-        memcpy((char*)dn + dn->wDeviceOffset, name.latin1(), name.length() + 2);
-        memcpy((char*)dn + dn->wOutputOffset, port.latin1(), port.length() + 2);
+        memcpy((char*)dn + dn->wDriverOffset, program.toLatin1(), program.length() + 2);
+        memcpy((char*)dn + dn->wDeviceOffset, name.toLatin1(), name.length() + 2);
+        memcpy((char*)dn + dn->wOutputOffset, port.toLatin1(), port.length() + 2);
         dn->wDefault = 0;
 
         GlobalUnlock(hGlobal);
@@ -1252,7 +1252,7 @@ void QWin32PrintEnginePrivate::readDevmode(HGLOBAL globalDevmode)
             release();
             globalDevMode = globalDevmode;
             devMode = dm;
-            hdc = CreateDCA(program.latin1(), name.latin1(), 0, dm);
+            hdc = CreateDCA(program.toLatin1(), name.toLatin1(), 0, dm);
         } );
         setupPrinterMapping();
     }

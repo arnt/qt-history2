@@ -773,7 +773,7 @@ QMatrix &QMatrix::shear(qReal sh, qReal sv)
     return *this;
 }
 
-const qReal deg2rad = 0.017453292519943295769;        // pi/180
+const qReal deg2rad = qReal(0.017453292519943295769);        // pi/180
 
 /*!
     Rotates the coordinate system \a a degrees counterclockwise.

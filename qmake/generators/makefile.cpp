@@ -66,7 +66,7 @@ static bool createDir(QString path)
             path = path.right(path.length() - 3);
         } else {
             warn_msg(WarnLogic, "Cannot access drive '%s' (%s)",
-                     path.left(3).latin1(), path.latin1());
+                     path.left(3).toLatin1().data(), path.toLatin1().data());
             driveExists = false;
         }
     }

@@ -52,7 +52,7 @@ bool QLibraryPrivate::unload_sys()
     if (!FreeLibrary(pHnd)) {
         qWarning("QLibrary::unload_sys: Cannot unload %s (%s)",
                  QFile::encodeName(fileName).constData(),
-                 qt_error_string(GetLastError()).latin1());
+                 qt_error_string(GetLastError()).toLatin1().data());
         return false;
     }
     return true;

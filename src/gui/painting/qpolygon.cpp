@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 
-const qReal Q_PI = 3.14159265358979323846;
+const qReal Q_PI = qReal(3.14159265358979323846);
 
 /*!
     \class QPolygon qpolygon.h

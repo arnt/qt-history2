@@ -149,12 +149,12 @@ static OPENFILENAMEA *qt_win_make_OFNA(QWidget *parent,
     else
         parent = qApp->mainWidget();
 
-    aTitle = title.local8Bit();
-    aInitDir = QDir::convertSeparators(initialDirectory).local8Bit();
+    aTitle = title.toLocal8Bit();
+    aInitDir = QDir::convertSeparators(initialDirectory).toLocal8Bit();
     if (initialSelection.isEmpty()) {
         aInitSel = "";
     } else {
-        aInitSel = QDir::convertSeparators(initialSelection).local8Bit();
+        aInitSel = QDir::convertSeparators(initialSelection).toLocal8Bit();
 	aInitSel.replace("<", "");
 	aInitSel.replace(">", "");
 	aInitSel.replace("\"", "");

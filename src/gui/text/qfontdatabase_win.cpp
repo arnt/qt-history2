@@ -189,7 +189,7 @@ static QString getEnglishName(const QString &familyName)
     }, {
         LOGFONTA lf;
         memset( &lf, 0, sizeof( LOGFONTA ) );
-        QByteArray lfam = familyName.local8Bit();
+        QByteArray lfam = familyName.toLocal8Bit();
         memcpy( lf.lfFaceName, lfam, qMin(LF_FACESIZE, lfam.size()) );
         lf.lfCharSet = DEFAULT_CHARSET;
         hfont = CreateFontIndirectA( &lf );
@@ -316,7 +316,7 @@ static QString getEnglishName(const QString &familyName)
     DeleteObject( hfont );
     ReleaseDC( 0, hdc );
 
-    //qDebug("got i18n name of '%s' for font '%s'", i18n_name.latin1(), familyName.local8Bit().data());
+    //qDebug("got i18n name of '%s' for font '%s'", i18n_name.latin1(), familyName.toLocal8Bit().data());
     return i18n_name;
 }
 
@@ -806,7 +806,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             }
         }
 
-        if ((fam == "MS Sans Serif") 
+        if ((fam == "MS Sans Serif")
             && (request.style == QFont::StyleItalic || (-lf.lfHeight > 18 && -lf.lfHeight != 24))) {
             fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
         }

@@ -211,7 +211,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             title = isTopLevel() ? QString::fromLocal8Bit(qAppName()) : objectName();
             ttitle = (TCHAR*)title.utf16();
         } , {
-            title95 = isTopLevel() ? qAppName() : objectName().latin1();
+            title95 = isTopLevel() ? qAppName() : objectName().toLatin1();
         });
     }
 
@@ -265,7 +265,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                                 CW_USEDEFAULT, CW_USEDEFAULT,
                                 parentw, 0, appinst, 0);
         } , {
-            id = CreateWindowExA(exsty, windowClassName.latin1(), title95, style,
+            id = CreateWindowExA(exsty, windowClassName.toLatin1(), title95, style,
                                 CW_USEDEFAULT, CW_USEDEFAULT,
                                 CW_USEDEFAULT, CW_USEDEFAULT,
                                 parentw, 0, appinst, 0);
@@ -284,7 +284,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             id = CreateWindowEx(exsty, cname, ttitle, style, 0, 0, 100, 30,
                             parentw, NULL, appinst, NULL);
         } , {
-            id = CreateWindowExA(exsty, windowClassName.latin1(), title95, style, 0, 0, 100, 30,
+            id = CreateWindowExA(exsty, windowClassName.toLatin1(), title95, style, 0, 0, 100, 30,
                             parentw, NULL, appinst, NULL);
         });
         if (!id)
@@ -546,7 +546,7 @@ void QWidget::setWindowModified(bool mod)
         QT_WA({
             SetWindowText(winId(), (TCHAR*)cap.utf16());
         } , {
-            SetWindowTextA(winId(), cap.local8Bit());
+            SetWindowTextA(winId(), cap.toLocal8Bit());
         });
     }
     QEvent e(QEvent::ModifiedChange);
@@ -574,7 +574,7 @@ void QWidget::setWindowTitle(const QString &caption)
     QT_WA({
         SetWindowText(winId(), (TCHAR*)cap.utf16());
     } , {
-        SetWindowTextA(winId(), cap.local8Bit());
+        SetWindowTextA(winId(), cap.toLocal8Bit());
     });
 
     QEvent e(QEvent::WindowTitleChange);
@@ -1578,7 +1578,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                 objectName().isEmpty() ? "unnamed" : objectName().latin1(),
+                 objectName().isEmpty() ? "unnamed" : objectName().toLatin1(),
                  metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);

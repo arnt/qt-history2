@@ -152,7 +152,7 @@ static HKEY openKey(HKEY parentHandle, REGSAM perms, const QString &rSubKey)
         res = RegOpenKeyExW(parentHandle, reinterpret_cast<const wchar_t *>(rSubKey.utf16()),
                             0, perms, &resultHandle);
     } , {
-        res = RegOpenKeyExA(parentHandle, rSubKey.local8Bit(),
+        res = RegOpenKeyExA(parentHandle, rSubKey.toLocal8Bit(),
                             0, perms, &resultHandle);
     } );
 
@@ -176,7 +176,7 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
         res = RegCreateKeyExW(parentHandle, reinterpret_cast<const wchar_t *>(rSubKey.utf16()), 0, 0,
                               REG_OPTION_NON_VOLATILE, perms, 0, &resultHandle, 0);
     } , {
-        res = RegCreateKeyExA(parentHandle, rSubKey.local8Bit(), 0, 0,
+        res = RegCreateKeyExA(parentHandle, rSubKey.toLocal8Bit(), 0, 0,
                               REG_OPTION_NON_VOLATILE, perms, 0, &resultHandle, 0);
     } );
 
@@ -184,7 +184,7 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
         return resultHandle;
 
     qWarning("QSettings: failed to create subkey \"%s\": %s",
-            rSubKey.latin1(), errorCodeToString(res).latin1());
+            rSubKey.toLatin1().data(), errorCodeToString(res).toLatin1().data());
 
     return 0;
 }
@@ -249,7 +249,7 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QSettingsPrivate::ChildS
     } );
 
     if (res != ERROR_SUCCESS) {
-        qWarning("QSettings: RegQueryInfoKey() failed: %s", errorCodeToString(res).latin1());
+        qWarning("QSettings: RegQueryInfoKey() failed: %s", errorCodeToString(res).toLatin1().data());
         return result;
     }
 
@@ -298,8 +298,7 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QSettingsPrivate::ChildS
         } );
 
         if (res != ERROR_SUCCESS) {
-            qWarning("QSettings: RegEnumValue failed: %s",
-                     errorCodeToString(res).latin1());
+            qWarning("QSettings: RegEnumValue failed: %s", errorCodeToString(res).toLatin1().data());
             continue;
         }
         result.append(item);
@@ -353,11 +352,11 @@ static void deleteChildGroups(HKEY parentHandle)
         QT_WA( {
             res = RegDeleteKeyW(parentHandle, reinterpret_cast<const wchar_t *>(group.utf16()));
         }, {
-            res = RegDeleteKeyA(parentHandle, group.local8Bit());
+            res = RegDeleteKeyA(parentHandle, group.toLocal8Bit());
         } );
         if (res != ERROR_SUCCESS) {
             qWarning("QSettings: RegDeleteKey failed on subkey \"%s\": %s",
-                      group.latin1(), errorCodeToString(res).latin1());
+                      group.toLatin1().data(), errorCodeToString(res).toLatin1().data());
             return;
         }
     }
@@ -447,7 +446,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCo
     QT_WA( {
         res = RegQueryValueExW(handle, reinterpret_cast<const wchar_t *>(rSubkeyName.utf16()), 0, &dataType, 0, &dataSize);
     }, {
-        res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, &dataType, 0, &dataSize);
+        res = RegQueryValueExA(handle, rSubkeyName.toLocal8Bit(), 0, &dataType, 0, &dataSize);
     } );
     if (res != ERROR_SUCCESS) {
         RegCloseKey(handle);
@@ -460,7 +459,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCo
         res = RegQueryValueExW(handle, reinterpret_cast<const wchar_t *>(rSubkeyName.utf16()), 0, 0,
                                reinterpret_cast<unsigned char*>(data.data()), &dataSize);
     }, {
-        res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, 0,
+        res = RegQueryValueExA(handle, rSubkeyName.toLocal8Bit(), 0, 0,
                                reinterpret_cast<unsigned char*>(data.data()), &dataSize);
     } );
     if (res != ERROR_SUCCESS) {
@@ -559,11 +558,11 @@ QWinSettingsPrivate::~QWinSettingsPrivate()
         QT_WA( {
             res = RegDeleteKeyW(writeHandle(), reinterpret_cast<const wchar_t *>(emptyKey.utf16()));
         }, {
-            res = RegDeleteKeyA(writeHandle(), emptyKey.local8Bit());
+            res = RegDeleteKeyA(writeHandle(), emptyKey.toLocal8Bit());
         } );
         if (res != ERROR_SUCCESS) {
             qWarning("QSettings: failed to delete key \"%s\": %s",
-                    regList.at(0).key.latin1(), errorCodeToString(res).latin1());
+                    regList.at(0).key.toLatin1().data(), errorCodeToString(res).toLatin1().data());
         }
     }
 
@@ -582,7 +581,7 @@ void QWinSettingsPrivate::remove(const QString &uKey)
         QT_WA( {
             res = RegDeleteValueW(handle, reinterpret_cast<const wchar_t *>(keyName(rKey).utf16()));
         }, {
-            res = RegDeleteValueA(handle, keyName(rKey).local8Bit());
+            res = RegDeleteValueA(handle, keyName(rKey).toLocal8Bit());
         } );
         RegCloseKey(handle);
     }
@@ -602,23 +601,23 @@ void QWinSettingsPrivate::remove(const QString &uKey)
                 QT_WA( {
                     res = RegDeleteValueW(handle, reinterpret_cast<const wchar_t *>(group.utf16()));
                 }, {
-                    res = RegDeleteValueA(handle, group.local8Bit());
+                    res = RegDeleteValueA(handle, group.toLocal8Bit());
                 } );
                 if (res != ERROR_SUCCESS) {
                     qWarning("QSettings: RegDeleteValue failed on subkey \"%s\": %s",
-                              group.latin1(), errorCodeToString(res).latin1());
+                              group.toLatin1().data(), errorCodeToString(res).toLatin1().data());
                 }
             }
         } else {
             QT_WA( {
                 res = RegDeleteKeyW(writeHandle(), reinterpret_cast<const wchar_t *>(rKey.utf16()));
             }, {
-                res = RegDeleteKeyA(writeHandle(), rKey.local8Bit());
+                res = RegDeleteKeyA(writeHandle(), rKey.toLocal8Bit());
             } );
 
             if (res != ERROR_SUCCESS) {
                 qWarning("QSettings: RegDeleteKey failed on key \"%s\": %s",
-                            rKey.latin1(), errorCodeToString(res).latin1());
+                            rKey.toLatin1().data(), errorCodeToString(res).toLatin1().data());
             }
         }
         RegCloseKey(handle);
@@ -666,7 +665,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
                 QT_WA( {
                     regValueBuff = QByteArray((const char*)s.utf16(), s.length()*2);
                 }, {
-                    regValueBuff = QByteArray((const char*)s.latin1(), s.length());
+                    regValueBuff = QByteArray((const char*)s.toLocal8Bit(), s.length());
                 } );
             } else {
                 QStringList::const_iterator it = l.constBegin();
@@ -675,7 +674,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
                     QT_WA( {
                         regValueBuff += QByteArray((const char*)s.utf16(), (s.length() + 1)*2);
                     }, {
-                        regValueBuff += QByteArray((const char*)s.latin1(), s.length() + 1);
+                        regValueBuff += QByteArray((const char*)s.toLocal8Bit(), s.length() + 1);
                     } );
                 }
                 QT_WA( {
@@ -704,13 +703,13 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
                 QT_WA( {
                     regValueBuff = QByteArray((const char*)s.utf16(), s.length()*2);
                 }, {
-                    regValueBuff = QByteArray((const char*)s.latin1(), s.length());
+                    regValueBuff = QByteArray((const char*)s.toLocal8Bit(), s.length());
                 } );
             } else {
                 QT_WA( {
                     regValueBuff = QByteArray((const char*)s.utf16(), (s.length() + 1)*2);
                 }, {
-                    regValueBuff = QByteArray((const char*)s.latin1(), s.length() + 1);
+                    regValueBuff = QByteArray((const char*)s.toLocal8Bit(), s.length() + 1);
                 } );
             }
             break;
@@ -724,7 +723,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
                              reinterpret_cast<const unsigned char*>(regValueBuff.constData()),
                              regValueBuff.size());
     }, {
-        res = RegSetValueExA(handle, keyName(rKey).local8Bit(), 0, type,
+        res = RegSetValueExA(handle, keyName(rKey).toLocal8Bit(), 0, type,
                              reinterpret_cast<const unsigned char*>(regValueBuff.constData()),
                              regValueBuff.size());
     } );
@@ -733,7 +732,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
         deleteWriteHandleOnExit = false;
     } else {
         qWarning("QSettings: failed to set subkey \"%s\": %s",
-                rKey.latin1(), errorCodeToString(res).latin1());
+                rKey.toLatin1().data(), errorCodeToString(res).toLatin1().data());
     }
 
     RegCloseKey(handle);

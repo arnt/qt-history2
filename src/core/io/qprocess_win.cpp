@@ -305,7 +305,7 @@ void QProcessPrivate::startProcess()
             // add PATH if necessary (for DLL loading)
             char *path = qgetenv("PATH");
             if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
-                QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).local8Bit();
+                QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).toLocal8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
                 memcpy(envlist.data()+pos, tmp.data(), tmpSize);
@@ -313,7 +313,7 @@ void QProcessPrivate::startProcess()
             }
             // add the user environment
             for (QStringList::Iterator it = environment.begin(); it != environment.end(); it++) {
-                QByteArray tmp = (*it).local8Bit();
+                QByteArray tmp = (*it).toLocal8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
                 memcpy(envlist.data()+pos, tmp.data(), tmpSize);
@@ -332,7 +332,7 @@ void QProcessPrivate::startProcess()
 #endif
 	success = CreateProcessA(0, args.toLocal8Bit().data(),
                                  0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
-                                 workingDirectory.local8Bit(), &startupInfo, pid);
+                                 workingDirectory.toLocal8Bit(), &startupInfo, pid);
 #endif // Q_OS_TEMP
     }
 
@@ -356,7 +356,7 @@ void QProcessPrivate::startProcess()
         notifier->start(NOTIFYTIMEOUT);
     }
 
-    // give the process a chance to start ... 
+    // give the process a chance to start ...
     Sleep(SLEEPMIN*2);
     startupNotification();
 }
@@ -448,7 +448,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             canWrite();
             nextSleep = qMin(SLEEPMIN, msecs);
         }
-        
+
         bool readyReadEmitted = false;
         if (bytesAvailableFromStdout() != 0) {
             readyReadEmitted = canReadStandardOutput() ? true : readyReadEmitted;
@@ -510,14 +510,14 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
             canReadStandardError();
             nextSleep = qMin(SLEEPMIN, msecs);
         }
-        
+
         if (!pid)
             return false;
         if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
             processDied();
             return false;
         }
-                
+
         nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
         if (msecs <= start.elapsed())
             break;
@@ -527,7 +527,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
              if (canWrite())
                 return true;
         }
-        
+
         nextSleep *= 2;
     }
 
@@ -552,12 +552,12 @@ bool QProcessPrivate::waitForFinished(int msecs)
             canWrite();
             nextSleep = qMin(SLEEPMIN, msecs);
         }
-        
+
         if (bytesAvailableFromStdout() != 0) {
             canReadStandardOutput();
             nextSleep = qMin(SLEEPMIN, msecs);
         }
-        
+
         if (bytesAvailableFromStderr() != 0) {
             canReadStandardError();
             nextSleep = qMin(SLEEPMIN, msecs);

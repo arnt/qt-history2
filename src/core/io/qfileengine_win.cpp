@@ -215,7 +215,7 @@ QFSFileEngine::rename(const QString &newName)
     QT_WA({
         return ::MoveFileW((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) != 0;
     } , {
-        return ::MoveFileA(QFSFileEnginePrivate::win95Name(d->file), 
+        return ::MoveFileA(QFSFileEnginePrivate::win95Name(d->file),
                            QFSFileEnginePrivate::win95Name(newName)) != 0;
     });
 }
@@ -271,7 +271,7 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
                         if((st.st_mode & S_IFMT) != S_IFDIR) {
                             return false;
 			}
-		    } else if(_mkdir(QFSFileEnginePrivate::win95Name(chunk)) == -1) { 
+		    } else if(_mkdir(QFSFileEnginePrivate::win95Name(chunk)) == -1) {
 			if (errno != EEXIST) {
 			    return false;
 			}
@@ -483,7 +483,7 @@ QFSFileEngine::setCurrentPath(const QString &path)
 {
     if (!QDir(path).exists())
         return false;
-    
+
     int r;
     QT_WA({
         r = ::SetCurrentDirectory((WCHAR*)path.utf16());
@@ -756,7 +756,7 @@ QFSFileEnginePrivate::getLink() const
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if(SUCCEEDED(hres)) {
-                        QByteArray lfn = d->file.local8Bit();
+                        QByteArray lfn = d->file.toLocal8Bit();
                         memcpy(szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char));
                         hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY);
                         ret = QString::fromLocal8Bit(szGotPath);
@@ -920,7 +920,7 @@ QFSFileEnginePrivate::getPermissions() const
                 LocalFree(pSD);
             }
         }
-    } else 
+    } else
 #endif
            {
 	//### what to do with permissions if we don't use ntfs or are not on a NT system
@@ -942,7 +942,7 @@ QFSFileEnginePrivate::getPermissions() const
 	        ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
 		       QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
 	} , {
-	    DWORD attr = GetFileAttributesA(file.local8Bit());
+	    DWORD attr = GetFileAttributesA(file.toLocal8Bit());
 	    if(attr & FILE_ATTRIBUTE_READONLY)
 		ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
 			 QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
@@ -983,7 +983,7 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 		    if(GetFileAttributesW((TCHAR*)d->file.utf16()) & FILE_ATTRIBUTE_HIDDEN)
 			ret |= HiddenFlag;
 		} , {
-		    if(GetFileAttributesA(d->file.local8Bit()) & FILE_ATTRIBUTE_HIDDEN)
+		    if(GetFileAttributesA(d->file.toLocal8Bit()) & FILE_ATTRIBUTE_HIDDEN)
 			ret |= HiddenFlag;
 		});
             }
@@ -1088,9 +1088,9 @@ QFSFileEngine::fileName(FileName file) const
 bool
 QFSFileEngine::isRelativePath() const
 {
-    return !(d->file.startsWith("/") 
-        || (d->file.length() >= 2 
-        && ((d->file.at(0).isLetter() && d->file.at(1) == ':') 
+    return !(d->file.startsWith("/")
+        || (d->file.length() >= 2
+        && ((d->file.at(0).isLetter() && d->file.at(1) == ':')
         || (d->file.at(0) == '/' && d->file.at(1) == '/'))));                // drive, e.g. a:
 }
 
@@ -1149,7 +1149,7 @@ bool QFSFileEngine::chmod(uint perms)
     if (perms & QFile::WriteOwner || perms & QFile::WriteUser || perms & QFile::WriteGroup || perms & QFile::WriteOther)
         mode |= _S_IWRITE;
 
-    if (mode == 0) // not supported 
+    if (mode == 0) // not supported
         return false;
 
    QT_WA({

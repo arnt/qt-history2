@@ -87,7 +87,7 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
         res = RegOpenKeyExW(parentHandle, (WCHAR*)rSubkeyPath.utf16(),
                             0, KEY_READ, &handle);
     } , {
-        res = RegOpenKeyExA(parentHandle, rSubkeyPath.local8Bit(),
+        res = RegOpenKeyExA(parentHandle, rSubkeyPath.toLocal8Bit(),
                             0, KEY_READ, &handle);
     } );
 
@@ -100,7 +100,7 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
     QT_WA( {
         res = RegQueryValueExW(handle, (WCHAR*)rSubkeyName.utf16(), 0, &dataType, 0, &dataSize);
     }, {
-        res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, &dataType, 0, &dataSize);
+        res = RegQueryValueExA(handle, rSubkeyName.toLocal8Bit(), 0, &dataType, 0, &dataSize);
     } );
     if (res != ERROR_SUCCESS) {
         RegCloseKey(handle);
@@ -113,7 +113,7 @@ static QString readRegistryKey(HKEY parentHandle, const QString &rSubkey)
         res = RegQueryValueExW(handle, (WCHAR*)rSubkeyName.utf16(), 0, 0,
                                reinterpret_cast<unsigned char*>(data.data()), &dataSize);
     }, {
-        res = RegQueryValueExA(handle, rSubkeyName.local8Bit(), 0, 0,
+        res = RegQueryValueExA(handle, rSubkeyName.toLocal8Bit(), 0, 0,
                                reinterpret_cast<unsigned char*>(data.data()), &dataSize);
     } );
     if (res != ERROR_SUCCESS) {
@@ -228,7 +228,7 @@ DotNET which_dotnet_version()
     }
     if (installed > 1)
         warn_msg(WarnLogic, "Generator: MSVC.NET: Found more than one version of Visual Studio in"
-                 " your path! Fallback to lowest version (%s)", warnPath.latin1());
+                 " your path! Fallback to lowest version (%s)", warnPath.toLatin1().data());
     return current_version;
 #endif
 };
