@@ -579,6 +579,8 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 #endif
 
     QButton::focusOutEvent( e );
+    if ( popup() && popup()->isVisible() )	// restore pressed status
+	setDown( TRUE );
 }
 
 
@@ -643,7 +645,7 @@ void QPushButton::setIconSet( const QIconSet& icon )
 	delete (::d(this)->iconset);
 	::d(this)->iconset = 0;
     }
-	
+
     update();
     updateGeometry();
 }
@@ -679,7 +681,7 @@ void QPushButton::popupPressed()
     QPopupMenu* popup = ::d( this )->popup;
     if ( isDown() && popup ) {
 	bool horizontal = TRUE;
-	bool topLeft = TRUE;
+	bool topLeft = TRUE;			// ### always TRUE
 #ifndef QT_NO_TOOLBAR
 	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
 	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
@@ -740,8 +742,8 @@ bool QPushButton::isFlat() const
 
 /*! \reimp */
 QString	QPushButton::typeDescription() const
-{ 
-    return tr("push button"); 
+{
+    return tr("push button");
 }
 
 #endif
