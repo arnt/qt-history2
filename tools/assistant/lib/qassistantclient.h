@@ -25,7 +25,7 @@ class QAssistantClient : public QObject
     Q_PROPERTY( bool open READ isOpen )
 
 public:
-    QAssistantClient( const QString &path, QObject *parent = 0, const char *name = 0 );
+    QAssistantClient( const QString &path, QObject *parent = 0);
     ~QAssistantClient();
 
     bool isOpen() const;

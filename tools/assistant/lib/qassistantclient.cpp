@@ -30,11 +30,11 @@ static QMap<const QAssistantClient*,QAssistantClientPrivate*> *dpointers = 0;
 static QAssistantClientPrivate *data( const QAssistantClient *client, bool create=FALSE )
 {
     if( !dpointers )
-	dpointers = new QMap<const QAssistantClient*,QAssistantClientPrivate*>;
+        dpointers = new QMap<const QAssistantClient*,QAssistantClientPrivate*>;
     QAssistantClientPrivate *d = (*dpointers)[client];
     if( !d && create ) {
-	d = new QAssistantClientPrivate;
-	dpointers->insert( client, d );
+        d = new QAssistantClientPrivate;
+        dpointers->insert( client, d );
     }
     return d;
 }
@@ -113,17 +113,17 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     The assistant client object is a child of \a parent and is called
     \a name.
 */
-QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const char *name )
-    : QObject( parent, name ), host ( "localhost" )
+QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
+    : QObject( parent ), host ( "localhost" )
 {
     if ( path.isEmpty() )
-	assistantCommand = "assistant";
+        assistantCommand = "assistant";
     else {
-	QFileInfo fi( path );
-	if ( fi.isDir() )
-	    assistantCommand = path + "/assistant";
-	else
-	    assistantCommand = path;
+        QFileInfo fi( path );
+        if ( fi.isDir() )
+            assistantCommand = path + "/assistant";
+        else
+            assistantCommand = path;
     }
 
 #if defined(Q_OS_MAC)
@@ -132,17 +132,17 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 
     socket = new QSocket( this );
     connect( socket, SIGNAL( connected() ),
-	    SLOT( socketConnected() ) );
+            SLOT( socketConnected() ) );
     connect( socket, SIGNAL( connectionClosed() ),
-	    SLOT( socketConnectionClosed() ) );
+            SLOT( socketConnectionClosed() ) );
     connect( socket, SIGNAL( error( int ) ),
-	    SLOT( socketError( int ) ) );
+            SLOT( socketError( int ) ) );
     opened = FALSE;
     proc = new QProcess( this );
     port = 0;
     pageBuffer = "";
     connect( proc, SIGNAL( readyReadStderr() ),
-	     this, SLOT( readStdError() ) );
+             this, SLOT( readStdError() ) );
 }
 
 /*!
@@ -151,20 +151,20 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 QAssistantClient::~QAssistantClient()
 {
     if ( proc && proc->isRunning() ) {
-	proc->tryTerminate();
-	proc->kill();
+        proc->tryTerminate();
+        proc->kill();
     }
 
     if( dpointers ) {
-	QAssistantClientPrivate *d = (*dpointers)[ this ];
-	if ( d ) {
-	    dpointers->remove(this);
-	    delete d;
-	    if( dpointers->isEmpty() ) {
-		delete dpointers;
-		dpointers = 0;
-	    }
-	}
+        QAssistantClientPrivate *d = (*dpointers)[ this ];
+        if ( d ) {
+            dpointers->remove(this);
+            delete d;
+            if( dpointers->isEmpty() ) {
+                delete dpointers;
+                dpointers = 0;
+            }
+        }
     }
 }
 
@@ -179,7 +179,7 @@ QAssistantClient::~QAssistantClient()
 void QAssistantClient::openAssistant()
 {
     if ( proc->isRunning() )
-	return;
+        return;
     proc->clearArguments();
     proc->addArgument( assistantCommand );
     proc->addArgument( "-server" );
@@ -190,20 +190,20 @@ void QAssistantClient::openAssistant()
 
     QAssistantClientPrivate *d = data( this );
     if( d ) {
-	QStringList::ConstIterator it = d->arguments.begin();
-	while( it!=d->arguments.end() ) {
-	    proc->addArgument( *it );
-	    ++it;
-	}
+        QStringList::ConstIterator it = d->arguments.begin();
+        while( it!=d->arguments.end() ) {
+            proc->addArgument( *it );
+            ++it;
+        }
     }
 
     if ( !proc->launch( QString() ) ) {
-	emit error( tr( "Cannot start Qt Assistant '%1'" )
-		    .arg( proc->arguments().join( " " ) ) );
-	return;
+        emit error( tr( "Cannot start Qt Assistant '%1'" )
+                    .arg( proc->arguments().join( " " ) ) );
+        return;
     }
     connect( proc, SIGNAL( readyReadStdout() ),
-	     this, SLOT( readPort() ) );
+             this, SLOT( readPort() ) );
 }
 
 void QAssistantClient::readPort()
@@ -211,12 +211,12 @@ void QAssistantClient::readPort()
     QString p = proc->readLineStdout();
     Q_UINT16 port = p.toUShort();
     if ( port == 0 ) {
-	emit error( tr( "Cannot connect to Qt Assistant." ) );
-	return;
+        emit error( tr( "Cannot connect to Qt Assistant." ) );
+        return;
     }
     socket->connectToHost( host, port );
     disconnect( proc, SIGNAL( readyReadStdout() ),
-		this, SLOT( readPort() ) );
+                this, SLOT( readPort() ) );
 }
 
 /*!
@@ -227,7 +227,7 @@ void QAssistantClient::readPort()
 void QAssistantClient::closeAssistant()
 {
     if ( !opened )
-	return;
+        return;
     proc->tryTerminate();
     proc->kill();
 }
@@ -244,10 +244,10 @@ void QAssistantClient::closeAssistant()
 void QAssistantClient::showPage( const QString &page )
 {
     if ( !opened ) {
-	pageBuffer = page;
-	openAssistant();
-	pageBuffer = QString::null;
-	return;
+        pageBuffer = page;
+        openAssistant();
+        pageBuffer = QString::null;
+        return;
     }
     QTextStream os( socket );
     os << page << "\n";
@@ -267,7 +267,7 @@ void QAssistantClient::socketConnected()
 {
     opened = TRUE;
     if ( !pageBuffer.isEmpty() )
-	showPage( pageBuffer );
+        showPage( pageBuffer );
     emit assistantOpened();
 }
 
@@ -280,22 +280,22 @@ void QAssistantClient::socketConnectionClosed()
 void QAssistantClient::socketError( int i )
 {
     if ( i == QSocket::ErrConnectionRefused )
-	emit error( tr( "Could not connect to Assistant: Connection refused" ) );
+        emit error( tr( "Could not connect to Assistant: Connection refused" ) );
     else if ( i == QSocket::ErrHostNotFound )
-	emit error( tr( "Could not connect to Assistant: Host not found" ) );
+        emit error( tr( "Could not connect to Assistant: Host not found" ) );
     else
-	emit error( tr( "Communication error" ) );
+        emit error( tr( "Communication error" ) );
 }
 
 void QAssistantClient::readStdError()
 {
     QString errmsg;
     while ( proc->canReadLineStderr() ) {
-	errmsg += proc->readLineStderr();
-	errmsg += "\n";
+        errmsg += proc->readLineStderr();
+        errmsg += "\n";
     }
     if (!errmsg.isEmpty())
-	emit error( tr( errmsg.simplified() ) );
+        emit error( tr( errmsg.simplified() ) );
 }
 
 /*!
