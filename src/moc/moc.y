@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#31 $
+** $Id: //depot/qt/main/src/moc/moc.y#32 $
 **
 ** Parser and code generator for meta object compiler
 **
 ** Author  : Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains the parser and code generator for the meta object
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#32 $";
 #endif
 
 
@@ -698,7 +698,8 @@ void generate()                                 // generate C++ source code
 //
 // Generate virtual function className()
 //
-    fprintf( out, "char *%s::className() const\n{\n    ", (char*)className );
+    fprintf( out, "const char *%s::className() const\n{\n    ",
+	     (char*)className );
     fprintf( out, "return \"%s\";\n}\n\n", (char*)className );
 
 //
