@@ -1264,7 +1264,6 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         }
         QString file = args.first();
         file = Option::fixPathToLocalOS(file);
-        doVariableReplace(file, place);
 
         if(QFile::exists(file))
             return true;
@@ -1357,7 +1356,6 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         }
         QMakeProject proj;
         QString file = args[0];
-        doVariableReplace(file, place);
         fixEnvVariables(file);
         int di = file.lastIndexOf(Option::dir_sep);
         QDir sunworkshop42workaround = QDir::current();
@@ -1446,7 +1444,6 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             return false;
         }
         QString msg = args.first();
-        doVariableReplace(msg, place);
         fixEnvVariables(msg);
         fprintf(stderr, "Project %s: %s\n", func.toUpper().latin1(), msg.latin1());
         if(func == "error")
@@ -1914,7 +1911,6 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                             parser.file.latin1(), parser.line_no);
                 } else {
                     QString msg = arg_list.first();
-                    doVariableReplace(msg, place);
                     fixEnvVariables(msg);
                     if(!msg.endsWith("?"))
                         msg += "?";
