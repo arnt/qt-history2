@@ -668,6 +668,16 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 
     if(func == "requires") {
 	return doProjectCheckReqs(args, place);
+    } else if(func == "equals") {
+	if(args.count() != 2) {
+	    fprintf(stderr, "%s:%d: equals(variable, value) requires two arguments.\n", parser.file.latin1(),
+		    parser.line_no);
+	    return FALSE;
+	}
+	QString value = args[1];
+	if((value.left(1) == "\"" || value.left(1) == "'") && value.right(1) == value.left(1))
+	    value = value.mid(1, value.length()-2);
+	return vars[args[0]].join(" ") == value;
     } else if(func == "exists") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%s:%d: exists(file) requires one argument.\n", parser.file.latin1(),
