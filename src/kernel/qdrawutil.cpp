@@ -206,30 +206,28 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	return;
     if ( ! ( w > 0 && h > 0 && lineWidth >= 0 && midLineWidth >= 0 ) ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "qDrawShadeRect() Invalid parameters." );
+	qWarning( "qDrawShadeRect(): Invalid parameters" );
 #endif
 	return;
     }
-    QPen oldPen = p->pen();			// save pen
+    QPen oldPen = p->pen();
     if ( sunken )
 	p->setPen( g.dark() );
     else
 	p->setPen( g.light() );
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
     QPointArray a;
+
     if ( lineWidth == 1 && midLineWidth == 0 ) {// standard shade rectangle
-	a.setPoints( 8, x1,y1, x2,y1, x1,y1+1, x1,y2, x1+2,y2-1,
-		     x2-1,y2-1, x2-1,y1+2,  x2-1,y2-2 );
-	p->drawLineSegments( a );		// draw top/left lines
+	p->drawRect( x1, y1, w-1, h-1 );
 	if ( sunken )
 	    p->setPen( g.light() );
 	else
 	    p->setPen( g.dark() );
-	    a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1,
-			 x1+1,y2, x2,y2,  x2,y1+2, x2,y2-1 );
+	a.setPoints( 8, x1+1,y1+1, x2-2,y1+1, x1+1,y1+2, x1+1,y2-2,
+		     x1,y2, x2,y2,  x2,y1, x2,y2-1 );
 	p->drawLineSegments( a );		// draw bottom/right lines
-    }
-    else {					// more complicated
+    } else {					// more complicated
 	int m = lineWidth+midLineWidth;
 	int i, j=0, k=m;
 	for ( i=0; i<lineWidth; i++ ) {		// draw top shadow
