@@ -317,6 +317,17 @@ void QSqlFieldList::clear()
     fieldList.clear();
 }
 
+/*!
+  Clears the value of all fields in the list.
+
+*/
+
+void QSqlFieldList::clearValues()
+{
+    for ( uint i = 0; i < count(); ++i )
+	field( i )->setValue( QVariant( field( i )->type() ) );
+}
+
 /*!  Returns a comma-separated list of field names as a string.  This
   string is suitable for use in, for example, generating a select
   statement.  If a \a prefix is specified, it is prepended before all

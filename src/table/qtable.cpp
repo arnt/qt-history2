@@ -1856,11 +1856,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		else // Key_BackTab
 		    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
 		itm = item( curRow, curCol );
-		if ( beginEdit( curRow, curCol, FALSE ) ) {
-		    edMode = Editing;
-		    editRow = curRow;
-		    editCol = curCol;
-		}
+		if ( beginEdit( curRow, curCol, FALSE ) ) 
+		    setEditMode( Editing, curRow, curCol );
 		return TRUE;
 	    }
 

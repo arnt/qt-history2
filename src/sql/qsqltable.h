@@ -39,7 +39,7 @@ public:
 
     void         setView( QSqlView* view = 0, bool autoPopulate = TRUE );
     QSqlView*    view() const;
-    
+
     void         setReadOnly( bool b );
     bool         isReadOnly() const;
 
@@ -61,14 +61,17 @@ public slots:
 
 protected slots:
     virtual bool insertCurrent();
-    virtual bool updateCurrent();    
+    virtual bool updateCurrent();
     virtual bool deleteCurrent();
- 
+    virtual bool beginInsert();
+
 protected:
+    void         columnWidthChanged( int col );
+    
     virtual bool primeInsert( QSqlView* view );
     virtual bool primeUpdate( QSqlView* view );
-    virtual bool primeDelete( QSqlView* view );    
-    
+    virtual bool primeDelete( QSqlView* view );
+
     bool         eventFilter( QObject *o, QEvent *e );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     int          indexOf( uint i ) const;
@@ -77,6 +80,9 @@ protected:
     void         setNumRows ( int r );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
 			     bool selected );
+    void         paintField( QPainter * p, const QSqlField* field, const QRect & cr,
+			     bool selected );
+    int          fieldAlignment( const QSqlField* field );
     void         columnClicked ( int col );
     void         resizeData ( int len );
 
@@ -92,8 +98,10 @@ private slots:
     void         setCurrentSelection( int row, int col );
 
 private:
-    void refresh( QSqlView* view );    
+    void         refresh( QSqlView* view );
     void         setNumCols ( int r );
+    void         updateRow( int row );
+    void         endInsert();
     QSqlTablePrivate* d;
 };
 

@@ -6,7 +6,7 @@
 
 class QSqlViewPrivate
 {
-public:    
+public:
     QSqlViewPrivate( const QString& name )
 	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 )
     {}
@@ -27,18 +27,19 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 }
 
 /*!
-  Constructs a view on database \a db.  The \a name of the view
-  must correspond to an existing table or view name in the database.
+  Constructs a view on database \a db.  If \a autopopulate is TRUE, the \a name of the view
+  must correspond to an existing table or view name in the database so that field information
+  can be automatically created..
 
 */
 
-QSqlView::QSqlView( const QString & name, const QString& databaseName )
+QSqlView::QSqlView( const QString & name, bool autopopulate, const QString& databaseName )
     : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() )
 {
     d = new QSqlViewPrivate( name );
     setMode( SQL_ReadOnly );
     if ( !d->nm.isNull() )
-	setName( d->nm );
+	setName( d->nm, autopopulate );
 }
 
 /*!
@@ -98,15 +99,16 @@ QString QSqlView::filter() const
     return d->ftr;
 }
 
-/*!
-  Sets the name of the view to \a name, which must correspond to a valid table or
-  view name in the database.
+/*!  Sets the name of the view to \a name.  If autopopulate is TRUE,
+  the \a name must correspond to a valid table or view name in the
+  database.
 
 */
-void QSqlView::setName( const QString& name )
+void QSqlView::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
-    *this = driver()->fields( name );
+    if ( autopopulate )
+	*this = driver()->fields( name );
 }
 
 /*!  Returns the name of the view.
@@ -217,15 +219,15 @@ bool QSqlView::select( const QSqlIndex & filter, const QSqlIndex & sort )
     return select( fieldEqualsValue( d->nm, "and", filter ), sort );
 }
 
-/*!    
+/*!
   Sets the view mode to \a mode.  This value can be an OR'ed
   combination of SQL modes.  The available modes are: <ul> <li>
   SQL_ReadOnly <li> SQL_Insert <li> SQL_Update <li> SQL_Delete <li>
   SQL_Writeable </ul>
-   
+
   For example,
-  
-  \code 
+
+  \code
   QSqlView view( "emp" );
   view.setMode( SQL_Writeable ); // allow insert/update/delete
   ...
@@ -235,14 +237,14 @@ bool QSqlView::select( const QSqlIndex & filter, const QSqlIndex & sort )
   \endcode
 */
 
-void QSqlView::setMode( int mode ) 
+void QSqlView::setMode( int mode )
 {
     d->md = mode;
 }
 
-/*    
+/*
    Returns the current view mode.
-   
+
    \sa setMode
 */
 
@@ -251,9 +253,9 @@ int QSqlView::mode() const
     return d->md;
 }
 
-/*   
+/*
    Returns TRUE if the view is read-only, FALSE otherwise.
-   
+
    \sa setMode
 */
 
@@ -262,9 +264,9 @@ bool QSqlView::isReadOnly() const
     return d->md == 0;
 }
 
-/*   
+/*
    Returns TRUE if the view will perform inserts, FALSE otherwise.
-   
+
    \sa setMode
 */
 
@@ -274,9 +276,9 @@ bool QSqlView::canInsert() const
 }
 
 
-/*   
+/*
    Returns TRUE if the view will perform updates, FALSE otherwise.
-   
+
    \sa setMode
 */
 
@@ -285,9 +287,9 @@ bool QSqlView::canUpdate() const
     return ( ( d->md & SQL_Update ) == SQL_Update ) ;
 }
 
-/*   
+/*
    Returns TRUE if the view will perform updates, FALSE otherwise.
-   
+
    \sa setMode
 */
 
@@ -499,6 +501,12 @@ QVariant QSqlView::calculateField( uint )
     return QVariant();
 }
 
+/*
+  \internal
+
+  Make sure fieldlist is synced with sql.
+
+*/
 void QSqlView::sync()
 {
     if ( d->lastAt != at() ) {
@@ -509,6 +517,7 @@ void QSqlView::sync()
 		QSqlFieldList::setValue( i, calculateField( i ) );
 	    else {
 		QSqlFieldList::setValue( i, QSql::value(i) );
+		QSqlFieldList::field( i )->setIsNull( QSql::isNull( i ) );
 	    }
 	}
     }

@@ -78,7 +78,7 @@ public:
     virtual QVariant     value( int i );
     virtual QVariant     value( const QString& name );
     virtual void         setValue( int i, const QVariant& val );
-    virtual void         setValue( const QString& name, const QVariant& val );    
+    virtual void         setValue( const QString& name, const QVariant& val );
     int                  position( const QString& name ) const;
     QSqlField*           field( int i );
     const QSqlField*     field( int i ) const;
@@ -92,6 +92,7 @@ public:
 
     bool                 isEmpty() const { return fieldList.isEmpty(); }
     void                 clear();
+    void                 clearValues();
     uint                 count() const;
     virtual QString      toString( const QString& prefix = QString::null ) const;
 

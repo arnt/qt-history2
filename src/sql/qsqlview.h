@@ -16,14 +16,14 @@
 #define SQL_Insert	        0x0001
 #define SQL_Update		0x0002
 #define SQL_Delete		0x0004
-#define SQL_Writeable		0x0007
+#define SQL_Writable		0x0007
 
 class QSqlDatabase;
 class QSqlViewPrivate;
 class Q_EXPORT QSqlView : public QSqlFieldList, public QSql
 {
 public:
-    QSqlView( const QString & name = QString::null, const QString& databaseName = QSqlConnection::defaultDatabase );
+    QSqlView( const QString & name = QString::null, bool autopopulate = TRUE, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlView( const QSqlView & s );
     QSqlView& operator=( const QSqlView& s );
     ~QSqlView();
@@ -47,7 +47,7 @@ public:
     bool              select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
     QSqlIndex         sort() const;
     QString           filter() const;
-    void              setName( const QString& name );
+    void              setName( const QString& name, bool autopopulate = TRUE );
     QString           name() const;
 
 protected:
@@ -64,7 +64,7 @@ protected:
 private:
     QSqlFieldList     fields() const;     //hide
     void              sync();
-    int               apply( const QString& q, bool invalidate );    
+    int               apply( const QString& q, bool invalidate );
     QSqlViewPrivate*  d;
 };
 

@@ -3,13 +3,26 @@
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
 #include "qsqlform.h"
+#include "qlayout.h"
 
 #ifndef QT_NO_SQL
 
 class QSqlTablePrivate
 {
 public:
-    QSqlTablePrivate() : ro(TRUE), editorFactory(0), propertyMap(0), view(0) {}
+    QSqlTablePrivate()
+	: nullTxt( "NULL" ),
+	  haveAllRows(FALSE),
+	  continuousEdit(FALSE),
+	  ro(TRUE),
+	  editorFactory(0),
+	  propertyMap(0),
+	  view(0),
+	  insertMode( FALSE ),
+	  insertRow(-1),
+	  insertRowLast(-1),
+	  insertHeaderLabelLast()
+    {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
     QString      nullTxt;
@@ -24,8 +37,11 @@ public:
     QString trueTxt;
     QString falseTxt;
     QSqlView* view;
+    bool insertMode;
+    int insertRow;
+    int insertRowLast;
+    QString insertHeaderLabelLast;
 };
-
 
 /*!
   \class QSqlTable qsqltable.h
@@ -67,6 +83,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     d->propertyMap = new QSqlPropertyMap();
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
+    reset();
     connect( this, SIGNAL( currentChanged( int, int ) ),
 			   SLOT( setCurrentSelection( int, int )));
 }
@@ -147,6 +164,15 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
     }
 }
 
+/*!
+
+  Sets the table's readonly flag to \a b.  Note that if the underlying view cannot
+  be edited, this function will have no effect.
+  
+  \sa setView()
+
+*/
+
 void QSqlTable::setReadOnly( bool b )
 {
     d->ro = b;
@@ -154,17 +180,17 @@ void QSqlTable::setReadOnly( bool b )
 
 bool QSqlTable::isReadOnly() const
 {
-    return d->ro;    
+    return d->ro;
 }
 
 
 /*!
 
   \reimpl
-  
+
   For an editable table, creates an editor suitable for the data type
   in \a row and \a col.
-  
+
   \sa QSqlEditorFactory QSqlPropertyMap
 
 */
@@ -190,10 +216,16 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     int r = currentRow();
     int c = currentColumn();
     QWidget *editorWidget = cellWidget( r, c );
-    d->continuousEdit = FALSE;	        
+    d->continuousEdit = FALSE;
     switch ( e->type() ) {
     case QEvent::KeyPress: {
-	QKeyEvent *ke = (QKeyEvent*)e;	
+	QKeyEvent *ke = (QKeyEvent*)e;
+	if ( ke->key() == Key_Escape && d->insertMode ) 
+	    endInsert();
+	if ( ke->key() == Key_Insert ) {
+	    beginInsert();
+	    return TRUE;
+	}
 	if ( ke->key() == Key_Delete ) {
 	    deleteCurrent();
 	    return TRUE;
@@ -209,7 +241,61 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     default:
 	break;
     }
-    return QTable::eventFilter( o, e );    
+    return QTable::eventFilter( o, e );
+}
+
+
+/*
+  \internal
+  
+*/
+
+void QSqlTable::endInsert()
+{
+    d->insertMode = FALSE;
+    updateRow( d->insertRow );
+    for ( int i = d->insertRow; i < d->insertRowLast; ++i )
+	verticalHeader()->setLabel( i, verticalHeader()->label( i+1 ) );	
+    verticalHeader()->setLabel( d->insertRowLast, d->insertHeaderLabelLast );	
+    d->insertRow = -1;
+    d->insertRowLast = -1;
+    d->insertHeaderLabelLast = QString::null;
+}
+
+bool QSqlTable::beginInsert()
+{
+    QSqlView* vw = d->view;
+    if ( !vw || isReadOnly() || ! numCols() )
+	return FALSE;
+    
+    vw->clearValues();
+    if ( !primeInsert( vw ) )
+	return FALSE;
+    
+    int row = currentRow();
+    ensureCellVisible( row, 0 );            
+    d->insertRow = row;
+    d->insertMode = TRUE;
+    int lastRow = row;
+    int i = 0;
+    int lastY = contentsY() + visibleHeight();
+    for ( i = row; i < numRows() ; ++i ) {
+	QRect cg = cellGeometry( i, 0 );
+	if ( (cg.y()+cg.height()) > lastY ) {
+	    lastRow = i;
+	    break;
+	}
+    }
+    d->insertRowLast = lastRow;
+    d->insertHeaderLabelLast = verticalHeader()->label( d->insertRowLast );
+    for ( i = lastRow; i > row; --i )
+	verticalHeader()->setLabel( i, verticalHeader()->label( i-1 ) );	
+    verticalHeader()->setLabel( row, "*" );
+    
+    updateRow( row );
+    if ( beginEdit( row, 0, FALSE ) ) 
+	setEditMode( Editing, row, 0 );
+    return TRUE;
 }
 
 /*!  Protected virtual method which is called to "prime" the fields of
@@ -218,7 +304,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
   This method should return TRUE if the "prime" was successful and the
   insert should continue.  Returning FALSE will prevent the insert from
   proceeding.  The default implementation returns TRUE.
-  
+
   \sa insertCurrent()
 */
 
@@ -231,16 +317,40 @@ bool QSqlTable::primeInsert( QSqlView* )
   the values of the currently edited "insert" row.  If there is no
   current view or there is no current "insert" row, nothing happens.
   Returns TRUE if the insert succeeded, otherwise FALSE.
-  
+
   \sa primeFields
 */
-    
+
 bool QSqlTable::insertCurrent()
 {
-    // ###
-    if ( isReadOnly() )
+    QSqlView* vw = d->view;
+    if ( !vw || isReadOnly() || ! numCols() )
 	return FALSE;
-    return FALSE;
+    if ( vw->primaryIndex().count() == 0 ) {
+#ifdef CHECK_RANGE	
+	qWarning("QSqlTable::insertCurrent: no primary index for " + vw->name() );
+#endif	
+	return FALSE;
+    }
+    if ( !vw->canInsert() )
+	return FALSE;
+    bool b = d->view->insert();    
+    endInsert();
+    refresh( vw );
+    setCurrentSelection( currentRow(), currentColumn() );
+    return b;
+}
+
+void QSqlTable::updateRow( int row )
+{
+    for ( int i = 0; i < numCols(); ++i ) 
+	updateCell( row, i );
+}
+
+void QSqlTable::columnWidthChanged( int col )
+{
+    qDebug(QString(name()) + "QSqlTable::columnWidthChanged( int col )");
+    QTable::columnWidthChanged(col);
 }
 
 /*!  Protected virtual method which is called to "prime" the fields of
@@ -248,7 +358,7 @@ bool QSqlTable::insertCurrent()
   TRUE if the "prime" was successful and the update should continue.
   Returning FALSE will prevent the update from proceeding.  The
   default implementation returns TRUE.
-  
+
   \sa updateCurrent()
 */
 
@@ -262,24 +372,24 @@ bool QSqlTable::primeUpdate( QSqlView* )
   primary index using the values of the currently selected row.  If
   there is no current view or there is no current selection, nothing
   happens.  Returns TRUE if the update succeeded, otherwise FALSE.
-  
+
   For this method to succeed, the underlying view must have a valid
   primary index to ensure that a unique record is updated within the
   database.
 
 */
-    
+
 bool QSqlTable::updateCurrent()
 {
     QSqlView* vw = d->view;
     if ( !vw || isReadOnly() )
 	return FALSE;
-#ifdef CHECK_RANGE
     if ( vw->primaryIndex().count() == 0 ) {
-	qWarning("QSqlTable::updateCurrent: no primary index");
+#ifdef CHECK_RANGE	
+	qWarning("QSqlTable::updateCurrent: no primary index for " + vw->name() );
+#endif	
 	return FALSE;
     }
-#endif    
     if ( !vw->canUpdate() )
 	return FALSE;
     if ( !primeUpdate( vw ) )
@@ -295,7 +405,7 @@ bool QSqlTable::updateCurrent()
   TRUE if the "prime" was successful and the delete should continue.
   Returning FALSE will prevent the delete from proceeding.  The
   default implementation returns TRUE.
-  
+
   \sa deleteCurrent()
 */
 
@@ -308,7 +418,7 @@ bool QSqlTable::primeDelete( QSqlView* )
   primary index using the values of the currently selected row.  If
   there is no current view or there is no current selection, nothing
   happens.  Returns TRUE if the delete succeeded, otherwise FALSE.
-  
+
   For this method to succeed, the underlying view must have a valid
   primary index to ensure that a unique record is deleted within the
   database.
@@ -319,19 +429,19 @@ bool QSqlTable::deleteCurrent()
     QSqlView* vw = d->view;
     if ( !vw || isReadOnly() )
 	return FALSE;
-#ifdef CHECK_RANGE
     if ( vw->primaryIndex().count() == 0 ) {
-	qWarning("QSqlTable::deleteCurrent: no primary index");
+#ifdef CHECK_RANGE
+	qWarning("QSqlTable::deleteCurrent: no primary index " + vw->name() );
+#endif	
 	return FALSE;
     }
-#endif    
     if ( !vw->canDelete() )
 	return FALSE;
     if ( !primeDelete( vw ) )
 	return FALSE;
     bool b = vw->del( vw->primaryIndex() );
     refresh( vw );
-    setCurrentSelection( currentRow(), currentColumn() );    
+    setCurrentSelection( currentRow(), currentColumn() );
     return b;
 }
 
@@ -344,7 +454,7 @@ bool QSqlTable::deleteCurrent()
 
 void QSqlTable::refresh( QSqlView* view )
 {
-    view->select( view->filter(), view->sort() );    
+    view->select( view->filter(), view->sort() );
     viewport()->repaint();
     setSize( view );
 }
@@ -356,17 +466,22 @@ void QSqlTable::refresh( QSqlView* view )
 
 void QSqlTable::setCellContentFromEditor( int row, int col )
 {
+    qDebug("setCellContentFromEditor( int row, int col )");
     QSqlView* vw = d->view;
     if ( !vw )
 	return;
     QWidget * editor = cellWidget( row, col );
     if ( !editor )
 	return;
-    if ( vw->seek( row ) ) {
-	vw->setValue( indexOf( col ),  d->propertyMap->property( editor ) );
-	if ( !d->continuousEdit )
+    //    if ( vw->seek( row ) ) {
+    vw->setValue( indexOf( col ),  d->propertyMap->property( editor ) );
+    if ( !d->continuousEdit ) {
+	if ( d->insertMode ) 
+	    insertCurrent();
+	else
 	    updateCurrent();
     }
+	//    }
 }
 
 /*!
@@ -446,7 +561,7 @@ void QSqlTable::reset()
     d->haveAllRows = FALSE;
     d->continuousEdit = FALSE;
     d->colIndex.clear();
-    if ( sorting() ) 
+    if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
 }
 
@@ -687,31 +802,74 @@ void QSqlTable::columnClicked ( int col )
 /*!
 
   \reimpl
+  
+  This function is reimplemented to render the cell at \a row, \a col
+  with the value of the corresponding view field.  Otherwise,
+  paintField() is called for the appropriate view field.
 
+  \sa QSqlView::isNull()
 */
 
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    // ###
-    QTable::paintCell(p,row,col,cr,selected);
-    QSql* sql = d->view;
+    QTable::paintCell(p,row,col,cr,selected);  // empty cell
+    if ( d->insertMode )
+	return;
+    QSqlView* sql = d->view;
     if ( !sql )
 	return;
-    if ( sql->seek( row ) ) {
-	QString text;
-	if ( sql->isNull( indexOf(col) ) )
-	    text = nullText();
-	else {
-	    QVariant val = sql->value( indexOf(col) );
-	    text = val.toString();
-	    if ( val.type() == QVariant::Bool )
-		text = val.toBool() ? d->trueTxt : d->falseTxt;
-	}
-	p->drawText( 0,0, cr.width(), cr.height(), AlignLeft + AlignVCenter,
-		     text );
-    }
+    if ( sql->seek( row ) ) 
+	paintField( p, sql->field( indexOf( col ) ), cr, selected );
 }
+
+
+/* Paints the \a field on the painter \a p. The painter has already
+   been translated to the appropriate cell's origin where the \a field
+   is to be rendered. cr describes the cell coordinates in the content
+   coordinate system..
+
+   If you want to draw custom field content you have to reimplement
+  paintField() to do the custom drawing.  The default implementation
+  renders the \a field value as text.  If the field is NULL,
+  nullText() is displayed in the cell.
+
+*/
+
+void QSqlTable::paintField( QPainter * p, const QSqlField* field, const QRect & cr,
+			     bool selected )
+{
+    // ###    
+//     QColorGroup cg = colorGroup();
+//     p->fillRect( 0, 0, cr.width(), cr.height(),
+// 		 selected ? cg.brush( QColorGroup::Highlight )
+// 		          : cg.brush( QColorGroup::Base ) );
+    if ( !field )
+	return;
+    QString text;
+    if ( field->isNull() ) 
+	text = nullText();
+    else {
+	const QVariant val = field->value();
+	text = val.toString();
+	if ( val.type() == QVariant::Bool )
+	    text = val.toBool() ? d->trueTxt : d->falseTxt;
+    }
+    p->drawText( 0,0, cr.width(), cr.height(), fieldAlignment( field ), text );
+}
+
+int QSqlTable::fieldAlignment( const QSqlField* field )
+{
+    bool num;
+    bool ok1 = FALSE, ok2 = FALSE;
+    QString txt = field->value().toString();
+    (void)txt.toInt( &ok1 );
+    if ( !ok1 )
+	(void)txt.toDouble( &ok2 );
+    num = ok1 || ok2;
+    return ( num ? AlignRight : AlignLeft ) | AlignVCenter;
+}
+
 
 /*!  Adds the fields in \a fieldList to the column header.
 */
@@ -748,7 +906,7 @@ void QSqlTable::setSize( const QSql* sql )
 
 /*!
 
-  Displays the \a view in the table.  If autopoulate is TRUE, columns
+  Displays the \a view in the table.  If autopopulate is TRUE, columns
   are automatically created based upon the fields in the \a view.
 
 */
@@ -757,11 +915,13 @@ void QSqlTable::setView( QSqlView* view, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
     reset();
-    d->view = view;
-    if ( autoPopulate )
-	addColumns( *d->view );
-    setSize( d->view );
-    setReadOnly( d->view->isReadOnly() );
+    if ( view ) {
+	d->view = view;
+	if ( autoPopulate )
+	    addColumns( *d->view );
+	setSize( d->view );
+	setReadOnly( d->view->isReadOnly() );
+    }
     setUpdatesEnabled( TRUE );
 }
 
