@@ -2207,18 +2207,6 @@ PropertyList::PropertyList( PropertyEditor *e )
 void PropertyList::resizeEvent( QResizeEvent *e )
 {
     QListView::resizeEvent( e );
-    QSize vs = viewportSize( 0, contentsHeight() );
-
-    int os = header()->sectionSize( 1 );
-    int ns = vs.width() - header()->sectionSize( 0 );
-    if ( ns < 16 )
-	ns = 16;
-	
-    header()->resizeSection( 1, ns );
-    header()->repaint( header()->width() - header()->sectionSize( 1 ), 0, header()->sectionSize( 1 ), header()->height() );
-
-    int elipsis = fontMetrics().width("...") + 10;
-    viewport()->repaint( header()->sectionPos(1) + os - elipsis, 0, elipsis, viewport()->height(), FALSE );
     if ( currentItem() )
 	( ( PropertyItem* )currentItem() )->showEditor();
 }

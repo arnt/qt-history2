@@ -100,6 +100,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 	project( pro )
 {
     header()->setMovingEnabled( FALSE );
+    header()->setFullSize( TRUE );
     setResizePolicy( QScrollView::Manual );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     QPalette p( palette() );
@@ -107,10 +108,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     setPalette( p );
     addColumn( tr( "Form" ) );
     addColumn( tr( "Filename" ) );
-    addColumn( tr( "Changed" ) );
     setAllColumnsShowFocus( TRUE );
-    connect( header(), SIGNAL( sizeChange( int, int, int ) ),
-	     this, SLOT( updateHeader() ) );
     connect( this, SIGNAL( mouseButtonClicked( int, QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( itemClicked( int, QListViewItem * ) ) ),
     connect( this, SIGNAL( rightButtonClicked( QListViewItem *, const QPoint &, int ) ),
@@ -175,8 +173,6 @@ void FormList::setProject( Project *pro )
 	    ++it;
 	}
     }
-
-    updateHeader();
 }
 
 void FormList::addForm( FormWindow *fw )
@@ -198,20 +194,13 @@ void FormList::addForm( FormWindow *fw )
     if ( !project )
 	return;
     project->addUiFile( fn, fw );
-    updateHeader();
 }
 
-void FormList::modificationChanged( bool m, FormWindow *fw )
+void FormList::modificationChanged( bool, FormWindow *fw )
 {
     FormListItem *i = findItem( fw );
-    if ( i ) {
-    	QString s;
-    	if ( m )
-      	s = tr( "*" );
-      else
-        s = tr( "" );
-    	i->setText( 2, s );
-    }
+    if ( i )
+	i->repaint();
 }
 
 void FormList::fileNameChanged( const QString &fn, FormWindow *fw )
@@ -263,29 +252,6 @@ void FormList::closed( FormWindow *fw )
 	i->setFormWindow( 0 );
 	i->repaint();
     }
-}
-
-void FormList::resizeEvent( QResizeEvent *e )
-{
-    QListView::resizeEvent( e );
-    QSize vs = viewportSize( 0, contentsHeight() );
-
-    int ns = vs.width() - header()->sectionSize( 0 ) - header()->sectionSize( 2 );
-    if ( ns < 16 )
-	ns = 16;
-	
-    header()->resizeSection( 1, ns );
-    header()->repaint( FALSE );
-
-    viewport()->repaint( FALSE );
-}
-
-void FormList::updateHeader()
-{
-    QSize s( header()->sectionPos( 2 ) + header()->sectionSize( 1 ), height() );
-    QResizeEvent e( s, size() );
-    resizeEvent( &e );
-    viewport()->repaint( s.width(), 0, width() - s.width(), height(), FALSE );
 }
 
 void FormList::closeEvent( QCloseEvent *e )

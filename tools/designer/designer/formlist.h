@@ -72,14 +72,12 @@ public slots:
     void nameChanged( FormWindow *fw );
 
 protected:
-    void resizeEvent( QResizeEvent *e );
     void closeEvent( QCloseEvent *e );
-    
+
 signals:
     void hidden();
 
 private slots:
-    void updateHeader();
     void itemClicked( int, QListViewItem *i );
     void rmbClicked( QListViewItem *i );
 

@@ -79,14 +79,12 @@ public slots:
     void removeTabPage();
 
 private:
-    void resizeEvent( QResizeEvent *e );
     void insertObject( QObject *o, QListViewItem *parent );
     QWidget *findWidget( QListViewItem *i );
     QListViewItem *findItem( QWidget *w );
     QWidget *current() const;
 
 private slots:
-    void updateHeader();
     virtual void objectClicked( QListViewItem *i );
     virtual void showRMBMenu( QListViewItem *, const QPoint & );
 

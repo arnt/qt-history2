@@ -112,6 +112,7 @@ HierarchyList::HierarchyList( QWidget *parent, HierarchyView *view, bool doConne
     : QListView( parent ), hierarchyView( view )
 {
     header()->setMovingEnabled( FALSE );
+    header()->setFullSize( TRUE );
     normalMenu = 0;
     tabWidgetMenu = 0;
     addColumn( tr( "Name" ) );
@@ -125,8 +126,6 @@ HierarchyList::HierarchyList( QWidget *parent, HierarchyView *view, bool doConne
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
     if ( doConnects ) {
-	connect( header(), SIGNAL( sizeChange( int, int, int ) ),
-		 this, SLOT( updateHeader() ) );
 	connect( this, SIGNAL( clicked( QListViewItem * ) ),
 		 this, SLOT( objectClicked( QListViewItem * ) ) );
 	connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
@@ -247,43 +246,6 @@ void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
 #endif
 }
 
-void HierarchyList::resizeEvent( QResizeEvent *e )
-{
-    QListView::resizeEvent( e );
-    int lastSection = 1; // normal view
-    if ( inherits( "FunctionList" ) ) {
-	header()->resizeSection( 0, e->size().width() );
-	header()->repaint( FALSE );
-	viewport()->repaint( FALSE );
-	return;
-    }
-    QSize vs = viewportSize( 0, contentsHeight() );
-
-#if defined(QT_MODULE_SQL)
-    if ( hierarchyView->formWindow() && hierarchyView->formWindow()->isDatabaseAware() )
-	lastSection = 2; // database view
-    // make lastSection visible, if nec
-    if ( header()->sectionPos( lastSection ) > vs.width() )
-	header()->resizeSection( lastSection-1, 80 );
-#endif
-
-    int os = header()->sectionSize( 1 );
-    int ns = vs.width() - header()->sectionSize( 0 );
-#if defined(QT_MODULE_SQL)
-    if ( hierarchyView->formWindow() && hierarchyView->formWindow()->isDatabaseAware() )
-	ns -= header()->sectionSize( 1 );
-#endif
-
-    if ( ns < 16 )
-	ns = 16;
-
-    header()->resizeSection( lastSection, ns );
-    header()->repaint( header()->width() - header()->sectionSize( lastSection ), 0, header()->sectionSize( lastSection ), header()->height() );
-
-    int elipsis = fontMetrics().width("...") + 10;
-    viewport()->repaint( header()->sectionPos(lastSection) + os - elipsis, 0, elipsis, viewport()->height(), FALSE );
-}
-
 void HierarchyList::setup()
 {
     clear();
@@ -304,21 +266,11 @@ void HierarchyList::setup()
 #endif
     if ( w )
 	insertObject( w, 0 );
-    updateHeader();
 }
 
 void HierarchyList::setOpen( QListViewItem *i, bool b )
 {
     QListView::setOpen( i, b );
-}
-
-void HierarchyList::updateHeader()
-{
-    int w = header()->sectionPos(1) + header()->sectionSize(1);
-    QSize s( w, height() );
-    QResizeEvent e( s, size() );
-    resizeEvent( &e );
-    viewport()->repaint( s.width(), 0, width() - s.width(), height(), FALSE );
 }
 
 void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
