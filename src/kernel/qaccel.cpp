@@ -550,12 +550,6 @@ QKeySequence QAccel::shortcutKey( const QString &str )
     return QKeySequence(0);
 }
 
-
-#ifdef Q_WS_MAC
-#define QMAC_CTRL (QString(QChar(0x2318)))
-#define QMAC_ALT  (QString(QChar(0x2325)))
-#endif
-
 /*! \obsolete
 
    Creates an accelerator string for the key \a k.

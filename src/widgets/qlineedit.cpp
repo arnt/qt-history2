@@ -58,6 +58,13 @@
 #include "qaccessible.h"
 #endif
 
+#ifndef QT_NO_ACCEL
+#include <qkeysequence.h>
+#define ACCEL_KEY(k) "\t" + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
+#else
+#define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
+#endif
+
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
     UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) {
@@ -2068,20 +2075,20 @@ QPopupMenu *QLineEdit::createPopupMenu()
 {
 #ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( 0, "qt_edit_menu" );
-    d->id[ IdUndo ] = popup->insertItem( tr( "&Undo\tCtrl+Z" ) );
-    d->id[ IdRedo ] = popup->insertItem( tr( "&Redo\tCtrl+Y" ) );
+    d->id[ IdUndo ] = popup->insertItem( tr( "&Undo" ) + ACCEL_KEY( Z ) );
+    d->id[ IdRedo ] = popup->insertItem( tr( "&Redo" ) + ACCEL_KEY( Y ) );
     popup->insertSeparator();
 #ifndef QT_NO_CLIPBOARD
-    d->id[ IdCut ] = popup->insertItem( tr( "Cu&t\tCtrl+X" ) );
-    d->id[ IdCopy ] = popup->insertItem( tr( "&Copy\tCtrl+C" ) );
-    d->id[ IdPaste ] = popup->insertItem( tr( "&Paste\tCtrl+V" ) );
+    d->id[ IdCut ] = popup->insertItem( tr( "Cu&t" ) + ACCEL_KEY( X ) );
+    d->id[ IdCopy ] = popup->insertItem( tr( "&Copy" ) + ACCEL_KEY( C ) );
+    d->id[ IdPaste ] = popup->insertItem( tr( "&Paste" ) + ACCEL_KEY( V ) );
 #endif
     d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
     popup->insertSeparator();
 #if defined(Q_WS_X11)
     d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
 #else
-    d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All\tCtrl+A" ) );
+    d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) + ACCEL_KEY( A ) );
 #endif
     bool enableUndo = !d->readonly && d->parag->commands()->isUndoAvailable();
     popup->setItemEnabled( d->id[ IdUndo ], enableUndo );

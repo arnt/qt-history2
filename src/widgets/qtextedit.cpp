@@ -63,6 +63,13 @@
 #include "qregexp.h"
 #include "qpopupmenu.h"
 
+#ifndef QT_NO_ACCEL
+#include <qkeysequence.h>
+#define ACCEL_KEY(k) QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
+#else
+#define ACCEL_KEY(k) QString("Ctrl+" #k)
+#endif
+
 struct QUndoRedoInfoPrivate
 {
     QTextString text;
@@ -3946,16 +3953,16 @@ QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 #ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
     if ( !isReadOnly() ) {
-	d->id[ IdUndo ] = popup->insertItem( tr( "&Undo\tCtrl+Z" ) );
-	d->id[ IdRedo ] = popup->insertItem( tr( "&Redo\tCtrl+Y" ) );
+	d->id[ IdUndo ] = popup->insertItem( tr( "&Undo" ) + ACCEL_KEY( Z ) );
+	d->id[ IdRedo ] = popup->insertItem( tr( "&Redo" ) + ACCEL_KEY( Y ) );
 	popup->insertSeparator();
     }
 #ifndef QT_NO_CLIPBOARD
     if ( !isReadOnly() )
-	d->id[ IdCut ] = popup->insertItem( tr( "Cu&t\tCtrl+X" ) );
-    d->id[ IdCopy ] = popup->insertItem( tr( "&Copy\tCtrl+C" ) );
+	d->id[ IdCut ] = popup->insertItem( tr( "Cu&t" ) + ACCEL_KEY( X ) );
+    d->id[ IdCopy ] = popup->insertItem( tr( "&Copy" ) + ACCEL_KEY( C ) );
     if ( !isReadOnly() )
-	d->id[ IdPaste ] = popup->insertItem( tr( "&Paste\tCtrl+V" ) );
+	d->id[ IdPaste ] = popup->insertItem( tr( "&Paste" ) + ACCEL_KEY( V ) );
 #endif
     if ( !isReadOnly() ) {
 	d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
@@ -3964,7 +3971,7 @@ QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 #if defined(Q_WS_X11)
     d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
 #else
-    d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All\tCtrl+A" ) );
+    d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) + ACCEL_KEY( A ) );
 #endif
     popup->setItemEnabled( d->id[ IdUndo ], !isReadOnly() && doc->commands()->isUndoAvailable() );
     popup->setItemEnabled( d->id[ IdRedo ], !isReadOnly() && doc->commands()->isRedoAvailable() );

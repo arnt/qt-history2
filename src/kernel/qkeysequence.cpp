@@ -43,6 +43,11 @@
 #include "qshared.h"
 #include "qvaluelist.h"
 
+#ifdef Q_WS_MAC
+#define QMAC_CTRL (QString(QChar(0x2318)))
+#define QMAC_ALT  (QString(QChar(0x2325)))
+#endif
+
 /*!
   \class QKeySequence qkeysequence.h
   \brief The QKeySequence class encapsulates a key sequence as used by accelerators.
