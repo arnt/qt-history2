@@ -1362,6 +1362,7 @@
         <separator/>
         <action name="fileExitAction"/>
     </item>
+    <separator/>
     <item text="&amp;Help" name="PopupMenu_2">
         <action name="helpAboutAction"/>
         <action name="helpAboutQtAction"/>
