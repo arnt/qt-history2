@@ -1,42 +1,66 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainWindow</class>
-<include location="local" impldecl="in declaration">finddialog.h</include>
-<include location="global" impldecl="in declaration">qmap.h</include>
-<include location="global" impldecl="in declaration">qguardedptr.h</include>
-<include location="global" impldecl="in implementation">qtoolbutton.h</include>
-<include location="local" impldecl="in implementation">settingsdialogimpl.h</include>
-<include location="global" impldecl="in implementation">qmessagebox.h</include>
-<include location="global" impldecl="in implementation">qfontdatabase.h</include>
-<include location="global" impldecl="in implementation">qaccel.h</include>
-<include location="global" impldecl="in implementation">qcombobox.h</include>
-<include location="global" impldecl="in implementation">qpaintdevicemetrics.h</include>
-<include location="global" impldecl="in implementation">qsimplerichtext.h</include>
-<include location="global" impldecl="in implementation">qfileinfo.h</include>
-<include location="global" impldecl="in implementation">qtextstream.h</include>
-<include location="global" impldecl="in implementation">qdockwindow.h</include>
-<include location="global" impldecl="in implementation">stdlib.h</include>
-<include location="global" impldecl="in implementation">qmime.h</include>
-<include location="local" impldecl="in implementation">helpwindow.h</include>
-<include location="global" impldecl="in implementation">qstylesheet.h</include>
-<include location="global" impldecl="in implementation">qapplication.h</include>
-<include location="local" impldecl="in implementation">helpdialogimpl.h</include>
-<include location="global" impldecl="in implementation">qdir.h</include>
-<include location="global" impldecl="in implementation">qprinter.h</include>
-<include location="global" impldecl="in implementation">qpainter.h</include>
-<include location="global" impldecl="in implementation">qurl.h</include>
-<include location="global" impldecl="in implementation">qstatusbar.h</include>
-<include location="global" impldecl="in implementation">qlineedit.h</include>
-<include location="global" impldecl="in implementation">qsettings.h</include>
-<include location="global" impldecl="in implementation">qcheckbox.h</include>
-<include location="local" impldecl="in implementation">mainwindow.ui.h</include>
-<forward>class SettingsDialog;</forward>
-<forward>class HelpWindow;</forward>
-<forward>class HelpDialog;</forward>
-<variable>SettingsDialog * settings;</variable>
-<variable>QMap&lt;int, QString&gt; bookmarks;</variable>
-<variable>HelpWindow *browser;</variable>
-<variable>HelpDialog *helpDock;</variable>
-<variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
+<includes>
+    <include location="local" impldecl="in declaration">finddialog.h</include>
+    <include location="global" impldecl="in declaration">qmap.h</include>
+    <include location="global" impldecl="in declaration">qguardedptr.h</include>
+    <include location="global" impldecl="in implementation">qtoolbutton.h</include>
+    <include location="local" impldecl="in implementation">settingsdialogimpl.h</include>
+    <include location="global" impldecl="in implementation">qmessagebox.h</include>
+    <include location="global" impldecl="in implementation">qfontdatabase.h</include>
+    <include location="global" impldecl="in implementation">qaccel.h</include>
+    <include location="global" impldecl="in implementation">qcombobox.h</include>
+    <include location="global" impldecl="in implementation">qpaintdevicemetrics.h</include>
+    <include location="global" impldecl="in implementation">qsimplerichtext.h</include>
+    <include location="global" impldecl="in implementation">qfileinfo.h</include>
+    <include location="global" impldecl="in implementation">qtextstream.h</include>
+    <include location="global" impldecl="in implementation">qdockwindow.h</include>
+    <include location="global" impldecl="in implementation">stdlib.h</include>
+    <include location="global" impldecl="in implementation">qmime.h</include>
+    <include location="local" impldecl="in implementation">helpwindow.h</include>
+    <include location="global" impldecl="in implementation">qstylesheet.h</include>
+    <include location="global" impldecl="in implementation">qapplication.h</include>
+    <include location="local" impldecl="in implementation">helpdialogimpl.h</include>
+    <include location="global" impldecl="in implementation">qdir.h</include>
+    <include location="global" impldecl="in implementation">qprinter.h</include>
+    <include location="global" impldecl="in implementation">qpainter.h</include>
+    <include location="global" impldecl="in implementation">qurl.h</include>
+    <include location="global" impldecl="in implementation">qstatusbar.h</include>
+    <include location="global" impldecl="in implementation">qlineedit.h</include>
+    <include location="global" impldecl="in implementation">qsettings.h</include>
+    <include location="global" impldecl="in implementation">qcheckbox.h</include>
+    <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
+</includes>
+<forwards>
+    <forward>class SettingsDialog;</forward>
+    <forward>class HelpWindow;</forward>
+    <forward>class HelpDialog;</forward>
+</forwards>
+<variables>
+    <variable>SettingsDialog * settings;</variable>
+    <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
+    <variable>HelpWindow *browser;</variable>
+    <variable>HelpDialog *helpDock;</variable>
+    <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
+</variables>
+<slots>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">about()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">aboutQt()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">find()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">goHome()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">showLinguistHelp()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">print()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setupBookmarkMenu()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">showBookmark( int id )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">showDesignerHelp()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">showLink( const QString &amp; link, const QString &amp; title )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">showQtHelp()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setFamily( const QString &amp; f )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">showSettingsDialog()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">hide()</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QMainWindow">
     <property name="name">
@@ -324,6 +348,9 @@
         <property name="text">
             <string>&amp;Settings</string>
         </property>
+        <property name="menuText">
+            <string>&amp;Settings...</string>
+        </property>
     </action>
 </actions>
 <images>
@@ -416,21 +443,5 @@
         <receiver>MainWindow</receiver>
         <slot>showSettingsDialog()</slot>
     </connection>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">about()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">aboutQt()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">find()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">goHome()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showLinguistHelp()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">print()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">setupBookmarkMenu()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showBookmark( int id )</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showDesignerHelp()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showLink( const QString &amp; link, const QString &amp; title )</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">showQtHelp()</slot>
-    <slot access="public" specifier="virtual" language="C++" returnType="void">setFamily( const QString &amp; f )</slot>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">showSettingsDialog()</slot>
-    <slot access="Public" specifier="virtual" language="C++" returnType="void">hide()</slot>
 </connections>
 </UI>
