@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#64 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#63 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#64 $")
 
 
 /*----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void QPushButton::toggle()
 {
     if ( !isToggleButton() )
 	return;
-    QButton::setOn( isOn() );
+    QButton::setOn( !isOn() );
 }
 
 
