@@ -70,6 +70,9 @@ QTextStream (rms)
 QWorkspace (vohi)
   Support focusPolicy() for mdi clients to prevent them becoming the active window
 
+QTabWidget
+  QWidget *page( int pos) function like in QWizard
+
 Feature Requests
 ----------------
 
