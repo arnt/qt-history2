@@ -72,7 +72,42 @@ QColormap::QColormap( QWidget * w, const char * name )
     if ( !w ) 
 	return;
 	
-    d->map = 0;
+    bool validVisual = FALSE;
+    int  numVisuals;
+    long mask;
+    XVisualInfo templ;
+    XVisualInfo *visuals;
+    VisualID id = XVisualIDFromVisual( (Visual *) w->x11Visual() );
+    
+    mask = VisualScreenMask;
+    templ.screen = w->x11Screen();
+    visuals = XGetVisualInfo( w->x11Display(), mask, &templ, &numVisuals );
+    
+    for ( int i = 0; i < numVisuals; i++ ) {
+	if ( visuals[i].visualid == id ) {
+	    switch ( visuals[i].c_class ) {
+		case TrueColor:
+		case StaticColor:
+		case StaticGray:
+		    validVisual = FALSE;
+		    break;
+		case DirectColor:
+		case PseudoColor:
+		case GrayScale:
+		    validVisual = TRUE;
+		    break;
+	    }
+	    break;
+	}
+    } 
+    XFree( visuals );
+
+    if ( !validVisual ) {
+	qWarning( "QColormap: Cannot create a read/write "
+		  "colormap for this visual (ID = 0x%x).", (uint) id );
+	return;
+    }
+    
     d->map = XCreateColormap( w->x11Display(), w->topLevelWidget()->winId(),
 			      (Visual *) w->x11Visual(), AllocAll );
     if ( d->map ) {
@@ -135,15 +170,14 @@ void QColormap::detach()
 }
 
 void QColormap::setRgb( int idx, QRgb color )
-{    
-#if defined(QT_CHECK_RANGE)
+{
     if ( !d->valid ) {
-	qWarning( "QColormap::setRgb: Not a valid colormap" );
 	return;
     }
-    
+
+#if defined(QT_CHECK_RANGE)    
     if ( idx < 0 || idx > d->size ) {
-	qWarning( "QColormap::setRgb: Index out of range" );
+	qWarning( "QColormap::setRgb: Index out of range." );
 	return;
     }
 #endif
@@ -189,3 +223,4 @@ int QColormap::size() const
 {
     return d->size;
 }
+
