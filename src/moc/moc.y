@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#23 $
+** $Id: //depot/qt/main/src/moc/moc.y#24 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#24 $";
 #endif
 
 
@@ -661,13 +661,8 @@ void generate()                                 // generate C++ source code
         fprintf( out, "\n\n" );
 
 //
-// Special class is needed to make tricks with access privileges
+// Generate virtual function className()
 //
-/*
-    fprintf( out, "class QObject__%s : public QObject\n{\npublic:",
-             (pcchar)className );
-    fprintf( out, "\n    void setSender( QObject *s ) { sender=s; }\n};\n\n" );
-*/
     fprintf( out, "char *%s::className() const\n{\n    ", (pcchar)className );
     fprintf( out, "return \"%s\";\n}\n\n", (pcchar)className );
 
@@ -680,6 +675,7 @@ void generate()                                 // generate C++ source code
 // Generate initMetaObject member function
 //
     fprintf( out, "void %s::initMetaObject()\n{\n", (pcchar)className );
+    fprintf( out, "    if ( metaObj )\n\treturn;\n" );
 
 //
 // Build methods array in initMetaObject()
@@ -764,18 +760,6 @@ void generate()                                 // generate C++ source code
 		      "(QSenderObject*)c->object();\n", (pcchar)className );
         fprintf( out, "    object->setSender( this );\n" );
         fprintf( out, "    (object->*r)(%s);\n}\n", (pcchar)valstr );
-/*
-        fprintf( out, "    Part_%s *owner = (Part_%s*)getOwner();\n",
-                 (pcchar)className, (pcchar)className );
-//      fprintf( out, "    Part *owner = getOwner();\n" );
-        fprintf( out, "    owner->setSender(this);\n" );
-        fprintf( out, "    SPListIter it(*list);\n" );
-        fprintf( out, "    while ( it ) {\n" );
-        fprintf( out, "\tPPS p = (PPS)(*it.get());\n" );
-        fprintf( out, "\t(owner->*p)(%s);\n", (pcchar)valstr );
-        fprintf( out, "\t++it;\n    }\n" );
-        fprintf( out, "}\n\n" );
-*/
         f = signals.next();
     }
 
