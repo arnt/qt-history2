@@ -802,18 +802,18 @@ int QStyleSheetItem::lineSpacing() const
 	  sentences. The QTextBrowser will then keep the current page
 	  and display the new document in a small popup similar to
 	  QWhatsThis. Note that links will not work in documents with
-	  \c{<qt type=\"detail\">...</qt>}.
+	  \c{<qt type="detail">...</qt>}.
 	\i bgcolor
-	- The background color, for example \c bgcolor=\"yellow\" or \c
-	  bgcolor=\"#0000FF\".
+	- The background color, for example \c bgcolor="yellow" or \c
+	  bgcolor="#0000FF".
 	\i background
 	- The background pixmap, for example \c
-	  background=\"granit.xpm\". The pixmap name will be resolved by
+	  background="granit.xpm". The pixmap name will be resolved by
 	  a QMimeSourceFactory().
 	\i text
-	- The default text color, for example \c text=\"red\".
+	- The default text color, for example \c text="red".
 	\i link
-	- The link color, for example \c link=\"green\".
+	- The link color, for example \c link="green".
 	\endlist
     \i \c{<h1>...</h1>}
 	- A top-level heading.
@@ -835,8 +835,8 @@ int QStyleSheetItem::lineSpacing() const
 	types are \c circle and \c square.
     \i \c{<ol>...</ol>}
 	- An ordered list. You can also pass a type argument to define
-	the enumeration label style. The default is \c type=\"1\"; other
-	types are \c \"a\" and \c \"A\".
+	the enumeration label style. The default is \c type="1"; other
+	types are \c "a" and \c "A".
     \i <tt>&lt;li&gt;</tt>...<tt>&lt;/li&gt;</tt>
 	- A list item. This tag can be used only within the context of
 	\c ol or \c ul.
@@ -852,7 +852,7 @@ int QStyleSheetItem::lineSpacing() const
 	  href attribute of the tag as in \c{<a
 	  href="target.qml">...</a>}. You can also specify an
 	  additional anchor within the specified target document, for
-	  example \c{<a href=\"target.qml#123\">...</a>}. If \c a is
+	  example \c{<a href="target.qml#123">...</a>}. If \c a is
 	  meant to be an anchor, the reference source is given in the
 	  \c name attribute.
   \endlist
@@ -886,7 +886,7 @@ int QStyleSheetItem::lineSpacing() const
 	the following  attributes:
 	\list
 	\i color
-	- The text color, for example \c color=\"red\" or \c color=\"#FF0000\".
+	- The text color, for example \c color="red" or \c color="#FF0000".
 	\i size
 	- The logical size of the font. Logical sizes 1 to 7 are supported.
 	 The value may either be absolute (for example,
@@ -902,7 +902,7 @@ int QStyleSheetItem::lineSpacing() const
     \i \c{<img>}
 	- An image. The image name for the mime source
 	factory is given in the source attribute, for example
-	\c{<img src=\"qt.xpm\">}
+	\c{<img src="qt.xpm">}
 	The image tag also understands the attributes \c width and \c
 	height that determine the size of the image. If the pixmap
 	does not fit the specified size it will be scaled
