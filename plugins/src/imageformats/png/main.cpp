@@ -1,50 +1,30 @@
 #ifndef QT_CLEAN_NAMESPACE
 #define QT_CLEAN_NAMESPACE
 #endif
-#include <qimageformatinterface.h>
+#include <qimageformatplugin.h>
 
 #ifdef QT_NO_IMAGEIO_PNG
 #undef QT_NO_IMAGEIO_PNG
 #endif
 #include "../../../../src/kernel/qpngio.cpp"
 
-class PNGFormat : public QImageFormatInterface
+class PNGFormat : public QImageFormatPlugin
 {
 public:
     PNGFormat();
 
-    QRESULT queryInterface( const QUuid &, QUnknownInterface ** );
-    Q_REFCOUNT;
-
-    QStringList featureList() const;
-
-    QRESULT loadImage( const QString &format, const QString &filename, QImage * );
-    QRESULT saveImage( const QString &format, const QString &filename, const QImage& );
-
-    QRESULT installIOHandler( const QString & );
+    QStringList keys() const;
+    bool loadImage( const QString &format, const QString &filename, QImage * );
+    bool saveImage( const QString &format, const QString &filename, const QImage& );
+    bool installIOHandler( const QString & );
 };
 
 PNGFormat::PNGFormat()
 {
 }
 
-QRESULT PNGFormat::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
-{
-    *iface = 0;
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QImageFormat )
-	*iface = (QImageFormatInterface*)this;
-    else 
-	return QE_NOINTERFACE;
 
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList PNGFormat::featureList() const
+QStringList PNGFormat::keys() const
 {
     QStringList list;
     list << "PNG";
@@ -52,10 +32,10 @@ QStringList PNGFormat::featureList() const
     return list;
 }
 
-QRESULT PNGFormat::loadImage( const QString &format, const QString &filename, QImage *image )
+bool PNGFormat::loadImage( const QString &format, const QString &filename, QImage *image )
 {
     if ( format != "PNG" )
-	return QE_INVALIDARG;
+	return FALSE;
 
     QImageIO io;
     io.setFileName( filename );
@@ -63,13 +43,13 @@ QRESULT PNGFormat::loadImage( const QString &format, const QString &filename, QI
 
     read_png_image( &io );
 
-    return QS_OK;
+    return TRUE;
 }
 
-QRESULT PNGFormat::saveImage( const QString &format, const QString &filename, const QImage &image )
+bool PNGFormat::saveImage( const QString &format, const QString &filename, const QImage &image )
 {
     if ( format != "PNG" )
-	return QE_INVALIDARG;
+	return FALSE;
 
     QImageIO io;
     io.setFileName( filename );
@@ -77,19 +57,16 @@ QRESULT PNGFormat::saveImage( const QString &format, const QString &filename, co
 
     write_png_image( &io );
 
-    return QS_OK;
+    return TRUE;
 }
 
-QRESULT PNGFormat::installIOHandler( const QString &name )
+bool PNGFormat::installIOHandler( const QString &name )
 {
     if ( name != "PNG" ) 
-	return QE_INVALIDARG;
+	return FALSE;
 
     qInitPngIO();
-    return QS_OK;
+    return TRUE;
 }
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( PNGFormat )
-}
+Q_EXPORT_PLUGIN( PNGFormat )
