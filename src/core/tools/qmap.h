@@ -799,6 +799,20 @@ Q_OUTOFLINE_TEMPLATE  std::map<Key, T> QMap<Key, T>::toStdMap() const
 
 #endif // QT_NO_STL
 
+#ifndef QT_NO_DEBUG_OUTPUT
+template <class aKey, class aT>
+Q_OUTOFLINE_TEMPLATE QDebug operator<<(QDebug dbg, const QMap<aKey, aT> &map)
+{
+    dbg.nospace() << "QMap(";
+    for (typename QMap<aKey, aT>::const_iterator it = map.constBegin();
+         it != map.constEnd(); ++it) {
+        dbg.nospace() << "(" << it.key() << "," << it.value() << ")";
+    }
+    dbg.nospace() << ")";
+    return dbg.space();
+}
+#endif
+
 template <class Key, class T>
 class QMultiMap : public QMap<Key, T>
 {
