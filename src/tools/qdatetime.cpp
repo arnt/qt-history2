@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#59 $
 **
 ** Implementation of date and time classes
 **
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#59 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -266,7 +266,8 @@ QDate QDate::addDays( int ndays ) const
 }
 
 /*!
-  Returns the number of days between this date and \e e.
+  Returns the number of days from this date to \a d, which is negative
+  if \a d is in the past.
 
   Example:
   \code
@@ -566,8 +567,13 @@ QTime QTime::addSecs( int nsecs ) const
 }
 
 /*!
-  Returns the number of seconds between this time and \e t.
-  \sa addSecs()
+  Returns the number of seconds from this time to \a t (which is
+  negative if \a t is in the past).
+  
+  Since QTime measures time within a day and there are 86400 seconds
+  in a day, the result is between -86400 and 86400.
+
+  \sa addSecs() QDateTime::secsTo()
 */
 
 int QTime::secsTo( const QTime &t ) const
@@ -909,7 +915,9 @@ QDateTime QDateTime::addSecs( int nsecs ) const
 }
 
 /*!
-  Returns the number of days between this datetime and \e dt.
+  Returns the number of days from this datetime to \a dt, which is
+  negaitive if \a dt is in the past.
+  
   \sa addDays() secsTo()
 */
 
@@ -919,7 +927,8 @@ int QDateTime::daysTo( const QDateTime &dt ) const
 }
 
 /*!
-  Returns the number of seconds between this datetime and \e dt.
+  Returns the number of seconds from this datetime to \a dt, which is
+  negative if \a t is in the past.
 
   Example:
   \code
@@ -928,7 +937,7 @@ int QDateTime::daysTo( const QDateTime &dt ) const
     debug( "There are %d seconds to Christmas", dt.secsTo(x) );
   \endcode
 
-  \sa addSecs() daysTo()
+  \sa addSecs() daysTo() QTime::secsTo()
 */
 
 int QDateTime::secsTo( const QDateTime &dt ) const
