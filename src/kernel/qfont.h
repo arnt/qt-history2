@@ -252,7 +252,6 @@ private:
     HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
 #endif
 
-    friend class QFontInternal;
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;

@@ -67,7 +67,6 @@ struct QFontDef {
 	  fixedPitch(FALSE), hintSetByUser(FALSE), rawMode(FALSE), dirty(TRUE)
     { ; }
 
-
     QString family;
 
     short pointSize;
@@ -90,7 +89,6 @@ struct QFontDef {
 
 
 class QTextCodec;
-
 
 #ifdef Q_WS_X11
 
@@ -146,6 +144,9 @@ public:
 
 #endif // Q_WS_WIN
 
+#ifdef Q_WS_QWS
+class QFontStruct;
+#endif
 
 typedef QCacheIterator<QFontStruct> QFontCacheIterator;
 class QFontCache : public QObject, public QCache<QFontStruct>
@@ -283,9 +284,9 @@ public:
 	
 	charsetcompat = fp.charsetcompat;
 	
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 	fin = 0;
-#endif // Q_WS_WIN
+#endif // Q_WS_WIN || Q_WS_QWS
 	
     }
 
@@ -397,6 +398,11 @@ public:
 	QFontStruct *fin;
 #endif // Q_WS_WIN
 
+#ifdef Q_WS_QWS
+    ~QFontPrivate();
+    void load();
+    QFontStruct *fin;
+#endif
     // source compatibility for QFont
     QFont::CharSet charsetcompat;
 

@@ -1310,6 +1310,7 @@ QString QFont::key() const
 /*! \internal
   Internal function that dumps font cache statistics.
 */
+#ifndef Q_WS_QWS
 void QFont::cacheStatistics()
 {
 
@@ -1333,7 +1334,7 @@ void QFont::cacheStatistics()
 #endif
 
 }
-
+#endif
 
 
 
@@ -2117,7 +2118,7 @@ bool QFontInfo::exactMatch() const
 
 
 
-
+#ifndef Q_WS_QWS
 // **********************************************************************
 // QFontCache
 // **********************************************************************
@@ -2297,7 +2298,7 @@ void QFontCache::timerEvent(QTimerEvent *)
 #endif // QFONTCACHE_DEBUG
 
 }
-
+#endif
 
 
 // **********************************************************************

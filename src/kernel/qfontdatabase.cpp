@@ -1914,14 +1914,10 @@ void QFontDatabase::createDatabase()
         qdf=qt_fontmanager->diskfonts.next()) {
         QString familyname=qdf->name;
         QtFontFamily * family=foundry->familyDict.find(familyname);
-        QtFontCharSet * mycharset;
         if(!family) {
             family=new QtFontFamily(foundry,familyname);
             foundry->addFamily(family);
-            mycharset=new QtFontCharSet(family,"iso646");
-            family->addCharSet(mycharset);
         }
-        mycharset=family->charSetDict.find("iso646");
         QString weightString;
         int weight=qdf->weight;
         if ( weight <= QFont::Light ) {
@@ -1946,15 +1942,15 @@ void QFontDatabase::createDatabase()
         } else {
             style=weightString;
         }
-        QtFontStyle * mystyle=mycharset->styleDict.find(style);
+        QtFontStyle * mystyle=family->styleDict.find(style);
         if(!mystyle) {
-            mystyle=new QtFontStyle(mycharset,style);
+            mystyle=new QtFontStyle(family,style);
             mystyle->ital=qdf->italic;
             mystyle->lesserItal=false;
             mystyle->weightString=weightString;
             mystyle->weightVal=weight;
             mystyle->weightDirty=false;
-            mycharset->addStyle(mystyle);
+            family->addStyle(mystyle);
         }
         mystyle->setSmoothlyScalable();
     }

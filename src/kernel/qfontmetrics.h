@@ -43,7 +43,7 @@
 #include "qrect.h"
 #endif // QT_H
 
-
+class QFontStruct;
 class QTextCodec;
 class QTextParag;
 
@@ -98,7 +98,7 @@ private:
     void   *textMetric() const;
     HDC	    hdc() const;
 #elif defined(Q_WS_QWS)
-    QFontInternal *internal();
+    QFontStruct *internal();
 #endif
 
     friend class QWidget;

@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <qshared.h>
 #include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
 
@@ -67,11 +68,11 @@ public:
   are shared between all QFonts.
  *****************************************************************************/
 
-class QFontInternal
+class QFontStruct : public QShared
 {
 public:
-    QFontInternal( const QFontDef& );
-   ~QFontInternal();
+    QFontStruct( const QFontDef& );
+   ~QFontStruct();
     const QFontDef *spec()  const;
     void	    reset();
     bool	    dirty() const;
@@ -84,46 +85,227 @@ public:
     int leading() const { return memorymanager->fontLeading(id); }
     int maxWidth() const { return memorymanager->fontMaxWidth(id); }
 
-private:
     QFontDef s;
     QMemoryManager::FontID id;
+    int cache_cost;
 };
+
 
 extern bool qws_smoothfonts; //in qapplication_qws.cpp
 
-inline QFontInternal::QFontInternal( const QFontDef& d )
+inline QFontStruct::QFontStruct( const QFontDef& d )
 {
     s = d;
     id = memorymanager->findFont(d);
 }
 
-bool QFontInternal::dirty() const
+bool QFontStruct::dirty() const
 {
     return FALSE;
 }
 
-inline const QFontDef *QFontInternal::spec() const
+inline const QFontDef *QFontStruct::spec() const
 {
     return &s;
 }
 
-inline void QFontInternal::reset()
+inline void QFontStruct::reset()
 {
 }
 
-inline QFontInternal::~QFontInternal()
+inline QFontStruct::~QFontStruct()
 {
     reset();
 }
 
+QFontPrivate::~QFontPrivate()
+{
+    if ( fin ) fin->deref();
+}
 
-typedef QDict<QFontInternal>	      QFontDict;
-typedef QDictIterator<QFontInternal>  QFontDictIt;
+// ###### FIXME: merge with code in qfont.cpp. currently not possible because
+// of circular dependencies in the headers
+
+// **********************************************************************
+// QFontCache
+// **********************************************************************
+
+static const int qtFontCacheMin = 2*1024*1024;
+static const int qtFontCacheSize = 61;
+static const int qtFontCacheFastTimeout =  30000;
+static const int qtFontCacheSlowTimeout = 300000;
 
 
-static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
-						// default character set:
-QFont::CharSet QFont::defaultCharSet = QFont::AnyCharSet;
+QFontCache *QFontPrivate::fontCache = 0;
+
+
+QFontCache::QFontCache() :
+    QObject(0, "global font cache"),
+    QCache<QFontStruct>(qtFontCacheMin, qtFontCacheSize),
+    timer_id(0), fast(FALSE)
+{
+    setAutoDelete(TRUE);
+}
+
+
+QFontCache::~QFontCache()
+{
+    // remove negative cache items
+    QFontCacheIterator it(*this);
+    QString key;
+    QFontStruct *qfs;
+
+    while ((qfs = it.current())) {
+	key = it.currentKey();
+	++it;
+
+	if (qfs == (QFontStruct *) -1) {
+	    take(key);
+	}
+    }
+}
+
+
+bool QFontCache::insert(const QString &key, const QFontStruct *qfs, int cost)
+{
+
+#ifdef QFONTCACHE_DEBUG
+    qDebug("QFC::insert: inserting %p w/ cost %d", qfs, cost);
+#endif // QFONTCACHE_DEBUG
+
+    if (totalCost() + cost > maxCost()) {
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::insert: adjusting max cost to %d (%d %d)",
+	       totalCost() + cost, totalCost(), maxCost());
+#endif // QFONTCACHE_DEBUG
+
+	setMaxCost(totalCost() + cost);
+    }
+
+    bool ret = QCache<QFontStruct>::insert(key, qfs, cost);
+
+    if (ret && (! timer_id || ! fast)) {
+	if (timer_id) {
+
+#ifdef QFONTCACHE_DEBUG
+	    qDebug("QFC::insert: killing old timer");
+#endif // QFONTCACHE_DEBUG
+
+	    killTimer(timer_id);
+	}
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::insert: starting timer");
+#endif // QFONTCACHE_DEBUG
+
+	timer_id = startTimer(qtFontCacheFastTimeout);
+	fast = TRUE;
+    }
+
+    return ret;
+}
+
+
+void QFontCache::deleteItem(Item d)
+{
+    QFontStruct *qfs = (QFontStruct *) d;
+
+    // don't try to delete negative cache items
+    if (qfs == (QFontStruct *) -1) {
+	return;
+    }
+
+    if (qfs->count == 0) {
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::deleteItem: removing %s from cache", (const char *) qfs->name);
+#endif // QFONTCACHE_DEBUG
+
+    	delete qfs;
+    }
+}
+
+
+void QFontCache::timerEvent(QTimerEvent *)
+{
+    if (maxCost() <= qtFontCacheMin) {
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::timerEvent: cache max cost is less than min, killing timer");
+#endif // QFONTCACHE_DEBUG
+
+	setMaxCost(qtFontCacheMin);
+
+	killTimer(timer_id);
+	timer_id = 0;
+	fast = TRUE;
+
+	return;
+    }
+
+    QFontCacheIterator it(*this);
+    QString key;
+    QFontStruct *qfs;
+    int tqcost = maxCost() * 3 / 4;
+    int nmcost = 0;
+
+    while ((qfs = it.current())) {
+	key = it.currentKey();
+	++it;
+
+	if (qfs != (QFontStruct *) -1) {
+	    if (qfs->count > 0) {
+		nmcost += qfs->cache_cost;
+	    }
+	} else {
+	    // keep negative cache items in the cache
+	    nmcost++;
+	}
+    }
+
+    nmcost = QMAX(tqcost, nmcost);
+    if (nmcost < qtFontCacheMin) nmcost = qtFontCacheMin;
+
+    if (nmcost == totalCost()) {
+	if (fast) {
+
+#ifdef QFONTCACHE_DEBUG
+	    qDebug("QFC::timerEvent: slowing timer");
+#endif // QFONTCACHE_DEBUG
+
+	    killTimer(timer_id);
+
+	    timer_id = startTimer(qtFontCacheSlowTimeout);
+	    fast = FALSE;
+	}
+    } else if (! fast) {
+	// cache size is changing now, but we're still on the slow timer... time to
+	// drop into passing gear
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::timerEvent: dropping into passing gear");
+#endif // QFONTCACHE_DEBUG
+
+	killTimer(timer_id);
+	timer_id = startTimer(qtFontCacheFastTimeout);
+	fast = TRUE;
+    }
+
+#ifdef QFONTCACHE_DEBUG
+    qDebug("QFC::timerEvent: before cache cost adjustment: %d %d",
+	   totalCost(), maxCost());
+#endif // QFONTCACHE_DEBUG
+
+    setMaxCost(nmcost);
+
+#ifdef QFONTCACHE_DEBUG
+    qDebug("QFC::timerEvent:  after cache cost adjustment: %d %d",
+	   totalCost(), maxCost());
+#endif // QFONTCACHE_DEBUG
+
+}
+
 
 /*****************************************************************************
   QFont member functions
@@ -133,22 +315,18 @@ QFont::CharSet QFont::defaultCharSet = QFont::AnyCharSet;
   set_local_font() - tries to set a sensible default font char set
  *****************************************************************************/
 
-void QFont::locale_init()
-{
-}
-
 void QFont::initialize()
 {
-    fontDict  = new QFontDict( 29 );
-    Q_CHECK_PTR( fontDict );
+    if ( QFontPrivate::fontCache ) return;
+    QFontPrivate::fontCache = new QFontCache();
 }
 
 void QFont::cleanup()
 {
-    if ( fontDict )
-	fontDict->setAutoDelete( TRUE );
-    delete fontDict;
+    delete QFontPrivate::fontCache;
+    QFontPrivate::fontCache = 0;
 }
+
 
 void QFont::cacheStatistics()
 {
@@ -157,19 +335,19 @@ void QFont::cacheStatistics()
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->fin is a valid pointer:
 
-#define DIRTY_FONT (d->req.dirty || d->fin->dirty())
+#define DIRTY_FONT (d->request.dirty || d->fin->dirty())
 
 
 Qt::HANDLE QFont::handle() const
 {
-    load(); // the REAL reason this is called
+    d->load(); // the REAL reason this is called
     return d->fin->handle();
 }
 
 QString QFont::rawName() const
 {
     if ( DIRTY_FONT )
-	load();
+	d->load();
     return "unknown";
 }
 
@@ -184,65 +362,46 @@ bool QFont::dirty() const
 }
 
 
-QString QFont::defaultFamily() const
+QString QFontPrivate::defaultFamily() const
 {
-    switch( d->req.styleHint ) {
-	case Times:
+    switch( request.styleHint ) {
+	case QFont::Times:
 	    return QString::fromLatin1("times");
-	case Courier:
+	case QFont::Courier:
 	    return QString::fromLatin1("courier");
-	case Decorative:
+	case QFont::Decorative:
 	    return QString::fromLatin1("old english");
-	case Helvetica:
-	case System:
+	case QFont::Helvetica:
+	case QFont::System:
 	default:
 	    return QString::fromLatin1("helvetica");
     }
 }
 
-QString QFont::lastResortFamily() const
+QString QFontPrivate::lastResortFamily() const
 {
     return QString::fromLatin1("helvetica");
 }
 
-QString QFont::lastResortFont() const
+QString QFontPrivate::lastResortFont() const
 {
     qFatal( "QFont::lastResortFont: Cannot find any reasonable font" );
     // Shut compiler up
     return "Times";
 }
 
-/*
-static void resetFontDef( QFontDef *def )	// used by initFontInfo()
-{
-    def->pointSize     = 0;
-    def->styleHint     = QFont::AnyStyle;
-    def->weight	       = QFont::Normal;
-    def->italic	       = FALSE;
-    def->charSet       = QFont::Latin1;
-    def->underline     = FALSE;
-    def->strikeOut     = FALSE;
-    def->fixedPitch    = FALSE;
-    def->hintSetByUser = FALSE;
-    def->lbearing      = SHRT_MIN;
-    def->rbearing      = SHRT_MIN;
-}
-*/
-
-void QFont::initFontInfo() const
-{
-}
-
-void QFont::load() const
+void QFontPrivate::load()
 {
     QString k = key();
-    QFontInternal* fin = fontDict->find(k);
-    if ( !fin ) {
-	fin = new QFontInternal(d->req);
-	fontDict->insert(k,fin);
+    QFontStruct* qfs = fontCache->find(k);
+    if ( !qfs ) {
+	qfs = new QFontStruct(request);
+	fontCache->insert( k, qfs, 1 );
     }
-    d->fin = fin;
-    d->req.dirty = FALSE;
+    qfs->ref();
+    fin->deref();
+    qfs = fin;
+    request.dirty = FALSE;
 }
 
 
@@ -255,16 +414,17 @@ void QFont::load() const
  *****************************************************************************/
 
 
-QFontInternal *QFontMetrics::internal()
+QFontStruct *QFontMetrics::internal()
 {
     if (painter) {
-        painter->cfont.load();
+        painter->cfont.d->load();
         return painter->cfont.d->fin;
     } else {
         return d->fin;
     }
 }
 
+#if 0
 const QFontDef *QFontMetrics::spec() const
 {
     if ( painter ) {
@@ -274,6 +434,7 @@ const QFontDef *QFontMetrics::spec() const
 	return d->fin->spec();
     }
 }
+#endif
 
 // How to calculate metrics from ink and logical rectangles.
 #define LBEARING(i,l) (i.x+l.x)
@@ -383,35 +544,21 @@ int QFontMetrics::lineWidth() const
   QFontInfo member functions
  *****************************************************************************/
 
+#if 0
 const QFontDef *QFontInfo::spec() const
 {
     if ( painter ) {
 	painter->cfont.handle();
 	return painter->cfont.d->fin->spec();
     } else {
-	return fin->spec();
+	return d->fin->spec();
     }
 }
-
-
-/*****************************************************************************
-  QFontData member functions
- *****************************************************************************/
-
-const QTextCodec* QFontData::mapper() const
-{
-    return 0;
-}
-
-void* QFontData::fontSet() const
-{
-    return 0;
-}
-
+#endif
 
 int QFont::pixelSize() const
 {
-    return d->req.pointSize/10;
+    return d->request.pointSize/10;
 }
 
 void QFont::setPixelSizeFloat( float pixelSize )
