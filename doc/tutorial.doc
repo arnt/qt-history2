@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.20 1999/01/28 15:40:47 warwick Exp $
+** $Id: tutorial.doc,v 2.21 1999/02/13 14:43:28 warwick Exp $
 **
 ** Tutorial
 **
@@ -134,8 +134,8 @@ Here, \e after the QApplication, comes the first window-system code: A
 push button is created.
 
 The button is set up to display the text "Hello world!" and be a
-window of its own (since the constructor does not specify another
-window which the button should be part of).
+window of its own (since the constructor specifies 0 for the parent
+window which the button should be inside).
 
 \line resize
 
@@ -221,6 +221,7 @@ loading and using fonts has been highly optimized.
 
 This time, the button says "Quit" and that's exactly what the program
 will do when the user clicks the button.  This is not a coincidence.
+Still we pass 0 as the parent, since the button is a top-level window.
 
 \line resize
 
