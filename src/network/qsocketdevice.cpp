@@ -296,13 +296,13 @@ bool QSocketDevice::at( Offset )
 
 
 /*! \reimp
-
-  The read/write index is meaningless for a socket, therefore
-  this always returns FALSE.
+ 
+  Returns TRUE if no data is available at the socket at the moment, otherwise
+  returns FALSE.
 */
 bool QSocketDevice::atEnd() const
 {
-    return FALSE;
+    return bytesAvailable() <= 0;
 }
 
 
