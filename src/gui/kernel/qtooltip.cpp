@@ -101,6 +101,8 @@ void QTipLabel::paintEvent(QPaintEvent *ev)
     opt.init(this);
     opt.lineWidth = 1;
     p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
+    p.end();
+
     QLabel::paintEvent(ev);
 }
 
