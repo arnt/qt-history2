@@ -127,7 +127,7 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	}
     }
     if(tabWidth)
-	max_column_width += tabWidth+20; //finally add in the tab width
+	max_column_width += tabWidth; //finally add in the tab width
 
     //calculate position
     int x = 0;
