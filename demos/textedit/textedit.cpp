@@ -27,7 +27,6 @@
 #include <qlist.h>
 #include <qmenu.h>
 #include <qmenubar.h>
-#include <qpaintdevicemetrics.h>
 #include <qpainter.h>
 #include <qprintdialog.h>
 #include <qprinter.h>
