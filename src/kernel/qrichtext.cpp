@@ -4581,7 +4581,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
 	// init a new line
 	if ( chr->lineStart ) {
-	    if (fullWidthStyle && drawSelections && selection >= 0) {
+	    if (!chr->rightToLeft && fullWidthStyle && drawSelections && selection >= 0) {
 		QColor color;
 		setColorForSelection( color, painter, cg, selection );
 		painter.fillRect( xend, y, fullSelectionWidth - xend, h, color );
@@ -4650,7 +4650,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
     }
 
-    if (fullWidthStyle && drawSelections && selection >= 0 && next() && next()->mSelections)
+    if (!chr->rightToLeft && fullWidthStyle && drawSelections && selection >= 0 && next() && next()->mSelections)
 	for ( QMap<int, QTextParagraphSelection>::ConstIterator it = next()->mSelections->begin();
 	      it != next()->mSelections->end(); ++it )
 	    if (((*it).start) == 0) {
