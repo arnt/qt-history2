@@ -1493,7 +1493,8 @@ bool  QFontDatabase::isScalable( const QString &family,
 QValueList<int> QFontDatabase::pointSizes( const QString &family,
 					   const QString &style)
 {
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+    // windows and macosx are always smoothly scalable
     Q_UNUSED( family );
     Q_UNUSED( style );
     return standardSizes();
@@ -1511,6 +1512,13 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
     QtFontFamily *fam = d->family( familyName );
     if ( !fam ) return sizes;
 
+#if defined(Q_WS_X11)
+    const uint screen_dpi = QPaintDevice::x11AppDpiY();
+#else
+    // embedded uses 72dpi
+    const uint screen_dpi = 72;
+#endif
+
     for ( int j = 0; j < fam->count; j++ ) {
 	QtFontFoundry *foundry = fam->foundries[j];
 	if ( foundryName.isEmpty() || ucstricmp( foundry->name, foundryName ) == 0 ) {
@@ -1524,10 +1532,11 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 	    for ( int l = 0; l < style->count; l++ ) {
 		const QtFontSize *size = style->pixelSizes + l;
 
-		if ( size->pixelSize != 0 &&
-		     size->pixelSize != USHRT_MAX &&
-		     !sizes.contains( size->pixelSize ) )
-		    sizes.append( size->pixelSize );
+		if (size->pixelSize != 0 && size->pixelSize != USHRT_MAX) {
+		    const uint pointSize = (size->pixelSize * 720 / screen_dpi) / 10;
+		    if (! sizes.contains(pointSize))
+			sizes.append(pointSize);
+		}
 	    }
 	}
     }
@@ -1536,9 +1545,6 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 	return standardSizes();
 
     qHeapSort( sizes );
-
-    // ### convert to point sizes
-
     return sizes;
 #endif
 }
