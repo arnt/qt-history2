@@ -50,7 +50,6 @@ public:
     void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s, Qt::PixmapDrawingMode mode);
 
     virtual Qt::HANDLE handle() const;
     inline Type type() const { return QPaintEngine::QWindowSystem; }

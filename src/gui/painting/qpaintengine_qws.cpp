@@ -513,11 +513,6 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
         d->gfx->stretchBlt(x,y,w,h,sw,sh);
 }
 
-void QWSPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
-				     Qt::PixmapDrawingMode mode)
-{
-    qDebug("QWSPaintEngine::drawTiledPixmap");
-}
 
 Qt::HANDLE QWSPaintEngine::handle() const{
     qDebug("QWSPaintEngine::handle");
