@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_formbuilder.h"
+#include "qdesigner_widget.h"
 
 #include <container.h>
 #include <customwidget.h>
@@ -58,6 +59,12 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
         QWidget *widget = c->createWidget(parentWidget);
         widget->setObjectName(name);
         return widget;
+    }
+
+    if (widgetName == QLatin1String("QLabel")) {
+        QLabel *label = new QDesignerLabel(parentWidget);
+        label->setObjectName(name);
+        return label;
     }
 
     QWidget *widget = FormBuilder::createWidget(widgetName, parentWidget, name);

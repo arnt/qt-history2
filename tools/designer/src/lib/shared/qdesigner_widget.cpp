@@ -86,9 +86,8 @@ void QDesignerLabel::updateBuddy()
     if (myBuddy.isEmpty())
         return;
 
-    QList<QWidget*> l = qFindChildren<QWidget*>(topLevelWidget(), myBuddy);
-    if (l.size())
-        QLabel::setBuddy(l.first());
+    if (QWidget *widget = qFindChild<QWidget*>(topLevelWidget(), myBuddy))
+        QLabel::setBuddy(widget);
 }
 
 QDesignerWidget::QDesignerWidget(AbstractFormWindow* formWindow, QWidget *parent)
