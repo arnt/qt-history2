@@ -27,6 +27,7 @@
 #include <qstringlist.h>
 #include <qvalidator.h>
 #include <qdict.h>
+#include <qmime.h>
 
 #include "index.h"
 #include "helpdialog.h"
@@ -83,6 +84,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
     bool lastWindowClosed() { return lwClosed; }
     static void removeDocFile( const QString &absFileName );
+    QMimeSourceFactory* getContentFactory() const { return contentFactory; }
 
 protected slots:
     void loadIndexFile();
@@ -142,6 +144,7 @@ private:
     bool initDoneMsgShown;
     void getAllContents();
     QDict<ContentList> contentList;
+    QMimeSourceFactory *contentFactory;
 };
 
 #endif

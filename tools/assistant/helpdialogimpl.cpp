@@ -181,13 +181,14 @@ void HelpDialog::initialize()
     connect( listBookmarks, SIGNAL( currentChanged(QListViewItem*) ),
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
 
-    QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
-    mime->setExtensionType( "html", "text/html;charset=UTF-8" );
+    contentFactory = new QMimeSourceFactory();
+    viewer->setMimeSourceFactory( contentFactory );
+    contentFactory->setExtensionType( "html", "text/html;charset=UTF-8" );
 
     QString base( qInstallPathDocs() );
     documentationPath = base + "/html";
-    mime->addFilePath( documentationPath );
-    mime->addFilePath( base + "/../gif/" );
+    contentFactory->addFilePath( documentationPath );
+    contentFactory->addFilePath( base + "/../gif/" );
 
     editIndex->installEventFilter( this );
     listBookmarks->header()->hide();
@@ -726,14 +727,13 @@ void HelpDialog::insertContents()
     QPtrList<ContentItem> lst;
     QDictIterator<ContentList> lstIt( contentList );
     for ( ; lstIt.current(); ++lstIt ) {
-	QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
 	QFileInfo fi( lstIt.currentKey() );
 	QString dir = fi.dirPath() + "/";
-	mime->addFilePath( fi.dirPath( TRUE ) );
-	mime->setExtensionType("html","text/html;charset=UTF-8");
-	mime->setExtensionType("png", "image/png" );
-	mime->setExtensionType("jpg", "image/jpeg" );
-	mime->setExtensionType("jpeg", "image/jpeg" );
+	contentFactory->addFilePath( fi.dirPath( TRUE ) );
+	contentFactory->setExtensionType("html","text/html;charset=UTF-8");
+	contentFactory->setExtensionType("png", "image/png" );
+	contentFactory->setExtensionType("jpg", "image/jpeg" );
+	contentFactory->setExtensionType("jpeg", "image/jpeg" );
 
 	HelpNavigationContentsItem *newEntry;
 	newEntry = new HelpNavigationContentsItem( listContents, 0 );
