@@ -571,7 +571,7 @@ Q_LONG QSocketDevice::bytesAvailable() const
     // gives shorter than true amounts on Unix domain sockets.
     if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
-    return nbytes;
+    return (Q_LONG) *((int *) &nbytes);
 }
 
 
