@@ -65,9 +65,12 @@ private:
   QGList class
  *****************************************************************************/
 
+class QGListIteratorList; // internal helper class
+
 class Q_EXPORT QGList : public QPtrCollection	// doubly linked generic list
 {
 friend class QGListIterator;
+friend class QGListIteratorList;
 friend class QGVector;				// needed by QGVector::toList
 public:
     uint  count() const;			// return number of nodes
@@ -138,9 +141,9 @@ private:
     QLNode *firstNode;				// first node
     QLNode *lastNode;				// last node
     QLNode *curNode;				// current node
-    int	    curIndex;				// current index
-    uint    numNodes;				// number of nodes
-    QGList *iterators;				// list of iterators
+    int curIndex;				// current index
+    uint numNodes;				// number of nodes
+    QGListIteratorList *iterators; 			// list of iterators
 
     QLNode *locate( uint );			// get node at i'th pos
     QLNode *unlink();				// unlink node
@@ -212,6 +215,7 @@ Q_EXPORT QDataStream &operator<<( QDataStream &, const QGList & );
 class Q_EXPORT QGListIterator			// QGList iterator
 {
 friend class QGList;
+friend class QGListIteratorList;
 protected:
     QGListIterator( const QGList & );
     QGListIterator( const QGListIterator & );

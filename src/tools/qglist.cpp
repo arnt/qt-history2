@@ -38,7 +38,7 @@
 #include "qglist.h"
 #include "qgvector.h"
 #include "qdatastream.h"
-
+#include "qvaluelist.h"
 
 /*!
   \class QLNode qglist.h
@@ -85,6 +85,76 @@
 */
 
 
+/* Internal helper class for QGList. Contains some optimization for
+   the typically case where only one iterators is activre on the list.
+ */
+class QGListIteratorList
+{
+public:
+    QGListIteratorList() 
+	: list(0), iterator(0) {
+    }
+    ~QGListIteratorList() {
+	notifyClear();
+	delete list;
+    }
+    
+    void add( QGListIterator* i ) {
+	if ( !iterator ) {
+	    iterator = i;
+	} else if ( list ) {
+	    list->push_front( i );
+	} else {
+	    list = new QValueList<QGListIterator*>;
+	    list->push_front( i );
+	}
+    }
+    
+    void remove( QGListIterator* i ) {
+	if ( iterator == i ) {
+	    iterator = 0;
+	} else if ( list ) {
+	    list->remove( i );
+	    if ( list->isEmpty() ) {
+		delete list;
+		list = 0;
+	    }
+	}
+    }
+    
+    void notifyClear() {
+	if ( iterator ) {
+	    iterator->list = 0;
+	    iterator->curNode = 0;
+	}
+	if ( list ) {
+	    for ( QValueList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
+		(*i)->list = 0;
+		(*i)->curNode = 0;
+	    }
+	}
+    }
+    
+    void notifyRemove( QLNode* n, QLNode* curNode ) {
+	if ( iterator ) {
+	    if ( iterator->curNode == n )
+		iterator->curNode = curNode;
+	}
+	if ( list ) {
+	    for ( QValueList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
+		if ( (*i)->curNode == n )
+		    (*i)->curNode = curNode;
+	    }
+	}
+    }
+    
+private:
+    QValueList<QGListIterator*>* list;
+    QGListIterator* iterator;
+};
+
+
+
 /*****************************************************************************
   Default implementation of virtual functions
  *****************************************************************************/
@@ -118,6 +188,7 @@
 
   \endcode
 */
+
 
 int QGList::compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 )
 {
@@ -196,14 +267,6 @@ QGList::QGList( const QGList & list )
 QGList::~QGList()
 {
     clear();
-    if ( !iterators )				// no iterators for this list
-	return;
-    QGListIterator *i = (QGListIterator*)iterators->first();
-    while ( i ) {				// notify all iterators that
-	i->list = 0;				// this list is deleted
-	i->curNode = 0;
-	i = (QGListIterator*)iterators->next();
-    }
     delete iterators;
     // Workaround for GCC 2.7.* bug. Compiler constructs 'static' QGList
     // instances twice on the same address and therefore tries to destruct
@@ -451,14 +514,8 @@ QLNode *QGList::unlink()
 	curNode = n->prev;
 	curIndex--;
     }
-    if ( iterators && iterators->count() ) {	// update iterators
-	QGListIterator *i = (QGListIterator*)iterators->first();
-	while ( i ) {				// fix all iterators that
-	    if ( i->curNode == n )		// refers to pending node
-		i->curNode = curNode;
-	    i = (QGListIterator*)iterators->next();
-	}
-    }
+    if ( iterators )
+	iterators->notifyRemove( n, curNode );
     numNodes--;
     return n;
 }
@@ -638,13 +695,8 @@ void QGList::clear()
     numNodes = 0;
     curIndex = -1;
 
-    if ( iterators && iterators->count() ) {
-	QGListIterator *i = (QGListIterator*)iterators->first();
-	while ( i ) {				// notify all iterators that
-	    i->curNode = 0;			// this list is empty
-	    i = (QGListIterator*)iterators->next();
-	}
-    }
+    if ( iterators )
+	iterators->notifyClear();
 
     QLNode *prevNode;
     while ( n ) {				// for all nodes ...
@@ -1029,10 +1081,10 @@ QGListIterator::QGListIterator( const QGList &l )
     list = (QGList *)&l;			// get reference to list
     curNode = list->firstNode;			// set to first node
     if ( !list->iterators ) {
-	list->iterators = new QGList;		// create iterator list
+	list->iterators = new QGListIteratorList;		// create iterator list
 	Q_CHECK_PTR( list->iterators );
     }
-    list->iterators->append( this );		// attach iterator to list
+    list->iterators->add( this );		// attach iterator to list
 }
 
 /*!
@@ -1045,7 +1097,7 @@ QGListIterator::QGListIterator( const QGListIterator &it )
     list = it.list;
     curNode = it.curNode;
     if ( list )
-	list->iterators->append( this );	// attach iterator to list
+	list->iterators->add( this );	// attach iterator to list
 }
 
 /*!
@@ -1057,11 +1109,11 @@ QGListIterator::QGListIterator( const QGListIterator &it )
 QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 {
     if ( list )					// detach from old list
-	list->iterators->removeRef( this );
+	list->iterators->remove( this );
     list = it.list;
     curNode = it.curNode;
     if ( list )
-	list->iterators->append( this );	// attach to new list
+	list->iterators->add( this );	// attach to new list
     return *this;
 }
 
@@ -1073,7 +1125,7 @@ QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 QGListIterator::~QGListIterator()
 {
     if ( list )					// detach iterator from list
-	list->iterators->removeRef(this);
+	list->iterators->remove(this);
 }
 
 
