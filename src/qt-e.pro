@@ -4,10 +4,12 @@ CONFIG		= qt warn_on release
 # Comment out the next line if you don't want use png/zlib in 3rdparty
 # Also see QT_NO_IMAGEIO_PNG in qfeatures.h
 #CONFIG		+= png zlib
+CONFIG		+= mng
 
 # Uncomment the next line if you want to use NAS sound
 #unix:DEFINES    += QT_NAS_SUPPORT
 #unix:LIBS	+= -laudio -lXt
+mng:LIBS	+= -L/home/warwick/qt/main/src/3rdparty/libmng -lmng -ljpeg
 
 # Uncomment the next line if you want to use jpeglib
 #
@@ -39,8 +41,10 @@ win32:TMAKE_CXXFLAGS   += -DUNICODE
 #win32:TMAKE_CFLAGS    += -MT
 #win32:TMAKE_CXXFLAGS  += -MT
 
+MNG_INCLUDEPATH		= 3rdparty/libmng
 PNG_INCLUDEPATH		= 3rdparty/libpng
 ZLIB_INCLUDEPATH	= 3rdparty/zlib
+mng:INCLUDEPATH        += $$MNG_INCLUDEPATH
 png:INCLUDEPATH        += $$PNG_INCLUDEPATH
 zlib:INCLUDEPATH       += $$ZLIB_INCLUDEPATH
 win32:INCLUDEPATH      += tmp
@@ -108,6 +112,7 @@ ALLHEADERS	= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmime.h \
 		  $$KERNEL_H/qmovie.h \
+		  $$KERNEL_H/qmngio.h \
 		  $$KERNEL_H/qnamespace.h \
 		  $$KERNEL_H/qnetworkprotocol.h \
 		  $$KERNEL_H/qobject.h \
@@ -162,6 +167,7 @@ ALLHEADERS	= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
 		  $$TOOLS_H/qcollection.h \
+		  $$TOOLS_H/qconfig.h \
 		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
@@ -169,6 +175,7 @@ ALLHEADERS	= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qdir.h \
 		  $$TOOLS_H/qeucjpcodec.h \
 		  $$TOOLS_H/qeuckrcodec.h \
+		  $$TOOLS_H/qfeatures.h \
 		  $$TOOLS_H/qfile.h \
 		  $$TOOLS_P/qfiledefs_p.h \
 		  $$TOOLS_H/qfileinfo.h \
@@ -384,6 +391,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qmetaobject.cpp \
 		  kernel/qmime.cpp \
 		  kernel/qmovie.cpp \
+		  kernel/qmngio.cpp \
 		  kernel/qnetworkprotocol.cpp \
 		  kernel/qobject.cpp \
 		  kernel/qpainter.cpp \
