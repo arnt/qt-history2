@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#2 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -66,7 +66,7 @@ void QFtp::openConnection( QUrl *u )
 {
     QNetworkProtocol::openConnection( u );
     connectionReady = FALSE;
-    commandSocket->connectToHost( url->host(), 21 /*url->port()*/ ); //####
+    commandSocket->connectToHost( url->host(), url->port() );
     if ( !dataSocket->host().isEmpty() )
 	dataSocket->close();
     extraData = QString::null;
