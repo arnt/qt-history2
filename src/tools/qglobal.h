@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#71 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#72 $
 **
 ** Global type declarations and definitions
 **
@@ -127,10 +127,18 @@
 
 #if defined(_OS_AIX_)
 // need these to activate the correct parts of /usr/include/*.h
+#if !defined(_ANSI_C_SOURCE)
 #define _ANSI_C_SOURCE
+#endif
+#if !defined(_ALL_SOURCE)
 #define _ALL_SOURCE
+#endif
+#if !defined(_X_OPEN_SOURCE)
 #define _X_OPEN_SOURCE
+#endif
+#if !defined(_BSD)
 #define _BSD
+#endif
 #endif
 
 //
