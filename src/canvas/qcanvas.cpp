@@ -1487,7 +1487,7 @@ void QCanvas::setBackgroundColor( const QColor& c )
     if ( bgcolor != c ) {
 	bgcolor = c;
 	QCanvasView* view=d->viewList.first();
-	while (view != 0 ) {
+	while ( view != 0 ) {
 	    view->viewport()->setBackgroundColor(backgroundColor());
 	    view=d->viewList.next();
 	}
@@ -1507,7 +1507,7 @@ QPixmap QCanvas::backgroundPixmap() const
 }
 
 /*!
-  Sets the solid background to be the pixmpa, \a p, repeated as
+  Sets the solid background to be the pixmap \a p repeated as
   necessary to cover the entire canvas.
 
   \sa backgroundPixmap(), setBackgroundColor(), setTiles()
@@ -1516,7 +1516,7 @@ void QCanvas::setBackgroundPixmap( const QPixmap& p )
 {
     setTiles(p, 1, 1, p.width(), p.height());
     QCanvasView* view=d->viewList.first();
-    while (view != 0 ) {
+    while ( view != 0 ) {
 	view->viewport()->setBackgroundPixmap(backgroundPixmap());
 	view=d->viewList.next();
     }
