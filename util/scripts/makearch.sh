@@ -18,6 +18,8 @@ set -e
 cd ..
 BASE=`pwd`
 
+VERSION=`awk '/^#define[ 	]+QT_VERSION[ 	]+/{print $3}' src/tools/qglobal.cpp | tr -d '"' | sed 's/.$/.&/'`
+
 # prepare the directories for content
 if [ -d include ]; then
     rm -rf include/*.h
@@ -202,7 +204,7 @@ cat  <<EOF
 	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) -fpic \$<
 
 # VERSION - the version number of the shared library, where applicable
-VERSION=0.9.6
+VERSION=${VERSION}
 
 # The main rule - please do not hardcode the version number here,
 # and please do not change it.  Until 1.0, Qt may not be forwards

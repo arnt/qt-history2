@@ -9,6 +9,8 @@ disttype=$1
 platform=$2
 DISTDIR=$3
 
+unset LANG
+
 x11onlysrc="qpsprn.cpp qprndlg.cpp mprndlg.cpp"
 x11onlyhdr="qpsprn.h   qprndlg.h"
 
@@ -49,11 +51,6 @@ cd ${DISTDIR}
 echo "Exporting the entire Qt archive..." >&2
 cvs -Q export -Dnow qt
 
-echo "Removing local files..." >&2
-find qt -name .cvsignore | xargs rm -f
-rm -rf qt/doc qt/etc qt/gif
-rm -f qt/TODO
-
 QTVER=`grep "#define.*QT_VERSION" qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
 QTVERMAJOR=`echo $QTVER | sed -e 's/\..*$//'`
 echo "Auto-detected the Qt version number -- " $QTVER >&2
@@ -61,6 +58,24 @@ echo "Auto-detected the Qt version number -- " $QTVER >&2
 echo "Removing beta code..." >&2
 cd ${DISTDIR}/qt/src
 for d in `make showdirs`; do cd $d ; rm -f `make showbeta`; cd .. ; done
+
+echo "Generating documentation" >&2
+export QTDIR=${DISTDIR}/qt
+make -s -C ${QTDIR}/src include
+mkdir -p ${DISTDIR}/qt/doc/html
+${DISTDIR}/qt/util/qdoc/qdoc
+mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
+${DISTDIR}/qt/util/qdoc/man
+mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt/doc/man ${DISTDIR}/qt
+mv ${DISTDIR}/qt/src/moc/moc.1 ${DISTDIR}/qt/man/man1
+cd ${DISTDIR}
+mv gif/*.gif html
+
+echo "Removing local files..." >&2
+find qt -name .cvsignore | xargs rm -f
+rm -rf qt/doc qt/etc qt/gif
+rm -f qt/TODO
+rm -rf qt/examples/sheet
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
@@ -117,8 +132,6 @@ if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt/src
   rm -f Makefile* tools/Makefile kernel/Makefile widgets/Makefile dialogs/Makefile
   cd ${DISTDIR}/qt/lib
-  ln -s libqt.so.${QTVER} libqt.so
-  ln -s libqt.so.${QTVER} libqt.so.${QTVERMAJOR}
 fi
 
 echo "Copying the README, LICENSE etc. files..." >&2
@@ -131,6 +144,7 @@ tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}
 rm -rf qt/dist qt/util
 
+
 echo "Finally packing the distribution, see ${DISTDIR}..." >&2
 
 if [ "${platform}" = "win" ]; then
@@ -140,7 +154,8 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}
-  tar cf qt-${QTVER}.tar qt
+  mv qt qt-${QTVER}
+  tar cf qt-${QTVER}.tar qt-${QTVER}
   gzip -9 qt-${QTVER}.tar
 fi
 
