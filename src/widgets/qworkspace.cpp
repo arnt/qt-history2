@@ -434,8 +434,8 @@ protected:
     bool eventFilter( QObject *, QEvent * );
 
 private:
-    QWidget * childWidget;
-    QWidget * lastfocusw;
+    QWidget* childWidget;
+    QWidget* lastfocusw;
     bool buttonDown;
     enum MousePosition {
 	Nowhere,
@@ -595,20 +595,6 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
 	    d->focus.removeRef( (QWorkspaceChild*)e->child() );
-	    if ( d->windows.isEmpty() )
-		hideMaximizeControls();
-	    if( e->child() == d->active )
-		d->active = 0;
-
-	    if (  !d->windows.isEmpty() ) {
-		if ( e->child() == d->maxWindow  ) {
-		    d->maxWindow = 0;
-		    maximizeWindow( d->windows.first()->windowWidget() );
-		} else {
-		    activateWindow( d->windows.first()->windowWidget() );
-		}
-	    } else if ( e->child() == d->maxWindow )
-		d->maxWindow = 0;
 	}
     }
 }
@@ -641,8 +627,10 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     d->active->internalRaise();
 
     if ( change_focus ) {
-	d->focus.removeRef( d->active );
-	d->focus.append( d->active );
+	if ( d->focus.find( d->active ) >=0 ) {
+	    d->focus.removeRef( d->active );
+	    d->focus.append( d->active );
+	}
     }
     emit windowActivated( w );
 }
@@ -711,7 +699,7 @@ void QWorkspace::removeIcon( QWidget* w)
 	return;
     d->icons.remove( w );
     w->hide();
- }
+}
 
 /*! \reimp  */
 void QWorkspace::resizeEvent( QResizeEvent * )
@@ -753,6 +741,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
     if ( c ) {
 	c->hide();
 	insertIcon( c->iconWidget() );
+	d->focus.append( c );
     }
 }
 
@@ -843,13 +832,32 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     switch ( e->type() ) {
     case QEvent::Hide:
     case QEvent::HideToParent:
+	d->focus.removeRef( (QWorkspaceChild*)o );
+	if ( d->focus.isEmpty() )
+	    d->active = 0;
+	else {
+	    activatePreviousWindow();
+	    QWorkspaceChild* c = d->active;
+	    while ( d->active && 
+		    d->active->windowWidget() &&
+		    d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
+		activatePreviousWindow();
+		if ( d->active == c )
+		    break;
+	    }
+	}
 	if ( d->maxWindow == o && d->maxWindow->isHidden() ) {
 	    d->maxWindow->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
-	    hideMaximizeControls();
-    	    inCaptionChange = TRUE;
-	    topLevelWidget()->setCaption( d->topCaption );
-	    inCaptionChange = FALSE;
+	    if ( d->active )
+		maximizeWindow( d->active );
+
+	    if ( !d->maxWindow ) {
+    		hideMaximizeControls();
+   		inCaptionChange = TRUE;
+		topLevelWidget()->setCaption( d->topCaption );
+		inCaptionChange = FALSE;
+	    }
 	}
 	break;
     case QEvent::CaptionChange:
@@ -1108,12 +1116,9 @@ void QWorkspace::activateNextWindow()
     }
 
     int a = d->focus.find( d->active );
-    if ( a <= 0 )
-	a = d->focus.count()-1;
-    else
-	a--;
-    while ( d->focus.at( a ) && !d->focus.at( a )->isVisibleTo( this ) )
-	a--;
+
+    a = (a+1) % d->focus.count();
+
     if ( d->focus.at( a ) )
 	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
 }
@@ -1128,12 +1133,10 @@ void QWorkspace::activatePreviousWindow()
     }
 
     int a = d->focus.find( d->active );
-    if ( a < 0  || a >= int(d->focus.count())-1 )
-	a = 0;
-    else
-	a++;
-    while ( d->focus.at( a ) && !d->focus.at( a )->isVisibleTo( this ) )
-	a++;
+
+    if ( --a < 0 )
+	a = d->focus.count()-1;
+
     if ( d->focus.at( a ) )
 	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
 }
@@ -1165,14 +1168,29 @@ void QWorkspace::cascade()
     int y = 0;
 
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget()->isHidden() ||
-	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
+	if ( c->windowWidget()->isHidden() )
 	    continue;
-	c->showNormal();
-	c->setGeometry( x, y, w, h );
-	x += xoffset;
-	y += yoffset;
-	c->internalRaise();
+	if ( c->windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
+	    QPoint p = c->pos();
+	    if ( p.x()+c->width() < 0 )
+		p.setX( 0 );
+	    if ( p.x() > width() )
+		p.setX( width() - c->width() );
+	    if ( p.y() + 10 < 0 )
+		p.setY( 0 );
+	    if ( p.y() > height() )
+		p.setY( height() - c->height() );
+
+
+	    if ( p != c->pos() )
+		c->move( p );
+	} else {
+	    c->showNormal();
+	    c->setGeometry( x, y, w, h );
+	    x += xoffset;
+	    y += yoffset;
+	    c->internalRaise();
+	}
     }
 }
 
@@ -1209,23 +1227,38 @@ void QWorkspace::tile()
     int w = width() / cols;
     int h = height() / rows;
     for ( c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget()->isHidden() ||
-	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
+	if ( c->windowWidget()->isHidden() )
 	    continue;
-	c->showNormal();
-	used[row*cols+col] = TRUE;
-	if ( add ) {
-	    c->setGeometry( col*w, row*h, w, 2*h );
-	    used[(row+1)*cols+col] = TRUE;
-	    add--;
+	if ( c->windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
+	    QPoint p = c->pos();
+	    if ( p.x()+c->width() < 0 )
+		p.setX( 0 );
+	    if ( p.x() > width() )
+		p.setX( width() - c->width() );
+	    if ( p.y() + 10 < 0 )
+		p.setY( 0 );
+	    if ( p.y() > height() )
+		p.setY( height() - c->height() );
+
+
+	    if ( p != c->pos() )
+		c->move( p );
 	} else {
-	    c->setGeometry( col*w, row*h, w, h );
-	}
-	while( row < rows && col < cols && used[row*cols+col] ) {
-	    col++;
-	    if ( col == cols ) {
-		col = 0;
-		row++;
+	    c->showNormal();
+	    used[row*cols+col] = TRUE;
+	    if ( add ) {
+		c->setGeometry( col*w, row*h, w, 2*h );
+		used[(row+1)*cols+col] = TRUE;
+		add--;
+	    } else {
+		c->setGeometry( col*w, row*h, w, h );
+	    }
+	    while( row < rows && col < cols && used[row*cols+col] ) {
+		col++;
+		if ( col == cols ) {
+		    col = 0;
+		    row++;
+		}
 	    }
 	}
     }
@@ -1313,6 +1346,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
 	closeB->setAutoRaise( TRUE );
 	maxB->setAutoRaise( TRUE );
 	iconB->setAutoRaise( TRUE );
+	shadeB->setAutoRaise( TRUE );
 	closeB->setBackgroundMode( PaletteBackground );
 	maxB->setBackgroundMode( PaletteBackground );
 	iconB->setBackgroundMode( PaletteBackground );
@@ -1442,8 +1476,7 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 		mouseReleaseEvent( &ne );
 	    else
 		mouseMoveEvent( &ne );
-	}
-	else if ( (e->type() == QEvent::MouseButtonDblClick) &&
+	} else if ( (e->type() == QEvent::MouseButtonDblClick) &&
 		  ((QMouseEvent*)e)->button() == LeftButton ) {
 	    if ( imode )
 		emit doNormal();
@@ -1636,7 +1669,6 @@ void QWorkspaceChild::activate()
 
 bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 {
-
     if ( !isActive() && ( e->type() == QEvent::MouseButtonPress ||
 			  e->type() == QEvent::FocusIn ) )
 	activate();
@@ -1648,12 +1680,18 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
     switch ( e->type() ) {
     case QEvent::Show:
+	if ( ((QWorkspace*)parentWidget())->d->focus.find( this ) < 0 )
+	    ((QWorkspace*)parentWidget())->d->focus.append( this );
 	if ( isVisibleTo( parentWidget() ) )
 	    break;
 	if (( (QShowEvent*)e)->spontaneous() )
 	    break;
 	// FALL THROUGH
     case QEvent::ShowToParent:
+	if ( windowWidget() && windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
+	    internalRaise();
+	    show();
+	}
 	((QWorkspace*)parentWidget())->showWindow( windowWidget() );
 	break;
     case QEvent::ShowMaximized:
@@ -1675,8 +1713,8 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 		((QWorkspace*)parentWidget())->removeIcon( w );
 		delete w;
 	    }
-	    hide();
-	}
+	    hide();	    
+	} 
 	break;
     case QEvent::CaptionChange:
 	setCaption( childWidget->caption() );
@@ -1688,9 +1726,6 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    QPixmap pm;
 	    titlebar->setIcon( pm );
 	}
-	break;
-    case QEvent::LayoutHint:
-	//layout()->activate();
 	break;
     case QEvent::Resize:
 	{
@@ -1776,6 +1811,16 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
  	return;
 
     QPoint globalPos = parentWidget()->mapFromGlobal( e->globalPos() );
+    if ( !parentWidget()->rect().contains( globalPos ) ) {
+	if ( globalPos.x() < 0 )
+	    globalPos.rx() = 0;
+	if ( globalPos.y() < 0 )
+	    globalPos.ry() = 0;
+	if ( globalPos.x() > parentWidget()->width() )
+	    globalPos.rx() = parentWidget()->width();
+	if ( globalPos.y() > parentWidget()->height() )
+	    globalPos.ry() = parentWidget()->height();
+    }
     QPoint p = globalPos + invertedMoveOffset;
     QPoint pp = globalPos - moveOffset;
 
