@@ -2955,64 +2955,6 @@ void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
 //    qDebug( "Done" );
 }
 
-const double Q_PI   = 3.14159265358979323846;   // pi
-const double Q_2PI  = 6.28318530717958647693;   // 2*pi
-const double Q_PI2  = 1.57079632679489661923;   // pi/2
-
-double qsincos( double a, bool calcCos=FALSE )
-{
-    if ( calcCos )                              // calculate cosine
-	a -= Q_PI2;
-    if ( a >= Q_2PI || a <= -Q_2PI ) {          // fix range: -2*pi < a < 2*pi
-	int m = (int)(a/Q_2PI);
-	a -= Q_2PI*m;
-    }
-    if ( a < 0.0 )                              // 0 <= a < 2*pi
-	a += Q_2PI;
-    int sign = a > Q_PI ? -1 : 1;
-    if ( a >= Q_PI )
-	a = Q_2PI - a;
-    if ( a >= Q_PI2 )
-	a = Q_PI - a;
-    if ( calcCos )
-	sign = -sign;
-    double a2  = a*a;                           // here: 0 <= a < pi/4
-    double a3  = a2*a;                          // make taylor sin sum
-    double a5  = a3*a2;
-    double a7  = a5*a2;
-    double a9  = a7*a2;
-    double a11 = a9*a2;
-    return (a-a3/6+a5/120-a7/5040+a9/362880-a11/39916800)*sign;
-}
-
-inline double qsin( double a ) { return qsincos(a,FALSE); }
-inline double qcos( double a ) { return qsincos(a,TRUE); }
-
-double qatan2( double y, double x )
-{
-    double r;
-    if ( x != 0.0 ) {
-	double a = fabs(y/x);
-	if ( a <= 1 )
-	    r = a/(1+ 0.28*a*a);
-	else
-	    r = Q_PI2 - a/(a*a + 0.28);
-    } else {
-	r = Q_PI2;
-    }
-
-    if ( y >= 0.0 ) {
-	if ( x >= 0.0 )
-	    return r;
-	else
-	    return Q_PI - r;
-    } else {
-	if ( x >= 0.0 )
-	    return Q_2PI - r;
-	else
-	    return Q_PI + r;
-    }
-}
 
 /*
   Based on lines_intersect from Graphics Gems II, author: Mukesh Prasad
