@@ -46,8 +46,7 @@
   Global cursors
  *****************************************************************************/
 
-static const int cursors = 15;
-static QCursor cursorTable[cursors];
+static QCursor cursorTable[LastCursor+1];
 static const int arrowCursorIdx = 0;
 QT_STATIC_CONST_IMPL QCursor & Qt::arrowCursor = cursorTable[0];
 QT_STATIC_CONST_IMPL QCursor & Qt::upArrowCursor = cursorTable[1];
@@ -64,6 +63,7 @@ QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[11];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[12];
 QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
 QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
+QT_STATIC_CONST_IMPL QCursor & Qt::whatsThisCursor = cursorTable[15];
 
 /*****************************************************************************
   Internal QCursorData class
@@ -75,7 +75,7 @@ class QMacCursorWidget : public QWidget
     Q_OBJECT
     QPixmap *pm;
 public:
-    QMacCursorWidget(QBitmap *mask, QPixmap *pix) : 
+    QMacCursorWidget(QBitmap *mask, QPixmap *pix) :
 	QWidget(0, "fake_cursor", WType_Dialog | WStyle_Customize | WStyle_NoBorder)
 	{
 	    pm = pix;
@@ -127,24 +127,24 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
     if(c->data->type == QCursorData::TYPE_FakeCursor) {
 	/* That's right folks, I want nice big cursors - if apple won't give them to me, why
 	   I'll just take them!!! */
-	c->data->curs.fc.widget->move(p->h - c->data->curs.fc.empty_curs->hotSpot.h, 
+	c->data->curs.fc.widget->move(p->h - c->data->curs.fc.empty_curs->hotSpot.h,
 				      p->v - c->data->curs.fc.empty_curs->hotSpot.v);
 	SetCursor(c->data->curs.fc.empty_curs);
-	if(!c->data->curs.fc.widget->isVisible()) 
+	if(!c->data->curs.fc.widget->isVisible())
 	    c->data->curs.fc.widget->show();
-    } else 
+    } else
 #else
     Q_UNUSED(p);
 #endif
     if(currentCursor != c->data) {
 #ifndef QMAC_NO_FAKECURSOR
-	if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor) 
+	if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor)
 	    currentCursor->curs.fc.widget->hide();
 #endif
 	if(c->data->type == QCursorData::TYPE_CursPtr) {
 	    SetCursor(c->data->curs.cp.hcurs);
 	} else if(c->data->type == QCursorData::TYPE_CursorImage) {
-	    
+
 	} else if(c->data->type == QCursorData::TYPE_ThemeCursor) {
 	    switch(c->data->curs.tc) {
 	    case kThemeWatchCursor:
@@ -208,7 +208,7 @@ void QCursor::cleanup()
 	return;
 
     int shape;
-    for( shape = 0; shape < cursors; shape++ ) {
+    for( shape = 0; shape <= LastCursor; shape++ ) {
 	delete cursorTable[shape].data;
 	cursorTable[shape].data = 0;
     }
@@ -219,7 +219,7 @@ void QCursor::initialize()
 {
     InitCursor();
     int shape;
-    for( shape = 0; shape < cursors; shape++ )
+    for( shape = 0; shape <= LastCursor; shape++ )
 	cursorTable[shape].data = new QCursorData( shape );
     initialized = TRUE;
     qAddPostRoutine( cleanup );

@@ -135,7 +135,7 @@ void QCursor::cleanup()
 	return;
 
     int shape;
-    for( shape = 0; shape <= Qt::LastCursor; shape++ ) {
+    for( shape = 0; shape <= LastCursor; shape++ ) {
 	delete cursorTable[shape].data;
 	cursorTable[shape].data = 0;
     }
@@ -152,7 +152,7 @@ void QCursor::cleanup()
 void QCursor::initialize()
 {
     int shape;
-    for( shape = 0; shape <= Qt::LastCursor; shape++ )
+    for( shape = 0; shape <= LastCursor; shape++ )
 	cursorTable[shape].data = new QCursorData( shape );
     initialized = TRUE;
     qAddPostRoutine( cleanup );

@@ -35,8 +35,7 @@
 #include "qdatastream.h"
 #include "qt_windows.h"
 
-static const int cursors = 15;
-static QCursor cursorTable[cursors];
+static QCursor cursorTable[Qt::LastCursor+1];
 
 QT_STATIC_CONST_IMPL QCursor & Qt::arrowCursor = cursorTable[0];
 QT_STATIC_CONST_IMPL QCursor & Qt::upArrowCursor = cursorTable[1];
@@ -53,6 +52,7 @@ QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[11];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[12];
 QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
 QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
+QT_STATIC_CONST_IMPL QCursor & Qt::whatsThisCursor = cursorTable[15];
 
 
 /*****************************************************************************
@@ -104,7 +104,7 @@ static bool initialized = FALSE;
 void QCursor::initialize()
 {
     int shape;
-    for( shape = 0; shape < cursors; shape++ )
+    for( shape = 0; shape <= LastCursor; shape++ )
 	cursorTable[shape].data = new QCursorData( shape );
     initialized = TRUE;
     qAddPostRoutine( cleanup );
@@ -113,7 +113,7 @@ void QCursor::initialize()
 void QCursor::cleanup()
 {
     int shape;
-    for( shape = 0; shape < cursors; shape++ ) {
+    for( shape = 0; shape <= LastCursor; shape++ ) {
 	delete cursorTable[shape].data;
 	cursorTable[shape].data = 0;
     }
@@ -427,7 +427,8 @@ void QCursor::update() const
     case BlankCursor:
     case SplitVCursor:
     case SplitHCursor:
-    case BitmapCursor: {
+    case BitmapCursor:
+    case WhatsThisCursor: {
 	QImage bbits, mbits;
 	bool invb, invm;
 	if ( data->cshape == BlankCursor ) {
