@@ -905,7 +905,7 @@ bool QOCIDriver::open( const QString & db,
 
 void QOCIDriver::close()
 {
-    cleanup();
+    OCILogoff( d->svc, d->err );
     setOpen( FALSE );
     setOpenError( FALSE );
 }
