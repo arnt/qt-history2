@@ -829,6 +829,8 @@ public:
         FDiagPattern,
         DiagCrossPattern,
         LinearGradientPattern,
+        RadialGradientPattern,
+        ConicalGradientPattern,
         TexturePattern = 24
 #if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         , CustomPattern = TexturePattern
