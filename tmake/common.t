@@ -63,14 +63,14 @@ SYSCONF_LINK_LIB_SHARED	= #${
 			     : '' ) . " \\\n\t\t\t\t"
 			. '     $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
 			. '     $(OBJECTS) $(OBJMOC) $(LIBS);';
+	    $text .= " \\\n\t\t\t\t";
+	    $text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
+		    . ' cd $(DESTDIR);' . " \\\n\t\t\t\t"
+		    . ' rm -f lib$(TARGET).so'
+			. ' lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
+		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so;' . " \\\n\t\t\t\t"
+		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ)';
 	}
-	$text .= " \\\n\t\t\t\t";
-	$text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
-		. ' cd $(DESTDIR);' . " \\\n\t\t\t\t"
-		. ' rm -f lib$(TARGET).so'
-		    . ' lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
-		. ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so;' . " \\\n\t\t\t\t"
-		. ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ)';
     }
 #$}
 
