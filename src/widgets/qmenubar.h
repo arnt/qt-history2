@@ -171,7 +171,7 @@ private:
 #endif
     virtual void macWidgetChangedWindow();
     bool syncPopups(MenuRef ret, QPopupMenu *d);
-    MenuRef createMacPopup(QPopupMenu *d, bool, bool =FALSE);
+    MenuRef createMacPopup(QPopupMenu *d, bool =FALSE);
     bool updateMenuBar();
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
     uint isCommand(QMenuItem *, bool just_check=FALSE);
