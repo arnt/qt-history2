@@ -148,13 +148,13 @@ supply the following arguments in this mode:
 \endlist
 
 The \c files argument can be a list of files or directories.  If a
-directory is specified, then it will be included in the DEPENDPATH
-variable and relevant code from there will be included in the
-generated project file, if a file is given it will go into the correct
-variable depending on extension (i.e. .ui files go into FORMS, .cpp
-files go into SOURCES, etc). Here too you may pass assignments on the
-commandline, when doing so these assignments will be placed last in
-the generated .pro file.
+directory is specified, then it will be included in the \link
+#DEPENDPATH DEPENDPATH \endlink variable and relevant code from there
+will be included in the generated project file, if a file is given it
+will go into the correct variable depending on extension (i.e. .ui
+files go into FORMS, .cpp files go into SOURCES, etc). Here too you
+may pass assignments on the commandline, when doing so these
+assignments will be placed last in the generated .pro file.
 
 \target SystemVariables
 \section1 System Variables
@@ -1209,7 +1209,7 @@ find the file on its own.
 
 See also \link #DEPENDPATH DEPENDPATH \endlink.
 
-
+\target DEPENDPATH
 \section3 DEPENDPATH
 
 This variable contains the list of all directories to look in to

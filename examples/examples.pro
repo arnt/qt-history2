@@ -7,6 +7,7 @@ SUBDIRS	=	aclock \
 		addressbook \
 		application \
 		buttongroups \
+		chart \
 		checklists \
 		cursor \
 		customlayout \

@@ -76,6 +76,8 @@ source for the application is in \c examples/chart.
 
 \title The 'Big Picture'
 
+\img chart-forms.png The chart application's dialogs
+
 The \c chart program allows users to create, save, load and visualise
 simple data sets. Each data element that the user enters can be given
 a color and pattern for the pie segment or bar, some label text and
@@ -972,7 +974,7 @@ white, so setting a non-white brush color is highly recommended!
 
 (Extracts from \c chartform_files.cpp.)
 
-\section1 load()
+\section1 Reading Chart Data
 
 \quotefile chart/chartform_files.cpp
 \skipto ::load(
@@ -990,6 +992,8 @@ element and if it is valid we insert it into the \c m_elements vector.
 All the detail is handled by the \c Element class. Then we close
 the file and update the caption and the recent files list. Finally we
 draw the chart and mark it as unchanged.
+
+\section1 Writing Chart Data
 
 \skipto ::fileSave
 \printline

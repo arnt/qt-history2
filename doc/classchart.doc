@@ -282,16 +282,15 @@
 
 The gzipped postscript A3 size master copy of the class chart is
 available for download from
-\l{ftp://ftp.trolltech.com/qt/postscript/qt30-class-chart.ps.gz}
-(152K).<sup>*</sup>
-The postscript file will always be the same or more recent than the
+\l{ftp://ftp.trolltech.com/qt/pdf/3.0/qt30-class-chart.pdf}
+(104K).<sup>*</sup>
+The PDF file will always be the same or more recent than the
 one shown here.
 
 <sup>*</sup><small>
-The postscript master is \e{not supported}; we do not guarantee it
+The PDF file is \e{not supported}; we do not guarantee it
 will print correctly (although several people have reported that it
-does). It is not available in any other format (e.g. PDF), nor in any
-other size.</small>
+does). It is not available in any other format or size.</small>
 
 
 */
