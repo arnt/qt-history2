@@ -2562,7 +2562,9 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	if ( qApp->inPopupMode() ) {			// in popup mode
 	    QWidget *popup = qApp->activePopupWidget();
 	    if ( popup != this ) {
-		if ( testWFlags(WType_Popup) && rect().contains(pos) )
+		QSize s( qt_screen->width(), qt_screen->height() );
+		QPoint dp = qt_screen->mapToDevice( globalPos, s );
+		if ( testWFlags(WType_Popup) && alloc_region.contains(dp) )
 		    popup = this;
 		else				// send to last popup
 		    pos = popup->mapFromGlobal( globalPos );
