@@ -1,58 +1,96 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#2 $
 **
 ** Implementation of QScrollBar class
 **
 ** Author  : Eirik Eng
 ** Created : 940427
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
 #include "qscrbar.h"
 #include "qpainter.h"
 #include "qpntarry.h"
+#include "qwxfmat.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#2 $";
 #endif
 
 
-const int thresholdTime = 500;
-const int repeatTime    = 100;
+//
+// NOTE!!! THIS CODE IS NOT FINAL. SOME TESTING & TUNING REMAINS!
+//
 
-#define REF(X) X = X
+enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,
+		     SUB_PAGE = 0x8 , FIRST    = 0x10, LAST	= 0x20,
+		     SLIDER   = 0x40, NONE     = 0x80 };
 
-QScrollBar::QScrollBar(QView *parent,Direction d,WFlags f)
-    : QWidget(parent,f)
+
+class QScrollBar_Private : public QScrollBar
 {
-    direction = d;
+public:
+    void	  sliderMinMax( int *, int * ) const;
+    void	  metrics( int *, int *, int * ) const;
+
+    ScrollControl pointOver( const QPoint &p ) const;
+
+    int		  rangeValueToSliderPos( int val ) const;
+    int		  sliderPosToRangeValue( int val ) const;
+
+    void	  action( ScrollControl control );
+
+    void	  drawControls( uint controls, uint activeControl ) const;
+    void	  drawControls( uint controls, uint activeControl,
+				QPainter &p ) const;
+};
+
+
+#undef PRIV
+#define PRIV ( ( QScrollBar_Private * ) this )
+
+const int thresholdTime = 500;
+const int repeatTime	= 100;
+
+#define HORIZONTAL	(orientation() == Horizontal)
+#define VERTICAL	!HORIZONTAL
+#define BORDER		2
+#define SLIDER_MIN	6
+
+
+QScrollBar::QScrollBar( QView *parent,Orientation d ) : QWidget( parent )
+{
+    orient = d;
     initialize();
 }
 
-QScrollBar::QScrollBar(int minVal, int maxVal, int lineStep, int pageStep,
-                       int value, QView *parent, Direction d, WFlags f)
-   : QWidget(parent,f),QRangeControl(minVal, maxVal, lineStep, pageStep, value)
+QScrollBar::QScrollBar( int minVal, int maxVal, int lineStep, int pageStep,
+			int value, QView *parent, Orientation d )
+   : QWidget(parent) ,QRangeControl(minVal, maxVal, lineStep, pageStep, value)
 {
-    direction = d;
+    orient = d;
     initialize();
 }
 
 void QScrollBar::initialize()
 {
-    track            = TRUE;
-    sliderPos        = 0;
+    track	     = TRUE;
+    sliderPos	     = 0;
     pressedControl   = NONE;
-    timerID          = 0;
-    clickedAt        = FALSE;
+    clickedAt	     = FALSE;
     setForegroundColor(lightGray);
     setBackgroundColor(foregroundColor().dark(1.12));
 }
 
+
 void QScrollBar::valueChange()
 {
-    moveSlider(rangeValueToSliderPos(value()));
+    int tmp = sliderPos;
+    positionSliderFromValue();
+    if ( tmp != sliderPos )
+	PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE , pressedControl );
     emit newValue(value());
 }
 
@@ -63,643 +101,519 @@ void QScrollBar::stepChange()
 
 void QScrollBar::rangeChange()
 {
-    QRect oldSlider = slider();
-
-    sliderPos    = rangeValueToSliderPos(value());
-    
-    QPainter p;
-    
-    QBrush   b(foregroundColor().dark(1.12));
-    QPen     pen;
-
-    p  .begin(this);
-    p  .setBrush(b);
-    p  .setPen(pen);
-    pen.setStyle(NoPen);
-   
-    p.drawRect(oldSlider);    
-    drawControl(SLIDER,p);
-    
-    p.end();
-	
+    positionSliderFromValue();
+    PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
 }
 
-void QScrollBar::timerEvent(QTimerEvent *)
+
+void QScrollBar::timerEvent( QTimerEvent * )
 {
-    if (timerID == 0)
-        return;
-    if (!thresholdReached) {
-	thresholdReached = TRUE;
-	qKillTimer(timerID);	// hanord!!! QObject::killTimer
-	timerID = qStartTimer(repeatTime,this);  // hanord!!! startTimer
+    if ( !isTiming )
+	return;
+    if ( !thresholdReached ) {
+	thresholdReached = TRUE;  // control has been pressed for a time
+	killTimers();		  // kill the threshold time timer
+	startTimer( repeatTime );   // and start repeating
     }
-    if (clickedAt)
-	action((ScrollControl) pressedControl);
+    if ( clickedAt )
+	PRIV->action( (ScrollControl) pressedControl );
 }
 
-bool QScrollBar::keyPressEvent(QKeyEvent *e)
+
+bool QScrollBar::keyPressEvent( QKeyEvent * )
 {
-    e = e;
     return TRUE;
 }
 
-void QScrollBar::resizeEvent(QResizeEvent *)
+
+void QScrollBar::resizeEvent( QResizeEvent * )
 {
-    sliderPos    = rangeValueToSliderPos(value());
+    positionSliderFromValue();
 }
 
-void QScrollBar::paintEvent(QPaintEvent *)
+
+void QScrollBar::paintEvent( QPaintEvent * )
 {
-    
     QPainter p;
-    QPen     pen;
-    
-    p.begin(this);
-    p.setBackgroundColor(foregroundColor());
-
-    p.setPen(pen);
-
-    p.drawShadePanel(clientRect(),foregroundColor().dark(),
-                                  foregroundColor().light(),2,2);
-    drawControl(ADD_LINE,p);
-    drawControl(SUBTRACT_LINE,p);
-    drawControl(SLIDER,p);
+    p.begin( this );
+    p.drawShadePanel( clientRect(), foregroundColor().dark(),
+		      foregroundColor().light() );
+    PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
+			pressedControl, p );
     p.end();
 }
 
-void QScrollBar::mousePressEvent(QMouseEvent *e)
+
+void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
-    clickedAt      = TRUE;
-    pressedControl = pointOver(e->pos());
-    switch(pressedControl) {
+    clickedAt	   = TRUE;
+    pressedControl = PRIV->pointOver( e->pos() );
+    switch( pressedControl ) {
 	case SLIDER:
-		 if (direction == Horizontal)
-		     clickOffset = e->pos().x() - sliderPos;
-		 else
-		     clickOffset = e->pos().y() - sliderPos;
+		 clickOffset = ( HORIZONTAL ? e->pos().x() : e->pos().y() )
+			       - sliderPos;
 		 break;
 	case NONE:
-	         break;
+		 break;
 	default:
-                 drawControl((ScrollControl) pressedControl);
-                 action((ScrollControl) pressedControl);
-	         thresholdReached = FALSE;
-                 timerID          = qStartTimer(thresholdTime,this);//!!!hanord
+		 PRIV->drawControls( pressedControl, pressedControl );
+		 PRIV->action( (ScrollControl) pressedControl );
+		 thresholdReached = FALSE; // wait before starting repeat
+		 startTimer(thresholdTime);
+		 isTiming = TRUE;
 		 break;
     }
 }
 
-void QScrollBar::mouseReleaseEvent(QMouseEvent *e)
+
+void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
     ScrollControl tmp = (ScrollControl) pressedControl;
-    clickedAt      = FALSE;
-    if (timerID != 0)
-      qKillTimer(timerID);	// hanord!!! QObject::killTimer
-    mouseMoveEvent(e);
+    clickedAt	      = FALSE;
+    if ( isTiming )
+	killTimers();
+    mouseMoveEvent( e );  // Might have moved since last mouse move event.
     pressedControl = NONE;
-    
-    switch(tmp) {
-	case SLIDER:
-	         directSetValue(calculateValueFromSlider());
-	         if (value() != previousValue())
-	             emit newValue(value());
-		 break;
+
+    switch( tmp ) {
+	case SLIDER: // Set value directly, we know we don't have to redraw.
+	    directSetValue( calculateValueFromSlider() );
+	    if ( value() != previousValue() )
+		emit newValue( value() );
+	    break;
 	case ADD_LINE:
-	case SUBTRACT_LINE:
-	         drawControl((ScrollControl) tmp);
-		 break;
+	case SUB_LINE:
+	    PRIV->drawControls( tmp, pressedControl );
+	    break;
 	default:
-	         break;
+	    break;
     }
 }
 
-void QScrollBar::mouseMoveEvent(QMouseEvent *e)
+
+void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 {
-    int           newSliderPos;
-    
-    if (pressedControl == SLIDER) {
-	if (direction == Horizontal)
-   	    newSliderPos = e->pos().x() - clickOffset;
-	else
-   	    newSliderPos = e->pos().y() - clickOffset;
-	if (newSliderPos < sliderMinPos())
-	    newSliderPos = sliderMinPos();
-	else
-	    if (newSliderPos > sliderMaxPos())
-	        newSliderPos = sliderMaxPos();
-	if (newSliderPos != sliderPos) {
-	    int newVal = sliderPosToRangeValue(newSliderPos);
-	    if (track && newVal != value()) {
-	        directSetValue(newVal);
-		emit newValue(value());
+    int newSliderPos;
+    if ( pressedControl == SLIDER ) {
+	int sliderMin, sliderMax;
+	PRIV->sliderMinMax( &sliderMin, &sliderMax );
+	newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y()) -clickOffset;
+	if ( newSliderPos < sliderMin )
+	    newSliderPos = sliderMin;
+	else if ( newSliderPos > sliderMax )
+	    newSliderPos = sliderMax;
+	if ( newSliderPos != sliderPos ) {
+	    int newVal = PRIV->sliderPosToRangeValue(newSliderPos);
+	    if ( track && newVal != value() ) {
+		directSetValue( newVal ); // Set directly, painting done below
+		emit newValue( value() );
 	    }
-	    moveSlider(newSliderPos);
+	    sliderPos = newSliderPos;
+	    PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
 	}
     }
 }
 
 
-QScrollBar::ScrollControl QScrollBar::pointOver(const QPoint &p)
-{
-    if (addButton().contains(p))
-	return ADD_LINE;
-    if (subtractButton().contains(p))
-	return SUBTRACT_LINE;
-    if (slider().contains(p))
-	return SLIDER;
-    if (clientRect().contains(p)) {
-	int pos;
-	if (direction == Horizontal)
-	    pos = p.x();
-	else
-	    pos = p.y();
-	if (pos < sliderPos && pos > sliderMinPos())
-	    return SUBTRACT_PAGE;
-	if (pos > sliderPos + sliderLength() &&
-	        pos < sliderMaxPos() + sliderLength())
-	    return ADD_PAGE;
-    }
-    return NONE;
-}
-
-int QScrollBar::border() const
-{
-    return 2;
-}
-
-int QScrollBar::length() const
-{
-    return direction == Horizontal ? clientRect().width()
-                                   : clientRect().height();
-
-}
-
-int QScrollBar::controlWidth() const
-{
-    return direction == Horizontal ? clientRect().height() - border()*2 - 1
-                                   : clientRect().width()  - border()*2 - 1;
-
-}
-
-int QScrollBar::buttonLength() const
-{
-    switch(guiStyle()) {
-	case MotifStyle:
-	         if (length() > controlWidth()*2 + 4 + 6 + 1)
-		     return controlWidth();
-		 else
-		     return (length() - 5 - 6) / 2 - 1;
-	default:
-	         return 16;
-    }
-}
-
-int QScrollBar::addButtonStart() const
-{
-    return length() - buttonLength() - border();
-}
-
-int QScrollBar::sliderMinPos() const
-{
-    return buttonLength() + border() + 2;
-}
-
-int QScrollBar::sliderMaxPos() const
-{
-    return addButtonStart() - sliderLength() - 2;
-}
-
-int QScrollBar::sliderLength() const
-{
-    switch(guiStyle()) {
-	case MotifStyle: {
-                 int tmp, maxLen;
-		
-                 maxLen = length() - 2*buttonLength() - border()*2;
-
-                 if (maxValue() == minValue())
-                     return maxLen;
-                 tmp = (maxLen * pageStep()) /
-                           (maxValue() - minValue() + pageStep());
-		 if (tmp > maxLen)
-		     tmp = maxLen;
-		 return tmp > 5 ? tmp : 6;
-	     }
-	default:
-	         return 16;
-    }
-}
-
-QRect QScrollBar::addButton() const
-{
-    if (direction == Horizontal)
-        return QRect(addButtonStart(),border(),
-	                 buttonLength(),controlWidth());
-    else
-        return QRect(border(),addButtonStart(),
-	                 controlWidth(),buttonLength());
-}
-
-QRect QScrollBar::subtractButton() const
-{
-    if (direction == Horizontal)
-        return QRect(border(),border(),buttonLength(),controlWidth());
-    else
-        return QRect(border(),border(),controlWidth(),buttonLength());
-}
-
-QRect QScrollBar::slider() const
-{
-    if (direction == Horizontal)
-        return QRect(sliderPos,border(),sliderLength(),controlWidth());
-    else
-        return QRect(border(),sliderPos,controlWidth(),sliderLength());
-}
-
-
-
-int QScrollBar::rangeValueToSliderPos(int val) const
-{
-    if (maxValue() == minValue())
-        return sliderMinPos();
-    return (int) (1.0*(val - minValue())/(maxValue() - minValue())*
-		  (sliderMaxPos() - sliderMinPos()) + sliderMinPos() + 0.5);
-}
-
-int QScrollBar::sliderPosToRangeValue(int pos) const
-{
-    if (pos == sliderMinPos() || sliderMaxPos() == sliderMinPos())
-        return minValue();
-    if (pos == sliderMaxPos())
-        return maxValue();
-    return (int) (1.0*(pos - sliderMinPos())/(sliderMaxPos() - sliderMinPos())*
-                      (maxValue() - minValue()) + minValue() + 0.5);
-}
-
 void QScrollBar::positionSliderFromValue()
 {
-    sliderPos = rangeValueToSliderPos(value());
+    sliderPos = PRIV->rangeValueToSliderPos( value() );
 }
 
 int QScrollBar::calculateValueFromSlider() const
 {
-    return sliderPosToRangeValue(sliderPos);
+    return PRIV->sliderPosToRangeValue( sliderPos );
 }
 
 
-void QScrollBar::action(ScrollControl control)
+// --------------------------------------------------------------------------
+// QScrollBar_Private member functions
+//
+
+void QScrollBar_Private::sliderMinMax( int *sliderMin, int *sliderMax) const
 {
-    switch(control) {
+    int dummy;
+    metrics( sliderMin, sliderMax, &dummy );
+}
+
+
+void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
+				  int *sliderLength ) const
+{
+    int buttonDim, maxLength;
+
+    int length = HORIZONTAL ? clientWidth()  : clientHeight();
+    int width = HORIZONTAL ? clientHeight() : clientWidth();
+
+    if ( length > ( width - BORDER*2 - 1 )*2 + BORDER*2 + SLIDER_MIN )
+	buttonDim = width - BORDER*2;
+    else
+	buttonDim = ( length - BORDER*2 - SLIDER_MIN )/2 - 1;
+
+    *sliderMin	  = BORDER + buttonDim;
+    maxLength	  = length - BORDER*2 - buttonDim*2;
+
+    if ( maxValue() == minValue() ) {
+	*sliderLength = maxLength;
+    } else {
+	*sliderLength = maxLength*pageStep()/
+			    ( maxValue() - minValue() + pageStep() );
+	if ( *sliderLength < SLIDER_MIN )
+	    *sliderLength = SLIDER_MIN;
+	if ( *sliderLength > maxLength )
+	    *sliderLength = maxLength;
+    }
+    *sliderMax = *sliderMin + maxLength - *sliderLength;
+//    debug( "metrics: min = %3i, max = %3i, len = %3i, start = %3i",
+//	     *sliderMin, *sliderMax,*sliderLength, sliderStart());
+}
+
+
+ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
+{
+    if ( !clientRect().contains( p ) )
+	return NONE;
+    int sliderMin, sliderMax, sliderLength, pos;
+    metrics( &sliderMin, &sliderMax, &sliderLength );
+    pos = HORIZONTAL ? p.x() : p.y();
+    if ( pos < sliderMin )
+	return SUB_LINE;
+    if ( pos < sliderStart() )
+	return SUB_PAGE;
+    if ( pos < sliderStart() + sliderLength )
+	return SLIDER;
+    if ( pos < sliderMax + sliderLength )
+	return ADD_PAGE;
+    return ADD_LINE;
+}
+
+
+int QScrollBar_Private::rangeValueToSliderPos( int val ) const
+{
+    int sliderMin, sliderMax;
+    sliderMinMax( &sliderMin, &sliderMax );
+    if ( maxValue() == minValue() )
+	return sliderMin;
+#if 0	// ###!!! DEBUGGING
+    debug( "rangeValueToSliderPos, val = %3i, pos = %3i ", val ,
+	   (sliderMax - sliderMin)*2*( val - minValue() + 1 )/
+	   ( ( maxValue() - minValue() )*2 ) + sliderMin);
+#endif
+    return (sliderMax - sliderMin)*2*(val - minValue() + 1)/
+		(2*(maxValue() - minValue())) + sliderMin;
+}
+
+int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
+{
+    int sliderMin, sliderMax;
+    sliderMinMax( &sliderMin, &sliderMax );
+    if ( pos <= sliderMin || sliderMax == sliderMin )
+	return minValue();
+    if ( pos >= sliderMax )
+	return maxValue();
+    return (maxValue() - minValue())*2*(pos - sliderMin + 1)/
+		(2*(sliderMax - sliderMin)) + minValue();
+}
+
+
+void QScrollBar_Private::action( ScrollControl control )
+{
+    switch( control ) {
 	case ADD_LINE:
-	         addLine();
+		 addLine();
 		 break;
-	case SUBTRACT_LINE:
-	         subtractLine();
+	case SUB_LINE:
+		 subtractLine();
 		 break;
 	case ADD_PAGE:
-	         addPage();
+		 addPage();
 		 break;
-	case SUBTRACT_PAGE:
-	         subtractPage();
+	case SUB_PAGE:
+		 subtractPage();
 		 break;
     }
 }
 
-void QScrollBar::drawControl(ScrollControl control) const
+void QScrollBar_Private::drawControls(uint controls, uint activeControl) const
 {
     QPainter p;
 
-    p.begin(this);
-    p.setBackgroundColor(foregroundColor());
-
-    drawControl(control,p);
+    p.begin( this );
+    drawControls( controls, activeControl, p );
     p.end();
 }
 
-void QScrollBar::drawControl(ScrollControl control,QPainter &p) const
+
+void QScrollBar_Private::drawControls( uint controls, uint activeControl,
+				       QPainter &p ) const
 {
-    switch (guiStyle()) {
-	case MotifStyle:
-	         drawMotifControl(control,p);
-	         break;
-	case WindowsStyle:
-	         drawWindowsControl(control,p);
-	         break;
-	case MacStyle:
-	         drawMacControl(control,p);
-	         break;
-    }
-}
+#define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
+#define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
+    QColor shadowC = foregroundColor().dark();
+    QColor lightC  = foregroundColor().light();
+    QColor upC	   = foregroundColor();
+    QColor downC   = backgroundColor();
 
+    int i;
+    int sliderMin, sliderMax, sliderLength;
+    metrics( &sliderMin, &sliderMax, &sliderLength );
 
-void QScrollBar::drawMotifControl(ScrollControl control,QPainter &p) const
-{
-    QBrush   b(foregroundColor());
-    QPen     pen(foregroundColor().light(),2);
-    QPoint   pt;
-    QPointArray arrow(3);
+    int dimB = sliderMin - BORDER;
+    QRect addB;
+    QRect subB;
+    QRect addPageR;
+    QRect subPageR;
+    QRect sliderR;
+    int addX, addY, subX, subY;
+    int length = HORIZONTAL ? clientWidth()  : clientHeight();
+    int width  = HORIZONTAL ? clientHeight() : clientWidth();
 
-    ScrollControl activeControl = (ScrollControl) pressedControl;
-
-    QRect    addB = addButton();
-    QRect    subB = subtractButton();
-
-    p.setBackgroundColor(foregroundColor());
-    p.setPen(pen);
-
-    p.setBrush(b);
-
-    switch (control) {
-        case ADD_LINE :
-		 pt = addB.center();
-	         if (activeControl == ADD_LINE)
-		     pen.setColor(foregroundColor().dark());
-		 if (direction == Horizontal) {
-	             arrow.setPoint(0,addB.left(),addB.bottom());
-	             arrow.setPoint(1,addB.right(),pt.y());
-	             arrow.setPoint(2,addB.left(),addB.top());
-		 } else {
-		     arrow.setPoint(0,pt.x(),addB.bottom());
-	             arrow.setPoint(1,addB.right(),addB.top());
-	             arrow.setPoint(2,addB.left(),addB.top());
-		 }
-		 if (activeControl == ADD_LINE)
-		     b.setColor(foregroundColor().dark(1.12));
-		 else
-		     b.setColor(foregroundColor());
-
-		 pen.setStyle(NoPen);
-                 p.drawPolygon(arrow);
-
-                 pen.setStyle(SolidLine);
-		
-		 if (activeControl == ADD_LINE)
-		     pen.setColor(foregroundColor().light());
-		 else
-		     pen.setColor(foregroundColor().dark());
-		 p.moveTo(arrow[0]);
-		 p.lineTo(arrow[1]);
-		 if (activeControl == ADD_LINE)
-		     pen.setColor(foregroundColor().dark());
-		 else
-		     pen.setColor(foregroundColor().light());
-		 p.lineTo(arrow[2]);
-		 p.lineTo(arrow[0]);
-
-	         break;
-        case ADD_PAGE :
-	         break;
-        case SUBTRACT_LINE :
-		 pt = subB.center();
-	         if (activeControl == SUBTRACT_LINE)
-		     b.setColor(foregroundColor().dark(1.12));
-		 if (direction == Horizontal) {
-	             arrow.setPoint(0,subB.right(),
-		                      subB.top());
-	             arrow.setPoint(1,subB.right(),
-		                      subB.bottom());
-	             arrow.setPoint(2,subB.left(),pt.y());
-                 } else {
-	             arrow.setPoint(0,pt.x(),subB.top());
-	             arrow.setPoint(1,subB.right(),
-		                      subB.bottom());
-	             arrow.setPoint(2,subB.left(),
-		                      subB.bottom());
-                 }
-
-                 p.drawPolygon(arrow);
-		
-	         if (activeControl == SUBTRACT_LINE)
-		     pen.setColor(foregroundColor().light());
-		 else
-		     pen.setColor(foregroundColor().dark());
-		 p.moveTo(arrow[0]);
-		 p.lineTo(arrow[1]);
-		 p.lineTo(arrow[2]);
-	         if (activeControl == SUBTRACT_LINE)
-		     pen.setColor(foregroundColor().dark());
-		 else
-		     pen.setColor(foregroundColor().light());
-		 p.lineTo(arrow[0]);
-		 
-	         break;
-        case SUBTRACT_PAGE :
-	         break;
-        case FIRST :
-	         break;
-        case LAST :
-	         break;
-        case SLIDER : {
-	         p.drawShadePanel(slider(),foregroundColor().light(),
-		                           foregroundColor().dark(),2,2,TRUE);
-	         break;
-	         }
-        case NONE :
-	         break;
-	     }
-}
-
-void QScrollBar::drawWindowsControl(ScrollControl control,QPainter &p) const
-{
-    REF(control);
-    REF(p);
-}
-
-void QScrollBar::drawMacControl(ScrollControl control,QPainter &p) const
-{
-    REF(control);
-    REF(p);
-}
-
-void QScrollBar::drawNeXTControl(ScrollControl control,QPainter &p) const
-{
-    REF(control);
-    REF(p);
-}
-
-void QScrollBar::moveMotifSlider(const QRect &oldSlider,const QRect &newSlider)
-{
-    int   moveLength;
-    int   newLineShort,newLineLong;
-    int   top,bottom;
-    bool  movedLeft;
-    QRect erase,fill;
-    int   newPos,oldPos;
-
-
-    if (oldSlider == newSlider)
-        return;
-
-    if (direction == Horizontal) {
-        oldPos = oldSlider.left();
-        newPos = newSlider.left();
+    if ( HORIZONTAL ) {
+	subY = addY = ( width - dimB ) / 2;
+	subX = BORDER;
+	addX = length - dimB - BORDER;
     } else {
-        oldPos = oldSlider.top();
-        newPos = newSlider.top();
+	subX = addX = ( width - dimB ) / 2;
+	subY = BORDER;
+	addY = length - dimB - BORDER;
     }
 
-    QPainter p;
-    
-    QBrush   b(foregroundColor().dark(1.12));
-    QPen     pen;
-    QRect    tmp;
-    int      intersectWidth;
+    subB.setRect( subX,subY,dimB,dimB );
+    addB.setRect( addX,addY,dimB,dimB );
 
-
-    p  .begin(this);
-    p  .setBrush(b);
-    p  .setPen(pen);
-    pen.setStyle(NoPen);
-    p.setBackgroundColor(foregroundColor());
-
-    tmp = newSlider.intersect(oldSlider);
-    if (direction == Horizontal)
-        intersectWidth = tmp.width();
-    else
-        intersectWidth = tmp.height();
-    
-
-    if (intersectWidth <= 2) {
-	p.drawRect(oldSlider);
-	p.drawShadePanel(newSlider,foregroundColor().light(),
-	                           foregroundColor().dark(),2,2,TRUE);
-	p.end();
-        sliderPos = newPos;
-	return;
-    }
-
-    if (direction == Horizontal) {
-	top    = newSlider.top();
-	bottom = newSlider.bottom();
-    
-	if (newPos < oldPos) {
-	    movedLeft    = TRUE;
-	    moveLength   = oldPos - newPos;
-	    newLineShort = newSlider.right();
-	    newLineLong  = oldSlider.left();
-	    erase        = QRect(QPoint(newSlider.right() + 1,newSlider.top()),
-				 QPoint(oldSlider.right(),newSlider.bottom()));
-	    fill         = QRect(QPoint(newSlider.left()  + 2,top    + 2),
-				 QPoint(oldSlider.left()  + 2,bottom - 2));
-	} else {
-	    movedLeft    = FALSE;
-	    moveLength   = newPos - oldPos;
-	    newLineShort = newSlider.left();
-	    newLineLong  = oldSlider.right();
-	    erase        = QRect(QPoint(oldSlider.left() ,oldSlider.top()),
-				QPoint(newSlider.left()-1,newSlider.bottom()));
-	    fill         = QRect(QPoint(oldSlider.right() - 2,top    + 2),
-				QPoint(newSlider.right() - 2,bottom - 2));
-	}
+    int sliderEnd = sliderStart() + sliderLength;
+    int sliderW = width - BORDER*2;
+    if ( HORIZONTAL ) {
+	subPageR.setRect( subB.right() + 1, BORDER,
+			  sliderStart() - subB.right() - 1 , sliderW );
+	addPageR.setRect( sliderEnd, BORDER, addX - sliderEnd, sliderW );
+	sliderR .setRect( sliderStart(), BORDER, sliderLength, sliderW );
     } else {
-	top    = newSlider.left();
-	bottom = newSlider.right();
-    
-	if (newPos < oldPos) {
-	    movedLeft    = TRUE;
-	    moveLength   = oldPos - newPos;
-	    newLineShort = newSlider.bottom();
-	    newLineLong  = oldSlider.top();
-	    erase        = QRect(QPoint(newSlider.left(),newSlider.bottom()+1),
-				 QPoint(newSlider.right(),oldSlider.bottom()));
-	    fill         = QRect(QPoint(top    + 2,newSlider.top()  + 2),
-				 QPoint(bottom - 2,oldSlider   .top()  + 2));
-	} else {
-	    movedLeft    = FALSE;
-	    moveLength   = newPos - oldPos;
-	    newLineShort = newSlider.top();
-	    newLineLong  = oldSlider.bottom();
-	    erase        = QRect(QPoint(oldSlider.left(),oldSlider.top()),
-				 QPoint(newSlider.right(),newSlider.top() -1));
-	    fill         = QRect(QPoint(top    + 2,oldSlider.bottom() - 2),
-				 QPoint(bottom - 2,newSlider.bottom() - 2));
+	subPageR.setRect( BORDER, subB.bottom() + 1, sliderW,
+			  sliderStart() - subB.bottom() - 1 );
+	addPageR.setRect( BORDER, sliderEnd, sliderW, addY - sliderEnd );
+	sliderR .setRect( BORDER, sliderStart(), sliderW, sliderLength );
+    }
+
+#if 0
+    showRect( "subB", subB );		// FOR DEBUGGING!!!###
+    showRect( "addB", addB );
+    showRect( "subPageR", subPageR );
+    showRect( "addPageR", addPageR );
+    showRect( "sliderR" , sliderR );
+#endif
+
+    switch ( style() ) {
+	default:
+	case MotifStyle: {
+	    QPointArray bFill;			// Button fill polygon
+	    QPointArray bTop;			// Button top shadow.
+	    QPointArray bBot;			// Button bottom shadow.
+	    QPointArray bLeft;			// Button left shadow.
+
+	    if ( (controls & (SUB_LINE | ADD_LINE)) && dimB > 1 ) {
+
+		if ( dimB > 6 )
+		    bFill.resize( dimB & 1 ? 3 : 4 );
+
+		if ( dimB > 3 ) {
+		    bTop.resize( ( dimB/2 )*2 );
+		    bBot.resize( dimB & 1 ? dimB + 1 : dimB );
+		    if ( dimB > 4 )
+			bLeft.resize( 4 );
+		    else
+			bLeft.resize( 2 );
+		}
+		else {
+		    bTop .resize( 2 );
+		    bBot .resize( 2 );
+		    if ( dimB == 3 )
+			bLeft.resize( 4 );
+		    else
+			bLeft.resize( 2 );
+		}
+
+		bLeft.setPoint( 0, 0, 0 );
+		bLeft.setPoint( 1, 0, dimB - 1);
+		if ( dimB > 3 ) {
+		    if ( dimB > 4 ) {
+			bLeft.setPoint( 2, 1, 2 );
+			bLeft.setPoint( 3, 1, dimB - 3 );
+		    }
+		    bTop.setPoint( 0, 1, 0 );
+		    bTop.setPoint( 1, 1, 1 );
+		    bTop.setPoint( 2, 2, 1 );
+		    bTop.setPoint( 3, 3, 1 );
+
+		    bBot.setPoint( 0, 1, dimB - 1 );
+		    bBot.setPoint( 1, 1, dimB - 2 );
+		    bBot.setPoint( 2, 2, dimB - 2 );
+		    bBot.setPoint( 3, 3, dimB - 2 );
+
+		    for( i = 0 ; i < dimB / 2 - 2 ; i++ ) {
+			bTop.setPoint( i*2 + 4, 2 + i*2, 2 + i );
+			bTop.setPoint( i*2 + 5, 5 + i*2, 2 + i );
+			bBot.setPoint( i*2 + 4, 2 + i*2, dimB - 3 - i );
+			bBot.setPoint( i*2 + 5, 5 + i*2, dimB - 3 - i );
+		    }
+		    if ( dimB & 1 ) {  // Extra line if size is an odd number
+			bBot.setPoint( dimB - 1, dimB - 3, dimB / 2 );
+			bBot.setPoint( dimB, dimB - 1, dimB / 2 );
+		    }
+		    if ( dimB > 6 ) { // Must fill interior if dimB > 6
+			bFill.setPoint( 0, 1, dimB - 3 );
+			bFill.setPoint( 1, 1, 2 );
+			if ( dimB & 1 ) {  // If size is an odd number
+			    bFill.setPoint( 2, dimB - 3, dimB / 2 );
+			} else {
+			    bFill.setPoint( 2, dimB - 4, dimB / 2 - 1 );
+			    bFill.setPoint( 3, dimB - 4, dimB / 2 );
+			}
+		    }
+		} else {
+		    if ( dimB == 3 ) {	// Hardcoded pattern for 3x3 arrow
+			bLeft.setPoint( 2, 1, 1 );
+			bLeft.setPoint( 3, 1, 1 );
+			bTop .setPoint( 0, 1, 0 );
+			bTop .setPoint( 1, 1, 0 );
+			bBot .setPoint( 0, 1, 2 );
+			bBot .setPoint( 1, 2, 1 );
+		    } else {  // dimB must be 2, hardcoded pattern for 2x2
+			bTop .setPoint( 0, 1, 0 );
+			bTop .setPoint( 1, 1, 0 );
+			bBot .setPoint( 0, 1, 1 );
+			bBot .setPoint( 1, 1, 1 );
+		    }
+		}
+	    }
+
+	    if ( controls & SUB_LINE ) {
+		QWXFMatrix m;
+		if ( VERTICAL ) {
+		    m.rotate( -90 );
+		    m.translate( 0, addB.height()-1 );
+		}
+		else {
+		    m.rotate( 180 );
+		    m.translate( addB.width()-1, addB.height()-1 );
+		}
+		m.translate( subB.x(), subB.y() );
+		p.setWxfMatrix( m );
+		p.setWorldXForm( TRUE );
+
+		QColor cleft, ctop, cbot, cmid;
+
+		if ( SUB_LINE_ACTIVE ) {
+		    cmid = downC;
+		    if ( HORIZONTAL ) {
+			cleft = lightC;
+			ctop = lightC;
+			cbot = shadowC;
+		    }
+		    else {
+			cleft = lightC;
+			ctop = shadowC;
+			cbot = shadowC;
+		    }
+		}
+		else {
+		    cmid = upC;
+		    if ( HORIZONTAL ) {
+			cleft = shadowC;
+			ctop = shadowC;
+			cbot = lightC;
+		    }
+		    else {
+			cleft = shadowC;
+			ctop = lightC;
+			cbot = lightC;
+		    }
+		}
+		QPen pen( NoPen );
+		QBrush brush( cmid );
+		p.setPen( pen );
+		p.setBrush( brush );
+		p.drawPolygon( bFill );
+		pen.setStyle( SolidLine );
+		brush.setStyle( NoBrush );
+
+		pen.setColor( cleft );
+		p.drawLineSegments( bLeft );
+		pen.setColor( ctop );
+		p.drawLineSegments( bTop );
+		pen.setColor( cbot );
+		p.drawLineSegments( bBot );
+
+		p.setWorldXForm( FALSE );
+	    }
+
+	    if ( controls & ADD_LINE ) {
+		QWXFMatrix m;
+		if ( VERTICAL ) {
+		    m.rotate( 90 );
+		    m.translate( addB.width()-1, 0 );
+		}
+		m.translate( addB.x(), addB.y() );
+		p.setWxfMatrix( m );
+		p.setWorldXForm( TRUE );
+
+		QColor cleft, ctop, cbot, cmid;
+
+		if ( ADD_LINE_ACTIVE ) {
+		    cmid = downC;
+		    if ( HORIZONTAL ) {
+			cleft = shadowC;
+			ctop = shadowC;
+			cbot = lightC;
+		    }
+		    else {
+			cleft = shadowC;
+			ctop = lightC;
+			cbot = lightC;
+		    }
+		}
+		else {
+		    cmid = upC;
+		    if ( HORIZONTAL ) {
+			cleft = lightC;
+			ctop = lightC;
+			cbot = shadowC;
+		    }
+		    else {
+			cleft = lightC;
+			ctop = shadowC;
+			cbot = shadowC;
+		    }
+		}
+		QPen pen( NoPen );
+		QBrush brush( cmid );
+		p.setPen( pen );
+		p.setBrush( brush );
+		p.drawPolygon( bFill );
+		pen.setStyle( SolidLine );
+		brush.setStyle( NoBrush );
+
+		pen.setColor( cleft );
+		p.drawLineSegments( bLeft );
+		pen.setColor( ctop );
+		p.drawLineSegments( bTop );
+		pen.setColor( cbot );
+		p.drawLineSegments( bBot );
+
+		p.setWorldXForm( FALSE );
+	    }
+	    if ( controls & SUB_PAGE )
+		p.fillRect( subPageR, backgroundColor() );
+	    if ( controls & ADD_PAGE )
+		p.fillRect( addPageR, backgroundColor() );
+	    if ( controls & SLIDER ) {
+		QColor tmp = p.backgroundColor();
+		p.setBackgroundColor( foregroundColor() );
+		p.drawShadePanel( sliderR, foregroundColor().light(),
+				       foregroundColor().dark(), 2, 2, TRUE );
+		p.setBackgroundColor( tmp );
+	    }
+	    break;
 	}
     }
-    
-    pen.setStyle(NoPen);
-
-    p.drawRect(erase);
-    
-    b.setColor(foregroundColor());
-    p.drawRect(fill);
-
-    pen.setStyle(SolidLine);
-
-    if (direction == Horizontal) {
-	if (movedLeft) {
-	    pen.setColor(foregroundColor().light());
-	    p.moveTo(newLineLong   ,top       );
-	    p.lineTo(newPos        ,top       );
-	    p.lineTo(newPos        ,bottom - 1);
-	    p.moveTo(newLineLong   ,top    + 1);
-	    p.lineTo(newPos + 1    ,top    + 1);
-	    p.lineTo(newPos + 1    ,bottom - 2);
-	    pen.setColor(foregroundColor().dark());
-	    p.drawLine(newLineLong     ,bottom    ,newPos         ,bottom    );
-	    p.drawLine(newLineLong     ,bottom - 1,newPos      + 1,bottom - 1);
-	    p.drawLine(newLineShort    ,top      ,newLineShort    ,bottom - 2);
-	    p.drawLine(newLineShort - 1,top   + 1,newLineShort - 1,bottom - 2);
-	} else {
-	    pen.setColor(foregroundColor().dark());
-	    p.moveTo(newLineLong          ,bottom    );
-	    p.lineTo(newSlider.right()    ,bottom    );
-	    p.lineTo(newSlider.right()    ,top    - 1);
-	    p.moveTo(newLineLong          ,bottom - 1);
-	    p.lineTo(newSlider.right() - 1,bottom - 1);
-	    p.lineTo(newSlider.right() - 1,top    - 2);
-	    pen.setColor(foregroundColor().light());
-	    p.drawLine(newLineLong  - 1,top    ,newSlider.right() - 1,top    );
-	    p.drawLine(newLineLong  - 1,top + 1,newSlider.right() - 2,top + 1);
-	    p.drawLine(newLineShort    ,top + 2,newLineShort    ,bottom - 1);
-	    p.drawLine(newLineShort + 1,top + 2,newLineShort + 1,bottom - 2);
-	}
-    } else {
-	if (movedLeft) {
-	    pen.setColor(foregroundColor().light());
-	    p.moveTo(top,newLineLong);
-	    p.lineTo(top,newPos);
-	    p.lineTo(bottom - 1,newPos);
-	    p.moveTo(top + 1,newLineLong);
-	    p.lineTo(top + 1,newPos + 1);
-	    p.lineTo(bottom - 2,newPos + 1);
-	    pen.setColor(foregroundColor().dark());
-	    p.drawLine(bottom,newLineLong,bottom,newPos );
-	    p.drawLine(bottom - 1,newLineLong ,bottom - 1,newPos + 1);
-	    p.drawLine(top, newLineShort ,bottom - 2,newLineShort);
-	    p.drawLine(top + 1,newLineShort - 1,bottom - 2,newLineShort - 1);
-	} else {
-	    pen.setColor(foregroundColor().dark());
-	    p.moveTo(bottom,newLineLong);
-	    p.lineTo(bottom,newSlider.bottom());
-	    p.lineTo(top - 1,newSlider.bottom());
-	    p.moveTo(bottom - 1,newLineLong);
-	    p.lineTo(bottom - 1,newSlider.bottom() - 1);
-	    p.lineTo(top - 2,newSlider.bottom() - 1);
-	    pen.setColor(foregroundColor().light());
-	    p.drawLine(top,newLineLong  - 1,top,newSlider.bottom() - 1);
-	    p.drawLine(top + 1,newLineLong  - 1,top + 1,newSlider.bottom() -2);
-	    p.drawLine(top + 2,newLineShort    ,bottom - 1,newLineShort);
-	    p.drawLine(top + 2,newLineShort + 1,bottom - 2,newLineShort  + 1);
-	}
-    }
-    p.end();
-
-    sliderPos = newPos;
-}
-
-void QScrollBar::moveSlider(int newSliderPos)
-{
-    QRect newSlider;
-
-    if (direction == Horizontal)
-        newSlider.setRect(newSliderPos,border(),sliderLength(),controlWidth());
-    else
-        newSlider.setRect(border(),newSliderPos,controlWidth(),sliderLength());
-    
-    moveSlider(slider(),newSlider);
-}
-
-void QScrollBar::moveSlider(const QRect &oldSlider,const QRect &newSlider)
-{
-    moveMotifSlider(oldSlider,newSlider);
 }
