@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#56 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#57 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#57 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -1175,12 +1175,13 @@ int QMessageBox::critical( QWidget *parent, const char *caption,
 
 
 static const char *textAboutQt =
-"This program was developed with Qt, a cross-platform GUI library.\n\n"
+"This program was developed with Qt, the cross-platform C++ GUI library.\n\n"
 "Qt is a product of Troll Tech AS (http://www.troll.no).\n"
-"The free edition of Qt may be used freely to develop free software\n"
-"on the X Window System.\n\n"
-"If you develop non-free software or want to use Qt to develop\n"
-"software for Microsoft Windows, you need the professional edition.\n"
+"It is available under two different licenses:\n"
+"- The Free Edition, which may be used free of charge to develop\n"
+"  free software on the X Window System.\n"
+"- The Professional Edition, which may be used to make commercial\n"
+"  software on both X and Microsoft Windows.\n\n"
 "Please contact sales@troll.no for information and pricing.";
 
 
