@@ -217,7 +217,6 @@ protected:
         return true;
     }
     virtual void doFocus(QWidget *w) {
-        qDebug("setting focus..");
         if(!focusWidget)
             focusWidget = new QMacStyleCGFocusWidget(w);
         focusWidget->setFocusWidget(w);
